@@ -1,189 +1,189 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH 3/3] input: add multitouch slot support to w8001.
-Date: Fri, 20 Aug 2010 14:55:35 +1000
-Message-ID: <1282280135-15942-4-git-send-email-peter.hutterer@who-t.net>
+Subject: [PATCH 2/3] input: support (and ignore) touch tablets in the w8001.
+Date: Fri, 20 Aug 2010 14:55:34 +1000
+Message-ID: <1282280135-15942-3-git-send-email-peter.hutterer@who-t.net>
 References: <1282280135-15942-1-git-send-email-peter.hutterer@who-t.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:20585 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:31379 "EHLO
 	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750984Ab0HTEzJ (ORCPT
+	with ESMTP id S1750957Ab0HTEzG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Aug 2010 00:55:09 -0400
+	Fri, 20 Aug 2010 00:55:06 -0400
 In-Reply-To: <1282280135-15942-1-git-send-email-peter.hutterer@who-t.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pinglinux@gmail.com, rydberg@euromail.se
 Cc: Peter Hutterer <peter.hutterer@who-t.net>
 
-Some serial wacom devices support two-finger touch. Test for this during
-init and parse the touch packets accordingly. Touch packets are
-processed using Protocol B (MT Slots).
-
-Note: there are several wacom versions that do touch but not two-finger
-touch. These are not catered for here, touch events for these are simply
-discarded.
+Tablets that support touch input may report different sized packages,
+depending on the touch sensor in the tablet. For now, discard the
+packages until we report them as touch input proper.
 
 Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-CC: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/touchscreen/wacom_w8001.c |   99 ++++++++++++++++++++++++++++++-
- 1 files changed, 96 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/wacom_w8001.c |   88 ++++++++++++++++++++++++++++++-
+ 1 files changed, 86 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index c302cc3..a38a3aa 100644
+index 0e14ae1..c302cc3 100644
 --- a/drivers/input/touchscreen/wacom_w8001.c
 +++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -60,6 +60,17 @@ struct w8001_coord {
+@@ -2,6 +2,7 @@
+  * Wacom W8001 penabled serial touchscreen driver
+  *
+  * Copyright (c) 2008 Jaya Kumar
++ * Copyright (c) 2010 Red Hat, Inc.
+  *
+  * This file is subject to the terms and conditions of the GNU General Public
+  * License. See the file COPYING in the main directory of this archive for
+@@ -30,11 +31,22 @@ MODULE_LICENSE("GPL");
+ #define W8001_LEAD_BYTE		0x80
+ #define W8001_TAB_MASK		0x40
+ #define W8001_TAB_BYTE		0x40
++/* set in first byte of touch data packets */
++#define W8001_TOUCH_MASK	(0x10 | W8001_LEAD_MASK)
++#define W8001_TOUCH_BYTE	(0x10 | W8001_LEAD_BYTE)
+ 
+ #define W8001_QUERY_PACKET	0x20
+ 
+ #define W8001_CMD_START		'1'
+ #define W8001_CMD_QUERY		'*'
++#define W8001_CMD_TOUCHQUERY	'%'
++
++/* length of data packets in bytes, depends on device. */
++#define W8001_PKTLEN_TOUCH93	5
++#define W8001_PKTLEN_TOUCH9A	7
++#define W8001_PKTLEN_TPCPEN	9
++#define W8001_PKTLEN_TPCCTL	11	/* control packet */
++#define W8001_PKTLEN_TOUCH2FG	13
+ 
+ struct w8001_coord {
+ 	u8 rdy;
+@@ -48,6 +60,15 @@ struct w8001_coord {
  	u8 tilt_y;
  };
  
-+/* touch data packet */
-+struct w8001_touch {
-+	u8 f1_status;
-+	u16 f1_x;
-+	u16 f1_y;
-+	/* only some tablets have 2FG info */
-+	u8 f2_status;
-+	u16 f2_x;
-+	u16 f2_y;
++/* touch query reply packet */
++struct w8001_touch_query {
++	u8 panel_res;
++	u8 capacity_res;
++	u8 sensor_id;
++	u16 x;
++	u16 y;
 +};
 +
- /* touch query reply packet */
- struct w8001_touch_query {
- 	u8 panel_res;
-@@ -85,8 +96,18 @@ struct w8001 {
+ /*
+  * Per-touchscreen data.
+  */
+@@ -63,6 +84,7 @@ struct w8001 {
+ 	unsigned char data[W8001_MAX_LENGTH];
  	char phys[32];
  	int type;
- 	unsigned int pktlen;
-+	unsigned char tracking_id[2];
++	unsigned int pktlen;
  };
  
-+static int get_next_tracking_id(void)
-+{
-+	static unsigned char next_tracking_id;
-+	next_tracking_id = (next_tracking_id + 1) % 256;
-+	if (next_tracking_id == 0)
-+		next_tracking_id = 1;
-+	return next_tracking_id;
-+}
-+
  static void parse_data(u8 *data, struct w8001_coord *coord)
- {
- 	memset(coord, 0, sizeof(*coord));
-@@ -111,6 +132,26 @@ static void parse_data(u8 *data, struct w8001_coord *coord)
+@@ -89,6 +111,23 @@ static void parse_data(u8 *data, struct w8001_coord *coord)
  	coord->tilt_y = data[8] & 0x7F;
  }
  
-+static void parse_touch(u8 *data,
-+			unsigned int pktlen, struct w8001_touch *touch)
++static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
 +{
-+	memset(touch, 0, sizeof(*touch));
++	memset(query, 0, sizeof(*query));
 +
-+	touch->f1_status = data[0] & 0x1;
-+	touch->f1_x = data[1] << 7;
-+	touch->f1_x |= data[2];
-+	touch->f1_y = data[3] << 7;
-+	touch->f1_y |= data[4];
++	query->panel_res = data[1];
++	query->sensor_id = data[2] & 0x7;
++	query->capacity_res = data[7];
 +
-+	if (pktlen >= W8001_PKTLEN_TOUCH2FG) {
-+		touch->f2_status = (data[0] & 0x2) >> 1;
-+		touch->f2_x = data[7] << 7;
-+		touch->f2_x |= data[8];
-+		touch->f2_y = data[9] << 7;
-+		touch->f2_y |= data[10];
-+	}
-+}
++	query->x = data[3] << 9;
++	query->x |= data[4] << 2;
++	query->x |= (data[2] >> 5) & 0x3;
 +
- static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
- {
- 	memset(query, 0, sizeof(*query));
-@@ -128,6 +169,46 @@ static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
- 	query->y |= (data[2] >> 3) & 0x3;
- }
- 
-+static void w8001_mt_event(struct input_dev *dev,
-+			   int slot, int tid, int x, int y)
-+{
-+	input_mt_slot(dev, slot);
-+	if (tid != 0) {
-+		input_report_abs(dev, ABS_MT_POSITION_X, x);
-+		input_report_abs(dev, ABS_MT_POSITION_Y, y);
-+	}
-+	input_report_abs(dev, ABS_MT_TRACKING_ID, tid);
-+	input_report_abs(dev, ABS_MT_TOOL_TYPE, MT_TOOL_FINGER);
-+	input_mt_sync(dev);
-+}
-+
-+static void w8001_track_fingers(struct w8001 *w8001, struct w8001_touch *touch)
-+{
-+	struct input_dev *dev = w8001->dev;
-+
-+	if (touch->f1_status) {
-+		if (!w8001->tracking_id[0])
-+			w8001->tracking_id[0] = get_next_tracking_id();
-+		w8001_mt_event(dev, 0, w8001->tracking_id[0],
-+			       touch->f1_x, touch->f1_y);
-+	} else if (w8001->tracking_id[0]) {
-+		w8001->tracking_id[0] = 0;
-+		w8001_mt_event(dev, 0, 0, touch->f1_x, touch->f1_y);
-+	}
-+
-+	if (touch->f2_status) {
-+		if (!w8001->tracking_id[1])
-+			w8001->tracking_id[1] = get_next_tracking_id();
-+		w8001_mt_event(dev, 1, w8001->tracking_id[1],
-+			       touch->f2_x, touch->f2_y);
-+	} else if (w8001->tracking_id[1]) {
-+		w8001->tracking_id[1] = 0;
-+		w8001_mt_event(dev, 1, 0, touch->f2_x, touch->f2_y);
-+	}
-+
-+	input_sync(dev);
++	query->y = data[5] << 9;
++	query->y |= data[6] << 2;
++	query->y |= (data[2] >> 3) & 0x3;
 +}
 +
  static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
  {
  	struct input_dev *dev = w8001->dev;
-@@ -172,6 +253,7 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
- {
- 	struct w8001 *w8001 = serio_get_drvdata(serio);
- 	struct w8001_coord coord;
-+	struct w8001_touch touch;
- 	unsigned char tmp;
+@@ -144,22 +183,45 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
+ 		}
+ 		break;
  
- 	w8001->data[w8001->idx] = data;
-@@ -217,10 +299,11 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
+-	case 8:
++	case W8001_PKTLEN_TOUCH93 - 1:
++	case W8001_PKTLEN_TOUCH9A - 1:
++		/* ignore one-finger touch packet. */
++		if (w8001->pktlen == w8001->idx)
++			w8001->idx = 0;
++		break;
++
++	/* Pen coordinates packet */
++	case W8001_PKTLEN_TPCPEN - 1:
+ 		tmp = w8001->data[0] & W8001_TAB_MASK;
+ 		if (unlikely(tmp == W8001_TAB_BYTE))
+ 			break;
+ 
++		tmp = (w8001->data[0] & W8001_TOUCH_BYTE);
++		if (tmp == W8001_TOUCH_BYTE)
++			break;
++
+ 		w8001->idx = 0;
+ 		parse_data(w8001->data, &coord);
+ 		report_pen_events(w8001, &coord);
+ 		break;
+ 
+-	case 10:
++	/* control packet */
++	case W8001_PKTLEN_TPCCTL - 1:
++		tmp = (w8001->data[0] & W8001_TOUCH_MASK);
++		if (tmp == W8001_TOUCH_BYTE)
++			break;
++
+ 		w8001->idx = 0;
+ 		memcpy(w8001->response, w8001->data, W8001_MAX_LENGTH);
+ 		w8001->response_type = W8001_QUERY_PACKET;
  		complete(&w8001->cmd_done);
  		break;
- 
-+	/* 2 finger touch packet */
- 	case W8001_PKTLEN_TOUCH2FG - 1:
--		/* ignore two-finger touch packet. */
--		if (w8001->pktlen == w8001->idx)
--			w8001->idx = 0;
-+		w8001->idx = 0;
-+		parse_touch(w8001->data, w8001->pktlen, &touch);
-+		w8001_track_fingers(w8001, &touch);
- 		break;
- 	}
- 
-@@ -282,6 +365,16 @@ static int w8001_setup(struct w8001 *w8001)
- 			break;
- 		case 5:
- 			w8001->pktlen = W8001_PKTLEN_TOUCH2FG;
 +
-+			input_mt_create_slots(dev, 2);
-+			input_set_abs_params(dev, ABS_MT_TRACKING_ID,
-+						0, 255, 0, 0);
-+			input_set_abs_params(dev, ABS_MT_POSITION_X,
-+						0, touch.x, 0, 0);
-+			input_set_abs_params(dev, ABS_MT_POSITION_Y,
-+						0, touch.y, 0, 0);
-+			input_set_abs_params(dev, ABS_MT_TOOL_TYPE,
-+						0, 0, 0, 0);
- 			break;
- 		}
++	case W8001_PKTLEN_TOUCH2FG - 1:
++		/* ignore two-finger touch packet. */
++		if (w8001->pktlen == w8001->idx)
++			w8001->idx = 0;
++		break;
  	}
+ 
+ 	return IRQ_HANDLED;
+@@ -202,6 +264,28 @@ static int w8001_setup(struct w8001 *w8001)
+ 	input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
+ 	input_set_abs_params(dev, ABS_TILT_Y, 0, coord.tilt_y, 0, 0);
+ 
++	error = w8001_command(w8001, W8001_CMD_TOUCHQUERY, true);
++	if (!error) {
++		struct w8001_touch_query touch;
++
++		parse_touchquery(w8001->response, &touch);
++
++		switch (touch.sensor_id) {
++		case 0:
++		case 2:
++			w8001->pktlen = W8001_PKTLEN_TOUCH93;
++			break;
++		case 1:
++		case 3:
++		case 4:
++			w8001->pktlen = W8001_PKTLEN_TOUCH9A;
++			break;
++		case 5:
++			w8001->pktlen = W8001_PKTLEN_TOUCH2FG;
++			break;
++		}
++	}
++
+ 	return w8001_command(w8001, W8001_CMD_START, false);
+ }
+ 
 -- 
 1.7.2.1
 

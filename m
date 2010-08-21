@@ -1,55 +1,123 @@
-From: Dan Carpenter <error27-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: re: HID: hiddev: protect against disconnect/NULL-dereference race
-Date: Fri, 20 Aug 2010 23:24:14 +0200
-Message-ID: <20100820212413.GE6674@bicker>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jason Wang <jason77.wang@gmail.com>
+Subject: [PATCH v2] Input: ads7846 - Replace spinlock by mutex to wrap disable()/enable()
+Date: Sat, 21 Aug 2010 13:59:00 +0800
+Message-ID: <1282370340-3157-1-git-send-email-jason77.wang@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.windriver.com ([147.11.1.11]:64431 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751102Ab0HUFzk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 21 Aug 2010 01:55:40 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, notasas@gmail.com, vapier@gentoo.org
+Cc: linux-input@vger.kernel.org
 
-The patch 7032269e87a "HID: hiddev: protect against
-disconnect/NULL-dereference race" added a check to make sure that "hid"
-was non-NULL.  The problem is that it added the check after "hid" had
-already been dereferenced.
+The commit 9114337 introduces regulator operations in the ads7846
+touchscreen driver. Among these operations, some are called in the
+spinlock protected context.
+On most platforms, the regulator operation is achieved through
+i2c/spi bus transfer operations, some bus transfer operations will
+call wait_for_completion function. It isn't allowable  to call
+sleepable function in the atomic context. So replace the spinlock with
+mutex to protect ads7846_disable()/ads7846_enable().
 
-drivers/hid/usbhid/hiddev.c +606 hiddev_ioctl(19)
-	warn: variable dereferenced before check 'hid'
+[tested on TI OMAP3530EVM board]
 
-   599          struct usbhid_device *usbhid = hid->driver_data;
-                                               ^^^^^^^^^^^^^^^^
-	dereferenced here.
+Signed-off-by: Jason Wang <jason77.wang@gmail.com>
+---
+Diff vs V1:
+Don't move regualtor_disable/enable out from ads7846_disable/enable,
+but use mutext to replace spinlock.
 
-   600          void __user *user_arg = (void __user *)arg;
-   601          int i, r;
-   602          
-   603          /* Called without BKL by compat methods so no BKL taken */
-   604  
-   605          /* FIXME: Who or what stop this racing with a disconnect ?? */
-   606          if (!hiddev->exist || !hid)
-                                      ^^^^
-	new check added here.
+I think this replace is safe because ads7846_disable/enable is called
+in process context, it won't race with ads7846_irq/timer(irq&softirq).
+While it is possible for ads7846_irq/timer to race with
+ads7846_disable, but ads7846_diable can handle this situation already.
 
-   607                  return -EIO;
+ drivers/input/touchscreen/ads7846.c |   19 +++++++++----------
+ 1 files changed, 9 insertions(+), 10 deletions(-)
 
-So obviously in hind-sight this patch didn't fix the user's problem.  
-Also the user reported a NULL dereference, yes, but the stack dump which
-says: "BUG: unable to handle kernel paging request at 6b6b6b6b" is a use
-after free bug and that isn't addressed by adding a check for NULL.
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 1603193..0b875fa 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -130,6 +130,7 @@ struct ads7846 {
+ 	unsigned		irq_disabled:1;	/* P: lock */
+ 	unsigned		disabled:1;
+ 	unsigned		is_suspended:1;
++	struct mutex		mutex;
+ 
+ 	int			(*filter)(void *data, int data_idx, int *val);
+ 	void			*filter_data;
+@@ -531,14 +532,14 @@ static ssize_t ads7846_disable_store(struct device *dev,
+ 	if (strict_strtoul(buf, 10, &i))
+ 		return -EINVAL;
+ 
+-	spin_lock_irq(&ts->lock);
++	mutex_lock(&ts->mutex);
+ 
+ 	if (i)
+ 		ads7846_disable(ts);
+ 	else
+ 		ads7846_enable(ts);
+ 
+-	spin_unlock_irq(&ts->lock);
++	mutex_unlock(&ts->mutex);
+ 
+ 	return count;
+ }
+@@ -848,11 +849,8 @@ static void ads7846_disable(struct ads7846 *ts)
+ 		/* the timer will run at least once more, and
+ 		 * leave everything in a clean state, IRQ disabled
+ 		 */
+-		while (ts->pending) {
+-			spin_unlock_irq(&ts->lock);
++		while (ts->pending)
+ 			msleep(1);
+-			spin_lock_irq(&ts->lock);
+-		}
+ 	}
+ 
+ 	regulator_disable(ts->reg);
+@@ -879,12 +877,12 @@ static int ads7846_suspend(struct spi_device *spi, pm_message_t message)
+ {
+ 	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
+ 
+-	spin_lock_irq(&ts->lock);
++	mutex_lock(&ts->mutex);
+ 
+ 	ts->is_suspended = 1;
+ 	ads7846_disable(ts);
+ 
+-	spin_unlock_irq(&ts->lock);
++	mutex_unlock(&ts->mutex);
+ 
+ 	if (device_may_wakeup(&ts->spi->dev))
+ 		enable_irq_wake(ts->spi->irq);
+@@ -900,12 +898,12 @@ static int ads7846_resume(struct spi_device *spi)
+ 	if (device_may_wakeup(&ts->spi->dev))
+ 		disable_irq_wake(ts->spi->irq);
+ 
+-	spin_lock_irq(&ts->lock);
++	mutex_lock(&ts->mutex);
+ 
+ 	ts->is_suspended = 0;
+ 	ads7846_enable(ts);
+ 
+-	spin_unlock_irq(&ts->lock);
++	mutex_unlock(&ts->mutex);
+ 
+ 	return 0;
+ }
+@@ -999,6 +997,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 	ts->timer.function = ads7846_timer;
+ 
+ 	spin_lock_init(&ts->lock);
++	mutex_init(&ts->mutex);
+ 
+ 	ts->model = pdata->model ? : 7846;
+ 	ts->vref_delay_usecs = pdata->vref_delay_usecs ? : 100;
+-- 
+1.5.6.5
 
-I am just looking at this because it showed up with my static checker
-and I'm not very familiar with this code.  I think we need to take 
-"hiddev->existancelock" and make sure that exist is true before we 
-dereference hiddev in the ioctl function?  Also it seems like there
-should probably be some locking in hiddev_release().
-
-regards,
-dan carpenter
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

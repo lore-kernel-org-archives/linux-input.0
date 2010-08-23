@@ -1,20 +1,20 @@
 From: Ping Cheng <pinglinux@gmail.com>
 Subject: Re: [PATCH] input: Add support for the Bamboo Touch trackpad
-Date: Mon, 23 Aug 2010 10:02:05 -0700
-Message-ID: <AANLkTim4UyD-Y533Tr5rmifec_sU6GByqW9XDcUbBpt9@mail.gmail.com>
+Date: Mon, 23 Aug 2010 10:02:12 -0700
+Message-ID: <AANLkTi=sSbhcDO=1k-qa1YE7tK7VmVTiveoP=q_PNQE-@mail.gmail.com>
 References: <1282486241-8855-1-git-send-email-rydberg@euromail.se>
 	<AANLkTinvcUJPgSeLcc-rDF97g_QxZe_W53tCMNGT9wAd@mail.gmail.com>
 	<4C7285F9.6050804@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:43498 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754028Ab0HWRCL (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:55887 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754028Ab0HWRCN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Aug 2010 13:02:11 -0400
-Received: by ywe9 with SMTP id 9so1521982ywe.19
-        for <linux-input@vger.kernel.org>; Mon, 23 Aug 2010 10:02:10 -0700 (PDT)
+	Mon, 23 Aug 2010 13:02:13 -0400
+Received: by vws3 with SMTP id 3so5385016vws.19
+        for <linux-input@vger.kernel.org>; Mon, 23 Aug 2010 10:02:12 -0700 (PDT)
 In-Reply-To: <4C7285F9.6050804@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

@@ -1,61 +1,53 @@
 From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH 2.6.35.3] usbhid: USB 5543:6001 needs
- HID_QUIRK_MULTI_INPUT
-Date: Tue, 24 Aug 2010 17:46:01 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1008241745530.1019@pobox.suse.cz>
-References: <alpine.LFD.2.00.1008241235200.29566@Tk.techk.org>
+Subject: Re: [PATCH 1/1] usbhid: Set Report ID properly for Output reports
+ on the Control endpoint.
+Date: Tue, 24 Aug 2010 17:49:44 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1008241747570.1019@pobox.suse.cz>
+References: <1282020244-25786-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LFD.2.00.1008241235200.29566-zrNi74cEMLNg9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1282020244-25786-1-git-send-email-alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
 Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Decio Fonini <fonini-F9PaRGVAbxDYtjvyW6yDsg@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 24 Aug 2010, Decio Fonini wrote:
+On Tue, 17 Aug 2010, Alan Ott wrote:
 
-> From: Decio Fonini <fonini-F9PaRGVAbxDYtjvyW6yDsg@public.gmane.org>
+> When I made commit 29129a98e6fc89, I didn't account for *buf not being
+> the report ID anymore, as buf is incremented.
 > 
-> The Kanvus Note A5 tablet (with USB ID 5543:6001, USB vendor UC_Logic) needs
-> the HID_QUIRK_MULTI_INPUT in order to work out of the box; otherwise, we get
-> the usual "cursor stuck at the upper left corner of the screen".
+> This applies to 2.6.35 and newer.
 > 
-> Signed-off-by: Decio Fonini <fonini-F9PaRGVAbxDYtjvyW6yDsg@public.gmane.org>
-> 
+> Signed-off-by: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
 > ---
+>  drivers/hid/usbhid/hid-core.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
 > 
-> diff -uprN -X a/Documentation/dontdiff a/drivers/hid/hid-ids.h
-> b/drivers/hid/hid-ids.h
-> --- a/drivers/hid/hid-ids.h	2010-08-20 15:55:55.000000000 -0300
-> +++ b/drivers/hid/hid-ids.h	2010-08-24 10:17:12.244384470 -0300
-> @@ -490,6 +490,7 @@
->  #define USB_VENDOR_ID_UCLOGIC		0x5543
->  #define USB_DEVICE_ID_UCLOGIC_TABLET_PF1209	0x0042
->  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U	0x0003
-> +#define USB_DEVICE_ID_UCLOGIC_TABLET_KNA5	0x6001
-> 
->  #define USB_VENDOR_ID_VERNIER		0x08f7
->  #define USB_DEVICE_ID_VERNIER_LABPRO	0x0001
-> diff -uprN -X a/Documentation/dontdiff a/drivers/hid/usbhid/hid-quirks.c
-> b/drivers/hid/usbhid/hid-quirks.c
-> --- a/drivers/hid/usbhid/hid-quirks.c	2010-08-20 15:55:55.000000000 -0300
-> +++ b/drivers/hid/usbhid/hid-quirks.c	2010-08-24 11:07:51.388410656 -0300
-> @@ -69,6 +69,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET
-> },
->  	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209,
-> HID_QUIRK_MULTI_INPUT },
->  	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U,
-> HID_QUIRK_MULTI_INPUT },
-> +	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5,
-> HID_QUIRK_MULTI_INPUT },
->  	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD,
-> HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
->  	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD,
-> HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index b729c02..ffd6899 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -828,6 +828,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+>  		}
+>  	} else {
+>  		int skipped_report_id = 0;
+> +		int report_id = buf[0];
+>  		if (buf[0] == 0x0) {
+>  			/* Don't send the Report ID */
+>  			buf++;
+> @@ -837,7 +838,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+>  		ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+>  			HID_REQ_SET_REPORT,
+>  			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+> -			((report_type + 1) << 8) | *buf,
+> +			((report_type + 1) << 8) | report_id,
+>  			interface->desc.bInterfaceNumber, buf, count,
+>  			USB_CTRL_SET_TIMEOUT);
+>  		/* count also the report id, if this was a numbered report. */
 
-Applied, thanks.
+Good catch, applied, thank you.
 
 -- 
 Jiri Kosina

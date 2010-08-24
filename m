@@ -1,66 +1,80 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] hid: Add a hid quirk for input sync override
-Date: Tue, 24 Aug 2010 10:54:44 +0200
-Message-ID: <1282640084-19217-1-git-send-email-rydberg@euromail.se>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH v2] input: use PIT_TICK_RATE in vt beep ioctl
+Date: Tue, 24 Aug 2010 15:53:11 +0200
+Message-ID: <201008241553.11219.arnd@arndb.de>
+References: <AANLkTi=T5QP_MbUgh4EfLjtW_be49vw2eLgXNNUCiTb7@mail.gmail.com> <AANLkTinbttBSuTHqFN5X75kqCkDGXvGXb-c-Yv9xdWXw@mail.gmail.com> <201008241521.23459.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:33800 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752204Ab0HXIzZ (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:55751 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755185Ab0HXNxV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Aug 2010 04:55:25 -0400
+	Tue, 24 Aug 2010 09:53:21 -0400
+In-Reply-To: <201008241521.23459.arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>
+To: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, David Yang <david.yangshuai@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Emmanuel Colbus <emmanuel.colbus@ensimag.imag.fr>, Andrew Morton <akpm@osdl.org>
 
-From: Henrik Rydberg <rydberg@thabit.(none)>
-
-As of lately, HID devices which send per-frame data split over several
-HID reports have started to emerge. This patch adds a quirk which
-allows the HID driver to take over the input layer synchronization,
-and hence the control of the frame boundary.
-
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Jiri, Dmitry, Stephane,
-
-No doubt, this is not a final solution, but it serves the purpose of
-being able to make existing drivers functional while a satisfactory
-solution is being worked out.
-
-Cheers,
-Henrik
-
- drivers/hid/hid-input.c |    3 +++
- include/linux/hid.h     |    1 +
- 2 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 69d152e..9d97934 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -656,6 +656,9 @@ void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
- {
- 	struct hid_input *hidinput;
+The KIOCSOUND and KDMKTONE ioctls are based on the
+CLOCK_TICK_RATE, which is architecture and sometimes
+configuration specific.
  
-+	if (hid->quirks & HID_QUIRK_NO_INPUT_SYNC)
-+		return;
-+
- 	list_for_each_entry(hidinput, &hid->inputs, list)
- 		input_sync(hidinput->input);
- }
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 895001f..8029883 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -315,6 +315,7 @@ struct hid_item {
- #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
- #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
- #define HID_QUIRK_NO_IGNORE			0x40000000
-+#define HID_QUIRK_NO_INPUT_SYNC			0x80000000
+In practice, most user applications assume that it
+is actually defined as the i8253 PIT base clock of
+1193182 Hz, which is true on some architectures
+but not on others.
  
- /*
-  * This is the global environment of the parser. This information is
--- 
-1.7.1
+This patch makes the vt code use the PIT frequency
+on all architectures, which is much more well-defined.
+It will change the behavior of user applications
+sending the beep ioctl on all architectures that
+define CLOCK_TICK_RATE different from PIT_TICK_RATE.
 
+The original breakage was introduced in commit bcc8ca099
+"Adapt drivers/char/vt_ioctl.c to non-x86".
+Hopefully, reverting this change will make the frequency
+correct in more cases than it will make it incorrect.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+
+diff --git a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
+index cb19dbc..592d8d1 100644
+--- a/drivers/char/vt_ioctl.c
++++ b/drivers/char/vt_ioctl.c
+@@ -533,11 +533,14 @@ int vt_ioctl(struct tty_struct *tty, struct file * file,
+ 	case KIOCSOUND:
+ 		if (!perm)
+ 			goto eperm;
+-		/* FIXME: This is an old broken API but we need to keep it
+-		   supported and somehow separate the historic advertised
+-		   tick rate from any real one */
++		/*
++		 * The use of PIT_TICK_RATE is historic, it used to be
++		 * the platform-dependent CLOCK_TICK_RATE between 2.6.12
++		 * and 2.6.36, which was a minor but unfortunate ABI
++		 * change.
++		 */
+ 		if (arg)
+-			arg = CLOCK_TICK_RATE / arg;
++			arg = PIT_TICK_RATE / arg;
+ 		kd_mksound(arg, 0);
+ 		break;
+ 
+@@ -553,11 +556,8 @@ int vt_ioctl(struct tty_struct *tty, struct file * file,
+ 		 */
+ 		ticks = HZ * ((arg >> 16) & 0xffff) / 1000;
+ 		count = ticks ? (arg & 0xffff) : 0;
+-		/* FIXME: This is an old broken API but we need to keep it
+-		   supported and somehow separate the historic advertised
+-		   tick rate from any real one */
+ 		if (count)
+-			count = CLOCK_TICK_RATE / count;
++			count = PIT_TICK_RATE / count;
+ 		kd_mksound(count, ticks);
+ 		break;
+ 	}

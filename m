@@ -1,80 +1,50 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2] input: use PIT_TICK_RATE in vt beep ioctl
-Date: Tue, 24 Aug 2010 15:53:11 +0200
-Message-ID: <201008241553.11219.arnd@arndb.de>
-References: <AANLkTi=T5QP_MbUgh4EfLjtW_be49vw2eLgXNNUCiTb7@mail.gmail.com> <AANLkTinbttBSuTHqFN5X75kqCkDGXvGXb-c-Yv9xdWXw@mail.gmail.com> <201008241521.23459.arnd@arndb.de>
+From: Decio Fonini <fonini@techk.org>
+Subject: [PATCH 2.6.35.3] usbhid: USB 5543:6001 needs HID_QUIRK_MULTI_INPUT
+Date: Tue, 24 Aug 2010 12:39:50 -0300 (BRT)
+Message-ID: <alpine.LFD.2.00.1008241235200.29566@Tk.techk.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.10]:55751 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755185Ab0HXNxV (ORCPT
+Received: from iku-turso.techk.org ([201.17.8.2]:47018 "EHLO
+	Iku-turso.techk.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753313Ab0HXPpF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Aug 2010 09:53:21 -0400
-In-Reply-To: <201008241521.23459.arnd@arndb.de>
+	Tue, 24 Aug 2010 11:45:05 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, David Yang <david.yangshuai@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Emmanuel Colbus <emmanuel.colbus@ensimag.imag.fr>, Andrew Morton <akpm@osdl.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-The KIOCSOUND and KDMKTONE ioctls are based on the
-CLOCK_TICK_RATE, which is architecture and sometimes
-configuration specific.
- 
-In practice, most user applications assume that it
-is actually defined as the i8253 PIT base clock of
-1193182 Hz, which is true on some architectures
-but not on others.
- 
-This patch makes the vt code use the PIT frequency
-on all architectures, which is much more well-defined.
-It will change the behavior of user applications
-sending the beep ioctl on all architectures that
-define CLOCK_TICK_RATE different from PIT_TICK_RATE.
+From: Decio Fonini <fonini@techk.org>
 
-The original breakage was introduced in commit bcc8ca099
-"Adapt drivers/char/vt_ioctl.c to non-x86".
-Hopefully, reverting this change will make the frequency
-correct in more cases than it will make it incorrect.
+The Kanvus Note A5 tablet (with USB ID 5543:6001, USB vendor UC_Logic) needs 
+the HID_QUIRK_MULTI_INPUT in order to work out of the box; otherwise, we get 
+the usual "cursor stuck at the upper left corner of the screen".
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Signed-off-by: Decio Fonini <fonini@techk.org>
 
-diff --git a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
-index cb19dbc..592d8d1 100644
---- a/drivers/char/vt_ioctl.c
-+++ b/drivers/char/vt_ioctl.c
-@@ -533,11 +533,14 @@ int vt_ioctl(struct tty_struct *tty, struct file * file,
- 	case KIOCSOUND:
- 		if (!perm)
- 			goto eperm;
--		/* FIXME: This is an old broken API but we need to keep it
--		   supported and somehow separate the historic advertised
--		   tick rate from any real one */
-+		/*
-+		 * The use of PIT_TICK_RATE is historic, it used to be
-+		 * the platform-dependent CLOCK_TICK_RATE between 2.6.12
-+		 * and 2.6.36, which was a minor but unfortunate ABI
-+		 * change.
-+		 */
- 		if (arg)
--			arg = CLOCK_TICK_RATE / arg;
-+			arg = PIT_TICK_RATE / arg;
- 		kd_mksound(arg, 0);
- 		break;
- 
-@@ -553,11 +556,8 @@ int vt_ioctl(struct tty_struct *tty, struct file * file,
- 		 */
- 		ticks = HZ * ((arg >> 16) & 0xffff) / 1000;
- 		count = ticks ? (arg & 0xffff) : 0;
--		/* FIXME: This is an old broken API but we need to keep it
--		   supported and somehow separate the historic advertised
--		   tick rate from any real one */
- 		if (count)
--			count = CLOCK_TICK_RATE / count;
-+			count = PIT_TICK_RATE / count;
- 		kd_mksound(count, ticks);
- 		break;
- 	}
+---
+
+diff -uprN -X a/Documentation/dontdiff a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2010-08-20 15:55:55.000000000 -0300
++++ b/drivers/hid/hid-ids.h	2010-08-24 10:17:12.244384470 -0300
+@@ -490,6 +490,7 @@
+  #define USB_VENDOR_ID_UCLOGIC		0x5543
+  #define USB_DEVICE_ID_UCLOGIC_TABLET_PF1209	0x0042
+  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U	0x0003
++#define USB_DEVICE_ID_UCLOGIC_TABLET_KNA5	0x6001
+
+  #define USB_VENDOR_ID_VERNIER		0x08f7
+  #define USB_DEVICE_ID_VERNIER_LABPRO	0x0001
+diff -uprN -X a/Documentation/dontdiff a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+--- a/drivers/hid/usbhid/hid-quirks.c	2010-08-20 15:55:55.000000000 -0300
++++ b/drivers/hid/usbhid/hid-quirks.c	2010-08-24 11:07:51.388410656 -0300
+@@ -69,6 +69,7 @@ static const struct hid_blacklist {
+  	{ USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET },
+  	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209, HID_QUIRK_MULTI_INPUT },
+  	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5, HID_QUIRK_MULTI_INPUT },
+  	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+  	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+

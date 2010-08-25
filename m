@@ -1,87 +1,53 @@
-From: William Manson <WManson@synaptics.com>
-Subject: RE: [RFC PATCH 0/1] input/touchscreen: Synaptics Touchscreen Driver
-Date: Wed, 25 Aug 2010 11:05:09 -0700
-Message-ID: <7B4B50AC280A5E45A42CD2D364A3CE2F273F5CFF12@USW-EX2K7-1.synaptics-inc.local>
-References: <81C3A93C17462B4BBD7E272753C1057916DE5281A0@EXDCVYMBSTM005.EQ1STM.local>
+From: Maciej Rutecki <maciej.rutecki@gmail.com>
+Subject: Re: [2.6.36 regression] Under linux console gpm cursor now going to opposite direction of mouse
+Date: Wed, 25 Aug 2010 20:19:01 +0200
+Message-ID: <201008252019.02455.maciej.rutecki@gmail.com>
+References: <20100820223316.4f6ac734@neptune.home>
+Reply-To: maciej.rutecki@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx4.synaptics.com ([12.178.49.178]:33143 "EHLO
-	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751140Ab0HYSNI convert rfc822-to-8bit (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:51589 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751819Ab0HYSTI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Aug 2010 14:13:08 -0400
-In-Reply-To: <81C3A93C17462B4BBD7E272753C1057916DE5281A0@EXDCVYMBSTM005.EQ1STM.local>
-Content-Language: en-US
+	Wed, 25 Aug 2010 14:19:08 -0400
+In-Reply-To: <20100820223316.4f6ac734@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Naveen Kumar GADDIPATI' <naveen.gaddipati@stericsson.com>, Christopher Heiny <Cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, "j.de.gram@gmail.com" <j.de.gram@gmail.com>
-Cc: "khali@linux-fr.org" <khali@linux-fr.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus WALLEIJ <linus.walleij@stericsson.com>, Pradeepkumar Kumar SUJUAR <pradeep.kumar.sujuar@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
+To: Bruno =?utf-8?q?Pr=C3=A9mont?= <bonbons@linux-vserver.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Naveen -
+On pi=C4=85tek, 20 sierpnia 2010 o 22:33:16 Bruno Pr=C3=A9mont wrote:
+> Somewhere between 2.6.35 and Linus's tree as of this writing gpm
+> started moving its cursor to the opposite direction of mouse movement=
+=2E
+>=20
+> e.g. moving mouse up causes cursor to move down, moving mouse left
+>      causes cursor to go right
+>=20
+> Under 2.6.35 the cursor moved into the same direction as the mouse.
+>=20
+> Note, mouse is synaptics touchpad (Acer TravelMate660):
+>   Synaptics Touchpad, model: 1, fw: 5.8, id: 0x9d48b1, caps:
+> 0x904713/0x4006/0x0
+>=20
+>=20
+> When I get around to it I will try to get more precise information as
+> to when this regression got introduced, eventually bisecting.
+>=20
+> Bruno
 
-Thanks for the feedback. We didn't know about defconfig usually being sent as a separate patch as this is our first driver submission. Yes - I agree we should move the RMI specific files to a dir under drivers/input. Yeah - we have some older legacy C coding standard that was originally used and it called for using Hungarian notation and it looks like Kernel.org doesn't like that.
-
-Cheers!
-
-Bill Manson
-
-
------Original Message-----
-From: Naveen Kumar GADDIPATI [mailto:naveen.gaddipati@stericsson.com]
-Sent: Wednesday, August 25, 2010 2:30 AM
-To: Christopher Heiny; Allie Xiong; William Manson; j.de.gram@gmail.com
-Cc: khali@linux-fr.org; linux-kernel@vger.kernel.org; linux-input@vger.kernel.org; Linus WALLEIJ; Pradeepkumar Kumar SUJUAR; Sundar R IYER
-Subject: Re: [RFC PATCH 0/1] input/touchscreen: Synaptics Touchscreen Driver
-
-Hi Christopher,
-
-Some generic review comments for this patch
-
-1. Normally, defconfig should be a separate patch. You need not
-post the entire defconfig, but only the changes to the Makefiles and
-the Kconfig files.
-
-2. All RMI specific files can be moved to a separate driver folder
-in input/ like drivers/input/rmi/*.
-
-3. Lots of Hungarian notation in the code. Please refer this snippet.
-
->------------------------------------
->CODE CONTAINS HUNGARIAN NOTATION
->
->Some coding guidlines at some companies require that you type the name
->of your variables using the infamous hungarian notation:
->http://en.wikipedia.org/wiki/Hungarian_notation
->
->We have an internal coding guideline that touches on the
->subject:
->http://swadvice.lud.stericsson.com/guideline.aspx?nr=57&ver=latest
->
->According to the Linux kernel inventor Linus Torvalds in his document
->Documentation/CodingStyle in the Linux kernel:
->
->"Encoding the type of a function into the name (so-called Hungarian
->notation) is brain damaged-the compiler knows the types anyway and can
->check those, and it only confuses the programmer."
->
->Remove all instances of hungariang notation in the code please.
->Includes prefixing pointers with p_*, naming structs with s_*, enums
->with e_*, suffixes like *32b etc etc.
->-----------------------------------
->
-
-We are also using the Synaptics RMI4 touch pad on our U8500 platform.
-We had to make some changes to these posted drivers to make it work on
-our platform. Also, we modified the touch screen driver to be compliant
-to the kernel coding guidelines, but as a stand alone driver though.
-
-I will soon post out an RFC for our patch which we got working on our board.
-Please do have a look and we would like you guys to incorporate these changes
-into your final patch sets as well, so that we can avoid any re-works later on
-when your patch set gets merged into the mainline kernel.
-
-
-Cheers!
-Naveen
+I created a Bugzilla entry at=20
+https://bugzilla.kernel.org/show_bug.cgi?id=3D17031
+for your bug report, please add your address to the CC list in there, t=
+hanks!
+--=20
+Maciej Rutecki
+http://www.maciek.unixy.pl
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,76 +1,110 @@
-From: Neil Leeder <nleeder@codeaurora.org>
-Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
-Date: Wed, 25 Aug 2010 14:26:17 -0400
-Message-ID: <4C756049.2090408@codeaurora.org>
-References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org> <20100813024912.GA2661@core.coreip.homeip.net> <4C65BF99.9030601@codeaurora.org> <201008131754.49488.dmitry.torokhov@gmail.com> <4C6AC393.8000109@codeaurora.org> <BC741E3E-377E-45BF-80E1-A60F4E0FDFC9@gmail.com> <4C6C52DE.4040700@codeaurora.org> <20100819053311.GE5832@core.coreip.homeip.net> <4C6DADDE.7030107@codeaurora.org>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [RFC PATCH 0/1] input/touchscreen: Synaptics Touchscreen Driver
+Date: Wed, 25 Aug 2010 13:59:43 -0700
+Message-ID: <4C75843F.60400@synaptics.com>
+References: <81C3A93C17462B4BBD7E272753C1057916DE5281A0@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4C6DADDE.7030107@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx4.synaptics.com ([12.178.49.178]:51793 "EHLO
+	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754272Ab0HYU7r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Aug 2010 16:59:47 -0400
+In-Reply-To: <81C3A93C17462B4BBD7E272753C1057916DE5281A0@EXDCVYMBSTM005.EQ1STM.local>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
+Cc: Allie Xiong <axiong@synaptics.com>, William Manson <WManson@synaptics.com>, "j.de.gram@gmail.com" <j.de.gram@gmail.com>, "khali@linux-fr.org" <khali@linux-fr.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus WALLEIJ <linus.walleij@stericsson.com>, Pradeepkumar Kumar SUJUAR <pradeep.kumar.sujuar@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
 
-On 8/19/2010 6:19 PM, Neil Leeder wrote:
-> Hi Dmitry,
+On 08/25/2010 02:29 AM, Naveen Kumar GADDIPATI wrote:
+> Hi Christopher,
 >
-> On 8/19/2010 1:33 AM, Dmitry Torokhov wrote:
->> On Wed, Aug 18, 2010 at 05:38:38PM -0400, Neil Leeder wrote:
->>> Using proto=bare gets around the GETINFO failure, but doesn't help
->>> with the more important GETID failure.
+> Some generic review comments for this patch
+>
+> 1. Normally, defconfig should be a separate patch. You need not
+> post the entire defconfig, but only the changes to the Makefiles and
+> the Kconfig files.
+>
+> 2. All RMI specific files can be moved to a separate driver folder
+> in input/ like drivers/input/rmi/*.
+>
+> 3. Lots of Hungarian notation in the code. Please refer this snippet.
+>
+>> ------------------------------------
+>> CODE CONTAINS HUNGARIAN NOTATION
 >>
->> Does it help if you change write() to transmit (and read) 1 byte at a
->> time?
+>> Some coding guidlines at some companies require that you type the name
+>> of your variables using the infamous hungarian notation:
+>> http://en.wikipedia.org/wiki/Hungarian_notation
+>>
+>> We have an internal coding guideline that touches on the
+>> subject:
+>> http://swadvice.lud.stericsson.com/guideline.aspx?nr=57&ver=latest
+>>
+>> According to the Linux kernel inventor Linus Torvalds in his document
+>> Documentation/CodingStyle in the Linux kernel:
+>>
+>> "Encoding the type of a function into the name (so-called Hungarian
+>> notation) is brain damaged-the compiler knows the types anyway and can
+>> check those, and it only confuses the programmer."
+>>
+>> Remove all instances of hungariang notation in the code please.
+>> Includes prefixing pointers with p_*, naming structs with s_*, enums
+>> with e_*, suffixes like *32b etc etc.
+>> -----------------------------------
 >>
 >
-> Thanks for the suggestions. Nothing I change seems able to get a
-> consistent valid response to GETID. I think this is the first time
-> anyone has written anything other than 0xF4 to the firmware in the EC
-> and it's just not passing through the other PS/2 commands and responses
-> reliably.
+> We are also using the Synaptics RMI4 touch pad on our U8500 platform.
+> We had to make some changes to these posted drivers to make it work on
+> our platform. Also, we modified the touch screen driver to be compliant
+> to the kernel coding guidelines, but as a stand alone driver though.
 >
->> One way would be to look for PSMOUSE_CMD_ENABLE/PSMOUSE_CMD_DISABLE
->> (0xf4/0xf5) in ->write() method to switch between 1 and 3-byte transfers.
->
-> If I force my way past GETID and set the receive length to 3 based on
-> seeing F4/F5 being written then the touchpad does work. However the
-> serio driver is now a touchpad-specific driver rather than a generic
-> PS/2 one. I have a keyboard on the same device. I'm not sure if it will
-> work with serio, but if so it will probably have its own requirements
-> for the length of data sent on responses, probably not 3.
->
-> BTW, using 1 as the receive length for commands has its own problems as
-> some commands require more than one byte response (GETID, GETINFO). I
-> can work around it, but it's not particularly clean and getting further
-> away from a generic driver.
->
-> At this point I'm thinking that the interface is close to being able to
-> work with serio/psmouse, but just not close enough. The unreliability of
-> responding to basic commands as well as the length of data problems
-> indicates some custom driver is going to be needed. That could either be
-> Quanta's original touchpad driver I posted, or a modification of your
-> serio driver. I'd lean towards not having a serio driver which includes
-> workarounds for a specific device, but I'd appreciate hearing your opinion.
->
-> Thanks.
+> I will soon post out an RFC for our patch which we got working on our board.
+> Please do have a look and we would like you guys to incorporate these changes
+> into your final patch sets as well, so that we can avoid any re-works later on
+> when your patch set gets merged into the mainline kernel.
 
-Hi Dmitry,
+Hi Naveen,
 
-Any comment on the above alternatives?
+Thanks very much for your input!
 
-A third suggestion might be to have a fairly general serio driver, and 
-rewrite the original Quanta driver to use serio rather than using i2c 
-directly. I think that has its own set of problems, but thought I'd 
-mention it anyway. The nuvoTon EC doesn't present a fully-working and 
-reliable PS/2 interface to the driver so I'd lean toward using the 
-Quanta touchpad driver by itself.
+We'll be changing the patch structure with our next submission, as the 
+current patch file is getting kind of large and clumsy.  We'll split the 
+defconfig out into its own patch at that point.
 
-Thanks.
+We'll also be eliminating the Hungarian notation in the next submission.
 
---
-Neil
--- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Your suggestion regarding the location of the RMI specific files is 
+interesting.  We'll defer to Dmitry on where he'd like to see those 
+files placed, though.
+
+Unfortunately, the patch you submitted appears to be based on the older 
+monolithic RMI3/Android driver, which is limited in functionality and 
+maintainability.  Also, your submitted patch appears to be specific to 
+the U8500 platform.
+
+The aim of the current work is to develop a platform independent modular 
+driver that will support all RMI4 functionality in a generic fashion. 
+We'll be more than happy to work with your team to develop support for 
+the U8500 under the modular structure.  If we proceed in that direction, 
+it eliminates redundant effort and the need for any rework when our 
+driver gets merged into the mainline.
+
+I think the first step there should be for your team to resubmit your 
+work as modifications of the current development effort, rather than 
+backporting the current effort onto the obsolete framework.  Although 
+that involves upfront work for your team in the near term, it provides a 
+reduction in effort all around going forward:
+     - your team doesn't need to keep back-patching changes onto
+       the obsolete driver structure
+     - our team doesn't need to keep forward-patching U8500
+       related changes into the current driver structure
+
+In a recent email conversation with me, Dmitry indicated that he will be 
+creating a development branch for this work in the near future.  That 
+will greatly facilitate this effort.
+
+					Thanks,
+						Chris

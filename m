@@ -1,58 +1,87 @@
-From: Mike Auty <ikelos@gentoo.org>
-Subject: [PATCH 2.6.35.3] wacom: Fix mousewheel up/down regression for old
- wacom tablets
-Date: Wed, 25 Aug 2010 19:10:00 +0100
-Message-ID: <4C755C78.4000801@gentoo.org>
+From: William Manson <WManson@synaptics.com>
+Subject: RE: [RFC PATCH 0/1] input/touchscreen: Synaptics Touchscreen Driver
+Date: Wed, 25 Aug 2010 11:05:09 -0700
+Message-ID: <7B4B50AC280A5E45A42CD2D364A3CE2F273F5CFF12@USW-EX2K7-1.synaptics-inc.local>
+References: <81C3A93C17462B4BBD7E272753C1057916DE5281A0@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:35544 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751776Ab0HYSKJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Aug 2010 14:10:09 -0400
-Received: from [192.168.188.1] (82-71-33-97.dsl.in-addr.zen.co.uk [82.71.33.97])
-	(using TLSv1 with cipher DHE-RSA-CAMELLIA256-SHA (256/256 bits))
-	(No client certificate requested)
-	by smtp.gentoo.org (Postfix) with ESMTPSA id C2AFC1B4073
-	for <linux-input@vger.kernel.org>; Wed, 25 Aug 2010 18:10:05 +0000 (UTC)
+Received: from us-mx4.synaptics.com ([12.178.49.178]:33143 "EHLO
+	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751140Ab0HYSNI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Aug 2010 14:13:08 -0400
+In-Reply-To: <81C3A93C17462B4BBD7E272753C1057916DE5281A0@EXDCVYMBSTM005.EQ1STM.local>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: 'Naveen Kumar GADDIPATI' <naveen.gaddipati@stericsson.com>, Christopher Heiny <Cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, "j.de.gram@gmail.com" <j.de.gram@gmail.com>
+Cc: "khali@linux-fr.org" <khali@linux-fr.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus WALLEIJ <linus.walleij@stericsson.com>, Pradeepkumar Kumar SUJUAR <pradeep.kumar.sujuar@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
 
-This fixes a regression introduced in
-3b57ca0f80c5c8994b5b1e3d3f904cfe727951f2.
+Hi Naveen -
 
-The data[6] byte contains either 1 or -1 depending on the whether the
-mouse wheel on older wacom tablets is moved down (1) or up (-1).  The
-patch introduced in the above commit changed the cast from (signed char)
-to (signed).  When cast as a signed integer and negated, the value of -1
-(stored in the byte as 0xff) became -255 rather than 1.  This patch
-reverts the cast to a (signed char) and also removes an unnecessary
-(signed) cast, as all the values operated on are bitmasked.
+Thanks for the feedback. We didn't know about defconfig usually being sent as a separate patch as this is our first driver submission. Yes - I agree we should move the RMI specific files to a dir under drivers/input. Yeah - we have some older legacy C coding standard that was originally used and it called for using Hungarian notation and it looks like Kernel.org doesn't like that.
 
-Signed-off-by: Mike Auty <ikelos@gentoo.org>
-Reviewed-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/tablet/wacom_wac.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Cheers!
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 415f630..d1a883d 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -210,10 +210,10 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
- 			if (features->type == WACOM_G4 ||
- 					features->type == WACOM_MO) {
- 				input_report_abs(input, ABS_DISTANCE, data[6] & 0x3f);
--				rw = (signed)(data[7] & 0x04) - (data[7] & 0x03);
-+				rw = (data[7] & 0x04) - (data[7] & 0x03);
- 			} else {
- 				input_report_abs(input, ABS_DISTANCE, data[7] & 0x3f);
--				rw = -(signed)data[6];
-+				rw = -(signed char)data[6];
- 			}
- 			input_report_rel(input, REL_WHEEL, rw);
- 		}
--- 
-1.7.2.2
+Bill Manson
+
+
+-----Original Message-----
+From: Naveen Kumar GADDIPATI [mailto:naveen.gaddipati@stericsson.com]
+Sent: Wednesday, August 25, 2010 2:30 AM
+To: Christopher Heiny; Allie Xiong; William Manson; j.de.gram@gmail.com
+Cc: khali@linux-fr.org; linux-kernel@vger.kernel.org; linux-input@vger.kernel.org; Linus WALLEIJ; Pradeepkumar Kumar SUJUAR; Sundar R IYER
+Subject: Re: [RFC PATCH 0/1] input/touchscreen: Synaptics Touchscreen Driver
+
+Hi Christopher,
+
+Some generic review comments for this patch
+
+1. Normally, defconfig should be a separate patch. You need not
+post the entire defconfig, but only the changes to the Makefiles and
+the Kconfig files.
+
+2. All RMI specific files can be moved to a separate driver folder
+in input/ like drivers/input/rmi/*.
+
+3. Lots of Hungarian notation in the code. Please refer this snippet.
+
+>------------------------------------
+>CODE CONTAINS HUNGARIAN NOTATION
+>
+>Some coding guidlines at some companies require that you type the name
+>of your variables using the infamous hungarian notation:
+>http://en.wikipedia.org/wiki/Hungarian_notation
+>
+>We have an internal coding guideline that touches on the
+>subject:
+>http://swadvice.lud.stericsson.com/guideline.aspx?nr=57&ver=latest
+>
+>According to the Linux kernel inventor Linus Torvalds in his document
+>Documentation/CodingStyle in the Linux kernel:
+>
+>"Encoding the type of a function into the name (so-called Hungarian
+>notation) is brain damaged-the compiler knows the types anyway and can
+>check those, and it only confuses the programmer."
+>
+>Remove all instances of hungariang notation in the code please.
+>Includes prefixing pointers with p_*, naming structs with s_*, enums
+>with e_*, suffixes like *32b etc etc.
+>-----------------------------------
+>
+
+We are also using the Synaptics RMI4 touch pad on our U8500 platform.
+We had to make some changes to these posted drivers to make it work on
+our platform. Also, we modified the touch screen driver to be compliant
+to the kernel coding guidelines, but as a stand alone driver though.
+
+I will soon post out an RFC for our patch which we got working on our board.
+Please do have a look and we would like you guys to incorporate these changes
+into your final patch sets as well, so that we can avoid any re-works later on
+when your patch set gets merged into the mainline kernel.
+
+
+Cheers!
+Naveen

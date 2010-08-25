@@ -1,42 +1,27 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/6] Staging: mrst_touchscreen: clean up input side
-Date: Wed, 25 Aug 2010 07:46:24 -0700
-Message-ID: <20100825144624.GC5752@core.coreip.homeip.net>
-References: <20100723134852.19151.6999.stgit@localhost.localdomain>
- <20100723135151.19151.73344.stgit@localhost.localdomain>
- <20100727181831.GA29281@kroah.com>
+From: Sundar R IYER <sundar.iyer@stericsson.com>
+Subject: RE: [Patch v2] input: add support for Nomadik SKE keypad controller
+Date: Wed, 25 Aug 2010 16:56:26 +0200
+Message-ID: <33A307AF30D7BF4F811B1568FE7A9B181C5F80DD@EXDCVYMBSTM006.EQ1STM.local>
+References: <1282638651-8000-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:42215 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752002Ab0HYOq3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Aug 2010 10:46:29 -0400
-Received: by pzk9 with SMTP id 9so202621pzk.19
-        for <linux-input@vger.kernel.org>; Wed, 25 Aug 2010 07:46:29 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20100727181831.GA29281@kroah.com>
+Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:33872 "EHLO
+	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751397Ab0HYO4n convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Aug 2010 10:56:43 -0400
+In-Reply-To: <1282638651-8000-1-git-send-email-sundar.iyer@stericsson.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Shubhrajyoti Datta <shubhrajyoti@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, Linus WALLEIJ <linus.walleij@stericsson.com>
 
-On Tue, Jul 27, 2010 at 11:18:31AM -0700, Greg KH wrote:
-> On Fri, Jul 23, 2010 at 02:51:52PM +0100, Alan Cox wrote:
-> > Fix most of the stuff that Dmitry pointed out. This leaves the mutex in IRQ
-> > and misuse of SPI to sort out.
-> > 
-> > Also fix the build bits so it actually builds in staging - whoops.
-> > 
-> > Signed-off-by: Alan Cox <alan@linux.intel.com>
-> 
-> This doesn't apply for some reason.  Care to resend all 6 of these so I
-> can apply them?
-> 
+Hi,
 
-*ping* Do not see anything in linux-next/mainline... And the
-driver/patches looked good to me.
+Any comments on these?
 
--- 
-Dmitry
+Regards,
+Sundar

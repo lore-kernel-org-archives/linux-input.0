@@ -1,52 +1,69 @@
-From: Sergei Shtylyov <sshtylyov@mvista.com>
-Subject: Re: [PATCH 1/1] usbhid: Set Report ID properly for Output reports
- on the Control endpoint.
-Date: Wed, 25 Aug 2010 13:48:06 +0400
-Message-ID: <4C74E6D6.6040203@ru.mvista.com>
-References: <1282020244-25786-1-git-send-email-alan@signal11.us>
+From: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
+Subject: Re: [RFC PATCH 0/1] input/touchscreen: Synaptics Touchscreen Driver
+Date: Wed, 25 Aug 2010 11:29:39 +0200
+Message-ID: <81C3A93C17462B4BBD7E272753C1057916DE5281A0@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:42188 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751663Ab0HYJtp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Aug 2010 05:49:45 -0400
-In-Reply-To: <1282020244-25786-1-git-send-email-alan@signal11.us>
+Received: from eu1sys200aog105.obsmtp.com ([207.126.144.119]:38917 "EHLO
+	eu1sys200aog105.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752069Ab0HYJ7j convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Aug 2010 05:59:39 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "cheiny@synaptics.com" <cheiny@synaptics.com>, "axiong@synaptics.com" <axiong@synaptics.com>, "wmanson@synaptics.com" <wmanson@synaptics.com>, "j.de.gram@gmail.com" <j.de.gram@gmail.com>
+Cc: "khali@linux-fr.org" <khali@linux-fr.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus WALLEIJ <linus.walleij@stericsson.com>, Pradeepkumar Kumar SUJUAR <pradeep.kumar.sujuar@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
 
-Hello.
+Hi Christopher,
 
-Alan Ott wrote:
+Some generic review comments for this patch
 
-> When I made commit 29129a98e6fc89, I didn't account for *buf not being
-> the report ID anymore, as buf is incremented.
+1. Normally, defconfig should be a separate patch. You need not
+post the entire defconfig, but only the changes to the Makefiles and
+the Kconfig files.
 
-> This applies to 2.6.35 and newer.
+2. All RMI specific files can be moved to a separate driver folder
+in input/ like drivers/input/rmi/*.
 
-> Signed-off-by: Alan Ott <alan@signal11.us>
+3. Lots of Hungarian notation in the code. Please refer this snippet.
+ 
+>------------------------------------
+>CODE CONTAINS HUNGARIAN NOTATION
+>
+>Some coding guidlines at some companies require that you type the name 
+>of your variables using the infamous hungarian notation:
+>http://en.wikipedia.org/wiki/Hungarian_notation
+>
+>We have an internal coding guideline that touches on the
+>subject:
+>http://swadvice.lud.stericsson.com/guideline.aspx?nr=57&ver=latest
+>
+>According to the Linux kernel inventor Linus Torvalds in his document 
+>Documentation/CodingStyle in the Linux kernel:
+>
+>"Encoding the type of a function into the name (so-called Hungarian
+>notation) is brain damaged-the compiler knows the types anyway and can 
+>check those, and it only confuses the programmer."
+>
+>Remove all instances of hungariang notation in the code please.
+>Includes prefixing pointers with p_*, naming structs with s_*, enums 
+>with e_*, suffixes like *32b etc etc.
+>-----------------------------------
+>
 
-[...]
+We are also using the Synaptics RMI4 touch pad on our U8500 platform. 
+We had to make some changes to these posted drivers to make it work on 
+our platform. Also, we modified the touch screen driver to be compliant 
+to the kernel coding guidelines, but as a stand alone driver though.
 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index b729c02..ffd6899 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -828,6 +828,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
->  		}
->  	} else {
->  		int skipped_report_id = 0;
-> +		int report_id = buf[0];
+I will soon post out an RFC for our patch which we got working on our board. 
+Please do have a look and we would like you guys to incorporate these changes 
+into your final patch sets as well, so that we can avoid any re-works later on 
+when your patch set gets merged into the mainline kernel.
 
-    Please keep the empty line after the declaration block.
 
->  		if (buf[0] == 0x0) {
->  			/* Don't send the Report ID */
->  			buf++;
-
-WBR, Sergei
-
+Cheers!
+Naveen

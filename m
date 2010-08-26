@@ -1,13 +1,13 @@
 From: "Mark F. Brown" <mark.brown314@gmail.com>
-Subject: [PATCH v2 5/6] ARM: pxa168: added keypad wake clear event support for platform
-Date: Thu, 26 Aug 2010 11:27:36 -0400
-Message-ID: <1282836457-5651-6-git-send-email-mark.brown314@gmail.com>
+Subject: [PATCH v2 3/6] ARM: pxa168: added wake clear register support for APMU
+Date: Thu, 26 Aug 2010 11:27:34 -0400
+Message-ID: <1282836457-5651-4-git-send-email-mark.brown314__12006.1599220664$1283550611$gmane$org@gmail.com>
 References: <1282836457-5651-1-git-send-email-mark.brown314@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-vw0-f46.google.com ([209.85.212.46]:60235 "EHLO
 	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757684Ab0ICVtP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 17:49:15 -0400
+	with ESMTP id S1757672Ab0ICVtL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 17:49:11 -0400
 In-Reply-To: <1282836457-5651-1-git-send-email-mark.brown314@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -16,61 +16,30 @@ Cc: "Mark F. Brown" <mark.brown314@gmail.com>
 
 Signed-off-by: Mark F. Brown <mark.brown314@gmail.com>
 ---
- arch/arm/mach-mmp/include/mach/pxa168.h |    5 +++++
- arch/arm/mach-mmp/pxa168.c              |   10 ++++++++++
- 2 files changed, 15 insertions(+), 0 deletions(-)
+ arch/arm/mach-mmp/include/mach/regs-apmu.h |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/include/mach/pxa168.h b/arch/arm/mach-mmp/include/mach/pxa168.h
-index f34e663..1801e42 100644
---- a/arch/arm/mach-mmp/include/mach/pxa168.h
-+++ b/arch/arm/mach-mmp/include/mach/pxa168.h
-@@ -5,6 +5,7 @@ struct sys_timer;
+diff --git a/arch/arm/mach-mmp/include/mach/regs-apmu.h b/arch/arm/mach-mmp/include/mach/regs-apmu.h
+index 9190305..ac47023 100644
+--- a/arch/arm/mach-mmp/include/mach/regs-apmu.h
++++ b/arch/arm/mach-mmp/include/mach/regs-apmu.h
+@@ -33,4 +33,16 @@
+ #define APMU_FNRST_DIS	(1 << 1)
+ #define APMU_AXIRST_DIS	(1 << 0)
  
- extern struct sys_timer pxa168_timer;
- extern void __init pxa168_init_irq(void);
-+extern void pxa168_clear_keypad_wakeup(void);
- 
- #include <linux/i2c.h>
- #include <mach/devices.h>
-@@ -12,6 +13,7 @@ extern void __init pxa168_init_irq(void);
- #include <plat/pxa3xx_nand.h>
- #include <video/pxa168fb.h>
- #include <plat/pxa27x_keypad.h>
-+#include <mach/cputype.h>
- 
- extern struct pxa_device_desc pxa168_device_uart1;
- extern struct pxa_device_desc pxa168_device_uart2;
-@@ -109,6 +111,9 @@ static inline int pxa168_add_fb(struct pxa168fb_mach_info *mi)
- 
- static inline int pxa168_add_keypad(struct pxa27x_keypad_platform_data *data)
- {
-+	if (cpu_is_pxa168())
-+		data->clear_wakeup_event = pxa168_clear_keypad_wakeup;
++/* Wake Clear Register */
++#define APMU_WAKE_CLR	APMU_REG(0x07c)
 +
- 	return pxa_register_device(&pxa168_device_keypad, data, sizeof(*data));
- }
- 
-diff --git a/arch/arm/mach-mmp/pxa168.c b/arch/arm/mach-mmp/pxa168.c
-index 2fa16fb..72b4e76 100644
---- a/arch/arm/mach-mmp/pxa168.c
-+++ b/arch/arm/mach-mmp/pxa168.c
-@@ -136,6 +136,16 @@ struct sys_timer pxa168_timer = {
- 	.init	= pxa168_timer_init,
- };
- 
-+void pxa168_clear_keypad_wakeup(void)
-+{
-+	uint32_t val;
-+	uint32_t mask = APMU_PXA168_KP_WAKE_CLR;
++#define APMU_PXA168_KP_WAKE_CLR		(1 << 7)
++#define APMU_PXA168_CFI_WAKE_CLR	(1 << 6)
++#define APMU_PXA168_XD_WAKE_CLR		(1 << 5)
++#define APMU_PXA168_MSP_WAKE_CLR	(1 << 4)
++#define APMU_PXA168_SD4_WAKE_CLR	(1 << 3)
++#define APMU_PXA168_SD3_WAKE_CLR	(1 << 2)
++#define APMU_PXA168_SD2_WAKE_CLR	(1 << 1)
++#define APMU_PXA168_SD1_WAKE_CLR	(1 << 0)
 +
-+	/* wake event clear is needed in order to clear keypad interrupt */
-+	val = __raw_readl(APMU_WAKE_CLR);
-+	__raw_writel(val |  mask, APMU_WAKE_CLR);
-+}
-+
- /* on-chip devices */
- PXA168_DEVICE(uart1, "pxa2xx-uart", 0, UART1, 0xd4017000, 0x30, 21, 22);
- PXA168_DEVICE(uart2, "pxa2xx-uart", 1, UART2, 0xd4018000, 0x30, 23, 24);
+ #endif /* __ASM_MACH_REGS_APMU_H */
 -- 
 1.7.0.4
 

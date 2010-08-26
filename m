@@ -1,93 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.36-rc2
-Date: Thu, 26 Aug 2010 00:27:32 -0700
-Message-ID: <20100826072731.GC7788@core.coreip.homeip.net>
+Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
+Date: Thu, 26 Aug 2010 07:49:37 -0700
+Message-ID: <20100826144937.GA8553@core.coreip.homeip.net>
+References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org>
+ <20100813024912.GA2661@core.coreip.homeip.net>
+ <4C65BF99.9030601@codeaurora.org>
+ <201008131754.49488.dmitry.torokhov@gmail.com>
+ <4C6AC393.8000109@codeaurora.org>
+ <BC741E3E-377E-45BF-80E1-A60F4E0FDFC9@gmail.com>
+ <4C6C52DE.4040700@codeaurora.org>
+ <20100819053311.GE5832@core.coreip.homeip.net>
+ <4C6DADDE.7030107@codeaurora.org>
+ <4C756049.2090408@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:57829 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752239Ab0HZH1h (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:40153 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752297Ab0HZOtn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Aug 2010 03:27:37 -0400
+	Thu, 26 Aug 2010 10:49:43 -0400
 Content-Disposition: inline
+In-Reply-To: <4C756049.2090408@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Neil Leeder <nleeder@codeaurora.org>
+Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
 
-Hi Linus,
+Hi Neil,
 
-Please pull from:
+On Wed, Aug 25, 2010 at 02:26:17PM -0400, Neil Leeder wrote:
+> 
+> Any comment on the above alternatives?
+> 
+> A third suggestion might be to have a fairly general serio driver,
+> and rewrite the original Quanta driver to use serio rather than
+> using i2c directly. I think that has its own set of problems, but
+> thought I'd mention it anyway. The nuvoTon EC doesn't present a
+> fully-working and reliable PS/2 interface to the driver so I'd lean
+> toward using the Quanta touchpad driver by itself.
+> 
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+I concur that since EC firmware does not seem to support full PS/2
+protocol we should got with the original driver creating an input device
+rather than serio.
 
-to receive updates for the input subsystem. The changes consist of
-couple bug/regression fixes and also 3 patches dropping 'tty' argument
-from SysRq handlers. While the last 3 are not bug fixes I mentioned that
-I would be sending them in my -rc0 pull request and so I hope they could
-still make it in (I did not send them with rc0 pull request because there
-were conflicts and I waited for -rc1 to merge and resolve).
+Please send me the latest version of your driver and I will apply it to
+my .37 queue.
 
-Thanks,
-
-Changelog:
----------
-
-Axel Lin (1):
-      Input: pxa27x_keypad - remove input_free_device() in pxa27x_keypad_remove()
-
-Christoph Fritz (1):
-      Input: mousedev - fix regression of inverting axes
-
-Dmitry Torokhov (4):
-      Input: sysrq - drop tty argument from sysrq ops handlers
-      Input: sysrq - drop tty argument form handle_sysrq()
-      USB: drop tty argument from usb_serial_handle_sysrq_char()
-      Input: hil_kbd - fix compile error
-
-Kay Sievers (1):
-      Input: uinput - add devname alias to allow module on-demand load
-
-
-Diffstat:
---------
-
- arch/arm/kernel/etm.c                  |    2 +-
- arch/ia64/hp/sim/simserial.c           |    2 +-
- arch/powerpc/xmon/xmon.c               |    5 +--
- arch/sparc/kernel/process_64.c         |    2 +-
- arch/um/drivers/mconsole_kern.c        |    2 +-
- drivers/char/hangcheck-timer.c         |    2 +-
- drivers/char/hvc_console.c             |    2 +-
- drivers/char/hvsi.c                    |    2 +-
- drivers/char/sysrq.c                   |   53 +++++++++++++++----------------
- drivers/gpu/drm/drm_fb_helper.c        |    2 +-
- drivers/input/keyboard/hil_kbd.c       |   12 +++---
- drivers/input/keyboard/pxa27x_keypad.c |    2 -
- drivers/input/misc/uinput.c            |    2 +
- drivers/input/mousedev.c               |    8 ++--
- drivers/net/ibm_newemac/debug.c        |    2 +-
- drivers/s390/char/ctrlchar.c           |    4 +--
- drivers/s390/char/keyboard.c           |    2 +-
- drivers/serial/sn_console.c            |    2 +-
- drivers/usb/serial/ftdi_sio.c          |    2 +-
- drivers/usb/serial/generic.c           |   10 ++---
- drivers/usb/serial/pl2303.c            |    2 +-
- drivers/usb/serial/ssu100.c            |    2 +-
- drivers/xen/manage.c                   |    2 +-
- include/linux/miscdevice.h             |    1 +
- include/linux/serial_core.h            |    2 +-
- include/linux/sysrq.h                  |   16 +++++----
- include/linux/uinput.h                 |    1 -
- include/linux/usb/serial.h             |    3 +-
- kernel/debug/debug_core.c              |    2 +-
- kernel/debug/kdb/kdb_main.c            |    2 +-
- kernel/power/poweroff.c                |    2 +-
- 31 files changed, 75 insertions(+), 80 deletions(-)
+Thanks.
 
 -- 
 Dmitry
-

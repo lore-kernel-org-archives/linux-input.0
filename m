@@ -1,7 +1,7 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH 3/4] identify firmware version
-Date: Thu, 26 Aug 2010 00:54:56 -0400
-Message-ID: <1282798497-19791-4-git-send-email-rafi@seas.upenn.edu>
+Subject: [PATCH 1/4] Adding documention
+Date: Thu, 26 Aug 2010 00:54:54 -0400
+Message-ID: <1282798497-19791-2-git-send-email-rafi@seas.upenn.edu>
 References: <1282798497-19791-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1282798497-19791-1-git-send-email-rafi@seas.upenn.edu>
@@ -10,110 +10,147 @@ To: jkosina@suse.cz, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, chatty@enac.fr, micki@n-trig.com, Rafi Rubin <rafi@seas.upenn.edu>
 List-Id: linux-input@vger.kernel.org
 
-This adds firmware version polling to the end of probe and reports the
-version both in the raw form and proccessed to match the formatting used
-by ntrig in windows.
+The doctumentation includes a brief introduction to the driver and
+explanations of the filtering parameters as well as a discussion
+of the need for and working of the filters.
 
 Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
 ---
- drivers/hid/hid-ntrig.c |   60 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 60 insertions(+), 0 deletions(-)
+ Documentation/input/ntrig.txt |  126 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 126 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/input/ntrig.txt
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 43e95de..ab0ca7f 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -63,6 +63,9 @@ struct ntrig_data {
- 
- 	bool reading_mt;
- 
-+	/* The raw firmware version code */
-+	__u8 firmware_version[4];
+diff --git a/Documentation/input/ntrig.txt b/Documentation/input/ntrig.txt
+new file mode 100644
+index 0000000..be1fd98
+--- /dev/null
++++ b/Documentation/input/ntrig.txt
+@@ -0,0 +1,126 @@
++N-Trig touchscreen Driver
++-------------------------
++	Copyright (c) 2008-2010 Rafi Rubin <rafi@seas.upenn.edu>
++	Copyright (c) 2009-2010 Stephane Chatty
 +
- 	__u8 mt_footer[4];
- 	__u8 mt_foot_count;
- 
-@@ -90,6 +93,26 @@ struct ntrig_data {
- };
- 
- 
-+/*
-+ * This function converts the 4 byte raw firmware code into
-+ * a string containing 5 comma separated numbers.
-+ */
-+static int ntrig_version_string(unsigned char *raw, char *buf)
-+{
-+	__u8 a =  (raw[1] & 0b00001110) >> 1;
-+	__u8 b =  (raw[0] & 0b00111100) >> 2;
-+	__u8 c = ((raw[0] & 0b00000011) << 3) | ((raw[3] & 0b11100000) >> 5);
-+	__u8 d = ((raw[3] & 0b00000111) << 3) | ((raw[2] & 0b11100000) >> 5);
-+	__u8 e =   raw[2] & 0b00000111;
++This driver provides support for N-Trig pen and multi-touch sensors.  Single
++and multi-touch events are translated to the appropriate protocols for
++the hid and input systems.  Pen events are sufficiently hid compliant and
++are left to the hid core.  The driver also provides additional filtering
++and utility functions accessible with sysfs and module parameters.
 +
-+	/*
-+	 * As yet unmapped bits:
-+	 * 0b11000000 0b11110001 0b00011000 0b00011000
-+	 */
++This driver has been reported to work properly with multiple N-Trig devices
++attached.
 +
-+	return sprintf(buf, "%u.%u.%u.%u.%u", a, b, c, d, e);
-+}
 +
- static ssize_t show_phys_width(struct device *dev,
- 			       struct device_attribute *attr,
- 			       char *buf)
-@@ -776,6 +799,9 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	struct hid_input *hidinput;
- 	struct input_dev *input;
- 	struct hid_report *report;
-+	unsigned char *data;
-+	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
-+	char *buf;
- 
- 	if (id->driver_data)
- 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-@@ -848,10 +874,44 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (report)
- 		usbhid_submit_report(hdev, report, USB_DIR_OUT);
- 
-+	data = kmalloc(8, GFP_KERNEL);
-+	if (!data) {
-+		ret = -ENOMEM;
-+		goto err_free;
-+	}
++Parameters
++----------
 +
-+	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-+			      USB_REQ_CLEAR_FEATURE,
-+			      USB_TYPE_CLASS | USB_RECIP_INTERFACE |
-+			      USB_DIR_IN,
-+			      0x30c, 1, data, 8,
-+			      USB_CTRL_SET_TIMEOUT);
++Note: values set at load time are global and will apply to all applicable
++devices.  Adjusting parameters with sysfs will override the load time values,
++but only for that one device.
 +
-+	if (ret == 8) {
-+		buf = kmalloc(20, GFP_KERNEL);
-+		if (!buf) {
-+			ret = -ENOMEM;
-+			goto err_free_data;
-+		}
++The following parameters are used to configure filters to reduce noise:
 +
-+		ret = ntrig_version_string(&data[2], buf);
++activate_slack		number of fingers to ignore before processing events
 +
-+		dev_info(&hdev->dev,
-+			 "Firmware version: %s (%02x%02x %02x%02x)\n",
-+			 buf, data[2], data[3], data[4], data[5]);
++activation_height	size threshold to activate immediately
++activation_width
 +
-+		nd->firmware_version[0] = data[2];
-+		nd->firmware_version[1] = data[3];
-+		nd->firmware_version[2] = data[4];
-+		nd->firmware_version[3] = data[5];
-+	}
++min_height		size threshold bellow which fingers are ignored
++min_width		both to decide activation and during activity
 +
- 	ret = sysfs_create_group(&hdev->dev.kobj,
- 			&ntrig_attribute_group);
- 
- 	return 0;
-+err_free_data:
-+	kfree(data);
- err_free:
- 	kfree(nd);
- 	return ret;
++deactivate_slack	the number of "no contact" frames to ignore before
++			propagating the end of activity events
++
++When the last finger is removed from the device, it sends a number of empty
++frames.  By holding off on deactivation for a few frames we can tolerate false
++erroneous disconnects, where the sensor may mistakenly not detect a finger that
++is still present.  Thus deactivate_slack addresses problems where a users might
++see breaks in lines during drawing, or drop an object during a long drag.
++
++
++Additional sysfs items
++----------------------
++
++These nodes just provide easy access to the ranges reported by the device.
++sensor_logical_height	the range for positions reported during activity
++sensor_logical_width
++
++sensor_physical_height	internal ranges not used for normal events but
++sensor_physical_width	useful for tuning
++
++All N-Trig devices with product id of 1 report events in the ranges of
++X: 0-9600
++Y: 0-7200
++However not all of these devices have the same physical dimensions.  Most
++seem to be 12" sensors (Dell Latitude XT and XT2 and the HP TX2), and
++at least one model (Dell Studio 17) has a 17" sensor.  The ratio of physical
++to logical sizes is used to adjust the size based filter parameters.
++
++
++Filtering
++---------
++
++With the release of the early multi-touch firmwares it became increasingly
++obvious that these sensors were prone to erroneous events.  Users reported
++seeing both inappropriately dropped contact and ghosts, contacts reported
++where no finger was actually touching the screen.
++
++Deactivation slack helps prevent dropped contact for single touch use, but does
++not address the problem of dropping one of more contacts while other contacts
++are still active.  Drops in the multi-touch context require additional
++processing and should be handled in tandem with tacking.
++
++As observed ghost contacts are similar to actual use of the sensor, but they
++seem to have different profiles.  Ghost activity typically shows up as small
++short lived touches.  As such, I assume that the longer the continuous stream
++of events the more likely those events are from a real contact, and that the
++larger the size of each contact the more likely it is real.  Balancing the
++goals of preventing ghosts and accepting real events quickly (to minimize
++user observable latency), the filter accumulates confidence for incoming
++events until it hits thresholds and begins propagating.  In the interest in
++minimizing stored state as well as the cost of operations to make a decision,
++I've kept that decision simple.
++
++Time is measured in terms of the number of fingers reported, not frames since
++the probability of multiple simultaneous ghosts is expected to drop off
++dramatically with increasing numbers.  Rather than accumulate weight as a
++function of size, I just use it as a binary threshold.  A sufficiently large
++contact immediately overrides the waiting period and leads to activation.
++
++Setting the activation size thresholds to large values will result in deciding
++primarily on activation slack.  If you see longer lived ghosts, turning up the
++activation slack while reducing the size thresholds may suffice to eliminate
++the ghosts while keeping the screen quite responsive to firm taps.
++
++Contacts continue to be filtered with min_height and min_width even after
++the initial activation filter is satisfied.  The intent is to provide
++a mechanism for filtering out ghosts in the form of an extra finger while
++you actually are using the screen.  In practice this sort of ghost has
++been far less problematic or relatively rare and I've left the defaults
++set to 0 for both parameters, effectively turning off that filter.
++
++I don't know what the optimal values are for these filters.  If the defaults
++don't work for you, please play with the parameters.  If you do find other
++values more comfortable, I would appreciate feedback.
++
++The calibration of these devices does drift over time.  If ghosts or contact
++dropping worsen and interfere with the normal usage of your device, try
++recalibrating it.
++
++
++Calibration
++-----------
++
++The N-Trig windows tools provide calibration and testing routines.  Also an
++unofficial unsupported set of user space tools including a calibrator is
++available at:
++http://code.launchpad.net/~rafi-seas/+junk/ntrig_calib
++
++
++Tracking
++--------
++
++As of yet, all tested N-Trig firmwares do not track fingers.  When multiple
++contacts are active they seem to be sorted primarily by Y position.
 -- 
 1.7.1

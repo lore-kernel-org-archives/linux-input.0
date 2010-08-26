@@ -1,171 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Patch v2] input: add support for Nomadik SKE keypad controller
-Date: Thu, 26 Aug 2010 10:08:51 -0700
-Message-ID: <20100826170851.GB6761@core.coreip.homeip.net>
-References: <1282638651-8000-1-git-send-email-sundar.iyer@stericsson.com>
- <20100826154907.GA5603@core.coreip.homeip.net>
- <20100826160901.GE9924@bnru01.bnr.st.com>
+From: Neil Leeder <nleeder@codeaurora.org>
+Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
+Date: Thu, 26 Aug 2010 14:45:48 -0400
+Message-ID: <4C76B65C.9000702@codeaurora.org>
+References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org> <0680EC522D0CC943BC586913CF3768C003B3909F9C@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:49374 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750924Ab0HZRJA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Aug 2010 13:09:00 -0400
-Received: by yxg6 with SMTP id 6so738556yxg.19
-        for <linux-input@vger.kernel.org>; Thu, 26 Aug 2010 10:08:59 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20100826160901.GE9924@bnru01.bnr.st.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0680EC522D0CC943BC586913CF3768C003B3909F9C@dbde02.ent.ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Sundar R IYER <sundar.iyer@stericsson.com>
-Cc: Shubhrajyoti Datta <shubhrajyoti@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, Linus WALLEIJ <linus.walleij@stericsson.com>
 
-On Thu, Aug 26, 2010 at 09:39:01PM +0530, Sundar R IYER wrote:
-> Hello Dmitry,
-> 
-> Thanx for the review.
-> 
-> On Thu, Aug 26, 2010 at 17:49:08 +0200, Dmitry Torokhov wrote:
-> > > +     int (*init)(void);
-> > > +     int (*exit)(void);
-> > > +     struct matrix_keymap_data *keymap_data;
-> > 
-> > const?
-> 
-> Okay.
-> 
-> > > +     struct input_dev *input;
-> > > +     struct ske_keypad_platform_data *board;
-> > 
-> > const?
-> 
-> Okay.
-> 
-> > > +DEFINE_MUTEX(ske_keypad_lock);
-> > 
-> > Why isn't this lock part of ske_keypad structure?
-> > 
-> 
-> Will move it in.
-> 
-> > > +
-> > > +     mutex_lock(&ske_keypad_lock);
-> > 
-> > Should probably be a spinlock.
-> > 
-> 
-> Since I am using a threaded_irq, I used mutex over spinlock.
+On 8/13/2010 4:36 AM, Datta, Shubhrajyoti wrote:
+>
+> Minor comments feel free to ignore if you feel so.
 
-Why would this matter? You chose spinlock/vs mutex mostly depending on
-what code you need to protect (does it need to sleep or not), not the
-caller's context.
+Thanks for reviewing this, I'll address these in the next patch.
 
-> 
-> > > +static int __init ske_keypad_chip_init(struct ske_keypad *keypad)
-> > 
-> > This must be __devinit, not __init since it is called from __devinit
-> > code.
-> 
-> Sure.
-> 
-> > > +     /* while away till the SKEx registers are stable and can be read */
-> > > +     while (readl(keypad->reg_base + SKE_CR) & SKE_KPASON)
-> > > +             cpu_relax();
-> > 
-> > I'd rather this loop had a bound. We do not want to completely wedge IRQ
-> > thread if something goes wrong.
-> > 
-> 
-> My main concern is: what do I return from here in case of a timeout. For
-> the HW, this flag is always high as long as any key is pressed and the
-> auto scan active. For a multi key press, this flag has to be waited upon
-> before reading the data registers. Please advise on how do I return from
-> here.
+>> +	err = i2c_master_send(context->ti2c_client, buf, 1);
+>> +	if (err<  0)
+>> +		goto i2c_fail;
+>> +	msleep(100);
+> Could you explain the time or have a #define XXX
+>
+Will add #define
 
-I guess if you spun for ...hmm... 50 msecs you may just stop, re-enable
-IRQ and return IRQ_HANDLED and hope for the better luck next time. It
-does not do any good to keep spinning in the IRQ thread.
+>> +	gpio_direction_input(context->qcitp_gpio);
+> The result is not checked here.
 
-> 
-> > BTW, it this the only reason why we are using threaded IRQ here? What is
-> > the expected time for the registers to settle? Might we use a timer to
-> > postpone the read (I think that threaded IRQs are very convenient and
-> > quite often the best solution but hard IRQ + timer is probably easier on
-> > resources unless leads to complicated logic).
-> 
-> Yes. The expected settling time for the register is ~10msc when the key
-> is pressed to almost nil when the key is released. Please note that
-> these are just initial figures which I probed for a rough a data. But,
-> even for the timer, I dont know when to start reading because, a key
-> press might still betriggering an auto scan.
+I'll check the result.
 
-10 msec latency for keypad is quite acceptable, so I'd get interrupt,
-scheule a timer to be fired in 10 msec and have that timer check if
-keypad has settled. If it hasn't I'd rearm the timer for another 10
-msec.
-
-> 
-> > > +     struct resource *res = NULL;
-> > 
-> > Why does it need to be initialized?
-> 
-> Okay. will remove it.
-> 
-> > > +     struct ske_keypad_platform_data *plat = pdev->dev.platform_data;
-> > 
-> > const.
-> 
-> Okay.
-> 
-> > > +             dev_err(&pdev->dev, "failed to allocate keypad memory\n");
-> > 
-> > ret = -ENOMEM. Presonally I prefer these to be called err or error and
-> > explicitely "return 0" in success path.
-> 
-> Will add it up.
-> 
-> > > +
-> > > +     if (!keypad->board->init) {
-> > > +             dev_err(&pdev->dev, "NULL board initialization helper\n");
-> > 
-> > Could be checked earlier. Also, does it have to be an error?
-> > 
-> 
-> The platform code takes care to request the GPIOs and the GPIO configurations.
-> Hence I return error in case the board configurations dont get completed.
-> 
-
-PLanform author migth opt to do the initialization earlier, together
-with teh rest of GPIO configuration so it is all ready by the time the
-driver is loaded. I think we should give such an option.
-
-> > > +     free_irq(keypad->irq, keypad);
-> > 
-> > 
-> > You need to free IRQ before unregistering the device or you may end up
-> > referencing free memory.
-> 
-> Okay.
-> 
-> > 
-> > Where is the call to board->exit()?
-> > 
-> 
-> Yes. I did miss that.
-> 
-> > > +static int __init ske_keypad_init(void)
-> > > +{
-> > > +     return platform_driver_register(&ske_keypad_driver);
-> > 
-> > Maybe switch to platform_driver_probe() since it is unlikely the
-> > device would appear after driver initialized?
-> > 
-> Okay.
-> 
-
-Thanks.
-
+--
+Neil
 -- 
-Dmitry
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

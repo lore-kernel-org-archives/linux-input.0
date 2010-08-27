@@ -1,18 +1,18 @@
 From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 3/4] identify firmware version
-Date: Fri, 27 Aug 2010 14:01:51 +0200
-Message-ID: <4C77A92F.8020302@euromail.se>
-References: <1282798497-19791-1-git-send-email-rafi@seas.upenn.edu> <1282798497-19791-4-git-send-email-rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/4] Adding documention
+Date: Fri, 27 Aug 2010 14:06:29 +0200
+Message-ID: <4C77AA45.4030805@euromail.se>
+References: <1282798497-19791-1-git-send-email-rafi@seas.upenn.edu> <1282798497-19791-2-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:47353 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750989Ab0H0MCr (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:43580 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751617Ab0H0MHD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Aug 2010 08:02:47 -0400
-In-Reply-To: <1282798497-19791-4-git-send-email-rafi@seas.upenn.edu>
+	Fri, 27 Aug 2010 08:07:03 -0400
+In-Reply-To: <1282798497-19791-2-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Rafi Rubin <rafi@seas.upenn.edu>
@@ -20,15 +20,38 @@ Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
 
 On 08/26/2010 06:54 AM, Rafi Rubin wrote:
 
-> This adds firmware version polling to the end of probe and reports the
-> version both in the raw form and proccessed to match the formatting used
-> by ntrig in windows.
-> 
-> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+[...]
+
+> +Parameters
+
+> +----------
+> +
+> +Note: values set at load time are global and will apply to all applicable
+> +devices.  Adjusting parameters with sysfs will override the load time values,
+> +but only for that one device.
+> +
+> +The following parameters are used to configure filters to reduce noise:
+> +
+> +activate_slack		number of fingers to ignore before processing events
+> +
+> +activation_height	size threshold to activate immediately
+> +activation_width
+> +
+> +min_height		size threshold bellow which fingers are ignored
+> +min_width		both to decide activation and during activity
+> +
+> +deactivate_slack	the number of "no contact" frames to ignore before
+> +			propagating the end of activity events
+> +
+> +When the last finger is removed from the device, it sends a number of empty
+> +frames.  By holding off on deactivation for a few frames we can tolerate false
+> +erroneous disconnects, where the sensor may mistakenly not detect a finger that
+> +is still present.  Thus deactivate_slack addresses problems where a users might
+> +see breaks in lines during drawing, or drop an object during a long drag.
 
 
-The version field of the input_id struct is a 16-bit number that can be used to
-code device-specific version information, and is retrievable via EVIOCGID.
-Perhaps one could code the firmware version in there.
+Without contact tracking, it is hard to imagine activation filtering to work
+properly. I would advocate to remove this functionality from the driver, and add
+it in userspace instead.
 
 Henrik

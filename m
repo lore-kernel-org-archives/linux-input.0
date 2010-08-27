@@ -1,204 +1,86 @@
-From: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 1/3] drivers: misc: ak8974 / ami305 magnetometer driver
-Date: Fri, 27 Aug 2010 19:59:13 +0300
-Message-ID: <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
+Date: Fri, 27 Aug 2010 11:08:38 -0700
+Message-ID: <20100827180837.GB13154@core.coreip.homeip.net>
 References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com>
-	 <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
-	 <20100827133109.1eb974ed@lxorguk.ukuu.org.uk>
-Reply-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+ <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
+ <20100827133109.1eb974ed@lxorguk.ukuu.org.uk>
+ <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100827133109.1eb974ed-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1282928353.2194.27.camel-Vo7XL3ix0D0UEupzmRo7jhl4MBrZKKet0E9HWUfgJXw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, ext Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: ext Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Alan, Thank you for the comments.
-Dmitry, there is one question for you.
-
--Samu
-
-On Fri, 2010-08-27 at 14:31 +0200, ext Alan Cox wrote:
-> > +static int ak8974_regulators_on(struct ak8974_chip *chip)
-> > +{
-> > +	int ret;
-> > +	ret = regulator_bulk_enable(ARRAY_SIZE(chip->regs), chip->regs);
-> > +	if (ret == 0)
-> > +		msleep(AK8974_POWERON_DELAY);
-> > +
-> > +	return ret;
-> > +}
-> > +
-> > +static inline void ak8974_regulators_off(struct ak8974_chip *chip)
-> > +{
-> > +	regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
-> > +}
+On Fri, Aug 27, 2010 at 07:59:13PM +0300, Onkalo Samu wrote:
+> > 
+> > > +static ssize_t ak8974_misc_read(struct file *file, char __user *buf,
+> > > +			size_t count, loff_t *offset)
+> > > +{
+> > > +	struct ak8974_chip *chip = container_of(file->private_data,
+> > > +						struct ak8974_chip,
+> > > +						miscdev);
+> > > +	struct ak8974_data data;
+> > 
+> > So we have a different API to the ak8975 just posted and to the other
+> > existing devices. This needs sorting out across the devices before there
+> > is a complete disaster. Right now we have a mix of submissions pending
+> > which variously use
+> > 
+> > 	misc + sysfs
+> > 	sysfs
+> > 	input (reporting X Y Z etc axes)
+> > 
 > 
-> That bit seems platform specific but in generic code ?
+> About year ago I send driver for the same chip with input-device
+> interface. During that time I asked from Dmitry Torokhov that is that a
+> correct interface for this kind of driver. I understood that input
+> should not be used for this kind of sensors.
 > 
-
-If the regulator frame work is not configured, this code does nothing.
-I have understood (hopefully correctly) that if the frame work is in use
-drivers could support that directly assuming that regulators are
-configured for that platform. If that is not the case, this should be
-platform specific.
-
+> sysfs is quite handy interface for small sensors. However, one problem
+> is that the driver doesn't know when the interface is in use.
+> I ended up to misc device to get information about the usercount for PM
+> purposes.
 > 
-> > +static ssize_t ak8974_misc_read(struct file *file, char __user *buf,
-> > +			size_t count, loff_t *offset)
-> > +{
-> > +	struct ak8974_chip *chip = container_of(file->private_data,
-> > +						struct ak8974_chip,
-> > +						miscdev);
-> > +	struct ak8974_data data;
-> 
-> So we have a different API to the ak8975 just posted and to the other
-> existing devices. This needs sorting out across the devices before there
-> is a complete disaster. Right now we have a mix of submissions pending
-> which variously use
-> 
-> 	misc + sysfs
-> 	sysfs
-> 	input (reporting X Y Z etc axes)
+> Dmitry, what is your opinion about using input device interface for this
+> kind of sensors?
 > 
 
-About year ago I send driver for the same chip with input-device
-interface. During that time I asked from Dmitry Torokhov that is that a
-correct interface for this kind of driver. I understood that input
-should not be used for this kind of sensors.
+This is really hard question and I am going back and forth myself.
 
-sysfs is quite handy interface for small sensors. However, one problem
-is that the driver doesn't know when the interface is in use.
-I ended up to misc device to get information about the usercount for PM
-purposes.
+When considering using input subsystem try answering the following
+question - is the device's main purpose is indeed to be a human
+interface device or do you want to use input subystem because evdev
+interface is convenient? If the answer is former- then it should be in
+input (or available through input - let's say IIO-to-input bridge
+module). If the answer is latter then input is not the right place for
+the device.
 
-Dmitry, what is your opinion about using input device interface for this
-kind of sensors?
+Lately I was persuaded that 3-axis accelerometers are mainly used as
+input devices so I took adxl driver in and I need to get back and review
+cma3000 patch...
 
-> Someone needs to decide on a single API before it's too late.
+> > Someone needs to decide on a single API before it's too late.
+> > 
+> 
+> That is definitely true. Could it be IIO?
 > 
 
-That is definitely true. Could it be IIO?
+I was hpoing that IIO would take care of "unnamed" sensors. Here I mean
+sensors that measure something and only user/application know exactly
+what it is; the same device might measure different things depending on
+setup. Take a temperature sensor - ambient temperature, temperature of
+some technological process, patient temperature - it is hard for the
+kernel to know which one it would be.
 
-> > +
-> > +	if (count < sizeof(data))
-> > +		return -EINVAL;
-> > +
-> > +	if (*offset >= chip->offset) {
-> > +		schedule_work(&chip->work);
-> > +		if (file->f_flags & O_NONBLOCK)
-> > +			return -EAGAIN;
-> > +		if (wait_event_interruptible(chip->misc_wait,
-> > +						(*offset < chip->offset)))
-> > +			return -ERESTARTSYS;
-> > +	}
-> > +
-> > +	mutex_lock(&chip->lock);
-> > +	data.x = chip->x;
-> > +	data.y = chip->y;
-> > +	data.z = chip->z;
-> > +	data.valid = chip->valid;
-> > +	*offset = chip->offset;
-> > +	mutex_unlock(&chip->lock);
-> 
-> What happens if you have two readers - is it fine they get copies of the
-> same event when it races ?
+This is in contrast with input system that tries to classify
+events so that the event has the same meaning regarless of which device
+emitted it - KEY_A means the same regardless of keybord; we may route
+them differently (multiseat for example), but the meaning is the same.
 
-Yes, it makes sense to report latest available information for all
-users.
-
-> 
-> 
-> > +
-> > +	return copy_to_user(buf, &data, sizeof(data)) ? -EFAULT : sizeof(data);
-> 
-> Pedantically if data is consumed and a partial copy occurs you should
-> return the bytes successfully copied.
-
-I need to check that.
-
-> 
-> > +static DEVICE_ATTR(chip_id, S_IRUGO, ak8974_show_chip_id, NULL);
-> > +
-> > +static ssize_t ak8974_show_range(struct device *dev,
-> > +				    struct device_attribute *attr, char *buf)
-> > +{
-> > +	struct ak8974_chip *chip = dev_get_drvdata(dev);
-> > +	return sprintf(buf, "%d\n", chip->max_range);
-> > +}
-> 
-> Other devices make all of this sysfs or use input. We need to work out
-> what the right interface actually is.
-> 
-
-As mentioned above, sysfs is not used to get information about the user
-count for PM purposes.
-
-> > +	snprintf(chip->name, sizeof(chip->name), "ak8974%d",
-> > +		atomic_add_return(1, &device_number) - 1);
-> 
-> Surely this is serialized anyway ?
-
-Is it possible that when there are several chips on the system (in
-different bussed for example), probe functions are running in parallel?
-
-> 
-> 
-> > +#ifdef CONFIG_PM
-> > +static int ak8974_suspend(struct i2c_client *client, pm_message_t mesg)
-> > +{
-> > +	struct ak8974_chip *chip = i2c_get_clientdata(client);
-> > +	mutex_lock(&chip->users_lock);
-> > +	if (chip->users > 0)
-> > +		ak8974_enable(chip, AK8974_PWR_OFF);
-> > +	mutex_unlock(&chip->users_lock);
-> > +	return 0;
-> > +}
-> > +
-> > +static int ak8974_resume(struct i2c_client *client)
-> > +{
-> > +	struct ak8974_chip *chip = i2c_get_clientdata(client);
-> > +	mutex_lock(&chip->users_lock);
-> > +	if (chip->users > 0)
-> > +		ak8974_enable(chip, AK8974_PWR_ON);
-> > +	mutex_unlock(&chip->users_lock);
-> > +	return 0;
-> > +}
-> 
-> The whole chip->users thing you are implementing is basically a
-> reimplementation of the kernel runtime pm stuff - so can that be used
-> instead ?
-
-True. Most probably it can be used instead of own implementation.
-
-> 
-> 
-> > +#ifndef __LINUX_I2C_AK8974_H
-> > +#define __LINUX_I2C_AK8974_H
-> > +
-> > +#define AK8974_NO_MAP		  0
-> > +#define AK8974_DEV_X		  1
-> > +#define AK8974_DEV_Y		  2
-> > +#define AK8974_DEV_Z		  3
-> > +#define AK8974_INV_DEV_X	 -1
-> > +#define AK8974_INV_DEV_Y	 -2
-> > +#define AK8974_INV_DEV_Z	 -3
-> > +
-> > +struct ak8974_platform_data {
-> > +	s8 axis_x;
-> > +	s8 axis_y;
-> > +	s8 axis_z;
-> > +};
-> > +
-> > +/* Device name: /dev/ak8974n, where n is a running number */
-> > +struct ak8974_data {
-> > +	__s16 x;
-> > +	__s16 y;
-> > +	__s16 z;
-> > +	__u16 valid;
-> > +} __attribute__((packed));
-> 
-> This could go in the C file.
+-- 
+Dmitry

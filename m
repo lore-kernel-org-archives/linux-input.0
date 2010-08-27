@@ -1,61 +1,204 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] firmware sysfs node
-Date: Fri, 27 Aug 2010 09:34:36 -0700
-Message-ID: <20100827163436.GB13030@core.coreip.homeip.net>
-References: <1282798497-19791-1-git-send-email-rafi@seas.upenn.edu>
- <1282798497-19791-5-git-send-email-rafi@seas.upenn.edu>
- <4C77AAE1.6050001@euromail.se>
+From: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/3] drivers: misc: ak8974 / ami305 magnetometer driver
+Date: Fri, 27 Aug 2010 19:59:13 +0300
+Message-ID: <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
+References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com>
+	 <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
+	 <20100827133109.1eb974ed@lxorguk.ukuu.org.uk>
+Reply-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:36094 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752696Ab0H0Qem (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Aug 2010 12:34:42 -0400
-Content-Disposition: inline
-In-Reply-To: <4C77AAE1.6050001@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100827133109.1eb974ed-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, ext Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chatty@enac.fr, micki@n-trig.com
 
-On Fri, Aug 27, 2010 at 02:09:05PM +0200, Henrik Rydberg wrote:
-> On 08/26/2010 06:54 AM, Rafi Rubin wrote:
-> 
-> > Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> > ---
-> >  drivers/hid/hid-ntrig.c |   21 +++++++++++++++++++++
-> >  1 files changed, 21 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> > index ab0ca7f..e341e88 100644
-> > --- a/drivers/hid/hid-ntrig.c
-> > +++ b/drivers/hid/hid-ntrig.c
-> > @@ -375,6 +375,26 @@ static ssize_t set_deactivate_slack(struct device *dev,
-> >  static DEVICE_ATTR(deactivate_slack, S_IWUSR | S_IRUGO, show_deactivate_slack,
-> >  		   set_deactivate_slack);
-> >  
-> > +static ssize_t show_firmware(struct device *dev,
-> > +			       struct device_attribute *attr,
-> > +			       char *buf)
+Alan, Thank you for the comments.
+Dmitry, there is one question for you.
+
+-Samu
+
+On Fri, 2010-08-27 at 14:31 +0200, ext Alan Cox wrote:
+> > +static int ak8974_regulators_on(struct ak8974_chip *chip)
 > > +{
-> > +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-> > +	struct ntrig_data *nd = hid_get_drvdata(hdev);
+> > +	int ret;
+> > +	ret = regulator_bulk_enable(ARRAY_SIZE(chip->regs), chip->regs);
+> > +	if (ret == 0)
+> > +		msleep(AK8974_POWERON_DELAY);
 > > +
-> > +	if (!(nd->firmware_version[0] || nd->firmware_version[1] ||
-> > +	      nd->firmware_version[2] || nd->firmware_version[3]))
-> > +		return sprintf(buf, "Firmware version unavailable");
+> > +	return ret;
+> > +}
+> > +
+> > +static inline void ak8974_regulators_off(struct ak8974_chip *chip)
+> > +{
+> > +	regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
+> > +}
 > 
-> 
-> If this sysfs node should really be added (see EVIO), it is probably better if
-> it returns the same format for all devices. If all numbers are zero, that is
-> understandable also by someone reading the node.
+> That bit seems platform specific but in generic code ?
 > 
 
-Yes, I think we should stick it into input_id and be done with it. Note
-that input_id is not only available via EVIOCGID ioctl but also already
-exported in sysfs.
+If the regulator frame work is not configured, this code does nothing.
+I have understood (hopefully correctly) that if the frame work is in use
+drivers could support that directly assuming that regulators are
+configured for that platform. If that is not the case, this should be
+platform specific.
 
--- 
-Dmitry
+> 
+> > +static ssize_t ak8974_misc_read(struct file *file, char __user *buf,
+> > +			size_t count, loff_t *offset)
+> > +{
+> > +	struct ak8974_chip *chip = container_of(file->private_data,
+> > +						struct ak8974_chip,
+> > +						miscdev);
+> > +	struct ak8974_data data;
+> 
+> So we have a different API to the ak8975 just posted and to the other
+> existing devices. This needs sorting out across the devices before there
+> is a complete disaster. Right now we have a mix of submissions pending
+> which variously use
+> 
+> 	misc + sysfs
+> 	sysfs
+> 	input (reporting X Y Z etc axes)
+> 
+
+About year ago I send driver for the same chip with input-device
+interface. During that time I asked from Dmitry Torokhov that is that a
+correct interface for this kind of driver. I understood that input
+should not be used for this kind of sensors.
+
+sysfs is quite handy interface for small sensors. However, one problem
+is that the driver doesn't know when the interface is in use.
+I ended up to misc device to get information about the usercount for PM
+purposes.
+
+Dmitry, what is your opinion about using input device interface for this
+kind of sensors?
+
+> Someone needs to decide on a single API before it's too late.
+> 
+
+That is definitely true. Could it be IIO?
+
+> > +
+> > +	if (count < sizeof(data))
+> > +		return -EINVAL;
+> > +
+> > +	if (*offset >= chip->offset) {
+> > +		schedule_work(&chip->work);
+> > +		if (file->f_flags & O_NONBLOCK)
+> > +			return -EAGAIN;
+> > +		if (wait_event_interruptible(chip->misc_wait,
+> > +						(*offset < chip->offset)))
+> > +			return -ERESTARTSYS;
+> > +	}
+> > +
+> > +	mutex_lock(&chip->lock);
+> > +	data.x = chip->x;
+> > +	data.y = chip->y;
+> > +	data.z = chip->z;
+> > +	data.valid = chip->valid;
+> > +	*offset = chip->offset;
+> > +	mutex_unlock(&chip->lock);
+> 
+> What happens if you have two readers - is it fine they get copies of the
+> same event when it races ?
+
+Yes, it makes sense to report latest available information for all
+users.
+
+> 
+> 
+> > +
+> > +	return copy_to_user(buf, &data, sizeof(data)) ? -EFAULT : sizeof(data);
+> 
+> Pedantically if data is consumed and a partial copy occurs you should
+> return the bytes successfully copied.
+
+I need to check that.
+
+> 
+> > +static DEVICE_ATTR(chip_id, S_IRUGO, ak8974_show_chip_id, NULL);
+> > +
+> > +static ssize_t ak8974_show_range(struct device *dev,
+> > +				    struct device_attribute *attr, char *buf)
+> > +{
+> > +	struct ak8974_chip *chip = dev_get_drvdata(dev);
+> > +	return sprintf(buf, "%d\n", chip->max_range);
+> > +}
+> 
+> Other devices make all of this sysfs or use input. We need to work out
+> what the right interface actually is.
+> 
+
+As mentioned above, sysfs is not used to get information about the user
+count for PM purposes.
+
+> > +	snprintf(chip->name, sizeof(chip->name), "ak8974%d",
+> > +		atomic_add_return(1, &device_number) - 1);
+> 
+> Surely this is serialized anyway ?
+
+Is it possible that when there are several chips on the system (in
+different bussed for example), probe functions are running in parallel?
+
+> 
+> 
+> > +#ifdef CONFIG_PM
+> > +static int ak8974_suspend(struct i2c_client *client, pm_message_t mesg)
+> > +{
+> > +	struct ak8974_chip *chip = i2c_get_clientdata(client);
+> > +	mutex_lock(&chip->users_lock);
+> > +	if (chip->users > 0)
+> > +		ak8974_enable(chip, AK8974_PWR_OFF);
+> > +	mutex_unlock(&chip->users_lock);
+> > +	return 0;
+> > +}
+> > +
+> > +static int ak8974_resume(struct i2c_client *client)
+> > +{
+> > +	struct ak8974_chip *chip = i2c_get_clientdata(client);
+> > +	mutex_lock(&chip->users_lock);
+> > +	if (chip->users > 0)
+> > +		ak8974_enable(chip, AK8974_PWR_ON);
+> > +	mutex_unlock(&chip->users_lock);
+> > +	return 0;
+> > +}
+> 
+> The whole chip->users thing you are implementing is basically a
+> reimplementation of the kernel runtime pm stuff - so can that be used
+> instead ?
+
+True. Most probably it can be used instead of own implementation.
+
+> 
+> 
+> > +#ifndef __LINUX_I2C_AK8974_H
+> > +#define __LINUX_I2C_AK8974_H
+> > +
+> > +#define AK8974_NO_MAP		  0
+> > +#define AK8974_DEV_X		  1
+> > +#define AK8974_DEV_Y		  2
+> > +#define AK8974_DEV_Z		  3
+> > +#define AK8974_INV_DEV_X	 -1
+> > +#define AK8974_INV_DEV_Y	 -2
+> > +#define AK8974_INV_DEV_Z	 -3
+> > +
+> > +struct ak8974_platform_data {
+> > +	s8 axis_x;
+> > +	s8 axis_y;
+> > +	s8 axis_z;
+> > +};
+> > +
+> > +/* Device name: /dev/ak8974n, where n is a running number */
+> > +struct ak8974_data {
+> > +	__s16 x;
+> > +	__s16 y;
+> > +	__s16 z;
+> > +	__u16 valid;
+> > +} __attribute__((packed));
+> 
+> This could go in the C file.

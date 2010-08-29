@@ -1,59 +1,42 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: Re: [PATCH] HID: roccat: Fixing race condition on initialization
-Date: Sun, 29 Aug 2010 00:11:47 +0200
-Message-ID: <1283033507.8037.14.camel@neuromancer>
-References: <1283000268.4789.1.camel@neuromancer>
-	 <4C7952E9.5030608@gmail.com>
-Reply-To: erazor_de@users.sourceforge.net
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2.6.35.3] wacom: Fix mousewheel up/down regression for
+ old wacom tablets
+Date: Sat, 28 Aug 2010 21:40:57 -0700
+Message-ID: <20100829044057.GA15369@core.coreip.homeip.net>
+References: <4C755C78.4000801@gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-14.arcor-online.net ([151.189.21.54]:55044 "EHLO
-	mail-in-14.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752907Ab0H1WLw (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:42940 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750726Ab0H2ElE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Aug 2010 18:11:52 -0400
-In-Reply-To: <4C7952E9.5030608@gmail.com>
+	Sun, 29 Aug 2010 00:41:04 -0400
+Received: by pzk9 with SMTP id 9so1645916pzk.19
+        for <linux-input@vger.kernel.org>; Sat, 28 Aug 2010 21:41:03 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4C755C78.4000801@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, linux-kernel@vger.kernel.org
+To: Mike Auty <ikelos@gentoo.org>
+Cc: linux-input@vger.kernel.org
 
-Am Samstag, den 28.08.2010, 20:18 +0200 schrieb Jiri Slaby:
-> On 08/28/2010 02:57 PM, Stefan Achatz wrote:
-> > Fixed raced condition where event occurs before drvdata is set.
-> > 
-> > Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
-> > ---
-> >  drivers/hid/hid-roccat-kone.c |    4 ++++
-> >  1 files changed, 4 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-> > index f776957..cfeab56 100644
-> > --- a/drivers/hid/hid-roccat-kone.c
-> > +++ b/drivers/hid/hid-roccat-kone.c
-> > @@ -966,6 +966,10 @@ static int kone_raw_event(struct hid_device *hdev, struct hid_report *report,
-> >  	struct kone_device *kone = hid_get_drvdata(hdev);
-> >  	struct kone_mouse_event *event = (struct kone_mouse_event *)data;
-> >  
-> > +	/* possible race condition on initialization */
-> > +	if (!kone)
-> > +		return 0;
+On Wed, Aug 25, 2010 at 07:10:00PM +0100, Mike Auty wrote:
+> This fixes a regression introduced in
+> 3b57ca0f80c5c8994b5b1e3d3f904cfe727951f2.
 > 
-> This kind of "protection" caused much headache in the tty layer in the
-> past. If there is such a problem, please fix the initialization code
-> instead.
+> The data[6] byte contains either 1 or -1 depending on the whether the
+> mouse wheel on older wacom tablets is moved down (1) or up (-1).  The
+> patch introduced in the above commit changed the cast from (signed char)
+> to (signed).  When cast as a signed integer and negated, the value of -1
+> (stored in the byte as 0xff) became -255 rather than 1.  This patch
+> reverts the cast to a (signed char) and also removes an unnecessary
+> (signed) cast, as all the values operated on are bitmasked.
 > 
-> What sort of problems you are seeing?
-> 
-> thanks,
+> Signed-off-by: Mike Auty <ikelos@gentoo.org>
+> Reviewed-by: Ping Cheng <pingc@wacom.com>
 
-After investigating and now fully understanding the issue I want to draw
-back this patch.
-The issue was no race condition in the first place, but an erroneous
-code I wrote for another mouse. This is a injudicious crossport of a
-half baked fix for code that didn't suffer from the problem because the
-next 3 lines already do the right thing for this case.
-Sorry.
+Applied, thank you Mike.
 
+-- 
+Dmitry

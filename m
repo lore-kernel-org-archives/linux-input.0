@@ -1,39 +1,32 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/touch: Introduce the LPC32xx touchscreen
- controller driver (v2)
-Date: Sat, 28 Aug 2010 22:48:38 -0700
-Message-ID: <20100829054838.GC15369@core.coreip.homeip.net>
-References: <1281993661-21097-1-git-send-email-wellsk40@gmail.com>
- <1281993661-21097-2-git-send-email-wellsk40@gmail.com>
+Subject: Re: [PATCH 1/2] input: mt: Initialize slots to unused
+Date: Sat, 28 Aug 2010 22:58:41 -0700
+Message-ID: <20100829055840.GD15369@core.coreip.homeip.net>
+References: <1282484809-8554-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:48594 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750851Ab0H2Fsn (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:49111 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750851Ab0H2F6r (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Aug 2010 01:48:43 -0400
-Received: by pzk9 with SMTP id 9so1657932pzk.19
-        for <linux-input@vger.kernel.org>; Sat, 28 Aug 2010 22:48:43 -0700 (PDT)
+	Sun, 29 Aug 2010 01:58:47 -0400
 Content-Disposition: inline
-In-Reply-To: <1281993661-21097-2-git-send-email-wellsk40@gmail.com>
+In-Reply-To: <1282484809-8554-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: wellsk40@gmail.com
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Durgesh Pattamatta <durgesh.pattamatta@nxp.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2010 at 02:21:01PM -0700, wellsk40@gmail.com wrote:
-> From: Kevin Wells <wellsk40@gmail.com>
+On Sun, Aug 22, 2010 at 03:46:49PM +0200, Henrik Rydberg wrote:
+> For MT slots, the ABS_MT_TRACKING_ID determines whether a slot is in use,
+> but currently leaves initialization up to the drivers. This patch sets the
+> slot state to unused upon creation.
 > 
-> This patch set introduces support for the LPC32xx touchscreen
-> controller driver. The LPC32xx touchscreen controller supports
-> automated event detection and X/Y data conversion for resistive
-> touchscreens.
-> 
-> Signed-off-by: Kevin Wells <wellsk40@gmail.com>
-> Signed-off-by: Durgesh Pattamatta <durgesh.pattamatta@nxp.com>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 
-Applied to my .37 queue, thanks Kevin.
+Applied (which change to for() loop - I prefer not change passed
+arguments), thanks Henrik.
 
 -- 
 Dmitry

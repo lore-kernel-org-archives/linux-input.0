@@ -1,67 +1,88 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
  CMA3000 Accelerometer driver)
-Date: Mon, 30 Aug 2010 14:28:37 -0700
-Message-ID: <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
+Date: Mon, 30 Aug 2010 14:43:56 -0700
+Message-ID: <20100830214355.GB28865@core.coreip.homeip.net>
 References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
-	<20100829184904.GC26209@core.coreip.homeip.net>
-	<36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
-	<20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
-	<20100830204412.GA28711@core.coreip.homeip.net>
+ <20100829184904.GC26209@core.coreip.homeip.net>
+ <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
+ <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
+ <20100830204412.GA28711@core.coreip.homeip.net>
+ <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100830204412.GA28711@core.coreip.homeip.net>
+Content-Disposition: inline
+In-Reply-To: <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
 Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "igor.stoppa@nokia.com" <igor.stoppa@nokia.com>, "kai.svahn@nokia.com" <kai.svahn@nokia.com>, "matthias.nyman@nokia.com" <matthias.nyman@nokia.com>
 List-Id: linux-input@vger.kernel.org
 
-On Monday, August 30, 2010, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->
-> But do you believe that input should be the "primary residence" for the
-> devices when they are only _sometimes_ used as input devices? Or it
-> would make sense to employ a converter from XXX to input (either purely
-> in-kernel or userspace over uinput)?
+On Mon, Aug 30, 2010 at 02:28:37PM -0700, Linus Torvalds wrote:
+> On Monday, August 30, 2010, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> >
+> > But do you believe that input should be the "primary residence" for the
+> > devices when they are only _sometimes_ used as input devices? Or it
+> > would make sense to employ a converter from XXX to input (either purely
+> > in-kernel or userspace over uinput)?
+> 
+> Umm... You've brought that up before as an objection, but what _is_
+> that other model that you would convert from? IOW what *is* that XXX
+> that you talk about?
+> 
 
-Umm... You've brought that up before as an objection, but what _is_
-that other model that you would convert from? IOW what *is* that XXX
-that you talk about?
+IIO which is currently in staging.
 
-So I think accelerometers etc should be seen as input devices for the
-simple reason that
+> So I think accelerometers etc should be seen as input devices for the
+> simple reason that
+> 
+>  (a) They really *are* input devices in all the most common cases. If
+> you have a phone with an accelerometer, it really is used as an input
+> device quite like a joystick.
+> 
+> The fact that there are specialized and rare cases where people may
+> have some fancier accelerometer that isn't necessarily seen that way,
+> and where it is used for some fancy scientific experiment or whatever
+> doesn't change this in *any* way. The common case that almost
+> everybody cares about - and that is getting more common - is the
+> simple and obvious input case.
+> 
+> How is a Wii accelerometer in any way different from a joystick? How
+> is a phone accelerometer any different from one? The answer is clear:
+> they aren't different! So it makes 100% sense to expose them under the
+> same subsystem.
+> 
+> (b) You cannot even name your XXX thing. It clearly makes sense (at
 
- (a) They really *are* input devices in all the most common cases. If
-you have a phone with an accelerometer, it really is used as an input
-device quite like a joystick.
+I can - see above.
 
-The fact that there are specialized and rare cases where people may
-have some fancier accelerometer that isn't necessarily seen that way,
-and where it is used for some fancy scientific experiment or whatever
-doesn't change this in *any* way. The common case that almost
-everybody cares about - and that is getting more common - is the
-simple and obvious input case.
+> least within Tue context of a driver for some embedded phone chip) to
+> see it as an input device. And nothing else comes to mind. You'd have
+> to expose it as some random character device and then everybody would
+> just have to make it emulate an input device in user space anyway.
+> What's the point of that?
+> 
+> None. That's what the point is.
+> 
+> So I really don't understand why you're fighting the input device
+> angle. It makes sense as an input device. It does NOT make sense as
+> anything else.
+> 
+> Really - what else could a phone accelerometer
 
-How is a Wii accelerometer in any way different from a joystick? How
-is a phone accelerometer any different from one? The answer is clear:
-they aren't different! So it makes 100% sense to expose them under the
-same subsystem.
+That is why I started taking accelerometers in. But I am concerned that
+taking accelerometers (which indeed are most often input devices) will
+lead people to try and use the same for temperature, ALS and other
+sensors that are more often used in industrial process controls.
 
-(b) You cannot even name your XXX thing. It clearly makes sense (at
-least within Tue context of a driver for some embedded phone chip) to
-see it as an input device. And nothing else comes to mind. You'd have
-to expose it as some random character device and then everybody would
-just have to make it emulate an input device in user space anyway.
-What's the point of that?
+> (or GPS device, for that matter) really be?
 
-None. That's what the point is.
+But why GPS should be input device? It has nothing to do with user
+input.
 
-So I really don't understand why you're fighting the input device
-angle. It makes sense as an input device. It does NOT make sense as
-anything else.
+> It very much is about user input - even if it
+> isn't a keyboard.
 
-Really - what else could a phone accelerometer (or GPS device, for
-that matter) really be? It very much is about user input - even if it
-isn't a keyboard.
-
-            Linus
+-- 
+Dmitry

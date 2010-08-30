@@ -1,50 +1,50 @@
-From: Felipe Balbi <me@felipebalbi.com>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
- CMA3000 Accelerometer driver)
-Date: Mon, 30 Aug 2010 13:52:18 -0500
-Message-ID: <3fe11bc61e6a844b926ec4d32cec1474@secure211.sgcpanel.com>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com> <20100829184904.GC26209@core.coreip.homeip.net> <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com> <20100830162855.GA17325@core.coreip.homeip.net> <d6b6aa8195784d6baf3ffcdc365c6361@secure211.sgcpanel.com> <20100830172143.GA28275@core.coreip.homeip.net>
+From: Stefan Achatz <stefan_achatz@web.de>
+Subject: [PATCH] HID: roccat: Normalized reported profile number for pyra
+ button events.
+Date: Mon, 30 Aug 2010 21:28:56 +0200
+Message-ID: <1283196536.2059.0.camel__8509.31175887144$1283196559$gmane$org@neuromancer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns1.siteground211.com ([209.62.36.12]:39890 "EHLO
-	serv01.siteground211.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752052Ab0H3SwQ (ORCPT
+Received: from fmmailgate03.web.de ([217.72.192.234]:34712 "EHLO
+	fmmailgate03.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752282Ab0H3T26 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Aug 2010 14:52:16 -0400
-In-Reply-To: <20100830172143.GA28275@core.coreip.homeip.net>
+	Mon, 30 Aug 2010 15:28:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, mathias.nyman@nokia.com
+To: Randy Dunlap <rdunlap@xenotime.net>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, Bruno =?ISO-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>Ste
 
-Hi,
+Pyra uses profile numbers in range 0-4 for everything except button
+events. Using range 1-5 consistent now.
 
-On Mon, 30 Aug 2010 10:21:44 -0700, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> My response to this - are gyroscopes will _only_ be used to turn around
-> in a game? Are proximity sensor is _only_ usable as a trigger in FPS?
-> Won't we ever see such chips controlling technological processes?
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-roccat-pyra.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-similarly, will accelerometers always be used as input devices ?
-of course not, they have been used e.g. to spin down hard disks
-on laptops when they are shaken too hard. Still they have quite a
-fair bit of usage as input devices; you've seen it yourself,
-right ?
-
-in the end of the day, when you put those on mobile devices
-like e.g. cellphones, app developers will be really keen on
-creating new ways for interacting with apps (be it a game
-or not) using those devices, so I will agree with Jonathan
-that, maybe, having two separate drivers for different
-purposes would make sense, although that might cause a bit
-of trouble if user ends up enabling the wrong driver when
-building custom kernel for his device.
-
-My hope is that we can make use of a well known and uniform
-API for all input devices in a device, be it a keypad,
-touchscreen, accelerometer, magnetometer, gyro, or whatever.
-
+diff --git a/drivers/hid/hid-roccat-pyra.c
+b/drivers/hid/hid-roccat-pyra.c
+index 6c09c15..9bf2304 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -902,7 +902,11 @@ static void pyra_report_to_chrdev(struct
+pyra_device const *pyra,
+ 		if (button_event->data2 == PYRA_MOUSE_EVENT_BUTTON_PRESS) {
+ 			roccat_report.type = button_event->type;
+ 			roccat_report.key = button_event->data1;
+-			roccat_report.value = pyra->actual_profile;
++			/*
++			 * pyra reports profile numbers with range 1-5.
++			 * Keeping this behaviour.
++			 */
++			roccat_report.value = pyra->actual_profile + 1;
+ 			roccat_report_event(pyra->chrdev_minor,
+ 					(uint8_t const *)&roccat_report,
+ 					sizeof(struct pyra_roccat_report));
 -- 
-balbi
+1.7.2.2
+
+
+

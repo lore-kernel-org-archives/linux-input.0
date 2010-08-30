@@ -1,89 +1,40 @@
-From: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/3] drivers: misc: ak8974 / ami305 magnetometer driver
-Date: Mon, 30 Aug 2010 09:55:00 +0300
-Message-ID: <1283151300.16404.18.camel@4fid08082>
-References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com>
-	 <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
-	 <20100827133109.1eb974ed@lxorguk.ukuu.org.uk>
-	 <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
-	 <20100827185343.GA6626@opensource.wolfsonmicro.com>
-Reply-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100827185343.GA6626-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, ext Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Cc: ext Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Many fixes for in-kernel decoding + ENE driver
+Date: Mon, 30 Aug 2010 11:52:20 +0300
+Message-ID: <1283158348-7429-1-git-send-email-maximlevitsky@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:50033 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754781Ab0H3Iwk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Aug 2010 04:52:40 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: lirc-list@lists.sourceforge.net
+Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Fri, 2010-08-27 at 20:53 +0200, ext Mark Brown wrote:
-> On Fri, Aug 27, 2010 at 07:59:13PM +0300, Onkalo Samu wrote:
-> > On Fri, 2010-08-27 at 14:31 +0200, ext Alan Cox wrote:
-> 
-> > > > +static int ak8974_regulators_on(struct ak8974_chip *chip)
-> > > > +{
-> > > > +	int ret;
-> > > > +	ret = regulator_bulk_enable(ARRAY_SIZE(chip->regs), chip->regs);
-> 
-> > > That bit seems platform specific but in generic code ?
-> 
-> > If the regulator frame work is not configured, this code does nothing.
-> > I have understood (hopefully correctly) that if the frame work is in use
-> > drivers could support that directly assuming that regulators are
-> > configured for that platform. If that is not the case, this should be
-> > platform specific.
-> 
-> Your understanding is correct - the regulator API provides separation
-> between the driver and the platform so that the driver code can work
-> with any platform.  The driver requests supplies in terms of the
-> physical supplies the chip has (using the struct device and the supply
-> names from the datasheet).  The regulator API them matches this with
-> actual regulators on a given system using data provied separately by the
-> code specific to that machine so that the regulator and the consumer
-> using it don't need to know about each other.
-> 
-> If the regulator API is disabled then the basic regulator API calls
-> compile to inline stubs that report success, and there's a facility for
-> optionally automatically stubbing out missing supplies when the API is
-> enabled.
+Hi,
 
-Mark, thanks for clarification. So is it ok to keep this in the driver
-code.
+I did a lot of debug work on this, including a debug session with two users.
+I was able to test and fix support for all features ene driver supports.
 
-I would like to get some advice about the following related to PM and
-regulator control.
+The patch #1 fixes a bug I introduced
+The patch #2 fixes a nasty bug that crashes the system
+The patch #3 fixes another small bug in my code
+The patch #4 fixes a nasty but that appears as a stuck down forever key
 
-Small sensor with SYSFS only interface:
----------------------------------------
-Driver doesn't know when someone opens (or keeps open) sysfs entry.
-It only knows when someone reads or writes to it. Sensors may have quite
-long wakeup time from total power off (regulators off) so it takes quite
-long time to get first result. On the other hand, driver doesn't know
-when it is ok to turn off the device.
-At some level, this can be handled with a timer which is is kicked every
-time when there is read / write operation. However, this is sounds
-little bit a hack.
+The patch #5 adds a lot of bugfixes, refactoring and support for latest firmware
+that without it driver dosn't work.
+Driver is fully tested, and works.
 
-Would it make sense at all to enhange sysfs to have open / close
-indication for PM related control? Of course this adds overhead to
-every sysfs operation and most of the sysfs entries doesn't need
-this kind of feature.
+in the patch #6 I finally decided to extend ir_raw_event, and encode additional
+flags to it. This way I can signal the decoders about last space and yet not
+show it up on lirc interface.
+Timeout hangling is now moved in lirc bridge where it belongs.
+While at it, I also added support for carrier report events,
+and patch #6 adds that support to ene driver (tested too).
 
-One solution is to have separate disable / enable control entry
-for the sensor. This needs addional operations from the applications
-and is little bit tricky in case of several users - should it be
-on / off type or counting type control.
-
-Misc-char-device + sysfs interface:
------------------------------------
-PM related issues can be nicely handled with char device.
-It doesn't matter if there are one or several users. However
-char device with binary data format is not that handy in scripts.
-Same is true for input device. 
+Best regards,
+	Maxim Levitsky
 
 
-Do you have any suggestions what could be the best way to handle this?
-
--Samu

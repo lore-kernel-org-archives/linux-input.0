@@ -1,42 +1,46 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 3/3] hid: 3m: Correct touchscreen emulation
-Date: Mon, 30 Aug 2010 15:36:53 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1008301535300.1019@pobox.suse.cz>
-References: <1283005748-3293-1-git-send-email-rydberg@euromail.se>  <1283005748-3293-3-git-send-email-rydberg@euromail.se>  <2A410207-8AAA-4D5A-846A-B69F007E6800@enac.fr> <4C79346F.4050409@euromail.se> <75AEF6DA-F09E-4B90-8E89-6F5B668724C9@enac.fr>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] usbhid: Add quirk for eGalax touch controler.
+Date: Mon, 30 Aug 2010 15:50:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1008301550130.1019@pobox.suse.cz>
+References: <1283166702-28582-1-git-send-email-thierry.reding@avionic-design.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <75AEF6DA-F09E-4B90-8E89-6F5B668724C9@enac.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1283166702-28582-1-git-send-email-thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Hutterer <peter.hutterer-Pf4JEFdB4epeoWH0uzbU5w@public.gmane.org>, Thadeu Lima de Souza Cascardo <cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org>, Daniel Oliveira Nascimento <don-rBL4DdiBytkIdKJ7tpkyPg@public.gmane.org>, Keith Rutkowski <rutkowski-T1p9dGDnAHDoS6w7zS32OEtZW7PLQM7H@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 28 Aug 2010, St=E9phane Chatty wrote:
+On Mon, 30 Aug 2010, Thierry Reding wrote:
 
-> > I think we use the term tracking id differently here. The HID_DG_CO=
-NTACTID
-> > is
-> > actually the slot id, and the tracking id is a sequential number, i=
-ncreased
-> > whenever the touch is new. I believe the patchset works correctly a=
-s long as
-> > there is less than 32768 new touches before releasing the oldest on=
-e. :-)
->=20
-> Oh, right. I definitely need to catch up with Protocol B.
+> This patch adds a quirk for the eGalax touch controller which reports
+> two pairs of axes.
+> 
+> Signed-off-by: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+> ---
+>  drivers/hid/usbhid/hid-quirks.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 2643d31..48120a2 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -33,6 +33,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_PREDATOR, HID_QUIRK_BADPAD },
+>  	{ USB_VENDOR_ID_ALPS, USB_DEVICE_ID_IBM_GAMEPAD, HID_QUIRK_BADPAD },
+>  	{ USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD, HID_QUIRK_BADPAD },
+> +	{ USB_VENDOR_ID_DWAV, USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_MOJO, USB_DEVICE_ID_RETRO_ADAPTER, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
 
-Henrik,
+Applied, thank you Thierry.
 
-thanks a lot for the patches.
-
-Stephane, could you please send me your Acked-by for those changes? I'd=
-=20
-like to have this before applying them.
-
-Thanks,
-
---=20
+-- 
 Jiri Kosina
 SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

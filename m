@@ -1,77 +1,61 @@
-From: Felipe Balbi <me@felipebalbi.com>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
- CMA3000 Accelerometer driver)
-Date: Mon, 30 Aug 2010 12:10:41 -0500
-Message-ID: <d6b6aa8195784d6baf3ffcdc365c6361@secure211.sgcpanel.com>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com> <20100829184904.GC26209@core.coreip.homeip.net> <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com> <20100830162855.GA17325@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH 1/6] HID: magicmouse: don't allow hidinput to initialize
+Date: Mon, 30 Aug 2010 13:20:53 -0400
+Message-ID: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns1.siteground211.com ([209.62.36.12]:60605 "EHLO
-	serv01.siteground211.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755398Ab0H3RKk (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:57639 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756022Ab0H3RVC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Aug 2010 13:10:40 -0400
-In-Reply-To: <20100830162855.GA17325@core.coreip.homeip.net>
+	Mon, 30 Aug 2010 13:21:02 -0400
+Received: from hutte.canonical.com ([91.189.90.181])
+	by adelie.canonical.com with esmtp (Exim 4.69 #1 (Debian))
+	id 1Oq82W-00070M-2w
+	for <linux-input@vger.kernel.org>; Mon, 30 Aug 2010 18:21:00 +0100
+Received: from cpe-75-180-27-10.columbus.res.rr.com ([75.180.27.10] helo=canonical.com)
+	by hutte.canonical.com with esmtpsa (TLS-1.0:DHE_RSA_AES_128_CBC_SHA1:16)
+	(Exim 4.69)
+	(envelope-from <chase.douglas@canonical.com>)
+	id 1Oq82V-0006Dd-QF
+	for linux-input@vger.kernel.org; Mon, 30 Aug 2010 18:21:00 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, mathias.nyman@nokia.com
+To: linux-input@vger.kernel.org
 
-Hi,
+From: Chase Douglas <chase.douglas@ubuntu.com>
 
-On Mon, 30 Aug 2010 09:28:56 -0700, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->> When we tried to push N900's accelerometer driver as an
->> input device you commented you didn't want sensors such
->> as accelerometers, magnetometers, proximity, etc on the
->> input layer because "they are not user input", although
->> I didn't fully agree with you, we had to modify the drivers
->> and, I believe, one of them is sitting in staging under
->> the industrial i/o subsystem.
->> 
->> Are you now accepting sensor drivers on the input layer ?
->> that will make our life a lot easier but we need some
->> definition to avoid having to re-work drivers when we
->> want to push them to mainline.
->> 
-> 
-> I got persuaded that 3-axis accelerometers are most often indended to be
-> used as input devices so I decided I should take these in (adxl134x is
-> there). I still think that sensor devices in general are better suited
-> to IIO subsystem and I hope it will get out of staging soon.
-> 
-> Once it is out of staging we may think about creating a IIO-to-input
-> bridge (copuld be either in kernel or a userspace solution based on
-> uinput) to route sensors that are indeed used as HIDs.
-> 
-> Hope this makes sense.
+The driver listens only for raw events from the device. If we allow
+the hidinput layer to initialize, we can hit NULL pointer dereferences
+in the hidinput layer because disconnecting only removes the input
+devices from the hid device while leaving the hid fields around.
 
-It kinda does, but such sensors will be more and more used as
-input devices, specially for gaming on mobile devices.
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ drivers/hid/hid-magicmouse.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
 
-For example a proximity sensor might be used as the trigger
-button on a first person shooting game; accelerometers will
-be used to walk through the map and a magnetometer might be
-used to look behind you and a gyroscope to turn around your
-own axis.
-
-In the end, the user is the one moving the device around and
-generating such events, so why not avoiding yet another
-subsystem if we will have to resort to solutions such as
-iio-to-input bridge, which smells like a hackish solution
-to get input events from sensors anyway.
-
-I really hope I could convince you that, on mobile at least,
-sensors will be mostly used as HID devices and will give
-app developers new ways for them to allow users to interact
-with their app.
-
-Take a look at how a gyroscope is used on iphone, for
-instance [1].
-
-[1] http://www.youtube.com/watch?v=ORcu-c-qnjg
-
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index ee78787..2d8532d 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -404,15 +404,13 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		goto err_free;
+ 	}
+ 
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	/* we are handling the input ourselves */
++	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW | HID_CONNECT_HIDDEV);
+ 	if (ret) {
+ 		dev_err(&hdev->dev, "magicmouse hw start failed\n");
+ 		goto err_free;
+ 	}
+ 
+-	/* we are handling the input ourselves */
+-	hidinput_disconnect(hdev);
+-
+ 	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
+ 	if (!report) {
+ 		dev_err(&hdev->dev, "unable to register touch report\n");
 -- 
-balbi
+1.7.1
+

@@ -1,38 +1,50 @@
-From: Neil Leeder <nleeder@codeaurora.org>
-Subject: Re: [PATCH 0/1] input: keyboard: add qci keyboard driver
-Date: Mon, 30 Aug 2010 14:22:10 -0400
-Message-ID: <4C7BF6D2.5080501@codeaurora.org>
-References: <4C7838DD.1020004@codeaurora.org> <201008271533.01542.dmitry.torokhov@gmail.com>
+From: Felipe Balbi <me@felipebalbi.com>
+Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
+ CMA3000 Accelerometer driver)
+Date: Mon, 30 Aug 2010 13:52:18 -0500
+Message-ID: <3fe11bc61e6a844b926ec4d32cec1474@secure211.sgcpanel.com>
+References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com> <20100829184904.GC26209@core.coreip.homeip.net> <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com> <20100830162855.GA17325@core.coreip.homeip.net> <d6b6aa8195784d6baf3ffcdc365c6361@secure211.sgcpanel.com> <20100830172143.GA28275@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:57093 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755972Ab0H3SWM (ORCPT
+Received: from ns1.siteground211.com ([209.62.36.12]:39890 "EHLO
+	serv01.siteground211.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752052Ab0H3SwQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Aug 2010 14:22:12 -0400
-In-Reply-To: <201008271533.01542.dmitry.torokhov@gmail.com>
+	Mon, 30 Aug 2010 14:52:16 -0400
+In-Reply-To: <20100830172143.GA28275@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Hsin.Wu@quantatw.com
+Cc: Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, mathias.nyman@nokia.com
 
-On 8/27/2010 6:33 PM, Dmitry Torokhov wrote:
-> No, this is crazy... This is a twin-brother of the touchpad driver and
-> I really do not understand why chip claiming to have PS/2 interface
-> (3 ports if I were to believe the diagram) would not allow us talk to
-> the devices...
+Hi,
 
-I didn't provide a key bit of information, sorry. The keyboard is not 
-attached to the EC's PS/2 port. It is on a matrix of GPIOs.
+On Mon, 30 Aug 2010 10:21:44 -0700, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> My response to this - are gyroscopes will _only_ be used to turn around
+> in a game? Are proximity sensor is _only_ usable as a trigger in FPS?
+> Won't we ever see such chips controlling technological processes?
 
-I was trying to explain that even though the firmware on the EC uses 
-0xF4 written over i2c to initialize it, it doesn't appear to support 
-other PS/2 commands directed to the keyboard on the GPIO matrix.
+similarly, will accelerometers always be used as input devices ?
+of course not, they have been used e.g. to spin down hard disks
+on laptops when they are shaken too hard. Still they have quite a
+fair bit of usage as input devices; you've seen it yourself,
+right ?
 
---
-Neil
+in the end of the day, when you put those on mobile devices
+like e.g. cellphones, app developers will be really keen on
+creating new ways for interacting with apps (be it a game
+or not) using those devices, so I will agree with Jonathan
+that, maybe, having two separate drivers for different
+purposes would make sense, although that might cause a bit
+of trouble if user ends up enabling the wrong driver when
+building custom kernel for his device.
+
+My hope is that we can make use of a well known and uniform
+API for all input devices in a device, be it a keypad,
+touchscreen, accelerometer, magnetometer, gyro, or whatever.
+
 -- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+balbi

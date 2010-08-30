@@ -1,50 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
- CMA3000 Accelerometer driver)
-Date: Mon, 30 Aug 2010 09:28:56 -0700
-Message-ID: <20100830162855.GA17325@core.coreip.homeip.net>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
- <20100829184904.GC26209@core.coreip.homeip.net>
- <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
+Subject: Re: [PATCH v2] input: Add support for Hanwang tablet
+Date: Mon, 30 Aug 2010 09:34:46 -0700
+Message-ID: <20100830163446.GB17325@core.coreip.homeip.net>
+References: <201008302133119064558@hanwang.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:63731 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755862Ab0H3Qe4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Aug 2010 12:34:56 -0400
 Content-Disposition: inline
-In-Reply-To: <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Felipe Balbi <me@felipebalbi.com>
-Cc: Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, matthias.nyman@nokia.com
+In-Reply-To: <201008302133119064558@hanwang.com.cn>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Xing Wei <weixing@hanwang.com.cn>
+Cc: jkosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi Felipe,
-
-On Mon, Aug 30, 2010 at 11:04:39AM -0500, Felipe Balbi wrote:
-> Hi Dmitry,
+On Mon, Aug 30, 2010 at 09:33:12PM +0800, Xing Wei wrote:
+> On Mon, 30 Aug 2010, Jiri Kosina Wrote: 
+> > > On Mon, 30 Aug 2010, Xing Wei wrote:
+> > >  
+> > > +config TABLET_USB_HANWANG
+> > > +	tristate "Hanwang Art Master III tablet support (USB)"
+> > > +	depends on USB_ARCH_HAS_HCD
+> > > +	select USB
+> > > +	help
+> > > +	  Say Y here if you want to use the USB version of the Hanwang Art
+> > > +	  Master III tablet.  Make sure to say Y to "Mouse support"
+> > > +	  (CONFIG_INPUT_MOUSEDEV) and/or "Event interface support"
+> > > +	  (CONFIG_INPUT_EVDEV) as well.
+> > 
+> > Is there any reason why you don't have these (MOUSEDEV and EVDEV) as 
+> > explicit Kconfig dependencies?
+> > 
+> > Thanks,
+> > 
 > 
-> When we tried to push N900's accelerometer driver as an
-> input device you commented you didn't want sensors such
-> as accelerometers, magnetometers, proximity, etc on the
-> input layer because "they are not user input", although
-> I didn't fully agree with you, we had to modify the drivers
-> and, I believe, one of them is sitting in staging under
-> the industrial i/o subsystem.
-> 
-> Are you now accepting sensor drivers on the input layer ?
-> that will make our life a lot easier but we need some
-> definition to avoid having to re-work drivers when we
-> want to push them to mainline.
+> I just reference the other USB tablet on this Kconfig,like aiptek,acecad,wacom.
+> Actually it depends on EVDEV at least now.
+> I can submit another patch if necessarry.
 > 
 
-I got persuaded that 3-axis accelerometers are most often indended to be
-used as input devices so I decided I should take these in (adxl134x is
-there). I still think that sensor devices in general are better suited
-to IIO subsystem and I hope it will get out of staging soon.
+Actually I think we should just drop references to particular input
+handlers in the Kconfig as, strictly speaking, the driver does not
+depend on either of them.
 
-Once it is out of staging we may think about creating a IIO-to-input
-bridge (copuld be either in kernel or a userspace solution based on
-uinput) to route sensors that are indeed used as HIDs.
+The text in other tablets came from time when whole input layer was a
+novelty and nobody was sure what should be enabled. Nowadays every
+distribution (I hope) has evdev enabled as it becomes main interface
+between X and kernel and the legacy mouse and keyboard interfaces
+(MOUSEDEV) are fading away.
 
-Hope this makes sense.
+While we are talking about the patch - I am usually OK with extending past
+80 column limit, but some of the lines are pretty excessive. I'd prefer
+not going above 95-100 unless it is a message string - we do not want to
+break those.
+
+Thanks.
 
 -- 
 Dmitry

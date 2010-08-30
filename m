@@ -1,61 +1,100 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 1/6] HID: magicmouse: don't allow hidinput to initialize
-Date: Mon, 30 Aug 2010 13:20:53 -0400
-Message-ID: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
+Subject: [PATCH 3/6] HID: magicmouse: simplify touch data bit manipulation
+Date: Mon, 30 Aug 2010 13:20:55 -0400
+Message-ID: <1283188858-4839-3-git-send-email-chase.douglas@canonical.com>
+References: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:57639 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:57763 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756022Ab0H3RVC (ORCPT
+	with ESMTP id S1755536Ab0H3RVG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Aug 2010 13:21:02 -0400
+	Mon, 30 Aug 2010 13:21:06 -0400
 Received: from hutte.canonical.com ([91.189.90.181])
 	by adelie.canonical.com with esmtp (Exim 4.69 #1 (Debian))
-	id 1Oq82W-00070M-2w
-	for <linux-input@vger.kernel.org>; Mon, 30 Aug 2010 18:21:00 +0100
+	id 1Oq82a-00075Z-2F
+	for <linux-input@vger.kernel.org>; Mon, 30 Aug 2010 18:21:04 +0100
 Received: from cpe-75-180-27-10.columbus.res.rr.com ([75.180.27.10] helo=canonical.com)
 	by hutte.canonical.com with esmtpsa (TLS-1.0:DHE_RSA_AES_128_CBC_SHA1:16)
 	(Exim 4.69)
 	(envelope-from <chase.douglas@canonical.com>)
-	id 1Oq82V-0006Dd-QF
-	for linux-input@vger.kernel.org; Mon, 30 Aug 2010 18:21:00 +0100
+	id 1Oq82Z-0006Dn-KO
+	for linux-input@vger.kernel.org; Mon, 30 Aug 2010 18:21:04 +0100
+In-Reply-To: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
-From: Chase Douglas <chase.douglas@ubuntu.com>
+The new format should be easier to read to determine which bits
+correspond to which data. It also brings all the manipulation logic to
+the top of the function. This makes size and orientation reading more
+clear.
 
-The driver listens only for raw events from the device. If we allow
-the hidinput layer to initialize, we can hit NULL pointer dereferences
-in the hidinput layer because disconnecting only removes the input
-devices from the hid device while leaving the hid fields around.
+Note that the impetus for this change is the forthcoming support for the
+Magic Trackpad, which has a different touch data protocol.
 
 Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 ---
- drivers/hid/hid-magicmouse.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/hid/hid-magicmouse.c |   25 +++++++++++++------------
+ 1 files changed, 13 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index ee78787..2d8532d 100644
+index d758061..f3ee6ab 100644
 --- a/drivers/hid/hid-magicmouse.c
 +++ b/drivers/hid/hid-magicmouse.c
-@@ -404,15 +404,13 @@ static int magicmouse_probe(struct hid_device *hdev,
- 		goto err_free;
- 	}
+@@ -166,18 +166,21 @@ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
+ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tdata)
+ {
+ 	struct input_dev *input = msc->input;
+-	__s32 x_y = tdata[0] << 8 | tdata[1] << 16 | tdata[2] << 24;
+-	int misc = tdata[5] | tdata[6] << 8;
+-	int id = (misc >> 6) & 15;
+-	int x = x_y << 12 >> 20;
+-	int y = -(x_y >> 20);
+-	int down = (tdata[7] & TOUCH_STATE_MASK) != TOUCH_STATE_NONE;
++	int id = (tdata[6] << 2 | tdata[5] >> 6) & 0xf;
++	int x = (tdata[1] << 28 | tdata[0] << 20) >> 20;
++	int y = -((tdata[2] << 24 | tdata[1] << 16) >> 20);
++	int size = tdata[5] & 0x3f;
++	int orientation = (tdata[6] >> 2) - 32;
++	int touch_major = tdata[3];
++	int touch_minor = tdata[4];
++	int state = tdata[7] & TOUCH_STATE_MASK;
++	int down = state != TOUCH_STATE_NONE;
  
--	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	/* we are handling the input ourselves */
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW | HID_CONNECT_HIDDEV);
- 	if (ret) {
- 		dev_err(&hdev->dev, "magicmouse hw start failed\n");
- 		goto err_free;
- 	}
+ 	/* Store tracking ID and other fields. */
+ 	msc->tracking_ids[raw_id] = id;
+ 	msc->touches[id].x = x;
+ 	msc->touches[id].y = y;
+-	msc->touches[id].size = misc & 63;
++	msc->touches[id].size = size;
  
--	/* we are handling the input ourselves */
--	hidinput_disconnect(hdev);
+ 	/* If requested, emulate a scroll wheel by detecting small
+ 	 * vertical touch motions.
+@@ -188,7 +191,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 		int step_y = msc->touches[id].scroll_y - y;
+ 
+ 		/* Calculate and apply the scroll motion. */
+-		switch (tdata[7] & TOUCH_STATE_MASK) {
++		switch (state) {
+ 		case TOUCH_STATE_START:
+ 			msc->touches[id].scroll_x = x;
+ 			msc->touches[id].scroll_y = y;
+@@ -224,13 +227,11 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 
+ 	/* Generate the input events for this touch. */
+ 	if (report_touches && down) {
+-		int orientation = (misc >> 10) - 32;
 -
- 	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
- 	if (!report) {
- 		dev_err(&hdev->dev, "unable to register touch report\n");
+ 		msc->touches[id].down = 1;
+ 
+ 		input_report_abs(input, ABS_MT_TRACKING_ID, id);
+-		input_report_abs(input, ABS_MT_TOUCH_MAJOR, tdata[3]);
+-		input_report_abs(input, ABS_MT_TOUCH_MINOR, tdata[4]);
++		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major);
++		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor);
+ 		input_report_abs(input, ABS_MT_ORIENTATION, orientation);
+ 		input_report_abs(input, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input, ABS_MT_POSITION_Y, y);
 -- 
 1.7.1
 

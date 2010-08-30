@@ -1,88 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
- CMA3000 Accelerometer driver)
-Date: Mon, 30 Aug 2010 14:43:56 -0700
-Message-ID: <20100830214355.GB28865@core.coreip.homeip.net>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
- <20100829184904.GC26209@core.coreip.homeip.net>
- <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
- <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
- <20100830204412.GA28711@core.coreip.homeip.net>
- <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
+Subject: Re: [PATCH 0/1] input: keyboard: add qci keyboard driver
+Date: Mon, 30 Aug 2010 14:55:56 -0700
+Message-ID: <20100830215556.GC28865@core.coreip.homeip.net>
+References: <4C7838DD.1020004@codeaurora.org>
+ <201008271533.01542.dmitry.torokhov@gmail.com>
+ <4C7BF6D2.5080501@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "igor.stoppa@nokia.com" <igor.stoppa@nokia.com>, "kai.svahn@nokia.com" <kai.svahn@nokia.com>, "matthias.nyman@nokia.com" <matthias.nyman@nokia.com>
+In-Reply-To: <4C7BF6D2.5080501@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Neil Leeder <nleeder@codeaurora.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Hsin.Wu@quantatw.com, mcuos.com@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Aug 30, 2010 at 02:28:37PM -0700, Linus Torvalds wrote:
-> On Monday, August 30, 2010, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >
-> > But do you believe that input should be the "primary residence" for the
-> > devices when they are only _sometimes_ used as input devices? Or it
-> > would make sense to employ a converter from XXX to input (either purely
-> > in-kernel or userspace over uinput)?
+On Mon, Aug 30, 2010 at 02:22:10PM -0400, Neil Leeder wrote:
+> On 8/27/2010 6:33 PM, Dmitry Torokhov wrote:
+> >No, this is crazy... This is a twin-brother of the touchpad driver and
+> >I really do not understand why chip claiming to have PS/2 interface
+> >(3 ports if I were to believe the diagram) would not allow us talk to
+> >the devices...
 > 
-> Umm... You've brought that up before as an objection, but what _is_
-> that other model that you would convert from? IOW what *is* that XXX
-> that you talk about?
+> I didn't provide a key bit of information, sorry. The keyboard is
+> not attached to the EC's PS/2 port. It is on a matrix of GPIOs.
+
+And still you are using only one GPIO in your driver? While WPCE775x
+does seem to have matrix keypad support I think that you are using one
+of the 3 PS/2 ports, like your touchpad does.
+
+> 
+> I was trying to explain that even though the firmware on the EC uses
+> 0xF4 written over i2c to initialize it, it doesn't appear to support
+> other PS/2 commands directed to the keyboard on the GPIO matrix.
 > 
 
-IIO which is currently in staging.
+The device is initialized with 0xf4; the device is supposed to respond
+with 0xfa; I wonder what scancodes the device reports... It smells
+strongly of PS/2.
 
-> So I think accelerometers etc should be seen as input devices for the
-> simple reason that
-> 
->  (a) They really *are* input devices in all the most common cases. If
-> you have a phone with an accelerometer, it really is used as an input
-> device quite like a joystick.
-> 
-> The fact that there are specialized and rare cases where people may
-> have some fancier accelerometer that isn't necessarily seen that way,
-> and where it is used for some fancy scientific experiment or whatever
-> doesn't change this in *any* way. The common case that almost
-> everybody cares about - and that is getting more common - is the
-> simple and obvious input case.
-> 
-> How is a Wii accelerometer in any way different from a joystick? How
-> is a phone accelerometer any different from one? The answer is clear:
-> they aren't different! So it makes 100% sense to expose them under the
-> same subsystem.
-> 
-> (b) You cannot even name your XXX thing. It clearly makes sense (at
+Also, it is not controller that supports PS/2 commands but rather the
+device itself so I am still hopeful that we could make use of the
+standard drivers.
 
-I can - see above.
-
-> least within Tue context of a driver for some embedded phone chip) to
-> see it as an input device. And nothing else comes to mind. You'd have
-> to expose it as some random character device and then everybody would
-> just have to make it emulate an input device in user space anyway.
-> What's the point of that?
-> 
-> None. That's what the point is.
-> 
-> So I really don't understand why you're fighting the input device
-> angle. It makes sense as an input device. It does NOT make sense as
-> anything else.
-> 
-> Really - what else could a phone accelerometer
-
-That is why I started taking accelerometers in. But I am concerned that
-taking accelerometers (which indeed are most often input devices) will
-lead people to try and use the same for temperature, ALS and other
-sensors that are more often used in industrial process controls.
-
-> (or GPS device, for that matter) really be?
-
-But why GPS should be input device? It has nothing to do with user
-input.
-
-> It very much is about user input - even if it
-> isn't a keyboard.
+Wan, you worked at Nuvoton, do you know if wpce775 fully supports PS/2
+interface? 
 
 -- 
 Dmitry

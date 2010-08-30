@@ -1,50 +1,54 @@
-From: Stefan Achatz <stefan_achatz@web.de>
-Subject: [PATCH] HID: roccat: Normalized reported profile number for pyra
- button events.
-Date: Mon, 30 Aug 2010 21:28:56 +0200
-Message-ID: <1283196536.2059.0.camel__8509.31175887144$1283196559$gmane$org@neuromancer>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2]
+ input: CMA3000 Accelerometer driver)
+Date: Mon, 30 Aug 2010 21:40:25 +0100
+Message-ID: <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
+References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
+	<20100829184904.GC26209@core.coreip.homeip.net>
+	<36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fmmailgate03.web.de ([217.72.192.234]:34712 "EHLO
-	fmmailgate03.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752282Ab0H3T26 (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:40169 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753902Ab0H3UWf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Aug 2010 15:28:58 -0400
+	Mon, 30 Aug 2010 16:22:35 -0400
+In-Reply-To: <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, Bruno =?ISO-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>Ste
+To: Felipe Balbi <me@felipebalbi.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, matthias.nyman@nokia.com
 
-Pyra uses profile numbers in range 0-4 for everything except button
-events. Using range 1-5 consistent now.
+On Mon, 30 Aug 2010 11:04:39 -0500
+Felipe Balbi <me@felipebalbi.com> wrote:
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-roccat-pyra.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+> Hi Dmitry,
+> 
+> When we tried to push N900's accelerometer driver as an
+> input device you commented you didn't want sensors such
+> as accelerometers, magnetometers, proximity, etc on the
+> input layer because "they are not user input", although
+> I didn't fully agree with you, we had to modify the drivers
+> and, I believe, one of them is sitting in staging under
+> the industrial i/o subsystem.
+> 
+> Are you now accepting sensor drivers on the input layer ?
+> that will make our life a lot easier but we need some
+> definition to avoid having to re-work drivers when we
+> want to push them to mainline.
 
-diff --git a/drivers/hid/hid-roccat-pyra.c
-b/drivers/hid/hid-roccat-pyra.c
-index 6c09c15..9bf2304 100644
---- a/drivers/hid/hid-roccat-pyra.c
-+++ b/drivers/hid/hid-roccat-pyra.c
-@@ -902,7 +902,11 @@ static void pyra_report_to_chrdev(struct
-pyra_device const *pyra,
- 		if (button_event->data2 == PYRA_MOUSE_EVENT_BUTTON_PRESS) {
- 			roccat_report.type = button_event->type;
- 			roccat_report.key = button_event->data1;
--			roccat_report.value = pyra->actual_profile;
-+			/*
-+			 * pyra reports profile numbers with range 1-5.
-+			 * Keeping this behaviour.
-+			 */
-+			roccat_report.value = pyra->actual_profile + 1;
- 			roccat_report_event(pyra->chrdev_minor,
- 					(uint8_t const *)&roccat_report,
- 					sizeof(struct pyra_roccat_report));
--- 
-1.7.2.2
+I would certainly vote for them being input when they are sometimes used
+that way - compasses for example do get used by applications (like
+compass programs, some of the real cool visualisation tools and things
+like live/game mixed gaming environments) and accelerometers are gaming
+inputs. Proximity is also input for some stuff although usually of much
+more interest to the GUI manager than the GUI apps.
+
+ALS is more of a dual purpose thing -light levels are input features to
+the GUI on PDAs, although on many embedded devices they are most
+definitely part of the IIO subsystem.
 
 
 

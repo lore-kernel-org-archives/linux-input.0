@@ -1,56 +1,89 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 3/4] identify firmware version
-Date: Sun, 29 Aug 2010 15:55:45 -0400
-Message-ID: <4C7ABB41.1020708@seas.upenn.edu>
-References: <1282798497-19791-1-git-send-email-rafi@seas.upenn.edu> <1282798497-19791-4-git-send-email-rafi@seas.upenn.edu> <4C77A92F.8020302@euromail.se>
+From: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/3] drivers: misc: ak8974 / ami305 magnetometer driver
+Date: Mon, 30 Aug 2010 09:55:00 +0300
+Message-ID: <1283151300.16404.18.camel@4fid08082>
+References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com>
+	 <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
+	 <20100827133109.1eb974ed@lxorguk.ukuu.org.uk>
+	 <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
+	 <20100827185343.GA6626@opensource.wolfsonmicro.com>
+Reply-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from talbot.seas.upenn.edu ([158.130.67.217]:52179 "EHLO
-	talbot.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754018Ab0H2UIR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Aug 2010 16:08:17 -0400
-In-Reply-To: <4C77A92F.8020302@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100827185343.GA6626-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, ext Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Cc: ext Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, chatty@enac.fr, micki@n-trig.com
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 08/27/10 08:01, Henrik Rydberg wrote:
-> On 08/26/2010 06:54 AM, Rafi Rubin wrote:
+On Fri, 2010-08-27 at 20:53 +0200, ext Mark Brown wrote:
+> On Fri, Aug 27, 2010 at 07:59:13PM +0300, Onkalo Samu wrote:
+> > On Fri, 2010-08-27 at 14:31 +0200, ext Alan Cox wrote:
 > 
->> This adds firmware version polling to the end of probe and reports the
->> version both in the raw form and proccessed to match the formatting used
->> by ntrig in windows.
->>
->> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+> > > > +static int ak8974_regulators_on(struct ak8974_chip *chip)
+> > > > +{
+> > > > +	int ret;
+> > > > +	ret = regulator_bulk_enable(ARRAY_SIZE(chip->regs), chip->regs);
 > 
+> > > That bit seems platform specific but in generic code ?
 > 
-> The version field of the input_id struct is a 16-bit number that can be used to
-> code device-specific version information, and is retrievable via EVIOCGID.
-> Perhaps one could code the firmware version in there.
+> > If the regulator frame work is not configured, this code does nothing.
+> > I have understood (hopefully correctly) that if the frame work is in use
+> > drivers could support that directly assuming that regulators are
+> > configured for that platform. If that is not the case, this should be
+> > platform specific.
 > 
-> Henrik
+> Your understanding is correct - the regulator API provides separation
+> between the driver and the platform so that the driver code can work
+> with any platform.  The driver requests supplies in terms of the
+> physical supplies the chip has (using the struct device and the supply
+> names from the datasheet).  The regulator API them matches this with
+> actual regulators on a given system using data provied separately by the
+> code specific to that machine so that the regulator and the consumer
+> using it don't need to know about each other.
+> 
+> If the regulator API is disabled then the basic regulator API calls
+> compile to inline stubs that report success, and there's a facility for
+> optionally automatically stubbing out missing supplies when the API is
+> enabled.
 
-Thanks, I missed that field and will update my approach accordingly.
+Mark, thanks for clarification. So is it ok to keep this in the driver
+code.
 
-I suppose in that case, I should also keep the firmware decoding as a userspace
-tool.
+I would like to get some advice about the following related to PM and
+regulator control.
 
-Micki, would you care to comment on the decoding?  Any misplaced bits, or
-additional bits you would like to add mappings for?
+Small sensor with SYSFS only interface:
+---------------------------------------
+Driver doesn't know when someone opens (or keeps open) sysfs entry.
+It only knows when someone reads or writes to it. Sensors may have quite
+long wakeup time from total power off (regulators off) so it takes quite
+long time to get first result. On the other hand, driver doesn't know
+when it is ok to turn off the device.
+At some level, this can be handled with a timer which is is kicked every
+time when there is read / write operation. However, this is sounds
+little bit a hack.
 
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Would it make sense at all to enhange sysfs to have open / close
+indication for PM related control? Of course this adds overhead to
+every sysfs operation and most of the sysfs entries doesn't need
+this kind of feature.
 
-iEYEARECAAYFAkx6u0EACgkQwuRiAT9o60+8SwCgrjqd+FNJPSEve/tdM7+C0i4/
-0xsAmwVg0YDjz3QFukfPyawrZwdoPD3U
-=htK1
------END PGP SIGNATURE-----
+One solution is to have separate disable / enable control entry
+for the sensor. This needs addional operations from the applications
+and is little bit tricky in case of several users - should it be
+on / off type or counting type control.
+
+Misc-char-device + sysfs interface:
+-----------------------------------
+PM related issues can be nicely handled with char device.
+It doesn't matter if there are one or several users. However
+char device with binary data format is not that handy in scripts.
+Same is true for input device. 
+
+
+Do you have any suggestions what could be the best way to handle this?
+
+-Samu

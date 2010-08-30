@@ -1,100 +1,99 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 3/6] HID: magicmouse: simplify touch data bit manipulation
-Date: Mon, 30 Aug 2010 13:20:55 -0400
-Message-ID: <1283188858-4839-3-git-send-email-chase.douglas@canonical.com>
+Subject: [PATCH 2/6] HID: magicmouse: move features reports to static array
+Date: Mon, 30 Aug 2010 13:20:54 -0400
+Message-ID: <1283188858-4839-2-git-send-email-chase.douglas@canonical.com>
 References: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:57763 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:57676 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755536Ab0H3RVG (ORCPT
+	with ESMTP id S1755536Ab0H3RVD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Aug 2010 13:21:06 -0400
+	Mon, 30 Aug 2010 13:21:03 -0400
 Received: from hutte.canonical.com ([91.189.90.181])
 	by adelie.canonical.com with esmtp (Exim 4.69 #1 (Debian))
-	id 1Oq82a-00075Z-2F
-	for <linux-input@vger.kernel.org>; Mon, 30 Aug 2010 18:21:04 +0100
+	id 1Oq82Y-000730-1p
+	for <linux-input@vger.kernel.org>; Mon, 30 Aug 2010 18:21:02 +0100
 Received: from cpe-75-180-27-10.columbus.res.rr.com ([75.180.27.10] helo=canonical.com)
 	by hutte.canonical.com with esmtpsa (TLS-1.0:DHE_RSA_AES_128_CBC_SHA1:16)
 	(Exim 4.69)
 	(envelope-from <chase.douglas@canonical.com>)
-	id 1Oq82Z-0006Dn-KO
-	for linux-input@vger.kernel.org; Mon, 30 Aug 2010 18:21:04 +0100
+	id 1Oq82X-0006Dh-LQ
+	for linux-input@vger.kernel.org; Mon, 30 Aug 2010 18:21:02 +0100
 In-Reply-To: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
-The new format should be easier to read to determine which bits
-correspond to which data. It also brings all the manipulation logic to
-the top of the function. This makes size and orientation reading more
-clear.
+From: Chase Douglas <chase.douglas@ubuntu.com>
 
-Note that the impetus for this change is the forthcoming support for the
-Magic Trackpad, which has a different touch data protocol.
+By moving the feature reports to an array, we can easily support
+more products with different initialization reports. This will be
+useful for enabling the Apple Magic Trackpad.
 
 Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 ---
- drivers/hid/hid-magicmouse.c |   25 +++++++++++++------------
- 1 files changed, 13 insertions(+), 12 deletions(-)
+ drivers/hid/hid-magicmouse.c |   35 ++++++++++++++++++++---------------
+ 1 files changed, 20 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index d758061..f3ee6ab 100644
+index 2d8532d..d758061 100644
 --- a/drivers/hid/hid-magicmouse.c
 +++ b/drivers/hid/hid-magicmouse.c
-@@ -166,18 +166,21 @@ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
- static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tdata)
+@@ -377,14 +377,23 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 	}
+ }
+ 
++struct feature {
++	__u8 data[3];
++	__u8 length;
++};
++
++static struct feature mouse_features[] = {
++	{ { 0xd7, 0x01 }, 2 },
++	{ { 0xf8, 0x01, 0x32 }, 3 }
++};
++
+ static int magicmouse_probe(struct hid_device *hdev,
+ 	const struct hid_device_id *id)
  {
- 	struct input_dev *input = msc->input;
--	__s32 x_y = tdata[0] << 8 | tdata[1] << 16 | tdata[2] << 24;
--	int misc = tdata[5] | tdata[6] << 8;
--	int id = (misc >> 6) & 15;
--	int x = x_y << 12 >> 20;
--	int y = -(x_y >> 20);
--	int down = (tdata[7] & TOUCH_STATE_MASK) != TOUCH_STATE_NONE;
-+	int id = (tdata[6] << 2 | tdata[5] >> 6) & 0xf;
-+	int x = (tdata[1] << 28 | tdata[0] << 20) >> 20;
-+	int y = -((tdata[2] << 24 | tdata[1] << 16) >> 20);
-+	int size = tdata[5] & 0x3f;
-+	int orientation = (tdata[6] >> 2) - 32;
-+	int touch_major = tdata[3];
-+	int touch_minor = tdata[4];
-+	int state = tdata[7] & TOUCH_STATE_MASK;
-+	int down = state != TOUCH_STATE_NONE;
+-	__u8 feature_1[] = { 0xd7, 0x01 };
+-	__u8 feature_2[] = { 0xf8, 0x01, 0x32 };
+ 	struct input_dev *input;
+ 	struct magicmouse_sc *msc;
+ 	struct hid_report *report;
++	int i;
+ 	int ret;
  
- 	/* Store tracking ID and other fields. */
- 	msc->tracking_ids[raw_id] = id;
- 	msc->touches[id].x = x;
- 	msc->touches[id].y = y;
--	msc->touches[id].size = misc & 63;
-+	msc->touches[id].size = size;
+ 	msc = kzalloc(sizeof(*msc), GFP_KERNEL);
+@@ -419,19 +428,15 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	}
+ 	report->size = 6;
  
- 	/* If requested, emulate a scroll wheel by detecting small
- 	 * vertical touch motions.
-@@ -188,7 +191,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 		int step_y = msc->touches[id].scroll_y - y;
+-	ret = hdev->hid_output_raw_report(hdev, feature_1, sizeof(feature_1),
+-			HID_FEATURE_REPORT);
+-	if (ret != sizeof(feature_1)) {
+-		dev_err(&hdev->dev, "unable to request touch data (1:%d)\n",
+-				ret);
+-		goto err_stop_hw;
+-	}
+-	ret = hdev->hid_output_raw_report(hdev, feature_2,
+-			sizeof(feature_2), HID_FEATURE_REPORT);
+-	if (ret != sizeof(feature_2)) {
+-		dev_err(&hdev->dev, "unable to request touch data (2:%d)\n",
+-				ret);
+-		goto err_stop_hw;
++	for (i = 0; i < ARRAY_SIZE(mouse_features); i++) {
++		ret = hdev->hid_output_raw_report(hdev, mouse_features[i].data,
++				mouse_features[i].length, HID_FEATURE_REPORT);
++		if (ret != mouse_features[i].length) {
++			dev_err(&hdev->dev,
++				"unable to request touch data (%d:%d)\n",
++				i, ret);
++			goto err_stop_hw;
++		}
+ 	}
  
- 		/* Calculate and apply the scroll motion. */
--		switch (tdata[7] & TOUCH_STATE_MASK) {
-+		switch (state) {
- 		case TOUCH_STATE_START:
- 			msc->touches[id].scroll_x = x;
- 			msc->touches[id].scroll_y = y;
-@@ -224,13 +227,11 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 
- 	/* Generate the input events for this touch. */
- 	if (report_touches && down) {
--		int orientation = (misc >> 10) - 32;
--
- 		msc->touches[id].down = 1;
- 
- 		input_report_abs(input, ABS_MT_TRACKING_ID, id);
--		input_report_abs(input, ABS_MT_TOUCH_MAJOR, tdata[3]);
--		input_report_abs(input, ABS_MT_TOUCH_MINOR, tdata[4]);
-+		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major);
-+		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor);
- 		input_report_abs(input, ABS_MT_ORIENTATION, orientation);
- 		input_report_abs(input, ABS_MT_POSITION_X, x);
- 		input_report_abs(input, ABS_MT_POSITION_Y, y);
+ 	input = input_allocate_device();
 -- 
 1.7.1
 

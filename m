@@ -1,54 +1,58 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2]
- input: CMA3000 Accelerometer driver)
-Date: Mon, 30 Aug 2010 21:40:25 +0100
-Message-ID: <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
+ CMA3000 Accelerometer driver)
+Date: Mon, 30 Aug 2010 13:44:12 -0700
+Message-ID: <20100830204412.GA28711@core.coreip.homeip.net>
 References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
-	<20100829184904.GC26209@core.coreip.homeip.net>
-	<36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
+ <20100829184904.GC26209@core.coreip.homeip.net>
+ <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
+ <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:40169 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753902Ab0H3UWf (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:54028 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755809Ab0H3UoS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Aug 2010 16:22:35 -0400
-In-Reply-To: <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
+	Mon, 30 Aug 2010 16:44:18 -0400
+Content-Disposition: inline
+In-Reply-To: <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <me@felipebalbi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, matthias.nyman@nokia.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, matthias.nyman@nokia.com
 
-On Mon, 30 Aug 2010 11:04:39 -0500
-Felipe Balbi <me@felipebalbi.com> wrote:
-
-> Hi Dmitry,
+On Mon, Aug 30, 2010 at 09:40:25PM +0100, Alan Cox wrote:
+> On Mon, 30 Aug 2010 11:04:39 -0500
+> Felipe Balbi <me@felipebalbi.com> wrote:
 > 
-> When we tried to push N900's accelerometer driver as an
-> input device you commented you didn't want sensors such
-> as accelerometers, magnetometers, proximity, etc on the
-> input layer because "they are not user input", although
-> I didn't fully agree with you, we had to modify the drivers
-> and, I believe, one of them is sitting in staging under
-> the industrial i/o subsystem.
+> > Hi Dmitry,
+> > 
+> > When we tried to push N900's accelerometer driver as an
+> > input device you commented you didn't want sensors such
+> > as accelerometers, magnetometers, proximity, etc on the
+> > input layer because "they are not user input", although
+> > I didn't fully agree with you, we had to modify the drivers
+> > and, I believe, one of them is sitting in staging under
+> > the industrial i/o subsystem.
+> > 
+> > Are you now accepting sensor drivers on the input layer ?
+> > that will make our life a lot easier but we need some
+> > definition to avoid having to re-work drivers when we
+> > want to push them to mainline.
 > 
-> Are you now accepting sensor drivers on the input layer ?
-> that will make our life a lot easier but we need some
-> definition to avoid having to re-work drivers when we
-> want to push them to mainline.
+> I would certainly vote for them being input when they are sometimes used
+> that way - compasses for example do get used by applications (like
+> compass programs, some of the real cool visualisation tools and things
+> like live/game mixed gaming environments) and accelerometers are gaming
+> inputs.
 
-I would certainly vote for them being input when they are sometimes used
-that way - compasses for example do get used by applications (like
-compass programs, some of the real cool visualisation tools and things
-like live/game mixed gaming environments) and accelerometers are gaming
-inputs. Proximity is also input for some stuff although usually of much
-more interest to the GUI manager than the GUI apps.
+But do you believe that input should be the "primary residence" for the
+devices when they are only _sometimes_ used as input devices? Or it
+would make sense to employ a converter from XXX to input (either purely
+in-kernel or userspace over uinput)?
 
-ALS is more of a dual purpose thing -light levels are input features to
-the GUI on PDAs, although on many embedded devices they are most
-definitely part of the IIO subsystem.
+Thanks.
 
-
-
+-- 
+Dmitry

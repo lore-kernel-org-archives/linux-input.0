@@ -1,134 +1,57 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 4/6 v2] HID: magicmouse: remove axis data filtering
-Date: Tue, 31 Aug 2010 18:29:56 -0400
-Message-ID: <1283293796.2255.164.camel@mini>
-References: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>
-	 <1283280068-12285-4-git-send-email-chase.douglas@canonical.com>
-	 <4C7D6739.5000601@euromail.se> <1283288319.2255.103.camel@mini>
-	 <4C7D6ECB.2000308@euromail.se> <1283289360.2255.113.camel@mini>
-	 <4C7D71B8.4020408@euromail.se> <1283290078.2255.119.camel@mini>
-	 <4C7D767C.8040607@euromail.se>  <1283291469.2255.129.camel@mini>
-	 <1283291819.2255.134.camel@mini>  <4C7D7CB7.90709@euromail.se>
+From: Kevin Wells <kevin.wells@nxp.com>
+Subject: RE: [PATCH] input/touch: Introduce the LPC32xx touchscreen
+	controller driver (v2)
+Date: Wed, 1 Sep 2010 00:46:35 +0200
+Message-ID: <083DF309106F364B939360100EC290F80AD44F8E1B@eu1rdcrdc1wx030.exi.nxp.com>
+References: <1281993661-21097-1-git-send-email-wellsk40@gmail.com>
+	<1281993661-21097-2-git-send-email-wellsk40@gmail.com>
+	<20100829054838.GC15369@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:47041 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753158Ab0HaWaE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 18:30:04 -0400
-In-Reply-To: <4C7D7CB7.90709@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20100829054838.GC15369@core.coreip.homeip.net>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "wellsk40@gmail.com" <wellsk40@gmail.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Durgesh Pattamatta <durgesh.pattamatta@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 2010-09-01 at 00:05 +0200, Henrik Rydberg wrote:
-> On 08/31/2010 11:56 PM, Chase Douglas wrote:
+
+
+> Subject: Re: [PATCH] input/touch: Introduce the LPC32xx touchscreen
+> controller driver (v2)
 > 
-> > On Tue, 2010-08-31 at 17:51 -0400, Chase Douglas wrote:
-> >> On Tue, 2010-08-31 at 23:39 +0200, Henrik Rydberg wrote:
-> >>> On 08/31/2010 11:27 PM, Chase Douglas wrote:
-> >>>
-> >>>> On Tue, 2010-08-31 at 23:18 +0200, Henrik Rydberg wrote:
-> >>>>> On 08/31/2010 11:16 PM, Chase Douglas wrote:
-> >>>>>
-> >>>>>> On Tue, 2010-08-31 at 23:06 +0200, Henrik Rydberg wrote:
-> >>>>>>> On 08/31/2010 10:58 PM, Chase Douglas wrote:
-> >>>>>>>
-> >>>>>>>> On Tue, 2010-08-31 at 22:34 +0200, Henrik Rydberg wrote:
-> >>>>>>>>> On 08/31/2010 08:41 PM, Chase Douglas wrote:
-> >>>>>>>>>
-> >>>>>>>>>> The Magic Mouse device is very precise. No driver filtering of input
-> >>>>>>>>>> data needs to be performed.
-> >>>>>>>>>>
-> >>>>>>>>>> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> >>>>>>>>>> Acked-by: Michael Poole <mdpoole@troilus.org>
-> >>>>>>>>>> ---
-> >>>>>>>>>
-> >>>>>>>>>
-> >>>>>>>>> I am still not sure this is a good idea. Bandwidth from MT devices is a big
-> >>>>>>>>> deal. A statement roughly how much data comes out of mtdev (which does the
-> >>>>>>>>> filtering for type A devices) before and after this change would be reassuring.
-> >>>>>>>>
-> >>>>>>>> As it is right now, hid-magicmouse doesn't support MT slots. I think all
-> >>>>>>>> the fuzz code ends up comparing in the MT case is between one touch and
-> >>>>>>>> another touch, not between one touch's current location and its previous
-> >>>>>>>> location. If I'm correct, then it means a fuzz > 0 is incorrect for
-> >>>>>>>> non-slotted MT devices.
-> >>>>>>>>
-> >>>>>>>> In fact, the code in drivers/input/input.c around line 194 looks like it
-> >>>>>>>> discards defuzzing in this case, so one could say this patch is making
-> >>>>>>>> things more correct :).
-> >>>>>>>
-> >>>>>>>
-> >>>>>>> For type A devices, the filtering is performed in userspace, in mtdev, in the
-> >>>>>>> same manner as it would have been performed in the kernel in the MT slot case.
-> >>>>>>> Therefore, knowing the amount of messages coming out of mtdev is a direct
-> >>>>>>> measurement of the effect of filtering.
-> >>>>>>
-> >>>>>> Yes, but we're only interested in the kernel driver when reviewing this
-> >>>>>> patch. Leaving the fuzz in as it is has no effect right now on ABS_MT_*
-> >>>>>> axes. On the other axes, such as the touch orientation, it's probably
-> >>>>>> more harmful than good.
-> >>>>>
-> >>>>>
-> >>>>> "We" are interested in knowing if this patch makes any sense, given that
-> >>>>> filtering is in actuality performed in userspace, and thus modifying this code
-> >>>>> changes the stream rate into userspace applications, thank you.
-> >>>>
-> >>>> Because in-kernel defuzzing is turned off for ABS_MT_* axes on
-> >>>> non-slotted MT devices, there will be no change in the number of events
-> >>>> sent to the userspace due to this patch.
-> >>>>
-> >>>> Maybe I'm missing something more fundamental. In which case, I'll need
-> >>>> more details to get it through my dense skull :).
-> >>>
-> >>>
-> >>> All events passes through to mtdev, yes, but mtdev filters a considerable amount
-> >>> of events from passing through to X drivers like evdev. Thus, the fuzz values
-> >>> reported in the kernel driver impacts the performance in userspace, even if
-> >>> filtering is not done in the kernel.
-> >>
-> >> My disconnect was that I didn't understand that the fuzz value in the
-> >> kernel is exported to userspace. I thought the defuzzing in mtdev was
-> >> independent of the defuzzing in the kernel.
-> >>
-> >> Basically, I don't feel I have the time to do the analysis you want
-> >> right now. If you really want, I can just remove this change.
-> > 
-> > On second thought, if there's no jitter from the device, the only reason
-> > to filter is to save bandwidth. The magicmouse devices are very verbose
-> > strictly because they have a higher resolution than most devices. If
-> > that's an issue for userspace, then the filtering should be based on the
-> > resolution. In fact, I see that's what you do in mtdev when the
-> > in-kernel fuzz is 0.
-> > 
-> > This separates the kernel fuzz into a removal of jitter, and the mtdev
-> > fuzz into a dampening of the number of events passed to clients. Since
-> > magicmouse devices have no discernable jitter, shouldn't we set the
-> > in-kernel fuzz to 0 and let mtdev do its thing as appropriate?
+> On Mon, Aug 16, 2010 at 02:21:01PM -0700, wellsk40@gmail.com wrote:
+> > From: Kevin Wells <wellsk40@gmail.com>
+> >
+> > This patch set introduces support for the LPC32xx touchscreen
+> > controller driver. The LPC32xx touchscreen controller supports
+> > automated event detection and X/Y data conversion for resistive
+> > touchscreens.
+> >
+> > Signed-off-by: Kevin Wells <wellsk40@gmail.com>
+> > Signed-off-by: Durgesh Pattamatta <durgesh.pattamatta@nxp.com>
 > 
+> Applied to my .37 queue, thanks Kevin.
 > 
-> Per-driver data is more precise than a generic value for all devices. This
-> thread has documented the details of why there is an interest in the fuzz
-> values. Skipping the patch until MT slots are implemented or measurements can be
-> done might be the most sensible thing to do.
 
-Yes, there's still per-driver fuzz data. If a device is jittery it makes
-sense to set the in-kernel fuzz factor to a reasonable value. If a
-device is not jittery, I don't see a need to do any defuzzing of the
-values in the driver itself. If we think it's necessary to reduce
-bandwidth, then the kernel should be defuzzing uniformly across devices
-to compensate. mtdev could do this defuzzing for bandwidth uniformly
-too.
+Thanks for applying this Dmitry.
+Ryan M also had some good comments about the v2 driver that I'll
+resolve once some other associated fixes get pulled in.
 
-As it is, this driver just has an arbitrary value that is not used in
-the kernel and likely hasn't ever been used anywhere outside of mtdev. I
-think it makes sense to reset the fuzz to the baseline of 0 and fix it
-later if we find it's necessary. Otherwise we're just codifying an
-arbitrary value.
-
--- Chase
-
+> --
+> Dmitry
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel

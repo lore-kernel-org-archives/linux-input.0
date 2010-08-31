@@ -1,57 +1,71 @@
-From: Kevin Wells <kevin.wells@nxp.com>
-Subject: RE: [PATCH] input/touch: Introduce the LPC32xx touchscreen
-	controller driver (v2)
-Date: Wed, 1 Sep 2010 00:46:35 +0200
-Message-ID: <083DF309106F364B939360100EC290F80AD44F8E1B@eu1rdcrdc1wx030.exi.nxp.com>
-References: <1281993661-21097-1-git-send-email-wellsk40@gmail.com>
-	<1281993661-21097-2-git-send-email-wellsk40@gmail.com>
-	<20100829054838.GC15369@core.coreip.homeip.net>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH 1/6 v2] HID: magicmouse: don't allow hidinput to
+ initialize the device
+Date: Tue, 31 Aug 2010 19:45:54 -0400
+Message-ID: <1283298354.13785.2.camel@graviton>
+References: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20100829054838.GC15369@core.coreip.homeip.net>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "wellsk40@gmail.com" <wellsk40@gmail.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Durgesh Pattamatta <durgesh.pattamatta@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog111.obsmtp.com ([74.125.149.205]:40378 "HELO
+	na3sys009aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751969Ab0HaXp7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 Aug 2010 19:45:59 -0400
+In-Reply-To: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-
-
-> Subject: Re: [PATCH] input/touch: Introduce the LPC32xx touchscreen
-> controller driver (v2)
+On Tue, 2010-08-31 at 14:41 -0400, Chase Douglas wrote:
+> From: Chase Douglas <chase.douglas@ubuntu.com>
 > 
-> On Mon, Aug 16, 2010 at 02:21:01PM -0700, wellsk40@gmail.com wrote:
-> > From: Kevin Wells <wellsk40@gmail.com>
-> >
-> > This patch set introduces support for the LPC32xx touchscreen
-> > controller driver. The LPC32xx touchscreen controller supports
-> > automated event detection and X/Y data conversion for resistive
-> > touchscreens.
-> >
-> > Signed-off-by: Kevin Wells <wellsk40@gmail.com>
-> > Signed-off-by: Durgesh Pattamatta <durgesh.pattamatta@nxp.com>
+> The driver listens only for raw events from the device. If we allow
+> the hidinput layer to initialize, we can hit NULL pointer dereferences
+> in the hidinput layer because disconnecting only removes the hidinput
+> devices from the hid device while leaving the hid fields configured.
 > 
-> Applied to my .37 queue, thanks Kevin.
-> 
+> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> ---
+> Note that this mimics what the hid-picolcd module does.
 
-Thanks for applying this Dmitry.
-Ryan M also had some good comments about the v2 driver that I'll
-resolve once some other associated fixes get pulled in.
+Thanks, this approach makes sense to me.
 
-> --
-> Dmitry
+Acked-by: Michael Poole <mdpoole@troilus.org>
+
+>  drivers/hid/hid-magicmouse.c |   13 +++++++++----
+>  1 files changed, 9 insertions(+), 4 deletions(-)
 > 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index 319b0e5..d38b529 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -404,15 +404,20 @@ static int magicmouse_probe(struct hid_device *hdev,
+>  		goto err_free;
+>  	}
+>  
+> -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> +	/* When registering a hid device, one of hidinput, hidraw, or hiddev
+> +	 * subsystems must claim the device. We are bypassing hidinput due to
+> +	 * our raw event processing, and hidraw and hiddev may not claim the
+> +	 * device. We get around this by telling hid_hw_start that input has
+> +	 * claimed the device already, and then flipping the bit back.
+> +	 */
+> +	hdev->claimed = HID_CLAIMED_INPUT;
+> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
+> +	hdev->claimed &= ~HID_CLAIMED_INPUT;
+>  	if (ret) {
+>  		dev_err(&hdev->dev, "magicmouse hw start failed\n");
+>  		goto err_free;
+>  	}
+>  
+> -	/* we are handling the input ourselves */
+> -	hidinput_disconnect(hdev);
+> -
+>  	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
+>  	if (!report) {
+>  		dev_err(&hdev->dev, "unable to register touch report\n");
+
+

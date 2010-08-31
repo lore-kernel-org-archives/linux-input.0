@@ -1,113 +1,55 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 4/6 v2] HID: magicmouse: remove axis data filtering
-Date: Wed, 01 Sep 2010 00:05:43 +0200
-Message-ID: <4C7D7CB7.90709@euromail.se>
-References: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>	 <1283280068-12285-4-git-send-email-chase.douglas@canonical.com>	 <4C7D6739.5000601@euromail.se> <1283288319.2255.103.camel@mini>	 <4C7D6ECB.2000308@euromail.se> <1283289360.2255.113.camel@mini>	 <4C7D71B8.4020408@euromail.se> <1283290078.2255.119.camel@mini>	 <4C7D767C.8040607@euromail.se>  <1283291469.2255.129.camel@mini> <1283291819.2255.134.camel@mini>
+From: Chris Hudson <chudson@kionix.com>
+Subject: RE: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2]
+ input: CMA3000 Accelerometer driver)
+Date: Tue, 31 Aug 2010 18:21:33 -0400
+Message-ID: <4142B4ACE1A0344D9B6150EDE4AC4FE0B59D9BD4@K-Ex02.kionix2.com>
+References: <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
+ <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
+ <20100830204412.GA28711@core.coreip.homeip.net>
+ <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
+ <20100830214355.GB28865@core.coreip.homeip.net>
+ <AANLkTinPConD62Ky7mvMn2ZgS=V9+Q5YUdaF5Vma8mn+@mail.gmail.com>
+ <20100830224352.GF28865@core.coreip.homeip.net>
+ <20100831104446.321fd4f4@lxorguk.ukuu.org.uk>
+ <20100831161730.GA30947@core.coreip.homeip.net>
+ <20100831175937.70a59a91@lxorguk.ukuu.org.uk>
+ <20100831170923.GB30947@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:44538 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752282Ab0HaWGG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 18:06:06 -0400
-In-Reply-To: <1283291819.2255.134.camel@mini>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100831170923.GB30947@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "igor.stoppa@nokia.com" <igor.stoppa@nokia.com>, "kai.svahn@nokia.com" <kai.svahn@nokia.com>, "matthias.nyman@nokia.com" <matthias.nyman@nokia.com>
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 08/31/2010 11:56 PM, Chase Douglas wrote:
+> OK, so let's say we start moving some of the devices into input. Which
+> ones we consider suitable for input? I guess some 3-digit
+> accelerometers, what else? Also, what new event types would we need?
+> Let's take GPS - I do not think that ABS_X and ABS_Y are the best events
+> to be used for such devices: I am trying to allow applications being
+> ignorant of what exact device they are talking to and rather concentrate
+> on device capabilities (list of events supported). GPS is sufficiently
+> different from a tablet/touchscreen; while some might want to use both
+> as inputs to a game most applications would want to know which one
+> which. 
 
-> On Tue, 2010-08-31 at 17:51 -0400, Chase Douglas wrote:
->> On Tue, 2010-08-31 at 23:39 +0200, Henrik Rydberg wrote:
->>> On 08/31/2010 11:27 PM, Chase Douglas wrote:
->>>
->>>> On Tue, 2010-08-31 at 23:18 +0200, Henrik Rydberg wrote:
->>>>> On 08/31/2010 11:16 PM, Chase Douglas wrote:
->>>>>
->>>>>> On Tue, 2010-08-31 at 23:06 +0200, Henrik Rydberg wrote:
->>>>>>> On 08/31/2010 10:58 PM, Chase Douglas wrote:
->>>>>>>
->>>>>>>> On Tue, 2010-08-31 at 22:34 +0200, Henrik Rydberg wrote:
->>>>>>>>> On 08/31/2010 08:41 PM, Chase Douglas wrote:
->>>>>>>>>
->>>>>>>>>> The Magic Mouse device is very precise. No driver filtering of input
->>>>>>>>>> data needs to be performed.
->>>>>>>>>>
->>>>>>>>>> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
->>>>>>>>>> Acked-by: Michael Poole <mdpoole@troilus.org>
->>>>>>>>>> ---
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> I am still not sure this is a good idea. Bandwidth from MT devices is a big
->>>>>>>>> deal. A statement roughly how much data comes out of mtdev (which does the
->>>>>>>>> filtering for type A devices) before and after this change would be reassuring.
->>>>>>>>
->>>>>>>> As it is right now, hid-magicmouse doesn't support MT slots. I think all
->>>>>>>> the fuzz code ends up comparing in the MT case is between one touch and
->>>>>>>> another touch, not between one touch's current location and its previous
->>>>>>>> location. If I'm correct, then it means a fuzz > 0 is incorrect for
->>>>>>>> non-slotted MT devices.
->>>>>>>>
->>>>>>>> In fact, the code in drivers/input/input.c around line 194 looks like it
->>>>>>>> discards defuzzing in this case, so one could say this patch is making
->>>>>>>> things more correct :).
->>>>>>>
->>>>>>>
->>>>>>> For type A devices, the filtering is performed in userspace, in mtdev, in the
->>>>>>> same manner as it would have been performed in the kernel in the MT slot case.
->>>>>>> Therefore, knowing the amount of messages coming out of mtdev is a direct
->>>>>>> measurement of the effect of filtering.
->>>>>>
->>>>>> Yes, but we're only interested in the kernel driver when reviewing this
->>>>>> patch. Leaving the fuzz in as it is has no effect right now on ABS_MT_*
->>>>>> axes. On the other axes, such as the touch orientation, it's probably
->>>>>> more harmful than good.
->>>>>
->>>>>
->>>>> "We" are interested in knowing if this patch makes any sense, given that
->>>>> filtering is in actuality performed in userspace, and thus modifying this code
->>>>> changes the stream rate into userspace applications, thank you.
->>>>
->>>> Because in-kernel defuzzing is turned off for ABS_MT_* axes on
->>>> non-slotted MT devices, there will be no change in the number of events
->>>> sent to the userspace due to this patch.
->>>>
->>>> Maybe I'm missing something more fundamental. In which case, I'll need
->>>> more details to get it through my dense skull :).
->>>
->>>
->>> All events passes through to mtdev, yes, but mtdev filters a considerable amount
->>> of events from passing through to X drivers like evdev. Thus, the fuzz values
->>> reported in the kernel driver impacts the performance in userspace, even if
->>> filtering is not done in the kernel.
->>
->> My disconnect was that I didn't understand that the fuzz value in the
->> kernel is exported to userspace. I thought the defuzzing in mtdev was
->> independent of the defuzzing in the kernel.
->>
->> Basically, I don't feel I have the time to do the analysis you want
->> right now. If you really want, I can just remove this change.
-> 
-> On second thought, if there's no jitter from the device, the only reason
-> to filter is to save bandwidth. The magicmouse devices are very verbose
-> strictly because they have a higher resolution than most devices. If
-> that's an issue for userspace, then the filtering should be based on the
-> resolution. In fact, I see that's what you do in mtdev when the
-> in-kernel fuzz is 0.
-> 
-> This separates the kernel fuzz into a removal of jitter, and the mtdev
-> fuzz into a dampening of the number of events passed to clients. Since
-> magicmouse devices have no discernable jitter, shouldn't we set the
-> in-kernel fuzz to 0 and let mtdev do its thing as appropriate?
+> Also, GPS, liek ALS, would probably be polling, no?
 
+> -- 
+> Dmitry
+> --
 
-Per-driver data is more precise than a generic value for all devices. This
-thread has documented the details of why there is an interest in the fuzz
-values. Skipping the patch until MT slots are implemented or measurements can be
-done might be the most sensible thing to do.
+Hello Dmitry,
 
-Thanks,
-Henrik
+Current-generation accelerometers typically have some functions built-in that provide an interrupt signal under certain conditions.  For instance, orientation and motion detection can be calculated at the hardware level to reduce the need for constant polling and software to handle the algorithms.  Some devices have built-in tap detection, which can require data at several hundred samples per second, something that is certainly not efficiently supported in software.
+
+I have been using ABS_MISC to pack 4 bytes of interrupt status information, but it might be a good idea to consider having a separate field for:
+Orientation (screen rotation)
+Motion Detection (or sleep detection)
+Tap Detection
+
+Regards,
+Chris Hudson

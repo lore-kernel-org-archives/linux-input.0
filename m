@@ -1,86 +1,116 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] input: Add support for the Bamboo Touch trackpad
-Date: Tue, 31 Aug 2010 15:44:37 +1000
-Message-ID: <20100831054437.GA14760@barra.redhat.com>
-References: <1282486241-8855-1-git-send-email-rydberg@euromail.se>
- <AANLkTikvQdxzRm_rWHHz=m4=fpRSTZbMJhVUji2KVmKA@mail.gmail.com>
- <4C7B7595.6060904@euromail.se>
- <AANLkTikh6r+-aeiqT7nq3Z4jL+WZK22G4zVeUwQFLfr1@mail.gmail.com>
+From: "Mark F. Brown" <mark.brown314@gmail.com>
+Subject: Re: [PATCH 4/5] ARM: pxa168: added special case handler for keypad interrupts
+Date: Tue, 31 Aug 2010 02:28:59 -0400
+Message-ID: <AANLkTinEtFhC6kB3asuBXLxCgYf9yOTLTTwRQJXKcu2n@mail.gmail.com>
+References: <1282814339-10934-1-git-send-email-mark.brown314@gmail.com>
+	<1282814339-10934-5-git-send-email-mark.brown314@gmail.com>
+	<AANLkTimvudYv4fwyGWjL5c10QrM9GtC2SXjPZzcV20_s@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:14630 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751919Ab0HaFn7 (ORCPT
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:57604 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756024Ab0HaG3B convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 01:43:59 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTikh6r+-aeiqT7nq3Z4jL+WZK22G4zVeUwQFLfr1@mail.gmail.com>
+	Tue, 31 Aug 2010 02:29:01 -0400
+In-Reply-To: <AANLkTimvudYv4fwyGWjL5c10QrM9GtC2SXjPZzcV20_s@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org
+To: Haojian Zhuang <haojian.zhuang@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-On Mon, Aug 30, 2010 at 11:19:49AM -0500, Chris Bagwell wrote:
-> Hi Henrik,
->=20
-> On Mon, Aug 30, 2010 at 4:10 AM, Henrik Rydberg <rydberg@euromail.se>=
- wrote:
-> > Hi Chris,
-> >
-> >>> 1) It uses the MT slot protocol
-> >>> 2) It creates two input devices, but only one is useful
-> >>
-> >> No biggy to userspace. =A0I'm assuming for unused input device tha=
-t
-> >> hardware is still reporting a HID_USAGE_STYLUS and probably you co=
-uld
-> >> catch that and not register that input device.
-> >
-> >
-> > The initial idea was to only use the trackpad usb endnode, but the =
-device does
-> > not work at all after boot unless the silent endnode is somehow tak=
-en into
-> > account. I am not sure what your statement refers to.
-> >
-> >>> 3) It works well with the synaptics and multitouch X drivers
-> >>> 4) It does not work well with the wacom X driver (!)
-> >>
-> >> Once we finalize input events sent, I'm sure we could get
-> >> xf86-input-wacom to play nice with this synaptic-style input event=
-s.
-> >> The harder part is to develop userspace rules to assign this "waco=
-m"
-> >> input device to something other than xf86-input-wacom; especially =
-in
-> >> case were tablet has pen and touch input devices.
-> >
-> >
-> > Using udev rules, the pen device is picked up by the wacom X driver=
- and the
-> > touch device is picked up by the synaptics X driver. It does not se=
-em anything
-> > extra is needed here.
->=20
-> You mean your wacom touch device are being directed to synaptics X
-> driver without modifications to udev or similar rules?  On my
-> unmodified Fedora box, they both go to wacom X driver.
->=20
-> Not that it would be a difficult modification... I'd just need to mak=
+On Tue, Aug 31, 2010 at 12:53 AM, Haojian Zhuang
+<haojian.zhuang@gmail.com> wrote:
+> On Thu, Aug 26, 2010 at 5:18 PM, Mark F. Brown <mark.brown314@gmail.c=
+om> wrote:
+>> Signed-off-by: Mark F. Brown <mark.brown314@gmail.com>
+>> ---
+>> =A0arch/arm/mach-mmp/irq-pxa168.c | =A0 23 ++++++++++++++++++++++-
+>> =A01 files changed, 22 insertions(+), 1 deletions(-)
+>>
+>> diff --git a/arch/arm/mach-mmp/irq-pxa168.c b/arch/arm/mach-mmp/irq-=
+pxa168.c
+>> index 52ff2f0..bfb0984 100644
+>> --- a/arch/arm/mach-mmp/irq-pxa168.c
+>> +++ b/arch/arm/mach-mmp/irq-pxa168.c
+>> @@ -17,6 +17,8 @@
+>> =A0#include <linux/io.h>
+>>
+>> =A0#include <mach/regs-icu.h>
+>> +#include <mach/regs-apmu.h>
+>> +#include <mach/cputype.h>
+>>
+>> =A0#include "common.h"
+>>
+>> @@ -42,6 +44,19 @@ static struct irq_chip icu_irq_chip =3D {
+>> =A0 =A0 =A0 =A0.unmask =3D icu_unmask_irq,
+>> =A0};
+>>
+>> +void handle_pxa168_keypad_irq(unsigned int irq, struct irq_desc *de=
+sc)
+>> +{
+>> + =A0 =A0 =A0 uint32_t val;
+>> + =A0 =A0 =A0 uint32_t mask =3D APMU_PXA168_KP_WAKE_CLR;
+>> +
+>> + =A0 =A0 =A0 /* clear keypad wake event */
+>> + =A0 =A0 =A0 val =3D __raw_readl(APMU_WAKE_CLR);
+>> + =A0 =A0 =A0 __raw_writel(val | =A0mask, APMU_WAKE_CLR);
+>> +
+>> + =A0 =A0 =A0 /* handle irq */
+>> + =A0 =A0 =A0 handle_level_irq(irq, desc);
+>> +}
+>> +
+>
+> Why should you clear wakeup event status in IRQ handler? If system is
+> resumed by keypad event, you should clear this wakeup source in resum=
 e
-> those and work with distributions to also align.
+> code. I think that IRQ code should not be binded with wakeup event at
+> here.
+>
+>> =A0void __init icu_init_irq(void)
+>> =A0{
+>> =A0 =A0 =A0 =A0int irq;
+>> @@ -49,7 +64,13 @@ void __init icu_init_irq(void)
+>> =A0 =A0 =A0 =A0for (irq =3D 0; irq < 64; irq++) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0icu_mask_irq(irq);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0set_irq_chip(irq, &icu_irq_chip);
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_irq_handler(irq, handle_level_irq)=
+;
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* special handler for keypad */
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (cpu_is_pxa168() && irq =3D=3D IRQ_=
+PXA168_KEYPAD)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_irq_handler(irq, h=
+andle_pxa168_keypad_irq);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_irq_handler(irq, h=
+andle_level_irq);
+>> +
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0set_irq_flags(irq, IRQF_VALID);
+>> =A0 =A0 =A0 =A0}
+>> =A0}
+>> --
+>> 1.7.0.4
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-kern=
+el" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at =A0http://www.tux.org/lkml/
+>>
+>
 
-50-wacom.conf sorts after 50-synaptics.conf and since we apply the waco=
-m
-driver to anything with Wacom in the product name, it overrides the
-synaptics setting. not a big deal at all, just renaming it to 40-wacom.=
-conf
-should already do the job.
+Haojian, this is an usual case, but without that clear wake event you
+will not be able to clear the keypad interrupt. For my push to open
+source I re-wrote the workaround code and added it as a special case
+IRQ handler. In the Marvell pxa168 code base it is actually located in
+the keypad interrupt handler as the function clear_wakeup(). I felt it
+was better to isolate this code in the mmp common code base instead.
 
-Cheers,
-  Peter
+Regards,
+-- Mark
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

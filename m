@@ -1,71 +1,65 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 4/6 v2] HID: magicmouse: remove axis data filtering
-Date: Tue, 31 Aug 2010 22:34:01 +0200
-Message-ID: <4C7D6739.5000601@euromail.se>
-References: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com> <1283280068-12285-4-git-send-email-chase.douglas@canonical.com>
+From: Neil Leeder <nleeder@codeaurora.org>
+Subject: Re: [PATCH 0/1] input: keyboard: add qci keyboard driver
+Date: Tue, 31 Aug 2010 16:54:47 -0400
+Message-ID: <4C7D6C17.1070604@codeaurora.org>
+References: <4C7838DD.1020004@codeaurora.org> <201008271533.01542.dmitry.torokhov@gmail.com> <4C7BF6D2.5080501@codeaurora.org> <20100830215556.GC28865@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:53278 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754073Ab0HaUfZ (ORCPT
+Received: from wolverine02.qualcomm.com ([199.106.114.251]:22017 "EHLO
+	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754000Ab0HaUyu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 16:35:25 -0400
-In-Reply-To: <1283280068-12285-4-git-send-email-chase.douglas@canonical.com>
+	Tue, 31 Aug 2010 16:54:50 -0400
+In-Reply-To: <20100830215556.GC28865@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Hsin.Wu@quantatw.com, mcuos.com@gmail.com
 
-On 08/31/2010 08:41 PM, Chase Douglas wrote:
+On 8/30/2010 5:55 PM, Dmitry Torokhov wrote:
+> And still you are using only one GPIO in your driver? While WPCE775x
+> does seem to have matrix keypad support I think that you are using one
+> of the 3 PS/2 ports, like your touchpad does.
 
-> The Magic Mouse device is very precise. No driver filtering of input
-> data needs to be performed.
-> 
-> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> Acked-by: Michael Poole <mdpoole@troilus.org>
-> ---
+Hi Dmitry,
 
+I can assure you that the keyboard is on the 8*18 GPIO matrix on the 
+Nuvoton EC (only 8*16 being used in the current design). There certainly 
+are 3 PS/2 ports on the EC, but in the board designs I have only one of 
+those is used as a PS/2 port, and that is for the touchpad. The other 
+two ports are muxed with GPIOs and the pins are being used as GPIOs for 
+other functions, not PS/2 ports.
 
-I am still not sure this is a good idea. Bandwidth from MT devices is a big
-deal. A statement roughly how much data comes out of mtdev (which does the
-filtering for type A devices) before and after this change would be reassuring.
+The firmware on the EC converts keypresses on the GPIO matrix to 
+scancodes and sends them over I2C. The single GPIO used by the keyboard 
+driver is an interrupt.
 
-Cheers,
-Henrik
+> The device is initialized with 0xf4; the device is supposed to respond
+> with 0xfa; I wonder what scancodes the device reports... It smells
+> strongly of PS/2.
+>
+> Also, it is not controller that supports PS/2 commands but rather the
+> device itself so I am still hopeful that we could make use of the
+> standard drivers.
 
->  drivers/hid/hid-magicmouse.c |   10 +++++-----
->  1 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 98bbc53..0fe2464 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -357,11 +357,11 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
->  		__set_bit(EV_ABS, input->evbit);
->  
->  		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
-> -		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 4, 0);
-> -		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255, 4, 0);
-> -		input_set_abs_params(input, ABS_MT_ORIENTATION, -32, 31, 1, 0);
-> +		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-> +		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255, 0, 0);
-> +		input_set_abs_params(input, ABS_MT_ORIENTATION, -32, 31, 0, 0);
->  		input_set_abs_params(input, ABS_MT_POSITION_X, -1100, 1358,
-> -				4, 0);
-> +				0, 0);
->  		/* Note: Touch Y position from the device is inverted relative
->  		 * to how pointer motion is reported (and relative to how USB
->  		 * HID recommends the coordinates work).  This driver keeps
-> @@ -369,7 +369,7 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
->  		 * inverse of the reported Y.
->  		 */
->  		input_set_abs_params(input, ABS_MT_POSITION_Y, -1589, 2047,
-> -				4, 0);
-> +				0, 0);
->  	}
->  
->  	if (report_undeciphered) {
+We can speculate on the reasons that the firmware on the EC uses 0xF4 & 
+0xFA for init and ack - my guess would be for a minimal amount of 
+commonality with the PS/2 protocol - but it doesn't emulate the rest of 
+the PS/2 protocol for the GPIO matrix device. I tried with atkbd. It 
+issues reset, getid, setleds - all of which fail with no response from 
+the EC. It only responds to F4.
 
+The scancodes reported are whatever the firmware provides. A previous 
+version of firmware had some non-standard values and the driver had to 
+use a look-up table to convert them to something useful. With the change 
+to the current keyboard layout Quanta changed the scancodes reported to 
+match the KEY_* values in input.h, which is why there is no table in the 
+current driver.
 
+--
+Neil
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

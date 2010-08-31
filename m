@@ -1,61 +1,43 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH 0/2 v2] Add drivers necessary to support PS/2 port on
- TQM85xx boards
-Date: Tue, 31 Aug 2010 14:49:29 +0400
-Message-ID: <AANLkTimFCcKH1x-coA4Ug291B2PYA6KjnJj_Fem5oGY9@mail.gmail.com>
-References: <1281957997-12959-1-git-send-email-dbaryshkov@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 1/3] drivers: misc: ak8974 / ami305 magnetometer driver
+Date: Tue, 31 Aug 2010 12:11:21 +0100
+Message-ID: <20100831111120.GE20849@rakim.wolfsonmicro.main>
+References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com>
+ <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
+ <20100827133109.1eb974ed@lxorguk.ukuu.org.uk>
+ <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
+ <20100827185343.GA6626@opensource.wolfsonmicro.com>
+ <1283151300.16404.18.camel@4fid08082>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:36044 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756973Ab0HaKta convert rfc822-to-8bit (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:41386 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1757159Ab0HaLLX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 06:49:30 -0400
-Received: by qyk33 with SMTP id 33so6456786qyk.19
-        for <linux-input@vger.kernel.org>; Tue, 31 Aug 2010 03:49:29 -0700 (PDT)
-In-Reply-To: <1281957997-12959-1-git-send-email-dbaryshkov@gmail.com>
+	Tue, 31 Aug 2010 07:11:23 -0400
+Content-Disposition: inline
+In-Reply-To: <1283151300.16404.18.camel@4fid08082>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Onkalo Samu <samu.p.onkalo@nokia.com>
+Cc: ext Alan Cox <alan@lxorguk.ukuu.org.uk>, ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hello,
+On Mon, Aug 30, 2010 at 09:55:00AM +0300, Onkalo Samu wrote:
 
-On Mon, Aug 16, 2010 at 3:26 PM, Dmitry Eremin-Solenikov
-<dbaryshkov@gmail.com> wrote:
-> On tqm85xx boards (and several others) keyboard and mice are connecte=
-d to CPU via
-> special controller multiplexing KBD and MS traffic into single UART.
+> Misc-char-device + sysfs interface:
+> -----------------------------------
+> PM related issues can be nicely handled with char device.
+> It doesn't matter if there are one or several users. However
+> char device with binary data format is not that handy in scripts.
+> Same is true for input device. 
 
-What about this two patches? Are they going to be included for 2.6.37?
-Thank you for your answer.
+You could always have a char device with a text mode interface, I guess.
 
-> Changes since v1:
->
-> * Rewrote serio to use iterative algorithms instead of recursion for =
-serio
-> =A0tree traversal
->
-> * Changed ps2mult to register as SERIO_8042, not it's own special typ=
-e
->
-> * Small cleanup in ps2mult
->
-> --
-> With best wishes
-> Dmitry
->
->
+> Do you have any suggestions what could be the best way to handle this?
 
-
-
---=20
-With best wishes
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Not really without knowing more about how the device will be used and
+the costs associated with powering it up and down - it's all a question
+of tradeoffs depending on things like how fast userspace needs a
+response and the expected usage patterns (many accesses in quick
+succession, occasional widely spaced accesses...).

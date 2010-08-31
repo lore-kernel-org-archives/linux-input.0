@@ -1,62 +1,61 @@
-From: Daniel Barkalow <barkalow@iabervon.org>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
- CMA3000 Accelerometer driver)
-Date: Tue, 31 Aug 2010 14:18:47 -0400 (EDT)
-Message-ID: <alpine.LNX.2.00.1008311303480.14365@iabervon.org>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com> <20100829184904.GC26209@core.coreip.homeip.net> <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com> <20100830214025.2f9677a1@lxorguk.ukuu.org.uk> <20100830204412.GA28711@core.coreip.homeip.net>
- <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH 1/6 v2] HID: magicmouse: don't allow hidinput to initialize the device
+Date: Tue, 31 Aug 2010 14:41:03 -0400
+Message-ID: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iabervon.org ([66.92.72.58]:52035 "EHLO iabervon.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751786Ab0HaSZk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 14:25:40 -0400
-In-Reply-To: <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
+Received: from adelie.canonical.com ([91.189.90.139]:51760 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751654Ab0HaSlR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 Aug 2010 14:41:17 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "igor.stoppa@nokia.com" <igor.stoppa@nokia.com>, "kai.svahn@nokia.com" <kai.svahn@nokia.com>, "matthias.nyman@nokia.com" <matthias.nyman@nokia.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Michael Poole <mdpoole@troilus.org>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 30 Aug 2010, Linus Torvalds wrote:
+From: Chase Douglas <chase.douglas@ubuntu.com>
 
-> On Monday, August 30, 2010, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >
-> > But do you believe that input should be the "primary residence" for the
-> > devices when they are only _sometimes_ used as input devices? Or it
-> > would make sense to employ a converter from XXX to input (either purely
-> > in-kernel or userspace over uinput)?
-> 
-> Umm... You've brought that up before as an objection, but what _is_
-> that other model that you would convert from? IOW what *is* that XXX
-> that you talk about?
-> 
-> So I think accelerometers etc should be seen as input devices for the
-> simple reason that
-> 
->  (a) They really *are* input devices in all the most common cases. If
-> you have a phone with an accelerometer, it really is used as an input
-> device quite like a joystick.
+The driver listens only for raw events from the device. If we allow
+the hidinput layer to initialize, we can hit NULL pointer dereferences
+in the hidinput layer because disconnecting only removes the hidinput
+devices from the hid device while leaving the hid fields configured.
 
-At least some of the time, an accelerometer is more like part of a 
-joystick. You can have phones with accelerometers at both ends, where the 
-input events produced depend on the combination of the readings, with each 
-of the individual accelerometers being a device that is also available by 
-itself. You can have phones which can be used in various orientations, 
-where the logical "left" direction depends on the orientation. With a 
-joystick, the device that the driver is for has the assignment of motions 
-to inputs; for an accelerometer in a phone, the assignment is outside the 
-scope of the chip, and it would make sense to have a second driver that 
-takes non-chip-specific accelerometer output (per-accelerometer, per-axis) 
-and maps it to input events based on how the user holds the box the chip 
-is in.
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+Note that this mimics what the hid-picolcd module does.
 
-It's like having a whole bunch of button devices; you want them to be 
-exposed as a keyboard, and the sensor hardware reports press and release, 
-but something else is needed to know which hardware button is which key. 
-Similarly, you want to know about how the user is moving the device, and 
-you may need to process various sorts of raw data to produce anything 
-meaningful to applications.
+ drivers/hid/hid-magicmouse.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
 
-	-Daniel
-*This .sig left intentionally blank*
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 319b0e5..d38b529 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -404,15 +404,20 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		goto err_free;
+ 	}
+ 
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	/* When registering a hid device, one of hidinput, hidraw, or hiddev
++	 * subsystems must claim the device. We are bypassing hidinput due to
++	 * our raw event processing, and hidraw and hiddev may not claim the
++	 * device. We get around this by telling hid_hw_start that input has
++	 * claimed the device already, and then flipping the bit back.
++	 */
++	hdev->claimed = HID_CLAIMED_INPUT;
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
++	hdev->claimed &= ~HID_CLAIMED_INPUT;
+ 	if (ret) {
+ 		dev_err(&hdev->dev, "magicmouse hw start failed\n");
+ 		goto err_free;
+ 	}
+ 
+-	/* we are handling the input ourselves */
+-	hidinput_disconnect(hdev);
+-
+ 	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
+ 	if (!report) {
+ 		dev_err(&hdev->dev, "unable to register touch report\n");
+-- 
+1.7.1
+

@@ -1,88 +1,100 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 1/6] HID: magicmouse: don't allow hidinput to initialize
-Date: Tue, 31 Aug 2010 13:49:03 -0400
-Message-ID: <1283276943.2255.57.camel@mini>
+Subject: Re: [PATCH 5/6] HID: magicmouse: enable Magic Trackpad support
+Date: Tue, 31 Aug 2010 13:54:49 -0400
+Message-ID: <1283277289.2255.63.camel@mini>
 References: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
-	 <1283226363.14419.44.camel@graviton>  <1283254218.18522.11.camel@graviton>
+	 <1283188858-4839-5-git-send-email-chase.douglas@canonical.com>
+	 <1283228806.14419.63.camel@graviton>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:57977 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:36437 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752753Ab0HaRtU (ORCPT
+	with ESMTP id S1751548Ab0HaRyy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 13:49:20 -0400
-In-Reply-To: <1283254218.18522.11.camel@graviton>
+	Tue, 31 Aug 2010 13:54:54 -0400
+In-Reply-To: <1283228806.14419.63.camel@graviton>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Michael Poole <mdpoole@troilus.org>
 Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Tue, 2010-08-31 at 07:30 -0400, Michael Poole wrote:
-> On Mon, 2010-08-30 at 23:46 -0400, Michael Poole wrote:
-> > On Mon, 2010-08-30 at 13:20 -0400, Chase Douglas wrote:
-> > > From: Chase Douglas <chase.douglas@ubuntu.com>
-> > > 
-> > > The driver listens only for raw events from the device. If we allow
-> > > the hidinput layer to initialize, we can hit NULL pointer dereferences
-> > > in the hidinput layer because disconnecting only removes the input
-> > > devices from the hid device while leaving the hid fields around.
-> > > 
-> > > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> > > ---
-> > >  drivers/hid/hid-magicmouse.c |    6 ++----
-> > >  1 files changed, 2 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> > > index ee78787..2d8532d 100644
-> > > --- a/drivers/hid/hid-magicmouse.c
-> > > +++ b/drivers/hid/hid-magicmouse.c
-> > > @@ -404,15 +404,13 @@ static int magicmouse_probe(struct hid_device *hdev,
-> > >  		goto err_free;
-> > >  	}
-> > >  
-> > > -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> > > +	/* we are handling the input ourselves */
-> > > +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW | HID_CONNECT_HIDDEV);
-> > >  	if (ret) {
-> > >  		dev_err(&hdev->dev, "magicmouse hw start failed\n");
-> > >  		goto err_free;
-> > >  	}
-> > >  
-> > > -	/* we are handling the input ourselves */
-> > > -	hidinput_disconnect(hdev);
-> > > -
-> > >  	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
-> > >  	if (!report) {
-> > >  		dev_err(&hdev->dev, "unable to register touch report\n");
+On Tue, 2010-08-31 at 00:26 -0400, Michael Poole wrote:
+> On Mon, 2010-08-30 at 13:20 -0400, Chase Douglas wrote:
+> > The trackpad speaks a similar, but different, protocol from the magic
+> > mouse. However, only small code tweaks here and there are needed to make
+> > basic multitouch work.
 > > 
-> > This effectively reverts commit 23d021167e.  Has the HID core changed so
-> > that this won't cause problems when CONFIG_HIDRAW is disabled?
+> > Extra logic is required for single-touch emulation of the touchpad. The
+> > changes made here take the approach that only one finger may emulate the
+> > single pointer when multiple fingers have touched the screen. Once that
+> > finger is raised, all touches must be raised before any further single
+> > touch events can be sent.
+> > 
+> > Sometimes the magic trackpad sends two distinct touch reports as one big
+> > report. Simply splitting the packet in two and resending them through
+> > magicmouse_raw_event ensures they are handled properly.
+> > 
+> > I also added myself to the copyright statement.
+> > 
+> > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 > 
-> To answer my own question, it has not changed: If CONFIG_HIDRAW is
-> turned off, the device will not get attached with this change, so the
-> driver does not get any input to process.  Turning CONFIG_HIDRAW on
-> restores the expected functionality.
+> I have no technical concerns with the patch, just two questions.  (Once
+> I get the chance to test it, I expect to add my Acked-by.)
+
+<snip>
+  
+> > -		if (report_touches) {
+> > -			last_up = 1;
+> > -			for (ii = 0; ii < ARRAY_SIZE(msc->touches); ii++) {
+> > -				if (msc->touches[ii].down) {
+> > -					last_up = 0;
+> > -					msc->touches[ii].down = 0;
+> > -				}
+> > -			}
+> > -			if (last_up) {
+> > -				input_mt_sync(input);
+> > -			}
+> > -		}
+> > -
 > 
-> Maybe hidinput_disconnect() should be modified instead, to clear the
-> fields that were causing null pointer dereferences?
+> Maybe it is worth making magicmouse_emit_touch() return non-zero if the
+> touch is down, so that "last_up" can be accumulated in a single pass
+> (and we can remove the "down" field of the touch)?  I think that should
+> be a separate commit, if the idea makes sense to you.
 
-That may be correct, but I don't really know the hid layer well enough
-to be sure.
+That makes sense to me without diving into the code. I don't really have
+the time to work on it right now though, so is it ok if these patches
+are applied first?
 
-I found that the hid-picolcd driver fakes out hid_hw_start by setting
-the hdev->claimed field to HID_CLAIMED_INPUT before calling the
-function. It then resets the bit after the function call. This ensures
-that the device is initialized.
+<snip>
 
-Even if the hidinput layer is fixed so it doesn't panic after a hidinput
-device is disconnected, I like this change because it means we aren't
-creating a device and then deleting it immediately. I think this is what
-I noticed in my Xorg.0.log file. It's really strange to see a device pop
-in and out.
+> > @@ -388,12 +473,29 @@ static struct feature mouse_features[] = {
+> >  	{ { 0xf8, 0x01, 0x32 }, 3 }
+> >  };
+> >  
+> > +static struct feature trackpad_features[] = {
+> > +	{ { 0xf1, 0xdb }, 2 },
+> > +	{ { 0xf1, 0xdc }, 2 },
+> > +	{ { 0xf0, 0x00 }, 2 },
+> > +	{ { 0xf1, 0xdd }, 2 },
+> > +	{ { 0xf0, 0x02 }, 2 },
+> > +	{ { 0xf1, 0xc8 }, 2 },
+> > +	{ { 0xf0, 0x09 }, 2 },
+> > +	{ { 0xf1, 0xdc }, 2 },
+> > +	{ { 0xf0, 0x00 }, 2 },
+> > +	{ { 0xf1, 0xdd }, 2 },
+> > +	{ { 0xf0, 0x02 }, 2 },
+> > +	{ { 0xd7, 0x01 }, 2 },
+> > +};
+> > +
+> 
+> As I mentioned in another email, only the last entry here is required to
+> turn on multitouch reports.  Do you know what the other entries do?
 
-I'll be sending a new set of patches with this change.
+No clue. I just copied what OS X was sending to the device. It works for
+myself and others, so I haven't messed with it.
 
 Thanks,
 

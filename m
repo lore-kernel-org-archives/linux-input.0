@@ -1,225 +1,452 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH 4/5] ARM: pxa168: added special case handler for keypad interrupts
-Date: Tue, 31 Aug 2010 15:15:44 +0800
-Message-ID: <AANLkTi==d-YW4mVT7Pvr_NqfiHeXZ=DZjv69Z_Dhg6Gb@mail.gmail.com>
-References: <1282814339-10934-1-git-send-email-mark.brown314@gmail.com>
- <1282814339-10934-5-git-send-email-mark.brown314@gmail.com>
- <AANLkTimvudYv4fwyGWjL5c10QrM9GtC2SXjPZzcV20_s@mail.gmail.com>
- <AANLkTinEtFhC6kB3asuBXLxCgYf9yOTLTTwRQJXKcu2n@mail.gmail.com>
- <AANLkTi=0ECTN8ro3H6=CUZy5qzJjhC0C02yPKzS-+0r5@mail.gmail.com> <AANLkTi=RgZcykxPnUcneGfZnETo9nK_72Qoa=8rKh2rD@mail.gmail.com>
+From: "Xing Wei" <weixing@hanwang.com.cn>
+Subject: [PATCH v3] input: Add support for Hanwang tablet
+Date: Tue, 31 Aug 2010 16:14:46 +0800
+Message-ID: <201008311614464536827@hanwang.com.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:52198 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932172Ab0HaHQG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 03:16:06 -0400
-In-Reply-To: <AANLkTi=RgZcykxPnUcneGfZnETo9nK_72Qoa=8rKh2rD@mail.gmail.com>
+Received: from hanwang.com.cn ([221.122.51.51]:55526 "EHLO mail.hanwang.com.cn"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756973Ab0HaIOz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 Aug 2010 04:14:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Mark F. Brown" <mark.brown314@gmail.com>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: "dmitry.torokhov" <dmitry.torokhov@gmail.com>
+Cc: jkosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Tue, Aug 31, 2010 at 3:13 PM, Mark F. Brown <mark.brown314@gmail.com=
-> wrote:
-> On Tue, Aug 31, 2010 at 3:05 AM, Eric Miao <eric.y.miao@gmail.com> wr=
-ote:
->> On Tue, Aug 31, 2010 at 2:28 PM, Mark F. Brown <mark.brown314@gmail.=
-com> wrote:
->>> On Tue, Aug 31, 2010 at 12:53 AM, Haojian Zhuang
->>> <haojian.zhuang@gmail.com> wrote:
->>>> On Thu, Aug 26, 2010 at 5:18 PM, Mark F. Brown <mark.brown314@gmai=
-l.com> wrote:
->>>>> Signed-off-by: Mark F. Brown <mark.brown314@gmail.com>
->>>>> ---
->>>>> =C2=A0arch/arm/mach-mmp/irq-pxa168.c | =C2=A0 23 ++++++++++++++++=
-++++++-
->>>>> =C2=A01 files changed, 22 insertions(+), 1 deletions(-)
->>>>>
->>>>> diff --git a/arch/arm/mach-mmp/irq-pxa168.c b/arch/arm/mach-mmp/i=
-rq-pxa168.c
->>>>> index 52ff2f0..bfb0984 100644
->>>>> --- a/arch/arm/mach-mmp/irq-pxa168.c
->>>>> +++ b/arch/arm/mach-mmp/irq-pxa168.c
->>>>> @@ -17,6 +17,8 @@
->>>>> =C2=A0#include <linux/io.h>
->>>>>
->>>>> =C2=A0#include <mach/regs-icu.h>
->>>>> +#include <mach/regs-apmu.h>
->>>>> +#include <mach/cputype.h>
->>>>>
->>>>> =C2=A0#include "common.h"
->>>>>
->>>>> @@ -42,6 +44,19 @@ static struct irq_chip icu_irq_chip =3D {
->>>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0.unmask =3D icu_unmask_irq,
->>>>> =C2=A0};
->>>>>
->>>>> +void handle_pxa168_keypad_irq(unsigned int irq, struct irq_desc =
-*desc)
->>>>> +{
->>>>> + =C2=A0 =C2=A0 =C2=A0 uint32_t val;
->>>>> + =C2=A0 =C2=A0 =C2=A0 uint32_t mask =3D APMU_PXA168_KP_WAKE_CLR;
->>>>> +
->>>>> + =C2=A0 =C2=A0 =C2=A0 /* clear keypad wake event */
->>>>> + =C2=A0 =C2=A0 =C2=A0 val =3D __raw_readl(APMU_WAKE_CLR);
->>>>> + =C2=A0 =C2=A0 =C2=A0 __raw_writel(val | =C2=A0mask, APMU_WAKE_C=
-LR);
->>>>> +
->>>>> + =C2=A0 =C2=A0 =C2=A0 /* handle irq */
->>>>> + =C2=A0 =C2=A0 =C2=A0 handle_level_irq(irq, desc);
->>>>> +}
->>>>> +
->>>>
->>>> Why should you clear wakeup event status in IRQ handler? If system=
- is
->>>> resumed by keypad event, you should clear this wakeup source in re=
-sume
->>>> code. I think that IRQ code should not be binded with wakeup event=
- at
->>>> here.
->>>>
->>>>> =C2=A0void __init icu_init_irq(void)
->>>>> =C2=A0{
->>>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0int irq;
->>>>> @@ -49,7 +64,13 @@ void __init icu_init_irq(void)
->>>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0for (irq =3D 0; irq < 64; irq++) {
->>>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0icu_mask_i=
-rq(irq);
->>>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0set_irq_ch=
-ip(irq, &icu_irq_chip);
->>>>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 set_irq_handle=
-r(irq, handle_level_irq);
->>>>> +
->>>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* special han=
-dler for keypad */
->>>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (cpu_is_pxa=
-168() && irq =3D=3D IRQ_PXA168_KEYPAD)
->>>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 set_irq_handler(irq, handle_pxa168_keypad_irq);
->>>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 else
->>>>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 set_irq_handler(irq, handle_level_irq);
->>>>> +
->>>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0set_irq_fl=
-ags(irq, IRQF_VALID);
->>>>> =C2=A0 =C2=A0 =C2=A0 =C2=A0}
->>>>> =C2=A0}
->>>>> --
->>>>> 1.7.0.4
->>>>>
->>>>> --
->>>>> To unsubscribe from this list: send the line "unsubscribe linux-k=
-ernel" in
->>>>> the body of a message to majordomo@vger.kernel.org
->>>>> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-inf=
-o.html
->>>>> Please read the FAQ at =C2=A0http://www.tux.org/lkml/
->>>>>
->>>>
->>>
->>> Haojian, this is an usual case, but without that clear wake event y=
-ou
->>> will not be able to clear the keypad interrupt. For my push to open
->>> source I re-wrote the workaround code and added it as a special cas=
-e
->>> IRQ handler. In the Marvell pxa168 code base it is actually located=
- in
->>> the keypad interrupt handler as the function clear_wakeup(). I felt=
- it
->>> was better to isolate this code in the mmp common code base instead=
-=2E
->>
->> I'd rather the irq handler not being changed and use platform_data i=
-nstead.
->> How about something below:
->>
->> diff --git a/arch/arm/mach-mmp/include/mach/pxa168.h
->> b/arch/arm/mach-mmp/include/mach/pxa168.h
->> index 27e1bc7..d2b7946 100644
->> --- a/arch/arm/mach-mmp/include/mach/pxa168.h
->> +++ b/arch/arm/mach-mmp/include/mach/pxa168.h
->> @@ -5,6 +5,7 @@ struct sys_timer;
->>
->> =C2=A0extern struct sys_timer pxa168_timer;
->> =C2=A0extern void __init pxa168_init_irq(void);
->> +extern void pxa168_clear_keypad_wakeup(void);
->>
->> =C2=A0#include <linux/i2c.h>
->> =C2=A0#include <mach/devices.h>
->> @@ -97,4 +98,10 @@ static inline int pxa168_add_nand(struct
->> pxa3xx_nand_platform_data *info)
->> =C2=A0{
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0return pxa_register_device(&pxa168_device=
-_nand, info, sizeof(*info));
->> =C2=A0}
->> +
->> +static inline int pxa168_add_keypad(struct pxa27x_keypad_platform_d=
-ata *info)
->> +{
->> + =C2=A0 =C2=A0 =C2=A0 info->clear_wakeup =3D pxa168_clear_keypad_wa=
-keup;
->> + =C2=A0 =C2=A0 =C2=A0 return pxa_register_device(&pxa168_device_key=
-pad, info, sizeof(*info));
->> +}
->> =C2=A0#endif /* __ASM_MACH_PXA168_H */
->> diff --git a/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
->> b/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
->> index 7b4eadc..3a6bfe7 100644
->> --- a/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
->> +++ b/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
->> @@ -52,6 +52,7 @@ struct pxa27x_keypad_platform_data {
->>
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* key debounce interval */
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned int =C2=A0 =C2=A0debounce_interv=
-al;
->> + =C2=A0 =C2=A0 =C2=A0 void =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
-(*clear_wakeup);
->> =C2=A0};
->>
->> =C2=A0extern void pxa_set_keypad_info(struct pxa27x_keypad_platform_=
-data *info);
->> diff --git a/drivers/input/keyboard/pxa27x_keypad.c
->> b/drivers/input/keyboard/pxa27x_keypad.c
->> index f32404f..3fb94fe 100644
->> --- a/drivers/input/keyboard/pxa27x_keypad.c
->> +++ b/drivers/input/keyboard/pxa27x_keypad.c
->> @@ -330,10 +330,20 @@ static void pxa27x_keypad_scan_direct(struct
->> pxa27x_keypad *keypad)
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0keypad->direct_key_state =3D new_state;
->> =C2=A0}
->>
->> +static void clear_wakeup(struct pxa27x_keypad *keypad)
->> +{
->> + =C2=A0 =C2=A0 =C2=A0 struct pxa27x_keypad_platform_data *pdata =3D=
- keypad->pdata;
->> +
->> + =C2=A0 =C2=A0 =C2=A0 if (pdata->clear_wakeup)
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 (pdata->clear_wak=
-eup)();
->> +}
->> +
->> =C2=A0static irqreturn_t pxa27x_keypad_irq_handler(int irq, void *de=
-v_id)
->> =C2=A0{
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct pxa27x_keypad *keypad =3D dev_id;
->> - =C2=A0 =C2=A0 =C2=A0 unsigned long kpc =3D keypad_readl(KPC);
->> + =C2=A0 =C2=A0 =C2=A0 unsigned long kpc;
->> +
->> + =C2=A0 =C2=A0 =C2=A0 kpc =3D keypad_readl(KPC);
->>
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (kpc & KPC_DI)
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0pxa27x_keypad=
-_scan_direct(keypad);
->>
->
-> Ok if you are fine with that I will make that change and resubmit!
->
+From: Xing Wei  <weixing@hanwang.com.cn>
 
-Thanks.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Add support for Art Master III tablet of BeiJing HanwangTechnology Co, Ltd.
+
+Signed-off-by: Xing Wei <weixing@hanwang.com.cn>
+
+---
+
+Thanks for dmitry's comment & advice.
+And I removed the part -- "Make sure to say Y to 'Mouse support(CONFIG_INPUT_MOUSEDEV)' and/or 'Event interface support'
+(CONFIG_INPUT_EVDEV) as well" in the Kconfig.
+
+diff -uprN -X linux-2.6.35.3-vanilla/Documentation/dontdiff linux-2.6.35.3-vanilla/drivers/hid/hid-core.c devel/linux-2.6.35.3/drivers/hid/hid-core.c
+--- linux-2.6.35.3-vanilla/drivers/hid/hid-core.c	2010-08-21 02:55:55.000000000 +0800
++++ devel/linux-2.6.35.3/drivers/hid/hid-core.c	2010-08-25 18:02:15.942574998 +0800
+@@ -1759,6 +1759,11 @@ static bool hid_ignore(struct hid_device
+ 		    hdev->product <= USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST)
+ 			return true;
+ 		break;
++	case USB_VENDOR_ID_HANWANG:
++		if (hdev->product >= USB_DEVICE_ID_HANWANG_TABLET_FIRST &&
++		    hdev->product <= USB_DEVICE_ID_HANWANG_TABLET_LAST)
++			return true;
++		break;
+ 	}
+ 
+ 	if (hdev->type == HID_TYPE_USBMOUSE &&
+diff -uprN -X linux-2.6.35.3-vanilla/Documentation/dontdiff linux-2.6.35.3-vanilla/drivers/hid/hid-ids.h devel/linux-2.6.35.3/drivers/hid/hid-ids.h
+--- linux-2.6.35.3-vanilla/drivers/hid/hid-ids.h	2010-08-21 02:55:55.000000000 +0800
++++ devel/linux-2.6.35.3/drivers/hid/hid-ids.h	2010-08-25 18:00:21.416574999 +0800
+@@ -526,5 +526,8 @@
+ #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
+ #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+ 
++#define USB_VENDOR_ID_HANWANG		0x0b57
++#define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
++#define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
+ 
+ #endif
+diff -uprN -X linux-2.6.35.3-vanilla/Documentation/dontdiff linux-2.6.35.3-vanilla/drivers/input/tablet/hanwang.c devel/linux-2.6.35.3/drivers/input/tablet/hanwang.c
+--- linux-2.6.35.3-vanilla/drivers/input/tablet/hanwang.c	1970-01-01 08:00:00.000000000 +0800
++++ devel/linux-2.6.35.3/drivers/input/tablet/hanwang.c	2010-08-31 15:58:00.892882002 +0800
+@@ -0,0 +1,359 @@
++/*
++ *  USB Hanwang tablet support
++ *
++ *  Copyright (c) 2010 Xing Wei <weixing@hanwang.com.cn>
++ *
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/usb/input.h>
++
++#define DRIVER_AUTHOR   "Xing Wei <weixing@hanwang.com.cn>"
++#define DRIVER_DESC     "USB Hanwang tablet driver"
++#define DRIVER_LICENSE  "GPL"
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE(DRIVER_LICENSE);
++
++#define USB_VENDOR_ID_HANWANG		0x0b57
++#define HANWANG_TABLET_INT_CLASS	0x0003
++#define HANWANG_TABLET_INT_SUB_CLASS	0x0001
++#define HANWANG_TABLET_INT_PROTOCOL	0x0002
++
++#define ART_MASTERIII_PKGLEN_MAX	10
++
++/* match vendor and interface info  */
++#define HANWANG_TABLET_DEVICE(vend, cl, sc, pr) \
++	.match_flags = USB_DEVICE_ID_MATCH_VENDOR \
++		| USB_DEVICE_ID_MATCH_INT_INFO, \
++	.idVendor = (vend), \
++	.bInterfaceClass = (cl), \
++	.bInterfaceSubClass = (sc), \
++	.bInterfaceProtocol = (pr)
++
++struct hanwang_state {
++	unsigned int tool_style;
++	unsigned int tool_state;
++};
++struct hanwang {
++	char name[64];
++	unsigned char *data;
++	dma_addr_t data_dma;
++	struct input_dev *dev;
++	struct usb_device *usbdev;
++	struct urb *irq;
++	const struct hanwang_features *features;
++	struct hanwang_state hws;
++	char phys[32];
++};
++
++struct hanwang_features {
++	unsigned short pid;
++	int pkg_len;
++	char *name;
++	int max_x;
++	int max_y;
++	int max_tilt_x;
++	int max_tilt_y;
++	int max_pressure;
++	int max_distance;
++};
++
++
++static const struct hanwang_features features_array[] = {
++	{0x8528, ART_MASTERIII_PKGLEN_MAX, "Hanwang Art Master III 0906",
++	0x5757, 0x3692, 0x3f, 0x7f, 2048, 0xff},
++	{0x8529, ART_MASTERIII_PKGLEN_MAX, "Hanwang Art Master III 0604",
++	0x3d84, 0x2672, 0x3f, 0x7f, 2048, 0xff},
++	{0x852a, ART_MASTERIII_PKGLEN_MAX, "Hanwang Art Master III 1308",
++	0x7f00, 0x4f60, 0x3f, 0x7f, 2048, 0xff},
++};
++
++static const int hw_eventtypes[] = {
++	EV_KEY, EV_ABS,
++};
++
++static const int hw_absevents[] = {
++	ABS_X, ABS_Y, ABS_TILT_X, ABS_TILT_Y, ABS_WHEEL,
++	ABS_PRESSURE, ABS_DISTANCE
++};
++
++static const int hw_btnevents[] = {
++	BTN_STYLUS, BTN_STYLUS2, BTN_TOOL_PEN, BTN_TOOL_RUBBER,
++	BTN_TOOL_MOUSE, BTN_0, BTN_1, BTN_2, BTN_3, BTN_4,
++	BTN_5, BTN_6, BTN_7, BTN_8
++};
++
++static struct usb_device_id hanwang_ids[] = {
++	{HANWANG_TABLET_DEVICE(USB_VENDOR_ID_HANWANG, HANWANG_TABLET_INT_CLASS,
++		HANWANG_TABLET_INT_SUB_CLASS, HANWANG_TABLET_INT_PROTOCOL)},
++	{}
++};
++
++MODULE_DEVICE_TABLE(usb, hanwang_ids);
++
++static int hanwang_open(struct input_dev *dev)
++{
++	struct hanwang *hanwang = input_get_drvdata(dev);
++
++	hanwang->irq->dev = hanwang->usbdev;
++	if (usb_submit_urb(hanwang->irq, GFP_KERNEL))
++		return -EIO;
++
++	return 0;
++}
++
++static void hanwang_close(struct input_dev *dev)
++{
++	struct hanwang *hanwang = input_get_drvdata(dev);
++
++	usb_kill_urb(hanwang->irq);
++}
++
++static void hanwang_irq(struct urb *urb)
++{
++
++	struct hanwang *hanwang = urb->context;
++	unsigned char *data = hanwang->data;
++	struct input_dev *input_dev = hanwang->dev;
++	struct usb_device *dev = hanwang->usbdev;
++	struct hanwang_state *phws = &hanwang->hws;
++	int retval;
++
++	switch (urb->status) {
++	case 0:
++		/* success */;
++		break;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		/* this urb is terminated, clean up */
++		dev_err(&dev->dev, "%s - urb shutting down with status: %d",
++				__func__, urb->status);
++		return;
++	default:
++		dev_err(&dev->dev, "%s - nonzero urb status received: %d",
++				__func__, urb->status);
++		goto exit;
++	}
++
++	/* data packet */
++	if (data[0] == 0x02) {
++		/* tool prox out */
++		if (data[1] == 0x80) {
++			input_report_key(input_dev, phws->tool_style, 0);
++		} else if (data[1] == 0xc2) {	/* first time tool prox in */
++			switch (data[3] & 0xf0) {
++			case 0x20:
++				phws->tool_style = BTN_TOOL_PEN;
++				input_report_key(input_dev, BTN_TOOL_PEN, 1);
++				break;
++			case 0xa0:
++				phws->tool_style = BTN_TOOL_RUBBER;
++				input_report_key(input_dev, BTN_TOOL_RUBBER, 1);
++				break;
++			default:
++				dev_dbg(&dev->dev, "unknown tablet tool %02x ", data[0]);
++				break;
++			}
++		} else {	/* tool data packet */
++			input_report_abs(input_dev, ABS_X, (data[2] << 8) | data[3]);
++			input_report_abs(input_dev, ABS_Y, (data[4] << 8) | data[5]);
++			input_report_abs(input_dev, ABS_PRESSURE, (data[6] << 3) |
++						((data[7] & 0xc0) >> 5) |
++						(data[1] & 0x01));
++			input_report_abs(input_dev, ABS_TILT_X, data[7] & 0x3f);
++			input_report_abs(input_dev, ABS_TILT_Y, data[8] & 0x7f);
++			input_report_key(input_dev, BTN_STYLUS,
++				(data[1] & 0x02) >> 1);
++			input_report_key(input_dev, BTN_STYLUS2,
++				(data[1] & 0x04) >> 2);
++		}
++	} else if (data[0] == 0x0c) {	/* roll wheel */
++		if (data[1])
++			input_report_abs(input_dev, ABS_WHEEL, data[1]);
++		input_report_key(input_dev, BTN_0, data[2]);
++		input_report_key(input_dev, BTN_1, data[3] & 0x01);
++		input_report_key(input_dev, BTN_2, data[3] & 0x02);
++		input_report_key(input_dev, BTN_3, data[3] & 0x04);
++		input_report_key(input_dev, BTN_4, data[3] & 0x08);
++		input_report_key(input_dev, BTN_5, data[3] & 0x10);
++		input_report_key(input_dev, BTN_6, data[3] & 0x20);
++		input_report_key(input_dev, BTN_7, data[3] & 0x30);
++		input_report_key(input_dev, BTN_8, data[3] & 0x40);
++	} else {
++		dev_dbg(&dev->dev, "error packet  %02x ", data[0]);
++	}
++
++	input_sync(input_dev);
++
++exit:
++	retval = usb_submit_urb(urb, GFP_ATOMIC);
++	if (retval)
++		dev_err(&dev->dev, "%s - usb_submit_urb failed with result %d",
++				__func__, retval);
++}
++
++static bool get_features(struct usb_device *dev, struct hanwang *hanwang)
++{
++	int i, total_features;
++
++	total_features = ARRAY_SIZE(features_array);
++	for (i = 0; i < total_features; i++) {
++		if (le16_to_cpu(dev->descriptor.idProduct) ==
++				features_array[i].pid) {
++			hanwang->features = &features_array[i];
++			return 1;
++		}
++	}
++
++	return 0;
++}
++
++
++static int hanwang_probe(struct usb_interface *intf, const struct usb_device_id *id)
++{
++	struct usb_device *dev = interface_to_usbdev(intf);
++	struct usb_endpoint_descriptor *endpoint;
++	struct hanwang *hanwang;
++	struct input_dev *input_dev;
++	int error = -ENOMEM;
++	int i;
++
++	hanwang = kzalloc(sizeof(struct hanwang), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!hanwang || !input_dev)
++		goto fail1;
++
++	if (!get_features(dev, hanwang))
++		goto fail1;
++
++	hanwang->data = usb_alloc_coherent(dev, hanwang->features->pkg_len,
++					GFP_KERNEL, &hanwang->data_dma);
++	if (!hanwang->data)
++		goto fail1;
++
++	hanwang->irq = usb_alloc_urb(0, GFP_KERNEL);
++	if (!hanwang->irq)
++		goto fail2;
++
++	hanwang->usbdev = dev;
++	hanwang->dev = input_dev;
++
++	usb_make_path(dev, hanwang->phys, sizeof(hanwang->phys));
++	strlcat(hanwang->phys, "/input0", sizeof(hanwang->phys));
++
++	strlcpy(hanwang->name, hanwang->features->name, sizeof(hanwang->name));
++	input_dev->name = hanwang->name;
++	input_dev->phys = hanwang->phys;
++	usb_to_input_id(dev, &input_dev->id);
++	input_dev->dev.parent = &intf->dev;
++
++	input_set_drvdata(input_dev, hanwang);
++
++	input_dev->open = hanwang_open;
++	input_dev->close = hanwang_close;
++
++	for (i = 0; i < ARRAY_SIZE(hw_eventtypes); ++i)
++		__set_bit(hw_eventtypes[i], input_dev->evbit);
++
++	for (i = 0; i < ARRAY_SIZE(hw_absevents); ++i)
++		__set_bit(hw_absevents[i], input_dev->absbit);
++
++	for (i = 0; i < ARRAY_SIZE(hw_btnevents); ++i)
++		__set_bit(hw_btnevents[i], input_dev->keybit);
++
++	input_set_abs_params(input_dev, ABS_X, 0,
++			hanwang->features->max_x, 4, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0,
++			hanwang->features->max_y, 4, 0);
++	input_set_abs_params(input_dev, ABS_TILT_X, 0,
++			hanwang->features->max_tilt_x, 0, 0);
++	input_set_abs_params(input_dev, ABS_TILT_Y, 0,
++			hanwang->features->max_tilt_y, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0,
++			hanwang->features->max_pressure, 0, 0);
++	input_set_abs_params(input_dev, ABS_DISTANCE, 0,
++			hanwang->features->max_distance, 0, 0);
++
++	endpoint = &intf->cur_altsetting->endpoint[0].desc;
++	usb_fill_int_urb(hanwang->irq, dev,
++			usb_rcvintpipe(dev, endpoint->bEndpointAddress),
++			hanwang->data, hanwang->features->pkg_len,
++			hanwang_irq, hanwang, endpoint->bInterval);
++	hanwang->irq->transfer_dma = hanwang->data_dma;
++	hanwang->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++	error = input_register_device(hanwang->dev);
++	if (error)
++		goto fail3;
++
++	usb_set_intfdata(intf, hanwang);
++
++	return 0;
++
++ fail3:	usb_free_urb(hanwang->irq);
++ fail2:	usb_free_coherent(dev, hanwang->features->pkg_len,
++			hanwang->data, hanwang->data_dma);
++ fail1:	input_free_device(input_dev);
++	kfree(hanwang);
++	return error;
++
++}
++
++static void hanwang_disconnect(struct usb_interface *intf)
++{
++	struct hanwang *hanwang = usb_get_intfdata(intf);
++
++	usb_set_intfdata(intf, NULL);
++	if (hanwang) {
++		usb_kill_urb(hanwang->irq);
++		input_unregister_device(hanwang->dev);
++		usb_free_urb(hanwang->irq);
++		usb_free_coherent(interface_to_usbdev(intf),
++			hanwang->features->pkg_len, hanwang->data,
++			hanwang->data_dma);
++		kfree(hanwang);
++	}
++}
++
++static struct usb_driver hanwang_driver = {
++	.name =		"hanwang",
++	.probe =	hanwang_probe,
++	.disconnect =	hanwang_disconnect,
++	.id_table =	hanwang_ids,
++};
++
++static int __init hanwang_init(void)
++{
++	return usb_register(&hanwang_driver);
++}
++
++static void __exit hanwang_exit(void)
++{
++	usb_deregister(&hanwang_driver);
++}
++
++module_init(hanwang_init);
++module_exit(hanwang_exit);
+diff -uprN -X linux-2.6.35.3-vanilla/Documentation/dontdiff linux-2.6.35.3-vanilla/drivers/input/tablet/Kconfig devel/linux-2.6.35.3/drivers/input/tablet/Kconfig
+--- linux-2.6.35.3-vanilla/drivers/input/tablet/Kconfig	2010-08-21 02:55:55.000000000 +0800
++++ devel/linux-2.6.35.3/drivers/input/tablet/Kconfig	2010-08-31 10:03:31.613679001 +0800
+@@ -49,6 +49,17 @@ config TABLET_USB_GTCO
+           To compile this driver as a module, choose M here: the
+           module will be called gtco.
+ 
++config TABLET_USB_HANWANG
++	tristate "Hanwang Art Master III tablet support (USB)"
++	depends on USB_ARCH_HAS_HCD
++	select USB
++	help
++	  Say Y here if you want to use the USB version of the Hanwang Art
++	  Master III tablet.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called hanwang.
++
+ config TABLET_USB_KBTAB
+ 	tristate "KB Gear JamStudio tablet support (USB)"
+ 	depends on USB_ARCH_HAS_HCD
+diff -uprN -X linux-2.6.35.3-vanilla/Documentation/dontdiff linux-2.6.35.3-vanilla/drivers/input/tablet/Makefile devel/linux-2.6.35.3/drivers/input/tablet/Makefile
+--- linux-2.6.35.3-vanilla/drivers/input/tablet/Makefile	2010-08-21 02:55:55.000000000 +0800
++++ devel/linux-2.6.35.3/drivers/input/tablet/Makefile	2010-08-31 15:49:35.276547001 +0800
+@@ -8,5 +8,6 @@ wacom-objs	:= wacom_wac.o wacom_sys.o
+ obj-$(CONFIG_TABLET_USB_ACECAD)	+= acecad.o
+ obj-$(CONFIG_TABLET_USB_AIPTEK)	+= aiptek.o
+ obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
++obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
+ obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
+ obj-$(CONFIG_TABLET_USB_WACOM)	+= wacom.o
+

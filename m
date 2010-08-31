@@ -1,60 +1,77 @@
-From: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
- CMA3000 Accelerometer driver)
-Date: Tue, 31 Aug 2010 13:51:29 +0100
-Message-ID: <4C7CFAD1.6030707@jic23.retrosnub.co.uk>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>	<20100829184904.GC26209@core.coreip.homeip.net>	<36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>	<20100830214025.2f9677a1@lxorguk.ukuu.org.uk>	<20100830204412.GA28711@core.coreip.homeip.net>	<AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>	<20100830214355.GB28865@core.coreip.homeip.net> <20100831104659.11ebc8a0@lxorguk.ukuu.org.uk>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 1/6] HID: magicmouse: don't allow hidinput to initialize
+Date: Tue, 31 Aug 2010 09:42:25 -0400
+Message-ID: <1283262145.2255.51.camel@mini>
+References: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
+	 <1283226363.14419.44.camel@graviton>  <1283254218.18522.11.camel@graviton>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-30.csi.cam.ac.uk ([131.111.8.130]:45806 "EHLO
-	ppsw-30.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756930Ab0HaMqs (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:40166 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752855Ab0HaNmb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 08:46:48 -0400
-In-Reply-To: <20100831104659.11ebc8a0@lxorguk.ukuu.org.uk>
+	Tue, 31 Aug 2010 09:42:31 -0400
+In-Reply-To: <1283254218.18522.11.camel@graviton>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "igor.stoppa@nokia.com" <igor.stoppa@nokia.com>, "kai.svahn@nokia.com" <kai.svahn@nokia.com>
+To: Michael Poole <mdpoole@troilus.org>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On 08/31/10 10:46, Alan Cox wrote:
->> IIO which is currently in staging.
+On Tue, 2010-08-31 at 07:30 -0400, Michael Poole wrote:
+> On Mon, 2010-08-30 at 23:46 -0400, Michael Poole wrote:
+> > On Mon, 2010-08-30 at 13:20 -0400, Chase Douglas wrote:
+> > > From: Chase Douglas <chase.douglas@ubuntu.com>
+> > > 
+> > > The driver listens only for raw events from the device. If we allow
+> > > the hidinput layer to initialize, we can hit NULL pointer dereferences
+> > > in the hidinput layer because disconnecting only removes the input
+> > > devices from the hid device while leaving the hid fields around.
+> > > 
+> > > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> > > ---
+> > >  drivers/hid/hid-magicmouse.c |    6 ++----
+> > >  1 files changed, 2 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> > > index ee78787..2d8532d 100644
+> > > --- a/drivers/hid/hid-magicmouse.c
+> > > +++ b/drivers/hid/hid-magicmouse.c
+> > > @@ -404,15 +404,13 @@ static int magicmouse_probe(struct hid_device *hdev,
+> > >  		goto err_free;
+> > >  	}
+> > >  
+> > > -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> > > +	/* we are handling the input ourselves */
+> > > +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW | HID_CONNECT_HIDDEV);
+> > >  	if (ret) {
+> > >  		dev_err(&hdev->dev, "magicmouse hw start failed\n");
+> > >  		goto err_free;
+> > >  	}
+> > >  
+> > > -	/* we are handling the input ourselves */
+> > > -	hidinput_disconnect(hdev);
+> > > -
+> > >  	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
+> > >  	if (!report) {
+> > >  		dev_err(&hdev->dev, "unable to register touch report\n");
+> > 
+> > This effectively reverts commit 23d021167e.  Has the HID core changed so
+> > that this won't cause problems when CONFIG_HIDRAW is disabled?
 > 
-> Except we had ALS before that as a layer and Linus vetoed it. So there is
-> zero faith in IIO ever going anywhere.
-I have more faith - those developing it have limited time, but we will get
-there. (another plug for anyone interested to get involved!)
-
-IIRC Linus and others disliked ALS for two reasons...
-* It was too specific.  They didn't want to fragment sensors types that much.
-* Userspace is used to dealing input and in some cases a light sensor can look
-  like a switch.
-The first certainly doesn't apply to IIO, the second will be fixed via an
-input bridge.
-
-If Linus isn't happy we'll just have to work on convincing him.
+> To answer my own question, it has not changed: If CONFIG_HIDRAW is
+> turned off, the device will not get attached with this change, so the
+> driver does not get any input to process.  Turning CONFIG_HIDRAW on
+> restores the expected functionality.
 > 
-> Instead we now have about ten different light sensor APIs to the point
-> developers are writing a toolkit userspace plugin for *each* sensor.
-I agree. This is a big problem.  We have in the past talked about
-allowing interfaces to be standardized even if the underlying subsystem
-is still open to debate.  
-We did openly debate the interface for some time with ALS...
+> Maybe hidinput_disconnect() should be modified instead, to clear the
+> fields that were causing null pointer dereferences?
 
-After we went over this with IIO we decided to match / extend hwmon where
-ever possible. Obviously that only covers sysfs interfaces, but it is a start.
-We also openly debate all new elements (and in theory at least keep
-the admittedly huge abi document up to date).  A large set of doc updates and
-code fixes relating to the interface from Manuel Stahl went to Greg KH
-this morning as result of his work on general userspace tools.
+Ahh, I should have looked at the git log of the driver :). I'll look
+into the hidinput stack to figure out the best way of handling this.
 
-On the chrdev side of things life is much more complex as performance
-and overheads become an issue.
+Thanks,
 
-Jonathan
-
-p.s. Matthias Nyman's email address is bouncing so I've removed it from the cc list.
-
+-- Chase
 

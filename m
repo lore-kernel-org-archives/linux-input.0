@@ -1,57 +1,42 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 5/6] HID: magicmouse: enable Magic Trackpad support
-Date: Tue, 31 Aug 2010 13:55:23 -0400
-Message-ID: <1283277323.2255.64.camel@mini>
+Subject: Re: [PATCH 4/6] HID: magicmouse: remove axis data filtering
+Date: Tue, 31 Aug 2010 13:57:25 -0400
+Message-ID: <1283277445.2255.66.camel@mini>
 References: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
-	 <1283188858-4839-5-git-send-email-chase.douglas@canonical.com>
-	 <1283228806.14419.63.camel@graviton>  <1283229407.16978.0.camel@graviton>
+	 <1283188858-4839-4-git-send-email-chase.douglas@canonical.com>
+	 <1283227160.14419.53.camel@graviton>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:36890 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:50748 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751548Ab0HaRz2 (ORCPT
+	with ESMTP id S1751548Ab0HaR53 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 13:55:28 -0400
-In-Reply-To: <1283229407.16978.0.camel@graviton>
+	Tue, 31 Aug 2010 13:57:29 -0400
+In-Reply-To: <1283227160.14419.53.camel@graviton>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Michael Poole <mdpoole@troilus.org>
 Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Tue, 2010-08-31 at 00:36 -0400, Michael Poole wrote:
-> On Tue, 2010-08-31 at 00:31 -0400, Michael Poole wrote:
-> > On Mon, 2010-08-30 at 13:20 -0400, Chase Douglas wrote:
-> > > The trackpad speaks a similar, but different, protocol from the magic
-> > > mouse. However, only small code tweaks here and there are needed to make
-> > > basic multitouch work.
-> > > 
-> > > Extra logic is required for single-touch emulation of the touchpad. The
-> > > changes made here take the approach that only one finger may emulate the
-> > > single pointer when multiple fingers have touched the screen. Once that
-> > > finger is raised, all touches must be raised before any further single
-> > > touch events can be sent.
-> > > 
-> > > Sometimes the magic trackpad sends two distinct touch reports as one big
-> > > report. Simply splitting the packet in two and resending them through
-> > > magicmouse_raw_event ensures they are handled properly.
-> > > 
-> > > I also added myself to the copyright statement.
-> > > 
-> > > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+On Mon, 2010-08-30 at 23:59 -0400, Michael Poole wrote:
+> On Mon, 2010-08-30 at 13:20 -0400, Chase Douglas wrote:
+> > The Magic Mouse device is very precise. No driver filtering of input
+> > data needs to be performed.
 > > 
-> > I have no technical concerns with the patch, just two questions.  (Once
-> > I get the chance to test it, I expect to add my Acked-by.)
+> > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 > 
-> Actually, one thing slipped my mind.  This patch does not apply cleanly
-> to Jiri's for-next tree, because the not-yet-upstream commit 7d876c05fa
-> changes the context at hid-magicmouse.c's line 290 before this patch.
-> Manually munging the context allows the commit to apply.  Could you
-> rebase this patch on a tree that contains that commit?
+> Acked-by: Michael Poole <mdpoole@troilus.org>
+> 
+> My original rationale for the fuzz setting was that the device is so
+> precise that it tends to spam applications, but that is probably too
+> policy-like for the kernel to enforce.
 
-An oversight on my part. I'll rebase onto Jiri's for-next tree and
-resubmit.
+This driver should be converted to the new slotted MT protocol as well,
+which will reduce the amount of data sent for each event. Hopefully I
+can get to that at some point in the near future, if no one beats me to
+it :).
 
 Thanks,
 

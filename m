@@ -1,42 +1,90 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2] input:
- CMA3000 Accelerometer driver)
-Date: Tue, 31 Aug 2010 19:24:20 +0200
-Message-ID: <AANLkTi=G0m-kdET6PevFmw4DBkha1yG+FiqmiXUvdSnK@mail.gmail.com>
-References: <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
- <20100830214025.2f9677a1@lxorguk.ukuu.org.uk> <20100830204412.GA28711@core.coreip.homeip.net>
- <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
- <20100830214355.GB28865@core.coreip.homeip.net> <AANLkTinPConD62Ky7mvMn2ZgS=V9+Q5YUdaF5Vma8mn+@mail.gmail.com>
- <20100830224352.GF28865@core.coreip.homeip.net> <20100831104446.321fd4f4@lxorguk.ukuu.org.uk>
- <20100831161730.GA30947@core.coreip.homeip.net> <20100831175937.70a59a91@lxorguk.ukuu.org.uk>
- <20100831170923.GB30947@core.coreip.homeip.net>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 1/6] HID: magicmouse: don't allow hidinput to initialize
+Date: Tue, 31 Aug 2010 13:49:03 -0400
+Message-ID: <1283276943.2255.57.camel@mini>
+References: <1283188858-4839-1-git-send-email-chase.douglas@canonical.com>
+	 <1283226363.14419.44.camel@graviton>  <1283254218.18522.11.camel@graviton>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:42790 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752207Ab0HaRYn (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:57977 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752753Ab0HaRtU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 13:24:43 -0400
-In-Reply-To: <20100831170923.GB30947@core.coreip.homeip.net>
+	Tue, 31 Aug 2010 13:49:20 -0400
+In-Reply-To: <1283254218.18522.11.camel@graviton>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@linux-foundation.org>, Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "igor.stoppa@nokia.com" <igor.stoppa@nokia.com>, "kai.svahn@nokia.com" <kai.svahn@nokia.com>, "matthias.nyman@nokia.com" <matthias.nyman@nokia.com>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+To: Michael Poole <mdpoole@troilus.org>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-IMHO I think sensors no more can be considered as non-input-devices.
-Things changed too much in recent years. Input "sources" have now a
-very different use as before (smartphones, Tablets and handheld
-devices...)
-They all have much inputs that come mostly from sensors.
+On Tue, 2010-08-31 at 07:30 -0400, Michael Poole wrote:
+> On Mon, 2010-08-30 at 23:46 -0400, Michael Poole wrote:
+> > On Mon, 2010-08-30 at 13:20 -0400, Chase Douglas wrote:
+> > > From: Chase Douglas <chase.douglas@ubuntu.com>
+> > > 
+> > > The driver listens only for raw events from the device. If we allow
+> > > the hidinput layer to initialize, we can hit NULL pointer dereferences
+> > > in the hidinput layer because disconnecting only removes the input
+> > > devices from the hid device while leaving the hid fields around.
+> > > 
+> > > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> > > ---
+> > >  drivers/hid/hid-magicmouse.c |    6 ++----
+> > >  1 files changed, 2 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> > > index ee78787..2d8532d 100644
+> > > --- a/drivers/hid/hid-magicmouse.c
+> > > +++ b/drivers/hid/hid-magicmouse.c
+> > > @@ -404,15 +404,13 @@ static int magicmouse_probe(struct hid_device *hdev,
+> > >  		goto err_free;
+> > >  	}
+> > >  
+> > > -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> > > +	/* we are handling the input ourselves */
+> > > +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW | HID_CONNECT_HIDDEV);
+> > >  	if (ret) {
+> > >  		dev_err(&hdev->dev, "magicmouse hw start failed\n");
+> > >  		goto err_free;
+> > >  	}
+> > >  
+> > > -	/* we are handling the input ourselves */
+> > > -	hidinput_disconnect(hdev);
+> > > -
+> > >  	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
+> > >  	if (!report) {
+> > >  		dev_err(&hdev->dev, "unable to register touch report\n");
+> > 
+> > This effectively reverts commit 23d021167e.  Has the HID core changed so
+> > that this won't cause problems when CONFIG_HIDRAW is disabled?
+> 
+> To answer my own question, it has not changed: If CONFIG_HIDRAW is
+> turned off, the device will not get attached with this change, so the
+> driver does not get any input to process.  Turning CONFIG_HIDRAW on
+> restores the expected functionality.
+> 
+> Maybe hidinput_disconnect() should be modified instead, to clear the
+> fields that were causing null pointer dereferences?
 
-So the definition of an input device is something that the user can
-interact on it ?
-Maybe we should consider input devices to be made from 1 to N sensors
-with some filtering blocks which only expose the useful data.
+That may be correct, but I don't really know the hid layer well enough
+to be sure.
 
-If we think like this an input device can be made from sub parts which
-can be bare sensors. (Many sensors are exposed as
-Human.Interface.Devices which are mainly input devices)
+I found that the hid-picolcd driver fakes out hid_hw_start by setting
+the hdev->claimed field to HID_CLAIMED_INPUT before calling the
+function. It then resets the bit after the function call. This ensures
+that the device is initialized.
 
-i
+Even if the hidinput layer is fixed so it doesn't panic after a hidinput
+device is disconnected, I like this change because it means we aren't
+creating a device and then deleting it immediately. I think this is what
+I noticed in my Xorg.0.log file. It's really strange to see a device pop
+in and out.
+
+I'll be sending a new set of patches with this change.
+
+Thanks,
+
+-- Chase
+

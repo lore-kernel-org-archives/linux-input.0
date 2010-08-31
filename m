@@ -1,47 +1,61 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2]
- input: CMA3000 Accelerometer driver)
-Date: Tue, 31 Aug 2010 10:53:37 +0100
-Message-ID: <20100831105337.7ba1dcaa@lxorguk.ukuu.org.uk>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
-	<20100829184904.GC26209@core.coreip.homeip.net>
-	<36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
-	<20100830162855.GA17325@core.coreip.homeip.net>
-	<d6b6aa8195784d6baf3ffcdc365c6361@secure211.sgcpanel.com>
-	<20100830172143.GA28275@core.coreip.homeip.net>
-	<3fe11bc61e6a844b926ec4d32cec1474@secure211.sgcpanel.com>
-	<20100830205011.GB28711@core.coreip.homeip.net>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH 0/2 v2] Add drivers necessary to support PS/2 port on
+ TQM85xx boards
+Date: Tue, 31 Aug 2010 14:49:29 +0400
+Message-ID: <AANLkTimFCcKH1x-coA4Ug291B2PYA6KjnJj_Fem5oGY9@mail.gmail.com>
+References: <1281957997-12959-1-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:55685 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753004Ab0HaJfg (ORCPT
+Received: from mail-qy0-f181.google.com ([209.85.216.181]:36044 "EHLO
+	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756973Ab0HaKta convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 05:35:36 -0400
-In-Reply-To: <20100830205011.GB28711@core.coreip.homeip.net>
+	Tue, 31 Aug 2010 06:49:30 -0400
+Received: by qyk33 with SMTP id 33so6456786qyk.19
+        for <linux-input@vger.kernel.org>; Tue, 31 Aug 2010 03:49:29 -0700 (PDT)
+In-Reply-To: <1281957997-12959-1-git-send-email-dbaryshkov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, igor.stoppa@nokia.com, kai.svahn@nokia.com, mathias.nyman@nokia.com
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-> > My hope is that we can make use of a well known and uniform
-> > API for all input devices in a device, be it a keypad,
-> > touchscreen, accelerometer, magnetometer, gyro, or whatever.
-> > 
-> 
-> If only we could agree what input devices are...
+Hello,
 
-Is that the right test for some of these devices.
+On Mon, Aug 16, 2010 at 3:26 PM, Dmitry Eremin-Solenikov
+<dbaryshkov@gmail.com> wrote:
+> On tqm85xx boards (and several others) keyboard and mice are connecte=
+d to CPU via
+> special controller multiplexing KBD and MS traffic into single UART.
 
-Surely the question is "what devices can be meaningfully represented by
-the input API". 
+What about this two patches? Are they going to be included for 2.6.37?
+Thank you for your answer.
 
-The device range is always going to be quite large and people want to use
-the API because it means things just work. They can wire their home made
-surfboard unit and tilt sensors up to the PC and tuxracer just goes. They
-can wire pedals and a current meter to it and use it as the speed input in
-bzflag to simulate bicycle tanks etc..
+> Changes since v1:
+>
+> * Rewrote serio to use iterative algorithms instead of recursion for =
+serio
+> =A0tree traversal
+>
+> * Changed ps2mult to register as SERIO_8042, not it's own special typ=
+e
+>
+> * Small cleanup in ps2mult
+>
+> --
+> With best wishes
+> Dmitry
+>
+>
 
-Alan
+
+
+--=20
+With best wishes
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

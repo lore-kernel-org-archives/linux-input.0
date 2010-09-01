@@ -1,73 +1,61 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 2/7 v3] HID: magicmouse: simplify multitouch feature
- request
-Date: Wed, 01 Sep 2010 09:50:42 -0400
-Message-ID: <1283349042.2255.400.camel@mini>
-References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
-	 <1283306184-28833-3-git-send-email-chase.douglas@canonical.com>
-	 <4C7E0433.8010008@euromail.se> <1283344475.2255.368.camel@mini>
-	 <4C7E51AA.2050004@euromail.se>
+From: Eric Millbrandt <emillbrandt@dekaresearch.com>
+Subject: [RFC] Input: wm97xx-core - Remove save state from wm97xx_read_aux_adc()
+Date: Wed, 1 Sep 2010 10:52:10 -0400
+Message-ID: <1283352730-15509-1-git-send-email-emillbrandt@dekaresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:34633 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755185Ab0IANu5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Sep 2010 09:50:57 -0400
-In-Reply-To: <4C7E51AA.2050004@euromail.se>
+Received: from mail.dekaresearch.com ([208.65.175.196]:23644 "EHLO
+	dekaexchange07.deka.local" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755437Ab0IAPDl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Sep 2010 11:03:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Liam Girdwood <lrg@slimlogic.co.uk>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, Eric Millbrandt <emillbrandt@dekaresearch.com>
 
-On Wed, 2010-09-01 at 15:14 +0200, Henrik Rydberg wrote:
-> On 09/01/2010 02:34 PM, Chase Douglas wrote:
-> 
-> > On Wed, 2010-09-01 at 09:43 +0200, Henrik Rydberg wrote:
-> >> On 09/01/2010 03:56 AM, Chase Douglas wrote:
-> >>
-> >>> From: Chase Douglas <chase.douglas@ubuntu.com>
-> >>>
-> >>> Only the first feature request is required to put the Magic Mouse into
-> >>> multitouch mode. This is also the case for the Magic Trackpad, for which
-> >>> support will be added in a later commit.
-> >>>
-> >>> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> >>> Acked-by: Michael Poole <mdpoole@troilus.org>
-> >>> ---
-> >>
-> >>
-> >> Since this is starting to look awfully similar to the mode switch found in
-> >> appletouch and bcm5974, I wonder what happens to the stream from the device when
-> >> the connection to hid is closed. It could be that the mode switch should be
-> >> moved to open/close instead.
-> > 
-> > I don't really understand what you are proposing. It sounds like maybe
-> > you want the device to continue to function in a non-multitouch way
-> > after hid disconnection, but the device needs hid to function at all.
-> 
-> 
-> Suspend/resume, broken bt connections, etc. There was an issue with the bcm5974
-> macbook trackpads not functioning properly after a close unless returned to
-> normal mode. The mode switch code was moved to the open/close functions for that
-> reason.
+Saving the state of the digitizers seems unnecessary since the next
+sample will rewrite those registers.  It also causes an unnecessary
+sample to occur if the previous state was a sample.  This will cause
+the wrong sample to be returned on the next call to wm97xx_read_aux_adc().
+---
+ drivers/input/touchscreen/wm97xx-core.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-I'm not sure how applicable this is to a bluetooth device though. On
-suspend, the device is disconnected. On resume, the device should
-reconnect through the hid layer again.
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index cbfef1e..b4bcb2c 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -138,9 +138,6 @@ int wm97xx_read_aux_adc(struct wm97xx *wm, u16 adcsel)
+                wm97xx_reg_write(wm, AC97_EXTENDED_MID, power & 0x7fff);
+        }
 
-> > The closest thing I can think to what you are saying is to do whatever
-> > it takes on module removal so that it goes back to functioning in the
-> > non-multitouch mode. That may be possible.
-> 
-> 
-> Sounds like a good start. Doing a suspend test just now I could not get the
-> device up again, for whatever reason.
+-       /* Prepare the codec for AUX reading */
+-       wm->codec->aux_prepare(wm);
+-
+        /* Turn polling mode on to read AUX ADC */
+        wm->pen_probably_down = 1;
+        wm->codec->poll_sample(wm, adcsel, &auxval);
+@@ -148,8 +145,6 @@ int wm97xx_read_aux_adc(struct wm97xx *wm, u16 adcsel)
+        if (power_adc)
+                wm97xx_reg_write(wm, AC97_EXTENDED_MID, power | 0x8000);
 
-I'm having some sporadic issues too, but when I hit issues and I use
-ftrace I see that the hid layer isn't doing everything it should. I'm
-not sure how much is the fault of hid vs the driver.
+-       wm->codec->dig_restore(wm);
+-
+        wm->pen_probably_down = 0;
 
--- Chase
+        mutex_unlock(&wm->codec_mutex);
+--
+1.6.3.1
 
+-DISCLAIMER: an automatically appended disclaimer may follow. By posting-
+-to a public e-mail mailing list I hereby grant permission to distribute-
+-and copy this message.-
+
+This e-mail and the information, including any attachments, it contains are intended to be a confidential communication only to the person or entity to whom it is addressed and may contain information that is privileged. If the reader of this message is not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please immediately notify the sender and destroy the original message.
+
+Thank you.
+
+Please consider the environment before printing this email.

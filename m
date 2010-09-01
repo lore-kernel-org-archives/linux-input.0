@@ -1,61 +1,44 @@
-From: Eric Millbrandt <emillbrandt@dekaresearch.com>
-Subject: [RFC] Input: wm97xx-core - Remove save state from wm97xx_read_aux_adc()
-Date: Wed, 1 Sep 2010 10:52:10 -0400
-Message-ID: <1283352730-15509-1-git-send-email-emillbrandt@dekaresearch.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2/2] intel_mid_touch: Resync upstream with the
+	development tree
+Date: Wed, 1 Sep 2010 08:04:36 -0700
+Message-ID: <20100901150436.GA26228@kroah.com>
+References: <20100825142200.2831.42013.stgit@localhost.localdomain> <20100825142217.2831.18768.stgit@localhost.localdomain> <20100831221748.GD14846@kroah.com> <20100901062305.GE23585@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.dekaresearch.com ([208.65.175.196]:23644 "EHLO
-	dekaexchange07.deka.local" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755437Ab0IAPDl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Sep 2010 11:03:41 -0400
+Received: from kroah.org ([198.145.64.141]:40103 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753731Ab0IAPGH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Sep 2010 11:06:07 -0400
+Content-Disposition: inline
+In-Reply-To: <20100901062305.GE23585@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Liam Girdwood <lrg@slimlogic.co.uk>, Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org, Eric Millbrandt <emillbrandt@dekaresearch.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org
 
-Saving the state of the digitizers seems unnecessary since the next
-sample will rewrite those registers.  It also causes an unnecessary
-sample to occur if the previous state was a sample.  This will cause
-the wrong sample to be returned on the next call to wm97xx_read_aux_adc().
----
- drivers/input/touchscreen/wm97xx-core.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+On Tue, Aug 31, 2010 at 11:23:05PM -0700, Dmitry Torokhov wrote:
+> On Tue, Aug 31, 2010 at 03:17:48PM -0700, Greg KH wrote:
+> > On Wed, Aug 25, 2010 at 03:22:22PM +0100, Alan Cox wrote:
+> > > This merges bits from the two diverging trees including code by Andy Ross
+> > > and Arjan van de Ven
+> > 
+> > But it doesn't apply to my staging tree, odd.
+> > 
+> > Care to respin it against linux-next?  Is there something in linux-next
+> > from Dmitry for this driver that might be getting me confused here?
+> 
+> Well, I collected all patches from Alan and applied to my
+> mrst-touchscreen branch (based off 2.6.35) and added a patch moving it
+> out of staging and into input. Please take a look and if you do not see
+> any issues I'll merge it into my 'next' branch for .37.
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index cbfef1e..b4bcb2c 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -138,9 +138,6 @@ int wm97xx_read_aux_adc(struct wm97xx *wm, u16 adcsel)
-                wm97xx_reg_write(wm, AC97_EXTENDED_MID, power & 0x7fff);
-        }
+Ah, that's great, sorry, I didn't realize this.
 
--       /* Prepare the codec for AUX reading */
--       wm->codec->aux_prepare(wm);
--
-        /* Turn polling mode on to read AUX ADC */
-        wm->pen_probably_down = 1;
-        wm->codec->poll_sample(wm, adcsel, &auxval);
-@@ -148,8 +145,6 @@ int wm97xx_read_aux_adc(struct wm97xx *wm, u16 adcsel)
-        if (power_adc)
-                wm97xx_reg_write(wm, AC97_EXTENDED_MID, power | 0x8000);
+> BTW, I took the liberty of tagging the move patch as Acked-by by both of you
+> so please shout if you disagree.
 
--       wm->codec->dig_restore(wm);
--
-        wm->pen_probably_down = 0;
+It's fine by me, thanks for doing this.
 
-        mutex_unlock(&wm->codec_mutex);
---
-1.6.3.1
-
--DISCLAIMER: an automatically appended disclaimer may follow. By posting-
--to a public e-mail mailing list I hereby grant permission to distribute-
--and copy this message.-
-
-This e-mail and the information, including any attachments, it contains are intended to be a confidential communication only to the person or entity to whom it is addressed and may contain information that is privileged. If the reader of this message is not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please immediately notify the sender and destroy the original message.
-
-Thank you.
-
-Please consider the environment before printing this email.
+greg k-h

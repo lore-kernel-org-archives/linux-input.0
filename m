@@ -1,522 +1,1105 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: Add support for Hanwang tablet
-Date: Tue, 31 Aug 2010 19:02:44 -0700
-Message-ID: <20100901020243.GB23585@core.coreip.homeip.net>
-References: <201008311614464536827@hanwang.com.cn>
+Subject: Re: input:rohm based bu21013 touch panel controller driver support
+Date: Tue, 31 Aug 2010 19:04:28 -0700
+Message-ID: <20100901020427.GC23585@core.coreip.homeip.net>
+References: <81C3A93C17462B4BBD7E272753C1057916DE6765F2@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:61545 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751496Ab0IACCt (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:62717 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752244Ab0IACEe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 22:02:49 -0400
+	Tue, 31 Aug 2010 22:04:34 -0400
+Received: by pwi3 with SMTP id 3so602697pwi.19
+        for <linux-input@vger.kernel.org>; Tue, 31 Aug 2010 19:04:33 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <201008311614464536827@hanwang.com.cn>
+In-Reply-To: <81C3A93C17462B4BBD7E272753C1057916DE6765F2@EXDCVYMBSTM005.EQ1STM.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Xing Wei <weixing@hanwang.com.cn>
-Cc: jkosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On Tue, Aug 31, 2010 at 04:14:46PM +0800, Xing Wei wrote:
+Hi Naveen,
+
+On Tue, Aug 31, 2010 at 08:48:04AM +0200, Naveen Kumar GADDIPATI wrote:
+> From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> 
+> Added the rohm based bu21013 capacitive touch panel controller
+> driver support in level mode.
+> 
+> Acked-by: Linus Walleij <linus.walleij@stericsson.com>
+> Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> ---
+>  drivers/input/touchscreen/Kconfig      |   12 +
+>  drivers/input/touchscreen/Makefile     |    1 +
+>  drivers/input/touchscreen/bu21013_ts.c |  796 ++++++++++++++++++++++++++++++++
+>  include/linux/input/bu21013.h          |  160 +++++++
+>  4 files changed, 969 insertions(+), 0 deletions(-)
+>  mode change 100644 => 100755 drivers/input/touchscreen/Kconfig
+>  mode change 100644 => 100755 drivers/input/touchscreen/Makefile
+>  create mode 100644 drivers/input/touchscreen/bu21013_ts.c
+>  create mode 100644 include/linux/input/bu21013.h
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> old mode 100644
+> new mode 100755
+> index 0069d97..d560e21
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -638,4 +638,16 @@ config TOUCHSCREEN_STMPE
+>           To compile this driver as a module, choose M here: the
+>           module will be called stmpe-ts.
+> 
+> +config TOUCHSCREEN_BU21013
+> +       tristate "BU21013 based touch panel controllers"
+> +       depends on I2C
+> +       help
+> +         Say Y here if you have a bu21013 touchscreen connected to
+> +         your system.
 > +
-> +struct hanwang_state {
-> +	unsigned int tool_style;
-> +	unsigned int tool_state;
+> +         If unsure, say N.
+> +
+> +         To compile this driver as a module, choose M here: the
+> +         module will be called bu21013_ts.
+> +
+>  endif
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> old mode 100644
+> new mode 100755
+> index 28217e1..77615e1
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -52,3 +52,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)    += mainstone-wm97xx.o
+>  obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)      += zylonite-wm97xx.o
+>  obj-$(CONFIG_TOUCHSCREEN_W90X900)      += w90p910_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_TPS6507X)     += tps6507x-ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_BU21013)      += bu21013_ts.o
 
-tool_state is not used anywhere.
+Please keep Makefile and Kconfig sorted alphabetically.
 
-> +	} else if (data[0] == 0x0c) {	/* roll wheel */
-> +		if (data[1])
-> +			input_report_abs(input_dev, ABS_WHEEL, data[1]);
+> diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+> new file mode 100644
+> index 0000000..c2e22f3
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/bu21013_ts.c
+> @@ -0,0 +1,796 @@
+> +/*
+> + * Copyright (C) ST-Ericsson SA 2009
+> + * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-Ericsson
+> + * License terms:GNU General Public License (GPL) version 2
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/i2c.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/input.h>
+> +#include <linux/types.h>
+> +#include <linux/timer.h>
+> +#include <linux/input/bu21013.h>
+> +#include <linux/slab.h>
+> +
+> +#define PEN_DOWN_INTR 0
+> +#define PEN_UP_INTR 1
+> +#define RESET_DELAY 30
+> +#define POLLING_DELAY 100
+> +#define MAX_TOOL_WIDTH 15
+> +#define MAX_TOUCH_MAJOR 255
+> +#define MAX_TOUCH_MINOR 15
+> +#define MAX_PRESSURE 1
+> +#define PENUP_TIMEOUT (2)
+> +#define SCALE_FACTOR 1000
+> +#define DELTA_MIN 16
+> +#define MASK_BITS 0x03
+> +#define SHIFT_8 8
+> +#define SHIFT_2 2
+> +#define LENGTH_OF_BUFFER 11
+> +
+> +#define DRIVER_TP "bu21013_tp"
+> +
+> +/**
+> + * struct bu21013_ts_data - touch panel data structure
+> + * @client:    pointer to the i2c client
+> + * @chip:      pointer to the touch panel controller
+> + * @in_dev:    pointer to the input device structure
+> + * @penirq_timer: variable to the timer list structure
+> + * @timer_wq_handler: variable to work structure for timer
+> + * @gpio_wq_handler: work structure variable for gpio interrupt
+> + * @intr_pin: interrupt pin value
+> + * @x_pos: x position for two co-ordinates
+> + * @y_pos: y position for two co-ordinates
+> + * @factor_x: x scale factor
+> + * @factor_y: y scale factor
+> + * @previous_press_reported: last reported flag
+> + *
+> + * Tocuh panel device data structure
+> + */
+> +struct bu21013_ts_data {
+> +       struct i2c_client *client;
+> +       struct bu21013_platform_device *chip;
+> +       struct input_dev *in_dev;
+> +       struct timer_list penirq_timer;
+> +       struct work_struct timer_wq_handler;
+> +       struct work_struct gpio_wq_handler;
+> +       unsigned int intr_pin;
+> +       signed short    x_pos[2];
+> +       signed short    y_pos[2];
+> +       int     factor_x;
+> +       int     factor_y;
+> +       bool previous_press_reported;
+> +};
+> +
+> +/*
+> + * bu21013_get_number_of_bits() - count the bits in given value
+> + * @val: read bits from this value
+> + * @range: maximum number of bits
+> + *
+> + * Read the number of bits from the given value
+> + * and returns integer
+> + */
+> +static inline int bu21013_get_number_of_bits(unsigned int val, int range)
+> +{
+> +       int i;
+> +       int num = 0;
+> +       unsigned int mask = 1;
+> +
+> +       for (i = 0; i < range; i++) {
+> +               if (val & mask)
+> +                       num++;
+> +               mask = mask << 1;
+> +       }
+> +       return num;
 
-Unlike REL_* events you need to send 0 ABS events since in absence of
-ABS_* event in a packet it is assumed to have the same value as last
-time. Thus once you move wheel it will never go back to 0.
 
-> +		input_report_key(input_dev, BTN_0, data[2]);
-> +		input_report_key(input_dev, BTN_1, data[3] & 0x01);
-> +		input_report_key(input_dev, BTN_2, data[3] & 0x02);
-> +		input_report_key(input_dev, BTN_3, data[3] & 0x04);
-> +		input_report_key(input_dev, BTN_4, data[3] & 0x08);
-> +		input_report_key(input_dev, BTN_5, data[3] & 0x10);
-> +		input_report_key(input_dev, BTN_6, data[3] & 0x20);
-> +		input_report_key(input_dev, BTN_7, data[3] & 0x30);
+I think this is called hweight32().
 
-0x30 is suspicious. Can't it be
+> +}
+> +/**
+> + * bu21013_report_pen_down() - reports the pen down event
+> + * @data:bu21013_ts_data structure pointer
+> + * @count:touch count
+> + *
+> + * This function used to report the pen down interrupt to
+> + * input subsystem and returns none
+> + */
+> +static void bu21013_report_pen_down(struct bu21013_ts_data *data, int count)
+> +{
+> +       short pt0x;
+> +       short pt0y;
+> +       short pt1x;
+> +       short pt1y;
+> +       if (data->chip->portrait) {
+> +               pt0x = data->x_pos[0];
+> +               pt0y = data->y_pos[0];
+> +               pt1x = data->x_pos[1];
+> +               pt1y = data->y_pos[1];
+> +       } else {
+> +               pt0x = data->y_pos[0];
+> +               pt0y = data->x_pos[0];
+> +               pt1x = data->y_pos[1];
+> +               pt1y = data->x_pos[1];
+> +       }
+> +
+> +       input_report_abs(data->in_dev, ABS_X, pt0x);
+> +       input_report_abs(data->in_dev, ABS_Y, pt0y);
+> +       input_report_abs(data->in_dev, ABS_PRESSURE, 1);
+> +       input_report_abs(data->in_dev, ABS_TOOL_WIDTH, 1);
 
-		for (i = 0; i < 8; i++)
-			input_report_key(input_dev, BTN_1 + i,
-					 data[3] & (1 << i));
+The device apparently does not provide pressure and contact size
+readings, please do not supply fake data.
 
-I adjusted the patch a bit, could you please tell me if it still works
-for you and I will apply it.
+> +       input_report_key(data->in_dev, BTN_TOUCH, 1);
+> +
+> +       if (count > 1) {
+> +               input_report_key(data->in_dev, BTN_2, 1);
+> +               input_report_abs(data->in_dev, ABS_HAT0X, pt1x);
+> +               input_report_abs(data->in_dev, ABS_HAT0Y, pt1y);
 
-Thanks!
+No, please do not do this but simply reply on MT protocol.
 
-Hmm, one more thing - the device clams to have ABS_DISTANCE but I do not
-see where it sends such events...
+> +       }
+> +       input_report_abs(data->in_dev, ABS_MT_TOUCH_MAJOR, 1);
+> +       input_report_abs(data->in_dev, ABS_MT_TOUCH_MINOR, 1);
+
+Your device obviously does not provide contact size data so please do
+not fake it.
+
+> +       input_report_key(data->in_dev, ABS_MT_WIDTH_MAJOR, 1);
+
+This is not a key. ABS_ prefix should be a giveaway.
+
+> +       input_report_abs(data->in_dev, ABS_MT_POSITION_X, pt0x);
+> +       input_report_abs(data->in_dev, ABS_MT_POSITION_Y, pt0y);
+> +       input_mt_sync(data->in_dev);
+> +
+> +       if (count > 1) {
+> +               input_report_abs(data->in_dev, ABS_MT_TOUCH_MAJOR, 1);
+> +               input_report_key(data->in_dev, ABS_MT_WIDTH_MAJOR, 1);
+> +               input_report_abs(data->in_dev, ABS_MT_POSITION_X, pt1x);
+> +               input_report_abs(data->in_dev, ABS_MT_POSITION_Y, pt1y);
+> +               input_mt_sync(data->in_dev);
+> +       }
+> +       input_sync(data->in_dev);
+> +       data->previous_press_reported = count;
+> +}
+> +/**
+> + * bu21013_report_pen_up() - reports the pen up event
+> + * @data:bu21013_ts_data structure pointer
+> + *
+> + * This function used to report the pen up interrupt
+> + * to input subsystem and returns none
+> + */
+> +static void bu21013_report_pen_up(struct bu21013_ts_data *data)
+> +{
+> +       input_report_abs(data->in_dev, ABS_PRESSURE, 0);
+> +       input_report_abs(data->in_dev, ABS_TOOL_WIDTH, 0);
+> +       input_report_key(data->in_dev, BTN_TOUCH, 0);
+> +       input_report_key(data->in_dev, BTN_2, 0);
+> +       input_report_abs(data->in_dev, ABS_MT_TOUCH_MAJOR, 0);
+> +       input_report_key(data->in_dev, ABS_MT_WIDTH_MAJOR, 0);
+> +       input_mt_sync(data->in_dev);
+> +       input_sync(data->in_dev);
+> +       data->previous_press_reported = 0;
+> +}
+> +/**
+> + * bu21013_touch_calc() - calculates the co-ordinates delta
+> + * @data: bu21013_ts_data structure pointer
+> + * @x: x position
+> + * @y: y position
+> + * @count: touch count
+> + *
+> + * This function calculates the exact co-ordinates with respect to
+> + * display resolution and returns none
+> + */
+> +static void bu21013_touch_calc
+> +       (struct bu21013_ts_data *data, int x, int y, int count)
+> +{
+> +       data->x_pos[count] = x * data->factor_x / SCALE_FACTOR;
+> +       data->y_pos[count] = y * data->factor_y / SCALE_FACTOR;
+
+Scaling should be done in userspace.
+
+> +       if ((data->chip->portrait) && (data->chip->x_flip))
+> +               data->x_pos[count] =
+> +                       data->chip->x_max_res - data->x_pos[count];
+> +       if ((data->chip->portrait) && (data->chip->y_flip))
+> +               data->y_pos[count] =
+> +                       data->chip->y_max_res - data->y_pos[count];
+> +}
+> +/**
+> + * bu21013_verify_delta() - verify the co-ordinates delta
+> + * @x1: x1 position
+> + * @y1: y1 position
+> + * @x2: x2 position
+> + * @y2: y2 position
+> + *
+> + * This function verifies the delta of the
+> + * co-ordinates and returns boolean.
+> + */
+> +static bool bu21013_verify_delta(int x1, int y1, int x2, int y2)
+> +{
+> +       int delta_x, delta_y;
+> +       if ((x1 != 0) && (y1 != 0)) {
+> +               delta_x = x2 - x1;
+> +               if (x1 > x2)
+> +                       delta_x = x1 - x2;
+> +               delta_y = y2 - y1;
+> +               if (y1 > y2)
+> +                       delta_y = y1 - y2;
+> +               if ((delta_x < DELTA_MIN) || (delta_y < DELTA_MIN))
+> +                       return false;
+
+If you specify "fuzz" for given axis I think input core will do this for
+you.
+
+> +       }
+> +       return true;
+> +}
+> +
+> +/**
+> + * bu21013_do_touch_report(): Get the touch co-ordinates
+> + * @data:bu21013_ts_data structure pointer
+> + *
+> + * Get the touch co-ordinates from touch sensor registers and writes
+> + * into device structure and returns integer.
+> + */
+> +static int bu21013_do_touch_report(struct bu21013_ts_data *data)
+> +{
+> +       u8      buf[LENGTH_OF_BUFFER];
+> +       int     finger1_valid = 0;
+> +       int     finger2_valid = 0;
+> +       unsigned int    finger1_pos_x;
+> +       unsigned int    finger1_pos_y;
+> +       unsigned int    finger2_pos_x;
+> +       unsigned int    finger2_pos_y;
+> +       int     number_of_active_x_sensors;
+> +       int     number_of_active_y_sensors;
+> +       int     total_number_of_active_sensors;
+> +       int     finger_down_count = 0;
+> +       int     ret = 0;
+> +
+> +       if (data->client == NULL)
+> +               return -EINVAL;
+> +
+> +       ret = i2c_smbus_read_i2c_block_data(data->client,
+> +                                               BU21013_SENSORS_BTN_0_7_REG,
+> +                                                       LENGTH_OF_BUFFER, buf);
+> +       if (ret < LENGTH_OF_BUFFER)
+> +               return -EINVAL;
+> +
+> +       number_of_active_x_sensors =
+> +               bu21013_get_number_of_bits((buf[0] & BU21013_SENSORS_EN_0_7),
+> +                                               BU21013_NUMBER_OF_X_SENSORS);
+> +
+> +       number_of_active_y_sensors = bu21013_get_number_of_bits
+> +               ((((buf[1] & BU21013_SENSORS_EN_8_15) |
+> +               ((buf[2] & BU21013_SENSORS_EN_16_23) << SHIFT_8)) >> SHIFT_2),
+> +                                               BU21013_NUMBER_OF_Y_SENSORS);
+> +
+> +       if (((number_of_active_x_sensors != 0) &&
+> +               (number_of_active_y_sensors == 0)) ||
+> +               ((number_of_active_x_sensors == 0) &&
+> +               (number_of_active_y_sensors != 0)))
+> +               return 0;
+> +
+> +       total_number_of_active_sensors =
+> +               number_of_active_x_sensors + number_of_active_y_sensors;
+> +
+> +       finger1_pos_x = buf[3] << SHIFT_2 | (buf[4] & MASK_BITS);
+> +       finger1_pos_y = buf[5] << SHIFT_2 | (buf[6] & MASK_BITS);
+> +       finger2_pos_x = buf[7] << SHIFT_2 | (buf[8] & MASK_BITS);
+> +       finger2_pos_y = buf[9] << SHIFT_2 | (buf[10] & MASK_BITS);
+> +
+> +       if (total_number_of_active_sensors) {
+> +               if ((finger2_pos_x != 0) && (finger2_pos_y != 0)) {
+> +                       if ((finger1_pos_x == 0) || (finger1_pos_y == 0))
+> +                               return 0;
+> +                       ret = bu21013_verify_delta(finger1_pos_x,
+> +                               finger1_pos_y, finger2_pos_x, finger2_pos_y);
+> +                       if (!ret)
+> +                               total_number_of_active_sensors = 0;
+> +               }
+> +       }
+> +
+> +       if (total_number_of_active_sensors) {
+> +               finger1_valid = 1;
+> +               if ((finger1_pos_x == 0) || (finger1_pos_y == 0) ||
+> +                       (finger1_pos_x >= data->chip->touch_x_max) ||
+> +                       (finger1_pos_y >= data->chip->touch_y_max))
+> +                       finger1_valid = 0;
+> +               finger2_valid = 1;
+> +               if ((finger2_pos_x == 0) || (finger2_pos_y == 0) ||
+> +                       (finger2_pos_x >= data->chip->touch_x_max) ||
+> +                       (finger2_pos_y >= data->chip->touch_y_max))
+> +                       finger2_valid = 0;
+> +               if ((finger1_valid == 0) && (finger2_valid == 0))
+> +                       return 0;
+> +               if (finger1_valid) {
+> +                       bu21013_touch_calc(data, finger1_pos_x,
+> +                               finger1_pos_y, finger_down_count);
+> +                       finger_down_count++;
+> +               }
+> +               if (finger2_valid) {
+> +                       bu21013_touch_calc(data, finger2_pos_x,
+> +                               finger2_pos_y, finger_down_count);
+> +                       finger_down_count++;
+> +               }
+> +       }
+> +
+> +       if (finger_down_count > 0)
+> +               bu21013_report_pen_down(data, finger_down_count);
+> +       else {
+> +               if (data->previous_press_reported)
+> +                       bu21013_report_pen_up(data);
+> +       }
+> +
+> +       return ret;
+> +}
+> +
+> +/**
+> + * bu21013_timer_start() - start the timer
+> + * @data:bu21013_ts_data structure pointer
+> + *
+> + * This function used to run the mod timer for every timeout period
+> + * and returns none
+> + */
+> +static inline void bu21013_timer_start(struct bu21013_ts_data *data)
+> +{
+> +       mod_timer(&data->penirq_timer,
+> +               jiffies + msecs_to_jiffies(PENUP_TIMEOUT));
+> +}
+> +
+> +/**
+> + * bu21013_timer_wq() - work queue for timer handler
+> + * @work:work_struct structure pointer
+> + *
+> + * This timer work queue used during polling of the co-ordinates
+> + * for every timeout period and returns none
+> + */
+> +static void bu21013_timer_wq(struct work_struct *work)
+> +{
+> +       struct bu21013_ts_data *data =
+> +               container_of(work, struct bu21013_ts_data, timer_wq_handler);
+> +       struct task_struct *tsk = current;
+> +       struct i2c_client *i2c = data->client;
+> +       int retval;
+> +
+> +       set_task_state(tsk, TASK_INTERRUPTIBLE);
+> +       retval = bu21013_do_touch_report(data);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "get co-ordinates failed\n");
+> +               return;
+> +       }
+> +       data->intr_pin = data->chip->irq_read_val();
+> +       if (data->intr_pin == PEN_DOWN_INTR)
+> +               bu21013_timer_start(data);
+> +       else
+> +               enable_irq(data->chip->irq);
+> +}
+> +/**
+> + * bu21013_gpio_int_wq() - work queue for gpio interrupt handler
+> + * @work:work_struct structure pointer
+> + *
+> + * This gpio work queue used to get the co-ordinates
+> + * of the pen down interrupt and returns none
+> + */
+> +static void bu21013_gpio_int_wq(struct work_struct *work)
+> +{
+> +       struct bu21013_ts_data *data =
+> +               container_of(work, struct bu21013_ts_data, gpio_wq_handler);
+> +       struct i2c_client *i2c = data->client;
+> +       struct task_struct *tsk = current;
+> +       int retval;
+> +
+> +       set_task_state(tsk, TASK_INTERRUPTIBLE);
+
+Hmm... why?
+
+> +       disable_irq(data->chip->irq);
+> +       retval = bu21013_do_touch_report(data);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "get co-ordinates failed\n");
+> +               return;
+> +       }
+> +       bu21013_timer_start(data);
+> +}
+> +
+> +/**
+> + * bu21013_gpio_irq() - gpio callback handler for touch interrupt
+> + * @irq: irq value
+> + * @device_data:void pointer
+> + *
+> + * This gpio callback handler for gpio interrupt
+> + * and assigns the task and returns irqreturn_t.
+> + */
+> +static irqreturn_t bu21013_gpio_irq(int irq, void *device_data)
+> +{
+> +       struct bu21013_ts_data *data = (struct bu21013_ts_data *)device_data;
+> +
+> +       schedule_work(&data->gpio_wq_handler);
+> +
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +/**
+> + * bu21013_timer_callback() - callback handler for timer
+> + * @dev_data:touch screen data
+> + *
+> + * This timer callback handler used to schedule the work during
+> + * polling of pen down interrupts and returns none
+> + */
+> +static void bu21013_timer_callback(unsigned long dev_data)
+> +{
+> +       struct bu21013_ts_data *data = (struct bu21013_ts_data *)dev_data;
+> +       schedule_work(&data->timer_wq_handler);
+
+This is called delayed_work().
+
+However please consider switching to threaded IRQ - you can sleep in
+your IRQ handler until you are done and get "pen up" condition. You just
+need to make sure you exit the handler promptly when unbinding the
+device from the driver. See drivers/input/keyboard/samsung-keypad.c
+
+> +}
+> +
+> +/**
+> + * bu21013_init_chip() - power on sequence for the bu21013 controller
+> + * @data: device structure pointer
+> + *
+> + * This function is used to power on
+> + * the bu21013 controller and returns integer.
+> + */
+> +static int bu21013_init_chip(struct bu21013_ts_data *data)
+> +{
+> +       int retval;
+> +       struct i2c_client *i2c = data->client;
+> +
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_RESET_REG,
+> +                                       BU21013_RESET_ENABLE);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_RESET reg write failed\n");
+> +               goto err;
+> +       }
+> +       mdelay(RESET_DELAY);
+> +
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_SENSOR_0_7_REG,
+> +                                       BU21013_SENSORS_EN_0_7);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_SENSOR_0_7 reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_SENSOR_8_15_REG,
+> +                                       BU21013_SENSORS_EN_8_15);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_SENSOR_8_15 reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_SENSOR_16_23_REG,
+> +                                       BU21013_SENSORS_EN_16_23);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_SENSOR_16_23 reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_POS_MODE1_REG,
+> +                               (BU21013_POS_MODE1_0 | BU21013_POS_MODE1_1));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_POS_MODE1 reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_POS_MODE2_REG,
+> +                       (BU21013_POS_MODE2_ZERO | BU21013_POS_MODE2_AVG1 |
+> +                       BU21013_POS_MODE2_AVG2 | BU21013_POS_MODE2_EN_RAW |
+> +                       BU21013_POS_MODE2_MULTI));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_POS_MODE2 reg write failed\n");
+> +               goto err;
+> +       }
+> +       if (data->chip->ext_clk)
+> +               retval = i2c_smbus_write_byte_data(i2c, BU21013_CLK_MODE_REG,
+> +                       (BU21013_CLK_MODE_EXT | BU21013_CLK_MODE_CALIB));
+> +       else
+> +               retval = i2c_smbus_write_byte_data(i2c, BU21013_CLK_MODE_REG,
+> +                       (BU21013_CLK_MODE_DIV | BU21013_CLK_MODE_CALIB));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_CLK_MODE reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_IDLE_REG,
+> +                               (BU21013_IDLET_0 | BU21013_IDLE_INTERMIT_EN));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_IDLE reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_INT_MODE_REG,
+> +                                               BU21013_INT_MODE_LEVEL);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_INT_MODE reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_FILTER_REG,
+> +                                               (BU21013_DELTA_0_6 |
+> +                                                       BU21013_FILTER_EN));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_FILTER reg write failed\n");
+> +               goto err;
+> +       }
+> +
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_TH_ON_REG,
+> +                                               (BU21013_TH_ON_3 |
+> +                                                       BU21013_TH_ON_4));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_TH_ON reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_TH_OFF_REG,
+> +                                                       BU21013_TH_OFF_4);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_TH_OFF reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_GAIN_REG,
+> +                                               (BU21013_GAIN_0 |
+> +                                                       BU21013_GAIN_1));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_GAIN reg write failed\n");
+> +               goto err;
+> +       }
+> +
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_OFFSET_MODE_REG,
+> +                                       BU21013_OFFSET_MODE_DEFAULT);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_OFFSET_MODE reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_XY_EDGE_REG,
+> +                       (BU21013_X_EDGE_0 | BU21013_X_EDGE_2 |
+> +                               BU21013_Y_EDGE_1 | BU21013_Y_EDGE_3));
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_XY_EDGE reg write failed\n");
+> +               goto err;
+> +       }
+> +       retval = i2c_smbus_write_byte_data(i2c, BU21013_DONE_REG,
+> +                                                       BU21013_DONE);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "BU21013_REG_DONE reg write failed\n");
+> +               goto err;
+> +       }
+> +
+> +       data->x_pos[0] = 0;
+> +       data->x_pos[1] = 0;
+> +       data->y_pos[0] = 0;
+> +       data->y_pos[1] = 0;
+> +       data->previous_press_reported = 0;
+> +
+> +       data->factor_x = (data->chip->x_max_res * SCALE_FACTOR /
+> +                                       data->chip->touch_x_max);
+> +       data->factor_y = (data->chip->y_max_res * SCALE_FACTOR /
+> +                                       data->chip->touch_y_max);
+> +err:
+> +       return retval;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +/**
+> + * bu21013_suspend() - suspend the touch screen controller
+> + * @client: pointer to i2c client structure
+> + * @mesg: message from power manager
+> + *
+> + * This funtion is used to suspend the
+> + * touch panel controller and returns integer
+> + */
+> +static int bu21013_suspend(struct i2c_client *client, pm_message_t mesg)
+> +{
+> +       struct bu21013_ts_data *bu21013_data = i2c_get_clientdata(client);
+> +
+> +       if (device_may_wakeup(&client->dev))
+> +               enable_irq(bu21013_data->chip->irq);
+> +       else
+> +               disable_irq(bu21013_data->chip->irq);
+> +
+> +       return 0;
+> +}
+> +
+> +/**
+> + * bu21013_resume() - resume the touch screen controller
+> + * @client: pointer to i2c client structure
+> + *
+> + * This funtion is used to resume the touch panel
+> + * controller and returns integer.
+> + */
+> +static int bu21013_resume(struct i2c_client *client)
+> +{
+> +       int retval;
+> +       struct bu21013_ts_data *bu21013_data = i2c_get_clientdata(client);
+> +
+> +       retval = bu21013_init_chip(bu21013_data);
+> +       if (retval < 0) {
+> +               dev_err(&client->dev, "tsc config failed\n");
+> +               goto err;
+> +       }
+> +
+> +       if (device_may_wakeup(&client->dev))
+> +               disable_irq(bu21013_data->chip->irq);
+> +       else
+> +               enable_irq(bu21013_data->chip->irq);
+> +
+> +       return 0;
+> +err:
+> +       kfree(bu21013_data);
+
+Here? I don't think so.
+
+> +       return retval;
+> +}
+> +#endif
+> +
+> +/**
+> + * bu21013_probe() - initialzes the i2c-client touchscreen driver
+> + * @i2c: i2c client structure pointer
+> + * @id:i2c device id pointer
+> + *
+> + * This function used to initializes the i2c-client touchscreen
+> + * driver and returns integer.
+> + */
+> +static int bu21013_probe(struct i2c_client *i2c,
+> +                                       const struct i2c_device_id *id)
+
+__devinit
+
+> +{
+> +       int retval;
+> +       struct bu21013_ts_data *bu21013_data;
+> +       struct input_dev *in_dev;
+> +       short x_max;
+> +       short y_max;
+> +       struct bu21013_platform_device *pdata = i2c->dev.platform_data;
+> +
+> +       if (!pdata) {
+> +               dev_err(&i2c->dev, "platform data not defined\n");
+> +               retval = -EINVAL;
+> +               return retval;
+> +       }
+> +
+> +       bu21013_data = kzalloc(sizeof(struct bu21013_ts_data), GFP_KERNEL);
+> +       if (!bu21013_data) {
+> +               dev_err(&i2c->dev, "device memory alloc failed\n");
+> +               retval = -ENOMEM;
+> +               return retval;
+> +       }
+> +
+> +       /* allocate input device */
+> +       in_dev = input_allocate_device();
+> +       if (!in_dev) {
+> +               dev_err(&i2c->dev, "input device memory alloc failed\n");
+> +               retval = -ENOMEM;
+> +               goto err_alloc;
+> +       }
+> +       bu21013_data->in_dev = in_dev;
+> +       bu21013_data->chip = pdata;
+> +       bu21013_data->client = i2c;
+> +
+> +       if (bu21013_data->chip->portrait) {
+> +               x_max = pdata->x_max_res;
+> +               y_max = pdata->y_max_res;
+> +       } else {
+> +               x_max = pdata->y_max_res;
+> +               y_max = pdata->x_max_res;
+> +       }
+> +
+> +       INIT_WORK(&bu21013_data->timer_wq_handler, bu21013_timer_wq);
+> +       INIT_WORK(&bu21013_data->gpio_wq_handler, bu21013_gpio_int_wq);
+> +
+> +       init_timer(&bu21013_data->penirq_timer);
+> +       bu21013_data->penirq_timer.data = (unsigned long)bu21013_data;
+> +       bu21013_data->penirq_timer.function = bu21013_timer_callback;
+> +       i2c_set_clientdata(i2c, bu21013_data);
+> +
+> +       /* configure the gpio pins */
+> +       if (pdata->cs_en) {
+> +               retval = pdata->cs_en(pdata->cs_pin);
+> +               if (retval < 0) {
+> +                       dev_err(&i2c->dev, "chip init failed\n");
+> +                       goto err_init_cs;
+> +               }
+> +       }
+> +
+> +       /* configure the touch panel controller */
+> +       retval = bu21013_init_chip(bu21013_data);
+> +       if (retval < 0) {
+> +               dev_err(&i2c->dev, "error in bu21013 config\n");
+> +               goto err_init_config;
+> +       }
+> +
+> +       in_dev->name = DRIVER_TP;
+
+It would be nice if you also set bus and parent data.
+
+> +       set_bit(EV_SYN, in_dev->evbit);
+> +       set_bit(EV_KEY, in_dev->evbit);
+> +       set_bit(EV_ABS, in_dev->evbit);
+> +       set_bit(BTN_TOUCH, in_dev->keybit);
+> +
+> +       input_set_abs_params(in_dev, ABS_X, 0, x_max, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_Y, 0, y_max, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_PRESSURE, 0, MAX_PRESSURE, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_TOOL_WIDTH, 0, MAX_TOOL_WIDTH, 0, 0);
+> +
+> +       set_bit(BTN_2, in_dev->keybit);
+> +       input_set_abs_params(in_dev, ABS_HAT0X, 0, x_max, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_HAT0Y, 0, y_max, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_MT_POSITION_X, 0, x_max, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_MT_POSITION_Y, 0, y_max, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_MT_TOUCH_MAJOR, 0, MAX_TOUCH_MAJOR,
+> +                                                                       0, 0);
+> +       input_set_abs_params
+> +               (in_dev, ABS_MT_TOUCH_MINOR, 0, MAX_TOUCH_MINOR, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+> +       input_set_abs_params(in_dev, ABS_MT_WIDTH_MAJOR, 0, MAX_TOOL_WIDTH,
+> +                                                                       0, 0);
+> +       retval = input_register_device(in_dev);
+> +       if (retval)
+> +               goto err_input_register;
+> +
+> +       retval = request_irq(pdata->irq, bu21013_gpio_irq,
+> +                                       (IRQF_TRIGGER_FALLING | IRQF_SHARED),
+> +                                       DRIVER_TP, bu21013_data);
+> +       if (retval) {
+> +               dev_err(&i2c->dev, "request irq %d failed\n", pdata->irq);
+> +               goto err_init_irq;
+> +       }
+> +
+> +       dev_dbg(&i2c->dev, "init done");
+> +
+> +       return retval;
+> +
+> +err_init_irq:
+> +       input_unregister_device(bu21013_data->in_dev);
+> +       bu21013_data->in_dev = NULL;
+> +err_input_register:
+> +err_init_config:
+> +       pdata->cs_dis(pdata->cs_pin);
+> +err_init_cs:
+> +       del_timer_sync(&bu21013_data->penirq_timer);
+> +       cancel_work_sync(&bu21013_data->timer_wq_handler);
+> +       cancel_work_sync(&bu21013_data->gpio_wq_handler);
+> +       input_free_device(bu21013_data->in_dev);
+> +err_alloc:
+> +       kfree(bu21013_data);
+> +       return retval;
+> +}
+> +
+> +/**
+> + * bu21013_remove() - removes the i2c-client touchscreen driver
+> + * @client: i2c client structure pointer
+> + *
+> + * This function uses to remove the i2c-client
+> + * touchscreen driver and returns integer.
+> + */
+> +static int __devexit bu21013_remove(struct i2c_client *client)
+> +{
+> +       struct bu21013_ts_data *data = i2c_get_clientdata(client);
+> +
+> +       del_timer_sync(&data->penirq_timer);
+> +       cancel_work_sync(&data->timer_wq_handler);
+> +       cancel_work_sync(&data->gpio_wq_handler);
+> +
+> +       if (data->chip != NULL) {
+
+How can it be NULL?
+
+> +               free_irq(data->chip->irq, data);
+> +               data->chip->cs_dis(data->chip->cs_pin);
+> +       }
+> +       input_unregister_device(data->in_dev);
+> +       kfree(data);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct i2c_device_id bu21013_id[] = {
+> +       { DRIVER_TP, 0 },
+> +       { DRIVER_TP, 0 },
+
+Twice?
+
+> +       { }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, bu21013_id);
+> +
+> +static struct i2c_driver bu21013_driver = {
+> +       .driver = {
+> +               .name   =       DRIVER_TP,
+> +               .owner  =       THIS_MODULE,
+> +       },
+> +       .probe          =       bu21013_probe,
+> +#ifdef CONFIG_PM
+> +       .suspend        =       bu21013_suspend,
+> +       .resume         =       bu21013_resume,
+> +#endif
+> +       .remove         =       __devexit_p(bu21013_remove),
+> +       .id_table       =       bu21013_id,
+> +};
+> +
+> +/**
+> + * bu21013_init() - initializes the bu21013 touchscreen driver
+> + *
+> + * This function used to initializes the bu21013
+> + * touchscreen driver and returns integer.
+> + */
+> +static int __init bu21013_init(void)
+> +{
+> +       return i2c_add_driver(&bu21013_driver);
+> +}
+> +
+> +/**
+> + * bu21013_exit() - de-initializes the bu21013 touchscreen driver
+> + *
+> + * This function uses to de-initializes the bu21013
+> + * touchscreen driver and returns none.
+> + */
+> +static void __exit bu21013_exit(void)
+> +{
+> +       i2c_del_driver(&bu21013_driver);
+> +}
+> +
+> +module_init(bu21013_init);
+> +module_exit(bu21013_exit);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("NAVEEN KUMAR G");
+> +MODULE_DESCRIPTION("bu21013 touch screen controller driver");
+> diff --git a/include/linux/input/bu21013.h b/include/linux/input/bu21013.h
+> new file mode 100644
+> index 0000000..fd3cdf2
+> --- /dev/null
+> +++ b/include/linux/input/bu21013.h
+> @@ -0,0 +1,160 @@
+> +/*
+> + * Copyright (C) ST-Ericsson SA 2009
+> + * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-Ericsson
+> + * License terms:GNU General Public License (GPL) version 2
+> + */
+> +
+> +#ifndef _BU21013_H
+> +#define _BU21013_H
+> +
+> +/*
+> + * Touch screen register offsets
+> + */
+> +#define BU21013_SENSORS_BTN_0_7_REG    0x70
+> +#define BU21013_SENSORS_BTN_8_15_REG   0x71
+> +#define BU21013_SENSORS_BTN_16_23_REG  0x72
+> +#define BU21013_X1_POS_MSB_REG         0x73
+> +#define BU21013_X1_POS_LSB_REG         0x74
+> +#define BU21013_Y1_POS_MSB_REG         0x75
+> +#define BU21013_Y1_POS_LSB_REG         0x76
+> +#define BU21013_X2_POS_MSB_REG         0x77
+> +#define BU21013_X2_POS_LSB_REG         0x78
+> +#define BU21013_Y2_POS_MSB_REG         0x79
+> +#define BU21013_Y2_POS_LSB_REG         0x7A
+> +#define BU21013_INT_CLR_REG            0xE8
+> +#define BU21013_INT_MODE_REG           0xE9
+> +#define BU21013_GAIN_REG               0xEA
+> +#define BU21013_OFFSET_MODE_REG                0xEB
+> +#define BU21013_XY_EDGE_REG            0xEC
+> +#define BU21013_RESET_REG              0xED
+> +#define BU21013_CALIB_REG              0xEE
+> +#define BU21013_DONE_REG               0xEF
+> +#define BU21013_SENSOR_0_7_REG         0xF0
+> +#define BU21013_SENSOR_8_15_REG                0xF1
+> +#define BU21013_SENSOR_16_23_REG       0xF2
+> +#define BU21013_POS_MODE1_REG          0xF3
+> +#define BU21013_POS_MODE2_REG          0xF4
+> +#define BU21013_CLK_MODE_REG           0xF5
+> +#define BU21013_IDLE_REG               0xFA
+> +#define BU21013_FILTER_REG             0xFB
+> +#define BU21013_TH_ON_REG              0xFC
+> +#define BU21013_TH_OFF_REG             0xFD
+> +
+> +/* Touch screen register offset values */
+> +#define BU21013_RESET_ENABLE           0x01
+> +/* Sensors Configuration */
+> +#define BU21013_SENSORS_EN_0_7         0x3F
+> +#define BU21013_SENSORS_EN_8_15                0xFC
+> +#define BU21013_SENSORS_EN_16_23       0x1F
+> +
+> +/* Position mode1 */
+> +#define BU21013_POS_MODE1_0            0x02
+> +#define BU21013_POS_MODE1_1            0x04
+> +#define BU21013_POS_MODE1_2            0x08
+> +
+> +/* Position mode2 */
+> +#define BU21013_POS_MODE2_ZERO         0x01
+> +#define BU21013_POS_MODE2_AVG1         0x02
+> +#define BU21013_POS_MODE2_AVG2         0x04
+> +#define BU21013_POS_MODE2_EN_XY                0x08
+> +#define BU21013_POS_MODE2_EN_RAW       0x10
+> +#define BU21013_POS_MODE2_MULTI                0x80
+> +
+> +/* Clock mode */
+> +#define BU21013_CLK_MODE_DIV           0x01
+> +#define BU21013_CLK_MODE_EXT           0x02
+> +#define BU21013_CLK_MODE_CALIB         0x80
+> +
+> +/* IDLE time */
+> +#define BU21013_IDLET_0                        0x01
+> +#define BU21013_IDLET_1                        0x02
+> +#define BU21013_IDLET_2                        0x04
+> +#define BU21013_IDLET_3                        0x08
+> +#define BU21013_IDLE_INTERMIT_EN       0x10
+> +
+> +/* FILTER reg values */
+> +#define BU21013_DELTA_0_6              0x7F
+> +#define BU21013_FILTER_EN              0x80
+> +
+> +/* interrupt mode */
+> +#define BU21013_INT_MODE_LEVEL         0x00
+> +#define BU21013_INT_MODE_EDGE          0x01
+> +
+> +/* Gain reg values */
+> +#define BU21013_GAIN_0                 0x01
+> +#define BU21013_GAIN_1                 0x02
+> +#define BU21013_GAIN_2                 0x04
+> +
+> +/* OFFSET mode */
+> +#define BU21013_OFFSET_MODE_DEFAULT    0x00
+> +#define BU21013_OFFSET_MODE_MOVE       0x01
+> +#define BU21013_OFFSET_MODE_DISABLE    0x02
+> +
+> +/* Threshold ON values */
+> +#define BU21013_TH_ON_0                        0x01
+> +#define BU21013_TH_ON_1                        0x02
+> +#define BU21013_TH_ON_2                        0x04
+> +#define BU21013_TH_ON_3                        0x08
+> +#define BU21013_TH_ON_4                        0x10
+> +#define BU21013_TH_ON_5                        0x20
+> +#define BU21013_TH_ON_6                        0x40
+> +#define BU21013_TH_ON_7                        0x80
+> +
+> +/* Threshold OFF values */
+> +#define BU21013_TH_OFF_0               0x01
+> +#define BU21013_TH_OFF_1               0x02
+> +#define BU21013_TH_OFF_2               0x04
+> +#define BU21013_TH_OFF_3               0x08
+> +#define BU21013_TH_OFF_4               0x10
+> +#define BU21013_TH_OFF_5               0x20
+> +#define BU21013_TH_OFF_6               0x40
+> +#define BU21013_TH_OFF_7               0x80
+> +
+> +/* FILTER reg values */
+> +#define BU21013_X_EDGE_0               0x01
+> +#define BU21013_X_EDGE_1               0x02
+> +#define BU21013_X_EDGE_2               0x04
+> +#define BU21013_X_EDGE_3               0x08
+> +#define BU21013_Y_EDGE_0               0x10
+> +#define BU21013_Y_EDGE_1               0x20
+> +#define BU21013_Y_EDGE_2               0x40
+> +#define BU21013_Y_EDGE_3               0x80
+> +
+> +#define BU21013_DONE                   0x01
+> +#define BU21013_NUMBER_OF_X_SENSORS    (6)
+> +#define BU21013_NUMBER_OF_Y_SENSORS    (11)
+> +
+> +/**
+> + * struct bu21013_platform_device - Handle the platform data
+> + * @cs_en:     pointer to the cs enable function
+> + * @cs_dis:    pointer to the cs disable function
+> + * @irq_read_val:    pointer to read the pen irq value function
+> + * @x_max_res: xmax resolution
+> + * @y_max_res: ymax resolution
+> + * @touch_x_max: touch x max
+> + * @touch_y_max: touch y max
+> + * @cs_pin: chip select pin
+> + * @irq: irq pin
+> + * @ext_clk_en: external clock flag
+> + * @portrait: portrait mode flag
+> + * @x_flip: x flip flag
+> + * @y_flip: y flip flag
+> + * This is used to handle the platform data
+> + **/
+> +struct bu21013_platform_device {
+> +       int (*cs_en)(int reset_pin);
+> +       int (*cs_dis)(int reset_pin);
+> +       int (*irq_read_val)(void);
+> +       int x_max_res;
+> +       int y_max_res;
+> +       int touch_x_max;
+> +       int touch_y_max;
+> +       unsigned int cs_pin;
+> +       unsigned int irq;
+> +       bool portrait;
+> +       bool ext_clk;
+> +       bool x_flip;
+> +       bool y_flip;
+> +};
+> +
+> +#endif
+> --
+> 1.7.2.dirty
+> 
 
 -- 
 Dmitry
-
-Input: Add support for Hanwang tablet
-
-From: Xing Wei <weixing@hanwang.com.cn>
-
-Add support for Art Master III tablet of BeiJing HanwangTechnology Co, Ltd.
-
-Signed-off-by: Xing Wei <weixing@hanwang.com.cn>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/hid/hid-core.c         |    5 +
- drivers/hid/hid-ids.h          |    4 
- drivers/input/tablet/Kconfig   |   11 +
- drivers/input/tablet/Makefile  |    1 
- drivers/input/tablet/hanwang.c |  370 ++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 391 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/tablet/hanwang.c
-
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 94ab532..7e36c02 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1770,6 +1770,11 @@ static bool hid_ignore(struct hid_device *hdev)
- 		    hdev->product <= USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST)
- 			return true;
- 		break;
-+	case USB_VENDOR_ID_HANWANG:
-+		if (hdev->product >= USB_DEVICE_ID_HANWANG_TABLET_FIRST &&
-+		    hdev->product <= USB_DEVICE_ID_HANWANG_TABLET_LAST)
-+			return true;
-+		break;
- 	}
- 
- 	if (hdev->type == HID_TYPE_USBMOUSE &&
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4dc4c18..0c19cd2 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -293,6 +293,10 @@
- #define USB_DEVICE_ID_GYRATION_REMOTE_2 0x0003
- #define USB_DEVICE_ID_GYRATION_REMOTE_3 0x0008
- 
-+#define USB_VENDOR_ID_HANWANG		0x0b57
-+#define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
-+#define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
-+
- #define USB_VENDOR_ID_HAPP		0x078b
- #define USB_DEVICE_ID_UGCI_DRIVING	0x0010
- #define USB_DEVICE_ID_UGCI_FLYING	0x0020
-diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
-index effb49e..58a8775 100644
---- a/drivers/input/tablet/Kconfig
-+++ b/drivers/input/tablet/Kconfig
-@@ -49,6 +49,17 @@ config TABLET_USB_GTCO
-           To compile this driver as a module, choose M here: the
-           module will be called gtco.
- 
-+config TABLET_USB_HANWANG
-+	tristate "Hanwang Art Master III tablet support (USB)"
-+	depends on USB_ARCH_HAS_HCD
-+	select USB
-+	help
-+	  Say Y here if you want to use the USB version of the Hanwang Art
-+	  Master III tablet.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called hanwang.
-+
- config TABLET_USB_KBTAB
- 	tristate "KB Gear JamStudio tablet support (USB)"
- 	depends on USB_ARCH_HAS_HCD
-diff --git a/drivers/input/tablet/Makefile b/drivers/input/tablet/Makefile
-index ce8b9a9..3f6c252 100644
---- a/drivers/input/tablet/Makefile
-+++ b/drivers/input/tablet/Makefile
-@@ -8,5 +8,6 @@ wacom-objs	:= wacom_wac.o wacom_sys.o
- obj-$(CONFIG_TABLET_USB_ACECAD)	+= acecad.o
- obj-$(CONFIG_TABLET_USB_AIPTEK)	+= aiptek.o
- obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
-+obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
- obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
- obj-$(CONFIG_TABLET_USB_WACOM)	+= wacom.o
-diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
-new file mode 100644
-index 0000000..21cb6c2
---- /dev/null
-+++ b/drivers/input/tablet/hanwang.c
-@@ -0,0 +1,370 @@
-+/*
-+ *  USB Hanwang tablet support
-+ *
-+ *  Copyright (c) 2010 Xing Wei <weixing@hanwang.com.cn>
-+ *
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/usb/input.h>
-+
-+#define DRIVER_AUTHOR   "Xing Wei <weixing@hanwang.com.cn>"
-+#define DRIVER_DESC     "USB Hanwang tablet driver"
-+#define DRIVER_LICENSE  "GPL"
-+
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE(DRIVER_LICENSE);
-+
-+#define USB_VENDOR_ID_HANWANG		0x0b57
-+#define HANWANG_TABLET_INT_CLASS	0x0003
-+#define HANWANG_TABLET_INT_SUB_CLASS	0x0001
-+#define HANWANG_TABLET_INT_PROTOCOL	0x0002
-+
-+#define ART_MASTERIII_PKGLEN_MAX	10
-+
-+/* match vendor and interface info  */
-+#define HANWANG_TABLET_DEVICE(vend, cl, sc, pr) \
-+	.match_flags = USB_DEVICE_ID_MATCH_VENDOR \
-+		| USB_DEVICE_ID_MATCH_INT_INFO, \
-+	.idVendor = (vend), \
-+	.bInterfaceClass = (cl), \
-+	.bInterfaceSubClass = (sc), \
-+	.bInterfaceProtocol = (pr)
-+
-+struct hanwang {
-+	unsigned char *data;
-+	dma_addr_t data_dma;
-+	struct input_dev *dev;
-+	struct usb_device *usbdev;
-+	struct urb *irq;
-+	const struct hanwang_features *features;
-+	unsigned int current_tool;
-+	char name[64];
-+	char phys[32];
-+};
-+
-+struct hanwang_features {
-+	unsigned short pid;
-+	char *name;
-+	int pkg_len;
-+	int max_x;
-+	int max_y;
-+	int max_tilt_x;
-+	int max_tilt_y;
-+	int max_pressure;
-+	int max_distance;
-+};
-+
-+static const struct hanwang_features features_array[] = {
-+	{ 0x8528, "Hanwang Art Master III 0906",
-+	  ART_MASTERIII_PKGLEN_MAX, 0x5757, 0x3692, 0x3f, 0x7f, 2048, 0xff },
-+	{ 0x8529, "Hanwang Art Master III 0604",
-+	  ART_MASTERIII_PKGLEN_MAX, 0x3d84, 0x2672, 0x3f, 0x7f, 2048, 0xff },
-+	{ 0x852a, "Hanwang Art Master III 1308",
-+	  ART_MASTERIII_PKGLEN_MAX, 0x7f00, 0x4f60, 0x3f, 0x7f, 2048, 0xff },
-+};
-+
-+static const int hw_eventtypes[] = {
-+	EV_KEY, EV_ABS,
-+};
-+
-+static const int hw_absevents[] = {
-+	ABS_X, ABS_Y, ABS_TILT_X, ABS_TILT_Y, ABS_WHEEL,
-+	ABS_PRESSURE, ABS_DISTANCE
-+};
-+
-+static const int hw_btnevents[] = {
-+	BTN_STYLUS, BTN_STYLUS2, BTN_TOOL_PEN, BTN_TOOL_RUBBER,
-+	BTN_TOOL_MOUSE, BTN_0, BTN_1, BTN_2, BTN_3, BTN_4,
-+	BTN_5, BTN_6, BTN_7, BTN_8
-+};
-+
-+static void hanwang_parse_packet(struct hanwang *hanwang)
-+{
-+	unsigned char *data = hanwang->data;
-+	struct input_dev *input_dev = hanwang->dev;
-+	struct usb_device *dev = hanwang->usbdev;
-+	int i;
-+
-+	switch (data[0]) {
-+	case 0x02:	/* data packet */
-+		switch (data[1]) {
-+		case 0x80:	/* tool prox out */
-+			input_report_key(input_dev, hanwang->current_tool, 0);
-+			break;
-+
-+		case 0xc2:	/* first time tool prox in */
-+			switch (data[3] & 0xf0) {
-+			case 0x20:
-+				hanwang->current_tool = BTN_TOOL_PEN;
-+				input_report_key(input_dev, BTN_TOOL_PEN, 1);
-+				break;
-+			case 0xa0:
-+				hanwang->current_tool = BTN_TOOL_RUBBER;
-+				input_report_key(input_dev, BTN_TOOL_RUBBER, 1);
-+				break;
-+			default:
-+				dev_dbg(&dev->dev,
-+					"unknown tablet tool %02x ", data[0]);
-+				break;
-+			}
-+			break;
-+
-+		default:	/* tool data packet */
-+			input_report_abs(input_dev, ABS_X,
-+					 (data[2] << 8) | data[3]);
-+			input_report_abs(input_dev, ABS_Y,
-+					 (data[4] << 8) | data[5]);
-+			input_report_abs(input_dev, ABS_PRESSURE,
-+					 (data[6] << 3) |
-+					 ((data[7] & 0xc0) >> 5) |
-+					 (data[1] & 0x01));
-+			input_report_abs(input_dev, ABS_TILT_X, data[7] & 0x3f);
-+			input_report_abs(input_dev, ABS_TILT_Y, data[8] & 0x7f);
-+			input_report_key(input_dev, BTN_STYLUS, data[1] & 0x02);
-+			input_report_key(input_dev, BTN_STYLUS2, data[1] & 0x04);
-+			break;
-+		}
-+		break;
-+
-+	case 0x0c:
-+		/* roll wheel */
-+		input_report_abs(input_dev, ABS_WHEEL, data[1]);
-+		input_report_key(input_dev, BTN_0, data[2]);
-+		for (i = 0; i < 8; i++)
-+			input_report_key(input_dev,
-+					 BTN_1 + i, data[3] & (1 << i));
-+		break;
-+
-+	default:
-+		dev_dbg(&dev->dev, "error packet  %02x ", data[0]);
-+		break;
-+	}
-+
-+	input_sync(input_dev);
-+}
-+
-+static void hanwang_irq(struct urb *urb)
-+{
-+	struct hanwang *hanwang = urb->context;
-+	struct usb_device *dev = hanwang->usbdev;
-+	int retval;
-+
-+	switch (urb->status) {
-+	case 0:
-+		/* success */;
-+		hanwang_parse_packet(hanwang);
-+		break;
-+	case -ECONNRESET:
-+	case -ENOENT:
-+	case -ESHUTDOWN:
-+		/* this urb is terminated, clean up */
-+		dev_err(&dev->dev, "%s - urb shutting down with status: %d",
-+			__func__, urb->status);
-+		return;
-+	default:
-+		dev_err(&dev->dev, "%s - nonzero urb status received: %d",
-+			__func__, urb->status);
-+		break;
-+	}
-+
-+	retval = usb_submit_urb(urb, GFP_ATOMIC);
-+	if (retval)
-+		dev_err(&dev->dev, "%s - usb_submit_urb failed with result %d",
-+			__func__, retval);
-+}
-+
-+static int hanwang_open(struct input_dev *dev)
-+{
-+	struct hanwang *hanwang = input_get_drvdata(dev);
-+
-+	hanwang->irq->dev = hanwang->usbdev;
-+	if (usb_submit_urb(hanwang->irq, GFP_KERNEL))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static void hanwang_close(struct input_dev *dev)
-+{
-+	struct hanwang *hanwang = input_get_drvdata(dev);
-+
-+	usb_kill_urb(hanwang->irq);
-+}
-+
-+static bool get_features(struct usb_device *dev, struct hanwang *hanwang)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(features_array); i++) {
-+		if (le16_to_cpu(dev->descriptor.idProduct) ==
-+				features_array[i].pid) {
-+			hanwang->features = &features_array[i];
-+			return true;
-+		}
-+	}
-+
-+	return false;
-+}
-+
-+
-+static int hanwang_probe(struct usb_interface *intf, const struct usb_device_id *id)
-+{
-+	struct usb_device *dev = interface_to_usbdev(intf);
-+	struct usb_endpoint_descriptor *endpoint;
-+	struct hanwang *hanwang;
-+	struct input_dev *input_dev;
-+	int error;
-+	int i;
-+
-+	hanwang = kzalloc(sizeof(struct hanwang), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!hanwang || !input_dev) {
-+		error = -ENOMEM;
-+		goto fail1;
-+	}
-+
-+	if (!get_features(dev, hanwang)) {
-+		error = -ENXIO;
-+		goto fail1;
-+	}
-+
-+	hanwang->data = usb_alloc_coherent(dev, hanwang->features->pkg_len,
-+					GFP_KERNEL, &hanwang->data_dma);
-+	if (!hanwang->data) {
-+		error = -ENOMEM;
-+		goto fail1;
-+	}
-+
-+	hanwang->irq = usb_alloc_urb(0, GFP_KERNEL);
-+	if (!hanwang->irq) {
-+		error = -ENOMEM;
-+		goto fail2;
-+	}
-+
-+	hanwang->usbdev = dev;
-+	hanwang->dev = input_dev;
-+
-+	usb_make_path(dev, hanwang->phys, sizeof(hanwang->phys));
-+	strlcat(hanwang->phys, "/input0", sizeof(hanwang->phys));
-+
-+	strlcpy(hanwang->name, hanwang->features->name, sizeof(hanwang->name));
-+	input_dev->name = hanwang->name;
-+	input_dev->phys = hanwang->phys;
-+	usb_to_input_id(dev, &input_dev->id);
-+	input_dev->dev.parent = &intf->dev;
-+
-+	input_set_drvdata(input_dev, hanwang);
-+
-+	input_dev->open = hanwang_open;
-+	input_dev->close = hanwang_close;
-+
-+	for (i = 0; i < ARRAY_SIZE(hw_eventtypes); ++i)
-+		__set_bit(hw_eventtypes[i], input_dev->evbit);
-+
-+	for (i = 0; i < ARRAY_SIZE(hw_absevents); ++i)
-+		__set_bit(hw_absevents[i], input_dev->absbit);
-+
-+	for (i = 0; i < ARRAY_SIZE(hw_btnevents); ++i)
-+		__set_bit(hw_btnevents[i], input_dev->keybit);
-+
-+	input_set_abs_params(input_dev, ABS_X,
-+			     0, hanwang->features->max_x, 4, 0);
-+	input_set_abs_params(input_dev, ABS_Y,
-+			     0, hanwang->features->max_y, 4, 0);
-+	input_set_abs_params(input_dev, ABS_TILT_X,
-+			     0, hanwang->features->max_tilt_x, 0, 0);
-+	input_set_abs_params(input_dev, ABS_TILT_Y,
-+			     0, hanwang->features->max_tilt_y, 0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE,
-+			     0, hanwang->features->max_pressure, 0, 0);
-+	input_set_abs_params(input_dev, ABS_DISTANCE,
-+			     0, hanwang->features->max_distance, 0, 0);
-+
-+	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-+	usb_fill_int_urb(hanwang->irq, dev,
-+			usb_rcvintpipe(dev, endpoint->bEndpointAddress),
-+			hanwang->data, hanwang->features->pkg_len,
-+			hanwang_irq, hanwang, endpoint->bInterval);
-+	hanwang->irq->transfer_dma = hanwang->data_dma;
-+	hanwang->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+
-+	error = input_register_device(hanwang->dev);
-+	if (error)
-+		goto fail3;
-+
-+	usb_set_intfdata(intf, hanwang);
-+
-+	return 0;
-+
-+ fail3:	usb_free_urb(hanwang->irq);
-+ fail2:	usb_free_coherent(dev, hanwang->features->pkg_len,
-+			hanwang->data, hanwang->data_dma);
-+ fail1:	input_free_device(input_dev);
-+	kfree(hanwang);
-+	return error;
-+
-+}
-+
-+static void hanwang_disconnect(struct usb_interface *intf)
-+{
-+	struct hanwang *hanwang = usb_get_intfdata(intf);
-+
-+	input_unregister_device(hanwang->dev);
-+	usb_free_urb(hanwang->irq);
-+	usb_free_coherent(interface_to_usbdev(intf),
-+			hanwang->features->pkg_len, hanwang->data,
-+			hanwang->data_dma);
-+	kfree(hanwang);
-+	usb_set_intfdata(intf, NULL);
-+}
-+
-+static const struct usb_device_id hanwang_ids[] = {
-+	{ HANWANG_TABLET_DEVICE(USB_VENDOR_ID_HANWANG, HANWANG_TABLET_INT_CLASS,
-+		HANWANG_TABLET_INT_SUB_CLASS, HANWANG_TABLET_INT_PROTOCOL) },
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(usb, hanwang_ids);
-+
-+static struct usb_driver hanwang_driver = {
-+	.name		= "hanwang",
-+	.probe		= hanwang_probe,
-+	.disconnect	= hanwang_disconnect,
-+	.id_table	= hanwang_ids,
-+};
-+
-+static int __init hanwang_init(void)
-+{
-+	return usb_register(&hanwang_driver);
-+}
-+
-+static void __exit hanwang_exit(void)
-+{
-+	usb_deregister(&hanwang_driver);
-+}
-+
-+module_init(hanwang_init);
-+module_exit(hanwang_exit);

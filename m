@@ -1,125 +1,97 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] identify firmware version
-Date: Wed, 01 Sep 2010 14:27:23 +0200
-Message-ID: <4C7E46AB.10001@euromail.se>
-References: <20100901020634.GD23585@core.coreip.homeip.net> <1283334517-15121-1-git-send-email-rafi@seas.upenn.edu>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 2/7 v3] HID: magicmouse: simplify multitouch feature
+ request
+Date: Wed, 01 Sep 2010 08:34:35 -0400
+Message-ID: <1283344475.2255.368.camel@mini>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
+	 <1283306184-28833-3-git-send-email-chase.douglas@canonical.com>
+	 <4C7E0433.8010008@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:56999 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753041Ab0IAM1n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Sep 2010 08:27:43 -0400
-In-Reply-To: <1283334517-15121-1-git-send-email-rafi@seas.upenn.edu>
+Received: from adelie.canonical.com ([91.189.90.139]:42223 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753636Ab0IAMet (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Sep 2010 08:34:49 -0400
+In-Reply-To: <4C7E0433.8010008@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, chatty@enac.fr
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 09/01/2010 11:48 AM, Rafi Rubin wrote:
-
-> This adds firmware version polling to the end of probe and reports the
-> version both in the raw form and proccessed to match the formatting used
-> by ntrig in windows.
+On Wed, 2010-09-01 at 09:43 +0200, Henrik Rydberg wrote:
+> On 09/01/2010 03:56 AM, Chase Douglas wrote:
 > 
-> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> ---
->  drivers/hid/hid-ntrig.c |   52 +++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 52 insertions(+), 0 deletions(-)
+> > From: Chase Douglas <chase.douglas@ubuntu.com>
+> > 
+> > Only the first feature request is required to put the Magic Mouse into
+> > multitouch mode. This is also the case for the Magic Trackpad, for which
+> > support will be added in a later commit.
+> > 
+> > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> > Acked-by: Michael Poole <mdpoole@troilus.org>
+> > ---
 > 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 43e95de..c91ad4a 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -90,6 +90,26 @@ struct ntrig_data {
->  };
->  
->  
-> +/*
-> + * This function converts the 4 byte raw firmware code into
-> + * a string containing 5 comma separated numbers.
-> + */
-> +static int ntrig_version_string(unsigned char *raw, char *buf)
+> 
+> Since this is starting to look awfully similar to the mode switch found in
+> appletouch and bcm5974, I wonder what happens to the stream from the device when
+> the connection to hid is closed. It could be that the mode switch should be
+> moved to open/close instead.
+
+I don't really understand what you are proposing. It sounds like maybe
+you want the device to continue to function in a non-multitouch way
+after hid disconnection, but the device needs hid to function at all.
+
+The closest thing I can think to what you are saying is to do whatever
+it takes on module removal so that it goes back to functioning in the
+non-multitouch mode. That may be possible.
+
+> >  drivers/hid/hid-magicmouse.c |   16 ++++------------
+> >  1 files changed, 4 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> > index d38b529..8a2fe78 100644
+> > --- a/drivers/hid/hid-magicmouse.c
+> > +++ b/drivers/hid/hid-magicmouse.c
+> > @@ -380,8 +380,7 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+> >  static int magicmouse_probe(struct hid_device *hdev,
+> >  	const struct hid_device_id *id)
+> >  {
+> > -	__u8 feature_1[] = { 0xd7, 0x01 };
+> > -	__u8 feature_2[] = { 0xf8, 0x01, 0x32 };
+> > +	__u8 feature[] = { 0xd7, 0x01 };
+> >  	struct input_dev *input;
+> >  	struct magicmouse_sc *msc;
+> >  	struct hid_report *report;
+> > @@ -426,17 +425,10 @@ static int magicmouse_probe(struct hid_device *hdev,
+> >  	}
+> >  	report->size = 6;
+> >  
+> > -	ret = hdev->hid_output_raw_report(hdev, feature_1, sizeof(feature_1),
+> > +	ret = hdev->hid_output_raw_report(hdev, feature, sizeof(feature),
+> >  			HID_FEATURE_REPORT);
+> 
+> > -	if (ret != sizeof(feature_1)) {
+> > -		dev_err(&hdev->dev, "unable to request touch data (1:%d)\n",
+> > -				ret);
+> > -		goto err_stop_hw;
+> > -	}
+> > -	ret = hdev->hid_output_raw_report(hdev, feature_2,
+> > -			sizeof(feature_2), HID_FEATURE_REPORT);
+> > -	if (ret != sizeof(feature_2)) {
+> > -		dev_err(&hdev->dev, "unable to request touch data (2:%d)\n",
+> > +	if (ret != sizeof(feature)) {
+> > +		dev_err(&hdev->dev, "unable to request touch data (%d)\n",
+> >  				ret);
+> >  		goto err_stop_hw;
+> >  	}
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
 
-const on the input variable would help seeing which argument is which.
-
-> +{
-> +	__u8 a =  (raw[1] & 0b00001110) >> 1;
-> +	__u8 b =  (raw[0] & 0b00111100) >> 2;
-> +	__u8 c = ((raw[0] & 0b00000011) << 3) | ((raw[3] & 0b11100000) >> 5);
-> +	__u8 d = ((raw[3] & 0b00000111) << 3) | ((raw[2] & 0b11100000) >> 5);
-> +	__u8 e =   raw[2] & 0b00000111;
-> +
-> +	/*
-> +	 * As yet unmapped bits:
-> +	 * 0b11000000 0b11110001 0b00011000 0b00011000
-> +	 */
-> +
-> +	return sprintf(buf, "%u.%u.%u.%u.%u", a, b, c, d, e);
-> +}
-> +
->  static ssize_t show_phys_width(struct device *dev,
->  			       struct device_attribute *attr,
->  			       char *buf)
-> @@ -776,6 +796,9 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	struct hid_input *hidinput;
->  	struct input_dev *input;
->  	struct hid_report *report;
-> +	unsigned char *data;
-> +	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
-> +	char *buf;
->  
->  	if (id->driver_data)
->  		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> @@ -848,10 +871,39 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (report)
->  		usbhid_submit_report(hdev, report, USB_DIR_OUT);
->  
-> +	data = kmalloc(8, GFP_KERNEL);
-> +	if (!data) {
-> +		ret = -ENOMEM;
-> +		goto err_free;
-> +	}
-> +
-> +	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-> +			      USB_REQ_CLEAR_FEATURE,
-> +			      USB_TYPE_CLASS | USB_RECIP_INTERFACE |
-> +			      USB_DIR_IN,
-> +			      0x30c, 1, data, 8,
-> +			      USB_CTRL_SET_TIMEOUT);
-> +
-> +	if (ret == 8) {
-> +		buf = kmalloc(20, GFP_KERNEL);
-> +		if (!buf) {
-> +			ret = -ENOMEM;
-> +			goto err_free_data;
-> +		}
-> +
-> +		ret = ntrig_version_string(&data[2], buf);
-> +
-> +		dev_info(&hdev->dev,
-> +			 "Firmware version: %s (%02x%02x %02x%02x)\n",
-> +			 buf, data[2], data[3], data[4], data[5]);
-
-
-Freeing buf? Since the firmware name is very much a property of the device, why
-not add it to the ntrig_data struct.
-
-> +	}
-> +
->  	ret = sysfs_create_group(&hdev->dev.kobj,
->  			&ntrig_attribute_group);
->  
->  	return 0;
-> +err_free_data:
-> +	kfree(data);
->  err_free:
->  	kfree(nd);
->  	return ret;
-
-
-Henrik
 

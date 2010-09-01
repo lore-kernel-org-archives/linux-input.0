@@ -1,22 +1,67 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 0/7 v3] HID: magicmouse: fixes and support for the Magic Trackpad (v3)
-Date: Tue, 31 Aug 2010 21:56:17 -0400
-Message-ID: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
+Subject: [PATCH 2/7 v3] HID: magicmouse: simplify multitouch feature request
+Date: Tue, 31 Aug 2010 21:56:19 -0400
+Message-ID: <1283306184-28833-3-git-send-email-chase.douglas@canonical.com>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:41645 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:41698 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752051Ab0IAB4a (ORCPT
+	with ESMTP id S1753524Ab0IAB4d (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 21:56:30 -0400
+	Tue, 31 Aug 2010 21:56:33 -0400
+In-Reply-To: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: Michael Poole <mdpoole@troilus.org>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The following patches are a reworking of my previous submission to
-incorporate all the comments to date. The only patch of contention, removing
-the fuzz factor, has been removed for now.
+From: Chase Douglas <chase.douglas@ubuntu.com>
 
-Thanks,
+Only the first feature request is required to put the Magic Mouse into
+multitouch mode. This is also the case for the Magic Trackpad, for which
+support will be added in a later commit.
 
--- Chase
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+Acked-by: Michael Poole <mdpoole@troilus.org>
+---
+ drivers/hid/hid-magicmouse.c |   16 ++++------------
+ 1 files changed, 4 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index d38b529..8a2fe78 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -380,8 +380,7 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ static int magicmouse_probe(struct hid_device *hdev,
+ 	const struct hid_device_id *id)
+ {
+-	__u8 feature_1[] = { 0xd7, 0x01 };
+-	__u8 feature_2[] = { 0xf8, 0x01, 0x32 };
++	__u8 feature[] = { 0xd7, 0x01 };
+ 	struct input_dev *input;
+ 	struct magicmouse_sc *msc;
+ 	struct hid_report *report;
+@@ -426,17 +425,10 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	}
+ 	report->size = 6;
+ 
+-	ret = hdev->hid_output_raw_report(hdev, feature_1, sizeof(feature_1),
++	ret = hdev->hid_output_raw_report(hdev, feature, sizeof(feature),
+ 			HID_FEATURE_REPORT);
+-	if (ret != sizeof(feature_1)) {
+-		dev_err(&hdev->dev, "unable to request touch data (1:%d)\n",
+-				ret);
+-		goto err_stop_hw;
+-	}
+-	ret = hdev->hid_output_raw_report(hdev, feature_2,
+-			sizeof(feature_2), HID_FEATURE_REPORT);
+-	if (ret != sizeof(feature_2)) {
+-		dev_err(&hdev->dev, "unable to request touch data (2:%d)\n",
++	if (ret != sizeof(feature)) {
++		dev_err(&hdev->dev, "unable to request touch data (%d)\n",
+ 				ret);
+ 		goto err_stop_hw;
+ 	}
+-- 
+1.7.1
+

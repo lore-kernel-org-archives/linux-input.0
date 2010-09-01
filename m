@@ -1,7 +1,7 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 4/7 v3] HID: magicmouse: simplify touch down logic
-Date: Tue, 31 Aug 2010 21:56:21 -0400
-Message-ID: <1283306184-28833-5-git-send-email-chase.douglas@canonical.com>
+Subject: [PATCH 1/7 v3] HID: magicmouse: don't allow hidinput to initialize the device
+Date: Tue, 31 Aug 2010 21:56:18 -0400
+Message-ID: <1283306184-28833-2-git-send-email-chase.douglas@canonical.com>
 References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
@@ -12,82 +12,45 @@ List-Id: linux-input@vger.kernel.org
 
 From: Chase Douglas <chase.douglas@ubuntu.com>
 
-For the MT protocol, we need to properly keep track of each down touch.
-This change simplifies the logic, and should make things easier when
-support for the Magic Trackpad is added.
+The driver listens only for raw events from the device. If we allow
+the hidinput layer to initialize, we can hit NULL pointer dereferences
+in the hidinput layer because disconnecting only removes the hidinput
+devices from the hid device while leaving the hid fields configured.
 
 Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+Acked-by: Michael Poole <mdpoole@troilus.org>
 ---
- drivers/hid/hid-magicmouse.c |   27 +++++++++------------------
- 1 files changed, 9 insertions(+), 18 deletions(-)
+ drivers/hid/hid-magicmouse.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 2ee59a8..0fbca59 100644
+index 319b0e5..d38b529 100644
 --- a/drivers/hid/hid-magicmouse.c
 +++ b/drivers/hid/hid-magicmouse.c
-@@ -98,7 +98,6 @@ struct magicmouse_sc {
- 		short scroll_x;
- 		short scroll_y;
- 		u8 size;
--		u8 down;
- 	} touches[16];
- 	int tracking_ids[16];
- };
-@@ -227,8 +226,6 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 
- 	/* Generate the input events for this touch. */
- 	if (report_touches && down) {
--		msc->touches[id].down = 1;
--
- 		input_report_abs(input, ABS_MT_TRACKING_ID, id);
- 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major);
- 		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor);
-@@ -241,6 +238,9 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 
- 		input_mt_sync(input);
+@@ -404,15 +404,20 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		goto err_free;
  	}
-+
-+	if (down)
-+		msc->ntouches++;
- }
  
- static int magicmouse_raw_event(struct hid_device *hdev,
-@@ -248,7 +248,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
- {
- 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
- 	struct input_dev *input = msc->input;
--	int x, y, ts, ii, clicks, last_up;
-+	int x, y, ts, ii, clicks, npoints;
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	/* When registering a hid device, one of hidinput, hidraw, or hiddev
++	 * subsystems must claim the device. We are bypassing hidinput due to
++	 * our raw event processing, and hidraw and hiddev may not claim the
++	 * device. We get around this by telling hid_hw_start that input has
++	 * claimed the device already, and then flipping the bit back.
++	 */
++	hdev->claimed = HID_CLAIMED_INPUT;
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
++	hdev->claimed &= ~HID_CLAIMED_INPUT;
+ 	if (ret) {
+ 		dev_err(&hdev->dev, "magicmouse hw start failed\n");
+ 		goto err_free;
+ 	}
  
- 	switch (data[0]) {
- 	case 0x10:
-@@ -265,22 +265,13 @@ static int magicmouse_raw_event(struct hid_device *hdev,
- 		ts = data[3] >> 6 | data[4] << 2 | data[5] << 10;
- 		msc->delta_time = (ts - msc->last_timestamp) & 0x3ffff;
- 		msc->last_timestamp = ts;
--		msc->ntouches = (size - 6) / 8;
--		for (ii = 0; ii < msc->ntouches; ii++)
-+		npoints = (size - 6) / 8;
-+		msc->ntouches = 0;
-+		for (ii = 0; ii < npoints; ii++)
- 			magicmouse_emit_touch(msc, ii, data + ii * 8 + 6);
- 
--		if (report_touches) {
--			last_up = 1;
--			for (ii = 0; ii < ARRAY_SIZE(msc->touches); ii++) {
--				if (msc->touches[ii].down) {
--					last_up = 0;
--					msc->touches[ii].down = 0;
--				}
--			}
--			if (last_up) {
--				input_mt_sync(input);
--			}
--		}
-+		if (report_touches && msc->ntouches == 0)
-+			input_mt_sync(input);
- 
- 		/* When emulating three-button mode, it is important
- 		 * to have the current touch information before
+-	/* we are handling the input ourselves */
+-	hidinput_disconnect(hdev);
+-
+ 	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
+ 	if (!report) {
+ 		dev_err(&hdev->dev, "unable to register touch report\n");
 -- 
 1.7.1

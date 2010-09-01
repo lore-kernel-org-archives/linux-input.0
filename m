@@ -1,67 +1,93 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 2/7 v3] HID: magicmouse: simplify multitouch feature request
-Date: Tue, 31 Aug 2010 21:56:19 -0400
-Message-ID: <1283306184-28833-3-git-send-email-chase.douglas@canonical.com>
+Subject: [PATCH 4/7 v3] HID: magicmouse: simplify touch down logic
+Date: Tue, 31 Aug 2010 21:56:21 -0400
+Message-ID: <1283306184-28833-5-git-send-email-chase.douglas@canonical.com>
 References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:41698 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753524Ab0IAB4d (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 21:56:33 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: Michael Poole <mdpoole@troilus.org>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 From: Chase Douglas <chase.douglas@ubuntu.com>
 
-Only the first feature request is required to put the Magic Mouse into
-multitouch mode. This is also the case for the Magic Trackpad, for which
-support will be added in a later commit.
+For the MT protocol, we need to properly keep track of each down touch.
+This change simplifies the logic, and should make things easier when
+support for the Magic Trackpad is added.
 
 Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-Acked-by: Michael Poole <mdpoole@troilus.org>
 ---
- drivers/hid/hid-magicmouse.c |   16 ++++------------
- 1 files changed, 4 insertions(+), 12 deletions(-)
+ drivers/hid/hid-magicmouse.c |   27 +++++++++------------------
+ 1 files changed, 9 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index d38b529..8a2fe78 100644
+index 2ee59a8..0fbca59 100644
 --- a/drivers/hid/hid-magicmouse.c
 +++ b/drivers/hid/hid-magicmouse.c
-@@ -380,8 +380,7 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- static int magicmouse_probe(struct hid_device *hdev,
- 	const struct hid_device_id *id)
- {
--	__u8 feature_1[] = { 0xd7, 0x01 };
--	__u8 feature_2[] = { 0xf8, 0x01, 0x32 };
-+	__u8 feature[] = { 0xd7, 0x01 };
- 	struct input_dev *input;
- 	struct magicmouse_sc *msc;
- 	struct hid_report *report;
-@@ -426,17 +425,10 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	}
- 	report->size = 6;
+@@ -98,7 +98,6 @@ struct magicmouse_sc {
+ 		short scroll_x;
+ 		short scroll_y;
+ 		u8 size;
+-		u8 down;
+ 	} touches[16];
+ 	int tracking_ids[16];
+ };
+@@ -227,8 +226,6 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
  
--	ret = hdev->hid_output_raw_report(hdev, feature_1, sizeof(feature_1),
-+	ret = hdev->hid_output_raw_report(hdev, feature, sizeof(feature),
- 			HID_FEATURE_REPORT);
--	if (ret != sizeof(feature_1)) {
--		dev_err(&hdev->dev, "unable to request touch data (1:%d)\n",
--				ret);
--		goto err_stop_hw;
--	}
--	ret = hdev->hid_output_raw_report(hdev, feature_2,
--			sizeof(feature_2), HID_FEATURE_REPORT);
--	if (ret != sizeof(feature_2)) {
--		dev_err(&hdev->dev, "unable to request touch data (2:%d)\n",
-+	if (ret != sizeof(feature)) {
-+		dev_err(&hdev->dev, "unable to request touch data (%d)\n",
- 				ret);
- 		goto err_stop_hw;
+ 	/* Generate the input events for this touch. */
+ 	if (report_touches && down) {
+-		msc->touches[id].down = 1;
+-
+ 		input_report_abs(input, ABS_MT_TRACKING_ID, id);
+ 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major);
+ 		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor);
+@@ -241,6 +238,9 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 
+ 		input_mt_sync(input);
  	}
++
++	if (down)
++		msc->ntouches++;
+ }
+ 
+ static int magicmouse_raw_event(struct hid_device *hdev,
+@@ -248,7 +248,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ {
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
+ 	struct input_dev *input = msc->input;
+-	int x, y, ts, ii, clicks, last_up;
++	int x, y, ts, ii, clicks, npoints;
+ 
+ 	switch (data[0]) {
+ 	case 0x10:
+@@ -265,22 +265,13 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 		ts = data[3] >> 6 | data[4] << 2 | data[5] << 10;
+ 		msc->delta_time = (ts - msc->last_timestamp) & 0x3ffff;
+ 		msc->last_timestamp = ts;
+-		msc->ntouches = (size - 6) / 8;
+-		for (ii = 0; ii < msc->ntouches; ii++)
++		npoints = (size - 6) / 8;
++		msc->ntouches = 0;
++		for (ii = 0; ii < npoints; ii++)
+ 			magicmouse_emit_touch(msc, ii, data + ii * 8 + 6);
+ 
+-		if (report_touches) {
+-			last_up = 1;
+-			for (ii = 0; ii < ARRAY_SIZE(msc->touches); ii++) {
+-				if (msc->touches[ii].down) {
+-					last_up = 0;
+-					msc->touches[ii].down = 0;
+-				}
+-			}
+-			if (last_up) {
+-				input_mt_sync(input);
+-			}
+-		}
++		if (report_touches && msc->ntouches == 0)
++			input_mt_sync(input);
+ 
+ 		/* When emulating three-button mode, it is important
+ 		 * to have the current touch information before
 -- 
 1.7.1
-

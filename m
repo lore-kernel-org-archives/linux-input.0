@@ -1,51 +1,22 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 5/6 v2] HID: magicmouse: enable Magic Trackpad support
-Date: Tue, 31 Aug 2010 21:55:10 -0400
-Message-ID: <1283306110.2255.349.camel@mini>
-References: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>
-	 <1283280068-12285-5-git-send-email-chase.douglas@canonical.com>
-	 <1283299695.13785.16.camel@graviton>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 0/7 v3] HID: magicmouse: fixes and support for the Magic Trackpad (v3)
+Date: Tue, 31 Aug 2010 21:56:17 -0400
+Message-ID: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:40619 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:41645 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752051Ab0IABzV (ORCPT
+	with ESMTP id S1752051Ab0IAB4a (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 21:55:21 -0400
-In-Reply-To: <1283299695.13785.16.camel@graviton>
+	Tue, 31 Aug 2010 21:56:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Michael Poole <mdpoole@troilus.org>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2010-08-31 at 20:08 -0400, Michael Poole wrote:
-> One behavior that slightly surprised me -- which I believe is a quirk
-> due to userspace not expecting touchpads to have button switches -- is
-> that touches on the trackpad that do not close the switch can still be
-> interpreted by X as clicks.
-
-This is actually done by the X synaptics input module. It's the defacto
-X touchpad driver and enables niceties like two finger scrolling and
-whatnot. You can either use it as is, use xinput/xorg.conf to manipulate
-its configuration, or switch to the X evdev input module which is more
-"bare" support.
-
-FYI, our gesture support in Maverick is based on a modified version of
-the X evdev input module. However, because the whole stack of desktop
-libs and toolkits won't support gestures in Maverick, you lose things
-like two finger scroll. Thus, we're going to leave the default X input
-module for the magic trackpad to synaptics in Ubuntu.
-
-> Once the discussions about if/how to tweak this code settle down, I'll
-> put together a patch to change the "down" and "last_up" logic as I
-> suggested earlier.
-
-I actually decided to tackle this to make the patches I'm writing
-easier. I'll be sending a new batch shortly.
+The following patches are a reworking of my previous submission to
+incorporate all the comments to date. The only patch of contention, removing
+the fuzz factor, has been removed for now.
 
 Thanks,
 
 -- Chase
-

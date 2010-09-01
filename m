@@ -1,49 +1,62 @@
-From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Subject: Re: [PATCH 1/2] hid/hid-sony: Apply sixaxis quirks only to sixaxis
-Date: Wed, 1 Sep 2010 19:20:55 +0200
-Message-ID: <20100901192055.2f23c8c7.ospite@studenti.unina.it>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 2/2] hid/hid-sony: get and set Sixaxis bdaddr via sysfs
+Date: Wed, 1 Sep 2010 19:28:54 +0200
+Message-ID: <20100901192854.9370c605.ospite@studenti.unina.it>
 References: <1272917756-31098-1-git-send-email-ospite@studenti.unina.it>
-	<1272917756-31098-2-git-send-email-ospite@studenti.unina.it>
-	<1283357615.2361.20.camel@localhost.localdomain>
+	<1272917756-31098-3-git-send-email-ospite@studenti.unina.it>
+	<1283357874.2361.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
  micalg="PGP-SHA1";
- boundary="Signature=_Wed__1_Sep_2010_19_20_55_+0200_B_mn9w14EG+luYY1"
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1283357615.2361.20.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, cbe-oss-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+ boundary="Signature=_Wed__1_Sep_2010_19_28_54_+0200_P8r0ehtD8Ti8nFg1"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp209.alice.it ([82.57.200.105]:34634 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751844Ab0IAR3B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Sep 2010 13:29:01 -0400
+In-Reply-To: <1283357874.2361.24.camel@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, cbe-oss-dev@lists.ozlabs.org, Jiri Kosina <jkosina@suse.cz>
 
---Signature=_Wed__1_Sep_2010_19_20_55_+0200_B_mn9w14EG+luYY1
+--Signature=_Wed__1_Sep_2010_19_28_54_+0200_P8r0ehtD8Ti8nFg1
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 01 Sep 2010 17:13:35 +0100
-Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
+On Wed, 01 Sep 2010 17:17:54 +0100
+Bastien Nocera <hadess@hadess.net> wrote:
 
 > On Mon, 2010-05-03 at 22:15 +0200, Antonio Ospite wrote:
-> > Be more explicit and avoid calling sony_set_operational_usb() when we
-> > have USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE.
+> > Expose to userspace a simple way to get device bdaddr, and get/set mast=
+er
+> > bdaddr on Sixaxis controller.
 > >=20
-> > While at it, rename the sony_set_operational routines to
-> > sixaxis_set_operational as they are sixaxis specific.
+> > Right now userspace softwares which manage pairing the controller with a
+> > bluetooth adapter, rely on libusb and hence have to detach and reattach
+> > usbhid, which is not very nice.
 > >=20
-> > This is also in preparation for the sysfs interface to set and get bdad=
-dr
-> > over usb and for some other Sixaxis report fixup.
+> > Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+> > ---
 > >=20
-> > Signed-off-by: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+> > As said, ideally this should be done with an interface such as hidraw, =
+but its
+> > limitations prevent us from doing it the right way; and I am not going =
+to
+> > touch hidraw myself anytime soon.
 >=20
-> Signed-off-by: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
->
+> Rest looks alright to me. Thanks!
 
-Thanks Bastien for bringing this up again, I was going to repost
-this patch sometime this month.
+Bastien, Jiri, this patch can be DISCARDED. The hidraw work from Alan
+Ott (waiting for Marcel to ACK the bluetooth part) will make this kernel
+approach overkill.
 
-Added Jiri to CC as I forgot to do that back then.
+I already have some bluez patches based on Alan's work, but I am waiting
+for the needed changes to land into linus tree before submitting them.
+
+Sorry for making you wasting some time reviewing this one, I told you on
+IRC it could be discarded, but we know: "IRCs volant, emails manent".
 
 Regards,
    Antonio
@@ -58,15 +71,15 @@ A: Because it messes up the order in which people normally read text.
    See http://en.wikipedia.org/wiki/Posting_style
 Q: Why is top-posting such a bad thing?
 
---Signature=_Wed__1_Sep_2010_19_20_55_+0200_B_mn9w14EG+luYY1
+--Signature=_Wed__1_Sep_2010_19_28_54_+0200_P8r0ehtD8Ti8nFg1
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkx+i3cACgkQ5xr2akVTsAE/BwCfdLlY2xkdMT24QSSYItBAKAsQ
-rxEAnjSZcLIghNd/uyf/Q8hVYEXMTqW+
-=Fn8R
+iEYEARECAAYFAkx+jVYACgkQ5xr2akVTsAEe5QCgqCNMtl+q23sRq/xn6ZZaVSZi
+Jb0An3VwpH5oWvlYC2WhQ6jYPbmBBAMC
+=+cWu
 -----END PGP SIGNATURE-----
 
---Signature=_Wed__1_Sep_2010_19_20_55_+0200_B_mn9w14EG+luYY1--
+--Signature=_Wed__1_Sep_2010_19_28_54_+0200_P8r0ehtD8Ti8nFg1--

@@ -1,98 +1,108 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] firmware sysfs node
-Date: Tue, 31 Aug 2010 19:06:35 -0700
-Message-ID: <20100901020634.GD23585@core.coreip.homeip.net>
-References: <1282798497-19791-1-git-send-email-rafi@seas.upenn.edu>
- <1282798497-19791-5-git-send-email-rafi@seas.upenn.edu>
- <4C77AAE1.6050001@euromail.se>
- <20100827163436.GB13030@core.coreip.homeip.net>
- <4C7C639F.3040407@seas.upenn.edu>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH 4/7 v3] HID: magicmouse: simplify touch down logic
+Date: Tue, 31 Aug 2010 22:23:27 -0400
+Message-ID: <1283307807.16204.3.camel@graviton>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
+	 <1283306184-28833-5-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:47454 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751863Ab0IACGm (ORCPT
+Received: from na3sys009aog108.obsmtp.com ([74.125.149.199]:40248 "HELO
+	na3sys009aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754217Ab0IACXb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 22:06:42 -0400
-Content-Disposition: inline
-In-Reply-To: <4C7C639F.3040407@seas.upenn.edu>
+	Tue, 31 Aug 2010 22:23:31 -0400
+In-Reply-To: <1283306184-28833-5-git-send-email-chase.douglas@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: jkosina@suse.cz, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, chatty@enac.fr, micki@n-trig.com
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2010 at 10:06:23PM -0400, Rafi Rubin wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Tue, 2010-08-31 at 21:56 -0400, Chase Douglas wrote:
+> From: Chase Douglas <chase.douglas@ubuntu.com>
 > 
-> On 08/27/10 12:34, Dmitry Torokhov wrote:
-> > On Fri, Aug 27, 2010 at 02:09:05PM +0200, Henrik Rydberg wrote:
-> >> On 08/26/2010 06:54 AM, Rafi Rubin wrote:
-> >>
-> >>> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> >>> ---
-> >>>  drivers/hid/hid-ntrig.c |   21 +++++++++++++++++++++
-> >>>  1 files changed, 21 insertions(+), 0 deletions(-)
-> >>>
-> >>> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> >>> index ab0ca7f..e341e88 100644
-> >>> --- a/drivers/hid/hid-ntrig.c
-> >>> +++ b/drivers/hid/hid-ntrig.c
-> >>> @@ -375,6 +375,26 @@ static ssize_t set_deactivate_slack(struct device *dev,
-> >>>  static DEVICE_ATTR(deactivate_slack, S_IWUSR | S_IRUGO, show_deactivate_slack,
-> >>>  		   set_deactivate_slack);
-> >>>  
-> >>> +static ssize_t show_firmware(struct device *dev,
-> >>> +			       struct device_attribute *attr,
-> >>> +			       char *buf)
-> >>> +{
-> >>> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-> >>> +	struct ntrig_data *nd = hid_get_drvdata(hdev);
-> >>> +
-> >>> +	if (!(nd->firmware_version[0] || nd->firmware_version[1] ||
-> >>> +	      nd->firmware_version[2] || nd->firmware_version[3]))
-> >>> +		return sprintf(buf, "Firmware version unavailable");
-> >>
-> >>
-> >> If this sysfs node should really be added (see EVIO), it is probably better if
-> >> it returns the same format for all devices. If all numbers are zero, that is
-> >> understandable also by someone reading the node.
-> >>
-> > 
-> > Yes, I think we should stick it into input_id and be done with it. Note
-> > that input_id is not only available via EVIOCGID ioctl but also already
-> > exported in sysfs.
+> For the MT protocol, we need to properly keep track of each down touch.
+> This change simplifies the logic, and should make things easier when
+> support for the Magic Trackpad is added.
 > 
-> The version in input_id is only 16 bits, whereas the ntrig version codes seem to
-> be 32 bits.  Actually I've only mapped 21 bits out of 64, but I figure the first
-> and last 8 are not actually part of the version, but that's still more than 16.
-> 
-> So, would you prefer that I increase the size of that field, or keep the
-> firmware version code separate?
-> 
+> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 
-Hmm, changing size would require ABI change which I am hesitant to do
-without _very_ good reason.
+Thanks, this looks slightly cleaner than what I had in mind.
 
-If debugging aid is the only purpose maybe we should just dump the data
-into dmesg and be done with it.
+Acked-by: Michael Poole <mdpoole@troilus.org>
 
+> ---
+>  drivers/hid/hid-magicmouse.c |   27 +++++++++------------------
+>  1 files changed, 9 insertions(+), 18 deletions(-)
 > 
-> Also does it make sense to have a provide a pretty printer in the kernel, or
-> should that be left to userspace?  The hardware returns a raw version code in
-> the form:
-> 	1a08 a521
-> 
-> In the ntrig utilities and documentation the where firmware version is mentioned
-> it looks more like this:
-> 	4.6.17.13.5
-> 
-> My intent was to make that second form more accessible to keep things simple for
-> users, who if they are checking that probably already have enough troubling them :)
-> 
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index 2ee59a8..0fbca59 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -98,7 +98,6 @@ struct magicmouse_sc {
+>  		short scroll_x;
+>  		short scroll_y;
+>  		u8 size;
+> -		u8 down;
+>  	} touches[16];
+>  	int tracking_ids[16];
+>  };
+> @@ -227,8 +226,6 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+>  
+>  	/* Generate the input events for this touch. */
+>  	if (report_touches && down) {
+> -		msc->touches[id].down = 1;
+> -
+>  		input_report_abs(input, ABS_MT_TRACKING_ID, id);
+>  		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major);
+>  		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor);
+> @@ -241,6 +238,9 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+>  
+>  		input_mt_sync(input);
+>  	}
+> +
+> +	if (down)
+> +		msc->ntouches++;
+>  }
+>  
+>  static int magicmouse_raw_event(struct hid_device *hdev,
+> @@ -248,7 +248,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+>  {
+>  	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
+>  	struct input_dev *input = msc->input;
+> -	int x, y, ts, ii, clicks, last_up;
+> +	int x, y, ts, ii, clicks, npoints;
+>  
+>  	switch (data[0]) {
+>  	case 0x10:
+> @@ -265,22 +265,13 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+>  		ts = data[3] >> 6 | data[4] << 2 | data[5] << 10;
+>  		msc->delta_time = (ts - msc->last_timestamp) & 0x3ffff;
+>  		msc->last_timestamp = ts;
+> -		msc->ntouches = (size - 6) / 8;
+> -		for (ii = 0; ii < msc->ntouches; ii++)
+> +		npoints = (size - 6) / 8;
+> +		msc->ntouches = 0;
+> +		for (ii = 0; ii < npoints; ii++)
+>  			magicmouse_emit_touch(msc, ii, data + ii * 8 + 6);
+>  
+> -		if (report_touches) {
+> -			last_up = 1;
+> -			for (ii = 0; ii < ARRAY_SIZE(msc->touches); ii++) {
+> -				if (msc->touches[ii].down) {
+> -					last_up = 0;
+> -					msc->touches[ii].down = 0;
+> -				}
+> -			}
+> -			if (last_up) {
+> -				input_mt_sync(input);
+> -			}
+> -		}
+> +		if (report_touches && msc->ntouches == 0)
+> +			input_mt_sync(input);
+>  
+>  		/* When emulating three-button mode, it is important
+>  		 * to have the current touch information before
 
-Yeah, splitting into segments is pretty cheap.
 
--- 
-Dmitry

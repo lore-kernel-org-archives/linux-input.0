@@ -1,85 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Henrik Rydberg <rydberg@euromail.se>
 Subject: Re: [PATCH] hid: Add a hid quirk for input sync override
-Date: Wed, 1 Sep 2010 12:54:03 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz>
-References: <1282640084-19217-1-git-send-email-rydberg@euromail.se>
+Date: Wed, 01 Sep 2010 13:32:28 +0200
+Message-ID: <4C7E39CC.80402@euromail.se>
+References: <1282640084-19217-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42014 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753789Ab0IAKyE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Sep 2010 06:54:04 -0400
-In-Reply-To: <1282640084-19217-1-git-send-email-rydberg@euromail.se>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:45830 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751103Ab0IALcx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Sep 2010 07:32:53 -0400
+In-Reply-To: <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
-On Tue, 24 Aug 2010, Henrik Rydberg wrote:
+On 09/01/2010 12:54 PM, Jiri Kosina wrote:
 
-> From: Henrik Rydberg <rydberg@thabit.(none)>
+> On Tue, 24 Aug 2010, Henrik Rydberg wrote:
 > 
-> As of lately, HID devices which send per-frame data split over several
-> HID reports have started to emerge. This patch adds a quirk which
-> allows the HID driver to take over the input layer synchronization,
-> and hence the control of the frame boundary.
+>> From: Henrik Rydberg <rydberg@thabit.(none)>
+>>
+>> As of lately, HID devices which send per-frame data split over several
+>> HID reports have started to emerge. This patch adds a quirk which
+>> allows the HID driver to take over the input layer synchronization,
+>> and hence the control of the frame boundary.
+>>
+>> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+>> ---
+>> Jiri, Dmitry, Stephane,
+>>
+>> No doubt, this is not a final solution, but it serves the purpose of
+>> being able to make existing drivers functional while a satisfactory
+>> solution is being worked out.
 > 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Jiri, Dmitry, Stephane,
+> Hi Henrik,
 > 
-> No doubt, this is not a final solution, but it serves the purpose of
-> being able to make existing drivers functional while a satisfactory
-> solution is being worked out.
+> I obviously don't have any major objections to the patch, as it was my 
+> initial idea :)
 
-Hi Henrik,
 
-I obviously don't have any major objections to the patch, as it was my 
-initial idea :)
-
-I'd like to merge it together with driver which actually uses it though.
-
-Thanks.
+Ah! Then all is fine. :-)
 
 > 
-> Cheers,
-> Henrik
-> 
->  drivers/hid/hid-input.c |    3 +++
->  include/linux/hid.h     |    1 +
->  2 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 69d152e..9d97934 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -656,6 +656,9 @@ void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
->  {
->  	struct hid_input *hidinput;
->  
-> +	if (hid->quirks & HID_QUIRK_NO_INPUT_SYNC)
-> +		return;
-> +
->  	list_for_each_entry(hidinput, &hid->inputs, list)
->  		input_sync(hidinput->input);
->  }
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 895001f..8029883 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -315,6 +315,7 @@ struct hid_item {
->  #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
->  #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
->  #define HID_QUIRK_NO_IGNORE			0x40000000
-> +#define HID_QUIRK_NO_INPUT_SYNC			0x80000000
->  
->  /*
->   * This is the global environment of the parser. This information is
-> -- 
-> 1.7.1
-> 
+> I'd like to merge it together with driver which actually uses it though.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+
+Sounds good. I suppose Stephane wants to have a say regarding the 3m driver
+first, but no rush. What version are you targeting?
+
+Thanks,
+Henrik

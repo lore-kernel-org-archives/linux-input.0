@@ -1,71 +1,52 @@
 From: Michael Poole <mdpoole@troilus.org>
-Subject: Re: [PATCH 1/6 v2] HID: magicmouse: don't allow hidinput to
- initialize the device
-Date: Tue, 31 Aug 2010 19:45:54 -0400
-Message-ID: <1283298354.13785.2.camel@graviton>
+Subject: Re: [PATCH 5/6 v2] HID: magicmouse: enable Magic Trackpad support
+Date: Tue, 31 Aug 2010 20:08:15 -0400
+Message-ID: <1283299695.13785.16.camel@graviton>
 References: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>
+	 <1283280068-12285-5-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog111.obsmtp.com ([74.125.149.205]:40378 "HELO
-	na3sys009aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751969Ab0HaXp7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Aug 2010 19:45:59 -0400
-In-Reply-To: <1283280068-12285-1-git-send-email-chase.douglas@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1283280068-12285-5-git-send-email-chase.douglas@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Chase Douglas <chase.douglas@canonical.com>
 Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 On Tue, 2010-08-31 at 14:41 -0400, Chase Douglas wrote:
-> From: Chase Douglas <chase.douglas@ubuntu.com>
+> The trackpad speaks a similar, but different, protocol from the magic
+> mouse. However, only small code tweaks here and there are needed to make
+> basic multitouch work.
 > 
-> The driver listens only for raw events from the device. If we allow
-> the hidinput layer to initialize, we can hit NULL pointer dereferences
-> in the hidinput layer because disconnecting only removes the hidinput
-> devices from the hid device while leaving the hid fields configured.
+> Extra logic is required for single-touch emulation of the touchpad. The
+> changes made here take the approach that only one finger may emulate the
+> single pointer when multiple fingers have touched the screen. Once that
+> finger is raised, all touches must be raised before any further single
+> touch events can be sent.
+> 
+> Sometimes the magic trackpad sends two distinct touch reports as one big
+> report. Simply splitting the packet in two and resending them through
+> magicmouse_raw_event ensures they are handled properly.
+> 
+> I also added myself to the copyright statement.
 > 
 > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 > ---
-> Note that this mimics what the hid-picolcd module does.
-
-Thanks, this approach makes sense to me.
+>  drivers/hid/hid-core.c       |    1 +
+>  drivers/hid/hid-ids.h        |    1 +
+>  drivers/hid/hid-magicmouse.c |  229 ++++++++++++++++++++++++++++++++----------
+>  3 files changed, 176 insertions(+), 55 deletions(-)
 
 Acked-by: Michael Poole <mdpoole@troilus.org>
 
->  drivers/hid/hid-magicmouse.c |   13 +++++++++----
->  1 files changed, 9 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 319b0e5..d38b529 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -404,15 +404,20 @@ static int magicmouse_probe(struct hid_device *hdev,
->  		goto err_free;
->  	}
->  
-> -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	/* When registering a hid device, one of hidinput, hidraw, or hiddev
-> +	 * subsystems must claim the device. We are bypassing hidinput due to
-> +	 * our raw event processing, and hidraw and hiddev may not claim the
-> +	 * device. We get around this by telling hid_hw_start that input has
-> +	 * claimed the device already, and then flipping the bit back.
-> +	 */
-> +	hdev->claimed = HID_CLAIMED_INPUT;
-> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
-> +	hdev->claimed &= ~HID_CLAIMED_INPUT;
->  	if (ret) {
->  		dev_err(&hdev->dev, "magicmouse hw start failed\n");
->  		goto err_free;
->  	}
->  
-> -	/* we are handling the input ourselves */
-> -	hidinput_disconnect(hdev);
-> -
->  	report = hid_register_report(hdev, HID_INPUT_REPORT, TOUCH_REPORT_ID);
->  	if (!report) {
->  		dev_err(&hdev->dev, "unable to register touch report\n");
+One behavior that slightly surprised me -- which I believe is a quirk
+due to userspace not expecting touchpads to have button switches -- is
+that touches on the trackpad that do not close the switch can still be
+interpreted by X as clicks.
 
+Once the discussions about if/how to tweak this code settle down, I'll
+put together a patch to change the "down" and "last_up" logic as I
+suggested earlier.
 
+Michael Poole

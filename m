@@ -1,74 +1,25 @@
-From: Michael Poole <mdpoole@troilus.org>
-Subject: Re: [PATCH 1/7 v3] HID: magicmouse: don't allow hidinput to
- initialize the device
-Date: Thu, 2 Sep 2010 08:06:32 -0400
-Message-ID: <AANLkTikb=eNzek-vQ=d3jZxitsbtJ5gD6BNDipAUpUcJ@mail.gmail.com>
-References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
-	<1283306184-28833-2-git-send-email-chase.douglas@canonical.com>
-	<4C7E94F6.9050806@gmail.com>
-	<AANLkTi=z5s8mbjG54930Lxj-O9Of2fXHE6kDJhijyOb7@mail.gmail.com>
-	<4C7F6E26.2030301@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] Input: wm97xx-core - use platform_device_del instead
+ of platform_device_unregister for error handling
+Date: Thu, 2 Sep 2010 13:23:37 +0100
+Message-ID: <20100902122337.GI22444@rakim.wolfsonmicro.main>
+References: <1283416029.19272.3.camel@mola>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4C7F6E26.2030301@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:46468 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752659Ab0IBMXj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Sep 2010 08:23:39 -0400
+Content-Disposition: inline
+In-Reply-To: <1283416029.19272.3.camel@mola>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Sep 2, 2010 at 5:28 AM, Jiri Slaby wrote:
-> On 09/02/2010 01:57 AM, Michael Poole wrote:
->> Jiri Slaby wrote:
->>> This looks weird. Is there any past discussion about why you cannot=
- use
->>> hidinput and you have to do all the input bits yourself while cheat=
-ing
->>> this very weird way?
->>
->> The Magic Mouse and Magic Trackpad do not publish HID descriptors fo=
-r
->> the multitouch reports. =A0Given the variable-length report packets =
---
->> and especially the Magic Trackpad's new, mutant DOUBLE_REPORT_ID
->> packets -- it would be non-trivial to write accurate descriptors tha=
-t
->> the HID core can use. =A0(Someone wrote a patch to try that a few mo=
-nths
->> ago. =A0It ended up adding significantly more lines to hid-magicmous=
-e.c
->> than it removed, and it was not obvious to me that it got the Report
->> Count fields correct.)
->
-> Ok, makes sense. The proper solution is to call a driver hook in
-> hidinput_connect to do the mapping instead of report parsing done the=
-re,
-> right? (And not setting [gs]etkeycode in that case.)
+On Thu, Sep 02, 2010 at 04:27:09PM +0800, Axel Lin wrote:
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
 
-I do not know how this would work with the current HID core; could you
-elaborate?  For the Magic Mouse, there is a valid descriptor for the
-0x10 (traditional mouse motion and clicks) report, and a pretty
-trivial descriptor in the vendor-defined usage region (which I assume
-Apple drivers use to identify the ensemble of multi-touch,
-mouse-up/down, laser status and battery level reports).  How would the
-driver's input_mapping() hook, or any other hook, map that single
-descriptor into fields for each of the parts of a multi-touch report,
-or support the other reports?  How would hid-magicmouse describe the
-report so that hid-core handles the variable-length multi-touch
-reports properly?  As far as I can tell, hid_report_raw_event() and
-its callees assume each report has fixed length.
-
-> Then the part of magicmouse_setup_input starting at the first __set_b=
-it
-> will be exactly the hook.
->
-> Otherwise this hack looks like a hard cross-layer breakage.
->
-> /me wonders how HID issuers are creative in breaking standards.
-
-In Apple's case, apparently fairly creative.  Devices from other
-sources seem to generate one report per touch, rather than cram as
-many touches as possible into a single report.
-
-Michael Poole
+Acked-by: Mark Brown <broonie@opensoruce.wolfsonmicro.com>

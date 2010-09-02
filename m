@@ -1,54 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Add a hid quirk for input sync override
-Date: Thu, 2 Sep 2010 16:30:48 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009021630000.26813@pobox.suse.cz>
-References: <1282640084-19217-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz> <4C7E39CC.80402@euromail.se>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [RFC] Input: wm97xx-core - Remove save state from
+ wm97xx_read_aux_adc()
+Date: Thu, 2 Sep 2010 15:40:35 +0100
+Message-ID: <20100902144035.GB5809@rakim.wolfsonmicro.main>
+References: <1283352730-15509-1-git-send-email-emillbrandt@dekaresearch.com>
+ <20100901171925.GA22444@rakim.wolfsonmicro.main>
+ <0A40042D85E7C84DB443060EC44B3FD3254AA09E7F@dekaexchange07.deka.local>
+ <20100901184650.GH22444@rakim.wolfsonmicro.main>
+ <0A40042D85E7C84DB443060EC44B3FD3254AA09E80@dekaexchange07.deka.local>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60666 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750761Ab0IBOau (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Sep 2010 10:30:50 -0400
-In-Reply-To: <4C7E39CC.80402@euromail.se>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40777 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754373Ab0IBOki (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Sep 2010 10:40:38 -0400
+Content-Disposition: inline
+In-Reply-To: <0A40042D85E7C84DB443060EC44B3FD3254AA09E80@dekaexchange07.deka.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
+To: Eric Millbrandt <emillbrandt@dekaresearch.com>
+Cc: Liam Girdwood <lrg@slimlogic.co.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, 1 Sep 2010, Henrik Rydberg wrote:
+On Wed, Sep 01, 2010 at 03:17:27PM -0400, Eric Millbrandt wrote:
 
-> >> As of lately, HID devices which send per-frame data split over several
-> >> HID reports have started to emerge. This patch adds a quirk which
-> >> allows the HID driver to take over the input layer synchronization,
-> >> and hence the control of the frame boundary.
-> >>
-> >> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> >> ---
-> >> Jiri, Dmitry, Stephane,
-> >>
-> >> No doubt, this is not a final solution, but it serves the purpose of
-> >> being able to make existing drivers functional while a satisfactory
-> >> solution is being worked out.
-> > 
-> > Hi Henrik,
-> > 
-> > I obviously don't have any major objections to the patch, as it was my 
-> > initial idea :)
-> 
-> 
-> Ah! Then all is fine. :-)
-> 
-> > 
-> > I'd like to merge it together with driver which actually uses it though.
-> 
-> 
-> Sounds good. I suppose Stephane wants to have a say regarding the 3m driver
-> first, but no rush. What version are you targeting?
+> The problem there is the return value of poll_sample currently is not
+> being checked, so wm97xx_read_aux_adc() is returning invalid data.  That
+> could be fixed to either keep polling until RC_VALID or a timeout is hit
+> is returned or return an error to the calling function and letting it
+> decide what to do.  I don't like the second option because it creates a
+> pathologic failure:
 
-2.6.37 looks reasonable if everything it agreed upon in the following 
-week(s).
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+I think (without having thought through it all so I may have missed
+something) that the best thing for the pathalogical case is to have a
+limited number of goes at restoring things and then just stop the
+digitiser - that will leave things restored while still providing a
+guaranteed exit case which should be recoverable (since everything will
+be halted).  Does that seem sensible to you?

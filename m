@@ -1,52 +1,66 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 3/3] input: wacom: Add support for the Bamboo Touch trackpad
- (rev2)
-Date: Thu, 02 Sep 2010 23:08:36 +0200
-Message-ID: <4C801254.5030605@euromail.se>
-References: <1283451517-1711-1-git-send-email-rydberg@euromail.se>	<1283451517-1711-4-git-send-email-rydberg@euromail.se> <AANLkTimBFwXyBDJdaMOyR9OrvZvMD6jtybvLqRqrFWV6@mail.gmail.com>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Re: [PATCH 6/7] IR: extend ir_raw_event and do refactoring
+Date: Fri, 03 Sep 2010 00:20:54 +0300
+Message-ID: <1283462454.3306.15.camel@maxim-laptop>
+References: <1283158348-7429-1-git-send-email-maximlevitsky@gmail.com>
+	 <1283158348-7429-7-git-send-email-maximlevitsky@gmail.com>
+	 <20100902205607.GB3886@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:46612 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757580Ab0IBVKk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Sep 2010 17:10:40 -0400
-In-Reply-To: <AANLkTimBFwXyBDJdaMOyR9OrvZvMD6jtybvLqRqrFWV6@mail.gmail.com>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:33036 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754458Ab0IBVVD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 17:21:03 -0400
+In-Reply-To: <20100902205607.GB3886@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On 09/02/2010 11:02 PM, Ping Cheng wrote:
-[...]
->> @@ -1079,6 +1134,31 @@ void wacom_setup_input_capabilities(struct input_dev
-*input_dev,
+On Thu, 2010-09-02 at 22:56 +0200, David H=C3=A4rdeman wrote:=20
+> On Mon, Aug 30, 2010 at 11:52:26AM +0300, Maxim Levitsky wrote:
+> > Add new event types for timeout & carrier report
+> > Move timeout handling from ir_raw_event_store_with_filter to
+> > ir-lirc-codec, where it is really needed.
+>=20
+> Yes, but it still might make more sense to keep the timeout handling =
+in=20
+> ir_raw_event_store_with_filter so that all decoders get the same data=
+=20
+> from rc-core?
+I don't want any timeouts in rc-core. There is just an IR packet that
+starts optionally with a reset and ends with a timeout bit.
+I have also nothing against renaming reset/timeout to start/stop.
 
->>         case PENPARTNER:
->>                 __set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
->>                 break;
->> +
->> +       case BAMBOO_PT:
->> +               __clear_bit(ABS_MISC, input_dev->absbit);
->> +
->> +               if (features->device_type != BTN_TOOL_TRIPLETAP)
->> +                       break;
->> +
->> +               __set_bit(BTN_LEFT, input_dev->keybit);
->> +               __set_bit(BTN_MIDDLE, input_dev->keybit);
->> +               __set_bit(BTN_RIGHT, input_dev->keybit);
-> 
-> An if-else is needed here instead of the break since there is a
-> pen-only bamboo model in the market. If you don't have time to update
-> it, you can leave it to Chris. He can make the changes when he work on
-> the other models.
+rc-core really shouldn't care about consistent pulse/space ordering.
+Its lirc that needs it.
+
+Also in the future I think I should make the
+ir_raw_event_store_with_filter the default submit function for all
+drivers, and then I could drop that silly '_with_filter" thing
+(Couldn't think for a better name for this function...)
+
+>=20
+> > Now lirc bridge ensures proper gap handling.
+> > Extend lirc bridge for carrier & timeout reports
+> >=20
+> > Note: all new ir_raw_event variables now should be initialized
+> > like that:
+> > struct ir_raw_event ev =3D ir_new_event;
+>=20
+> Wouldn't DEFINE_RAW_EVENT(ev); be more in line with the kernel coding=
+=20
+> style? (cf. DEFINE_MUTEX, DEFINE_SPINLOCK, etc).
+Of course, nothing against that.
 
 
-Thanks, I can see that will make subsequent patches nicer. There will most
-likely be another round of patches, I will update it then, and leave the rest to
-Chris.
+Best regards,
+Maxim Levitsky
 
-Cheers,
-Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

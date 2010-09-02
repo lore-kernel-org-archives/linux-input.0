@@ -1,57 +1,42 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH] identify firmware version
-Date: Thu, 02 Sep 2010 10:03:24 +0200
-Message-ID: <4C7F5A4C.5040700@gmail.com>
-References: <20100901020634.GD23585@core.coreip.homeip.net> <1283334517-15121-1-git-send-email-rafi@seas.upenn.edu> <4C7EB3A3.7050402@gmail.com> <4C7EEBEE.5030203@seas.upenn.edu>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: s3c2410_ts - fix s3c2410ts_probe error path
+Date: Thu, 02 Sep 2010 16:25:16 +0800
+Message-ID: <1283415916.19272.1.camel@mola>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:59015 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751098Ab0IBID2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 04:03:28 -0400
-In-Reply-To: <4C7EEBEE.5030203@seas.upenn.edu>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:50837 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751091Ab0IBIVV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 04:21:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ben Dooks <ben-linux@fluff.org>, Arnaud Patard <arnaud.patard@rtp-net.org>, Simtec Electronics <linux@simtec.co.uk>, linux-input@vger.kernel.org
 
-On 09/02/2010 02:12 AM, Rafi Rubin wrote:
-> 
-> 
-> On 09/01/2010 04:12 PM, Jiri Slaby wrote:
->> On 09/01/2010 11:48 AM, Rafi Rubin wrote:
->>> --- a/drivers/hid/hid-ntrig.c
->>> +++ b/drivers/hid/hid-ntrig.c
->>> @@ -90,6 +90,26 @@ struct ntrig_data {
->>>   };
->>>
->>>
->>> +/*
->>> + * This function converts the 4 byte raw firmware code into
->>> + * a string containing 5 comma separated numbers.
->>> + */
->>> +static int ntrig_version_string(unsigned char *raw, char *buf)
->>> +{
->>> +    __u8 a =  (raw[1]&  0b00001110)>>  1;
->>> +    __u8 b =  (raw[0]&  0b00111100)>>  2;
->>> +    __u8 c = ((raw[0]&  0b00000011)<<  3) | ((raw[3]& 
->>> 0b11100000)>>  5);
->>> +    __u8 d = ((raw[3]&  0b00000111)<<  3) | ((raw[2]& 
->>> 0b11100000)>>  5);
->>> +    __u8 e =   raw[2]&  0b00000111;
->>
->> This won't compile with gcc 3.4 which we still support. Maybe time to
->> kill the support?
->>
->> ...
-> 
-> Why not?
+Use input_free_device() to free devices that have not been registered.
 
-Beacuse it's a gnu extension added in gcc 4.3. (I though it's in gcc 4.0
-initially, but it's not. So you cannot use it in the kernel code at all.)
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/touchscreen/s3c2410_ts.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-regards,
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index 6085d12..8feb7f3 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -350,7 +350,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+  err_tcirq:
+ 	free_irq(ts.irq_tc, ts.input);
+  err_inputdev:
+-	input_unregister_device(ts.input);
++	input_free_device(ts.input);
+  err_iomap:
+ 	iounmap(ts.io);
+  err_clk:
 -- 
-js
+1.7.2
+
+
+

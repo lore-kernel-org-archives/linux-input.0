@@ -1,43 +1,74 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] hid: Add a hid quirk for input sync override
-Date: Thu, 2 Sep 2010 12:42:27 +0200
-Message-ID: <F657B675-3329-4333-A125-2AE88EC14530@enac.fr>
-References: <1282640084-19217-1-git-send-email-rydberg@euromail.se>  <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz> <4C7E39CC.80402@euromail.se>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH 1/7 v3] HID: magicmouse: don't allow hidinput to
+ initialize the device
+Date: Thu, 2 Sep 2010 08:06:32 -0400
+Message-ID: <AANLkTikb=eNzek-vQ=d3jZxitsbtJ5gD6BNDipAUpUcJ@mail.gmail.com>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
+	<1283306184-28833-2-git-send-email-chase.douglas@canonical.com>
+	<4C7E94F6.9050806@gmail.com>
+	<AANLkTi=z5s8mbjG54930Lxj-O9Of2fXHE6kDJhijyOb7@mail.gmail.com>
+	<4C7F6E26.2030301@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:52660 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751094Ab0IBKmd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 06:42:33 -0400
-In-Reply-To: <4C7E39CC.80402@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4C7F6E26.2030301@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-
-Le 1 sept. 10 =E0 13:32, Henrik Rydberg a =E9crit :
->
-> Sounds good. I suppose Stephane wants to have a say regarding the =20
-> 3m driver
-> first, but no rush.
-
-I was pretty happy with the general principles (after your =20
-clarifications about single touch emulation), and said to myself that =20
-I would look into the code and test at my convenience later. Then =20
-Jiri asked me to Ack the patch and so I feel obliged to test. I hope =20
-to find the time tomorrow, Friday being the day when I have access to =20
-a 3M panel.
-
-Cheers,
-
-St.
-
+On Thu, Sep 2, 2010 at 5:28 AM, Jiri Slaby wrote:
+> On 09/02/2010 01:57 AM, Michael Poole wrote:
+>> Jiri Slaby wrote:
+>>> This looks weird. Is there any past discussion about why you cannot=
+ use
+>>> hidinput and you have to do all the input bits yourself while cheat=
+ing
+>>> this very weird way?
+>>
+>> The Magic Mouse and Magic Trackpad do not publish HID descriptors fo=
+r
+>> the multitouch reports. =A0Given the variable-length report packets =
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> and especially the Magic Trackpad's new, mutant DOUBLE_REPORT_ID
+>> packets -- it would be non-trivial to write accurate descriptors tha=
+t
+>> the HID core can use. =A0(Someone wrote a patch to try that a few mo=
+nths
+>> ago. =A0It ended up adding significantly more lines to hid-magicmous=
+e.c
+>> than it removed, and it was not obvious to me that it got the Report
+>> Count fields correct.)
+>
+> Ok, makes sense. The proper solution is to call a driver hook in
+> hidinput_connect to do the mapping instead of report parsing done the=
+re,
+> right? (And not setting [gs]etkeycode in that case.)
+
+I do not know how this would work with the current HID core; could you
+elaborate?  For the Magic Mouse, there is a valid descriptor for the
+0x10 (traditional mouse motion and clicks) report, and a pretty
+trivial descriptor in the vendor-defined usage region (which I assume
+Apple drivers use to identify the ensemble of multi-touch,
+mouse-up/down, laser status and battery level reports).  How would the
+driver's input_mapping() hook, or any other hook, map that single
+descriptor into fields for each of the parts of a multi-touch report,
+or support the other reports?  How would hid-magicmouse describe the
+report so that hid-core handles the variable-length multi-touch
+reports properly?  As far as I can tell, hid_report_raw_event() and
+its callees assume each report has fixed length.
+
+> Then the part of magicmouse_setup_input starting at the first __set_b=
+it
+> will be exactly the hook.
+>
+> Otherwise this hack looks like a hard cross-layer breakage.
+>
+> /me wonders how HID issuers are creative in breaking standards.
+
+In Apple's case, apparently fairly creative.  Devices from other
+sources seem to generate one report per touch, rather than cram as
+many touches as possible into a single report.
+
+Michael Poole

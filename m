@@ -1,41 +1,60 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [RFC] Input: wm97xx-core - Remove save state from
- wm97xx_read_aux_adc()
-Date: Thu, 2 Sep 2010 17:16:01 +0100
-Message-ID: <20100902161600.GF5809@rakim.wolfsonmicro.main>
-References: <1283352730-15509-1-git-send-email-emillbrandt@dekaresearch.com>
- <20100901171925.GA22444@rakim.wolfsonmicro.main>
- <0A40042D85E7C84DB443060EC44B3FD3254AA09E7F@dekaexchange07.deka.local>
- <20100901184650.GH22444@rakim.wolfsonmicro.main>
- <0A40042D85E7C84DB443060EC44B3FD3254AA09E80@dekaexchange07.deka.local>
- <20100902144035.GB5809@rakim.wolfsonmicro.main>
- <0A40042D85E7C84DB443060EC44B3FD3254AA09E84@dekaexchange07.deka.local>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: add support for PowerOn(PonKey) button on the
+ AB8500 MFD
+Date: Thu, 2 Sep 2010 10:22:23 -0700
+Message-ID: <20100902172222.GA17386@core.coreip.homeip.net>
+References: <1283326551-13751-1-git-send-email-sundar.iyer@stericsson.com>
+ <20100901165142.GB6908@core.coreip.homeip.net>
+ <20100902065537.GA26429@bnru01.bnr.st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50162 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752971Ab0IBQQE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Sep 2010 12:16:04 -0400
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:42951 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751966Ab0IBRW3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 13:22:29 -0400
+Received: by iwn5 with SMTP id 5so688585iwn.19
+        for <linux-input@vger.kernel.org>; Thu, 02 Sep 2010 10:22:28 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <0A40042D85E7C84DB443060EC44B3FD3254AA09E84@dekaexchange07.deka.local>
+In-Reply-To: <20100902065537.GA26429@bnru01.bnr.st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Millbrandt <emillbrandt@dekaresearch.com>
-Cc: Liam Girdwood <lrg@slimlogic.co.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Rabin Vincent <rabin.vincent@stericsson.com>
+Cc: Sundar R IYER <sundar.iyer@stericsson.com>, "sameo@linux.intel.com" <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On Thu, Sep 02, 2010 at 11:32:29AM -0400, Eric Millbrandt wrote:
+On Thu, Sep 02, 2010 at 12:25:37PM +0530, Rabin Vincent wrote:
+> On Wed, Sep 01, 2010 at 18:51:42 +0200, Dmitry Torokhov wrote:
+> > On Wed, Sep 01, 2010 at 01:05:51PM +0530, Sundar Iyer wrote:
+> > > +	ret = request_threaded_irq(info->irq_dbr, NULL, ab8500_ponkey_handler,
+> > > +					0, "ab8500-ponkey-dbr", info);
+> > > +	if (ret < 0) {
+> > > +		dev_err(ab8500->dev, "Failed to request dbr IRQ#%d: %d\n",
+> > > +				info->irq_dbr, ret);
+> > > +		goto out_irq_dbf;
+> > > +	}
+> > > +
+> > 
+> > Why threaded IRQs? The interrupt handlers do not do _anything_ except for
+> > passing the event up. Do you really think that starting 2 kernel threads
+> > to handle 1 button is the best use of the resources???
+> 
+> Because the parent MFD uses nested threads for handling interrupts, you
+> must specify a thread function.  No new thread is started; this
+> interrupt handler is called from the parent MFD's interrupt thread.
+> 
 
-> It does.  So I will modify wm97xx_read_aux_adc() to do the following:
+I see.
 
-> -Call poll_sample()
-> -If the return value is not RC_VALID call poll_sample() again
-> -If after 5 tries (I'm not sure how many samples can be queued) we have
-> not succeeded, stop the digitizer and return -1.
-> -Otherwise return auxadc.
+> > 
+> > I'll change it to use normal interrupts locally, no need to resubmit.
+> 
+> Changing it to request_irq() will cause it to fail, because __setup_irq
+> will error out if this is a nested thread interrupt and no interrupt
+> thread is specified.  request_any_context_irq() should work, if you
+> would like to get rid of explicitly asking for a threaded irq.
+> 
 
-> If this sounds reasonable I will create a patch for review.
+OK, request_any_context_irq() it is then.
 
-Yup.  I'd return -EBUSY or something rather than a made up error code.
-5 seems like a reasonable number of times to try.
+-- 
+Dmitry

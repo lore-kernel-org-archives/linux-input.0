@@ -1,42 +1,35 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: s3c2410_ts - fix s3c2410ts_probe error path
-Date: Thu, 02 Sep 2010 16:25:16 +0800
-Message-ID: <1283415916.19272.1.camel@mola>
+Subject: [PATCH] Input: wm97xx-core - use platform_device_del instead of
+	platform_device_unregister for error handling
+Date: Thu, 02 Sep 2010 16:27:09 +0800
+Message-ID: <1283416029.19272.3.camel@mola>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:50837 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751091Ab0IBIVV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 04:21:21 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ben Dooks <ben-linux@fluff.org>, Arnaud Patard <arnaud.patard@rtp-net.org>, Simtec Electronics <linux@simtec.co.uk>, linux-input@vger.kernel.org
-
-Use input_free_device() to free devices that have not been registered.
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@slimlogic.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/input/touchscreen/s3c2410_ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/wm97xx-core.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index 6085d12..8feb7f3 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -350,7 +350,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
-  err_tcirq:
- 	free_irq(ts.irq_tc, ts.input);
-  err_inputdev:
--	input_unregister_device(ts.input);
-+	input_free_device(ts.input);
-  err_iomap:
- 	iounmap(ts.io);
-  err_clk:
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index cbfef1e..770537c 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -684,8 +684,7 @@ static int wm97xx_probe(struct device *dev)
+  touch_reg_err:
+ 	platform_device_put(wm->touch_dev);
+  touch_err:
+-	platform_device_unregister(wm->battery_dev);
+-	wm->battery_dev = NULL;
++	platform_device_del(wm->battery_dev);
+  batt_reg_err:
+ 	platform_device_put(wm->battery_dev);
+  batt_err:
 -- 
 1.7.2
-
-
-

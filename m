@@ -1,17 +1,17 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
 Subject: Re: [PATCH] identify firmware version
-Date: Thu, 02 Sep 2010 14:00:31 -0400
-Message-ID: <4C7FE63F.5010709@seas.upenn.edu>
-References: <20100901020634.GD23585@core.coreip.homeip.net> <1283334517-15121-1-git-send-email-rafi@seas.upenn.edu> <4C7EB3A3.7050402@gmail.com> <4C7EEBEE.5030203@seas.upenn.edu> <4C7F5A4C.5040700@gmail.com>
+Date: Thu, 02 Sep 2010 14:11:05 -0400
+Message-ID: <4C7FE8B9.4000607@seas.upenn.edu>
+References: <20100901020634.GD23585@core.coreip.homeip.net> <1283334517-15121-1-git-send-email-rafi@seas.upenn.edu> <4C7EB3A3.7050402@gmail.com> <4C7EEBEE.5030203@seas.upenn.edu> <4C7F5A4C.5040700@gmail.com> <4C7FE63F.5010709@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fox.seas.upenn.edu ([158.130.68.12]:42772 "EHLO
-	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752825Ab0IBSBB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 14:01:01 -0400
-In-Reply-To: <4C7F5A4C.5040700@gmail.com>
+Received: from talbot.seas.upenn.edu ([158.130.67.217]:36381 "EHLO
+	talbot.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752431Ab0IBSLW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 14:11:22 -0400
+In-Reply-To: <4C7FE63F.5010709@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Slaby <jirislaby@gmail.com>
@@ -20,51 +20,52 @@ Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, lin
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 09/02/10 04:03, Jiri Slaby wrote:
-> On 09/02/2010 02:12 AM, Rafi Rubin wrote:
->>
->>
->> On 09/01/2010 04:12 PM, Jiri Slaby wrote:
->>> On 09/01/2010 11:48 AM, Rafi Rubin wrote:
->>>> --- a/drivers/hid/hid-ntrig.c
->>>> +++ b/drivers/hid/hid-ntrig.c
->>>> @@ -90,6 +90,26 @@ struct ntrig_data {
->>>>   };
->>>>
->>>>
->>>> +/*
->>>> + * This function converts the 4 byte raw firmware code into
->>>> + * a string containing 5 comma separated numbers.
->>>> + */
->>>> +static int ntrig_version_string(unsigned char *raw, char *buf)
->>>> +{
->>>> +    __u8 a =  (raw[1]&  0b00001110)>>  1;
->>>> +    __u8 b =  (raw[0]&  0b00111100)>>  2;
->>>> +    __u8 c = ((raw[0]&  0b00000011)<<  3) | ((raw[3]& 
->>>> 0b11100000)>>  5);
->>>> +    __u8 d = ((raw[3]&  0b00000111)<<  3) | ((raw[2]& 
->>>> 0b11100000)>>  5);
->>>> +    __u8 e =   raw[2]&  0b00000111;
+On 09/02/10 14:00, Rafi Rubin wrote:
+> On 09/02/10 04:03, Jiri Slaby wrote:
+>> On 09/02/2010 02:12 AM, Rafi Rubin wrote:
 >>>
->>> This won't compile with gcc 3.4 which we still support. Maybe time to
->>> kill the support?
 >>>
->>> ...
->>
->> Why not?
+>>> On 09/01/2010 04:12 PM, Jiri Slaby wrote:
+>>>> On 09/01/2010 11:48 AM, Rafi Rubin wrote:
+>>>>> --- a/drivers/hid/hid-ntrig.c
+>>>>> +++ b/drivers/hid/hid-ntrig.c
+>>>>> @@ -90,6 +90,26 @@ struct ntrig_data {
+>>>>>   };
+>>>>>
+>>>>>
+>>>>> +/*
+>>>>> + * This function converts the 4 byte raw firmware code into
+>>>>> + * a string containing 5 comma separated numbers.
+>>>>> + */
+>>>>> +static int ntrig_version_string(unsigned char *raw, char *buf)
+>>>>> +{
+>>>>> +    __u8 a =  (raw[1]&  0b00001110)>>  1;
+>>>>> +    __u8 b =  (raw[0]&  0b00111100)>>  2;
+>>>>> +    __u8 c = ((raw[0]&  0b00000011)<<  3) | ((raw[3]& 
+>>>>> 0b11100000)>>  5);
+>>>>> +    __u8 d = ((raw[3]&  0b00000111)<<  3) | ((raw[2]& 
+>>>>> 0b11100000)>>  5);
+>>>>> +    __u8 e =   raw[2]&  0b00000111;
+>>>>
+>>>> This won't compile with gcc 3.4 which we still support. Maybe time to
+>>>> kill the support?
+>>>>
+>>>> ...
+>>>
+>>> Why not?
 > 
-> Beacuse it's a gnu extension added in gcc 4.3. (I though it's in gcc 4.0
-> initially, but it's not. So you cannot use it in the kernel code at all.)
+>> Beacuse it's a gnu extension added in gcc 4.3. (I though it's in gcc 4.0
+>> initially, but it's not. So you cannot use it in the kernel code at all.)
+> 
+> Sorry, would you please clarify "it".  Which bit of syntax in that code is
+> unsupported by the older versions of gcc?
 
-Sorry, would you please clarify "it".  Which bit of syntax in that code is
-unsupported by the older versions of gcc?
-
-Rafi
+I have verified its the binary notation that gcc-3.4 does not support.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkx/5j8ACgkQwuRiAT9o60/uiACfTJkcLG/0m/4WQpBi82ugunc3
-WY4AoIpJglKNJRm4ST1VP5nE+AiMAMJ0
-=k6/0
+iEYEARECAAYFAkx/6LcACgkQwuRiAT9o608A9gCdHKerwZIDMBVgsmBkLU1WEhVU
+oFsAoKz18MHUfIKSjkWErU4ZDktMCjZX
+=1T0c
 -----END PGP SIGNATURE-----

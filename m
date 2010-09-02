@@ -1,40 +1,38 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [RFC] Input: wm97xx-core - Remove save state from
- wm97xx_read_aux_adc()
-Date: Thu, 2 Sep 2010 15:40:35 +0100
-Message-ID: <20100902144035.GB5809@rakim.wolfsonmicro.main>
-References: <1283352730-15509-1-git-send-email-emillbrandt@dekaresearch.com>
- <20100901171925.GA22444@rakim.wolfsonmicro.main>
- <0A40042D85E7C84DB443060EC44B3FD3254AA09E7F@dekaexchange07.deka.local>
- <20100901184650.GH22444@rakim.wolfsonmicro.main>
- <0A40042D85E7C84DB443060EC44B3FD3254AA09E80@dekaexchange07.deka.local>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 4/7 v3] HID: magicmouse: simplify touch down logic
+Date: Thu, 2 Sep 2010 16:50:51 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009021650170.26813@pobox.suse.cz>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>  <1283306184-28833-5-git-send-email-chase.douglas@canonical.com> <1283307807.16204.3.camel@graviton>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40777 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754373Ab0IBOki (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Sep 2010 10:40:38 -0400
-Content-Disposition: inline
-In-Reply-To: <0A40042D85E7C84DB443060EC44B3FD3254AA09E80@dekaexchange07.deka.local>
+Received: from cantor2.suse.de ([195.135.220.15]:33185 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751593Ab0IBOux (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Sep 2010 10:50:53 -0400
+In-Reply-To: <1283307807.16204.3.camel@graviton>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Millbrandt <emillbrandt@dekaresearch.com>
-Cc: Liam Girdwood <lrg@slimlogic.co.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Michael Poole <mdpoole@troilus.org>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2010 at 03:17:27PM -0400, Eric Millbrandt wrote:
+On Tue, 31 Aug 2010, Michael Poole wrote:
 
-> The problem there is the return value of poll_sample currently is not
-> being checked, so wm97xx_read_aux_adc() is returning invalid data.  That
-> could be fixed to either keep polling until RC_VALID or a timeout is hit
-> is returned or return an error to the calling function and letting it
-> decide what to do.  I don't like the second option because it creates a
-> pathologic failure:
+> On Tue, 2010-08-31 at 21:56 -0400, Chase Douglas wrote:
+> > From: Chase Douglas <chase.douglas@ubuntu.com>
+> > 
+> > For the MT protocol, we need to properly keep track of each down touch.
+> > This change simplifies the logic, and should make things easier when
+> > support for the Magic Trackpad is added.
+> > 
+> > Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> 
+> Thanks, this looks slightly cleaner than what I had in mind.
+> 
+> Acked-by: Michael Poole <mdpoole@troilus.org>
 
-I think (without having thought through it all so I may have missed
-something) that the best thing for the pathalogical case is to have a
-limited number of goes at restoring things and then just stop the
-digitiser - that will leave things restored while still providing a
-guaranteed exit case which should be recoverable (since everything will
-be halted).  Does that seem sensible to you?
+Applied ('magicmouse' branch). Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

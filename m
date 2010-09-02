@@ -1,43 +1,49 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: Input: tps6507x-ts - add missing platform_set_drvdata() in
-	tps6507x_ts_probe()
-Date: Thu, 02 Sep 2010 17:20:41 +0800
-Message-ID: <1283419241.19272.9.camel@mola>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 1/7 v3] HID: magicmouse: don't allow hidinput to initialize
+ the device
+Date: Thu, 02 Sep 2010 11:28:06 +0200
+Message-ID: <4C7F6E26.2030301@gmail.com>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>	<1283306184-28833-2-git-send-email-chase.douglas@canonical.com>	<4C7E94F6.9050806@gmail.com> <AANLkTi=z5s8mbjG54930Lxj-O9Of2fXHE6kDJhijyOb7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:56581 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751677Ab0IBJQn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 05:16:43 -0400
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:34683 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751677Ab0IBJ2K (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 05:28:10 -0400
+In-Reply-To: <AANLkTi=z5s8mbjG54930Lxj-O9Of2fXHE6kDJhijyOb7@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Todd Fischer <todd.fischer@ridgerun.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Michael Poole <mdpoole@troilus.org>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-We call platform_get_drvdata() in tps6507x_ts_remove(),
-thus we should call platform_set_drvdata() in tps6507x_ts_probe().
+On 09/02/2010 01:57 AM, Michael Poole wrote:
+> Jiri Slaby wrote:
+>> This looks weird. Is there any past discussion about why you cannot use
+>> hidinput and you have to do all the input bits yourself while cheating
+>> this very weird way?
+> 
+> The Magic Mouse and Magic Trackpad do not publish HID descriptors for
+> the multitouch reports.  Given the variable-length report packets --
+> and especially the Magic Trackpad's new, mutant DOUBLE_REPORT_ID
+> packets -- it would be non-trivial to write accurate descriptors that
+> the HID core can use.  (Someone wrote a patch to try that a few months
+> ago.  It ended up adding significantly more lines to hid-magicmouse.c
+> than it removed, and it was not obvious to me that it got the Report
+> Count fields correct.)
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/touchscreen/tps6507x-ts.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Ok, makes sense. The proper solution is to call a driver hook in
+hidinput_connect to do the mapping instead of report parsing done there,
+right? (And not setting [gs]etkeycode in that case.)
 
-diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-index a644d18..7286209 100644
---- a/drivers/input/touchscreen/tps6507x-ts.c
-+++ b/drivers/input/touchscreen/tps6507x-ts.c
-@@ -335,6 +335,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 		dev_err(tsc->dev, "schedule failed");
- 		goto err2;
- 	 }
-+	platform_set_drvdata(pdev, tps6507x_dev);
- 
- 	return 0;
- 
+Then the part of magicmouse_setup_input starting at the first __set_bit
+will be exactly the hook.
+
+Otherwise this hack looks like a hard cross-layer breakage.
+
+/me wonders how HID issuers are creative in breaking standards.
+
+regards,
 -- 
-1.7.2
-
-
-
+js

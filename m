@@ -1,73 +1,50 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v3] input: Add support for Hanwang tablet
-Date: Thu, 2 Sep 2010 16:30:27 +1000
-Message-ID: <20100902063027.GA28409@barra.bne.redhat.com>
-References: <201009021229501252232@hanwang.com.cn>
- <20100902062030.GA9416@core.coreip.homeip.net>
- <20100902062403.GA10087@core.coreip.homeip.net>
+From: Rabin Vincent <rabin.vincent@stericsson.com>
+Subject: Re: [PATCH] input: add support for PowerOn(PonKey) button on the
+ AB8500 MFD
+Date: Thu, 2 Sep 2010 12:25:37 +0530
+Message-ID: <20100902065537.GA26429@bnru01.bnr.st.com>
+References: <1283326551-13751-1-git-send-email-sundar.iyer@stericsson.com>
+ <20100901165142.GB6908@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:56291 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751881Ab0IBGaJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 02:30:09 -0400
+Received: from eu1sys200aog110.obsmtp.com ([207.126.144.129]:49654 "EHLO
+	eu1sys200aog110.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751649Ab0IBGz7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Sep 2010 02:55:59 -0400
 Content-Disposition: inline
-In-Reply-To: <20100902062403.GA10087@core.coreip.homeip.net>
+In-Reply-To: <20100901165142.GB6908@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Xing Wei <weixing@hanwang.com.cn>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, jkosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@redhat.com>, Ping Cheng <pingc@wacom.com>
+Cc: Sundar R IYER <sundar.iyer@stericsson.com>, "sameo@linux.intel.com" <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On Wed, Sep 01, 2010 at 11:24:04PM -0700, Dmitry Torokhov wrote:
-> On Wed, Sep 01, 2010 at 11:20:30PM -0700, Dmitry Torokhov wrote:
-> > On Thu, Sep 02, 2010 at 12:29:50PM +0800, Xing Wei wrote:
-> > > On Wed, Sep 01, 2010 mitry Torokhov wrote:
-> > > > Hi Xing,
-> > > > 
-> > > > On Wed, Sep 01, 2010 at 02:55:44PM +0800, Xing Wei wrote:
-> > > > > Hi Dmitry, it works well and I really appreciate your work. 
-> > > > > BTN_3 - BTN_8 & ABS_DISTANCE events are not handled & used in our X system driver by now,
-> > > > > sorry for my mistake.
-> > > > >
-> > > > 
-> > > > Just to avoid confusion - are BTN_3 - BTN_8 not used by your X driver or
-> > > > the hardware does not really report them? Because if it the former then
-> > > > we should continue reporting them - some other user (as in
-> > > > program/driver) might be interested in these.
-> > > > 
-> > > > Also, why do you develop your own X driver? Does not X's evdev driver
-> > > > work properly for you?
-> > > > 
-> > > > Thanks.
-> > > >  
-> > > > 
-> > > 
-> > > Hi Dmitry, the hardware does really report BTN_3 - BTN_8.
-> > 
-> > OK, then we should keep reporting them then. I will add the patch to my
-> > 'next' branch and it should show up in 2.6.37.
-> > 
-> > > And I try to let the evdev driver(remove my X driver & .conf file ) take over the device,
-> > > but seem like it has no reflection to the pressure and roll wheel pad,just run like a generic mouse.
-> > > 
-> > 
-> > Then I suggest looking into modifying evdev so that it properly works
-> > with your device. I think Peter Hutterer (CCed) is the man you need to
-> > talk to.
-> > 
+On Wed, Sep 01, 2010 at 18:51:42 +0200, Dmitry Torokhov wrote:
+> On Wed, Sep 01, 2010 at 01:05:51PM +0530, Sundar Iyer wrote:
+> > +	ret = request_threaded_irq(info->irq_dbr, NULL, ab8500_ponkey_handler,
+> > +					0, "ab8500-ponkey-dbr", info);
+> > +	if (ret < 0) {
+> > +		dev_err(ab8500->dev, "Failed to request dbr IRQ#%d: %d\n",
+> > +				info->irq_dbr, ret);
+> > +		goto out_irq_dbf;
+> > +	}
+> > +
 > 
-> Hmm, another option is maybe getting wacom X driver to work with your
-> device.
+> Why threaded IRQs? The interrupt handlers do not do _anything_ except for
+> passing the event up. Do you really think that starting 2 kernel threads
+> to handle 1 button is the best use of the resources???
 
-I agree, the evdev driver will handle the device but likely not in the
-manner desired. It'll simply export all buttons and axes but on a single
-device. The wacom X driver will split into multiple X devices so that the
-stylus is exported as a different device than the wheel + buttons (that's
-how wacom does it, anyway).
+Because the parent MFD uses nested threads for handling interrupts, you
+must specify a thread function.  No new thread is started; this
+interrupt handler is called from the parent MFD's interrupt thread.
 
-Note that some tweaks to the wacom driver are likely needed, Xing, please
-contact me off-list to get this started.
+> 
+> I'll change it to use normal interrupts locally, no need to resubmit.
 
-Cheers,
-  Peter
+Changing it to request_irq() will cause it to fail, because __setup_irq
+will error out if this is a nested thread interrupt and no interrupt
+thread is specified.  request_any_context_irq() should work, if you
+would like to get rid of explicitly asking for a threaded irq.
+
+Rabin

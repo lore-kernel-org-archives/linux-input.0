@@ -1,25 +1,54 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: wm97xx-core - use platform_device_del instead
- of platform_device_unregister for error handling
-Date: Thu, 2 Sep 2010 13:23:37 +0100
-Message-ID: <20100902122337.GI22444@rakim.wolfsonmicro.main>
-References: <1283416029.19272.3.camel@mola>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: Add a hid quirk for input sync override
+Date: Thu, 2 Sep 2010 16:30:48 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009021630000.26813@pobox.suse.cz>
+References: <1282640084-19217-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz> <4C7E39CC.80402@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:46468 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752659Ab0IBMXj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Sep 2010 08:23:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1283416029.19272.3.camel@mola>
+Received: from cantor2.suse.de ([195.135.220.15]:60666 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750761Ab0IBOau (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Sep 2010 10:30:50 -0400
+In-Reply-To: <4C7E39CC.80402@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
-On Thu, Sep 02, 2010 at 04:27:09PM +0800, Axel Lin wrote:
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+On Wed, 1 Sep 2010, Henrik Rydberg wrote:
 
-Acked-by: Mark Brown <broonie@opensoruce.wolfsonmicro.com>
+> >> As of lately, HID devices which send per-frame data split over several
+> >> HID reports have started to emerge. This patch adds a quirk which
+> >> allows the HID driver to take over the input layer synchronization,
+> >> and hence the control of the frame boundary.
+> >>
+> >> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> >> ---
+> >> Jiri, Dmitry, Stephane,
+> >>
+> >> No doubt, this is not a final solution, but it serves the purpose of
+> >> being able to make existing drivers functional while a satisfactory
+> >> solution is being worked out.
+> > 
+> > Hi Henrik,
+> > 
+> > I obviously don't have any major objections to the patch, as it was my 
+> > initial idea :)
+> 
+> 
+> Ah! Then all is fine. :-)
+> 
+> > 
+> > I'd like to merge it together with driver which actually uses it though.
+> 
+> 
+> Sounds good. I suppose Stephane wants to have a say regarding the 3m driver
+> first, but no rush. What version are you targeting?
+
+2.6.37 looks reasonable if everything it agreed upon in the following 
+week(s).
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

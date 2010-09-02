@@ -1,50 +1,46 @@
-From: Rabin Vincent <rabin.vincent@stericsson.com>
-Subject: Re: [PATCH] input: add support for PowerOn(PonKey) button on the
- AB8500 MFD
-Date: Thu, 2 Sep 2010 12:25:37 +0530
-Message-ID: <20100902065537.GA26429@bnru01.bnr.st.com>
-References: <1283326551-13751-1-git-send-email-sundar.iyer@stericsson.com>
- <20100901165142.GB6908@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] hid/hid-sony: Apply sixaxis quirks only to sixaxis
+Date: Thu, 2 Sep 2010 09:41:29 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009020941120.26813@pobox.suse.cz>
+References: <1272917756-31098-1-git-send-email-ospite@studenti.unina.it> <1272917756-31098-2-git-send-email-ospite@studenti.unina.it> <1283357615.2361.20.camel@localhost.localdomain> <20100901192055.2f23c8c7.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog110.obsmtp.com ([207.126.144.129]:49654 "EHLO
-	eu1sys200aog110.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751649Ab0IBGz7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Sep 2010 02:55:59 -0400
-Content-Disposition: inline
-In-Reply-To: <20100901165142.GB6908@core.coreip.homeip.net>
+Received: from cantor.suse.de ([195.135.220.2]:35680 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751131Ab0IBHlb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Sep 2010 03:41:31 -0400
+In-Reply-To: <20100901192055.2f23c8c7.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sundar R IYER <sundar.iyer@stericsson.com>, "sameo@linux.intel.com" <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, cbe-oss-dev@lists.ozlabs.org
 
-On Wed, Sep 01, 2010 at 18:51:42 +0200, Dmitry Torokhov wrote:
-> On Wed, Sep 01, 2010 at 01:05:51PM +0530, Sundar Iyer wrote:
-> > +	ret = request_threaded_irq(info->irq_dbr, NULL, ab8500_ponkey_handler,
-> > +					0, "ab8500-ponkey-dbr", info);
-> > +	if (ret < 0) {
-> > +		dev_err(ab8500->dev, "Failed to request dbr IRQ#%d: %d\n",
-> > +				info->irq_dbr, ret);
-> > +		goto out_irq_dbf;
-> > +	}
-> > +
+On Wed, 1 Sep 2010, Antonio Ospite wrote:
+
+> > > Be more explicit and avoid calling sony_set_operational_usb() when we
+> > > have USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE.
+> > > 
+> > > While at it, rename the sony_set_operational routines to
+> > > sixaxis_set_operational as they are sixaxis specific.
+> > > 
+> > > This is also in preparation for the sysfs interface to set and get bdaddr
+> > > over usb and for some other Sixaxis report fixup.
+> > > 
+> > > Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+> > 
+> > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> >
 > 
-> Why threaded IRQs? The interrupt handlers do not do _anything_ except for
-> passing the event up. Do you really think that starting 2 kernel threads
-> to handle 1 button is the best use of the resources???
-
-Because the parent MFD uses nested threads for handling interrupts, you
-must specify a thread function.  No new thread is started; this
-interrupt handler is called from the parent MFD's interrupt thread.
-
+> Thanks Bastien for bringing this up again, I was going to repost
+> this patch sometime this month.
 > 
-> I'll change it to use normal interrupts locally, no need to resubmit.
+> Added Jiri to CC as I forgot to do that back then.
 
-Changing it to request_irq() will cause it to fail, because __setup_irq
-will error out if this is a nested thread interrupt and no interrupt
-thread is specified.  request_any_context_irq() should work, if you
-would like to get rid of explicitly asking for a threaded irq.
+Thanks, I have missed that one on linux-input@.
 
-Rabin
+Applied now.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,71 +1,79 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] identify firmware version
-Date: Thu, 02 Sep 2010 14:11:05 -0400
-Message-ID: <4C7FE8B9.4000607@seas.upenn.edu>
-References: <20100901020634.GD23585@core.coreip.homeip.net> <1283334517-15121-1-git-send-email-rafi@seas.upenn.edu> <4C7EB3A3.7050402@gmail.com> <4C7EEBEE.5030203@seas.upenn.edu> <4C7F5A4C.5040700@gmail.com> <4C7FE63F.5010709@seas.upenn.edu>
+From: Eric Millbrandt <emillbrandt@dekaresearch.com>
+Subject: [PATCH] Input: wm97xx-core - add retries to wm97xx_read_aux_adc
+Date: Thu, 2 Sep 2010 14:12:06 -0400
+Message-ID: <1283451126-26669-1-git-send-email-emillbrandt@dekaresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from talbot.seas.upenn.edu ([158.130.67.217]:36381 "EHLO
-	talbot.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752431Ab0IBSLW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Sep 2010 14:11:22 -0400
-In-Reply-To: <4C7FE63F.5010709@seas.upenn.edu>
+Received: from mail.dekaresearch.com ([208.65.175.196]:12869 "EHLO
+	dekaexchange07.deka.local" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753152Ab0IBSSV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Sep 2010 14:18:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
+To: Liam Girdwood <lrg@slimlogic.co.uk>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, Eric Millbrandt <emillbrandt@dekaresearch.com>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Add logic to wm97xx_read_aux_adc() to retry reading the adc if the
+sample failed.  This could occur if the previous sample was still in
+the return register or the sample timed-out.  Also avoid a pathologic
+failure mode by disabling the digitizer and returning -EBUSY after 5
+retries.
 
-On 09/02/10 14:00, Rafi Rubin wrote:
-> On 09/02/10 04:03, Jiri Slaby wrote:
->> On 09/02/2010 02:12 AM, Rafi Rubin wrote:
->>>
->>>
->>> On 09/01/2010 04:12 PM, Jiri Slaby wrote:
->>>> On 09/01/2010 11:48 AM, Rafi Rubin wrote:
->>>>> --- a/drivers/hid/hid-ntrig.c
->>>>> +++ b/drivers/hid/hid-ntrig.c
->>>>> @@ -90,6 +90,26 @@ struct ntrig_data {
->>>>>   };
->>>>>
->>>>>
->>>>> +/*
->>>>> + * This function converts the 4 byte raw firmware code into
->>>>> + * a string containing 5 comma separated numbers.
->>>>> + */
->>>>> +static int ntrig_version_string(unsigned char *raw, char *buf)
->>>>> +{
->>>>> +    __u8 a =  (raw[1]&  0b00001110)>>  1;
->>>>> +    __u8 b =  (raw[0]&  0b00111100)>>  2;
->>>>> +    __u8 c = ((raw[0]&  0b00000011)<<  3) | ((raw[3]& 
->>>>> 0b11100000)>>  5);
->>>>> +    __u8 d = ((raw[3]&  0b00000111)<<  3) | ((raw[2]& 
->>>>> 0b11100000)>>  5);
->>>>> +    __u8 e =   raw[2]&  0b00000111;
->>>>
->>>> This won't compile with gcc 3.4 which we still support. Maybe time to
->>>> kill the support?
->>>>
->>>> ...
->>>
->>> Why not?
-> 
->> Beacuse it's a gnu extension added in gcc 4.3. (I though it's in gcc 4.0
->> initially, but it's not. So you cannot use it in the kernel code at all.)
-> 
-> Sorry, would you please clarify "it".  Which bit of syntax in that code is
-> unsupported by the older versions of gcc?
+Signed-off-by: Eric Millbrandt <emillbrandt@dekaresearch.com>
+---
+ drivers/input/touchscreen/wm97xx-core.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
 
-I have verified its the binary notation that gcc-3.4 does not support.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index cbfef1e..b376cee 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -125,6 +125,8 @@ int wm97xx_read_aux_adc(struct wm97xx *wm, u16 adcsel)
+ {
+        int power_adc = 0, auxval;
+        u16 power = 0;
++       int rc = 0;
++       int timeout = 0;
 
-iEYEARECAAYFAkx/6LcACgkQwuRiAT9o608A9gCdHKerwZIDMBVgsmBkLU1WEhVU
-oFsAoKz18MHUfIKSjkWErU4ZDktMCjZX
-=1T0c
------END PGP SIGNATURE-----
+        /* get codec */
+        mutex_lock(&wm->codec_mutex);
+@@ -143,7 +145,10 @@ int wm97xx_read_aux_adc(struct wm97xx *wm, u16 adcsel)
+
+        /* Turn polling mode on to read AUX ADC */
+        wm->pen_probably_down = 1;
+-       wm->codec->poll_sample(wm, adcsel, &auxval);
++
++       while (rc != RC_VALID && timeout++ < 5) {
++               rc = wm->codec->poll_sample(wm, adcsel, &auxval);
++       }
+
+        if (power_adc)
+                wm97xx_reg_write(wm, AC97_EXTENDED_MID, power | 0x8000);
+@@ -152,8 +157,11 @@ int wm97xx_read_aux_adc(struct wm97xx *wm, u16 adcsel)
+
+        wm->pen_probably_down = 0;
+
++       if (timeout >= 5)
++               wm->codec->dig_enable(wm, false);
++
+        mutex_unlock(&wm->codec_mutex);
+-       return auxval & 0xfff;
++       return (rc == RC_VALID ? auxval & 0xfff : -EBUSY);
+ }
+ EXPORT_SYMBOL_GPL(wm97xx_read_aux_adc);
+
+--
+1.6.3.1
+
+-DISCLAIMER: an automatically appended disclaimer may follow. By posting-
+-to a public e-mail mailing list I hereby grant permission to distribute-
+-and copy this message.-
+
+This e-mail and the information, including any attachments, it contains are intended to be a confidential communication only to the person or entity to whom it is addressed and may contain information that is privileged. If the reader of this message is not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please immediately notify the sender and destroy the original message.
+
+Thank you.
+
+Please consider the environment before printing this email.

@@ -1,136 +1,108 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 2/3] input: wacom: Parse the Bamboo device family
-Date: Thu,  2 Sep 2010 20:18:36 +0200
-Message-ID: <1283451517-1711-3-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 1/3] input: wacom: Add fuzz and scale features
+Date: Thu,  2 Sep 2010 20:18:35 +0200
+Message-ID: <1283451517-1711-2-git-send-email-rydberg@euromail.se>
 References: <1283451517-1711-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:59848 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753264Ab0IBSTM (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:50210 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753264Ab0IBST2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Sep 2010 14:19:12 -0400
+	Thu, 2 Sep 2010 14:19:28 -0400
 In-Reply-To: <1283451517-1711-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-The Bamboo devices have multiple interfaces which need to be setup
-separately. Use the HID parsing mechanism to achieve that.
+The signal-to-noise ratio varies between devices, but currently all
+devices are treated the same way. In addition, some devices report
+very low resolution, which makes the fuzz algorithm ineffective.
+Add fuzz and scale parameters to the feature struct, allowing for
+tailored treatment of devices.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/tablet/wacom_sys.c |   44 ++++++++++++++++++++++++++++++-------
- drivers/input/tablet/wacom_wac.h |    2 +
- 2 files changed, 37 insertions(+), 9 deletions(-)
+ drivers/input/tablet/wacom_sys.c |   12 +++++++++++-
+ drivers/input/tablet/wacom_wac.c |    9 ++++++---
+ drivers/input/tablet/wacom_wac.h |    6 ++++++
+ 3 files changed, 23 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 979170e..76e15d7 100644
+index 42ba369..979170e 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -195,17 +195,30 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
- 							features->pktlen = WACOM_PKGLEN_TPC2FG;
- 							features->device_type = BTN_TOOL_TRIPLETAP;
- 						}
--						features->x_max =
--							get_unaligned_le16(&report[i + 3]);
--						features->x_phy =
--							get_unaligned_le16(&report[i + 6]);
--						features->unit = report[i + 9];
--						features->unitExpo = report[i + 11];
--						i += 12;
-+						if (features->type == BAMBOO_PT) {
-+							/* need to reset back */
-+							features->pktlen = WACOM_PKGLEN_BBTOUCH;
-+							features->device_type = BTN_TOOL_TRIPLETAP;
-+							features->x_phy =
-+								get_unaligned_le16(&report[i + 5]);
-+							features->x_max =
-+								get_unaligned_le16(&report[i + 8]);
-+							i += 15;
-+						} else {
-+							features->x_max =
-+								get_unaligned_le16(&report[i + 3]);
-+							features->x_phy =
-+								get_unaligned_le16(&report[i + 6]);
-+							features->unit = report[i + 9];
-+							features->unitExpo = report[i + 11];
-+							i += 12;
-+						}
- 					} else if (pen) {
- 						/* penabled only accepts exact bytes of data */
- 						if (features->type == TABLETPC2FG)
- 							features->pktlen = WACOM_PKGLEN_GRAPHIRE;
-+						if (features->type == BAMBOO_PT)
-+							features->pktlen = WACOM_PKGLEN_BBFUN;
- 						features->device_type = BTN_TOOL_PEN;
- 						features->x_max =
- 							get_unaligned_le16(&report[i + 3]);
-@@ -236,6 +249,15 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
- 							features->y_phy =
- 								get_unaligned_le16(&report[i + 6]);
- 							i += 7;
-+						} else if (features->type == BAMBOO_PT) {
-+							/* need to reset back */
-+							features->pktlen = WACOM_PKGLEN_BBTOUCH;
-+							features->device_type = BTN_TOOL_TRIPLETAP;
-+							features->y_phy =
-+								get_unaligned_le16(&report[i + 3]);
-+							features->y_max =
-+								get_unaligned_le16(&report[i + 6]);
-+							i += 12;
- 						} else {
- 							features->y_max =
- 								features->x_max;
-@@ -247,6 +269,8 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
- 						/* penabled only accepts exact bytes of data */
- 						if (features->type == TABLETPC2FG)
- 							features->pktlen = WACOM_PKGLEN_GRAPHIRE;
-+						if (features->type == BAMBOO_PT)
-+							features->pktlen = WACOM_PKGLEN_BBFUN;
- 						features->device_type = BTN_TOOL_PEN;
- 						features->y_max =
- 							get_unaligned_le16(&report[i + 3]);
-@@ -347,7 +371,8 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
- 	features->y_scale = 1;
+@@ -219,6 +219,8 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
+ 					features->pressure_max = 255;
+ 					i += 4;
+ 				}
++				features->x_max *= features->x_scale;
++				features->x_fuzz *= features->x_scale;
+ 				break;
+ 
+ 			case HID_USAGE_Y:
+@@ -251,6 +253,8 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
+ 						i += 4;
+ 					}
+ 				}
++				features->y_max *= features->y_scale;
++				features->y_fuzz *= features->y_scale;
+ 				break;
+ 
+ 			case HID_USAGE_FINGER:
+@@ -333,8 +337,14 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+ 	struct hid_descriptor *hid_desc;
+ 
+-	/* default device to penabled */
++	/* default features */
+ 	features->device_type = BTN_TOOL_PEN;
++	features->x_fuzz = 4;
++	features->y_fuzz = 4;
++	features->pressure_fuzz = 0;
++	features->distance_fuzz = 0;
++	features->x_scale = 1;
++	features->y_scale = 1;
  
  	/* only Tablet PCs need to retrieve the info */
--	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
-+	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG) &&
-+	    (features->type != BAMBOO_PT))
- 		goto out;
+ 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 40d77ba..bfe5654 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -951,9 +951,12 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
  
- 	if (usb_get_extra_descriptor(interface, HID_DEVICET_HID, &hid_desc)) {
-@@ -505,7 +530,8 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
  
- 	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
+-	input_set_abs_params(input_dev, ABS_X, 0, features->x_max, 4, 0);
+-	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max, 4, 0);
+-	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max, 0, 0);
++	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
++			     features->x_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
++			     features->y_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max,
++			     features->pressure_fuzz, 0);
  
--	if (features->type == TABLETPC || features->type == TABLETPC2FG) {
-+	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
-+	    features->type == BAMBOO_PT) {
- 		/* Append the device type to the name */
- 		strlcat(wacom_wac->name,
- 			features->device_type == BTN_TOOL_PEN ?
+ 	__set_bit(ABS_MISC, input_dev->absbit);
+ 
 diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 51fce64..ff22e34 100644
+index 99e1a54..51fce64 100644
 --- a/drivers/input/tablet/wacom_wac.h
 +++ b/drivers/input/tablet/wacom_wac.h
-@@ -21,6 +21,7 @@
- #define WACOM_PKGLEN_INTUOS	10
- #define WACOM_PKGLEN_TPC1FG	 5
- #define WACOM_PKGLEN_TPC2FG	14
-+#define WACOM_PKGLEN_BBTOUCH	20
+@@ -73,6 +73,12 @@ struct wacom_features {
+ 	int y_phy;
+ 	unsigned char unit;
+ 	unsigned char unitExpo;
++	int x_fuzz;
++	int y_fuzz;
++	int pressure_fuzz;
++	int distance_fuzz;
++	int x_scale;
++	int y_scale;
+ };
  
- /* device IDs */
- #define STYLUS_DEVICE_ID	0x02
-@@ -44,6 +45,7 @@ enum {
- 	PTU,
- 	PL,
- 	DTU,
-+	BAMBOO_PT,
- 	INTUOS,
- 	INTUOS3S,
- 	INTUOS3,
+ struct wacom_shared {
 -- 
 1.7.1
 

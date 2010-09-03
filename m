@@ -1,103 +1,88 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 3/7 v3] HID: magicmouse: simplify touch data bit
- manipulation
-Date: Fri, 3 Sep 2010 16:07:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009031607330.26813@pobox.suse.cz>
-References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com> <1283306184-28833-4-git-send-email-chase.douglas@canonical.com>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH 5/5] ARM: pxa168: aspenite: add board support for keypad
+Date: Fri, 3 Sep 2010 16:11:16 +0200
+Message-ID: <201009031611.16464.marek.vasut@gmail.com>
+References: <1282814339-10934-1-git-send-email-mark.brown314@gmail.com>
+	<AANLkTi=OkRUmBgx_ezWtGHywGJkFAJsdGLR07v8dgzD7@mail.gmail.com>
+	<AANLkTi=2ZJTy=RD_L0g-HnLF=r27bZLm5hTHemyNQFEi@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:32994 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752941Ab0ICOHn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Sep 2010 10:07:43 -0400
-In-Reply-To: <1283306184-28833-4-git-send-email-chase.douglas@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <AANLkTi=2ZJTy=RD_L0g-HnLF=r27bZLm5hTHemyNQFEi@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "Mark F. Brown" <mark.brown314@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Michael Poole <mdpoole@troilus.org>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2010, Chase Douglas wrote:
-
-> The new format should be easier to read to determine which bits
-> correspond to which data. It also brings all the manipulation logic to
-> the top of the function. This makes size and orientation reading more
-> clear.
-> 
-> Note that the impetus for this change is the forthcoming support for the
-> Magic Trackpad, which has a different touch data protocol.
-> 
-> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> Acked-by: Michael Poole <mdpoole@troilus.org>
-
-Applied, thanks.
-
-> ---
->  drivers/hid/hid-magicmouse.c |   25 +++++++++++++------------
->  1 files changed, 13 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 8a2fe78..2ee59a8 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -166,18 +166,21 @@ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
->  static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tdata)
->  {
->  	struct input_dev *input = msc->input;
-> -	__s32 x_y = tdata[0] << 8 | tdata[1] << 16 | tdata[2] << 24;
-> -	int misc = tdata[5] | tdata[6] << 8;
-> -	int id = (misc >> 6) & 15;
-> -	int x = x_y << 12 >> 20;
-> -	int y = -(x_y >> 20);
-> -	int down = (tdata[7] & TOUCH_STATE_MASK) != TOUCH_STATE_NONE;
-> +	int id = (tdata[6] << 2 | tdata[5] >> 6) & 0xf;
-> +	int x = (tdata[1] << 28 | tdata[0] << 20) >> 20;
-> +	int y = -((tdata[2] << 24 | tdata[1] << 16) >> 20);
-> +	int size = tdata[5] & 0x3f;
-> +	int orientation = (tdata[6] >> 2) - 32;
-> +	int touch_major = tdata[3];
-> +	int touch_minor = tdata[4];
-> +	int state = tdata[7] & TOUCH_STATE_MASK;
-> +	int down = state != TOUCH_STATE_NONE;
->  
->  	/* Store tracking ID and other fields. */
->  	msc->tracking_ids[raw_id] = id;
->  	msc->touches[id].x = x;
->  	msc->touches[id].y = y;
-> -	msc->touches[id].size = misc & 63;
-> +	msc->touches[id].size = size;
->  
->  	/* If requested, emulate a scroll wheel by detecting small
->  	 * vertical touch motions.
-> @@ -188,7 +191,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->  		int step_y = msc->touches[id].scroll_y - y;
->  
->  		/* Calculate and apply the scroll motion. */
-> -		switch (tdata[7] & TOUCH_STATE_MASK) {
-> +		switch (state) {
->  		case TOUCH_STATE_START:
->  			msc->touches[id].scroll_x = x;
->  			msc->touches[id].scroll_y = y;
-> @@ -224,13 +227,11 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->  
->  	/* Generate the input events for this touch. */
->  	if (report_touches && down) {
-> -		int orientation = (misc >> 10) - 32;
-> -
->  		msc->touches[id].down = 1;
->  
->  		input_report_abs(input, ABS_MT_TRACKING_ID, id);
-> -		input_report_abs(input, ABS_MT_TOUCH_MAJOR, tdata[3]);
-> -		input_report_abs(input, ABS_MT_TOUCH_MINOR, tdata[4]);
-> +		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major);
-> +		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor);
->  		input_report_abs(input, ABS_MT_ORIENTATION, orientation);
->  		input_report_abs(input, ABS_MT_POSITION_X, x);
->  		input_report_abs(input, ABS_MT_POSITION_Y, y);
-> -- 
-> 1.7.1
-> 
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+RG5lIFDDoSAzLiB6w6HFmcOtIDIwMTAgMDY6NTA6MjggTWFyayBGLiBCcm93biBuYXBzYWwoYSk6
+Cj4gT24gVHVlLCBBdWcgMzEsIDIwMTAgYXQgMTowMCBBTSwgSGFvamlhbiBaaHVhbmcKPiAKPiA8
+aGFvamlhbi56aHVhbmdAZ21haWwuY29tPiB3cm90ZToKPiA+IE9uIFRodSwgQXVnIDI2LCAyMDEw
+IGF0IDU6MTggUE0sIE1hcmsgRi4gQnJvd24gPG1hcmsuYnJvd24zMTRAZ21haWwuY29tPiAKd3Jv
+dGU6Cj4gPj4gU2lnbmVkLW9mZi1ieTogTWFyayBGLiBCcm93biA8bWFyay5icm93bjMxNEBnbWFp
+bC5jb20+Cj4gPj4gLS0tCj4gPj4gIGFyY2gvYXJtL21hY2gtbW1wL2FzcGVuaXRlLmMgfCAgIDI3
+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ID4+ICAxIGZpbGVzIGNoYW5nZWQsIDI3IGlu
+c2VydGlvbnMoKyksIDAgZGVsZXRpb25zKC0pCj4gPj4gCj4gPj4gZGlmZiAtLWdpdCBhL2FyY2gv
+YXJtL21hY2gtbW1wL2FzcGVuaXRlLmMgYi9hcmNoL2FybS9tYWNoLW1tcC9hc3Blbml0ZS5jCj4g
+Pj4gaW5kZXggOWUxYmQ2Yi4uMWI3ODhjNSAxMDA2NDQKPiA+PiAtLS0gYS9hcmNoL2FybS9tYWNo
+LW1tcC9hc3Blbml0ZS5jCj4gPj4gKysrIGIvYXJjaC9hcm0vbWFjaC1tbXAvYXNwZW5pdGUuYwo+
+ID4+IEBAIC0yNCw2ICsyNCw4IEBACj4gPj4gICNpbmNsdWRlIDxtYWNoL3B4YTE2OC5oPgo+ID4+
+ICAjaW5jbHVkZSA8bWFjaC9ncGlvLmg+Cj4gPj4gICNpbmNsdWRlIDx2aWRlby9weGExNjhmYi5o
+Pgo+ID4+ICsjaW5jbHVkZSA8bGludXgvaW5wdXQuaD4KPiA+PiArI2luY2x1ZGUgPHBsYXQvcHhh
+Mjd4X2tleXBhZC5oPgo+ID4+IAo+ID4+ICAjaW5jbHVkZSAiY29tbW9uLmgiCj4gPj4gCj4gPj4g
+QEAgLTk3LDYgKzk5LDEzIEBAIHN0YXRpYyB1bnNpZ25lZCBsb25nIGNvbW1vbl9waW5fY29uZmln
+W10gX19pbml0ZGF0YSA9Cj4gPj4geyBHUElPODFfTENEX0REMjEsCj4gPj4gICAgICAgIEdQSU84
+Ml9MQ0RfREQyMiwKPiA+PiAgICAgICAgR1BJTzgzX0xDRF9ERDIzLAo+ID4+ICsKPiA+PiArICAg
+ICAgIC8qIEtleXBhZCAqLwo+ID4+ICsgICAgICAgR1BJTzEwOV9LUF9NS0lOMSwKPiA+PiArICAg
+ICAgIEdQSU8xMTBfS1BfTUtJTjAsCj4gPj4gKyAgICAgICBHUElPMTExX0tQX01LT1VUNywKPiA+
+PiArICAgICAgIEdQSU8xMTJfS1BfTUtPVVQ2LAo+ID4+ICsgICAgICAgR1BJTzEyMV9LUF9NS0lO
+NCwKPiA+PiAgfTsKPiA+PiAKPiA+PiAgc3RhdGljIHN0cnVjdCBzbWM5MXhfcGxhdGRhdGEgc21j
+OTF4X2luZm8gPSB7Cj4gPj4gQEAgLTE5Myw2ICsyMDIsMjMgQEAgc3RydWN0IHB4YTE2OGZiX21h
+Y2hfaW5mbyBhc3Blbml0ZV9sY2RfaW5mbyA9IHsKPiA+PiAgICAgICAgLmludmVydF9waXhjbG9j
+ayAgICAgICAgPSAwLAo+ID4+ICB9Owo+ID4+IAo+ID4+ICtzdGF0aWMgdW5zaWduZWQgaW50IGFz
+cGVuaXRlX21hdHJpeF9rZXlfbWFwW10gPSB7Cj4gPj4gKyAgICAgICBLRVkoMCwgNiwgS0VZX1VQ
+KSwgICAgICAvKiBTVyA0ICovCj4gPj4gKyAgICAgICBLRVkoMCwgNywgS0VZX0RPV04pLCAgICAv
+KiBTVyA1ICovCj4gPj4gKyAgICAgICBLRVkoMSwgNiwgS0VZX0xFRlQpLCAgICAvKiBTVyA2ICov
+Cj4gPj4gKyAgICAgICBLRVkoMSwgNywgS0VZX1JJR0hUKSwgICAvKiBTVyA3ICovCj4gPj4gKyAg
+ICAgICBLRVkoNCwgNiwgS0VZX0VOVEVSKSwgICAvKiBTVyA4ICovCj4gPj4gKyAgICAgICBLRVko
+NCwgNywgS0VZX0VTQyksICAgICAvKiBTVyA5ICovCj4gPj4gK307Cj4gPj4gKwo+ID4+ICtzdGF0
+aWMgc3RydWN0IHB4YTI3eF9rZXlwYWRfcGxhdGZvcm1fZGF0YSBhc3Blbml0ZV9rZXlwYWRfaW5m
+bwo+ID4+IF9faW5pdGRhdGEgPSB7ICsgICAgICAgLm1hdHJpeF9rZXlfcm93cyAgICAgICAgPSA4
+LAo+ID4+ICsgICAgICAgLm1hdHJpeF9rZXlfY29scyAgICAgICAgPSA4LAo+ID4gCj4gPiBJdCBz
+ZWVtcyB0aGF0IG1heGl1bSBjb2x1bW5zIGlzIDUsIG5vdCA4Lgo+ID4gCj4gPj4gKyAgICAgICAu
+bWF0cml4X2tleV9tYXAgICAgICAgICA9IGFzcGVuaXRlX21hdHJpeF9rZXlfbWFwLAo+ID4+ICsg
+ICAgICAgLm1hdHJpeF9rZXlfbWFwX3NpemUgICAgPSBBUlJBWV9TSVpFKGFzcGVuaXRlX21hdHJp
+eF9rZXlfbWFwKSwKPiA+PiArICAgICAgIC5kZWJvdW5jZV9pbnRlcnZhbCAgICAgID0gMzAsCj4g
+Pj4gK307Cj4gPj4gKwo+ID4+ICBzdGF0aWMgdm9pZCBfX2luaXQgY29tbW9uX2luaXQodm9pZCkK
+PiA+PiAgewo+ID4+ICAgICAgICBtZnBfY29uZmlnKEFSUkFZX0FORF9TSVpFKGNvbW1vbl9waW5f
+Y29uZmlnKSk7Cj4gPj4gQEAgLTIwMyw2ICsyMjksNyBAQCBzdGF0aWMgdm9pZCBfX2luaXQgY29t
+bW9uX2luaXQodm9pZCkKPiA+PiAgICAgICAgcHhhMTY4X2FkZF9zc3AoMSk7Cj4gPj4gICAgICAg
+IHB4YTE2OF9hZGRfbmFuZCgmYXNwZW5pdGVfbmFuZF9pbmZvKTsKPiA+PiAgICAgICAgcHhhMTY4
+X2FkZF9mYigmYXNwZW5pdGVfbGNkX2luZm8pOwo+ID4+ICsgICAgICAgcHhhMTY4X2FkZF9rZXlw
+YWQoJmFzcGVuaXRlX2tleXBhZF9pbmZvKTsKPiA+PiAKPiA+PiAgICAgICAgLyogb2ZmLWNoaXAg
+ZGV2aWNlcyAqLwo+ID4+ICAgICAgICBwbGF0Zm9ybV9kZXZpY2VfcmVnaXN0ZXIoJnNtYzkxeF9k
+ZXZpY2UpOwo+ID4+IC0tCj4gPj4gMS43LjAuNAo+ID4+IAo+ID4+IC0tCj4gPj4gVG8gdW5zdWJz
+Y3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWtl
+cm5lbCIKPiA+PiBpbiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2Vy
+bmVsLm9yZwo+ID4+IE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5v
+cmcvbWFqb3Jkb21vLWluZm8uaHRtbAo+ID4+IFBsZWFzZSByZWFkIHRoZSBGQVEgYXQgIGh0dHA6
+Ly93d3cudHV4Lm9yZy9sa21sLwo+IAo+IFRoZSBtYXhpbXVtIGtleXBhZCBjb2x1bW5zIGFyZSA4
+IGFuZCB0aGUgbWF4aW11bSBrZXlwYWQgcm93cyBhcmUgNSBmb3IKPiBBc3Blbml0ZS4gSSB3aWxs
+IGNvcnJlY3QgdGhhdCBpbiBteSBwYXRjaCByZXN1Ym1pc3Npb24hCgpFcmljLCBkaWQgeW91IG1l
+cmdlIHRoaXMgYWxyZWFkeSA/IElmIHNvLCB3ZSdsbCBuZWVkIGEgc2VwYXJhdGUgcGF0Y2ggaGVy
+ZT8KCj4gCj4gUmVnYXJkcywKPiAtLSBNYXJrCj4gLS0KPiBUbyB1bnN1YnNjcmliZSBmcm9tIHRo
+aXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtaW5wdXQiIGluCj4gdGhl
+IGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcKPiBNb3JlIG1h
+am9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZvLmh0
+bWwKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4
+LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFk
+Lm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFy
+bS1rZXJuZWwK

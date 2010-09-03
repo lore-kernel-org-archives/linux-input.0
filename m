@@ -1,13 +1,13 @@
 From: "Mark F. Brown" <mark.brown314@gmail.com>
-Subject: [PATCH v2 3/6 RESEND] ARM: pxa168: added wake clear register support for APMU
-Date: Fri,  3 Sep 2010 18:28:08 -0400
-Message-ID: <1283552891-13966-4-git-send-email-mark.brown314__46850.551540456$1283553020$gmane$org@gmail.com>
+Subject: [PATCH v2 6/6 RESEND] ARM: pxa168: aspenite: add board support for keypad
+Date: Fri,  3 Sep 2010 18:28:11 -0400
+Message-ID: <1283552891-13966-7-git-send-email-mark.brown314@gmail.com>
 References: <1283552891-13966-1-git-send-email-mark.brown314@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:64111 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753708Ab0ICW3q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 18:29:46 -0400
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:51358 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755034Ab0ICW3w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 18:29:52 -0400
 In-Reply-To: <1283552891-13966-1-git-send-email-mark.brown314@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -16,30 +16,68 @@ Cc: "Mark F. Brown" <mark.brown314@gmail.com>
 
 Signed-off-by: Mark F. Brown <mark.brown314@gmail.com>
 ---
- arch/arm/mach-mmp/include/mach/regs-apmu.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+ arch/arm/mach-mmp/aspenite.c |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/include/mach/regs-apmu.h b/arch/arm/mach-mmp/include/mach/regs-apmu.h
-index 9190305..ac47023 100644
---- a/arch/arm/mach-mmp/include/mach/regs-apmu.h
-+++ b/arch/arm/mach-mmp/include/mach/regs-apmu.h
-@@ -33,4 +33,16 @@
- #define APMU_FNRST_DIS	(1 << 1)
- #define APMU_AXIRST_DIS	(1 << 0)
+diff --git a/arch/arm/mach-mmp/aspenite.c b/arch/arm/mach-mmp/aspenite.c
+index 9e1bd6b..f04bae6 100644
+--- a/arch/arm/mach-mmp/aspenite.c
++++ b/arch/arm/mach-mmp/aspenite.c
+@@ -24,6 +24,8 @@
+ #include <mach/pxa168.h>
+ #include <mach/gpio.h>
+ #include <video/pxa168fb.h>
++#include <linux/input.h>
++#include <plat/pxa27x_keypad.h>
  
-+/* Wake Clear Register */
-+#define APMU_WAKE_CLR	APMU_REG(0x07c)
+ #include "common.h"
+ 
+@@ -97,6 +99,13 @@ static unsigned long common_pin_config[] __initdata = {
+ 	GPIO81_LCD_DD21,
+ 	GPIO82_LCD_DD22,
+ 	GPIO83_LCD_DD23,
 +
-+#define APMU_PXA168_KP_WAKE_CLR		(1 << 7)
-+#define APMU_PXA168_CFI_WAKE_CLR	(1 << 6)
-+#define APMU_PXA168_XD_WAKE_CLR		(1 << 5)
-+#define APMU_PXA168_MSP_WAKE_CLR	(1 << 4)
-+#define APMU_PXA168_SD4_WAKE_CLR	(1 << 3)
-+#define APMU_PXA168_SD3_WAKE_CLR	(1 << 2)
-+#define APMU_PXA168_SD2_WAKE_CLR	(1 << 1)
-+#define APMU_PXA168_SD1_WAKE_CLR	(1 << 0)
++	/* Keypad */
++	GPIO109_KP_MKIN1,
++	GPIO110_KP_MKIN0,
++	GPIO111_KP_MKOUT7,
++	GPIO112_KP_MKOUT6,
++	GPIO121_KP_MKIN4,
+ };
+ 
+ static struct smc91x_platdata smc91x_info = {
+@@ -193,6 +202,23 @@ struct pxa168fb_mach_info aspenite_lcd_info = {
+ 	.invert_pixclock	= 0,
+ };
+ 
++static unsigned int aspenite_matrix_key_map[] = {
++	KEY(0, 6, KEY_UP),	/* SW 4 */
++	KEY(0, 7, KEY_DOWN),	/* SW 5 */
++	KEY(1, 6, KEY_LEFT),	/* SW 6 */
++	KEY(1, 7, KEY_RIGHT),	/* SW 7 */
++	KEY(4, 6, KEY_ENTER),	/* SW 8 */
++	KEY(4, 7, KEY_ESC),	/* SW 9 */
++};
 +
- #endif /* __ASM_MACH_REGS_APMU_H */
++static struct pxa27x_keypad_platform_data aspenite_keypad_info __initdata = {
++	.matrix_key_rows	= 5,
++	.matrix_key_cols	= 8,
++	.matrix_key_map		= aspenite_matrix_key_map,
++	.matrix_key_map_size	= ARRAY_SIZE(aspenite_matrix_key_map),
++	.debounce_interval	= 30,
++};
++
+ static void __init common_init(void)
+ {
+ 	mfp_config(ARRAY_AND_SIZE(common_pin_config));
+@@ -203,6 +229,7 @@ static void __init common_init(void)
+ 	pxa168_add_ssp(1);
+ 	pxa168_add_nand(&aspenite_nand_info);
+ 	pxa168_add_fb(&aspenite_lcd_info);
++	pxa168_add_keypad(&aspenite_keypad_info);
+ 
+ 	/* off-chip devices */
+ 	platform_device_register(&smc91x_device);
 -- 
 1.7.0.4
 

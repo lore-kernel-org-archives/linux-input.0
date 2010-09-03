@@ -1,37 +1,49 @@
-From: Diego Calleja <diegocg@gmail.com>
-Subject: Re: [PATCH 3/5] input: wacom: Add support for the Bamboo Touch trackpad (rev3)
-Date: Fri, 3 Sep 2010 20:24:19 +0200
-Message-ID: <201009032024.19745.diegocg@gmail.com>
-References: <1283516247-11624-1-git-send-email-rydberg@euromail.se> <1283516247-11624-4-git-send-email-rydberg@euromail.se>
-Reply-To: diegocg@gmail.com
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [PATCH] input: add support for PowerOn(PonKey) button on the
+ AB8500 MFD
+Date: Sat, 04 Sep 2010 00:36:08 +0530
+Message-ID: <4C814720.1040607@codeaurora.org>
+References: <1283326551-13751-1-git-send-email-sundar.iyer@stericsson.com> <4C809F7B.2020807@codeaurora.org> <20100903164032.GC2200@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:52448 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757153Ab0ICSYZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 14:24:25 -0400
-In-Reply-To: <1283516247-11624-4-git-send-email-rydberg@euromail.se>
+Received: from wolverine02.qualcomm.com ([199.106.114.251]:19862 "EHLO
+	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752433Ab0ICTGS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 15:06:18 -0400
+In-Reply-To: <20100903164032.GC2200@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sundar Iyer <sundar.iyer@stericsson.com>, sameo@linux.intel.com, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com
 
-On Viernes, 3 de Septiembre de 2010 14:17:25 Henrik Rydberg escribi=F3:
-> @@ -1280,6 +1361,7 @@ const struct usb_device_id wacom_ids[] =3D {
->  	{ USB_DEVICE_WACOM(0xC6) },
->  	{ USB_DEVICE_WACOM(0xC7) },
->  	{ USB_DEVICE_WACOM(0xCE) },
-> +	{ USB_DEVICE_WACOM(0xD0) },
->  	{ USB_DEVICE_WACOM(0xF0) },
->  	{ USB_DEVICE_WACOM(0xCC) },
->  	{ USB_DEVICE_WACOM(0x90) },
+Hi Dmitry,
 
-I have a wacom bamboo touch & pen (CTH-461) with a 0xD2 id. Can I do
-something to help to get it supported in these patches?
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On 9/3/2010 10:10 PM, Dmitry Torokhov wrote:
+> 
+>>
+>>> +
+>>> +static struct platform_driver ab8500_ponkey_driver = {
+>>> +	.driver		= {
+>>> +		.name	= "ab8500-poweron-key",
+>>> +		.owner	= THIS_MODULE,
+>>> +	},
+>>> +	.probe		= ab8500_ponkey_probe,
+>>> +	.remove		= __devexit_p(ab8500_ponkey_remove),
+>>
+>> It is not must for this driver to go through, but what would be the behaviour of
+>> pwr-key on suspend and resume? Do you want power key to wakeup the system from sleep?
+>> OR don't want to make it as wakeup source?
+> 
+> I am about to apply the patch so if you decide to do any PM changes they
+> shoudl go as a separete path please.
+> 
+
+Please go ahead and merge it. Thanks.
+
+---Trilok Soni
+
+-- 
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

@@ -1,46 +1,63 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [PATCH] input: add support for PowerOn(PonKey) button on the
- AB8500 MFD
-Date: Fri, 03 Sep 2010 12:40:51 +0530
-Message-ID: <4C809F7B.2020807@codeaurora.org>
-References: <1283326551-13751-1-git-send-email-sundar.iyer@stericsson.com>
+From: Luotao Fu <devtty0@gmail.com>
+Subject: Re: [PATCH 1/2] Input: stmpe-ts - remove input_free_device() in stmpe_ts_remove()
+Date: Fri, 3 Sep 2010 09:13:30 +0200
+Message-ID: <AANLkTinE4G0TYSn=hmqVxXVAbTZ1cpOAXmhqg6QGY5dP@mail.gmail.com>
+References: <1283477451.5439.6.camel@mola>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:8720 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752823Ab0ICHLI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 03:11:08 -0400
-In-Reply-To: <1283326551-13751-1-git-send-email-sundar.iyer@stericsson.com>
+Received: from mail-qy0-f181.google.com ([209.85.216.181]:49966 "EHLO
+	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752768Ab0ICHNb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 03:13:31 -0400
+In-Reply-To: <1283477451.5439.6.camel@mola>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sundar Iyer <sundar.iyer@stericsson.com>
-Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Luotao Fu <l.fu@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hi Sundar,
+Hi,
 
-> +
-> +	info->idev->name = "AB8500 POn(PowerOn) Key";
+On Fri, Sep 3, 2010 at 3:30 AM, Axel Lin <axel.lin@gmail.com> wrote:
+> No need to call input_free_device() after input_unregister_device().
+>
 
-nit-pick: having spaces in the name would create hard time parsing it. Though it all
-depends on the userspace framework.
+yeah right. The device is input_unregister_device unregisters the
+device already. Thx for fixing this.
 
-> +
-> +static struct platform_driver ab8500_ponkey_driver = {
-> +	.driver		= {
-> +		.name	= "ab8500-poweron-key",
-> +		.owner	= THIS_MODULE,
-> +	},
-> +	.probe		= ab8500_ponkey_probe,
-> +	.remove		= __devexit_p(ab8500_ponkey_remove),
+Acked-by: Luotao Fu <devtty0@gmail.com>
 
-It is not must for this driver to go through, but what would be the behaviour of
-pwr-key on suspend and resume? Do you want power key to wakeup the system from sleep?
-OR don't want to make it as wakeup source?
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> ---
+> =A0drivers/input/touchscreen/stmpe-ts.c | =A0 =A01 -
+> =A01 files changed, 0 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/tou=
+chscreen/stmpe-ts.c
+> index 656148e..0339d1d 100644
+> --- a/drivers/input/touchscreen/stmpe-ts.c
+> +++ b/drivers/input/touchscreen/stmpe-ts.c
+> @@ -361,7 +361,6 @@ static int __devexit stmpe_ts_remove(struct platf=
+orm_device *pdev)
+> =A0 =A0 =A0 =A0platform_set_drvdata(pdev, NULL);
+>
+> =A0 =A0 =A0 =A0input_unregister_device(ts->idev);
+> - =A0 =A0 =A0 input_free_device(ts->idev);
+>
+> =A0 =A0 =A0 =A0kfree(ts);
+>
+> --
+> 1.7.2
+>
+>
+>
+>
 
----Trilok Soni
-
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+cheers
+Luotao Fu
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

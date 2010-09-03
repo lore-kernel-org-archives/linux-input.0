@@ -1,32 +1,78 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v3] Input: wm97xx-core - add retries to
-	wm97xx_read_aux_adc
-Date: Fri, 3 Sep 2010 14:25:09 +0100
-Message-ID: <20100903132509.GD8381@sirena.org.uk>
-References: <1283519614-14963-1-git-send-email-emillbrandt@dekaresearch.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/7 v3] HID: magicmouse: simplify multitouch feature
+ request
+Date: Fri, 3 Sep 2010 15:57:50 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009031557450.26813@pobox.suse.cz>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com> <1283306184-28833-3-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:56630 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753430Ab0ICNZL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 09:25:11 -0400
-Content-Disposition: inline
-In-Reply-To: <1283519614-14963-1-git-send-email-emillbrandt@dekaresearch.com>
+Received: from cantor2.suse.de ([195.135.220.15]:42111 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753278Ab0ICN5w (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Sep 2010 09:57:52 -0400
+In-Reply-To: <1283306184-28833-3-git-send-email-chase.douglas@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Millbrandt <emillbrandt@dekaresearch.com>
-Cc: Liam Girdwood <lrg@slimlogic.co.uk>, linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Michael Poole <mdpoole@troilus.org>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2010 at 09:13:34AM -0400, Eric Millbrandt wrote:
-> Add logic to wm97xx_read_aux_adc() to retry reading the adc if the
-> sample failed.  This could occur if the previous sample was still in
-> the return register or the sample timed-out.  Also avoid a pathologic
-> failure mode by disabling the digitizer and returning -EBUSY after 5
-> retries.
+On Tue, 31 Aug 2010, Chase Douglas wrote:
+
+> From: Chase Douglas <chase.douglas@ubuntu.com>
 > 
-> Signed-off-by: Eric Millbrandt <emillbrandt@dekaresearch.com>
+> Only the first feature request is required to put the Magic Mouse into
+> multitouch mode. This is also the case for the Magic Trackpad, for which
+> support will be added in a later commit.
+> 
+> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> Acked-by: Michael Poole <mdpoole@troilus.org>
 
-Good stuff - thanks!
+Applied, thanks.
 
-Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> ---
+>  drivers/hid/hid-magicmouse.c |   16 ++++------------
+>  1 files changed, 4 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index d38b529..8a2fe78 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -380,8 +380,7 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+>  static int magicmouse_probe(struct hid_device *hdev,
+>  	const struct hid_device_id *id)
+>  {
+> -	__u8 feature_1[] = { 0xd7, 0x01 };
+> -	__u8 feature_2[] = { 0xf8, 0x01, 0x32 };
+> +	__u8 feature[] = { 0xd7, 0x01 };
+>  	struct input_dev *input;
+>  	struct magicmouse_sc *msc;
+>  	struct hid_report *report;
+> @@ -426,17 +425,10 @@ static int magicmouse_probe(struct hid_device *hdev,
+>  	}
+>  	report->size = 6;
+>  
+> -	ret = hdev->hid_output_raw_report(hdev, feature_1, sizeof(feature_1),
+> +	ret = hdev->hid_output_raw_report(hdev, feature, sizeof(feature),
+>  			HID_FEATURE_REPORT);
+> -	if (ret != sizeof(feature_1)) {
+> -		dev_err(&hdev->dev, "unable to request touch data (1:%d)\n",
+> -				ret);
+> -		goto err_stop_hw;
+> -	}
+> -	ret = hdev->hid_output_raw_report(hdev, feature_2,
+> -			sizeof(feature_2), HID_FEATURE_REPORT);
+> -	if (ret != sizeof(feature_2)) {
+> -		dev_err(&hdev->dev, "unable to request touch data (2:%d)\n",
+> +	if (ret != sizeof(feature)) {
+> +		dev_err(&hdev->dev, "unable to request touch data (%d)\n",
+>  				ret);
+>  		goto err_stop_hw;
+>  	}
+> -- 
+> 1.7.1
+> 
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

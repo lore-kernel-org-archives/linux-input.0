@@ -1,97 +1,63 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH 5/5] ARM: pxa168: aspenite: add board support for keypad
-Date: Fri, 3 Sep 2010 22:39:37 +0800
-Message-ID: <AANLkTikXUFvevRzOKkW8oA1jm8HRJspTkh6Sx-d1YneC@mail.gmail.com>
-References: <1282814339-10934-1-git-send-email-mark.brown314@gmail.com>
-	<AANLkTi=OkRUmBgx_ezWtGHywGJkFAJsdGLR07v8dgzD7@mail.gmail.com>
-	<AANLkTi=2ZJTy=RD_L0g-HnLF=r27bZLm5hTHemyNQFEi@mail.gmail.com>
-	<201009031611.16464.marek.vasut@gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 3/5] input: wacom: Add support for the Bamboo Touch
+ trackpad (rev3)
+Date: Fri, 3 Sep 2010 17:30:27 +0200
+Message-ID: <AANLkTinUxPMezfSHjfPPJ6PoZ1Put26ZAMrzQ36K2fjV@mail.gmail.com>
+References: <1283516247-11624-1-git-send-email-rydberg@euromail.se>
+	<1283516247-11624-4-git-send-email-rydberg@euromail.se>
+	<6753EB6004AFF34FAA275742C104F952022BB10E@wacom-nt10.wacom.com>
+	<4C80F2CD.2040708@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <201009031611.16464.marek.vasut@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Marek Vasut <marek.vasut@gmail.com>
-Cc: Haojian Zhuang <haojian.zhuang@marvell.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, "Mark F. Brown" <mark.brown314@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4C80F2CD.2040708@euromail.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Ping Cheng <pingc@wacom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCBTZXAgMywgMjAxMCBhdCAxMDoxMSBQTSwgTWFyZWsgVmFzdXQgPG1hcmVrLnZhc3V0
-QGdtYWlsLmNvbT4gd3JvdGU6Cj4gRG5lIFDDoSAzLiB6w6HFmcOtIDIwMTAgMDY6NTA6MjggTWFy
-ayBGLiBCcm93biBuYXBzYWwoYSk6Cj4+IE9uIFR1ZSwgQXVnIDMxLCAyMDEwIGF0IDE6MDAgQU0s
-IEhhb2ppYW4gWmh1YW5nCj4+Cj4+IDxoYW9qaWFuLnpodWFuZ0BnbWFpbC5jb20+IHdyb3RlOgo+
-PiA+IE9uIFRodSwgQXVnIDI2LCAyMDEwIGF0IDU6MTggUE0sIE1hcmsgRi4gQnJvd24gPG1hcmsu
-YnJvd24zMTRAZ21haWwuY29tPgo+IHdyb3RlOgo+PiA+PiBTaWduZWQtb2ZmLWJ5OiBNYXJrIEYu
-IEJyb3duIDxtYXJrLmJyb3duMzE0QGdtYWlsLmNvbT4KPj4gPj4gLS0tCj4+ID4+IMKgYXJjaC9h
-cm0vbWFjaC1tbXAvYXNwZW5pdGUuYyB8IMKgIDI3ICsrKysrKysrKysrKysrKysrKysrKysrKysr
-Kwo+PiA+PiDCoDEgZmlsZXMgY2hhbmdlZCwgMjcgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMo
-LSkKPj4gPj4KPj4gPj4gZGlmZiAtLWdpdCBhL2FyY2gvYXJtL21hY2gtbW1wL2FzcGVuaXRlLmMg
-Yi9hcmNoL2FybS9tYWNoLW1tcC9hc3Blbml0ZS5jCj4+ID4+IGluZGV4IDllMWJkNmIuLjFiNzg4
-YzUgMTAwNjQ0Cj4+ID4+IC0tLSBhL2FyY2gvYXJtL21hY2gtbW1wL2FzcGVuaXRlLmMKPj4gPj4g
-KysrIGIvYXJjaC9hcm0vbWFjaC1tbXAvYXNwZW5pdGUuYwo+PiA+PiBAQCAtMjQsNiArMjQsOCBA
-QAo+PiA+PiDCoCNpbmNsdWRlIDxtYWNoL3B4YTE2OC5oPgo+PiA+PiDCoCNpbmNsdWRlIDxtYWNo
-L2dwaW8uaD4KPj4gPj4gwqAjaW5jbHVkZSA8dmlkZW8vcHhhMTY4ZmIuaD4KPj4gPj4gKyNpbmNs
-dWRlIDxsaW51eC9pbnB1dC5oPgo+PiA+PiArI2luY2x1ZGUgPHBsYXQvcHhhMjd4X2tleXBhZC5o
-Pgo+PiA+Pgo+PiA+PiDCoCNpbmNsdWRlICJjb21tb24uaCIKPj4gPj4KPj4gPj4gQEAgLTk3LDYg
-Kzk5LDEzIEBAIHN0YXRpYyB1bnNpZ25lZCBsb25nIGNvbW1vbl9waW5fY29uZmlnW10gX19pbml0
-ZGF0YSA9Cj4+ID4+IHsgR1BJTzgxX0xDRF9ERDIxLAo+PiA+PiDCoCDCoCDCoCDCoEdQSU84Ml9M
-Q0RfREQyMiwKPj4gPj4gwqAgwqAgwqAgwqBHUElPODNfTENEX0REMjMsCj4+ID4+ICsKPj4gPj4g
-KyDCoCDCoCDCoCAvKiBLZXlwYWQgKi8KPj4gPj4gKyDCoCDCoCDCoCBHUElPMTA5X0tQX01LSU4x
-LAo+PiA+PiArIMKgIMKgIMKgIEdQSU8xMTBfS1BfTUtJTjAsCj4+ID4+ICsgwqAgwqAgwqAgR1BJ
-TzExMV9LUF9NS09VVDcsCj4+ID4+ICsgwqAgwqAgwqAgR1BJTzExMl9LUF9NS09VVDYsCj4+ID4+
-ICsgwqAgwqAgwqAgR1BJTzEyMV9LUF9NS0lONCwKPj4gPj4gwqB9Owo+PiA+Pgo+PiA+PiDCoHN0
-YXRpYyBzdHJ1Y3Qgc21jOTF4X3BsYXRkYXRhIHNtYzkxeF9pbmZvID0gewo+PiA+PiBAQCAtMTkz
-LDYgKzIwMiwyMyBAQCBzdHJ1Y3QgcHhhMTY4ZmJfbWFjaF9pbmZvIGFzcGVuaXRlX2xjZF9pbmZv
-ID0gewo+PiA+PiDCoCDCoCDCoCDCoC5pbnZlcnRfcGl4Y2xvY2sgwqAgwqAgwqAgwqA9IDAsCj4+
-ID4+IMKgfTsKPj4gPj4KPj4gPj4gK3N0YXRpYyB1bnNpZ25lZCBpbnQgYXNwZW5pdGVfbWF0cml4
-X2tleV9tYXBbXSA9IHsKPj4gPj4gKyDCoCDCoCDCoCBLRVkoMCwgNiwgS0VZX1VQKSwgwqAgwqAg
-wqAvKiBTVyA0ICovCj4+ID4+ICsgwqAgwqAgwqAgS0VZKDAsIDcsIEtFWV9ET1dOKSwgwqAgwqAv
-KiBTVyA1ICovCj4+ID4+ICsgwqAgwqAgwqAgS0VZKDEsIDYsIEtFWV9MRUZUKSwgwqAgwqAvKiBT
-VyA2ICovCj4+ID4+ICsgwqAgwqAgwqAgS0VZKDEsIDcsIEtFWV9SSUdIVCksIMKgIC8qIFNXIDcg
-Ki8KPj4gPj4gKyDCoCDCoCDCoCBLRVkoNCwgNiwgS0VZX0VOVEVSKSwgwqAgLyogU1cgOCAqLwo+
-PiA+PiArIMKgIMKgIMKgIEtFWSg0LCA3LCBLRVlfRVNDKSwgwqAgwqAgLyogU1cgOSAqLwo+PiA+
-PiArfTsKPj4gPj4gKwo+PiA+PiArc3RhdGljIHN0cnVjdCBweGEyN3hfa2V5cGFkX3BsYXRmb3Jt
-X2RhdGEgYXNwZW5pdGVfa2V5cGFkX2luZm8KPj4gPj4gX19pbml0ZGF0YSA9IHsgKyDCoCDCoCDC
-oCAubWF0cml4X2tleV9yb3dzIMKgIMKgIMKgIMKgPSA4LAo+PiA+PiArIMKgIMKgIMKgIC5tYXRy
-aXhfa2V5X2NvbHMgwqAgwqAgwqAgwqA9IDgsCj4+ID4KPj4gPiBJdCBzZWVtcyB0aGF0IG1heGl1
-bSBjb2x1bW5zIGlzIDUsIG5vdCA4Lgo+PiA+Cj4+ID4+ICsgwqAgwqAgwqAgLm1hdHJpeF9rZXlf
-bWFwIMKgIMKgIMKgIMKgID0gYXNwZW5pdGVfbWF0cml4X2tleV9tYXAsCj4+ID4+ICsgwqAgwqAg
-wqAgLm1hdHJpeF9rZXlfbWFwX3NpemUgwqAgwqA9IEFSUkFZX1NJWkUoYXNwZW5pdGVfbWF0cml4
-X2tleV9tYXApLAo+PiA+PiArIMKgIMKgIMKgIC5kZWJvdW5jZV9pbnRlcnZhbCDCoCDCoCDCoD0g
-MzAsCj4+ID4+ICt9Owo+PiA+PiArCj4+ID4+IMKgc3RhdGljIHZvaWQgX19pbml0IGNvbW1vbl9p
-bml0KHZvaWQpCj4+ID4+IMKgewo+PiA+PiDCoCDCoCDCoCDCoG1mcF9jb25maWcoQVJSQVlfQU5E
-X1NJWkUoY29tbW9uX3Bpbl9jb25maWcpKTsKPj4gPj4gQEAgLTIwMyw2ICsyMjksNyBAQCBzdGF0
-aWMgdm9pZCBfX2luaXQgY29tbW9uX2luaXQodm9pZCkKPj4gPj4gwqAgwqAgwqAgwqBweGExNjhf
-YWRkX3NzcCgxKTsKPj4gPj4gwqAgwqAgwqAgwqBweGExNjhfYWRkX25hbmQoJmFzcGVuaXRlX25h
-bmRfaW5mbyk7Cj4+ID4+IMKgIMKgIMKgIMKgcHhhMTY4X2FkZF9mYigmYXNwZW5pdGVfbGNkX2lu
-Zm8pOwo+PiA+PiArIMKgIMKgIMKgIHB4YTE2OF9hZGRfa2V5cGFkKCZhc3Blbml0ZV9rZXlwYWRf
-aW5mbyk7Cj4+ID4+Cj4+ID4+IMKgIMKgIMKgIMKgLyogb2ZmLWNoaXAgZGV2aWNlcyAqLwo+PiA+
-PiDCoCDCoCDCoCDCoHBsYXRmb3JtX2RldmljZV9yZWdpc3Rlcigmc21jOTF4X2RldmljZSk7Cj4+
-ID4+IC0tCj4+ID4+IDEuNy4wLjQKPj4gPj4KPj4gPj4gLS0KPj4gPj4gVG8gdW5zdWJzY3JpYmUg
-ZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LWtlcm5lbCIK
-Pj4gPj4gaW4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5v
-cmcKPj4gPj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCDCoGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcv
-bWFqb3Jkb21vLWluZm8uaHRtbAo+PiA+PiBQbGVhc2UgcmVhZCB0aGUgRkFRIGF0IMKgaHR0cDov
-L3d3dy50dXgub3JnL2xrbWwvCj4+Cj4+IFRoZSBtYXhpbXVtIGtleXBhZCBjb2x1bW5zIGFyZSA4
-IGFuZCB0aGUgbWF4aW11bSBrZXlwYWQgcm93cyBhcmUgNSBmb3IKPj4gQXNwZW5pdGUuIEkgd2ls
-bCBjb3JyZWN0IHRoYXQgaW4gbXkgcGF0Y2ggcmVzdWJtaXNzaW9uIQo+Cj4gRXJpYywgZGlkIHlv
-dSBtZXJnZSB0aGlzIGFscmVhZHkgPyBJZiBzbywgd2UnbGwgbmVlZCBhIHNlcGFyYXRlIHBhdGNo
-IGhlcmU/Cj4KCk5vcGUuIFRvZ2V0aGVyIHdpdGggTWFyaydzIG90aGVyIGNoYW5nZSB0byB0aGUg
-cHhhMjd4X2tleXBhZCBwbGF0Zm9ybV9kYXRhCmZvciB0aGUgd2FrZXVwIGNsZWFudXAgaW4gSVJR
-LCBJJ2QgZXhwZWN0IGEgdjIgc2VyaWVzIG9mIHRoaXMgcGF0Y2hzZXQuCgo+Pgo+PiBSZWdhcmRz
-LAo+PiAtLSBNYXJrCj4+IC0tCj4+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5k
-IHRoZSBsaW5lICJ1bnN1YnNjcmliZSBsaW51eC1pbnB1dCIgaW4KPj4gdGhlIGJvZHkgb2YgYSBt
-ZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5vcmcKPj4gTW9yZSBtYWpvcmRvbW8gaW5m
-byBhdCDCoGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbAo+CgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2Vy
-bmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0
-cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVs
-Cg==
+On Fri, Sep 3, 2010 at 3:06 PM, Henrik Rydberg <rydberg@euromail.se> wr=
+ote:
+> On 09/03/2010 03:01 PM, Ping Cheng wrote:
+> [...]
+>
+>> + =A0 =A0 input_report_key(input, BTN_LEFT, (data[1] & 0x08) !=3D 0)=
+;
+>> + =A0 =A0 input_report_key(input, BTN_MIDDLE, (data[1] & 0x04) !=3D =
+0);
+>> + =A0 =A0 input_report_key(input, BTN_4, (data[1] & 0x02) !=3D 0);
+>> + =A0 =A0 input_report_key(input, BTN_RIGHT, (data[1] & 0x01) !=3D 0=
+);
+>>
+>> Since you are assigning meaningful defaults to three of the tablet
+>> buttons instead of using BTN_#, can we move one more step to make th=
+e
+>> fourth button useful out-of-box too? I am thinking of something like
+>> BTN_FORWARD and BTN_BACK while getting rid of the BTN_MIDDLE. So, it
+>> would be:
+>>
+>> =A0 =A0 =A0 input_report_key(input, BTN_LEFT, (data[1] & 0x08) !=3D =
+0);
+>> =A0 =A0 =A0 input_report_key(input, BTN_FORWARD, (data[1] & 0x04) !=3D=
+ 0);
+>> =A0 =A0 =A0 input_report_key(input, BTN_BACK, (data[1] & 0x02) !=3D =
+0);
+>> =A0 =A0 =A0 input_report_key(input, BTN_RIGHT, (data[1] & 0x01) !=3D=
+ 0);
+>>
+>> Does this make sense to you?
+>
+>
+> Well, this is all a matter of taste, isn't it. If middle-button emula=
+tion works
+> out of the box, for the benefit of us old X users who seem unwilling =
+to ever let
+> go of the click-to-paste functionality, then I would not mind terribl=
+y.
+
+I agree and I use middle click more than right click myself ;). I just
+wanted to give BTN_4 a life. If no one has a good suggestion for that,
+I can live with it.
+
+Ping

@@ -1,84 +1,76 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/5] input: wacom: Add support for the Bamboo Touch
- trackpad (rev3)
-Date: Fri, 3 Sep 2010 09:26:08 -0700
-Message-ID: <20100903162608.GA2200@core.coreip.homeip.net>
-References: <1283516247-11624-1-git-send-email-rydberg@euromail.se>
- <1283516247-11624-4-git-send-email-rydberg@euromail.se>
- <6753EB6004AFF34FAA275742C104F952022BB10E@wacom-nt10.wacom.com>
- <4C80F2CD.2040708@euromail.se>
- <AANLkTinUxPMezfSHjfPPJ6PoZ1Put26ZAMrzQ36K2fjV@mail.gmail.com>
+Subject: Re: [RFC] [PATCH V2 1/2] input: CMA3000 Accelerometer driver
+Date: Fri, 3 Sep 2010 09:34:39 -0700
+Message-ID: <20100903163438.GB2200@core.coreip.homeip.net>
+References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
+ <20100829184904.GC26209@core.coreip.homeip.net>
+ <017e01cb4b53$45925da0$LocalHost@wipblrx0099946>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:60106 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752655Ab0ICQ0T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 12:26:19 -0400
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:33339 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755170Ab0ICQfA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 12:35:00 -0400
 Content-Disposition: inline
-In-Reply-To: <AANLkTinUxPMezfSHjfPPJ6PoZ1Put26ZAMrzQ36K2fjV@mail.gmail.com>
+In-Reply-To: <017e01cb4b53$45925da0$LocalHost@wipblrx0099946>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hemanth V <hemanthv@ti.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-On Fri, Sep 03, 2010 at 05:30:27PM +0200, Ping Cheng wrote:
-> On Fri, Sep 3, 2010 at 3:06 PM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
-> > On 09/03/2010 03:01 PM, Ping Cheng wrote:
-> > [...]
-> >
-> >> + =A0 =A0 input_report_key(input, BTN_LEFT, (data[1] & 0x08) !=3D =
-0);
-> >> + =A0 =A0 input_report_key(input, BTN_MIDDLE, (data[1] & 0x04) !=3D=
- 0);
-> >> + =A0 =A0 input_report_key(input, BTN_4, (data[1] & 0x02) !=3D 0);
-> >> + =A0 =A0 input_report_key(input, BTN_RIGHT, (data[1] & 0x01) !=3D=
- 0);
-> >>
-> >> Since you are assigning meaningful defaults to three of the tablet
-> >> buttons instead of using BTN_#, can we move one more step to make =
-the
-> >> fourth button useful out-of-box too? I am thinking of something li=
-ke
-> >> BTN_FORWARD and BTN_BACK while getting rid of the BTN_MIDDLE. So, =
-it
-> >> would be:
-> >>
-> >> =A0 =A0 =A0 input_report_key(input, BTN_LEFT, (data[1] & 0x08) !=3D=
- 0);
-> >> =A0 =A0 =A0 input_report_key(input, BTN_FORWARD, (data[1] & 0x04) =
-!=3D 0);
-> >> =A0 =A0 =A0 input_report_key(input, BTN_BACK, (data[1] & 0x02) !=3D=
- 0);
-> >> =A0 =A0 =A0 input_report_key(input, BTN_RIGHT, (data[1] & 0x01) !=3D=
- 0);
-> >>
-> >> Does this make sense to you?
+Hi Hemanth,
+
+On Fri, Sep 03, 2010 at 04:02:11PM +0530, Hemanth V wrote:
 > >
 > >
-> > Well, this is all a matter of taste, isn't it. If middle-button emu=
-lation works
-> > out of the box, for the benefit of us old X users who seem unwillin=
-g to ever let
-> > go of the click-to-paste functionality, then I would not mind terri=
-bly.
->=20
-> I agree and I use middle click more than right click myself ;). I jus=
-t
-> wanted to give BTN_4 a life. If no one has a good suggestion for that=
-,
-> I can live with it.
->=20
+> >Do not like repeated release of resources in main and error path... Can
+> >we do it like:
+> >
+> >...
+> >disable_irq();
+> >error = cma3000_set(data, CMA3000_CTRL, ctrl, "ctrl");
+> >if (!error) {
+> >/* Settling time delay required after mode change */
+> >msleep(CMA3000_SETDELAY);
+> >}
+> >enable_irq();
+> >out:
+> >mutex_unlock();
+> >return error ? error : count;
+> 
+> I am thinking I can just add the below statement, and should be able to
+> remove repeated release.
+> 
+> return error ? error : count;
+> 
 
-Another option could be allowing usirs to remap buttons via EVIOGSKEYCO=
-DE.
+That would make us sleep for CMA3000_SETDELAY even in case of failure...
+... But that should be OK.
 
---=20
+> >>+
+> >>+ if (data->client->irq) {
+> >>+ ret = request_threaded_irq(data->client->irq, NULL,
+> >>+ cma3000_thread_irq,
+> >>+ irqflags | IRQF_ONESHOT,
+> >>+ data->client->name, data);
+> >>+
+> >>+ if (ret < 0) {
+> >>+ dev_err(&data->client->dev,
+> >>+ "request_threaded_irq failed\n");
+> >>+ goto err_op1_failed;
+> >>+ }
+> >>+ }
+> >
+> >What is the utility of the driver when there is no IRQ line?
+> 
+> Not sure I fully understand your comments.
+> Currently probe would return a failure.
+> 
+
+You have a check for data->client->irq != 0 and finish probe() with
+success in case it is 0. The question is what is the use of the
+device/driver combo in case when data->client->irq == 0?
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

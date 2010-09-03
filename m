@@ -1,110 +1,64 @@
 From: "Mark F. Brown" <mark.brown314@gmail.com>
-Subject: [PATCH v2 2/6 RESEND] ARM: pxa168: added keypad support
-Date: Fri,  3 Sep 2010 18:28:07 -0400
-Message-ID: <1283552891-13966-3-git-send-email-mark.brown314__43362.2307530188$1283553018$gmane$org@gmail.com>
+Subject: [PATCH v2 4/6 RESEND] ARM: pxa27x_keypad: added wakeup event handler for keypad interrupts
+Date: Fri,  3 Sep 2010 18:28:09 -0400
+Message-ID: <1283552891-13966-5-git-send-email-mark.brown314@gmail.com>
 References: <1283552891-13966-1-git-send-email-mark.brown314@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:37616 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752481Ab0ICW3L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 18:29:11 -0400
+Received: from mail-qy0-f174.google.com ([209.85.216.174]:58245 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753746Ab0ICW3t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 18:29:49 -0400
 In-Reply-To: <1283552891-13966-1-git-send-email-mark.brown314@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>li
 Cc: "Mark F. Brown" <mark.brown314@gmail.com>
 
+mach-mmp needs to clear wake event in order to clear the keypad interrupt
+
 Signed-off-by: Mark F. Brown <mark.brown314@gmail.com>
 ---
- arch/arm/mach-mmp/include/mach/mfp-pxa168.h |    7 +++++++
- arch/arm/mach-mmp/include/mach/pxa168.h     |    7 +++++++
- arch/arm/mach-mmp/pxa168.c                  |    3 +++
- drivers/input/keyboard/Kconfig              |    2 +-
- 4 files changed, 18 insertions(+), 1 deletions(-)
+ arch/arm/plat-pxa/include/plat/pxa27x_keypad.h |    1 +
+ drivers/input/keyboard/pxa27x_keypad.c         |   10 ++++++++++
+ 2 files changed, 11 insertions(+), 0 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/include/mach/mfp-pxa168.h b/arch/arm/mach-mmp/include/mach/mfp-pxa168.h
-index ded43c4..4621067 100644
---- a/arch/arm/mach-mmp/include/mach/mfp-pxa168.h
-+++ b/arch/arm/mach-mmp/include/mach/mfp-pxa168.h
-@@ -289,4 +289,11 @@
- #define GPIO86_PWM1_OUT		MFP_CFG(GPIO86, AF2)
- #define GPIO86_PWM2_OUT		MFP_CFG(GPIO86, AF3)
+diff --git a/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h b/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h
+index 7b4eadc..73dacda 100644
+--- a/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h
++++ b/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h
+@@ -52,6 +52,7 @@ struct pxa27x_keypad_platform_data {
  
-+/* Keypad */
-+#define GPIO109_KP_MKIN1        MFP_CFG(GPIO109, AF7)
-+#define GPIO110_KP_MKIN0        MFP_CFG(GPIO110, AF7)
-+#define GPIO111_KP_MKOUT7       MFP_CFG(GPIO111, AF7)
-+#define GPIO112_KP_MKOUT6       MFP_CFG(GPIO112, AF7)
-+#define GPIO121_KP_MKIN4        MFP_CFG(GPIO121, AF7)
-+
- #endif /* __ASM_MACH_MFP_PXA168_H */
-diff --git a/arch/arm/mach-mmp/include/mach/pxa168.h b/arch/arm/mach-mmp/include/mach/pxa168.h
-index 220738f..f34e663 100644
---- a/arch/arm/mach-mmp/include/mach/pxa168.h
-+++ b/arch/arm/mach-mmp/include/mach/pxa168.h
-@@ -11,6 +11,7 @@ extern void __init pxa168_init_irq(void);
- #include <plat/i2c.h>
- #include <plat/pxa3xx_nand.h>
- #include <video/pxa168fb.h>
-+#include <plat/pxa27x_keypad.h>
- 
- extern struct pxa_device_desc pxa168_device_uart1;
- extern struct pxa_device_desc pxa168_device_uart2;
-@@ -27,6 +28,7 @@ extern struct pxa_device_desc pxa168_device_ssp4;
- extern struct pxa_device_desc pxa168_device_ssp5;
- extern struct pxa_device_desc pxa168_device_nand;
- extern struct pxa_device_desc pxa168_device_fb;
-+extern struct pxa_device_desc pxa168_device_keypad;
- 
- static inline int pxa168_add_uart(int id)
- {
-@@ -105,4 +107,9 @@ static inline int pxa168_add_fb(struct pxa168fb_mach_info *mi)
- 	return pxa_register_device(&pxa168_device_fb, mi, sizeof(*mi));
- }
- 
-+static inline int pxa168_add_keypad(struct pxa27x_keypad_platform_data *data)
-+{
-+	return pxa_register_device(&pxa168_device_keypad, data, sizeof(*data));
-+}
-+
- #endif /* __ASM_MACH_PXA168_H */
-diff --git a/arch/arm/mach-mmp/pxa168.c b/arch/arm/mach-mmp/pxa168.c
-index eaebf66..2fa16fb 100644
---- a/arch/arm/mach-mmp/pxa168.c
-+++ b/arch/arm/mach-mmp/pxa168.c
-@@ -77,6 +77,7 @@ static APBC_CLK(ssp2, PXA168_SSP2, 4, 0);
- static APBC_CLK(ssp3, PXA168_SSP3, 4, 0);
- static APBC_CLK(ssp4, PXA168_SSP4, 4, 0);
- static APBC_CLK(ssp5, PXA168_SSP5, 4, 0);
-+static APBC_CLK(keypad, PXA168_KPC, 0, 32000);
- 
- static APMU_CLK(nand, NAND, 0x01db, 208000000);
- static APMU_CLK(lcd, LCD, 0x7f, 312000000);
-@@ -98,6 +99,7 @@ static struct clk_lookup pxa168_clkregs[] = {
- 	INIT_CLKREG(&clk_ssp5, "pxa168-ssp.4", NULL),
- 	INIT_CLKREG(&clk_nand, "pxa3xx-nand", NULL),
- 	INIT_CLKREG(&clk_lcd, "pxa168-fb", NULL),
-+	INIT_CLKREG(&clk_keypad, "pxa27x-keypad", NULL),
+ 	/* key debounce interval */
+ 	unsigned int	debounce_interval;
++	void		(*clear_wakeup_event)(void);
  };
  
- static int __init pxa168_init(void)
-@@ -150,3 +152,4 @@ PXA168_DEVICE(ssp3, "pxa168-ssp", 2, SSP3, 0xd401f000, 0x40, 56, 57);
- PXA168_DEVICE(ssp4, "pxa168-ssp", 3, SSP4, 0xd4020000, 0x40, 58, 59);
- PXA168_DEVICE(ssp5, "pxa168-ssp", 4, SSP5, 0xd4021000, 0x40, 60, 61);
- PXA168_DEVICE(fb, "pxa168-fb", -1, LCD, 0xd420b000, 0x1c8);
-+PXA168_DEVICE(keypad, "pxa27x-keypad", -1, KEYPAD, 0xd4012000, 0x4c);
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 9cc488d..aa037fe 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -338,7 +338,7 @@ config KEYBOARD_OPENCORES
+ extern void pxa_set_keypad_info(struct pxa27x_keypad_platform_data *info);
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index 0610d10..b36d2be 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -330,11 +330,21 @@ static void pxa27x_keypad_scan_direct(struct pxa27x_keypad *keypad)
+ 	keypad->direct_key_state = new_state;
+ }
  
- config KEYBOARD_PXA27x
- 	tristate "PXA27x/PXA3xx keypad support"
--	depends on PXA27x || PXA3xx
-+	depends on PXA27x || PXA3xx || ARCH_MMP
- 	help
- 	  Enable support for PXA27x/PXA3xx keypad controller.
++static void clear_wakeup_event(struct pxa27x_keypad *keypad)
++{
++	struct pxa27x_keypad_platform_data *pdata = keypad->pdata;
++
++	if (pdata->clear_wakeup_event)
++		(pdata->clear_wakeup_event)();
++}
++
+ static irqreturn_t pxa27x_keypad_irq_handler(int irq, void *dev_id)
+ {
+ 	struct pxa27x_keypad *keypad = dev_id;
+ 	unsigned long kpc = keypad_readl(KPC);
+ 
++	clear_wakeup_event(keypad);
++
+ 	if (kpc & KPC_DI)
+ 		pxa27x_keypad_scan_direct(keypad);
  
 -- 
 1.7.0.4

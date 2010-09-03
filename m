@@ -1,78 +1,92 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: add appleir USB driver
-Date: Fri, 03 Sep 2010 17:58:13 +0100
-Message-ID: <1283533093.2361.99.camel@localhost.localdomain>
-References: <1271434792.2045.5.camel@localhost.localdomain>
-	 <20100417081212.GA19866@core.coreip.homeip.net>
-	 <alpine.LNX.2.00.1004191121390.7579@pobox.suse.cz>
-	 <1271669507.17421.39.camel@localhost.localdomain>
-	 <alpine.LNX.2.00.1004191159130.7579@pobox.suse.cz>
-	 <1271672080.17421.91.camel@localhost.localdomain>
-	 <alpine.LNX.2.00.1004191307360.7579@pobox.suse.cz>
-	 <20100421200941.GA10671@core.coreip.homeip.net>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 1/2] hid/hid-sony: Apply sixaxis quirks only to sixaxis
+Date: Fri, 3 Sep 2010 20:01:02 +0200
+Message-ID: <20100903200102.9ad0abc1.ospite@studenti.unina.it>
+References: <1272917756-31098-1-git-send-email-ospite@studenti.unina.it>
+	<1272917756-31098-2-git-send-email-ospite@studenti.unina.it>
+	<1283357615.2361.20.camel@localhost.localdomain>
+	<20100901192055.2f23c8c7.ospite@studenti.unina.it>
+	<alpine.LNX.2.00.1009020941120.26813@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__3_Sep_2010_20_01_02_+0200_BvOWCOVdTdF6pveE"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-v.mail.gandi.net ([217.70.178.78]:47629 "EHLO
-	relay4-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752925Ab0ICQ6S (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 12:58:18 -0400
-In-Reply-To: <20100421200941.GA10671@core.coreip.homeip.net>
+Received: from smtp208.alice.it ([82.57.200.104]:43353 "EHLO smtp208.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756843Ab0ICSBO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Sep 2010 14:01:14 -0400
+In-Reply-To: <alpine.LNX.2.00.1009020941120.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, cbe-oss-dev@lists.ozlabs.org
 
-On Wed, 2010-04-21 at 13:09 -0700, Dmitry Torokhov wrote:
-> On Mon, Apr 19, 2010 at 01:08:57PM +0200, Jiri Kosina wrote:
-> > On Mon, 19 Apr 2010, Bastien Nocera wrote:
-> > 
-> > > > > > > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> > > > > > > > ---
-> > > > > > > >  Documentation/input/appleir.txt |   45 ++++
-> > > > > > > >  drivers/hid/hid-apple.c         |    4 -
-> > > > > > > >  drivers/hid/hid-core.c          |    5 +-
-> > > > > > > >  drivers/hid/hid-ids.h           |    1 +
-> > > > > > > 
-> > > > > > > HID pieces need to go through Jiri or he needs to ack them to go through
-> > > > > > > my tree...
-> > > > > > 
-> > > > > > Please feel free to put
-> > > > > > 
-> > > > > > 	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> > > > > > 
-> > > > > > on the blakclist changes in drivers/hid once you merge the 
-> > > > > > standalone appleir driver from Bastien.
-> > > > > 
-> > > > > Any comments on the additional quirks necessary to get lirc working?
-> > > > 
-> > > > Ouch, I thought that we have discussed previously that I am basically fine 
-> > > > with adding those two quirks, but I haven't seen any patch doing that 
-> > > > since then ... ?
-> > > > 
-> > > > So I'd suggest you either remove that part from the appleir documentation 
-> > > > until this is implemented, or send me a patch adding those two flags.
-> > > 
-> > > I sent it Friday with the subject:
-> > > [PATCH] Add HID_QUIRK_HIDDEV_FORCE and HID_QUIRK_NO_IGNORE
-> > > 
-> > > The patch was also sent to the input list:
-> > > http://thread.gmane.org/gmane.linux.kernel.input/12176
-> > 
-> > Ah, now I see it. It somehow didn't reach my inbox, though your other 
-> > mails do, odd.
-> > 
-> > Thanks, I will take it through my tree and queue it for next merge window 
-> > (if Dmitry is not going to push the driver even for current -rcs ... ?).
-> > 
-> 
-> No, even though it is a new driver it is gettign kind of late. I am
-> going to put it in my 'next' branch.
+--Signature=_Fri__3_Sep_2010_20_01_02_+0200_BvOWCOVdTdF6pveE
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Could I please have this patch upstream somewhere?
+On Thu, 2 Sep 2010 09:41:29 +0200 (CEST)
+Jiri Kosina <jkosina@suse.cz> wrote:
 
-The blocking patch has been merged for a long while now.
+> On Wed, 1 Sep 2010, Antonio Ospite wrote:
+>=20
+> > > > Be more explicit and avoid calling sony_set_operational_usb() when =
+we
+> > > > have USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE.
+> > > >=20
+> > > > While at it, rename the sony_set_operational routines to
+> > > > sixaxis_set_operational as they are sixaxis specific.
+> > > >=20
+> > > > This is also in preparation for the sysfs interface to set and get =
+bdaddr
+> > > > over usb and for some other Sixaxis report fixup.
+> > > >=20
 
-Cheers
+I have just realized that the commit message mentions the now obsolete
+sysfs interface, maybe Jiri can remove the last paragraph from it? Not
+a big deal anyway.
 
+> > > > Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+> > >=20
+> > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > >
+> >=20
+> > Thanks Bastien for bringing this up again, I was going to repost
+> > this patch sometime this month.
+> >=20
+> > Added Jiri to CC as I forgot to do that back then.
+>=20
+> Thanks, I have missed that one on linux-input@.
+>=20
+> Applied now.
+>=20
+
+Thanks Jiri.
+
+Regards,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Fri__3_Sep_2010_20_01_02_+0200_BvOWCOVdTdF6pveE
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkyBN94ACgkQ5xr2akVTsAEcEwCfeArO866Z5HfZVmG0CzzFTbfQ
+szUAoKLRIi6reXEFFqUagT0D/Pg6bxY4
+=rIBd
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__3_Sep_2010_20_01_02_+0200_BvOWCOVdTdF6pveE--

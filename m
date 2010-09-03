@@ -1,49 +1,38 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [PATCH] input: add support for PowerOn(PonKey) button on the
- AB8500 MFD
-Date: Sat, 04 Sep 2010 00:36:08 +0530
-Message-ID: <4C814720.1040607@codeaurora.org>
-References: <1283326551-13751-1-git-send-email-sundar.iyer@stericsson.com> <4C809F7B.2020807@codeaurora.org> <20100903164032.GC2200@core.coreip.homeip.net>
+From: Neil Leeder <nleeder@codeaurora.org>
+Subject: Re: [PATCH 0/1] input: keyboard: add qci keyboard driver
+Date: Fri, 03 Sep 2010 15:13:10 -0400
+Message-ID: <4C8148C6.2010006@codeaurora.org>
+References: <4C7838DD.1020004@codeaurora.org> <201008271533.01542.dmitry.torokhov@gmail.com> <4C7BF6D2.5080501@codeaurora.org> <20100830215556.GC28865@core.coreip.homeip.net> <4C7D6C17.1070604@codeaurora.org> <20100901063430.GG23585@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:19862 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752433Ab0ICTGS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 15:06:18 -0400
-In-Reply-To: <20100903164032.GC2200@core.coreip.homeip.net>
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:50604 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752372Ab0ICTNM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 15:13:12 -0400
+In-Reply-To: <20100901063430.GG23585@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sundar Iyer <sundar.iyer@stericsson.com>, sameo@linux.intel.com, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Hsin.Wu@quantatw.com, mcuos.com@gmail.com
 
-Hi Dmitry,
+On 9/1/2010 2:34 AM, Dmitry Torokhov wrote:
+>
+> OK, I give up on pursuit of serio solution. Again ;)
 
-On 9/3/2010 10:10 PM, Dmitry Torokhov wrote:
-> 
->>
->>> +
->>> +static struct platform_driver ab8500_ponkey_driver = {
->>> +	.driver		= {
->>> +		.name	= "ab8500-poweron-key",
->>> +		.owner	= THIS_MODULE,
->>> +	},
->>> +	.probe		= ab8500_ponkey_probe,
->>> +	.remove		= __devexit_p(ab8500_ponkey_remove),
->>
->> It is not must for this driver to go through, but what would be the behaviour of
->> pwr-key on suspend and resume? Do you want power key to wakeup the system from sleep?
->> OR don't want to make it as wakeup source?
-> 
-> I am about to apply the patch so if you decide to do any PM changes they
-> shoudl go as a separete path please.
-> 
+Dmitry,
 
-Please go ahead and merge it. Thanks.
+Don't give up yet... I've been talking to Quanta and they are using a 
+different EC in their new products, which should have better firmware 
+support for serio over i2c. When I get the new hardware I will try again 
+to overcome the issues that showed up on the previous firmware, and I'll 
+submit new patches for both touchpad and keyboard.
 
----Trilok Soni
+Thanks.
 
+--
+Neil
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
+Sent by an employee of the Qualcomm Innovation Center, Inc.
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

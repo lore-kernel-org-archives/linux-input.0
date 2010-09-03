@@ -1,75 +1,139 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 1/7 v3] HID: magicmouse: don't allow hidinput to initialize
- the device
-Date: Fri, 03 Sep 2010 13:25:44 +0200
-Message-ID: <4C80DB38.9040101@gmail.com>
-References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>	<1283306184-28833-2-git-send-email-chase.douglas@canonical.com>	<4C7E94F6.9050806@gmail.com>	<AANLkTi=z5s8mbjG54930Lxj-O9Of2fXHE6kDJhijyOb7@mail.gmail.com>	<4C7F6E26.2030301@gmail.com> <AANLkTikb=eNzek-vQ=d3jZxitsbtJ5gD6BNDipAUpUcJ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AANLkTikb=eNzek-vQ=d3jZxitsbtJ5gD6BNDipAUpUcJ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 2/5] input: wacom: Parse the Bamboo device family
+Date: Fri,  3 Sep 2010 14:17:24 +0200
+Message-ID: <1283516247-11624-3-git-send-email-rydberg@euromail.se>
+References: <1283516247-11624-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:33812 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753212Ab0ICMSC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Sep 2010 08:18:02 -0400
+In-Reply-To: <1283516247-11624-1-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 
-On 09/02/2010 02:06 PM, Michael Poole wrote:
-> On Thu, Sep 2, 2010 at 5:28 AM, Jiri Slaby wrote:
->> On 09/02/2010 01:57 AM, Michael Poole wrote:
->>> Jiri Slaby wrote:
->>>> This looks weird. Is there any past discussion about why you cannot use
->>>> hidinput and you have to do all the input bits yourself while cheating
->>>> this very weird way?
->>>
->>> The Magic Mouse and Magic Trackpad do not publish HID descriptors for
->>> the multitouch reports.  Given the variable-length report packets --
->>> and especially the Magic Trackpad's new, mutant DOUBLE_REPORT_ID
->>> packets -- it would be non-trivial to write accurate descriptors that
->>> the HID core can use.  (Someone wrote a patch to try that a few months
->>> ago.  It ended up adding significantly more lines to hid-magicmouse.c
->>> than it removed, and it was not obvious to me that it got the Report
->>> Count fields correct.)
->>
->> Ok, makes sense. The proper solution is to call a driver hook in
->> hidinput_connect to do the mapping instead of report parsing done there,
->> right? (And not setting [gs]etkeycode in that case.)
-> 
-> I do not know how this would work with the current HID core; could you
-> elaborate?
+From: Ping Cheng <pinglinux@gmail.com>
 
-No way. You would have to implement that.
+The Bamboo devices have multiple interfaces which need to be setup
+separately. Use the HID parsing mechanism to achieve that.
 
->  For the Magic Mouse, there is a valid descriptor for the
-> 0x10 (traditional mouse motion and clicks) report, and a pretty
-> trivial descriptor in the vendor-defined usage region (which I assume
-> Apple drivers use to identify the ensemble of multi-touch,
-> mouse-up/down, laser status and battery level reports).  How would the
-> driver's input_mapping() hook, or any other hook, map that single
-> descriptor into fields for each of the parts of a multi-touch report,
-> or support the other reports?  How would hid-magicmouse describe the
-> report so that hid-core handles the variable-length multi-touch
-> reports properly?  As far as I can tell, hid_report_raw_event() and
-> its callees assume each report has fixed length.
+Signed-off-by: Ping Cheng <pinglinux@gmail.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/tablet/wacom_sys.c |   44 ++++++++++++++++++++++++++++++-------
+ drivers/input/tablet/wacom_wac.h |    2 +
+ 2 files changed, 37 insertions(+), 9 deletions(-)
 
-If I understand correctly, you have 2 reports. One report is standard
-HID and one is very specific and broken.
-1) I don't understand where events from the standard report are going
-now while no output is claimed. In other words, why you return from
-raw_event in the default case 0, there is nobody to eat the data, right?
-2) You handle events from the broken (or missing) report in
-magicmouse_raw_event and it will remain as is.
-
-
-So in the end there will be some .parse_reports hook called from inside
-hidinput_connect or somewhere instead of parsing and you will do the job
-you currently do in magicmouse_setup_input except the input structure
-setup (this will be done generically in hid core).
-
-The approach you have now is prone to errors, because somebody in the
-future may add a new claimant without bearing in mind to update these
-drivers.
-
-regards,
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index e510e4f..98cba08 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -195,17 +195,30 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
+ 							features->pktlen = WACOM_PKGLEN_TPC2FG;
+ 							features->device_type = BTN_TOOL_TRIPLETAP;
+ 						}
+-						features->x_max =
+-							get_unaligned_le16(&report[i + 3]);
+-						features->x_phy =
+-							get_unaligned_le16(&report[i + 6]);
+-						features->unit = report[i + 9];
+-						features->unitExpo = report[i + 11];
+-						i += 12;
++						if (features->type == BAMBOO_PT) {
++							/* need to reset back */
++							features->pktlen = WACOM_PKGLEN_BBTOUCH;
++							features->device_type = BTN_TOOL_TRIPLETAP;
++							features->x_phy =
++								get_unaligned_le16(&report[i + 5]);
++							features->x_max =
++								get_unaligned_le16(&report[i + 8]);
++							i += 15;
++						} else {
++							features->x_max =
++								get_unaligned_le16(&report[i + 3]);
++							features->x_phy =
++								get_unaligned_le16(&report[i + 6]);
++							features->unit = report[i + 9];
++							features->unitExpo = report[i + 11];
++							i += 12;
++						}
+ 					} else if (pen) {
+ 						/* penabled only accepts exact bytes of data */
+ 						if (features->type == TABLETPC2FG)
+ 							features->pktlen = WACOM_PKGLEN_GRAPHIRE;
++						if (features->type == BAMBOO_PT)
++							features->pktlen = WACOM_PKGLEN_BBFUN;
+ 						features->device_type = BTN_TOOL_PEN;
+ 						features->x_max =
+ 							get_unaligned_le16(&report[i + 3]);
+@@ -234,6 +247,15 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
+ 							features->y_phy =
+ 								get_unaligned_le16(&report[i + 6]);
+ 							i += 7;
++						} else if (features->type == BAMBOO_PT) {
++							/* need to reset back */
++							features->pktlen = WACOM_PKGLEN_BBTOUCH;
++							features->device_type = BTN_TOOL_TRIPLETAP;
++							features->y_phy =
++								get_unaligned_le16(&report[i + 3]);
++							features->y_max =
++								get_unaligned_le16(&report[i + 6]);
++							i += 12;
+ 						} else {
+ 							features->y_max =
+ 								features->x_max;
+@@ -245,6 +267,8 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
+ 						/* penabled only accepts exact bytes of data */
+ 						if (features->type == TABLETPC2FG)
+ 							features->pktlen = WACOM_PKGLEN_GRAPHIRE;
++						if (features->type == BAMBOO_PT)
++							features->pktlen = WACOM_PKGLEN_BBFUN;
+ 						features->device_type = BTN_TOOL_PEN;
+ 						features->y_max =
+ 							get_unaligned_le16(&report[i + 3]);
+@@ -341,7 +365,8 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	features->distance_fuzz = 0;
+ 
+ 	/* only Tablet PCs need to retrieve the info */
+-	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
++	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG) &&
++	    (features->type != BAMBOO_PT))
+ 		goto out;
+ 
+ 	if (usb_get_extra_descriptor(interface, HID_DEVICET_HID, &hid_desc)) {
+@@ -499,7 +524,8 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 
+ 	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
+ 
+-	if (features->type == TABLETPC || features->type == TABLETPC2FG) {
++	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
++	    features->type == BAMBOO_PT) {
+ 		/* Append the device type to the name */
+ 		strlcat(wacom_wac->name,
+ 			features->device_type == BTN_TOOL_PEN ?
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index d769e9a..fb30895 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -21,6 +21,7 @@
+ #define WACOM_PKGLEN_INTUOS	10
+ #define WACOM_PKGLEN_TPC1FG	 5
+ #define WACOM_PKGLEN_TPC2FG	14
++#define WACOM_PKGLEN_BBTOUCH	20
+ 
+ /* device IDs */
+ #define STYLUS_DEVICE_ID	0x02
+@@ -44,6 +45,7 @@ enum {
+ 	PTU,
+ 	PL,
+ 	DTU,
++	BAMBOO_PT,
+ 	INTUOS,
+ 	INTUOS3S,
+ 	INTUOS3,
 -- 
-js
+1.7.1
+

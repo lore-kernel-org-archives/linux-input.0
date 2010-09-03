@@ -1,84 +1,52 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 1/5] input: wacom: Add fuzz parameters to features
-Date: Fri,  3 Sep 2010 14:17:23 +0200
-Message-ID: <1283516247-11624-2-git-send-email-rydberg@euromail.se>
-References: <1283516247-11624-1-git-send-email-rydberg@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 5/5] input: wacom: Add a quirk for lowres Bamboo devices
+Date: Fri, 03 Sep 2010 14:59:29 +0200
+Message-ID: <4C80F131.2020004@euromail.se>
+References: <1283516247-11624-1-git-send-email-rydberg@euromail.se> <1283516247-11624-6-git-send-email-rydberg@euromail.se> <6753EB6004AFF34FAA275742C104F952022BB10D@wacom-nt10.wacom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:34432 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757754Ab0ICMTU (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:34231 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752754Ab0ICNAK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Sep 2010 08:19:20 -0400
-In-Reply-To: <1283516247-11624-1-git-send-email-rydberg@euromail.se>
+	Fri, 3 Sep 2010 09:00:10 -0400
+In-Reply-To: <6753EB6004AFF34FAA275742C104F952022BB10D@wacom-nt10.wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Ping Cheng <pingc@wacom.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The signal-to-noise ratio varies between devices, but currently all
-devices are treated the same way. Add fuzz parameters to the feature
-struct, allowing for tailored treatment of devices.
+On 09/03/2010 02:47 PM, Ping Cheng wrote:
+[...]
+> +	/* quirks for bamboo touch */
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/tablet/wacom_sys.c |    6 +++++-
- drivers/input/tablet/wacom_wac.c |    9 ++++++---
- drivers/input/tablet/wacom_wac.h |    4 ++++
- 3 files changed, 15 insertions(+), 4 deletions(-)
+> +	if (features->x_max == 480 && features->y_max == 320) {
+>  
+> A check on all Bamboo touch devices can be a generic way to cover all
+> Bamboos with touch feature (4 models). This check can be based on the
+> product id or features->type (== BAMBOO_PT) in combination with the
+> actual type (pen/touch) of the device.  All Bamboo touch devices use the
+> same protocol.
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 42ba369..e510e4f 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -333,8 +333,12 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
- 	struct usb_host_interface *interface = intf->cur_altsetting;
- 	struct hid_descriptor *hid_desc;
- 
--	/* default device to penabled */
-+	/* default features */
- 	features->device_type = BTN_TOOL_PEN;
-+	features->x_fuzz = 4;
-+	features->y_fuzz = 4;
-+	features->pressure_fuzz = 0;
-+	features->distance_fuzz = 0;
- 
- 	/* only Tablet PCs need to retrieve the info */
- 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 40d77ba..bfe5654 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -951,9 +951,12 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
- 
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 
--	input_set_abs_params(input_dev, ABS_X, 0, features->x_max, 4, 0);
--	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max, 4, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max, 0, 0);
-+	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
-+			     features->x_fuzz, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
-+			     features->y_fuzz, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max,
-+			     features->pressure_fuzz, 0);
- 
- 	__set_bit(ABS_MISC, input_dev->absbit);
- 
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 99e1a54..d769e9a 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -73,6 +73,10 @@ struct wacom_features {
- 	int y_phy;
- 	unsigned char unit;
- 	unsigned char unitExpo;
-+	int x_fuzz;
-+	int y_fuzz;
-+	int pressure_fuzz;
-+	int distance_fuzz;
- };
- 
- struct wacom_shared {
--- 
-1.7.1
 
+I guess the only one who knows if there will be other resolutions reported for
+BAMBOO_PT is you. :-) I wanted to not break any eventual resolution improvements
+in the BAMBOO_PT family, but if you say there aren't any, using the BAMBOO_PT
+check will be better, as you say.
+
+
+> +		features->x_max = 15360;
+> +		features->y_max = 10240;
+> 
+> I guess these two numbers rely on the original maxes: (480, 320). If so,
+> can we also make them generic by accessing features->x_max/y_max
+> directly?
+
+
+If you mean something like "features->x_max <<= 5", absolutely. Again, this all
+depends on what resolutions are to be anticipated, and which ones should be
+scaled this way.
+
+Henrik

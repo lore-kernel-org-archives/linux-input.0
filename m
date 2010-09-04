@@ -1,123 +1,270 @@
-From: Michael Poole <mdpoole@troilus.org>
-Subject: Re: [PATCH 1/7 v3] HID: magicmouse: don't allow hidinput to
- initialize the device
-Date: Fri, 3 Sep 2010 21:10:41 -0400
-Message-ID: <AANLkTi=xeHUV2s8Tu3tF2A8hODML68MYpH4_7j1z-t0a@mail.gmail.com>
-References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
-	<1283306184-28833-2-git-send-email-chase.douglas@canonical.com>
-	<4C7E94F6.9050806@gmail.com>
-	<AANLkTi=z5s8mbjG54930Lxj-O9Of2fXHE6kDJhijyOb7@mail.gmail.com>
-	<4C7F6E26.2030301@gmail.com>
-	<AANLkTikb=eNzek-vQ=d3jZxitsbtJ5gD6BNDipAUpUcJ@mail.gmail.com>
-	<4C80DB38.9040101@gmail.com>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH v2 1/6] ARM: pxa27x/pxa3xx: moved pxa27x_keypad.h to platform pxa directory
+Date: Sat, 4 Sep 2010 04:11:28 +0200
+Message-ID: <201009040411.28325.marek.vasut@gmail.com>
+References: <1282836457-5651-1-git-send-email-mark.brown314@gmail.com> <1282836457-5651-2-git-send-email-mark.brown314@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog109.obsmtp.com ([74.125.149.201]:60020 "HELO
-	na3sys009aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752057Ab0IDBKn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Sep 2010 21:10:43 -0400
-In-Reply-To: <4C80DB38.9040101@gmail.com>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:45613 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752783Ab0IDCMa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Sep 2010 22:12:30 -0400
+In-Reply-To: <1282836457-5651-2-git-send-email-mark.brown314@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Mark F. Brown" <mark.brown314@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Sep 3, 2010 at 7:25 AM, Jiri Slaby <jirislaby@gmail.com> wrote:
-> On 09/02/2010 02:06 PM, Michael Poole wrote:
->> On Thu, Sep 2, 2010 at 5:28 AM, Jiri Slaby wrote:
->>> On 09/02/2010 01:57 AM, Michael Poole wrote:
->>>> Jiri Slaby wrote:
->>>>> This looks weird. Is there any past discussion about why you cann=
-ot use
->>>>> hidinput and you have to do all the input bits yourself while che=
-ating
->>>>> this very weird way?
->>>>
->>>> The Magic Mouse and Magic Trackpad do not publish HID descriptors =
-for
->>>> the multitouch reports. =A0Given the variable-length report packet=
-s --
->>>> and especially the Magic Trackpad's new, mutant DOUBLE_REPORT_ID
->>>> packets -- it would be non-trivial to write accurate descriptors t=
-hat
->>>> the HID core can use. =A0(Someone wrote a patch to try that a few =
-months
->>>> ago. =A0It ended up adding significantly more lines to hid-magicmo=
-use.c
->>>> than it removed, and it was not obvious to me that it got the Repo=
-rt
->>>> Count fields correct.)
->>>
->>> Ok, makes sense. The proper solution is to call a driver hook in
->>> hidinput_connect to do the mapping instead of report parsing done t=
-here,
->>> right? (And not setting [gs]etkeycode in that case.)
->>
->> I do not know how this would work with the current HID core; could y=
-ou
->> elaborate?
->
-> No way. You would have to implement that.
->
->> =A0For the Magic Mouse, there is a valid descriptor for the
->> 0x10 (traditional mouse motion and clicks) report, and a pretty
->> trivial descriptor in the vendor-defined usage region (which I assum=
-e
->> Apple drivers use to identify the ensemble of multi-touch,
->> mouse-up/down, laser status and battery level reports). =A0How would=
- the
->> driver's input_mapping() hook, or any other hook, map that single
->> descriptor into fields for each of the parts of a multi-touch report=
-,
->> or support the other reports? =A0How would hid-magicmouse describe t=
-he
->> report so that hid-core handles the variable-length multi-touch
->> reports properly? =A0As far as I can tell, hid_report_raw_event() an=
-d
->> its callees assume each report has fixed length.
->
-> If I understand correctly, you have 2 reports. One report is standard
-> HID and one is very specific and broken.
-> 1) I don't understand where events from the standard report are going
-> now while no output is claimed. In other words, why you return from
-> raw_event in the default case 0, there is nobody to eat the data, rig=
-ht?
+Dne =C4=8Ct 26. srpna 2010 17:27:32 Mark F. Brown napsal(a):
+> mach-mmp utilizes pxa27x_keypad code so we need to move header to
+> platform pxa directory.
+>=20
+Hey, so what's so V2-ish on this one? Isn't this just a resubmission ?
 
-hid-magicmouse.c parses the standard-compliant report.  It is the
-"case 0x10:" handler.
-
-> 2) You handle events from the broken (or missing) report in
-> magicmouse_raw_event and it will remain as is.
->
-> So in the end there will be some .parse_reports hook called from insi=
-de
-> hidinput_connect or somewhere instead of parsing and you will do the =
-job
-> you currently do in magicmouse_setup_input except the input structure
-> setup (this will be done generically in hid core).
->
-> The approach you have now is prone to errors, because somebody in the
-> future may add a new claimant without bearing in mind to update these
-> drivers.
-
-What input_dev should this use for delivering events from the
-non-standard report?  The only way I saw (or see) for hid-magicmouse
-to get the (hid-input-created) input_dev for the mouse is to look at
-hid_device->report_enum[HID_INPUT_REPORT].report_list to get a struct
-hid_report*, then use hid_report->field[0]->hidinput->input.  That
-seemed more fragile and abstraction-breaking than the existing
-approach.
-
-Right now, the device-specific driver's raw_event hook gets the first
-shot at parsing any report; hid-core and hid-input process reports for
-which raw_event returns 0.  If someone adds a new kind of claimant
-that gets higher priority than both of those categories, by definition
-it wouldn't be an error for it to supersede hid-magicmouse's handler.
-
-Michael Poole
+Cheers
+> Signed-off-by: Mark F. Brown <mark.brown314@gmail.com>
+> ---
+>  arch/arm/mach-pxa/devices.c                        |    2 +-
+>  arch/arm/mach-pxa/em-x270.c                        |    2 +-
+>  arch/arm/mach-pxa/ezx.c                            |    2 +-
+>  arch/arm/mach-pxa/littleton.c                      |    2 +-
+>  arch/arm/mach-pxa/mainstone.c                      |    4 ++--
+>  arch/arm/mach-pxa/mioa701.c                        |    2 +-
+>  arch/arm/mach-pxa/palmld.c                         |    2 +-
+>  arch/arm/mach-pxa/palmt5.c                         |    2 +-
+>  arch/arm/mach-pxa/palmtreo.c                       |    2 +-
+>  arch/arm/mach-pxa/palmtx.c                         |    2 +-
+>  arch/arm/mach-pxa/palmz72.c                        |    2 +-
+>  arch/arm/mach-pxa/tavorevb.c                       |    2 +-
+>  arch/arm/mach-pxa/z2.c                             |    2 +-
+>  arch/arm/mach-pxa/zylonite.c                       |    2 +-
+>  .../mach =3D> plat-pxa/include/plat}/pxa27x_keypad.h |    0
+>  drivers/input/keyboard/pxa27x_keypad.c             |    2 +-
+>  16 files changed, 16 insertions(+), 16 deletions(-)
+>  rename arch/arm/{mach-pxa/include/mach =3D>
+> plat-pxa/include/plat}/pxa27x_keypad.h (100%)
+>=20
+> diff --git a/arch/arm/mach-pxa/devices.c b/arch/arm/mach-pxa/devices.=
+c
+> index a2fc859..08b4103 100644
+> --- a/arch/arm/mach-pxa/devices.c
+> +++ b/arch/arm/mach-pxa/devices.c
+> @@ -11,7 +11,7 @@
+>  #include <mach/mmc.h>
+>  #include <mach/irda.h>
+>  #include <mach/ohci.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/pxa2xx_spi.h>
+>  #include <mach/camera.h>
+>  #include <mach/audio.h>
+> diff --git a/arch/arm/mach-pxa/em-x270.c b/arch/arm/mach-pxa/em-x270.=
+c
+> index 0517c17..51286a7 100644
+> --- a/arch/arm/mach-pxa/em-x270.c
+> +++ b/arch/arm/mach-pxa/em-x270.c
+> @@ -43,7 +43,7 @@
+>  #include <mach/pxafb.h>
+>  #include <mach/ohci.h>
+>  #include <mach/mmc.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <plat/i2c.h>
+>  #include <mach/camera.h>
+>  #include <mach/pxa2xx_spi.h>
+> diff --git a/arch/arm/mach-pxa/ezx.c b/arch/arm/mach-pxa/ezx.c
+> index 3fe61f4..f997e84 100644
+> --- a/arch/arm/mach-pxa/ezx.c
+> +++ b/arch/arm/mach-pxa/ezx.c
+> @@ -32,7 +32,7 @@
+>  #include <mach/ohci.h>
+>  #include <plat/i2c.h>
+>  #include <mach/hardware.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/camera.h>
+>=20
+>  #include "devices.h"
+> diff --git a/arch/arm/mach-pxa/littleton.c b/arch/arm/mach-pxa/little=
+ton.c
+> index 83f3236..eb58506 100644
+> --- a/arch/arm/mach-pxa/littleton.c
+> +++ b/arch/arm/mach-pxa/littleton.c
+> @@ -43,7 +43,7 @@
+>  #include <mach/pxafb.h>
+>  #include <mach/mmc.h>
+>  #include <mach/pxa2xx_spi.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/littleton.h>
+>  #include <plat/i2c.h>
+>  #include <plat/pxa3xx_nand.h>
+> diff --git a/arch/arm/mach-pxa/mainstone.c b/arch/arm/mach-pxa/mainst=
+one.c
+> index c2a8717..126dca1 100644
+> --- a/arch/arm/mach-pxa/mainstone.c
+> +++ b/arch/arm/mach-pxa/mainstone.c
+> @@ -41,7 +41,7 @@
+>  #include <asm/mach/irq.h>
+>  #include <asm/mach/flash.h>
+>=20
+> -#include <mach/pxa27x.h>
+> +#include <plat/pxa27x.h>
+>  #include <mach/gpio.h>
+>  #include <mach/mainstone.h>
+>  #include <mach/audio.h>
+> @@ -50,7 +50,7 @@
+>  #include <mach/mmc.h>
+>  #include <mach/irda.h>
+>  #include <mach/ohci.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>=20
+>  #include "generic.h"
+>  #include "devices.h"
+> diff --git a/arch/arm/mach-pxa/mioa701.c b/arch/arm/mach-pxa/mioa701.=
+c
+> index dc66942..ffb3f5a 100644
+> --- a/arch/arm/mach-pxa/mioa701.c
+> +++ b/arch/arm/mach-pxa/mioa701.c
+> @@ -45,7 +45,7 @@
+>=20
+>  #include <mach/pxa27x.h>
+>  #include <mach/regs-rtc.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/pxafb.h>
+>  #include <mach/mmc.h>
+>  #include <mach/udc.h>
+> diff --git a/arch/arm/mach-pxa/palmld.c b/arch/arm/mach-pxa/palmld.c
+> index 91038ee..3ff0c4a 100644
+> --- a/arch/arm/mach-pxa/palmld.c
+> +++ b/arch/arm/mach-pxa/palmld.c
+> @@ -39,7 +39,7 @@
+>  #include <mach/mmc.h>
+>  #include <mach/pxafb.h>
+>  #include <mach/irda.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/palmasoc.h>
+>  #include <mach/palm27x.h>
+>=20
+> diff --git a/arch/arm/mach-pxa/palmt5.c b/arch/arm/mach-pxa/palmt5.c
+> index 1c28199..5b9f766 100644
+> --- a/arch/arm/mach-pxa/palmt5.c
+> +++ b/arch/arm/mach-pxa/palmt5.c
+> @@ -39,7 +39,7 @@
+>  #include <mach/mmc.h>
+>  #include <mach/pxafb.h>
+>  #include <mach/irda.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/udc.h>
+>  #include <mach/palmasoc.h>
+>  #include <mach/palm27x.h>
+> diff --git a/arch/arm/mach-pxa/palmtreo.c b/arch/arm/mach-pxa/palmtre=
+o.c
+> index 52defd5..f685a60 100644
+> --- a/arch/arm/mach-pxa/palmtreo.c
+> +++ b/arch/arm/mach-pxa/palmtreo.c
+> @@ -39,7 +39,7 @@
+>  #include <mach/mmc.h>
+>  #include <mach/pxafb.h>
+>  #include <mach/irda.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/udc.h>
+>  #include <mach/ohci.h>
+>  #include <mach/pxa2xx-regs.h>
+> diff --git a/arch/arm/mach-pxa/palmtx.c b/arch/arm/mach-pxa/palmtx.c
+> index 144dc2b..89a3792 100644
+> --- a/arch/arm/mach-pxa/palmtx.c
+> +++ b/arch/arm/mach-pxa/palmtx.c
+> @@ -43,7 +43,7 @@
+>  #include <mach/mmc.h>
+>  #include <mach/pxafb.h>
+>  #include <mach/irda.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/udc.h>
+>  #include <mach/palmasoc.h>
+>  #include <mach/palm27x.h>
+> diff --git a/arch/arm/mach-pxa/palmz72.c b/arch/arm/mach-pxa/palmz72.=
+c
+> index 87e4b10..38f4425 100644
+> --- a/arch/arm/mach-pxa/palmz72.c
+> +++ b/arch/arm/mach-pxa/palmz72.c
+> @@ -41,7 +41,7 @@
+>  #include <mach/mmc.h>
+>  #include <mach/pxafb.h>
+>  #include <mach/irda.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/udc.h>
+>  #include <mach/palmasoc.h>
+>  #include <mach/palm27x.h>
+> diff --git a/arch/arm/mach-pxa/tavorevb.c b/arch/arm/mach-pxa/tavorev=
+b.c
+> index f02dcb5..0f440c9 100644
+> --- a/arch/arm/mach-pxa/tavorevb.c
+> +++ b/arch/arm/mach-pxa/tavorevb.c
+> @@ -25,7 +25,7 @@
+>=20
+>  #include <mach/pxa930.h>
+>  #include <mach/pxafb.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>=20
+>  #include "devices.h"
+>  #include "generic.h"
+> diff --git a/arch/arm/mach-pxa/z2.c b/arch/arm/mach-pxa/z2.c
+> index f0d0228..8c44bc4 100644
+> --- a/arch/arm/mach-pxa/z2.c
+> +++ b/arch/arm/mach-pxa/z2.c
+> @@ -37,7 +37,7 @@
+>  #include <mach/z2.h>
+>  #include <mach/pxafb.h>
+>  #include <mach/mmc.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <mach/pxa2xx_spi.h>
+>=20
+>  #include <plat/i2c.h>
+> diff --git a/arch/arm/mach-pxa/zylonite.c b/arch/arm/mach-pxa/zylonit=
+e.c
+> index 2edad61..69df3ed 100644
+> --- a/arch/arm/mach-pxa/zylonite.c
+> +++ b/arch/arm/mach-pxa/zylonite.c
+> @@ -30,7 +30,7 @@
+>  #include <mach/zylonite.h>
+>  #include <mach/mmc.h>
+>  #include <mach/ohci.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  #include <plat/pxa3xx_nand.h>
+>=20
+>  #include "devices.h"
+> diff --git a/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
+> b/arch/arm/plat-pxa/include/plat/pxa27x_keypad.h similarity index 100=
+%
+> rename from arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
+> rename to arch/arm/plat-pxa/include/plat/pxa27x_keypad.h
+> diff --git a/drivers/input/keyboard/pxa27x_keypad.c
+> b/drivers/input/keyboard/pxa27x_keypad.c index 0e53b3b..0610d10 10064=
+4
+> --- a/drivers/input/keyboard/pxa27x_keypad.c
+> +++ b/drivers/input/keyboard/pxa27x_keypad.c
+> @@ -32,7 +32,7 @@
+>  #include <asm/mach/map.h>
+>=20
+>  #include <mach/hardware.h>
+> -#include <mach/pxa27x_keypad.h>
+> +#include <plat/pxa27x_keypad.h>
+>  /*
+>   * Keypad Controller registers
+>   */
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,139 +1,77 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 2/5] input: wacom: Parse the Bamboo device family
-Date: Sat,  4 Sep 2010 15:43:00 +0200
-Message-ID: <1283607783-29388-3-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 5/5] input: wacom: Add a quirk for lowres Bamboo devices (rev2)
+Date: Sat,  4 Sep 2010 15:43:03 +0200
+Message-ID: <1283607783-29388-6-git-send-email-rydberg@euromail.se>
 References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:40419 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753215Ab0IDNoJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Sep 2010 09:44:09 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+List-Id: linux-input@vger.kernel.org
 
-From: Ping Cheng <pinglinux@gmail.com>
+The Bamboo Touch reports a sub-screen resolution of 480x320.
+The signal-to-noise ratio is only about 100, so filtering is
+needed in order to reduce the jitter to a usable level. However,
+the low resolution leads to round-off errors in the EWMA filter,
+resulting in extremely jerky pointer motion. This patch explicitly
+sets a higher resolution for those devices, and tells this to
+the completion handler via a low-resolution quirk.
 
-The Bamboo devices have multiple interfaces which need to be setup
-separately. Use the HID parsing mechanism to achieve that.
-
-Signed-off-by: Ping Cheng <pinglinux@gmail.com>
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/tablet/wacom_sys.c |   44 ++++++++++++++++++++++++++++++-------
- drivers/input/tablet/wacom_wac.h |    2 +
- 2 files changed, 37 insertions(+), 9 deletions(-)
+ drivers/input/tablet/wacom_wac.c |   10 ++++++++++
+ drivers/input/tablet/wacom_wac.h |    1 +
+ 2 files changed, 11 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index e510e4f..98cba08 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -195,17 +195,30 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
- 							features->pktlen = WACOM_PKGLEN_TPC2FG;
- 							features->device_type = BTN_TOOL_TRIPLETAP;
- 						}
--						features->x_max =
--							get_unaligned_le16(&report[i + 3]);
--						features->x_phy =
--							get_unaligned_le16(&report[i + 6]);
--						features->unit = report[i + 9];
--						features->unitExpo = report[i + 11];
--						i += 12;
-+						if (features->type == BAMBOO_PT) {
-+							/* need to reset back */
-+							features->pktlen = WACOM_PKGLEN_BBTOUCH;
-+							features->device_type = BTN_TOOL_TRIPLETAP;
-+							features->x_phy =
-+								get_unaligned_le16(&report[i + 5]);
-+							features->x_max =
-+								get_unaligned_le16(&report[i + 8]);
-+							i += 15;
-+						} else {
-+							features->x_max =
-+								get_unaligned_le16(&report[i + 3]);
-+							features->x_phy =
-+								get_unaligned_le16(&report[i + 6]);
-+							features->unit = report[i + 9];
-+							features->unitExpo = report[i + 11];
-+							i += 12;
-+						}
- 					} else if (pen) {
- 						/* penabled only accepts exact bytes of data */
- 						if (features->type == TABLETPC2FG)
- 							features->pktlen = WACOM_PKGLEN_GRAPHIRE;
-+						if (features->type == BAMBOO_PT)
-+							features->pktlen = WACOM_PKGLEN_BBFUN;
- 						features->device_type = BTN_TOOL_PEN;
- 						features->x_max =
- 							get_unaligned_le16(&report[i + 3]);
-@@ -234,6 +247,15 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
- 							features->y_phy =
- 								get_unaligned_le16(&report[i + 6]);
- 							i += 7;
-+						} else if (features->type == BAMBOO_PT) {
-+							/* need to reset back */
-+							features->pktlen = WACOM_PKGLEN_BBTOUCH;
-+							features->device_type = BTN_TOOL_TRIPLETAP;
-+							features->y_phy =
-+								get_unaligned_le16(&report[i + 3]);
-+							features->y_max =
-+								get_unaligned_le16(&report[i + 6]);
-+							i += 12;
- 						} else {
- 							features->y_max =
- 								features->x_max;
-@@ -245,6 +267,8 @@ static int wacom_parse_hid(struct usb_interface *intf, struct hid_descriptor *hi
- 						/* penabled only accepts exact bytes of data */
- 						if (features->type == TABLETPC2FG)
- 							features->pktlen = WACOM_PKGLEN_GRAPHIRE;
-+						if (features->type == BAMBOO_PT)
-+							features->pktlen = WACOM_PKGLEN_BBFUN;
- 						features->device_type = BTN_TOOL_PEN;
- 						features->y_max =
- 							get_unaligned_le16(&report[i + 3]);
-@@ -341,7 +365,8 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
- 	features->distance_fuzz = 0;
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 97295aa..8193892 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -858,6 +858,7 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ {
+ 	static int trkid;
++	struct wacom_features *features = &wacom->features;
+ 	struct input_dev *input = wacom->input;
+ 	unsigned char *data = wacom->data;
+ 	int sp = 0, sx = 0, sy = 0, count = 0;
+@@ -872,6 +873,10 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ 		if (p) {
+ 			int x = get_unaligned_be16(&data[9 * i + 3]) & 0x7ff;
+ 			int y = get_unaligned_be16(&data[9 * i + 5]) & 0x7ff;
++			if (features->quirks & WACOM_QUIRK_BBTOUCH_LOWRES) {
++				x <<= 5;
++				y <<= 5;
++			}
+ 			input_report_abs(input, ABS_MT_PRESSURE, p);
+ 			input_report_abs(input, ABS_MT_POSITION_X, x);
+ 			input_report_abs(input, ABS_MT_POSITION_Y, y);
+@@ -1010,8 +1015,13 @@ void wacom_setup_device_quirks(struct wacom_features *features)
  
- 	/* only Tablet PCs need to retrieve the info */
--	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
-+	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG) &&
-+	    (features->type != BAMBOO_PT))
- 		goto out;
+ 	/* quirks for bamboo touch */
+ 	if (features->type == BAMBOO_PT) {
++		features->x_max <<= 5;
++		features->y_max <<= 5;
++		features->x_fuzz <<= 5;
++		features->y_fuzz <<= 5;
+ 		features->pressure_max = 256;
+ 		features->pressure_fuzz = 16;
++		features->quirks |= WACOM_QUIRK_BBTOUCH_LOWRES;
+ 	}
+ }
  
- 	if (usb_get_extra_descriptor(interface, HID_DEVICET_HID, &hid_desc)) {
-@@ -499,7 +524,8 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 
- 	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
- 
--	if (features->type == TABLETPC || features->type == TABLETPC2FG) {
-+	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
-+	    features->type == BAMBOO_PT) {
- 		/* Append the device type to the name */
- 		strlcat(wacom_wac->name,
- 			features->device_type == BTN_TOOL_PEN ?
 diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index d769e9a..fb30895 100644
+index 816ab0f..22cafe2 100644
 --- a/drivers/input/tablet/wacom_wac.h
 +++ b/drivers/input/tablet/wacom_wac.h
-@@ -21,6 +21,7 @@
- #define WACOM_PKGLEN_INTUOS	10
- #define WACOM_PKGLEN_TPC1FG	 5
- #define WACOM_PKGLEN_TPC2FG	14
-+#define WACOM_PKGLEN_BBTOUCH	20
+@@ -40,6 +40,7 @@
  
- /* device IDs */
- #define STYLUS_DEVICE_ID	0x02
-@@ -44,6 +45,7 @@ enum {
- 	PTU,
- 	PL,
- 	DTU,
-+	BAMBOO_PT,
- 	INTUOS,
- 	INTUOS3S,
- 	INTUOS3,
+ /* device quirks */
+ #define WACOM_QUIRK_MULTI_INPUT		0x0001
++#define WACOM_QUIRK_BBTOUCH_LOWRES	0x0002
+ 
+ /* largest reported tracking id */
+ #define MAX_TRACKING_ID			0xfff
 -- 
 1.7.1
-

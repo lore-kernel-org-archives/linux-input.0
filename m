@@ -1,74 +1,39 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: HIDDEV: potential NULL dereference
-Date: Sat, 04 Sep 2010 14:54:52 +0200
-Message-ID: <4C82419C.3050903@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: cjb@laptop.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 0/5] input: wacom: Initial support for Bamboo (rev3)
+Date: Sat,  4 Sep 2010 15:42:58 +0200
+Message-ID: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:59849 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752781Ab0IDNn3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 4 Sep 2010 09:43:29 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Hi,
+This the fourth iteration of the Bamboo patches. Hopefully no big
+surprises.  The ordering has changed to allow setting the pressure_max
+which is not parsed in the hid function. Ping's button mapping has
+been implemented, relying on middle-button emulation instead.  The
+lowres quirks now apply to all touch devices in the family.
 
-I've a question for you :). How could this patch help:
+Cheers,
+Henrik
 
-commit 7032269e87ade34cc12891675371fa2ac150a620
-Author: Chris Ball <cjb@laptop.org>
-Date:   Thu Aug 12 19:07:40 2010 -0400
+Henrik Rydberg (4):
+  input: wacom: Add fuzz parameters to features
+  input: wacom: Collect device quirks into single function (rev2)
+  input: wacom: Add support for the Bamboo Touch trackpad (rev4)
+  input: wacom: Add a quirk for lowres Bamboo devices (rev2)
 
-    HID: hiddev: protect against disconnect/NULL-dereference race
+Ping Cheng (1):
+  input: wacom: Parse the Bamboo device family
 
-    One of our users reports consistently hitting a NULL dereference that
-    resolves to the "hid_to_usb_dev(hid);" call in hiddev_ioctl(), when
-    disconnecting a Lego WeDo USB HID device from an OLPC XO running
-    Scratch software.  There's a FIXME comment and a guard against the
-    dereference, but that happens farther down the function than the
-    initial dereference does.
+ drivers/input/tablet/wacom.h     |    1 +
+ drivers/input/tablet/wacom_sys.c |   57 +++++++++++++-----
+ drivers/input/tablet/wacom_wac.c |  123 +++++++++++++++++++++++++++++++++++++-
+ drivers/input/tablet/wacom_wac.h |   14 ++++
+ 4 files changed, 176 insertions(+), 19 deletions(-)
 
-    This patch moves the call to be below the guard, and the user reports
-    that it fixes the problem for him.  OLPC bug report:
-    http://dev.laptop.org/ticket/10174
-
-    Signed-off-by: Chris Ball <cjb@laptop.org>
-    Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-
-
-
-
-
-when the code now looks like:
-  struct usb_device *dev; // here was the assignment before the patch
-  struct usbhid_device *usbhid = hid->driver_data;
-...
-  if (!hiddev->exist || !hid)
-    return -EIO;
-  dev = hid_to_usb_dev(hid);
-
-
-If hid was ever NULL at this phase, the check couldn't improve anything
-due to hid->driver_data dereference being still before the check. So
-again my question, how this could change anything?
-
-Above that, it just makes the window shorter, but the bug is still
-there, isn't it? Is the following scenario reasonable?
-
-A (hiddev_ioctl)           | B
-------------------------------------------------
-if (!hid)                  |
-  return -EIO;             |
-                           | hid = NULL
-                           | kfree(hid);
-dev = hid_to_usb_dev(hid); |
-
-
-Actually who's the process B you are trying to catch the race against by
-the patch? hid-core?
-
-thanks,
--- 
-js
-suse labs

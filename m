@@ -1,66 +1,26 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 2/2] Input: stmpe-ts - return -ENOMEM if memory
-	allocation fail
-Date: Sat, 4 Sep 2010 07:45:11 +0200
-Message-ID: <20100904054511.GA12920@pengutronix.de>
-References: <1283477451.5439.6.camel@mola> <1283477533.5439.8.camel@mola> <20100903213524.GA32515@pengutronix.de> <20100903214540.GB6412@core.coreip.homeip.net>
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: Re: [PATCH v2 1/6 RESEND] ARM: pxa27x/pxa3xx: moved pxa27x_keypad.h
+ to platform pxa directory
+Date: Sat, 4 Sep 2010 15:40:44 +0800
+Message-ID: <AANLkTim_Z=ppernEbttKz6hcaT=F+DZDBTkhQMSipACK@mail.gmail.com>
+References: <1283552891-13966-1-git-send-email-mark.brown314@gmail.com> <1283552891-13966-2-git-send-email-mark.brown314@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100903214540.GB6412@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Axel Lin <axel.lin@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:39004 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753459Ab0IDHlF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Sep 2010 03:41:05 -0400
+In-Reply-To: <1283552891-13966-2-git-send-email-mark.brown314@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Mark F. Brown" <mark.brown314@gmail.com>
+Cc: Haojian Zhuang <haojian.zhuang@marvell.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
+On Sat, Sep 4, 2010 at 6:28 AM, Mark F. Brown <mark.brown314@gmail.com> wrote:
+> mach-mmp utilizes pxa27x_keypad code so we need to move header to
+> platform pxa directory.
+>
+> Signed-off-by: Mark F. Brown <mark.brown314@gmail.com>
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Sep 03, 2010 at 02:45:40PM -0700, Dmitry Torokhov wrote:
-> On Fri, Sep 03, 2010 at 11:35:24PM +0200, Wolfram Sang wrote:
-> > On Fri, Sep 03, 2010 at 09:32:13AM +0800, Axel Lin wrote:
-> > > Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> >=20
-> > Basically correct. Should be simpler to just use
-> >=20
-> > 	int ret =3D -ENOMEM;
-> >=20
-> > though.
-> >=20
->=20
-> No! I hate when people initialize error values like that, because it is
-
-Might be a mileage; I don't insist, though :)
-
-> so easy to miss the case and end up with wrong value. If the original
-> version of the driver did not initialize it to 0 compiler would warn
-> the author and the error would not make it into the mainline to begin
-> with.
-
-So, the initialization to 0 could be removed, at least.
-
-> Please explicitly assign error codes in error handling path.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---W/nzBZO5zC0uMSeA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkyB3OcACgkQD27XaX1/VRtpKQCfbu86CKuVRN4rvjQmML8ZU/al
-ItUAn1//3wqmDfB2ysWyAMXRfcvWFpQg
-=VmEa
------END PGP SIGNATURE-----
-
---W/nzBZO5zC0uMSeA--
+Applied to 'devel'.

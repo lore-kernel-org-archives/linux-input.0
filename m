@@ -1,39 +1,78 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 0/5] input: wacom: Initial support for Bamboo (rev3)
-Date: Sat,  4 Sep 2010 15:42:58 +0200
-Message-ID: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:59849 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752781Ab0IDNn3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Sep 2010 09:43:29 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 1/5] input: wacom: Add fuzz parameters to features
+Date: Sat,  4 Sep 2010 15:42:59 +0200
+Message-ID: <1283607783-29388-2-git-send-email-rydberg@euromail.se>
+References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+List-Id: linux-input@vger.kernel.org
 
-This the fourth iteration of the Bamboo patches. Hopefully no big
-surprises.  The ordering has changed to allow setting the pressure_max
-which is not parsed in the hid function. Ping's button mapping has
-been implemented, relying on middle-button emulation instead.  The
-lowres quirks now apply to all touch devices in the family.
+The signal-to-noise ratio varies between devices, but currently all
+devices are treated the same way. Add fuzz parameters to the feature
+struct, allowing for tailored treatment of devices.
 
-Cheers,
-Henrik
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/tablet/wacom_sys.c |    6 +++++-
+ drivers/input/tablet/wacom_wac.c |    9 ++++++---
+ drivers/input/tablet/wacom_wac.h |    4 ++++
+ 3 files changed, 15 insertions(+), 4 deletions(-)
 
-Henrik Rydberg (4):
-  input: wacom: Add fuzz parameters to features
-  input: wacom: Collect device quirks into single function (rev2)
-  input: wacom: Add support for the Bamboo Touch trackpad (rev4)
-  input: wacom: Add a quirk for lowres Bamboo devices (rev2)
-
-Ping Cheng (1):
-  input: wacom: Parse the Bamboo device family
-
- drivers/input/tablet/wacom.h     |    1 +
- drivers/input/tablet/wacom_sys.c |   57 +++++++++++++-----
- drivers/input/tablet/wacom_wac.c |  123 +++++++++++++++++++++++++++++++++++++-
- drivers/input/tablet/wacom_wac.h |   14 ++++
- 4 files changed, 176 insertions(+), 19 deletions(-)
-
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 42ba369..e510e4f 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -333,8 +333,12 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+ 	struct hid_descriptor *hid_desc;
+ 
+-	/* default device to penabled */
++	/* default features */
+ 	features->device_type = BTN_TOOL_PEN;
++	features->x_fuzz = 4;
++	features->y_fuzz = 4;
++	features->pressure_fuzz = 0;
++	features->distance_fuzz = 0;
+ 
+ 	/* only Tablet PCs need to retrieve the info */
+ 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 40d77ba..bfe5654 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -951,9 +951,12 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 
+-	input_set_abs_params(input_dev, ABS_X, 0, features->x_max, 4, 0);
+-	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max, 4, 0);
+-	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max, 0, 0);
++	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
++			     features->x_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
++			     features->y_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max,
++			     features->pressure_fuzz, 0);
+ 
+ 	__set_bit(ABS_MISC, input_dev->absbit);
+ 
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 99e1a54..d769e9a 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -73,6 +73,10 @@ struct wacom_features {
+ 	int y_phy;
+ 	unsigned char unit;
+ 	unsigned char unitExpo;
++	int x_fuzz;
++	int y_fuzz;
++	int pressure_fuzz;
++	int distance_fuzz;
+ };
+ 
+ struct wacom_shared {
+-- 
+1.7.1

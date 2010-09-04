@@ -1,78 +1,178 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 1/5] input: wacom: Add fuzz parameters to features
-Date: Sat,  4 Sep 2010 15:42:59 +0200
-Message-ID: <1283607783-29388-2-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 4/5] input: wacom: Add support for the Bamboo Touch trackpad (rev4)
+Date: Sat,  4 Sep 2010 15:43:02 +0200
+Message-ID: <1283607783-29388-5-git-send-email-rydberg@euromail.se>
 References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:52341 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752982Ab0IDNoJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 4 Sep 2010 09:44:09 -0400
 In-Reply-To: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
-List-Id: linux-input@vger.kernel.org
 
-The signal-to-noise ratio varies between devices, but currently all
-devices are treated the same way. Add fuzz parameters to the feature
-struct, allowing for tailored treatment of devices.
+Add support for the Bamboo Touch trackpad, and make it work with
+both the Synaptics X Driver and the Multitouch X Driver. The device
+uses MT slots internally, so the choice of protocol is a given.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/tablet/wacom_sys.c |    6 +++++-
- drivers/input/tablet/wacom_wac.c |    9 ++++++---
- drivers/input/tablet/wacom_wac.h |    4 ++++
- 3 files changed, 15 insertions(+), 4 deletions(-)
+ drivers/input/tablet/wacom_wac.c |   88 ++++++++++++++++++++++++++++++++++++++
+ drivers/input/tablet/wacom_wac.h |    3 +
+ 2 files changed, 91 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 42ba369..e510e4f 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -333,8 +333,12 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
- 	struct usb_host_interface *interface = intf->cur_altsetting;
- 	struct hid_descriptor *hid_desc;
- 
--	/* default device to penabled */
-+	/* default features */
- 	features->device_type = BTN_TOOL_PEN;
-+	features->x_fuzz = 4;
-+	features->y_fuzz = 4;
-+	features->pressure_fuzz = 0;
-+	features->distance_fuzz = 0;
- 
- 	/* only Tablet PCs need to retrieve the info */
- 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
 diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 40d77ba..bfe5654 100644
+index ca18b4d..97295aa 100644
 --- a/drivers/input/tablet/wacom_wac.c
 +++ b/drivers/input/tablet/wacom_wac.c
-@@ -951,9 +951,12 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+@@ -855,6 +855,54 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+ 	return retval;
+ }
  
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
++static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
++{
++	static int trkid;
++	struct input_dev *input = wacom->input;
++	unsigned char *data = wacom->data;
++	int sp = 0, sx = 0, sy = 0, count = 0;
++	int i;
++
++	if (len != WACOM_PKGLEN_BBTOUCH)
++		return 0;
++
++	for (i = 0; i < 2; i++) {
++		int p = data[9 * i + 2];
++		input_mt_slot(input, i);
++		if (p) {
++			int x = get_unaligned_be16(&data[9 * i + 3]) & 0x7ff;
++			int y = get_unaligned_be16(&data[9 * i + 5]) & 0x7ff;
++			input_report_abs(input, ABS_MT_PRESSURE, p);
++			input_report_abs(input, ABS_MT_POSITION_X, x);
++			input_report_abs(input, ABS_MT_POSITION_Y, y);
++			if (wacom->id[i] < 0)
++				wacom->id[i] = trkid++ & MAX_TRACKING_ID;
++			if (!count++)
++				sp = p, sx = x, sy = y;
++		} else {
++			wacom->id[i] = -1;
++		}
++		input_report_abs(input, ABS_MT_TRACKING_ID, wacom->id[i]);
++	}
++
++	input_report_key(input, BTN_TOUCH, count > 0);
++	input_report_key(input, BTN_TOOL_FINGER, count == 1);
++	input_report_key(input, BTN_TOOL_DOUBLETAP, count == 2);
++
++	input_report_abs(input, ABS_PRESSURE, sp);
++	input_report_abs(input, ABS_X, sx);
++	input_report_abs(input, ABS_Y, sy);
++
++	input_report_key(input, BTN_LEFT, (data[1] & 0x08) != 0);
++	input_report_key(input, BTN_FORWARD, (data[1] & 0x04) != 0);
++	input_report_key(input, BTN_BACK, (data[1] & 0x02) != 0);
++	input_report_key(input, BTN_RIGHT, (data[1] & 0x01) != 0);
++
++	input_sync(input);
++
++	return 0;
++}
++
+ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ {
+ 	bool sync;
+@@ -900,6 +948,10 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ 		sync = wacom_tpc_irq(wacom_wac, len);
+ 		break;
  
--	input_set_abs_params(input_dev, ABS_X, 0, features->x_max, 4, 0);
--	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max, 4, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max, 0, 0);
-+	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
-+			     features->x_fuzz, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
-+			     features->y_fuzz, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max,
-+			     features->pressure_fuzz, 0);
++	case BAMBOO_PT:
++		sync = wacom_bpt_irq(wacom_wac, len);
++		break;
++
+ 	default:
+ 		sync = false;
+ 		break;
+@@ -955,6 +1007,12 @@ void wacom_setup_device_quirks(struct wacom_features *features)
+ 	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
+ 	    features->type == BAMBOO_PT)
+ 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
++
++	/* quirks for bamboo touch */
++	if (features->type == BAMBOO_PT) {
++		features->pressure_max = 256;
++		features->pressure_fuzz = 16;
++	}
+ }
  
- 	__set_bit(ABS_MISC, input_dev->absbit);
+ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+@@ -1095,6 +1153,33 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 	case PENPARTNER:
+ 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+ 		break;
++
++	case BAMBOO_PT:
++		__clear_bit(ABS_MISC, input_dev->absbit);
++
++		if (features->device_type == BTN_TOOL_TRIPLETAP) {
++			__set_bit(BTN_LEFT, input_dev->keybit);
++			__set_bit(BTN_FORWARD, input_dev->keybit);
++			__set_bit(BTN_BACK, input_dev->keybit);
++			__set_bit(BTN_RIGHT, input_dev->keybit);
++
++			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
++			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
++
++			input_mt_create_slots(input_dev, 2);
++			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
++					     0, features->x_max,
++					     features->x_fuzz, 0);
++			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
++					     0, features->y_max,
++					     features->y_fuzz, 0);
++			input_set_abs_params(input_dev, ABS_MT_PRESSURE,
++					     0, features->pressure_max,
++					     features->pressure_fuzz, 0);
++			input_set_abs_params(input_dev, ABS_MT_TRACKING_ID, 0,
++					     MAX_TRACKING_ID, 0, 0);
++		}
++		break;
+ 	}
+ }
  
+@@ -1232,6 +1317,8 @@ static const struct wacom_features wacom_features_0xE3 =
+ 	{ "Wacom ISDv4 E3",       WACOM_PKGLEN_TPC2FG,    26202, 16325,  255,  0, TABLETPC2FG };
+ static const struct wacom_features wacom_features_0x47 =
+ 	{ "Wacom Intuos2 6x8",    WACOM_PKGLEN_INTUOS,    20320, 16240, 1023, 31, INTUOS };
++static struct wacom_features wacom_features_0xD0 =
++	{ "Wacom Bamboo 2FG",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023, 63, BAMBOO_PT };
+ 
+ #define USB_DEVICE_WACOM(prod)					\
+ 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
+@@ -1296,6 +1383,7 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xC6) },
+ 	{ USB_DEVICE_WACOM(0xC7) },
+ 	{ USB_DEVICE_WACOM(0xCE) },
++	{ USB_DEVICE_WACOM(0xD0) },
+ 	{ USB_DEVICE_WACOM(0xF0) },
+ 	{ USB_DEVICE_WACOM(0xCC) },
+ 	{ USB_DEVICE_WACOM(0x90) },
 diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 99e1a54..d769e9a 100644
+index 6a1ff10..816ab0f 100644
 --- a/drivers/input/tablet/wacom_wac.h
 +++ b/drivers/input/tablet/wacom_wac.h
-@@ -73,6 +73,10 @@ struct wacom_features {
- 	int y_phy;
- 	unsigned char unit;
- 	unsigned char unitExpo;
-+	int x_fuzz;
-+	int y_fuzz;
-+	int pressure_fuzz;
-+	int distance_fuzz;
- };
+@@ -41,6 +41,9 @@
+ /* device quirks */
+ #define WACOM_QUIRK_MULTI_INPUT		0x0001
  
- struct wacom_shared {
++/* largest reported tracking id */
++#define MAX_TRACKING_ID			0xfff
++
+ enum {
+ 	PENPARTNER = 0,
+ 	GRAPHIRE,
 -- 
 1.7.1
+

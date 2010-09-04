@@ -1,14 +1,15 @@
 From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH v2 2/6 RESEND] ARM: pxa168: added keypad support
-Date: Sat, 4 Sep 2010 15:41:01 +0800
-Message-ID: <AANLkTinKLjaO2y_N7JZ432LV2RdZaQNK4zEyxAE9eWDg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/6 RESEND] ARM: pxa168: added wake clear register
+	support for APMU
+Date: Sat, 4 Sep 2010 15:41:16 +0800
+Message-ID: <AANLkTinkH1902Zy48UPAf3h30+uYuPpi56QMQxnSmwxd@mail.gmail.com>
 References: <1283552891-13966-1-git-send-email-mark.brown314@gmail.com>
-	<1283552891-13966-3-git-send-email-mark.brown314@gmail.com>
+	<1283552891-13966-4-git-send-email-mark.brown314@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1283552891-13966-3-git-send-email-mark.brown314@gmail.com>
+In-Reply-To: <1283552891-13966-4-git-send-email-mark.brown314@gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>

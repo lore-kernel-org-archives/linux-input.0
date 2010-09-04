@@ -1,43 +1,52 @@
-From: Chris Ball <cjb@laptop.org>
-Subject: Re: HIDDEV: potential NULL dereference
-Date: Sat, 04 Sep 2010 12:39:27 -0400
-Message-ID: <m38w3hqx8g.fsf@pullcord.laptop.org>
-References: <4C82419C.3050903@suse.cz>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 0/5] input: wacom: Initial support for Bamboo (rev3)
+Date: Sat, 4 Sep 2010 23:24:12 +0200
+Message-ID: <AANLkTi=9F1HpUyhGOp0TJdazoshKgxbFkyqWvztb5OeH@mail.gmail.com>
+References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from void.printf.net ([89.145.121.20]:56456 "EHLO void.printf.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754433Ab0IDQiz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Sep 2010 12:38:55 -0400
-In-Reply-To: <4C82419C.3050903@suse.cz> (Jiri Slaby's message of "Sat, 04 Sep
-	2010 14:54:52 +0200")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dan Carpenter <error27@gmail.com>
 
-Hi Jiri,
+On Saturday, September 4, 2010, Henrik Rydberg <rydberg@euromail.se> wr=
+ote:
+> This the fourth iteration of the Bamboo patches. Hopefully no big
+> surprises. =A0The ordering has changed to allow setting the pressure_=
+max
+> which is not parsed in the hid function. Ping's button mapping has
+> been implemented, relying on middle-button emulation instead. =A0The
+> lowres quirks now apply to all touch devices in the family.
 
-   > If hid was ever NULL at this phase, the check couldn't improve
-   > anything due to hid->driver_data dereference being still before
-   > the check. So again my question, how this could change anything?
-   > 
-   > Above that, it just makes the window shorter, but the bug is
-   > still there, isn't it? Is the following scenario reasonable?
+Thank you Henrik for the patchset. Very much appreciated.
 
-You're right -- I'd missed the other dereference, sorry.  It's
-surprising that we have two reports from users saying that the
-patch got rid of a reproducible oops for them.
+Acked-by: Ping Cheng < pingc@wacom.com>  for the series.
 
-Dan Carpenter has commented on this too:
-   http://www.spinics.net/lists/linux-input/msg10541.html
+Ping
 
-As he says, it looks like the code's overdue for some real locking.
-
-Thanks,
-
-- Chris.
--- 
-Chris Ball   <cjb@laptop.org>
-One Laptop Per Child
+> Henrik Rydberg (4):
+>  =A0input: wacom: Add fuzz parameters to features
+>  =A0input: wacom: Collect device quirks into single function (rev2)
+>  =A0input: wacom: Add support for the Bamboo Touch trackpad (rev4)
+>  =A0input: wacom: Add a quirk for lowres Bamboo devices (rev2)
+>
+> Ping Cheng (1):
+>  =A0input: wacom: Parse the Bamboo device family
+>
+> =A0drivers/input/tablet/wacom.h =A0 =A0 | =A0 =A01 +
+> =A0drivers/input/tablet/wacom_sys.c | =A0 57 +++++++++++++-----
+> =A0drivers/input/tablet/wacom_wac.c | =A0123 ++++++++++++++++++++++++=
++++++++++++++-
+> =A0drivers/input/tablet/wacom_wac.h | =A0 14 ++++
+> =A04 files changed, 176 insertions(+), 19 deletions(-)
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>

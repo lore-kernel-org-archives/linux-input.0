@@ -1,47 +1,34 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/5] input: wacom: Add support for the Bamboo Touch
- trackpad (rev4)
-Date: Sun, 5 Sep 2010 13:03:27 -0700
-Message-ID: <20100905200327.GB18411@core.coreip.homeip.net>
-References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
- <1283607783-29388-5-git-send-email-rydberg@euromail.se>
- <4C836B10.4040407@euromail.se>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: [PATCH 0/8 V4] Many fixes for in-kernel decoding and for the ENE driver
+Date: Mon,  6 Sep 2010 01:22:36 +0300
+Message-ID: <1283725364-4053-1-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:61779 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750979Ab0IEUDc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Sep 2010 16:03:32 -0400
-Content-Disposition: inline
-In-Reply-To: <4C836B10.4040407@euromail.se>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:34156 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750921Ab0IEWWt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Sep 2010 18:22:49 -0400
+Received: by fxm13 with SMTP id 13so2219369fxm.19
+        for <linux-input@vger.kernel.org>; Sun, 05 Sep 2010 15:22:48 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: lirc-list@lists.sourceforge.net
+Cc: Jarod Wilson <jarod@wilsonet.com>, =?UTF-8?q?David=20H=C3=A4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org
 
-On Sun, Sep 05, 2010 at 12:04:00PM +0200, Henrik Rydberg wrote:
-> On 09/04/2010 03:43 PM, Henrik Rydberg wrote:
-> 
-> [...]
-> 
-> >@@ -955,6 +1007,12 @@ void wacom_setup_device_quirks(struct wacom
-> > 	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
-> > 	    features->type == BAMBOO_PT)
-> > 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
-> >+
-> >+	/* quirks for bamboo touch */
-> >+	if (features->type == BAMBOO_PT) {
-> 
-> This line should have "&& features->device_type == BTN_TOOL_TRIPLETAP" appended
-> to it, to only target the touch device of Pen & Touch.
-> 
 
-Adjusted and applied all 5 patches. I also pulled trkid into wacom_wac
-structure to make sure different instances of the device are independent
-of each other.
+Changes from V3:
 
-Thanks.
+* Addressed comments from  David H=C3=A4rdeman
+* Made lirc timeout handling more robust
 
--- 
-Dmitry
+
+Best regards,
+	Maxim Levitsky
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

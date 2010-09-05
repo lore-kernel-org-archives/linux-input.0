@@ -1,66 +1,210 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 0/5] input: wacom: Initial support for Bamboo (rev3)
-Date: Sun, 5 Sep 2010 09:28:38 -0500
-Message-ID: <AANLkTimMhAkdfNbju7ckFr-oSQrMcSTmX2sdstGMP_cb@mail.gmail.com>
-References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-	<AANLkTi=9F1HpUyhGOp0TJdazoshKgxbFkyqWvztb5OeH@mail.gmail.com>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: [RFC PATCH] hid-magicmouse: Map inputs rather than munging input
+ devices
+Date: Sun, 05 Sep 2010 11:16:41 -0400
+Message-ID: <1283699801.26830.4.camel@graviton>
+References: <1283306184-28833-1-git-send-email-chase.douglas@canonical.com>
+	 <1283306184-28833-2-git-send-email-chase.douglas@canonical.com>
+	 <4C7E94F6.9050806@gmail.com>
+	 <AANLkTi=z5s8mbjG54930Lxj-O9Of2fXHE6kDJhijyOb7@mail.gmail.com>
+	 <4C7F6E26.2030301@gmail.com>
+	 <AANLkTikb=eNzek-vQ=d3jZxitsbtJ5gD6BNDipAUpUcJ@mail.gmail.com>
+	 <4C80DB38.9040101@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AANLkTi=9F1HpUyhGOp0TJdazoshKgxbFkyqWvztb5OeH@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog109.obsmtp.com ([74.125.149.201]:43271 "HELO
+	na3sys009aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752430Ab0IEPQq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 5 Sep 2010 11:16:46 -0400
+In-Reply-To: <4C80DB38.9040101@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Sep 4, 2010 at 4:24 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> On Saturday, September 4, 2010, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
->> This the fourth iteration of the Bamboo patches. Hopefully no big
->> surprises. =A0The ordering has changed to allow setting the pressure=
-_max
->> which is not parsed in the hid function. Ping's button mapping has
->> been implemented, relying on middle-button emulation instead. =A0The
->> lowres quirks now apply to all touch devices in the family.
->
-> Thank you Henrik for the patchset. Very much appreciated.
->
-> Acked-by: Ping Cheng < pingc@wacom.com> =A0for the series.
->
-> Ping
+Let the HID core handle input device setup and HID-compliant reports.
+This driver then only has to worry about the non-standard reports.
 
-Thanks for addressing my comments/questions.
+Signed-off-by: Michael Poole <mdpoole@troilus.org>
+---
+Jiri (Slaby), is this the kind of change you had in mind for getting rid
+of the input device setup for hid-magicmouse?
 
-Also, Thanks for placing all the hooks for future pen support as well.
- I'll be following up with a patch set for that once your finished.
-If there are any remaining pen specific issues, feel free to offload
-it on me.
+(This applies on top of commit a462230e16 from the magicmouse branch at
+git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git.)
 
-Chris
+ drivers/hid/hid-magicmouse.c |   87
++++++++++++------------------------------
+ 1 files changed, 24 insertions(+), 63 deletions(-)
 
->
->> Henrik Rydberg (4):
->> =A0=A0input: wacom: Add fuzz parameters to features
->> =A0=A0input: wacom: Collect device quirks into single function (rev2=
-)
->> =A0=A0input: wacom: Add support for the Bamboo Touch trackpad (rev4)
->> =A0=A0input: wacom: Add a quirk for lowres Bamboo devices (rev2)
->>
->> Ping Cheng (1):
->> =A0=A0input: wacom: Parse the Bamboo device family
->>
->> =A0drivers/input/tablet/wacom.h =A0 =A0 | =A0 =A01 +
->> =A0drivers/input/tablet/wacom_sys.c | =A0 57 +++++++++++++-----
->> =A0drivers/input/tablet/wacom_wac.c | =A0123 +++++++++++++++++++++++=
-++++++++++++++-
->> =A0drivers/input/tablet/wacom_wac.h | =A0 14 ++++
->> =A04 files changed, 176 insertions(+), 19 deletions(-)
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
-t" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->>
->
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 8791a08..3778f9b 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -278,14 +278,12 @@ static int magicmouse_raw_event(struct hid_device
+*hdev,
+ 	struct input_dev *input = msc->input;
+ 	int x = 0, y = 0, ii, clicks = 0, npoints;
+ 
++	/* Slightly paranoid, but "input" only gets set when our
++	 * input_mapping sees the right field. */
++	if (!input)
++		return 0;
++
+ 	switch (data[0]) {
+-	case 0x10:
+-		if (size != 6)
+-			return 0;
+-		x = (__s16)(data[2] | data[3] << 8);
+-		y = (__s16)(data[4] | data[5] << 8);
+-		clicks = data[1];
+-		break;
+ 	case TRACKPAD_REPORT_ID:
+ 		/* Expect four bytes of prefix, and N*9 bytes of touch data. */
+ 		if (size < 4 || ((size - 4) % 9) != 0)
+@@ -343,13 +341,6 @@ static int magicmouse_raw_event(struct hid_device
+*hdev,
+ 		magicmouse_raw_event(hdev, report, data + 2 + data[1],
+ 			size - 2 - data[1]);
+ 		break;
+-	case 0x20: /* Theoretically battery status (0-100), but I have
+-		    * never seen it -- maybe it is only upon request.
+-		    */
+-	case 0x60: /* Unknown, maybe laser on/off. */
+-	case 0x61: /* Laser reflection status change.
+-		    * data[1]: 0 = spotted, 1 = lost
+-		    */
+ 	default:
+ 		return 0;
+ 	}
+@@ -377,36 +368,8 @@ static int magicmouse_raw_event(struct hid_device
+*hdev,
+ 	return 1;
+ }
+ 
+-static int magicmouse_input_open(struct input_dev *dev)
+-{
+-	struct hid_device *hid = input_get_drvdata(dev);
+-
+-	return hid->ll_driver->open(hid);
+-}
+-
+-static void magicmouse_input_close(struct input_dev *dev)
+-{
+-	struct hid_device *hid = input_get_drvdata(dev);
+-
+-	hid->ll_driver->close(hid);
+-}
+-
+ static void magicmouse_setup_input(struct input_dev *input, struct
+hid_device *hdev)
+ {
+-	input_set_drvdata(input, hdev);
+-	input->event = hdev->ll_driver->hidinput_input_event;
+-	input->open = magicmouse_input_open;
+-	input->close = magicmouse_input_close;
+-
+-	input->name = hdev->name;
+-	input->phys = hdev->phys;
+-	input->uniq = hdev->uniq;
+-	input->id.bustype = hdev->bus;
+-	input->id.vendor = hdev->vendor;
+-	input->id.product = hdev->product;
+-	input->id.version = hdev->version;
+-	input->dev.parent = hdev->dev.parent;
+-
+ 	__set_bit(EV_KEY, input->evbit);
+ 
+ 	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
+@@ -466,11 +429,22 @@ static void magicmouse_setup_input(struct
+input_dev *input, struct hid_device *h
+ 	}
+ }
+ 
++static int magicmouse_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
++
++	if (!msc->input)
++		msc->input = hi->input;
++
++	return 0;
++}
++
+ static int magicmouse_probe(struct hid_device *hdev,
+ 	const struct hid_device_id *id)
+ {
+ 	__u8 feature[] = { 0xd7, 0x01 };
+-	struct input_dev *input;
+ 	struct magicmouse_sc *msc;
+ 	struct hid_report *report;
+ 	int ret;
+@@ -500,8 +474,12 @@ static int magicmouse_probe(struct hid_device
+*hdev,
+ 		goto err_free;
+ 	}
+ 
+-	/* we are handling the input ourselves */
+-	hidinput_disconnect(hdev);
++	/* We do this after HID maps its inputs so that the
++	 * Magic Mouse's HID-compliant report gets the right
++	 * button and axis IDs.
++	 */
++	if (msc->input)
++		magicmouse_setup_input(msc->input, hdev);
+ 
+ 	if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
+ 		report = hid_register_report(hdev, HID_INPUT_REPORT,
+@@ -528,24 +506,7 @@ static int magicmouse_probe(struct hid_device
+*hdev,
+ 		goto err_stop_hw;
+ 	}
+ 
+-	input = input_allocate_device();
+-	if (!input) {
+-		dev_err(&hdev->dev, "can't alloc input device\n");
+-		ret = -ENOMEM;
+-		goto err_stop_hw;
+-	}
+-	magicmouse_setup_input(input, hdev);
+-
+-	ret = input_register_device(input);
+-	if (ret) {
+-		dev_err(&hdev->dev, "input device registration failed\n");
+-		goto err_input;
+-	}
+-	msc->input = input;
+-
+ 	return 0;
+-err_input:
+-	input_free_device(input);
+ err_stop_hw:
+ 	hid_hw_stop(hdev);
+ err_free:
+@@ -558,7 +519,6 @@ static void magicmouse_remove(struct hid_device
+*hdev)
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
+ 
+ 	hid_hw_stop(hdev);
+-	input_unregister_device(msc->input);
+ 	kfree(msc);
+ }
+ 
+@@ -577,6 +537,7 @@ static struct hid_driver magicmouse_driver = {
+ 	.probe = magicmouse_probe,
+ 	.remove = magicmouse_remove,
+ 	.raw_event = magicmouse_raw_event,
++	.input_mapping = magicmouse_input_mapping,
+ };
+ 
+ static int __init magicmouse_init(void)
+-- 
+1.7.2.2
+
+
+

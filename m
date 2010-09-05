@@ -1,23 +1,47 @@
-From: "rose isaac" <roseling55isaac@gmx.com>
-Subject: Hello
-Date: Sun, 5 Sep 2010 14:54:38 -0500
-Message-ID: <69b340816e06b7027704e37a1bac35e6.squirrel__16484.0498393916$1283716502$gmane$org@josematt.x10.mx>
-Reply-To: roseling55isaac@gmx.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/5] input: wacom: Add support for the Bamboo Touch
+ trackpad (rev4)
+Date: Sun, 5 Sep 2010 13:03:27 -0700
+Message-ID: <20100905200327.GB18411@core.coreip.homeip.net>
+References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
+ <1283607783-29388-5-git-send-email-rydberg@euromail.se>
+ <4C836B10.4040407@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outgoing.x10hosting.com ([173.236.28.162]:40993 "HELO
-	outgoing.x10hosting.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753541Ab0IETyj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Sep 2010 15:54:39 -0400
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:61779 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750979Ab0IEUDc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Sep 2010 16:03:32 -0400
+Content-Disposition: inline
+In-Reply-To: <4C836B10.4040407@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Sun, Sep 05, 2010 at 12:04:00PM +0200, Henrik Rydberg wrote:
+> On 09/04/2010 03:43 PM, Henrik Rydberg wrote:
+> 
+> [...]
+> 
+> >@@ -955,6 +1007,12 @@ void wacom_setup_device_quirks(struct wacom
+> > 	if (features->type == TABLETPC || features->type == TABLETPC2FG ||
+> > 	    features->type == BAMBOO_PT)
+> > 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
+> >+
+> >+	/* quirks for bamboo touch */
+> >+	if (features->type == BAMBOO_PT) {
+> 
+> This line should have "&& features->device_type == BTN_TOOL_TRIPLETAP" appended
+> to it, to only target the touch device of Pen & Touch.
+> 
 
+Adjusted and applied all 5 patches. I also pulled trkid into wacom_wac
+structure to make sure different instances of the device are independent
+of each other.
 
+Thanks.
 
-please how are you! hope you are fine  and in good condition of please
-will like you to  write me back because i have something VERY important to
-tell you, i hope to hear from you soon!Rose
-
+-- 
+Dmitry

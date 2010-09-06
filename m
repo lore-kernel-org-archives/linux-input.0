@@ -1,39 +1,113 @@
-From: Sundar R IYER <sundar.iyer@stericsson.com>
-Subject: RE: [PATCH v3 1/1] input: add support for Nomadik SKE keypad
- controller
-Date: Mon, 6 Sep 2010 17:43:41 +0200
-Message-ID: <33A307AF30D7BF4F811B1568FE7A9B181C7DC6A5@EXDCVYMBSTM006.EQ1STM.local>
-References: <1283777284-24811-1-git-send-email-sundar.iyer@stericsson.com>
- <0680EC522D0CC943BC586913CF3768C003C20185F8@dbde02.ent.ti.com>
- <33A307AF30D7BF4F811B1568FE7A9B181C7DC680@EXDCVYMBSTM006.EQ1STM.local>
- <0680EC522D0CC943BC586913CF3768C003C2018609@dbde02.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: [PATCH] identify firmware version
+Date: Mon,  6 Sep 2010 12:42:42 -0400
+Message-ID: <1283791362-27780-1-git-send-email-rafi@seas.upenn.edu>
+References: <4C7EB3A3.7050402@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog109.obsmtp.com ([207.126.144.127]:58698 "EHLO
-	eu1sys200aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752746Ab0IFPn6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 6 Sep 2010 11:43:58 -0400
-In-Reply-To: <0680EC522D0CC943BC586913CF3768C003C2018609@dbde02.ent.ti.com>
-Content-Language: en-US
+Received: from talbot.seas.upenn.edu ([158.130.67.217]:53759 "EHLO
+	talbot.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752223Ab0IFQn1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 12:43:27 -0400
+In-Reply-To: <4C7EB3A3.7050402@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
+To: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, jirislaby@gmail.com
+Cc: linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr, Rafi Rubin <rafi@seas.upenn.edu>
 
-Hi again,
+This adds firmware version polling to the end of probe and reports the
+version both in the raw form and proccessed to match the formatting used
+by N-Trig.
 
->-----Original Message-----
->From: Datta, Shubhrajyoti [mailto:shubhrajyoti@ti.com]
->
->     if (keypad->board->exit)
->             keypad->board->exit();
->Is this you intended?
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+---
+ drivers/hid/hid-ntrig.c |   56 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 56 insertions(+), 0 deletions(-)
 
-Oops. I wronged this one.
-Anyways, I will wait for Dmitry's further comments before I spin a v4 of this.
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 43e95de..3472b3b 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -90,6 +90,26 @@ struct ntrig_data {
+ };
+ 
+ 
++/*
++ * This function converts the 4 byte raw firmware code into
++ * a string containing 5 comma separated numbers.
++ */
++static int ntrig_version_string(unsigned char *raw, char *buf)
++{
++	__u8 a =  (raw[1] & 0x0e) >> 1;
++	__u8 b =  (raw[0] & 0x3c) >> 2;
++	__u8 c = ((raw[0] & 0x03) << 3) | ((raw[3] & 0xe0) >> 5);
++	__u8 d = ((raw[3] & 0x07) << 3) | ((raw[2] & 0xe0) >> 5);
++	__u8 e =   raw[2] & 0x07;
++
++	/*
++	 * As yet unmapped bits:
++	 * 0b11000000 0b11110001 0b00011000 0b00011000
++	 */
++
++	return sprintf(buf, "%u.%u.%u.%u.%u", a, b, c, d, e);
++}
++
+ static ssize_t show_phys_width(struct device *dev,
+ 			       struct device_attribute *attr,
+ 			       char *buf)
+@@ -776,6 +796,9 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct hid_input *hidinput;
+ 	struct input_dev *input;
+ 	struct hid_report *report;
++	unsigned char *data;
++	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
++	char *buf;
+ 
+ 	if (id->driver_data)
+ 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+@@ -848,10 +871,43 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (report)
+ 		usbhid_submit_report(hdev, report, USB_DIR_OUT);
+ 
++	data = kmalloc(8, GFP_KERNEL);
++	if (!data) {
++		ret = -ENOMEM;
++		goto err_free;
++	}
++
++	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
++			      USB_REQ_CLEAR_FEATURE,
++			      USB_TYPE_CLASS | USB_RECIP_INTERFACE |
++			      USB_DIR_IN,
++			      0x30c, 1, data, 8,
++			      USB_CTRL_SET_TIMEOUT);
++
++	if (ret == 8) {
++		buf = kmalloc(20, GFP_KERNEL);
++		if (!buf) {
++			ret = -ENOMEM;
++			goto err_free_data;
++		}
++
++		ret = ntrig_version_string(&data[2], buf);
++
++		dev_info(&hdev->dev,
++			 "Firmware version: %s (%02x%02x %02x%02x)\n",
++			 buf, data[2], data[3], data[4], data[5]);
++
++		kfree(buff);
++	}
++
+ 	ret = sysfs_create_group(&hdev->dev.kobj,
+ 			&ntrig_attribute_group);
+ 
++	kfree(data);
++
+ 	return 0;
++err_free_data:
++	kfree(data);
+ err_free:
+ 	kfree(nd);
+ 	return ret;
+-- 
+1.7.1
 
-Regards,
-Sundar

@@ -1,68 +1,54 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH] identify firmware version
-Date: Mon, 06 Sep 2010 23:22:50 +0200
-Message-ID: <4C855BAA.4000900@gmail.com>
-References: <4C7EB3A3.7050402@gmail.com> <1283791362-27780-1-git-send-email-rafi@seas.upenn.edu> <20100906194838.GB31384@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the ENE driver
+Date: Tue,  7 Sep 2010 00:26:05 +0300
+Message-ID: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:56418 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:57693 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752460Ab0IFVW4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 17:22:56 -0400
-In-Reply-To: <20100906194838.GB31384@core.coreip.homeip.net>
+	with ESMTP id S1752310Ab0IFV0V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 17:26:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
+To: lirc-list@lists.sourceforge.net
+Cc: Jarod Wilson <jarod@wilsonet.com>, =?UTF-8?q?David=20H=C3=A4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On 09/06/2010 09:48 PM, Dmitry Torokhov wrote:
->> @@ -848,10 +871,43 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>  	if (report)
->>  		usbhid_submit_report(hdev, report, USB_DIR_OUT);
->>  
->> +	data = kmalloc(8, GFP_KERNEL);
->> +	if (!data) {
->> +		ret = -ENOMEM;
->> +		goto err_free;
->> +	}
->> +
->> +	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
->> +			      USB_REQ_CLEAR_FEATURE,
->> +			      USB_TYPE_CLASS | USB_RECIP_INTERFACE |
->> +			      USB_DIR_IN,
->> +			      0x30c, 1, data, 8,
->> +			      USB_CTRL_SET_TIMEOUT);
->> +
->> +	if (ret == 8) {
->> +		buf = kmalloc(20, GFP_KERNEL);
->> +		if (!buf) {
->> +			ret = -ENOMEM;
->> +			goto err_free_data;
->> +		}
-> 
-> Why do you allocate this from heap? Surely we can spare 20 bytes on
-> stack (you aren't doing DMA into it).
+Hi,
 
-Hi, yeah, I think so too.
+Here is full overview of my patches:
 
-> I'd also split all this code into ntrig_report_version() to simplifu
-> error handling here.
-> 
->> +
->> +		ret = ntrig_version_string(&data[2], buf);
->> +
->> +		dev_info(&hdev->dev,
->> +			 "Firmware version: %s (%02x%02x %02x%02x)\n",
->> +			 buf, data[2], data[3], data[4], data[5]);
->> +
->> +		kfree(buff);
+Patch #1 fixes races in ir thread.
+It fixes the case when ktherad_stop waits forever for the thread.
+This happens on module unload and therefore it never finishes.
+Sorry for introducing this bug.
 
-In any case, this doesn't compile...
+Patch #2, fixes a crash on my module load.
+It happens because ir core initializes the input device a bit early,
+therefore it could be accessed while still not set up.
 
->> +	}
+Patch #3 fixes a small typo in lirc code that makes it impossible to use tx duty cycle setting.
 
-regards,
--- 
-js
+Patch #4 fixes a problem seen on my system that results in stuck down forever key.
+
+Patch #5 adds few keys to MCE keymap that were found on laptop of an user I tested this driver with
+
+Patch #6, is a combined update ti my driver. It contains lot of refactoring thanks to docs I have now,
+and lot of fixes, and supports latest version of firmware (and I have 4 users asking for that)
+It is quite huge, but it would be a tedios job to break it up. This can't introduce regressions
+because the ene_ir was never released. In addition to that it was tested by me and another two users.
+
+Patch #7 the really only patch that touches drivers I don't have does touch the ir-core.
+It is quite small, and it adds a proper solution to dilema about what to do with huge space between keypresses.
+Now this space is just truncated by the driver with timeout flag.
+The lirc codec then ensures that right sample is send to the lircd.
+Please review and test it.
+
+Patch #8 is very simple. It just builds on top of patch #7 and adds carrier reports to ene driver.
+
+
+Best regards,
+	Maxim Levitsky
+
+
+
+
+

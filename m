@@ -1,136 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: input:rohm based bu21013 touch panel controller driver support
-Date: Sun, 5 Sep 2010 22:13:23 -0700
-Message-ID: <20100906051323.GE17212@core.coreip.homeip.net>
-References: <81C3A93C17462B4BBD7E272753C1057916DE6765F2@EXDCVYMBSTM005.EQ1STM.local>
- <20100901020427.GC23585@core.coreip.homeip.net>
- <81C3A93C17462B4BBD7E272753C1057916DE769064@EXDCVYMBSTM005.EQ1STM.local>
+From: Amit Nagal <helloin.amit@gmail.com>
+Subject: Re: HIDDEV: potential NULL dereference
+Date: Mon, 6 Sep 2010 11:03:13 +0530
+Message-ID: <AANLkTin+T2tB+oXu9BzUfBkPpxEe47+tSMr2Yf4_Lb=x@mail.gmail.com>
+References: <4C82419C.3050903@suse.cz>
+	<m38w3hqx8g.fsf@pullcord.laptop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:58331 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751119Ab0IFFN1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 01:13:27 -0400
-Received: by pxi10 with SMTP id 10so919411pxi.19
-        for <linux-input@vger.kernel.org>; Sun, 05 Sep 2010 22:13:27 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <81C3A93C17462B4BBD7E272753C1057916DE769064@EXDCVYMBSTM005.EQ1STM.local>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:57333 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751035Ab0IFFdO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 01:33:14 -0400
+In-Reply-To: <m38w3hqx8g.fsf@pullcord.laptop.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
+To: Chris Ball <cjb@laptop.org>
+Cc: Jiri Slaby <jslaby@suse.cz>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dan Carpenter <error27@gmail.com>
 
-Hi Naveen,
+Hi ,
 
-On Mon, Sep 06, 2010 at 06:59:42AM +0200, Naveen Kumar GADDIPATI wrote:
-> Hi Dmitry,
-> 
-> Thanks for your comments.
-> 
-> I have some questions about the following comments.
-> 
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: Wednesday, September 01, 2010 7:34 AM
-> > To: Naveen Kumar GADDIPATI
-> 
-> > > +       input_report_abs(data->in_dev, ABS_X, pt0x);
-> > > +       input_report_abs(data->in_dev, ABS_Y, pt0y);
-> > > +       input_report_abs(data->in_dev, ABS_PRESSURE, 1);
-> > > +       input_report_abs(data->in_dev, ABS_TOOL_WIDTH, 1);
-> > 
-> > The device apparently does not provide pressure and contact size
-> > readings, please do not supply fake data.
-> 
-> 	These values are required for android framework. If I remove the report of these values, 
-> 	Android is not able to recognize the touch.
-> 
+i was one of the users who informed that crash do disappears .
 
-In this case I recommend working with Androis folks to fix their
-framework.
+the reality with me is that the probability of occurence of crash
+reduces significantly
 
-> > > +       input_report_abs(data->in_dev, ABS_MT_TOUCH_MAJOR, 1);
-> > > +       input_report_abs(data->in_dev, ABS_MT_TOUCH_MINOR, 1);
-> > 
-> > Your device obviously does not provide contact size data so please do
-> > not fake it.
-> 
-> 	These values are required for android framework. If I remove the report of these values, 
-> 	Android is not able to recognize the touch.
+but on rigourous testing crash resurfaces again .
 
-See above.
+sorry for wrong reporting .
 
-> 
-> > > +static void bu21013_touch_calc
-> > > +       (struct bu21013_ts_data *data, int x, int y, int count)
-> > > +{
-> > > +       data->x_pos[count] = x * data->factor_x / SCALE_FACTOR;
-> > > +       data->y_pos[count] = y * data->factor_y / SCALE_FACTOR;
-> > 
-> > Scaling should be done in userspace.
-> 
-> 	In the controller configuration, we are using the 384 X 704 touch panel resolution.
-> 	If we don't do the scaling in driver to display resolution, android framework is not getting exact co-ordinates.
-> 
-
-See above.
-
-> > > +static bool bu21013_verify_delta(int x1, int y1, int x2, int y2)
-> > > +{
-> > > +       int delta_x, delta_y;
-> > > +       if ((x1 != 0) && (y1 != 0)) {
-> > > +               delta_x = x2 - x1;
-> > > +               if (x1 > x2)
-> > > +                       delta_x = x1 - x2;
-> > > +               delta_y = y2 - y1;
-> > > +               if (y1 > y2)
-> > > +                       delta_y = y1 - y2;
-> > > +               if ((delta_x < DELTA_MIN) || (delta_y < DELTA_MIN))
-> > > +                       return false;
-> > 
-> > If you specify "fuzz" for given axis I think input core will do this
-> > for
-> > you.
-> 	What is fuzz?
+Regards
+Amit Nagal
 
 
-It is one of the parameters in input_set_abs_params() calls that
-instructs input core to perform filtering on input events.
 
-> 
-> > > +/**
-> > > + * bu21013_timer_callback() - callback handler for timer
-> > > + * @dev_data:touch screen data
-> > > + *
-> > > + * This timer callback handler used to schedule the work during
-> > > + * polling of pen down interrupts and returns none
-> > > + */
-> > > +static void bu21013_timer_callback(unsigned long dev_data)
-> > > +{
-> > > +       struct bu21013_ts_data *data = (struct bu21013_ts_data
-> > *)dev_data;
-> > > +       schedule_work(&data->timer_wq_handler);
-> > 
-> > This is called delayed_work().
-> > 
-> > However please consider switching to threaded IRQ - you can sleep in
-> > your IRQ handler until you are done and get "pen up" condition. You
-> > just
-> > need to make sure you exit the handler promptly when unbinding the
-> > device from the driver. See drivers/input/keyboard/samsung-keypad.c
-> > 
-> 	This work queue is called during polling of co-ordinates
-> 	when user is doing some dragging on touch panel for every certain
-> 	amount of timeout. I think its ok.
-
-I understand the porpose of the work you are using, AT least use
-delayed_work structure (which is timer + work) instead of implementing
-your own; the best case look into using threaded IRQ as it avoids
-headaches when you need to safely shut off IRQ handler and cancel
-outstanding work when unbinding device from the driver.
-
-Thanks.
-
--- 
-Dmitry
+On Sat, Sep 4, 2010 at 10:09 PM, Chris Ball <cjb@laptop.org> wrote:
+> Hi Jiri,
+>
+> =A0 > If hid was ever NULL at this phase, the check couldn't improve
+> =A0 > anything due to hid->driver_data dereference being still before
+> =A0 > the check. So again my question, how this could change anything=
+?
+> =A0 >
+> =A0 > Above that, it just makes the window shorter, but the bug is
+> =A0 > still there, isn't it? Is the following scenario reasonable?
+>
+> You're right -- I'd missed the other dereference, sorry. =A0It's
+> surprising that we have two reports from users saying that the
+> patch got rid of a reproducible oops for them.
+>
+> Dan Carpenter has commented on this too:
+> =A0 http://www.spinics.net/lists/linux-input/msg10541.html
+>
+> As he says, it looks like the code's overdue for some real locking.
+>
+> Thanks,
+>
+> - Chris.
+> --
+> Chris Ball =A0 <cjb@laptop.org>
+> One Laptop Per Child
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,97 +1,101 @@
-From: "Hemanth V" <hemanthv@ti.com>
-Subject: Re: [RFC] [PATCH V2 1/2] input: CMA3000 Accelerometer driver
-Date: Mon, 6 Sep 2010 14:33:51 +0530
-Message-ID: <018601cb4da2$6d903880$LocalHost@wipblrx0099946>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com> <20100829184904.GC26209@core.coreip.homeip.net> <017e01cb4b53$45925da0$LocalHost@wipblrx0099946> <20100903163438.GB2200@core.coreip.homeip.net>
+From: Roland Baum <rba@tr33.de>
+Subject: [Patch 1/1] HID: Provide support for a new Asus Multitouch Controller
+Date: Mon, 6 Sep 2010 11:21:18 +0200
+Message-ID: <201009061121.18816.rba@tr33.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:56026 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753104Ab0IFJD6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 05:03:58 -0400
+Received: from europa.nexplosion.de ([78.47.196.58]:56850 "EHLO
+	europa.nexplosion.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750794Ab0IFKH6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 06:07:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, =?iso-8859-1?q?St=E9phane_Chatty?= <chatty@enac.fr>
 
------ Original Message ----- 
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-> Hi Hemanth,
-> 
-> On Fri, Sep 03, 2010 at 04:02:11PM +0530, Hemanth V wrote:
->> >
->> >
->> >Do not like repeated release of resources in main and error path... Can
->> >we do it like:
->> >
->> >...
->> >disable_irq();
->> >error = cma3000_set(data, CMA3000_CTRL, ctrl, "ctrl");
->> >if (!error) {
->> >/* Settling time delay required after mode change */
->> >msleep(CMA3000_SETDELAY);
->> >}
->> >enable_irq();
->> >out:
->> >mutex_unlock();
->> >return error ? error : count;
->> 
->> I am thinking I can just add the below statement, and should be able to
->> remove repeated release.
->> 
->> return error ? error : count;
->> 
-> 
-> That would make us sleep for CMA3000_SETDELAY even in case of failure...
-> ... But that should be OK.
+Hello,
 
-I suppose it should not sleep if its the modified code segment as below
-
-        error = CMA3000_SET(data, CMA3000_CTRL, ctrl, "ctrl");
-        if (error < 0)
-                goto err_op3_failed;
-
-        /* Settling time delay required after mode change */
-        msleep(CMA3000_SETDELAY);
-
-err_op3_failed:
-        enable_irq(data->client->irq);
-err_op2_failed:
-        mutex_unlock(&data->mutex);
-err_op1_failed:
-        return (error ? error : count);
+the following patch instructs usbhid/hid-mosart to handle a new Mutlito=
+uch=20
+controller, built-in by some Asus EeePC T101MT models.
 
 
-> 
->> >>+
->> >>+ if (data->client->irq) {
->> >>+ ret = request_threaded_irq(data->client->irq, NULL,
->> >>+ cma3000_thread_irq,
->> >>+ irqflags | IRQF_ONESHOT,
->> >>+ data->client->name, data);
->> >>+
->> >>+ if (ret < 0) {
->> >>+ dev_err(&data->client->dev,
->> >>+ "request_threaded_irq failed\n");
->> >>+ goto err_op1_failed;
->> >>+ }
->> >>+ }
->> >
->> >What is the utility of the driver when there is no IRQ line?
->> 
->> Not sure I fully understand your comments.
->> Currently probe would return a failure.
->> 
-> 
-> You have a check for data->client->irq != 0 and finish probe() with
-> success in case it is 0. The question is what is the use of the
-> device/driver combo in case when data->client->irq == 0?
 
-Yes agreed, will add a error scenario when data->client->irq == 0
+Signed-off-by: Roland Baum <rba@tr33.de>
+Tested-by: Roland Baum <rba@tr33.de>
+Acked-by: St=E9phane Chatty <chatty@enac.fr>
+CC: St=E9phane Chatty <chatty@enac.fr>
+CC: Jiri Kosina <jkosina@suse.cz>
 
 
+Build against 2.6.32
+-----
+diff -rupN linux-source-2.6.32-orig/drivers/hid/hid-core.c linux-source=
+-2.6.32-
+modified/drivers/hid/hid-core.c
+--- linux-source-2.6.32-orig/drivers/hid/hid-core.c     2010-08-19=20
+03:12:22.000000000 +0200
++++ linux-source-2.6.32-modified/drivers/hid/hid-core.c 2010-09-04=20
+20:01:14.539265355 +0200
+@@ -1294,6 +1294,7 @@ static const struct hid_device_id hid_bl
+        { HID_USB_DEVICE(USB_VENDOR_ID_APPLE,=20
+USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_APPLE,=20
+USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) =
+},
++       { HID_USB_DEVICE(USB_VENDOR_ID_ASUS,=20
+USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO)},
+        { HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYM=
+OTION)=20
+},
+        { HID_USB_DEVICE(USB_VENDOR_ID_CHICONY,=20
+USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
+        { HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,=20
+USB_DEVICE_ID_CYPRESS_BARCODE_1) },
+diff -rupN linux-source-2.6.32-orig/drivers/hid/hid-ids.h linux-source-=
+2.6.32-
+modified/drivers/hid/hid-ids.h
+--- linux-source-2.6.32-orig/drivers/hid/hid-ids.h      2010-08-19=20
+03:12:22.000000000 +0200
++++ linux-source-2.6.32-modified/drivers/hid/hid-ids.h  2010-09-04=20
+20:00:14.050826601 +0200
+@@ -101,6 +101,7 @@
+=20
+ #define USB_VENDOR_ID_ASUS             0x0486
+ #define USB_DEVICE_ID_ASUS_T91MT       0x0185
++#define USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO   0x0186
+=20
+ #define USB_VENDOR_ID_ASUSTEK          0x0b05
+ #define USB_DEVICE_ID_ASUSTEK_LCM      0x1726
+diff -rupN linux-source-2.6.32-orig/drivers/hid/hid-mosart.c linux-
+source-2.6.32-modified/drivers/hid/hid-mosart.c
+--- linux-source-2.6.32-orig/drivers/hid/hid-mosart.c   2010-08-19=20
+03:12:22.000000000 +0200
++++ linux-source-2.6.32-modified/drivers/hid/hid-mosart.c       2010-09=
+-04=20
+20:01:54.523282460 +0200
+@@ -238,6 +238,7 @@ static void mosart_remove(struct hid_dev
+=20
+ static const struct hid_device_id mosart_devices[] =3D {
+        { HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT) =
+},
++       { HID_USB_DEVICE(USB_VENDOR_ID_ASUS,=20
+USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO)},
+        { }
+ };
+ MODULE_DEVICE_TABLE(hid, mosart_devices);
+
+-----
+
+--=20
+
+Greetings from Frankfurt/Main, Germany.
+Roland Baum
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

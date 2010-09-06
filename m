@@ -1,100 +1,36 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 8/8] IR: ene_ir: add support for carrier reports
-Date: Tue,  7 Sep 2010 00:26:13 +0300
-Message-ID: <1283808373-27876-9-git-send-email-maximlevitsky@gmail.com>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the
+ ENE driver
+Date: Mon, 6 Sep 2010 23:56:19 +0200
+Message-ID: <20100906215619.GA446@hardeman.nu>
 References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
-Return-path: <linux-media-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:41678 "EHLO
+	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752196Ab0IFV4X (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 17:56:23 -0400
+Content-Disposition: inline
 In-Reply-To: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: lirc-list@lists.sourceforge.net
-Cc: Jarod Wilson <jarod@wilsonet.com>, =?UTF-8?q?David=20H=C3=A4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
----
- drivers/media/IR/ene_ir.c |   37 +++++++++++++++++++++++++++++--------
- 1 files changed, 29 insertions(+), 8 deletions(-)
+On Tue, Sep 07, 2010 at 12:26:05AM +0300, Maxim Levitsky wrote:
+> Hi,
+>=20
+> Here is full overview of my patches:
 
-diff --git a/drivers/media/IR/ene_ir.c b/drivers/media/IR/ene_ir.c
-index dc32509..f1ee153 100644
---- a/drivers/media/IR/ene_ir.c
-+++ b/drivers/media/IR/ene_ir.c
-@@ -192,10 +192,11 @@ static int ene_hw_detect(struct ene_device *dev)
- /* Sense current received carrier */
- void ene_rx_sense_carrier(struct ene_device *dev)
- {
-+	DEFINE_IR_RAW_EVENT(ev);
-+
-+	int carrier, duty_cycle;
- 	int period = ene_read_reg(dev, ENE_CIRCAR_PRD);
- 	int hperiod = ene_read_reg(dev, ENE_CIRCAR_HPRD);
--	int carrier, duty_cycle;
--
- 
- 	if (!(period & ENE_CIRCAR_PRD_VALID))
- 		return;
-@@ -208,13 +209,16 @@ void ene_rx_sense_carrier(struct ene_device *dev)
- 	dbg("RX: hardware carrier period = %02x", period);
- 	dbg("RX: hardware carrier pulse period = %02x", hperiod);
- 
--
- 	carrier = 2000000 / period;
- 	duty_cycle = (hperiod * 100) / period;
- 	dbg("RX: sensed carrier = %d Hz, duty cycle %d%%",
--							carrier, duty_cycle);
--
--	/* TODO: Send carrier & duty cycle to IR layer */
-+						carrier, duty_cycle);
-+	if (dev->carrier_detect_enabled) {
-+		ev.carrier_report = true;
-+		ev.carrier = carrier;
-+		ev.duty_cycle = duty_cycle;
-+		ir_raw_event_store(dev->idev, &ev);
-+	}
- }
- 
- /* this enables/disables the CIR RX engine */
-@@ -728,7 +732,7 @@ static irqreturn_t ene_isr(int irq, void *data)
- 
- 	dbg_verbose("RX interrupt");
- 
--	if (dev->carrier_detect_enabled || debug)
-+	if (dev->hw_learning_and_tx_capable)
- 		ene_rx_sense_carrier(dev);
- 
- 	/* On hardware that don't support extra buffer we need to trust
-@@ -903,6 +907,23 @@ static int ene_set_learning_mode(void *data, int enable)
- 	return 0;
- }
- 
-+static int ene_set_carrier_report(void *data, int enable)
-+{
-+	struct ene_device *dev = (struct ene_device *)data;
-+	unsigned long flags;
-+
-+	if (enable == dev->carrier_detect_enabled)
-+		return 0;
-+
-+	spin_lock_irqsave(&dev->hw_lock, flags);
-+	dev->carrier_detect_enabled = enable;
-+	ene_rx_disable(dev);
-+	ene_rx_setup(dev);
-+	ene_rx_enable(dev);
-+	spin_unlock_irqrestore(&dev->hw_lock, flags);
-+	return 0;
-+}
-+
- /* outside interface: enable or disable idle mode */
- static void ene_rx_set_idle(void *data, bool idle)
- {
-@@ -1032,7 +1053,7 @@ static int ene_probe(struct pnp_dev *pnp_dev, const struct pnp_device_id *id)
- 		ir_props->s_tx_mask = ene_set_tx_mask;
- 		ir_props->s_tx_carrier = ene_set_tx_carrier;
- 		ir_props->s_tx_duty_cycle = ene_set_tx_duty_cycle;
--		/* ir_props->s_carrier_report = ene_set_carrier_report; */
-+		ir_props->s_carrier_report = ene_set_carrier_report;
- 	}
- 
- 	ene_setup_hw_buffer(dev);
--- 
-1.7.0.4
+What changed from V4?
+
+
+--=20
+David H=E4rdeman
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

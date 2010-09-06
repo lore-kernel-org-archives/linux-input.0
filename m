@@ -1,34 +1,37 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
 Subject: Re: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the
  ENE driver
-Date: Mon, 6 Sep 2010 23:56:19 +0200
-Message-ID: <20100906215619.GA446@hardeman.nu>
+Date: Tue, 07 Sep 2010 01:38:16 +0300
+Message-ID: <1283812696.28974.1.camel@maxim-laptop>
 References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
+	 <20100906215619.GA446@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:41678 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752196Ab0IFV4X (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 17:56:23 -0400
-Content-Disposition: inline
-In-Reply-To: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:34868 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751755Ab0IFWiX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 18:38:23 -0400
+In-Reply-To: <20100906215619.GA446@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
+To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
 Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Tue, Sep 07, 2010 at 12:26:05AM +0300, Maxim Levitsky wrote:
-> Hi,
+On Mon, 2010-09-06 at 23:56 +0200, David H=C3=A4rdeman wrote:=20
+> On Tue, Sep 07, 2010 at 12:26:05AM +0300, Maxim Levitsky wrote:
+> > Hi,
+> >=20
+> > Here is full overview of my patches:
 >=20
-> Here is full overview of my patches:
+> What changed from V4?
+Nothing other that 2 build fixes that I forgot to include.
+I also cced linux-media because I was asked to.
 
-What changed from V4?
+Best regards,
+Maxim Levitsky
 
-
---=20
-David H=E4rdeman
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

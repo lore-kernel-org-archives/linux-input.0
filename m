@@ -1,65 +1,44 @@
-From: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
-Subject: RE: input:rohm based bu21013 touch panel controller driver support
-Date: Tue, 7 Sep 2010 10:53:45 +0200
-Message-ID: <81C3A93C17462B4BBD7E272753C1057916DE769D1C@EXDCVYMBSTM005.EQ1STM.local>
-References: <81C3A93C17462B4BBD7E272753C1057916DE6765F2@EXDCVYMBSTM005.EQ1STM.local>
- <20100901020427.GC23585@core.coreip.homeip.net>
- <81C3A93C17462B4BBD7E272753C1057916DE769064@EXDCVYMBSTM005.EQ1STM.local>
- <20100906051323.GE17212@core.coreip.homeip.net>
+From: "Premi, Sanjeev" <premi@ti.com>
+Subject: omap3: regulator_get() failure in ads7846
+Date: Tue, 7 Sep 2010 17:16:44 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:38962 "EHLO
-	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752441Ab0IGIxy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Sep 2010 04:53:54 -0400
-In-Reply-To: <20100906051323.GE17212@core.coreip.homeip.net>
+Received: from bear.ext.ti.com ([192.94.94.41]:55450 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756118Ab0IGLqu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 07:46:50 -0400
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+Hi all,
+ 
+While booting the latest kernel (from linux-omap) on omap3evm,
+I came across this error.
+ 
+[    3.202575] ads7846 spi1.0: unable to get regulator: -19
+[    3.208190] ------------[ cut here ]------------
+[    3.212890] WARNING: at drivers/gpio/gpiolib.c:1258 gpio_free+0x114/0x140()
+[    3.219940] Modules linked in:
+[    3.223083] [<c004e57c>] (unwind_backtrace+0x0/0xec) from [<c007e5d8>] (warn_slowpath_common+0x4c/0x64)
+...
+...
+[    3.342529] ---[ end trace 1b75b31a2719ed1f ]---
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Monday, September 06, 2010 10:43 AM
-> To: Naveen Kumar GADDIPATI
+ 
+In drivers/input/touchscreen/ads7846.c, we attempt to get the
+regulator as:
+ 
+ts->reg = regulator_get(&spi->dev, "vcc");
 
+This regulator isn't defined for omap3evm. And I suspect - once
+defined - the name will be different than "vcc".
 
-> 
-> > > > +static bool bu21013_verify_delta(int x1, int y1, int x2, int y2)
-> > > > +{
-> > > > +       int delta_x, delta_y;
-> > > > +       if ((x1 != 0) && (y1 != 0)) {
-> > > > +               delta_x = x2 - x1;
-> > > > +               if (x1 > x2)
-> > > > +                       delta_x = x1 - x2;
-> > > > +               delta_y = y2 - y1;
-> > > > +               if (y1 > y2)
-> > > > +                       delta_y = y1 - y2;
-> > > > +               if ((delta_x < DELTA_MIN) || (delta_y <
-> DELTA_MIN))
-> > > > +                       return false;
-> > >
-> > > If you specify "fuzz" for given axis I think input core will do
-> this
-> > > for
-> > > you.
-> > 	What is fuzz?
-> 
-> 
-> It is one of the parameters in input_set_abs_params() calls that
-> instructs input core to perform filtering on input events.
-> 
-Here the delta calculation is between two co-ordinates for multi touch case according to the controller specification.
-Is the fuzz useful in this case also?
-
-Thanks & Regards,
-Naveen
-	
-
-
+Looking at pointers on how this should be handled.
+ 
+Best regard,
+Sanjeev

@@ -1,44 +1,33 @@
-From: "Premi, Sanjeev" <premi@ti.com>
-Subject: omap3: regulator_get() failure in ads7846
-Date: Tue, 7 Sep 2010 17:16:44 +0530
-Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: omap3: regulator_get() failure in ads7846
+Date: Tue, 7 Sep 2010 12:56:33 +0100
+Message-ID: <20100907115633.GB25830@sirena.org.uk>
+References: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:55450 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756118Ab0IGLqu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 07:46:50 -0400
-Content-Language: en-US
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:46847 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756118Ab0IGL4f (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 07:56:35 -0400
+Content-Disposition: inline
+In-Reply-To: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "Premi, Sanjeev" <premi@ti.com>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi all,
- 
-While booting the latest kernel (from linux-omap) on omap3evm,
-I came across this error.
- 
-[    3.202575] ads7846 spi1.0: unable to get regulator: -19
-[    3.208190] ------------[ cut here ]------------
-[    3.212890] WARNING: at drivers/gpio/gpiolib.c:1258 gpio_free+0x114/0x140()
-[    3.219940] Modules linked in:
-[    3.223083] [<c004e57c>] (unwind_backtrace+0x0/0xec) from [<c007e5d8>] (warn_slowpath_common+0x4c/0x64)
-...
-...
-[    3.342529] ---[ end trace 1b75b31a2719ed1f ]---
+On Tue, Sep 07, 2010 at 05:16:44PM +0530, Premi, Sanjeev wrote:
 
- 
-In drivers/input/touchscreen/ads7846.c, we attempt to get the
-regulator as:
- 
-ts->reg = regulator_get(&spi->dev, "vcc");
+> ts->reg = regulator_get(&spi->dev, "vcc");
 
-This regulator isn't defined for omap3evm. And I suspect - once
-defined - the name will be different than "vcc".
+> This regulator isn't defined for omap3evm. And I suspect - once
+> defined - the name will be different than "vcc".
 
-Looking at pointers on how this should be handled.
- 
-Best regard,
-Sanjeev
+What makes you say this?  The names for regulator supplies are defined
+in terms of the chip being supplied, not in terms of the board.
+
+> Looking at pointers on how this should be handled.
+
+The best thing to do is to define the mapping for the regulator.  You
+can work around it by enabling REGULATOR_DUMMY.

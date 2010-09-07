@@ -1,63 +1,118 @@
 From: Igor Grinberg <grinberg@compulab.co.il>
-Subject: Re: omap3: regulator_get() failure in ads7846
-Date: Tue, 07 Sep 2010 15:16:21 +0300
-Message-ID: <4C862D15.1070606@compulab.co.il>
-References: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
+Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
+Date: Tue, 07 Sep 2010 15:23:15 +0300
+Message-ID: <4C862EB3.4080006@compulab.co.il>
+References: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from compulab.co.il ([67.18.134.219]:38498 "EHLO compulab.co.il"
+Received: from compulab.co.il ([67.18.134.219]:38573 "EHLO compulab.co.il"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756611Ab0IGMQ3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Sep 2010 08:16:29 -0400
-In-Reply-To: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
+	id S1755476Ab0IGMXc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Sep 2010 08:23:32 -0400
+In-Reply-To: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Premi, Sanjeev" <premi@ti.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Marek Vasut <marek.vasut@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
 
- Hi,
+ Seems that there are some more platforms then Sharp Zaurus
+are interested in this patch.
 
-I think, this can help:
-http://www.spinics.net/lists/arm-kernel/msg94759.html
+Dmitry, Mike, Pavel,
 
-Seems like there were not enough interest and it is still floating.
-May be a little ping can help ;)
+What's the status of it?
 
-On 09/07/10 14:46, Premi, Sanjeev wrote:
-> Hi all,
->  
-> While booting the latest kernel (from linux-omap) on omap3evm,
-> I came across this error.
->  
-> [    3.202575] ads7846 spi1.0: unable to get regulator: -19
-> [    3.208190] ------------[ cut here ]------------
-> [    3.212890] WARNING: at drivers/gpio/gpiolib.c:1258 gpio_free+0x114/0x140()
-> [    3.219940] Modules linked in:
-> [    3.223083] [<c004e57c>] (unwind_backtrace+0x0/0xec) from [<c007e5d8>] (warn_slowpath_common+0x4c/0x64)
-> ...
-> ...
-> [    3.342529] ---[ end trace 1b75b31a2719ed1f ]---
+On 07/31/10 10:09, Marek Vasut wrote:
+> In case regulator was not found, ADS7846 failed to probe.
 >
->  
-> In drivers/input/touchscreen/ads7846.c, we attempt to get the
-> regulator as:
->  
-> ts->reg = regulator_get(&spi->dev, "vcc");
+> This fixes a problem on some Sharp Zaurus devices, where there is no regulator
+> present and the touchscreen is used.
 >
-> This regulator isn't defined for omap3evm. And I suspect - once
-> defined - the name will be different than "vcc".
+> Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+> ---
+>  drivers/input/touchscreen/ads7846.c |   38 +++++++++++++++++++---------------
+>  1 files changed, 21 insertions(+), 17 deletions(-)
 >
-> Looking at pointers on how this should be handled.
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index a9fdf55..53b318b 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -791,7 +791,8 @@ static void ads7846_disable(struct ads7846 *ts)
+>  		}
+>  	}
 >  
-> Best regard,
-> Sanjeev
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+> -	regulator_disable(ts->reg);
+> +	if (ts->reg)
+> +		regulator_disable(ts->reg);
+>  
+>  	/* we know the chip's in lowpower mode since we always
+>  	 * leave it that way after every request
+> @@ -804,7 +805,8 @@ static void ads7846_enable(struct ads7846 *ts)
+>  	if (!ts->disabled)
+>  		return;
+>  
+> -	regulator_enable(ts->reg);
+> +	if (ts->reg)
+> +		regulator_enable(ts->reg);
+>  
+>  	ts->disabled = 0;
+>  	ts->irq_disabled = 0;
+> @@ -1162,16 +1164,15 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+>  	ts->last_msg = m;
+>  
+>  	ts->reg = regulator_get(&spi->dev, "vcc");
+> -	if (IS_ERR(ts->reg)) {
+> -		err = PTR_ERR(ts->reg);
+> -		dev_err(&spi->dev, "unable to get regulator: %d\n", err);
+> -		goto err_free_gpio;
+> -	}
+> -
+> -	err = regulator_enable(ts->reg);
+> -	if (err) {
+> -		dev_err(&spi->dev, "unable to enable regulator: %d\n", err);
+> -		goto err_put_regulator;
+> +	if (IS_ERR(ts->reg))
+> +		ts->reg = NULL;
+> +	else {
+> +		err = regulator_enable(ts->reg);
+> +		if (err) {
+> +			dev_err(&spi->dev, "unable to enable regulator: %d\n",
+> +				err);
+> +			goto err_put_regulator;
+> +		}
+>  	}
+>  
+>  	if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FALLING,
+> @@ -1218,10 +1219,11 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+>   err_free_irq:
+>  	free_irq(spi->irq, ts);
+>   err_disable_regulator:
+> -	regulator_disable(ts->reg);
+> +	if (ts->reg)
+> +		regulator_disable(ts->reg);
+>   err_put_regulator:
+> -	regulator_put(ts->reg);
+> - err_free_gpio:
+> +	if (ts->reg)
+> +		regulator_put(ts->reg);
+>  	if (ts->gpio_pendown != -1)
+>  		gpio_free(ts->gpio_pendown);
+>   err_cleanup_filter:
+> @@ -1251,8 +1253,10 @@ static int __devexit ads7846_remove(struct spi_device *spi)
+>  	/* suspend left the IRQ disabled */
+>  	enable_irq(ts->spi->irq);
+>  
+> -	regulator_disable(ts->reg);
+> -	regulator_put(ts->reg);
+> +	if (ts->reg) {
+> +		regulator_disable(ts->reg);
+> +		regulator_put(ts->reg);
+> +	}
+>  
+>  	if (ts->gpio_pendown != -1)
+>  		gpio_free(ts->gpio_pendown);
 
 -- 
 Regards,

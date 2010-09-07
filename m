@@ -1,83 +1,628 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] identify firmware version
-Date: Mon, 6 Sep 2010 16:36:01 -0700
-Message-ID: <20100906233601.GA20528@core.coreip.homeip.net>
-References: <4C7EB3A3.7050402@gmail.com>
- <1283791362-27780-1-git-send-email-rafi@seas.upenn.edu>
- <20100906194838.GB31384@core.coreip.homeip.net>
- <4C855BAA.4000900@gmail.com>
- <20100906233203.GA18048@seas.upenn.edu>
+Subject: Re: [PATCH v3 1/1] input: add support for Nomadik SKE keypad
+ controller
+Date: Mon, 6 Sep 2010 23:37:15 -0700
+Message-ID: <20100907063715.GB1680@core.coreip.homeip.net>
+References: <1283777284-24811-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:60313 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752356Ab0IFXgK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Sep 2010 19:36:10 -0400
+Received: from mail-px0-f174.google.com ([209.85.212.174]:44546 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751472Ab0IGGhV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 02:37:21 -0400
+Received: by pxi10 with SMTP id 10so1216971pxi.19
+        for <linux-input@vger.kernel.org>; Mon, 06 Sep 2010 23:37:21 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20100906233203.GA18048@seas.upenn.edu>
+In-Reply-To: <1283777284-24811-1-git-send-email-sundar.iyer@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Jiri Slaby <jirislaby@gmail.com>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
+To: Sundar Iyer <sundar.iyer@stericsson.com>
+Cc: linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, Linus Walleij <linus.walleij@stericsson.com>
 
-On Mon, Sep 06, 2010 at 07:32:03PM -0400, Rafi Rubin wrote:
-> On Mon, Sep 06, 2010 at 11:22:50PM +0200, Jiri Slaby wrote:
-> > On 09/06/2010 09:48 PM, Dmitry Torokhov wrote:
-> > >> @@ -848,10 +871,43 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> > >>  	if (report)
-> > >>  		usbhid_submit_report(hdev, report, USB_DIR_OUT);
-> > >>  
-> > >> +	data = kmalloc(8, GFP_KERNEL);
-> > >> +	if (!data) {
-> > >> +		ret = -ENOMEM;
-> > >> +		goto err_free;
-> > >> +	}
-> > >> +
-> > >> +	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-> > >> +			      USB_REQ_CLEAR_FEATURE,
-> > >> +			      USB_TYPE_CLASS | USB_RECIP_INTERFACE |
-> > >> +			      USB_DIR_IN,
-> > >> +			      0x30c, 1, data, 8,
-> > >> +			      USB_CTRL_SET_TIMEOUT);
-> > >> +
-> > >> +	if (ret == 8) {
-> > >> +		buf = kmalloc(20, GFP_KERNEL);
-> > >> +		if (!buf) {
-> > >> +			ret = -ENOMEM;
-> > >> +			goto err_free_data;
-> > >> +		}
-> > > 
-> > > Why do you allocate this from heap? Surely we can spare 20 bytes on
-> > > stack (you aren't doing DMA into it).
-> > 
-> > Hi, yeah, I think so too.
+Hi Sundar,
+
+On Mon, Sep 06, 2010 at 06:18:04PM +0530, Sundar Iyer wrote:
+> Acked-by: Linus Walleij <linus.walleij@stericsson.com>
+> Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
+> ---
 > 
-> No arguments from me, that was just sloppy.
-> 
-> > > I'd also split all this code into ntrig_report_version() to simplifu
-> > > error handling here.
-> > > 
-> > >> +
-> > >> +		ret = ntrig_version_string(&data[2], buf);
-> > >> +
-> > >> +		dev_info(&hdev->dev,
-> > >> +			 "Firmware version: %s (%02x%02x %02x%02x)\n",
-> > >> +			 buf, data[2], data[3], data[4], data[5]);
-> > >> +
-> > >> +		kfree(buff);
-> > 
-> > In any case, this doesn't compile...
-> > 
-> > >> +	}
-> 
-> Jiri, I moved the code to a separate function as Dmitry suggested, and compiled a kernel from a clean tree using 
-> gcc-3.4 (I think).
-> 
-> If this version fails for you, would you mind being a bit more verbose about the failure.
+> Changes:
+> v3:
+>  - fixed Dmitry's comments assorted comments,
+>  - re-orged the IRQ to include a timer instead of cpu_relax()
 > 
 
-Looks good to me, thanks for making changes Rafi.
+Thank you for making the changes.
+
+>  arch/arm/plat-nomadik/include/plat/ske.h    |   54 ++++
+>  drivers/input/keyboard/Kconfig              |   10 +
+>  drivers/input/keyboard/Makefile             |    1 +
+>  drivers/input/keyboard/nomadik-ske-keypad.c |  449 +++++++++++++++++++++++++++
+>  4 files changed, 514 insertions(+), 0 deletions(-)
+>  create mode 100644 arch/arm/plat-nomadik/include/plat/ske.h
+>  create mode 100644 drivers/input/keyboard/nomadik-ske-keypad.c
+> 
+> diff --git a/arch/arm/plat-nomadik/include/plat/ske.h b/arch/arm/plat-nomadik/include/plat/ske.h
+> new file mode 100644
+> index 0000000..27aeadb
+> --- /dev/null
+> +++ b/arch/arm/plat-nomadik/include/plat/ske.h
+> @@ -0,0 +1,54 @@
+> +/*
+> + * Copyright (C) ST-Ericsson SA 2010
+> + *
+> + * License Terms: GNU General Public License v2
+> + * Author: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> + *
+> + * ux500 Scroll key and Keypad Encoder (SKE) header
+> + */
+> +
+> +#ifndef __SKE_H
+> +#define __SKE_H
+> +
+> +#include <linux/input/matrix_keypad.h>
+> +
+> +/* register definitions for SKE peripheral */
+> +#define SKE_CR		0x00
+> +#define SKE_VAL0	0x04
+> +#define SKE_VAL1	0x08
+> +#define SKE_DBCR	0x0C
+> +#define SKE_IMSC	0x10
+> +#define SKE_RIS		0x14
+> +#define SKE_MIS		0x18
+> +#define SKE_ICR		0x1C
+> +#define SKE_ASR0	0x20
+> +#define SKE_ASR1	0x24
+> +#define SKE_ASR2	0x28
+> +#define SKE_ASR3	0x2C
+> +
+> +#define SKE_NUM_ASRX_REGISTERS	(4)
+> +
+> +/*
+> + * Keypad module
+> + */
+> +
+> +/**
+> + * struct keypad_platform_data - structure for platform specific data
+> + * @init:	pointer to keypad init function
+> + * @exit:	pointer to keypad deinitialisation function
+> + * @keymap_data: matrix scan code table for keycodes
+> + * @krow:	maximum number of rows
+> + * @kcol:	maximum number of columns
+> + * @debounce_ms: platform specific debounce time
+> + * @no_autorepeat: flag for auto repetition
+> + */
+> +struct ske_keypad_platform_data {
+> +	int (*init)(void);
+> +	int (*exit)(void);
+> +	struct matrix_keymap_data *keymap_data;
+
+const please.
+
+> +	u8 krow;
+> +	u8 kcol;
+> +	u8 debounce_ms;
+> +	bool no_autorepeat;
+> +};
+> +#endif	/*__SKE_KPD_H*/
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 4f30048..d63f566 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -327,6 +327,16 @@ config KEYBOARD_NEWTON
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called newtonkbd.
+>  
+> +config KEYBOARD_NOMADIK
+> +	tristate "ST-Ericsson Nomadik SKE keyboard"
+> +	depends on PLAT_NOMADIK
+> +	help
+> +	  Say Y here if you want to use a keypad provided on the SKE controller
+> +	  used on the Ux500 and Nomadik platforms
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called nmk-ske-keypad.
+> +
+>  config KEYBOARD_OPENCORES
+>  	tristate "OpenCores Keyboard Controller"
+>  	help
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index 8ac01fb..c13809c 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -28,6 +28,7 @@ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+>  obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
+>  obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
+>  obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+> +obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
+>  obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+>  obj-$(CONFIG_KEYBOARD_OMAP4)		+= omap4-keypad.o
+>  obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+> diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+> new file mode 100644
+> index 0000000..1697181
+> --- /dev/null
+> +++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+> @@ -0,0 +1,449 @@
+> +/*
+> + * Copyright (C) ST-Ericsson SA 2010
+> + *
+> + * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-Ericsson
+> + * Author: Sundar Iyer <sundar.iyer@stericsson.com> for ST-Ericsson
+> + *
+> + * License terms:GNU General Public License (GPL) version 2
+> + *
+> + * Keypad controller driver for the SKE (Scroll Key Encoder) module used in
+> + * the Nomadik 8815 and Ux500 platforms.
+> + */
+> +
+> +#include <linux/platform_device.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/io.h>
+> +#include <linux/input.h>
+> +#include <linux/slab.h>
+> +#include <linux/clk.h>
+> +
+> +#include <plat/ske.h>
+> +
+> +/* SKE_CR bits */
+> +#define SKE_KPMLT	(0x1 << 6)
+> +#define SKE_KPCN	(0x7 << 3)
+> +#define SKE_KPASEN	(0x1 << 2)
+> +#define SKE_KPASON	(0x1 << 7)
+> +
+> +/* SKE_IMSC bits */
+> +#define SKE_KPIMA	(0x1 << 2)
+> +
+> +/* SKE_ICR bits */
+> +#define SKE_KPICS	(0x1 << 3)
+> +#define SKE_KPICA	(0x1 << 2)
+> +
+> +/* SKE_RIS bits */
+> +#define SKE_KPRISA	(0x1 << 2)
+> +
+> +#define SKE_KEYPAD_ROW_SHIFT	3
+> +#define SKE_KPD_KEYMAP_SIZE	(8 * 8)
+> +
+> +/**
+> + * struct ske_keypad  - data structure used by keypad driver
+> + * @irq:	irq no
+> + * @reg_base:	ske regsiters base address
+> + * @input:	pointer to input device object
+> + * @board:	keypad platform device
+> + * @keymap:	matrix scan code table for keycodes
+> + * @clk:	clock structure pointer
+> + */
+> +struct ske_keypad {
+> +	int irq;
+> +	void __iomem *reg_base;
+> +	struct input_dev *input;
+> +	const struct ske_keypad_platform_data *board;
+> +	unsigned short keymap[SKE_KPD_KEYMAP_SIZE];
+> +	struct clk *clk;
+> +	spinlock_t ske_keypad_lock;
+> +	struct timer_list timer;
+> +};
+> +
+> +static void ske_keypad_set_bits(struct ske_keypad *keypad, u16 addr,
+> +		u8 mask, u8 data)
+> +{
+> +	u32 ret;
+> +
+> +	spin_lock(&keypad->ske_keypad_lock);
+> +
+> +	ret = readl(keypad->reg_base + addr);
+> +	ret &= ~mask;
+> +	ret |= data;
+> +	writel(ret, keypad->reg_base + addr);
+> +
+> +	spin_unlock(&keypad->ske_keypad_lock);
+> +}
+> +
+> +/*
+> + * ske_keypad_chip_init : init keypad controller configuration
+> + *
+> + * Enable Multi key press detection, auto scan mode
+> + */
+> +static int __devinit ske_keypad_chip_init(struct ske_keypad *keypad)
+> +{
+> +	u32 value;
+> +	int timeout = keypad->board->debounce_ms;
+> +
+> +	/* check SKE_RIS to be 0 */
+> +	while ((readl(keypad->reg_base + SKE_RIS) != 0x00000000) && timeout--)
+> +		cpu_relax();
+> +	if (!timeout)
+> +		return -EINVAL;
+> +
+> +	/*
+> +	 * set debounce value
+> +	 * keypad dbounce is configured in DBCR[15:8]
+> +	 * dbounce value in steps of 32/32.768 ms
+> +	 */
+> +	spin_lock(&keypad->ske_keypad_lock);
+> +	value = readl(keypad->reg_base + SKE_DBCR);
+> +	value = value & 0xff;
+> +	value |= ((keypad->board->debounce_ms * 32000)/32768) << 8;
+> +	writel(value, keypad->reg_base + SKE_DBCR);
+> +	spin_unlock(&keypad->ske_keypad_lock);
+> +
+> +	/* enable multi key detection */
+> +	ske_keypad_set_bits(keypad, SKE_CR, 0x0, SKE_KPMLT);
+> +
+> +	/*
+> +	 * set up the number of columns
+> +	 * KPCN[5:3] defines no. of keypad columns to be auto scanned
+> +	 */
+> +	value = (keypad->board->kcol - 1) << 3;
+> +	ske_keypad_set_bits(keypad, SKE_CR, SKE_KPCN, value);
+> +
+> +	/* clear keypad interrupt for auto(and pending SW) scans */
+> +	ske_keypad_set_bits(keypad, SKE_ICR, 0x0, SKE_KPICA | SKE_KPICS);
+> +
+> +	/* un-mask keypad interrupts */
+> +	ske_keypad_set_bits(keypad, SKE_IMSC, 0x0, SKE_KPIMA);
+> +
+> +	/* enable automatic scan */
+> +	ske_keypad_set_bits(keypad, SKE_CR, 0x0, SKE_KPASEN);
+> +
+> +	return 0;
+> +}
+> +
+> +static void ske_keypad_read_data(struct ske_keypad *keypad)
+> +{
+> +	struct input_dev *input = keypad->input;
+> +	u16 status;
+> +	int col = 0, row = 0, code;
+> +	int ske_asr, ske_ris, key_pressed, i;
+> +
+> +	/*
+> +	 * Read the auto scan registers
+> +	 *
+> +	 * Each SKE_ASRx (x=0 to x=3) contains two row values.
+> +	 * lower byte contains row value for coloumn 2*x,
+> +	 * upper byte contains row value for column 2*x + 1
+> +	 */
+> +	for (i = 0; i < SKE_NUM_ASRX_REGISTERS; i++) {
+> +		ske_asr = readl(keypad->reg_base + SKE_ASR0 + (4 * i));
+> +		if (!ske_asr)
+> +			continue;
+> +
+> +		/* now that ASRx is zero, find out the coloumn x and row y*/
+> +		if (ske_asr & 0xff) {
+> +			col = i * 2;
+> +			status = ske_asr & 0xff;
+> +		} else {
+> +			col = (i * 2) + 1;
+> +			status = (ske_asr & 0xff00) >> 8;
+> +		}
+> +
+> +		/* find out the row */
+> +		row = __ffs(status);
+> +
+> +		code = MATRIX_SCAN_CODE(row, col, SKE_KEYPAD_ROW_SHIFT);
+> +		ske_ris = readl(keypad->reg_base + SKE_RIS);
+> +		key_pressed = ske_ris & SKE_KPRISA;
+> +
+> +		input_event(input, EV_MSC, MSC_SCAN, code);
+> +		input_report_key(input, keypad->keymap[code], key_pressed);
+> +		input_sync(input);
+> +	}
+> +	return;
+
+No naked returns at the end of void functions please.
+
+> +}
+> +
+> +static void ske_keypad_timer(unsigned long data)
+> +{
+> +	struct platform_device *pdev =  (struct platform_device *) data;
+> +	struct ske_keypad *keypad = platform_get_drvdata(pdev);
+> +	int ske_kpason;
+> +	int timeout = keypad->board->debounce_ms;
+> +
+> +	ske_kpason = readl(keypad->reg_base + SKE_CR) & SKE_KPASON;
+> +	if (ske_kpason) {
+> +		mod_timer(&keypad->timer, jiffies + msecs_to_jiffies(timeout));
+> +		return;
+> +	}
+> +
+> +	/* read data registers and report event */
+> +	ske_keypad_read_data(keypad);
+> +
+> +	return;
+> +}
+> +
+> +static irqreturn_t ske_keypad_irq(int irq, void *dev_id)
+> +{
+> +	struct ske_keypad *keypad = dev_id;
+> +	int timeout = keypad->board->debounce_ms;
+> +
+> +	/* disable auto scan interrupt; mask the interrupt generated */
+> +	ske_keypad_set_bits(keypad, SKE_IMSC, ~SKE_KPIMA, 0x0);
+> +	ske_keypad_set_bits(keypad, SKE_ICR, 0x0, SKE_KPICA);
+> +
+> +	/*
+> +	 * if KPASON is not ready, we cannot read data registers
+> +	 * so wait for a debounce period; if still not settled,
+> +	 * we fire a timer and exit the IRQ
+> +	 */
+> +	while ((readl(keypad->reg_base + SKE_CR) & SKE_KPASON) && timeout--)
+> +		cpu_relax();
+> +	if (!timeout) {
+> +		mod_timer(&keypad->timer, jiffies + msecs_to_jiffies(timeout));
+
+timeout is 0 here, I do not think that's what you want.
+
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * KPASON behaved nicely and we can read data registers and report event
+> +	 */
+> +	ske_keypad_read_data(keypad);
+> +
+> +out:
+> +	/* enable auto scan interrupts */
+> +	ske_keypad_set_bits(keypad, SKE_IMSC, 0x0, SKE_KPIMA);
+
+You sure you want do do it here even when SKE_KPASON is set and timer is
+pending? I'd expect re-enabling interrupts from the timer.
+
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int __devinit ske_keypad_probe(struct platform_device *pdev)
+> +{
+> +	struct ske_keypad *keypad;
+> +	struct resource *res;
+> +	struct input_dev *input;
+> +	struct clk *clk;
+> +	void __iomem *reg_base;
+> +	int ret;
+> +	int irq;
+> +	const struct ske_keypad_platform_data *plat = pdev->dev.platform_data;
+> +
+> +	if (!plat) {
+> +		dev_err(&pdev->dev, "invalid keypad platform data\n");
+> +		ret = -EINVAL;
+> +		goto out_ret;
+> +	}
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq < 0) {
+> +		dev_err(&pdev->dev, "failed to get keypad irq\n");
+> +		ret = -EINVAL;
+> +		goto out_ret;
+> +	}
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (res == NULL) {
+> +		dev_err(&pdev->dev, "missing platform resources\n");
+> +		ret = -EINVAL;
+> +		goto out_ret;
+> +	}
+> +
+> +	res = request_mem_region(res->start, resource_size(res), pdev->name);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "failed to request I/O memory\n");
+> +		ret = -EBUSY;
+> +		goto out_ret;
+> +	}
+> +
+> +	reg_base = ioremap(res->start, resource_size(res));
+> +	if (!reg_base) {
+> +		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+> +		ret = -ENXIO;
+> +		goto out_freerequest_memregions;
+> +	}
+> +
+> +	clk = clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(clk)) {
+> +		dev_err(&pdev->dev, "failed to clk_get\n");
+> +		ret = PTR_ERR(clk);
+> +		goto out_freeioremap;
+> +	}
+> +
+> +	/* resources are sane; we begin allocation */
+> +	keypad = kzalloc(sizeof(struct ske_keypad), GFP_KERNEL);
+> +	if (!keypad) {
+> +		dev_err(&pdev->dev, "failed to allocate keypad memory\n");
+> +		ret = -ENOMEM;
+> +		goto out_freeclk;
+> +	}
+> +
+> +	input = input_allocate_device();
+> +	if (!input) {
+> +		dev_err(&pdev->dev, "failed to input_allocate_device\n");
+> +		ret = -ENOMEM;
+> +		goto out_freekeypad;
+> +	}
+> +
+> +	input->id.bustype = BUS_HOST;
+> +	input->name = "ux500-ske-keypad";
+> +	input->dev.parent = &pdev->dev;
+> +
+> +	input->keycode = keypad->keymap;
+> +	input->keycodesize = sizeof(keypad->keymap[0]);
+> +	input->keycodemax = ARRAY_SIZE(keypad->keymap);
+> +
+> +	input_set_capability(input, EV_MSC, MSC_SCAN);
+> +
+> +	__set_bit(EV_KEY, input->evbit);
+> +	if (!plat->no_autorepeat)
+> +		__set_bit(EV_REP, input->evbit);
+> +
+> +	matrix_keypad_build_keymap(plat->keymap_data, SKE_KEYPAD_ROW_SHIFT,
+> +					input->keycode, input->keybit);
+> +
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"unable to register input device: %d\n", ret);
+> +		goto out_freeinput;
+> +	}
+
+I'd probably move registration past requesting IRQ - it will simplify
+error handling I think. It is safe to send events through input device
+as long as it has been allocated with input_allocate_device() even if it
+has not been registered yet.
+
+> +
+> +	keypad->irq	= irq;
+> +	keypad->board	= plat;
+> +	keypad->input	= input;
+> +	keypad->reg_base = reg_base;
+> +	keypad->clk	= clk;
+> +
+> +	/* allocations are sane, we begin HW initialization */
+> +	clk_enable(keypad->clk);
+> +
+> +	/* go through board initialiazation helpers */
+> +	if (keypad->board->init) {
+> +		keypad->board->init();
+
+I do not think you actually compiled this - closing brace is missing
+(well, braces are actually not needed at all).
+
+> +
+> +	ret = ske_keypad_chip_init(keypad);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "unable to init keypad hardware\n");
+> +		goto out_unregisterinput;
+> +	}
+> +
+> +	spin_lock_init(&keypad->ske_keypad_lock);
+> +	setup_timer(&keypad->timer, ske_keypad_timer, (unsigned long)pdev);
+> +
+> +	ret =  request_threaded_irq(keypad->irq, NULL, ske_keypad_irq,
+> +				IRQF_ONESHOT, "ske-keypad", keypad);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "allocate irq %d failed\n", keypad->irq);
+> +		goto out_unregisterinput;
+> +	}
+> +
+> +	device_init_wakeup(&pdev->dev, true);
+> +
+> +	platform_set_drvdata(pdev, keypad);
+> +
+> +	return 0;
+> +
+> +out_unregisterinput:
+> +	input_unregister_device(input);
+> +	input = NULL;
+> +	clk_disable(keypad->clk);
+> +out_freeinput:
+> +	input_free_device(input);
+> +out_freekeypad:
+> +	kfree(keypad);
+> +out_freeclk:
+> +	clk_put(clk);
+> +out_freeioremap:
+> +	iounmap(reg_base);
+> +out_freerequest_memregions:
+> +	release_mem_region(res->start, resource_size(res));
+> +out_ret:
+> +	return ret;
+> +}
+> +
+> +static int __devexit ske_keypad_remove(struct platform_device *pdev)
+> +{
+> +	struct ske_keypad *keypad = platform_get_drvdata(pdev);
+> +	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +
+> +	del_timer_sync(&keypad->timer);
+> +	free_irq(keypad->irq, keypad);
+> +	input_unregister_device(keypad->input);
+> +
+> +	clk_disable(keypad->clk);
+> +	clk_put(keypad->clk);
+> +
+> +	if (keypad->board->exit())
+
+You are already aware of the issue here...
+
+> +		keypad->board->exit();
+> +
+> +	iounmap(keypad->reg_base);
+> +	release_mem_region(res->start, resource_size(res));
+> +	kfree(keypad);
+
+
+	platform_set_drvdata(pdev, NULL);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int ske_keypad_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct ske_keypad *keypad = platform_get_drvdata(pdev);
+> +	int irq = platform_get_irq(pdev, 0);
+> +
+> +	if (device_may_wakeup(dev))
+> +		enable_irq_wake(irq);
+> +	else
+> +		ske_keypad_set_bits(keypad, SKE_IMSC, ~SKE_KPIMA, 0x0);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ske_keypad_resume(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct ske_keypad *keypad = platform_get_drvdata(pdev);
+> +	int irq = platform_get_irq(pdev, 0);
+> +
+> +	if (device_may_wakeup(dev))
+> +		disable_irq_wake(irq);
+> +	else
+> +		ske_keypad_set_bits(keypad, SKE_IMSC, 0x0, SKE_KPIMA);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct dev_pm_ops ske_keypad_dev_pm_ops = {
+> +	.suspend = ske_keypad_suspend,
+> +	.resume = ske_keypad_resume,
+> +};
+> +#endif
+> +
+> +struct platform_driver ske_keypad_driver = {
+> +	.driver = {
+> +		.name = "nmk-ske-keypad",
+> +		.owner  = THIS_MODULE,
+> +#ifdef CONFIG_PM
+> +		.pm = &ske_keypad_dev_pm_ops,
+> +#endif
+> +	},
+> +	.probe = ske_keypad_probe,
+> +	.remove = __devexit_p(ske_keypad_remove),
+> +};
+> +
+> +static int __init ske_keypad_init(void)
+> +{
+> +	return platform_driver_probe(&ske_keypad_driver, ske_keypad_probe);
+> +}
+> +module_init(ske_keypad_init);
+> +
+> +static void __exit ske_keypad_exit(void)
+> +{
+> +	platform_driver_unregister(&ske_keypad_driver);
+> +}
+> +module_exit(ske_keypad_exit);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("Naveen Kumar G/Sundar Iyer");
+> +MODULE_DESCRIPTION("Nomadik Scroll-Key-Encoder Keypad Driver");
+> +MODULE_ALIAS("platform:nomadik-ske-keypad");
+> -- 
+> 1.7.2.dirty
+> 
 
 -- 
 Dmitry

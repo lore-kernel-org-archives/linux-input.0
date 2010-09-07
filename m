@@ -1,74 +1,33 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: omap3: regulator_get() failure in ads7846
-Date: Tue, 7 Sep 2010 15:18:40 +0100
-Message-ID: <20100907141839.GA31268@opensource.wolfsonmicro.com>
-References: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
- <20100907115633.GB25830@sirena.org.uk>
- <B85A65D85D7EB246BE421B3FB0FBB59301F6C838DE@dbde02.ent.ti.com>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: Synaptics tm12xx driver
+Date: Tue, 7 Sep 2010 10:15:36 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A5304509AF2F6@dlee03.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:51767 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751152Ab0IGOSX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Sep 2010 10:18:23 -0400
-Content-Disposition: inline
-In-Reply-To: <B85A65D85D7EB246BE421B3FB0FBB59301F6C838DE@dbde02.ent.ti.com>
+Received: from comal.ext.ti.com ([198.47.26.152]:55134 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757270Ab0IGPPj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 11:15:39 -0400
+Received: from dlep35.itg.ti.com ([157.170.170.118])
+	by comal.ext.ti.com (8.13.7/8.13.7) with ESMTP id o87FFc3Y023623
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <linux-input@vger.kernel.org>; Tue, 7 Sep 2010 10:15:38 -0500
+Received: from dlep26.itg.ti.com (localhost [127.0.0.1])
+	by dlep35.itg.ti.com (8.13.7/8.13.7) with ESMTP id o87FFbYc018137
+	for <linux-input@vger.kernel.org>; Tue, 7 Sep 2010 10:15:38 -0500 (CDT)
+Received: from dsbe71.ent.ti.com (localhost [127.0.0.1])
+	by dlep26.itg.ti.com (8.13.8/8.13.8) with ESMTP id o87FFbK0003233
+	for <linux-input@vger.kernel.org>; Tue, 7 Sep 2010 10:15:37 -0500 (CDT)
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Premi, Sanjeev" <premi@ti.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Sep 07, 2010 at 06:56:47PM +0530, Premi, Sanjeev wrote:
+Hi,
 
-> > From: linux-input-owner@vger.kernel.org 
-> > [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Mark Brown
+I am looking for more upstreaming information for Synaptics tm12xx touch screen sensor. Any developer from Synaptics can help me on this?
 
-> > What makes you say this?  The names for regulator supplies are defined
-> > in terms of the chip being supplied, not in terms of the board.
-
-> [sp] The name "vcc" is too generic name for the regulator supply. If
->      there were more than one supplies as in case of the omap3evm, it
->      would be difficult to name the supply as "vcc".
-
-As I said above: these are defined in terms of the *chip* being
-supplied.  The name of the pin on the device does not change depending
-on which board they're soldered down on and is orthogonal to both the
-name of the supply on the regulator and both are orthogonal to the name
-the rail is given on a given board.
-
->      Assuming there is another (different) driver which uses "vcc"
->      (as ads7846 uses currently) but uses different supply, what is
->      expected behavior?
-
-The expected behaviour is that both devices request the supplies under
-the names that they are given by the chip.
-
->      If, however, the name here was something like "vcc_ts", then
->      the supplies could be defined for any board as:
-
->      static struct regulator_consumer_supply my_board_ts_supply = {
->         .supply	= "vcc_ts",
->      };
-
->      This would be more portable for other boards as well.
-
-Using strings like this doesn't scale - you may have two devices of a
-given type with different supply arrangements on a board, for example.
-
->      Does regulator_get() searches by "device_name-supply_id" pair?
->      Then, my comments above don't hold... And I would try the
->      mapping you mentioned below.
-
-Yes, this is the reason why we require the struct device in get().
-
-> > > Looking at pointers on how this should be handled.
-
-> > The best thing to do is to define the mapping for the regulator.  You
-> > can work around it by enabling REGULATOR_DUMMY.
-
-> [sp] Yes, this would be a workaround; but it comes with another
->      warning on console.
-
-Yes, you're not really supposed to use it in production.
+Best Regards
+Abraham

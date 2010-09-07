@@ -1,32 +1,80 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
-Date: Tue, 7 Sep 2010 13:53:35 +0100
-Message-ID: <20100907125335.GD25830@sirena.org.uk>
-References: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com> <4C862EB3.4080006@compulab.co.il>
+From: "Premi, Sanjeev" <premi@ti.com>
+Subject: RE: omap3: regulator_get() failure in ads7846
+Date: Tue, 7 Sep 2010 18:56:47 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301F6C838DE@dbde02.ent.ti.com>
+References: <B85A65D85D7EB246BE421B3FB0FBB59301F6C8381A@dbde02.ent.ti.com>
+ <20100907115633.GB25830@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:46367 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756742Ab0IGMxr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 08:53:47 -0400
-Content-Disposition: inline
-In-Reply-To: <4C862EB3.4080006@compulab.co.il>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:44392 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755201Ab0IGN0z convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 09:26:55 -0400
+In-Reply-To: <20100907115633.GB25830@sirena.org.uk>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Igor Grinberg <grinberg@compulab.co.il>
-Cc: Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Sep 07, 2010 at 03:23:15PM +0300, Igor Grinberg wrote:
->  Seems that there are some more platforms then Sharp Zaurus
-> are interested in this patch.
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org 
+> [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Mark Brown
+> Sent: Tuesday, September 07, 2010 5:27 PM
+> To: Premi, Sanjeev
+> Cc: linux-omap@vger.kernel.org; linux-input@vger.kernel.org
+> Subject: Re: omap3: regulator_get() failure in ads7846
 > 
-> Dmitry, Mike, Pavel,
+> On Tue, Sep 07, 2010 at 05:16:44PM +0530, Premi, Sanjeev wrote:
 > 
-> What's the status of it?
+> > ts->reg = regulator_get(&spi->dev, "vcc");
+> 
+> > This regulator isn't defined for omap3evm. And I suspect - once
+> > defined - the name will be different than "vcc".
+> 
+> What makes you say this?  The names for regulator supplies are defined
+> in terms of the chip being supplied, not in terms of the board.
 
->From a regulator API usage point of view a separate implementation of
-the same thing was nacked - there are regulator API facilties for hiding
-missing regulators from drivers when needed to get systems going, unless
-the device genuinely can cope without supplies it should be relying on
-those.
+[sp] The name "vcc" is too generic name for the regulator supply. If
+     there were more than one supplies as in case of the omap3evm, it
+     would be difficult to name the supply as "vcc".
+
+     Assuming there is another (different) driver which uses "vcc"
+     (as ads7846 uses currently) but uses different supply, what is
+     expected behavior?
+
+     If, however, the name here was something like "vcc_ts", then
+     the supplies could be defined for any board as:
+
+     static struct regulator_consumer_supply my_board_ts_supply = {
+        .supply	= "vcc_ts",
+     };
+
+     This would be more portable for other boards as well.
+
+     OR
+
+     Does regulator_get() searches by "device_name-supply_id" pair?
+     Then, my comments above don't hold... And I would try the
+     mapping you mentioned below.
+
+> 
+> > Looking at pointers on how this should be handled.
+> 
+> The best thing to do is to define the mapping for the regulator.  You
+> can work around it by enabling REGULATOR_DUMMY.
+
+[sp] Yes, this would be a workaround; but it comes with another
+     warning on console.
+
+Best regards,
+Sanjeev
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

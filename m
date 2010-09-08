@@ -1,63 +1,56 @@
 From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 7/8] IR: extend ir_raw_event and do refactoring
-Date: Thu, 9 Sep 2010 01:08:28 +0200
-Message-ID: <20100908230828.GA7121@hardeman.nu>
-References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
- <1283808373-27876-8-git-send-email-maximlevitsky@gmail.com>
- <AANLkTinr6mN=t=vNnR3pSBxXb0ud=Ymrqn_WyDNkUJTz@mail.gmail.com>
- <1283964646.6372.90.camel@morgan.silverblock.net>
- <20100908172708.GH22323@redhat.com>
- <1283986953.29812.24.camel@morgan.silverblock.net>
+Subject: Re: [PATCH 4/6] Input: winbond-cir - switch to using new keycode
+ interface
+Date: Thu, 9 Sep 2010 01:09:46 +0200
+Message-ID: <20100908230946.GB7121@hardeman.nu>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+ <20100908074200.32365.98120.stgit@hammer.corenet.prv>
+ <20100908211617.GB13938@hardeman.nu>
+ <20100908230003.GB9405@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:36499 "EHLO
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:36502 "EHLO
 	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932078Ab0IHXId (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 19:08:33 -0400
+	with ESMTP id S932078Ab0IHXJu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 19:09:50 -0400
 Content-Disposition: inline
-In-Reply-To: <1283986953.29812.24.camel@morgan.silverblock.net>
+In-Reply-To: <20100908230003.GB9405@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: Jarod Wilson <jarod@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
 
-On Wed, Sep 08, 2010 at 07:02:33PM -0400, Andy Walls wrote:
-> On Wed, 2010-09-08 at 13:27 -0400, Jarod Wilson wrote:
-> > On Wed, Sep 08, 2010 at 12:50:46PM -0400, Andy Walls wrote:
-> > > On Wed, 2010-09-08 at 11:26 -0400, Jarod Wilson wrote:
-> > > > On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@g=
-mail.com> wrote:
->=20
-> > > >=20
-> > > > I'm generally good with this entire patch, but the union usage =
-looks a
-> > > > bit odd, as the members aren't of the same size, which is gener=
-ally
-> > > > what I've come to expect looking at other code.
+On Wed, Sep 08, 2010 at 04:00:04PM -0700, Dmitry Torokhov wrote:
+> On Wed, Sep 08, 2010 at 11:16:17PM +0200, David H=E4rdeman wrote:
+> > On Wed, Sep 08, 2010 at 12:42:00AM -0700, Dmitry Torokhov wrote:
+> > > Switch the code to use new style of getkeycode and setkeycode
+> > > methods to allow retrieving and setting keycodes not only by
+> > > their scancodes but also by index.
 > > >=20
-> > > Having a union with different sized members is perfectly valid C =
-code.=20
+> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> > > ---
 > > >=20
+> > >  drivers/input/misc/winbond-cir.c |  248 ++++++++++++++++++++++++=
++-------------
+> > >  1 files changed, 163 insertions(+), 85 deletions(-)
+> >=20
+> > Thanks for doing the conversion for me, but I think you can skip th=
+is=20
+> > patch. The driver will (if I understood your patchset correctly) st=
+ill=20
+> > work with the old get/setkeycode ioctls and I have a patch lined up=
+ that=20
+> > converts winbond-cir.c to use ir-core which means all of the input=20
+> > related code is removed.
+> >=20
 >=20
-> > Yeah, no, I know that it'll work, just that most of the unions I've
-> > actually paid any attention to had members all of the same size. Se=
-emed
-> > like sort of an unwritten rule for in-kernel use. But its probably =
-just
-> > fine.
->=20
-> Well if it's an unwritten rule, not everyone is following it. :)
-> There are numerous counter-examples in include/linux/*.h .  Here are =
-a
-> few easy to see ones:
+> Yes, it should still work with old get/setkeycode. What are the plans
+> for your patch? .37 or later?
 
-Not to mention that the use of a union sends an important message to th=
-e=20
-programmer reading the code - i.e. that only one of the union members=20
-can be used in the same event.
-
+Up to Mauro but I believe it's .37 (sometime after your input patches=20
+land).
 
 --=20
 David H=E4rdeman

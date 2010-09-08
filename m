@@ -1,57 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 0/6] Large scancode handling
-Date: Wed, 8 Sep 2010 08:34:36 -0700
-Message-ID: <20100908153435.GA4190@core.coreip.homeip.net>
+Date: Wed, 8 Sep 2010 08:36:09 -0700
+Message-ID: <20100908153608.GB4190@core.coreip.homeip.net>
 References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
- <20100908143121.GD22323@redhat.com>
+ <alpine.LNX.2.00.1009081147540.26813@pobox.suse.cz>
+ <20100908142418.GC22323@redhat.com>
+ <4C87A87A.4060102@redhat.com>
+ <20100908152234.GE22323@redhat.com>
+ <alpine.LNX.2.00.1009081723400.26813@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:61117 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750873Ab0IHPgO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 11:36:14 -0400
 Content-Disposition: inline
-In-Reply-To: <20100908143121.GD22323@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
+In-Reply-To: <alpine.LNX.2.00.1009081723400.26813@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Ville Syrjala <syrjala@sci.fi>
 
-On Wed, Sep 08, 2010 at 10:31:21AM -0400, Jarod Wilson wrote:
-> On Wed, Sep 08, 2010 at 12:41:38AM -0700, Dmitry Torokhov wrote:
-> > Hi Mauro,
-> > 
-> > I guess I better get off my behind and commit the changes to support large
-> > scancodes, or they will not make to 2.6.37 either... There isn't much
-> > changes, except I followed David's suggestion and changed boolean index
-> > field into u8 flags field. Still, please glance it over once again and
-> > shout if you see something you do not like.
-> > 
-> > Jiri, how do you want to handle the changes to HID? I could either push
-> > them through my tree together with the first patch or you can push through
-> > yours once the first change hits mainline.
-> > 
-> > Mauro, the same question goes for media/IR patch.
-> > 
-> > David, I suppose you still have the winbond remote so you could test
-> > changes to winbond-cir driver.
+On Wed, Sep 08, 2010 at 05:25:13PM +0200, Jiri Kosina wrote:
+> On Wed, 8 Sep 2010, Jarod Wilson wrote:
 > 
-> This'll be fun. :) David recently posted a patchset that among other
-> things, ports winbond-cir over to {ir,rc}-core to the tune of ~700 less
-> lines in winbond-cir.c. It also touches a fair amount of core bits, as
-> does a patchset posted by Maxim... I suspect this series should probably
-> go in first though.
+> > > > It'll conflict a little bith with the tivo slide patch I posted yesterday,
+> > > > but mostly just minor context changes. I can redo that patch on top of
+> > > > these changes if that's preferred.
+> > > 
+> > > I can handle those context changes when merging the patches at linux-next and
+> > > when merging upstream. We just need to sync in a way that Dmitry send his patch
+> > > series before mine when sending them to Linus, and I'll take care of fixing the
+> > > merge conflicts.
+> > 
+> > Ah, the specific conflicts I was referring here are confined to
+> > drivers/hid/hid-input.c, and I sent the patch thinking it would go in via
+> > the hid tree. It *is* for a remote, but its a pure HID device in this
+> > case.
+> 
+> Umm, what patch are you talking about please? I don't seem to have 
+> anything from you in my queue.
 > 
 
-Hmm, the only reason for conversion is that I want to do the back
-converstion get/setkeycode_new->get/setkeycode sometimes around
-2.6.37-rc2. So it should be perfectly fine for David's changes to go in
-and I will just drop my patch completely.
-
-> > Ville, do you still have the hardware to try our ati_remote2 changes?
-> 
-> If not, I've got the hardware. (Speaking of which, porting ati_remote*
-> over to {ir,rc}-core is also on the TODO list, albeit with very very
-> low priority at the moment).
-
-Ok, then we'' pencil you in for testing if we do not hear from Ville ;)
+Depending on the extent of the patch in question I could take it through
+my tree as well to avoid too much interdependencies between trees at
+merge window time...
 
 -- 
 Dmitry

@@ -1,95 +1,57 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 7/8] IR: extend ir_raw_event and do refactoring
-Date: Wed, 8 Sep 2010 11:26:48 -0400
-Message-ID: <AANLkTinr6mN=t=vNnR3pSBxXb0ud=Ymrqn_WyDNkUJTz@mail.gmail.com>
-References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
-	<1283808373-27876-8-git-send-email-maximlevitsky@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/6] Large scancode handling
+Date: Wed, 8 Sep 2010 08:34:36 -0700
+Message-ID: <20100908153435.GA4190@core.coreip.homeip.net>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+ <20100908143121.GD22323@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:36278 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752126Ab0IHP0u convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 11:26:50 -0400
-In-Reply-To: <1283808373-27876-8-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100908143121.GD22323@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@gmail.com=
-> wrote:
-> Add new event types for timeout & carrier report
-> Move timeout handling from ir_raw_event_store_with_filter to
-> ir-lirc-codec, where it is really needed.
-> Now lirc bridge ensures proper gap handling.
-> Extend lirc bridge for carrier & timeout reports
->
-> Note: all new ir_raw_event variables now should be initialized
-> like that: DEFINE_IR_RAW_EVENT(ev);
->
-> To clean an existing event, use init_ir_raw_event(&ev);
->
-> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> ---
-> =A0drivers/media/IR/ene_ir.c =A0 =A0 =A0 =A0 =A0| =A0 =A04 +-
-> =A0drivers/media/IR/ir-core-priv.h =A0 =A0| =A0 13 ++++++-
-> =A0drivers/media/IR/ir-jvc-decoder.c =A0| =A0 =A05 +-
-> =A0drivers/media/IR/ir-lirc-codec.c =A0 | =A0 78 ++++++++++++++++++++=
-+++++++++++-----
-> =A0drivers/media/IR/ir-nec-decoder.c =A0| =A0 =A05 +-
-> =A0drivers/media/IR/ir-raw-event.c =A0 =A0| =A0 45 +++++++-----------=
---
-> =A0drivers/media/IR/ir-rc5-decoder.c =A0| =A0 =A05 +-
-> =A0drivers/media/IR/ir-rc6-decoder.c =A0| =A0 =A05 +-
-> =A0drivers/media/IR/ir-sony-decoder.c | =A0 =A05 +-
-> =A0drivers/media/IR/mceusb.c =A0 =A0 =A0 =A0 =A0| =A0 =A03 +-
-> =A0drivers/media/IR/streamzap.c =A0 =A0 =A0 | =A0 =A08 ++-
-> =A0include/media/ir-core.h =A0 =A0 =A0 =A0 =A0 =A0| =A0 40 ++++++++++=
-++++++---
-> =A012 files changed, 153 insertions(+), 63 deletions(-)
-=2E..
-> @@ -162,22 +164,48 @@ u32 ir_g_keycode_from_table(struct input_dev *i=
-nput_dev, u32 scancode);
-> =A0/* From ir-raw-event.c */
->
-> =A0struct ir_raw_event {
-> - =A0 =A0 =A0 unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
-pulse:1;
-> - =A0 =A0 =A0 unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
-duration:31;
-> + =A0 =A0 =A0 union {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 =A0 =A0 =A0 =A0 =A0 =A0 duration;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 =A0 =A0 carrier;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u8 =A0 =A0 =A0duty_cycl=
-e;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 };
-> + =A0 =A0 =A0 };
-> +
-> + =A0 =A0 =A0 unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pulse:1;
-> + =A0 =A0 =A0 unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0reset:1;
-> + =A0 =A0 =A0 unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0timeout:1;
-> + =A0 =A0 =A0 unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0carrier_report:=
-1;
-> =A0};
+On Wed, Sep 08, 2010 at 10:31:21AM -0400, Jarod Wilson wrote:
+> On Wed, Sep 08, 2010 at 12:41:38AM -0700, Dmitry Torokhov wrote:
+> > Hi Mauro,
+> > 
+> > I guess I better get off my behind and commit the changes to support large
+> > scancodes, or they will not make to 2.6.37 either... There isn't much
+> > changes, except I followed David's suggestion and changed boolean index
+> > field into u8 flags field. Still, please glance it over once again and
+> > shout if you see something you do not like.
+> > 
+> > Jiri, how do you want to handle the changes to HID? I could either push
+> > them through my tree together with the first patch or you can push through
+> > yours once the first change hits mainline.
+> > 
+> > Mauro, the same question goes for media/IR patch.
+> > 
+> > David, I suppose you still have the winbond remote so you could test
+> > changes to winbond-cir driver.
+> 
+> This'll be fun. :) David recently posted a patchset that among other
+> things, ports winbond-cir over to {ir,rc}-core to the tune of ~700 less
+> lines in winbond-cir.c. It also touches a fair amount of core bits, as
+> does a patchset posted by Maxim... I suspect this series should probably
+> go in first though.
+> 
 
-I'm generally good with this entire patch, but the union usage looks a
-bit odd, as the members aren't of the same size, which is generally
-what I've come to expect looking at other code. I'd be inclined to
-simply move duty_cycle out of the union and leave just duration and
-carrier in it. However, as discussed on irc and upon looking at the
-code, we don't actually do anything useful with duty_cycle yet, so
-perhaps just cut it out entirely for the moment, and add it later when
-its of use.
+Hmm, the only reason for conversion is that I want to do the back
+converstion get/setkeycode_new->get/setkeycode sometimes around
+2.6.37-rc2. So it should be perfectly fine for David's changes to go in
+and I will just drop my patch completely.
 
---=20
-Jarod Wilson
-jarod@wilsonet.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Ville, do you still have the hardware to try our ati_remote2 changes?
+> 
+> If not, I've got the hardware. (Speaking of which, porting ati_remote*
+> over to {ir,rc}-core is also on the TODO list, albeit with very very
+> low priority at the moment).
+
+Ok, then we'' pencil you in for testing if we do not hear from Ville ;)
+
+-- 
+Dmitry

@@ -1,44 +1,56 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH 7/8] IR: extend ir_raw_event and do refactoring
-Date: Wed, 08 Sep 2010 19:54:00 -0300
-Message-ID: <4C881408.2030606@infradead.org>
-References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com> <1283808373-27876-8-git-send-email-maximlevitsky@gmail.com> <4C88113C.8040703@infradead.org> <20100908224915.GA6699@hardeman.nu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/6] Input: winbond-cir - switch to using new keycode
+ interface
+Date: Wed, 8 Sep 2010 16:00:04 -0700
+Message-ID: <20100908230003.GB9405@core.coreip.homeip.net>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+ <20100908074200.32365.98120.stgit@hammer.corenet.prv>
+ <20100908211617.GB13938@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20100908224915.GA6699@hardeman.nu>
-Sender: linux-media-owner@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:51202 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756536Ab0IHXAK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 19:00:10 -0400
+Content-Disposition: inline
+In-Reply-To: <20100908211617.GB13938@hardeman.nu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
 
-Em 08-09-2010 19:49, David H=E4rdeman escreveu:
-> On Wed, Sep 08, 2010 at 07:42:04PM -0300, Mauro Carvalho Chehab wrote=
-:
->> Em 06-09-2010 18:26, Maxim Levitsky escreveu:
->>> diff --git a/drivers/media/IR/ir-rc6-decoder.c b/drivers/media/IR/i=
-r-rc6-decoder.c
->>> index f1624b8..d25da91 100644
->>> --- a/drivers/media/IR/ir-rc6-decoder.c
->>> +++ b/drivers/media/IR/ir-rc6-decoder.c
->>> @@ -85,8 +85,9 @@ static int ir_rc6_decode(struct input_dev *input_=
-dev, struct ir_raw_event ev)
->>>  	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC6))
->>>  		return 0;
->>> =20
->>> -	if (IS_RESET(ev)) {
->>> -		data->state =3D STATE_INACTIVE;
->>> +	if (!is_timing_event(ev)) {
->>> +		if (ev.reset)
->>
->> Again, why do you need to test first for !is_timing_event()?
+On Wed, Sep 08, 2010 at 11:16:17PM +0200, David H=E4rdeman wrote:
+> On Wed, Sep 08, 2010 at 12:42:00AM -0700, Dmitry Torokhov wrote:
+> > Switch the code to use new style of getkeycode and setkeycode
+> > methods to allow retrieving and setting keycodes not only by
+> > their scancodes but also by index.
+> >=20
+> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> > ---
+> >=20
+> >  drivers/input/misc/winbond-cir.c |  248 +++++++++++++++++++++++++-=
+------------
+> >  1 files changed, 163 insertions(+), 85 deletions(-)
 >=20
-> Because the decoder should return early if the event is not a timing=20
-> event (the return 0 two lines below)...think carrier report event...
+> Thanks for doing the conversion for me, but I think you can skip this=
+=20
+> patch. The driver will (if I understood your patchset correctly) stil=
+l=20
+> work with the old get/setkeycode ioctls and I have a patch lined up t=
+hat=20
+> converts winbond-cir.c to use ir-core which means all of the input=20
+> related code is removed.
+>=20
 
-Yeah, I saw that. I was supposed to remove all the comments about that,=
- but I
-forgot to remove the last one ;)
+Yes, it should still work with old get/setkeycode. What are the plans
+for your patch? .37 or later?
 
-Cheers,
-Mauro.
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

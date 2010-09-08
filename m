@@ -1,67 +1,375 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the ENE
- driver
-Date: Wed, 8 Sep 2010 18:42:27 -0400
-Message-ID: <20100908224227.GL22323@redhat.com>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [PATCH 7/8] IR: extend ir_raw_event and do refactoring
+Date: Thu, 9 Sep 2010 00:49:15 +0200
+Message-ID: <20100908224915.GA6699@hardeman.nu>
 References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
- <4C8805FA.3060102@infradead.org>
+ <1283808373-27876-8-git-send-email-maximlevitsky@gmail.com>
+ <4C88113C.8040703@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45975 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756524Ab0IHWmp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Sep 2010 18:42:45 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4C8805FA.3060102@infradead.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <4C88113C.8040703@infradead.org>
+Sender: linux-media-owner@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 08, 2010 at 06:54:02PM -0300, Mauro Carvalho Chehab wrote:
+On Wed, Sep 08, 2010 at 07:42:04PM -0300, Mauro Carvalho Chehab wrote:
 > Em 06-09-2010 18:26, Maxim Levitsky escreveu:
-> > Hi,
+> > Add new event types for timeout & carrier report
+> > Move timeout handling from ir_raw_event_store_with_filter to
+> > ir-lirc-codec, where it is really needed.
+> > Now lirc bridge ensures proper gap handling.
+> > Extend lirc bridge for carrier & timeout reports
 > > 
-> > Here is full overview of my patches:
+> > Note: all new ir_raw_event variables now should be initialized
+> > like that: DEFINE_IR_RAW_EVENT(ev);
 > > 
-> > Patch #1 fixes races in ir thread.
-> > It fixes the case when ktherad_stop waits forever for the thread.
-> > This happens on module unload and therefore it never finishes.
-> > Sorry for introducing this bug.
+> > To clean an existing event, use init_ir_raw_event(&ev);
 > > 
-> > Patch #2, fixes a crash on my module load.
-> > It happens because ir core initializes the input device a bit early,
-> > therefore it could be accessed while still not set up.
+> > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
+> > ---
+> >  drivers/media/IR/ene_ir.c          |    4 +-
+> >  drivers/media/IR/ir-core-priv.h    |   13 ++++++-
+> >  drivers/media/IR/ir-jvc-decoder.c  |    5 +-
+> >  drivers/media/IR/ir-lirc-codec.c   |   78 +++++++++++++++++++++++++++++++-----
+> >  drivers/media/IR/ir-nec-decoder.c  |    5 +-
+> >  drivers/media/IR/ir-raw-event.c    |   45 +++++++-------------
+> >  drivers/media/IR/ir-rc5-decoder.c  |    5 +-
+> >  drivers/media/IR/ir-rc6-decoder.c  |    5 +-
+> >  drivers/media/IR/ir-sony-decoder.c |    5 +-
+> >  drivers/media/IR/mceusb.c          |    3 +-
+> >  drivers/media/IR/streamzap.c       |    8 ++-
+> >  include/media/ir-core.h            |   40 ++++++++++++++++---
+> >  12 files changed, 153 insertions(+), 63 deletions(-)
 > > 
-> > Patch #3 fixes a small typo in lirc code that makes it impossible to use tx duty cycle setting.
-> > 
-> > Patch #4 fixes a problem seen on my system that results in stuck down forever key.
-> > 
-> > Patch #5 adds few keys to MCE keymap that were found on laptop of an user I tested this driver with
-> > 
-> > Patch #6, is a combined update ti my driver. It contains lot of refactoring thanks to docs I have now,
-> > and lot of fixes, and supports latest version of firmware (and I have 4 users asking for that)
-> > It is quite huge, but it would be a tedios job to break it up. This can't introduce regressions
-> > because the ene_ir was never released. In addition to that it was tested by me and another two users.
-> > 
-> > Patch #7 the really only patch that touches drivers I don't have does touch the ir-core.
-> > It is quite small, and it adds a proper solution to dilema about what to do with huge space between keypresses.
-> > Now this space is just truncated by the driver with timeout flag.
-> > The lirc codec then ensures that right sample is send to the lircd.
-> > Please review and test it.
-> > 
-> > Patch #8 is very simple. It just builds on top of patch #7 and adds carrier reports to ene driver.
+> > diff --git a/drivers/media/IR/ene_ir.c b/drivers/media/IR/ene_ir.c
+> > index 7880d9c..dc32509 100644
+> > --- a/drivers/media/IR/ene_ir.c
+> > +++ b/drivers/media/IR/ene_ir.c
+> > @@ -701,7 +701,7 @@ static irqreturn_t ene_isr(int irq, void *data)
+> >  	unsigned long flags;
+> >  	irqreturn_t retval = IRQ_NONE;
+> >  	struct ene_device *dev = (struct ene_device *)data;
+> > -	struct ir_raw_event ev;
+> > +	DEFINE_IR_RAW_EVENT(ev);
+> >  
+> >  	spin_lock_irqsave(&dev->hw_lock, flags);
+> >  
+> > @@ -904,7 +904,7 @@ static int ene_set_learning_mode(void *data, int enable)
+> >  }
+> >  
+> >  /* outside interface: enable or disable idle mode */
+> > -static void ene_rx_set_idle(void *data, int idle)
+> > +static void ene_rx_set_idle(void *data, bool idle)
+> >  {
+> >  	struct ene_device *dev = (struct ene_device *)data;
+> >  
+> > diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
+> > index 5d7e08f..2559e72 100644
+> > --- a/drivers/media/IR/ir-core-priv.h
+> > +++ b/drivers/media/IR/ir-core-priv.h
+> > @@ -82,6 +82,12 @@ struct ir_raw_event_ctrl {
+> >  		struct ir_input_dev *ir_dev;
+> >  		struct lirc_driver *drv;
+> >  		int carrier_low;
+> > +
+> > +		ktime_t gap_start;
+> > +		u64 gap_duration;
+> > +		bool gap;
+> > +		bool send_timeout_reports;
+> > +
+> >  	} lirc;
+> >  };
+> >  
+> > @@ -109,9 +115,14 @@ static inline void decrease_duration(struct ir_raw_event *ev, unsigned duration)
+> >  		ev->duration -= duration;
+> >  }
+> >  
+> > +/* Returns true if event is normal pulse/space event */
+> > +static inline bool is_timing_event(struct ir_raw_event ev)
+> > +{
+> > +	return !ev.carrier_report && !ev.reset;
+> > +}
+> > +
+> >  #define TO_US(duration)			DIV_ROUND_CLOSEST((duration), 1000)
+> >  #define TO_STR(is_pulse)		((is_pulse) ? "pulse" : "space")
+> > -#define IS_RESET(ev)			(ev.duration == 0)
+> >  /*
+> >   * Routines from ir-sysfs.c - Meant to be called only internally inside
+> >   * ir-core
+> > diff --git a/drivers/media/IR/ir-jvc-decoder.c b/drivers/media/IR/ir-jvc-decoder.c
+> > index 77a89c4..63dca6e 100644
+> > --- a/drivers/media/IR/ir-jvc-decoder.c
+> > +++ b/drivers/media/IR/ir-jvc-decoder.c
+> > @@ -50,8 +50,9 @@ static int ir_jvc_decode(struct input_dev *input_dev, struct ir_raw_event ev)
+> >  	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_JVC))
+> >  		return 0;
+> >  
+> > -	if (IS_RESET(ev)) {
+> > -		data->state = STATE_INACTIVE;
+> > +	if (!is_timing_event(ev)) {
+> > +		if (ev.reset)
+> > +			data->state = STATE_INACTIVE;
+> >  		return 0;
+> >  	}
+> >  
+> > diff --git a/drivers/media/IR/ir-lirc-codec.c b/drivers/media/IR/ir-lirc-codec.c
+> > index e63f757..0f40bc2 100644
+> > --- a/drivers/media/IR/ir-lirc-codec.c
+> > +++ b/drivers/media/IR/ir-lirc-codec.c
+> > @@ -32,6 +32,7 @@
+> >  static int ir_lirc_decode(struct input_dev *input_dev, struct ir_raw_event ev)
+> >  {
+> >  	struct ir_input_dev *ir_dev = input_get_drvdata(input_dev);
+> > +	struct lirc_codec *lirc = &ir_dev->raw->lirc;
+> >  	int sample;
+> >  
+> >  	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_LIRC))
+> > @@ -40,21 +41,57 @@ static int ir_lirc_decode(struct input_dev *input_dev, struct ir_raw_event ev)
+> >  	if (!ir_dev->raw->lirc.drv || !ir_dev->raw->lirc.drv->rbuf)
+> >  		return -EINVAL;
+> >  
+> > -	if (IS_RESET(ev))
+> > +	/* Packet start */
+> > +	if (ev.reset)
+> >  		return 0;
+> >  
+> > -	IR_dprintk(2, "LIRC data transfer started (%uus %s)\n",
+> > -		   TO_US(ev.duration), TO_STR(ev.pulse));
+> > +	/* Carrier reports */
+> > +	if (ev.carrier_report) {
+> > +		sample = LIRC_FREQUENCY(ev.carrier);
+> > +
+> > +	/* Packet end */
+> > +	} else if (ev.timeout) {
+> > +
+> > +		if (lirc->gap)
+> > +			return 0;
+> > +
+> > +		lirc->gap_start = ktime_get();
+> > +		lirc->gap = true;
+> > +		lirc->gap_duration = ev.duration;
+> > +
+> > +		if (!lirc->send_timeout_reports)
+> > +			return 0;
+> > +
+> > +		sample = LIRC_TIMEOUT(ev.duration / 1000);
+> >  
+> > -	sample = ev.duration / 1000;
+> > -	if (ev.pulse)
+> > -		sample |= PULSE_BIT;
+> > +	/* Normal sample */
+> > +	} else {
+> > +
+> > +		if (lirc->gap) {
+> > +			int gap_sample;
+> > +
+> > +			lirc->gap_duration += ktime_to_ns(ktime_sub(ktime_get(),
+> > +				lirc->gap_start));
+> > +
+> > +			/* Convert to ms and cap by LIRC_VALUE_MASK */
+> > +			do_div(lirc->gap_duration, 1000);
+> > +			lirc->gap_duration = min(lirc->gap_duration,
+> > +							(u64)LIRC_VALUE_MASK);
+> > +
+> > +			gap_sample = LIRC_SPACE(lirc->gap_duration);
+> > +			lirc_buffer_write(ir_dev->raw->lirc.drv->rbuf,
+> > +						(unsigned char *) &gap_sample);
+> > +			lirc->gap = false;
+> > +		}
+> > +
+> > +		sample = ev.pulse ? LIRC_PULSE(ev.duration / 1000) :
+> > +					LIRC_SPACE(ev.duration / 1000);
+> > +	}
+> >  
+> >  	lirc_buffer_write(ir_dev->raw->lirc.drv->rbuf,
+> >  			  (unsigned char *) &sample);
+> >  	wake_up(&ir_dev->raw->lirc.drv->rbuf->wait_poll);
+> >  
+> > -
+> >  	return 0;
+> >  }
+> >  
+> > @@ -103,6 +140,7 @@ static long ir_lirc_ioctl(struct file *filep, unsigned int cmd,
+> >  	int ret = 0;
+> >  	void *drv_data;
+> >  	unsigned long val = 0;
+> > +	u32 tmp;
+> >  
+> >  	lirc = lirc_get_pdata(filep);
+> >  	if (!lirc)
+> > @@ -201,12 +239,26 @@ static long ir_lirc_ioctl(struct file *filep, unsigned int cmd,
+> >  		break;
+> >  
+> >  	case LIRC_SET_REC_TIMEOUT:
+> > -		if (val < ir_dev->props->min_timeout ||
+> > -		    val > ir_dev->props->max_timeout)
+> > -			return -EINVAL;
+> > -		ir_dev->props->timeout = val * 1000;
+> > +		tmp = val * 1000;
+> > +
+> > +		if (tmp < ir_dev->props->min_timeout ||
+> > +			tmp > ir_dev->props->max_timeout)
+> > +				return -EINVAL;
+> > +
+> > +		ir_dev->props->timeout = tmp;
+> > +		break;
+> > +
+> > +	case LIRC_SET_REC_TIMEOUT_REPORTS:
+> > +		lirc->send_timeout_reports = !!val;
+> >  		break;
+> >  
+> > +	case LIRC_SET_MEASURE_CARRIER_MODE:
+> > +
+> > +		if (!ir_dev->props->s_carrier_report)
+> > +			return -ENOSYS;
+> > +		return ir_dev->props->s_carrier_report(
+> > +			ir_dev->props->priv, !!val);
+> > +
+> >  	default:
+> >  		return lirc_dev_fop_ioctl(filep, cmd, arg);
+> >  	}
+> > @@ -277,6 +329,10 @@ static int ir_lirc_register(struct input_dev *input_dev)
+> >  	if (ir_dev->props->s_learning_mode)
+> >  		features |= LIRC_CAN_USE_WIDEBAND_RECEIVER;
+> >  
+> > +	if (ir_dev->props->s_carrier_report)
+> > +		features |= LIRC_CAN_MEASURE_CARRIER;
+> > +
+> > +
+> >  	if (ir_dev->props->max_timeout)
+> >  		features |= LIRC_CAN_SET_REC_TIMEOUT;
+> >  
+> > diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
+> > index d597421..70993f7 100644
+> > --- a/drivers/media/IR/ir-nec-decoder.c
+> > +++ b/drivers/media/IR/ir-nec-decoder.c
+> > @@ -54,8 +54,9 @@ static int ir_nec_decode(struct input_dev *input_dev, struct ir_raw_event ev)
+> >  	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_NEC))
+> >  		return 0;
+> >  
+> > -	if (IS_RESET(ev)) {
+> > -		data->state = STATE_INACTIVE;
+> > +	if (!is_timing_event(ev)) {
+> > +		if (ev.reset)
+> > +			data->state = STATE_INACTIVE;
+> >  		return 0;
+> >  	}
+> >  
+> > diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
+> > index 56797be..d10b8e0 100644
+> > --- a/drivers/media/IR/ir-raw-event.c
+> > +++ b/drivers/media/IR/ir-raw-event.c
+> > @@ -174,7 +174,7 @@ int ir_raw_event_store_with_filter(struct input_dev *input_dev,
+> >  	if (ir->idle && !ev->pulse)
+> >  		return 0;
+> >  	else if (ir->idle)
+> > -		ir_raw_event_set_idle(input_dev, 0);
+> > +		ir_raw_event_set_idle(input_dev, false);
+> >  
+> >  	if (!raw->this_ev.duration) {
+> >  		raw->this_ev = *ev;
+> > @@ -187,48 +187,35 @@ int ir_raw_event_store_with_filter(struct input_dev *input_dev,
+> >  
+> >  	/* Enter idle mode if nessesary */
+> >  	if (!ev->pulse && ir->props->timeout &&
+> > -		raw->this_ev.duration >= ir->props->timeout)
+> > -		ir_raw_event_set_idle(input_dev, 1);
+> > +		raw->this_ev.duration >= ir->props->timeout) {
+> > +		ir_raw_event_set_idle(input_dev, true);
+> > +	}
+> >  	return 0;
+> >  }
+> >  EXPORT_SYMBOL_GPL(ir_raw_event_store_with_filter);
+> >  
+> > -void ir_raw_event_set_idle(struct input_dev *input_dev, int idle)
+> > +/**
+> > + * ir_raw_event_set_idle() - hint the ir core if device is receiving
+> > + * IR data or not
+> > + * @input_dev: the struct input_dev device descriptor
+> > + * @idle: the hint value
+> > + */
+> > +void ir_raw_event_set_idle(struct input_dev *input_dev, bool idle)
+> >  {
+> >  	struct ir_input_dev *ir = input_get_drvdata(input_dev);
+> >  	struct ir_raw_event_ctrl *raw = ir->raw;
+> > -	ktime_t now;
+> > -	u64 delta;
+> >  
+> > -	if (!ir->props)
+> > +	if (!ir->props || !ir->raw)
+> >  		return;
+> >  
+> > -	if (!ir->raw)
+> > -		goto out;
+> > +	IR_dprintk(2, "%s idle mode\n", idle ? "enter" : "leave");
+> >  
+> >  	if (idle) {
+> > -		IR_dprintk(2, "enter idle mode\n");
+> > -		raw->last_event = ktime_get();
+> > -	} else {
+> > -		IR_dprintk(2, "exit idle mode\n");
+> > -
+> > -		now = ktime_get();
+> > -		delta = ktime_to_ns(ktime_sub(now, ir->raw->last_event));
+> > -
+> > -		WARN_ON(raw->this_ev.pulse);
+> > -
+> > -		raw->this_ev.duration =
+> > -			min(raw->this_ev.duration + delta,
+> > -						(u64)IR_MAX_DURATION);
+> > -
+> > +		raw->this_ev.timeout = true;
+> >  		ir_raw_event_store(input_dev, &raw->this_ev);
+> > -
+> > -		if (raw->this_ev.duration == IR_MAX_DURATION)
+> > -			ir_raw_event_reset(input_dev);
+> > -
+> > -		raw->this_ev.duration = 0;
+> > +		init_ir_raw_event(&raw->this_ev);
+> >  	}
+> > -out:
+> > +
+> >  	if (ir->props->s_idle)
+> >  		ir->props->s_idle(ir->props->priv, idle);
+> >  	ir->idle = idle;
+> > diff --git a/drivers/media/IR/ir-rc5-decoder.c b/drivers/media/IR/ir-rc5-decoder.c
+> > index df4770d..572ed4c 100644
+> > --- a/drivers/media/IR/ir-rc5-decoder.c
+> > +++ b/drivers/media/IR/ir-rc5-decoder.c
+> > @@ -55,8 +55,9 @@ static int ir_rc5_decode(struct input_dev *input_dev, struct ir_raw_event ev)
+> >          if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC5))
+> >                  return 0;
+> >  
+> > -	if (IS_RESET(ev)) {
+> > -		data->state = STATE_INACTIVE;
+> > +	if (!is_timing_event(ev)) {
+> > +		if (ev.reset)
+> > +			data->state = STATE_INACTIVE;
+> >  		return 0;
+> >  	}
+> >  
+> > diff --git a/drivers/media/IR/ir-rc6-decoder.c b/drivers/media/IR/ir-rc6-decoder.c
+> > index f1624b8..d25da91 100644
+> > --- a/drivers/media/IR/ir-rc6-decoder.c
+> > +++ b/drivers/media/IR/ir-rc6-decoder.c
+> > @@ -85,8 +85,9 @@ static int ir_rc6_decode(struct input_dev *input_dev, struct ir_raw_event ev)
+> >  	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC6))
+> >  		return 0;
+> >  
+> > -	if (IS_RESET(ev)) {
+> > -		data->state = STATE_INACTIVE;
+> > +	if (!is_timing_event(ev)) {
+> > +		if (ev.reset)
 > 
-> For now, I've applied patches 3, 4 and 5, as it is nice to have Jarod's review also.
+> Again, why do you need to test first for !is_timing_event()?
 
-I've finally got them all applied atop current media_tree staging/v2.6.37,
-though none of the streamzap bits in patch 7 are applicable any longer.
-Will try to get through looking and commenting (and testing) of the rest
-of them tonight.
-
-
--- 
-Jarod Wilson
-jarod@redhat.com
-
+Because the decoder should return early if the event is not a timing 
+event (the return 0 two lines below)...think carrier report event...
+> 
+> > +			data->state = STATE_INACTIVE;
+> >  		return 0;
+> >  	}
+> >  

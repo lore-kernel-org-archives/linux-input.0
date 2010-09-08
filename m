@@ -1,66 +1,57 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 1/2] ir-core: centralize sysfs raw decoder
- enabling/disabling
-Date: Wed, 8 Sep 2010 23:22:55 +0200
-Message-ID: <20100908212255.GC13938@hardeman.nu>
-References: <20100613202718.6044.29599.stgit@localhost.localdomain>
- <20100613202930.6044.97940.stgit@localhost.localdomain>
- <4C8797D3.1060606@xyzw.org>
- <20100908141613.GB22323@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the
+ ENE driver
+Date: Wed, 08 Sep 2010 18:54:02 -0300
+Message-ID: <4C8805FA.3060102@infradead.org>
+References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:55549 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755516Ab0IHVW7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 17:22:59 -0400
-Content-Disposition: inline
-In-Reply-To: <20100908141613.GB22323@redhat.com>
+Received: from bombadil.infradead.org ([18.85.46.34]:42631 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756080Ab0IHVyA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 17:54:00 -0400
+In-Reply-To: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Brian Rogers <brian@xyzw.org>, jarod@wilsonet.com, linux-media@vger.kernel.org, mchehab@redhat.com, linux-input@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, Sep 08, 2010 at 10:16:13AM -0400, Jarod Wilson wrote:
-> On Wed, Sep 08, 2010 at 07:04:03AM -0700, Brian Rogers wrote:
-> > ir_dev->raw is also null. If I check these pointers before using
-> > them, and bail out if both are null, then I get a working lircd, bu=
-t
-> > of course the file /sys/devices/virtual/rc/rc0/protocols no longer
-> > does anything. On 2.6.35.4, the system never creates the
-> > /sys/class/rc/rc0/current_protocol file. Is it the case that the
-> > 'protocols' file should never appear, because my card can't support
-> > this feature?
->=20
-> Hm... So protocols is indeed intended for hardware that handles raw I=
-R, as
-> its a list of raw IR decoders available/enabled/disabled for the rece=
-iver.
-> But some devices that do onboard decoding and deal with scancodes sti=
-ll
-> need to support changing protocols, as they can be told "decode rc5" =
-or
-> "decode nec", etc... My memory is currently foggy on how it was exact=
-ly
-> that it was supposed to be donee though. :) (Yet another reason I rea=
-lly
-> need to poke at the imon driver code again).
+Em 06-09-2010 18:26, Maxim Levitsky escreveu:
+> Hi,
+> 
+> Here is full overview of my patches:
+> 
+> Patch #1 fixes races in ir thread.
+> It fixes the case when ktherad_stop waits forever for the thread.
+> This happens on module unload and therefore it never finishes.
+> Sorry for introducing this bug.
+> 
+> Patch #2, fixes a crash on my module load.
+> It happens because ir core initializes the input device a bit early,
+> therefore it could be accessed while still not set up.
+> 
+> Patch #3 fixes a small typo in lirc code that makes it impossible to use tx duty cycle setting.
+> 
+> Patch #4 fixes a problem seen on my system that results in stuck down forever key.
+> 
+> Patch #5 adds few keys to MCE keymap that were found on laptop of an user I tested this driver with
+> 
+> Patch #6, is a combined update ti my driver. It contains lot of refactoring thanks to docs I have now,
+> and lot of fixes, and supports latest version of firmware (and I have 4 users asking for that)
+> It is quite huge, but it would be a tedios job to break it up. This can't introduce regressions
+> because the ene_ir was never released. In addition to that it was tested by me and another two users.
+> 
+> Patch #7 the really only patch that touches drivers I don't have does touch the ir-core.
+> It is quite small, and it adds a proper solution to dilema about what to do with huge space between keypresses.
+> Now this space is just truncated by the driver with timeout flag.
+> The lirc codec then ensures that right sample is send to the lircd.
+> Please review and test it.
+> 
+> Patch #8 is very simple. It just builds on top of patch #7 and adds carrier reports to ene driver.
 
-This, and a raft of similar bugreports was one of the reasons I wrote=20
-the rc_dev patch (which gets rid of ir_dev->props, the source of many=20
-oopses by now).
+For now, I've applied patches 3, 4 and 5, as it is nice to have Jarod's review also.
 
-Hardware decoders should work with the same sysfs file, the driver=20
-should set ir_dev->props->change_protocol (current) or=20
-rc->change_protocol (future) and it'll get notified when userspace=20
-interacts with the sysfs file and the hardware can then react=20
-accordingly. So the answer is yes - all hardware should have the file.
-
---=20
-David H=E4rdeman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Mauro

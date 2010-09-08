@@ -1,669 +1,403 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 1/6] Input: add support for large scancodes
-Date: Wed, 08 Sep 2010 00:41:44 -0700
-Message-ID: <20100908074144.32365.27232.stgit@hammer.corenet.prv>
+Subject: [PATCH 4/6] Input: winbond-cir - switch to using new keycode interface
+Date: Wed, 08 Sep 2010 00:42:00 -0700
+Message-ID: <20100908074200.32365.98120.stgit@hammer.corenet.prv>
 References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:44146 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756622Ab0IHHls (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 03:41:48 -0400
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:58892 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758025Ab0IHHmE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 03:42:04 -0400
 In-Reply-To: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
 Cc: Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
 
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Switch the code to use new style of getkeycode and setkeycode
+methods to allow retrieving and setting keycodes not only by
+their scancodes but also by index.
 
-Several devices use a high number of bits for scancodes. One important
-group is the Remote Controllers. Some new protocols like RC-6 define a
-scancode space of 64 bits.
-
-The current EVIO[CS]GKEYCODE ioctls allow replace the scancode/keycode
-translation tables, but it is limited to up to 32 bits for scancode.
-
-Also, if userspace wants to clean the existing table, replacing it by
-a new one, it needs to run a loop calling the ioctls over the entire
-sparse scancode space.
-
-To solve those problems, this patch extends the ioctls to allow drivers
-handle scancodes up to 32 bytes long (the length could be extended in
-the future should such need arise) and allow userspace to query and set
-scancode to keycode mappings not only by scancode but also by index.
-
-Compatibility code were also added to handle the old format of
-EVIO[CS]GKEYCODE ioctls.
-
-Folded fixes by:
-- Dan Carpenter: locking fixes for the original implementation
-- Jarod Wilson: fix crash when setting keycode and wiring up get/set
-                handlers in original implementation.
-- Dmitry Torokhov: rework to consolidate old and new scancode handling,
-                   provide options to act either by index or scancode.
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/char/keyboard.c |   31 ++++++--
- drivers/input/evdev.c   |  100 ++++++++++++++++++++----
- drivers/input/input.c   |  192 +++++++++++++++++++++++++++++++++++------------
- include/linux/input.h   |   55 +++++++++++--
- 4 files changed, 292 insertions(+), 86 deletions(-)
+ drivers/input/misc/winbond-cir.c |  248 +++++++++++++++++++++++++-------------
+ 1 files changed, 163 insertions(+), 85 deletions(-)
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index a7ca752..e95d787 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -175,8 +175,7 @@ EXPORT_SYMBOL_GPL(unregister_keyboard_notifier);
-  */
+diff --git a/drivers/input/misc/winbond-cir.c b/drivers/input/misc/winbond-cir.c
+index 64f1de7..6a69067 100644
+--- a/drivers/input/misc/winbond-cir.c
++++ b/drivers/input/misc/winbond-cir.c
+@@ -172,7 +172,6 @@ enum wbcir_protocol {
+ #define WBCIR_MAX_IDLE_BYTES       10
  
- struct getset_keycode_data {
--	unsigned int scancode;
--	unsigned int keycode;
-+	struct input_keymap_entry ke;
- 	int error;
+ static DEFINE_SPINLOCK(wbcir_lock);
+-static DEFINE_RWLOCK(keytable_lock);
+ 
+ struct wbcir_key {
+ 	u32 scancode;
+@@ -184,7 +183,7 @@ struct wbcir_keyentry {
+ 	struct list_head list;
  };
  
-@@ -184,32 +183,50 @@ static int getkeycode_helper(struct input_handle *handle, void *data)
+-static struct wbcir_key rc6_def_keymap[] = {
++static const struct wbcir_key rc6_def_keymap[] = {
+ 	{ 0x800F0400, KEY_NUMERIC_0		},
+ 	{ 0x800F0401, KEY_NUMERIC_1		},
+ 	{ 0x800F0402, KEY_NUMERIC_2		},
+@@ -365,88 +364,152 @@ wbcir_to_rc6cells(u8 val)
+  *
+  *****************************************************************************/
+ 
+-static unsigned int
+-wbcir_do_getkeycode(struct wbcir_data *data, u32 scancode)
++static struct wbcir_keyentry *
++wbcir_keyentry_by_scancode(struct wbcir_data *data, u32 scancode)
  {
- 	struct getset_keycode_data *d = data;
+ 	struct wbcir_keyentry *keyentry;
+-	unsigned int keycode = KEY_RESERVED;
+-	unsigned long flags;
  
--	d->error = input_get_keycode(handle->dev, d->scancode, &d->keycode);
-+	d->error = input_get_keycode(handle->dev, &d->ke);
- 
- 	return d->error == 0; /* stop as soon as we successfully get one */
- }
- 
- int getkeycode(unsigned int scancode)
- {
--	struct getset_keycode_data d = { scancode, 0, -ENODEV };
-+	struct getset_keycode_data d = {
-+		.ke	= {
-+			.flags		= 0,
-+			.len		= sizeof(scancode),
-+			.keycode	= 0,
-+		},
-+		.error	= -ENODEV,
-+	};
+-	read_lock_irqsave(&keytable_lock, flags);
++	list_for_each_entry(keyentry, &data->keytable, list)
++		if (keyentry->key.scancode == scancode)
++			return keyentry;
 +
-+	memcpy(d.ke.scancode, &scancode, sizeof(scancode));
- 
- 	input_handler_for_each_handle(&kbd_handler, &d, getkeycode_helper);
- 
--	return d.error ?: d.keycode;
-+	return d.error ?: d.ke.keycode;
- }
- 
- static int setkeycode_helper(struct input_handle *handle, void *data)
- {
- 	struct getset_keycode_data *d = data;
- 
--	d->error = input_set_keycode(handle->dev, d->scancode, d->keycode);
-+	d->error = input_set_keycode(handle->dev, &d->ke);
- 
- 	return d->error == 0; /* stop as soon as we successfully set one */
- }
- 
- int setkeycode(unsigned int scancode, unsigned int keycode)
- {
--	struct getset_keycode_data d = { scancode, keycode, -ENODEV };
-+	struct getset_keycode_data d = {
-+		.ke	= {
-+			.flags		= 0,
-+			.len		= sizeof(scancode),
-+			.keycode	= keycode,
-+		},
-+		.error	= -ENODEV,
-+	};
-+
-+	memcpy(d.ke.scancode, &scancode, sizeof(scancode));
- 
- 	input_handler_for_each_handle(&kbd_handler, &d, setkeycode_helper);
- 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index c908c5f..1ce9bf6 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -534,6 +534,80 @@ static int handle_eviocgbit(struct input_dev *dev,
- }
- #undef OLD_KEY_MAX
- 
-+static int evdev_handle_get_keycode(struct input_dev *dev,
-+				    void __user *p, size_t size)
-+{
-+	struct input_keymap_entry ke;
-+	int error;
-+
-+	memset(&ke, 0, sizeof(ke));
-+
-+	if (size == sizeof(unsigned int[2])) {
-+		/* legacy case */
-+		int __user *ip = (int __user *)p;
-+
-+		if (copy_from_user(ke.scancode, p, sizeof(unsigned int)))
-+			return -EFAULT;
-+
-+		ke.len = sizeof(unsigned int);
-+		ke.flags = 0;
-+
-+		error = input_get_keycode(dev, &ke);
-+		if (error)
-+			return error;
-+
-+		if (put_user(ke.keycode, ip + 1))
-+			return -EFAULT;
-+
-+	} else {
-+		size = min(size, sizeof(ke));
-+
-+		if (copy_from_user(&ke, p, size))
-+			return -EFAULT;
-+
-+		error = input_get_keycode(dev, &ke);
-+		if (error)
-+			return error;
-+
-+		if (copy_to_user(p, &ke, size))
-+			return -EFAULT;
-+	}
-+	return 0;
++	return NULL;
 +}
 +
-+static int evdev_handle_set_keycode(struct input_dev *dev,
-+				    void __user *p, size_t size)
++static struct wbcir_keyentry *
++wbcir_keyentry_by_index(struct wbcir_data *data, unsigned int index)
 +{
-+	struct input_keymap_entry ke;
++	struct wbcir_keyentry *keyentry;
++	unsigned int cur_idx = 0;
 +
-+	memset(&ke, 0, sizeof(ke));
++	list_for_each_entry(keyentry, &data->keytable, list)
++		if (cur_idx++ == index)
++			return keyentry;
 +
-+	if (size == sizeof(unsigned int[2])) {
-+		/* legacy case */
-+		int __user *ip = (int __user *)p;
-+
-+		if (copy_from_user(ke.scancode, p, sizeof(unsigned int)))
-+			return -EFAULT;
-+
-+		if (get_user(ke.keycode, ip + 1))
-+			return -EFAULT;
-+
-+		ke.len = sizeof(unsigned int);
-+		ke.flags = 0;
-+
-+	} else {
-+		size = min(size, sizeof(ke));
-+
-+		if (copy_from_user(&ke, p, size))
-+			return -EFAULT;
-+
-+		if (ke.len > sizeof(ke.scancode))
-+			return -EINVAL;
-+	}
-+
-+	return input_set_keycode(dev, &ke);
++	return NULL;
 +}
 +
- static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 			   void __user *p, int compat_mode)
- {
-@@ -580,25 +654,6 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 
- 		return 0;
- 
--	case EVIOCGKEYCODE:
--		if (get_user(t, ip))
--			return -EFAULT;
--
--		error = input_get_keycode(dev, t, &v);
--		if (error)
--			return error;
--
--		if (put_user(v, ip + 1))
--			return -EFAULT;
--
--		return 0;
--
--	case EVIOCSKEYCODE:
--		if (get_user(t, ip) || get_user(v, ip + 1))
--			return -EFAULT;
--
--		return input_set_keycode(dev, t, v);
--
- 	case EVIOCRMFF:
- 		return input_ff_erase(dev, (int)(unsigned long) p, file);
- 
-@@ -620,7 +675,6 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 
- 	/* Now check variable-length commands */
- #define EVIOC_MASK_SIZE(nr)	((nr) & ~(_IOC_SIZEMASK << _IOC_SIZESHIFT))
--
- 	switch (EVIOC_MASK_SIZE(cmd)) {
- 
- 	case EVIOCGKEY(0):
-@@ -654,6 +708,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 			return -EFAULT;
- 
- 		return error;
-+
-+	case EVIOC_MASK_SIZE(EVIOCGKEYCODE):
-+		return evdev_handle_get_keycode(dev, p, size);
-+
-+	case EVIOC_MASK_SIZE(EVIOCSKEYCODE):
-+		return evdev_handle_set_keycode(dev, p, size);
- 	}
- 
- 	/* Multi-number variable-length handlers */
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index acb3c80..832771e 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -634,78 +634,141 @@ static void input_disconnect_device(struct input_dev *dev)
- 	spin_unlock_irq(&dev->event_lock);
- }
- 
--static int input_fetch_keycode(struct input_dev *dev, int scancode)
-+/**
-+ * input_scancode_to_scalar() - converts scancode in &struct input_keymap_entry
-+ * @ke: keymap entry containing scancode to be converted.
-+ * @scancode: pointer to the location where converted scancode should
-+ *	be stored.
-+ *
-+ * This function is used to convert scancode stored in &struct keymap_entry
-+ * into scalar form understood by legacy keymap handling methods. These
-+ * methods expect scancodes to be represented as 'unsigned int'.
-+ */
-+int input_scancode_to_scalar(const struct input_keymap_entry *ke,
-+			     unsigned int *scancode)
++static struct wbcir_keyentry *
++wbcir_lookup_keyentry(struct wbcir_data *data,
++		      const struct input_keymap_entry *ke)
 +{
-+	switch (ke->len) {
-+	case 1:
-+		*scancode = *((u8 *)ke->scancode);
-+		break;
++	struct wbcir_keyentry *keyentry;
++	unsigned int scancode;
 +
-+	case 2:
-+		*scancode = *((u16 *)ke->scancode);
-+		break;
-+
-+	case 4:
-+		*scancode = *((u32 *)ke->scancode);
-+		break;
-+
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(input_scancode_to_scalar);
-+
-+/*
-+ * Those routines handle the default case where no [gs]etkeycode() is
-+ * defined. In this case, an array indexed by the scancode is used.
-+ */
-+
-+static unsigned int input_fetch_keycode(struct input_dev *dev,
-+					unsigned int index)
- {
- 	switch (dev->keycodesize) {
--		case 1:
--			return ((u8 *)dev->keycode)[scancode];
-+	case 1:
-+		return ((u8 *)dev->keycode)[index];
- 
--		case 2:
--			return ((u16 *)dev->keycode)[scancode];
-+	case 2:
-+		return ((u16 *)dev->keycode)[index];
- 
--		default:
--			return ((u32 *)dev->keycode)[scancode];
-+	default:
-+		return ((u32 *)dev->keycode)[index];
- 	}
- }
- 
- static int input_default_getkeycode(struct input_dev *dev,
--				    unsigned int scancode,
--				    unsigned int *keycode)
-+				    struct input_keymap_entry *ke)
- {
-+	unsigned int index;
-+	int error;
-+
- 	if (!dev->keycodesize)
- 		return -EINVAL;
- 
--	if (scancode >= dev->keycodemax)
 +	if (ke->flags & INPUT_KEYMAP_BY_INDEX)
-+		index = ke->index;
-+	else {
-+		error = input_scancode_to_scalar(ke, &index);
-+		if (error)
-+			return error;
-+	}
++		keyentry = wbcir_keyentry_by_index(data, ke->index);
++	else if (input_scancode_to_scalar(ke, &scancode) == 0)
++		keyentry = wbcir_keyentry_by_scancode(data, scancode);
++	else
++		keyentry = NULL;
 +
-+	if (index >= dev->keycodemax)
- 		return -EINVAL;
++	return keyentry;
++
++}
++
++static unsigned int
++wbcir_keyentry_get_index(struct wbcir_data *data,
++			 const struct wbcir_keyentry *keyentry)
++{
++	struct wbcir_keyentry *k;
++	int idx = 0;
  
--	*keycode = input_fetch_keycode(dev, scancode);
-+	ke->keycode = input_fetch_keycode(dev, index);
-+	ke->index = index;
-+	ke->len = sizeof(index);
-+	memcpy(ke->scancode, &index, sizeof(index));
+-	list_for_each_entry(keyentry, &data->keytable, list) {
+-		if (keyentry->key.scancode == scancode) {
+-			keycode = keyentry->key.keycode;
++	list_for_each_entry(k, &data->keytable, list) {
++		if (k == keyentry)
+ 			break;
+-		}
++		idx++;
+ 	}
  
+-	read_unlock_irqrestore(&keytable_lock, flags);
+-	return keycode;
++	return idx;
+ }
+ 
+ static int
+-wbcir_getkeycode(struct input_dev *dev,
+-		 unsigned int scancode, unsigned int *keycode)
++wbcir_getkeycode(struct input_dev *dev, struct input_keymap_entry *ke)
+ {
+ 	struct wbcir_data *data = input_get_drvdata(dev);
++	const struct wbcir_keyentry *keyentry;
++
++	keyentry = wbcir_lookup_keyentry(data, ke);
++	if (keyentry) {
++		ke->keycode = keyentry->key.keycode;
++		if (!(ke->flags & INPUT_KEYMAP_BY_INDEX))
++			ke->index = wbcir_keyentry_get_index(data, keyentry);
++		ke->len = sizeof(keyentry->key.scancode);
++		memcpy(ke->scancode, &keyentry->key.scancode,
++			sizeof(keyentry->key.scancode));
++
++		return 0;
++	}
+ 
+-	*keycode = wbcir_do_getkeycode(data, scancode);
+-	return 0;
++	return -EINVAL;
+ }
+ 
+ static int
+ wbcir_setkeycode(struct input_dev *dev,
+-		 unsigned int scancode, unsigned int keycode)
++		 const struct input_keymap_entry *ke,
++		 unsigned int *old_keycode)
+ {
+ 	struct wbcir_data *data = input_get_drvdata(dev);
+ 	struct wbcir_keyentry *keyentry;
+-	struct wbcir_keyentry *new_keyentry;
+-	unsigned long flags;
+-	unsigned int old_keycode = KEY_RESERVED;
+-
+-	new_keyentry = kmalloc(sizeof(*new_keyentry), GFP_KERNEL);
+-	if (!new_keyentry)
+-		return -ENOMEM;
++	unsigned int scancode;
+ 
+-	write_lock_irqsave(&keytable_lock, flags);
++	*old_keycode = KEY_RESERVED;
+ 
+-	list_for_each_entry(keyentry, &data->keytable, list) {
+-		if (keyentry->key.scancode != scancode)
+-			continue;
++	if (input_scancode_to_scalar(ke, &scancode))
++		return -EINVAL;
+ 
+-		old_keycode = keyentry->key.keycode;
+-		keyentry->key.keycode = keycode;
++	keyentry = wbcir_lookup_keyentry(data, ke);
++	if (keyentry) {
++		*old_keycode = keyentry->key.keycode;
++		clear_bit(*old_keycode, dev->keybit);
++	} else {
++		if (ke->flags & INPUT_KEYMAP_BY_INDEX)
++			return -EINVAL;
+ 
+-		if (keyentry->key.keycode == KEY_RESERVED) {
+-			list_del(&keyentry->list);
+-			kfree(keyentry);
+-		}
++		keyentry = kmalloc(sizeof(*keyentry), GFP_ATOMIC);
++		if (!keyentry)
++			return -ENOMEM;
+ 
+-		break;
++		list_add_tail(&keyentry->list, &data->keytable);
+ 	}
+ 
+-	set_bit(keycode, dev->keybit);
++	keyentry->key.keycode = ke->keycode;
++	keyentry->key.scancode = scancode;
+ 
+-	if (old_keycode == KEY_RESERVED) {
+-		new_keyentry->key.scancode = scancode;
+-		new_keyentry->key.keycode = keycode;
+-		list_add(&new_keyentry->list, &data->keytable);
++	if (keyentry->key.keycode == KEY_RESERVED) {
++		list_del(&keyentry->list);
++		kfree(keyentry);
+ 	} else {
+-		kfree(new_keyentry);
+-		clear_bit(old_keycode, dev->keybit);
++		set_bit(ke->keycode, dev->keybit);
+ 		list_for_each_entry(keyentry, &data->keytable, list) {
+-			if (keyentry->key.keycode == old_keycode) {
+-				set_bit(old_keycode, dev->keybit);
++			if (keyentry->key.keycode == *old_keycode) {
++				set_bit(*old_keycode, dev->keybit);
+ 				break;
+ 			}
+ 		}
+ 	}
+ 
+-	write_unlock_irqrestore(&keytable_lock, flags);
  	return 0;
  }
  
- static int input_default_setkeycode(struct input_dev *dev,
--				    unsigned int scancode,
--				    unsigned int keycode)
-+				    const struct input_keymap_entry *ke,
-+				    unsigned int *old_keycode)
- {
--	int old_keycode;
-+	unsigned int index;
-+	int error;
- 	int i;
- 
--	if (scancode >= dev->keycodemax)
-+	if (!dev->keycodesize)
- 		return -EINVAL;
- 
--	if (!dev->keycodesize)
-+	if (ke->flags & INPUT_KEYMAP_BY_INDEX) {
-+		index = ke->index;
-+	} else {
-+		error = input_scancode_to_scalar(ke, &index);
-+		if (error)
-+			return error;
-+	}
++static unsigned int
++wbcir_fetch_keycode(struct wbcir_data *data, u32 scancode)
++{
++	struct input_dev *input = data->input_dev;
++	const struct wbcir_keyentry *keyentry;
++	unsigned int keycode;
++	unsigned long flags;
 +
-+	if (index >= dev->keycodemax)
- 		return -EINVAL;
- 
--	if (dev->keycodesize < sizeof(keycode) && (keycode >> (dev->keycodesize * 8)))
-+	if (dev->keycodesize < sizeof(dev->keycode) &&
-+			(ke->keycode >> (dev->keycodesize * 8)))
- 		return -EINVAL;
- 
- 	switch (dev->keycodesize) {
- 		case 1: {
- 			u8 *k = (u8 *)dev->keycode;
--			old_keycode = k[scancode];
--			k[scancode] = keycode;
-+			*old_keycode = k[index];
-+			k[index] = ke->keycode;
- 			break;
- 		}
- 		case 2: {
- 			u16 *k = (u16 *)dev->keycode;
--			old_keycode = k[scancode];
--			k[scancode] = keycode;
-+			*old_keycode = k[index];
-+			k[index] = ke->keycode;
- 			break;
- 		}
- 		default: {
- 			u32 *k = (u32 *)dev->keycode;
--			old_keycode = k[scancode];
--			k[scancode] = keycode;
-+			*old_keycode = k[index];
-+			k[index] = ke->keycode;
- 			break;
- 		}
- 	}
- 
--	__clear_bit(old_keycode, dev->keybit);
--	__set_bit(keycode, dev->keybit);
-+	__clear_bit(*old_keycode, dev->keybit);
-+	__set_bit(ke->keycode, dev->keybit);
- 
- 	for (i = 0; i < dev->keycodemax; i++) {
--		if (input_fetch_keycode(dev, i) == old_keycode) {
--			__set_bit(old_keycode, dev->keybit);
-+		if (input_fetch_keycode(dev, i) == *old_keycode) {
-+			__set_bit(*old_keycode, dev->keybit);
- 			break; /* Setting the bit twice is useless, so break */
- 		}
- 	}
-@@ -716,53 +779,86 @@ static int input_default_setkeycode(struct input_dev *dev,
- /**
-  * input_get_keycode - retrieve keycode currently mapped to a given scancode
-  * @dev: input device which keymap is being queried
-- * @scancode: scancode (or its equivalent for device in question) for which
-- *	keycode is needed
-- * @keycode: result
-+ * @ke: keymap entry
-  *
-  * This function should be called by anyone interested in retrieving current
-- * keymap. Presently keyboard and evdev handlers use it.
-+ * keymap. Presently evdev handlers use it.
-  */
--int input_get_keycode(struct input_dev *dev,
--		      unsigned int scancode, unsigned int *keycode)
-+int input_get_keycode(struct input_dev *dev, struct input_keymap_entry *ke)
- {
- 	unsigned long flags;
- 	int retval;
- 
- 	spin_lock_irqsave(&dev->event_lock, flags);
--	retval = dev->getkeycode(dev, scancode, keycode);
--	spin_unlock_irqrestore(&dev->event_lock, flags);
- 
-+	if (dev->getkeycode) {
-+		/*
-+		 * Support for legacy drivers, that don't implement the new
-+		 * ioctls
-+		 */
-+		u32 scancode = ke->index;
++	/* Take event lock to prevent race with setkeycode */
++	spin_lock_irqsave(&input->event_lock, flags);
 +
-+		memcpy(ke->scancode, &scancode, sizeof(scancode));
-+		ke->len = sizeof(scancode);
-+		retval = dev->getkeycode(dev, scancode, &ke->keycode);
-+	} else {
-+		retval = dev->getkeycode_new(dev, ke);
-+	}
++	keyentry = wbcir_keyentry_by_scancode(data, scancode);
++	keycode = keyentry ? keyentry->key.keycode : KEY_RESERVED;
 +
-+	spin_unlock_irqrestore(&dev->event_lock, flags);
- 	return retval;
- }
- EXPORT_SYMBOL(input_get_keycode);
- 
- /**
-- * input_get_keycode - assign new keycode to a given scancode
-+ * input_set_keycode - attribute a keycode to a given scancode
-  * @dev: input device which keymap is being updated
-- * @scancode: scancode (or its equivalent for device in question)
-- * @keycode: new keycode to be assigned to the scancode
-+ * @ke: new keymap entry
-  *
-  * This function should be called by anyone needing to update current
-  * keymap. Presently keyboard and evdev handlers use it.
-  */
- int input_set_keycode(struct input_dev *dev,
--		      unsigned int scancode, unsigned int keycode)
-+		      const struct input_keymap_entry *ke)
- {
- 	unsigned long flags;
- 	unsigned int old_keycode;
- 	int retval;
- 
--	if (keycode > KEY_MAX)
-+	if (ke->keycode > KEY_MAX)
- 		return -EINVAL;
- 
- 	spin_lock_irqsave(&dev->event_lock, flags);
- 
--	retval = dev->getkeycode(dev, scancode, &old_keycode);
--	if (retval)
--		goto out;
-+	if (dev->setkeycode) {
-+		/*
-+		 * Support for legacy drivers, that don't implement the new
-+		 * ioctls
-+		 */
-+		unsigned int scancode;
++	spin_unlock_irqrestore(&input->event_lock, flags);
++	return keycode;
++}
 +
-+		retval = input_scancode_to_scalar(ke, &scancode);
-+		if (retval)
-+			goto out;
-+
-+		/*
-+		 * We need to know the old scancode, in order to generate a
-+		 * keyup effect, if the set operation happens successfully
-+		 */
-+		if (!dev->getkeycode) {
-+			retval = -EINVAL;
-+			goto out;
-+		}
-+
-+		retval = dev->getkeycode(dev, scancode, &old_keycode);
-+		if (retval)
-+			goto out;
-+
-+		retval = dev->setkeycode(dev, scancode, ke->keycode);
-+	} else {
-+		retval = dev->setkeycode_new(dev, ke, &old_keycode);
-+	}
- 
--	retval = dev->setkeycode(dev, scancode, keycode);
- 	if (retval)
- 		goto out;
- 
-@@ -1759,11 +1855,11 @@ int input_register_device(struct input_dev *dev)
- 		dev->rep[REP_PERIOD] = 33;
- 	}
- 
--	if (!dev->getkeycode)
--		dev->getkeycode = input_default_getkeycode;
-+	if (!dev->getkeycode && !dev->getkeycode_new)
-+		dev->getkeycode_new = input_default_getkeycode;
- 
--	if (!dev->setkeycode)
--		dev->setkeycode = input_default_setkeycode;
-+	if (!dev->setkeycode && !dev->setkeycode_new)
-+		dev->setkeycode_new = input_default_setkeycode;
- 
- 	dev_set_name(&dev->dev, "input%ld",
- 		     (unsigned long) atomic_inc_return(&input_no) - 1);
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 7892651..0057698 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -34,7 +34,7 @@ struct input_event {
-  * Protocol version.
-  */
- 
--#define EV_VERSION		0x010000
-+#define EV_VERSION		0x010001
- 
  /*
-  * IOCTLs (0x00 - 0x7f)
-@@ -56,12 +56,37 @@ struct input_absinfo {
- 	__s32 resolution;
- };
+  * Timer function to report keyup event some time after keydown is
+  * reported by the ISR.
+@@ -503,7 +566,7 @@ wbcir_keydown(struct wbcir_data *data, u32 scancode, u8 toggle)
+ 	input_event(data->input_dev, EV_MSC, MSC_SCAN, (int)scancode);
  
-+/**
-+ * struct input_keymap_entry - used by EVIOCGKEYCODE/EVIOCSKEYCODE ioctls
-+ * @scancode: scancode represented in machine-endian form.
-+ * @len: length of the scancode that resides in @scancode buffer.
-+ * @index: index in the keymap, may be used instead of scancode
-+ * @flags: allows to specify how kernel should handle the request. For
-+ *	example, setting INPUT_KEYMAP_BY_INDEX flag indicates that kernel
-+ *	should perform lookup in keymap by @index instead of @scancode
-+ * @keycode: key code assigned to this scancode
-+ *
-+ * The structure is used to retrieve and modify keymap data. Users have
-+ * option of performing lookup either by @scancode itself or by @index
-+ * in keymap entry. EVIOCGKEYCODE will also return scancode or index
-+ * (depending on which element was used to perform lookup).
-+ */
-+struct input_keymap_entry {
-+#define INPUT_KEYMAP_BY_INDEX	(1 << 0)
-+	__u8  flags;
-+	__u8  len;
-+	__u16 index;
-+	__u32 keycode;
-+	__u8  scancode[32];
-+};
+ 	/* Do we know this scancode? */
+-	keycode = wbcir_do_getkeycode(data, scancode);
++	keycode = wbcir_fetch_keycode(data, scancode);
+ 	if (keycode == KEY_RESERVED)
+ 		goto set_timer;
+ 
+@@ -1247,7 +1310,7 @@ wbcir_init_hw(struct wbcir_data *data)
+ 
+ 	/*
+ 	 * Clear IR LED, set SP3 clock to 24Mhz
+-	 * set SP3_IRRX_SW to binary 01, helpfully not documented
++	;* set SP3_IRRX_SW to binary 01, helpfully not documented
+ 	 */
+ 	outb(0x10, data->ebase + WBCIR_REG_ECEIR_CTS);
+ 
+@@ -1339,6 +1402,41 @@ wbcir_resume(struct pnp_dev *device)
+ 	return 0;
+ }
+ 
++static void
++wbcir_free_keymap(struct wbcir_data *data)
++{
++	struct wbcir_keyentry *key, *next;
 +
- #define EVIOCGVERSION		_IOR('E', 0x01, int)			/* get driver version */
- #define EVIOCGID		_IOR('E', 0x02, struct input_id)	/* get device ID */
- #define EVIOCGREP		_IOR('E', 0x03, unsigned int[2])	/* get repeat settings */
- #define EVIOCSREP		_IOW('E', 0x03, unsigned int[2])	/* set repeat settings */
--#define EVIOCGKEYCODE		_IOR('E', 0x04, unsigned int[2])	/* get keycode */
--#define EVIOCSKEYCODE		_IOW('E', 0x04, unsigned int[2])	/* set keycode */
++	list_for_each_entry_safe(key, next, &data->keytable, list) {
++		list_del(&key->list);
++		kfree(key);
++	}
++}
 +
-+#define EVIOCGKEYCODE		_IOR('E', 0x04, struct input_keymap_entry)	/* get keycode */
-+#define EVIOCSKEYCODE		_IOW('E', 0x04, struct input_keymap_entry)	/* set keycode */
- 
- #define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
- #define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
-@@ -73,8 +98,8 @@ struct input_absinfo {
- #define EVIOCGSW(len)		_IOC(_IOC_READ, 'E', 0x1b, len)		/* get all switch states */
- 
- #define EVIOCGBIT(ev,len)	_IOC(_IOC_READ, 'E', 0x20 + ev, len)	/* get event bits */
--#define EVIOCGABS(abs)		_IOR('E', 0x40 + abs, struct input_absinfo)		/* get abs value/limits */
--#define EVIOCSABS(abs)		_IOW('E', 0xc0 + abs, struct input_absinfo)		/* set abs value/limits */
-+#define EVIOCGABS(abs)		_IOR('E', 0x40 + abs, struct input_absinfo)	/* get abs value/limits */
-+#define EVIOCSABS(abs)		_IOW('E', 0xc0 + abs, struct input_absinfo)	/* set abs value/limits */
- 
- #define EVIOCSFF		_IOC(_IOC_WRITE, 'E', 0x80, sizeof(struct ff_effect))	/* send a force effect to a force feedback device */
- #define EVIOCRMFF		_IOW('E', 0x81, int)			/* Erase a force effect */
-@@ -1088,13 +1113,13 @@ struct input_mt_slot {
-  * @keycodemax: size of keycode table
-  * @keycodesize: size of elements in keycode table
-  * @keycode: map of scancodes to keycodes for this device
-+ * @getkeycode: optional legacy method to retrieve current keymap.
-  * @setkeycode: optional method to alter current keymap, used to implement
-  *	sparse keymaps. If not supplied default mechanism will be used.
-  *	The method is being called while holding event_lock and thus must
-  *	not sleep
-- * @getkeycode: optional method to retrieve current keymap. If not supplied
-- *	default mechanism will be used. The method is being called while
-- *	holding event_lock and thus must not sleep
-+ * @getkeycode_new: transition method
-+ * @setkeycode_new: transition method
-  * @ff: force feedback structure associated with the device if device
-  *	supports force feedback effects
-  * @repeat_key: stores key code of the last key pressed; used to implement
-@@ -1168,10 +1193,16 @@ struct input_dev {
- 	unsigned int keycodemax;
- 	unsigned int keycodesize;
- 	void *keycode;
++static int
++wbcir_load_keymap(struct wbcir_data *data,
++		  const struct wbcir_key *keymap, unsigned int keymap_size)
++{
++	struct wbcir_keyentry *keyentry;
++	int i;
 +
- 	int (*setkeycode)(struct input_dev *dev,
- 			  unsigned int scancode, unsigned int keycode);
- 	int (*getkeycode)(struct input_dev *dev,
- 			  unsigned int scancode, unsigned int *keycode);
-+	int (*setkeycode_new)(struct input_dev *dev,
-+			      const struct input_keymap_entry *ke,
-+			      unsigned int *old_keycode);
-+	int (*getkeycode_new)(struct input_dev *dev,
-+			      struct input_keymap_entry *ke);
- 
- 	struct ff_device *ff;
- 
-@@ -1478,10 +1509,12 @@ INPUT_GENERATE_ABS_ACCESSORS(fuzz, fuzz)
- INPUT_GENERATE_ABS_ACCESSORS(flat, flat)
- INPUT_GENERATE_ABS_ACCESSORS(res, resolution)
- 
--int input_get_keycode(struct input_dev *dev,
--		      unsigned int scancode, unsigned int *keycode);
-+int input_scancode_to_scalar(const struct input_keymap_entry *ke,
-+			     unsigned int *scancode);
++	for (i = 0; i < keymap_size; i++) {
++		if (keymap[i].keycode != KEY_RESERVED) {
++			keyentry = kmalloc(sizeof(*keyentry), GFP_KERNEL);
++			if (!keyentry) {
++				wbcir_free_keymap(data);
++				return -ENOMEM;
++			}
 +
-+int input_get_keycode(struct input_dev *dev, struct input_keymap_entry *ke);
- int input_set_keycode(struct input_dev *dev,
--		      unsigned int scancode, unsigned int keycode);
-+		      const struct input_keymap_entry *ke);
++			keyentry->key.keycode = keymap[i].keycode;
++			keyentry->key.scancode = keymap[i].scancode;
++			list_add_tail(&keyentry->list, &data->keytable);
++		}
++	}
++
++	return 0;
++}
++
+ static int __devinit
+ wbcir_probe(struct pnp_dev *device, const struct pnp_device_id *dev_id)
+ {
+@@ -1359,6 +1457,10 @@ wbcir_probe(struct pnp_dev *device, const struct pnp_device_id *dev_id)
+ 		goto exit;
+ 	}
  
- extern struct class input_class;
++	data->last_scancode = INVALID_SCANCODE;
++	INIT_LIST_HEAD(&data->keytable);
++	setup_timer(&data->timer_keyup, wbcir_keyup, (unsigned long)data);
++
+ 	pnp_set_drvdata(device, data);
+ 
+ 	data->ebase = pnp_port_start(device, 0);
+@@ -1439,50 +1541,31 @@ wbcir_probe(struct pnp_dev *device, const struct pnp_device_id *dev_id)
+ 	data->input_dev->id.vendor  = PCI_VENDOR_ID_WINBOND;
+ 	data->input_dev->id.product = WBCIR_ID_FAMILY;
+ 	data->input_dev->id.version = WBCIR_ID_CHIP;
+-	data->input_dev->getkeycode = wbcir_getkeycode;
+-	data->input_dev->setkeycode = wbcir_setkeycode;
++	data->input_dev->getkeycode_new = wbcir_getkeycode;
++	data->input_dev->setkeycode_new = wbcir_setkeycode;
+ 	input_set_capability(data->input_dev, EV_MSC, MSC_SCAN);
+ 	input_set_drvdata(data->input_dev, data);
+ 
+-	err = input_register_device(data->input_dev);
+-	if (err)
+-		goto exit_free_input;
+-
+-	data->last_scancode = INVALID_SCANCODE;
+-	INIT_LIST_HEAD(&data->keytable);
+-	setup_timer(&data->timer_keyup, wbcir_keyup, (unsigned long)data);
+-
+ 	/* Load default keymaps */
+ 	if (protocol == IR_PROTOCOL_RC6) {
+-		int i;
+-		for (i = 0; i < ARRAY_SIZE(rc6_def_keymap); i++) {
+-			err = wbcir_setkeycode(data->input_dev,
+-					       (int)rc6_def_keymap[i].scancode,
+-					       (int)rc6_def_keymap[i].keycode);
+-			if (err)
+-				goto exit_unregister_keys;
+-		}
++		err = wbcir_load_keymap(data, rc6_def_keymap,
++					ARRAY_SIZE(rc6_def_keymap));
++		if (err)
++			goto exit_free_input;
+ 	}
+ 
++	err = input_register_device(data->input_dev);
++	if (err)
++		goto exit_free_keymap;
++
+ 	device_init_wakeup(&device->dev, 1);
+ 
+ 	wbcir_init_hw(data);
+ 
+ 	return 0;
+ 
+-exit_unregister_keys:
+-	if (!list_empty(&data->keytable)) {
+-		struct wbcir_keyentry *key;
+-		struct wbcir_keyentry *keytmp;
+-
+-		list_for_each_entry_safe(key, keytmp, &data->keytable, list) {
+-			list_del(&key->list);
+-			kfree(key);
+-		}
+-	}
+-	input_unregister_device(data->input_dev);
+-	/* Can't call input_free_device on an unregistered device */
+-	data->input_dev = NULL;
++exit_free_keymap:
++	wbcir_free_keymap(data);
+ exit_free_input:
+ 	input_free_device(data->input_dev);
+ exit_unregister_led:
+@@ -1510,8 +1593,6 @@ static void __devexit
+ wbcir_remove(struct pnp_dev *device)
+ {
+ 	struct wbcir_data *data = pnp_get_drvdata(device);
+-	struct wbcir_keyentry *key;
+-	struct wbcir_keyentry *keytmp;
+ 
+ 	/* Disable interrupts */
+ 	wbcir_select_bank(data, WBCIR_BANK_0);
+@@ -1544,10 +1625,7 @@ wbcir_remove(struct pnp_dev *device)
+ 	release_region(data->ebase, EHFUNC_IOMEM_LEN);
+ 	release_region(data->sbase, SP_IOMEM_LEN);
+ 
+-	list_for_each_entry_safe(key, keytmp, &data->keytable, list) {
+-		list_del(&key->list);
+-		kfree(key);
+-	}
++	wbcir_free_keymap(data);
+ 
+ 	kfree(data);
  
 

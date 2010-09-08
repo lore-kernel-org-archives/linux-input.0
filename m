@@ -1,55 +1,36 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.36-rc3
-Date: Tue, 7 Sep 2010 23:22:14 -0700
-Message-ID: <20100908062214.GB10400@core.coreip.homeip.net>
+Subject: [PATCH 0/6] Large scancode handling
+Date: Wed, 08 Sep 2010 00:41:38 -0700
+Message-ID: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:41596 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753671Ab0IHGWU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 02:22:20 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Linus,
+Hi Mauro,
 
-Please pull from:
+I guess I better get off my behind and commit the changes to support large
+scancodes, or they will not make to 2.6.37 either... There isn't much
+changes, except I followed David's suggestion and changed boolean index
+field into u8 flags field. Still, please glance it over once again and
+shout if you see something you do not like.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Jiri, how do you want to handle the changes to HID? I could either push
+them through my tree together with the first patch or you can push through
+yours once the first change hits mainline.
 
-to receive updates for the input subsystem; just small fixups this
-time.
+Mauro, the same question goes for media/IR patch.
 
-Changelog:
----------
+David, I suppose you still have the winbond remote so you could test
+changes to winbond-cir driver.
 
-Arnd Bergmann (1):
-      Input: use PIT_TICK_RATE in vt beep ioctl
+Ville, do you still have the hardware to try our ati_remote2 changes?
 
-Dmitry Torokhov (1):
-      Input: i8042 - fix device removal on unload
+Thanks!
 
-Henrik Rydberg (2):
-      Input: MT - initialize slots to unused
-      Input: bcm5974 - adjust major/minor to scale
-
-Mike Auty (1):
-      Input: wacom - fix mousewheel handling for old wacom tablets
-
-
-Diffstat:
---------
-
- drivers/char/vt_ioctl.c          |   16 ++++++++--------
- drivers/input/input.c            |   11 +++++++++--
- drivers/input/mouse/bcm5974.c    |   12 ++++++++----
- drivers/input/serio/i8042.c      |    2 +-
- drivers/input/tablet/wacom_wac.c |    4 ++--
- 5 files changed, 28 insertions(+), 17 deletions(-)
-
+-- 
+Dmitry

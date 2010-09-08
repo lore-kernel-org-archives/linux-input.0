@@ -1,77 +1,52 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: HID: fixup blacklist entry for Asus T91MT
-Date: Wed, 8 Sep 2010 16:56:15 +0200
-Message-ID: <502D31CD-ABAF-41D3-9FD4-B6D9806891B0@enac.fr>
-References: <alpine.LNX.2.00.1009081433080.26813@pobox.suse.cz>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:35944 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755242Ab0IHO4b convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 10:56:31 -0400
-In-Reply-To: <alpine.LNX.2.00.1009081433080.26813@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [PATCH 0/6] Large scancode handling
+Date: Wed, 08 Sep 2010 12:15:06 -0300
+Message-ID: <4C87A87A.4060102@redhat.com>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv> <alpine.LNX.2.00.1009081147540.26813@pobox.suse.cz> <20100908142418.GC22323@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20100908142418.GC22323@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Ville Syrjala <syrjala@sci.fi>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>
 
-Is this the *second* device for which I made the mistake?? Gosh.
+Em 08-09-2010 11:24, Jarod Wilson escreveu:
+> On Wed, Sep 08, 2010 at 11:48:50AM +0200, Jiri Kosina wrote:
+>> On Wed, 8 Sep 2010, Dmitry Torokhov wrote:
+>>
+>>> Hi Mauro,
+>>>
+>>> I guess I better get off my behind and commit the changes to support large
+>>> scancodes, or they will not make to 2.6.37 either... There isn't much
+>>> changes, except I followed David's suggestion and changed boolean index
+>>> field into u8 flags field. Still, please glance it over once again and
+>>> shout if you see something you do not like.
+>>>
+>>> Jiri, how do you want to handle the changes to HID? I could either push
+>>> them through my tree together with the first patch or you can push through
+>>> yours once the first change hits mainline.
+>>
+>> I think that there will unlikely be any conflict in .37 merge window in 
+>> this area (and if there were, I'll sort it out).
+>>
+>> So please add
+>>
+>> 	Acked-by: Jiri Kosina <jkosina@suse.cz>
+>>
+>> to the hid-input.c bits and feel free to take it through your tree, if it 
+>> is convenient for you.
+> 
+> It'll conflict a little bith with the tivo slide patch I posted yesterday,
+> but mostly just minor context changes. I can redo that patch on top of
+> these changes if that's preferred.
 
-St.
+I can handle those context changes when merging the patches at linux-next and
+when merging upstream. We just need to sync in a way that Dmitry send his patch
+series before mine when sending them to Linus, and I'll take care of fixing the
+merge conflicts.
 
-
-Le 8 sept. 10 =E0 14:33, Jiri Kosina a =E9crit :
-
-> The device is handled by hid-mosart driver, and therefore should
-> be present in hid_blacklist[], not hid_ignore_list[].
->
-> Cc: Stephane Chatty <chatty@lii-enac.fr>
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> ---
->  drivers/hid/hid-core.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 2baf959..3f72924 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1285,6 +1285,7 @@ static const struct hid_device_id =20
-> hid_blacklist[] =3D {
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, =20
-> USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, =20
-> USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, =20
-> USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, =20
-> USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, =20
-> USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
-> @@ -1580,7 +1581,6 @@ static const struct hid_device_id =20
-> hid_ignore_list[] =3D {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) }=
-,
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, =20
-> USB_DEVICE_ID_ALCOR_USBRS232) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)}=
-,
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, =20
-> USB_DEVICE_ID_ASUSTEK_LCM2)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, =20
-> USB_DEVICE_ID_AVER_FM_MR800) },
-> --=20
-> 1.7.2.1
->
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+mauro.

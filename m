@@ -1,59 +1,67 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [PATCH 4/6] Input: winbond-cir - switch to using new keycode
  interface
-Date: Thu, 9 Sep 2010 01:09:46 +0200
-Message-ID: <20100908230946.GB7121@hardeman.nu>
-References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
- <20100908074200.32365.98120.stgit@hammer.corenet.prv>
- <20100908211617.GB13938@hardeman.nu>
- <20100908230003.GB9405@core.coreip.homeip.net>
+Date: Wed, 08 Sep 2010 20:14:56 -0300
+Message-ID: <4C8818F0.6060201@redhat.com>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv> <20100908074200.32365.98120.stgit@hammer.corenet.prv> <20100908211617.GB13938@hardeman.nu> <20100908230003.GB9405@core.coreip.homeip.net> <20100908230946.GB7121@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:36502 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932078Ab0IHXJu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 19:09:50 -0400
-Content-Disposition: inline
-In-Reply-To: <20100908230003.GB9405@core.coreip.homeip.net>
+Received: from mx1.redhat.com ([209.132.183.28]:61657 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932095Ab0IHXPA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Sep 2010 19:15:00 -0400
+In-Reply-To: <20100908230946.GB7121@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
 
-On Wed, Sep 08, 2010 at 04:00:04PM -0700, Dmitry Torokhov wrote:
-> On Wed, Sep 08, 2010 at 11:16:17PM +0200, David H=E4rdeman wrote:
-> > On Wed, Sep 08, 2010 at 12:42:00AM -0700, Dmitry Torokhov wrote:
-> > > Switch the code to use new style of getkeycode and setkeycode
-> > > methods to allow retrieving and setting keycodes not only by
-> > > their scancodes but also by index.
-> > >=20
-> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> > > ---
-> > >=20
-> > >  drivers/input/misc/winbond-cir.c |  248 ++++++++++++++++++++++++=
-+-------------
-> > >  1 files changed, 163 insertions(+), 85 deletions(-)
-> >=20
-> > Thanks for doing the conversion for me, but I think you can skip th=
+Em 08-09-2010 20:09, David H=E4rdeman escreveu:
+> On Wed, Sep 08, 2010 at 04:00:04PM -0700, Dmitry Torokhov wrote:
+>> On Wed, Sep 08, 2010 at 11:16:17PM +0200, David H=E4rdeman wrote:
+>>> On Wed, Sep 08, 2010 at 12:42:00AM -0700, Dmitry Torokhov wrote:
+>>>> Switch the code to use new style of getkeycode and setkeycode
+>>>> methods to allow retrieving and setting keycodes not only by
+>>>> their scancodes but also by index.
+>>>>
+>>>> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+>>>> ---
+>>>>
+>>>>  drivers/input/misc/winbond-cir.c |  248 +++++++++++++++++++++++++=
+-------------
+>>>>  1 files changed, 163 insertions(+), 85 deletions(-)
+>>>
+>>> Thanks for doing the conversion for me, but I think you can skip th=
 is=20
-> > patch. The driver will (if I understood your patchset correctly) st=
+>>> patch. The driver will (if I understood your patchset correctly) st=
 ill=20
-> > work with the old get/setkeycode ioctls and I have a patch lined up=
+>>> work with the old get/setkeycode ioctls and I have a patch lined up=
  that=20
-> > converts winbond-cir.c to use ir-core which means all of the input=20
-> > related code is removed.
-> >=20
+>>> converts winbond-cir.c to use ir-core which means all of the input=20
+>>> related code is removed.
+>>>
+>>
+>> Yes, it should still work with old get/setkeycode. What are the plan=
+s
+>> for your patch? .37 or later?
 >=20
-> Yes, it should still work with old get/setkeycode. What are the plans
-> for your patch? .37 or later?
+> Up to Mauro but I believe it's .37 (sometime after your input patches=
+=20
+> land).
 
-Up to Mauro but I believe it's .37 (sometime after your input patches=20
-land).
+=2E37 seems feasible, if you submit your patch in time for review.
 
---=20
-David H=E4rdeman
+Maybe I should create a temporary staging tree for .37 with the input p=
+atches
+applied there, to allow people to better review and test the rc patches=
+ with
+everything applied.
+
+Cheers,
+Mauro.
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

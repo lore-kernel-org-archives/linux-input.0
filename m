@@ -1,40 +1,66 @@
 From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 4/6] Input: winbond-cir - switch to using new keycode
- interface
-Date: Wed, 8 Sep 2010 23:16:17 +0200
-Message-ID: <20100908211617.GB13938@hardeman.nu>
-References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
- <20100908074200.32365.98120.stgit@hammer.corenet.prv>
+Subject: Re: [PATCH 1/2] ir-core: centralize sysfs raw decoder
+ enabling/disabling
+Date: Wed, 8 Sep 2010 23:22:55 +0200
+Message-ID: <20100908212255.GC13938@hardeman.nu>
+References: <20100613202718.6044.29599.stgit@localhost.localdomain>
+ <20100613202930.6044.97940.stgit@localhost.localdomain>
+ <4C8797D3.1060606@xyzw.org>
+ <20100908141613.GB22323@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:55549 "EHLO
+	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755516Ab0IHVW7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 17:22:59 -0400
 Content-Disposition: inline
-In-Reply-To: <20100908074200.32365.98120.stgit@hammer.corenet.prv>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
+In-Reply-To: <20100908141613.GB22323@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: Brian Rogers <brian@xyzw.org>, jarod@wilsonet.com, linux-media@vger.kernel.org, mchehab@redhat.com, linux-input@vger.kernel.org
 
-On Wed, Sep 08, 2010 at 12:42:00AM -0700, Dmitry Torokhov wrote:
-> Switch the code to use new style of getkeycode and setkeycode
-> methods to allow retrieving and setting keycodes not only by
-> their scancodes but also by index.
+On Wed, Sep 08, 2010 at 10:16:13AM -0400, Jarod Wilson wrote:
+> On Wed, Sep 08, 2010 at 07:04:03AM -0700, Brian Rogers wrote:
+> > ir_dev->raw is also null. If I check these pointers before using
+> > them, and bail out if both are null, then I get a working lircd, bu=
+t
+> > of course the file /sys/devices/virtual/rc/rc0/protocols no longer
+> > does anything. On 2.6.35.4, the system never creates the
+> > /sys/class/rc/rc0/current_protocol file. Is it the case that the
+> > 'protocols' file should never appear, because my card can't support
+> > this feature?
 >=20
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
->=20
->  drivers/input/misc/winbond-cir.c |  248 +++++++++++++++++++++++++---=
-----------
->  1 files changed, 163 insertions(+), 85 deletions(-)
+> Hm... So protocols is indeed intended for hardware that handles raw I=
+R, as
+> its a list of raw IR decoders available/enabled/disabled for the rece=
+iver.
+> But some devices that do onboard decoding and deal with scancodes sti=
+ll
+> need to support changing protocols, as they can be told "decode rc5" =
+or
+> "decode nec", etc... My memory is currently foggy on how it was exact=
+ly
+> that it was supposed to be donee though. :) (Yet another reason I rea=
+lly
+> need to poke at the imon driver code again).
 
-Thanks for doing the conversion for me, but I think you can skip this=20
-patch. The driver will (if I understood your patchset correctly) still=20
-work with the old get/setkeycode ioctls and I have a patch lined up tha=
-t=20
-converts winbond-cir.c to use ir-core which means all of the input=20
-related code is removed.
+This, and a raft of similar bugreports was one of the reasons I wrote=20
+the rc_dev patch (which gets rid of ir_dev->props, the source of many=20
+oopses by now).
 
+Hardware decoders should work with the same sysfs file, the driver=20
+should set ir_dev->props->change_protocol (current) or=20
+rc->change_protocol (future) and it'll get notified when userspace=20
+interacts with the sysfs file and the hardware can then react=20
+accordingly. So the answer is yes - all hardware should have the file.
 
 --=20
 David H=E4rdeman
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,45 +1,95 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] identify firmware version
-Date: Wed, 08 Sep 2010 11:42:36 -0400
-Message-ID: <4C87AEEC.3000309@seas.upenn.edu>
-References: <4C7EB3A3.7050402@gmail.com> <1283791362-27780-1-git-send-email-rafi@seas.upenn.edu> <20100906194838.GB31384@core.coreip.homeip.net> <4C855BAA.4000900@gmail.com> <20100906233203.GA18048@seas.upenn.edu> <4C85E1A7.2010906@gmail.com> <alpine.LNX.2.00.1009081147070.26813@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [Patch v1] input:rohm based bu21013 touch panel controller
+ driver support
+Date: Wed, 8 Sep 2010 08:44:21 -0700
+Message-ID: <20100908154421.GE4190@core.coreip.homeip.net>
+References: <81C3A93C17462B4BBD7E272753C1057916DE7CC963@EXDCVYMBSTM005.EQ1STM.local>
+ <4C876936.8090708@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1009081147070.26813@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:52141 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754811Ab0IHPo3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 11:44:29 -0400
+Received: by pxi10 with SMTP id 10so81654pxi.19
+        for <linux-input@vger.kernel.org>; Wed, 08 Sep 2010 08:44:28 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4C876936.8090708@codeaurora.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Trilok Soni <tsoni@codeaurora.org>
+Cc: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On 09/08/10 05:47, Jiri Kosina wrote:
-> On Tue, 7 Sep 2010, Jiri Slaby wrote:
+On Wed, Sep 08, 2010 at 04:15:10PM +0530, Trilok Soni wrote:
+> Hi Naveen,
 > 
->>>>>> +
->>>>>> +		ret = ntrig_version_string(&data[2], buf);
->>>>>> +
->>>>>> +		dev_info(&hdev->dev,
->>>>>> +			 "Firmware version: %s (%02x%02x %02x%02x)\n",
->>>>>> +			 buf, data[2], data[3], data[4], data[5]);
->>>>>> +
->>>>>> +		kfree(buff);
->>>>
->>>> In any case, this doesn't compile...
->>>>
->>>>>> +	}
->>>
->>> Jiri, I moved the code to a separate function as Dmitry suggested, and compiled a kernel from a clean tree using 
->>> gcc-3.4 (I think).
->>
->> This version is OK. In the previous one, there was
->> char *buf;
->> ...
->> kfree(buff);
+> On 9/8/2010 3:54 PM, Naveen Kumar GADDIPATI wrote:
+> > Hi Dmitry,
+> > 
+> > From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> > 
+> > Added the ROHM based bu21013 capacitive touch panel controller
+> > driver support with i2c interface.
+> > 
+> > Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> > ---
+> > Modifications in v1:
+> >         --Updated with the Dmitry comments on Patch 0, but fuzz is not used to get the
+> >                 delta between two co-ordinates in multi touch.
+> >         --Updated with the Trilok comments on Patch 0
 > 
-> Dmitry, Jiri, thanks a lot for taking care reviewing the patch while I 
-> have been lagging behind.
+> Thanks for the updates.
 > 
-> Now applied, thanks Rafi.
+> > 
+> > +config TOUCHSCREEN_BU21013
+> > +       tristate "BU21013 based touch panel controllers"
+> > +       depends on I2C
+> > +       help
+> > +         Say Y here if you have a bu21013 touchscreen connected to
+> > +         your system.
+> > +
+> > +         If unsure, say N.
+> > +
+> > +         To compile this driver as a module, choose M here: the
+> > +         module will be called bu21013_ts.
+> > +
+> 
+> Dmitry, we do follow the alphabetical order for Kconfig and Makefile for touchscreen folder, right?
+> 
 
-Thanks Jiri, and thanks for all the feedback.
+Yes. Mostly for my benefit though :) - if everyone adds their driver at
+the end I need to fix up conflicts on every one of them and also when I
+move the patches in my queue up and down. Having them listed
+alphabetically reduces chances of conflicts.
+
+> > +
+> > +/**
+> > + * bu21013_report_pen_down() - reports the pen down event
+> > + * @data:bu21013_ts_data structure pointer
+> > + * @count:touch count
+> > + *
+> > + * This function used to report the pen down interrupt to
+> > + * input subsystem and returns none
+> > + */
+> > +static void bu21013_report_pen_down(struct bu21013_ts_data *data, int count)
+> > +{
+> > +       input_report_abs(data->in_dev, ABS_X, data->x_pos[0]);
+> > +       input_report_abs(data->in_dev, ABS_Y, data->y_pos[0]);
+> > +       input_report_key(data->in_dev, BTN_TOUCH, 1);
+> > +
+> > +       if (data->chip->multi_touch) {
+> > +               if (count > 1)
+> > +                       input_report_key(data->in_dev, BTN_2, 1);
+> 
+> Dmitry,
+> 
+> Do you prefer the method of supporting ST and MT like the code above? My preference
+> would be to keep only MT, because the chip supports MT.
+
+We still need to support the ST so that older clients can work with the
+device; but yes, MT events should be sent unconditionally and BTN_2
+should not be abused for multitouch indicator.
+
+-- 
+Dmitry

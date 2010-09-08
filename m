@@ -1,55 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/1] input: add support for Nomadik SKE keypad
- controller
-Date: Wed, 8 Sep 2010 08:46:01 -0700
-Message-ID: <20100908154601.GF4190@core.coreip.homeip.net>
-References: <1283777284-24811-1-git-send-email-sundar.iyer@stericsson.com>
- <4C8645CB.9070206@codeaurora.org>
- <33A307AF30D7BF4F811B1568FE7A9B181C8565B5@EXDCVYMBSTM006.EQ1STM.local>
- <4C87885C.70704@codeaurora.org>
- <AANLkTinYfUVGignRSA+GPWz4yHothgm6TTyt7ruMvmS9@mail.gmail.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH 0/6] Large scancode handling
+Date: Wed, 8 Sep 2010 12:09:08 -0400
+Message-ID: <20100908160908.GF22323@redhat.com>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+ <alpine.LNX.2.00.1009081147540.26813@pobox.suse.cz>
+ <20100908142418.GC22323@redhat.com>
+ <4C87A87A.4060102@redhat.com>
+ <20100908152234.GE22323@redhat.com>
+ <alpine.LNX.2.00.1009081723400.26813@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:37937 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754207Ab0IHPqS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 11:46:18 -0400
-Received: by pwi3 with SMTP id 3so102260pwi.19
-        for <linux-input@vger.kernel.org>; Wed, 08 Sep 2010 08:46:17 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:48032 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755571Ab0IHQJV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Sep 2010 12:09:21 -0400
 Content-Disposition: inline
-In-Reply-To: <AANLkTinYfUVGignRSA+GPWz4yHothgm6TTyt7ruMvmS9@mail.gmail.com>
+In-Reply-To: <alpine.LNX.2.00.1009081723400.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.ml.walleij@gmail.com>
-Cc: Trilok Soni <tsoni@codeaurora.org>, Sundar R IYER <sundar.iyer@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Ville Syrjala <syrjala@sci.fi>
 
-On Wed, Sep 08, 2010 at 04:19:45PM +0200, Linus Walleij wrote:
-> 2010/9/8 Trilok Soni <tsoni@codeaurora.org>:
-> > [Sundar]
-> >> Yes it can. I am seeing increasing tendency to migrate to threaded_irq from the legacy irq recently
-> >> and hence the threaded request.
-> >
-> > Use threaded_irq only when needed with different flags and not everywhere. In this case we don't
-> > need threaded irq at all.
+On Wed, Sep 08, 2010 at 05:25:13PM +0200, Jiri Kosina wrote:
+> On Wed, 8 Sep 2010, Jarod Wilson wrote:
 > 
-> Look closer at the IRQ handler:
+> > > > It'll conflict a little bith with the tivo slide patch I posted yesterday,
+> > > > but mostly just minor context changes. I can redo that patch on top of
+> > > > these changes if that's preferred.
+> > > 
+> > > I can handle those context changes when merging the patches at linux-next and
+> > > when merging upstream. We just need to sync in a way that Dmitry send his patch
+> > > series before mine when sending them to Linus, and I'll take care of fixing the
+> > > merge conflicts.
+> > 
+> > Ah, the specific conflicts I was referring here are confined to
+> > drivers/hid/hid-input.c, and I sent the patch thinking it would go in via
+> > the hid tree. It *is* for a remote, but its a pure HID device in this
+> > case.
 > 
-> +static irqreturn_t ske_keypad_irq(int irq, void *dev_id)
-> (...)
-> +       /*
-> +        * if KPASON is not ready, we cannot read data registers
-> +        * so wait for a debounce period; if still not settled,
-> +        * we fire a timer and exit the IRQ
-> +        */
-> +       while ((readl(keypad->reg_base + SKE_CR) & SKE_KPASON) && timeout--)
-> +               cpu_relax();
-> 
-> Active polling. Surely you want this to be preemptible? Thus ->
-> threaded handler.
-> 
+> Umm, what patch are you talking about please? I don't seem to have 
+> anything from you in my queue.
 
-Actually I'd like that form of active polling not be there at all.
+Gah. I suck. Forgot to cc you on it.
+
+http://www.spinics.net/lists/linux-input/msg11007.html
+
+Can resend and/or bounce you a copy if need be.
 
 -- 
-Dmitry
+Jarod Wilson
+jarod@redhat.com
+

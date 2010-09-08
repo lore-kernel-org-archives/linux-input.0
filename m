@@ -1,52 +1,98 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/1] input: keyboard: add qci keyboard driver
-Date: Tue, 7 Sep 2010 15:14:08 -0700
-Message-ID: <20100907221407.GA22259@core.coreip.homeip.net>
-References: <4C7838DD.1020004@codeaurora.org>
- <201008271533.01542.dmitry.torokhov@gmail.com>
- <4C7BF6D2.5080501@codeaurora.org>
- <20100830215556.GC28865@core.coreip.homeip.net>
- <4C7D6C17.1070604@codeaurora.org>
- <20100901063430.GG23585@core.coreip.homeip.net>
- <4C8148C6.2010006@codeaurora.org>
- <20100903203717.GA6412@core.coreip.homeip.net>
- <4C86B567.8030804@codeaurora.org>
+From: Jason Wang <jason77.wang@gmail.com>
+Subject: Re: [PATCH v2] Input: ads7846 - Replace spinlock by mutex to wrap
+ disable()/enable()
+Date: Wed, 08 Sep 2010 11:07:57 +0800
+Message-ID: <4C86FE0D.2060905@gmail.com>
+References: <1282370340-3157-1-git-send-email-jason77.wang@gmail.com> <4C7491D7.1030801@gmail.com> <20100901064841.GH23585@core.coreip.homeip.net> <4C7E25E2.90904@gmail.com> <20100901164818.GA6908@core.coreip.homeip.net> <20100902160132.GD16914@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:60107 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756049Ab0IGWOQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 18:14:16 -0400
-Content-Disposition: inline
-In-Reply-To: <4C86B567.8030804@codeaurora.org>
+Received: from mail.windriver.com ([147.11.1.11]:54164 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751143Ab0IHDEl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Sep 2010 23:04:41 -0400
+In-Reply-To: <20100902160132.GD16914@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Neil Leeder <nleeder@codeaurora.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Hsin.Wu@quantatw.com, mcuos.com@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jason Wang <jason77.wang@gmail.com>, notasas@gmail.com, vapier@gentoo.org, linux-input@vger.kernel.org
 
-On Tue, Sep 07, 2010 at 05:57:59PM -0400, Neil Leeder wrote:
-> On 9/3/2010 4:37 PM, Dmitry Torokhov wrote:
-> >
-> >Does this mean you are not interested in getting drivers for the current
-> >generation of hardware to mainline?
-> 
-> Hi Dmitry,
-> 
-> That's correct - I don't think there is much future for the current
-> hardware if we can come up with a cleaner solution for the new
-> versions. 
+Dmitry Torokhov wrote:
+> On Wed, Sep 01, 2010 at 09:48:18AM -0700, Dmitry Torokhov wrote:
+>   
+>> On Wed, Sep 01, 2010 at 06:07:30PM +0800, Jason Wang wrote:
+>>     
+>>> Dmitry Torokhov wrote:
+>>>       
+>>>> Hi Jason,
+>>>>
+>>>> On Wed, Aug 25, 2010 at 11:45:27AM +0800, Jason Wang wrote:
+>>>>         
+>>>>> Hi dmitry and others,
+>>>>>
+>>>>> could you please to help me review this patch?
+>>>>>
+>>>>> Thanks,
+>>>>> Jason.
+>>>>>
+>>>>> Jason Wang wrote:
+>>>>>           
+>>>>>> The commit 9114337 introduces regulator operations in the ads7846
+>>>>>> touchscreen driver. Among these operations, some are called in the
+>>>>>> spinlock protected context.
+>>>>>> On most platforms, the regulator operation is achieved through
+>>>>>> i2c/spi bus transfer operations, some bus transfer operations will
+>>>>>> call wait_for_completion function. It isn't allowable  to call
+>>>>>> sleepable function in the atomic context. So replace the spinlock with
+>>>>>> mutex to protect ads7846_disable()/ads7846_enable().
+>>>>>>
+>>>>>>             
+>>>> I am afraid the patch is not correct. ads7846_disable() and
+>>>> ads7846_enable() check and modify flags (such as irq_disabled and
+>>>> pending) that are also accessed form timer/interrupt context. Moving to
+>>>> mutex removes the serialization that used to be there.
+>>>>         
+>>> Thanks for your comments. you are right it is dangerous and
+>>> unreasonable to use different locks to protect a critical resource.
+>>>       
+>>>> I wonder if we should start by converting the driver to used threaded
+>>>> IRQ model with "long playing" interrupt handler so all access happens in
+>>>> process context and shutdown sequence is simplified.
+>>>>         
+>>> It can solve most issues, but it can't solve this situation. Because
+>>> here the atomic region in which conflicts happened is from spin_lock
+>>> instead of irq handler.
+>>>
+>>>       
+>> Right, but switching to threaded IRQ will allow to use mutex in place
+>> of the spinlock everywhere.
+>>
+>>     
+>
+> I wonder if the following patch works (or can be made to work)...
+>
+>   
+Hi Dmitry,
 
-Ah, OK, I see.
+I have made a quick test of this patch, currently two issues found:
+1) missing #include <linux/sched.h> , it will produce a building error.
+2) touch panel can't work, it seems that the input dev doesn't report 
+pen up events.
 
-> I will test 0xF5 with the new hardware.  I think we may
-> still need a new keyboard driver, just rewritten to have a serio
-> backend.
+Your patch is a good frame work, i will continue working basing off your 
+patch.
+Maybe several dates later, i will send out an extra patch to strengthen 
+your patch.
 
-It would be great if newer hardware could make use of the atkbd driver
-(if it is going to use serio + PS/2 ports on the EC).
 
-Thanks.
+Thanks,
+Jason.
 
--- 
-Dmitry
+
+
+
+
+
+
+

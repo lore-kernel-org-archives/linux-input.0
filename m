@@ -1,40 +1,75 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 5/8] IR: extend MCE keymap.
-Date: Wed, 8 Sep 2010 10:47:26 -0400
-Message-ID: <AANLkTi=EFZys7NnxixmQL3hqqGfin_VOV7XAWCm0BkwT@mail.gmail.com>
-References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
-	<1283808373-27876-6-git-send-email-maximlevitsky@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: HID: fixup blacklist entry for Asus T91MT
+Date: Wed, 8 Sep 2010 16:56:15 +0200
+Message-ID: <502D31CD-ABAF-41D3-9FD4-B6D9806891B0@enac.fr>
+References: <alpine.LNX.2.00.1009081433080.26813@pobox.suse.cz>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:59457 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755316Ab0IHOrf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 10:47:35 -0400
-In-Reply-To: <1283808373-27876-6-git-send-email-maximlevitsky@gmail.com>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:35944 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755242Ab0IHO4b convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 10:56:31 -0400
+In-Reply-To: <alpine.LNX.2.00.1009081433080.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@gmail.com=
-> wrote:
-> These keys are found on remote bundled with
-> Toshiba Qosmio F50-10q.
+Is this the *second* device for which I made the mistake?? Gosh.
+
+St.
+
+
+Le 8 sept. 10 =E0 14:33, Jiri Kosina a =E9crit :
+
+> The device is handled by hid-mosart driver, and therefore should
+> be present in hid_blacklist[], not hid_ignore_list[].
 >
-> Found and tested by, Sami R <maesesami@gmail.com>
->
-> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
+> Cc: Stephane Chatty <chatty@lii-enac.fr>
+> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 > ---
-> =A0drivers/media/IR/keymaps/rc-rc6-mce.c | =A0 =A03 +++
-> =A01 files changed, 3 insertions(+), 0 deletions(-)
+>  drivers/hid/hid-core.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 2baf959..3f72924 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1285,6 +1285,7 @@ static const struct hid_device_id =20
+> hid_blacklist[] =3D {
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, =20
+> USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, =20
+> USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, =20
+> USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, =20
+> USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, =20
+> USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
+> @@ -1580,7 +1581,6 @@ static const struct hid_device_id =20
+> hid_ignore_list[] =3D {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) }=
+,
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, =20
+> USB_DEVICE_ID_ALCOR_USBRS232) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)}=
+,
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, =20
+> USB_DEVICE_ID_ASUSTEK_LCM2)},
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, =20
+> USB_DEVICE_ID_AVER_FM_MR800) },
+> --=20
+> 1.7.2.1
+>
 
-Acked-by: Jarod Wilson <jarod@redhat.com>
-
---=20
-Jarod Wilson
-jarod@wilsonet.com
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

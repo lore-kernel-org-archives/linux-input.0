@@ -1,48 +1,30 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 0/6] Large scancode handling
-Date: Wed, 8 Sep 2010 10:31:21 -0400
-Message-ID: <20100908143121.GD22323@redhat.com>
-References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH 3/8] IR: fix duty cycle capability
+Date: Wed, 8 Sep 2010 10:44:21 -0400
+Message-ID: <AANLkTik+O4Lgmk85fUXtT1mvwp-XmkPvme3uuYt7BwkO@mail.gmail.com>
+References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
+	<1283808373-27876-4-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+In-Reply-To: <1283808373-27876-4-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: lirc-list@lists.sourceforge.net, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 08, 2010 at 12:41:38AM -0700, Dmitry Torokhov wrote:
-> Hi Mauro,
-> 
-> I guess I better get off my behind and commit the changes to support large
-> scancodes, or they will not make to 2.6.37 either... There isn't much
-> changes, except I followed David's suggestion and changed boolean index
-> field into u8 flags field. Still, please glance it over once again and
-> shout if you see something you do not like.
-> 
-> Jiri, how do you want to handle the changes to HID? I could either push
-> them through my tree together with the first patch or you can push through
-> yours once the first change hits mainline.
-> 
-> Mauro, the same question goes for media/IR patch.
-> 
-> David, I suppose you still have the winbond remote so you could test
-> changes to winbond-cir driver.
+On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@gmail.com=
+> wrote:
+> Due to typo lirc bridge enabled wrong capability.
+>
+> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
+> ---
+> =A0drivers/media/IR/ir-lirc-codec.c | =A0 =A02 +-
+> =A01 files changed, 1 insertions(+), 1 deletions(-)
 
-This'll be fun. :) David recently posted a patchset that among other
-things, ports winbond-cir over to {ir,rc}-core to the tune of ~700 less
-lines in winbond-cir.c. It also touches a fair amount of core bits, as
-does a patchset posted by Maxim... I suspect this series should probably
-go in first though.
+Acked-by: Jarod Wilson <jarod@redhat.com>
 
-> Ville, do you still have the hardware to try our ati_remote2 changes?
-
-If not, I've got the hardware. (Speaking of which, porting ati_remote*
-over to {ir,rc}-core is also on the TODO list, albeit with very very
-low priority at the moment).
-
--- 
+--=20
 Jarod Wilson
-jarod@redhat.com
+jarod@wilsonet.com

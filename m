@@ -1,199 +1,137 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [Patch v1] input:rohm based bu21013 touch panel controller driver
- support
-Date: Wed, 08 Sep 2010 16:15:10 +0530
-Message-ID: <4C876936.8090708@codeaurora.org>
-References: <81C3A93C17462B4BBD7E272753C1057916DE7CC963@EXDCVYMBSTM005.EQ1STM.local>
+From: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>
+Subject: Re: [PATCH V3 1/2] input: CMA3000 Accelerometer driver
+Date: Wed, 08 Sep 2010 12:37:40 +0100
+Message-ID: <4C877584.7000902@jic23.retrosnub.co.uk>
+References: <61033.10.24.255.18.1283926671.squirrel@dbdmail.itg.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:40607 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756942Ab0IHKp2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 06:45:28 -0400
-In-Reply-To: <81C3A93C17462B4BBD7E272753C1057916DE7CC963@EXDCVYMBSTM005.EQ1STM.local>
+Received: from ppsw-33.csi.cam.ac.uk ([131.111.8.133]:39347 "EHLO
+	ppsw-33.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751289Ab0IHLch (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 07:32:37 -0400
+In-Reply-To: <61033.10.24.255.18.1283926671.squirrel@dbdmail.itg.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
+To: Hemanth V <hemanthv@ti.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-Hi Naveen,
+Hi Hemanth,
 
-On 9/8/2010 3:54 PM, Naveen Kumar GADDIPATI wrote:
-> Hi Dmitry,
-> 
-> From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-> 
-> Added the ROHM based bu21013 capacitive touch panel controller
-> driver support with i2c interface.
-> 
-> Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-> ---
-> Modifications in v1:
->         --Updated with the Dmitry comments on Patch 0, but fuzz is not used to get the
->                 delta between two co-ordinates in multi touch.
->         --Updated with the Trilok comments on Patch 0
+I know this is rather late in the process, but I thought I'd just like
+to make a few suggestions in for possibly clearer interfaces (sysfs) -
+platform data is fine as is because a board designer can look up the 
+data sheet or documentation.
 
-Thanks for the updates.
+I'm not particularly bothered if you do anything about these now, it's
+just that they may be worth considering in future (we can support the
+current ones as well).  Oddly enough I've run into lots of issues with
+trying to come up with generic names for various sysfs parameters as
+part of IIO design work (some things you have here we still haven't
+pinned down).
 
-> 
-> +config TOUCHSCREEN_BU21013
-> +       tristate "BU21013 based touch panel controllers"
-> +       depends on I2C
-> +       help
-> +         Say Y here if you have a bu21013 touchscreen connected to
-> +         your system.
+...
 > +
-> +         If unsure, say N.
+> +Sysfs entries
+> +-------------
 > +
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called bu21013_ts.
-> +
+> +mode:
+> +	0: power down mode
+> +	1: 100 Hz Measurement mode
+> +	2: 400 Hz Measurement mode
+> +	3: 40 Hz Measurement mode
+> +	4: Motion Detect mode (default)
+> +	5: 100 Hz Free fall mode
+> +	6: 40 Hz Free fall mode
+> +	7: Power off mode
+Could break this internal parameter up into a couple of attributes to make
+it easier to understand (and get rid of the magic numbers.  The brackets
+are used to indicate what mode we are currently in.
 
-Dmitry, we do follow the alphabetical order for Kconfig and Makefile for touchscreen folder, right?
+mode: 
+	powerdown [measurement] motiondetect freefall poweroff
+frequency:
+	400 [100] 40
 
-> +
-> +/**
-> + * bu21013_report_pen_down() - reports the pen down event
-> + * @data:bu21013_ts_data structure pointer
-> + * @count:touch count
-> + *
-> + * This function used to report the pen down interrupt to
-> + * input subsystem and returns none
-> + */
-> +static void bu21013_report_pen_down(struct bu21013_ts_data *data, int count)
-> +{
-> +       input_report_abs(data->in_dev, ABS_X, data->x_pos[0]);
-> +       input_report_abs(data->in_dev, ABS_Y, data->y_pos[0]);
-> +       input_report_key(data->in_dev, BTN_TOUCH, 1);
-> +
-> +       if (data->chip->multi_touch) {
-> +               if (count > 1)
-> +                       input_report_key(data->in_dev, BTN_2, 1);
+ (prevent it changing to 400 if we are in free fall mode or even better don't
+  list it as an option. - if people want to configure motion detection, they may
+   have to elect to power down first make relevant settings and power up again)
 
-Dmitry,
-
-Do you prefer the method of supporting ST and MT like the code above? My preference
-would be to keep only MT, because the chip supports MT.
+Yes there are nasty corner cases with this approach, but it does get rid of the
+magic numbers in the original interface.
 
 > +
-> +               input_report_abs(data->in_dev, ABS_MT_POSITION_X,
-> +                                                       data->x_pos[0]);
-> +               input_report_abs(data->in_dev, ABS_MT_POSITION_Y,
-> +                                                       data->y_pos[0]);
-> +               input_mt_sync(data->in_dev);
+> +grange:
+> +	2000: 2000 mg or 2G Range
+> +	8000: 8000 mg or 8G Range
 > +
-> +               if (count > 1) {
-> +                       input_report_abs(data->in_dev, ABS_MT_POSITION_X,
-> +                                                               data->x_pos[1]);
-> +                       input_report_abs(data->in_dev, ABS_MT_POSITION_Y,
-> +                                                               data->y_pos[1]);
-> +                       input_mt_sync(data->in_dev);
-> +               }
-> +       }
-> +       input_sync(data->in_dev);
-> +       data->previous_press_reported = count;
-> +}
-> +/**
-> + * bu21013_report_pen_up() - reports the pen up event
-> + * @data:bu21013_ts_data structure pointer
-> + *
-> + * This function used to report the pen up interrupt
-> + * to input subsystem and returns none
-> + */
-> +static void bu21013_report_pen_up(struct bu21013_ts_data *data)
-> +{
-> +       input_report_key(data->in_dev, BTN_TOUCH, 0);
-> +       if (data->chip->multi_touch) {
-> +               input_report_key(data->in_dev, BTN_2, 0);
-
-Let's wait for Dmitry to comment on the above question, and we can take it from there.
-
-> +               input_mt_sync(data->in_dev);
-> +       }
-> +       input_sync(data->in_dev);
-> +       data->previous_press_reported = 0;
-> +}
-
-> +}
+> +mdthr:
+> +	X: X * 71mg (8G Range)
+> +	X: X * 18mg (2G Range)
+Sometimes saving characters in a name is a bad idea.
+motion_detector_threshold would make things clearer.
+I'd also personally loose the magic multipliers and make
+it in milli g like your grange above.  Obviously things
+will get a little fiddly if the grange changes.
 > +
-> +/**
-> + * bu21013_gpio_irq() - gpio thread function for touch interrupt
-> + * @irq: irq value
-> + * @device_data:void pointer
-> + *
-> + * This gpio thread function for touch interrupt
-> + * and returns irqreturn_t.
-> + */
-> +static irqreturn_t bu21013_gpio_irq(int irq, void *device_data)
-> +{
-> +       struct bu21013_ts_data *data = (struct bu21013_ts_data *)device_data;
-
-casting not needed.
-
-> +       struct i2c_client *i2c = data->client;
-> +       int retval;
+> +mdfftmr:
+> +	X: (X & 0x70) * 100 ms (MDTMR)
+> +	   (X & 0x0F) * 2.5 ms (FFTMR 400 Hz)
+> +	   (X & 0x0F) * 10 ms  (FFTMR 100 Hz)
+detector_period or something like that and again it would be
+much nicer to have this in say milliseconds.  Again you'd probably
+need an in driver cache and to update things appropriately if the
+frequency is changed.  I have no idea if this interpreted the same
+for freefall and motion detection.  If it isn't make it two separate
+attributes to reduce confusion.  (with appropriate caching in driver
+to ensure the right one is written before a mode change).
 > +
-> +       do {
-> +               retval = bu21013_do_touch_report(data);
-> +               if (retval < 0) {
-> +                       dev_err(&i2c->dev, "bu21013_do_touch_report failed\n");
-> +                       return IRQ_NONE;
-> +               }
-> +
-> +               data->intr_pin = data->chip->irq_read_val();
-> +               if (data->intr_pin == PEN_DOWN_INTR)
-> +                       wait_event_timeout(data->wait, data->touch_stopped,
-> +                                                       msecs_to_jiffies(10));
-> +       } while (!data->intr_pin && !data->touch_stopped);
-> +
-> +       return IRQ_HANDLED;
-> +}
-> +
-> +
+> +ffthr:
+> +       X: (X >> 2) * 18mg (2G Range)
+> +       X: (X & 0x0F) * 71 mg (8G Range)
+Again, this would be better in milli g.  
 
-> +#ifdef CONFIG_PM
-> +/**
-> + * bu21013_suspend() - suspend the touch screen controller
-> + * @client: pointer to i2c client structure
-> + * @mesg: message from power manager
-> + *
-> + * This funtion is used to suspend the
-> + * touch panel controller and returns integer
-> + */
-> +static int bu21013_suspend(struct i2c_client *client, pm_message_t mesg)
-> +{
-> +       struct bu21013_ts_data *bu21013_data = i2c_get_clientdata(client);
-> +
-> +       bu21013_data->touch_stopped = true;
+...
 
-I will come back on this shortly after looking at the code which uses this flag, and
-why it doesn't need locks.
+Just some suggestions.
 
-> +static int __devinit bu21013_probe(struct i2c_client *i2c,
-> +                                       const struct i2c_device_id *id)
-> +{
-> +       int retval;
-> +       struct bu21013_ts_data *bu21013_data;
-> +       struct input_dev *in_dev;
-> +       short x_max;
-> +       short y_max;
-> +       struct bu21013_platform_device *pdata = i2c->dev.platform_data;
-> +
+I still think the driver is more or less fine as is, but if Dmitry is going
+to take more accelerometer drivers some of these interfaces will want to be
+more easily generalized. 
 
-Please add i2c_check_functionality check.
+Naturally I'm biased and think what we have for IIO is the one true way :)
+Note that we have to cover a much wider range of devices so some of our choices
+are more complex / involved than may be needed for a narrow set of devices.
+Note the event naming is currently in flux (as few of our drivers have supported
+these elements we have be concentrating on other parts). I'll be proposing a clearer scheme
+shortly (including the mag variant given here). In that case you would have.
 
-> +
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("NAVEEN KUMAR G");
+grange->accel_calibscale + accel_calibscale_available (to tell you what is valid).
+(there is some debate on whether to use the list approach I suggested above for a 
+restricted case like this).
 
-E-mail address please.
+mdthr->accel_mag_rising_value
 
-> +MODULE_DESCRIPTION("bu21013 touch screen controller driver");
+ffthr-> free_fall_value? (we don't have this one yet - would need to think about this,
+        it might correspond to accel_mag_falling_value)
 
----Trilok Soni
+mdfftmr-> accel_mag_rising_period, free_fall_period
+ 
+mode would be effectively covered by whether the following are enabled (and enabling
+one will disable the other).
+accel_mag_rising_en
+free_fall_en
+sampling_frequency
+(with sampling_frequency_available)
 
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+The power down and power off modes are device specific - either runtime power management,
+or a non standard attribute.
+
+This may all seem overly complex, but it does give us an interface we can generalize
+to pretty much any similar device in a consistent manor (so far!)
+
+I'm happy to see your driver go in as it is currently, what bothers me is that we will end
+up with incompatible interfaces for all the accelerometers Dmitry takes!
+
+Jonathan

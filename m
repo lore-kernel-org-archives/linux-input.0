@@ -1,39 +1,60 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 2/8] IR: make sure we register the input device when it is
- safe to do so.
-Date: Thu, 9 Sep 2010 00:19:46 -0400
-Message-ID: <AANLkTim_ZXKGpQp5Ji42kyLXps6-Onwk9dRX2NhY=bC9@mail.gmail.com>
-References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
-	<1283808373-27876-3-git-send-email-maximlevitsky@gmail.com>
+From: Sundar R IYER <sundar.iyer@stericsson.com>
+Subject: RE: [PATCH v3 1/1] input: add support for Nomadik SKE keypad
+ controller
+Date: Thu, 9 Sep 2010 06:22:19 +0200
+Message-ID: <33A307AF30D7BF4F811B1568FE7A9B181C856805@EXDCVYMBSTM006.EQ1STM.local>
+References: <1283777284-24811-1-git-send-email-sundar.iyer@stericsson.com>
+ <4C8645CB.9070206@codeaurora.org>
+ <33A307AF30D7BF4F811B1568FE7A9B181C8565B5@EXDCVYMBSTM006.EQ1STM.local>
+ <4C87885C.70704@codeaurora.org>
+ <AANLkTinYfUVGignRSA+GPWz4yHothgm6TTyt7ruMvmS9@mail.gmail.com>
+ <20100908154601.GF4190@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:52341 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750856Ab0IIET5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Sep 2010 00:19:57 -0400
-In-Reply-To: <1283808373-27876-3-git-send-email-maximlevitsky@gmail.com>
+Received: from eu1sys200aog111.obsmtp.com ([207.126.144.131]:45806 "EHLO
+	eu1sys200aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750923Ab0IIEWj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Sep 2010 00:22:39 -0400
+In-Reply-To: <20100908154601.GF4190@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.ml.walleij@gmail.com>
+Cc: Trilok Soni <tsoni@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> As soon as input device is registered, it might be accessed (and it is)
-> This can trigger a hardware interrupt that can access
-> not yet initialized ir->raw, (by sending a sample)
+Hi Dmitry,
+
+>-----Original Message-----
+>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>>
+>> +static irqreturn_t ske_keypad_irq(int irq, void *dev_id)
+>> (...)
+>> +       /*
+>> +        * if KPASON is not ready, we cannot read data registers
+>> +        * so wait for a debounce period; if still not settled,
+>> +        * we fire a timer and exit the IRQ
+>> +        */
+>> +       while ((readl(keypad->reg_base + SKE_CR) & SKE_KPASON) && timeout--)
+>> +               cpu_relax();
+>>
+>> Active polling. Surely you want this to be preemptible? Thus ->
+>> threaded handler.
+>>
 >
-> This can be reproduced by holding down a remote button and reloading the module.
-> And this always crashes the systems where hardware decides to send an interrupt
-> right at the moment it is enabled.
+>Actually I'd like that form of active polling not be there at all.
 >
-> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 
-Finally got my head wrapped around this one too, and I do see the
-problem, and this fix looks good to me.
+Hmm. Could you please help me out on how I can proceed with the 
+following two HW constraints:
 
-Acked-by: Jarod Wilson <jarod@redhat.com>
+1. KPASON polling needs to be waited in case of a multi key press so that
+the keypad registers can stabilize. This is what the TRM states.
 
--- 
-Jarod Wilson
-jarod@wilsonet.com
+2. If I move enabling the interrupts to the timer snippet, I end up breaking multi-key
+detection.
+
+Regards,
+Sundar

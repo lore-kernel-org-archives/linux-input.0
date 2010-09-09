@@ -1,46 +1,36 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH 7/8] IR: extend ir_raw_event and do refactoring
-Date: Wed, 08 Sep 2010 20:49:01 -0300
-Message-ID: <4C8820ED.4070402@infradead.org>
-References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>	 <1283808373-27876-8-git-send-email-maximlevitsky@gmail.com>	 <AANLkTinr6mN=t=vNnR3pSBxXb0ud=Ymrqn_WyDNkUJTz@mail.gmail.com>	 <1283964646.6372.90.camel@morgan.silverblock.net>	 <20100908172708.GH22323@redhat.com> <1283986953.29812.24.camel@morgan.silverblock.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: chris@cnpbagwell.com
+Subject: [PATCH 0/4] input: wacom - And Bamboo Pen Support
+Date: Wed,  8 Sep 2010 23:02:28 -0500
+Message-ID: <1284004952-12701-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([18.85.46.34]:41831 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753140Ab0IHXtG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Sep 2010 19:49:06 -0400
-In-Reply-To: <1283986953.29812.24.camel@morgan.silverblock.net>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:39639 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750856Ab0IIECn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Sep 2010 00:02:43 -0400
+Received: by gyd8 with SMTP id 8so442073gyd.19
+        for <linux-input@vger.kernel.org>; Wed, 08 Sep 2010 21:02:43 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: Jarod Wilson <jarod@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, pingc@wacom.com
+Cc: Chris Bagwell <chris@cnpbagwell.com>
 
-Em 08-09-2010 20:02, Andy Walls escreveu:
-> On Wed, 2010-09-08 at 13:27 -0400, Jarod Wilson wrote:
- 
->>>>  I'd be inclined to
->>>> simply move duty_cycle out of the union and leave just duration and
->>>> carrier in it.
->>>
->>> That's not necessary and it could be confusing depending on where you
->>> put duty_cycle.
->>
->> There's that. But without having code that actually uses duty_cycle in a
->> meaningful way yet, its hard to say for sure. If carrier and duty_cycle
->> were only being sent out in their own events, you might actually want a
->> union of duration, carrier and duty_cycle. Though I suspect we'll probably
->> want to pass along carrier and duty_cycle at the same time.
-> 
-> I suspect you're right on that.  I don't have any experience with
-> hardware that can actually estimate carrier freq or duty cycle.  I
-> suspect they can be measured together using edge detection on both
-> rising and falling edges.
+From: Chris Bagwell <chris@cnpbagwell.com>
 
-As duty cycle is not currently used, the better is to just remove it from
-the struct, adding it on a separate patch, together with a code that will
-need it.
+These patches build upon previous Bamboo Touch patches from Henrik and
+add support for others in family that support Pen&Touch or Pen-only
 
-Cheers,
-Mauro
+These patch set is based on support in linuxwacom Bamboo driver.
+
+Chris Bagwell (4):
+  input: wacom - Request tablet data for Bamboo Pens
+  input: wacom - move Bamboo Touch irq to own function
+  input: wacom - Add support for Bamboo Pen
+  input: wacom - disable Bamboo touchpad when pen is being used.
+
+ drivers/input/tablet/wacom_sys.c |    9 ++--
+ drivers/input/tablet/wacom_wac.c |   95 ++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 95 insertions(+), 9 deletions(-)
+
+-- 
+1.7.2.2
+

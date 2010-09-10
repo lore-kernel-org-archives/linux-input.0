@@ -1,60 +1,52 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: [PATCH 5/8] IR: extend MCE keymap.
-Date: Fri, 10 Sep 2010 11:40:31 +0300
-Message-ID: <1284108031.3498.31.camel@maxim-laptop>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the ENE
+ driver
+Date: Fri, 10 Sep 2010 09:03:52 -0400
+Message-ID: <20100910130352.GB13554@redhat.com>
 References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
-	 <1283808373-27876-6-git-send-email-maximlevitsky@gmail.com>
-	 <AANLkTi=EFZys7NnxixmQL3hqqGfin_VOV7XAWCm0BkwT@mail.gmail.com>
-	 <1284079254.4828.6.camel@maxim-laptop>
-	 <AANLkTik4HAspKxOpH1VcT0+TnGa=H+-M2Wpxg5MefPg1@mail.gmail.com>
+ <4C8805FA.3060102@infradead.org>
+ <20100908224227.GL22323@redhat.com>
+ <AANLkTikBVSYpD_+qomCad-OvXg6CRam4b01wSBV-pNw8@mail.gmail.com>
+ <20100910020129.GA26845@redhat.com>
+ <8a996e53b4af7b2c4702e6a3c8700fd8.squirrel@www.hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <AANLkTik4HAspKxOpH1VcT0+TnGa=H+-M2Wpxg5MefPg1@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: lirc-list@lists.sourceforge.net, David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:21562 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753619Ab0IJNEI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Sep 2010 09:04:08 -0400
+Content-Disposition: inline
+In-Reply-To: <8a996e53b4af7b2c4702e6a3c8700fd8.squirrel@www.hardeman.nu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Cc: Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@infradead.org>, Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Thu, 2010-09-09 at 21:37 -0400, Jarod Wilson wrote: 
-> On Thu, Sep 9, 2010 at 8:40 PM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> > On Wed, 2010-09-08 at 10:47 -0400, Jarod Wilson wrote:
-> >> On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> >> > These keys are found on remote bundled with
-> >> > Toshiba Qosmio F50-10q.
-> >> >
-> >> > Found and tested by, Sami R <maesesami@gmail.com>
-> >> >
-> >> > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> >> > ---
-> >> >  drivers/media/IR/keymaps/rc-rc6-mce.c |    3 +++
-> >> >  1 files changed, 3 insertions(+), 0 deletions(-)
-> >
-> > Tommorow I will resend that patch with even more scancodes.
-> 
-> Saw the discussion on irc. Feel your pain big-time on the X server
-> limitation on keycodes. Its put a big damper on efforts to add native
-> support to mythtv. Peter Hutterer's libXi2 cookbook tutorials talk a
-> good game about how libXi2 supports 32-bit keycodes, but neglects to
-> mention that the X server still gobbles up anything above 248 or 255
-> or whatever it is, and remedying that is no small task. :(
-> 
-> I think for mythtv, we're going to end up having a daemon process with
-> elevated privs that reads directly from input devices to get around
-> this annoyance, until such time as the annoyance is gone.
+On Fri, Sep 10, 2010 at 10:08:24AM +0200, David H=E4rdeman wrote:
+> On Fri, September 10, 2010 04:01, Jarod Wilson wrote:
+> > Wuff. None of the three builds is at all stable on my laptop, but I=
+ can't
+> > actually point the finger at any of the three patchsets, since I'm =
+getting
+> > spontaneous lockups doing nothing at all before even plugging in a
+> > receiver. I did however get occasional periods of a non-panicking (=
+not
+> > starting X seems to help a lot). Initial results:
+>=20
+> If you get lockups without even plugging in a receiver, does that mea=
+n
+> that the rc-core driver hasn't even been loaded at that point?
 
+Correct, no rc-core bits loaded at all at this point.
 
-Btw, indeed Xi2 still doesn't pass > 248 keycodes, just tested that with
--git versions of X stack from about 2 months ago.
-However this can be fixed relatively easily.
-Maybe even I could do that.
+--=20
+Jarod Wilson
+jarod@redhat.com
 
-The big problem is however about ability to map extended keycodes to
-actions, thing that should be provided by XKB2, which we will see
-probably when DNF is released on Phantom console...
-Also this will need lots of changes in toolkits.
-Thats the problem I don't have resources to fix.
-
-Best regards,
-Maxim Levitsky
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

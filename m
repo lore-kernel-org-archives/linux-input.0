@@ -1,73 +1,57 @@
 From: Jarod Wilson <jarod@redhat.com>
 Subject: Re: [PATCH 5/8] IR: extend MCE keymap.
-Date: Fri, 10 Sep 2010 09:11:57 -0400
-Message-ID: <20100910131157.GC13554@redhat.com>
+Date: Fri, 10 Sep 2010 09:18:29 -0400
+Message-ID: <20100910131829.GD13554@redhat.com>
 References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
  <1283808373-27876-6-git-send-email-maximlevitsky@gmail.com>
  <AANLkTi=EFZys7NnxixmQL3hqqGfin_VOV7XAWCm0BkwT@mail.gmail.com>
  <1284079254.4828.6.camel@maxim-laptop>
  <AANLkTik4HAspKxOpH1VcT0+TnGa=H+-M2Wpxg5MefPg1@mail.gmail.com>
- <1284108031.3498.31.camel@maxim-laptop>
+ <b8a480a446ba264233deebe1e514141a.squirrel@www.hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:30353 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:12625 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753458Ab0IJNMM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Sep 2010 09:12:12 -0400
+	id S1753673Ab0IJNSn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Sep 2010 09:18:43 -0400
 Content-Disposition: inline
-In-Reply-To: <1284108031.3498.31.camel@maxim-laptop>
+In-Reply-To: <b8a480a446ba264233deebe1e514141a.squirrel@www.hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, lirc-list@lists.sourceforge.net, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Cc: Jarod Wilson <jarod@wilsonet.com>, Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Fri, Sep 10, 2010 at 11:40:31AM +0300, Maxim Levitsky wrote:
-> On Thu, 2010-09-09 at 21:37 -0400, Jarod Wilson wrote: 
-> > On Thu, Sep 9, 2010 at 8:40 PM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> > > On Wed, 2010-09-08 at 10:47 -0400, Jarod Wilson wrote:
-> > >> On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> > >> > These keys are found on remote bundled with
-> > >> > Toshiba Qosmio F50-10q.
-> > >> >
-> > >> > Found and tested by, Sami R <maesesami@gmail.com>
-> > >> >
-> > >> > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> > >> > ---
-> > >> >  drivers/media/IR/keymaps/rc-rc6-mce.c |    3 +++
-> > >> >  1 files changed, 3 insertions(+), 0 deletions(-)
-> > >
-> > > Tommorow I will resend that patch with even more scancodes.
-> > 
-> > Saw the discussion on irc. Feel your pain big-time on the X server
-> > limitation on keycodes. Its put a big damper on efforts to add native
-> > support to mythtv. Peter Hutterer's libXi2 cookbook tutorials talk a
-> > good game about how libXi2 supports 32-bit keycodes, but neglects to
-> > mention that the X server still gobbles up anything above 248 or 255
-> > or whatever it is, and remedying that is no small task. :(
-> > 
-> > I think for mythtv, we're going to end up having a daemon process with
+On Fri, Sep 10, 2010 at 10:27:02AM +0200, David H=E4rdeman wrote:
+> On Fri, September 10, 2010 03:37, Jarod Wilson wrote:
+> > I think for mythtv, we're going to end up having a daemon process w=
+ith
 > > elevated privs that reads directly from input devices to get around
 > > this annoyance, until such time as the annoyance is gone.
-> 
-> Btw, indeed Xi2 still doesn't pass > 248 keycodes, just tested that with
-> -git versions of X stack from about 2 months ago.
-> However this can be fixed relatively easily.
-> Maybe even I could do that.
-> 
-> The big problem is however about ability to map extended keycodes to
-> actions, thing that should be provided by XKB2, which we will see
-> probably when DNF is released on Phantom console...
-> Also this will need lots of changes in toolkits.
-> Thats the problem I don't have resources to fix.
+>=20
+> A similar approach could work for XBMC since it already has input plu=
+gins
+> (e.g. for using a Nintendo Wii controller, etc).
 
-Yeah, that's exactly what I got from Peter when I was asking him about
-this issue on irc -- X server can be modified fairly easily, but there's
-the arduous and undesirable task of making all the toolkits and whatnot
-behave again, and nobody in their right mind really *wants* to dig into
-xkb. :)
+While attempting to drift off to sleep last night, it occurred to me th=
+at
+lircd already has support for attaching to input devices, so it might b=
+e
+an option to extend lircd and the lirc client library to have a "pass r=
+aw
+keycodes" mode. Both xmbc and mythtv already have options to build in l=
+irc
+client support, so it'd just be minor extension of its use in both case=
+s,
+at least in theory...
 
--- 
+--=20
 Jarod Wilson
 jarod@redhat.com
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,106 +1,528 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 3/4] input: wacom - Add support for Bamboo Pen
-Date: Thu, 9 Sep 2010 22:02:22 -0500
-Message-ID: <AANLkTi=vtaV09riva-5Gb7kDtnsjcc8mRMq88RVFuJZQ@mail.gmail.com>
-References: <1284004952-12701-1-git-send-email-chris@cnpbagwell.com>
-	<1284004952-12701-4-git-send-email-chris@cnpbagwell.com>
-	<20100909041422.GA11747@core.coreip.homeip.net>
-	<AANLkTikSPnNvUehFi4g=WN6QNnJZ2Y0Rz_fdq=jgCxeh@mail.gmail.com>
-	<20100909214630.GA29485@core.coreip.homeip.net>
+From: simon@mungewell.org
+Subject: Help: Writing to USB feature port from within kernel driver
+Date: Fri, 10 Sep 2010 02:47:19 -0400
+Message-ID: <ba7172472e7fa92f305c16ab3456da18.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/mixed;boundary="----=_20100910024719_59672"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:59703 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751483Ab0IJDCY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Sep 2010 23:02:24 -0400
-Received: by ywh1 with SMTP id 1so920948ywh.19
-        for <linux-input@vger.kernel.org>; Thu, 09 Sep 2010 20:02:23 -0700 (PDT)
-In-Reply-To: <20100909214630.GA29485@core.coreip.homeip.net>
+Received: from host171.canaca.com ([67.55.55.225]:54871 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750956Ab0IJGrV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Sep 2010 02:47:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, pingc@wacom.com
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-Ping would you be able to comment on question at end?
+------=_20100910024719_59672
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 9, 2010 at 4:46 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Sep 09, 2010 at 04:34:35PM -0500, Chris Bagwell wrote:
->> On Wed, Sep 8, 2010 at 11:14 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Wed, Sep 08, 2010 at 11:02:31PM -0500, chris@cnpbagwell.com wro=
-te:
->> >> From: Chris Bagwell <chris@cnpbagwell.com>
->> >>
->> >> This adds support for Pen on Bamboo Pen and Bamboo Pen&Touch
->> >> devices. =A0Touchpad is handled by previous Bamboo Touch
->> >> logic.
->> >>
->> >> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
->> >> ---
->> >> =A0drivers/input/tablet/wacom_wac.c | =A0 75 ++++++++++++++++++++=
-++++++++++++++++++
->> >> =A01 files changed, 75 insertions(+), 0 deletions(-)
->> >>
->> >> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tab=
-let/wacom_wac.c
->> >> index 2f7ed9a..9cc0cf0 100644
->> >> --- a/drivers/input/tablet/wacom_wac.c
->> >> +++ b/drivers/input/tablet/wacom_wac.c
->> >> @@ -904,10 +904,71 @@ static int wacom_bpt_touch(struct wacom_wac=
- *wacom)
->> >> =A0 =A0 =A0 return 0;
->> >> =A0}
->> >>
->> >> +static int wacom_bpt_pen(struct wacom_wac *wacom)
->> >> +{
->> >> + =A0 =A0 struct input_dev *input =3D wacom->input;
->> >> + =A0 =A0 unsigned char *data =3D wacom->data;
->> >> + =A0 =A0 int prox =3D 0, x =3D 0, y =3D 0, p =3D 0, d =3D 0, pen=
- =3D 0, btn1 =3D 0, btn2 =3D 0;
->> >> +
->> >> + =A0 =A0 prox =3D (data[1] & 0x10) && (data[1] & 0x20);
->> >
->> > =A0 =A0 =A0 =A0prox =3D (data[1] & 0x30) =3D=3D 0x30;
->> >
->> > ?
->> >
->> > --
->> > Dmitry
->> >
->>
->>
->> Agree thats faster to understand. =A0I'll update patch and resend so=
-on.
->>
->
-> I am just curious - why is it that _both_ bits should be set for the =
-tools
-> to be considered "in proximity"?..
->
+Hi,
+I'm attempting to write to the feature port of a USB HID device during
+config, however this doesn't seem to be functioning the same as the python
+test code I have.
 
-Below is my guess and these values ultimately came from Ping's driver.
-
-The Bamboo Pen protocol seems to be derived from Graphire protocol.
-Based on that, they also use 3 bits from data[1] in this area.  1 bit
-for in-proximity and 2 bits for a tool ID of what's being reported
-(pen vs. eraser vs mouse).
-
-Although these 3 bits order are slightly different between two
-protocols, it looks roughly the same to me.  0x20 for in proximity and
-0x10 for pen ID and 0x11 for eraser ID.
-
-The 0x30 check would boil down to simplest safety check for unknown ID'=
-s.
-
-Ping, if you could confirm this I would be happy to document bit
-meaning in patch update.
-
-Chris
+Code is:
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+        if (quirks & LG_WIIWHEEL) {
+                unsigned char buf[] = { 0xAF,  0x01, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00 };
+                int limit = 3;
+
+                do {
+                        printk("Logitech 0xAF\n");
+                        ret = hdev->hid_output_raw_report(hdev, buf,
+sizeof(buf), HID_FEATURE_REPORT);
+                } while (ret < 0 && limit-- > 0);
+
+                limit = 3;
+                buf[0] = 0xB2;
+
+                /* Select random Address */
+                get_random_bytes(&buf[1], 1);
+                get_random_bytes(&buf[2], 1);
+
+                do {
+                        printk("Logitech 0xB2\n");
+                        ret = hdev->hid_output_raw_report(hdev, buf,
+sizeof(buf), HID_FEATURE_REPORT);
+                } while (ret < 0 && limit-- > 0);
+        }
+--
+
+USBMon shows the difference as follows (python code is polling after write).
+--
+Kernel Driver
+--
+ef172800 122703999 S Ci:5:007:0 s 81 06 2200 0000 0065 101 <
+ef172800 122705940 C Ci:5:007:0 0 101 = 05010904 a101a102 9501750a
+150026ff 03350046 ff030930 81020600 ff950275
+ef172500 122706972 S Ci:5:007:0 s a1 01 0100 0000 0005 8 <
+ef172500 122707938 C Ci:5:007:0 0 5 = 020a00ff ff
+ef172500 122707974 S Ci:5:007:0 s a1 01 0300 0000 0008 8 <
+ef172500 122708939 C Ci:5:007:0 0 8 = 00000000 00000000
+ef190800 122709548 S Io:5:007:2 -115:2 8 = af010000 00000000
+ef190800 122712942 C Io:5:007:2 0:2 8 >
+ef172580 122713035 S Io:5:007:2 -115:2 8 = b2174800 00000000
+ef172580 122716940 C Io:5:007:2 0:2 8 >
+
+Python code
+--
+ef190380 194682511 S Ci:5:007:0 s 81 06 2100 0000 0009 9 <
+ef190380 194684370 C Ci:5:007:0 0 9 = 09211101 00012265 00
+ef190380 194684463 S Ci:5:007:0 s 81 06 2200 0000 0065 101 <
+ef190380 194686367 C Ci:5:007:0 0 101 = 05010904 a101a102 9501750a
+150026ff 03350046 ff030930 81020600 ff950275
+
+ef190380 194686547 S Co:5:007:0 s 21 09 0300 0000 0008 8 = af010000 00000000
+ef190380 194687366 C Co:5:007:0 0 8 >
+ef190380 194687443 S Ci:5:007:0 s a1 01 0300 0000 0008 8 <
+ef190380 194688365 C Ci:5:007:0 0 8 = af010000 00000000
+ef190380 194688481 S Ci:5:007:0 s a1 01 0300 0000 0008 8 <
+ef190380 194689365 C Ci:5:007:0 0 8 = af010000 00000000
+ef190380 194689453 S Ci:5:007:0 s a1 01 0300 0000 0008 8 <
+ef190380 194690365 C Ci:5:007:0 0 8 = 2f010000 00000000
+
+ef190380 194690524 S Co:5:007:0 s 21 09 0300 0000 0008 8 = b2e8ba00 00000000
+ef190380 194691365 C Co:5:007:0 0 8 >
+ef190380 194691437 S Ci:5:007:0 s a1 01 0300 0000 0008 8 <
+ef190380 194693365 C Ci:5:007:0 0 8 = b2e8ba00 00000000
+ef190380 194693482 S Ci:5:007:0 s a1 01 0300 0000 0008 8 <
+ef190380 194701364 C Ci:5:007:0 0 8 = b2e8ba00 00000000
+ef190380 194701472 S Ci:5:007:0 s a1 01 0300 0000 0008 8 <
+ef190380 194725369 C Ci:5:007:0 0 8 = b2e8ba00 00000000
+--
+
+
+What should I be doing differently?
+Simon
+------=_20100910024719_59672
+Content-Type: text/x-csrc; name="hid-lg.c"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="hid-lg.c"
+
+/*
+ *  HID driver for some logitech "special" devices
+ *
+ *  Copyright (c) 1999 Andreas Gal
+ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+ *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+ *  Copyright (c) 2006-2007 Jiri Kosina
+ *  Copyright (c) 2007 Paul Walmsley
+ *  Copyright (c) 2008 Jiri Slaby
+ */
+
+/*
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ */
+
+#include <linux/device.h>
+#include <linux/hid.h>
+#include <linux/module.h>
+#include <linux/random.h>
+
+#include "hid-ids.h"
+#include "hid-lg.h"
+
+#define LG_RDESC		0x001
+#define LG_BAD_RELATIVE_KEYS	0x002
+#define LG_DUPLICATE_USAGES	0x004
+#define LG_EXPANDED_KEYMAP	0x010
+#define LG_IGNORE_DOUBLED_WHEEL	0x020
+#define LG_WIRELESS		0x040
+#define LG_INVERT_HWHEEL	0x080
+#define LG_NOGET		0x100
+#define LG_FF			0x200
+#define LG_FF2			0x400
+#define LG_RDESC_REL_ABS	0x800
+#define LG_FF3			0x1000
+#define LG_WIIWHEEL		0x2000
+
+/*
+ * Certain Logitech keyboards send in report #3 keys which are far
+ * above the logical maximum described in descriptor. This extends
+ * the original value of 0x28c of logical maximum to 0x104d
+ */
+static void lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+		unsigned int rsize)
+{
+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+
+	if ((quirks & LG_RDESC) && rsize >= 90 && rdesc[83] == 0x26 &&
+			rdesc[84] == 0x8c && rdesc[85] == 0x02) {
+		dev_info(&hdev->dev, "fixing up Logitech keyboard report "
+				"descriptor\n");
+		rdesc[84] = rdesc[89] = 0x4d;
+		rdesc[85] = rdesc[90] = 0x10;
+	}
+	if ((quirks & LG_RDESC_REL_ABS) && rsize >= 50 &&
+			rdesc[32] == 0x81 && rdesc[33] == 0x06 &&
+			rdesc[49] == 0x81 && rdesc[50] == 0x06) {
+		dev_info(&hdev->dev, "fixing up rel/abs in Logitech "
+				"report descriptor\n");
+		rdesc[33] = rdesc[50] = 0x02;
+	}
+
+        if ((quirks & LG_WIIWHEEL) && rsize >= 101 && 
+                        rdesc[41] == 0x95 && rdesc[42] == 0x0B &&
+                        rdesc[47] == 0x05 && rdesc[48] == 0x09) {
+                dev_info(&hdev->dev, "fixing up Logitech WiiWheel button "
+                                "descriptor\n");
+                rdesc[41] = 0x05;
+                rdesc[42] = 0x09;
+                rdesc[47] = 0x95;
+                rdesc[48] = 0x0B;
+        }
+
+}
+
+#define lg_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, max, \
+		EV_KEY, (c))
+
+static int lg_ultrax_remote_mapping(struct hid_input *hi,
+		struct hid_usage *usage, unsigned long **bit, int *max)
+{
+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_LOGIVENDOR)
+		return 0;
+
+	set_bit(EV_REP, hi->input->evbit);
+	switch (usage->hid & HID_USAGE) {
+	/* Reported on Logitech Ultra X Media Remote */
+	case 0x004: lg_map_key_clear(KEY_AGAIN);	break;
+	case 0x00d: lg_map_key_clear(KEY_HOME);		break;
+	case 0x024: lg_map_key_clear(KEY_SHUFFLE);	break;
+	case 0x025: lg_map_key_clear(KEY_TV);		break;
+	case 0x026: lg_map_key_clear(KEY_MENU);		break;
+	case 0x031: lg_map_key_clear(KEY_AUDIO);	break;
+	case 0x032: lg_map_key_clear(KEY_TEXT);		break;
+	case 0x033: lg_map_key_clear(KEY_LAST);		break;
+	case 0x047: lg_map_key_clear(KEY_MP3);		break;
+	case 0x048: lg_map_key_clear(KEY_DVD);		break;
+	case 0x049: lg_map_key_clear(KEY_MEDIA);	break;
+	case 0x04a: lg_map_key_clear(KEY_VIDEO);	break;
+	case 0x04b: lg_map_key_clear(KEY_ANGLE);	break;
+	case 0x04c: lg_map_key_clear(KEY_LANGUAGE);	break;
+	case 0x04d: lg_map_key_clear(KEY_SUBTITLE);	break;
+	case 0x051: lg_map_key_clear(KEY_RED);		break;
+	case 0x052: lg_map_key_clear(KEY_CLOSE);	break;
+
+	default:
+		return 0;
+	}
+	return 1;
+}
+
+static int lg_dinovo_mapping(struct hid_input *hi, struct hid_usage *usage,
+		unsigned long **bit, int *max)
+{
+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_LOGIVENDOR)
+		return 0;
+
+	switch (usage->hid & HID_USAGE) {
+
+	case 0x00d: lg_map_key_clear(KEY_MEDIA);	break;
+	default:
+		return 0;
+
+	}
+	return 1;
+}
+
+static int lg_wireless_mapping(struct hid_input *hi, struct hid_usage *usage,
+		unsigned long **bit, int *max)
+{
+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_CONSUMER)
+		return 0;
+
+	switch (usage->hid & HID_USAGE) {
+	case 0x1001: lg_map_key_clear(KEY_MESSENGER);		break;
+	case 0x1003: lg_map_key_clear(KEY_SOUND);		break;
+	case 0x1004: lg_map_key_clear(KEY_VIDEO);		break;
+	case 0x1005: lg_map_key_clear(KEY_AUDIO);		break;
+	case 0x100a: lg_map_key_clear(KEY_DOCUMENTS);		break;
+	/* The following two entries are Playlist 1 and 2 on the MX3200 */
+	case 0x100f: lg_map_key_clear(KEY_FN_1);		break;
+	case 0x1010: lg_map_key_clear(KEY_FN_2);		break;
+	case 0x1011: lg_map_key_clear(KEY_PREVIOUSSONG);	break;
+	case 0x1012: lg_map_key_clear(KEY_NEXTSONG);		break;
+	case 0x1013: lg_map_key_clear(KEY_CAMERA);		break;
+	case 0x1014: lg_map_key_clear(KEY_MESSENGER);		break;
+	case 0x1015: lg_map_key_clear(KEY_RECORD);		break;
+	case 0x1016: lg_map_key_clear(KEY_PLAYER);		break;
+	case 0x1017: lg_map_key_clear(KEY_EJECTCD);		break;
+	case 0x1018: lg_map_key_clear(KEY_MEDIA);		break;
+	case 0x1019: lg_map_key_clear(KEY_PROG1);		break;
+	case 0x101a: lg_map_key_clear(KEY_PROG2);		break;
+	case 0x101b: lg_map_key_clear(KEY_PROG3);		break;
+	case 0x101c: lg_map_key_clear(KEY_CYCLEWINDOWS);	break;
+	case 0x101f: lg_map_key_clear(KEY_ZOOMIN);		break;
+	case 0x1020: lg_map_key_clear(KEY_ZOOMOUT);		break;
+	case 0x1021: lg_map_key_clear(KEY_ZOOMRESET);		break;
+	case 0x1023: lg_map_key_clear(KEY_CLOSE);		break;
+	case 0x1027: lg_map_key_clear(KEY_MENU);		break;
+	/* this one is marked as 'Rotate' */
+	case 0x1028: lg_map_key_clear(KEY_ANGLE);		break;
+	case 0x1029: lg_map_key_clear(KEY_SHUFFLE);		break;
+	case 0x102a: lg_map_key_clear(KEY_BACK);		break;
+	case 0x102b: lg_map_key_clear(KEY_CYCLEWINDOWS);	break;
+	case 0x102d: lg_map_key_clear(KEY_WWW);			break;
+	/* The following two are 'Start/answer call' and 'End/reject call'
+	   on the MX3200 */
+	case 0x1031: lg_map_key_clear(KEY_OK);			break;
+	case 0x1032: lg_map_key_clear(KEY_CANCEL);		break;
+	case 0x1041: lg_map_key_clear(KEY_BATTERY);		break;
+	case 0x1042: lg_map_key_clear(KEY_WORDPROCESSOR);	break;
+	case 0x1043: lg_map_key_clear(KEY_SPREADSHEET);		break;
+	case 0x1044: lg_map_key_clear(KEY_PRESENTATION);	break;
+	case 0x1045: lg_map_key_clear(KEY_UNDO);		break;
+	case 0x1046: lg_map_key_clear(KEY_REDO);		break;
+	case 0x1047: lg_map_key_clear(KEY_PRINT);		break;
+	case 0x1048: lg_map_key_clear(KEY_SAVE);		break;
+	case 0x1049: lg_map_key_clear(KEY_PROG1);		break;
+	case 0x104a: lg_map_key_clear(KEY_PROG2);		break;
+	case 0x104b: lg_map_key_clear(KEY_PROG3);		break;
+	case 0x104c: lg_map_key_clear(KEY_PROG4);		break;
+
+	default:
+		return 0;
+	}
+	return 1;
+}
+
+static int lg_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+		struct hid_field *field, struct hid_usage *usage,
+		unsigned long **bit, int *max)
+{
+	/* extended mapping for certain Logitech hardware (Logitech cordless
+	   desktop LX500) */
+	static const u8 e_keymap[] = {
+		  0,216,  0,213,175,156,  0,  0,  0,  0,
+		144,  0,  0,  0,  0,  0,  0,  0,  0,212,
+		174,167,152,161,112,  0,  0,  0,154,  0,
+		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		  0,  0,  0,  0,  0,183,184,185,186,187,
+		188,189,190,191,192,193,194,  0,  0,  0
+	};
+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+	unsigned int hid = usage->hid;
+
+	if (hdev->product == USB_DEVICE_ID_LOGITECH_RECEIVER &&
+			lg_ultrax_remote_mapping(hi, usage, bit, max))
+		return 1;
+
+	if (hdev->product == USB_DEVICE_ID_DINOVO_MINI &&
+			lg_dinovo_mapping(hi, usage, bit, max))
+		return 1;
+
+	if ((quirks & LG_WIRELESS) && lg_wireless_mapping(hi, usage, bit, max))
+		return 1;
+
+	if ((hid & HID_USAGE_PAGE) != HID_UP_BUTTON)
+		return 0;
+
+	hid &= HID_USAGE;
+
+	/* Special handling for Logitech Cordless Desktop */
+	if (field->application == HID_GD_MOUSE) {
+		if ((quirks & LG_IGNORE_DOUBLED_WHEEL) &&
+				(hid == 7 || hid == 8))
+			return -1;
+	} else {
+		if ((quirks & LG_EXPANDED_KEYMAP) &&
+				hid < ARRAY_SIZE(e_keymap) &&
+				e_keymap[hid] != 0) {
+			hid_map_usage(hi, usage, bit, max, EV_KEY,
+					e_keymap[hid]);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+static int lg_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+		struct hid_field *field, struct hid_usage *usage,
+		unsigned long **bit, int *max)
+{
+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+
+	if ((quirks & LG_BAD_RELATIVE_KEYS) && usage->type == EV_KEY &&
+			(field->flags & HID_MAIN_ITEM_RELATIVE))
+		field->flags &= ~HID_MAIN_ITEM_RELATIVE;
+
+	if ((quirks & LG_DUPLICATE_USAGES) && (usage->type == EV_KEY ||
+			 usage->type == EV_REL || usage->type == EV_ABS))
+		clear_bit(usage->code, *bit);
+
+	return 0;
+}
+
+static int lg_event(struct hid_device *hdev, struct hid_field *field,
+		struct hid_usage *usage, __s32 value)
+{
+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+
+	if ((quirks & LG_INVERT_HWHEEL) && usage->code == REL_HWHEEL) {
+		input_event(field->hidinput->input, usage->type, usage->code,
+				-value);
+		return 1;
+	}
+
+	return 0;
+}
+
+static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
+{
+	unsigned long quirks = id->driver_data;
+	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+	int ret;
+
+	hid_set_drvdata(hdev, (void *)quirks);
+
+	if (quirks & LG_NOGET)
+		hdev->quirks |= HID_QUIRK_NOGET;
+
+	ret = hid_parse(hdev);
+	if (ret) {
+		dev_err(&hdev->dev, "parse failed\n");
+		goto err_free;
+	}
+
+	if (quirks & (LG_FF | LG_FF2 | LG_FF3))
+		connect_mask &= ~HID_CONNECT_FF;
+
+	ret = hid_hw_start(hdev, connect_mask);
+	if (ret) {
+		dev_err(&hdev->dev, "hw start failed\n");
+		goto err_free;
+	}
+
+	if (quirks & LG_WIIWHEEL) {
+		unsigned char buf[] = { 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		int limit = 3;
+
+		do {
+			printk("Logitech 0xAF\n");
+			ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
+		} while (ret < 0 && limit-- > 0);
+
+		limit = 3;
+		buf[0] = 0xB2;
+
+		/* Select random Address */
+		get_random_bytes(&buf[1], 1);
+		get_random_bytes(&buf[2], 1);
+
+		do {
+			printk("Logitech 0xB2\n");
+			ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
+		} while (ret < 0 && limit-- > 0);
+	}
+
+	if (quirks & LG_FF)
+		lgff_init(hdev);
+	if (quirks & LG_FF2)
+		lg2ff_init(hdev);
+	if (quirks & LG_FF3)
+		lg3ff_init(hdev);
+
+	if (quirks & LG_WIIWHEEL) {
+	}
+
+	return 0;
+err_free:
+	return ret;
+}
+
+static const struct hid_device_id lg_devices[] = {
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER),
+		.driver_data = LG_RDESC | LG_WIRELESS },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER),
+		.driver_data = LG_RDESC | LG_WIRELESS },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER_2),
+		.driver_data = LG_RDESC | LG_WIRELESS },
+
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RECEIVER),
+		.driver_data = LG_BAD_RELATIVE_KEYS },
+
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_DINOVO_DESKTOP),
+		.driver_data = LG_DUPLICATE_USAGES },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_DINOVO_EDGE),
+		.driver_data = LG_DUPLICATE_USAGES },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_DINOVO_MINI),
+		.driver_data = LG_DUPLICATE_USAGES },
+
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_ELITE_KBD),
+		.driver_data = LG_IGNORE_DOUBLED_WHEEL | LG_EXPANDED_KEYMAP },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500),
+		.driver_data = LG_IGNORE_DOUBLED_WHEEL | LG_EXPANDED_KEYMAP },
+
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D),
+		.driver_data = LG_NOGET },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL),
+		.driver_data = LG_NOGET | LG_FF },
+
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FORCE3D_PRO),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G25_WHEEL),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_WHEEL),
+		.driver_data = LG_FF | LG_WIIWHEEL },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_FFG ),
+		.driver_data = LG_FF },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2),
+		.driver_data = LG_FF2 },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940),
+		.driver_data = LG_FF3 },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR),
+		.driver_data = LG_RDESC_REL_ABS },
+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER),
+		.driver_data = LG_RDESC_REL_ABS },
+	{ }
+};
+
+MODULE_DEVICE_TABLE(hid, lg_devices);
+
+static struct hid_driver lg_driver = {
+	.name = "logitech",
+	.id_table = lg_devices,
+	.report_fixup = lg_report_fixup,
+	.input_mapping = lg_input_mapping,
+	.input_mapped = lg_input_mapped,
+	.event = lg_event,
+	.probe = lg_probe,
+};
+
+static int __init lg_init(void)
+{
+	return hid_register_driver(&lg_driver);
+}
+
+static void __exit lg_exit(void)
+{
+	hid_unregister_driver(&lg_driver);
+}
+
+module_init(lg_init);
+module_exit(lg_exit);
+MODULE_LICENSE("GPL");
+------=_20100910024719_59672--
+
+

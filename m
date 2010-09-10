@@ -1,58 +1,69 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 5/8] IR: extend MCE keymap.
-Date: Thu, 9 Sep 2010 21:37:43 -0400
-Message-ID: <AANLkTik4HAspKxOpH1VcT0+TnGa=H+-M2Wpxg5MefPg1@mail.gmail.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the ENE
+ driver
+Date: Thu, 9 Sep 2010 22:01:29 -0400
+Message-ID: <20100910020129.GA26845@redhat.com>
 References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
-	<1283808373-27876-6-git-send-email-maximlevitsky@gmail.com>
-	<AANLkTi=EFZys7NnxixmQL3hqqGfin_VOV7XAWCm0BkwT@mail.gmail.com>
-	<1284079254.4828.6.camel@maxim-laptop>
+ <4C8805FA.3060102@infradead.org>
+ <20100908224227.GL22323@redhat.com>
+ <AANLkTikBVSYpD_+qomCad-OvXg6CRam4b01wSBV-pNw8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:61616 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753000Ab0IJBho convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Sep 2010 21:37:44 -0400
-In-Reply-To: <1284079254.4828.6.camel@maxim-laptop>
+Received: from mx1.redhat.com ([209.132.183.28]:7369 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754712Ab0IJCBv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Sep 2010 22:01:51 -0400
+Content-Disposition: inline
+In-Reply-To: <AANLkTikBVSYpD_+qomCad-OvXg6CRam4b01wSBV-pNw8@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Thu, Sep 9, 2010 at 8:40 PM, Maxim Levitsky <maximlevitsky@gmail.com=
-> wrote:
-> On Wed, 2010-09-08 at 10:47 -0400, Jarod Wilson wrote:
->> On Mon, Sep 6, 2010 at 5:26 PM, Maxim Levitsky <maximlevitsky@gmail.=
-com> wrote:
->> > These keys are found on remote bundled with
->> > Toshiba Qosmio F50-10q.
->> >
->> > Found and tested by, Sami R <maesesami@gmail.com>
->> >
->> > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
->> > ---
->> > =A0drivers/media/IR/keymaps/rc-rc6-mce.c | =A0 =A03 +++
->> > =A01 files changed, 3 insertions(+), 0 deletions(-)
->
-> Tommorow I will resend that patch with even more scancodes.
+On Thu, Sep 09, 2010 at 12:34:27AM -0400, Jarod Wilson wrote:
+...
+> >> For now, I've applied patches 3, 4 and 5, as it is nice to have Jarod's review also.
+> >
+> > I've finally got them all applied atop current media_tree staging/v2.6.37,
+> > though none of the streamzap bits in patch 7 are applicable any longer.
+> > Will try to get through looking and commenting (and testing) of the rest
+> > of them tonight.
+> 
+> Also had to make a minor addition to the rc5-sz decoder (same change
+> as in the other decoders). Almost have all the requisite test kernels
+> for David's, Maxim's and Dmitry's patchsets built and installed, wish
+> my laptop was faster... Probably would have been faster to use a lab
+> box and copy data over. Oh well. So functional testing to hopefully
+> commence tomorrow morning.
 
-Saw the discussion on irc. Feel your pain big-time on the X server
-limitation on keycodes. Its put a big damper on efforts to add native
-support to mythtv. Peter Hutterer's libXi2 cookbook tutorials talk a
-good game about how libXi2 supports 32-bit keycodes, but neglects to
-mention that the X server still gobbles up anything above 248 or 255
-or whatever it is, and remedying that is no small task. :(
+Wuff. None of the three builds is at all stable on my laptop, but I can't
+actually point the finger at any of the three patchsets, since I'm getting
+spontaneous lockups doing nothing at all before even plugging in a
+receiver. I did however get occasional periods of a non-panicking (not
+starting X seems to help a lot). Initial results:
 
-I think for mythtv, we're going to end up having a daemon process with
-elevated privs that reads directly from input devices to get around
-this annoyance, until such time as the annoyance is gone.
+Dmitry's patchset:
+- all good for imon, streamzap and mceusb
 
---=20
+David's patchset:
+- all good for mceusb, as expected, since David has mce hardware himself,
+  did not try the others yet
+
+Maxim's patchset:
+- all good for mceusb and imon
+- streamzap decoding fails miserably. I have an inkling why, but will need
+  to get a stable testing platform before I can really properly dig into
+  it.
+
+Still working on that stable testing platform, which is "backport current
+ir-core to the latest Fedora 14 kernel", which is 2.6.35.4-based and
+rock-solid on this machine. After that, will start applying patchsets.
+
+(I have yet to really look at the lockups, they look like random memory
+corruption though).
+
+-- 
 Jarod Wilson
-jarod@wilsonet.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+jarod@redhat.com
+

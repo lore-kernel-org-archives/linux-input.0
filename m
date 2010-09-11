@@ -1,16 +1,16 @@
 From: chris@cnpbagwell.com
-Subject: [PATCH v2 2/4] input: wacom - move Bamboo Touch irq to own function
-Date: Sat, 11 Sep 2010 13:30:36 -0500
-Message-ID: <1284229838-2852-3-git-send-email-chris@cnpbagwell.com>
+Subject: [PATCH v2 1/4] input: wacom - Request tablet data for Bamboo Pens
+Date: Sat, 11 Sep 2010 13:30:35 -0500
+Message-ID: <1284229838-2852-2-git-send-email-chris@cnpbagwell.com>
 References: <1284229838-2852-1-git-send-email-chris@cnpbagwell.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:58566 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751627Ab0IKSaz (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:59895 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751567Ab0IKSay (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Sep 2010 14:30:55 -0400
-Received: by gyd8 with SMTP id 8so1649354gyd.19
-        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2010 11:30:55 -0700 (PDT)
+	Sat, 11 Sep 2010 14:30:54 -0400
+Received: by gxk23 with SMTP id 23so1588791gxk.19
+        for <linux-input@vger.kernel.org>; Sat, 11 Sep 2010 11:30:53 -0700 (PDT)
 In-Reply-To: <1284229838-2852-1-git-send-email-chris@cnpbagwell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,53 +19,54 @@ Cc: Chris Bagwell <chris@cnpbagwell.com>
 
 From: Chris Bagwell <chris@cnpbagwell.com>
 
-This is in preparation of pen support in same irq handler.
+Bamboo P&T need to use second form of usb_set_report() to
+ask to report tablet data.
 
-Chris
+With previous addition of Bamboo Touch, BTN_TOOL_TRIPLETAP is now used
+for both TABLETPC2FG and BAMBOO_PT types.  So reduced check to
+match type=TABLETPC2FG.
+
+This change shows redundant check for !TABLETPC2FG in else statement.
 
 Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
 ---
- drivers/input/tablet/wacom_wac.c |   13 +++++++++----
- 1 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/input/tablet/wacom_sys.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 2f4411a..2f7ed9a 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -855,7 +855,7 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
- 	return retval;
- }
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index fc6fd53..1e3af29 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -319,8 +319,9 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
+ 	if (!rep_data)
+ 		return error;
  
--static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
-+static int wacom_bpt_touch(struct wacom_wac *wacom)
- {
- 	struct wacom_features *features = &wacom->features;
- 	struct input_dev *input = wacom->input;
-@@ -863,9 +863,6 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
- 	int sp = 0, sx = 0, sy = 0, count = 0;
- 	int i;
+-	/* ask to report tablet data if it is 2FGT or not a Tablet PC */
+-	if (features->device_type == BTN_TOOL_TRIPLETAP) {
++	/* ask to report tablet data if it is 2FGT Tablet PC or
++	 * not a Tablet PC */
++	if (features->type == TABLETPC2FG) {
+ 		do {
+ 			rep_data[0] = 3;
+ 			rep_data[1] = 4;
+@@ -332,7 +333,7 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
+ 					WAC_HID_FEATURE_REPORT, report_id,
+ 					rep_data, 3);
+ 		} while ((error < 0 || rep_data[1] != 4) && limit++ < 5);
+-	} else if (features->type != TABLETPC && features->type != TABLETPC2FG) {
++	} else if (features->type != TABLETPC) {
+ 		do {
+ 			rep_data[0] = 2;
+ 			rep_data[1] = 2;
+@@ -364,7 +365,7 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	features->pressure_fuzz = 0;
+ 	features->distance_fuzz = 0;
  
--	if (len != WACOM_PKGLEN_BBTOUCH)
--		return 0;
--
- 	for (i = 0; i < 2; i++) {
- 		int p = data[9 * i + 2];
- 		input_mt_slot(input, i);
-@@ -907,6 +904,14 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
- 	return 0;
- }
- 
-+static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
-+{
-+	if (len == WACOM_PKGLEN_BBTOUCH)
-+		return wacom_bpt_touch(wacom);
-+
-+	return 0;
-+}
-+
- void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- {
- 	bool sync;
+-	/* only Tablet PCs need to retrieve the info */
++	/* only Tablet PCs and Bamboo P&T need to retrieve the info */
+ 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG) &&
+ 	    (features->type != BAMBOO_PT))
+ 		goto out;
 -- 
 1.7.2.2
 

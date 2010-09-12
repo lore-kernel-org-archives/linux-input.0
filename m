@@ -1,32 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1] input: Hanwang tablet using xf86-input-wacom driver
-Date: Sun, 12 Sep 2010 00:26:20 -0700
-Message-ID: <20100912072619.GB11122@core.coreip.homeip.net>
-References: <201009092135586874801@hanwang.com.cn>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: Synaptics i2c touchscreen driver
+Date: Sun, 12 Sep 2010 16:45:23 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A530450B6371B@dlee03.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:65182 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751754Ab0ILH0Z (ORCPT
+Received: from bear.ext.ti.com ([192.94.94.41]:40907 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753782Ab0ILVp3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Sep 2010 03:26:25 -0400
-Received: by pxi10 with SMTP id 10so1674368pxi.19
-        for <linux-input@vger.kernel.org>; Sun, 12 Sep 2010 00:26:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201009092135586874801@hanwang.com.cn>
+	Sun, 12 Sep 2010 17:45:29 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Xing Wei <weixing@hanwang.com.cn>
-Cc: "peter.hutterer" <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, houyun <houyun@hanwang.com.cn>
+To: "gregkh@suse.de" <gregkh@suse.de>
+Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Sep 09, 2010 at 09:35:58PM +0800, Xing Wei wrote:
-> From: Xing Wei  <weixing@hanwang.com.cn>
-> 
-> This patch make Hanwang Art Master III tablet handled by xf86-input-wacom driver in the X system.
-> 
+Hi Greg,
 
-Applied, thank you Xing.
+I was watching your Android presentation gave at ELC 2010, in that, you have mention Synaptics i2c touchscreen driver. I've been trying to identify if Synaptics team has an upstreaming plan but still no clear information on this.
 
--- 
-Dmitry
+I have already requested this info but things are extremely quiet.
+
+http://www.spinics.net/lists/linux-input/msg11006.html
+
+Any information will be highly appreciated...
+
+Best Regards
+Abraham
+

@@ -1,55 +1,32 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 0/4] input: wacom - Add Bamboo Pen Support
-Date: Sun, 12 Sep 2010 00:14:47 -0700
-Message-ID: <20100912071447.GA11122@core.coreip.homeip.net>
-References: <1284229838-2852-1-git-send-email-chris@cnpbagwell.com>
- <AANLkTinCoY=7sm4VjRk=bmO1cvEcwWqgVGKG4pCaFfJm@mail.gmail.com>
+Subject: Re: [PATCH v1] input: Hanwang tablet using xf86-input-wacom driver
+Date: Sun, 12 Sep 2010 00:26:20 -0700
+Message-ID: <20100912072619.GB11122@core.coreip.homeip.net>
+References: <201009092135586874801@hanwang.com.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:53104 "EHLO
+Received: from mail-px0-f174.google.com ([209.85.212.174]:65182 "EHLO
 	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751598Ab0ILHOx (ORCPT
+	with ESMTP id S1751754Ab0ILH0Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Sep 2010 03:14:53 -0400
-Received: by pxi10 with SMTP id 10so1671807pxi.19
-        for <linux-input@vger.kernel.org>; Sun, 12 Sep 2010 00:14:53 -0700 (PDT)
+	Sun, 12 Sep 2010 03:26:25 -0400
+Received: by pxi10 with SMTP id 10so1674368pxi.19
+        for <linux-input@vger.kernel.org>; Sun, 12 Sep 2010 00:26:25 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <AANLkTinCoY=7sm4VjRk=bmO1cvEcwWqgVGKG4pCaFfJm@mail.gmail.com>
+In-Reply-To: <201009092135586874801@hanwang.com.cn>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: "chris@cnpbagwell.com" <chris@cnpbagwell.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "pingc@wacom.com" <pingc@wacom.com>
+To: Xing Wei <weixing@hanwang.com.cn>
+Cc: "peter.hutterer" <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, houyun <houyun@hanwang.com.cn>
 
-On Sun, Sep 12, 2010 at 04:13:27AM +0200, Ping Cheng wrote:
-> On Saturday, September 11, 2010, =A0<chris@cnpbagwell.com> wrote:
-> > From: Chris Bagwell <chris@cnpbagwell.com>
-> >
-> > Addes Bamboo Pen and Pen&Touch support. =A0Builds on previous
-> > commited support for Bamboo Touch.
-> >
-> > Only difference in this patch set is patch #3. =A0It makes suggeste=
-d
-> > change to logic for checking pen in-proximity and adds comment
-> > to clarify why 2-bits are checked.
-> >
-> > Chris Bagwell (4):
-> > =A0=A0input: wacom - Request tablet data for Bamboo Pens
-> > =A0=A0input: wacom - move Bamboo Touch irq to own function
-> > =A0=A0input: wacom - Add support for Bamboo Pen
-> > =A0=A0input: wacom - disable Bamboo touchpad when pen is being used=
-=2E
->=20
-> Acked-by: Ping Cheng <pingc@wacom.com> for the whole series.
->=20
+On Thu, Sep 09, 2010 at 09:35:58PM +0800, Xing Wei wrote:
+> From: Xing Wei  <weixing@hanwang.com.cn>
+> 
+> This patch make Hanwang Art Master III tablet handled by xf86-input-wacom driver in the X system.
+> 
 
-Applied all 4 to 'next', thanks Chris.
+Applied, thank you Xing.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

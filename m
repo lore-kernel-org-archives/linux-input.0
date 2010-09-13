@@ -1,52 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [linux-pm] wacom + runtime PM = AA deadlock
-Date: Mon, 13 Sep 2010 13:28:31 -0700
-Message-ID: <201009131328.33600.dmitry.torokhov@gmail.com>
-References: <Pine.LNX.4.44L0.1009131600230.1315-100000@iolanthe.rowland.org>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: Synaptics i2c touchscreen driver
+Date: Mon, 13 Sep 2010 16:25:34 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A530450B63EDD@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A530450B6371B@dlee03.ent.ti.com>
+ <20100913152757.GA24329@suse.de>
+ <20100913163641.GB14598@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:65501 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751794Ab0IMU2q (ORCPT
+Received: from arroyo.ext.ti.com ([192.94.94.40]:47667 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752198Ab0IMVZm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 16:28:46 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1009131600230.1315-100000@iolanthe.rowland.org>
+	Mon, 13 Sep 2010 17:25:42 -0400
+In-Reply-To: <20100913163641.GB14598@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, Jiri Slaby <jslaby@suse.cz>, pingc@wacom.com, linux-pm <linux-pm@lists.linux-foundation.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <gregkh@suse.de>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>
+Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Monday, September 13, 2010 01:02:16 pm Alan Stern wrote:
-> On Mon, 13 Sep 2010, Oliver Neukum wrote:
-> > Am Montag, 13. September 2010, 17:17:54 schrieb Alan Stern:
-> > > On Mon, 13 Sep 2010, Oliver Neukum wrote:
-> > > > PM in this driver looks broken. Please try this.
-> > > > 
-> > > > In short you want to drop the PM reference and depend on remote
-> > > > wakeup and busy marking for this driver. Currently it gets a
-> > > > reference on every open() but never drops it.
-> > > > 
-> > > > For locking you depend on the PM core's internal lock. You simply
-> > > > make sure you have a PM reference during open() and close()
-> > > 
-> > > Is there any point in resuming the device during close() just in order
-> > > to kill the interrupt URB?  It seems counterproductive -- if the device
-> > > had been suspended then there wouldn't be any interrupt URB to kill in
-> > > the first place.
-> > 
-> > Suppose the device does not support remote wakeup. It would never
-> > be autosuspended while it is open, but simply resetting the flag
-> > would never reach the PM layer.
+Hi,
+
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> > On Mon, Sep 13, 2010 at 08:27:57AM -0700, Greg KH wrote:
+> > > On Sun, Sep 12, 2010 at 04:45:23PM -0500, Arce, Abraham wrote:
+> > >
+> > > I was watching your Android presentation gave at ELC 2010, in that,
+> > > you have mention Synaptics i2c touchscreen driver. I've been trying to
+> > > identify if Synaptics team has an upstreaming plan but still no clear
+> > > information on this.
+> > >
+> > > I have already requested this info but things are extremely quiet.
+> > >
+> > > http://www.spinics.net/lists/linux-input/msg11006.html
+> > >
+> > > Any information will be highly appreciated...
+> >
+> > Sorry, I don't have any information or know anything about this at all.
+> >
 > 
-> Whoops, that's right.  I didn't see the assignment to
-> needs_remote_wakeup.
-> 
-> How come wacom_open doesn't check to see if wacom->open is already set?
+> As far as I know [current] versions of Android use RMI3 touchscreens
+> which are older technology. Synaptics is trying to get their newer RMI4
+> driver merged and probably not that interested in RMI3 anymore.
 
-No need - input core will not call dev->open() twice.
+Thanks Greg and Dmitry for all the info... it helped!
 
--- 
-Dmitry
+Christopher, Allie, William,
+
+First, I am looking for more information on TM-01217 controller, I remember looking at some document saying that that this particular controller supports RMI4, is this correct?
+
+Another question, it is about the final patch for touchscreens based on RMI4 protocol:
+
+http://www.spinics.net/lists/linux-input/msg10042.html
+
+When are you planning to release the final patch for upstreaming? Any help that you may need from the community?
+
+Best Regards
+Abraham
+

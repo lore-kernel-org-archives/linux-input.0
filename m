@@ -1,101 +1,53 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: wacom + runtime PM = AA deadlock
-Date: Mon, 13 Sep 2010 16:56:17 +0200
-Message-ID: <201009131656.18199.oneukum@suse.de>
-References: <4C8E180D.4020309@suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/6] Large scancode handling
+Date: Mon, 13 Sep 2010 17:00:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009131700120.26813@pobox.suse.cz>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv> <alpine.LNX.2.00.1009081147540.26813@pobox.suse.cz> <20100908142418.GC22323@redhat.com> <4C87A87A.4060102@redhat.com> <20100908152234.GE22323@redhat.com> <alpine.LNX.2.00.1009081723400.26813@pobox.suse.cz>
+ <20100908160908.GF22323@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4C8E180D.4020309@suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: pingc@wacom.com, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-pm <linux-pm@lists.linux-foundation.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:45706 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751836Ab0IMPAt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Sep 2010 11:00:49 -0400
+In-Reply-To: <20100908160908.GF22323@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Ville Syrjala <syrjala@sci.fi>
 
-Am Montag, 13. September 2010, 14:24:45 schrieb Jiri Slaby:
-> Hi,
+On Wed, 8 Sep 2010, Jarod Wilson wrote:
+
+> > > > > It'll conflict a little bith with the tivo slide patch I posted yesterday,
+> > > > > but mostly just minor context changes. I can redo that patch on top of
+> > > > > these changes if that's preferred.
+> > > > 
+> > > > I can handle those context changes when merging the patches at linux-next and
+> > > > when merging upstream. We just need to sync in a way that Dmitry send his patch
+> > > > series before mine when sending them to Linus, and I'll take care of fixing the
+> > > > merge conflicts.
+> > > 
+> > > Ah, the specific conflicts I was referring here are confined to
+> > > drivers/hid/hid-input.c, and I sent the patch thinking it would go in via
+> > > the hid tree. It *is* for a remote, but its a pure HID device in this
+> > > case.
+> > 
+> > Umm, what patch are you talking about please? I don't seem to have 
+> > anything from you in my queue.
 > 
-> by mistake when runtime PM is enabled by default for input devices, X
-> hangs on wacom open:
-> [<ffffffff814a00ea>] mutex_lock+0x1a/0x40
-> [<ffffffffa02bc94b>] wacom_resume+0x3b/0x90 [wacom]
-> [<ffffffff81327a32>] usb_resume_interface+0xd2/0x190
-> [<ffffffff81327b5d>] usb_resume_both+0x6d/0x110
-> [<ffffffff81327c24>] usb_runtime_resume+0x24/0x40
-> [<ffffffff8130a2cf>] __pm_runtime_resume+0x26f/0x450
-> [<ffffffff8130a23a>] __pm_runtime_resume+0x1da/0x450
-> [<ffffffff8130a53a>] pm_runtime_resume+0x2a/0x50
-> [<ffffffff81328176>] usb_autopm_get_interface+0x26/0x60
-> [<ffffffffa02bc626>] wacom_open+0x36/0x90 [wacom]
+> Gah. I suck. Forgot to cc you on it.
 > 
-> wacom_open took wacom->lock and calls usb_autopm_get_interface which in
-> turn calls wacom_resume which tries to aquire the lock again.
+> http://www.spinics.net/lists/linux-input/msg11007.html
 > 
-> More details (dmesg including) at:
-> https://bugzilla.novell.com/show_bug.cgi?id=638506
-> 
-> Any ideas how to fix that properly?
+> Can resend and/or bounce you a copy if need be.
 
-PM in this driver looks broken. Please try this.
+No need to resend, I'll dig it out from linux-input@ archives where I have 
+overlooked it and will start a discussion in that thread if needed, so 
+that we don't pollute this one.
 
-In short you want to drop the PM reference and depend on remote
-wakeup and busy marking for this driver. Currently it gets a reference
-on every open() but never drops it.
+Thanks,
 
-For locking you depend on the PM core's internal lock. You simply
-make sure you have a PM reference during open() and close()
-
-	Regards
-		Oliver
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 42ba369..e399a8a 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -121,6 +121,7 @@ static int wacom_open(struct input_dev *dev)
- 
- 	wacom->open = true;
- 	wacom->intf->needs_remote_wakeup = 1;
-+	usb_autopm_put_interface(wacom->intf);
- 
- 	mutex_unlock(&wacom->lock);
- 	return 0;
-@@ -129,11 +130,15 @@ static int wacom_open(struct input_dev *dev)
- static void wacom_close(struct input_dev *dev)
- {
- 	struct wacom *wacom = input_get_drvdata(dev);
-+	int r;
- 
- 	mutex_lock(&wacom->lock);
--	usb_kill_urb(wacom->irq);
-+	r = usb_autopm_get_interface(wacom->intf);
- 	wacom->open = false;
- 	wacom->intf->needs_remote_wakeup = 0;
-+	usb_kill_urb(wacom->irq);
-+	if (!r)
-+		usb_autopm_put_interface(wacom->intf);
- 	mutex_unlock(&wacom->lock);
- }
- 
-@@ -573,7 +578,10 @@ static int wacom_resume(struct usb_interface *intf)
- 	struct wacom_features *features = &wacom->wacom_wac.features;
- 	int rv;
- 
--	mutex_lock(&wacom->lock);
-+	/*
-+	 * no locking against open needed
-+	 * as open holds a power reference
-+	 */
- 
- 	/* switch to wacom mode first */
- 	wacom_query_tablet_data(intf, features);
-@@ -583,8 +591,6 @@ static int wacom_resume(struct usb_interface *intf)
- 	else
- 		rv = 0;
- 
--	mutex_unlock(&wacom->lock);
--
- 	return rv;
- }
- 
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

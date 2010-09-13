@@ -1,74 +1,37 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HIDDEV: potential NULL dereference
-Date: Mon, 13 Sep 2010 17:02:32 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009131701590.26813@pobox.suse.cz>
-References: <4C82419C.3050903@suse.cz> <AANLkTikyW6q3tufYwwX4QEAkV0JGCWcvGr4EJyNGJOpk@mail.gmail.com> <AANLkTik0hZzwKU6QokgA5B7GzWtTDQWxhfog902ZS9XZ@mail.gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] wacom + runtime PM = AA deadlock
+Date: Mon, 13 Sep 2010 11:17:54 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1009131114050.1315-100000@iolanthe.rowland.org>
+References: <201009131656.18199.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52090 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751836Ab0IMPCd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 11:02:33 -0400
-In-Reply-To: <AANLkTik0hZzwKU6QokgA5B7GzWtTDQWxhfog902ZS9XZ@mail.gmail.com>
+Received: from iolanthe.rowland.org ([192.131.102.54]:56640 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752046Ab0IMPR4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Sep 2010 11:17:56 -0400
+In-Reply-To: <201009131656.18199.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: anil joshi <anilsjoshi123@gmail.com>
-Cc: Jiri Slaby <jslaby@suse.cz>, arnd@arndb.de, =?ISO-8859-15?Q?Peter_J=FAno=A8?= <petoju@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, markus@trippelsdorf.de
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Jiri Slaby <jslaby@suse.cz>, Dmitry Torokhov <dtor@mail.ru>, pingc@wacom.com, linux-pm <linux-pm@lists.linux-foundation.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, 9 Sep 2010, anil joshi wrote:
+On Mon, 13 Sep 2010, Oliver Neukum wrote:
 
->=20
->=20
-> On Thu, Sep 9, 2010 at 7:59 PM, anil joshi <anilsjoshi123@gmail.com> =
-wrote:
->       =A0hid->dev.parent is "usb_interfae" =A0pointer is kfree =A0in =
-=A0usb_release_interfece=A0
-> hid_to_usb_dev(dev) accessing=A0hid->dev.parent=A0
->=20
-> I have tested this,while=A0removing=A0 hid device =A0
->=20
-> usb_release_interfece is belonging to=A0khubd =A0process=A0
->=20
-> I get many use full information =A0from =A0Jiri Kosina,=A0Markus Trip=
-pelsdorf,=A0regarding this issue
-> from=A0http://kerneltrap.org/mailarchive/linux-kernel/2010/8/12/46061=
-55/thread#mid-4606155
->=20
-> To=A0avoid=A0=A0NULL deference problem=A0
->=20
-> hiddev->exist is zero before usb_deregister_dev =A0call in =A0hiddev_=
-disconnected =A0function there fore
-> we could use
-> static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigne=
-d long arg)
-> {
->=20
->=20
-> =A0=A0 =A0 if (hiddev->exist) {
-> =A0=A0 =A0 =A0 =A0=A0hid_to_usb_dev(dev);
-> =A0=A0 =A0 =A0 } else {
-> =A0=A0 =A0 =A0 =A0 =A0 =A0return -EIO
-> =A0=A0 }
->=20
->=20
-> Thanks to=A0Markus Trippelsdorf=A0, Jiri Kosina=A0
+> PM in this driver looks broken. Please try this.
+> 
+> In short you want to drop the PM reference and depend on remote
+> wakeup and busy marking for this driver. Currently it gets a reference
+> on every open() but never drops it.
+> 
+> For locking you depend on the PM core's internal lock. You simply
+> make sure you have a PM reference during open() and close()
 
-Hi Anil,
+Is there any point in resuming the device during close() just in order
+to kill the interrupt URB?  It seems counterproductive -- if the device 
+had been suspended then there wouldn't be any interrupt URB to kill in 
+the first place.
 
-could you please send a proper patch (diff against current kernel) and =
-a=20
-short changelog entry with the explanation, so that I could easily=20
-understand what you are proposing?
+Alan Stern
 
-Thanks!
-
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

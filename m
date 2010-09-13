@@ -1,54 +1,58 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-pm] wacom + runtime PM = AA deadlock
-Date: Mon, 13 Sep 2010 10:25:38 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1009131019370.1584-100000@iolanthe.rowland.org>
-References: <4C8E180D.4020309@suse.cz>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [Patch v2] input:rohm based bu21013 touch panel controller driver
+ support
+Date: Mon, 13 Sep 2010 16:36:51 +0200
+Message-ID: <4C8E3703.50303@euromail.se>
+References: <81C3A93C17462B4BBD7E272753C1057916DE831AF4@EXDCVYMBSTM005.EQ1STM.local> <20100909155918.GB19937@core.coreip.homeip.net> <20100909160140.GC19937@core.coreip.homeip.net> <4C8926E0.3040400@euromail.se> <81C3A93C17462B4BBD7E272753C1057918FC1CDAA7@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:46594 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751460Ab0IMOZj (ORCPT
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:34865 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752107Ab0IMOhd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 10:25:39 -0400
-In-Reply-To: <4C8E180D.4020309@suse.cz>
+	Mon, 13 Sep 2010 10:37:33 -0400
+In-Reply-To: <81C3A93C17462B4BBD7E272753C1057918FC1CDAA7@EXDCVYMBSTM005.EQ1STM.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: Oliver Neukum <oliver@neukum.org>, pingc@wacom.com, Dmitry Torokhov <dtor@mail.ru>, linux-pm <linux-pm@lists.linux-foundation.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <tsoni@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On Mon, 13 Sep 2010, Jiri Slaby wrote:
+On 09/13/2010 12:12 PM, Naveen Kumar GADDIPATI wrote:
+[...]
+>>>>> +static bool bu21013_verify_delta(int x1, int y1, int x2, int y2)
 
-> Hi,
+>>>>> +{
+>>>>> +       int delta_x, delta_y;
+>>>>> +
+>>>>> +       if ((x1 != 0) && (y1 != 0)) {
+>>>>> +               delta_x = x2 - x1;
+>>>>> +               if (x1 > x2)
+>>>>> +                       delta_x = x1 - x2;
+>>>>> +               delta_y = y2 - y1;
+>>>>> +               if (y1 > y2)
+>>>>> +                       delta_y = y1 - y2;
+>>>>> +               if ((delta_x < DELTA_MIN) || (delta_y < DELTA_MIN))
+>>>>> +                       return false;
+>>>>> +       }
+>>>>> +       return true;
+[...]
+
+>> I do not understand why deltas are verified in the first place.
+>> Either one can rely on the identity of the fingers, in which
+>> case MT slots is simpler to handle, or one cannot rely on it,
+>> in which case the above code is wrong, since it assumes the
+>> values compared have the same identity.
+
 > 
-> by mistake when runtime PM is enabled by default for input devices, X
-> hangs on wacom open:
-> [<ffffffff814a00ea>] mutex_lock+0x1a/0x40
-> [<ffffffffa02bc94b>] wacom_resume+0x3b/0x90 [wacom]
-> [<ffffffff81327a32>] usb_resume_interface+0xd2/0x190
-> [<ffffffff81327b5d>] usb_resume_both+0x6d/0x110
-> [<ffffffff81327c24>] usb_runtime_resume+0x24/0x40
-> [<ffffffff8130a2cf>] __pm_runtime_resume+0x26f/0x450
-> [<ffffffff8130a23a>] __pm_runtime_resume+0x1da/0x450
-> [<ffffffff8130a53a>] pm_runtime_resume+0x2a/0x50
-> [<ffffffff81328176>] usb_autopm_get_interface+0x26/0x60
-> [<ffffffffa02bc626>] wacom_open+0x36/0x90 [wacom]
-> 
-> wacom_open took wacom->lock and calls usb_autopm_get_interface which in
-> turn calls wacom_resume which tries to aquire the lock again.
-> 
-> More details (dmesg including) at:
-> https://bugzilla.novell.com/show_bug.cgi?id=638506
-> 
-> Any ideas how to fix that properly?
+> 	This case according to controller specification, when the two fingers delta is of
+> 	16 either in x or y, we should ignore those co-ordinates and report as pen-up.
 
-One possibility is for wacom_open simply not to acquire the lock until
-after the usb_autopm_get_interface call returns.  And why does
-wacom_open have that assignment to wacom->irq->dev?  The value was
-already set in wacom_probe.
 
-BTW, does anybody know why wacom_open calls usb_autopm_get_interface 
-but wacom_close doesn't call usb_autopm_put_interface?
+And not as a single finger with larger perimeter? It would be interesting to
+know how this driver has been tested. There are some applications that can help
+examining the quality of MT output, one of them can be found at
+http://bitmath.org/code/mtview/.
 
-Alan Stern
-
+Henrik

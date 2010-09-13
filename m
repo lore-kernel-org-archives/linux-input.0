@@ -1,56 +1,49 @@
-From: Cyril Chemparathy <cyril@ti.com>
-Subject: [PATCH 7/7] davinci: add touchscreen config for tnetv107x evm board
-Date: Mon, 13 Sep 2010 12:29:48 -0400
-Message-ID: <1284395388-32687-8-git-send-email-cyril@ti.com>
-References: <1284395388-32687-1-git-send-email-cyril@ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Synaptics i2c touchscreen driver
+Date: Mon, 13 Sep 2010 09:36:42 -0700
+Message-ID: <20100913163641.GB14598@core.coreip.homeip.net>
+References: <27F9C60D11D683428E133F85D2BB4A530450B6371B@dlee03.ent.ti.com>
+ <20100913152757.GA24329@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:42559 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753671Ab0IMQ3y (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 12:29:54 -0400
-Received: from dlep34.itg.ti.com ([157.170.170.115])
-	by bear.ext.ti.com (8.13.7/8.13.7) with ESMTP id o8DGTrf9001294
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <linux-input@vger.kernel.org>; Mon, 13 Sep 2010 11:29:53 -0500
-In-Reply-To: <1284395388-32687-1-git-send-email-cyril@ti.com>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:63799 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754031Ab0IMQgs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Sep 2010 12:36:48 -0400
+Received: by pwi3 with SMTP id 3so2224475pwi.19
+        for <linux-input@vger.kernel.org>; Mon, 13 Sep 2010 09:36:48 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20100913152757.GA24329@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com
-Cc: Cyril Chemparathy <cyril@ti.com>
+To: Greg KH <gregkh@suse.de>
+Cc: "Arce, Abraham" <x0066660@ti.com>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-This patch adds evm board specific definitions (dimensions, default
-calibration, etc.) for the on-chip keypad controller on tnetv107x silicon.
+On Mon, Sep 13, 2010 at 08:27:57AM -0700, Greg KH wrote:
+> On Sun, Sep 12, 2010 at 04:45:23PM -0500, Arce, Abraham wrote:
+> > Hi Greg,
+> > 
+> > I was watching your Android presentation gave at ELC 2010, in that,
+> > you have mention Synaptics i2c touchscreen driver. I've been trying to
+> > identify if Synaptics team has an upstreaming plan but still no clear
+> > information on this.
+> > 
+> > I have already requested this info but things are extremely quiet.
+> > 
+> > http://www.spinics.net/lists/linux-input/msg11006.html
+> > 
+> > Any information will be highly appreciated...
+> 
+> Sorry, I don't have any information or know anything about this at all.
+> 
 
-Signed-off-by: Cyril Chemparathy <cyril@ti.com>
----
- arch/arm/mach-davinci/board-tnetv107x-evm.c |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+As far as I know [current] versions of Android use RMI3 touchscreens
+which are older technology. Synaptics is trying to get their newer RMI4
+driver merged and probably not that interested in RMI3 anymore.
 
-diff --git a/arch/arm/mach-davinci/board-tnetv107x-evm.c b/arch/arm/mach-davinci/board-tnetv107x-evm.c
-index 2fe7a3f..287c5ee 100644
---- a/arch/arm/mach-davinci/board-tnetv107x-evm.c
-+++ b/arch/arm/mach-davinci/board-tnetv107x-evm.c
-@@ -182,11 +182,20 @@ static struct tnetv107x_keypad_data keypad_config = {
- 	.stable		= 0x3,
- };
- 
-+static struct tnetv107x_tsc_data tsc_config = {
-+	.xres	= 800,
-+	.yres	= 480,
-+	.calibration_data = {
-+		217, 14019, -2540712, 8690, -140, -1651470, 65536,
-+	},
-+};
-+
- static struct tnetv107x_device_info evm_device_info __initconst = {
- 	.serial_config		= &serial_config,
- 	.mmc_config[1]		= &mmc_config,	/* controller 1 */
- 	.nand_config[0]		= &nand_config,	/* chip select 0 */
- 	.keypad_config		= &keypad_config,
-+	.tsc_config		= &tsc_config,
- };
- 
- static __init void tnetv107x_evm_board_init(void)
+Thanks.
+
 -- 
-1.7.0.4
-
+Dmitry

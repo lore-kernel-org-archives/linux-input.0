@@ -1,98 +1,62 @@
-From: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>
-Subject: RE: [Patch v2] input:rohm based bu21013 touch panel controller
- driver support
-Date: Mon, 13 Sep 2010 12:12:44 +0200
-Message-ID: <81C3A93C17462B4BBD7E272753C1057918FC1CDAA7@EXDCVYMBSTM005.EQ1STM.local>
-References: <81C3A93C17462B4BBD7E272753C1057916DE831AF4@EXDCVYMBSTM005.EQ1STM.local>
- <20100909155918.GB19937@core.coreip.homeip.net>
- <20100909160140.GC19937@core.coreip.homeip.net>
- <4C8926E0.3040400@euromail.se>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [Patch 1/1] hid: Fix for A4Tech RP-649 horizontal scrollwheel
+Date: Mon, 13 Sep 2010 13:23:46 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009131323040.26813@pobox.suse.cz>
+References: <4C891E9F.3040006@multivision.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog112.obsmtp.com ([207.126.144.133]:46059 "EHLO
-	eu1sys200aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751867Ab0IMKNE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 06:13:04 -0400
-In-Reply-To: <4C8926E0.3040400@euromail.se>
-Content-Language: en-US
+Received: from cantor.suse.de ([195.135.220.2]:34327 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754386Ab0IMLXw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Sep 2010 07:23:52 -0400
+In-Reply-To: <4C891E9F.3040006@multivision.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Trilok Soni <tsoni@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
+To: Lech Perczak <lech.perczak@multivision.pl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Henrik,
+On Thu, 9 Sep 2010, Lech Perczak wrote:
 
-Thanks for your comments.
+>  From: Lech Perczak <lech.perczak@multivision.pl>
+> 
+> - Barely add USB device ID of A4Tech RF mouse receiver (09da:001a) used with
+> RP-649(Z) mice to enable fix for their horizontal scroll wheel behaviour, and
+> associate it with B8 hack.
+> 
+> Signed-off-by: Lech Perczak<lech.perczak@multivision.pl>
+> ---
+> diff -up hid/hid-a4tech.c.orig hid/hid-a4tech.c
+> --- hid/hid-a4tech.c.orig	2010-08-02 00:11:14.000000000 +0200
+> +++ hid/hid-a4tech.c	2010-09-09 17:51:23.000000000 +0200
+> @@ -133,6 +133,8 @@
+>  		.driver_data = A4_2WHEEL_MOUSE_HACK_7 },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D),
+>  		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649),
+> +		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, a4_devices);
+> diff -up hid/hid-ids.h.orig hid/hid-ids.h
+> --- hid/hid-ids.h.orig	2010-09-09 17:48:28.000000000 +0200
+> +++ hid/hid-ids.h	2010-09-09 17:41:09.000000000 +0200
+> @@ -25,6 +25,7 @@
+>  #define USB_VENDOR_ID_A4TECH		0x09da
+>  #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
+>  #define USB_DEVICE_ID_A4TECH_X5_005D	0x000a
+> +#define USB_DEVICE_ID_A4TECH_RP_649	0x001a
+> 
+>  #define USB_VENDOR_ID_AASHIMA		0x06d6
+>  #define USB_DEVICE_ID_AASHIMA_GAMEPAD	0x0025
 
-> >>> +static bool bu21013_verify_delta(int x1, int y1, int x2, int y2)
-> >>> +{
-> >>> +       int delta_x, delta_y;
-> >>> +
-> >>> +       if ((x1 != 0) && (y1 != 0)) {
-> >>> +               delta_x = x2 - x1;
-> >>> +               if (x1 > x2)
-> >>> +                       delta_x = x1 - x2;
-> >>> +               delta_y = y2 - y1;
-> >>> +               if (y1 > y2)
-> >>> +                       delta_y = y1 - y2;
-> >>> +               if ((delta_x < DELTA_MIN) || (delta_y < DELTA_MIN))
-> >>> +                       return false;
-> >>> +       }
-> >>> +       return true;
-> >>
-> >> Hmm, I remember - the fuzz handling indeed will not work for MT A
-> protocol.
-> >> Still, I do not think it is correct. Don't you need to do
-> >> "abs(delta_x) < DELTA_MIN"?
-> 
-> 
-> True, fuzz wont be processed in the kernel, but the information can be
-> used
-> outside the kernel, like in mtdev.
-> 
-> I do not understand why deltas are verified in the first place. Either
-> one can
-> rely on the identity of the fingers, in which case MT slots is simpler
-> to
-> handle, or one cannot rely on it, in which case the above code is
-> wrong, since
-> it assumes the values compared have the same identity.
-> 
+You'd also need to add this device to hid_blacklist[] in hid-core.c, 
+otherwise hid-a4tech driver wouldn't automatically bind to the device.
 
-	This case according to controller specification, when the two fingers delta is of
-	16 either in x or y, we should ignore those co-ordinates and report as pen-up.
+Could you please fix that up in your patch and resend it to me?
 
+Thanks,
 
-> Perhaps the logic could be inverted so that the case when the total
-> number is
-> zero is treated first, to avoid repeated tests below.
-> 
-> >>> +               if ((finger2_pos_x != 0) && (finger2_pos_y != 0)) {
-> >>> +                       if ((finger1_pos_x == 0) || (finger1_pos_y
-> == 0))
-> >>> +                               return 0;
-> 
-> 
-> So zero is some kind of null value? No continuation here?
-> 
-> >>> +                       ret = bu21013_verify_delta(finger1_pos_x,
-> >>> +                               finger1_pos_y, finger2_pos_x,
-> finger2_pos_y);
-> >>> +                       if (!ret)
-> >>> +                               total_number_of_active_sensors = 0;
-> >>> +               }
-> 
-> 
-> So this is a tracking-plus-filtering solution? Unless the form factor
-> forbids
-> it, having driver-specific tracking solutions in the kernel is not
-> encouraged.
-> Two fingers might be borderline.
-	
-	We need to keep this filtering solution according to the controller specification.
-
-Thanks & Regards,
-Naveen
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

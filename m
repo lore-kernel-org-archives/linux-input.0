@@ -1,62 +1,45 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [Patch 1/1] hid: Fix for A4Tech RP-649 horizontal scrollwheel
-Date: Mon, 13 Sep 2010 13:23:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009131323040.26813@pobox.suse.cz>
-References: <4C891E9F.3040006@multivision.pl>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: wacom + runtime PM = AA deadlock
+Date: Mon, 13 Sep 2010 14:24:45 +0200
+Message-ID: <4C8E180D.4020309@suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:34327 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754386Ab0IMLXw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 07:23:52 -0400
-In-Reply-To: <4C891E9F.3040006@multivision.pl>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:59891 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754910Ab0IMMYs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Sep 2010 08:24:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lech Perczak <lech.perczak@multivision.pl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: pingc@wacom.com
+Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-pm <linux-pm@lists.linux-foundation.org>
 
-On Thu, 9 Sep 2010, Lech Perczak wrote:
+Hi,
 
->  From: Lech Perczak <lech.perczak@multivision.pl>
-> 
-> - Barely add USB device ID of A4Tech RF mouse receiver (09da:001a) used with
-> RP-649(Z) mice to enable fix for their horizontal scroll wheel behaviour, and
-> associate it with B8 hack.
-> 
-> Signed-off-by: Lech Perczak<lech.perczak@multivision.pl>
-> ---
-> diff -up hid/hid-a4tech.c.orig hid/hid-a4tech.c
-> --- hid/hid-a4tech.c.orig	2010-08-02 00:11:14.000000000 +0200
-> +++ hid/hid-a4tech.c	2010-09-09 17:51:23.000000000 +0200
-> @@ -133,6 +133,8 @@
->  		.driver_data = A4_2WHEEL_MOUSE_HACK_7 },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D),
->  		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649),
-> +		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, a4_devices);
-> diff -up hid/hid-ids.h.orig hid/hid-ids.h
-> --- hid/hid-ids.h.orig	2010-09-09 17:48:28.000000000 +0200
-> +++ hid/hid-ids.h	2010-09-09 17:41:09.000000000 +0200
-> @@ -25,6 +25,7 @@
->  #define USB_VENDOR_ID_A4TECH		0x09da
->  #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
->  #define USB_DEVICE_ID_A4TECH_X5_005D	0x000a
-> +#define USB_DEVICE_ID_A4TECH_RP_649	0x001a
-> 
->  #define USB_VENDOR_ID_AASHIMA		0x06d6
->  #define USB_DEVICE_ID_AASHIMA_GAMEPAD	0x0025
+by mistake when runtime PM is enabled by default for input devices, X
+hangs on wacom open:
+[<ffffffff814a00ea>] mutex_lock+0x1a/0x40
+[<ffffffffa02bc94b>] wacom_resume+0x3b/0x90 [wacom]
+[<ffffffff81327a32>] usb_resume_interface+0xd2/0x190
+[<ffffffff81327b5d>] usb_resume_both+0x6d/0x110
+[<ffffffff81327c24>] usb_runtime_resume+0x24/0x40
+[<ffffffff8130a2cf>] __pm_runtime_resume+0x26f/0x450
+[<ffffffff8130a23a>] __pm_runtime_resume+0x1da/0x450
+[<ffffffff8130a53a>] pm_runtime_resume+0x2a/0x50
+[<ffffffff81328176>] usb_autopm_get_interface+0x26/0x60
+[<ffffffffa02bc626>] wacom_open+0x36/0x90 [wacom]
 
-You'd also need to add this device to hid_blacklist[] in hid-core.c, 
-otherwise hid-a4tech driver wouldn't automatically bind to the device.
+wacom_open took wacom->lock and calls usb_autopm_get_interface which in
+turn calls wacom_resume which tries to aquire the lock again.
 
-Could you please fix that up in your patch and resend it to me?
+More details (dmesg including) at:
+https://bugzilla.novell.com/show_bug.cgi?id=638506
 
-Thanks,
+Any ideas how to fix that properly?
 
+thanks,
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+js
+suse labs

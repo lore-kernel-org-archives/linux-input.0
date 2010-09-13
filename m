@@ -1,65 +1,50 @@
-From: Steffen Barszus <steffenbpunkt@googlemail.com>
-Subject: Re: gyration remote - europe/QWERTZ version (GYAR3101CKDE)
-Date: Mon, 13 Sep 2010 08:22:19 +0200
-Message-ID: <20100913082219.2d8ebbbc@grobi>
-References: <20100809083831.76426571@grobi>
-	<AANLkTin4bsd4SAfy35SzaEMR-S+moALGcNMfzttmJQ6U@mail.gmail.com>
-	<alpine.LNX.2.00.1008201111220.1019@pobox.suse.cz>
+From: Sundar R IYER <sundar.iyer@stericsson.com>
+Subject: RE: [PATCH v3 1/1] input: add support for Nomadik SKE keypad
+ controller
+Date: Mon, 13 Sep 2010 09:31:16 +0200
+Message-ID: <33A307AF30D7BF4F811B1568FE7A9B180437521C44@EXDCVYMBSTM006.EQ1STM.local>
+References: <1283777284-24811-1-git-send-email-sundar.iyer@stericsson.com>
+ <4C8645CB.9070206@codeaurora.org>
+ <33A307AF30D7BF4F811B1568FE7A9B181C8565B5@EXDCVYMBSTM006.EQ1STM.local>
+ <4C87885C.70704@codeaurora.org>
+ <AANLkTinYfUVGignRSA+GPWz4yHothgm6TTyt7ruMvmS9@mail.gmail.com>
+ <20100908154601.GF4190@core.coreip.homeip.net>
+ <33A307AF30D7BF4F811B1568FE7A9B181C856805@EXDCVYMBSTM006.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:46168 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751582Ab0IMG3R (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 02:29:17 -0400
-Received: by fxm16 with SMTP id 16so2929281fxm.19
-        for <linux-input@vger.kernel.org>; Sun, 12 Sep 2010 23:29:15 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1008201111220.1019@pobox.suse.cz>
+Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:58415 "EHLO
+	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752267Ab0IMHc4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Sep 2010 03:32:56 -0400
+In-Reply-To: <33A307AF30D7BF4F811B1568FE7A9B181C856805@EXDCVYMBSTM006.EQ1STM.local>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Trilok Soni <tsoni@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On Fri, 20 Aug 2010 11:12:18 +0200 (CEST)
-Jiri Kosina <jkosina@suse.cz> wrote:
+Hello Dmitry,
 
-> On Thu, 19 Aug 2010, Steffen Barszus wrote:
-> 
-> > Any chance someone can have a look or is something missing ? Is
-> > this the wrong place ? Or just bad timing because of the merge
-> > window ? Would love to see this incorporated.
-> 
-> Hi,
-> 
-> I haven't been CCed on your original mail, was I?
+Could you suggest some ideas to move ahead on this? I see myself
+getting stucked :(
 
-No
+Regards,
+Sundar
 
-> Anyway, would you be able to send the patch properly to me, so that I 
-> could apply it? (i.e. not line-wrapped and whitespace damaged, with
-> proper Signed-off-by line, etc -- see Documentation/SubmittingPatches
-> if in doubt).
-
-Hope this time its correct. Please let me know if you miss something.
-
-> Thanks,
-> 
-
-Signed-off-by: Steffen Barszus <steffenbpunkt[AT]googlemail[DOT]com>
---- linux-2.6/drivers/hid/hid-gyration.c.orig	2010-09-13 08:16:36.353369149 +0200
-+++ linux-2.6/drivers/hid/hid-gyration.c	2010-09-13 08:17:56.629965460 +0200
-@@ -43,6 +43,11 @@ static int gyration_input_mapping(struct
- 	case 0x048: gy_map_key_clear(KEY_MEDIA);	break;
- 	case 0x049: gy_map_key_clear(KEY_CAMERA);	break;
- 	case 0x04a: gy_map_key_clear(KEY_VIDEO);	break;
-+	case 0x05a: gy_map_key_clear(KEY_TEXT);		break;
-+	case 0x05b: gy_map_key_clear(KEY_RED);		break;
-+	case 0x05c: gy_map_key_clear(KEY_GREEN);	break;
-+	case 0x05d: gy_map_key_clear(KEY_YELLOW);	break;
-+	case 0x05e: gy_map_key_clear(KEY_BLUE);		break;
- 
- 	default:
- 		return 0;
-
+>-----Original Message-----
+>From: Sundar R IYER
+>
+>Hmm. Could you please help me out on how I can proceed with the
+>following two HW constraints:
+>
+>1. KPASON polling needs to be waited in case of a multi key press so that
+>the keypad registers can stabilize. This is what the TRM states.
+>
+>2. If I move enabling the interrupts to the timer snippet, I end up breaking multi-key
+>detection.
+>
+>Regards,
+>Sundar

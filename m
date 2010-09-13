@@ -1,43 +1,44 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 0/6] Large scancode handling
-Date: Mon, 13 Sep 2010 13:48:14 -0400
-Message-ID: <AANLkTikV9jWWPhK0C-1ipFei18pHUg86Yj1Pm10010An@mail.gmail.com>
-References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
-	<20100908143121.GD22323@redhat.com>
-	<20100908153435.GA4190@core.coreip.homeip.net>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [linux-pm] wacom + runtime PM = AA deadlock
+Date: Mon, 13 Sep 2010 21:05:38 +0200
+Message-ID: <201009132105.38204.oliver@neukum.org>
+References: <Pine.LNX.4.44L0.1009131114050.1315-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:55714 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751672Ab0IMRsQ (ORCPT
+Received: from smtp-out003.kontent.com ([81.88.40.217]:34714 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755053Ab0IMTFK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 13:48:16 -0400
-In-Reply-To: <20100908153435.GA4190@core.coreip.homeip.net>
+	Mon, 13 Sep 2010 15:05:10 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1009131114050.1315-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jiri Slaby <jslaby@suse.cz>, Dmitry Torokhov <dtor@mail.ru>, pingc@wacom.com, linux-pm <linux-pm@lists.linux-foundation.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Wed, Sep 8, 2010 at 11:34 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Sep 08, 2010 at 10:31:21AM -0400, Jarod Wilson wrote:
->> On Wed, Sep 08, 2010 at 12:41:38AM -0700, Dmitry Torokhov wrote:
-...
->> > Ville, do you still have the hardware to try our ati_remote2 changes?
->>
->> If not, I've got the hardware. (Speaking of which, porting ati_remote*
->> over to {ir,rc}-core is also on the TODO list, albeit with very very
->> low priority at the moment).
->
-> Ok, then we'' pencil you in for testing if we do not hear from Ville ;)
+Am Montag, 13. September 2010, 17:17:54 schrieb Alan Stern:
+> On Mon, 13 Sep 2010, Oliver Neukum wrote:
+> 
+> > PM in this driver looks broken. Please try this.
+> > 
+> > In short you want to drop the PM reference and depend on remote
+> > wakeup and busy marking for this driver. Currently it gets a reference
+> > on every open() but never drops it.
+> > 
+> > For locking you depend on the PM core's internal lock. You simply
+> > make sure you have a PM reference during open() and close()
+> 
+> Is there any point in resuming the device during close() just in order
+> to kill the interrupt URB?  It seems counterproductive -- if the device 
+> had been suspended then there wouldn't be any interrupt URB to kill in 
+> the first place.
 
-We've heard from Ville, but I went ahead and did some testing anyway.
-My RWII with the default mode (didn't try any of the others) works
-just fine after applying this patch atop 2.6.36-rc3-git1, as do my
-imon and mceusb receivers. Ran into some problems with streamzap, but
-I'm fairly sure they're not the fault of this patchset.
+Suppose the device does not support remote wakeup. It would never
+be autosuspended while it is open, but simply resetting the flag
+would never reach the PM layer.
 
--- 
-Jarod Wilson
-jarod@wilsonet.com
+	Regards
+		Oliver

@@ -1,88 +1,65 @@
-From: Alan Ott <alan@signal11.us>
-Subject: Re: Help: Writing to USB feature port from within kernel driver
-Date: Sun, 12 Sep 2010 22:41:46 -0400
-Message-ID: <4C8D8F6A.8080406@signal11.us>
-References: <7fcc69ce35dc284d573651e282337a69.squirrel@host171.canaca.com>
+From: Steffen Barszus <steffenbpunkt@googlemail.com>
+Subject: Re: gyration remote - europe/QWERTZ version (GYAR3101CKDE)
+Date: Mon, 13 Sep 2010 08:22:19 +0200
+Message-ID: <20100913082219.2d8ebbbc@grobi>
+References: <20100809083831.76426571@grobi>
+	<AANLkTin4bsd4SAfy35SzaEMR-S+moALGcNMfzttmJQ6U@mail.gmail.com>
+	<alpine.LNX.2.00.1008201111220.1019@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:34390 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754309Ab0IMClp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Sep 2010 22:41:45 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 94E1C1CCAA6A
-	for <linux-input@vger.kernel.org>; Sun, 12 Sep 2010 22:41:44 -0400 (EDT)
-In-Reply-To: <7fcc69ce35dc284d573651e282337a69.squirrel@host171.canaca.com>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:46168 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751582Ab0IMG3R (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Sep 2010 02:29:17 -0400
+Received: by fxm16 with SMTP id 16so2929281fxm.19
+        for <linux-input@vger.kernel.org>; Sun, 12 Sep 2010 23:29:15 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1008201111220.1019@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Marcel Holtmann <marcel@holtmann.org>, Antonio Ospite <ospite@studenti.unina.it>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-On 09/12/2010 07:02 PM, simon@mungewell.org wrote:
-> Hi Alan,
-> I believe you submitted a patch a couple of months ago
-> (https://patchwork.kernel.org/patch/105169/).
->    
+On Fri, 20 Aug 2010 11:12:18 +0200 (CEST)
+Jiri Kosina <jkosina@suse.cz> wrote:
 
-It's not in the mainline. We are waiting on the bluetooth maintainer 
-(Marcel Holtmann) to sign off on it.
-
-> It looks like this hasn't been applied to 2.6 mainline yet, and I am
-> having problems with trying to write a feature report to set up a device
-> in it's driver...
->
->    
-
-The gist of the patch is that it adds feature reports to user space, but 
-this section of the patch:
-
-@@ -807,7 +834,7 @@    static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
-  	struct usb_host_interface *interface = intf->cur_altsetting;
-  	int ret;
-
--	if (usbhid->urbout) {
-+	if (usbhid->urbout&&  report_type != HID_FEATURE_REPORT) {
-
-fixes the problem you are describing below, forcing FEATURE reports to 
-go out on the control endpoint.
-
-> ---------------------------- Original Message ----------------------------
-> Subject: Help: Writing to USB feature port from within kernel driver
-> From:    simon@mungewell.org
-> Date:    Fri, September 10, 2010 3:23 pm
-> To:      linux-usb@vger.kernel.org
-> --------------------------------------------------------------------------
->
+> On Thu, 19 Aug 2010, Steffen Barszus wrote:
+> 
+> > Any chance someone can have a look or is something missing ? Is
+> > this the wrong place ? Or just bad timing because of the merge
+> > window ? Would love to see this incorporated.
+> 
 > Hi,
-> I'm attempting to write to the feature port of a USB HID device during
-> config, however this doesn't seem to be functioning the same as the python
-> test code I have.
->    
+> 
+> I haven't been CCed on your original mail, was I?
 
-What does this Python test code do and look like? Do you have some kind 
-of Python wrapper around hiddev or libusb or something?
+No
 
->  From looking at the USBMon output it looks like (although I'm not sure)
-> that my kernel code is using an interrupt write ('Io') where as the
-> 'working' python code is using a control write ('Co').
->
->    
+> Anyway, would you be able to send the patch properly to me, so that I 
+> could apply it? (i.e. not line-wrapped and whitespace damaged, with
+> proper Signed-off-by line, etc -- see Documentation/SubmittingPatches
+> if in doubt).
 
-This is a bug, as stated above. Feature reports are always to use the 
-control endpoint.
+Hope this time its correct. Please let me know if you miss something.
 
+> Thanks,
+> 
 
-I'll get a patch in which fixes this for .35 and .36. In the mean time, 
-you can just send the report using usb_control_msg(). See 
-drivers/hid/hid-sony.c for an example. Note that the part which says (3 
-<< 8) is indicating a FEATURE report (feature = 3 on the USB bus, but 
-the constant HID_FEATURE_REPORT in the kernel is 2. Don't get tripped up 
-on that.). That example RECEIVES an input transfer, so you'll have to 
-modify it slightly to SEND one.
-
-Sorry for the bother. More of my broken code, it seems.
-
-Alan.
-
+Signed-off-by: Steffen Barszus <steffenbpunkt[AT]googlemail[DOT]com>
+--- linux-2.6/drivers/hid/hid-gyration.c.orig	2010-09-13 08:16:36.353369149 +0200
++++ linux-2.6/drivers/hid/hid-gyration.c	2010-09-13 08:17:56.629965460 +0200
+@@ -43,6 +43,11 @@ static int gyration_input_mapping(struct
+ 	case 0x048: gy_map_key_clear(KEY_MEDIA);	break;
+ 	case 0x049: gy_map_key_clear(KEY_CAMERA);	break;
+ 	case 0x04a: gy_map_key_clear(KEY_VIDEO);	break;
++	case 0x05a: gy_map_key_clear(KEY_TEXT);		break;
++	case 0x05b: gy_map_key_clear(KEY_RED);		break;
++	case 0x05c: gy_map_key_clear(KEY_GREEN);	break;
++	case 0x05d: gy_map_key_clear(KEY_YELLOW);	break;
++	case 0x05e: gy_map_key_clear(KEY_BLUE);		break;
+ 
+ 	default:
+ 		return 0;
 

@@ -1,73 +1,55 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Sensors and the input layer (was Re: [RFC] [PATCH V2 1/2]
- input: CMA3000 Accelerometer driver)
-Date: Tue, 14 Sep 2010 09:12:44 +0200
-Message-ID: <20100914071244.GA2672@ucw.cz>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
- <20100829184904.GC26209@core.coreip.homeip.net>
- <36abcb34cfbf34724d9a581a75b53e76@secure211.sgcpanel.com>
- <20100830214025.2f9677a1@lxorguk.ukuu.org.uk>
- <20100830204412.GA28711@core.coreip.homeip.net>
- <AANLkTims1CagvPZQjTmYrOVi8REeLVbyyt3kEY_tsCtx@mail.gmail.com>
- <20100830214355.GB28865@core.coreip.homeip.net>
- <AANLkTinPConD62Ky7mvMn2ZgS=V9+Q5YUdaF5Vma8mn+@mail.gmail.com>
- <20100830224352.GF28865@core.coreip.homeip.net>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: Synaptics i2c touchscreen driver
+Date: Tue, 14 Sep 2010 12:58:38 +0530
+Message-ID: <4C8F2426.8040301@codeaurora.org>
+References: <27F9C60D11D683428E133F85D2BB4A530450B63EDD@dlee03.ent.ti.com> <7B4B50AC280A5E45A42CD2D364A3CE2F3A6BE70F9B@USW-EX2K7-1.synaptics-inc.local> <20100914005046.GA27540@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:51027 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751848Ab0INHMw (ORCPT
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:34724 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752475Ab0INH2m (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Sep 2010 03:12:52 -0400
-Content-Disposition: inline
-In-Reply-To: <20100830224352.GF28865@core.coreip.homeip.net>
+	Tue, 14 Sep 2010 03:28:42 -0400
+In-Reply-To: <20100914005046.GA27540@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Felipe Balbi <me@felipebalbi.com>, Hemanth V <hemanthv@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "igor.stoppa@nokia.com" <igor.stoppa@nokia.com>, "kai.svahn@nokia.com" <kai.svahn@nokia.com>, "matthias.nyman@nokia.com" <matthias.nyman@nokia.com>
+Cc: William Manson <WManson@synaptics.com>, "'Arce, Abraham'" <x0066660@ti.com>, Greg KH <gregkh@suse.de>, Christopher Heiny <Cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi!
+Hi Dmitry, William,
 
-> > >> (or GPS device, for that matter) really be?
-> > >
-> > > But why GPS should be input device? It has nothing to do with user
-> > > input.
-> > 
-> > What? OF COURSE it is an input driver. It's the user moving the device
-> > around. It's EXACTLY the same thing as an accelerometer in that
-> > respect. Sure, it's a bit less precise and measures movement wrt some
-> > external frame, but technically they are almost exactly the same.
-> > 
-> > If you se doing a navigation app, the accelerometer, the compass and
-> > the GPS are all equally (but differently) important.
-> > 
-> > Again - it's not a user touching buttons. But it IS a user moving around.
+On 9/14/2010 6:20 AM, Dmitry Torokhov wrote:
+> Hi William,
 > 
-> Right, but do you expect that movement to cause an immediate action?
-> When you press a key - something happens; when you swing a Wii
-> controller - the device reacts. And really you can swap joysticks,
-> motion controllers, Sony's 6-axis and so forth and the application would
-> be hard pressed to tell the difference. I am unsure how you would play a
-> game with GPS as an input device.
+> On Mon, Sep 13, 2010 at 05:26:15PM -0700, William Manson wrote:
+>> Hi Abraham -
+>>
+>> Yes - the TM1217 is an RMI4 based module [I just got an email from a
+>> f/w engineer confirming it is indeed RMI4].
+>>
+>> We are currently working on submitting a new patch for our RMI4 based
+>> driver to add some functionality based on Dmitry Torokhov's request
+>> that we implement an RMI bus architecture. This is kind of a large
+>> change and we had hoped our current submission for our RMI4 driver
+>> would be added to the Kernel.org under a branch where every developer
+>> could access it and then we could add in the RMI bus architecture in a
+>> later patch. So it will take a while till we can make a new patch but
+>> I have no problem if you want to try the existing patch out.
+> 
+> I have committed the latest version of the patch Christopher sent (sans
+> defconfig and gta01 platform changes that do not really belong there) to
+> synaptics-rmi4 branch of my tree on kernel.org. I branched it off 2.6.35
+> release so it should be reasonably usable.
 
-Well, there's cross between geocaching and game called 'whereigo'; I
-played it once, it is quite fun...
+Why don't you submit to drivers/staging instead of creating branch at Dmitry's GIT tree?
 
-"You bought a horse. Check if horse was fast enough by running to the
-trees you see north of you". And so you run. "Your horse is too
-slow. Try again".
+You can probably attract more developers and you don't need to rebase to latest kernel 
+everytime.
 
-OTOH, for the GPS... I guess it is more complex because you have
-important and non-trivial metadata, such as precisions, fix type,
-#sats used and their positions. So NMEA might be right interface for
-that...
+---Trilok Soni
 
-...unless there are more chips like nokia n900 one that talk strange
-protocols. Or should we just translate them at kernel level?
-
-Anyway it would be good to have gps hardware abstraction one day.
-       	  	   	   	    	     		     Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

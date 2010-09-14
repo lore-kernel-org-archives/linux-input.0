@@ -1,64 +1,43 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/7] davinci: define tnetv107x keypad platform data
-Date: Mon, 13 Sep 2010 18:26:48 -0700
-Message-ID: <20100914012648.GC2491@core.coreip.homeip.net>
-References: <1284395388-32687-1-git-send-email-cyril@ti.com>
- <1284395388-32687-2-git-send-email-cyril@ti.com>
+Subject: Re: [PATCH 0/6] Large scancode handling
+Date: Mon, 13 Sep 2010 18:26:41 -0700
+Message-ID: <20100914012641.GB2491@core.coreip.homeip.net>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+ <20100908143121.GD22323@redhat.com>
+ <20100908153435.GA4190@core.coreip.homeip.net>
+ <AANLkTikV9jWWPhK0C-1ipFei18pHUg86Yj1Pm10010An@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:60549 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752013Ab0INB0y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Sep 2010 21:26:54 -0400
-Received: by gxk23 with SMTP id 23so2226790gxk.19
-        for <linux-input@vger.kernel.org>; Mon, 13 Sep 2010 18:26:53 -0700 (PDT)
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1284395388-32687-2-git-send-email-cyril@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <AANLkTikV9jWWPhK0C-1ipFei18pHUg86Yj1Pm10010An@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>
 List-Id: linux-input@vger.kernel.org
-To: Cyril Chemparathy <cyril@ti.com>
-Cc: linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com
 
-Hi Cyril,
-
-On Mon, Sep 13, 2010 at 12:29:42PM -0400, Cyril Chemparathy wrote:
-> This patch adds a definition for the platform data structure needed to
-> configure the keypad controller on tnetv107x socs.
+On Mon, Sep 13, 2010 at 01:48:14PM -0400, Jarod Wilson wrote:
+> On Wed, Sep 8, 2010 at 11:34 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Wed, Sep 08, 2010 at 10:31:21AM -0400, Jarod Wilson wrote:
+> >> On Wed, Sep 08, 2010 at 12:41:38AM -0700, Dmitry Torokhov wrote:
+> ...
+> >> > Ville, do you still have the hardware to try our ati_remote2 changes?
+> >>
+> >> If not, I've got the hardware. (Speaking of which, porting ati_remote*
+> >> over to {ir,rc}-core is also on the TODO list, albeit with very very
+> >> low priority at the moment).
+> >
+> > Ok, then we'' pencil you in for testing if we do not hear from Ville ;)
 > 
-> Since this controller is (so far) present only on tnetv107x devices, the data
-> structure definition has been kept local to tnetv107x.
+> We've heard from Ville, but I went ahead and did some testing anyway.
+> My RWII with the default mode (didn't try any of the others) works
+> just fine after applying this patch atop 2.6.36-rc3-git1, as do my
+> imon and mceusb receivers. Ran into some problems with streamzap, but
+> I'm fairly sure they're not the fault of this patchset.
 > 
-> Signed-off-by: Cyril Chemparathy <cyril@ti.com>
-> ---
->  arch/arm/mach-davinci/include/mach/tnetv107x.h |   10 ++++++++++
->  1 files changed, 10 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/mach-davinci/include/mach/tnetv107x.h b/arch/arm/mach-davinci/include/mach/tnetv107x.h
-> index c720647..1ee3035 100644
-> --- a/arch/arm/mach-davinci/include/mach/tnetv107x.h
-> +++ b/arch/arm/mach-davinci/include/mach/tnetv107x.h
-> @@ -37,6 +37,16 @@
->  #include <mach/nand.h>
->  #include <mach/serial.h>
->  
-> +struct tnetv107x_keypad_data {
-> +	int		*keymap;
-> +	const char	**keynames;
-> +	int		keymap_size;
-> +	int		rows;
-> +	int		cols;
-> +	u32		debounce;
-> +	u32		stable;
-> +};
-> +
 
-This should be folded into the next patch and probably split into a
-separate header file. Also, please consider switching to interface in
-linux/input/matrix_keymap.h
+Thank you Jarod, I'll add Tested-by: you then.
 
-Thanks.
-
-- 
+-- 
 Dmitry

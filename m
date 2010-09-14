@@ -1,66 +1,36 @@
 From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH 1/1] hid: prevent ILITEK multi-touch devices from being
  handled by usbhid
-Date: Tue, 14 Sep 2010 11:10:55 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009141109280.26813@pobox.suse.cz>
-References: <AANLkTimFwHASfChvQUPzjQKu-sstrAYTtgXvxA3mdJu9@mail.gmail.com>
+Date: Tue, 14 Sep 2010 14:39:33 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009141437470.26813@pobox.suse.cz>
+References: <AANLkTimFwHASfChvQUPzjQKu-sstrAYTtgXvxA3mdJu9@mail.gmail.com> <alpine.LNX.2.00.1009141109280.26813@pobox.suse.cz> <AANLkTi=sBrXXb4bDy5Sec-gW-WyA9T0KrAU8c=4X3dS+@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AANLkTimFwHASfChvQUPzjQKu-sstrAYTtgXvxA3mdJu9@mail.gmail.com>
+In-Reply-To: <AANLkTi=sBrXXb4bDy5Sec-gW-WyA9T0KrAU8c=4X3dS+@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Bradley Chen <bradley7213@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 11 Sep 2010, Bradley Chen wrote:
+On Tue, 14 Sep 2010, Bradley Chen wrote:
 
-> From: Bradley Chen <bradley_chen@ilitek.com>
+> Thank you for your reply. I did make a wrong patch, and what I really 
+> tried to do was to add things into kernel source not to remove them. 
+> Sorry for the confusion, and I will make a new patch for that.
 > 
-> The ILITEK multi-touch devices are incorrectly handled by the generic 
-> USB driver(usbhid). This patch puts the IDs of ILITEK and its 
-> multi-touch devices into hid_blacklist in order to have the products be 
-> handled by specific drivers.
-> 
-> Signed-off-by: Bradley Chen <bradley_chen@ilitek.com>
-> ---
-> diff -uprN -X linux-2.6.35.4-vanilla/Documentation/dontdiff linux-2.6.35.4-vanilla/drivers/hid/hid-core.c linux-2.6.35.4/drivers/hid
-> /hid-core.c
-> --- linux-2.6.35.4-vanilla/drivers/hid/hid-core.c	2010-09-11 16:12:25.295859677 +0800
-> +++ linux-2.6.35.4/drivers/hid/hid-core.c	2010-08-27 07:47:12.000000000 +0800
-> @@ -1302,7 +1302,6 @@ static const struct hid_device_id hid_bl
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_MT2101) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
-> diff -uprN -X linux-2.6.35.4-vanilla/Documentation/dontdiff linux-2.6.35.4-vanilla/drivers/hid/hid-ids.h linux-2.6.35.4/drivers/hid/
-> hid-ids.h
-> --- linux-2.6.35.4-vanilla/drivers/hid/hid-ids.h	2010-09-11 16:10:37.704360067 +0800
-> +++ linux-2.6.35.4/drivers/hid/hid-ids.h	2010-08-27 07:47:12.000000000 +0800
-> @@ -290,9 +290,6 @@
->  #define USB_DEVICE_ID_UGCI_FLYING	0x0020
->  #define USB_DEVICE_ID_UGCI_FIGHTING	0x0030
->  
-> -#define USB_VENDOR_ID_ILITEK		0x222a
-> -#define USB_DEVICE_ID_ILITEK_MT2101 	0x0001
-> -
->  #define USB_VENDOR_ID_IMATION		0x0718
->  #define USB_DEVICE_ID_DISC_STAKKA	0xd000
+> The specific driver is being modified right now, and we are going to 
+> publish it when it get reasonably stable.
 
-Hi Bradley,
+Would you then please perhaps send the HID blacklist addition together 
+with the other driver?
 
-first, it seems that the patch is actually doing quite the reverse of what 
-you wanted to do, right? (it's removing lines that have never been in 
-kernel).
+> When USB HID driver handles our touch panel, the corresponding tapping 
+> action works fine but no matter where we touch the panel the cursor 
+> stuck at (0, 0). 
 
-Second, what are the specific drivers? Are they going to be posted for 
-upstream kernel inclusion?
-How does the device behave with USB HID driver? It doesn't work at all, or 
-it's just that it only providing basic HID capabilities without any 
-vendor-specific extensions?
+What is the reason behind that? Is the device 'multi-input' one? I.e. 
+would HID_QUIRK_MULTI_INPUT be sufficient to fix that?
 
 Thanks,
 

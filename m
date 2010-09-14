@@ -1,32 +1,28 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Patch 1/1] hid: Fix for A4Tech RP-649 horizontal scrollwheel
-Date: Tue, 14 Sep 2010 00:57:11 -0700
-Message-ID: <20100914075711.GC15167@core.coreip.homeip.net>
-References: <4C891E9F.3040006@multivision.pl>
+Subject: Re: [PATCH V3 1/2] input: CMA3000 Accelerometer driver
+Date: Tue, 14 Sep 2010 01:00:03 -0700
+Message-ID: <20100914080003.GD15167@core.coreip.homeip.net>
+References: <61033.10.24.255.18.1283926671.squirrel@dbdmail.itg.ti.com>
+ <4C877584.7000902@jic23.retrosnub.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:43014 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752034Ab0INH5Q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Sep 2010 03:57:16 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4C891E9F.3040006@multivision.pl>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4C877584.7000902@jic23.retrosnub.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>
+Cc: Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lech Perczak <lech.perczak@multivision.pl>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2010 at 07:51:27PM +0200, Lech Perczak wrote:
->  From: Lech Perczak <lech.perczak@multivision.pl>
+On Wed, Sep 08, 2010 at 12:37:40PM +0100, Jonathan Cameron wrote:
 > 
-> - Barely add USB device ID of A4Tech RF mouse receiver (09da:001a)
-
-I think you were looking for word "simply".
-
-> used with RP-649(Z) mice to enable fix for their horizontal scroll
-> wheel behaviour, and associate it with B8 hack.
+> I'm happy to see your driver go in as it is currently, what bothers me is that we will end
+> up with incompatible interfaces for all the accelerometers Dmitry takes!
 > 
+
+This is a valid concern. How about I chicken out and will not merge any
+new sysfs knobs until you guys decide on reasonable interface? Most set
+up is done by board code anyways, sysfs is more of nice-to-have?
+
 -- 
 Dmitry

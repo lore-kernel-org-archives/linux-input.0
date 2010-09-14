@@ -1,28 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3 1/2] input: CMA3000 Accelerometer driver
-Date: Tue, 14 Sep 2010 01:00:03 -0700
-Message-ID: <20100914080003.GD15167@core.coreip.homeip.net>
-References: <61033.10.24.255.18.1283926671.squirrel@dbdmail.itg.ti.com>
- <4C877584.7000902@jic23.retrosnub.co.uk>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [linux-pm] wacom + runtime PM = AA deadlock
+Date: Tue, 14 Sep 2010 10:13:19 +0200
+Message-ID: <201009141013.19704.oneukum@suse.de>
+References: <Pine.LNX.4.44L0.1009131600230.1315-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4C877584.7000902@jic23.retrosnub.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>
-Cc: Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:52352 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752328Ab0INIMt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Sep 2010 04:12:49 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1009131600230.1315-100000@iolanthe.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jiri Slaby <jslaby@suse.cz>, Dmitry Torokhov <dtor@mail.ru>, pingc@wacom.com, linux-pm <linux-pm@lists.linux-foundation.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Wed, Sep 08, 2010 at 12:37:40PM +0100, Jonathan Cameron wrote:
+Am Montag, 13. September 2010, 22:02:16 schrieb Alan Stern:
+> > > Is there any point in resuming the device during close() just in order
+> > > to kill the interrupt URB?  It seems counterproductive -- if the device 
+> > > had been suspended then there wouldn't be any interrupt URB to kill in 
+> > > the first place.
+> > 
+> > Suppose the device does not support remote wakeup. It would never
+> > be autosuspended while it is open, but simply resetting the flag
+> > would never reach the PM layer.
 > 
-> I'm happy to see your driver go in as it is currently, what bothers me is that we will end
-> up with incompatible interfaces for all the accelerometers Dmitry takes!
-> 
+> Whoops, that's right.  I didn't see the assignment to 
+> needs_remote_wakeup.
 
-This is a valid concern. How about I chicken out and will not merge any
-new sysfs knobs until you guys decide on reasonable interface? Most set
-up is done by board code anyways, sysfs is more of nice-to-have?
+Should I have used usb_autopm_get_interface_no_resume()?
 
--- 
-Dmitry
+	Regards
+		Oliver

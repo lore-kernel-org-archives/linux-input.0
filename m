@@ -1,37 +1,43 @@
-From: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>
-Subject: Re: [PATCH V3 1/2] input: CMA3000 Accelerometer driver
-Date: Tue, 14 Sep 2010 14:10:01 +0100
-Message-ID: <4C8F7429.1080105@jic23.retrosnub.co.uk>
-References: <61033.10.24.255.18.1283926671.squirrel@dbdmail.itg.ti.com> <4C877584.7000902@jic23.retrosnub.co.uk> <20100914080003.GD15167@core.coreip.homeip.net>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] wacom + runtime PM = AA deadlock
+Date: Tue, 14 Sep 2010 10:01:14 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1009140954180.1648-100000@iolanthe.rowland.org>
+References: <201009141013.19704.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100914080003.GD15167@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hemanth V <hemanthv@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:41183 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753515Ab0INOBP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Sep 2010 10:01:15 -0400
+In-Reply-To: <201009141013.19704.oneukum@suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Jiri Slaby <jslaby@suse.cz>, Dmitry Torokhov <dtor@mail.ru>, pingc@wacom.com, linux-pm <linux-pm@lists.linux-foundation.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On 09/14/10 09:00, Dmitry Torokhov wrote:
-> On Wed, Sep 08, 2010 at 12:37:40PM +0100, Jonathan Cameron wrote:
->>
->> I'm happy to see your driver go in as it is currently, what bothers me is that we will end
->> up with incompatible interfaces for all the accelerometers Dmitry takes!
->>
+On Tue, 14 Sep 2010, Oliver Neukum wrote:
+
+> Am Montag, 13. September 2010, 22:02:16 schrieb Alan Stern:
+> > > > Is there any point in resuming the device during close() just in order
+> > > > to kill the interrupt URB?  It seems counterproductive -- if the device 
+> > > > had been suspended then there wouldn't be any interrupt URB to kill in 
+> > > > the first place.
+> > > 
+> > > Suppose the device does not support remote wakeup. It would never
+> > > be autosuspended while it is open, but simply resetting the flag
+> > > would never reach the PM layer.
+> > 
+> > Whoops, that's right.  I didn't see the assignment to 
+> > needs_remote_wakeup.
 > 
-> This is a valid concern. How about I chicken out and will not merge any
-> new sysfs knobs until you guys decide on reasonable interface? Most set
-> up is done by board code anyways, sysfs is more of nice-to-have?
-Hemanth, would removing the sysfs hooks from this driver be ok with you?
-I'd personally have favoured a merge, add new interfaces when agreed and
-deprecate old ones approach, but it is Dmitry's call.  Perhaps it is better
-to get the majority of the device functionality in place now and add
-the bells and whistles later.
+> Should I have used usb_autopm_get_interface_no_resume()?
 
-For input device things are probably mostly fixed for a particular board
-design.  There are definitely interesting things one can do if the knobs
-are available but they (I think) mostly fall outside of using the device
-for input!
+That actually would work.  It's a good idea.  The only drawback (not a
+big one) is that if the device _was_ suspended with remote wakeup
+enabled, doing this wouldn't turn off remote wakeup.  I think that
+doesn't matter.
 
-Jonathan
+Alan Stern
+

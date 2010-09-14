@@ -1,37 +1,69 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [linux-pm] wacom + runtime PM = AA deadlock
-Date: Tue, 14 Sep 2010 10:13:19 +0200
-Message-ID: <201009141013.19704.oneukum@suse.de>
-References: <Pine.LNX.4.44L0.1009131600230.1315-100000@iolanthe.rowland.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1] hid: prevent ILITEK multi-touch devices from being
+ handled by usbhid
+Date: Tue, 14 Sep 2010 11:10:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009141109280.26813@pobox.suse.cz>
+References: <AANLkTimFwHASfChvQUPzjQKu-sstrAYTtgXvxA3mdJu9@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:52352 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752328Ab0INIMt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Sep 2010 04:12:49 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1009131600230.1315-100000@iolanthe.rowland.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AANLkTimFwHASfChvQUPzjQKu-sstrAYTtgXvxA3mdJu9@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bradley Chen <bradley7213@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Jiri Slaby <jslaby@suse.cz>, Dmitry Torokhov <dtor@mail.ru>, pingc@wacom.com, linux-pm <linux-pm@lists.linux-foundation.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Am Montag, 13. September 2010, 22:02:16 schrieb Alan Stern:
-> > > Is there any point in resuming the device during close() just in order
-> > > to kill the interrupt URB?  It seems counterproductive -- if the device 
-> > > had been suspended then there wouldn't be any interrupt URB to kill in 
-> > > the first place.
-> > 
-> > Suppose the device does not support remote wakeup. It would never
-> > be autosuspended while it is open, but simply resetting the flag
-> > would never reach the PM layer.
+On Sat, 11 Sep 2010, Bradley Chen wrote:
+
+> From: Bradley Chen <bradley_chen@ilitek.com>
 > 
-> Whoops, that's right.  I didn't see the assignment to 
-> needs_remote_wakeup.
+> The ILITEK multi-touch devices are incorrectly handled by the generic 
+> USB driver(usbhid). This patch puts the IDs of ILITEK and its 
+> multi-touch devices into hid_blacklist in order to have the products be 
+> handled by specific drivers.
+> 
+> Signed-off-by: Bradley Chen <bradley_chen@ilitek.com>
+> ---
+> diff -uprN -X linux-2.6.35.4-vanilla/Documentation/dontdiff linux-2.6.35.4-vanilla/drivers/hid/hid-core.c linux-2.6.35.4/drivers/hid
+> /hid-core.c
+> --- linux-2.6.35.4-vanilla/drivers/hid/hid-core.c	2010-09-11 16:12:25.295859677 +0800
+> +++ linux-2.6.35.4/drivers/hid/hid-core.c	2010-08-27 07:47:12.000000000 +0800
+> @@ -1302,7 +1302,6 @@ static const struct hid_device_id hid_bl
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_MT2101) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
+> diff -uprN -X linux-2.6.35.4-vanilla/Documentation/dontdiff linux-2.6.35.4-vanilla/drivers/hid/hid-ids.h linux-2.6.35.4/drivers/hid/
+> hid-ids.h
+> --- linux-2.6.35.4-vanilla/drivers/hid/hid-ids.h	2010-09-11 16:10:37.704360067 +0800
+> +++ linux-2.6.35.4/drivers/hid/hid-ids.h	2010-08-27 07:47:12.000000000 +0800
+> @@ -290,9 +290,6 @@
+>  #define USB_DEVICE_ID_UGCI_FLYING	0x0020
+>  #define USB_DEVICE_ID_UGCI_FIGHTING	0x0030
+>  
+> -#define USB_VENDOR_ID_ILITEK		0x222a
+> -#define USB_DEVICE_ID_ILITEK_MT2101 	0x0001
+> -
+>  #define USB_VENDOR_ID_IMATION		0x0718
+>  #define USB_DEVICE_ID_DISC_STAKKA	0xd000
 
-Should I have used usb_autopm_get_interface_no_resume()?
+Hi Bradley,
 
-	Regards
-		Oliver
+first, it seems that the patch is actually doing quite the reverse of what 
+you wanted to do, right? (it's removing lines that have never been in 
+kernel).
+
+Second, what are the specific drivers? Are they going to be posted for 
+upstream kernel inclusion?
+How does the device behave with USB HID driver? It doesn't work at all, or 
+it's just that it only providing basic HID capabilities without any 
+vendor-specific extensions?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

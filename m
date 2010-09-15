@@ -1,34 +1,95 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 1/1] Don't Send Feature Reports on Interrupt Endpoint
-Date: Wed, 15 Sep 2010 12:10:12 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1009151203030.1796-100000@iolanthe.rowland.org>
-References: <1284561909-14350-1-git-send-email-alan@signal11.us>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: HID: Allow changing not-yet-mapped usages
+Date: Wed, 15 Sep 2010 09:16:47 -0700
+Message-ID: <20100915161647.GA8862@core.coreip.homeip.net>
+References: <20100915045822.GA21672@core.coreip.homeip.net>
+ <alpine.LNX.2.00.1009151645360.26813@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:50264 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752085Ab0IOQKO (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:46536 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753556Ab0IOQQ6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Sep 2010 12:10:14 -0400
-In-Reply-To: <1284561909-14350-1-git-send-email-alan@signal11.us>
+	Wed, 15 Sep 2010 12:16:58 -0400
+Received: by pvg2 with SMTP id 2so107121pvg.19
+        for <linux-input@vger.kernel.org>; Wed, 15 Sep 2010 09:16:57 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1009151645360.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Linux Input <linux-input@vger.kernel.org>, jonno.conder+bugs@gmail.com
 
-On Wed, 15 Sep 2010, Alan Ott wrote:
+Hi Jiri,
 
-> Feature reports should only be sent on the control endpoint.
+On Wed, Sep 15, 2010 at 04:48:42PM +0200, Jiri Kosina wrote:
+> > @@ -77,7 +77,10 @@ static bool match_scancode(struct hid_usage *usage,
+> >  static bool match_keycode(struct hid_usage *usage,
+> >  			  unsigned int cur_idx, unsigned int keycode)
+> >  {
+> > -	return usage->code == keycode;
+> > +	/*
+> > +	 * We should exclude unmapped usages when doing lookup by keycode.
+> > +	 */
+> > +	return usage->type == EV_KEY && usage->code == keycode;
+> 
+> This is for some reason hurting my eyes. It'd seem much more readable to 
+> me if the condition would be enclosed in brackets, purely for sake for 
+> readability. What do you think?
+> 
 
-Where is this requirement?  Section 5.6 of the HID spec says: 
+Like this:
 
-	Note  Only Input reports are sent via the Interrupt In pipe. 
-	Feature and Output reports must be initiated by the host via
-	the Control pipe or an optional Interrupt Out pipe.
+	return (usage->type == EV_KEY && usage->code == keycode);
 
-So if there is an Interrupt-OUT endpoint, it should be valid to use it 
-for a Feature report.
+?
 
-Alan Stern
+We normally do not enclose return expression in parenthesis but why
+not...
 
+Alternatively we could code it as an "if" statement.
+
+> >  }
+> >  
+> >  static bool match_index(struct hid_usage *usage,
+> > @@ -103,7 +106,7 @@ static struct hid_usage *hidinput_find_key(struct hid_device *hid,
+> >  			for (i = 0; i < report->maxfield; i++) {
+> >  				for (j = 0; j < report->field[i]->maxusage; j++) {
+> >  					usage = report->field[i]->usage + j;
+> > -					if (usage->type == EV_KEY) {
+> > +					if (usage->type == EV_KEY || usage->type == 0) {
+> >  						if (match(usage, cur_idx, value)) {
+> >  							if (usage_idx)
+> >  								*usage_idx = cur_idx;
+> > @@ -144,7 +147,8 @@ static int hidinput_getkeycode(struct input_dev *dev,
+> >  
+> >  	usage = hidinput_locate_usage(hid, ke, &index);
+> >  	if (usage) {
+> > -		ke->keycode = usage->code;
+> > +		ke->keycode = usage->type == EV_KEY ?
+> > +				usage->code : KEY_RESERVED;
+> >  		ke->index = index;
+> >  		scancode = usage->hid & (HID_USAGE_PAGE | HID_USAGE);
+> >  		ke->len = sizeof(scancode);
+> > @@ -164,7 +168,8 @@ static int hidinput_setkeycode(struct input_dev *dev,
+> >  
+> >  	usage = hidinput_locate_usage(hid, ke, NULL);
+> >  	if (usage) {
+> > -		*old_keycode = usage->code;
+> > +		*old_keycode = usage->type == EV_KEY ?
+> > +				usage->code : KEY_RESERVED;
+> >  		usage->code = ke->keycode;
+> >  
+> >  		clear_bit(*old_keycode, dev->keybit);
+> 
+> I guess you will be taking it through your tree together with all your 
+> keycode handling patches, right?
+> 
+
+Yes, as long as you are OK with it.
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,95 +1,85 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HID: Allow changing not-yet-mapped usages
-Date: Wed, 15 Sep 2010 19:15:38 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009151914570.26813@pobox.suse.cz>
-References: <20100915045822.GA21672@core.coreip.homeip.net> <alpine.LNX.2.00.1009151645360.26813@pobox.suse.cz> <20100915161647.GA8862@core.coreip.homeip.net>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+Subject: Re: [PATCH 5/6] Input: ati-remote2 - switch to using new keycode
+ interface
+Date: Thu, 16 Sep 2010 00:04:19 +0300
+Message-ID: <20100915210419.GA6052@sci.fi>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv>
+ <20100908074205.32365.68835.stgit@hammer.corenet.prv>
+ <20100909124003.GT10135@sci.fi>
+ <20100913162807.GA14598@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:59869 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752598Ab0IORPk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Sep 2010 13:15:40 -0400
-In-Reply-To: <20100915161647.GA8862@core.coreip.homeip.net>
+Received: from filtteri2.pp.htv.fi ([213.243.153.185]:45626 "EHLO
+	filtteri2.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752448Ab0IOVEW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Sep 2010 17:04:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20100913162807.GA14598@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, jonno.conder+bugs@gmail.com
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, 15 Sep 2010, Dmitry Torokhov wrote:
-
-> Hi Jiri,
-> 
-> On Wed, Sep 15, 2010 at 04:48:42PM +0200, Jiri Kosina wrote:
-> > > @@ -77,7 +77,10 @@ static bool match_scancode(struct hid_usage *usage,
-> > >  static bool match_keycode(struct hid_usage *usage,
-> > >  			  unsigned int cur_idx, unsigned int keycode)
-> > >  {
-> > > -	return usage->code == keycode;
-> > > +	/*
-> > > +	 * We should exclude unmapped usages when doing lookup by keycode.
-> > > +	 */
-> > > +	return usage->type == EV_KEY && usage->code == keycode;
-> > 
-> > This is for some reason hurting my eyes. It'd seem much more readable to 
-> > me if the condition would be enclosed in brackets, purely for sake for 
-> > readability. What do you think?
-> > 
-> 
-> Like this:
-> 
-> 	return (usage->type == EV_KEY && usage->code == keycode);
-> 
-> ?
-> 
-> We normally do not enclose return expression in parenthesis but why
-> not...
-
-Yeah, that's what I usually do in my code. But I don't mind too much 
-either way, that was just really a minor cosmetic thing.
-
-> Alternatively we could code it as an "if" statement.
-> 
+On Mon, Sep 13, 2010 at 09:28:07AM -0700, Dmitry Torokhov wrote:
+> On Thu, Sep 09, 2010 at 03:40:04PM +0300, Ville Syrj=E4l=E4 wrote:
+> > On Wed, Sep 08, 2010 at 12:42:05AM -0700, Dmitry Torokhov wrote:
+> > > Switch the code to use new style of getkeycode and setkeycode
+> > > methods to allow retrieving and setting keycodes not only by
+> > > their scancodes but also by index.
+> > >=20
+> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> > > ---
+> > >=20
+> > >  drivers/input/misc/ati_remote2.c |   93 ++++++++++++++++++++++++=
++++-----------
+> > >  1 files changed, 65 insertions(+), 28 deletions(-)
+> > >=20
+> > > diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/mis=
+c/ati_remote2.c
+> > > index 2325765..b2e0d82 100644
+> > > --- a/drivers/input/misc/ati_remote2.c
+> > > +++ b/drivers/input/misc/ati_remote2.c
+> > > @@ -483,51 +483,88 @@ static void ati_remote2_complete_key(struct=
+ urb *urb)
 > > >  }
-> > >  
-> > >  static bool match_index(struct hid_usage *usage,
-> > > @@ -103,7 +106,7 @@ static struct hid_usage *hidinput_find_key(struct hid_device *hid,
-> > >  			for (i = 0; i < report->maxfield; i++) {
-> > >  				for (j = 0; j < report->field[i]->maxusage; j++) {
-> > >  					usage = report->field[i]->usage + j;
-> > > -					if (usage->type == EV_KEY) {
-> > > +					if (usage->type == EV_KEY || usage->type == 0) {
-> > >  						if (match(usage, cur_idx, value)) {
-> > >  							if (usage_idx)
-> > >  								*usage_idx = cur_idx;
-> > > @@ -144,7 +147,8 @@ static int hidinput_getkeycode(struct input_dev *dev,
-> > >  
-> > >  	usage = hidinput_locate_usage(hid, ke, &index);
-> > >  	if (usage) {
-> > > -		ke->keycode = usage->code;
-> > > +		ke->keycode = usage->type == EV_KEY ?
-> > > +				usage->code : KEY_RESERVED;
-> > >  		ke->index = index;
-> > >  		scancode = usage->hid & (HID_USAGE_PAGE | HID_USAGE);
-> > >  		ke->len = sizeof(scancode);
-> > > @@ -164,7 +168,8 @@ static int hidinput_setkeycode(struct input_dev *dev,
-> > >  
-> > >  	usage = hidinput_locate_usage(hid, ke, NULL);
-> > >  	if (usage) {
-> > > -		*old_keycode = usage->code;
-> > > +		*old_keycode = usage->type == EV_KEY ?
-> > > +				usage->code : KEY_RESERVED;
-> > >  		usage->code = ke->keycode;
-> > >  
-> > >  		clear_bit(*old_keycode, dev->keybit);
-> > 
-> > I guess you will be taking it through your tree together with all your 
-> > keycode handling patches, right?
-> 
-> Yes, as long as you are OK with it.
+> > > =20
+> > >  static int ati_remote2_getkeycode(struct input_dev *idev,
+> > > -				  unsigned int scancode, unsigned int *keycode)
+> > > +				  struct input_keymap_entry *ke)
+> > >  {
+> > >  	struct ati_remote2 *ar2 =3D input_get_drvdata(idev);
+> > >  	unsigned int mode;
+> > > -	int index;
+> > > +	int offset;
+> > > +	unsigned int index;
+> > > +	unsigned int scancode;
+> > > +
+> > > +	if (ke->flags & INPUT_KEYMAP_BY_INDEX) {
+> > > +		index =3D ke->index;
+> > > +		if (index >=3D (ATI_REMOTE2_MODES - 1) *
+> >                                                ^^^^
+> > That -1 looks wrong. Same in setkeycode().
+> >=20
+>=20
+> Yes, indeed. Thanks for noticing.
 
-Absolutely. Thanks,
+I fixed this bug locally and gave this a short whirl with my RWII.
+I tried both the old and new style keycode ioctls. Everything
+worked as expected.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+So if you want more tags feel free to add my Acked-by and Tested-by
+for this (assuming the off-by-one fix is included) and you can add my
+Tested-by for patch 1/6 as well.
+
+--=20
+Ville Syrj=E4l=E4
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

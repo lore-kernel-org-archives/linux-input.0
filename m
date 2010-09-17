@@ -1,59 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] Input: ads7846 - modificatons of _stop()/_disable()
- conditions
-Date: Fri, 17 Sep 2010 09:07:10 -0700
-Message-ID: <20100917160709.GC14186@core.coreip.homeip.net>
-References: <1284634286-8871-1-git-send-email-jason77.wang@gmail.com>
- <1284634286-8871-4-git-send-email-jason77.wang@gmail.com>
- <1284634286-8871-5-git-send-email-jason77.wang@gmail.com>
- <201009162339.06395.dmitry.torokhov@gmail.com>
- <4C9332CE.6040905@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH] hid: Add a hid quirk for input sync override
+Date: Fri, 17 Sep 2010 18:20:41 +0200
+Message-ID: <D154A68C-ABA2-4C6C-B7E1-C0989357B8F7@enac.fr>
+References: <1282640084-19217-1-git-send-email-rydberg@euromail.se>  <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz>  <4C7E39CC.80402@euromail.se> <alpine.LNX.2.00.1009021630000.26813@pobox.suse.cz>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:43625 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755693Ab0IQQHR (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:59078 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755596Ab0IQQUs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Sep 2010 12:07:17 -0400
-Received: by pzk34 with SMTP id 34so637143pzk.19
-        for <linux-input@vger.kernel.org>; Fri, 17 Sep 2010 09:07:16 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4C9332CE.6040905@gmail.com>
+	Fri, 17 Sep 2010 12:20:48 -0400
+In-Reply-To: <alpine.LNX.2.00.1009021630000.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Wang <jason77.wang@gmail.com>
-Cc: notasas@gmail.com, vapier@gentoo.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2010 at 05:20:14PM +0800, Jason Wang wrote:
-> Dmitry Torokhov wrote:
-> >Hi Jason,
-> >
-> >On Thursday, September 16, 2010 03:51:26 am Jason Wang wrote:
-> >>The design like that, we can stop or disable ADC, one difference is
-> >>the disable not only stop the ADC but also close the power regulator.
-> >>So we change the condition flag to stopped in the _stop() function.
-> >>
-> >>Because we call __ads7846_disable() in the suspend/resume process, so
-> >>move disabled flag modification from ads7846_disable() to the
-> >>__ads7846_disable(), otherwise when we call _disable() in the suspend,
-> >>and the ADC is really suspended but the flag shows that it isn't.
-> >
-> >I disagree with the patch. "Disable" knob is separate from PM
-> >knobs (suspend/resume); and thus that attribute should only read
-> >"1" when
-> >user forcibly disabled the device via sysfs. Same goes for open/close.
-> >
-> >Thanks.
-> >
-> OK, i will fix this patch.
-> 
+>>
+>>
+>> Sounds good. I suppose Stephane wants to have a say regarding the  
+>> 3m driver
+>> first, but no rush. What version are you targeting?
+>
+> 2.6.37 looks reasonable if everything it agreed upon in the following
+> week(s).
+>
 
-Hmm, I am not sure what there is to fix... Maybe I misunderstood your
-description. Could you please try again to explain what you are trying
-to achieve?
+After many adventures, I finally managed to get the driver *and* the  
+3M panel available at the same time. XDS and the satellite events did  
+not help :-)
 
-Thanks!
+I'm observing a few things that look strange with evtest, starting  
+with missing ABS_MT_SLOT at the beginning of interaction sequences.  
+Investigating... Henrik, would it be useful if I send you evtest  
+logs, what I did with my fingers and what I find strange in the result?
 
--- 
-Dmitry
+Cheers
+
+St.
+

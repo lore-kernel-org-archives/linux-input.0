@@ -1,66 +1,45 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] hid: Add a hid quirk for input sync override
-Date: Fri, 17 Sep 2010 18:49:00 +0200
-Message-ID: <4C939BFC.2080008@euromail.se>
-References: <1282640084-19217-1-git-send-email-rydberg@euromail.se>  <alpine.LNX.2.00.1009011252450.26813@pobox.suse.cz>  <4C7E39CC.80402@euromail.se> <alpine.LNX.2.00.1009021630000.26813@pobox.suse.cz> <D154A68C-ABA2-4C6C-B7E1-C0989357B8F7@enac.fr>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [Patch 1/1] hid: Fix for A4Tech RP-649 horizontal scrollwheel
+ (updated)
+Date: Fri, 17 Sep 2010 20:44:02 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009172042550.26813@pobox.suse.cz>
+References: <4C9289E5.3020400@multivision.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:47056 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751752Ab0IQQtL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Sep 2010 12:49:11 -0400
-In-Reply-To: <D154A68C-ABA2-4C6C-B7E1-C0989357B8F7@enac.fr>
+Received: from cantor.suse.de ([195.135.220.2]:39536 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754439Ab0IQSoF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Sep 2010 14:44:05 -0400
+In-Reply-To: <4C9289E5.3020400@multivision.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Lech Perczak <lech.perczak@multivision.pl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 09/17/2010 06:20 PM, St=E9phane Chatty wrote:
+On Thu, 16 Sep 2010, Lech Perczak wrote:
 
->>>
->>>
->>> Sounds good. I suppose Stephane wants to have a say regarding the 3=
-m driver
->>> first, but no rush. What version are you targeting?
->>
->> 2.6.37 looks reasonable if everything it agreed upon in the followin=
-g
->> week(s).
->>
->=20
-> After many adventures, I finally managed to get the driver *and* the =
-3M panel
-> available at the same time. XDS and the satellite events did not help=
- :-)
->=20
-> I'm observing a few things that look strange with evtest, starting wi=
-th missing
-> ABS_MT_SLOT at the beginning of interaction sequences.
+> 
+> 
+> From: Lech Perczak<lech.perczak@multivision.pl>
+> 
+> - Add USB device ID of A4Tech RF mouse receiver (09da:001a) used with
+> RP-649(Z) mice
+> - Enable fix for their horizontal scroll wheel behaviour, associate it 
+with B8
+> hack.
+> - Blacklist the new device ID in hid-core.c
+> 
+> Signed-off-by: Lech Perczak<lech.perczak@multivision.pl>
+> ---
+> diff -up hid/hid-a4tech.c.orig hid/hid-a4tech.c
+> --- hid/hid-a4tech.c.orig	2010-08-02 00:11:14.000000000 +0200
+> +++ hid/hid-a4tech.c	2010-09-09 17:51:23.000000000 +0200
 
+In the future, please send the patches in a form that they can be applied 
+from the toplevel kernel source directory with 'patch -p1'. I have fixed 
+it up for this patch and applied, thanks.
 
-ABS_MT_SLOT will only be emitted when it actually changes, i.e., not ne=
-cessarily
-between frames.
-
-> Investigating... Henrik,
-> would it be useful if I send you evtest logs, what I did with my fing=
-ers and
-> what I find strange in the result?
-
-
-Certainly. Have you encountered anything strange in the actual interact=
-ion with
-the device? I have been running the 3M patches daily for several weeks =
-and found
-no issues.
-
-Cheers,
-Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

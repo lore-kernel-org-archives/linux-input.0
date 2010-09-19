@@ -1,13 +1,13 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 1/2] hid: 3m: Output proper orientation range
-Date: Sun, 19 Sep 2010 10:56:03 +0200
-Message-ID: <1284886564-30928-1-git-send-email-rydberg@euromail.se>
+Subject: [PATCH] hid: 3m: Output proper orientation range
+Date: Sun, 19 Sep 2010 10:56:23 +0200
+Message-ID: <1284886583-30965-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:44232 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751654Ab0ISI45 (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:48204 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751790Ab0ISI6M (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Sep 2010 04:56:57 -0400
+	Sun, 19 Sep 2010 04:58:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>

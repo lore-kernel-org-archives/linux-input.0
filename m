@@ -1,33 +1,40 @@
-From: Alex Riesen <raa.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: OOPS in hiddev_open on connecting "Logitech MX620 Laser Cordless Mouse"
-Date: Sat, 18 Sep 2010 22:59:11 +0200
-Message-ID: <AANLkTi=T6N6govmQgv5-=KMvHNBE4sX+hKfSyU6ZhUfa@mail.gmail.com>
-References: <AANLkTikOowB=8=3cnJ0QgJNfBsVeMUrkNT0E0uH2LDXL@mail.gmail.com>
-	<alpine.LNX.2.00.1009181954010.26813@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1009181954010.26813-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guillaume Chazarain <guichaz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mat <jackdachef-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andreas Bombe <aeb-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 1/2] hid: 3m: Output proper orientation range
+Date: Sun, 19 Sep 2010 10:56:03 +0200
+Message-ID: <1284886564-30928-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:44232 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751654Ab0ISI45 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 19 Sep 2010 04:56:57 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Sat, Sep 18, 2010 at 19:56, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org> wrote:
-> On Sat, 18 Sep 2010, Alex Riesen wrote:
->> [ =C2=A0192.656508] BUG: unable to handle kernel NULL pointer derefe=
-rence at (null)
->> [ =C2=A0192.658212] IP: [<ffffffff81331108>] hiddev_open+0xd1/0x19f
->> [ =C2=A0192.660745] PGD 79849067 PUD 79a9d067 PMD 0
->> [ =C2=A0192.661291] Oops: 0000 [#1] SMP
->
-> Does reverting of commit 8fe294caf8c868edd9046251824a0af91991bf43 fix=
- the
-> problem please?
+The range of orientation values for height/width devices should
+be [0, 1], but is currently set to [1, 1]. Having min == max also
+breaks uinput device setup. Fixed with this patch.
 
-=46or me too, it does help. No oops after reverting the commit.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/hid/hid-3m-pct.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/hid-3m-pct.c b/drivers/hid/hid-3m-pct.c
+index cd4b125..860d47c 100644
+--- a/drivers/hid/hid-3m-pct.c
++++ b/drivers/hid/hid-3m-pct.c
+@@ -110,7 +110,7 @@ static int mmm_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			input_set_abs_params(hi->input, ABS_MT_TOUCH_MINOR,
+ 					     f1, f2, df / SN_WIDTH, 0);
+ 			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
+-					1, 1, 0, 0);
++					0, 1, 0, 0);
+ 			return 1;
+ 		case HID_DG_CONTACTID:
+ 			field->logical_maximum = MAX_TRKID;
+-- 
+1.7.1
+

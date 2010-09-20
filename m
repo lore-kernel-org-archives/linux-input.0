@@ -1,65 +1,41 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCH v4 0/5] add tnetv107x input drivers
-Date: Mon, 20 Sep 2010 12:35:10 -0700
-Message-ID: <874odkw6mp.fsf@deeprootsystems.com>
-References: <1285000004-9464-1-git-send-email-cyril@ti.com>
+From: Maciej Rutecki <maciej.rutecki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st insert, ignored on 2nd insert, lsusb stuck at usbdev_open
+Date: Mon, 20 Sep 2010 21:35:41 +0200
+Message-ID: <201009202135.41833.maciej.rutecki@gmail.com>
+References: <4C96B9DB.8030403@turmel.org>
+Reply-To: maciej.rutecki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:47113 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932070Ab0ITTfO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Sep 2010 15:35:14 -0400
-Received: by pzk34 with SMTP id 34so1249284pzk.19
-        for <linux-input@vger.kernel.org>; Mon, 20 Sep 2010 12:35:14 -0700 (PDT)
-In-Reply-To: <1285000004-9464-1-git-send-email-cyril@ti.com> (Cyril
-	Chemparathy's message of "Mon, 20 Sep 2010 12:26:39 -0400")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C96B9DB.8030403-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Phil Turmel <philip-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>
+Cc: Guillaume Chazarain <guichaz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Cyril Chemparathy <cyril@ti.com>
-Cc: linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com, shubhrajyoti@ti.com, dmitry.torokhov@gmail.com
 
-Cyril Chemparathy <cyril@ti.com> writes:
+On poniedzia=C5=82ek, 20 wrze=C5=9Bnia 2010 o 03:33:15 Phil Turmel wrot=
+e:
+> A new regression was introduced between -rc3 and -rc4:
+>=20
+> The USB mouse I use with my laptop is causing a BUG when inserted.  I=
+t
+> works at that point, but if removed and re-inserted, it is ignored.  =
+Also,
+> after the 2nd insert, other USB devices (like my thumb drive) are als=
+o
+> ignored.
+>=20
 
-> Texas Instruments' TNETV107X is an ARM1176 based SoC, with on-chip
-> touchscreen and keypad controllers.  This patch series adds drivers for these
-> controllers.
->
-> Changes between v1 and v2:
->   1. Cleaned up platform data needs by reusing matrix keypad pdata
->   2. Eliminated calibration code from touch driver
->   3. Relocated h/w init code to open and close
->   4. Other minor cleanups
->
-> Changes between v2 and v3:
->   1. Merged keycodes alloc into keypad data
->   2. Moved irq hookup to probe from open
->   3. Other minor cleanups
->
-> Changes between v3 and v4:
->   1. Locking between hardirqs for keypad driver
->
-> Cyril Chemparathy (5):
->   input: add driver for tnetv107x on-chip keypad controller
->   davinci: add tnetv107x keypad platform device
->   davinci: add keypad config for tnetv107x evm board
->   input: add driver for tnetv107x touchscreen controller
->   davinci: add tnetv107x touchscreen platform device
+I created a Bugzilla entry at=20
+https://bugzilla.kernel.org/show_bug.cgi?id=3D18892
+for your bug report, please add your address to the CC list in there, t=
+hanks!
 
-Thanks, queuing this series for 2.6.37 in davinci-next.
-
-Kevin
-
->  arch/arm/mach-davinci/board-tnetv107x-evm.c    |   56 ++++
->  arch/arm/mach-davinci/devices-tnetv107x.c      |   50 +++
->  arch/arm/mach-davinci/include/mach/tnetv107x.h |    3 +
->  drivers/input/keyboard/Kconfig                 |    9 +
->  drivers/input/keyboard/Makefile                |    1 +
->  drivers/input/keyboard/tnetv107x-keypad.c      |  340 ++++++++++++++++++++
->  drivers/input/touchscreen/Kconfig              |    9 +
->  drivers/input/touchscreen/Makefile             |    1 +
->  drivers/input/touchscreen/tnetv107x-ts.c       |  396 ++++++++++++++++++++++++
->  9 files changed, 865 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/keyboard/tnetv107x-keypad.c
->  create mode 100644 drivers/input/touchscreen/tnetv107x-ts.c
+--=20
+Maciej Rutecki
+http://www.maciek.unixy.pl
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,61 +1,32 @@
-From: Heinz Diehl <htd@fancy-poultry.org>
-Subject: Re: [BUG] object: is not initialized, yet kobject_put() is being
- called
-Date: Mon, 20 Sep 2010 20:11:00 +0200
-Message-ID: <20100920181100.GA12295@fancy-poultry.org>
-References: <20100812091659.GA1591@arch.tripp.de>
- <alpine.LNX.2.00.1008121148100.2702@pobox.suse.cz>
- <20100812113624.GB1591@arch.tripp.de>
- <20100812114513.GA1584@arch.tripp.de>
- <20100812115657.GA1611@arch.tripp.de>
- <alpine.LNX.2.00.1008121401580.2702@pobox.suse.cz>
- <alpine.LNX.2.00.1008121457060.2702@pobox.suse.cz>
- <20100812130411.GA1626@arch.tripp.de>
- <4C63F285.8070801@signal11.us>
- <20100812164035.GB6761@fritha.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.186]:51330 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753401Ab0ITSLG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Sep 2010 14:11:06 -0400
-Content-Disposition: inline
-In-Reply-To: <20100812164035.GB6761@fritha.org>
-Sender: linux-input-owner@vger.kernel.org
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH 0/3] hid: 3m: Complete MT support
+Date: Mon, 20 Sep 2010 20:16:54 +0200
+Message-ID: <0E2212A1-A312-4477-B309-25C1C5332EE5@enac.fr>
+References: <1283005652-3198-1-git-send-email-rydberg@euromail.se>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1283005652-3198-1-git-send-email-rydberg@euromail.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Alan Ott <alan@signal11.us>, Markus Trippelsdorf <markus@trippelsdorf.de>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-On 12.08.2010, Heinz Diehl wrote: 
 
-> > >>Could please those of you, who are able to reproduce the problem, verify
-> > >>whether the patch below (completely untested) makes everything behave
-> > >>again? Thanks.
- 
-> > >Yes, everything behaves again. Thanks Jiri.
-  
-> > Seconded. Works good. Thanks for your support Jiri.
- 
-> Thirded! This fixes the warning here.
+Le 28 ao=FBt 10 =E0 16:27, Henrik Rydberg a =E9crit :
 
-Unfortunately, I have to take up this problem a second time. 
-I considered the issue fixed, and in fact it was using Jiris patch.
+> Jiri, Stephane, Dmitry,
+>
+> Please find enclosed a set of patches which enables full support for
+> the 60-finger, 22-inch 3M touchscreen. Two of the patches fix actual
+> problems, and one patch converts the driver to the MT slots protocol.
 
-However, the same problem came back while testing 2.6.36-rc4 and the
-following -git's. /var/log/warn shows the same warning as mentioned in
-the first mail in this thread:
+I'll comment each patch individually, but a general comment first: =20
+Henrik, you should add yourself and/or your employer to the copyright =20
+notice.
 
- Sep 20 08:18:42 liesel apcupsd[5436]: apcupsd FATAL ERROR in linux-usb.c at line 609 
- Cannot find UPS device -- For a link to detailed USB trouble
- shooting information, please see <http://www.apcupsd.com/support.html>.
- Sep 20 08:18:42 liesel apcupsd[5436]: apcupsd error shutdown completed
+Cheers,
 
-No additional oops this time, only the warning, and my UPS is no longer
-working.
-
-Jiris patch obviously didn't made it into 2.6.36-rc4, and it doesn't
-apply nay longer either.
-
-Thanks,
-Heinz.
+St.

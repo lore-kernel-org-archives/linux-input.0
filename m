@@ -1,36 +1,62 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH 1/3] hid: 3m: Adjust to sequential MT HID protocol
-Date: Mon, 20 Sep 2010 20:21:51 +0200
-Message-ID: <1213242F-BA51-4D3C-93F9-5CF29DEC513B@enac.fr>
-References: <1283005748-3293-1-git-send-email-rydberg@euromail.se>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1283005748-3293-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [BUG] object: is not initialized, yet kobject_put() is being
+ called
+Date: Mon, 20 Sep 2010 14:58:49 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1009201456260.2010-100000@iolanthe.rowland.org>
+References: <20100920181100.GA12295@fancy-poultry.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:36725 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1757092Ab0ITS6u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Sep 2010 14:58:50 -0400
+In-Reply-To: <20100920181100.GA12295@fancy-poultry.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heinz Diehl <htd@fancy-poultry.org>
+Cc: Alan Ott <alan@signal11.us>, Markus Trippelsdorf <markus@trippelsdorf.de>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
+On Mon, 20 Sep 2010, Heinz Diehl wrote:
 
-Le 28 ao=FBt 10 =E0 16:29, Henrik Rydberg a =E9crit :
+> On 12.08.2010, Heinz Diehl wrote: 
+> 
+> > > >>Could please those of you, who are able to reproduce the problem, verify
+> > > >>whether the patch below (completely untested) makes everything behave
+> > > >>again? Thanks.
+>  
+> > > >Yes, everything behaves again. Thanks Jiri.
+>   
+> > > Seconded. Works good. Thanks for your support Jiri.
+>  
+> > Thirded! This fixes the warning here.
+> 
+> Unfortunately, I have to take up this problem a second time. 
+> I considered the issue fixed, and in fact it was using Jiris patch.
+> 
+> However, the same problem came back while testing 2.6.36-rc4 and the
+> following -git's. /var/log/warn shows the same warning as mentioned in
+> the first mail in this thread:
+> 
+>  Sep 20 08:18:42 liesel apcupsd[5436]: apcupsd FATAL ERROR in linux-usb.c at line 609 
+>  Cannot find UPS device -- For a link to detailed USB trouble
+>  shooting information, please see <http://www.apcupsd.com/support.html>.
+>  Sep 20 08:18:42 liesel apcupsd[5436]: apcupsd error shutdown completed
+> 
+> No additional oops this time, only the warning, and my UPS is no longer
+> working.
+> 
+> Jiris patch obviously didn't made it into 2.6.36-rc4, and it doesn't
+> apply nay longer either.
 
-> The multitouch extensions to the HID protocol allows for contact
-> data to be sent over several reports, which is also the case for
-> the 3M M2256PW touchscreen. This patch modifies the logic to only
-> synchronize the input layer when all contacts have been received.
-> Consequentially, the full 60-finger capacity of the device is enabled=
-=2E
->
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->  drivers/hid/hid-3m-pct.c |   22 ++++++++++++++++++----
->  1 files changed, 18 insertions(+), 4 deletions(-)
+No, you're wrong.  The patch _is_ in 2.6.36-rc4, and that's the reason 
+why it doesn't apply any longer.
 
-You can add
+The error you see must have a different cause.  Have you read this 
+thread?
 
-Acked-by: Stephane Chatty <chatty@enac.fr>
+	http://marc.info/?t=128494644600005&r=1&w=2
 
-St.
+Alan Stern
+

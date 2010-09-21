@@ -1,42 +1,52 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st
- insert, ignored on 2nd insert, lsusb stuck at usbdev_open
-Date: Tue, 21 Sep 2010 09:50:48 -0700
-Message-ID: <20100921165048.GB8756@suse.de>
-References: <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz>
- <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st insert,
+ ignored on 2nd insert, lsusb stuck at usbdev_open
+Date: Tue, 21 Sep 2010 18:55:36 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009211852010.26813@pobox.suse.cz>
+References: <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz> <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org> <20100921165048.GB8756@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:35902 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754059Ab0IUQvK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 12:51:10 -0400
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100921165048.GB8756-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Phil Turmel <philip-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>, Mat <jackdachef-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guillaume Chazarain <guichaz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andreas Bombe <aeb-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, Alex Riesen <raa.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gabriel C <nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Jiri Kosina <jkosina@suse.cz>, Phil Turmel <philip@turmel.org>, Mat <jackdachef@gmail.com>, Guillaume Chazarain <guichaz@gmail.com>, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Ott <alan@signal11.us>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Andreas Bombe <aeb@debian.org>, Alex Riesen <raa.lkml@gmail.com>, Gabriel C <nix.or.die@googlemail.com>
 
-On Tue, Sep 21, 2010 at 10:30:18AM -0400, Alan Stern wrote:
-> On Tue, 21 Sep 2010, Jiri Kosina wrote:
-> 
-> > I have just found out that it's actually CONFIG_USB_DYNAMIC_MINORS which 
-> > makes the difference. When unset, the problem doesn't trigger, and 
-> > usb_find_interface() always returns the proper interface. When 
-> > CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
+On Tue, 21 Sep 2010, Greg KH wrote:
+
+> > > I have just found out that it's actually CONFIG_USB_DYNAMIC_MINORS which 
+> > > makes the difference. When unset, the problem doesn't trigger, and 
+> > > usb_find_interface() always returns the proper interface. When 
+> > > CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
+> > > 
+> > > I'll look into that.
 > > 
-> > I'll look into that.
+> > Apparently the problem is that intf->minors doesn't get initialized 
+> > properly.  This patch should fix it.  Everybody, please try it out.
 > 
-> Apparently the problem is that intf->minors doesn't get initialized 
-> properly.  This patch should fix it.  Everybody, please try it out.
+> Wow, what happened to suddenly cause this?  Nothing has changed here in
+> a long time.
+> 
+> wierd.
 
-Wow, what happened to suddenly cause this?  Nothing has changed here in
-a long time.
+It doesn't hit you if you are calling usb_register_dev() for all the 
+instances you have, as the first device will have minor '0', the second 
+one '1', etc.
 
-wierd.
+But if you are calling usb_find_interface() for devices that have never 
+been registered through usb_register_dev(), then you have a problem, as 
+usb_find_interface() will match those unregistered devices (as minor == 0 
+in such cases).
 
-thanks,
+This is probably quite rare scenario, and hiddev (which might be the only 
+in-kernel driver doing this?) has moved to usb_find_interface() only 
+recently.
 
-greg k-h
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

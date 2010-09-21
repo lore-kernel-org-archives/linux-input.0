@@ -1,59 +1,126 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: gyration remote - europe/QWERTZ version (GYAR3101CKDE)
-Date: Tue, 21 Sep 2010 16:19:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211618440.26813@pobox.suse.cz>
-References: <20100809083831.76426571@grobi> <AANLkTin4bsd4SAfy35SzaEMR-S+moALGcNMfzttmJQ6U@mail.gmail.com> <alpine.LNX.2.00.1008201111220.1019@pobox.suse.cz> <20100913082219.2d8ebbbc@grobi>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st insert,
+ ignored on 2nd insert, lsusb stuck at usbdev_open
+Date: Tue, 21 Sep 2010 10:30:18 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org>
+References: <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58867 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753029Ab0IUOTZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 10:19:25 -0400
-In-Reply-To: <20100913082219.2d8ebbbc@grobi>
+Received: from iolanthe.rowland.org ([192.131.102.54]:55280 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753279Ab0IUOaV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 10:30:21 -0400
+In-Reply-To: <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Steffen Barszus <steffenbpunkt@googlemail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Phil Turmel <philip@turmel.org>, Mat <jackdachef@gmail.com>, Guillaume Chazarain <guichaz@gmail.com>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Oliver Neukum <oliver@neukum.org>, Alan Ott <alan@signal11.us>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Andreas Bombe <aeb@debian.org>, Alex Riesen <raa.lkml@gmail.com>, Gabriel C <nix.or.die@googlemail.com>
 
-On Mon, 13 Sep 2010, Steffen Barszus wrote:
+On Tue, 21 Sep 2010, Jiri Kosina wrote:
 
-> > I haven't been CCed on your original mail, was I?
+> I have just found out that it's actually CONFIG_USB_DYNAMIC_MINORS which 
+> makes the difference. When unset, the problem doesn't trigger, and 
+> usb_find_interface() always returns the proper interface. When 
+> CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
 > 
-> No
-> 
-> > Anyway, would you be able to send the patch properly to me, so that I 
-> > could apply it? (i.e. not line-wrapped and whitespace damaged, with
-> > proper Signed-off-by line, etc -- see Documentation/SubmittingPatches
-> > if in doubt).
-> 
-> Hope this time its correct. Please let me know if you miss something.
-> 
-> > Thanks,
-> > 
-> 
-> Signed-off-by: Steffen Barszus <steffenbpunkt[AT]googlemail[DOT]com>
-> --- linux-2.6/drivers/hid/hid-gyration.c.orig	2010-09-13 08:16:36.353369149 +0200
-> +++ linux-2.6/drivers/hid/hid-gyration.c	2010-09-13 08:17:56.629965460 +0200
-> @@ -43,6 +43,11 @@ static int gyration_input_mapping(struct
->  	case 0x048: gy_map_key_clear(KEY_MEDIA);	break;
->  	case 0x049: gy_map_key_clear(KEY_CAMERA);	break;
->  	case 0x04a: gy_map_key_clear(KEY_VIDEO);	break;
-> +	case 0x05a: gy_map_key_clear(KEY_TEXT);		break;
-> +	case 0x05b: gy_map_key_clear(KEY_RED);		break;
-> +	case 0x05c: gy_map_key_clear(KEY_GREEN);	break;
-> +	case 0x05d: gy_map_key_clear(KEY_YELLOW);	break;
-> +	case 0x05e: gy_map_key_clear(KEY_BLUE);		break;
->  
->  	default:
->  		return 0;
+> I'll look into that.
 
-Almost there :) Please also include changelog (short description of what 
-the patch does, which device contains these keys, etc) together with the 
-actual patch, so that I could apply it.
+Apparently the problem is that intf->minors doesn't get initialized 
+properly.  This patch should fix it.  Everybody, please try it out.
 
-Thanks,
+Alan Stern
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+
+Index: usb-2.6/drivers/usb/core/file.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/core/file.c
++++ usb-2.6/drivers/usb/core/file.c
+@@ -159,9 +159,9 @@ void usb_major_cleanup(void)
+ int usb_register_dev(struct usb_interface *intf,
+ 		     struct usb_class_driver *class_driver)
+ {
+-	int retval = -EINVAL;
++	int retval;
+ 	int minor_base = class_driver->minor_base;
+-	int minor = 0;
++	int minor;
+ 	char name[20];
+ 	char *temp;
+ 
+@@ -173,12 +173,17 @@ int usb_register_dev(struct usb_interfac
+ 	 */
+ 	minor_base = 0;
+ #endif
+-	intf->minor = -1;
+-
+-	dbg ("looking for a minor, starting at %d", minor_base);
+ 
+ 	if (class_driver->fops == NULL)
+-		goto exit;
++		return -EINVAL;
++	if (intf->minor >= 0)
++		return -EADDRINUSE;
++
++	retval = init_usb_class();
++	if (retval)
++		return retval;
++
++	dev_dbg(&intf->dev, "looking for a minor, starting at %d", minor_base);
+ 
+ 	down_write(&minor_rwsem);
+ 	for (minor = minor_base; minor < MAX_USB_MINORS; ++minor) {
+@@ -186,20 +191,12 @@ int usb_register_dev(struct usb_interfac
+ 			continue;
+ 
+ 		usb_minors[minor] = class_driver->fops;
+-
+-		retval = 0;
++		intf->minor = minor;
+ 		break;
+ 	}
+ 	up_write(&minor_rwsem);
+-
+-	if (retval)
+-		goto exit;
+-
+-	retval = init_usb_class();
+-	if (retval)
+-		goto exit;
+-
+-	intf->minor = minor;
++	if (intf->minor < 0)
++		return -EXFULL;
+ 
+ 	/* create a usb class device for this usb interface */
+ 	snprintf(name, sizeof(name), class_driver->name, minor - minor_base);
+@@ -212,12 +209,12 @@ int usb_register_dev(struct usb_interfac
+ 				      MKDEV(USB_MAJOR, minor), class_driver,
+ 				      "%s", temp);
+ 	if (IS_ERR(intf->usb_dev)) {
++		retval = PTR_ERR(intf->usb_dev);
+ 		down_write(&minor_rwsem);
+-		usb_minors[intf->minor] = NULL;
++		usb_minors[minor] = NULL;
++		intf->minor = -1;
+ 		up_write(&minor_rwsem);
+-		retval = PTR_ERR(intf->usb_dev);
+ 	}
+-exit:
+ 	return retval;
+ }
+ EXPORT_SYMBOL_GPL(usb_register_dev);
+Index: usb-2.6/drivers/usb/core/message.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/core/message.c
++++ usb-2.6/drivers/usb/core/message.c
+@@ -1803,6 +1803,7 @@ free_interfaces:
+ 		intf->dev.groups = usb_interface_groups;
+ 		intf->dev.dma_mask = dev->dev.dma_mask;
+ 		INIT_WORK(&intf->reset_ws, __usb_queue_reset_device);
++		intf->minor = -1;
+ 		device_initialize(&intf->dev);
+ 		dev_set_name(&intf->dev, "%d-%s:%d.%d",
+ 			dev->bus->busnum, dev->devpath,
+

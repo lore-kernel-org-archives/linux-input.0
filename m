@@ -1,51 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st insert,
- ignored on 2nd insert, lsusb stuck at usbdev_open
-Date: Tue, 21 Sep 2010 16:55:58 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211655190.26813@pobox.suse.cz>
-References: <4C96B9DB.8030403@turmel.org> <AANLkTi=1zh4hD-1uzpgjAsnKZBE=qi_ZAX-ug=2XMkW0@mail.gmail.com> <alpine.LNX.2.00.1009201440140.26813@pobox.suse.cz> <4C975F79.9060609@turmel.org> <alpine.LNX.2.00.1009201524340.26813@pobox.suse.cz>
- <AANLkTim6PBGEBz8_PVpK2YajgtejsbAgL11i+DMN-7jh@mail.gmail.com> <alpine.LNX.2.00.1009201708340.26813@pobox.suse.cz> <4C979C79.9090901@turmel.org> <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz> <alpine.LNX.2.00.1009211556200.26813@pobox.suse.cz>
- <20100921144814.GA6484@fritha.org>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH] Fix for problems with eGalax/DWAV multi-touch-screen
+Date: Tue, 21 Sep 2010 17:07:24 +0200
+Message-ID: <4563C8AB-A357-4D31-9943-E25951536977@enac.fr>
+References: <1284476919.3732.10.camel@PhEeeTab>  <DAB0AEF8-B5D1-4D21-83E2-6535B8AA0A4B@enac.fr> <alpine.LNX.2.00.1009211606180.26813@pobox.suse.cz>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:59009 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755527Ab0IUOz7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 10:55:59 -0400
-In-Reply-To: <20100921144814.GA6484@fritha.org>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:42399 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755612Ab0IUPHc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 11:07:32 -0400
+In-Reply-To: <alpine.LNX.2.00.1009211606180.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heinz Diehl <htd@fritha.org>
-Cc: Phil Turmel <philip@turmel.org>, Mat <jackdachef@gmail.com>, Guillaume Chazarain <guichaz@gmail.com>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>, Alan Ott <alan@signal11.us>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Andreas Bombe <aeb@debian.org>, Alex Riesen <raa.lkml@gmail.com>, Gabriel C <nix.or.die@googlemail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Philipp Merkel <mail@philmerk.de>, linux-input <linux-input@vger.kernel.org>
 
-On Tue, 21 Sep 2010, Heinz Diehl wrote:
 
-> > > I have just found out that it's actually CONFIG_USB_DYNAMIC_MINORS which 
-> > > makes the difference. When unset, the problem doesn't trigger, and 
-> > > usb_find_interface() always returns the proper interface. When 
-> > > CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
-> 
-> I don't have it set in my .config:
-> 
-> liesel:/usr/src/linux-2.6.36-rc4-git5 # cat .config | grep DYNAMIC_MINORS
-> CONFIG_SND_DYNAMIC_MINORS=y
-> # CONFIG_USB_DYNAMIC_MINORS is not set
-> 
-> > Could you guys please verify whether the patch below fixes the issues you 
-> > were seeing and puts everything back into shape again? Thanks.
-> 
-> Your patch applies cleanly to 2.6.36-rc4-git5, however, it doesn't fix the
-> problem for me. 
-> 
-> My .config is attached.
+Le 21 sept. 10 =E0 16:06, Jiri Kosina a =E9crit :
 
-OK, so that is likely something completely different (and you even don't 
-have NULL pointer dereference).
+> On Mon, 20 Sep 2010, St=E9phane Chatty wrote:
+>
+>>> 3) Only multi-touch pressure events are sent, single touch =20
+>>> emulation is
+>>>   missing pressure information. This patch adds single-touch
+>>>   ABS_PRESSURE events.
+>>>
+>> Oops, thx for the fix.
+>
+> Stephane, can I consider this being your Acked-by: for the whole =20
+> patch?
 
-Let's not hijack this thread for this different problem of yours, and 
-let's continue in the original one.
+Well, there's still the issue of the 0eef:72xx series that might be =20
+disrupted by the patch. We can decide to remove that series from the =20
+list of supported devices, but it would be good to check first =20
+whether these panels have the same issue or not. If they do, we can =20
+apply the patch without second thoughts. If they don't, we should =20
+probably remove them and write another driver. I have asked feedback =20
+from an author of PyMT who owns a Joojoo.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Cheers,
+
+St. --
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

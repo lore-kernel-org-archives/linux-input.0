@@ -1,45 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/3] hid: 3m: Convert to MT slots
-Date: Tue, 21 Sep 2010 23:24:19 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009212324100.26813@pobox.suse.cz>
-References: <1283005748-3293-1-git-send-email-rydberg@euromail.se>    <1283005748-3293-2-git-send-email-rydberg@euromail.se>    <CE1C24FC-7C9A-4940-8141-391A368C59E5@enac.fr>   <4C97BB33.5020806@euromail.se>   <6A8BB954-78BB-4507-86F3-19DA5174FA5E@enac.fr>
-  <4C97BE69.2030100@euromail.se>  <EBFF8B5B-5361-45B3-88B8-8254E3953578@enac.fr> <4C98ED5B.7020408@euromail.se> <83EE14B9-C3BB-43DA-AF0B-962EA40C0DB5@enac.fr>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: [RESEND] hid: 3m: Adjust major / minor axes to scale
+Date: Tue, 21 Sep 2010 23:45:25 +0200
+Message-ID: <4C992775.3000000@euromail.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46909 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757322Ab0IUVYU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 17:24:20 -0400
-In-Reply-To: <83EE14B9-C3BB-43DA-AF0B-962EA40C0DB5@enac.fr>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:42367 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755582Ab0IUVpi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 17:45:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Tue, 21 Sep 2010, St=E9phane Chatty wrote:
+By visual inspection, the reported touch_major and touch_minor axes
+are a factor of two too large. Presumably the device actually reports
+the width_major and width_minor, which are generally about a factor of
+two larger than the touches themselves.
 
-> > > Anyway, I have no more problem with this constant. Just with the=20
-> > > vocabulary :-)
-> >=20
-> > In the HID protocol, it is called ContactID... So, St=E9phane, are =
-we=20
-> > close to acking this patch now? :-)
->=20
-> Oh yes of course, I was not clear enough in the above message. To mak=
-e things
-> more formal:
->=20
-> Acked-by: St=E9phane Chatty <chaty@enac.fr>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Just in case this patch got lost somewhere, here it is again.
 
-Applied, thanks!
+Cheers,
+Henrik
 
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/hid/hid-3m-pct.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-3m-pct.c b/drivers/hid/hid-3m-pct.c
+index 65441e0..cd4b125 100644
+--- a/drivers/hid/hid-3m-pct.c
++++ b/drivers/hid/hid-3m-pct.c
+@@ -162,16 +162,18 @@ static void mmm_filter_event(struct mmm_data *md, struct
+input_dev *input)
+ 		if (f->touch) {
+ 			/* this finger is on the screen */
+ 			int wide = (f->w > f->h);
++			/* divided by two to match visual scale of touch */
++			int major = max(f->w, f->h) >> 1;
++			int minor = min(f->w, f->h) >> 1;
++
+ 			if (!f->prev_touch)
+ 				f->id = md->id++;
+ 			input_event(input, EV_ABS, ABS_MT_TRACKING_ID, f->id);
+ 			input_event(input, EV_ABS, ABS_MT_POSITION_X, f->x);
+ 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, f->y);
+ 			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+-			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR,
+-						wide ? f->w : f->h);
+-			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR,
+-						wide ? f->h : f->w);
++			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
++			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+ 			/* touchscreen emulation: pick the oldest contact */
+ 			if (!oldest || ((f->id - oldest->id) & (SHRT_MAX + 1)))
+ 				oldest = f;
+-- 
+1.7.1
+
+

@@ -1,99 +1,79 @@
-From: "G, Manjunath Kondaiah" <manjugk@ti.com>
-Subject: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
-Date: Tue, 21 Sep 2010 17:19:30 +0530
-Message-ID: <1285069770-4261-1-git-send-email-manjugk@ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st insert,
+ ignored on 2nd insert, lsusb stuck at usbdev_open
+Date: Tue, 21 Sep 2010 14:31:20 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz>
+References: <4C96B9DB.8030403@turmel.org> <AANLkTi=1zh4hD-1uzpgjAsnKZBE=qi_ZAX-ug=2XMkW0@mail.gmail.com> <alpine.LNX.2.00.1009201440140.26813@pobox.suse.cz> <4C975F79.9060609@turmel.org> <alpine.LNX.2.00.1009201524340.26813@pobox.suse.cz>
+ <AANLkTim6PBGEBz8_PVpK2YajgtejsbAgL11i+DMN-7jh@mail.gmail.com> <alpine.LNX.2.00.1009201708340.26813@pobox.suse.cz> <4C979C79.9090901@turmel.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:40625 "EHLO comal.ext.ti.com"
+Received: from cantor.suse.de ([195.135.220.2]:53835 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752179Ab0IULtz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 07:49:55 -0400
+	id S1753622Ab0IUMbX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 08:31:23 -0400
+In-Reply-To: <4C979C79.9090901@turmel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, linux-arm-kernel@lists.infradead.org, Tony Lindgren <tony@atomide.com>
+To: Phil Turmel <philip@turmel.org>
+Cc: Mat <jackdachef@gmail.com>, Guillaume Chazarain <guichaz@gmail.com>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>, Alan Ott <alan@signal11.us>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Andreas Bombe <aeb@debian.org>, Alex Riesen <raa.lkml@gmail.com>, Gabriel C <nix.or.die@googlemail.com>
 
-The failure exit paths seems to be wrong in probe function.
-This patch corrects exit failure paths for error handling
-cases.
+On Mon, 20 Sep 2010, Phil Turmel wrote:
 
-Boot warning incase of request irq failure:
+> dmesg attached.  Note: the timestamp of the BUG corresponds to hal 
+> startup when the external mouse is plugged in before booting.
 
-[    1.553985] twl4030_keypad twl4030_keypad: request_irq failed for irq no=369
-[    1.561157] ------------[ cut here ]------------
-[    1.565795] WARNING: at kernel/irq/manage.c:899 __free_irq+0x88/0x164()
-[    1.572418] Trying to free already-free IRQ 369
-[    1.576965] Modules linked in:
-[    1.580047] [<c00470ec>] (unwind_backtrace+0x0/0xe4) from [<c0078b5c>] (warn_slowpath_common+0x4c/0x64)
-[    1.589477] [<c0078b5c>] (warn_slowpath_common+0x4c/0x64) from [<c0078bf4>] (warn_slowpath_fmt+0x2c/0x3c)
-[    1.599060] [<c0078bf4>] (warn_slowpath_fmt+0x2c/0x3c) from [<c00adb90>] (__free_irq+0x88/0x164)
-[    1.607849] [<c00adb90>] (__free_irq+0x88/0x164) from [<c00adca8>] (free_irq+0x3c/0x5c)
-[    1.615875] [<c00adca8>] (free_irq+0x3c/0x5c) from [<c043ab2c>] (twl4030_kp_probe+0x308/0x374)
-[    1.624511] [<c043ab2c>] (twl4030_kp_probe+0x308/0x374) from [<c023c338>] (platform_drv_probe+0x14/0x18)
-[    1.634033] [<c023c338>] (platform_drv_probe+0x14/0x18) from [<c023b4dc>] (driver_probe_device+0xc8/0x184)
-[    1.643707] [<c023b4dc>] (driver_probe_device+0xc8/0x184) from [<c023b600>] (__driver_attach+0x68/0x8c)
-[    1.653106] [<c023b600>] (__driver_attach+0x68/0x8c) from [<c023ad34>] (bus_for_each_dev+0x48/0x74)
-[    1.662170] [<c023ad34>] (bus_for_each_dev+0x48/0x74) from [<c023a690>] (bus_add_driver+0x9c/0x210)
-[    1.671234] [<c023a690>] (bus_add_driver+0x9c/0x210) from [<c023b8f8>] (driver_register+0xa8/0x134)
-[    1.680297] [<c023b8f8>] (driver_register+0xa8/0x134) from [<c0041340>] (do_one_initcall+0x58/0x1b4)
-[    1.689453] [<c0041340>] (do_one_initcall+0x58/0x1b4) from [<c0008574>] (kernel_init+0x98/0x150)
-[    1.698272] [<c0008574>] (kernel_init+0x98/0x150) from [<c0042970>] (kernel_thread_exit+0x0/0x8)
-[    1.707214] ---[ end trace 6559b322ad3cbdfe ]---
-[    1.718292] twl4030_keypad: probe of twl4030_keypad failed with error -16
+Mat, Phil, Gabriel,
 
-Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
-Cc: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-input@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>
----
- version v1 : initial patch
- version v2 : CC'ed input subsystem and arm kernel mailing lists.
+thanks for providing the dmesg with the debugging patch in place. Here we 
+go:
 
- drivers/input/keyboard/twl4030_keypad.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+[snip]
+> [    3.268784] HID debug: usbhid_probe() -- set intfdata(ffff880137d0ac00, ffff88013a7c0000)
+> [    3.278462] input: DualPoint Stick as /devices/platform/i8042/serio1/input/input6
+> [    3.285212] HID debug: hid_connect() -- hid: ffff88013a7c0000
+> [    3.286141] input: Logitech USB Receiver as /devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.0/input/input7
+> [    3.287413] generic-usb 0003:046D:C51B.0001: input,hidraw0: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:00:1d.0-1/input0
 
-diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index fb16b5e..39a9f30 100644
---- a/drivers/input/keyboard/twl4030_keypad.c
-+++ b/drivers/input/keyboard/twl4030_keypad.c
-@@ -347,8 +347,7 @@ static int __devinit twl4030_kp_probe(struct platform_device *pdev)
- 	kp = kzalloc(sizeof(*kp), GFP_KERNEL);
- 	input = input_allocate_device();
- 	if (!kp || !input) {
--		error = -ENOMEM;
--		goto err1;
-+		return -ENOMEM;
- 	}
- 
- 	/* Get the debug Device */
-@@ -406,23 +405,22 @@ static int __devinit twl4030_kp_probe(struct platform_device *pdev)
- 	if (error) {
- 		dev_info(kp->dbg_dev, "request_irq failed for irq no=%d\n",
- 			kp->irq);
--		goto err3;
-+		goto err2;
- 	}
- 
- 	/* Enable KP and TO interrupts now. */
- 	reg = (u8) ~(KEYP_IMR1_KP | KEYP_IMR1_TO);
- 	if (twl4030_kpwrite_u8(kp, reg, KEYP_IMR1)) {
- 		error = -EIO;
--		goto err4;
-+		goto err3;
- 	}
- 
- 	platform_set_drvdata(pdev, kp);
- 	return 0;
- 
--err4:
-+err3:
- 	/* mask all events - we don't care about the result */
- 	(void) twl4030_kpwrite_u8(kp, 0xff, KEYP_IMR1);
--err3:
- 	free_irq(kp->irq, NULL);
- err2:
- 	input_unregister_device(input);
+hid device pointer 0xffff88013a7c0000, usb_interface pointer 
+0xffff880137d0ac00. This interface doesn't get registered with hiddev.
+
+> [    3.288338] HID debug: usbhid_probe() -- set intfdata(ffff880137d0a400, ffff880138344000)
+> [    3.303524] HID debug: hid_connect() -- hid: ffff880138344000
+> [    3.304424] HID debug: hiddev_connect() -- hid: ffff880138344000, hiddev: ffff880137ce9f00, intf: ffff880137d0a400
+> [    3.305678] HID debug: hid_connect() -- after hiddev_connect(), hid: ffff880138344000, hiddev: ffff880137ce9f00
+> [    3.306609] generic-usb 0003:046D:C51B.0002: hiddev0,hidraw1: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:1d.0-1/input1
+
+hid device pointer 0xffff880138344000, usb_interface pointer 
+0xffff880137d0a400. This interface does get registered with hiddev 
+(allocated at 0xffff880137ce9f00), doesn't get registered with input. So 
+far so good.
+
+[snip]
+> [   22.705849] HID debug: hiddev_open(): hid: ffff88013a7c0000, hiddev: (null), intf: ffff880137d0ac00
+
+hiddev_open() has been called. usb_find_interface(&hid_driver, minor) 
+returned interface pointer 0xffff880137d0ac00. Which is bogus! Interface 
+0xffff880137d0ac00 is not registered with hiddev at all, we should have 
+received 0xffff880137d0a400.
+
+We currently register minors only for those usbhid devices (through 
+usb_register_dev() in hiddev_connect()) which are going to be claimed by 
+hiddev. It doesn't seem to be problematic to me, and I don't undersntand 
+why usb_find_interface() returns wrong interface.
+
+I have just found out that it's actually CONFIG_USB_DYNAMIC_MINORS which 
+makes the difference. When unset, the problem doesn't trigger, and 
+usb_find_interface() always returns the proper interface. When 
+CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
+
+I'll look into that.
+
+> [   22.705859] BUG: unable to handle kernel NULL pointer dereference at (null)
+
+This is then immediate consequence, as that device has nothing associated 
+in its hiddev pointer of course.
+
 -- 
-1.7.0.4
-
+Jiri Kosina
+SUSE Labs, Novell Inc.

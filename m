@@ -1,62 +1,39 @@
-From: Sergei Shtylyov <sshtylyov@mvista.com>
-Subject: Re: [PATCH v2 1/1] Don't Send Feature Reports on Interrupt Endpoint
-Date: Tue, 21 Sep 2010 21:58:29 +0400
-Message-ID: <4C98F245.2000002@ru.mvista.com>
-References: <ba7172472e7fa92f305c16ab3456da18.squirrel@host171.canaca.com> <4C98EAAE.3020409@signal11.us>
+From: Heinz Diehl <htd@fancy-poultry.org>
+Subject: Re: [BUG] object: is not initialized, yet kobject_put() is being
+ called
+Date: Tue, 21 Sep 2010 20:48:20 +0200
+Message-ID: <20100921184820.GA6379@fancy-poultry.org>
+References: <alpine.LNX.2.00.1008121457060.2702@pobox.suse.cz>
+ <20100812130411.GA1626@arch.tripp.de>
+ <4C63F285.8070801@signal11.us>
+ <20100812164035.GB6761@fritha.org>
+ <20100920181100.GA12295@fancy-poultry.org>
+ <alpine.LNX.2.00.1009211653510.26813@pobox.suse.cz>
+ <20100921150900.GA6801@fritha.org>
+ <alpine.LNX.2.00.1009211714400.26813@pobox.suse.cz>
+ <20100921152728.GA13464@fritha.org>
+ <alpine.LNX.2.00.1009211821560.26813@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:38548 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758043Ab0IUR7Q (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.9]:60104 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750795Ab0IUSs1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 13:59:16 -0400
-In-Reply-To: <4C98EAAE.3020409@signal11.us>
+	Tue, 21 Sep 2010 14:48:27 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1009211821560.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Heinz Diehl <htd@fritha.org>, Alan Ott <alan@signal11.us>, Markus Trippelsdorf <markus@trippelsdorf.de>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-Hello.
+On 21.09.2010, Jiri Kosina wrote: 
 
-Alan Ott wrote:
+> Do you have 8fe294caf8c868edd9046251824a0af91991bf43 commit applied? (it 
+> is included in -rc5).
 
-> Feature reports should only be sent on the control endpoint.
+That's it! All works fine now.
+Many thanks for your patience and help!
 
-> The USB HID standard is unclear and confusing on this issue. It seems to
-> suggest that Feature reports can be sent on a HID device's Interrupt OUT
-> endpoint. This cannot be the case because the report type is not
-> encoded in transfers sent out the Interrput OUT endpoint. If Feature 
-> reports were sent on the Interrupt OUT endpint, they would be 
-> indistinguishable from Output reports in the case where Report IDs were 
-> not used.
-
-> Further, Windows and Mac OS X do not send Feature reports out the 
-> interrupt OUT Endpoint. They will only go out the Control Endpoint.
-
-> In addition, many devices simply do not hande Feature reports sent out 
-> the Interrupt OUT endpoint.
-
-> Reported-by: simon@mungewell.org
-> Signed-off-by: Alan Ott <alan@signal11.us>
-> ---
->  drivers/hid/usbhid/hid-core.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index b729c02..b0ccc42 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -807,7 +807,7 @@ static int usbhid_output_raw_report(struct 
-> hid_device *hid, __u8 *buf, size_t co
->      struct usb_host_interface *interface = intf->cur_altsetting;
->      int ret;
-
-    It's high time to add an empty line here...
-
->  -    if (usbhid->urbout) {
-
-    The patch is damaged -- something inserted spaces at the start of lines...
-
-WBR, Sergei
+Heinz

@@ -1,49 +1,33 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG] object: is not initialized, yet kobject_put() is being
- called
-Date: Tue, 21 Sep 2010 15:14:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211513440.26813@pobox.suse.cz>
-References: <20100920181100.GA12295@fancy-poultry.org> <Pine.LNX.4.44L0.1009201456260.2010-100000@iolanthe.rowland.org> <20100920193913.GA6448@fritha.org>
+From: Ameya Palande <ameya.palande@nokia.com>
+Subject: Re: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
+Date: Tue, 21 Sep 2010 16:34:20 +0300
+Message-ID: <1285076060.14206.3.camel@chotu>
+References: <1285069770-4261-1-git-send-email-manjugk@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:55190 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753932Ab0IUNOW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 09:14:22 -0400
-In-Reply-To: <20100920193913.GA6448@fritha.org>
+Received: from smtp.nokia.com ([192.100.122.230]:22490 "EHLO
+	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753234Ab0IUNen (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 09:34:43 -0400
+In-Reply-To: <1285069770-4261-1-git-send-email-manjugk@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heinz Diehl <htd@fritha.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Heinz Diehl <htd@fancy-poultry.org>, Alan Ott <alan@signal11.us>, Markus Trippelsdorf <markus@trippelsdorf.de>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+To: "ext G, Manjunath Kondaiah" <manjugk@ti.com>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Tony Lindgren <tony@atomide.com>
 
-On Mon, 20 Sep 2010, Heinz Diehl wrote:
+Hi Manjunath,
 
-> > No, you're wrong.  The patch _is_ in 2.6.36-rc4, and that's the reason 
-> > why it doesn't apply any longer.
-> 
-> Yes, you're right. 
-> 
-> > The error you see must have a different cause.  Have you read this 
-> > thread?
-> > 
-> > 	http://marc.info/?t=128494644600005&r=1&w=2
-> 
-> No, not before until now. This problem seems not to be related to what I 
-> see on my machines, and reverting commit 8fe294caf8c868edd9046251824a0af91991bf43 as
-> mentioned in there doesn't help either.
-> 
-> 2.6.35.4 works, 2.6.36-rc4 does not. What can I do to help to find the
-> issue?
-> 
-> Attached are the dmesg output for both 2.6.35.4 and 2.6.36-rc4.
+On Tue, 2010-09-21 at 13:49 +0200, ext G, Manjunath Kondaiah wrote:
+> The failure exit paths seems to be wrong in probe function.
+> This patch corrects exit failure paths for error handling
+> cases.
 
-Just to verify that you are really being hit by the same issue -- you are 
-using CONFIG_USB_DYNAMIC_MINORS, aren't you? Does the problem go away if 
-you disable this?
+https://patchwork.kernel.org/patch/160551/
+Any comments on this?
 
-Thanks,
+Cheers,
+Ameya.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.

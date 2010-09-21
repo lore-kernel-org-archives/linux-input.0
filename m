@@ -1,49 +1,62 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st insert,
- ignored on 2nd insert, lsusb stuck at usbdev_open
-Date: Tue, 21 Sep 2010 19:14:45 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211913260.26813@pobox.suse.cz>
-References: <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz> <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org> <20100921165048.GB8756@suse.de> <alpine.LNX.2.00.1009211852010.26813@pobox.suse.cz> <20100921170728.GA10105@suse.de>
+From: Alan Ott <alan@signal11.us>
+Subject: [PATCH v2 1/1] Don't Send Feature Reports on Interrupt Endpoint
+Date: Tue, 21 Sep 2010 13:26:06 -0400
+Message-ID: <4C98EAAE.3020409__23392.2972031452$1285089993$gmane$org@signal11.us>
+References: <ba7172472e7fa92f305c16ab3456da18.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100921170728.GA10105@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Phil Turmel <philip@turmel.org>, Mat <jackdachef@gmail.com>, Guillaume Chazarain <guichaz@gmail.com>, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Ott <alan@signal11.us>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Andreas Bombe <aeb@debian.org>, Alex Riesen <raa.lkml@gmail.com>, Gabriel C <nix.or.die@googlemail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from core.signal11.us ([64.251.29.136]:55409 "EHLO core.signal11.us"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753565Ab0IUR0I (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 13:26:08 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id BA1FA1CCAA76
+	for <linux-input@vger.kernel.org>; Tue, 21 Sep 2010 13:26:07 -0400 (EDT)
+In-Reply-To: <ba7172472e7fa92f305c16ab3456da18.squirrel@host171.canaca.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, linux
+Cc: Alan Ott <alan@signal11.us>
 
-On Tue, 21 Sep 2010, Greg KH wrote:
+Feature reports should only be sent on the control endpoint.
 
-> > It doesn't hit you if you are calling usb_register_dev() for all the 
-> > instances you have, as the first device will have minor '0', the 
-> > second one '1', etc.
-> > 
-> > But if you are calling usb_find_interface() for devices that have never 
-> > been registered through usb_register_dev(), then you have a problem, as 
-> > usb_find_interface() will match those unregistered devices (as minor == 0 
-> > in such cases).
-> > 
-> > This is probably quite rare scenario, and hiddev (which might be the only 
-> > in-kernel driver doing this?) has moved to usb_find_interface() only 
-> > recently.
-> 
-> Ah, ok, that makes sense, I never thought of someone calling that
-> function if they had never registered a device :)
-> 
-> When did hiddev make this change?  We need to know that for the -stable
-> backport of this patch.
+The USB HID standard is unclear and confusing on this issue. It seems to
+suggest that Feature reports can be sent on a HID device's Interrupt OUT
+endpoint. This cannot be the case because the report type is not
+encoded in transfers sent out the Interrput OUT endpoint. If Feature 
+reports were sent on the Interrupt OUT endpint, they would be 
+indistinguishable from Output reports in the case where Report IDs were 
+not used.
 
-This all comes from BKL removal in bd25f4dd697275. Which has been merged 
-for 2.6.36-rc1, so it hasn't hit any release yet, so there shouldn't be 
-anything needed for any -stable release.
+Further, Windows and Mac OS X do not send Feature reports out the 
+interrupt OUT Endpoint. They will only go out the Control Endpoint.
 
-> Alan, care to resend the patch in a format I can apply it?
+In addition, many devices simply do not hande Feature reports sent out 
+the Interrupt OUT endpoint.
 
-It's definitely 2.6.36 material.
+Reported-by: simon@mungewell.org
+Signed-off-by: Alan Ott <alan@signal11.us>
+---
+  drivers/hid/usbhid/hid-core.c |    2 +-
+  1 files changed, 1 insertions(+), 1 deletions(-)
 
-Thanks,
-
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index b729c02..b0ccc42 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -807,7 +807,7 @@ static int usbhid_output_raw_report(struct 
+hid_device *hid, __u8 *buf, size_t co
+  	struct usb_host_interface *interface = intf->cur_altsetting;
+  	int ret;
+  -	if (usbhid->urbout) {
++	if (usbhid->urbout && report_type != HID_FEATURE_REPORT) {
+  		int actual_length;
+  		int skipped_report_id = 0;
+  		if (buf[0] == 0x0) {
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.7.0.4
+
+
+

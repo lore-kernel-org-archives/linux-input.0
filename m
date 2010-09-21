@@ -1,40 +1,34 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Fix for problems with eGalax/DWAV multi-touch-screen
-Date: Tue, 21 Sep 2010 16:06:39 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211606180.26813@pobox.suse.cz>
-References: <1284476919.3732.10.camel@PhEeeTab> <DAB0AEF8-B5D1-4D21-83E2-6535B8AA0A4B@enac.fr>
+Subject: Re: [PATCH] hid: Add a hid quirk for input sync override
+Date: Tue, 21 Sep 2010 16:12:34 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009211612100.26813@pobox.suse.cz>
+References: <1282640084-19217-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:57214 "EHLO mx1.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:57406 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754791Ab0IUOGk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 10:06:40 -0400
-In-Reply-To: <DAB0AEF8-B5D1-4D21-83E2-6535B8AA0A4B@enac.fr>
+	id S1753462Ab0IUOMg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 10:12:36 -0400
+In-Reply-To: <1282640084-19217-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Philipp Merkel <mail@philmerk.de>, linux-input <linux-input@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
-On Mon, 20 Sep 2010, St=E9phane Chatty wrote:
+On Tue, 24 Aug 2010, Henrik Rydberg wrote:
 
-> > 3) Only multi-touch pressure events are sent, single touch emulatio=
-n is
-> >   missing pressure information. This patch adds single-touch
-> >   ABS_PRESSURE events.
-> >=20
-> Oops, thx for the fix.
+> From: Henrik Rydberg <rydberg@thabit.(none)>
+> 
+> As of lately, HID devices which send per-frame data split over several
+> HID reports have started to emerge. This patch adds a quirk which
+> allows the HID driver to take over the input layer synchronization,
+> and hence the control of the frame boundary.
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 
-Stephane, can I consider this being your Acked-by: for the whole patch?
+Applied, thanks (into 3m branch, as 3m patches depend on this).
 
-Thanks,
-
---=20
+-- 
 Jiri Kosina
 SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

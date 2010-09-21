@@ -1,29 +1,56 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [RESEND] hid: 3m: Adjust major / minor axes to scale
-Date: Tue, 21 Sep 2010 23:51:31 +0200
-Message-ID: <B4B2743B-D21F-4EC2-8E1E-5C52C78B5AF6@enac.fr>
-References: <4C992775.3000000@euromail.se>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Alan Ott <alan@signal11.us>
+Subject: [PATCH v3 1/1] Don't Send Feature Reports on Interrupt Endpoint
+Date: Tue, 21 Sep 2010 18:06:32 -0400
+Message-ID: <1285106792-5818-1-git-send-email-alan@signal11.us>
+References: <4C98EAAE.3020409@signal11.us>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:55257 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755901Ab0IUVvi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 17:51:38 -0400
-In-Reply-To: <4C992775.3000000@euromail.se>
+Received: from core.signal11.us ([64.251.29.136]:56970 "EHLO core.signal11.us"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752179Ab0IUWGp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 18:06:45 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id 876D31CCAA76
+	for <linux-input@vger.kernel.org>; Tue, 21 Sep 2010 18:06:44 -0400 (EDT)
+In-Reply-To: <4C98EAAE.3020409@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, =?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@lin>
+Cc: Alan Ott <alan@signal11.us>
 
-No problem with this one at all.
+Feature reports should only be sent on the control endpoint.
 
-Henrik, do you confirm that this applies only to 3M? Or is it a  
-general issue with the mapping from HID to input?
+The USB HID standard is unclear and confusing on this issue. It seems to
+suggest that Feature reports can be sent on a HID device's Interrupt OUT
+endpoint.  This cannot be the case because the report type is not encoded in
+transfers sent out the Interrput OUT endpoint.  If Feature reports were sent
+on the Interrupt OUT endpint, they would be indistinguishable from Output
+reports in the case where Report IDs were not used.
 
-Cheers,
+Further, Windows and Mac OS X do not send Feature reports out the interrupt
+OUT Endpoint.  They will only go out the Control Endpoint.
 
-St.
+In addition, many devices simply do not hande Feature reports sent out the Interrupt OUT endpoint.
+
+Reported-by: simon@mungewell.org
+Signed-off-by: Alan Ott <alan@signal11.us>
+---
+ drivers/hid/usbhid/hid-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index b729c02..b0ccc42 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -807,7 +807,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+ 	int ret;
+ 
+-	if (usbhid->urbout) {
++	if (usbhid->urbout && report_type != HID_FEATURE_REPORT) {
+ 		int actual_length;
+ 		int skipped_report_id = 0;
+ 		if (buf[0] == 0x0) {
+-- 
+1.7.0.4
+
 

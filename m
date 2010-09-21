@@ -1,31 +1,50 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [BUG] object: is not initialized, yet kobject_put() is being
- called
-Date: Tue, 21 Sep 2010 17:53:19 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211752520.26813@pobox.suse.cz>
-References: <20100812115657.GA1611@arch.tripp.de> <alpine.LNX.2.00.1008121401580.2702@pobox.suse.cz> <alpine.LNX.2.00.1008121457060.2702@pobox.suse.cz> <20100812130411.GA1626@arch.tripp.de> <4C63F285.8070801@signal11.us> <20100812164035.GB6761@fritha.org>
- <20100920181100.GA12295@fancy-poultry.org> <alpine.LNX.2.00.1009211653510.26813@pobox.suse.cz> <20100921150900.GA6801@fritha.org> <alpine.LNX.2.00.1009211714400.26813@pobox.suse.cz> <20100921152728.GA13464@fritha.org>
+From: Gabriel C <nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st insert,
+ ignored on 2nd insert, lsusb stuck at usbdev_open
+Date: Tue, 21 Sep 2010 18:08:50 +0200
+Message-ID: <4C98D892.7030605@googlemail.com>
+References: <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org> <4C98C70B.3080407@turmel.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100921152728.GA13464-iEI8Y0CNJBYdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <4C98C70B.3080407-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>
 Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heinz Diehl <htd-iEI8Y0CNJBYdnm+yROfE0A@public.gmane.org>
-Cc: Heinz Diehl <htd-HjJ2MNWy62to6+H+lsi3Gti2O/JbrIOy@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Markus Trippelsdorf <markus-xp2qqqlHh3xzoYq+O6RWwA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+To: Phil Turmel <philip-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Mat <jackdachef-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guillaume Chazarain <guichaz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andreas Bombe <aeb-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, Alex Riesen <raa.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 21 Sep 2010, Heinz Diehl wrote:
+On 21.09.2010 16:54, Phil Turmel wrote:
 
-> > strace -f would likely be more helpful.
+> On 09/21/2010 10:30 AM, Alan Stern wrote:
+>> On Tue, 21 Sep 2010, Jiri Kosina wrote:
+>>
+>>> I have just found out that it's actually CONFIG_USB_DYNAMIC_MINORS which 
+>>> makes the difference. When unset, the problem doesn't trigger, and 
+>>> usb_find_interface() always returns the proper interface. When 
+>>> CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
+>>>
+>>> I'll look into that.
+>>
+>> Apparently the problem is that intf->minors doesn't get initialized 
+>> properly.  This patch should fix it.  Everybody, please try it out.
 > 
-> Oops, yes, of course. Output is attached.
+> Yes, this works for me.  (as did Jiri's version.)
 
-Looks like the /dev/usb/hiddev* nodes are not being created at all. Could 
-you please attach output of dmesg and ls -l /dev/usb
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Both versions of the patch are working fine for me too also.
+
+> 
+> Thank you both for the support.
+> 
+> Feel free to add my:
+> 
+> Tested-by: Philip J. Turmel <philip-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>
+
+
+And mine if you wish.
+Tested-by: Gabriel Craciunescu  <nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-usb" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

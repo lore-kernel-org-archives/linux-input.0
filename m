@@ -1,38 +1,32 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/3] hid: 3m: Adjust to sequential MT HID protocol
-Date: Tue, 21 Sep 2010 16:12:48 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211612400.26813@pobox.suse.cz>
-References: <1283005748-3293-1-git-send-email-rydberg@euromail.se> <1213242F-BA51-4D3C-93F9-5CF29DEC513B@enac.fr>
+Subject: Re: [PATCH 1/1] Don't Send Feature Reports on Interrupt Endpoint
+Date: Tue, 21 Sep 2010 16:14:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009211614160.26813@pobox.suse.cz>
+References: <Pine.LNX.4.44L0.1009160949500.1695-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1213242F-BA51-4D3C-93F9-5CF29DEC513B@enac.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:57511 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755093Ab0IUOOo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 10:14:44 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1009160949500.1695-100000@iolanthe.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Alan Ott <alan@signal11.us>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>, simon@mungewell.org, Antonio Ospite <ospite@studenti.unina.it>
 
-On Mon, 20 Sep 2010, St=E9phane Chatty wrote:
+On Thu, 16 Sep 2010, Alan Stern wrote:
 
-> > The multitouch extensions to the HID protocol allows for contact
-> > data to be sent over several reports, which is also the case for
-> > the 3M M2256PW touchscreen. This patch modifies the logic to only
-> > synchronize the input layer when all contacts have been received.
-> > Consequentially, the full 60-finger capacity of the device is enabl=
-ed.
-> >=20
-> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> > ---
-> >  drivers/hid/hid-3m-pct.c |   22 ++++++++++++++++++----
-> >  1 files changed, 18 insertions(+), 4 deletions(-)
->=20
-> You can add
->=20
-> Acked-by: Stephane Chatty <chatty@enac.fr>
+> That's all fine, and I have no objection to the patch itself.  You 
+> should include (in brief form) some of this explanation in the patch 
+> description so that people will know _why_ this has to be done.
 
-Applied, thanks guys.
+Fully, agreed. Alan, could you please write a short description into the 
+patch changelog and resubmit it to me?
 
---=20
+Thanks a lot,
+
+-- 
 Jiri Kosina
 SUSE Labs, Novell Inc.

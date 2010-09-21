@@ -1,46 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 3/3] hid: 3m: Correct touchscreen emulation
-Date: Tue, 21 Sep 2010 19:05:26 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009211904290.26813@pobox.suse.cz>
-References: <1283005748-3293-1-git-send-email-rydberg@euromail.se> <1283005748-3293-3-git-send-email-rydberg@euromail.se> <B5146B49-1D7A-4AFD-B925-3F35E83A2A96@enac.fr>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st
+ insert, ignored on 2nd insert, lsusb stuck at usbdev_open
+Date: Tue, 21 Sep 2010 10:07:28 -0700
+Message-ID: <20100921170728.GA10105@suse.de>
+References: <alpine.LNX.2.00.1009211156520.26813@pobox.suse.cz>
+ <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org>
+ <20100921165048.GB8756@suse.de>
+ <alpine.LNX.2.00.1009211852010.26813@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:36519 "EHLO mx1.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:36698 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751131Ab0IURF2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 13:05:28 -0400
-In-Reply-To: <B5146B49-1D7A-4AFD-B925-3F35E83A2A96@enac.fr>
+	id S1753229Ab0IURJc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 13:09:32 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1009211852010.26813@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Phil Turmel <philip@turmel.org>, Mat <jackdachef@gmail.com>, Guillaume Chazarain <guichaz@gmail.com>, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Ott <alan@signal11.us>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Andreas Bombe <aeb@debian.org>, Alex Riesen <raa.lkml@gmail.com>, Gabriel C <nix.or.die@googlemail.com>
 
-On Tue, 21 Sep 2010, St=E9phane Chatty wrote:
+On Tue, Sep 21, 2010 at 06:55:36PM +0200, Jiri Kosina wrote:
+> On Tue, 21 Sep 2010, Greg KH wrote:
+> 
+> > > > I have just found out that it's actually CONFIG_USB_DYNAMIC_MINORS which 
+> > > > makes the difference. When unset, the problem doesn't trigger, and 
+> > > > usb_find_interface() always returns the proper interface. When 
+> > > > CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
+> > > > 
+> > > > I'll look into that.
+> > > 
+> > > Apparently the problem is that intf->minors doesn't get initialized 
+> > > properly.  This patch should fix it.  Everybody, please try it out.
+> > 
+> > Wow, what happened to suddenly cause this?  Nothing has changed here in
+> > a long time.
+> > 
+> > wierd.
+> 
+> It doesn't hit you if you are calling usb_register_dev() for all the 
+> instances you have, as the first device will have minor '0', the second 
+> one '1', etc.
+> 
+> But if you are calling usb_find_interface() for devices that have never 
+> been registered through usb_register_dev(), then you have a problem, as 
+> usb_find_interface() will match those unregistered devices (as minor == 0 
+> in such cases).
+> 
+> This is probably quite rare scenario, and hiddev (which might be the only 
+> in-kernel driver doing this?) has moved to usb_find_interface() only 
+> recently.
 
-> > The current code sometimes misses to report the last BTN_TOUCH even=
-t
-> > when multiple fingers are lifted simultaneously.  With the
-> > introduction of MT slots, the tracking id is available to determine
-> > the oldest active contact. Use this information to simplify and
-> > correct the touchscreen emulation logic.
-> >=20
->=20
-> Acked-by: St=E9phane Chatty <chatty@enac.fr>
+Ah, ok, that makes sense, I never thought of someone calling that
+function if they had never registered a device :)
 
-It doesn't apply without 2/3 being applied as well. So I'll not be=20
-applying it for now, and either please rebase it, or re-send together w=
-ith=20
-2/3 once the situation with 0eef:72xx is sorted out. Ok?
+When did hiddev make this change?  We need to know that for the -stable
+backport of this patch.
 
-Thanks,
+Alan, care to resend the patch in a format I can apply it?
 
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+thanks,
+
+greg k-h

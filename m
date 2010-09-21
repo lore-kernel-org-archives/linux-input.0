@@ -1,62 +1,66 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [PATCH v2 1/1] Don't Send Feature Reports on Interrupt Endpoint
-Date: Tue, 21 Sep 2010 13:26:06 -0400
-Message-ID: <4C98EAAE.3020409__23392.2972031452$1285089993$gmane$org@signal11.us>
-References: <ba7172472e7fa92f305c16ab3456da18.squirrel@host171.canaca.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/3] hid: 3m: Convert to MT slots
+Date: Tue, 21 Sep 2010 19:37:31 +0200
+Message-ID: <4C98ED5B.7020408@euromail.se>
+References: <1283005748-3293-1-git-send-email-rydberg@euromail.se>   <1283005748-3293-2-git-send-email-rydberg@euromail.se>   <CE1C24FC-7C9A-4940-8141-391A368C59E5@enac.fr>  <4C97BB33.5020806@euromail.se>  <6A8BB954-78BB-4507-86F3-19DA5174FA5E@enac.fr> <4C97BE69.2030100@euromail.se> <EBFF8B5B-5361-45B3-88B8-8254E3953578@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:55409 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753565Ab0IUR0I (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Sep 2010 13:26:08 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id BA1FA1CCAA76
-	for <linux-input@vger.kernel.org>; Tue, 21 Sep 2010 13:26:07 -0400 (EDT)
-In-Reply-To: <ba7172472e7fa92f305c16ab3456da18.squirrel@host171.canaca.com>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:55751 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752475Ab0IURiS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Sep 2010 13:38:18 -0400
+In-Reply-To: <EBFF8B5B-5361-45B3-88B8-8254E3953578@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, linux
-Cc: Alan Ott <alan@signal11.us>
+To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Feature reports should only be sent on the control endpoint.
+On 09/20/2010 10:23 PM, St=E9phane Chatty wrote:
 
-The USB HID standard is unclear and confusing on this issue. It seems to
-suggest that Feature reports can be sent on a HID device's Interrupt OUT
-endpoint. This cannot be the case because the report type is not
-encoded in transfers sent out the Interrput OUT endpoint. If Feature 
-reports were sent on the Interrupt OUT endpint, they would be 
-indistinguishable from Output reports in the case where Report IDs were 
-not used.
-
-Further, Windows and Mac OS X do not send Feature reports out the 
-interrupt OUT Endpoint. They will only go out the Control Endpoint.
-
-In addition, many devices simply do not hande Feature reports sent out 
-the Interrupt OUT endpoint.
-
-Reported-by: simon@mungewell.org
-Signed-off-by: Alan Ott <alan@signal11.us>
----
-  drivers/hid/usbhid/hid-core.c |    2 +-
-  1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index b729c02..b0ccc42 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -807,7 +807,7 @@ static int usbhid_output_raw_report(struct 
-hid_device *hid, __u8 *buf, size_t co
-  	struct usb_host_interface *interface = intf->cur_altsetting;
-  	int ret;
-  -	if (usbhid->urbout) {
-+	if (usbhid->urbout && report_type != HID_FEATURE_REPORT) {
-  		int actual_length;
-  		int skipped_report_id = 0;
-  		if (buf[0] == 0x0) {
--- 
-1.7.0.4
+>=20
+> Le 20 sept. 10 =E0 22:04, Henrik Rydberg a =E9crit :
+>>>
+>>> What about this:
+>>> +            value =3D clamp_val(value, 0, MAX_SLOTS - 1);
+>>>              if (md->valid) {
+>>>                  md->curid =3D value;
+>>>                  md->f[value].touch =3D md->touch;
+>>>
+>>> If you had tracking IDs 59, 60 and 61 in the same frame, this would=
+ not work
+>>> properly would it?
+>>
+>>
+>> That is the slot id being set. The microtouch controller is also usi=
+ng slots
+>> internally.
+>>
+>=20
+> Oh, right. Once again back to your definition of tracking ID that is =
+not so
+> intuitive to me :-) In the end we might end up dealing with three IDs=
+: the
+> device's tracking ID, the slot ID, and the Linux tracking ID. Here, t=
+he first
+> and the second are the same but will they always be? I remember when =
+Stantum
+> used to provide us with 16 bit "device tracking IDs"...
+>=20
+> Anyway, I have no more problem with this constant. Just with the voca=
+bulary :-)
 
 
+In the HID protocol, it is called ContactID... So, St=E9phane, are we c=
+lose to
+acking this patch now? :-)
 
+Cheers,
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

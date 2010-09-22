@@ -1,74 +1,57 @@
-From: Brian Rogers <brian@xyzw.org>
-Subject: [PATCH] ir-core: Fix null dereferences in the protocols sysfs interface
-Date: Wed, 22 Sep 2010 04:06:43 -0700
-Message-ID: <1285153603-1527-1-git-send-email-brian@xyzw.org>
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: =?UTF-8?q?David=20H=C3=A4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Brian Rogers <brian@xyzw.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3 1/1] Don't Send Feature Reports on Interrupt
+ Endpoint
+Date: Wed, 22 Sep 2010 13:23:08 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009221322310.26813@pobox.suse.cz>
+References: <4C98EAAE.3020409@signal11.us> <1285106792-5818-1-git-send-email-alan@signal11.us>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1285106792-5818-1-git-send-email-alan@signal11.us>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, simon@mungewell.org
 List-Id: linux-input@vger.kernel.org
 
-For some cards, ir_dev->props and ir_dev->raw are both NULL. These cards are
-using built-in IR decoding instead of raw, and can't easily be made to switch
-protocols.
+On Tue, 21 Sep 2010, Alan Ott wrote:
 
-So upon reading /sys/class/rc/rc?/protocols on such a card, return 'builtin' as
-the supported and enabled protocol. Return -EINVAL on any attempts to change
-the protocol. And most important of all, don't crash.
+> Feature reports should only be sent on the control endpoint.
+> 
+> The USB HID standard is unclear and confusing on this issue. It seems to
+> suggest that Feature reports can be sent on a HID device's Interrupt OUT
+> endpoint.  This cannot be the case because the report type is not encoded in
+> transfers sent out the Interrput OUT endpoint.  If Feature reports were sent
+> on the Interrupt OUT endpint, they would be indistinguishable from Output
+> reports in the case where Report IDs were not used.
+> 
+> Further, Windows and Mac OS X do not send Feature reports out the interrupt
+> OUT Endpoint.  They will only go out the Control Endpoint.
+> 
+> In addition, many devices simply do not hande Feature reports sent out the Interrupt OUT endpoint.
+> 
+> Reported-by: simon@mungewell.org
+> Signed-off-by: Alan Ott <alan@signal11.us>
+> ---
+>  drivers/hid/usbhid/hid-core.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index b729c02..b0ccc42 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -807,7 +807,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+>  	struct usb_host_interface *interface = intf->cur_altsetting;
+>  	int ret;
+>  
+> -	if (usbhid->urbout) {
+> +	if (usbhid->urbout && report_type != HID_FEATURE_REPORT) {
+>  		int actual_length;
+>  		int skipped_report_id = 0;
+>  		if (buf[0] == 0x0) {
 
-Signed-off-by: Brian Rogers <brian@xyzw.org>
-Acked-by: Jarod Wilson <jarod@redhat.com>
----
- drivers/media/IR/ir-sysfs.c |   17 +++++++++++------
- 1 files changed, 11 insertions(+), 6 deletions(-)
+Applied to the 'logitech' branch (as Simon's new Logitech driver is 
+depending on this).
 
-diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index 96dafc4..46d4246 100644
---- a/drivers/media/IR/ir-sysfs.c
-+++ b/drivers/media/IR/ir-sysfs.c
-@@ -67,13 +67,14 @@ static ssize_t show_protocols(struct device *d,
- 	char *tmp = buf;
- 	int i;
- 
--	if (ir_dev->props->driver_type == RC_DRIVER_SCANCODE) {
-+	if (ir_dev->props && ir_dev->props->driver_type == RC_DRIVER_SCANCODE) {
- 		enabled = ir_dev->rc_tab.ir_type;
- 		allowed = ir_dev->props->allowed_protos;
--	} else {
-+	} else if (ir_dev->raw) {
- 		enabled = ir_dev->raw->enabled_protocols;
- 		allowed = ir_raw_get_allowed_protocols();
--	}
-+	} else
-+		return sprintf(tmp, "[builtin]\n");
- 
- 	IR_dprintk(1, "allowed - 0x%llx, enabled - 0x%llx\n",
- 		   (long long)allowed,
-@@ -121,10 +122,14 @@ static ssize_t store_protocols(struct device *d,
- 	int rc, i, count = 0;
- 	unsigned long flags;
- 
--	if (ir_dev->props->driver_type == RC_DRIVER_SCANCODE)
-+	if (ir_dev->props && ir_dev->props->driver_type == RC_DRIVER_SCANCODE)
- 		type = ir_dev->rc_tab.ir_type;
--	else
-+	else if (ir_dev->raw)
- 		type = ir_dev->raw->enabled_protocols;
-+	else {
-+		IR_dprintk(1, "Protocol switching not supported\n");
-+		return -EINVAL;
-+	}
- 
- 	while ((tmp = strsep((char **) &data, " \n")) != NULL) {
- 		if (!*tmp)
-@@ -185,7 +190,7 @@ static ssize_t store_protocols(struct device *d,
- 		}
- 	}
- 
--	if (ir_dev->props->driver_type == RC_DRIVER_SCANCODE) {
-+	if (ir_dev->props && ir_dev->props->driver_type == RC_DRIVER_SCANCODE) {
- 		spin_lock_irqsave(&ir_dev->rc_tab.lock, flags);
- 		ir_dev->rc_tab.ir_type = type;
- 		spin_unlock_irqrestore(&ir_dev->rc_tab.lock, flags);
 -- 
-1.7.1
+Jiri Kosina
+SUSE Labs, Novell Inc.

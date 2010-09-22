@@ -1,113 +1,58 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: Event types
-Date: Wed, 22 Sep 2010 13:48:38 +0100
-Message-ID: <4C99FB26.9090600@cam.ac.uk>
-References: <4C964A30.1060801@cam.ac.uk> <20100921164647.GA8866@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6 1/2] input: add support for Nomadik SKE keypad
+ controller
+Date: Wed, 22 Sep 2010 08:29:38 -0700
+Message-ID: <20100922152938.GA32097@core.coreip.homeip.net>
+References: <1285156355-24555-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-31.csi.cam.ac.uk ([131.111.8.131]:59635 "EHLO
-	ppsw-31.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752437Ab0IVMnT (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:48362 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755205Ab0IVP3o (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Sep 2010 08:43:19 -0400
-In-Reply-To: <20100921164647.GA8866@core.coreip.homeip.net>
+	Wed, 22 Sep 2010 11:29:44 -0400
+Received: by pvg2 with SMTP id 2so161663pvg.19
+        for <linux-input@vger.kernel.org>; Wed, 22 Sep 2010 08:29:43 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1285156355-24555-1-git-send-email-sundar.iyer@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Sundar Iyer <sundar.iyer@stericsson.com>
+Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@stericsson.com>
 
-On 09/21/10 17:46, Dmitry Torokhov wrote:
-> On Sun, Sep 19, 2010 at 06:36:48PM +0100, Jonathan Cameron wrote:
->> Hi All,
->>
->> We are in the process of cleaning up the event subsystem of IIO.
->> As some devices will be used via an input bridge, it makes sense
->> to pin down what they would be translated to in input. Note our
->> 'readings' that will map to events in input are handled via a
->> different patch. There are plenty of drivers to suggest what those
->> should map to. We can basically pretend these devices are joysticks
->> with several xyz controllers.
->>
->> For the sort of direct 'input' types of events - double tap etc
->> we can just copy existing drivers.
->>
->> Much more common for us though are controllable threshold events.
->> In IIO the associated control attributes are named:
->>
->> Like <channel>_<limit>_<dir>_<attr>, where
->>  <channel>: name of the channel, i.e. accel_x0
->>  <limit>:   thresh, mag, roc
->>  <dir>:     rising, falling
->>  <attr>:    en, value, period, mean_period 
->>
->> So taking a typical device (adis16400) we have the following
->> actual events
->>
->> in_supply_thresh_rising
->> in_supply_thresh_falling
->> in_supply_roc_rising
->> in_supply_roc_falling
->>
->> accel_[x|y|z]_thresh_rising
->> accel_[x|y|z]_thresh_falling
->> accel_[x|y|z]_roc_rising
->> accel_[x|y|z]_roc_falling
->>
->> gyro_[x|y|z]_thresh_rising
->> gyro_[x|y|z]_thresh_falling
->> gyro_[x|y|z]_roc_rising
->> gyro_[x|y|z]_roc_falling
->>
->> magn_[x|y|z]_thresh_rising
->> magn_[x|y|z]_thresh_falling
->> magn_[x|y|z]_roc_rising
->> magn_[x|y|z]_roc_falling
->>
->> temp_thresh_rising
->> temp_thresh_falling
->> temp_roc_rising
->> temp_roc_falling
->>
->> in0_thresh_rising
->> in0_thresh_falling
->> in0_roc_rising
->> in0_roc_falling
->>
->> The _mag_ events are for devices (often accelerometers) which provide an
->> interrupt based on the magnitude not the signed value of the relevant channel.
->>
->> Note a typical event only has a value attached to it in the sense that we know
->> what barrier is crossed.
->>
->> So what would such general events map to?  I suppose in some senses they are EV_KEYs
->> but which keys?  The only example I have seen is the adxl34x. That uses btn_touch for
->> tap events and pdata to specify keys for freefall, orientation and activity.
->>
->> In our case I guess the mapping can be provided to the userspace bridge daemon to
->> translate all these events into 'magic' keys. Is this the best plan?
->> A few clearly don't conventionally make much sense in input (temperature and supply
->> voltages would be unusual human interfaces!).
+On Wed, Sep 22, 2010 at 05:22:35PM +0530, Sundar Iyer wrote:
+> Add support for the keypad controller in the Scroll Key Encoder (SKE)
+> module on the Nomadik family and the DB8500 SoC.
 > 
-> I think that some of the events do map to key action (taps,
-> orientation). This should preferrably be configurable (so it looks like
-> we need to plumb EVIOC{S|G}KEYCODE through uinput driver).
-Cool, that was what I thought.  Just wanted to check. I guess are going to
-need some configuration files in user space to do this. I'll propose that
-with a more complete bridge implementation sometime soonish.
- 
-> Others, such as free fall and activity, are probably not really "keys".
-> I'd expect such events be handled by an application completely
-> uninterested in other types of keys and other input events, for example
-> application that tries to park hard drive in case of fall.
-Agreed, these clearly have little to do with human input. Now to wait for
-the first person to say there is a game out there where you have to drop
-your controller to make the guns fire.... :)
+> Acked-by: Linus Walleij <linus.walleij@stericsson.com>
+> Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> >-----Original Message-----
+> >From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> >Sent: Wednesday, September 22, 2010 2:02 PM
 > 
-> Unfortunately drivers authors at the moment do not have better interface
-> available and thus try to fit it all into input.
+> [..]
+> 
+> >below). If this does not work then I guess we'll have to rever to your original
+> >approach with threaded IRQ (just drop the attached patch on top).
+> 
+> Dmitry,
+> 
+> I finally reverted back to your suggested patch for using the threaded irqs
+> and its working again.
+> 
 
-Thanks,
+Sundar,
 
-Jonathan
+Out of curiosity, did you try the patch that did not do polling? What
+was the breakage?
+
+I was also hoping you'd use it as a base for applying the threaded patch
+- I did a few fixups and changed the probe routine a bit.
+
+Thanks.
+
+-- 
+Dmitry

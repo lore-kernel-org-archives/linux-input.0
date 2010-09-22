@@ -1,56 +1,40 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3 1/1] Don't Send Feature Reports on Interrupt
- Endpoint
-Date: Wed, 22 Sep 2010 13:23:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1009221322310.26813@pobox.suse.cz>
-References: <4C98EAAE.3020409@signal11.us> <1285106792-5818-1-git-send-email-alan@signal11.us>
+Subject: Re: [PATCH] USB: HID: Add support for Logitech Speed Force Wireless
+ gaming wheel
+Date: Wed, 22 Sep 2010 13:32:03 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1009221323270.26813@pobox.suse.cz>
+References: <1285131753-28572-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1285106792-5818-1-git-send-email-alan@signal11.us>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, simon@mungewell.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:40426 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751284Ab0IVLcH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Sep 2010 07:32:07 -0400
+In-Reply-To: <1285131753-28572-1-git-send-email-simon@mungewell.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: simon <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, bonbons@linux-vserver.org, chatty@enac.fr, dhprince-devel@yahoo.co.uk, erazor_de@users.sourceforge.net, dtor@mail.ru, LordCnidarian@gmail.com, lcastelli@gmail.com, sam@ravnborg.org, mmarek@suse.cz
 
-On Tue, 21 Sep 2010, Alan Ott wrote:
+On Tue, 21 Sep 2010, simon@mungewell.org wrote:
 
-> Feature reports should only be sent on the control endpoint.
+> From: simon <simon@mungewell.org>
 > 
-> The USB HID standard is unclear and confusing on this issue. It seems to
-> suggest that Feature reports can be sent on a HID device's Interrupt OUT
-> endpoint.  This cannot be the case because the report type is not encoded in
-> transfers sent out the Interrput OUT endpoint.  If Feature reports were sent
-> on the Interrupt OUT endpint, they would be indistinguishable from Output
-> reports in the case where Report IDs were not used.
+> The following patch adds support for the Logitech Speed Force Wireless
+> gaming wheel. Originally designed for the WII console but it has been
+> reverse engineered, details:
+> http://wiibrew.org/wiki/Logitech_USB_steering_wheel
 > 
-> Further, Windows and Mac OS X do not send Feature reports out the interrupt
-> OUT Endpoint.  They will only go out the Control Endpoint.
+> This patch relies on previous patch:
+> "Don't Send Feature Reports on Interrupt Endpoint"
+> https://patchwork.kernel.org/patch/198112/
 > 
-> In addition, many devices simply do not hande Feature reports sent out the Interrupt OUT endpoint.
-> 
-> Reported-by: simon@mungewell.org
-> Signed-off-by: Alan Ott <alan@signal11.us>
-> ---
->  drivers/hid/usbhid/hid-core.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index b729c02..b0ccc42 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -807,7 +807,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
->  	struct usb_host_interface *interface = intf->cur_altsetting;
->  	int ret;
->  
-> -	if (usbhid->urbout) {
-> +	if (usbhid->urbout && report_type != HID_FEATURE_REPORT) {
->  		int actual_length;
->  		int skipped_report_id = 0;
->  		if (buf[0] == 0x0) {
+> Logitech as produce a very similar wheel for the PS2/PS3, it is
+> expected that this patch could also support the PS2/PS3 wheel if the
+> USB ID's are added and (if required) the HID descriptor is modified.
 
-Applied to the 'logitech' branch (as Simon's new Logitech driver is 
-depending on this).
+I have reworded the Changelog a little bit, and applied. Thanks,
 
 -- 
 Jiri Kosina

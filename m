@@ -1,43 +1,33 @@
-From: Alan Ott <alan@signal11.us>
-Subject: Re: [PATCH v4 2/2] Bluetooth: hidp: Add support for hidraw  HIDIOCGFEATURE  and HIDIOCSFEATURE
-Date: Thu, 23 Sep 2010 10:16:43 -0400
-Message-ID: <89BCFDE1-0D39-4248-84B2-E02C1480E067@signal11.us>
-References: <1281442367.12579.206.camel@localhost.localdomain> <1281990059-3562-3-git-send-email-alan@signal11.us> <20100923115108.GC2379@null>
-Mime-Version: 1.0 (Apple Message framework v936)
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Content-Transfer-Encoding: 7bit
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: for best practices, return -ENOMEM instead of -1
+ when returning on mem allocation errors
+Date: Thu, 23 Sep 2010 08:44:07 -0700
+Message-ID: <20100923154407.GA17807@core.coreip.homeip.net>
+References: <1285251245.2127.4.camel@cowboy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:35828 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754133Ab0IWOQt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Sep 2010 10:16:49 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id E35921CCAA7F
-	for <linux-input@vger.kernel.org>; Thu, 23 Sep 2010 10:16:48 -0400 (EDT)
-In-Reply-To: <20100923115108.GC2379@null>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:35916 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753046Ab0IWPoQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Sep 2010 11:44:16 -0400
+Content-Disposition: inline
+In-Reply-To: <1285251245.2127.4.camel@cowboy>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ville Tervo <ville.tervo@nokia.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, Antonio Ospite <ospite@studenti.unina.it>, Alexey Dobriyan <adobriyan@gmail.com>, Tejun Heo <tj@kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>, "David S. Miller" <davem@davemloft.net>, Bastien Nocera <hadess@hadess.net>, Eric Dumazet <eric.dumazet@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
+On Thu, Sep 23, 2010 at 10:14:05AM -0400, Davidlohr Bueso wrote:
+> input: for best practices, return -ENOMEM instead of -1 when returning on mem allocation errors.
+> 
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
 
-On Sep 23, 2010, at 7:51 AM, Ville Tervo wrote:
+Applied, thank you Davidlohr.
 
-> Hi Alan,
->
-> One comment.
->
-> How about a variable called ret and using that to return len or  
-> errno? It
-> would eliminate code dublication.
->
+FWIW there are more code in drivers/input/serio and drivers/input/mouse/
+that return -1 instead of a proper error codes.
 
-Hi Ville,
-
-Where specifically? In which function? I've gone through it a couple  
-of times and failed to find return statements which are superfluous.  
-Maybe I'm missing something fundamental?
-
-Alan.
-
-
+-- 
+Dmitry

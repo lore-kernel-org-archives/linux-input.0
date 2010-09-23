@@ -1,85 +1,52 @@
-From: "George Spelvin" <linux@horizon.com>
-Subject: Hacking on ati_remote driver
-Date: 22 Sep 2010 21:27:20 -0400
-Message-ID: <20100923012720.14819.qmail@science.horizon.com>
+From: Sundar R IYER <sundar.iyer@stericsson.com>
+Subject: RE: [PATCH v6 1/2] input: add support for Nomadik SKE keypad
+ controller
+Date: Thu, 23 Sep 2010 07:17:26 +0200
+Message-ID: <33A307AF30D7BF4F811B1568FE7A9B1804379C9881@EXDCVYMBSTM006.EQ1STM.local>
+References: <1285156355-24555-1-git-send-email-sundar.iyer@stericsson.com>
+ <20100922152938.GA32097@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from science.horizon.com ([71.41.210.146]:20256 "HELO
-	science.horizon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751953Ab0IWBeC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Sep 2010 21:34:02 -0400
+Received: from eu1sys200aog106.obsmtp.com ([207.126.144.121]:49146 "EHLO
+	eu1sys200aog106.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752702Ab0IWFRg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Sep 2010 01:17:36 -0400
+In-Reply-To: <20100922152938.GA32097@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux@horizon.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus WALLEIJ <linus.walleij@stericsson.com>
 
-I dusted off my ATI all-in-wonder remote and was trying to get it to
-work with VLC (so far unsuccessfully; I'm still untangling the
-multiple mapping layers between hardware scancode and X event), and
-I had a look at the ati_remote.c driver.
+Hi Dmitry,
 
-I started hacking on it.  Mostly I thought the ati_remote_tbl[]
-array was wastefully large.  It gets a lot simpler when you
-realize that, in the 4-byte report, data[1] is actually a checksum
-and not part of the keycode.  data[1] = data[2] + data[3] + 0xE5.
+>-----Original Message-----
+>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>
+>Out of curiosity, did you try the patch that did not do polling? What
+>was the breakage?
 
-Having looked over the input layer documentation, I have decided that
-the ati_remote driver could use some love.  I'd like to convert it to
-use the generic scancode to keycode mapping and autorepeat logic.
+Yes. I did test the non-polling patch which you inlined in the mail.
+And the issue was same: I missed the actual press/release report
+events to the user space. With the threaded_irq one, I got this working
+back. 
 
-However, RTFMing and RTFSing left me with a few questions:
+As I mentioned, I have a couple of other keypad drivers with the
+same key layouts passed from platform data. I always compare the
+event reports from the SKE keypad to those ones like STMPE/TC35893
+keypad controllers. And hence my observation that if I miss some
+events which is not captured by getevents, then this driver is doing
+something wrong.
 
-- Should the keybit[] bitmap be an exact map of possible buttons, or
-  is a superset okay?  The driver handles several models of remote,
-  and the later ones added a few buttons.  Can I use a single superset
-  scancode map, or is there some benefit to supplying an exact "which
-  keys exist" list?  (EVIOCGBIT ioctl?)
+>I was also hoping you'd use it as a base for applying the threaded patch
+>- I did a few fixups and changed the probe routine a bit.
 
-- Is there some all-in-one function to report "scancode arrived" to the
-  input layer, or do I have to call input_get_keycode and input_report_key
-  separately?
+Ohh. I overlooked the changes in the probe function then. Surely I will incorporate it
+and send it out if you are okay with the v6 IRQ handling.
 
-- Is the input device required to ensure that the key-up keycode matches
-  the key-down, even if someone reprograms the scancode map in between?
-
-- I read somewhere that the EV_KEY event's value should be 0 for up,
-  1 for down, and 2 for autorepeat.  But the input_report_key function
-  canonicalizes values to 0/1.  What's the right value to use for
-  autorepeat?
-
-- The remote doesn't generate key-up events on most of its buttons.
-  It does, however, have hardware autorepeat, so the current code figures
-  it out with a timeout.  Should I synthesize key-up events this way,
-  even though they're not very accurate?  Or can I just use the timeout
-  to guess between key-down and autorepeat, and omit key-up events
-  entirely?
-
-- The receiver supports up to 16 transmitters.  Currently, they're all
-  funneled through a single input device with a mask available in the
-  device driver to suppress unwanted ones.  Is it worth splitting this
-  into multiple input devices instead?  Or is there some other way I
-  should pass the "channel number" into the input layer?
-
-- Should the 0-9 buttons on the remote generate KEY_0 through KEY_9 or
-  KEY_NUMERIC_0 through KEY_NUMERIC_9?
-
-- More generally, the current driver has a few dubious default key
-  code assignments.  Should I fix these or carefully preserve them for
-  compatibility?
-
-- Likewise, the ati_remote2 driver assigns remotes 1-16 (numbered 0-15
-  in the internal protocol) to mask bits 0-15.  The ati_remote driver
-  uses mask bits 1-16, and ignores bit 0.  The former convention
-  makes more sense to me.  Convert ati_remote or preserve backward
-  compatibility?
-
-(Note that in either case, I'll segregate the backward compatibility
-breaks into their own patches.)
-
-Thank you for any guidance.
-
-
-P.S.
-I can also have a look at the remote wonder plus patches some folks
-developed at
-http://www.mythtv.org/wiki/ATI_Remote_Wonder_Plus
+Regards,
+Sundar
+P.S: Again a tremendous thanx to you for being so persistent and helpful.

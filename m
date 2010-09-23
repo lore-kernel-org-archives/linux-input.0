@@ -1,62 +1,43 @@
-From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Subject: Re: [PATCH v4 0/2] Get and Set Feature Reports on HIDRAW (USB and   Bluetooth)
-Date: Thu, 23 Sep 2010 19:40:02 -0400
-Message-ID: <4C9BE552.6080404@signal11.us>
-References: <1281442367.12579.206.camel@localhost.localdomain> <1281990059-3562-1-git-send-email-alan@signal11.us> <20100923162521.GA15641@null>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH v2] HID: magicmouse: Use hid-input parsing rather than
+ bypassing it
+Date: Thu, 23 Sep 2010 19:44:02 -0400
+Message-ID: <AANLkTiksoG-_q3z2AE0+tzBmOqu=04GRxdMghCK9mqBT@mail.gmail.com>
+References: <1285244139.22958.16.camel@graviton>
+	<1285248035.2964.2.camel@mini>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100923162521.GA15641@null>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ville Tervo <ville.tervo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Alexey Dobriyan <adobriyan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, Michael Poole <mdpoole-IZmAEv5cUt1AfugRpC6u6w@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Eric Dumazet <eric.dumazet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:39279 "HELO
+	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754759Ab0IWXoE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Sep 2010 19:44:04 -0400
+In-Reply-To: <1285248035.2964.2.camel@mini>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
 
-On 09/23/2010 12:25 PM, Ville Tervo wrote:
-> Hi Alan,
+On Thu, Sep 23, 2010 at 9:20 AM, Chase Douglas
+<chase.douglas@canonical.com> wrote:
+> On Thu, 2010-09-23 at 08:15 -0400, Michael Poole wrote:
+>> Let the HID core handle input device setup and HID-compliant reports.
+>> This driver then only has to worry about the non-standard reports.
+>>
+>> Signed-off-by: Michael Poole <mdpoole@troilus.org>
 >
-> On Mon, Aug 16, 2010 at 10:20:57PM +0200, ext Alan Ott wrote:
->    
->> This is version 4. Built against 2.6.35+ revision 320b2b8de12698 .
->>      
+> Michael, do you need me to retest the patch? I haven't looked at this
+> second version, but if it's pretty much as you describe below and you
+> don't need me to test it again, then my ACK still stands.
 >
-> I gave a try to to this patch using your test tool [1] and very old BT
-> keyboard. I don't have anything else ATM to test with. Is there some BT hid
-> devices which support setting and getting features?
->    
-
-A keyboard is the only BT device I've used which has feature reports.
-
-> Shouldn't HIDIOCSFEATURE's bt version have similar wait as HIDIOCGFEATURE to
-> get report status back from the device? or is there even any status coming back
-> in successful case? Sorry I'm a newbie with HID and trying to understand how
-> this should work.
+> Thanks,
 >
-> Now it just returns num of send bytes even if the remote device returned some
-> error. Which one is the expected behavior?
->    
+> -- Chase
 
-I made it function the same as the existing hidp_output_raw_report(). 
-Nothing in net/bluetooth/hidp/core.c is acked at all. I'm not sure of 
-the reasons.
+The behavior will be 100% identical for currently supported devices,
+so I don't see any real benefit in you re-testing it.  I just didn't
+want to assume (without checking) that your ack was valid for the
+revised version.
 
-Jiri, Marcel, any ideas?
-
-> Other problem is that Get report is getting now handshake from set report.
->
->
->    
-
-Yeah, that makes sense. I hadn't considered the set_report failing. In 
-that case, I guess it means we _must_ wait for an ack for sent packets.
-
-Anyone else agree or disagree?
-
-Alan.
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Michael

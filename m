@@ -1,191 +1,85 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCHv3] input: ROHM BU21013 touch panel controller support
-Date: Wed, 22 Sep 2010 20:21:00 +0200
-Message-ID: <4C9A490C.6020907@euromail.se>
-References: <1285060851-30173-1-git-send-email-naveen.gaddipati@stericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: "George Spelvin" <linux@horizon.com>
+Subject: Hacking on ati_remote driver
+Date: 22 Sep 2010 21:27:20 -0400
+Message-ID: <20100923012720.14819.qmail@science.horizon.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:46024 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751967Ab0IVSVw (ORCPT
+Received: from science.horizon.com ([71.41.210.146]:20256 "HELO
+	science.horizon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751953Ab0IWBeC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Sep 2010 14:21:52 -0400
-In-Reply-To: <1285060851-30173-1-git-send-email-naveen.gaddipati@stericsson.com>
+	Wed, 22 Sep 2010 21:34:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Naveen Kumar G <naveen.gaddipati@stericsson.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, STEricsson_nomadik_linux@list.st.com, linux-input@vger.kernel.org, tsoni@codeaurora.org
+To: linux-input@vger.kernel.org
+Cc: linux@horizon.com
 
-Hi Naveen,
+I dusted off my ATI all-in-wonder remote and was trying to get it to
+work with VLC (so far unsuccessfully; I'm still untangling the
+multiple mapping layers between hardware scancode and X event), and
+I had a look at the ati_remote.c driver.
 
-Looks much better now, thanks. Some comments below.
+I started hacking on it.  Mostly I thought the ati_remote_tbl[]
+array was wastefully large.  It gets a lot simpler when you
+realize that, in the 4-byte report, data[1] is actually a checksum
+and not part of the keycode.  data[1] = data[2] + data[3] + 0xE5.
 
-[...]
+Having looked over the input layer documentation, I have decided that
+the ati_remote driver could use some love.  I'd like to convert it to
+use the generic scancode to keycode mapping and autorepeat logic.
 
-> +struct bu21013_ts_data {
-> +	struct i2c_client *client;
-> +	wait_queue_head_t wait;
-> +	bool touch_stopped;
-> +	const struct bu21013_platform_device *chip;
-> +	struct input_dev *in_dev;
-> +	unsigned int intr_pin;
-> +	signed short	x_pos[2];
-> +	signed short	y_pos[2];
-> +	bool previous_press_reported;
+However, RTFMing and RTFSing left me with a few questions:
 
+- Should the keybit[] bitmap be an exact map of possible buttons, or
+  is a superset okay?  The driver handles several models of remote,
+  and the later ones added a few buttons.  Can I use a single superset
+  scancode map, or is there some benefit to supplying an exact "which
+  keys exist" list?  (EVIOCGBIT ioctl?)
 
-The MT state here (x_pos, y_pos, previous_press_reported) could, in principle,
-be simplified away, since the type A protocol is stateless.
+- Is there some all-in-one function to report "scancode arrived" to the
+  input layer, or do I have to call input_get_keycode and input_report_key
+  separately?
 
-[...]
-> +static int bu21013_do_touch_report(struct bu21013_ts_data *data)
+- Is the input device required to ensure that the key-up keycode matches
+  the key-down, even if someone reprograms the scancode map in between?
 
-> +{
-> +	u8	buf[LENGTH_OF_BUFFER];
-> +	bool	finger1_valid = true;
-> +	bool	finger2_valid = true;
-> +	unsigned int	finger1_pos_x;
-> +	unsigned int	finger1_pos_y;
-> +	unsigned int	finger2_pos_x = 0;
-> +	unsigned int	finger2_pos_y = 0;
+- I read somewhere that the EV_KEY event's value should be 0 for up,
+  1 for down, and 2 for autorepeat.  But the input_report_key function
+  canonicalizes values to 0/1.  What's the right value to use for
+  autorepeat?
 
+- The remote doesn't generate key-up events on most of its buttons.
+  It does, however, have hardware autorepeat, so the current code figures
+  it out with a timeout.  Should I synthesize key-up events this way,
+  even though they're not very accurate?  Or can I just use the timeout
+  to guess between key-down and autorepeat, and omit key-up events
+  entirely?
 
-These could be arrays instead.
+- The receiver supports up to 16 transmitters.  Currently, they're all
+  funneled through a single input device with a mask available in the
+  device driver to suppress unwanted ones.  Is it worth splitting this
+  into multiple input devices instead?  Or is there some other way I
+  should pass the "channel number" into the input layer?
 
-> +	int	number_of_active_x_sensors;
-> +	int	number_of_active_y_sensors;
-> +	int	total_number_of_active_sensors;
-> +	int	finger_down_count = 0;
-> +	int	ret = 0;
-> +	int	i;
-> +	int	retry_count = I2C_RETRY_COUNT;
-> +
-> +	if (data == NULL)
-> +		return -EINVAL;
-> +
-> +	do {
-> +		ret = i2c_smbus_read_i2c_block_data
-> +			(data->client, BU21013_SENSORS_BTN_0_7_REG,
-> +				LENGTH_OF_BUFFER, buf);
-> +		retry_count--;
-> +		if ((ret < LENGTH_OF_BUFFER) && (!retry_count))
-> +			return -EINVAL;
-> +	} while (ret < LENGTH_OF_BUFFER);
-> +
-> +	number_of_active_x_sensors = hweight32(buf[0] &
-> +					BU21013_SENSORS_EN_0_7);
-> +	number_of_active_y_sensors = hweight32(
-> +			((buf[1] & BU21013_SENSORS_EN_8_15) |
-> +		((buf[2] & BU21013_SENSORS_EN_16_23) << SHIFT_8)) >> SHIFT_2);
-> +	if (((number_of_active_x_sensors != 0) &&
-> +		(number_of_active_y_sensors == 0)) ||
-> +		((number_of_active_x_sensors == 0) &&
-> +		(number_of_active_y_sensors != 0)))
-> +		return 0;
+- Should the 0-9 buttons on the remote generate KEY_0 through KEY_9 or
+  KEY_NUMERIC_0 through KEY_NUMERIC_9?
+
+- More generally, the current driver has a few dubious default key
+  code assignments.  Should I fix these or carefully preserve them for
+  compatibility?
+
+- Likewise, the ati_remote2 driver assigns remotes 1-16 (numbered 0-15
+  in the internal protocol) to mask bits 0-15.  The ati_remote driver
+  uses mask bits 1-16, and ignores bit 0.  The former convention
+  makes more sense to me.  Convert ati_remote or preserve backward
+  compatibility?
+
+(Note that in either case, I'll segregate the backward compatibility
+breaks into their own patches.)
+
+Thank you for any guidance.
 
 
-So these should really be completely ignored, not reported as touch up? Any
-chance the above is the last event seen before a period of no activity?
-
-
-> +	total_number_of_active_sensors =
-> +		number_of_active_x_sensors + number_of_active_y_sensors;
-> +
-> +	if (total_number_of_active_sensors) {
-> +		finger1_pos_x = buf[3] << SHIFT_2 | (buf[4] & MASK_BITS);
-> +		finger1_pos_y = buf[5] << SHIFT_2 | (buf[6] & MASK_BITS);
-> +		finger2_pos_x = buf[7] << SHIFT_2 | (buf[8] & MASK_BITS);
-> +		finger2_pos_y = buf[9] << SHIFT_2 | (buf[10] & MASK_BITS);
-> +
-> +		if ((finger1_pos_x == 0) || (finger1_pos_y == 0))
-> +			finger1_valid = false;
-> +
-> +		if ((finger2_pos_x == 0) || (finger2_pos_y == 0))
-> +			finger2_valid = false;
-> +
-> +		if ((!finger1_valid) && (!finger2_valid)) {
-> +			return 0;
-> +		} else if ((!finger1_valid) && (finger2_valid)) {
-> +			finger1_valid = finger2_valid;
-> +			finger1_pos_x = finger2_pos_x;
-> +			finger1_pos_y = finger2_pos_y;
-> +			finger2_valid = false;
-> +			finger2_pos_x = 0;
-> +			finger2_pos_y = 0;
-> +		}
-
-
-An array and a for-loop here would remove some more lines of code.
-
-> +
-> +		if (finger2_valid) {
-> +			ret = bu21013_verify_delta(finger1_pos_x,
-> +				finger1_pos_y, finger2_pos_x, finger2_pos_y);
-> +			if (!ret)
-> +				goto report;
-
-
-Can finger1 be valid here?
-
-> +			bu21013_touch_calc(data, finger2_pos_x,
-> +					finger2_pos_y, finger_down_count);
-> +			finger_down_count++;
-
-
-The MT report could in principle be made right here.
-
-> +		}
-> +
-> +		if (finger1_valid) {
-> +			bu21013_touch_calc(data, finger1_pos_x,
-> +					finger1_pos_y, finger_down_count);
-> +			finger_down_count++;
-
-
-Same here, no real need to store it first.
-
-> +		}
-> +	}
-> +
-> +report:
-> +	if ((finger_down_count <= 0) && (data->previous_press_reported)) {
-> +		/* report pen up to input subsystem */
-> +		input_report_key(data->in_dev, BTN_TOUCH, 0);
-> +		input_mt_sync(data->in_dev);
-> +		input_sync(data->in_dev);
-> +		data->previous_press_reported = false;
-
-
-The previous_press_reported state is already accounted for in the input core,
-and could be simplified away.
-
-> +	} else if (finger_down_count > 0) {
-> +		/* report pen down to input subsystem */
-> +		input_report_abs(data->in_dev, ABS_X, data->x_pos[0]);
-> +		input_report_abs(data->in_dev, ABS_Y, data->y_pos[0]);
-> +		input_report_key(data->in_dev, BTN_TOUCH, 1);
-
-
-Out of curiosity, is there any guarantee that pos[0] stays with the initial
-finger as the second finger is added?
-
-> +
-> +		for (i = 0; i < finger_down_count; i++) {
-> +			input_report_abs(data->in_dev, ABS_MT_POSITION_X,
-> +							data->x_pos[i]);
-> +			input_report_abs(data->in_dev, ABS_MT_POSITION_Y,
-> +							data->y_pos[i]);
-> +			input_mt_sync(data->in_dev);
-> +		}
-> +		input_sync(data->in_dev);
-> +		data->previous_press_reported = true;
-> +	}
-> +
-> +	return ret;
-> +}
-
-
-Thanks,
-Henrik
+P.S.
+I can also have a look at the remote wonder plus patches some folks
+developed at
+http://www.mythtv.org/wiki/ATI_Remote_Wonder_Plus

@@ -1,132 +1,197 @@
-From: Ville Tervo <ville.tervo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] Bluetooth: hidp: Add support for hidraw
- HIDIOCGFEATURE  and HIDIOCSFEATURE
-Date: Thu, 23 Sep 2010 14:51:08 +0300
-Message-ID: <20100923115108.GC2379@null>
-References: <1281442367.12579.206.camel@localhost.localdomain>
- <1281990059-3562-3-git-send-email-alan@signal11.us>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: [PATCH v2] HID: magicmouse: Use hid-input parsing rather than
+ bypassing it
+Date: Thu, 23 Sep 2010 08:15:39 -0400
+Message-ID: <1285244139.22958.16.camel@graviton>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1281990059-3562-3-git-send-email-alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Alexey Dobriyan <adobriyan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, Michael Poole <mdpoole-IZmAEv5cUt1AfugRpC6u6w@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Eric Dumazet <eric.dumazet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog102.obsmtp.com ([74.125.149.69]:41332 "HELO
+	na3sys009aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752394Ab0IWMPr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Sep 2010 08:15:47 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
 
-Hi Alan,
+Let the HID core handle input device setup and HID-compliant reports.
+This driver then only has to worry about the non-standard reports.
 
-One comment.
+Signed-off-by: Michael Poole <mdpoole@troilus.org>
+---
+ drivers/hid/hid-magicmouse.c |   81
++++++++++--------------------------------
+ 1 files changed, 18 insertions(+), 63 deletions(-)
 
-On Mon, Aug 16, 2010 at 10:20:59PM +0200, ext Alan Ott wrote:
-> This patch adds support or getting and setting feature reports for bluetooth
-> HID devices from HIDRAW.
-> 
-> Signed-off-by: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-> ---
->  net/bluetooth/hidp/core.c |  114 +++++++++++++++++++++++++++++++++++++++++++--
->  net/bluetooth/hidp/hidp.h |    8 +++
->  2 files changed, 118 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> index bfe641b..0e4880e 100644
-> --- a/net/bluetooth/hidp/core.c
-> +++ b/net/bluetooth/hidp/core.c
-> @@ -36,6 +36,7 @@
->  #include <linux/file.h>
->  #include <linux/init.h>
->  #include <linux/wait.h>
-> +#include <linux/mutex.h>
->  #include <net/sock.h>
->  
->  #include <linux/input.h>
-> @@ -313,6 +314,86 @@ static int hidp_send_report(struct hidp_session *session, struct hid_report *rep
->  	return hidp_queue_report(session, buf, rsize);
->  }
->  
-> +static int hidp_get_raw_report(struct hid_device *hid,
-> +		unsigned char report_number,
-> +		unsigned char *data, size_t count,
-> +		unsigned char report_type)
-> +{
-> +	struct hidp_session *session = hid->driver_data;
-> +	struct sk_buff *skb;
-> +	size_t len;
-> +	int numbered_reports = hid->report_enum[report_type].numbered;
-> +
-> +	switch (report_type) {
-> +	case HID_FEATURE_REPORT:
-> +		report_type = HIDP_TRANS_GET_REPORT | HIDP_DATA_RTYPE_FEATURE;
-> +		break;
-> +	case HID_INPUT_REPORT:
-> +		report_type = HIDP_TRANS_GET_REPORT | HIDP_DATA_RTYPE_INPUT;
-> +		break;
-> +	case HID_OUTPUT_REPORT:
-> +		report_type = HIDP_TRANS_GET_REPORT | HIDP_DATA_RTYPE_OUPUT;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (mutex_lock_interruptible(&session->report_mutex))
-> +		return -ERESTARTSYS;
-> +
-> +	/* Set up our wait, and send the report request to the device. */
-> +	session->waiting_report_type = report_type & HIDP_DATA_RTYPE_MASK;
-> +	session->waiting_report_number = numbered_reports ? report_number : -1;
-> +	set_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
-> +	data[0] = report_number;
-> +	if (hidp_send_ctrl_message(hid->driver_data, report_type, data, 1))
-> +		goto err_eio;
-> +
-> +	/* Wait for the return of the report. The returned report
-> +	   gets put in session->report_return.  */
-> +	while (test_bit(HIDP_WAITING_FOR_RETURN, &session->flags)) {
-> +		int res;
-> +
-> +		res = wait_event_interruptible_timeout(session->report_queue,
-> +			!test_bit(HIDP_WAITING_FOR_RETURN, &session->flags),
-> +			5*HZ);
-> +		if (res == 0) {
-> +			/* timeout */
-> +			goto err_eio;
-> +		}
-> +		if (res < 0) {
-> +			/* signal */
-> +			goto err_restartsys;
-> +		}
-> +	}
-> +
-> +	skb = session->report_return;
-> +	if (skb) {
-> +		len = skb->len < count ? skb->len : count;
-> +		memcpy(data, skb->data, len);
-> +
-> +		kfree_skb(skb);
-> +		session->report_return = NULL;
-> +	} else {
-> +		/* Device returned a HANDSHAKE, indicating  protocol error. */
-> +		len = -EIO;
-> +	}
-> +
-> +	clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
-> +	mutex_unlock(&session->report_mutex);
-> +
-> +	return len;
-> +
-> +err_restartsys:
-> +	clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
-> +	mutex_unlock(&session->report_mutex);
-> +	return -ERESTARTSYS;
-> +err_eio:
-> +	clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
-> +	mutex_unlock(&session->report_mutex);
-> +	return -EIO;
-> +}
+This is a rebased and slightly revised version of an RFC patch I sent
+out a few weeks ago (which Chase later acked):
+http://www.spinics.net/lists/linux-input/msg10948.html
 
-How about a variable called ret and using that to return len or errno? It
-would eliminate code dublication.
+The changes in v2 are to clarify the commit summary line and comments,
+and remove one if() that would pass if the device had any HID input
+descriptors.  If/when someone adds support for a device that has none of
+those, the if() could be restored.
 
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 8791a08..5e1907a 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -279,13 +279,6 @@ static int magicmouse_raw_event(struct hid_device
+*hdev,
+ 	int x = 0, y = 0, ii, clicks = 0, npoints;
+ 
+ 	switch (data[0]) {
+-	case 0x10:
+-		if (size != 6)
+-			return 0;
+-		x = (__s16)(data[2] | data[3] << 8);
+-		y = (__s16)(data[4] | data[5] << 8);
+-		clicks = data[1];
+-		break;
+ 	case TRACKPAD_REPORT_ID:
+ 		/* Expect four bytes of prefix, and N*9 bytes of touch data. */
+ 		if (size < 4 || ((size - 4) % 9) != 0)
+@@ -343,13 +336,6 @@ static int magicmouse_raw_event(struct hid_device
+*hdev,
+ 		magicmouse_raw_event(hdev, report, data + 2 + data[1],
+ 			size - 2 - data[1]);
+ 		break;
+-	case 0x20: /* Theoretically battery status (0-100), but I have
+-		    * never seen it -- maybe it is only upon request.
+-		    */
+-	case 0x60: /* Unknown, maybe laser on/off. */
+-	case 0x61: /* Laser reflection status change.
+-		    * data[1]: 0 = spotted, 1 = lost
+-		    */
+ 	default:
+ 		return 0;
+ 	}
+@@ -377,36 +363,8 @@ static int magicmouse_raw_event(struct hid_device
+*hdev,
+ 	return 1;
+ }
+ 
+-static int magicmouse_input_open(struct input_dev *dev)
+-{
+-	struct hid_device *hid = input_get_drvdata(dev);
+-
+-	return hid->ll_driver->open(hid);
+-}
+-
+-static void magicmouse_input_close(struct input_dev *dev)
+-{
+-	struct hid_device *hid = input_get_drvdata(dev);
+-
+-	hid->ll_driver->close(hid);
+-}
+-
+ static void magicmouse_setup_input(struct input_dev *input, struct
+hid_device *hdev)
+ {
+-	input_set_drvdata(input, hdev);
+-	input->event = hdev->ll_driver->hidinput_input_event;
+-	input->open = magicmouse_input_open;
+-	input->close = magicmouse_input_close;
+-
+-	input->name = hdev->name;
+-	input->phys = hdev->phys;
+-	input->uniq = hdev->uniq;
+-	input->id.bustype = hdev->bus;
+-	input->id.vendor = hdev->vendor;
+-	input->id.product = hdev->product;
+-	input->id.version = hdev->version;
+-	input->dev.parent = hdev->dev.parent;
+-
+ 	__set_bit(EV_KEY, input->evbit);
+ 
+ 	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
+@@ -466,11 +424,22 @@ static void magicmouse_setup_input(struct
+input_dev *input, struct hid_device *h
+ 	}
+ }
+ 
++static int magicmouse_input_mapping(struct hid_device *hdev,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
++
++	if (!msc->input)
++		msc->input = hi->input;
++
++	return 0;
++}
++
+ static int magicmouse_probe(struct hid_device *hdev,
+ 	const struct hid_device_id *id)
+ {
+ 	__u8 feature[] = { 0xd7, 0x01 };
+-	struct input_dev *input;
+ 	struct magicmouse_sc *msc;
+ 	struct hid_report *report;
+ 	int ret;
+@@ -500,8 +469,11 @@ static int magicmouse_probe(struct hid_device
+*hdev,
+ 		goto err_free;
+ 	}
+ 
+-	/* we are handling the input ourselves */
+-	hidinput_disconnect(hdev);
++	/* We do this after hid-input is done parsing reports so that
++	 * hid-input uses the most natural button and axis IDs.
++	 */
++	if (msc->input)
++		magicmouse_setup_input(msc->input, hdev);
+ 
+ 	if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
+ 		report = hid_register_report(hdev, HID_INPUT_REPORT,
+@@ -528,24 +500,7 @@ static int magicmouse_probe(struct hid_device
+*hdev,
+ 		goto err_stop_hw;
+ 	}
+ 
+-	input = input_allocate_device();
+-	if (!input) {
+-		dev_err(&hdev->dev, "can't alloc input device\n");
+-		ret = -ENOMEM;
+-		goto err_stop_hw;
+-	}
+-	magicmouse_setup_input(input, hdev);
+-
+-	ret = input_register_device(input);
+-	if (ret) {
+-		dev_err(&hdev->dev, "input device registration failed\n");
+-		goto err_input;
+-	}
+-	msc->input = input;
+-
+ 	return 0;
+-err_input:
+-	input_free_device(input);
+ err_stop_hw:
+ 	hid_hw_stop(hdev);
+ err_free:
+@@ -558,7 +513,6 @@ static void magicmouse_remove(struct hid_device
+*hdev)
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
+ 
+ 	hid_hw_stop(hdev);
+-	input_unregister_device(msc->input);
+ 	kfree(msc);
+ }
+ 
+@@ -577,6 +531,7 @@ static struct hid_driver magicmouse_driver = {
+ 	.probe = magicmouse_probe,
+ 	.remove = magicmouse_remove,
+ 	.raw_event = magicmouse_raw_event,
++	.input_mapping = magicmouse_input_mapping,
+ };
+ 
+ static int __init magicmouse_init(void)
 -- 
-Ville
+1.7.2.2
+
+

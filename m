@@ -1,208 +1,79 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH v2] HID: magicmouse: Use hid-input parsing rather than
- bypassing it
-Date: Thu, 23 Sep 2010 21:20:35 +0800
-Message-ID: <1285248035.2964.2.camel@mini>
-References: <1285244139.22958.16.camel@graviton>
+From: Davidlohr Bueso <dave@gnu.org>
+Subject: [PATCH] input: for best practices, return -ENOMEM instead of -1
+ when returning on mem allocation errors
+Date: Thu, 23 Sep 2010 10:14:05 -0400
+Message-ID: <1285251245.2127.4.camel@cowboy>
+Reply-To: dave@gnu.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:48849 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754746Ab0IWNUq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Sep 2010 09:20:46 -0400
-In-Reply-To: <1285244139.22958.16.camel@graviton>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
 
-On Thu, 2010-09-23 at 08:15 -0400, Michael Poole wrote:
-> Let the HID core handle input device setup and HID-compliant reports.
-> This driver then only has to worry about the non-standard reports.
-> 
-> Signed-off-by: Michael Poole <mdpoole@troilus.org>
+input: for best practices, return -ENOMEM instead of -1 when returning on mem allocation errors.
 
-Michael, do you need me to retest the patch? I haven't looked at this
-second version, but if it's pretty much as you describe below and you
-don't need me to test it again, then my ACK still stands.
+Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+---
+ drivers/input/misc/powermate.c   |    2 +-
+ drivers/input/mouse/elantech.c   |    2 +-
+ drivers/input/mouse/synaptics.c  |    2 +-
+ drivers/input/mouse/trackpoint.c |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-Thanks,
-
--- Chase
-
-> ---
->  drivers/hid/hid-magicmouse.c |   81
-> +++++++++--------------------------------
->  1 files changed, 18 insertions(+), 63 deletions(-)
-> 
-> This is a rebased and slightly revised version of an RFC patch I sent
-> out a few weeks ago (which Chase later acked):
-> http://www.spinics.net/lists/linux-input/msg10948.html
-> 
-> The changes in v2 are to clarify the commit summary line and comments,
-> and remove one if() that would pass if the device had any HID input
-> descriptors.  If/when someone adds support for a device that has none of
-> those, the if() could be restored.
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 8791a08..5e1907a 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -279,13 +279,6 @@ static int magicmouse_raw_event(struct hid_device
-> *hdev,
->  	int x = 0, y = 0, ii, clicks = 0, npoints;
->  
->  	switch (data[0]) {
-> -	case 0x10:
-> -		if (size != 6)
-> -			return 0;
-> -		x = (__s16)(data[2] | data[3] << 8);
-> -		y = (__s16)(data[4] | data[5] << 8);
-> -		clicks = data[1];
-> -		break;
->  	case TRACKPAD_REPORT_ID:
->  		/* Expect four bytes of prefix, and N*9 bytes of touch data. */
->  		if (size < 4 || ((size - 4) % 9) != 0)
-> @@ -343,13 +336,6 @@ static int magicmouse_raw_event(struct hid_device
-> *hdev,
->  		magicmouse_raw_event(hdev, report, data + 2 + data[1],
->  			size - 2 - data[1]);
->  		break;
-> -	case 0x20: /* Theoretically battery status (0-100), but I have
-> -		    * never seen it -- maybe it is only upon request.
-> -		    */
-> -	case 0x60: /* Unknown, maybe laser on/off. */
-> -	case 0x61: /* Laser reflection status change.
-> -		    * data[1]: 0 = spotted, 1 = lost
-> -		    */
->  	default:
->  		return 0;
->  	}
-> @@ -377,36 +363,8 @@ static int magicmouse_raw_event(struct hid_device
-> *hdev,
->  	return 1;
->  }
->  
-> -static int magicmouse_input_open(struct input_dev *dev)
-> -{
-> -	struct hid_device *hid = input_get_drvdata(dev);
-> -
-> -	return hid->ll_driver->open(hid);
-> -}
-> -
-> -static void magicmouse_input_close(struct input_dev *dev)
-> -{
-> -	struct hid_device *hid = input_get_drvdata(dev);
-> -
-> -	hid->ll_driver->close(hid);
-> -}
-> -
->  static void magicmouse_setup_input(struct input_dev *input, struct
-> hid_device *hdev)
->  {
-> -	input_set_drvdata(input, hdev);
-> -	input->event = hdev->ll_driver->hidinput_input_event;
-> -	input->open = magicmouse_input_open;
-> -	input->close = magicmouse_input_close;
-> -
-> -	input->name = hdev->name;
-> -	input->phys = hdev->phys;
-> -	input->uniq = hdev->uniq;
-> -	input->id.bustype = hdev->bus;
-> -	input->id.vendor = hdev->vendor;
-> -	input->id.product = hdev->product;
-> -	input->id.version = hdev->version;
-> -	input->dev.parent = hdev->dev.parent;
-> -
->  	__set_bit(EV_KEY, input->evbit);
->  
->  	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
-> @@ -466,11 +424,22 @@ static void magicmouse_setup_input(struct
-> input_dev *input, struct hid_device *h
->  	}
->  }
->  
-> +static int magicmouse_input_mapping(struct hid_device *hdev,
-> +		struct hid_input *hi, struct hid_field *field,
-> +		struct hid_usage *usage, unsigned long **bit, int *max)
-> +{
-> +	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
-> +
-> +	if (!msc->input)
-> +		msc->input = hi->input;
-> +
-> +	return 0;
-> +}
-> +
->  static int magicmouse_probe(struct hid_device *hdev,
->  	const struct hid_device_id *id)
->  {
->  	__u8 feature[] = { 0xd7, 0x01 };
-> -	struct input_dev *input;
->  	struct magicmouse_sc *msc;
->  	struct hid_report *report;
->  	int ret;
-> @@ -500,8 +469,11 @@ static int magicmouse_probe(struct hid_device
-> *hdev,
->  		goto err_free;
->  	}
->  
-> -	/* we are handling the input ourselves */
-> -	hidinput_disconnect(hdev);
-> +	/* We do this after hid-input is done parsing reports so that
-> +	 * hid-input uses the most natural button and axis IDs.
-> +	 */
-> +	if (msc->input)
-> +		magicmouse_setup_input(msc->input, hdev);
->  
->  	if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
->  		report = hid_register_report(hdev, HID_INPUT_REPORT,
-> @@ -528,24 +500,7 @@ static int magicmouse_probe(struct hid_device
-> *hdev,
->  		goto err_stop_hw;
->  	}
->  
-> -	input = input_allocate_device();
-> -	if (!input) {
-> -		dev_err(&hdev->dev, "can't alloc input device\n");
-> -		ret = -ENOMEM;
-> -		goto err_stop_hw;
-> -	}
-> -	magicmouse_setup_input(input, hdev);
-> -
-> -	ret = input_register_device(input);
-> -	if (ret) {
-> -		dev_err(&hdev->dev, "input device registration failed\n");
-> -		goto err_input;
-> -	}
-> -	msc->input = input;
-> -
->  	return 0;
-> -err_input:
-> -	input_free_device(input);
->  err_stop_hw:
->  	hid_hw_stop(hdev);
->  err_free:
-> @@ -558,7 +513,6 @@ static void magicmouse_remove(struct hid_device
-> *hdev)
->  	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
->  
->  	hid_hw_stop(hdev);
-> -	input_unregister_device(msc->input);
->  	kfree(msc);
->  }
->  
-> @@ -577,6 +531,7 @@ static struct hid_driver magicmouse_driver = {
->  	.probe = magicmouse_probe,
->  	.remove = magicmouse_remove,
->  	.raw_event = magicmouse_raw_event,
-> +	.input_mapping = magicmouse_input_mapping,
->  };
->  
->  static int __init magicmouse_init(void)
-
-
-
+diff --git a/drivers/input/misc/powermate.c b/drivers/input/misc/powermate.c
+index bf170f6..f459471 100644
+--- a/drivers/input/misc/powermate.c
++++ b/drivers/input/misc/powermate.c
+@@ -280,7 +280,7 @@ static int powermate_alloc_buffers(struct usb_device *udev, struct powermate_dev
+ 
+ 	pm->configcr = kmalloc(sizeof(*(pm->configcr)), GFP_KERNEL);
+ 	if (!pm->configcr)
+-		return -1;
++		return -ENOMEM;
+ 
+ 	return 0;
+ }
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 4831120..04d9bf3 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -699,7 +699,7 @@ int elantech_init(struct psmouse *psmouse)
+ 
+ 	psmouse->private = etd = kzalloc(sizeof(struct elantech_data), GFP_KERNEL);
+ 	if (!etd)
+-		return -1;
++		return -ENOMEM;
+ 
+ 	etd->parity[0] = 1;
+ 	for (i = 1; i < 256; i++)
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 96b70a4..a79bc36 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -731,7 +731,7 @@ int synaptics_init(struct psmouse *psmouse)
+ 
+ 	psmouse->private = priv = kzalloc(sizeof(struct synaptics_data), GFP_KERNEL);
+ 	if (!priv)
+-		return -1;
++		return -ENOMEM;
+ 
+ 	psmouse_reset(psmouse);
+ 
+diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+index 0643e49..54b2fa8 100644
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -303,7 +303,7 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ 
+ 	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
+ 	if (!psmouse->private)
+-		return -1;
++		return -ENOMEM;
+ 
+ 	psmouse->vendor = "IBM";
+ 	psmouse->name = "TrackPoint";
+-- 
+1.7.0.4

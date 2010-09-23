@@ -1,39 +1,54 @@
-From: Davidlohr Bueso <dave@gnu.org>
-Subject: Re: [PATCH] input: for best practices, return -ENOMEM instead of
- -1 when returning on mem allocation errors
-Date: Thu, 23 Sep 2010 16:56:30 -0400
-Message-ID: <1285275390.1999.0.camel@cowboy>
-References: <1285251245.2127.4.camel@cowboy>
-	 <20100923154407.GA17807@core.coreip.homeip.net>
-Reply-To: dave@gnu.org
+From: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
+Subject: Re: [PATCH v4 0/2] Get and Set Feature Reports on HIDRAW (USB and
+ Bluetooth)
+Date: Thu, 23 Sep 2010 21:16:19 +0100
+Message-ID: <1285272979.2869.14.camel@pldmachine>
+References: <1281442367.12579.206.camel@localhost.localdomain>
+	 <1281990059-3562-1-git-send-email-alan@signal11.us>
+	 <20100923162521.GA15641@null>
+	 <AANLkTinJXYbZh_MvG81iJMu84LKBOKL3s-Gbfe77Vq7q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caiajhbdccah.dreamhost.com ([208.97.132.207]:52250 "EHLO
-	homiemail-a10.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752017Ab0IWU4g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Sep 2010 16:56:36 -0400
-In-Reply-To: <20100923154407.GA17807@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <AANLkTinJXYbZh_MvG81iJMu84LKBOKL3s-Gbfe77Vq7q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ping Cheng <pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ville Tervo <ville.tervo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, ext Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Alexey Dobriyan <adobriyan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, Michael Poole <mdpoole-IZmAEv5cUt1AfugRpC6u6w@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Eric Dumazet <eric.dumazet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, 2010-09-23 at 08:44 -0700, Dmitry Torokhov wrote:
-> On Thu, Sep 23, 2010 at 10:14:05AM -0400, Davidlohr Bueso wrote:
-> > input: for best practices, return -ENOMEM instead of -1 when returning on mem allocation errors.
-> > 
-> > Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+Dnia 2010-09-23, czw o godzinie 10:07 -0700, Ping Cheng pisze:
+> On Thu, Sep 23, 2010 at 9:25 AM, Ville Tervo <ville.tervo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org> wrote:
+> > Hi Alan,
+> >
+> > On Mon, Aug 16, 2010 at 10:20:57PM +0200, ext Alan Ott wrote:
+> >> This is version 4. Built against 2.6.35+ revision 320b2b8de12698 .
+> >
+> > I gave a try to to this patch using your test tool [1] and very old BT
+> > keyboard. I don't have anything else ATM to test with. Is there some BT hid
+> > devices which support setting and getting features?
 > 
-> Applied, thank you Davidlohr.
+> As far as I know Wacom BT devices (Graphire and Intuos4) need to get
+> and set features.
 > 
-> FWIW there are more code in drivers/input/serio and drivers/input/mouse/
-> that return -1 instead of a proper error codes.
+> Przemo,
 > 
-Yes, I'll be preparing a patch shortly for those.
+> Do you have time to test the patchset with your Graphire BT and
+> provide your result here?
+Hi Ping,
+Speed switching works as expected.
 
-Thanks,
-Davidlohr
+Tested on HP NC4200 with internal and external bluetooth modules:
 
+Linux pldmachine 2.6.35-07788-g320b2b8-dirty #15 Thu Sep 23 19:55:03 IST
+2010 i686 Intel(R)_Pentium(R)_M_processor_1.86GHz PLD Linux
+
+ID 03f0:011d Hewlett-Packard Integrated Bluetooth Module
+ID 0a12:0001 Cambridge Silicon Radio, Ltd Bluetooth Dongle (HCI mode)
+
+and Wacom Pen Tablet CTE-630BT
+
+Tested-by: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
+-- 
+Regards,
+Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>

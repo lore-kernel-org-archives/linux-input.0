@@ -1,141 +1,75 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: RE: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
-Date: Fri, 24 Sep 2010 21:05:59 +0530
-Message-ID: <0680EC522D0CC943BC586913CF3768C003C21EEC01@dbde02.ent.ti.com>
-References: <1285069770-4261-1-git-send-email-manjugk@ti.com>
- <0680EC522D0CC943BC586913CF3768C003C21EEB60@dbde02.ent.ti.com>
- <E0D41E29EB0DAC4E9F3FF173962E9E94027863E252@dbde02.ent.ti.com>
+From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st
+ insert, ignored on 2nd insert, lsusb stuck at usbdev_open
+Date: Fri, 24 Sep 2010 09:46:09 -0700
+Message-ID: <20100924164609.GB16655@kroah.com>
+References: <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org>
+ <4C98C70B.3080407@turmel.org>
+ <4C98D892.7030605@googlemail.com>
+ <AANLkTinQVNy4yOSW=aEbuYh6b_F8nKBLxsjxBDk8zq8O@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:53166 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752593Ab0IXPgM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Sep 2010 11:36:12 -0400
-In-Reply-To: <E0D41E29EB0DAC4E9F3FF173962E9E94027863E252@dbde02.ent.ti.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTinQVNy4yOSW=aEbuYh6b_F8nKBLxsjxBDk8zq8O-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mat <jackdachef-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Gabriel C <nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Guillaume Chazarain <guichaz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andreas Bombe <aeb-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, Alex Riesen <raa.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "G, Manjunath Kondaiah" <manjugk@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Tony Lindgren <tony@atomide.com>
 
-
-
-> -----Original Message-----
-> From: G, Manjunath Kondaiah
-> Sent: Friday, September 24, 2010 5:11 PM
-> To: Datta, Shubhrajyoti; linux-omap@vger.kernel.org
-> Cc: linux-input@vger.kernel.org; Dmitry Torokhov; linux-arm-
-> kernel@lists.infradead.org; Tony Lindgren
-> Subject: RE: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: Datta, Shubhrajyoti
-> > Sent: Friday, September 24, 2010 5:00 PM
-> > To: G, Manjunath Kondaiah; linux-omap@vger.kernel.org
-> > Cc: linux-input@vger.kernel.org; Dmitry Torokhov;
-> > linux-arm-kernel@lists.infradead.org; Tony Lindgren
-> > Subject: RE: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
+On Wed, Sep 22, 2010 at 11:47:09AM +0200, Mat wrote:
+> On Tue, Sep 21, 2010 at 6:08 PM, Gabriel C <nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org=
+> wrote:
+> > On 21.09.2010 16:54, Phil Turmel wrote:
+> >
+> >> On 09/21/2010 10:30 AM, Alan Stern wrote:
+> >>> On Tue, 21 Sep 2010, Jiri Kosina wrote:
+> >>>
+> >>>> I have just found out that it's actually CONFIG_USB_DYNAMIC_MINO=
+RS which
+> >>>> makes the difference. When unset, the problem doesn't trigger, a=
+nd
+> >>>> usb_find_interface() always returns the proper interface. When
+> >>>> CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
+> >>>>
+> >>>> I'll look into that.
+> >>>
+> >>> Apparently the problem is that intf->minors doesn't get initializ=
+ed
+> >>> properly. =A0This patch should fix it. =A0Everybody, please try i=
+t out.
+> >>
+> >> Yes, this works for me. =A0(as did Jiri's version.)
 > >
 > >
+> > Both versions of the patch are working fine for me too also.
 > >
-> > > -----Original Message-----
-> > > From: linux-input-owner@vger.kernel.org [mailto:linux-input-
-> > > owner@vger.kernel.org] On Behalf Of G, Manjunath Kondaiah
-> > > Sent: Tuesday, September 21, 2010 5:20 PM
-> > > To: linux-omap@vger.kernel.org
-> > > Cc: linux-input@vger.kernel.org; Dmitry Torokhov; linux-arm-
-> > > kernel@lists.infradead.org; Tony Lindgren
-> > > Subject: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
-> > >
-> > > The failure exit paths seems to be wrong in probe function.
-> > > This patch corrects exit failure paths for error handling cases.
-> > >
-> > > Boot warning incase of request irq failure:
-> > >
-> > > [    1.553985] twl4030_keypad twl4030_keypad: request_irq
-> > failed for irq
-> > > no=369
-> > > [    1.561157] ------------[ cut here ]------------
-> > > [    1.565795] WARNING: at kernel/irq/manage.c:899
-> > __free_irq+0x88/0x164()
-> > > [    1.572418] Trying to free already-free IRQ 369
-> > > [    1.576965] Modules linked in:
-> > > [    1.580047] [<c00470ec>] (unwind_backtrace+0x0/0xe4)
-> > from [<c0078b5c>]
-> > > (warn_slowpath_common+0x4c/0x64)
-> > > [    1.589477] [<c0078b5c>] (warn_slowpath_common+0x4c/0x64) from
-> > > [<c0078bf4>] (warn_slowpath_fmt+0x2c/0x3c)
-> > > [    1.599060] [<c0078bf4>] (warn_slowpath_fmt+0x2c/0x3c) from
-> > > [<c00adb90>] (__free_irq+0x88/0x164)
-> > > [    1.607849] [<c00adb90>] (__free_irq+0x88/0x164) from
-> > [<c00adca8>]
-> > > (free_irq+0x3c/0x5c)
-> > > [    1.615875] [<c00adca8>] (free_irq+0x3c/0x5c) from [<c043ab2c>]
-> > > (twl4030_kp_probe+0x308/0x374)
-> > > [    1.624511] [<c043ab2c>] (twl4030_kp_probe+0x308/0x374) from
-> > > [<c023c338>] (platform_drv_probe+0x14/0x18)
-> > > [    1.634033] [<c023c338>] (platform_drv_probe+0x14/0x18) from
-> > > [<c023b4dc>] (driver_probe_device+0xc8/0x184)
-> > > [    1.643707] [<c023b4dc>] (driver_probe_device+0xc8/0x184) from
-> > > [<c023b600>] (__driver_attach+0x68/0x8c)
-> > > [    1.653106] [<c023b600>] (__driver_attach+0x68/0x8c)
-> > from [<c023ad34>]
-> > > (bus_for_each_dev+0x48/0x74)
-> > > [    1.662170] [<c023ad34>] (bus_for_each_dev+0x48/0x74)
-> > from [<c023a690>]
-> > > (bus_add_driver+0x9c/0x210)
-> > > [    1.671234] [<c023a690>] (bus_add_driver+0x9c/0x210)
-> > from [<c023b8f8>]
-> > > (driver_register+0xa8/0x134)
-> > > [    1.680297] [<c023b8f8>] (driver_register+0xa8/0x134)
-> > from [<c0041340>]
-> > > (do_one_initcall+0x58/0x1b4)
-> > > [    1.689453] [<c0041340>] (do_one_initcall+0x58/0x1b4)
-> > from [<c0008574>]
-> > > (kernel_init+0x98/0x150)
-> > > [    1.698272] [<c0008574>] (kernel_init+0x98/0x150) from
-> > [<c0042970>]
-> > > (kernel_thread_exit+0x0/0x8)
-> > > [    1.707214] ---[ end trace 6559b322ad3cbdfe ]---
-> > > [    1.718292] twl4030_keypad: probe of twl4030_keypad
-> > failed with error -
-> > > 16
-> > >
-> > > Signed-off-by: G, Manjunath Kondaiah <manjugk@ti.com>
-> > > Cc: linux-input@vger.kernel.org
-> > > Cc: Dmitry Torokhov <dtor@mail.ru>
-> > > Cc: linux-arm-kernel@lists.infradead.org
-> > > Cc: linux-input@vger.kernel.org
-> > > Cc: Tony Lindgren <tony@atomide.com>
-> > > ---
-> > >  version v1 : initial patch
-> > >  version v2 : CC'ed input subsystem and arm kernel mailing lists.
-> > >
-> > >  drivers/input/keyboard/twl4030_keypad.c |   10 ++++------
-> > >  1 files changed, 4 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/drivers/input/keyboard/twl4030_keypad.c
-> > > b/drivers/input/keyboard/twl4030_keypad.c
-> > > index fb16b5e..39a9f30 100644
-> > > --- a/drivers/input/keyboard/twl4030_keypad.c
-> > > +++ b/drivers/input/keyboard/twl4030_keypad.c
-> > > @@ -347,8 +347,7 @@ static int __devinit twl4030_kp_probe(struct
-> > > platform_device *pdev)
-> > >  	kp = kzalloc(sizeof(*kp), GFP_KERNEL);
-> > >  	input = input_allocate_device();
-> > >  	if (!kp || !input) {
-> > > -		error = -ENOMEM;
-> > > -		goto err1;
-> > Wont you leak memory here ?
-> 
-> Already catpured this comment and dmitry has posted alternate patch at:
-> http://www.spinics.net/lists/arm-kernel/msg99053.html
-Apologies missed it.
- 
-> 
-> -Manjunath
+> >>
+> >> Thank you both for the support.
+> >>
+> >> Feel free to add my:
+> >>
+> >> Tested-by: Philip J. Turmel <philip-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>
+> >
+> >
+> > And mine if you wish.
+> > Tested-by: Gabriel Craciunescu =A0<nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+> >
+> >
+>=20
+> confirmed !
+>=20
+> I also tested both and it works fine so far :)
+>=20
+> I don't know if it's too late already:
+> Tested-by: Matthias Bayer <jackdachef-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+Nope, not to late, I've added this to the patch as well, thanks for
+letting us know.
+
+greg k-h
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

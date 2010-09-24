@@ -1,75 +1,40 @@
-From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [BUG, Regression, bisected] USB mouse causes bug on 1st
- insert, ignored on 2nd insert, lsusb stuck at usbdev_open
-Date: Fri, 24 Sep 2010 09:46:09 -0700
-Message-ID: <20100924164609.GB16655@kroah.com>
-References: <Pine.LNX.4.44L0.1009211013460.1644-100000@iolanthe.rowland.org>
- <4C98C70B.3080407@turmel.org>
- <4C98D892.7030605@googlemail.com>
- <AANLkTinQVNy4yOSW=aEbuYh6b_F8nKBLxsjxBDk8zq8O@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <AANLkTinQVNy4yOSW=aEbuYh6b_F8nKBLxsjxBDk8zq8O-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mat <jackdachef-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Gabriel C <nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Guillaume Chazarain <guichaz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andreas Bombe <aeb-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, Alex Riesen <raa.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: matt mooney <mfm@muteddisk.com>
+Subject: [PATCH 09/24] input: change to new flag variable
+Date: Fri, 24 Sep 2010 12:17:19 -0700
+Message-ID: <2c0fbcaafb18007c5c83823cb33e35120fe15091.1285355033.git.mfm@muteddisk.com>
+References: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
+ <9968d4260be8850200cc9c7dfe08addf611468b4.1285355033.git.mfm@muteddisk.com>
+ <036514b5dd23c5af14303519d79d60d79adccbee.1285355033.git.mfm@muteddisk.com>
+ <ffbd189ef2d414ea7c87ffe2b40fce87877dc014.1285355033.git.mfm@muteddisk.com>
+ <b3e2061e1e6703f7b84c0484030e07de6000546a.1285355033.git.mfm@muteddisk.com>
+ <70fe6b462b3ee22922698a12d62d650cf029033a.1285355033.git.mfm@muteddisk.com>
+ <40a2d76d013ad025d08a411992af10f6bbef0a13.1285355033.git.mfm@muteddisk.com>
+ <b484ccf548e1700e09ac7f731289503bf3e7b3bf.1285355033.git.mfm@muteddisk.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <b484ccf548e1700e09ac7f731289503bf3e7b3bf.1285355033.git.mfm@muteddisk.com>
+In-Reply-To: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
+References: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kernel-janitors@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 22, 2010 at 11:47:09AM +0200, Mat wrote:
-> On Tue, Sep 21, 2010 at 6:08 PM, Gabriel C <nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org=
-> wrote:
-> > On 21.09.2010 16:54, Phil Turmel wrote:
-> >
-> >> On 09/21/2010 10:30 AM, Alan Stern wrote:
-> >>> On Tue, 21 Sep 2010, Jiri Kosina wrote:
-> >>>
-> >>>> I have just found out that it's actually CONFIG_USB_DYNAMIC_MINO=
-RS which
-> >>>> makes the difference. When unset, the problem doesn't trigger, a=
-nd
-> >>>> usb_find_interface() always returns the proper interface. When
-> >>>> CONFIG_USB_DYNAMIC_MINORS is being used, the oops happen.
-> >>>>
-> >>>> I'll look into that.
-> >>>
-> >>> Apparently the problem is that intf->minors doesn't get initializ=
-ed
-> >>> properly. =A0This patch should fix it. =A0Everybody, please try i=
-t out.
-> >>
-> >> Yes, this works for me. =A0(as did Jiri's version.)
-> >
-> >
-> > Both versions of the patch are working fine for me too also.
-> >
-> >>
-> >> Thank you both for the support.
-> >>
-> >> Feel free to add my:
-> >>
-> >> Tested-by: Philip J. Turmel <philip-xiX+HWoRdKcdnm+yROfE0A@public.gmane.org>
-> >
-> >
-> > And mine if you wish.
-> > Tested-by: Gabriel Craciunescu =A0<nix.or.die-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-> >
-> >
->=20
-> confirmed !
->=20
-> I also tested both and it works fine so far :)
->=20
-> I don't know if it's too late already:
-> Tested-by: Matthias Bayer <jackdachef-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Replace EXTRA_CFLAGS with ccflags-y.
 
-Nope, not to late, I've added this to the patch as well, thanks for
-letting us know.
+Signed-off-by: matt mooney <mfm@muteddisk.com>
+---
+ drivers/input/joystick/iforce/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-greg k-h
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/joystick/iforce/Makefile b/drivers/input/joystick/iforce/Makefile
+index 74daff4..2648189 100644
+--- a/drivers/input/joystick/iforce/Makefile
++++ b/drivers/input/joystick/iforce/Makefile
+@@ -17,4 +17,4 @@ ifeq ($(CONFIG_JOYSTICK_IFORCE_USB),y)
+ 	iforce-objs += iforce-usb.o
+ endif
+ 
+-EXTRA_CFLAGS = -Werror-implicit-function-declaration
++ccflags-y := -Werror-implicit-function-declaration
+-- 
+1.7.2.1

@@ -1,43 +1,46 @@
-From: Michael Poole <mdpoole@troilus.org>
-Subject: Re: [PATCH v2] HID: magicmouse: Use hid-input parsing rather than
- bypassing it
-Date: Thu, 23 Sep 2010 19:44:02 -0400
-Message-ID: <AANLkTiksoG-_q3z2AE0+tzBmOqu=04GRxdMghCK9mqBT@mail.gmail.com>
-References: <1285244139.22958.16.camel@graviton>
-	<1285248035.2964.2.camel@mini>
+From: "Hemanth V" <hemanthv@ti.com>
+Subject: Re: Sensor event related attribute naming.
+Date: Fri, 24 Sep 2010 16:04:25 +0530
+Message-ID: <03d301cb5bd4$152287d0$LocalHost@wipblrx0099946>
+References: <4C98C7FE.4050305@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:39279 "HELO
-	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754759Ab0IWXoE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Sep 2010 19:44:04 -0400
-In-Reply-To: <1285248035.2964.2.camel@mini>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Manuel Stah
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2010 at 9:20 AM, Chase Douglas
-<chase.douglas@canonical.com> wrote:
-> On Thu, 2010-09-23 at 08:15 -0400, Michael Poole wrote:
->> Let the HID core handle input device setup and HID-compliant reports.
->> This driver then only has to worry about the non-standard reports.
->>
->> Signed-off-by: Michael Poole <mdpoole@troilus.org>
->
-> Michael, do you need me to retest the patch? I haven't looked at this
-> second version, but if it's pretty much as you describe below and you
-> don't need me to test it again, then my ACK still stands.
->
-> Thanks,
->
-> -- Chase
+----- Original Message ----- 
+From: "Jonathan Cameron" <jic23@cam.ac.uk>
+<snip>
+> 
+> We have had naming conventions in IIO for a while but they have not
+> yet been terribly satisfactory. Our latest suggestion, which I'm
+> finally happy is general enough whilst remaining clear to be found
+> in  http://marc.info/?l=linux-iio&m=128394796116223&w=2
+> 
+> Manuel Stahl pointed out that the following summary covers what was
+> proposed in a clearer fashion.
+> 
+> <channel>_<limit>_<dir>_<attr>, where
+> <channel>: name of the channel, i.e. accel_x0
+> <limit>:   thresh, mag, roc
+> <dir>:     rising, falling
+> <attr>:    en, value, period, mean_period
+> 
 
-The behavior will be 100% identical for currently supported devices,
-so I don't see any real benefit in you re-testing it.  I just didn't
-want to assume (without checking) that your ack was valid for the
-revised version.
+Jonathan, I am trying to understand howto apply this to cma3000. I
+have few parameters like below. Would you be able to suggest how
+the sysfs entries should look like for the below parameters or are these
+still to be defined.
 
-Michael
+grange:  2000, 8000 mg 
+sampling frequency  : 40, 100, 400 Hz
+Modes : Motion detect, Measurement, Free fall
+
+Thanks
+Hemanth

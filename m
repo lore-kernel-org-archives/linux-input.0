@@ -1,43 +1,30 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Accelerometer drivers in drivers/hwmon
-Date: Sat, 25 Sep 2010 13:23:30 +0200
-Message-ID: <20100925132330.4ee5e6a7@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zone0.gcu-squad.org ([212.85.147.21]:12001 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756556Ab0IYLXi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Sep 2010 07:23:38 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Vasiliy Kulikov <segooon@gmail.com>
+Subject: [PATCH] touchscreen: tnetv107x: fix input_device leak
+Date: Sun, 26 Sep 2010 12:59:47 +0400
+Message-ID: <1285491587-32707-1-git-send-email-segooon@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kernel-janitors@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Cyril Chemparathy <cyril@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, LM Sensors <lm-sensors@lm-sensors.org>, Takashi Iwai <tiwai@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>
 
-Hi Dmitry,
+tsc_probe() calls input_free_device() on error, but tsc_remove()
+doesn't.
+---
+ drivers/input/touchscreen/tnetv107x-ts.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-I would like to kick the following 5 drivers out of drivers/hwmon: ams,
-hdaps, hp_accel, lis3lv02d and applesmc. These are primarily
-accelerometer devices, so the drivers do not belong to hwmon.
-
-ams, hdaps, hp_accel and lis3lv02d don't even register a hwmon device.
-They are pure accelerometer drivers as far as I can see. Would you take
-them in drivers/input/misc?
-
-applesmc is more complex, it's a multifunction device. Maybe it would
-better go to drivers/macintosh, where the other thermal management
-drivers for mac machines live.
-
-If you don't want hdaps and hp_accel, they might also fit under
-drivers/platform/x86. There are quite a few laptop-specific drivers
-living there already.
-
-If nobody wants these drivers, drivers/misc is yet another option. I'm
-open to suggestions. Virtually anything which moves these drivers
-outside of drivers/hwmon will make me happy.
-
-Thanks,
+diff --git a/drivers/input/touchscreen/tnetv107x-ts.c b/drivers/input/touchscreen/tnetv107x-ts.c
+index cf1dba2..82d9a01 100644
+--- a/drivers/input/touchscreen/tnetv107x-ts.c
++++ b/drivers/input/touchscreen/tnetv107x-ts.c
+@@ -361,6 +361,7 @@ static int __devexit tsc_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_device(ts->input_dev);
+ 	free_irq(ts->tsc_irq, ts);
++	input_free_device(ts->input_dev);
+ 	clk_put(ts->clk);
+ 	iounmap(ts->regs);
+ 	release_mem_region(ts->res->start, resource_size(ts->res));
 -- 
-Jean Delvare
+1.7.0.4

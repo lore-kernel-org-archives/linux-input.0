@@ -1,27 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] touchscreen: tnetv107x: fix input_device leak
-Date: Sun, 26 Sep 2010 03:00:18 -0700
-Message-ID: <A36AFE1D-1D31-4B93-B569-830215F0FD14@gmail.com>
-References: <1285491587-32707-1-git-send-email-segooon@gmail.com>
-Mime-Version: 1.0 (iPhone Mail 8B117)
-Content-Type: text/plain;
-	charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1285491587-32707-1-git-send-email-segooon@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vasiliy Kulikov <segooon@gmail.com>
-Cc: "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, Cyril Chemparathy <cyril@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Rahul Ruikar <rahul.ruikar@gmail.com>
+Subject: [PATCH] input: gameport: emu10k1-gp: call pci_disable_device in error path and in remove()
+Date: Sun, 26 Sep 2010 17:44:45 +0530
+Message-ID: <1285503285-6219-1-git-send-email-rahul.ruikar@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:46854 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756927Ab0IZMPQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 26 Sep 2010 08:15:16 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, nm127@freemail.hu
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rahul Ruikar <rahul.ruikar@gmail.com>
 
-On Sep 26, 2010, at 1:59 AM, Vasiliy Kulikov <segooon@gmail.com> wrote:
+pci_disable_device() is called for following 2 cases
+- error path in emu_probe()
+- in emu_remove()
 
-> tsc_probe() calls input_free_device() on error, but tsc_remove()
-> doesn't.
+Signed-off-by: Rahul Ruikar <rahul.ruikar@gmail.com>
+---
+ drivers/input/gameport/emu10k1-gp.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-NAK. It is forbidden to call input_free_device() after unregister.
-
-Thanks. 
-
+diff --git a/drivers/input/gameport/emu10k1-gp.c b/drivers/input/gameport/emu10k1-gp.c
+index 7392992..34615d4 100644
+--- a/drivers/input/gameport/emu10k1-gp.c
++++ b/drivers/input/gameport/emu10k1-gp.c
+@@ -77,6 +77,7 @@ static int __devinit emu_probe(struct pci_dev *pdev, const struct pci_device_id
+ 	if (!emu || !port) {
+ 		printk(KERN_ERR "emu10k1-gp: Memory allocation failed\n");
+ 		release_region(ioport, iolen);
++		pci_disable_device(pdev);
+ 		kfree(emu);
+ 		gameport_free_port(port);
+ 		return -ENOMEM;
+@@ -105,6 +106,7 @@ static void __devexit emu_remove(struct pci_dev *pdev)
+ 
+ 	gameport_unregister_port(emu->gameport);
+ 	release_region(emu->io, emu->size);
++	pci_disable_device(pdev);
+ 	kfree(emu);
+ }
+ 
 -- 
-Dmitry
+1.7.2.3
+

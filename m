@@ -1,43 +1,63 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: Hacking on ati_remote driver
-Date: Sun, 26 Sep 2010 15:22:26 -0400
-Message-ID: <20100926192226.GA24012@redhat.com>
-References: <20100923012720.14819.qmail@science.horizon.com>
+From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Subject: RE: [PATCH] keyboard: tnetv107x: fix input_device leak
+Date: Mon, 27 Sep 2010 10:55:24 +0530
+Message-ID: <0680EC522D0CC943BC586913CF3768C003FF0594C8@dbde02.ent.ti.com>
+References: <1285491584-32664-1-git-send-email-segooon@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32899 "EHLO mx1.redhat.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:49579 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758062Ab0IZTWe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 26 Sep 2010 15:22:34 -0400
-Content-Disposition: inline
-In-Reply-To: <20100923012720.14819.qmail@science.horizon.com>
+	id S1751497Ab0I0FZb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Sep 2010 01:25:31 -0400
+In-Reply-To: <1285491584-32664-1-git-send-email-segooon@gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: George Spelvin <linux@horizon.com>
-Cc: linux-input@vger.kernel.org
+To: Vasiliy Kulikov <segooon@gmail.com>, "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Chemparathy, Cyril" <cyril@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Sep 22, 2010 at 09:27:20PM -0400, George Spelvin wrote:
-> I dusted off my ATI all-in-wonder remote and was trying to get it to
-> work with VLC (so far unsuccessfully; I'm still untangling the
-> multiple mapping layers between hardware scancode and X event), and
-> I had a look at the ati_remote.c driver.
+
+
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org [mailto:linux-input-
+> owner@vger.kernel.org] On Behalf Of Vasiliy Kulikov
+> Sent: Sunday, September 26, 2010 2:30 PM
+> To: kernel-janitors@vger.kernel.org
+> Cc: Dmitry Torokhov; Chemparathy, Cyril; Kevin Hilman; linux-
+> input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: [PATCH] keyboard: tnetv107x: fix input_device leak
 > 
-> I started hacking on it.  Mostly I thought the ati_remote_tbl[]
-> array was wastefully large.  It gets a lot simpler when you
-> realize that, in the 4-byte report, data[1] is actually a checksum
-> and not part of the keycode.  data[1] = data[2] + data[3] + 0xE5.
+> keypad_probe() calls input_free_device() on error, but keypad_remove()
+> doesn't.
+> ---
+>  Compile tested.
 > 
-> Having looked over the input layer documentation, I have decided that
-> the ati_remote driver could use some love.  I'd like to convert it to
-> use the generic scancode to keycode mapping and autorepeat logic.
+>  drivers/input/keyboard/tnetv107x-keypad.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/tnetv107x-keypad.c
+> b/drivers/input/keyboard/tnetv107x-keypad.c
+> index b4a81eb..1ea20e1 100644
+> --- a/drivers/input/keyboard/tnetv107x-keypad.c
+> +++ b/drivers/input/keyboard/tnetv107x-keypad.c
+> @@ -305,6 +305,7 @@ static int __devexit keypad_remove(struct
+> platform_device *pdev)
+>  	free_irq(kp->irq_press, kp);
+>  	free_irq(kp->irq_release, kp);
+>  	input_unregister_device(kp->input_dev);
+> +	input_free_device(kp->input_dev);
+It does not seem to be correct.
 
-IMO, ati_remote.c and ati_remote2.c should be adapted to use the ir-core
-(soon to be rc-core) interfaces. I've got remote2 hardware myself, so
-doing the conversion for that driver is already on my personal TODO list,
-but its a long queue of more important things ahead of it first...
-
--- 
-Jarod Wilson
-jarod@redhat.com
-
+>  	clk_put(kp->clk);
+>  	iounmap(kp->regs);
+>  	release_mem_region(kp->res->start, resource_size(kp->res));
+> --
+> 1.7.0.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

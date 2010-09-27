@@ -1,183 +1,64 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: Sensor event related attribute naming.
-Date: Mon, 27 Sep 2010 10:42:44 +0100
-Message-ID: <4CA06714.8080008@cam.ac.uk>
-References: <4C98C7FE.4050305@cam.ac.uk> <03d301cb5bd4$152287d0$LocalHost@wipblrx0099946> <4C9C927B.1010500@cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: "George Spelvin" <linux@horizon.com>
+Subject: Re: Hacking on ati_remote driver
+Date: 27 Sep 2010 10:42:19 -0400
+Message-ID: <20100927144219.5901.qmail@science.horizon.com>
+References: <20100926192226.GA24012@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-32.csi.cam.ac.uk ([131.111.8.132]:38467 "EHLO
-	ppsw-32.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932528Ab0I0Jhg (ORCPT
+Received: from science.horizon.com ([71.41.210.146]:51358 "HELO
+	science.horizon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1756176Ab0I0OmU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Sep 2010 05:37:36 -0400
-In-Reply-To: <4C9C927B.1010500@cam.ac.uk>
+	Mon, 27 Sep 2010 10:42:20 -0400
+In-Reply-To: <20100926192226.GA24012@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hemanth V <hemanthv@ti.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Manuel Stahl <manuel.stahl@iis.fraunhofer.de>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@linux-foundation.org>, drivers@analog.com, achew@nvidia.com, Donggeun Kim <dg77.kim@samsung.com>
+To: jarod@redhat.com, linux@horizon.com
+Cc: linux-input@vger.kernel.org
 
-On 09/24/10 12:58, Jonathan Cameron wrote:
-> On 09/24/10 11:34, Hemanth V wrote:
->> ----- Original Message ----- From: "Jonathan Cameron" <jic23@cam.ac.uk>
->> <snip>
->>>
->>> We have had naming conventions in IIO for a while but they have not
->>> yet been terribly satisfactory. Our latest suggestion, which I'm
->>> finally happy is general enough whilst remaining clear to be found
->>> in  http://marc.info/?l=linux-iio&m=128394796116223&w=2
->>>
->>> Manuel Stahl pointed out that the following summary covers what was
->>> proposed in a clearer fashion.
->>>
->>> <channel>_<limit>_<dir>_<attr>, where
->>> <channel>: name of the channel, i.e. accel_x0
->>> <limit>:   thresh, mag, roc
->>> <dir>:     rising, falling
->>> <attr>:    en, value, period, mean_period
->>>
->>
->> Jonathan, I am trying to understand howto apply this to cma3000. I
->> have few parameters like below. Would you be able to suggest how
->> the sysfs entries should look like for the below parameters or are these
->> still to be defined.
-> Hi Hemanth,
-> 
->>
->> grange:  2000, 8000 mg sampling frequency  : 40, 100, 400 Hz
-> These weren't covered by this discussion at all. However, I am happy to at
-> least tell you how these are handled in IIO.  Firstly instead of defining
-> ranges we define _scale attributes.  This decision has a lot to do with
-> our approach of using raw data. To process that data, userspace needs to
-> know how to scale it appropriately. It really doesn't directly care what the
-> limits are.  If there is a particular use case for these limits directly then
-> we could propose adding say accel_mag_max. Such a parameter would clearly
-> interact with the alternate setting mechanism of accel_scale and maintaining
-> that relationship would be a job for the driver.
-> 
-> Note that if the multiplication is handled in driver (and hence to userspace
-> looks like the device was doing it) then any sysfs based output is obtained
-> via accel_x_input and the associated scale would be in accel_calibgain.
-> accel_calibgain_available would give a space separated list of available gains.
-> 
-> Also note that we always stick to SI units, so accelerations are measured in
-> m/s^2 rather that g, so there are some factors to be taken into account.
-> We are against making an exception for accelerometers because that will then
-> make the units for a given sensor type very unpredictable.
-> 
-> Frequency is controlled via sampling_frequency (in Hz) with a space
-> separated list of available options in sampling_frequency_available
-> 
-> Things are a little fiddly for some parts as the available range can be
-> mode dependant - lower frequencies are often used for motion detection.
-> For example, when motion detection is enabled on the cma3000 the sampling
-> frequency and the measurement range change (10Hz and 8g) so this should be
-> reflected in any reads of these attributes.
-> 
->> Modes : Motion detect, Measurement, Free fall
-> Based on our sca3000 driver and the cma3000 data sheet.
-> 
-> The device starts up in Measurement mode - this is the mode it is always
-> in if neither of the others are enabled.  It's up to userspace to switch to
-> one of the other modes.  If sysfs direct read attributes are supplied and the
-> current mode does not allow values to be obtained then we simply return -EBUSY.
-> 
-> We then have two event enable attributes.  The names of these are up for
-> discussion (and part of what this thread was meant to address).  Let us for
-> now call them:
-> accel_freefall_en and accel_motiondetect_en
-> 
-> The will have accompanying parameters
-> 
-> accel_motiondetect_period (MDTMR[3:0] -> in seconds, a pain to do, but it's the
-> 			only way we will have a consistent interface, for cases
-> 			like this with few options,
-> 			 accel_motiondetect_period_available could provide a
-> 			 list of options)
-> accel_motiondetect_value (MDTHR[6:0] -> in either raw units or processed.
-> 			 Whether we need to make this choice explicit in
-> 			 the naming is one of the questions I was hoping this
-> 			 thread might answer) Perhaps
-> 			 accel_motiondetect_value_input for processed values
-> 			 and accel_motiondetect_value_raw for raw sensor units
-> 			 (adc counts).
-> 
-> accel_freefall_period (FFTMR[3:0] -> again in seconds)
-> accel_freefall_value (FFTMR[3:0])
-> 
-> In our event code structure (not yet posted) we actually allow another option
-> which leads to a more logical and general description of these two detectors
-> which I am keen on because we do have parts that allow weird subsets and
-> devices other than accelerometers that actually perform very similar combined
-> axis boolean combinations. Basically freefall and motiondetect don't really
-> generalise to anything other than 3d accelerometers.
-> 
-> For motion detection:
-> 
-> accel_x|y|z_thresh_rising_en (the | characters are part of the name,
-> 			     not indicating options for naming!)
-> 
-> accel_x|y|z_thresh_rising_period, accel_x|y|z_thresh_rising_value
-> 
-> for freefall:
-> 
-> accel_x&y&z_thresh_falling_en
-> accel_x&y&z_thresh_falling_value
-> accel_x&y&z_thresh_falling_period
-> 
-> These generalize to other forms of sensor far better than the magic 'freefall'
-> but do not easily allow for more sophisticated free fall detectors. From an IIO
-> point of view I would actually like to distinguish how these detectors are
-> working but fully appreciate that your average user on a mobile phone doesn't
-> care!
-> 
-> I also know of some parts that do more complex arithmetic to detect free fall
-> such as applying the detector on the sum squared value. I haven't as yet worked
-> out how to name that one! Perhaps, accel_sum^2_thresh_falling_en?  One for
-> another day I think.
-> 
-> Anyhow for your part you would need to make the attributes mutually exclusive
-> (I think).  Thus we only guarantee that an interrupt will remain enabled as long
-> as no userspace interactions occur with the attributes.  Hence if one enabled
-> freefall first then motion detection, userspace gets to find out they are
-> mutually exclusive by reading back the values when it is done setting up what it
-> would like.  Providing the 'mode' type option you suggested unfortunately does
-> not generalize. For the cma3000 for example, how do you indicate that full rate
-> data (more or less as if you were in measurement mode) is available when in free
-> fall mode, but not when in motion detection mode? (on the sca3000 to take this
-> futher, motion detecton mode completely disables any direct reading of the
-> acceleration values) Also, the mode approach breaks down the moment you have
-> a device that can do 2 out of n forms of detection at the same time.  This is
-> very common (see Analog devices adis parts which have 2 general purpose alarms
-> which can detect various things on one channel each where there may be 10 or
-> more channels).
-> 
-> For these special cases, I am perfectly willing to accept that simply labelling
-> them free fall and motion detect is fine. I may map the resulting codes in IIO
-> to the same as for the above alternate forms, but that doesn't matter for this
-> discussion.
-> 
-I have started conducting a review of what devices on the market actually implement.
-http://sourceforge.net/apps/mediawiki/iioutils/index.php?title=Events
+> IMO, ati_remote.c and ati_remote2.c should be adapted to use the ir-core
+> (soon to be rc-core) interfaces. I've got remote2 hardware myself, so
+> doing the conversion for that driver is already on my personal TODO list,
+> but its a long queue of more important things ahead of it first...
 
-One additional option to the above has come up and I'm not entirely sure how it would
-fit into the above. The ADXL345 implements a activity and inactivity detection with
-'AC coupling'.  This basically means it takes a sample of the current value when
-the detector is first enabled then subtract this from the current value before
-threshold comparisons are performed.  This is obviously an entirely sensible thing
-to do, I merely haven't seen it before. If it were possible to read back the
-offset that is being applied we could simply add say, accel_x_mag_rising_offset
-(and one per axis) but it isn't.  Thus I can only think to suggest another
-'event' type.  Perhaps accel_x_offsetmag_rising? Suggestions for better
-names would be most welcome.
+Just what I want, more scope creep... I'm not immovably opposed to a
+larger conversion job, but can you tell me that the ir-core/rc-core
+layer gives me over the raw input layer?  I see how there are a bunch
+of utilities for decoding raw pulse streams, but there's only one
+RC_DRIVER_SCANCODE driver, imon.c, and even that seems to use the RC6
+protocol sometimes.
 
-This device can also effectively provide 2 freefall detectors if we set the 'inactivity'
-detector to be DC with a very low period and value.  The 'inactivity' detector is 
-a lot more flexible than the free fall detector.   I guess we may have to allow
-accel_x&y&z_falling0_en and accel_x&y&z_falling1_en.
+Looking at the code leads to a few obvious questions:
+ir-common.h:
+	Why is the linux keycode u32, when the input layer's
+	key codes are __u16?  And why is keypressed an int
+	rather than a bool?
 
-Anyhow, I'm sure there will be more devices out there implementing combinations I
-haven't thought of yet...
+	And why is the type __u64?  It appears top be a bitmap,
+	with about 6 values defined so far...
 
+ir-sysfs.c:
+	Why is store_protocol, which appears to be turning an ASCII
+	string into an ir_type bitmap, documented as "triggered by
+	READING /sys/class/rc/rc?/current_protocol"?  Why doesn't that
+	code support the rc6 protocol?
 
+In general, I'm bit confused about what it means to change_protocol
+to a bitmap with multiple bits set.  Are you sure ir_type needs to be
+a bitmap?  The only place I can see its bitmapness actually used is in
+show_supported_protocols(), and that could be replaced by an array of a
+few chars or something.  (Most devices support only one or two protocols.)
+Reserving 0 for "end of list" would make the structure initialization
+simpler.
+
+One thing that would be nice is to have the permissions on the sysfs
+protocol file depend on the existence of a change_protocol method.
+
+Um.. I also notice that change_protocol isn't even supported on
+non-RC_DRIVER_SCANCODE drivers.  Is this all a big kludge invented for
+the imon driver?
+
+ir-functions.c: Is ir->last_bit actually used for anything?  I can't
+find an assignement to a non-zero value anywhere...
+Oh, wait, drivers/media/video/cx23885/cx23885-input.c and
+drivers/media/video/saa7134/saa7134-input.c
+Does that need to be in the generic structure?

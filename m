@@ -1,72 +1,76 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: Fix for problems with eGalax/DWAV multi-touch-screen
-Date: Tue, 28 Sep 2010 21:32:07 +0200
-Message-ID: <4CA242B7.7020609@euromail.se>
-References: <1284476919.3732.10.camel@PhEeeTab>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: Sitronix ST9RM01 multitouch panel
+Date: Tue, 28 Sep 2010 21:37:34 +0200
+Message-ID: <296EC52A-446B-4BE2-B5D6-567B83C7DDBC@enac.fr>
+References: <20100928093949.26553.55566.stgit@localhost.localdomain>  <4CA232DD.7070803@euromail.se>  <44799AC9-6D24-4F01-BE00-A1519498E88D@enac.fr> <4CA23D8A.8040807@euromail.se>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:34164 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754192Ab0I1TeA (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:60469 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758616Ab0I1Tho convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Sep 2010 15:34:00 -0400
-In-Reply-To: <1284476919.3732.10.camel@PhEeeTab>
+	Tue, 28 Sep 2010 15:37:44 -0400
+In-Reply-To: <4CA23D8A.8040807@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Philipp Merkel <mail@philmerk.de>
-Cc: chatty@enac.fr, linux-input@vger.kernel.org
-
-On 09/14/2010 05:08 PM, Philipp Merkel wrote:
-
-> This patch fixes three problems with the eGalax/DWAV multi-touch
-> screen found in the Eee PC T101MT:
-> 
-> 1) While there is a dedicated multitouch driver for the screen
->    (hid-egalax.c), the MULTI_INPUT quirk is also applied, preventing
->    the hid-egalax driver from working. This patch removes the quirk
->    so the hid-egalax driver can handle the device correctly.
-> 2) The x and y coordinates sent by the screen in multi-touch mode are
->    shifted by three bits from the events sent in single-touch mode, thus
->    the coordinates are out of range, leading to the pointer being stuck
->    in the bottom-right corner if no additional calibration is applied
->    (e.g. in the X evdev driver). This patch shifts the coordinates back.
->    This does not decrease accuracy as the last three bits of the "wrong"
->    coordinates are always 0.
-> 3) Only multi-touch pressure events are sent, single touch emulation is
->    missing pressure information. This patch adds single-touch
->    ABS_PRESSURE events. 
-> 
-> Signed-off-by: Philipp Merkel <mail@philmerk.de>
-> 
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Rudy Huang <rudy_huang@sitronix.com.tw>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, jkosina@suse.cz
 
 
-This is a late reply to the whole thread.
+Le 28 sept. 10 =E0 21:10, Henrik Rydberg a =E9crit :
 
-I have looked at the joojoo (0eef:720c), and constructed a driver for it using
-MT slots. If would be great if it could be merged with the 0eef:480d in the
-hid-egalax driver, but there are some things to work out before that can happen.
-Here are some observations from the joojoo:
+> On 09/28/2010 08:49 PM, St=E9phane Chatty wrote:
+> [...]
+>>
+>
+>>> This usage of ABS_MT_TRACKING_ID is not ideal. The HID contact id =20
+>>> normally maps
+>>> to a slot number, which suggests the MT slots protocol be used =20
+>>> instead.
+>>
+>> I'm working on a slot-based version of the Stantum driver, and =20
+>> have had a look
+>> into this. The Stantum firmware actually cycles over 8-bit values =20
+>> for its
+>> ContactID. In this, it conforms more to the definition you gave for
+>> ABS_MT_TRACKING_ID ("The slot protocol requires the use of the
+>> ABS_MT_TRACKING_ID, either provided by the hardware or computed =20
+>> from the raw
+>> data [5]") than to a slot number, doesn't it? Nevertheless, given =20
+>> our recent
+>> exchanges about the 3M driver, I planned to use the driver's own =20
+>> tracking ID.
+>>
+>> Your thoughts?
+>
+>
+> Excellent. :-) Speaking of drivers and multiplication, I think many =20
+> of the
+> current drivers could in fact be merged. It seems we have two or =20
+> three different
+> types so far, and different manufacturers may well be served by the =20
+> same driver.
 
-1) The HID report says the x/y coordinates are in the 4096 range, but in
-actuality, they are 32kx32k it seems.
+Yes, I have started reviewing all devices and making a summary of =20
+their differences in that very purpose. Among the things we'll need =20
+is some standard way for calling the filtering function at the end of =20
+a set of fingers. CONTACTCOUNT is a good candidate, but I need to =20
+check some devices. One thing bothers me though. It is that hid-core =20
+has the whole information, then is splits it and calls us repeatedly, =20
+then we more or less undo that by storing the information and trying =20
+to determine the last time it calls us.
 
-2) Reports fingers serially using slots, and there is *no* message indicating a
-frame. As Stephane pointed out earlier.
+St.
 
-3) Reports x, y and pressure (emulated most likely, since the device is capacitive).
 
-4) Very fast - below 5 ms between completions from preliminary measurements.
 
-5) Only two fingers, but of good quality.
 
-Because of 2), the MT slots protocol is not only suitable, but required unless
-additional complicating logic is introduced.
 
-Philipp, Stephane, if you are interested in testing out the driver on the
-0eff:480d, please let me know (off list), and we should hopefully be able to
-find a merge.
-
-Cheers,
-Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

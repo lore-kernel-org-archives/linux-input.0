@@ -1,358 +1,383 @@
-From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [Patch v7 2/2] ux500: add platform data for Nomadik SKE keypad controller
-Date: Tue, 28 Sep 2010 15:02:18 +0530
-Message-ID: <1285666338-14620-1-git-send-email-sundar.iyer@stericsson.com>
+From: Alan Cox <alan@linux.intel.com>
+Subject: [PATCH] Sitronix ST9RM01 multitouch panel
+Date: Tue, 28 Sep 2010 10:40:19 +0100
+Message-ID: <20100928093949.26553.55566.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog116.obsmtp.com ([207.126.144.141]:57087 "EHLO
-	eu1sys200aog116.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753576Ab0I1Jcf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Sep 2010 05:32:35 -0400
+Received: from mga14.intel.com ([143.182.124.37]:50257 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750822Ab0I1K23 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Sep 2010 06:28:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Sundar Iyer <sundar.iyer@stericsson.com>
+To: linux-input@vger.kernel.org, jkosina@suse.cz
 
-Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
+From: Rudy Huang <rudy_huang@sitronix.com.tw>
+
+USB HID support for the Sitronix ST9RM01 multi-touch panel as an input
+device.
+
+Signed-off-by: Rudy Huang <rudy_huang@sitronix.com.tw>
+[Trivial space fixes for Coding Style]
+Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
- arch/arm/mach-ux500/board-mop500.c         |  129 ++++++++++++++++++++++++++++
- arch/arm/mach-ux500/clock.c                |    1 +
- arch/arm/mach-ux500/devices-db8500.c       |   21 +++++
- arch/arm/mach-ux500/include/mach/devices.h |    1 +
- arch/arm/mach-ux500/pins-db8500.h          |   32 ++++----
- 5 files changed, 168 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
-index 58610bb..5307996 100644
---- a/arch/arm/mach-ux500/board-mop500.c
-+++ b/arch/arm/mach-ux500/board-mop500.c
-@@ -18,12 +18,14 @@
- #include <linux/amba/pl022.h>
- #include <linux/spi/spi.h>
- #include <linux/mfd/ab8500.h>
-+#include <linux/input/matrix_keypad.h>
+ drivers/hid/Kconfig        |    6 +
+ drivers/hid/Makefile       |    1 
+ drivers/hid/hid-core.c     |    1 
+ drivers/hid/hid-ids.h      |    3 
+ drivers/hid/hid-sitronix.c |  286 ++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 297 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hid/hid-sitronix.c
+
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 6369ba7..b8101ef 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -382,6 +382,12 @@ config HID_SAMSUNG
+ 	---help---
+ 	Support for Samsung InfraRed remote control or keyboards.
  
- #include <asm/mach-types.h>
- #include <asm/mach/arch.h>
- 
- #include <plat/pincfg.h>
- #include <plat/i2c.h>
-+#include <plat/ske.h>
- 
- #include <mach/hardware.h>
- #include <mach/setup.h>
-@@ -49,6 +51,24 @@ static pin_cfg_t mop500_pins[] = {
- 	GPIO11_I2C2_SCL,
- 	GPIO229_I2C3_SDA,
- 	GPIO230_I2C3_SCL,
++config HID_SITRONIX
++	tristate "Sitronix"
++	depends on USB_HID
++	---help---
++	Say Y here if you have a Sitronix ST9RM01 multitouch panel.
 +
-+	/* SKE keypad */
-+	GPIO153_KP_I7,
-+	GPIO154_KP_I6,
-+	GPIO155_KP_I5,
-+	GPIO156_KP_I4,
-+	GPIO157_KP_O7,
-+	GPIO158_KP_O6,
-+	GPIO159_KP_O5,
-+	GPIO160_KP_O4,
-+	GPIO161_KP_I3,
-+	GPIO162_KP_I2,
-+	GPIO163_KP_I1,
-+	GPIO164_KP_I0,
-+	GPIO165_KP_O3,
-+	GPIO166_KP_O2,
-+	GPIO167_KP_O1,
-+	GPIO168_KP_O0,
- };
+ config HID_SONY
+ 	tristate "Sony"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 46f037f..1854f75 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -53,6 +53,7 @@ obj-$(CONFIG_HID_PICOLCD)	+= hid-picolcd.o
+ obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o
+ obj-$(CONFIG_HID_ROCCAT_KONE)	+= hid-roccat-kone.o
+ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
++obj-$(CONFIG_HID_SITRONIX)	+= hid-sitronix.o
+ obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
+ obj-$(CONFIG_HID_SONY)		+= hid-sony.o
+ obj-$(CONFIG_HID_STANTUM)	+= hid-stantum.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 0c52899..aa1dcfc 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1369,6 +1369,7 @@ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SITRONIX, USB_DEVICE_ID_ST9RM01) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 85c6d13..8bcc6b8 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -467,6 +467,9 @@
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+ #define USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE	0x0600
  
- static void ab4500_spi_cs_control(u32 command)
-@@ -154,12 +174,120 @@ static struct amba_device *amba_devs[] __initdata = {
- 	&u8500_ssp0_device,
- };
- 
-+static const unsigned int ux500_keymap[] = {
-+	KEY(2, 5, KEY_END),
-+	KEY(4, 1, KEY_POWER),
-+	KEY(3, 5, KEY_VOLUMEDOWN),
-+	KEY(1, 3, KEY_3),
-+	KEY(5, 2, KEY_RIGHT),
-+	KEY(5, 0, KEY_9),
++#define USB_VENDOR_ID_SITRONIX             0x1403
++#define USB_DEVICE_ID_ST9RM01		   0x5001
 +
-+	KEY(0, 5, KEY_MENU),
-+	KEY(7, 6, KEY_ENTER),
-+	KEY(4, 5, KEY_0),
-+	KEY(6, 7, KEY_2),
-+	KEY(3, 4, KEY_UP),
-+	KEY(3, 3, KEY_DOWN),
-+
-+	KEY(6, 4, KEY_SEND),
-+	KEY(6, 2, KEY_BACK),
-+	KEY(4, 2, KEY_VOLUMEUP),
-+	KEY(5, 5, KEY_1),
-+	KEY(4, 3, KEY_LEFT),
-+	KEY(3, 2, KEY_7),
-+};
-+
-+static struct matrix_keymap_data ux500_keymap_data = {
-+	.keymap         = ux500_keymap,
-+	.keymap_size    = ARRAY_SIZE(ux500_keymap),
-+};
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+ #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
+diff --git a/drivers/hid/hid-sitronix.c b/drivers/hid/hid-sitronix.c
+new file mode 100644
+index 0000000..8608b12
+--- /dev/null
++++ b/drivers/hid/hid-sitronix.c
+@@ -0,0 +1,286 @@
++/*
++ *  HID driver for Sitronix ST9RM01 multitouch panels
++ *
++ *  Copyright (c) 2010 Gaggery Tsai <gaggery.tsai@gmail.com>
++ *
++ */
 +
 +/*
-+ * Nomadik SKE keypad
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
 + */
-+#define ROW_PIN_I0      164
-+#define ROW_PIN_I1      163
-+#define ROW_PIN_I2      162
-+#define ROW_PIN_I3      161
-+#define ROW_PIN_I4      156
-+#define ROW_PIN_I5      155
-+#define ROW_PIN_I6      154
-+#define ROW_PIN_I7      153
-+#define COL_PIN_O0      168
-+#define COL_PIN_O1      167
-+#define COL_PIN_O2      166
-+#define COL_PIN_O3      165
-+#define COL_PIN_O4      160
-+#define COL_PIN_O5      159
-+#define COL_PIN_O6      158
-+#define COL_PIN_O7      157
 +
-+#define SKE_KPD_MAX_ROWS        8
-+#define SKE_KPD_MAX_COLS        8
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
 +
-+static int ske_kp_rows[] = {
-+	ROW_PIN_I0, ROW_PIN_I1, ROW_PIN_I2, ROW_PIN_I3,
-+	ROW_PIN_I4, ROW_PIN_I5, ROW_PIN_I6, ROW_PIN_I7,
++#define DRIVER_AUTHOR           "Sitronix, Inc."
++#define DRIVER_NAME             "sitronix"
++#define DRIVER_DESC             "Sitronix USB touch"
++#define DRIVER_DATE             "20100903"
++#define DRIVER_MAJOR            1
++#define DRIVER_MINOR            2
++#define DRIVER_PATCHLEVEL       0
++
++MODULE_AUTHOR("Gaggery Tsai <gaggery.tsai@gmail.com>");
++MODULE_DESCRIPTION("Sitronix HID multitouch panels");
++MODULE_LICENSE("GPL");
++
++#include "hid-ids.h"
++
++struct sitronix_data {
++	s32 x, y, z, w, h;	/* x, y, pressure, width, height */
++	u16 id;		/* touch id */
++	bool valid;		/* valid finger data, or just placeholder? */
++	bool first;		/* first finger in the HID packet? */
++	bool activity;		/* at least one active finger so far? */
 +};
 +
-+/*
-+ * ske_set_gpio_row: request and set gpio rows
-+ */
-+static int ske_set_gpio_row(int gpio)
++static int sitronix_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
 +{
-+	int ret;
++	switch (usage->hid & HID_USAGE_PAGE) {
 +
-+	ret = gpio_request(gpio, "ske-kp");
-+	if (ret < 0) {
-+		pr_err("ske_set_gpio_row: gpio request failed\n");
-+		return ret;
-+	}
-+
-+	ret = gpio_direction_output(gpio, 1);
-+	if (ret < 0) {
-+		pr_err("ske_set_gpio_row: gpio direction failed\n");
-+		gpio_free(gpio);
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * ske_kp_init - enable the gpio configuration
-+ */
-+static int ske_kp_init(void)
-+{
-+	int ret, i;
-+
-+	for (i = 0; i < SKE_KPD_MAX_ROWS; i++) {
-+		ret = ske_set_gpio_row(ske_kp_rows[i]);
-+		if (ret < 0) {
-+			pr_err("ske_kp_init: failed init\n");
-+			return ret;
++	case HID_UP_GENDESK:
++		switch (usage->hid) {
++		case HID_GD_X:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_X);
++			/* touchscreen emulation */
++			input_set_abs_params(hi->input, ABS_X,
++						field->logical_minimum,
++						field->logical_maximum, 0, 0);
++			return 1;
++		case HID_GD_Y:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_Y);
++			/* touchscreen emulation */
++			input_set_abs_params(hi->input, ABS_Y,
++						field->logical_minimum,
++						field->logical_maximum, 0, 0);
++			return 1;
 +		}
++		return 0;
++
++	case HID_UP_DIGITIZER:
++		switch (usage->hid) {
++		case HID_DG_INRANGE:
++		case HID_DG_CONFIDENCE:
++		case HID_DG_INPUTMODE:
++		case HID_DG_DEVICEINDEX:
++		case HID_DG_CONTACTCOUNT:
++		case HID_DG_CONTACTMAX:
++
++			return -1;
++
++		case HID_DG_TIPSWITCH:
++			/* touchscreen emulation */
++			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
++			return 1;
++
++		case HID_DG_WIDTH:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MAJOR);
++			return 1;
++		case HID_DG_HEIGHT:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MINOR);
++			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
++					1, 1, 0, 0);
++			return 1;
++		case HID_DG_CONTACTID:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TRACKING_ID);
++			return 1;
++
++		}
++		return 0;
++
++	case 0xff000000:
++		/* no input-oriented meaning */
++		return -1;
 +	}
 +
 +	return 0;
 +}
 +
-+static struct ske_keypad_platform_data ske_keypad_board = {
-+	.init           = ske_kp_init,
-+	.keymap_data    = &ux500_keymap_data,
-+	.no_autorepeat  = true,
-+	.krow           = SKE_KPD_MAX_ROWS,     /* 8x8 matrix */
-+	.kcol           = SKE_KPD_MAX_COLS,
-+	.debounce_ms    = 40,                   /* in millsecs */
++static int sitronix_input_mapped(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	if (usage->type == EV_KEY || usage->type == EV_ABS)
++		clear_bit(usage->code, *bit);
++
++	return 0;
++
++}
++
++/*
++ * this function is called when a whole finger has been parsed,
++ * so that it can decide what to send to the input layer.
++ */
++static void sitronix_filter_event(struct sitronix_data *sd,
++					struct input_dev *input)
++{
++	bool wide;
++
++	if (!sd->valid) {
++		/*
++		 * touchscreen emulation: if the first finger is not valid and
++		 * there previously was finger activity, this is a release
++		 */
++		if (sd->first && sd->activity) {
++			input_event(input, EV_KEY, BTN_TOUCH, 0);
++			sd->activity = false;
++		}
++		return;
++	}
++
++	input_event(input, EV_ABS, ABS_MT_TRACKING_ID, sd->id);
++	input_event(input, EV_ABS, ABS_MT_POSITION_X, sd->x);
++	input_event(input, EV_ABS, ABS_MT_POSITION_Y, sd->y);
++
++	wide = (sd->w > sd->h);
++	input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
++	input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, wide ? sd->w : sd->h);
++	input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, wide ? sd->h : sd->w);
++
++	input_mt_sync(input);
++	sd->valid = false;
++
++	/* touchscreen emulation */
++	if (sd->first) {
++		if (!sd->activity) {
++			input_event(input, EV_KEY, BTN_TOUCH, 1);
++			sd->activity = true;
++		}
++		input_event(input, EV_ABS, ABS_X, sd->x);
++		input_event(input, EV_ABS, ABS_Y, sd->y);
++	}
++	sd->first = false;
++}
++
++
++static int sitronix_event(struct hid_device *hid, struct hid_field *field,
++				struct hid_usage *usage, s32 value)
++{
++	struct sitronix_data *sd = hid_get_drvdata(hid);
++
++	if (hid->claimed & HID_CLAIMED_INPUT) {
++		struct input_dev *input = field->hidinput->input;
++
++		switch (usage->hid) {
++		case HID_DG_INRANGE:
++			/* this is the last field in a finger */
++			if (value > 0)
++				sd->valid = true;
++			else
++				sd->valid = false;
++			break;
++		case HID_DG_WIDTH:
++			sd->w = value;
++			break;
++		case HID_DG_HEIGHT:
++			sd->h = value;
++			sitronix_filter_event(sd, input);
++			break;
++		case HID_GD_X:
++			sd->x = value;
++			break;
++		case HID_GD_Y:
++			sd->y = value;
++			break;
++		case HID_DG_CONTACTID:
++			if (value == 4)
++				sd->first = true;
++			sd->id = value;
++			break;
++		case HID_DG_CONFIDENCE:
++			break;
++		case HID_DG_CONTACTCOUNT:
++			/* this comes only before the first finger */
++			break;
++
++		default:
++			/* ignore the others */
++			return 1;
++		}
++	}
++
++	/* we have handled the hidinput part, now remains hiddev */
++	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_hid_event)
++		hid->hiddev_hid_event(hid, field, usage, value);
++	return 1;
++}
++
++static int sitronix_probe(struct hid_device *hdev,
++				const struct hid_device_id *id)
++{
++	int ret;
++	struct sitronix_data *sd;
++
++	sd = kmalloc(sizeof(struct sitronix_data), GFP_KERNEL);
++	if (!sd) {
++		dev_err(&hdev->dev, "cannot allocate Stantum data\n");
++		return -ENOMEM;
++	}
++	sd->valid = false;
++	sd->first = false;
++	sd->activity = false;
++	hid_set_drvdata(hdev, sd);
++
++	ret = hid_parse(hdev);
++	if (!ret)
++		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++
++	if (ret)
++		kfree(sd);
++
++	return ret;
++}
++
++static void sitronix_remove(struct hid_device *hdev)
++{
++	hid_hw_stop(hdev);
++	kfree(hid_get_drvdata(hdev));
++	hid_set_drvdata(hdev, NULL);
++}
++
++static const struct hid_device_id sitronix_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SITRONIX, USB_DEVICE_ID_ST9RM01) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, sitronix_devices);
++
++static const struct hid_usage_id sitronix_grabbed_usages[] = {
++	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
++	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
 +};
 +
-+
-+
- /* add any platform devices here - TODO */
- static struct platform_device *platform_devs[] __initdata = {
- 	&u8500_i2c0_device,
- 	&ux500_i2c1_device,
- 	&ux500_i2c2_device,
- 	&ux500_i2c3_device,
-+	&ux500_ske_keypad_device,
- };
- 
- static void __init u8500_init_machine(void)
-@@ -174,6 +302,7 @@ static void __init u8500_init_machine(void)
- 	ux500_i2c1_device.dev.platform_data = &u8500_i2c1_data;
- 	ux500_i2c2_device.dev.platform_data = &u8500_i2c2_data;
- 	ux500_i2c3_device.dev.platform_data = &u8500_i2c3_data;
-+	ux500_ske_keypad_device.dev.platform_data = &ske_keypad_board;
- 
- 	u8500_ssp0_device.dev.platform_data = &ssp0_platform_data;
- 
-diff --git a/arch/arm/mach-ux500/clock.c b/arch/arm/mach-ux500/clock.c
-index d8ab7f1..1675047 100644
---- a/arch/arm/mach-ux500/clock.c
-+++ b/arch/arm/mach-ux500/clock.c
-@@ -477,6 +477,7 @@ static struct clk_lookup u8500_common_clks[] = {
- 	CLK(sdi5,	"sdi5",		NULL),
- 	CLK(uart2,	"uart2",	NULL),
- 	CLK(ske,	"ske",		NULL),
-+	CLK(ske,	"nmk-ske-keypad",	NULL),
- 	CLK(sdi2,	"sdi2",		NULL),
- 	CLK(i2c0,	"nmk-i2c.0",	NULL),
- 	CLK(fsmc,	"fsmc",		NULL),
-diff --git a/arch/arm/mach-ux500/devices-db8500.c b/arch/arm/mach-ux500/devices-db8500.c
-index 28866b4..d0c5e1e 100644
---- a/arch/arm/mach-ux500/devices-db8500.c
-+++ b/arch/arm/mach-ux500/devices-db8500.c
-@@ -291,3 +291,24 @@ void dma40_u8500ed_fixup(void)
- 	dma40_resources[1].start = U8500_DMA_LCPA_BASE_ED;
- 	dma40_resources[1].end = U8500_DMA_LCPA_BASE_ED + 2 * SZ_1K - 1;
- }
-+
-+struct resource keypad_resources[] = {
-+	[0] = {
-+		.start = U8500_SKE_BASE,
-+		.end = U8500_SKE_BASE + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	[1] = {
-+		.start = IRQ_DB8500_KB,
-+		.end = IRQ_DB8500_KB,
-+		.flags = IORESOURCE_IRQ,
-+	},
++static struct hid_driver sitronix_driver = {
++	.name = "sitronix",
++	.id_table = sitronix_devices,
++	.probe = sitronix_probe,
++	.remove = sitronix_remove,
++	.input_mapping = sitronix_input_mapping,
++	.input_mapped = sitronix_input_mapped,
++	.usage_table = sitronix_grabbed_usages,
++	.event = sitronix_event,
 +};
 +
-+struct platform_device ux500_ske_keypad_device = {
-+	.name = "nmk-ske-keypad",
-+	.id = -1,
-+	.num_resources = ARRAY_SIZE(keypad_resources),
-+	.resource = keypad_resources,
-+};
++static int __init sitronix_init(void)
++{
++	return hid_register_driver(&sitronix_driver);
++}
 +
-diff --git a/arch/arm/mach-ux500/include/mach/devices.h b/arch/arm/mach-ux500/include/mach/devices.h
-index 33a120c..b91a4d1 100644
---- a/arch/arm/mach-ux500/include/mach/devices.h
-+++ b/arch/arm/mach-ux500/include/mach/devices.h
-@@ -26,6 +26,7 @@ extern struct platform_device ux500_i2c3_device;
- extern struct platform_device u8500_i2c0_device;
- extern struct platform_device u8500_i2c4_device;
- extern struct platform_device u8500_dma40_device;
-+extern struct platform_device ux500_ske_keypad_device;
- 
- extern struct amba_device u8500_sdi0_device;
- extern struct amba_device u8500_sdi1_device;
-diff --git a/arch/arm/mach-ux500/pins-db8500.h b/arch/arm/mach-ux500/pins-db8500.h
-index 66f8761..f923764 100644
---- a/arch/arm/mach-ux500/pins-db8500.h
-+++ b/arch/arm/mach-ux500/pins-db8500.h
-@@ -459,82 +459,82 @@
- #define GPIO152_KP_O9		PIN_CFG(152, ALT_C)
- 
- #define GPIO153_GPIO		PIN_CFG(153, GPIO)
--#define GPIO153_KP_I7		PIN_CFG(153, ALT_A)
-+#define GPIO153_KP_I7		PIN_CFG_PULL(153, ALT_A, DOWN)
- #define GPIO153_LCD_D24		PIN_CFG(153, ALT_B)
- #define GPIO153_U2_RXD		PIN_CFG(153, ALT_C)
- 
- #define GPIO154_GPIO		PIN_CFG(154, GPIO)
--#define GPIO154_KP_I6		PIN_CFG(154, ALT_A)
-+#define GPIO154_KP_I6		PIN_CFG_PULL(154, ALT_A, DOWN)
- #define GPIO154_LCD_D25		PIN_CFG(154, ALT_B)
- #define GPIO154_U2_TXD		PIN_CFG(154, ALT_C)
- 
- #define GPIO155_GPIO		PIN_CFG(155, GPIO)
--#define GPIO155_KP_I5		PIN_CFG(155, ALT_A)
-+#define GPIO155_KP_I5		PIN_CFG_PULL(155, ALT_A, DOWN)
- #define GPIO155_LCD_D26		PIN_CFG(155, ALT_B)
- #define GPIO155_STMAPE_CLK	PIN_CFG(155, ALT_C)
- 
- #define GPIO156_GPIO		PIN_CFG(156, GPIO)
--#define GPIO156_KP_I4		PIN_CFG(156, ALT_A)
-+#define GPIO156_KP_I4		PIN_CFG_PULL(156, ALT_A, DOWN)
- #define GPIO156_LCD_D27		PIN_CFG(156, ALT_B)
- #define GPIO156_STMAPE_DAT3	PIN_CFG(156, ALT_C)
- 
- #define GPIO157_GPIO		PIN_CFG(157, GPIO)
--#define GPIO157_KP_O7		PIN_CFG(157, ALT_A)
-+#define GPIO157_KP_O7		PIN_CFG_PULL(157, ALT_A, UP)
- #define GPIO157_LCD_D28		PIN_CFG(157, ALT_B)
- #define GPIO157_STMAPE_DAT2	PIN_CFG(157, ALT_C)
- 
- #define GPIO158_GPIO		PIN_CFG(158, GPIO)
--#define GPIO158_KP_O6		PIN_CFG(158, ALT_A)
-+#define GPIO158_KP_O6		PIN_CFG_PULL(158, ALT_A, UP)
- #define GPIO158_LCD_D29		PIN_CFG(158, ALT_B)
- #define GPIO158_STMAPE_DAT1	PIN_CFG(158, ALT_C)
- 
- #define GPIO159_GPIO		PIN_CFG(159, GPIO)
--#define GPIO159_KP_O5		PIN_CFG(159, ALT_A)
-+#define GPIO159_KP_O5		PIN_CFG_PULL(159, ALT_A, UP)
- #define GPIO159_LCD_D30		PIN_CFG(159, ALT_B)
- #define GPIO159_STMAPE_DAT0	PIN_CFG(159, ALT_C)
- 
- #define GPIO160_GPIO		PIN_CFG(160, GPIO)
--#define GPIO160_KP_O4		PIN_CFG(160, ALT_A)
-+#define GPIO160_KP_O4		PIN_CFG_PULL(160, ALT_A, UP)
- #define GPIO160_LCD_D31		PIN_CFG(160, ALT_B)
- #define GPIO160_NONE		PIN_CFG(160, ALT_C)
- 
- #define GPIO161_GPIO		PIN_CFG(161, GPIO)
--#define GPIO161_KP_I3		PIN_CFG(161, ALT_A)
-+#define GPIO161_KP_I3		PIN_CFG_PULL(161, ALT_A, DOWN)
- #define GPIO161_LCD_D32		PIN_CFG(161, ALT_B)
- #define GPIO161_UARTMOD_RXD	PIN_CFG(161, ALT_C)
- 
- #define GPIO162_GPIO		PIN_CFG(162, GPIO)
--#define GPIO162_KP_I2		PIN_CFG(162, ALT_A)
-+#define GPIO162_KP_I2		PIN_CFG_PULL(162, ALT_A, DOWN)
- #define GPIO162_LCD_D33		PIN_CFG(162, ALT_B)
- #define GPIO162_UARTMOD_TXD	PIN_CFG(162, ALT_C)
- 
- #define GPIO163_GPIO		PIN_CFG(163, GPIO)
--#define GPIO163_KP_I1		PIN_CFG(163, ALT_A)
-+#define GPIO163_KP_I1		PIN_CFG_PULL(163, ALT_A, DOWN)
- #define GPIO163_LCD_D34		PIN_CFG(163, ALT_B)
- #define GPIO163_STMMOD_CLK	PIN_CFG(163, ALT_C)
- 
- #define GPIO164_GPIO		PIN_CFG(164, GPIO)
--#define GPIO164_KP_I0		PIN_CFG(164, ALT_A)
-+#define GPIO164_KP_I0		PIN_CFG_PULL(164, ALT_A, UP)
- #define GPIO164_LCD_D35		PIN_CFG(164, ALT_B)
- #define GPIO164_STMMOD_DAT3	PIN_CFG(164, ALT_C)
- 
- #define GPIO165_GPIO		PIN_CFG(165, GPIO)
--#define GPIO165_KP_O3		PIN_CFG(165, ALT_A)
-+#define GPIO165_KP_O3		PIN_CFG_PULL(165, ALT_A, UP)
- #define GPIO165_LCD_D36		PIN_CFG(165, ALT_B)
- #define GPIO165_STMMOD_DAT2	PIN_CFG(165, ALT_C)
- 
- #define GPIO166_GPIO		PIN_CFG(166, GPIO)
--#define GPIO166_KP_O2		PIN_CFG(166, ALT_A)
-+#define GPIO166_KP_O2		PIN_CFG_PULL(166, ALT_A, UP)
- #define GPIO166_LCD_D37		PIN_CFG(166, ALT_B)
- #define GPIO166_STMMOD_DAT1	PIN_CFG(166, ALT_C)
- 
- #define GPIO167_GPIO		PIN_CFG(167, GPIO)
--#define GPIO167_KP_O1		PIN_CFG(167, ALT_A)
-+#define GPIO167_KP_O1		PIN_CFG_PULL(167, ALT_A, UP)
- #define GPIO167_LCD_D38		PIN_CFG(167, ALT_B)
- #define GPIO167_STMMOD_DAT0	PIN_CFG(167, ALT_C)
- 
- #define GPIO168_GPIO		PIN_CFG(168, GPIO)
--#define GPIO168_KP_O0		PIN_CFG(168, ALT_A)
-+#define GPIO168_KP_O0		PIN_CFG_PULL(168, ALT_A, UP)
- #define GPIO168_LCD_D39		PIN_CFG(168, ALT_B)
- #define GPIO168_NONE		PIN_CFG(168, ALT_C)
- 
--- 
-1.7.2.dirty
++static void __exit sitronix_exit(void)
++{
++	hid_unregister_driver(&sitronix_driver);
++}
++
++module_init(sitronix_init);
++module_exit(sitronix_exit);
++
 

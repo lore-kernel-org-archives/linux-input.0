@@ -1,19 +1,26 @@
-From: "yen Buck" <heatherfranks@gmail.com>
-Subject: Opt-In Data for sale: Businesses, Professionals, Medical etc..
-Date: Tue, 28 Sep 2010 09:32:45 +0800 (MYT)
-Message-ID: <20100928013246.485943DC8880@mailsvr.khidmatnegara.gov.my>
-Reply-To: heatherfranks@gmail.com
+From: "Blair ] Delmar" <frank@mail.de.hs-soft.com>
+Subject: Healthcare Lists, Business Lists, Consumer Lists, Professional Lists and more
+Date: Tue, 28 Sep 2010 03:49:51 +0200
+Message-ID: <OF5AA5CDDA.2D30F6DB-ONC12577AC.000A0EF0@de.hs-soft.com>
+Reply-To: frank@mail.de.hs-soft.com
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [58.27.31.98] ([58.27.31.98]:33514 "EHLO
-	mailsvr.khidmatnegara.gov.my" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1758011Ab0I1DSk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Sep 2010 23:18:40 -0400
+Received: from mx.hs-soft.com ([81.223.11.166]:55162 "EHLO mx.hs-soft.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752393Ab0I1HeE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Sep 2010 03:34:04 -0400
+Received: from [172.20.1.11] (helo=mail.de.hs-soft.com)
+	by mx.hs-soft.com with esmtp (Exim 4.69)
+	(envelope-from <frank@mail.de.hs-soft.com>)
+	id 1P0PBQ-0005wv-1V
+	for linux-input@vger.kernel.org; Tue, 28 Sep 2010 03:40:40 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: sraes@moline.il.us, eeriksson@dcccd.edu, linux-input@vger.kernel.org, mike@cfssolutions.com, info@isbiostat.org
+To: universityprep@maestroweb.com, best@kyma.org, mariateherran@yahoo.es, mellihub@uiuc.edu, jobs@juergen-ernst.de
 
-For a free catalog and samples please reply here: saveonlists@gmx.com
+Send me an email here for a complete catalog including samples and stats: saveonlists@gmx.com
+
+  
+
 
 
 

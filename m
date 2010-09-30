@@ -1,144 +1,217 @@
-From: Abraham Arce <x0066660@ti.com>
-Subject: [RESEND][PATCH v6 7/8] OMAP4: Keyboard board support
-Date: Thu, 30 Sep 2010 02:54:07 -0500
-Message-ID: <1285833247-4947-1-git-send-email-x0066660@ti.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: Sensor event related attribute naming.
+Date: Thu, 30 Sep 2010 11:06:30 +0100
+Message-ID: <4CA46126.7020104@cam.ac.uk>
+References: <4C98C7FE.4050305@cam.ac.uk> <03d301cb5bd4$152287d0$LocalHost@wipblrx0099946> <4C9C927B.1010500@cam.ac.uk> <4CA06714.8080008@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:53752 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755152Ab0I3H43 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Sep 2010 03:56:29 -0400
+Received: from ppsw-51.csi.cam.ac.uk ([131.111.8.151]:59390 "EHLO
+	ppsw-51.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754250Ab0I3KGk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Sep 2010 06:06:40 -0400
+In-Reply-To: <4CA06714.8080008@cam.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
-Cc: Syed Rafiuddin <rafiuddin.syed@ti.com>, Abraham Arce <x0066660@ti.com>
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: Hemanth V <hemanthv@ti.com>, LKML <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Manuel Stahl <manuel.stahl@iis.fraunhofer.de>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@linux-foundation.org>, drivers@analog.com, achew@nvidia.com, Donggeun Kim <dg77.kim@samsung.com>
 
-From: Syed Rafiuddin <rafiuddin.syed@ti.com>
+On 09/27/10 10:42, Jonathan Cameron wrote:
+> On 09/24/10 12:58, Jonathan Cameron wrote:
+>> On 09/24/10 11:34, Hemanth V wrote:
+>>> ----- Original Message ----- From: "Jonathan Cameron" <jic23@cam.ac.uk>
+>>> <snip>
+>>>>
+>>>> We have had naming conventions in IIO for a while but they have not
+>>>> yet been terribly satisfactory. Our latest suggestion, which I'm
+>>>> finally happy is general enough whilst remaining clear to be found
+>>>> in  http://marc.info/?l=linux-iio&m=128394796116223&w=2
+>>>>
+>>>> Manuel Stahl pointed out that the following summary covers what was
+>>>> proposed in a clearer fashion.
+>>>>
+>>>> <channel>_<limit>_<dir>_<attr>, where
+>>>> <channel>: name of the channel, i.e. accel_x0
+>>>> <limit>:   thresh, mag, roc
+>>>> <dir>:     rising, falling
+>>>> <attr>:    en, value, period, mean_period
+>>>>
+>>>
+>>> Jonathan, I am trying to understand howto apply this to cma3000. I
+>>> have few parameters like below. Would you be able to suggest how
+>>> the sysfs entries should look like for the below parameters or are these
+>>> still to be defined.
+>> Hi Hemanth,
+>>
+>>>
+>>> grange:  2000, 8000 mg sampling frequency  : 40, 100, 400 Hz
+>> These weren't covered by this discussion at all. However, I am happy to at
+>> least tell you how these are handled in IIO.  Firstly instead of defining
+>> ranges we define _scale attributes.  This decision has a lot to do with
+>> our approach of using raw data. To process that data, userspace needs to
+>> know how to scale it appropriately. It really doesn't directly care what the
+>> limits are.  If there is a particular use case for these limits directly then
+>> we could propose adding say accel_mag_max. Such a parameter would clearly
+>> interact with the alternate setting mechanism of accel_scale and maintaining
+>> that relationship would be a job for the driver.
+>>
+>> Note that if the multiplication is handled in driver (and hence to userspace
+>> looks like the device was doing it) then any sysfs based output is obtained
+>> via accel_x_input and the associated scale would be in accel_calibgain.
+>> accel_calibgain_available would give a space separated list of available gains.
+>>
+>> Also note that we always stick to SI units, so accelerations are measured in
+>> m/s^2 rather that g, so there are some factors to be taken into account.
+>> We are against making an exception for accelerometers because that will then
+>> make the units for a given sensor type very unpredictable.
+>>
+>> Frequency is controlled via sampling_frequency (in Hz) with a space
+>> separated list of available options in sampling_frequency_available
+>>
+>> Things are a little fiddly for some parts as the available range can be
+>> mode dependant - lower frequencies are often used for motion detection.
+>> For example, when motion detection is enabled on the cma3000 the sampling
+>> frequency and the measurement range change (10Hz and 8g) so this should be
+>> reflected in any reads of these attributes.
+>>
+>>> Modes : Motion detect, Measurement, Free fall
+>> Based on our sca3000 driver and the cma3000 data sheet.
+>>
+>> The device starts up in Measurement mode - this is the mode it is always
+>> in if neither of the others are enabled.  It's up to userspace to switch to
+>> one of the other modes.  If sysfs direct read attributes are supplied and the
+>> current mode does not allow values to be obtained then we simply return -EBUSY.
+>>
+>> We then have two event enable attributes.  The names of these are up for
+>> discussion (and part of what this thread was meant to address).  Let us for
+>> now call them:
+>> accel_freefall_en and accel_motiondetect_en
+>>
+>> The will have accompanying parameters
+>>
+>> accel_motiondetect_period (MDTMR[3:0] -> in seconds, a pain to do, but it's the
+>> 			only way we will have a consistent interface, for cases
+>> 			like this with few options,
+>> 			 accel_motiondetect_period_available could provide a
+>> 			 list of options)
+>> accel_motiondetect_value (MDTHR[6:0] -> in either raw units or processed.
+>> 			 Whether we need to make this choice explicit in
+>> 			 the naming is one of the questions I was hoping this
+>> 			 thread might answer) Perhaps
+>> 			 accel_motiondetect_value_input for processed values
+>> 			 and accel_motiondetect_value_raw for raw sensor units
+>> 			 (adc counts).
+>>
+>> accel_freefall_period (FFTMR[3:0] -> again in seconds)
+>> accel_freefall_value (FFTMR[3:0])
+>>
+>> In our event code structure (not yet posted) we actually allow another option
+>> which leads to a more logical and general description of these two detectors
+>> which I am keen on because we do have parts that allow weird subsets and
+>> devices other than accelerometers that actually perform very similar combined
+>> axis boolean combinations. Basically freefall and motiondetect don't really
+>> generalise to anything other than 3d accelerometers.
+>>
+>> For motion detection:
+>>
+>> accel_x|y|z_thresh_rising_en (the | characters are part of the name,
+>> 			     not indicating options for naming!)
+>>
+>> accel_x|y|z_thresh_rising_period, accel_x|y|z_thresh_rising_value
+>>
+>> for freefall:
+>>
+>> accel_x&y&z_thresh_falling_en
+>> accel_x&y&z_thresh_falling_value
+>> accel_x&y&z_thresh_falling_period
+>>
+>> These generalize to other forms of sensor far better than the magic 'freefall'
+>> but do not easily allow for more sophisticated free fall detectors. From an IIO
+>> point of view I would actually like to distinguish how these detectors are
+>> working but fully appreciate that your average user on a mobile phone doesn't
+>> care!
+>>
+>> I also know of some parts that do more complex arithmetic to detect free fall
+>> such as applying the detector on the sum squared value. I haven't as yet worked
+>> out how to name that one! Perhaps, accel_sum^2_thresh_falling_en?  One for
+>> another day I think.
+>>
+>> Anyhow for your part you would need to make the attributes mutually exclusive
+>> (I think).  Thus we only guarantee that an interrupt will remain enabled as long
+>> as no userspace interactions occur with the attributes.  Hence if one enabled
+>> freefall first then motion detection, userspace gets to find out they are
+>> mutually exclusive by reading back the values when it is done setting up what it
+>> would like.  Providing the 'mode' type option you suggested unfortunately does
+>> not generalize. For the cma3000 for example, how do you indicate that full rate
+>> data (more or less as if you were in measurement mode) is available when in free
+>> fall mode, but not when in motion detection mode? (on the sca3000 to take this
+>> futher, motion detecton mode completely disables any direct reading of the
+>> acceleration values) Also, the mode approach breaks down the moment you have
+>> a device that can do 2 out of n forms of detection at the same time.  This is
+>> very common (see Analog devices adis parts which have 2 general purpose alarms
+>> which can detect various things on one channel each where there may be 10 or
+>> more channels).
+>>
+>> For these special cases, I am perfectly willing to accept that simply labelling
+>> them free fall and motion detect is fine. I may map the resulting codes in IIO
+>> to the same as for the above alternate forms, but that doesn't matter for this
+>> discussion.
+>>
+> I have started conducting a review of what devices on the market actually implement.
+> http://sourceforge.net/apps/mediawiki/iioutils/index.php?title=Events
+> 
+> One additional option to the above has come up and I'm not entirely sure how it would
+> fit into the above. The ADXL345 implements a activity and inactivity detection with
+> 'AC coupling'.  This basically means it takes a sample of the current value when
+> the detector is first enabled then subtract this from the current value before
+> threshold comparisons are performed.  This is obviously an entirely sensible thing
+> to do, I merely haven't seen it before. If it were possible to read back the
+> offset that is being applied we could simply add say, accel_x_mag_rising_offset
+> (and one per axis) but it isn't.  Thus I can only think to suggest another
+> 'event' type.  Perhaps accel_x_offsetmag_rising? Suggestions for better
+> names would be most welcome.
+> 
+> This device can also effectively provide 2 freefall detectors if we set the 'inactivity'
+> detector to be DC with a very low period and value.  The 'inactivity' detector is 
+> a lot more flexible than the free fall detector.   I guess we may have to allow
+> accel_x&y&z_falling0_en and accel_x&y&z_falling1_en.
+> 
+> Anyhow, I'm sure there will be more devices out there implementing combinations I
+> haven't thought of yet...
+> 
+Given the lack of further comment, I went ahead and implemented the above naming
+scheme for IIO. As the above discussion with Hemanth shows, there are some corner cases
+that will need futher thought in the future.
 
-Keyboard support for SDP OMAP4430
+One question for this round of updates though.  How to distinguish whether
+the _value attributes are in raw units (common in iio) or in processed units (typically
+SI) such as the are in input. In IIO we can normally distinguish the two cases based
+on the naming of the direct access sysfs interfaces to the relevant channels. However,
+this doesn't generalize well as for some devices there may be no direct read capability.
 
-Signed-off-by: Syed Rafiuddin <rafiuddin.syed@ti.com>
-Signed-off-by: Abraham Arce <x0066660@ti.com>
----
- arch/arm/mach-omap2/board-4430sdp.c |   90 +++++++++++++++++++++++++++++++++++
- 1 files changed, 90 insertions(+), 0 deletions(-)
+Lets take an example
 
-diff --git a/arch/arm/mach-omap2/board-4430sdp.c b/arch/arm/mach-omap2/board-4430sdp.c
-index 1bed1e6..3f2c1e6 100644
---- a/arch/arm/mach-omap2/board-4430sdp.c
-+++ b/arch/arm/mach-omap2/board-4430sdp.c
-@@ -33,6 +33,7 @@
- #include <plat/board.h>
- #include <plat/common.h>
- #include <plat/control.h>
-+#include <plat/omap4-keypad.h>
- #include <plat/timer-gp.h>
- #include <plat/usb.h>
- #include <plat/mmc.h>
-@@ -44,6 +45,91 @@
- #define OMAP4_SFH7741_SENSOR_OUTPUT_GPIO	184
- #define OMAP4_SFH7741_ENABLE_GPIO		188
- 
-+static const int sdp4430_keymap[] = {
-+	KEY(0, 0, KEY_E),
-+	KEY(0, 1, KEY_R),
-+	KEY(0, 2, KEY_T),
-+	KEY(0, 3, KEY_HOME),
-+	KEY(0, 4, KEY_F5),
-+	KEY(0, 5, KEY_UNKNOWN),
-+	KEY(0, 6, KEY_I),
-+	KEY(0, 7, KEY_LEFTSHIFT),
-+
-+	KEY(1, 0, KEY_D),
-+	KEY(1, 1, KEY_F),
-+	KEY(1, 2, KEY_G),
-+	KEY(1, 3, KEY_SEND),
-+	KEY(1, 4, KEY_F6),
-+	KEY(1, 5, KEY_UNKNOWN),
-+	KEY(1, 6, KEY_K),
-+	KEY(1, 7, KEY_ENTER),
-+
-+	KEY(2, 0, KEY_X),
-+	KEY(2, 1, KEY_C),
-+	KEY(2, 2, KEY_V),
-+	KEY(2, 3, KEY_END),
-+	KEY(2, 4, KEY_F7),
-+	KEY(2, 5, KEY_UNKNOWN),
-+	KEY(2, 6, KEY_DOT),
-+	KEY(2, 7, KEY_CAPSLOCK),
-+
-+	KEY(3, 0, KEY_Z),
-+	KEY(3, 1, KEY_KPPLUS),
-+	KEY(3, 2, KEY_B),
-+	KEY(3, 3, KEY_F1),
-+	KEY(3, 4, KEY_F8),
-+	KEY(3, 5, KEY_UNKNOWN),
-+	KEY(3, 6, KEY_O),
-+	KEY(3, 7, KEY_SPACE),
-+
-+	KEY(4, 0, KEY_W),
-+	KEY(4, 1, KEY_Y),
-+	KEY(4, 2, KEY_U),
-+	KEY(4, 3, KEY_F2),
-+	KEY(4, 4, KEY_VOLUMEUP),
-+	KEY(4, 5, KEY_UNKNOWN),
-+	KEY(4, 6, KEY_L),
-+	KEY(4, 7, KEY_LEFT),
-+
-+	KEY(5, 0, KEY_S),
-+	KEY(5, 1, KEY_H),
-+	KEY(5, 2, KEY_J),
-+	KEY(5, 3, KEY_F3),
-+	KEY(5, 4, KEY_F9),
-+	KEY(5, 5, KEY_VOLUMEDOWN),
-+	KEY(5, 6, KEY_M),
-+	KEY(5, 7, KEY_RIGHT),
-+
-+	KEY(6, 0, KEY_Q),
-+	KEY(6, 1, KEY_A),
-+	KEY(6, 2, KEY_N),
-+	KEY(6, 3, KEY_BACK),
-+	KEY(6, 4, KEY_BACKSPACE),
-+	KEY(6, 5, KEY_UNKNOWN),
-+	KEY(6, 6, KEY_P),
-+	KEY(6, 7, KEY_UP),
-+
-+	KEY(7, 0, KEY_PROG1),
-+	KEY(7, 1, KEY_PROG2),
-+	KEY(7, 2, KEY_PROG3),
-+	KEY(7, 3, KEY_PROG4),
-+	KEY(7, 4, KEY_F4),
-+	KEY(7, 5, KEY_UNKNOWN),
-+	KEY(7, 6, KEY_OK),
-+	KEY(7, 7, KEY_DOWN),
-+};
-+
-+static struct matrix_keymap_data sdp4430_keymap_data = {
-+	.keymap			= sdp4430_keymap,
-+	.keymap_size		= ARRAY_SIZE(sdp4430_keymap),
-+};
-+
-+static struct omap4_keypad_platform_data sdp4430_keypad_data = {
-+	.keymap_data		= &sdp4430_keymap_data,
-+	.rows			= 8,
-+	.cols			= 8,
-+};
-+
- static struct gpio_led sdp4430_gpio_leds[] = {
- 	{
- 		.name	= "omap4:green:debug0",
-@@ -507,6 +593,10 @@ static void __init omap_4430sdp_init(void)
- 	if (!cpu_is_omap44xx())
- 		usb_musb_init(&musb_board_data);
- 
-+	status = omap4_keyboard_init(&sdp4430_keypad_data);
-+	if (status)
-+		pr_err("Keypad initialization failed: %d\n", status);
-+
- 	status = omap_ethernet_init();
- 	if (status) {
- 		pr_err("Ethernet initialization failed: %d\n", status);
--- 
-1.6.3.3
+accel_x_thresh_mag_rising_value  is ambiguous, the next most obvious option is:
+accel_x_thresh_mag_rising_value_input
+accel_x_thresh_mag_rising_value_raw
+
+but that makes them look like the direct access attributes for very odd channels.
+
+accel_x_input_thresh_mag_rising_value
+accel_x_raw_thresh_mag_rising_value
+would do the job I suppose, but are clunky given the other parameter names
+accel_x_thresh_mag_rising_period etc..
+
+We could introduce new keywords (other than input and raw) to distinguish the cases
+but that will introduce further inconsistencies...
+
+Other suggestions most welcome, if nothing better is suggested I guess I'll go
+with the last option above...
+
+I'm keen to get this cleared up as much as possible for the next merge window
+so time is of the essence!
+
+Jonathan
 

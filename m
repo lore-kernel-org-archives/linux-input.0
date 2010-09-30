@@ -1,124 +1,110 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Patch v7 1/2] input: add support for Nomadik SKE keypad
- controller
-Date: Wed, 29 Sep 2010 19:40:45 -0700
-Message-ID: <20100930024045.GD5260@core.coreip.homeip.net>
-References: <1285666324-14578-1-git-send-email-sundar.iyer@stericsson.com>
+From: Alan Ott <alan@signal11.us>
+Subject: Re: [PATCH v4 1/2] HID: Add Support for Setting and Getting Feature   Reports from hidraw
+Date: Wed, 29 Sep 2010 23:37:41 -0400
+Message-ID: <4CA40605.6080800@signal11.us>
+References: <1281442367.12579.206.camel@localhost.localdomain>	<1281990059-3562-2-git-send-email-alan@signal11.us> <20100930015104.49fc5acf.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:58461 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752452Ab0I3Cky (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Sep 2010 22:40:54 -0400
-Received: by ywh1 with SMTP id 1so474653ywh.19
-        for <linux-input@vger.kernel.org>; Wed, 29 Sep 2010 19:40:53 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1285666324-14578-1-git-send-email-sundar.iyer@stericsson.com>
+Received: from core.signal11.us ([64.251.29.136]:35202 "EHLO core.signal11.us"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752897Ab0I3Dhs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Sep 2010 23:37:48 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id 878CF1CCAA89
+	for <linux-input@vger.kernel.org>; Wed, 29 Sep 2010 23:37:46 -0400 (EDT)
+In-Reply-To: <20100930015104.49fc5acf.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sundar Iyer <sundar.iyer@stericsson.com>
-Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@stericsson.com>
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Tue, Sep 28, 2010 at 03:02:04PM +0530, Sundar Iyer wrote:
-> Add support for the keypad controller in the Scroll Key Encoder (SKE)
-> module on the Nomadik family and the DB8500 SoC.
-> 
-> Acked-by: Linus Walleij <linus.walleij@stericsson.com>
-> Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+On 09/29/2010 07:51 PM, Antonio Ospite wrote:
+> On Mon, 16 Aug 2010 16:20:58 -0400
+> Alan Ott<alan@signal11.us>  wrote:
+>
+>    
+>> Per the HID Specification, Feature reports must be sent and received on
+>> the Configuration endpoint (EP 0) through the Set_Report/Get_Report
+>> interfaces.  This patch adds two ioctls to hidraw to set and get feature
+>> reports to and from the device.  Modifications were made to hidraw and
+>> usbhid.
+>>
+>> New hidraw ioctls:
+>>    HIDIOCSFEATURE - Perform a Set_Report transfer of a Feature report.
+>>    HIDIOCGFEATURE - Perform a Get_Report transfer of a Feature report.
+>>
+>> Signed-off-by: Alan Ott<alan@signal11.us>
+>> ---
+>>      
+> Some more testing with sixaxis and a question:
+>
+> HIDIOCGFEATURE on report 0xf5 returns:
+> <-- 01 00 00 03 c9 87 34 fd
+>            ^^ a hw addr from here
+>    
 
-Applied with the following small changes:
+Maybe I'm confused. Shouldn't the first byte of that be 0xf5? The report 
+number should be the first byte of the returned buffer.
 
- arch/arm/mach-ux500/board-mop500.c          |    2 +-
- arch/arm/plat-nomadik/include/plat/ske.h    |    2 +-
- drivers/input/keyboard/nomadik-ske-keypad.c |   12 ++++++------
- 3 files changed, 8 insertions(+), 8 deletions(-)
+There's not a chance you're running an old version of this patch is there?
+
+> with the latest six octets being a hw addr; now if I wanted to change
+> this, *naively*, I'd send this report with HIDIOCSFEATURE:
+> -->  f5 01 00 66 55 44 33 22 11
+>      ^^ report ID _added_ in front of the whole previous buffer
+>
+> but then when I get the report again to see if the operation succeeded I
+> get:
+> <-- 01 00 00 66 55 44 33 22
+>
+> I can make it work if I send:
+> -->  f5 00 66 55 44 33 22 11
+>      ^^ report ID _replaced_ buf[0]
+>
+> then I get the expected:
+> <-- 01 00 66 55 44 33 22 11
+>
+> Am I missing something about the differences about getting a feature
+> report and setting it?
+>
+>    
+
+Do you have patches 29129a98e6f and c29771c2d8ce applied? They are in 
+2.6.36-rc6 (and some previous, but I'm note certain how far back). Those 
+patches have to do with _sending_ the right bytes (in particular the 
+report number) on the control endpoint. You seem to be having the 
+opposite problem though. Let me know to be sure.
+
+> In the HIDIOCGFEATURE doc I read:
+> 	...
+> 	The report will be returned starting at
+> 	the first byte of the buffer (ie: the report number is not
+> 	returned).
+>
+> Someone (/me whistling, with hands in pockets) could interpret this
+> like a buf++ semantic on a quick read, even if this sentence means
+> "only" that _actual_data_ is from buf[1]; but one question stands: what
+> is that value returned in buf[0]? Is this unspecified?
+>
+>    
+
+So that was written when I had an incorrect understanding of the 
+standard. It is wrong. I had originally thought that Report ID's were 
+not sent on the control endpoint as part of the payload (because it's 
+redundant, since it's in wValue). I was wrong, and made those two 
+patches above to correct it.
+
+> Maybe the doc could be made even more explicit about buf[0] to overcame
+> non native speakers deficiencies.
+> And while at it, can we get rid of the ambiguity of "first byte" for
+> "byte 1", the former can even mean buf[0], can't it?
+>    
+
+Your English is fine, my understanding was wrong :) .
+
+Alan.
 
 
-diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
-index 3450b74..5265fb9 100644
---- a/arch/arm/mach-ux500/board-mop500.c
-+++ b/arch/arm/mach-ux500/board-mop500.c
-@@ -177,7 +177,7 @@ static const unsigned int ux500_keymap[] = {
- 	KEY(3, 2, KEY_7),
- };
- 
--static struct matrix_keymap_data ux500_keymap_data = {
-+static const struct matrix_keymap_data ux500_keymap_data = {
- 	.keymap         = ux500_keymap,
- 	.keymap_size    = ARRAY_SIZE(ux500_keymap),
- };
-diff --git a/arch/arm/plat-nomadik/include/plat/ske.h b/arch/arm/plat-nomadik/include/plat/ske.h
-index 148b2bc..31382fb 100644
---- a/arch/arm/plat-nomadik/include/plat/ske.h
-+++ b/arch/arm/plat-nomadik/include/plat/ske.h
-@@ -40,7 +40,7 @@
- struct ske_keypad_platform_data {
- 	int (*init)(void);
- 	int (*exit)(void);
--	struct matrix_keymap_data *keymap_data;
-+	const struct matrix_keymap_data *keymap_data;
- 	u8 krow;
- 	u8 kcol;
- 	u8 debounce_ms;
-diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
-index 8c6ce8a..6e0f230 100644
---- a/drivers/input/keyboard/nomadik-ske-keypad.c
-+++ b/drivers/input/keyboard/nomadik-ske-keypad.c
-@@ -83,7 +83,7 @@ static void ske_keypad_set_bits(struct ske_keypad *keypad, u16 addr,
- }
- 
- /*
-- * ske_keypad_chip_init : init keypad controller configuration
-+ * ske_keypad_chip_init: init keypad controller configuration
-  *
-  * Enable Multi key press detection, auto scan mode
-  */
-@@ -144,7 +144,7 @@ static void ske_keypad_read_data(struct ske_keypad *keypad)
- 	 * Read the auto scan registers
- 	 *
- 	 * Each SKE_ASRx (x=0 to x=3) contains two row values.
--	 * lower byte contains row value for coloumn 2*x,
-+	 * lower byte contains row value for column 2*x,
- 	 * upper byte contains row value for column 2*x + 1
- 	 */
- 	for (i = 0; i < SKE_NUM_ASRX_REGISTERS; i++) {
-@@ -152,7 +152,7 @@ static void ske_keypad_read_data(struct ske_keypad *keypad)
- 		if (!ske_asr)
- 			continue;
- 
--		/* now that ASRx is zero, find out the coloumn x and row y*/
-+		/* now that ASRx is zero, find out the column x and row y*/
- 		if (ske_asr & 0xff) {
- 			col = i * 2;
- 			status = ske_asr & 0xff;
-@@ -251,7 +251,7 @@ static int __devinit ske_keypad_probe(struct platform_device *pdev)
- 
- 	keypad->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(keypad->clk)) {
--		dev_err(&pdev->dev, "failed to clk_get\n");
-+		dev_err(&pdev->dev, "failed to get clk\n");
- 		error = PTR_ERR(keypad->clk);
- 		goto err_iounmap;
- 	}
-@@ -285,8 +285,8 @@ static int __devinit ske_keypad_probe(struct platform_device *pdev)
- 		goto err_clk_disable;
- 	}
- 
--	error = request_irq(keypad->irq, ske_keypad_irq, 0,
--			"ske-keypad", keypad);
-+	error = request_threaded_irq(keypad->irq, NULL, ske_keypad_irq,
-+				     IRQF_ONESHOT, "ske-keypad", keypad);
- 	if (error) {
- 		dev_err(&pdev->dev, "allocate irq %d failed\n", keypad->irq);
- 		goto err_clk_disable;
 
-The main change is use of request_threaded_irq() - we do need it as you
-msleep() in the handler.
-
-Thanks.
-
--- 
-Dmitry

@@ -1,36 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 7/8] OMAP4: Keyboard board support
-Date: Wed, 29 Sep 2010 23:40:56 -0700
-Message-ID: <20100930064055.GG5260@core.coreip.homeip.net>
-References: <1285824973-25550-1-git-send-email-x0066660@ti.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: =?UTF-8?B?5Zue5L+h77yaIFJlOiBTaXRyb25peCBTVDlSTTAxIG11bHRpdG8=?=
+ =?UTF-8?B?dWNoIHBhbmVs?=
+Date: Thu, 30 Sep 2010 08:50:34 +0200
+Message-ID: <4CA4333A.6060905@euromail.se>
+References: <OF3ACE13A9.6923D1DE-ON482577AE.001EAE48-482577AE.0021EA7E@sitronix.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:47939 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750949Ab0I3GlD (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:55080 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750949Ab0I3GvY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Sep 2010 02:41:03 -0400
-Content-Disposition: inline
-In-Reply-To: <1285824973-25550-1-git-send-email-x0066660@ti.com>
+	Thu, 30 Sep 2010 02:51:24 -0400
+In-Reply-To: <OF3ACE13A9.6923D1DE-ON482577AE.001EAE48-482577AE.0021EA7E@sitronix.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Abraham Arce <x0066660@ti.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Syed Rafiuddin <rafiuddin.syed@ti.com>
+To: rudy_huang@sitronix.com.tw
+Cc: Alan Cox <alan@linux.intel.com>, =?UTF-8?B?U3TDqXBoYW5lIENoYXR0eQ==?= <chatty@enac.fr>, jkosina@suse.cz, linux-input@vger.kernel.org
 
-HI Abraham,
+Hi Rudy,
+>
 
-On Thu, Sep 30, 2010 at 12:36:13AM -0500, Abraham Arce wrote:
-> From: Syed Rafiuddin <rafiuddin.syed@ti.com>
+>>> +      case HID_DG_WIDTH:
+>>> +         sd->w = value;
+>>> +         break;
+>>> +      case HID_DG_HEIGHT:
+>>> +         sd->h = value;
+>>> +         sitronix_filter_event(sd, input);
+>>
+>>
+>> This kind of construction is unfortunate, because similar
+
+>> devices may have a different attribute set, of the attributes
+>> may appear in a different order. Better would be to allow to
+>> first collect all attributes in random order, then perform the
+>> contact update.
+
 > 
-> Keyboard support for SDP OMAP4430
-> 
+>  How could I know that all attributes are collected ?
+>  In our device, HID_DG_HEIGHT is the last field of finger.
+>  Is there any reference code to which I can refer ? 
 
-I think this would benefit from "const" sprinkled on it.
 
-BTW, I picked up patches 2, 3, 4, 5, 8 (all touching drivers/input).
+There will be in a little bit. The comment is really more of a general note
+applicable to all the current drivers, and a moot point in this particular
+instance now that it will be merged with the hid-stantum driver.
 
-Thanks.
-
--- 
-Dmitry
+Thanks,
+Henrik

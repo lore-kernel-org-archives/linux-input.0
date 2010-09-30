@@ -1,52 +1,50 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RESEND] [PATCH] Input: add appleir USB driver
-Date: Thu, 30 Sep 2010 16:51:30 +0100
-Message-ID: <1285861890.26405.37.camel@cookie.hadess.net>
-References: <1285844276.26405.26.camel@cookie.hadess.net>
-	 <201009300847.43090.dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Rok Mandeljc <rok.mandeljc@gmail.com>
+Subject: [PATCH] HID: add NOGET quirk for AXIS 295 Video Surveillance Joystick
+Date: Thu, 30 Sep 2010 23:24:30 +0200
+Message-ID: <1285881870-5184-1-git-send-email-rok.mandeljc@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay1-v.mail.gandi.net ([217.70.178.75]:53595 "EHLO
-	relay1-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932083Ab0I3Pvh (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:34648 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932218Ab0I3VVe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Sep 2010 11:51:37 -0400
-In-Reply-To: <201009300847.43090.dmitry.torokhov@gmail.com>
+	Thu, 30 Sep 2010 17:21:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>
+To: jkosina@suse.cz, chatty@enac.fr, cascardo@holoscopio.com, don@syst.com.br, peter.hutterer@who-t.net
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Thu, 2010-09-30 at 08:47 -0700, Dmitry Torokhov wrote:
-> Bastien,
-> 
-> On Thursday, September 30, 2010 03:57:55 am Bastien Nocera wrote:
-> > This driver was originally written by James McKenzie, updated by
-> > Greg Kroah-Hartman, further updated by myself, with suspend support
-> > added.
-> > 
-> > More recent versions of the IR receiver are also supported through
-> > a patch by Alex Karpenko. The patch also adds support for the 2nd
-> > and 5th generation of the controller, and the menu key on newer
-> > brushed metal remotes.
-> > 
-> > Tested on a MacbookAir1,1
-> > 
-> 
-> There are no changes from the last time you sent it, right?
+This patch adds the NOGET quirk for AXIS 295 Video Surveillance Joystick (despite AXIS brand the vendor is actually CH Products). Without the quirk, the joystick is detected but does not generate any events.
 
-No, but given that I received no comments on it since I submitted it in
-February, and again a couple of weeks ago, I thought it might need
-somebody else to look into it.
+Signed-off-by: Rok Mandeljc <rok.mandeljc@gmail.com>
+---
+ drivers/hid/hid-ids.h           |    1 +
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
->  I'll try
-> to get the driver in .37 but after that we should probably move it
-> over to the new IR infrastructure...
-
-I'm not sure what that would bring us, nor do I have any experience in
-using the ir-core. From what I understood, it still needed fleshing out.
-
-Cheers
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 765a4f5..4c7081e 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -141,6 +141,7 @@
+ #define USB_DEVICE_ID_CH_FLIGHT_SIM_ECLIPSE_YOKE       0x0051
+ #define USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE	0x00ff
+ #define USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK	0x00d3
++#define USB_DEVICE_ID_CH_AXIS_295	0x001c
+ 
+ #define USB_VENDOR_ID_CHERRY		0x046a
+ #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 70da318..f13adb2 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -62,6 +62,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
+-- 
+1.7.2.3
 

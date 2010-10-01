@@ -1,87 +1,87 @@
-From: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: [PATCH V2 49/69] ST SPEAr13xx: add L2 cache support
-Date: Fri,  1 Oct 2010 17:26:09 +0530
-Message-ID: <cfeb5d8653735f68acee9dfed7d91e4e2441d329.1285933332.git.viresh.kumar@st.com>
+From: Viresh KUMAR <viresh.kumar@st.com>
+Subject: [PATCH V2 50/69] ST SPEAr13xx: Modified static mappings
+Date: Fri,  1 Oct 2010 17:26:10 +0530
+Message-ID: <81ee7baeea114d591582d1adf33b67f45af5df12.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-References: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry
-Cc: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, vipin.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, armando.visconti-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, bhupesh.sharma-qxv4g6HH51o@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog105.obsmtp.com ([207.126.144.119]:52084 "EHLO
+	eu1sys200aog105.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932442Ab0JAMAA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Oct 2010 08:00:00 -0400
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+References: <cover.1285933331.git.viresh.kumar@st.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
+Cc: Shiraz Hashim <shiraz.hashim@st.com>, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
 
-From: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+From: Shiraz Hashim <shiraz.hashim@st.com>
 
-Signed-off-by: shiraz hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+The new static io mappings map regions in 0xE...,.... space to
+0xF...,.... and those in space 0x6...,.... to 0xE...,.... range.
+This is done to accomodate regions of RAS configuration registers to be
+used by clock frameowrk and possibly others.
+
+Signed-off-by: shiraz hashim <shiraz.hashim@st.com>
+Signed-off-by: Deepak Sikri <deepak.sikri@st.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- arch/arm/mach-spear13xx/spear13xx.c |   19 +++++++++++++++++++
- arch/arm/mm/Kconfig                 |    2 +-
- 2 files changed, 20 insertions(+), 1 deletions(-)
+ arch/arm/mach-spear13xx/include/mach/hardware.h |    7 ++++++-
+ arch/arm/mach-spear13xx/include/mach/vmalloc.h  |    2 +-
+ arch/arm/mach-spear13xx/spear13xx.c             |    8 ++++++++
+ 3 files changed, 15 insertions(+), 2 deletions(-)
 
+diff --git a/arch/arm/mach-spear13xx/include/mach/hardware.h b/arch/arm/mach-spear13xx/include/mach/hardware.h
+index 4abc2c0..44cd0c2 100644
+--- a/arch/arm/mach-spear13xx/include/mach/hardware.h
++++ b/arch/arm/mach-spear13xx/include/mach/hardware.h
+@@ -17,7 +17,12 @@
+ #include <mach/spear.h>
+ 
+ /* Vitual to physical translation of statically mapped space */
+-#define IO_ADDRESS(x)		(x | 0xF0000000)
++/*
++ * if phy_addr is 0x8...,.... and above then map it to  0xF...,....
++ * else map it to 0xE...,....
++ */
++
++#define IO_ADDRESS(x)   ((x) | ((((x) >> 31) << 28) | 0xE0000000))
+ 
+ /* typesafe io address */
+ #define __io_address(n)		__io(IO_ADDRESS(n))
+diff --git a/arch/arm/mach-spear13xx/include/mach/vmalloc.h b/arch/arm/mach-spear13xx/include/mach/vmalloc.h
+index 85ad57e..9f329d1 100644
+--- a/arch/arm/mach-spear13xx/include/mach/vmalloc.h
++++ b/arch/arm/mach-spear13xx/include/mach/vmalloc.h
+@@ -13,6 +13,6 @@
+ #ifndef __MACH_VMALLOC_H
+ #define __MACH_VMALLOC_H
+ 
+-#include <plat/vmalloc.h>
++#define VMALLOC_END		0xEC800000
+ 
+ #endif /* __MACH_VMALLOC_H */
 diff --git a/arch/arm/mach-spear13xx/spear13xx.c b/arch/arm/mach-spear13xx/spear13xx.c
-index c86bd1c..8c8a21d 100644
+index 8c8a21d..d6a6dc0 100644
 --- a/arch/arm/mach-spear13xx/spear13xx.c
 +++ b/arch/arm/mach-spear13xx/spear13xx.c
-@@ -22,6 +22,7 @@
- #include <asm/irq.h>
- #include <asm/localtimer.h>
- #include <asm/mach/arch.h>
-+#include <asm/hardware/cache-l2x0.h>
- #include <asm/smp_twd.h>
- #include <mach/irqs.h>
- #include <mach/generic.h>
-@@ -526,6 +527,17 @@ struct platform_device spear13xx_pcie_gadget2_device = {
- /* Do spear13xx familiy common initialization part here */
- void __init spear13xx_init(void)
- {
-+#ifdef CONFIG_CACHE_L2X0
-+	/*
-+	 * 512KB (64KB/way), 8-way associativity, parity supported
-+	 *
-+	 * TODO: 0x249, picked from nomadik, to be analyzed
-+	 * Comment from nomadik:
-+	 * At full speed latency must be >=2, so 0x249 in low bits
-+	 */
-+	l2x0_init(__io_address(SPEAR13XX_L2CC_BASE), 0x00260249, 0xfe00ffff);
-+#endif
-+
- 	sdhci_enable();
- }
- 
-@@ -548,6 +560,13 @@ struct map_desc spear13xx_io_desc[] __initdata = {
- 		.pfn		= __phys_to_pfn(SPEAR13XX_A9SM_PERIP_BASE),
- 		.length		= SZ_8K,
- 		.type		= MT_DEVICE
-+#ifdef CONFIG_CACHE_L2X0
+@@ -582,6 +582,14 @@ struct map_desc spear13xx_io_desc[] __initdata = {
+ 		.pfn		= __phys_to_pfn(SPEAR13XX_SYSRAM1_BASE),
+ 		.length		= SZ_1M,
+ 		.type		= MT_MEMORY_NONCACHED
++#ifdef CONFIG_MACH_SPEAR1310
 +	}, {
-+		.virtual	= IO_ADDRESS(SPEAR13XX_L2CC_BASE),
-+		.pfn		= __phys_to_pfn(SPEAR13XX_L2CC_BASE),
++		.virtual	= IO_ADDRESS(SPEAR1310_RAS_BASE),
++		.pfn		= __phys_to_pfn(SPEAR1310_RAS_BASE),
 +		.length		= SZ_4K,
 +		.type		= MT_DEVICE
++
 +#endif
- 	}, {
- 		.virtual	= IO_ADDRESS(SPEAR13XX_MISC_BASE),
- 		.pfn		= __phys_to_pfn(SPEAR13XX_MISC_BASE),
-diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
-index a0a2928..f3eea13 100644
---- a/arch/arm/mm/Kconfig
-+++ b/arch/arm/mm/Kconfig
-@@ -772,7 +772,7 @@ config CACHE_L2X0
- 	depends on REALVIEW_EB_ARM11MP || MACH_REALVIEW_PB11MP || MACH_REALVIEW_PB1176 || \
- 		   REALVIEW_EB_A9MP || ARCH_MX35 || ARCH_MX31 || MACH_REALVIEW_PBX || \
- 		   ARCH_NOMADIK || ARCH_OMAP4 || ARCH_S5PV310 || ARCH_TEGRA || \
--		   ARCH_U8500 || ARCH_VEXPRESS_CA9X4
-+		   ARCH_SPEAR13XX || ARCH_U8500 || ARCH_VEXPRESS_CA9X4
- 	default y
- 	select OUTER_CACHE
- 	select OUTER_CACHE_SYNC
+ 	},
+ };
+ 
 -- 
 1.7.2.2
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,101 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 1/2] Add acer wmi hotkey events support
-Date: Fri, 1 Oct 2010 09:58:34 -0700
-Message-ID: <20101001165833.GA15390@core.coreip.homeip.net>
-References: <1285941088-31196-1-git-send-email-jlee@novell.com>
+Date: Fri, 1 Oct 2010 10:44:22 -0700
+Message-ID: <20101001174422.GA16141@core.coreip.homeip.net>
+References: <4CA6A90C02000023000212D2@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:36735 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752263Ab0JARoa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Oct 2010 13:44:30 -0400
 Content-Disposition: inline
-In-Reply-To: <1285941088-31196-1-git-send-email-jlee@novell.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
-Cc: platform-driver-x86@vger.kernel.org, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, linux-input@vger.kernel.org, tiwai@novell.com, trenn@novell.com, jbenc@suse.cz, "Lee, Chun-Yi" <jlee@novell.com>
+In-Reply-To: <4CA6A90C02000023000212D2@novprvlin0050.provo.novell.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joey Lee <jlee@novell.com>
+Cc: corentin.chary@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-Hi Lee,
+On Fri, Oct 01, 2010 at 11:37:48AM -0600, Joey Lee wrote:
+> Hi Corentin,=20
+>=20
+> =E6=96=BC =E4=BA=94=EF=BC=8C2010-10-01 =E6=96=BC 16:03 +0200=EF=BC=8C=
+Corentin Chary =E6=8F=90=E5=88=B0=EF=BC=9A
+> > On Fri, Oct 1, 2010 at 3:51 PM, Lee, Chun-Yi <joeyli.kernel@gmail.c=
+om> wrote:
+> > > Add acer wmi hotkey event support. Install a wmi notify handler t=
+o
+> > > transfer wmi event key to key code, then send out keycode through=
+ acer
+> > > wmi input device to userland.
+> > >
+> > > Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+> >=20
+> > Hi Lee,
+> > You'll probably want to take a look at the sparse keymap library. U=
+sing
+> > it would remove a lot of code from this patch.
+> > Thanks
+> >=20
+>=20
+> Thank's for your suggestion, I just goolge it:
+>  http://www.spinics.net/lists/linux-input/msg10336.html
+>=20
+> And, you are right, it's a very good framework for keymap handler.
+> I will modify patch to use sparse keymap library.
+>=20
+> I believe it already available in newest kernel.
+> Does it already in 2.6.32 kernel? Because I also need backport those =
+2
+> patches to 2.6.32.x kernel.
+>=20
 
-On Fri, Oct 01, 2010 at 09:51:27PM +0800, Lee, Chun-Yi wrote:
-> +
-> +struct key_entry {
-> +	char type;	/* See KE_* below */
-> +	u16 code;
-> +	u16 keycode;
-> +};
-> +
-> +enum { KE_KEY, KE_END };
-> +
+Unfortunately it is in 2.6.33 onward.
 
-Like Corentin said, please use sparse_keymap, it will cut the code in
-half.
-
-> +
-> +	set_bit(EV_SW, acer_wmi_input_dev->evbit);
-> +
-
-I do not see you sending SW_* events...
-
-> +	err = input_register_device(acer_wmi_input_dev);
-> +
-> +	if (err) {
-> +		input_free_device(acer_wmi_input_dev);
-> +		return err;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  /*
->   * debugfs functions
->   */
-> @@ -1327,6 +1518,18 @@ static int __init acer_wmi_init(void)
->  		       "generic video driver\n");
->  	}
->  
-> +	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
-> +		err = wmi_install_notify_handler(ACERWMID_EVENT_GUID,
-> +						acer_wmi_notify, NULL);
-> +		if (ACPI_FAILURE(err))
-> +			return -EINVAL;
-> +		err = acer_wmi_input_setup();
-
-You really want to set up the device first and install notify handler
-later. What will happen if event will fire up while input device has not
-been created yet?
-
-> +		if (err) {
-> +			wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
-> +			return err;
-> +		}
-> +	}
-> +
->  	err = platform_driver_register(&acer_platform_driver);
->  	if (err) {
->  		printk(ACER_ERR "Unable to register platform driver.\n");
-> @@ -1368,11 +1571,21 @@ error_device_add:
->  error_device_alloc:
->  	platform_driver_unregister(&acer_platform_driver);
->  error_platform_register:
-> +	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
-> +		input_unregister_device(acer_wmi_input_dev);
-> +		wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
-
-Same here, first shut off notified, then remove the device.
-
-> +	}
-> +
->  	return err;
->  }
->  
->  static void __exit acer_wmi_exit(void)
->  {
-> +	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
-> +		wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
-> +		input_unregister_device(acer_wmi_input_dev);
-
-Same here.
-
-Thanks.
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

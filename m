@@ -1,173 +1,223 @@
-From: Viresh KUMAR <viresh.kumar@st.com>
-Subject: [PATCH V2 61/69] SPEAr3xx: Replace defconfigs with single unified defconfig
-Date: Fri,  1 Oct 2010 17:26:21 +0530
-Message-ID: <753e3ba7b912827f53554165d8a7d6e6c3c30610.1285933332.git.viresh.kumar@st.com>
+From: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH V2 36/69] ST SPEAr: Adding miscellaneous devices
+Date: Fri,  1 Oct 2010 17:25:56 +0530
+Message-ID: <f230f323b2dc881014ae3e5759f3424af7c8aa75.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-References: <cover.1285933331.git.viresh.kumar@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
-Cc: Ryan Mallon <ryan@bluewatersys.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+References: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry
+Cc: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, shiraz.hashim-qxv4g6HH51o@public.gmane.org, vipin.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, armando.visconti-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, bhupesh.sharma-qxv4g6HH51o@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: Ryan Mallon <ryan@bluewatersys.com>
-
-We only need one defconfig for SPEAr3xx now since we can build all
-three boards into one kernel.
-
-Signed-off-by: Ryan Mallon <ryan@bluewatersys.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
 ---
- arch/arm/configs/spear310_defconfig                |   52 --------------------
- arch/arm/configs/spear320_defconfig                |   52 --------------------
- .../{spear300_defconfig => spear3xx_defconfig}     |    4 +-
- 3 files changed, 3 insertions(+), 105 deletions(-)
- delete mode 100644 arch/arm/configs/spear310_defconfig
- delete mode 100644 arch/arm/configs/spear320_defconfig
- rename arch/arm/configs/{spear300_defconfig => spear3xx_defconfig} (93%)
+ arch/arm/mach-spear3xx/include/mach/generic.h |    7 ++
+ arch/arm/mach-spear3xx/spear310.c             |  115 +++++++++++++++++++------
+ arch/arm/mach-spear3xx/spear320.c             |   26 ++++++
+ 3 files changed, 123 insertions(+), 25 deletions(-)
 
-diff --git a/arch/arm/configs/spear310_defconfig b/arch/arm/configs/spear310_defconfig
-deleted file mode 100644
-index 824e444..0000000
---- a/arch/arm/configs/spear310_defconfig
-+++ /dev/null
-@@ -1,52 +0,0 @@
--CONFIG_EXPERIMENTAL=y
--CONFIG_SYSVIPC=y
--CONFIG_BSD_PROCESS_ACCT=y
--CONFIG_BLK_DEV_INITRD=y
--CONFIG_KALLSYMS_EXTRA_PASS=y
--CONFIG_MODULES=y
--CONFIG_MODULE_UNLOAD=y
--CONFIG_MODVERSIONS=y
--CONFIG_PLAT_SPEAR=y
--CONFIG_MACH_SPEAR310=y
--CONFIG_BINFMT_MISC=y
--CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
--CONFIG_BLK_DEV_RAM=y
--CONFIG_BLK_DEV_RAM_SIZE=16384
--CONFIG_INPUT_FF_MEMLESS=y
--# CONFIG_INPUT_MOUSEDEV_PSAUX is not set
--# CONFIG_INPUT_KEYBOARD is not set
--# CONFIG_INPUT_MOUSE is not set
--CONFIG_SERIAL_AMBA_PL011=y
--CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
--# CONFIG_LEGACY_PTYS is not set
--# CONFIG_HW_RANDOM is not set
--CONFIG_RAW_DRIVER=y
--CONFIG_MAX_RAW_DEVS=8192
--CONFIG_GPIO_SYSFS=y
--CONFIG_GPIO_PL061=y
--# CONFIG_HWMON is not set
--# CONFIG_VGA_CONSOLE is not set
--# CONFIG_HID_SUPPORT is not set
--# CONFIG_USB_SUPPORT is not set
--CONFIG_EXT2_FS=y
--CONFIG_EXT2_FS_XATTR=y
--CONFIG_EXT2_FS_SECURITY=y
--CONFIG_EXT3_FS=y
--CONFIG_EXT3_FS_SECURITY=y
--CONFIG_AUTOFS4_FS=m
--CONFIG_MSDOS_FS=m
--CONFIG_VFAT_FS=m
--CONFIG_FAT_DEFAULT_IOCHARSET="ascii"
--CONFIG_TMPFS=y
--CONFIG_PARTITION_ADVANCED=y
--CONFIG_NLS=y
--CONFIG_NLS_DEFAULT="utf8"
--CONFIG_NLS_CODEPAGE_437=y
--CONFIG_NLS_ASCII=m
--CONFIG_MAGIC_SYSRQ=y
--CONFIG_DEBUG_FS=y
--CONFIG_DEBUG_KERNEL=y
--CONFIG_DEBUG_SPINLOCK=y
--CONFIG_DEBUG_SPINLOCK_SLEEP=y
--CONFIG_DEBUG_INFO=y
--# CONFIG_CRC32 is not set
-diff --git a/arch/arm/configs/spear320_defconfig b/arch/arm/configs/spear320_defconfig
-deleted file mode 100644
-index 842f7f3..0000000
---- a/arch/arm/configs/spear320_defconfig
-+++ /dev/null
-@@ -1,52 +0,0 @@
--CONFIG_EXPERIMENTAL=y
--CONFIG_SYSVIPC=y
--CONFIG_BSD_PROCESS_ACCT=y
--CONFIG_BLK_DEV_INITRD=y
--CONFIG_KALLSYMS_EXTRA_PASS=y
--CONFIG_MODULES=y
--CONFIG_MODULE_UNLOAD=y
--CONFIG_MODVERSIONS=y
--CONFIG_PLAT_SPEAR=y
--CONFIG_MACH_SPEAR320=y
--CONFIG_BINFMT_MISC=y
--CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
--CONFIG_BLK_DEV_RAM=y
--CONFIG_BLK_DEV_RAM_SIZE=16384
--CONFIG_INPUT_FF_MEMLESS=y
--# CONFIG_INPUT_MOUSEDEV_PSAUX is not set
--# CONFIG_INPUT_KEYBOARD is not set
--# CONFIG_INPUT_MOUSE is not set
--CONFIG_SERIAL_AMBA_PL011=y
--CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
--# CONFIG_LEGACY_PTYS is not set
--# CONFIG_HW_RANDOM is not set
--CONFIG_RAW_DRIVER=y
--CONFIG_MAX_RAW_DEVS=8192
--CONFIG_GPIO_SYSFS=y
--CONFIG_GPIO_PL061=y
--# CONFIG_HWMON is not set
--# CONFIG_VGA_CONSOLE is not set
--# CONFIG_HID_SUPPORT is not set
--# CONFIG_USB_SUPPORT is not set
--CONFIG_EXT2_FS=y
--CONFIG_EXT2_FS_XATTR=y
--CONFIG_EXT2_FS_SECURITY=y
--CONFIG_EXT3_FS=y
--CONFIG_EXT3_FS_SECURITY=y
--CONFIG_AUTOFS4_FS=m
--CONFIG_MSDOS_FS=m
--CONFIG_VFAT_FS=m
--CONFIG_FAT_DEFAULT_IOCHARSET="ascii"
--CONFIG_TMPFS=y
--CONFIG_PARTITION_ADVANCED=y
--CONFIG_NLS=y
--CONFIG_NLS_DEFAULT="utf8"
--CONFIG_NLS_CODEPAGE_437=y
--CONFIG_NLS_ASCII=m
--CONFIG_MAGIC_SYSRQ=y
--CONFIG_DEBUG_FS=y
--CONFIG_DEBUG_KERNEL=y
--CONFIG_DEBUG_SPINLOCK=y
--CONFIG_DEBUG_SPINLOCK_SLEEP=y
--CONFIG_DEBUG_INFO=y
--# CONFIG_CRC32 is not set
-diff --git a/arch/arm/configs/spear300_defconfig b/arch/arm/configs/spear3xx_defconfig
-similarity index 93%
-rename from arch/arm/configs/spear300_defconfig
-rename to arch/arm/configs/spear3xx_defconfig
-index cf29f3e..fea7e1f 100644
---- a/arch/arm/configs/spear300_defconfig
-+++ b/arch/arm/configs/spear3xx_defconfig
-@@ -7,6 +7,9 @@ CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_MODVERSIONS=y
- CONFIG_PLAT_SPEAR=y
-+CONFIG_BOARD_SPEAR300_EVB=y
-+CONFIG_BOARD_SPEAR310_EVB=y
-+CONFIG_BOARD_SPEAR320_EVB=y
- CONFIG_BINFMT_MISC=y
- CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
- CONFIG_BLK_DEV_RAM=y
-@@ -24,7 +27,6 @@ CONFIG_MAX_RAW_DEVS=8192
- CONFIG_GPIO_SYSFS=y
- CONFIG_GPIO_PL061=y
- # CONFIG_HWMON is not set
--# CONFIG_VGA_CONSOLE is not set
- # CONFIG_HID_SUPPORT is not set
- # CONFIG_USB_SUPPORT is not set
- CONFIG_EXT2_FS=y
+diff --git a/arch/arm/mach-spear3xx/include/mach/generic.h b/arch/arm/mach-spear3xx/include/mach/generic.h
+index 9bd9424..ea170a6 100644
+--- a/arch/arm/mach-spear3xx/include/mach/generic.h
++++ b/arch/arm/mach-spear3xx/include/mach/generic.h
+@@ -161,6 +161,11 @@ extern struct clcd_board clcd_plat_data;
+ /* spear310 declarations */
+ #elif defined(CONFIG_MACH_SPEAR310)
+ /* Add spear310 machine device structure declarations here */
++extern struct amba_device uart1_device;
++extern struct amba_device uart2_device;
++extern struct amba_device uart3_device;
++extern struct amba_device uart4_device;
++extern struct amba_device uart5_device;
+ extern struct platform_device plgpio_device;
+ extern struct platform_device nand_device;
+ 
+@@ -182,6 +187,8 @@ void __init spear310_init(void);
+ /* Add spear320 machine device structure declarations here */
+ extern struct amba_device clcd_device;
+ extern struct amba_device ssp_device[];
++extern struct amba_device uart1_device;
++extern struct amba_device uart2_device;
+ extern struct platform_device i2c1_device;
+ extern struct platform_device nand_device;
+ extern struct platform_device plgpio_device;
+diff --git a/arch/arm/mach-spear3xx/spear310.c b/arch/arm/mach-spear3xx/spear310.c
+index 189e3d4..25a0e94 100644
+--- a/arch/arm/mach-spear3xx/spear310.c
++++ b/arch/arm/mach-spear3xx/spear310.c
+@@ -142,6 +142,96 @@ struct pmx_driver pmx_driver = {
+ };
+ 
+ /* Add spear310 specific devices here */
++/* uart1 device registeration */
++struct amba_device uart1_device = {
++	.dev = {
++		.init_name = "uart1",
++	},
++	.res = {
++		.start = SPEAR310_UART1_BASE,
++		.end = SPEAR310_UART1_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	.irq = {VIRQ_UART1, NO_IRQ},
++};
++
++/* uart2 device registeration */
++struct amba_device uart2_device = {
++	.dev = {
++		.init_name = "uart2",
++	},
++	.res = {
++		.start = SPEAR310_UART2_BASE,
++		.end = SPEAR310_UART2_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	.irq = {VIRQ_UART2, NO_IRQ},
++};
++
++/* uart3 device registeration */
++struct amba_device uart3_device = {
++	.dev = {
++		.init_name = "uart3",
++	},
++	.res = {
++		.start = SPEAR310_UART3_BASE,
++		.end = SPEAR310_UART3_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	.irq = {VIRQ_UART3, NO_IRQ},
++};
++
++/* uart4 device registeration */
++struct amba_device uart4_device = {
++	.dev = {
++		.init_name = "uart4",
++	},
++	.res = {
++		.start = SPEAR310_UART4_BASE,
++		.end = SPEAR310_UART4_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	.irq = {VIRQ_UART4, NO_IRQ},
++};
++
++/* uart5 device registeration */
++struct amba_device uart5_device = {
++	.dev = {
++		.init_name = "uart5",
++	},
++	.res = {
++		.start = SPEAR310_UART5_BASE,
++		.end = SPEAR310_UART5_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	.irq = {VIRQ_UART5, NO_IRQ},
++};
++
++/* nand device registeration */
++static struct fsmc_nand_platform_data nand_platform_data;
++
++static struct resource nand_resources[] = {
++	{
++		.name = "nand_data",
++		.start = SPEAR310_NAND_BASE,
++		.end = SPEAR310_NAND_BASE + SZ_16 - 1,
++		.flags = IORESOURCE_MEM,
++	}, {
++		.name = "fsmc_regs",
++		.start = SPEAR310_FSMC_BASE,
++		.end = SPEAR310_FSMC_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++};
++
++struct platform_device nand_device = {
++	.name = "nand",
++	.id = -1,
++	.resource = nand_resources,
++	.num_resources = ARRAY_SIZE(nand_resources),
++	.dev.platform_data = &nand_platform_data,
++};
++
+ /* plgpio device registeration */
+ /*
+  * pin to offset and offset to pin converter functions
+@@ -178,31 +268,6 @@ int spear300_o2p(int offset)
+ 		return offset + 2;
+ }
+ 
+-/* nand device registeration */
+-static struct fsmc_nand_platform_data nand_platform_data;
+-
+-static struct resource nand_resources[] = {
+-	{
+-		.name = "nand_data",
+-		.start = SPEAR310_NAND_BASE,
+-		.end = SPEAR310_NAND_BASE + SZ_16 - 1,
+-		.flags = IORESOURCE_MEM,
+-	}, {
+-		.name = "fsmc_regs",
+-		.start = SPEAR310_FSMC_BASE,
+-		.end = SPEAR310_FSMC_BASE + SZ_4K - 1,
+-		.flags = IORESOURCE_MEM,
+-	},
+-};
+-
+-struct platform_device nand_device = {
+-	.name = "nand",
+-	.id = -1,
+-	.resource = nand_resources,
+-	.num_resources = ARRAY_SIZE(nand_resources),
+-	.dev.platform_data = &nand_platform_data,
+-};
+-
+ static struct plgpio_platform_data plgpio_plat_data = {
+ 	.gpio_base = 8,
+ 	.irq_base = SPEAR_PLGPIO_INT_BASE,
+diff --git a/arch/arm/mach-spear3xx/spear320.c b/arch/arm/mach-spear3xx/spear320.c
+index 3f1c88b..8ecad40 100644
+--- a/arch/arm/mach-spear3xx/spear320.c
++++ b/arch/arm/mach-spear3xx/spear320.c
+@@ -447,6 +447,32 @@ struct amba_device ssp_device[] = {
+ 	}
+ };
+ 
++/* uart1 device registeration */
++struct amba_device uart1_device = {
++	.dev = {
++		.init_name = "uart1",
++	},
++	.res = {
++		.start = SPEAR320_UART1_BASE,
++		.end = SPEAR320_UART1_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	.irq = {VIRQ_UART1, NO_IRQ},
++};
++
++/* uart2 device registeration */
++struct amba_device uart2_device = {
++	.dev = {
++		.init_name = "uart2",
++	},
++	.res = {
++		.start = SPEAR320_UART2_BASE,
++		.end = SPEAR320_UART2_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	.irq = {VIRQ_UART2, NO_IRQ},
++};
++
+ /* plgpio device registeration */
+ static struct plgpio_platform_data plgpio_plat_data = {
+ 	.gpio_base = 8,
 -- 
 1.7.2.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

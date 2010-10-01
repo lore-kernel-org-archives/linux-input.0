@@ -1,178 +1,78 @@
-From: Viresh KUMAR <viresh.kumar@st.com>
-Subject: [PATCH V2 60/69] SPEAr3xx: Rework KConfig to allow all boards to be compiled in
-Date: Fri,  1 Oct 2010 17:26:20 +0530
-Message-ID: <f8b5dc3a172af01285cbbb4f5dc889bf57d72efe.1285933332.git.viresh.kumar@st.com>
-References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-References: <cover.1285933331.git.viresh.kumar@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
-Cc: Ryan Mallon <ryan@bluewatersys.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: support STmicroelectronics and Sitronix with
+ hid-stantuml driver
+Date: Fri, 1 Oct 2010 15:26:56 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010011526290.29535@pobox.suse.cz>
+References: <39DA9B419B56B14AB97E543A876B0ECF195F57B883@stantum-exch.stantum.local>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:51670 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751210Ab0JAN06 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Oct 2010 09:26:58 -0400
+In-Reply-To: <39DA9B419B56B14AB97E543A876B0ECF195F57B883@stantum-exch.stantum.local>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pascal Auriel - Stantum <P.Auriel@stantum.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "chatty@enac.fr" <chatty@enac.fr>, Gowri Ries - Stantum <G.Ries@stantum.com>
 
-From: Ryan Mallon <ryan@bluewatersys.com>
+On Fri, 1 Oct 2010, Pascal Auriel - Stantum wrote:
 
-Now that all three SPEAr3xx platforms can be built into one kernel,
-rework KConfig to allow this. Move everything into one KConfig file
-while we are here.
+> Topic: New VendorsIds/ProductIds using hid-stantum driver
+> Issued-by: Stantum <software@stantum.com>
 
-Signed-off-by: Ryan Mallon <ryan@bluewatersys.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
----
- arch/arm/mach-spear3xx/Kconfig                |   30 ++++++++++++++++--------
- arch/arm/mach-spear3xx/Kconfig300             |   17 --------------
- arch/arm/mach-spear3xx/Kconfig310             |   17 --------------
- arch/arm/mach-spear3xx/Kconfig320             |   17 --------------
- arch/arm/mach-spear3xx/include/mach/generic.h |    6 +++-
- 5 files changed, 24 insertions(+), 63 deletions(-)
- delete mode 100644 arch/arm/mach-spear3xx/Kconfig300
- delete mode 100644 arch/arm/mach-spear3xx/Kconfig310
- delete mode 100644 arch/arm/mach-spear3xx/Kconfig320
+Can I please get your
 
-diff --git a/arch/arm/mach-spear3xx/Kconfig b/arch/arm/mach-spear3xx/Kconfig
-index 20d1317..2cee6b0 100644
---- a/arch/arm/mach-spear3xx/Kconfig
-+++ b/arch/arm/mach-spear3xx/Kconfig
-@@ -4,9 +4,26 @@
- 
- if ARCH_SPEAR3XX
- 
--choice
--	prompt "SPEAr3XX Family"
--	default MACH_SPEAR300
-+menu "SPEAr3xx Implementations"
-+config BOARD_SPEAR300_EVB
-+	bool "SPEAr300 Evaluation Board"
-+	select MACH_SPEAR300
-+	help
-+	  Supports ST SPEAr300 Evaluation Board
-+
-+config BOARD_SPEAR310_EVB
-+	bool "SPEAr310 Evaluation Board"
-+	select MACH_SPEAR310
-+	help
-+	  Supports ST SPEAr310 Evaluation Board
-+
-+config BOARD_SPEAR320_EVB
-+	bool "SPEAr320 Evaluation Board"
-+	select MACH_SPEAR320
-+	help
-+	  Supports ST SPEAr320 Evaluation Board
-+
-+endmenu
- 
- config MACH_SPEAR300
- 	bool "SPEAr300"
-@@ -23,11 +40,4 @@ config MACH_SPEAR320
- 	help
- 	  Supports ST SPEAr320 Machine
- 
--endchoice
--
--# Adding SPEAr3XX machine specific configuration files
--source "arch/arm/mach-spear3xx/Kconfig300"
--source "arch/arm/mach-spear3xx/Kconfig310"
--source "arch/arm/mach-spear3xx/Kconfig320"
--
- endif #ARCH_SPEAR3XX
-diff --git a/arch/arm/mach-spear3xx/Kconfig300 b/arch/arm/mach-spear3xx/Kconfig300
-deleted file mode 100644
-index c519a05..0000000
---- a/arch/arm/mach-spear3xx/Kconfig300
-+++ /dev/null
-@@ -1,17 +0,0 @@
--#
--# SPEAr300 machine configuration file
--#
--
--if MACH_SPEAR300
--
--choice
--	prompt "SPEAr300 Boards"
--	default BOARD_SPEAR300_EVB
--
--config BOARD_SPEAR300_EVB
--	bool "SPEAr300 Evaluation Board"
--	help
--	  Supports ST SPEAr300 Evaluation Board
--endchoice
--
--endif	#MACH_SPEAR300
-diff --git a/arch/arm/mach-spear3xx/Kconfig310 b/arch/arm/mach-spear3xx/Kconfig310
-deleted file mode 100644
-index 60e7442..0000000
---- a/arch/arm/mach-spear3xx/Kconfig310
-+++ /dev/null
-@@ -1,17 +0,0 @@
--#
--# SPEAr310 machine configuration file
--#
--
--if MACH_SPEAR310
--
--choice
--	prompt "SPEAr310 Boards"
--	default BOARD_SPEAR310_EVB
--
--config BOARD_SPEAR310_EVB
--	bool "SPEAr310 Evaluation Board"
--	help
--	  Supports ST SPEAr310 Evaluation Board
--endchoice
--
--endif	#MACH_SPEAR310
-diff --git a/arch/arm/mach-spear3xx/Kconfig320 b/arch/arm/mach-spear3xx/Kconfig320
-deleted file mode 100644
-index 1c1d438..0000000
---- a/arch/arm/mach-spear3xx/Kconfig320
-+++ /dev/null
-@@ -1,17 +0,0 @@
--#
--# SPEAr320 machine configuration file
--#
--
--if MACH_SPEAR320
--
--choice
--	prompt "SPEAr320 Boards"
--	default BOARD_SPEAR320_EVB
--
--config BOARD_SPEAR320_EVB
--	bool "SPEAr320 Evaluation Board"
--	help
--	  Supports ST SPEAr320 Evaluation Board
--endchoice
--
--endif	#MACH_SPEAR320
-diff --git a/arch/arm/mach-spear3xx/include/mach/generic.h b/arch/arm/mach-spear3xx/include/mach/generic.h
-index cef82e8..3138137 100644
---- a/arch/arm/mach-spear3xx/include/mach/generic.h
-+++ b/arch/arm/mach-spear3xx/include/mach/generic.h
-@@ -161,9 +161,10 @@ void sdhci_i2s_mem_enable(u8 mask);
- 
- /* Add misc structure declarations here */
- extern struct clcd_board clcd_plat_data;
-+#endif
- 
- /* spear310 declarations */
--#elif defined(CONFIG_MACH_SPEAR310)
-+#if defined(CONFIG_MACH_SPEAR310)
- /* Add spear310 machine device structure declarations here */
- extern struct amba_device uart1_device;
- extern struct amba_device uart2_device;
-@@ -188,9 +189,10 @@ extern struct pmx_dev spear310_pmx_tdm0;
- /* Add spear310 machine function declarations here */
- void __init spear310_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
- 		u8 pmx_dev_count);
-+#endif
- 
- /* spear320 declarations */
--#elif defined(CONFIG_MACH_SPEAR320)
-+#if defined(CONFIG_MACH_SPEAR320)
- /* Add spear320 machine device structure declarations here */
- extern struct amba_device clcd_device;
- extern struct amba_device ssp_device[];
+	Signed-off-by:
+
+line (as documented in Documentation/SubmittingPatches), so that I can 
+apply it to my tree?
+
+Thanks.
+
+> diff -rupN before/drivers/hid/hid-core.c after/drivers/hid/hid-core.c
+> --- before/drivers/hid/hid-core.c	2010-10-01 13:01:34.485323002 +0200
+> +++ after/drivers/hid/hid-core.c	2010-10-01 13:04:23.869323000 +0200
+> @@ -1376,6 +1376,8 @@ static const struct hid_device_id hid_bl
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DEVICE_ID_MTP_SITRONIX) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
+> diff -rupN before/drivers/hid/hid-ids.h after/drivers/hid/hid-ids.h
+> --- before/drivers/hid/hid-ids.h	2010-10-01 13:01:47.085323001 +0200
+> +++ after/drivers/hid/hid-ids.h	2010-10-01 13:04:33.285323000 +0200
+> @@ -481,6 +481,12 @@
+>  #define USB_VENDOR_ID_STANTUM		0x1f87
+>  #define USB_DEVICE_ID_MTP		0x0002
+>  
+> +#define USB_VENDOR_ID_STANTUM_STM		0x0483
+> +#define USB_DEVICE_ID_MTP_STM		0x3261
+> +
+> +#define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
+> +#define USB_DEVICE_ID_MTP_SITRONIX		0x5001
+> +
+>  #define USB_VENDOR_ID_SUN		0x0430
+>  #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+>  
+> diff -rupN before/drivers/hid/hid-stantum.c after/drivers/hid/hid-stantum.c
+> --- before/drivers/hid/hid-stantum.c	2010-10-01 13:01:40.181323000 +0200
+> +++ after/drivers/hid/hid-stantum.c	2010-10-01 13:04:43.717323001 +0200
+> @@ -249,6 +249,8 @@ static void stantum_remove(struct hid_de
+>  
+>  static const struct hid_device_id stantum_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DEVICE_ID_MTP_SITRONIX) },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, stantum_devices);
+> 
+
 -- 
-1.7.2.2
+Jiri Kosina
+SUSE Labs, Novell Inc.

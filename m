@@ -1,1229 +1,1268 @@
 From: Viresh KUMAR <viresh.kumar@st.com>
-Subject: [PATCH V2 58/69] SPEAR3xx: Rename register/irq defines to remove naming conflicts
-Date: Fri,  1 Oct 2010 17:26:18 +0530
-Message-ID: <87945784c19f72c45f7fc5e70046697c2101a2b0.1285933332.git.viresh.kumar@st.com>
+Subject: [PATCH V2 42/69] SPEAr Power Management: Added the support for Standby mode.
+Date: Fri,  1 Oct 2010 17:26:02 +0530
+Message-ID: <d87f4ffdd726bd68f7f43bfb75508ad0bce664c1.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog104.obsmtp.com ([207.126.144.117]:36321 "EHLO
+	eu1sys200aog104.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932374Ab0JAL7y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Oct 2010 07:59:54 -0400
 In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
 In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
-Cc: Ryan Mallon <ryan@bluewatersys.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
+Cc: Deepak Sikri <deepak.sikri@st.com>, shiraz.hashim@st.com, vipin.kumar@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
 
-From: Ryan Mallon <ryan@bluewatersys.com>
+From: Deepak Sikri <deepak.sikri@st.com>
 
-Prefix register and irq defintions to remove naming conflicts between
-the three SPEAr3xx platforms.
+OPEN POINTS: 	1. Suspend to RAM support needs to be added.
+		2. The basic framework added for S2R.
+		3. SPEAr13xx: The power domains need to be added.
+		4. Extensive testing needs to be done.
+		5. For SPEAr13xx: PLL-4 has not been switch off while moving
+		into sleep. There is some problem in getting the pll back to on.
+		6. Not functional on SPEAr6XX
 
-Signed-off-by: Ryan Mallon <ryan@bluewatersys.com>
+Signed-off-by: Deepak Sikri <deepak.sikri@st.com>
+Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar@st.com>
+Signed-off-by: shiraz hashim <shiraz.hashim@st.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- arch/arm/mach-spear3xx/include/mach/generic.h  |    4 +-
- arch/arm/mach-spear3xx/include/mach/gpio.h     |    3 +-
- arch/arm/mach-spear3xx/include/mach/irqs.h     |  207 ++++++++++++------------
- arch/arm/mach-spear3xx/include/mach/spear300.h |   26 ++--
- arch/arm/mach-spear3xx/include/mach/spear310.h |   44 +++---
- arch/arm/mach-spear3xx/include/mach/spear320.h |   48 +++---
- arch/arm/mach-spear3xx/spear300.c              |   73 ++++-----
- arch/arm/mach-spear3xx/spear310.c              |  108 ++++++------
- arch/arm/mach-spear3xx/spear320.c              |  158 +++++++++---------
- arch/arm/mach-spear3xx/spear3xx.c              |   25 ++--
- 10 files changed, 349 insertions(+), 347 deletions(-)
+ arch/arm/mach-spear13xx/Makefile               |    1 +
+ arch/arm/mach-spear13xx/include/mach/suspend.h |   47 +++
+ arch/arm/mach-spear13xx/pm.c                   |  107 ++++++
+ arch/arm/mach-spear13xx/sleep.S                |  435 ++++++++++++++++++++++++
+ arch/arm/mach-spear13xx/spear13xx.c            |    5 +
+ arch/arm/mach-spear3xx/include/mach/suspend.h  |   44 +++
+ arch/arm/mach-spear3xx/spear3xx.c              |    5 +-
+ arch/arm/mach-spear6xx/include/mach/suspend.h  |   44 +++
+ arch/arm/mach-spear6xx/spear6xx.c              |    9 +-
+ arch/arm/plat-spear/Makefile                   |    6 +
+ arch/arm/plat-spear/pm.c                       |  104 ++++++
+ arch/arm/plat-spear/sleep.S                    |  288 ++++++++++++++++
+ 12 files changed, 1093 insertions(+), 2 deletions(-)
+ create mode 100644 arch/arm/mach-spear13xx/include/mach/suspend.h
+ create mode 100644 arch/arm/mach-spear13xx/pm.c
+ create mode 100644 arch/arm/mach-spear13xx/sleep.S
+ create mode 100644 arch/arm/mach-spear3xx/include/mach/suspend.h
+ create mode 100644 arch/arm/mach-spear6xx/include/mach/suspend.h
+ create mode 100644 arch/arm/plat-spear/pm.c
+ create mode 100644 arch/arm/plat-spear/sleep.S
 
-diff --git a/arch/arm/mach-spear3xx/include/mach/generic.h b/arch/arm/mach-spear3xx/include/mach/generic.h
-index 0412808..328f8f5 100644
---- a/arch/arm/mach-spear3xx/include/mach/generic.h
-+++ b/arch/arm/mach-spear3xx/include/mach/generic.h
-@@ -27,8 +27,8 @@
-  * Following GPT channels will be used as clock source and clockevent
-  */
- #define SPEAR_GPT0_BASE		SPEAR3XX_ML1_TMR_BASE
--#define SPEAR_GPT0_CHAN0_IRQ	IRQ_CPU_GPT1_1
--#define SPEAR_GPT0_CHAN1_IRQ	IRQ_CPU_GPT1_2
-+#define SPEAR_GPT0_CHAN0_IRQ	SPEAR3XX_IRQ_CPU_GPT1_1
-+#define SPEAR_GPT0_CHAN1_IRQ	SPEAR3XX_IRQ_CPU_GPT1_2
+diff --git a/arch/arm/mach-spear13xx/Makefile b/arch/arm/mach-spear13xx/Makefile
+index 9312fcd..799eefa 100644
+--- a/arch/arm/mach-spear13xx/Makefile
++++ b/arch/arm/mach-spear13xx/Makefile
+@@ -7,6 +7,7 @@ obj-y					+= spear13xx.o clock.o fsmc-nor.o
+ obj-$(CONFIG_SMP)			+= platsmp.o headsmp.o
+ obj-$(CONFIG_LOCAL_TIMERS)		+= localtimer.o
+ obj-$(CONFIG_PCIEPORTBUS)		+= pcie.o
++obj-$(CONFIG_PM)			+= pm.o sleep.o
  
- /* Add spear3xx family device structure declarations here */
- extern struct amba_device gpio_device;
-diff --git a/arch/arm/mach-spear3xx/include/mach/gpio.h b/arch/arm/mach-spear3xx/include/mach/gpio.h
-index e531f6d..f15248c 100644
---- a/arch/arm/mach-spear3xx/include/mach/gpio.h
-+++ b/arch/arm/mach-spear3xx/include/mach/gpio.h
-@@ -51,8 +51,9 @@
- #define RAS_GPIO_5		13
- #define RAS_GPIO_6		14
- #define RAS_GPIO_7		15
-+#endif
- 
--#elif defined(CONFIG_MACH_SPEAR310) || defined(CONFIG_MACH_SPEAR320)
-+#if defined(CONFIG_MACH_SPEAR310) || defined(CONFIG_MACH_SPEAR320)
- #define PLGPIO_0		8
- #define PLGPIO_1		9
- #define PLGPIO_2		10
-diff --git a/arch/arm/mach-spear3xx/include/mach/irqs.h b/arch/arm/mach-spear3xx/include/mach/irqs.h
-index df0c1f3..6e26544 100644
---- a/arch/arm/mach-spear3xx/include/mach/irqs.h
-+++ b/arch/arm/mach-spear3xx/include/mach/irqs.h
-@@ -15,139 +15,140 @@
- #define __MACH_IRQS_H
- 
- /* SPEAr3xx IRQ definitions */
--#define IRQ_HW_ACCEL_MOD_0			0
--#define IRQ_INTRCOMM_RAS_ARM			1
--#define IRQ_CPU_GPT1_1				2
--#define IRQ_CPU_GPT1_2				3
--#define IRQ_BASIC_GPT1_1			4
--#define IRQ_BASIC_GPT1_2			5
--#define IRQ_BASIC_GPT2_1			6
--#define IRQ_BASIC_GPT2_2			7
--#define IRQ_BASIC_DMA				8
--#define IRQ_BASIC_SMI				9
--#define IRQ_BASIC_RTC				10
--#define IRQ_BASIC_GPIO				11
--#define IRQ_BASIC_WDT				12
--#define IRQ_DDR_CONTROLLER			13
--#define IRQ_SYS_ERROR				14
--#define IRQ_WAKEUP_RCV				15
--#define IRQ_JPEG				16
--#define IRQ_IRDA				17
--#define IRQ_ADC					18
--#define IRQ_UART				19
--#define IRQ_SSP					20
--#define IRQ_I2C					21
--#define IRQ_MAC_1				22
--#define IRQ_MAC_2				23
--#define IRQ_USB_DEV				24
--#define IRQ_USB_H_OHCI_0			25
--#define IRQ_USB_H_EHCI_0			26
--#define IRQ_USB_H_EHCI_1			IRQ_USB_H_EHCI_0
--#define IRQ_USB_H_OHCI_1			27
--#define IRQ_GEN_RAS_1				28
--#define IRQ_GEN_RAS_2				29
--#define IRQ_GEN_RAS_3				30
--#define IRQ_HW_ACCEL_MOD_1			31
--#define IRQ_VIC_END				32
--
--#define VIRQ_START				IRQ_VIC_END
-+#define SPEAR3XX_IRQ_HW_ACCEL_MOD_0		0
-+#define SPEAR3XX_IRQ_INTRCOMM_RAS_ARM		1
-+#define SPEAR3XX_IRQ_CPU_GPT1_1			2
-+#define SPEAR3XX_IRQ_CPU_GPT1_2			3
-+#define SPEAR3XX_IRQ_BASIC_GPT1_1		4
-+#define SPEAR3XX_IRQ_BASIC_GPT1_2		5
-+#define SPEAR3XX_IRQ_BASIC_GPT2_1		6
-+#define SPEAR3XX_IRQ_BASIC_GPT2_2		7
-+#define SPEAR3XX_IRQ_BASIC_DMA			8
-+#define SPEAR3XX_IRQ_BASIC_SMI			9
-+#define SPEAR3XX_IRQ_BASIC_RTC			10
-+#define SPEAR3XX_IRQ_BASIC_GPIO			11
-+#define SPEAR3XX_IRQ_BASIC_WDT			12
-+#define SPEAR3XX_IRQ_DDR_CONTROLLER		13
-+#define SPEAR3XX_IRQ_SYS_ERROR			14
-+#define SPEAR3XX_IRQ_WAKEUP_RCV			15
-+#define SPEAR3XX_IRQ_JPEG			16
-+#define SPEAR3XX_IRQ_IRDA			17
-+#define SPEAR3XX_IRQ_ADC			18
-+#define SPEAR3XX_IRQ_UART			19
-+#define SPEAR3XX_IRQ_SSP			20
-+#define SPEAR3XX_IRQ_I2C			21
-+#define SPEAR3XX_IRQ_MAC_1			22
-+#define SPEAR3XX_IRQ_MAC_2			23
-+#define SPEAR3XX_IRQ_USB_DEV			24
-+#define SPEAR3XX_IRQ_USB_H_OHCI_0		25
-+#define SPEAR3XX_IRQ_USB_H_EHCI_0		26
-+#define SPEAR3XX_IRQ_USB_H_EHCI_1		SPEAR3XX_IRQ_USB_H_EHCI_0
-+#define SPEAR3XX_IRQ_USB_H_OHCI_1		27
-+#define SPEAR3XX_IRQ_GEN_RAS_1			28
-+#define SPEAR3XX_IRQ_GEN_RAS_2			29
-+#define SPEAR3XX_IRQ_GEN_RAS_3			30
-+#define SPEAR3XX_IRQ_HW_ACCEL_MOD_1		31
-+#define SPEAR3XX_IRQ_VIC_END			32
-+
-+#define SPEAR3XX_VIRQ_START			SPEAR3XX_IRQ_VIC_END
- 
- /* SPEAr300 Virtual irq definitions */
--#ifdef CONFIG_MACH_SPEAR300
- /* IRQs sharing IRQ_GEN_RAS_1 */
--#define VIRQ_IT_PERS_S				(VIRQ_START + 0)
--#define VIRQ_IT_CHANGE_S			(VIRQ_START + 1)
--#define VIRQ_I2S				(VIRQ_START + 2)
--#define VIRQ_TDM				(VIRQ_START + 3)
--#define VIRQ_CAMERA_L				(VIRQ_START + 4)
--#define VIRQ_CAMERA_F				(VIRQ_START + 5)
--#define VIRQ_CAMERA_V				(VIRQ_START + 6)
--#define VIRQ_KEYBOARD				(VIRQ_START + 7)
--#define VIRQ_GPIO1				(VIRQ_START + 8)
-+#define SPEAR300_VIRQ_IT_PERS_S			(SPEAR3XX_VIRQ_START + 0)
-+#define SPEAR300_VIRQ_IT_CHANGE_S		(SPEAR3XX_VIRQ_START + 1)
-+#define SPEAR300_VIRQ_I2S			(SPEAR3XX_VIRQ_START + 2)
-+#define SPEAR300_VIRQ_TDM			(SPEAR3XX_VIRQ_START + 3)
-+#define SPEAR300_VIRQ_CAMERA_L			(SPEAR3XX_VIRQ_START + 4)
-+#define SPEAR300_VIRQ_CAMERA_F			(SPEAR3XX_VIRQ_START + 5)
-+#define SPEAR300_VIRQ_CAMERA_V			(SPEAR3XX_VIRQ_START + 6)
-+#define SPEAR300_VIRQ_KEYBOARD			(SPEAR3XX_VIRQ_START + 7)
-+#define SPEAR300_VIRQ_GPIO1			(SPEAR3XX_VIRQ_START + 8)
- 
- /* IRQs sharing IRQ_GEN_RAS_3 */
--#define IRQ_CLCD				IRQ_GEN_RAS_3
-+#define SPEAR300_IRQ_CLCD			SPEAR3XX_IRQ_GEN_RAS_3
- 
- /* IRQs sharing IRQ_INTRCOMM_RAS_ARM */
--#define IRQ_SDHCI				IRQ_INTRCOMM_RAS_ARM
--
--/* GPIO pins virtual irqs */
--#define SPEAR_GPIO_INT_BASE			(VIRQ_START + 9)
--#define SPEAR_GPIO1_INT_BASE			(SPEAR_GPIO_INT_BASE + 8)
--#define SPEAR_GPIO_INT_END			(SPEAR_GPIO1_INT_BASE + 8)
-+#define SPEAR300_IRQ_SDHCI			SPEAR3XX_IRQ_INTRCOMM_RAS_ARM
- 
- /* SPEAr310 Virtual irq definitions */
--#elif defined(CONFIG_MACH_SPEAR310)
- /* IRQs sharing IRQ_GEN_RAS_1 */
--#define VIRQ_SMII0				(VIRQ_START + 0)
--#define VIRQ_SMII1				(VIRQ_START + 1)
--#define VIRQ_SMII2				(VIRQ_START + 2)
--#define VIRQ_SMII3				(VIRQ_START + 3)
--#define VIRQ_WAKEUP_SMII0			(VIRQ_START + 4)
--#define VIRQ_WAKEUP_SMII1			(VIRQ_START + 5)
--#define VIRQ_WAKEUP_SMII2			(VIRQ_START + 6)
--#define VIRQ_WAKEUP_SMII3			(VIRQ_START + 7)
-+#define SPEAR310_VIRQ_SMII0			(SPEAR3XX_VIRQ_START + 0)
-+#define SPEAR310_VIRQ_SMII1			(SPEAR3XX_VIRQ_START + 1)
-+#define SPEAR310_VIRQ_SMII2			(SPEAR3XX_VIRQ_START + 2)
-+#define SPEAR310_VIRQ_SMII3			(SPEAR3XX_VIRQ_START + 3)
-+#define SPEAR310_VIRQ_WAKEUP_SMII0		(SPEAR3XX_VIRQ_START + 4)
-+#define SPEAR310_VIRQ_WAKEUP_SMII1		(SPEAR3XX_VIRQ_START + 5)
-+#define SPEAR310_VIRQ_WAKEUP_SMII2		(SPEAR3XX_VIRQ_START + 6)
-+#define SPEAR310_VIRQ_WAKEUP_SMII3		(SPEAR3XX_VIRQ_START + 7)
- 
- /* IRQs sharing IRQ_GEN_RAS_2 */
--#define VIRQ_UART1				(VIRQ_START + 8)
--#define VIRQ_UART2				(VIRQ_START + 9)
--#define VIRQ_UART3				(VIRQ_START + 10)
--#define VIRQ_UART4				(VIRQ_START + 11)
--#define VIRQ_UART5				(VIRQ_START + 12)
-+#define SPEAR310_VIRQ_UART1			(SPEAR3XX_VIRQ_START + 8)
-+#define SPEAR310_VIRQ_UART2			(SPEAR3XX_VIRQ_START + 9)
-+#define SPEAR310_VIRQ_UART3			(SPEAR3XX_VIRQ_START + 10)
-+#define SPEAR310_VIRQ_UART4			(SPEAR3XX_VIRQ_START + 11)
-+#define SPEAR310_VIRQ_UART5			(SPEAR3XX_VIRQ_START + 12)
- 
- /* IRQs sharing IRQ_GEN_RAS_3 */
--#define VIRQ_EMI				(VIRQ_START + 13)
--#define VIRQ_PLGPIO				(VIRQ_START + 14)
-+#define SPEAR310_VIRQ_EMI			(SPEAR3XX_VIRQ_START + 13)
-+#define SPEAR310_VIRQ_PLGPIO			(SPEAR3XX_VIRQ_START + 14)
- 
- /* IRQs sharing IRQ_INTRCOMM_RAS_ARM */
--#define VIRQ_TDM_HDLC				(VIRQ_START + 15)
--#define VIRQ_RS485_0				(VIRQ_START + 16)
--#define VIRQ_RS485_1				(VIRQ_START + 17)
--
--/* GPIO pins virtual irqs */
--#define SPEAR_GPIO_INT_BASE			(VIRQ_START + 18)
-+#define SPEAR310_VIRQ_TDM_HDLC			(SPEAR3XX_VIRQ_START + 15)
-+#define SPEAR310_VIRQ_RS485_0			(SPEAR3XX_VIRQ_START + 16)
-+#define SPEAR310_VIRQ_RS485_1			(SPEAR3XX_VIRQ_START + 17)
- 
- /* SPEAr320 Virtual irq definitions */
--#else
- /* IRQs sharing IRQ_GEN_RAS_1 */
--#define VIRQ_EMI				(VIRQ_START + 0)
--#define VIRQ_CLCD				(VIRQ_START + 1)
--#define VIRQ_SPP				(VIRQ_START + 2)
-+#define SPEAR320_VIRQ_EMI			(SPEAR3XX_VIRQ_START + 0)
-+#define SPEAR320_VIRQ_CLCD			(SPEAR3XX_VIRQ_START + 1)
-+#define SPEAR320_VIRQ_SPP			(SPEAR3XX_VIRQ_START + 2)
- 
- /* IRQs sharing IRQ_GEN_RAS_2 */
--#define IRQ_SDHCI				IRQ_GEN_RAS_2
-+#define SPEAR320_IRQ_SDHCI			SPEAR3XX_IRQ_GEN_RAS_2
- 
- /* IRQs sharing IRQ_GEN_RAS_3 */
--#define VIRQ_PLGPIO				(VIRQ_START + 3)
--#define VIRQ_I2S_PLAY				(VIRQ_START + 4)
--#define VIRQ_I2S_REC				(VIRQ_START + 5)
-+#define SPEAR320_VIRQ_PLGPIO			(SPEAR3XX_VIRQ_START + 3)
-+#define SPEAR320_VIRQ_I2S_PLAY			(SPEAR3XX_VIRQ_START + 4)
-+#define SPEAR320_VIRQ_I2S_REC			(SPEAR3XX_VIRQ_START + 5)
- 
- /* IRQs sharing IRQ_INTRCOMM_RAS_ARM */
--#define VIRQ_CANU				(VIRQ_START + 6)
--#define VIRQ_CANL				(VIRQ_START + 7)
--#define VIRQ_UART1				(VIRQ_START + 8)
--#define VIRQ_UART2				(VIRQ_START + 9)
--#define VIRQ_SSP1				(VIRQ_START + 10)
--#define VIRQ_SSP2				(VIRQ_START + 11)
--#define VIRQ_SMII0				(VIRQ_START + 12)
--#define VIRQ_MII1_SMII1				(VIRQ_START + 13)
--#define VIRQ_WAKEUP_SMII0			(VIRQ_START + 14)
--#define VIRQ_WAKEUP_MII1_SMII1			(VIRQ_START + 15)
--#define VIRQ_I2C1				(VIRQ_START + 16)
--
--/* GPIO pins virtual irqs */
--#define SPEAR_GPIO_INT_BASE			(VIRQ_START + 17)
-+#define SPEAR320_VIRQ_CANU			(SPEAR3XX_VIRQ_START + 6)
-+#define SPEAR320_VIRQ_CANL			(SPEAR3XX_VIRQ_START + 7)
-+#define SPEAR320_VIRQ_UART1			(SPEAR3XX_VIRQ_START + 8)
-+#define SPEAR320_VIRQ_UART2			(SPEAR3XX_VIRQ_START + 9)
-+#define SPEAR320_VIRQ_SSP1			(SPEAR3XX_VIRQ_START + 10)
-+#define SPEAR320_VIRQ_SSP2			(SPEAR3XX_VIRQ_START + 11)
-+#define SPEAR320_VIRQ_SMII0			(SPEAR3XX_VIRQ_START + 12)
-+#define SPEAR320_VIRQ_MII1_SMII1		(SPEAR3XX_VIRQ_START + 13)
-+#define SPEAR320_VIRQ_WAKEUP_SMII0		(SPEAR3XX_VIRQ_START + 14)
-+#define SPEAR320_VIRQ_WAKEUP_MII1_SMII1		(SPEAR3XX_VIRQ_START + 15)
-+#define SPEAR320_VIRQ_I2C1			(SPEAR3XX_VIRQ_START + 16)
- 
+ # spear1300 specific files
+ obj-$(CONFIG_MACH_SPEAR1300)		+= spear1300.o
+diff --git a/arch/arm/mach-spear13xx/include/mach/suspend.h b/arch/arm/mach-spear13xx/include/mach/suspend.h
+new file mode 100644
+index 0000000..c8d13e6
+--- /dev/null
++++ b/arch/arm/mach-spear13xx/include/mach/suspend.h
+@@ -0,0 +1,47 @@
 +/*
-+ * GPIO pins virtual irqs
-+ * Use the lowest number for the GPIO virtual IRQs base on which subarchs
-+ * we have compiled in
++ * arch/arm/mach-spear13xx/include/mach/suspend.h
++ *
++ * Sleep mode defines for SPEAr13xx machine family
++ *
++ * Copyright (C) 2010 ST Microelectronics
++ * AUTHOR : Deepak Sikri <deepak.sikri@st.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
 + */
-+#if defined(CONFIG_MACH_SPEAR310)
-+#define SPEAR3XX_GPIO_INT_BASE			(SPEAR3XX_VIRQ_START + 18)
-+#elif defined(CONFIG_MACH_SPEAR320)
-+#define SPEAR3XX_GPIO_INT_BASE			(SPEAR3XX_VIRQ_START + 17)
-+#else
-+#define SPEAR3XX_GPIO_INT_BASE			(SPEAR3XX_VIRQ_START + 9)
- #endif
- 
--/* PLGPIO Virtual IRQs */
--#define SPEAR_PLGPIO_COUNT	102
-+#define SPEAR300_GPIO1_INT_BASE			(SPEAR3XX_GPIO_INT_BASE + 8)
-+#define SPEAR3XX_PLGPIO_COUNT	102
 +
- #if defined(CONFIG_MACH_SPEAR310) || defined(CONFIG_MACH_SPEAR320)
--#define SPEAR_PLGPIO_INT_BASE	(SPEAR_GPIO_INT_BASE + 8)
--#define SPEAR_GPIO_INT_END	(SPEAR_PLGPIO_INT_BASE + SPEAR_PLGPIO_COUNT)
-+#define SPEAR3XX_PLGPIO_INT_BASE		(SPEAR3XX_GPIO_INT_BASE + 8)
-+#define SPEAR3XX_GPIO_INT_END			(SPEAR3XX_PLGPIO_INT_BASE + \
-+							SPEAR3XX_PLGPIO_COUNT)
-+#else
-+#define SPEAR3XX_GPIO_INT_END	(SPEAR300_GPIO1_INT_BASE + 8)
- #endif
- 
--#define VIRQ_END		SPEAR_GPIO_INT_END
--#define NR_IRQS			VIRQ_END
-+#define SPEAR3XX_VIRQ_END	SPEAR3XX_GPIO_INT_END
-+#define NR_IRQS			SPEAR3XX_VIRQ_END
- 
- #endif /* __MACH_IRQS_H */
-diff --git a/arch/arm/mach-spear3xx/include/mach/spear300.h b/arch/arm/mach-spear3xx/include/mach/spear300.h
-index 4fd2d22..7d5db76 100644
---- a/arch/arm/mach-spear3xx/include/mach/spear300.h
-+++ b/arch/arm/mach-spear3xx/include/mach/spear300.h
-@@ -20,19 +20,19 @@
- #define SPEAR300_TELECOM_BASE		UL(0x50000000)
- 
- /* Interrupt registers offsets and masks */
--#define INT_ENB_MASK_REG		0x54
--#define INT_STS_MASK_REG		0x58
--#define IT_PERS_S_IRQ_MASK		(1 << 0)
--#define IT_CHANGE_S_IRQ_MASK		(1 << 1)
--#define I2S_IRQ_MASK			(1 << 2)
--#define TDM_IRQ_MASK			(1 << 3)
--#define CAMERA_L_IRQ_MASK		(1 << 4)
--#define CAMERA_F_IRQ_MASK		(1 << 5)
--#define CAMERA_V_IRQ_MASK		(1 << 6)
--#define KEYBOARD_IRQ_MASK		(1 << 7)
--#define GPIO1_IRQ_MASK			(1 << 8)
--
--#define SHIRQ_RAS1_MASK			0x1FF
-+#define SPEAR300_INT_ENB_MASK_REG	0x54
-+#define SPEAR300_INT_STS_MASK_REG	0x58
-+#define SPEAR300_IT_PERS_S_IRQ_MASK	(1 << 0)
-+#define SPEAR300_IT_CHANGE_S_IRQ_MASK	(1 << 1)
-+#define SPEAR300_I2S_IRQ_MASK		(1 << 2)
-+#define SPEAR300_TDM_IRQ_MASK		(1 << 3)
-+#define SPEAR300_CAMERA_L_IRQ_MASK	(1 << 4)
-+#define SPEAR300_CAMERA_F_IRQ_MASK	(1 << 5)
-+#define SPEAR300_CAMERA_V_IRQ_MASK	(1 << 6)
-+#define SPEAR300_KEYBOARD_IRQ_MASK	(1 << 7)
-+#define SPEAR300_GPIO1_IRQ_MASK		(1 << 8)
++#ifndef __MACH_SUSPEND_H
++#define __MACH_SUSPEND_H
 +
-+#define SPEAR300_SHIRQ_RAS1_MASK	0x1FF
- 
- #define SPEAR300_CLCD_BASE		UL(0x60000000)
- #define SPEAR300_SDHCI_BASE		UL(0x70000000)
-diff --git a/arch/arm/mach-spear3xx/include/mach/spear310.h b/arch/arm/mach-spear3xx/include/mach/spear310.h
-index 37556b6..0780c47 100644
---- a/arch/arm/mach-spear3xx/include/mach/spear310.h
-+++ b/arch/arm/mach-spear3xx/include/mach/spear310.h
-@@ -38,29 +38,29 @@
- #define SPEAR310_SOC_CONFIG_BASE	UL(0xB4000000)
- 
- /* Interrupt registers offsets and masks */
--#define INT_STS_MASK_REG		0x04
--#define SMII0_IRQ_MASK			(1 << 0)
--#define SMII1_IRQ_MASK			(1 << 1)
--#define SMII2_IRQ_MASK			(1 << 2)
--#define SMII3_IRQ_MASK			(1 << 3)
--#define WAKEUP_SMII0_IRQ_MASK		(1 << 4)
--#define WAKEUP_SMII1_IRQ_MASK		(1 << 5)
--#define WAKEUP_SMII2_IRQ_MASK		(1 << 6)
--#define WAKEUP_SMII3_IRQ_MASK		(1 << 7)
--#define UART1_IRQ_MASK			(1 << 8)
--#define UART2_IRQ_MASK			(1 << 9)
--#define UART3_IRQ_MASK			(1 << 10)
--#define UART4_IRQ_MASK			(1 << 11)
--#define UART5_IRQ_MASK			(1 << 12)
--#define EMI_IRQ_MASK			(1 << 13)
--#define TDM_HDLC_IRQ_MASK		(1 << 14)
--#define RS485_0_IRQ_MASK		(1 << 15)
--#define RS485_1_IRQ_MASK		(1 << 16)
-+#define SPEAR310_INT_STS_MASK_REG	0x04
-+#define SPEAR310_SMII0_IRQ_MASK		(1 << 0)
-+#define SPEAR310_SMII1_IRQ_MASK		(1 << 1)
-+#define SPEAR310_SMII2_IRQ_MASK		(1 << 2)
-+#define SPEAR310_SMII3_IRQ_MASK		(1 << 3)
-+#define SPEAR310_WAKEUP_SMII0_IRQ_MASK	(1 << 4)
-+#define SPEAR310_WAKEUP_SMII1_IRQ_MASK	(1 << 5)
-+#define SPEAR310_WAKEUP_SMII2_IRQ_MASK	(1 << 6)
-+#define SPEAR310_WAKEUP_SMII3_IRQ_MASK	(1 << 7)
-+#define SPEAR310_UART1_IRQ_MASK		(1 << 8)
-+#define SPEAR310_UART2_IRQ_MASK		(1 << 9)
-+#define SPEAR310_UART3_IRQ_MASK		(1 << 10)
-+#define SPEAR310_UART4_IRQ_MASK		(1 << 11)
-+#define SPEAR310_UART5_IRQ_MASK		(1 << 12)
-+#define SPEAR310_EMI_IRQ_MASK		(1 << 13)
-+#define SPEAR310_TDM_HDLC_IRQ_MASK	(1 << 14)
-+#define SPEAR310_RS485_0_IRQ_MASK	(1 << 15)
-+#define SPEAR310_RS485_1_IRQ_MASK	(1 << 16)
- 
--#define SHIRQ_RAS1_MASK			0x000FF
--#define SHIRQ_RAS2_MASK			0x01F00
--#define SHIRQ_RAS3_MASK			0x02000
--#define SHIRQ_INTRCOMM_RAS_MASK		0x1C000
-+#define SPEAR310_SHIRQ_RAS1_MASK	0x000FF
-+#define SPEAR310_SHIRQ_RAS2_MASK	0x01F00
-+#define SPEAR310_SHIRQ_RAS3_MASK	0x02000
-+#define SPEAR310_SHIRQ_INTRCOMM_RAS_MASK	0x1C000
- 
- #endif /* __MACH_SPEAR310_H */
- 
-diff --git a/arch/arm/mach-spear3xx/include/mach/spear320.h b/arch/arm/mach-spear3xx/include/mach/spear320.h
-index 4f60073..30ea941 100644
---- a/arch/arm/mach-spear3xx/include/mach/spear320.h
-+++ b/arch/arm/mach-spear3xx/include/mach/spear320.h
-@@ -42,31 +42,31 @@
- #define SPEAR320_SOC_CONFIG_BASE	UL(0xB3000000)
- 
- /* Interrupt registers offsets and masks */
--#define INT_STS_MASK_REG		0x04
--#define INT_CLR_MASK_REG		0x04
--#define INT_ENB_MASK_REG		0x08
--#define GPIO_IRQ_MASK			(1 << 0)
--#define I2S_PLAY_IRQ_MASK		(1 << 1)
--#define I2S_REC_IRQ_MASK		(1 << 2)
--#define EMI_IRQ_MASK			(1 << 7)
--#define CLCD_IRQ_MASK			(1 << 8)
--#define SPP_IRQ_MASK			(1 << 9)
--#define SDHCI_IRQ_MASK			(1 << 10)
--#define CAN_U_IRQ_MASK			(1 << 11)
--#define CAN_L_IRQ_MASK			(1 << 12)
--#define UART1_IRQ_MASK			(1 << 13)
--#define UART2_IRQ_MASK			(1 << 14)
--#define SSP1_IRQ_MASK			(1 << 15)
--#define SSP2_IRQ_MASK			(1 << 16)
--#define SMII0_IRQ_MASK			(1 << 17)
--#define MII1_SMII1_IRQ_MASK		(1 << 18)
--#define WAKEUP_SMII0_IRQ_MASK		(1 << 19)
--#define WAKEUP_MII1_SMII1_IRQ_MASK	(1 << 20)
--#define I2C1_IRQ_MASK			(1 << 21)
-+#define SPEAR320_INT_STS_MASK_REG		0x04
-+#define SPEAR320_INT_CLR_MASK_REG		0x04
-+#define SPEAR320_INT_ENB_MASK_REG		0x08
-+#define SPEAR320_GPIO_IRQ_MASK			(1 << 0)
-+#define SPEAR320_I2S_PLAY_IRQ_MASK		(1 << 1)
-+#define SPEAR320_I2S_REC_IRQ_MASK		(1 << 2)
-+#define SPEAR320_EMI_IRQ_MASK			(1 << 7)
-+#define SPEAR320_CLCD_IRQ_MASK			(1 << 8)
-+#define SPEAR320_SPP_IRQ_MASK			(1 << 9)
-+#define SPEAR320_SDHCI_IRQ_MASK			(1 << 10)
-+#define SPEAR320_CAN_U_IRQ_MASK			(1 << 11)
-+#define SPEAR320_CAN_L_IRQ_MASK			(1 << 12)
-+#define SPEAR320_UART1_IRQ_MASK			(1 << 13)
-+#define SPEAR320_UART2_IRQ_MASK			(1 << 14)
-+#define SPEAR320_SSP1_IRQ_MASK			(1 << 15)
-+#define SPEAR320_SSP2_IRQ_MASK			(1 << 16)
-+#define SPEAR320_SMII0_IRQ_MASK			(1 << 17)
-+#define SPEAR320_MII1_SMII1_IRQ_MASK		(1 << 18)
-+#define SPEAR320_WAKEUP_SMII0_IRQ_MASK		(1 << 19)
-+#define SPEAR320_WAKEUP_MII1_SMII1_IRQ_MASK	(1 << 20)
-+#define SPEAR320_I2C1_IRQ_MASK			(1 << 21)
- 
--#define SHIRQ_RAS1_MASK			0x000380
--#define SHIRQ_RAS3_MASK			0x000007
--#define SHIRQ_INTRCOMM_RAS_MASK		0x3FF800
-+#define SPEAR320_SHIRQ_RAS1_MASK		0x000380
-+#define SPEAR320_SHIRQ_RAS3_MASK		0x000007
-+#define SPEAR320_SHIRQ_INTRCOMM_RAS_MASK	0x3FF800
- 
- #endif /* __MACH_SPEAR320_H */
- 
-diff --git a/arch/arm/mach-spear3xx/spear300.c b/arch/arm/mach-spear3xx/spear300.c
-index bbaf872..b041427 100644
---- a/arch/arm/mach-spear3xx/spear300.c
-+++ b/arch/arm/mach-spear3xx/spear300.c
-@@ -538,13 +538,13 @@ struct amba_device clcd_device = {
- 		.flags = IORESOURCE_MEM,
- 	},
- 	.dma_mask = ~0,
--	.irq = {IRQ_CLCD, NO_IRQ},
-+	.irq = {SPEAR300_IRQ_CLCD, NO_IRQ},
- };
- 
- /* arm gpio1 device registeration */
- static struct pl061_platform_data gpio1_plat_data = {
- 	.gpio_base	= 8,
--	.irq_base	= SPEAR_GPIO1_INT_BASE,
-+	.irq_base	= SPEAR300_GPIO1_INT_BASE,
- };
- 
- struct amba_device gpio1_device = {
-@@ -557,7 +557,7 @@ struct amba_device gpio1_device = {
- 		.end = SPEAR300_GPIO_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_GPIO1, NO_IRQ},
-+	.irq = {SPEAR300_VIRQ_GPIO1, NO_IRQ},
- };
- 
- /* keyboard device registration */
-@@ -567,7 +567,7 @@ static struct resource kbd_resources[] = {
- 		.end = SPEAR300_KEYBOARD_BASE + SZ_1K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = VIRQ_KEYBOARD,
-+		.start = SPEAR300_VIRQ_KEYBOARD,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -683,7 +683,7 @@ static struct resource sdhci_resources[] = {
- 		.end	= SPEAR300_SDHCI_BASE + SZ_256 - 1,
- 		.flags	= IORESOURCE_MEM,
- 	}, {
--		.start	= IRQ_SDHCI,
-+		.start	= SPEAR300_IRQ_SDHCI,
- 		.flags	= IORESOURCE_IRQ,
- 	}
- };
-@@ -701,53 +701,52 @@ struct platform_device sdhci_device = {
- /* spear3xx shared irq */
- static struct shirq_dev_config shirq_ras1_config[] = {
- 	{
--		.virq = VIRQ_IT_PERS_S,
--		.enb_mask = IT_PERS_S_IRQ_MASK,
--		.status_mask = IT_PERS_S_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_IT_PERS_S,
-+		.enb_mask = SPEAR300_IT_PERS_S_IRQ_MASK,
-+		.status_mask = SPEAR300_IT_PERS_S_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_IT_CHANGE_S,
--		.enb_mask = IT_CHANGE_S_IRQ_MASK,
--		.status_mask = IT_CHANGE_S_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_IT_CHANGE_S,
-+		.enb_mask = SPEAR300_IT_CHANGE_S_IRQ_MASK,
-+		.status_mask = SPEAR300_IT_CHANGE_S_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_I2S,
--		.enb_mask = I2S_IRQ_MASK,
--		.status_mask = I2S_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_I2S,
-+		.enb_mask = SPEAR300_I2S_IRQ_MASK,
-+		.status_mask = SPEAR300_I2S_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_TDM,
--		.enb_mask = TDM_IRQ_MASK,
--		.status_mask = TDM_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_TDM,
-+		.enb_mask = SPEAR300_TDM_IRQ_MASK,
-+		.status_mask = SPEAR300_TDM_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_CAMERA_L,
--		.enb_mask = CAMERA_L_IRQ_MASK,
--		.status_mask = CAMERA_L_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_CAMERA_L,
-+		.enb_mask = SPEAR300_CAMERA_L_IRQ_MASK,
-+		.status_mask = SPEAR300_CAMERA_L_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_CAMERA_F,
--		.enb_mask = CAMERA_F_IRQ_MASK,
--		.status_mask = CAMERA_F_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_CAMERA_F,
-+		.enb_mask = SPEAR300_CAMERA_F_IRQ_MASK,
-+		.status_mask = SPEAR300_CAMERA_F_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_CAMERA_V,
--		.enb_mask = CAMERA_V_IRQ_MASK,
--		.status_mask = CAMERA_V_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_CAMERA_V,
-+		.enb_mask = SPEAR300_CAMERA_V_IRQ_MASK,
-+		.status_mask = SPEAR300_CAMERA_V_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_KEYBOARD,
--		.enb_mask = KEYBOARD_IRQ_MASK,
--		.status_mask = KEYBOARD_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_KEYBOARD,
-+		.enb_mask = SPEAR300_KEYBOARD_IRQ_MASK,
-+		.status_mask = SPEAR300_KEYBOARD_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_GPIO1,
--		.enb_mask = GPIO1_IRQ_MASK,
--		.status_mask = GPIO1_IRQ_MASK,
-+		.virq = SPEAR300_VIRQ_GPIO1,
-+		.enb_mask = SPEAR300_GPIO1_IRQ_MASK,
-+		.status_mask = SPEAR300_GPIO1_IRQ_MASK,
- 	},
- };
- 
--
- static struct spear_shirq shirq_ras1 = {
--	.irq = IRQ_GEN_RAS_1,
-+	.irq = SPEAR3XX_IRQ_GEN_RAS_1,
- 	.dev_config = shirq_ras1_config,
- 	.dev_count = ARRAY_SIZE(shirq_ras1_config),
- 	.regs = {
--		.enb_reg = INT_ENB_MASK_REG,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_RAS1_MASK,
-+		.enb_reg = SPEAR300_INT_ENB_MASK_REG,
-+		.status_reg = SPEAR300_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR300_SHIRQ_RAS1_MASK,
- 		.clear_reg = -1,
- 	},
- };
-diff --git a/arch/arm/mach-spear3xx/spear310.c b/arch/arm/mach-spear3xx/spear310.c
-index 7d4ff0e..6fb20c3 100644
---- a/arch/arm/mach-spear3xx/spear310.c
-+++ b/arch/arm/mach-spear3xx/spear310.c
-@@ -205,7 +205,7 @@ struct amba_device uart1_device = {
- 		.end = SPEAR310_UART1_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_UART1, NO_IRQ},
-+	.irq = {SPEAR310_VIRQ_UART1, NO_IRQ},
- };
- 
- /* uart2 device registeration */
-@@ -218,7 +218,7 @@ struct amba_device uart2_device = {
- 		.end = SPEAR310_UART2_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_UART2, NO_IRQ},
-+	.irq = {SPEAR310_VIRQ_UART2, NO_IRQ},
- };
- 
- /* uart3 device registeration */
-@@ -231,7 +231,7 @@ struct amba_device uart3_device = {
- 		.end = SPEAR310_UART3_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_UART3, NO_IRQ},
-+	.irq = {SPEAR310_VIRQ_UART3, NO_IRQ},
- };
- 
- /* uart4 device registeration */
-@@ -244,7 +244,7 @@ struct amba_device uart4_device = {
- 		.end = SPEAR310_UART4_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_UART4, NO_IRQ},
-+	.irq = {SPEAR310_VIRQ_UART4, NO_IRQ},
- };
- 
- /* uart5 device registeration */
-@@ -257,7 +257,7 @@ struct amba_device uart5_device = {
- 		.end = SPEAR310_UART5_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_UART5, NO_IRQ},
-+	.irq = {SPEAR310_VIRQ_UART5, NO_IRQ},
- };
- 
- /* nand device registeration */
-@@ -331,8 +331,8 @@ struct platform_device emi_nor_device = {
- 
- static struct plgpio_platform_data plgpio_plat_data = {
- 	.gpio_base = 8,
--	.irq_base = SPEAR_PLGPIO_INT_BASE,
--	.gpio_count = SPEAR_PLGPIO_COUNT,
-+	.irq_base = SPEAR3XX_PLGPIO_INT_BASE,
-+	.gpio_count = SPEAR3XX_PLGPIO_COUNT,
- 	.p2o = spear300_p2o,
- 	.o2p = spear300_o2p,
- 	/* list of registers with inconsistency */
-@@ -346,7 +346,7 @@ static struct resource plgpio_resources[] = {
- 		.end = SPEAR310_SOC_CONFIG_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = VIRQ_PLGPIO,
-+		.start = SPEAR310_VIRQ_PLGPIO,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -365,115 +365,115 @@ struct platform_device plgpio_device = {
- /* spear3xx shared irq */
- static struct shirq_dev_config shirq_ras1_config[] = {
- 	{
--		.virq = VIRQ_SMII0,
--		.status_mask = SMII0_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_SMII0,
-+		.status_mask = SPEAR310_SMII0_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_SMII1,
--		.status_mask = SMII1_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_SMII1,
-+		.status_mask = SPEAR310_SMII1_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_SMII2,
--		.status_mask = SMII2_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_SMII2,
-+		.status_mask = SPEAR310_SMII2_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_SMII3,
--		.status_mask = SMII3_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_SMII3,
-+		.status_mask = SPEAR310_SMII3_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_WAKEUP_SMII0,
--		.status_mask = WAKEUP_SMII0_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_WAKEUP_SMII0,
-+		.status_mask = SPEAR310_WAKEUP_SMII0_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_WAKEUP_SMII1,
--		.status_mask = WAKEUP_SMII1_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_WAKEUP_SMII1,
-+		.status_mask = SPEAR310_WAKEUP_SMII1_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_WAKEUP_SMII2,
--		.status_mask = WAKEUP_SMII2_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_WAKEUP_SMII2,
-+		.status_mask = SPEAR310_WAKEUP_SMII2_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_WAKEUP_SMII3,
--		.status_mask = WAKEUP_SMII3_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_WAKEUP_SMII3,
-+		.status_mask = SPEAR310_WAKEUP_SMII3_IRQ_MASK,
- 	},
- };
- 
- static struct spear_shirq shirq_ras1 = {
--	.irq = IRQ_GEN_RAS_1,
-+	.irq = SPEAR3XX_IRQ_GEN_RAS_1,
- 	.dev_config = shirq_ras1_config,
- 	.dev_count = ARRAY_SIZE(shirq_ras1_config),
- 	.regs = {
- 		.enb_reg = -1,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_RAS1_MASK,
-+		.status_reg = SPEAR310_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR310_SHIRQ_RAS1_MASK,
- 		.clear_reg = -1,
- 	},
- };
- 
- static struct shirq_dev_config shirq_ras2_config[] = {
- 	{
--		.virq = VIRQ_UART1,
--		.status_mask = UART1_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_UART1,
-+		.status_mask = SPEAR310_UART1_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_UART2,
--		.status_mask = UART2_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_UART2,
-+		.status_mask = SPEAR310_UART2_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_UART3,
--		.status_mask = UART3_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_UART3,
-+		.status_mask = SPEAR310_UART3_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_UART4,
--		.status_mask = UART4_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_UART4,
-+		.status_mask = SPEAR310_UART4_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_UART5,
--		.status_mask = UART5_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_UART5,
-+		.status_mask = SPEAR310_UART5_IRQ_MASK,
- 	},
- };
- 
- static struct spear_shirq shirq_ras2 = {
--	.irq = IRQ_GEN_RAS_2,
-+	.irq = SPEAR3XX_IRQ_GEN_RAS_2,
- 	.dev_config = shirq_ras2_config,
- 	.dev_count = ARRAY_SIZE(shirq_ras2_config),
- 	.regs = {
- 		.enb_reg = -1,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_RAS2_MASK,
-+		.status_reg = SPEAR310_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR310_SHIRQ_RAS2_MASK,
- 		.clear_reg = -1,
- 	},
- };
- 
- static struct shirq_dev_config shirq_ras3_config[] = {
- 	{
--		.virq = VIRQ_EMI,
--		.status_mask = EMI_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_EMI,
-+		.status_mask = SPEAR310_EMI_IRQ_MASK,
- 	},
- };
- 
- static struct spear_shirq shirq_ras3 = {
--	.irq = IRQ_GEN_RAS_3,
-+	.irq = SPEAR3XX_IRQ_GEN_RAS_3,
- 	.dev_config = shirq_ras3_config,
- 	.dev_count = ARRAY_SIZE(shirq_ras3_config),
- 	.regs = {
- 		.enb_reg = -1,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_RAS3_MASK,
-+		.status_reg = SPEAR310_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR310_SHIRQ_RAS3_MASK,
- 		.clear_reg = -1,
- 	},
- };
- 
- static struct shirq_dev_config shirq_intrcomm_ras_config[] = {
- 	{
--		.virq = VIRQ_TDM_HDLC,
--		.status_mask = TDM_HDLC_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_TDM_HDLC,
-+		.status_mask = SPEAR310_TDM_HDLC_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_RS485_0,
--		.status_mask = RS485_0_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_RS485_0,
-+		.status_mask = SPEAR310_RS485_0_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_RS485_1,
--		.status_mask = RS485_1_IRQ_MASK,
-+		.virq = SPEAR310_VIRQ_RS485_1,
-+		.status_mask = SPEAR310_RS485_1_IRQ_MASK,
- 	},
- };
- 
- static struct spear_shirq shirq_intrcomm_ras = {
--	.irq = IRQ_INTRCOMM_RAS_ARM,
-+	.irq = SPEAR3XX_IRQ_INTRCOMM_RAS_ARM,
- 	.dev_config = shirq_intrcomm_ras_config,
- 	.dev_count = ARRAY_SIZE(shirq_intrcomm_ras_config),
- 	.regs = {
- 		.enb_reg = -1,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_INTRCOMM_RAS_MASK,
-+		.status_reg = SPEAR310_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR310_SHIRQ_INTRCOMM_RAS_MASK,
- 		.clear_reg = -1,
- 	},
- };
-diff --git a/arch/arm/mach-spear3xx/spear320.c b/arch/arm/mach-spear3xx/spear320.c
-index 948ca8e..03d3486 100644
---- a/arch/arm/mach-spear3xx/spear320.c
-+++ b/arch/arm/mach-spear3xx/spear320.c
-@@ -606,7 +606,7 @@ struct amba_device clcd_device = {
- 		.flags = IORESOURCE_MEM,
- 	},
- 	.dma_mask = ~0,
--	.irq = {VIRQ_CLCD, NO_IRQ},
-+	.irq = {SPEAR320_VIRQ_CLCD, NO_IRQ},
- };
- 
- /* ssp device registeration */
-@@ -634,7 +634,7 @@ struct amba_device ssp_device[] = {
- 			.end = SPEAR320_SSP0_BASE + SZ_4K - 1,
- 			.flags = IORESOURCE_MEM,
- 		},
--		.irq = {VIRQ_SSP1, NO_IRQ},
-+		.irq = {SPEAR320_VIRQ_SSP1, NO_IRQ},
- 	}, {
- 		.dev = {
- 			.coherent_dma_mask = ~0,
-@@ -646,7 +646,7 @@ struct amba_device ssp_device[] = {
- 			.end = SPEAR320_SSP1_BASE + SZ_4K - 1,
- 			.flags = IORESOURCE_MEM,
- 		},
--		.irq = {VIRQ_SSP2, NO_IRQ},
-+		.irq = {SPEAR320_VIRQ_SSP2, NO_IRQ},
- 	}
- };
- 
-@@ -660,7 +660,7 @@ struct amba_device uart1_device = {
- 		.end = SPEAR320_UART1_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_UART1, NO_IRQ},
-+	.irq = {SPEAR320_VIRQ_UART1, NO_IRQ},
- };
- 
- /* uart2 device registeration */
-@@ -673,7 +673,7 @@ struct amba_device uart2_device = {
- 		.end = SPEAR320_UART2_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {VIRQ_UART2, NO_IRQ},
-+	.irq = {SPEAR320_VIRQ_UART2, NO_IRQ},
- };
- 
- /* emi nor flash device registeration */
-@@ -687,8 +687,8 @@ struct platform_device emi_nor_device = {
- /* plgpio device registeration */
- static struct plgpio_platform_data plgpio_plat_data = {
- 	.gpio_base = 8,
--	.irq_base = SPEAR_PLGPIO_INT_BASE,
--	.gpio_count = SPEAR_PLGPIO_COUNT,
-+	.irq_base = SPEAR3XX_PLGPIO_INT_BASE,
-+	.gpio_count = SPEAR3XX_PLGPIO_COUNT,
- };
- 
- /* CAN device registeration */
-@@ -698,7 +698,7 @@ static struct resource can0_resources[] = {
- 		.end = SPEAR320_CAN0_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = VIRQ_CANU,
-+		.start = SPEAR320_VIRQ_CANU,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -716,7 +716,7 @@ static struct resource can1_resources[] = {
- 		.end = SPEAR320_CAN1_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = VIRQ_CANL,
-+		.start = SPEAR320_VIRQ_CANL,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -735,7 +735,7 @@ static struct resource i2c1_resources[] = {
- 		.end = SPEAR320_I2C_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = VIRQ_I2C1 ,
-+		.start = SPEAR320_VIRQ_I2C1 ,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -781,7 +781,7 @@ static struct resource plgpio_resources[] = {
- 		.end = SPEAR320_SOC_CONFIG_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = VIRQ_PLGPIO,
-+		.start = SPEAR320_VIRQ_PLGPIO,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -819,7 +819,7 @@ static struct resource sdhci_resources[] = {
- 		.end	= SPEAR320_SDHCI_BASE + SZ_256 - 1,
- 		.flags	= IORESOURCE_MEM,
- 	}, {
--		.start	= IRQ_SDHCI,
-+		.start	= SPEAR320_IRQ_SDHCI,
- 		.flags	= IORESOURCE_IRQ,
- 	}
- };
-@@ -837,123 +837,123 @@ struct platform_device sdhci_device = {
- /* spear3xx shared irq */
- static struct shirq_dev_config shirq_ras1_config[] = {
- 	{
--		.virq = VIRQ_EMI,
--		.status_mask = EMI_IRQ_MASK,
--		.clear_mask = EMI_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_EMI,
-+		.status_mask = SPEAR320_EMI_IRQ_MASK,
-+		.clear_mask = SPEAR320_EMI_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_CLCD,
--		.status_mask = CLCD_IRQ_MASK,
--		.clear_mask = CLCD_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_CLCD,
-+		.status_mask = SPEAR320_CLCD_IRQ_MASK,
-+		.clear_mask = SPEAR320_CLCD_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_SPP,
--		.status_mask = SPP_IRQ_MASK,
--		.clear_mask = SPP_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_SPP,
-+		.status_mask = SPEAR320_SPP_IRQ_MASK,
-+		.clear_mask = SPEAR320_SPP_IRQ_MASK,
++#include <mach/spear.h>
++
++#ifndef __ASSEMBLER__
++extern void spear_sleep_mode(suspend_state_t state);
++extern unsigned int spear_sleep_mode_sz;
++extern void spear_wakeup(void);
++extern unsigned int spear_wakeup_sz;
++#endif
++
++/* SRAM related defines*/
++#define SRAM_STACK_STRT_OFF	0x500
++#define SRAM_STACK_SCR_OFFS	0xF00
++#define SPEAR_START_SRAM	SPEAR13XX_SYSRAM1_BASE
++#define SPEAR_LIMIT_SRAM	(SPEAR_START_SRAM + SZ_4K - 1)
++#define SPEAR_SRAM_STACK_PA	(SPEAR_START_SRAM + SRAM_STACK_STRT_OFF)
++#define SPEAR_SRAM_SCR_REG	(SPEAR_START_SRAM + SRAM_STACK_SCR_OFFS)
++/* SPEAr subsystem physical addresses */
++#define MPMC_BASE_PA		SPEAR13XX_MPMC_BASE
++#define MISC_BASE_PA		SPEAR13XX_MISC_BASE
++
++/* ARM Modes of Operation */
++#define MODE_USR_32		0x10
++#define MODE_FIQ_32		0x11
++#define MODE_IRQ_32		0x12
++#define MODE_SVC_32		0x13
++#define MODE_ABT_32		0x17
++#define MODE_UND_32		0x1B
++#define MODE_SYS_32		0x1F
++#define MODE_BITS		0x1F
++
++#endif /* __MACH_SUSPEND_H */
+diff --git a/arch/arm/mach-spear13xx/pm.c b/arch/arm/mach-spear13xx/pm.c
+new file mode 100644
+index 0000000..1fe3f54
+--- /dev/null
++++ b/arch/arm/mach-spear13xx/pm.c
+@@ -0,0 +1,107 @@
++/*
++ * arch/arm/mach-spear13xx/pm.c
++ *
++ * SPEAr13xx Power Management source file
++ *
++ * Copyright (C) 2010 ST Microelectronics
++ * Deepak Sikri <deepak.sikri@st.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/suspend.h>
++#include <linux/sysfs.h>
++#include <linux/module.h>
++#include <asm/cacheflush.h>
++#include <mach/irqs.h>
++#include <mach/suspend.h>
++#include <mach/hardware.h>
++
++static int spear_pm_sleep(suspend_state_t state)
++{
++	void (*spear_sram_sleep)(suspend_state_t state) = NULL;
++	void (*spear_sram_wake)(void) = NULL;
++	void *sram_dest = (void *)IO_ADDRESS(SPEAR_START_SRAM);
++
++	if (state == PM_SUSPEND_MEM) {
++		spear_sram_wake = memcpy(sram_dest, (void *)spear_wakeup,
++				spear_wakeup_sz);
++		/* Increment destination pointer by the size copied*/
++		sram_dest += roundup(spear_wakeup_sz, 4);
++	}
++
++	/* Copy the Sleep code on to the SRAM*/
++	spear_sram_sleep = memcpy(sram_dest, (void *)spear_sleep_mode,
++			spear_sleep_mode_sz);
++	flush_cache_all();
++	/* Jump to the suspend routines in sram */
++	spear_sram_sleep(state);
++	return 0;
++}
++
++/*
++ *	spear_pm_prepare - Do preliminary suspend work.
++ *
++ */
++static int spear_pm_prepare(void)
++{
++	/* We cannot sleep in idle until we have resumed */
++	disable_hlt();
++	return 0;
++}
++
++/*
++ *	spear_pm_enter - Actually enter a sleep state.
++ *	@state:		State we're entering.
++ *
++ */
++static int spear_pm_enter(suspend_state_t state)
++{
++	int ret;
++
++	switch (state) {
++	case PM_SUSPEND_STANDBY:
++	case PM_SUSPEND_MEM:
++		ret = spear_pm_sleep(state);
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	return ret;
++}
++
++/*
++ *	spear_pm_finish - Finish up suspend sequence.
++ *
++ *	This is called after we wake back up (or if entering the sleep state
++ *	failed).
++ */
++static void spear_pm_finish(void)
++{
++	enable_hlt();
++}
++
++static const struct platform_suspend_ops spear_pm_ops = {
++	.prepare	= spear_pm_prepare,
++	.enter		= spear_pm_enter,
++	.finish		= spear_pm_finish,
++	.valid		= suspend_valid_only_mem,
++};
++
++static int __init spear_pm_init(void)
++{
++	void * sram_limit_va = (void *)IO_ADDRESS(SPEAR_LIMIT_SRAM);
++	void * sram_st_va = (void *)IO_ADDRESS(SPEAR_START_SRAM);
++
++	/* In case the suspend code size is more than sram size return */
++	if (spear_sleep_mode_sz > (sram_limit_va - sram_st_va))
++		return	-ENOMEM;
++
++	suspend_set_ops(&spear_pm_ops);
++
++	return 0;
++}
++arch_initcall(spear_pm_init);
+diff --git a/arch/arm/mach-spear13xx/sleep.S b/arch/arm/mach-spear13xx/sleep.S
+new file mode 100644
+index 0000000..9c7f12b
+--- /dev/null
++++ b/arch/arm/mach-spear13xx/sleep.S
+@@ -0,0 +1,435 @@
++/*
++ * linux/arch/arm/mach-spear13xx/sleep.S
++ *
++ * SPEAR13xx specific functions that will run in internal SRAM.
++ * The functions are used in power management.
++ *
++ * Copyright (C) 2010 ST MicroElectronics
++ * Deepak Sikri <deepak.sikri@st.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/linkage.h>
++#include <asm/assembler.h>
++#include <mach/hardware.h>
++#include <mach/suspend.h>
++
++/* #define DDR_PLL_SREFRESH */
++/* #define TEST_PWRDOMAINS */
++.text
++ENTRY(spear_wakeup)
++
++spear_wakeup:
++	b	spear_wakeup
++	adr	r0, spear_sleep_restore
++	bx	r0
++
++ENTRY(spear_wakeup_sz)
++	.word	. - spear_wakeup
++/*
++ * spear_sleep_mode()
++ * Forces SPEAr into sleep
++ */
++ENTRY(spear_sleep_mode)
++	stmfd	sp!, {r0-r12, lr}		@ save registers on stack
++	/* Store Stack address in r8 */
++	ldr	r8, SRAM_STACK_VA
++
++	/* Store sp and spsr to SDRAM */
++	mov	r4, sp
++	mrs	r5, spsr
++	mov	r6, lr
++	stmia	r8!, {r4-r6}
++
++	/* Save all ARM registers */
++	/* Coprocessor access control register */
++	mrc	p15, 0, r6, c1, c0, 2
++	stmia	r8!, {r6}
++	/* TTBR0, TTBR1 and Translation table base control */
++	mrc	p15, 0, r4, c2, c0, 0
++	mrc	p15, 0, r5, c2, c0, 1
++	mrc	p15, 0, r6, c2, c0, 2
++	stmia	r8!, {r4-r6}
++	/*
++	 * Domain access control register, data fault status register,
++	 * and instruction fault status register
++	 */
++	mrc	p15, 0, r4, c3, c0, 0
++	mrc	p15, 0, r5, c5, c0, 0
++	mrc	p15, 0, r6, c5, c0, 1
++	stmia	r8!, {r4-r6}
++	/*
++	 * Data aux fault status register, instruction aux fault status,
++	 * data fault address register and instruction fault address register
++	 */
++	mrc	p15, 0, r4, c5, c1, 0
++	mrc	p15, 0, r5, c5, c1, 1
++	mrc	p15, 0, r6, c6, c0, 0
++	mrc	p15, 0, r7, c6, c0, 2
++	stmia	r8!, {r4-r7}
++	/*
++	 * user r/w thread and process ID, user r/o thread and process ID,
++	 * priv only thread and process ID, cache size selection
++	 */
++	mrc	p15, 0, r4, c13, c0, 2
++	mrc	p15, 0, r5, c13, c0, 3
++	mrc	p15, 0, r6, c13, c0, 4
++	mrc	p15, 2, r7, c0, c0, 0
++	stmia	r8!, {r4-r7}
++	/* Data TLB lockdown, instruction TLB lockdown registers */
++	mrc	p15, 0, r5, c10, c0, 0
++	mrc	p15, 0, r6, c10, c0, 1
++	stmia	r8!, {r5-r6}
++	/* Secure or non secure vector base address, FCSE PID, Context PID*/
++	mrc	p15, 0, r4, c12, c0, 0
++	mrc	p15, 0, r5, c13, c0, 0
++	mrc	p15, 0, r6, c13, c0, 1
++	stmia	r8!, {r4-r6}
++	/* Primary remap, normal remap registers */
++	mrc	p15, 0, r4, c10, c2, 0
++	mrc	p15, 0, r5, c10, c2, 1
++	stmia	r8!, {r4-r5}
++	/* Store current cpsr*/
++	mrs	r2, cpsr
++	stmia	r8!, {r2}
++	mrc	p15, 0, r4, c1, c0, 0
++	/* save control register */
++	stmia	r8!, {r4}
++	/* Data memory barrier and Data sync barrier */
++	mov	r1, #0
++	mcr	p15, 0, r1, c7, c10, 4
++	mcr	p15, 0, r1, c7, c10, 5
++	dsb
++	isb
++	/* Extract the physical address to jump to */
++	adr	r0, mmu_off
++	mov	r1, #0xcfffffff
++	and	r0, r0, r1
++	ldr	r1, =0x20000000
++	orr	r0, r0, r1
++	mov	r2, r0
++
++	/* Disable MMU */
++	mrc	p15, 0, r0, c1, c0, 0
++	ldr	r1, DISABLE_I_C_M_V
++	bic	r0, r0, r1
++	mcr	p15, 0, r0, c1, c0, 0
++	/* Move the Physical address into PC */
++	bx	r2
++	nop
++mmu_off:
++	/* Put the DDR in self refresh mode */
++	ldr	r6, MISC_BASE_P
++	/* Program MPMC Control Status register in Misc Space */
++	ldr	r0, [r6, #0x334]
++	/* Set srefresh_enter bit(2) */
++	orr	r0, r0, #0x4
++	str	r0, [r6, #0x334]
++wait_till_srefresh_on:
++	ldr	r0, [r6, #0x334]
++	/* check for cke_status bit(13) */
++	tst	r0, #0x2000
++	beq	wait_till_srefresh_on
++
++	/* Put the system in slow mode */
++	ldr	r0, [r6, #0x200]
++	bic	r0, r0, #0x4
++	/* Set the apt mode bits(2:0) in SCCTRL register */
++	orr	r0, r0, #0x2
++	str	r0, [r6, #0x200]	/* System is now in slow mode */
++wait_till_slow_mode:
++	ldr	r0, [r6, #0x200]
++	/* Wait for the mode to be updated */
++	and	r0, r0, #0xF0000
++	/* Poll the SCCTRL register status bits (6:3) */
++	cmp	r0, #0xA0000
++	bne wait_till_slow_mode
++
++	/*
++	 * Put the all the system pll's to off state
++	 * The loop of count 3 is provided below to
++	 * switch off the pll-1/2/3.
++	 * r1 contains the offset for the pll control
++	 * registers in the misc space.
++	 * DDR pll-4 requires different processing.
++	 */
++	ldr	r1, MISC_PLL_OFFS
++	ldr	r2, =0x0	/* PLL Counter 1, 2, 3, 4 */
++swoff_pll:
++	ldr	r0, [r6, r1]
++	/* Clear pll_enable bit(1) of PLL1_CTR register in Misc registers */
++	bic	r0, r0, #0x02
++	str	r0, [r6, r1]
++	add	r1, #0xc
++	add	r2, #0x1
++	cmp	r2, #0x3	/* Switch off pll-1/2/3 */
++	bne	swoff_pll
++
++#ifdef DDR_PLL_SREFRESH
++	/* Switch off pll-4 */
++	ldr	r0, [r6, r1]
++	/* Clear pll_enable bit(2) of PLL1_CTR register in Misc registers */
++	bic	r0, r0, #0x04
++	str	r0, [r6, r1]
++#endif
++
++#ifdef TEST_PWRDOMAINS
++	/* Switch off the undesired PLL's */
++	nop
++	ldr	r6, MISC_BASE_P
++	ldr	r0, [r6, #0x200]
++	bic	r0, r0, #0x7
++	orr	r0, r0, #0x2
++	str	r0, [r6, #0x200	]
++wait_ack0:
++	ldr	r0, [r6, #0x200]
++	and	r0, r0, #0xF0000
++	cmp	r0, #0xA0000
++	bne	wait_ack0
++	ldr	r6, MISC_BASE_P
++	ldr	r0, [r6, #0x100]
++
++	/*
++	 * Switch off the power domains.
++	 * Clear the ack bit
++	 */
++	bic	r0, r0, #0xc000
++	str	r0, [r6, #0x100]
++
++	bic	r0, r0, #0x1000
++	str	r0, [r6, #0x100]
++
++wait_ack1:
++	ldr	r0, [r6, #0x100]
++	tst	r0, #0x4000
++	beq	wait_ack1
++
++	/* Clear the ack bit */
++	bic	r0, r0, #0xc000
++	str	r0, [r6, #0x100]
++
++	bic	r0, r0, #0x0800
++	str	r0, [r6, #0x100]
++wait_ack2:
++	ldr	r0, [r6, #0x100]
++	tst	r0, #0x4000
++	beq	wait_ack2
++
++	/* Clear the ack bit */
++	bic	r0, r0, #0xc000
++	str	r0, [r6, #0x100]
++
++	bic	r0, r0, #0x2400
++	str	r0, [r6, #0x100]
++wait_ack3:
++	ldr	r0, [r6, #0x100]
++	tst	r0, #0x4000
++	beq	wait_ack3
++#endif
++	wfi				@ wait for interrupt
++	nop
++spear_sleep_restore:
++	/*
++	 * Reenable the switched off pll's. The Pll's are
++	 * enabled using loop count of 4 to activalte all the
++	 * pll-1/2/3/4.
++	 * The strobing is done for pll-4 only.
++	 */
++
++	ldr	r6, MISC_BASE_P
++	ldr	r1, MISC_PLL_OFFS
++	ldr	r2, =0x0	/* PLL Counter 1, 2, 3, 4 */
++swon_pll_1_3:
++	/* Switch on Pll-1/2/3 */
++	ldr	r0, [r6, r1]
++	orr	r0, r0, #0x2
++	str	r0, [r6, r1]
++pll_lock_1_3:
++	/* Set the pll_lock bit(0) in PLLX_CTR register in misc space*/
++	ldr	r5, [r6, r1]
++	and	r5, r5, #0x1
++	/* Wait for pll lock status */
++	cmp	r5, #0x1
++	bne	pll_lock_1_3
++
++	/* Loop for all the pll's */
++	add	r1, #0xc
++	add	r2, #0x1
++	cmp	r2, #0x3	/* Switch on till pll-3 */
++	bne	swon_pll_1_3
++
++#ifdef DDR_PLL_SREFRESH
++	/* Switch on PLL-4, strobe the pll also */
++	ldr	r0, [r6, r1]
++	ldr	r0, PLL_VAL1
++	str	r0, [r6, r1]
++	ldr	r0, PLL_VAL2
++	str	r0, [r6, r1]
++	ldr	r0, PLL_VAL3
++	str	r0, [r6, r1]
++	ldr	r0, PLL_VAL2
++	str	r0, [r6, r1]
++pll_lock_4:
++	/* Set the pll_lock bit(0) in PLLX_CTR register in misc space*/
++	ldr	r5, [r6, r1]
++	and	r5, r5, #0x1
++	/* Wait for pll lock status */
++	cmp	r5, #0x1
++	bne	pll_lock_4
++#endif
++
++	/* Put the system in normal mode */
++	ldr	r0, [r6, #0x200]
++	bic	r0, r0, #0x7
++	/* Set the apt mode bits(2:0) in SCCTRL register */
++	orr	r0, r0, #0x4
++	str	r0, [r6, #0x200]	/* System is now in slow mode */
++wait_till_normal_mode:
++	ldr	r0, [r6, #0x200]
++	/* Wait for the mode to be updated */
++	and	r0, r0, #0xF0000
++	/* Poll the SCCTRL register status bits (6:3) */
++	cmp	r0, #0xf0000
++	bne wait_till_normal_mode
++
++	/*
++	 * Invalidate all instruction caches to PoU
++	 * and flush branch target cache
++	 */
++	mov	r1, #0
++	mcr	p15, 0, r1, c7, c5, 0
++
++	ldr	r3, SRAM_STACK_PA
++	ldmia	r3!, {r4-r6}
++	mov	sp, r4
++	msr	spsr_cxsf, r5
++	mov	lr, r6
++
++	ldmia	r3!, {r4-r9}
++	/* Coprocessor access Control Register */
++	mcr	p15, 0, r4, c1, c0, 2
++
++	/* TTBR0 */
++	mcr	p15, 0, r5, c2, c0, 0
++	/* TTBR1 */
++	mcr	p15, 0, r6, c2, c0, 1
++	/* Translation table base control register */
++	mcr	p15, 0, r7, c2, c0, 2
++	/*domain access Control Register */
++	mcr	p15, 0, r8, c3, c0, 0
++	/* data fault status Register */
++	mcr	p15, 0, r9, c5, c0, 0
++
++	ldmia	r3!, {r4-r8}
++	/* instruction fault status Register */
++	mcr	p15, 0, r4, c5, c0, 1
++	/*Data Auxiliary Fault Status Register */
++	mcr	p15, 0, r5, c5, c1, 0
++	/*Instruction Auxiliary Fault Status Register*/
++	mcr	p15, 0, r6, c5, c1, 1
++	/*Data Fault Address Register */
++	mcr	p15, 0, r7, c6, c0, 0
++	/*Instruction Fault Address Register*/
++	mcr	p15, 0, r8, c6, c0, 2
++	ldmia	r3!, {r4-r7}
++
++	/* user r/w thread and process ID */
++	mcr	p15, 0, r4, c13, c0, 2
++	/* user ro thread and process ID */
++	mcr	p15, 0, r5, c13, c0, 3
++	/*Privileged only thread and process ID */
++	mcr	p15, 0, r6, c13, c0, 4
++	/* cache size selection */
++	mcr	p15, 2, r7, c0, c0, 0
++	ldmia	r3!, {r4-r8}
++	/* Data TLB lockdown registers */
++	mcr	p15, 0, r4, c10, c0, 0
++	/* Instruction TLB lockdown registers */
++	mcr	p15, 0, r5, c10, c0, 1
++	/* Secure or Nonsecure Vector Base Address */
++	mcr	p15, 0, r6, c12, c0, 0
++	/* FCSE PID */
++	mcr	p15, 0, r7, c13, c0, 0
++	/* Context PID */
++	mcr	p15, 0, r8, c13, c0, 1
++
++	ldmia	r3!, {r4-r5}
++	/* primary memory remap register */
++	mcr	p15, 0, r4, c10, c2, 0
++	/*normal memory remap register */
++	mcr	p15, 0, r5, c10, c2, 1
++
++	/* Restore cpsr */
++	ldmfd	r3!, {r4}	/*load CPSR from SDRAM*/
++	msr	cpsr, r4	/*store cpsr */
++	dsb
++	isb
++	mov	r0, #0
++	mcr	p15, 0, r0, c7, c5, 4	@ Flush prefetch buffer
++	mcr	p15, 0, r0, c7, c5, 6	@ Invalidate branch predictor array
++	mcr	p15, 0, r0, c8, c5, 0	@ Invalidate instruction TLB
++	mcr	p15, 0, r0, c8, c6, 0	@ Invalidate data TLB
++
++	adr	r5, mmu_on
++	mov	r1, #0xcfffffff
++	and	r5, r5, r1
++	ldr	r1, =0x30000000
++	orr	r5, r5, r1
++	mov	r4, r5
++
++	/* Move the DDR out of self refresh mode */
++	ldr	r6, MISC_BASE_P
++	ldr	r7, MPMC_BASE_P
++	/* Program MPMC Control Status register in Misc Space */
++	ldr	r0, [r6, #0x334]
++	/* Clear srefresh_enter bit(2) */
++	bic	r0, r0, #0x4
++	str	r0, [r6, #0x334]
++	/* Additional clearance is required in the mpmc space */
++	ldr	r0, [r7, #0x2c]
++	/*
++	 * Clear bit srefresh bit (2) of MPMC_11 register
++	 * The misc wrapper does not works fine by itself till
++	 * this bit is also cleared.
++	 */
++	bic	r0, r0, #0x10000
++	str	r0, [r7, #0x2c]
++wait_for_refresh_exit:
++	ldr	r0, [r6, #0x334]
++	tst	r0, #0x2000
++	bne	wait_for_refresh_exit
++
++	ldmfd	r3!, {r2}
++	/* restore the MMU control register from stack to enable mmu */
++	mcr	p15, 0, r2, c1, c0, 0
++	bx	r4
++
++mmu_on:
++	ldmfd	sp!, {r0-r12, pc}		@ restore regs and return
++	nop
++
++MPMC_BASE_P :
++	.word MPMC_BASE_PA
++MISC_BASE_P :
++	.word MISC_BASE_PA
++SRAM_STACK_VA :
++	.word IO_ADDRESS(SPEAR_SRAM_STACK_PA)
++SRAM_STACK_PA :
++	.word SPEAR_SRAM_STACK_PA
++DISABLE_I_C_M_V:
++	.word 0x1805
++MISC_PLL_OFFS:
++	.word 0x214
++#ifdef DDR_PLL_SREFRESH
++PLL_VAL1:
++	.word 0x060a
++PLL_VAL2:
++	.word 0x060e
++PLL_VAL3:
++	.word 0x0606
++#endif
++ENTRY(spear_sleep_mode_sz)
++	.word	. - spear_sleep_mode
+diff --git a/arch/arm/mach-spear13xx/spear13xx.c b/arch/arm/mach-spear13xx/spear13xx.c
+index cdf132e..08e87d7 100644
+--- a/arch/arm/mach-spear13xx/spear13xx.c
++++ b/arch/arm/mach-spear13xx/spear13xx.c
+@@ -464,6 +464,11 @@ struct map_desc spear13xx_io_desc[] __initdata = {
+ 		.pfn		= __phys_to_pfn(SPEAR13XX_SYSRAM0_BASE),
+ 		.length		= SZ_32K,
+ 		.type		= MT_DEVICE
++	}, {
++		.virtual	= IO_ADDRESS(SPEAR13XX_SYSRAM1_BASE),
++		.pfn		= __phys_to_pfn(SPEAR13XX_SYSRAM1_BASE),
++		.length		= SZ_1M,
++		.type		= MT_MEMORY_NONCACHED
  	},
  };
  
- static struct spear_shirq shirq_ras1 = {
--	.irq = IRQ_GEN_RAS_1,
-+	.irq = SPEAR3XX_IRQ_GEN_RAS_1,
- 	.dev_config = shirq_ras1_config,
- 	.dev_count = ARRAY_SIZE(shirq_ras1_config),
- 	.regs = {
- 		.enb_reg = -1,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_RAS1_MASK,
--		.clear_reg = INT_CLR_MASK_REG,
-+		.status_reg = SPEAR320_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR320_SHIRQ_RAS1_MASK,
-+		.clear_reg = SPEAR320_INT_CLR_MASK_REG,
- 		.reset_to_clear = 1,
- 	},
- };
- 
- static struct shirq_dev_config shirq_ras3_config[] = {
- 	{
--		.virq = VIRQ_PLGPIO,
--		.enb_mask = GPIO_IRQ_MASK,
--		.status_mask = GPIO_IRQ_MASK,
--		.clear_mask = GPIO_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_PLGPIO,
-+		.enb_mask = SPEAR320_GPIO_IRQ_MASK,
-+		.status_mask = SPEAR320_GPIO_IRQ_MASK,
-+		.clear_mask = SPEAR320_GPIO_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_I2S_PLAY,
--		.enb_mask = I2S_PLAY_IRQ_MASK,
--		.status_mask = I2S_PLAY_IRQ_MASK,
--		.clear_mask = I2S_PLAY_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_I2S_PLAY,
-+		.enb_mask = SPEAR320_I2S_PLAY_IRQ_MASK,
-+		.status_mask = SPEAR320_I2S_PLAY_IRQ_MASK,
-+		.clear_mask = SPEAR320_I2S_PLAY_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_I2S_REC,
--		.enb_mask = I2S_REC_IRQ_MASK,
--		.status_mask = I2S_REC_IRQ_MASK,
--		.clear_mask = I2S_REC_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_I2S_REC,
-+		.enb_mask = SPEAR320_I2S_REC_IRQ_MASK,
-+		.status_mask = SPEAR320_I2S_REC_IRQ_MASK,
-+		.clear_mask = SPEAR320_I2S_REC_IRQ_MASK,
- 	},
- };
- 
- static struct spear_shirq shirq_ras3 = {
--	.irq = IRQ_GEN_RAS_3,
-+	.irq = SPEAR3XX_IRQ_GEN_RAS_3,
- 	.dev_config = shirq_ras3_config,
- 	.dev_count = ARRAY_SIZE(shirq_ras3_config),
- 	.regs = {
--		.enb_reg = INT_ENB_MASK_REG,
-+		.enb_reg = SPEAR320_INT_ENB_MASK_REG,
- 		.reset_to_enb = 1,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_RAS3_MASK,
--		.clear_reg = INT_CLR_MASK_REG,
-+		.status_reg = SPEAR320_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR320_SHIRQ_RAS3_MASK,
-+		.clear_reg = SPEAR320_INT_CLR_MASK_REG,
- 		.reset_to_clear = 1,
- 	},
- };
- 
- static struct shirq_dev_config shirq_intrcomm_ras_config[] = {
- 	{
--		.virq = VIRQ_CANU,
--		.status_mask = CAN_U_IRQ_MASK,
--		.clear_mask = CAN_U_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_CANU,
-+		.status_mask = SPEAR320_CAN_U_IRQ_MASK,
-+		.clear_mask = SPEAR320_CAN_U_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_CANL,
--		.status_mask = CAN_L_IRQ_MASK,
--		.clear_mask = CAN_L_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_CANL,
-+		.status_mask = SPEAR320_CAN_L_IRQ_MASK,
-+		.clear_mask = SPEAR320_CAN_L_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_UART1,
--		.status_mask = UART1_IRQ_MASK,
--		.clear_mask = UART1_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_UART1,
-+		.status_mask = SPEAR320_UART1_IRQ_MASK,
-+		.clear_mask = SPEAR320_UART1_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_UART2,
--		.status_mask = UART2_IRQ_MASK,
--		.clear_mask = UART2_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_UART2,
-+		.status_mask = SPEAR320_UART2_IRQ_MASK,
-+		.clear_mask = SPEAR320_UART2_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_SSP1,
--		.status_mask = SSP1_IRQ_MASK,
--		.clear_mask = SSP1_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_SSP1,
-+		.status_mask = SPEAR320_SSP1_IRQ_MASK,
-+		.clear_mask = SPEAR320_SSP1_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_SSP2,
--		.status_mask = SSP2_IRQ_MASK,
--		.clear_mask = SSP2_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_SSP2,
-+		.status_mask = SPEAR320_SSP2_IRQ_MASK,
-+		.clear_mask = SPEAR320_SSP2_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_SMII0,
--		.status_mask = SMII0_IRQ_MASK,
--		.clear_mask = SMII0_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_SMII0,
-+		.status_mask = SPEAR320_SMII0_IRQ_MASK,
-+		.clear_mask = SPEAR320_SMII0_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_MII1_SMII1,
--		.status_mask = MII1_SMII1_IRQ_MASK,
--		.clear_mask = MII1_SMII1_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_MII1_SMII1,
-+		.status_mask = SPEAR320_MII1_SMII1_IRQ_MASK,
-+		.clear_mask = SPEAR320_MII1_SMII1_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_WAKEUP_SMII0,
--		.status_mask = WAKEUP_SMII0_IRQ_MASK,
--		.clear_mask = WAKEUP_SMII0_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_WAKEUP_SMII0,
-+		.status_mask = SPEAR320_WAKEUP_SMII0_IRQ_MASK,
-+		.clear_mask = SPEAR320_WAKEUP_SMII0_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_WAKEUP_MII1_SMII1,
--		.status_mask = WAKEUP_MII1_SMII1_IRQ_MASK,
--		.clear_mask = WAKEUP_MII1_SMII1_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_WAKEUP_MII1_SMII1,
-+		.status_mask = SPEAR320_WAKEUP_MII1_SMII1_IRQ_MASK,
-+		.clear_mask = SPEAR320_WAKEUP_MII1_SMII1_IRQ_MASK,
- 	}, {
--		.virq = VIRQ_I2C1,
--		.status_mask = I2C1_IRQ_MASK,
--		.clear_mask = I2C1_IRQ_MASK,
-+		.virq = SPEAR320_VIRQ_I2C1,
-+		.status_mask = SPEAR320_I2C1_IRQ_MASK,
-+		.clear_mask = SPEAR320_I2C1_IRQ_MASK,
- 	},
- };
- 
- static struct spear_shirq shirq_intrcomm_ras = {
--	.irq = IRQ_INTRCOMM_RAS_ARM,
-+	.irq = SPEAR3XX_IRQ_INTRCOMM_RAS_ARM,
- 	.dev_config = shirq_intrcomm_ras_config,
- 	.dev_count = ARRAY_SIZE(shirq_intrcomm_ras_config),
- 	.regs = {
- 		.enb_reg = -1,
--		.status_reg = INT_STS_MASK_REG,
--		.status_reg_mask = SHIRQ_INTRCOMM_RAS_MASK,
--		.clear_reg = INT_CLR_MASK_REG,
-+		.status_reg = SPEAR320_INT_STS_MASK_REG,
-+		.status_reg_mask = SPEAR320_SHIRQ_INTRCOMM_RAS_MASK,
-+		.clear_reg = SPEAR320_INT_CLR_MASK_REG,
- 		.reset_to_clear = 1,
- 	},
- };
+diff --git a/arch/arm/mach-spear3xx/include/mach/suspend.h b/arch/arm/mach-spear3xx/include/mach/suspend.h
+new file mode 100644
+index 0000000..a525173
+--- /dev/null
++++ b/arch/arm/mach-spear3xx/include/mach/suspend.h
+@@ -0,0 +1,44 @@
++/*
++ * arch/arm/mach-spear3xx/include/mach/suspend.h
++ *
++ * Sleep mode defines for SPEAr3xx machine family
++ *
++ * Copyright (C) 2010 ST Microelectronics
++ * AUTHOR : Deepak Sikri <deepak.sikri@st.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#ifndef __MACH_SUSPEND_H
++#define __MACH_SUSPEND_H
++
++#include <mach/spear.h>
++
++#ifndef __ASSEMBLER__
++extern void spear_sleep_mode(suspend_state_t state);
++extern unsigned int spear_sleep_mode_sz;
++#endif
++
++/* SRAM related defines*/
++#define SRAM_STACK_SCR_OFFS	0xF00
++#define SPEAR_START_SRAM	SPEAR3XX_ICM1_SRAM_BASE
++#define SPEAR_SRAM_SIZE		SZ_4K
++#define SPEAR_SRAM_SCR_REG	(SPEAR_START_SRAM + SRAM_STACK_SCR_OFFS)
++/* SPEAr subsystem physical addresses */
++#define SYS_CTRL_BASE_PA	SPEAR3XX_ICM3_SYS_CTRL_BASE
++#define MPMC_BASE_PA		SPEAR3XX_ICM3_SDRAM_CTRL_BASE
++#define MISC_BASE_PA		SPEAR3XX_ICM3_MISC_REG_BASE
++
++/* ARM Modes of Operation */
++#define MODE_USR_32		0x10
++#define MODE_FIQ_32		0x11
++#define MODE_IRQ_32		0x12
++#define MODE_SVC_32		0x13
++#define MODE_ABT_32		0x17
++#define MODE_UND_32		0x1B
++#define MODE_SYS_32		0x1F
++#define MODE_BITS		0x1F
++
++#endif /* __MACH_SUSPEND_H */
 diff --git a/arch/arm/mach-spear3xx/spear3xx.c b/arch/arm/mach-spear3xx/spear3xx.c
-index 544072d..2765d32 100644
+index c9727ac..2dfa9d5 100644
 --- a/arch/arm/mach-spear3xx/spear3xx.c
 +++ b/arch/arm/mach-spear3xx/spear3xx.c
-@@ -22,13 +22,14 @@
+@@ -22,6 +22,8 @@
  #include <mach/generic.h>
  #include <mach/spear.h>
  
--#define SPEAR3XX_WKUP_SRCS	(1 << IRQ_MAC_1 | 1 << IRQ_USB_DEV | \
--				1 << IRQ_BASIC_RTC | 1 << IRQ_BASIC_GPIO)
-+#define SPEAR3XX_WKUP_SRCS	(1 << SPEAR3XX_IRQ_MAC_1 | 1 << \
-+		SPEAR3XX_IRQ_USB_DEV | 1 << SPEAR3XX_IRQ_BASIC_RTC | 1 << \
-+		SPEAR3XX_IRQ_BASIC_GPIO)
++#define SPEAR3XX_WKUP_SRCS	(1 << IRQ_MAC_1 | 1 << IRQ_USB_DEV | \
++				1 << IRQ_BASIC_RTC | 1 << IRQ_BASIC_GPIO)
  /* Add spear3xx machines common devices here */
  /* gpio device registeration */
  static struct pl061_platform_data gpio_plat_data = {
- 	.gpio_base	= 0,
--	.irq_base	= SPEAR_GPIO_INT_BASE,
-+	.irq_base	= SPEAR3XX_GPIO_INT_BASE,
- };
+@@ -246,7 +248,8 @@ void __init spear3xx_init(void)
+ /* This will initialize vic */
+ void __init spear3xx_init_irq(void)
+ {
+-	vic_init((void __iomem *)VA_SPEAR3XX_ML1_VIC_BASE, 0, ~0, 0);
++	vic_init((void __iomem *)VA_SPEAR3XX_ML1_VIC_BASE, 0, ~0,
++			SPEAR3XX_WKUP_SRCS);
+ }
  
- struct amba_device gpio_device = {
-@@ -41,7 +42,7 @@ struct amba_device gpio_device = {
- 		.end = SPEAR3XX_ICM3_GPIO_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {IRQ_BASIC_GPIO, NO_IRQ},
-+	.irq = {SPEAR3XX_IRQ_BASIC_GPIO, NO_IRQ},
- };
+ /* Following will create static virtual/physical mappings */
+diff --git a/arch/arm/mach-spear6xx/include/mach/suspend.h b/arch/arm/mach-spear6xx/include/mach/suspend.h
+new file mode 100644
+index 0000000..e98e831
+--- /dev/null
++++ b/arch/arm/mach-spear6xx/include/mach/suspend.h
+@@ -0,0 +1,44 @@
++/*
++ * arch/arm/mach-spear6xx/include/mach/suspend.h
++ *
++ * Sleep mode defines for SPEAr6xx machine family
++ *
++ * Copyright (C) 2010 ST Microelectronics
++ * AUTHOR : Deepak Sikri <deepak.sikri@st.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#ifndef __MACH_SUSPEND_H
++#define __MACH_SUSPEND_H
++
++#include <mach/spear.h>
++
++#ifndef __ASSEMBLER__
++extern void spear_sleep_mode(suspend_state_t state);
++extern unsigned int spear_sleep_mode_sz;
++#endif
++
++/* SRAM related defines*/
++#define SRAM_STACK_SCR_OFFS	0xF00
++#define SPEAR_START_SRAM	SPEAR6XX_ICM1_SRAM_BASE
++#define SPEAR_SRAM_SIZE		SZ_4K
++#define SPEAR_SRAM_SCR_REG	(SPEAR_START_SRAM + SRAM_STACK_SCR_OFFS)
++/* SPEAr subsystem physical addresses */
++#define SYS_CTRL_BASE_PA	SPEAR6XX_ICM3_SYS_CTRL_BASE
++#define MPMC_BASE_PA		SPEAR6XX_ICM3_SDRAM_CTRL_BASE
++#define MISC_BASE_PA		SPEAR6XX_ICM3_MISC_REG_BASE
++
++/* ARM Modes of Operation */
++#define MODE_USR_32		0x10
++#define MODE_FIQ_32		0x11
++#define MODE_IRQ_32		0x12
++#define MODE_SVC_32		0x13
++#define MODE_ABT_32		0x17
++#define MODE_UND_32		0x1B
++#define MODE_SYS_32		0x1F
++#define MODE_BITS		0x1F
++
++#endif /* __MACH_SUSPEND_H */
+diff --git a/arch/arm/mach-spear6xx/spear6xx.c b/arch/arm/mach-spear6xx/spear6xx.c
+index cc2692e..8334841 100644
+--- a/arch/arm/mach-spear6xx/spear6xx.c
++++ b/arch/arm/mach-spear6xx/spear6xx.c
+@@ -24,6 +24,12 @@
+ #include <mach/generic.h>
+ #include <mach/spear.h>
  
- /* ssp device registeration */
-@@ -71,7 +72,7 @@ struct amba_device ssp0_device = {
- 		.end = SPEAR3XX_ICM1_SSP_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {IRQ_SSP, NO_IRQ},
-+	.irq = {SPEAR3XX_IRQ_SSP, NO_IRQ},
- };
++/* The wake sources are routed through vic-2 */
++#define SPEAR6XX_WKUP_SRCS_VIC2		(1 << (IRQ_GMAC_1 - 32) | \
++					1 << (IRQ_USB_DEV - 32) | \
++					1 << (IRQ_BASIC_RTC - 32) |\
++					1 << (IRQ_BASIC_GPIO - 32))
++
+ /* Add spear6xx machines common devices here */
  
- /* uart device registeration */
-@@ -84,7 +85,7 @@ struct amba_device uart_device = {
- 		.end = SPEAR3XX_ICM1_UART_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	},
--	.irq = {IRQ_UART, NO_IRQ},
-+	.irq = {SPEAR3XX_IRQ_UART, NO_IRQ},
- };
+ /* CLCD device registration */
+@@ -400,7 +406,8 @@ void __init spear6xx_init(void)
+ void __init spear6xx_init_irq(void)
+ {
+ 	vic_init((void __iomem *)VA_SPEAR6XX_CPU_VIC_PRI_BASE, 0, ~0, 0);
+-	vic_init((void __iomem *)VA_SPEAR6XX_CPU_VIC_SEC_BASE, 32, ~0, 0);
++	vic_init((void __iomem *)VA_SPEAR6XX_CPU_VIC_SEC_BASE, 32, ~0,
++			SPEAR6XX_WKUP_SRCS_VIC2);
+ }
  
- /* watchdog device registeration */
-@@ -106,7 +107,7 @@ static struct resource i2c_resources[] = {
- 		.end = SPEAR3XX_ICM1_I2C_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = IRQ_I2C,
-+		.start = SPEAR3XX_IRQ_I2C,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -129,7 +130,7 @@ static struct resource ehci_resources[] = {
- 		.flags = IORESOURCE_MEM,
- 	},
- 	[1] = {
--		.start = IRQ_USB_H_EHCI_0,
-+		.start = SPEAR3XX_IRQ_USB_H_EHCI_0,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -141,7 +142,7 @@ static struct resource ohci0_resources[] = {
- 		.flags = IORESOURCE_MEM,
- 	},
- 	[1] = {
--		.start = IRQ_USB_H_OHCI_0,
-+		.start = SPEAR3XX_IRQ_USB_H_OHCI_0,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -153,7 +154,7 @@ static struct resource ohci1_resources[] = {
- 		.flags = IORESOURCE_MEM,
- 	},
- 	[1] = {
--		.start = IRQ_USB_H_OHCI_1,
-+		.start = SPEAR3XX_IRQ_USB_H_OHCI_1,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -208,7 +209,7 @@ static struct resource rtc_resources[] = {
- 		.end = SPEAR3XX_ICM3_RTC_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = IRQ_BASIC_RTC,
-+		.start = SPEAR3XX_IRQ_BASIC_RTC,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
-@@ -227,7 +228,7 @@ static struct resource smi_resources[] = {
- 		.end = SPEAR3XX_ICM3_SMI_CTRL_BASE + SZ_4K - 1,
- 		.flags = IORESOURCE_MEM,
- 	}, {
--		.start = IRQ_BASIC_SMI,
-+		.start = SPEAR3XX_IRQ_BASIC_SMI,
- 		.flags = IORESOURCE_IRQ,
- 	},
- };
+ /* Following will create static virtual/physical mappings */
+diff --git a/arch/arm/plat-spear/Makefile b/arch/arm/plat-spear/Makefile
+index 0e2cf75..1c8ee4a 100644
+--- a/arch/arm/plat-spear/Makefile
++++ b/arch/arm/plat-spear/Makefile
+@@ -6,6 +6,7 @@
+ obj-y	:= clcd.o clock.o pll_clk.o smi.o time.o
+ 
+ obj-$(CONFIG_ARCH_SPEAR3XX)	+= shirq.o padmux.o
++
+ obj-$(CONFIG_MACH_SPEAR310)	+= plgpio.o
+ obj-$(CONFIG_MACH_SPEAR320)	+= plgpio.o
+ obj-$(CONFIG_SPEAR_PWM)		+= pwm.o
+@@ -16,3 +17,8 @@ obj-$(CONFIG_BOARD_SPEAR300_EVB)	+= i2c_eval_board.o
+ obj-$(CONFIG_BOARD_SPEAR310_EVB)	+= i2c_eval_board.o
+ obj-$(CONFIG_BOARD_SPEAR320_EVB)	+= i2c_eval_board.o
+ obj-$(CONFIG_BOARD_SPEAR600_EVB)	+= i2c_eval_board.o
++
++ifeq ($(CONFIG_PM),y)
++obj-$(CONFIG_ARCH_SPEAR3XX)	+= pm.o sleep.o
++obj-$(CONFIG_ARCH_SPEAR6XX)	+= pm.o sleep.o
++endif
+diff --git a/arch/arm/plat-spear/pm.c b/arch/arm/plat-spear/pm.c
+new file mode 100644
+index 0000000..df7c7a1
+--- /dev/null
++++ b/arch/arm/plat-spear/pm.c
+@@ -0,0 +1,104 @@
++/*
++ * arch/arm/plat-spear/pm.c
++ *
++ * SPEAr3xx & SPEAr6xx Power Management source file
++ *
++ * Copyright (C) 2010 ST Microelectronics
++ * Deepak Sikri <deepak.sikri@st.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/suspend.h>
++#include <linux/sysfs.h>
++#include <linux/module.h>
++#include <linux/io.h>
++#include <asm/cacheflush.h>
++#include <mach/irqs.h>
++#include <mach/suspend.h>
++
++static void (*saved_idle)(void);
++static void __iomem *spear_sram_base;
++
++static int spear_pm_sleep(suspend_state_t state)
++{
++	void (*spear_sram_sleep)(suspend_state_t state) = NULL;
++
++	/* Copy the Sleep code on to the SRAM*/
++	spear_sram_sleep = memcpy((void *)spear_sram_base,
++			(void *)spear_sleep_mode, spear_sleep_mode_sz);
++	flush_cache_all();
++	/* Jump to the suspend routines in sram */
++	spear_sram_sleep(state);
++	return 0;
++}
++
++/*
++ *	spear_pm_prepare - Do preliminary suspend work.
++ *
++ */
++static int spear_pm_prepare(void)
++{
++	/* We cannot sleep in idle until we have resumed */
++	saved_idle = pm_idle;
++	pm_idle = NULL;
++	return 0;
++}
++
++/*
++ *	spear_pm_enter - Actually enter a sleep state.
++ *	@state:		State we're entering.
++ *
++ */
++static int spear_pm_enter(suspend_state_t state)
++{
++	int ret;
++
++	switch (state) {
++	case PM_SUSPEND_STANDBY:
++	case PM_SUSPEND_MEM:
++		ret = spear_pm_sleep(state);
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	return ret;
++}
++
++/*
++ *	spear_pm_finish - Finish up suspend sequence.
++ *
++ *	This is called after we wake back up (or if entering the sleep state
++ *	failed).
++ */
++static void spear_pm_finish(void)
++{
++	pm_idle = saved_idle;
++}
++
++static const struct platform_suspend_ops spear_pm_ops = {
++	.prepare	= spear_pm_prepare,
++	.enter		= spear_pm_enter,
++	.finish		= spear_pm_finish,
++	.valid		= suspend_valid_only_mem,
++};
++
++static int __init spear_pm_init(void)
++{
++
++	spear_sram_base = ioremap(SPEAR_START_SRAM, SPEAR_SRAM_SIZE);
++
++	if (!spear_sram_base)
++		return -ENOMEM;
++
++	/* In case the suspend code size is more than sram size return */
++	if (spear_sleep_mode_sz > (SPEAR_SRAM_SIZE))
++		return	-ENOMEM;
++
++	suspend_set_ops(&spear_pm_ops);
++	return 0;
++}
++arch_initcall(spear_pm_init);
+diff --git a/arch/arm/plat-spear/sleep.S b/arch/arm/plat-spear/sleep.S
+new file mode 100644
+index 0000000..5347789
+--- /dev/null
++++ b/arch/arm/plat-spear/sleep.S
+@@ -0,0 +1,288 @@
++/*
++ * arch/arm/plat-spear/sleep.S
++ *
++ * SPEAR3xx and SPEAR6xx specific functions that will run in
++ * internal SRAM. The functions are used in power management.
++ *
++ * Copyright (ST) 2010 Deepak Sikri <deepak.sikri@.com>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/linkage.h>
++#include <asm/assembler.h>
++#include <mach/hardware.h>
++#include <mach/suspend.h>
++
++.text
++ENTRY(spear_sleep_mode)
++	stmfd	sp!, {r0-r12, lr}
++
++	/* Latch some of MMU registers on to stack */
++	mrc	p15, 0, r0, c5, c0, 0 /* FSR--Domain Fault */
++	mrc	p15, 0, r1, c5, c0, 1 /* FSR--Instruction Fault */
++	mrc	p15, 0, r2, c6, c0, 0 /* FAR */
++	mrc	p15, 0, r3, c9, c0, 0 /* Read Dcache Lockdown */
++	mrc	p15, 0, r4, c9, c0, 1 /* Read ICache Lockdown */
++	mrc	p15, 0, r5, c9, c1, 0 /* Read Data TLB */
++	mrc	p15, 0, r6, c9, c1, 1 /* Read Instr TCM region register */
++
++	mrc	p15, 0, r7, c10, c0, 0 /* Data TLBLock Down operation */
++	mrc	p15, 0, r8, c13, c0, 0 /* FCSE--PID */
++	mrc	p15, 0, r9, c13, c0, 1 /* Context-ID */
++
++	/* Save all these registers onto the stack */
++	stmfd	sp!, {r0-r9}
++	/* Save the stack pointer */
++	mov	r3, sp
++	/* Store the two mode registers */
++	stmfd	r3!, {sp, lr}
++	/* Save the current mode with irq disabled */
++	mrs	r0, cpsr
++	stmfd	r3!, {r0}
++	/*
++	 * Save the MMU registers on the SRAM Stack
++	 * Domain Register on Back-up RAM structure
++	 */
++	mrc	p15, 0, r2, c3, c0, 0
++	/* TTB Register */
++	mrc	p15, 0, r1, c2, c0, 0
++	/* MMU Enable Register */
++	mrc	p15, 0, r0, c1, c0, 0
++	stmfd	r3!, {r0, r1, r2}
++	/*
++	 * Capture the Physical Address.
++	 * This will be used once MMU is Off
++	 */
++	adr	r0, mmu_off
++	adr	r1, spear_sleep_mode
++	/* Store the virtual address on to DDR */
++	stmfd	r3!, {r1}
++	sub	r1, r0, r1
++	ldr	r0, SRAM_START_P
++	add	r2, r1, r0
++
++	/* Disable MMU */
++	mrc	p15, 0, r0, c1, c0, 0
++	ldr	r1, DISABLE_I_C_M_V
++	bic	r0, r0, r1
++	mcr	p15, 0, r0, c1, c0, 0
++	/* Move the Physical address into PC */
++	bx	r2
++
++	/*
++	 * This portion of code is executed from SRAM
++	 * post MMU has been turned off
++	 */
++mmu_off:
++	/* Store the DDR stack address onto scratch pad location */
++	ldr	r0, SCRATCH_PAD
++	str	r3, [r0]
++
++	ldr	r6, MISC_BASE_P
++	ldr	r7, MPMC_BASE_P
++	ldr	r8, SYS_CTRL_BASE_P
++
++	/*
++	 * Put SDRAM in self-refresh mode
++	 * Clear START bit(24) of MEMCTL_GP_03 register in MPMC
++	 */
++	ldr	r0, [r7, #0x1c]
++	ldr	r4, =0x1000000
++	/* Begin the command processing in controller */
++	bic	r0, r0, r4
++	str	r0, [r7, #0x1c]
++	ldr	r0, [r7, #0x1c]
++	/* set the SREFRESH bit(16) */
++	ldr	r4, =0x10000
++	orr	r0, r0, r4
++	str	r0, [r7, #0x1c]
++
++	/* Put the DDR into low power mode */
++	ldr	r0, [r6, #0xf0]
++	ldr	r4, =0x00000001
++	/* Clear DDR_LOW_POWER_DDR2_MODE bit(1) of DDR_PAD register */
++	bic	r0, r0, r4
++	str	r0, [r6, #0xf0]
++
++	/* Put the system in slow mode, use system controller */
++	ldr	r0, [r8]
++	bic	r0, r0, #0x4
++	/* Set the apt mode bits(2:0) in SCCTRL register */
++	orr	r0, r0, #0x2
++	str	r0, [r8]	/* System is now in slow mode */
++
++wait_till_slow_mode:
++	ldr	r0, [r8]
++	and	r0, r0, #0x78	/* Wait for the mode to be updated */
++	cmp	r0, #0x10	/* Poll the SCCTRL register status bits (6:3) */
++	bne wait_till_slow_mode
++
++	/* Put the Pll-1 to off. */
++	ldr	r0, [r6, #0x08]
++	/* Clear pll_enable bit(2) of PLL1_CTR register in Misc registers */
++	bic	r0, r0, #0x04
++	str	r0, [r6, #0x08]
++
++	/* Put the Pll-2 to off */
++	ldr	r0, [r6, #0x14]
++	/* Clear pll_enable bit(2) of PLL2_CTR register in Misc registers */
++	bic	r0, r0, #0x04
++	str	r0, [r6, #0x14]
++	mov	r2, #0
++	/* Put the system in sleep */
++	ldr	r0, [r8]
++	/* Set the apt mode bits(2:0) in SCCTRL register */
++	bic	r0, r0, #0x7
++#ifdef TEST_SLOW
++	orr	r0, r0, #0x2 /* Slow Mode */
++#endif
++	str	r0, [r8]
++	/* Put system in WFI */
++	mcr	p15, 0, r2, c7, c0, 4
++wakeup_addr:
++	ldr	r6, MISC_BASE_P
++	ldr	r7, MPMC_BASE_P
++	ldr	r8, SYS_CTRL_BASE_P
++	/* Reenable pll1 and pll2 */
++	ldr	r0, PLL_VAL1
++	str	r0, [r6, #0x08]
++	str	r0, [r6, #0x14]
++	ldr	r0, PLL_VAL2
++	str	r0, [r6, #0x08]
++	str	r0, [r6, #0x14]
++	/* Strobe */
++	ldr	r2, PLL_VAL3
++	str	r2, [r6, #0x08]
++	str	r2, [r6, #0x14]
++	ldr	r2, PLL_VAL2
++	str	r2, [r6, #0x08]
++	str	r2, [r6, #0x14]
++pll1_lock_1:
++	/* Set the pll_lock bit(0) in PLL1_CTR register in misc space*/
++	ldr	r2, [r6, #0x08]
++	and	r2, r2, #0x1
++	/* Wait for pll-1 lock status */
++	cmp	r2, #0x1
++	bne	pll1_lock_1
++
++pll2_lock_2:
++	/* Set the pll_lock bit(0) in PLL2_CTR register in misc space*/
++	ldr	r2, [r6, #0x14]
++	and	r2, r2, #0x1
++	/* Wait for pll-2 lock status */
++	cmp	r2, #0x1
++	bne	pll2_lock_2
++
++	/* Move the system in Normal mode, use system controller */
++	ldr	r3, [r8]
++	/* Set the apt mode bits(2:0) in SCCTRL register */
++	bic	r3, r3, #0x7
++	orr	r3, r3, #0x4
++	str	r3, [r8]
++
++wait_till_norm_mode:
++	ldr	r3, [r8]
++	and	r3, r3, #0x78
++	cmp	r3, #0x20	/* Poll the SCCTRL register status bits (6:3) */
++	bne	wait_till_norm_mode
++
++	/* Resume the DDR from Low power mode. */
++	ldr	r0, [r6, #0xf0]
++	/* Set DDR_LOW_POWER_DDR2_MODE bit(1) of DDR_PAD register */
++	orr	r0, r0, #0x01
++	str	r0, [r6, #0xf0]
++
++	/* Exit DDR-SDRAM from self-refresh mode */
++	ldr	r1, [r7, #0x1c]
++	/* clear the SREFRESH bit(16) */
++	ldr	r4, =0x10000
++	bic	r1, r1, r4
++	str	r1, [r7, #0x1c]
++
++	/* Begin the command processing in controller */
++	ldr	r4, =0x1000000
++	/* Set START bit(24) of MEMCTL_GP_03 register in MPMC*/
++	orr	r1, r1, r4
++	str	r1, [r7, #0x1c]
++
++	mov	r0, r0
++	/* Start the Restore Processing */
++	ldr	r0, SCRATCH_PAD
++	ldr	r6, [r0]
++
++	/* Restore the Virtual Address to be used */
++	/* Once MMU is made on */
++	ldr	r0, SRAM_START_P
++	adr	r1, mmu_on
++	sub	r0, r1, r0
++	/* Get the physical Address */
++	mov	r3, #0xc0000000
++	sub	r6, r6, r3
++	/* Fetch the sram virtual address */
++	ldmfd	r6!, {r1}
++	add	r4, r1, r0
++
++	/* Fetch the MMU Related information latched on SDRAM */
++	ldmfd	r6!, {r0, r1, r2}
++	/* Enable the MMU */
++	mcr	p15, 0, r2, c3, c0, 0
++	mcr	p15, 0, r1, c2, c0, 0
++	mcr	p15, 0, r0, c1, c0, 0
++	bx	r4
++mmu_on:
++	add	r6, r6, r3
++	/* Store the value of cpsr in R0 */
++	mrs	r0, cpsr
++	bic	r0, r0, #MODE_BITS
++
++	/* Here we will restore our cpsr IRQ/FIQ Disabled */
++	ldr	r0, [r6]
++	msr	cpsr_cxsf, r0
++	add	r6, r6, #4
++
++	/* Now only two user-mode registers are left */
++	ldmfd	r6!, {sp, lr}
++	mov	r0, r0
++
++	/* Restore stack pointer for the current mode */
++	mov	sp, r6
++
++	ldmfd	sp!, {r0-r9}
++	mcr	p15, 0, r0, c5, c0, 0 /* FSR--Domain Fault */
++	mcr	p15, 0, r1, c5, c0, 1 /* FSR--Instruction Fault */
++	mcr	p15, 0, r2, c6, c0, 0 /* FAR */
++	mcr	p15, 0, r3, c9, c0, 0 /* Read Dcache Lockdown */
++	mcr	p15, 0, r4, c9, c0, 1 /* Read ICache Lockdown */
++	mcr 	p15, 0, r5, c9, c1, 0 /* Read Data TLB */
++	mcr	p15, 0, r6, c9, c1, 1 /* Read Instruction Lockdown */
++
++	mcr	p15, 0, r7, c10, c0, 0 /* Data TLB LockDown operation */
++	mcr	p15, 0, r8, c13, c0, 0 /* FCSE--PID */
++	mcr	p15, 0, r9, c13, c0, 1 /* Context-ID */
++
++	mov	r0, #0
++	ldmfd	sp!, {r0-r12, pc}
++
++SYS_CTRL_BASE_P :
++	.word SYS_CTRL_BASE_PA
++MPMC_BASE_P :
++	.word MPMC_BASE_PA
++MISC_BASE_P :
++	.word MISC_BASE_PA
++SRAM_START_P:
++	.word SPEAR_START_SRAM
++SCRATCH_PAD:
++	.word SPEAR_SRAM_SCR_REG
++DISABLE_I_C_M_V:
++	.word 0x1005
++PLL_VAL1:
++	.word 0x1c0a
++PLL_VAL2:
++	.word 0x1c0e
++PLL_VAL3:
++	.word 0x1c06
++ENTRY(spear_sleep_mode_sz)
++	.word . - spear_sleep_mode
 -- 
 1.7.2.2
+

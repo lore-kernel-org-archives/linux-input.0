@@ -1,1273 +1,557 @@
-From: Viresh KUMAR <viresh.kumar@st.com>
-Subject: [PATCH V2 25/69] ST SPEAr: Add smi driver for serial NOR flash
-Date: Fri,  1 Oct 2010 17:25:45 +0530
-Message-ID: <238bd0ff57f8530c597157bc07f6c46dc362e1bc.1285933331.git.viresh.kumar@st.com>
+From: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH V2 37/69] ST SPEAr 13xx : Adding support for SPEAr1310
+Date: Fri,  1 Oct 2010 17:25:57 +0530
+Message-ID: <99ee2c24fa9e2ec42bbb71ea3f21d4b67ad8634b.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog106.obsmtp.com ([207.126.144.121]:33555 "EHLO
-	eu1sys200aog106.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756584Ab0JAL6F (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 Oct 2010 07:58:05 -0400
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-References: <cover.1285933331.git.viresh.kumar@st.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+References: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry
+Cc: Bhupesh Sharma <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, shiraz.hashim-qxv4g6HH51o@public.gmane.org, vipin.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, armando.visconti-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
-Cc: Shiraz Hashim <shiraz.hashim@st.com>, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
 
-From: Shiraz Hashim <shiraz.hashim@st.com>
+From: Bhupesh Sharma <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
 
-SPEAr platforms(spear3xx/spear6xx/spear13xx) provide SMI(Serial Memory
-Interface) controller to access serial NOR flash. SMI provides a simple
-interface for SPI/serial NOR flashes and has certain inbuilt commands
-and features to support these flashes easily. It also makes it possible
-to map an address range in order to directly access (read/write) the SNOR
-over address bus. This patch intends to provide serial nor driver support
-for spear platforms which are accessed through SMI.
+This patch adds support for SPEAr1310 Machine and evaluation board
 
-Signed-off-by: Shiraz Hashim <shiraz.hashim@st.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Signed-off-by: Bhupesh Sharma <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: shiraz hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
 ---
- arch/arm/plat-spear/include/plat/smi.h |   68 ++
- drivers/mtd/devices/Kconfig            |    7 +
- drivers/mtd/devices/Makefile           |    1 +
- drivers/mtd/devices/spear_smi.c        | 1122 ++++++++++++++++++++++++++++++++
- 4 files changed, 1198 insertions(+), 0 deletions(-)
- create mode 100644 arch/arm/plat-spear/include/plat/smi.h
- create mode 100644 drivers/mtd/devices/spear_smi.c
+ arch/arm/Makefile                                |    1 +
+ arch/arm/configs/spear13xx_defconfig             |    1 +
+ arch/arm/mach-spear13xx/Kconfig                  |   11 ++
+ arch/arm/mach-spear13xx/Makefile                 |    6 +
+ arch/arm/mach-spear13xx/include/mach/generic.h   |   21 +++-
+ arch/arm/mach-spear13xx/include/mach/irqs.h      |   37 ++++++
+ arch/arm/mach-spear13xx/include/mach/spear.h     |    1 +
+ arch/arm/mach-spear13xx/include/mach/spear1310.h |   31 +++++
+ arch/arm/mach-spear13xx/spear1310.c              |   62 ++++++++++
+ arch/arm/mach-spear13xx/spear1310_evb.c          |  140 ++++++++++++++++++++++
+ arch/arm/mach-spear3xx/include/mach/generic.h    |    2 +
+ arch/arm/mach-spear3xx/spear320.c                |   37 ++++++
+ arch/arm/mach-spear3xx/spear320_evb.c            |    2 +
+ arch/arm/plat-spear/Makefile                     |    1 +
+ 14 files changed, 350 insertions(+), 3 deletions(-)
+ create mode 100644 arch/arm/mach-spear13xx/include/mach/spear1310.h
+ create mode 100644 arch/arm/mach-spear13xx/spear1310.c
+ create mode 100644 arch/arm/mach-spear13xx/spear1310_evb.c
 
-diff --git a/arch/arm/plat-spear/include/plat/smi.h b/arch/arm/plat-spear/include/plat/smi.h
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index d5177d7..950a9b5 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -192,6 +192,7 @@ machine-$(CONFIG_ARCH_W90X900)		:= w90x900
+ machine-$(CONFIG_ARCH_NUC93X)		:= nuc93x
+ machine-$(CONFIG_FOOTBRIDGE)		:= footbridge
+ machine-$(CONFIG_MACH_SPEAR1300)	:= spear13xx
++machine-$(CONFIG_MACH_SPEAR1310)	:= spear13xx
+ machine-$(CONFIG_MACH_SPEAR300)		:= spear3xx
+ machine-$(CONFIG_MACH_SPEAR310)		:= spear3xx
+ machine-$(CONFIG_MACH_SPEAR320)		:= spear3xx
+diff --git a/arch/arm/configs/spear13xx_defconfig b/arch/arm/configs/spear13xx_defconfig
+index 10b1cf5..9f3baf8 100644
+--- a/arch/arm/configs/spear13xx_defconfig
++++ b/arch/arm/configs/spear13xx_defconfig
+@@ -9,6 +9,7 @@ CONFIG_MODVERSIONS=y
+ CONFIG_PLAT_SPEAR=y
+ CONFIG_ARCH_SPEAR13XX=y
+ CONFIG_BOARD_SPEAR1300_EVB=y
++CONFIG_BOARD_SPEAR1310_EVB=y
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=2
+ CONFIG_AEABI=y
+diff --git a/arch/arm/mach-spear13xx/Kconfig b/arch/arm/mach-spear13xx/Kconfig
+index 3ea463d..229ef93 100644
+--- a/arch/arm/mach-spear13xx/Kconfig
++++ b/arch/arm/mach-spear13xx/Kconfig
+@@ -11,6 +11,12 @@ config BOARD_SPEAR1300_EVB
+ 	help
+ 	  Supports ST SPEAr1300 Evaluation Board
+ 
++config BOARD_SPEAR1310_EVB
++	bool "SPEAr1310 Evaluation Board"
++	select MACH_SPEAR1310
++	help
++	  Supports ST SPEAr1310 Evaluation Board
++
+ endmenu
+ 
+ config MACH_SPEAR1300
+@@ -18,4 +24,9 @@ config MACH_SPEAR1300
+ 	help
+ 	  Supports ST SPEAr1300 Machine
+ 
++config MACH_SPEAR1310
++	bool "SPEAr1310"
++	help
++	  Supports ST SPEAr1310 Machine
++
+ endif #ARCH_SPEAR13XX
+diff --git a/arch/arm/mach-spear13xx/Makefile b/arch/arm/mach-spear13xx/Makefile
+index 4f1cbc5..838405a 100644
+--- a/arch/arm/mach-spear13xx/Makefile
++++ b/arch/arm/mach-spear13xx/Makefile
+@@ -13,3 +13,9 @@ obj-$(CONFIG_MACH_SPEAR1300)		+= spear1300.o
+ 
+ # spear1300 boards files
+ obj-$(CONFIG_BOARD_SPEAR1300_EVB)	+= spear1300_evb.o
++
++# spear1310 specific files
++obj-$(CONFIG_MACH_SPEAR1310)		+= spear1310.o
++
++# spear1310 boards files
++obj-$(CONFIG_BOARD_SPEAR1310_EVB)	+= spear1310_evb.o
+diff --git a/arch/arm/mach-spear13xx/include/mach/generic.h b/arch/arm/mach-spear13xx/include/mach/generic.h
+index bfd0667..83be1f2 100644
+--- a/arch/arm/mach-spear13xx/include/mach/generic.h
++++ b/arch/arm/mach-spear13xx/include/mach/generic.h
+@@ -44,17 +44,32 @@ extern struct platform_device spear13xx_sdhci_device;
+ extern struct platform_device spear13xx_smi_device;
+ extern struct sys_timer spear13xx_timer;
+ 
+-/* Add spear1300 machine device structure declarations here */
+-
+ /* Add spear13xx family function declarations here */
+ void __init clk_init(void);
+ void __init i2c_register_board_devices(void);
+ void __init spear_setup_timer(void);
+-void __init spear1300_init(void);
+ void __init spear13xx_map_io(void);
+ void __init spear13xx_init_irq(void);
+ void __init spear13xx_init(void);
+ void __init nand_mach_init(u32 busw);
+ void spear13xx_secondary_startup(void);
+ 
++/* spear1300 declarations */
++#ifdef CONFIG_MACH_SPEAR1300
++/* Add spear1300 machine function declarations here */
++void __init spear1300_init(void);
++
++#endif /* CONFIG_MACH_SPEAR1300 */
++
++/* spear1310 declarations */
++#ifdef CONFIG_MACH_SPEAR1310
++/* Add spear1310 machine device structure declarations here */
++extern struct platform_device spear1310_can0_device;
++extern struct platform_device spear1310_can1_device;
++
++/* Add spear1310 machine function declarations here */
++void __init spear1310_init(void);
++
++#endif /* CONFIG_MACH_SPEAR1310 */
++
+ #endif /* __MACH_GENERIC_H */
+diff --git a/arch/arm/mach-spear13xx/include/mach/irqs.h b/arch/arm/mach-spear13xx/include/mach/irqs.h
+index d2bfbb1..1ca70a6 100644
+--- a/arch/arm/mach-spear13xx/include/mach/irqs.h
++++ b/arch/arm/mach-spear13xx/include/mach/irqs.h
+@@ -5,6 +5,7 @@
+  *
+  * Copyright (C) 2010 ST Microelectronics
+  * Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
++ * Bhupesh Sharma <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
+  *
+  * This file is licensed under the terms of the GNU General Public
+  * License version 2. This program is licensed "as is" without any
+@@ -84,6 +85,42 @@
+ #define IRQ_PCIE1		(IRQ_SHPI_START + 69)
+ #define IRQ_PCIE2		(IRQ_SHPI_START + 70)
+ 
++/* Add spear1310 specific IRQs here */
++#ifdef CONFIG_MACH_SPEAR1310
++#define IRQ_FSMC_PC1		(IRQ_SHPI_START + 76)
++#define IRQ_FSMC_PC2		(IRQ_SHPI_START + 77)
++#define IRQ_FSMC_PC3		(IRQ_SHPI_START + 78)
++#define IRQ_FSMC_PC4		(IRQ_SHPI_START + 79)
++#define IRQ_RS4850		(IRQ_SHPI_START + 80)
++#define IRQ_RS4851		(IRQ_SHPI_START + 81)
++#define IRQ_CCAN0		(IRQ_SHPI_START + 82)
++#define IRQ_CCAN1		(IRQ_SHPI_START + 83)
++#define IRQ_TDM0		(IRQ_SHPI_START + 84)
++#define IRQ_TDM1		(IRQ_SHPI_START + 85)
++#define IRQ_UART0		(IRQ_SHPI_START + 86)
++#define IRQ_UART1		(IRQ_SHPI_START + 87)
++#define IRQ_UART2		(IRQ_SHPI_START + 88)
++#define IRQ_UART3		(IRQ_SHPI_START + 89)
++#define IRQ_UART4		(IRQ_SHPI_START + 90)
++#define IRQ_I2C_CNTR		(IRQ_SHPI_START + 91)
++#define IRQ_GMAC0_SBD		(IRQ_SHPI_START + 92)
++#define IRQ_GMAC0_PMT		(IRQ_SHPI_START + 93)
++#define IRQ_GMAC1_SBD		(IRQ_SHPI_START + 94)
++#define IRQ_GMAC1_PMT		(IRQ_SHPI_START + 95)
++#define IRQ_GMAC2_SBD		(IRQ_SHPI_START + 96)
++#define IRQ_GMAC2_PMT		(IRQ_SHPI_START + 97)
++#define IRQ_GMAC3_SBD		(IRQ_SHPI_START + 98)
++#define IRQ_GMAC3_PMT		(IRQ_SHPI_START + 99)
++#define IRQ_GPIO		(IRQ_SHPI_START + 100)
++#define IRQ_PCI_BRDG_HOST_FATAL (IRQ_SHPI_START + 101)
++#define IRQ_PCI_INTA		(IRQ_SHPI_START + 102)
++#define IRQ_PCI_INTB		(IRQ_SHPI_START + 103)
++#define IRQ_PCI_INTC		(IRQ_SHPI_START + 104)
++#define IRQ_PCI_INTD		(IRQ_SHPI_START + 105)
++#define IRQ_PCI_ME_TO_ARM	(IRQ_SHPI_START + 106)
++#define IRQ_PCI_SERR_TO_ARM	(IRQ_SHPI_START + 107)
++#endif /* CONFIG_MACH_SPEAR1310 */
++
+ #define IRQ_GIC_END		(IRQ_SHPI_START + 128)
+ 
+ #define VIRQ_START		IRQ_GIC_END
+diff --git a/arch/arm/mach-spear13xx/include/mach/spear.h b/arch/arm/mach-spear13xx/include/mach/spear.h
+index 1a1af72..cf25eb5 100644
+--- a/arch/arm/mach-spear13xx/include/mach/spear.h
++++ b/arch/arm/mach-spear13xx/include/mach/spear.h
+@@ -16,6 +16,7 @@
+ 
+ #include <asm/memory.h>
+ #include <mach/spear1300.h>
++#include <mach/spear1310.h>
+ 
+ #define SPEAR13XX_L2CC_BASE		UL(0xED000000)
+ 
+diff --git a/arch/arm/mach-spear13xx/include/mach/spear1310.h b/arch/arm/mach-spear13xx/include/mach/spear1310.h
 new file mode 100644
-index 0000000..4c74df7
+index 0000000..e57c99a
 --- /dev/null
-+++ b/arch/arm/plat-spear/include/plat/smi.h
-@@ -0,0 +1,68 @@
++++ b/arch/arm/mach-spear13xx/include/mach/spear1310.h
+@@ -0,0 +1,31 @@
 +/*
-+ * arch/arm/plat-spear/include/plat/smi.h
++ * arch/arm/mach-spear13xx/include/mach/spear1310.h
++ *
++ * SPEAr1310 Machine specific definition
 + *
 + * Copyright (C) 2010 ST Microelectronics
-+ * Shiraz Hashim <shiraz.hashim@st.com>
++ * Bhupesh Sharma <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
 + *
 + * This file is licensed under the terms of the GNU General Public
 + * License version 2. This program is licensed "as is" without any
 + * warranty of any kind, whether express or implied.
 + */
 +
-+#ifndef __PLAT_SMI_H
-+#define __PLAT_SMI_H
++#ifdef CONFIG_MACH_SPEAR1310
++
++#ifndef __MACH_SPEAR1310_H
++#define __MACH_SPEAR1310_H
++
++#define SPEAR1310_CAN0_BASE		UL(0x6DA00000)
++#define SPEAR1310_CAN1_BASE		UL(0x6DB00000)
++#define SPEAR1310_RAS_BASE		UL(0x6C800000)
++
++/* RAS Area Control Register */
++#define SPEAR1310_RAS_CTRL_REG0		(SPEAR1310_RAS_BASE + 0x0)
++#define SPEAR1310_RAS_CTRL_REG1		(SPEAR1310_RAS_BASE + 0x4)
++#define SPEAR1310_PHY_CLK_MASK		0xF
++#define SPEAR1310_PHY_CLK_SHIFT		0
++
++#endif /* __MACH_SPEAR1310_H */
++
++#endif /* CONFIG_MACH_SPEAR1310 */
+diff --git a/arch/arm/mach-spear13xx/spear1310.c b/arch/arm/mach-spear13xx/spear1310.c
+new file mode 100644
+index 0000000..648dabc
+--- /dev/null
++++ b/arch/arm/mach-spear13xx/spear1310.c
+@@ -0,0 +1,62 @@
++/*
++ * arch/arm/mach-spear13xx/spear1310.c
++ *
++ * SPEAr1310 machine source file
++ *
++ * Copyright (C) 2010 ST Microelectronics
++ * Bhupesh Sharma <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/ptrace.h>
++#include <asm/irq.h>
++#include <mach/generic.h>
++#include <mach/hardware.h>
++
++/* Add spear1310 specific devices here */
++
++/* CAN device registeration */
++static struct resource can0_resources[] = {
++	{
++		.start = SPEAR1310_CAN0_BASE,
++		.end = SPEAR1310_CAN0_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	}, {
++		.start = IRQ_CCAN0,
++		.flags = IORESOURCE_IRQ,
++	},
++};
++
++struct platform_device spear1310_can0_device = {
++	.name = "spear_can",
++	.id = 0,
++	.num_resources = ARRAY_SIZE(can0_resources),
++	.resource = can0_resources,
++};
++
++static struct resource can1_resources[] = {
++	{
++		.start = SPEAR1310_CAN1_BASE,
++		.end = SPEAR1310_CAN1_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	}, {
++		.start = IRQ_CCAN1,
++		.flags = IORESOURCE_IRQ,
++	},
++};
++
++struct platform_device spear1310_can1_device = {
++	.name = "spear_can",
++	.id = 1,
++	.num_resources = ARRAY_SIZE(can1_resources),
++	.resource = can1_resources,
++};
++
++void __init spear1310_init(void)
++{
++	/* call spear13xx family common init function */
++	spear13xx_init();
++}
+diff --git a/arch/arm/mach-spear13xx/spear1310_evb.c b/arch/arm/mach-spear13xx/spear1310_evb.c
+new file mode 100644
+index 0000000..c1227bc
+--- /dev/null
++++ b/arch/arm/mach-spear13xx/spear1310_evb.c
+@@ -0,0 +1,140 @@
++/*
++ * arch/arm/mach-spear13xx/spear1310_evb.c
++ *
++ * SPEAr1310 evaluation board source file
++ *
++ * Copyright (C) 2010 ST Microelectronics
++ * Bhupesh Sharma <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
 +
 +#include <linux/types.h>
-+#include <linux/mtd/mtd.h>
-+#include <linux/mtd/partitions.h>
-+#include <linux/platform_device.h>
-+
-+/* macro to define partitions for flash devices */
-+#define DEFINE_PARTS(n, of, s)		\
-+{					\
-+	.name = n,			\
-+	.offset = of,			\
-+	.size = s,			\
-+}
-+
-+/**
-+ * struct spear_smi_flash_info - platform structure for passing flash
-+ * information
-+ *
-+ * name: name of the serial nor flash for identification
-+ * mem_base: the memory base on which the flash is mapped
-+ * size: size of the flash in bytes
-+ * num_parts: number of partitions
-+ * parts: parition details
-+ * fast_mode: whether flash supports fast mode
-+ */
-+
-+struct spear_smi_flash_info {
-+	char *name;
-+	unsigned long mem_base;
-+	unsigned long size;
-+	int num_parts;
-+	struct mtd_partition *parts;
-+	u8 fast_mode;
-+};
-+
-+/**
-+ * struct spear_smi_plat_data - platform structure for configuring smi
-+ *
-+ * clk_rate: clk rate at which SMI must operate
-+ * num_flashes: number of flashes present on board
-+ * board_flash_info: specific details of each flash present on board
-+ */
-+struct spear_smi_plat_data {
-+	unsigned long clk_rate;
-+	int num_flashes;
-+	struct spear_smi_flash_info *board_flash_info;
-+};
-+
-+static inline void smi_set_plat_data(struct platform_device *pdev,
-+		struct spear_smi_plat_data *pdata)
-+{
-+	pdev->dev.platform_data = pdata;
-+}
-+
-+#endif /* __PLAT_SMI_H */
-diff --git a/drivers/mtd/devices/Kconfig b/drivers/mtd/devices/Kconfig
-index 35081ce..83daf23 100644
---- a/drivers/mtd/devices/Kconfig
-+++ b/drivers/mtd/devices/Kconfig
-@@ -102,6 +102,13 @@ config M25PXX_USE_FAST_READ
- 	help
- 	  This option enables FAST_READ access supported by ST M25Pxx.
- 
-+config MTD_SPEAR_SMI
-+	tristate "SPEAR MTD NOR Support through SMI controller"
-+	depends on PLAT_SPEAR
-+	default y
-+	help
-+	  This enable SNOR support on SPEAR platforms using SMI controller
-+
- config MTD_SST25L
- 	tristate "Support SST25L (non JEDEC) SPI Flash chips"
- 	depends on SPI_MASTER
-diff --git a/drivers/mtd/devices/Makefile b/drivers/mtd/devices/Makefile
-index f3226b1..6e9063b 100644
---- a/drivers/mtd/devices/Makefile
-+++ b/drivers/mtd/devices/Makefile
-@@ -16,4 +16,5 @@ obj-$(CONFIG_MTD_LART)		+= lart.o
- obj-$(CONFIG_MTD_BLOCK2MTD)	+= block2mtd.o
- obj-$(CONFIG_MTD_DATAFLASH)	+= mtd_dataflash.o
- obj-$(CONFIG_MTD_M25P80)	+= m25p80.o
-+obj-$(CONFIG_MTD_SPEAR_SMI)	+= spear_smi.o
- obj-$(CONFIG_MTD_SST25L)	+= sst25l.o
-diff --git a/drivers/mtd/devices/spear_smi.c b/drivers/mtd/devices/spear_smi.c
-new file mode 100644
-index 0000000..6dd7de1
---- /dev/null
-+++ b/drivers/mtd/devices/spear_smi.c
-@@ -0,0 +1,1122 @@
-+/*
-+ * linux/drivers/mtd/devices/spear_smi.c
-+ *
-+ * SMI (Serial Memory Controller) device driver for Serial NOR Flash on
-+ * SPEAr platform
-+ * The serial nor interface is largely based on drivers/mtd/m25p80.c,
-+ * however the SPI interface has been replaced by SMI.
-+ *
-+ * Copyright (C) 2010 STMicroelectronics.
-+ * Ashish Priyadarshi
-+ * Shiraz Hashim <shiraz.hashim@st.com>
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/ioport.h>
-+#include <linux/jiffies.h>
-+#include <linux/kernel.h>
-+#include <linux/param.h>
-+#include <linux/platform_device.h>
-+#include <linux/mtd/mtd.h>
-+#include <linux/mtd/partitions.h>
-+#include <linux/mutex.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/wait.h>
++#include <linux/gpio.h>
++#include <linux/mtd/nand.h>
++#include <mtd/fsmc.h>
++#include <linux/spi/flash.h>
++#include <linux/spi/spi.h>
++#include <asm/mach/arch.h>
++#include <asm/mach-types.h>
++#include <mach/generic.h>
++#include <mach/spear.h>
++#include <mach/pcie.h>
++#include <plat/keyboard.h>
++#include <plat/fsmc.h>
 +#include <plat/smi.h>
++#include <plat/spi.h>
 +
-+/* max possible slots for serial-nor flash chip in the SMI controller */
-+#define MAX_NUM_FLASH_CHIP	4
-+
-+/* SMI clock rate */
-+#define SMI_MAX_CLOCK_FREQ	50000000 /* 50 MHz */
-+
-+/* MAX time out to safely come out of a erase or write busy conditions */
-+#define SMI_PROBE_TIMEOUT	(HZ / 10)
-+#define SMI_MAX_TIME_OUT	(3 * HZ)
-+
-+/* timeout for command completion */
-+#define SMI_CMD_TIMEOUT		(HZ / 10)
-+
-+/* registers of smi */
-+#define SMI_CR1		0x0	/* SMI control register 1 */
-+#define SMI_CR2		0x4	/* SMI control register 2 */
-+#define SMI_SR		0x8	/* SMI status register */
-+#define SMI_TR		0xC	/* SMI transmit register */
-+#define SMI_RR		0x10	/* SMI receive register */
-+
-+/* defines for control_reg 1 */
-+#define BANK_EN		(0xF << 0)	/* enables all banks */
-+#define DSEL_TIME	(0x6 << 4)	/* Deselect time 6 + 1 SMI_CK periods */
-+#define SW_MODE		(0x1 << 28)	/* enables SW Mode */
-+#define WB_MODE		(0x1 << 29)	/* Write Burst Mode */
-+#define FAST_MODE	(0x1 << 15)	/* Fast Mode */
-+#define HOLD1		(0x1 << 16)	/* Clock Hold period selection */
-+
-+/* defines for control_reg 2 */
-+#define SEND		(0x1 << 7)	/* Send data */
-+#define TFIE		(0x1 << 8)	/* Transmission Flag Interrupt Enable */
-+#define WCIE		(0x1 << 9)	/* Write Complete Interrupt Enable */
-+#define RD_STATUS_REG	(0x1 << 10)	/* reads status reg */
-+#define WE		(0x1 << 11)	/* Write Enable */
-+
-+#define TX_LEN_SHIFT	0
-+#define RX_LEN_SHIFT	4
-+#define BANK_SHIFT	12
-+
-+/* defines for status register */
-+#define SR_WIP		0x1	/* Write in progress */
-+#define SR_WEL		0x2	/* Write enable latch */
-+#define SR_BP0		0x4	/* Block protect 0 */
-+#define SR_BP1		0x8	/* Block protect 1 */
-+#define SR_BP2		0x10	/* Block protect 2 */
-+#define SR_SRWD		0x80	/* SR write protect */
-+#define TFF		0x100	/* Transfer Finished Flag */
-+#define WCF		0x200	/* Transfer Finished Flag */
-+#define ERF1		0x400	/* Forbidden Write Request */
-+#define ERF2		0x800	/* Forbidden Access */
-+
-+#define WM_SHIFT	12
-+
-+/* flash opcodes */
-+#define OPCODE_RDID	0x9f	/* Read JEDEC ID */
-+
-+/* Flash Device Ids maintenance section */
-+
-+/* data structure to maintain flash ids from different vendors */
-+struct flash_device {
-+	char *name;
-+	u8 erase_cmd;
-+	u32 device_id;
-+	u32 pagesize;
-+	unsigned long sectorsize;
-+	unsigned long size_in_bytes;
++static struct amba_device *amba_devs[] __initdata = {
++	/* spear13xx specific devices */
++	&spear13xx_gpio_device[0],
++	&spear13xx_gpio_device[1],
++	&spear13xx_ssp_device,
++	&spear13xx_uart_device,
 +};
 +
-+#define FLASH_ID(n, es, id, psize, ssize, size)	\
-+{				\
-+	.name = n,		\
-+	.erase_cmd = es,	\
-+	.device_id = id,	\
-+	.pagesize = psize,	\
-+	.sectorsize = ssize,	\
-+	.size_in_bytes = size	\
-+}
++static struct platform_device *plat_devs[] __initdata = {
++	/* spear13xx specific devices */
++	&spear13xx_ehci0_device,
++	&spear13xx_ehci1_device,
++	&spear13xx_i2c_device,
++	&spear13xx_kbd_device,
++	&spear13xx_nand_device,
++	&spear13xx_ohci0_device,
++	&spear13xx_ohci1_device,
++	&spear13xx_rtc_device,
++	&spear13xx_sdhci_device,
++	&spear13xx_smi_device,
 +
-+static struct flash_device flash_devices[] = {
-+	FLASH_ID("st m25p16"     , 0xd8, 0x00152020, 0x100, 0x10000, 0x200000),
-+	FLASH_ID("st m25p32"     , 0xd8, 0x00162020, 0x100, 0x10000, 0x400000),
-+	FLASH_ID("st m25p64"     , 0xd8, 0x00172020, 0x100, 0x10000, 0x800000),
-+	FLASH_ID("st m25p128"    , 0xd8, 0x00182020, 0x100, 0x40000, 0x1000000),
-+	FLASH_ID("st m25p05"     , 0xd8, 0x00102020, 0x80 , 0x8000 , 0x10000),
-+	FLASH_ID("st m25p10"     , 0xd8, 0x00112020, 0x80 , 0x8000 , 0x20000),
-+	FLASH_ID("st m25p20"     , 0xd8, 0x00122020, 0x100, 0x10000, 0x40000),
-+	FLASH_ID("st m25p40"     , 0xd8, 0x00132020, 0x100, 0x10000, 0x80000),
-+	FLASH_ID("st m25p80"     , 0xd8, 0x00142020, 0x100, 0x10000, 0x100000),
-+	FLASH_ID("st m45pe10"    , 0xd8, 0x00114020, 0x100, 0x10000, 0x20000),
-+	FLASH_ID("st m45pe20"    , 0xd8, 0x00124020, 0x100, 0x10000, 0x40000),
-+	FLASH_ID("st m45pe40"    , 0xd8, 0x00134020, 0x100, 0x10000, 0x80000),
-+	FLASH_ID("st m45pe80"    , 0xd8, 0x00144020, 0x100, 0x10000, 0x100000),
-+	FLASH_ID("sp s25fl004"   , 0xd8, 0x00120201, 0x100, 0x10000, 0x80000),
-+	FLASH_ID("sp s25fl008"   , 0xd8, 0x00130201, 0x100, 0x10000, 0x100000),
-+	FLASH_ID("sp s25fl016"   , 0xd8, 0x00140201, 0x100, 0x10000, 0x200000),
-+	FLASH_ID("sp s25fl032"   , 0xd8, 0x00150201, 0x100, 0x10000, 0x400000),
-+	FLASH_ID("sp s25fl064"   , 0xd8, 0x00160201, 0x100, 0x10000, 0x800000),
-+	FLASH_ID("atmel 25f512"  , 0x52, 0x0065001F, 0x80 , 0x8000 , 0x10000),
-+	FLASH_ID("atmel 25f1024" , 0x52, 0x0060001F, 0x100, 0x8000 , 0x20000),
-+	FLASH_ID("atmel 25f2048" , 0x52, 0x0063001F, 0x100, 0x10000, 0x40000),
-+	FLASH_ID("atmel 25f4096" , 0x52, 0x0064001F, 0x100, 0x10000, 0x80000),
-+	FLASH_ID("atmel 25fs040" , 0xd7, 0x0004661F, 0x100, 0x10000, 0x80000),
-+	FLASH_ID("mac 25l512"    , 0xd8, 0x001020C2, 0x010, 0x10000, 0x10000),
-+	FLASH_ID("mac 25l1005"   , 0xd8, 0x001120C2, 0x010, 0x10000, 0x20000),
-+	FLASH_ID("mac 25l2005"   , 0xd8, 0x001220C2, 0x010, 0x10000, 0x40000),
-+	FLASH_ID("mac 25l4005"   , 0xd8, 0x001320C2, 0x010, 0x10000, 0x80000),
-+	FLASH_ID("mac 25l4005a"  , 0xd8, 0x001320C2, 0x010, 0x10000, 0x80000),
-+	FLASH_ID("mac 25l8005"   , 0xd8, 0x001420C2, 0x010, 0x10000, 0x100000),
-+	FLASH_ID("mac 25l1605"   , 0xd8, 0x001520C2, 0x100, 0x10000, 0x200000),
-+	FLASH_ID("mac 25l1605a"  , 0xd8, 0x001520C2, 0x010, 0x10000, 0x200000),
-+	FLASH_ID("mac 25l3205"   , 0xd8, 0x001620C2, 0x100, 0x10000, 0x400000),
-+	FLASH_ID("mac 25l3205a"  , 0xd8, 0x001620C2, 0x100, 0x10000, 0x400000),
-+	FLASH_ID("mac 25l6405"   , 0xd8, 0x001720C2, 0x100, 0x10000, 0x800000),
++	/* spear1310 specific devices */
++	&spear1310_can0_device,
++	&spear1310_can1_device,
 +};
 +
-+/* These partitions would be used if platform doesn't pass one */
-+static struct mtd_partition part_info_8M[] = {
-+	DEFINE_PARTS("Xloader", 0x00, 0x10000),
-+	DEFINE_PARTS("UBoot", 0x10000, 0x40000),
-+	DEFINE_PARTS("Kernel", 0x50000, 0x2C0000),
-+	DEFINE_PARTS("Root File System", 0x310000, 0x4F0000),
++/* keyboard specific platform data */
++static DECLARE_KEYMAP(spear_keymap);
++
++static struct kbd_platform_data kbd_data = {
++	.keymap = spear_keymap,
++	.keymapsize = ARRAY_SIZE(spear_keymap),
++	.rep = 1,
 +};
 +
-+static struct mtd_partition part_info_16M[] = {
-+	DEFINE_PARTS("Xloader", 0x00, 0x40000),
-+	DEFINE_PARTS("UBoot", 0x40000, 0x100000),
-+	DEFINE_PARTS("Kernel", 0x140000, 0x300000),
-+	DEFINE_PARTS("Root File System", 0x440000, 0xBC0000),
++static struct spi_board_info __initdata spi_board_info[] = {
 +};
 +
-+/* Define spear specific structures */
-+
-+struct spear_snor_flash;
-+
-+/**
-+ * struct spear_smi - Structure for SMI Device
-+ *
-+ * @clk: functional clock
-+ * @status: current status register of SMI.
-+ * @clk_rate: functional clock rate of SMI (default: SMI_MAX_CLOCK_FREQ)
-+ * @lock: lock to prevent parallel access of SMI.
-+ * @io_base: base address for registers of SMI.
-+ * @pdev: platform device
-+ * @cmd_complete: queue to wait for command completion of NOR-flash.
-+ * @num_flashes: number of flashes actually present on board.
-+ * @flash: separate structure for each Serial NOR-flash attached to SMI.
-+ */
-+struct spear_smi {
-+	struct clk *clk;
-+	u32 status;
-+	unsigned long clk_rate;
-+	struct mutex lock;
-+	void __iomem *io_base;
-+	struct platform_device *pdev;
-+	wait_queue_head_t cmd_complete;
-+	u32 num_flashes;
-+	struct spear_snor_flash *flash[MAX_NUM_FLASH_CHIP];
-+};
-+
-+/**
-+ * struct spear_snor_flash - Structure for Serial NOR Flash
-+ *
-+ * @bank: Bank number(0, 1, 2, 3) for each NOR-flash.
-+ * @dev_id: Device ID of NOR-flash.
-+ * @lock: lock to manage flash read, write and erase operations
-+ * @mtd: MTD info for each NOR-flash.
-+ * @num_parts: Total number of partition in each bank of NOR-flash.
-+ * @parts: Partition info for each bank of NOR-flash.
-+ * @page_size: Page size of NOR-flash.
-+ * @base_addr: Base address of NOR-flash.
-+ * @erase_cmd: erase command may vary on different flash types
-+ * @fast_mode: flash supports read in fast mode
-+ */
-+struct spear_snor_flash {
-+	u32 bank;
-+	u32 dev_id;
-+	struct mutex lock;
-+	struct mtd_info mtd;
-+	u32 num_parts;
-+	struct mtd_partition *parts;
-+	u32 page_size;
-+	void __iomem *base_addr;
-+	u8 erase_cmd;
-+	u8 fast_mode;
-+};
-+
-+static inline struct spear_snor_flash *get_flash_data(struct mtd_info *mtd)
++static void __init spi_init(void)
 +{
-+	return container_of(mtd, struct spear_snor_flash, mtd);
++	spi_register_board_info(spi_board_info, ARRAY_SIZE(spi_board_info));
 +}
 +
-+/**
-+ * spear_smi_read_sr - Read status register of flash through SMI
-+ * @dev: structure of SMI information.
-+ * @bank: bank to which flash is connected
-+ *
-+ * This routine will return the status register of the flash chip present at the
-+ * given bank.
++#ifdef CONFIG_PCIEPORTBUS
++/* this function is needed for PCIE host and device driver. Same
++ * controller can not be programmed as host as well as device. So host
++ * driver must call this function and if this function returns 1 then
++ * only host should add that particular port as RC.
++ * A port to be added as device, one must also add device's information
++ * in plat_devs array defined in this file.
++ * it is the responsibility of calling function to not send port number
++ * greter than max no of controller(3)
 + */
-+static int spear_smi_read_sr(struct spear_smi *dev, u32 bank)
++int spear1310_pcie_port_is_host(int port)
 +{
-+	int ret;
-+	u32 ctrlreg1;
-+
-+	mutex_lock(&dev->lock);
-+	dev->status = 0; /* Will be set in interrupt handler */
-+
-+	ctrlreg1 = readl(dev->io_base + SMI_CR1);
-+	/* program smi in hw mode */
-+	writel(ctrlreg1 & ~(SW_MODE | WB_MODE), dev->io_base + SMI_CR1);
-+
-+	/* performing a rsr instruction in hw mode */
-+	writel((bank << BANK_SHIFT) | RD_STATUS_REG | TFIE,
-+			dev->io_base + SMI_CR2);
-+
-+	/* wait for tff */
-+	ret = wait_event_interruptible_timeout(dev->cmd_complete,
-+			dev->status & TFF, SMI_CMD_TIMEOUT);
-+
-+	/* copy dev->status (lower 16 bits) in order to release lock */
-+	if (ret > 0)
-+		ret = dev->status & 0xffff;
-+	else
-+		ret = -EIO;
-+
-+	/* restore the ctrl regs state */
-+	writel(ctrlreg1, dev->io_base + SMI_CR1);
-+	writel(0, dev->io_base + SMI_CR2);
-+	mutex_unlock(&dev->lock);
-+
-+	return ret;
-+}
-+
-+/**
-+ * spear_smi_wait_till_ready - wait till flash is ready
-+ * @dev: structure of SMI information.
-+ * @bank: flash corresponding to this bank
-+ * @timeout: timeout for busy wait condition
-+ *
-+ * This routine checks for WIP (write in progress) bit in Status register
-+ * If successful the routine returns 0 else -EBUSY
-+ */
-+static int spear_smi_wait_till_ready(struct spear_smi *dev, u32 bank,
-+		unsigned long timeout)
-+{
-+	unsigned long finish;
-+	int status;
-+
-+	finish = jiffies + timeout;
-+	do {
-+		status = spear_smi_read_sr(dev, bank);
-+		if (status < 0)
-+			continue; /* try till timeout */
-+		else if (!(status & SR_WIP))
-+			return 0;
-+
-+		cond_resched();
-+	} while (!time_after_eq(jiffies, finish));
-+
-+	dev_err(&dev->pdev->dev, "smi controller is busy, timeout\n");
-+	return status;
-+}
-+
-+/**
-+ * spear_smi_int_handler - SMI Interrupt Handler.
-+ * @irq: irq number
-+ * @dev_id: structure of SMI device, embedded in dev_id.
-+ *
-+ * The handler clears all interrupt conditions and records the status in
-+ * dev->status which is used by the driver later.
-+ */
-+static irqreturn_t spear_smi_int_handler(int irq, void *dev_id)
-+{
-+	u32 status = 0;
-+	struct spear_smi *dev = dev_id;
-+
-+	status = readl(dev->io_base + SMI_SR);
-+
-+	if (unlikely(!status))
-+		return IRQ_NONE;
-+
-+	/* clear all interrupt conditions */
-+	writel(0, dev->io_base + SMI_SR);
-+
-+	/* copy the status register in dev->status */
-+	dev->status |= status;
-+
-+	/* send the completion */
-+	wake_up_interruptible(&dev->cmd_complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/**
-+ * spear_smi_hw_init - initializes the smi controller.
-+ * @dev: structure of smi device
-+ *
-+ * this routine initializes the smi controller wit the default values
-+ */
-+static void spear_smi_hw_init(struct spear_smi *dev)
-+{
-+	unsigned long rate = 0;
-+	u32 prescale = 0;
-+	u32 val;
-+
-+	rate = clk_get_rate(dev->clk);
-+
-+	/* functional clock of smi */
-+	prescale = DIV_ROUND_UP(rate, dev->clk_rate);
-+
-+	/*
-+	 * setting the standard values, fast mode, prescaler for
-+	 * SMI_MAX_CLOCK_FREQ (50MHz) operation and bank enable
-+	 */
-+	val = HOLD1 | BANK_EN | DSEL_TIME | (prescale << 8);
-+
-+	mutex_lock(&dev->lock);
-+	writel(val, dev->io_base + SMI_CR1);
-+	mutex_unlock(&dev->lock);
-+}
-+
-+/**
-+ * get_flash_index - match chip id from a flash list.
-+ * @flash_id: a valid nor flash chip id obtained from board.
-+ *
-+ * try to validate the chip id by matching from a list, if not found then simply
-+ * returns negative. In case of success returns index in to the flash devices
-+ * array.
-+ */
-+static int get_flash_index(u32 flash_id)
-+{
-+	int index;
-+
-+	/* Matches chip-id to entire list of 'serial-nor flash' ids */
-+	for (index = 0; index < ARRAY_SIZE(flash_devices); index++) {
-+		if (flash_devices[index].device_id == flash_id)
-+			return index;
-+	}
-+
-+	/* Memory chip is not listed and not supported */
-+	return -ENODEV;
-+}
-+
-+/**
-+ * spear_smi_write_enable - Enable the flash to do write operation
-+ * @dev: structure of SMI device
-+ * @bank: enable write for flash connected to this bank
-+ *
-+ * Set write enable latch with Write Enable command.
-+ * Returns 0 on success.
-+ */
-+static int spear_smi_write_enable(struct spear_smi *dev, u32 bank)
-+{
-+	int ret;
-+	u32 ctrlreg1;
-+
-+	mutex_lock(&dev->lock);
-+	dev->status = 0; /* Will be set in interrupt handler */
-+
-+	ctrlreg1 = readl(dev->io_base + SMI_CR1);
-+	/* program smi in h/w mode */
-+	writel(ctrlreg1 & ~SW_MODE, dev->io_base + SMI_CR1);
-+
-+	/* give the flash, write enable command */
-+	writel((bank << BANK_SHIFT) | WE | TFIE, dev->io_base + SMI_CR2);
-+
-+	ret = wait_event_interruptible_timeout(dev->cmd_complete,
-+			dev->status & TFF, SMI_CMD_TIMEOUT);
-+
-+	/* restore the ctrl regs state */
-+	writel(ctrlreg1, dev->io_base + SMI_CR1);
-+	writel(0, dev->io_base + SMI_CR2);
-+
-+	if (ret <= 0) {
-+		ret = -EIO;
-+		dev_err(&dev->pdev->dev,
-+			"smi controller failed on write enable\n");
-+	} else {
-+		/* check whether write mode status is set for required bank */
-+		if (dev->status & (1 << (bank + WM_SHIFT)))
-+			ret = 0;
-+		else {
-+			dev_err(&dev->pdev->dev, "couldn't enable write\n");
-+			ret = -EIO;
-+		}
-+	}
-+
-+	mutex_unlock(&dev->lock);
-+	return ret;
-+}
-+
-+static inline u32
-+get_sector_erase_cmd(struct spear_snor_flash *flash, u32 offset)
-+{
-+	u32 cmd;
-+	u8 *x = (u8 *)&cmd;
-+
-+	x[0] = flash->erase_cmd;
-+	x[1] = offset >> 16;
-+	x[2] = offset >> 8;
-+	x[3] = offset;
-+
-+	return cmd;
-+}
-+
-+/**
-+ * spear_smi_erase_sector - erase one sector of flash
-+ * @dev: structure of SMI information
-+ * @command: erase command to be send
-+ * @bank: bank to which this command needs to be send
-+ * @bytes: size of command
-+ *
-+ * Erase one sector of flash memory at offset ``offset'' which is any
-+ * address within the sector which should be erased.
-+ * Returns 0 if successful, non-zero otherwise.
-+ */
-+static int spear_smi_erase_sector(struct spear_smi *dev,
-+		u32 bank, u32 command, u32 bytes)
-+{
-+	u32 ctrlreg1 = 0;
-+	int ret;
-+
-+	ret = spear_smi_wait_till_ready(dev, bank, SMI_MAX_TIME_OUT);
-+	if (ret)
-+		return ret;
-+
-+	ret = spear_smi_write_enable(dev, bank);
-+	if (ret)
-+		return ret;
-+
-+	mutex_lock(&dev->lock);
-+
-+	ctrlreg1 = readl(dev->io_base + SMI_CR1);
-+	writel((ctrlreg1 | SW_MODE) & ~WB_MODE, dev->io_base + SMI_CR1);
-+
-+	/* send command in sw mode */
-+	writel(command, dev->io_base + SMI_TR);
-+
-+	writel((bank << BANK_SHIFT) | SEND | TFIE | (bytes << TX_LEN_SHIFT),
-+			dev->io_base + SMI_CR2);
-+
-+	ret = wait_event_interruptible_timeout(dev->cmd_complete,
-+			dev->status & TFF, SMI_CMD_TIMEOUT);
-+
-+	if (ret <= 0) {
-+		ret = -EIO;
-+		dev_err(&dev->pdev->dev, "sector erase failed\n");
-+	} else
-+		ret = 0; /* success */
-+
-+	/* restore ctrl regs */
-+	writel(ctrlreg1, dev->io_base + SMI_CR1);
-+	writel(0, dev->io_base + SMI_CR2);
-+
-+	mutex_unlock(&dev->lock);
-+	return ret;
-+}
-+
-+/**
-+ * spear_mtd_erase - perform flash erase operation as requested by user
-+ * @mtd: Provides the memory characteristics
-+ * @e_info: Provides the erase information
-+ *
-+ * Erase an address range on the flash chip. The address range may extend
-+ * one or more erase sectors. Return an error is there is a problem erasing.
-+ */
-+static int spear_mtd_erase(struct mtd_info *mtd, struct erase_info *e_info)
-+{
-+	struct spear_snor_flash *flash = get_flash_data(mtd);
-+	struct spear_smi *dev = mtd->priv;
-+	u32 addr, command, bank;
-+	int len, ret;
-+
-+	if (!flash || !dev)
-+		return -ENODEV;
-+
-+	/* do not allow erase past end of device */
-+	if (e_info->addr + e_info->len > flash->mtd.size)
-+		return -EINVAL;
-+
-+	bank = flash->bank;
-+	if (bank > dev->num_flashes - 1) {
-+		dev_err(&dev->pdev->dev, "Invalid Bank Num");
-+		return -EINVAL;
-+	}
-+
-+	addr = e_info->addr;
-+	len = e_info->len;
-+
-+	mutex_lock(&flash->lock);
-+
-+	/* now erase sectors in loop */
-+	while (len) {
-+		command = get_sector_erase_cmd(flash, addr);
-+		/* preparing the command for flash */
-+		ret = spear_smi_erase_sector(dev, bank, command, 4);
-+		if (ret) {
-+			e_info->state = MTD_ERASE_FAILED;
-+			mutex_unlock(&flash->lock);
-+			return ret;
-+		}
-+		addr += mtd->erasesize;
-+		len -= mtd->erasesize;
-+	}
-+
-+	mutex_unlock(&flash->lock);
-+	e_info->state = MTD_ERASE_DONE;
-+	mtd_erase_callback(e_info);
-+
-+	return 0;
-+}
-+
-+/**
-+ * spear_mtd_read - performs flash read operation as requested by the user
-+ * @mtd: MTD information of the memory bank
-+ * @from: Address from which to start read
-+ * @len: Number of bytes to be read
-+ * @retlen: Fills the Number of bytes actually read
-+ * @buf: Fills this after reading
-+ *
-+ * Read an address range from the flash chip. The address range
-+ * may be any size provided it is within the physical boundaries.
-+ * Returns 0 on success, non zero otherwise
-+ */
-+static int spear_mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
-+		size_t *retlen, u8 *buf)
-+{
-+	struct spear_snor_flash *flash = get_flash_data(mtd);
-+	struct spear_smi *dev = mtd->priv;
-+	void *src;
-+	u32 ctrlreg1, val;
-+	int ret;
-+
-+	if (!len)
++	switch (port) {
++	case 0:
 +		return 0;
-+
-+	if (!flash || !dev)
-+		return -ENODEV;
-+
-+	/* do not allow reads past end of device */
-+	if (from + len > flash->mtd.size)
-+		return -EINVAL;
-+
-+	if (flash->bank > dev->num_flashes - 1) {
-+		dev_err(&dev->pdev->dev, "Invalid Bank Num");
-+		return -EINVAL;
++	case 1:
++		return 1;
++	case 2:
++		return 1;
 +	}
-+
-+	if (!retlen)
-+		return -EINVAL;
-+	else
-+		*retlen = 0;
-+
-+	/* select address as per bank number */
-+	src = flash->base_addr + from;
-+
-+	mutex_lock(&flash->lock);
-+
-+	/* wait till previous write/erase is done. */
-+	ret = spear_smi_wait_till_ready(dev, flash->bank, SMI_MAX_TIME_OUT);
-+	if (ret) {
-+		mutex_unlock(&flash->lock);
-+		return ret;
-+	}
-+
-+	mutex_lock(&dev->lock);
-+	/* put smi in hw mode not wbt mode */
-+	ctrlreg1 = val = readl(dev->io_base + SMI_CR1);
-+	val &= ~(SW_MODE | WB_MODE);
-+	if (flash->fast_mode)
-+		val |= FAST_MODE;
-+
-+	writel(val, dev->io_base + SMI_CR1);
-+
-+	memcpy_fromio(buf, (u8 *)src, len);
-+
-+	/* restore ctrl reg1 */
-+	writel(ctrlreg1, dev->io_base + SMI_CR1);
-+	mutex_unlock(&dev->lock);
-+
-+	*retlen = len;
-+	mutex_unlock(&flash->lock);
-+
-+	return 0;
++	return -EINVAL;
 +}
++#endif
 +
-+static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
-+		void *dest, const void *src, size_t len)
++static void __init spear1310_evb_init(void)
 +{
-+	int ret;
-+	u32 ctrlreg1;
++	unsigned int i;
 +
-+	/* wait until finished previous write command. */
-+	ret = spear_smi_wait_till_ready(dev, bank, SMI_MAX_TIME_OUT);
-+	if (ret)
-+		return ret;
++	/* set keyboard plat data */
++	kbd_set_plat_data(&spear13xx_kbd_device, &kbd_data);
 +
-+	/* put smi in write enable */
-+	ret = spear_smi_write_enable(dev, bank);
-+	if (ret)
-+		return ret;
++	/* set nand device's plat data */
++	fsmc_nand_set_plat_data(&spear13xx_nand_device, NULL, 0,
++			NAND_SKIP_BBTSCAN, FSMC_NAND_BW8);
++	nand_mach_init(FSMC_NAND_BW8);
 +
-+	/* put smi in hw, write burst mode */
-+	mutex_lock(&dev->lock);
++	/* call spear1310 machine init function */
++	spear1310_init();
 +
-+	ctrlreg1 = readl(dev->io_base + SMI_CR1);
-+	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
++	/* Register slave devices on the I2C buses */
++	i2c_register_board_devices();
 +
-+	memcpy_toio(dest, src, len);
++	/* initialize serial nor related data in smi plat data */
++	smi_init_board_info(&spear13xx_smi_device);
 +
-+	writel(ctrlreg1, dev->io_base + SMI_CR1);
++#ifdef CONFIG_PCIEPORTBUS
++	/* Enable PCIE0 clk */
++	enable_pcie0_clk();
++	pcie_init(&spear1310_pcie_port_is_host);
++#endif
 +
-+	mutex_unlock(&dev->lock);
-+	return 0;
++	/* Add Platform Devices */
++	platform_add_devices(plat_devs, ARRAY_SIZE(plat_devs));
++
++	/* Add Amba Devices */
++	for (i = 0; i < ARRAY_SIZE(amba_devs); i++)
++		amba_device_register(amba_devs[i], &iomem_resource);
++
++	spi_init();
 +}
 +
-+/**
-+ * spear_mtd_write - performs write operation as requested by the user.
-+ * @mtd: MTD information of the memory bank.
-+ * @to:	Address to write.
-+ * @len: Number of bytes to be written.
-+ * @retlen: Number of bytes actually wrote.
-+ * @buf: Buffer from which the data to be taken.
-+ *
-+ * Write an address range to the flash chip. Data must be written in
-+ * flash_page_size chunks. The address range may be any size provided
-+ * it is within the physical boundaries.
-+ * Returns 0 on success, non zero otherwise
-+ */
-+static int spear_mtd_write(struct mtd_info *mtd, loff_t to, size_t len,
-+		size_t *retlen, const u8 *buf)
-+{
-+	struct spear_snor_flash *flash = get_flash_data(mtd);
-+	struct spear_smi *dev = mtd->priv;
-+	void *dest;
-+	u32 page_offset, page_size;
-+	int ret;
-+
-+	if (!flash || !dev)
-+		return -ENODEV;
-+
-+	if (!len)
-+		return 0;
-+
-+	/* do not allow write past end of page */
-+	if (to + len > flash->mtd.size)
-+		return -EINVAL;
-+
-+	if (flash->bank > dev->num_flashes - 1) {
-+		dev_err(&dev->pdev->dev, "Invalid Bank Num");
-+		return -EINVAL;
-+	}
-+
-+	if (!retlen)
-+		return -EINVAL;
-+	else
-+		*retlen = 0;
-+
-+	/* select address as per bank number */
-+	dest = flash->base_addr + to;
-+	mutex_lock(&flash->lock);
-+
-+	page_offset = (u32)to % flash->page_size;
-+
-+	/* do if all the bytes fit onto one page */
-+	if (page_offset + len <= flash->page_size) {
-+		ret = spear_smi_cpy_toio(dev, flash->bank, dest, buf, len);
-+		if (!ret)
-+			*retlen += len;
-+	} else {
-+		u32 i;
-+
-+		/* the size of data remaining on the first page */
-+		page_size = flash->page_size - page_offset;
-+
-+		ret = spear_smi_cpy_toio(dev, flash->bank, dest, buf,
-+				page_size);
-+		if (ret)
-+			goto err_write;
-+		else
-+			*retlen += page_size;
-+
-+		/* write everything in pagesize chunks */
-+		for (i = page_size; i < len; i += page_size) {
-+			page_size = len - i;
-+			if (page_size > flash->page_size)
-+				page_size = flash->page_size;
-+
-+			ret = spear_smi_cpy_toio(dev, flash->bank, dest + i,
-+					buf + i, page_size);
-+			if (ret)
-+				break;
-+			else
-+				*retlen += page_size;
-+		}
-+	}
-+
-+err_write:
-+	mutex_unlock(&flash->lock);
-+
-+	return ret;
-+}
-+
-+/**
-+ * spear_smi_probe_flash - Detects the NOR Flash chip.
-+ * @dev: structure of SMI information.
-+ * @bank: bank on which flash must be probed
-+ *
-+ * This routine will check whether there exists a flash chip on a given memory
-+ * bank ID.
-+ * Return index of the probed flash in flash devices structure
-+ */
-+static int spear_smi_probe_flash(struct spear_smi *dev, u32 bank)
-+{
-+	int ret;
-+	u32 val = 0;
-+
-+	ret = spear_smi_wait_till_ready(dev, bank, SMI_PROBE_TIMEOUT);
-+	if (ret)
-+		return ret;
-+
-+	mutex_lock(&dev->lock);
-+
-+	dev->status = 0; /* Will be set in interrupt handler */
-+	/* put smi in sw mode */
-+	val = readl(dev->io_base + SMI_CR1);
-+	writel(val | SW_MODE, dev->io_base + SMI_CR1);
-+
-+	/* send readid command in sw mode */
-+	writel(OPCODE_RDID, dev->io_base + SMI_TR);
-+
-+	val = (bank << BANK_SHIFT) | SEND | (1 << TX_LEN_SHIFT) |
-+		(3 << RX_LEN_SHIFT) | TFIE;
-+	writel(val, dev->io_base + SMI_CR2);
-+
-+	/* wait for TFF */
-+	ret = wait_event_interruptible_timeout(dev->cmd_complete,
-+			dev->status & TFF, SMI_CMD_TIMEOUT);
-+	if (ret <= 0) {
-+		ret = -ENODEV;
-+		goto err_probe;
-+	}
-+
-+	/* get memory chip id */
-+	val = readl(dev->io_base + SMI_RR);
-+	val &= 0x00ffffff;
-+	ret = get_flash_index(val);
-+
-+err_probe:
-+	/* clear sw mode */
-+	val = readl(dev->io_base + SMI_CR1);
-+	writel(val & ~SW_MODE, dev->io_base + SMI_CR1);
-+
-+	mutex_unlock(&dev->lock);
-+	return ret;
-+}
-+
-+static int spear_smi_setup_banks(struct platform_device *pdev, u32 bank)
-+{
-+	const char *part_probes[] = {"cmdlinepart", NULL};
-+	struct spear_smi *dev = platform_get_drvdata(pdev);
-+	struct spear_smi_flash_info *flash_info;
-+	struct spear_smi_plat_data *pdata;
-+	struct spear_snor_flash *flash;
-+	int flash_index;
-+	int ret = 0;
-+
-+	pdata = dev_get_platdata(&pdev->dev);
-+	if (bank > pdata->num_flashes - 1)
-+		return -EINVAL;
-+
-+	flash_info = &pdata->board_flash_info[bank];
-+	if (!flash_info)
-+		return -ENODEV;
-+
-+	flash = kzalloc(sizeof(*flash), GFP_ATOMIC);
-+	if (!flash)
-+		return -ENOMEM;
-+	flash->bank = bank;
-+	flash->fast_mode = flash_info->fast_mode ? 1 : 0;
-+	mutex_init(&flash->lock);
-+
-+	/* verify whether nor flash is really present on board */
-+	flash_index = spear_smi_probe_flash(dev, bank);
-+	if (flash_index < 0) {
-+		dev_info(&dev->pdev->dev, "smi-nor%d not found\n", bank);
-+		kfree(flash);
-+		return flash_index;
-+	}
-+	/* map the memory for nor flash chip */
-+	flash->base_addr = ioremap(flash_info->mem_base, flash_info->size);
-+	if (!flash->base_addr) {
-+		kfree(flash);
-+		return -EIO;
-+	}
-+
-+	dev->flash[bank] = flash;
-+	flash->mtd.priv = dev;
-+
-+	if (flash_info->name)
-+		flash->mtd.name = flash_info->name;
-+	else
-+		flash->mtd.name = flash_devices[flash_index].name;
-+
-+	flash->mtd.type = MTD_NORFLASH;
-+	flash->mtd.writesize = 1;
-+	flash->mtd.flags = MTD_CAP_NORFLASH;
-+	flash->mtd.size = flash_info->size;
-+	flash->mtd.erasesize = flash_devices[flash_index].sectorsize;
-+	flash->page_size = flash_devices[flash_index].pagesize;
-+	flash->erase_cmd = flash_devices[flash_index].erase_cmd;
-+	flash->mtd.erase = spear_mtd_erase;
-+	flash->mtd.read = spear_mtd_read;
-+	flash->mtd.write = spear_mtd_write;
-+	flash->dev_id = flash_devices[flash_index].device_id;
-+
-+	dev_info(&dev->pdev->dev, "mtd .name=%s .size=%llx(%lluM)\n",
-+			flash->mtd.name, flash->mtd.size,
-+			flash->mtd.size / (1024 * 1024));
-+
-+	dev_info(&dev->pdev->dev, ".erasesize = 0x%x(%uK)\n",
-+			flash->mtd.erasesize, flash->mtd.erasesize / 1024);
-+
-+	if (!mtd_has_partitions()) {
-+		ret = add_mtd_device(&flash->mtd);
-+		return ret;
-+	}
-+
-+	flash->num_parts = 0;
-+	if (mtd_has_cmdlinepart()) {
-+		flash->num_parts = parse_mtd_partitions(&flash->mtd,
-+				part_probes, &flash->parts, 0);
-+	}
-+
-+	if (flash->num_parts <= 0) {
-+		if (flash_info->parts) {
-+			flash->parts = flash_info->parts;
-+			flash->num_parts = flash_info->num_parts;
-+		} else {
-+			/* choose from default ones */
-+			switch (flash->mtd.size) {
-+			case 0x800000:/* 8MB */
-+				flash->parts = part_info_8M;
-+				flash->num_parts =
-+					ARRAY_SIZE(part_info_8M);
-+				break;
-+			case 0x1000000:/* 16MB */
-+				flash->parts = part_info_16M;
-+				flash->num_parts =
-+					ARRAY_SIZE(part_info_16M);
-+				break;
-+			default:
-+				dev_err(&pdev->dev, "undefined partition\n");
-+			}
-+		}
-+	}
-+
-+	/* Register the partitions */
-+	ret = add_mtd_partitions(&flash->mtd, flash->parts, flash->num_parts);
-+	if (ret)
-+		dev_err(&dev->pdev->dev, "Err MTD partition=%d\n", ret);
-+
-+	return ret;
-+}
-+
-+/**
-+ * spear_smi_probe - Entry routine
-+ * @pdev: platform device structure
-+ *
-+ * This is the first routine which gets invoked during booting and does all
-+ * initialization/allocation work. The routine looks for available memory banks,
-+ * and do proper init for any found one.
-+ * Returns 0 on success, non zero otherwise
-+ */
-+static int __devinit spear_smi_probe(struct platform_device *pdev)
-+{
-+	struct spear_smi_plat_data *pdata;
-+	struct spear_smi *dev;
-+	struct resource *smi_base;
-+	int irq, ret = 0;
-+	int i;
-+
-+	pdata = dev_get_platdata(&pdev->dev);
-+	if (pdata < 0) {
-+		ret = -ENODEV;
-+		dev_err(&pdev->dev, "no platform data\n");
-+		goto err;
-+	}
-+
-+	smi_base = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!smi_base) {
-+		ret = -ENODEV;
-+		dev_err(&pdev->dev, "invalid smi base address\n");
-+		goto err;
-+	}
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		ret = -ENODEV;
-+		dev_err(&pdev->dev, "invalid smi irq\n");
-+		goto err;
-+	}
-+
-+	dev = kzalloc(sizeof(*dev), GFP_ATOMIC);
-+	if (!dev) {
-+		ret = -ENOMEM;
-+		dev_err(&pdev->dev, "mem alloc fail\n");
-+		goto err;
-+	}
-+
-+	smi_base = request_mem_region(smi_base->start, resource_size(smi_base),
-+			pdev->name);
-+	if (!smi_base) {
-+		ret = -EBUSY;
-+		dev_err(&pdev->dev, "request mem region fail\n");
-+		goto err_mem;
-+	}
-+
-+	dev->io_base = ioremap(smi_base->start, resource_size(smi_base));
-+	if (!dev->io_base) {
-+		ret = -EIO;
-+		dev_err(&pdev->dev, "ioremap fail\n");
-+		goto err_ioremap;
-+	}
-+
-+	dev->pdev = pdev;
-+	dev->clk_rate = pdata->clk_rate;
-+
-+	if (dev->clk_rate < 0 || dev->clk_rate > SMI_MAX_CLOCK_FREQ)
-+		dev->clk_rate = SMI_MAX_CLOCK_FREQ;
-+
-+	dev->num_flashes = pdata->num_flashes;
-+
-+	if (dev->num_flashes > MAX_NUM_FLASH_CHIP) {
-+		dev_err(&pdev->dev, "exceeding max number of flashes\n");
-+		dev->num_flashes = MAX_NUM_FLASH_CHIP;
-+	}
-+
-+	dev->clk = clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(dev->clk)) {
-+		ret = PTR_ERR(dev->clk);
-+		goto err_clk;
-+	}
-+
-+	ret = clk_enable(dev->clk);
-+	if (ret)
-+		goto err_clk_enable;
-+
-+	ret = request_irq(irq, spear_smi_int_handler, 0, pdev->name, dev);
-+	if (ret) {
-+		dev_err(&dev->pdev->dev, "SMI IRQ allocation failed\n");
-+		goto err_irq;
-+	}
-+
-+	mutex_init(&dev->lock);
-+	init_waitqueue_head(&dev->cmd_complete);
-+	spear_smi_hw_init(dev);
-+	platform_set_drvdata(pdev, dev);
-+
-+	/* loop for each serial nor-flash which is connected to smi */
-+	for (i = 0; i < dev->num_flashes; i++) {
-+		ret = spear_smi_setup_banks(pdev, i);
-+		if (ret) {
-+			dev_err(&dev->pdev->dev, "bank setup failed\n");
-+			goto err_bank_setup;
-+		}
-+	}
-+
-+	return 0;
-+
-+err_bank_setup:
-+	free_irq(irq, dev);
-+	platform_set_drvdata(pdev, NULL);
-+err_irq:
-+	clk_disable(dev->clk);
-+err_clk_enable:
-+	clk_put(dev->clk);
-+err_clk:
-+	iounmap(dev->io_base);
-+err_ioremap:
-+	release_mem_region(smi_base->start, resource_size(smi_base));
-+err_mem:
-+	kfree(dev);
-+err:
-+	return ret;
-+}
-+
-+/**
-+ * spear_smi_remove - Exit routine
-+ * @pdev: platform device structure
-+ *
-+ * free all allocations and delete the partitions.
-+ */
-+static int __devexit spear_smi_remove(struct platform_device *pdev)
-+{
-+	struct spear_smi *dev;
-+	struct spear_snor_flash *flash;
-+	int ret;
-+	int i, irq;
-+
-+	dev = platform_get_drvdata(pdev);
-+	if (!dev) {
-+		dev_err(&pdev->dev, "dev is null\n");
-+		return -ENODEV;
-+	}
-+
-+	/* clean up for all nor flash */
-+	for (i = 0; i < dev->num_flashes; i++) {
-+		flash = dev->flash[i];
-+		if (!flash)
-+			continue;
-+
-+		/* clean up mtd stuff */
-+		if (mtd_has_partitions())
-+			ret = del_mtd_partitions(&flash->mtd);
-+		else
-+			ret = del_mtd_device(&flash->mtd);
-+
-+		if (ret)
-+			dev_err(&pdev->dev, "error removing mtd\n");
-+
-+		iounmap(flash->base_addr);
-+		kfree(flash);
-+	}
-+
-+	irq = platform_get_irq(pdev, 0);
-+	free_irq(irq, dev);
-+
-+	clk_disable(dev->clk);
-+	clk_put(dev->clk);
-+	iounmap(dev->io_base);
-+	kfree(dev);
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+int spear_smi_suspend(struct platform_device *pdev, pm_message_t state)
-+{
-+	struct spear_smi *dev = platform_get_drvdata(pdev);
-+
-+	if (dev && dev->clk)
-+		clk_disable(dev->clk);
-+
-+	return 0;
-+}
-+
-+int spear_smi_resume(struct platform_device *pdev)
-+{
-+	struct spear_smi *dev = platform_get_drvdata(pdev);
-+	int ret = -EPERM;
-+
-+	if (dev && dev->clk)
-+		ret = clk_enable(dev->clk);
-+
-+	return ret;
-+}
-+
-+static struct platform_driver spear_smi_driver = {
-+	.driver = {
-+		.name = "smi",
-+		.bus = &platform_bus_type,
-+		.owner = THIS_MODULE,
++MACHINE_START(SPEAR1310, "ST-SPEAR1310-EVB")
++	.boot_params	=	0x00000100,
++	.map_io		=	spear13xx_map_io,
++	.init_irq	=	spear13xx_init_irq,
++	.timer		=	&spear13xx_timer,
++	.init_machine	=	spear1310_evb_init,
++MACHINE_END
+diff --git a/arch/arm/mach-spear3xx/include/mach/generic.h b/arch/arm/mach-spear3xx/include/mach/generic.h
+index ea170a6..0f7648b 100644
+--- a/arch/arm/mach-spear3xx/include/mach/generic.h
++++ b/arch/arm/mach-spear3xx/include/mach/generic.h
+@@ -189,6 +189,8 @@ extern struct amba_device clcd_device;
+ extern struct amba_device ssp_device[];
+ extern struct amba_device uart1_device;
+ extern struct amba_device uart2_device;
++extern struct platform_device can0_device;
++extern struct platform_device can1_device;
+ extern struct platform_device i2c1_device;
+ extern struct platform_device nand_device;
+ extern struct platform_device plgpio_device;
+diff --git a/arch/arm/mach-spear3xx/spear320.c b/arch/arm/mach-spear3xx/spear320.c
+index 8ecad40..a6aa487 100644
+--- a/arch/arm/mach-spear3xx/spear320.c
++++ b/arch/arm/mach-spear3xx/spear320.c
+@@ -480,6 +480,43 @@ static struct plgpio_platform_data plgpio_plat_data = {
+ 	.gpio_count = SPEAR_PLGPIO_COUNT,
+ };
+ 
++/* CAN device registeration */
++static struct resource can0_resources[] = {
++	{
++		.start = SPEAR320_CAN0_BASE,
++		.end = SPEAR320_CAN0_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	}, {
++		.start = VIRQ_CANU,
++		.flags = IORESOURCE_IRQ,
 +	},
-+	.probe = spear_smi_probe,
-+	.remove = __devexit_p(spear_smi_remove),
-+	.suspend = spear_smi_suspend,
-+	.resume = spear_smi_resume,
 +};
 +
-+static int spear_smi_init(void)
-+{
-+	return platform_driver_register(&spear_smi_driver);
-+}
-+module_init(spear_smi_init);
++struct platform_device can0_device = {
++	.name = "spear_can",
++	.id = 0,
++	.num_resources = ARRAY_SIZE(can0_resources),
++	.resource = can0_resources,
++};
 +
-+static void spear_smi_exit(void)
-+{
-+	platform_driver_unregister(&spear_smi_driver);
-+}
-+module_exit(spear_smi_exit);
++static struct resource can1_resources[] = {
++	{
++		.start = SPEAR320_CAN1_BASE,
++		.end = SPEAR320_CAN1_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	}, {
++		.start = VIRQ_CANL,
++		.flags = IORESOURCE_IRQ,
++	},
++};
 +
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Ashish Priyadarshi, Shiraz Hashim <shiraz.hashim@st.com>");
-+MODULE_DESCRIPTION("MTD SMI driver for serial nor flash chips");
++struct platform_device can1_device = {
++	.name = "spear_can",
++	.id = 1,
++	.num_resources = ARRAY_SIZE(can1_resources),
++	.resource = can1_resources,
++};
++
+ /* i2c1 device registeration */
+ static struct resource i2c1_resources[] = {
+ 	{
+diff --git a/arch/arm/mach-spear3xx/spear320_evb.c b/arch/arm/mach-spear3xx/spear320_evb.c
+index 2142ad9..1131f9b 100644
+--- a/arch/arm/mach-spear3xx/spear320_evb.c
++++ b/arch/arm/mach-spear3xx/spear320_evb.c
+@@ -67,6 +67,8 @@ static struct platform_device *plat_devs[] __initdata = {
+ 	&smi_device,
+ 
+ 	/* spear320 specific devices */
++	&can0_device,
++	&can1_device,
+ 	&i2c1_device,
+ 	&plgpio_device,
+ 	&pwm_device,
+diff --git a/arch/arm/plat-spear/Makefile b/arch/arm/plat-spear/Makefile
+index b8a7403..50c680c 100644
+--- a/arch/arm/plat-spear/Makefile
++++ b/arch/arm/plat-spear/Makefile
+@@ -10,6 +10,7 @@ obj-$(CONFIG_MACH_SPEAR310)	+= plgpio.o
+ obj-$(CONFIG_MACH_SPEAR320)	+= plgpio.o
+ obj-$(CONFIG_SPEAR_PWM)		+= pwm.o
+ 
++obj-$(CONFIG_BOARD_SPEAR1310_EVB)	+= i2c_eval_board.o
+ obj-$(CONFIG_BOARD_SPEAR1300_EVB)	+= i2c_eval_board.o
+ obj-$(CONFIG_BOARD_SPEAR300_EVB)	+= i2c_eval_board.o
+ obj-$(CONFIG_BOARD_SPEAR310_EVB)	+= i2c_eval_board.o
 -- 
 1.7.2.2
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,7 +1,7 @@
 From: Viresh KUMAR <viresh.kumar@st.com>
-Subject: [PATCH V2 45/69] ST SPEAr: PCIE gadget suppport
-Date: Fri,  1 Oct 2010 17:26:05 +0530
-Message-ID: <c91308e26397dbe49f384c7d3cf168593e1fe8b0.1285933332.git.viresh.kumar@st.com>
+Subject: [PATCH V2 53/69] SPEAr13xx : Fixed part devices in SPEAr13xx addded to the generic implementation
+Date: Fri,  1 Oct 2010 17:26:13 +0530
+Message-ID: <ea6cc9406acfaee026388797df7ab272ec828189.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
@@ -9,951 +9,917 @@ In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
-Cc: Pratyush Anand <pratyush.anand@st.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
+Cc: Vipin Kumar <vipin.kumar@st.com>, shiraz.hashim@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Pratyush Anand <pratyush.anand@st.com>
+From: Vipin Kumar <vipin.kumar@st.com>
 
-This is a configurable gadget. can be configured by sysfs interface. Any
-IP available at PCIE bus can be programmed to be used by host
-controller.It supoorts both INTX and MSI.
-By default, gadget is configured for INTX and SYSRAM1 is mapped to BAR0
-with size 0x1000
-
-Signed-off-by: Pratyush Anand <pratyush.anand@st.com>
+Signed-off-by: Vipin Kumar <vipin.kumar@st.com>
+Signed-off-by: shiraz hashim <shiraz.hashim@st.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- drivers/misc/Kconfig                 |   10 +
- drivers/misc/Makefile                |    1 +
- drivers/misc/spear13xx_pcie_gadget.c |  888 ++++++++++++++++++++++++++++++++++
- 3 files changed, 899 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/spear13xx_pcie_gadget.c
+ arch/arm/mach-spear13xx/include/mach/generic.h |  164 ++++++++
+ arch/arm/mach-spear13xx/include/mach/spear.h   |    3 +
+ arch/arm/mach-spear13xx/spear1300.c            |   15 +
+ arch/arm/mach-spear13xx/spear1300_evb.c        |   25 ++
+ arch/arm/mach-spear13xx/spear1310.c            |   15 +
+ arch/arm/mach-spear13xx/spear1310_evb.c        |   25 ++
+ arch/arm/mach-spear13xx/spear13xx.c            |  528 ++++++++++++++++++++++++
+ arch/arm/plat-spear/Makefile                   |    1 +
+ 8 files changed, 776 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index b743312..e19deda 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -344,6 +344,16 @@ config DS1682
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called ds1682.
- 
-+config SPEAR13XX_PCIE_GADGET
-+	bool "PCIE gadget support for SPEAr13XX platform"
-+	depends on ARCH_SPEAR13XX
-+	default n
-+	help
-+	 This option enables gadget support for PCIE controller. If
-+	 board file defines any controller as PCIE endpoint then a sysfs
-+	 entry will be created for that controller. User can use these
-+	 sysfs node to configure PCIE EP as per his requirements.
+diff --git a/arch/arm/mach-spear13xx/include/mach/generic.h b/arch/arm/mach-spear13xx/include/mach/generic.h
+index 56ed7a7..8a0dc8c 100644
+--- a/arch/arm/mach-spear13xx/include/mach/generic.h
++++ b/arch/arm/mach-spear13xx/include/mach/generic.h
+@@ -19,6 +19,168 @@
+ #include <linux/amba/bus.h>
+ #include <asm/mach/time.h>
+ #include <asm/mach/map.h>
++#include <plat/padmux.h>
 +
- config TI_DAC7512
- 	tristate "Texas Instruments DAC7512"
- 	depends on SPI && SYSFS
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 42eab95..9408f23 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -33,5 +33,6 @@ obj-$(CONFIG_IWMC3200TOP)      += iwmc3200top/
- obj-$(CONFIG_HMC6352)		+= hmc6352.o
- obj-y				+= eeprom/
- obj-y				+= cb710/
-+obj-$(CONFIG_SPEAR13XX_PCIE_GADGET)	+= spear13xx_pcie_gadget.o
- obj-$(CONFIG_VMWARE_BALLOON)	+= vmw_balloon.o
- obj-$(CONFIG_ARM_CHARLCD)	+= arm-charlcd.o
-diff --git a/drivers/misc/spear13xx_pcie_gadget.c b/drivers/misc/spear13xx_pcie_gadget.c
-new file mode 100644
-index 0000000..dc63a28
---- /dev/null
-+++ b/drivers/misc/spear13xx_pcie_gadget.c
-@@ -0,0 +1,888 @@
 +/*
-+ * drivers/misc/spear13xx_pcie_gadget.c
-+ *
-+ * Copyright (C) 2010 ST Microelectronics
-+ * Pratyush Anand<pratyush.anand@st.com>
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
++ * Function enable (Pad multiplexing register) offsets
 + */
-+#include <linux/delay.h>
-+#include <linux/irq.h>
-+#include <linux/clk.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/io.h>
-+#include <linux/interrupt.h>
-+#include <linux/pci_regs.h>
-+#include <mach/pcie.h>
-+#include <mach/misc_regs.h>
++#define PAD_MUX_CONFIG_REG_0	0x0
++#define PAD_MUX_CONFIG_REG_1	0x4
++#define PAD_MUX_CONFIG_REG_2	0x8
++#define PAD_MUX_CONFIG_REG_3	0xC
 +
-+#define IN0_MEM_SIZE	(200 * 1024 * 1024 - 1)
-+/* In current implementation address translation is done using IN0 only.
-+ * So IN1 start address and IN0 end address has been kept same
-+*/
-+#define IN1_MEM_SIZE	(0 * 1024 * 1024 - 1)
-+#define IN_IO_SIZE	(20 * 1024 * 1024 - 1)
-+#define IN_CFG0_SIZE	(12 * 1024 * 1024 - 1)
-+#define IN_CFG1_SIZE	(12 * 1024 * 1024 - 1)
-+#define IN_MSG_SIZE	(12 * 1024 * 1024 - 1)
-+/* Keep default BAR size as 4K*/
-+/* AORAM would be mapped by default*/
-+#define INBOUND_ADDR_MASK	(SPEAR13XX_SYSRAM1_SIZE - 1)
++/* pad mux declarations */
++#define PMX_I2S1_MASK		(1 << 3)
++#define PMX_I2S2_MASK		(1 << 16)	/* Offset 4 */
++#define PMX_CLCD1_MASK		(1 << 5)
++#define PMX_CLCD2_MASK		(1 << 3)	/* Offset 4 */
++#define PMX_EGPIO00_MASK	(1 << 6)
++#define PMX_EGPIO01_MASK	(1 << 7)
++#define PMX_EGPIO02_MASK	(1 << 8)
++#define PMX_EGPIO03_MASK	(1 << 9)
++#define PMX_EGPIO04_MASK	(1 << 10)
++#define PMX_EGPIO05_MASK	(1 << 11)
++#define PMX_EGPIO06_MASK	(1 << 12)
++#define PMX_EGPIO07_MASK	(1 << 13)
++#define PMX_EGPIO08_MASK	(1 << 14)
++#define PMX_EGPIO09_MASK	(1 << 15)
++#define PMX_EGPIO10_MASK	(1 << 5)	/* Offset 4 */
++#define PMX_EGPIO11_MASK	(1 << 6)	/* Offset 4 */
++#define PMX_EGPIO12_MASK	(1 << 7)	/* Offset 4 */
++#define PMX_EGPIO13_MASK	(1 << 8)	/* Offset 4 */
++#define PMX_EGPIO14_MASK	(1 << 9)	/* Offset 4 */
++#define PMX_EGPIO15_MASK	(1 << 10)	/* Offset 4 */
++#define PMX_EGPIO_0_GRP_MASK	(PMX_EGPIO00_MASK | PMX_EGPIO01_MASK | \
++		PMX_EGPIO02_MASK | PMX_EGPIO03_MASK | PMX_EGPIO04_MASK | \
++		PMX_EGPIO05_MASK | PMX_EGPIO06_MASK | PMX_EGPIO07_MASK | \
++		PMX_EGPIO08_MASK | PMX_EGPIO09_MASK)
++#define PMX_EGPIO_1_GRP_MASK	(PMX_EGPIO10_MASK | PMX_EGPIO11_MASK | \
++		PMX_EGPIO12_MASK | PMX_EGPIO13_MASK | PMX_EGPIO14_MASK | \
++		PMX_EGPIO15_MASK)
 +
-+#define INT_TYPE_NO_INT	0
-+#define INT_TYPE_INTX	1
-+#define INT_TYPE_MSI	2
-+struct spear_pcie_gadget_config {
-+	void __iomem *base;
-+	void __iomem *va_app_base;
-+	void __iomem *va_dbi_base;
-+	char int_type[10];
-+	u32 requested_msi;
-+	u32 configured_msi;
-+	u32 bar0_size;
-+	u32 bar0_rw_offset;
-+	u32 va_bar0_address;
++#define PMX_SMI_MASK		(1 << 16)
++#define PMX_SMINCS2_MASK	(1 << 1)	/* Offset 4 */
++#define PMX_SMINCS3_MASK	(1 << 2)	/* Offset 4 */
++
++#define PMX_GMIICLK_MASK			(1 << 18)
++#define PMX_GMIICOL_CRS_XFERER_MIITXCLK_MASK	(1 << 19)
++#define PMX_RXCLK_RDV_TXEN_D03_MASK		(1 << 20)
++#define PMX_GMIID47_MASK			(1 << 21)
++#define PMX_MDC_MDIO_MASK			(1 << 22)
++
++#define PMX_GMII_MASK		(PMX_GMIICLK_MASK | \
++		PMX_GMIICOL_CRS_XFERER_MIITXCLK_MASK | \
++		PMX_RXCLK_RDV_TXEN_D03_MASK | PMX_GMIID47_MASK | \
++		PMX_MDC_MDIO_MASK)
++
++#define PMX_NAND8_MASK		(1 << 17)
++#define PMX_NFAD023_MASK	(1 << 24)
++#define PMX_NFAD24_MASK		(1 << 25)
++#define PMX_NFAD25_MASK		(1 << 26)
++#define PMX_NFWPRT1_MASK	(1 << 24)	/* Offset 4 */
++#define PMX_NFWPRT2_MASK	(1 << 26)	/* Offset 4 */
++#define PMX_NFWPRT3_MASK	(1 << 28)
++#define PMX_NFRSTPWDWN0_MASK	(1 << 29)
++#define PMX_NFRSTPWDWN1_MASK	(1 << 30)
++#define PMX_NFRSTPWDWN2_MASK	(1 << 31)
++#define PMX_NFRSTPWDWN3_MASK	(1 << 0)	/* Offset 4 */
++#define PMX_NFCE1_MASK		(1 << 20)	/* Offset 4 */
++#define PMX_NFCE2_MASK		(1 << 22)	/* Offset 4 */
++#define PMX_NFCE3_MASK		(1 << 27)
++#define PMX_NFIO815_MASK	(1 << 18)	/* Offset 4 */
++
++#define PMX_NAND8BIT_0_MASK	(PMX_NAND8_MASK | PMX_NFAD023_MASK | \
++		PMX_NFAD24_MASK | PMX_NFAD25_MASK | PMX_NFWPRT3_MASK | \
++		PMX_NFRSTPWDWN0_MASK | PMX_NFRSTPWDWN1_MASK | \
++		PMX_NFRSTPWDWN2_MASK | PMX_NFCE3_MASK)
++#define PMX_NAND8BIT_1_MASK	(PMX_NFRSTPWDWN3_MASK)
++
++#define PMX_NAND8BIT4DEV_0_MASK	(PMX_NAND8BIT_0_MASK)
++#define PMX_NAND8BIT4DEV_1_MASK	(PMX_NAND8BIT_1_MASK | PMX_NFCE1_MASK | \
++		PMX_NFCE2_MASK | PMX_NFWPRT1_MASK | PMX_NFWPRT2_MASK)
++
++#define PMX_NAND16BIT_0_MASK	(PMX_NAND8BIT_0_MASK)
++#define PMX_NAND16BIT_1_MASK	(PMX_NAND8BIT_1_MASK | PMX_NFIO815_MASK)
++#define PMX_NAND16BIT4DEV_0_MASK	(PMX_NAND8BIT4DEV_0_MASK)
++#define PMX_NAND16BIT4DEV_1_MASK	(PMX_NAND8BIT4DEV_1_MASK | \
++					PMX_NFIO815_MASK)
++
++#define PMX_KBD_ROW0_MASK	(1 << 25)	/* Offset 4 */
++#define PMX_KBD_ROW1_MASK	(1 << 23)	/* Offset 4 */
++#define PMX_KBD_ROWCOL25_MASK	(1 << 17)	/* Offset 4 */
++#define PMX_KBD_ROWCOL68_MASK	(1 << 4)	/* Offset 4 */
++#define PMX_KBD_COL0_MASK	(1 << 21)	/* Offset 4 */
++#define PMX_KBD_COL1_MASK	(1 << 19)	/* Offset 4 */
++#define PMX_KEYBOARD_MASK	(PMX_KBD_ROW0_MASK | PMX_KBD_ROW1_MASK | \
++		PMX_KBD_ROWCOL25_MASK | PMX_KBD_ROWCOL68_MASK | \
++		PMX_KBD_COL0_MASK | PMX_KBD_COL1_MASK)
++
++#define PMX_UART0_MASK		(1 << 1)
++#define PMX_I2C_MASK		(1 << 2)
++#define PMX_SSP_MASK		(1 << 4)
++#define PMX_UART0_MODEM_MASK	(1 << 11)	/* Offset 4 */
++#define PMX_GPT0_TMR1_MASK	(1 << 12)	/* Offset 4 */
++#define PMX_GPT0_TMR2_MASK	(1 << 13)	/* Offset 4 */
++#define PMX_GPT1_TMR1_MASK	(1 << 14)	/* Offset 4 */
++#define PMX_GPT1_TMR2_MASK	(1 << 15)	/* Offset 4 */
++
++#define PMX_MCIDATA0_MASK	(1 << 27)	/* Offset 4 */
++#define PMX_MCIDATA1_MASK	(1 << 28)	/* Offset 4 */
++#define PMX_MCIDATA2_MASK	(1 << 29)	/* Offset 4 */
++#define PMX_MCIDATA3_MASK	(1 << 30)	/* Offset 4 */
++#define PMX_MCIDATA4_MASK	(1 << 31)	/* Offset 4 */
++#define PMX_MCIDATA5_MASK	(1 << 0)	/* Offset 8 */
++#define PMX_MCIDATA6_MASK	(1 << 1)	/* Offset 8 */
++#define PMX_MCIDATA7_MASK	(1 << 2)	/* Offset 8 */
++#define PMX_MCIDATA1SD_MASK	(1 << 3)	/* Offset 8 */
++#define PMX_MCIDATA2SD_MASK	(1 << 4)	/* Offset 8 */
++#define PMX_MCIDATA3SD_MASK	(1 << 5)	/* Offset 8 */
++#define PMX_MCIADDR0ALE_MASK	(1 << 6)	/* Offset 8 */
++#define PMX_MCIADDR1CLECLK_MASK	(1 << 7)	/* Offset 8 */
++#define PMX_MCIADDR2_MASK	(1 << 8)	/* Offset 8 */
++#define PMX_MCICECF_MASK	(1 << 9)	/* Offset 8 */
++#define PMX_MCICEXD_MASK	(1 << 10)	/* Offset 8 */
++#define PMX_MCICESDMMC_MASK	(1 << 11)	/* Offset 8 */
++#define PMX_MCICDCF1_MASK	(1 << 12)	/* Offset 8 */
++#define PMX_MCICDCF2_MASK	(1 << 13)	/* Offset 8 */
++#define PMX_MCICDXD_MASK	(1 << 14)	/* Offset 8 */
++#define PMX_MCICDSDMMC_MASK	(1 << 15)	/* Offset 8 */
++#define PMX_MCIDATADIR_MASK	(1 << 16)	/* Offset 8 */
++#define PMX_MCIDMARQWP_MASK	(1 << 17)	/* Offset 8 */
++#define PMX_MCIIORDRE_MASK	(1 << 18)	/* Offset 8 */
++#define PMX_MCIIOWRWE_MASK	(1 << 19)	/* Offset 8 */
++#define PMX_MCIRESETCF_MASK	(1 << 20)	/* Offset 8 */
++#define PMX_MCICS0CE_MASK	(1 << 21)	/* Offset 8 */
++#define PMX_MCICFINTR_MASK	(1 << 22)	/* Offset 8 */
++#define PMX_MCIIORDY_MASK	(1 << 23)	/* Offset 8 */
++#define PMX_MCICS1_MASK		(1 << 24)	/* Offset 8 */
++#define PMX_MCIDMAACK_MASK	(1 << 25)	/* Offset 8 */
++#define PMX_MCISDCMD_MASK	(1 << 26)	/* Offset 8 */
++#define PMX_MCILEDS_MASK	(1 << 27)	/* Offset 8 */
++
++#define PMX_MCIFALL_1_MASK	(0xF8000000)
++#define PMX_MCIFALL_2_MASK	(0x0FFFFFFF)
++
++/* pad mux devices */
++extern struct pmx_dev pmx_i2c;
++extern struct pmx_dev pmx_ssp;
++extern struct pmx_dev pmx_i2s2;
++extern struct pmx_dev pmx_clcd1;
++extern struct pmx_dev pmx_clcd2;
++extern struct pmx_dev pmx_egpio_grp;
++extern struct pmx_dev pmx_smi_2_chips;
++extern struct pmx_dev pmx_smi_4_chips;
++extern struct pmx_dev pmx_gmii;
++extern struct pmx_dev pmx_nand_8bit;
++extern struct pmx_dev pmx_nand_16bit;
++extern struct pmx_dev pmx_keyboard;
++extern struct pmx_dev pmx_uart0;
++extern struct pmx_dev pmx_uart0_modem;
++extern struct pmx_dev pmx_gpt_0_1;
++extern struct pmx_dev pmx_gpt_0_2;
++extern struct pmx_dev pmx_gpt_1_1;
++extern struct pmx_dev pmx_gpt_1_2;
++extern struct pmx_dev pmx_mcif;
+ 
+ /*
+  * Each GPT has 2 timer channels
+@@ -28,6 +190,8 @@
+ #define SPEAR_GPT0_CHAN0_IRQ	IRQ_GPT0_TMR0
+ #define SPEAR_GPT0_CHAN1_IRQ	IRQ_GPT0_TMR1
+ 
++extern struct pmx_driver pmx_driver;
++
+ /* Add spear13xx family device structure declarations here */
+ extern struct amba_device spear13xx_gpio_device[];
+ extern struct amba_device spear13xx_ssp_device;
+diff --git a/arch/arm/mach-spear13xx/include/mach/spear.h b/arch/arm/mach-spear13xx/include/mach/spear.h
+index d043280..03f9616 100644
+--- a/arch/arm/mach-spear13xx/include/mach/spear.h
++++ b/arch/arm/mach-spear13xx/include/mach/spear.h
+@@ -88,6 +88,9 @@
+ #define SPEAR13XX_MCIF_CF_BASE		UL(0xB2800000)
+ #define SPEAR13XX_MCIF_SDHCI_BASE	UL(0xB3000000)
+ 
++/* Pad multiplexing base */
++#define SPEAR13XX_FUNC_ENB_BASE		UL(0xE0700650)
++
+ /* Debug uart for linux, will be used for debug and uncompress messages */
+ #define SPEAR_DBG_UART_BASE		SPEAR13XX_UART_BASE
+ #define VA_SPEAR_DBG_UART_BASE		VA_SPEAR13XX_UART_BASE
+diff --git a/arch/arm/mach-spear13xx/spear1300.c b/arch/arm/mach-spear13xx/spear1300.c
+index c1b82f1..4569cb5 100644
+--- a/arch/arm/mach-spear13xx/spear1300.c
++++ b/arch/arm/mach-spear13xx/spear1300.c
+@@ -14,10 +14,25 @@
+ #include <mach/generic.h>
+ #include <mach/spear.h>
+ 
++/* pmx driver structure */
++struct pmx_driver pmx_driver;
++
+ /* Add spear1300 specific devices here */
+ 
+ void __init spear1300_init(void)
+ {
++	int ret;
++
+ 	/* call spear13xx family common init function */
+ 	spear13xx_init();
++
++	/* pmx initialization */
++	pmx_driver.base = ioremap(SPEAR13XX_FUNC_ENB_BASE, SZ_4K);
++	if (pmx_driver.base) {
++		ret = pmx_register(&pmx_driver);
++		if (ret)
++			pr_err("padmux: registeration failed. err no: %d\n",
++					ret);
++		iounmap(pmx_driver.base);
++	}
+ }
+diff --git a/arch/arm/mach-spear13xx/spear1300_evb.c b/arch/arm/mach-spear13xx/spear1300_evb.c
+index 34e2647..e35a496 100644
+--- a/arch/arm/mach-spear13xx/spear1300_evb.c
++++ b/arch/arm/mach-spear13xx/spear1300_evb.c
+@@ -37,6 +37,26 @@ static struct mtd_partition partition_info[] = {
+ 	PARTITION("Root File System", 0x380000, 84 * 0x20000),
+ };
+ 
++/* padmux devices to enable */
++static struct pmx_dev *pmx_devs[] = {
++	/* spear13xx specific devices */
++	&pmx_i2c,
++	&pmx_i2s1,
++	&pmx_i2s2,
++	&pmx_clcd1,
++	&pmx_clcd2,
++	&pmx_egpio_grp,
++	&pmx_gmii,
++	&pmx_keyboard,
++	&pmx_mcif,
++	&pmx_nand_8bit,
++	&pmx_smi_4_chips,
++	&pmx_ssp,
++	&pmx_uart0,
++
++	/* spear1300 specific devices */
 +};
 +
-+static void enable_dbi_access(struct pcie_app_reg *app_reg)
-+{
-+	/* Enable DBI access */
-+	writel(readl(&app_reg->slv_armisc) | (1 << AXI_OP_DBI_ACCESS_ID),
-+			&app_reg->slv_armisc);
-+	writel(readl(&app_reg->slv_awmisc) | (1 << AXI_OP_DBI_ACCESS_ID),
-+			&app_reg->slv_awmisc);
+ static struct amba_device *amba_devs[] __initdata = {
+ 	&spear13xx_gpio_device[0],
+ 	&spear13xx_gpio_device[1],
+@@ -103,6 +123,11 @@ static void __init spear1300_evb_init(void)
+ {
+ 	unsigned int i;
+ 
++	/* padmux initialization, must be done before spear1300_init */
++	pmx_driver.mode = NULL;
++	pmx_driver.devs = pmx_devs;
++	pmx_driver.devs_count = ARRAY_SIZE(pmx_devs);
 +
-+}
+ 	/* set keyboard plat data */
+ 	kbd_set_plat_data(&spear13xx_kbd_device, &kbd_data);
+ 
+diff --git a/arch/arm/mach-spear13xx/spear1310.c b/arch/arm/mach-spear13xx/spear1310.c
+index 648dabc..cd0878e 100644
+--- a/arch/arm/mach-spear13xx/spear1310.c
++++ b/arch/arm/mach-spear13xx/spear1310.c
+@@ -16,6 +16,9 @@
+ #include <mach/generic.h>
+ #include <mach/hardware.h>
+ 
++/* pmx driver structure */
++struct pmx_driver pmx_driver;
 +
-+static void disable_dbi_access(struct pcie_app_reg *app_reg)
-+{
-+	/* disable DBI access */
-+	writel(readl(&app_reg->slv_armisc) & ~(1 << AXI_OP_DBI_ACCESS_ID),
-+			&app_reg->slv_armisc);
-+	writel(readl(&app_reg->slv_awmisc) & ~(1 << AXI_OP_DBI_ACCESS_ID),
-+			&app_reg->slv_awmisc);
+ /* Add spear1310 specific devices here */
+ 
+ /* CAN device registeration */
+@@ -57,6 +60,18 @@ struct platform_device spear1310_can1_device = {
+ 
+ void __init spear1310_init(void)
+ {
++	int ret;
 +
-+}
+ 	/* call spear13xx family common init function */
+ 	spear13xx_init();
 +
-+static void spear_dbi_read_reg(struct spear_pcie_gadget_config *config,
-+		int where, int size, u32 *val)
-+{
-+	struct pcie_app_reg *app_reg
-+		= (struct pcie_app_reg *) config->va_app_base;
-+	u32 va_address;
-+
-+	/* Enable DBI access */
-+	enable_dbi_access(app_reg);
-+
-+	va_address = (u32)config->va_dbi_base + (where & ~0x3);
-+
-+	*val = readl(va_address);
-+
-+	if (size == 1)
-+		*val = (*val >> (8 * (where & 3))) & 0xff;
-+	else if (size == 2)
-+		*val = (*val >> (8 * (where & 3))) & 0xffff;
-+
-+	/* Disable DBI access */
-+	disable_dbi_access(app_reg);
-+}
-+
-+static void spear_dbi_write_reg(struct spear_pcie_gadget_config *config,
-+		int where, int size, u32 val)
-+{
-+	struct pcie_app_reg *app_reg
-+		= (struct pcie_app_reg *) config->va_app_base;
-+	u32 va_address;
-+
-+	/* Enable DBI access */
-+	enable_dbi_access(app_reg);
-+
-+	va_address = (u32)config->va_dbi_base + (where & ~0x3);
-+
-+	if (size == 4)
-+		writel(val, va_address);
-+	else if (size == 2)
-+		writew(val, va_address + (where & 2));
-+	else if (size == 1)
-+		writeb(val, va_address + (where & 3));
-+
-+	/* Disable DBI access */
-+	disable_dbi_access(app_reg);
-+}
-+
-+#define PCI_FIND_CAP_TTL	48
-+
-+static int pci_find_own_next_cap_ttl(struct spear_pcie_gadget_config *config,
-+		u32 pos, int cap, int *ttl)
-+{
-+	u32 id;
-+
-+	while ((*ttl)--) {
-+		spear_dbi_read_reg(config, pos, 1, &pos);
-+		if (pos < 0x40)
-+			break;
-+		pos &= ~3;
-+		spear_dbi_read_reg(config, pos + PCI_CAP_LIST_ID, 1, &id);
-+		if (id == 0xff)
-+			break;
-+		if (id == cap)
-+			return pos;
-+		pos += PCI_CAP_LIST_NEXT;
++	/* pmx initialization */
++	pmx_driver.base = ioremap(SPEAR13XX_FUNC_ENB_BASE, SZ_4K);
++	if (pmx_driver.base) {
++		ret = pmx_register(&pmx_driver);
++		if (ret)
++			pr_err("padmux: registeration failed. err no: %d\n",
++					ret);
++		iounmap(pmx_driver.base);
 +	}
-+	return 0;
-+}
-+
-+static int pci_find_own_next_cap(struct spear_pcie_gadget_config *config,
-+			u32 pos, int cap)
-+{
-+	int ttl = PCI_FIND_CAP_TTL;
-+
-+	return pci_find_own_next_cap_ttl(config, pos, cap, &ttl);
-+}
-+
-+static int pci_find_own_cap_start(struct spear_pcie_gadget_config *config,
-+				u8 hdr_type)
-+{
-+	u32 status;
-+
-+	spear_dbi_read_reg(config, PCI_STATUS, 2, &status);
-+	if (!(status & PCI_STATUS_CAP_LIST))
-+		return 0;
-+
-+	switch (hdr_type) {
-+	case PCI_HEADER_TYPE_NORMAL:
-+	case PCI_HEADER_TYPE_BRIDGE:
-+		return PCI_CAPABILITY_LIST;
-+	case PCI_HEADER_TYPE_CARDBUS:
-+		return PCI_CB_CAPABILITY_LIST;
-+	default:
-+		return 0;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * Tell if a device supports a given PCI capability.
-+ * Returns the address of the requested capability structure within the
-+ * device's PCI configuration space or 0 in case the device does not
-+ * support it. Possible values for @cap:
-+ *
-+ * %PCI_CAP_ID_PM	Power Management
-+ * %PCI_CAP_ID_AGP	Accelerated Graphics Port
-+ * %PCI_CAP_ID_VPD	Vital Product Data
-+ * %PCI_CAP_ID_SLOTID	Slot Identification
-+ * %PCI_CAP_ID_MSI	Message Signalled Interrupts
-+ * %PCI_CAP_ID_CHSWP	CompactPCI HotSwap
-+ * %PCI_CAP_ID_PCIX	PCI-X
-+ * %PCI_CAP_ID_EXP	PCI Express
-+ */
-+static int pci_find_own_capability(struct spear_pcie_gadget_config *config,
-+		int cap)
-+{
-+	u32 pos;
-+	u32 hdr_type;
-+
-+	spear_dbi_read_reg(config, PCI_HEADER_TYPE, 1, &hdr_type);
-+
-+	pos = pci_find_own_cap_start(config, hdr_type);
-+	if (pos)
-+		pos = pci_find_own_next_cap(config, pos, cap);
-+
-+	return pos;
-+}
-+
-+static irqreturn_t spear_pcie_gadget_irq(int irq, void *dev_id)
-+{
-+	return 0;
-+}
-+
-+static ssize_t pcie_gadget_show_link(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
-+
-+	if (readl(&app_reg->app_status_1) & ((u32)1 << XMLH_LINK_UP_ID))
-+		return sprintf(buf, "UP");
-+	else
-+		return sprintf(buf, "DOWN");
-+}
-+
-+static ssize_t pcie_gadget_store_link(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
-+	char link[10];
-+
-+	if (sscanf(buf, "%s", link) != 1)
-+		return -EINVAL;
-+
-+	if (!strcmp(link, "UP"))
-+		writel(readl(&app_reg->app_ctrl_0) | (1 << APP_LTSSM_ENABLE_ID),
-+			&app_reg->app_ctrl_0);
-+	else
-+		writel(readl(&app_reg->app_ctrl_0)
-+				& ~(1 << APP_LTSSM_ENABLE_ID),
-+				&app_reg->app_ctrl_0);
-+	return count;
-+}
-+
-+static DEVICE_ATTR(link, S_IWUSR | S_IRUGO, pcie_gadget_show_link,
-+		pcie_gadget_store_link);
-+
-+static ssize_t pcie_gadget_show_int_type(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%s", config->int_type);
-+}
-+
-+static ssize_t pcie_gadget_store_int_type(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	char int_type[10];
-+	u32 cap, vector, vec, flags;
-+
-+	if (sscanf(buf, "%s", int_type) != 1)
-+		return -EINVAL;
-+
-+	if (!strcmp(int_type, "INTA"))
-+		spear_dbi_write_reg(config, PCI_INTERRUPT_LINE, 1, 1);
-+
-+	else if (!strcmp(int_type, "MSI")) {
-+		vector = config->requested_msi;
-+		vec = 0;
-+		while (vector > 1) {
-+			vector /= 2;
-+			vec++;
-+		}
-+		spear_dbi_write_reg(config, PCI_INTERRUPT_LINE, 1, 0);
-+		cap = pci_find_own_capability(config, PCI_CAP_ID_MSI);
-+		spear_dbi_read_reg(config, cap + PCI_MSI_FLAGS, 1, &flags);
-+		flags &= ~PCI_MSI_FLAGS_QMASK;
-+		flags |= vec << 1;
-+		spear_dbi_write_reg(config, cap + PCI_MSI_FLAGS, 1, flags);
-+	}
-+
-+	strcpy(config->int_type, int_type);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(int_type, S_IWUSR | S_IRUGO, pcie_gadget_show_int_type,
-+		pcie_gadget_store_int_type);
-+
-+static ssize_t pcie_gadget_show_no_of_msi(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
-+	u32 cap, vector, vec, flags;
-+
-+	if ((readl(&app_reg->msg_status) & (1 << CFG_MSI_EN_ID))
-+			!= (1 << CFG_MSI_EN_ID))
-+		vector = 0;
-+	else {
-+		cap = pci_find_own_capability(config, PCI_CAP_ID_MSI);
-+		spear_dbi_read_reg(config, cap + PCI_MSI_FLAGS, 1, &flags);
-+		flags &= ~PCI_MSI_FLAGS_QSIZE;
-+		vec = flags >> 4;
-+		vector = 1;
-+		while (vec--)
-+			vector *= 2;
-+	}
-+	config->configured_msi = vector;
-+
-+	return sprintf(buf, "%u", vector);
-+}
-+
-+static ssize_t pcie_gadget_store_no_of_msi(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+
-+	if (sscanf(buf, "%u", &config->requested_msi) != 1)
-+		return -EINVAL;
-+	if (config->requested_msi > 32)
-+		config->requested_msi = 32;
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(no_of_msi, S_IWUSR | S_IRUGO, pcie_gadget_show_no_of_msi,
-+		pcie_gadget_store_no_of_msi);
-+
-+static ssize_t pcie_gadget_store_inta(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
-+	int en;
-+
-+	if (sscanf(buf, "%d", &en) != 1)
-+		return -EINVAL;
-+
-+	if (en)
-+		writel(readl(&app_reg->app_ctrl_0) | (1 << SYS_INT_ID),
-+				&app_reg->app_ctrl_0);
-+	else
-+		writel(readl(&app_reg->app_ctrl_0) & ~(1 << SYS_INT_ID),
-+				&app_reg->app_ctrl_0);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(inta, S_IWUSR, NULL, pcie_gadget_store_inta);
-+
-+static ssize_t pcie_gadget_store_send_msi(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
-+	int vector;
-+	u32 ven_msi;
-+
-+	if (sscanf(buf, "%d", &vector) != 1)
-+		return -EINVAL;
-+
-+	if (!config->configured_msi)
-+		return -EINVAL;
-+
-+	if (vector >= config->configured_msi)
-+		return -EINVAL;
-+
-+	ven_msi = readl(&app_reg->ven_msi_1);
-+	ven_msi &= ~VEN_MSI_FUN_NUM_MASK;
-+	ven_msi |= 0 << VEN_MSI_FUN_NUM_ID;
-+	ven_msi &= ~VEN_MSI_TC_MASK;
-+	ven_msi |= 0 << VEN_MSI_TC_ID;
-+	ven_msi &= ~VEN_MSI_VECTOR_MASK;
-+	ven_msi |= vector << VEN_MSI_VECTOR_ID;
-+
-+	/*generating interrupt for msi vector*/
-+	ven_msi |= VEN_MSI_REQ_EN;
-+	writel(ven_msi, &app_reg->ven_msi_1);
-+	/*need to wait till this bit is cleared, it is not cleared
-+	 * autometically[Bug RTL] TBD*/
-+	udelay(1);
-+	ven_msi &= ~VEN_MSI_REQ_EN;
-+	writel(ven_msi, &app_reg->ven_msi_1);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(send_msi, S_IWUSR, NULL, pcie_gadget_store_send_msi);
-+
-+static ssize_t pcie_gadget_show_vendor_id(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 id;
-+
-+	spear_dbi_read_reg(config, PCI_VENDOR_ID, 2, &id);
-+
-+	return sprintf(buf, "%x", id);
-+}
-+
-+static ssize_t pcie_gadget_store_vendor_id(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 id;
-+
-+	if (sscanf(buf, "%x", &id) != 1)
-+		return -EINVAL;
-+
-+	spear_dbi_write_reg(config, PCI_VENDOR_ID, 2, id);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(vendor_id, S_IWUSR | S_IRUGO, pcie_gadget_show_vendor_id,
-+		pcie_gadget_store_vendor_id);
-+
-+static ssize_t pcie_gadget_show_device_id(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 id;
-+
-+	spear_dbi_read_reg(config, PCI_DEVICE_ID, 2, &id);
-+
-+	return sprintf(buf, "%x", id);
-+}
-+
-+static ssize_t pcie_gadget_store_device_id(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 id;
-+
-+	if (sscanf(buf, "%x", &id) != 1)
-+		return -EINVAL;
-+
-+	spear_dbi_write_reg(config, PCI_DEVICE_ID, 2, id);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(device_id, S_IWUSR | S_IRUGO, pcie_gadget_show_device_id,
-+		pcie_gadget_store_device_id);
-+
-+static ssize_t pcie_gadget_show_bar0_size(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%x", config->bar0_size);
-+}
-+
-+static ssize_t pcie_gadget_store_bar0_size(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 size, pos, pos1;
-+	u32 no_of_bit = 0;
-+
-+	if (sscanf(buf, "%x", &size) != 1)
-+		return -EINVAL;
-+	/* as per PCIE specs, min bar size supported is 128 bytes. But
-+	 * our controller supports min as 256*/
-+	if (size <= 0x100)
-+		size = 0x100;
-+	/* max bar size is 1MB*/
-+	else if (size >= 0x100000)
-+		size = 0x100000;
-+	else {
-+		pos = 0;
-+		pos1 = 0;
-+		while (pos < 21) {
-+			pos = find_next_bit((unsigned long *)&size, 21, pos);
-+			if (pos != 21)
-+				pos1 = pos + 1;
-+			pos++;
-+			no_of_bit++;
-+		}
-+		if (no_of_bit == 2)
-+			pos1--;
-+
-+		size = 1 << pos1;
-+	}
-+	config->bar0_size = size;
-+	spear_dbi_write_reg(config, PCIE_BAR0_MASK_REG, 4, size - 1);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(bar0_size, S_IWUSR | S_IRUGO, pcie_gadget_show_bar0_size,
-+		pcie_gadget_store_bar0_size);
-+
-+static ssize_t pcie_gadget_show_bar0_address(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
-+
-+	u32 address = readl(&app_reg->pim0_mem_addr_start);
-+
-+	return sprintf(buf, "%x", address);
-+}
-+
-+static ssize_t pcie_gadget_store_bar0_address(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
-+	u32 address;
-+
-+	if (sscanf(buf, "%x", &address) != 1)
-+		return -EINVAL;
-+
-+	address &= ~(config->bar0_size - 1);
-+	if (config->va_bar0_address)
-+		iounmap((void *)config->va_bar0_address);
-+	config->va_bar0_address = (u32)ioremap(address, config->bar0_size);
-+	if (!config->va_bar0_address)
-+		return -ENOMEM;
-+
-+	writel(address, &app_reg->pim0_mem_addr_start);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(bar0_address, S_IWUSR | S_IRUGO,
-+		pcie_gadget_show_bar0_address, pcie_gadget_store_bar0_address);
-+
-+static ssize_t pcie_gadget_show_bar0_rw_offset(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%x", config->bar0_rw_offset);
-+}
-+
-+static ssize_t pcie_gadget_store_bar0_rw_offset(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 offset;
-+
-+	if (sscanf(buf, "%x", &offset) != 1)
-+		return -EINVAL;
-+
-+	if (offset % 4)
-+		return -EINVAL;
-+
-+	config->bar0_rw_offset = offset;
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(bar0_rw_offset, S_IWUSR | S_IRUGO,
-+	pcie_gadget_show_bar0_rw_offset, pcie_gadget_store_bar0_rw_offset);
-+
-+static ssize_t pcie_gadget_show_bar0_data(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 data;
-+
-+	if (!config->va_bar0_address)
-+		return -ENOMEM;
-+
-+	data = readl(config->va_bar0_address + config->bar0_rw_offset);
-+
-+	return sprintf(buf, "%x", data);
-+}
-+
-+static ssize_t pcie_gadget_store_bar0_data(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct spear_pcie_gadget_config *config = dev_get_drvdata(dev);
-+	u32 data;
-+
-+	if (sscanf(buf, "%x", &data) != 1)
-+		return -EINVAL;
-+
-+	if (!config->va_bar0_address)
-+		return -ENOMEM;
-+
-+	writel(data, config->va_bar0_address + config->bar0_rw_offset);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(bar0_data, S_IWUSR | S_IRUGO,
-+		pcie_gadget_show_bar0_data, pcie_gadget_store_bar0_data);
-+
-+static ssize_t pcie_gadget_show_help(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	char text[] = "\t\tlink read->ltssm status\n \
-+		link write->arg1 = UP to enable ltsmm DOWN to disable\n \
-+		int_type read->type of supported interrupt\n \
-+		int_type write->arg1 = interrupt type to be configured and\n \
-+		can be INTA, MSI or NO_INT\n \
-+		(select MSI only when you have programmed no_of_msi)\n \
-+		no_of_msi read->zero if MSI is not enabled by host\n \
-+		and positive value is the number of MSI vector granted\n \
-+		no_of_msi write->arg1 = number of MSI vector needed\n \
-+		inta write->arg1 = 1 to assert INTA and 0 to de-assert\n \
-+		send_msi write->arg1 = MSI vector to be send\n \
-+		vendor_id read->programmed vendor id (hex)\n\
-+		vendor_id write->arg1 = vendor id(hex) to be programmed\n \
-+		device_id read->programmed device id(hex)\n \
-+		device_id write->arg1 = device id(hex) to be programmed\n \
-+		bar0_size read->size of bar0 in hex\n \
-+		bar0_size write->arg1= size of bar0 in hex\n \
-+		(default bar0 size is 1000 (hex) bytes)\n \
-+		bar0_address read->address of bar0 mapped area in hex\n \
-+		bar0_address write->arg1 = address of bar0 mapped area in hex\n\
-+		(default mapping of bar0 is SYSRAM1(E0800000)\n \
-+		(always program bar size before bar address)\n \
-+		(kernel might modify bar size and address to align)\n \
-+		(read back bar size and address after writing to check)\n \
-+		bar0_rw_offset read->offset of bar0 for which bar0_data \n \
-+		will return value\n \
-+		bar0_rw_offset write->arg1 = offset of bar0 for which\n \
-+		bar0_data will write value\n \
-+		bar0_data read->data at bar0_rw_offset\n \
-+		bar0_data write->arg1 = data to be written at\n \
-+		bar0_rw_offset\n";
-+
-+	int size = (sizeof(text) < PAGE_SIZE) ? sizeof(text) : PAGE_SIZE;
-+
-+	return snprintf(buf, size, "%s", text);
-+}
-+
-+static DEVICE_ATTR(help, S_IRUGO, pcie_gadget_show_help, NULL);
-+
-+static struct attribute *pcie_gadget_attributes[] = {
-+	&dev_attr_link.attr,
-+	&dev_attr_int_type.attr,
-+	&dev_attr_no_of_msi.attr,
-+	&dev_attr_inta.attr,
-+	&dev_attr_send_msi.attr,
-+	&dev_attr_vendor_id.attr,
-+	&dev_attr_device_id.attr,
-+	&dev_attr_bar0_size.attr,
-+	&dev_attr_bar0_address.attr,
-+	&dev_attr_bar0_rw_offset.attr,
-+	&dev_attr_bar0_data.attr,
-+	&dev_attr_help.attr,
-+	NULL
+ }
+diff --git a/arch/arm/mach-spear13xx/spear1310_evb.c b/arch/arm/mach-spear13xx/spear1310_evb.c
+index 1af152f..87f27cf 100644
+--- a/arch/arm/mach-spear13xx/spear1310_evb.c
++++ b/arch/arm/mach-spear13xx/spear1310_evb.c
+@@ -36,6 +36,26 @@ static struct mtd_partition partition_info[] = {
+ 	PARTITION("Root File System", 0x380000, 84 * 0x20000),
+ };
+ 
++/* padmux devices to enable */
++static struct pmx_dev *pmx_devs[] = {
++	/* spear13xx specific devices */
++	&pmx_i2c,
++	&pmx_i2s1,
++	&pmx_i2s2,
++	&pmx_clcd1,
++	&pmx_clcd2,
++	&pmx_egpio_grp,
++	&pmx_gmii,
++	&pmx_keyboard,
++	&pmx_mcif,
++	&pmx_nand_8bit,
++	&pmx_smi_4_chips,
++	&pmx_ssp,
++	&pmx_uart0,
++
++	/* spear1310 specific devices */
 +};
 +
-+static const struct attribute_group pcie_gadget_attr_group = {
-+	.attrs = pcie_gadget_attributes,
-+};
+ static struct amba_device *amba_devs[] __initdata = {
+ 	/* spear13xx specific devices */
+ 	&spear13xx_gpio_device[0],
+@@ -108,6 +128,11 @@ static void __init spear1310_evb_init(void)
+ {
+ 	unsigned int i;
+ 
++	/* padmux initialization, must be done before spear1300_init */
++	pmx_driver.mode = NULL;
++	pmx_driver.devs = pmx_devs;
++	pmx_driver.devs_count = ARRAY_SIZE(pmx_devs);
 +
-+static void spear13xx_pcie_device_init(struct spear_pcie_gadget_config *config)
-+{
-+	struct pcie_app_reg *app_reg =
-+		(struct pcie_app_reg *)config->va_app_base;
+ 	/* set keyboard plat data */
+ 	kbd_set_plat_data(&spear13xx_kbd_device, &kbd_data);
+ 
+diff --git a/arch/arm/mach-spear13xx/spear13xx.c b/arch/arm/mach-spear13xx/spear13xx.c
+index d6a6dc0..623dffd 100644
+--- a/arch/arm/mach-spear13xx/spear13xx.c
++++ b/arch/arm/mach-spear13xx/spear13xx.c
+@@ -637,3 +637,531 @@ static void __init spear13xx_timer_init(void)
+ struct sys_timer spear13xx_timer = {
+ 	.init = spear13xx_timer_init,
+ };
 +
-+	/*setup registers for outbound translation */
++/* pad multiplexing support */
++/* devices */
 +
-+	writel(config->base, &app_reg->in0_mem_addr_start);
-+	writel(app_reg->in0_mem_addr_start + IN0_MEM_SIZE,
-+			&app_reg->in0_mem_addr_limit);
-+	writel(app_reg->in0_mem_addr_limit + 1, &app_reg->in1_mem_addr_start);
-+	writel(app_reg->in1_mem_addr_start + IN1_MEM_SIZE,
-+			&app_reg->in1_mem_addr_limit);
-+	writel(app_reg->in1_mem_addr_limit + 1, &app_reg->in_io_addr_start);
-+	writel(app_reg->in_io_addr_start + IN_IO_SIZE,
-+			&app_reg->in_io_addr_limit);
-+	writel(app_reg->in_io_addr_limit + 1, &app_reg->in_cfg0_addr_start);
-+	writel(app_reg->in_cfg0_addr_start + IN_CFG0_SIZE,
-+			&app_reg->in_cfg0_addr_limit);
-+	writel(app_reg->in_cfg0_addr_limit + 1, &app_reg->in_cfg1_addr_start);
-+	writel(app_reg->in_cfg1_addr_start + IN_CFG1_SIZE,
-+			&app_reg->in_cfg1_addr_limit);
-+	writel(app_reg->in_cfg1_addr_limit + 1, &app_reg->in_msg_addr_start);
-+	writel(app_reg->in_msg_addr_start + IN_MSG_SIZE,
-+			&app_reg->in_msg_addr_limit);
-+
-+	writel(app_reg->in0_mem_addr_start, &app_reg->pom0_mem_addr_start);
-+	writel(app_reg->in1_mem_addr_start, &app_reg->pom1_mem_addr_start);
-+	writel(app_reg->in_io_addr_start, &app_reg->pom_io_addr_start);
-+
-+	/*setup registers for inbound translation */
-+
-+	/* Keep AORAM mapped at BAR0 as default */
-+	config->bar0_size = INBOUND_ADDR_MASK + 1;
-+	spear_dbi_write_reg(config, PCIE_BAR0_MASK_REG, 4, INBOUND_ADDR_MASK);
-+	spear_dbi_write_reg(config, PCI_BASE_ADDRESS_0, 4, 0xC);
-+	config->va_bar0_address = (u32)ioremap(SPEAR13XX_SYSRAM1_BASE,
-+			config->bar0_size);
-+
-+	writel(SPEAR13XX_SYSRAM1_BASE, &app_reg->pim0_mem_addr_start);
-+	writel(0, &app_reg->pim1_mem_addr_start);
-+	writel(INBOUND_ADDR_MASK + 1, &app_reg->mem0_addr_offset_limit);
-+
-+	writel(0x0, &app_reg->pim_io_addr_start);
-+	writel(0x0, &app_reg->pim_io_addr_start);
-+	writel(0x0, &app_reg->pim_rom_addr_start);
-+
-+	writel(DEVICE_TYPE_EP | (1 << MISCTRL_EN_ID)
-+			| ((u32)1 << REG_TRANSLATION_ENABLE),
-+			&app_reg->app_ctrl_0);
-+	/* disable all rx interrupts */
-+	writel(0, &app_reg->int_mask);
-+
-+	/* Select INTA as default*/
-+	spear_dbi_write_reg(config, PCI_INTERRUPT_LINE, 1, 1);
-+}
-+
-+static int __devinit spear_pcie_gadget_probe(struct platform_device *pdev)
-+{
-+	struct resource *res0, *res1;
-+	struct spear_pcie_gadget_config *config;
-+	unsigned int status = 0;
-+	int irq;
-+	struct clk *clk;
-+
-+	/* get resource for application registers*/
-+
-+	res0 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res0) {
-+		dev_err(&pdev->dev, "no resource defined\n");
-+		return -EBUSY;
-+	}
-+	if (!request_mem_region(res0->start, resource_size(res0),
-+				pdev->name)) {
-+		dev_err(&pdev->dev, "pcie gadget region already	claimed\n");
-+		return -EBUSY;
-+	}
-+	/* get resource for dbi registers*/
-+
-+	res1 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+	if (!res1) {
-+		dev_err(&pdev->dev, "no resource defined\n");
-+		goto err_rel_res0;
-+	}
-+	if (!request_mem_region(res1->start, resource_size(res1),
-+				pdev->name)) {
-+		dev_err(&pdev->dev, "pcie gadget region already	claimed\n");
-+		goto err_rel_res0;
-+	}
-+
-+	config = kzalloc(sizeof(*config), GFP_KERNEL);
-+	if (!config) {
-+		dev_err(&pdev->dev, "out of memory\n");
-+		status = -ENOMEM;
-+		goto err_rel_res;
-+	}
-+
-+	config->va_app_base = ioremap(res0->start, resource_size(res0));
-+	if (!config->va_app_base) {
-+		dev_err(&pdev->dev, "ioremap fail\n");
-+		status = -ENOMEM;
-+		goto err_kzalloc;
-+	}
-+
-+	config->base = (void *)res1->start;
-+
-+	config->va_dbi_base = ioremap(res1->start, resource_size(res1));
-+	if (!config->va_dbi_base) {
-+		dev_err(&pdev->dev, "ioremap fail\n");
-+		status = -ENOMEM;
-+		goto err_iounmap_app;
-+	}
-+
-+	dev_set_drvdata(&pdev->dev, config);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "no update irq?\n");
-+		status = irq;
-+		goto err_iounmap;
-+	}
-+
-+	status = request_irq(irq, spear_pcie_gadget_irq, 0, pdev->name, NULL);
-+	if (status) {
-+		dev_err(&pdev->dev, "pcie gadget interrupt IRQ%d already \
-+				claimed\n", irq);
-+		goto err_get_irq;
-+	}
-+	/* Register sysfs hooks */
-+	status = sysfs_create_group(&pdev->dev.kobj, &pcie_gadget_attr_group);
-+	if (status)
-+		goto err_irq;
-+
-+	/* init basic pcie application registers*/
-+	/* do not enable clock if it is PCIE0.Ideally , all controller should
-+	 * have been independent from others with respect to clock. But PCIE1
-+	 * and 2 depends on PCIE0.So PCIE0 clk is provided during board init.*/
-+	if (pdev->id == 1) {
-+		/* Ideally CFG Clock should have been also enabled here. But
-+		 * it is done currently during board init routne*/
-+		clk = clk_get_sys("pcie1", NULL);
-+		if (!clk) {
-+			pr_err("%s:couldn't get clk for pcie1\n", __func__);
-+			goto err_irq;
-+		}
-+		if (clk_enable(clk)) {
-+			pr_err("%s:couldn't enable clk for pcie1\n", __func__);
-+			goto err_irq;
-+		}
-+	} else if (pdev->id == 2) {
-+		/* Ideally CFG Clock should have been also enabled here. But
-+		 * it is done currently during board init routne*/
-+		clk = clk_get_sys("pcie2", NULL);
-+		if (!clk) {
-+			pr_err("%s:couldn't get clk for pcie2\n", __func__);
-+			goto err_irq;
-+		}
-+		if (clk_enable(clk)) {
-+			pr_err("%s:couldn't enable clk for pcie2\n", __func__);
-+			goto err_irq;
-+		}
-+	}
-+	spear13xx_pcie_device_init(config);
-+
-+	return 0;
-+err_irq:
-+	free_irq(irq, NULL);
-+err_get_irq:
-+	dev_set_drvdata(&pdev->dev, NULL);
-+err_iounmap:
-+	iounmap(config->va_dbi_base);
-+err_iounmap_app:
-+	iounmap(config->va_app_base);
-+err_kzalloc:
-+	kfree(config);
-+err_rel_res:
-+	release_mem_region(res1->start, resource_size(res1));
-+err_rel_res0:
-+	release_mem_region(res0->start, resource_size(res0));
-+	return status;
-+}
-+
-+static int __devexit spear_pcie_gadget_remove(struct platform_device *pdev)
-+{
-+	struct resource *res0, *res1;
-+	struct spear_pcie_gadget_config *config;
-+	int irq;
-+
-+	res0 = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	res1 = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+	irq = platform_get_irq(pdev, 0);
-+	config = dev_get_drvdata(&pdev->dev);
-+
-+	free_irq(irq, NULL);
-+	dev_set_drvdata(&pdev->dev, NULL);
-+	iounmap(config->va_dbi_base);
-+	iounmap(config->va_app_base);
-+	kfree(config);
-+	release_mem_region(res1->start, resource_size(res1));
-+	release_mem_region(res0->start, resource_size(res0));
-+	sysfs_remove_group(&pdev->dev.kobj, &pcie_gadget_attr_group);
-+
-+	return 0;
-+}
-+
-+static void spear_pcie_gadget_shutdown(struct platform_device *pdev)
-+{
-+}
-+
-+static struct platform_driver spear_pcie_gadget_driver = {
-+	.probe = spear_pcie_gadget_probe,
-+	.remove = spear_pcie_gadget_remove,
-+	.shutdown = spear_pcie_gadget_shutdown,
-+	.driver = {
-+		.name = "pcie-gadget-spear",
-+		.bus = &platform_bus_type
++/* Pad multiplexing for i2c device */
++static struct pmx_mux_reg pmx_i2c_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_I2C_MASK,
++		.value = PMX_I2C_MASK,
 +	},
 +};
 +
-+static int __init spear_pcie_gadget_init(void)
-+{
-+	return platform_driver_register(&spear_pcie_gadget_driver);
-+}
-+module_init(spear_pcie_gadget_init);
++static struct pmx_dev_mode pmx_i2c_modes[] = {
++	{
++		.mux_regs = pmx_i2c_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_i2c_mux),
++	},
++};
 +
-+static void __exit spear_pcie_gadget_exit(void)
-+{
-+	platform_driver_unregister(&spear_pcie_gadget_driver);
-+}
-+module_exit(spear_pcie_gadget_exit);
++struct pmx_dev pmx_i2c = {
++	.name = "i2c",
++	.modes = pmx_i2c_modes,
++	.mode_count = ARRAY_SIZE(pmx_i2c_modes),
++};
 +
-+MODULE_ALIAS("pcie-gadget-spear");
-+MODULE_AUTHOR("Pratyush Anand");
-+MODULE_LICENSE("GPL");
++/* Pad multiplexing for ssp device */
++static struct pmx_mux_reg pmx_ssp_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_SSP_MASK,
++		.value = PMX_SSP_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_ssp_modes[] = {
++	{
++		.mux_regs = pmx_ssp_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_ssp_mux),
++	},
++};
++
++struct pmx_dev pmx_ssp = {
++	.name = "ssp",
++	.modes = pmx_ssp_modes,
++	.mode_count = ARRAY_SIZE(pmx_ssp_modes),
++};
++
++/* Pad multiplexing for i2s1 device */
++static struct pmx_mux_reg pmx_i2s1_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_I2S1_MASK,
++		.value = PMX_I2S1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_i2s1_modes[] = {
++	{
++		.mux_regs = pmx_i2s1_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_i2s1_mux),
++	},
++};
++
++struct pmx_dev pmx_i2s1 = {
++	.name = "i2s1",
++	.modes = pmx_i2s1_modes,
++	.mode_count = ARRAY_SIZE(pmx_i2s1_modes),
++};
++
++/* Pad multiplexing for i2s2 device */
++static struct pmx_mux_reg pmx_i2s2_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_I2S2_MASK,
++		.value = PMX_I2S2_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_i2s2_modes[] = {
++	{
++		.mux_regs = pmx_i2s2_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_i2s2_mux),
++	},
++};
++
++struct pmx_dev pmx_i2s2 = {
++	.name = "i2s2",
++	.modes = pmx_i2s2_modes,
++	.mode_count = ARRAY_SIZE(pmx_i2s2_modes),
++};
++
++/* Pad multiplexing for clcd1 device */
++static struct pmx_mux_reg pmx_clcd1_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_CLCD1_MASK,
++		.value = PMX_CLCD1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_clcd1_modes[] = {
++	{
++		.mux_regs = pmx_clcd1_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_clcd1_mux),
++	},
++};
++
++struct pmx_dev pmx_clcd1 = {
++	.name = "clcd1",
++	.modes = pmx_clcd1_modes,
++	.mode_count = ARRAY_SIZE(pmx_clcd1_modes),
++};
++
++/* Pad multiplexing for clcd2 device */
++static struct pmx_mux_reg pmx_clcd2_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_CLCD2_MASK,
++		.value = PMX_CLCD2_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_clcd2_modes[] = {
++	{
++		.mux_regs = pmx_clcd2_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_clcd2_mux),
++	},
++};
++
++struct pmx_dev pmx_clcd2 = {
++	.name = "clcd2",
++	.modes = pmx_clcd2_modes,
++	.mode_count = ARRAY_SIZE(pmx_clcd2_modes),
++};
++
++/*
++ * By default, all EGPIOs are enabled.
++ * TBD : Board specific enabling of specific GPIOs only
++ */
++static struct pmx_mux_reg pmx_egpio_grp_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_EGPIO_0_GRP_MASK,
++		.value = PMX_EGPIO_0_GRP_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_EGPIO_1_GRP_MASK,
++		.value = PMX_EGPIO_1_GRP_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_egpio_grp_modes[] = {
++	{
++		.mux_regs = pmx_egpio_grp_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_egpio_grp_mux),
++	},
++};
++
++struct pmx_dev pmx_egpio_grp = {
++	.name = "egpios",
++	.modes = pmx_egpio_grp_modes,
++	.mode_count = ARRAY_SIZE(pmx_egpio_grp_modes),
++};
++
++/* Pad multiplexing for smi 2 chips device */
++static struct pmx_mux_reg pmx_smi_2_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_SMI_MASK,
++		.value = PMX_SMI_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_smi_2_modes[] = {
++	{
++		.mux_regs = pmx_smi_2_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_smi_2_mux),
++	},
++};
++
++struct pmx_dev pmx_smi_2_chips = {
++	.name = "smi_2_chips",
++	.modes = pmx_smi_2_modes,
++	.mode_count = ARRAY_SIZE(pmx_smi_2_modes),
++};
++
++/* Pad multiplexing for smi 4 chips device */
++static struct pmx_mux_reg pmx_smi_4_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_SMI_MASK,
++		.value = PMX_SMI_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_SMINCS2_MASK | PMX_SMINCS3_MASK,
++		.value = PMX_SMINCS2_MASK | PMX_SMINCS3_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_smi_4_modes[] = {
++	{
++		.mux_regs = pmx_smi_4_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_smi_4_mux),
++	},
++};
++
++struct pmx_dev pmx_smi_4_chips = {
++	.name = "smi_4_chips",
++	.modes = pmx_smi_4_modes,
++	.mode_count = ARRAY_SIZE(pmx_smi_4_modes),
++};
++
++/* Pad multiplexing for gmii device */
++static struct pmx_mux_reg pmx_gmii_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_GMII_MASK,
++		.value = PMX_GMII_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_gmii_modes[] = {
++	{
++		.mux_regs = pmx_gmii_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_gmii_mux),
++	},
++};
++
++struct pmx_dev pmx_gmii = {
++	.name = "gmii",
++	.modes = pmx_gmii_modes,
++	.mode_count = ARRAY_SIZE(pmx_gmii_modes),
++};
++
++/* Pad multiplexing for nand 8bit (4 chips) */
++static struct pmx_mux_reg pmx_nand8_4_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_NAND8BIT4DEV_0_MASK,
++		.value = PMX_NAND8BIT4DEV_0_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_NAND8BIT4DEV_1_MASK,
++		.value = PMX_NAND8BIT4DEV_1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_nand8_4_modes[] = {
++	{
++		.mux_regs = pmx_nand8_4_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_nand8_4_mux),
++	},
++};
++
++struct pmx_dev pmx_nand_8bit_4_chips = {
++	.name = "nand-8bit_4_chips",
++	.modes = pmx_nand8_4_modes,
++	.mode_count = ARRAY_SIZE(pmx_nand8_4_modes),
++};
++
++/* Pad multiplexing for nand 8bit device */
++static struct pmx_mux_reg pmx_nand8_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_NAND8BIT_0_MASK,
++		.value = PMX_NAND8BIT_0_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_NAND8BIT_1_MASK,
++		.value = PMX_NAND8BIT_1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_nand8_modes[] = {
++	{
++		.mux_regs = pmx_nand8_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_nand8_mux),
++	},
++};
++
++struct pmx_dev pmx_nand_8bit = {
++	.name = "nand-8bit",
++	.modes = pmx_nand8_modes,
++	.mode_count = ARRAY_SIZE(pmx_nand8_modes),
++};
++
++/*
++ * Pad multiplexing for nand 16bit device
++ * Note : Enabling pmx_nand_16bit means that all the required pads for
++ *   16bit nand device operations are enabled. These also include pads
++ *   for 8bit devices
++ */
++static struct pmx_mux_reg pmx_nand16_4_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_NAND16BIT4DEV_0_MASK,
++		.value = PMX_NAND16BIT4DEV_0_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_NAND16BIT4DEV_1_MASK,
++		.value = PMX_NAND16BIT4DEV_1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_nand16_4_modes[] = {
++	{
++		.mux_regs = pmx_nand16_4_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_nand16_4_mux),
++	},
++};
++
++struct pmx_dev pmx_nand_16bit_4_chips = {
++	.name = "nand-16bit_4_chips",
++	.modes = pmx_nand16_4_modes,
++	.mode_count = ARRAY_SIZE(pmx_nand16_4_modes),
++};
++
++/* Pad multiplexing for nand 16bit device */
++static struct pmx_mux_reg pmx_nand16_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_NAND16BIT_0_MASK,
++		.value = PMX_NAND16BIT_0_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_NAND16BIT_1_MASK,
++		.value = PMX_NAND16BIT_1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_nand16_modes[] = {
++	{
++		.mux_regs = pmx_nand16_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_nand16_mux),
++	},
++};
++
++struct pmx_dev pmx_nand_16bit = {
++	.name = "nand-16bit",
++	.modes = pmx_nand16_modes,
++	.mode_count = ARRAY_SIZE(pmx_nand16_modes),
++};
++
++/* Pad multiplexing for keyboard device */
++static struct pmx_mux_reg pmx_keyboard_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_KEYBOARD_MASK,
++		.value = PMX_KEYBOARD_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_NFIO815_MASK | PMX_NFCE1_MASK | \
++			PMX_NFCE2_MASK | PMX_NFWPRT1_MASK | PMX_NFWPRT2_MASK,
++		.value = 0,
++	},
++};
++
++static struct pmx_dev_mode pmx_keyboard_modes[] = {
++	{
++		.mux_regs = pmx_keyboard_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_keyboard_mux),
++	},
++};
++
++struct pmx_dev pmx_keyboard = {
++	.name = "keyboard",
++	.modes = pmx_keyboard_modes,
++	.mode_count = ARRAY_SIZE(pmx_keyboard_modes),
++};
++
++/* Pad multiplexing for uart0 device */
++static struct pmx_mux_reg pmx_uart0_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_0,
++		.mask = PMX_UART0_MASK,
++		.value = PMX_UART0_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_uart0_modes[] = {
++	{
++		.mux_regs = pmx_uart0_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_uart0_mux),
++	},
++};
++
++struct pmx_dev pmx_uart0 = {
++	.name = "uart0",
++	.modes = pmx_uart0_modes,
++	.mode_count = ARRAY_SIZE(pmx_uart0_modes),
++};
++
++/* Pad multiplexing for uart0_modem device */
++static struct pmx_mux_reg pmx_uart0_modem_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_UART0_MODEM_MASK,
++		.value = PMX_UART0_MODEM_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_uart0_modem_modes[] = {
++	{
++		.mux_regs = pmx_uart0_modem_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_uart0_modem_mux),
++	},
++};
++
++struct pmx_dev pmx_uart0_modem = {
++	.name = "uart0_modem",
++	.modes = pmx_uart0_modem_modes,
++	.mode_count = ARRAY_SIZE(pmx_uart0_modem_modes),
++};
++
++/* Pad multiplexing for gpt_0_1 device */
++static struct pmx_mux_reg pmx_gpt_0_1_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_GPT0_TMR1_MASK,
++		.value = PMX_GPT0_TMR1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_gpt_0_1_modes[] = {
++	{
++		.mux_regs = pmx_gpt_0_1_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_gpt_0_1_mux),
++	},
++};
++
++struct pmx_dev pmx_gpt_0_1 = {
++	.name = "gpt_0_1",
++	.modes = pmx_gpt_0_1_modes,
++	.mode_count = ARRAY_SIZE(pmx_gpt_0_1_modes),
++};
++
++/* Pad multiplexing for gpt_0_2 device */
++static struct pmx_mux_reg pmx_gpt_0_2_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_GPT0_TMR2_MASK,
++		.value = PMX_GPT0_TMR2_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_gpt_0_2_modes[] = {
++	{
++		.mux_regs = pmx_gpt_0_2_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_gpt_0_2_mux),
++	},
++};
++
++struct pmx_dev pmx_gpt_0_2 = {
++	.name = "gpt_0_2",
++	.modes = pmx_gpt_0_2_modes,
++	.mode_count = ARRAY_SIZE(pmx_gpt_0_2_modes),
++};
++
++/* Pad multiplexing for gpt_1_1 device */
++static struct pmx_mux_reg pmx_gpt_1_1_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_GPT1_TMR1_MASK,
++		.value = PMX_GPT1_TMR1_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_gpt_1_1_modes[] = {
++	{
++		.mux_regs = pmx_gpt_1_1_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_gpt_1_1_mux),
++	},
++};
++
++struct pmx_dev pmx_gpt_1_1 = {
++	.name = "gpt_1_1",
++	.modes = pmx_gpt_1_1_modes,
++	.mode_count = ARRAY_SIZE(pmx_gpt_1_1_modes),
++};
++
++/* Pad multiplexing for gpt_1_2 device */
++static struct pmx_mux_reg pmx_gpt_1_2_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_GPT1_TMR2_MASK,
++		.value = PMX_GPT1_TMR2_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_gpt_1_2_modes[] = {
++	{
++		.mux_regs = pmx_gpt_1_2_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_gpt_1_2_mux),
++	},
++};
++
++struct pmx_dev pmx_gpt_1_2 = {
++	.name = "gpt_1_2",
++	.modes = pmx_gpt_1_2_modes,
++	.mode_count = ARRAY_SIZE(pmx_gpt_1_2_modes),
++};
++
++/* Pad multiplexing for mcif device */
++static struct pmx_mux_reg pmx_mcif_mux[] = {
++	{
++		.offset = PAD_MUX_CONFIG_REG_1,
++		.mask = PMX_MCIFALL_1_MASK,
++		.value = PMX_MCIFALL_1_MASK,
++	}, {
++		.offset = PAD_MUX_CONFIG_REG_2,
++		.mask = PMX_MCIFALL_2_MASK,
++		.value = PMX_MCIFALL_2_MASK,
++	},
++};
++
++static struct pmx_dev_mode pmx_mcif_modes[] = {
++	{
++		.mux_regs = pmx_mcif_mux,
++		.mux_reg_cnt = ARRAY_SIZE(pmx_mcif_mux),
++	},
++};
++
++struct pmx_dev pmx_mcif = {
++	.name = "mcif",
++	.modes = pmx_mcif_modes,
++	.mode_count = ARRAY_SIZE(pmx_mcif_modes),
++};
+diff --git a/arch/arm/plat-spear/Makefile b/arch/arm/plat-spear/Makefile
+index c25e5b8..79503dd 100644
+--- a/arch/arm/plat-spear/Makefile
++++ b/arch/arm/plat-spear/Makefile
+@@ -5,6 +5,7 @@
+ # Common support
+ obj-y	:= clcd.o clock.o pll_clk.o smi.o time.o
+ 
++obj-$(CONFIG_ARCH_SPEAR13XX)	+= padmux.o
+ obj-$(CONFIG_ARCH_SPEAR3XX)	+= shirq.o padmux.o
+ obj-$(CONFIG_CPU_FREQ)		+= cpufreq.o
+ obj-$(CONFIG_MACH_SPEAR310)	+= plgpio.o
 -- 
 1.7.2.2

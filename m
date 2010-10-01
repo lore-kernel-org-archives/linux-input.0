@@ -1,785 +1,119 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: RE: [PATCHv5] input: ROHM BU21013 touch panel controller support
-Date: Fri, 1 Oct 2010 16:49:37 +0530
-Message-ID: <0680EC522D0CC943BC586913CF3768C003FF05A286@dbde02.ent.ti.com>
-References: <1285930790-2206-1-git-send-email-naveen.gaddipati@stericsson.com>
+From: Pascal Auriel - Stantum <P.Auriel@stantum.com>
+Subject: [PATCH] hid: support STmicroelectronics and Sitronix with
+ hid-stantuml driver
+Date: Fri, 1 Oct 2010 13:26:17 +0200
+Message-ID: <39DA9B419B56B14AB97E543A876B0ECF195F57B883@stantum-exch.stantum.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/mixed;
+	boundary="_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:38564 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756251Ab0JALUF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Oct 2010 07:20:05 -0400
-In-Reply-To: <1285930790-2206-1-git-send-email-naveen.gaddipati@stericsson.com>
-Content-Language: en-US
+Received: from reverse.completel.net ([92.103.162.83]:52909 "EHLO
+	mail.stantum.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756472Ab0JALbv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Oct 2010 07:31:51 -0400
+Content-Language: fr-FR
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Naveen Kumar G <naveen.gaddipati@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "STEricsson_nomadik_linux@list.st.com" <STEricsson_nomadik_linux@list.st.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "rydberg@euromail.se" <rydberg@euromail.se>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "chatty@enac.fr" <chatty@enac.fr>, Gowri Ries - Stantum <G.Ries@stantum.com>, Pascal Auriel - Stantum <P.Auriel@stantum.com>
 
+--_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
+Topic: New VendorsIds/ProductIds using hid-stantum driver
+Issued-by: Stantum <software@stantum.com>
+diff -rupN before/drivers/hid/hid-core.c after/drivers/hid/hid-core.c
+--- before/drivers/hid/hid-core.c	2010-10-01 13:01:34.485323002 +0200
++++ after/drivers/hid/hid-core.c	2010-10-01 13:04:23.869323000 +0200
+@@ -1376,6 +1376,8 @@ static const struct hid_device_id hid_bl
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROL=
+LER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) }=
+,
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DEVICE_ID_MTP_SITRON=
+IX) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) }=
+,
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
+diff -rupN before/drivers/hid/hid-ids.h after/drivers/hid/hid-ids.h
+--- before/drivers/hid/hid-ids.h	2010-10-01 13:01:47.085323001 +0200
++++ after/drivers/hid/hid-ids.h	2010-10-01 13:04:33.285323000 +0200
+@@ -481,6 +481,12 @@
+ #define USB_VENDOR_ID_STANTUM		0x1f87
+ #define USB_DEVICE_ID_MTP		0x0002
+=20
++#define USB_VENDOR_ID_STANTUM_STM		0x0483
++#define USB_DEVICE_ID_MTP_STM		0x3261
++
++#define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
++#define USB_DEVICE_ID_MTP_SITRONIX		0x5001
++
+ #define USB_VENDOR_ID_SUN		0x0430
+ #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+=20
+diff -rupN before/drivers/hid/hid-stantum.c after/drivers/hid/hid-stantum.c
+--- before/drivers/hid/hid-stantum.c	2010-10-01 13:01:40.181323000 +0200
++++ after/drivers/hid/hid-stantum.c	2010-10-01 13:04:43.717323001 +0200
+@@ -249,6 +249,8 @@ static void stantum_remove(struct hid_de
+=20
+ static const struct hid_device_id stantum_devices[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DEVICE_ID_MTP_SITRON=
+IX) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, stantum_devices);
 
-> -----Original Message-----
-> From: linux-input-owner@vger.kernel.org [mailto:linux-input-
-> owner@vger.kernel.org] On Behalf Of Naveen Kumar G
-> Sent: Friday, October 01, 2010 4:30 PM
-> To: Dmitry Torokhov
-> Cc: STEricsson_nomadik_linux@list.st.com; linux-input@vger.kernel.org;
-> tsoni@codeaurora.org; rydberg@euromail.se; Naveen Kumar Gaddipati
-> Subject: [PATCHv5] input: ROHM BU21013 touch panel controller support
->
-> From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
->
-> Added the ROHM BU21013 capacitive touch panel controller
-> driver support with i2c interface.
->
-> Acked-by: Linus Walleij <linus.walleij@stericsson.com>
-> Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-> ---
-> Changes in v5:
->       -Update according to Henrik comments on v4
->
->  drivers/input/touchscreen/Kconfig      |   12 +
->  drivers/input/touchscreen/Makefile     |    1 +
->  drivers/input/touchscreen/bu21013_ts.c |  628
-> ++++++++++++++++++++++++++++++++
->  include/linux/input/bu21013.h          |   44 +++
->  4 files changed, 685 insertions(+), 0 deletions(-)
->  create mode 100755 drivers/input/touchscreen/bu21013_ts.c
-Think this is not needed
+--_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_
+Content-Type: text/plain; name="patch.txt"
+Content-Description: patch.txt
+Content-Disposition: attachment; filename="patch.txt"; size=2122;
+	creation-date="Fri, 01 Oct 2010 13:13:15 GMT";
+	modification-date="Fri, 01 Oct 2010 13:13:15 GMT"
+Content-Transfer-Encoding: base64
 
->  create mode 100644 include/linux/input/bu21013.h
->
-> diff --git a/drivers/input/touchscreen/Kconfig
-> b/drivers/input/touchscreen/Kconfig
-> index 0069d97..2380533 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -98,6 +98,18 @@ config TOUCHSCREEN_BITSY
->         To compile this driver as a module, choose M here: the
->         module will be called h3600_ts_input.
->
-> +config TOUCHSCREEN_BU21013
-> +     tristate "BU21013 based touch panel controllers"
-> +     depends on I2C
-> +     help
-> +       Say Y here if you have a bu21013 touchscreen connected to
-> +       your system.
-> +
-> +       If unsure, say N.
-> +
-> +       To compile this driver as a module, choose M here: the
-> +       module will be called bu21013_ts.
-> +
->  config TOUCHSCREEN_CY8CTMG110
->       tristate "cy8ctmg110 touchscreen"
->       depends on I2C
-> diff --git a/drivers/input/touchscreen/Makefile
-> b/drivers/input/touchscreen/Makefile
-> index 28217e1..a0a2021 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -14,6 +14,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)        += ad7879-
-> spi.o
->  obj-$(CONFIG_TOUCHSCREEN_ADS7846)    += ads7846.o
->  obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)       += atmel_tsadcc.o
->  obj-$(CONFIG_TOUCHSCREEN_BITSY)              += h3600_ts_input.o
-> +obj-$(CONFIG_TOUCHSCREEN_BU21013)       += bu21013_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110) += cy8ctmg110_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_DA9034)     += da9034-ts.o
->  obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)    += dynapro.o
-> diff --git a/drivers/input/touchscreen/bu21013_ts.c
-> b/drivers/input/touchscreen/bu21013_ts.c
-> new file mode 100755
-> index 0000000..1008037
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/bu21013_ts.c
-> @@ -0,0 +1,628 @@
-> +/*
-> + * Copyright (C) ST-Ericsson SA 2010
-> + * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-
-> Ericsson
-> + * License terms:GNU General Public License (GPL) version 2
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/delay.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/i2c.h>
-> +#include <linux/workqueue.h>
-> +#include <linux/input.h>
-> +#include <linux/input/bu21013.h>
-> +#include <linux/slab.h>
-> +
-> +#define PEN_DOWN_INTR        0
-> +#define MAX_FINGERS  2
-> +#define RESET_DELAY  30
-> +#define PENUP_TIMEOUT        (10)
-> +#define DELTA_MIN    16
-> +#define MASK_BITS    0x03
-> +#define SHIFT_8              8
-> +#define SHIFT_2              2
-> +#define LENGTH_OF_BUFFER     11
-> +#define I2C_RETRY_COUNT      5
-> +
-> +#define BU21013_SENSORS_BTN_0_7_REG  0x70
-> +#define BU21013_SENSORS_BTN_8_15_REG 0x71
-> +#define BU21013_SENSORS_BTN_16_23_REG        0x72
-> +#define BU21013_X1_POS_MSB_REG               0x73
-> +#define BU21013_X1_POS_LSB_REG               0x74
-> +#define BU21013_Y1_POS_MSB_REG               0x75
-> +#define BU21013_Y1_POS_LSB_REG               0x76
-> +#define BU21013_X2_POS_MSB_REG               0x77
-> +#define BU21013_X2_POS_LSB_REG               0x78
-> +#define BU21013_Y2_POS_MSB_REG               0x79
-> +#define BU21013_Y2_POS_LSB_REG               0x7A
-> +#define BU21013_INT_CLR_REG          0xE8
-> +#define BU21013_INT_MODE_REG         0xE9
-> +#define BU21013_GAIN_REG             0xEA
-> +#define BU21013_OFFSET_MODE_REG              0xEB
-> +#define BU21013_XY_EDGE_REG          0xEC
-> +#define BU21013_RESET_REG            0xED
-> +#define BU21013_CALIB_REG            0xEE
-> +#define BU21013_DONE_REG             0xEF
-> +#define BU21013_SENSOR_0_7_REG               0xF0
-> +#define BU21013_SENSOR_8_15_REG              0xF1
-> +#define BU21013_SENSOR_16_23_REG     0xF2
-> +#define BU21013_POS_MODE1_REG                0xF3
-> +#define BU21013_POS_MODE2_REG                0xF4
-> +#define BU21013_CLK_MODE_REG         0xF5
-> +#define BU21013_IDLE_REG             0xFA
-> +#define BU21013_FILTER_REG           0xFB
-> +#define BU21013_TH_ON_REG            0xFC
-> +#define BU21013_TH_OFF_REG           0xFD
-> +
-> +
-> +#define BU21013_RESET_ENABLE         0x01
-> +
-> +#define BU21013_SENSORS_EN_0_7               0x3F
-> +#define BU21013_SENSORS_EN_8_15              0xFC
-> +#define BU21013_SENSORS_EN_16_23     0x1F
-> +
-> +#define BU21013_POS_MODE1_0          0x02
-> +#define BU21013_POS_MODE1_1          0x04
-> +#define BU21013_POS_MODE1_2          0x08
-> +
-> +#define BU21013_POS_MODE2_ZERO               0x01
-> +#define BU21013_POS_MODE2_AVG1               0x02
-> +#define BU21013_POS_MODE2_AVG2               0x04
-> +#define BU21013_POS_MODE2_EN_XY              0x08
-> +#define BU21013_POS_MODE2_EN_RAW     0x10
-> +#define BU21013_POS_MODE2_MULTI              0x80
-> +
-> +#define BU21013_CLK_MODE_DIV         0x01
-> +#define BU21013_CLK_MODE_EXT         0x02
-> +#define BU21013_CLK_MODE_CALIB               0x80
-> +
-> +#define BU21013_IDLET_0                      0x01
-> +#define BU21013_IDLET_1                      0x02
-> +#define BU21013_IDLET_2                      0x04
-> +#define BU21013_IDLET_3                      0x08
-> +#define BU21013_IDLE_INTERMIT_EN     0x10
-> +
-> +#define BU21013_DELTA_0_6    0x7F
-> +#define BU21013_FILTER_EN    0x80
-> +
-> +#define BU21013_INT_MODE_LEVEL       0x00
-> +#define BU21013_INT_MODE_EDGE        0x01
-> +
-> +#define BU21013_GAIN_0               0x01
-> +#define BU21013_GAIN_1               0x02
-> +#define BU21013_GAIN_2               0x04
-> +
-> +#define BU21013_OFFSET_MODE_DEFAULT  0x00
-> +#define BU21013_OFFSET_MODE_MOVE     0x01
-> +#define BU21013_OFFSET_MODE_DISABLE  0x02
-> +
-> +#define BU21013_TH_ON_0              0x01
-> +#define BU21013_TH_ON_1              0x02
-> +#define BU21013_TH_ON_2              0x04
-> +#define BU21013_TH_ON_3              0x08
-> +#define BU21013_TH_ON_4              0x10
-> +#define BU21013_TH_ON_5              0x20
-> +#define BU21013_TH_ON_6              0x40
-> +#define BU21013_TH_ON_7              0x80
-> +#define BU21013_TH_ON_MAX    0xFF
-> +
-> +#define BU21013_TH_OFF_0     0x01
-> +#define BU21013_TH_OFF_1     0x02
-> +#define BU21013_TH_OFF_2     0x04
-> +#define BU21013_TH_OFF_3     0x08
-> +#define BU21013_TH_OFF_4     0x10
-> +#define BU21013_TH_OFF_5     0x20
-> +#define BU21013_TH_OFF_6     0x40
-> +#define BU21013_TH_OFF_7     0x80
-> +#define BU21013_TH_OFF_MAX   0xFF
-> +
-> +#define BU21013_X_EDGE_0     0x01
-> +#define BU21013_X_EDGE_1     0x02
-> +#define BU21013_X_EDGE_2     0x04
-> +#define BU21013_X_EDGE_3     0x08
-> +#define BU21013_Y_EDGE_0     0x10
-> +#define BU21013_Y_EDGE_1     0x20
-> +#define BU21013_Y_EDGE_2     0x40
-> +#define BU21013_Y_EDGE_3     0x80
-> +
-> +#define BU21013_DONE 0x01
-> +#define BU21013_NUMBER_OF_X_SENSORS  (6)
-> +#define BU21013_NUMBER_OF_Y_SENSORS  (11)
-> +
-> +#define DRIVER_TP    "bu21013_tp"
-> +
-> +/**
-> + * struct bu21013_ts_data - touch panel data structure
-> + * @client: pointer to the i2c client
-> + * @wait: variable to wait_queue_head_t structure
-> + * @touch_stopped: touch stop flag
-> + * @chip: pointer to the touch panel controller
-> + * @in_dev: pointer to the input device structure
-> + * @intr_pin: interrupt pin value
-> + *
-> + * Touch panel device data structure
-> + */
-> +struct bu21013_ts_data {
-> +     struct i2c_client *client;
-> +     wait_queue_head_t wait;
-> +     bool touch_stopped;
-> +     const struct bu21013_platform_device *chip;
-> +     struct input_dev *in_dev;
-> +     unsigned int intr_pin;
-> +};
-> +
-> +/**
-> + * bu21013_read_block_data(): read the touch co-ordinates
-> + * @data: bu21013_ts_data structure pointer
-> + * @buf: byte pointer
-> + *
-> + * Read the touch co-ordinates using i2c read block into buffer
-> + * and returns integer.
-> + */
-> +static int bu21013_read_block_data(struct bu21013_ts_data *data, u8 *buf)
-> +{
-> +     int ret, i;
-> +
-> +     for (i = 0; i < I2C_RETRY_COUNT; i++) {
-> +             ret = i2c_smbus_read_i2c_block_data
-> +                     (data->client, BU21013_SENSORS_BTN_0_7_REG,
-> +                             LENGTH_OF_BUFFER, buf);
-> +             if (ret == LENGTH_OF_BUFFER)
-> +                     return 0;
-> +     }
-> +     return -EINVAL;
-> +}
-> +
-> +/**
-> + * bu21013_do_touch_report(): Get the touch co-ordinates
-> + * @data: bu21013_ts_data structure pointer
-> + *
-> + * Get the touch co-ordinates from touch sensor registers and writes
-> + * into device structure and returns integer.
-> + */
-> +static int bu21013_do_touch_report(struct bu21013_ts_data *data)
-> +{
-> +     u8      buf[LENGTH_OF_BUFFER];
-> +     unsigned int pos_x[2], pos_y[2];
-> +     bool    has_x_sensors, has_y_sensors;
-> +     int     finger_down_count = 0;
-> +     int     i;
-> +
-> +     if (data == NULL)
-> +             return -EINVAL;
-> +
-> +     if (bu21013_read_block_data(data, buf) < 0)
-> +             return -EINVAL;
-> +
-> +     has_x_sensors = hweight32(buf[0] & BU21013_SENSORS_EN_0_7);
-> +     has_y_sensors = hweight32(((buf[1] & BU21013_SENSORS_EN_8_15) |
-> +             ((buf[2] & BU21013_SENSORS_EN_16_23) << SHIFT_8)) >> SHIFT_2);
-> +     if (!has_x_sensors || !has_y_sensors)
-> +             return 0;
-> +
-> +     for (i = 0; i < MAX_FINGERS; i++) {
-> +             const u8 *p = &buf[4 * i + 3];
-> +             unsigned int x = p[0] << SHIFT_2 | (p[1] & MASK_BITS);
-> +             unsigned int y = p[2] << SHIFT_2 | (p[3] & MASK_BITS);
-> +             if (x == 0 || y == 0)
-> +                     continue;
-> +             pos_x[finger_down_count] = x;
-> +             pos_y[finger_down_count] = y;
-> +             finger_down_count++;
-> +     }
-> +
-> +     if (finger_down_count == 2 &&
-> +         (abs(pos_x[0] - pos_x[1]) < DELTA_MIN ||
-> +          abs(pos_y[0] - pos_y[1]) < DELTA_MIN))
-> +             return 0;
-> +
-> +     if (finger_down_count <= 0) {
-> +             input_report_abs(data->in_dev, ABS_MT_TOUCH_MAJOR, 0);
-> +             input_mt_sync(data->in_dev);
-> +     } else {
-> +             for (i = 0; i < finger_down_count; i++) {
-> +                     if (data->chip->x_flip)
-> +                             pos_x[i] = data->chip->touch_x_max - pos_x[i];
-> +                     if (data->chip->y_flip)
-> +                             pos_y[i] = data->chip->touch_y_max - pos_y[i];
-> +                     input_report_abs(data->in_dev, ABS_MT_TOUCH_MAJOR,
-> +                                             max(pos_x[i], pos_y[i]));
-> +                     input_report_abs(data->in_dev, ABS_MT_POSITION_X,
-> +                                                             pos_x[i]);
-> +                     input_report_abs(data->in_dev, ABS_MT_POSITION_Y,
-> +                                                             pos_y[i]);
-> +                     input_mt_sync(data->in_dev);
-> +             }
-> +     }
-> +     input_sync(data->in_dev);
-> +
-> +     return 0;
-> +}
-> +/**
-> + * bu21013_gpio_irq() - gpio thread function for touch interrupt
-> + * @irq: irq value
-> + * @device_data: void pointer
-> + *
-> + * This gpio thread function for touch interrupt
-> + * and returns irqreturn_t.
-> + */
-> +static irqreturn_t bu21013_gpio_irq(int irq, void *device_data)
-> +{
-> +     struct bu21013_ts_data *data = device_data;
-> +     struct i2c_client *i2c = data->client;
-> +     int retval;
-> +
-> +     do {
-> +             retval = bu21013_do_touch_report(data);
-> +             if (retval < 0) {
-> +                     dev_err(&i2c->dev, "bu21013_do_touch_report failed\n");
-> +                     return IRQ_NONE;
-> +             }
-> +
-> +             data->intr_pin = data->chip->irq_read_val();
-> +             if (data->intr_pin == PEN_DOWN_INTR)
-> +                     wait_event_timeout(data->wait, data->touch_stopped,
-> +                                                     msecs_to_jiffies(2));
-> +     } while (!data->intr_pin && !data->touch_stopped);
-> +     return IRQ_HANDLED;
-> +}
-> +
-> +/**
-> + * bu21013_init_chip() - power on sequence for the bu21013 controller
-> + * @data: device structure pointer
-> + *
-> + * This function is used to power on
-> + * the bu21013 controller and returns integer.
-> + */
-> +static int bu21013_init_chip(struct bu21013_ts_data *data)
-> +{
-> +     int retval;
-> +     struct i2c_client *i2c = data->client;
-> +
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_RESET_REG,
-> +                                     BU21013_RESET_ENABLE);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_RESET reg write failed\n");
-> +             return retval;
-> +     }
-> +     msleep(RESET_DELAY);
-> +
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_SENSOR_0_7_REG,
-> +                                     BU21013_SENSORS_EN_0_7);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_SENSOR_0_7 reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_SENSOR_8_15_REG,
-> +                                             BU21013_SENSORS_EN_8_15);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_SENSOR_8_15 reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_SENSOR_16_23_REG,
-> +                                             BU21013_SENSORS_EN_16_23);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_SENSOR_16_23 reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_POS_MODE1_REG,
-> +                             (BU21013_POS_MODE1_0 | BU21013_POS_MODE1_1));
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_POS_MODE1 reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_POS_MODE2_REG,
-> +                     (BU21013_POS_MODE2_ZERO | BU21013_POS_MODE2_AVG1 |
-> +                     BU21013_POS_MODE2_AVG2 | BU21013_POS_MODE2_EN_RAW |
-> +                     BU21013_POS_MODE2_MULTI));
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_POS_MODE2 reg write failed\n");
-> +             return retval;
-> +     }
-> +     if (data->chip->ext_clk)
-> +             retval = i2c_smbus_write_byte_data(i2c, BU21013_CLK_MODE_REG,
-> +                     (BU21013_CLK_MODE_EXT | BU21013_CLK_MODE_CALIB));
-> +     else
-> +             retval = i2c_smbus_write_byte_data(i2c, BU21013_CLK_MODE_REG,
-> +                     (BU21013_CLK_MODE_DIV | BU21013_CLK_MODE_CALIB));
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_CLK_MODE reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_IDLE_REG,
-> +                             (BU21013_IDLET_0 | BU21013_IDLE_INTERMIT_EN));
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_IDLE reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_INT_MODE_REG,
-> +                                             BU21013_INT_MODE_LEVEL);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_INT_MODE reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_FILTER_REG,
-> +                                             (BU21013_DELTA_0_6 |
-> +                                                     BU21013_FILTER_EN));
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_FILTER reg write failed\n");
-> +             return retval;
-> +     }
-> +
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_TH_ON_REG,
-> +                                     BU21013_TH_ON_5);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_TH_ON reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_TH_OFF_REG,
-> +                             BU21013_TH_OFF_4 || BU21013_TH_OFF_3);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_TH_OFF reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_GAIN_REG,
-> +                                     (BU21013_GAIN_0 | BU21013_GAIN_1));
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_GAIN reg write failed\n");
-> +             return retval;
-> +     }
-> +
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_OFFSET_MODE_REG,
-> +                                     BU21013_OFFSET_MODE_DEFAULT);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_OFFSET_MODE reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_XY_EDGE_REG,
-> +                             (BU21013_X_EDGE_0 | BU21013_X_EDGE_2 |
-> +                             BU21013_Y_EDGE_1 | BU21013_Y_EDGE_3));
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_XY_EDGE reg write failed\n");
-> +             return retval;
-> +     }
-> +     retval = i2c_smbus_write_byte_data(i2c, BU21013_DONE_REG,
-> +                                                     BU21013_DONE);
-> +     if (retval < 0) {
-> +             dev_err(&i2c->dev, "BU21013_REG_DONE reg write failed\n");
-> +             return retval;
-> +     }
-> +
-> +     return retval;
-> +}
-> +
-> +/**
-> + * bu21013_probe() - initialzes the i2c-client touchscreen driver
-> + * @client: i2c client structure pointer
-> + * @id: i2c device id pointer
-> + *
-> + * This function used to initializes the i2c-client touchscreen
-> + * driver and returns integer.
-> + */
-> +static int __devinit bu21013_probe(struct i2c_client *client,
-> +                                     const struct i2c_device_id *id)
-> +{
-> +     int retval;
-> +     struct bu21013_ts_data *bu21013_data;
-> +     struct input_dev *in_dev;
-> +     const struct bu21013_platform_device *pdata =
-> +                                     client->dev.platform_data;
-> +
-> +     if (!i2c_check_functionality(client->adapter,
-> +                                     I2C_FUNC_SMBUS_BYTE_DATA)) {
-> +             dev_err(&client->dev, "i2c smbus byte data not supported\n");
-> +             return -EIO;
-> +     }
-> +
-> +     if (!pdata) {
-> +             dev_err(&client->dev, "platform data not defined\n");
-> +             retval = -EINVAL;
-> +             return retval;
-> +     }
-> +
-> +     bu21013_data = kzalloc(sizeof(struct bu21013_ts_data), GFP_KERNEL);
-> +     if (!bu21013_data) {
-> +             dev_err(&client->dev, "device memory alloc failed\n");
-> +             retval = -ENOMEM;
-> +             return retval;
-> +     }
-> +     /* allocate input device */
-> +     in_dev = input_allocate_device();
-> +     if (!in_dev) {
-> +             dev_err(&client->dev, "input device memory alloc failed\n");
-> +             retval = -ENOMEM;
-> +             goto err_alloc;
-> +     }
-> +     bu21013_data->in_dev = in_dev;
-> +     bu21013_data->chip = pdata;
-> +     bu21013_data->client = client;
-> +
-> +     /* configure the gpio pins */
-> +     if (pdata->cs_en) {
-> +             retval = pdata->cs_en(pdata->cs_pin);
-> +             if (retval < 0) {
-> +                     dev_err(&client->dev, "chip init failed\n");
-> +                     goto err_init_cs;
-> +             }
-> +     }
-> +
-> +     /* configure the touch panel controller */
-> +     retval = bu21013_init_chip(bu21013_data);
-> +     if (retval < 0) {
-> +             dev_err(&client->dev, "error in bu21013 config\n");
-> +             goto err_init_config;
-> +     }
-> +
-> +     init_waitqueue_head(&bu21013_data->wait);
-> +     bu21013_data->touch_stopped = false;
-> +
-> +     /* register the device to input subsystem */
-> +     in_dev->name = DRIVER_TP;
-> +     in_dev->id.bustype = BUS_I2C;
-> +     in_dev->dev.parent = &client->dev;
-> +
-> +     __set_bit(EV_SYN, in_dev->evbit);
-> +     __set_bit(EV_KEY, in_dev->evbit);
-> +     __set_bit(EV_ABS, in_dev->evbit);
-> +
-> +     input_set_abs_params(in_dev, ABS_MT_POSITION_X, 0,
-> +                                             pdata->x_max_res, 0, 0);
-> +     input_set_abs_params(in_dev, ABS_MT_POSITION_Y, 0,
-> +                                             pdata->y_max_res, 0, 0);
-> +     input_set_abs_params(in_dev, ABS_MT_TOUCH_MAJOR, 0,
-> +                     max(pdata->x_max_res , pdata->y_max_res), 0, 0);
-> +     input_set_drvdata(in_dev, bu21013_data);
-> +     retval = input_register_device(in_dev);
-> +     if (retval)
-> +             goto err_input_register;
-> +
-> +     retval = request_threaded_irq(pdata->irq, NULL, bu21013_gpio_irq,
-> +                                     (IRQF_TRIGGER_FALLING | IRQF_SHARED),
-> +                                     DRIVER_TP, bu21013_data);
-> +     if (retval) {
-> +             dev_err(&client->dev, "request irq %d failed\n", pdata->irq);
-> +             goto err_init_irq;
-> +     }
-> +
-> +     device_init_wakeup(&client->dev, pdata->wakeup);
-> +     i2c_set_clientdata(client, bu21013_data);
-> +
-> +     return retval;
-> +
-> +err_init_irq:
-> +     input_unregister_device(bu21013_data->in_dev);
-> +     bu21013_data->in_dev = NULL;
-> +err_input_register:
-> +err_init_config:
-> +     pdata->cs_dis(pdata->cs_pin);
-> +err_init_cs:
-> +     input_free_device(bu21013_data->in_dev);
-> +err_alloc:
-> +     kfree(bu21013_data);
-> +
-> +     return retval;
-> +}
-> +/**
-> + * bu21013_remove() - removes the i2c-client touchscreen driver
-> + * @client: i2c client structure pointer
-> + *
-> + * This function uses to remove the i2c-client
-> + * touchscreen driver and returns integer.
-> + */
-> +static int __devexit bu21013_remove(struct i2c_client *client)
-> +{
-> +     struct bu21013_ts_data *bu21013_data = i2c_get_clientdata(client);
-> +
-> +     bu21013_data->touch_stopped = true;
-> +     wake_up(&bu21013_data->wait);
-> +     device_init_wakeup(&client->dev, false);
-> +     free_irq(bu21013_data->chip->irq, bu21013_data);
-> +     bu21013_data->chip->cs_dis(bu21013_data->chip->cs_pin);
-> +     input_unregister_device(bu21013_data->in_dev);
-> +     kfree(bu21013_data);
-> +
-> +     return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +/**
-> + * bu21013_suspend() - suspend the touch screen controller
-> + * @dev: pointer to device structure
-> + *
-> + * This function is used to suspend the
-> + * touch panel controller and returns integer
-> + */
-> +static int bu21013_suspend(struct device *dev)
-> +{
-> +     struct bu21013_ts_data *bu21013_data = dev_get_drvdata(dev);
-> +     struct i2c_client *client = bu21013_data->client;
-> +
-> +     bu21013_data->touch_stopped = true;
-> +     if (device_may_wakeup(&client->dev))
-> +             enable_irq_wake(bu21013_data->chip->irq);
-> +     else
-> +             disable_irq(bu21013_data->chip->irq);
-> +
-> +     return 0;
-> +}
-> +
-> +/**
-> + * bu21013_resume() - resume the touch screen controller
-> + * @dev: pointer to device structure
-> + *
-> + * This function is used to resume the touch panel
-> + * controller and returns integer.
-> + */
-> +static int bu21013_resume(struct device *dev)
-> +{
-> +     struct bu21013_ts_data *bu21013_data = dev_get_drvdata(dev);
-> +     struct i2c_client *client = bu21013_data->client;
-> +     int retval;
-> +
-> +     retval = bu21013_init_chip(bu21013_data);
-> +     if (retval < 0) {
-> +             dev_err(&client->dev, "bu21013 controller config failed\n");
-> +             return retval;
-> +     }
-> +     bu21013_data->touch_stopped = false;
-> +     if (device_may_wakeup(&client->dev))
-> +             disable_irq_wake(bu21013_data->chip->irq);
-> +     else
-> +             enable_irq(bu21013_data->chip->irq);
-> +
-> +     return 0;
-> +}
-> +
-> +static const struct dev_pm_ops bu21013_dev_pm_ops = {
-> +     .suspend = bu21013_suspend,
-> +     .resume  = bu21013_resume,
-> +};
-> +#endif
-> +
-> +static const struct i2c_device_id bu21013_id[] = {
-> +     { DRIVER_TP, 0 },
-> +     { }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, bu21013_id);
-> +
-> +static struct i2c_driver bu21013_driver = {
-> +     .driver = {
-> +             .name   =       DRIVER_TP,
-> +             .owner  =       THIS_MODULE,
-> +#ifdef CONFIG_PM
-> +             .pm     =       &bu21013_dev_pm_ops,
-> +#endif
-> +     },
-> +     .probe          =       bu21013_probe,
-> +     .remove         =       __devexit_p(bu21013_remove),
-> +     .id_table       =       bu21013_id,
-> +};
-> +
-> +/**
-> + * bu21013_init() - initializes the bu21013 touchscreen driver
-> + *
-> + * This function used to initializes the bu21013
-> + * touchscreen driver and returns integer.
-> + */
-> +static int __init bu21013_init(void)
-> +{
-> +     return i2c_add_driver(&bu21013_driver);
-> +}
-> +
-> +/**
-> + * bu21013_exit() - de-initializes the bu21013 touchscreen driver
-> + *
-> + * This function uses to de-initializes the bu21013
-> + * touchscreen driver and returns none.
-> + */
-> +static void __exit bu21013_exit(void)
-> +{
-> +     i2c_del_driver(&bu21013_driver);
-> +}
-> +
-> +module_init(bu21013_init);
-> +module_exit(bu21013_exit);
-> +
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("Naveen Kumar G <naveen.gaddipati@stericsson.com>");
-> +MODULE_DESCRIPTION("bu21013 touch screen controller driver");
-> diff --git a/include/linux/input/bu21013.h b/include/linux/input/bu21013.h
-> new file mode 100644
-> index 0000000..e470d38
-> --- /dev/null
-> +++ b/include/linux/input/bu21013.h
-> @@ -0,0 +1,44 @@
-> +/*
-> + * Copyright (C) ST-Ericsson SA 2010
-> + * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com> for ST-
-> Ericsson
-> + * License terms:GNU General Public License (GPL) version 2
-> + */
-> +
-> +#ifndef _BU21013_H
-> +#define _BU21013_H
-> +
-> +/**
-> + * struct bu21013_platform_device - Handle the platform data
-> + * @cs_en:   pointer to the cs enable function
-> + * @cs_dis:  pointer to the cs disable function
-> + * @irq_read_val:    pointer to read the pen irq value function
-> + * @x_max_res: xmax resolution
-> + * @y_max_res: ymax resolution
-> + * @touch_x_max: touch x max
-> + * @touch_y_max: touch y max
-> + * @cs_pin: chip select pin
-> + * @irq: irq pin
-> + * @ext_clk: external clock flag
-> + * @x_flip: x flip flag
-> + * @y_flip: y flip flag
-> + * @wakeup: wakeup flag
-> + *
-> + * This is used to handle the platform data
-> + */
-> +struct bu21013_platform_device {
-> +     int (*cs_en)(int reset_pin);
-> +     int (*cs_dis)(int reset_pin);
-> +     int (*irq_read_val)(void);
-> +     int x_max_res;
-> +     int y_max_res;
-> +     int touch_x_max;
-> +     int touch_y_max;
-> +     unsigned int cs_pin;
-> +     unsigned int irq;
-> +     bool ext_clk;
-> +     bool x_flip;
-> +     bool y_flip;
-> +     bool wakeup;
-> +};
-> +
-> +#endif
-> --
-> 1.7.2.dirty
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+VG9waWM6IE5ldyBWZW5kb3JzSWRzL1Byb2R1Y3RJZHMgdXNpbmcgaGlkLXN0YW50dW0gZHJpdmVy
+Cklzc3VlZC1ieTogU3RhbnR1bSA8c29mdHdhcmVAc3RhbnR1bS5jb20+CmRpZmYgLXJ1cE4gYmVm
+b3JlL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMgYWZ0ZXIvZHJpdmVycy9oaWQvaGlkLWNvcmUuYwot
+LS0gYmVmb3JlL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMJMjAxMC0xMC0wMSAxMzowMTozNC40ODUz
+MjMwMDIgKzAyMDAKKysrIGFmdGVyL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMJMjAxMC0xMC0wMSAx
+MzowNDoyMy44NjkzMjMwMDAgKzAyMDAKQEAgLTEzNzYsNiArMTM3Niw4IEBAIHN0YXRpYyBjb25z
+dCBzdHJ1Y3QgaGlkX2RldmljZV9pZCBoaWRfYmwKIAl7IEhJRF9CTFVFVE9PVEhfREVWSUNFKFVT
+Ql9WRU5ET1JfSURfU09OWSwgVVNCX0RFVklDRV9JRF9TT05ZX1BTM19DT05UUk9MTEVSKSB9LAog
+CXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9TT05ZLCBVU0JfREVWSUNFX0lEX1NPTllf
+VkFJT19WR1hfTU9VU0UpIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX1NUQU5U
+VU0sIFVTQl9ERVZJQ0VfSURfTVRQKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9J
+RF9TVEFOVFVNX1NUTSwgVVNCX0RFVklDRV9JRF9NVFBfU1RNKSB9LAorCXsgSElEX1VTQl9ERVZJ
+Q0UoVVNCX1ZFTkRPUl9JRF9TVEFOVFVNX1NJVFJPTklYLCBVU0JfREVWSUNFX0lEX01UUF9TSVRS
+T05JWCkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfU1VOUExVUywgVVNCX0RF
+VklDRV9JRF9TVU5QTFVTX1dERVNLVE9QKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
+Ul9JRF9USFJVU1RNQVNURVIsIDB4YjMwMCkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5E
+T1JfSURfVEhSVVNUTUFTVEVSLCAweGIzMDQpIH0sCmRpZmYgLXJ1cE4gYmVmb3JlL2RyaXZlcnMv
+aGlkL2hpZC1pZHMuaCBhZnRlci9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKLS0tIGJlZm9yZS9kcml2
+ZXJzL2hpZC9oaWQtaWRzLmgJMjAxMC0xMC0wMSAxMzowMTo0Ny4wODUzMjMwMDEgKzAyMDAKKysr
+IGFmdGVyL2RyaXZlcnMvaGlkL2hpZC1pZHMuaAkyMDEwLTEwLTAxIDEzOjA0OjMzLjI4NTMyMzAw
+MCArMDIwMApAQCAtNDgxLDYgKzQ4MSwxMiBAQAogI2RlZmluZSBVU0JfVkVORE9SX0lEX1NUQU5U
+VU0JCTB4MWY4NwogI2RlZmluZSBVU0JfREVWSUNFX0lEX01UUAkJMHgwMDAyCiAKKyNkZWZpbmUg
+VVNCX1ZFTkRPUl9JRF9TVEFOVFVNX1NUTQkJMHgwNDgzCisjZGVmaW5lIFVTQl9ERVZJQ0VfSURf
+TVRQX1NUTQkJMHgzMjYxCisKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9TVEFOVFVNX1NJVFJPTklY
+CQkweDE0MDMKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9NVFBfU0lUUk9OSVgJCTB4NTAwMQorCiAj
+ZGVmaW5lIFVTQl9WRU5ET1JfSURfU1VOCQkweDA0MzAKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9S
+QVJJVEFOX0tWTV9ET05HTEUJMHhjZGFiCiAKZGlmZiAtcnVwTiBiZWZvcmUvZHJpdmVycy9oaWQv
+aGlkLXN0YW50dW0uYyBhZnRlci9kcml2ZXJzL2hpZC9oaWQtc3RhbnR1bS5jCi0tLSBiZWZvcmUv
+ZHJpdmVycy9oaWQvaGlkLXN0YW50dW0uYwkyMDEwLTEwLTAxIDEzOjAxOjQwLjE4MTMyMzAwMCAr
+MDIwMAorKysgYWZ0ZXIvZHJpdmVycy9oaWQvaGlkLXN0YW50dW0uYwkyMDEwLTEwLTAxIDEzOjA0
+OjQzLjcxNzMyMzAwMSArMDIwMApAQCAtMjQ5LDYgKzI0OSw4IEBAIHN0YXRpYyB2b2lkIHN0YW50
+dW1fcmVtb3ZlKHN0cnVjdCBoaWRfZGUKIAogc3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNl
+X2lkIHN0YW50dW1fZGV2aWNlc1tdID0gewogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9J
+RF9TVEFOVFVNLCBVU0JfREVWSUNFX0lEX01UUCkgfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9W
+RU5ET1JfSURfU1RBTlRVTV9TVE0sIFVTQl9ERVZJQ0VfSURfTVRQX1NUTSkgfSwKKwl7IEhJRF9V
+U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfU1RBTlRVTV9TSVRST05JWCwgVVNCX0RFVklDRV9JRF9N
+VFBfU0lUUk9OSVgpIH0sCiAJeyB9CiB9OwogTU9EVUxFX0RFVklDRV9UQUJMRShoaWQsIHN0YW50
+dW1fZGV2aWNlcyk7Cg==
+
+--_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_--

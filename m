@@ -1,121 +1,71 @@
-From: Pascal Auriel - Stantum <P.Auriel@stantum.com>
-Subject: [PATCH] hid: support STmicroelectronics and Sitronix with
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: support STmicroelectronics and Sitronix with
  hid-stantuml driver
-Date: Fri, 1 Oct 2010 15:58:56 +0200
-Message-ID: <39DA9B419B56B14AB97E543A876B0ECF195F57B8C1@stantum-exch.stantum.local>
+Date: Fri, 1 Oct 2010 16:03:04 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010011602370.29535@pobox.suse.cz>
+References: <39DA9B419B56B14AB97E543A876B0ECF195F57B8C1@stantum-exch.stantum.local>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_002_39DA9B419B56B14AB97E543A876B0ECF195F57B8C1stantumexchst_"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from reverse.completel.net ([92.103.162.83]:56864 "EHLO
-	mail.stantum.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756810Ab0JAN7C (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Oct 2010 09:59:02 -0400
-Content-Language: fr-FR
+Received: from cantor2.suse.de ([195.135.220.15]:48499 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932137Ab0JAODF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Oct 2010 10:03:05 -0400
+In-Reply-To: <39DA9B419B56B14AB97E543A876B0ECF195F57B8C1@stantum-exch.stantum.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "chatty@enac.fr" <chatty@enac.fr>, Gowri Ries - Stantum <G.Ries@stantum.com>, Pascal Auriel - Stantum <P.Auriel@stantum.com>
+To: Pascal Auriel - Stantum <P.Auriel@stantum.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "chatty@enac.fr" <chatty@enac.fr>, Gowri Ries - Stantum <G.Ries@stantum.com>
 
---_002_39DA9B419B56B14AB97E543A876B0ECF195F57B8C1stantumexchst_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On Fri, 1 Oct 2010, Pascal Auriel - Stantum wrote:
 
-Topic: New VendorsIds/ProductIds using hid-stantum driver
-Signed-off-by: Stantum <software@stantum.com> diff -rupN before/drivers/hid=
-/hid-core.c after/drivers/hid/hid-core.c
-Acked-by: Stephane Chatty <chatty@enac.fr>
---- before/drivers/hid/hid-core.c	2010-10-01 13:01:34.485323002 +0200
-+++ after/drivers/hid/hid-core.c	2010-10-01 13:04:23.869323000 +0200
-@@ -1376,6 +1376,8 @@ static const struct hid_device_id hid_bl
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROL=
-LER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX,=20
-+USB_DEVICE_ID_MTP_SITRONIX) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) }, diff -rupN before=
-/drivers/hid/hid-ids.h after/drivers/hid/hid-ids.h
---- before/drivers/hid/hid-ids.h	2010-10-01 13:01:47.085323001 +0200
-+++ after/drivers/hid/hid-ids.h	2010-10-01 13:04:33.285323000 +0200
-@@ -481,6 +481,12 @@
- #define USB_VENDOR_ID_STANTUM		0x1f87
- #define USB_DEVICE_ID_MTP		0x0002
-=20
-+#define USB_VENDOR_ID_STANTUM_STM		0x0483
-+#define USB_DEVICE_ID_MTP_STM		0x3261
-+
-+#define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
-+#define USB_DEVICE_ID_MTP_SITRONIX		0x5001
-+
- #define USB_VENDOR_ID_SUN		0x0430
- #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
-=20
-diff -rupN before/drivers/hid/hid-stantum.c after/drivers/hid/hid-stantum.c
---- before/drivers/hid/hid-stantum.c	2010-10-01 13:01:40.181323000 +0200
-+++ after/drivers/hid/hid-stantum.c	2010-10-01 13:04:43.717323001 +0200
-@@ -249,6 +249,8 @@ static void stantum_remove(struct hid_de
-=20
- static const struct hid_device_id stantum_devices[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX,=20
-+USB_DEVICE_ID_MTP_SITRONIX) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, stantum_devices);
+> Topic: New VendorsIds/ProductIds using hid-stantum driver
+> Signed-off-by: Stantum <software@stantum.com> diff -rupN before/drivers/hid/hid-core.c after/drivers/hid/hid-core.c
+> Acked-by: Stephane Chatty <chatty@enac.fr>
+> --- before/drivers/hid/hid-core.c	2010-10-01 13:01:34.485323002 +0200
+> +++ after/drivers/hid/hid-core.c	2010-10-01 13:04:23.869323000 +0200
+> @@ -1376,6 +1376,8 @@ static const struct hid_device_id hid_bl
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, 
+> +USB_DEVICE_ID_MTP_SITRONIX) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) }, diff -rupN before/drivers/hid/hid-ids.h after/drivers/hid/hid-ids.h
+> --- before/drivers/hid/hid-ids.h	2010-10-01 13:01:47.085323001 +0200
+> +++ after/drivers/hid/hid-ids.h	2010-10-01 13:04:33.285323000 +0200
+> @@ -481,6 +481,12 @@
+>  #define USB_VENDOR_ID_STANTUM		0x1f87
+>  #define USB_DEVICE_ID_MTP		0x0002
+>  
+> +#define USB_VENDOR_ID_STANTUM_STM		0x0483
+> +#define USB_DEVICE_ID_MTP_STM		0x3261
+> +
+> +#define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
+> +#define USB_DEVICE_ID_MTP_SITRONIX		0x5001
+> +
+>  #define USB_VENDOR_ID_SUN		0x0430
+>  #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+>  
+> diff -rupN before/drivers/hid/hid-stantum.c after/drivers/hid/hid-stantum.c
+> --- before/drivers/hid/hid-stantum.c	2010-10-01 13:01:40.181323000 +0200
+> +++ after/drivers/hid/hid-stantum.c	2010-10-01 13:04:43.717323001 +0200
+> @@ -249,6 +249,8 @@ static void stantum_remove(struct hid_de
+>  
+>  static const struct hid_device_id stantum_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, 
+> +USB_DEVICE_ID_MTP_SITRONIX) },
+>  	{ }
 
---_002_39DA9B419B56B14AB97E543A876B0ECF195F57B8C1stantumexchst_
-Content-Type: text/plain; name="patch.txt"
-Content-Description: patch.txt
-Content-Disposition: attachment; filename="patch.txt"; size=2169;
-	creation-date="Fri, 01 Oct 2010 13:13:15 GMT";
-	modification-date="Fri, 01 Oct 2010 15:57:49 GMT"
-Content-Transfer-Encoding: base64
+The inline patch has been horribly whitespace damaged and line-wrapped, 
+but the attached version was OK, so I used that one.
 
-VG9waWM6IE5ldyBWZW5kb3JzSWRzL1Byb2R1Y3RJZHMgdXNpbmcgaGlkLXN0YW50dW0gZHJpdmVy
-ClNpZ25lZC1vZmYtYnk6IFN0YW50dW0gPHNvZnR3YXJlQHN0YW50dW0uY29tPgpBY2tlZC1ieTog
-U3RlcGhhbmUgQ2hhdHR5IDxjaGF0dHlAZW5hYy5mcj4KZGlmZiAtcnVwTiBiZWZvcmUvZHJpdmVy
-cy9oaWQvaGlkLWNvcmUuYyBhZnRlci9kcml2ZXJzL2hpZC9oaWQtY29yZS5jCi0tLSBiZWZvcmUv
-ZHJpdmVycy9oaWQvaGlkLWNvcmUuYwkyMDEwLTEwLTAxIDEzOjAxOjM0LjQ4NTMyMzAwMiArMDIw
-MAorKysgYWZ0ZXIvZHJpdmVycy9oaWQvaGlkLWNvcmUuYwkyMDEwLTEwLTAxIDEzOjA0OjIzLjg2
-OTMyMzAwMCArMDIwMApAQCAtMTM3Niw2ICsxMzc2LDggQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBo
-aWRfZGV2aWNlX2lkIGhpZF9ibAogCXsgSElEX0JMVUVUT09USF9ERVZJQ0UoVVNCX1ZFTkRPUl9J
-RF9TT05ZLCBVU0JfREVWSUNFX0lEX1NPTllfUFMzX0NPTlRST0xMRVIpIH0sCiAJeyBISURfVVNC
-X0RFVklDRShVU0JfVkVORE9SX0lEX1NPTlksIFVTQl9ERVZJQ0VfSURfU09OWV9WQUlPX1ZHWF9N
-T1VTRSkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfU1RBTlRVTSwgVVNCX0RF
-VklDRV9JRF9NVFApIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX1NUQU5UVU1f
-U1RNLCBVU0JfREVWSUNFX0lEX01UUF9TVE0pIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVO
-RE9SX0lEX1NUQU5UVU1fU0lUUk9OSVgsIFVTQl9ERVZJQ0VfSURfTVRQX1NJVFJPTklYKSB9LAog
-CXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9TVU5QTFVTLCBVU0JfREVWSUNFX0lEX1NV
-TlBMVVNfV0RFU0tUT1ApIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX1RIUlVT
-VE1BU1RFUiwgMHhiMzAwKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9USFJV
-U1RNQVNURVIsIDB4YjMwNCkgfSwKZGlmZiAtcnVwTiBiZWZvcmUvZHJpdmVycy9oaWQvaGlkLWlk
-cy5oIGFmdGVyL2RyaXZlcnMvaGlkL2hpZC1pZHMuaAotLS0gYmVmb3JlL2RyaXZlcnMvaGlkL2hp
-ZC1pZHMuaAkyMDEwLTEwLTAxIDEzOjAxOjQ3LjA4NTMyMzAwMSArMDIwMAorKysgYWZ0ZXIvZHJp
-dmVycy9oaWQvaGlkLWlkcy5oCTIwMTAtMTAtMDEgMTM6MDQ6MzMuMjg1MzIzMDAwICswMjAwCkBA
-IC00ODEsNiArNDgxLDEyIEBACiAjZGVmaW5lIFVTQl9WRU5ET1JfSURfU1RBTlRVTQkJMHgxZjg3
-CiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfTVRQCQkweDAwMDIKIAorI2RlZmluZSBVU0JfVkVORE9S
-X0lEX1NUQU5UVU1fU1RNCQkweDA0ODMKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9NVFBfU1RNCQkw
-eDMyNjEKKworI2RlZmluZSBVU0JfVkVORE9SX0lEX1NUQU5UVU1fU0lUUk9OSVgJCTB4MTQwMwor
-I2RlZmluZSBVU0JfREVWSUNFX0lEX01UUF9TSVRST05JWAkJMHg1MDAxCisKICNkZWZpbmUgVVNC
-X1ZFTkRPUl9JRF9TVU4JCTB4MDQzMAogI2RlZmluZSBVU0JfREVWSUNFX0lEX1JBUklUQU5fS1ZN
-X0RPTkdMRQkweGNkYWIKIApkaWZmIC1ydXBOIGJlZm9yZS9kcml2ZXJzL2hpZC9oaWQtc3RhbnR1
-bS5jIGFmdGVyL2RyaXZlcnMvaGlkL2hpZC1zdGFudHVtLmMKLS0tIGJlZm9yZS9kcml2ZXJzL2hp
-ZC9oaWQtc3RhbnR1bS5jCTIwMTAtMTAtMDEgMTM6MDE6NDAuMTgxMzIzMDAwICswMjAwCisrKyBh
-ZnRlci9kcml2ZXJzL2hpZC9oaWQtc3RhbnR1bS5jCTIwMTAtMTAtMDEgMTM6MDQ6NDMuNzE3MzIz
-MDAxICswMjAwCkBAIC0yNDksNiArMjQ5LDggQEAgc3RhdGljIHZvaWQgc3RhbnR1bV9yZW1vdmUo
-c3RydWN0IGhpZF9kZQogCiBzdGF0aWMgY29uc3Qgc3RydWN0IGhpZF9kZXZpY2VfaWQgc3RhbnR1
-bV9kZXZpY2VzW10gPSB7CiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX1NUQU5UVU0s
-IFVTQl9ERVZJQ0VfSURfTVRQKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9T
-VEFOVFVNX1NUTSwgVVNCX0RFVklDRV9JRF9NVFBfU1RNKSB9LAorCXsgSElEX1VTQl9ERVZJQ0Uo
-VVNCX1ZFTkRPUl9JRF9TVEFOVFVNX1NJVFJPTklYLCBVU0JfREVWSUNFX0lEX01UUF9TSVRST05J
-WCkgfSwKIAl7IH0KIH07CiBNT0RVTEVfREVWSUNFX1RBQkxFKGhpZCwgc3RhbnR1bV9kZXZpY2Vz
-KTsK
+Thanks,
 
---_002_39DA9B419B56B14AB97E543A876B0ECF195F57B8C1stantumexchst_--
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

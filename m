@@ -1,435 +1,846 @@
-From: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: [PATCH V2 67/69] ST SPEAr: Adding devices & clocks
-Date: Fri,  1 Oct 2010 17:26:27 +0530
-Message-ID: <37ba474609afa0bc34499291d221064a7ae4b33c.1285933332.git.viresh.kumar@st.com>
+From: Viresh KUMAR <viresh.kumar@st.com>
+Subject: [PATCH V2 55/69] ST SPEAr3xx: Passing pmx devices address from machine *.c files
+Date: Fri,  1 Oct 2010 17:26:15 +0530
+Message-ID: <694da64e36590aafeb8aa214a85f396a1b4dd542.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-References: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry
-Cc: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, shiraz.hashim-qxv4g6HH51o@public.gmane.org, vipin.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, armando.visconti-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, bhupesh.sharma-qxv4g6HH51o@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog104.obsmtp.com ([207.126.144.117]:35495 "EHLO
+	eu1sys200aog104.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932157Ab0JAL6c (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Oct 2010 07:58:32 -0400
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+References: <cover.1285933331.git.viresh.kumar@st.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
+Cc: Viresh Kumar <viresh.kumar@st.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com
 
-Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: shiraz hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+All spear3xx machines have different pad mux register addresses.
+In order to have single image for all spear3xx boards, we need to pass
+this address from machine specific files to fix addresses of pmx devs found
+in spear3xx.c
+
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- arch/arm/mach-spear13xx/clock.c                  |   39 ++++++++
- arch/arm/mach-spear13xx/include/mach/generic.h   |    7 ++
- arch/arm/mach-spear13xx/include/mach/irqs.h      |   10 +-
- arch/arm/mach-spear13xx/include/mach/spear1310.h |   34 +++++++
- arch/arm/mach-spear13xx/spear1310.c              |  107 ++++++++++++++++++++++
- arch/arm/mach-spear13xx/spear1310_evb.c          |   32 +++++++
- arch/arm/mach-spear3xx/spear310_evb.c            |    5 +
- arch/arm/mach-spear3xx/spear320_evb.c            |    6 +
- 8 files changed, 235 insertions(+), 5 deletions(-)
+ arch/arm/mach-spear3xx/include/mach/generic.h |   11 +++---
+ arch/arm/mach-spear3xx/spear300.c             |   27 +++-----------
+ arch/arm/mach-spear3xx/spear310.c             |   11 ++----
+ arch/arm/mach-spear3xx/spear320.c             |   31 ++--------------
+ arch/arm/mach-spear3xx/spear3xx.c             |   48 +++++++++---------------
+ 5 files changed, 36 insertions(+), 92 deletions(-)
 
-diff --git a/arch/arm/mach-spear13xx/clock.c b/arch/arm/mach-spear13xx/clock.c
-index 0755e9f..4c5dbfa 100644
---- a/arch/arm/mach-spear13xx/clock.c
-+++ b/arch/arm/mach-spear13xx/clock.c
-@@ -1025,6 +1025,40 @@ static struct clk gmac_phy4_clk = {
- 	.recalc = &follow_parent,
+diff --git a/arch/arm/mach-spear3xx/include/mach/generic.h b/arch/arm/mach-spear3xx/include/mach/generic.h
+index 1b97ba8..0412808 100644
+--- a/arch/arm/mach-spear3xx/include/mach/generic.h
++++ b/arch/arm/mach-spear3xx/include/mach/generic.h
+@@ -50,6 +50,7 @@ void __init spear_setup_timer(void);
+ void __init spear3xx_map_io(void);
+ void __init spear3xx_init_irq(void);
+ void __init spear3xx_init(void);
++void spear3xx_pmx_init_addr(struct pmx_driver *driver, unsigned int addr);
+ 
+ /* pad mux declarations */
+ #define PMX_FIRDA_MASK		(1 << 14)
+@@ -150,8 +151,8 @@ extern struct pmx_dev pmx_telecom_sdhci_8bit;
+ extern struct pmx_dev pmx_gpio1;
+ 
+ /* pad multiplexing support */
+-#define PAD_MUX_CONFIG_REG	0x99000000
+-#define MODE_CONFIG_REG		0x99000004
++#define SPEAR300_PAD_MUX_CONFIG_REG	0x99000000
++#define SPEAR300_MODE_CONFIG_REG	0x99000004
+ 
+ /* Add spear300 machine function declarations here */
+ void __init spear300_init(void);
+@@ -183,7 +184,7 @@ extern struct pmx_dev pmx_uart3_4_5;
+ extern struct pmx_dev pmx_fsmc;
+ extern struct pmx_dev pmx_rs485_0_1;
+ extern struct pmx_dev pmx_tdm0;
+-#define PAD_MUX_CONFIG_REG	0xB4000008
++#define SPEAR310_PAD_MUX_CONFIG_REG	0xB4000008
+ 
+ /* Add spear310 machine function declarations here */
+ void __init spear310_init(void);
+@@ -235,8 +236,8 @@ extern struct pmx_dev pmx_smii1;
+ extern struct pmx_dev pmx_i2c1;
+ 
+ /* pad multiplexing support */
+-#define PAD_MUX_CONFIG_REG	0xB300000C
+-#define MODE_CONFIG_REG		0xB3000010
++#define SPEAR320_PAD_MUX_CONFIG_REG	0xB300000C
++#define SPEAR320_MODE_CONFIG_REG	0xB3000010
+ 
+ /* Add spear320 machine function declarations here */
+ void __init spear320_init(void);
+diff --git a/arch/arm/mach-spear3xx/spear300.c b/arch/arm/mach-spear3xx/spear300.c
+index 2671cfd..9885fe9 100644
+--- a/arch/arm/mach-spear3xx/spear300.c
++++ b/arch/arm/mach-spear3xx/spear300.c
+@@ -118,7 +118,6 @@ struct pmx_mode caml_lcd_mode = {
+ /* Pad multiplexing for FSMC 2 NAND devices */
+ static struct pmx_mux_reg pmx_fsmc_2_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_FIRDA_MASK,
+ 		.value = 0,
+ 	},
+@@ -142,7 +141,6 @@ struct pmx_dev pmx_fsmc_2_chips = {
+ /* Pad multiplexing for FSMC 4 NAND devices */
+ static struct pmx_mux_reg pmx_fsmc_4_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_FIRDA_MASK | PMX_UART0_MASK,
+ 		.value = 0,
+ 	},
+@@ -166,7 +164,6 @@ struct pmx_dev pmx_fsmc_4_chips = {
+ /* Pad multiplexing for Keyboard device */
+ static struct pmx_mux_reg pmx_kbd_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = 0x0,
+ 		.value = 0,
+ 	},
+@@ -192,7 +189,6 @@ struct pmx_dev pmx_keyboard = {
+ /* Pad multiplexing for CLCD device */
+ static struct pmx_mux_reg pmx_clcd_pfmode_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -200,7 +196,6 @@ static struct pmx_mux_reg pmx_clcd_pfmode_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_clcd_lcdmode_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -228,7 +223,6 @@ struct pmx_dev pmx_clcd = {
+ /* Pad multiplexing for Telecom GPIO device */
+ static struct pmx_mux_reg pmx_gpio_lcdmode_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -236,7 +230,6 @@ static struct pmx_mux_reg pmx_gpio_lcdmode_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_gpio_fonemode_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK | PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -244,7 +237,6 @@ static struct pmx_mux_reg pmx_gpio_fonemode_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_gpio_atai2smode_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK | PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -252,7 +244,6 @@ static struct pmx_mux_reg pmx_gpio_atai2smode_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_gpio_lendfonemode_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK | PMX_TIMER_1_2_MASK,
+ 		.value = 0,
+ 	},
+@@ -260,7 +251,6 @@ static struct pmx_mux_reg pmx_gpio_lendfonemode_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_gpio_atawi2smode_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK | PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK
+ 			| PMX_UART0_MODEM_MASK,
+ 		.value = 0,
+@@ -300,7 +290,6 @@ struct pmx_dev pmx_telecom_gpio = {
+ /* Pad multiplexing for TDM device */
+ static struct pmx_mux_reg pmx_tdm_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK | PMX_SSP_CS_MASK,
+ 		.value = 0,
+ 	},
+@@ -327,7 +316,6 @@ struct pmx_dev pmx_telecom_tdm = {
+ /* Pad multiplexing for spi cs i2c device */
+ static struct pmx_mux_reg pmx_spi_cs_i2c_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -352,7 +340,6 @@ struct pmx_dev pmx_telecom_spi_cs_i2c_clk = {
+ 
+ static struct pmx_mux_reg pmx_caml_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -360,7 +347,6 @@ static struct pmx_mux_reg pmx_caml_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_camu_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK | PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -387,7 +373,6 @@ struct pmx_dev pmx_telecom_camera = {
+ /* Pad multiplexing for dac device */
+ static struct pmx_mux_reg pmx_dac_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK,
+ 		.value = 0,
+ 	},
+@@ -411,7 +396,6 @@ struct pmx_dev pmx_telecom_dac = {
+ /* Pad multiplexing for spi cs i2c device */
+ static struct pmx_mux_reg pmx_i2s_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK,
+ 		.value = 0,
+ 	},
+@@ -437,7 +421,6 @@ struct pmx_dev pmx_telecom_i2s = {
+ /* Pad multiplexing for bootpins device */
+ static struct pmx_mux_reg pmx_bootpins_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK | PMX_TIMER_1_2_MASK |
+ 			PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+@@ -461,7 +444,6 @@ struct pmx_dev pmx_telecom_boot_pins = {
+ /* Pad multiplexing for sdhci 4bit device */
+ static struct pmx_mux_reg pmx_sdhci_4bit_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN0_MASK | PMX_GPIO_PIN1_MASK |
+ 			PMX_GPIO_PIN2_MASK | PMX_GPIO_PIN3_MASK |
+ 			PMX_GPIO_PIN4_MASK | PMX_GPIO_PIN5_MASK,
+@@ -490,7 +472,6 @@ struct pmx_dev pmx_telecom_sdhci_4bit = {
+ /* Pad multiplexing for spi cs i2c device */
+ static struct pmx_mux_reg pmx_sdhci_8bit_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN0_MASK | PMX_GPIO_PIN1_MASK |
+ 			PMX_GPIO_PIN2_MASK | PMX_GPIO_PIN3_MASK |
+ 			PMX_GPIO_PIN4_MASK | PMX_GPIO_PIN5_MASK | PMX_MII_MASK,
+@@ -518,7 +499,6 @@ struct pmx_dev pmx_telecom_sdhci_8bit = {
+ /* Pad multiplexing for spi cs i2c device */
+ static struct pmx_mux_reg pmx_gpio1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK | PMX_TIMER_1_2_MASK |
+ 			PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+@@ -541,7 +521,7 @@ struct pmx_dev pmx_gpio1 = {
+ 
+ /* pmx driver structure */
+ struct pmx_driver pmx_driver = {
+-	.mode_reg = {.address = MODE_CONFIG_REG, .mask = 0x0000000f},
++	.mode_reg = {.address = SPEAR300_MODE_CONFIG_REG, .mask = 0x0000000f},
  };
  
-+/* uart1 clock */
-+static struct clk uart1_clk = {
-+	.flags = ALWAYS_ENABLED,
-+	.pclk = &ras_pclk_clk,
-+	.recalc = &follow_parent,
-+};
-+
-+/* uart2 clock */
-+static struct clk uart2_clk = {
-+	.flags = ALWAYS_ENABLED,
-+	.pclk = &ras_pclk_clk,
-+	.recalc = &follow_parent,
-+};
-+
-+/* uart3 clock */
-+static struct clk uart3_clk = {
-+	.flags = ALWAYS_ENABLED,
-+	.pclk = &ras_pclk_clk,
-+	.recalc = &follow_parent,
-+};
-+
-+/* uart4 clock */
-+static struct clk uart4_clk = {
-+	.flags = ALWAYS_ENABLED,
-+	.pclk = &ras_pclk_clk,
-+	.recalc = &follow_parent,
-+};
-+
-+/* uart5 clock */
-+static struct clk uart5_clk = {
-+	.flags = ALWAYS_ENABLED,
-+	.pclk = &ras_pclk_clk,
-+	.recalc = &follow_parent,
-+};
- #endif
- 
- static struct clk dummy_apb_pclk;
-@@ -1138,6 +1172,11 @@ static struct clk_lookup spear1310_clk_lookups[] = {
- 	{.dev_id = "stmmacphy.2",	.clk = &gmac_phy2_clk},
- 	{.dev_id = "stmmacphy.3",	.clk = &gmac_phy3_clk},
- 	{.dev_id = "stmmacphy.4",	.clk = &gmac_phy4_clk},
-+	{.dev_id = "uart1",		.clk = &uart1_clk},
-+	{.dev_id = "uart2",		.clk = &uart2_clk},
-+	{.dev_id = "uart3",		.clk = &uart3_clk},
-+	{.dev_id = "uart4",		.clk = &uart4_clk},
-+	{.dev_id = "uart5",		.clk = &uart5_clk},
- };
- #endif
- 
-diff --git a/arch/arm/mach-spear13xx/include/mach/generic.h b/arch/arm/mach-spear13xx/include/mach/generic.h
-index e005936..e7f1dd6 100644
---- a/arch/arm/mach-spear13xx/include/mach/generic.h
-+++ b/arch/arm/mach-spear13xx/include/mach/generic.h
-@@ -261,8 +261,15 @@ void __init spear1300_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
- /* spear1310 declarations */
- #ifdef CONFIG_MACH_SPEAR1310
- /* Add spear1310 machine device structure declarations here */
-+extern struct amba_device spear1310_uart1_device;
-+extern struct amba_device spear1310_uart2_device;
-+extern struct amba_device spear1310_uart3_device;
-+extern struct amba_device spear1310_uart4_device;
-+extern struct amba_device spear1310_uart5_device;
- extern struct platform_device spear1310_can0_device;
- extern struct platform_device spear1310_can1_device;
-+extern struct platform_device spear1310_i2c1_device;
-+extern struct platform_device spear1310_ras_fsmc_nor_device;
- 
- /* Add spear1310 machine function declarations here */
- void __init spear1310_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
-diff --git a/arch/arm/mach-spear13xx/include/mach/irqs.h b/arch/arm/mach-spear13xx/include/mach/irqs.h
-index 1ca70a6..59bf61a 100644
---- a/arch/arm/mach-spear13xx/include/mach/irqs.h
-+++ b/arch/arm/mach-spear13xx/include/mach/irqs.h
-@@ -97,11 +97,11 @@
- #define IRQ_CCAN1		(IRQ_SHPI_START + 83)
- #define IRQ_TDM0		(IRQ_SHPI_START + 84)
- #define IRQ_TDM1		(IRQ_SHPI_START + 85)
--#define IRQ_UART0		(IRQ_SHPI_START + 86)
--#define IRQ_UART1		(IRQ_SHPI_START + 87)
--#define IRQ_UART2		(IRQ_SHPI_START + 88)
--#define IRQ_UART3		(IRQ_SHPI_START + 89)
--#define IRQ_UART4		(IRQ_SHPI_START + 90)
-+#define IRQ_UART1		(IRQ_SHPI_START + 86)
-+#define IRQ_UART2		(IRQ_SHPI_START + 87)
-+#define IRQ_UART3		(IRQ_SHPI_START + 88)
-+#define IRQ_UART4		(IRQ_SHPI_START + 89)
-+#define IRQ_UART5		(IRQ_SHPI_START + 90)
- #define IRQ_I2C_CNTR		(IRQ_SHPI_START + 91)
- #define IRQ_GMAC0_SBD		(IRQ_SHPI_START + 92)
- #define IRQ_GMAC0_PMT		(IRQ_SHPI_START + 93)
-diff --git a/arch/arm/mach-spear13xx/include/mach/spear1310.h b/arch/arm/mach-spear13xx/include/mach/spear1310.h
-index e57c99a..4ffd2fa 100644
---- a/arch/arm/mach-spear13xx/include/mach/spear1310.h
-+++ b/arch/arm/mach-spear13xx/include/mach/spear1310.h
-@@ -16,9 +16,33 @@
- #ifndef __MACH_SPEAR1310_H
- #define __MACH_SPEAR1310_H
- 
-+#define SPEAR1310_TDM_E1_0_BASE		UL(0x6C200000)
-+#define SPEAR1310_TDM_E1_1_BASE		UL(0x6C300000)
-+#define SPEAR1310_RS485_0_BASE		UL(0x6C400000)
-+#define SPEAR1310_RS485_1_BASE		UL(0x6C500000)
-+#define SPEAR1310_RAS_BASE		UL(0x6C800000)
-+#define SPEAR1310_GETH1_BASE		UL(0x6D000000)
-+#define SPEAR1310_GETH2_BASE		UL(0x6D100000)
-+#define SPEAR1310_GETH3_BASE		UL(0x6D200000)
-+#define SPEAR1310_GETH4_BASE		UL(0x6D300000)
-+#define SPEAR1310_UART1_BASE		UL(0x6D400000)
-+#define SPEAR1310_UART2_BASE		UL(0x6D500000)
-+#define SPEAR1310_UART3_BASE		UL(0x6D600000)
-+#define SPEAR1310_UART4_BASE		UL(0x6D700000)
-+#define SPEAR1310_UART5_BASE		UL(0x6D800000)
-+#define SPEAR1310_I2C1_BASE		UL(0x6D900000)
- #define SPEAR1310_CAN0_BASE		UL(0x6DA00000)
- #define SPEAR1310_CAN1_BASE		UL(0x6DB00000)
- #define SPEAR1310_RAS_BASE		UL(0x6C800000)
-+#define SPEAR1310_GETH1_BASE		UL(0x6D000000)
-+#define SPEAR1310_GETH2_BASE		UL(0x6D100000)
-+#define SPEAR1310_GETH3_BASE		UL(0x6D200000)
-+#define SPEAR1310_GETH4_BASE		UL(0x6D300000)
-+#define SPEAR1310_FSMC1_CS0_BASE	UL(0x70000000)
-+#define SPEAR1310_FSMC1_CS1_BASE	UL(0x74000000)
-+#define SPEAR1310_FSMC1_CS2_BASE	UL(0x78000000)
-+#define SPEAR1310_FSMC1_CS3_BASE	UL(0x7C000000)
-+#define SPEAR1310_FSMC1_BASE		UL(0x6FF00000)
- 
- /* RAS Area Control Register */
- #define SPEAR1310_RAS_CTRL_REG0		(SPEAR1310_RAS_BASE + 0x0)
-@@ -26,6 +50,16 @@
- #define SPEAR1310_PHY_CLK_MASK		0xF
- #define SPEAR1310_PHY_CLK_SHIFT		0
- 
-+#define RAS_FSMC_MODE_MASK		0x3
-+#define RAS_FSMC_MODE_NOR		0
-+#define RAS_FSMC_MODE_NAND		1
-+#define RAS_FSMC_MODE_SRAM		2
-+#define RAS_FSMC_WIDTH_MASK		0x30
-+#define RAS_FSMC_WIDTH_8		0x00
-+#define RAS_FSMC_WIDTH_16		0x10
-+#define RAS_FSMC_WIDTH_32		0x20
-+#define RAS_FSMC_CS_SPLIT		0x40
-+
- #endif /* __MACH_SPEAR1310_H */
- 
- #endif /* CONFIG_MACH_SPEAR1310 */
-diff --git a/arch/arm/mach-spear13xx/spear1310.c b/arch/arm/mach-spear13xx/spear1310.c
-index 375f5b2..05cf8c7 100644
---- a/arch/arm/mach-spear13xx/spear1310.c
-+++ b/arch/arm/mach-spear13xx/spear1310.c
-@@ -11,6 +11,8 @@
-  * warranty of any kind, whether express or implied.
-  */
- 
-+#include <linux/clk.h>
-+#include <linux/mtd/physmap.h>
- #include <linux/ptrace.h>
- #include <asm/irq.h>
- #include <mach/generic.h>
-@@ -355,6 +357,70 @@ struct pmx_dev pmx_can = {
- };
- 
- /* Add spear1310 specific devices here */
-+/* uart1 device registeration */
-+struct amba_device spear1310_uart1_device = {
-+	.dev = {
-+		.init_name = "uart1",
-+	},
-+	.res = {
-+		.start = SPEAR1310_UART1_BASE,
-+		.end = SPEAR1310_UART1_BASE + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	.irq = {IRQ_UART1, NO_IRQ},
-+};
-+
-+/* uart2 device registeration */
-+struct amba_device spear1310_uart2_device = {
-+	.dev = {
-+		.init_name = "uart2",
-+	},
-+	.res = {
-+		.start = SPEAR1310_UART2_BASE,
-+		.end = SPEAR1310_UART2_BASE + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	.irq = {IRQ_UART2, NO_IRQ},
-+};
-+
-+/* uart3 device registeration */
-+struct amba_device spear1310_uart3_device = {
-+	.dev = {
-+		.init_name = "uart3",
-+	},
-+	.res = {
-+		.start = SPEAR1310_UART3_BASE,
-+		.end = SPEAR1310_UART3_BASE + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	.irq = {IRQ_UART3, NO_IRQ},
-+};
-+
-+/* uart4 device registeration */
-+struct amba_device spear1310_uart4_device = {
-+	.dev = {
-+		.init_name = "uart4",
-+	},
-+	.res = {
-+		.start = SPEAR1310_UART4_BASE,
-+		.end = SPEAR1310_UART4_BASE + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	.irq = {IRQ_UART4, NO_IRQ},
-+};
-+
-+/* uart5 device registeration */
-+struct amba_device spear1310_uart5_device = {
-+	.dev = {
-+		.init_name = "uart5",
-+	},
-+	.res = {
-+		.start = SPEAR1310_UART5_BASE,
-+		.end = SPEAR1310_UART5_BASE + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	.irq = {IRQ_UART5, NO_IRQ},
-+};
- 
- /* CAN device registeration */
- static struct resource can0_resources[] = {
-@@ -393,6 +459,47 @@ struct platform_device spear1310_can1_device = {
- 	.resource = can1_resources,
- };
- 
-+/* i2c1 device registeration */
-+static struct resource i2c1_resources[] = {
-+	{
-+		.start = SPEAR1310_I2C1_BASE,
-+		.end = SPEAR1310_I2C1_BASE + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	}, {
-+		.start = IRQ_I2C_CNTR,
-+		.flags = IORESOURCE_IRQ,
-+	},
-+};
-+
-+struct platform_device spear1310_i2c1_device = {
-+	.name = "i2c_designware",
-+	.id = 1,
-+	.dev = {
-+		.coherent_dma_mask = ~0,
-+	},
-+	.num_resources = ARRAY_SIZE(i2c1_resources),
-+	.resource = i2c1_resources,
-+};
-+
-+/* fsmc nor flash device registeration */
-+static struct physmap_flash_data ras_fsmc_norflash_data;
-+
-+static struct resource ras_fsmc_nor_resources[] = {
-+	{
-+		.start	= SPEAR1310_FSMC1_CS3_BASE,
-+		.end	= SPEAR1310_FSMC1_CS3_BASE + SZ_64M - 1,
-+		.flags	= IORESOURCE_MEM,
-+	},
-+};
-+
-+struct platform_device spear1310_ras_fsmc_nor_device = {
-+	.name	= "physmap-flash",
-+	.id	= -1,
-+	.resource = ras_fsmc_nor_resources,
-+	.num_resources = ARRAY_SIZE(ras_fsmc_nor_resources),
-+	.dev.platform_data = &ras_fsmc_norflash_data,
-+};
-+
- void __init spear1310_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
- 		u8 pmx_dev_count)
+ /* Add spear300 specific devices here */
+@@ -777,7 +757,7 @@ struct spear_shirq shirq_ras1 = {
+ void sdhci_i2s_mem_enable(u8 mask)
  {
-diff --git a/arch/arm/mach-spear13xx/spear1310_evb.c b/arch/arm/mach-spear13xx/spear1310_evb.c
-index a263b40..e4cf267 100644
---- a/arch/arm/mach-spear13xx/spear1310_evb.c
-+++ b/arch/arm/mach-spear13xx/spear1310_evb.c
-@@ -67,6 +67,13 @@ static struct amba_device *amba_devs[] __initdata = {
- 	&spear13xx_gpio_device[1],
- 	&spear13xx_ssp_device,
- 	&spear13xx_uart_device,
+ 	u32 val;
+-	void __iomem *config = ioremap(MODE_CONFIG_REG, SZ_16);
++	void __iomem *config = ioremap(SPEAR300_MODE_CONFIG_REG, SZ_16);
+ 	if (!config) {
+ 		pr_debug("sdhci_i2s_enb: ioremap fail\n");
+ 		return;
+@@ -809,6 +789,9 @@ void __init spear300_init(void)
+ 			printk(KERN_ERR "Error registering Shared IRQ\n");
+ 	}
+ 
++	/* This fixes addresses of all pmx devices for spear300 */
++	spear3xx_pmx_init_addr(&pmx_driver, SPEAR300_PAD_MUX_CONFIG_REG);
 +
-+	/* spear1310 specific devices */
-+	&spear1310_uart1_device,
-+	&spear1310_uart2_device,
-+	&spear1310_uart3_device,
-+	&spear1310_uart4_device,
-+	&spear1310_uart5_device,
+ 	/* pmx initialization */
+ 	ret = pmx_register(&pmx_driver);
+ 	if (ret)
+diff --git a/arch/arm/mach-spear3xx/spear310.c b/arch/arm/mach-spear3xx/spear310.c
+index 79f7105..be2f9de 100644
+--- a/arch/arm/mach-spear3xx/spear310.c
++++ b/arch/arm/mach-spear3xx/spear310.c
+@@ -26,7 +26,6 @@
+ /* Pad multiplexing for emi_cs_0_1_4_5 devices */
+ static struct pmx_mux_reg pmx_emi_cs_0_1_4_5_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -48,7 +47,6 @@ struct pmx_dev pmx_emi_cs_0_1_4_5 = {
+ /* Pad multiplexing for emi_cs_2_3 devices */
+ static struct pmx_mux_reg pmx_emi_cs_2_3_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK,
+ 		.value = 0,
+ 	},
+@@ -70,7 +68,6 @@ struct pmx_dev pmx_emi_cs_2_3 = {
+ /* Pad multiplexing for uart1 device */
+ static struct pmx_mux_reg pmx_uart1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_FIRDA_MASK,
+ 		.value = 0,
+ 	},
+@@ -92,7 +89,6 @@ struct pmx_dev pmx_uart1 = {
+ /* Pad multiplexing for uart2 device */
+ static struct pmx_mux_reg pmx_uart2_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK,
+ 		.value = 0,
+ 	},
+@@ -114,7 +110,6 @@ struct pmx_dev pmx_uart2 = {
+ /* Pad multiplexing for uart3_4_5 devices */
+ static struct pmx_mux_reg pmx_uart3_4_5_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK,
+ 		.value = 0,
+ 	},
+@@ -136,7 +131,6 @@ struct pmx_dev pmx_uart3_4_5 = {
+ /* Pad multiplexing for fsmc device */
+ static struct pmx_mux_reg pmx_fsmc_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_CS_MASK,
+ 		.value = 0,
+ 	},
+@@ -158,7 +152,6 @@ struct pmx_dev pmx_fsmc = {
+ /* Pad multiplexing for rs485_0_1 devices */
+ static struct pmx_mux_reg pmx_rs485_0_1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -180,7 +173,6 @@ struct pmx_dev pmx_rs485_0_1 = {
+ /* Pad multiplexing for tdm0 device */
+ static struct pmx_mux_reg pmx_tdm0_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -523,6 +515,9 @@ void __init spear310_init(void)
+ 			printk(KERN_ERR "Error registering Shared IRQ 4\n");
+ 	}
+ 
++	/* This fixes addresses of all pmx devices for spear310 */
++	spear3xx_pmx_init_addr(&pmx_driver, SPEAR310_PAD_MUX_CONFIG_REG);
++
+ 	/* pmx initialization */
+ 	ret = pmx_register(&pmx_driver);
+ 	if (ret)
+diff --git a/arch/arm/mach-spear3xx/spear320.c b/arch/arm/mach-spear3xx/spear320.c
+index 8481955..bd308b8 100644
+--- a/arch/arm/mach-spear3xx/spear320.c
++++ b/arch/arm/mach-spear3xx/spear320.c
+@@ -58,7 +58,6 @@ struct pmx_mode small_printers_mode = {
+ /* Pad multiplexing for CLCD device */
+ static struct pmx_mux_reg pmx_clcd_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = 0x0,
+ 		.value = 0,
+ 	},
+@@ -81,7 +80,6 @@ struct pmx_dev pmx_clcd = {
+ /* Pad multiplexing for EMI (Parallel NOR flash) device */
+ static struct pmx_mux_reg pmx_emi_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -104,7 +102,6 @@ struct pmx_dev pmx_emi = {
+ /* Pad multiplexing for FSMC (NAND flash) device */
+ static struct pmx_mux_reg pmx_fsmc_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = 0x0,
+ 		.value = 0,
+ 	},
+@@ -127,7 +124,6 @@ struct pmx_dev pmx_fsmc = {
+ /* Pad multiplexing for SPP device */
+ static struct pmx_mux_reg pmx_spp_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = 0x0,
+ 		.value = 0,
+ 	},
+@@ -150,7 +146,6 @@ struct pmx_dev pmx_spp = {
+ /* Pad multiplexing for SDHCI device */
+ static struct pmx_mux_reg pmx_sdhci_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -174,7 +169,6 @@ struct pmx_dev pmx_sdhci = {
+ /* Pad multiplexing for I2S device */
+ static struct pmx_mux_reg pmx_i2s_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK,
+ 		.value = 0,
+ 	},
+@@ -197,7 +191,6 @@ struct pmx_dev pmx_i2s = {
+ /* Pad multiplexing for UART1 device */
+ static struct pmx_mux_reg pmx_uart1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN0_MASK | PMX_GPIO_PIN1_MASK,
+ 		.value = 0,
+ 	},
+@@ -220,7 +213,6 @@ struct pmx_dev pmx_uart1 = {
+ /* Pad multiplexing for UART1 Modem device */
+ static struct pmx_mux_reg pmx_uart1_modem_autoexp_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK | PMX_TIMER_3_4_MASK |
+ 			PMX_SSP_CS_MASK,
+ 		.value = 0,
+@@ -229,7 +221,6 @@ static struct pmx_mux_reg pmx_uart1_modem_autoexp_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_uart1_modem_smallpri_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN3_MASK | PMX_GPIO_PIN4_MASK |
+ 			PMX_GPIO_PIN5_MASK | PMX_SSP_CS_MASK,
+ 		.value = 0,
+@@ -257,7 +248,6 @@ struct pmx_dev pmx_uart1_modem = {
+ /* Pad multiplexing for UART2 device */
+ static struct pmx_mux_reg pmx_uart2_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_FIRDA_MASK,
+ 		.value = 0,
+ 	},
+@@ -280,7 +270,6 @@ struct pmx_dev pmx_uart2 = {
+ /* Pad multiplexing for Touchscreen device */
+ static struct pmx_mux_reg pmx_touchscreen_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_CS_MASK,
+ 		.value = 0,
+ 	},
+@@ -303,7 +292,6 @@ struct pmx_dev pmx_touchscreen = {
+ /* Pad multiplexing for CAN device */
+ static struct pmx_mux_reg pmx_can_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN2_MASK | PMX_GPIO_PIN3_MASK |
+ 			PMX_GPIO_PIN4_MASK | PMX_GPIO_PIN5_MASK,
+ 		.value = 0,
+@@ -327,7 +315,6 @@ struct pmx_dev pmx_can = {
+ /* Pad multiplexing for SDHCI LED device */
+ static struct pmx_mux_reg pmx_sdhci_led_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_CS_MASK,
+ 		.value = 0,
+ 	},
+@@ -350,7 +337,6 @@ struct pmx_dev pmx_sdhci_led = {
+ /* Pad multiplexing for PWM0 device */
+ static struct pmx_mux_reg pmx_pwm0_net_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK,
+ 		.value = 0,
+ 	},
+@@ -358,7 +344,6 @@ static struct pmx_mux_reg pmx_pwm0_net_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_pwm0_autoexpsmallpri_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -385,7 +370,6 @@ struct pmx_dev pmx_pwm0 = {
+ /* Pad multiplexing for PWM1 device */
+ static struct pmx_mux_reg pmx_pwm1_net_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK,
+ 		.value = 0,
+ 	},
+@@ -393,7 +377,6 @@ static struct pmx_mux_reg pmx_pwm1_net_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_pwm1_autoexpsmallpri_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -420,7 +403,6 @@ struct pmx_dev pmx_pwm1 = {
+ /* Pad multiplexing for PWM2 device */
+ static struct pmx_mux_reg pmx_pwm2_net_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_CS_MASK,
+ 		.value = 0,
+ 	},
+@@ -428,7 +410,6 @@ static struct pmx_mux_reg pmx_pwm2_net_mux[] = {
+ 
+ static struct pmx_mux_reg pmx_pwm2_autoexpsmallpri_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -455,7 +436,6 @@ struct pmx_dev pmx_pwm2 = {
+ /* Pad multiplexing for PWM3 device */
+ static struct pmx_mux_reg pmx_pwm3_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -478,7 +458,6 @@ struct pmx_dev pmx_pwm3 = {
+ /* Pad multiplexing for SSP1 device */
+ static struct pmx_mux_reg pmx_ssp1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -501,7 +480,6 @@ struct pmx_dev pmx_ssp1 = {
+ /* Pad multiplexing for SSP2 device */
+ static struct pmx_mux_reg pmx_ssp2_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -524,7 +502,6 @@ struct pmx_dev pmx_ssp2 = {
+ /* Pad multiplexing for mii1 device */
+ static struct pmx_mux_reg pmx_mii1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = 0x0,
+ 		.value = 0,
+ 	},
+@@ -547,7 +524,6 @@ struct pmx_dev pmx_mii1 = {
+ /* Pad multiplexing for smii0 device */
+ static struct pmx_mux_reg pmx_smii0_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -570,7 +546,6 @@ struct pmx_dev pmx_smii0 = {
+ /* Pad multiplexing for smii1 device */
+ static struct pmx_mux_reg pmx_smii1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -593,7 +568,6 @@ struct pmx_dev pmx_smii1 = {
+ /* Pad multiplexing for i2c1 device */
+ static struct pmx_mux_reg pmx_i2c1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = 0x0,
+ 		.value = 0,
+ 	},
+@@ -615,7 +589,7 @@ struct pmx_dev pmx_i2c1 = {
+ 
+ /* pmx driver structure */
+ struct pmx_driver pmx_driver = {
+-	.mode_reg = {.address = MODE_CONFIG_REG, .mask = 0x00000007},
++	.mode_reg = {.address = SPEAR320_MODE_CONFIG_REG, .mask = 0x00000007},
  };
  
- static struct platform_device *plat_devs[] __initdata = {
-@@ -86,6 +93,7 @@ static struct platform_device *plat_devs[] __initdata = {
- 	/* spear1310 specific devices */
- 	&spear1310_can0_device,
- 	&spear1310_can1_device,
-+	&spear1310_i2c1_device,
+ /* Add spear320 specific devices here */
+@@ -1015,6 +989,9 @@ void __init spear320_init(void)
+ 			printk(KERN_ERR "Error registering Shared IRQ 4\n");
+ 	}
+ 
++	/* This fixes addresses of all pmx devices for spear320 */
++	spear3xx_pmx_init_addr(&pmx_driver, SPEAR320_PAD_MUX_CONFIG_REG);
++
+ 	/* pmx initialization */
+ 	ret = pmx_register(&pmx_driver);
+ 	if (ret)
+diff --git a/arch/arm/mach-spear3xx/spear3xx.c b/arch/arm/mach-spear3xx/spear3xx.c
+index 45a0774..ec1340c 100644
+--- a/arch/arm/mach-spear3xx/spear3xx.c
++++ b/arch/arm/mach-spear3xx/spear3xx.c
+@@ -297,7 +297,6 @@ void __init spear3xx_map_io(void)
+ /* Pad multiplexing for firda device */
+ static struct pmx_mux_reg pmx_firda_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_FIRDA_MASK,
+ 		.value = PMX_FIRDA_MASK,
+ 	},
+@@ -320,7 +319,6 @@ struct pmx_dev pmx_firda = {
+ /* Pad multiplexing for i2c device */
+ static struct pmx_mux_reg pmx_i2c_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_I2C_MASK,
+ 		.value = PMX_I2C_MASK,
+ 	},
+@@ -343,7 +341,6 @@ struct pmx_dev pmx_i2c = {
+ /* Pad multiplexing for firda device */
+ static struct pmx_mux_reg pmx_ssp_cs_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_CS_MASK,
+ 		.value = PMX_SSP_CS_MASK,
+ 	},
+@@ -366,7 +363,6 @@ struct pmx_dev pmx_ssp_cs = {
+ /* Pad multiplexing for ssp device */
+ static struct pmx_mux_reg pmx_ssp_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_MASK,
+ 		.value = PMX_SSP_MASK,
+ 	},
+@@ -389,7 +385,6 @@ struct pmx_dev pmx_ssp = {
+ /* Pad multiplexing for mii device */
+ static struct pmx_mux_reg pmx_mii_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = PMX_MII_MASK,
+ 	},
+@@ -412,7 +407,6 @@ struct pmx_dev pmx_mii = {
+ /* Pad multiplexing for gpio pin0 device */
+ static struct pmx_mux_reg pmx_gpio_pin0_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN0_MASK,
+ 		.value = PMX_GPIO_PIN0_MASK,
+ 	},
+@@ -435,7 +429,6 @@ struct pmx_dev pmx_gpio_pin0 = {
+ /* Pad multiplexing for gpio pin1 device */
+ static struct pmx_mux_reg pmx_gpio_pin1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN1_MASK,
+ 		.value = PMX_GPIO_PIN1_MASK,
+ 	},
+@@ -458,7 +451,6 @@ struct pmx_dev pmx_gpio_pin1 = {
+ /* Pad multiplexing for gpio pin2 device */
+ static struct pmx_mux_reg pmx_gpio_pin2_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN2_MASK,
+ 		.value = PMX_GPIO_PIN2_MASK,
+ 	},
+@@ -481,7 +473,6 @@ struct pmx_dev pmx_gpio_pin2 = {
+ /* Pad multiplexing for gpio pin3 device */
+ static struct pmx_mux_reg pmx_gpio_pin3_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN3_MASK,
+ 		.value = PMX_GPIO_PIN3_MASK,
+ 	},
+@@ -504,7 +495,6 @@ struct pmx_dev pmx_gpio_pin3 = {
+ /* Pad multiplexing for gpio pin4 device */
+ static struct pmx_mux_reg pmx_gpio_pin4_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN4_MASK,
+ 		.value = PMX_GPIO_PIN4_MASK,
+ 	},
+@@ -527,7 +517,6 @@ struct pmx_dev pmx_gpio_pin4 = {
+ /* Pad multiplexing for gpio pin5 device */
+ static struct pmx_mux_reg pmx_gpio_pin5_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN5_MASK,
+ 		.value = PMX_GPIO_PIN5_MASK,
+ 	},
+@@ -550,7 +539,6 @@ struct pmx_dev pmx_gpio_pin5 = {
+ /* Pad multiplexing for uart0 modem device */
+ static struct pmx_mux_reg pmx_uart0_modem_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK,
+ 		.value = PMX_UART0_MODEM_MASK,
+ 	},
+@@ -573,7 +561,6 @@ struct pmx_dev pmx_uart0_modem = {
+ /* Pad multiplexing for uart0 device */
+ static struct pmx_mux_reg pmx_uart0_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MASK,
+ 		.value = PMX_UART0_MASK,
+ 	},
+@@ -596,7 +583,6 @@ struct pmx_dev pmx_uart0 = {
+ /* Pad multiplexing for timer 3, 4 device */
+ static struct pmx_mux_reg pmx_timer_3_4_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_3_4_MASK,
+ 		.value = PMX_TIMER_3_4_MASK,
+ 	},
+@@ -619,7 +605,6 @@ struct pmx_dev pmx_timer_3_4 = {
+ /* Pad multiplexing for gpio pin0 device */
+ static struct pmx_mux_reg pmx_timer_1_2_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK,
+ 		.value = PMX_TIMER_1_2_MASK,
+ 	},
+@@ -644,7 +629,6 @@ struct pmx_dev pmx_timer_1_2 = {
+ /* Pad multiplexing for plgpio_0_1 devices */
+ static struct pmx_mux_reg pmx_plgpio_0_1_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_FIRDA_MASK,
+ 		.value = 0,
+ 	},
+@@ -667,7 +651,6 @@ struct pmx_dev pmx_plgpio_0_1 = {
+ /* Pad multiplexing for plgpio_2_3 devices */
+ static struct pmx_mux_reg pmx_plgpio_2_3_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MASK,
+ 		.value = 0,
+ 	},
+@@ -690,7 +673,6 @@ struct pmx_dev pmx_plgpio_2_3 = {
+ /* Pad multiplexing for plgpio_4_5 devices */
+ static struct pmx_mux_reg pmx_plgpio_4_5_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_I2C_MASK,
+ 		.value = 0,
+ 	},
+@@ -713,7 +695,6 @@ struct pmx_dev pmx_plgpio_4_5 = {
+ /* Pad multiplexing for plgpio_6_9 devices */
+ static struct pmx_mux_reg pmx_plgpio_6_9_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_MASK,
+ 		.value = 0,
+ 	},
+@@ -736,7 +717,6 @@ struct pmx_dev pmx_plgpio_6_9 = {
+ /* Pad multiplexing for plgpio_10_27 devices */
+ static struct pmx_mux_reg pmx_plgpio_10_27_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_MII_MASK,
+ 		.value = 0,
+ 	},
+@@ -759,7 +739,6 @@ struct pmx_dev pmx_plgpio_10_27 = {
+ /* Pad multiplexing for plgpio_28 devices */
+ static struct pmx_mux_reg pmx_plgpio_28_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN0_MASK,
+ 		.value = 0,
+ 	},
+@@ -782,7 +761,6 @@ struct pmx_dev pmx_plgpio_28 = {
+ /* Pad multiplexing for plgpio_29 devices */
+ static struct pmx_mux_reg pmx_plgpio_29_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN1_MASK,
+ 		.value = 0,
+ 	},
+@@ -805,7 +783,6 @@ struct pmx_dev pmx_plgpio_29 = {
+ /* Pad multiplexing for plgpio_30 device */
+ static struct pmx_mux_reg pmx_plgpio_30_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN2_MASK,
+ 		.value = 0,
+ 	},
+@@ -828,7 +805,6 @@ struct pmx_dev pmx_plgpio_30 = {
+ /* Pad multiplexing for plgpio_31 device */
+ static struct pmx_mux_reg pmx_plgpio_31_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN3_MASK,
+ 		.value = 0,
+ 	},
+@@ -851,7 +827,6 @@ struct pmx_dev pmx_plgpio_31 = {
+ /* Pad multiplexing for plgpio_32 device */
+ static struct pmx_mux_reg pmx_plgpio_32_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN4_MASK,
+ 		.value = 0,
+ 	},
+@@ -874,7 +849,6 @@ struct pmx_dev pmx_plgpio_32 = {
+ /* Pad multiplexing for plgpio_33 device */
+ static struct pmx_mux_reg pmx_plgpio_33_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_GPIO_PIN5_MASK,
+ 		.value = 0,
+ 	},
+@@ -897,7 +871,6 @@ struct pmx_dev pmx_plgpio_33 = {
+ /* Pad multiplexing for plgpio_34_36 device */
+ static struct pmx_mux_reg pmx_plgpio_34_36_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_SSP_CS_MASK,
+ 		.value = 0,
+ 	},
+@@ -920,7 +893,6 @@ struct pmx_dev pmx_plgpio_34_36 = {
+ /* Pad multiplexing for plgpio_37_42 device */
+ static struct pmx_mux_reg pmx_plgpio_37_42_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_UART0_MODEM_MASK,
+ 		.value = 0,
+ 	},
+@@ -943,7 +915,6 @@ struct pmx_dev pmx_plgpio_37_42 = {
+ /* Pad multiplexing for plgpio_43_44_47_48 device */
+ static struct pmx_mux_reg pmx_plgpio_43_44_47_48_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_1_2_MASK,
+ 		.value = 0,
+ 	},
+@@ -966,7 +937,6 @@ struct pmx_dev pmx_plgpio_43_44_47_48 = {
+ /* Pad multiplexing for plgpio_45_46_49_50 device */
+ static struct pmx_mux_reg pmx_plgpio_45_46_49_50_mux[] = {
+ 	{
+-		.address = PAD_MUX_CONFIG_REG,
+ 		.mask = PMX_TIMER_3_4_MASK,
+ 		.value = 0,
+ 	},
+@@ -1017,3 +987,21 @@ static void __init spear3xx_timer_init(void)
+ struct sys_timer spear3xx_timer = {
+ 	.init = spear3xx_timer_init,
  };
- 
- /* keyboard specific platform data */
-@@ -129,6 +137,23 @@ int spear1310_pcie_port_is_host(int port)
- }
- #endif
- 
-+static void  __init ras_fsmc_config(u32 mode, u32 width)
++
++/* This fixes addresses of all pmx devices for different machines */
++void spear3xx_pmx_init_addr(struct pmx_driver *driver, unsigned int addr)
 +{
-+	u32 val, *address;
++	int i;
++	for (i = 0; i < driver->devs_count; i++) {
++		int j;
++		struct pmx_dev *pdev = driver->devs[i];
 +
-+	address = ioremap(SPEAR1310_RAS_CTRL_REG0, SZ_16);
++		for (j = 0; j < pdev->mode_count; j++) {
++			int k;
++			struct pmx_dev_mode *mode = &pdev->modes[j];
 +
-+	val = readl(address);
-+	val &= ~(RAS_FSMC_MODE_MASK | RAS_FSMC_WIDTH_MASK);
-+	val |= mode;
-+	val |= width;
-+	val |= RAS_FSMC_CS_SPLIT;
-+
-+	writel(val, address);
-+
-+	iounmap(address);
++			for (k = 0; k < mode->mux_reg_cnt; k++)
++				mode->mux_regs[k].address = addr;
++		}
++	}
 +}
-+
- static void __init spear1310_evb_init(void)
- {
- 	unsigned int i;
-@@ -153,6 +178,8 @@ static void __init spear1310_evb_init(void)
- 	/* initialize fsmc related data in fsmc plat data */
- 	fsmc_init_board_info(&spear13xx_fsmc_nor_device, partition_info,
- 			ARRAY_SIZE(partition_info), FSMC_FLASH_WIDTH8);
-+	fsmc_init_board_info(&spear1310_ras_fsmc_nor_device, NULL,
-+			0, FSMC_FLASH_WIDTH16);
- 
- 	/* Initialize fsmc regiters */
- 	fsmc_nor_init(&spear13xx_fsmc_nor_device, SPEAR13XX_FSMC_BASE, 0,
-@@ -171,6 +198,11 @@ static void __init spear1310_evb_init(void)
- 	for (i = 0; i < ARRAY_SIZE(amba_devs); i++)
- 		amba_device_register(amba_devs[i], &iomem_resource);
- 
-+	/* ras fsmc init */
-+	ras_fsmc_config(RAS_FSMC_MODE_NOR, RAS_FSMC_WIDTH_16);
-+	fsmc_nor_init(&spear1310_ras_fsmc_nor_device, SPEAR1310_FSMC1_BASE, 3,
-+			FSMC_FLASH_WIDTH16);
-+
- 	spi_init();
- }
- 
-diff --git a/arch/arm/mach-spear3xx/spear310_evb.c b/arch/arm/mach-spear3xx/spear310_evb.c
-index 2c1044d..5cccd2d 100644
---- a/arch/arm/mach-spear3xx/spear310_evb.c
-+++ b/arch/arm/mach-spear3xx/spear310_evb.c
-@@ -75,6 +75,11 @@ static struct amba_device *amba_devs[] __initdata = {
- 	&spear3xx_wdt_device,
- 
- 	/* spear310 specific devices */
-+	&spear310_uart1_device,
-+	&spear310_uart2_device,
-+	&spear310_uart3_device,
-+	&spear310_uart4_device,
-+	&spear310_uart5_device,
- };
- 
- static struct platform_device *plat_devs[] __initdata = {
-diff --git a/arch/arm/mach-spear3xx/spear320_evb.c b/arch/arm/mach-spear3xx/spear320_evb.c
-index 116dd1b..4446cb1 100644
---- a/arch/arm/mach-spear3xx/spear320_evb.c
-+++ b/arch/arm/mach-spear3xx/spear320_evb.c
-@@ -68,11 +68,16 @@ static struct pmx_dev *pmx_devs[] = {
- static struct amba_device *amba_devs[] __initdata = {
- 	/* spear3xx specific devices */
- 	&spear3xx_gpio_device,
-+	&spear3xx_ssp0_device,
- 	&spear3xx_uart_device,
- 	&spear3xx_wdt_device,
- 
- 	/* spear320 specific devices */
- 	&spear320_clcd_device,
-+	&spear320_ssp_device[0],
-+	&spear320_ssp_device[1],
-+	&spear320_uart1_device,
-+	&spear320_uart2_device,
- };
- 
- static struct platform_device *plat_devs[] __initdata = {
-@@ -87,6 +92,7 @@ static struct platform_device *plat_devs[] __initdata = {
- 	/* spear320 specific devices */
- 	&spear320_can0_device,
- 	&spear320_can1_device,
-+	&spear320_emi_nor_device,
- 	&spear320_i2c1_device,
- 	&spear320_nand_device,
- 	&spear320_plgpio_device,
 -- 
 1.7.2.2
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

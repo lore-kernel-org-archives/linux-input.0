@@ -1,119 +1,154 @@
-From: Pascal Auriel - Stantum <P.Auriel@stantum.com>
-Subject: [PATCH] hid: support STmicroelectronics and Sitronix with
- hid-stantuml driver
-Date: Fri, 1 Oct 2010 13:26:17 +0200
-Message-ID: <39DA9B419B56B14AB97E543A876B0ECF195F57B883@stantum-exch.stantum.local>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_"
+From: Viresh KUMAR <viresh.kumar@st.com>
+Subject: [PATCH V2 27/69] ST SPEAr: Adding Watchdog support
+Date: Fri,  1 Oct 2010 17:25:47 +0530
+Message-ID: <f6ad85aed3e22835920ff6bb4461ee082611d0c4.1285933331.git.viresh.kumar@st.com>
+References: <cover.1285933331.git.viresh.kumar@st.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from reverse.completel.net ([92.103.162.83]:52909 "EHLO
-	mail.stantum.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756472Ab0JALbv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Oct 2010 07:31:51 -0400
-Content-Language: fr-FR
+Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:42298 "EHLO
+	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755634Ab0JAL6B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Oct 2010 07:58:01 -0400
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+References: <cover.1285933331.git.viresh.kumar@st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "chatty@enac.fr" <chatty@enac.fr>, Gowri Ries - Stantum <G.Ries@stantum.com>, Pascal Auriel - Stantum <P.Auriel@stantum.com>
+To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
+Cc: Viresh Kumar <viresh.kumar@st.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com
 
---_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar@st.com>
+Signed-off-by: Shiraz Hashim <shiraz.hashim@st.com>
+---
+ arch/arm/mach-spear3xx/include/mach/generic.h |    1 +
+ arch/arm/mach-spear3xx/spear300_evb.c         |    1 +
+ arch/arm/mach-spear3xx/spear310_evb.c         |    1 +
+ arch/arm/mach-spear3xx/spear320_evb.c         |    1 +
+ arch/arm/mach-spear3xx/spear3xx.c             |   12 ++++++++++++
+ arch/arm/mach-spear6xx/include/mach/generic.h |    1 +
+ arch/arm/mach-spear6xx/spear600_evb.c         |    1 +
+ arch/arm/mach-spear6xx/spear6xx.c             |   12 ++++++++++++
+ 8 files changed, 30 insertions(+), 0 deletions(-)
 
-Topic: New VendorsIds/ProductIds using hid-stantum driver
-Issued-by: Stantum <software@stantum.com>
-diff -rupN before/drivers/hid/hid-core.c after/drivers/hid/hid-core.c
---- before/drivers/hid/hid-core.c	2010-10-01 13:01:34.485323002 +0200
-+++ after/drivers/hid/hid-core.c	2010-10-01 13:04:23.869323000 +0200
-@@ -1376,6 +1376,8 @@ static const struct hid_device_id hid_bl
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROL=
-LER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DEVICE_ID_MTP_SITRON=
-IX) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
-diff -rupN before/drivers/hid/hid-ids.h after/drivers/hid/hid-ids.h
---- before/drivers/hid/hid-ids.h	2010-10-01 13:01:47.085323001 +0200
-+++ after/drivers/hid/hid-ids.h	2010-10-01 13:04:33.285323000 +0200
-@@ -481,6 +481,12 @@
- #define USB_VENDOR_ID_STANTUM		0x1f87
- #define USB_DEVICE_ID_MTP		0x0002
-=20
-+#define USB_VENDOR_ID_STANTUM_STM		0x0483
-+#define USB_DEVICE_ID_MTP_STM		0x3261
-+
-+#define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
-+#define USB_DEVICE_ID_MTP_SITRONIX		0x5001
-+
- #define USB_VENDOR_ID_SUN		0x0430
- #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
-=20
-diff -rupN before/drivers/hid/hid-stantum.c after/drivers/hid/hid-stantum.c
---- before/drivers/hid/hid-stantum.c	2010-10-01 13:01:40.181323000 +0200
-+++ after/drivers/hid/hid-stantum.c	2010-10-01 13:04:43.717323001 +0200
-@@ -249,6 +249,8 @@ static void stantum_remove(struct hid_de
-=20
- static const struct hid_device_id stantum_devices[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DEVICE_ID_MTP_SITRON=
-IX) },
- 	{ }
+diff --git a/arch/arm/mach-spear3xx/include/mach/generic.h b/arch/arm/mach-spear3xx/include/mach/generic.h
+index 9317af8..91c0c09 100644
+--- a/arch/arm/mach-spear3xx/include/mach/generic.h
++++ b/arch/arm/mach-spear3xx/include/mach/generic.h
+@@ -33,6 +33,7 @@
+ /* Add spear3xx family device structure declarations here */
+ extern struct amba_device gpio_device;
+ extern struct amba_device uart_device;
++extern struct amba_device wdt_device;
+ extern struct platform_device ehci_device;
+ extern struct platform_device i2c_device;
+ extern struct platform_device ohci0_device;
+diff --git a/arch/arm/mach-spear3xx/spear300_evb.c b/arch/arm/mach-spear3xx/spear300_evb.c
+index c948289..7bd8963 100644
+--- a/arch/arm/mach-spear3xx/spear300_evb.c
++++ b/arch/arm/mach-spear3xx/spear300_evb.c
+@@ -38,6 +38,7 @@ static struct amba_device *amba_devs[] __initdata = {
+ 	/* spear3xx specific devices */
+ 	&gpio_device,
+ 	&uart_device,
++	&wdt_device,
+ 
+ 	/* spear300 specific devices */
+ 	&clcd_device,
+diff --git a/arch/arm/mach-spear3xx/spear310_evb.c b/arch/arm/mach-spear3xx/spear310_evb.c
+index 2a88cd2..cd076c9 100644
+--- a/arch/arm/mach-spear3xx/spear310_evb.c
++++ b/arch/arm/mach-spear3xx/spear310_evb.c
+@@ -45,6 +45,7 @@ static struct amba_device *amba_devs[] __initdata = {
+ 	/* spear3xx specific devices */
+ 	&gpio_device,
+ 	&uart_device,
++	&wdt_device,
+ 
+ 	/* spear310 specific devices */
  };
- MODULE_DEVICE_TABLE(hid, stantum_devices);
+diff --git a/arch/arm/mach-spear3xx/spear320_evb.c b/arch/arm/mach-spear3xx/spear320_evb.c
+index d0cfd96..7f7b5dd 100644
+--- a/arch/arm/mach-spear3xx/spear320_evb.c
++++ b/arch/arm/mach-spear3xx/spear320_evb.c
+@@ -42,6 +42,7 @@ static struct amba_device *amba_devs[] __initdata = {
+ 	/* spear3xx specific devices */
+ 	&gpio_device,
+ 	&uart_device,
++	&wdt_device,
+ 
+ 	/* spear320 specific devices */
+ 	&clcd_device,
+diff --git a/arch/arm/mach-spear3xx/spear3xx.c b/arch/arm/mach-spear3xx/spear3xx.c
+index ff9f6e9..88a6bd4 100644
+--- a/arch/arm/mach-spear3xx/spear3xx.c
++++ b/arch/arm/mach-spear3xx/spear3xx.c
+@@ -54,6 +54,18 @@ struct amba_device uart_device = {
+ 	.irq = {IRQ_UART, NO_IRQ},
+ };
+ 
++/* watchdog device registeration */
++struct amba_device wdt_device = {
++	.dev = {
++		.init_name = "wdt",
++	},
++	.res = {
++		.start = SPEAR3XX_ICM3_WDT_BASE,
++		.end = SPEAR3XX_ICM3_WDT_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++};
++
+ /* i2c device registeration */
+ static struct resource i2c_resources[] = {
+ 	{
+diff --git a/arch/arm/mach-spear6xx/include/mach/generic.h b/arch/arm/mach-spear6xx/include/mach/generic.h
+index 8aee3ad..f885898 100644
+--- a/arch/arm/mach-spear6xx/include/mach/generic.h
++++ b/arch/arm/mach-spear6xx/include/mach/generic.h
+@@ -32,6 +32,7 @@
+ extern struct amba_device clcd_device;
+ extern struct amba_device gpio_device[];
+ extern struct amba_device uart_device[];
++extern struct amba_device wdt_device;
+ extern struct platform_device ehci0_device;
+ extern struct platform_device ehci1_device;
+ extern struct platform_device i2c_device;
+diff --git a/arch/arm/mach-spear6xx/spear600_evb.c b/arch/arm/mach-spear6xx/spear600_evb.c
+index bd4be34..0eb5f50 100644
+--- a/arch/arm/mach-spear6xx/spear600_evb.c
++++ b/arch/arm/mach-spear6xx/spear600_evb.c
+@@ -24,6 +24,7 @@ static struct amba_device *amba_devs[] __initdata = {
+ 	&gpio_device[2],
+ 	&uart_device[0],
+ 	&uart_device[1],
++	&wdt_device,
+ };
+ 
+ static struct platform_device *plat_devs[] __initdata = {
+diff --git a/arch/arm/mach-spear6xx/spear6xx.c b/arch/arm/mach-spear6xx/spear6xx.c
+index 000b3a8..2eec8ac 100644
+--- a/arch/arm/mach-spear6xx/spear6xx.c
++++ b/arch/arm/mach-spear6xx/spear6xx.c
+@@ -118,6 +118,18 @@ struct amba_device gpio_device[] = {
+ 	}
+ };
+ 
++/* watchdog device registeration */
++struct amba_device wdt_device = {
++	.dev = {
++		.init_name = "wdt",
++	},
++	.res = {
++		.start = SPEAR6XX_ICM3_WDT_BASE,
++		.end = SPEAR6XX_ICM3_WDT_BASE + SZ_4K - 1,
++		.flags = IORESOURCE_MEM,
++	},
++};
++
+ /* i2c device registeration */
+ static struct resource i2c_resources[] = {
+ 	{
+-- 
+1.7.2.2
 
---_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_
-Content-Type: text/plain; name="patch.txt"
-Content-Description: patch.txt
-Content-Disposition: attachment; filename="patch.txt"; size=2122;
-	creation-date="Fri, 01 Oct 2010 13:13:15 GMT";
-	modification-date="Fri, 01 Oct 2010 13:13:15 GMT"
-Content-Transfer-Encoding: base64
-
-VG9waWM6IE5ldyBWZW5kb3JzSWRzL1Byb2R1Y3RJZHMgdXNpbmcgaGlkLXN0YW50dW0gZHJpdmVy
-Cklzc3VlZC1ieTogU3RhbnR1bSA8c29mdHdhcmVAc3RhbnR1bS5jb20+CmRpZmYgLXJ1cE4gYmVm
-b3JlL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMgYWZ0ZXIvZHJpdmVycy9oaWQvaGlkLWNvcmUuYwot
-LS0gYmVmb3JlL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMJMjAxMC0xMC0wMSAxMzowMTozNC40ODUz
-MjMwMDIgKzAyMDAKKysrIGFmdGVyL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMJMjAxMC0xMC0wMSAx
-MzowNDoyMy44NjkzMjMwMDAgKzAyMDAKQEAgLTEzNzYsNiArMTM3Niw4IEBAIHN0YXRpYyBjb25z
-dCBzdHJ1Y3QgaGlkX2RldmljZV9pZCBoaWRfYmwKIAl7IEhJRF9CTFVFVE9PVEhfREVWSUNFKFVT
-Ql9WRU5ET1JfSURfU09OWSwgVVNCX0RFVklDRV9JRF9TT05ZX1BTM19DT05UUk9MTEVSKSB9LAog
-CXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9TT05ZLCBVU0JfREVWSUNFX0lEX1NPTllf
-VkFJT19WR1hfTU9VU0UpIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX1NUQU5U
-VU0sIFVTQl9ERVZJQ0VfSURfTVRQKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9J
-RF9TVEFOVFVNX1NUTSwgVVNCX0RFVklDRV9JRF9NVFBfU1RNKSB9LAorCXsgSElEX1VTQl9ERVZJ
-Q0UoVVNCX1ZFTkRPUl9JRF9TVEFOVFVNX1NJVFJPTklYLCBVU0JfREVWSUNFX0lEX01UUF9TSVRS
-T05JWCkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfU1VOUExVUywgVVNCX0RF
-VklDRV9JRF9TVU5QTFVTX1dERVNLVE9QKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
-Ul9JRF9USFJVU1RNQVNURVIsIDB4YjMwMCkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5E
-T1JfSURfVEhSVVNUTUFTVEVSLCAweGIzMDQpIH0sCmRpZmYgLXJ1cE4gYmVmb3JlL2RyaXZlcnMv
-aGlkL2hpZC1pZHMuaCBhZnRlci9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKLS0tIGJlZm9yZS9kcml2
-ZXJzL2hpZC9oaWQtaWRzLmgJMjAxMC0xMC0wMSAxMzowMTo0Ny4wODUzMjMwMDEgKzAyMDAKKysr
-IGFmdGVyL2RyaXZlcnMvaGlkL2hpZC1pZHMuaAkyMDEwLTEwLTAxIDEzOjA0OjMzLjI4NTMyMzAw
-MCArMDIwMApAQCAtNDgxLDYgKzQ4MSwxMiBAQAogI2RlZmluZSBVU0JfVkVORE9SX0lEX1NUQU5U
-VU0JCTB4MWY4NwogI2RlZmluZSBVU0JfREVWSUNFX0lEX01UUAkJMHgwMDAyCiAKKyNkZWZpbmUg
-VVNCX1ZFTkRPUl9JRF9TVEFOVFVNX1NUTQkJMHgwNDgzCisjZGVmaW5lIFVTQl9ERVZJQ0VfSURf
-TVRQX1NUTQkJMHgzMjYxCisKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9TVEFOVFVNX1NJVFJPTklY
-CQkweDE0MDMKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9NVFBfU0lUUk9OSVgJCTB4NTAwMQorCiAj
-ZGVmaW5lIFVTQl9WRU5ET1JfSURfU1VOCQkweDA0MzAKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9S
-QVJJVEFOX0tWTV9ET05HTEUJMHhjZGFiCiAKZGlmZiAtcnVwTiBiZWZvcmUvZHJpdmVycy9oaWQv
-aGlkLXN0YW50dW0uYyBhZnRlci9kcml2ZXJzL2hpZC9oaWQtc3RhbnR1bS5jCi0tLSBiZWZvcmUv
-ZHJpdmVycy9oaWQvaGlkLXN0YW50dW0uYwkyMDEwLTEwLTAxIDEzOjAxOjQwLjE4MTMyMzAwMCAr
-MDIwMAorKysgYWZ0ZXIvZHJpdmVycy9oaWQvaGlkLXN0YW50dW0uYwkyMDEwLTEwLTAxIDEzOjA0
-OjQzLjcxNzMyMzAwMSArMDIwMApAQCAtMjQ5LDYgKzI0OSw4IEBAIHN0YXRpYyB2b2lkIHN0YW50
-dW1fcmVtb3ZlKHN0cnVjdCBoaWRfZGUKIAogc3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNl
-X2lkIHN0YW50dW1fZGV2aWNlc1tdID0gewogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9J
-RF9TVEFOVFVNLCBVU0JfREVWSUNFX0lEX01UUCkgfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9W
-RU5ET1JfSURfU1RBTlRVTV9TVE0sIFVTQl9ERVZJQ0VfSURfTVRQX1NUTSkgfSwKKwl7IEhJRF9V
-U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfU1RBTlRVTV9TSVRST05JWCwgVVNCX0RFVklDRV9JRF9N
-VFBfU0lUUk9OSVgpIH0sCiAJeyB9CiB9OwogTU9EVUxFX0RFVklDRV9UQUJMRShoaWQsIHN0YW50
-dW1fZGV2aWNlcyk7Cg==
-
---_002_39DA9B419B56B14AB97E543A876B0ECF195F57B883stantumexchst_--

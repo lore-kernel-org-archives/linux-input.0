@@ -1,50 +1,93 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
-Date: Fri, 1 Oct 2010 02:20:38 +0200
-Message-ID: <201010010220.38321.marek.vasut@gmail.com>
-References: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com> <201009091027.18176.marek.vasut@gmail.com> <20100909094120.GB1988@rakim.wolfsonmicro.main>
+From: "Varadarajan, Charulatha" <charu@ti.com>
+Subject: RE: [PATCH v6 8/8] Input: omap4 - pm runtime
+Date: Fri, 1 Oct 2010 11:01:25 +0530
+Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB030CD032F1@dbde02.ent.ti.com>
+References: <1285825000-25622-1-git-send-email-x0066660@ti.com>
+ <87aamzl4pu.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:33015 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751706Ab0JAAUn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Sep 2010 20:20:43 -0400
-In-Reply-To: <20100909094120.GB1988@rakim.wolfsonmicro.main>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:48686 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751208Ab0JAFbb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Oct 2010 01:31:31 -0400
+In-Reply-To: <87aamzl4pu.fsf@deeprootsystems.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Igor Grinberg <grinberg@compulab.co.il>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
+To: "Arce, Abraham" <x0066660@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Kevin Hilman <khilman@deeprootsystems.com>
 
-Dne =C4=8Ct 9. z=C3=A1=C5=99=C3=AD 2010 11:41:20 Mark Brown napsal(a):
-> On Thu, Sep 09, 2010 at 10:27:17AM +0200, Marek Vasut wrote:
-> > Dne =C3=9At 7. z=C3=A1=C5=99=C3=AD 2010 14:53:35 Mark Brown napsal(=
-a):
-> > > From a regulator API usage point of view a separate implementatio=
-n of
-> > > the same thing was nacked - there are regulator API facilties for
-> > > hiding missing regulators from drivers when needed to get systems
-> > > going, unless the device genuinely can cope without supplies it s=
-hould
-> > > be relying on those.
-> >=20
-> > Maybe these platforms should have been fixed prior to applying the =
-patch
-> > adding regulator goo into ads7846 driver then. What's the way to go=
- now
-> > then ?
->=20
-> Fix the platforms and use the dummy regulators to keep them going unt=
-il
-> that happens.  It's trivial to do the hookup in the platforms.
+Abraham,
 
-Igor, any update on this?
+> -----Original Message-----
+> To: Arce, Abraham
+> Cc: linux-input@vger.kernel.org; linux-omap@vger.kernel.org
+> Subject: Re: [PATCH v6 8/8] Input: omap4 - pm runtime
+> 
+> Abraham Arce <x0066660@ti.com> writes:
+> 
+> > Enable pm runtime in driver
+> 
+> So power is enabled on probe and cut on _remove().  Did you consider
+> doing any more fine grained PM for this device?  For example, cutting
+> power after some inactivity timer and re-enabling on a
+> keypress/interrupt?
+> 
+> Kevin
+> 
+> 
+> 
+> > Reviewed-by: Basak, Partha <p-basak2@ti.com>
+> > Signed-off-by: Abraham Arce <x0066660@ti.com>
+> > ---
+> >  drivers/input/keyboard/omap4-keypad.c |    7 +++++++
+> >  1 files changed, 7 insertions(+), 0 deletions(-)
+> >
+> > diff --git a/drivers/input/keyboard/omap4-keypad.c 
+> b/drivers/input/keyboard/omap4-keypad.c
+> > index 45bd097..ed47e9a 100644
+> > --- a/drivers/input/keyboard/omap4-keypad.c
+> > +++ b/drivers/input/keyboard/omap4-keypad.c
+> > @@ -29,6 +29,7 @@
+> >  #include <linux/io.h>
+> >  #include <linux/input.h>
+> >  #include <linux/slab.h>
+> > +#include <linux/pm_runtime.h>
+> >  
+> >  #include <plat/omap4-keypad.h>
+> >  
+> > @@ -239,6 +240,9 @@ static int __devinit 
+> omap4_keypad_probe(struct platform_device *pdev)
+> >  	matrix_keypad_build_keymap(pdata->keymap_data, row_shift,
+> >  			input_dev->keycode, input_dev->keybit);
+> >  
+> > +	pm_runtime_enable(&pdev->dev);
+> > +	pm_runtime_get_sync(&pdev->dev);
 
-Thanks!
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+In patch 1, kbd is included in the hwmods list. Hence kbd would be reset
+during init and clocks would be disabled. Probe is not doing any clock
+enable before accessing the kbd registers. Later, only in this patch,
+pm_runtime_get_sync() is being done.
+
+Ideally, once the kbd is included in the hwmod list, clock_enable()
+shall be used before accessing kbd registers and later in this patch
+pm_runtime_get_sync() shall be used while removing usage of clk_enable().
+
+-V Charulatha
+
+> > +
+> >  	omap4_keypad_config(keypad_data);
+> >  
+> >  	error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+> > @@ -277,6 +281,9 @@ static int __devexit 
+> omap4_keypad_remove(struct platform_device *pdev)
+> >  	struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
+> >  	struct resource *res;
+> >  
+> > +	pm_runtime_put_sync(&pdev->dev);
+> > +	pm_runtime_disable(&pdev->dev);
+> > +
+> >  	free_irq(keypad_data->irq, keypad_data);
+> >  	input_unregister_device(keypad_data->input);

@@ -1,253 +1,393 @@
-From: Viresh KUMAR <viresh.kumar@st.com>
-Subject: [PATCH V2 56/69] ST SPEAr Clock Framework: Updating for single image solution
-Date: Fri,  1 Oct 2010 17:26:16 +0530
-Message-ID: <7a39285e2b281bae63cfebb7d3e76b2f91c9d0be.1285933332.git.viresh.kumar@st.com>
+From: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH V2 69/69] ST SPEAr: Updating defconfigs
+Date: Fri,  1 Oct 2010 17:26:29 +0530
+Message-ID: <68d391813bcedde825ee7b207b533abfbe20c585.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
-References: <cover.1285933331.git.viresh.kumar@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
-Cc: Viresh Kumar <viresh.kumar@st.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+References: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry
+Cc: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, shiraz.hashim-qxv4g6HH51o@public.gmane.org, vipin.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, armando.visconti-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, bhupesh.sharma-qxv4g6HH51o@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch creates different clk_lookup arrays for individual machines.
-These lookup arrays will be registered only if that specific machine is
-current machine.
-
-Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: shiraz hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
 ---
- arch/arm/mach-spear13xx/clock.c          |   29 ++++++++++--
- arch/arm/mach-spear3xx/clock.c           |   75 +++++++++++++++++++-----------
- arch/arm/mach-spear6xx/clock.c           |    8 +++-
- arch/arm/plat-spear/clock.c              |    8 +---
- arch/arm/plat-spear/include/plat/clock.h |    2 +-
- 5 files changed, 82 insertions(+), 40 deletions(-)
+ arch/arm/configs/spear13xx_defconfig |   78 ++++++++++++++++++++++++++++++---
+ arch/arm/configs/spear3xx_defconfig  |   80 +++++++++++++++++++++++++++++++---
+ arch/arm/configs/spear6xx_defconfig  |   72 ++++++++++++++++++++++++++++---
+ 3 files changed, 211 insertions(+), 19 deletions(-)
 
-diff --git a/arch/arm/mach-spear13xx/clock.c b/arch/arm/mach-spear13xx/clock.c
-index 75cd89c..0755e9f 100644
---- a/arch/arm/mach-spear13xx/clock.c
-+++ b/arch/arm/mach-spear13xx/clock.c
-@@ -1117,13 +1117,17 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{.dev_id = "gpio1",		.clk = &gpio1_clk},
- 	{.dev_id = "keyboard",		.clk = &kbd_clk},
- 	{.dev_id = "wdt",		.clk = &wdt_clk},
-+};
- 
--	/* spear1300 machine specific clock structures */
-+/* array of all spear 1300 clock lookups */
- #ifdef CONFIG_MACH_SPEAR1300
-+static struct clk_lookup spear1300_clk_lookups[] = {
-+};
- #endif
- 
--	/* spear1310 machine specific clock structures */
-+/* array of all spear 1310 clock lookups */
- #ifdef CONFIG_MACH_SPEAR1310
-+static struct clk_lookup spear1310_clk_lookups[] = {
- 	{.dev_id = "spear_can.0",	.clk = &can0_clk},
- 	{.dev_id = "spear_can.1",	.clk = &can1_clk},
- 	{.dev_id = "stmmaceth.1",	.clk = &gmac_ras1_clk},
-@@ -1134,11 +1138,28 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{.dev_id = "stmmacphy.2",	.clk = &gmac_phy2_clk},
- 	{.dev_id = "stmmacphy.3",	.clk = &gmac_phy3_clk},
- 	{.dev_id = "stmmacphy.4",	.clk = &gmac_phy4_clk},
--#endif
- };
-+#endif
- 
- /* machine clk init */
- void __init spear13xx_clk_init(void)
- {
--	clk_init(spear_clk_lookups, ARRAY_SIZE(spear_clk_lookups), &ddr_clk);
-+	int i, cnt;
-+	struct clk_lookup *lookups;
-+
-+	if (machine_is_spear1300()) {
-+		cnt = ARRAY_SIZE(spear1300_clk_lookups);
-+		lookups = spear1300_clk_lookups;
-+	} else {
-+		cnt = ARRAY_SIZE(spear1310_clk_lookups);
-+		lookups = spear1310_clk_lookups;
-+	}
-+
-+	for (i = 0; i < ARRAY_SIZE(spear_clk_lookups); i++)
-+		clk_register(&spear_clk_lookups[i]);
-+
-+	for (i = 0; i < cnt; i++)
-+		clk_register(&lookups[i]);
-+
-+	clk_init(&ddr_clk);
- }
-diff --git a/arch/arm/mach-spear3xx/clock.c b/arch/arm/mach-spear3xx/clock.c
-index 814966a..ec34e50 100644
---- a/arch/arm/mach-spear3xx/clock.c
-+++ b/arch/arm/mach-spear3xx/clock.c
-@@ -13,6 +13,7 @@
- 
- #include <linux/init.h>
- #include <linux/kernel.h>
-+#include <asm/mach-types.h>
- #include <mach/misc_regs.h>
- #include <plat/clock.h>
- 
-@@ -754,52 +755,72 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{ .dev_id = "adc",		.clk = &adc_clk},
- 	{ .dev_id = "ssp-pl022.0",	.clk = &ssp0_clk},
- 	{ .dev_id = "gpio",		.clk = &gpio_clk},
--#if defined(CONFIG_MACH_SPEAR310) || defined(CONFIG_MACH_SPEAR320)
--	{ .dev_id = "emi",		.clk = &emi_clk},
--#endif
--#if defined(CONFIG_MACH_SPEAR300) || defined(CONFIG_MACH_SPEAR310) || \
--	defined(CONFIG_MACH_SPEAR320)
--	{ .con_id = "fsmc",		.clk = &fsmc_clk},
--#endif
--
--/* common clocks to spear310 and spear320 */
--#if defined(CONFIG_MACH_SPEAR310) || defined(CONFIG_MACH_SPEAR320)
--	{ .dev_id = "uart1",		.clk = &uart1_clk},
--	{ .dev_id = "uart2",		.clk = &uart2_clk},
--#endif
--
--	/* common clock to spear300 and spear320 */
--#if defined(CONFIG_MACH_SPEAR300) || defined(CONFIG_MACH_SPEAR320)
--	{ .dev_id = "clcd",		.clk = &clcd_clk},
--	{ .dev_id = "sdhci",		.clk = &sdhci_clk},
--#endif /* CONFIG_MACH_SPEAR300 || CONFIG_MACH_SPEAR320 */
-+};
- 
--	/* spear300 machine specific clock structures */
-+/* array of all spear 300 clock lookups */
- #ifdef CONFIG_MACH_SPEAR300
-+static struct clk_lookup spear300_clk_lookups[] = {
-+	{ .dev_id = "clcd",		.clk = &clcd_clk},
-+	{ .con_id = "fsmc",		.clk = &fsmc_clk},
- 	{ .dev_id = "gpio1",		.clk = &gpio1_clk},
- 	{ .dev_id = "keyboard",		.clk = &kbd_clk},
-+	{ .dev_id = "sdhci",		.clk = &sdhci_clk},
-+};
- #endif
- 
--	/* spear310 machine specific clock structures */
-+/* array of all spear 310 clock lookups */
- #ifdef CONFIG_MACH_SPEAR310
-+static struct clk_lookup spear310_clk_lookups[] = {
-+	{ .con_id = "fsmc",		.clk = &fsmc_clk},
-+	{ .dev_id = "emi",		.clk = &emi_clk},
-+	{ .dev_id = "uart1",		.clk = &uart1_clk},
-+	{ .dev_id = "uart2",		.clk = &uart2_clk},
- 	{ .dev_id = "uart3",		.clk = &uart3_clk},
- 	{ .dev_id = "uart4",		.clk = &uart4_clk},
- 	{ .dev_id = "uart5",		.clk = &uart5_clk},
--
-+};
- #endif
--	/* spear320 machine specific clock structures */
-+
-+/* array of all spear 320 clock lookups */
- #ifdef CONFIG_MACH_SPEAR320
-+static struct clk_lookup spear320_clk_lookups[] = {
-+	{ .dev_id = "clcd",		.clk = &clcd_clk},
-+	{ .con_id = "fsmc",		.clk = &fsmc_clk},
-+	{ .dev_id = "i2c_designware.1",	.clk = &i2c1_clk},
-+	{ .dev_id = "emi",		.clk = &emi_clk},
-+	{ .dev_id = "pwm",		.clk = &pwm_clk},
-+	{ .dev_id = "sdhci",		.clk = &sdhci_clk},
- 	{ .dev_id = "spear_can.0",	.clk = &can0_clk},
- 	{ .dev_id = "spear_can.1",	.clk = &can1_clk},
--	{ .dev_id = "i2c_designware.1",	.clk = &i2c1_clk},
- 	{ .dev_id = "ssp-pl022.1",	.clk = &ssp1_clk},
- 	{ .dev_id = "ssp-pl022.2",	.clk = &ssp2_clk},
--	{ .dev_id = "pwm",		.clk = &pwm_clk},
--#endif
-+	{ .dev_id = "uart1",		.clk = &uart1_clk},
-+	{ .dev_id = "uart2",		.clk = &uart2_clk},
- };
-+#endif
- 
- /* machine clk init */
- void __init spear3xx_clk_init(void)
- {
--	clk_init(spear_clk_lookups, ARRAY_SIZE(spear_clk_lookups), &ddr_clk);
-+	int i, cnt;
-+	struct clk_lookup *lookups;
-+
-+	if (machine_is_spear300()) {
-+		cnt = ARRAY_SIZE(spear300_clk_lookups);
-+		lookups = spear300_clk_lookups;
-+	} else if (machine_is_spear310()) {
-+		cnt = ARRAY_SIZE(spear310_clk_lookups);
-+		lookups = spear310_clk_lookups;
-+	} else {
-+		cnt = ARRAY_SIZE(spear320_clk_lookups);
-+		lookups = spear320_clk_lookups;
-+	}
-+
-+	for (i = 0; i < ARRAY_SIZE(spear_clk_lookups); i++)
-+		clk_register(&spear_clk_lookups[i]);
-+
-+	for (i = 0; i < cnt; i++)
-+		clk_register(&lookups[i]);
-+
-+	clk_init(&ddr_clk);
- }
-diff --git a/arch/arm/mach-spear6xx/clock.c b/arch/arm/mach-spear6xx/clock.c
-index 63aab69..fefbb1e 100644
---- a/arch/arm/mach-spear6xx/clock.c
-+++ b/arch/arm/mach-spear6xx/clock.c
-@@ -14,6 +14,7 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <mach/misc_regs.h>
-+#include <asm/mach-types.h>
- #include <plat/clock.h>
- 
- /* root clks */
-@@ -740,5 +741,10 @@ static struct clk_lookup spear_clk_lookups[] = {
- /* machine clk init */
- void __init spear6xx_clk_init(void)
- {
--	clk_init(spear_clk_lookups, ARRAY_SIZE(spear_clk_lookups), &ddr_clk);
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(spear_clk_lookups); i++)
-+		clk_register(&spear_clk_lookups[i]);
-+
-+	clk_init(&ddr_clk);
- }
-diff --git a/arch/arm/plat-spear/clock.c b/arch/arm/plat-spear/clock.c
-index ee8f82b..2043c34 100644
---- a/arch/arm/plat-spear/clock.c
-+++ b/arch/arm/plat-spear/clock.c
-@@ -949,14 +949,8 @@ void recalc_root_clocks(void)
- 	spin_unlock_irqrestore(&clocks_lock, flags);
- }
- 
--void __init
--clk_init(struct clk_lookup *clk_lookups, u32 count, struct clk *dclk)
-+void __init clk_init(struct clk *dclk)
- {
--	int i;
--
--	for (i = 0; i < count; i++)
--		clk_register(&clk_lookups[i]);
--
- 	recalc_root_clocks();
- 
- 	/* Mark all ancestors of DDR with special flag */
-diff --git a/arch/arm/plat-spear/include/plat/clock.h b/arch/arm/plat-spear/include/plat/clock.h
-index 00d6854..13ad461 100644
---- a/arch/arm/plat-spear/include/plat/clock.h
-+++ b/arch/arm/plat-spear/include/plat/clock.h
-@@ -241,7 +241,7 @@ struct ddr_rate_tbl {
-  * Actually before changing rate of DDRs ancestor, we must put ddr in refresh
-  * state and then change parent.
-  */
--void clk_init(struct clk_lookup *clk_lookups, u32 count, struct clk *dclk);
-+void clk_init(struct clk *dclk);
- void clk_register(struct clk_lookup *cl);
- void recalc_root_clocks(void);
- 
+diff --git a/arch/arm/configs/spear13xx_defconfig b/arch/arm/configs/spear13xx_defconfig
+index 9f3baf8..d764fee 100644
+--- a/arch/arm/configs/spear13xx_defconfig
++++ b/arch/arm/configs/spear13xx_defconfig
+@@ -10,31 +10,94 @@ CONFIG_PLAT_SPEAR=y
+ CONFIG_ARCH_SPEAR13XX=y
+ CONFIG_BOARD_SPEAR1300_EVB=y
+ CONFIG_BOARD_SPEAR1310_EVB=y
++CONFIG_PCI=y
++CONFIG_PCI_MSI=y
++CONFIG_PCIEPORTBUS=y
++# CONFIG_PCIEAER is not set
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=2
+ CONFIG_AEABI=y
++CONFIG_CPU_FREQ=y
++CONFIG_CPU_FREQ_STAT_DETAILS=y
++CONFIG_CPU_FREQ_GOV_POWERSAVE=y
++CONFIG_CPU_FREQ_GOV_USERSPACE=y
++CONFIG_CPU_FREQ_GOV_ONDEMAND=y
++CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
++CONFIG_VFP=y
+ CONFIG_BINFMT_MISC=y
++CONFIG_PM=y
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++CONFIG_IP_MULTICAST=y
++CONFIG_IP_PNP=y
++CONFIG_IP_PNP_DHCP=y
++CONFIG_IP_PNP_BOOTP=y
++CONFIG_NET_IPIP=y
++CONFIG_ARPD=y
++# CONFIG_IPV6 is not set
++# CONFIG_WIRELESS is not set
+ CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
+ CONFIG_MTD=y
+ CONFIG_MTD_CONCAT=y
+ CONFIG_MTD_PARTITIONS=y
+ CONFIG_MTD_CMDLINE_PARTS=y
+ CONFIG_MTD_CHAR=y
+ CONFIG_MTD_BLOCK=y
++CONFIG_MTD_CFI=y
++CONFIG_MTD_CFI_INTELEXT=y
++CONFIG_MTD_CFI_STAA=y
++CONFIG_MTD_PHYSMAP=y
++CONFIG_MTD_M25P80=y
++# CONFIG_M25PXX_USE_FAST_READ is not set
++CONFIG_MTD_NAND=y
++CONFIG_MTD_NAND_FSMC=y
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=16384
++CONFIG_SCSI=y
++CONFIG_BLK_DEV_SD=y
++CONFIG_CHR_DEV_ST=y
++CONFIG_CHR_DEV_OSST=y
++CONFIG_BLK_DEV_SR=y
++CONFIG_CHR_DEV_SG=y
++CONFIG_CHR_DEV_SCH=y
++CONFIG_NETDEVICES=y
++# CONFIG_WLAN is not set
+ CONFIG_INPUT_FF_MEMLESS=y
+ # CONFIG_INPUT_MOUSEDEV_PSAUX is not set
+-# CONFIG_INPUT_KEYBOARD is not set
++CONFIG_INPUT_EVDEV=y
++CONFIG_INPUT_EVBUG=y
++# CONFIG_KEYBOARD_ATKBD is not set
++CONFIG_KEYBOARD_SPEAR=y
+ # CONFIG_INPUT_MOUSE is not set
+ CONFIG_SERIAL_AMBA_PL011=y
+ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+ # CONFIG_LEGACY_PTYS is not set
+ CONFIG_RAW_DRIVER=y
+ CONFIG_MAX_RAW_DEVS=8192
++CONFIG_I2C=y
++CONFIG_I2C_CHARDEV=y
++CONFIG_I2C_DESIGNWARE=y
++CONFIG_SPI=y
++CONFIG_SPI_PL022=y
++CONFIG_SPI_SPIDEV=y
++CONFIG_GPIO_SYSFS=y
++CONFIG_GPIO_PL061=y
+ # CONFIG_HWMON is not set
+ # CONFIG_HID_SUPPORT is not set
+-# CONFIG_USB_SUPPORT is not set
++CONFIG_USB=y
++CONFIG_USB_EHCI_HCD=y
++# CONFIG_USB_EHCI_TT_NEWSCHED is not set
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_STORAGE=y
++CONFIG_USB_TEST=y
++CONFIG_MMC=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_SPEAR=y
++CONFIG_RTC_CLASS=y
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT2_FS_XATTR=y
+ CONFIG_EXT2_FS_SECURITY=y
+@@ -42,16 +105,18 @@ CONFIG_EXT3_FS=y
+ # CONFIG_EXT3_DEFAULTS_TO_ORDERED is not set
+ CONFIG_EXT3_FS_SECURITY=y
+ CONFIG_AUTOFS4_FS=m
+-CONFIG_MSDOS_FS=m
+-CONFIG_VFAT_FS=m
++CONFIG_MSDOS_FS=y
++CONFIG_VFAT_FS=y
+ CONFIG_FAT_DEFAULT_IOCHARSET="ascii"
+ CONFIG_TMPFS=y
+ CONFIG_JFFS2_FS=y
++CONFIG_NFS_FS=y
++CONFIG_ROOT_NFS=y
++# CONFIG_RPCSEC_GSS_KRB5 is not set
+ CONFIG_PARTITION_ADVANCED=y
+-CONFIG_NLS=y
+ CONFIG_NLS_DEFAULT="utf8"
+ CONFIG_NLS_CODEPAGE_437=y
+-CONFIG_NLS_ASCII=m
++CONFIG_NLS_ASCII=y
+ CONFIG_MAGIC_SYSRQ=y
+ CONFIG_DEBUG_FS=y
+ CONFIG_DEBUG_KERNEL=y
+@@ -59,3 +124,4 @@ CONFIG_DETECT_HUNG_TASK=y
+ CONFIG_DEBUG_SPINLOCK=y
+ CONFIG_DEBUG_SPINLOCK_SLEEP=y
+ CONFIG_DEBUG_INFO=y
++# CONFIG_ARM_UNWIND is not set
+diff --git a/arch/arm/configs/spear3xx_defconfig b/arch/arm/configs/spear3xx_defconfig
+index fea7e1f..5a210ce 100644
+--- a/arch/arm/configs/spear3xx_defconfig
++++ b/arch/arm/configs/spear3xx_defconfig
+@@ -10,13 +10,54 @@ CONFIG_PLAT_SPEAR=y
+ CONFIG_BOARD_SPEAR300_EVB=y
+ CONFIG_BOARD_SPEAR310_EVB=y
+ CONFIG_BOARD_SPEAR320_EVB=y
++CONFIG_AEABI=y
++CONFIG_CPU_FREQ=y
++CONFIG_CPU_FREQ_GOV_POWERSAVE=y
++CONFIG_CPU_FREQ_GOV_USERSPACE=y
++CONFIG_CPU_FREQ_GOV_ONDEMAND=y
++CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+ CONFIG_BINFMT_MISC=y
++CONFIG_PM=y
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++CONFIG_IP_MULTICAST=y
++CONFIG_IP_PNP=y
++CONFIG_IP_PNP_DHCP=y
++CONFIG_IP_PNP_BOOTP=y
++CONFIG_ARPD=y
++# CONFIG_WIRELESS is not set
+ CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++CONFIG_MTD=y
++CONFIG_MTD_CONCAT=y
++CONFIG_MTD_PARTITIONS=y
++CONFIG_MTD_CMDLINE_PARTS=y
++CONFIG_MTD_CHAR=y
++CONFIG_MTD_BLOCK=y
++CONFIG_MTD_M25P80=y
++# CONFIG_M25PXX_USE_FAST_READ is not set
++CONFIG_MTD_NAND=y
++CONFIG_MTD_NAND_FSMC=y
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=16384
++CONFIG_SCSI=y
++CONFIG_SCSI_TGT=y
++CONFIG_BLK_DEV_SD=y
++CONFIG_CHR_DEV_ST=y
++CONFIG_CHR_DEV_OSST=y
++CONFIG_BLK_DEV_SR=y
++CONFIG_CHR_DEV_SG=y
++CONFIG_CHR_DEV_SCH=y
++CONFIG_NETDEVICES=y
++# CONFIG_WLAN is not set
+ CONFIG_INPUT_FF_MEMLESS=y
+ # CONFIG_INPUT_MOUSEDEV_PSAUX is not set
+-# CONFIG_INPUT_KEYBOARD is not set
++CONFIG_INPUT_EVDEV=y
++# CONFIG_KEYBOARD_ATKBD is not set
++CONFIG_KEYBOARD_SPEAR=y
+ # CONFIG_INPUT_MOUSE is not set
+ CONFIG_SERIAL_AMBA_PL011=y
+ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+@@ -24,30 +65,55 @@ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+ # CONFIG_HW_RANDOM is not set
+ CONFIG_RAW_DRIVER=y
+ CONFIG_MAX_RAW_DEVS=8192
++CONFIG_I2C=y
++CONFIG_I2C_CHARDEV=y
++CONFIG_I2C_DESIGNWARE=y
++CONFIG_SPI=y
++CONFIG_SPI_PL022=y
++CONFIG_SPI_SPIDEV=y
+ CONFIG_GPIO_SYSFS=y
+ CONFIG_GPIO_PL061=y
+ # CONFIG_HWMON is not set
++CONFIG_WATCHDOG=y
++CONFIG_ARM_SP805_WATCHDOG=y
++CONFIG_FB=y
++CONFIG_FB_ARMCLCD=y
++CONFIG_FB_ARMCLCD_SAMSUNG_LMS700=y
+ # CONFIG_HID_SUPPORT is not set
+-# CONFIG_USB_SUPPORT is not set
++CONFIG_USB=y
++CONFIG_USB_EHCI_HCD=y
++# CONFIG_USB_EHCI_TT_NEWSCHED is not set
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_STORAGE=y
++CONFIG_USB_TEST=y
++CONFIG_MMC=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_SPEAR=y
++CONFIG_RTC_CLASS=y
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT2_FS_XATTR=y
+ CONFIG_EXT2_FS_SECURITY=y
+ CONFIG_EXT3_FS=y
++# CONFIG_EXT3_DEFAULTS_TO_ORDERED is not set
+ CONFIG_EXT3_FS_SECURITY=y
+ CONFIG_AUTOFS4_FS=m
+-CONFIG_MSDOS_FS=m
+-CONFIG_VFAT_FS=m
++CONFIG_MSDOS_FS=y
++CONFIG_VFAT_FS=y
+ CONFIG_FAT_DEFAULT_IOCHARSET="ascii"
+ CONFIG_TMPFS=y
++CONFIG_JFFS2_FS=y
++CONFIG_NFS_FS=y
++CONFIG_ROOT_NFS=y
++# CONFIG_RPCSEC_GSS_KRB5 is not set
+ CONFIG_PARTITION_ADVANCED=y
+-CONFIG_NLS=y
+ CONFIG_NLS_DEFAULT="utf8"
+ CONFIG_NLS_CODEPAGE_437=y
+-CONFIG_NLS_ASCII=m
++CONFIG_NLS_ASCII=y
+ CONFIG_MAGIC_SYSRQ=y
+ CONFIG_DEBUG_FS=y
+ CONFIG_DEBUG_KERNEL=y
++CONFIG_DETECT_HUNG_TASK=y
+ CONFIG_DEBUG_SPINLOCK=y
+ CONFIG_DEBUG_SPINLOCK_SLEEP=y
+ CONFIG_DEBUG_INFO=y
+-# CONFIG_CRC32 is not set
++# CONFIG_ARM_UNWIND is not set
+diff --git a/arch/arm/configs/spear6xx_defconfig b/arch/arm/configs/spear6xx_defconfig
+index cef2e83..5217396 100644
+--- a/arch/arm/configs/spear6xx_defconfig
++++ b/arch/arm/configs/spear6xx_defconfig
+@@ -9,10 +9,48 @@ CONFIG_MODVERSIONS=y
+ CONFIG_PLAT_SPEAR=y
+ CONFIG_ARCH_SPEAR6XX=y
+ CONFIG_BOARD_SPEAR600_EVB=y
++CONFIG_AEABI=y
++CONFIG_CPU_FREQ=y
++CONFIG_CPU_FREQ_GOV_POWERSAVE=y
++CONFIG_CPU_FREQ_GOV_USERSPACE=y
++CONFIG_CPU_FREQ_GOV_ONDEMAND=y
++CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+ CONFIG_BINFMT_MISC=y
++CONFIG_PM=y
++CONFIG_NET=y
++CONFIG_PACKET=y
++CONFIG_UNIX=y
++CONFIG_INET=y
++CONFIG_IP_MULTICAST=y
++CONFIG_IP_PNP=y
++CONFIG_IP_PNP_DHCP=y
++CONFIG_IP_PNP_BOOTP=y
++CONFIG_ARPD=y
++# CONFIG_WIRELESS is not set
+ CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
++CONFIG_DEVTMPFS=y
++CONFIG_DEVTMPFS_MOUNT=y
++CONFIG_MTD=y
++CONFIG_MTD_CONCAT=y
++CONFIG_MTD_PARTITIONS=y
++CONFIG_MTD_CMDLINE_PARTS=y
++CONFIG_MTD_CHAR=y
++CONFIG_MTD_BLOCK=y
++CONFIG_MTD_M25P80=y
++# CONFIG_M25PXX_USE_FAST_READ is not set
++CONFIG_MTD_NAND=y
++CONFIG_MTD_NAND_FSMC=y
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=16384
++CONFIG_SCSI=y
++CONFIG_BLK_DEV_SD=y
++CONFIG_CHR_DEV_ST=y
++CONFIG_CHR_DEV_OSST=y
++CONFIG_BLK_DEV_SR=y
++CONFIG_CHR_DEV_SG=y
++CONFIG_CHR_DEV_SCH=y
++CONFIG_NETDEVICES=y
++# CONFIG_WLAN is not set
+ CONFIG_INPUT_FF_MEMLESS=y
+ # CONFIG_INPUT_MOUSEDEV_PSAUX is not set
+ CONFIG_SERIAL_AMBA_PL011=y
+@@ -20,30 +58,52 @@ CONFIG_SERIAL_AMBA_PL011_CONSOLE=y
+ # CONFIG_LEGACY_PTYS is not set
+ CONFIG_RAW_DRIVER=y
+ CONFIG_MAX_RAW_DEVS=8192
++CONFIG_I2C=y
++CONFIG_I2C_CHARDEV=y
++CONFIG_I2C_DESIGNWARE=y
++CONFIG_SPI=y
++CONFIG_SPI_PL022=y
++CONFIG_SPI_SPIDEV=y
+ CONFIG_GPIO_SYSFS=y
+ CONFIG_GPIO_PL061=y
+ # CONFIG_HWMON is not set
++CONFIG_WATCHDOG=y
++CONFIG_ARM_SP805_WATCHDOG=y
++CONFIG_FB=y
++CONFIG_FB_ARMCLCD=y
++CONFIG_FB_ARMCLCD_SAMSUNG_LMS700=y
+ # CONFIG_HID_SUPPORT is not set
+-# CONFIG_USB_SUPPORT is not set
++CONFIG_USB=y
++CONFIG_USB_EHCI_HCD=y
++# CONFIG_USB_EHCI_TT_NEWSCHED is not set
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_STORAGE=y
++CONFIG_USB_TEST=y
++CONFIG_RTC_CLASS=y
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT2_FS_XATTR=y
+ CONFIG_EXT2_FS_SECURITY=y
+ CONFIG_EXT3_FS=y
++# CONFIG_EXT3_DEFAULTS_TO_ORDERED is not set
+ CONFIG_EXT3_FS_SECURITY=y
+ CONFIG_AUTOFS4_FS=m
+-CONFIG_MSDOS_FS=m
+-CONFIG_VFAT_FS=m
++CONFIG_MSDOS_FS=y
++CONFIG_VFAT_FS=y
+ CONFIG_FAT_DEFAULT_IOCHARSET="ascii"
+ CONFIG_TMPFS=y
++CONFIG_JFFS2_FS=y
++CONFIG_NFS_FS=y
++CONFIG_ROOT_NFS=y
++# CONFIG_RPCSEC_GSS_KRB5 is not set
+ CONFIG_PARTITION_ADVANCED=y
+-CONFIG_NLS=y
+ CONFIG_NLS_DEFAULT="utf8"
+ CONFIG_NLS_CODEPAGE_437=y
+-CONFIG_NLS_ASCII=m
++CONFIG_NLS_ASCII=y
+ CONFIG_MAGIC_SYSRQ=y
+ CONFIG_DEBUG_FS=y
+ CONFIG_DEBUG_KERNEL=y
++CONFIG_DETECT_HUNG_TASK=y
+ CONFIG_DEBUG_SPINLOCK=y
+ CONFIG_DEBUG_SPINLOCK_SLEEP=y
+ CONFIG_DEBUG_INFO=y
+-# CONFIG_CRC32 is not set
++# CONFIG_ARM_UNWIND is not set
 -- 
 1.7.2.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

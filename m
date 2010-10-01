@@ -1,29 +1,55 @@
-From: Corentin Chary <corentin.chary@gmail.com>
-Subject: Re: [PATCH 1/2] Add acer wmi hotkey events support
-Date: Fri, 1 Oct 2010 16:03:42 +0200
-Message-ID: <AANLkTimnRzpVDCt96ZjNduw5zMtDfGX+5FhCQb58bXpA@mail.gmail.com>
-References: <1285941088-31196-1-git-send-email-jlee@novell.com>
+From: viresh kumar <viresh.linux@gmail.com>
+Subject: Re: [PATCH V2 62/69] ST SPEAr: Appending spear3** with global
+	structures
+Date: Fri, 1 Oct 2010 21:51:06 +0530
+Message-ID: <AANLkTi=xNoG2T1Q2JqB7TH+O7AjW++UnSt1Q85VgPbzp@mail.gmail.com>
+References: <cover.1285933331.git.viresh.kumar@st.com>
+	<f4787f6021bf3a8c009595749894332c05e656df.1285933332.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <1285941088-31196-1-git-send-email-jlee@novell.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
-Cc: platform-driver-x86@vger.kernel.org, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, tiwai@novell.com, trenn@novell.com, jbenc@suse.cz, "Lee, Chun-Yi" <jlee@novell.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <f4787f6021bf3a8c009595749894332c05e656df.1285933332.git.viresh.kumar@st.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmi
+Cc: pratyush.anand@st.com, vipulkumar.samar@st.com, bhupesh.sharma@st.com, armando.visconti@st.com, vipin.kumar@st.com, shiraz.hashim@st.com, rajeev-dlh.kumar@st.com, deepak.sikri@st.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 1, 2010 at 3:51 PM, Lee, Chun-Yi <joeyli.kernel@gmail.com> wrote:
-> Add acer wmi hotkey event support. Install a wmi notify handler to
-> transfer wmi event key to key code, then send out keycode through acer
-> wmi input device to userland.
->
-> Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
-
-Hi Lee,
-You'll probably want to take a look at the sparse keymap library. Using
-it would remove a lot of code from this patch.
-Thanks
-
--- 
-Corentin Chary
-http://xf.iksaif.net
+T24gRnJpLCBPY3QgMSwgMjAxMCBhdCA1OjI2IFBNLCBWaXJlc2ggS1VNQVIgPHZpcmVzaC5rdW1h
+ckBzdC5jb20+IHdyb3RlOgo+IFNpZ25lZC1vZmYtYnk6IFZpcmVzaCBLdW1hciA8dmlyZXNoLmt1
+bWFyQHN0LmNvbT4KPiAtLS0KPiDCoGFyY2gvYXJtL21hY2gtc3BlYXIzeHgvaW5jbHVkZS9tYWNo
+L2dlbmVyaWMuaCB8IMKgMTQwICsrKysrKysrKysrKy0tLS0tLS0tLS0tLQo+IMKgYXJjaC9hcm0v
+bWFjaC1zcGVhcjN4eC9zcGVhcjMwMC5jIMKgIMKgIMKgIMKgIMKgIMKgIHwgwqAgNDIgKysrKy0t
+LS0KPiDCoGFyY2gvYXJtL21hY2gtc3BlYXIzeHgvc3BlYXIzMDBfZXZiLmMgwqAgwqAgwqAgwqAg
+fCDCoCA0MyArKysrLS0tLQo+IMKgYXJjaC9hcm0vbWFjaC1zcGVhcjN4eC9zcGVhcjMxMC5jIMKg
+IMKgIMKgIMKgIMKgIMKgIHwgwqAgMTYgKystLQo+IMKgYXJjaC9hcm0vbWFjaC1zcGVhcjN4eC9z
+cGVhcjMxMF9ldmIuYyDCoCDCoCDCoCDCoCB8IMKgIDM3ICsrKystLS0KPiDCoGFyY2gvYXJtL21h
+Y2gtc3BlYXIzeHgvc3BlYXIzMjAuYyDCoCDCoCDCoCDCoCDCoCDCoCB8IMKgIDMyICsrKy0tLQo+
+IMKgYXJjaC9hcm0vbWFjaC1zcGVhcjN4eC9zcGVhcjMyMF9ldmIuYyDCoCDCoCDCoCDCoCB8IMKg
+IDUwICsrKysrLS0tLQo+IMKgYXJjaC9hcm0vbWFjaC1zcGVhcjN4eC9zcGVhcjN4eC5jIMKgIMKg
+IMKgIMKgIMKgIMKgIHwgwqAgMjAgKystLQo+IMKgYXJjaC9hcm0vcGxhdC1zcGVhci9pbmNsdWRl
+L3BsYXQvc3BpLmggwqAgwqAgwqAgwqB8IMKgIMKgMiArLQo+IMKgOSBmaWxlcyBjaGFuZ2VkLCAx
+OTMgaW5zZXJ0aW9ucygrKSwgMTg5IGRlbGV0aW9ucygtKQoKSGVsbG8gZXZlcnlib2R5LAoKSSBo
+YXZlIHVzZWQgYW4gbGF0ZXN0IHBhdGNoIG9uIGdpdCBmb3Igc2VuZGluZyB0aGlzIHBhdGNoIHNl
+cmllcy4gSQp0aGluayB0aGVyZSBpcyBzb21lIGJ1Zwp0aGVyZSwgZHVlIHRvIHdoaWNoIGFsbCBv
+ZiB5b3UgaGF2ZSByZWNlaXZlZCBzb21lIG1haWxzIHdoaWNoIGFyZSBub3QKaW50ZW5kZWQgZm9y
+IGFsbCBvZiB5b3UuClRoZXJlIHdhcyBhIGJ1Z2ZpeCBpbiBnaXQgd2hpY2ggZW5hYmxlcyB0byBz
+ZW5kIG1haWwgdG8gInJlY2lwaWVudHMKbWVudGlvbmVkIGluIFRPIGZpZWxkIiwgb2YgcGF0Y2gK
+aXRzZWxmLgoKQWZ0ZXIgY3JlYXRpbmcgcGF0Y2hlcyAod2l0aCBnaXQgZm9ybWF0LXBhdGNoIC0t
+LSksIGkgaGF2ZSBhZGRlZCBUbwphbmQgQ0MgbGlzdHMgaW4gcGF0Y2hlcy4KQnV0IHdoZW4gaSBz
+ZW50IHBhdGNoZXMgdGhlIFRPIGZpZWxkIHdhcyBjYXJyaWVkIGF3YXkgaW4gbGF0ZXIgcGF0Y2hl
+cwp0b28uIFNvIGR1ZSB0byB0aGlzCmFsbCBwYXRjaGVzIHNlbmQgYWZ0ZXIgcnRjIHBhdGNoZXMg
+aGF2ZSBmb2xsb3dpbmcgcmVjaXBpZW50cyBhZGRlZDoKcnRjLWxpbnV4QGdvb2dsZWdyb3Vwcy5j
+b20sCmEuenVtbW9AdG93ZXJ0ZWNoLml0LiBTaW1pbGFybHkgZm9yIG90aGVyIHBhdGNoZXMgdG9v
+LgoKT25jZSBhZ2FpbiBzb3JyeSBmb3IgdGhpcy4KCi0tCnZpcmVzaAoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5n
+IGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5p
+bmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=

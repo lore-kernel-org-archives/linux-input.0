@@ -1,1120 +1,1181 @@
-From: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: [PATCH V2 38/69] ST SPEAr: Adding support for DDR in clock framework
-Date: Fri,  1 Oct 2010 17:25:58 +0530
-Message-ID: <d62d10bc768767f7ef0537328bdce43c273dd88e.1285933332.git.viresh.kumar@st.com>
+From: Viresh KUMAR <viresh.kumar@st.com>
+Subject: [PATCH V2 59/69] SPEAr3xx: Rework pmx_dev code to remove conflicts
+Date: Fri,  1 Oct 2010 17:26:19 +0530
+Message-ID: <9b53fbce9f64b51d234cf28c03e698f26cd90775.1285933332.git.viresh.kumar@st.com>
 References: <cover.1285933331.git.viresh.kumar@st.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-In-Reply-To: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-References: <cover.1285933331.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry
-Cc: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, shiraz.hashim-qxv4g6HH51o@public.gmane.org, vipin.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, armando.visconti-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, bhupesh.sharma-qxv4g6HH51o@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+In-Reply-To: <cover.1285933331.git.viresh.kumar@st.com>
+References: <cover.1285933331.git.viresh.kumar@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry
+Cc: Ryan Mallon <ryan@bluewatersys.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, rajeev-dlh.kumar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com, Viresh Kumar <viresh.kumar@st.com>
 List-Id: linux-input@vger.kernel.org
 
-Changing rate of clk, which is ancestor of DDR requires to put DDR in refresh
-mode before changing parents rate. For this DDR support is added in clock
-framework. Now at boot time all ancestors of DDR is marked specially and
-changing their rate must be first acked by ddr (i.e. ddr will run on that
-clock). This patch adds support for this.
+From: Ryan Mallon <ryan@bluewatersys.com>
 
-Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: shiraz hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Prefix the pmx_devs to remove naming conflicts between the three
+SPEAr3xx platforms. Also make pmx_driver static to each platform and
+rework the init code to pass the devices rather than export the
+pmx_driver structure.
+
+Signed-off-by: Ryan Mallon <ryan@bluewatersys.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 ---
- arch/arm/mach-spear13xx/clock.c                  |   69 ++++++++---
- arch/arm/mach-spear13xx/include/mach/generic.h   |    2 +-
- arch/arm/mach-spear13xx/include/mach/misc_regs.h |    4 +
- arch/arm/mach-spear13xx/spear13xx.c              |    2 +-
- arch/arm/mach-spear3xx/clock.c                   |  105 ++++++++++++++----
- arch/arm/mach-spear3xx/include/mach/generic.h    |    2 +-
- arch/arm/mach-spear3xx/include/mach/misc_regs.h  |    7 +
- arch/arm/mach-spear3xx/spear3xx.c                |    2 +-
- arch/arm/mach-spear6xx/clock.c                   |  105 ++++++++++++++----
- arch/arm/mach-spear6xx/include/mach/generic.h    |    2 +-
- arch/arm/mach-spear6xx/include/mach/misc_regs.h  |    7 +
- arch/arm/mach-spear6xx/spear6xx.c                |    2 +-
- arch/arm/plat-spear/clock.c                      |  133 ++++++++++++++++++---
- arch/arm/plat-spear/include/plat/clock.h         |   42 +++++--
- 14 files changed, 385 insertions(+), 99 deletions(-)
+ arch/arm/mach-spear3xx/include/mach/generic.h |  129 +++++++++++++------------
+ arch/arm/mach-spear3xx/spear300.c             |   40 ++++----
+ arch/arm/mach-spear3xx/spear300_evb.c         |   25 ++---
+ arch/arm/mach-spear3xx/spear310.c             |   28 +++---
+ arch/arm/mach-spear3xx/spear310_evb.c         |   41 ++++-----
+ arch/arm/mach-spear3xx/spear320.c             |   56 ++++++-----
+ arch/arm/mach-spear3xx/spear320_evb.c         |   35 +++----
+ arch/arm/mach-spear3xx/spear3xx.c             |   60 ++++++------
+ 8 files changed, 206 insertions(+), 208 deletions(-)
 
-diff --git a/arch/arm/mach-spear13xx/clock.c b/arch/arm/mach-spear13xx/clock.c
-index ca80c46..4f320fa 100644
---- a/arch/arm/mach-spear13xx/clock.c
-+++ b/arch/arm/mach-spear13xx/clock.c
-@@ -23,19 +23,19 @@
- /* root clks */
- /* 24 MHz oscillator clock */
- static struct clk osc1_24m_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.rate = 24000000,
- };
- 
- /* 32 KHz oscillator clock */
- static struct clk osc2_32k_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.rate = 32000,
- };
- 
- /* 25 MHz MIPHY oscillator clock */
- static struct clk osc3_25m_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.rate = 25000000,
- };
- 
-@@ -99,7 +99,7 @@ struct pll_rate_tbl pll_rtbl[] = {
- 
- /* pll1 clock */
- static struct clk pll1_clk = {
--	.flags = ENABLED_ON_INIT,
-+	.flags = ENABLED_ON_INIT | SYSTEM_CLK,
- 	.pclk_sel = &pll_pclk_sel,
- 	.pclk_sel_shift = PLL1_CLK_SHIFT,
- 	.en_reg = PLL1_CTR,
-@@ -113,7 +113,7 @@ static struct clk pll1_clk = {
- 
- /* pll1div2 clock */
- static struct clk pll1div2_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.div_factor = 2,
- 	.recalc = &follow_parent,
-@@ -121,7 +121,7 @@ static struct clk pll1div2_clk = {
- 
- /* pll1div4 clock */
- static struct clk pll1div4_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.div_factor = 4,
- 	.recalc = &follow_parent,
-@@ -136,6 +136,7 @@ static struct pll_clk_config pll2_config = {
- 
- /* pll2 clock */
- static struct clk pll2_clk = {
-+	.flags = SYSTEM_CLK,
- 	.pclk_sel = &pll_pclk_sel,
- 	.pclk_sel_shift = PLL2_CLK_SHIFT,
- 	.en_reg = PLL2_CTR,
-@@ -156,6 +157,7 @@ static struct pll_clk_config pll3_config = {
- 
- /* pll3 clock */
- static struct clk pll3_clk = {
-+	.flags = SYSTEM_CLK,
- 	.pclk_sel = &pll_pclk_sel,
- 	.pclk_sel_shift = PLL3_CLK_SHIFT,
- 	.en_reg = PLL3_CTR,
-@@ -184,7 +186,7 @@ struct pll_rate_tbl pll4_rtbl[] = {
- 
- /* pll4 (DDR) clock */
- static struct clk pll4_clk = {
--	.flags = ENABLED_ON_INIT,
-+	.flags = ENABLED_ON_INIT | SYSTEM_CLK,
- 	.pclk = &osc1_24m_clk,
- 	.en_reg = PLL4_CTR,
- 	.en_reg_bit = PLL_ENABLE,
-@@ -197,22 +199,54 @@ static struct clk pll4_clk = {
- 
- /* pll5 USB 48 MHz clock */
- static struct clk pll5_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &osc1_24m_clk,
- 	.rate = 48000000,
- };
- 
- /* pll6 (MIPHY) clock */
- static struct clk pll6_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &osc3_25m_clk,
- 	.rate = 25000000,
- };
- 
- /* clocks derived from pll1 clk */
-+/* ddr clock */
-+struct ddr_rate_tbl ddr_rate_tbl = {
-+	.minrate = 332000000,
-+	.maxrate = 500000000,
-+};
-+
-+static struct pclk_info ddr_pclk_info[] = {
-+	{
-+		.pclk = &pll1_clk,
-+		.pclk_val = MCTR_CLK_PLL1_VAL,
-+	}, {
-+		.pclk = &pll4_clk,
-+		.pclk_val = MCTR_CLK_PLL4_VAL,
-+	},
-+};
-+
-+/* ddr parent select structure */
-+static struct pclk_sel ddr_pclk_sel = {
-+	.pclk_info = ddr_pclk_info,
-+	.pclk_count = ARRAY_SIZE(ddr_pclk_info),
-+	.pclk_sel_reg = PERIP_CLK_CFG,
-+	.pclk_sel_mask = MCTR_CLK_MASK,
-+};
-+
-+static struct clk ddr_clk = {
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
-+	.recalc = &follow_parent,
-+	.pclk_sel = &ddr_pclk_sel,
-+	.pclk_sel_shift = MCTR_CLK_SHIFT,
-+	.private_data = &ddr_rate_tbl,
-+};
-+
- /* cpu clock */
- static struct clk cpu_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.div_factor = 2,
- 	.recalc = &follow_parent,
-@@ -220,7 +254,7 @@ static struct clk cpu_clk = {
- 
- /* ahb clock */
- static struct clk ahb_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.div_factor = 6,
- 	.recalc = &follow_parent,
-@@ -228,7 +262,7 @@ static struct clk ahb_clk = {
- 
- /* apb clock */
- static struct clk apb_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.div_factor = 12,
- 	.recalc = &follow_parent,
-@@ -845,6 +879,7 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{.con_id = "pll6_clk",		.clk = &pll6_clk},
- 
- 	/* clock derived from pll1 clk */
-+	{.con_id = "ddr_clk",		.clk = &ddr_clk},
- 	{.con_id = "cpu_clk",		.clk = &cpu_clk},
- 	{.con_id = "ahb_clk",		.clk = &ahb_clk},
- 	{.con_id = "apb_clk",		.clk = &apb_clk},
-@@ -911,12 +946,8 @@ static struct clk_lookup spear_clk_lookups[] = {
- #endif
- };
- 
--void __init clk_init(void)
-+/* machine clk init */
-+void __init spear13xx_clk_init(void)
- {
--	int i;
--
--	for (i = 0; i < ARRAY_SIZE(spear_clk_lookups); i++)
--		clk_register(&spear_clk_lookups[i]);
--
--	recalc_root_clocks();
-+	clk_init(spear_clk_lookups, ARRAY_SIZE(spear_clk_lookups), &ddr_clk);
- }
-diff --git a/arch/arm/mach-spear13xx/include/mach/generic.h b/arch/arm/mach-spear13xx/include/mach/generic.h
-index 83be1f2..cd54e62 100644
---- a/arch/arm/mach-spear13xx/include/mach/generic.h
-+++ b/arch/arm/mach-spear13xx/include/mach/generic.h
-@@ -45,7 +45,7 @@ extern struct platform_device spear13xx_smi_device;
- extern struct sys_timer spear13xx_timer;
- 
- /* Add spear13xx family function declarations here */
--void __init clk_init(void);
-+void __init spear13xx_clk_init(void);
- void __init i2c_register_board_devices(void);
- void __init spear_setup_timer(void);
- void __init spear13xx_map_io(void);
-diff --git a/arch/arm/mach-spear13xx/include/mach/misc_regs.h b/arch/arm/mach-spear13xx/include/mach/misc_regs.h
-index a7ba6cb..3cfd4fc 100644
---- a/arch/arm/mach-spear13xx/include/mach/misc_regs.h
-+++ b/arch/arm/mach-spear13xx/include/mach/misc_regs.h
-@@ -98,6 +98,10 @@
- 	#define CLCD_CLK_SHIFT		2
- 	#define C3_CLK_MASK		1
- 	#define C3_CLK_SHIFT		1
-+	#define MCTR_CLK_SHIFT		10
-+	#define MCTR_CLK_MASK		0x1
-+	#define MCTR_CLK_PLL1_VAL	0x0
-+	#define MCTR_CLK_PLL4_VAL	0x1
- 
- #define GMAC_CLK_CFG		((unsigned int *)(MISC_BASE + 0x248))
- 
-diff --git a/arch/arm/mach-spear13xx/spear13xx.c b/arch/arm/mach-spear13xx/spear13xx.c
-index b058c3b..76920ec 100644
---- a/arch/arm/mach-spear13xx/spear13xx.c
-+++ b/arch/arm/mach-spear13xx/spear13xx.c
-@@ -453,7 +453,7 @@ void __init spear13xx_map_io(void)
- 	iotable_init(spear13xx_io_desc, ARRAY_SIZE(spear13xx_io_desc));
- 
- 	/* This will initialize clock framework */
--	clk_init();
-+	spear13xx_clk_init();
- }
- 
- static void __init spear13xx_timer_init(void)
-diff --git a/arch/arm/mach-spear3xx/clock.c b/arch/arm/mach-spear3xx/clock.c
-index 0a7a548..4f049fe 100644
---- a/arch/arm/mach-spear3xx/clock.c
-+++ b/arch/arm/mach-spear3xx/clock.c
-@@ -19,13 +19,13 @@
- /* root clks */
- /* 32 KHz oscillator clock */
- static struct clk osc_32k_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.rate = 32000,
- };
- 
- /* 24 MHz oscillator clock */
- static struct clk osc_24m_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.rate = 24000000,
- };
- 
-@@ -40,7 +40,7 @@ static struct clk rtc_clk = {
- 
- /* clock derived from 24 MHz osc clk */
- /* pll masks structure */
--static struct pll_clk_masks pll1_masks = {
-+static struct pll_clk_masks pll_masks = {
- 	.mode_mask = PLL_MODE_MASK,
- 	.mode_shift = PLL_MODE_SHIFT,
- 	.norm_fdbk_m_mask = PLL_NORM_FDBK_M_MASK,
-@@ -53,22 +53,22 @@ static struct pll_clk_masks pll1_masks = {
- 	.div_n_shift = PLL_DIV_N_SHIFT,
- };
- 
--/* pll1 configuration structure */
--static struct pll_clk_config pll1_config = {
--	.mode_reg = PLL1_CTR,
--	.cfg_reg = PLL1_FRQ,
--	.masks = &pll1_masks,
--};
--
- /* pll rate configuration table, in ascending order of rates */
- struct pll_rate_tbl pll_rtbl[] = {
- 	{.mode = 0, .m = 0x85, .n = 0x0C, .p = 0x1}, /* 266 MHz */
- 	{.mode = 0, .m = 0xA6, .n = 0x0C, .p = 0x1}, /* 332 MHz */
- };
- 
-+/* pll1 configuration structure */
-+static struct pll_clk_config pll1_config = {
-+	.mode_reg = PLL1_CTR,
-+	.cfg_reg = PLL1_FRQ,
-+	.masks = &pll_masks,
-+};
-+
- /* PLL1 clock */
- static struct clk pll1_clk = {
--	.flags = ENABLED_ON_INIT,
-+	.flags = ENABLED_ON_INIT | SYSTEM_CLK,
- 	.pclk = &osc_24m_clk,
- 	.en_reg = PLL1_CTR,
- 	.en_reg_bit = PLL_ENABLE,
-@@ -79,9 +79,29 @@ static struct clk pll1_clk = {
- 	.private_data = &pll1_config,
- };
- 
-+/* pll2 configuration structure */
-+static struct pll_clk_config pll2_config = {
-+	.mode_reg = PLL2_CTR,
-+	.cfg_reg = PLL2_FRQ,
-+	.masks = &pll_masks,
-+};
-+
-+/* PLL2 clock */
-+static struct clk pll2_clk = {
-+	.flags = ENABLED_ON_INIT | SYSTEM_CLK,
-+	.pclk = &osc_24m_clk,
-+	.en_reg = PLL2_CTR,
-+	.en_reg_bit = PLL_ENABLE,
-+	.calc_rate = &pll_calc_rate,
-+	.recalc = &pll_clk_recalc,
-+	.set_rate = &pll_clk_set_rate,
-+	.rate_config = {pll_rtbl, ARRAY_SIZE(pll_rtbl), 1},
-+	.private_data = &pll2_config,
-+};
-+
- /* PLL3 48 MHz clock */
- static struct clk pll3_48m_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &osc_24m_clk,
- 	.rate = 48000000,
- };
-@@ -96,7 +116,7 @@ static struct clk wdt_clk = {
- /* clock derived from pll1 clk */
- /* cpu clock */
- static struct clk cpu_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.recalc = &follow_parent,
- };
-@@ -123,7 +143,7 @@ struct bus_rate_tbl bus_rtbl[] = {
- 
- /* ahb clock */
- static struct clk ahb_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.calc_rate = &bus_calc_rate,
- 	.recalc = &bus_clk_recalc,
-@@ -410,6 +430,48 @@ static struct clk usbd_clk = {
- };
- 
- /* clock derived from ahb clk */
-+/* ahb multiplied by 2 clock */
-+static struct clk ahbmult2_clk = {
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
-+	.pclk = &ahb_clk,
-+	.recalc = &ahbmult2_clk_recalc,
-+};
-+
-+/* ddr clock */
-+struct ddr_rate_tbl ddr_rate_tbl = {
-+	.minrate = 166000000,
-+	.maxrate = 332000000,
-+};
-+
-+static struct pclk_info ddr_pclk_info[] = {
-+	{
-+		.pclk = &ahb_clk,
-+		.pclk_val = MCTR_CLK_HCLK_VAL,
-+	}, {
-+		.pclk = &ahbmult2_clk,
-+		.pclk_val = MCTR_CLK_2HCLK_VAL,
-+	}, {
-+		.pclk = &pll2_clk,
-+		.pclk_val = MCTR_CLK_PLL2_VAL,
-+	},
-+};
-+
-+/* ddr parent select structure */
-+static struct pclk_sel ddr_pclk_sel = {
-+	.pclk_info = ddr_pclk_info,
-+	.pclk_count = ARRAY_SIZE(ddr_pclk_info),
-+	.pclk_sel_reg = PLL_CLK_CFG,
-+	.pclk_sel_mask = MCTR_CLK_MASK,
-+};
-+
-+static struct clk ddr_clk = {
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
-+	.recalc = &follow_parent,
-+	.pclk_sel = &ddr_pclk_sel,
-+	.pclk_sel_shift = MCTR_CLK_SHIFT,
-+	.private_data = &ddr_rate_tbl,
-+};
-+
- /* apb masks structure */
- static struct bus_clk_masks apb_masks = {
- 	.mask = HCLK_PCLK_RATIO_MASK,
-@@ -424,7 +486,7 @@ static struct bus_clk_config apb_config = {
- 
- /* apb clock */
- static struct clk apb_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &ahb_clk,
- 	.calc_rate = &bus_calc_rate,
- 	.recalc = &bus_clk_recalc,
-@@ -658,6 +720,7 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{ .dev_id = "rtc-spear",	.clk = &rtc_clk},
- 	/* clock derived from 24 MHz osc clk */
- 	{ .con_id = "pll1_clk",		.clk = &pll1_clk},
-+	{ .con_id = "pll2_clk",		.clk = &pll2_clk},
- 	{ .con_id = "pll3_48m_clk",	.clk = &pll3_48m_clk},
- 	{ .dev_id = "wdt",		.clk = &wdt_clk},
- 	/* clock derived from pll1 clk */
-@@ -677,6 +740,8 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{ .con_id = "usbh_clk",		.clk = &usbh_clk},
- 	{ .dev_id = "usbd",		.clk = &usbd_clk},
- 	/* clock derived from ahb clk */
-+	{ .con_id = "ahbmult2_clk",	.clk = &ahbmult2_clk},
-+	{ .con_id = "ddr_clk",		.clk = &ddr_clk},
- 	{ .con_id = "apb_clk",		.clk = &apb_clk},
- 	{ .dev_id = "i2c_designware.0",	.clk = &i2c_clk},
- 	{ .dev_id = "dma",		.clk = &dma_clk},
-@@ -732,12 +797,8 @@ static struct clk_lookup spear_clk_lookups[] = {
- #endif
- };
- 
--void __init clk_init(void)
-+/* machine clk init */
-+void __init spear3xx_clk_init(void)
- {
--	int i;
--
--	for (i = 0; i < ARRAY_SIZE(spear_clk_lookups); i++)
--		clk_register(&spear_clk_lookups[i]);
--
--	recalc_root_clocks();
-+	clk_init(spear_clk_lookups, ARRAY_SIZE(spear_clk_lookups), &ddr_clk);
- }
 diff --git a/arch/arm/mach-spear3xx/include/mach/generic.h b/arch/arm/mach-spear3xx/include/mach/generic.h
-index 0f7648b..7b83197 100644
+index 328f8f5..cef82e8 100644
 --- a/arch/arm/mach-spear3xx/include/mach/generic.h
 +++ b/arch/arm/mach-spear3xx/include/mach/generic.h
-@@ -44,7 +44,7 @@ extern struct platform_device smi_device;
- extern struct sys_timer spear3xx_timer;
+@@ -70,21 +70,21 @@ void spear3xx_pmx_init_addr(struct pmx_driver *driver, unsigned int addr);
+ #define PMX_TIMER_1_2_MASK	(1 << 0)
  
- /* Add spear3xx family function declarations here */
--void __init clk_init(void);
-+void __init spear3xx_clk_init(void);
- void __init i2c_register_board_devices(void);
- void __init spear_setup_timer(void);
- void __init spear3xx_map_io(void);
-diff --git a/arch/arm/mach-spear3xx/include/mach/misc_regs.h b/arch/arm/mach-spear3xx/include/mach/misc_regs.h
-index 6cb4f3c..6316900 100644
---- a/arch/arm/mach-spear3xx/include/mach/misc_regs.h
-+++ b/arch/arm/mach-spear3xx/include/mach/misc_regs.h
-@@ -46,6 +46,13 @@
+ /* pad mux devices */
+-extern struct pmx_dev pmx_firda;
+-extern struct pmx_dev pmx_i2c;
+-extern struct pmx_dev pmx_ssp_cs;
+-extern struct pmx_dev pmx_ssp;
+-extern struct pmx_dev pmx_mii;
+-extern struct pmx_dev pmx_gpio_pin0;
+-extern struct pmx_dev pmx_gpio_pin1;
+-extern struct pmx_dev pmx_gpio_pin2;
+-extern struct pmx_dev pmx_gpio_pin3;
+-extern struct pmx_dev pmx_gpio_pin4;
+-extern struct pmx_dev pmx_gpio_pin5;
+-extern struct pmx_dev pmx_uart0_modem;
+-extern struct pmx_dev pmx_uart0;
+-extern struct pmx_dev pmx_timer_3_4;
+-extern struct pmx_dev pmx_timer_1_2;
++extern struct pmx_dev spear3xx_pmx_firda;
++extern struct pmx_dev spear3xx_pmx_i2c;
++extern struct pmx_dev spear3xx_pmx_ssp_cs;
++extern struct pmx_dev spear3xx_pmx_ssp;
++extern struct pmx_dev spear3xx_pmx_mii;
++extern struct pmx_dev spear3xx_pmx_gpio_pin0;
++extern struct pmx_dev spear3xx_pmx_gpio_pin1;
++extern struct pmx_dev spear3xx_pmx_gpio_pin2;
++extern struct pmx_dev spear3xx_pmx_gpio_pin3;
++extern struct pmx_dev spear3xx_pmx_gpio_pin4;
++extern struct pmx_dev spear3xx_pmx_gpio_pin5;
++extern struct pmx_dev spear3xx_pmx_uart0_modem;
++extern struct pmx_dev spear3xx_pmx_uart0;
++extern struct pmx_dev spear3xx_pmx_timer_3_4;
++extern struct pmx_dev spear3xx_pmx_timer_1_2;
  
- #define PLL2_MOD		((unsigned int *)(MISC_BASE + 0x01C))
- #define PLL_CLK_CFG		((unsigned int *)(MISC_BASE + 0x020))
-+/* PLL_CLK_CFG register masks */
-+#define MCTR_CLK_SHIFT		28
-+#define MCTR_CLK_MASK		0x7
-+#define MCTR_CLK_HCLK_VAL	0x0
-+#define MCTR_CLK_2HCLK_VAL	0x1
-+#define MCTR_CLK_PLL2_VAL	0x3
-+
- #define CORE_CLK_CFG		((unsigned int *)(MISC_BASE + 0x024))
- /* CORE CLK CFG register masks */
- #define PLL_HCLK_RATIO_SHIFT	10
-diff --git a/arch/arm/mach-spear3xx/spear3xx.c b/arch/arm/mach-spear3xx/spear3xx.c
-index f7b8915..dcbe020 100644
---- a/arch/arm/mach-spear3xx/spear3xx.c
-+++ b/arch/arm/mach-spear3xx/spear3xx.c
-@@ -280,7 +280,7 @@ void __init spear3xx_map_io(void)
- 	iotable_init(spear3xx_io_desc, ARRAY_SIZE(spear3xx_io_desc));
+ #if defined(CONFIG_MACH_SPEAR310) || defined(CONFIG_MACH_SPEAR320)
+ /* padmux plgpio devices */
+@@ -105,8 +105,6 @@ extern struct pmx_dev pmx_plgpio_43_44_47_48;
+ extern struct pmx_dev pmx_plgpio_45_46_49_50;
+ #endif
  
- 	/* This will initialize clock framework */
--	clk_init();
-+	spear3xx_clk_init();
- }
+-extern struct pmx_driver pmx_driver;
+-
+ /* spear300 declarations */
+ #ifdef CONFIG_MACH_SPEAR300
+ /* Add spear300 machine device structure declarations here */
+@@ -135,27 +133,28 @@ extern struct pmx_mode camu_wlcd_mode;
+ extern struct pmx_mode caml_lcd_mode;
+ 
+ /* pad mux devices */
+-extern struct pmx_dev pmx_fsmc_2_chips;
+-extern struct pmx_dev pmx_fsmc_4_chips;
+-extern struct pmx_dev pmx_keyboard;
+-extern struct pmx_dev pmx_clcd;
+-extern struct pmx_dev pmx_telecom_gpio;
+-extern struct pmx_dev pmx_telecom_tdm;
+-extern struct pmx_dev pmx_telecom_spi_cs_i2c_clk;
+-extern struct pmx_dev pmx_telecom_camera;
+-extern struct pmx_dev pmx_telecom_dac;
+-extern struct pmx_dev pmx_telecom_i2s;
+-extern struct pmx_dev pmx_telecom_boot_pins;
+-extern struct pmx_dev pmx_telecom_sdhci_4bit;
+-extern struct pmx_dev pmx_telecom_sdhci_8bit;
+-extern struct pmx_dev pmx_gpio1;
++extern struct pmx_dev spear300_pmx_fsmc_2_chips;
++extern struct pmx_dev spear300_pmx_fsmc_4_chips;
++extern struct pmx_dev spear300_pmx_keyboard;
++extern struct pmx_dev spear300_pmx_clcd;
++extern struct pmx_dev spear300_pmx_telecom_gpio;
++extern struct pmx_dev spear300_pmx_telecom_tdm;
++extern struct pmx_dev spear300_pmx_telecom_spi_cs_i2c_clk;
++extern struct pmx_dev spear300_pmx_telecom_camera;
++extern struct pmx_dev spear300_pmx_telecom_dac;
++extern struct pmx_dev spear300_pmx_telecom_i2s;
++extern struct pmx_dev spear300_pmx_telecom_boot_pins;
++extern struct pmx_dev spear300_pmx_telecom_sdhci_4bit;
++extern struct pmx_dev spear300_pmx_telecom_sdhci_8bit;
++extern struct pmx_dev spear300_pmx_gpio1;
  
  /* pad multiplexing support */
-diff --git a/arch/arm/mach-spear6xx/clock.c b/arch/arm/mach-spear6xx/clock.c
-index 9171952..99cc21d 100644
---- a/arch/arm/mach-spear6xx/clock.c
-+++ b/arch/arm/mach-spear6xx/clock.c
-@@ -19,13 +19,13 @@
- /* root clks */
- /* 32 KHz oscillator clock */
- static struct clk osc_32k_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.rate = 32000,
+ #define SPEAR300_PAD_MUX_CONFIG_REG	0x99000000
+ #define SPEAR300_MODE_CONFIG_REG	0x99000004
+ 
+ /* Add spear300 machine function declarations here */
+-void __init spear300_init(void);
++void __init spear300_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
++		u8 pmx_dev_count);
+ #define SDHCI_MEM_ENB	0x1
+ #define I2S_MEM_ENB	0x2
+ void sdhci_i2s_mem_enable(u8 mask);
+@@ -176,18 +175,19 @@ extern struct platform_device plgpio_device;
+ extern struct platform_device nand_device;
+ 
+ /* pad mux devices */
+-extern struct pmx_dev pmx_emi_cs_0_1_4_5;
+-extern struct pmx_dev pmx_emi_cs_2_3;
+-extern struct pmx_dev pmx_uart1;
+-extern struct pmx_dev pmx_uart2;
+-extern struct pmx_dev pmx_uart3_4_5;
+-extern struct pmx_dev pmx_fsmc;
+-extern struct pmx_dev pmx_rs485_0_1;
+-extern struct pmx_dev pmx_tdm0;
++extern struct pmx_dev spear310_pmx_emi_cs_0_1_4_5;
++extern struct pmx_dev spear310_pmx_emi_cs_2_3;
++extern struct pmx_dev spear310_pmx_uart1;
++extern struct pmx_dev spear310_pmx_uart2;
++extern struct pmx_dev spear310_pmx_uart3_4_5;
++extern struct pmx_dev spear310_pmx_fsmc;
++extern struct pmx_dev spear310_pmx_rs485_0_1;
++extern struct pmx_dev spear310_pmx_tdm0;
+ #define SPEAR310_PAD_MUX_CONFIG_REG	0xB4000008
+ 
+ /* Add spear310 machine function declarations here */
+-void __init spear310_init(void);
++void __init spear310_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
++		u8 pmx_dev_count);
+ 
+ /* spear320 declarations */
+ #elif defined(CONFIG_MACH_SPEAR320)
+@@ -212,35 +212,36 @@ extern struct pmx_mode auto_exp_mode;
+ extern struct pmx_mode small_printers_mode;
+ 
+ /* pad mux devices */
+-extern struct pmx_dev pmx_clcd;
+-extern struct pmx_dev pmx_emi;
+-extern struct pmx_dev pmx_fsmc;
+-extern struct pmx_dev pmx_spp;
+-extern struct pmx_dev pmx_sdhci;
+-extern struct pmx_dev pmx_i2s;
+-extern struct pmx_dev pmx_uart1;
+-extern struct pmx_dev pmx_uart1_modem;
+-extern struct pmx_dev pmx_uart2;
+-extern struct pmx_dev pmx_touchscreen;
+-extern struct pmx_dev pmx_can;
+-extern struct pmx_dev pmx_sdhci_led;
+-extern struct pmx_dev pmx_pwm0;
+-extern struct pmx_dev pmx_pwm1;
+-extern struct pmx_dev pmx_pwm2;
+-extern struct pmx_dev pmx_pwm3;
+-extern struct pmx_dev pmx_ssp1;
+-extern struct pmx_dev pmx_ssp2;
+-extern struct pmx_dev pmx_mii1;
+-extern struct pmx_dev pmx_smii0;
+-extern struct pmx_dev pmx_smii1;
+-extern struct pmx_dev pmx_i2c1;
++extern struct pmx_dev spear320_pmx_clcd;
++extern struct pmx_dev spear320_pmx_emi;
++extern struct pmx_dev spear320_pmx_fsmc;
++extern struct pmx_dev spear320_pmx_spp;
++extern struct pmx_dev spear320_pmx_sdhci;
++extern struct pmx_dev spear320_pmx_i2s;
++extern struct pmx_dev spear320_pmx_uart1;
++extern struct pmx_dev spear320_pmx_uart1_modem;
++extern struct pmx_dev spear320_pmx_uart2;
++extern struct pmx_dev spear320_pmx_touchscreen;
++extern struct pmx_dev spear320_pmx_can;
++extern struct pmx_dev spear320_pmx_sdhci_led;
++extern struct pmx_dev spear320_pmx_pwm0;
++extern struct pmx_dev spear320_pmx_pwm1;
++extern struct pmx_dev spear320_pmx_pwm2;
++extern struct pmx_dev spear320_pmx_pwm3;
++extern struct pmx_dev spear320_pmx_ssp1;
++extern struct pmx_dev spear320_pmx_ssp2;
++extern struct pmx_dev spear320_pmx_mii1;
++extern struct pmx_dev spear320_pmx_smii0;
++extern struct pmx_dev spear320_pmx_smii1;
++extern struct pmx_dev spear320_pmx_i2c1;
+ 
+ /* pad multiplexing support */
+ #define SPEAR320_PAD_MUX_CONFIG_REG	0xB300000C
+ #define SPEAR320_MODE_CONFIG_REG	0xB3000010
+ 
+ /* Add spear320 machine function declarations here */
+-void __init spear320_init(void);
++void __init spear320_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
++		u8 pmx_dev_count);
+ 
+ /* Add misc structure declarations here */
+ extern struct clcd_board clcd_plat_data;
+diff --git a/arch/arm/mach-spear3xx/spear300.c b/arch/arm/mach-spear3xx/spear300.c
+index b041427..3c040f0 100644
+--- a/arch/arm/mach-spear3xx/spear300.c
++++ b/arch/arm/mach-spear3xx/spear300.c
+@@ -131,7 +131,7 @@ static struct pmx_dev_mode pmx_fsmc_2_chips_modes[] = {
+ 	},
  };
  
- /* 30 MHz oscillator clock */
- static struct clk osc_30m_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.rate = 30000000,
+-struct pmx_dev pmx_fsmc_2_chips = {
++struct pmx_dev spear300_pmx_fsmc_2_chips = {
+ 	.name = "fsmc_2_chips",
+ 	.modes = pmx_fsmc_2_chips_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_fsmc_2_chips_modes),
+@@ -154,7 +154,7 @@ static struct pmx_dev_mode pmx_fsmc_4_chips_modes[] = {
+ 	},
  };
  
-@@ -40,7 +40,7 @@ static struct clk rtc_clk = {
- 
- /* clock derived from 30 MHz osc clk */
- /* pll masks structure */
--static struct pll_clk_masks pll1_masks = {
-+static struct pll_clk_masks pll_masks = {
- 	.mode_mask = PLL_MODE_MASK,
- 	.mode_shift = PLL_MODE_SHIFT,
- 	.norm_fdbk_m_mask = PLL_NORM_FDBK_M_MASK,
-@@ -53,22 +53,22 @@ static struct pll_clk_masks pll1_masks = {
- 	.div_n_shift = PLL_DIV_N_SHIFT,
+-struct pmx_dev pmx_fsmc_4_chips = {
++struct pmx_dev spear300_pmx_fsmc_4_chips = {
+ 	.name = "fsmc_4_chips",
+ 	.modes = pmx_fsmc_4_chips_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_fsmc_4_chips_modes),
+@@ -179,7 +179,7 @@ static struct pmx_dev_mode pmx_keyboard_modes[] = {
+ 	},
  };
  
--/* pll1 configuration structure */
--static struct pll_clk_config pll1_config = {
--	.mode_reg = PLL1_CTR,
--	.cfg_reg = PLL1_FRQ,
--	.masks = &pll1_masks,
--};
--
- /* pll rate configuration table, in ascending order of rates */
- struct pll_rate_tbl pll_rtbl[] = {
- 	{.mode = 0, .m = 0x85, .n = 0x0C, .p = 0x1}, /* 266 MHz */
- 	{.mode = 0, .m = 0xA6, .n = 0x0C, .p = 0x1}, /* 332 MHz */
+-struct pmx_dev pmx_keyboard = {
++struct pmx_dev spear300_pmx_keyboard = {
+ 	.name = "keyboard",
+ 	.modes = pmx_keyboard_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_keyboard_modes),
+@@ -213,7 +213,7 @@ static struct pmx_dev_mode pmx_clcd_modes[] = {
+ 	},
  };
  
-+/* pll1 configuration structure */
-+static struct pll_clk_config pll1_config = {
-+	.mode_reg = PLL1_CTR,
-+	.cfg_reg = PLL1_FRQ,
-+	.masks = &pll_masks,
-+};
-+
- /* PLL1 clock */
- static struct clk pll1_clk = {
--	.flags = ENABLED_ON_INIT,
-+	.flags = ENABLED_ON_INIT | SYSTEM_CLK,
- 	.pclk = &osc_30m_clk,
- 	.en_reg = PLL1_CTR,
- 	.en_reg_bit = PLL_ENABLE,
-@@ -79,9 +79,29 @@ static struct clk pll1_clk = {
- 	.private_data = &pll1_config,
+-struct pmx_dev pmx_clcd = {
++struct pmx_dev spear300_pmx_clcd = {
+ 	.name = "clcd",
+ 	.modes = pmx_clcd_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_clcd_modes),
+@@ -280,7 +280,7 @@ static struct pmx_dev_mode pmx_telecom_gpio_modes[] = {
+ 	},
  };
  
-+/* pll2 configuration structure */
-+static struct pll_clk_config pll2_config = {
-+	.mode_reg = PLL2_CTR,
-+	.cfg_reg = PLL2_FRQ,
-+	.masks = &pll_masks,
-+};
-+
-+/* PLL2 clock */
-+static struct clk pll2_clk = {
-+	.flags = ENABLED_ON_INIT | SYSTEM_CLK,
-+	.pclk = &osc_30m_clk,
-+	.en_reg = PLL2_CTR,
-+	.en_reg_bit = PLL_ENABLE,
-+	.calc_rate = &pll_calc_rate,
-+	.recalc = &pll_clk_recalc,
-+	.set_rate = &pll_clk_set_rate,
-+	.rate_config = {pll_rtbl, ARRAY_SIZE(pll_rtbl), 1},
-+	.private_data = &pll2_config,
-+};
-+
- /* PLL3 48 MHz clock */
- static struct clk pll3_48m_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &osc_30m_clk,
- 	.rate = 48000000,
- };
-@@ -96,7 +116,7 @@ static struct clk wdt_clk = {
- /* clock derived from pll1 clk */
- /* cpu clock */
- static struct clk cpu_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.recalc = &follow_parent,
- };
-@@ -123,7 +143,7 @@ struct bus_rate_tbl bus_rtbl[] = {
- 
- /* ahb clock */
- static struct clk ahb_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &pll1_clk,
- 	.calc_rate = &bus_calc_rate,
- 	.recalc = &bus_clk_recalc,
-@@ -491,6 +511,48 @@ static struct clk usbd_clk = {
+-struct pmx_dev pmx_telecom_gpio = {
++struct pmx_dev spear300_pmx_telecom_gpio = {
+ 	.name = "telecom_gpio",
+ 	.modes = pmx_telecom_gpio_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_gpio_modes),
+@@ -306,7 +306,7 @@ static struct pmx_dev_mode pmx_telecom_tdm_modes[] = {
+ 	},
  };
  
- /* clock derived from ahb clk */
-+/* ahb multiplied by 2 clock */
-+static struct clk ahbmult2_clk = {
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
-+	.pclk = &ahb_clk,
-+	.recalc = &ahbmult2_clk_recalc,
-+};
-+
-+/* ddr clock */
-+struct ddr_rate_tbl ddr_rate_tbl = {
-+	.minrate = 166000000,
-+	.maxrate = 332000000,
-+};
-+
-+static struct pclk_info ddr_pclk_info[] = {
-+	{
-+		.pclk = &ahb_clk,
-+		.pclk_val = MCTR_CLK_HCLK_VAL,
-+	}, {
-+		.pclk = &ahbmult2_clk,
-+		.pclk_val = MCTR_CLK_2HCLK_VAL,
-+	}, {
-+		.pclk = &pll2_clk,
-+		.pclk_val = MCTR_CLK_PLL2_VAL,
-+	},
-+};
-+
-+/* ddr parent select structure */
-+static struct pclk_sel ddr_pclk_sel = {
-+	.pclk_info = ddr_pclk_info,
-+	.pclk_count = ARRAY_SIZE(ddr_pclk_info),
-+	.pclk_sel_reg = PLL_CLK_CFG,
-+	.pclk_sel_mask = MCTR_CLK_MASK,
-+};
-+
-+static struct clk ddr_clk = {
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
-+	.recalc = &follow_parent,
-+	.pclk_sel = &ddr_pclk_sel,
-+	.pclk_sel_shift = MCTR_CLK_SHIFT,
-+	.private_data = &ddr_rate_tbl,
-+};
-+
- /* apb masks structure */
- static struct bus_clk_masks apb_masks = {
- 	.mask = HCLK_PCLK_RATIO_MASK,
-@@ -505,7 +567,7 @@ static struct bus_clk_config apb_config = {
- 
- /* apb clock */
- static struct clk apb_clk = {
--	.flags = ALWAYS_ENABLED,
-+	.flags = ALWAYS_ENABLED | SYSTEM_CLK,
- 	.pclk = &ahb_clk,
- 	.calc_rate = &bus_calc_rate,
- 	.recalc = &bus_clk_recalc,
-@@ -630,6 +692,7 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{ .dev_id = "rtc-spear",	.clk = &rtc_clk},
- 	/* clock derived from 30 MHz os		 clk */
- 	{ .con_id = "pll1_clk",		.clk = &pll1_clk},
-+	{ .con_id = "pll2_clk",		.clk = &pll2_clk},
- 	{ .con_id = "pll3_48m_clk",	.clk = &pll3_48m_clk},
- 	{ .dev_id = "wdt",		.clk = &wdt_clk},
- 	/* clock derived from pll1 clk */
-@@ -654,6 +717,8 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{ .con_id = "usbh.1_clk",	.clk = &usbh1_clk},
- 	{ .dev_id = "usbd",		.clk = &usbd_clk},
- 	/* clock derived from ahb clk */
-+	{ .con_id = "ahbmult2_clk",	.clk = &ahbmult2_clk},
-+	{ .con_id = "ddr_clk",		.clk = &ddr_clk},
- 	{ .con_id = "apb_clk",		.clk = &apb_clk},
- 	{ .dev_id = "i2c_designware.0",	.clk = &i2c_clk},
- 	{ .dev_id = "dma",		.clk = &dma_clk},
-@@ -671,12 +736,8 @@ static struct clk_lookup spear_clk_lookups[] = {
- 	{ .dev_id = "gpio2",		.clk = &gpio2_clk},
+-struct pmx_dev pmx_telecom_tdm = {
++struct pmx_dev spear300_pmx_telecom_tdm = {
+ 	.name = "telecom_tdm",
+ 	.modes = pmx_telecom_tdm_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_tdm_modes),
+@@ -331,7 +331,7 @@ static struct pmx_dev_mode pmx_telecom_spi_cs_i2c_clk_modes[] = {
+ 	},
  };
  
--void __init clk_init(void)
-+/* machine clk init */
-+void __init spear6xx_clk_init(void)
+-struct pmx_dev pmx_telecom_spi_cs_i2c_clk = {
++struct pmx_dev spear300_pmx_telecom_spi_cs_i2c_clk = {
+ 	.name = "telecom_spi_cs_i2c_clk",
+ 	.modes = pmx_telecom_spi_cs_i2c_clk_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_spi_cs_i2c_clk_modes),
+@@ -363,7 +363,7 @@ static struct pmx_dev_mode pmx_telecom_camera_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_telecom_camera = {
++struct pmx_dev spear300_pmx_telecom_camera = {
+ 	.name = "telecom_camera",
+ 	.modes = pmx_telecom_camera_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_camera_modes),
+@@ -386,7 +386,7 @@ static struct pmx_dev_mode pmx_telecom_dac_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_telecom_dac = {
++struct pmx_dev spear300_pmx_telecom_dac = {
+ 	.name = "telecom_dac",
+ 	.modes = pmx_telecom_dac_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_dac_modes),
+@@ -411,7 +411,7 @@ static struct pmx_dev_mode pmx_telecom_i2s_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_telecom_i2s = {
++struct pmx_dev spear300_pmx_telecom_i2s = {
+ 	.name = "telecom_i2s",
+ 	.modes = pmx_telecom_i2s_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_i2s_modes),
+@@ -434,7 +434,7 @@ static struct pmx_dev_mode pmx_telecom_boot_pins_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_telecom_boot_pins = {
++struct pmx_dev spear300_pmx_telecom_boot_pins = {
+ 	.name = "telecom_boot_pins",
+ 	.modes = pmx_telecom_boot_pins_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_boot_pins_modes),
+@@ -462,7 +462,7 @@ static struct pmx_dev_mode pmx_telecom_sdhci_4bit_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_telecom_sdhci_4bit = {
++struct pmx_dev spear300_pmx_telecom_sdhci_4bit = {
+ 	.name = "telecom_sdhci_4bit",
+ 	.modes = pmx_telecom_sdhci_4bit_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_sdhci_4bit_modes),
+@@ -489,7 +489,7 @@ static struct pmx_dev_mode pmx_telecom_sdhci_8bit_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_telecom_sdhci_8bit = {
++struct pmx_dev spear300_pmx_telecom_sdhci_8bit = {
+ 	.name = "telecom_sdhci_8bit",
+ 	.modes = pmx_telecom_sdhci_8bit_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_telecom_sdhci_8bit_modes),
+@@ -512,14 +512,14 @@ static struct pmx_dev_mode pmx_gpio1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_gpio1 = {
++struct pmx_dev spear300_pmx_gpio1 = {
+ 	.name = "arm gpio1",
+ 	.modes = pmx_gpio1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_gpio1_modes),
+ };
+ 
+ /* pmx driver structure */
+-struct pmx_driver pmx_driver = {
++static struct pmx_driver pmx_driver = {
+ 	.mode_reg = {.address = SPEAR300_MODE_CONFIG_REG, .mask = 0x0000000f},
+ };
+ 
+@@ -773,7 +773,8 @@ void sdhci_i2s_mem_enable(u8 mask)
+ }
+ 
+ /* spear300 routines */
+-void __init spear300_init(void)
++void __init spear300_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
++		u8 pmx_dev_count)
  {
--	int i;
--
--	for (i = 0; i < ARRAY_SIZE(spear_clk_lookups); i++)
--		clk_register(&spear_clk_lookups[i]);
--
--	recalc_root_clocks();
-+	clk_init(spear_clk_lookups, ARRAY_SIZE(spear_clk_lookups), &ddr_clk);
- }
-diff --git a/arch/arm/mach-spear6xx/include/mach/generic.h b/arch/arm/mach-spear6xx/include/mach/generic.h
-index dd29298..4d1d326 100644
---- a/arch/arm/mach-spear6xx/include/mach/generic.h
-+++ b/arch/arm/mach-spear6xx/include/mach/generic.h
-@@ -51,7 +51,7 @@ void __init spear6xx_map_io(void);
- void __init spear6xx_init_irq(void);
- void __init spear6xx_init(void);
- void __init spear600_init(void);
--void __init clk_init(void);
-+void __init spear6xx_clk_init(void);
+ 	int ret = 0;
  
- /* Add spear600 machine device structure declarations here */
- 
-diff --git a/arch/arm/mach-spear6xx/include/mach/misc_regs.h b/arch/arm/mach-spear6xx/include/mach/misc_regs.h
-index bd71e72..0f4562b 100644
---- a/arch/arm/mach-spear6xx/include/mach/misc_regs.h
-+++ b/arch/arm/mach-spear6xx/include/mach/misc_regs.h
-@@ -47,6 +47,13 @@
- #define PLL2_MOD		((unsigned int *)(MISC_BASE + 0x01C))
- #define PLL_CLK_CFG		((unsigned int *)(MISC_BASE + 0x020))
- #define CORE_CLK_CFG		((unsigned int *)(MISC_BASE + 0x024))
-+/* PLL_CLK_CFG register masks */
-+#define MCTR_CLK_SHIFT		28
-+#define MCTR_CLK_MASK		0x7
-+#define MCTR_CLK_HCLK_VAL	0x0
-+#define MCTR_CLK_2HCLK_VAL	0x1
-+#define MCTR_CLK_PLL2_VAL	0x3
-+
- /* CORE CLK CFG register masks */
- #define PLL_HCLK_RATIO_SHIFT	10
- #define PLL_HCLK_RATIO_MASK	0x3
-diff --git a/arch/arm/mach-spear6xx/spear6xx.c b/arch/arm/mach-spear6xx/spear6xx.c
-index f91380e..cd2153c 100644
---- a/arch/arm/mach-spear6xx/spear6xx.c
-+++ b/arch/arm/mach-spear6xx/spear6xx.c
-@@ -439,7 +439,7 @@ void __init spear6xx_map_io(void)
- 	iotable_init(spear6xx_io_desc, ARRAY_SIZE(spear6xx_io_desc));
- 
- 	/* This will initialize clock framework */
--	clk_init();
-+	spear6xx_clk_init();
- }
- 
- static void __init spear6xx_timer_init(void)
-diff --git a/arch/arm/plat-spear/clock.c b/arch/arm/plat-spear/clock.c
-index 7d3338f..fb1c87b 100644
---- a/arch/arm/plat-spear/clock.c
-+++ b/arch/arm/plat-spear/clock.c
-@@ -21,6 +21,8 @@
- #include <linux/spinlock.h>
- #include <plat/clock.h>
- 
-+/* pointer to ddr clock structure */
-+static struct clk *ddr_clk;
- static DEFINE_SPINLOCK(clocks_lock);
- static LIST_HEAD(root_clks);
- #ifdef CONFIG_DEBUG_FS
-@@ -160,7 +162,7 @@ static int do_clk_enable(struct clk *clk)
- 		 * time please reclac
- 		 */
- 		if (clk->recalc) {
--			ret = clk->recalc(clk);
-+			ret = clk->recalc(clk, &clk->rate, clk->pclk->rate);
- 			if (ret)
- 				goto err;
- 		}
-@@ -298,7 +300,16 @@ int clk_set_rate(struct clk *clk, unsigned long rate)
- 			propagate_rate(clk, 0);
- 		spin_unlock_irqrestore(&clocks_lock, flags);
- 	} else if (clk->pclk) {
--		u32 mult = clk->div_factor ? clk->div_factor : 1;
-+		u32 mult;
-+		/*
-+		 * if pclk is SYSTEM_CLK and clk is not SYSTEM_CLK then return
-+		 * error
-+		 */
-+		if (clk->pclk->flags & SYSTEM_CLK)
-+			if (!(clk->flags & SYSTEM_CLK))
-+				return -EPERM;
-+
-+		mult = clk->div_factor ? clk->div_factor : 1;
- 		ret = clk_set_rate(clk->pclk, mult * rate);
+@@ -788,10 +789,13 @@ void __init spear300_init(void)
+ 			printk(KERN_ERR "Error registering Shared IRQ\n");
  	}
  
-@@ -371,7 +382,7 @@ void propagate_rate(struct clk *pclk, int on_init)
- 
- 	list_for_each_entry_safe(clk, _temp, &pclk->children, sibling) {
- 		if (clk->recalc) {
--			ret = clk->recalc(clk);
-+			ret = clk->recalc(clk, &clk->rate, clk->pclk->rate);
- 			/*
- 			 * recalc will return error if clk out is not programmed
- 			 * In this case configure default rate.
-@@ -390,6 +401,47 @@ void propagate_rate(struct clk *pclk, int on_init)
- 	}
- }
- 
-+/* updates "rate" pointer with current_clk's output for input "rate" */
-+static void rate_calc(struct clk *current_clk, struct clk *ancestor_clk,
-+		unsigned long *rate)
-+{
-+	if (current_clk->pclk != ancestor_clk)
-+		rate_calc(current_clk->pclk, ancestor_clk, rate);
++	/* pmx initialization */
++	pmx_driver.mode = pmx_mode;
++	pmx_driver.devs = pmx_devs;
++	pmx_driver.devs_count = pmx_dev_count;
 +
-+	if (current_clk->recalc)
-+		current_clk->recalc(current_clk, rate, *rate);
-+}
-+
-+/*
-+ * Check if ancestor clk rate is acceptable to ddr or not.
-+ * This will call recursive rate_calc function, starting from ddr upto ancestor
-+ * clk mentioned. This will calculate divisions / multiplications by all
-+ * intermediate ancestor clocks and return the final rate of ddr if ancestor clk
-+ * sets its rate to "rate", value passed in function.
-+ */
-+static int ddr_rate_acceptable(struct clk *aclk, unsigned long rate)
-+{
-+	struct ddr_rate_tbl *tbl = ddr_clk->private_data;
-+
-+	rate_calc(ddr_clk, aclk, &rate);
-+	if ((rate >= tbl->minrate) && (rate <= tbl->maxrate))
-+		return true;
-+
-+	return false;
-+}
-+
-+/* mark all ddr ancestors with DDR_ANCESTOR flag */
-+static void mark_ddr_ancestors(struct clk *dclk)
-+{
-+	struct clk *clk = dclk->pclk;
-+
-+	/* mark all ancestors of DDR */
-+	while (clk != NULL) {
-+		clk->flags |= DDR_ANCESTOR;
-+		clk = clk->pclk;
-+	}
-+}
-+
- /**
-  * round_rate - Returns index of closest programmable rate in rate_config tbl
-  * @clk: ptr to clock structure
-@@ -475,7 +527,7 @@ unsigned long pll_calc_rate(struct clk *clk, int index)
-  * In Dithered mode
-  * rate = (2 * M[15:0] * Fin)/(256 * N * 2^P)
-  */
--int pll_clk_recalc(struct clk *clk)
-+int pll_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate)
- {
- 	struct pll_clk_config *config = clk->private_data;
- 	unsigned int num = 2, den = 0, val, mode = 0;
-@@ -504,7 +556,7 @@ int pll_clk_recalc(struct clk *clk)
- 	if (!den)
- 		return -EINVAL;
+ 	/* This fixes addresses of all pmx devices for spear300 */
+ 	spear3xx_pmx_init_addr(&pmx_driver, SPEAR300_PAD_MUX_CONFIG_REG);
+-
+-	/* pmx initialization */
+ 	ret = pmx_register(&pmx_driver);
+ 	if (ret)
+ 		pr_err("padmux: registeration failed. err no: %d\n", ret);
+diff --git a/arch/arm/mach-spear3xx/spear300_evb.c b/arch/arm/mach-spear3xx/spear300_evb.c
+index 2bcb55f..0adf9f7 100644
+--- a/arch/arm/mach-spear3xx/spear300_evb.c
++++ b/arch/arm/mach-spear3xx/spear300_evb.c
+@@ -29,17 +29,17 @@
+ /* padmux devices to enable */
+ static struct pmx_dev *pmx_devs[] = {
+ 	/* spear3xx specific devices */
+-	&pmx_i2c,
+-	&pmx_ssp_cs,
+-	&pmx_ssp,
+-	&pmx_mii,
+-	&pmx_uart0,
++	&spear3xx_pmx_i2c,
++	&spear3xx_pmx_ssp_cs,
++	&spear3xx_pmx_ssp,
++	&spear3xx_pmx_mii,
++	&spear3xx_pmx_uart0,
  
--	clk->rate = (((clk->pclk->rate/10000) * num) / den) * 10000;
-+	*rate = (((prate/10000) * num) / den) * 10000;
- 	return 0;
- }
- 
-@@ -522,6 +574,25 @@ int pll_clk_set_rate(struct clk *clk, unsigned long desired_rate)
- 	if (i < 0)
- 		return i;
- 
-+	/* if clk is ddrs ancestor, check if rate is acceptable to ddr */
-+	if (ddr_clk && (clk->flags & DDR_ANCESTOR)) {
-+		int ret;
-+
-+		ret = ddr_rate_acceptable(clk, rate);
-+		if (ret == false)
-+			return -EPERM;
-+		else {
-+			/*
-+			 * call routine to put ddr in refresh mode, and
-+			 * configure pll.
-+			 */
-+			/* TBD */
-+			clk->rate = rate;
-+		}
-+
-+		return ret;
-+	}
-+
- 	val = readl(config->mode_reg) &
- 		~(config->masks->mode_mask << config->masks->mode_shift);
- 	val |= (tbls[i].mode & config->masks->mode_mask) <<
-@@ -563,7 +634,7 @@ unsigned long bus_calc_rate(struct clk *clk, int index)
- }
- 
- /* calculates current programmed rate of ahb or apb bus */
--int bus_clk_recalc(struct clk *clk)
-+int bus_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate)
- {
- 	struct bus_clk_config *config = clk->private_data;
- 	unsigned int div;
-@@ -574,7 +645,7 @@ int bus_clk_recalc(struct clk *clk)
- 	if (!div)
- 		return -EINVAL;
- 
--	clk->rate = (unsigned long)clk->pclk->rate / div;
-+	*rate = prate / div;
- 	return 0;
- }
- 
-@@ -600,6 +671,14 @@ int bus_clk_set_rate(struct clk *clk, unsigned long desired_rate)
- 	return 0;
- }
- 
-+/* calculates current programmed rate of ahbmult2 */
-+int
-+ahbmult2_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate)
-+{
-+	*rate = prate * 2;
-+	return 0;
-+}
-+
- /*
-  * gives rate for different values of eq, x and y
-  *
-@@ -627,7 +706,7 @@ unsigned long aux_calc_rate(struct clk *clk, int index)
-  *
-  * Selection of eqn 1 or 2 is programmed in register
-  */
--int aux_clk_recalc(struct clk *clk)
-+int aux_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate)
- {
- 	struct aux_clk_config *config = clk->private_data;
- 	unsigned int num = 1, den = 1, val, eqn;
-@@ -650,7 +729,7 @@ int aux_clk_recalc(struct clk *clk)
- 	if (!den)
- 		return -EINVAL;
- 
--	clk->rate = (((clk->pclk->rate/10000) * num) / den) * 10000;
-+	*rate = (((prate / 10000) * num) / den) * 10000;
- 	return 0;
- }
- 
-@@ -704,7 +783,7 @@ unsigned long gpt_calc_rate(struct clk *clk, int index)
-  * Fout from synthesizer can be given from below equations:
-  * Fout= Fin/((2 ^ (N+1)) * (M+1))
-  */
--int gpt_clk_recalc(struct clk *clk)
-+int gpt_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate)
- {
- 	struct gpt_clk_config *config = clk->private_data;
- 	unsigned int div = 1, val;
-@@ -718,7 +797,7 @@ int gpt_clk_recalc(struct clk *clk)
- 	if (!div)
- 		return -EINVAL;
- 
--	clk->rate = (unsigned long)clk->pclk->rate / div;
-+	*rate = prate / div;
- 	return 0;
- }
- 
-@@ -786,11 +865,10 @@ unsigned long clcd_calc_rate(struct clk *clk, int index)
-  * complete div (including fractional part) and then right shift the
-  * result by 14 places.
-  */
--int clcd_clk_recalc(struct clk *clk)
-+int clcd_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate)
- {
- 	struct clcd_clk_config *config = clk->private_data;
- 	unsigned int div = 1;
--	unsigned long prate;
- 	unsigned int val;
- 
- 	val = readl(config->synth_reg);
-@@ -800,10 +878,10 @@ int clcd_clk_recalc(struct clk *clk)
- 	if (!div)
- 		return -EINVAL;
- 
--	prate = clk->pclk->rate / 1000; /* first level division, make it KHz */
-+	prate = prate / 1000; /* first level division, make it KHz */
- 
--	clk->rate = (((unsigned long)prate << 12) / (2 * div)) >> 12;
--	clk->rate *= 1000;
-+	*rate = (((unsigned long)prate << 12) / (2 * div)) >> 12;
-+	*rate *= 1000;
- 	return 0;
- }
- 
-@@ -834,11 +912,11 @@ int clcd_clk_set_rate(struct clk *clk, unsigned long desired_rate)
-  * Used for clocks that always have value as the parent clock divided by a
-  * fixed divisor
-  */
--int follow_parent(struct clk *clk)
-+int follow_parent(struct clk *clk, unsigned long *rate, unsigned long prate)
- {
- 	unsigned int div_factor = (clk->div_factor < 1) ? 1 : clk->div_factor;
- 
--	clk->rate = clk->pclk->rate/div_factor;
-+	*rate = prate / div_factor;
- 	return 0;
- }
- 
-@@ -857,7 +935,7 @@ void recalc_root_clocks(void)
- 	spin_lock_irqsave(&clocks_lock, flags);
- 	list_for_each_entry(pclk, &root_clks, sibling) {
- 		if (pclk->recalc) {
--			ret = pclk->recalc(pclk);
-+			ret = pclk->recalc(pclk, &pclk->rate, pclk->pclk->rate);
- 			/*
- 			 * recalc will return error if clk out is not programmed
- 			 * In this case configure default clock.
-@@ -873,6 +951,23 @@ void recalc_root_clocks(void)
- 	spin_unlock_irqrestore(&clocks_lock, flags);
- }
- 
-+void __init
-+clk_init(struct clk_lookup *clk_lookups, u32 count, struct clk *dclk)
-+{
-+	int i;
-+
-+	for (i = 0; i < count; i++)
-+		clk_register(&clk_lookups[i]);
-+
-+	recalc_root_clocks();
-+
-+	/* Mark all ancestors of DDR with special flag */
-+	if (dclk) {
-+		ddr_clk = dclk;
-+		mark_ddr_ancestors(dclk);
-+	}
-+}
-+
- #ifdef CONFIG_DEBUG_FS
- /*
-  *	debugfs support to trace clock tree hierarchy and attributes
-diff --git a/arch/arm/plat-spear/include/plat/clock.h b/arch/arm/plat-spear/include/plat/clock.h
-index 621c17c..6ddcf93 100644
---- a/arch/arm/plat-spear/include/plat/clock.h
-+++ b/arch/arm/plat-spear/include/plat/clock.h
-@@ -19,9 +19,12 @@
- #include <asm/clkdev.h>
- 
- /* clk structure flags */
--#define	ALWAYS_ENABLED		(1 << 0) /* clock always enabled */
--#define	RESET_TO_ENABLE		(1 << 1) /* reset register bit to enable clk */
--#define	ENABLED_ON_INIT		(1 << 2) /* clocks enabled at init */
-+#define ALWAYS_ENABLED		(1 << 0) /* clock always enabled */
-+#define RESET_TO_ENABLE		(1 << 1) /* reset register bit to enable clk */
-+#define ENABLED_ON_INIT		(1 << 2) /* clocks enabled at init */
-+/* Only System clocks can call other sytem clocks set rate function */
-+#define SYSTEM_CLK		(1 << 3)
-+#define DDR_ANCESTOR		(1 << 4) /* ancestor clks of DDR */
- 
- /**
-  * struct clkops - clock operations
-@@ -99,8 +102,9 @@ struct clk {
- 	unsigned int *en_reg;
- 	u8 en_reg_bit;
- 	const struct clkops *ops;
--	int (*recalc) (struct clk *);
--	int (*set_rate) (struct clk *, unsigned long rate);
-+	int (*recalc) (struct clk *clk, unsigned long *rate,
-+			unsigned long prate);
-+	int (*set_rate) (struct clk *clk, unsigned long rate);
- 	unsigned long (*calc_rate)(struct clk *, int index);
- 	struct rate_config rate_config;
- 	unsigned int div_factor;
-@@ -223,26 +227,42 @@ struct clcd_rate_tbl {
- 	u16 div;
+ 	/* spear300 specific devices */
+-	&pmx_fsmc_2_chips,
+-	&pmx_clcd,
+-	&pmx_telecom_sdhci_4bit,
+-	&pmx_gpio1,
++	&spear300_pmx_fsmc_2_chips,
++	&spear300_pmx_clcd,
++	&spear300_pmx_telecom_sdhci_4bit,
++	&spear300_pmx_gpio1,
  };
  
-+/* ddr min, max clk rate table */
-+struct ddr_rate_tbl {
-+	unsigned long minrate;
-+	unsigned long maxrate;
-+};
+ static struct amba_device *amba_devs[] __initdata = {
+@@ -113,11 +113,6 @@ static void __init spear300_evb_init(void)
+ {
+ 	unsigned int i;
+ 
+-	/* padmux initialization, must be done before spear300_init */
+-	pmx_driver.mode = &photo_frame_mode;
+-	pmx_driver.devs = pmx_devs;
+-	pmx_driver.devs_count = ARRAY_SIZE(pmx_devs);
+-
+ 	/* set keyboard plat data */
+ 	kbd_set_plat_data(&kbd_device, &kbd_data);
+ 
+@@ -132,7 +127,7 @@ static void __init spear300_evb_init(void)
+ 	sdhci_i2s_mem_enable(SDHCI_MEM_ENB);
+ 
+ 	/* call spear300 machine init function */
+-	spear300_init();
++	spear300_init(&photo_frame_mode, pmx_devs, ARRAY_SIZE(pmx_devs));
+ 
+ 	/* Register slave devices on the I2C buses */
+ 	i2c_register_board_devices();
+diff --git a/arch/arm/mach-spear3xx/spear310.c b/arch/arm/mach-spear3xx/spear310.c
+index 6fb20c3..f25d2b4 100644
+--- a/arch/arm/mach-spear3xx/spear310.c
++++ b/arch/arm/mach-spear3xx/spear310.c
+@@ -38,7 +38,7 @@ static struct pmx_dev_mode pmx_emi_cs_0_1_4_5_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_emi_cs_0_1_4_5 = {
++struct pmx_dev spear310_pmx_emi_cs_0_1_4_5 = {
+ 	.name = "emi_cs_0_1_4_5",
+ 	.modes = pmx_emi_cs_0_1_4_5_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_emi_cs_0_1_4_5_modes),
+@@ -59,7 +59,7 @@ static struct pmx_dev_mode pmx_emi_cs_2_3_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_emi_cs_2_3 = {
++struct pmx_dev spear310_pmx_emi_cs_2_3 = {
+ 	.name = "emi_cs_2_3",
+ 	.modes = pmx_emi_cs_2_3_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_emi_cs_2_3_modes),
+@@ -80,7 +80,7 @@ static struct pmx_dev_mode pmx_uart1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart1 = {
++struct pmx_dev spear310_pmx_uart1 = {
+ 	.name = "uart1",
+ 	.modes = pmx_uart1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart1_modes),
+@@ -101,7 +101,7 @@ static struct pmx_dev_mode pmx_uart2_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart2 = {
++struct pmx_dev spear310_pmx_uart2 = {
+ 	.name = "uart2",
+ 	.modes = pmx_uart2_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart2_modes),
+@@ -122,7 +122,7 @@ static struct pmx_dev_mode pmx_uart3_4_5_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart3_4_5 = {
++struct pmx_dev spear310_pmx_uart3_4_5 = {
+ 	.name = "uart3_4_5",
+ 	.modes = pmx_uart3_4_5_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart3_4_5_modes),
+@@ -143,7 +143,7 @@ static struct pmx_dev_mode pmx_fsmc_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_fsmc = {
++struct pmx_dev spear310_pmx_fsmc = {
+ 	.name = "fsmc",
+ 	.modes = pmx_fsmc_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_fsmc_modes),
+@@ -164,7 +164,7 @@ static struct pmx_dev_mode pmx_rs485_0_1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_rs485_0_1 = {
++struct pmx_dev spear310_pmx_rs485_0_1 = {
+ 	.name = "rs485_0_1",
+ 	.modes = pmx_rs485_0_1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_rs485_0_1_modes),
+@@ -185,14 +185,14 @@ static struct pmx_dev_mode pmx_tdm0_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_tdm0 = {
++struct pmx_dev spear310_pmx_tdm0 = {
+ 	.name = "tdm0",
+ 	.modes = pmx_tdm0_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_tdm0_modes),
+ };
+ 
+ /* pmx driver structure */
+-struct pmx_driver pmx_driver;
++static struct pmx_driver pmx_driver;
+ 
+ /* Add spear310 specific devices here */
+ /* uart1 device registeration */
+@@ -479,7 +479,8 @@ static struct spear_shirq shirq_intrcomm_ras = {
+ };
+ 
+ /* spear310 routines */
+-void __init spear310_init(void)
++void __init spear310_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
++		u8 pmx_dev_count)
+ {
+ 	void __iomem *base;
+ 	int ret = 0;
+@@ -515,10 +516,13 @@ void __init spear310_init(void)
+ 			printk(KERN_ERR "Error registering Shared IRQ 4\n");
+ 	}
+ 
++	/* pmx initialization */
++	pmx_driver.mode = pmx_mode;
++	pmx_driver.devs = pmx_devs;
++	pmx_driver.devs_count = pmx_dev_count;
 +
- /* platform specific clock functions */
-+/*
-+ * must be called from machine clock.c file, dclk is pointer to ddr_clk
-+ * strucutre. Which is required by clock framework.
-+ *
-+ * Actually before changing rate of DDRs ancestor, we must put ddr in refresh
-+ * state and then change parent.
-+ */
-+void clk_init(struct clk_lookup *clk_lookups, u32 count, struct clk *dclk);
- void clk_register(struct clk_lookup *cl);
- void recalc_root_clocks(void);
+ 	/* This fixes addresses of all pmx devices for spear310 */
+ 	spear3xx_pmx_init_addr(&pmx_driver, SPEAR310_PAD_MUX_CONFIG_REG);
+-
+-	/* pmx initialization */
+ 	ret = pmx_register(&pmx_driver);
+ 	if (ret)
+ 		pr_err("padmux: registeration failed. err no: %d\n", ret);
+diff --git a/arch/arm/mach-spear3xx/spear310_evb.c b/arch/arm/mach-spear3xx/spear310_evb.c
+index 49aca18..953a9ea 100644
+--- a/arch/arm/mach-spear3xx/spear310_evb.c
++++ b/arch/arm/mach-spear3xx/spear310_evb.c
+@@ -46,25 +46,25 @@ static struct resource emi_nor_resources[] = {
+ /* padmux devices to enable */
+ static struct pmx_dev *pmx_devs[] = {
+ 	/* spear3xx specific devices */
+-	&pmx_i2c,
+-	&pmx_ssp,
+-	&pmx_gpio_pin0,
+-	&pmx_gpio_pin1,
+-	&pmx_gpio_pin2,
+-	&pmx_gpio_pin3,
+-	&pmx_gpio_pin4,
+-	&pmx_gpio_pin5,
+-	&pmx_uart0,
++	&spear3xx_pmx_i2c,
++	&spear3xx_pmx_ssp,
++	&spear3xx_pmx_gpio_pin0,
++	&spear3xx_pmx_gpio_pin1,
++	&spear3xx_pmx_gpio_pin2,
++	&spear3xx_pmx_gpio_pin3,
++	&spear3xx_pmx_gpio_pin4,
++	&spear3xx_pmx_gpio_pin5,
++	&spear3xx_pmx_uart0,
  
- /* clock recalc & set rate functions */
--int follow_parent(struct clk *clk);
-+int follow_parent(struct clk *clk, unsigned long *rate, unsigned long prate);
- unsigned long pll_calc_rate(struct clk *clk, int index);
--int pll_clk_recalc(struct clk *clk);
-+int pll_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate);
- int pll_clk_set_rate(struct clk *clk, unsigned long desired_rate);
- unsigned long bus_calc_rate(struct clk *clk, int index);
--int bus_clk_recalc(struct clk *clk);
-+int bus_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate);
- int bus_clk_set_rate(struct clk *clk, unsigned long desired_rate);
-+int ahbmult2_clk_recalc(struct clk *clk, unsigned long *rate,
-+		unsigned long prate);
- unsigned long gpt_calc_rate(struct clk *clk, int index);
--int gpt_clk_recalc(struct clk *clk);
-+int gpt_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate);
- int gpt_clk_set_rate(struct clk *clk, unsigned long desired_rate);
- unsigned long aux_calc_rate(struct clk *clk, int index);
--int aux_clk_recalc(struct clk *clk);
-+int aux_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate);
- int aux_clk_set_rate(struct clk *clk, unsigned long desired_rate);
- unsigned long clcd_calc_rate(struct clk *clk, int index);
--int clcd_clk_recalc(struct clk *clk);
-+int clcd_clk_recalc(struct clk *clk, unsigned long *rate, unsigned long prate);
- int clcd_clk_set_rate(struct clk *clk, unsigned long desired_rate);
+ 	/* spear310 specific devices */
+-	&pmx_emi_cs_0_1_4_5,
+-	&pmx_emi_cs_2_3,
+-	&pmx_uart1,
+-	&pmx_uart2,
+-	&pmx_uart3_4_5,
+-	&pmx_fsmc,
+-	&pmx_rs485_0_1,
+-	&pmx_tdm0,
++	&spear310_pmx_emi_cs_0_1_4_5,
++	&spear310_pmx_emi_cs_2_3,
++	&spear310_pmx_uart1,
++	&spear310_pmx_uart2,
++	&spear310_pmx_uart3_4_5,
++	&spear310_pmx_fsmc,
++	&spear310_pmx_rs485_0_1,
++	&spear310_pmx_tdm0,
+ };
  
- #endif /* __PLAT_CLOCK_H */
+ static struct amba_device *amba_devs[] __initdata = {
+@@ -131,17 +131,12 @@ static void __init spear310_evb_init(void)
+ {
+ 	unsigned int i;
+ 
+-	/* padmux initialization, must be done before spear310_init */
+-	pmx_driver.mode = NULL;
+-	pmx_driver.devs = pmx_devs;
+-	pmx_driver.devs_count = ARRAY_SIZE(pmx_devs);
+-
+ 	/* set nand device's plat data */
+ 	fsmc_nand_set_plat_data(&nand_device, NULL, 0, NAND_SKIP_BBTSCAN,
+ 			FSMC_NAND_BW8);
+ 
+ 	/* call spear310 machine init function */
+-	spear310_init();
++	spear310_init(NULL, pmx_devs, ARRAY_SIZE(pmx_devs));
+ 
+ 	/* Register slave devices on the I2C buses */
+ 	i2c_register_board_devices();
+diff --git a/arch/arm/mach-spear3xx/spear320.c b/arch/arm/mach-spear3xx/spear320.c
+index 03d3486..bcd76e4 100644
+--- a/arch/arm/mach-spear3xx/spear320.c
++++ b/arch/arm/mach-spear3xx/spear320.c
+@@ -71,7 +71,7 @@ static struct pmx_dev_mode pmx_clcd_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_clcd = {
++struct pmx_dev spear320_pmx_clcd = {
+ 	.name = "clcd",
+ 	.modes = pmx_clcd_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_clcd_modes),
+@@ -93,7 +93,7 @@ static struct pmx_dev_mode pmx_emi_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_emi = {
++struct pmx_dev spear320_pmx_emi = {
+ 	.name = "emi",
+ 	.modes = pmx_emi_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_emi_modes),
+@@ -115,7 +115,7 @@ static struct pmx_dev_mode pmx_fsmc_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_fsmc = {
++struct pmx_dev spear320_pmx_fsmc = {
+ 	.name = "fsmc",
+ 	.modes = pmx_fsmc_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_fsmc_modes),
+@@ -137,7 +137,7 @@ static struct pmx_dev_mode pmx_spp_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_spp = {
++struct pmx_dev spear320_pmx_spp = {
+ 	.name = "spp",
+ 	.modes = pmx_spp_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_spp_modes),
+@@ -160,7 +160,7 @@ static struct pmx_dev_mode pmx_sdhci_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_sdhci = {
++struct pmx_dev spear320_pmx_sdhci = {
+ 	.name = "sdhci",
+ 	.modes = pmx_sdhci_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_sdhci_modes),
+@@ -182,7 +182,7 @@ static struct pmx_dev_mode pmx_i2s_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_i2s = {
++struct pmx_dev spear320_pmx_i2s = {
+ 	.name = "i2s",
+ 	.modes = pmx_i2s_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_i2s_modes),
+@@ -204,7 +204,7 @@ static struct pmx_dev_mode pmx_uart1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart1 = {
++struct pmx_dev spear320_pmx_uart1 = {
+ 	.name = "uart1",
+ 	.modes = pmx_uart1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart1_modes),
+@@ -239,7 +239,7 @@ static struct pmx_dev_mode pmx_uart1_modem_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart1_modem = {
++struct pmx_dev spear320_pmx_uart1_modem = {
+ 	.name = "uart1_modem",
+ 	.modes = pmx_uart1_modem_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart1_modem_modes),
+@@ -261,7 +261,7 @@ static struct pmx_dev_mode pmx_uart2_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart2 = {
++struct pmx_dev spear320_pmx_uart2 = {
+ 	.name = "uart2",
+ 	.modes = pmx_uart2_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart2_modes),
+@@ -283,7 +283,7 @@ static struct pmx_dev_mode pmx_touchscreen_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_touchscreen = {
++struct pmx_dev spear320_pmx_touchscreen = {
+ 	.name = "touchscreen",
+ 	.modes = pmx_touchscreen_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_touchscreen_modes),
+@@ -306,7 +306,7 @@ static struct pmx_dev_mode pmx_can_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_can = {
++struct pmx_dev spear320_pmx_can = {
+ 	.name = "can",
+ 	.modes = pmx_can_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_can_modes),
+@@ -328,7 +328,7 @@ static struct pmx_dev_mode pmx_sdhci_led_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_sdhci_led = {
++struct pmx_dev spear320_pmx_sdhci_led = {
+ 	.name = "sdhci_led",
+ 	.modes = pmx_sdhci_led_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_sdhci_led_modes),
+@@ -361,7 +361,7 @@ static struct pmx_dev_mode pmx_pwm0_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_pwm0 = {
++struct pmx_dev spear320_pmx_pwm0 = {
+ 	.name = "pwm0",
+ 	.modes = pmx_pwm0_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_pwm0_modes),
+@@ -394,7 +394,7 @@ static struct pmx_dev_mode pmx_pwm1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_pwm1 = {
++struct pmx_dev spear320_pmx_pwm1 = {
+ 	.name = "pwm1",
+ 	.modes = pmx_pwm1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_pwm1_modes),
+@@ -427,7 +427,7 @@ static struct pmx_dev_mode pmx_pwm2_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_pwm2 = {
++struct pmx_dev spear320_pmx_pwm2 = {
+ 	.name = "pwm2",
+ 	.modes = pmx_pwm2_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_pwm2_modes),
+@@ -449,7 +449,7 @@ static struct pmx_dev_mode pmx_pwm3_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_pwm3 = {
++struct pmx_dev spear320_pmx_pwm3 = {
+ 	.name = "pwm3",
+ 	.modes = pmx_pwm3_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_pwm3_modes),
+@@ -471,7 +471,7 @@ static struct pmx_dev_mode pmx_ssp1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_ssp1 = {
++struct pmx_dev spear320_pmx_ssp1 = {
+ 	.name = "ssp1",
+ 	.modes = pmx_ssp1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_ssp1_modes),
+@@ -493,7 +493,7 @@ static struct pmx_dev_mode pmx_ssp2_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_ssp2 = {
++struct pmx_dev spear320_pmx_ssp2 = {
+ 	.name = "ssp2",
+ 	.modes = pmx_ssp2_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_ssp2_modes),
+@@ -515,7 +515,7 @@ static struct pmx_dev_mode pmx_mii1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_mii1 = {
++struct pmx_dev spear320_pmx_mii1 = {
+ 	.name = "mii1",
+ 	.modes = pmx_mii1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_mii1_modes),
+@@ -537,7 +537,7 @@ static struct pmx_dev_mode pmx_smii0_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_smii0 = {
++struct pmx_dev spear320_pmx_smii0 = {
+ 	.name = "smii0",
+ 	.modes = pmx_smii0_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_smii0_modes),
+@@ -559,7 +559,7 @@ static struct pmx_dev_mode pmx_smii1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_smii1 = {
++struct pmx_dev spear320_pmx_smii1 = {
+ 	.name = "smii1",
+ 	.modes = pmx_smii1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_smii1_modes),
+@@ -581,14 +581,14 @@ static struct pmx_dev_mode pmx_i2c1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_i2c1 = {
++struct pmx_dev spear320_pmx_i2c1 = {
+ 	.name = "i2c1",
+ 	.modes = pmx_i2c1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_i2c1_modes),
+ };
+ 
+ /* pmx driver structure */
+-struct pmx_driver pmx_driver = {
++static struct pmx_driver pmx_driver = {
+ 	.mode_reg = {.address = SPEAR320_MODE_CONFIG_REG, .mask = 0x00000007},
+ };
+ 
+@@ -959,7 +959,8 @@ static struct spear_shirq shirq_intrcomm_ras = {
+ };
+ 
+ /* spear320 routines */
+-void __init spear320_init(void)
++void __init spear320_init(struct pmx_mode *pmx_mode, struct pmx_dev **pmx_devs,
++		u8 pmx_dev_count)
+ {
+ 	void __iomem *base;
+ 	int ret = 0;
+@@ -989,10 +990,13 @@ void __init spear320_init(void)
+ 			printk(KERN_ERR "Error registering Shared IRQ 4\n");
+ 	}
+ 
++	/* pmx initialization */
++	pmx_driver.mode = pmx_mode;
++	pmx_driver.devs = pmx_devs;
++	pmx_driver.devs_count = pmx_dev_count;
++
+ 	/* This fixes addresses of all pmx devices for spear320 */
+ 	spear3xx_pmx_init_addr(&pmx_driver, SPEAR320_PAD_MUX_CONFIG_REG);
+-
+-	/* pmx initialization */
+ 	ret = pmx_register(&pmx_driver);
+ 	if (ret)
+ 		pr_err("padmux: registeration failed. err no: %d\n", ret);
+diff --git a/arch/arm/mach-spear3xx/spear320_evb.c b/arch/arm/mach-spear3xx/spear320_evb.c
+index 04361fc..eff4fb3 100644
+--- a/arch/arm/mach-spear3xx/spear320_evb.c
++++ b/arch/arm/mach-spear3xx/spear320_evb.c
+@@ -47,22 +47,22 @@ static struct resource emi_nor_resources[] = {
+ /* padmux devices to enable */
+ static struct pmx_dev *pmx_devs[] = {
+ 	/* spear3xx specific devices */
+-	&pmx_i2c,
+-	&pmx_ssp,
+-	&pmx_mii,
+-	&pmx_uart0,
++	&spear3xx_pmx_i2c,
++	&spear3xx_pmx_ssp,
++	&spear3xx_pmx_mii,
++	&spear3xx_pmx_uart0,
+ 
+ 	/* spear320 specific devices */
+-	&pmx_fsmc,
+-	&pmx_sdhci,
+-	&pmx_i2s,
+-	&pmx_uart1,
+-	&pmx_uart2,
+-	&pmx_can,
+-	&pmx_pwm0,
+-	&pmx_pwm1,
+-	&pmx_pwm2,
+-	&pmx_mii1,
++	&spear320_pmx_fsmc,
++	&spear320_pmx_sdhci,
++	&spear320_pmx_i2s,
++	&spear320_pmx_uart1,
++	&spear320_pmx_uart2,
++	&spear320_pmx_can,
++	&spear320_pmx_pwm0,
++	&spear320_pmx_pwm1,
++	&spear320_pmx_pwm2,
++	&spear320_pmx_mii1,
+ };
+ 
+ static struct amba_device *amba_devs[] __initdata = {
+@@ -117,17 +117,12 @@ static void __init spear320_evb_init(void)
+ 	/* set sdhci device platform data */
+ 	sdhci_set_plat_data(&sdhci_device, &sdhci_plat_data);
+ 
+-	/* padmux initialization, must be done before spear320_init */
+-	pmx_driver.mode = &auto_net_mii_mode;
+-	pmx_driver.devs = pmx_devs;
+-	pmx_driver.devs_count = ARRAY_SIZE(pmx_devs);
+-
+ 	/* set nand device's plat data */
+ 	fsmc_nand_set_plat_data(&nand_device, NULL, 0, NAND_SKIP_BBTSCAN,
+ 			FSMC_NAND_BW8);
+ 
+ 	/* call spear320 machine init function */
+-	spear320_init();
++	spear320_init(&auto_net_mii_mode, pmx_devs, ARRAY_SIZE(pmx_devs));
+ 
+ 	/* initialize serial nor related data in smi plat data */
+ 	smi_init_board_info(&smi_device);
+diff --git a/arch/arm/mach-spear3xx/spear3xx.c b/arch/arm/mach-spear3xx/spear3xx.c
+index 2765d32..8c00c2b 100644
+--- a/arch/arm/mach-spear3xx/spear3xx.c
++++ b/arch/arm/mach-spear3xx/spear3xx.c
+@@ -310,7 +310,7 @@ static struct pmx_dev_mode pmx_firda_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_firda = {
++struct pmx_dev spear3xx_pmx_firda = {
+ 	.name = "firda",
+ 	.modes = pmx_firda_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_firda_modes),
+@@ -332,7 +332,7 @@ static struct pmx_dev_mode pmx_i2c_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_i2c = {
++struct pmx_dev spear3xx_pmx_i2c = {
+ 	.name = "i2c",
+ 	.modes = pmx_i2c_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_i2c_modes),
+@@ -354,7 +354,7 @@ static struct pmx_dev_mode pmx_ssp_cs_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_ssp_cs = {
++struct pmx_dev spear3xx_pmx_ssp_cs = {
+ 	.name = "ssp_chip_selects",
+ 	.modes = pmx_ssp_cs_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_ssp_cs_modes),
+@@ -376,7 +376,7 @@ static struct pmx_dev_mode pmx_ssp_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_ssp = {
++struct pmx_dev spear3xx_pmx_ssp = {
+ 	.name = "ssp",
+ 	.modes = pmx_ssp_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_ssp_modes),
+@@ -398,7 +398,7 @@ static struct pmx_dev_mode pmx_mii_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_mii = {
++struct pmx_dev spear3xx_pmx_mii = {
+ 	.name = "mii",
+ 	.modes = pmx_mii_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_mii_modes),
+@@ -420,7 +420,7 @@ static struct pmx_dev_mode pmx_gpio_pin0_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_gpio_pin0 = {
++struct pmx_dev spear3xx_pmx_gpio_pin0 = {
+ 	.name = "gpio_pin0",
+ 	.modes = pmx_gpio_pin0_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_gpio_pin0_modes),
+@@ -442,7 +442,7 @@ static struct pmx_dev_mode pmx_gpio_pin1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_gpio_pin1 = {
++struct pmx_dev spear3xx_pmx_gpio_pin1 = {
+ 	.name = "gpio_pin1",
+ 	.modes = pmx_gpio_pin1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_gpio_pin1_modes),
+@@ -464,7 +464,7 @@ static struct pmx_dev_mode pmx_gpio_pin2_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_gpio_pin2 = {
++struct pmx_dev spear3xx_pmx_gpio_pin2 = {
+ 	.name = "gpio_pin2",
+ 	.modes = pmx_gpio_pin2_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_gpio_pin2_modes),
+@@ -486,7 +486,7 @@ static struct pmx_dev_mode pmx_gpio_pin3_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_gpio_pin3 = {
++struct pmx_dev spear3xx_pmx_gpio_pin3 = {
+ 	.name = "gpio_pin3",
+ 	.modes = pmx_gpio_pin3_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_gpio_pin3_modes),
+@@ -508,7 +508,7 @@ static struct pmx_dev_mode pmx_gpio_pin4_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_gpio_pin4 = {
++struct pmx_dev spear3xx_pmx_gpio_pin4 = {
+ 	.name = "gpio_pin4",
+ 	.modes = pmx_gpio_pin4_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_gpio_pin4_modes),
+@@ -530,7 +530,7 @@ static struct pmx_dev_mode pmx_gpio_pin5_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_gpio_pin5 = {
++struct pmx_dev spear3xx_pmx_gpio_pin5 = {
+ 	.name = "gpio_pin5",
+ 	.modes = pmx_gpio_pin5_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_gpio_pin5_modes),
+@@ -552,7 +552,7 @@ static struct pmx_dev_mode pmx_uart0_modem_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart0_modem = {
++struct pmx_dev spear3xx_pmx_uart0_modem = {
+ 	.name = "uart0_modem",
+ 	.modes = pmx_uart0_modem_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart0_modem_modes),
+@@ -574,7 +574,7 @@ static struct pmx_dev_mode pmx_uart0_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_uart0 = {
++struct pmx_dev spear3xx_pmx_uart0 = {
+ 	.name = "uart0",
+ 	.modes = pmx_uart0_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_uart0_modes),
+@@ -596,7 +596,7 @@ static struct pmx_dev_mode pmx_timer_3_4_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_timer_3_4 = {
++struct pmx_dev spear3xx_pmx_timer_3_4 = {
+ 	.name = "timer_3_4",
+ 	.modes = pmx_timer_3_4_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_timer_3_4_modes),
+@@ -618,7 +618,7 @@ static struct pmx_dev_mode pmx_timer_1_2_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_timer_1_2 = {
++struct pmx_dev spear3xx_pmx_timer_1_2 = {
+ 	.name = "timer_1_2",
+ 	.modes = pmx_timer_1_2_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_timer_1_2_modes),
+@@ -641,7 +641,7 @@ static struct pmx_dev_mode pmx_plgpio_0_1_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_0_1 = {
++struct pmx_dev spear3xx_pmx_plgpio_0_1 = {
+ 	.name = "plgpio 0 and 1",
+ 	.modes = pmx_plgpio_0_1_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_0_1_modes),
+@@ -663,7 +663,7 @@ static struct pmx_dev_mode pmx_plgpio_2_3_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_2_3 = {
++struct pmx_dev spear3xx_pmx_plgpio_2_3 = {
+ 	.name = "plgpio 2 and 3",
+ 	.modes = pmx_plgpio_2_3_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_2_3_modes),
+@@ -685,7 +685,7 @@ static struct pmx_dev_mode pmx_plgpio_4_5_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_4_5 = {
++struct pmx_dev spear3xx_pmx_plgpio_4_5 = {
+ 	.name = "plgpio 4 and 5",
+ 	.modes = pmx_plgpio_4_5_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_4_5_modes),
+@@ -707,7 +707,7 @@ static struct pmx_dev_mode pmx_plgpio_6_9_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_6_9 = {
++struct pmx_dev spear3xx_pmx_plgpio_6_9 = {
+ 	.name = "plgpio 6 to 9",
+ 	.modes = pmx_plgpio_6_9_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_6_9_modes),
+@@ -729,7 +729,7 @@ static struct pmx_dev_mode pmx_plgpio_10_27_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_10_27 = {
++struct pmx_dev spear3xx_pmx_plgpio_10_27 = {
+ 	.name = "plgpio 10 to 27",
+ 	.modes = pmx_plgpio_10_27_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_10_27_modes),
+@@ -751,7 +751,7 @@ static struct pmx_dev_mode pmx_plgpio_28_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_28 = {
++struct pmx_dev spear3xx_pmx_plgpio_28 = {
+ 	.name = "plgpio 28",
+ 	.modes = pmx_plgpio_28_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_28_modes),
+@@ -773,7 +773,7 @@ static struct pmx_dev_mode pmx_plgpio_29_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_29 = {
++struct pmx_dev spear3xx_pmx_plgpio_29 = {
+ 	.name = "plgpio 29",
+ 	.modes = pmx_plgpio_29_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_29_modes),
+@@ -795,7 +795,7 @@ static struct pmx_dev_mode pmx_plgpio_30_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_30 = {
++struct pmx_dev spear3xx_pmx_plgpio_30 = {
+ 	.name = "plgpio 30",
+ 	.modes = pmx_plgpio_30_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_30_modes),
+@@ -817,7 +817,7 @@ static struct pmx_dev_mode pmx_plgpio_31_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_31 = {
++struct pmx_dev spear3xx_pmx_plgpio_31 = {
+ 	.name = "plgpio 31",
+ 	.modes = pmx_plgpio_31_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_31_modes),
+@@ -839,7 +839,7 @@ static struct pmx_dev_mode pmx_plgpio_32_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_32 = {
++struct pmx_dev spear3xx_pmx_plgpio_32 = {
+ 	.name = "plgpio 32",
+ 	.modes = pmx_plgpio_32_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_32_modes),
+@@ -861,7 +861,7 @@ static struct pmx_dev_mode pmx_plgpio_33_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_33 = {
++struct pmx_dev spear3xx_pmx_plgpio_33 = {
+ 	.name = "plgpio 33",
+ 	.modes = pmx_plgpio_33_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_33_modes),
+@@ -883,7 +883,7 @@ static struct pmx_dev_mode pmx_plgpio_34_36_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_34_36 = {
++struct pmx_dev spear3xx_pmx_plgpio_34_36 = {
+ 	.name = "plgpio 34 to 36",
+ 	.modes = pmx_plgpio_34_36_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_34_36_modes),
+@@ -905,7 +905,7 @@ static struct pmx_dev_mode pmx_plgpio_37_42_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_37_42 = {
++struct pmx_dev spear3xx_pmx_plgpio_37_42 = {
+ 	.name = "plgpio 37 to 42",
+ 	.modes = pmx_plgpio_37_42_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_37_42_modes),
+@@ -927,7 +927,7 @@ static struct pmx_dev_mode pmx_plgpio_43_44_47_48_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_43_44_47_48 = {
++struct pmx_dev spear3xx_pmx_plgpio_43_44_47_48 = {
+ 	.name = "plgpio 43, 44, 47 and 48",
+ 	.modes = pmx_plgpio_43_44_47_48_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_43_44_47_48_modes),
+@@ -949,7 +949,7 @@ static struct pmx_dev_mode pmx_plgpio_45_46_49_50_modes[] = {
+ 	},
+ };
+ 
+-struct pmx_dev pmx_plgpio_45_46_49_50 = {
++struct pmx_dev spear3xx_pmx_plgpio_45_46_49_50 = {
+ 	.name = "plgpio 45, 46, 49 and 50",
+ 	.modes = pmx_plgpio_45_46_49_50_modes,
+ 	.mode_count = ARRAY_SIZE(pmx_plgpio_45_46_49_50_modes),
 -- 
 1.7.2.2
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

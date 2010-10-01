@@ -1,45 +1,36 @@
-From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 1/2] Add acer wmi hotkey events support
-Date: Fri, 01 Oct 2010 13:20:39 -0600
-Message-ID: <4CA6C12702000023000212DE@novprvlin0050.provo.novell.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH v6 7/8] OMAP4: Keyboard board support
+Date: Fri, 1 Oct 2010 15:51:27 -0700
+Message-ID: <20101001225127.GE3117@atomide.com>
+References: <1285824973-25550-1-git-send-email-x0066660@ti.com>
+ <20100930064055.GG5260@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:51339 "EHLO
+	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751093Ab0JAWvc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Oct 2010 18:51:32 -0400
 Content-Disposition: inline
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: carlos@strangeworlds.co.uk
-Cc: dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+In-Reply-To: <20100930064055.GG5260@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Abraham Arce <x0066660@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Syed Rafiuddin <rafiuddin.syed@ti.com>
 
-Hi Carlos,=20
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> [100929 23:32]:
+> HI Abraham,
+> 
+> On Thu, Sep 30, 2010 at 12:36:13AM -0500, Abraham Arce wrote:
+> > From: Syed Rafiuddin <rafiuddin.syed@ti.com>
+> > 
+> > Keyboard support for SDP OMAP4430
+> > 
+> 
+> I think this would benefit from "const" sprinkled on it.
+> 
+> BTW, I picked up patches 2, 3, 4, 5, 8 (all touching drivers/input).
 
-=E6=96=BC =E4=BA=94=EF=BC=8C2010-10-01 =E6=96=BC 19:16 +0100=EF=BC=8CCa=
-rlos Corbacho =E6=8F=90=E5=88=B0=EF=BC=9A
-> On Friday 01 October 2010 14:51:27 Lee, Chun-Yi wrote:
-> > Add acer wmi hotkey event support. Install a wmi notify handler to
-> > transfer wmi event key to key code, then send out keycode through a=
-cer
-> > wmi input device to userland.
->=20
-> What hardware is this for? Up to now, all Acer hardware I'm aware of =
-has=20
-> always sent key codes. This and the other patch seem to be for someth=
-ing=20
-> that's quite different to the current batch of hardware supported by =
-acer-wmi?
->=20
+Thanks, I'll take 1, 6 & 7.
 
-The hardware is Acer TravelMate 8572, the machine send out key code:
-volume up/down, mute, brightness up/down=20
-So, the above hotkeys work fine.
-
-But, it send out wmi event for:=20
-wifi key (the same with communication key), P key (a special program
-key), touchpad, video mode switch.=20
-
-My patch work for translate those wmi event to key code.
-
-
-Thank's
-Joey Lee
+Tony

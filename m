@@ -1,122 +1,98 @@
-From: Hendrik Iben <Hendrik_Iben@web.de>
-Subject: [PATCH] hid input - force feedback support for (old) Logitech RumblePad
- gamepad
-Date: Sat, 02 Oct 2010 12:22:25 +0200
-Message-ID: <4CA707E1.8050504@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH] HID: hidraw, fix a NULL pointer dereference in hidraw_ioctl
+Date: Sat,  2 Oct 2010 13:25:24 +0200
+Message-ID: <1286018724-7484-1-git-send-email-ospite@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fmmailgate02.web.de ([217.72.192.227]:43994 "EHLO
-	fmmailgate02.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752129Ab0JBKW2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Oct 2010 06:22:28 -0400
+Received: from smtp205.alice.it ([82.57.200.101]:45474 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754952Ab0JBLZt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 2 Oct 2010 07:25:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Jiri Kosina <jkosina@suse.cz>, Alan Ott <alan@signal11.us>, Oliver Neukum <oliver@neukum.name>, linux-kernel@vger.kernel.org
 
-Hi Jiri,
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000028
+IP: [<ffffffffa02c66b4>] hidraw_ioctl+0xfc/0x32c [hid]
+[...]
 
-I implemented a force feedback driver for an old (~year 2000, corded) Logitech RumblePad by sniffing on USB traffic.
-In the end I realized that it uses the same protocol that is used for the Rumblepad 2 device. So adding support was 
-as easy as adding the new device id to the existing hid parts.
-This patch was made against kernel 2.6.35 and tested on 2.6.32 and 2.6.33.
-Please note that the old device is really spelled RumblePad while the new devices are called Rumblepad...
-I don't know anybody else with this pad to test this but as there were no code changes necessary I believe this
-patch should be easy to integrate.
+This is reproducible by disconnecting the device while userspace does ioctl in
+a loop and doesn't check return values in order to exit the loop, like in the
+following test program:
 
-Best regards,
-Hendrik
+int main(int argc, char *argv[])
+{
+	int fd = -1;
+	unsigned char name[256];
+	int ret;
 
-p.s.
-I hope I stick to the submitting guidelines with this...
+	if (argc != 2) {
+		fprintf(stderr, "usage: %s </dev/hidrawX>\n",
+				argv[0]);
+		exit(1);
+	}
 
-From: Hendrik Iben <Hendrik_Iben@web.de>
+	fd = open(argv[1], O_RDWR);
+	if (fd < 0) {
+		perror("hidraw open");
+		exit(1);
+	}
 
-This patch adds force feedback support for Logitech WingMan RumblePad
-gamepads by extending the Logitech Rumblepad 2 force feedback code.
+	while (1) {
+		ret = ioctl(fd, HIDIOCGRAWNAME(256), name);
+		printf("ret: %d name: %s\n", ret, name);
+	}
 
-Signed-off-by: Hendrik Iben <Hendrik_Iben@web.de>
+	close(fd);
+	exit(0);
+}
 
+Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
 ---
+Should this be applied to older stable kernels too?
 
-diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-core.c linux-2.6.35/drivers/hid/hid-core.c
---- linux-2.6.35-vanilla/drivers/hid/hid-core.c	2010-09-29 14:12:13.000000000 +0200
-+++ linux-2.6.35/drivers/hid/hid-core.c	2010-09-29 14:15:25.000000000 +0200
-@@ -1316,6 +1316,7 @@ static const struct hid_device_id hid_bl
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D) },
-diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-ids.h linux-2.6.35/drivers/hid/hid-ids.h
---- linux-2.6.35-vanilla/drivers/hid/hid-ids.h	2010-09-29 14:12:12.000000000 +0200
-+++ linux-2.6.35/drivers/hid/hid-ids.h	2010-09-29 14:13:17.000000000 +0200
-@@ -325,6 +325,7 @@
- #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
- #define USB_DEVICE_ID_LOGITECH_HARMONY_FIRST  0xc110
- #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
-+#define USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD	0xc20a
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD	0xc211
- #define USB_DEVICE_ID_LOGITECH_EXTREME_3D	0xc215
- #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
-diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-lg2ff.c linux-2.6.35/drivers/hid/hid-lg2ff.c
---- linux-2.6.35-vanilla/drivers/hid/hid-lg2ff.c	2010-09-29 14:12:13.000000000 +0200
-+++ linux-2.6.35/drivers/hid/hid-lg2ff.c	2010-09-29 14:40:09.000000000 +0200
-@@ -1,5 +1,5 @@
- /*
-- *  Force feedback support for Logitech Rumblepad 2
-+ *  Force feedback support for Logitech RumblePad and Rumblepad 2
-  *
-  *  Copyright (c) 2008 Anssi Hannula <anssi.hannula@gmail.com>
-  */
-@@ -110,7 +110,7 @@ int lg2ff_init(struct hid_device *hid)
+Alan, Jiri,
+
+there is a similar problem when _writing_ to the device, but Alan's
+changes in that area are shuffling the code a bit, should I send a patch
+[to hidraw_send_report()] on top of Alan's work for that, or a fix for
+current mainline [in hidraw_write()] on which Alan should rebase his
+work would be better?
+
+The same pattern of unchecked hidraw_table[minor] is also present in
+hidraw_get_report but this function is called only after the NULL check
+in hidraw_ioctl _for_now_, so that is currently safe.
+
+Thanks,
+   Antonio Ospite
+   http://ao2.it
+
+ drivers/hid/hidraw.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 47d70c5..9eaf6ae 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -244,6 +244,10 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
  
- 	usbhid_submit_report(hid, report, USB_DIR_OUT);
+ 	mutex_lock(&minors_lock);
+ 	dev = hidraw_table[minor];
++	if (!dev) {
++		ret = -ENODEV;
++		goto out;
++	}
  
--	dev_info(&hid->dev, "Force feedback for Logitech Rumblepad 2 by "
-+	dev_info(&hid->dev, "Force feedback for Logitech RumblePad/Rumblepad 2 by "
- 	       "Anssi Hannula <anssi.hannula@gmail.com>\n");
+ 	switch (cmd) {
+ 		case HIDIOCGRDESCSIZE:
+@@ -317,6 +321,7 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
  
- 	return 0;
-diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-lg.c linux-2.6.35/drivers/hid/hid-lg.c
---- linux-2.6.35-vanilla/drivers/hid/hid-lg.c	2010-09-29 14:12:12.000000000 +0200
-+++ linux-2.6.35/drivers/hid/hid-lg.c	2010-09-29 14:39:15.000000000 +0200
-@@ -7,6 +7,7 @@
-  *  Copyright (c) 2006-2007 Jiri Kosina
-  *  Copyright (c) 2007 Paul Walmsley
-  *  Copyright (c) 2008 Jiri Slaby
-+ *  Copyright (c) 2010 Hendrik Iben
-  */
- 
- /*
-@@ -325,6 +326,8 @@ static const struct hid_device_id lg_dev
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL),
- 		.driver_data = LG_NOGET | LG_FF },
- 
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD),
-+		.driver_data = LG_FF2 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD),
- 		.driver_data = LG_FF },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2),
-diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/Kconfig linux-2.6.35/drivers/hid/Kconfig
---- linux-2.6.35-vanilla/drivers/hid/Kconfig	2010-09-29 14:12:12.000000000 +0200
-+++ linux-2.6.35/drivers/hid/Kconfig	2010-09-29 14:38:26.000000000 +0200
-@@ -206,12 +206,12 @@ config LOGITECH_FF
- 	  force feedback.
- 
- config LOGIRUMBLEPAD2_FF
--	bool "Logitech Rumblepad 2 force feedback support"
-+	bool "Logitech RumblePad/Rumblepad 2 force feedback support"
- 	depends on HID_LOGITECH
- 	select INPUT_FF_MEMLESS
- 	help
- 	  Say Y here if you want to enable force feedback support for Logitech
--	  Rumblepad 2 devices.
-+	  RumblePad and Rumblepad 2 devices.
- 
- config LOGIG940_FF
- 	bool "Logitech Flight System G940 force feedback support"
+ 		ret = -ENOTTY;
+ 	}
++out:
+ 	mutex_unlock(&minors_lock);
+ 	return ret;
+ }
+-- 
+1.7.1
+

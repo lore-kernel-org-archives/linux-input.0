@@ -1,105 +1,122 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH v4 1/2] HID: Add Support for Setting and Getting Feature
-     Reports from hidraw
-Date: Sat, 2 Oct 2010 09:50:09 +0200
-Message-ID: <20101002095009.ce1df06d.ospite@studenti.unina.it>
-References: <1281442367.12579.206.camel@localhost.localdomain>
-	<1281990059-3562-2-git-send-email-alan@signal11.us>
-	<20100930015104.49fc5acf.ospite@studenti.unina.it>
-	<4CA40605.6080800@signal11.us>
-	<20101001000309.9bb53de4.ospite@studenti.unina.it>
-	<4CA67D2C.6060505@signal11.us>
+From: Hendrik Iben <Hendrik_Iben@web.de>
+Subject: [PATCH] hid input - force feedback support for (old) Logitech RumblePad
+ gamepad
+Date: Sat, 02 Oct 2010 12:22:25 +0200
+Message-ID: <4CA707E1.8050504@web.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__2_Oct_2010_09_50_10_+0200_mVJvIi7WU0TVf/la"
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:46400 "EHLO smtp207.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751207Ab0JBHuW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 2 Oct 2010 03:50:22 -0400
-In-Reply-To: <4CA67D2C.6060505@signal11.us>
+Received: from fmmailgate02.web.de ([217.72.192.227]:43994 "EHLO
+	fmmailgate02.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752129Ab0JBKW2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Oct 2010 06:22:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---Signature=_Sat__2_Oct_2010_09_50_10_+0200_mVJvIi7WU0TVf/la
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Jiri,
 
-On Fri, 01 Oct 2010 20:30:36 -0400
-Alan Ott <alan@signal11.us> wrote:
+I implemented a force feedback driver for an old (~year 2000, corded) Logitech RumblePad by sniffing on USB traffic.
+In the end I realized that it uses the same protocol that is used for the Rumblepad 2 device. So adding support was 
+as easy as adding the new device id to the existing hid parts.
+This patch was made against kernel 2.6.35 and tested on 2.6.32 and 2.6.33.
+Please note that the old device is really spelled RumblePad while the new devices are called Rumblepad...
+I don't know anybody else with this pad to test this but as there were no code changes necessary I believe this
+patch should be easy to integrate.
 
-> > diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-cor=
-e.c
-> > index df80532..83e1b48 100644
-> > --- a/drivers/hid/usbhid/hid-core.c
-> > +++ b/drivers/hid/usbhid/hid-core.c
-> > @@ -875,6 +875,9 @@ static int usbhid_output_raw_report(struct hid_devi=
-ce *hid, __u8 *buf, size_t co
-> >                          ((report_type + 1)<<  8) | report_id,
-> >                          interface->desc.bInterfaceNumber, buf, count,
-> >                          USB_CTRL_SET_TIMEOUT);
-> > +               /* restore report ID into the buffer, some non conforma=
-nt usb
-> > +                * device could have mangled it */
-> > +               buf[0] =3D report_id;
-> >                  /* count also the report id, if this was a numbered re=
-port. */
-> >                  if (ret>  0&&  skipped_report_id)
-> >                          ret++;
-> >
-> >
-> > But I haven't even taken a look at the HID spec about this, so take it
-> > just for the sake of discussion. Anyone could run some tests with other
-> > devices?
-> >   =20
->=20
-> I actually don't like it (I did see your later email about how you=20
-> really meant for it to be in usbhid_get_raw_report(), so consider this=20
-> my response to that). I don't like it because hidraw is supposed to be=20
-> raw. If the device sends back bogus stuff, then bogus stuff should be=20
-> passed back to userspace. Likewise, if the host tries to send bogus=20
-> stuff to the device, then it should be able to (or be able to try). The=20
-> problem with enforcing rules here is determining which rules to enforce.=
-=20
-> For example, with hiddev, you can't get or set reports that aren't in=20
-> the HID descriptor. That keeps you from being able to get report 0xf5=20
-> which is required to use the sixaxis device. I think this goes against=20
-> the idea of "raw," and could even mislead the user to think that a=20
-> device is functioning properly (or has been implemented properly) when=20
-> it is not.
->
+Best regards,
+Hendrik
 
-Ok, I see your point and you convinced me, let it be "raw" then.
-If you are going through another iteration of the documentation patch
-maybe you can mention that buf[0] in the returned descriptor can be
-pretty much everything when dealing with deviated devices.
+p.s.
+I hope I stick to the submitting guidelines with this...
 
-Regards,
-   Antonio
+From: Hendrik Iben <Hendrik_Iben@web.de>
 
---=20
-Antonio Ospite
-http://ao2.it
+This patch adds force feedback support for Logitech WingMan RumblePad
+gamepads by extending the Logitech Rumblepad 2 force feedback code.
 
-PGP public key ID: 0x4553B001
+Signed-off-by: Hendrik Iben <Hendrik_Iben@web.de>
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+---
 
---Signature=_Sat__2_Oct_2010_09_50_10_+0200_mVJvIi7WU0TVf/la
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkym5DIACgkQ5xr2akVTsAFRngCfclhnvA+hvrGT2261+4EmwXOf
-uHgAn0Vr0Pzqt+BzGuL37RZCcXBv8hj4
-=fD71
------END PGP SIGNATURE-----
-
---Signature=_Sat__2_Oct_2010_09_50_10_+0200_mVJvIi7WU0TVf/la--
+diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-core.c linux-2.6.35/drivers/hid/hid-core.c
+--- linux-2.6.35-vanilla/drivers/hid/hid-core.c	2010-09-29 14:12:13.000000000 +0200
++++ linux-2.6.35/drivers/hid/hid-core.c	2010-09-29 14:15:25.000000000 +0200
+@@ -1316,6 +1316,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_F3D) },
+diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-ids.h linux-2.6.35/drivers/hid/hid-ids.h
+--- linux-2.6.35-vanilla/drivers/hid/hid-ids.h	2010-09-29 14:12:12.000000000 +0200
++++ linux-2.6.35/drivers/hid/hid-ids.h	2010-09-29 14:13:17.000000000 +0200
+@@ -325,6 +325,7 @@
+ #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_FIRST  0xc110
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
++#define USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD	0xc20a
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD	0xc211
+ #define USB_DEVICE_ID_LOGITECH_EXTREME_3D	0xc215
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
+diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-lg2ff.c linux-2.6.35/drivers/hid/hid-lg2ff.c
+--- linux-2.6.35-vanilla/drivers/hid/hid-lg2ff.c	2010-09-29 14:12:13.000000000 +0200
++++ linux-2.6.35/drivers/hid/hid-lg2ff.c	2010-09-29 14:40:09.000000000 +0200
+@@ -1,5 +1,5 @@
+ /*
+- *  Force feedback support for Logitech Rumblepad 2
++ *  Force feedback support for Logitech RumblePad and Rumblepad 2
+  *
+  *  Copyright (c) 2008 Anssi Hannula <anssi.hannula@gmail.com>
+  */
+@@ -110,7 +110,7 @@ int lg2ff_init(struct hid_device *hid)
+ 
+ 	usbhid_submit_report(hid, report, USB_DIR_OUT);
+ 
+-	dev_info(&hid->dev, "Force feedback for Logitech Rumblepad 2 by "
++	dev_info(&hid->dev, "Force feedback for Logitech RumblePad/Rumblepad 2 by "
+ 	       "Anssi Hannula <anssi.hannula@gmail.com>\n");
+ 
+ 	return 0;
+diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-lg.c linux-2.6.35/drivers/hid/hid-lg.c
+--- linux-2.6.35-vanilla/drivers/hid/hid-lg.c	2010-09-29 14:12:12.000000000 +0200
++++ linux-2.6.35/drivers/hid/hid-lg.c	2010-09-29 14:39:15.000000000 +0200
+@@ -7,6 +7,7 @@
+  *  Copyright (c) 2006-2007 Jiri Kosina
+  *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
++ *  Copyright (c) 2010 Hendrik Iben
+  */
+ 
+ /*
+@@ -325,6 +326,8 @@ static const struct hid_device_id lg_dev
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL),
+ 		.driver_data = LG_NOGET | LG_FF },
+ 
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD),
++		.driver_data = LG_FF2 },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD),
+ 		.driver_data = LG_FF },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2),
+diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/Kconfig linux-2.6.35/drivers/hid/Kconfig
+--- linux-2.6.35-vanilla/drivers/hid/Kconfig	2010-09-29 14:12:12.000000000 +0200
++++ linux-2.6.35/drivers/hid/Kconfig	2010-09-29 14:38:26.000000000 +0200
+@@ -206,12 +206,12 @@ config LOGITECH_FF
+ 	  force feedback.
+ 
+ config LOGIRUMBLEPAD2_FF
+-	bool "Logitech Rumblepad 2 force feedback support"
++	bool "Logitech RumblePad/Rumblepad 2 force feedback support"
+ 	depends on HID_LOGITECH
+ 	select INPUT_FF_MEMLESS
+ 	help
+ 	  Say Y here if you want to enable force feedback support for Logitech
+-	  Rumblepad 2 devices.
++	  RumblePad and Rumblepad 2 devices.
+ 
+ config LOGIG940_FF
+ 	bool "Logitech Flight System G940 force feedback support"

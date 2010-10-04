@@ -1,37 +1,81 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid input - force feedback support for (old) Logitech
- RumblePad gamepad
-Date: Mon, 4 Oct 2010 15:40:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1010041540220.29535@pobox.suse.cz>
-References: <4CA707E1.8050504@web.de>
+Subject: Re: [PATCH] HID: hidraw, fix a NULL pointer dereference in
+ hidraw_ioctl
+Date: Mon, 4 Oct 2010 15:50:31 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
+References: <1286018724-7484-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:36504 "EHLO mx1.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:60530 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753872Ab0JDNkn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Oct 2010 09:40:43 -0400
-In-Reply-To: <4CA707E1.8050504@web.de>
+	id S1755972Ab0JDNuc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Oct 2010 09:50:32 -0400
+In-Reply-To: <1286018724-7484-1-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hendrik Iben <Hendrik_Iben@web.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-input@vger.kernel.org, Alan Ott <alan@signal11.us>, Oliver Neukum <oliver@neukum.name>, linux-kernel@vger.kernel.org
 
-On Sat, 2 Oct 2010, Hendrik Iben wrote:
+On Sat, 2 Oct 2010, Antonio Ospite wrote:
 
-> Hi Jiri,
+> BUG: unable to handle kernel NULL pointer dereference at 0000000000000028
+> IP: [<ffffffffa02c66b4>] hidraw_ioctl+0xfc/0x32c [hid]
+> [...]
 > 
-> I implemented a force feedback driver for an old (~year 2000, corded) 
-> Logitech RumblePad by sniffing on USB traffic. In the end I realized 
-> that it uses the same protocol that is used for the Rumblepad 2 device. 
-> So adding support was as easy as adding the new device id to the 
-> existing hid parts. This patch was made against kernel 2.6.35 and tested 
-> on 2.6.32 and 2.6.33. Please note that the old device is really spelled 
-> RumblePad while the new devices are called Rumblepad... I don't know 
-> anybody else with this pad to test this but as there were no code 
-> changes necessary I believe this patch should be easy to integrate.
+> This is reproducible by disconnecting the device while userspace does ioctl in
+> a loop and doesn't check return values in order to exit the loop, like in the
+> following test program:
+> 
+> int main(int argc, char *argv[])
+> {
+> 	int fd = -1;
+> 	unsigned char name[256];
+> 	int ret;
+> 
+> 	if (argc != 2) {
+> 		fprintf(stderr, "usage: %s </dev/hidrawX>\n",
+> 				argv[0]);
+> 		exit(1);
+> 	}
+> 
+> 	fd = open(argv[1], O_RDWR);
+> 	if (fd < 0) {
+> 		perror("hidraw open");
+> 		exit(1);
+> 	}
+> 
+> 	while (1) {
+> 		ret = ioctl(fd, HIDIOCGRAWNAME(256), name);
+> 		printf("ret: %d name: %s\n", ret, name);
+> 	}
+> 
+> 	close(fd);
+> 	exit(0);
+> }
 
-Thanks for doing the work Hendrik. I have queued the patch.
+Thanks for cathing this.
+
+> 
+> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+> ---
+> Should this be applied to older stable kernels too?
+
+Yes, I will be adding (or feel free to do so yourself with another respin) 
+"Cc: stable@kernel.org" line.
+
+> there is a similar problem when _writing_ to the device, but Alan's
+> changes in that area are shuffling the code a bit, should I send a patch
+> [to hidraw_send_report()] on top of Alan's work for that, or a fix for
+> current mainline [in hidraw_write()] on which Alan should rebase his
+> work would be better?
+
+Please send me the fix for current mainline for now, i.e. respin with the 
+write path covered as well. We are struggling to get feedback on Alan's 
+patches from Bluetooth maintainer, so we'd rather have this race fixed in 
+any case.
+
+Thanks,
 
 -- 
 Jiri Kosina

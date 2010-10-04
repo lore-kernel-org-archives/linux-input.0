@@ -1,59 +1,47 @@
-From: Paul Fox <pgf@laptop.org>
-Subject: Re: [PATCH 1/3] Input: hgpk - enable advanced mode through module parameter
-Date: Mon, 04 Oct 2010 14:27:54 -0400
-Message-ID: <23406.1286216874@foxharp.boston.ma.us>
-References: <20101002204235.052959D401B@zog.reactivated.net> <20101004174533.GC8321@core.coreip.homeip.net> (sfid-20101004_134544_591018_E8723B32)
+From: "G, Manjunath Kondaiah" <manjugk@ti.com>
+Subject: RE: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
+Date: Tue, 5 Oct 2010 00:22:51 +0530
+Message-ID: <E0D41E29EB0DAC4E9F3FF173962E9E9402DB90CD8A@dbde02.ent.ti.com>
+References: <1285069770-4261-1-git-send-email-manjugk@ti.com>
+ <1285076060.14206.3.camel@chotu>
+ <E0D41E29EB0DAC4E9F3FF173962E9E9402785A3478@dbde02.ent.ti.com>
+ <20100921162658.GA2310@core.coreip.homeip.net>
+ <E0D41E29EB0DAC4E9F3FF173962E9E9402DB90C98C@dbde02.ent.ti.com>
+ <20101004182834.GE8321@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from colo4.heeltoe.com ([207.210.93.145]:54900 "EHLO
-	colo4.heeltoe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756566Ab0JDSvt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Oct 2010 14:51:49 -0400
-In-reply-to: <20101004174533.GC8321@core.coreip.homeip.net> (sfid-20101004_134544_591018_E8723B32)
-Content-ID: <23403.1286216874.1@foxharp.boston.ma.us>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20101004182834.GE8321@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Drake <dsd@laptop.org>, linux-input@vger.kernel.org
+Cc: Ameya Palande <ameya.palande@nokia.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Tony Lindgren <tony@atomide.com>
+List-Id: linux-input@vger.kernel.org
 
-dmitry wrote:
- > Hi Daniel,
- > 
- > On Sat, Oct 02, 2010 at 09:42:34PM +0100, Daniel Drake wrote:
- > > +
- > > +	/*
- > > +	 * The first packet after the finger goes down only establishes the
- > > +	 * baseline for relative movement.
- > > +	 * (ignore possibility of finger going down and button being pressed
- > > +	 * simultaneously.)
- > > +	 */
- > > +	if (!priv->isdown) {
- > > +		priv->abs_x = *x;
- > > +		priv->abs_y = *y;
- > > +		priv->isdown = true;
- > > +		return false;
- > > +	}
- > > +
- > > +	tmp = *x; *x -= priv->abs_x; priv->abs_x = tmp;
- > > +	tmp = *y; *y -= priv->abs_y; priv->abs_y = tmp;
- > 
- > Why do you use abs->rel conversion in driver and not rely on the
- > standard userspace component handling thouchpads in absolute mode?
 
-the driver can (and does, on user request)) switch modes between
-"glidesensor" and "pen tablet" mode on the fly.  (userspace requests
-this with a write to the "ptmode" sysfs node).  changing the device
-from relative to absolute at that point would also require that
-userspace close/reopen, or use a separate device, wouldn't it?
 
-paul
 
- > 
- > Thanks.
- > 
- > -- 
- > Dmitry
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+> Sent: Monday, October 04, 2010 11:59 PM
+> To: G, Manjunath Kondaiah
+> Cc: Ameya Palande; linux-omap@vger.kernel.org; 
+> linux-input@vger.kernel.org; 
+> linux-arm-kernel@lists.infradead.org; Tony Lindgren
+> Subject: Re: [PATCH v2] OMAP3: Keypad: Fix failure exit path in probe
+> 
+> On Mon, Oct 04, 2010 at 01:32:29PM +0530, G, Manjunath Kondaiah wrote:
+> > Dmitry,
+> > As agreed, can you push this patch?
+> > https://patchwork.kernel.org/patch/197442/
+> > 
+> 
+> Manjunath,
+> 
+> It is queued for 2.6.37 (take a peek at 'next' branch of my 
+> tree) - I do not believe that the failure is critical enough for .36.
 
-=---------------------
- paul fox, pgf@laptop.org
+Thanks for queuing this patch for 2.6.37
+
+-Manjunath

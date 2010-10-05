@@ -1,61 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2 21/69] Keyboard: Adding support for spear-keyboard
-Date: Tue, 5 Oct 2010 08:47:37 -0700
-Message-ID: <20101005154737.GA19730@core.coreip.homeip.net>
-References: <cover.1285933331.git.viresh.kumar@st.com>
- <584e4ecc7883807e1fae0e6c53b2837954935e53.1285933331.git.viresh.kumar@st.com>
+Subject: Re: [RESEND] [PATCH] Input: add appleir USB driver
+Date: Tue, 5 Oct 2010 08:55:52 -0700
+Message-ID: <20101005155552.GB19730@core.coreip.homeip.net>
+References: <1285844276.26405.26.camel@cookie.hadess.net>
+ <201010050802.14271.oliver@neukum.org>
+ <20101005060822.GD15355@core.coreip.homeip.net>
+ <201010050818.35118.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:56930 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754805Ab0JEPrt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Oct 2010 11:47:49 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <584e4ecc7883807e1fae0e6c53b2837954935e53.1285933331.git.viresh.kumar@st.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <201010050818.35118.oliver@neukum.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Viresh KUMAR <viresh.kumar@st.com>
-Cc: linux-arm-kernel@lists.infradead.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, dbrownell@users.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Rajeev Kumar <rajeev-dlh.kumar@st.com>, shiraz.hashim@st.com, vipin.kumar@st.com, deepak.sikri@st.com, armando.visconti@st.com, vipulkumar.samar@st.com, pratyush.anand@st.com, bhupesh.sharma@st.com
 
-Hi Rajeev,
+On Tue, Oct 05, 2010 at 08:18:35AM +0200, Oliver Neukum wrote:
+> Am Dienstag, 5. Oktober 2010, 08:08:22 schrieb Dmitry Torokhov:
+> > > But what about the next opener? He'll get a completely spurious
+> > > key release event, as the next key is pressed.
+> > 
+> > How does the opening of a device handle relate to a device state?
+> 
+> It doesn't.
+> 
+> > Userspace should expect to see releases without presses (in case they
+> > weren't the first client that opened the device).
+> 
+> Yes, but based on sane timing. From the time stamps user space
+> would conclude that the key had been pressed at an unknown time
+> before open and released at the time the event indicates. Possibly
+> it would compute that the key had been held for at least hours.
+> 
 
-On Fri, Oct 01, 2010 at 05:25:41PM +0530, Viresh KUMAR wrote:
-> +
-> +#define KEY_MASK	0xFF000000
-> +#define KEY_VALUE	0x00FFFFFF
-> +#define ROW_MASK	0xF0
-> +#define COLUMN_MASK	0x0F
-> +#define ROW_SHIFT	4
-> +
-> +struct spear_kbd {
-> +	struct input_dev *input;
-> +	void __iomem *io_base;		/* Keyboard Base Address */
-> +	struct clk *clk;
-> +	u8 last_key ;
-> +	u8 last_event;
-> +	int *keymap;
-> +	int keymapsize;
-> +};
-> +/* TODO: Need to optimize this function */
-> +static inline int get_key_value(struct spear_kbd *dev, int row, int col)
-> +{
-> +	int i, key;
-> +
-> +	key = KEY(row, col, 0);
-> +	for (i = 0; i < dev->keymapsize; i++)
-> +		if ((dev->keymap[i] & KEY_MASK) == key)
-> +			return dev->keymap[i] & KEY_VALUE;
-> +	return -ENOKEY;
-> +}
+I do not understand. If a client never seen the "press" event and only
+saw "release" event it can't make any assumptions about timing. Press
+could be a millisecond ago or an hour ago, it just does not know. And
+such scenario can easily happen if the client is second to open the
+device.
 
-As discussed previously I'd like to see the driver using as much of
-matrix_keypad infrastructure as practical and also to see the initial
-keypad copied into the spear_kbd structure to ensure that the board code
-could be made const and bind/rebind of the device would restore the
-original keymap.
+I think the only sane behavior for clients is to ignore release events
+for keys that they did not see "down" event for.
 
-Thanks.
-
--- 
+- 
 Dmitry

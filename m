@@ -1,95 +1,68 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH] HID: hidraw, fix a NULL pointer dereference in
- hidraw_ioctl
-Date: Tue, 5 Oct 2010 22:29:17 +0200
-Message-ID: <20101005222917.9f4da7bc.ospite@studenti.unina.it>
-References: <1286018724-7484-1-git-send-email-ospite@studenti.unina.it>
-	<4CA9DC8D.3030207@signal11.us>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
+Date: Tue, 5 Oct 2010 13:42:41 -0700
+Message-ID: <20101005204241.GB23315@opensource.wolfsonmicro.com>
+References: <4C862EB3.4080006@compulab.co.il>
+ <20100907125335.GD25830@sirena.org.uk>
+ <201009091027.18176.marek.vasut@gmail.com>
+ <20100909094120.GB1988@rakim.wolfsonmicro.main>
+ <4CAACA63.6090202@compulab.co.il>
+ <20101005161608.GD19730@core.coreip.homeip.net>
+ <20101005164037.GA20555@opensource.wolfsonmicro.com>
+ <20101005180703.GD21399@core.coreip.homeip.net>
+ <20101005185942.GA22808@opensource.wolfsonmicro.com>
+ <20101005203508.7df590db@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp208.alice.it ([82.57.200.104]:39336 "EHLO smtp208.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757519Ab0JEU3b (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Oct 2010 16:29:31 -0400
-In-Reply-To: <4CA9DC8D.3030207@signal11.us>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:38802 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754104Ab0JEUmi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Oct 2010 16:42:38 -0400
+Content-Disposition: inline
+In-Reply-To: <20101005203508.7df590db@lxorguk.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oliver@neukum.name>, linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Igor Grinberg <grinberg@compulab.co.il>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
 
---Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Oct 05, 2010 at 08:35:08PM +0100, Alan Cox wrote:
 
-On Mon, 04 Oct 2010 09:54:21 -0400
-Alan Ott <alan@signal11.us> wrote:
+> > If the board doesn't use regulators you can just disable the regulator
+> > API at which point it compiles out into stubs which report success -
+> > this has been the case from day one.  There's only an issue if the board
+> > has a regulator configuration which is partially visible to software.
 
-> On 10/02/2010 07:25 AM, Antonio Ospite wrote:
-> > BUG: unable to handle kernel NULL pointer dereference at 00000000000000=
-28
-> > IP: [<ffffffffa02c66b4>] hidraw_ioctl+0xfc/0x32c [hid]
-> > [...]
-> >
-[...]
-> > there is a similar problem when _writing_ to the device, but Alan's
-> > changes in that area are shuffling the code a bit, should I send a patch
-> > [to hidraw_send_report()] on top of Alan's work for that, or a fix for
-> > current mainline [in hidraw_write()] on which Alan should rebase his
-> > work would be better?
-> >   =20
->=20
-> This needs to go back into stable kernels as well, so a patch against=20
-> mainline will be necessary for that. If you want to make a patch against=
-=20
-> mine, that's fine with me. If you want me to work it into my patch,=20
-> that's fine too. (I want you to get credit for the fix though :) ).
->
+> Which is quite likely on anything complex and means that hardcoding
+> regulator assumptions is bad.
 
-Alan rebasing your patch on top of the hidraw_write() fix is trivial
-so you do it in your v5, ok? It does not get rebased automatically just
-because of the mutex_lock() call.
+When I say "partially visible" I mean where we can't say what's there -
+we can cope fine with stuff that isn't software controllable.  The issue
+is that we can't automatically discover the system configuration.
 
-If it is OK to you I'd promote my Tested-by to a Signed-off-by in
-the commit message so to take implicit credit for the fix. But this is
-not even needed as the fix will be in mainline anyway.
+> I actually see two ways of attacking that, one is that the dummy
+> regulator *and* the compiled in regulator system have a standard
+> regulator value that can be passed which means "report success, move
+> along nothing to see" that could be passed into drivers, the other is to
+> not stick the stuff in drivers.
 
-> > The same pattern of unchecked hidraw_table[minor] is also present in
-> > hidraw_get_report but this function is called only after the NULL check
-> > in hidraw_ioctl _for_now_, so that is currently safe.
-> >   =20
->=20
-> I can stick a comment ahead of hidraw_send_report, similar to the one=20
-> which already exists.
->
+> I suspect the former may be cleaner ?
 
-ACK.
+I'm afraid I'm having a hard time parsing what you're saying here (what
+would a "regulator value" be?), but I suspect that you're trying to
+suggest something fairly close to what is already implemented.
 
-Thanks,
-   Antonio
+The model the regulator API has is that neither the driver for the
+regulator nor the driver for the consumer should know anything about the
+particular board, with the consumers just requesting the supplies the
+device has.  A separate piece of board-specific configuration code
+provides a table mapping the physical regulators in the system to the
+supplies on the individual chips.  There is an option, currently Kconfig
+only, which causes the regulator API to provide a do-nothing dummy
+regulator if an attempt is made to request a supply that doesn't exist.
+I *think* this dummy regulator corresponds to what you're suggesting
+above but like I say I'm having a hard time parsing it.
 
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkyrip0ACgkQ5xr2akVTsAHoaQCfUx1s+lHvU710FrEr7pluNyqL
-cSQAoJxvFk6c8XIbAcSBYYD761NkH+dY
-=LpGn
------END PGP SIGNATURE-----
-
---Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg--
+If the regulator API is compiled out then any attempt to get, enable or
+disable a regulator just unconditionally reports success.

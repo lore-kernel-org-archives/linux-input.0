@@ -1,50 +1,156 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
-Date: Tue, 5 Oct 2010 09:40:38 -0700
-Message-ID: <20101005164037.GA20555@opensource.wolfsonmicro.com>
-References: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com>
- <4C862EB3.4080006@compulab.co.il>
- <20100907125335.GD25830@sirena.org.uk>
- <201009091027.18176.marek.vasut@gmail.com>
- <20100909094120.GB1988@rakim.wolfsonmicro.main>
- <4CAACA63.6090202@compulab.co.il>
- <20101005161608.GD19730@core.coreip.homeip.net>
+From: Sundar R IYER <sundar.iyer@stericsson.com>
+Subject: [RFC] input: syfs switches for SKE keypad
+Date: Tue, 5 Oct 2010 18:54:42 +0200
+Message-ID: <33A307AF30D7BF4F811B1568FE7A9B180460D32FE2@EXDCVYMBSTM006.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20101005161608.GD19730@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Igor Grinberg <grinberg@compulab.co.il>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog111.obsmtp.com ([207.126.144.131]:47292 "EHLO
+	eu1sys200aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754880Ab0JEQyz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Oct 2010 12:54:55 -0400
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>
 
-On Tue, Oct 05, 2010 at 09:16:08AM -0700, Dmitry Torokhov wrote:
-> On Tue, Oct 05, 2010 at 08:49:07AM +0200, Igor Grinberg wrote:
+Hi Dmitry,
 
-> > You want each platform, that does not have a special regulated power supply
-> > for the ads7846, to define a dummy regulator just to cope with that artificial
-> > dependency of the device driver?
-> > I think it is a waste and big code duplication in each platform
-> > that does not have that special regulator.
+Meego folks have a requirement for dynamic sysfs switches
+for input drivers. I saw a patch from Samu (Nokia) for the same but which
+lost its way out.  Here is a small modified patch set for the SKE
+driver *only* which completes this requirement and hence a question for
+you. (The idea is only a sysfs implemention; its not yet synced in with the
+mainline code)
 
-It's a pretty good fit for most current systems - with current hardware
-you will normally have some software control for the vast majority of
-the regulators on the board if you have regulator control at all since
-that's the way PMICs have gone.  Having a complete map of the regulator
-usage in the system is useful since it allows us to do optimisations
-like powering down idle regulators much more readily.
+Would you be okay to accept a stand-alone patch like the below for all the
+input drivers that we would be pushing in or do you have some comments
+or improvements suggested to be folded in the original patch set from Nokia,
+so that it can get through into the generic tree?
 
-> I tend to agree, however I think that original patch that simply ignored
-> failures from regulator_get() is not the best option either. Can we have
-> a flag in platform data indicating that the board does not employ a
-> regulator? Then we could retain the hard failure in cases when we expect
-> regulator to be present while allowing to continue on boards that do not
-> have it.
+Regards,
+Sundar
 
-I really don't think it's a good idea to add this code to every single
-regulator using driver - this seems like an enormous waste of time and
-code complexity cost.  I have suggested several times that we should
-extend the dummy regulator mode so that boards can enable it from code
-as well as users enable it from Kconfig, I'm not sure why everyone is so
-keen on bodging this in drivers.
+--- a/drivers/input/keyboard/nomadik-ske-keypad.c
++++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+@@ -47,6 +47,7 @@
+  * @board:     keypad platform device
+  * @keymap:    matrix scan code table for keycodes
+  * @clk:       clock structure pointer
++ * @enable:    flag to enable the driver event
+  */
+ struct ske_keypad {
+        int irq;
+@@ -55,9 +56,11 @@ struct ske_keypad {
+        struct ske_keypad_platform_data *board;
+        unsigned short keymap[SKE_KPD_KEYMAP_SIZE];
+        struct clk *clk;
++       bool enable;
+ };
+ 
++static ssize_t ske_show_attr_enable(struct device *dev,
++                       struct device_attribute *attr, char *buf)
++{
++       struct platform_device *pdev = to_platform_device(dev);
++       struct ske_keypad *keypad = platform_get_drvdata(pdev);
++       return sprintf(buf, "%d\n", keypad->enable);
++}
++
++static ssize_t ske_store_attr_enable(struct device *dev,
++               struct device_attribute *attr, const char *buf, size_t count)
++{
++       struct platform_device *pdev = to_platform_device(dev);
++       struct ske_keypad *keypad = platform_get_drvdata(pdev);
++       unsigned long val;
++
++       if (strict_strtoul(buf, 0, &val))
++               return -EINVAL;
++
++       if (keypad->enable != val) {
++               keypad->enable = val;
++               if (!val) {
++                       disable_irq(keypad->irq);
++                       ske_keypad_set_bits(keypad, SKE_IMSC, ~SKE_KPIMA, 0x0);
++                       clk_disable(keypad->clk);
++               } else {
++                       clk_enable(keypad->clk);
++                       enable_irq(keypad->irq);
++                       ske_keypad_set_bits(keypad, SKE_IMSC, 0x0, SKE_KPIMA);
++               }
++       }
++       return count;
++}
++
++static DEVICE_ATTR(enable, S_IWUSR | S_IRUGO,
++       ske_show_attr_enable, ske_store_attr_enable);
++
++static struct attribute *ske_keypad_attrs[] = {
++       &dev_attr_enable.attr,
++       NULL,
++};
++
++static struct attribute_group ske_attr_group = {
++       .attrs = ske_keypad_attrs,
++};
++
+ /*
+  * ske_keypad_chip_init : init keypad controller configuration
+  *
+@@ -186,7 +234,7 @@ static int __devinit ske_keypad_probe(struct platform_device *pdev)
+        struct input_dev *input;
+        struct clk *clk;
+        void __iomem *reg_base;
+-       int ret;
++       int ret = 0;
+        int irq;
+        struct ske_keypad_platform_data *plat = pdev->dev.platform_data;
+ 
+@@ -250,6 +298,7 @@ static int __devinit ske_keypad_probe(struct platform_device *pdev)
+        input->keycodemax = ARRAY_SIZE(keypad->keymap);
+ 
+        input_set_capability(input, EV_MSC, MSC_SCAN);
++       input_set_drvdata(input, keypad);
+ 
+        __set_bit(EV_KEY, input->evbit);
+        if (!plat->no_autorepeat)
+@@ -271,6 +320,7 @@ static int __devinit ske_keypad_probe(struct platform_device *pdev)
+        keypad->input   = input;
+        keypad->reg_base = reg_base;
+        keypad->clk     = clk;
++       keypad->enable  = 1;
+ 
+        /* allocations are sane, we begin HW initialization */
+        clk_enable(keypad->clk);
+@@ -300,12 +350,21 @@ static int __devinit ske_keypad_probe(struct platform_device *pdev)
+                goto out_unregisterinput;
+        }
+ 
++       /* sysfs implementation for dynamic enable/disable the input event */
++       ret = sysfs_create_group(&pdev->dev.kobj, &ske_attr_group);
++       if (ret) {
++               dev_err(&pdev->dev, "failed to create sysfs entries\n");
++               goto out_free_irq;
++       }
++
+        device_init_wakeup(&pdev->dev, true);
+ 
+        platform_set_drvdata(pdev, keypad);
+ 
+        return 0;
+ 
++out_free_irq:
++       free_irq(keypad->irq, keypad);
+ out_unregisterinput:
+        input_unregister_device(input);
+        input = NULL;
+@@ -330,6 +389,7 @@ static int __devexit ske_keypad_remove(struct platform_device *pdev)
+ 
+        input_unregister_device(keypad->input);
+ 
++       sysfs_remove_group(&pdev->dev.kobj, &ske_attr_group);
+        free_irq(keypad->irq, keypad);
+ 
+        clk_disable(keypad->clk);

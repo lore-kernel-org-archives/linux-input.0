@@ -1,48 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] input: syfs switches for SKE keypad
-Date: Tue, 5 Oct 2010 10:41:06 -0700
-Message-ID: <20101005174106.GA21399@core.coreip.homeip.net>
-References: <33A307AF30D7BF4F811B1568FE7A9B180460D32FE2@EXDCVYMBSTM006.EQ1STM.local>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [stable] [PATCH 0/2] HID: hidraw, fix two NULL pointer
+ dereferences
+Date: Tue, 5 Oct 2010 10:42:00 -0700
+Message-ID: <20101005174200.GB29937@kroah.com>
+References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
+ <1286292017-6746-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:49490 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752606Ab0JERlP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Oct 2010 13:41:15 -0400
-Received: by pxi10 with SMTP id 10so1712976pxi.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Oct 2010 10:41:14 -0700 (PDT)
+Received: from kroah.org ([198.145.64.141]:50580 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753292Ab0JERpk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Oct 2010 13:45:40 -0400
 Content-Disposition: inline
-In-Reply-To: <33A307AF30D7BF4F811B1568FE7A9B180460D32FE2@EXDCVYMBSTM006.EQ1STM.local>
+In-Reply-To: <1286292017-6746-1-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sundar R IYER <sundar.iyer@stericsson.com>
-Cc: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-pm@lists.osdl.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.name>, stable@kernel.org, Alan Ott <alan@signal11.us>
 
-Hi Sundar,
-
-On Tue, Oct 05, 2010 at 06:54:42PM +0200, Sundar R IYER wrote:
-> Hi Dmitry,
+On Tue, Oct 05, 2010 at 05:20:15PM +0200, Antonio Ospite wrote:
+> Hi,
 > 
-> Meego folks have a requirement for dynamic sysfs switches
-> for input drivers. I saw a patch from Samu (Nokia) for the same but which
-> lost its way out.  Here is a small modified patch set for the SKE
-> driver *only* which completes this requirement and hence a question for
-> you. (The idea is only a sysfs implemention; its not yet synced in with the
-> mainline code)
+> here are some fixes to hidraw.
 > 
-> Would you be okay to accept a stand-alone patch like the below for all the
-> input drivers that we would be pushing in or do you have some comments
-> or improvements suggested to be folded in the original patch set from Nokia,
-> so that it can get through into the generic tree?
+> Patches are against 2.6.36-rc6, but they should be ported to other
+> maintained stable kernels as well.
+> 
+> Antonio Ospite (2):
+>   HID: hidraw, fix a NULL pointer dereference in hidraw_ioctl
+>   HID: hidraw, fix a NULL pointer dereference in hidraw_write
+> 
+>  drivers/hid/hidraw.c |   11 +++++++++++
+>  1 files changed, 11 insertions(+), 0 deletions(-)
+> 
+> 
+> The first one has been sent already but I am resending it with
+> stable@stable@kernel.org in the recipients list.
 
-I am not the biggest fan of such solution and I would prefer having this
-facility on a more generic level, maybe tied in with a special for of PM
-(something like user-controlled)?  Then most of the devices would simply
-reuse existing suspend/resume hooks without the need to add more and
-more pretty much duplicate code.
+Please read Documentation/stable_kernel_rules.txt which shows you how to
+properly notify the stable developer to pick up the patch (hint, cc:ing
+them on the patch is not the correct way, you need to add the mark to
+the signed-off-by: area.)
 
-Thanks.
+thanks,
 
--- 
-Dmitry
+greg k-h

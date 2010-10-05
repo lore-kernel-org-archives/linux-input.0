@@ -1,45 +1,89 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
-Date: Tue, 5 Oct 2010 20:35:08 +0100
-Message-ID: <20101005203508.7df590db@lxorguk.ukuu.org.uk>
-References: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com>
-	<4C862EB3.4080006@compulab.co.il>
-	<20100907125335.GD25830@sirena.org.uk>
-	<201009091027.18176.marek.vasut@gmail.com>
-	<20100909094120.GB1988@rakim.wolfsonmicro.main>
-	<4CAACA63.6090202@compulab.co.il>
-	<20101005161608.GD19730@core.coreip.homeip.net>
-	<20101005164037.GA20555@opensource.wolfsonmicro.com>
-	<20101005180703.GD21399@core.coreip.homeip.net>
-	<20101005185942.GA22808@opensource.wolfsonmicro.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [stable] [PATCH 0/2] HID: hidraw, fix two NULL pointer
+ dereferences
+Date: Tue, 5 Oct 2010 22:16:19 +0200
+Message-ID: <20101005221619.88904313.ospite@studenti.unina.it>
+References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
+	<1286292017-6746-1-git-send-email-ospite@studenti.unina.it>
+	<20101005174200.GB29937@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:44735 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751822Ab0JETKr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Oct 2010 15:10:47 -0400
-In-Reply-To: <20101005185942.GA22808@opensource.wolfsonmicro.com>
+Received: from smtp206.alice.it ([82.57.200.102]:45134 "EHLO smtp206.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755490Ab0JEUQv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Oct 2010 16:16:51 -0400
+In-Reply-To: <20101005174200.GB29937@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Igor Grinberg <grinberg@compulab.co.il>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
+To: Greg KH <greg@kroah.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.name>, stable@kernel.org, Alan Ott <alan@signal11.us>
 
-> If the board doesn't use regulators you can just disable the regulator
-> API at which point it compiles out into stubs which report success -
-> this has been the case from day one.  There's only an issue if the board
-> has a regulator configuration which is partially visible to software.
+--Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Which is quite likely on anything complex and means that hardcoding
-regulator assumptions is bad.
+On Tue, 5 Oct 2010 10:42:00 -0700
+Greg KH <greg@kroah.com> wrote:
 
-I actually see two ways of attacking that, one is that the dummy
-regulator *and* the compiled in regulator system have a standard
-regulator value that can be passed which means "report success, move
-along nothing to see" that could be passed into drivers, the other is to
-not stick the stuff in drivers.
+> On Tue, Oct 05, 2010 at 05:20:15PM +0200, Antonio Ospite wrote:
+> > Hi,
+> >=20
+> > here are some fixes to hidraw.
+> >=20
+> > Patches are against 2.6.36-rc6, but they should be ported to other
+> > maintained stable kernels as well.
+> >=20
+[...]
+> >=20
+> > The first one has been sent already but I am resending it with
+> > stable@stable@kernel.org in the recipients list.
+>=20
+> Please read Documentation/stable_kernel_rules.txt which shows you how to
+> properly notify the stable developer to pick up the patch (hint, cc:ing
+> them on the patch is not the correct way, you need to add the mark to
+> the signed-off-by: area.)
+>=20
 
-I suspect the former may be cleaner ?
+I see now, thanks Greg.
 
-Alan
+Jiri, are you adding the Cc: mark to these when you apply them? I
+misunderstood your previous statement about that and thought CCing like
+in recipients was enough.
+
+There is one thing which is not 100% clear to me from the doc (my
+fault): are patches targeted to -stable to be sent _twice_? Once for
+linus master branch (this is what "upstream" means in that context,
+isn't it?) and once for -stable with the commit ID of the former? Is
+the Cc mark meant just to automate this very process? It seemed to me
+that items 1 and 2 of the "Procedure" in
+Documentation/stable_kernel_rules.txt are alternative each other.
+
+Thanks,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkyrh5MACgkQ5xr2akVTsAFW4QCfU1V4RNPOzMRT03MfsvicOL34
+vLoAnjxUNQDUOEwgcdt0zNI6CERPnhjx
+=SUVN
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t--

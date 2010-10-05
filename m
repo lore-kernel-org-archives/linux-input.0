@@ -1,66 +1,72 @@
 From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [stable] [PATCH 0/2] HID: hidraw, fix two NULL pointer
- dereferences
-Date: Tue, 5 Oct 2010 22:16:19 +0200
-Message-ID: <20101005221619.88904313.ospite@studenti.unina.it>
-References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
-	<1286292017-6746-1-git-send-email-ospite@studenti.unina.it>
-	<20101005174200.GB29937@kroah.com>
+Subject: Re: [PATCH] HID: hidraw, fix a NULL pointer dereference in
+ hidraw_ioctl
+Date: Tue, 5 Oct 2010 22:29:17 +0200
+Message-ID: <20101005222917.9f4da7bc.ospite@studenti.unina.it>
+References: <1286018724-7484-1-git-send-email-ospite@studenti.unina.it>
+	<4CA9DC8D.3030207@signal11.us>
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
  micalg="PGP-SHA1";
- boundary="Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t"
+ boundary="Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp206.alice.it ([82.57.200.102]:45134 "EHLO smtp206.alice.it"
+Received: from smtp208.alice.it ([82.57.200.104]:39336 "EHLO smtp208.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755490Ab0JEUQv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Oct 2010 16:16:51 -0400
-In-Reply-To: <20101005174200.GB29937@kroah.com>
+	id S1757519Ab0JEU3b (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Oct 2010 16:29:31 -0400
+In-Reply-To: <4CA9DC8D.3030207@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.name>, stable@kernel.org, Alan Ott <alan@signal11.us>
+To: Alan Ott <alan@signal11.us>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oliver@neukum.name>, linux-kernel@vger.kernel.org
 
---Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t
+--Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 5 Oct 2010 10:42:00 -0700
-Greg KH <greg@kroah.com> wrote:
+On Mon, 04 Oct 2010 09:54:21 -0400
+Alan Ott <alan@signal11.us> wrote:
 
-> On Tue, Oct 05, 2010 at 05:20:15PM +0200, Antonio Ospite wrote:
-> > Hi,
-> >=20
-> > here are some fixes to hidraw.
-> >=20
-> > Patches are against 2.6.36-rc6, but they should be ported to other
-> > maintained stable kernels as well.
-> >=20
+> On 10/02/2010 07:25 AM, Antonio Ospite wrote:
+> > BUG: unable to handle kernel NULL pointer dereference at 00000000000000=
+28
+> > IP: [<ffffffffa02c66b4>] hidraw_ioctl+0xfc/0x32c [hid]
+> > [...]
+> >
 [...]
-> >=20
-> > The first one has been sent already but I am resending it with
-> > stable@stable@kernel.org in the recipients list.
+> > there is a similar problem when _writing_ to the device, but Alan's
+> > changes in that area are shuffling the code a bit, should I send a patch
+> > [to hidraw_send_report()] on top of Alan's work for that, or a fix for
+> > current mainline [in hidraw_write()] on which Alan should rebase his
+> > work would be better?
+> >   =20
 >=20
-> Please read Documentation/stable_kernel_rules.txt which shows you how to
-> properly notify the stable developer to pick up the patch (hint, cc:ing
-> them on the patch is not the correct way, you need to add the mark to
-> the signed-off-by: area.)
+> This needs to go back into stable kernels as well, so a patch against=20
+> mainline will be necessary for that. If you want to make a patch against=
+=20
+> mine, that's fine with me. If you want me to work it into my patch,=20
+> that's fine too. (I want you to get credit for the fix though :) ).
+>
+
+Alan rebasing your patch on top of the hidraw_write() fix is trivial
+so you do it in your v5, ok? It does not get rebased automatically just
+because of the mutex_lock() call.
+
+If it is OK to you I'd promote my Tested-by to a Signed-off-by in
+the commit message so to take implicit credit for the fix. But this is
+not even needed as the fix will be in mainline anyway.
+
+> > The same pattern of unchecked hidraw_table[minor] is also present in
+> > hidraw_get_report but this function is called only after the NULL check
+> > in hidraw_ioctl _for_now_, so that is currently safe.
+> >   =20
 >=20
+> I can stick a comment ahead of hidraw_send_report, similar to the one=20
+> which already exists.
+>
 
-I see now, thanks Greg.
-
-Jiri, are you adding the Cc: mark to these when you apply them? I
-misunderstood your previous statement about that and thought CCing like
-in recipients was enough.
-
-There is one thing which is not 100% clear to me from the doc (my
-fault): are patches targeted to -stable to be sent _twice_? Once for
-linus master branch (this is what "upstream" means in that context,
-isn't it?) and once for -stable with the commit ID of the former? Is
-the Cc mark meant just to automate this very process? It seemed to me
-that items 1 and 2 of the "Procedure" in
-Documentation/stable_kernel_rules.txt are alternative each other.
+ACK.
 
 Thanks,
    Antonio
@@ -75,15 +81,15 @@ A: Because it messes up the order in which people normally read text.
    See http://en.wikipedia.org/wiki/Posting_style
 Q: Why is top-posting such a bad thing?
 
---Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t
+--Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkyrh5MACgkQ5xr2akVTsAFW4QCfU1V4RNPOzMRT03MfsvicOL34
-vLoAnjxUNQDUOEwgcdt0zNI6CERPnhjx
-=SUVN
+iEYEARECAAYFAkyrip0ACgkQ5xr2akVTsAHoaQCfUx1s+lHvU710FrEr7pluNyqL
+cSQAoJxvFk6c8XIbAcSBYYD761NkH+dY
+=LpGn
 -----END PGP SIGNATURE-----
 
---Signature=_Tue__5_Oct_2010_22_16_19_+0200_FVVjoQxi.7hCeP/t--
+--Signature=_Tue__5_Oct_2010_22_29_17_+0200_i0qkyJffJP.ar5Gg--

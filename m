@@ -1,96 +1,47 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: Accelerometer drivers in drivers/hwmon
-Date: Tue, 05 Oct 2010 11:16:30 +0100
-Message-ID: <4CAAFAFE.7000002@cam.ac.uk>
-References: <20100925132330.4ee5e6a7@endymion.delvare> <20101004180333.GD8321@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH 0/2] HID: hidraw, fix two NULL pointer dereferences
+Date: Tue,  5 Oct 2010 17:20:15 +0200
+Message-ID: <1286292017-6746-1-git-send-email-ospite@studenti.unina.it>
+References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-50.csi.cam.ac.uk ([131.111.8.150]:33083 "EHLO
-	ppsw-50.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758000Ab0JEKK6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Oct 2010 06:10:58 -0400
-In-Reply-To: <20101004180333.GD8321@core.coreip.homeip.net>
+Received: from smtp205.alice.it ([82.57.200.101]:35088 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754104Ab0JEPVN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Oct 2010 11:21:13 -0400
+In-Reply-To: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, LM Sensors <lm-sensors@lm-sensors.org>, Takashi Iwai <tiwai@suse.de>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Eric Piel <eric.piel@tremplin-utc.net>, Frank Seidel <frank@f-seidel.de>
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Jiri Kosina <jkosina@suse.cz>, Alan Ott <alan@signal11.us>, Oliver Neukum <oliver@neukum.name>, linux-kernel@vger.kernel.org, stable@kernel.org
 
-Hi all,
+Hi,
 
-I've cc'd a few more relevant people and linux-iio as the below
-attribute discussion may result in minor changes there.
-> Hi Jean,
-> 
-> On Sat, Sep 25, 2010 at 01:23:30PM +0200, Jean Delvare wrote:
->> Hi Dmitry,
->>
->> I would like to kick the following 5 drivers out of drivers/hwmon: ams,
->> hdaps, hp_accel, lis3lv02d and applesmc. These are primarily
->> accelerometer devices, so the drivers do not belong to hwmon.
->>
->> ams, hdaps, hp_accel and lis3lv02d don't even register a hwmon device.
->> They are pure accelerometer drivers as far as I can see. Would you take
->> them in drivers/input/misc?
->>
->> applesmc is more complex, it's a multifunction device. Maybe it would
->> better go to drivers/macintosh, where the other thermal management
->> drivers for mac machines live.
->>
->> If you don't want hdaps and hp_accel, they might also fit under
->> drivers/platform/x86. There are quite a few laptop-specific drivers
->> living there already.
->>
->> If nobody wants these drivers, drivers/misc is yet another option. I'm
->> open to suggestions. Virtually anything which moves these drivers
->> outside of drivers/hwmon will make me happy.
->>
-> 
-> I looked over the drivers and none of them (with possible exception of
-> lis3lv02d) are pure input devices either. I think the best course of
-> action would be to move ams, applesmc, hdaps and hp_accel into
-> drivers/*/platform (I'd say drivers/x86/platform except that I think
-> apple one might not be x86 only).
-> 
-> lis3lv02d could ether go into drivers/misc or stay where it is for the
-> time being, pending resolution on overall IIO/Input/accelerometers
-> decision. I'd take it in input/misc but accelerometer guys need to
-> decide on common sysfs layout for such devices.
-Actually not so much a problem for that driver seeing as it provides very
-few sysfs interfaces...   Lets take a quick look at what is there and see
-if we can resolve this question nice and quickly.
+here are some fixes to hidraw.
 
-selftest - device specific so consistency doesn't matter - and it's a perfectly
-	   good name anyway!
+Patches are against 2.6.36-rc6, but they should be ported to other
+maintained stable kernels as well.
 
-position  - (I suspect this is a somewhat misleading name)
-	  I could be wrong but I doubt anyone is using this interface for
-	  cases where they care if they get a consistent set of readings,
-	  I'd advocate splitting that one up into three separate attributes.
-	  Whilst a single attribute is just fine if you know exactly what the
-	  device you are using is, it really doesn't generalize well to devices
-	  that aren't 3d accelerometers or have addition sensor types.
-	  We can quite happily maintain the 'position' interface as well though
-	  for compatibility reasons.  I'd just add, accel_x_input, accel_y_input
-	  and accel_z_input.
+Antonio Ospite (2):
+  HID: hidraw, fix a NULL pointer dereference in hidraw_ioctl
+  HID: hidraw, fix a NULL pointer dereference in hidraw_write
 
-rate -  here we have a subtle and largerly irrelevant difference.
-	IIO uses sampling_frequency but rate is just as valid.  We just came
-	from a more data capture terminology whereas I guess rate is more common
-	when considering data streams?  If I'm playing devil's advocate I guess
-	rate might imply a data rate and hence people might interpret it as being
-	in bytes per second.  Then again I'm sure sampling_frequency can also be
-	misinterpreted!
+ drivers/hid/hidraw.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
 
-This is a large complex driver which is definitely in input in a sense (even if
-it is located elsewhere in the tree). Until someone is using one of these parts
-in a circumstance where they need the other bits of IIO it doesn't to my mind
-make sense to do a complete rewrite.  There are a lot of bells and whistles in
-here that we would need to support that aren't even vaguely of interest for
-things other than input usage.  These are very much input oriented devices
-(supporting things like 'click' detection. Hence I'd encourage you to pick
-this one up for input. The misc option is fine with me as well.
 
-Jonathan
+The first one has been sent already but I am resending it with
+stable@stable@kernel.org in the recipients list.
 
+
+Thanks,
+   Antonio
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

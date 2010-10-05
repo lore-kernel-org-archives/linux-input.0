@@ -1,77 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Sysctl locking?
-Date: Mon, 4 Oct 2010 22:03:35 -0700
-Message-ID: <20101005050335.GA15355@core.coreip.homeip.net>
+Subject: Re: [PATCHv6] input: ROHM BU21013 touch panel controller support
+Date: Mon, 4 Oct 2010 22:39:12 -0700
+Message-ID: <20101005053912.GB15355@core.coreip.homeip.net>
+References: <1286180075-18160-1-git-send-email-naveen.gaddipati@stericsson.com>
+ <4CA9917D.6000402@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:46241 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:57957 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752073Ab0JEFDo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Oct 2010 01:03:44 -0400
+	with ESMTP id S1753852Ab0JEFjU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Oct 2010 01:39:20 -0400
+Received: by iwn5 with SMTP id 5so7859841iwn.19
+        for <linux-input@vger.kernel.org>; Mon, 04 Oct 2010 22:39:19 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <4CA9917D.6000402@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linux Input <linux-input@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Naveen Kumar G <naveen.gaddipati@stericsson.com>, linux-input@vger.kernel.org, tsoni@codeaurora.org
 
-Hi,
+On Mon, Oct 04, 2010 at 10:34:05AM +0200, Henrik Rydberg wrote:
+> On 10/04/2010 10:14 AM, Naveen Kumar G wrote:
+> 
+> > From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> > 
+> > Added the ROHM BU21013 capacitive touch panel controller
+> > driver support with i2c interface.
+> > 
+> > Acked-by: Linus Walleij <linus.walleij@stericsson.com>
+> > Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> > ---
+> > Changes in v6:
+> > 	-Update according to Henrik comments on patch v5
+> 
+> 
+> MT-content-wise, the patch seems ok now.
+> 
 
-I tried tracing through sysctl code and it appears that there is no
-generic locking for reads and writes to a sysctl node and thus a patch
-like below is needed if proc_handler is a bit more complex than simply
-storing an integer value.
-
-Am I missing something?
+Applied with minor edits, please take alook at my 'next' branch on
+kernel.org.
 
 Thanks.
 
---  
+-- 
 Dmitry
-
-Input: mac mouse emulation - add locking
-
-We need to add appropriate locking when toggling mac mouse emulation
-on and off to ensure that input device and handler are in consistent
-state.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/macintosh/mac_hid.c |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
-
-
-diff --git a/drivers/macintosh/mac_hid.c b/drivers/macintosh/mac_hid.c
-index 067f996..6a82388 100644
---- a/drivers/macintosh/mac_hid.c
-+++ b/drivers/macintosh/mac_hid.c
-@@ -23,6 +23,8 @@ static int mouse_button3_keycode = KEY_RIGHTALT;	/* right option key */
- 
- static struct input_dev *mac_hid_emumouse_dev;
- 
-+static DEFINE_MUTEX(mac_hid_emumouse_mutex);
-+
- static int mac_hid_create_emumouse(void)
- {
- 	static struct lock_class_key mac_hid_emumouse_dev_event_class;
-@@ -187,6 +189,10 @@ static int mac_hid_toggle_emumouse(ctl_table *table, int write,
- 	int old_val = *valp;
- 	int rc;
- 
-+	rc = mutex_lock_killable(&mac_hid_emumouse_mutex);
-+	if (rc)
-+		return rc;
-+
- 	rc = proc_dointvec(table, write, buffer, lenp, ppos);
- 
- 	if (rc == 0 && write && *valp != old_val) {
-@@ -202,6 +208,8 @@ static int mac_hid_toggle_emumouse(ctl_table *table, int write,
- 	if (rc)
- 		*valp = old_val;
- 
-+	mutex_unlock(&mac_hid_emumouse_mutex);
-+
- 	return rc;
- }
- 

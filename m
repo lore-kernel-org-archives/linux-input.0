@@ -1,83 +1,56 @@
-From: Linus Walleij <linus.ml.walleij@gmail.com>
-Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
-Date: Wed, 6 Oct 2010 10:01:10 +0200
-Message-ID: <AANLkTi=+xGpqSrhPB_nLqJd_E0DzLdeb4AaQQQqP04h3@mail.gmail.com>
-References: <20100907125335.GD25830@sirena.org.uk>
-	<201009091027.18176.marek.vasut@gmail.com>
-	<20100909094120.GB1988@rakim.wolfsonmicro.main>
-	<4CAACA63.6090202@compulab.co.il>
-	<20101005161608.GD19730@core.coreip.homeip.net>
-	<20101005164037.GA20555@opensource.wolfsonmicro.com>
-	<20101005180703.GD21399@core.coreip.homeip.net>
-	<20101005185942.GA22808@opensource.wolfsonmicro.com>
-	<20101005203508.7df590db@lxorguk.ukuu.org.uk>
-	<AANLkTimTW6v3N9aRA0h15SWXbBc_W0dhpf5rEeqBqGbf@mail.gmail.com>
-	<20101005225223.GC23315@opensource.wolfsonmicro.com>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [RFC] input: syfs switches for SKE keypad
+Date: Wed, 06 Oct 2010 14:02:11 +0530
+Message-ID: <4CAC340B.90207@codeaurora.org>
+References: <33A307AF30D7BF4F811B1568FE7A9B180460D32FE2@EXDCVYMBSTM006.EQ1STM.local> <20101005174106.GA21399@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:42552 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758673Ab0JFIBM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 04:01:12 -0400
-In-Reply-To: <20101005225223.GC23315@opensource.wolfsonmicro.com>
+Received: from wolverine02.qualcomm.com ([199.106.114.251]:58128 "EHLO
+	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932184Ab0JFIcR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 04:32:17 -0400
+In-Reply-To: <20101005174106.GA21399@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Igor Grinberg <grinberg@compulab.co.il>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sundar R IYER <sundar.iyer@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-pm@lists.osdl.org
 
-2010/10/6 Mark Brown <broonie@opensource.wolfsonmicro.com>:
+Hi Sundar,
 
-> On Wed, Oct 06, 2010 at 12:09:39AM +0200, Linus Walleij wrote:
->
->> This wrapper function will accept non-existing regulators and
->> not treat them as errors. Consumers will have to NULL-check their
->> regulators.
->
-> No, this is actively unhelpful. =A0If consumers can null check their
-> regulators then they can just as well do an IS_ERR() check
+On 10/5/2010 11:11 PM, Dmitry Torokhov wrote:
+> Hi Sundar,
+> 
+> On Tue, Oct 05, 2010 at 06:54:42PM +0200, Sundar R IYER wrote:
+>> Hi Dmitry,
+>>
+>> Meego folks have a requirement for dynamic sysfs switches
+>> for input drivers. I saw a patch from Samu (Nokia) for the same but which
+>> lost its way out.  Here is a small modified patch set for the SKE
+>> driver *only* which completes this requirement and hence a question for
+>> you. (The idea is only a sysfs implemention; its not yet synced in with the
+>> mainline code)
+>>
+>> Would you be okay to accept a stand-alone patch like the below for all the
+>> input drivers that we would be pushing in or do you have some comments
+>> or improvements suggested to be folded in the original patch set from Nokia,
+>> so that it can get through into the generic tree?
+> 
+> I am not the biggest fan of such solution and I would prefer having this
+> facility on a more generic level, maybe tied in with a special for of PM
+> (something like user-controlled)?  Then most of the devices would simply
+> reuse existing suspend/resume hooks without the need to add more and
+> more pretty much duplicate code.
 
-=2E. and wrap all enable/disable/ etc into conditional statements
-that depend on whether we could locate a regulator or not.
+I agree with Dmitry. Meego people or you should explain the real end-to-end
+usecase first. Why it can't fit anywhere else?
 
-And yes, this is what I'm already doing in drivers like
-drivers/mmc/host/mmci.c, where I check for the regulator
-holder in the mmci state struct to be NULL (another way
-would be to have a boolean .has_regulator but you get the
-idea).
+We should not fill in features very specific to userspace frameworks. I see lately
+lot of Android and Meego specific bits into TS and Keypad drivers from many folks.
 
-I think what Alan requested is that it be made more seamless.
-The patches try to make regulator support less hairy in these
-cases, a non-existing regulator will be a NULL pointer (no error
-and the runtime functions will act as the compile-time stubs.
+---Trilok Soni
 
-> The existing dummy regulator support already does all this in a manne=
-r
-> which is much less invasive for the core.
-
-Correct me if I'm wrong but the dummy regulators are something
-different which appear when you choose to compile out regulator
-support altogether.
-
-This was not what Alan was asking about I believe, the usecase
-to addressed is partial regulator support, where regulator framework
-*is* compiled in, but a driver *may* not get a regulator from the
-framework.
-
-The patch makes the runtime functions with partial regulator
-support for a NULL regulator behave exactly like the
-compile-time stubs.
-
-If I read your answer right, your stance is that the regulator
-framework shall not help out in situations like this, instead
-the driver shall recognice -ENODEV from regulator_get() and
-avoid doing any regulator calls after that. Is this correct?
-
-Yours,
-Linus Walleij
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

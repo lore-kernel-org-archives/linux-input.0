@@ -1,52 +1,60 @@
-From: Sundar R IYER <sundar.iyer@stericsson.com>
-Subject: RE: [RFC] input: syfs switches for SKE keypad
-Date: Wed, 6 Oct 2010 10:56:49 +0200
-Message-ID: <33A307AF30D7BF4F811B1568FE7A9B180461062FE6@EXDCVYMBSTM006.EQ1STM.local>
-References: <33A307AF30D7BF4F811B1568FE7A9B180460D32FE2@EXDCVYMBSTM006.EQ1STM.local>
- <20101005174106.GA21399@core.coreip.homeip.net>
- <4CAC340B.90207@codeaurora.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [stable] [PATCH 0/2] HID: hidraw, fix two NULL pointer
+ dereferences
+Date: Wed, 6 Oct 2010 11:31:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010061130430.29535@pobox.suse.cz>
+References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz> <1286292017-6746-1-git-send-email-ospite@studenti.unina.it> <20101005174200.GB29937@kroah.com> <20101005221619.88904313.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog114.obsmtp.com ([207.126.144.137]:35519 "EHLO
-	eu1sys200aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754363Ab0JFI5g convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Oct 2010 04:57:36 -0400
-In-Reply-To: <4CAC340B.90207@codeaurora.org>
-Content-Language: en-US
+Received: from cantor2.suse.de ([195.135.220.15]:45983 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757258Ab0JFJb4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Oct 2010 05:31:56 -0400
+In-Reply-To: <20101005221619.88904313.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>
-Cc: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, "linux-pm@lists.osdl.org" <linux-pm@lists.osdl.org>
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.name>, stable@kernel.org, Alan Ott <alan@signal11.us>
 
-Hi,
+On Tue, 5 Oct 2010, Antonio Ospite wrote:
 
->-----Original Message-----
->From: Trilok Soni [mailto:tsoni@codeaurora.org]
->Sent: Wednesday, October 06, 2010 2:02 PM
->
->I agree with Dmitry. Meego people or you should explain the real end-to-end
->usecase first. Why it can't fit anywhere else?
+> > > here are some fixes to hidraw.
+> > > 
+> > > Patches are against 2.6.36-rc6, but they should be ported to other
+> > > maintained stable kernels as well.
+> > > 
+> [...]
+> > > 
+> > > The first one has been sent already but I am resending it with
+> > > stable@stable@kernel.org in the recipients list.
+> > 
+> > Please read Documentation/stable_kernel_rules.txt which shows you how to
+> > properly notify the stable developer to pick up the patch (hint, cc:ing
+> > them on the patch is not the correct way, you need to add the mark to
+> > the signed-off-by: area.)
+> > 
+> 
+> I see now, thanks Greg.
+> 
+> Jiri, are you adding the Cc: mark to these when you apply them? I
+> misunderstood your previous statement about that and thought CCing like
+> in recipients was enough.
+> 
+> There is one thing which is not 100% clear to me from the doc (my
+> fault): are patches targeted to -stable to be sent _twice_? Once for
+> linus master branch (this is what "upstream" means in that context,
+> isn't it?) and once for -stable with the commit ID of the former? Is
+> the Cc mark meant just to automate this very process? It seemed to me
+> that items 1 and 2 of the "Procedure" in
+> Documentation/stable_kernel_rules.txt are alternative each other.
 
-I don't know the full details; but what I can think of (or did I read it somewhere?)
-is events like phones with slider keypad; you can power save keypad controller
-when the keypad is not active. And these events are probably issued from the user
-space to the kernel and that's why the requirement probably. And I do remember
-Samu mentioning about unwanted wakeup events which were avoided via these switches.
+Either you have to send it twice, or you can ad 'Cc: stable@kernel.org' to 
+the patch meta-information, and it will be picked up for stable 
+automatically once it lands in Linus' tree.
 
-Adding Samu who can explain more on this.
+I have added the 'Cc:' markings now and applied both patches, thanks.
 
->We should not fill in features very specific to userspace frameworks. I see lately
->lot of Android and Meego specific bits into TS and Keypad drivers from many
->folks.
->
-
-Yeah. IMO it is because people want to mainline and push out all drivers more and more;
-And as of today most of these drivers and HW are tested and delivered on such frameworks :)
-
-Regards,
-Sundar
-
-
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

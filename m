@@ -1,56 +1,83 @@
-From: viresh kumar <viresh.kumar@st.com>
-Subject: Re: [PATCH V2 21/69] Keyboard: Adding support for spear-keyboard
-Date: Wed, 6 Oct 2010 12:41:56 +0530
-Message-ID: <4CAC213C.9080506@st.com>
-References: <cover.1285933331.git.viresh.kumar@st.com> <584e4ecc7883807e1fae0e6c53b2837954935e53.1285933331.git.viresh.kumar@st.com> <20101005154737.GA19730@core.coreip.homeip.net> <4CABF3E0.8010909@st.com> <20101006061652.GA14609@core.coreip.homeip.net>
+From: Linus Walleij <linus.ml.walleij@gmail.com>
+Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
+Date: Wed, 6 Oct 2010 10:01:10 +0200
+Message-ID: <AANLkTi=+xGpqSrhPB_nLqJd_E0DzLdeb4AaQQQqP04h3@mail.gmail.com>
+References: <20100907125335.GD25830@sirena.org.uk>
+	<201009091027.18176.marek.vasut@gmail.com>
+	<20100909094120.GB1988@rakim.wolfsonmicro.main>
+	<4CAACA63.6090202@compulab.co.il>
+	<20101005161608.GD19730@core.coreip.homeip.net>
+	<20101005164037.GA20555@opensource.wolfsonmicro.com>
+	<20101005180703.GD21399@core.coreip.homeip.net>
+	<20101005185942.GA22808@opensource.wolfsonmicro.com>
+	<20101005203508.7df590db@lxorguk.ukuu.org.uk>
+	<AANLkTimTW6v3N9aRA0h15SWXbBc_W0dhpf5rEeqBqGbf@mail.gmail.com>
+	<20101005225223.GC23315@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:45593 "EHLO
-	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758637Ab0JFHMl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Oct 2010 03:12:41 -0400
-In-Reply-To: <20101006061652.GA14609@core.coreip.homeip.net>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:42552 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758673Ab0JFIBM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 04:01:12 -0400
+In-Reply-To: <20101005225223.GC23315@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, "a.zummo@towertech.it" <a.zummo@towertech.it>, "dbrownell@users.sourceforge.net" <dbrownell@users.sourceforge.net>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rajeev KUMAR <rajeev-dlh.kumar@st.com>, Shiraz HASHIM <shiraz.hashim@st.com>, Vipin KUMAR <vipin.kumar@st.com>, Deepak SIKRI <deepak.sikri@st.com>, Armando VISCONTI <armando.visconti@st.com>, Vipul Kumar SAMAR <vipulkumar.samar@st.com>, Pratyush ANAND <pratyush.anand@st.com>, Bhupesh SHARMA <bhupesh.sharma@st.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Igor Grinberg <grinberg@compulab.co.il>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
 
-On 10/06/2010 11:46 AM, Dmitry Torokhov wrote:
-> Sorry, did not look far enough in the patch and missed the separate
-> allocation. But do you really want to allocate it separately? I think
-> the following patch simplifies and speeds up things at the expense of
-> slightly larger keymap structure.
-> 
-> There are also fixes for proper __devinit/__devexit markups, locking of
-> open/close vs suspend/resume, keymap can be changed from userspace via
-> EVIOCSKEYCODE and bunch of other changes.
-> 
-> Thanks.
-> 
-> --
-> Dmitry
-> 
-> 
-> Input: spear-kbd - assorted changes
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  arch/arm/plat-spear/include/plat/keyboard.h |    3
->  drivers/input/keyboard/spear-keyboard.c     |  311 +++++++++++++--------------
->  2 files changed, 149 insertions(+), 165 deletions(-)
+2010/10/6 Mark Brown <broonie@opensource.wolfsonmicro.com>:
 
-Dmitry,
+> On Wed, Oct 06, 2010 at 12:09:39AM +0200, Linus Walleij wrote:
+>
+>> This wrapper function will accept non-existing regulators and
+>> not treat them as errors. Consumers will have to NULL-check their
+>> regulators.
+>
+> No, this is actively unhelpful. =A0If consumers can null check their
+> regulators then they can just as well do an IS_ERR() check
 
-We are busy with other activities, and can't test it right now.
-But i have reviewed it and it looks fine to me.
+=2E. and wrap all enable/disable/ etc into conditional statements
+that depend on whether we could locate a regulator or not.
 
-Acked-by: Viresh Kumar <viresh.kumar@st.com>
+And yes, this is what I'm already doing in drivers like
+drivers/mmc/host/mmci.c, where I check for the regulator
+holder in the mmci state struct to be NULL (another way
+would be to have a boolean .has_regulator but you get the
+idea).
 
-Please include it in input-next repo. We will test it later on.
+I think what Alan requested is that it be made more seamless.
+The patches try to make regulator support less hairy in these
+cases, a non-existing regulator will be a NULL pointer (no error
+and the runtime functions will act as the compile-time stubs.
 
+> The existing dummy regulator support already does all this in a manne=
+r
+> which is much less invasive for the core.
+
+Correct me if I'm wrong but the dummy regulators are something
+different which appear when you choose to compile out regulator
+support altogether.
+
+This was not what Alan was asking about I believe, the usecase
+to addressed is partial regulator support, where regulator framework
+*is* compiled in, but a driver *may* not get a regulator from the
+framework.
+
+The patch makes the runtime functions with partial regulator
+support for a NULL regulator behave exactly like the
+compile-time stubs.
+
+If I read your answer right, your stance is that the regulator
+framework shall not help out in situations like this, instead
+the driver shall recognice -ENODEV from regulator_get() and
+avoid doing any regulator calls after that. Is this correct?
+
+Yours,
+Linus Walleij
 --
-viresh
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

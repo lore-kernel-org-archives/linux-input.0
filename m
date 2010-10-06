@@ -1,45 +1,38 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
-Date: Tue, 5 Oct 2010 15:52:24 -0700
-Message-ID: <20101005225223.GC23315@opensource.wolfsonmicro.com>
-References: <20100907125335.GD25830@sirena.org.uk>
- <201009091027.18176.marek.vasut@gmail.com>
- <20100909094120.GB1988@rakim.wolfsonmicro.main>
- <4CAACA63.6090202@compulab.co.il>
- <20101005161608.GD19730@core.coreip.homeip.net>
- <20101005164037.GA20555@opensource.wolfsonmicro.com>
- <20101005180703.GD21399@core.coreip.homeip.net>
- <20101005185942.GA22808@opensource.wolfsonmicro.com>
- <20101005203508.7df590db@lxorguk.ukuu.org.uk>
- <AANLkTimTW6v3N9aRA0h15SWXbBc_W0dhpf5rEeqBqGbf@mail.gmail.com>
+From: viresh kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH V2 21/69] Keyboard: Adding support for spear-keyboard
+Date: Wed, 6 Oct 2010 09:28:24 +0530
+Message-ID: <4CABF3E0.8010909@st.com>
+References: <cover.1285933331.git.viresh.kumar@st.com> <584e4ecc7883807e1fae0e6c53b2837954935e53.1285933331.git.viresh.kumar@st.com> <20101005154737.GA19730@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:39199 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753225Ab0JEWwN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Oct 2010 18:52:13 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTimTW6v3N9aRA0h15SWXbBc_W0dhpf5rEeqBqGbf@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101005154737.GA19730-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, "a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org" <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, "dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org" <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rajeev KUMAR <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.ml.walleij@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Igor Grinberg <grinberg@compulab.co.il>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
 
-On Wed, Oct 06, 2010 at 12:09:39AM +0200, Linus Walleij wrote:
+On 10/05/2010 09:17 PM, Dmitry Torokhov wrote:
+> As discussed previously I'd like to see the driver using as much of
+> matrix_keypad infrastructure as practical and also to see the initial
+> keypad copied into the spear_kbd structure to ensure that the board code
+> could be made const and bind/rebind of the device would restore the
+> original keymap.
+> 
 
-> This wrapper function will accept non-existing regulators and
-> not treat them as errors. Consumers will have to NULL-check their
-> regulators.
+Dmitry,
 
-No, this is actively unhelpful.  If consumers can null check their
-regulators then they can just as well do an IS_ERR() check and if we
-just eat null pointers like this then the API doesn't degrade gracefully
-when it can't implement things - for example, your regulator_set_voltage() 
-will report success when it fails to set a voltage which is going to
-upset any consumer that thinks it did actually change the current
-voltage.
+As suggested in V1, we have used KEY() macro from matrix_keypad.h file.
+Also we are allocating memory for keymap in driver itself in probe.
+Then we are copying keymap in from plat data. This makes it restore to
+original keymap on every bind/rebind of device.
 
-The existing dummy regulator support already does all this in a manner
-which is much less invasive for the core.
+Is there anything else we need to do??
+
+-- 
+viresh
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

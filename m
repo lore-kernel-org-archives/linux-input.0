@@ -1,38 +1,38 @@
-From: Rabin Vincent <rabin@rab.in>
-Subject: Re: Driver for TC35894XBG keypad controller
-Date: Wed, 6 Oct 2010 21:39:17 +0530
-Message-ID: <20101006160917.GA4318@debian>
-References: <20101005161838.16209.16231.stgit@localhost.localdomain>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Wed, 6 Oct 2010 12:19:13 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1010061214070.2047-100000@iolanthe.rowland.org>
+References: <20101006154331.GA28913@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:40726 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757443Ab0JFQJj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 12:09:39 -0400
-Content-Disposition: inline
-In-Reply-To: <20101005161838.16209.16231.stgit@localhost.localdomain>
+Received: from iolanthe.rowland.org ([192.131.102.54]:49165 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1759339Ab0JFQTO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 12:19:14 -0400
+In-Reply-To: <20101006154331.GA28913@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, sundar.iyer@stericsson.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Trilok Soni <tsoni@codeaurora.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-pm@lists.osdl.org" <linux-pm@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>
 
-On Tue, Oct 05, 2010 at 04:19:18PM -0000, Alan Cox wrote:
-> +config KEYBOARD_TC35894XBG
-> +	tristate "TC35894XBG I2C keypad support"
+On Wed, 6 Oct 2010, Dmitry Torokhov wrote:
 
-This looks one of the TC3589x family of I/O expanders.  For the TC35892,
-there's already a minimal MFD core in driver/mfd/tc35892.c, and a driver
-for the GPIO block based on that in drivers/gpio/tc35892-gpio.c.
+> > I think this can be solved with pm_runtime, isn't it? Though I am not expert
+> > at pm_runtime, but this framework can be explored to enable these features.
+> 
+> I think last time Rafael mentioned that runtime PM did not allow for
+> forcing power state from userspace but I wonder if it would be possible
+> for userspace to signal and "accelerate" the idle state for a device and
+> then standard runtime PM framework would kick in...
 
-Comparing the registers map in this patch with the TC35892 datasheet,
-the parts look very similar, so would it be possible for you to make
-this driver use the TC35892 MFD core, so that multiple blocks can used
-simultaneously?
+Yes; drivers can implement their runtime power policy any way they
+want.  For example, a driver could create a sysfs attribute file which
+userspace could use to ask for changes in the power state.
 
-There's no keypad driver for the series in mainline yet, but Sundar was
-readying one for the TC35893; I'll let him comment on how similar the
-keypad parts look, and what it would take to support the TC35894XBG and
-TC35893 keypads in one driver.
+The real question is whether the driver is platform-specific.  If it is 
+then fine, it can do whatever it wants.  If it isn't then it should 
+try to avoid doing things that are tied to a specific platform.
 
-Rabin
+Alan Stern
+

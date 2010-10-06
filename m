@@ -1,161 +1,55 @@
-From: Linus Walleij <linus.ml.walleij@gmail.com>
-Subject: Re: [PATCH] Input: Make ADS7846 independent on regulator
-Date: Wed, 6 Oct 2010 19:16:05 +0200
-Message-ID: <AANLkTindRMOmo8CrFuUsWqNRn6CZVKOMQZS2LXJ63=YC@mail.gmail.com>
-References: <1280555108-27994-1-git-send-email-marek.vasut@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Wed, 6 Oct 2010 10:18:12 -0700
+Message-ID: <201010061018.14714.dmitry.torokhov@gmail.com>
+References: <Pine.LNX.4.44L0.1010061214070.2047-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:58882 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752377Ab0JFRQH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 13:16:07 -0400
-In-Reply-To: <1280555108-27994-1-git-send-email-marek.vasut@gmail.com>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:38501 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751861Ab0JFRSY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 13:18:24 -0400
+Received: by iwn5 with SMTP id 5so9983512iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 06 Oct 2010 10:18:23 -0700 (PDT)
+In-Reply-To: <Pine.LNX.4.44L0.1010061214070.2047-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, vapier@gentoo.org, pavel@ucw.cz, akpm@linux-foundation.org, khilman@deeprootsystems.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eric.y.miao@gmail.com
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Trilok Soni <tsoni@codeaurora.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-pm@lists.osdl.org" <linux-pm@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>
 
-2010/7/31 Marek Vasut <marek.vasut@gmail.com>:
-
-> This fixes a problem on some Sharp Zaurus devices, where there is no =
-regulator
-> present and yet the touchscreen is used.
+On Wednesday, October 06, 2010 09:19:13 am Alan Stern wrote:
+> On Wed, 6 Oct 2010, Dmitry Torokhov wrote:
+> > > I think this can be solved with pm_runtime, isn't it? Though I am not
+> > > expert at pm_runtime, but this framework can be explored to enable
+> > > these features.
+> > 
+> > I think last time Rafael mentioned that runtime PM did not allow for
+> > forcing power state from userspace but I wonder if it would be possible
+> > for userspace to signal and "accelerate" the idle state for a device and
+> > then standard runtime PM framework would kick in...
+> 
+> Yes; drivers can implement their runtime power policy any way they
+> want.  For example, a driver could create a sysfs attribute file which
+> userspace could use to ask for changes in the power state.
+> 
+> The real question is whether the driver is platform-specific.  If it is
+> then fine, it can do whatever it wants.  If it isn't then it should
+> try to avoid doing things that are tied to a specific platform.
 >
-> Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
-> ---
-> =A0drivers/input/touchscreen/ads7846.c | =A0 50 +++++++++++++++++++++=
-++------------
-> =A01 files changed, 33 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touc=
-hscreen/ads7846.c
-> index a9fdf55..dafaef6 100644
-> --- a/drivers/input/touchscreen/ads7846.c
-> +++ b/drivers/input/touchscreen/ads7846.c
-> @@ -791,7 +791,10 @@ static void ads7846_disable(struct ads7846 *ts)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0}
->
-> - =A0 =A0 =A0 regulator_disable(ts->reg);
-> +#ifdef CONFIG_REGULATOR
 
-Skip the #ifdef, if the regulators are configured out, there will be
-a stub providing NULL for all get_regulator() calls anyway.
+No, I really think it is wrong. This what leads us to the situation we
+are in at the moment. Every device [re]implements  its own little knobs
+to do power management. Accelerometers export their (often tailored to a
+specific platform) attributes in sysfs in nonstandard way. And so on,
+and so forth.
 
-> + =A0 =A0 =A0 if (ts->reg)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_disable(ts->reg);
-> +#endif
->
-> =A0 =A0 =A0 =A0/* we know the chip's in lowpower mode since we always
-> =A0 =A0 =A0 =A0 * leave it that way after every request
-> @@ -804,7 +807,10 @@ static void ads7846_enable(struct ads7846 *ts)
-> =A0 =A0 =A0 =A0if (!ts->disabled)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return;
->
-> - =A0 =A0 =A0 regulator_enable(ts->reg);
-> +#ifdef CONFIG_REGULATOR
+Here I'd like to see these (PM) hooks done on device core level, i.e.
+the knobs should be unified and live in /sys/devices/.../deviceX/power/
 
-Skip the #ifdef.
+Thanks.
 
-> + =A0 =A0 =A0 if (ts->reg)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_enable(ts->reg);
-> +#endif
->
-> =A0 =A0 =A0 =A0ts->disabled =3D 0;
-> =A0 =A0 =A0 =A0ts->irq_disabled =3D 0;
-> @@ -1161,18 +1167,21 @@ static int __devinit ads7846_probe(struct spi=
-_device *spi)
->
-> =A0 =A0 =A0 =A0ts->last_msg =3D m;
->
-> +#ifdef CONFIG_REGULATOR
-
-Skip the #ifdef.
-
-> =A0 =A0 =A0 =A0ts->reg =3D regulator_get(&spi->dev, "vcc");
-> - =A0 =A0 =A0 if (IS_ERR(ts->reg)) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D PTR_ERR(ts->reg);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "unable to get regul=
-ator: %d\n", err);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_free_gpio;
-> - =A0 =A0 =A0 }
-> -
-> - =A0 =A0 =A0 err =3D regulator_enable(ts->reg);
-> - =A0 =A0 =A0 if (err) {
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "unable to enable re=
-gulator: %d\n", err);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_put_regulator;
-> + =A0 =A0 =A0 if (IS_ERR(ts->reg))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->reg =3D NULL;
-> + =A0 =A0 =A0 else {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D regulator_enable(ts->reg);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (err) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "una=
-ble to enable regulator: %d\n",
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 err);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_put_regulator;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> =A0 =A0 =A0 =A0}
-> +#else
-> + =A0 =A0 =A0 ts->reg =3D NULL;
-> +#endif
-
-Delete the #else/#endif clause entirely.
-
->
-> =A0 =A0 =A0 =A0if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FA=
-LLING,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0spi->dev.driver->name,=
- ts)) {
-> @@ -1218,10 +1227,13 @@ static int __devinit ads7846_probe(struct spi=
-_device *spi)
-> =A0err_free_irq:
-> =A0 =A0 =A0 =A0free_irq(spi->irq, ts);
-> =A0err_disable_regulator:
-> - =A0 =A0 =A0 regulator_disable(ts->reg);
-> +#ifdef CONFIG_REGULATOR
-
-Skip the #ifdef.
-
-> + =A0 =A0 =A0 if (ts->reg)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_disable(ts->reg);
-> =A0err_put_regulator:
-> - =A0 =A0 =A0 regulator_put(ts->reg);
-> - err_free_gpio:
-> + =A0 =A0 =A0 if (ts->reg)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_put(ts->reg);
-> +#endif
-> =A0 =A0 =A0 =A0if (ts->gpio_pendown !=3D -1)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0gpio_free(ts->gpio_pendown);
-> =A0err_cleanup_filter:
-> @@ -1251,8 +1263,12 @@ static int __devexit ads7846_remove(struct spi=
-_device *spi)
-> =A0 =A0 =A0 =A0/* suspend left the IRQ disabled */
-> =A0 =A0 =A0 =A0enable_irq(ts->spi->irq);
->
-> - =A0 =A0 =A0 regulator_disable(ts->reg);
-> - =A0 =A0 =A0 regulator_put(ts->reg);
-> +#ifdef CONFIG_REGULATOR
-
-Skip the #ifdef.
-
-> + =A0 =A0 =A0 if (ts->reg) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_disable(ts->reg);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_put(ts->reg);
-> + =A0 =A0 =A0 }
-> +#endif
->
-> =A0 =A0 =A0 =A0if (ts->gpio_pendown !=3D -1)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0gpio_free(ts->gpio_pendown);
-> --
-> 1.7.1
-
-Yours,
-Linus Walleij
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

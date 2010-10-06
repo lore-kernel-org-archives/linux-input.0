@@ -1,31 +1,49 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: Make ADS7846 independent on regulator
-Date: Wed, 6 Oct 2010 18:52:47 +0100
-Message-ID: <20101006175247.GB2874@sirena.org.uk>
-References: <1280555108-27994-1-git-send-email-marek.vasut@gmail.com> <AANLkTindRMOmo8CrFuUsWqNRn6CZVKOMQZS2LXJ63=YC@mail.gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Wed, 6 Oct 2010 14:19:03 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1010061417410.2047-100000@iolanthe.rowland.org>
+References: <201010061018.14714.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:34877 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759113Ab0JFRxA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 13:53:00 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTindRMOmo8CrFuUsWqNRn6CZVKOMQZS2LXJ63=YC@mail.gmail.com>
+Received: from iolanthe.rowland.org ([192.131.102.54]:58442 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1759621Ab0JFSTF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 14:19:05 -0400
+In-Reply-To: <201010061018.14714.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.ml.walleij@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, vapier@gentoo.org, pavel@ucw.cz, akpm@linux-foundation.org, khilman@deeprootsystems.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eric.y.miao@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Trilok Soni <tsoni@codeaurora.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-pm@lists.osdl.org" <linux-pm@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>
 
-On Wed, Oct 06, 2010 at 07:16:05PM +0200, Linus Walleij wrote:
-> 2010/7/31 Marek Vasut <marek.vasut@gmail.com>:
+On Wed, 6 Oct 2010, Dmitry Torokhov wrote:
 
-> > +#ifdef CONFIG_REGULATOR
+> > > I think last time Rafael mentioned that runtime PM did not allow for
+> > > forcing power state from userspace but I wonder if it would be possible
+> > > for userspace to signal and "accelerate" the idle state for a device and
+> > > then standard runtime PM framework would kick in...
+> > 
+> > Yes; drivers can implement their runtime power policy any way they
+> > want.  For example, a driver could create a sysfs attribute file which
+> > userspace could use to ask for changes in the power state.
+> > 
+> > The real question is whether the driver is platform-specific.  If it is
+> > then fine, it can do whatever it wants.  If it isn't then it should
+> > try to avoid doing things that are tied to a specific platform.
+> >
+> 
+> No, I really think it is wrong. This what leads us to the situation we
+> are in at the moment. Every device [re]implements  its own little knobs
+> to do power management. Accelerometers export their (often tailored to a
+> specific platform) attributes in sysfs in nonstandard way. And so on,
+> and so forth.
+> 
+> Here I'd like to see these (PM) hooks done on device core level, i.e.
+> the knobs should be unified and live in /sys/devices/.../deviceX/power/
 
-> Skip the #ifdef, if the regulators are configured out, there will be
-> a stub providing NULL for all get_regulator() calls anyway.
+I haven't followed this thread in detail.  What sort of knobs are you 
+talking about?  That is, what needs to be done?  Maybe the PM core 
+already provides these features.
 
-While ifdefs on CONFIG_REGULATOR should indeed be skipped I'd not expect
-the stubs to be returning NULL for anything (but then as discussed
-elsewhere this whole approach of doing everything in the drivers is a
-poor one).
+Alan Stern
+

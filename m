@@ -1,23 +1,24 @@
-From: Alan Stern <stern@rowland.harvard.edu>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Wed, 6 Oct 2010 14:51:19 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1010061441400.2047-100000@iolanthe.rowland.org>
-References: <20101006182647.GA5794@core.coreip.homeip.net>
+Date: Wed, 6 Oct 2010 21:08:00 +0200
+Message-ID: <201010062108.00366.rjw@sisk.pl>
+References: <201010061018.14714.dmitry.torokhov@gmail.com> <Pine.LNX.4.44L0.1010061417410.2047-100000@iolanthe.rowland.org> <20101006182647.GA5794@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:52366 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S933007Ab0JFSvV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Oct 2010 14:51:21 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:51080 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758064Ab0JFTIx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Oct 2010 15:08:53 -0400
 In-Reply-To: <20101006182647.GA5794@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Trilok Soni <tsoni@codeaurora.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-pm@lists.osdl.org" <linux-pm@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>
 
-On Wed, 6 Oct 2010, Dmitry Torokhov wrote:
-
+On Wednesday, October 06, 2010, Dmitry Torokhov wrote:
 > On Wed, Oct 06, 2010 at 02:19:03PM -0400, Alan Stern wrote:
 > > On Wed, 6 Oct 2010, Dmitry Torokhov wrote:
 > > 
@@ -56,19 +57,12 @@ On Wed, 6 Oct 2010, Dmitry Torokhov wrote:
 > need more standardised solution, preferably one that could re-use
 > existing PM hooks in drivers.
 
-The OMAP people are working on exactly the same problem and are doing 
-their best to solve it using the runtime PM framework.  There have been 
-a couple of threads about it on the linux-pm mailing list:
+There's no interface for that at the PM core level, but I think we should
+add it, perhaps in analogy to the autosuspend one.  Namely, we can add a
+flag for drivers who want to make their suspend/resume callbacks to be
+reachable directly from user space.  Setting that flag would enable a sysfs
+attribute in /sys/devices/.../power/ allowing user space to invoke
+pm_runtime_suspend() and pm_runtime_resume() for the given device.
 
-https://lists.linux-foundation.org/pipermail/linux-pm/2010-September/028689.html
-https://lists.linux-foundation.org/pipermail/linux-pm/2010-September/028868.html
-
-The question is not so much how the driver should be told to power-down
-a device (the PM framework takes care of all that); it's how to
-recognize when those "certain circumstances" occur.  Can this be done
-by the kernel in a reasonably platform-independent way?  Or does the
-kernel have to be told by userspace?  The PM framework supports both 
-kinds of mechanism.
-
-Alan Stern
-
+Thanks,
+Rafael

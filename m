@@ -1,54 +1,103 @@
-From: Sundar R IYER <sundar.iyer@stericsson.com>
-Subject: RE: [RFC] input: syfs switches for SKE keypad
-Date: Wed, 6 Oct 2010 13:58:28 +0200
-Message-ID: <33A307AF30D7BF4F811B1568FE7A9B1804610631B3@EXDCVYMBSTM006.EQ1STM.local>
-References: <33A307AF30D7BF4F811B1568FE7A9B180460D32FE2@EXDCVYMBSTM006.EQ1STM.local>
-	 <20101005174106.GA21399@core.coreip.homeip.net>
-	 <4CAC340B.90207@codeaurora.org>
-	 <33A307AF30D7BF4F811B1568FE7A9B180461062FE6@EXDCVYMBSTM006.EQ1STM.local>
- <1286358518.26914.23.camel@4fid08082> <4CAC6053.5020000@codeaurora.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v2] Input: Make ADS7846 independent on regulator
+Date: Wed, 6 Oct 2010 08:14:47 -0700
+Message-ID: <20101006151446.GA2803@opensource.wolfsonmicro.com>
+References: <20100909094120.GB1988@rakim.wolfsonmicro.main>
+ <4CAACA63.6090202@compulab.co.il>
+ <20101005161608.GD19730@core.coreip.homeip.net>
+ <20101005164037.GA20555@opensource.wolfsonmicro.com>
+ <20101005180703.GD21399@core.coreip.homeip.net>
+ <20101005185942.GA22808@opensource.wolfsonmicro.com>
+ <20101005203508.7df590db@lxorguk.ukuu.org.uk>
+ <AANLkTimTW6v3N9aRA0h15SWXbBc_W0dhpf5rEeqBqGbf@mail.gmail.com>
+ <20101005225223.GC23315@opensource.wolfsonmicro.com>
+ <AANLkTi=+xGpqSrhPB_nLqJd_E0DzLdeb4AaQQQqP04h3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog116.obsmtp.com ([207.126.144.141]:53031 "EHLO
-	eu1sys200aog116.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751656Ab0JFL7R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Oct 2010 07:59:17 -0400
-In-Reply-To: <4CAC6053.5020000@codeaurora.org>
-Content-Language: en-US
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:41915 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1756208Ab0JFPOg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Oct 2010 11:14:36 -0400
+Content-Disposition: inline
+In-Reply-To: <AANLkTi=+xGpqSrhPB_nLqJd_E0DzLdeb4AaQQQqP04h3@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, "linux-pm@lists.osdl.org" <linux-pm@lists.osdl.org>
+To: Linus Walleij <linus.ml.walleij@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Igor Grinberg <grinberg@compulab.co.il>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, khilman@deeprootsystems.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
 
-Hi Trilok,
+On Wed, Oct 06, 2010 at 10:01:10AM +0200, Linus Walleij wrote:
+> 2010/10/6 Mark Brown <broonie@opensource.wolfsonmicro.com>:
 
->-----Original Message-----
->From: Trilok Soni [mailto:tsoni@codeaurora.org]
->
->I think what you are referring is similar to Android specific early suspend/resume
->framework. For example, what is the use of TS (if not used as wakeup) resources
->when the screen goes blank, so better to early suspend it rather than waiting
->upto the platform suspend to happen.
+> > No, this is actively unhelpful. =A0If consumers can null check thei=
+r
+> > regulators then they can just as well do an IS_ERR() check
 
-I think no. IMO TS should be disabled only when the user decides to lock off
-the phone or screen. This is independent of any suspend or early suspend operation.
-As Samu said, lots of back ground operations might keep the CPU running.
+> .. and wrap all enable/disable/ etc into conditional statements
+> that depend on whether we could locate a regulator or not.
 
->I think this can be solved with pm_runtime, isn't it? Though I am not expert
->at pm_runtime, but this framework can be explored to enable these features.
->
+This is a totally different use case to that being discussed in this
+thread - the use case being discussed in this thread is for things like
+core power supplies which are critical to the operation of the device.
+The expected error handling if these supplies are missing would be to
+abort.
 
-Hmm. Yes. Even I think so; but I am not really sure if these run time helpers for
-suspend/resume can be invoked from the user space. If I understand correctly, 
-a event like a lock-key, keypad slider open/close or MMC slot door close/open
-should trigger an event to user space, which can then force devices to suspend/resume.
-If this is possible via these runtime_* helpers, then as Dmitry says, it would be up to
-the user space to suspend/resume the device; we end up using a single helper for either
-run time suspend or platform suspend. Maybe Rafael can comment here.
+=46or users that can reasonably do optional supplies I'd expect that th=
+ere
+would be other code which also needs to be conditional which relies on
+some action having being taken on the regulator and would also need to
+be bypassed so it'd be a bit surprising if things didn't get caught up
+in a bigger conditional block.
 
-Regards,
-Sundar
+> I think what Alan requested is that it be made more seamless.
 
+I'm fairly sure he's talking about the use case above, though I'm not
+100% sure how familiar with the API Alan is.  Note also that the way
+you've done this with things returning success for nonexistant supplies
+means that things are less seamless than they might be.
+
+> > The existing dummy regulator support already does all this in a man=
+ner
+> > which is much less invasive for the core.
+
+> Correct me if I'm wrong but the dummy regulators are something
+> different which appear when you choose to compile out regulator
+> support altogether.
+
+No, they're a feature of the compiled in regulator API (which happen to
+behave in the same manner as the stubs you get if the API is disbled).
+
+> This was not what Alan was asking about I believe, the usecase
+> to addressed is partial regulator support, where regulator framework
+> *is* compiled in, but a driver *may* not get a regulator from the
+> framework.
+
+He's looking for something that can be used for supplies that are
+critical to device operation on random devices on the board, something
+that says that all unconfigured supplies are actually provided by
+non-specific fixed voltage regulators.  This is different from the case
+where some supplies may be missing because they really are not present
+(in that the supplies are there, we've just not told the system how
+they're provided).  Alan and Marek need boards to be able to say that
+every device on the board has a supply even if it's not explicitly
+configured while you want to be able to more easily ignore failures wit=
+h
+specific supplies.
+
+> If I read your answer right, your stance is that the regulator
+> framework shall not help out in situations like this, instead
+> the driver shall recognice -ENODEV from regulator_get() and
+> avoid doing any regulator calls after that. Is this correct?
+
+Pretty much for your use case, though if enough things like MMC have
+cases where supplies truly can just be omitted with no effect on the
+operation of the system at all then I guess a consumer initiated way to
+request a dummy could be in order.  I'd worry that people will just end
+up randomly using it for all supplies, though.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

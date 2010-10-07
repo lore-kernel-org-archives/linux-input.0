@@ -1,8 +1,8 @@
 From: Jason Wessel <jason.wessel@windriver.com>
-Subject: [PATCH 1/3] keyboard,
-	kgdboc: Allow key release on kernel resume
-Date: Thu,  7 Oct 2010 15:35:46 -0500
-Message-ID: <1286483748-1171-2-git-send-email-jason.wessel@windriver.com>
+Subject: [PATCH 3/3] sysrq,
+	keyboard: properly deal with alt-sysrq in sysrq input filter
+Date: Thu,  7 Oct 2010 15:35:48 -0500
+Message-ID: <1286483748-1171-4-git-send-email-jason.wessel@windriver.com>
 References: <1286483748-1171-1-git-send-email-jason.wessel@windriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,141 +21,120 @@ To: dmitry.torokhov@gmail.com
 Cc: kgdb-bugreport@lists.sourceforge.net, Jason Wessel <jason.wessel@windriver.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-When using a keyboard with kdb, a hook point to free all the
-keystrokes is required for resuming kernel operations.
+This patch addresses 2 problems:
 
-This is mainly because there is no way to force the end user to hold
-down the original keys that were pressed prior to entering kdb when
-resuming the kernel.
+1) You should still be able to use alt-PrintScreen to capture a grab
+   of a single window when the sysrq filter is active.
 
-The kgdboc driver will call kbd_dbg_clear_keys() just prior to
-resuming the kernel execution which will schedule a callback to clear
-any keys which were depressed prior to the entering the kernel
-debugger.
+2) The sysrq filter should reset the low level key mask so that future
+   key presses will not show up as a repeated key.  The problem was
+   that when you executed alt-sysrq g and then resumed the kernel, you
+   would have to press 'g' twice to get it working again.
 
 CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 CC: Greg Kroah-Hartman <gregkh@suse.de>
 CC: linux-input@vger.kernel.org
+Reported-by: Maxim Levitsky <maximlevitsky@gmail.com>
 Signed-off-by: Jason Wessel <jason.wessel@windriver.com>
 ---
- drivers/char/keyboard.c  |   37 +++++++++++++++++++++++++++++++++++++
- drivers/serial/kgdboc.c  |   13 +++++++++++++
- include/linux/kbd_kern.h |    1 +
- 3 files changed, 51 insertions(+), 0 deletions(-)
+ drivers/char/sysrq.c |   64 +++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 61 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index a7ca752..0c6c641 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -363,6 +363,43 @@ static void to_utf8(struct vc_data *vc, uint c)
- 	}
- }
- 
-+#ifdef CONFIG_KDB_KEYBOARD
-+static int kbd_clear_keys_helper(struct input_handle *handle, void *data)
+diff --git a/drivers/char/sysrq.c b/drivers/char/sysrq.c
+index ef31bb8..b1fad74 100644
+--- a/drivers/char/sysrq.c
++++ b/drivers/char/sysrq.c
+@@ -566,6 +566,57 @@ static const unsigned char sysrq_xlate[KEY_MAX + 1] =
+ static bool sysrq_down;
+ static int sysrq_alt_use;
+ static int sysrq_alt;
++static bool sysrq_kbd_triggered;
++
++/*
++ * This function was a copy of input_pass_event but modified to allow
++ * by-passing a specific filter, to allow for injected events without
++ * filter recursion.
++ */
++static void input_pass_event_ignore(struct input_dev *dev,
++			     unsigned int type, unsigned int code, int value,
++			     struct input_handle *ignore_handle)
 +{
-+	unsigned int *keycode = data;
-+	input_inject_event(handle, EV_KEY, *keycode, 0);
-+	return 0;
-+}
++	struct input_handler *handler;
++	struct input_handle *handle;
 +
-+static void kbd_clear_keys_callback(struct work_struct *dummy)
-+{
-+	unsigned int i, j, k;
++	rcu_read_lock();
 +
-+	for (i = 0; i < ARRAY_SIZE(key_down); i++) {
-+		if (!key_down[i])
-+			continue;
++	handle = rcu_dereference(dev->grab);
++	if (handle)
++		handle->handler->event(handle, type, code, value);
++	else {
++		bool filtered = false;
 +
-+		k = i * BITS_PER_LONG;
-+
-+		for (j = 0; j < BITS_PER_LONG; j++, k++) {
-+			if (!test_bit(k, key_down))
++		list_for_each_entry_rcu(handle, &dev->h_list, d_node) {
++			if (!handle->open || handle == ignore_handle)
 +				continue;
-+			input_handler_for_each_handle(&kbd_handler, &k,
-+				      kbd_clear_keys_helper);
++			handler = handle->handler;
++			if (!handler->filter) {
++				if (filtered)
++					break;
++
++				handler->event(handle, type, code, value);
++
++			} else if (handler->filter(handle, type, code, value))
++				filtered = true;
 +		}
 +	}
++
++	rcu_read_unlock();
 +}
 +
-+static DECLARE_WORK(kbd_clear_keys_work, kbd_clear_keys_callback);
-+
-+/* Called to clear any key presses after resuming the kernel. */
-+void kbd_dbg_clear_keys(void)
++/*
++ * Pass along alt-print_screen, if there was no sysrq processing by
++ * sending a key press down and then passing the key up event.
++ */
++static void simulate_alt_sysrq(struct input_handle *handle)
 +{
-+	schedule_work(&kbd_clear_keys_work);
++	input_pass_event_ignore(handle->dev, EV_KEY, KEY_SYSRQ, 1, handle);
++	input_pass_event_ignore(handle->dev, EV_SYN, SYN_REPORT, 0, handle);
++	input_pass_event_ignore(handle->dev, EV_KEY, KEY_SYSRQ, 0, handle);
++	input_pass_event_ignore(handle->dev, EV_SYN, SYN_REPORT, 0, handle);
 +}
-+EXPORT_SYMBOL_GPL(kbd_dbg_clear_keys);
-+#endif /* CONFIG_KDB_KEYBOARD */
-+
- /*
-  * Called after returning from RAW mode or when changing consoles - recompute
-  * shift_down[] and shift_state from key_down[] maybe called when keymap is
-diff --git a/drivers/serial/kgdboc.c b/drivers/serial/kgdboc.c
-index 39f9a1a..62b6edc 100644
---- a/drivers/serial/kgdboc.c
-+++ b/drivers/serial/kgdboc.c
-@@ -18,6 +18,7 @@
- #include <linux/tty.h>
- #include <linux/console.h>
- #include <linux/vt_kern.h>
-+#include <linux/kbd_kern.h>
  
- #define MAX_CONFIG_LEN		40
- 
-@@ -37,12 +38,16 @@ static struct tty_driver	*kgdb_tty_driver;
- static int			kgdb_tty_line;
- 
- #ifdef CONFIG_KDB_KEYBOARD
-+static bool			kgdboc_use_kbd;
-+
- static int kgdboc_register_kbd(char **cptr)
- {
-+	kgdboc_use_kbd = false;
- 	if (strncmp(*cptr, "kbd", 3) == 0) {
- 		if (kdb_poll_idx < KDB_POLL_FUNC_MAX) {
- 			kdb_poll_funcs[kdb_poll_idx] = kdb_get_kbd_char;
- 			kdb_poll_idx++;
-+			kgdboc_use_kbd = true;
- 			if (cptr[0][3] == ',')
- 				*cptr += 4;
- 			else
-@@ -65,9 +70,16 @@ static void kgdboc_unregister_kbd(void)
+ static bool sysrq_filter(struct input_handle *handle, unsigned int type,
+ 		         unsigned int code, int value)
+@@ -580,9 +631,11 @@ static bool sysrq_filter(struct input_handle *handle, unsigned int type,
+ 		if (value)
+ 			sysrq_alt = code;
+ 		else {
+-			if (sysrq_down && code == sysrq_alt_use)
++			if (sysrq_down && code == sysrq_alt_use) {
+ 				sysrq_down = false;
+-
++				if (!sysrq_kbd_triggered)
++					simulate_alt_sysrq(handle);
++			}
+ 			sysrq_alt = 0;
  		}
+ 		break;
+@@ -590,13 +643,18 @@ static bool sysrq_filter(struct input_handle *handle, unsigned int type,
+ 	case KEY_SYSRQ:
+ 		if (value == 1 && sysrq_alt) {
+ 			sysrq_down = true;
++			sysrq_kbd_triggered = false;
+ 			sysrq_alt_use = sysrq_alt;
+ 		}
+ 		break;
+ 
+ 	default:
+-		if (sysrq_down && value && value != 2)
++		if (sysrq_down && value && value != 2 && !sysrq_kbd_triggered) {
++			sysrq_kbd_triggered = true;
+ 			__handle_sysrq(sysrq_xlate[code], true);
++			/* Clear handled keys from being flagged as a repeated stroke */
++			__clear_bit(code, handle->dev->key);
++		}
+ 		break;
  	}
- }
-+
-+static inline void kgdboc_clear_kbd(void)
-+{
-+	if (kgdboc_use_kbd)
-+		kbd_dbg_clear_keys(); /* Release all pressed keys */
-+}
- #else /* ! CONFIG_KDB_KEYBOARD */
- #define kgdboc_register_kbd(x) 0
- #define kgdboc_unregister_kbd()
-+#define kgdboc_clear_kbd()
- #endif /* ! CONFIG_KDB_KEYBOARD */
- 
- static int kgdboc_option_setup(char *opt)
-@@ -231,6 +243,7 @@ static void kgdboc_post_exp_handler(void)
- 		dbg_restore_graphics = 0;
- 		con_debug_leave();
- 	}
-+	kgdboc_clear_kbd();
- }
- 
- static struct kgdb_io kgdboc_io_ops = {
-diff --git a/include/linux/kbd_kern.h b/include/linux/kbd_kern.h
-index 506ad20..ae87c0a 100644
---- a/include/linux/kbd_kern.h
-+++ b/include/linux/kbd_kern.h
-@@ -144,6 +144,7 @@ struct console;
- int getkeycode(unsigned int scancode);
- int setkeycode(unsigned int scancode, unsigned int keycode);
- void compute_shiftstate(void);
-+void kbd_dbg_clear_keys(void);
- 
- /* defkeymap.c */
  
 -- 
 1.6.3.3

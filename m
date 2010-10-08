@@ -1,135 +1,47 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH v3] serio: add support for PS2Mult multiplexer protocol
-Date: Fri, 8 Oct 2010 12:50:34 +0400
-Message-ID: <AANLkTinBLr6ETMxBzDCZog9qLPRwUsutS=QaKDQC-sA7@mail.gmail.com>
-References: <1285260285-660-1-git-send-email-dbaryshkov@gmail.com>
-	<AANLkTimt+RZGp0C-X44JMR_4GJgFMfzN6b1V42A7NAnY@mail.gmail.com>
-	<20100930062547.GF5260@core.coreip.homeip.net>
-	<AANLkTimZxi8V9SLFQ8N-oSDTSt+7PjLNPt=H=Ja2mpr9@mail.gmail.com>
-	<20101007163606.GA24406@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH 0/3] Input: synaptics - multitouch and multifinger support
+Date: Fri,  8 Oct 2010 10:57:57 -0400
+Message-ID: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:44828 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752277Ab0JHIue convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Oct 2010 04:50:34 -0400
-Received: by qyk1 with SMTP id 1so58764qyk.19
-        for <linux-input@vger.kernel.org>; Fri, 08 Oct 2010 01:50:34 -0700 (PDT)
-In-Reply-To: <20101007163606.GA24406@core.coreip.homeip.net>
+Received: from adelie.canonical.com ([91.189.90.139]:60409 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753748Ab0JHO6H (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Oct 2010 10:58:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, xorg-devel@lists.x.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.de>, Chris Bagwell <chris@cnpbagwell.com>, Andy Whitcroft <apw@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Duncan McGreggor <duncan.mcgreggor@canonical.com>
 
-Hello,
+Tobyn Bertram reverse engineered the multitouch protocol for Synaptics devices.
+I've been able to take his work and produce a series of commits to enable MT
+and multifinger (MF) support.
 
-On Thu, Oct 7, 2010 at 8:36 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Oct 07, 2010 at 07:19:57PM +0400, Dmitry Eremin-Solenikov wro=
-te:
->> Hello,
->>
->> On Thu, Sep 30, 2010 at 10:25 AM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Wed, Sep 29, 2010 at 04:45:53PM +0400, Dmitry Eremin-Solenikov =
-wrote:
->> >> On Thu, Sep 23, 2010 at 8:44 PM, Dmitry Eremin-Solenikov
->> >> <dbaryshkov@gmail.com> wrote:
->> >> > PS2Mult is a simple serial protocol used for multiplexing sever=
-al PS/2 streams
->> >> > into one serial data stream. It's used e.g. on TQM85xx serie of=
- boards.
->> >> >
->> >> > Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
->> >> > ---
->> >> >
->> >> > It actually depends on "serio: multiple children" patch. I'm no=
-t resending it
->> >> > as you were the originator of the latest version of the patch.
->> >>
->> >> So, what about this version of patch?
->> >>
->> >
->> > Looks better but I think you also need ->start() to make sure you =
-do not
->> > try to deliver events too early. Does the following still work for=
- you?
->>
->> Sorry for the delay. Crashes w/o the attached patch.
->>
->
-> Ah, I see, however what I actually wanted is to create ports before h=
-and
-> and handle any errors that might arise and then enable the device and
-> register child ports.
->
-> If you apply the patch below instead of yours does it still work?
+Unfortunately, there's a tricky issue with some Synaptics touchpads that have
+integrated buttons. For example, the left and right buttons on the touchpad of
+my Dell Mini 1012 consist of the lower ~20% of the touchpad surface. The
+touchpad physically clicks under these areas.
 
-It won't work, as we don't set psm->ports[i].serio before ps2mult_serio=
-_start()
+The X synaptics input module now has a parameter to disable touches occuring
+over the button area, but this solution still doesn't work perfectly. If you
+click a button and drag with another finger near the clicking finger, the
+touchpad gets confused.
 
->
-> Thanks.
->
-> --
-> Dmitry
->
-> Input: ps2mult - don't register ports twice
->
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
->
-> =A0drivers/input/serio/ps2mult.c | =A0 11 ++++++-----
-> =A01 files changed, 6 insertions(+), 5 deletions(-)
->
->
-> diff --git a/drivers/input/serio/ps2mult.c b/drivers/input/serio/ps2m=
-ult.c
-> index 3664398..52b58de 100644
-> --- a/drivers/input/serio/ps2mult.c
-> +++ b/drivers/input/serio/ps2mult.c
-> @@ -144,9 +144,6 @@ static int ps2mult_create_port(struct ps2mult *ps=
-m, int i)
-> =A0 =A0 =A0 =A0serio->parent =3D psm->mx_serio;
-> =A0 =A0 =A0 =A0serio->port_data =3D &psm->ports[i];
->
-> - =A0 =A0 =A0 serio_register_port(serio);
-> - =A0 =A0 =A0 dev_info(&serio->dev, "%s port at %s\n", serio->name, m=
-x_serio->phys);
-> -
-> =A0 =A0 =A0 =A0return 0;
-> =A0}
->
-> @@ -196,8 +193,12 @@ static int ps2mult_connect(struct serio *serio, =
-struct serio_driver *drv)
->
-> =A0 =A0 =A0 =A0ps2mult_reset(psm);
->
-> - =A0 =A0 =A0 for (i =3D 0; i < =A0PS2MULT_NUM_PORTS; i++)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 serio_register_port(psm->ports[i].serio=
-);
-> + =A0 =A0 =A0 for (i =3D 0; i < =A0PS2MULT_NUM_PORTS; i++) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct serio *s =3D psm->ports[i].serio=
-;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_info(&serio->dev, "%s port at %s\n"=
-, s->name, serio->phys);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 serio_register_port(s);
-> + =A0 =A0 =A0 }
->
-> =A0 =A0 =A0 =A0return 0;
->
->
+Now that we have full MT support, we can try to handle this scenario better.
+What I've found to work best is to make touches vanish if they occur over the
+button area of the trackpad while any button is held. This works in conjunction
+with the X synaptics driver to disable single touch control over the button
+area. With full MT support, the touchpad doesn't seem to get confused when a
+click and drag occurs with two fingers close to each other, and it enables MT
+gestures and MF support across the entire trackpad when no buttons are held.
 
+The first question is whether this seems appropriate to others, or if some
+other method would work better. Secondarily, should the solution occur in the
+kernel, like I have in the third patch of this series, or should it occur in
+the X input module? Although we don't have this information today, we may be
+able to query the touchpad in the future to know the area of the integrated
+buttons. If that were possible, would the recommended location for the hack
+change?
 
+Thanks,
 
---=20
-With best wishes
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- Chase

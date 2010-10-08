@@ -1,121 +1,92 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 2/3] Input: synaptics - add multitouch multifinger support
-Date: Fri,  8 Oct 2010 10:57:59 -0400
-Message-ID: <1286549880-32580-3-git-send-email-chase.douglas@canonical.com>
+Subject: [PATCH 3/3] Input: synaptics - remove touches over button click area
+Date: Fri,  8 Oct 2010 10:58:00 -0400
+Message-ID: <1286549880-32580-4-git-send-email-chase.douglas@canonical.com>
 References: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com>
  <1286549880-32580-2-git-send-email-chase.douglas@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1286549880-32580-2-git-send-email-chase.douglas@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
+ <1286549880-32580-3-git-send-email-chase.douglas@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:60482 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753893Ab0JHO6K (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Oct 2010 10:58:10 -0400
+In-Reply-To: <1286549880-32580-3-git-send-email-chase.douglas@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, xorg-devel@lists.x.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.de>, Chris Bagwell <chris@cnpbagwell.com>, Andy Whitcroft <apw@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Duncan McGreggor <duncan.mcgreggor@canonical.com>
-List-Id: linux-input@vger.kernel.org
 
-Newer multitouch Synaptics trackpads do not advertise multifinger
-support. Now that we have multitouch support, we can use the number of
-touches to report multifinger functionality.
+Now that we have proper multitouch support, we can handle integrated
+buttons better. If we know the top of the buttons on the touchpad, we
+can ignore any touches that occur within the touchpad area while a
+button is clicked. It may be possible to get the button area by querying
+the device, but for now allow the user to manually set it.
 
-In conjunction with the X synaptics input module, this enables
-functionality such as two finger scrolling.
+A note on why this works: the Synaptics touchpads have pseudo touch
+tracking. When two touches are on the touchpad, an MT touch packet with
+just the X, Y, and pressure values is sent before a normal Synaptics
+touch packet. When one touch is obviously in motion and the other is
+stationary, the touchpad controller sends the touch in motion in the
+normal packet and the stationary touch in the MT packet. Single touch
+emulation is provided by the normal packet, so an action like clicking
+a button and dragging with another finger still works as expected.
+
+Tested on a Dell Mini 1012 with synaptics_multitouch=1 and
+synaptics_button_thresh=4100.
 
 Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 ---
- drivers/input/mouse/synaptics.c |   24 +++++++++++++-----------
- drivers/input/mouse/synaptics.h |    1 +
- 2 files changed, 14 insertions(+), 11 deletions(-)
+ drivers/input/mouse/synaptics.c |   16 +++++++++++++++-
+ 1 files changed, 15 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 990598f..7289d88 100644
+index 7289d88..e67778d 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -471,7 +471,6 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 	struct input_dev *dev = psmouse->dev;
- 	struct synaptics_data *priv = psmouse->private;
- 	struct synaptics_hw_state hw;
--	int num_fingers;
- 	int finger_width;
- 	int i;
+@@ -49,6 +49,12 @@ module_param(synaptics_multitouch, bool, 0644);
+ MODULE_PARM_DESC(synaptics_multitouch,
+ 		 "Enable multitouch mode on Synaptics devices");
  
-@@ -483,6 +482,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
++static int synaptics_button_thresh = YMIN_NOMINAL + YMAX_NOMINAL;
++module_param(synaptics_button_thresh, int, 0644);
++MODULE_PARM_DESC(synaptics_button_thres,
++		 "Y coordinate threshold of integrated buttons on Synaptics "
++		 "devices");
++
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+  ****************************************************************************/
+@@ -463,6 +469,10 @@ static void synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data
+ 	}
+ }
+ 
++#define TOUCH_OVER_BUTTON(hw) (((hw).left || (hw).middle || (hw).right) && \
++			       (YMAX_NOMINAL + YMIN_NOMINAL - (hw).y > \
++				synaptics_button_thresh))
++
+ /*
+  *  called for each full received packet from the touchpad
+  */
+@@ -477,7 +487,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 	synaptics_parse_hw_state(psmouse->packet, priv, &hw);
+ 
+ 	if (SYN_MULTITOUCH(priv, &hw)) {
+-		if (hw.z > 0) {
++		if (hw.z > 0 && !TOUCH_OVER_BUTTON(hw)) {
+ 			input_report_abs(dev, ABS_MT_POSITION_X, hw.x);
  			input_report_abs(dev, ABS_MT_POSITION_Y,
  					 YMAX_NOMINAL + YMIN_NOMINAL - hw.y);
- 			input_report_abs(dev, ABS_MT_PRESSURE, hw.z);
-+			priv->num_fingers++;
- 		}
- 
- 		input_mt_sync(dev);
-@@ -510,13 +510,13 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+@@ -509,6 +519,10 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 		return;
  	}
  
- 	if (hw.z > 0) {
--		num_fingers = 1;
-+		priv->num_fingers++;
- 		finger_width = 5;
- 		if (SYN_CAP_EXTENDED(priv->capabilities)) {
- 			switch (hw.w) {
- 			case 0 ... 1:
- 				if (SYN_CAP_MULTIFINGER(priv->capabilities))
--					num_fingers = hw.w + 2;
-+					priv->num_fingers = hw.w + 2;
- 				break;
- 			case 2:
- 				if (SYN_MODEL_PEN(priv->model_id))
-@@ -528,10 +528,8 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 				break;
- 			}
- 		}
--	} else {
--		num_fingers = 0;
-+	} else
- 		finger_width = 0;
--	}
- 
- 	/* Post events
- 	 * BTN_TOUCH has to be first as mousedev relies on it when doing
-@@ -555,15 +553,19 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 	if (SYN_CAP_PALMDETECT(priv->capabilities))
- 		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
- 
--	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
-+	input_report_key(dev, BTN_TOOL_FINGER, priv->num_fingers == 1);
- 	input_report_key(dev, BTN_LEFT, hw.left);
- 	input_report_key(dev, BTN_RIGHT, hw.right);
- 
--	if (SYN_CAP_MULTIFINGER(priv->capabilities)) {
--		input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
--		input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
-+	if (SYN_CAP_MULTIFINGER(priv->capabilities) || priv->multitouch) {
-+		input_report_key(dev, BTN_TOOL_DOUBLETAP,
-+				 priv->num_fingers == 2);
-+		input_report_key(dev, BTN_TOOL_TRIPLETAP,
-+				 priv->num_fingers == 3);
- 	}
- 
-+	priv->num_fingers = 0;
++	/* If touch occurs over depressed button, ignore it */
++	if (TOUCH_OVER_BUTTON(hw))
++		hw.z = 0;
 +
- 	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
- 		input_report_key(dev, BTN_MIDDLE, hw.middle);
- 
-@@ -674,7 +676,7 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
- 	__set_bit(BTN_LEFT, dev->keybit);
- 	__set_bit(BTN_RIGHT, dev->keybit);
- 
--	if (SYN_CAP_MULTIFINGER(priv->capabilities)) {
-+	if (SYN_CAP_MULTIFINGER(priv->capabilities) || priv->multitouch) {
- 		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
- 		__set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
- 	}
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 5126c9c..0989b8d 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -113,6 +113,7 @@ struct synaptics_data {
- 	unsigned char mode;			/* current mode byte */
- 	int scroll;
- 	int multitouch;				/* Whether device provides MT */
-+	unsigned int num_fingers;		/* Number of fingers touching */
- };
- 
- void synaptics_module_init(void);
+ 	if (hw.z > 0) {
+ 		priv->num_fingers++;
+ 		finger_width = 5;
 -- 
 1.7.1
+

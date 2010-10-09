@@ -1,72 +1,60 @@
-From: =?ISO-8859-1?Q?fran=E7ois?= Jaouen <francois.jaouen@laposte.net>
-Subject: [PATCH] Add Cando touch screen 15.6-inch product id
-Date: Sat, 09 Oct 2010 18:46:23 +0200
-Message-ID: <1286642783.5459.36.camel@francois-laptop>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Sat, 9 Oct 2010 18:46:02 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1010091834420.21785-100000@netrider.rowland.org>
+References: <201010091252.18184.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-7"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2f.orange.fr ([80.12.242.152]:29295 "EHLO smtp2f.orange.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760330Ab0JIQq2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 9 Oct 2010 12:46:28 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:46996 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1755878Ab0JIWqG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Oct 2010 18:46:06 -0400
+In-Reply-To: <201010091252.18184.rjw@sisk.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>
 
-This add the product id of the touch screen found on ACER Aspire 5738PZ. 
-Works with hid-cando driver.
----
- drivers/hid/hid-cando.c +AHw    2 +-+-
- drivers/hid/hid-core.c  +AHw    1 +-
- drivers/hid/hid-ids.h   +AHw    3 +-+--
- 3 files changed, 5 insertions(+-), 1 deletions(-)
+On Sat, 9 Oct 2010, Rafael J. Wysocki wrote:
 
-diff --git a/drivers/hid/hid-cando.c b/drivers/hid/hid-cando.c
-index 4267a6f..ab231cd 100644
---- a/drivers/hid/hid-cando.c
-+-+-+- b/drivers/hid/hid-cando.c
-+AEAAQA -237,6 +-237,8 +AEAAQA static const struct hid+AF8-device+AF8-id cando+AF8-devices+AFsAXQ +AD0 +AHs
- 			USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH) +AH0,
- 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO,
- 			USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6) +AH0,
-+-	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO,
-+-			USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-15+AF8-6) +AH0,
- 	+AHs +AH0
- +AH0AOw
- MODULE+AF8-DEVICE+AF8-TABLE(hid, cando+AF8-devices)+ADs
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 3f72924..a0dea3d 100644
---- a/drivers/hid/hid-core.c
-+-+-+- b/drivers/hid/hid-core.c
-+AEAAQA -1292,6 +-1292,7 +AEAAQA static const struct hid+AF8-device+AF8-id hid+AF8-blacklist+AFsAXQ +AD0 +AHs
- 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-BTC, USB+AF8-DEVICE+AF8-ID+AF8-BTC+AF8-EMPREX+AF8-REMOTE+AF8-2) +AH0,
- 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO, USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH) +AH0,
- 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO, USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6) +AH0,
-+-	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO, USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-15+AF8-6) +AH0,
- 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CHERRY, USB+AF8-DEVICE+AF8-ID+AF8-CHERRY+AF8-CYMOTION) +AH0,
- 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CHERRY, USB+AF8-DEVICE+AF8-ID+AF8-CHERRY+AF8-CYMOTION+AF8-SOLAR) +AH0,
- 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CHICONY, USB+AF8-DEVICE+AF8-ID+AF8-CHICONY+AF8-TACTICAL+AF8-PAD) +AH0,
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 765a4f5..3d46d9f 100644
---- a/drivers/hid/hid-ids.h
-+-+-+- b/drivers/hid/hid-ids.h
-+AEAAQA -133,7 +-133,8 +AEAAQA
- 
- +ACM-define USB+AF8-VENDOR+AF8-ID+AF8-CANDO		0x2087
- +ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH	0x0a01
--+ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6 0x0b03
-+-+ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6	0x0b03
-+-+ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-15+AF8-6	0x0f01
- 
- +ACM-define USB+AF8-VENDOR+AF8-ID+AF8-CH		0x068e
- +ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CH+AF8-PRO+AF8-PEDALS	0x00f2
--- 
-1.7.0.4
+> On Wednesday, October 06, 2010, Alan Stern wrote:
+> > On Wed, 6 Oct 2010, Rafael J. Wysocki wrote:
+> > 
+> > > > Mobile folks wish to power down some devices (most often input -
+> > > > touchscreen, keypad) under certain circumstances to save power.
+> > > > So far they were doing that by adding "disable" hook to individual
+> > > > drivers and while I did allow that in for some devices I feel that we
+> > > > need more standardised solution, preferably one that could re-use
+> > > > existing PM hooks in drivers.
+> > > 
+> > > There's no interface for that at the PM core level, but I think we should
+> > > add it, perhaps in analogy to the autosuspend one.  Namely, we can add a
+> > > flag for drivers who want to make their suspend/resume callbacks to be
+> > > reachable directly from user space.  Setting that flag would enable a sysfs
+> > > attribute in /sys/devices/.../power/ allowing user space to invoke
+> > > pm_runtime_suspend() and pm_runtime_resume() for the given device.
+> > 
+> > We already have power/control.  If the subsystem sets it to "on" by 
+> > default and the driver suspends the device whenever it is idle, then 
+> > userspace can control the power level by writing "auto" or "on" to 
+> > power/control.
+> 
+> The problem is that with the 'auto' setting the driver decides when to suspend
+> and the driver need not know it's the right time.
+> 
+> Suspending a graphics adapter when the user presses a "turn screen off"
+> button it a good example of this.  The graphics driver may not know the button
+> was pressed and it has to be told about that.  OTOH the button driver need
+> not know what exactly should be done when it is pressed.  There may be a user
+> space component in between that processes the button event and should be able
+> to tell the graphics driver to suspend.
 
+You are clearly right; userspace has to tell the driver when it is okay
+to suspend.  My point was that we already have a mechanism in the PM
+core for doing this -- assuming the driver is written appropriately (to 
+assume that it should try to suspend whenever possible).  We shouldn't 
+need to add another mechanism.
 
-
-
-
+Alan Stern
 

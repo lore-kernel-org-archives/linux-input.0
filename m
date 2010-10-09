@@ -1,81 +1,72 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH 0/2] HID: hidraw, fix two NULL pointer dereferences
-Date: Sat, 9 Oct 2010 14:40:26 +0200
-Message-ID: <20101009144026.c37f8d25.ospite@studenti.unina.it>
-References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
-	<1286292017-6746-1-git-send-email-ospite@studenti.unina.it>
-	<4CAB94A0.8040402@gmail.com>
-	<20101006120129.52da81d3.ospite@studenti.unina.it>
-	<4CAC4AC3.60507@gmail.com>
+From: =?ISO-8859-1?Q?fran=E7ois?= Jaouen <francois.jaouen@laposte.net>
+Subject: [PATCH] Add Cando touch screen 15.6-inch product id
+Date: Sat, 09 Oct 2010 18:46:23 +0200
+Message-ID: <1286642783.5459.36.camel@francois-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__9_Oct_2010_14_40_26_+0200_huzKpfoGAnXCecf+"
+Content-Type: text/plain; charset="UTF-7"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:58386 "EHLO smtp207.alice.it"
+Received: from smtp2f.orange.fr ([80.12.242.152]:29295 "EHLO smtp2f.orange.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753715Ab0JIMkj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 9 Oct 2010 08:40:39 -0400
-In-Reply-To: <4CAC4AC3.60507@gmail.com>
+	id S1760330Ab0JIQq2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 9 Oct 2010 12:46:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Alan Ott <alan@signal11.us>, Oliver Neukum <oliver@neukum.name>, linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz
 
---Signature=_Sat__9_Oct_2010_14_40_26_+0200_huzKpfoGAnXCecf+
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This add the product id of the touch screen found on ACER Aspire 5738PZ. 
+Works with hid-cando driver.
+---
+ drivers/hid/hid-cando.c +AHw    2 +-+-
+ drivers/hid/hid-core.c  +AHw    1 +-
+ drivers/hid/hid-ids.h   +AHw    3 +-+--
+ 3 files changed, 5 insertions(+-), 1 deletions(-)
 
-On Wed, 06 Oct 2010 12:09:07 +0200
-Jiri Slaby <jirislaby@gmail.com> wrote:
+diff --git a/drivers/hid/hid-cando.c b/drivers/hid/hid-cando.c
+index 4267a6f..ab231cd 100644
+--- a/drivers/hid/hid-cando.c
++-+-+- b/drivers/hid/hid-cando.c
++AEAAQA -237,6 +-237,8 +AEAAQA static const struct hid+AF8-device+AF8-id cando+AF8-devices+AFsAXQ +AD0 +AHs
+ 			USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH) +AH0,
+ 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO,
+ 			USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6) +AH0,
++-	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO,
++-			USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-15+AF8-6) +AH0,
+ 	+AHs +AH0
+ +AH0AOw
+ MODULE+AF8-DEVICE+AF8-TABLE(hid, cando+AF8-devices)+ADs
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 3f72924..a0dea3d 100644
+--- a/drivers/hid/hid-core.c
++-+-+- b/drivers/hid/hid-core.c
++AEAAQA -1292,6 +-1292,7 +AEAAQA static const struct hid+AF8-device+AF8-id hid+AF8-blacklist+AFsAXQ +AD0 +AHs
+ 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-BTC, USB+AF8-DEVICE+AF8-ID+AF8-BTC+AF8-EMPREX+AF8-REMOTE+AF8-2) +AH0,
+ 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO, USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH) +AH0,
+ 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO, USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6) +AH0,
++-	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CANDO, USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-15+AF8-6) +AH0,
+ 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CHERRY, USB+AF8-DEVICE+AF8-ID+AF8-CHERRY+AF8-CYMOTION) +AH0,
+ 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CHERRY, USB+AF8-DEVICE+AF8-ID+AF8-CHERRY+AF8-CYMOTION+AF8-SOLAR) +AH0,
+ 	+AHs HID+AF8-USB+AF8-DEVICE(USB+AF8-VENDOR+AF8-ID+AF8-CHICONY, USB+AF8-DEVICE+AF8-ID+AF8-CHICONY+AF8-TACTICAL+AF8-PAD) +AH0,
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 765a4f5..3d46d9f 100644
+--- a/drivers/hid/hid-ids.h
++-+-+- b/drivers/hid/hid-ids.h
++AEAAQA -133,7 +-133,8 +AEAAQA
+ 
+ +ACM-define USB+AF8-VENDOR+AF8-ID+AF8-CANDO		0x2087
+ +ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH	0x0a01
+-+ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6 0x0b03
++-+ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-11+AF8-6	0x0b03
++-+ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CANDO+AF8-MULTI+AF8-TOUCH+AF8-15+AF8-6	0x0f01
+ 
+ +ACM-define USB+AF8-VENDOR+AF8-ID+AF8-CH		0x068e
+ +ACM-define USB+AF8-DEVICE+AF8-ID+AF8-CH+AF8-PRO+AF8-PEDALS	0x00f2
+-- 
+1.7.0.4
 
-> On 10/06/2010 12:01 PM, Antonio Ospite wrote:
-> > On Tue, 05 Oct 2010 23:12:00 +0200
-> > Jiri Slaby <jirislaby@gmail.com> wrote:
-[...]
-> >> Hi, please fix also the window in hidraw_release.
-> >>
-> >=20
-> > I am not sure I get what you mean, can you please add more details?
->=20
-> Sure. Look at the code:
-> if (!hidraw_table[minor])
->         return -ENODEV;
-> ...
-> dev =3D hidraw_table[minor];
-> if (!--dev->open) {
-> ...
->=20
-> This is done without minors_lock, so you can easily have dev being NULL
-> even though the first if.
->
 
-Jiri (Slaby) I think it makes more sense if you send a patch about this
-as it is you who has raised the issue.
 
-Thanks,
-   Antonio
 
---=20
-Antonio Ospite
-http://ao2.it
 
-PGP public key ID: 0x4553B001
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Sat__9_Oct_2010_14_40_26_+0200_huzKpfoGAnXCecf+
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkywYroACgkQ5xr2akVTsAFb5QCfeUKQ5Wi4iSDBGMj3dZbCF3jF
-ozgAoJS/S/r/qjrQvQ6MxNJHbtsFzcgO
-=e80J
------END PGP SIGNATURE-----
-
---Signature=_Sat__9_Oct_2010_14_40_26_+0200_huzKpfoGAnXCecf+--

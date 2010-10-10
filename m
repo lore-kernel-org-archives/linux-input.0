@@ -1,17 +1,17 @@
 From: Chris Bagwell <chris@cnpbagwell.com>
 Subject: Re: [PATCH 1/3] Input: synaptics - add multitouch support
-Date: Sun, 10 Oct 2010 10:37:23 -0500
-Message-ID: <4CB1DDB3.1090503@cnpbagwell.com>
+Date: Sun, 10 Oct 2010 10:41:43 -0500
+Message-ID: <4CB1DEB7.3070109@cnpbagwell.com>
 References: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com> <1286549880-32580-2-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:65365 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751378Ab0JJPi6 (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:38531 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753379Ab0JJPlr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Oct 2010 11:38:58 -0400
+	Sun, 10 Oct 2010 11:41:47 -0400
 In-Reply-To: <1286549880-32580-2-git-send-email-chase.douglas@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

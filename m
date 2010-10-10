@@ -1,46 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/3] Input: synaptics - multitouch and multifinger support
-Date: Sun, 10 Oct 2010 14:04:34 -0700
-Message-ID: <20101010210434.GC18455@core.coreip.homeip.net>
-References: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com>
- <s5hfwwg4p4t.wl%tiwai@suse.de>
- <1286558135.22715.162.camel@mini>
- <201010081104.01527.dmitry.torokhov@gmail.com>
- <s5h62xc4h2l.wl%tiwai@suse.de>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Sun, 10 Oct 2010 17:09:09 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1010101700100.30042-100000@netrider.rowland.org>
+References: <20101010205147.GA18455@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:49540 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750761Ab0JJVEl (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:45590 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750761Ab0JJVJL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Oct 2010 17:04:41 -0400
-Content-Disposition: inline
-In-Reply-To: <s5h62xc4h2l.wl%tiwai@suse.de>
+	Sun, 10 Oct 2010 17:09:11 -0400
+In-Reply-To: <20101010205147.GA18455@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, xorg-devel@lists.x.org, Chris Bagwell <chris@cnpbagwell.com>, Andy Whitcroft <apw@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Duncan McGreggor <duncan.mcgreggor@canonical.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>
 
-On Fri, Oct 08, 2010 at 09:31:30PM +0200, Takashi Iwai wrote:
-> At Fri, 8 Oct 2010 11:04:01 -0700,
-> Dmitry Torokhov wrote:
+On Sun, 10 Oct 2010, Dmitry Torokhov wrote:
+
+> > > OK, so how is a graphics driver going to figure out it should suspend when the
+> > > button is pressed in the example above?
 > > 
-> > So I do believe we need to have Takashi's SOB at the very least and maybe
-> > credit him as the author of the patches.
+> > The graphics driver doesn't have to figure that out at all.  It merely
+> > has to suspend the display whenever it can, i.e., whenever the usage
+> > count drops to 0 (or equivalently, whenever the runtime_idle callback
+> > runs).
 > 
-> I sent my original one, so this should suffice, right?
+> That makes sense for drivers that do very agressive PM, but fails for
+> cases when you have bigger timeouts. My phone shuts off its display
+> automatically after 30 seconds or a minute but I have an option of
+> pressing a button which causes it to shut off immediately.
 > 
+> > 
+> > It's up to userspace to make sure that the display's usage count goes
+> > to 0 at the proper time, i.e., when the button is pressed.  Contrary to
+> > what you wrote above, we _do_ have an interface for this at the PM core
+> > level: power/control.
+> > 
+> 
+> I think that while using power/control is a _very_ good option "auto"
+> and "on" are not enough, we need 3 states: "on", "off" and "auto".
 
-Takashi,
+Will the driver use autosuspend for the 30-second delay?  Then all you
+have to do is this: When the button is pressed, write 0 to
+power/autosuspend_delay_ms, causing an immediate runtime suspend.  
+Then before turning the display back on, write 30000 to set the delay
+to 30 seconds again.  You can leave power/control set to "auto" the
+whole time.
 
-Generally I think people should not add or remove any SOB lines except
-for their own as the work on the patches, so original patches should
-retain their original SOBs... In absence of that I'd like to have
-explicit confirmations that I can add SOBs statements; otherwise it just
-dilutes the value of SOBs significantly.
+I don't like the idea of having an "off" setting in power/control.  
+What happens if the user turns a disk drive controller "off" and the 
+system needs to read or write something on that disk drive?
 
-Thanks.
+Alan Stern
 
--- 
-Dmitry

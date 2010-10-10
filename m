@@ -1,65 +1,42 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Sun, 10 Oct 2010 01:02:19 +0200
-Message-ID: <201010100102.19862.rjw@sisk.pl>
-References: <Pine.LNX.4.44L0.1010091834420.21785-100000@netrider.rowland.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 0/3] Input: synaptics - multitouch and multifinger support
+Date: Sun, 10 Oct 2010 09:49:45 +0200
+Message-ID: <4CB17019.7070002@euromail.se>
+References: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com> <s5hfwwg4p4t.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:59671 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756661Ab0JIXDF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 9 Oct 2010 19:03:05 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1010091834420.21785-100000@netrider.rowland.org>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:41211 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752524Ab0JJHt7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 10 Oct 2010 03:49:59 -0400
+In-Reply-To: <s5hfwwg4p4t.wl%tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>
+To: Takashi Iwai <tiwai@suse.de>, Chase Douglas <chase.douglas@canonical.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
 
-On Sunday, October 10, 2010, Alan Stern wrote:
-> On Sat, 9 Oct 2010, Rafael J. Wysocki wrote:
-> 
-> > On Wednesday, October 06, 2010, Alan Stern wrote:
-> > > On Wed, 6 Oct 2010, Rafael J. Wysocki wrote:
-> > > 
-> > > > > Mobile folks wish to power down some devices (most often input -
-> > > > > touchscreen, keypad) under certain circumstances to save power.
-> > > > > So far they were doing that by adding "disable" hook to individual
-> > > > > drivers and while I did allow that in for some devices I feel that we
-> > > > > need more standardised solution, preferably one that could re-use
-> > > > > existing PM hooks in drivers.
-> > > > 
-> > > > There's no interface for that at the PM core level, but I think we should
-> > > > add it, perhaps in analogy to the autosuspend one.  Namely, we can add a
-> > > > flag for drivers who want to make their suspend/resume callbacks to be
-> > > > reachable directly from user space.  Setting that flag would enable a sysfs
-> > > > attribute in /sys/devices/.../power/ allowing user space to invoke
-> > > > pm_runtime_suspend() and pm_runtime_resume() for the given device.
-> > > 
-> > > We already have power/control.  If the subsystem sets it to "on" by 
-> > > default and the driver suspends the device whenever it is idle, then 
-> > > userspace can control the power level by writing "auto" or "on" to 
-> > > power/control.
-> > 
-> > The problem is that with the 'auto' setting the driver decides when to suspend
-> > and the driver need not know it's the right time.
-> > 
-> > Suspending a graphics adapter when the user presses a "turn screen off"
-> > button it a good example of this.  The graphics driver may not know the button
-> > was pressed and it has to be told about that.  OTOH the button driver need
-> > not know what exactly should be done when it is pressed.  There may be a user
-> > space component in between that processes the button event and should be able
-> > to tell the graphics driver to suspend.
-> 
-> You are clearly right; userspace has to tell the driver when it is okay
-> to suspend.  My point was that we already have a mechanism in the PM
-> core for doing this -- assuming the driver is written appropriately (to 
-> assume that it should try to suspend whenever possible).  We shouldn't 
-> need to add another mechanism.
+Takashi, Chase,
 
-OK, so how is a graphics driver going to figure out it should suspend when the
-button is pressed in the example above?
+talk about Heinz effect. :-)
 
-Rafael
+Rather than taking any of the patches, I was wondering if we could get a single
+patch including all the later findings and considerations on what devices should
+have the multitouch mode. Also, unless there is a really really good reason for
+it, without kernel parameters. After all, these patches should only add new
+functionality without regressions.
+
+Regarding the clickpad functionality, it is similar to the macbook pads with
+integrated buttons, which has been implemented in userspace.
+
+Regarding the tracking aspect of pointer emulation, Chase is completely right,
+and this is a generic problem for several drivers. Tracking a single point by
+picking the closest contact is a linear problem and could easily be performed in
+interrupt context. I suggest we add it directly to the synaptics driver and then
+revisit the question of adding generic tracking support to the kernel. Dmitry,
+how does that sound to you?
+
+Cheers,
+Henrik

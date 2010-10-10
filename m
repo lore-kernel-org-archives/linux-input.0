@@ -1,59 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 0/3] Input: synaptics - multitouch and multifinger support
-Date: Sun, 10 Oct 2010 13:59:32 -0700
-Message-ID: <20101010205932.GB18455@core.coreip.homeip.net>
+Date: Sun, 10 Oct 2010 14:04:34 -0700
+Message-ID: <20101010210434.GC18455@core.coreip.homeip.net>
 References: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com>
  <s5hfwwg4p4t.wl%tiwai@suse.de>
- <4CB17019.7070002@euromail.se>
+ <1286558135.22715.162.camel@mini>
+ <201010081104.01527.dmitry.torokhov@gmail.com>
+ <s5h62xc4h2l.wl%tiwai@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:36937 "EHLO
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:49540 "EHLO
 	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751498Ab0JJU7i (ORCPT
+	with ESMTP id S1750761Ab0JJVEl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Oct 2010 16:59:38 -0400
+	Sun, 10 Oct 2010 17:04:41 -0400
 Content-Disposition: inline
-In-Reply-To: <4CB17019.7070002@euromail.se>
+In-Reply-To: <s5h62xc4h2l.wl%tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Takashi Iwai <tiwai@suse.de>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, xorg-devel@lists.x.org, Chris Bagwell <chris@cnpbagwell.com>, Andy Whitcroft <apw@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Duncan McGreggor <duncan.mcgreggor@canonical.com>
 
-On Sun, Oct 10, 2010 at 09:49:45AM +0200, Henrik Rydberg wrote:
-> Takashi, Chase,
+On Fri, Oct 08, 2010 at 09:31:30PM +0200, Takashi Iwai wrote:
+> At Fri, 8 Oct 2010 11:04:01 -0700,
+> Dmitry Torokhov wrote:
+> > 
+> > So I do believe we need to have Takashi's SOB at the very least and maybe
+> > credit him as the author of the patches.
 > 
-> talk about Heinz effect. :-)
+> I sent my original one, so this should suffice, right?
 > 
-> Rather than taking any of the patches, I was wondering if we could get a single
-> patch including all the later findings and considerations on what devices should
-> have the multitouch mode. Also, unless there is a really really good reason for
-> it, without kernel parameters. After all, these patches should only add new
-> functionality without regressions.
 
-Yes, I think we should limit number of module options (and even more so
-Kconfig options). I believe that either MT support is ready for prime-time
-and then it should be enabled unconditionally, or it is not ready and
-should be kept as patches. his also means that we should not introduce
-regressions in ST (even when emulated in MT mode).
+Takashi,
 
-> 
-> Regarding the clickpad functionality, it is similar to the macbook pads with
-> integrated buttons, which has been implemented in userspace.
+Generally I think people should not add or remove any SOB lines except
+for their own as the work on the patches, so original patches should
+retain their original SOBs... In absence of that I'd like to have
+explicit confirmations that I can add SOBs statements; otherwise it just
+dilutes the value of SOBs significantly.
 
-Right now we map the "click" to BTN_LEFT leaving it to the synaptics X
-driver to work our the "click zone" support.
-
-> 
-> Regarding the tracking aspect of pointer emulation, Chase is completely right,
-> and this is a generic problem for several drivers. Tracking a single point by
-> picking the closest contact is a linear problem and could easily be performed in
-> interrupt context. I suggest we add it directly to the synaptics driver and then
-> revisit the question of adding generic tracking support to the kernel. Dmitry,
-> how does that sound to you?
-
-Sounds good to me. Hopefully it could be made it a library[ish] function
-that several MT drivers could use to produce ST-compliant events.
+Thanks.
 
 -- 
 Dmitry

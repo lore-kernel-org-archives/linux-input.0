@@ -1,51 +1,56 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 3/3] Input: synaptics - remove touches over button click
- area
-Date: Sun, 10 Oct 2010 10:58:28 -0500
-Message-ID: <4CB1E2A4.4000000@cnpbagwell.com>
-References: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com> <1286549880-32580-2-git-send-email-chase.douglas@canonical.com> <1286549880-32580-3-git-send-email-chase.douglas@canonical.com> <1286549880-32580-4-git-send-email-chase.douglas@canonical.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Sun, 10 Oct 2010 16:34:38 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1010101626550.30042-100000@netrider.rowland.org>
+References: <201010100102.19862.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:51973 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754635Ab0JJP6g (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:41079 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751537Ab0JJUej (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Oct 2010 11:58:36 -0400
-In-Reply-To: <1286549880-32580-4-git-send-email-chase.douglas@canonical.com>
+	Sun, 10 Oct 2010 16:34:39 -0400
+In-Reply-To: <201010100102.19862.rjw@sisk.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: linux-input@vger.kernel.org, xorg-devel@lists.x.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.de>, Andy Whitcroft <apw@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Duncan McGreggor <duncan.mcgreggor@canonical.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>
 
-On 10/08/2010 09:58 AM, Chase Douglas wrote:
-> Now that we have proper multitouch support, we can handle integrated
-> buttons better. If we know the top of the buttons on the touchpad, we
-> can ignore any touches that occur within the touchpad area while a
-> button is clicked. It may be possible to get the button area by querying
-> the device, but for now allow the user to manually set it.
->
-> A note on why this works: the Synaptics touchpads have pseudo touch
-> tracking. When two touches are on the touchpad, an MT touch packet with
-> just the X, Y, and pressure values is sent before a normal Synaptics
-> touch packet. When one touch is obviously in motion and the other is
-> stationary, the touchpad controller sends the touch in motion in the
-> normal packet and the stationary touch in the MT packet. Single touch
-> emulation is provided by the normal packet, so an action like clicking
-> a button and dragging with another finger still works as expected.
->
-> Tested on a Dell Mini 1012 with synaptics_multitouch=1 and
-> synaptics_button_thresh=4100.
->
+On Sun, 10 Oct 2010, Rafael J. Wysocki wrote:
 
-Even if we did not submit the MT logic, I'd go a totally different 
-direction and move clickpad button press support fully to 
-xf86-input-synaptics and I'd remove the logic from kernel side that maps 
-HW's middle button to left button.  It seems just limping a long with 
-single button support anyways.
+> > > > > There's no interface for that at the PM core level, but I think we should
+> > > > > add it, perhaps in analogy to the autosuspend one.  Namely, we can add a
+> > > > > flag for drivers who want to make their suspend/resume callbacks to be
+> > > > > reachable directly from user space.  Setting that flag would enable a sysfs
+> > > > > attribute in /sys/devices/.../power/ allowing user space to invoke
+> > > > > pm_runtime_suspend() and pm_runtime_resume() for the given device.
+> > > > 
+> > > > We already have power/control.  If the subsystem sets it to "on" by 
+> > > > default and the driver suspends the device whenever it is idle, then 
+> > > > userspace can control the power level by writing "auto" or "on" to 
+> > > > power/control.
 
-I haven't had time to review Takashi's xf86-input-synaptics patches just 
-sent yet but seems along this line of thinking as well.
+...
 
-Chris
+> > You are clearly right; userspace has to tell the driver when it is okay
+> > to suspend.  My point was that we already have a mechanism in the PM
+> > core for doing this -- assuming the driver is written appropriately (to 
+> > assume that it should try to suspend whenever possible).  We shouldn't 
+> > need to add another mechanism.
+> 
+> OK, so how is a graphics driver going to figure out it should suspend when the
+> button is pressed in the example above?
+
+The graphics driver doesn't have to figure that out at all.  It merely
+has to suspend the display whenever it can, i.e., whenever the usage
+count drops to 0 (or equivalently, whenever the runtime_idle callback
+runs).
+
+It's up to userspace to make sure that the display's usage count goes
+to 0 at the proper time, i.e., when the button is pressed.  Contrary to
+what you wrote above, we _do_ have an interface for this at the PM core
+level: power/control.
+
+Alan Stern
+

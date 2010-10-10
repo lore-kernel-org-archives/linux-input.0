@@ -1,57 +1,35 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Sun, 10 Oct 2010 17:09:09 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1010101700100.30042-100000@netrider.rowland.org>
-References: <20101010205147.GA18455@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/3] input / sysrq fixes for use with kdb
+Date: Sun, 10 Oct 2010 14:19:44 -0700
+Message-ID: <20101010211944.GB27553@core.coreip.homeip.net>
+References: <1286483748-1171-1-git-send-email-jason.wessel@windriver.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:45590 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750761Ab0JJVJL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Oct 2010 17:09:11 -0400
-In-Reply-To: <20101010205147.GA18455@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1286483748-1171-1-git-send-email-jason.wessel@windriver.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wessel <jason.wessel@windriver.com>
+Cc: kgdb-bugreport@lists.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>
 
-On Sun, 10 Oct 2010, Dmitry Torokhov wrote:
-
-> > > OK, so how is a graphics driver going to figure out it should suspend when the
-> > > button is pressed in the example above?
-> > 
-> > The graphics driver doesn't have to figure that out at all.  It merely
-> > has to suspend the display whenever it can, i.e., whenever the usage
-> > count drops to 0 (or equivalently, whenever the runtime_idle callback
-> > runs).
+On Thu, Oct 07, 2010 at 03:35:45PM -0500, Jason Wessel wrote:
+> The goal of this patch set is to help eliminate the problems of
+> resuming from the kernel debugger and having "stuck keys".
 > 
-> That makes sense for drivers that do very agressive PM, but fails for
-> cases when you have bigger timeouts. My phone shuts off its display
-> automatically after 30 seconds or a minute but I have an option of
-> pressing a button which causes it to shut off immediately.
+> I am completely open to moving the code chunks around if it makes more
+> sense to put the function in the input.c.
 > 
-> > 
-> > It's up to userspace to make sure that the display's usage count goes
-> > to 0 at the proper time, i.e., when the button is pressed.  Contrary to
-> > what you wrote above, we _do_ have an interface for this at the PM core
-> > level: power/control.
-> > 
+> I had posted the first patch in the series before and never received
+> an ack or acceptance into the linux-input merge queue.
 > 
-> I think that while using power/control is a _very_ good option "auto"
-> and "on" are not enough, we need 3 states: "on", "off" and "auto".
 
-Will the driver use autosuspend for the 30-second delay?  Then all you
-have to do is this: When the button is pressed, write 0 to
-power/autosuspend_delay_ms, causing an immediate runtime suspend.  
-Then before turning the display back on, write 30000 to set the delay
-to 30 seconds again.  You can leave power/control set to "auto" the
-whole time.
+Jason,
 
-I don't like the idea of having an "off" setting in power/control.  
-What happens if the user turns a disk drive controller "off" and the 
-system needs to read or write something on that disk drive?
+I am aware of the problem however I am not quite happy with the proposed
+solution yet. Let me mull it over for a bit and I will get back to you.
 
-Alan Stern
+Thanks.
 
+-- 
+Dmitry

@@ -1,81 +1,74 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 0/3] Input: synaptics - multitouch and multifinger support
-Date: Mon, 11 Oct 2010 17:31:22 +0200
-Message-ID: <4CB32DCA.4090809@euromail.se>
-References: <1286549880-32580-1-git-send-email-chase.douglas@canonical.com>	<s5hfwwg4p4t.wl%tiwai@suse.de>	<1286558135.22715.162.camel@mini>	<201010081104.01527.dmitry.torokhov@gmail.com>	<s5h62xc4h2l.wl%tiwai@suse.de>	<20101010210434.GC18455@core.coreip.homeip.net>	<s5hy6a52ndd.wl%tiwai@suse.de>	<4CB2C154.5060303@euromail.se>	<AANLkTi=VTq+3-t4taR_22E1Wkos+yeHdMDkHd-Zc9Cbs@mail.gmail.com>	<s5hy6a4g76r.wl%tiwai@suse.de>	<4CB31E29.9020602@euromail.se> <s5hlj64g4xt.wl%tiwai@suse.de>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Mon, 11 Oct 2010 11:56:24 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1010111140040.2339-100000@netrider.rowland.org>
+References: <201010110024.25955.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:52228 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755219Ab0JKPbs (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:44985 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754562Ab0JKP41 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Oct 2010 11:31:48 -0400
-In-Reply-To: <s5hlj64g4xt.wl%tiwai@suse.de>
+	Mon, 11 Oct 2010 11:56:27 -0400
+In-Reply-To: <201010110024.25955.rjw@sisk.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, xorg-devel@lists.x.org, Andy Whitcroft <apw@canonical.com>, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Duncan McGreggor <duncan.mcgreggor@canonical.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, samu.p.onkalo@nokia.com, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, ext Sundar R IYER <sundar.iyer@stericsson.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>
 
-On 10/11/2010 04:49 PM, Takashi Iwai wrote:
-[...]
->>> As an example of mess of Clickpad: if you keep your finger on a button
+On Mon, 11 Oct 2010, Rafael J. Wysocki wrote:
 
->>> area and another finger on the normal area, you shouldn't trigger the
->>> multi-touch mode, no matter whether it's clicked or not.  People tend
->>> to keep the finger on the button before actually dragging.
->>>
->>> But, if you put both fingers in the button area and sliding together,
->>> it should be handled as two-finger scrolling.  Also, if you move one
->>> finger on a button area, it should be tracked as a normal pointer
->>> movement.
->>
->>
->> Are you aware of http://bitmath.org/code/multitouch/? The driver was developed
->> to address very similar issues on the macbook trackpads.
+> On Sunday, October 10, 2010, Alan Stern wrote:
+> > On Sun, 10 Oct 2010, Dmitry Torokhov wrote:
+> ... 
+> > > > 
+> > > > It's up to userspace to make sure that the display's usage count goes
+> > > > to 0 at the proper time, i.e., when the button is pressed.  Contrary to
+> > > > what you wrote above, we _do_ have an interface for this at the PM core
+> > > > level: power/control.
 > 
-> Well, I thought Macs don't use the certain areas as virtual buttons
-> but determines the button by the number of fingers.  Or was it
-> changed?  If yes, could you point out which source file does it?
+> I think that power/control is not sufficient, because drivers may generally not
+> have enough information to make a decision to suspend the device.  What you're
+> saying basically means that for every driver there should be an interface for
+> user space to tell it when the device is not used (and therefore may be
+> suspended), which is pretty much what I'm saying.  The difference seems to be
+> that I think it's better to put this interface into /sys/devices/.../power/,
+> while your opinion seems to be that the interface should be driver-specific.
 
+This has to depend on how the device is going to be used.  Will there
+be multiple user processes, each using it independently?  In that case
+a single attribute value won't work; some sort of counter will be
+needed.  Will all access funnel through a single process?  Then a
+single attribute value will work, and that attribute might as well be
+power/control.
 
-The trackpads with integrated button are like clickpads with one button. It
-would certainly be interesting to use the clickpad pattern on those as well. For
-both types of pads, the bottom area is special. Two-finger scroll works as
-normal, while a clicking finger may move around without affecting anything, nor
-the number of fingers on the pad.
+I'm not fully convinced that we are yet in a good position to do
+anything along these lines.  A driver can generally tell when it is
+being used easily enough: If there are I/O calls then it is in use.  
+Of course there are exceptions, like a display screen that is in use
+when the user is looking at it, not when the display is being updated.
 
-> I'm looking through the git tree
-> http://bitmath.org/git/multitouch.git, but couldn't find out yet...
+To the extent that drivers can tell what's going on just by monitoring
+their own activities, we don't need a new interface.  For anything
+beyond that, it seems likely that the situation will vary considerably
+from one device to another.  At this point we don't have enough
+experience to specify a single approach that will work everywhere.
 
+Especially since I haven't seen any scenarios so far that can't be
+solved using the existing interfaces under power/.
 
-src/memory.c might be what you are looking for. There are also two unpublished
-branches around - one which uses the mtdev library, and one which uses
-utouch-grail directly (but with limited functionality).
-
->>> Another mess is that, as the default setup, the pointer movement is
->>> too sensitive, and when user pushes down the touchpad for clicking,
->>> the pointer moves a few or more pixels.  This eventually misses the
->>> target.  So, some trick to drag the pointer is necessary for click
->>> action.  One of my patches does it by introducing some "move
->>> threshold" value.
->>
->>
->> Also addressed in that project. What I am hoping to see, eventually, is code
->> similar to the core of the multitouch project in something like ginn. This would
->> exercise the whole utouch stack in an extensible way, and finally make
->> multitouch trackpads work the way they are supposed to.
+> > I don't like the idea of having an "off" setting in power/control.  
+> > What happens if the user turns a disk drive controller "off" and the 
+> > system needs to read or write something on that disk drive?
 > 
-> If the messy behavior of clickpad suits with the multi-touch library,
-> I have nothing against it, sure.  It was just my concern that the
-> clickpad-style handling might pollute the code.
+> That's why I said about a new flag that will only be set by drivers
+> _knowing_ that they can suspend "on demand".
 
+For such drivers, the only question is "Does userspace want me to
+suspend now?"  This question can be answered by
+power/autosuspend_delay_ms or by power/control.  Why is a new flag
+needed?
 
-I am not sure it has to be messy at all, and it has to reside *somewhere*. I
-think something like ginn, or parallel to ginn, is the best long-run place for
-it. Submitting clickpad functionality to multitouch for starters would
-definitely work in my book.
+Alan Stern
 
-Cheers,
-Henrik

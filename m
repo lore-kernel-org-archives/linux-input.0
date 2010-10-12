@@ -1,109 +1,89 @@
-From: =?UTF-8?B?RnJhbsOnb2lzIEphb3Vlbg==?= <francois.jaouen@laposte.net>
-Subject: Re: [PATCH] Add Cando touch screen 15.6-inch product id with Signed-off-by
-Date: Tue, 12 Oct 2010 21:02:43 +0200
-Message-ID: <4CB4B0D3.5010104@laposte.net>
-References: <1286642783.5459.36.camel@francois-laptop> <1286697999.1643.4.camel@francois-laptop> <alpine.LNX.2.00.1010121424280.6879@pobox.suse.cz>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH/RFC] input: hil_mlc - Fix hil_mlc_serio_id file2alias
+ failure
+Date: Tue, 12 Oct 2010 21:17:49 +0200 (CEST)
+Message-ID: <alpine.DEB.2.00.1010122111270.6491@ayla.of.borg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp28.orange.fr ([80.12.242.100]:7701 "EHLO smtp28.orange.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758055Ab0JLTCq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Oct 2010 15:02:46 -0400
-In-Reply-To: <alpine.LNX.2.00.1010121424280.6879@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-m68k-owner@vger.kernel.org>
+Sender: linux-m68k-owner@vger.kernel.org
+To: Dzianis Kahanovich <mahatma@eu.by>, Dmitry Torokhov <dtor@mail.ru>, Helge Deller <deller@gmx.de>
+Cc: linux-next@vger.kernel.org, linux-input@vger.kernel.org, Linux/m68k <linux-m68k@lists.linux-m68k.org>, linux-parisc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, "francois.jaouen@softeam.fr" <francois.jaouen@softeam.fr>
 
-  Le 12/10/2010 14:25, Jiri Kosina a =C3=A9crit :
-> On Sun, 10 Oct 2010, fran=C3=A7ois Jaouen wrote:
->
->> This add the product id of the touch screen found on ACER Aspire 573=
-8PZ.
->> Works with hid-cando driver.
->> Added Signed-off-by tag.
-> Hi Francois,
->
-> thanks for the patch. However, it is damaged (line-wrapped). Could yo=
-u
-> please instruct your mail client not to damage it, and resend?
-> (in the worst case, please send it as attachment).
->
-> Thanks,
-Hi Jiri
+Commit e288bf7c346360ac9dafbc1b6d7b6b1a82b51616 ("Input: HIL keyboard and
+serio - add missing MODULE_DEVICE_TABLE()") caused the following build
+failure on m68k/allmodconfig:
 
-I'm confused about the patch format. Hope this one will be better.
+FATAL: drivers/input/serio/hil_mlc: struct serio_device_id is not terminated with a NULL entry!
 
-This add the product id of the touch screen found on ACER Aspire 5738PZ=
-=2E
-Works with hid-cando driver.
-Signed-off-by: Francois Jaouen<francois.jaouen@laposte.net>
+hil_mlc_serio_id is not an array, but a single struct serio_device_id entry.
+Fix the build by converting it into an array, and adding a NULL entry.
 
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
+Build failure in linux-next:
+http://kisskb.ellerman.id.au/kisskb/buildresult/3385851/
 
-  drivers/hid/hid-cando.c |    2 ++
-  drivers/hid/hid-core.c  |    1 +
-  drivers/hid/hid-ids.h   |    3 ++-
-  3 files changed, 5 insertions(+), 1 deletions(-)
+I'm not sure this is the right fix, as hil_mlc_serio_id is a catch-all ID.
+Perhaps the MODULE_DEVICE_TABLE() should just be removed again instead?
 
-diff --git a/drivers/hid/hid-cando.c b/drivers/hid/hid-cando.c
-index 4267a6f..ab231cd 100644
---- a/drivers/hid/hid-cando.c
-+++ b/drivers/hid/hid-cando.c
-@@ -237,6 +237,8 @@ static const struct hid_device_id cando_devices[] =3D=
- {
-  			USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-  			USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-+			USB_DEVICE_ID_CANDO_MULTI_TOUCH_15_6) },
-  	{ }
-  };
-  MODULE_DEVICE_TABLE(hid, cando_devices);
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 3f72924..a0dea3d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1292,6 +1292,7 @@ static const struct hid_device_id hid_blacklist[]=
- =3D {
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE_=
-2) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_MULTI_TOUC=
-H) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_MULTI_TOUC=
-H_11_6) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_MULTI_TOUCH=
-_15_6) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION=
-) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION=
-_SOLAR) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_TACTIC=
-AL_PAD) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 765a4f5..3d46d9f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -133,7 +133,8 @@
+ drivers/input/serio/hil_mlc.c |   18 +++++++++++-------
+ 1 files changed, 11 insertions(+), 7 deletions(-)
 
-  #define USB_VENDOR_ID_CANDO		0x2087
-  #define USB_DEVICE_ID_CANDO_MULTI_TOUCH	0x0a01
--#define USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6 0x0b03
-+#define USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6	0x0b03
-+#define USB_DEVICE_ID_CANDO_MULTI_TOUCH_15_6	0x0f01
-
-  #define USB_VENDOR_ID_CH		0x068e
-  #define USB_DEVICE_ID_CH_PRO_PEDALS	0x00f2
---=20
+diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
+index cc8e01f..43904db 100644
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -897,11 +897,15 @@ static void hil_mlc_serio_close(struct serio *serio)
+ 	/* TODO wake up interruptable */
+ }
+ 
+-static const struct serio_device_id hil_mlc_serio_id = {
+-	.type = SERIO_HIL_MLC,
+-	.proto = SERIO_HIL,
+-	.extra = SERIO_ANY,
+-	.id = SERIO_ANY,
++static const struct serio_device_id hil_mlc_serio_ids[] = {
++	{
++	    /* There's only one ID, which is a catch-all */
++	    .type = SERIO_HIL_MLC,
++	    .proto = SERIO_HIL,
++	    .extra = SERIO_ANY,
++	    .id = SERIO_ANY,
++	},
++	{ 0 }
+ };
+ 
+ int hil_mlc_register(hil_mlc *mlc)
+@@ -934,7 +938,7 @@ int hil_mlc_register(hil_mlc *mlc)
+ 		mlc->serio[i] = mlc_serio;
+ 		snprintf(mlc_serio->name, sizeof(mlc_serio->name)-1, "HIL_SERIO%d", i);
+ 		snprintf(mlc_serio->phys, sizeof(mlc_serio->phys)-1, "HIL%d", i);
+-		mlc_serio->id			= hil_mlc_serio_id;
++		mlc_serio->id			= hil_mlc_serio_ids[0];
+ 		mlc_serio->id.id		= i; /* HIL port no. */
+ 		mlc_serio->write		= hil_mlc_serio_write;
+ 		mlc_serio->open			= hil_mlc_serio_open;
+@@ -1011,7 +1015,7 @@ static void __exit hil_mlc_exit(void)
+ }
+ 
+ 
+-MODULE_DEVICE_TABLE(serio, hil_mlc_serio_id);
++MODULE_DEVICE_TABLE(serio, hil_mlc_serio_ids);
+ 
+ module_init(hil_mlc_init);
+ module_exit(hil_mlc_exit);
+-- 
 1.7.0.4
 
+Gr{oetje,eeting}s,
 
+						Geert
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

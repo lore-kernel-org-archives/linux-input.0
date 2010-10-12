@@ -1,66 +1,72 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: input: Synaptics touchscreen driver followup
-Date: Tue, 12 Oct 2010 02:07:04 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A530468370A42@dlee03.ent.ti.com>
+From: Sundar R IYER <sundar.iyer@stericsson.com>
+Subject: RE: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Tue, 12 Oct 2010 09:25:48 +0200
+Message-ID: <33A307AF30D7BF4F811B1568FE7A9B180468726AB4@EXDCVYMBSTM006.EQ1STM.local>
+References: <20101011170733.GA27304@core.coreip.homeip.net>
+ <Pine.LNX.4.44L0.1010111739580.16765-100000@netrider.rowland.org>
+ <20101011220846.GA28611@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:40687 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756639Ab0JLHHT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Oct 2010 03:07:19 -0400
+Received: from eu1sys200aog101.obsmtp.com ([207.126.144.111]:35726 "EHLO
+	eu1sys200aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754001Ab0JLH0P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Oct 2010 03:26:15 -0400
+In-Reply-To: <20101011220846.GA28611@core.coreip.homeip.net>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>
-Cc: William Manson <WManson@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Jean Delvare <khali@linux-fr.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Stern <stern@rowland.harvard.edu>
+Cc: "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>
 
 Hi,
 
-This is a follow up on
- http://www.spinics.net/lists/linux-input/msg11163.html
+Sorry to be jumping in late. My few comments dispersed with
+individual replies
 
-I have started to work with synaptics-rmi4 branch using sdp4430 board with 2 TM1217 controllers. I am right now using linux-omap-2.6 kernel
+>-----Original Message-----
+>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>Sent: Tuesday, October 12, 2010 3:39 AM
+>
+>
+>I do not believe there is a generic answer - different devices,
+>different options. For example I could see buttons split into 2 groups -
+>"important" ones that bring the system from sleep or "stupor" and "not
+>so important" that gets to be ignored. Or user woudl need to "flick"
+>the screen. Or toss the phone into a corner cussing :)
+>
 
-After some modifications and board configuration changes I was able to register all rmi layers however I am still facing some issues, will continue debugging
+Yes. At least on the U8500 (and couple of OMAPs as well), it is the 
+always-on power button on AB8500/TWLs that is the necessary event 
+to turn off the display/keypad. The entire display/keypad themselves
+cannot wakeup the system. But on the older phones, we generally had
+to have the menu + star combination to unlock the phone, which falls into
+the main keypad.
 
-- Compilation error when built as modules
-- Interrupts not being generated but registered
-- In polling mode, kernel crash when ts_work_func is executed
+>The point is that there seems to be a need for kicking devices into low
+>power mode and I woudl like to have generic interface for that,
+>preferrably reusing (as far as kernel drivers go) existing PM
+>infrastructure.
 
-If anyone has made some other progress I'll be glad to test changes...
+Coming in late, I would just like to summarize some of the points; please
+correct if I am wrong:
 
-Dmitry,
+- user space intervention is required to communicate specific events
+  to individual devices to put them into an appropriate power state.
 
-I have 2 questions,
+- auto suspend isn't the correct choice for input devices as they may
+  conflict with system suspend (touch screen off/idle needs to be sync'ed
+  with system suspend as with a lock switch)
 
-1. Is it ok to send patches for cleanup or do you prefer functional ones? There are some checkpatch warnings still around
+- PM ATM doesn't provide a sysfs attribute for enabling/disabling or forcing
+  an individual device into low power mode unlike for platform. However a new
+  "suspend_ondemand" flag can enable such devices to be put into appropriate
+  states via a /sys/devices/.../power/ by the user space.
 
-2. Could you please explain more about bus implementation? I have read Documentation/driver-model/bus.txt and wrote some initial code to register rmi as a bus, giving
+If my above summarization is correct, I personally feel the on demand flag is a clean
+option for the current requirement.
 
-# ls /sys/bus/rmi/drivers/
-# ls /sys/bus/rmi/devices/
-
->From this point, I am confused on where bus will be in the picture shared by Synaptics team, shown below...
-
-- Does it mean RMI4 Driver will be RMI4 bus and we will keep same application on top of it?
-
-- What about i2c and spi layers? They will be drivers for rmi bus?
-
-- What will be a device for rmi bus? The application?
-
-  +----------------------------------------+
-  |               Application              |
-  +----------------------------------------+
-  |                RMI4 Driver             | Data Layer
-  |                (this file)             |
-  +-----+-----+-------+----------+---------+
-  | I2C | SPI | SMBus |         etc.       | Physical Layer
-  +-----+-----+-------+----------+---------+
-
-Thanks for the guidance!
-
-Best Regards
-Abraham
+Cheers!
+Sundar

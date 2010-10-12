@@ -1,82 +1,36 @@
-From: Maulik Mankad <mankad.maulik-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Maulik Mankad <mankad.maulik@gmail.com>
 Subject: Re: [RFT]patch to remove kernel thread for runtime pm from usbhid
-Date: Tue, 12 Oct 2010 19:56:28 +0530
-Message-ID: <AANLkTikSV5F8J=9orcXCej=KV2J9EjvFTYkKXMt7Rjf0@mail.gmail.com>
+Date: Tue, 12 Oct 2010 20:02:12 +0530
+Message-ID: <AANLkTi=Vf=OJWVRYBg6H_49FFXVjhZSyn2evUwyODYmE@mail.gmail.com>
 References: <201010121000.50465.oneukum@suse.de>
-	<201010121339.49932.oneukum@suse.de>
-	<AANLkTimfK2JeAf2DMV_qw3a4UiZwQKJQfF2HNNU=RWP8@mail.gmail.com>
-	<201010121640.48586.oneukum@suse.de>
-	<AANLkTim_RN54GrLQ7ZAodwX-GHJ2knCEK-Ugd7FE7-rz@mail.gmail.com>
 	<AANLkTin7k23LbW4Lj7qJM=FZLn+AbqEJYpm_ycVUBLFa@mail.gmail.com>
+	<AANLkTikSV5F8J=9orcXCej=KV2J9EjvFTYkKXMt7Rjf0@mail.gmail.com>
+	<201010121629.07011.oneukum@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <AANLkTin7k23LbW4Lj7qJM=FZLn+AbqEJYpm_ycVUBLFa-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:34352 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757305Ab0JLOcQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Oct 2010 10:32:16 -0400
+In-Reply-To: <201010121629.07011.oneukum@suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: linux-input <linux-input@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
 
-On Tue, Oct 12, 2010 at 7:09 PM, Maulik Mankad <mankad.maulik-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org=
-> wrote:
-> Seems like the below commit added that support to sysfs.
+On Tue, Oct 12, 2010 at 7:59 PM, Oliver Neukum <oneukum@suse.de> wrote:
+> Am Dienstag, 12. Oktober 2010, 16:26:28 schrieb Maulik Mankad:
+>> I am not familiar with the runtime pm statistics and can't interpret
+>> the above values.
+>>
+>> Let me know if this information is helpful and if you need anything else.
+>>
 >
-> commit 8d4b9d1bfef117862a2889dec4dac227068544c9
-> Author: Arjan van de Ven <arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Date: =A0 Mon Jul 19 02:01:06 2010 +0200
->
-> =A0 =A0PM / Runtime: Add runtime PM statistics (v3)
->
-> I will see if I can apply this to my kernel and provide the stats you=
- need.
+> Perfect. It works as it should. May I add your tested-by line?
 >
 
-I applied the relevant patches to 2.6.35 related to runtime PM and
-collected the below statistics.
+Thanks.Yes please.
 
-cat /sys/bus/usb/devices/1-1/power/active_duration
-120609
-
-cat /sys/bus/usb/devices/1-1/power/autosuspend
-0
-
-cat /sys/bus/usb/devices/1-1/power/connected_duration
-220398
-
-cat /sys/bus/usb/devices/1-1/power/control
-auto
-
-cat /sys/bus/usb/devices/1-1/power/level
-auto
-
-cat /sys/bus/usb/devices/1-1/power/persist
-1
-
-cat /sys/bus/usb/devices/1-1/power/runtime_active_time
-120523
-
-cat /sys/bus/usb/devices/1-1/power/runtime_status
-suspended
-
-cat /sys/bus/usb/devices/1-1/power/runtime_suspended_time
-159773
-
-cat /sys/bus/usb/devices/1-1/power/wakeup
-enabled
-
-cat /sys/bus/usb/devices/1-1/power/wakeup_count
-0
-
-I am not familiar with the runtime pm statistics and can't interpret
-the above values.
-
-Let me know if this information is helpful and if you need anything els=
-e.
-
-Regards,
-Maulik
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Tested-by: Maulik Mankad <x0082077@ti.com>

@@ -1,54 +1,43 @@
-From: Maulik Mankad <mankad.maulik@gmail.com>
-Subject: Re: [RFT]patch to remove kernel thread for runtime pm from usbhid
-Date: Tue, 12 Oct 2010 17:40:42 +0530
-Message-ID: <AANLkTimfK2JeAf2DMV_qw3a4UiZwQKJQfF2HNNU=RWP8@mail.gmail.com>
-References: <201010121000.50465.oneukum@suse.de>
-	<AANLkTi=AWMWPH7N035n0Tk+8PcWgu10LzGbLQfpSefO1@mail.gmail.com>
-	<201010121339.49932.oneukum@suse.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Add Cando touch screen 15.6-inch product id with
+ Signed-off-by
+Date: Tue, 12 Oct 2010 14:25:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010121424280.6879@pobox.suse.cz>
+References: <1286642783.5459.36.camel@francois-laptop> <1286697999.1643.4.camel@francois-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:52207 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932068Ab0JLMKt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Oct 2010 08:10:49 -0400
-In-Reply-To: <201010121339.49932.oneukum@suse.de>
+Received: from cantor2.suse.de ([195.135.220.15]:52808 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757214Ab0JLMZI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Oct 2010 08:25:08 -0400
+In-Reply-To: <1286697999.1643.4.camel@francois-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: linux-input <linux-input@vger.kernel.org>, linux-pm@vger.kernel.org, USB list <linux-usb@vger.kernel.org>
+To: =?ISO-8859-15?Q?fran=E7ois_Jaouen?= <francois.jaouen@laposte.net>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Oct 12, 2010 at 5:09 PM, Oliver Neukum <oneukum@suse.de> wrote:
-> Am Dienstag, 12. Oktober 2010, 13:34:33 schrieb Maulik Mankad:
->> On Tue, Oct 12, 2010 at 1:30 PM, Oliver Neukum <oneukum@suse.de> wrote:
->
->> > This patch removes the dedicated work queue and thus the kernel thread
->> > used to wake up USB HID devices. It is replaced with the use of
->> > the async API which didn't exist when runtime pm was introduced to
->> > usbhid.
->> >
->> > Signed-off-by: Oliver Neukum <oneukum@suse.de>
->> > ---
->>
->> Tested on OMAP4 SDP with USB Keyboard and USB Mouse using 'evtest' program.
->
-> Thank you. Do both devices support remote wakeup? How much sleep time
-> was generated?
->
+On Sun, 10 Oct 2010, fran=C3=A7ois Jaouen wrote:
 
-Reading the wakeup node (as below) shows that its enabled.
+> This add the product id of the touch screen found on ACER Aspire 5738=
+PZ.=20
+> Works with hid-cando driver.
+> Added Signed-off-by tag.
 
-cat /sys/bus/usb/devices/1-1/manufacturer
-Dell
+Hi Francois,
 
-# cat /sys/bus/usb/devices/1-1/power/wakeup
-enabled
+thanks for the patch. However, it is damaged (line-wrapped). Could you=20
+please instruct your mail client not to damage it, and resend?
+(in the worst case, please send it as attachment).
 
-My test was basically using the HID device post enumeration, and make
-sure that data transfers work reliably.
+Thanks,
 
-I can test more if you provide steps as per your need.
-
-Regards,
-Maulik
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

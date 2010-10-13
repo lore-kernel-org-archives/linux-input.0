@@ -1,84 +1,51 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 5/6] hid: egalax: Add event filtering
-Date: Wed, 13 Oct 2010 13:55:13 -0400
-Message-ID: <1286992513.31864.200.camel@mini>
-References: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
-	 <1286978302-30034-6-git-send-email-rydberg@euromail.se>
+From: Sundar <sunder.svit@gmail.com>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Wed, 13 Oct 2010 23:30:22 +0530
+Message-ID: <AANLkTin0cLmmCyWuQS=OyrOVp-wTEmW65PRqR7S_ez4b@mail.gmail.com>
+References: <AANLkTi=ouKDuPgUgLOwfBPhWKM=RCoh8hb0tY3h53i2r@mail.gmail.com>
+	<Pine.LNX.4.44L0.1010131335580.2311-100000@iolanthe.rowland.org>
+	<AANLkTikqNNY=gNC96ZEo5ar+Adw80h=M3_XGe3A--unu@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:59886 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751457Ab0JMRzT (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:50854 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750976Ab0JMSAX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 13:55:19 -0400
-In-Reply-To: <1286978302-30034-6-git-send-email-rydberg@euromail.se>
+	Wed, 13 Oct 2010 14:00:23 -0400
+Received: by yxm8 with SMTP id 8so1217670yxm.19
+        for <linux-input@vger.kernel.org>; Wed, 13 Oct 2010 11:00:23 -0700 (PDT)
+In-Reply-To: <AANLkTikqNNY=gNC96ZEo5ar+Adw80h=M3_XGe3A--unu@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
 
-On Wed, 2010-10-13 at 15:58 +0200, Henrik Rydberg wrote:
-> Use estimated signal-to-noise ratios to reduce noise and limit the
-> amount of events emitted.
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->  drivers/hid/hid-egalax.c |   16 ++++++++++------
->  1 files changed, 10 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-> index 2aba897..b21e7dc 100644
-> --- a/drivers/hid/hid-egalax.c
-> +++ b/drivers/hid/hid-egalax.c
-> @@ -27,6 +27,10 @@ MODULE_LICENSE("GPL");
->  
->  #define MAX_EVENTS		120
->  
-> +/* estimated signal-to-noise ratios */
-> +#define SN_MOVE			1024
-> +#define SN_PRESSURE		32
-> +
->  struct egalax_data {
->  	__u16 x, y, z;
->  	__u8 id;
-> @@ -59,17 +63,17 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			field->logical_maximum <<= 3;
->  			hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_POSITION_X);
-> -			set_abs(input, ABS_MT_POSITION_X, field, 0);
-> +			set_abs(input, ABS_MT_POSITION_X, field, SN_MOVE);
->  			/* touchscreen emulation */
-> -			set_abs(input, ABS_X, field, 0);
-> +			set_abs(input, ABS_X, field, SN_MOVE);
->  			return 1;
->  		case HID_GD_Y:
->  			field->logical_maximum <<= 3;
->  			hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_POSITION_Y);
-> -			set_abs(input, ABS_MT_POSITION_Y, field, 0);
-> +			set_abs(input, ABS_MT_POSITION_Y, field, SN_MOVE);
->  			/* touchscreen emulation */
-> -			set_abs(input, ABS_Y, field, 0);
-> +			set_abs(input, ABS_Y, field, SN_MOVE);
->  			return 1;
->  		}
->  		return 0;
-> @@ -96,9 +100,9 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			field->logical_minimum = 0;
->  			hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_PRESSURE);
-> -			set_abs(input, ABS_MT_PRESSURE, field, 0);
-> +			set_abs(input, ABS_MT_PRESSURE, field, SN_PRESSURE);
->  			/* touchscreen emulation */
-> -			set_abs(input, ABS_PRESSURE, field, 0);
-> +			set_abs(input, ABS_PRESSURE, field, SN_PRESSURE);
->  			return 1;
->  		}
->  		return 0;
+On Wed, Oct 13, 2010 at 11:12 PM, Sundar <sunder.svit@gmail.com> wrote:
+> On Wed, Oct 13, 2010 at 11:07 PM, Alan Stern <stern@rowland.harvard.e=
+du> wrote:
+>>
+>> Sorry, I don't quite understand your question. =A0I think it would b=
+e
+>> okay to add an interface for userspace to cut short a runtime-suspen=
+d
+>> delay, but I don't think anything more is needed.
+>>
+>
+> I was just confirming that it is agreed by all that we can definitely=
+ wrap
+> this up via the standard PM helpers; through the accelerated suspend
+> if no one has any other reservations.
+>
 
-Seems obvious.
+And I forgot one more point. Since this switch feature was one of the
+requirements for the Meego framework, wouldnt it be nice if the Meego
+people also put out their opinions on this newer solution?
 
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
-
+Cheers!
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

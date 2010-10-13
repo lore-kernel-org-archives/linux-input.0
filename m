@@ -1,60 +1,40 @@
-From: Alan Ott <alan@signal11.us>
-Subject: Re: [RFC, PATCH 0/2] Enable setting leds via hidraw on Sixaxis
-Date: Wed, 13 Oct 2010 18:15:05 -0400
-Message-ID: <4CB62F69.1070809@signal11.us>
-References: <4CA9DD89.2010106@signal11.us> <1287003458-3791-1-git-send-email-ospite@studenti.unina.it>
+From: Grazvydas Ignotas <notasas@gmail.com>
+Subject: Re: [PATCH 4/4] Input: ads7846 - modificatons of _stop()/_disable() conditions
+Date: Thu, 14 Oct 2010 01:17:26 +0300
+Message-ID: <AANLkTi=0b-q3LK3-4mgdpSP7pScVSF1ZWzD45bLoAmJO@mail.gmail.com>
+References: <1284634286-8871-1-git-send-email-jason77.wang@gmail.com>
+	<1284634286-8871-4-git-send-email-jason77.wang@gmail.com>
+	<1284634286-8871-5-git-send-email-jason77.wang@gmail.com>
+	<201009162339.06395.dmitry.torokhov@gmail.com>
+	<4C9332CE.6040905@gmail.com>
+	<20100917160709.GC14186@core.coreip.homeip.net>
+	<4C9718E9.5040104@gmail.com>
+	<4CB4314C.7050308@gmail.com>
+	<20101012160055.GA6355@core.coreip.homeip.net>
+	<4CB523B7.8010209@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:45164 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750825Ab0JMWPG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 18:15:06 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 6FE591CCAAAC
-	for <linux-input@vger.kernel.org>; Wed, 13 Oct 2010 18:15:04 -0400 (EDT)
-In-Reply-To: <1287003458-3791-1-git-send-email-ospite@studenti.unina.it>
+Received: from mail-qy0-f181.google.com ([209.85.216.181]:39022 "EHLO
+	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751523Ab0JMWR1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Oct 2010 18:17:27 -0400
+In-Reply-To: <4CB523B7.8010209@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, =?ISO-8859-1?Q?Mikko_Virkkil=E4?= <mvirkkil@cc.hut.fi>, falktx@gmail.com
+To: Jason Wang <jason77.wang@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, vapier@gentoo.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org
 
-On 10/13/2010 04:57 PM, Antonio Ospite wrote:
-> Hi,
+On Wed, Oct 13, 2010 at 6:12 AM, Jason Wang <jason77.wang@gmail.com> wrote:
+> Hi Dmitry,
 >
-> this series adds a new quirk to force output reports to be sent over the
-> control endpoint rather than the interrupt ep, this is needed on our
-> "beloved" Sixaxis controller in order to set leds via hidraw, sending
-> the output report on the interrupt endpoint does not have any effect
-> whatsoever.
->
-> This is just an RFC for now, the quirk name can be improved, and I have
-> to make clear in the code and in the commit messages if this is for
-> hidraw only, but you can get the idea already.
->
-> Thanks,
->     Antonio
->
->
-> Antonio Ospite (2):
->    HID: usbhid, new quirk to force out reports on the control ep
->    HID: hid-sony, use HID_QUIRK_FORCE_OUT_CONTROL_EP for Sixaxis
->
->   include/linux/hid.h           |    1 +
->   drivers/hid/hid-sony.c        |    4 +++-
->   drivers/hid/usbhid/hid-core.c |    3 ++-
->   3 files changed, 6 insertions(+), 2 deletions(-)
->
->
->    
+> I have validated the new patch based off the 2.6.36-rc7 on
+> the ti_omap3530evm, it works fine.
 
-Hi Antonio,
+Working here on pandora too, applied on top of linux-next (did not
+test suspend though).
 
-If it were me, I'd just call usb_control_msg() from inside your driver 
-(hid-sony) instead of calling usbhid_output_report(). What's wrong with 
-doing that?
-
-Alan.
-
-
+Not caused by this patch, but the old problem where lower measurement
+bits get lost is back - when I draw diagonal line it looks like
+stairs. I think it's caused by OMAP SPI driver, CCing linux-omap.

@@ -1,44 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH/RFC] input: hil_mlc - Fix hil_mlc_serio_id file2alias
- failure
-Date: Tue, 12 Oct 2010 23:56:02 -0700
-Message-ID: <20101013065602.GA7014@core.coreip.homeip.net>
-References: <alpine.DEB.2.00.1010122111270.6491@ayla.of.borg>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Add Cando touch screen 15.6-inch product id with
+ Signed-off-by
+Date: Wed, 13 Oct 2010 10:48:38 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010131048060.6879@pobox.suse.cz>
+References: <1286642783.5459.36.camel@francois-laptop> <1286697999.1643.4.camel@francois-laptop> <alpine.LNX.2.00.1010121424280.6879@pobox.suse.cz> <4CB4B0D3.5010104@laposte.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-next-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.00.1010122111270.6491@ayla.of.borg>
-Sender: linux-next-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Dzianis Kahanovich <mahatma@eu.by>, Helge Deller <deller@gmx.de>, linux-next@vger.kernel.org, linux-input@vger.kernel.org, Linux/m68k <linux-m68k@lists.linux-m68k.org>, linux-parisc@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54927 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753378Ab0JMIsj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Oct 2010 04:48:39 -0400
+In-Reply-To: <4CB4B0D3.5010104@laposte.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Fran=E7ois_Jaouen?= <francois.jaouen@laposte.net>
+Cc: linux-input@vger.kernel.org, "francois.jaouen@softeam.fr" <francois.jaouen@softeam.fr>
 
-On Tue, Oct 12, 2010 at 09:17:49PM +0200, Geert Uytterhoeven wrote:
-> Commit e288bf7c346360ac9dafbc1b6d7b6b1a82b51616 ("Input: HIL keyboard and
-> serio - add missing MODULE_DEVICE_TABLE()") caused the following build
-> failure on m68k/allmodconfig:
-> 
-> FATAL: drivers/input/serio/hil_mlc: struct serio_device_id is not terminated with a NULL entry!
-> 
-> hil_mlc_serio_id is not an array, but a single struct serio_device_id entry.
-> Fix the build by converting it into an array, and adding a NULL entry.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> ---
-> Build failure in linux-next:
-> http://kisskb.ellerman.id.au/kisskb/buildresult/3385851/
-> 
-> I'm not sure this is the right fix, as hil_mlc_serio_id is a catch-all ID.
-> Perhaps the MODULE_DEVICE_TABLE() should just be removed again instead?
-> 
+On Tue, 12 Oct 2010, Fran=C3=A7ois Jaouen wrote:
 
-Gah, that original patch was incorrect, I should not have applied it at
-all... The serio_device_id in question is for serio port that is being
-created by the driver and thus of course should not be used in
-MODULE_DEVICE_TABLE().
+> > > This add the product id of the touch screen found on ACER Aspire =
+5738PZ.
+> > > Works with hid-cando driver.
+> > > Added Signed-off-by tag.
+> > Hi Francois,
+> >=20
+> > thanks for the patch. However, it is damaged (line-wrapped). Could =
+you
+> > please instruct your mail client not to damage it, and resend?
+> > (in the worst case, please send it as attachment).
+> >=20
+> > Thanks,
+> Hi Jiri
+>=20
+> I'm confused about the patch format. Hope this one will be better.
 
-I'll drop it from my 'next' queue.
+It was still whitespace damaged. I have fixed it by hand and applied it=
+,=20
+but please keep that in mind for your future patch submissions.
 
--- 
-Dmitry
+Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

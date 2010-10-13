@@ -1,7 +1,7 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 5/6] hid: egalax: Add event filtering
-Date: Wed, 13 Oct 2010 15:58:21 +0200
-Message-ID: <1286978302-30034-6-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 2/6] hid: egalax: Setup input device manually
+Date: Wed, 13 Oct 2010 15:58:18 +0200
+Message-ID: <1286978302-30034-3-git-send-email-rydberg@euromail.se>
 References: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
@@ -10,62 +10,113 @@ To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
 
-Use estimated signal-to-noise ratios to reduce noise and limit the
-amount of events emitted.
+The hid core does not yet handle input filtering. Take over the setup
+of the input device, so that proper signal-to-noise ratios can be
+used.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/hid/hid-egalax.c |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/hid/hid-egalax.c |   37 +++++++++++++++++++++++++------------
+ 1 files changed, 25 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-index 2aba897..b21e7dc 100644
+index 5a1b52e..23f832b 100644
 --- a/drivers/hid/hid-egalax.c
 +++ b/drivers/hid/hid-egalax.c
-@@ -27,6 +27,10 @@ MODULE_LICENSE("GPL");
+@@ -25,6 +25,8 @@ MODULE_LICENSE("GPL");
  
- #define MAX_EVENTS		120
+ #include "hid-ids.h"
  
-+/* estimated signal-to-noise ratios */
-+#define SN_MOVE			1024
-+#define SN_PRESSURE		32
++#define MAX_EVENTS		120
 +
  struct egalax_data {
  	__u16 x, y, z;
  	__u8 id;
-@@ -59,17 +63,17 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			field->logical_maximum <<= 3;
+@@ -34,10 +36,21 @@ struct egalax_data {
+ 	__u16 lastx, lasty, lastz;	/* latest valid (x, y, z) in the frame */
+ };
+ 
++static void set_abs(struct input_dev *input, unsigned int code,
++		    struct hid_field *field, int snratio)
++{
++	int fmin = field->logical_minimum;
++	int fmax = field->logical_maximum;
++	int fuzz = snratio ? (fmax - fmin) / snratio : 0;
++	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
++}
++
+ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
++	struct input_dev *input = hi->input;
++
+ 	switch (usage->hid & HID_USAGE_PAGE) {
+ 
+ 	case HID_UP_GENDESK:
+@@ -45,18 +58,16 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_GD_X:
  			hid_map_usage(hi, usage, bit, max,
  					EV_ABS, ABS_MT_POSITION_X);
--			set_abs(input, ABS_MT_POSITION_X, field, 0);
-+			set_abs(input, ABS_MT_POSITION_X, field, SN_MOVE);
++			set_abs(input, ABS_MT_POSITION_X, field, 0);
  			/* touchscreen emulation */
--			set_abs(input, ABS_X, field, 0);
-+			set_abs(input, ABS_X, field, SN_MOVE);
+-			input_set_abs_params(hi->input, ABS_X,
+-						field->logical_minimum,
+-						field->logical_maximum, 0, 0);
++			set_abs(input, ABS_X, field, 0);
  			return 1;
  		case HID_GD_Y:
- 			field->logical_maximum <<= 3;
  			hid_map_usage(hi, usage, bit, max,
  					EV_ABS, ABS_MT_POSITION_Y);
--			set_abs(input, ABS_MT_POSITION_Y, field, 0);
-+			set_abs(input, ABS_MT_POSITION_Y, field, SN_MOVE);
++			set_abs(input, ABS_MT_POSITION_Y, field, 0);
  			/* touchscreen emulation */
--			set_abs(input, ABS_Y, field, 0);
-+			set_abs(input, ABS_Y, field, SN_MOVE);
+-			input_set_abs_params(hi->input, ABS_Y,
+-						field->logical_minimum,
+-						field->logical_maximum, 0, 0);
++			set_abs(input, ABS_Y, field, 0);
  			return 1;
  		}
  		return 0;
-@@ -96,9 +100,9 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			field->logical_minimum = 0;
+@@ -66,6 +77,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_TIPSWITCH:
+ 			/* touchscreen emulation */
+ 			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
++			input_set_capability(input, EV_KEY, BTN_TOUCH);
+ 			return 1;
+ 		case HID_DG_INRANGE:
+ 		case HID_DG_CONFIDENCE:
+@@ -75,14 +87,15 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONTACTID:
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_TRACKING_ID);
++			set_abs(input, ABS_MT_TRACKING_ID, field, 0);
++			input_set_events_per_packet(input, MAX_EVENTS);
+ 			return 1;
+ 		case HID_DG_TIPPRESSURE:
  			hid_map_usage(hi, usage, bit, max,
  					EV_ABS, ABS_MT_PRESSURE);
--			set_abs(input, ABS_MT_PRESSURE, field, 0);
-+			set_abs(input, ABS_MT_PRESSURE, field, SN_PRESSURE);
++			set_abs(input, ABS_MT_PRESSURE, field, 0);
  			/* touchscreen emulation */
--			set_abs(input, ABS_PRESSURE, field, 0);
-+			set_abs(input, ABS_PRESSURE, field, SN_PRESSURE);
+-			input_set_abs_params(hi->input, ABS_PRESSURE,
+-						field->logical_minimum,
+-						field->logical_maximum, 0, 0);
++			set_abs(input, ABS_PRESSURE, field, 0);
  			return 1;
  		}
  		return 0;
+@@ -96,10 +109,10 @@ static int egalax_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
++	/* tell hid-input to skip setup of these event types */
+ 	if (usage->type == EV_KEY || usage->type == EV_ABS)
+-		clear_bit(usage->code, *bit);
+-
+-	return 0;
++		set_bit(usage->type, hi->input->evbit);
++	return -1;
+ }
+ 
+ /*
 -- 
 1.7.1

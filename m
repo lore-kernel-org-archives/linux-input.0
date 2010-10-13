@@ -1,241 +1,49 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 6/6] hid: egalax: Convert to MT slots
-Date: Wed, 13 Oct 2010 15:58:22 +0200
-Message-ID: <1286978302-30034-7-git-send-email-rydberg@euromail.se>
-References: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Wed, 13 Oct 2010 10:10:00 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1010131007310.2311-100000@iolanthe.rowland.org>
+References: <20101013095737.GI6424@rakim.wolfsonmicro.main>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:49648 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751936Ab0JMOKA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Oct 2010 10:10:00 -0400
+In-Reply-To: <20101013095737.GI6424@rakim.wolfsonmicro.main>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Sundar R IYER <sundar.iyer@stericsson.com>, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>
 
-The joojoo reports touches sequentially, one per report, which
-confuses the current driver. Convert to the MT slots protocol and use
-the stored slot information to emulate pointer movement in a stable
-manner.
+On Wed, 13 Oct 2010, Mark Brown wrote:
 
-Tested-by: Philipp Merkel <mail@philmerk.de>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/hid/hid-egalax.c |  133 ++++++++++++++++++++++++---------------------
- 1 files changed, 71 insertions(+), 62 deletions(-)
+> On Wed, Oct 13, 2010 at 08:16:20AM +0200, Sundar R IYER wrote:
+> 
+> > >> This isn't *really* about saving power in the individual device; it's
+> > >> more about stopping the device generating events that disrupt the rest
+> > >> of the system.  Suspending the device can be one way of doing that and
+> > >> is useful if it can be done but is not really the immediate goal here.
+> 
+> > >Runtime PM is _not_ a reliable way of preventing a device from
+> > >generating events.  It is meant for saving energy, nothing else.
+> 
+> > >If that's what this is about, then the answer is simple: Don't use
+> > >runtime PM to try to suppress events.
+> 
+> > I think it is unfair to discriminate here about saving power and turning off
+> > events. I believe putting the device into power save leads to, if device permits
+> > preventing generating events is valid to hook up run time PM.
+> 
+> This is the opposite way around to expectations - the expectation is
+> that runtime power management will flow from the device becoming idle
+> enough to turn off rather than the other way around.
 
-diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-index b21e7dc..1ca0f84 100644
---- a/drivers/hid/hid-egalax.c
-+++ b/drivers/hid/hid-egalax.c
-@@ -2,6 +2,8 @@
-  *  HID driver for eGalax dual-touch panels
-  *
-  *  Copyright (c) 2010 Stephane Chatty <chatty@enac.fr>
-+ *  Copyright (c) 2010 Henrik Rydberg <rydberg@euromail.se>
-+ *  Copyright (c) 2010 Canonical, Ltd.
-  *
-  */
- 
-@@ -25,19 +27,25 @@ MODULE_LICENSE("GPL");
- 
- #include "hid-ids.h"
- 
-+#define MAX_SLOTS		2
-+#define MAX_TRKID		USHRT_MAX
- #define MAX_EVENTS		120
- 
- /* estimated signal-to-noise ratios */
- #define SN_MOVE			1024
- #define SN_PRESSURE		32
- 
-+struct egalax_contact {
-+	int touch;
-+	int x, y, z;
-+};
-+
- struct egalax_data {
--	__u16 x, y, z;
--	__u8 id;
--	bool first;		/* is this the first finger in the frame? */
--	bool valid;		/* valid finger data, or just placeholder? */
--	bool activity;		/* at least one active finger previously? */
--	__u16 lastx, lasty, lastz;	/* latest valid (x, y, z) in the frame */
-+	struct egalax_contact contact[MAX_SLOTS];
-+	struct egalax_contact single, tmp;
-+	int valid;
-+	int slot;
-+	int trkid;
- };
- 
- static void set_abs(struct input_dev *input, unsigned int code,
-@@ -91,10 +99,13 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		case HID_DG_CONTACTMAX:
- 			return -1;
- 		case HID_DG_CONTACTID:
-+			field->logical_maximum = MAX_TRKID;
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TRACKING_ID);
- 			set_abs(input, ABS_MT_TRACKING_ID, field, 0);
- 			input_set_events_per_packet(input, MAX_EVENTS);
-+			if (!input->mt)
-+				input_mt_create_slots(input, MAX_SLOTS);
- 			return 1;
- 		case HID_DG_TIPPRESSURE:
- 			field->logical_minimum = 0;
-@@ -122,64 +133,61 @@ static int egalax_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 	return -1;
- }
- 
-+static void emulate_pointer(struct egalax_data *td, struct input_dev *input)
-+{
-+	struct egalax_contact *s = &td->single;
-+	struct egalax_contact *best = 0;
-+	int dbest, i;
-+
-+	for (i = 0; i < MAX_SLOTS; i++) {
-+		struct egalax_contact *f = &td->contact[i];
-+		if (f->touch) {
-+			int d = abs(f->x - s->x) + abs(f->y - s->y);
-+			if (!best || d < dbest) {
-+				best = f;
-+				dbest = d;
-+			}
-+		}
-+	}
-+
-+	if (best) {
-+		input_event(input, EV_KEY, BTN_TOUCH, 1);
-+		input_event(input, EV_ABS, ABS_X, best->x);
-+		input_event(input, EV_ABS, ABS_Y, best->y);
-+		input_event(input, EV_ABS, ABS_PRESSURE, best->z);
-+		*s = *best;
-+	} else {
-+		input_event(input, EV_KEY, BTN_TOUCH, 0);
-+	}
-+}
-+
-+
- /*
-  * this function is called when a whole finger has been parsed,
-  * so that it can decide what to send to the input layer.
-  */
- static void egalax_filter_event(struct egalax_data *td, struct input_dev *input)
- {
--	td->first = !td->first; /* touchscreen emulation */
--
--	if (td->valid) {
--		/* emit multitouch events */
--		input_event(input, EV_ABS, ABS_MT_TRACKING_ID, td->id);
--		input_event(input, EV_ABS, ABS_MT_POSITION_X, td->x >> 3);
--		input_event(input, EV_ABS, ABS_MT_POSITION_Y, td->y >> 3);
--		input_event(input, EV_ABS, ABS_MT_PRESSURE, td->z);
--
--		input_mt_sync(input);
--
--		/*
--		 * touchscreen emulation: store (x, y) as
--		 * the last valid values in this frame
--		 */
--		td->lastx = td->x;
--		td->lasty = td->y;
--		td->lastz = td->z;
--	}
--
--	/*
--	 * touchscreen emulation: if this is the second finger and at least
--	 * one in this frame is valid, the latest valid in the frame is
--	 * the oldest on the panel, the one we want for single touch
--	 */
--	if (!td->first && td->activity) {
--		input_event(input, EV_ABS, ABS_X, td->lastx >> 3);
--		input_event(input, EV_ABS, ABS_Y, td->lasty >> 3);
-- 		input_event(input, EV_ABS, ABS_PRESSURE, td->lastz);
--	}
--
--	if (!td->valid) {
--		/*
--		 * touchscreen emulation: if the first finger is invalid
--		 * and there previously was finger activity, this is a release
--		 */ 
--		if (td->first && td->activity) {
--			input_event(input, EV_KEY, BTN_TOUCH, 0);
--			td->activity = false;
-+	struct egalax_contact *old = &td->contact[td->slot];
-+	struct egalax_contact *f = &td->tmp;
-+
-+	input_mt_slot(input, td->slot);
-+	if (f->touch) {
-+		if (!old->touch) {
-+			int id = td->trkid++ & MAX_TRKID;
-+			input_event(input, EV_ABS, ABS_MT_TRACKING_ID, id);
- 		}
--		return;
-+		input_event(input, EV_ABS, ABS_MT_POSITION_X, f->x);
-+		input_event(input, EV_ABS, ABS_MT_POSITION_Y, f->y);
-+		input_event(input, EV_ABS, ABS_MT_PRESSURE, f->z);
-+	} else {
-+		input_event(input, EV_ABS, ABS_MT_TRACKING_ID, -1);
- 	}
-+	*old = *f;
- 
--
--	/* touchscreen emulation: if no previous activity, emit touch event */
--	if (!td->activity) {
--		input_event(input, EV_KEY, BTN_TOUCH, 1);
--		td->activity = true;
--	}
-+	emulate_pointer(td, input);
- }
- 
--
- static int egalax_event(struct hid_device *hid, struct hid_field *field,
- 				struct hid_usage *usage, __s32 value)
- {
-@@ -189,37 +197,38 @@ static int egalax_event(struct hid_device *hid, struct hid_field *field,
- 	 * uses a standard parallel multitouch protocol (product ID ==
- 	 * 48xx).  The second is capacitive and uses an unusual "serial"
- 	 * protocol with a different message for each multitouch finger
--	 * (product ID == 72xx).  We do not yet generate a correct event
--	 * sequence for the capacitive/serial protocol.
-+	 * (product ID == 72xx).
- 	 */
- 	if (hid->claimed & HID_CLAIMED_INPUT) {
- 		struct input_dev *input = field->hidinput->input;
- 
- 		switch (usage->hid) {
- 		case HID_DG_INRANGE:
-+			td->valid = value;
-+			break;
- 		case HID_DG_CONFIDENCE:
- 			/* avoid interference from generic hidinput handling */
- 			break;
- 		case HID_DG_TIPSWITCH:
--			td->valid = value;
-+			td->tmp.touch = value;
- 			break;
- 		case HID_DG_TIPPRESSURE:
--			td->z = value;
-+			td->tmp.z = value;
- 			break;
- 		case HID_DG_CONTACTID:
--			td->id = value;
-+			td->slot = clamp_val(value, 0, MAX_SLOTS - 1);
- 			break;
- 		case HID_GD_X:
--			td->x = value;
-+			td->tmp.x = value;
- 			break;
- 		case HID_GD_Y:
--			td->y = value;
-+			td->tmp.y = value;
- 			/* this is the last field in a finger */
--			egalax_filter_event(td, input);
-+			if (td->valid)
-+				egalax_filter_event(td, input);
- 			break;
- 		case HID_DG_CONTACTCOUNT:
- 			/* touch emulation: this is the last field in a frame */
--			td->first = false;
- 			break;
- 
- 		default:
--- 
-1.7.1
+Absolutely.  Another point worth mentioning is that a device in
+runtime-suspend can be resumed at any time, for a variety of reasons
+unconnected with anything the user does.  While it is back at full
+power, there is nothing to stop it from generating events.
+
+Alan Stern
+

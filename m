@@ -1,76 +1,198 @@
-From: Sundar R IYER <sundar.iyer@stericsson.com>
-Subject: RE: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Wed, 13 Oct 2010 08:16:20 +0200
-Message-ID: <33A307AF30D7BF4F811B1568FE7A9B180468A9419A@EXDCVYMBSTM006.EQ1STM.local>
-References: <20101012174942.GB10861@sirena.org.uk>
- <Pine.LNX.4.44L0.1010121425330.1705-100000@iolanthe.rowland.org>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: [PATCH 3/3] Add 3G rfkill sysfs file
+Date: Wed, 13 Oct 2010 07:42:40 +0100
+Message-ID: <201010130742.41606.carlos@strangeworlds.co.uk>
+References: <1286941662-9774-1-git-send-email-jlee@novell.com> <1286941662-9774-2-git-send-email-jlee@novell.com> <1286941662-9774-3-git-send-email-jlee@novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog109.obsmtp.com ([207.126.144.127]:36454 "EHLO
-	eu1sys200aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752787Ab0JMGQt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 02:16:49 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1010121425330.1705-100000@iolanthe.rowland.org>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <1286941662-9774-3-git-send-email-jlee@novell.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
+Cc: platform-driver-x86@vger.kernel.org, mjg59@srcf.ucam.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, tiwai@novell.com, trenn@novell.com, jbenc@suse.cz, corentin.chary@gmail.com, "Lee, Chun-Yi" <jlee@novell.com>
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>
 
->-----Original Message-----
->From: Alan Stern [mailto:stern@rowland.harvard.edu]
->>
->> This isn't *really* about saving power in the individual device; it's
->> more about stopping the device generating events that disrupt the rest
->> of the system.  Suspending the device can be one way of doing that and
->> is useful if it can be done but is not really the immediate goal here.
->
->Runtime PM is _not_ a reliable way of preventing a device from
->generating events.  It is meant for saving energy, nothing else.
->
->If that's what this is about, then the answer is simple: Don't use
->runtime PM to try to suppress events.
->
+On Wednesday 13 October 2010 04:47:42 Lee, Chun-Yi wrote:
+> Add 3G rfkill sysfs file for provide userland to control 3G device
+> on/off by using WMI method.
+> 
+> Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+> ---
+>  drivers/platform/x86/acer-wmi.c |  101
+> ++++++++++++++++++++++++++++++++++++++- 1 files changed, 100
+> insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/acer-wmi.c
+> b/drivers/platform/x86/acer-wmi.c index a28a775..150e0e3 100644
+> --- a/drivers/platform/x86/acer-wmi.c
+> +++ b/drivers/platform/x86/acer-wmi.c
+> @@ -136,6 +136,26 @@ struct lm_return_value {
+>  } __attribute__((packed));
+> 
+>  /*
+> + * GUID3 Get Device Status device flags
+> + */
+> +#define ACER_WMID_GUID3_GDS_WIRELESS		(1<<0)	/* WiFi */
+> +#define ACER_WMID_GUID3_GDS_THREEG		(1<<6)	/* 3G */
 
-I think it is unfair to discriminate here about saving power and turning off
-events. I believe putting the device into power save leads to, if device permits
-preventing generating events is valid to hook up run time PM.
+These two don't seem to be used?
 
->-----Original Message-----
->From: Alan Stern [mailto:stern@rowland.harvard.edu]
->
->I still disagree.  The user should be able to tell the driver that he's
->not going to be using the keypad, touch panel, or whatever in the near
->future... but it's up the driver to decide whether or not to go to low
->power.
+> +#define ACER_WMID_GUID3_GDS_BLUETOOTH		(1<<11)	/* BT */
+> +
+> +struct guid3_gds_input_param {	/* Get Device Status input parameter */
+> +	u8 function_num;	/* Function Number */
+> +	u8 hotkey_number;	/* Hotkey Number */
+> +	u16 devices;		/* Get Device */
+> +} __attribute__((packed));
+> +
+> +struct guid3_gds_return_value {	/* Get Device Status return value*/
+> +	u8 error_code;		/* Error Code */
+> +	u8 ec_return_value;	/* EC Return Value */
+> +	u16 devices;		/* Current Device Status */
+> +	u32 reserved;
+> +} __attribute__((packed));
+> +
+> +/*
+>   * Interface capability flags
+>   */
+>  #define ACER_CAP_MAILLED		(1<<0)
+> @@ -192,6 +212,7 @@ struct acer_debug {
+> 
+>  static struct rfkill *wireless_rfkill;
+>  static struct rfkill *bluetooth_rfkill;
+> +static struct rfkill *threeg_rfkill;
+> 
+>  /* Each low-level interface must define at least some of the following */
+>  struct wmi_interface {
+> @@ -1000,6 +1021,54 @@ static void acer_backlight_exit(void)
+>  	backlight_device_unregister(acer_backlight_device);
+>  }
+> 
+> +static acpi_status acer_wmi_get_device_status(u32 *value, u16 device)
 
-Why cannot the driver decide to return failure in such a case? But why stop
-the user space from requesting a power save mode?
+Can you rename this to something like WMID3? This name is just too generic.
 
->> Hmm. I was looking at the case with touch screen. I set my display backlight
->> to go off after say 30 seconds; my touch screen idle begins only when the
->display
->> goes off; meaning I still expect the touch screen to respond to any events before
->> the timeout. This in turn requires that the timeouts for the backlight and the touch
->> be synchronized, failing which the user might interpret the touch to be non-
->functional
->> in case the touch timeout and backlight timeout vary. Am I wrong to think that
->> such inter-dependency between devices should be avoided?
->
->Although such dependencies do sometimes make things awkward,
->occasionally you need to have them.  
+> +{
+> +	struct guid3_gds_return_value return_value;
+> +	acpi_status status;
+> +	union acpi_object *obj;
+> +	struct guid3_gds_input_param params = {
+> +		.function_num = 0x1,
+> +		.hotkey_number = 0x01,
+> +		.devices = device,
+> +	};
+> +	struct acpi_buffer input = {
+> +		sizeof(struct guid3_gds_input_param),
+> +		&params
+> +	};
+> +	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
+> +
+> +	status = wmi_evaluate_method(WMID_GUID3, 0, 0x2, &input, &output);
+> +	if (ACPI_FAILURE(status))
+> +		return status;
+> +
+> +	obj = output.pointer;
+> +
+> +	if (!obj)
+> +		return -EINVAL;
+> +	else if (obj->type != ACPI_TYPE_BUFFER) {
+> +		kfree(obj);
+> +		return -EINVAL;
+> +	}
+> +	if (obj->buffer.length != 8) {
+> +		printk(ACER_WARNING "Unknown buffer length %d\n",
+> +			obj->buffer.length);
+> +		kfree(obj);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return_value = *((struct guid3_gds_return_value *)obj->buffer.pointer);
+> +	kfree(obj);
+> +
+> +	if (return_value.error_code || return_value.ec_return_value)
+> +		printk(ACER_WARNING "Get Device Status failed: "
+> +			"0x%x - 0x%x\n", return_value.error_code,
+> +			return_value.ec_return_value);
+> +	else
+> +		*value = !!(return_value.devices & device);
+> +
+> +	return status;
+> +}
+> +
+>  /*
+>   * Rfkill devices
+>   */
+> @@ -1020,6 +1089,13 @@ static void acer_rfkill_update(struct work_struct
+> *ignored) rfkill_set_sw_state(bluetooth_rfkill, !state);
+>  	}
+> 
+> +	if (has_cap(ACER_CAP_BLUETOOTH) && wmi_has_guid(WMID_GUID3)) {
+> +		status = acer_wmi_get_device_status(&state,
+> +				ACER_WMID_GUID3_GDS_THREEG);
+> +		if (ACPI_SUCCESS(status))
+> +			rfkill_set_sw_state(bluetooth_rfkill, !state);
+> +	}
+> +
+>  	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ));
+>  }
+> 
+> @@ -1076,6 +1152,19 @@ static int acer_rfkill_init(struct device *dev)
+>  		}
+>  	}
+> 
+> +	if (has_cap(ACER_CAP_THREEG)) {
 
-Hmmm...I am not convinced that such sync'ed timeouts between devices are necessary;
-I still prefer it would be better if a single user space monitor could make sure that all listed
-devices are communicated for a power save rather than introduce dependencies between a
-touch and the display device.
+Have you figured out a way of detecting if 3G is available on the platform? As 
+this still requires the user to pass in a module parameter to enable it.
 
-I was thinking about an another case too where device autosuspend could create issues: Imagine
-a slider cover for the camera which enables the camera and the live playback on a screen; In such 
-a case you have now not 2, but 3 components to sync up: the auto idle for touch, auto idle for camera;
-auto idle for the display. 
+(And enabling unconditionally won't work, as older machines don't even have 
+the relevant WMI methods and just give nasty ACPI tracebacks).
 
-Cheers!
+> +		threeg_rfkill = acer_rfkill_register(dev,
+> +			RFKILL_TYPE_WWAN, "acer-threeg",
+> +			ACER_CAP_THREEG);
+> +		if (IS_ERR(threeg_rfkill)) {
+> +			rfkill_unregister(wireless_rfkill);
+> +			rfkill_destroy(wireless_rfkill);
+> +			rfkill_unregister(bluetooth_rfkill);
+> +			rfkill_destroy(bluetooth_rfkill);
+> +			return PTR_ERR(threeg_rfkill);
+> +		}
+> +	}
+> +
+>  	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ));
+> 
+>  	return 0;
+> @@ -1092,6 +1181,11 @@ static void acer_rfkill_exit(void)
+>  		rfkill_unregister(bluetooth_rfkill);
+>  		rfkill_destroy(bluetooth_rfkill);
+>  	}
+> +
+> +	if (has_cap(ACER_CAP_THREEG)) {
+> +		rfkill_unregister(threeg_rfkill);
+> +		rfkill_destroy(threeg_rfkill);
+> +	}
+>  	return;
+>  }
+> 
+> @@ -1102,7 +1196,12 @@ static ssize_t show_bool_threeg(struct device *dev,
+>  	struct device_attribute *attr, char *buf)
+>  {
+>  	u32 result; \
+> -	acpi_status status = get_u32(&result, ACER_CAP_THREEG);
+> +	acpi_status status;
+> +	if (wmi_has_guid(WMID_GUID3))
+> +		status = acer_wmi_get_device_status(&result,
+> +				ACER_WMID_GUID3_GDS_THREEG);
+> +	else
+> +		status = get_u32(&result, ACER_CAP_THREEG);
+>  	if (ACPI_SUCCESS(status))
+>  		return sprintf(buf, "%u\n", result);
+>  	return sprintf(buf, "Read error\n");
+
+-- 
+E-Mail: carlos@strangeworlds.co.uk
+Web: strangeworlds.co.uk
+GPG Key ID: 0x23EE722D

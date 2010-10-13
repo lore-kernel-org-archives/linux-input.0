@@ -1,42 +1,47 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+From: Pavel Machek <pavel@ucw.cz>
 Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Wed, 13 Oct 2010 10:57:37 +0100
-Message-ID: <20101013095737.GI6424@rakim.wolfsonmicro.main>
-References: <20101012174942.GB10861@sirena.org.uk>
- <Pine.LNX.4.44L0.1010121425330.1705-100000@iolanthe.rowland.org>
- <33A307AF30D7BF4F811B1568FE7A9B180468A9419A@EXDCVYMBSTM006.EQ1STM.local>
+Date: Wed, 13 Oct 2010 09:11:06 +0200
+Message-ID: <20101013071106.GC1610@ucw.cz>
+References: <33A307AF30D7BF4F811B1568FE7A9B180460D32FE2@EXDCVYMBSTM006.EQ1STM.local>
+ <20101005174106.GA21399@core.coreip.homeip.net>
+ <4CAC340B.90207@codeaurora.org>
+ <33A307AF30D7BF4F811B1568FE7A9B180461062FE6@EXDCVYMBSTM006.EQ1STM.local>
+ <1286358518.26914.23.camel@4fid08082>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58941 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750754Ab0JMJ5k (ORCPT
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:52278 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752590Ab0JMNGL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 05:57:40 -0400
+	Wed, 13 Oct 2010 09:06:11 -0400
 Content-Disposition: inline
-In-Reply-To: <33A307AF30D7BF4F811B1568FE7A9B180468A9419A@EXDCVYMBSTM006.EQ1STM.local>
+In-Reply-To: <1286358518.26914.23.camel@4fid08082>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sundar R IYER <sundar.iyer@stericsson.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>
+To: Onkalo Samu <samu.p.onkalo@nokia.com>
+Cc: ext Sundar R IYER <sundar.iyer@stericsson.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-pm@lists.osdl.org" <linux-pm@lists.osdl.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>
 
-On Wed, Oct 13, 2010 at 08:16:20AM +0200, Sundar R IYER wrote:
+Hi!
+ 
+> For mobile devices it is not acceptable to filter events away at some
+> upper SW layer depending on the system state. The HW which generates
+> those events may not generate events at all to allow longer CPU sleep
+> periods.
 
-> >> This isn't *really* about saving power in the individual device; it's
-> >> more about stopping the device generating events that disrupt the rest
-> >> of the system.  Suspending the device can be one way of doing that and
-> >> is useful if it can be done but is not really the immediate goal here.
+Ok.
 
-> >Runtime PM is _not_ a reliable way of preventing a device from
-> >generating events.  It is meant for saving energy, nothing else.
+> In ideal world it would be nice to control device states based on for
+> example user count. However, there are several listeners for input
+> devices and it is hard or impossible to have them all to follow overall
+> state transition (screen blanked etc.). Instead, there is some
+> system
 
-> >If that's what this is about, then the answer is simple: Don't use
-> >runtime PM to try to suppress events.
+So you have mobile device; why is it impossible to just close the
+device when you do not want the events? I guess it is hard for generic
+distros, but on your phone, you should be able to modify Xserver to
+close touchscreen/keypad device when it is not needed... right?
 
-> I think it is unfair to discriminate here about saving power and turning off
-> events. I believe putting the device into power save leads to, if device permits
-> preventing generating events is valid to hook up run time PM.
-
-This is the opposite way around to expectations - the expectation is
-that runtime power management will flow from the device becoming idle
-enough to turn off rather than the other way around.
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

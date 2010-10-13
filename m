@@ -1,65 +1,98 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 3/6] hid: egalax: Correct for device resolution report
- error
-Date: Wed, 13 Oct 2010 22:13:37 +0200
-Message-ID: <4CB612F1.1080704@euromail.se>
-References: <1286978302-30034-1-git-send-email-rydberg@euromail.se> <1286978302-30034-4-git-send-email-rydberg@euromail.se>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 4/5] input: wacom: Add support for the Bamboo Touch
+ trackpad (rev4)
+Date: Wed, 13 Oct 2010 13:15:54 -0700
+Message-ID: <AANLkTi=RZ5OmBBOV2=kYJ+wE2GD1N9ZKMNyKGVvFqwiR@mail.gmail.com>
+References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
+	<1283607783-29388-5-git-send-email-rydberg@euromail.se>
+	<AANLkTikpAfeSgCsaBWPcW7EncbW7UtLVjH=bpmmbVU-7@mail.gmail.com>
+	<4CB5F8B3.6010504@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:39539 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752730Ab0JMUPY (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:45333 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752907Ab0JMUP5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 16:15:24 -0400
-In-Reply-To: <1286978302-30034-4-git-send-email-rydberg@euromail.se>
+	Wed, 13 Oct 2010 16:15:57 -0400
+Received: by wwj40 with SMTP id 40so6997936wwj.1
+        for <linux-input@vger.kernel.org>; Wed, 13 Oct 2010 13:15:56 -0700 (PDT)
+In-Reply-To: <4CB5F8B3.6010504@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org
 
-On 10/13/2010 03:58 PM, Henrik Rydberg wrote:
+On Wed, Oct 13, 2010 at 11:21 AM, Henrik Rydberg <rydberg@euromail.se> =
+wrote:
+>
+> In the language of ABS_MT, there is a distinction between slot and id=
+=2E The slot
+> is the handle used to communicate a unique touch. The id is the ident=
+ifier of
+> that touch. The device tells us how many slots we have. The range of =
+ids is in
+> principle infinite. In practice, it is set to a large number.
+>
+> To answer a possible follow-up question: from the tracking id, you ca=
+n tell if a
+> contact is present, if it is new, and if it is older than another con=
+tact.
 
-> The firmware of both supported devices report a X/Y maximum of 4096,
-> whereas in reality, it is eight times larger. Fixed with this patch.
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->  drivers/hid/hid-egalax.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-> index 23f832b..3b490a3 100644
-> --- a/drivers/hid/hid-egalax.c
-> +++ b/drivers/hid/hid-egalax.c
-> @@ -56,6 +56,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	case HID_UP_GENDESK:
->  		switch (usage->hid) {
->  		case HID_GD_X:
-> +			field->logical_maximum <<= 3;
+I see. Somehow I remember tracking ID is the ID from the hardware/firmw=
+are.
 
+>>> +
+>>> + =A0 =A0 =A0 input_report_key(input, BTN_LEFT, (data[1] & 0x08) !=3D=
+ 0);
+>>> + =A0 =A0 =A0 input_report_key(input, BTN_FORWARD, (data[1] & 0x04)=
+ !=3D 0);
+>>> + =A0 =A0 =A0 input_report_key(input, BTN_BACK, (data[1] & 0x02) !=3D=
+ 0);
+>>> + =A0 =A0 =A0 input_report_key(input, BTN_RIGHT, (data[1] & 0x01) !=
+=3D 0);
+>>
+>> This implementation impairs the value of those buttons since I know =
+a
+>> lot of users want them configurable. If we can not or do not pass a
+>> generic set to the userland, we will need to make it configurable in
+>> the kernel driver as Dmitry suggested (if I remember it correctly).
+>> Which approach, in the userland or the kernel, do you like, Henrik?
+>
+> Perhaps I should not remind you that the current code was your sugges=
+tion. ;-)
 
-This makes the logical maximum increase by a factor of eight every time the
-module is loaded.
+Yes, I remember that. TBH, I did not want to open another can of worms
+then. And I did not have time to care about where that train went :).
 
->  			hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_POSITION_X);
->  			set_abs(input, ABS_MT_POSITION_X, field, 0);
-> @@ -63,6 +64,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			set_abs(input, ABS_X, field, 0);
->  			return 1;
->  		case HID_GD_Y:
-> +			field->logical_maximum <<= 3;
+> In my mind, these are buttons just like the buttons on any mouse or t=
+rackpad.
 
+=46or this particular model, it might be fine. My concern is for the ot=
+her models.
 
-Same here.
+> Regarding remapping, I think it matters if buttons have strong or wea=
+k semantics.
 
->  			hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_POSITION_Y);
->  			set_abs(input, ABS_MT_POSITION_Y, field, 0);
+Supporting button remapping is not a question. It is a decision. The
+question is how. I hate to open this can of worms even now. But, we do
+have to face the reality.
 
+Currently, I use BTN_TOOL_FINGER to group those buttons together and
+to pass them to the userland. This has never been an issue before MT
+became such a hot topic. Now, we need to EITHER choose a new
+BTN_TOOL_something to pass the poor buttons to the userland OR use the
+kernel approach that Dmitry suggested. I am open to all suggestions
+although I feel passing the buttons to the userland is a
+better/cleaner solution.
 
-Will send new revisions of patches 3 and 5...
+My goal is to get a consensus so no one can blame me or the maintainer
+for the decision :). Fair?
 
-Henrik
+Ping
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

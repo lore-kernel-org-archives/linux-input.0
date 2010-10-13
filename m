@@ -1,98 +1,47 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 4/5] input: wacom: Add support for the Bamboo Touch
- trackpad (rev4)
-Date: Wed, 13 Oct 2010 13:15:54 -0700
-Message-ID: <AANLkTi=RZ5OmBBOV2=kYJ+wE2GD1N9ZKMNyKGVvFqwiR@mail.gmail.com>
-References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-	<1283607783-29388-5-git-send-email-rydberg@euromail.se>
-	<AANLkTikpAfeSgCsaBWPcW7EncbW7UtLVjH=bpmmbVU-7@mail.gmail.com>
-	<4CB5F8B3.6010504@euromail.se>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Wed, 13 Oct 2010 22:26:02 +0200
+Message-ID: <201010132226.02933.rjw@sisk.pl>
+References: <AANLkTi=ouKDuPgUgLOwfBPhWKM=RCoh8hb0tY3h53i2r@mail.gmail.com> <AANLkTikqNNY=gNC96ZEo5ar+Adw80h=M3_XGe3A--unu@mail.gmail.com> <AANLkTin0cLmmCyWuQS=OyrOVp-wTEmW65PRqR7S_ez4b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:45333 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752907Ab0JMUP5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 16:15:57 -0400
-Received: by wwj40 with SMTP id 40so6997936wwj.1
-        for <linux-input@vger.kernel.org>; Wed, 13 Oct 2010 13:15:56 -0700 (PDT)
-In-Reply-To: <4CB5F8B3.6010504@euromail.se>
+Received: from ogre.sisk.pl ([217.79.144.158]:42930 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752641Ab0JMU1C (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Oct 2010 16:27:02 -0400
+In-Reply-To: <AANLkTin0cLmmCyWuQS=OyrOVp-wTEmW65PRqR7S_ez4b@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org
+To: Sundar <sunder.svit@gmail.com>, Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-pm@lists.linux-foundation.org, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
 
-On Wed, Oct 13, 2010 at 11:21 AM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
->
-> In the language of ABS_MT, there is a distinction between slot and id=
-=2E The slot
-> is the handle used to communicate a unique touch. The id is the ident=
-ifier of
-> that touch. The device tells us how many slots we have. The range of =
-ids is in
-> principle infinite. In practice, it is set to a large number.
->
-> To answer a possible follow-up question: from the tracking id, you ca=
-n tell if a
-> contact is present, if it is new, and if it is older than another con=
-tact.
+On Wednesday, October 13, 2010, Sundar wrote:
+> On Wed, Oct 13, 2010 at 11:12 PM, Sundar <sunder.svit@gmail.com> wrote:
+> > On Wed, Oct 13, 2010 at 11:07 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> >>
+> >> Sorry, I don't quite understand your question.  I think it would be
+> >> okay to add an interface for userspace to cut short a runtime-suspend
+> >> delay, but I don't think anything more is needed.
 
-I see. Somehow I remember tracking ID is the ID from the hardware/firmw=
-are.
+I'm not 100% sure how that interface is supposed to work.  Can you elaborate
+a bit, please?
 
->>> +
->>> + =A0 =A0 =A0 input_report_key(input, BTN_LEFT, (data[1] & 0x08) !=3D=
- 0);
->>> + =A0 =A0 =A0 input_report_key(input, BTN_FORWARD, (data[1] & 0x04)=
- !=3D 0);
->>> + =A0 =A0 =A0 input_report_key(input, BTN_BACK, (data[1] & 0x02) !=3D=
- 0);
->>> + =A0 =A0 =A0 input_report_key(input, BTN_RIGHT, (data[1] & 0x01) !=
-=3D 0);
->>
->> This implementation impairs the value of those buttons since I know =
-a
->> lot of users want them configurable. If we can not or do not pass a
->> generic set to the userland, we will need to make it configurable in
->> the kernel driver as Dmitry suggested (if I remember it correctly).
->> Which approach, in the userland or the kernel, do you like, Henrik?
->
-> Perhaps I should not remind you that the current code was your sugges=
-tion. ;-)
+> > I was just confirming that it is agreed by all that we can definitely wrap
+> > this up via the standard PM helpers; through the accelerated suspend
+> > if no one has any other reservations.
+> >
+> 
+> And I forgot one more point. Since this switch feature was one of the
+> requirements for the Meego framework, wouldnt it be nice if the Meego
+> people also put out their opinions on this newer solution?
 
-Yes, I remember that. TBH, I did not want to open another can of worms
-then. And I did not have time to care about where that train went :).
+Yes, it would.
 
-> In my mind, these are buttons just like the buttons on any mouse or t=
-rackpad.
+There's a PM track at the Linux Plumbers conference in a few weeks and I think
+it would be good to discuss the issue in there.
 
-=46or this particular model, it might be fine. My concern is for the ot=
-her models.
-
-> Regarding remapping, I think it matters if buttons have strong or wea=
-k semantics.
-
-Supporting button remapping is not a question. It is a decision. The
-question is how. I hate to open this can of worms even now. But, we do
-have to face the reality.
-
-Currently, I use BTN_TOOL_FINGER to group those buttons together and
-to pass them to the userland. This has never been an issue before MT
-became such a hot topic. Now, we need to EITHER choose a new
-BTN_TOOL_something to pass the poor buttons to the userland OR use the
-kernel approach that Dmitry suggested. I am open to all suggestions
-although I feel passing the buttons to the userland is a
-better/cleaner solution.
-
-My goal is to get a consensus so no one can blame me or the maintainer
-for the decision :). Fair?
-
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Rafael

@@ -1,40 +1,37 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 1/6] hid: egalax: Use kzalloc
-Date: Wed, 13 Oct 2010 15:58:17 +0200
-Message-ID: <1286978302-30034-2-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 4/6] hid: egalax: Report zero as minimum pressure
+Date: Wed, 13 Oct 2010 15:58:20 +0200
+Message-ID: <1286978302-30034-5-git-send-email-rydberg@euromail.se>
 References: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:49470 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753913Ab0JMN7y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 09:59:54 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+List-Id: linux-input@vger.kernel.org
 
-To avoid unnecessary explicit initialization, allocate zeroed memory.
+The firmware reports a logical minimum of one, but in order for
+userspace applications to correctly map all reported values to
+non-zero pressure, the driver needs to report a logical minimum of
+zero.  Fixed with this patch.
 
+Tested-by: Philipp Merkel <mail@philmerk.de>
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/hid/hid-egalax.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/hid/hid-egalax.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-index 54b017a..5a1b52e 100644
+index 3b490a3..2aba897 100644
 --- a/drivers/hid/hid-egalax.c
 +++ b/drivers/hid/hid-egalax.c
-@@ -221,7 +221,7 @@ static int egalax_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	struct egalax_data *td;
- 	struct hid_report *report;
- 
--	td = kmalloc(sizeof(struct egalax_data), GFP_KERNEL);
-+	td = kzalloc(sizeof(struct egalax_data), GFP_KERNEL);
- 	if (!td) {
- 		dev_err(&hdev->dev, "cannot allocate eGalax data\n");
- 		return -ENOMEM;
+@@ -93,6 +93,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			input_set_events_per_packet(input, MAX_EVENTS);
+ 			return 1;
+ 		case HID_DG_TIPPRESSURE:
++			field->logical_minimum = 0;
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_PRESSURE);
+ 			set_abs(input, ABS_MT_PRESSURE, field, 0);
 -- 
 1.7.1
-

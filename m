@@ -1,44 +1,61 @@
-From: Sundar <sunder.svit@gmail.com>
-Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Wed, 13 Oct 2010 22:55:51 +0530
-Message-ID: <AANLkTi=ouKDuPgUgLOwfBPhWKM=RCoh8hb0tY3h53i2r@mail.gmail.com>
-References: <20101013095737.GI6424@rakim.wolfsonmicro.main>
-	<Pine.LNX.4.44L0.1010131007310.2311-100000@iolanthe.rowland.org>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 6/6] hid: egalax: Convert to MT slots
+Date: Wed, 13 Oct 2010 13:35:08 -0400
+Message-ID: <1286991308.31864.192.camel@mini>
+References: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
+	 <1286978302-30034-7-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:59518 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751744Ab0JMRZx convert rfc822-to-8bit (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:44204 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751484Ab0JMRfW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 13:25:53 -0400
-Received: by ywi6 with SMTP id 6so1625227ywi.19
-        for <linux-input@vger.kernel.org>; Wed, 13 Oct 2010 10:25:53 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.44L0.1010131007310.2311-100000@iolanthe.rowland.org>
+	Wed, 13 Oct 2010 13:35:22 -0400
+In-Reply-To: <1286978302-30034-7-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2010 at 7:40 PM, Alan Stern <stern@rowland.harvard.edu>=
- wrote:
->
-> Absolutely. =A0Another point worth mentioning is that a device in
-> runtime-suspend can be resumed at any time, for a variety of reasons
-> unconnected with anything the user does. =A0While it is back at full
-> power, there is nothing to stop it from generating events.
->
+On Wed, 2010-10-13 at 15:58 +0200, Henrik Rydberg wrote:
+> The joojoo reports touches sequentially, one per report, which
+> confuses the current driver. Convert to the MT slots protocol and use
+> the stored slot information to emulate pointer movement in a stable
+> manner.
+> 
+> Tested-by: Philipp Merkel <mail@philmerk.de>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 
-Well, so are you still aligned that we can support low power or enable/=
-disable
-switches for devices via the standard PM helpers; even if it is the "ac=
-celerated
-suspend" way ( if Rafael thinks otherwise)
+[...]
 
-Cheers!
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> @@ -122,64 +133,61 @@ static int egalax_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>  	return -1;
+>  }
+>  
+> +static void emulate_pointer(struct egalax_data *td, struct input_dev *input)
+> +{
+> +	struct egalax_contact *s = &td->single;
+> +	struct egalax_contact *best = 0;
+> +	int dbest, i;
+> +
+> +	for (i = 0; i < MAX_SLOTS; i++) {
+> +		struct egalax_contact *f = &td->contact[i];
+> +		if (f->touch) {
+> +			int d = abs(f->x - s->x) + abs(f->y - s->y);
+> +			if (!best || d < dbest) {
+> +				best = f;
+> +				dbest = d;
+> +			}
+
+Wouldn't it be better to do a real distance comparison:
+
+int d = (f->x - s->x) * (f->x - s->x) + (f->y - s->y) * (f->y - s->y)
+
+That should be the square of the actual distance between two contacts.
+
+The rest looks ok to me.
+
+-- Chase
+

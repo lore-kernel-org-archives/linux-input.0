@@ -1,47 +1,48 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Wed, 13 Oct 2010 22:26:02 +0200
-Message-ID: <201010132226.02933.rjw@sisk.pl>
-References: <AANLkTi=ouKDuPgUgLOwfBPhWKM=RCoh8hb0tY3h53i2r@mail.gmail.com> <AANLkTikqNNY=gNC96ZEo5ar+Adw80h=M3_XGe3A--unu@mail.gmail.com> <AANLkTin0cLmmCyWuQS=OyrOVp-wTEmW65PRqR7S_ez4b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 3/6] hid: egalax: Correct for device resolution report error (rev2)
+Date: Wed, 13 Oct 2010 22:29:43 +0200
+Message-ID: <1287001783-4098-1-git-send-email-rydberg@euromail.se>
+References: <1286978302-30034-4-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:42930 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752641Ab0JMU1C (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 16:27:02 -0400
-In-Reply-To: <AANLkTin0cLmmCyWuQS=OyrOVp-wTEmW65PRqR7S_ez4b@mail.gmail.com>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:48489 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752909Ab0JMUaH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Oct 2010 16:30:07 -0400
+In-Reply-To: <1286978302-30034-4-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sundar <sunder.svit@gmail.com>, Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-pm@lists.linux-foundation.org, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Wednesday, October 13, 2010, Sundar wrote:
-> On Wed, Oct 13, 2010 at 11:12 PM, Sundar <sunder.svit@gmail.com> wrote:
-> > On Wed, Oct 13, 2010 at 11:07 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
-> >>
-> >> Sorry, I don't quite understand your question.  I think it would be
-> >> okay to add an interface for userspace to cut short a runtime-suspend
-> >> delay, but I don't think anything more is needed.
+The firmware of both supported devices report a X/Y maximum of 4095,
+whereas in reality, it is eight times larger. Fixed with this patch.
 
-I'm not 100% sure how that interface is supposed to work.  Can you elaborate
-a bit, please?
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/hid/hid-egalax.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-> > I was just confirming that it is agreed by all that we can definitely wrap
-> > this up via the standard PM helpers; through the accelerated suspend
-> > if no one has any other reservations.
-> >
-> 
-> And I forgot one more point. Since this switch feature was one of the
-> requirements for the Meego framework, wouldnt it be nice if the Meego
-> people also put out their opinions on this newer solution?
+diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
+index 23f832b..6c446b0 100644
+--- a/drivers/hid/hid-egalax.c
++++ b/drivers/hid/hid-egalax.c
+@@ -56,6 +56,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	case HID_UP_GENDESK:
+ 		switch (usage->hid) {
+ 		case HID_GD_X:
++			field->logical_maximum = 32760;
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_X);
+ 			set_abs(input, ABS_MT_POSITION_X, field, 0);
+@@ -63,6 +64,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			set_abs(input, ABS_X, field, 0);
+ 			return 1;
+ 		case HID_GD_Y:
++			field->logical_maximum = 32760;
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_Y);
+ 			set_abs(input, ABS_MT_POSITION_Y, field, 0);
+-- 
+1.7.1
 
-Yes, it would.
-
-There's a PM track at the Linux Plumbers conference in a few weeks and I think
-it would be good to discuss the issue in there.
-
-Thanks,
-Rafael

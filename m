@@ -1,54 +1,85 @@
-From: Alan Ott <alan@signal11.us>
-Subject: Re: [RFC, PATCH] HID: hid-sony, override usbhid_output_raw_report    for Sixaxis
-Date: Thu, 14 Oct 2010 11:09:33 -0400
-Message-ID: <4CB71D2D.90200@signal11.us>
-References: <4CB62F69.1070809@signal11.us>	<1287010481-8356-1-git-send-email-ospite@studenti.unina.it>	<4CB63F88.9080300@signal11.us> <20101014094840.e215ef88.ospite@studenti.unina.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH 3/4] hid-multitouch: added support for Cypress TrueTouch panels
+Date: Thu, 14 Oct 2010 17:16:39 +0200
+Message-ID: <822A63AC-40D8-4E82-B2F6-EB886AE007D1@enac.fr>
+References: <20101013223334.DFF199522F@smtp.lii-enac.fr> <4CB6F241.1040500@euromail.se> <4BAF2E06-CDEE-4206-ABE7-A0787025BE15@enac.fr> <4CB6FD80.4030808@euromail.se>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:49952 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755225Ab0JNPJh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Oct 2010 11:09:37 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 4F8461CCAAA8
-	for <linux-input@vger.kernel.org>; Thu, 14 Oct 2010 11:09:36 -0400 (EDT)
-In-Reply-To: <20101014094840.e215ef88.ospite@studenti.unina.it>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:33209 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754181Ab0JNPQv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Oct 2010 11:16:51 -0400
+In-Reply-To: <4CB6FD80.4030808@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, falktx@gmail.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Stephane Chatty <chatty@lii-enac.fr>, dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org
 
-On 10/14/2010 03:48 AM, Antonio Ospite wrote:
+
+Le 14 oct. 10 =E0 14:54, Henrik Rydberg a =E9crit :
+
+>>> Returned slots should always be valid, since the intent is to =20
+>>> actually report
+>>> data for the contact. If there is additional logic determining =20
+>>> whether a touch
+>>> is valid, like here, it can simply be added to the validity =20
+>>> computation.
+>>
+>> Then you'd need a second device-specific function, one that =20
+>> determines if a
+>> contact is valid. I was trying to minimize that, especially =20
+>> because it would be
+>> for the sake of one device only.
 >
-> The point about overriding hid_output_raw_report() is not about
-> sixaxis_set_operational_usb() sending a control message, but about any
-> _output_ (not feature) report the user would like to send via
-> hidraw_write(), the sixaxis will accept those only if sent on the
-> control endpoint (it will discard them if sent on the interrupt ep,
-> like the current usbhid code does) maybe I didn't state that clearly,
-> sorry.
->    
-
-Ok, that makes a lot more sense then. You're saying it's not about the 
-code _in_ your driver, it's about userspace code accessing the sixaxis 
-via hidraw.
-
-My personal preference is that I like the override idea better than the 
-quirk. An override will be slightly faster, because of not having to 
-check for the quirk in non-sixaxis cases.
-
-> About sixaxis_set_operational_usb(), I don't remember _any_ change to
-> it except its name, but I guess we can very well make it call
-> hid_output_raw_report(), just only after your hidraw feature report
-> patches land to mainline.
 >
->    
+> Now that single device clutters the logic for all other devices =20
+> instead... We
+> could actually get away with zero device-specific functions, only =20
+> branching on
+> the device class at a couple of places in the driver.
 
-sixaxis_set_operational_usb() doesn't bother me. I was confused about 
-the original intent of your patch.
+Yes, but we don't know how many classes we'll get and might be safer =20
+to protect the core logic of the driver from people who'll want to =20
+add a new class.
 
-Alan.
+Coming back to your point about the invalid slot number, I'll try to =20
+think about it again. Honestly, I'm pretty much at ease with the =20
+concept of overloading the return value of a function with a code for =20
+errors, because it is so common in Unix and Linux. And the overall =20
+meaning of the function is "is there any slot that corresponds to =20
+this contact?", which makes sense to me. But let's see if we can find =20
+a better way.
 
 
+>> Managing it in the compute_slot function makes
+>> sense to me, giving this function the semantics of "is this =20
+>> contact a real slot,
+>> and if yes which is it?".
+>>
+>> Maybe we could add somthing like td->curvalid =3D false to the =20
+>> computation
+>> function? This would not work in the current code, but maybe we =20
+>> can make it work.
+>
+>
+> Another thing I forgot about: do all the currently included devices =20
+> have good
+> contact ids, in the sense that they handle contacts during their =20
+> lifetime? Are
+> there any examples other than ntrig where it does not work that =20
+> way? I am of
+> course asking to see if we need to care about non-slotted devices.
+
+NTrig is alone in its class so far.
+
+St.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,46 +1,36 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
-Date: Thu, 14 Oct 2010 21:00:58 +0200
-Message-ID: <201010142100.58496.rjw@sisk.pl>
-References: <Pine.LNX.4.44L0.1010140946030.1645-100000@iolanthe.rowland.org>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [1/8] IR: plug races in IR raw thread.
+Date: Thu, 14 Oct 2010 15:29:37 -0400
+Message-ID: <20101014192937.GA4224@redhat.com>
+References: <1283808373-27876-2-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:46701 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755019Ab0JNTBz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Oct 2010 15:01:55 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1010140946030.1645-100000@iolanthe.rowland.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1283808373-27876-2-git-send-email-maximlevitsky@gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Sundar <sunder.svit@gmail.com>, linux-pm@lists.linux-foundation.org, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
 
-On Thursday, October 14, 2010, Alan Stern wrote:
-> On Wed, 13 Oct 2010, Rafael J. Wysocki wrote:
+On Mon, Sep 06, 2010 at 09:26:06PM -0000, Maxim Levitsky wrote:
+> Unfortunelly (my fault) the kernel thread that now handles IR processing
+> has classical races in regard to wakeup and stop.
+> This patch hopefully closes them all.
+> Tested with module reload running in a loop, while receiver is blasted
+> with IR data for 10 minutes.
 > 
-> > On Wednesday, October 13, 2010, Sundar wrote:
-> > > On Wed, Oct 13, 2010 at 11:12 PM, Sundar <sunder.svit@gmail.com> wrote:
-> > > > On Wed, Oct 13, 2010 at 11:07 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
-> > > >>
-> > > >> Sorry, I don't quite understand your question.  I think it would be
-> > > >> okay to add an interface for userspace to cut short a runtime-suspend
-> > > >> delay, but I don't think anything more is needed.
-> > 
-> > I'm not 100% sure how that interface is supposed to work.  Can you elaborate
-> > a bit, please?
-> 
-> There could be a new attribute file, or we could use a blank line
-> written to autosuspend_delay_ms for this purpose.  Either way, the
-> result would be to call pm_runtime_suspend.  If the device is idle,
-> merely awaiting the timer expiration for a scheduled suspend or
-> autosuspend, this would cause it to suspend immediately.
+> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 
-That sounds reasonable.
+Carrying over ack from earlier(?) version of the patch:
 
-I wonder what the interested people think about it.
+Took a while to unwind everything in ir_raw_event_thread() in my head,
+but now that I think I have it sorted out, yeah, that looks like the
+processing logic all remains the same, with the addition of locking
+that should prevent the race (also heavily supported by your testing).
 
-Thanks,
-Rafael
+Acked-by: Jarod Wilson <jarod@redhat.com>
+
+-- 
+Jarod Wilson
+jarod@redhat.com

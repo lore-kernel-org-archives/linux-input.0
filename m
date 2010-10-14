@@ -1,61 +1,56 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 0/4] hid-multitouch: a first step towards multitouch unification
-Date: Thu, 14 Oct 2010 14:13:10 +0200
-Message-ID: <4CB6F3D6.6030502@euromail.se>
-References: <20101013222811.6EC0B95210@smtp.lii-enac.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH 3/4] hid-multitouch: added support for Cypress TrueTouch panels
+Date: Thu, 14 Oct 2010 14:33:13 +0200
+Message-ID: <4BAF2E06-CDEE-4206-ABE7-A0787025BE15@enac.fr>
+References: <20101013223334.DFF199522F@smtp.lii-enac.fr> <4CB6F241.1040500@euromail.se>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:33688 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752529Ab0JNMNV (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:43398 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752701Ab0JNMdY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Oct 2010 08:13:21 -0400
-In-Reply-To: <20101013222811.6EC0B95210@smtp.lii-enac.fr>
+	Thu, 14 Oct 2010 08:33:24 -0400
+In-Reply-To: <4CB6F241.1040500@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephane Chatty <chatty@lii-enac.fr>
-Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, chatty@enac.fr
-
-On 10/14/2010 12:28 AM, Stephane Chatty wrote:
-
->=20
-> Hi Jiri, Dmitry, Henrik,
->=20
-> this set of patches is aimed at unifying support for HID multitouch p=
-anels,
-> in a driver named hid-multitouch.
->=20
-> So far, this driver works only for panels that share common features =
-in their
-> implementation of the Win7-compatible multitouch HID protocol. This c=
-urrently
-> includes Cando, Quanta, MosArt, Cypress, GeneralTouch and Pixcir, and=
- excludes
-> Stantum and N-trig. 3M is left aside for now because it contains some=
- specific
-> code. eGalax is also left as a special case because of the duality be=
-tween
-> their resistive and capacitive panels.
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Stephane Chatty <chatty@lii-enac.fr>, dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org
 
 
-Excellent. I think we will be able to fit 3M into here as well in a bit=
-, once we
-have made our way through the current patches. :-)
+Le 14 oct. 10 =E0 14:06, Henrik Rydberg a =E9crit :
+>>
+>> +static int cypress_compute_slot(struct mt_device *td)
+>> +{
+>> +	if (td->curcontactid !=3D 0 || td->curcontact =3D=3D 0)
+>> +		return td->curcontactid;
+>> +	else
+>> +		return -1;
+>> +}
+>
+>
+> Returned slots should always be valid, since the intent is to =20
+> actually report
+> data for the contact. If there is additional logic determining =20
+> whether a touch
+> is valid, like here, it can simply be added to the validity =20
+> computation.
 
->=20
-> St=E9phane Chatty (4):
->   hid-multitouch: support for PixCir-based panels in a generic code s=
-tructure
->   hid-multitouch: migrated support for Cando panels
->   hid-multitouch: added support for Cypress TrueTouch panels
->   hid-multitouch: migrated support for MosArt panels
-> =20
+Then you'd need a second device-specific function, one that =20
+determines if a contact is valid. I was trying to minimize that, =20
+especially because it would be for the sake of one device only. =20
+Managing it in the compute_slot function makes sense to me, giving =20
+this function the semantics of "is this contact a real slot, and if =20
+yes which is it?".
 
+Maybe we could add somthing like td->curvalid =3D false to the =20
+computation function? This would not work in the current code, but =20
+maybe we can make it work.
 
-Cheers,
-Henrik
+St.
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

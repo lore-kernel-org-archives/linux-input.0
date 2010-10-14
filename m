@@ -1,49 +1,81 @@
-From: William Manson <WManson@synaptics.com>
-Subject: RE: input: Synaptics touchscreen driver followup
-Date: Wed, 13 Oct 2010 19:28:25 -0700
-Message-ID: <7B4B50AC280A5E45A42CD2D364A3CE2F4D10E1F5FB@USW-EX2K7-1.synaptics-inc.local>
-References: <27F9C60D11D683428E133F85D2BB4A53046845F22B@dlee03.ent.ti.com>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Re: [Nouveau] [PATCH] drm/nouveau/kms: Implement
+ KDB debug hooks for nouveau KMS.
+Date: Thu, 14 Oct 2010 04:34:34 +0200
+Message-ID: <1287023674.11191.2.camel@maxim-laptop>
+References: <1283335002.2741.5.camel@maxim-laptop>
+	<4C7E3A73.5070503@windriver.com> <1283424363.2736.1.camel@maxim-laptop>
+	<1285119735.5949.5.camel@maxim-laptop>
+	<1285164198.3159.8.camel@maxim-laptop>
+	<1285164387.3159.10.camel@maxim-laptop>
+	<1285175225.2960.10.camel@maxim-laptop>
+	<1285361406.4509.0.camel@maxim-laptop> <4C9D10F3.10105@windriver.com>
+	<1285373672.26629.8.camel@maxim-laptop>
+	<20100925040824.GB25773@core.coreip.homeip.net>
+	<4CAB90F2.3090503@windriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx4.synaptics.com ([12.178.49.178]:62793 "EHLO
-	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754182Ab0JNC2d convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 22:28:33 -0400
-In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53046845F22B@dlee03.ent.ti.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <kgdb-bugreport-bounces@lists.sourceforge.net>
+In-Reply-To: <4CAB90F2.3090503@windriver.com>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/kgdb-bugreport>,
+	<mailto:kgdb-bugreport-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=kgdb-bugreport>
+List-Post: <mailto:kgdb-bugreport@lists.sourceforge.net>
+List-Help: <mailto:kgdb-bugreport-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/kgdb-bugreport>,
+	<mailto:kgdb-bugreport-request@lists.sourceforge.net?subject=subscribe>
+Errors-To: kgdb-bugreport-bounces@lists.sourceforge.net
+To: Jason Wessel <jason.wessel@windriver.com>
+Cc: kgdb-bugreport@lists.sourceforge.net, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: "'Arce, Abraham'" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>
-Cc: Allie Xiong <axiong@synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>, Jean Delvare <khali@linux-fr.org>
 
-Hi Abraham -
-What were the compile errors you got? Were they only for building on Omap or do you get them when compiling for other Linux (x86 for example)? I would like to know because we didn't get any compile errors.
+On Tue, 2010-10-05 at 15:56 -0500, Jason Wessel wrote:
+> On 09/24/2010 11:08 PM, Dmitry Torokhov wrote:
+> > On Sat, Sep 25, 2010 at 02:14:32AM +0200, Maxim Levitsky wrote:
+> >   
+> >> On Fri, 2010-09-24 at 15:58 -0500, Jason Wessel wrote:
+> >>     
+> >>> On 09/24/2010 03:50 PM, Maxim Levitsky wrote:
+> >>>       
+> >>>>   
+> >>>>         
+> >>>>> [Dropped nouveau list, because this is offtopic there]
+> >>>>>
+> >>>>> I pretty much got to the bottom of this.
+> >>>>> There are 2 separate issues:
+> >>>>>
+> >>>>>
+> >>>>> 1. SysRq handler is now a input 'filter', which means that it can 'eat'
+> >>>>> input events, so they don't show up on input bus.
+> >>>>> It does so while sysrq key is down.
+> >>>>> So sysrq and 'g' events never reach the kernel kbd driver and therefore
+> >>>>> the hack to release them doesn't work.
+> >>>>>
+> >>>>> 2. The kbd_clear_keys_helper injects the keyup events alright, but it
+> >>>>> doesn't inject SYN events, and therefore X evdev driver doesn't pick
+> >>>>> these injected events untill next SYN event. 
+> >>>>>
+> >>>>> This patch makes key release work in expense of showing sysrq key to userspace, which isn't that good,
+> >>>>> because now Alt+SysRQ causes a screen capture by default.
+> >>>>> In my opinion the sysrq filter should stay.
+> >>>>> We should just make kdb hook into atkbd and do the key release there.
+> >>>>> This should both result in cleaner/more robust code, and make this issue disappear.
+> >>>>> I'll look at doing that.
+> >>>>>
+Nope, still same problem.
+Maybe more keys were released, but still
+pressing Alt+SysRQ+g second time doesn't break to the debugger.
 
-Thanks,
-William
+I pulled your kgdb-next branch which does contain these patches.
+
+Best regards,
+	Maxim Levitsky
 
 
------Original Message-----
-From: Arce, Abraham [mailto:x0066660@ti.com]
-Sent: Wednesday, October 13, 2010 7:11 PM
-To: William Manson; linux-input@vger.kernel.org; Dmitry Torokhov
-Cc: Allie Xiong; Christopher Heiny; Jean Delvare
-Subject: RE: input: Synaptics touchscreen driver followup
-
-Hi William,
-
-> Hi Abraham -
->
-> You mentioned you are using the OMap kernel. Is that the 2.6.29 for the
-> Omap2/3 or the 2.6.32 for the Omap4? The reason I ask is that this code
-> probably won't compile on versions of the kernel earlier than 2.6.31 due to
-> architectural changes that were done to i2c.
->
-
-Yes, linux omap, I was working with 2.6.37 rc7... omap2plus_defconfig
-
-Best Regards
-Abraham
+------------------------------------------------------------------------------
+Beautiful is writing same markup. Internet Explorer 9 supports
+standards for HTML5, CSS3, SVG 1.1,  ECMAScript5, and DOM L2 & L3.
+Spend less time writing and  rewriting code and more time creating great
+experiences on the web. Be a part of the beta today.
+http://p.sf.net/sfu/beautyoftheweb

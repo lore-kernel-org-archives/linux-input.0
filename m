@@ -1,98 +1,36 @@
-From: Jason Wang <jason77.wang@gmail.com>
-Subject: Re: [PATCH 4/4] Input: ads7846 - modificatons of _stop()/_disable()
- conditions
-Date: Thu, 14 Oct 2010 10:14:15 +0800
-Message-ID: <4CB66777.5060309@gmail.com>
-References: <1284634286-8871-1-git-send-email-jason77.wang@gmail.com>	<1284634286-8871-4-git-send-email-jason77.wang@gmail.com>	<1284634286-8871-5-git-send-email-jason77.wang@gmail.com>	<201009162339.06395.dmitry.torokhov@gmail.com>	<4C9332CE.6040905@gmail.com>	<20100917160709.GC14186@core.coreip.homeip.net>	<4C9718E9.5040104@gmail.com>	<4CB4314C.7050308@gmail.com>	<20101012160055.GA6355@core.coreip.homeip.net>	<4CB523B7.8010209@gmail.com> <AANLkTi=0b-q3LK3-4mgdpSP7pScVSF1ZWzD45bLoAmJO@mail.gmail.com>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: input: Synaptics touchscreen driver followup
+Date: Wed, 13 Oct 2010 21:10:53 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53046845F22B@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A530468370A42@dlee03.ent.ti.com>
+ <7B4B50AC280A5E45A42CD2D364A3CE2F4D10E1F5EB@USW-EX2K7-1.synaptics-inc.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:34758 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753827Ab0JNCKN (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:53041 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753827Ab0JNCLI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Oct 2010 22:10:13 -0400
-In-Reply-To: <AANLkTi=0b-q3LK3-4mgdpSP7pScVSF1ZWzD45bLoAmJO@mail.gmail.com>
+	Wed, 13 Oct 2010 22:11:08 -0400
+In-Reply-To: <7B4B50AC280A5E45A42CD2D364A3CE2F4D10E1F5EB@USW-EX2K7-1.synaptics-inc.local>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grazvydas Ignotas <notasas@gmail.com>
-Cc: Jason Wang <jason77.wang@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, vapier@gentoo.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, grant.likely@secretlab.ca, roman.tereshonkov@nokia.com
+To: William Manson <WManson@synaptics.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>
+Cc: Allie Xiong <axiong@synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>, Jean Delvare <khali@linux-fr.org>
 
-Grazvydas Ignotas wrote:
-> On Wed, Oct 13, 2010 at 6:12 AM, Jason Wang <jason77.wang@gmail.com> wrote:
->   
->> Hi Dmitry,
->>
->> I have validated the new patch based off the 2.6.36-rc7 on
->> the ti_omap3530evm, it works fine.
->>     
->
-> Working here on pandora too, applied on top of linux-next (did not
-> test suspend though).
->
-> Not caused by this patch, but the old problem where lower measurement
-> bits get lost is back - when I draw diagonal line it looks like
-> stairs. I think it's caused by OMAP SPI driver, CCing linux-omap.
->
->   
-Yes, it is OMAP spi driver issues, I have met the same problem before, 
-please refer to:
-http://www.spinics.net/lists/arm-kernel/msg91538.html
+Hi William,
 
-you can apply this patch and test again.
+> Hi Abraham -
+> 
+> You mentioned you are using the OMap kernel. Is that the 2.6.29 for the
+> Omap2/3 or the 2.6.32 for the Omap4? The reason I ask is that this code
+> probably won't compile on versions of the kernel earlier than 2.6.31 due to
+> architectural changes that were done to i2c.
+> 
 
+Yes, linux omap, I was working with 2.6.37 rc7... omap2plus_defconfig
 
-
- From 393f445ab899abaf5d60a55a54f242c430507047 Mon Sep 17 00:00:00 2001
-From: Jason Wang <jason77.wang@gmail.com>
-Date: Thu, 14 Oct 2010 10:08:07 +0800
-Subject: [PATCH] spi/omap2_mcspi: disable channel after TX_ONLY transfer 
-in PIO mode
-
-In TX_ONLY transfer, the SPI controller can also receive data
-simultaneously and saves them in rx register. After the TX_ONLY
-transfer, the rx register will hold random data received during
-last tx transaction.
-
-If the next transfer is RX_ONLY, this random data has
-the possibility to affect this transfer like this:
-
-  If the spi controller is changed from TX_ONLY to RX_ONLY mode,
-  The random data makes the rx register full imediately and
-  triggers a dummy write (in SPI RX_ONLY transfer, we need a dummy
-  write to trigger the first transaction).
-
-  So the first data received in RX_ONLY transfer will be that
-  random data instead of something meaningfug.
-
-We can avoid this by a Disable/reenable toggle of the spi channel
-after the TX_ONLY transfer, since it purges the rx register.
-
-Signed-off-by: Jason Wang <jason77.wang@gmail.com>
----
- drivers/spi/omap2_mcspi.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/spi/omap2_mcspi.c b/drivers/spi/omap2_mcspi.c
-index b3a94ca..43fab41 100644
---- a/drivers/spi/omap2_mcspi.c
-+++ b/drivers/spi/omap2_mcspi.c
-@@ -644,6 +644,12 @@ omap2_mcspi_txrx_pio(struct spi_device *spi, struct 
-spi_transfer *xfer)
-                } else if (mcspi_wait_for_reg_bit(chstat_reg,
-                                OMAP2_MCSPI_CHSTAT_EOT) < 0)
-                        dev_err(&spi->dev, "EOT timed out\n");
-+
-+               /* disable chan to purge rx datas received in TX_ONLY 
-transfer,
-+                * otherwise these rx datas will affect the direct following
-+                * RX_ONLY transfer.
-+                */
-+               omap2_mcspi_set_enable(spi, 0);
-        }
- out:
-        omap2_mcspi_set_enable(spi, 1);
--- 
-1.5.6.5
-
+Best Regards
+Abraham

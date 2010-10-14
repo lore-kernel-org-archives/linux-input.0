@@ -1,73 +1,62 @@
-From: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/8 V5] Many fixes for in-kernel decoding and for the
-	ENE driver
-Date: Thu, 14 Oct 2010 04:36:30 +0200
-Message-ID: <1287023790.11191.4.camel@maxim-laptop>
-References: <1283808373-27876-1-git-send-email-maximlevitsky@gmail.com>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: input: Synaptics touchscreen driver followup
+Date: Wed, 13 Oct 2010 21:50:33 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53046845F248@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A53046845F22B@dlee03.ent.ti.com>
+ <7B4B50AC280A5E45A42CD2D364A3CE2F4D10E1F5FB@USW-EX2K7-1.synaptics-inc.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <lirc-list-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <1283808373-27876-1-git-send-email-maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/lirc-list>,
-	<mailto:lirc-list-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=lirc-list>
-List-Post: <mailto:lirc-list-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:lirc-list-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/lirc-list>,
-	<mailto:lirc-list-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: lirc-list-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: lirc-list-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bear.ext.ti.com ([192.94.94.41]:44024 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754168Ab0JNCur convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Oct 2010 22:50:47 -0400
+In-Reply-To: <7B4B50AC280A5E45A42CD2D364A3CE2F4D10E1F5FB@USW-EX2K7-1.synaptics-inc.local>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: William Manson <WManson@synaptics.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>
+Cc: Allie Xiong <axiong@synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>, Jean Delvare <khali@linux-fr.org>
 
-On Tue, 2010-09-07 at 00:26 +0300, Maxim Levitsky wrote:
-> Hi,
+Hi William,
+
 > 
-> Here is full overview of my patches:
-> 
-> Patch #1 fixes races in ir thread.
-> It fixes the case when ktherad_stop waits forever for the thread.
-> This happens on module unload and therefore it never finishes.
-> Sorry for introducing this bug.
-> 
-> Patch #2, fixes a crash on my module load.
-> It happens because ir core initializes the input device a bit early,
-> therefore it could be accessed while still not set up.
-> 
-> Patch #3 fixes a small typo in lirc code that makes it impossible to use tx duty cycle setting.
-> 
-> Patch #4 fixes a problem seen on my system that results in stuck down forever key.
-> 
-> Patch #5 adds few keys to MCE keymap that were found on laptop of an user I tested this driver with
-> 
-> Patch #6, is a combined update ti my driver. It contains lot of refactoring thanks to docs I have now,
-> and lot of fixes, and supports latest version of firmware (and I have 4 users asking for that)
-> It is quite huge, but it would be a tedios job to break it up. This can't introduce regressions
-> because the ene_ir was never released. In addition to that it was tested by me and another two users.
-> 
-> Patch #7 the really only patch that touches drivers I don't have does touch the ir-core.
-> It is quite small, and it adds a proper solution to dilema about what to do with huge space between keypresses.
-> Now this space is just truncated by the driver with timeout flag.
-> The lirc codec then ensures that right sample is send to the lircd.
-> Please review and test it.
-> 
-> Patch #8 is very simple. It just builds on top of patch #7 and adds carrier reports to ene driver.
+> Hi Abraham -
+> What were the compile errors you got? Were they only for building on Omap or
+> do you get them when compiling for other Linux (x86 for example)? I would like
+> to know because we didn't get any compile errors.
 > 
 
-Any update?
-Should I resent these (didn't change anything I think).
-What about other work that conflicts with this?
-What are the plans for (very close) merge window?
+A minor one when compiled as modules
 
-Best regards,
-	Maxim Levitsky
+ ERROR: "FN_11_report" [drivers/input/touchscreen/rmi_core.ko] undefined!
+ ERROR: "FN_11_config" [drivers/input/touchscreen/rmi_core.ko] undefined!
+ ERROR: "FN_11_init" [drivers/input/touchscreen/rmi_core.ko] undefined!
+ ERROR: "FN_11_detect" [drivers/input/touchscreen/rmi_core.ko] undefined!
 
+but no issues when working built-in after some changes
 
+ input: RMI4 Touchpad as /devices/virtual/input/input1
+ rmi_register_phys_driver: rmi4_ts: Registering phys driver rmi4_i2c_ts
+ omap_device: i2c_omap.2: new worst case activate latency 0: 61035
+ rmi_register_phys_driver: rmi4_ts: could not find support for function 0x34
+ rmi_register_phys_driver: rmi4_ts: could not find support for function 0x8
+ probe: Found 301 data sources for : dfb56974
+ match_and_bind: rmi4_ts is rmi4_touchpad bound to rmi4_i2c_ts
+ config: could not find support for function 0x32
+ config: could not find support for function 0xff
+ config: could not find support for function 0xff
 
-------------------------------------------------------------------------------
-Beautiful is writing same markup. Internet Explorer 9 supports
-standards for HTML5, CSS3, SVG 1.1,  ECMAScript5, and DOM L2 & L3.
-Spend less time writing and  rewriting code and more time creating great
-experiences on the web. Be a part of the beta today.
-http://p.sf.net/sfu/beautyoftheweb
+The link to my changes is below so I could have all layers registered without kernel panics, this is a diff between initial commit in input tree and initial commit + my changes in linux omap.
+
+http://pastebin.com/54d7d3b0
+
+I have not dig into details and fixes, I'll wait for your patch after review to make it my baseline.
+
+Please let me know any other request, thanks for your help!
+
+Best Regards
+Abraham
+

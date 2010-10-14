@@ -1,586 +1,553 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: hgpk - support GlideSensor and PenTablet modes
-Date: Thu, 14 Oct 2010 08:52:30 -0700
-Message-ID: <20101014155230.GB10421@core.coreip.homeip.net>
-References: <20101006155026.5BB289D401B@zog.reactivated.net>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 1/4] hid-multitouch: support for PixCir-based panels
+Date: Thu, 14 Oct 2010 20:10:29 +0200
+Message-ID: <4CB74795.4010602@euromail.se>
+References: <20101013223035.9B86E9522A@smtp.lii-enac.fr> <4CB6CF79.9040107@euromail.se> <BA82E030-B041-4354-9715-02DF56510DA2@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:63064 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751873Ab0JNPwl (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:45431 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755480Ab0JNSKu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Oct 2010 11:52:41 -0400
-Received: by yxm8 with SMTP id 8so1683715yxm.19
-        for <linux-input@vger.kernel.org>; Thu, 14 Oct 2010 08:52:40 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20101006155026.5BB289D401B@zog.reactivated.net>
+	Thu, 14 Oct 2010 14:10:50 -0400
+In-Reply-To: <BA82E030-B041-4354-9715-02DF56510DA2@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <dsd@laptop.org>
-Cc: linux-input@vger.kernel.org, pgf@laptop.org
+To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
 
-Hi Daniel,
+On 10/14/2010 12:28 PM, St=E9phane Chatty wrote:
 
-On Wed, Oct 06, 2010 at 04:50:26PM +0100, Daniel Drake wrote:
-> Add a "hgpk_mode" sysfs attribute that allows selection between 3 options:
-> Mouse (the existing option), GlideSensor and PenTablet.
-> 
-> GlideSensor is an enhanced protocol for the regular touchpad mode that
-> additionally reports pressure and uses absolute coordinates. We suspect
-> that it may be more reliable than mouse mode in some environments.
-> 
-> PenTablet mode puts the touchpad into resistive mode, you must then use
-> a stylus as an input. We suspect this is the most reliable way to drive
-> the touchpad.
-> 
-> After changing the mode you must request a rescan for the change to take
-> effect:
-> 	echo -n rescan > /sys/bus/serio/devices/serio1/drvctl
-> 
+>=20
+> Le 14 oct. 10 =E0 11:38, Henrik Rydberg a =E9crit :
+>>>
+>>> +    bool valid;    /* did we just get valid contact data for this =
+slot? */
+>>> +    bool prev_valid;/* was this slot previously valid/active? */
+>>
+>>
+>> I do think these should be named "touch" or "prox" rather than "vali=
+d". The
+>> latter term is used in many drivers no represent "not null", and mix=
+ing the
+>> semantics with proximity is best avoided.
+>>
+>=20
+> Actually, the mix of semantics exists because of the mismatch between=
+ the
+> (static) HID protocol and the (dynamic) data it transports. Most of t=
+he time,
+> TipSwitch=3D0 occurs when we get placeholder data: there is nothing t=
+o report at
+> all, but the message format imposes that something is sent. And somet=
+imes
+> (rarely), we get TipSwitch=3D0 because a finger has been released. We=
+ are lucky
+> that we can handle the two situations in the same way.
 
-I think we can do better than that and re-create the device for users
-ourselves. See drivers/input/mouse/psmouse_base.c::psmouse_attr_set_proto()
 
-I would also look into adding a module parameter so that users could
-specify desired mode on bootup.
+It seems to me an individual packet from the device is either valid or =
+invalid,
+and there are a couple of different mechanisms used so far; HID_DG_INRA=
+NGE
+and/or HID_DG_CONTACTCOUNT seem to care of all but one (cypress) which =
+also uses
+HID_DG_CONTACTID.
 
-> The GlideSensor and PenTablet devices expose themselves with the
-> intention of being combined with the synaptics X11 input driver.
-> 
-> Based on earlier work by Paul Fox.
-> 
-> Signed-off-by: Daniel Drake <dsd@laptop.org>
-> ---
->  drivers/input/mouse/hgpk.c |  315 +++++++++++++++++++++++++++++++++++++++++---
->  drivers/input/mouse/hgpk.h |   11 ++
->  2 files changed, 307 insertions(+), 19 deletions(-)
-> 
-> Dmitry: thanks for pointing out that the synaptics X11 driver is no longer
-> only for synaptics hardware, that was the solution I was missing.
-> 
-> I'll rebase and resubmit the other patches in the original series once
-> this one has passed review and merge.
-> 
-> diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-> index 1d2205b..6115e0d 100644
-> --- a/drivers/input/mouse/hgpk.c
-> +++ b/drivers/input/mouse/hgpk.c
-> @@ -69,6 +69,13 @@ module_param(post_interrupt_delay, int, 0644);
->  MODULE_PARM_DESC(post_interrupt_delay,
->  	"delay (ms) before recal after recal interrupt detected");
->  
-> +int hgpk_mode = HGPK_MODE_MOUSE;
+In each valid packet, there is a notion of touch/enable/press/proximity=
+, and it
+seems to be either true for all valid packets, or goverened by HID_DG_T=
+IPSWITCH.
 
-static?
+>=20
+> See below for a discussion of how we can solve this.
+>=20
+>=20
+>>> +    bool curvalid;         /* is the current contact valid? */
+>>> +    __u16 curcontactid;     /* ContactID of the current contact */
+>>> +    __u16 curx, cury, curp;    /* other attributes of the current =
+contact */
+>>
+>>
+>> Could be a struct mt_slot instead.
+>=20
+> Well, it's not *exactly* the same data. Especially if, as I'm beginni=
+ng to
+> understand thanks to one of your later comments, there is a differenc=
+e in the
+> semantics of 'valid' between slots and the current contact as read in=
+ the HID
+> message:
+>  - my above discussion applies to the current contact
+>  - and in slots, this information gets filtered to become actual prox=
+imity
+> information.
 
-> +static const char * const mode_names[] = {
-> +	[HGPK_MODE_MOUSE] = "Mouse",
-> +	[HGPK_MODE_GLIDESENSOR] = "GlideSensor",
-> +	[HGPK_MODE_PENTABLET] = "PenTablet",
-> +};
-> +
->  /*
->   * When the touchpad gets ultra-sensitive, one can keep their finger 1/2"
->   * above the pad and still have it send packets.  This causes a jump cursor
-> @@ -143,23 +150,137 @@ static void hgpk_spewing_hack(struct psmouse *psmouse,
->   * swr/swl are the left/right buttons.
->   * x-neg/y-neg are the x and y delta negative bits
->   * x-over/y-over are the x and y overflow bits
-> + *
-> + * ---
-> + *
-> + * HGPK Advanced Mode - single-mode format
-> + *
-> + * byte 0(PT):  1    1    0    0    1    1     1     1
-> + * byte 0(GS):  1    1    1    1    1    1     1     1
-> + * byte 1:      0   x6   x5   x4   x3   x2    x1    x0
-> + * byte 2(PT):  0    0   x9   x8   x7    ? pt-dsw    0
-> + * byte 2(GS):  0  x10   x9   x8   x7    ? gs-dsw pt-dsw
-> + * byte 3:      0   y9   y8   y7    1    0   swr   swl
-> + * byte 4:      0   y6   y5   y4   y3   y2    y1    y0
-> + * byte 5:      0   z6   z5   z4   z3   z2    z1    z0
-> + *
-> + * ?'s are not defined in the protocol spec, may vary between models.
-> + *
-> + * swr/swl are the left/right buttons.
-> + *
-> + * pt-dsw/gs-dsw indicate that the pt/gs sensor is detecting a
-> + * pen/finger
->   */
-> -static int hgpk_validate_byte(unsigned char *packet)
-> +static int hgpk_validate_byte(struct psmouse *psmouse, unsigned char *packet)
 
-Why don't you make it a 'bool' and call something hgpk_is_byte_valid?
-'int' is better suited when you have multiple potential errors to
-signal.
+In the recent egalax driver submission, the data collected during a hid=
+ report
+round is actually exactly the same as the data stored per slot.
 
->  {
-> -	return (packet[0] & 0x0C) != 0x08;
-> +	struct hgpk_data *priv = psmouse->private;
-> +	int pktcnt = psmouse->pktcnt;
-> +	int r = 0;
-> +
-> +	switch (priv->mode) {
-> +	case HGPK_MODE_MOUSE:
-> +		r = (packet[0] & 0x0C) != 0x08;
-> +		if (r)
-> +			hgpk_dbg(psmouse, "bad data (%d) %02x %02x %02x\n",
-> +				 psmouse->pktcnt, psmouse->packet[0],
-> +				 psmouse->packet[1], psmouse->packet[2]);
-> +		break;
-> +
-> +	case HGPK_MODE_GLIDESENSOR:
-> +	case HGPK_MODE_PENTABLET:
-> +		/* bytes 2 - 6 should have 0 in the highest bit */
-> +		if (pktcnt >= 2 && pktcnt <= 6 && (packet[pktcnt - 1] & 0x80))
-> +			r = -1;
-> +		if (priv->mode == HGPK_MODE_GLIDESENSOR && packet[0] != HGPK_GS)
-> +			r = -1;
-> +		if (priv->mode == HGPK_MODE_PENTABLET && packet[0] != HGPK_PT)
-> +			r = -1;
-> +		if (r)
-> +			hgpk_dbg(psmouse, "bad data, mode %d (%d) "
-> +				 "%02x %02x %02x %02x %02x %02x\n",
-> +				 priv->mode, psmouse->pktcnt,
-> +				 psmouse->packet[0], psmouse->packet[1],
-> +				 psmouse->packet[2], psmouse->packet[3],
-> +				 psmouse->packet[4], psmouse->packet[5]);
-> +		break;
-> +	}
-> +	return r;
->  }
->  
-> -static void hgpk_process_packet(struct psmouse *psmouse)
-> +static void hgpk_process_advanced_packet(struct psmouse *psmouse)
->  {
-> -	struct input_dev *dev = psmouse->dev;
-> +	struct hgpk_data *priv = psmouse->private;
-> +	struct input_dev *idev = psmouse->dev;
->  	unsigned char *packet = psmouse->packet;
-> -	int x, y, left, right;
-> +	int left = !!(packet[3] & 1);
-> +	int right = !!(packet[3] & 2);
-> +	int x = packet[1] | ((packet[2] & 0x78) << 4);
-> +	int y = packet[4] | ((packet[3] & 0x70) << 3);
-> +	int z = packet[5];
-> +	int down;
-> +
-> +	if (priv->mode == HGPK_MODE_GLIDESENSOR) {
-> +		int pt_down = !!(packet[2] & 1);
-> +		int finger_down = !!(packet[2] & 2);
-> +
-> +		BUG_ON(packet[0] == HGPK_PT);
-i
-That is heavy-handed. I'd not BUG() on data coming from the hardware.
+> This would give:
+>  - curvalid in mt_data
+>  - touch in mt_slot (and not prox, because prox will mean something e=
+lse in
+> devices that have hover detection)
 
-> +		input_report_abs(idev, ABS_PRESSURE, z);
-> +		down = finger_down;
-> +		if (tpdebug)
-> +			hgpk_dbg(psmouse, "pd=%d fd=%d ",
-> +				 pt_down, finger_down);
-> +	} else {
-> +		BUG_ON(packet[0] == HGPK_GS);
 
-Same here, warn but not BUG().
+I do think it is fruitful to formulate this as mt_data holding both cur=
+valid and
+the touch state of the current slot.
 
-BTW, why don't we report pressure in this case?
+>>
+>>> +};
+>>> +
+>>> +struct mt_class {
+>>> +    int (*compute_slot)(struct mt_device *);
+>>> +    __u8 maxcontacts;
+>>> +    __s8 inputmode;    /* InputMode HID feature number, -1 if non-=
+existent */
+>>
+>>
+>> It would be nice to have additional information here, like signal-to=
+-noise ratio.
+>=20
+> I thought you would say that. My answer was ready: I left it to you t=
+o add it
+> afterwards :-)
 
-> +		down = !!(packet[2] & 2);
-> +		if (tpdebug)
-> +			hgpk_dbg(psmouse, "pd=%d ", down);
-> +	}
->  
-> -	left = packet[0] & 1;
-> -	right = (packet[0] >> 1) & 1;
-> +	if (tpdebug)
-> +		hgpk_dbg(psmouse, "l=%d r=%d x=%d y=%d z=%d\n",
-> +			 left, right, x, y, z);
->  
-> -	x = packet[1] - ((packet[0] << 4) & 0x100);
-> -	y = ((packet[0] << 3) & 0x100) - packet[2];
-> +	input_report_key(idev, BTN_TOUCH, down);
-> +	input_report_key(idev, BTN_LEFT, left);
-> +	input_report_key(idev, BTN_RIGHT, right);
-> +
-> +	/*
-> +	 * if this packet says that the finger was removed, reset our position
-> +	 * tracking so that we don't erroneously detect a jump on next press.
-> +	 */
-> +	if (!down)
-> +		priv->abs_x = priv->abs_y = -1;
-> +
-> +	/* Report position if finger/pen is down, but weed out duplicate
-> +	 * packets (we get quite a few in this mode, and they mess up our
-> +	 * jump detection */
-> +	if (down && (x != priv->abs_x || y != priv->abs_y)) {
-> +
-> +		/* Don't apply hacks in PT mode, it seems reliable */
-> +		if (priv->mode != HGPK_MODE_PENTABLET && priv->abs_x != -1) {
-> +			hgpk_jumpy_hack(psmouse,
-> +					priv->abs_x - x, priv->abs_y - y);
-> +			hgpk_spewing_hack(psmouse, left, right,
-> +					  priv->abs_x - x, priv->abs_y - y);
 
-I wonder if instead of deltas we could detect "super-sensitivity" based
-on Z?
+Ok, no problem :-)
 
-> +		}
-> +
-> +		input_report_abs(idev, ABS_X, x);
-> +		input_report_abs(idev, ABS_Y, y);
-> +		priv->abs_x = x;
-> +		priv->abs_y = y;
-> +	}
-> +
-> +	input_sync(idev);
-> +}
-> +
-> +static void hgpk_process_simple_packet(struct psmouse *psmouse)
-> +{
-> +	struct input_dev *dev = psmouse->dev;
-> +	unsigned char *packet = psmouse->packet;
-> +	int left = packet[0] & 1;
-> +	int right = (packet[0] >> 1) & 1;
-> +	int x = packet[1] - ((packet[0] << 4) & 0x100);
-> +	int y = ((packet[0] << 3) & 0x100) - packet[2];
->  
->  	hgpk_jumpy_hack(psmouse, x, y);
->  	hgpk_spewing_hack(psmouse, left, right, x, y);
-> @@ -180,15 +301,14 @@ static psmouse_ret_t hgpk_process_byte(struct psmouse *psmouse)
->  {
->  	struct hgpk_data *priv = psmouse->private;
->  
-> -	if (hgpk_validate_byte(psmouse->packet)) {
-> -		hgpk_dbg(psmouse, "%s: (%d) %02x %02x %02x\n",
-> -				__func__, psmouse->pktcnt, psmouse->packet[0],
-> -				psmouse->packet[1], psmouse->packet[2]);
-> +	if (hgpk_validate_byte(psmouse, psmouse->packet))
->  		return PSMOUSE_BAD_DATA;
-> -	}
->  
->  	if (psmouse->pktcnt >= psmouse->pktsize) {
-> -		hgpk_process_packet(psmouse);
-> +		if (priv->mode == HGPK_MODE_MOUSE)
-> +			hgpk_process_simple_packet(psmouse);
-> +		else
-> +			hgpk_process_advanced_packet(psmouse);
->  		return PSMOUSE_FULL_PACKET;
->  	}
->  
-> @@ -210,6 +330,59 @@ static psmouse_ret_t hgpk_process_byte(struct psmouse *psmouse)
->  	return PSMOUSE_GOOD_DATA;
->  }
->  
-> +static int hgpk_select_mode(struct psmouse *psmouse)
-> +{
-> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
-> +	struct hgpk_data *priv = psmouse->private;
-> +	int i;
-> +	int cmd;
-> +
-> +	/*
-> +	 * 4 disables to enable advanced mode
-> +	 * then 3 0xf2 bytes as the preamble for GS/PT selection
-> +	 */
-> +	const int advanced_init[] = {
-> +		PSMOUSE_CMD_DISABLE, PSMOUSE_CMD_DISABLE,
-> +		PSMOUSE_CMD_DISABLE, PSMOUSE_CMD_DISABLE,
-> +		0xf2, 0xf2, 0xf2,
-> +	};
-> +
-> +	switch (priv->mode) {
-> +	case HGPK_MODE_MOUSE:
-> +		psmouse->pktsize = 3;
-> +		break;
-> +
-> +	case HGPK_MODE_GLIDESENSOR:
-> +	case HGPK_MODE_PENTABLET:
-> +		psmouse->pktsize = 6;
-> +
-> +		/* Switch to 'Advanced mode.', four disables in a row. */
-> +		for (i = 0; i < ARRAY_SIZE(advanced_init); i++)
-> +			if (ps2_command(ps2dev, NULL, advanced_init[i]))
-> +				return -EIO;
-> +
-> +		/* select between GlideSensor (mouse) or PenTablet */
-> +		if (priv->mode == HGPK_MODE_GLIDESENSOR)
-> +			cmd = PSMOUSE_CMD_SETSCALE11;
-> +		else
-> +			cmd = PSMOUSE_CMD_SETSCALE21;
-> +
+>=20
+>>>
+>>> +/* contact data that only some devices report */
+>>> +#define PRESSURE     (1 << 0)
+>>> +#define SIZE        (1 << 1)
+>>
+>>
+>> The names here are a bit too general, IMO.
+>=20
+> I thought so too, but was too lazy to imagine something else and deci=
+ded that
+> what the heck, these are private names. Any suggestion?
 
-		cmd = priv->mode == HGPK_MODE_GLIDESENSOR ?
-			PSMOUSE_CMD_SETSCALE11 : PSMOUSE_CMD_SETSCALE21;
-?
 
-> +		if (ps2_command(ps2dev, NULL, cmd))
-> +			return -EIO;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void reset_hack_state(struct psmouse *psmouse)
+True, private, but how about a HID_ or MT_ prefix, or something like th=
+at.
 
-hgpk_reset_hack_state()
 
-> +{
-> +	struct hgpk_data *priv = psmouse->private;
+>>> +
+>>> +/*
+>>> + * these device-dependent functions determine what slot correspond=
+s
+>>> + * to a valid contact that was just read.
+>>> + */
+>>> +
+>>> +static int slot_from_contactid(struct mt_device *td)
+>>> +{
+>>> +    return td->curcontactid;
+>>> +}
+>>
+>>
+>> I suppose this one is meant to loop over available slots for some
+>> implementations.
+>=20
+> See the following patches for examples. So far, looping was not neces=
+sary.
 
-Empty space?
 
-> +	priv->abs_x = priv->abs_y = -1;
-> +}
-> +
->  static int hgpk_force_recalibrate(struct psmouse *psmouse)
->  {
->  	struct ps2dev *ps2dev = &psmouse->ps2dev;
-> @@ -236,6 +409,13 @@ static int hgpk_force_recalibrate(struct psmouse *psmouse)
->  	/* according to ALPS, 150mS is required for recalibration */
->  	msleep(150);
->  
-> +	if (hgpk_select_mode(psmouse)) {
-> +		hgpk_err(psmouse, "failed to select mode\n");
-> +		return -1;
-> +	}
-> +
-> +	reset_hack_state(psmouse);
-> +
->  	/* XXX: If a finger is down during this delay, recalibration will
->  	 * detect capacitance incorrectly.  This is a hardware bug, and
->  	 * we don't have a good way to deal with it.  The 2s window stuff
-> @@ -290,6 +470,13 @@ static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
->  
->  		psmouse_reset(psmouse);
->  
-> +		if (hgpk_select_mode(psmouse)) {
-> +			hgpk_err(psmouse, "Failed to select mode!\n");
-> +			return -1;
+Right, those devices are yet to come. As suggested in another patch as =
+well,
+perhaps we can get by without actually using different function pointer=
+s here. A
+switch statement does weigh fairly light in lieu of the processing done=
+ per hid
+report. :-)
 
-Maybe we should slowly start using proper error codes...
+>>> +
+>>> +struct mt_class mt_classes[] =3D {
+>>> +    /* DUAL1 */        { slot_from_contactid, 2, -1 },
+>>> +};
+>>
+>>
+>> Off placement of comment.
+>>>
+>=20
+> Please, please don't force me to add a useless field to the struct so=
+ as to make
+> sure that the type is read before the data :-) Oh well...
 
-> +		}
-> +
-> +		reset_hack_state(psmouse);
-> +
->  		/* should be all set, enable the touchpad */
->  		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
->  		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
-> @@ -328,7 +515,12 @@ static int hgpk_reconnect(struct psmouse *psmouse)
->  			return 0;
->  
->  	psmouse_reset(psmouse);
-> +	if (hgpk_select_mode(psmouse)) {
-> +		hgpk_err(psmouse, "Failed to select mode!\n");
-> +		return -1;
-> +	}
->  
-> +	reset_hack_state(psmouse);
->  	return 0;
->  }
->  
-> @@ -366,6 +558,35 @@ static ssize_t hgpk_set_powered(struct psmouse *psmouse, void *data,
->  __PSMOUSE_DEFINE_ATTR(powered, S_IWUSR | S_IRUGO, NULL,
->  		      hgpk_show_powered, hgpk_set_powered, false);
->  
-> +static ssize_t attr_show_mode(struct psmouse *psmouse, void *data, char *buf)
-> +{
-> +	return sprintf(buf, "%s\n", mode_names[hgpk_mode]);
-> +}
-> +
-> +static ssize_t attr_set_mode(struct psmouse *psmouse, void *data,
-> +			     const char *buf, size_t len)
-> +{
-> +	int i;
-> +	int new_mode = -1;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(mode_names); i++) {
-> +		const char *name = mode_names[i];
-> +		if (strlen(name) == len && !strncasecmp(name, buf, len)) {
-> +			new_mode = i;
-> +			break;
-> +		}
-> +	}
-> +
-> +	if (new_mode == -1)
-> +		return -EINVAL;
-> +
-> +	hgpk_mode = new_mode;
-> +	return len;
-> +}
-> +
-> +__PSMOUSE_DEFINE_ATTR(hgpk_mode, S_IWUSR | S_IRUGO, NULL,
-> +		      attr_show_mode, attr_set_mode, 0);
-> +
->  static ssize_t hgpk_trigger_recal_show(struct psmouse *psmouse,
->  		void *data, char *buf)
->  {
-> @@ -401,6 +622,8 @@ static void hgpk_disconnect(struct psmouse *psmouse)
->  
->  	device_remove_file(&psmouse->ps2dev.serio->dev,
->  			   &psmouse_attr_powered.dattr);
-> +	device_remove_file(&psmouse->ps2dev.serio->dev,
-> +			   &psmouse_attr_hgpk_mode.dattr);
->  
->  	if (psmouse->model >= HGPK_MODEL_C)
->  		device_remove_file(&psmouse->ps2dev.serio->dev,
-> @@ -424,6 +647,8 @@ static void hgpk_recalib_work(struct work_struct *work)
->  
->  static int hgpk_register(struct psmouse *psmouse)
->  {
-> +	struct hgpk_data *priv = psmouse->private;
-> +	struct input_dev *idev = psmouse->dev;
->  	int err;
->  
->  	/* register handlers */
-> @@ -431,13 +656,45 @@ static int hgpk_register(struct psmouse *psmouse)
->  	psmouse->poll = hgpk_poll;
->  	psmouse->disconnect = hgpk_disconnect;
->  	psmouse->reconnect = hgpk_reconnect;
-> -	psmouse->pktsize = 3;
->  
->  	/* Disable the idle resync. */
->  	psmouse->resync_time = 0;
->  	/* Reset after a lot of bad bytes. */
->  	psmouse->resetafter = 1024;
->  
-> +	if (priv->mode != HGPK_MODE_MOUSE) {
-> +		__set_bit(EV_ABS, idev->evbit);
-> +		__set_bit(EV_KEY, idev->evbit);
-> +		__set_bit(BTN_TOUCH, idev->keybit);
-> +		__set_bit(BTN_TOOL_FINGER, idev->keybit);
-> +		__set_bit(BTN_LEFT, idev->keybit);
-> +		__set_bit(BTN_RIGHT, idev->keybit);
-> +		__clear_bit(EV_REL, idev->evbit);
-> +		__clear_bit(REL_X, idev->relbit);
-> +		__clear_bit(REL_Y, idev->relbit);
-> +	}
-> +
-> +	if (priv->mode == HGPK_MODE_GLIDESENSOR) {
-> +		/* GlideSensor has pressure sensor, PenTablet does not */
-> +		input_set_abs_params(idev, ABS_PRESSURE, 0, 15, 0, 0);
-> +
-> +		/* From device specs */
-> +		input_set_abs_params(idev, ABS_X, 0, 399, 0, 0);
-> +		input_set_abs_params(idev, ABS_Y, 0, 290, 0, 0);
-> +
-> +		/* Calculated by hand based on usable size (52mm x 38mm) */
-> +		input_abs_set_res(idev, ABS_X, 8);
-> +		input_abs_set_res(idev, ABS_Y, 8);
-> +	} else if (priv->mode == HGPK_MODE_PENTABLET) {
-> +		/* From device specs */
-> +		input_set_abs_params(idev, ABS_X, 0, 999, 0, 0);
-> +		input_set_abs_params(idev, ABS_Y, 5, 239, 0, 0);
-> +
-> +		/* Calculated by hand based on usable size (156mm x 38mm) */
-> +		input_abs_set_res(idev, ABS_X, 6);
-> +		input_abs_set_res(idev, ABS_Y, 8);
-> +	}
-> +
->  	err = device_create_file(&psmouse->ps2dev.serio->dev,
->  				 &psmouse_attr_powered.dattr);
->  	if (err) {
-> @@ -445,6 +702,13 @@ static int hgpk_register(struct psmouse *psmouse)
->  		return err;
->  	}
->  
-> +	err = device_create_file(&psmouse->ps2dev.serio->dev,
-> +				 &psmouse_attr_hgpk_mode.dattr);
-> +	if (err) {
-> +		hgpk_err(psmouse, "Failed creating 'hgpk_mode' sysfs node\n");
-> +		goto err_remove_powered;
-> +	}
-> +
->  	/* C-series touchpads added the recalibrate command */
->  	if (psmouse->model >= HGPK_MODEL_C) {
->  		err = device_create_file(&psmouse->ps2dev.serio->dev,
-> @@ -452,13 +716,19 @@ static int hgpk_register(struct psmouse *psmouse)
->  		if (err) {
->  			hgpk_err(psmouse,
->  				"Failed creating 'recalibrate' sysfs node\n");
-> -			device_remove_file(&psmouse->ps2dev.serio->dev,
-> -					&psmouse_attr_powered.dattr);
-> -			return err;
-> +			goto err_remove_mode;
->  		}
->  	}
->  
->  	return 0;
-> +
-> +err_remove_mode:
-> +	device_remove_file(&psmouse->ps2dev.serio->dev,
-> +			   &psmouse_attr_hgpk_mode.dattr);
-> +err_remove_powered:
-> +	device_remove_file(&psmouse->ps2dev.serio->dev,
-> +			   &psmouse_attr_powered.dattr);
-> +	return err;
->  }
->  
->  int hgpk_init(struct psmouse *psmouse)
-> @@ -473,12 +743,19 @@ int hgpk_init(struct psmouse *psmouse)
->  	psmouse->private = priv;
->  	priv->psmouse = psmouse;
->  	priv->powered = true;
-> +	priv->mode = hgpk_mode;
->  	INIT_DELAYED_WORK(&priv->recalib_wq, hgpk_recalib_work);
->  
->  	err = psmouse_reset(psmouse);
->  	if (err)
->  		goto init_fail;
->  
-> +	err = hgpk_select_mode(psmouse);
-> +	if (err)
-> +		goto init_fail;
-> +
-> +	reset_hack_state(psmouse);
-> +
->  	err = hgpk_register(psmouse);
->  	if (err)
->  		goto init_fail;
-> diff --git a/drivers/input/mouse/hgpk.h b/drivers/input/mouse/hgpk.h
-> index d61cfd3..430f29f 100644
-> --- a/drivers/input/mouse/hgpk.h
-> +++ b/drivers/input/mouse/hgpk.h
-> @@ -5,6 +5,9 @@
->  #ifndef _HGPK_H
->  #define _HGPK_H
->  
-> +#define HGPK_GS		0xff       /* The GlideSensor */
-> +#define HGPK_PT		0xcf       /* The PenTablet */
-> +
->  enum hgpk_model_t {
->  	HGPK_MODEL_PREA = 0x0a,	/* pre-B1s */
->  	HGPK_MODEL_A = 0x14,	/* found on B1s, PT disabled in hardware */
-> @@ -13,12 +16,20 @@ enum hgpk_model_t {
->  	HGPK_MODEL_D = 0x50,	/* C1, mass production */
->  };
->  
-> +enum hgpk_mode {
-> +	HGPK_MODE_MOUSE,
-> +	HGPK_MODE_GLIDESENSOR,
-> +	HGPK_MODE_PENTABLET,
-> +};
-> +
->  struct hgpk_data {
->  	struct psmouse *psmouse;
-> +	int mode;
->  	bool powered;
->  	int count, x_tally, y_tally;	/* hardware workaround stuff */
->  	unsigned long recalib_window;
->  	struct delayed_work recalib_wq;
-> +	int abs_x, abs_y;
->  };
->  
->  #define hgpk_dbg(psmouse, format, arg...)		\
-> -- 
-> 1.7.2.3
-> 
 
-Thanks.
+I really don't care how the comments are placed, but somebody else migh=
+t.
+Standard is your friend. ;-)
 
--- 
-Dmitry
+
+>> A helper function that simplifies the repeated usage of input_set_ab=
+s_params()
+>> would be nice.
+>>
+>> A local variable for hi->input would be nice.
+>>
+>> If we want to support fuzz, and do not want to add it to the hid str=
+ucture
+>> (because it is not available in the reports), we should consider set=
+ting up the
+>> input_dev completely within this driver, as done in the 3M and egala=
+x drivers.
+>=20
+> Yes, my idea was that you'd like to take over and introduce the kind =
+of work you
+> are doing for 3M and eGalax. As for the helper function and hi->input=
+, hey, I
+> just copied your code :-)
+
+
+=46ine with me, although since we are introducing a new driver, it seem=
+s slightly
+backwards. Perhaps we can fold some patches jointly in the next round? =
+And yes,
+guilty, apparently my preferences regarding these drivers is changing w=
+ith time,
+too. :-)
+
+>>> +        if (slotnum >=3D 0 && slotnum <=3D td->mtclass->maxcontact=
+s - 1) {
+>>
+>>
+>> The returned slotnum should always be valid, so this test is redunda=
+nt.
+>=20
+> Nope. See Cypress devices.
+
+
+I believe we have covered this in a separate thread now.
+
+
+>>
+>>> +            slot =3D td->slots + slotnum;
+>>> +
+>>> +            slot->valid =3D true;
+>>
+>>
+>> Rather that setting valid here, it should simply be the proximity (t=
+ouch) state.
+>> All slot data in our buffer is actually valid at all times.
+>>
+>>> +            slot->x =3D td->curx;
+>>> +            slot->y =3D td->cury;
+>>> +            slot->p =3D td->curp;
+>>
+>>
+>> Using a temporary slot struct for curx etc would be nice.
+>>
+>>> +        }
+>>> +    }
+>>> +    td->curcontact++;
+>=20
+> See my previous discussion on curvalid vs valid/prox/touch.
+
+
+Ditto.
+
+
+>> I think it is unnecessary to have both a slot number and a curcontac=
+t value.
+>> Either the firmware reports the slot itself, or it reports a contact=
+ id that
+>> needs to be looked up from the list of slots. In neither case does a=
+nything but
+>> slot number and contact id enter the equation.
+>=20
+> See the following patches for examples of this being wrong.
+
+
+The enumeration used in some of the drivers makes sense, but I never go=
+t around
+to test on a broader basis whether HID_DG_CONTACTID would accomplish th=
+e same
+thing. I am fine with using a counter for some drivers.
+
+>>>
+>>> +            if (s->prev_valid) {
+>>> +                input_mt_slot(input, i);  =20
+>>
+>>
+>> The logic is a bit easier if input_mt_slot() appears once before all=
+ the
+>> branching. If nothing else is emitted, the input core does not emit =
+the slot
+>> event.
+>=20
+> I'm not a big fan of this kind of 'blind pass'. Jiri?
+
+
+In this particular case, I think it makes the logic clearer.
+
+>> How about touch_major, touch_minor and orientation here?
+>=20
+> I have no device available to test this at the moment. What I had in =
+mind was to
+> add them when we add support for a device that has them.
+
+
+OK, in conjunction with the 3M adaption, then.
+
+>>> +        s->prev_valid =3D true;
+>>> +        s->valid =3D false;
+>>
+>>
+>> Changing the touch state to false here seems wrong.
+>=20
+> But it's necessary, believe me. There are devices for which we don't =
+get a
+> chance to change it to false when the finger is released. Setting it =
+to false
+> every time and resetting it to true when we get confirmation that the=
+ contact is
+> still alive is the failsafe way of doing things.
+
+
+Different assumptions here, I think. I am assuming that the set of kept=
+ slots
+are always valid, and contain a touch state. If a set of touches limite=
+d by
+HID_DG_CONTACTCOUNT comes in, one would reset the touch state of the re=
+maining
+touches. This would simplify adaption of the devices that send partial =
+or
+sequential states, IMO.
+
+>=20
+>>> +        input_event(input, EV_KEY, BTN_TOUCH, 1);
+>>> +        input_event(input, EV_ABS, ABS_X, oldest->x);
+>>> +        input_event(input, EV_ABS, ABS_Y, oldest->y);
+>>
+>>
+>> Pressure here as well.
+>=20
+> Oops.
+>=20
+>>
+>>> +    } else {
+>>> +        input_event(input, EV_KEY, BTN_TOUCH, 0);
+>>> +    }
+>>> +
+>>> +    input_sync(input);
+>>> +    td->curcontact =3D 0;
+>>
+>>
+>> The curcontact semantics could be clearer, as noted elsewhere.
+>=20
+> Another name, perhaps? The bottom line is that we need to keep trace =
+of the rank
+> of the contact in the current message.
+
+
+Yeah, different name. And something that makes clear whether we are tal=
+king
+about an index (count - 1) or the count itself.
+
+>>> +}
+>>> +
+>>> +
+>>> +
+>>> +static int mt_event(struct hid_device *hid, struct hid_field *fiel=
+d,
+>>> +                struct hid_usage *usage, __s32 value)
+>>> +{
+>>> +    struct mt_device *td =3D hid_get_drvdata(hid);
+>>> +
+>>> +    if (hid->claimed & HID_CLAIMED_INPUT) {
+>>> +        struct input_dev *input =3D field->hidinput->input;
+>>> +        switch (usage->hid) {
+>>> +        case HID_DG_INRANGE:
+>>
+>>
+>> This one is used to report the validity of the current reported cont=
+act on many
+>> devices. Maybe all, even?
+>=20
+> Actually, only on a minority of device last time I checked.
+
+
+Adding "if sequence number less than number of sent contacts" to the li=
+st, I
+think we might cover all of them.
+
+
+>=20
+>>> +        case HID_DG_TIPSWITCH:
+>>> +            td->curvalid =3D value;
+>>
+>>
+>> This is really the touch state, the proximity.
+>=20
+> I wish.
+
+
+Same comment as above. :-)
+
+>=20
+>>
+>>> +            break;
+>>> +        case HID_DG_CONFIDENCE:
+>>> +            break;
+>>> +        case HID_DG_CONTACTID:
+>>> +            td->curcontactid =3D value;
+>>
+>>
+>> Here is where I would but the conversion to slot id. And it should d=
+efinitely be
+>> guarded so that it is always a valid index.
+>=20
+> I'll pay you a beer if you find how to make this work for all devices=
+ :-)
+
+
+It will keep you to your promise - and vice versa if it does not work o=
+ut. :-)
+
+>>
+>>> +        case HID_GD_Y:
+>>> +            td->cury =3D value;
+>>> +            /* works for devices where Y is last in a contact */
+>>> +            mt_complete_slot(td);
+>>
+>>
+>> Relying on a particular field to come last seems non-generic. Since =
+there is
+>> already a bit field started for various features of the device, why =
+not complete
+>> that list with all data reported per contact, and use it know when a=
+ contact is
+>> complete? Something like "recorded_mask =3D=3D expected_mask".
+>=20
+> What I had in mind was that the information is available in lower lev=
+el code,
+> and that we could handle this when switching to a raw hid device. Oth=
+erwise,
+> we'd just be reinventing the wheel, that is rebuilding information th=
+at's
+> already there. Same for HID_CONTACTCOUNT below: I use it because it m=
+arks the
+> end of messages on most devices, but there should be a better way of =
+knowing
+> that we are at the end of a message.
+
+
+Yeah. I was looking for a means in the hid usage code. One option could=
+ be to
+add a "serve me all usages at once" method in the HID layer. Regardless=
+, I doubt
+the current code will actually work for all devices?
+
+>>
+>>> +            break;
+>>> +        case HID_DG_CONTACTCOUNT:
+>>> +            /*
+>>> +             * works for devices where contact count is
+>>> +             * the last field in a message
+>>> +             */
+>>> +            if (value)
+>>> +                td->maxcontact =3D value - 1;
+>>
+>>
+>> The usage of maxcontact is a bit odd. Perhaps there should be a "max=
+slot" which
+>> never changes, and a "contactcount" which starts at zero.
+>=20
+> maxcontact works with curcontact. I found the name 'contactcount' con=
+fusing,
+> because in HID it means something else. Still looking for a better na=
+me for
+> 'curcontact'.
+>=20
+>>
+>>> +            if (td->curcontact > td->maxcontact)
+>>> +                mt_emit_event(td, input);
+>>
+>>
+>> So curcontact is here a counter, which implements the logic found in=
+ the 3M,
+>> with partial reports combining into a single one. Maybe we need a co=
+unter, or
+>> maybe we can get by using the CONTACTID field.
+>>
+>>>
+>=20
+> Yes, curcontact is a counter. And we also need it for computing the s=
+lot id
+> sometimes.
+
+
+Ok. How about num_received?
+
+>>> +
+>>> +#if 0
+>>> +    /*
+>>> +         * todo: activate this as soon as the patch where the quir=
+k below
+>>> +         * is defined is commited. This will allow the driver to c=
+orrectly
+>>> +         * support devices that emit events over several HID messa=
+ges.
+>>> +         */
+>>> +    hdev->quirks |=3D HID_QUIRK_NO_INPUT_SYNC;
+>>> +#endif
+>>
+>>
+>> This code should be active.
+>=20
+> Then it won't compile in 2.6.36-rc7.
+
+
+But to test it, it will have to compile :-)
+
+>>> +
+>>> +    td =3D kzalloc(sizeof(struct mt_device), GFP_KERNEL);
+>>> +    if (!td) {
+>>> +        dev_err(&hdev->dev, "cannot allocate multitouch data\n");
+>>> +        return -ENOMEM;
+>>> +    }
+>>> +    td->mtclass =3D mt_classes + id->driver_data;
+>>> +    td->slots =3D kzalloc(td->mtclass->maxcontacts * sizeof(struct=
+ mt_slot),
+>>> +                GFP_KERNEL);
+>>
+>>
+>> Allocating slots in the same range as mt_device would be nice.
+>=20
+> Agreed.
+>=20
+>>
+>>> +        struct hid_report_enum *re =3D hdev->report_enum
+>>> +                        + HID_FEATURE_REPORT;
+>>
+>>
+>> &hdev->report_enum[HID_FEATURE_REPORT]
+>=20
+> Won't fit on one line, then. Visually, it gets worse. Someone else, a=
+n opinion?
+>=20
+>>
+>>
+>> That's it for now :-)
+>>
+>=20
+> Then, on to patches 2, 3 and 4 :-)
+
+
+And the next round :-)
+
+Cheers,
+Henrik
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

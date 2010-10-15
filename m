@@ -1,21 +1,21 @@
 From: <michael.hennerich@analog.com>
 Subject: [PATCH 3/3] Input: touchscreen: ad7877 filter events where pressure is beyond the maximum
-Date: Fri, 15 Oct 2010 12:36:11 +0200
-Message-ID: <1287138971-24753-3-git-send-email-michael.hennerich@analog.com>
-References: <1287138971-24753-1-git-send-email-michael.hennerich@analog.com>
+Date: Fri, 15 Oct 2010 12:40:50 +0200
+Message-ID: <1287139250-24777-3-git-send-email-michael.hennerich@analog.com>
+References: <1287139250-24777-1-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:7241 "EHLO
+Received: from nwd2mail10.analog.com ([137.71.25.55]:19080 "EHLO
 	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754334Ab0JOKm6 (ORCPT
+	with ESMTP id S1754334Ab0JOKre (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Oct 2010 06:42:58 -0400
-In-Reply-To: <1287138971-24753-1-git-send-email-michael.hennerich@analog.com>
+	Fri, 15 Oct 2010 06:47:34 -0400
+In-Reply-To: <1287139250-24777-1-git-send-email-michael.hennerich@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: greg@kroah.com
-Cc: linux-iio@vger.kernel.org, drivers@analog.com, jic23@cam.ac.uk, linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, drivers@analog.com, Michael Hennerich <michael.hennerich@analog.com>
 
 From: Michael Hennerich <michael.hennerich@analog.com>
 

@@ -1,179 +1,63 @@
-From: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/5] IR: extend and sort the MCE keymap
-Date: Fri, 15 Oct 2010 18:06:35 +0200
-Message-ID: <1287158799-21486-2-git-send-email-maximlevitsky@gmail.com>
-References: <1287158799-21486-1-git-send-email-maximlevitsky@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2.6.36-rc7] input: cancel_delayed_work_sync() in
+ hp680_ts_input
+Date: Fri, 15 Oct 2010 09:55:42 -0700
+Message-ID: <20101015165542.GA19112@core.coreip.homeip.net>
+References: <4CB84609.4080809@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <lirc-list-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <1287158799-21486-1-git-send-email-maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/lirc-list>,
-	<mailto:lirc-list-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=lirc-list>
-List-Post: <mailto:lirc-list-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:lirc-list-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/lirc-list>,
-	<mailto:lirc-list-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: lirc-list-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: lirc-list-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Cc: mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:42977 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755941Ab0JOQzu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Oct 2010 12:55:50 -0400
+Content-Disposition: inline
+In-Reply-To: <4CB84609.4080809@kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tejun Heo <tj@kernel.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Jiri Slaby <jirislaby@gmail.com>, lkml <linux-kernel@vger.kernel.org>
 
-Add new keys, found on:
+On Fri, Oct 15, 2010 at 02:16:09PM +0200, Tejun Heo wrote:
+> Make hp680_ts_init/exit() call cancel_delayed_work_sync() instead of
+> calling cancel_delayed_work() followed by flush_scheduled_work().
+> 
+> This is to prepare for the deprecation and removal of
+> flush_scheduled_work().
+> 
+> Signed-off-by: Tejun Heo <tj@kernel.org>
 
-Toshiba Qosmio F50-10q.
-Toshiba Qosmio X300
-Toshiba A500-141
+Applied, thanks Tejun.
 
-Also sort the keytable by scancode number as that makes sense
-and alows easily to add new keycodes.
+> ---
+>  drivers/input/touchscreen/hp680_ts_input.c |    6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> Index: work/drivers/input/touchscreen/hp680_ts_input.c
+> ===================================================================
+> --- work.orig/drivers/input/touchscreen/hp680_ts_input.c
+> +++ work/drivers/input/touchscreen/hp680_ts_input.c
+> @@ -107,8 +107,7 @@ static int __init hp680_ts_init(void)
+>  	return 0;
+> 
+>   fail2:	free_irq(HP680_TS_IRQ, NULL);
+> -	cancel_delayed_work(&work);
+> -	flush_scheduled_work();
+> +	cancel_delayed_work_sync(&work);
+>   fail1:	input_free_device(hp680_ts_dev);
+>  	return err;
+>  }
+> @@ -116,8 +115,7 @@ static int __init hp680_ts_init(void)
+>  static void __exit hp680_ts_exit(void)
+>  {
+>  	free_irq(HP680_TS_IRQ, NULL);
+> -	cancel_delayed_work(&work);
+> -	flush_scheduled_work();
+> +	cancel_delayed_work_sync(&work);
+>  	input_unregister_device(hp680_ts_dev);
+>  }
+> 
 
-Thanks to:
-Sami R <maesesami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Alexander Skiba <ghostlyrics-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Jordi Pelegrin <pelegrin.jordi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-For reports and testing.
-
-Signed-off-by: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/media/IR/keymaps/rc-rc6-mce.c |   88 +++++++++++++++++----------------
- 1 files changed, 45 insertions(+), 43 deletions(-)
-
-diff --git a/drivers/media/IR/keymaps/rc-rc6-mce.c b/drivers/media/IR/keymaps/rc-rc6-mce.c
-index 39557ad..1b7adab 100644
---- a/drivers/media/IR/keymaps/rc-rc6-mce.c
-+++ b/drivers/media/IR/keymaps/rc-rc6-mce.c
-@@ -12,76 +12,78 @@
- #include <media/rc-map.h>
- 
- static struct ir_scancode rc6_mce[] = {
--	{ 0x800f0415, KEY_REWIND },
--	{ 0x800f0414, KEY_FASTFORWARD },
--	{ 0x800f041b, KEY_PREVIOUS },
--	{ 0x800f041a, KEY_NEXT },
- 
-+	{ 0x800f0400, KEY_NUMERIC_0 },
-+	{ 0x800f0401, KEY_NUMERIC_1 },
-+	{ 0x800f0402, KEY_NUMERIC_2 },
-+	{ 0x800f0403, KEY_NUMERIC_3 },
-+	{ 0x800f0404, KEY_NUMERIC_4 },
-+	{ 0x800f0405, KEY_NUMERIC_5 },
-+	{ 0x800f0406, KEY_NUMERIC_6 },
-+	{ 0x800f0407, KEY_NUMERIC_7 },
-+	{ 0x800f0408, KEY_NUMERIC_8 },
-+	{ 0x800f0409, KEY_NUMERIC_9 },
-+
-+	{ 0x800f040a, KEY_DELETE },
-+	{ 0x800f040b, KEY_ENTER },
-+	{ 0x800f040c, KEY_POWER },
-+	{ 0x800f040d, KEY_PROG1 }, 		/* Windows MCE button */
-+	{ 0x800f040e, KEY_MUTE },
-+	{ 0x800f040f, KEY_INFO },
-+
-+	{ 0x800f0410, KEY_VOLUMEUP },
-+	{ 0x800f0411, KEY_VOLUMEDOWN },
-+	{ 0x800f0412, KEY_CHANNELUP },
-+	{ 0x800f0413, KEY_CHANNELDOWN },
-+
-+	{ 0x800f0414, KEY_FASTFORWARD },
-+	{ 0x800f0415, KEY_REWIND },
- 	{ 0x800f0416, KEY_PLAY },
-+	{ 0x800f0417, KEY_RECORD },
- 	{ 0x800f0418, KEY_PAUSE },
- 	{ 0x800f046e, KEY_PLAYPAUSE },
- 	{ 0x800f0419, KEY_STOP },
--	{ 0x800f0417, KEY_RECORD },
-+	{ 0x800f041a, KEY_NEXT },
-+	{ 0x800f041b, KEY_PREVIOUS },
-+	{ 0x800f041c, KEY_NUMERIC_POUND },
-+	{ 0x800f041d, KEY_NUMERIC_STAR },
- 
- 	{ 0x800f041e, KEY_UP },
- 	{ 0x800f041f, KEY_DOWN },
- 	{ 0x800f0420, KEY_LEFT },
- 	{ 0x800f0421, KEY_RIGHT },
- 
--	{ 0x800f040b, KEY_ENTER },
- 	{ 0x800f0422, KEY_OK },
- 	{ 0x800f0423, KEY_EXIT },
--	{ 0x800f040a, KEY_DELETE },
-+	{ 0x800f0424, KEY_DVD },
-+	{ 0x800f0425, KEY_TUNER }, 		/* LiveTV */
-+	{ 0x800f0426, KEY_EPG }, 		/* Guide */
-+	{ 0x800f0427, KEY_ZOOM }, 		/* Aspect */
- 
--	{ 0x800f040e, KEY_MUTE },
--	{ 0x800f0410, KEY_VOLUMEUP },
--	{ 0x800f0411, KEY_VOLUMEDOWN },
--	{ 0x800f0412, KEY_CHANNELUP },
--	{ 0x800f0413, KEY_CHANNELDOWN },
- 	{ 0x800f043a, KEY_BRIGHTNESSUP },
--	{ 0x800f0480, KEY_BRIGHTNESSDOWN },
--
--	{ 0x800f0401, KEY_NUMERIC_1 },
--	{ 0x800f0402, KEY_NUMERIC_2 },
--	{ 0x800f0403, KEY_NUMERIC_3 },
--	{ 0x800f0404, KEY_NUMERIC_4 },
--	{ 0x800f0405, KEY_NUMERIC_5 },
--	{ 0x800f0406, KEY_NUMERIC_6 },
--	{ 0x800f0407, KEY_NUMERIC_7 },
--	{ 0x800f0408, KEY_NUMERIC_8 },
--	{ 0x800f0409, KEY_NUMERIC_9 },
--	{ 0x800f0400, KEY_NUMERIC_0 },
--
--	{ 0x800f041d, KEY_NUMERIC_STAR },
--	{ 0x800f041c, KEY_NUMERIC_POUND },
- 
- 	{ 0x800f0446, KEY_TV },
--	{ 0x800f0447, KEY_AUDIO }, /* My Music */
--	{ 0x800f0448, KEY_PVR }, /* RecordedTV */
-+	{ 0x800f0447, KEY_AUDIO }, 		/* My Music */
-+	{ 0x800f0448, KEY_PVR }, 		/* RecordedTV */
- 	{ 0x800f0449, KEY_CAMERA },
- 	{ 0x800f044a, KEY_VIDEO },
--	{ 0x800f0424, KEY_DVD },
--	{ 0x800f0425, KEY_TUNER }, /* LiveTV */
--	{ 0x800f0450, KEY_RADIO },
--
- 	{ 0x800f044c, KEY_LANGUAGE },
--	{ 0x800f0427, KEY_ZOOM }, /* Aspect */
-+	{ 0x800f044d, KEY_TITLE },
-+	{ 0x800f044e, KEY_PRINT }, 	/* Print - HP OEM version of remote */
- 
-+	{ 0x800f0450, KEY_RADIO },
-+
-+	{ 0x800f045a, KEY_SUBTITLE }, 		/* Caption/Teletext */
- 	{ 0x800f045b, KEY_RED },
- 	{ 0x800f045c, KEY_GREEN },
- 	{ 0x800f045d, KEY_YELLOW },
- 	{ 0x800f045e, KEY_BLUE },
- 
--	{ 0x800f040f, KEY_INFO },
--	{ 0x800f0426, KEY_EPG }, /* Guide */
--	{ 0x800f045a, KEY_SUBTITLE }, /* Caption/Teletext */
--	{ 0x800f044d, KEY_TITLE },
--
--       { 0x800f044e, KEY_PRINT }, /* Print - HP OEM version of remote */
--
--	{ 0x800f040c, KEY_POWER },
--	{ 0x800f040d, KEY_PROG1 }, /* Windows MCE button */
-+	{ 0x800f046e, KEY_PLAYPAUSE },
-+	{ 0x800f046f, KEY_MEDIA }, 	/* Start media application (NEW) */
- 
-+	{ 0x800f0480, KEY_BRIGHTNESSDOWN },
-+	{ 0x800f0481, KEY_PLAYPAUSE },
- };
- 
- static struct rc_keymap rc6_mce_map = {
 -- 
-1.7.1
-
-
-------------------------------------------------------------------------------
-Download new Adobe(R) Flash(R) Builder(TM) 4
-The new Adobe(R) Flex(R) 4 and Flash(R) Builder(TM) 4 (formerly 
-Flex(R) Builder(TM)) enable the development of rich applications that run
-across multiple browsers and platforms. Download your free trials today!
-http://p.sf.net/sfu/adobe-dev2dev
+Dmitry

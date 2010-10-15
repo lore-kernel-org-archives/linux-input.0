@@ -1,26 +1,49 @@
-From: "Mr. John Galvan" <info@yahoo.com.hk>
-Subject: GOOD DAY
-Date: Fri, 15 Oct 2010 08:05:44 -0430 (VET)
-Message-ID: <11418.41.211.223.102.1287146144.squirrel__26950.4723990851$1287152853$gmane$org@correo.opsu.gob.ve>
-Reply-To: mrjohngalvan12@yahoo.com.hk
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/6] hid: egalax: Rework to include joojoo support
+Date: Fri, 15 Oct 2010 16:37:50 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010151637050.6879@pobox.suse.cz>
+References: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from correo.cnu.gov.ve ([150.187.96.9]:54090 "EHLO
-	correo.opsu.gob.ve" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755631Ab0JOO1O (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Oct 2010 10:27:14 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1286978302-30034-1-git-send-email-rydberg@euromail.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello
+On Wed, 13 Oct 2010, Henrik Rydberg wrote:
 
- I am Mr. John Galvan, I have a very urgent business proposal worth
-(15,500,000.00 Pounds Sterlings) from private offshore bank (AIG Private
-Bank). Please email me at (mrjohngalvan12@yahoo.com.hk) for details
+> Hi Jiri, Stephane,
+> 
+> This series adds support for the joojoo tablet. Based on the
+> jikos/egalax branch, the first two patches prepare for the change to
+> MT slots. The third patch fixes the bug that was also fixed by commit
+> f516611, but in another (agreed) way. The fourth patch fixes another
+> minor problem. The fifth patch adds event filtering based on observed
+> signal quality, and the sixth patch does the heavy lifting of
+> converting to MT slots and thereby solving the major problem for the
+> joojoo.
+> 
+> The patches have been tested on both supported devices. Thanks Philipp!
+> 
+> Henrik
+> 
+> Henrik Rydberg (6):
+>   hid: egalax: Use kzalloc
+>   hid: egalax: Setup input device manually
+>   hid: egalax: Correct for device resolution report error
+>   hid: egalax: Report zero as minimum pressure
+>   hid: egalax: Add event filtering
+>   hid: egalax: Convert to MT slots
+> 
+>  drivers/hid/hid-egalax.c |  177 +++++++++++++++++++++++++++-------------------
+>  1 files changed, 103 insertions(+), 74 deletions(-)
 
-Best Regards,
-Mr. John Galvan
+Stephane, I'd appreciate if I could get your Acked-by: for the series. 
 
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

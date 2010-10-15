@@ -1,51 +1,26 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: [PATCH v2.6.36-rc7] input: cancel_delayed_work_sync() in hp680_ts_input
-Date: Fri, 15 Oct 2010 14:16:09 +0200
-Message-ID: <4CB84609.4080809@kernel.org>
+From: "Mr. John Galvan" <info@yahoo.com.hk>
+Subject: GOOD DAY
+Date: Fri, 15 Oct 2010 08:05:44 -0430 (VET)
+Message-ID: <11418.41.211.223.102.1287146144.squirrel__26950.4723990851$1287152853$gmane$org@correo.opsu.gob.ve>
+Reply-To: mrjohngalvan12@yahoo.com.hk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hera.kernel.org ([140.211.167.34]:53672 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753200Ab0JOMQM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Oct 2010 08:16:12 -0400
+Received: from correo.cnu.gov.ve ([150.187.96.9]:54090 "EHLO
+	correo.opsu.gob.ve" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755631Ab0JOO1O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Oct 2010 10:27:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Slaby <jirislaby@gmail.com>, lkml <linux-kernel@vger.kernel.org>
 
-Make hp680_ts_init/exit() call cancel_delayed_work_sync() instead of
-calling cancel_delayed_work() followed by flush_scheduled_work().
+Hello
 
-This is to prepare for the deprecation and removal of
-flush_scheduled_work().
+ I am Mr. John Galvan, I have a very urgent business proposal worth
+(15,500,000.00 Pounds Sterlings) from private offshore bank (AIG Private
+Bank). Please email me at (mrjohngalvan12@yahoo.com.hk) for details
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
----
- drivers/input/touchscreen/hp680_ts_input.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-Index: work/drivers/input/touchscreen/hp680_ts_input.c
-===================================================================
---- work.orig/drivers/input/touchscreen/hp680_ts_input.c
-+++ work/drivers/input/touchscreen/hp680_ts_input.c
-@@ -107,8 +107,7 @@ static int __init hp680_ts_init(void)
- 	return 0;
-
-  fail2:	free_irq(HP680_TS_IRQ, NULL);
--	cancel_delayed_work(&work);
--	flush_scheduled_work();
-+	cancel_delayed_work_sync(&work);
-  fail1:	input_free_device(hp680_ts_dev);
- 	return err;
- }
-@@ -116,8 +115,7 @@ static int __init hp680_ts_init(void)
- static void __exit hp680_ts_exit(void)
- {
- 	free_irq(HP680_TS_IRQ, NULL);
--	cancel_delayed_work(&work);
--	flush_scheduled_work();
-+	cancel_delayed_work_sync(&work);
- 	input_unregister_device(hp680_ts_dev);
- }
+Best Regards,
+Mr. John Galvan
 

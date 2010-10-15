@@ -1,61 +1,44 @@
-From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 2/3] Support enable Acer Launch Manager mode
-Date: Fri, 15 Oct 2010 02:02:01 -0600
-Message-ID: <4CB8A5290200002300021E79@novprvlin0050.provo.novell.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [stable] [PATCH 0/2] HID: hidraw, fix two NULL pointer
+ dereferences
+Date: Fri, 15 Oct 2010 11:10:27 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010151109400.6879@pobox.suse.cz>
+References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz> <1286292017-6746-1-git-send-email-ospite@studenti.unina.it> <20101005174200.GB29937@kroah.com> <20101005221619.88904313.ospite@studenti.unina.it> <alpine.LNX.2.00.1010061130430.29535@pobox.suse.cz>
+ <20101015094436.50ab68f3.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
+Received: from cantor2.suse.de ([195.135.220.15]:41594 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754364Ab0JOJK3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Oct 2010 05:10:29 -0400
+In-Reply-To: <20101015094436.50ab68f3.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: corentin.chary@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.name>, stable@kernel.org, Alan Ott <alan@signal11.us>
 
-Hi Dmitry,=20
+On Fri, 15 Oct 2010, Antonio Ospite wrote:
 
-=E6=96=BC =E4=B8=89=EF=BC=8C2010-10-13 =E6=96=BC 11:26 -0700=EF=BC=8CDm=
-itry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
-> On Wed, Oct 13, 2010 at 11:47:41AM +0800, Lee, Chun-Yi wrote:
-> > Add a launch_manager parameter for support to enable Acer Launch Ma=
-nager
-> > mode. After enable it, the communication key will stop the default
-> > behavior to control WLAN/Bluetooth/WWAN rfkill state. It leave user=
-nland
-> > application to handle the rfkill state changed.
-> >=20
->=20
-> Why would user chose one setup over another? I.e do we really need a
-> module option or maybe we should pick up behavior and stick to it?
->=20
+> > > > > here are some fixes to hidraw.
+> > > > > 
+> > > > > Patches are against 2.6.36-rc6, but they should be ported to other
+> > > > > maintained stable kernels as well.
+> [...]
+> > 
+> > I have added the 'Cc:' markings now and applied both patches, thanks.
+> > 
+> 
+> Jiri, these are not in 2.6.36-rc8, any chance we can make it for 2.6.36?
 
-When Acer notebook ship with Windows, they will preload a userland
-application, the name is Launch Manager, it provide a GUI for end user
-to change WLAN/BT/3G on/off state.
+Hi Antonio,
 
-So, Acer wmi method have this function to provide the userland
-application can call it to disable the default EC behavior in wifi
-hotkey. After disable the hotkey's default behavior, it will only send
-out wmi event when user press wifi key and doesn't touch any WLAN/BT/3G
-state.
+yes, it is in my queue. I am currently a bit overloaded with other things, 
+so as this is technically not a regression, it wasn't on very top of my 
+list. Stil, will be pushing it to Linus soon.
 
-If Linux distro provide userland application the features like Acer
-Launch Manager on Windows, then it can set the launch_manager to 1 to
-change the wifi hotkey behavior.
-Because the Launch Manager is userland application, so wmi driver only
-can provide the function for it to call and don't have any way can
-detect it from kernel module.
+Thanks,
 
-I thought it similar to disable rfkill_input by /dev/rfkill, the
-different is disable rfkill_input need use ioctl, but I put a module
-option in acer-wmi driver.
-
-
-Thank's a lot!
-Joey Lee
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

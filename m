@@ -1,7 +1,7 @@
 From: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/5] IR: extend ir_raw_event and do refactoring
-Date: Fri, 15 Oct 2010 18:06:36 +0200
-Message-ID: <1287158799-21486-3-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 1/5] IR: extend and sort the MCE keymap
+Date: Fri, 15 Oct 2010 18:06:35 +0200
+Message-ID: <1287158799-21486-2-git-send-email-maximlevitsky@gmail.com>
 References: <1287158799-21486-1-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,596 +20,153 @@ To: lirc-list-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 Cc: mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Add new event types for timeout & carrier report
-Move timeout handling from ir_raw_event_store_with_filter to
-ir-lirc-codec, where it is really needed.
-Now lirc bridge ensures proper gap handling.
-Extend lirc bridge for carrier & timeout reports
+Add new keys, found on:
 
-Note: all new ir_raw_event variables now should be initialized
-like that: DEFINE_IR_RAW_EVENT(ev);
+Toshiba Qosmio F50-10q.
+Toshiba Qosmio X300
+Toshiba A500-141
 
-To clean an existing event, use init_ir_raw_event(&ev);
+Also sort the keytable by scancode number as that makes sense
+and alows easily to add new keycodes.
+
+Thanks to:
+Sami R <maesesami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Alexander Skiba <ghostlyrics-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Jordi Pelegrin <pelegrin.jordi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+For reports and testing.
 
 Signed-off-by: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Acked-by: Jarod Wilson <jarod-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/media/IR/ene_ir.c          |    4 +-
- drivers/media/IR/ir-core-priv.h    |   13 ++++-
- drivers/media/IR/ir-jvc-decoder.c  |    5 +-
- drivers/media/IR/ir-lirc-codec.c   |  128 +++++++++++++++++++++++++-----------
- drivers/media/IR/ir-nec-decoder.c  |    5 +-
- drivers/media/IR/ir-raw-event.c    |   45 +++++--------
- drivers/media/IR/ir-rc5-decoder.c  |    5 +-
- drivers/media/IR/ir-rc6-decoder.c  |    5 +-
- drivers/media/IR/ir-sony-decoder.c |    5 +-
- drivers/media/IR/mceusb.c          |    3 +-
- drivers/media/IR/streamzap.c       |    8 ++-
- include/media/ir-core.h            |   40 ++++++++++--
- 12 files changed, 176 insertions(+), 90 deletions(-)
+ drivers/media/IR/keymaps/rc-rc6-mce.c |   88 +++++++++++++++++----------------
+ 1 files changed, 45 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/media/IR/ene_ir.c b/drivers/media/IR/ene_ir.c
-index 7880d9c..dc32509 100644
---- a/drivers/media/IR/ene_ir.c
-+++ b/drivers/media/IR/ene_ir.c
-@@ -701,7 +701,7 @@ static irqreturn_t ene_isr(int irq, void *data)
- 	unsigned long flags;
- 	irqreturn_t retval = IRQ_NONE;
- 	struct ene_device *dev = (struct ene_device *)data;
--	struct ir_raw_event ev;
-+	DEFINE_IR_RAW_EVENT(ev);
+diff --git a/drivers/media/IR/keymaps/rc-rc6-mce.c b/drivers/media/IR/keymaps/rc-rc6-mce.c
+index 39557ad..1b7adab 100644
+--- a/drivers/media/IR/keymaps/rc-rc6-mce.c
++++ b/drivers/media/IR/keymaps/rc-rc6-mce.c
+@@ -12,76 +12,78 @@
+ #include <media/rc-map.h>
  
- 	spin_lock_irqsave(&dev->hw_lock, flags);
+ static struct ir_scancode rc6_mce[] = {
+-	{ 0x800f0415, KEY_REWIND },
+-	{ 0x800f0414, KEY_FASTFORWARD },
+-	{ 0x800f041b, KEY_PREVIOUS },
+-	{ 0x800f041a, KEY_NEXT },
  
-@@ -904,7 +904,7 @@ static int ene_set_learning_mode(void *data, int enable)
- }
- 
- /* outside interface: enable or disable idle mode */
--static void ene_rx_set_idle(void *data, int idle)
-+static void ene_rx_set_idle(void *data, bool idle)
- {
- 	struct ene_device *dev = (struct ene_device *)data;
- 
-diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
-index 5d7e08f..2559e72 100644
---- a/drivers/media/IR/ir-core-priv.h
-+++ b/drivers/media/IR/ir-core-priv.h
-@@ -82,6 +82,12 @@ struct ir_raw_event_ctrl {
- 		struct ir_input_dev *ir_dev;
- 		struct lirc_driver *drv;
- 		int carrier_low;
++	{ 0x800f0400, KEY_NUMERIC_0 },
++	{ 0x800f0401, KEY_NUMERIC_1 },
++	{ 0x800f0402, KEY_NUMERIC_2 },
++	{ 0x800f0403, KEY_NUMERIC_3 },
++	{ 0x800f0404, KEY_NUMERIC_4 },
++	{ 0x800f0405, KEY_NUMERIC_5 },
++	{ 0x800f0406, KEY_NUMERIC_6 },
++	{ 0x800f0407, KEY_NUMERIC_7 },
++	{ 0x800f0408, KEY_NUMERIC_8 },
++	{ 0x800f0409, KEY_NUMERIC_9 },
 +
-+		ktime_t gap_start;
-+		u64 gap_duration;
-+		bool gap;
-+		bool send_timeout_reports;
++	{ 0x800f040a, KEY_DELETE },
++	{ 0x800f040b, KEY_ENTER },
++	{ 0x800f040c, KEY_POWER },
++	{ 0x800f040d, KEY_PROG1 }, 		/* Windows MCE button */
++	{ 0x800f040e, KEY_MUTE },
++	{ 0x800f040f, KEY_INFO },
 +
- 	} lirc;
++	{ 0x800f0410, KEY_VOLUMEUP },
++	{ 0x800f0411, KEY_VOLUMEDOWN },
++	{ 0x800f0412, KEY_CHANNELUP },
++	{ 0x800f0413, KEY_CHANNELDOWN },
++
++	{ 0x800f0414, KEY_FASTFORWARD },
++	{ 0x800f0415, KEY_REWIND },
+ 	{ 0x800f0416, KEY_PLAY },
++	{ 0x800f0417, KEY_RECORD },
+ 	{ 0x800f0418, KEY_PAUSE },
+ 	{ 0x800f046e, KEY_PLAYPAUSE },
+ 	{ 0x800f0419, KEY_STOP },
+-	{ 0x800f0417, KEY_RECORD },
++	{ 0x800f041a, KEY_NEXT },
++	{ 0x800f041b, KEY_PREVIOUS },
++	{ 0x800f041c, KEY_NUMERIC_POUND },
++	{ 0x800f041d, KEY_NUMERIC_STAR },
+ 
+ 	{ 0x800f041e, KEY_UP },
+ 	{ 0x800f041f, KEY_DOWN },
+ 	{ 0x800f0420, KEY_LEFT },
+ 	{ 0x800f0421, KEY_RIGHT },
+ 
+-	{ 0x800f040b, KEY_ENTER },
+ 	{ 0x800f0422, KEY_OK },
+ 	{ 0x800f0423, KEY_EXIT },
+-	{ 0x800f040a, KEY_DELETE },
++	{ 0x800f0424, KEY_DVD },
++	{ 0x800f0425, KEY_TUNER }, 		/* LiveTV */
++	{ 0x800f0426, KEY_EPG }, 		/* Guide */
++	{ 0x800f0427, KEY_ZOOM }, 		/* Aspect */
+ 
+-	{ 0x800f040e, KEY_MUTE },
+-	{ 0x800f0410, KEY_VOLUMEUP },
+-	{ 0x800f0411, KEY_VOLUMEDOWN },
+-	{ 0x800f0412, KEY_CHANNELUP },
+-	{ 0x800f0413, KEY_CHANNELDOWN },
+ 	{ 0x800f043a, KEY_BRIGHTNESSUP },
+-	{ 0x800f0480, KEY_BRIGHTNESSDOWN },
+-
+-	{ 0x800f0401, KEY_NUMERIC_1 },
+-	{ 0x800f0402, KEY_NUMERIC_2 },
+-	{ 0x800f0403, KEY_NUMERIC_3 },
+-	{ 0x800f0404, KEY_NUMERIC_4 },
+-	{ 0x800f0405, KEY_NUMERIC_5 },
+-	{ 0x800f0406, KEY_NUMERIC_6 },
+-	{ 0x800f0407, KEY_NUMERIC_7 },
+-	{ 0x800f0408, KEY_NUMERIC_8 },
+-	{ 0x800f0409, KEY_NUMERIC_9 },
+-	{ 0x800f0400, KEY_NUMERIC_0 },
+-
+-	{ 0x800f041d, KEY_NUMERIC_STAR },
+-	{ 0x800f041c, KEY_NUMERIC_POUND },
+ 
+ 	{ 0x800f0446, KEY_TV },
+-	{ 0x800f0447, KEY_AUDIO }, /* My Music */
+-	{ 0x800f0448, KEY_PVR }, /* RecordedTV */
++	{ 0x800f0447, KEY_AUDIO }, 		/* My Music */
++	{ 0x800f0448, KEY_PVR }, 		/* RecordedTV */
+ 	{ 0x800f0449, KEY_CAMERA },
+ 	{ 0x800f044a, KEY_VIDEO },
+-	{ 0x800f0424, KEY_DVD },
+-	{ 0x800f0425, KEY_TUNER }, /* LiveTV */
+-	{ 0x800f0450, KEY_RADIO },
+-
+ 	{ 0x800f044c, KEY_LANGUAGE },
+-	{ 0x800f0427, KEY_ZOOM }, /* Aspect */
++	{ 0x800f044d, KEY_TITLE },
++	{ 0x800f044e, KEY_PRINT }, 	/* Print - HP OEM version of remote */
+ 
++	{ 0x800f0450, KEY_RADIO },
++
++	{ 0x800f045a, KEY_SUBTITLE }, 		/* Caption/Teletext */
+ 	{ 0x800f045b, KEY_RED },
+ 	{ 0x800f045c, KEY_GREEN },
+ 	{ 0x800f045d, KEY_YELLOW },
+ 	{ 0x800f045e, KEY_BLUE },
+ 
+-	{ 0x800f040f, KEY_INFO },
+-	{ 0x800f0426, KEY_EPG }, /* Guide */
+-	{ 0x800f045a, KEY_SUBTITLE }, /* Caption/Teletext */
+-	{ 0x800f044d, KEY_TITLE },
+-
+-       { 0x800f044e, KEY_PRINT }, /* Print - HP OEM version of remote */
+-
+-	{ 0x800f040c, KEY_POWER },
+-	{ 0x800f040d, KEY_PROG1 }, /* Windows MCE button */
++	{ 0x800f046e, KEY_PLAYPAUSE },
++	{ 0x800f046f, KEY_MEDIA }, 	/* Start media application (NEW) */
+ 
++	{ 0x800f0480, KEY_BRIGHTNESSDOWN },
++	{ 0x800f0481, KEY_PLAYPAUSE },
  };
  
-@@ -109,9 +115,14 @@ static inline void decrease_duration(struct ir_raw_event *ev, unsigned duration)
- 		ev->duration -= duration;
- }
- 
-+/* Returns true if event is normal pulse/space event */
-+static inline bool is_timing_event(struct ir_raw_event ev)
-+{
-+	return !ev.carrier_report && !ev.reset;
-+}
-+
- #define TO_US(duration)			DIV_ROUND_CLOSEST((duration), 1000)
- #define TO_STR(is_pulse)		((is_pulse) ? "pulse" : "space")
--#define IS_RESET(ev)			(ev.duration == 0)
- /*
-  * Routines from ir-sysfs.c - Meant to be called only internally inside
-  * ir-core
-diff --git a/drivers/media/IR/ir-jvc-decoder.c b/drivers/media/IR/ir-jvc-decoder.c
-index 77a89c4..63dca6e 100644
---- a/drivers/media/IR/ir-jvc-decoder.c
-+++ b/drivers/media/IR/ir-jvc-decoder.c
-@@ -50,8 +50,9 @@ static int ir_jvc_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_JVC))
- 		return 0;
- 
--	if (IS_RESET(ev)) {
--		data->state = STATE_INACTIVE;
-+	if (!is_timing_event(ev)) {
-+		if (ev.reset)
-+			data->state = STATE_INACTIVE;
- 		return 0;
- 	}
- 
-diff --git a/drivers/media/IR/ir-lirc-codec.c b/drivers/media/IR/ir-lirc-codec.c
-index e63f757..9317be8 100644
---- a/drivers/media/IR/ir-lirc-codec.c
-+++ b/drivers/media/IR/ir-lirc-codec.c
-@@ -32,6 +32,7 @@
- static int ir_lirc_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- {
- 	struct ir_input_dev *ir_dev = input_get_drvdata(input_dev);
-+	struct lirc_codec *lirc = &ir_dev->raw->lirc;
- 	int sample;
- 
- 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_LIRC))
-@@ -40,21 +41,57 @@ static int ir_lirc_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- 	if (!ir_dev->raw->lirc.drv || !ir_dev->raw->lirc.drv->rbuf)
- 		return -EINVAL;
- 
--	if (IS_RESET(ev))
-+	/* Packet start */
-+	if (ev.reset)
- 		return 0;
- 
--	IR_dprintk(2, "LIRC data transfer started (%uus %s)\n",
--		   TO_US(ev.duration), TO_STR(ev.pulse));
-+	/* Carrier reports */
-+	if (ev.carrier_report) {
-+		sample = LIRC_FREQUENCY(ev.carrier);
-+
-+	/* Packet end */
-+	} else if (ev.timeout) {
-+
-+		if (lirc->gap)
-+			return 0;
-+
-+		lirc->gap_start = ktime_get();
-+		lirc->gap = true;
-+		lirc->gap_duration = ev.duration;
-+
-+		if (!lirc->send_timeout_reports)
-+			return 0;
-+
-+		sample = LIRC_TIMEOUT(ev.duration / 1000);
- 
--	sample = ev.duration / 1000;
--	if (ev.pulse)
--		sample |= PULSE_BIT;
-+	/* Normal sample */
-+	} else {
-+
-+		if (lirc->gap) {
-+			int gap_sample;
-+
-+			lirc->gap_duration += ktime_to_ns(ktime_sub(ktime_get(),
-+				lirc->gap_start));
-+
-+			/* Convert to ms and cap by LIRC_VALUE_MASK */
-+			do_div(lirc->gap_duration, 1000);
-+			lirc->gap_duration = min(lirc->gap_duration,
-+							(u64)LIRC_VALUE_MASK);
-+
-+			gap_sample = LIRC_SPACE(lirc->gap_duration);
-+			lirc_buffer_write(ir_dev->raw->lirc.drv->rbuf,
-+						(unsigned char *) &gap_sample);
-+			lirc->gap = false;
-+		}
-+
-+		sample = ev.pulse ? LIRC_PULSE(ev.duration / 1000) :
-+					LIRC_SPACE(ev.duration / 1000);
-+	}
- 
- 	lirc_buffer_write(ir_dev->raw->lirc.drv->rbuf,
- 			  (unsigned char *) &sample);
- 	wake_up(&ir_dev->raw->lirc.drv->rbuf->wait_poll);
- 
--
- 	return 0;
- }
- 
-@@ -102,7 +139,7 @@ static long ir_lirc_ioctl(struct file *filep, unsigned int cmd,
- 	struct ir_input_dev *ir_dev;
- 	int ret = 0;
- 	void *drv_data;
--	unsigned long val = 0;
-+	u32 tmp, val = 0;
- 
- 	lirc = lirc_get_pdata(filep);
- 	if (!lirc)
-@@ -130,22 +167,20 @@ static long ir_lirc_ioctl(struct file *filep, unsigned int cmd,
- 	case LIRC_SET_SEND_MODE:
- 		if (val != (LIRC_MODE_PULSE & LIRC_CAN_SEND_MASK))
- 			return -EINVAL;
--		break;
-+		return 0;
- 
- 	/* TX settings */
- 	case LIRC_SET_TRANSMITTER_MASK:
--		if (ir_dev->props->s_tx_mask)
--			ret = ir_dev->props->s_tx_mask(drv_data, (u32)val);
--		else
-+		if (!ir_dev->props->s_tx_mask)
- 			return -EINVAL;
--		break;
-+
-+		return ir_dev->props->s_tx_mask(drv_data, (u32)val);
- 
- 	case LIRC_SET_SEND_CARRIER:
--		if (ir_dev->props->s_tx_carrier)
--			ir_dev->props->s_tx_carrier(drv_data, (u32)val);
--		else
-+		if (!ir_dev->props->s_tx_carrier)
- 			return -EINVAL;
--		break;
-+
-+		return ir_dev->props->s_tx_carrier(drv_data, (u32)val);
- 
- 	case LIRC_SET_SEND_DUTY_CYCLE:
- 		if (!ir_dev->props->s_tx_duty_cycle)
-@@ -154,39 +189,42 @@ static long ir_lirc_ioctl(struct file *filep, unsigned int cmd,
- 		if (val <= 0 || val >= 100)
- 			return -EINVAL;
- 
--		ir_dev->props->s_tx_duty_cycle(ir_dev->props->priv, val);
--		break;
-+		return ir_dev->props->s_tx_duty_cycle(drv_data, val);
- 
- 	/* RX settings */
- 	case LIRC_SET_REC_CARRIER:
--		if (ir_dev->props->s_rx_carrier_range)
--			ret = ir_dev->props->s_rx_carrier_range(
--				ir_dev->props->priv,
--				ir_dev->raw->lirc.carrier_low, val);
--		else
-+		if (!ir_dev->props->s_rx_carrier_range)
- 			return -ENOSYS;
- 
--		if (!ret)
--			ir_dev->raw->lirc.carrier_low = 0;
--		break;
-+		if (val <= 0)
-+			return -EINVAL;
-+
-+		return ir_dev->props->s_rx_carrier_range(drv_data,
-+			ir_dev->raw->lirc.carrier_low, val);
- 
- 	case LIRC_SET_REC_CARRIER_RANGE:
--		if (val >= 0)
--			ir_dev->raw->lirc.carrier_low = val;
--		break;
-+		if (val <= 0)
-+			return -EINVAL;
- 
-+		ir_dev->raw->lirc.carrier_low = val;
-+		return 0;
- 
- 	case LIRC_GET_REC_RESOLUTION:
- 		val = ir_dev->props->rx_resolution;
- 		break;
- 
- 	case LIRC_SET_WIDEBAND_RECEIVER:
--		if (ir_dev->props->s_learning_mode)
--			return ir_dev->props->s_learning_mode(
--				ir_dev->props->priv, !!val);
--		else
-+		if (!ir_dev->props->s_learning_mode)
- 			return -ENOSYS;
- 
-+		return ir_dev->props->s_learning_mode(drv_data, !!val);
-+
-+	case LIRC_SET_MEASURE_CARRIER_MODE:
-+		if (!ir_dev->props->s_carrier_report)
-+			return -ENOSYS;
-+
-+		return ir_dev->props->s_carrier_report(drv_data, !!val);
-+
- 	/* Generic timeout support */
- 	case LIRC_GET_MIN_TIMEOUT:
- 		if (!ir_dev->props->max_timeout)
-@@ -201,10 +239,20 @@ static long ir_lirc_ioctl(struct file *filep, unsigned int cmd,
- 		break;
- 
- 	case LIRC_SET_REC_TIMEOUT:
--		if (val < ir_dev->props->min_timeout ||
--		    val > ir_dev->props->max_timeout)
--			return -EINVAL;
--		ir_dev->props->timeout = val * 1000;
-+		if (!ir_dev->props->max_timeout)
-+			return -ENOSYS;
-+
-+		tmp = val * 1000;
-+
-+		if (tmp < ir_dev->props->min_timeout ||
-+			tmp > ir_dev->props->max_timeout)
-+				return -EINVAL;
-+
-+		ir_dev->props->timeout = tmp;
-+		break;
-+
-+	case LIRC_SET_REC_TIMEOUT_REPORTS:
-+		lirc->send_timeout_reports = !!val;
- 		break;
- 
- 	default:
-@@ -277,6 +325,10 @@ static int ir_lirc_register(struct input_dev *input_dev)
- 	if (ir_dev->props->s_learning_mode)
- 		features |= LIRC_CAN_USE_WIDEBAND_RECEIVER;
- 
-+	if (ir_dev->props->s_carrier_report)
-+		features |= LIRC_CAN_MEASURE_CARRIER;
-+
-+
- 	if (ir_dev->props->max_timeout)
- 		features |= LIRC_CAN_SET_REC_TIMEOUT;
- 
-diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
-index d597421..70993f7 100644
---- a/drivers/media/IR/ir-nec-decoder.c
-+++ b/drivers/media/IR/ir-nec-decoder.c
-@@ -54,8 +54,9 @@ static int ir_nec_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_NEC))
- 		return 0;
- 
--	if (IS_RESET(ev)) {
--		data->state = STATE_INACTIVE;
-+	if (!is_timing_event(ev)) {
-+		if (ev.reset)
-+			data->state = STATE_INACTIVE;
- 		return 0;
- 	}
- 
-diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
-index 119b567..0d59ef7 100644
---- a/drivers/media/IR/ir-raw-event.c
-+++ b/drivers/media/IR/ir-raw-event.c
-@@ -174,7 +174,7 @@ int ir_raw_event_store_with_filter(struct input_dev *input_dev,
- 	if (ir->idle && !ev->pulse)
- 		return 0;
- 	else if (ir->idle)
--		ir_raw_event_set_idle(input_dev, 0);
-+		ir_raw_event_set_idle(input_dev, false);
- 
- 	if (!raw->this_ev.duration) {
- 		raw->this_ev = *ev;
-@@ -187,48 +187,35 @@ int ir_raw_event_store_with_filter(struct input_dev *input_dev,
- 
- 	/* Enter idle mode if nessesary */
- 	if (!ev->pulse && ir->props->timeout &&
--		raw->this_ev.duration >= ir->props->timeout)
--		ir_raw_event_set_idle(input_dev, 1);
-+		raw->this_ev.duration >= ir->props->timeout) {
-+		ir_raw_event_set_idle(input_dev, true);
-+	}
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(ir_raw_event_store_with_filter);
- 
--void ir_raw_event_set_idle(struct input_dev *input_dev, int idle)
-+/**
-+ * ir_raw_event_set_idle() - hint the ir core if device is receiving
-+ * IR data or not
-+ * @input_dev: the struct input_dev device descriptor
-+ * @idle: the hint value
-+ */
-+void ir_raw_event_set_idle(struct input_dev *input_dev, bool idle)
- {
- 	struct ir_input_dev *ir = input_get_drvdata(input_dev);
- 	struct ir_raw_event_ctrl *raw = ir->raw;
--	ktime_t now;
--	u64 delta;
- 
--	if (!ir->props)
-+	if (!ir->props || !ir->raw)
- 		return;
- 
--	if (!ir->raw)
--		goto out;
-+	IR_dprintk(2, "%s idle mode\n", idle ? "enter" : "leave");
- 
- 	if (idle) {
--		IR_dprintk(2, "enter idle mode\n");
--		raw->last_event = ktime_get();
--	} else {
--		IR_dprintk(2, "exit idle mode\n");
--
--		now = ktime_get();
--		delta = ktime_to_ns(ktime_sub(now, ir->raw->last_event));
--
--		WARN_ON(raw->this_ev.pulse);
--
--		raw->this_ev.duration =
--			min(raw->this_ev.duration + delta,
--						(u64)IR_MAX_DURATION);
--
-+		raw->this_ev.timeout = true;
- 		ir_raw_event_store(input_dev, &raw->this_ev);
--
--		if (raw->this_ev.duration == IR_MAX_DURATION)
--			ir_raw_event_reset(input_dev);
--
--		raw->this_ev.duration = 0;
-+		init_ir_raw_event(&raw->this_ev);
- 	}
--out:
-+
- 	if (ir->props->s_idle)
- 		ir->props->s_idle(ir->props->priv, idle);
- 	ir->idle = idle;
-diff --git a/drivers/media/IR/ir-rc5-decoder.c b/drivers/media/IR/ir-rc5-decoder.c
-index df4770d..572ed4c 100644
---- a/drivers/media/IR/ir-rc5-decoder.c
-+++ b/drivers/media/IR/ir-rc5-decoder.c
-@@ -55,8 +55,9 @@ static int ir_rc5_decode(struct input_dev *input_dev, struct ir_raw_event ev)
-         if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC5))
-                 return 0;
- 
--	if (IS_RESET(ev)) {
--		data->state = STATE_INACTIVE;
-+	if (!is_timing_event(ev)) {
-+		if (ev.reset)
-+			data->state = STATE_INACTIVE;
- 		return 0;
- 	}
- 
-diff --git a/drivers/media/IR/ir-rc6-decoder.c b/drivers/media/IR/ir-rc6-decoder.c
-index f1624b8..d25da91 100644
---- a/drivers/media/IR/ir-rc6-decoder.c
-+++ b/drivers/media/IR/ir-rc6-decoder.c
-@@ -85,8 +85,9 @@ static int ir_rc6_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC6))
- 		return 0;
- 
--	if (IS_RESET(ev)) {
--		data->state = STATE_INACTIVE;
-+	if (!is_timing_event(ev)) {
-+		if (ev.reset)
-+			data->state = STATE_INACTIVE;
- 		return 0;
- 	}
- 
-diff --git a/drivers/media/IR/ir-sony-decoder.c b/drivers/media/IR/ir-sony-decoder.c
-index b9074f0..2d15730 100644
---- a/drivers/media/IR/ir-sony-decoder.c
-+++ b/drivers/media/IR/ir-sony-decoder.c
-@@ -48,8 +48,9 @@ static int ir_sony_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_SONY))
- 		return 0;
- 
--	if (IS_RESET(ev)) {
--		data->state = STATE_INACTIVE;
-+	if (!is_timing_event(ev)) {
-+		if (ev.reset)
-+			data->state = STATE_INACTIVE;
- 		return 0;
- 	}
- 
-diff --git a/drivers/media/IR/mceusb.c b/drivers/media/IR/mceusb.c
-index bc620e1..6825da5 100644
---- a/drivers/media/IR/mceusb.c
-+++ b/drivers/media/IR/mceusb.c
-@@ -660,7 +660,7 @@ static int mceusb_set_tx_carrier(void *priv, u32 carrier)
- 
- static void mceusb_process_ir_data(struct mceusb_dev *ir, int buf_len)
- {
--	struct ir_raw_event rawir = { .pulse = false, .duration = 0 };
-+	DEFINE_IR_RAW_EVENT(rawir);
- 	int i, start_index = 0;
- 	u8 hdr = MCE_CONTROL_HEADER;
- 
-@@ -997,6 +997,7 @@ static int __devinit mceusb_dev_probe(struct usb_interface *intf,
- 	ir->len_in = maxp;
- 	ir->flags.microsoft_gen1 = is_microsoft_gen1;
- 	ir->flags.tx_mask_inverted = tx_mask_inverted;
-+	init_ir_raw_event(&ir->rawir);
- 
- 	/* Saving usb interface data for use by the transmitter routine */
- 	ir->usb_ep_in = ep_in;
-diff --git a/drivers/media/IR/streamzap.c b/drivers/media/IR/streamzap.c
-index 058e29f..18be3d5 100644
---- a/drivers/media/IR/streamzap.c
-+++ b/drivers/media/IR/streamzap.c
-@@ -170,7 +170,7 @@ static void streamzap_flush_timeout(unsigned long arg)
- static void streamzap_delay_timeout(unsigned long arg)
- {
- 	struct streamzap_ir *sz = (struct streamzap_ir *)arg;
--	struct ir_raw_event rawir = { .pulse = false, .duration = 0 };
-+	DEFINE_IR_RAW_EVENT(rawir);
- 	unsigned long flags;
- 	int len, ret;
- 	static unsigned long delay;
-@@ -215,7 +215,7 @@ static void streamzap_delay_timeout(unsigned long arg)
- 
- static void streamzap_flush_delay_buffer(struct streamzap_ir *sz)
- {
--	struct ir_raw_event rawir = { .pulse = false, .duration = 0 };
-+	DEFINE_IR_RAW_EVENT(rawir);
- 	bool wake = false;
- 	int ret;
- 
-@@ -233,7 +233,7 @@ static void streamzap_flush_delay_buffer(struct streamzap_ir *sz)
- 
- static void sz_push(struct streamzap_ir *sz)
- {
--	struct ir_raw_event rawir = { .pulse = false, .duration = 0 };
-+	DEFINE_IR_RAW_EVENT(rawir);
- 	unsigned long flags;
- 	int ret;
- 
-@@ -512,6 +512,8 @@ static int __devinit streamzap_probe(struct usb_interface *intf,
- 	if (!sz)
- 		return -ENOMEM;
- 
-+	init_ir_raw_event(&sz->rawir);
-+
- 	sz->usbdev = usbdev;
- 	sz->interface = intf;
- 
-diff --git a/include/media/ir-core.h b/include/media/ir-core.h
-index eb7fddf..d88ce2b 100644
---- a/include/media/ir-core.h
-+++ b/include/media/ir-core.h
-@@ -60,6 +60,7 @@ enum rc_driver_type {
-  * @s_idle: optional: enable/disable hardware idle mode, upon which,
- 	device doesn't interrupt host until it sees IR pulses
-  * @s_learning_mode: enable wide band receiver used for learning
-+ * @s_carrier_report: enable carrier reports
-  */
- struct ir_dev_props {
- 	enum rc_driver_type	driver_type;
-@@ -82,8 +83,9 @@ struct ir_dev_props {
- 	int			(*s_tx_duty_cycle)(void *priv, u32 duty_cycle);
- 	int			(*s_rx_carrier_range)(void *priv, u32 min, u32 max);
- 	int			(*tx_ir)(void *priv, int *txbuf, u32 n);
--	void			(*s_idle)(void *priv, int enable);
-+	void			(*s_idle)(void *priv, bool enable);
- 	int			(*s_learning_mode)(void *priv, int enable);
-+	int			(*s_carrier_report) (void *priv, int enable);
- };
- 
- struct ir_input_dev {
-@@ -162,22 +164,48 @@ u32 ir_g_keycode_from_table(struct input_dev *input_dev, u32 scancode);
- /* From ir-raw-event.c */
- 
- struct ir_raw_event {
--	unsigned                        pulse:1;
--	unsigned                        duration:31;
-+	union {
-+		u32             duration;
-+
-+		struct {
-+			u32     carrier;
-+			u8      duty_cycle;
-+		};
-+	};
-+
-+	unsigned                pulse:1;
-+	unsigned                reset:1;
-+	unsigned                timeout:1;
-+	unsigned                carrier_report:1;
- };
- 
--#define IR_MAX_DURATION                 0x7FFFFFFF      /* a bit more than 2 seconds */
-+#define DEFINE_IR_RAW_EVENT(event) \
-+	struct ir_raw_event event = { \
-+		{ .duration = 0 } , \
-+		.pulse = 0, \
-+		.reset = 0, \
-+		.timeout = 0, \
-+		.carrier_report = 0 }
-+
-+static inline void init_ir_raw_event(struct ir_raw_event *ev)
-+{
-+	memset(ev, 0, sizeof(*ev));
-+}
-+
-+#define IR_MAX_DURATION         0xFFFFFFFF      /* a bit more than 4 seconds */
- 
- void ir_raw_event_handle(struct input_dev *input_dev);
- int ir_raw_event_store(struct input_dev *input_dev, struct ir_raw_event *ev);
- int ir_raw_event_store_edge(struct input_dev *input_dev, enum raw_event_type type);
- int ir_raw_event_store_with_filter(struct input_dev *input_dev,
- 				struct ir_raw_event *ev);
--void ir_raw_event_set_idle(struct input_dev *input_dev, int idle);
-+void ir_raw_event_set_idle(struct input_dev *input_dev, bool idle);
- 
- static inline void ir_raw_event_reset(struct input_dev *input_dev)
- {
--	struct ir_raw_event ev = { .pulse = false, .duration = 0 };
-+	DEFINE_IR_RAW_EVENT(ev);
-+	ev.reset = true;
-+
- 	ir_raw_event_store(input_dev, &ev);
- 	ir_raw_event_handle(input_dev);
- }
+ static struct rc_keymap rc6_mce_map = {
 -- 
 1.7.1
 

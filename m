@@ -1,44 +1,44 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH 0/8 V6] Many fixes for in-kernel decoding and for the
- ENE driver
-Date: Fri, 15 Oct 2010 12:27:09 -0300
-Message-ID: <4CB872CD.4050700@infradead.org>
-References: <1287155273-16171-1-git-send-email-maximlevitsky@gmail.com>
+From: Sundar <sunder.svit@gmail.com>
+Subject: Re: [linux-pm] [RFC] input: syfs switches for SKE keypad
+Date: Fri, 15 Oct 2010 21:34:53 +0530
+Message-ID: <AANLkTin=nbO-bciv14o4PRQSizpCKyf-+e8xo3fdMu+P@mail.gmail.com>
+References: <Pine.LNX.4.44L0.1010140946030.1645-100000@iolanthe.rowland.org>
+	<201010142100.58496.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:60782 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755083Ab0JOP1m (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:36499 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756048Ab0JOQEy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Oct 2010 11:27:42 -0400
-In-Reply-To: <1287155273-16171-1-git-send-email-maximlevitsky@gmail.com>
+	Fri, 15 Oct 2010 12:04:54 -0400
+Received: by iwn35 with SMTP id 35so1056946iwn.19
+        for <linux-input@vger.kernel.org>; Fri, 15 Oct 2010 09:04:54 -0700 (PDT)
+In-Reply-To: <201010142100.58496.rjw@sisk.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jayeeta BANDYOPADHYAY <jayeeta.banerjee@stericsson.com>, Sundar R IYER <sundar.iyer@stericsson.com>
 
-Em 15-10-2010 12:07, Maxim Levitsky escreveu:
-> Hi,
-> 
-> This is mostly a resend of my patches, although
-> I fixed few bugs in the ENE code.
-> This exact patchset was tested against ENE devices with all
-> features tested.
+On Fri, Oct 15, 2010 at 12:30 AM, Rafael J. Wysocki <rjw@sisk.pl> wrote=
+:
+>>
+>> There could be a new attribute file, or we could use a blank line
+>> written to autosuspend_delay_ms for this purpose. =A0Either way, the
+>> result would be to call pm_runtime_suspend. =A0If the device is idle=
+,
+>> merely awaiting the timer expiration for a scheduled suspend or
+>> autosuspend, this would cause it to suspend immediately.
+>
 
-I've applied most of the patches from your original series.
+I personally think the blank line method is fine :). But yes, if we get
+to hear something more from the Meego guys, then it would be more
+better to fit everyone in.
 
-The pending ones are:
-
-Sep, 6 2010: [7/8] IR: extend ir_raw_event and do refactoring                       lmml_159431_7_8_ir_extend_ir_raw_event_and_do_refactoring.patch        Maxim Levitsky <maximlevitsky@gmail.com>
-Sep, 6 2010: [8/8] IR: ene_ir: add support for carrier reports                      lmml_159451_8_8_ir_ene_ir_add_support_for_carrier_reports.patch        Maxim Levitsky <maximlevitsky@gmail.com>
-
-So, this series as-is will probably not apply anymore.
-
-Could you please rebase it against staging/v2.6.37? 
-
-I'll mark the two above as superseed and wait for your update.
-
-Thanks,
-Mauro
+Cheers!
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

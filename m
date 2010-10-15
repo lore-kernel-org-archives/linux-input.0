@@ -1,7 +1,7 @@
 From: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 3/5] IR: ene_ir: few bugfixes
-Date: Fri, 15 Oct 2010 18:06:37 +0200
-Message-ID: <1287158799-21486-4-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 4/5] IR: ene_ir: add support for carrier reports
+Date: Fri, 15 Oct 2010 18:06:38 +0200
+Message-ID: <1287158799-21486-5-git-send-email-maximlevitsky@gmail.com>
 References: <1287158799-21486-1-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,120 +20,92 @@ To: lirc-list-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 Cc: mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This is a result of last round of debug with
-Sami R <maesesami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>.
-
-Thank you Sami very much!
-
-The biggest bug I fixed is that,
-I was clobbering the CIRCFG register after it is setup
-That wasn't a good idea really
-
-And some small refactoring, etc.
-
 Signed-off-by: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/media/IR/ene_ir.c |   43 ++++++++++++++++++++-----------------------
- 1 files changed, 20 insertions(+), 23 deletions(-)
+ drivers/media/IR/ene_ir.c |   37 +++++++++++++++++++++++++++++--------
+ 1 files changed, 29 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/media/IR/ene_ir.c b/drivers/media/IR/ene_ir.c
-index dc32509..8639621 100644
+index 8639621..1962652 100644
 --- a/drivers/media/IR/ene_ir.c
 +++ b/drivers/media/IR/ene_ir.c
-@@ -156,11 +156,12 @@ static int ene_hw_detect(struct ene_device *dev)
- 
- 	ene_notice("Firmware regs: %02x %02x", fw_reg1, fw_reg2);
- 
--	dev->hw_use_gpio_0a = fw_reg2 & ENE_FW2_GP0A;
--	dev->hw_learning_and_tx_capable = fw_reg2 & ENE_FW2_LEARNING;
--	dev->hw_extra_buffer = fw_reg1 & ENE_FW1_HAS_EXTRA_BUF;
--	dev->hw_fan_input = dev->hw_learning_and_tx_capable &&
--	    (fw_reg2 & ENE_FW2_FAN_INPUT);
-+	dev->hw_use_gpio_0a = !!(fw_reg2 & ENE_FW2_GP0A);
-+	dev->hw_learning_and_tx_capable = !!(fw_reg2 & ENE_FW2_LEARNING);
-+	dev->hw_extra_buffer = !!(fw_reg1 & ENE_FW1_HAS_EXTRA_BUF);
+@@ -193,10 +193,11 @@ static int ene_hw_detect(struct ene_device *dev)
+ /* Sense current received carrier */
+ void ene_rx_sense_carrier(struct ene_device *dev)
+ {
++	DEFINE_IR_RAW_EVENT(ev);
 +
-+	if (dev->hw_learning_and_tx_capable)
-+		dev->hw_fan_input = !!(fw_reg2 & ENE_FW2_FAN_INPUT);
- 
- 	ene_notice("Hardware features:");
- 
-@@ -255,6 +256,8 @@ static void ene_rx_setup(struct ene_device *dev)
- 					dev->carrier_detect_enabled;
- 	int sample_period_adjust = 0;
- 
-+	/* This selects RLC input and clears CFG2 settings */
-+	ene_write_reg(dev, ENE_CIRCFG2, 0x00);
- 
- 	/* set sample period*/
- 	if (sample_period == ENE_DEFAULT_SAMPLE_PERIOD)
-@@ -268,7 +271,9 @@ static void ene_rx_setup(struct ene_device *dev)
- 	if (dev->hw_revision < ENE_HW_C)
- 		goto select_timeout;
- 
--	if (learning_mode && dev->hw_learning_and_tx_capable) {
-+	if (learning_mode) {
-+
-+		WARN_ON(!dev->hw_learning_and_tx_capable);
- 
- 		/* Enable the opposite of the normal input
- 		That means that if GPIO40 is normally used, use GPIO0A
-@@ -282,6 +287,7 @@ static void ene_rx_setup(struct ene_device *dev)
- 		ene_set_reg_mask(dev, ENE_CIRCFG, ENE_CIRCFG_CARR_DEMOD);
- 
- 		/* Enable carrier detection */
-+		ene_write_reg(dev, ENE_CIRCAR_PULS, 0x63);
- 		ene_set_clear_reg_mask(dev, ENE_CIRCFG2, ENE_CIRCFG2_CARR_DETECT,
- 			dev->carrier_detect_enabled || debug);
- 	} else {
-@@ -343,19 +349,9 @@ static void ene_rx_enable(struct ene_device *dev)
- 		ene_write_reg(dev, ENE_IRQ, reg_value);
- 	}
- 
--	if (dev->hw_revision >= ENE_HW_C)
--		ene_write_reg(dev, ENE_CIRCAR_PULS, 0x63);
++	int carrier, duty_cycle;
+ 	int period = ene_read_reg(dev, ENE_CIRCAR_PRD);
+ 	int hperiod = ene_read_reg(dev, ENE_CIRCAR_HPRD);
+-	int carrier, duty_cycle;
 -
--	/* Enable the inputs */
--	ene_write_reg(dev, ENE_CIRCFG2, 0x00);
--
--	if (dev->rx_fan_input_inuse) {
--		ene_enable_cir_engine(dev, false);
--		ene_enable_fan_input(dev, true);
--	} else {
--		ene_enable_cir_engine(dev, true);
--		ene_enable_fan_input(dev, false);
--	}
-+	/* Enable inputs */
-+	ene_enable_fan_input(dev, dev->rx_fan_input_inuse);
-+	ene_enable_cir_engine(dev, !dev->rx_fan_input_inuse);
  
- 	/* ack any pending irqs - just in case */
- 	ene_irq_status(dev);
-@@ -793,12 +789,10 @@ static void ene_setup_settings(struct ene_device *dev)
- 	dev->tx_period = 32;
- 	dev->tx_duty_cycle = 50; /*%*/
- 	dev->transmitter_mask = 0x03;
--
--	dev->learning_enabled =
--		(learning_mode && dev->hw_learning_and_tx_capable);
-+	dev->learning_enabled = learning_mode;
+ 	if (!(period & ENE_CIRCAR_PRD_VALID))
+ 		return;
+@@ -209,13 +210,16 @@ void ene_rx_sense_carrier(struct ene_device *dev)
+ 	dbg("RX: hardware carrier period = %02x", period);
+ 	dbg("RX: hardware carrier pulse period = %02x", hperiod);
  
- 	/* Set reasonable default timeout */
--	dev->props->timeout = MS_TO_NS(15000);
-+	dev->props->timeout = MS_TO_NS(150000);
+-
+ 	carrier = 2000000 / period;
+ 	duty_cycle = (hperiod * 100) / period;
+ 	dbg("RX: sensed carrier = %d Hz, duty cycle %d%%",
+-							carrier, duty_cycle);
+-
+-	/* TODO: Send carrier & duty cycle to IR layer */
++						carrier, duty_cycle);
++	if (dev->carrier_detect_enabled) {
++		ev.carrier_report = true;
++		ev.carrier = carrier;
++		ev.duty_cycle = duty_cycle;
++		ir_raw_event_store(dev->idev, &ev);
++	}
  }
  
- /* outside interface: called on first open*/
-@@ -1015,6 +1009,9 @@ static int ene_probe(struct pnp_dev *pnp_dev, const struct pnp_device_id *id)
- 		ene_warn("Simulation of TX activated");
+ /* this enables/disables the CIR RX engine */
+@@ -724,7 +728,7 @@ static irqreturn_t ene_isr(int irq, void *data)
+ 
+ 	dbg_verbose("RX interrupt");
+ 
+-	if (dev->carrier_detect_enabled || debug)
++	if (dev->hw_learning_and_tx_capable)
+ 		ene_rx_sense_carrier(dev);
+ 
+ 	/* On hardware that don't support extra buffer we need to trust
+@@ -897,6 +901,23 @@ static int ene_set_learning_mode(void *data, int enable)
+ 	return 0;
+ }
+ 
++static int ene_set_carrier_report(void *data, int enable)
++{
++	struct ene_device *dev = (struct ene_device *)data;
++	unsigned long flags;
++
++	if (enable == dev->carrier_detect_enabled)
++		return 0;
++
++	spin_lock_irqsave(&dev->hw_lock, flags);
++	dev->carrier_detect_enabled = enable;
++	ene_rx_disable(dev);
++	ene_rx_setup(dev);
++	ene_rx_enable(dev);
++	spin_unlock_irqrestore(&dev->hw_lock, flags);
++	return 0;
++}
++
+ /* outside interface: enable or disable idle mode */
+ static void ene_rx_set_idle(void *data, bool idle)
+ {
+@@ -1029,7 +1050,7 @@ static int ene_probe(struct pnp_dev *pnp_dev, const struct pnp_device_id *id)
+ 		ir_props->s_tx_mask = ene_set_tx_mask;
+ 		ir_props->s_tx_carrier = ene_set_tx_carrier;
+ 		ir_props->s_tx_duty_cycle = ene_set_tx_duty_cycle;
+-		/* ir_props->s_carrier_report = ene_set_carrier_report; */
++		ir_props->s_carrier_report = ene_set_carrier_report;
  	}
  
-+	if (!dev->hw_learning_and_tx_capable)
-+		learning_mode = false;
-+
- 	ir_props->driver_type = RC_DRIVER_IR_RAW;
- 	ir_props->allowed_protos = IR_TYPE_ALL;
- 	ir_props->priv = dev;
+ 	ene_setup_hw_buffer(dev);
 -- 
 1.7.1
 

@@ -1,106 +1,71 @@
-From: Jason Wang <jason77.wang@gmail.com>
-Subject: Re: [PATCH 4/4] Input: ads7846 - modificatons of _stop()/_disable()
- conditions
-Date: Fri, 15 Oct 2010 10:29:52 +0800
-Message-ID: <4CB7BCA0.1080604@gmail.com>
-References: <1284634286-8871-1-git-send-email-jason77.wang@gmail.com>	<1284634286-8871-4-git-send-email-jason77.wang@gmail.com>	<1284634286-8871-5-git-send-email-jason77.wang@gmail.com>	<201009162339.06395.dmitry.torokhov@gmail.com>	<4C9332CE.6040905@gmail.com>	<20100917160709.GC14186@core.coreip.homeip.net>	<4C9718E9.5040104@gmail.com>	<4CB4314C.7050308@gmail.com>	<20101012160055.GA6355@core.coreip.homeip.net>	<4CB523B7.8010209@gmail.com>	<AANLkTi=0b-q3LK3-4mgdpSP7pScVSF1ZWzD45bLoAmJO@mail.gmail.com>	<4CB66777.5060309@gmail.com> <AANLkTimRqaFkNkRzubY4-Gx=y0yJ_C1VFycL0+uEa_Wm@mail.gmail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [stable] [PATCH 0/2] HID: hidraw, fix two NULL pointer
+ dereferences
+Date: Fri, 15 Oct 2010 09:44:36 +0200
+Message-ID: <20101015094436.50ab68f3.ospite@studenti.unina.it>
+References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz>
+	<1286292017-6746-1-git-send-email-ospite@studenti.unina.it>
+	<20101005174200.GB29937@kroah.com>
+	<20101005221619.88904313.ospite@studenti.unina.it>
+	<alpine.LNX.2.00.1010061130430.29535@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <AANLkTimRqaFkNkRzubY4-Gx=y0yJ_C1VFycL0+uEa_Wm@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Grazvydas Ignotas <notasas@gmail.com>
-Cc: Jason Wang <jason77.wang@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, vapier@gentoo.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, grant.likely@secretlab.ca, roman.tereshonkov@nokia.com
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__15_Oct_2010_09_44_36_+0200_dCY07T44pNUJwZwc"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp207.alice.it ([82.57.200.103]:56435 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751058Ab0JOHpS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Oct 2010 03:45:18 -0400
+In-Reply-To: <alpine.LNX.2.00.1010061130430.29535@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.name>, stable@kernel.org, Alan Ott <alan@signal11.us>
 
-Grazvydas Ignotas wrote:
-> On Thu, Oct 14, 2010 at 5:14 AM, Jason Wang <jason77.wang@gmail.com> wrote:
->   
->> Grazvydas Ignotas wrote:
->>     
->>> Working here on pandora too, applied on top of linux-next (did not
->>> test suspend though).
->>>
->>> Not caused by this patch, but the old problem where lower measurement
->>> bits get lost is back - when I draw diagonal line it looks like
->>> stairs. I think it's caused by OMAP SPI driver, CCing linux-omap.
->>>
->>>
->>>       
->> Yes, it is OMAP spi driver issues, I have met the same problem before,
->> please refer to:
->> http://www.spinics.net/lists/arm-kernel/msg91538.html
->>
->> you can apply this patch and test again.
->>     
->
-> It solves my issue, thanks
-> Tested-by: Grazvydas Ignotas <notasas@gmail.com>
->
-> BTW I have done similar patch almost 2 years ago for exactly the same problem:
-> http://marc.info/?l=linux-omap&m=122565580616920&w=2
-> but then problem went away after random kernel update (from what I
-> remember), and my patch was no longer needed.
->
->   
-Really similar problem and similar solution, :-)
+--Signature=_Fri__15_Oct_2010_09_44_36_+0200_dCY07T44pNUJwZwc
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->   
->> From 393f445ab899abaf5d60a55a54f242c430507047 Mon Sep 17 00:00:00 2001
->> From: Jason Wang <jason77.wang@gmail.com>
->> Date: Thu, 14 Oct 2010 10:08:07 +0800
->> Subject: [PATCH] spi/omap2_mcspi: disable channel after TX_ONLY transfer in
->> PIO mode
->>
->> In TX_ONLY transfer, the SPI controller can also receive data
->> simultaneously and saves them in rx register. After the TX_ONLY
->> transfer, the rx register will hold random data received during
->> last tx transaction.
->>
->> If the next transfer is RX_ONLY, this random data has
->> the possibility to affect this transfer like this:
->>
->>  If the spi controller is changed from TX_ONLY to RX_ONLY mode,
->>  The random data makes the rx register full imediately and
->>  triggers a dummy write (in SPI RX_ONLY transfer, we need a dummy
->>  write to trigger the first transaction).
->>
->>  So the first data received in RX_ONLY transfer will be that
->>  random data instead of something meaningfug.
->>
->> We can avoid this by a Disable/reenable toggle of the spi channel
->> after the TX_ONLY transfer, since it purges the rx register.
->>
->> Signed-off-by: Jason Wang <jason77.wang@gmail.com>
->> ---
->> drivers/spi/omap2_mcspi.c |    6 ++++++
->> 1 files changed, 6 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/spi/omap2_mcspi.c b/drivers/spi/omap2_mcspi.c
->> index b3a94ca..43fab41 100644
->> --- a/drivers/spi/omap2_mcspi.c
->> +++ b/drivers/spi/omap2_mcspi.c
->> @@ -644,6 +644,12 @@ omap2_mcspi_txrx_pio(struct spi_device *spi, struct
->> spi_transfer *xfer)
->>               } else if (mcspi_wait_for_reg_bit(chstat_reg,
->>                               OMAP2_MCSPI_CHSTAT_EOT) < 0)
->>                       dev_err(&spi->dev, "EOT timed out\n");
->> +
->> +               /* disable chan to purge rx datas received in TX_ONLY
->> transfer,
->> +                * otherwise these rx datas will affect the direct following
->> +                * RX_ONLY transfer.
->> +                */
->> +               omap2_mcspi_set_enable(spi, 0);
->>       }
->> out:
->>       omap2_mcspi_set_enable(spi, 1);
->> --
->> 1.5.6.5
->>
->>
->>     
->
->   
+On Wed, 6 Oct 2010 11:31:55 +0200 (CEST)
+Jiri Kosina <jkosina@suse.cz> wrote:
 
+> On Tue, 5 Oct 2010, Antonio Ospite wrote:
+>=20
+> > > > here are some fixes to hidraw.
+> > > >=20
+> > > > Patches are against 2.6.36-rc6, but they should be ported to other
+> > > > maintained stable kernels as well.
+[...]
+>=20
+> I have added the 'Cc:' markings now and applied both patches, thanks.
+>=20
+
+Jiri, these are not in 2.6.36-rc8, any chance we can make it for 2.6.36?
+
+Thanks,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Fri__15_Oct_2010_09_44_36_+0200_dCY07T44pNUJwZwc
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAky4BmUACgkQ5xr2akVTsAHICgCeJM3vqM31uN/fB04hufuRFq0l
+SjMAnA7stpeoUMKAkU6a0/DFIAwj/O9U
+=01cY
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__15_Oct_2010_09_44_36_+0200_dCY07T44pNUJwZwc--

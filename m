@@ -1,44 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [stable] [PATCH 0/2] HID: hidraw, fix two NULL pointer
- dereferences
-Date: Fri, 15 Oct 2010 11:10:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1010151109400.6879@pobox.suse.cz>
-References: <alpine.LNX.2.00.1010041548580.29535@pobox.suse.cz> <1286292017-6746-1-git-send-email-ospite@studenti.unina.it> <20101005174200.GB29937@kroah.com> <20101005221619.88904313.ospite@studenti.unina.it> <alpine.LNX.2.00.1010061130430.29535@pobox.suse.cz>
- <20101015094436.50ab68f3.ospite@studenti.unina.it>
+From: "WESTERN UNION TRANSFER" <coie@madrid.uned.es>
+Subject: (unknown)
+Date: Fri, 15 Oct 2010 11:14:18 +0200
+Message-ID: <8d95806059c38bd5f1fdab9d5a99a336.squirrel__15376.6966578134$1287134093$gmane$org@correo.uned.es>
+Reply-To: western-union.transfer02@w.cn
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41594 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754364Ab0JOJK3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Oct 2010 05:10:29 -0400
-In-Reply-To: <20101015094436.50ab68f3.ospite@studenti.unina.it>
+Received: from smtp-out-cinco.uned.es ([62.204.192.119]:23638 "EHLO
+	smtp-out-cinco.uned.es" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752728Ab0JOJOU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Oct 2010 05:14:20 -0400
+Subject: 
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.name>, stable@kernel.org, Alan Ott <alan@signal11.us>
 
-On Fri, 15 Oct 2010, Antonio Ospite wrote:
 
-> > > > > here are some fixes to hidraw.
-> > > > > 
-> > > > > Patches are against 2.6.36-rc6, but they should be ported to other
-> > > > > maintained stable kernels as well.
-> [...]
-> > 
-> > I have added the 'Cc:' markings now and applied both patches, thanks.
-> > 
-> 
-> Jiri, these are not in 2.6.36-rc8, any chance we can make it for 2.6.36?
 
-Hi Antonio,
-
-yes, it is in my queue. I am currently a bit overloaded with other things, 
-so as this is technically not a regression, it wasn't on very top of my 
-list. Stil, will be pushing it to Linus soon.
-
-Thanks,
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+My working partner has helped me to send your
+first payment of US$7,500 to you as
+instructed by Mr. David Cameron and will
+keep sending you US$7,500 twice a week until
+the payment of (US$360,000) is completed
+within six months and here is the information
+below:
+
+MONEY TRANSFER CONTROL NUMBER (MTCN):
+291-371-8010
+
+SENDER'S NAME:Solomon Daniel
+AMOUNT: US$7,500
+
+To track your funds forward Western Union
+Money Transfer agent your Full Names and
+Mobile Number via Email to:
+
+Mr Gary Moore
+E-mail:western-union.transfer02@w.cn
+D/L: +447024044997
+
+Please direct all enquiring to:
+western-union.transfer02@w.cn
+
+Best Regards,
+Mr Gary Moore.
+
+
+
+

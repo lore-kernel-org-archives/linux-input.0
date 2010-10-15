@@ -1,7 +1,7 @@
 From: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 6/7] IR: ene_ir: add support for carrier reports
-Date: Fri, 15 Oct 2010 17:07:52 +0200
-Message-ID: <1287155273-16171-7-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 1/7] IR: plug races in IR raw thread.
+Date: Fri, 15 Oct 2010 17:07:47 +0200
+Message-ID: <1287155273-16171-2-git-send-email-maximlevitsky@gmail.com>
 References: <1287155273-16171-1-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,92 +20,110 @@ To: lirc-list-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 Cc: mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/media/IR/ene_ir.c |   37 +++++++++++++++++++++++++++++--------
- 1 files changed, 29 insertions(+), 8 deletions(-)
+Unfortunelly (my fault) the kernel thread that now handles IR processing
+has classical races in regard to wakeup and stop.
+This patch hopefully closes them all.
+Tested with module reload running in a loop, while receiver is blasted
+with IR data for 10 minutes.
 
-diff --git a/drivers/media/IR/ene_ir.c b/drivers/media/IR/ene_ir.c
-index 8639621..1962652 100644
---- a/drivers/media/IR/ene_ir.c
-+++ b/drivers/media/IR/ene_ir.c
-@@ -193,10 +193,11 @@ static int ene_hw_detect(struct ene_device *dev)
- /* Sense current received carrier */
- void ene_rx_sense_carrier(struct ene_device *dev)
- {
-+	DEFINE_IR_RAW_EVENT(ev);
+Signed-off-by: Maxim Levitsky <maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Jarod Wilson <jarod-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/media/IR/ir-core-priv.h |    2 ++
+ drivers/media/IR/ir-raw-event.c |   34 +++++++++++++++++++++++++---------
+ 2 files changed, 27 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
+index a85a8c7..761e7f4 100644
+--- a/drivers/media/IR/ir-core-priv.h
++++ b/drivers/media/IR/ir-core-priv.h
+@@ -17,6 +17,7 @@
+ #define _IR_RAW_EVENT
+ 
+ #include <linux/slab.h>
++#include <linux/spinlock.h>
+ #include <media/ir-core.h>
+ 
+ struct ir_raw_handler {
+@@ -33,6 +34,7 @@ struct ir_raw_handler {
+ struct ir_raw_event_ctrl {
+ 	struct list_head		list;		/* to keep track of raw clients */
+ 	struct task_struct		*thread;
++	spinlock_t			lock;
+ 	struct kfifo			kfifo;		/* fifo for the pulse/space durations */
+ 	ktime_t				last_event;	/* when last event occurred */
+ 	enum raw_event_type		last_type;	/* last event type */
+diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
+index 8e0e1b1..119b567 100644
+--- a/drivers/media/IR/ir-raw-event.c
++++ b/drivers/media/IR/ir-raw-event.c
+@@ -39,22 +39,34 @@ static int ir_raw_event_thread(void *data)
+ 	struct ir_raw_event ev;
+ 	struct ir_raw_handler *handler;
+ 	struct ir_raw_event_ctrl *raw = (struct ir_raw_event_ctrl *)data;
++	int retval;
+ 
+ 	while (!kthread_should_stop()) {
+-		try_to_freeze();
+ 
+-		mutex_lock(&ir_raw_handler_lock);
++		spin_lock_irq(&raw->lock);
++		retval = kfifo_out(&raw->kfifo, &ev, sizeof(ev));
 +
-+	int carrier, duty_cycle;
- 	int period = ene_read_reg(dev, ENE_CIRCAR_PRD);
- 	int hperiod = ene_read_reg(dev, ENE_CIRCAR_HPRD);
--	int carrier, duty_cycle;
--
++		if (!retval) {
++			set_current_state(TASK_INTERRUPTIBLE);
  
- 	if (!(period & ENE_CIRCAR_PRD_VALID))
- 		return;
-@@ -209,13 +210,16 @@ void ene_rx_sense_carrier(struct ene_device *dev)
- 	dbg("RX: hardware carrier period = %02x", period);
- 	dbg("RX: hardware carrier pulse period = %02x", hperiod);
- 
--
- 	carrier = 2000000 / period;
- 	duty_cycle = (hperiod * 100) / period;
- 	dbg("RX: sensed carrier = %d Hz, duty cycle %d%%",
--							carrier, duty_cycle);
--
--	/* TODO: Send carrier & duty cycle to IR layer */
-+						carrier, duty_cycle);
-+	if (dev->carrier_detect_enabled) {
-+		ev.carrier_report = true;
-+		ev.carrier = carrier;
-+		ev.duty_cycle = duty_cycle;
-+		ir_raw_event_store(dev->idev, &ev);
-+	}
- }
- 
- /* this enables/disables the CIR RX engine */
-@@ -724,7 +728,7 @@ static irqreturn_t ene_isr(int irq, void *data)
- 
- 	dbg_verbose("RX interrupt");
- 
--	if (dev->carrier_detect_enabled || debug)
-+	if (dev->hw_learning_and_tx_capable)
- 		ene_rx_sense_carrier(dev);
- 
- 	/* On hardware that don't support extra buffer we need to trust
-@@ -897,6 +901,23 @@ static int ene_set_learning_mode(void *data, int enable)
- 	return 0;
- }
- 
-+static int ene_set_carrier_report(void *data, int enable)
-+{
-+	struct ene_device *dev = (struct ene_device *)data;
-+	unsigned long flags;
+-		while (kfifo_out(&raw->kfifo, &ev, sizeof(ev)) == sizeof(ev)) {
+-			list_for_each_entry(handler, &ir_raw_handler_list, list)
+-				handler->decode(raw->input_dev, ev);
+-			raw->prev_ev = ev;
++			if (kthread_should_stop())
++				set_current_state(TASK_RUNNING);
 +
-+	if (enable == dev->carrier_detect_enabled)
-+		return 0;
++			spin_unlock_irq(&raw->lock);
++			schedule();
++			continue;
+ 		}
+ 
+-		mutex_unlock(&ir_raw_handler_lock);
++		spin_unlock_irq(&raw->lock);
+ 
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		schedule();
 +
-+	spin_lock_irqsave(&dev->hw_lock, flags);
-+	dev->carrier_detect_enabled = enable;
-+	ene_rx_disable(dev);
-+	ene_rx_setup(dev);
-+	ene_rx_enable(dev);
-+	spin_unlock_irqrestore(&dev->hw_lock, flags);
-+	return 0;
-+}
++		BUG_ON(retval != sizeof(ev));
 +
- /* outside interface: enable or disable idle mode */
- static void ene_rx_set_idle(void *data, bool idle)
- {
-@@ -1029,7 +1050,7 @@ static int ene_probe(struct pnp_dev *pnp_dev, const struct pnp_device_id *id)
- 		ir_props->s_tx_mask = ene_set_tx_mask;
- 		ir_props->s_tx_carrier = ene_set_tx_carrier;
- 		ir_props->s_tx_duty_cycle = ene_set_tx_duty_cycle;
--		/* ir_props->s_carrier_report = ene_set_carrier_report; */
-+		ir_props->s_carrier_report = ene_set_carrier_report;
++		mutex_lock(&ir_raw_handler_lock);
++		list_for_each_entry(handler, &ir_raw_handler_list, list)
++			handler->decode(raw->input_dev, ev);
++		raw->prev_ev = ev;
++		mutex_unlock(&ir_raw_handler_lock);
  	}
  
- 	ene_setup_hw_buffer(dev);
+ 	return 0;
+@@ -232,11 +244,14 @@ EXPORT_SYMBOL_GPL(ir_raw_event_set_idle);
+ void ir_raw_event_handle(struct input_dev *input_dev)
+ {
+ 	struct ir_input_dev *ir = input_get_drvdata(input_dev);
++	unsigned long flags;
+ 
+ 	if (!ir->raw)
+ 		return;
+ 
++	spin_lock_irqsave(&ir->raw->lock, flags);
+ 	wake_up_process(ir->raw->thread);
++	spin_unlock_irqrestore(&ir->raw->lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(ir_raw_event_handle);
+ 
+@@ -275,6 +290,7 @@ int ir_raw_event_register(struct input_dev *input_dev)
+ 		return rc;
+ 	}
+ 
++	spin_lock_init(&ir->raw->lock);
+ 	ir->raw->thread = kthread_run(ir_raw_event_thread, ir->raw,
+ 			"rc%u",  (unsigned int)ir->devno);
+ 
 -- 
 1.7.1
 

@@ -1,66 +1,54 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 3/5] IR: ene_ir: few bugfixes
-Date: Fri, 15 Oct 2010 17:00:02 -0400
-Message-ID: <20101015210002.GP9658@redhat.com>
-References: <1287158799-21486-1-git-send-email-maximlevitsky@gmail.com>
- <1287158799-21486-4-git-send-email-maximlevitsky@gmail.com>
- <20101015200212.GK9658@redhat.com>
- <1287174295.1867.1.camel@MAIN>
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [Device-drivers-devel] [PATCH 3/3] Input: touchscreen: ad7877
+ filter events where pressure is beyond the maximum
+Date: Fri, 15 Oct 2010 21:51:12 -0400
+Message-ID: <AANLkTimg2Uv26dcU7noSGCX7SHOn2+p6-LH_q=h9NtWc@mail.gmail.com>
+References: <1287139250-24777-1-git-send-email-michael.hennerich@analog.com> <1287139250-24777-3-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1287174295.1867.1.camel@MAIN>
-Sender: linux-media-owner@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:59634 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752348Ab0JPBve convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Oct 2010 21:51:34 -0400
+Received: by wyb28 with SMTP id 28so1240686wyb.19
+        for <linux-input@vger.kernel.org>; Fri, 15 Oct 2010 18:51:33 -0700 (PDT)
+In-Reply-To: <1287139250-24777-3-git-send-email-michael.hennerich@analog.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: michael.hennerich@analog.com
+Cc: dmitry.torokhov@gmail.com, drivers@analog.com, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-On Fri, Oct 15, 2010 at 10:24:55PM +0200, Maxim Levitsky wrote:
-> On Fri, 2010-10-15 at 16:02 -0400, Jarod Wilson wrote:
-> > On Fri, Oct 15, 2010 at 06:06:37PM +0200, Maxim Levitsky wrote:
-> > > This is a result of last round of debug with
-> > > Sami R <maesesami@gmail.com>.
-> > > 
-> > > Thank you Sami very much!
-> > > 
-> > > The biggest bug I fixed is that,
-> > > I was clobbering the CIRCFG register after it is setup
-> > > That wasn't a good idea really
-> > > 
-> > > And some small refactoring, etc.
-> > > 
-> > > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> > > ---
-> > >  drivers/media/IR/ene_ir.c |   43 ++++++++++++++++++++-----------------------
-> > >  1 files changed, 20 insertions(+), 23 deletions(-)
-> > > 
-> > > diff --git a/drivers/media/IR/ene_ir.c b/drivers/media/IR/ene_ir.c
-> > > index dc32509..8639621 100644
-> > > --- a/drivers/media/IR/ene_ir.c
-> > > +++ b/drivers/media/IR/ene_ir.c
-> > ...
-> > > @@ -282,6 +287,7 @@ static void ene_rx_setup(struct ene_device *dev)
-> > >  		ene_set_reg_mask(dev, ENE_CIRCFG, ENE_CIRCFG_CARR_DEMOD);
-> > >  
-> > >  		/* Enable carrier detection */
-> > > +		ene_write_reg(dev, ENE_CIRCAR_PULS, 0x63);
-> > 
-> > Looks sane, though I'd prefer to see symbolic bit names or some such thing
-> > here instead of 0x63. Not something to hold up the patch though.
-> > 
-> > Acked-by: Jarod Wilson <jarod@redhat.com>
-> > 
-> 63 isn't a bitfileld, but rather two numbers.
-> 3 is number of carrier pulses to skip, and 6 is number of carrier pulses
-> to average.
-> 
-> I have a note about that in header.
+On Fri, Oct 15, 2010 at 06:40,  <michael.hennerich@analog.com> wrote:
+> Suppress events where pressure > pressure_max.
+> These events come typically along with inaccurate X and Y samples.
 
-Ah, so you do. Apologies then. Personally, I'd probably document that next
-to the 0x63 as well, just so readers who neglect to go find the register
-define and discover the comment there don't think the same as me. ;)
+were you going to commit to the blackfin tree ?
 
--- 
-Jarod Wilson
-jarod@redhat.com
+> --- a/drivers/input/touchscreen/ad7877.c
+> +++ b/drivers/input/touchscreen/ad7877.c
+> @@ -360,6 +360,13 @@ static int ad7877_rx(struct ad7877 *ts)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0Rt /=3D z1;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0Rt =3D (Rt + 2=
+047) >> 12;
+>
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /*
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* Sample fou=
+nd inconsistent, pressure is beyond
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* the maximu=
+m. Don't report it to user space.
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (Rt > ts->press=
+ure_max)
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 return -EINVAL;
+
+this has spaces in the middle of your tab indents ...
+-mike
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

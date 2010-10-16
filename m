@@ -1,54 +1,42 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [Device-drivers-devel] [PATCH 3/3] Input: touchscreen: ad7877
- filter events where pressure is beyond the maximum
-Date: Fri, 15 Oct 2010 21:51:12 -0400
-Message-ID: <AANLkTimg2Uv26dcU7noSGCX7SHOn2+p6-LH_q=h9NtWc@mail.gmail.com>
-References: <1287139250-24777-1-git-send-email-michael.hennerich@analog.com> <1287139250-24777-3-git-send-email-michael.hennerich@analog.com>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [PATCH 0/8 V7] Many fixes for in-kernel decoding and for the
+ ENE driver
+Date: Sat, 16 Oct 2010 00:23:58 -0300
+Message-ID: <4CB91ACE.6000806@infradead.org>
+References: <1287158799-21486-1-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:59634 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752348Ab0JPBve convert rfc822-to-8bit (ORCPT
+Received: from casper.infradead.org ([85.118.1.10]:59863 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752621Ab0JPDYJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Oct 2010 21:51:34 -0400
-Received: by wyb28 with SMTP id 28so1240686wyb.19
-        for <linux-input@vger.kernel.org>; Fri, 15 Oct 2010 18:51:33 -0700 (PDT)
-In-Reply-To: <1287139250-24777-3-git-send-email-michael.hennerich@analog.com>
+	Fri, 15 Oct 2010 23:24:09 -0400
+In-Reply-To: <1287158799-21486-1-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: michael.hennerich@analog.com
-Cc: dmitry.torokhov@gmail.com, drivers@analog.com, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Fri, Oct 15, 2010 at 06:40,  <michael.hennerich@analog.com> wrote:
-> Suppress events where pressure > pressure_max.
-> These events come typically along with inaccurate X and Y samples.
+Em 15-10-2010 13:06, Maxim Levitsky escreveu:
+> Hi,
+> 
+> This is a rebased version against the media_tree staging/v2.6.37
 
-were you going to commit to the blackfin tree ?
+Hmm.... patch 0 for a series of 8 patches...
+two patches 2 (seem identical)...
+and it ends with patch 4/5...
+something got deadly wrong with your numbering schema here...
 
-> --- a/drivers/input/touchscreen/ad7877.c
-> +++ b/drivers/input/touchscreen/ad7877.c
-> @@ -360,6 +360,13 @@ static int ad7877_rx(struct ad7877 *ts)
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0Rt /=3D z1;
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0Rt =3D (Rt + 2=
-047) >> 12;
->
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /*
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* Sample fou=
-nd inconsistent, pressure is beyond
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0* the maximu=
-m. Don't report it to user space.
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (Rt > ts->press=
-ure_max)
-> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 return -EINVAL;
+Well, if the patches look good to me, I'll apply what I have.
 
-this has spaces in the middle of your tab indents ...
--mike
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> Best regards,
+> 	Maxim Levitsky
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-media" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

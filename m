@@ -1,85 +1,106 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: [PATCH 2/5] IR: extend ir_raw_event and do refactoring
-Date: Sat, 16 Oct 2010 06:11:46 +0200
-Message-ID: <1287202306.5156.2.camel@maxim-laptop>
-References: <1287158799-21486-1-git-send-email-maximlevitsky@gmail.com>
-	 <1287158799-21486-3-git-send-email-maximlevitsky@gmail.com>
-	 <4CB91C05.3040904@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 2/3] IR: ene_ir: add support for carrier reports
+Date: Sun, 17 Oct 2010 00:56:29 +0200
+Message-ID: <1287269790-17605-3-git-send-email-maximlevitsky@gmail.com>
+References: <1287269790-17605-1-git-send-email-maximlevitsky@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:59800 "EHLO
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:43564 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750738Ab0JPEMd (ORCPT
+	with ESMTP id S1756602Ab0JPW4p (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Oct 2010 00:12:33 -0400
-In-Reply-To: <4CB91C05.3040904@infradead.org>
+	Sat, 16 Oct 2010 18:56:45 -0400
+In-Reply-To: <1287269790-17605-1-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: lirc-list@lists.sourceforge.net
+Cc: Jarod Wilson <jarod@wilsonet.com>, =?UTF-8?q?David=20H=C3=A4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>
 
-On Sat, 2010-10-16 at 00:29 -0300, Mauro Carvalho Chehab wrote:
-> Em 15-10-2010 13:06, Maxim Levitsky escreveu:
-> > Add new event types for timeout & carrier report
-> > Move timeout handling from ir_raw_event_store_with_filter to
-> > ir-lirc-codec, where it is really needed.
-> > Now lirc bridge ensures proper gap handling.
-> > Extend lirc bridge for carrier & timeout reports
-> > 
-> > Note: all new ir_raw_event variables now should be initialized
-> > like that: DEFINE_IR_RAW_EVENT(ev);
-> > 
-> > To clean an existing event, use init_ir_raw_event(&ev);
-> > 
-> > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> > Acked-by: Jarod Wilson <jarod@redhat.com>
-> 
-> 
-> Applying patch patches/lmml_257371_2_5_ir_extend_ir_raw_event_and_do_refactoring.patch
-> patching file drivers/media/IR/ene_ir.c
-> patching file drivers/media/IR/ir-core-priv.h
-> Hunk #1 succeeded at 88 (offset 6 lines).
-> Hunk #2 succeeded at 121 (offset 6 lines).
-> patching file drivers/media/IR/ir-jvc-decoder.c
-> patching file drivers/media/IR/ir-lirc-codec.c
-> Hunk #3 FAILED at 139.
-> Hunk #4 FAILED at 167.
-> Hunk #7 succeeded at 330 (offset 3 lines).
-> 2 out of 7 hunks FAILED -- rejects in file drivers/media/IR/ir-lirc-codec.c
-> patching file drivers/media/IR/ir-nec-decoder.c
-> patching file drivers/media/IR/ir-raw-event.c
-> patching file drivers/media/IR/ir-rc5-decoder.c
-> patching file drivers/media/IR/ir-rc6-decoder.c
-> patching file drivers/media/IR/ir-sony-decoder.c
-> patching file drivers/media/IR/mceusb.c
-> patching file drivers/media/IR/streamzap.c
-> Hunk #1 FAILED at 170.
-> Hunk #2 FAILED at 215.
-> Hunk #3 FAILED at 233.
-> Hunk #4 succeeded at 373 (offset -139 lines).
-> 3 out of 4 hunks FAILED -- rejects in file drivers/media/IR/streamzap.c
-> patching file include/media/ir-core.h
-> Hunk #3 succeeded at 165 (offset 1 line).
-> Patch patches/lmml_257371_2_5_ir_extend_ir_raw_event_and_do_refactoring.patch does not apply (enforce with -f)
-> Patch didn't apply. Aborting
-> 
-> Too much fails for me... -EABORTING...
-> 
-> I won't apply this patch... there are two copies of it, and it has several broken hunks.
-> 
-> 
-> Please fix.
+Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
+---
+ drivers/media/IR/ene_ir.c |   37 +++++++++++++++++++++++++++++--------
+ 1 files changed, 29 insertions(+), 8 deletions(-)
 
-Not surprising as v4l tree got many changes and that patch touches many
-places.
-
-Will redo that really against the media_tree :-)
-Sorry!
-
-Best regards,
-	Maxim Levitsky
-
-
+diff --git a/drivers/media/IR/ene_ir.c b/drivers/media/IR/ene_ir.c
+index 8639621..1962652 100644
+--- a/drivers/media/IR/ene_ir.c
++++ b/drivers/media/IR/ene_ir.c
+@@ -193,10 +193,11 @@ static int ene_hw_detect(struct ene_device *dev)
+ /* Sense current received carrier */
+ void ene_rx_sense_carrier(struct ene_device *dev)
+ {
++	DEFINE_IR_RAW_EVENT(ev);
++
++	int carrier, duty_cycle;
+ 	int period = ene_read_reg(dev, ENE_CIRCAR_PRD);
+ 	int hperiod = ene_read_reg(dev, ENE_CIRCAR_HPRD);
+-	int carrier, duty_cycle;
+-
+ 
+ 	if (!(period & ENE_CIRCAR_PRD_VALID))
+ 		return;
+@@ -209,13 +210,16 @@ void ene_rx_sense_carrier(struct ene_device *dev)
+ 	dbg("RX: hardware carrier period = %02x", period);
+ 	dbg("RX: hardware carrier pulse period = %02x", hperiod);
+ 
+-
+ 	carrier = 2000000 / period;
+ 	duty_cycle = (hperiod * 100) / period;
+ 	dbg("RX: sensed carrier = %d Hz, duty cycle %d%%",
+-							carrier, duty_cycle);
+-
+-	/* TODO: Send carrier & duty cycle to IR layer */
++						carrier, duty_cycle);
++	if (dev->carrier_detect_enabled) {
++		ev.carrier_report = true;
++		ev.carrier = carrier;
++		ev.duty_cycle = duty_cycle;
++		ir_raw_event_store(dev->idev, &ev);
++	}
+ }
+ 
+ /* this enables/disables the CIR RX engine */
+@@ -724,7 +728,7 @@ static irqreturn_t ene_isr(int irq, void *data)
+ 
+ 	dbg_verbose("RX interrupt");
+ 
+-	if (dev->carrier_detect_enabled || debug)
++	if (dev->hw_learning_and_tx_capable)
+ 		ene_rx_sense_carrier(dev);
+ 
+ 	/* On hardware that don't support extra buffer we need to trust
+@@ -897,6 +901,23 @@ static int ene_set_learning_mode(void *data, int enable)
+ 	return 0;
+ }
+ 
++static int ene_set_carrier_report(void *data, int enable)
++{
++	struct ene_device *dev = (struct ene_device *)data;
++	unsigned long flags;
++
++	if (enable == dev->carrier_detect_enabled)
++		return 0;
++
++	spin_lock_irqsave(&dev->hw_lock, flags);
++	dev->carrier_detect_enabled = enable;
++	ene_rx_disable(dev);
++	ene_rx_setup(dev);
++	ene_rx_enable(dev);
++	spin_unlock_irqrestore(&dev->hw_lock, flags);
++	return 0;
++}
++
+ /* outside interface: enable or disable idle mode */
+ static void ene_rx_set_idle(void *data, bool idle)
+ {
+@@ -1029,7 +1050,7 @@ static int ene_probe(struct pnp_dev *pnp_dev, const struct pnp_device_id *id)
+ 		ir_props->s_tx_mask = ene_set_tx_mask;
+ 		ir_props->s_tx_carrier = ene_set_tx_carrier;
+ 		ir_props->s_tx_duty_cycle = ene_set_tx_duty_cycle;
+-		/* ir_props->s_carrier_report = ene_set_carrier_report; */
++		ir_props->s_carrier_report = ene_set_carrier_report;
+ 	}
+ 
+ 	ene_setup_hw_buffer(dev);
+-- 
+1.7.1
 

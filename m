@@ -1,143 +1,369 @@
 From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 2/3] Support enable Acer Launch Manager mode
-Date: Sun, 17 Oct 2010 22:53:05 -0600
-Message-ID: <4CBC6D61020000230002205F@novprvlin0050.provo.novell.com>
+Subject: Re: [PATCH 3/3] Add 3G rfkill sysfs file
+Date: Sun, 17 Oct 2010 22:53:03 -0600
+Message-ID: <4CBC6D5F0200002300022059@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: corentin.chary@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: carlos@strangeworlds.co.uk
+Cc: corentin.chary@gmail.com, dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-Hi Dmitry,=20
+Hi Carlos,=20
 
-=E6=96=BC =E6=97=A5=EF=BC=8C2010-10-17 =E6=96=BC 21:07 -0700=EF=BC=8CDm=
-itry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
-> On Sun, Oct 17, 2010 at 08:32:22PM -0600, Joey Lee wrote:
-> > Hi Carios,=20
+=46irst, Thank's for your kindly review my patches.
+
+=E6=96=BC =E4=B8=89=EF=BC=8C2010-10-13 =E6=96=BC 07:42 +0100=EF=BC=8CCa=
+rlos Corbacho =E6=8F=90=E5=88=B0=EF=BC=9A
+> On Wednesday 13 October 2010 04:47:42 Lee, Chun-Yi wrote:
+> > Add 3G rfkill sysfs file for provide userland to control 3G device
+> > on/off by using WMI method.
 > >=20
-> > =E6=96=BC =E4=BA=94=EF=BC=8C2010-10-15 =E6=96=BC 18:11 +0100=EF=BC=8C=
-Carlos Corbacho =E6=8F=90=E5=88=B0=EF=BC=9A
-> > > On Friday 15 October 2010 09:02:01 Joey Lee wrote:
-> > > > > Why would user chose one setup over another? I.e do we really=
- need a
-> > > > > module option or maybe we should pick up behavior and stick t=
-o it?
-> > > >=20
-> > > > When Acer notebook ship with Windows, they will preload a userl=
-and
-> > > > application, the name is Launch Manager, it provide a GUI for e=
-nd user
-> > > > to change WLAN/BT/3G on/off state.
-> > >=20
-> > > [...]
-> > >=20
-> > > > Because the Launch Manager is userland application, so wmi driv=
-er only
-> > > > can provide the function for it to call and don't have any way =
-can
-> > > > detect it from kernel module.
-> > >=20
-> > > Dmitry's point is still valid - why do we want to provide the use=
-rspace=20
-> > > behaviour? Why not just handle it all in kernel using rfkill?
-> > >=20
+> > Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+> > ---
+> >  drivers/platform/x86/acer-wmi.c |  101
+> > ++++++++++++++++++++++++++++++++++++++- 1 files changed, 100
+> > insertions(+), 1 deletions(-)
+> >=20
+> > diff --git a/drivers/platform/x86/acer-wmi.c
+> > b/drivers/platform/x86/acer-wmi.c index a28a775..150e0e3 100644
+> > --- a/drivers/platform/x86/acer-wmi.c
+> > +++ b/drivers/platform/x86/acer-wmi.c
+> > @@ -136,6 +136,26 @@ struct lm_return_value {
+> >  } __attribute__((packed));
+> >=20
+> >  /*
+> > + * GUID3 Get Device Status device flags
+> > + */
+> > +#define ACER_WMID_GUID3_GDS_WIRELESS		(1<<0)	/* WiFi */
+> > +#define ACER_WMID_GUID3_GDS_THREEG		(1<<6)	/* 3G */
 >=20
-> Apparently networkign people is not quite happy with rfkill-input
-> behavior and would like to move policy from the kernel into userspace=
-=2E
-> To tell the truth rfkill-input was never supposed to be the main
-> mechanism but rather something that is usable at bootup and then the
-> control would be handed off to userspace (if more complex policy is
-> needed).
+> These two don't seem to be used?
 >=20
 
-Yes, currently, we use ioctl to disable the rfkill-input when our
-userland rfkill daemon enabled.
+OK, I will remove non-used define.
 
-http://www.mail-archive.com/devkit-devel@lists.freedesktop.org/msg00858=
-=2Ehtml
-
+> > +#define ACER_WMID_GUID3_GDS_BLUETOOTH		(1<<11)	/* BT */
+> > +
+> > +struct guid3_gds_input_param {	/* Get Device Status input paramete=
+r */
+> > +	u8 function_num;	/* Function Number */
+> > +	u8 hotkey_number;	/* Hotkey Number */
+> > +	u16 devices;		/* Get Device */
+> > +} __attribute__((packed));
+> > +
+> > +struct guid3_gds_return_value {	/* Get Device Status return value*=
+/
+> > +	u8 error_code;		/* Error Code */
+> > +	u8 ec_return_value;	/* EC Return Value */
+> > +	u16 devices;		/* Current Device Status */
+> > +	u32 reserved;
+> > +} __attribute__((packed));
+> > +
+> > +/*
+> >   * Interface capability flags
+> >   */
+> >  #define ACER_CAP_MAILLED		(1<<0)
+> > @@ -192,6 +212,7 @@ struct acer_debug {
 > >=20
-> > Did you mean put the wifi hotkey behavior to acer-wmi driver or any=
- x86
-> > laptop driver and implement by using rfkill?
+> >  static struct rfkill *wireless_rfkill;
+> >  static struct rfkill *bluetooth_rfkill;
+> > +static struct rfkill *threeg_rfkill;
 > >=20
-> > The wifi hotkey behavior is highly customization and different OEM =
-have
-> > different behavior. I am not sure put the wifi hotkey rule in kerne=
-l is
-> > a good idea.
+> >  /* Each low-level interface must define at least some of the follo=
+wing */
+> >  struct wmi_interface {
+> > @@ -1000,6 +1021,54 @@ static void acer_backlight_exit(void)
+> >  	backlight_device_unregister(acer_backlight_device);
+> >  }
+> >=20
+> > +static acpi_status acer_wmi_get_device_status(u32 *value, u16 devi=
+ce)
 >=20
-> OEMs have nothing to do with this, user is the entity that should be =
-in
-> control.
->=20
-> >=20
-> > In the future, there need have a userland rfkill policy daemon to
-> > replace the rfkill-input module in kernel:
-> >=20
-> > Documentation/rfkill.txt
-> > The rfkill-input will be:
-> >  * the deprecated rfkill-input module (an input layer handler, bein=
-g
-> >    replaced by userspace policy code) and
-> >=20
-> > And here have a statement in feature-removal-schedule.txt
-> > http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;=
-a=3Dcommitdiff;h=3Dc64fb01627e24725d1f9d535e4426475a4415753#patch1
-> >=20
-> > +What:  CONFIG_RFKILL_INPUT
-> > +When:  2.6.33
-> > +Why:   Should be implemented in userspace, policy daemon.
-> > +Who:   Johannes Berg <johannes@sipsolutions.net>
-> >=20
-> > So, we choice remove rfkill-input then put the logic in x86/platfor=
-m
-> > driver?
-> > A simple question:
-> > Userland policy daemon or kernel module, which one we want to put t=
-he
-> > wifi hotkey behavior implementation?
-> >=20
-> > > We don't have Launch Manager for Linux, and quite frankly, I hope=
- we never see=20
-> > > it - relying on random, vendor specific applications to drive thi=
-s kind of=20
-> > > functionality is just asking for trouble.
-> > >=20
-> >=20
-> > Acer BIOS team provide the function to OS for disable the EC hehavi=
-or,
-> > it's available on window, why we hide it on Linux?
-> > Either userland daemon or kernel module who want to implement the w=
-ifi
-> > hotkey behavior, it need enable the launch-manager mode to disable =
-the
-> > default EC behavior on wifi hotkey.
-> >=20
-> > If don't want provide the launch-manager mode parameter to userland=
-, can
-> > we just direct enable it?
-> >=20
->=20
-> I believe that we simply need to tell EC to keep its hands off RF
-> switch. As long as key is properly reported through input layer rfkil=
-l
-> should be able to control the RF equipment, either via rfkill-input
-> in-kernel shortcut or userspace daemon (when it is ready).
+> Can you rename this to something like WMID3? This name is just too ge=
+neric.
 >=20
 
-I agree EC don't need touch the RF switch by default, I will contact
-with them to discuss.
+No problem, I already change the name.
 
-But,=20
-Currently, the Acer BIOS already shipped to world wide, and BIOS guys
-give me tThat's why I contribute launch-manager mode patch to here.
+Please see my following modified patch.
+
+> > +{
+> > +	struct guid3_gds_return_value return_value;
+> > +	acpi_status status;
+> > +	union acpi_object *obj;
+> > +	struct guid3_gds_input_param params =3D {
+> > +		.function_num =3D 0x1,
+> > +		.hotkey_number =3D 0x01,
+> > +		.devices =3D device,
+> > +	};
+> > +	struct acpi_buffer input =3D {
+> > +		sizeof(struct guid3_gds_input_param),
+> > +		&params
+> > +	};
+> > +	struct acpi_buffer output =3D { ACPI_ALLOCATE_BUFFER, NULL };
+> > +
+> > +	status =3D wmi_evaluate_method(WMID_GUID3, 0, 0x2, &input, &outpu=
+t);
+> > +	if (ACPI_FAILURE(status))
+> > +		return status;
+> > +
+> > +	obj =3D output.pointer;
+> > +
+> > +	if (!obj)
+> > +		return -EINVAL;
+> > +	else if (obj->type !=3D ACPI_TYPE_BUFFER) {
+> > +		kfree(obj);
+> > +		return -EINVAL;
+> > +	}
+> > +	if (obj->buffer.length !=3D 8) {
+> > +		printk(ACER_WARNING "Unknown buffer length %d\n",
+> > +			obj->buffer.length);
+> > +		kfree(obj);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	return_value =3D *((struct guid3_gds_return_value *)obj->buffer.p=
+ointer);
+> > +	kfree(obj);
+> > +
+> > +	if (return_value.error_code || return_value.ec_return_value)
+> > +		printk(ACER_WARNING "Get Device Status failed: "
+> > +			"0x%x - 0x%x\n", return_value.error_code,
+> > +			return_value.ec_return_value);
+> > +	else
+> > +		*value =3D !!(return_value.devices & device);
+> > +
+> > +	return status;
+> > +}
+> > +
+> >  /*
+> >   * Rfkill devices
+> >   */
+> > @@ -1020,6 +1089,13 @@ static void acer_rfkill_update(struct work_s=
+truct
+> > *ignored) rfkill_set_sw_state(bluetooth_rfkill, !state);
+> >  	}
+> >=20
+> > +	if (has_cap(ACER_CAP_BLUETOOTH) && wmi_has_guid(WMID_GUID3)) {
+> > +		status =3D acer_wmi_get_device_status(&state,
+> > +				ACER_WMID_GUID3_GDS_THREEG);
+> > +		if (ACPI_SUCCESS(status))
+> > +			rfkill_set_sw_state(bluetooth_rfkill, !state);
+> > +	}
+> > +
+> >  	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(H=
+Z));
+> >  }
+> >=20
+> > @@ -1076,6 +1152,19 @@ static int acer_rfkill_init(struct device *d=
+ev)
+> >  		}
+> >  	}
+> >=20
+> > +	if (has_cap(ACER_CAP_THREEG)) {
+>=20
+> Have you figured out a way of detecting if 3G is available on the pla=
+tform? As=20
+> this still requires the user to pass in a module parameter to enable =
+it.
+>=20
+> (And enabling unconditionally won't work, as older machines don't eve=
+n have=20
+> the relevant WMI methods and just give nasty ACPI tracebacks).
+>=20
+
+Yes, we can check the WiFi/BT/3G devices exist or not by check a
+OEM-specific DMI Type, but I need time to implement and will submit one
+more patch to handle it.
 
 
 Thank's a lot!
 Joey Lee
+
+
+>From bcca16a24dbbf9160a31a1af7b47b8a939d497be Mon Sep 17 00:00:00 2001
+=46rom: Lee, Chun-Yi <jlee@novell.com>
+Date: Mon, 18 Oct 2010 12:14:47 +0800
+Subject: [PATCH 3/3] Add 3G rfkill sysfs file
+
+Add 3G rfkill sysfs file for provide userland to control 3G device
+on/off by using WMI method.
+
+Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+---
+ drivers/platform/x86/acer-wmi.c |   99
+++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 98 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/platform/x86/acer-wmi.c
+b/drivers/platform/x86/acer-wmi.c
+index 0e233dc..d4fe481 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -136,6 +136,24 @@ struct lm_return_value {
+ } __attribute__((packed));
+=20
+ /*
++ * GUID3 Get Device Status device flags
++ */
++#define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
++
++struct wmid3_gds_input_param {	/* Get Device Status input parameter */
++	u8 function_num;	/* Function Number */
++	u8 hotkey_number;	/* Hotkey Number */
++	u16 devices;		/* Get Device */
++} __attribute__((packed));
++
++struct wmid3_gds_return_value {	/* Get Device Status return value*/
++	u8 error_code;		/* Error Code */
++	u8 ec_return_value;	/* EC Return Value */
++	u16 devices;		/* Current Device Status */
++	u32 reserved;
++} __attribute__((packed));
++
++/*
+  * Interface capability flags
+  */
+ #define ACER_CAP_MAILLED		(1<<0)
+@@ -192,6 +210,7 @@ struct acer_debug {
+=20
+ static struct rfkill *wireless_rfkill;
+ static struct rfkill *bluetooth_rfkill;
++static struct rfkill *threeg_rfkill;
+=20
+ /* Each low-level interface must define at least some of the following
+*/
+ struct wmi_interface {
+@@ -1000,6 +1019,54 @@ static void acer_backlight_exit(void)
+ 	backlight_device_unregister(acer_backlight_device);
+ }
+=20
++static acpi_status wmid3_get_device_status(u32 *value, u16 device)
++{
++	struct wmid3_gds_return_value return_value;
++	acpi_status status;
++	union acpi_object *obj;
++	struct wmid3_gds_input_param params =3D {
++		.function_num =3D 0x1,
++		.hotkey_number =3D 0x01,
++		.devices =3D device,
++	};
++	struct acpi_buffer input =3D {
++		sizeof(struct wmid3_gds_input_param),
++		&params
++	};
++	struct acpi_buffer output =3D { ACPI_ALLOCATE_BUFFER, NULL };
++
++	status =3D wmi_evaluate_method(WMID_GUID3, 0, 0x2, &input, &output);
++	if (ACPI_FAILURE(status))
++		return status;
++
++	obj =3D output.pointer;
++
++	if (!obj)
++		return -EINVAL;
++	else if (obj->type !=3D ACPI_TYPE_BUFFER) {
++		kfree(obj);
++		return -EINVAL;
++	}
++	if (obj->buffer.length !=3D 8) {
++		printk(ACER_WARNING "Unknown buffer length %d\n",
++			obj->buffer.length);
++		kfree(obj);
++		return -EINVAL;
++	}
++
++	return_value =3D *((struct wmid3_gds_return_value
+*)obj->buffer.pointer);
++	kfree(obj);
++
++	if (return_value.error_code || return_value.ec_return_value)
++		printk(ACER_WARNING "Get Device Status failed: "
++			"0x%x - 0x%x\n", return_value.error_code,
++			return_value.ec_return_value);
++	else
++		*value =3D !!(return_value.devices & device);
++
++	return status;
++}
++
+ /*
+  * Rfkill devices
+  */
+@@ -1020,6 +1087,13 @@ static void acer_rfkill_update(struct work_struc=
+t
+*ignored)
+ 			rfkill_set_sw_state(bluetooth_rfkill, !state);
+ 	}
+=20
++	if (has_cap(ACER_CAP_BLUETOOTH) && wmi_has_guid(WMID_GUID3)) {
++		status =3D wmid3_get_device_status(&state,
++				ACER_WMID3_GDS_THREEG);
++		if (ACPI_SUCCESS(status))
++			rfkill_set_sw_state(threeg_rfkill, !state);
++	}
++
+ 	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ));
+ }
+=20
+@@ -1076,6 +1150,19 @@ static int acer_rfkill_init(struct device *dev)
+ 		}
+ 	}
+=20
++	if (has_cap(ACER_CAP_THREEG)) {
++		threeg_rfkill =3D acer_rfkill_register(dev,
++			RFKILL_TYPE_WWAN, "acer-threeg",
++			ACER_CAP_THREEG);
++		if (IS_ERR(threeg_rfkill)) {
++			rfkill_unregister(wireless_rfkill);
++			rfkill_destroy(wireless_rfkill);
++			rfkill_unregister(bluetooth_rfkill);
++			rfkill_destroy(bluetooth_rfkill);
++			return PTR_ERR(threeg_rfkill);
++		}
++	}
++
+ 	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ));
+=20
+ 	return 0;
+@@ -1092,6 +1179,11 @@ static void acer_rfkill_exit(void)
+ 		rfkill_unregister(bluetooth_rfkill);
+ 		rfkill_destroy(bluetooth_rfkill);
+ 	}
++
++	if (has_cap(ACER_CAP_THREEG)) {
++		rfkill_unregister(threeg_rfkill);
++		rfkill_destroy(threeg_rfkill);
++	}
+ 	return;
+ }
+=20
+@@ -1102,7 +1194,12 @@ static ssize_t show_bool_threeg(struct device
+*dev,
+ 	struct device_attribute *attr, char *buf)
+ {
+ 	u32 result; \
+-	acpi_status status =3D get_u32(&result, ACER_CAP_THREEG);
++	acpi_status status;
++	if (wmi_has_guid(WMID_GUID3))
++		status =3D wmid3_get_device_status(&result,
++				ACER_WMID3_GDS_THREEG);
++	else
++		status =3D get_u32(&result, ACER_CAP_THREEG);
+ 	if (ACPI_SUCCESS(status))
+ 		return sprintf(buf, "%u\n", result);
+ 	return sprintf(buf, "Read error\n");
+--=20
+1.6.0.2
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

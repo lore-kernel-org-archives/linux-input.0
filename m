@@ -1,56 +1,83 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] Support enable Acer Launch Manager mode
-Date: Mon, 18 Oct 2010 01:20:48 -0700
-Message-ID: <20101018082048.GC8655@core.coreip.homeip.net>
-References: <4CBC6D61020000230002205F@novprvlin0050.provo.novell.com>
+Subject: Re: [Device-drivers-devel] [PATCH 3/3] Input: touchscreen: ad7877
+ filter events where pressure is beyond the maximum
+Date: Mon, 18 Oct 2010 01:22:09 -0700
+Message-ID: <20101018082209.GD8655@core.coreip.homeip.net>
+References: <1287139250-24777-1-git-send-email-michael.hennerich@analog.com>
+ <1287139250-24777-3-git-send-email-michael.hennerich@analog.com>
+ <AANLkTimg2Uv26dcU7noSGCX7SHOn2+p6-LH_q=h9NtWc@mail.gmail.com>
+ <20101018040810.GB7782@core.coreip.homeip.net>
+ <20101018042428.GA23778@core.coreip.homeip.net>
+ <20101018042541.GB23778@core.coreip.homeip.net>
+ <544AC56F16B56944AEC3BD4E3D5917713094520E3C@LIMKCMBX1.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:35163 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753067Ab0JRIUz (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:41896 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751343Ab0JRIWQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Oct 2010 04:20:55 -0400
+	Mon, 18 Oct 2010 04:22:16 -0400
+Received: by ywi6 with SMTP id 6so206574ywi.19
+        for <linux-input@vger.kernel.org>; Mon, 18 Oct 2010 01:22:15 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4CBC6D61020000230002205F@novprvlin0050.provo.novell.com>
+In-Reply-To: <544AC56F16B56944AEC3BD4E3D5917713094520E3C@LIMKCMBX1.ad.analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joey Lee <jlee@novell.com>
-Cc: corentin.chary@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: Mike Frysinger <vapier.adi@gmail.com>, Drivers <Drivers@analog.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sun, Oct 17, 2010 at 10:53:05PM -0600, Joey Lee wrote:
-> Hi Dmitry,=20
->=20
-> =E6=96=BC =E6=97=A5=EF=BC=8C2010-10-17 =E6=96=BC 21:07 -0700=EF=BC=8C=
-Dmitry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
-> >=20
-> > I believe that we simply need to tell EC to keep its hands off RF
-> > switch. As long as key is properly reported through input layer rfk=
-ill
-> > should be able to control the RF equipment, either via rfkill-input
-> > in-kernel shortcut or userspace daemon (when it is ready).
-> >=20
->=20
-> I agree EC don't need touch the RF switch by default, I will contact
-> with them to discuss.
->=20
-> But,=20
-> Currently, the Acer BIOS already shipped to world wide, and BIOS guys
-> give me tThat's why I contribute launch-manager mode patch to here.
->=20
+On Mon, Oct 18, 2010 at 09:13:14AM +0100, Hennerich, Michael wrote:
+> Dmitry Torokhov wrote on 2010-10-18:
+> > On Sun, Oct 17, 2010 at 09:24:28PM -0700, Dmitry Torokhov wrote:
+> >> On Sun, Oct 17, 2010 at 09:08:10PM -0700, Dmitry Torokhov wrote:
+> >>> On Fri, Oct 15, 2010 at 09:51:12PM -0400, Mike Frysinger wrote:
+> >>>> On Fri, Oct 15, 2010 at 06:40,  <michael.hennerich@analog.com>
+> > wrote:
+> >>>>> Suppress events where pressure > pressure_max.
+> >>>>> These events come typically along with inaccurate X and Y
+> > samples.
+> >>>>
+> >>>> were you going to commit to the blackfin tree ?
+> >>>>
+> >>>>> --- a/drivers/input/touchscreen/ad7877.c
+> >>>>> +++ b/drivers/input/touchscreen/ad7877.c
+> >>>>> @@ -360,6 +360,13 @@ static int ad7877_rx(struct ad7877 *ts)
+> >>>>>                Rt /= z1;
+> >>>>>                Rt = (Rt + 2047) >> 12;
+> >>>>>
+> >>>>> +               /* +                * Sample found inconsistent,
+> >>>>> pressure is beyond +                * the maximum. Don't report it
+> >>>>> to user space. +                */ +               if (Rt >
+> >>>>> ts->pressure_max) +                       return -EINVAL;
+> >>>>
+> >>>> this has spaces in the middle of your tab indents ...
+> >>>
+> >>> I took care of that on my side...
+> >>>
+> >>
+> >> BTW, I have a couple more small patches to the driver... Here is the
+> >> first:
+> >>
+> >
+> > And here is second:
+> >
+> > Input: ad7877 - switch to using threaded IRQ
+> >
+> > Instead of using asynchronous SPI API and then spinning waiting for
+> > SPI transfer to complete when disabling the device, let's use threaded
+> > IRQ model and spi_sync().
+> 
+> Tested on hardware - works great!
+> 
 
-I understand that certain BIOSes do, by default, toggle the switch. I
-also believe that we want to disable this. The question that still is
-not answered why we need the module option? Why don't we _always_
-tell EC to keep its hands off RF switch?
+Thanks Michael, I'll also add a tested-by tag too then.
+
+> >
+> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

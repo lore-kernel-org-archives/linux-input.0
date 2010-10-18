@@ -1,235 +1,288 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Device-drivers-devel] [PATCH 3/3] Input: touchscreen: ad7877
- filter events where pressure is beyond the maximum
-Date: Sun, 17 Oct 2010 21:25:42 -0700
-Message-ID: <20101018042541.GB23778@core.coreip.homeip.net>
-References: <1287139250-24777-1-git-send-email-michael.hennerich@analog.com>
- <1287139250-24777-3-git-send-email-michael.hennerich@analog.com>
- <AANLkTimg2Uv26dcU7noSGCX7SHOn2+p6-LH_q=h9NtWc@mail.gmail.com>
- <20101018040810.GB7782@core.coreip.homeip.net>
- <20101018042428.GA23778@core.coreip.homeip.net>
+From: "Joey Lee" <jlee@novell.com>
+Subject: Re: [PATCH 1/3] Add acer wmi hotkey events support
+Date: Sun, 17 Oct 2010 22:53:04 -0600
+Message-ID: <4CBC6D60020000230002205C@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:36133 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750942Ab0JREZs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Oct 2010 00:25:48 -0400
-Received: by yxm8 with SMTP id 8so160153yxm.19
-        for <linux-input@vger.kernel.org>; Sun, 17 Oct 2010 21:25:47 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20101018042428.GA23778@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: michael.hennerich@analog.com, drivers@analog.com, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: corentin.chary@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-On Sun, Oct 17, 2010 at 09:24:28PM -0700, Dmitry Torokhov wrote:
-> On Sun, Oct 17, 2010 at 09:08:10PM -0700, Dmitry Torokhov wrote:
-> > On Fri, Oct 15, 2010 at 09:51:12PM -0400, Mike Frysinger wrote:
-> > > On Fri, Oct 15, 2010 at 06:40,  <michael.hennerich@analog.com> wr=
-ote:
-> > > > Suppress events where pressure > pressure_max.
-> > > > These events come typically along with inaccurate X and Y sampl=
-es.
-> > >=20
-> > > were you going to commit to the blackfin tree ?
-> > >=20
-> > > > --- a/drivers/input/touchscreen/ad7877.c
-> > > > +++ b/drivers/input/touchscreen/ad7877.c
-> > > > @@ -360,6 +360,13 @@ static int ad7877_rx(struct ad7877 *ts)
-> > > > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0Rt /=3D z1;
-> > > > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0Rt =3D (Rt + 2047) >> 12;
-> > > >
-> > > > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
-> > > > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* Sample found inconsistent, p=
-ressure is beyond
-> > > > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* the maximum. Don't report it=
- to user space.
-> > > > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
-> > > > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (Rt > ts->pressure_max)
-> > > > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
-> > >=20
-> > > this has spaces in the middle of your tab indents ...
-> >=20
-> > I took care of that on my side...
-> >=20
+Hi Dmitry,=20
+
+=E6=96=BC =E4=B8=89=EF=BC=8C2010-10-13 =E6=96=BC 11:24 -0700=EF=BC=8CDm=
+itry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
+> Hi Joey,
 >=20
-> BTW, I have a couple more small patches to the driver... Here is the
-> first:
+> On Wed, Oct 13, 2010 at 11:47:40AM +0800, Lee, Chun-Yi wrote:
+>  +
+> > +	status =3D wmi_install_notify_handler(ACERWMID_EVENT_GUID,
+> > +						acer_wmi_notify, NULL);
+> > +	if (ACPI_FAILURE(status)) {
+> > +		err =3D -EIO;
+> > +		goto err_unregister_input;
+> > +	}
+> > +
+> > +	return 0;
+> > +
+> > +err_unregister_input:
+> > +	input_unregister_device(acer_wmi_input_dev);
+> > +err_free_keymap:
+> > +	sparse_keymap_free(acer_wmi_input_dev);
+> > +err_free_dev:
+> > +	input_free_device(acer_wmi_input_dev);
+>=20
+> If wmi_install_notify_handler() fails you'll end up doing
+> input_unregister_device() + input_free_device() which is forbidden. T=
+o
+> avoid this issue register the device after installing the handler. As
+> long as input device is properly allocated (by calling
+> input_allocate_device) it is safe to use it to send events (although
+> they will not go anywhere).
+>=20
+> BTW, I think it is high time we allocate a dedicated key for touchpad
+> on/off....
 >=20
 
-And here is second:
+Thank's for your review.
+I changed the error handler priority:
 
-Input: ad7877 - switch to using threaded IRQ
+>From 9e31867c348a1f2119d16ddbcf9cf0b7de111cf9 Mon Sep 17 00:00:00 2001
+=46rom: Lee, Chun-Yi <jlee@novell.com>
+Date: Mon, 18 Oct 2010 12:12:49 +0800
+Subject: [PATCH 1/3] Add acer wmi hotkey events support
 
-Instead of using asynchronous SPI API and then spinning waiting for SPI
-transfer to complete when disabling the device, let's use threaded IRQ
-model and spi_sync().
+Add acer wmi hotkey event support. Install a wmi notify handler to
+transfer wmi event key to key code, then send out keycode through acer
+wmi input device to userland.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
 ---
+ drivers/platform/x86/Kconfig    |    2 +
+ drivers/platform/x86/acer-wmi.c |  139
++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 141 insertions(+), 0 deletions(-)
 
- drivers/input/touchscreen/ad7877.c |   65 ++++++++++++++--------------=
---------
- 1 files changed, 25 insertions(+), 40 deletions(-)
-
-
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchsc=
-reen/ad7877.c
-index 326d733..a1952fc 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -191,13 +191,12 @@ struct ad7877 {
- 	struct spi_message	msg;
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfi=
+g
+index cff7cc2..c242fdd 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -23,7 +23,9 @@ config ACER_WMI
+ 	depends on BACKLIGHT_CLASS_DEVICE
+ 	depends on SERIO_I8042
+ 	depends on RFKILL || RFKILL =3D n
++	depends on INPUT
+ 	select ACPI_WMI
++	select INPUT_SPARSEKMAP
+ 	---help---
+ 	  This is a driver for newer Acer (and Wistron) laptops. It adds
+ 	  wireless radio and bluetooth control, and on some laptops,
+diff --git a/drivers/platform/x86/acer-wmi.c
+b/drivers/platform/x86/acer-wmi.c
+index 2badee2..930df56 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -37,6 +37,8 @@
+ #include <linux/workqueue.h>
+ #include <linux/debugfs.h>
+ #include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/input/sparse-keymap.h>
 =20
- 	struct mutex		mutex;
--	unsigned		disabled:1;	/* P: mutex */
--	unsigned		gpio3:1;	/* P: mutex */
--	unsigned		gpio4:1;	/* P: mutex */
-+	bool			disabled;	/* P: mutex */
-+	bool			gpio3;		/* P: mutex */
-+	bool			gpio4;		/* P: mutex */
+ #include <acpi/acpi_drivers.h>
 =20
- 	spinlock_t		lock;
- 	struct timer_list	timer;		/* P: lock */
--	unsigned		pending:1;	/* P: lock */
+@@ -48,6 +50,7 @@ MODULE_LICENSE("GPL");
+ #define ACER_ERR KERN_ERR ACER_LOGPREFIX
+ #define ACER_NOTICE KERN_NOTICE ACER_LOGPREFIX
+ #define ACER_INFO KERN_INFO ACER_LOGPREFIX
++#define ACER_WARNING KERN_WARNING ACER_LOGPREFIX
 =20
- 	/*
- 	 * DMA (thus cache coherency maintenance) requires the
-@@ -333,7 +332,7 @@ static int ad7877_read_adc(struct spi_device *spi, =
-unsigned command)
- 	return status ? : sample;
- }
+ /*
+  * Magic Number
+@@ -83,8 +86,39 @@ MODULE_LICENSE("GPL");
+ #define WMID_GUID1		"6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3"
+ #define WMID_GUID2		"95764E09-FB56-4e83-B31A-37761F60994A"
 =20
--static int ad7877_rx(struct ad7877 *ts)
-+static int ad7877_process_data(struct ad7877 *ts)
- {
- 	struct input_dev *input_dev =3D ts->input;
- 	unsigned Rt;
-@@ -374,6 +373,7 @@ static int ad7877_rx(struct ad7877 *ts)
- 		input_report_abs(input_dev, ABS_Y, y);
- 		input_report_abs(input_dev, ABS_PRESSURE, Rt);
- 		input_sync(input_dev);
++/*
++ * Acer ACPI event GUIDs
++ */
++#define ACERWMID_EVENT_GUID "676AA15E-6A47-4D9F-A2CC-1E6D18D14026"
 +
- 		return 0;
- 	}
+ MODULE_ALIAS("wmi:67C3371D-95A3-4C37-BB61-DD47B491DAAB");
+ MODULE_ALIAS("wmi:6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3");
++MODULE_ALIAS("wmi:676AA15E-6A47-4D9F-A2CC-1E6D18D14026");
++
++enum acer_wmi_event_ids {
++	WMID_HOTKEY_EVENT =3D 0x1,
++};
++
++static const struct key_entry acer_wmi_keymap[] =3D {
++	{KE_KEY, 0x01, {KEY_WLAN} },     /* WiFi */
++	{KE_KEY, 0x12, {KEY_BLUETOOTH} },	/* BT */
++	{KE_KEY, 0x21, {KEY_PROG1} },    /* Backup */
++	{KE_KEY, 0x22, {KEY_PROG2} },    /* Aracade */
++	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
++	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
++	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
++	{KE_KEY, 0x82, {KEY_F22} },      /* Touch Pad On/Off */
++	{KE_END, 0}
++};
++
++static struct input_dev *acer_wmi_input_dev;
++
++struct event_return_value {
++	u8 function;
++	u8 key_num;
++	u16 device_state;
++	u32 reserved;
++} __attribute__((packed));
 =20
-@@ -392,64 +392,49 @@ static inline void ad7877_ts_event_release(struct=
- ad7877 *ts)
- static void ad7877_timer(unsigned long handle)
- {
- 	struct ad7877 *ts =3D (void *)handle;
-+	unsigned long flags;
+ /*
+  * Interface capability flags
+@@ -1085,6 +1119,99 @@ static ssize_t show_interface(struct device *dev=
+,
+struct device_attribute *attr,
 =20
-+	spin_lock_irqsave(&ts->lock, flags);
- 	ad7877_ts_event_release(ts);
-+	spin_unlock_irqrestore(&ts->lock, flags);
- }
+ static DEVICE_ATTR(interface, S_IRUGO, show_interface, NULL);
 =20
- static irqreturn_t ad7877_irq(int irq, void *handle)
- {
- 	struct ad7877 *ts =3D handle;
- 	unsigned long flags;
--	int status;
-+	int error;
-=20
--	/*
--	 * The repeated conversion sequencer controlled by TMR kicked off
--	 * too fast. We ignore the last and process the sample sequence
--	 * currently in the queue. It can't be older than 9.4ms, and we
--	 * need to avoid that ts->msg doesn't get issued twice while in work.
--	 */
-+	error =3D spi_sync(ts->spi, &ts->msg);
-+	if (error) {
-+		dev_err(&ts->spi->dev, "spi_sync --> %d\n", error);
-+		goto out;
++static void acer_wmi_notify(u32 value, void *context)
++{
++	struct acpi_buffer response =3D { ACPI_ALLOCATE_BUFFER, NULL };
++	union acpi_object *obj;
++	struct event_return_value return_value;
++	acpi_status status;
++
++	status =3D wmi_get_event_data(value, &response);
++	if (status !=3D AE_OK) {
++		printk(ACER_WARNING "bad event status 0x%x\n", status);
++		return;
 +	}
++
++	obj =3D (union acpi_object *)response.pointer;
++
++	if (!obj)
++		return;
++	if (obj->type !=3D ACPI_TYPE_BUFFER) {
++		printk(ACER_WARNING "Unknown response received %d\n",
++			obj->type);
++		kfree(obj);
++		return;
++	}
++	if (obj->buffer.length !=3D 8) {
++		printk(ACER_WARNING "Unknown buffer length %d\n",
++			obj->buffer.length);
++		kfree(obj);
++		return;
++	}
++
++	return_value =3D *((struct event_return_value *)obj->buffer.pointer);
++	kfree(obj);
++
++	switch (return_value.function) {
++	case WMID_HOTKEY_EVENT:
++		if (!sparse_keymap_report_event(acer_wmi_input_dev,
++				return_value.key_num, 1, true))
++			printk(ACER_WARNING "Unknown key number - 0x%x\n",
++				return_value.key_num);
++		break;
++	default:
++		printk(ACER_WARNING "Unknown function number - %d - %d\n",
++			return_value.function, return_value.key_num);
++		break;
++	}
++}
++
++static int __init acer_wmi_input_setup(void)
++{
++	acpi_status status;
++	int err;
++
++	acer_wmi_input_dev =3D input_allocate_device();
++	if (!acer_wmi_input_dev)
++		return -ENOMEM;
++
++	acer_wmi_input_dev->name =3D "Acer WMI hotkeys";
++	acer_wmi_input_dev->phys =3D "wmi/input0";
++	acer_wmi_input_dev->id.bustype =3D BUS_HOST;
++
++	err =3D sparse_keymap_setup(acer_wmi_input_dev, acer_wmi_keymap, NULL=
+);
++	if (err)
++		goto err_free_dev;
++
++	status =3D wmi_install_notify_handler(ACERWMID_EVENT_GUID,
++						acer_wmi_notify, NULL);
++	if (ACPI_FAILURE(status)) {
++		err =3D -EIO;
++		goto err_free_keymap;
++	}
++
++	err =3D input_register_device(acer_wmi_input_dev);
++	if (err)
++		goto err_uninstall_notifier;
++
++	return 0;
++
++err_uninstall_notifier:
++	wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
++err_free_keymap:
++	sparse_keymap_free(acer_wmi_input_dev);
++err_free_dev:
++	input_free_device(acer_wmi_input_dev);
++	return err;
++}
++
++static void acer_wmi_input_destroy(void)
++{
++	wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
++	sparse_keymap_free(acer_wmi_input_dev);
++	input_unregister_device(acer_wmi_input_dev);
++}
++
+ /*
+  * debugfs functions
+  */
+@@ -1327,6 +1454,12 @@ static int __init acer_wmi_init(void)
+ 		       "generic video driver\n");
+ 	}
 =20
- 	spin_lock_irqsave(&ts->lock, flags);
--	if (!ts->pending) {
--		ts->pending =3D 1;
--
--		status =3D spi_async(ts->spi, &ts->msg);
--		if (status)
--			dev_err(&ts->spi->dev, "spi_sync --> %d\n", status);
--	}
-+	error =3D ad7877_process_data(ts);
-+	if (!error)
-+		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
- 	spin_unlock_irqrestore(&ts->lock, flags);
-=20
-+out:
- 	return IRQ_HANDLED;
++	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
++		err =3D acer_wmi_input_setup();
++		if (err)
++			return err;
++	}
++
+ 	err =3D platform_driver_register(&acer_platform_driver);
+ 	if (err) {
+ 		printk(ACER_ERR "Unable to register platform driver.\n");
+@@ -1368,11 +1501,17 @@ error_device_add:
+ error_device_alloc:
+ 	platform_driver_unregister(&acer_platform_driver);
+ error_platform_register:
++	if (wmi_has_guid(ACERWMID_EVENT_GUID))
++		acer_wmi_input_destroy();
++
+ 	return err;
  }
 =20
--static void ad7877_callback(void *_ts)
--{
--	struct ad7877 *ts =3D _ts;
--
--	spin_lock_irq(&ts->lock);
--	if (!ad7877_rx(ts))
--		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
--	ts->pending =3D 0;
--	spin_unlock_irq(&ts->lock);
--}
--
- static void ad7877_disable(struct ad7877 *ts)
+ static void __exit acer_wmi_exit(void)
  {
- 	mutex_lock(&ts->mutex);
-=20
- 	if (!ts->disabled) {
--		ts->disabled =3D 1;
-+		ts->disabled =3D true;
- 		disable_irq(ts->spi->irq);
-=20
--		/* Wait for spi_async callback */
--		while (ts->pending)
--			msleep(1);
--
- 		if (del_timer_sync(&ts->timer))
- 			ad7877_ts_event_release(ts);
- 	}
-=20
--	/* we know the chip's in lowpower mode since we always
-+	/*
-+	 * We know the chip's in lowpower mode since we always
- 	 * leave it that way after every request
- 	 */
-=20
-@@ -461,7 +446,7 @@ static void ad7877_enable(struct ad7877 *ts)
- 	mutex_lock(&ts->mutex);
-=20
- 	if (ts->disabled) {
--		ts->disabled =3D 0;
-+		ts->disabled =3D false;
- 		enable_irq(ts->spi->irq);
- 	}
-=20
-@@ -672,7 +657,6 @@ static void ad7877_setup_ts_def_msg(struct spi_devi=
-ce *spi, struct ad7877 *ts)
-=20
- 	spi_message_init(m);
-=20
--	m->complete =3D ad7877_callback;
- 	m->context =3D ts;
-=20
- 	ts->xfer[0].tx_buf =3D &ts->cmd_crtl1;
-@@ -795,8 +779,9 @@ static int __devinit ad7877_probe(struct spi_device=
- *spi)
-=20
- 	/* Request AD7877 /DAV GPIO interrupt */
-=20
--	err =3D request_irq(spi->irq, ad7877_irq, IRQF_TRIGGER_FALLING,
--			spi->dev.driver->name, ts);
-+	err =3D request_threaded_irq(spi->irq, NULL, ad7877_irq,
-+				   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+				   spi->dev.driver->name, ts);
- 	if (err) {
- 		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
- 		goto err_free_mem;
++	if (wmi_has_guid(ACERWMID_EVENT_GUID))
++		acer_wmi_input_destroy();
++
+ 	remove_sysfs(acer_platform_device);
+ 	remove_debugfs();
+ 	platform_device_unregister(acer_platform_device);
+--=20
+1.6.0.2
+
+
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

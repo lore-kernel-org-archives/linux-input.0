@@ -1,126 +1,45 @@
-From: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
-Subject: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
-Date: Mon, 18 Oct 2010 23:07:43 +0800
-Message-ID: <1287414463-13973-1-git-send-email-jlee@novell.com>
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: platform-driver-x86@vger.kernel.org
-Cc: mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, tiwai@novell.com, trenn@novell.com, jbenc@suse.cz, corentin.chary@gmail.com, GregKH@novell.com, "Lee, Chun-Yi" <jlee@novell.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.36-rc7
+Date: Mon, 18 Oct 2010 08:49:41 -0700
+Message-ID: <20101018154941.GA5406@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:56104 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755327Ab0JRPtz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Oct 2010 11:49:55 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Daniel Mack <zonque@gmail.com>
 
-Check the Acer OEM-specific Type AA to detect the WiFi/Bluetooth/3G
-devices available or not, and set the devices capability flag.
+Hi Linus,
 
-Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
----
- drivers/platform/x86/acer-wmi.c |   49 ++++++++++++++++++++++++++++++++------
- 1 files changed, 41 insertions(+), 8 deletions(-)
+Please pull from:
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 7a17ebe..24f31b4 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -39,6 +39,7 @@
- #include <linux/slab.h>
- #include <linux/input.h>
- #include <linux/input/sparse-keymap.h>
-+#include <linux/dmi.h>
- 
- #include <acpi/acpi_drivers.h>
- 
-@@ -138,7 +139,9 @@ struct lm_return_value {
- /*
-  * GUID3 Get Device Status device flags
-  */
--#define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
-+#define ACER_WMID3_GDS_WIRELESS           (1<<0)  /* WiFi */
-+#define ACER_WMID3_GDS_THREEG             (1<<6)  /* 3G */
-+#define ACER_WMID3_GDS_BLUETOOTH          (1<<11) /* BT */
- 
- struct wmid3_gds_input_param {	/* Get Device Status input parameter */
- 	u8 function_num;	/* Function Number */
-@@ -153,6 +156,15 @@ struct wmid3_gds_return_value {	/* Get Device Status return value*/
- 	u32 reserved;
- } __attribute__((packed));
- 
-+#define ACER_DMI_DEV_TYPE_AA		170
-+
-+struct hotkey_function_type_aa {
-+	u8 type;
-+	u8 length;
-+	u16 handle;
-+	u16 commun_func_bitmap;
-+} __attribute__((packed));
-+
- /*
-  * Interface capability flags
-  */
-@@ -184,6 +196,7 @@ static int brightness = -1;
- static int threeg = -1;
- static int force_series;
- static bool launch_manager;
-+static struct hotkey_function_type_aa *type_aa;
- 
- module_param(mailled, int, 0444);
- module_param(brightness, int, 0444);
-@@ -824,6 +837,24 @@ static acpi_status WMID_set_u32(u32 value, u32 cap, struct wmi_interface *iface)
- 	return WMI_execute_u32(method_id, (u32)value, NULL);
- }
- 
-+static void type_aa_dmi_decode(const struct dmi_header *header, void *dummy)
-+{
-+	/* We are looking for OEM-specific Type Aah */
-+	if (header->type != ACER_DMI_DEV_TYPE_AA)
-+		return;
-+
-+	type_aa = (struct hotkey_function_type_aa *) header;
-+
-+	printk(ACER_INFO "Function biti map for Communication Button: 0x%x\n",
-+		type_aa->commun_func_bitmap);
-+	if (!!(type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS))
-+		interface->capability |= ACER_CAP_WIRELESS;
-+	if (!!(type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG))
-+		interface->capability |= ACER_CAP_THREEG;
-+	if (!!(type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH))
-+		interface->capability |= ACER_CAP_BLUETOOTH;
-+}
-+
- static acpi_status WMID_set_capabilities(void)
- {
- 	struct acpi_buffer out = {ACPI_ALLOCATE_BUFFER, NULL};
-@@ -844,16 +875,17 @@ static acpi_status WMID_set_capabilities(void)
- 		return AE_ERROR;
- 	}
- 
--	/* Not sure on the meaning of the relevant bits yet to detect these */
--	interface->capability |= ACER_CAP_WIRELESS;
--	interface->capability |= ACER_CAP_THREEG;
-+	dmi_walk(type_aa_dmi_decode, NULL);
-+	if (!type_aa) {
-+		interface->capability |= ACER_CAP_WIRELESS;
-+		interface->capability |= ACER_CAP_THREEG;
-+		if (devices & 0x10)
-+			interface->capability |= ACER_CAP_BLUETOOTH;
-+	}
- 
- 	/* WMID always provides brightness methods */
- 	interface->capability |= ACER_CAP_BRIGHTNESS;
- 
--	if (devices & 0x10)
--		interface->capability |= ACER_CAP_BLUETOOTH;
--
- 	if (!(devices & 0x20))
- 		max_brightness = 0x9;
- 
-@@ -932,7 +964,8 @@ static void __init acer_commandline_init(void)
- 	 * capability isn't available on the given interface
- 	 */
- 	set_u32(mailled, ACER_CAP_MAILLED);
--	set_u32(threeg, ACER_CAP_THREEG);
-+	if (!type_aa)
-+		set_u32(threeg, ACER_CAP_THREEG);
- 	set_u32(brightness, ACER_CAP_BRIGHTNESS);
- }
- 
--- 
-1.6.0.2
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive 2 important bug fixes to the evdev input handler. I hope it
+is not too late to make 2.6.36...
+
+Changelog:
+---------
+
+Daniel Mack (2):
+      Input: evdev - fix Ooops in EVIOCGABS/EVIOCSABS
+      Input: evdev - fix EVIOCSABS regression
+
+
+Diffstat:
+--------
+
+ drivers/input/evdev.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+Thanks,
+Dmitry

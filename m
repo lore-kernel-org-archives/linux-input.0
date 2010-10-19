@@ -1,66 +1,100 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 1/1] HID: hidraw, fix window in hidraw_release
-Date: Tue, 19 Oct 2010 11:29:55 +0200
-Message-ID: <1287480595-5627-1-git-send-email-jslaby@suse.cz>
-References: <1287480285-5335-1-git-send-email-jslaby@suse.cz>
+From: "Joey Lee" <jlee@novell.com>
+Subject: Re: [PATCH 1/3] Add acer wmi hotkey events support
+Date: Tue, 19 Oct 2010 03:31:16 -0600
+Message-ID: <4CBE0014020000230002247A@novprvlin0050.provo.novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from minas.ics.muni.cz ([147.251.4.40]:52021 "EHLO minas.ics.muni.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933423Ab0JSJaA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Oct 2010 05:30:00 -0400
-In-Reply-To: <1287480285-5335-1-git-send-email-jslaby@suse.cz>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: alan@signal11.us, linux-input@vger.kernel.org, jirislaby@gmail.com, linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+To: tiwai@suse.de
+Cc: corentin.chary@gmail.com, dmitry.torokhov@gmail.com, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-There is a window between hidraw_table check and its dereference.
-In that window, the device may be unplugged and removed form the
-system and we will then dereference NULL.
+Hi all,=20
 
-Lock that place properly so that either we get NULL and jump out or we
-can work with real pointer.
+=E6=96=BC =E4=B8=80=EF=BC=8C2010-10-18 =E6=96=BC 11:26 +0200=EF=BC=8CTa=
+kashi Iwai =E6=8F=90=E5=88=B0=EF=BC=9A
+> At Mon, 18 Oct 2010 10:47:31 +0200,
+> Corentin Chary wrote:
+> >=20
+> > On Mon, Oct 18, 2010 at 10:25 AM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > On Mon, Oct 18, 2010 at 10:19:37AM +0200, Corentin Chary wrote:
+> > >> On Mon, Oct 18, 2010 at 10:12 AM, Dmitry Torokhov
+> > >> <dmitry.torokhov@gmail.com> wrote:
+> > >> > On Sun, Oct 17, 2010 at 10:53:04PM -0600, Joey Lee wrote:
+> > >> >> +static const struct key_entry acer_wmi_keymap[] =3D {
+> > >> >> +     {KE_KEY, 0x01, {KEY_WLAN} },     /* WiFi */
+> > >> >> +     {KE_KEY, 0x12, {KEY_BLUETOOTH} },       /* BT */
+> > >> >> +     {KE_KEY, 0x21, {KEY_PROG1} },    /* Backup */
+> > >> >> +     {KE_KEY, 0x22, {KEY_PROG2} },    /* Aracade */
+> > >> >> +     {KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
+> > >> >> +     {KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_K=
+ey */
+> > >> >> +     {KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} }, /* Display Swit=
+ch */
+> > >> >> +     {KE_KEY, 0x82, {KEY_F22} },      /* Touch Pad On/Off */
+> > >> >
+> > >> > We need to standardize this. Some people use F13/F14, here we =
+have
+> > >> > F22...
+> > >> >
+> > >>
+> > >> The good thing with F* keys, is that they are already mapped in =
+X/Qt/SDL/etc..
+> > >>
+> > >> But if we do, we could add KEY_TOUCHPADTOGGLE 0x1b8
+> > >> Then bind it to XF86XK_TouchpadToggle (what's the right way to d=
+o that
+> > >> ? keymaps ?)
+> > >>
+> > >
+> > > I wonder who the main consumers of such events will be... X appli=
+cations
+> > > or daemons that listen turn this into some DBUS signal...
+> >=20
+> > I guess xbindkeys and tools like qsynaptics should be able to consu=
+me
+> > such events.
+> > HAL also handled some touchpads things, but now that it is deprecat=
+ed, who is in
+> > charge of doing that ?
+>=20
+> There seems no standardization forseen, but which daemon (as of local
+> user) is used depends on the desktop environment.  For example, it's
+> gnome-settings-daemon for GNOME.
+>=20
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
----
- drivers/hid/hidraw.c |   14 ++++++++++----
- 1 files changed, 10 insertions(+), 4 deletions(-)
+Yes, g-s-d have a plugin to show up touchpad OSD when touchpad toggled.
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 925992f..8a4b32d 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -218,9 +218,13 @@ static int hidraw_release(struct inode * inode, struct file * file)
- 	unsigned int minor = iminor(inode);
- 	struct hidraw *dev;
- 	struct hidraw_list *list = file->private_data;
-+	int ret;
- 
--	if (!hidraw_table[minor])
--		return -ENODEV;
-+	mutex_lock(&minors_lock);
-+	if (!hidraw_table[minor]) {
-+		ret = -ENODEV;
-+		goto unlock;
-+	}
- 
- 	list_del(&list->node);
- 	dev = hidraw_table[minor];
-@@ -233,10 +237,12 @@ static int hidraw_release(struct inode * inode, struct file * file)
- 			kfree(list->hidraw);
- 		}
- 	}
--
- 	kfree(list);
-+	ret = 0;
-+unlock:
-+	mutex_unlock(&minors_lock);
- 
--	return 0;
-+	return ret;
- }
- 
- static long hidraw_ioctl(struct file *file, unsigned int cmd,
--- 
-1.7.3.1
+And, in xkeyboard-config
+currently, F22 mapped to XF86TouchpadToggle:
 
+http://cgit.freedesktop.org/xkeyboard-config/commit/?id=3D1d05eda8dfc70=
+6d6450cab5883120e0d5e1100c0
+
+
+diff --git a/symbols/inet b/symbols/inet
+index 7300e76..f6cd6ac 100644
+--- a/symbols/inet
++++ b/symbols/inet
+@@ -119,6 +119,7 @@ xkb_symbols "evdev" {
+
+key <HNGL> { [ Hangul ] };
+key <HJCV> { [ Hangul_Hanja ] };
++ key <FK22> { [ XF86TouchpadToggle ] };
+
+// key <I120> { [ ] }; // KEY_MACRO=20
+key <I126> { [ plusminus ] };
+
+
+Thank's
+Joey Lee
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

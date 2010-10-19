@@ -1,135 +1,133 @@
 From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 1/3] Add acer wmi hotkey events support
-Date: Tue, 19 Oct 2010 03:43:28 -0600
-Message-ID: <4CBE02F00200002300022497@novprvlin0050.provo.novell.com>
+Subject: Re: [PATCH 2/3] Support enable Acer Launch Manager mode
+Date: Tue, 19 Oct 2010 03:55:02 -0600
+Message-ID: <4CBE05A602000023000224A1@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: corentin.chary@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: corentin.chary@gmail.com
+Cc: dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-Hi Dmity,=20
+Hi Corentin,=20
 
-=E6=96=BC =E4=B8=80=EF=BC=8C2010-10-18 =E6=96=BC 01:12 -0700=EF=BC=8CDm=
-itry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
-> On Sun, Oct 17, 2010 at 10:53:04PM -0600, Joey Lee wrote:
-> > Hi Dmitry,=20
-> >=20
-> > =E6=96=BC =E4=B8=89=EF=BC=8C2010-10-13 =E6=96=BC 11:24 -0700=EF=BC=8C=
-Dmitry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
-> > > Hi Joey,
-> > >=20
-> > > On Wed, Oct 13, 2010 at 11:47:40AM +0800, Lee, Chun-Yi wrote:
-> > >  +
-> > > > +	status =3D wmi_install_notify_handler(ACERWMID_EVENT_GUID,
-> > > > +						acer_wmi_notify, NULL);
-> > > > +	if (ACPI_FAILURE(status)) {
-> > > > +		err =3D -EIO;
-> > > > +		goto err_unregister_input;
-> > > > +	}
-> > > > +
-> > > > +	return 0;
-> > > > +
-> > > > +err_unregister_input:
-> > > > +	input_unregister_device(acer_wmi_input_dev);
-> > > > +err_free_keymap:
-> > > > +	sparse_keymap_free(acer_wmi_input_dev);
-> > > > +err_free_dev:
-> > > > +	input_free_device(acer_wmi_input_dev);
-> > >=20
-> > > If wmi_install_notify_handler() fails you'll end up doing
-> > > input_unregister_device() + input_free_device() which is forbidde=
-n. To
-> > > avoid this issue register the device after installing the handler=
-=2E As
-> > > long as input device is properly allocated (by calling
-> > > input_allocate_device) it is safe to use it to send events (altho=
-ugh
-> > > they will not go anywhere).
-> > >=20
-> > > BTW, I think it is high time we allocate a dedicated key for touc=
-hpad
-> > > on/off....
-> > >=20
-> >=20
-> > Thank's for your review.
-> > I changed the error handler priority:
-> >=20
-> > >From 9e31867c348a1f2119d16ddbcf9cf0b7de111cf9 Mon Sep 17 00:00:00 =
-2001
-> > From: Lee, Chun-Yi <jlee@novell.com>
-> > Date: Mon, 18 Oct 2010 12:12:49 +0800
-> > Subject: [PATCH 1/3] Add acer wmi hotkey events support
-> >=20
-> > Add acer wmi hotkey event support. Install a wmi notify handler to
-> > transfer wmi event key to key code, then send out keycode through a=
-cer
-> > wmi input device to userland.
-> >=20
-> > Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+=E6=96=BC =E4=B8=80=EF=BC=8C2010-10-18 =E6=96=BC 09:55 +0200=EF=BC=8CCo=
+rentin Chary =E6=8F=90=E5=88=B0=EF=BC=9A
+> On Mon, Oct 18, 2010 at 9:19 AM, Carlos Corbacho
+> <carlos@strangeworlds.co.uk> wrote:
+> > On Monday 18 October 2010 03:32:22 Joey Lee wrote:
+> >> So, we choice remove rfkill-input then put the logic in x86/platfo=
+rm
+> >> driver?
+> >> A simple question:
+> >> Userland policy daemon or kernel module, which one we want to put =
+the
+> >> wifi hotkey behavior implementation?
+> >
+> > Pass. I really have no opinion on the above, as long as we pick som=
+ething and
+> > stick with it (i.e. not-another-rfkill-rewrite).
+> >
+> >> > We don't have Launch Manager for Linux, and quite frankly, I hop=
+e we
+> >> > never see it - relying on random, vendor specific applications t=
+o drive
+> >> > this kind of functionality is just asking for trouble.
+> >>
+> >> Acer BIOS team provide the function to OS for disable the EC hehav=
+ior,
+> >> it's available on window, why we hide it on Linux?
+> >
+> > As an aside, just because Windows does something is not a good reas=
+on to do it
+> > or expose on on Linux if it doesn't make any sense.
+> >
+> >> Either userland daemon or kernel module who want to implement the =
+wifi
+> >> hotkey behavior, it need enable the launch-manager mode to disable=
+ the
+> >> default EC behavior on wifi hotkey.
+> >
+> > When did Acer laptops start doing this then? The behaviour they alw=
+ays did in
+> > the past was that pressing the wireless/ bluetooth/ 3G button sent =
+out a
+> > scancode, and is was then the job of something else to catch that (=
+be it
+> > rfkill-input or friends) and for that something else to then toggle=
+ the state.
+> >
+> > Do the current batch of laptops then just 'magically' toggle the st=
+ate without
+> > needing rfkill-input?
+> >
+> > (And do you actually have contact with someone on the Acer BIOS tea=
+m? Because
+> > I've never managed to get through to anyone at Acer, so would be in=
+terested to
+> > know).
+> >
+> >> If don't want provide the launch-manager mode parameter to userlan=
+d, can
+> >> we just direct enable it?
+> >
+> > Well, my point is more that we should figure out what we want, and =
+then stick
+> > with that. I don't want to add a pointless module paramater that al=
+l of three
+> > people are ever going to use, and then have to support it working b=
+oth ways.
+> >
+> > -Carlos
 >=20
-> Looks good to me, thank you for making changes.
+> asus-laptop laptop also has that kind of parameter, but mainly becaus=
+e
+> the behavior of the toggle key is quite random across models. So we
+> need to set it sometimes.
 >=20
-
-You are welcome, and also thank's for your kindly review my patches.
-
-> > =20
-> > @@ -48,6 +50,7 @@ MODULE_LICENSE("GPL");
-> >  #define ACER_ERR KERN_ERR ACER_LOGPREFIX
-> >  #define ACER_NOTICE KERN_NOTICE ACER_LOGPREFIX
-> >  #define ACER_INFO KERN_INFO ACER_LOGPREFIX
-> > +#define ACER_WARNING KERN_WARNING ACER_LOGPREFIX
-> > =20
->=20
-> As a separate change could you please move the driver to using pr_err=
-()
-> and friends?
->=20
-
-Got it, will generate patch to using pr_err().
-
-> >  /*
-> >   * Magic Number
-> > @@ -83,8 +86,39 @@ MODULE_LICENSE("GPL");
-> >  #define WMID_GUID1		"6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3"
-> >  #define WMID_GUID2		"95764E09-FB56-4e83-B31A-37761F60994A"
-> > =20
-> > +/*
-> > + * Acer ACPI event GUIDs
-> > + */
-> > +#define ACERWMID_EVENT_GUID "676AA15E-6A47-4D9F-A2CC-1E6D18D14026"
-> > +
-> >  MODULE_ALIAS("wmi:67C3371D-95A3-4C37-BB61-DD47B491DAAB");
-> >  MODULE_ALIAS("wmi:6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3");
-> > +MODULE_ALIAS("wmi:676AA15E-6A47-4D9F-A2CC-1E6D18D14026");
-> > +
-> > +enum acer_wmi_event_ids {
-> > +	WMID_HOTKEY_EVENT =3D 0x1,
-> > +};
-> > +
-> > +static const struct key_entry acer_wmi_keymap[] =3D {
-> > +	{KE_KEY, 0x01, {KEY_WLAN} },     /* WiFi */
-> > +	{KE_KEY, 0x12, {KEY_BLUETOOTH} },	/* BT */
-> > +	{KE_KEY, 0x21, {KEY_PROG1} },    /* Backup */
-> > +	{KE_KEY, 0x22, {KEY_PROG2} },    /* Aracade */
-> > +	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
-> > +	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
-> > +	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
-> > +	{KE_KEY, 0x82, {KEY_F22} },      /* Touch Pad On/Off */
->=20
-> We need to standardize this. Some people use F13/F14, here we have
-> F22...
+> Anyway, I think it's a good thing to have the choice between "handled=
+ by
+> hardware/BIOS" and "handled by kernel/userspace", as long as the defa=
+ult choice
+> is coherent and always works correctly.
 >=20
 
-Currently, evdev is mapping the F22 to XF86TouchpadToggle:
+I didn't see a good mechanism that was provided by Acer or MSI BIOS to
+set the wifi key behavior like you said in Asus BIOS.
+Their EC just control the RF switch follow a default priority, like:
+	wlan on, bt on, 3G on
+	wlan on, bt off, 3G off
+	...
+	wlan off, bt off, 3G off
 
-http://cgit.freedesktop.org/xkeyboard-config/commit/?id=3D1d05eda8dfc70=
-6d6450cab5883120e0d5e1100c
+The logic is not fully the same with different hardware model.
+And,=20
+As I know, on Windows, they sometimes also disable the default behavior
+because they have something like hotkey manager or launch manager to
+handle it.
+
+> Most of users will want the key to just toggle wlan/bluetooth. But so=
+me of them
+> will be happy if they can configure the behavior of the key (cycle, o=
+nly toggle
+> WLAN, etc...)
+>=20
+
+I thought just direct disable the default EC behavior then leave a
+userland daemon to control the behavior, it will grab the wifi key even=
+t
+then control rfkill state by follow user's customization rules.
 
 
 Thank's
 Joey Lee
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

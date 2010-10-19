@@ -1,7 +1,7 @@
 From: "Joey Lee" <jlee@novell.com>
 Subject: Re: [PATCH 1/3] Add acer wmi hotkey events support
-Date: Tue, 19 Oct 2010 03:35:48 -0600
-Message-ID: <4CBE0124020000230002248C@novprvlin0050.provo.novell.com>
+Date: Tue, 19 Oct 2010 03:43:28 -0600
+Message-ID: <4CBE02F00200002300022497@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
@@ -9,52 +9,127 @@ Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: platform-driver-x86-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
-Cc: corentin.chary@gmail.com, Stefan Dirsch <sndirsch@novell.com>, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Cc: corentin.chary@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,=20
+Hi Dmity,=20
 
-=E6=96=BC =E4=B8=80=EF=BC=8C2010-10-18 =E6=96=BC 01:25 -0700=EF=BC=8CDm=
+=E6=96=BC =E4=B8=80=EF=BC=8C2010-10-18 =E6=96=BC 01:12 -0700=EF=BC=8CDm=
 itry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
-> On Mon, Oct 18, 2010 at 10:19:37AM +0200, Corentin Chary wrote:
-> > On Mon, Oct 18, 2010 at 10:12 AM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > On Sun, Oct 17, 2010 at 10:53:04PM -0600, Joey Lee wrote:
-> > >> +static const struct key_entry acer_wmi_keymap[] =3D {
-> > >> +     {KE_KEY, 0x01, {KEY_WLAN} },     /* WiFi */
-> > >> +     {KE_KEY, 0x12, {KEY_BLUETOOTH} },       /* BT */
-> > >> +     {KE_KEY, 0x21, {KEY_PROG1} },    /* Backup */
-> > >> +     {KE_KEY, 0x22, {KEY_PROG2} },    /* Aracade */
-> > >> +     {KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
-> > >> +     {KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key =
-*/
-> > >> +     {KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} }, /* Display Switch =
-*/
-> > >> +     {KE_KEY, 0x82, {KEY_F22} },      /* Touch Pad On/Off */
-> > >
-> > > We need to standardize this. Some people use F13/F14, here we hav=
-e
-> > > F22...
-> > >
+> On Sun, Oct 17, 2010 at 10:53:04PM -0600, Joey Lee wrote:
+> > Hi Dmitry,=20
 > >=20
-> > The good thing with F* keys, is that they are already mapped in X/Q=
-t/SDL/etc..
+> > =E6=96=BC =E4=B8=89=EF=BC=8C2010-10-13 =E6=96=BC 11:24 -0700=EF=BC=8C=
+Dmitry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
+> > > Hi Joey,
+> > >=20
+> > > On Wed, Oct 13, 2010 at 11:47:40AM +0800, Lee, Chun-Yi wrote:
+> > >  +
+> > > > +	status =3D wmi_install_notify_handler(ACERWMID_EVENT_GUID,
+> > > > +						acer_wmi_notify, NULL);
+> > > > +	if (ACPI_FAILURE(status)) {
+> > > > +		err =3D -EIO;
+> > > > +		goto err_unregister_input;
+> > > > +	}
+> > > > +
+> > > > +	return 0;
+> > > > +
+> > > > +err_unregister_input:
+> > > > +	input_unregister_device(acer_wmi_input_dev);
+> > > > +err_free_keymap:
+> > > > +	sparse_keymap_free(acer_wmi_input_dev);
+> > > > +err_free_dev:
+> > > > +	input_free_device(acer_wmi_input_dev);
+> > >=20
+> > > If wmi_install_notify_handler() fails you'll end up doing
+> > > input_unregister_device() + input_free_device() which is forbidde=
+n. To
+> > > avoid this issue register the device after installing the handler=
+=2E As
+> > > long as input device is properly allocated (by calling
+> > > input_allocate_device) it is safe to use it to send events (altho=
+ugh
+> > > they will not go anywhere).
+> > >=20
+> > > BTW, I think it is high time we allocate a dedicated key for touc=
+hpad
+> > > on/off....
+> > >=20
 > >=20
-> > But if we do, we could add KEY_TOUCHPADTOGGLE 0x1b8
-> > Then bind it to XF86XK_TouchpadToggle (what's the right way to do t=
-hat
-> > ? keymaps ?)
+> > Thank's for your review.
+> > I changed the error handler priority:
 > >=20
+> > >From 9e31867c348a1f2119d16ddbcf9cf0b7de111cf9 Mon Sep 17 00:00:00 =
+2001
+> > From: Lee, Chun-Yi <jlee@novell.com>
+> > Date: Mon, 18 Oct 2010 12:12:49 +0800
+> > Subject: [PATCH 1/3] Add acer wmi hotkey events support
+> >=20
+> > Add acer wmi hotkey event support. Install a wmi notify handler to
+> > transfer wmi event key to key code, then send out keycode through a=
+cer
+> > wmi input device to userland.
+> >=20
+> > Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
 >=20
-> I wonder who the main consumers of such events will be... X applicati=
-ons
-> or daemons that listen turn this into some DBUS signal...
+> Looks good to me, thank you for making changes.
 >=20
 
-As I know,
-X-input will transfer the keycode to x-keycode (XF22), then mapping the
-x-keycode to x-symbol (XF86XK_TouchpadToggle).
-Then some daemon or userland applications can grab it.
+You are welcome, and also thank's for your kindly review my patches.
+
+> > =20
+> > @@ -48,6 +50,7 @@ MODULE_LICENSE("GPL");
+> >  #define ACER_ERR KERN_ERR ACER_LOGPREFIX
+> >  #define ACER_NOTICE KERN_NOTICE ACER_LOGPREFIX
+> >  #define ACER_INFO KERN_INFO ACER_LOGPREFIX
+> > +#define ACER_WARNING KERN_WARNING ACER_LOGPREFIX
+> > =20
+>=20
+> As a separate change could you please move the driver to using pr_err=
+()
+> and friends?
+>=20
+
+Got it, will generate patch to using pr_err().
+
+> >  /*
+> >   * Magic Number
+> > @@ -83,8 +86,39 @@ MODULE_LICENSE("GPL");
+> >  #define WMID_GUID1		"6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3"
+> >  #define WMID_GUID2		"95764E09-FB56-4e83-B31A-37761F60994A"
+> > =20
+> > +/*
+> > + * Acer ACPI event GUIDs
+> > + */
+> > +#define ACERWMID_EVENT_GUID "676AA15E-6A47-4D9F-A2CC-1E6D18D14026"
+> > +
+> >  MODULE_ALIAS("wmi:67C3371D-95A3-4C37-BB61-DD47B491DAAB");
+> >  MODULE_ALIAS("wmi:6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3");
+> > +MODULE_ALIAS("wmi:676AA15E-6A47-4D9F-A2CC-1E6D18D14026");
+> > +
+> > +enum acer_wmi_event_ids {
+> > +	WMID_HOTKEY_EVENT =3D 0x1,
+> > +};
+> > +
+> > +static const struct key_entry acer_wmi_keymap[] =3D {
+> > +	{KE_KEY, 0x01, {KEY_WLAN} },     /* WiFi */
+> > +	{KE_KEY, 0x12, {KEY_BLUETOOTH} },	/* BT */
+> > +	{KE_KEY, 0x21, {KEY_PROG1} },    /* Backup */
+> > +	{KE_KEY, 0x22, {KEY_PROG2} },    /* Aracade */
+> > +	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
+> > +	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
+> > +	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
+> > +	{KE_KEY, 0x82, {KEY_F22} },      /* Touch Pad On/Off */
+>=20
+> We need to standardize this. Some people use F13/F14, here we have
+> F22...
+>=20
+
+Currently, evdev is mapping the F22 to XF86TouchpadToggle:
+
+http://cgit.freedesktop.org/xkeyboard-config/commit/?id=3D1d05eda8dfc70=
+6d6450cab5883120e0d5e1100c
+
 
 Thank's
 Joey Lee

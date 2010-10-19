@@ -1,79 +1,82 @@
-From: Corentin Chary <corentin.chary@gmail.com>
-Subject: Re: [PATCH 2/3] Support enable Acer Launch Manager mode
-Date: Tue, 19 Oct 2010 15:28:43 +0200
-Message-ID: <AANLkTi=iVb_sR4tYJ0acjkUzN_jq2tja43kjeHQwTtb8@mail.gmail.com>
-References: <4CBE371102000023000224F1@novprvlin0050.provo.novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <4CBE371102000023000224F1@novprvlin0050.provo.novell.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Joey Lee <jlee@novell.com>
-Cc: dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH] HID: hid-sony, override usbhid_output_raw_report for Sixaxis
+Date: Tue, 19 Oct 2010 16:13:10 +0200
+Message-ID: <1287497590-10818-1-git-send-email-ospite@studenti.unina.it>
+References: <4CB71D2D.90200@signal11.us>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp209.alice.it ([82.57.200.105]:45362 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751586Ab0JSONq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Oct 2010 10:13:46 -0400
+In-Reply-To: <4CB71D2D.90200@signal11.us>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Alan Ott <alan@signal11.us>, Jiri Kosina <jkosina@suse.cz>, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, falktx@gmail.com
 
-On Tue, Oct 19, 2010 at 3:25 PM, Joey Lee <jlee@novell.com> wrote:
-> Hi Corentin,
->
-> =E6=96=BC =E4=BA=8C=EF=BC=8C2010-10-19 =E6=96=BC 05:15 -0600=EF=BC=8C=
-Joey Lee =E6=8F=90=E5=88=B0=EF=BC=9A
->> Hi Corentin,
->>
->> =E6=96=BC =E4=BA=8C=EF=BC=8C2010-10-19 =E6=96=BC 12:51 +0200=EF=BC=8C=
-Corentin Chary =E6=8F=90=E5=88=B0=EF=BC=9A
->> > >> Most of users will want the key to just toggle wlan/bluetooth. =
-But some of them
->> > >> will be happy if they can configure the behavior of the key (cy=
-cle, only toggle
->> > >> WLAN, etc...)
->> > >>
->> > >
->> > > I thought just direct disable the default EC behavior then leave=
- a
->> > > userland daemon to control the behavior, it will grab the wifi k=
-ey event
->> > > then control rfkill state by follow user's customization rules.
->> >
->> > What I'm saying is: I don't really care what's the default behavio=
-r is,
->> > but if the EC provide a somewhat reliable way to make the key work
->> > without any userspace daemon involved, I think we should allow
->> > the user to use this mode (even if it's with an obscure module
->> > parameter or sysfs file).
->> >
->> > But .. maybe if someone want this default "raw" behavior,
->> > he should just not load this module.
->> >
->>
->> Fully understood, now.
->>
->> Like you siad, we need define a policy for:
->>
->> =C2=A0- If user want the default "raw" behavior, what do they need t=
-o do?
->> =C2=A0 =C2=A0 =C2=A0 I thought if the wmi driver doesn't load by def=
-ault, then user
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0will get a "raw" behavior.
->>
-> But...
-> The wmi driver doesn't just provide the RF switch function, it's also
-> have other functions like transfer wmi event to key code.
->
-> User doesn't load wmi driver will have "raw" RF switch behavior, but
-> lost other more functions.
->
->> =C2=A0- If any distro want provide userland solution, how can they d=
-isable
->> =C2=A0 =C2=A0the default "raw" behavior?
->> =C2=A0 =C2=A0 =C2=A0 If anybody want to disable the "raw" behavior, =
-just load the wmi
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0driver.
-> Maybe we still add kernel module parameter?
->
+Override usbhid_output_raw_report in order to force output reports (sent
+via hidraw_write, for instance) on the control endpoint.
 
-Indeed, I think it would be a good idea to let the user do that.
+The Sony Sixaxis (PS3 Controller) accepts output reports only on the
+control endpoint, it silently discards them when they arrive over the
+interrupt endpoint where usbhid would normally deliver them.
 
---=20
-Corentin Chary
-http://xf.iksaif.net
+Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+---
+
+Note to the interested people, this makes setting leds via hidraw finally
+work. I can send the userspace code for that in a follow-up if you want me
+to.
+
+Thanks,
+   Antonio Ospite
+   http://ao2.it
+
+ drivers/hid/hid-sony.c |   23 ++++++++++++++++++++++-
+ 1 files changed, 22 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index d61f268..0c164b3 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -46,6 +46,25 @@ static void sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	}
+ }
+ 
++static int sixaxis_usb_output_raw_report(struct hid_device *hid, __u8 *buf,
++		size_t count, unsigned char report_type)
++{
++	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
++	struct usb_device *dev = interface_to_usbdev(intf);
++	struct usb_host_interface *interface = intf->cur_altsetting;
++	int report_id = buf[0];
++	int ret;
++
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
++		HID_REQ_SET_REPORT,
++		USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++		((report_type + 1) << 8) | report_id,
++		interface->desc.bInterfaceNumber, buf, count,
++		USB_CTRL_SET_TIMEOUT);
++
++	return ret;
++}
++
+ /*
+  * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
+  * to "operational".  Without this, the ps3 controller will not report any
+@@ -110,8 +129,10 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err_free;
+ 	}
+ 
+-	if (sc->quirks & SIXAXIS_CONTROLLER_USB)
++	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
++		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
+ 		ret = sixaxis_set_operational_usb(hdev);
++	}
+ 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+ 		ret = sixaxis_set_operational_bt(hdev);
+ 	else
+-- 
+1.7.2.3
+

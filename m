@@ -1,71 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: hidraw, fix window in hidraw_release
-Date: Wed, 20 Oct 2010 16:55:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1010201655191.6879@pobox.suse.cz>
-References: <1287480285-5335-1-git-send-email-jslaby@suse.cz> <1287480595-5627-1-git-send-email-jslaby@suse.cz>
+From: Daniel Drake <dsd@laptop.org>
+Subject: Re: [PATCH] Input: hgpk - support GlideSensor and PenTablet modes
+Date: Wed, 20 Oct 2010 16:53:32 +0100
+Message-ID: <AANLkTi=fo9rTfVEdPB46qd=Compjma1XMOKSzqpUQiu3@mail.gmail.com>
+References: <20101006155026.5BB289D401B@zog.reactivated.net>
+	<20101014155230.GB10421@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49104 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752134Ab0JTOzn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Oct 2010 10:55:43 -0400
-In-Reply-To: <1287480595-5627-1-git-send-email-jslaby@suse.cz>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:56232 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752956Ab0JTPxd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Oct 2010 11:53:33 -0400
+Received: by mail-iw0-f174.google.com with SMTP id 7so2427262iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 20 Oct 2010 08:53:32 -0700 (PDT)
+In-Reply-To: <20101014155230.GB10421@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: alan@signal11.us, linux-input@vger.kernel.org, jirislaby@gmail.com, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, pgf@laptop.org
 
-On Tue, 19 Oct 2010, Jiri Slaby wrote:
+Hi Dmitry,
 
-> There is a window between hidraw_table check and its dereference.
-> In that window, the device may be unplugged and removed form the
-> system and we will then dereference NULL.
-> 
-> Lock that place properly so that either we get NULL and jump out or we
-> can work with real pointer.
-> 
-> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-> ---
->  drivers/hid/hidraw.c |   14 ++++++++++----
->  1 files changed, 10 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index 925992f..8a4b32d 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -218,9 +218,13 @@ static int hidraw_release(struct inode * inode, struct file * file)
->  	unsigned int minor = iminor(inode);
->  	struct hidraw *dev;
->  	struct hidraw_list *list = file->private_data;
-> +	int ret;
->  
-> -	if (!hidraw_table[minor])
-> -		return -ENODEV;
-> +	mutex_lock(&minors_lock);
-> +	if (!hidraw_table[minor]) {
-> +		ret = -ENODEV;
-> +		goto unlock;
-> +	}
->  
->  	list_del(&list->node);
->  	dev = hidraw_table[minor];
-> @@ -233,10 +237,12 @@ static int hidraw_release(struct inode * inode, struct file * file)
->  			kfree(list->hidraw);
->  		}
->  	}
-> -
->  	kfree(list);
-> +	ret = 0;
-> +unlock:
-> +	mutex_unlock(&minors_lock);
->  
-> -	return 0;
-> +	return ret;
->  }
+On 14 October 2010 16:52, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> I think we can do better than that and re-create the device for users
+> ourselves. See drivers/input/mouse/psmouse_base.c::psmouse_attr_set_proto()
+>
+> I would also look into adding a module parameter so that users could
+> specify desired mode on bootup.
 
-Good catch, applied. Thanks.
+Thanks for your feedback -- all good points and ideas.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+I've addressed it all in the latest patch
+https://patchwork.kernel.org/patch/254381/
+
+Hoping you can take a look at it soon :)
+
+Thanks,
+Daniel

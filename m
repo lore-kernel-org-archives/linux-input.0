@@ -1,83 +1,148 @@
 From: Alexey Charkov <alchark@gmail.com>
-Subject: Re: [PATCH 3/6] input: Add support for VIA VT8500 and compatibles in i8042
-Date: Thu, 21 Oct 2010 01:24:56 +0400
-Message-ID: <AANLkTi=mCjbovNcF7-c-BQ-QDxZ+=y3r+7XCDGiJLKyW@mail.gmail.com>
+Subject: [PATCH 3/6 v2] input: Add support for VIA VT8500 and compatibles in
+ i8042
+Date: Thu, 21 Oct 2010 02:14:49 +0400
+Message-ID: <20101020221449.GA30322@alchark-u3s.lan>
 References: <1287608139-21354-1-git-send-email-alchark@gmail.com>
-	<1287608139-21354-3-git-send-email-alchark@gmail.com>
-	<201010201415.09535.dmitry.torokhov@gmail.com>
+ <1287608139-21354-3-git-send-email-alchark@gmail.com>
+ <201010201415.09535.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:61131 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751779Ab0JTVY6 convert rfc822-to-8bit (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:57682 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755088Ab0JTWOz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Oct 2010 17:24:58 -0400
+	Wed, 20 Oct 2010 18:14:55 -0400
+Content-Disposition: inline
 In-Reply-To: <201010201415.09535.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: vt8500-wm8505-linux-kernel@googlegroups.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Alexey Charkov <alchark@gmail.com>, vt8500-wm8505-linux-kernel@googlegroups.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-2010/10/21 Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> On Wednesday, October 20, 2010 01:55:35 pm Alexey Charkov wrote:
-> > VIA and WonderMedia Systems-on-Chip feature a standard i8042-compat=
-ible
-> > keyboard and mouse controller. This adds necessary glue to enable u=
-se
-> > of the standard driver with these systems.
-> >
-> > Signed-off-by: Alexey Charkov <alchark@gmail.com>
-> > ---
-> >
-> > Please review and state whether this could be acceptable for a merg=
-e
-> > to mainline in the coming 2.6.37 window. If possible, I would deepl=
-y
-> > appreciate a merge to a relevant git tree for integration prior to
-> > asking Linus to pull the changes. I could rebase the code if needed=
-,
-> > currently this is against Linus' master branch.
-> >
-> > This patch relies on the basic architecture support for VT8500/WM85=
-05
-> > to be in place, as introduced by PATCH 1/6 in this series.
->
-> What tree this code will be coming through through?
->
+VIA and WonderMedia Systems-on-Chip feature a standard i8042-compatible
+keyboard and mouse controller. This adds necessary glue to enable use
+of the standard driver with these systems.
 
-Should be Russel King's ARM tree, probably. The whole series is CC'd
-to linux-arm-kernel and to the relevant subsystems maintainers, as I
-was instructed to do at a previous submission attempt.
+Signed-off-by: Alexey Charkov <alchark@gmail.com>
+---
 
-> > +
-> > +static inline int i8042_platform_init(void)
-> > +{
-> > + =C2=A0 =C2=A0 i8042_reset =3D 1;
->
-> =3D true; - it's a boolean.
->
+This is to incorporate fixes to issues noted by Dmitry at the first attempt.
 
-Got it, thanks.
+ drivers/input/serio/Kconfig        |    3 +-
+ drivers/input/serio/i8042-vt8500.h |   74 ++++++++++++++++++++++++++++++++++++
+ drivers/input/serio/i8042.h        |    2 +
+ 3 files changed, 78 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/input/serio/i8042-vt8500.h
 
-> > + =C2=A0 =C2=A0 regbase =3D ioremap(VT8500_PS2_BASE, SZ_1K);
->
-> Error handling?
->
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index 3bfe8fa..2b86774 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -21,7 +21,8 @@ if SERIO
+ config SERIO_I8042
+ 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
+ 	default y
+-	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
++	depends on !PARISC && \
++		  (!ARM || ARCH_SHARK || ARCH_VT8500 || FOOTBRIDGE_HOST) && \
+ 		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN
+ 	help
+ 	  i8042 is the chip over which the standard AT keyboard and PS/2
+diff --git a/drivers/input/serio/i8042-vt8500.h b/drivers/input/serio/i8042-vt8500.h
+new file mode 100644
+index 0000000..6a709b6
+--- /dev/null
++++ b/drivers/input/serio/i8042-vt8500.h
+@@ -0,0 +1,74 @@
++#ifndef _I8042_VT8500_H
++#define _I8042_VT8500_H
++
++#include <mach/irqs.h>
++#include <mach/vt8500.h>
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++static void __iomem *regbase;
++
++/*
++ * Names.
++ */
++
++#define I8042_KBD_PHYS_DESC "vt8500ps2/serio0"
++#define I8042_AUX_PHYS_DESC "vt8500ps2/serio1"
++#define I8042_MUX_PHYS_DESC "vt8500ps2/serio%d"
++
++/*
++ * IRQs.
++ */
++
++#define I8042_KBD_IRQ	IRQ_PS2KBD
++#define I8042_AUX_IRQ	IRQ_PS2MOUSE
++
++
++/*
++ * Register numbers.
++ */
++
++#define I8042_COMMAND_REG	(regbase + 0x4)
++#define I8042_STATUS_REG	(regbase + 0x4)
++#define I8042_DATA_REG		(regbase + 0x0)
++
++static inline int i8042_read_data(void)
++{
++	return readl(I8042_DATA_REG);
++}
++
++static inline int i8042_read_status(void)
++{
++	return readl(I8042_STATUS_REG);
++}
++
++static inline void i8042_write_data(int val)
++{
++	writel(val, I8042_DATA_REG);
++}
++
++static inline void i8042_write_command(int val)
++{
++	writel(val, I8042_COMMAND_REG);
++}
++
++static inline int i8042_platform_init(void)
++{
++	i8042_reset = true;
++	regbase = ioremap(VT8500_PS2_BASE, SZ_1K);
++	if (!regbase)
++		return -ENODEV;
++
++	return 0;
++}
++
++static inline void i8042_platform_exit(void)
++{
++	iounmap(regbase);
++}
++
++#endif /* _I8042_VT8500_H */
+diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
+index cbc1beb..bdb2aeb 100644
+--- a/drivers/input/serio/i8042.h
++++ b/drivers/input/serio/i8042.h
+@@ -16,6 +16,8 @@
+ 
+ #if defined(CONFIG_MACH_JAZZ)
+ #include "i8042-jazzio.h"
++#elif defined(CONFIG_ARCH_VT8500)
++#include "i8042-vt8500.h"
+ #elif defined(CONFIG_SGI_HAS_I8042)
+ #include "i8042-ip22io.h"
+ #elif defined(CONFIG_SNI_RM)
+-- 
+1.7.3.1
 
-Ok, I've missed this. Will be fixed.
-
-> Thanks.
->
-> --
-> Dmitry
-
-Thanks for your review, Dmitry! Are there any other issues with this
-or is it otherwise good enough to receive your Ack?
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

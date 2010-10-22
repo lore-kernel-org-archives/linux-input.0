@@ -1,71 +1,62 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH v3] serio: add support for PS2Mult multiplexer protocol
-Date: Fri, 22 Oct 2010 00:54:45 +0400
-Message-ID: <AANLkTimhssEEG+ddDULfmLsetMCsWUg13itoDysupug_@mail.gmail.com>
-References: <1285260285-660-1-git-send-email-dbaryshkov@gmail.com>
-	<AANLkTimt+RZGp0C-X44JMR_4GJgFMfzN6b1V42A7NAnY@mail.gmail.com>
-	<20100930062547.GF5260@core.coreip.homeip.net>
-	<AANLkTimZxi8V9SLFQ8N-oSDTSt+7PjLNPt=H=Ja2mpr9@mail.gmail.com>
-	<20101007163606.GA24406@core.coreip.homeip.net>
-	<AANLkTinBLr6ETMxBzDCZog9qLPRwUsutS=QaKDQC-sA7@mail.gmail.com>
-	<20101014142347.GA18011@core.coreip.homeip.net>
-	<4CBC2E83.70308@gmail.com>
-	<20101018155626.GB10559@core.coreip.homeip.net>
-	<20101018161152.GC10559@core.coreip.homeip.net>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Re: [PATCH 0/3] Remaining patches in my queue for IR
+Date: Fri, 22 Oct 2010 02:17:20 +0200
+Message-ID: <1287706640.12734.23.camel@maxim-laptop>
+References: <1287269790-17605-1-git-send-email-maximlevitsky@gmail.com>
+	 <20101020184047.GC15314@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001636832f2c64ef40049326bc3a
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:42870 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753420Ab0JUUyq (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:62683 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751982Ab0JVARY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Oct 2010 16:54:46 -0400
-Received: by wwe15 with SMTP id 15so35755wwe.1
-        for <linux-input@vger.kernel.org>; Thu, 21 Oct 2010 13:54:45 -0700 (PDT)
-In-Reply-To: <20101018161152.GC10559@core.coreip.homeip.net>
+	Thu, 21 Oct 2010 20:17:24 -0400
+In-Reply-To: <20101020184047.GC15314@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Jarod Wilson <jarod@redhat.com>
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
---001636832f2c64ef40049326bc3a
-Content-Type: text/plain; charset=ISO-8859-1
+On Wed, 2010-10-20 at 14:40 -0400, Jarod Wilson wrote:
+> On Sun, Oct 17, 2010 at 12:56:27AM +0200, Maxim Levitsky wrote:
+> > Hi,
+> > 
+> > This series is rebased on top of media_tree/staging/v2.6.37 only.
+> > Really this time, sorry for cheating, last time :-)
+> > 
+> > The first patch like we agreed extends the raw packets.
+> > It touches all drivers (except imon as it isn't a raw IR driver).
+> > Code is compile tested with all drivers, 
+> > and run tested with ENE and all receiver protocols
+> > (except the streamzap rc5 flavour)
+> > Since it also moves timeouts to lirc bridge, at least streazap driver
+> > should have its timeout gap support removed. I am afraid to break the code
+> > if I do so.
+> 
+> I've tested both mceusb and streamzap with this patchset included, don't
+> see any ill side-effects. Only issue I really saw was that the raw event
+> init call was added somewhat superfluously to a number of drivers -- the
+> rawir struct its initializing was already kzalloc'd, so we're just
+> needlessly re-zero'ing it out again. Its not bad for clarity's sake, but
+> does add some unnecessary inefficiency.
+Yes, I somewhat agree.
 
-On Mon, Oct 18, 2010 at 8:11 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> BTW, is there corresponding patches to inputattach?
->
+On the other hand, I had an idea to add a magic field to ir_raw_event to
+guard against uninitialized uses.
+(something like the struct scatterlist).
 
-Attached.
+Don't know it that is worth it.
+Or that I sound like a typical supporter of OOP style of abstracting
+everything because sometime at the future there will be need to change
+it..
 
+Anyway, as Andy pointed, note that few drivers became broken due to that
+patch because these don't initialize the ir_raw_event.
 
--- 
-With best wishes
-Dmitry
+I will send a patch tomorrow (I was very busy this week).
 
---001636832f2c64ef40049326bc3a
-Content-Type: application/octet-stream; name="support-ps2mult.patch"
-Content-Disposition: attachment; filename="support-ps2mult.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gfk41n2j0
+Best regards,
+	Maxim Levitsky
 
-SW5kZXg6IGpveXN0aWNrLTIwMDUxMDE5L3V0aWxzL2lucHV0YXR0YWNoLmMKPT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQot
-LS0gam95c3RpY2stMjAwNTEwMTkub3JpZy91dGlscy9pbnB1dGF0dGFjaC5jCTIwMTAtMDctMTUg
-MTY6MjI6NDIuMDU1MDA2NjQyICswNDAwCisrKyBqb3lzdGljay0yMDA1MTAxOS91dGlscy9pbnB1
-dGF0dGFjaC5jCTIwMTAtMDctMTUgMTY6MjI6NDUuMjQzMDA1Mzk4ICswNDAwCkBAIC01MzYsNiAr
-NTM2LDkgQEAKIHsgIi0tZnVqaXRzdSIsCQkiLWZqdCIsCSJGdWppdHN1IHNlcmlhbCB0b3VjaHNj
-cmVlbiIsCiAJQjk2MDAsIENTOCwKIAlTRVJJT19GVUpJVFNVLAkJMHgwMCwJMHgwMCwJMSwJZnVq
-aXRzdV9pbml0IH0sCit7ICItLXBzMm11bHQiLAkiLXBzMm0iLAkiUFMvMiBzZXJpYWwgbXVsdGlw
-bGV4ZXIiLAorCUI1NzYwMCwgQ1M4LAorCVNFUklPX1BTMk1VTFQsCQkweDAwLAkweDAwLAkxLAlO
-VUxMIH0sCiB7ICItLWR1bXAiLAkJIi1kdW1wIiwJIkp1c3QgZW5hYmxlIGRldmljZSIsCiAJQjI0
-MDAsIENTOCwKIAkwLAkJCTB4MDAsCTB4MDAsCTAsCWR1bXBfaW5pdCB9LApJbmRleDogam95c3Rp
-Y2stMjAwNTEwMTkvdXRpbHMvc2VyaW8taWRzLmgKPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gam95c3RpY2stMjAw
-NTEwMTkub3JpZy91dGlscy9zZXJpby1pZHMuaAkyMDEwLTA3LTE1IDE2OjIwOjU4LjY1OTAwNTYw
-MiArMDQwMAorKysgam95c3RpY2stMjAwNTEwMTkvdXRpbHMvc2VyaW8taWRzLmgJMjAxMC0wNy0x
-NSAxNjoyMToxNy4wMDcwMDczOTcgKzA0MDAKQEAgLTEyMiw1ICsxMjIsOCBAQAogI2lmbmRlZiBT
-RVJJT19XODAwMQogIyBkZWZpbmUgU0VSSU9fVzgwMDEJCTB4MzkKICNlbmRpZgorI2lmbmRlZiBT
-RVJJT19QU01VTFQKKyMgZGVmaW5lIFNFUklPX1BTMk1VTFQJCTB4M2MKKyNlbmRpZgogCiAjZW5k
-aWYK
---001636832f2c64ef40049326bc3a--

@@ -1,62 +1,44 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: [PATCH 0/3] Remaining patches in my queue for IR
-Date: Fri, 22 Oct 2010 02:17:20 +0200
-Message-ID: <1287706640.12734.23.camel@maxim-laptop>
-References: <1287269790-17605-1-git-send-email-maximlevitsky@gmail.com>
-	 <20101020184047.GC15314@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] serio: add support for PS2Mult multiplexer protocol
+Date: Thu, 21 Oct 2010 21:57:12 -0700
+Message-ID: <20101022045711.GA10493@core.coreip.homeip.net>
+References: <AANLkTimt+RZGp0C-X44JMR_4GJgFMfzN6b1V42A7NAnY@mail.gmail.com>
+ <20100930062547.GF5260@core.coreip.homeip.net>
+ <AANLkTimZxi8V9SLFQ8N-oSDTSt+7PjLNPt=H=Ja2mpr9@mail.gmail.com>
+ <20101007163606.GA24406@core.coreip.homeip.net>
+ <AANLkTinBLr6ETMxBzDCZog9qLPRwUsutS=QaKDQC-sA7@mail.gmail.com>
+ <20101014142347.GA18011@core.coreip.homeip.net>
+ <4CBC2E83.70308@gmail.com>
+ <20101018155626.GB10559@core.coreip.homeip.net>
+ <20101018161152.GC10559@core.coreip.homeip.net>
+ <AANLkTimhssEEG+ddDULfmLsetMCsWUg13itoDysupug_@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:62683 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751982Ab0JVARY (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:46201 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751838Ab0JVE5T (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Oct 2010 20:17:24 -0400
-In-Reply-To: <20101020184047.GC15314@redhat.com>
+	Fri, 22 Oct 2010 00:57:19 -0400
+Received: by gwj21 with SMTP id 21so738047gwj.19
+        for <linux-input@vger.kernel.org>; Thu, 21 Oct 2010 21:57:19 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <AANLkTimhssEEG+ddDULfmLsetMCsWUg13itoDysupug_@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, mchehab@infradead.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Wed, 2010-10-20 at 14:40 -0400, Jarod Wilson wrote:
-> On Sun, Oct 17, 2010 at 12:56:27AM +0200, Maxim Levitsky wrote:
-> > Hi,
-> > 
-> > This series is rebased on top of media_tree/staging/v2.6.37 only.
-> > Really this time, sorry for cheating, last time :-)
-> > 
-> > The first patch like we agreed extends the raw packets.
-> > It touches all drivers (except imon as it isn't a raw IR driver).
-> > Code is compile tested with all drivers, 
-> > and run tested with ENE and all receiver protocols
-> > (except the streamzap rc5 flavour)
-> > Since it also moves timeouts to lirc bridge, at least streazap driver
-> > should have its timeout gap support removed. I am afraid to break the code
-> > if I do so.
+On Fri, Oct 22, 2010 at 12:54:45AM +0400, Dmitry Eremin-Solenikov wrote:
+> On Mon, Oct 18, 2010 at 8:11 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > BTW, is there corresponding patches to inputattach?
+> >
 > 
-> I've tested both mceusb and streamzap with this patchset included, don't
-> see any ill side-effects. Only issue I really saw was that the raw event
-> init call was added somewhat superfluously to a number of drivers -- the
-> rawir struct its initializing was already kzalloc'd, so we're just
-> needlessly re-zero'ing it out again. Its not bad for clarity's sake, but
-> does add some unnecessary inefficiency.
-Yes, I somewhat agree.
+> Attached.
+> 
 
-On the other hand, I had an idea to add a magic field to ir_raw_event to
-guard against uninitialized uses.
-(something like the struct scatterlist).
+Thank you. Could I get your sign off for it as well, please?
 
-Don't know it that is worth it.
-Or that I sound like a typical supporter of OOP style of abstracting
-everything because sometime at the future there will be need to change
-it..
-
-Anyway, as Andy pointed, note that few drivers became broken due to that
-patch because these don't initialize the ir_raw_event.
-
-I will send a patch tomorrow (I was very busy this week).
-
-Best regards,
-	Maxim Levitsky
-
+-- 
+Dmitry

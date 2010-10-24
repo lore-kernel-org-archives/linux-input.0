@@ -1,48 +1,40 @@
-From: Samuel Thibault <sthibault@debian.org>
-Subject: Bug#594089: keyboard-configuration: caps lock keycode problem
-Date: Sun, 24 Oct 2010 16:41:51 +0200
-Message-ID: <20101024144150.GV24091@const.famille.thibault.fr>
-References: <20100823154353.2805.13525.reportbug@tom.tse> <20100903235540.GA9149@const> <4C866913.3030201@triadsys.com> <4C8E6861.1070502@triadsys.com>
-Reply-To: Samuel Thibault <sthibault@debian.org>, 594089@bugs.debian.org
+From: Nicolas Kaiser <nikai@nikai.net>
+Subject: [PATCH] drivers/input: ab8500-ponkey: fix error path
+Date: Sun, 24 Oct 2010 17:09:19 +0200
+Message-ID: <20101024170919.18cf4372@absol.kitzblitz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
-Resent-To: debian-bugs-dist@lists.debian.org
-Resent-Message-ID: <handler.594089.B594089.128793131918775@bugs.debian.org>
-Content-Disposition: inline
-In-Reply-To: <4C8E6861.1070502@triadsys.com>
-List-Post: <mailto:debian-bugs-dist@lists.debian.org>
-List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
-List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
-List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
-To: Tom Vier <tom@triadsys.com>
-Cc: 594089@bugs.debian.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dtor@mail.ru
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from webhosting01.bon.m2soft.com ([195.38.20.32]:37423 "EHLO
+	webhosting01.bon.m2soft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932085Ab0JXPKm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 24 Oct 2010 11:10:42 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sundar Iyer <sundar.iyer@stericsson.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The short story is: Tom's keyboard sends all that when he presses caps
-lock:
+Looks like an obvious typo to me.
 
-press: 0x3a 0xe0 0x66
-repeat: 0x3a
-release: 0xba 0xe0 0xe6
+Signed-off-by: Nicolas Kaiser <nikai@nikai.net>
+---
+ drivers/input/misc/ab8500-ponkey.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-0xe0 0x66 happens to be the "favorites" key on his keyboard with
-internet navigation keys.  I thus believe there's a bug in his keyboard
-that needs to be filtered at the kernel level.
-
-The long story can be read on http://bugs.debian.org/cgi-bin/bugreport.cg=
-i?bug=3D594089
-
-Tom Vier, le Mon 13 Sep 2010 14:07:29 -0400, a =E9crit :
-> Here's xev from Stable. It looks like in Testing that some of the extra=
-=20
-> key codes that show up in showkey are getting interpreted as additional=
-=20
-> key presses in Testing's xorg but not Stable's.
-
-Yes, as I said in a previous mail, squeeze Xorg now interprets the
-internet scancodes by default, while it wouldn't in lenny and previous,
-thus not showing the bug.
-
-Samuel
+diff --git a/drivers/input/misc/ab8500-ponkey.c b/drivers/input/misc/ab8500-ponkey.c
+index 98f8ede..3d3288a 100644
+--- a/drivers/input/misc/ab8500-ponkey.c
++++ b/drivers/input/misc/ab8500-ponkey.c
+@@ -107,7 +107,7 @@ static int __devinit ab8500_ponkey_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err_free_dbr_irq:
+-	free_irq(ponkey->irq_dbf, ponkey);
++	free_irq(ponkey->irq_dbr, ponkey);
+ err_free_dbf_irq:
+ 	free_irq(ponkey->irq_dbf, ponkey);
+ err_free_mem:
+-- 
+1.7.2.2

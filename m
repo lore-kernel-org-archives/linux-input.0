@@ -1,54 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 06/10] drivers/input/serio/i8042: Use pr_<level>, pr_fmt.
-  Fix dbg and __FILE__ use
-Date: Tue, 26 Oct 2010 08:50:28 -0700
-Message-ID: <20101026155028.GA13097@core.coreip.homeip.net>
+Subject: Re: [PATCH 05/10] drivers/input/mouse/appletouch.c: Remove
+ KERN_DEBUG use from dprintk
+Date: Tue, 26 Oct 2010 08:52:06 -0700
+Message-ID: <20101026155206.GB13097@core.coreip.homeip.net>
 References: <cover.1288059486.git.joe@perches.com>
- <63a8deabb7c8167128d0415998692d15279ecb8c.1288059486.git.joe@perches.com>
+ <0f8723f18ce30ef726043555baee90d47ee995ca.1288059486.git.joe@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:54997 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755231Ab0JZPwQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Oct 2010 11:52:16 -0400
 Content-Disposition: inline
-In-Reply-To: <63a8deabb7c8167128d0415998692d15279ecb8c.1288059486.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Jiri Kosina <trivial@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <0f8723f18ce30ef726043555baee90d47ee995ca.1288059486.git.joe@perches.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Jiri Kosina <trivial@kernel.org>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Joe,
+On Mon, Oct 25, 2010 at 07:44:23PM -0700, Joe Perches wrote:
+> Signed-off-by: Joe Perches <joe@perches.com>
 
-On Mon, Oct 25, 2010 at 07:44:24PM -0700, Joe Perches wrote:
-> Standardized message logging prefixes.
-> Removed \n from dbg macro, added \n to each dbg call site.
+Applied, thanks Joe.
 
-Did you test it? It looks for call like:
-
-> +             dbg("%02x <- i8042 (flush, %s)\n",
-> +                 data, str & I8042_STR_AUXDATA ? "aux" : "kbd");
-
-the result will be:
-
-printk(KERN_DEBUG "i8042: %02x <- i8042 (flush, %s)\n [%d]", ...)
-
-which is not exactly what you want...
-
+> ---
+>  drivers/input/mouse/appletouch.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
+> index a9cf768..b77f999 100644
+> --- a/drivers/input/mouse/appletouch.c
+> +++ b/drivers/input/mouse/appletouch.c
+> @@ -630,7 +630,7 @@ static void atp_complete_geyser_3_4(struct urb *urb)
+>  	/* Just update the base values (i.e. touchpad in untouched state) */
+>  	if (dev->data[dev->info->datalen - 1] & ATP_STATUS_BASE_UPDATE) {
 >  
-> @@ -1268,7 +1262,7 @@ static void __init i8042_register_ports(void)
+> -		dprintk(KERN_DEBUG "appletouch: updated base values\n");
+> +		dprintk("appletouch: updated base values\n");
 >  
->  	for (i = 0; i < I8042_NUM_PORTS; i++) {
->  		if (i8042_ports[i].serio) {
-> -			printk(KERN_INFO "serio: %s at %#lx,%#lx irq %d\n",
-> +			pr_info("%s at %#lx,%#lx irq %d\n",
->  				i8042_ports[i].serio->name,
->  				(unsigned long) I8042_DATA_REG,
->  				(unsigned long) I8042_COMMAND_REG,
-
-Not quite equivalent conversion, right now every port is registered with
-message "serio: XXX at YYY". I would be OK with having driver prefix
-going in front but I'd like to keep word serio in (like "i8042: serio
-XXX at YYY").
-
-Thanks.
+>  		memcpy(dev->xy_old, dev->xy_cur, sizeof(dev->xy_old));
+>  		goto exit;
+> -- 
+> 1.7.3.dirty
+> 
 
 -- 
 Dmitry

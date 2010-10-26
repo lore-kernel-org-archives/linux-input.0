@@ -1,74 +1,152 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: spi: Driver for SPI data stream driven vibrator
-Date: Tue, 26 Oct 2010 09:09:36 -0700
-Message-ID: <20101026160936.GD13097@core.coreip.homeip.net>
-References: <1288013463-21722-1-git-send-email-ilkka.koskinen@nokia.com>
+Subject: Re: Bug#594089: keyboard-configuration: caps lock keycode problem
+Date: Tue, 26 Oct 2010 09:18:21 -0700
+Message-ID: <20101026161820.GE13097@core.coreip.homeip.net>
+References: <20100823154353.2805.13525.reportbug@tom.tse>
+ <20100903235540.GA9149@const>
+ <4C866913.3030201@triadsys.com>
+ <4C8E6861.1070502@triadsys.com>
+ <20101024144150.GV24091@const.famille.thibault.fr>
+ <20101025045003.GA1438@core.coreip.homeip.net>
+ <4CC58816.3090301@triadsys.com>
+ <20101025180320.GA4725@const.famille.thibault.fr>
+ <4CC6E9D8.8010201@triadsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:57760 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760029Ab0JZQJn (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:54609 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751123Ab0JZQSa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Oct 2010 12:09:43 -0400
+	Tue, 26 Oct 2010 12:18:30 -0400
 Content-Disposition: inline
-In-Reply-To: <1288013463-21722-1-git-send-email-ilkka.koskinen@nokia.com>
+In-Reply-To: <4CC6E9D8.8010201@triadsys.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ilkka Koskinen <ilkka.koskinen@nokia.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
+To: Tom Vier <tom@triadsys.com>
+Cc: Samuel Thibault <sthibault@debian.org>, 594089@bugs.debian.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Ilkka,
+On Tue, Oct 26, 2010 at 10:46:48AM -0400, Tom Vier wrote:
+> On 10/25/2010 02:03 PM, Samuel Thibault wrote:
+> > Tom Vier, le Mon 25 Oct 2010 09:37:26 -0400, a =E9crit :
+> >> On 10/25/2010 12:50 AM, Dmitry Torokhov wrote:
+> >>> On Sun, Oct 24, 2010 at 04:41:51PM +0200, Samuel Thibault wrote:
+> >>>> The short story is: Tom's keyboard sends all that when he presse=
+s caps
+> >>>> lock:
+> >>>>
+> >>>> press: 0x3a 0xe0 0x66
+> >>>> repeat: 0x3a
+> >>>> release: 0xba 0xe0 0xe6
+> >>>>
+> >>>> 0xe0 0x66 happens to be the "favorites" key on his keyboard with
+> >>>> internet navigation keys.  I thus believe there's a bug in his
+> keyboard
+> >>>> that needs to be filtered at the kernel level.
+> >>>>
+> >>>> The long story can be read on
+> >>>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D594089
+> >>>
+> >>> Hmm, the question is whether the real "favorites" key send the sa=
+me
+> >>> usage and the fake one after caps lock. Any chance Tom could loca=
+te
+> >>> evtest utility and see what MSC_SCAN events being emitted?
+> >>
+> >> Sure. Here's caps-lock:
+> >>
+> >> Event: time 1288013671.633008, -------------- Report Sync --------=
+----
+> >> Event: time 1288013674.171812, type 4 (Misc), code 4 (ScanCode),
+> value 70039
+> >> Event: time 1288013674.171853, type 1 (Key), code 58 (CapsLock), v=
+alue 1
+> >> Event: time 1288013674.171862, -------------- Report Sync --------=
+----
+> >> Event: time 1288013674.172210, type 17 (LED), code 1 (CapsLock), v=
+alue 1
+> >> Event: time 1288013674.299553, type 4 (Misc), code 4 (ScanCode),
+> value 70039
+> >> Event: time 1288013674.299580, type 1 (Key), code 58 (CapsLock), v=
+alue 0
+> >> Event: time 1288013674.299593, -------------- Report Sync --------=
+----
+> >>
+> >>
+> >> Right-shift (the other problem key):
+> >>
+> >> Event: time 1288013798.388025, -------------- Report Sync --------=
+----
+> >> Event: time 1288013800.742088, type 4 (Misc), code 4 (ScanCode),
+> value 700e5
+> >> Event: time 1288013800.742130, type 1 (Key), code 54
+> (RightShift), value 1
+> >> Event: time 1288013800.742142, -------------- Report Sync --------=
+----
+> >> Event: time 1288013800.861777, type 4 (Misc), code 4 (ScanCode),
+> value 700e5
+> >> Event: time 1288013800.861812, type 1 (Key), code 54
+> (RightShift), value 0
+> >> Event: time 1288013800.861824, -------------- Report Sync --------=
+----
+> >
+> > Could you also post results when pressing the "favorite" and the "p=
+rev"
+> > internet keys of your keyboard?
+> >
+> > Samuel
+>=20
+>=20
+> It's returning the same codes. Maybe what's going on here is that
+> they never worked back in Stable and someone tried to fix those
+> keys, not realizing they're the same codes as capslock and
+> right-shift. I'll have to test it on my Stable machine tonight to
+> see if those keys work or not, tho.
+>=20
+> Favorites:
+> Event: time 1288041423.048839, -------------- Report Sync -----------=
+-
+> Event: time 1288041425.068704, type 4 (Misc), code 4 (ScanCode), valu=
+e 70039
+> Event: time 1288041425.068742, type 1 (Key), code 58 (CapsLock), valu=
+e 1
+> Event: time 1288041425.068754, -------------- Report Sync -----------=
+-
+> Event: time 1288041425.069105, type 17 (LED), code 1 (CapsLock), valu=
+e 1
+> Event: time 1288041425.260313, type 4 (Misc), code 4 (ScanCode), valu=
+e 70039
+> Event: time 1288041425.260343, type 1 (Key), code 58 (CapsLock), valu=
+e 0
+> Event: time 1288041425.260347, -------------- Report Sync -----------=
+-
+>=20
+> Previous:
+> Event: time 1288041443.531447, -------------- Report Sync -----------=
+-
+> Event: time 1288041445.318877, type 4 (Misc), code 4 (ScanCode), valu=
+e 700e5
+> Event: time 1288041445.318915, type 1 (Key), code 54 (RightShift), va=
+lue 1
+> Event: time 1288041445.318932, -------------- Report Sync -----------=
+-
+> Event: time 1288041445.438567, type 4 (Misc), code 4 (ScanCode), valu=
+e 700e5
+> Event: time 1288041445.438606, type 1 (Key), code 54 (RightShift), va=
+lue 0
+> Event: time 1288041445.438629, -------------- Report Sync -----------=
+-
+>=20
 
-On Mon, Oct 25, 2010 at 04:31:02PM +0300, Ilkka Koskinen wrote:
-> This driver provides access to drive a vibrator connected
-> to SPI data line via Input layer's Force Feedback interface.
-> 
-> Client application provides samples (data streams) to be
-> played as CUSTOM_DATA. The samples are stored in driver's
-> internal buffers.
+Hmm, it looks like it uses the same usages (MSC_SCAN) for
+CapsLock/Favorites and RightShift/Previous... What does lsusb say about
+the keyboard (VID/PID)?
 
-If device is able to do custom waveform can't it also do regular effects
-(constant, periodic, etc. Or is custom is actually random and you are
-doing something like rumble effect?
-
-> 
-> The driver is not able to mix the given samples. Instead, it
-> remembers the currently played sample and next one to be played.
-> 
-
-Why is this driver not using the memoryless FF  library (and extends it
-to handle FF_CUSTOM effects) but rather reimplements it in the driver
-itself?
-
-> Signed-off-by: Ilkka Koskinen <ilkka.koskinen@nokia.com>
-> ---
->  drivers/input/misc/Kconfig     |    5 +
->  drivers/input/misc/Makefile    |    2 +-
->  drivers/input/misc/vibra_spi.c |  429 ++++++++++++++++++++++++++++++++++++++++
->  include/linux/spi/vibra.h      |   34 ++++
->  4 files changed, 469 insertions(+), 1 deletions(-)
->  create mode 100644 drivers/input/misc/vibra_spi.c
->  create mode 100644 include/linux/spi/vibra.h
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index b49e233..3441832 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -438,4 +438,9 @@ config INPUT_ADXL34X_SPI
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called adxl34x-spi.
->  
-> +config INPUT_SPI_VIBRA
-> +	tristate "Support for SPI driven Vibra module"
-> +	help
-> +	  Support for Vibra module that is connected to OMAP SPI bus.
-> +
-
-"To compile this driver as a module". Also please keep Kconfig and
-Makefile sorted alphabetically.
-
-Thanks.
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

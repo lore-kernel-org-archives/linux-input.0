@@ -1,44 +1,52 @@
-From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: Re: [PATCH] input: spi: Driver for SPI data stream driven vibrator
-Date: Wed, 27 Oct 2010 10:19:35 +0100
-Message-ID: <20101027101935.1b50b9dd@lxorguk.ukuu.org.uk>
-References: <1288013463-21722-1-git-send-email-ilkka.koskinen@nokia.com>
-	<20101026111344.GB24714@angua.secretlab.ca>
-	<F80267346F10C541946CBE8909F1C39E35932598BB@NOK-EUMSG-02.mgdnok.nokia.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: [patch] touchscreen/bu21013_ts: null dereference in error handling
+Date: Wed, 27 Oct 2010 12:08:22 +0200
+Message-ID: <20101027100822.GF6062@bicker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <F80267346F10C541946CBE8909F1C39E35932598BB-xJW1crHCIS+8kqYwC468Frtp2NbXvJi8gfoxzgwHRXE@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
-List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: ilkka.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
-Cc: spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:55037 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754463Ab0J0KIe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Oct 2010 06:08:34 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-> The driver could, of course, calculate the bit streams with help of
-> board specific functions. It was just thought that tuning vibration
-> device would be a lot easier, if we could just modify the bit streams
-> provided by user space application. In fact, the bit stream basically
-> consists of series of PWM pulses that are fed to the vibra.
-> 
-> Perhaps, calculating the waveforms in the driver at probe time would
-> be the most natural choice :\
+If kzalloc() returned NULL then it would lead to a NULL deref after the
+goto.
 
-Or assuming its a trivial conversion accepting them in a standard format
-and doing a quick pass across them ?
+Signed-off-by: Dan Carpenter <error27@gmail.com>
 
-(and failing that adding and documenting the format..)
-
-------------------------------------------------------------------------------
-Nokia and AT&T present the 2010 Calling All Innovators-North America contest
-Create new apps & games for the Nokia N8 for consumers in  U.S. and Canada
-$10 million total in prizes - $4M cash, 500 devices, nearly $6M in marketing
-Develop with Nokia Qt SDK, Web Runtime, or Java and Publish to Ovi Store 
-http://p.sf.net/sfu/nokia-dev2dev
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index ccde586..8f120b1 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -446,11 +446,14 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+ 	}
+ 
+ 	bu21013_data = kzalloc(sizeof(struct bu21013_ts_data), GFP_KERNEL);
++	if (!bu21013_data)
++		return -ENOMEM;
++
+ 	in_dev = input_allocate_device();
+-	if (!bu21013_data || !in_dev) {
++	if (!in_dev) {
+ 		dev_err(&client->dev, "device memory alloc failed\n");
+ 		error = -ENOMEM;
+-		goto err_free_mem;
++		goto err_free;
+ 	}
+ 
+ 	bu21013_data->in_dev = in_dev;
+@@ -515,6 +518,7 @@ err_cs_disable:
+ 	pdata->cs_dis(pdata->cs_pin);
+ err_free_mem:
+ 	input_free_device(bu21013_data->in_dev);
++err_free:
+ 	kfree(bu21013_data);
+ 
+ 	return error;

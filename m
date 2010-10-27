@@ -1,47 +1,44 @@
-From: 11th Anniversary Celeberation <lfvalle@interair.com.br>
-Subject: GoogleUK 11th Anniversary Promotions***Contact Mr. Grahams Benfield via
- email for more info***
-Date: Wed, 27 Oct 2010 18:29:07 -0200
-Message-ID: <0838c70b51c583b2cd9d11d59fbda2c0__14492.9444687024$1288214453$gmane$org@interair.com.br>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] evdev: discard oldest event on buffer overflow
+Date: Wed, 27 Oct 2010 16:57:04 -0700
+Message-ID: <20101027235704.GA12179@core.coreip.homeip.net>
+References: <1288199398-7198-1-git-send-email-bgat@billgatliff.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from chronos.interair.com.br ([200.150.160.34]:35257 "EHLO
-	interair.com.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932406Ab0J0VUK (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:53703 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757522Ab0J0X5N (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Oct 2010 17:20:10 -0400
+	Wed, 27 Oct 2010 19:57:13 -0400
+Received: by gwj21 with SMTP id 21so872678gwj.19
+        for <linux-input@vger.kernel.org>; Wed, 27 Oct 2010 16:57:12 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1288199398-7198-1-git-send-email-bgat@billgatliff.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bill Gatliff <bgat@billgatliff.com>
+Cc: linux-input@vger.kernel.org
 
+On Wed, Oct 27, 2010 at 12:09:58PM -0500, Bill Gatliff wrote:
+> On a buffer overflow, the head and tail pointers collide.
+> This makes the buffer suddenly look empty, rather than
+> full, which may confuse applications.
+> 
+> This patch moves the tail pointer up one event on a buffer
+> overflow, which "consumes" the oldest event in the buffer
+> to make room for the incoming event.  Thus, although data
+> is lost due to the overflow (which is unavoidable), the
+> data that remains is both recent and still time-ordered.
+> 
 
+It does not really matter... You are losing part of the hardware state
+regardless so the packet is invalid anyway. What would probably make
+more sense is to ignore all events up until next packet boundary
+(EV_SYN/SYN_REPORT) so userspace would get most up-to-date _full_ packet
+(when it catches up).
 
---=20
-Your E-mail just W o n =C2=A3850,000 UK Pounds in our on-going 11th Ann=
-iversary
-Online Promo!!
+Thanks.
 
-YOUR DETAILS:
-L u c k y # : 12-12-23-35-40-41(12),
-T i c k e t # : 00869575733664,
-C G P N : 7-22-71-00-66-12.
-
-CONTACT MR GRAHAMS BENFIELD VIA EMAIL BELOW TO GET MORE INFORMATION.
--E-mail: infoannouncer22@gmail.com
-          : paymentform.grahamsbenfield@gmail.com
-
-MRS. HELENA GERRAD=20
-(c) 2010 Google Online Asst. Coordinator/Announcer.
-Hotlines: +44-702-405-3930, +44-702-407-3447
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D
-Note: Your winning details should be sent to the two email addresses=20
-      above inorder to get all the necessary informations about your pr=
-ize.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

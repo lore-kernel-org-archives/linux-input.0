@@ -1,52 +1,105 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 06/10] drivers/input/serio/i8042: Use pr_<level>, pr_fmt.
- Fix dbg and __FILE__ use
-Date: Tue, 26 Oct 2010 20:00:37 -0700
-Message-ID: <20101027030037.GA19202@core.coreip.homeip.net>
-References: <cover.1288059486.git.joe@perches.com>
- <20101026155028.GA13097@core.coreip.homeip.net>
- <1288135531.4145.59.camel@Joe-Laptop>
- <201010261740.13566.dmitry.torokhov@gmail.com>
- <1288140416.4145.76.camel@Joe-Laptop>
- <BFA186FD-32F7-4E1A-9193-CA1575248B73@gmail.com>
- <1288141825.4145.83.camel@Joe-Laptop>
- <4E27039C-DE6B-4C90-ADC5-68D3B30F75E6@gmail.com>
- <1288143345.4145.90.camel@Joe-Laptop>
+From: <samu.p.onkalo@nokia.com>
+Subject: RE: [PATCHv4 1/5] misc: Driver for bh1770glc / sfh7770 ALS and
+ proximity sensor
+Date: Wed, 27 Oct 2010 09:41:32 +0200
+Message-ID: <62697B07E9803846BC582181BD6FB6B836EB299181@NOK-EUMSG-02.mgdnok.nokia.com>
+References: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
+	<1287472188-10101-2-git-send-email-samu.p.onkalo@nokia.com>
+ <AANLkTikWvRKzr+kffcpTHTs3q3TLeUPzdwzuQSR_tSU2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:62485 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933102Ab0J0DAo (ORCPT
+Received: from smtp.nokia.com ([192.100.122.233]:54620 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754365Ab0J0Hmf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Oct 2010 23:00:44 -0400
-Content-Disposition: inline
-In-Reply-To: <1288143345.4145.90.camel@Joe-Laptop>
+	Wed, 27 Oct 2010 03:42:35 -0400
+In-Reply-To: <AANLkTikWvRKzr+kffcpTHTs3q3TLeUPzdwzuQSR_tSU2@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Jiri Kosina <trivial@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linus.ml.walleij@gmail.com
+Cc: akpm@linux-foundation.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Oct 26, 2010 at 06:35:45PM -0700, Joe Perches wrote:
-> On Tue, 2010-10-26 at 18:28 -0700, Dmitry Torokhov wrote:
-> > On Oct 26, 2010, at 6:10 PM, Joe Perches <joe@perches.com> wrote:
-> > > I think 2 defects in 16 uses is a pretty high error rate.
-> > But how not adding /n is it much better than having it if
-> > some later change will forget to add it to the message?
-> 
-> Adding \n is the default kernel style.
-> 
-> USB uses a similar dbg macro with a relatively
-> high error rate.
-> 
-> I fixed some in this commit below awhile ago,
-> but these keep creeping back in, so they _are_
-> error prone in actual use.
-> 
+Hi
 
-OK, fair enough.
+>-----Original Message-----
+>From: linux-i2c-owner@vger.kernel.org [mailto:linux-i2c-
+>owner@vger.kernel.org] On Behalf Of ext Linus Walleij
+>Sent: 26 October, 2010 17:48
+>To: Onkalo Samu.P (Nokia-MS/Tampere)
+>Cc: akpm@linux-foundation.org; linux-i2c@vger.kernel.org; linux-
+>kernel@vger.kernel.org; linux-input@vger.kernel.org
+>Subject: Re: [PATCHv4 1/5] misc: Driver for bh1770glc / sfh7770 ALS an=
+d
+>proximity sensor
+>
+>010/10/19 Samu Onkalo <samu.p.onkalo@nokia.com>:
+>
+>> This is a driver for ROHM BH1770GLC and OSRAM SFH7770 combined
+>> ALS and proximity sensor.
+>>
+>> Interface is sysfs based. The driver uses interrupts to provide new
+>data.
+>> The driver supports pm_runtime and regulator frameworks.
+>> (...)
+>> +static DEVICE_ATTR(prox0_raw_en, S_IRUGO | S_IWUSR,
+>bh1770_prox_enable_show,
+>> +
+>bh1770_prox_enable_store);
+>> +static DEVICE_ATTR(prox0_thresh_above1_value, S_IRUGO | S_IWUSR,
+>> +
+>bh1770_prox_abs_thres_show,
+>> +
+>bh1770_prox_abs_thres_store);
+>> +static DEVICE_ATTR(prox0_thresh_above0_value, S_IRUGO | S_IWUSR,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 bh1770_get_prox_thres,
+>> +
+>bh1770_set_prox_thres);
+>> +static DEVICE_ATTR(prox0_raw, S_IRUGO, bh1770_prox_result_show,
+>NULL);
+>
+>So you have sysfs entries for enabling, calibrating hysteris
+>(above/below) and the reading the raw value which I assume
+>will be 0 (if nothing is in proximity) or 1 (if it is in proximity).
 
-Thanks.
+Actually raw gives 0 or 1023 (=3D=3Dsensor_range) when
+the reporting mode is "trigger"
+or
+0 threshold_abovevalue..1023 in periodic mode.
 
--- 
-Dmitry
+But for Boolean type behavior: 0 is no proximity and !=3D 0 means
+proximity=20
+
+>
+>These entries are pretty OK I think, but the transition from
+>0 to 1 which I assume will generate an interrupt and generate
+>a new value in this attribute.
+
+It uses sysfs_notify to indicate userspace about the change
+
+>
+>But should it not hook into the input framework and generate
+>a SW_FRONT_PROXIMITY event as well?
+>
+>I think this could be pretty helpful for generic userspace
+>applications like X that want to use this event.
+>
+>Of course I can send a patch for this later, but I'd like
+>to hear whether you agree on this or not.
+>
+
+I think that is makes sense to provide it.
+
+-Samu
+
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

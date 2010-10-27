@@ -1,38 +1,64 @@
-From: Samuel Thibault <sthibault@debian.org>
-Subject: Re: Bug#594089: keyboard-configuration: caps lock keycode problem
-Date: Wed, 27 Oct 2010 14:05:13 +0200
-Message-ID: <20101027120513.GT4725@const.famille.thibault.fr>
-References: <4C866913.3030201@triadsys.com> <4C8E6861.1070502@triadsys.com> <20101024144150.GV24091@const.famille.thibault.fr> <20101025045003.GA1438@core.coreip.homeip.net> <4CC58816.3090301@triadsys.com> <20101025180320.GA4725@const.famille.thibault.fr> <4CC6E9D8.8010201@triadsys.com> <20101026161820.GE13097@core.coreip.homeip.net> <4CC7426C.8040502@triadsys.com> <20101027091029.GB28895@core.coreip.homeip.net>
+From: Jason Wessel <jason.wessel@windriver.com>
+Subject: Re: sysrq filter and stuck keys [ was Re: [Nouveau] [PATCH] drm/nouveau/kms:
+ Implement KDB debug hooks for nouveau KMS.]
+Date: Wed, 27 Oct 2010 07:51:11 -0500
+Message-ID: <4CC8203F.6040407@windriver.com>
+References: <1283335002.2741.5.camel@maxim-laptop> <4C7E3A73.5070503@windriver.com> <1283424363.2736.1.camel@maxim-laptop> <1285119735.5949.5.camel@maxim-laptop> <1285164198.3159.8.camel@maxim-laptop> <1285164387.3159.10.camel@maxim-laptop> <1285175225.2960.10.camel@maxim-laptop> <1285361406.4509.0.camel@maxim-laptop> <4C9D10F3.10105@windriver.com> <1285373672.26629.8.camel@maxim-laptop> <20100925040824.GB25773@core.coreip.homeip.net> <4CAB90F2.3090503@windriver.com> <1287023674.11191.2.camel@maxim-laptop> <4CBF123E.6020804@windriver.com> <1287800961.21313.4.camel@maxim-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from solo.fdn.fr ([80.67.169.19]:55946 "EHLO solo.fdn.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754994Ab0J0MFQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Oct 2010 08:05:16 -0400
-Content-Disposition: inline
-In-Reply-To: <20101027091029.GB28895@core.coreip.homeip.net>
+Received: from mail.windriver.com ([147.11.1.11]:59948 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756248Ab0J0Mv1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Oct 2010 08:51:27 -0400
+In-Reply-To: <1287800961.21313.4.camel@maxim-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Tom Vier <tom@triadsys.com>, 594089@bugs.debian.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Ball <cjb@laptop.org>, kgdb-bugreport@lists.sourceforge.net, linux-input <linux-input@vger.kernel.org>
 
-Dmitry Torokhov, le Wed 27 Oct 2010 02:10:29 -0700, a =E9crit :
-> Also, based on evtest data I only see presses/releases for one key (C=
-aps
-> Lock, Right Shift, etc.) I do not see the presses for the additional
-> keys in the evtest stream so I am baffled as to where the additional
-> scancode is coming from... Do you have some funky keymap loaded?
-> Anything interesting in dumpkeys?
+On 10/22/2010 09:29 PM, Maxim Levitsky wrote:
+> Jason, I already found the root cause of the problem.
+> First of all, note that I use xorg's evdev driver.
+> The in-kernel tty kbd driver is only used for virtual consoles.
+>
+>   
 
-Err, since the duplicates appear in scancodes already, is the content o=
-f
-dumpkeys really involved?
+I would like to clarify where you observed the problem.  Was it only on
+the tty console in X or both places?
 
-Samuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> The root cause is that in-kernel kbd driver beeing a client of the input
+> subsystem just doesn't see the sysrq keys because they are filtered,
+> therefore it can't release them.
+>
+>   
+
+With the 3 patches to the input layer in kgdb-next I cannot duplicate
+the problem at all.  If I remove the last patch in the series, and use
+the tty console, I can definitely see the behavior you mention.  I had
+added a change to the sysrq input filter (which is consumes the key
+strokes) that also resets the key mask in the tty keyboard driver
+
+Specifically in
+
++                       /* Clear handled keys from being flagged as a
+repeated stroke */
++                       __clear_bit(code, handle->dev->key);
+
+
+Else drivers that use these bits for autorepeat (like the atkbd driver)
+will end up with stuck keys.
+
+> The right solution is to somehow hook at the atkbd driver , tell it that
+> kbd tampered with its hardware, and make it release the keys.
+>
+>   
+
+I don't think we need to do that because the input filter should be able
+to actually "properly" filter state to all its clients.  As a last
+resort of course the HW state could be tracked and updated, but ideally
+I'd like to avoid it.
+
+Jason.

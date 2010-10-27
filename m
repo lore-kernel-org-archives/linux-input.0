@@ -1,62 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Bug#594089: keyboard-configuration: caps lock keycode problem
-Date: Wed, 27 Oct 2010 13:25:34 -0700
-Message-ID: <201010271325.37935.dmitry.torokhov@gmail.com>
-References: <20101025180320.GA4725@const.famille.thibault.fr> <20101027192508.GA29761@core.coreip.homeip.net> <0D753D10438DA54287A00B027084269764819C63F4@AUSP01VMBX24.collaborationhost.net>
+From: Dan Carpenter <error27@gmail.com>
+Subject: [patch v2] touchscreen/bu21013_ts: null dereference in error
+	handling
+Date: Wed, 27 Oct 2010 22:26:05 +0200
+Message-ID: <20101027202605.GH6062@bicker>
+References: <20101027100822.GF6062@bicker> <20101027154613.GA8745@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:51276 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756549Ab0J0UZ6 (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:46618 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756549Ab0J0U0S (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Oct 2010 16:25:58 -0400
-In-Reply-To: <0D753D10438DA54287A00B027084269764819C63F4@AUSP01VMBX24.collaborationhost.net>
+	Wed, 27 Oct 2010 16:26:18 -0400
+Content-Disposition: inline
+In-Reply-To: <20101027154613.GA8745@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Tom Vier <tom@triadsys.com>, Samuel Thibault <sthibault@debian.org>, "594089@bugs.debian.org" <594089@bugs.debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Wednesday, October 27, 2010 01:20:09 pm H Hartley Sweeten wrote:
-> Wednesday, October 27, 2010 12:25 PM, Dmitry Torokhov wrote:
-> >> I: Bus=0003 Vendor=046d Product=c30a Version=0110
-> >> N: Name="Logitech Logitech USB Keyboard"
-> >> P: Phys=usb-0000:00:13.0-2/input0
-> >> S: Sysfs=/devices/pci0000:00/0000:00:13.0/usb5/5-2/5-2:1.0/input/input9
-> >> U: Uniq=
-> >> H: Handlers=kbd event2
-> >> B: EV=120013
-> >> B: KEY=1000000000007 ff800000000007ff febeffdfffefffff fffffffffffffffe
-> >> B: MSC=10
-> >> B: LED=1f
-> >> 
-> >> I: Bus=0003 Vendor=046d Product=c30a Version=0110
-> >> N: Name="Logitech Logitech USB Keyboard"
-> >> P: Phys=usb-0000:00:13.0-2/input1
-> >> S: Sysfs=/devices/pci0000:00/0000:00:13.0/usb5/5-2/5-2:1.1/input/input10
-> >> U: Uniq=
-> >> H: Handlers=kbd mouse2 event3
-> >> B: EV=17
-> >> B: KEY=fffffffffffff f8403340000 60d8fafd01d008 1f000000000000 0
-> >> B: REL=103
-> >> B: MSC=10
-> > 
-> > Hmm, this keyboard registers 2 input devices... I wonder, if you press
-> > CapsLock/Favories and RightShift/Previous and monitor both event devices
-> > with evtest - will it report events on both devices at once?
-> 
-> I haven't really been following this thread but I think the two input
-> devices is normal if the keyboard has multi-media keys.  All the "extra"
-> keys show up as a separate input device.
-> 
-> You might get the CapsLock and RightShift events on one device and the
-> Favorites and Previous events on the other.
+In the original code "bu21013_data" could be NULL here.
 
-It is normal on sane devices however in this case there are "ghost"
-key presses coming from an unknown source.
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+---
+V2:  same thing; different approach.
 
-
--- 
-Dmitry
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index ccde586..2ca9e5d 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -514,7 +514,7 @@ err_free_irq:
+ err_cs_disable:
+ 	pdata->cs_dis(pdata->cs_pin);
+ err_free_mem:
+-	input_free_device(bu21013_data->in_dev);
++	input_free_device(in_dev);
+ 	kfree(bu21013_data);
+ 
+ 	return error;

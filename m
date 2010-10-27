@@ -1,72 +1,55 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH] input: spi: Driver for SPI data stream driven vibrator
-Date: Wed, 27 Oct 2010 09:47:30 +0100
-Message-ID: <20101027084730.GC6797@angua.secretlab.ca>
-References: <1288013463-21722-1-git-send-email-ilkka.koskinen@nokia.com>
- <20101026111344.GB24714@angua.secretlab.ca>
- <F80267346F10C541946CBE8909F1C39E35932598BB@NOK-EUMSG-02.mgdnok.nokia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Anton Chikin <kverlin@gmail.com>
+Subject: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite Panaboard T-780 and T-880
+Date: Wed, 27 Oct 2010 01:57:05 -0700
+Message-ID: <1288169825-15422-1-git-send-email-Anton.Chikin@dataart.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:37752 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755642Ab0J0Ire (ORCPT
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:35046 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755503Ab0J0I5M (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Oct 2010 04:47:34 -0400
-Content-Disposition: inline
-In-Reply-To: <F80267346F10C541946CBE8909F1C39E35932598BB@NOK-EUMSG-02.mgdnok.nokia.com>
+	Wed, 27 Oct 2010 04:57:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ilkka.koskinen@nokia.com
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, spi-devel-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz
+Cc: chatty@enac.fr, spbnick@gmail.com, anisse@astier.eu, cascardo@holoscopio.com, don@syst.com.br, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, grig@dataart.com, Anton Chikin <Anton.Chikin@dataart.com>, Anton Chikin <anton.chikin@dataart.com>
 
-On Tue, Oct 26, 2010 at 06:50:33PM +0200, ilkka.koskinen@nokia.com wrote:
-> Hi Grant and thanks for comments,
-[...]
-> >> +static int vibra_spi_playback(struct input_dev *input, int effect_id,
-> >int value)
-> >> +{
-> >> +    struct vibra_data *vibra = input_get_drvdata(input);
-> >> +    struct effect_info *einfo = &vibra->effects[effect_id];
-> >> +    struct ff_effect *ff_effect = &input->ff->effects[effect_id];
-> >> +
-> >> +    if (!vibra->workqueue)
-> >> +            return -ENODEV;
-> >> +
-> >> +    if (test_bit(FF_EFFECT_UPLOADING, &einfo->flags))
-> >> +            return -EBUSY;
-> >> +
-> >> +    if (value == 0) {
-> >> +            /* Abort the given effect */
-> >> +            if (test_bit(FF_EFFECT_PLAYING, &einfo->flags))
-> >> +                    __set_bit(FF_EFFECT_ABORTING, &einfo->flags);
-> >> +
-> >> +            __clear_bit(FF_EFFECT_QUEUED, &einfo->flags);
-> >> +    } else {
-> >> +            /* Move the given effect as the next one */
-> >> +            __clear_bit(FF_EFFECT_QUEUED,
-> >> +                    &vibra->effects[vibra->next_effect].flags);
-> >> +
-> >> +            vibra->next_effect = effect_id;
-> >> +            __set_bit(FF_EFFECT_QUEUED, &einfo->flags);
-> >> +            __clear_bit(FF_EFFECT_ABORTING, &einfo->flags);
-> >> +            einfo->stop_at = jiffies +
-> >> +                    msecs_to_jiffies(ff_effect->replay.length);
-> >> +
-> >> +            if (vibra->status == IDLE) {
-> >> +                    vibra->status = STARTED;
-> >> +                    queue_work(vibra->workqueue, &vibra->play_work);
-> >> +            }
-> >> +    }
-> >
-> >I can't speak anything about the input event handling because I'm not
-> >very familiar with it.  However, it looks like the shared effect data
-> >(vibra->effects) is getting modified outside of a critical region.  Is
-> >this safe?
+Added Panasonic vendor ID, two device IDs for Panasonic Whiteboard devices and new quirk to ignore
+these devices in hid-core driver.
 
-Hmmm, I don't know why the force feedback layer is using a spin lock,
-but it looks like overkill.  Since you're already deferring work, I
-would look at queueing the request and pushing down the spin lock
-exposure as much as possible, but I'm really not the expert on the
-input layer.
+Signed-off-by: Anton Chikin <anton.chikin@dataart.com>
+---
+ drivers/hid/hid-ids.h           |    4 ++++
+ drivers/hid/usbhid/hid-quirks.c |    2 ++
+ 2 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3341baa..b5542d3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -446,6 +446,10 @@
+ #define USB_VENDOR_ID_ORTEK		0x05a4
+ #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
+ 
++#define USB_VENDOR_ID_PANASONIC 	0x04da
++#define USB_DEVICE_ID_PANASONIC_PANABOARD_T780 	0x1044
++#define USB_DEVICE_ID_PANASONIC_PANABOARD_T880	0x104d 
++
+ #define USB_VENDOR_ID_PANJIT		0x134c
+ 
+ #define USB_VENDOR_ID_PANTHERLORD	0x0810
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 2c18547..b5788b0 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -65,6 +65,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_AXIS_295, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_PANASONIC, USB_DEVICE_ID_PANASONIC_PANABOARD_T780, HID_QUIRK_IGNORE },
++	{ USB_VENDOR_ID_PANASONIC, USB_DEVICE_ID_PANASONIC_PANABOARD_T880, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+-- 
+1.7.0.4
 

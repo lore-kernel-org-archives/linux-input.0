@@ -1,40 +1,47 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch v2] touchscreen/bu21013_ts: null dereference in error
-	handling
-Date: Wed, 27 Oct 2010 22:26:05 +0200
-Message-ID: <20101027202605.GH6062@bicker>
-References: <20101027100822.GF6062@bicker> <20101027154613.GA8745@core.coreip.homeip.net>
+From: 11th Anniversary Celeberation <lfvalle@interair.com.br>
+Subject: GoogleUK 11th Anniversary Promotions***Contact Mr. Grahams Benfield via
+ email for more info***
+Date: Wed, 27 Oct 2010 18:29:07 -0200
+Message-ID: <0838c70b51c583b2cd9d11d59fbda2c0__14492.9444687024$1288214453$gmane$org@interair.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:46618 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756549Ab0J0U0S (ORCPT
+Received: from chronos.interair.com.br ([200.150.160.34]:35257 "EHLO
+	interair.com.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932406Ab0J0VUK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Oct 2010 16:26:18 -0400
-Content-Disposition: inline
-In-Reply-To: <20101027154613.GA8745@core.coreip.homeip.net>
+	Wed, 27 Oct 2010 17:20:10 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-In the original code "bu21013_data" could be NULL here.
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
----
-V2:  same thing; different approach.
 
-diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index ccde586..2ca9e5d 100644
---- a/drivers/input/touchscreen/bu21013_ts.c
-+++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -514,7 +514,7 @@ err_free_irq:
- err_cs_disable:
- 	pdata->cs_dis(pdata->cs_pin);
- err_free_mem:
--	input_free_device(bu21013_data->in_dev);
-+	input_free_device(in_dev);
- 	kfree(bu21013_data);
- 
- 	return error;
+--=20
+Your E-mail just W o n =C2=A3850,000 UK Pounds in our on-going 11th Ann=
+iversary
+Online Promo!!
+
+YOUR DETAILS:
+L u c k y # : 12-12-23-35-40-41(12),
+T i c k e t # : 00869575733664,
+C G P N : 7-22-71-00-66-12.
+
+CONTACT MR GRAHAMS BENFIELD VIA EMAIL BELOW TO GET MORE INFORMATION.
+-E-mail: infoannouncer22@gmail.com
+          : paymentform.grahamsbenfield@gmail.com
+
+MRS. HELENA GERRAD=20
+(c) 2010 Google Online Asst. Coordinator/Announcer.
+Hotlines: +44-702-405-3930, +44-702-407-3447
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+Note: Your winning details should be sent to the two email addresses=20
+      above inorder to get all the necessary informations about your pr=
+ize.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

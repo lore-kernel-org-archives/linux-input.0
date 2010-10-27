@@ -1,55 +1,52 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 06/10] drivers/input/serio/i8042: Use pr_<level>,
- pr_fmt. Fix dbg and __FILE__ use
-Date: Tue, 26 Oct 2010 18:35:45 -0700
-Message-ID: <1288143345.4145.90.camel@Joe-Laptop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 06/10] drivers/input/serio/i8042: Use pr_<level>, pr_fmt.
+ Fix dbg and __FILE__ use
+Date: Tue, 26 Oct 2010 20:00:37 -0700
+Message-ID: <20101027030037.GA19202@core.coreip.homeip.net>
 References: <cover.1288059486.git.joe@perches.com>
-	 <20101026155028.GA13097@core.coreip.homeip.net>
-	 <1288135531.4145.59.camel@Joe-Laptop>
-	 <201010261740.13566.dmitry.torokhov@gmail.com>
-	 <1288140416.4145.76.camel@Joe-Laptop>
-	 <BFA186FD-32F7-4E1A-9193-CA1575248B73@gmail.com>
-	 <1288141825.4145.83.camel@Joe-Laptop>
-	 <4E27039C-DE6B-4C90-ADC5-68D3B30F75E6@gmail.com>
+ <20101026155028.GA13097@core.coreip.homeip.net>
+ <1288135531.4145.59.camel@Joe-Laptop>
+ <201010261740.13566.dmitry.torokhov@gmail.com>
+ <1288140416.4145.76.camel@Joe-Laptop>
+ <BFA186FD-32F7-4E1A-9193-CA1575248B73@gmail.com>
+ <1288141825.4145.83.camel@Joe-Laptop>
+ <4E27039C-DE6B-4C90-ADC5-68D3B30F75E6@gmail.com>
+ <1288143345.4145.90.camel@Joe-Laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.perches.com ([173.55.12.10]:3625 "EHLO mail.perches.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751305Ab0J0Bfr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Oct 2010 21:35:47 -0400
-In-Reply-To: <4E27039C-DE6B-4C90-ADC5-68D3B30F75E6@gmail.com>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:62485 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933102Ab0J0DAo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Oct 2010 23:00:44 -0400
+Content-Disposition: inline
+In-Reply-To: <1288143345.4145.90.camel@Joe-Laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Joe Perches <joe@perches.com>
 Cc: Jiri Kosina <trivial@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, 2010-10-26 at 18:28 -0700, Dmitry Torokhov wrote:
-> On Oct 26, 2010, at 6:10 PM, Joe Perches <joe@perches.com> wrote:
-> > I think 2 defects in 16 uses is a pretty high error rate.
-> But how not adding /n is it much better than having it if
-> some later change will forget to add it to the message?
+On Tue, Oct 26, 2010 at 06:35:45PM -0700, Joe Perches wrote:
+> On Tue, 2010-10-26 at 18:28 -0700, Dmitry Torokhov wrote:
+> > On Oct 26, 2010, at 6:10 PM, Joe Perches <joe@perches.com> wrote:
+> > > I think 2 defects in 16 uses is a pretty high error rate.
+> > But how not adding /n is it much better than having it if
+> > some later change will forget to add it to the message?
+> 
+> Adding \n is the default kernel style.
+> 
+> USB uses a similar dbg macro with a relatively
+> high error rate.
+> 
+> I fixed some in this commit below awhile ago,
+> but these keep creeping back in, so they _are_
+> error prone in actual use.
+> 
 
-Adding \n is the default kernel style.
+OK, fair enough.
 
-USB uses a similar dbg macro with a relatively
-high error rate.
+Thanks.
 
-I fixed some in this commit below awhile ago,
-but these keep creeping back in, so they _are_
-error prone in actual use.
-
-commit 759f3634267a67ac90f3fa7fc06510dfd43b4e45
-Author: Joe Perches <joe@perches.com>
-Date:   Fri Feb 5 16:50:08 2010 -0800
-
-    USB: serial: Remove unnecessary \n's from dbg uses
-    
-    #define dbg adds the newline, messages shouldn't.
-    Converted dbg("%s", "some string") to dbg("some string")
-    
-    Signed-off-by: Joe Perches <joe@perches.com>
-    Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
+-- 
+Dmitry

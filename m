@@ -1,55 +1,65 @@
-From: Samuel Thibault <sthibault@debian.org>
-Subject: Re: Bug#594089: keyboard-configuration: caps lock keycode problem
-Date: Wed, 27 Oct 2010 17:22:42 +0200
-Message-ID: <20101027152242.GO4725@const.famille.thibault.fr>
-References: <20101024144150.GV24091@const.famille.thibault.fr> <20101025045003.GA1438@core.coreip.homeip.net> <4CC58816.3090301@triadsys.com> <20101025180320.GA4725@const.famille.thibault.fr> <4CC6E9D8.8010201@triadsys.com> <20101026161820.GE13097@core.coreip.homeip.net> <4CC7426C.8040502@triadsys.com> <20101027091029.GB28895@core.coreip.homeip.net> <20101027120513.GT4725@const.famille.thibault.fr> <99F91536-4413-430C-9932-7CEF6AB656DB@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch] touchscreen/bu21013_ts: null dereference in error
+ handling
+Date: Wed, 27 Oct 2010 08:46:13 -0700
+Message-ID: <20101027154613.GA8745@core.coreip.homeip.net>
+References: <20101027100822.GF6062@bicker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from solo.fdn.fr ([80.67.169.19]:35517 "EHLO solo.fdn.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933342Ab0J0PWo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Oct 2010 11:22:44 -0400
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:49842 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756852Ab0J0PqY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Oct 2010 11:46:24 -0400
 Content-Disposition: inline
-In-Reply-To: <99F91536-4413-430C-9932-7CEF6AB656DB@gmail.com>
+In-Reply-To: <20101027100822.GF6062@bicker>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Tom Vier <tom@triadsys.com>, "594089@bugs.debian.org" <594089@bugs.debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Dan Carpenter <error27@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Dmitry Torokhov, le Wed 27 Oct 2010 08:06:26 -0700, a =E9crit :
-> On Oct 27, 2010, at 5:05 AM, Samuel Thibault <sthibault@debian.org> w=
-rote:
->=20
->=20
->     Dmitry Torokhov, le Wed 27 Oct 2010 02:10:29 -0700, a =E9crit :
->=20
->         Also, based on evtest data I only see presses/releases for on=
-e key
->         (Caps Lock, Right Shift, etc.) I do not see the presses for t=
-he additional
->         keys in the evtest stream so I am baffled as to where the add=
-itional
->         scancode is coming from... Do you have some funky keymap load=
-ed?
->         Anything interesting in dumpkeys?
->=20
->=20
->     Err, since the duplicates appear in scancodes already, is the con=
-tent of
->     dumpkeys really involved?
->=20
-> Evtest data does not show any additional events, so the additional sc=
-ancodes
-> must be coming from the legacy keyboard driver.=20
+Hi Dan,
 
-Sure, but dumpkeys shows the table from scancodes to keycodes, not from
-input events to scancodes.
+On Wed, Oct 27, 2010 at 12:08:22PM +0200, Dan Carpenter wrote:
+> If kzalloc() returned NULL then it would lead to a NULL deref after the
+> goto.
+> 
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
 
-Samuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Just changing the error path to do input_free_device(in_dev); is much
+simpler.
+
+> 
+> diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+> index ccde586..8f120b1 100644
+> --- a/drivers/input/touchscreen/bu21013_ts.c
+> +++ b/drivers/input/touchscreen/bu21013_ts.c
+> @@ -446,11 +446,14 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+>  	}
+>  
+>  	bu21013_data = kzalloc(sizeof(struct bu21013_ts_data), GFP_KERNEL);
+> +	if (!bu21013_data)
+> +		return -ENOMEM;
+> +
+>  	in_dev = input_allocate_device();
+> -	if (!bu21013_data || !in_dev) {
+> +	if (!in_dev) {
+>  		dev_err(&client->dev, "device memory alloc failed\n");
+>  		error = -ENOMEM;
+> -		goto err_free_mem;
+> +		goto err_free;
+>  	}
+>  
+>  	bu21013_data->in_dev = in_dev;
+> @@ -515,6 +518,7 @@ err_cs_disable:
+>  	pdata->cs_dis(pdata->cs_pin);
+>  err_free_mem:
+>  	input_free_device(bu21013_data->in_dev);
+> +err_free:
+>  	kfree(bu21013_data);
+>  
+>  	return error;
+
+-- 
+Dmitry

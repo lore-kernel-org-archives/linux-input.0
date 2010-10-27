@@ -1,52 +1,38 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch] touchscreen/bu21013_ts: null dereference in error handling
-Date: Wed, 27 Oct 2010 12:08:22 +0200
-Message-ID: <20101027100822.GF6062@bicker>
+From: Samuel Thibault <sthibault@debian.org>
+Subject: Re: Bug#594089: keyboard-configuration: caps lock keycode problem
+Date: Wed, 27 Oct 2010 14:05:13 +0200
+Message-ID: <20101027120513.GT4725@const.famille.thibault.fr>
+References: <4C866913.3030201@triadsys.com> <4C8E6861.1070502@triadsys.com> <20101024144150.GV24091@const.famille.thibault.fr> <20101025045003.GA1438@core.coreip.homeip.net> <4CC58816.3090301@triadsys.com> <20101025180320.GA4725@const.famille.thibault.fr> <4CC6E9D8.8010201@triadsys.com> <20101026161820.GE13097@core.coreip.homeip.net> <4CC7426C.8040502@triadsys.com> <20101027091029.GB28895@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:55037 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754463Ab0J0KIe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Oct 2010 06:08:34 -0400
+Received: from solo.fdn.fr ([80.67.169.19]:55946 "EHLO solo.fdn.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754994Ab0J0MFQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Oct 2010 08:05:16 -0400
 Content-Disposition: inline
+In-Reply-To: <20101027091029.GB28895@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Cc: Tom Vier <tom@triadsys.com>, 594089@bugs.debian.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-If kzalloc() returned NULL then it would lead to a NULL deref after the
-goto.
+Dmitry Torokhov, le Wed 27 Oct 2010 02:10:29 -0700, a =E9crit :
+> Also, based on evtest data I only see presses/releases for one key (C=
+aps
+> Lock, Right Shift, etc.) I do not see the presses for the additional
+> keys in the evtest stream so I am baffled as to where the additional
+> scancode is coming from... Do you have some funky keymap loaded?
+> Anything interesting in dumpkeys?
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+Err, since the duplicates appear in scancodes already, is the content o=
+f
+dumpkeys really involved?
 
-diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index ccde586..8f120b1 100644
---- a/drivers/input/touchscreen/bu21013_ts.c
-+++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -446,11 +446,14 @@ static int __devinit bu21013_probe(struct i2c_client *client,
- 	}
- 
- 	bu21013_data = kzalloc(sizeof(struct bu21013_ts_data), GFP_KERNEL);
-+	if (!bu21013_data)
-+		return -ENOMEM;
-+
- 	in_dev = input_allocate_device();
--	if (!bu21013_data || !in_dev) {
-+	if (!in_dev) {
- 		dev_err(&client->dev, "device memory alloc failed\n");
- 		error = -ENOMEM;
--		goto err_free_mem;
-+		goto err_free;
- 	}
- 
- 	bu21013_data->in_dev = in_dev;
-@@ -515,6 +518,7 @@ err_cs_disable:
- 	pdata->cs_dis(pdata->cs_pin);
- err_free_mem:
- 	input_free_device(bu21013_data->in_dev);
-+err_free:
- 	kfree(bu21013_data);
- 
- 	return error;
+Samuel
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,41 +1,34 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: evdev: discard oldest event on buffer overflow
-Date: Thu, 28 Oct 2010 09:51:38 +0200
-Message-ID: <4CC92B8A.7090104@euromail.se>
-References: <1288199398-7198-1-git-send-email-bgat@billgatliff.com>
+From: Sriram V <vshrirama@gmail.com>
+Subject: how to support gestures?
+Date: Thu, 28 Oct 2010 21:20:50 +0530
+Message-ID: <AANLkTikSxwFeVutnammcV60TW5eZkS8xjuUCgYuORLo2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:37496 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932582Ab0J1HwL (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:55098 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758771Ab0J1Puv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Oct 2010 03:52:11 -0400
-In-Reply-To: <1288199398-7198-1-git-send-email-bgat@billgatliff.com>
+	Thu, 28 Oct 2010 11:50:51 -0400
+Received: by gyg4 with SMTP id 4so1308704gyg.19
+        for <linux-input@vger.kernel.org>; Thu, 28 Oct 2010 08:50:51 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bill Gatliff <bgat@billgatliff.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 10/27/2010 07:09 PM, Bill Gatliff wrote:
+Hi,
+  If a touch screen controller provides the following gestures
 
-> On a buffer overflow, the head and tail pointers collide.
-> This makes the buffer suddenly look empty, rather than
-> full, which may confuse applications.
-
-
-This is actually an important regulatory effect which increases the ability for
-the client to catch up.
-
-> This patch moves the tail pointer up one event on a buffer
-> overflow, which "consumes" the oldest event in the buffer
-> to make room for the incoming event.  Thus, although data
-> is lost due to the overflow (which is unavoidable), the
-> data that remains is both recent and still time-ordered.
+   1) Pan up
+   2) pan down
+   3) zoom out
+   4) zoom in
+   5) pan left
+   6) pan right
 
 
-As Dmitry said, snapping discards to the event synchronization boundaries could
-be useful, but I doubt it is really worthwhile.
+how the touch screen driver conveys these events to the application?
 
-Henrik
+
+Regards,
+sriram

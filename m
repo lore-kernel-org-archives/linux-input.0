@@ -1,21 +1,38 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite Panaboard
- T-780 and T-880
-Date: Fri, 29 Oct 2010 14:54:36 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1010291453460.6879@pobox.suse.cz>
+From: Anton Chikin <Anton.Chikin-2rKlv3v387hBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite
+ Panaboard T-780 and T-880
+Date: Fri, 29 Oct 2010 17:42:42 +0400
+Message-ID: <3BF066A8BAB61C43B779966CEE6D7FA018BC9E19F2@e6.universe.dart.spb>
 References: <1288169825-15422-1-git-send-email-Anton.Chikin@dataart.com>
+ <alpine.LNX.2.00.1010291453460.6879@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:59069 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751890Ab0J2Myj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Oct 2010 08:54:39 -0400
-In-Reply-To: <1288169825-15422-1-git-send-email-Anton.Chikin@dataart.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LNX.2.00.1010291453460.6879-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: "chatty-rXV5z7KbLFk@public.gmane.org" <chatty-rXV5z7KbLFk@public.gmane.org>, "spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org" <anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org>, "cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org" <cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org>, "don-rBL4DdiBytkIdKJ7tpkyPg@public.gmane.org" <don-rBL4DdiBytkIdKJ7tpkyPg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gregory Burmistrov <grig-2rKlv3v387hBDgjK7y7TUQ@public.gmane.org>, Paul Osborn <Paul.Osborn-+dFpGaSyCl6S7A1Ibl2khg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Anton Chikin <kverlin@gmail.com>
-Cc: chatty@enac.fr, spbnick@gmail.com, anisse@astier.eu, cascardo@holoscopio.com, don@syst.com.br, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, grig@dataart.com, Anton Chikin <Anton.Chikin@dataart.com>, Anton Chikin <anton.chikin@dataart.com>
+
+Hello Jiri,
+
+Panasonic Elite Panaboard UB-T780 is a touchscreen whiteboard. It uses projector to present PC's screen onto the board. So we need to calibrate it according to the projector's position and apply calibration data inside our driver.
+
+There is no other driver for this device. I'm working directly for Panasonic on this driver.
+
+Is this nice for changelog comment?
+
+With best regards,
+Anton Chikin
+
+-----Original Message-----
+From: Jiri Kosina [mailto:jkosina-AlSwsSmVLrQ@public.gmane.org] 
+Sent: Friday, October 29, 2010 4:55 PM
+To: Anton Chikin
+Cc: chatty-rXV5z7KbLFk@public.gmane.org; spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org; cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org; don-rBL4DdiBytkIdKJ7tpkyPg@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Gregory Burmistrov; Anton Chikin; Anton Chikin
+Subject: Re: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite Panaboard T-780 and T-880
 
 On Wed, 27 Oct 2010, Anton Chikin wrote:
 
@@ -33,7 +50,7 @@ Is there any other driver available for these devices?
 Thanks.
 
 > 
-> Signed-off-by: Anton Chikin <anton.chikin@dataart.com>
+> Signed-off-by: Anton Chikin <anton.chikin-2rKlv3v387hBDgjK7y7TUQ@public.gmane.org>
 > ---
 >  drivers/hid/hid-ids.h           |    4 ++++
 >  drivers/hid/usbhid/hid-quirks.c |    2 ++
@@ -74,3 +91,7 @@ Thanks.
 -- 
 Jiri Kosina
 SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

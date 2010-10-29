@@ -1,44 +1,32 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: RE: how to support gestures?
-Date: Thu, 28 Oct 2010 12:00:22 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A530468882872@dlee03.ent.ti.com>
-References: <AANLkTikSxwFeVutnammcV60TW5eZkS8xjuUCgYuORLo2@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Bug#594089: keyboard-configuration: caps lock keycode problem
+Date: Fri, 29 Oct 2010 10:55:30 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1010291054410.6879@pobox.suse.cz>
+References: <20100903235540.GA9149@const> <4C866913.3030201@triadsys.com> <4C8E6861.1070502@triadsys.com> <20101024144150.GV24091@const.famille.thibault.fr> <20101025045003.GA1438@core.coreip.homeip.net> <4CC58816.3090301@triadsys.com>
+ <20101025180320.GA4725@const.famille.thibault.fr> <4CC6E9D8.8010201@triadsys.com> <20101026161820.GE13097@core.coreip.homeip.net> <4CC7426C.8040502@triadsys.com> <20101027091029.GB28895@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:41973 "EHLO arroyo.ext.ti.com"
+Received: from cantor2.suse.de ([195.135.220.15]:33253 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759650Ab0J1RA1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Oct 2010 13:00:27 -0400
-In-Reply-To: <AANLkTikSxwFeVutnammcV60TW5eZkS8xjuUCgYuORLo2@mail.gmail.com>
-Content-Language: en-US
+	id S1755963Ab0J2Izc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Oct 2010 04:55:32 -0400
+In-Reply-To: <20101027091029.GB28895@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sriram V <vshrirama@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Tom Vier <tom@triadsys.com>, Samuel Thibault <sthibault@debian.org>, 594089@bugs.debian.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Sriram,
+On Wed, 27 Oct 2010, Dmitry Torokhov wrote:
 
-> -----Original Message-----
-> From: linux-input-owner@vger.kernel.org [mailto:linux-input-
-> owner@vger.kernel.org] On Behalf Of Sriram V
-> 
-> Hi,
->   If a touch screen controller provides the following gestures
-> 
->    1) Pan up
->    2) pan down
->    3) zoom out
->    4) zoom in
->    5) pan left
->    6) pan right
-> 
+> First of all, the device appears to use duplicate usages for
+> CapsLock/Favorites and RightShift/Previous so we better set up the
+> duplicate usages quirk. I wonder how the other OS copes with diferent
+> keys using the same usages. Jiri, any ideas?
 
-Probably these threads can give some initial idea...
+That thing I have been also wondering about when introducing the quirk for 
+duplicate usages, but I haven't really found out. It's a bit odd.
 
-http://www.spinics.net/lists/linux-input/msg10531.html
-http://www.spinics.net/lists/linux-input/msg06578.html
-
-Best Regards
-Abraham
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,38 +1,111 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: Re: [PATCH] Input: hgpk - support GlideSensor and PenTablet modes
-Date: Fri, 29 Oct 2010 21:11:43 +0100
-Message-ID: <AANLkTi=M8ozNf41bV_zErpjORgi4PohBRv0qVrzBUxZW@mail.gmail.com>
-References: <20101006155026.5BB289D401B@zog.reactivated.net>
-	<20101014155230.GB10421@core.coreip.homeip.net>
-	<AANLkTi=fo9rTfVEdPB46qd=Compjma1XMOKSzqpUQiu3@mail.gmail.com>
-	<20101029165955.GA26386@core.coreip.homeip.net>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 4/5] input: wacom: Add support for the Bamboo Touch
+ trackpad (rev4)
+Date: Fri, 29 Oct 2010 13:45:38 -0700
+Message-ID: <AANLkTikcEjnWghuJGAe-JiUu2n0vfmE3vh7SzUpqK2tP@mail.gmail.com>
+References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
+	<1283607783-29388-5-git-send-email-rydberg@euromail.se>
+	<AANLkTikpAfeSgCsaBWPcW7EncbW7UtLVjH=bpmmbVU-7@mail.gmail.com>
+	<4CB5F8B3.6010504@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:48875 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761844Ab0J2ULp (ORCPT
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:62743 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761950Ab0J2Upj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Oct 2010 16:11:45 -0400
-Received: by wyf28 with SMTP id 28so3513235wyf.19
-        for <linux-input@vger.kernel.org>; Fri, 29 Oct 2010 13:11:44 -0700 (PDT)
-In-Reply-To: <20101029165955.GA26386@core.coreip.homeip.net>
+	Fri, 29 Oct 2010 16:45:39 -0400
+Received: by ewy7 with SMTP id 7so2557251ewy.19
+        for <linux-input@vger.kernel.org>; Fri, 29 Oct 2010 13:45:38 -0700 (PDT)
+In-Reply-To: <4CB5F8B3.6010504@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, pgf@laptop.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input <linux-input@vger.kernel.org>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-On 29 October 2010 17:59, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> Sorry for the delay, I did not quite like that we had to adjust the
-> global mode option to switch the device to the new mode; we should be
-> able to do it ourselves within the driver instead of punting the task
-> off to serio_rescan(). Could you please tell me if the patch below (on
-> top of yours) still works?
+On Wed, Oct 13, 2010 at 11:21 AM, Henrik Rydberg <rydberg@euromail.se> =
+wrote:
+>
+>>> +static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+>
+>>> +{
+>>> + =A0 =A0 =A0 static int trkid;
+>>> + =A0 =A0 =A0 struct input_dev *input =3D wacom->input;
+>>> + =A0 =A0 =A0 unsigned char *data =3D wacom->data;
+>>> + =A0 =A0 =A0 int sp =3D 0, sx =3D 0, sy =3D 0, count =3D 0;
+>>> + =A0 =A0 =A0 int i;
+>>> +
+>>> + =A0 =A0 =A0 if (len !=3D WACOM_PKGLEN_BBTOUCH)
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+>>> +
+>>> + =A0 =A0 =A0 for (i =3D 0; i < 2; i++) {
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 int p =3D data[9 * i + 2];
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_slot(input, i);
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (p) {
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int x =3D get_unalign=
+ed_be16(&data[9 * i + 3]) & 0x7ff;
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int y =3D get_unalign=
+ed_be16(&data[9 * i + 5]) & 0x7ff;
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(inpu=
+t, ABS_MT_PRESSURE, p);
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(inpu=
+t, ABS_MT_POSITION_X, x);
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(inpu=
+t, ABS_MT_POSITION_Y, y);
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wacom->id[i] < 0)
+>>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom=
+->id[i] =3D trkid++ & MAX_TRACKING_ID;
+>>
+>> Why do we need an arbitrary MAX_TRACKING_ID when the device can tell
+>> us how many IDs we can have and it tracks the individual fingers for
+>> us? In this case, there are only two ID/fingers and the ID can be
+>> retrieved from the raw data. I must be missing something in the
+>> defintion of MAX_TRACKING_ID.
+>
+> In the language of ABS_MT, there is a distinction between slot and id=
+=2E The slot
+> is the handle used to communicate a unique touch. The id is the ident=
+ifier of
+> that touch. The device tells us how many slots we have. The range of =
+ids is in
+> principle infinite. In practice, it is set to a large number.
 
-Thanks for battling through this.
-It introduces some minor breakage.
-Fixed by: http://dev.laptop.org/~dsd/20101029/hgpk-fixups.txt
+Sorry to bring this topic back again. I was under the impression that
+I was the only one who didn't get the spec clear. The discussion at
+yesterday's UDS session made me feel I am not alone (good or bad :).
+Let me try it again to see if I can get it right this time.
 
-Let me know what the next steps are
+=46rom the "Multi-touch (MT) Protocol" under Documentation/input, we se=
+e
+the following:
 
-Daniel
+"The slot protocol requires the use of the ABS_MT_TRACKING_ID, either
+provided by the hardware or computed from the raw data".
+
+That means if the hardware provides the tracking ID, we use it.
+Otherwise we lose that specific information reported from the
+hardware.
+
+=46or the Bamboo case, the tracking ID happens to be the same as the
+slot ID we use. But, there are devices, as far as I know, report up to
+10 fingers/touches. So, there would be 10 slots to report the data.
+But, the tracking ID we get from the devices is 0 to 255. So, slot 5
+could have a tracking ID of 123 now and 9 when tuch 123 is up and
+touch 5 is down.
+
+> To answer a possible follow-up question: from the tracking id, you ca=
+n tell if a
+> contact is present, if it is new, and if it is older than another con=
+tact.
+
+The new and old attribute can be tracked by a time stamp in the
+userland. Kernel driver doesn't need to worry about it. Maybe I am
+missing an use case in the kernel?
+
+Ping
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

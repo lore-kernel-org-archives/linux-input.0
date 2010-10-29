@@ -1,111 +1,75 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 4/5] input: wacom: Add support for the Bamboo Touch
- trackpad (rev4)
-Date: Fri, 29 Oct 2010 13:45:38 -0700
-Message-ID: <AANLkTikcEjnWghuJGAe-JiUu2n0vfmE3vh7SzUpqK2tP@mail.gmail.com>
-References: <1283607783-29388-1-git-send-email-rydberg@euromail.se>
-	<1283607783-29388-5-git-send-email-rydberg@euromail.se>
-	<AANLkTikpAfeSgCsaBWPcW7EncbW7UtLVjH=bpmmbVU-7@mail.gmail.com>
-	<4CB5F8B3.6010504@euromail.se>
+From: James Hogan <james@albanarts.com>
+Subject: Re: [PATCH 1/6] Input: add support for large scancodes
+Date: Fri, 29 Oct 2010 22:36:06 +0100
+Message-ID: <201010292236.07437.james@albanarts.com>
+References: <20100908073233.32365.74621.stgit@hammer.corenet.prv> <20100908074144.32365.27232.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:62743 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761950Ab0J2Upj convert rfc822-to-8bit (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:54668 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756019Ab0J2VgT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Oct 2010 16:45:39 -0400
-Received: by ewy7 with SMTP id 7so2557251ewy.19
-        for <linux-input@vger.kernel.org>; Fri, 29 Oct 2010 13:45:38 -0700 (PDT)
-In-Reply-To: <4CB5F8B3.6010504@euromail.se>
+	Fri, 29 Oct 2010 17:36:19 -0400
+In-Reply-To: <20100908074144.32365.27232.stgit@hammer.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input <linux-input@vger.kernel.org>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, David Hardeman <david@hardeman.nu>, Jiri Kosina <jkosina@suse.cz>, Ville Syrjala <syrjala@sci.fi>, linux-doc@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>
 
-On Wed, Oct 13, 2010 at 11:21 AM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
->
->>> +static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
->
->>> +{
->>> + =A0 =A0 =A0 static int trkid;
->>> + =A0 =A0 =A0 struct input_dev *input =3D wacom->input;
->>> + =A0 =A0 =A0 unsigned char *data =3D wacom->data;
->>> + =A0 =A0 =A0 int sp =3D 0, sx =3D 0, sy =3D 0, count =3D 0;
->>> + =A0 =A0 =A0 int i;
->>> +
->>> + =A0 =A0 =A0 if (len !=3D WACOM_PKGLEN_BBTOUCH)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
->>> +
->>> + =A0 =A0 =A0 for (i =3D 0; i < 2; i++) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 int p =3D data[9 * i + 2];
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_mt_slot(input, i);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (p) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int x =3D get_unalign=
-ed_be16(&data[9 * i + 3]) & 0x7ff;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int y =3D get_unalign=
-ed_be16(&data[9 * i + 5]) & 0x7ff;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(inpu=
-t, ABS_MT_PRESSURE, p);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(inpu=
-t, ABS_MT_POSITION_X, x);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(inpu=
-t, ABS_MT_POSITION_Y, y);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wacom->id[i] < 0)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom=
-->id[i] =3D trkid++ & MAX_TRACKING_ID;
->>
->> Why do we need an arbitrary MAX_TRACKING_ID when the device can tell
->> us how many IDs we can have and it tracks the individual fingers for
->> us? In this case, there are only two ID/fingers and the ID can be
->> retrieved from the raw data. I must be missing something in the
->> defintion of MAX_TRACKING_ID.
->
-> In the language of ABS_MT, there is a distinction between slot and id=
-=2E The slot
-> is the handle used to communicate a unique touch. The id is the ident=
-ifier of
-> that touch. The device tells us how many slots we have. The range of =
-ids is in
-> principle infinite. In practice, it is set to a large number.
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 7892651..0057698 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+<snip>
+> +/**
+> + * struct input_keymap_entry - used by EVIOCGKEYCODE/EVIOCSKEYCODE ioctls
+> + * @scancode: scancode represented in machine-endian form.
+> + * @len: length of the scancode that resides in @scancode buffer.
+> + * @index: index in the keymap, may be used instead of scancode
+> + * @flags: allows to specify how kernel should handle the request. For
+> + *	example, setting INPUT_KEYMAP_BY_INDEX flag indicates that kernel
+> + *	should perform lookup in keymap by @index instead of @scancode
+> + * @keycode: key code assigned to this scancode
+> + *
+> + * The structure is used to retrieve and modify keymap data. Users have
+> + * option of performing lookup either by @scancode itself or by @index
+> + * in keymap entry. EVIOCGKEYCODE will also return scancode or index
+> + * (depending on which element was used to perform lookup).
+> + */
+> +struct input_keymap_entry {
+> +#define INPUT_KEYMAP_BY_INDEX	(1 << 0)
+> +	__u8  flags;
+> +	__u8  len;
+> +	__u16 index;
+> +	__u32 keycode;
+> +	__u8  scancode[32];
+> +};
 
-Sorry to bring this topic back again. I was under the impression that
-I was the only one who didn't get the spec clear. The discussion at
-yesterday's UDS session made me feel I am not alone (good or bad :).
-Let me try it again to see if I can get it right this time.
+I thought I better point out that this breaks make htmldocs (see below) 
+because of the '<' characters "in" a kernel doc'd struct. This is with 
+12ba8d1e9262ce81a695795410bd9ee5c9407ba1 from Linus' tree (>2.6.36). Moving 
+the #define below the struct works around the problem, but I guess the real 
+issue is in the kerneldoc code.
 
-=46rom the "Multi-touch (MT) Protocol" under Documentation/input, we se=
-e
-the following:
+Cheers
+James
 
-"The slot protocol requires the use of the ABS_MT_TRACKING_ID, either
-provided by the hardware or computed from the raw data".
-
-That means if the hardware provides the tracking ID, we use it.
-Otherwise we lose that specific information reported from the
-hardware.
-
-=46or the Bamboo case, the tracking ID happens to be the same as the
-slot ID we use. But, there are devices, as far as I know, report up to
-10 fingers/touches. So, there would be 10 slots to report the data.
-But, the tracking ID we get from the devices is 0 to 255. So, slot 5
-could have a tracking ID of 123 now and 9 when tuch 123 is up and
-touch 5 is down.
-
-> To answer a possible follow-up question: from the tracking id, you ca=
-n tell if a
-> contact is present, if it is new, and if it is older than another con=
-tact.
-
-The new and old attribute can be tracked by a time stamp in the
-userland. Kernel driver doesn't need to worry about it. Maybe I am
-missing an use case in the kernel?
-
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+$ make htmldocs
+  DOCPROC Documentation/DocBook/device-drivers.xml
+  HTML    Documentation/DocBook/device-drivers.html
+/home/james/src/kernel/linux-2.6/Documentation/DocBook/device-
+drivers.xml:41883: parser error : StartTag: invalid element name
+#define INPUT_KEYMAP_BY_INDEX   (1 << 0)
+                                    ^
+/home/james/src/kernel/linux-2.6/Documentation/DocBook/device-
+drivers.xml:41883: parser error : StartTag: invalid element name
+#define INPUT_KEYMAP_BY_INDEX   (1 << 0)
+                                     ^
+unable to parse /home/james/src/kernel/linux-2.6/Documentation/DocBook/device-
+drivers.xml
+/bin/cp: cannot stat `*.*htm*': No such file or directory
+make[1]: *** [Documentation/DocBook/device-drivers.html] Error 1
+make: *** [htmldocs] Error 2

@@ -1,7 +1,7 @@
 From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
-Date: Sat, 30 Oct 2010 10:44:22 -0600
-Message-ID: <4CCCE6160200002300022EF9@novprvlin0050.provo.novell.com>
+Subject: Re: [PATCH 3/4] Add 3G rfkill sysfs file
+Date: Sat, 30 Oct 2010 10:44:33 -0600
+Message-ID: <4CCCE6210200002300022EFE@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
@@ -16,126 +16,174 @@ Add CC. Thomas
 
 =E6=96=BC =E6=97=A5=EF=BC=8C2010-10-31 =E6=96=BC 00:36 +0800=EF=BC=8CLe=
 e, Chun-Yi =E6=8F=90=E5=88=B0=EF=BC=9A
-> Check the Acer OEM-specific Type AA to detect the WiFi/Bluetooth/3G
-> devices available or not, and set the devices capability flag.
+> Add 3G rfkill sysfs file for provide userland to control 3G device
+> on/off by using WMI method.
 >=20
 > Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
 > ---
->  drivers/platform/x86/acer-wmi.c |   50 +++++++++++++++++++++++++++++=
-+++------
->  1 files changed, 42 insertions(+), 8 deletions(-)
+>  drivers/platform/x86/acer-wmi.c |   99 +++++++++++++++++++++++++++++=
++++++++++-
+>  1 files changed, 98 insertions(+), 1 deletions(-)
 >=20
 > diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/a=
 cer-wmi.c
-> index 9656464..0247a70 100644
+> index 0b870d3..9656464 100644
 > --- a/drivers/platform/x86/acer-wmi.c
 > +++ b/drivers/platform/x86/acer-wmi.c
-> @@ -39,6 +39,7 @@
->  #include <linux/slab.h>
->  #include <linux/input.h>
->  #include <linux/input/sparse-keymap.h>
-> +#include <linux/dmi.h>
-> =20
->  #include <acpi/acpi_drivers.h>
-> =20
-> @@ -138,7 +139,9 @@ struct lm_return_value {
->  /*
->   * GUID3 Get Device Status device flags
->   */
-> -#define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
-> +#define ACER_WMID3_GDS_WIRELESS           (1<<0)  /* WiFi */
-> +#define ACER_WMID3_GDS_THREEG             (1<<6)  /* 3G */
-> +#define ACER_WMID3_GDS_BLUETOOTH          (1<<11) /* BT */
-> =20
->  struct wmid3_gds_input_param {	/* Get Device Status input parameter =
-*/
->  	u8 function_num;	/* Function Number */
-> @@ -153,6 +156,15 @@ struct wmid3_gds_return_value {	/* Get Device St=
-atus return value*/
->  	u32 reserved;
+> @@ -136,6 +136,24 @@ struct lm_return_value {
 >  } __attribute__((packed));
 > =20
-> +#define ACER_DMI_DEV_TYPE_AA		170
+>  /*
+> + * GUID3 Get Device Status device flags
+> + */
+> +#define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
 > +
-> +struct hotkey_function_type_aa {
-> +	u8 type;
-> +	u8 length;
-> +	u16 handle;
-> +	u16 commun_func_bitmap;
+> +struct wmid3_gds_input_param {	/* Get Device Status input parameter =
+*/
+> +	u8 function_num;	/* Function Number */
+> +	u8 hotkey_number;	/* Hotkey Number */
+> +	u16 devices;		/* Get Device */
 > +} __attribute__((packed));
 > +
->  /*
+> +struct wmid3_gds_return_value {	/* Get Device Status return value*/
+> +	u8 error_code;		/* Error Code */
+> +	u8 ec_return_value;	/* EC Return Value */
+> +	u16 devices;		/* Current Device Status */
+> +	u32 reserved;
+> +} __attribute__((packed));
+> +
+> +/*
 >   * Interface capability flags
 >   */
-> @@ -184,6 +196,7 @@ static int brightness =3D -1;
->  static int threeg =3D -1;
->  static int force_series;
->  static bool ec_raw_mode;
-> +static struct hotkey_function_type_aa *type_aa;
+>  #define ACER_CAP_MAILLED		(1<<0)
+> @@ -192,6 +210,7 @@ struct acer_debug {
 > =20
->  module_param(mailled, int, 0444);
->  module_param(brightness, int, 0444);
-> @@ -824,6 +837,18 @@ static acpi_status WMID_set_u32(u32 value, u32 c=
-ap, struct wmi_interface *iface)
->  	return WMI_execute_u32(method_id, (u32)value, NULL);
+>  static struct rfkill *wireless_rfkill;
+>  static struct rfkill *bluetooth_rfkill;
+> +static struct rfkill *threeg_rfkill;
+> =20
+>  /* Each low-level interface must define at least some of the followi=
+ng */
+>  struct wmi_interface {
+> @@ -1000,6 +1019,54 @@ static void acer_backlight_exit(void)
+>  	backlight_device_unregister(acer_backlight_device);
 >  }
 > =20
-> +static void type_aa_dmi_decode(const struct dmi_header *header, void=
- *dummy)
+> +static acpi_status wmid3_get_device_status(u32 *value, u16 device)
 > +{
-> +	/* We are looking for OEM-specific Type Aah */
-> +	if (header->type !=3D ACER_DMI_DEV_TYPE_AA)
-> +		return;
+> +	struct wmid3_gds_return_value return_value;
+> +	acpi_status status;
+> +	union acpi_object *obj;
+> +	struct wmid3_gds_input_param params =3D {
+> +		.function_num =3D 0x1,
+> +		.hotkey_number =3D 0x01,
+> +		.devices =3D device,
+> +	};
+> +	struct acpi_buffer input =3D {
+> +		sizeof(struct wmid3_gds_input_param),
+> +		&params
+> +	};
+> +	struct acpi_buffer output =3D { ACPI_ALLOCATE_BUFFER, NULL };
 > +
-> +	type_aa =3D (struct hotkey_function_type_aa *) header;
+> +	status =3D wmi_evaluate_method(WMID_GUID3, 0, 0x2, &input, &output)=
+;
+> +	if (ACPI_FAILURE(status))
+> +		return status;
 > +
-> +	printk(ACER_INFO "Function biti map for Communication Button: 0x%x\=
-n",
-> +		type_aa->commun_func_bitmap);
+> +	obj =3D output.pointer;
+> +
+> +	if (!obj)
+> +		return -EINVAL;
+> +	else if (obj->type !=3D ACPI_TYPE_BUFFER) {
+> +		kfree(obj);
+> +		return -EINVAL;
+> +	}
+> +	if (obj->buffer.length !=3D 8) {
+> +		printk(ACER_WARNING "Unknown buffer length %d\n",
+> +			obj->buffer.length);
+> +		kfree(obj);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return_value =3D *((struct wmid3_gds_return_value *)obj->buffer.poi=
+nter);
+> +	kfree(obj);
+> +
+> +	if (return_value.error_code || return_value.ec_return_value)
+> +		printk(ACER_WARNING "Get Device Status failed: "
+> +			"0x%x - 0x%x\n", return_value.error_code,
+> +			return_value.ec_return_value);
+> +	else
+> +		*value =3D !!(return_value.devices & device);
+> +
+> +	return status;
 > +}
 > +
->  static acpi_status WMID_set_capabilities(void)
->  {
->  	struct acpi_buffer out =3D {ACPI_ALLOCATE_BUFFER, NULL};
-> @@ -844,16 +869,24 @@ static acpi_status WMID_set_capabilities(void)
->  		return AE_ERROR;
+>  /*
+>   * Rfkill devices
+>   */
+> @@ -1020,6 +1087,13 @@ static void acer_rfkill_update(struct work_str=
+uct *ignored)
+>  			rfkill_set_sw_state(bluetooth_rfkill, !state);
 >  	}
 > =20
-> -	/* Not sure on the meaning of the relevant bits yet to detect these=
- */
-> -	interface->capability |=3D ACER_CAP_WIRELESS;
-> -	interface->capability |=3D ACER_CAP_THREEG;
-> +	dmi_walk(type_aa_dmi_decode, NULL);
-> +	if (type_aa) {
-> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
-> +			interface->capability |=3D ACER_CAP_WIRELESS;
-> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG)
-> +			interface->capability |=3D ACER_CAP_THREEG;
-> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
-> +			interface->capability |=3D ACER_CAP_BLUETOOTH;
-> +	} else {
-> +		interface->capability |=3D ACER_CAP_WIRELESS;
-> +		interface->capability |=3D ACER_CAP_THREEG;
-> +		if (devices & 0x10)
-> +			interface->capability |=3D ACER_CAP_BLUETOOTH;
+> +	if (has_cap(ACER_CAP_THREEG) && wmi_has_guid(WMID_GUID3)) {
+> +		status =3D wmid3_get_device_status(&state,
+> +				ACER_WMID3_GDS_THREEG);
+> +		if (ACPI_SUCCESS(status))
+> +			rfkill_set_sw_state(threeg_rfkill, !state);
 > +	}
-> =20
->  	/* WMID always provides brightness methods */
->  	interface->capability |=3D ACER_CAP_BRIGHTNESS;
-> =20
-> -	if (devices & 0x10)
-> -		interface->capability |=3D ACER_CAP_BLUETOOTH;
-> -
->  	if (!(devices & 0x20))
->  		max_brightness =3D 0x9;
-> =20
-> @@ -932,7 +965,8 @@ static void __init acer_commandline_init(void)
->  	 * capability isn't available on the given interface
->  	 */
->  	set_u32(mailled, ACER_CAP_MAILLED);
-> -	set_u32(threeg, ACER_CAP_THREEG);
-> +	if (!type_aa)
-> +		set_u32(threeg, ACER_CAP_THREEG);
->  	set_u32(brightness, ACER_CAP_BRIGHTNESS);
+> +
+>  	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ)=
+);
 >  }
 > =20
+> @@ -1076,6 +1150,19 @@ static int acer_rfkill_init(struct device *dev=
+)
+>  		}
+>  	}
+> =20
+> +	if (has_cap(ACER_CAP_THREEG)) {
+> +		threeg_rfkill =3D acer_rfkill_register(dev,
+> +			RFKILL_TYPE_WWAN, "acer-threeg",
+> +			ACER_CAP_THREEG);
+> +		if (IS_ERR(threeg_rfkill)) {
+> +			rfkill_unregister(wireless_rfkill);
+> +			rfkill_destroy(wireless_rfkill);
+> +			rfkill_unregister(bluetooth_rfkill);
+> +			rfkill_destroy(bluetooth_rfkill);
+> +			return PTR_ERR(threeg_rfkill);
+> +		}
+> +	}
+> +
+>  	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ)=
+);
+> =20
+>  	return 0;
+> @@ -1092,6 +1179,11 @@ static void acer_rfkill_exit(void)
+>  		rfkill_unregister(bluetooth_rfkill);
+>  		rfkill_destroy(bluetooth_rfkill);
+>  	}
+> +
+> +	if (has_cap(ACER_CAP_THREEG)) {
+> +		rfkill_unregister(threeg_rfkill);
+> +		rfkill_destroy(threeg_rfkill);
+> +	}
+>  	return;
+>  }
+> =20
+> @@ -1102,7 +1194,12 @@ static ssize_t show_bool_threeg(struct device =
+*dev,
+>  	struct device_attribute *attr, char *buf)
+>  {
+>  	u32 result; \
+> -	acpi_status status =3D get_u32(&result, ACER_CAP_THREEG);
+> +	acpi_status status;
+> +	if (wmi_has_guid(WMID_GUID3))
+> +		status =3D wmid3_get_device_status(&result,
+> +				ACER_WMID3_GDS_THREEG);
+> +	else
+> +		status =3D get_u32(&result, ACER_CAP_THREEG);
+>  	if (ACPI_SUCCESS(status))
+>  		return sprintf(buf, "%u\n", result);
+>  	return sprintf(buf, "Read error\n");

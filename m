@@ -1,95 +1,82 @@
 From: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
-Subject: [PATCH 2/4] Enabled Acer Launch Manager mode
-Date: Sun, 31 Oct 2010 00:36:31 +0800
-Message-ID: <1288456593-6868-2-git-send-email-jlee@novell.com>
+Subject: [PATCH 3/4] Add 3G rfkill sysfs file
+Date: Sun, 31 Oct 2010 00:36:32 +0800
+Message-ID: <1288456593-6868-3-git-send-email-jlee@novell.com>
 References: <1288456593-6868-1-git-send-email-jlee@novell.com>
+ <1288456593-6868-2-git-send-email-jlee@novell.com>
 Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <1288456593-6868-1-git-send-email-jlee@novell.com>
+In-Reply-To: <1288456593-6868-2-git-send-email-jlee@novell.com>
 Sender: platform-driver-x86-owner@vger.kernel.org
 To: platform-driver-x86@vger.kernel.org
 Cc: linux-input@vger.kernel.org, carlos@strangeworlds.co.uk, corentin.chary@gmail.com, dmitry.torokhov@gmail.com, tiwai@novell.com, trenn@novell.com, mjg59@srcf.ucam.org, jbenc@suse.cz, "Lee, Chun-Yi" <jlee@novell.com>
 List-Id: linux-input@vger.kernel.org
 
-Enabled Acer Launch Manager mode to disable the EC raw behavior for
-communication devices when WMID3 method available. And, we also add a
-ec_raw_mode kernel module option for enable The EC raw behavior mode
-when anyone what reset it back.
-When Acer Launch Manager mode enabled, EC will stop to touch any
-communication devices' RF state or power state that causes conflict
-with rfkill_input or any userland daemon to charge the rfkill rules.
+Add 3G rfkill sysfs file for provide userland to control 3G device
+on/off by using WMI method.
 
 Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
 ---
- drivers/platform/x86/acer-wmi.c |  113 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 113 insertions(+), 0 deletions(-)
+ drivers/platform/x86/acer-wmi.c |   99 ++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 98 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 930df56..0b870d3 100644
+index 0b870d3..9656464 100644
 --- a/drivers/platform/x86/acer-wmi.c
 +++ b/drivers/platform/x86/acer-wmi.c
-@@ -85,6 +85,7 @@ MODULE_LICENSE("GPL");
- #define AMW0_GUID2		"431F16ED-0C2B-444C-B267-27DEB140CF9C"
- #define WMID_GUID1		"6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3"
- #define WMID_GUID2		"95764E09-FB56-4e83-B31A-37761F60994A"
-+#define WMID_GUID3		"61EF69EA-865C-4BC3-A502-A0DEBA0CB531"
- 
- /*
-  * Acer ACPI event GUIDs
-@@ -120,6 +121,20 @@ struct event_return_value {
- 	u32 reserved;
+@@ -136,6 +136,24 @@ struct lm_return_value {
  } __attribute__((packed));
  
-+struct lm_input_params {
+ /*
++ * GUID3 Get Device Status device flags
++ */
++#define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
++
++struct wmid3_gds_input_param {	/* Get Device Status input parameter */
 +	u8 function_num;	/* Function Number */
-+	u16 commun_devices;	/* Communication type devices default status */
-+	u16 devices;		/* Other type devices default status */
-+	u8 lm_status;		/* Launch Manager Status */
-+	u16 reserved;
++	u8 hotkey_number;	/* Hotkey Number */
++	u16 devices;		/* Get Device */
 +} __attribute__((packed));
 +
-+struct lm_return_value {
++struct wmid3_gds_return_value {	/* Get Device Status return value*/
 +	u8 error_code;		/* Error Code */
 +	u8 ec_return_value;	/* EC Return Value */
-+	u16 reserved;
++	u16 devices;		/* Current Device Status */
++	u32 reserved;
 +} __attribute__((packed));
 +
- /*
++/*
   * Interface capability flags
   */
-@@ -150,15 +165,18 @@ static int mailled = -1;
- static int brightness = -1;
- static int threeg = -1;
- static int force_series;
-+static bool ec_raw_mode;
+ #define ACER_CAP_MAILLED		(1<<0)
+@@ -192,6 +210,7 @@ struct acer_debug {
  
- module_param(mailled, int, 0444);
- module_param(brightness, int, 0444);
- module_param(threeg, int, 0444);
- module_param(force_series, int, 0444);
-+module_param(ec_raw_mode, bool, 0444);
- MODULE_PARM_DESC(mailled, "Set initial state of Mail LED");
- MODULE_PARM_DESC(brightness, "Set initial LCD backlight brightness");
- MODULE_PARM_DESC(threeg, "Set initial state of 3G hardware");
- MODULE_PARM_DESC(force_series, "Force a different laptop series");
-+MODULE_PARM_DESC(ec_raw_mode, "Enable EC raw mode");
+ static struct rfkill *wireless_rfkill;
+ static struct rfkill *bluetooth_rfkill;
++static struct rfkill *threeg_rfkill;
  
- struct acer_data {
- 	int mailled;
-@@ -1393,6 +1411,87 @@ error_debugfs:
- 	return -ENOMEM;
+ /* Each low-level interface must define at least some of the following */
+ struct wmi_interface {
+@@ -1000,6 +1019,54 @@ static void acer_backlight_exit(void)
+ 	backlight_device_unregister(acer_backlight_device);
  }
  
-+static acpi_status
-+wmid3_set_lm_mode(struct lm_input_params *params,
-+			struct lm_return_value *return_value)
++static acpi_status wmid3_get_device_status(u32 *value, u16 device)
 +{
++	struct wmid3_gds_return_value return_value;
 +	acpi_status status;
 +	union acpi_object *obj;
-+
-+	struct acpi_buffer input = { sizeof(struct lm_input_params), params };
++	struct wmid3_gds_input_param params = {
++		.function_num = 0x1,
++		.hotkey_number = 0x01,
++		.devices = device,
++	};
++	struct acpi_buffer input = {
++		sizeof(struct wmid3_gds_input_param),
++		&params
++	};
 +	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
 +
-+	status = wmi_evaluate_method(WMID_GUID3, 0, 0x1, &input, &output);
++	status = wmi_evaluate_method(WMID_GUID3, 0, 0x2, &input, &output);
 +	if (ACPI_FAILURE(status))
 +		return status;
 +
@@ -101,88 +88,88 @@ index 930df56..0b870d3 100644
 +		kfree(obj);
 +		return -EINVAL;
 +	}
-+	if (obj->buffer.length != 4) {
++	if (obj->buffer.length != 8) {
 +		printk(ACER_WARNING "Unknown buffer length %d\n",
 +			obj->buffer.length);
 +		kfree(obj);
 +		return -EINVAL;
 +	}
 +
-+	*return_value = *((struct lm_return_value *)obj->buffer.pointer);
++	return_value = *((struct wmid3_gds_return_value *)obj->buffer.pointer);
 +	kfree(obj);
 +
-+	return status;
-+}
-+
-+static int acer_wmi_enable_ec_raw(void)
-+{
-+	struct lm_return_value return_value;
-+	acpi_status status;
-+	struct lm_input_params params = {
-+		.function_num = 0x1,
-+		.commun_devices = 0xFFFF,
-+		.devices = 0xFFFF,
-+		.lm_status = 0x00,		/* Launch Manager Deactive */
-+	};
-+
-+	status = wmid3_set_lm_mode(&params, &return_value);
-+
 +	if (return_value.error_code || return_value.ec_return_value)
-+		printk(ACER_WARNING "Enabling EC raw mode failed: "
++		printk(ACER_WARNING "Get Device Status failed: "
 +			"0x%x - 0x%x\n", return_value.error_code,
 +			return_value.ec_return_value);
 +	else
-+		printk(ACER_INFO "Enabled EC raw mode");
++		*value = !!(return_value.devices & device);
 +
 +	return status;
 +}
 +
-+static int acer_wmi_enable_lm(void)
-+{
-+	struct lm_return_value return_value;
-+	acpi_status status;
-+	struct lm_input_params params = {
-+		.function_num = 0x1,
-+		.commun_devices = 0x0041,	/* WiFi on, 3G on, BT off */
-+		.devices = 0xFFFF,
-+		.lm_status = 0x41,		/* Launch Manager Active */
-+	};
-+
-+	status = wmid3_set_lm_mode(&params, &return_value);
-+
-+	if (return_value.error_code || return_value.ec_return_value)
-+		printk(ACER_WARNING "Enabling Launch Manager failed: "
-+			"0x%x - 0x%x\n", return_value.error_code,
-+			return_value.ec_return_value);
-+	else
-+		printk(ACER_INFO "Enabled Launch Manager");
-+
-+	return status;
-+}
-+
- static int __init acer_wmi_init(void)
- {
- 	int err;
-@@ -1454,6 +1553,20 @@ static int __init acer_wmi_init(void)
- 		       "generic video driver\n");
+ /*
+  * Rfkill devices
+  */
+@@ -1020,6 +1087,13 @@ static void acer_rfkill_update(struct work_struct *ignored)
+ 			rfkill_set_sw_state(bluetooth_rfkill, !state);
  	}
  
-+	if (wmi_has_guid(WMID_GUID3)) {
-+		if (ec_raw_mode) {
-+			if (ACPI_FAILURE(acer_wmi_enable_ec_raw())) {
-+				printk(ACER_ERR "Cannot enable EC raw mode\n");
-+				return -ENODEV;
-+			}
-+		} else if (ACPI_FAILURE(acer_wmi_enable_lm())) {
-+			printk(ACER_ERR "Cannot enable Launch Manager mode\n");
-+			return -ENODEV;
-+		}
-+	} else if (!wmi_has_guid(WMID_GUID3) && ec_raw_mode) {
-+		printk(ACER_INFO "No WMID EC raw mode enable method\n");
++	if (has_cap(ACER_CAP_THREEG) && wmi_has_guid(WMID_GUID3)) {
++		status = wmid3_get_device_status(&state,
++				ACER_WMID3_GDS_THREEG);
++		if (ACPI_SUCCESS(status))
++			rfkill_set_sw_state(threeg_rfkill, !state);
 +	}
 +
- 	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
- 		err = acer_wmi_input_setup();
- 		if (err)
+ 	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ));
+ }
+ 
+@@ -1076,6 +1150,19 @@ static int acer_rfkill_init(struct device *dev)
+ 		}
+ 	}
+ 
++	if (has_cap(ACER_CAP_THREEG)) {
++		threeg_rfkill = acer_rfkill_register(dev,
++			RFKILL_TYPE_WWAN, "acer-threeg",
++			ACER_CAP_THREEG);
++		if (IS_ERR(threeg_rfkill)) {
++			rfkill_unregister(wireless_rfkill);
++			rfkill_destroy(wireless_rfkill);
++			rfkill_unregister(bluetooth_rfkill);
++			rfkill_destroy(bluetooth_rfkill);
++			return PTR_ERR(threeg_rfkill);
++		}
++	}
++
+ 	schedule_delayed_work(&acer_rfkill_work, round_jiffies_relative(HZ));
+ 
+ 	return 0;
+@@ -1092,6 +1179,11 @@ static void acer_rfkill_exit(void)
+ 		rfkill_unregister(bluetooth_rfkill);
+ 		rfkill_destroy(bluetooth_rfkill);
+ 	}
++
++	if (has_cap(ACER_CAP_THREEG)) {
++		rfkill_unregister(threeg_rfkill);
++		rfkill_destroy(threeg_rfkill);
++	}
+ 	return;
+ }
+ 
+@@ -1102,7 +1194,12 @@ static ssize_t show_bool_threeg(struct device *dev,
+ 	struct device_attribute *attr, char *buf)
+ {
+ 	u32 result; \
+-	acpi_status status = get_u32(&result, ACER_CAP_THREEG);
++	acpi_status status;
++	if (wmi_has_guid(WMID_GUID3))
++		status = wmid3_get_device_status(&result,
++				ACER_WMID3_GDS_THREEG);
++	else
++		status = get_u32(&result, ACER_CAP_THREEG);
+ 	if (ACPI_SUCCESS(status))
+ 		return sprintf(buf, "%u\n", result);
+ 	return sprintf(buf, "Read error\n");
 -- 
 1.6.0.2

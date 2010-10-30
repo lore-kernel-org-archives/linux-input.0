@@ -1,7 +1,7 @@
 From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 2/4] Enabled Acer Launch Manager mode
-Date: Sat, 30 Oct 2010 10:44:43 -0600
-Message-ID: <4CCCE62B0200002300022F07@novprvlin0050.provo.novell.com>
+Subject: Re: [PATCH 1/4] Add acer wmi hotkey events support
+Date: Sat, 30 Oct 2010 10:44:57 -0600
+Message-ID: <4CCCE6390200002300022F1A@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
@@ -16,182 +16,226 @@ Add CC. Thomas
 
 =E6=96=BC =E6=97=A5=EF=BC=8C2010-10-31 =E6=96=BC 00:36 +0800=EF=BC=8CLe=
 e, Chun-Yi =E6=8F=90=E5=88=B0=EF=BC=9A
-> Enabled Acer Launch Manager mode to disable the EC raw behavior for
-> communication devices when WMID3 method available. And, we also add a
-> ec_raw_mode kernel module option for enable The EC raw behavior mode
-> when anyone what reset it back.
-> When Acer Launch Manager mode enabled, EC will stop to touch any
-> communication devices' RF state or power state that causes conflict
-> with rfkill_input or any userland daemon to charge the rfkill rules.
+> Add acer wmi hotkey event support. Install a wmi notify handler to
+> transfer wmi event key to key code, then send out keycode through ace=
+r
+> wmi input device to userland.
 >=20
 > Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
 > ---
->  drivers/platform/x86/acer-wmi.c |  113 +++++++++++++++++++++++++++++=
+>  drivers/platform/x86/Kconfig    |    2 +
+>  drivers/platform/x86/acer-wmi.c |  139 +++++++++++++++++++++++++++++=
 ++++++++++
->  1 files changed, 113 insertions(+), 0 deletions(-)
+>  2 files changed, 141 insertions(+), 0 deletions(-)
 >=20
+> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kcon=
+fig
+> index cff7cc2..c242fdd 100644
+> --- a/drivers/platform/x86/Kconfig
+> +++ b/drivers/platform/x86/Kconfig
+> @@ -23,7 +23,9 @@ config ACER_WMI
+>  	depends on BACKLIGHT_CLASS_DEVICE
+>  	depends on SERIO_I8042
+>  	depends on RFKILL || RFKILL =3D n
+> +	depends on INPUT
+>  	select ACPI_WMI
+> +	select INPUT_SPARSEKMAP
+>  	---help---
+>  	  This is a driver for newer Acer (and Wistron) laptops. It adds
+>  	  wireless radio and bluetooth control, and on some laptops,
 > diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/a=
 cer-wmi.c
-> index 930df56..0b870d3 100644
+> index 2badee2..930df56 100644
 > --- a/drivers/platform/x86/acer-wmi.c
 > +++ b/drivers/platform/x86/acer-wmi.c
-> @@ -85,6 +85,7 @@ MODULE_LICENSE("GPL");
->  #define AMW0_GUID2		"431F16ED-0C2B-444C-B267-27DEB140CF9C"
+> @@ -37,6 +37,8 @@
+>  #include <linux/workqueue.h>
+>  #include <linux/debugfs.h>
+>  #include <linux/slab.h>
+> +#include <linux/input.h>
+> +#include <linux/input/sparse-keymap.h>
+> =20
+>  #include <acpi/acpi_drivers.h>
+> =20
+> @@ -48,6 +50,7 @@ MODULE_LICENSE("GPL");
+>  #define ACER_ERR KERN_ERR ACER_LOGPREFIX
+>  #define ACER_NOTICE KERN_NOTICE ACER_LOGPREFIX
+>  #define ACER_INFO KERN_INFO ACER_LOGPREFIX
+> +#define ACER_WARNING KERN_WARNING ACER_LOGPREFIX
+> =20
+>  /*
+>   * Magic Number
+> @@ -83,8 +86,39 @@ MODULE_LICENSE("GPL");
 >  #define WMID_GUID1		"6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3"
 >  #define WMID_GUID2		"95764E09-FB56-4e83-B31A-37761F60994A"
-> +#define WMID_GUID3		"61EF69EA-865C-4BC3-A502-A0DEBA0CB531"
 > =20
->  /*
->   * Acer ACPI event GUIDs
-> @@ -120,6 +121,20 @@ struct event_return_value {
->  	u32 reserved;
->  } __attribute__((packed));
+> +/*
+> + * Acer ACPI event GUIDs
+> + */
+> +#define ACERWMID_EVENT_GUID "676AA15E-6A47-4D9F-A2CC-1E6D18D14026"
+> +
+>  MODULE_ALIAS("wmi:67C3371D-95A3-4C37-BB61-DD47B491DAAB");
+>  MODULE_ALIAS("wmi:6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3");
+> +MODULE_ALIAS("wmi:676AA15E-6A47-4D9F-A2CC-1E6D18D14026");
+> +
+> +enum acer_wmi_event_ids {
+> +	WMID_HOTKEY_EVENT =3D 0x1,
+> +};
+> +
+> +static const struct key_entry acer_wmi_keymap[] =3D {
+> +	{KE_KEY, 0x01, {KEY_WLAN} },     /* WiFi */
+> +	{KE_KEY, 0x12, {KEY_BLUETOOTH} },	/* BT */
+> +	{KE_KEY, 0x21, {KEY_PROG1} },    /* Backup */
+> +	{KE_KEY, 0x22, {KEY_PROG2} },    /* Aracade */
+> +	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
+> +	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
+> +	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
+> +	{KE_KEY, 0x82, {KEY_F22} },      /* Touch Pad On/Off */
+> +	{KE_END, 0}
+> +};
+> +
+> +static struct input_dev *acer_wmi_input_dev;
+> +
+> +struct event_return_value {
+> +	u8 function;
+> +	u8 key_num;
+> +	u16 device_state;
+> +	u32 reserved;
+> +} __attribute__((packed));
 > =20
-> +struct lm_input_params {
-> +	u8 function_num;	/* Function Number */
-> +	u16 commun_devices;	/* Communication type devices default status */
-> +	u16 devices;		/* Other type devices default status */
-> +	u8 lm_status;		/* Launch Manager Status */
-> +	u16 reserved;
-> +} __attribute__((packed));
-> +
-> +struct lm_return_value {
-> +	u8 error_code;		/* Error Code */
-> +	u8 ec_return_value;	/* EC Return Value */
-> +	u16 reserved;
-> +} __attribute__((packed));
-> +
 >  /*
 >   * Interface capability flags
->   */
-> @@ -150,15 +165,18 @@ static int mailled =3D -1;
->  static int brightness =3D -1;
->  static int threeg =3D -1;
->  static int force_series;
-> +static bool ec_raw_mode;
+> @@ -1085,6 +1119,99 @@ static ssize_t show_interface(struct device *d=
+ev, struct device_attribute *attr,
 > =20
->  module_param(mailled, int, 0444);
->  module_param(brightness, int, 0444);
->  module_param(threeg, int, 0444);
->  module_param(force_series, int, 0444);
-> +module_param(ec_raw_mode, bool, 0444);
->  MODULE_PARM_DESC(mailled, "Set initial state of Mail LED");
->  MODULE_PARM_DESC(brightness, "Set initial LCD backlight brightness")=
-;
->  MODULE_PARM_DESC(threeg, "Set initial state of 3G hardware");
->  MODULE_PARM_DESC(force_series, "Force a different laptop series");
-> +MODULE_PARM_DESC(ec_raw_mode, "Enable EC raw mode");
+>  static DEVICE_ATTR(interface, S_IRUGO, show_interface, NULL);
 > =20
->  struct acer_data {
->  	int mailled;
-> @@ -1393,6 +1411,87 @@ error_debugfs:
->  	return -ENOMEM;
->  }
-> =20
-> +static acpi_status
-> +wmid3_set_lm_mode(struct lm_input_params *params,
-> +			struct lm_return_value *return_value)
+> +static void acer_wmi_notify(u32 value, void *context)
 > +{
-> +	acpi_status status;
+> +	struct acpi_buffer response =3D { ACPI_ALLOCATE_BUFFER, NULL };
 > +	union acpi_object *obj;
+> +	struct event_return_value return_value;
+> +	acpi_status status;
 > +
-> +	struct acpi_buffer input =3D { sizeof(struct lm_input_params), para=
-ms };
-> +	struct acpi_buffer output =3D { ACPI_ALLOCATE_BUFFER, NULL };
+> +	status =3D wmi_get_event_data(value, &response);
+> +	if (status !=3D AE_OK) {
+> +		printk(ACER_WARNING "bad event status 0x%x\n", status);
+> +		return;
+> +	}
 > +
-> +	status =3D wmi_evaluate_method(WMID_GUID3, 0, 0x1, &input, &output)=
-;
-> +	if (ACPI_FAILURE(status))
-> +		return status;
-> +
-> +	obj =3D output.pointer;
+> +	obj =3D (union acpi_object *)response.pointer;
 > +
 > +	if (!obj)
-> +		return -EINVAL;
-> +	else if (obj->type !=3D ACPI_TYPE_BUFFER) {
+> +		return;
+> +	if (obj->type !=3D ACPI_TYPE_BUFFER) {
+> +		printk(ACER_WARNING "Unknown response received %d\n",
+> +			obj->type);
 > +		kfree(obj);
-> +		return -EINVAL;
+> +		return;
 > +	}
-> +	if (obj->buffer.length !=3D 4) {
+> +	if (obj->buffer.length !=3D 8) {
 > +		printk(ACER_WARNING "Unknown buffer length %d\n",
 > +			obj->buffer.length);
 > +		kfree(obj);
-> +		return -EINVAL;
+> +		return;
 > +	}
 > +
-> +	*return_value =3D *((struct lm_return_value *)obj->buffer.pointer);
+> +	return_value =3D *((struct event_return_value *)obj->buffer.pointer=
+);
 > +	kfree(obj);
 > +
-> +	return status;
+> +	switch (return_value.function) {
+> +	case WMID_HOTKEY_EVENT:
+> +		if (!sparse_keymap_report_event(acer_wmi_input_dev,
+> +				return_value.key_num, 1, true))
+> +			printk(ACER_WARNING "Unknown key number - 0x%x\n",
+> +				return_value.key_num);
+> +		break;
+> +	default:
+> +		printk(ACER_WARNING "Unknown function number - %d - %d\n",
+> +			return_value.function, return_value.key_num);
+> +		break;
+> +	}
 > +}
 > +
-> +static int acer_wmi_enable_ec_raw(void)
+> +static int __init acer_wmi_input_setup(void)
 > +{
-> +	struct lm_return_value return_value;
 > +	acpi_status status;
-> +	struct lm_input_params params =3D {
-> +		.function_num =3D 0x1,
-> +		.commun_devices =3D 0xFFFF,
-> +		.devices =3D 0xFFFF,
-> +		.lm_status =3D 0x00,		/* Launch Manager Deactive */
-> +	};
+> +	int err;
 > +
-> +	status =3D wmid3_set_lm_mode(&params, &return_value);
+> +	acer_wmi_input_dev =3D input_allocate_device();
+> +	if (!acer_wmi_input_dev)
+> +		return -ENOMEM;
 > +
-> +	if (return_value.error_code || return_value.ec_return_value)
-> +		printk(ACER_WARNING "Enabling EC raw mode failed: "
-> +			"0x%x - 0x%x\n", return_value.error_code,
-> +			return_value.ec_return_value);
-> +	else
-> +		printk(ACER_INFO "Enabled EC raw mode");
+> +	acer_wmi_input_dev->name =3D "Acer WMI hotkeys";
+> +	acer_wmi_input_dev->phys =3D "wmi/input0";
+> +	acer_wmi_input_dev->id.bustype =3D BUS_HOST;
 > +
-> +	return status;
+> +	err =3D sparse_keymap_setup(acer_wmi_input_dev, acer_wmi_keymap, NU=
+LL);
+> +	if (err)
+> +		goto err_free_dev;
+> +
+> +	status =3D wmi_install_notify_handler(ACERWMID_EVENT_GUID,
+> +						acer_wmi_notify, NULL);
+> +	if (ACPI_FAILURE(status)) {
+> +		err =3D -EIO;
+> +		goto err_free_keymap;
+> +	}
+> +
+> +	err =3D input_register_device(acer_wmi_input_dev);
+> +	if (err)
+> +		goto err_uninstall_notifier;
+> +
+> +	return 0;
+> +
+> +err_uninstall_notifier:
+> +	wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
+> +err_free_keymap:
+> +	sparse_keymap_free(acer_wmi_input_dev);
+> +err_free_dev:
+> +	input_free_device(acer_wmi_input_dev);
+> +	return err;
 > +}
 > +
-> +static int acer_wmi_enable_lm(void)
+> +static void acer_wmi_input_destroy(void)
 > +{
-> +	struct lm_return_value return_value;
-> +	acpi_status status;
-> +	struct lm_input_params params =3D {
-> +		.function_num =3D 0x1,
-> +		.commun_devices =3D 0x0041,	/* WiFi on, 3G on, BT off */
-> +		.devices =3D 0xFFFF,
-> +		.lm_status =3D 0x41,		/* Launch Manager Active */
-> +	};
-> +
-> +	status =3D wmid3_set_lm_mode(&params, &return_value);
-> +
-> +	if (return_value.error_code || return_value.ec_return_value)
-> +		printk(ACER_WARNING "Enabling Launch Manager failed: "
-> +			"0x%x - 0x%x\n", return_value.error_code,
-> +			return_value.ec_return_value);
-> +	else
-> +		printk(ACER_INFO "Enabled Launch Manager");
-> +
-> +	return status;
+> +	wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
+> +	sparse_keymap_free(acer_wmi_input_dev);
+> +	input_unregister_device(acer_wmi_input_dev);
 > +}
 > +
->  static int __init acer_wmi_init(void)
->  {
->  	int err;
-> @@ -1454,6 +1553,20 @@ static int __init acer_wmi_init(void)
+>  /*
+>   * debugfs functions
+>   */
+> @@ -1327,6 +1454,12 @@ static int __init acer_wmi_init(void)
 >  		       "generic video driver\n");
 >  	}
 > =20
-> +	if (wmi_has_guid(WMID_GUID3)) {
-> +		if (ec_raw_mode) {
-> +			if (ACPI_FAILURE(acer_wmi_enable_ec_raw())) {
-> +				printk(ACER_ERR "Cannot enable EC raw mode\n");
-> +				return -ENODEV;
-> +			}
-> +		} else if (ACPI_FAILURE(acer_wmi_enable_lm())) {
-> +			printk(ACER_ERR "Cannot enable Launch Manager mode\n");
-> +			return -ENODEV;
-> +		}
-> +	} else if (!wmi_has_guid(WMID_GUID3) && ec_raw_mode) {
-> +		printk(ACER_INFO "No WMID EC raw mode enable method\n");
+> +	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
+> +		err =3D acer_wmi_input_setup();
+> +		if (err)
+> +			return err;
 > +	}
 > +
->  	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
->  		err =3D acer_wmi_input_setup();
->  		if (err)
+>  	err =3D platform_driver_register(&acer_platform_driver);
+>  	if (err) {
+>  		printk(ACER_ERR "Unable to register platform driver.\n");
+> @@ -1368,11 +1501,17 @@ error_device_add:
+>  error_device_alloc:
+>  	platform_driver_unregister(&acer_platform_driver);
+>  error_platform_register:
+> +	if (wmi_has_guid(ACERWMID_EVENT_GUID))
+> +		acer_wmi_input_destroy();
+> +
+>  	return err;
+>  }
+> =20
+>  static void __exit acer_wmi_exit(void)
+>  {
+> +	if (wmi_has_guid(ACERWMID_EVENT_GUID))
+> +		acer_wmi_input_destroy();
+> +
+>  	remove_sysfs(acer_platform_device);
+>  	remove_debugfs();
+>  	platform_device_unregister(acer_platform_device);

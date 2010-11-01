@@ -1,71 +1,112 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] Input: wacom - report hardware provided MT_TRACKING_IDs
-Date: Mon, 1 Nov 2010 10:34:25 -0700
-Message-ID: <AANLkTik4b2siRUHAohr7tM1F5auVpC555G_7fjgLnSxv@mail.gmail.com>
-References: <1288497626-25416-1-git-send-email-pingc@wacom.com>
-	<4CCECDCA.9040200@euromail.se>
+From: Alexey Charkov <alchark@gmail.com>
+Subject: Re: [PATCH 3/6] input: Add support for VIA VT8500 and compatibles in i8042
+Date: Mon, 1 Nov 2010 21:31:14 +0300
+Message-ID: <AANLkTini9jZHtH+Bp4dgdQ6A-=7iAe71YJ_KnMjJqbTN@mail.gmail.com>
+References: <1287608139-21354-1-git-send-email-alchark@gmail.com>
+	<1287608139-21354-3-git-send-email-alchark@gmail.com>
+	<4CCC9AEB.7060101@fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:50823 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750815Ab0KARe0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Nov 2010 13:34:26 -0400
-Received: by wwe15 with SMTP id 15so6314804wwe.1
-        for <linux-input@vger.kernel.org>; Mon, 01 Nov 2010 10:34:25 -0700 (PDT)
-In-Reply-To: <4CCECDCA.9040200@euromail.se>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:58988 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751354Ab0KASbQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Nov 2010 14:31:16 -0400
+In-Reply-To: <4CCC9AEB.7060101@fluff.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: vt8500-wm8505-linux-kernel@googlegroups.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Mon, Nov 1, 2010 at 7:25 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> On 10/31/2010 05:00 AM, Ping Cheng wrote:
->
->> The "Multi-touch (MT) Protocol" says:
+2010/10/31 Ben Dooks <ben-linux@fluff.org>:
+> On 20/10/10 21:55, Alexey Charkov wrote:
+>> VIA and WonderMedia Systems-on-Chip feature a standard i8042-compati=
+ble
+>> keyboard and mouse controller. This adds necessary glue to enable us=
+e
+>> of the standard driver with these systems.
 >>
->> "The slot protocol requires the use of the ABS_MT_TRACKING_ID, either
->> provided by the hardware or computed from the raw data".
+>> Signed-off-by: Alexey Charkov <alchark@gmail.com>
+>> ---
 >>
->> We get the IDs from Bamboo touch device. Let's use them instead of
->> compute our own.
+>> Please review and state whether this could be acceptable for a merge
+>> to mainline in the coming 2.6.37 window. If possible, I would deeply
+>> appreciate a merge to a relevant git tree for integration prior to
+>> asking Linus to pull the changes. I could rebase the code if needed,
+>> currently this is against Linus' master branch.
 >>
->> Signed-off-by: Ping Cheng <pingc@wacom.com>
+>> This patch relies on the basic architecture support for VT8500/WM850=
+5
+>> to be in place, as introduced by PATCH 1/6 in this series.
+>>
+>> Due credits go to the community for providing feedback, advice and
+>> testing.
+>>
+>> NB: The development is being done at:
+>> http://gitorious.org/linux-on-via-vt8500/vt8500-kernel
+>>
+>> Relevant code may be pulled from a git tree in there.
+>>
+>> =C2=A0drivers/input/serio/Kconfig =C2=A0 =C2=A0 =C2=A0 =C2=A0| =C2=A0=
+ =C2=A03 +-
+>> =C2=A0drivers/input/serio/i8042-vt8500.h | =C2=A0 71 +++++++++++++++=
++++++++++++++++++++++
+>> =C2=A0drivers/input/serio/i8042.h =C2=A0 =C2=A0 =C2=A0 =C2=A0| =C2=A0=
+ =C2=A02 +
+>> =C2=A03 files changed, 75 insertions(+), 1 deletions(-)
+>> =C2=A0create mode 100644 drivers/input/serio/i8042-vt8500.h
+>>
+>> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconf=
+ig
+>> index 3bfe8fa..2b86774 100644
+>> --- a/drivers/input/serio/Kconfig
+>> +++ b/drivers/input/serio/Kconfig
+>> @@ -21,7 +21,8 @@ if SERIO
+>> =C2=A0config SERIO_I8042
+>> =C2=A0 =C2=A0 =C2=A0 tristate "i8042 PC Keyboard controller" if EMBE=
+DDED || !X86
+>> =C2=A0 =C2=A0 =C2=A0 default y
+>> - =C2=A0 =C2=A0 depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRI=
+DGE_HOST) && \
+>> + =C2=A0 =C2=A0 depends on !PARISC && \
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 (!ARM || ARCH_SHA=
+RK || ARCH_VT8500 || FOOTBRIDGE_HOST) && \
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0(!SUPE=
+RH || SH_CAYMAN) && !M68K && !BLACKFIN
+>
+> this looks like someone could do with a HAS_SERIO_I8042 Kconfig entry
+> and have the relevant archs select it instead of having this mess.
 >
 >
-> Hi Ping,
+
+True, it would make things much cleaner. However, that's probably out
+of scope of adding VT8500 support here, thus not for me to decide :)
+
+<snip>
+
 >
-> I share the same concern as Dmitry here. This patch weakens the semantics of the
-> current tracking id definition.  As it seems, only to allow the tracking id to be
-> used in a different, undocumented or hardware-specific way. This is not a good
-> way to go - neither from a kernel maintenance perspective, nor from a user
-> experience perspective. After all, the kernel is about unifying the experience
-> of different hardware.
+> yeurk... how about having a core i8042 implementation and having
+> a structure with the necessary callbacks for the code, so that
+> we don't end up having to select what is builtin for the system
+> we're compiling for?
+>
 
-I think I got the point now. The tracking id is aimed at an unified
-touch/finger tracking in the kernel. Not just to pass whatever
-hardware provides.
+I would really like to see this implemented as a standard platform
+driver (accepting resources and platform_data as necessary). This
+would be a way cleaner approach, with less code duplication and less
+patching of the driver itself whenever a new platform is to be added.
+However, I don't know how that kind of a change would affect other
+arches.
 
-I was stuck at the phrase of "provided by the hardware". With your
-explanation, I see the rationale behind the use of "trk_id". This
-discussion made it clear how I need to convince app developers. Please
-ignore this patch.
+> --
+> Ben
+>
 
-I see a potential in merging type A into type B with the introduction
-of trk_id. The type A drivers may need to tweak their x/y/..values a
-bit to fit into the protocol. But the benefit of tracking ID should be
-universal.
-
-Trust me, this is all technical. Wacom does not even have a type A
-device. It is not my job to care about type A.
-
->From a pure developer point of view, if our goal is to unify the
-experience of different hardwares, merging type A to type B may not be
-a bad idea. However, I do know there was issues preventing us from
-merging them when we started in June. I bring it up now to see if
-things has changed in our favor or not.
-
-Thank you Henrik for your reply and comments. It helped me a lot. I
-hope it does the same for others too.
-
-Ping
+Thanks,
+Alexey
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

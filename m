@@ -1,164 +1,97 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [PATCH 3/6] input: Add support for VIA VT8500 and compatibles
- in i8042
-Date: Sat, 30 Oct 2010 23:23:39 +0100
-Message-ID: <4CCC9AEB.7060101@fluff.org>
-References: <1287608139-21354-1-git-send-email-alchark@gmail.com> <1287608139-21354-3-git-send-email-alchark@gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] Input: wacom - report hardware provided MT_TRACKING_IDs
+Date: Mon, 01 Nov 2010 15:25:14 +0100
+Message-ID: <4CCECDCA.9040200@euromail.se>
+References: <1288497626-25416-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1287608139-21354-3-git-send-email-alchark@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexey Charkov <alchark@gmail.com>
-Cc: vt8500-wm8505-linux-kernel@googlegroups.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:32861 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756461Ab0KAOZj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Nov 2010 10:25:39 -0400
+In-Reply-To: <1288497626-25416-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On 20/10/10 21:55, Alexey Charkov wrote:
-> VIA and WonderMedia Systems-on-Chip feature a standard i8042-compatible
-> keyboard and mouse controller. This adds necessary glue to enable use
-> of the standard driver with these systems.
-> 
-> Signed-off-by: Alexey Charkov <alchark@gmail.com>
-> ---
-> 
-> Please review and state whether this could be acceptable for a merge
-> to mainline in the coming 2.6.37 window. If possible, I would deeply
-> appreciate a merge to a relevant git tree for integration prior to
-> asking Linus to pull the changes. I could rebase the code if needed,
-> currently this is against Linus' master branch.
-> 
-> This patch relies on the basic architecture support for VT8500/WM8505
-> to be in place, as introduced by PATCH 1/6 in this series.
-> 
-> Due credits go to the community for providing feedback, advice and
-> testing.
-> 
-> NB: The development is being done at:
-> http://gitorious.org/linux-on-via-vt8500/vt8500-kernel
-> 
-> Relevant code may be pulled from a git tree in there.
-> 
->  drivers/input/serio/Kconfig        |    3 +-
->  drivers/input/serio/i8042-vt8500.h |   71 ++++++++++++++++++++++++++++++++++++
->  drivers/input/serio/i8042.h        |    2 +
->  3 files changed, 75 insertions(+), 1 deletions(-)
->  create mode 100644 drivers/input/serio/i8042-vt8500.h
-> 
-> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-> index 3bfe8fa..2b86774 100644
-> --- a/drivers/input/serio/Kconfig
-> +++ b/drivers/input/serio/Kconfig
-> @@ -21,7 +21,8 @@ if SERIO
->  config SERIO_I8042
->  	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
->  	default y
-> -	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
-> +	depends on !PARISC && \
-> +		  (!ARM || ARCH_SHARK || ARCH_VT8500 || FOOTBRIDGE_HOST) && \
->  		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN
+On 10/31/2010 05:00 AM, Ping Cheng wrote:
 
-this looks like someone could do with a HAS_SERIO_I8042 Kconfig entry
-and have the relevant archs select it instead of having this mess.
+> The "Multi-touch (MT) Protocol" says:
+> 
+> "The slot protocol requires the use of the ABS_MT_TRACKING_ID, either
+> provided by the hardware or computed from the raw data".
+> 
+> We get the IDs from Bamboo touch device. Let's use them instead of
+> compute our own.
+> 
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 
 
->  	help
->  	  i8042 is the chip over which the standard AT keyboard and PS/2
-> diff --git a/drivers/input/serio/i8042-vt8500.h b/drivers/input/serio/i8042-vt8500.h
-> new file mode 100644
-> index 0000000..d30df82
-> --- /dev/null
-> +++ b/drivers/input/serio/i8042-vt8500.h
-> @@ -0,0 +1,71 @@
-> +#ifndef _I8042_VT8500_H
-> +#define _I8042_VT8500_H
-> +
-> +#include <mach/irqs.h>
-> +#include <mach/vt8500.h>
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2 as published by
-> + * the Free Software Foundation.
-> + */
-> +
-> +static void __iomem *regbase;
-> +
-> +/*
-> + * Names.
-> + */
-> +
-> +#define I8042_KBD_PHYS_DESC "vt8500ps2/serio0"
-> +#define I8042_AUX_PHYS_DESC "vt8500ps2/serio1"
-> +#define I8042_MUX_PHYS_DESC "vt8500ps2/serio%d"
-> +
-> +/*
-> + * IRQs.
-> + */
-> +
-> +#define I8042_KBD_IRQ	IRQ_PS2KBD
-> +#define I8042_AUX_IRQ	IRQ_PS2MOUSE
-> +
-> +
-> +/*
-> + * Register numbers.
-> + */
-> +
-> +#define I8042_COMMAND_REG	(regbase + 0x4)
-> +#define I8042_STATUS_REG	(regbase + 0x4)
-> +#define I8042_DATA_REG		(regbase + 0x0)
-> +
-> +static inline int i8042_read_data(void)
-> +{
-> +	return readl(I8042_DATA_REG);
-> +}
-> +
-> +static inline int i8042_read_status(void)
-> +{
-> +	return readl(I8042_STATUS_REG);
-> +}
-> +
-> +static inline void i8042_write_data(int val)
-> +{
-> +	writel(val, I8042_DATA_REG);
-> +}
-> +
-> +static inline void i8042_write_command(int val)
-> +{
-> +	writel(val, I8042_COMMAND_REG);
-> +}
-> +
-> +static inline int i8042_platform_init(void)
-> +{
-> +	i8042_reset = 1;
-> +	regbase = ioremap(VT8500_PS2_BASE, SZ_1K);
-> +	return 0;
-> +}
-> +
-> +static inline void i8042_platform_exit(void)
-> +{
-> +	iounmap(regbase);
-> +}
-> +
-> +#endif /* _I8042_VT8500_H */
-> diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-> index cbc1beb..bdb2aeb 100644
-> --- a/drivers/input/serio/i8042.h
-> +++ b/drivers/input/serio/i8042.h
-> @@ -16,6 +16,8 @@
+Hi Ping,
+
+I share the same concern as Dmitry here. This patch weakens the semantics of the
+current tracking id definition. As it seems, only to allow the tracking id to be
+used in a different, undocumented or hardware-specific way. This is not a good
+way to go - neither from a kernel maintenance perspective, nor from a user
+experience perspective. After all, the kernel is about unifying the experience
+of different hardware.
+
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index b3252ef..76d4980 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -885,7 +885,7 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
+>  			input_report_abs(input, ABS_MT_POSITION_X, x);
+>  			input_report_abs(input, ABS_MT_POSITION_Y, y);
+>  			if (wacom->id[i] < 0)
+> -				wacom->id[i] = wacom->trk_id++ & MAX_TRACKING_ID;
+> +				wacom->id[i] = i;
+
+
+This change will not allow for detection of a new finger between two frames, and
+breaks applications that assume a new finger is detected by a new unique
+tracking id. Besides, the internal contact ids are already passed on as slot
+ids, so this change sends the same information in two different ways.
+
+>  			if (!count++)
+>  				sp = p, sx = x, sy = y;
+>  		} else {
+> @@ -1283,7 +1283,7 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  					     0, features->pressure_max,
+>  					     features->pressure_fuzz, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_TRACKING_ID, 0,
+> -					     MAX_TRACKING_ID, 0, 0);
+> +					     1, 0, 0);
+>  		} else if (features->device_type == BTN_TOOL_PEN) {
+>  			__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+>  			__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+> index 00ca015..b1310ec 100644
+> --- a/drivers/input/tablet/wacom_wac.h
+> +++ b/drivers/input/tablet/wacom_wac.h
+> @@ -42,9 +42,6 @@
+>  #define WACOM_QUIRK_MULTI_INPUT		0x0001
+>  #define WACOM_QUIRK_BBTOUCH_LOWRES	0x0002
 >  
->  #if defined(CONFIG_MACH_JAZZ)
->  #include "i8042-jazzio.h"
-> +#elif defined(CONFIG_ARCH_VT8500)
-> +#include "i8042-vt8500.h"
->  #elif defined(CONFIG_SGI_HAS_I8042)
->  #include "i8042-ip22io.h"
->  #elif defined(CONFIG_SNI_RM)
+> -/* largest reported tracking id */
+> -#define MAX_TRACKING_ID			0xfff
+> -
+>  enum {
+>  	PENPARTNER = 0,
+>  	GRAPHIRE,
+> @@ -100,7 +97,6 @@ struct wacom_wac {
+>  	int id[3];
+>  	__u32 serial[2];
+>  	int last_finger;
+> -	int trk_id;
+>  	struct wacom_features features;
+>  	struct wacom_shared *shared;
+>  	struct input_dev *input;
 
-yeurk... how about having a core i8042 implementation and having
-a structure with the necessary callbacks for the code, so that
-we don't end up having to select what is builtin for the system
-we're compiling for?
 
--- 
-Ben
+Thanks,
+Henrik

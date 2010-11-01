@@ -1,41 +1,53 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: RE: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite Panaboard
- T-780 and T-880
-Date: Mon, 1 Nov 2010 15:22:22 -0400 (EDT)
-Message-ID: <alpine.LNX.2.00.1011011522120.15851@pobox.suse.cz>
-References: <1288169825-15422-1-git-send-email-Anton.Chikin@dataart.com> <alpine.LNX.2.00.1010291453460.6879@pobox.suse.cz> <3BF066A8BAB61C43B779966CEE6D7FA018BC9E19F2@e6.universe.dart.spb>
+Subject: Re: [PATCH v4 0/2] Get and Set Feature Reports on HIDRAW (USB and
+ Bluetooth)
+Date: Mon, 1 Nov 2010 15:23:34 -0400 (EDT)
+Message-ID: <alpine.LNX.2.00.1011011523150.15851@pobox.suse.cz>
+References: <1281442367.12579.206.camel@localhost.localdomain> <1281990059-3562-1-git-send-email-alan@signal11.us> <alpine.LNX.2.00.1008231459370.1019@pobox.suse.cz> <alpine.LNX.2.00.1009021724480.26813@pobox.suse.cz>
+ <alpine.LNX.2.00.1009221408330.26813@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46590 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750739Ab0KATWZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Nov 2010 15:22:25 -0400
-In-Reply-To: <3BF066A8BAB61C43B779966CEE6D7FA018BC9E19F2@e6.universe.dart.spb>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1009221408330.26813@pobox.suse.cz>
+Sender: netdev-owner@vger.kernel.org
+To: Alan Ott <alan@signal11.us>, Marcel Holtmann <marcel@holtmann.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, Antonio Ospite <ospite@studenti.unina.it>, Alexey Dobriyan <adobriyan@gmail.com>, Tejun Heo <tj@kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>, Bastien Nocera <hadess@hadess.net>, Eric Dumazet <eric.dumazet@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anton Chikin <Anton.Chikin@dataart.com>
-Cc: "chatty@enac.fr" <chatty@enac.fr>, "spbnick@gmail.com" <spbnick@gmail.com>, "anisse@astier.eu" <anisse@astier.eu>, "cascardo@holoscopio.com" <cascardo@holoscopio.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Gregory Burmistrov <grig@dataart.com>, Paul Osborn <Paul.Osborn@eu.panasonic.com>
 
-On Fri, 29 Oct 2010, Anton Chikin wrote:
+On Wed, 22 Sep 2010, Jiri Kosina wrote:
 
-> Hello Jiri,
+> > > > This is version 4. Built against 2.6.35+ revision 320b2b8de12698 .
+> > > > 
+> > > > Alan Ott (2):
+> > > >   HID: Add Support for Setting and Getting Feature Reports from hidraw
+> > > >   Bluetooth: hidp: Add support for hidraw  HIDIOCGFEATURE  and
+> > > >     HIDIOCSFEATURE
+> > > > 
+> > > >  drivers/hid/hidraw.c          |  105 ++++++++++++++++++++++++++++++++++++--
+> > > >  drivers/hid/usbhid/hid-core.c |   37 +++++++++++++-
+> > > >  include/linux/hid.h           |    3 +
+> > > >  include/linux/hidraw.h        |    3 +
+> > > >  net/bluetooth/hidp/core.c     |  114 +++++++++++++++++++++++++++++++++++++++--
+> > > >  net/bluetooth/hidp/hidp.h     |    8 +++
+> > > >  6 files changed, 260 insertions(+), 10 deletions(-)
+> > > 
+> > > Marcel, as per our previous discussion -- what is your word on this? I'd 
+> > > be glad taking it once you Ack the bluetooth bits (which, as far as I 
+> > > understood from your last mail, don't have strong objections against any 
+> > > more).
+> > 
+> > ... Marcel?
+> > 
+> > I'd really like not to miss 2.6.37 merge window with this.
 > 
-> Panasonic Elite Panaboard UB-T780 is a touchscreen whiteboard. It uses 
-> projector to present PC's screen onto the board. So we need to calibrate 
-> it according to the projector's position and apply calibration data 
-> inside our driver.
+> Seemingly I have not enought powers to get statement from Marcel here 
+> these days/weeks.
 > 
-> There is no other driver for this device. I'm working directly for 
-> Panasonic on this driver.
-> 
-> Is this nice for changelog comment?
+> Davem, would you perhaps be able to step in here?
 
-If the device is 'working' properly with the generic driver, "only" not 
-properly calibrated, I wouldn't really like to blacklist it completely.
+Marcel, any word on this patchset by chance?
 
-It might impose regression for those users who have written their own 
-userspace calibration, for example.
+Thanks,
 
 -- 
 Jiri Kosina

@@ -1,71 +1,46 @@
-From: William Sherman <shermanw@indiana.edu>
-Subject: Re: usbhid: HP LD4200tm touchscreen ALMOST works
-Date: Tue, 02 Nov 2010 09:46:21 -0400
-Message-ID: <4CD0162D.1000800@indiana.edu>
-References: <4CC61731.1080100@indiana.edu> <20101101211456.GA30692@core.coreip.homeip.net> <alpine.LNX.2.00.1011011717460.15851@pobox.suse.cz>
+From: Linus Walleij <linus.walleij@stericsson.com>
+Subject: Re: [PATCHv1] staging: Synaptics RMI4 touchpad driver support
+Date: Tue, 2 Nov 2010 15:14:48 +0100
+Message-ID: <4CD01CD8.3090206@stericsson.com>
+References: <1288699725-14405-1-git-send-email-naveen.gaddipati@stericsson.com> <20101102140337.GC9387@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1011011717460.15851@pobox.suse.cz>
+In-Reply-To: <20101102140337.GC9387@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Linux Input <linux-input@vger.kernel.org>, William Sherman <shermanw@indiana.edu>
+To: Greg KH <greg@kroah.com>
+Cc: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 11/1/10 5:22 PM, Jiri Kosina wrote:
-> On Mon, 1 Nov 2010, Dmitry Torokhov wrote:
->
->>> I'm looking to dig into the usbhid driver code to get me the last
->>> mile and get my HP LD4200tm touchscreen working on my Linux system.
->>> [NOTE: I posted about this elsewhere, but as I think about it more,
->>> this is more of a linux-kernel issue than anything else, so I'm
->>> reprising that note here.]
->>
->> I think you'll have better luck on linux-input...
->
-> Thanks for CC, Dmitry.
+Greg KH wrote:
 
-Yes, thanks from me too for pointing this thread in the right direction.
-I also sent a revised (updated) post to the linux-kernel list, but was
-not aware of the linux-input list.
+>> +Wait for the official upstream synaptics rmi4 clearpad drivers as promised over the past few months
+>> +Merge any device support needed from this driver into it
+>> +Delete this driver
+> 
+> Huh?
+> 
+> Why not just add this driver to the kernel tree instead?  When the
+> "promised" driver then eventually shows up (who is promising it?) then
+> delete the thing.
 
-> Thanks a lot for the detailed analysis. What would actually be interesting
-> to see would be the HID debugfs output. Namely
->
-> 1) mount debugfs
-> 2) cat /sys/kernel/debug/<device>/rdesc
-> 3) obtain output of /sys/kernel/debug/<device>/events and annotate it as
-> you did for your previous output (i.e. "this happens when I do one-finger
-> move", "this happens when I do two-finger trick to make it work").
->
-> This way, it'd be much easier to see what is actually hapenning on HID
-> level.
+Well, Alan (on behalf of Ramesh Agarwal) sent out a very similar
+patch (Titled "Synaptics TM1217 Touchscreen Controller driver")
+the other day, and OTOMH that was after discussions with Synaptics
+where they said they were working on a "real" driver (a rather
+complex RMI4 bus driver) and we believe they will fix that sooner
+or later.
 
-Great.  I will do that as soon as I can -- which is when I arrive at
-SuperComputing to setup our system.  The display (our only one) is currently
-on a truck bound for New Orleans.
+So, until sooner or later happens we thought we'd keep it in staging.
 
-In the meantime, I wrote a very simple application that parses the
-data directly from /dev/hidrawN, does a simple parse, and then
-creates X events with the Xtest API.  Of course, I'm only doing
-single touch, since that's all I need for the moment.
+If you prefer both Alan and we can probably submit our patches for
+inclusion in the proper place.
 
-I also have a Dell SX2210T touch screen with the NextWindow interface.
-We made some partial progress on our Ubuntu 10.10 system with the nwfermi
-driver, but again, not quite all the way -- of course now that computer
-is on the road, and I'm not having as much luck with that touchscreen
-on my Fedora 13 system.
+A side effect may be that the Synaptics RMI4 people may have trouble
+to merge their driver into input/ since they may be requested to
+refactor the existing drivers to use it rather than merging new stuff,
+putting some burden on their shoulders.
 
-> Thanks,
-
-	Thank you both, and more to come,
-	Bill
-
---
-Bill Sherman
-Sr. Technology Advisor
-Advanced Visualization Lab
-Pervasive Technologies Inst
-Indiana University
-shermanw@indiana.edu
+Yours,
+Linus Walleij

@@ -1,36 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: keyboard: adp5588-keys: unify common header
- defines
-Date: Tue, 2 Nov 2010 06:04:35 -0700
-Message-ID: <20101102130434.GA11778@core.coreip.homeip.net>
-References: <1288701072-336-1-git-send-email-michael.hennerich@analog.com>
+From: Anton Chikin <Anton.Chikin-2rKlv3v387hBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite
+ Panaboard T-780 and T-880
+Date: Tue, 2 Nov 2010 16:05:54 +0300
+Message-ID: <3BF066A8BAB61C43B779966CEE6D7FA018BC9E1A45@e6.universe.dart.spb>
+References: <1288169825-15422-1-git-send-email-Anton.Chikin@dataart.com>
+ <alpine.LNX.2.00.1010291453460.6879@pobox.suse.cz>
+ <3BF066A8BAB61C43B779966CEE6D7FA018BC9E19F2@e6.universe.dart.spb>
+ <alpine.LNX.2.00.1011011522120.15851@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:41472 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750820Ab0KBNEs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Nov 2010 09:04:48 -0400
-Received: by ywc21 with SMTP id 21so1609832ywc.19
-        for <linux-input@vger.kernel.org>; Tue, 02 Nov 2010 06:04:47 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1288701072-336-1-git-send-email-michael.hennerich@analog.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LNX.2.00.1011011522120.15851-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: "chatty-rXV5z7KbLFk@public.gmane.org" <chatty-rXV5z7KbLFk@public.gmane.org>, "spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org" <anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org>, "cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org" <cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gregory Burmistrov <grig-2rKlv3v387hBDgjK7y7TUQ@public.gmane.org>, Paul Osborn <Paul.Osborn-+dFpGaSyCl6S7A1Ibl2khg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: michael.hennerich@analog.com
-Cc: akpm@linux-foundation.org, linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, drivers@analog.com
 
-On Tue, Nov 02, 2010 at 01:31:12PM +0100, michael.hennerich@analog.com wrote:
-> From: Michael Hennerich <michael.hennerich@analog.com>
-> 
-> No functional changes.
-> Unify adp5588-gpio and adp5588-keys common header defines.
-> (as per Andrew Morton request)
-> For consistency move remaining defines and prefix accordingly.
-> 
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Hello Jiri,
 
-Applied, thanks Michael.
+Thank you for your feedback.
+
+With the generic hid driver device is working in mouse-mode, turning it into the huge touchscreen, which is completely useless for the end-user.
+
+Moreover, the device has internal modes(mouse mode and touch mode) which we need to switch during work.
+
+On some Linux systems hid driver is loaded from init.rd image, so we can't feed our quirks to it while boot process and we can't rebuild init.rd image on the user's machine because some Linux distributives doesn't have special tools preinstalled.
+
+We are going to submit our driver to the Linux kernel quickly, so everyone can improve it.
+
+Any comments and suggestions are greatly appreciated.
+
+With best regards,
+Anton Chikin
+
+
+-----Original Message-----
+From: Jiri Kosina [mailto:jkosina-AlSwsSmVLrQ@public.gmane.org] 
+Sent: Monday, November 01, 2010 10:22 PM
+To: Anton Chikin
+Cc: chatty-rXV5z7KbLFk@public.gmane.org; spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org; cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Gregory Burmistrov; Paul Osborn
+Subject: RE: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite Panaboard T-780 and T-880
+
+On Fri, 29 Oct 2010, Anton Chikin wrote:
+
+> Hello Jiri,
+> 
+> Panasonic Elite Panaboard UB-T780 is a touchscreen whiteboard. It uses 
+> projector to present PC's screen onto the board. So we need to calibrate 
+> it according to the projector's position and apply calibration data 
+> inside our driver.
+> 
+> There is no other driver for this device. I'm working directly for 
+> Panasonic on this driver.
+> 
+> Is this nice for changelog comment?
+
+If the device is 'working' properly with the generic driver, "only" not 
+properly calibrated, I wouldn't really like to blacklist it completely.
+
+It might impose regression for those users who have written their own 
+userspace calibration, for example.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

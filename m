@@ -1,72 +1,71 @@
-From: Anton Chikin <Anton.Chikin-2rKlv3v387hBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite
- Panaboard T-780 and T-880
-Date: Tue, 2 Nov 2010 16:05:54 +0300
-Message-ID: <3BF066A8BAB61C43B779966CEE6D7FA018BC9E1A45@e6.universe.dart.spb>
-References: <1288169825-15422-1-git-send-email-Anton.Chikin@dataart.com>
- <alpine.LNX.2.00.1010291453460.6879@pobox.suse.cz>
- <3BF066A8BAB61C43B779966CEE6D7FA018BC9E19F2@e6.universe.dart.spb>
- <alpine.LNX.2.00.1011011522120.15851@pobox.suse.cz>
+From: William Sherman <shermanw@indiana.edu>
+Subject: Re: usbhid: HP LD4200tm touchscreen ALMOST works
+Date: Tue, 02 Nov 2010 09:46:21 -0400
+Message-ID: <4CD0162D.1000800@indiana.edu>
+References: <4CC61731.1080100@indiana.edu> <20101101211456.GA30692@core.coreip.homeip.net> <alpine.LNX.2.00.1011011717460.15851@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1011011522120.15851-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Content-Language: en-US
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: "chatty-rXV5z7KbLFk@public.gmane.org" <chatty-rXV5z7KbLFk@public.gmane.org>, "spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org" <anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org>, "cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org" <cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gregory Burmistrov <grig-2rKlv3v387hBDgjK7y7TUQ@public.gmane.org>, Paul Osborn <Paul.Osborn-+dFpGaSyCl6S7A1Ibl2khg@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1011011717460.15851@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Linux Input <linux-input@vger.kernel.org>, William Sherman <shermanw@indiana.edu>
 List-Id: linux-input@vger.kernel.org
 
-Hello Jiri,
+On 11/1/10 5:22 PM, Jiri Kosina wrote:
+> On Mon, 1 Nov 2010, Dmitry Torokhov wrote:
+>
+>>> I'm looking to dig into the usbhid driver code to get me the last
+>>> mile and get my HP LD4200tm touchscreen working on my Linux system.
+>>> [NOTE: I posted about this elsewhere, but as I think about it more,
+>>> this is more of a linux-kernel issue than anything else, so I'm
+>>> reprising that note here.]
+>>
+>> I think you'll have better luck on linux-input...
+>
+> Thanks for CC, Dmitry.
 
-Thank you for your feedback.
+Yes, thanks from me too for pointing this thread in the right direction.
+I also sent a revised (updated) post to the linux-kernel list, but was
+not aware of the linux-input list.
 
-With the generic hid driver device is working in mouse-mode, turning it into the huge touchscreen, which is completely useless for the end-user.
+> Thanks a lot for the detailed analysis. What would actually be interesting
+> to see would be the HID debugfs output. Namely
+>
+> 1) mount debugfs
+> 2) cat /sys/kernel/debug/<device>/rdesc
+> 3) obtain output of /sys/kernel/debug/<device>/events and annotate it as
+> you did for your previous output (i.e. "this happens when I do one-finger
+> move", "this happens when I do two-finger trick to make it work").
+>
+> This way, it'd be much easier to see what is actually hapenning on HID
+> level.
 
-Moreover, the device has internal modes(mouse mode and touch mode) which we need to switch during work.
+Great.  I will do that as soon as I can -- which is when I arrive at
+SuperComputing to setup our system.  The display (our only one) is currently
+on a truck bound for New Orleans.
 
-On some Linux systems hid driver is loaded from init.rd image, so we can't feed our quirks to it while boot process and we can't rebuild init.rd image on the user's machine because some Linux distributives doesn't have special tools preinstalled.
+In the meantime, I wrote a very simple application that parses the
+data directly from /dev/hidrawN, does a simple parse, and then
+creates X events with the Xtest API.  Of course, I'm only doing
+single touch, since that's all I need for the moment.
 
-We are going to submit our driver to the Linux kernel quickly, so everyone can improve it.
+I also have a Dell SX2210T touch screen with the NextWindow interface.
+We made some partial progress on our Ubuntu 10.10 system with the nwfermi
+driver, but again, not quite all the way -- of course now that computer
+is on the road, and I'm not having as much luck with that touchscreen
+on my Fedora 13 system.
 
-Any comments and suggestions are greatly appreciated.
+> Thanks,
 
-With best regards,
-Anton Chikin
+	Thank you both, and more to come,
+	Bill
 
-
------Original Message-----
-From: Jiri Kosina [mailto:jkosina-AlSwsSmVLrQ@public.gmane.org] 
-Sent: Monday, November 01, 2010 10:22 PM
-To: Anton Chikin
-Cc: chatty-rXV5z7KbLFk@public.gmane.org; spbnick-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; anisse-fwwRqrJYcP2HXe+LvDLADg@public.gmane.org; cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Gregory Burmistrov; Paul Osborn
-Subject: RE: [PATCH] hid: usbhid: New hid quirks for Panasonic Elite Panaboard T-780 and T-880
-
-On Fri, 29 Oct 2010, Anton Chikin wrote:
-
-> Hello Jiri,
-> 
-> Panasonic Elite Panaboard UB-T780 is a touchscreen whiteboard. It uses 
-> projector to present PC's screen onto the board. So we need to calibrate 
-> it according to the projector's position and apply calibration data 
-> inside our driver.
-> 
-> There is no other driver for this device. I'm working directly for 
-> Panasonic on this driver.
-> 
-> Is this nice for changelog comment?
-
-If the device is 'working' properly with the generic driver, "only" not 
-properly calibrated, I wouldn't really like to blacklist it completely.
-
-It might impose regression for those users who have written their own 
-userspace calibration, for example.
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Bill Sherman
+Sr. Technology Advisor
+Advanced Visualization Lab
+Pervasive Technologies Inst
+Indiana University
+shermanw@indiana.edu

@@ -1,46 +1,57 @@
-From: Linus Walleij <linus.walleij@stericsson.com>
+From: Greg KH <greg@kroah.com>
 Subject: Re: [PATCHv1] staging: Synaptics RMI4 touchpad driver support
-Date: Tue, 2 Nov 2010 15:14:48 +0100
-Message-ID: <4CD01CD8.3090206@stericsson.com>
-References: <1288699725-14405-1-git-send-email-naveen.gaddipati@stericsson.com> <20101102140337.GC9387@kroah.com>
+Date: Tue, 2 Nov 2010 08:20:55 -0700
+Message-ID: <20101102152055.GA2104@kroah.com>
+References: <1288699725-14405-1-git-send-email-naveen.gaddipati@stericsson.com> <20101102140337.GC9387@kroah.com> <4CD01CD8.3090206@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20101102140337.GC9387@kroah.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kroah.org ([198.145.64.141]:52602 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753532Ab0KBPUK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Nov 2010 11:20:10 -0400
+Content-Disposition: inline
+In-Reply-To: <4CD01CD8.3090206@stericsson.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, linux-input@vger.kernel.org
 
-Greg KH wrote:
-
->> +Wait for the official upstream synaptics rmi4 clearpad drivers as promised over the past few months
->> +Merge any device support needed from this driver into it
->> +Delete this driver
+On Tue, Nov 02, 2010 at 03:14:48PM +0100, Linus Walleij wrote:
+> Greg KH wrote:
 > 
-> Huh?
+> >> +Wait for the official upstream synaptics rmi4 clearpad drivers as promised over the past few months
+> >> +Merge any device support needed from this driver into it
+> >> +Delete this driver
+> > 
+> > Huh?
+> > 
+> > Why not just add this driver to the kernel tree instead?  When the
+> > "promised" driver then eventually shows up (who is promising it?) then
+> > delete the thing.
 > 
-> Why not just add this driver to the kernel tree instead?  When the
-> "promised" driver then eventually shows up (who is promising it?) then
-> delete the thing.
+> Well, Alan (on behalf of Ramesh Agarwal) sent out a very similar
+> patch (Titled "Synaptics TM1217 Touchscreen Controller driver")
+> the other day, and OTOMH that was after discussions with Synaptics
+> where they said they were working on a "real" driver (a rather
+> complex RMI4 bus driver) and we believe they will fix that sooner
+> or later.
+> 
+> So, until sooner or later happens we thought we'd keep it in staging.
+> 
+> If you prefer both Alan and we can probably submit our patches for
+> inclusion in the proper place.
 
-Well, Alan (on behalf of Ramesh Agarwal) sent out a very similar
-patch (Titled "Synaptics TM1217 Touchscreen Controller driver")
-the other day, and OTOMH that was after discussions with Synaptics
-where they said they were working on a "real" driver (a rather
-complex RMI4 bus driver) and we believe they will fix that sooner
-or later.
+Yes, please do that.
 
-So, until sooner or later happens we thought we'd keep it in staging.
+> A side effect may be that the Synaptics RMI4 people may have trouble
+> to merge their driver into input/ since they may be requested to
+> refactor the existing drivers to use it rather than merging new stuff,
+> putting some burden on their shoulders.
 
-If you prefer both Alan and we can probably submit our patches for
-inclusion in the proper place.
+That's the burden of any developer, especially ones that are slower to
+get their code released :)
 
-A side effect may be that the Synaptics RMI4 people may have trouble
-to merge their driver into input/ since they may be requested to
-refactor the existing drivers to use it rather than merging new stuff,
-putting some burden on their shoulders.
+thanks,
 
-Yours,
-Linus Walleij
+greg k-h

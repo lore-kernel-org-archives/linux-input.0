@@ -1,64 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv1] staging: Synaptics RMI4 touchpad driver support
-Date: Tue, 2 Nov 2010 08:40:30 -0700
-Message-ID: <20101102154029.GH11778@core.coreip.homeip.net>
-References: <1288699725-14405-1-git-send-email-naveen.gaddipati@stericsson.com>
- <20101102140337.GC9387@kroah.com>
- <4CD01CD8.3090206@stericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/3] Input: wacom - allow both MT and pen data to be reported
+Date: Tue,  2 Nov 2010 16:37:59 -0700
+Message-ID: <1288741079-4993-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:62897 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753334Ab0KBPkq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Nov 2010 11:40:46 -0400
-Content-Disposition: inline
-In-Reply-To: <4CD01CD8.3090206@stericsson.com>
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:56213 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751423Ab0KBXht (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Nov 2010 19:37:49 -0400
+Received: by gxk23 with SMTP id 23so16710gxk.19
+        for <linux-input@vger.kernel.org>; Tue, 02 Nov 2010 16:37:49 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@stericsson.com>
-Cc: Greg KH <greg@kroah.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, chris@cnpbagwell.com, Ping Cheng <pingc@wacom.com>
 
-On Tue, Nov 02, 2010 at 03:14:48PM +0100, Linus Walleij wrote:
-> Greg KH wrote:
-> 
-> >> +Wait for the official upstream synaptics rmi4 clearpad drivers as promised over the past few months
-> >> +Merge any device support needed from this driver into it
-> >> +Delete this driver
-> > 
-> > Huh?
-> > 
-> > Why not just add this driver to the kernel tree instead?  When the
-> > "promised" driver then eventually shows up (who is promising it?) then
-> > delete the thing.
+It was suggested by app and X server developers that both MT and pen data
+should be reported to the userland if the data is valid. Bamboo series are
+among these devices that both data are valid from the hardware perspective.
 
-The same reason as there were several wireless drivers in staging?
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
 
-> 
-> Well, Alan (on behalf of Ramesh Agarwal) sent out a very similar
-> patch (Titled "Synaptics TM1217 Touchscreen Controller driver")
-> the other day, and OTOMH that was after discussions with Synaptics
-> where they said they were working on a "real" driver (a rather
-> complex RMI4 bus driver) and we believe they will fix that sooner
-> or later.
-> 
-> So, until sooner or later happens we thought we'd keep it in staging.
-> 
-> If you prefer both Alan and we can probably submit our patches for
-> inclusion in the proper place.
-> 
-> A side effect may be that the Synaptics RMI4 people may have trouble
-> to merge their driver into input/ since they may be requested to
-> refactor the existing drivers to use it rather than merging new stuff,
-> putting some burden on their shoulders.
-> 
-
-No, they have not been requested to change any existing [in tree]
-drivers. They however been asked to convert to the driver core
-primitives instead of rolling their own infprastructure to implement
-devices and drivers binding.
-
-Thanks.
-
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index b3252ef..b9534a1 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -868,13 +868,14 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
+ 	for (i = 0; i < 2; i++) {
+ 		int p = data[9 * i + 2];
+ 		input_mt_slot(input, i);
+-		/*
+-		 * Touch events need to be disabled while stylus is
+-		 * in proximity because user's hand is resting on touchpad
+-		 * and sending unwanted events.  User expects tablet buttons
+-		 * to continue working though.
++
++		/* We send touch events even a stylus is in proximity. Apps or
++		 * userland clients have the opportunity to arbitrate these events
++		 * when pen is in proximity.
++		 * Wacom X server driver arbitrates the events for all apps that
++		 * are based on X server.
+ 		 */
+-		if (p && !wacom->shared->stylus_in_proximity) {
++		if (p) {
+ 			int x = get_unaligned_be16(&data[9 * i + 3]) & 0x7ff;
+ 			int y = get_unaligned_be16(&data[9 * i + 5]) & 0x7ff;
+ 			if (features->quirks & WACOM_QUIRK_BBTOUCH_LOWRES) {
 -- 
-Dmitry
+1.7.2.3
+

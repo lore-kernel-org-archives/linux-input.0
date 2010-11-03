@@ -1,229 +1,69 @@
-From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 2/4] Enabled Acer Launch Manager mode
-Date: Wed, 03 Nov 2010 11:07:12 -0600
-Message-ID: <4CD2317002000023000233EE@novprvlin0050.provo.novell.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCHv1] staging: Synaptics RMI4 touchpad driver support
+Date: Wed, 3 Nov 2010 11:10:58 -0700
+Message-ID: <20101103181058.GE7441@kroah.com>
+References: <1288699725-14405-1-git-send-email-naveen.gaddipati@stericsson.com> <20101102140337.GC9387@kroah.com> <4CD01CD8.3090206@stericsson.com> <20101102154029.GH11778@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kroah.org ([198.145.64.141]:54574 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932260Ab0KCSQI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Nov 2010 14:16:08 -0400
 Content-Disposition: inline
+In-Reply-To: <20101102154029.GH11778@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: platform-driver-x86@vger.kernel.org
-Cc: corentin.chary@gmail.com, dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, trenn@suse.de, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar GADDIPATI <naveen.gaddipati@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, linux-input@vger.kernel.org
 
-Hi all,=20
+On Tue, Nov 02, 2010 at 08:40:30AM -0700, Dmitry Torokhov wrote:
+> On Tue, Nov 02, 2010 at 03:14:48PM +0100, Linus Walleij wrote:
+> > Greg KH wrote:
+> > 
+> > >> +Wait for the official upstream synaptics rmi4 clearpad drivers as promised over the past few months
+> > >> +Merge any device support needed from this driver into it
+> > >> +Delete this driver
+> > > 
+> > > Huh?
+> > > 
+> > > Why not just add this driver to the kernel tree instead?  When the
+> > > "promised" driver then eventually shows up (who is promising it?) then
+> > > delete the thing.
+> 
+> The same reason as there were several wireless drivers in staging?
 
-=E6=96=BC =E5=85=AD=EF=BC=8C2010-10-30 =E6=96=BC 10:44 -0600=EF=BC=8CJo=
-ey Lee =E6=8F=90=E5=88=B0=EF=BC=9A
-> Add CC. Thomas
-> > =20
-> > +	if (wmi_has_guid(WMID_GUID3)) {
-> > +		if (ec_raw_mode) {
-> > +			if (ACPI_FAILURE(acer_wmi_enable_ec_raw())) {
-> > +				printk(ACER_ERR "Cannot enable EC raw mode\n");
-> > +				return -ENODEV;
-> > +			}
-> > +		} else if (ACPI_FAILURE(acer_wmi_enable_lm())) {
-> > +			printk(ACER_ERR "Cannot enable Launch Manager mode\n");
-> > +			return -ENODEV;
-> > +		}
-> > +	} else if (!wmi_has_guid(WMID_GUID3) && ec_raw_mode) {
-	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Actually, Don't need check wmi_has_guid(WMID_GUID3).
-Thank's for Thomas's review. :-)
+Ok, that's a good enough reason for me :)
 
-The following is modified patch:
+> > Well, Alan (on behalf of Ramesh Agarwal) sent out a very similar
+> > patch (Titled "Synaptics TM1217 Touchscreen Controller driver")
+> > the other day, and OTOMH that was after discussions with Synaptics
+> > where they said they were working on a "real" driver (a rather
+> > complex RMI4 bus driver) and we believe they will fix that sooner
+> > or later.
+> > 
+> > So, until sooner or later happens we thought we'd keep it in staging.
+> > 
+> > If you prefer both Alan and we can probably submit our patches for
+> > inclusion in the proper place.
+> > 
+> > A side effect may be that the Synaptics RMI4 people may have trouble
+> > to merge their driver into input/ since they may be requested to
+> > refactor the existing drivers to use it rather than merging new stuff,
+> > putting some burden on their shoulders.
+> > 
+> 
+> No, they have not been requested to change any existing [in tree]
+> drivers. They however been asked to convert to the driver core
+> primitives instead of rolling their own infprastructure to implement
+> devices and drivers binding.
 
->From d590461aa239b6db646fe5bd9e10e5ebeba63df7 Mon Sep 17 00:00:00 2001
-=46rom: Lee, Chun-Yi <jlee@novell.com>
-Date: Sun, 31 Oct 2010 00:03:36 -0400
-Subject: [PATCH 2/4] Enabled Acer Launch Manager mode
+If you don't object to this driver going in, and there is a path forward
+in the future for it to be able to be removed, then I will be glad to
+add it.
 
-Enabled Acer Launch Manager mode to disable the EC raw behavior for
-communication devices when WMID3 method available. And, we also add a
-ec_raw_mode kernel module option for enable The EC raw behavior mode
-when anyone what reset it back.
-When Acer Launch Manager mode enabled, EC will stop to touch any
-communication devices' RF state or power state that causes conflict
-with rfkill_input or any userland daemon to charge the rfkill rules.
+Can I add your Acked-by: to the patch for this?
 
-Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
----
- drivers/platform/x86/acer-wmi.c |  113
-+++++++++++++++++++++++++++++++++++++++
- 1 files changed, 113 insertions(+), 0 deletions(-)
+thanks,
 
-diff --git a/drivers/platform/x86/acer-wmi.c
-b/drivers/platform/x86/acer-wmi.c
-index 930df56..0b870d3 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -85,6 +85,7 @@ MODULE_LICENSE("GPL");
- #define AMW0_GUID2		"431F16ED-0C2B-444C-B267-27DEB140CF9C"
- #define WMID_GUID1		"6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3"
- #define WMID_GUID2		"95764E09-FB56-4e83-B31A-37761F60994A"
-+#define WMID_GUID3		"61EF69EA-865C-4BC3-A502-A0DEBA0CB531"
-=20
- /*
-  * Acer ACPI event GUIDs
-@@ -120,6 +121,20 @@ struct event_return_value {
- 	u32 reserved;
- } __attribute__((packed));
-=20
-+struct lm_input_params {
-+	u8 function_num;	/* Function Number */
-+	u16 commun_devices;	/* Communication type devices default status */
-+	u16 devices;		/* Other type devices default status */
-+	u8 lm_status;		/* Launch Manager Status */
-+	u16 reserved;
-+} __attribute__((packed));
-+
-+struct lm_return_value {
-+	u8 error_code;		/* Error Code */
-+	u8 ec_return_value;	/* EC Return Value */
-+	u16 reserved;
-+} __attribute__((packed));
-+
- /*
-  * Interface capability flags
-  */
-@@ -150,15 +165,18 @@ static int mailled =3D -1;
- static int brightness =3D -1;
- static int threeg =3D -1;
- static int force_series;
-+static bool ec_raw_mode;
-=20
- module_param(mailled, int, 0444);
- module_param(brightness, int, 0444);
- module_param(threeg, int, 0444);
- module_param(force_series, int, 0444);
-+module_param(ec_raw_mode, bool, 0444);
- MODULE_PARM_DESC(mailled, "Set initial state of Mail LED");
- MODULE_PARM_DESC(brightness, "Set initial LCD backlight brightness");
- MODULE_PARM_DESC(threeg, "Set initial state of 3G hardware");
- MODULE_PARM_DESC(force_series, "Force a different laptop series");
-+MODULE_PARM_DESC(ec_raw_mode, "Enable EC raw mode");
-=20
- struct acer_data {
- 	int mailled;
-@@ -1393,6 +1411,87 @@ error_debugfs:
- 	return -ENOMEM;
- }
-=20
-+static acpi_status
-+wmid3_set_lm_mode(struct lm_input_params *params,
-+			struct lm_return_value *return_value)
-+{
-+	acpi_status status;
-+	union acpi_object *obj;
-+
-+	struct acpi_buffer input =3D { sizeof(struct lm_input_params), params=
- };
-+	struct acpi_buffer output =3D { ACPI_ALLOCATE_BUFFER, NULL };
-+
-+	status =3D wmi_evaluate_method(WMID_GUID3, 0, 0x1, &input, &output);
-+	if (ACPI_FAILURE(status))
-+		return status;
-+
-+	obj =3D output.pointer;
-+
-+	if (!obj)
-+		return -EINVAL;
-+	else if (obj->type !=3D ACPI_TYPE_BUFFER) {
-+		kfree(obj);
-+		return -EINVAL;
-+	}
-+	if (obj->buffer.length !=3D 4) {
-+		printk(ACER_WARNING "Unknown buffer length %d\n",
-+			obj->buffer.length);
-+		kfree(obj);
-+		return -EINVAL;
-+	}
-+
-+	*return_value =3D *((struct lm_return_value *)obj->buffer.pointer);
-+	kfree(obj);
-+
-+	return status;
-+}
-+
-+static int acer_wmi_enable_ec_raw(void)
-+{
-+	struct lm_return_value return_value;
-+	acpi_status status;
-+	struct lm_input_params params =3D {
-+		.function_num =3D 0x1,
-+		.commun_devices =3D 0xFFFF,
-+		.devices =3D 0xFFFF,
-+		.lm_status =3D 0x00,		/* Launch Manager Deactive */
-+	};
-+
-+	status =3D wmid3_set_lm_mode(&params, &return_value);
-+
-+	if (return_value.error_code || return_value.ec_return_value)
-+		printk(ACER_WARNING "Enabling EC raw mode failed: "
-+			"0x%x - 0x%x\n", return_value.error_code,
-+			return_value.ec_return_value);
-+	else
-+		printk(ACER_INFO "Enabled EC raw mode");
-+
-+	return status;
-+}
-+
-+static int acer_wmi_enable_lm(void)
-+{
-+	struct lm_return_value return_value;
-+	acpi_status status;
-+	struct lm_input_params params =3D {
-+		.function_num =3D 0x1,
-+		.commun_devices =3D 0x0041,	/* WiFi on, 3G on, BT off */
-+		.devices =3D 0xFFFF,
-+		.lm_status =3D 0x41,		/* Launch Manager Active */
-+	};
-+
-+	status =3D wmid3_set_lm_mode(&params, &return_value);
-+
-+	if (return_value.error_code || return_value.ec_return_value)
-+		printk(ACER_WARNING "Enabling Launch Manager failed: "
-+			"0x%x - 0x%x\n", return_value.error_code,
-+			return_value.ec_return_value);
-+	else
-+		printk(ACER_INFO "Enabled Launch Manager");
-+
-+	return status;
-+}
-+
- static int __init acer_wmi_init(void)
- {
- 	int err;
-@@ -1454,6 +1553,20 @@ static int __init acer_wmi_init(void)
- 		       "generic video driver\n");
- 	}
-=20
-+	if (wmi_has_guid(WMID_GUID3)) {
-+		if (ec_raw_mode) {
-+			if (ACPI_FAILURE(acer_wmi_enable_ec_raw())) {
-+				printk(ACER_ERR "Cannot enable EC raw mode\n");
-+				return -ENODEV;
-+			}
-+		} else if (ACPI_FAILURE(acer_wmi_enable_lm())) {
-+			printk(ACER_ERR "Cannot enable Launch Manager mode\n");
-+			return -ENODEV;
-+		}
-+	} else if (ec_raw_mode) {
-+		printk(ACER_INFO "No WMID EC raw mode enable method\n");
-+	}
-+
- 	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
- 		err =3D acer_wmi_input_setup();
- 		if (err)
---=20
-1.6.0.2
-
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+greg k-h

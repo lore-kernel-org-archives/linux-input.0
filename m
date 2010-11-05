@@ -1,78 +1,73 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: roccat: Add support for Roccat Kone[+]
-Date: Fri, 5 Nov 2010 14:01:42 -0400 (EDT)
-Message-ID: <alpine.LNX.2.00.1011051400250.15851@pobox.suse.cz>
-References: <1287943025.2623.16.camel@neuromancer>  <alpine.LNX.2.00.1011041418530.15851@pobox.suse.cz> <1288978962.2585.15.camel@neuromancer>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Fri, 5 Nov 2010 11:47:28 -0700
+Message-ID: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1288978962.2585.15.camel@neuromancer>
-Sender: linux-doc-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Stephane Chatty <chatty@enac.fr>, Don Prince <dhprince-devel@yahoo.co.uk>, Dmitry Torokhov <dtor@mail.ru>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:57879 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753316Ab0KESr3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Nov 2010 14:47:29 -0400
+Received: by ewy7 with SMTP id 7so1969106ewy.19
+        for <linux-input@vger.kernel.org>; Fri, 05 Nov 2010 11:47:28 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "X.Org Devel List" <xorg-devel@lists.freedesktop.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On Fri, 5 Nov 2010, Stefan Achatz wrote:
+Recent changes and discussion about MT support at LKML, UDS, and
+xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
+MT protocol (introduced in kernel 2.6.36). Since Wacom supports both
+digitizer and touch devices, I need to decide how to report touch data
+when the pen is in proximity.
 
-> > > This patch adds support for Roccat Kone[+] gaming mouse. Kone[+] is an enhanced version
-> > > of the old Kone with more memory for macros, a better sensor and more functionality.
-> > > This driver is conceptual similar to the existing Kone and Pyra drivers.
-> > > Userland tools can soon be found at http://sourceforge.net/projects/roccat
-> > 
-> > Seems like there is a lot of duplicate code with Roccat Kone.
-> > Is there any reason this couldn't be merged with the Roccat Kone 
-> > counterparts?
-> 
-> In fact the Kone[+] seems to be nearer to the Pyra than the old Kone.
-> Looks like the manufacturer changed the firmware programmer between some
-> devices. I wanted to wait until I see more devices of this manufacturer
-> if some kind of genealogy might be visible and remove code duplication
-> based on that.
+My goal is to understand how X server would like the MT data to be
+reported from the kernel. I hope to keep kernel and X server driver MT
+support in sync so we can avoid unnecessary confusion or extra work in
+the userland.
 
-It would be really nice, otherwise this gets into unmaintainable mess very 
-quickly.
+The existing solution for single touch events is to arbitrate touch
+when pen is in prox. This is based on the assumption that we do not
+want to have two cursors competing on the screen.
 
-> > > +static ssize_t koneplus_sysfs_read_profile5_settings(struct file *fp,
-> > > +		struct kobject *kobj, struct bin_attribute *attr, char *buf,
-> > > +		loff_t off, size_t count)
-> > > +{
-> > > +	return koneplus_sysfs_read_profilex_settings(fp, kobj,
-> > > +			attr, buf, off, count, 4);
-> > > +}
-> > > +
-> > 
-> > This is really ugly. Can't you have just one read() function and 
-> > distuingish according to bin_attribute->private?
-> 
-> The patch comes in a view moments, if you like it I'll do the same for
-> Kone and Pyra.
+With the introduction of MT, the touch data are most likely translated
+into something other than pointer events. So, reporting both pen and
+touch data makes sense now. However, I want to assure a smooth
+tansition from single touch to MT for end users so they still get the
+single touch behavior as they used to be. I gathered the following
+approaches:
 
-Would be nice, thanks for fixing it.
+1.     Arbitrate all touch data in the kernel.
 
-> > > + * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
-> > > + */
-> > > +
-> > > +/*
-> > > + * This program is free software; you can redistribute it and/or modify it
-> > > + * under the terms of the GNU General Public License as published by the Free
-> > > + * Software Foundation; either version 2 of the License, or (at your option)
-> > > + * any later version.
-> > > + */
-> > > +
-> > > +#include <linux/types.h>
-> > > +
-> > > +#pragma pack(push)
-> > > +#pragma pack(1)
-> > 
-> > Why?
-> 
-> What?
+This is the simplest solution for device driver developers. But I do
+not feel it is end user and userland client friendly.
 
-I would prefer to have comments there, explaining why those pragmas are 
-necessary.
+2.     Report first finger touch as ABS_X/Y events when pen is not in
+prox.  Arbitrating single touch data when pen is in prox. Pen data is
+reported as ABS_X/Y events. Both ABS_X/Y for pen or the first finger
+and ABS_MT_* for MT data are reported.
 
-Thanks,
+This approach reduces the overhead in dealing with two cursors in userland.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+3.    Report first finger touch as ABS_X/Y events when pen is not in prox;
+       Report pen data as ABS_X/Y events when there is no finger touch;
+       Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
+events when both pen and touch data are received. No ABS_X/Y are
+reported when pen and tocuh or multi-touch data are received.
+
+I feel this one makes sense to userland since pen can be considered as
+another touch.
+
+4.    Report first finger touch as ABS_X/Y events when pen is not in prox;
+       Report pen data as ABS_X/Y events when there is no finger touch;
+       Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
+events when both pen and touch data are received. ABS_X/Y are also
+reported for pen when both pen and tocuh data are received.
+
+This one makes sense to userland too. It eases the backward
+compatibility support for those clients that don't support MT at all.
+
+Which approach do you like? Or do you have other suggestions share?
+
+Ping

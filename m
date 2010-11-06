@@ -1,49 +1,32 @@
-From: Tracey Dent <tdent48227@gmail.com>
-Subject: [PATCH 2/2] Drivers: hid: usbhid: Makefile: Cleaned up Makefile
-Date: Sat,  6 Nov 2010 15:07:44 -0400
-Message-ID: <1289070464-3392-2-git-send-email-tdent48227@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Drivers: hid: Makefile: Cleaned up Makefile
+Date: Sat, 6 Nov 2010 12:57:05 -0700
+Message-ID: <20101106195705.GA26765@core.coreip.homeip.net>
 References: <1289070464-3392-1-git-send-email-tdent48227@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:36075 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752901Ab0KFTHc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 15:07:32 -0400
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:36909 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752612Ab0KFT5M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 15:57:12 -0400
+Content-Disposition: inline
 In-Reply-To: <1289070464-3392-1-git-send-email-tdent48227@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, spbnick@gmail.com, dtor@mail.ru, chatty@enac.fr, Tracey Dent <tdent48227@gmail.com>
+To: Tracey Dent <tdent48227@gmail.com>
+Cc: jkosina@suse.cz, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, spbnick@gmail.com, chatty@enac.fr
 
-Changed Makefile to use <modules>-y instead of <modules>-objs.
+Hi Tracey,
 
-Signed-off-by: Tracey Dent <tdent48227@gmail.com>
----
- drivers/hid/usbhid/Makefile |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On Sat, Nov 06, 2010 at 03:07:43PM -0400, Tracey Dent wrote:
+> Changed Makefile to use <modules>-y instead of <modules>-objs.
+> 
 
-diff --git a/drivers/hid/usbhid/Makefile b/drivers/hid/usbhid/Makefile
-index 1329ecb..db3cf31 100644
---- a/drivers/hid/usbhid/Makefile
-+++ b/drivers/hid/usbhid/Makefile
-@@ -3,15 +3,15 @@
- #
- 
- # Multipart objects.
--usbhid-objs	:= hid-core.o hid-quirks.o
-+usbhid-y	:= hid-core.o hid-quirks.o
- 
- # Optional parts of multipart objects.
- 
- ifeq ($(CONFIG_USB_HIDDEV),y)
--	usbhid-objs	+= hiddev.o
-+	usbhid-y	+= hiddev.o
- endif
- ifeq ($(CONFIG_HID_PID),y)
--	usbhid-objs	+= hid-pidff.o
-+	usbhid-y	+= hid-pidff.o
- endif
- 
- obj-$(CONFIG_USB_HID)		+= usbhid.o
+Changelog normally should say why something has been done as what has
+been done is pretty clear from the patch itself.
+
+Thanks.
+
 -- 
-1.7.3.1.104.gc752e
-
+Dmitry

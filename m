@@ -1,126 +1,85 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Sat, 6 Nov 2010 10:16:18 -0500
-Message-ID: <AANLkTi=uyOC2vL-kUoMvNm44gdKth4mt2mtdsnJbVDYP@mail.gmail.com>
-References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+From: Martin Pitt <martin.pitt@ubuntu.com>
+Subject: Re: Touchpad toggle mess
+Date: Sat, 6 Nov 2010 11:30:31 -0400
+Message-ID: <20101106153031.GA2215@piware.de>
+References: <1288915209.5418.72.camel@novo.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:45973 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753998Ab0KFPQT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 11:16:19 -0400
-Received: by gyh4 with SMTP id 4so2714681gyh.19
-        for <linux-input@vger.kernel.org>; Sat, 06 Nov 2010 08:16:18 -0700 (PDT)
-In-Reply-To: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Return-path: <linux-hotplug-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1288915209.5418.72.camel@novo.hadess.net>
+Sender: linux-hotplug-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-hotplug@vger.kernel.org, xorg@lists.freedesktop.org, Peter Hutterer <peter.hutterer@who-t.net>, Matthew Garrett <mjg59@srcf.ucam.org>
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On Fri, Nov 5, 2010 at 1:47 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> Recent changes and discussion about MT support at LKML, UDS, and
-> xorg-devel encouraged me to migrate Wacom MT devices to the slot-base=
-d
-> MT protocol (introduced in kernel 2.6.36). Since Wacom supports both
-> digitizer and touch devices, I need to decide how to report touch dat=
-a
-> when the pen is in proximity.
->
-> My goal is to understand how X server would like the MT data to be
-> reported from the kernel. I hope to keep kernel and X server driver M=
-T
-> support in sync so we can avoid unnecessary confusion or extra work i=
-n
-> the userland.
->
-> The existing solution for single touch events is to arbitrate touch
-> when pen is in prox. This is based on the assumption that we do not
-> want to have two cursors competing on the screen.
->
-> With the introduction of MT, the touch data are most likely translate=
-d
-> into something other than pointer events. So, reporting both pen and
-> touch data makes sense now. However, I want to assure a smooth
-> tansition from single touch to MT for end users so they still get the
-> single touch behavior as they used to be. I gathered the following
-> approaches:
->
-> 1. =A0 =A0 Arbitrate all touch data in the kernel.
->
-> This is the simplest solution for device driver developers. But I do
-> not feel it is end user and userland client friendly.
->
-> 2. =A0 =A0 Report first finger touch as ABS_X/Y events when pen is no=
-t in
-> prox. =A0Arbitrating single touch data when pen is in prox. Pen data =
-is
-> reported as ABS_X/Y events. Both ABS_X/Y for pen or the first finger
-> and ABS_MT_* for MT data are reported.
->
-> This approach reduces the overhead in dealing with two cursors in use=
-rland.
->
-> 3. =A0 =A0Report first finger touch as ABS_X/Y events when pen is not=
- in prox;
-> =A0 =A0 =A0 Report pen data as ABS_X/Y events when there is no finger=
- touch;
-> =A0 =A0 =A0 Report touch data as MT_TOOL_TOUCH and pen data as MT_TOO=
-L_PEN
-> events when both pen and touch data are received. No ABS_X/Y are
-> reported when pen and tocuh or multi-touch data are received.
->
-> I feel this one makes sense to userland since pen can be considered a=
-s
-> another touch.
->
-> 4. =A0 =A0Report first finger touch as ABS_X/Y events when pen is not=
- in prox;
-> =A0 =A0 =A0 Report pen data as ABS_X/Y events when there is no finger=
- touch;
-> =A0 =A0 =A0 Report touch data as MT_TOOL_TOUCH and pen data as MT_TOO=
-L_PEN
-> events when both pen and touch data are received. ABS_X/Y are also
-> reported for pen when both pen and tocuh data are received.
->
-> This one makes sense to userland too. It eases the backward
-> compatibility support for those clients that don't support MT at all.
->
-> Which approach do you like? Or do you have other suggestions share?
->
-> Ping
 
-Here is my input on topic.  I'll summarize that I'm leaning towards
-your option #1 right now.
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-=46irst, I think we need to decide if non-MT aware apps/X drivers are t=
-o
-be supported or if we require them to be "fixed" to work reliably with
-devices such as Wacom Bamboo that split device into two inputs yet
-need coordination across inputs.
+Hello Bastien,
 
-I prefer that non-MT aware are supported and so we should continue the
-current arbitration in kernel over the ST events.  Sending
-un-arbitrated MT events to userland I think is mostly OK.
+Bastien Nocera [2010-11-05  0:00 +0000]:
+> The patches in https://bugs.freedesktop.org/show_bug.cgi?id=3D31300
+> implement this for the kernel, and for X.org.
+>=20
+> Then we have the problem that udev's keymaps seem to use different
+> function keys depending on the hardware [1], when X.org (because of the
+> limitations of XKB) standardised on F22 for "XF86TouchpadToggle".
 
-Next, you bring up an interesting point on tablet side.  Currently, it
-doesn't send MT events because it only tracks 1 stylus tool at a time.
- Should it send MT events anyways for single tool to help userland
-because its events are meant to be associated with another inputs MT
-events?  Thats a good question for MT people to consider.
+Thanks for bringing this up, indeed there's some cleanup in order
+here.
 
-Thinking about that issue though makes we think of option #5 to
-consider.  We could combine these 2 input devices into single input
-device and send all events as MT events.  I assume userland has easier
-time arbitrating within single input device.  I'm not sure what it
-would take to combine these in kernel though... and there is some
-value in 2 inputs since  just the touchpad can currently be re-routed
-to xf86-input-synaptics.
+> So we'll need to standardise on the keys used. I selected F21 for
+> XF86TouchpadToggle, F22 for XF86TouchpadOn and F23 for XF86TouchpadOff.
+> See the patch in:
+> https://bugs.freedesktop.org/show_bug.cgi?id=3D31333
+>=20
+> The remaining fixes would need to be in udev's keymaps, to set hardware
+> handled keys to F22 and F23, and software ones to F21. Patch is attached
+> for that.
 
-Chris
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Indeed the maps which don't currently use f22 should be fixed,
+regardless of what happens in X/kernel/userspace. My main concern is
+that F22 has acted as touchpad toggle key for years (many of those
+were imported from hal-info originally), so if we change everything to
+f21 now without updating userspace (things like gnome-settings-daemon)
+in lockstep, then we break existing functionality.=20
+
+It would look slightly weird, but perhaps it might be better to keep
+using F22 for toggling, and F1->on, F23->off?
+
+Thanks,
+
+Martin
+--=20
+Martin Pitt                        | http://www.piware.de
+Ubuntu Developer (www.ubuntu.com)  | Debian Developer  (www.debian.org)
+
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iQIcBAEBCAAGBQJM1XSUAAoJEPmIJawmtHuffbQQAIiFH1uYsbcEAlmcBnW5/OZj
+51PjWEa8eghNb78KCsxJfbIY8Js0Y89c0tvIK/LkT97tRbdwz+rtuI/hHJkH0N3z
+o2WCjuzw7g5gyBDbRBkYOhUrKIy9JWxO8xZ7UKgBlIT8xUV+9pY2uopSUzrpWXYp
+oEAQSjnE6p5VfZXeXvLc5jo5uyv0hq9EwTJLcCOrXiEHspzef2biE25NVyP5F9md
+OCFranrfONSDOtMioXYmcXYGlBuFJzUelufz9gDvOEpw6g9muUMtYspYbR3WCpCr
+4Cpv0ois0jloc6KOxJfnvvayhLY3hiIyLSGjKzXQr3bUecwajRoUPVtcI0hBvkGx
+6Rv5bOoEQVU8Dncni3ou1LhK96dR4fnpuZ57A9OLNVooe2u5LxE5Va9o8njFq6h1
+mflLR3KhMkgx+LBJu4RHo7Uf/+RCJJ6fKyc8klKBcVv12SUZZb/gSZetv9xTOncV
+KTlVk395s0pfpHcUE9O9SwQ+KiYWDOv+ojIg/BCIJY1URGNm6+ReOBbaS9jDBETd
+ebGcqGwur6a6HI0/ATOULRtrvPa/7yRLA6e9egDkiAWE9yNY4e0VrsKauxz3SwH4
+jIBqp5PRthPf2C0ER7CqDboXqwrvZ/KUi4GrQP+BHXFDlTOOdKiuYVdBFxJYXTUi
+amuxsYiONkw+XBFQ4jWe
+=b+l/
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--

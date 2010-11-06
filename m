@@ -1,98 +1,89 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Evdev uniq id
-Date: Sat, 6 Nov 2010 08:39:24 -0700
-Message-ID: <20101106153924.GA17780@core.coreip.homeip.net>
-References: <4CD38B2B.3080200@netspace.net.au>
- <20101106094541.GA16663@core.coreip.homeip.net>
- <4CD524C3.10300@netspace.net.au>
- <AANLkTi=HUAPfy=OChB+TqYmF8k_YkbzNionAzWK7NSYH@mail.gmail.com>
+From: Michal Suchanek <hramrach@centrum.cz>
+Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Sat, 6 Nov 2010 16:53:02 +0100
+Message-ID: <AANLkTin+S_jJAdw6gLH1RnbyD1EB6ChHCo9yNheLb_sg@mail.gmail.com>
+References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:42565 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753481Ab0KFPjd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 11:39:33 -0400
-Received: by iwn41 with SMTP id 41so2096359iwn.19
-        for <linux-input@vger.kernel.org>; Sat, 06 Nov 2010 08:39:32 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <AANLkTi=HUAPfy=OChB+TqYmF8k_YkbzNionAzWK7NSYH@mail.gmail.com>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:38656 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753481Ab0KFPxY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 11:53:24 -0400
+Received: by wyb36 with SMTP id 36so2071771wyb.19
+        for <linux-input@vger.kernel.org>; Sat, 06 Nov 2010 08:53:23 -0700 (PDT)
+In-Reply-To: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: Russell Shaw <rjshaw@netspace.net.au>, linux-input <linux-input@vger.kernel.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On Sat, Nov 06, 2010 at 09:47:30AM -0500, Chris Bagwell wrote:
-> On Sat, Nov 6, 2010 at 4:49 AM, Russell Shaw <rjshaw@netspace.net.au>=
- wrote:
-> > On 06/11/10 20:45, Dmitry Torokhov wrote:
-> >>
-> >> Hi Russell,
-> >>
-> >> On Fri, Nov 05, 2010 at 03:42:19PM +1100, Russell Shaw wrote:
-> >>>
-> >>> Hi,
-> >>> In X, i want an application program to apply settings to a specif=
-ic
-> >>> mouse/puck device, regardless of how many other devices have been
-> >>> plugged in since the last session.
-> >>>
-> >>> Prefereably, a manufacturer-model-serial_number call would be ava=
-ilable
-> >>> from evdev.
-> >>>
-> >>> Minimally, a uniq non-changing ID could be useful. I found this i=
-n
-> >>> linux-2.6.31.1/drivers/input/evdev.c:
-> >>>
-> >>> =A0 if (_IOC_NR(cmd) =3D=3D _IOC_NR(EVIOCGUNIQ(0)))
-> >>> =A0 =A0 return str_to_user(dev->uniq, _IOC_SIZE(cmd), p);
-> >>>
-> >>> How is "dev->uniq" constructed?
-> >>
-> >> USB HID devices populate this field with data from
-> >> descriptor.iSerialNumber.
-> >> I suppose we should do that in other USB drivers as well, patches =
-are
-> >> welcome.
-> >
-> > Hi Dmitry.T,
-> > I was just getting around to seeing if i could add manufacturer-mod=
-el-
-> > serial_number ioctl functionality.
->=20
-> I'm looking for similar feature so that X app and X driver can tell
-> that inputs from two USB end points are from same device.  For config
-> GUI case, unique value lets it show it as a whole device.  It would b=
-e
-> best for GUI if the value lasted across reboots as well.
->=20
-> In my case of Wacom, the hardware does not report a serial # and it
-> sounds like thats pretty common.  So I do not have a good way to
-> generate this uniq string.
+On 5 November 2010 19:47, Ping Cheng <pinglinux@gmail.com> wrote:
+> Recent changes and discussion about MT support at LKML, UDS, and
+> xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
+> MT protocol (introduced in kernel 2.6.36). Since Wacom supports both
+> digitizer and touch devices, I need to decide how to report touch data
+> when the pen is in proximity.
+>
+> My goal is to understand how X server would like the MT data to be
+> reported from the kernel. I hope to keep kernel and X server driver MT
+> support in sync so we can avoid unnecessary confusion or extra work in
+> the userland.
+>
+> The existing solution for single touch events is to arbitrate touch
+> when pen is in prox. This is based on the assumption that we do not
+> want to have two cursors competing on the screen.
 
-Yep, I think most of them do not have serial number filled in.
+As a tablet user, not X developer I don't think it is desirable and
+expected to register pen touch and finger touch together as a
+multitouch. That is, if I wanted to trigger a multitouch feature I
+would use fingers, not pen and finger. While it would be technically
+possible to use the pen touch and finger touch together to trigger
+multitouch I don't think it makes much sense.
 
->=20
-> I guess as a fall back when uniq is empty string then the response
-> from EVIOCGPHYS could be used for both our cases?  At least as long a=
-s
-> users are not moving cables around.  For my case, take off the last
-> ".x" value if it exists and if strings are same then its same device.
+Also it is a good idea to turn off (single) touch when pen is in
+proximity because it is quite easy to accidentally touch the surface
+while moving the pen.
 
-You could add heuristics to your algorithm, yes. In case where there is
-only one device VID/PID is enough and you can even handle moving to
-different port. Otherwise you'd have to add phys into the mix and try
-matching again, hoping that the device is still plugged into the same
-port.
+This means that the protocol that sends abs events from pen when in
+proximity and from finger otherwise would work well.
 
-All such schemes will fail in general case...
+However, there is one feature that makes sort of sense and does not
+work when touch is completely off. It might be possible to use touch
+for button and pen for moving the cursor. I tried to use the pad
+button on my Bamboo together with pen motion for right drags and it
+seems somewhat easier than using the pen button.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So I would say that protocol that allows events from both pen and
+touch at the same time is desirable in the long run but with some
+options to filter the events when both pen and touch are used
+together.
+
+This gives basically three options
+
+1) leave as is, turn off touch when pen is in proximity
+
+2) report everything by kernel, put some filter on the touch events in
+the  X driver (which defaults to killing most touch stuff when pen is
+in proximity)
+
+3) the same as above but put the filter in the kernel driver
+
+
+2 or 3 is more flexible as people with some special uses can just turn
+off the filter and get all events.
+
+WRT X ease of development I would suggest that the same device should
+never report different events based on pen proximity. Either the
+device is in some "compatibility mode" and reports only one pointer as
+per 1 or there are two separate pointers and they are just reported
+out of proximity when the pointer positioning is not desirable (ie
+when pen is out or when touch is off due to pen being in).
+
+If somebody wants to have multitouch combining two different pointers
+there is nothing stopping them, either with P&T pen and touch pointers
+or completely unrelated devices.
+
+Thanks
+
+Michal

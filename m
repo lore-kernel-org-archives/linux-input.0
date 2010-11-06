@@ -1,75 +1,45 @@
-From: Martin Pitt <martin.pitt@ubuntu.com>
+From: Bastien Nocera <hadess@hadess.net>
 Subject: Re: Touchpad toggle mess
-Date: Sat, 6 Nov 2010 12:33:39 -0400
-Message-ID: <20101106163339.GE2215@piware.de>
+Date: Sat, 06 Nov 2010 17:17:04 +0000
+Message-ID: <1289063824.5418.95.camel@novo.hadess.net>
 References: <1288915209.5418.72.camel@novo.hadess.net>
- <20101106153031.GA2215@piware.de>
- <1289059101.5418.93.camel@novo.hadess.net>
+	 <20101106153031.GA2215@piware.de>
+	 <1289059101.5418.93.camel@novo.hadess.net>
+	 <20101106163339.GE2215@piware.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="1ccMZA6j1vT5UqiK"
-Return-path: <linux-hotplug-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1289059101.5418.93.camel@novo.hadess.net>
-Sender: linux-hotplug-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input <linux-input@vger.kernel.org>, linux-hotplug@vger.kernel.org, xorg@lists.freedesktop.org, Peter Hutterer <peter.hutterer@who-t.net>, Matthew Garrett <mjg59@srcf.ucam.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay2-v.mail.gandi.net ([217.70.178.76]:57145 "EHLO
+	relay2-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750919Ab0KFRRP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 13:17:15 -0400
+In-Reply-To: <20101106163339.GE2215@piware.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Martin Pitt <martin.pitt@ubuntu.com>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-hotplug@vger.kernel.org, xorg@lists.freedesktop.org, Peter Hutterer <peter.hutterer@who-t.net>, Matthew Garrett <mjg59@srcf.ucam.org>
 
+On Sat, 2010-11-06 at 12:33 -0400, Martin Pitt wrote:
+> Hello Bastien,
+> 
+> Bastien Nocera [2010-11-06 15:58 +0000]:
+> > No, for about a year:
+> > http://cgit.freedesktop.org/xkeyboard-config/commit/?id=1d05eda8dfc706d6450cab5883120e0d5e1100c0
+> 
+> Ah, right, I missed that it didn't actually work all the way up to the
+> session, only at the evdev level.
+> 
+> > You don't need to update gnome-settings-daemon. gnome-settings-daemon
+> > doesn't see F21, F22 or F23, it'll see XF86TouchpadOn, etc.
+> 
+> Ah, ok.
+> 
+> So, that makes a lot of sense then, I committed your patch with a
+> little more verbiage in the changelog. It would be nice if we could
+> get the X.org counterpart in as well, so that the udev keymaps and
+> X.org don't run out of sync.
 
---1ccMZA6j1vT5UqiK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We actually need 2 patches into X, one for adding the keysyms, one for
+setting the keysyms to the Function keys.
 
-Hello Bastien,
-
-Bastien Nocera [2010-11-06 15:58 +0000]:
-> No, for about a year:
-> http://cgit.freedesktop.org/xkeyboard-config/commit/?id=3D1d05eda8dfc706d=
-6450cab5883120e0d5e1100c0
-
-Ah, right, I missed that it didn't actually work all the way up to the
-session, only at the evdev level.
-
-> You don't need to update gnome-settings-daemon. gnome-settings-daemon
-> doesn't see F21, F22 or F23, it'll see XF86TouchpadOn, etc.
-
-Ah, ok.
-
-So, that makes a lot of sense then, I committed your patch with a
-little more verbiage in the changelog. It would be nice if we could
-get the X.org counterpart in as well, so that the udev keymaps and
-X.org don't run out of sync.
-
-Thank you!
-
-Martin
---=20
-Martin Pitt                        | http://www.piware.de
-Ubuntu Developer (www.ubuntu.com)  | Debian Developer  (www.debian.org)
-
---1ccMZA6j1vT5UqiK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iQIcBAEBCAAGBQJM1YNjAAoJEPmIJawmtHufjT8P/A7mooZIGDMaZJN8HQcZKs5U
-HCldDFuqGuzTCT6OpIumyYd3YcCdtzQLHtUjeOydPAX0R7dI6c+pWcLX8x9/lJ1d
-SiX7PS4557ew6QlxD+fo2p1o68DYUpr1u/qq/WG+hVPFSOFi01sLMZyaiQnbDP+p
-02MDfGZxK7k9eVGMTYItrC+ogjYgmuecwnWESfQFkf8IZ04sy/JjabW9cGW/hdg1
-uJyYqn2aHSSa7oBenb0EFH0VZ/L4xkYJKMTMCuPcg6LpRGWYfWwcQl+uQ+sEei2D
-33VL2HHFJ85adjRG7rTYpKzwM8iccZ0bdXhrFrKBE1IeB2pdbRzcbb5QzkQQe79V
-e6sXuS+kTdT8j4yCTE8Sles16t/nX173c/noM3vj8N69+CeiSIX4lhHl2yxTNFak
-8BIR8OA2sW87rBQFD8nGrM7mhWq8lQ7uFSRL89jWEAgyqcomyZ7V54V54LyoNkeF
-EwSaXvXpF4SnHmoiTccKePsTQwyNL1kNke1n8W5/5UhGfv+tRPR39x1nUDlwg5xI
-ooKL8LZdkd/qrhlVNjLLv3O+OMoea40VhAgiFlFGrb2lgNKhfEwTDdwmO1AT4SPC
-p7/MG+dqQBucCtbzR0vr/+tvApKMZRkzm3lYxxzfWu8FHYs/Q1QWPplx9/VdLCG6
-/3j7rR+WFYlidL9HnSrC
-=a/6j
------END PGP SIGNATURE-----
-
---1ccMZA6j1vT5UqiK--

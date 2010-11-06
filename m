@@ -1,89 +1,71 @@
-From: Michal Suchanek <hramrach@centrum.cz>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Sat, 6 Nov 2010 16:53:02 +0100
-Message-ID: <AANLkTin+S_jJAdw6gLH1RnbyD1EB6ChHCo9yNheLb_sg@mail.gmail.com>
-References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Touchpad toggle mess
+Date: Sat, 06 Nov 2010 15:56:09 +0000
+Message-ID: <1289058969.5418.91.camel@novo.hadess.net>
+References: <1288915209.5418.72.camel@novo.hadess.net>
+	 <20101105022004.GA26173@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:38656 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753481Ab0KFPxY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 11:53:24 -0400
-Received: by wyb36 with SMTP id 36so2071771wyb.19
-        for <linux-input@vger.kernel.org>; Sat, 06 Nov 2010 08:53:23 -0700 (PDT)
-In-Reply-To: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hotplug-owner@vger.kernel.org>
+In-Reply-To: <20101105022004.GA26173@core.coreip.homeip.net>
+Sender: linux-hotplug-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-hotplug@vger.kernel.org, xorg@lists.freedesktop.org, Peter Hutterer <peter.hutterer@who-t.net>, Matthew Garrett <mjg59@srcf.ucam.org>, Martin Pitt <martin.pitt@ubuntu.com>
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On 5 November 2010 19:47, Ping Cheng <pinglinux@gmail.com> wrote:
-> Recent changes and discussion about MT support at LKML, UDS, and
-> xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
-> MT protocol (introduced in kernel 2.6.36). Since Wacom supports both
-> digitizer and touch devices, I need to decide how to report touch data
-> when the pen is in proximity.
->
-> My goal is to understand how X server would like the MT data to be
-> reported from the kernel. I hope to keep kernel and X server driver MT
-> support in sync so we can avoid unnecessary confusion or extra work in
-> the userland.
->
-> The existing solution for single touch events is to arbitrate touch
-> when pen is in prox. This is based on the assumption that we do not
-> want to have two cursors competing on the screen.
+On Thu, 2010-11-04 at 19:20 -0700, Dmitry Torokhov wrote:
+> Hi Bastien,
+> 
+> On Fri, Nov 05, 2010 at 12:00:09AM +0000, Bastien Nocera wrote:
+> > Heya,
+> > 
+> > In GNOME 2.32, we added support for touchpad toggle buttons, by
+> > capturing the XF86TouchpadToggle button in gnome-settings-daemon,
+> > showing a nice popup, and disabling the touchpad in software.
+> > 
+> > That works great for a number of laptops, but completely breaks a number
+> > of others where the hardware handles the request, but still sends a key
+> > event (usually separate ones for on and off). In those cases, we'd need
+> > 2 more key types, in the kernel, and in X.org.
+> 
+> Rfkill story all over I guess ;(
 
-As a tablet user, not X developer I don't think it is desirable and
-expected to register pen touch and finger touch together as a
-multitouch. That is, if I wanted to trigger a multitouch feature I
-would use fingers, not pen and finger. While it would be technically
-possible to use the pen touch and finger touch together to trigger
-multitouch I don't think it makes much sense.
+Yes, though a fair bit simpler :)
 
-Also it is a good idea to turn off (single) touch when pen is in
-proximity because it is quite easy to accidentally touch the surface
-while moving the pen.
+> > The patches in https://bugs.freedesktop.org/show_bug.cgi?id=31300
+> > implement this for the kernel, and for X.org.
+> > 
+> > Then we have the problem that udev's keymaps seem to use different
+> > function keys depending on the hardware [1], when X.org (because of the
+> > limitations of XKB) standardised on F22 for "XF86TouchpadToggle".
+> > 
+> > So we'll need to standardise on the keys used. I selected F21 for
+> > XF86TouchpadToggle, F22 for XF86TouchpadOn and F23 for XF86TouchpadOff.
+> > See the patch in:
+> > https://bugs.freedesktop.org/show_bug.cgi?id=31333
+> > 
+> > The remaining fixes would need to be in udev's keymaps, to set hardware
+> > handled keys to F22 and F23, and software ones to F21. Patch is attached
+> > for that.
+> > 
+> > Questions, comments?
+> 
+> I still believe we need dedicated keycodes in kernel for that and make
+> sure that in-kernel maps use proper keycodes so that programs that do
+> not have the same limitations that X has could differentiate between
+> touchpad events and real F2* events. X can still continue to use f21, 22
+> and 23 (at least while it can't handle higher keycodes), and common
+> setups may rely on udev's facilities to remap the keys.
 
-This means that the protocol that sends abs events from pen when in
-proximity and from finger otherwise would work well.
+I actually looked through the kernel, and couldn't find any drivers that
+used F2X for touchpad toggling. All those keys are mapped in udev.
 
-However, there is one feature that makes sort of sense and does not
-work when touch is completely off. It might be possible to use touch
-for button and pen for moving the cursor. I tried to use the pad
-button on my Bamboo together with pen motion for right drags and it
-seems somewhat easier than using the pen button.
+But I agree that we need to add those keys in the kernel, which is why I
+cooked up:
+https://bugs.freedesktop.org/attachment.cgi?id=39965
 
-So I would say that protocol that allows events from both pen and
-touch at the same time is desirable in the long run but with some
-options to filter the events when both pen and touch are used
-together.
+Do you want me to send the patch separately?
 
-This gives basically three options
+Cheers
 
-1) leave as is, turn off touch when pen is in proximity
-
-2) report everything by kernel, put some filter on the touch events in
-the  X driver (which defaults to killing most touch stuff when pen is
-in proximity)
-
-3) the same as above but put the filter in the kernel driver
-
-
-2 or 3 is more flexible as people with some special uses can just turn
-off the filter and get all events.
-
-WRT X ease of development I would suggest that the same device should
-never report different events based on pen proximity. Either the
-device is in some "compatibility mode" and reports only one pointer as
-per 1 or there are two separate pointers and they are just reported
-out of proximity when the pointer positioning is not desirable (ie
-when pen is out or when touch is off due to pen being in).
-
-If somebody wants to have multitouch combining two different pointers
-there is nothing stopping them, either with P&T pen and touch pointers
-or completely unrelated devices.
-
-Thanks
-
-Michal

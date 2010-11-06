@@ -1,68 +1,61 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 3/3] HID: roccat: declaring meaning of pack pragma usage in
- kone and pyra driver
-Date: Sat, 06 Nov 2010 19:53:32 +0100
-Message-ID: <1289069612.5166.4.camel@neuromancer>
-References: <1287943025.2623.16.camel@neuromancer>
-	 <alpine.LNX.2.00.1011041418530.15851@pobox.suse.cz>
-	 <1288978962.2585.15.camel@neuromancer>
-	 <alpine.LNX.2.00.1011051400250.15851@pobox.suse.cz>
-Reply-To: erazor_de@users.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Tracey Dent <tdent48227@gmail.com>
+Subject: [PATCH 1/2] Drivers: hid: Makefile: Cleaned up Makefile
+Date: Sat,  6 Nov 2010 15:07:43 -0400
+Message-ID: <1289070464-3392-1-git-send-email-tdent48227@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-15.arcor-online.net ([151.189.21.55]:48407 "EHLO
-	mail-in-15.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752144Ab0KFSxe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 6 Nov 2010 14:53:34 -0400
-In-Reply-To: <alpine.LNX.2.00.1011051400250.15851@pobox.suse.cz>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:36075 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752709Ab0KFTHb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 15:07:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Bruno =?ISO-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>, Stephane Chatty <chatty@enac.fr>, Don Prince <dhprince-devel@yahoo.co.uk>, Dmitry Torokhov <dtor@mail.ru>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, spbnick@gmail.com, dtor@mail.ru, chatty@enac.fr, Tracey Dent <tdent48227@gmail.com>
 
-Using pack pragma to prevent padding bytes in binary data structures
-used for hardware communication. Explanation of these pragmas was requested.
-This patch does for kone and pyra what another patch does for koneplus.
+Changed Makefile to use <modules>-y instead of <modules>-objs.
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+Signed-off-by: Tracey Dent <tdent48227@gmail.com>
 ---
- drivers/hid/hid-roccat-kone.h |    3 +++
- drivers/hid/hid-roccat-pyra.h |    3 +++
- 2 files changed, 6 insertions(+), 0 deletions(-)
+ drivers/hid/Makefile |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-kone.h b/drivers/hid/hid-roccat-kone.h
-index 130d656..cb0ed99 100644
---- a/drivers/hid/hid-roccat-kone.h
-+++ b/drivers/hid/hid-roccat-kone.h
-@@ -14,6 +14,9 @@
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index c335605..dad858b 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -1,7 +1,7 @@
+ #
+ # Makefile for the HID driver
+ #
+-hid-objs			:= hid-core.o hid-input.o
++hid-y			:= hid-core.o hid-input.o
  
- #include <linux/types.h>
+ ifdef CONFIG_DEBUG_FS
+ 	hid-objs		+= hid-debug.o
+@@ -11,18 +11,18 @@ obj-$(CONFIG_HID)		+= hid.o
  
-+/*
-+ * Binary data structures for communication with hardware must have no padding.
-+ */
- #pragma pack(push)
- #pragma pack(1)
+ hid-$(CONFIG_HIDRAW)		+= hidraw.o
  
-diff --git a/drivers/hid/hid-roccat-pyra.h b/drivers/hid/hid-roccat-pyra.h
-index 22f80a8..31d7b3e 100644
---- a/drivers/hid/hid-roccat-pyra.h
-+++ b/drivers/hid/hid-roccat-pyra.h
-@@ -14,6 +14,9 @@
+-hid-logitech-objs		:= hid-lg.o
++hid-logitech-y		:= hid-lg.o
+ ifdef CONFIG_LOGITECH_FF
+-	hid-logitech-objs	+= hid-lgff.o
++	hid-logitech-y	+= hid-lgff.o
+ endif
+ ifdef CONFIG_LOGIRUMBLEPAD2_FF
+-	hid-logitech-objs	+= hid-lg2ff.o
++	hid-logitech-y	+= hid-lg2ff.o
+ endif
+ ifdef CONFIG_LOGIG940_FF
+-	hid-logitech-objs	+= hid-lg3ff.o
++	hid-logitech-y	+= hid-lg3ff.o
+ endif
+ ifdef CONFIG_LOGIWII_FF
+-	hid-logitech-objs	+= hid-lg4ff.o
++	hid-logitech-y	+= hid-lg4ff.o
+ endif
  
- #include <linux/types.h>
- 
-+/*
-+ * Binary data structures for communication with hardware must have no padding.
-+ */
- #pragma pack(push)
- #pragma pack(1)
- 
+ obj-$(CONFIG_HID_3M_PCT)	+= hid-3m-pct.o
 -- 
-1.7.2.3
-
-
+1.7.3.1.104.gc752e
 

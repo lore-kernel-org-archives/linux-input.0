@@ -1,41 +1,33 @@
-From: Tracey Dent <tdent48227@gmail.com>
-Subject: Re: [PATCH 1/2] Drivers: hid: Makefile: Cleaned up Makefile
-Date: Sat, 6 Nov 2010 16:51:05 -0400
-Message-ID: <AANLkTikYLn3TQdKFd-Du33y5tuXhX08P1TYcJG0eCbtJ@mail.gmail.com>
-References: <1289070464-3392-1-git-send-email-tdent48227@gmail.com>
-	<20101106195705.GA26765@core.coreip.homeip.net>
+From: "jonsmirl@gmail.com" <jonsmirl@gmail.com>
+Subject: Wayland and the keyboard
+Date: Sat, 6 Nov 2010 17:51:30 -0400
+Message-ID: <AANLkTi=HvyGL7DKw=+uGDowirY9sw0mnkng8FL1H4Vh-@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:64568 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753090Ab0KFUvH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 16:51:07 -0400
-In-Reply-To: <20101106195705.GA26765@core.coreip.homeip.net>
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:43249 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752760Ab0KFVvd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2010 17:51:33 -0400
+Received: by wwb39 with SMTP id 39so2610903wwb.1
+        for <linux-input@vger.kernel.org>; Sat, 06 Nov 2010 14:51:32 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: jkosina@suse.cz, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, spbnick@gmail.com, chatty@enac.fr
+To: krh@redhat.com, linux-input@vger.kernel.org
 
-On 11/6/10, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> Hi Tracey,
->
-> On Sat, Nov 06, 2010 at 03:07:43PM -0400, Tracey Dent wrote:
->> Changed Makefile to use <modules>-y instead of <modules>-objs.
->>
->
-> Changelog normally should say why something has been done as what has
-> been done is pretty clear from the patch itself.
->
+Wayland presents and opportunity to ditch xkeys. What do you think
+about having Wayland apps use the kernel keysyms and drop the whole
+legacy xkey world? Of course we would keep that library around for
+legacy purposes.
 
-Do you want me to resend patch with more descriptive changelog?
+We have a opportunity here to redesign the keymap system for direct
+Wayland apps and not repeat the legacy problems from X. Clearly there
+is more to this than just using scan codes out of the kernel. I'm no
+expert on keymapping but I'll try and get the discussion started.
 
-> Thanks.
->
-> --
-> Dmitry
->
+There's some discussion here about the deficiencies in X keyboard handling...
+http://www.freedesktop.org/wiki/Software/LibXklavier
 
-regards
-
-td
+-- 
+Jon Smirl
+jonsmirl@gmail.com

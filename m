@@ -1,12 +1,14 @@
 From: Tracey Dent <tdent48227@gmail.com>
-Subject: [PATCH 1/2] Drivers: hid: Makefile: Cleaned up Makefile
-Date: Sun,  7 Nov 2010 09:46:27 -0500
-Message-ID: <1289141188-1447-1-git-send-email-tdent48227@gmail.com>
+Subject: [PATCH 2/2] Drivers: hid: usbhid: Makefile: Cleaned up Makefile
+Date: Sun,  7 Nov 2010 09:46:28 -0500
+Message-ID: <1289141188-1447-2-git-send-email-tdent48227@gmail.com>
+References: <1289141188-1447-1-git-send-email-tdent48227@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-iw0-f174.google.com ([209.85.214.174]:59259 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752408Ab0KGOqf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 09:46:35 -0500
+	with ESMTP id S1752938Ab0KGOqh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 09:46:37 -0500
+In-Reply-To: <1289141188-1447-1-git-send-email-tdent48227@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
@@ -17,46 +19,32 @@ deprecated and should now be switched. According to (documentation/kbuild/makefi
 
 Signed-off-by: Tracey Dent <tdent48227@gmail.com>
 ---
- drivers/hid/Makefile |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/usbhid/Makefile |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index c335605..dad858b 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -1,7 +1,7 @@
+diff --git a/drivers/hid/usbhid/Makefile b/drivers/hid/usbhid/Makefile
+index 1329ecb..db3cf31 100644
+--- a/drivers/hid/usbhid/Makefile
++++ b/drivers/hid/usbhid/Makefile
+@@ -3,15 +3,15 @@
  #
- # Makefile for the HID driver
- #
--hid-objs			:= hid-core.o hid-input.o
-+hid-y			:= hid-core.o hid-input.o
  
- ifdef CONFIG_DEBUG_FS
- 	hid-objs		+= hid-debug.o
-@@ -11,18 +11,18 @@ obj-$(CONFIG_HID)		+= hid.o
+ # Multipart objects.
+-usbhid-objs	:= hid-core.o hid-quirks.o
++usbhid-y	:= hid-core.o hid-quirks.o
  
- hid-$(CONFIG_HIDRAW)		+= hidraw.o
+ # Optional parts of multipart objects.
  
--hid-logitech-objs		:= hid-lg.o
-+hid-logitech-y		:= hid-lg.o
- ifdef CONFIG_LOGITECH_FF
--	hid-logitech-objs	+= hid-lgff.o
-+	hid-logitech-y	+= hid-lgff.o
+ ifeq ($(CONFIG_USB_HIDDEV),y)
+-	usbhid-objs	+= hiddev.o
++	usbhid-y	+= hiddev.o
  endif
- ifdef CONFIG_LOGIRUMBLEPAD2_FF
--	hid-logitech-objs	+= hid-lg2ff.o
-+	hid-logitech-y	+= hid-lg2ff.o
- endif
- ifdef CONFIG_LOGIG940_FF
--	hid-logitech-objs	+= hid-lg3ff.o
-+	hid-logitech-y	+= hid-lg3ff.o
- endif
- ifdef CONFIG_LOGIWII_FF
--	hid-logitech-objs	+= hid-lg4ff.o
-+	hid-logitech-y	+= hid-lg4ff.o
+ ifeq ($(CONFIG_HID_PID),y)
+-	usbhid-objs	+= hid-pidff.o
++	usbhid-y	+= hid-pidff.o
  endif
  
- obj-$(CONFIG_HID_3M_PCT)	+= hid-3m-pct.o
+ obj-$(CONFIG_USB_HID)		+= usbhid.o
 -- 
 1.7.3.1.104.gc752e
 

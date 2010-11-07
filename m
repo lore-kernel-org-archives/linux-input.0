@@ -1,149 +1,109 @@
-From: Alexey Charkov <alchark@gmail.com>
-Subject: [PATCH 3/6 v2] input: Add support for VIA VT8500 and compatibles in i8042
-Date: Sun,  7 Nov 2010 19:28:54 +0300
-Message-ID: <1289147348-31969-3-git-send-email-alchark@gmail.com>
-References: <1289147348-31969-1-git-send-email-alchark@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:49437 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753631Ab0KGQbG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 11:31:06 -0500
-In-Reply-To: <1289147348-31969-1-git-send-email-alchark@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Daniel Stone <daniel-rLtY4a/8tF1rovVCs/uTlw@public.gmane.org>
+Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Sun, 7 Nov 2010 11:30:37 -0500
+Message-ID: <20101107163037.GR14865@fooishbar.org>
+References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============0588422632=="
+Return-path: <xorg-devel-bounces+gcfxd-xorg-devel=m.gmane.org-go0+a7rfsptAfugRpC6u6w@public.gmane.org>
+In-Reply-To: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.x.org/mailman/options/xorg-devel>,
+	<mailto:xorg-devel-request-go0+a7rfsptAfugRpC6u6w@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.x.org/archives/xorg-devel>
+List-Post: <mailto:xorg-devel-go0+a7rfsptAfugRpC6u6w@public.gmane.org>
+List-Help: <mailto:xorg-devel-request-go0+a7rfsptAfugRpC6u6w@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.x.org/mailman/listinfo/xorg-devel>,
+	<mailto:xorg-devel-request-go0+a7rfsptAfugRpC6u6w@public.gmane.org?subject=subscribe>
+Sender: xorg-devel-bounces+gcfxd-xorg-devel=m.gmane.org-go0+a7rfsptAfugRpC6u6w@public.gmane.org
+Errors-To: xorg-devel-bounces+gcfxd-xorg-devel=m.gmane.org-go0+a7rfsptAfugRpC6u6w@public.gmane.org
+To: Ping Cheng <pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "X.Org Devel List" <xorg-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: vt8500-wm8505-linux-kernel@googlegroups.com, Alexey Charkov <alchark@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Feng Tang <feng.tang@intel.com>, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-VIA and WonderMedia Systems-on-Chip feature a standard i8042-compatible
-keyboard and mouse controller. This adds necessary glue to enable use
-of the standard driver with these systems.
 
-Signed-off-by: Alexey Charkov <alchark@gmail.com>
----
+--===============0588422632==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
+Content-Disposition: inline
 
-Please review and (if appropriate) commit to a relevant git tree for
-further integration in 2.6.38.
 
-Previous version of this code was 'Acked-by: Dmitry Torokhov <dtor@mail.ru>'
-This one only differs by using runtime-selected IRQ definitions instead
-of static compile-time preprocessor macros.
+--/WwmFnJnmDyWGHa4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Relevant register and interrupt definitions are provided by PATCH 1/6 in
-this series, so one would need that to make use of this code.
+Hi,
 
- drivers/input/serio/Kconfig        |    3 +-
- drivers/input/serio/i8042-vt8500.h |   74 ++++++++++++++++++++++++++++++++++++
- drivers/input/serio/i8042.h        |    2 +
- 3 files changed, 78 insertions(+), 1 deletions(-)
- create mode 100644 drivers/input/serio/i8042-vt8500.h
+On Fri, Nov 05, 2010 at 11:47:28AM -0700, Ping Cheng wrote:
+> Recent changes and discussion about MT support at LKML, UDS, and
+> xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
+> MT protocol (introduced in kernel 2.6.36).
 
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index 6256233..ff799f3 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -21,7 +21,8 @@ if SERIO
- config SERIO_I8042
- 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
- 	default y
--	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
-+	depends on !PARISC && \
-+		  (!ARM || ARCH_SHARK || ARCH_VT8500 || FOOTBRIDGE_HOST) && \
- 		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN
- 	help
- 	  i8042 is the chip over which the standard AT keyboard and PS/2
-diff --git a/drivers/input/serio/i8042-vt8500.h b/drivers/input/serio/i8042-vt8500.h
-new file mode 100644
-index 0000000..4ff9e1c
---- /dev/null
-+++ b/drivers/input/serio/i8042-vt8500.h
-@@ -0,0 +1,74 @@
-+#ifndef _I8042_VT8500_H
-+#define _I8042_VT8500_H
-+
-+#include <mach/mmio_regs.h>
-+#include <mach/irq_defs.h>
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+static void __iomem *regbase;
-+
-+/*
-+ * Names.
-+ */
-+
-+#define I8042_KBD_PHYS_DESC "vt8500ps2/serio0"
-+#define I8042_AUX_PHYS_DESC "vt8500ps2/serio1"
-+#define I8042_MUX_PHYS_DESC "vt8500ps2/serio%d"
-+
-+/*
-+ * IRQs.
-+ */
-+
-+#define I8042_KBD_IRQ	(wmt_current_irqs->ps2kbd)
-+#define I8042_AUX_IRQ	(wmt_current_irqs->ps2mouse)
-+
-+
-+/*
-+ * Register numbers.
-+ */
-+
-+#define I8042_COMMAND_REG	(regbase + 0x4)
-+#define I8042_STATUS_REG	(regbase + 0x4)
-+#define I8042_DATA_REG		(regbase + 0x0)
-+
-+static inline int i8042_read_data(void)
-+{
-+	return readl(I8042_DATA_REG);
-+}
-+
-+static inline int i8042_read_status(void)
-+{
-+	return readl(I8042_STATUS_REG);
-+}
-+
-+static inline void i8042_write_data(int val)
-+{
-+	writel(val, I8042_DATA_REG);
-+}
-+
-+static inline void i8042_write_command(int val)
-+{
-+	writel(val, I8042_COMMAND_REG);
-+}
-+
-+static inline int i8042_platform_init(void)
-+{
-+	i8042_reset = true;
-+	regbase = ioremap(wmt_current_regs->ps2, SZ_1K);
-+	if (!regbase)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
-+static inline void i8042_platform_exit(void)
-+{
-+	iounmap(regbase);
-+}
-+
-+#endif /* _I8042_VT8500_H */
-diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-index cbc1beb..bdb2aeb 100644
---- a/drivers/input/serio/i8042.h
-+++ b/drivers/input/serio/i8042.h
-@@ -16,6 +16,8 @@
- 
- #if defined(CONFIG_MACH_JAZZ)
- #include "i8042-jazzio.h"
-+#elif defined(CONFIG_ARCH_VT8500)
-+#include "i8042-vt8500.h"
- #elif defined(CONFIG_SGI_HAS_I8042)
- #include "i8042-ip22io.h"
- #elif defined(CONFIG_SNI_RM)
--- 
-1.7.3.2
+Nice!
 
+> My goal is to understand how X server would like the MT data to be
+> reported from the kernel. I hope to keep kernel and X server driver MT
+> support in sync so we can avoid unnecessary confusion or extra work in
+> the userland.
+
+:)
+
+> The existing solution for single touch events is to arbitrate touch
+> when pen is in prox. This is based on the assumption that we do not
+> want to have two cursors competing on the screen.
+
+What do you mean by 'arbitrate' here? I guess you're talking about which
+events should send ABS_[XY]?
+
+> 1.     Arbitrate all touch data in the kernel.
+>=20
+> This is the simplest solution for device driver developers. But I do
+> not feel it is end user and userland client friendly.
+>=20
+> [...]
+>=20
+> 3.    Report first finger touch as ABS_X/Y events when pen is not in prox;
+>        Report pen data as ABS_X/Y events when there is no finger touch;
+>        Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
+> events when both pen and touch data are received. No ABS_X/Y are
+> reported when pen and tocuh or multi-touch data are received.
+>=20
+> I feel this one makes sense to userland since pen can be considered as
+> another touch.
+
+I'd say that either #1 or #3 is the best idea here, simply because they
+seem to be the most straightforward, and thus easier to support.
+Assuming that xf86-input-wacom will track the state itself and decide
+(using whatever criteria) which events should send core x/y motion, then
+all you need to do with ABS_[XY] is just make a best effort to have it
+more or less work for dumb userspace clients.
+
+Cheers,
+Daniel
+
+--/WwmFnJnmDyWGHa4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkzW1C0ACgkQUVYB1rKAgJQsVgCeLDJMhTo5lI6b5bCGjJs9bUDT
+XaoAnR87SXjRDsxSWa4vlBUrbD3S4VWZ
+=HGz6
+-----END PGP SIGNATURE-----
+
+--/WwmFnJnmDyWGHa4--
+
+--===============0588422632==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+xorg-devel-go0+a7rfsptAfugRpC6u6w@public.gmane.org: X.Org development
+Archives: http://lists.x.org/archives/xorg-devel
+Info: http://lists.x.org/mailman/listinfo/xorg-devel
+--===============0588422632==--

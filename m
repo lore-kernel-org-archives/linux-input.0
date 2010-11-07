@@ -1,321 +1,38 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: Introduce light-weight contact tracking
-Date: Sun,  7 Nov 2010 21:18:28 +0100
-Message-ID: <1289161108-32309-1-git-send-email-rydberg@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: Introduce light-weight contact tracking
+Date: Sun, 07 Nov 2010 21:50:57 +0100
+Message-ID: <4CD71131.3080706@euromail.se>
+References: <1289161108-32309-1-git-send-email-rydberg@euromail.se> <4CD70FC0.6060503@seas.upenn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:50125 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750826Ab0KGUTK (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:56531 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752603Ab0KGUvi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 7 Nov 2010 15:19:10 -0500
+	Sun, 7 Nov 2010 15:51:38 -0500
+In-Reply-To: <4CD70FC0.6060503@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chasedouglas@gmail.com>, Takashi Iwai <tiwai@suse.de>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chasedouglas@gmail.com>, Takashi Iwai <tiwai@suse.de>
 
-Some kernel drivers demand the use of contact tracking for proper
-filtering and pointer emulation. With one exception, these drivers
-are limited to a maximum of four concurrent contacts. This patch adds
-a simple matcher for up to four contacts, with these notable properties:
+On 11/07/2010 09:44 PM, Rafi Rubin wrote:
 
-* Fixed-time computation scheme
-* Approximately 1.4 times faster than mtdev at 4 fingers [1]
-* Approximately 4.0 times faster than mtdev at 2 fingers [1]
+> On 11/07/2010 03:18 PM, Henrik Rydberg wrote:
+>> Some kernel drivers demand the use of contact tracking for proper
+>> filtering and pointer emulation. With one exception, these drivers
+>> are limited to a maximum of four concurrent contacts. This patch adds
+>> a simple matcher for up to four contacts, with these notable properties:
+> 
+> Tracking in the ntrig driver needs to support a minimum of 6 fingers.  I have
+> also seen press releases claiming 10+ eventually.  I don't know if those devices
+> will support tracking in the hardware/firmware.
 
-The matcher uses a fixed-size, auto-generated table [2], and is
-guaranteed to complete within a couple of hundred cycles. This makes
-is suitable as an opt-in also for drivers running in interrupt
-context.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+This is the exception I was talking about. The thing is, I can very well see a
+driver supporting four fingers even if the device claims to support six. After
+all, getting those four fingers working well will still be a big improvement.
 
-[1] running the mtdev-matching benchmark on a regular 64-bit machine
-[2] http://bitmath.org/code/mtdev/
----
-Hi Dmitry,
-
-It has been a long time coming, and here is my proposition for
-in-kernel multitouch contact tracking. The idea is to use this small,
-limited matcher together with the upcoming synaptics and ntrig changes
-to make those drivers fully operational. The matcher also bridges a
-major gap in the transition to the MT slots protocol; with up to four
-contacts tracked in-kernel, we can treat all hid drivers and
-two-finger devices the same way. Only bcm5974 then remains, and there
-is some hope that it can be made to work with slots as well.
-
-The matcher is about a hundred lines of code and a kilobyte of static
-data. I put it in a separate file, in case it would be better
-configured as a module.
-
-I imagine you would prefer to get this kind of patch together with
-some actual change, but I wanted to check what you think of it
-first. One additional patch with pointer emulation support is planned,
-but that one seems better bundled with the MT support in input.c.
-
-The synaptics patches are currently cooking at Bagwell's, and we
-already discussed the API a bit. Something ntrig-ish is cooking at
-Rubin's, and there is also the ntrig driver in Ubuntu 10.10 to
-consider. All-in-all, it is my hope that posting this patch will
-simplify the synchronization of our efforts.
-
-Cheers,
 Henrik
-
- drivers/input/Makefile    |    2 +-
- drivers/input/input-trk.c |  194 +++++++++++++++++++++++++++++++++++++++++++++
- include/linux/input-trk.h |   30 +++++++
- 3 files changed, 225 insertions(+), 1 deletions(-)
- create mode 100644 drivers/input/input-trk.c
- create mode 100644 include/linux/input-trk.h
-
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 7ad212d..eaa663c 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -5,7 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_INPUT)		+= input-core.o
--input-core-objs := input.o input-compat.o ff-core.o
-+input-core-objs := input.o input-compat.o ff-core.o input-trk.o
- 
- obj-$(CONFIG_INPUT_FF_MEMLESS)	+= ff-memless.o
- obj-$(CONFIG_INPUT_POLLDEV)	+= input-polldev.o
-diff --git a/drivers/input/input-trk.c b/drivers/input/input-trk.c
-new file mode 100644
-index 0000000..ca08cd2
---- /dev/null
-+++ b/drivers/input/input-trk.c
-@@ -0,0 +1,193 @@
-+/*
-+ * Input Multitouch Tracking Library
-+ *
-+ * Copyright (c) 2010 Henrik Rydberg
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/input-trk.h>
-+
-+/* generated by mtdev-kernel - do not edit */
-+static const u8 match_data[] = {
-+	0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 0, 0, 0, 1, 1,
-+	1, 0, 0, 0, 1, 2, 1, 1, 0, 2, 2, 1, 2, 0, 0, 0,
-+	1, 2, 3, 1, 1, 0, 2, 3, 2, 1, 2, 0, 3, 3, 1, 2,
-+	3, 0, 0, 0, 1, 1, 1, 2, 1, 0, 0, 3, 0, 1, 1, 3,
-+	1, 0, 2, 2, 3, 1, 2, 0, 0, 4, 0, 1, 2, 2, 4, 2,
-+	1, 0, 0, 5, 0, 2, 1, 1, 5, 2, 0, 1, 1, 4, 1, 0,
-+	2, 3, 2, 4, 1, 2, 0, 3, 3, 4, 1, 2, 3, 0, 0, 5,
-+	0, 1, 2, 3, 2, 5, 2, 1, 0, 3, 3, 5, 2, 1, 3, 0,
-+	0, 6, 0, 2, 1, 3, 1, 6, 2, 0, 1, 3, 3, 6, 2, 3,
-+	1, 0, 0, 7, 0, 2, 3, 1, 1, 7, 2, 0, 3, 1, 2, 7,
-+	2, 3, 0, 1, 0, 0, 1, 1, 2, 2, 1, 2, 1, 0, 0, 3,
-+	0, 1, 1, 4, 2, 0, 3, 4, 2, 1, 0, 5, 0, 2, 2, 5,
-+	1, 2, 2, 4, 6, 2, 1, 0, 1, 5, 6, 2, 0, 1, 2, 3,
-+	7, 1, 2, 0, 0, 5, 7, 0, 2, 1, 1, 3, 8, 1, 0, 2,
-+	0, 4, 8, 0, 1, 2, 2, 5, 8, 2, 1, 0, 3, 3, 5, 8,
-+	2, 1, 3, 0, 1, 6, 8, 2, 0, 1, 3, 3, 6, 8, 2, 3,
-+	1, 0, 1, 7, 8, 2, 0, 3, 1, 2, 7, 8, 2, 3, 0, 1,
-+	2, 4, 9, 1, 2, 0, 3, 3, 4, 9, 1, 2, 3, 0, 0, 6,
-+	9, 0, 2, 1, 3, 3, 6, 9, 3, 2, 1, 0, 0, 7, 9, 0,
-+	2, 3, 1, 2, 7, 9, 3, 2, 0, 1, 1, 4, 10, 1, 0, 2,
-+	3, 3, 4, 10, 1, 3, 2, 0, 0, 5, 10, 0, 1, 2, 3, 3,
-+	5, 10, 3, 1, 2, 0, 0, 7, 10, 0, 3, 2, 1, 1, 7, 10,
-+	3, 0, 2, 1, 1, 4, 11, 1, 0, 3, 2, 2, 4, 11, 1, 3,
-+	0, 2, 0, 5, 11, 0, 1, 3, 2, 2, 5, 11, 3, 1, 0, 2,
-+	0, 6, 11, 0, 3, 1, 2, 1, 6, 11, 3, 0, 1, 2, 0, 0,
-+	1, 1, 2, 2, 3, 3, 1, 2, 1, 0, 0, 3, 0, 1, 1, 4,
-+	2, 0, 3, 4, 2, 1, 0, 5, 0, 2, 2, 5, 1, 2, 1, 6,
-+	3, 0, 3, 6, 3, 1, 5, 6, 3, 2, 0, 7, 0, 3, 2, 7,
-+	1, 3, 4, 7, 2, 3, 2, 4, 6, 2, 1, 0, 1, 5, 6, 2,
-+	0, 1, 2, 3, 7, 1, 2, 0, 0, 5, 7, 0, 2, 1, 1, 3,
-+	8, 1, 0, 2, 0, 4, 8, 0, 1, 2, 2, 4, 9, 3, 1, 0,
-+	1, 5, 9, 3, 0, 1, 2, 7, 9, 3, 2, 0, 5, 7, 9, 3,
-+	2, 1, 1, 8, 9, 3, 0, 2, 4, 8, 9, 3, 1, 2, 2, 3,
-+	10, 1, 3, 0, 0, 5, 10, 0, 3, 1, 2, 6, 10, 2, 3, 0,
-+	5, 6, 10, 2, 3, 1, 0, 8, 10, 0, 3, 2, 3, 8, 10, 1,
-+	3, 2, 1, 3, 11, 1, 0, 3, 0, 4, 11, 0, 1, 3, 1, 6,
-+	11, 2, 0, 3, 4, 6, 11, 2, 1, 3, 0, 7, 11, 0, 2, 3,
-+	3, 7, 11, 1, 2, 3, 3, 6, 9, 12, 3, 2, 1, 0, 2, 7,
-+	9, 12, 3, 2, 0, 1, 3, 5, 10, 12, 3, 1, 2, 0, 1, 7,
-+	10, 12, 3, 0, 2, 1, 2, 5, 11, 12, 3, 1, 0, 2, 1, 6,
-+	11, 12, 3, 0, 1, 2, 3, 6, 8, 13, 2, 3, 1, 0, 2, 7,
-+	8, 13, 2, 3, 0, 1, 3, 4, 10, 13, 1, 3, 2, 0, 0, 7,
-+	10, 13, 0, 3, 2, 1, 2, 4, 11, 13, 1, 3, 0, 2, 0, 6,
-+	11, 13, 0, 3, 1, 2, 3, 5, 8, 14, 2, 1, 3, 0, 1, 7,
-+	8, 14, 2, 0, 3, 1, 3, 4, 9, 14, 1, 2, 3, 0, 0, 7,
-+	9, 14, 0, 2, 3, 1, 1, 4, 11, 14, 1, 0, 3, 2, 0, 5,
-+	11, 14, 0, 1, 3, 2, 2, 5, 8, 15, 2, 1, 0, 3, 1, 6,
-+	8, 15, 2, 0, 1, 3, 2, 4, 9, 15, 1, 2, 0, 3, 0, 6,
-+	9, 15, 0, 2, 1, 3, 1, 4, 10, 15, 1, 0, 2, 3, 0, 5,
-+	10, 15, 0, 1, 2, 3,
-+};
-+
-+/* generated by mtdev-kernel - do not edit */
-+static const int match_index[][5] = {
-+	{ 0, 0, 1, 3, 6 },
-+	{ 10, 10, 12, 18, 30 },
-+	{ 50, 50, 54, 62, 92 },
-+	{ 164, 164, 170, 194, 230 },
-+	{ 398, 398, 406, 454, 598 },
-+	{ 790 }
-+};
-+
-+static void set_dist(u32 *dist,
-+		     const struct trk_coord *b1, const struct trk_coord *e1,
-+		     const struct trk_coord *b2, const struct trk_coord *e2)
-+{
-+	const struct trk_coord *p, *q;
-+
-+	for (p = b1; p != e1; p++)
-+		for (q = b2; q != e2; q++)
-+			*dist++ = abs(q->x - p->x) + abs(q->y - p->y);
-+}
-+
-+const u8 *match_four(const struct trk_coord *old, int nslot,
-+		     const struct trk_coord *pos, int npos)
-+{
-+	u32 d[16], obj, t;
-+	const u8 *p, *b, *e;
-+	const int *at;
-+
-+	set_dist(d, old, old + nslot, pos, pos + npos);
-+
-+	at = &match_index[nslot][npos];
-+	b = &match_data[at[0]];
-+	e = &match_data[at[1]];
-+
-+	obj = UINT_MAX, p = b;
-+
-+	switch (min(nslot, npos)) {
-+	case 1:
-+		for (; b != e; b += npos) {
-+			t = d[*b++];
-+			if (t < obj)
-+				obj = t, p = b;
-+		}
-+		break;
-+	case 2:
-+		for (; b != e; b += npos) {
-+			t = d[*b++], t += d[*b++];
-+			if (t < obj)
-+				obj = t, p = b;
-+		}
-+		break;
-+	case 3:
-+		for (; b != e; b += npos) {
-+			t = d[*b++], t += d[*b++], t += d[*b++];
-+			if (t < obj)
-+				obj = t, p = b;
-+		}
-+		break;
-+	case 4:
-+		for (; b != e; b += npos) {
-+			t = d[*b++], t += d[*b++], t += d[*b++], t += d[*b++];
-+			if (t < obj)
-+				obj = t, p = b;
-+		}
-+		break;
-+	}
-+
-+	return p;
-+}
-+
-+static int get_mt_value(const struct input_mt_slot *slot, unsigned code)
-+{
-+	return slot->abs[code - ABS_MT_FIRST];
-+}
-+
-+/**
-+ * input_trk_assign_slots_by_coord() - perform a best-match assignment
-+ * @dev: input device with allocated MT slots
-+ * @slots: the slot assignment to be filled
-+ * @coords: the coordinate array to match
-+ * @num_coords: number of coordinates
-+ *
-+ * Performs a best match against the current contacts and returns
-+ * the slot assignment list. New contacts are assigned to unused
-+ * slots.
-+ *
-+ * Returns zero on success, or negative error in case of failure.
-+ */
-+int input_trk_assign_slots_by_coord(struct input_dev *dev, int *slots,
-+				    const struct trk_coord *coords,
-+				    int num_coords)
-+{
-+	struct trk_coord old[4];
-+	int old2slot[4], nold, i;
-+	const u8 *p;
-+
-+	if (!dev->mt)
-+		return -ENXIO;
-+	if (dev->mtsize < 2 || dev->mtsize > 4)
-+		return -ENXIO;
-+	if (num_coords > dev->mtsize)
-+		return -EINVAL;
-+	if (num_coords < 1)
-+		return 0;
-+
-+	nold = 0;
-+	for (i = 0; i < dev->mtsize; i++) {
-+		const struct input_mt_slot *mt = &dev->mt[i];
-+		if (get_mt_value(mt, ABS_MT_TRACKING_ID) < 0)
-+			continue;
-+		old[nold].x = get_mt_value(mt, ABS_MT_POSITION_X);
-+		old[nold].y = get_mt_value(mt, ABS_MT_POSITION_Y);
-+		old2slot[nold++] = i;
-+	}
-+
-+	p = match_four(old, nold, coords, num_coords);
-+
-+	for (i = 0; i < dev->mtsize; i++)
-+		if (get_mt_value(&dev->mt[i], ABS_MT_TRACKING_ID) < 0)
-+			old2slot[nold++] = i;
-+
-+	for (i = 0; i < num_coords; i++)
-+		slots[i] = old2slot[p[i]];
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(input_trk_assign_slots_by_coord);
-diff --git a/include/linux/input-trk.h b/include/linux/input-trk.h
-new file mode 100644
-index 0000000..e10e312
---- /dev/null
-+++ b/include/linux/input-trk.h
-@@ -0,0 +1,30 @@
-+#ifndef _INPUT_TRK_H
-+#define _INPUT_TRK_H
-+
-+/*
-+ * Input Multitouch Tracking Library
-+ *
-+ * Copyright (c) 2010 Henrik Rydberg
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/input.h>
-+
-+/**
-+ * struct trk_coord - contact coordinate
-+ * @x: horizontal coordinate
-+ * @y: vertical coordinate
-+ */
-+struct trk_coord {
-+	int x;
-+	int y;
-+};
-+
-+int input_trk_assign_slots_by_coord(struct input_dev *dev, int *slots,
-+				    const struct trk_coord *coords,
-+				    int num_coords);
-+
-+#endif
--- 
-1.7.1
-

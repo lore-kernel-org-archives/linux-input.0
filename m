@@ -1,109 +1,114 @@
-From: Daniel Stone <daniel-rLtY4a/8tF1rovVCs/uTlw@public.gmane.org>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Sun, 7 Nov 2010 11:30:37 -0500
-Message-ID: <20101107163037.GR14865@fooishbar.org>
-References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: [PATCH RFC] serio HIL MLC: don't deref null, don't leak and return
+ proper error
+Date: Sun, 7 Nov 2010 20:36:33 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1011072024100.26247@swampdragon.chaosbits.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0588422632=="
-Return-path: <xorg-devel-bounces+gcfxd-xorg-devel=m.gmane.org-go0+a7rfsptAfugRpC6u6w@public.gmane.org>
-In-Reply-To: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <http://lists.x.org/mailman/options/xorg-devel>,
-	<mailto:xorg-devel-request-go0+a7rfsptAfugRpC6u6w@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.x.org/archives/xorg-devel>
-List-Post: <mailto:xorg-devel-go0+a7rfsptAfugRpC6u6w@public.gmane.org>
-List-Help: <mailto:xorg-devel-request-go0+a7rfsptAfugRpC6u6w@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.x.org/mailman/listinfo/xorg-devel>,
-	<mailto:xorg-devel-request-go0+a7rfsptAfugRpC6u6w@public.gmane.org?subject=subscribe>
-Sender: xorg-devel-bounces+gcfxd-xorg-devel=m.gmane.org-go0+a7rfsptAfugRpC6u6w@public.gmane.org
-Errors-To: xorg-devel-bounces+gcfxd-xorg-devel=m.gmane.org-go0+a7rfsptAfugRpC6u6w@public.gmane.org
-To: Ping Cheng <pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "X.Org Devel List" <xorg-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from swampdragon.chaosbits.net ([90.184.90.115]:21158 "EHLO
+	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751232Ab0KGTrw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 14:47:52 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-
---===============0588422632==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
-Content-Disposition: inline
-
-
---/WwmFnJnmDyWGHa4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, =?ISO-8859-15?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
 Hi,
 
-On Fri, Nov 05, 2010 at 11:47:28AM -0700, Ping Cheng wrote:
-> Recent changes and discussion about MT support at LKML, UDS, and
-> xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
-> MT protocol (introduced in kernel 2.6.36).
+While reviewing various users of kernel memory allocation functions I came 
+across drivers/input/serio/hil_mlc.c::hil_mlc_register() and noticed that
+ - it calls kzalloc() buf fails to check for a NULL return before use.
+ - it makes several allocations and if one fails it doesn't free the 
+   previous ones.
+ - It doesn't return -ENOMEM in the failed memory allocation case (it just 
+   crashes).
+This patch corrects all of the above and also reworks the only caller of 
+this function that I could find 
+(drivers/input/serio/hp_sdc_mlc.c::hp_sdc_mlc_out()) so that it now checks 
+the return value of hil_mlc_register() and properly propagate it on 
+failure and I also restructured the code to remove some labels and goto's 
+to make it, IMHO nicer to read.
 
-Nice!
+I have no hardware to test, so please review carefully and let me know if 
+I've done something completely stupid. Please don't merge this RFC patch 
+unless at least one or more people who know this code and can actually 
+test it have ACK'ed it.
 
-> My goal is to understand how X server would like the MT data to be
-> reported from the kernel. I hope to keep kernel and X server driver MT
-> support in sync so we can avoid unnecessary confusion or extra work in
-> the userland.
+Ohh and please do CC me on replies.
 
-:)
 
-> The existing solution for single touch events is to arbitrate touch
-> when pen is in prox. This is based on the assumption that we do not
-> want to have two cursors competing on the screen.
+Signed-off-by: Jesper Juhl <jj@chaosbits.net>
+---
+ hil_mlc.c    |    5 +++++
+ hp_sdc_mlc.c |   18 +++++++++---------
+ 2 files changed, 14 insertions(+), 9 deletions(-)
 
-What do you mean by 'arbitrate' here? I guess you're talking about which
-events should send ABS_[XY]?
+diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
+index e5624d8..bfd3865 100644
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -932,6 +932,11 @@ int hil_mlc_register(hil_mlc *mlc)
+ 		hil_mlc_copy_di_scratch(mlc, i);
+ 		mlc_serio = kzalloc(sizeof(*mlc_serio), GFP_KERNEL);
+ 		mlc->serio[i] = mlc_serio;
++		if (!mlc->serio[i]) {
++			for (; i >= 0; i--)
++				kfree(mlc->serio[i]);
++			return -ENOMEM;
++		}
+ 		snprintf(mlc_serio->name, sizeof(mlc_serio->name)-1, "HIL_SERIO%d", i);
+ 		snprintf(mlc_serio->phys, sizeof(mlc_serio->phys)-1, "HIL%d", i);
+ 		mlc_serio->id			= hil_mlc_serio_id;
+diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
+index 7d2b820..d50f067 100644
+--- a/drivers/input/serio/hp_sdc_mlc.c
++++ b/drivers/input/serio/hp_sdc_mlc.c
+@@ -305,6 +305,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+ static int __init hp_sdc_mlc_init(void)
+ {
+ 	hil_mlc *mlc = &hp_sdc_mlc;
++	int err;
+ 
+ #ifdef __mc68000__
+ 	if (!MACH_IS_HP300)
+@@ -323,22 +324,21 @@ static int __init hp_sdc_mlc_init(void)
+ 	mlc->out = &hp_sdc_mlc_out;
+ 	mlc->priv = &hp_sdc_mlc_priv;
+ 
+-	if (hil_mlc_register(mlc)) {
++	err = hil_mlc_register(mlc);
++	if (err) {
+ 		printk(KERN_WARNING PREFIX "Failed to register MLC structure with hil_mlc\n");
+-		goto err0;
++		return err;
+ 	}
+ 
+ 	if (hp_sdc_request_hil_irq(&hp_sdc_mlc_isr)) {
+ 		printk(KERN_WARNING PREFIX "Request for raw HIL ISR hook denied\n");
+-		goto err1;
++		if (hil_mlc_unregister(mlc))
++			printk(KERN_ERR PREFIX "Failed to unregister MLC structure with hil_mlc.\n"
++				"This is bad.  Could cause an oops.\n");
++		return -EBUSY;
+ 	}
++
+ 	return 0;
+- err1:
+-	if (hil_mlc_unregister(mlc))
+-		printk(KERN_ERR PREFIX "Failed to unregister MLC structure with hil_mlc.\n"
+-			"This is bad.  Could cause an oops.\n");
+- err0:
+-	return -EBUSY;
+ }
+ 
+ static void __exit hp_sdc_mlc_exit(void)
 
-> 1.     Arbitrate all touch data in the kernel.
->=20
-> This is the simplest solution for device driver developers. But I do
-> not feel it is end user and userland client friendly.
->=20
-> [...]
->=20
-> 3.    Report first finger touch as ABS_X/Y events when pen is not in prox;
->        Report pen data as ABS_X/Y events when there is no finger touch;
->        Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
-> events when both pen and touch data are received. No ABS_X/Y are
-> reported when pen and tocuh or multi-touch data are received.
->=20
-> I feel this one makes sense to userland since pen can be considered as
-> another touch.
 
-I'd say that either #1 or #3 is the best idea here, simply because they
-seem to be the most straightforward, and thus easier to support.
-Assuming that xf86-input-wacom will track the state itself and decide
-(using whatever criteria) which events should send core x/y motion, then
-all you need to do with ABS_[XY] is just make a best effort to have it
-more or less work for dumb userspace clients.
 
-Cheers,
-Daniel
+-- 
+Jesper Juhl <jj@chaosbits.net>             http://www.chaosbits.net/
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please.
 
---/WwmFnJnmDyWGHa4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkzW1C0ACgkQUVYB1rKAgJQsVgCeLDJMhTo5lI6b5bCGjJs9bUDT
-XaoAnR87SXjRDsxSWa4vlBUrbD3S4VWZ
-=HGz6
------END PGP SIGNATURE-----
-
---/WwmFnJnmDyWGHa4--
-
---===============0588422632==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-xorg-devel-go0+a7rfsptAfugRpC6u6w@public.gmane.org: X.Org development
-Archives: http://lists.x.org/archives/xorg-devel
-Info: http://lists.x.org/mailman/listinfo/xorg-devel
---===============0588422632==--

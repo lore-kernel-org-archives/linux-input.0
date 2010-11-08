@@ -1,107 +1,178 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Mon, 8 Nov 2010 13:51:21 +1000
-Message-ID: <20101108035121.GA4630@barra.bne.redhat.com>
-References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+From: "Joey Lee" <jlee@novell.com>
+Subject: Re: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
+Date: Sun, 07 Nov 2010 21:54:22 -0700
+Message-ID: <4CD81D2E02000023000237A6@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:23149 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752252Ab0KHDva (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 22:51:30 -0500
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: jdelvare@suse.de
+Cc: corentin.chary@gmail.com, dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-fwiw, I'm not sure "arbitrate" is the right word here, filtering seems
-easier to understand in this context. I guess "arbitrate" would apply more
-if we emit the events across multiple devices like in the bamboo case.
-that's mostly bikeshedding though, my points below apply regardless of what
-word we choose :)
+Hi Jean,=20
 
-note that we also have two different approaches - single kernel device or
-multiple kernel devices and depending on the approach the device uses the
-options below have different advantages and disadvantages.
+On =E6=97=A5, 2010-10-31 at 00:36 +0800, Lee, Chun-Yi wrote:
+>  static acpi_status WMID_set_capabilities(void)
+>  {
+>  	struct acpi_buffer out =3D {ACPI_ALLOCATE_BUFFER, NULL};
+> @@ -844,16 +869,24 @@ static acpi_status WMID_set_capabilities(void)
+>  		return AE_ERROR;
+>  	}
+> =20
+> -	/* Not sure on the meaning of the relevant bits yet to detect these=
+ */
+> -	interface->capability |=3D ACER_CAP_WIRELESS;
+> -	interface->capability |=3D ACER_CAP_THREEG;
+> +	dmi_walk(type_aa_dmi_decode, NULL);
+> +	if (type_aa) {
+> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
+> +			interface->capability |=3D ACER_CAP_WIRELESS;
+> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG)
+> +			interface->capability |=3D ACER_CAP_THREEG;
+> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
+> +			interface->capability |=3D ACER_CAP_BLUETOOTH;
+> +	} else {
+> +		interface->capability |=3D ACER_CAP_WIRELESS;
+> +		interface->capability |=3D ACER_CAP_THREEG;
+> +		if (devices & 0x10)
+> +			interface->capability |=3D ACER_CAP_BLUETOOTH;
+> +	}
+> =20
 
-the tablets I've dealt with so far exposed a single event device, so that's
-what I'm focusing on in this email.
+Thank's for your review and found out cann't use a global pointer to a
+DMI record to keep track of what dmi_walk() found. I modified the patch
+like following:
 
-On Fri, Nov 05, 2010 at 11:47:28AM -0700, Ping Cheng wrote:
-> Recent changes and discussion about MT support at LKML, UDS, and
-> xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
-> MT protocol (introduced in kernel 2.6.36). Since Wacom supports both
-> digitizer and touch devices, I need to decide how to report touch data
-> when the pen is in proximity.
-> 
-> My goal is to understand how X server would like the MT data to be
-> reported from the kernel. I hope to keep kernel and X server driver MT
-> support in sync so we can avoid unnecessary confusion or extra work in
-> the userland.
-> 
-> The existing solution for single touch events is to arbitrate touch
-> when pen is in prox. This is based on the assumption that we do not
-> want to have two cursors competing on the screen.
-> 
-> With the introduction of MT, the touch data are most likely translated
-> into something other than pointer events. So, reporting both pen and
-> touch data makes sense now. However, I want to assure a smooth
-> tansition from single touch to MT for end users so they still get the
-> single touch behavior as they used to be. I gathered the following
-> approaches:
-> 
-> 1.     Arbitrate all touch data in the kernel.
-> 
-> This is the simplest solution for device driver developers. But I do
-> not feel it is end user and userland client friendly.
 
-I'm strongly opposed to this. kernel filtering of these devices is hard to
-circumvent and there _will_ be use-cases where we need more than one tool to
-work simultaneously. right now we're worrying about pen + touch, but what
-stops tablets from becoming large enough to be used by 2+ users with 2+
-pens simultaneously?
+>From c8f99f9856bc79aa8f525595e5ff115f3d6c3c69 Mon Sep 17 00:00:00 2001
+=46rom: Lee, Chun-Yi <jlee@novell.com>
+Date: Mon, 8 Nov 2010 16:40:55 +0800
+Subject: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
 
-from a purely event-stream focused viewpoint: why do we even care whether
-something is a pen or a touch? both are just tools and how these should be
-used is mostly up to the clients anyway.  IMO, the whole point of
-MT_TOOL_TYPE is that we don't have to assume use-cases for the tools but
-just forward the information to someone who knows how to deal with this.
+Check the Acer OEM-specific Type AA to detect the WiFi/Bluetooth/3G
+devices available or not, and set the devices capability flag.
 
-> 2.     Report first finger touch as ABS_X/Y events when pen is not in
-> prox.  Arbitrating single touch data when pen is in prox. Pen data is
-> reported as ABS_X/Y events. Both ABS_X/Y for pen or the first finger
-> and ABS_MT_* for MT data are reported.
-> 
-> This approach reduces the overhead in dealing with two cursors in userland.
-> 
-> 3.    Report first finger touch as ABS_X/Y events when pen is not in prox;
->        Report pen data as ABS_X/Y events when there is no finger touch;
->        Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
-> events when both pen and touch data are received. No ABS_X/Y are
-> reported when pen and tocuh or multi-touch data are received.
-> 
-> I feel this one makes sense to userland since pen can be considered as
-> another touch.
-> 
-> 4.    Report first finger touch as ABS_X/Y events when pen is not in prox;
->        Report pen data as ABS_X/Y events when there is no finger touch;
->        Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
-> events when both pen and touch data are received. ABS_X/Y are also
-> reported for pen when both pen and tocuh data are received.
+Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+---
+ drivers/platform/x86/acer-wmi.c |   49 +++++++++++++++++++++++++++++++=
+++-----
+ 1 files changed, 42 insertions(+), 7 deletions(-)
 
-I'd vote for this one. It provides all the data necessary for MT clients
-(and all the data the device can support) but has a reasonable single-touch
-strategy. Given that wacom tablets are still primarily pen-centric tablets,
-the emphasis on pen overriding touch makes sense to me.
-
-Cheers,
-  Peter
-
-> This one makes sense to userland too. It eases the backward
-> compatibility support for those clients that don't support MT at all.
-> 
-> Which approach do you like? Or do you have other suggestions share?
-
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/ace=
+r-wmi.c
+index 6ac4656..dc23140 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -39,6 +39,7 @@
+ #include <linux/slab.h>
+ #include <linux/input.h>
+ #include <linux/input/sparse-keymap.h>
++#include <linux/dmi.h>
+=20
+ #include <acpi/acpi_drivers.h>
+=20
+@@ -138,7 +139,9 @@ struct lm_return_value {
+ /*
+  * GUID3 Get Device Status device flags
+  */
++#define ACER_WMID3_GDS_WIRELESS		(1<<0)	/* WiFi */
+ #define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
++#define ACER_WMID3_GDS_BLUETOOTH	(1<<11)	/* BT */
+=20
+ struct wmid3_gds_input_param {	/* Get Device Status input parameter */
+ 	u8 function_num;	/* Function Number */
+@@ -153,6 +156,13 @@ struct wmid3_gds_return_value {	/* Get Device Stat=
+us return value*/
+ 	u32 reserved;
+ } __attribute__((packed));
+=20
++struct hotkey_function_type_aa {
++	u8 type;
++	u8 length;
++	u16 handle;
++	u16 commun_func_bitmap;
++} __attribute__((packed));
++
+ /*
+  * Interface capability flags
+  */
+@@ -184,6 +194,7 @@ static int brightness =3D -1;
+ static int threeg =3D -1;
+ static int force_series;
+ static bool ec_raw_mode;
++static bool has_type_aa;
+=20
+ module_param(mailled, int, 0444);
+ module_param(brightness, int, 0444);
+@@ -824,6 +835,28 @@ static acpi_status WMID_set_u32(u32 value, u32 cap=
+, struct wmi_interface *iface)
+ 	return WMI_execute_u32(method_id, (u32)value, NULL);
+ }
+=20
++static void type_aa_dmi_decode(const struct dmi_header *header, void *=
+dummy)
++{
++	struct hotkey_function_type_aa *type_aa;
++
++	/* We are looking for OEM-specific Type AAh */
++	if (header->type !=3D 0xAA)
++		return;
++
++	has_type_aa =3D true;
++	type_aa =3D (struct hotkey_function_type_aa *) header;
++
++	printk(ACER_INFO "Function bitmap for Communication Button: 0x%x\n",
++		type_aa->commun_func_bitmap);
++
++	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
++		interface->capability |=3D ACER_CAP_WIRELESS;
++	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG)
++		interface->capability |=3D ACER_CAP_THREEG;
++	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
++		interface->capability |=3D ACER_CAP_BLUETOOTH;
++}
++
+ static acpi_status WMID_set_capabilities(void)
+ {
+ 	struct acpi_buffer out =3D {ACPI_ALLOCATE_BUFFER, NULL};
+@@ -844,16 +877,17 @@ static acpi_status WMID_set_capabilities(void)
+ 		return AE_ERROR;
+ 	}
+=20
+-	/* Not sure on the meaning of the relevant bits yet to detect these *=
+/
+-	interface->capability |=3D ACER_CAP_WIRELESS;
+-	interface->capability |=3D ACER_CAP_THREEG;
++	dmi_walk(type_aa_dmi_decode, NULL);
++	if (!has_type_aa) {
++		interface->capability |=3D ACER_CAP_WIRELESS;
++		interface->capability |=3D ACER_CAP_THREEG;
++		if (devices & 0x10)
++			interface->capability |=3D ACER_CAP_BLUETOOTH;
++	}
+=20
+ 	/* WMID always provides brightness methods */
+ 	interface->capability |=3D ACER_CAP_BRIGHTNESS;
+=20
+-	if (devices & 0x10)
+-		interface->capability |=3D ACER_CAP_BLUETOOTH;
+-
+ 	if (!(devices & 0x20))
+ 		max_brightness =3D 0x9;
+=20
+@@ -932,7 +966,8 @@ static void __init acer_commandline_init(void)
+ 	 * capability isn't available on the given interface
+ 	 */
+ 	set_u32(mailled, ACER_CAP_MAILLED);
+-	set_u32(threeg, ACER_CAP_THREEG);
++	if (!has_type_aa)
++		set_u32(threeg, ACER_CAP_THREEG);
+ 	set_u32(brightness, ACER_CAP_BRIGHTNESS);
+ }
+=20
+--=20
+1.6.0.2

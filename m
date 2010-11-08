@@ -1,143 +1,108 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: ir-core and default IR maps
-Date: Mon, 08 Nov 2010 14:33:13 -0200
-Message-ID: <4CD82649.40607@redhat.com>
-References: <AANLkTikfeu4DnV8E7rKahUdu2k_d08BOFZjLzBMRA2o+@mail.gmail.com> <20101107060147.GC3823@core.coreip.homeip.net> <AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com> <4CD7F6A7.8040206@redhat.com> <AANLkTinc_SuTrP6E8aoyXxGKEQwu=QRieRPt3z4b6Xn_@mail.gmail.com> <4CD80518.3060401@redhat.com> <AANLkTinOE7MVWkQNm0Guoc6p2qQ+RmyJZZt7zh8ss8Yr@mail.gmail.com> <20101108153839.GB20675@redhat.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] input: Introduce light-weight contact tracking
+Date: Mon, 08 Nov 2010 11:54:00 -0500
+Message-ID: <4CD82B28.4060706@seas.upenn.edu>
+References: <1289161108-32309-1-git-send-email-rydberg@euromail.se> <4CD724BC.8020702@seas.upenn.edu> <4CD80FCB.20903@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59230 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754099Ab0KHQdV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Nov 2010 11:33:21 -0500
-In-Reply-To: <20101108153839.GB20675@redhat.com>
+Received: from fox.seas.upenn.edu ([158.130.68.12]:47138 "EHLO
+	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752055Ab0KHQyT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Nov 2010 11:54:19 -0500
+In-Reply-To: <4CD80FCB.20903@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: "jonsmirl@gmail.com" <jonsmirl@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chasedouglas@gmail.com>, Takashi Iwai <tiwai@suse.de>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 
-Em 08-11-2010 13:38, Jarod Wilson escreveu:
-> On Mon, Nov 08, 2010 at 10:07:25AM -0500, jonsmirl@gmail.com wrote:
->> On Mon, Nov 8, 2010 at 9:11 AM, Mauro Carvalho Chehab
->> <mchehab@redhat.com> wrote:
->>> Em 08-11-2010 11:34, jonsmirl@gmail.com escreveu:
->>>> On Mon, Nov 8, 2010 at 8:09 AM, Mauro Carvalho Chehab
->>>
->>>> I only want the keymaps for remotes that are bundled with the hardware
->>>> to be included in their kernel driver. All other maps would ship in
->>>> the user space package. The maps for the bundled remotes would also be
->>>> duplicated in the user space package.
->>>
->>> All current RC maps in kernel are for the bundled hardware. There are, currently,
->>> 86 keymaps there. To be consistent, we should break the dibcom tables (there are 2
->>> "big" tables there, that supports lots of different remotes that came from dib0700 driver.
->>> There are also several dvb-usb drivers that still use their own RC keycodes bundled
->>> inside the driver's source code. So, we have 100+ keycode tables in kernel.
->>>
->>> This seems too much to keep synced between kernel and the userspace application.
->>
->> You could write a script to do this. Use the user space versions as
->> master and then generate .h files that get included by the various
->> receivers. Regenerate on each release and send a single delta to
->> Linus.
+On 11/08/2010 09:57 AM, Henrik Rydberg wrote:
+> Hi Rafi,
+>
+> what tree does this patch apply to?
 
-Such script already exists. It is at v4l-utils/utils/keytable/Makefile. It is easy to
-maintain it, provided that we have kernel as the mandatory source, but, as we start
-having people using the userspace tool, this may become a real pain to maintain, as
-codes/maps can be added on either userspace or kernelspace maps.
+It should apply to the torvalds/linux-2.6 master branch.
 
->>>> To achieve plug and play at least one of four choices has to happen:
->>>> 1) maps for bundled remotes in the kernel drivers
->>>> 2) the distros always install the IR remotes map package
->>>> 3) every app that could possibly use IR adds the map package as a
->>>> dependency (may not work for IR keyboards)
->>>
->>> We don't have any IR keyboards right now at RC core. Do you know about any?
->>
->> They exist, here are a few. I've only used them in hotel rooms so I'm
->> not sure how they work.
+> I think the situation with this driver is slightly cumbersome. Perhaps there is
+> a small conflict of interest here, but I hope we will be able to resolve it
+> quickly. I see little benefit in duplicating the tracking efforts. Since greedy
+> matching algorithms are not provably suited to the task, I think any such
+> algorithm should first be tested and benchmarked thoroughly, preferably in the
+> mtdev context.
+>
+> Regarding the ntrig driver, fact is it does not work very well. Contacts are
+> occasionally dropped, and spurious ghosts make multitouch gestures not work
+> properly. There are also many parameters in the driver, which are difficult to
+> use in practice. Therefore, in the Ubuntu 10.10 kernel, a rather large ntrig
+> patch has been applied, improving those issues.
+>
+> The way the data is extracted in 2.6.36 leads to many dropped contacts. The
+> ubuntu patch remedies this problem, so no particular logic for drops is needed.
+> Instead, more effort is put into removing ghost contacts, which greatly improves
+> the actual experience with multitouch gestures.
+>
+> In order for ghost removal to work, the contacts need to be tracked. Because of
+> the deficiencies of the ntrig firmware, this needs to be done in software. The
+> ubuntu patch contains a simple greedy tracking mechanism, which did not seem
+> good enough to upstream, so I never upstreamed it.
+>
+> With the proposed matcher (http://lkml.org/lkml/2010/11/7/122), the situation is
+> different. The ubuntu patch can be modified to use the matcher, which I believe
+> will make it ready for upstream. Since the patch also removes all parameters
+> from the driver, the usability aspect is improved.
+>
+> With the above said, it seems to me that the simplest way forward is to modify
+> and upstream the ubuntu patches. Would you agree?
+>
+> Regarding support for more than four fingers, there is a single device which
+> reports six contacts from the firmware. Getting four good contacts out of it
+> will be a major improvement, and IMO good enough. It seems likely that future
+> firmware will handle tracking properly, so this should all be a stop-gap measure
+> anyways.
+>
+> We talked earlier about the possibility to perform automatic calibration of the
+> driver. This would be the last major step towards a fully functional,
+> maintenance-free driver.
+>
+> I hope we will be able to agree on the direction of this driver, such that
+> duplicated work is minimized and the focus stays with the user experience of the
+> ntrig devices.
 
-Yes, I saw one of them at Hyatt during LPC, although I didn't test. 
+The "complex" set of parameters was intended for more advanced users to give 
+some feedback to help improve the driver.  Though given the lack of feedback, I 
+guess you're right that there's little reason to expose them to users.
 
->> Some of these are probably IRDA.
->>
->> http://www.goldmine-elec-products.com/prodinfo.asp?number=G15326&variation=
->> http://www.markertek.com/Structured-Premise-Wiring/Infrared-Extenders-Receivers/Amino/IR-KEYBOARD.xhtml
->> http://www.abesofmaine.com/itemB.do?item=SKIRKEYBOARD&id=SKIRKEYBOARD&l=FROOGLE
->> http://pcmonde.com/index.php?page=shop.product_details&flypage=flypage.tpl&option=com_virtuemart&Itemid=5&product_id=841
-> 
-> I have this one in my possession, with intentions to add support for it:
-> 
-> http://www.amazon.com/Microsoft-Remote-Keyboard-Windows-ZV1-00004/dp/B000AOAAN8/ref=sr_1_1?ie=UTF8&qid=1289230388&sr=8-1
-> 
-> There's an lirc-mod-mce sourceforge project that support{ed,s} it. Been on
-> my TODO list for a while to get that integrated into the IR core, probably
-> as an additional IR protocol decoder that registers its own keyboard and
-> mouse input devices, rather than piggy-backing on a receiver's remote
-> device.
+The ubuntu 10.10 code does do filtering better than without filtering, but in 
+trying it I've been seeing ghosts and have needed to calibrate multiple times 
+per day (though that may be the result of a new screen being a little off). 
+Furthermore while ripping out the filter code, you also ripped out single touch 
+support for single touch firmwares, which apparently a few people still use.
 
-It might be interesting to have an IR keyboard available during boot time, but
-such keyboard won't be able to replace a real keyboard, if the BIOS is not capable
-of handling it (as you cannot use it while kernel is not initialized). That was
-actually one of the arguments that people told me during Helsinki's V4L mini-summit.
+Even without the ghost problem, it simply does not track as well.  The ntrig 
+only reports every 8-24ms which is a long enough period to move quite a 
+distance.  In drawing up corner cases I realized that motion where two fingers 
+are co-linear with the vector of motion require quite a bit of care to avoid 
+perverting the tracking.  Greedily assigning matches based purely on distance 
+can cause a flip.  Even global distance minimization is not reliable when we use 
+linear distance as the cost.  A full analysis would require quadric distances 
+and the global minimization tends to be an n^3 approach.  I'm sure we could 
+reduce that a bit, but it just seems a bit heavy handed.
 
-Even if we have its keymap in-kernel, it will probably be too late to use it during
-boot time. After udev starts, it will behave just like a regular keyboard. So, I
-couldn't see any real advantage of having its table in-kernel.
+By contrast just a little bit of extra work to estimate the position based on 
+the difference in position of the previous two points (which every algorithm 
+discussed seems to do anyway) doesn't seem that egregious.
 
->>>> 4) We figure out some way of implementing the Windows search for
->>>> drivers dialog. This could be possible with a udev 'catch all' script.
->>>
->>>
->>> I like (3). I also think that (4) is a good long-term solution. Some distros
->>> like Fedora and Knoppix are adding some auto-search stuff (like printers,
->>> codec drivers, unknown commands, etc).
-> 
-> Yeah, this is part of DeviceKit in Fedora-land, iirc. Or some other
-> BumpyCapsKit. We could certainly add a trigger for installing v4l-utils if
-> we see an rc class device.
-> 
->>> I doubt I would have any time to work on (4), but, it shouldn't be hard to write
->>> generic auto-catch udev application that can open a dialog window at the windows
->>> manager, pointing that a newly plugged device requires some additional userspace
->>> package to be installed, in order to work. Of course, it will need to have a way
->>> to specify the command line to install a package (as it will be distro-specific).
->>> I think that it would be possible to have a config file that could explain the
->>> hardware/package dependencies, and the command lines needed to install an
->>> application.
->>
->> The difficulty of getting all of the distros to build this is why I
->> thought it was easier to leave the bundled maps in the drivers until
->> the distros are ready.
-> 
-> True, certain fairly popular distros (Ubuntu) apparently don't even have
-> v4l-utils available in their package repositories yet...
-> 
+The style of the code still assumes that we might want to adjust the 
+aggressiveness of filtering ghosts and drops.  I agree it would be nice to be 
+able to come up with a single value for each and hard code it, but I'm not 
+willing to just assume that I can determine that value.  Also, for graceful 
+degradation and repair, I would like to be able to code it so that those 
+thresholds grow a little bit as a device drifts and then drop them again when 
+calibration is run.
 
-It is sad to hear about that.
 
-Although I started using Linux on Slackware 0.97 (since kernel 1.0 times), and I've moved to 
-several different distros along the time, I never used Ubuntu. So, I can't say much about it,
-but, from what I've noticed from some articles at LWN, it seems that they're taking a different 
-way of doing common things than other distros. I heard there that they have/had plans to replace 
-glibc, gnome-terminal and other things by some other solutions. All I know for sure is that 
-that they are/were putting drivers/media drivers and the include files at non-standard 
-places, as we needed to write some special logic at the out-of-tree building system
-because of that.
+Also, if you're going to criticize code for complexity, I would recommend some 
+comments that explain your code beyond "this is a generated table, don't change it".
 
-We don't have any way to dictate how distros will choose their tools, or how they'll 
-package their kernel/userspace modules and write their udev rules, but users of those 
-distros should try to push the distro maintainers to do the right thing. Yet, I think
-that we should add this mandatory requirement at Documentation/Changes. I'll write a patch
-for that and submit to LKML, c/c LMML.
-
-In the case of drivers/media, the required requirements are simple. In order for them to
-work properly, distros that compile media drivers should be packaging v4l-utils and dvb-apps.
-
-If they don't package those two mandatory userspace tools, their media support will
-be broken, or they'll need to reinvent the wheel, writing their own tools for doing
-the same thing.
-
-Cheers,
-Mauro
+Rafi

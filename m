@@ -1,33 +1,35 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] input: spi: Driver for SPI data stream driven vibrator
-Date: Sun, 7 Nov 2010 23:51:57 +0000
-Message-ID: <20101107235157.728ea5b6@lxorguk.ukuu.org.uk>
-References: <1288013463-21722-1-git-send-email-ilkka.koskinen@nokia.com>
+From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Mon, 8 Nov 2010 01:53:10 +0100
+Message-ID: <AANLkTik=w5UQG=PwhRR+ne00_accPRo3gXfs_1tD0hcY@mail.gmail.com>
+References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+ <20101107163037.GR14865@fooishbar.org> <AANLkTinR33Y1TKa-=HA87AXkFpGv5Mryap7YoWTPM9kC@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:58949 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751990Ab0KGXx1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 18:53:27 -0500
-In-Reply-To: <1288013463-21722-1-git-send-email-ilkka.koskinen@nokia.com>
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:52221 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752112Ab0KHAxb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 19:53:31 -0500
+Received: by gxk23 with SMTP id 23so3052594gxk.19
+        for <linux-input@vger.kernel.org>; Sun, 07 Nov 2010 16:53:30 -0800 (PST)
+In-Reply-To: <AANLkTinR33Y1TKa-=HA87AXkFpGv5Mryap7YoWTPM9kC@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ilkka Koskinen <ilkka.koskinen@nokia.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Daniel Stone <daniel@fooishbar.org>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
+
+I don't know but it seems like a decision is being made here without
+future possibility of change in the user land.
+What if someone wants to create an application which uses pen+touch
+input like this one ?
+http://goo.gl/ydkl
+
+The paper is here :
+http://www.billbuxton.com/manual%20deskterity.pdf
 
 
-> +	datalen = p->custom_len * sizeof(p->custom_data[0]);
+But I confirm that the use case where disabling touch input when using
+the pen is more common.
 
-signed
-
-> +	if (datalen > MAX_EFFECT_SIZE) {
-
-unsigned
-
-> +	memcpy(einfo->buf, p->custom_data, datalen);
-
-ungood
-
-
+i

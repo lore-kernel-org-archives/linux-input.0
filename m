@@ -1,44 +1,70 @@
-From: "Hemanth V" <hemanthv@ti.com>
-Subject: Re: Sensor event related attribute naming.
-Date: Mon, 8 Nov 2010 19:37:03 +0530
-Message-ID: <20E08A7079E04279971AFD632B5A00A9@wipblrx0099946>
-References: <4C98C7FE.4050305@cam.ac.uk> <03d301cb5bd4$152287d0$LocalHost@wipblrx0099946> <4C9C927B.1010500@cam.ac.uk> <4CA06714.8080008@cam.ac.uk> <4CA46126.7020104@cam.ac.uk>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: ir-core and default IR maps
+Date: Mon, 08 Nov 2010 12:11:36 -0200
+Message-ID: <4CD80518.3060401@redhat.com>
+References: <AANLkTikfeu4DnV8E7rKahUdu2k_d08BOFZjLzBMRA2o+@mail.gmail.com>	<20101107060147.GC3823@core.coreip.homeip.net>	<AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com>	<4CD7F6A7.8040206@redhat.com> <AANLkTinc_SuTrP6E8aoyXxGKEQwu=QRieRPt3z4b6Xn_@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:57460 "EHLO arroyo.ext.ti.com"
+Received: from mx1.redhat.com ([209.132.183.28]:17122 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754284Ab0KHOHw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Nov 2010 09:07:52 -0500
+	id S1753845Ab0KHOLn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Nov 2010 09:11:43 -0500
+In-Reply-To: <AANLkTinc_SuTrP6E8aoyXxGKEQwu=QRieRPt3z4b6Xn_@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dtor@mail.ru>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Manuel Stahl <manuel.stahl@iis.fraunhofer.de>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@linux-foundation.org>, drivers@analog.com, achew@nvidia.com, Donggeun Kim <dg77.kim@samsung.com>
+To: "jonsmirl@gmail.com" <jonsmirl@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jarod Wilson <jarod@redhat.com>
 
------ Original Message ----- 
-From: "Jonathan Cameron" <jic23@cam.ac.uk>
-To: "Jonathan Cameron" <jic23@cam.ac.uk>
-Sent: Thursday, September 30, 2010 3:36 PM
-Subject: Re: Sensor event related attribute naming.
+Em 08-11-2010 11:34, jonsmirl@gmail.com escreveu:
+> On Mon, Nov 8, 2010 at 8:09 AM, Mauro Carvalho Chehab
+
+> I only want the keymaps for remotes that are bundled with the hardware
+> to be included in their kernel driver. All other maps would ship in
+> the user space package. The maps for the bundled remotes would also be
+> duplicated in the user space package.
+
+All current RC maps in kernel are for the bundled hardware. There are, currently,
+86 keymaps there. To be consistent, we should break the dibcom tables (there are 2 
+"big" tables there, that supports lots of different remotes that came from dib0700 driver.
+There are also several dvb-usb drivers that still use their own RC keycodes bundled
+inside the driver's source code. So, we have 100+ keycode tables in kernel.
+
+This seems too much to keep synced between kernel and the userspace application.
+
+> To achieve plug and play at least one of four choices has to happen:
+> 1) maps for bundled remotes in the kernel drivers
+> 2) the distros always install the IR remotes map package
+> 3) every app that could possibly use IR adds the map package as a
+> dependency (may not work for IR keyboards)
+
+We don't have any IR keyboards right now at RC core. Do you know about any?
+
+> 4) We figure out some way of implementing the Windows search for
+> drivers dialog. This could be possible with a udev 'catch all' script.
 
 
-> Given the lack of further comment, I went ahead and implemented the above 
-> naming
-> scheme for IIO. As the above discussion with Hemanth shows, there are some 
-> corner cases
-> that will need futher thought in the future.
->
+I like (3). I also think that (4) is a good long-term solution. Some distros
+like Fedora and Knoppix are adding some auto-search stuff (like printers,
+codec drivers, unknown commands, etc).
 
-Jonathan, haven't seen many comments on this. Do u think the reason
-might be that these interfaces are hidden behind a HAL layer like in android 
-and
-might not be a burning issue for many people.
+I doubt I would have any time to work on (4), but, it shouldn't be hard to write
+generic auto-catch udev application that can open a dialog window at the windows
+manager, pointing that a newly plugged device requires some additional userspace
+package to be installed, in order to work. Of course, it will need to have a way
+to specify the command line to install a package (as it will be distro-specific).
+I think that it would be possible to have a config file that could explain the
+hardware/package dependencies, and the command lines needed to install an
+application.
 
-Thanks
-Hemanth
+> All four of these will work, but we need to be sure at least one of
+> them gets implement. If not we end up with the user plugging in the
+> hardware and Googling to find out why it doesn't work.
 
+Yes. I think we should try to make everything working fine for .38 with some distros,
+making the in-kernel keytables as deprecated, but giving some time for all distros
+to adopt it, before actually removing them.
 
+Cheers,
+Mauro

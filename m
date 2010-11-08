@@ -1,178 +1,75 @@
-From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
-Date: Sun, 07 Nov 2010 21:54:22 -0700
-Message-ID: <4CD81D2E02000023000237A6@novprvlin0050.provo.novell.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: ir-core and default IR maps
+Date: Sun, 7 Nov 2010 23:23:17 -0800
+Message-ID: <20101108072317.GB6977@core.coreip.homeip.net>
+References: <AANLkTikfeu4DnV8E7rKahUdu2k_d08BOFZjLzBMRA2o+@mail.gmail.com>
+ <20101107060147.GC3823@core.coreip.homeip.net>
+ <AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:50070 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752990Ab0KHHXY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Nov 2010 02:23:24 -0500
+Received: by ywc21 with SMTP id 21so3124773ywc.19
+        for <linux-input@vger.kernel.org>; Sun, 07 Nov 2010 23:23:24 -0800 (PST)
 Content-Disposition: inline
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: jdelvare@suse.de
-Cc: corentin.chary@gmail.com, dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+In-Reply-To: <AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "jonsmirl@gmail.com" <jonsmirl@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>
 
-Hi Jean,=20
+On Sun, Nov 07, 2010 at 09:36:23AM -0500, jonsmirl@gmail.com wrote:
+> On Sun, Nov 7, 2010 at 1:01 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Sat, Nov 06, 2010 at 06:08:57PM -0400, jonsmirl@gmail.com wrote:
+> >> I thought about this some more and I think the default maps should
+> >> stay in the drivers. The maps are marked __init so they don't take any
+> >> room after they are loaded. This is an important piece and plug and
+> >> play and we should keep it. Only the keymaps for default remote
+> >> controls that ship with the specific hardware should be included in
+> >> the driver. All other keymaps are in user space.
+> >>
+> >
+> > Plug and play does not have to be implemented in kernel and udev is
+> > perfectly capable doing it in userspace for us. Embedded products that
+> > absolutely not want to ship udev and want to limit themselves to a
+> > single vendor-supplied remote will have to adjust their startup scripts
+> > to load the proper keymap.
+> 
+> I agree that it doesn't have to be implemented in the kernel. This is
+> an ease of use decision, not a requirement.
 
-On =E6=97=A5, 2010-10-31 at 00:36 +0800, Lee, Chun-Yi wrote:
->  static acpi_status WMID_set_capabilities(void)
->  {
->  	struct acpi_buffer out =3D {ACPI_ALLOCATE_BUFFER, NULL};
-> @@ -844,16 +869,24 @@ static acpi_status WMID_set_capabilities(void)
->  		return AE_ERROR;
->  	}
-> =20
-> -	/* Not sure on the meaning of the relevant bits yet to detect these=
- */
-> -	interface->capability |=3D ACER_CAP_WIRELESS;
-> -	interface->capability |=3D ACER_CAP_THREEG;
-> +	dmi_walk(type_aa_dmi_decode, NULL);
-> +	if (type_aa) {
-> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
-> +			interface->capability |=3D ACER_CAP_WIRELESS;
-> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG)
-> +			interface->capability |=3D ACER_CAP_THREEG;
-> +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
-> +			interface->capability |=3D ACER_CAP_BLUETOOTH;
-> +	} else {
-> +		interface->capability |=3D ACER_CAP_WIRELESS;
-> +		interface->capability |=3D ACER_CAP_THREEG;
-> +		if (devices & 0x10)
-> +			interface->capability |=3D ACER_CAP_BLUETOOTH;
-> +	}
-> =20
+For the user it will be completely transparent (on a sane distribution)
+even if keymaps are managed by udev.
 
-Thank's for your review and found out cann't use a global pointer to a
-DMI record to keep track of what dmi_walk() found. I modified the patch
-like following:
+> 
+> For user space support either the end user has to be aware that after
+> he buys the MSMCE he also has to install a user space package to make
+> it work, or the distros always have to install the package.
 
+The distributions will install the package, the same way they install
+lirc, udev, firmware (you noticed we do not ship most firmware with the
+kernel anymore?) and other things.
 
->From c8f99f9856bc79aa8f525595e5ff115f3d6c3c69 Mon Sep 17 00:00:00 2001
-=46rom: Lee, Chun-Yi <jlee@novell.com>
-Date: Mon, 8 Nov 2010 16:40:55 +0800
-Subject: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
+> 
+> For the kernel side I only see a maintenance issue. All of the keycode
+> support is marked _init and vaporizes after boot so there is no
+> run-time impact.
+> 
+> Another solution could be for the distros to add a distro specific
+> default udev action that installs the package if the user starts using
+> IR. This has to be distro specific since they all install things
+> differently. What we need is a hardware triggered package install
+> mechanism paralleling what happens with loadmodule. On windows it pops
+> up and says - search for a driver - we don't have that on any Linux
+> distribution I've used.
 
-Check the Acer OEM-specific Type AA to detect the WiFi/Bluetooth/3G
-devices available or not, and set the devices capability flag.
+I'd expect this package either be always installed or marked as a
+prerequisite for programs that might use remote controllers (mplayer,
+mythtv, etc). Always installed is probably the simplest option.
 
-Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
----
- drivers/platform/x86/acer-wmi.c |   49 +++++++++++++++++++++++++++++++=
-++-----
- 1 files changed, 42 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/ace=
-r-wmi.c
-index 6ac4656..dc23140 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -39,6 +39,7 @@
- #include <linux/slab.h>
- #include <linux/input.h>
- #include <linux/input/sparse-keymap.h>
-+#include <linux/dmi.h>
-=20
- #include <acpi/acpi_drivers.h>
-=20
-@@ -138,7 +139,9 @@ struct lm_return_value {
- /*
-  * GUID3 Get Device Status device flags
-  */
-+#define ACER_WMID3_GDS_WIRELESS		(1<<0)	/* WiFi */
- #define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
-+#define ACER_WMID3_GDS_BLUETOOTH	(1<<11)	/* BT */
-=20
- struct wmid3_gds_input_param {	/* Get Device Status input parameter */
- 	u8 function_num;	/* Function Number */
-@@ -153,6 +156,13 @@ struct wmid3_gds_return_value {	/* Get Device Stat=
-us return value*/
- 	u32 reserved;
- } __attribute__((packed));
-=20
-+struct hotkey_function_type_aa {
-+	u8 type;
-+	u8 length;
-+	u16 handle;
-+	u16 commun_func_bitmap;
-+} __attribute__((packed));
-+
- /*
-  * Interface capability flags
-  */
-@@ -184,6 +194,7 @@ static int brightness =3D -1;
- static int threeg =3D -1;
- static int force_series;
- static bool ec_raw_mode;
-+static bool has_type_aa;
-=20
- module_param(mailled, int, 0444);
- module_param(brightness, int, 0444);
-@@ -824,6 +835,28 @@ static acpi_status WMID_set_u32(u32 value, u32 cap=
-, struct wmi_interface *iface)
- 	return WMI_execute_u32(method_id, (u32)value, NULL);
- }
-=20
-+static void type_aa_dmi_decode(const struct dmi_header *header, void *=
-dummy)
-+{
-+	struct hotkey_function_type_aa *type_aa;
-+
-+	/* We are looking for OEM-specific Type AAh */
-+	if (header->type !=3D 0xAA)
-+		return;
-+
-+	has_type_aa =3D true;
-+	type_aa =3D (struct hotkey_function_type_aa *) header;
-+
-+	printk(ACER_INFO "Function bitmap for Communication Button: 0x%x\n",
-+		type_aa->commun_func_bitmap);
-+
-+	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
-+		interface->capability |=3D ACER_CAP_WIRELESS;
-+	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG)
-+		interface->capability |=3D ACER_CAP_THREEG;
-+	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
-+		interface->capability |=3D ACER_CAP_BLUETOOTH;
-+}
-+
- static acpi_status WMID_set_capabilities(void)
- {
- 	struct acpi_buffer out =3D {ACPI_ALLOCATE_BUFFER, NULL};
-@@ -844,16 +877,17 @@ static acpi_status WMID_set_capabilities(void)
- 		return AE_ERROR;
- 	}
-=20
--	/* Not sure on the meaning of the relevant bits yet to detect these *=
-/
--	interface->capability |=3D ACER_CAP_WIRELESS;
--	interface->capability |=3D ACER_CAP_THREEG;
-+	dmi_walk(type_aa_dmi_decode, NULL);
-+	if (!has_type_aa) {
-+		interface->capability |=3D ACER_CAP_WIRELESS;
-+		interface->capability |=3D ACER_CAP_THREEG;
-+		if (devices & 0x10)
-+			interface->capability |=3D ACER_CAP_BLUETOOTH;
-+	}
-=20
- 	/* WMID always provides brightness methods */
- 	interface->capability |=3D ACER_CAP_BRIGHTNESS;
-=20
--	if (devices & 0x10)
--		interface->capability |=3D ACER_CAP_BLUETOOTH;
--
- 	if (!(devices & 0x20))
- 		max_brightness =3D 0x9;
-=20
-@@ -932,7 +966,8 @@ static void __init acer_commandline_init(void)
- 	 * capability isn't available on the given interface
- 	 */
- 	set_u32(mailled, ACER_CAP_MAILLED);
--	set_u32(threeg, ACER_CAP_THREEG);
-+	if (!has_type_aa)
-+		set_u32(threeg, ACER_CAP_THREEG);
- 	set_u32(brightness, ACER_CAP_BRIGHTNESS);
- }
-=20
---=20
-1.6.0.2
+-- 
+Dmitry

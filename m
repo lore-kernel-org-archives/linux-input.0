@@ -1,157 +1,107 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
 Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Mon, 8 Nov 2010 13:39:57 +1000
-Message-ID: <20101108033957.GB3456@barra.bne.redhat.com>
+Date: Mon, 8 Nov 2010 13:51:21 +1000
+Message-ID: <20101108035121.GA4630@barra.bne.redhat.com>
 References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
- <AANLkTin+S_jJAdw6gLH1RnbyD1EB6ChHCo9yNheLb_sg@mail.gmail.com>
- <4CD5BCDB.8070806@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:61485 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:23149 "EHLO
 	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754089Ab0KHDkd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 22:40:33 -0500
+	with ESMTP id S1752252Ab0KHDva (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2010 22:51:30 -0500
 Content-Disposition: inline
-In-Reply-To: <4CD5BCDB.8070806@seas.upenn.edu>
+In-Reply-To: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Michal Suchanek <hramrach@centrum.cz>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On Sat, Nov 06, 2010 at 04:38:51PM -0400, Rafi Rubin wrote:
-> On 11/06/10 11:53, Michal Suchanek wrote:
-> > On 5 November 2010 19:47, Ping Cheng <pinglinux@gmail.com> wrote:
-> >> Recent changes and discussion about MT support at LKML, UDS, and
-> >> xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
-> >> MT protocol (introduced in kernel 2.6.36). Since Wacom supports both
-> >> digitizer and touch devices, I need to decide how to report touch data
-> >> when the pen is in proximity.
-> >>
-> >> My goal is to understand how X server would like the MT data to be
-> >> reported from the kernel. I hope to keep kernel and X server driver MT
-> >> support in sync so we can avoid unnecessary confusion or extra work in
-> >> the userland.
-> >>
-> >> The existing solution for single touch events is to arbitrate touch
-> >> when pen is in prox. This is based on the assumption that we do not
-> >> want to have two cursors competing on the screen.
-> > 
-> > As a tablet user, not X developer I don't think it is desirable and
-> > expected to register pen touch and finger touch together as a
-> > multitouch. That is, if I wanted to trigger a multitouch feature I
-> > would use fingers, not pen and finger. While it would be technically
-> > possible to use the pen touch and finger touch together to trigger
-> > multitouch I don't think it makes much sense.
-> 
-> Actually, a finger is a far more clumsy than a pen and beyond the biomechanics
-> in my experience pen sensors are also a lot more accurate and stable.  As such,
-> I could see people using one finger as an anchor while using a pen for better
-> control during a two tool manipulation.
+fwiw, I'm not sure "arbitrate" is the right word here, filtering seems
+easier to understand in this context. I guess "arbitrate" would apply more
+if we emit the events across multiple devices like in the bamboo case.
+that's mostly bikeshedding though, my points below apply regardless of what
+word we choose :)
 
-I don't think the kernel (or X, for that matter) should care about
-clumsyness or biomechanics. If the data is valid, pass it on.
-Ikbel has presented one case already where the data of both can be useful, I
-guess over the next years we'll see more use-cases.
+note that we also have two different approaches - single kernel device or
+multiple kernel devices and depending on the approach the device uses the
+options below have different advantages and disadvantages.
 
-> This is merely a hypothetical usage, realistically, I don't think that
-> pen+finger actions are likely to be all that popular.
-> 
-> Some of the earlier single touch n-trig firmwares supported simultaneous
-> reporting of pen and finger.  Newer firmwares all send the touch device a
-> special event to indicate the pen is in range and then report no further touch
-> activity until after both sensors go idle.
-> 
-> The kernel driver still lets simultaneous events through to the two separate
-> event device nodes.  Given that was my only option at the time, I used that with
-> mpx to play with multitouch.  I did not really find it useful, and the only
-> feedback I got from users was questions asking how to disable touch when they
-> wanted to use the pen.
-> 
-> > Also it is a good idea to turn off (single) touch when pen is in
-> > proximity because it is quite easy to accidentally touch the surface
-> > while moving the pen.
-> 
-> Definitely simplifies using things like Xournal, where sometimes a finger is
-> fine, but when you're writing with the pen you don't want to have to worry about
-> accidentally making skin contact with the screen.
-> 
-> > This means that the protocol that sends abs events from pen when in
-> > proximity and from finger otherwise would work well.
-> > 
-> > However, there is one feature that makes sort of sense and does not
-> > work when touch is completely off. It might be possible to use touch
-> > for button and pen for moving the cursor. I tried to use the pad
-> > button on my Bamboo together with pen motion for right drags and it
-> > seems somewhat easier than using the pen button.
-> > 
-> > So I would say that protocol that allows events from both pen and
-> > touch at the same time is desirable in the long run but with some
-> > options to filter the events when both pen and touch are used
-> > together.
-> > 
-> > This gives basically three options
-> > 
-> > 1) leave as is, turn off touch when pen is in proximity
-> 
-> This would be simplest.  Furthermore, if you want to block touch when the pen is
-> in range, it would be easiest to catch that in firmware or the kernel, before
-> the events are split off into separate streams.
+the tablets I've dealt with so far exposed a single event device, so that's
+what I'm focusing on in this email.
 
-I'm not sure the splitting off into separate streams is a good idea
-long-term. I have a serial tablet here where the data comes out of a single
-kernel device and it's beautifully easy to hook onto whatever you need and
-filter what you don't.
-
-with multiple devices, that's not as clear-cut anymore.
-
-> > 2) report everything by kernel, put some filter on the touch events in
-> > the  X driver (which defaults to killing most touch stuff when pen is
-> > in proximity)
+On Fri, Nov 05, 2010 at 11:47:28AM -0700, Ping Cheng wrote:
+> Recent changes and discussion about MT support at LKML, UDS, and
+> xorg-devel encouraged me to migrate Wacom MT devices to the slot-based
+> MT protocol (introduced in kernel 2.6.36). Since Wacom supports both
+> digitizer and touch devices, I need to decide how to report touch data
+> when the pen is in proximity.
 > 
-> Hard to coordinate when the events come in from separate device nodes, and may
-> even use different drivers for pen and touch.
+> My goal is to understand how X server would like the MT data to be
+> reported from the kernel. I hope to keep kernel and X server driver MT
+> support in sync so we can avoid unnecessary confusion or extra work in
+> the userland.
 > 
-> > 3) the same as above but put the filter in the kernel driver
-> > 
-> > 
-> > 2 or 3 is more flexible as people with some special uses can just turn
-> > off the filter and get all events.
-> > 
-> > WRT X ease of development I would suggest that the same device should
-> > never report different events based on pen proximity. Either the
-> > device is in some "compatibility mode" and reports only one pointer as
-> > per 1 or there are two separate pointers and they are just reported
-> > out of proximity when the pointer positioning is not desirable (ie
-> > when pen is out or when touch is off due to pen being in).
-> > 
-> > If somebody wants to have multitouch combining two different pointers
-> > there is nothing stopping them, either with P&T pen and touch pointers
-> > or completely unrelated devices.
+> The existing solution for single touch events is to arbitrate touch
+> when pen is in prox. This is based on the assumption that we do not
+> want to have two cursors competing on the screen.
 > 
-> Multiplexing pen and finger events as separate MT tracks where each specifies
-> the current tool at the start of the stream should work, but it might get a
-> little messy.  Downstream applications would be responsible for deciding if they
-> care about the tool type and respond accordingly.  Also pen and touch have
-> different characteristics (resolution, physical dimensions, pressure) and an
-> application would have to adjust behavior specially for every track.
-
-you mean, just like they have to do if they were two physical devices that
-were used simultaneously? :)
-
-> I have seen one really positive example where a machine had a number different
-> of tools, all simultaneously active.  However, that was a custom setup created
-> by an artist/computer scientist for his own use and even then only for a single
-> purpose machine.
+> With the introduction of MT, the touch data are most likely translated
+> into something other than pointer events. So, reporting both pen and
+> touch data makes sense now. However, I want to assure a smooth
+> tansition from single touch to MT for end users so they still get the
+> single touch behavior as they used to be. I gathered the following
+> approaches:
 > 
-> Trying to support the mixed tool streams for the general case seems tricky and
-> prone to many mistakes.
+> 1.     Arbitrate all touch data in the kernel.
+> 
+> This is the simplest solution for device driver developers. But I do
+> not feel it is end user and userland client friendly.
 
-at the same time, we're only starting to see these devices to become
-commonplace. a lot of the infrastructure is missing, hence we don't have any
-applications that support it right now. but is there any reason why that
-setup you described above can't be commonplace (maybe not in this exact
-incarnation, but generalised).
+I'm strongly opposed to this. kernel filtering of these devices is hard to
+circumvent and there _will_ be use-cases where we need more than one tool to
+work simultaneously. right now we're worrying about pen + touch, but what
+stops tablets from becoming large enough to be used by 2+ users with 2+
+pens simultaneously?
+
+from a purely event-stream focused viewpoint: why do we even care whether
+something is a pen or a touch? both are just tools and how these should be
+used is mostly up to the clients anyway.  IMO, the whole point of
+MT_TOOL_TYPE is that we don't have to assume use-cases for the tools but
+just forward the information to someone who knows how to deal with this.
+
+> 2.     Report first finger touch as ABS_X/Y events when pen is not in
+> prox.  Arbitrating single touch data when pen is in prox. Pen data is
+> reported as ABS_X/Y events. Both ABS_X/Y for pen or the first finger
+> and ABS_MT_* for MT data are reported.
+> 
+> This approach reduces the overhead in dealing with two cursors in userland.
+> 
+> 3.    Report first finger touch as ABS_X/Y events when pen is not in prox;
+>        Report pen data as ABS_X/Y events when there is no finger touch;
+>        Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
+> events when both pen and touch data are received. No ABS_X/Y are
+> reported when pen and tocuh or multi-touch data are received.
+> 
+> I feel this one makes sense to userland since pen can be considered as
+> another touch.
+> 
+> 4.    Report first finger touch as ABS_X/Y events when pen is not in prox;
+>        Report pen data as ABS_X/Y events when there is no finger touch;
+>        Report touch data as MT_TOOL_TOUCH and pen data as MT_TOOL_PEN
+> events when both pen and touch data are received. ABS_X/Y are also
+> reported for pen when both pen and tocuh data are received.
+
+I'd vote for this one. It provides all the data necessary for MT clients
+(and all the data the device can support) but has a reasonable single-touch
+strategy. Given that wacom tablets are still primarily pen-centric tablets,
+the emphasis on pen overriding touch makes sense to me.
 
 Cheers,
   Peter
+
+> This one makes sense to userland too. It eases the backward
+> compatibility support for those clients that don't support MT at all.
+> 
+> Which approach do you like? Or do you have other suggestions share?
+

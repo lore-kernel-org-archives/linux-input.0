@@ -1,210 +1,290 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: Introduce light-weight contact tracking
-Date: Mon, 08 Nov 2010 20:07:45 +0100
-Message-ID: <4CD84A81.3000208@euromail.se>
-References: <1289161108-32309-1-git-send-email-rydberg@euromail.se> <4CD724BC.8020702@seas.upenn.edu> <4CD80FCB.20903@euromail.se> <4CD82B28.4060706@seas.upenn.edu>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Mon, 8 Nov 2010 15:54:51 -0600
+Message-ID: <AANLkTike6Ny26fV3691-3vgM7kTi5RRRWjDB4_BukPqd@mail.gmail.com>
+References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+	<20101108035121.GA4630@barra.bne.redhat.com>
+	<4CD7B012.1030809@cena.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:35314 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753635Ab0KHTIb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Nov 2010 14:08:31 -0500
-In-Reply-To: <4CD82B28.4060706@seas.upenn.edu>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:48421 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755443Ab0KHVyw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Nov 2010 16:54:52 -0500
+Received: by gyh4 with SMTP id 4so3814841gyh.19
+        for <linux-input@vger.kernel.org>; Mon, 08 Nov 2010 13:54:52 -0800 (PST)
+In-Reply-To: <4CD7B012.1030809@cena.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chasedouglas@gmail.com>, Takashi Iwai <tiwai@suse.de>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+To: Benjamin Tissoires <tissoire@cena.fr>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Ping Cheng <pinglinux@gmail.com>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On 11/08/2010 05:54 PM, Rafi Rubin wrote:
-
-> On 11/08/2010 09:57 AM, Henrik Rydberg wrote:
->> Hi Rafi,
+On Mon, Nov 8, 2010 at 2:08 AM, Benjamin Tissoires <tissoire@cena.fr> w=
+rote:
+> Le 08/11/2010 04:51, Peter Hutterer a =E9crit :
 >>
->> what tree does this patch apply to?
-> 
-> It should apply to the torvalds/linux-2.6 master branch.
-
-
-Odd, seems the patch was damaged somehow. Applies and compiles, thanks.
-
-> The "complex" set of parameters was intended for more advanced users to give
-> some feedback to help improve the driver.  Though given the lack of feedback, I
-> guess you're right that there's little reason to expose them to users.
-
-
-Sounds good. Would you agree that applying a modified version of the ubuntu
-patch is the simplest way forward?
-
-> The ubuntu 10.10 code does do filtering better than without filtering, but in
-> trying it I've been seeing ghosts and have needed to calibrate multiple times
-> per day (though that may be the result of a new screen being a little off).
-> Furthermore while ripping out the filter code, you also ripped out single touch
-> support for single touch firmwares, which apparently a few people still use.
-
-
-Yes, thanks, I got a report regarding the single touch firmwares and was
-planning to include it.
-
-
-> Even without the ghost problem, it simply does not track as well.  The ntrig
-> only reports every 8-24ms which is a long enough period to move quite a
-> distance.
-
-
-True, since it is using a greedy algorithm. This is what the exact in-kernel
-tracking code is supposed to remedy. To be precise, the ubuntu version uses the
-so-obtained assignment for filtering only - the tracking is still performed in
-mtdev in userspace.
-
-> In drawing up corner cases I realized that motion where two fingers
-> are co-linear with the vector of motion require quite a bit of care to avoid
-> perverting the tracking.
-
-
-Yes, this is one example of why exact matching is needed.
-
-> Greedily assigning matches based purely on distance
-> can cause a flip.  Even global distance minimization is not reliable when we use
-> linear distance as the cost.  A full analysis would require quadric distances
-> and the global minimization tends to be an n^3 approach.  I'm sure we could
-> reduce that a bit, but it just seems a bit heavy handed.
-
-
-The patch that started this thread implements exact matching, which means
-finding the optimal slot assignments that minimizes a measure of the distance of
-all movements. The implementation is very fast, but still needs to be cut off at
-some arbitrary number. Four seems to be a natural breakpoint. The fact that
-matching scales badly is one of the major headaches, and the reason mtdev is
-implemented in userspace. The middle-way proposed here is a balance that seems
-to cater for existing hardware at the same time as expecting hardware to provide
-their own tracking in the future.
-
-> By contrast just a little bit of extra work to estimate the position based on
-> the difference in position of the previous two points (which every algorithm
-> discussed seems to do anyway) doesn't seem that egregious.
-
-
-Using exact matching instead of greedy matching is what makes it work well. It
-is very robust and parameter-free. On the eclectic side, one can certainly go
-beyond that by optimizing for both position differences and speed differences
-(maximum smoothness). However, I doubt it makes any difference on the
-finger-tracking use case.
-
-> The style of the code still assumes that we might want to adjust the
-> aggressiveness of filtering ghosts and drops.  I agree it would be nice to be
-> able to come up with a single value for each and hard code it, but I'm not
-> willing to just assume that I can determine that value.
-
-
-The ghost detection in the ubuntu version could probably be improved a bit, but
-the biggest experience gain would probably come from automatic calibration.
-
-> Also, for graceful
-> degradation and repair, I would like to be able to code it so that those
-> thresholds grow a little bit as a device drifts and then drop them again when
-> calibration is run.
-
-
-Tricky - perhaps a measure of the number of filtered ghosts could be used to
-determine when it is time to recalibrate.
-
+>> fwiw, I'm not sure "arbitrate" is the right word here, filtering see=
+ms
+>> easier to understand in this context. I guess "arbitrate" would appl=
+y more
+>> if we emit the events across multiple devices like in the bamboo cas=
+e.
+>> that's mostly bikeshedding though, my points below apply regardless =
+of
+>> what
+>> word we choose :)
+>>
+>> note that we also have two different approaches - single kernel devi=
+ce or
+>> multiple kernel devices and depending on the approach the device use=
+s the
+>> options below have different advantages and disadvantages.
+>>
+>> the tablets I've dealt with so far exposed a single event device, so
+>> that's
+>> what I'm focusing on in this email.
+>>
+>> On Fri, Nov 05, 2010 at 11:47:28AM -0700, Ping Cheng wrote:
+>>>
+>>> Recent changes and discussion about MT support at LKML, UDS, and
+>>> xorg-devel encouraged me to migrate Wacom MT devices to the slot-ba=
+sed
+>>> MT protocol (introduced in kernel 2.6.36). Since Wacom supports bot=
+h
+>>> digitizer and touch devices, I need to decide how to report touch d=
+ata
+>>> when the pen is in proximity.
+>>>
+>>> My goal is to understand how X server would like the MT data to be
+>>> reported from the kernel. I hope to keep kernel and X server driver=
+ MT
+>>> support in sync so we can avoid unnecessary confusion or extra work=
+ in
+>>> the userland.
+>>>
+>>> The existing solution for single touch events is to arbitrate touch
+>>> when pen is in prox. This is based on the assumption that we do not
+>>> want to have two cursors competing on the screen.
+>>>
+>>> With the introduction of MT, the touch data are most likely transla=
+ted
+>>> into something other than pointer events. So, reporting both pen an=
+d
+>>> touch data makes sense now. However, I want to assure a smooth
+>>> tansition from single touch to MT for end users so they still get t=
+he
+>>> single touch behavior as they used to be. I gathered the following
+>>> approaches:
+>>>
+>>> 1. =A0 =A0 Arbitrate all touch data in the kernel.
+>>>
+>>> This is the simplest solution for device driver developers. But I d=
+o
+>>> not feel it is end user and userland client friendly.
+>>
+>> I'm strongly opposed to this. kernel filtering of these devices is h=
+ard to
+>> circumvent and there _will_ be use-cases where we need more than one=
+ tool
+>> to
+>> work simultaneously. right now we're worrying about pen + touch, but=
+ what
+>> stops tablets from becoming large enough to be used by 2+ users with=
+ 2+
+>> pens simultaneously?
+>>
+>> from a purely event-stream focused viewpoint: why do we even care wh=
+ether
+>> something is a pen or a touch? both are just tools and how these sho=
+uld be
+>> used is mostly up to the clients anyway. =A0IMO, the whole point of
+>> MT_TOOL_TYPE is that we don't have to assume use-cases for the tools=
+ but
+>> just forward the information to someone who knows how to deal with t=
+his.
+>>
+>>> 2. =A0 =A0 Report first finger touch as ABS_X/Y events when pen is =
+not in
+>>> prox. =A0Arbitrating single touch data when pen is in prox. Pen dat=
+a is
+>>> reported as ABS_X/Y events. Both ABS_X/Y for pen or the first finge=
+r
+>>> and ABS_MT_* for MT data are reported.
+>>>
+>>> This approach reduces the overhead in dealing with two cursors in
+>>> userland.
+>>>
+>>> 3. =A0 =A0Report first finger touch as ABS_X/Y events when pen is n=
+ot in
+>>> prox;
+>>> =A0 =A0 =A0 =A0Report pen data as ABS_X/Y events when there is no f=
+inger touch;
+>>> =A0 =A0 =A0 =A0Report touch data as MT_TOOL_TOUCH and pen data as M=
+T_TOOL_PEN
+>>> events when both pen and touch data are received. No ABS_X/Y are
+>>> reported when pen and tocuh or multi-touch data are received.
+>>>
+>>> I feel this one makes sense to userland since pen can be considered=
+ as
+>>> another touch.
+>>>
+>>> 4. =A0 =A0Report first finger touch as ABS_X/Y events when pen is n=
+ot in
+>>> prox;
+>>> =A0 =A0 =A0 =A0Report pen data as ABS_X/Y events when there is no f=
+inger touch;
+>>> =A0 =A0 =A0 =A0Report touch data as MT_TOOL_TOUCH and pen data as M=
+T_TOOL_PEN
+>>> events when both pen and touch data are received. ABS_X/Y are also
+>>> reported for pen when both pen and tocuh data are received.
+>>
+>> I'd vote for this one. It provides all the data necessary for MT cli=
+ents
+>> (and all the data the device can support) but has a reasonable
+>> single-touch
+>> strategy. Given that wacom tablets are still primarily pen-centric
+>> tablets,
+>> the emphasis on pen overriding touch makes sense to me.
 >
-> Also, if you're going to criticize code for complexity, I would recommend some
-> comments that explain your code beyond "this is a generated table, don't change
-> it".
+> Hi,
+>
+> I'd also vote for this.
+>
+> I don't think that the kernel should make any assumption on the final
+> application. The data are available, so we have to pass them.
+>
+> 1. I read that people worry about sending "false" events (touch) whil=
+e using
+> the pen. But in my mind, this is a _design_ problem of the final
+> application. I think the final application will have to filter these =
+events:
+> for instance, what happens if the user is too lazy to remove his pen =
+(or
+> just want to keep the hover on the application) out of the proximity =
+range
+> and want to move its digital sheet of paper in his (her) design appli=
+cation?
+> The final application will have to choose whether using or not the to=
+uch
+> features (depending on the pressure for instance...).
+>
+> The solution 4. (*technical solution*) addresses the problem of the "=
+false"
+> events for the applications (*design problem*) that are not designed =
+to used
+> multitouch. They will just ignore the touch data.
+> So I think, it's a good start
+>
+>
+> 2. I would also add that multitouch is not only available for trackpa=
+ds:
+> there are also direct devices in absolute coordinate mode. With those
+> device, the touch data can be directed to an other Xclient that is us=
+ed by
+> an other user if the surface is large enough. Currently we only see
+> relatively small surfaces (bamboo, ntrig devices), but in the future,=
+ we can
+> easily imagine a whole table with both pen and touch.
+>
+> And this solve Michal's problem as he will be able to use buttons in =
+the
+> application with the finger.
+>
+> Cheers,
+> Benjamin
+>
+>>
+>>> This one makes sense to userland too. It eases the backward
+>>> compatibility support for those clients that don't support MT at al=
+l.
+>>>
+>>> Which approach do you like? Or do you have other suggestions share?
+>>
 
+I think we may be mixing some topics and so I'd like to try to
+re-frame the discussion.
 
-Hehe, the quote is actually wrong. ;-)
+There are two different cases and they may have different answers
+because of it.
 
-Of course you are right. More documentation is a good thing, and I will add more
-of it. The code does at least refer to the generating program, and the commit
-message tells where that program can be found. To discuss details, here is a
-listing of some of that code:
+Case 1) 1 input device can support multiple tools that are in
+proximity at same time.
 
-/*
- * Combinatorial formulation
- *
- * x_ij = 1 if slot i and contact j are connected, zero otherwise
- *
- * sum_i x_ij <= 1 for all j; each contact picks at most one slot
- *
- * sum_j x_ij <= 1 for all i; each slot is picked by at most one contact
- *
- * sum_ij x_ij == min(nslot, npos); assign every contact possible
- *
- * Arrange x_ij as a bitmask; x_00 x_01 x_02.. x_10 x_11 x_12...
- *
- * Up to five slots, this is readily enumerable.
- */
+I believe this is currently a theoretical example (no driver exists lik=
+e this).
 
-static int illegal(int nslot, int npos, unsigned x)
-{
-	int i, j, sum;
+In RFC example, this input devices has a pen and 2 finger touches.
+They all share ABS_X/Y/PRESSURE values.  The single touch (ST) input
+filtering breaks being able to support this case and what multitouch
+events (MT) were added for.
 
-	for (j = 0; j < npos; j++) {
-		sum = 0;
-		for (i = 0; i < nslot; i++)
-			sum += GETBIT(x, i * npos + j);
-		if (sum > 1)
-			return 1;
-	}
-	for (i = 0; i < nslot; i++) {
-		sum = 0;
-		for (j = 0; j < npos; j++)
-			sum += GETBIT(x, i * npos + j);
-		if (sum > 1)
-			return 1;
-	}
+To date, when converting drivers over to MT events the guideline is
+*always* send MT events (because what app wants to randomly switch
+between MT event processing and ST event processing for same
+X/Y/PRESSURE?) and send something sane for ST events to be backwards
+compatible with older apps.
 
-	sum = bitcount(x);
-	return sum != minval(nslot, npos);
-}
+I think everyone is happy in this thread to always send pen+touch MT
+events and let X drivers or similar filter/arbitrate out unwanted
+touch events as needed.
 
-static int generate_assignments(int nslot, int npos)
-{
-	static int ncol;
-	unsigned x, nx = BITMASK(nslot * npos);
-	int slots[SLOT_MAX];
-	int i, n = 0;
+The ideal "sane" behavior for touch ST events has been leaning towards
+tracking 1st touch and continue sending 1st touch during multi-touch
+but there is some debate because tracking can be expensive in kernel.
+In case of pen+touch, the sane may change to prefer pen over touch and
+prefer first touch when 2 touches exist.
 
-	for (x = 0; x < nx; x++) {
-		if (illegal(nslot, npos, x))
-			continue;
-		for (i = 0; i < nslot * npos; i++) {
-			if (GETBIT(x, i)) {
-				if (ncol++ % 16 == 0)
-					printf("\n\t%d,", i);
-				else
-					printf(" %d,", i);
-				n++;
-			}
-		}
-		get_slots(slots, nslot, npos, x);
-		for (i = 0; i < npos; i++) {
-			if (ncol++ % 16 == 0)
-				printf("\n\t%d,", slots[i]);
-			else
-				printf(" %d,", slots[i]);
-			n++;
-		}
-	}
+Or "sane" can mean let the ST values go crazy during multi-touch and
+hope user can use GUI enough after new kernel install to get a
+MT-aware X driver.
 
-	return n;
-}
+Its easy to implement preferring pen then preferring 1st touch so I
+suggest doing that.  This is for backwards compatibility only
+(un-modified xf86-input-wacom/synaptics/evdev/etc).  The future is MT
+events, in which case the ST events are meaningless and we are hiding
+nothing to applications that look at MT events.
 
-For every (number of used slots, number of current contacts) pair, two
-consecutive arrays of values are generated. The first contains the matrix
-indices corresponding to a certain mapping from contacts to slots. The second
-contains the actual slot assignment.
+Case 2) 2 input devices can support multiple tools in proximity at same=
+ time.
 
-To find the optimal matching, one simply scans through the appropriate index
-array, extracting the slot assignment corresponding to the minimum sum of matrix
-elements. This process is combinatorial and in general scales much worse than
-for instance the hungarian algorithm, but for small numbers, it can be
-implemented with very good speed.
+I believe it was Rafi that brought up point that dual pen+touch
+interfaces will have different properties.  Touch will be lower
+resolution then Pen and maybe different fuzz factor.  Also, on tablets
+I would think pretty easy to have different dimensions (one tool works
+over larger area of tablet).  This is easy to expose to user when 2
+input devices.
 
-Cheers,
-Henrik
+Combining into single input to user would be nice but at least when
+dimensions are different, we probably do not want to remove that
+visibility to user and so must keep 2 input devices.
+
+In this case, the RFC example becomes 2 touches on 1 input device and
+1 pen on another input device.
+
+So using same MT guidelines, the touch input device would always send
+MT events and always send ST events tracking the first touch.
+
+=46or pen input, ST-only events are OK because its not competing with
+anything being in proximity at same time.  But we may wish to also
+send MT events for this 1 tool/slot as a hint to X drivers that
+somehow this input corresponds with another input device and so it
+needs to do filtering/arbitration.  We also need to somehow give info
+to applications so they can bind these 2 inputs.
+
+Also, non-MT ware drivers are also same apps that will not know how to
+bind 2 input devices and so can't filter/arbitrate the unwanted
+touches.  So problem, we do want to filter ST events on touch input
+when pen is in proximity.
+
+There are lots of things needing to be addressed for this 2nd case so
+I'll not really give a personal opinion.  My opinion is likely to
+change as we make individual decisions.
+
+Chris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,112 +1,93 @@
 From: jooaun <jasaw81@gmail.com>
-Subject: [PATCH 2/8] qt2160: configurable key sensitivity
-Date: Tue,  9 Nov 2010 13:15:05 +1100
-Message-ID: <1289268911-32322-2-git-send-email-jasaw81@gmail.com>
+Subject: [PATCH 3/8] qt2160: add PM support
+Date: Tue,  9 Nov 2010 13:15:06 +1100
+Message-ID: <1289268911-32322-3-git-send-email-jasaw81@gmail.com>
 References: <1289268911-32322-1-git-send-email-jasaw81@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-gy0-f174.google.com ([209.85.160.174]:49374 "EHLO
 	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752222Ab0KICPs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Nov 2010 21:15:48 -0500
-Received: by gyh4 with SMTP id 4so3965040gyh.19
-        for <linux-input@vger.kernel.org>; Mon, 08 Nov 2010 18:15:48 -0800 (PST)
+	with ESMTP id S1753818Ab0KICPv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Nov 2010 21:15:51 -0500
+Received: by mail-gy0-f174.google.com with SMTP id 4so3965040gyh.19
+        for <linux-input@vger.kernel.org>; Mon, 08 Nov 2010 18:15:51 -0800 (PST)
 In-Reply-To: <1289268911-32322-1-git-send-email-jasaw81@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, raphaelpereira@gmail.com, jooaun <jasaw81@gmail.com>
 
-Add configurable key sensitivity, disable unused keys.
-Configurable key sensitivity to compensate for different touch sensor circuits.
-Disable unused keys to reduce power consumption.
+Add power management support.
 Signed-off-by: Joo Aun Saw <jasaw81@gmail.com>
-
-Conflicts:
-
-	include/linux/input/qt2160.h
 ---
- drivers/input/keyboard/qt2160.c |   38 ++++++++++++++++++++++++++++++++++++++
- include/linux/input/qt2160.h    |    2 ++
- 2 files changed, 40 insertions(+), 0 deletions(-)
+ drivers/input/keyboard/qt2160.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 34 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
-index 7ec256c..dcd05cd 100755
+index dcd05cd..6439e40 100755
 --- a/drivers/input/keyboard/qt2160.c
 +++ b/drivers/input/keyboard/qt2160.c
-@@ -43,9 +43,26 @@
+@@ -43,6 +43,7 @@
  #define QT2160_CMD_SUBVER     7
  #define QT2160_CMD_CALIBRATE  10
  #define QT2160_CMD_RESET      11
-+#define QT2160_CMD_BURST_REP  13
-+#define QT2160_CMD_NEG_DRIFT  15
-+#define QT2160_CMD_POS_DRIFT  16
-+#define QT2160_CMD_DI_LIMIT   17
-+#define QT2160_CMD_NEG_RECAL  18
-+#define QT2160_CMD_DHTA       19
- #define QT2160_CMD_SLIDE_CTRL 20
- #define QT2160_CMD_SLIDE_OPT  21
- #define QT2160_CMD_KEY0_AKS   22
-+#define QT2160_CMD_KEY0_NEGT  38
-+#define QT2160_CMD_KEY0_BURST 54
-+#define QT2160_CMD_GPIO_DRV1  70
-+#define QT2160_CMD_GPIO_DRV2  71
-+#define QT2160_CMD_GPIO_DIR   73
-+#define QT2160_CMD_GPIO_PWM1  74
-+#define QT2160_CMD_GPIO_PWM2  75
-+#define QT2160_CMD_PWM_LEVEL  76
-+#define QT2160_CMD_GPIO_WAKE  77
-+#define QT2160_CMD_CC_KEYS1   78
-+#define QT2160_CMD_CC_KEYS2   79
++#define QT2160_CMD_LP_MODE    12
+ #define QT2160_CMD_BURST_REP  13
+ #define QT2160_CMD_NEG_DRIFT  15
+ #define QT2160_CMD_POS_DRIFT  16
+@@ -66,6 +67,9 @@
  
  #define QT2160_CYCLE_INTERVAL	(2*HZ)
  
-@@ -297,6 +314,27 @@ static int __devinit qt2160_configure_device(struct i2c_client *client,
- 	}
++#define QT2160_LP_MODE_DEFAULT_VALUE	(1)
++#define QT2160_LP_MODE_SLEEP_VALUE	(0)
++
+ #define QT2160_SLIDE_RESOLUTION	(8)
+ #define QT2160_SLIDE_HYSTERESIS	(10)
+ #define QT2160_SLIDE_MAX_VALUE	(0xFF)
+@@ -529,6 +533,34 @@ static int __devexit qt2160_remove(struct i2c_client *client)
+ 	return 0;
+ }
  
- 	for (i = 0; i < QT2160_MAXKEYS; i++) {
-+		/* setup burst length and disable unused keys */
-+		if (i < pdata->slider_length) {
-+			if (pdata->key_burst_length[i])
-+				error |= i2c_smbus_write_byte_data(
-+						client,
-+						QT2160_CMD_KEY0_BURST + i,
-+						pdata->key_burst_length[i]);
-+		} else {
-+			if (pdata->keycodes[i]) {
-+				if (pdata->key_burst_length[i])
-+					error |= i2c_smbus_write_byte_data(
-+						client,
-+						QT2160_CMD_KEY0_BURST + i,
-+						pdata->key_burst_length[i]);
-+			} else {
-+				error |= i2c_smbus_write_byte_data(
-+						client,
-+						QT2160_CMD_KEY0_BURST + i,
-+						0);
-+			}
-+		}
- 		/* set AKS */
- 		error |= i2c_smbus_write_byte_data(client,
- 						   QT2160_CMD_KEY0_AKS + i,
-diff --git a/include/linux/input/qt2160.h b/include/linux/input/qt2160.h
-index 9d1252e..748c86e 100755
---- a/include/linux/input/qt2160.h
-+++ b/include/linux/input/qt2160.h
-@@ -15,12 +15,14 @@
-  * @key_aks: adjacent key suppression; keys that form a slider must be in the
-  *  same aks group; keys in the same aks group will only report 1 active key at
-  *  any time; value 0 disables aks group; valid aks groups are 1, 2, 3
-+ * @key_burst_length: key sensitivity; 0 use default
-  */
- struct qt2160_info {
- 	unsigned char slider_length;
- 	unsigned int slider_axis;
- 	unsigned short keycodes[QT2160_MAXKEYS];
- 	unsigned char key_aks[QT2160_MAXKEYS];
-+	unsigned char key_burst_length[QT2160_MAXKEYS];
++#ifdef CONFIG_PM
++static int qt2160_suspend(struct i2c_client *client, pm_message_t message)
++{
++	int error;
++
++	error = i2c_smbus_write_byte_data(client, QT2160_CMD_LP_MODE,
++					  QT2160_LP_MODE_SLEEP_VALUE);
++	if (error)
++		dev_err(&client->dev, "could not write power config\n");
++	return error;
++}
++
++static int qt2160_resume(struct i2c_client *client)
++{
++	int error;
++	u8 lp_mode_val = QT2160_LP_MODE_DEFAULT_VALUE;
++
++	error = i2c_smbus_write_byte_data(client, QT2160_CMD_LP_MODE,
++					  lp_mode_val);
++	if (error)
++		dev_err(&client->dev, "could not write power config\n");
++	return error;
++}
++#else
++#define qt2160_suspend NULL
++#define qt2160_resume  NULL
++#endif
++
+ static const struct i2c_device_id qt2160_idtable[] = {
+ 	{ "qt2160", 0, },
+ 	{ }
+@@ -545,6 +577,8 @@ static struct i2c_driver qt2160_driver = {
+ 	.id_table	= qt2160_idtable,
+ 	.probe		= qt2160_probe,
+ 	.remove		= __devexit_p(qt2160_remove),
++	.suspend	= qt2160_suspend,
++	.resume		= qt2160_resume,
  };
  
- #endif /* __QT2160_H__ */
+ static int __init qt2160_init(void)
 -- 
 1.7.0.4
 

@@ -1,68 +1,106 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Tue, 9 Nov 2010 10:28:51 -0600
-Message-ID: <AANLkTi=rxkJcmp8WLKCRnxqNd_1QBT4W_2YJNJBcsHzF@mail.gmail.com>
-References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
-	<20101108035121.GA4630@barra.bne.redhat.com>
-	<4CD7B012.1030809@cena.fr>
-	<AANLkTike6Ny26fV3691-3vgM7kTi5RRRWjDB4_BukPqd@mail.gmail.com>
-	<20101109033149.GC19313@barra.redhat.com>
-	<20101109065933.GA13921@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] input: bcm5974: Add support for MacBookAir3
+Date: Tue,  9 Nov 2010 17:38:42 +0100
+Message-ID: <1289320722-1948-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:36760 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752037Ab0KIQ2w (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Nov 2010 11:28:52 -0500
-Received: by gyh4 with SMTP id 4so4425503gyh.19
-        for <linux-input@vger.kernel.org>; Tue, 09 Nov 2010 08:28:52 -0800 (PST)
-In-Reply-To: <20101109065933.GA13921@core.coreip.homeip.net>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:60089 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752826Ab0KIQjr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Nov 2010 11:39:47 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Ping Cheng <pinglinux@gmail.com>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Edgar (gimli) Hucek" <gimli@dark-green.com>, stable@kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Tue, Nov 9, 2010 at 12:59 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Nov 09, 2010 at 01:31:49PM +1000, Peter Hutterer wrote:
->>
->> That said, it also goes counter the whole multi-touch approach - allowing
->> more than one device on a single physical device.
->>
->
-> So maybe we should teach wacom to handle all devices as a single input device even
-> in cases when they use several USB interfaces? We should be able to
-> detect related interfaces by examining intf->intf_assoc (I hope) and
-> using usb_driver_claim_interface() to claim them.
+From: Edgar (gimli) Hucek <gimli@dark-green.com>
 
-Thanks for tips.  I may try it just to prove its possible.
+This patch adds support for the MacBookAir3,1 and MacBookAir3,2
+models.
 
-Here is extra info on resolution/dimension issue to also solve when
-combining.  Taken from current logic on touch input of Wacom Bamboo:
+[rydberg@euromail.se: touchpad range calibration]
+Cc: stable@kernel.org
+Signed-off-by: Edgar (gimli) Hucek <gimli@dark-green.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Hi Dmitry, Jiri,
 
-input_mt_create_slots(input_dev, 2);
-input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, features->x_max,
-features->x_fuzz, 0);
+This patch was seen on lkml last week, and has now been excercised by
+a larger set of users. As usual, this patch should go before or
+together with the HID changes, so as not to break basic support from
+the non-MT HID driver.
 
-Combining 2 inputs means MT slots increases from 2 to 3 (2 touches and
-1 stylus).
+Cheers,
+Henrik
 
-Today, Pen has x_max=17420, x_fuzz=4 and resolution of 2540.  Also
-today, Touch has x_max=15360, x_fuzz=128 and resolution=dunno (we are
-scaling up touch x_max in driver and I haven't calculated its affects
-on resolution).
+ drivers/input/mouse/bcm5974.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 40 insertions(+), 0 deletions(-)
 
-I believe that a normalized value of x_max would show that there is a
-greater area of tablet can be used for touch then pen.
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index b952317..ee82851 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -55,6 +55,14 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
++/* MacbookAir3,2 (unibody), aka wellspring5 */
++#define USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI	0x023f
++#define USB_DEVICE_ID_APPLE_WELLSPRING4_ISO	0x0240
++#define USB_DEVICE_ID_APPLE_WELLSPRING4_JIS	0x0241
++/* MacbookAir3,1 (unibody), aka wellspring4 */
++#define USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI	0x0242
++#define USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO	0x0243
++#define USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS	0x0244
+ 
+ #define BCM5974_DEVICE(prod) {					\
+ 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
+@@ -80,6 +88,14 @@ static const struct usb_device_id bcm5974_table[] = {
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
++	/* MacbookAir3,2 */
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4_ISO),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4_JIS),
++	/* MacbookAir3,1 */
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS),
+ 	/* Terminating entry */
+ 	{}
+ };
+@@ -234,6 +250,30 @@ static const struct bcm5974_config bcm5974_config_table[] = {
+ 		{ DIM_X, DIM_X / SN_COORD, -4460, 5166 },
+ 		{ DIM_Y, DIM_Y / SN_COORD, -75, 6700 }
+ 	},
++	{
++		USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI,
++		USB_DEVICE_ID_APPLE_WELLSPRING4_ISO,
++		USB_DEVICE_ID_APPLE_WELLSPRING4_JIS,
++		HAS_INTEGRATED_BUTTON,
++		0x84, sizeof(struct bt_data),
++		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
++		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
++		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
++		{ DIM_X, DIM_X / SN_COORD, -4620, 5140 },
++		{ DIM_Y, DIM_Y / SN_COORD, -150, 6600 }
++	},
++	{
++		USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI,
++		USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO,
++		USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS,
++		HAS_INTEGRATED_BUTTON,
++		0x84, sizeof(struct bt_data),
++		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
++		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
++		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
++		{ DIM_X, DIM_X / SN_COORD, -4616, 5112 },
++		{ DIM_Y, DIM_Y / SN_COORD, -142, 5234 }
++	},
+ 	{}
+ };
+ 
+-- 
+1.7.1
 
-To handle this difference, we can scale reported values in driver such
-that x_max=x_max for all slots.  I'm not clear on fuzz logic so don't
-know what 4 vs 128 does.
-
-Or we can maybe update MT interface so you can have per slot values
-for clients to query (or MT logic automatically scales for driver as
-another option).  Then slots 0-1 are reserved for touch and slot 3 is
-reserved for pen.
-
-Chris

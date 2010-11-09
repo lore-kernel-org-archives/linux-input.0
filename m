@@ -1,124 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RFC] serio HIL MLC: don't deref null, don't leak and
- return proper error
-Date: Mon, 8 Nov 2010 22:35:20 -0800
-Message-ID: <20101109063520.GA10502@core.coreip.homeip.net>
-References: <alpine.LNX.2.00.1011072024100.26247@swampdragon.chaosbits.net>
+Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Mon, 8 Nov 2010 22:59:33 -0800
+Message-ID: <20101109065933.GA13921@core.coreip.homeip.net>
+References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+ <20101108035121.GA4630@barra.bne.redhat.com>
+ <4CD7B012.1030809@cena.fr>
+ <AANLkTike6Ny26fV3691-3vgM7kTi5RRRWjDB4_BukPqd@mail.gmail.com>
+ <20101109033149.GC19313@barra.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:43716 "EHLO
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:63942 "EHLO
 	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752662Ab0KIGf3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Nov 2010 01:35:29 -0500
+	with ESMTP id S1751204Ab0KIG7l (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Nov 2010 01:59:41 -0500
+Received: by gyh4 with SMTP id 4so4054678gyh.19
+        for <linux-input@vger.kernel.org>; Mon, 08 Nov 2010 22:59:41 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1011072024100.26247@swampdragon.chaosbits.net>
+In-Reply-To: <20101109033149.GC19313@barra.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jesper Juhl <jj@chaosbits.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, =?iso-8859-1?Q?Andr=E9?= Goddard Rosa <andre.goddard@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Helge Deller <deller@gmx.de>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Benjamin Tissoires <tissoire@cena.fr>, Ping Cheng <pinglinux@gmail.com>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On Sun, Nov 07, 2010 at 08:36:33PM +0100, Jesper Juhl wrote:
-> Hi,
+On Tue, Nov 09, 2010 at 01:31:49PM +1000, Peter Hutterer wrote:
 > 
-> While reviewing various users of kernel memory allocation functions I came 
-> across drivers/input/serio/hil_mlc.c::hil_mlc_register() and noticed that
->  - it calls kzalloc() buf fails to check for a NULL return before use.
->  - it makes several allocations and if one fails it doesn't free the 
->    previous ones.
->  - It doesn't return -ENOMEM in the failed memory allocation case (it just 
->    crashes).
-> This patch corrects all of the above and also reworks the only caller of 
-> this function that I could find 
-> (drivers/input/serio/hp_sdc_mlc.c::hp_sdc_mlc_out()) so that it now checks 
-> the return value of hil_mlc_register() and properly propagate it on 
-> failure and I also restructured the code to remove some labels and goto's 
-> to make it, IMHO nicer to read.
+> That said, it also goes counter the whole multi-touch approach - allowing
+> more than one device on a single physical device.
 > 
-> I have no hardware to test, so please review carefully and let me know if 
-> I've done something completely stupid. Please don't merge this RFC patch 
-> unless at least one or more people who know this code and can actually 
-> test it have ACK'ed it.
 
-I think Helge Deller (CCed) used to have access to such hardware...
-
-> 
-> Ohh and please do CC me on replies.
-> 
-> 
-> Signed-off-by: Jesper Juhl <jj@chaosbits.net>
-> ---
->  hil_mlc.c    |    5 +++++
->  hp_sdc_mlc.c |   18 +++++++++---------
->  2 files changed, 14 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-> index e5624d8..bfd3865 100644
-> --- a/drivers/input/serio/hil_mlc.c
-> +++ b/drivers/input/serio/hil_mlc.c
-> @@ -932,6 +932,11 @@ int hil_mlc_register(hil_mlc *mlc)
->  		hil_mlc_copy_di_scratch(mlc, i);
->  		mlc_serio = kzalloc(sizeof(*mlc_serio), GFP_KERNEL);
->  		mlc->serio[i] = mlc_serio;
-> +		if (!mlc->serio[i]) {
-> +			for (; i >= 0; i--)
-> +				kfree(mlc->serio[i]);
-> +			return -ENOMEM;
-> +		}
->  		snprintf(mlc_serio->name, sizeof(mlc_serio->name)-1, "HIL_SERIO%d", i);
->  		snprintf(mlc_serio->phys, sizeof(mlc_serio->phys)-1, "HIL%d", i);
->  		mlc_serio->id			= hil_mlc_serio_id;
-> diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
-> index 7d2b820..d50f067 100644
-> --- a/drivers/input/serio/hp_sdc_mlc.c
-> +++ b/drivers/input/serio/hp_sdc_mlc.c
-> @@ -305,6 +305,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
->  static int __init hp_sdc_mlc_init(void)
->  {
->  	hil_mlc *mlc = &hp_sdc_mlc;
-> +	int err;
->  
->  #ifdef __mc68000__
->  	if (!MACH_IS_HP300)
-> @@ -323,22 +324,21 @@ static int __init hp_sdc_mlc_init(void)
->  	mlc->out = &hp_sdc_mlc_out;
->  	mlc->priv = &hp_sdc_mlc_priv;
->  
-> -	if (hil_mlc_register(mlc)) {
-> +	err = hil_mlc_register(mlc);
-> +	if (err) {
->  		printk(KERN_WARNING PREFIX "Failed to register MLC structure with hil_mlc\n");
-> -		goto err0;
-> +		return err;
->  	}
->  
->  	if (hp_sdc_request_hil_irq(&hp_sdc_mlc_isr)) {
->  		printk(KERN_WARNING PREFIX "Request for raw HIL ISR hook denied\n");
-> -		goto err1;
-> +		if (hil_mlc_unregister(mlc))
-> +			printk(KERN_ERR PREFIX "Failed to unregister MLC structure with hil_mlc.\n"
-> +				"This is bad.  Could cause an oops.\n");
-> +		return -EBUSY;
->  	}
-> +
->  	return 0;
-> - err1:
-> -	if (hil_mlc_unregister(mlc))
-> -		printk(KERN_ERR PREFIX "Failed to unregister MLC structure with hil_mlc.\n"
-> -			"This is bad.  Could cause an oops.\n");
-> - err0:
-> -	return -EBUSY;
->  }
->  
->  static void __exit hp_sdc_mlc_exit(void)
-> 
-> 
-> 
-> -- 
-> Jesper Juhl <jj@chaosbits.net>             http://www.chaosbits.net/
-> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-> Plain text mails only, please.
-> 
+So maybe we should teach wacom to handle all devices as a single input device even
+in cases when they use several USB interfaces? We should be able to
+detect related interfaces by examining intf->intf_assoc (I hope) and
+using usb_driver_claim_interface() to claim them.
 
 -- 
 Dmitry

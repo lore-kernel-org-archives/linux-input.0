@@ -1,57 +1,69 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: ir-core and default IR maps
-Date: Tue, 09 Nov 2010 08:21:34 -0200
-Message-ID: <4CD920AE.8090406@redhat.com>
-References: <AANLkTikfeu4DnV8E7rKahUdu2k_d08BOFZjLzBMRA2o+@mail.gmail.com> <20101107060147.GC3823@core.coreip.homeip.net> <AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com> <4CD7F6A7.8040206@redhat.com> <AANLkTinc_SuTrP6E8aoyXxGKEQwu=QRieRPt3z4b6Xn_@mail.gmail.com> <AANLkTimPKkvdWWTPoWGCRmp-biwup1dEQpaKYEk8t9ED@mail.gmail.com> <4CD805D8.2000808@redhat.com> <20101109063242.GA10496@core.coreip.homeip.net>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] Input: Add keycodes for touchpad on/off keys
+Date: Tue, 09 Nov 2010 11:13:51 +0000
+Message-ID: <1289301231.13239.3.camel@novo.hadess.net>
+References: <1289220130.5418.109.camel@novo.hadess.net>
+	 <20101109073953.GA14177@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35529 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755025Ab0KIKVq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Nov 2010 05:21:46 -0500
-In-Reply-To: <20101109063242.GA10496@core.coreip.homeip.net>
+Received: from relay1-v.mail.gandi.net ([217.70.178.75]:42236 "EHLO
+	relay1-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751682Ab0KILN5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Nov 2010 06:13:57 -0500
+In-Reply-To: <20101109073953.GA14177@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "jonsmirl@gmail.com" <jonsmirl@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jarod Wilson <jarod@redhat.com>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-Em 09-11-2010 04:32, Dmitry Torokhov escreveu:
-> On Mon, Nov 08, 2010 at 12:14:48PM -0200, Mauro Carvalho Chehab wrote:
->> Em 08-11-2010 11:41, jonsmirl@gmail.com escreveu:
->>> On Mon, Nov 8, 2010 at 8:34 AM, jonsmirl@gmail.com <jonsmirl@gmail.com> wrote:
->>>> To achieve plug and play at least one of four choices has to happen:
->>>
->>> There is another option, the IR maps get integrated into user space
->>> keyboard mapping package. This may be possible with the new
->>> libxkbcommon package.
->>
->> That seems interesting.
->>
+On Mon, 2010-11-08 at 23:39 -0800, Dmitry Torokhov wrote:
+> On Mon, Nov 08, 2010 at 12:42:10PM +0000, Bastien Nocera wrote:
+> > Some laptops will have a "touchpad toggle" soft button, which
+> > expects user-space to turn off the touchpad themselves, some
+> > other devices will do this in hardware, but send key events telling
+> > us that the touchpad has been turned off/on.
+> > 
+> > KEY_TOUCHPAD_ON/KEY_TOUCHPAD_OFF will be used by user-space to
+> > show a popup with the status of the touchpad.
+> > 
+> > Signed-Off-By: Bastien Nocera <hadess@hadess.net>
+> > ---
+> >  include/linux/input.h |    4 ++++
+> >  1 files changed, 4 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/include/linux/input.h b/include/linux/input.h
+> > index 896a922..46dca75 100644
+> > --- a/include/linux/input.h
+> > +++ b/include/linux/input.h
+> > @@ -545,6 +545,10 @@ struct input_absinfo {
+> >  #define KEY_CONTEXT_MENU	0x1b6	/* GenDesc - system context menu */
+> >  #define KEY_MEDIA_REPEAT	0x1b7	/* Consumer - transport control */
+> >  
+> > +#define KEY_TOUCHPAD_TOGGLE	0x1b8	/* Ask user-space to switch the touchpad off */
 > 
-> I disagree here. libxkbcommon provides X interface while applications
-> might want to access evdev nodes directly. 
+> Just off or is it true toggle?
 
-Let me express better: I don't think we should integrate X with the udev tool, 
-but, eventually, we could make some X package dependent of v4l-utils. Not sure
-if libxkbdcommon is the better way to do it, as I don't have it installed here
-on my machines.
+It's a toggle.
 
-> If anything, parts of
-> ir-utils dealing with keymap selection should be moved into udev. Maybe
-> we should split utilities that select protocol from the keymap setting
-> and use udev keymap utilities to do the task.
+> > +#define KEY_TOUCHPAD_ON		0x1b9	/* Tell user-space touchpad is now on */
+> > +#define KEY_TOUCHPAD_OFF	0x1ba	/* As above but off */
+> 
+> I do not like the idea that keycodes are limited to signalling the
+> state. Either they can also request the transition to given state or we
+> need to find some other way to communicate the state.
 
-It doesn't make sense to split keymap and protocol selection. Just loading a
-keyboard table but not changing the IR protocol is useless, as the device will
-not be selected. Besides that, the tool that do both is really simple (and, btw,
-it also allows changing the map for a non-RC device, by using one parameter that
-skips the usage of the sysfs nodes at /sys/class/rc):
+The transition is done completely in hardware, so there's no state
+whatsoever on the software side, just notifications that something
+happened.
 
-# ir-keytable -d /dev/input/event4 -r
-scancode 0x0000 = KEY_LEFTCTRL (0x1d)
-Enabled protocols: 
+This is similar to what some hardware does with mixer settings, still
+sending events about the hardware being muted, or the volume having
+changed when they handle the mixer events in hardware (at least some
+Thinkpads and HP laptops do that).
 
-Cheers,
-Mauro
+I don't see how we can export this information in any other way...
+
+Cheers
+

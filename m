@@ -1,106 +1,60 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: bcm5974: Add support for MacBookAir3
-Date: Tue,  9 Nov 2010 17:38:42 +0100
-Message-ID: <1289320722-1948-1-git-send-email-rydberg@euromail.se>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Tue, 9 Nov 2010 10:10:21 -0800
+Message-ID: <AANLkTik9-kqGzEDw5hfahi9mmWq+=zyV4OOek60Fm9sW@mail.gmail.com>
+References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+	<20101108035121.GA4630@barra.bne.redhat.com>
+	<4CD7B012.1030809@cena.fr>
+	<AANLkTike6Ny26fV3691-3vgM7kTi5RRRWjDB4_BukPqd@mail.gmail.com>
+	<20101109033149.GC19313@barra.redhat.com>
+	<20101109065933.GA13921@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:60089 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752826Ab0KIQjr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Nov 2010 11:39:47 -0500
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:56414 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752508Ab0KISKW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Nov 2010 13:10:22 -0500
+Received: by gwj21 with SMTP id 21so4494934gwj.19
+        for <linux-input@vger.kernel.org>; Tue, 09 Nov 2010 10:10:22 -0800 (PST)
+In-Reply-To: <20101109065933.GA13921@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Edgar (gimli) Hucek" <gimli@dark-green.com>, stable@kernel.org, Henrik Rydberg <rydberg@euromail.se>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-From: Edgar (gimli) Hucek <gimli@dark-green.com>
+On Mon, Nov 8, 2010 at 10:59 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Nov 09, 2010 at 01:31:49PM +1000, Peter Hutterer wrote:
+>>
+>> That said, it also goes counter the whole multi-touch approach - allowing
+>> more than one device on a single physical device.
+>
+> So maybe we should teach wacom to handle all devices as a single input device even
+> in cases when they use several USB interfaces?
 
-This patch adds support for the MacBookAir3,1 and MacBookAir3,2
-models.
+Hehe, we got you talking again. I need to understand if the lessons
+are for hardware/firmware or driver engineers ;).
 
-[rydberg@euromail.se: touchpad range calibration]
-Cc: stable@kernel.org
-Signed-off-by: Edgar (gimli) Hucek <gimli@dark-green.com>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Hi Dmitry, Jiri,
+> We should be able to detect related interfaces by examining intf->intf_assoc (I hope) and
+> using usb_driver_claim_interface() to claim them.
 
-This patch was seen on lkml last week, and has now been excercised by
-a larger set of users. As usual, this patch should go before or
-together with the HID changes, so as not to break basic support from
-the non-MT HID driver.
+I guess you mean we do this in the kernel driver.
 
-Cheers,
-Henrik
+Providing more than one type of HID devices from one physical device
+is not Wacom specific. Standalone keyboard with touchpad has the same
+feature/issue. When I plug an USB keyboard (whcih has a touchpad) on a
+Linux system, I see two input ports (/dev/input/input9 and
+/dev/input/event10) displayed. So, unless we only show one logical
+port for the same device (no matter how many types of devices it
+supports), userland clients would not be able to get the data from the
+same port. That is what we get from the Linux kernel, right?
 
- drivers/input/mouse/bcm5974.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+), 0 deletions(-)
+HID specification does not exclude one physical device supporting more
+than one type of HID devices. So, it is a question of how we represent
+the device to the userland on Linux (Windows and Mac have their own
+ways). To me, both one or two logical posts have pros and cons.
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index b952317..ee82851 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -55,6 +55,14 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
- #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
- #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
-+/* MacbookAir3,2 (unibody), aka wellspring5 */
-+#define USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI	0x023f
-+#define USB_DEVICE_ID_APPLE_WELLSPRING4_ISO	0x0240
-+#define USB_DEVICE_ID_APPLE_WELLSPRING4_JIS	0x0241
-+/* MacbookAir3,1 (unibody), aka wellspring4 */
-+#define USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI	0x0242
-+#define USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO	0x0243
-+#define USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS	0x0244
- 
- #define BCM5974_DEVICE(prod) {					\
- 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
-@@ -80,6 +88,14 @@ static const struct usb_device_id bcm5974_table[] = {
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
-+	/* MacbookAir3,2 */
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4_ISO),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4_JIS),
-+	/* MacbookAir3,1 */
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS),
- 	/* Terminating entry */
- 	{}
- };
-@@ -234,6 +250,30 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		{ DIM_X, DIM_X / SN_COORD, -4460, 5166 },
- 		{ DIM_Y, DIM_Y / SN_COORD, -75, 6700 }
- 	},
-+	{
-+		USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI,
-+		USB_DEVICE_ID_APPLE_WELLSPRING4_ISO,
-+		USB_DEVICE_ID_APPLE_WELLSPRING4_JIS,
-+		HAS_INTEGRATED_BUTTON,
-+		0x84, sizeof(struct bt_data),
-+		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
-+		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
-+		{ DIM_X, DIM_X / SN_COORD, -4620, 5140 },
-+		{ DIM_Y, DIM_Y / SN_COORD, -150, 6600 }
-+	},
-+	{
-+		USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI,
-+		USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO,
-+		USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS,
-+		HAS_INTEGRATED_BUTTON,
-+		0x84, sizeof(struct bt_data),
-+		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
-+		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
-+		{ DIM_X, DIM_X / SN_COORD, -4616, 5112 },
-+		{ DIM_Y, DIM_Y / SN_COORD, -142, 5234 }
-+	},
- 	{}
- };
- 
--- 
-1.7.1
+Sorry to talk before listening. I am all ears now ;).
 
+Ping

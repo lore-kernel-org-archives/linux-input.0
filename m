@@ -1,70 +1,59 @@
-From: "jonsmirl@gmail.com" <jonsmirl@gmail.com>
-Subject: Re: ir-core and default IR maps
-Date: Tue, 9 Nov 2010 07:07:52 -0500
-Message-ID: <AANLkTinXFGt7CZDQwMzk51d_1JsqJ5H1zgebgUzoZzPQ@mail.gmail.com>
-References: <AANLkTikfeu4DnV8E7rKahUdu2k_d08BOFZjLzBMRA2o+@mail.gmail.com>
-	<20101107060147.GC3823@core.coreip.homeip.net>
-	<AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com>
-	<4CD7F6A7.8040206@redhat.com>
-	<AANLkTinc_SuTrP6E8aoyXxGKEQwu=QRieRPt3z4b6Xn_@mail.gmail.com>
-	<AANLkTimPKkvdWWTPoWGCRmp-biwup1dEQpaKYEk8t9ED@mail.gmail.com>
-	<4CD805D8.2000808@redhat.com>
-	<20101109063242.GA10496@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Marek Belisko <marek.belisko@gmail.com>
+Subject: [PATCH] input: touchscreen: s3c2410: Add ABS_PRESSURE event sending.
+Date: Tue,  9 Nov 2010 14:00:16 +0100
+Message-ID: <1289307616-10336-1-git-send-email-marek.belisko@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:40691 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754810Ab0KIMHw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Nov 2010 07:07:52 -0500
-Received: by pzk28 with SMTP id 28so1236896pzk.19
-        for <linux-input@vger.kernel.org>; Tue, 09 Nov 2010 04:07:52 -0800 (PST)
-In-Reply-To: <20101109063242.GA10496@core.coreip.homeip.net>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:60582 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751221Ab0KIM6L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Nov 2010 07:58:11 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jarod Wilson <jarod@redhat.com>
+To: Vincent Sanders <support@simtec.co.uk>
+Cc: Marek Belisko <marek.belisko@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Nov 9, 2010 at 1:32 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Nov 08, 2010 at 12:14:48PM -0200, Mauro Carvalho Chehab wrote:
->> Em 08-11-2010 11:41, jonsmirl@gmail.com escreveu:
->> > On Mon, Nov 8, 2010 at 8:34 AM, jonsmirl@gmail.com <jonsmirl@gmail.com> wrote:
->> >> To achieve plug and play at least one of four choices has to happen:
->> >
->> > There is another option, the IR maps get integrated into user space
->> > keyboard mapping package. This may be possible with the new
->> > libxkbcommon package.
->>
->> That seems interesting.
->>
->
-> I disagree here. libxkbcommon provides X interface while applications
+This patch add sending of event ABS_PRESSURE for
+s3c24xx touchscreen.
 
-You are assuming that libxkbcommon stays X specific. I'm pushing to
-turn it into a generic keymapping solution. Wayland sure doesn't want
-to inherit all of the baggage of X keymaps. This is also an
-opportunity to address internationalization at the console level. This
-is an opportunity to clean up the whole key mapping mess in user
-space.
+Signed-off-by: Marek Belisko <marek.belisko@gmail.com>
+---
+ drivers/input/touchscreen/s3c2410_ts.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-Writing a generic keymapping library is a good project if someone is
-looking for something to do. It's not too complicated since you can
-use libxkbcommon as guidance.
-
-> might want to access evdev nodes directly. If anything, parts of
-> ir-utils dealing with keymap selection should be moved into udev. Maybe
-> we should split utilities that select protocol from the keymap setting
-> and use udev keymap utilities to do the task.
->
-> Thanks.
->
-> --
-> Dmitry
->
-
-
-
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index 8feb7f3..a937105 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -126,6 +126,7 @@ static void touch_timer_fire(unsigned long data)
+ 			input_report_abs(ts.input, ABS_Y, ts.yp);
+ 
+ 			input_report_key(ts.input, BTN_TOUCH, 1);
++			input_report_abs(ts.input, ABS_PRESSURE, 1);
+ 			input_sync(ts.input);
+ 
+ 			ts.xp = 0;
+@@ -140,6 +141,7 @@ static void touch_timer_fire(unsigned long data)
+ 		ts.count = 0;
+ 
+ 		input_report_key(ts.input, BTN_TOUCH, 0);
++		input_report_abs(ts.input, ABS_PRESSURE, 0);
+ 		input_sync(ts.input);
+ 
+ 		writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+@@ -314,10 +316,12 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	ts.input = input_dev;
+-	ts.input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	ts.input->evbit[0] = BIT_MASK(EV_SYN) | BIT_MASK(EV_KEY) |
++				BIT_MASK(EV_ABS);
+ 	ts.input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+ 	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
+ 	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
++	input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
+ 
+ 	ts.input->name = "S3C24XX TouchScreen";
+ 	ts.input->id.bustype = BUS_HOST;
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+1.7.1
+

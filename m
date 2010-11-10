@@ -1,70 +1,69 @@
 From: Trilok Soni <tsoni@codeaurora.org>
-Subject: [RFC v1 PATCH 6/6] drivers: rtc: Add support for Qualcomm PMIC8058 RTC
-Date: Wed, 10 Nov 2010 18:18:01 +0530
-Message-ID: <1289393281-4459-7-git-send-email-tsoni@codeaurora.org>
+Subject: [RFC v1 PATCH 3/6] led: pmic8058: Add PMIC8058 leds driver
+Date: Wed, 10 Nov 2010 18:17:58 +0530
+Message-ID: <1289393281-4459-4-git-send-email-tsoni@codeaurora.org>
 References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>
+Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>, Richard Purdie <rpurdie@rpsys.net>
 List-Id: linux-input@vger.kernel.org
 
-From: Anirudh Ghayal <aghayal@codeaurora.org>
+Add support for Qualcomm PMIC8058 keyboard
+backlight, flash and low current leds.
 
-PMIC8058 is Qualcomm's power management IC. A
-32-bit RTC is housed inside this PMIC. The RTC driver
-uses SSBI to communicate with the RTC module.
-
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
 ---
- drivers/rtc/Kconfig            |    9 +
- drivers/rtc/Makefile           |    1 +
- drivers/rtc/rtc-pm8058.c       |  487 ++++++++++++++++++++++++++++++++++++++++
- include/linux/rtc/rtc-pm8058.h |   29 +++
- 4 files changed, 526 insertions(+), 0 deletions(-)
- create mode 100644 drivers/rtc/rtc-pm8058.c
- create mode 100644 include/linux/rtc/rtc-pm8058.h
+ drivers/leds/Kconfig          |   11 +
+ drivers/leds/Makefile         |    1 +
+ drivers/leds/leds-pmic8058.c  |  405 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/leds-pmic8058.h |   63 +++++++
+ 4 files changed, 480 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/leds/leds-pmic8058.c
+ create mode 100644 include/linux/leds-pmic8058.h
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 2883428..9f4ea00 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -665,6 +665,15 @@ config RTC_DRV_NUC900
- 	  If you say yes here you get support for the RTC subsystem of the
- 	  NUC910/NUC920 used in embedded systems.
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index cc2a88d..e1ebcad 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -214,6 +214,17 @@ config LEDS_PCA955X
+ 	  LED driver chips accessed via the I2C bus.  Supported
+ 	  devices include PCA9550, PCA9551, PCA9552, and PCA9553.
  
-+config RTC_DRV_PM8058
-+	tristate "Qualcomm PMIC8058 RTC"
++config LEDS_PMIC8058
++	tristate "LED Support for Qualcomm PMIC8058"
 +	depends on PMIC8058
 +	help
-+	  Say Y here if you want to support the Qualcomm PMIC8058 RTC.
++	  This option enables support for LEDs connected over PMIC8058
++	  (Power Management IC) chip on Qualcomm reference boards,
++	  for example SURF and FFAs.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called pmic8058-rtc.
++	  To compile this driver as a module, choose M here: the module will
++	  be called leds-pmic8058.
 +
- comment "on-CPU RTC drivers"
- 
- config RTC_DRV_DAVINCI
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 4c2832d..d7a4f7d 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -73,6 +73,7 @@ obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
- obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
- obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
- obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
-+obj-$(CONFIG_RTC_DRV_PM8058)	+= rtc-pm8058.o
- obj-$(CONFIG_RTC_DRV_PL030)	+= rtc-pl030.o
- obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
- obj-$(CONFIG_RTC_DRV_PS3)	+= rtc-ps3.o
-diff --git a/drivers/rtc/rtc-pm8058.c b/drivers/rtc/rtc-pm8058.c
+ config LEDS_WM831X_STATUS
+ 	tristate "LED support for status LEDs on WM831x PMICs"
+ 	depends on MFD_WM831X
+diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+index 9c96db4..6c51883 100644
+--- a/drivers/leds/Makefile
++++ b/drivers/leds/Makefile
+@@ -21,6 +21,7 @@ obj-$(CONFIG_LEDS_COBALT_QUBE)		+= leds-cobalt-qube.o
+ obj-$(CONFIG_LEDS_COBALT_RAQ)		+= leds-cobalt-raq.o
+ obj-$(CONFIG_LEDS_SUNFIRE)		+= leds-sunfire.o
+ obj-$(CONFIG_LEDS_PCA9532)		+= leds-pca9532.o
++obj-$(CONFIG_LEDS_PMIC8058)		+= leds-pmic8058.o
+ obj-$(CONFIG_LEDS_GPIO)			+= leds-gpio.o
+ obj-$(CONFIG_LEDS_LP3944)		+= leds-lp3944.o
+ obj-$(CONFIG_LEDS_CLEVO_MAIL)		+= leds-clevo-mail.o
+diff --git a/drivers/leds/leds-pmic8058.c b/drivers/leds/leds-pmic8058.c
 new file mode 100644
-index 0000000..9fef82d
+index 0000000..2933eb0
 --- /dev/null
-+++ b/drivers/rtc/rtc-pm8058.c
-@@ -0,0 +1,487 @@
++++ b/drivers/leds/leds-pmic8058.c
+@@ -0,0 +1,405 @@
 +/* Copyright (c) 2010, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -81,483 +80,401 @@ index 0000000..9fef82d
 + * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 + * 02110-1301, USA.
 + */
-+
-+#define pr_fmt(fmt) "%s: " fmt, __func__
-+
-+#include <linux/module.h>
++#include <linux/kernel.h>
 +#include <linux/init.h>
-+#include <linux/rtc.h>
-+#include <linux/mfd/pmic8058.h>
-+#include <linux/pm.h>
 +#include <linux/slab.h>
-+#include <linux/rtc/rtc-pm8058.h>
++#include <linux/platform_device.h>
++#include <linux/leds.h>
++#include <linux/workqueue.h>
++#include <linux/spinlock.h>
++#include <linux/mfd/pmic8058.h>
++#include <linux/leds-pmic8058.h>
 +
-+/* RTC control registers */
-+#define PM8058_RTC_CTRL		0x1E8
-+#define PM8058_RTC_ALARM_CTRL	0x1E9
-+#define PM8058_RTC_TEST		0x1F6
++#define SSBI_REG_ADDR_DRV_KEYPAD	0x48
++#define PM8058_DRV_KEYPAD_BL_MASK	0xf0
++#define PM8058_DRV_KEYPAD_BL_SHIFT	0x04
 +
-+/* RTC register bases */
-+#define PM8058_RTC_READ_BASE	0x1EE
-+#define PM8058_RTC_WRITE_BASE	0x1EA
-+#define PM8058_RTC_ALARM_BASE	0x1F2
++#define SSBI_REG_ADDR_FLASH_DRV0        0x49
++#define PM8058_DRV_FLASH_MASK           0xf0
++#define PM8058_DRV_FLASH_SHIFT          0x04
 +
-+/* RTC_CTRL register bit fields */
-+#define PM8058_RTC_ENABLE	BIT(7)
-+#define PM8058_RTC_ALARM_ENABLE	BIT(1)
++#define SSBI_REG_ADDR_FLASH_DRV1        0xFB
 +
-+#define NUM_8_BIT_RTC_REGS	0x4
++#define SSBI_REG_ADDR_LED_CTRL_BASE	0x131
++#define SSBI_REG_ADDR_LED_CTRL(n)	(SSBI_REG_ADDR_LED_CTRL_BASE + (n))
++#define PM8058_DRV_LED_CTRL_MASK	0xf8
++#define PM8058_DRV_LED_CTRL_SHIFT	0x03
++
++#define MAX_FLASH_LED_CURRENT	300
++#define MAX_LC_LED_CURRENT	40
++#define MAX_KP_BL_LED_CURRENT	300
++
++#define MAX_KEYPAD_BL_LEVEL	(1 << 4)
++#define MAX_LED_DRV_LEVEL	20 /* 2 * 20 mA */
++
++#define PMIC8058_LED_OFFSET(id) ((id) - PMIC8058_ID_LED_0)
++
++#define PMIC8058_MAX_LEDS	7
 +
 +/**
-+ * struct pm8058_rtc - rtc driver internal structure
-+ * @rtc0 - rtc device for this driver
-+ * @rtc_irq - rtc irq number
-+ * @rtc_alarm_irq - rtc alarm irq number
-+ * @pm_chip - pointer to pm8058 parent structure
++ * struct pmic8058_led_data - internal led data structure
++ * @led_classdev - led class device
++ * @id	- led index
++ * @led_brightness - led brightness levels
++ * @pm_chip - parent MFD core device
++ * @work - workqueue for led
++ * @lock - to protect the transactions
++ * @value_lock - to protect the register value writes
++ * @reg_kp - cached value of keypad led backlight register
++ * @reg_led_ctrl - cached values of low-current led registers
++ * @reg_flash_led0 - cached value of first flash led control register
++ * @reg_flash_led1 - cached value of second flash led control register
 + */
-+struct pm8058_rtc {
-+	struct rtc_device *rtc0;
-+	int rtc_irq;
-+	int rtc_alarm_irq;
-+	struct pm8058_chip *pm_chip;
++struct pmic8058_led_data {
++	struct led_classdev	cdev;
++	int			id;
++	enum led_brightness	brightness;
++	struct pm8058_chip	*pm_chip;
++	struct work_struct	work;
++	struct mutex		lock;
++	spinlock_t		value_lock;
++	u8			reg_kp;
++	u8			reg_led_ctrl[3];
++	u8			reg_flash_led0;
++	u8			reg_flash_led1;
 +};
 +
-+static int
-+pm8058_rtc_read_bytes(struct pm8058_rtc *rtc_dd, u8 *rtc_val, int base)
-+{
-+	int i, rc;
++#define PM8058_MAX_LEDS		7
 +
-+	/* Read the 32-bit register value, 8 bits at a time. */
-+	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
-+		rc = pm8058_read(rtc_dd->pm_chip, base + i, &rtc_val[i], 1);
-+		if (rc < 0) {
-+			pr_err("PM8058 read failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int
-+pm8058_rtc_write_bytes(struct pm8058_rtc *rtc_dd, u8 *rtc_val, int base)
-+{
-+	int i, rc;
-+
-+	/* Write the 32-bit register value, 8 bits at a time. */
-+	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
-+		rc = pm8058_write(rtc_dd->pm_chip, base + i, &rtc_val[i], 1);
-+		if (rc < 0) {
-+			pr_err("PM8058 read failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Steps to write the RTC registers.
-+ * 1. Disable alarm if enabled.
-+ * 2. Write 0x00 to LSB.
-+ * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
-+ * 4. Enable alarm if disabled in step 1.
-+ */
-+static int
-+pm8058_rtc0_set_time(struct device *dev, struct rtc_time *tm)
++static void led_kp_set(struct pmic8058_led_data *led, enum led_brightness value)
 +{
 +	int rc;
-+	unsigned long secs = 0;
-+	u8 value[4], reg = 0, alarm_enabled = 0, ctrl_reg = 0, i;
-+	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++	u8 level;
++	unsigned long flags;
 +
-+	rtc_tm_to_time(tm, &secs);
++	spin_lock_irqsave(&led->value_lock, flags);
++	level = (value << PM8058_DRV_KEYPAD_BL_SHIFT) &
++				 PM8058_DRV_KEYPAD_BL_MASK;
 +
-+	value[0] = secs & 0xFF;
-+	value[1] = (secs >> 8) & 0xFF;
-+	value[2] = (secs >> 16) & 0xFF;
-+	value[3] = (secs >> 24) & 0xFF;
++	led->reg_kp &= ~PM8058_DRV_KEYPAD_BL_MASK;
++	led->reg_kp |= level;
++	spin_unlock_irqrestore(&led->value_lock, flags);
 +
-+	pr_debug("Seconds value to be written to RTC = %lu\n", secs);
-+
-+	/* Disable alarm before updating RTC */
-+	rc = pm8058_read(rtc_dd->pm_chip, PM8058_RTC_CTRL, &ctrl_reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	if (ctrl_reg & PM8058_RTC_ALARM_ENABLE) {
-+		alarm_enabled = 1;
-+		ctrl_reg &= ~PM8058_RTC_ALARM_ENABLE;
-+		rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_CTRL,
-+							&ctrl_reg, 1);
-+		if (rc < 0) {
-+			pr_err("PM8058 write failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	/* Write Byte[1], Byte[2], Byte[3], Byte[0] */
-+	reg = 0;
-+	rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_WRITE_BASE, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 write failed\n");
-+		return rc;
-+	}
-+
-+	for (i = 1; i < NUM_8_BIT_RTC_REGS; i++) {
-+		rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_WRITE_BASE + i,
-+								&value[i], 1);
-+		if (rc < 0) {
-+			pr_err("Write to RTC registers failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_WRITE_BASE,
-+							&value[0], 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 write failed\n");
-+		return rc;
-+	}
-+
-+	if (alarm_enabled) {
-+		ctrl_reg |= PM8058_RTC_ALARM_ENABLE;
-+		rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_CTRL,
-+							&ctrl_reg, 1);
-+		if (rc < 0) {
-+			pr_err("PM8058 write failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	return 0;
++	rc = pm8058_write(led->pm_chip, SSBI_REG_ADDR_DRV_KEYPAD,
++				 &led->reg_kp, 1);
++	if (rc < 0)
++		dev_err(led->cdev.dev, "can't set keypad backlight level\n");
 +}
 +
-+static int
-+pm8058_rtc0_read_time(struct device *dev, struct rtc_time *tm)
++static enum led_brightness led_kp_get(struct pmic8058_led_data *led)
++{
++	if ((led->reg_kp & PM8058_DRV_KEYPAD_BL_MASK) >>
++			 PM8058_DRV_KEYPAD_BL_SHIFT)
++		return LED_FULL;
++	else
++		return LED_OFF;
++}
++
++static void led_lc_set(struct pmic8058_led_data *led, enum led_brightness value)
++{
++	unsigned long flags;
++	int rc, offset;
++	u8 level, tmp;
++
++	spin_lock_irqsave(&led->value_lock, flags);
++
++	level = (led->brightness << PM8058_DRV_LED_CTRL_SHIFT) &
++		PM8058_DRV_LED_CTRL_MASK;
++
++	offset = PMIC8058_LED_OFFSET(led->id);
++	tmp = led->reg_led_ctrl[offset];
++
++	tmp &= ~PM8058_DRV_LED_CTRL_MASK;
++	tmp |= level;
++	spin_unlock_irqrestore(&led->value_lock, flags);
++
++	rc = pm8058_write(led->pm_chip,	SSBI_REG_ADDR_LED_CTRL(offset),
++			&tmp, 1);
++	if (rc) {
++		dev_err(led->cdev.dev, "can't set (%d) led value\n",
++				led->id);
++		return;
++	}
++
++	spin_lock_irqsave(&led->value_lock, flags);
++	led->reg_led_ctrl[offset] = tmp;
++	spin_unlock_irqrestore(&led->value_lock, flags);
++}
++
++static enum led_brightness led_lc_get(struct pmic8058_led_data *led)
++{
++	int offset;
++	u8 value;
++
++	offset = PMIC8058_LED_OFFSET(led->id);
++	value = led->reg_led_ctrl[offset];
++
++	if ((value & PM8058_DRV_LED_CTRL_MASK) >>
++			PM8058_DRV_LED_CTRL_SHIFT)
++		return LED_FULL;
++	else
++		return LED_OFF;
++}
++
++static void
++led_flash_set(struct pmic8058_led_data *led, enum led_brightness value)
 +{
 +	int rc;
-+	u8 value[4], reg;
-+	unsigned long secs = 0;
-+	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++	u8 level;
++	unsigned long flags;
++	u8 reg_flash_led;
++	u16 reg_addr;
 +
-+	rc = pm8058_rtc_read_bytes(rtc_dd, value, PM8058_RTC_READ_BASE);
-+	if (rc < 0) {
-+		pr_err("RTC time read failed\n");
-+		return rc;
++	spin_lock_irqsave(&led->value_lock, flags);
++	level = (value << PM8058_DRV_FLASH_SHIFT) &
++				 PM8058_DRV_FLASH_MASK;
++
++	if (led->id == PMIC8058_ID_FLASH_LED_0) {
++		led->reg_flash_led0 &= ~PM8058_DRV_FLASH_MASK;
++		led->reg_flash_led0 |= level;
++		reg_flash_led	    = led->reg_flash_led0;
++		reg_addr	    = SSBI_REG_ADDR_FLASH_DRV0;
++	} else {
++		led->reg_flash_led1 &= ~PM8058_DRV_FLASH_MASK;
++		led->reg_flash_led1 |= level;
++		reg_flash_led	    = led->reg_flash_led1;
++		reg_addr	    = SSBI_REG_ADDR_FLASH_DRV1;
 +	}
++	spin_unlock_irqrestore(&led->value_lock, flags);
 +
-+	/*
-+	 * Read the LSB again and check if there has been a carry over.
-+	 * If there is, redo the read operation.
-+	 */
-+	rc = pm8058_read(rtc_dd->pm_chip, PM8058_RTC_READ_BASE, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	if (unlikely(reg < value[0])) {
-+		rc = pm8058_rtc_read_bytes(rtc_dd, value,
-+						PM8058_RTC_READ_BASE);
-+		if (rc < 0) {
-+			pr_err("RTC time read failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+
-+	rtc_time_to_tm(secs, tm);
-+
-+	rc = rtc_valid_tm(tm);
-+	if (rc < 0) {
-+		pr_err("Invalid time read from PMIC8058\n");
-+		return rc;
-+	}
-+
-+	pr_debug("secs = %lu, h::m:s == %d::%d::%d, d/m/y = %d/%d/%d\n",
-+			secs, tm->tm_hour, tm->tm_min, tm->tm_sec,
-+			tm->tm_mday, tm->tm_mon, tm->tm_year);
-+
-+	return 0;
++	rc = pm8058_write(led->pm_chip, reg_addr, &reg_flash_led, 1);
++	if (rc < 0)
++		dev_err(led->cdev.dev, "can't set flash led%d level\n",
++			 led->id);
 +}
 +
-+static int
-+pm8058_rtc0_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++static void pmic8058_led_work(struct work_struct *work)
 +{
-+	int rc;
-+	u8 value[4], reg;
-+	unsigned long secs = 0;
-+	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++	struct pmic8058_led_data *led = container_of(work,
++					 struct pmic8058_led_data, work);
 +
-+	/* Check if a alarm is valid */
-+	rc = rtc_valid_tm(&alarm->time);
-+	if (rc < 0) {
-+		pr_err("Alarm time invalid\n");
-+		return -EINVAL;
++	mutex_lock(&led->lock);
++
++	switch (led->id) {
++	case PMIC8058_ID_LED_KB_LIGHT:
++		led_kp_set(led, led->brightness);
++		break;
++	case PMIC8058_ID_LED_0:
++	case PMIC8058_ID_LED_1:
++	case PMIC8058_ID_LED_2:
++		led_lc_set(led, led->brightness);
++		break;
++	case PMIC8058_ID_FLASH_LED_0:
++	case PMIC8058_ID_FLASH_LED_1:
++		led_flash_set(led, led->brightness);
++		break;
 +	}
 +
-+	rtc_tm_to_time(&alarm->time, &secs);
-+
-+	value[0] = secs & 0xFF;
-+	value[1] = (secs >> 8) & 0xFF;
-+	value[2] = (secs >> 16) & 0xFF;
-+	value[3] = (secs >> 24) & 0xFF;
-+
-+	rc = pm8058_rtc_write_bytes(rtc_dd, value, PM8058_RTC_ALARM_BASE);
-+	if (rc < 0) {
-+		pr_err("Alarm could not be set\n");
-+		return rc;
-+	}
-+
-+	rc = pm8058_read(rtc_dd->pm_chip, PM8058_RTC_CTRL, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	reg = (alarm->enabled) ? (reg | PM8058_RTC_ALARM_ENABLE) :
-+					(reg & ~PM8058_RTC_ALARM_ENABLE);
-+
-+	rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_CTRL, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 write failed\n");
-+		return rc;
-+	}
-+
-+	pr_debug("Alarm Set for h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
-+			alarm->time.tm_hour, alarm->time.tm_min,
-+			alarm->time.tm_sec, alarm->time.tm_mday,
-+			alarm->time.tm_mon, alarm->time.tm_year);
-+
-+	return 0;
++	mutex_unlock(&led->lock);
 +}
 +
-+static int
-+pm8058_rtc0_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++static void pmic8058_led_set(struct led_classdev *led_cdev,
++	enum led_brightness value)
 +{
-+	int rc;
-+	u8 value[4], reg;
-+	unsigned long secs = 0;
-+	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++	struct pmic8058_led_data *led;
++	unsigned long flags;
 +
-+	/* Check if the alarm is enabled */
-+	rc = pm8058_read(rtc_dd->pm_chip, PM8058_RTC_CTRL, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+	alarm->enabled = !!(reg & PM8058_RTC_ALARM_ENABLE);
++	led = container_of(led_cdev, struct pmic8058_led_data, cdev);
 +
-+	rc = pm8058_rtc_read_bytes(rtc_dd, value,
-+					PM8058_RTC_ALARM_BASE);
-+	if (rc < 0) {
-+		pr_err("RTC alarm time read failed\n");
-+		return rc;
-+	}
-+
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+
-+	rtc_time_to_tm(secs, &alarm->time);
-+
-+	rc = rtc_valid_tm(&alarm->time);
-+	if (rc < 0) {
-+		pr_err("Invalid time read from PMIC8058\n");
-+		return rc;
-+	}
-+
-+	pr_debug("Alarm set for - h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
-+		alarm->time.tm_hour, alarm->time.tm_min,
-+				alarm->time.tm_sec, alarm->time.tm_mday,
-+				alarm->time.tm_mon, alarm->time.tm_year);
-+
-+	return 0;
++	spin_lock_irqsave(&led->value_lock, flags);
++	led->brightness = value;
++	schedule_work(&led->work);
++	spin_unlock_irqrestore(&led->value_lock, flags);
 +}
 +
-+static struct rtc_class_ops pm8058_rtc0_ops = {
-+	.read_time	= pm8058_rtc0_read_time,
-+	.set_alarm	= pm8058_rtc0_set_alarm,
-+	.read_alarm	= pm8058_rtc0_read_alarm,
-+};
-+
-+static irqreturn_t pm8058_alarm_trigger(int irq, void *dev_id)
++static enum led_brightness pmic8058_led_get(struct led_classdev *led_cdev)
 +{
-+	unsigned long events = 0;
-+	struct pm8058_rtc *rtc_dd = dev_id;
++	struct pmic8058_led_data *led;
 +
-+	events = RTC_IRQF | RTC_AF;
-+	rtc_update_irq(rtc_dd->rtc0, 1, events);
++	led = container_of(led_cdev, struct pmic8058_led_data, cdev);
 +
-+	pr_debug("Alarm Triggered !!\n");
-+
-+	return IRQ_HANDLED;
++	switch (led->id) {
++	case PMIC8058_ID_LED_KB_LIGHT:
++		return led_kp_get(led);
++	case PMIC8058_ID_LED_0:
++	case PMIC8058_ID_LED_1:
++	case PMIC8058_ID_LED_2:
++		return led_lc_get(led);
++	}
++	return LED_OFF;
 +}
 +
-+static int __devinit pm8058_rtc_probe(struct platform_device *pdev)
++static int pmic8058_led_probe(struct platform_device *pdev)
 +{
-+	int rc;
-+	u8 reg;
-+	struct pm8058_rtc *rtc_dd;
-+	struct pm8058_chip *pm_chip;
-+	struct pm8058_rtc_pdata *pdata = pdev->dev.platform_data;
-+
-+	if (pdata == NULL) {
-+		dev_err(&pdev->dev, "Platform data absent!\n");
-+		return -ENXIO;
-+	}
++	struct pmic8058_leds_platform_data *pdata = pdev->dev.platform_data;
++	struct pmic8058_led_data *led_dat;
++	struct pmic8058_led *curr_led;
++	int rc, i = 0;
++	struct pm8058_chip	*pm_chip;
++	u8			reg_kp;
++	u8			reg_led_ctrl[3];
++	u8			reg_flash_led0;
++	u8			reg_flash_led1;
++	static struct pmic8058_led_data *led;
 +
 +	pm_chip = platform_get_drvdata(pdev);
 +	if (pm_chip == NULL) {
-+		dev_err(&pdev->dev, "Invalid driver information!\n");
-+		return -ENXIO;
++		dev_err(&pdev->dev, "no parent data passed in\n");
++		return -EFAULT;
 +	}
 +
-+	rtc_dd = kzalloc(sizeof(*rtc_dd), GFP_KERNEL);
-+	if (rtc_dd == NULL) {
-+		dev_err(&pdev->dev, "Unable to allocate memory!\n");
++	if (pdata == NULL) {
++		dev_err(&pdev->dev, "platform data not supplied\n");
++		return -EINVAL;
++	}
++
++	if (pdata->num_leds > PMIC8058_MAX_LEDS) {
++		dev_err(&pdev->dev, "can't handle more than %d LEDS\n",
++				 PMIC8058_MAX_LEDS);
++		return -EFAULT;
++	}
++
++	led = kzalloc(sizeof(*led) * pdata->num_leds, GFP_KERNEL);
++	if (led == NULL) {
++		dev_err(&pdev->dev, "failed to alloc memory\n");
 +		return -ENOMEM;
 +	}
 +
-+	rtc_dd->rtc_irq = platform_get_irq(pdev, 0);
-+	rtc_dd->rtc_alarm_irq = platform_get_irq(pdev, 1);
-+	if (!rtc_dd->rtc_alarm_irq || !rtc_dd->rtc_irq) {
-+		dev_err(&pdev->dev, "RTC / Alarm IRQ resource absent!\n");
-+		rc = -ENXIO;
-+		goto fail_rtc_enable;
++	rc = pm8058_read(pm_chip, SSBI_REG_ADDR_DRV_KEYPAD, &reg_kp,
++				1);
++	if (rc) {
++		dev_err(&pdev->dev, "can't get keypad backlight level\n");
++		goto err_reg_read;
 +	}
 +
-+	rtc_dd->pm_chip = pm_chip;
-+
-+	/* Check if the RTC is on, else turn it on */
-+	rc = pm8058_read(pm_chip, PM8058_RTC_CTRL, &reg, 1);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "PM8058 read failed!\n");
-+		goto fail_rtc_enable;
++	rc = pm8058_read(pm_chip, SSBI_REG_ADDR_LED_CTRL_BASE,
++			reg_led_ctrl, 3);
++	if (rc) {
++		dev_err(&pdev->dev, "can't get led levels\n");
++		goto err_reg_read;
 +	}
 +
-+	if (!(reg & PM8058_RTC_ENABLE)) {
-+		reg |= PM8058_RTC_ENABLE;
-+		rc = pm8058_write(pm_chip, PM8058_RTC_CTRL, &reg, 1);
-+		if (rc < 0) {
-+			dev_err(&pdev->dev, "PM8058 write failed!\n");
-+			goto fail_rtc_enable;
++	rc = pm8058_read(pm_chip, SSBI_REG_ADDR_FLASH_DRV0,
++			&reg_flash_led0, 1);
++	if (rc) {
++		dev_err(&pdev->dev, "can't read flash led0\n");
++		goto err_reg_read;
++	}
++
++	rc = pm8058_read(pm_chip, SSBI_REG_ADDR_FLASH_DRV1,
++			&reg_flash_led1, 1);
++	if (rc) {
++		dev_err(&pdev->dev, "can't get flash led1\n");
++		goto err_reg_read;
++	}
++
++	for (i = 0; i < pdata->num_leds; i++) {
++		curr_led	= &pdata->leds[i];
++		led_dat		= &led[curr_led->id];
++
++		led_dat->cdev.name		= curr_led->name;
++		led_dat->cdev.default_trigger   = curr_led->default_trigger;
++		led_dat->cdev.brightness_set    = pmic8058_led_set;
++		led_dat->cdev.brightness_get    = pmic8058_led_get;
++		led_dat->cdev.brightness	= LED_OFF;
++		led_dat->cdev.max_brightness	= curr_led->max_brightness;
++		led_dat->cdev.flags		= LED_CORE_SUSPENDRESUME;
++
++		led_dat->id		        = curr_led->id;
++		led_dat->reg_kp			= reg_kp;
++		memcpy(led->reg_led_ctrl, reg_led_ctrl,
++					 sizeof(reg_led_ctrl));
++		led_dat->reg_flash_led0		= reg_flash_led0;
++		led_dat->reg_flash_led1		= reg_flash_led1;
++
++		if (!((led_dat->id >= PMIC8058_ID_LED_KB_LIGHT) &&
++				(led_dat->id <= PMIC8058_ID_FLASH_LED_1))) {
++			dev_err(&pdev->dev, "invalid LED ID (%d) specified\n",
++						 led_dat->id);
++			rc = -EINVAL;
++			goto fail_id_check;
++		}
++
++		led_dat->pm_chip		= pm_chip;
++
++		mutex_init(&led_dat->lock);
++		spin_lock_init(&led_dat->value_lock);
++		INIT_WORK(&led_dat->work, pmic8058_led_work);
++
++		rc = led_classdev_register(&pdev->dev, &led_dat->cdev);
++		if (rc) {
++			dev_err(&pdev->dev, "unable to register led %d\n",
++						 led_dat->id);
++			goto fail_id_check;
 +		}
 +	}
 +
-+	if (pdata->rtc_write_enable == true)
-+		pm8058_rtc0_ops.set_time = pm8058_rtc0_set_time,
-+
-+	/* Register the RTC device */
-+	rtc_dd->rtc0 = rtc_device_register("pm8058_rtc0", &pdev->dev,
-+				&pm8058_rtc0_ops, THIS_MODULE);
-+	if (IS_ERR(rtc_dd->rtc0)) {
-+		dev_err(&pdev->dev, "%s: RTC registration failed (%ld)\n",
-+					__func__, PTR_ERR(rtc_dd->rtc0));
-+		rc = PTR_ERR(rtc_dd->rtc0);
-+		goto fail_rtc_enable;
-+	}
-+
-+	platform_set_drvdata(pdev, rtc_dd);
-+
-+	/* Request the alarm IRQ */
-+	rc = request_any_context_irq(rtc_dd->rtc_alarm_irq,
-+				 pm8058_alarm_trigger, IRQF_TRIGGER_RISING,
-+				 "pm8058_rtc_alarm", rtc_dd);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "Request IRQ failed (%d)\n", rc);
-+		goto fail_req_irq;
-+	}
-+
-+	device_init_wakeup(&pdev->dev, 1);
-+
-+	dev_dbg(&pdev->dev, "Probe success !!\n");
++	platform_set_drvdata(pdev, led);
 +
 +	return 0;
 +
-+fail_req_irq:
-+	rtc_device_unregister(rtc_dd->rtc0);
-+fail_rtc_enable:
-+	kfree(rtc_dd);
++err_reg_read:
++	kfree(led);
++fail_id_check:
++	if (i > 0) {
++		for (i = i - 1; i >= 0; i--)
++			led_classdev_unregister(&led[i].cdev);
++	}
 +	return rc;
 +}
 +
-+#ifdef CONFIG_PM
-+static int pm8058_rtc_resume(struct device *dev)
++static int __devexit pmic8058_led_remove(struct platform_device *pdev)
 +{
-+	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++	int i;
++	struct pmic8058_leds_platform_data *pdata = pdev->dev.platform_data;
++	struct pmic8058_led_data *led = platform_get_drvdata(pdev);
 +
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(rtc_dd->rtc_alarm_irq);
++	for (i = 0; i < pdata->num_leds; i++) {
++		mutex_destroy(&led[led->id].lock);
++		led_classdev_unregister(&led[led->id].cdev);
++		cancel_work_sync(&led[led->id].work);
++	}
 +
 +	return 0;
 +}
 +
-+static int pm8058_rtc_suspend(struct device *dev)
-+{
-+	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(rtc_dd->rtc_alarm_irq);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops pm8058_rtc_pm_ops = {
-+	.suspend = pm8058_rtc_suspend,
-+	.resume = pm8058_rtc_resume,
-+};
-+#endif
-+
-+static int __devexit pm8058_rtc_remove(struct platform_device *pdev)
-+{
-+	struct pm8058_rtc *rtc_dd = platform_get_drvdata(pdev);
-+
-+	device_init_wakeup(&pdev->dev, 0);
-+	free_irq(rtc_dd->rtc_alarm_irq, rtc_dd);
-+	rtc_device_unregister(rtc_dd->rtc0);
-+	kfree(rtc_dd);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver pm8058_rtc_driver = {
-+	.probe		= pm8058_rtc_probe,
-+	.remove		= __devexit_p(pm8058_rtc_remove),
-+	.driver	= {
-+		.name	= "pm8058-rtc",
++static struct platform_driver pmic8058_led_driver = {
++	.probe		= pmic8058_led_probe,
++	.remove		= __devexit_p(pmic8058_led_remove),
++	.driver		= {
++		.name	= "pm8058-led",
 +		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &pm8058_rtc_pm_ops,
-+#endif
 +	},
 +};
 +
-+static int __init pm8058_rtc_init(void)
++static int __init pmic8058_led_init(void)
 +{
-+	return platform_driver_register(&pm8058_rtc_driver);
++	return platform_driver_register(&pmic8058_led_driver);
 +}
++module_init(pmic8058_led_init);
 +
-+static void __exit pm8058_rtc_exit(void)
++static void __exit pmic8058_led_exit(void)
 +{
-+	platform_driver_unregister(&pm8058_rtc_driver);
++	platform_driver_unregister(&pmic8058_led_driver);
 +}
++module_exit(pmic8058_led_exit);
 +
-+module_init(pm8058_rtc_init);
-+module_exit(pm8058_rtc_exit);
-+
-+MODULE_ALIAS("platform:pm8058-rtc");
-+MODULE_DESCRIPTION("PMIC8058 RTC driver");
++MODULE_DESCRIPTION("PMIC8058 LEDs driver");
 +MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR(Anirudh Ghayal "<aghayal@codeaurora.org>");
-diff --git a/include/linux/rtc/rtc-pm8058.h b/include/linux/rtc/rtc-pm8058.h
++MODULE_VERSION("1.0");
++MODULE_ALIAS("platform:pmic8058-led");
++MODULE_AUTHOR("Trilok Soni <tsoni@codeaurora.org>");
+diff --git a/include/linux/leds-pmic8058.h b/include/linux/leds-pmic8058.h
 new file mode 100644
-index 0000000..51f7c0b
+index 0000000..c54c7e6
 --- /dev/null
-+++ b/include/linux/rtc/rtc-pm8058.h
-@@ -0,0 +1,29 @@
++++ b/include/linux/leds-pmic8058.h
+@@ -0,0 +1,63 @@
 +/* Copyright (c) 2010, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -575,17 +492,51 @@ index 0000000..51f7c0b
 + * 02110-1301, USA.
 + */
 +
-+#ifndef __RTC_PM8058_H__
-+#define __RTC_PM8058_H__
++#ifndef __LEDS_PMIC8058_H__
++#define __LEDS_PMIC8058_H__
 +
 +/**
-+ * struct pm8058_rtc_pdata - RTC driver platform data
-+ * @rtc_write_enable - variable stating RTC write capability
++ * enum pmic8058_leds - PMIC8058 supported led ids
++ * @PMIC8058_ID_LED_KB_LIGHT - keyboard backlight led
++ * @PMIC8058_ID_LED_0 - First low current led
++ * @PMIC8058_ID_LED_1 - Second low current led
++ * @PMIC8058_ID_LED_2 - Third low current led
++ * @PMIC8058_ID_FLASH_LED_0 - First flash led
++ * @PMIC8058_ID_FLASH_LED_0 - Second flash led
 + */
-+struct pm8058_rtc_pdata {
-+	bool rtc_write_enable;
++enum pmic8058_leds {
++	PMIC8058_ID_LED_KB_LIGHT = 1,
++	PMIC8058_ID_LED_0,
++	PMIC8058_ID_LED_1,
++	PMIC8058_ID_LED_2,
++	PMIC8058_ID_FLASH_LED_0,
++	PMIC8058_ID_FLASH_LED_1,
 +};
 +
-+#endif /* __RTC_PM8058_H__ */
++/**
++ * struct pmic8058_led - per led data
++ * @name - name of the led
++ * @default_trigger - default trigger which needs to e attached
++ * @max_brightness - maximum brightness level supported by the led
++ * @id - supported led id
++ */
++struct pmic8058_led {
++	const char	*name;
++	const char	*default_trigger;
++	unsigned	max_brightness;
++	int		id;
++};
++
++/**
++ * struct pmic8058_leds_platform_data - platform data for leds
++ * @num_leds - number of leds
++ * @leds - array of struct pmic8058_led
++ */
++struct pmic8058_leds_platform_data {
++	int			num_leds;
++	struct pmic8058_led	*leds;
++};
++
++#endif /* __LEDS_PMIC8058_H__ */
 -- 
 1.7.0.2

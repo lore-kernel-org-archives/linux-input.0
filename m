@@ -1,72 +1,46 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: eeti_ts
-Date: Wed, 10 Nov 2010 18:10:43 -0500
-Message-ID: <4CDB2673.5020200@caiaq.de>
-References: <000301cb80fc$91cf31a0$b56d94e0$@seedle@rigaku.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC v1 PATCH 3/6] led: pmic8058: Add PMIC8058 leds driver
+Date: Wed, 10 Nov 2010 15:28:41 -0800
+Message-ID: <20101110232840.GA2121@core.coreip.homeip.net>
+References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org>
+ <1289393281-4459-4-git-send-email-tsoni@codeaurora.org>
+ <4CDB0451.3090303@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:40554 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757218Ab0KJXKs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Nov 2010 18:10:48 -0500
-Received: by qyk1 with SMTP id 1so117679qyk.19
-        for <linux-input@vger.kernel.org>; Wed, 10 Nov 2010 15:10:47 -0800 (PST)
-In-Reply-To: <000301cb80fc$91cf31a0$b56d94e0$@seedle@rigaku.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4CDB0451.3090303@metafoo.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Trilok Soni <tsoni@codeaurora.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
 List-Id: linux-input@vger.kernel.org
-To: charles.seedle@rigaku.com
-Cc: linux-input@vger.kernel.org
 
-Hi Charles,
+On Wed, Nov 10, 2010 at 09:45:05PM +0100, Lars-Peter Clausen wrote:
+> Trilok Soni wrote:
+> > +
+> > +static void led_kp_set(struct pmic8058_led_data *led, enum led_brightness value)
+> > +{
+> > +	int rc;
+> > +	u8 level;
+> > +	unsigned long flags;
+> > +
+> > +	spin_lock_irqsave(&led->value_lock, flags);
+> This function is only ever called from within the workqueue so there is no need for
+> locking.
+> 
 
-please never write to me personally only, but always keep appropriate
-mailing lists in the loop (the linux-input list in that case), and hit
-"reply to all" when following up.
+That is a common misconception, unfortunately. The same work may
+be executing on several CPUs at the same time if it was scheduled on
+multi-threaded work queue.
 
-On 11/10/2010 12:27 PM, Charles Seedle wrote:
-> Does your kernel module eeti_ts access the touchscreen hardware direc=
-tly
-> or is it accessing the data through input (HID) ?
+...
 
-The EETI touchscreen we have is controlled and queried via its I2C
-interface. The driver implements the protocol and exposes an Linux inpu=
-t
-interface which is accessible from userspace.
+> > +	schedule_work(&led->work);
 
-The protocol reference we got is referenced in the comment block of the
-first lines in this driver. You should first check whether your
-controller is compatible.
+And sure enough, keventd is such workqueue.
 
-> My current installation is using tkusb.ko to connect to the touchscre=
-en.
-> The calibration is quite bad and I am running on a
+Now, whether having the same work run simultaneously is OK or not is a
+different question altogether...
 
-What module is that? I can't find it in the kernel mainline tree?
-
-> Texas Instruments OMAP 3450 processor (ARM7) so the intel calibration
-> tools can=92t be used.
-
-And I don't know about any calibration tools, especially from Intel (an=
-d
-I'm surprised Intel has anything to do with EETI at all?).
-
-All we needed was a very small input layer in user space to map the EET=
-I
-touchscreen coordinates to the actual display resolution, simply by
-applying a factor to it, and I think there is also a static offset whic=
-h
-we need due to mechanical construction constraints of our hardware. The
-driver can be told to invert any of the two axis (with a module
-parameter), but you shouldn't need more than this.
-
-
-Hope that helps,
-Daniel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

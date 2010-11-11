@@ -1,54 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HID: roccat: Add support for Roccat Kone[+]
-Date: Thu, 11 Nov 2010 01:00:16 -0800
-Message-ID: <20101111090015.GG24415@core.coreip.homeip.net>
-References: <1287943025.2623.16.camel@neuromancer>
+Subject: Re: [patch] input: pcf8574_keypad: use after
+ input_unregister_device()
+Date: Thu, 11 Nov 2010 01:04:23 -0800
+Message-ID: <20101111090423.GH24415@core.coreip.homeip.net>
+References: <20101111062429.GA3610@bicker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:51897 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752492Ab0KKJEb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Nov 2010 04:04:31 -0500
 Content-Disposition: inline
-In-Reply-To: <1287943025.2623.16.camel@neuromancer>
-Sender: linux-doc-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>, Stephane Chatty <chatty@enac.fr>, Don Prince <dhprince-devel@yahoo.co.uk>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20101111062429.GA3610@bicker>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <error27@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Mike Frysinger <vapier@gentoo.org>, Richard Purdie <rpurdie@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi Stefan,
+On Thu, Nov 11, 2010 at 10:28:30AM +0300, Dan Carpenter wrote:
+> input_unregister_device() is tricky because it frees the argument.  So
+> in the original code the call to input_set_drvdata(idev, NULL) is a use
+> after free bug.  The other problem is the input_set_drvdata() makes the 
+> input_free_device() into a no-op.
+> 
+> The prefered style in input/ is to make input_register_device() the
+> last function in the probe which can fail.  That way we don't need to
+> call input_unregister_device().
+> 
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
 
-On Sun, Oct 24, 2010 at 07:57:05PM +0200, Stefan Achatz wrote:
-> +
-> +static int koneplus_create_sysfs_attributes(struct usb_interface *intf)
-> +{
-> +	int retval;
-> +
-> +	retval = sysfs_create_group(&intf->dev.kobj, &koneplus_attribute_group);
-> +	if (retval)
-> +		goto exit_1;
-> +
-> +	retval = sysfs_create_bin_file(&intf->dev.kobj,
-> +			&koneplus_profile_settings_attr);
-> +	if (retval)
-> +		goto exit_2;
-> +
-> +	retval = sysfs_create_bin_file(&intf->dev.kobj,
-> +			&koneplus_profile1_settings_attr);
-> +	if (retval)
-> +		goto exit_3;
-> +
-
-...
-
-> +
-> +	retval = sysfs_create_bin_file(&intf->dev.kobj,
-> +			&koneplus_sensor_attr);
-> +	if (retval)
-> +		goto exit_17;
-> +
-
-I think we are ready to sysfs_binary_attribute_group ;) Please add it to
-sysfs code and send it to GregKH.
-
-Thanks.
+Applied, thanks Dan.
 
 -- 
 Dmitry

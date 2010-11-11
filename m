@@ -1,84 +1,120 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Wed, 10 Nov 2010 17:22:52 -0800
-Message-ID: <20101111012251.GC2121@core.coreip.homeip.net>
-References: <4CD7B012.1030809@cena.fr>
- <AANLkTike6Ny26fV3691-3vgM7kTi5RRRWjDB4_BukPqd@mail.gmail.com>
- <20101109033149.GC19313@barra.redhat.com>
- <20101109065933.GA13921@core.coreip.homeip.net>
- <AANLkTi=rxkJcmp8WLKCRnxqNd_1QBT4W_2YJNJBcsHzF@mail.gmail.com>
- <AANLkTimPUYXe=Pno8O2k_U7u9N+ob6EQMD_DCDtLDTS5@mail.gmail.com>
- <20101110050219.GB29110@barra.bne.redhat.com>
- <4CDA6D25.4070501@euromail.se>
- <20101110235355.GB4473@barra.bne.redhat.com>
- <4CDB3D6C.2000507@euromail.se>
+Subject: Re: ir-core and default IR maps
+Date: Wed, 10 Nov 2010 17:37:30 -0800
+Message-ID: <20101111013730.GE2121@core.coreip.homeip.net>
+References: <20101107060147.GC3823@core.coreip.homeip.net>
+ <AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com>
+ <4CD7F6A7.8040206@redhat.com>
+ <AANLkTinc_SuTrP6E8aoyXxGKEQwu=QRieRPt3z4b6Xn_@mail.gmail.com>
+ <AANLkTimPKkvdWWTPoWGCRmp-biwup1dEQpaKYEk8t9ED@mail.gmail.com>
+ <4CD805D8.2000808@redhat.com>
+ <20101109063242.GA10496@core.coreip.homeip.net>
+ <4CD920AE.8090406@redhat.com>
+ <20101110065133.GA22666@core.coreip.homeip.net>
+ <4CDA9E71.5020408@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:60349 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932099Ab0KKBXD (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:61856 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932078Ab0KKBhl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Nov 2010 20:23:03 -0500
-Received: by gxk23 with SMTP id 23so885487gxk.19
-        for <linux-input@vger.kernel.org>; Wed, 10 Nov 2010 17:23:02 -0800 (PST)
+	Wed, 10 Nov 2010 20:37:41 -0500
+Received: by gwb11 with SMTP id 11so414531gwb.19
+        for <linux-input@vger.kernel.org>; Wed, 10 Nov 2010 17:37:40 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <4CDB3D6C.2000507@euromail.se>
+In-Reply-To: <4CDA9E71.5020408@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Ping Cheng <pinglinux@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, linux-input <linux-input@vger.kernel.org>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: "jonsmirl@gmail.com" <jonsmirl@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jarod Wilson <jarod@redhat.com>
 
-On Thu, Nov 11, 2010 at 01:48:44AM +0100, Henrik Rydberg wrote:
-> On 11/11/2010 12:53 AM, Peter Hutterer wrote:
-> 
-> > On Wed, Nov 10, 2010 at 11:00:05AM +0100, Henrik Rydberg wrote:
-> >> A comment on pixels and resolution:
+On Wed, Nov 10, 2010 at 11:30:25AM -0200, Mauro Carvalho Chehab wrote:
+> Em 10-11-2010 04:51, Dmitry Torokhov escreveu:
+> > On Tue, Nov 09, 2010 at 08:21:34AM -0200, Mauro Carvalho Chehab wrote:
+> >> Em 09-11-2010 04:32, Dmitry Torokhov escreveu:
+> >>> On Mon, Nov 08, 2010 at 12:14:48PM -0200, Mauro Carvalho Chehab wrote:
+> >>>> Em 08-11-2010 11:41, jonsmirl@gmail.com escreveu:
+> >>>>> On Mon, Nov 8, 2010 at 8:34 AM, jonsmirl@gmail.com <jonsmirl@gmail.com> wrote:
+> >>>>>> To achieve plug and play at least one of four choices has to happen:
+> >>>>>
+> >>>>> There is another option, the IR maps get integrated into user space
+> >>>>> keyboard mapping package. This may be possible with the new
+> >>>>> libxkbcommon package.
+> >>>>
+> >>>> That seems interesting.
+> >>>>
+> >>>
+> >>> I disagree here. libxkbcommon provides X interface while applications
+> >>> might want to access evdev nodes directly. 
 > >>
-> >> A pen and a thumb may have different resolution (signal-to-noise ratio), but
-> >> there is no reason they cannot be reported on the same scale. In fact, it could
-> >> be argued that it is natural for objects on the same surface to be reported in
-> >> the coordinate system of the surface.
+> >> Let me express better: I don't think we should integrate X with the udev tool, 
+> >> but, eventually, we could make some X package dependent of v4l-utils. Not sure
+> >> if libxkbdcommon is the better way to do it, as I don't have it installed here
+> >> on my machines.
+> >>
+> >>> If anything, parts of
+> >>> ir-utils dealing with keymap selection should be moved into udev. Maybe
+> >>> we should split utilities that select protocol from the keymap setting
+> >>> and use udev keymap utilities to do the task.
+> >>
+> >> It doesn't make sense to split keymap and protocol selection. Just loading a
+> >> keyboard table but not changing the IR protocol is useless, as the device will
+> >> not be selected. Besides that, the tool that do both is really simple (and, btw,
+> >> it also allows changing the map for a non-RC device, by using one parameter that
+> >> skips the usage of the sysfs nodes at /sys/class/rc):
+> >>
+> >> # ir-keytable -d /dev/input/event4 -r
+> >> scancode 0x0000 = KEY_LEFTCTRL (0x1d)
+> >> Enabled protocols: 
 > > 
-> > it may be natural from a human perspective, but the computer doesn't care
-> > about it.
+> > OTOH loading keymap and selecting protocol are 2 distinct actions and
+> > udev already has a tool to load keymaps that should also work for all
+> > devices, including remotes.
 > 
-> 
-> The fact that we discuss a computer protocol suggests the computer does care.
-> ;-) The question is whether we need to be able to support different scales for
-> different tools types. I argue that among the three things value range, physical
-> range and SN ratio, the one most naturally seen as an attribute of a tool is the
-> SN ratio.
-> 
-> > And given that most input device interpretation is done in
-> > software, the scale used doesn't matter as long as it's correct.
-> 
-> > in the UI, even with different ranges for different tools, top-left should
-> > refer to whatever coordinate that is.
-> > 
-> > in other words, if the pure numbers matter in the UI, we've done something
-> > wrong.
-> 
-> > 
-> > what benefit do we get from reporting tools on the same scale if the HW
-> > doesn't do so?
-> 
-> 
-> The question is, given a set of tool types reported via MT events, what
-> additional information is needed. Having tools share the same ABS axes, I would
-> like to see that as a good thing. So what is missing from that picture?
+> How this tool decide what scancode should be associated with a remote controller?
+> There are, currently, 86 different keytables, one for each known bundled remote,
+> and the decision about what keymap should be load needs to take some hints provided
+> via RC sysfs nodes, in order to get the right table.
 
-I think that with devices that share the same working surface with
-different tools (touch/pen) it would make sense to normalize the data in
-the kernel. If for no other reason but to simplify the protocol.
+And udev has access to this data, hasn't it? Once proper keymap is
+identified the generic tool can load it, it does not matter whether
+target device is an RC or a keypad.
 
-In cases when tools are way to different driver writer might opt to
-export the device as 2 separate logical input devices (and then take
-care of coordinating them in userspace), in other cases treat them as
-one input device and scale to the same range.
+> 
+> The two distinct actions are not independent. A keycode table should dictate what 
+> protocol is needed, as the same device can support more than one protocol, and the
+> in-hardware decoders will only produce scancodes if the protocol is properly selected.
+> So, the udev tool needs to do both actions at the same time.
 
-I tend to think [at the moment] that the latter would be most sensible
-option for Bamboo...
+Or udev could call 2 utilities. First would select the protocol and
+second would load the keymap. This is actually main Unix principle - do
+one thing and do it well instead of trying to make a swiss army
+knife-type program.
+
+> 
+> > Basically I do not see the reason for having 2 tools doing pretty much
+> > the same thing.
+>  
+> We may replace the old tool, or merge both tools, but the point is that the
+> needs are different. For example, for Remote Controllers, before loading a keytable, 
+> the tool needs to clean-up the previous table, as the bundled keyboard (or a previous keytable
+> load) may map different scancodes than the ones that exist at the newer table. Then,
+> it needs to select the protocol and load the new keytable.
+> 
+> Also, for Remote Controllers, kernel provides some additional hints at /sys/class/rc/rc?/uevent,
+> specifying the name of the real driver that is loading the device and the name of
+> the bundled remote. Those info should be taken into account, in order to select the
+> proper keycode table.
+> 
+> On the other side, a tool to change those things at runtime is also needed. So, what I did
+> to avoid tools duplication is that I've added everything needed by Remote Controllers
+> at the very same tool, preventing duplication.
+
+
+See above. But anyway, I think we already spent too much time discussing
+this point, if you decide to merge with used - fine, if not - it's OK
+too ;)
 
 Thanks.
 

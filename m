@@ -1,117 +1,89 @@
-From: Jason Wessel <jason.wessel@windriver.com>
-Subject: Re: [RFC/RFT] Reinject Alt+SysRq when no hotkeys have been pressed
-Date: Thu, 11 Nov 2010 08:35:31 -0600
-Message-ID: <4CDBFF33.6090803@windriver.com>
-References: <20101109073416.GA14110@core.coreip.homeip.net> <4CDAFCE0.60002@windriver.com> <201011101227.51837.dmitry.torokhov@gmail.com> <4CDB03F3.3000006@windriver.com> <20101111014240.GF2121@core.coreip.homeip.net> <20101111085548.GF24415@core.coreip.homeip.net>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
+Date: Thu, 11 Nov 2010 10:23:55 -0800
+Message-ID: <AANLkTino03EaUPBe2gDEYHWFYiFwpWx2jjjmH1ExtpOn@mail.gmail.com>
+References: <AANLkTin1svszp87Pysi5OCt5=JTSB-yVaAWF-42gfn9T@mail.gmail.com>
+	<20101108035121.GA4630@barra.bne.redhat.com>
+	<4CD7B012.1030809@cena.fr>
+	<AANLkTike6Ny26fV3691-3vgM7kTi5RRRWjDB4_BukPqd@mail.gmail.com>
+	<20101109033149.GC19313@barra.redhat.com>
+	<AANLkTikDk99ikTYYJDwVzNBSzwMA5sqjXa5v3iqbvfid@mail.gmail.com>
+	<20101110044608.GA29110@barra.bne.redhat.com>
+	<AANLkTi=NV1u7YtxQZR61-G-C55NioaGpAZFaXupaXszM@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:37904 "EHLO
-	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754260Ab0KKOff (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:63092 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754614Ab0KKSX6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Nov 2010 09:35:35 -0500
-In-Reply-To: <20101111085548.GF24415@core.coreip.homeip.net>
+	Thu, 11 Nov 2010 13:23:58 -0500
+Received: by wyb28 with SMTP id 28so984483wyb.19
+        for <linux-input@vger.kernel.org>; Thu, 11 Nov 2010 10:23:56 -0800 (PST)
+In-Reply-To: <AANLkTi=NV1u7YtxQZR61-G-C55NioaGpAZFaXupaXszM@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Maxim Levitsky <maximlevitsky@gmail.com>
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Stone <daniel@fooishbar.org>, linux-input <linux-input@vger.kernel.org>
 
-On 11/11/2010 02:55 AM, Dmitry Torokhov wrote:
-> On Wed, Nov 10, 2010 at 05:42:41PM -0800, Dmitry Torokhov wrote:
->> On Wed, Nov 10, 2010 at 02:43:31PM -0600, Jason Wessel wrote:
->>> On 11/10/2010 02:27 PM, Dmitry Torokhov wrote:
->>>> On Wednesday, November 10, 2010 12:13:20 pm Jason Wessel wrote:
->>>>> On 11/09/2010 01:34 AM, Dmitry Torokhov wrote:
->>>>>> Now that KGDB knows how to release keys that have been pressed when
->>>>>> entering the debugger the only issue left is that SysRq handler is too
->>>>>> greedy and always swallows Alt+SysRq, causing print screen hotkey to
->>>>>> stop working. The solution is to re-inject the key combo when user
->>>>>> releases SysRq without pressing any other keys. The patch below does
->>>>>> just that and also releases keys that have been pressed before we enter
->>>>>> SysRq mode.
->>>>>>
->>>>>> Note that it depends on a patch to input core that will stop events
->>>>>> injected by one input handler from reaching the very same input handler
->>>>>> (attached).
->>>>>>
->>>>>> Comments/testing/suggestion are sought after.
->>>>> I applied both patches and tested all the known failures cases I had on
->>>>> my list and it looks good, for the non kdb cases.
->>>>>
->>>>> Tested-by: Jason Wessel <jason.wessel@windriver.com>
->>>>>
->>>>> However...  I also tested this with the kdb keyboard release
->>>>> patches plus your latest 2 patches and we appear to have an
->>>>> incompatibility.  The behavior is that when exiting kdb the print
->>>>> screen trigger fires.  I had not had a chance to debug it as of
->>>>> yet.
->>>>>
->>>> Hmm, let me think...
->>>>
->>> So I debugged it.  The key up events are peeled off in linear order
->>> with the kdb release key code.
+On Wed, Nov 10, 2010 at 7:57 PM, Chris Bagwell <chris@cnpbagwell.com> w=
+rote:
+> On Tue, Nov 9, 2010 at 10:46 PM, Peter Hutterer
+> <peter.hutterer@who-t.net> wrote:
+>> On Mon, Nov 08, 2010 at 10:14:56PM -0600, Chris Bagwell wrote:
 >>>
->>> The sequence looks like this
+>>> I've copied #2 below and added my own text in "[]" to be sure and
+>>> clarify text in context of case #2.
 >>>
->>> down - alt
->>> down - printScr
->>> down - g           <-- Enters kdb
->>>
->>> The kdb release code simulates the events
->>> up - g
->>> up - alt
->>> up - printScr
->>>
->>> That tells me we have something bad about the key events going on, or
->>> that we care about release ordering in the release handler.
->>>
->> Ah, I see. I bet the shortcut for print screen is actually triggered on
->> _release_ and X drivers do not filter release events for which they have
->> not seen presses. Oh well...
+>>> 2. =A0 =A0 Report first finger touch as ABS_X/Y events [on touch in=
+put
+>>> device] when pen is not in
+>>> prox. =A0Arbitrating single touch data [on touch input device] when=
+ pen
+>>> is in prox. Pen data is
+>>> reported as ABS_X/Y events [on pen input device]. Both ABS_X/Y for =
+pen
+>>> or the first finger
+>>> and ABS_MT_* for MT data are reported [each MT send]. =A0[MT are ev=
+en
+>>> sent on touch device even though only 1 in proximity tool possible =
+so
+>>> that client can combine both inputs' events and see same behaviour =
+as
+>>> if it was a single input device.]
+>>
+>> Assuming a split device - why do any filtering at all?
+>> Report ABS_X/Y for pen on the pen device, touch as MT events on the =
+touch
+>> device _and_ first finger touch as ABS_X/Y on the touch device. If u=
+serspace
+>> can somehow couple the two devices then it's easy enough to filter t=
+ouch
+>> events when necessary.
+>
+> Who is audience of these ABS_X/Y events? =A0We are not sending them f=
+or
+> MT-aware application benefit. =A0Matter of fact, it slightly complica=
+tes
+> MT-aware apps because they have to filter them in addition to
+> filtering MT events.
+>
+> The real audience of ABS_X/Y is either older apps or "simple" apps
+> (people that chose to keep it simple and not support MT events). =A0T=
+his
+> class of apps can't really be expected to bind two devices logically
+> and mask. =A0So without filtering ABS_X/Y on kernel side, we've
+> basically made Bamboo drivers unusable with a range of apps; which
+> probably means xf86-input-{evdev|synaptics} (I can't justify adding
+> binding logic to those two).
 
-That is in fact what was happening, and I probably should have mentioned that it was print screen handler that was trigging.
+I agree with Chris. Filtering touch ABS_X/Y when pen in prox is
+necessary for non-MT aware apps. It also eases backward support.
 
-I tested you new patch with the prior sequence as well as the one that worked before which was:
-
-down - alt
-down - sysrq
-up - sysrq
-down - g
-
-Both sequences work as desired with the latest patch.
-
-
-I imagine we want to put this into a pull request for 37 as it is a regression, not being able to use alt-printScreen for the desktop OS's.
-
-Acked-by: Jason Wessel <jason.wessel@windriver.com>
-
-For anyone following the thread, the interdiff of Dmitry's original patch is below.
-
-Thanks,
-Jason.
-
-diff -u b/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
---- b/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -633,6 +633,18 @@
-                                 */
-                                sysrq->need_reinject = true;
-                        }
-+
-+                       /*
-+                        * Pretend that sysrq was never pressed at all. This
-+                        * is needed to properly handle KGDB which will try
-+                        * to release all keys after exiting debugger. If we
-+                        * do not clear key bit it KGDB will end up sending
-+                        * release events for Alt and SysRq, potentially
-+                        * triggering print screen function.
-+                        */
-+                       if (sysrq->active)
-+                               clear_bit(KEY_SYSRQ, handle->dev->key);
-+
-                        break;
- 
-                default:
-
+Ping
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

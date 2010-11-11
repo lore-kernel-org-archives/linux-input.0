@@ -1,120 +1,96 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: ir-core and default IR maps
-Date: Wed, 10 Nov 2010 17:37:30 -0800
-Message-ID: <20101111013730.GE2121@core.coreip.homeip.net>
-References: <20101107060147.GC3823@core.coreip.homeip.net>
- <AANLkTinbTw26wTvbUVJU+sEGyH0DCt4WvmfO2_nvcLjR@mail.gmail.com>
- <4CD7F6A7.8040206@redhat.com>
- <AANLkTinc_SuTrP6E8aoyXxGKEQwu=QRieRPt3z4b6Xn_@mail.gmail.com>
- <AANLkTimPKkvdWWTPoWGCRmp-biwup1dEQpaKYEk8t9ED@mail.gmail.com>
- <4CD805D8.2000808@redhat.com>
- <20101109063242.GA10496@core.coreip.homeip.net>
- <4CD920AE.8090406@redhat.com>
- <20101110065133.GA22666@core.coreip.homeip.net>
- <4CDA9E71.5020408@redhat.com>
+Subject: Re: [RFC/RFT] Reinject Alt+SysRq when no hotkeys have been pressed
+Date: Wed, 10 Nov 2010 17:42:41 -0800
+Message-ID: <20101111014240.GF2121@core.coreip.homeip.net>
+References: <20101109073416.GA14110@core.coreip.homeip.net>
+ <4CDAFCE0.60002@windriver.com>
+ <201011101227.51837.dmitry.torokhov@gmail.com>
+ <4CDB03F3.3000006@windriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:61856 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932078Ab0KKBhl (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:65224 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932078Ab0KKBmu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Nov 2010 20:37:41 -0500
-Received: by gwb11 with SMTP id 11so414531gwb.19
-        for <linux-input@vger.kernel.org>; Wed, 10 Nov 2010 17:37:40 -0800 (PST)
+	Wed, 10 Nov 2010 20:42:50 -0500
+Received: by gyh4 with SMTP id 4so903302gyh.19
+        for <linux-input@vger.kernel.org>; Wed, 10 Nov 2010 17:42:49 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <4CDA9E71.5020408@redhat.com>
+In-Reply-To: <4CDB03F3.3000006@windriver.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: "jonsmirl@gmail.com" <jonsmirl@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jarod Wilson <jarod@redhat.com>
+To: Jason Wessel <jason.wessel@windriver.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Maxim Levitsky <maximlevitsky@gmail.com>
 
-On Wed, Nov 10, 2010 at 11:30:25AM -0200, Mauro Carvalho Chehab wrote:
-> Em 10-11-2010 04:51, Dmitry Torokhov escreveu:
-> > On Tue, Nov 09, 2010 at 08:21:34AM -0200, Mauro Carvalho Chehab wrote:
-> >> Em 09-11-2010 04:32, Dmitry Torokhov escreveu:
-> >>> On Mon, Nov 08, 2010 at 12:14:48PM -0200, Mauro Carvalho Chehab wrote:
-> >>>> Em 08-11-2010 11:41, jonsmirl@gmail.com escreveu:
-> >>>>> On Mon, Nov 8, 2010 at 8:34 AM, jonsmirl@gmail.com <jonsmirl@gmail.com> wrote:
-> >>>>>> To achieve plug and play at least one of four choices has to happen:
-> >>>>>
-> >>>>> There is another option, the IR maps get integrated into user space
-> >>>>> keyboard mapping package. This may be possible with the new
-> >>>>> libxkbcommon package.
-> >>>>
-> >>>> That seems interesting.
-> >>>>
+On Wed, Nov 10, 2010 at 02:43:31PM -0600, Jason Wessel wrote:
+> On 11/10/2010 02:27 PM, Dmitry Torokhov wrote:
+> > On Wednesday, November 10, 2010 12:13:20 pm Jason Wessel wrote:
+> >> On 11/09/2010 01:34 AM, Dmitry Torokhov wrote:
+> >>> Now that KGDB knows how to release keys that have been pressed when
+> >>> entering the debugger the only issue left is that SysRq handler is too
+> >>> greedy and always swallows Alt+SysRq, causing print screen hotkey to
+> >>> stop working. The solution is to re-inject the key combo when user
+> >>> releases SysRq without pressing any other keys. The patch below does
+> >>> just that and also releases keys that have been pressed before we enter
+> >>> SysRq mode.
 > >>>
-> >>> I disagree here. libxkbcommon provides X interface while applications
-> >>> might want to access evdev nodes directly. 
+> >>> Note that it depends on a patch to input core that will stop events
+> >>> injected by one input handler from reaching the very same input handler
+> >>> (attached).
+> >>>
+> >>> Comments/testing/suggestion are sought after.
+> >> I applied both patches and tested all the known failures cases I had on
+> >> my list and it looks good, for the non kdb cases.
 > >>
-> >> Let me express better: I don't think we should integrate X with the udev tool, 
-> >> but, eventually, we could make some X package dependent of v4l-utils. Not sure
-> >> if libxkbdcommon is the better way to do it, as I don't have it installed here
-> >> on my machines.
+> >> Tested-by: Jason Wessel <jason.wessel@windriver.com>
 > >>
-> >>> If anything, parts of
-> >>> ir-utils dealing with keymap selection should be moved into udev. Maybe
-> >>> we should split utilities that select protocol from the keymap setting
-> >>> and use udev keymap utilities to do the task.
+> 
+> >> However...  I also tested this with the kdb keyboard release
+> >> patches plus your latest 2 patches and we appear to have an
+> >> incompatibility.  The behavior is that when exiting kdb the print
+> >> screen trigger fires.  I had not had a chance to debug it as of
+> >> yet.
 > >>
-> >> It doesn't make sense to split keymap and protocol selection. Just loading a
-> >> keyboard table but not changing the IR protocol is useless, as the device will
-> >> not be selected. Besides that, the tool that do both is really simple (and, btw,
-> >> it also allows changing the map for a non-RC device, by using one parameter that
-> >> skips the usage of the sysfs nodes at /sys/class/rc):
-> >>
-> >> # ir-keytable -d /dev/input/event4 -r
-> >> scancode 0x0000 = KEY_LEFTCTRL (0x1d)
-> >> Enabled protocols: 
-> > 
-> > OTOH loading keymap and selecting protocol are 2 distinct actions and
-> > udev already has a tool to load keymaps that should also work for all
-> > devices, including remotes.
+> >
+> > Hmm, let me think...
+> >
 > 
-> How this tool decide what scancode should be associated with a remote controller?
-> There are, currently, 86 different keytables, one for each known bundled remote,
-> and the decision about what keymap should be load needs to take some hints provided
-> via RC sysfs nodes, in order to get the right table.
-
-And udev has access to this data, hasn't it? Once proper keymap is
-identified the generic tool can load it, it does not matter whether
-target device is an RC or a keypad.
-
+> So I debugged it.  The key up events are peeled off in linear order
+> with the kdb release key code.
 > 
-> The two distinct actions are not independent. A keycode table should dictate what 
-> protocol is needed, as the same device can support more than one protocol, and the
-> in-hardware decoders will only produce scancodes if the protocol is properly selected.
-> So, the udev tool needs to do both actions at the same time.
-
-Or udev could call 2 utilities. First would select the protocol and
-second would load the keymap. This is actually main Unix principle - do
-one thing and do it well instead of trying to make a swiss army
-knife-type program.
-
+> The sequence looks like this
 > 
-> > Basically I do not see the reason for having 2 tools doing pretty much
-> > the same thing.
->  
-> We may replace the old tool, or merge both tools, but the point is that the
-> needs are different. For example, for Remote Controllers, before loading a keytable, 
-> the tool needs to clean-up the previous table, as the bundled keyboard (or a previous keytable
-> load) may map different scancodes than the ones that exist at the newer table. Then,
-> it needs to select the protocol and load the new keytable.
+> down - alt
+> down - printScr
+> down - g           <-- Enters kdb
 > 
-> Also, for Remote Controllers, kernel provides some additional hints at /sys/class/rc/rc?/uevent,
-> specifying the name of the real driver that is loading the device and the name of
-> the bundled remote. Those info should be taken into account, in order to select the
-> proper keycode table.
+> The kdb release code simulates the events
+> up - g
+> up - alt
+> up - printScr
 > 
-> On the other side, a tool to change those things at runtime is also needed. So, what I did
-> to avoid tools duplication is that I've added everything needed by Remote Controllers
-> at the very same tool, preventing duplication.
+> That tells me we have something bad about the key events going on, or
+> that we care about release ordering in the release handler.
+> 
+
+Ah, I see. I bet the shortcut for print screen is actually triggered on
+_release_ and X drivers do not filter release events for which they have
+not seen presses. Oh well...
+
+Coudl you try sticking somethgin like this into sysrq code?
+
+	case KEY_SYSRQ:
+
+		if (value == 1 ... ) {
+			....
+		}
+
+		if (sysrq->active)
+			clear_bit(KEY_SYSRQ, handle->dev->key);
 
 
-See above. But anyway, I think we already spent too much time discussing
-this point, if you decide to merge with used - fine, if not - it's OK
-too ;)
+This is a bit dirty but sysrq is pretty special anyways...
 
 Thanks.
 

@@ -1,86 +1,86 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Thu, 11 Nov 2010 11:55:40 -0800
-Message-ID: <20101111195540.GA14508@core.coreip.homeip.net>
-References: <20101110050219.GB29110@barra.bne.redhat.com>
- <4CDA6D25.4070501@euromail.se>
- <20101110235355.GB4473@barra.bne.redhat.com>
- <4CDB3D6C.2000507@euromail.se>
- <20101111012251.GC2121@core.coreip.homeip.net>
- <AANLkTinYE40qN7n98Vb-Pyh5npst6JN+1LzxZaU50X_H@mail.gmail.com>
- <20101111082653.GC24415@core.coreip.homeip.net>
- <AANLkTikVZBdTTR=jb=jpW+u5sHr4zazypwOnJSoR-RXv@mail.gmail.com>
- <20101111192434.GA13163@core.coreip.homeip.net>
- <4CDC46E5.8040703@euromail.se>
+Subject: Re: [PATCH] input: Introduce light-weight contact tracking
+Date: Thu, 11 Nov 2010 12:00:15 -0800
+Message-ID: <20101111200014.GB14508@core.coreip.homeip.net>
+References: <1289161108-32309-1-git-send-email-rydberg@euromail.se>
+ <4CD724BC.8020702@seas.upenn.edu>
+ <4CD80FCB.20903@euromail.se>
+ <4CD82B28.4060706@seas.upenn.edu>
+ <4CD84A81.3000208@euromail.se>
+ <4CDB7C05.1090306@seas.upenn.edu>
+ <4CDBCB0E.2020005@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:52059 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755366Ab0KKTzu (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:40418 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753517Ab0KKUA0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Nov 2010 14:55:50 -0500
-Received: by gwb20 with SMTP id 20so123609gwb.19
-        for <linux-input@vger.kernel.org>; Thu, 11 Nov 2010 11:55:49 -0800 (PST)
+	Thu, 11 Nov 2010 15:00:26 -0500
 Content-Disposition: inline
-In-Reply-To: <4CDC46E5.8040703@euromail.se>
+In-Reply-To: <4CDBCB0E.2020005@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Ping Cheng <pinglinux@gmail.com>, Michal Suchanek <hramrach@centrum.cz>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Chris Bagwell <chris@cnpbagwell.com>, linux-input <linux-input@vger.kernel.org>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chasedouglas@gmail.com>, Takashi Iwai <tiwai@suse.de>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-On Thu, Nov 11, 2010 at 08:41:25PM +0100, Henrik Rydberg wrote:
-> >>
+On Thu, Nov 11, 2010 at 11:53:02AM +0100, Henrik Rydberg wrote:
+> On 11/11/2010 06:15 AM, Rafi Rubin wrote:
 > 
-> >> But, I think ABS_X/Y arbitration should be considered in the kernel to
-> >> reduce the overhead in userland.
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
 > > 
-> > With option 1 you have natural ST arbitration - the first touch gets to
-> > report (ABS_X, ABS_Y), the rest will have to report ABS_MT_* till the
-> > first touch is lifted, right?
+> >> For every (number of used slots, number of current contacts) pair, two
+> >> consecutive arrays of values are generated. The first contains the matrix
+> >> indices corresponding to a certain mapping from contacts to slots. The second
+> >> contains the actual slot assignment.
+> >>
+> >> To find the optimal matching, one simply scans through the appropriate index
+> >> array, extracting the slot assignment corresponding to the minimum sum of matrix
+> >> elements. This process is combinatorial and in general scales much worse than
+> >> for instance the hungarian algorithm, but for small numbers, it can be
+> >> implemented with very good speed.
+> > 
+> > It occurs to me that it might be a good idea to restate our goals and assumptions.
 > 
 > 
-> Right. Perhaps this is a good time to discuss some additional helper functions
-> Chris and myself are playing with right now.
+> The main goal of my patch is to device a simple, stable, parameter-free matching
+> function that can be used in interrupt context. If you have such a function,
+> about a hundred lines of code, completes in a couple of hundred cycles, tested
+> and benchmarked in the mtdev framework, and which can do six fingers, I would be
+> happy to use that instead. Otherwise, I suggest we focus on this patch.
 > 
-> /**
->  * input_mt_report_state() - report contact state
->  * @dev: input device with allocated MT slots
->  * @active: true if contact is active, false otherwise
->  *
->  * Reports an active touch via ABS_MT_TRACKING_ID. If active is
->  * true and the slot is currently inactive, a new tracking id is
->  * assigned to the slot.
->  */
-> void input_mt_report_state(struct input_dev *dev, bool active);
+> > So that's why I selected the approach and data structures I used.  Now if you
+> > can tell me the studio 17 is going to be the only device that will ever run
+> > these routines that has more than 4 contacts and is not tracked, then sure,
+> > screw it.  I have no reason to believe that is a good assumption.
 > 
-> Since all tracking-capable drivers we have seen so far have a contact id with
-> the same semantics as the slot id, it makes sense to have the above function to
-> remove the need for individual drivers to assign tracking ids.
 > 
-> With the input core (or input-mt.c) controlling the tracking id, it is easy to
-> add more goodness, such as
+> The N-trig device is the only device in the kernel that requires special ghost
+> filtering. All other devices send reliable data, and either have fewer contacts,
+> handle their own tracking, or send all data to userspace. Future devices will
+> most likely have tracking capabilities, and even if they do not, protocol A and
+> mtdev handles that case. Thus, the question is really whether a new device would
+> produce unreliable contact data. I find that unlikely.
 > 
-> /**
->  * input_mt_report_pointer_emulation() - common pointer emulation
->  * @dev: input device with allocated MT slots
->  *
->  * Performs legacy pointer emulation via BTN_TOUCH, etc.
->  */
-> void input_mt_report_pointer_emulation(struct input_dev *dev);
 > 
-> Since the input device knows the MT state and what buttons and abs axes are in
-> use, it can provide the right set of data to emit to emulate pointer and touch
-> events. The track-oldest-contact logic can be readily implemented.
+> > Even if we do want to limit the code to 4 contacts, we still need some motion
+> > estimation, particularly for the lower frame rate devices.
 > 
-> From what I can see, this would remove two complications from each MT slots
-> driver, removing both code and headaches.
 > 
-> What do you think?
+> Second-order methods for a device that does not even produce zeroth-order
+> contact data? As far as I know, the first-order tracking in mtdev has not
+> disappointed anyone yet, so your statement seems to need elaboration.
 > 
 
-input-mt.c seems like a good idea for keeping a common library of
-goodies for MT drivers.
+Guys, with the filters being purely in-kernel library-like solutions
+(i.e they do not export any API/ABI visible to userspace I see no
+problem with having several (well a couple, let's not get carried away)
+filter algorithms available. Most of the drivers will probably use the
+one that is limited to 4(?) fingers if it is indeed faster, and ones
+that need to track more fingers and do not have help of the hardware
+might employ the slower option. The only concern is that such drivers
+might need to offload such tracking to a thread/workqueue.
 
 -- 
 Dmitry

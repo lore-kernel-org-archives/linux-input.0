@@ -1,59 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] sysfs: Introducing sysfs_create_bin_group()
-Date: Fri, 12 Nov 2010 12:02:15 -0800
-Message-ID: <20101112200215.GD1299@core.coreip.homeip.net>
-References: <1289585918.2629.12.camel@neuromancer>
- <20101112192958.GA22233@suse.de>
- <20101112193817.GA1299@core.coreip.homeip.net>
- <20101112195010.GA23000@suse.de>
+Subject: Re: [PATCH] input: Add Atmel maXTouch touchscreen driver
+Date: Fri, 12 Nov 2010 12:10:01 -0800
+Message-ID: <20101112201001.GE1299@core.coreip.homeip.net>
+References: <4CDD4BBA.5070301@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:39413 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756403Ab0KLUCX (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:54867 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932526Ab0KLUKJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Nov 2010 15:02:23 -0500
+	Fri, 12 Nov 2010 15:10:09 -0500
+Received: by ywc21 with SMTP id 21so836890ywc.19
+        for <linux-input@vger.kernel.org>; Fri, 12 Nov 2010 12:10:08 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20101112195010.GA23000@suse.de>
+In-Reply-To: <4CDD4BBA.5070301@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: Stefan Achatz <stefan_achatz@web.de>, "Eric W. Biederman" <ebiederm@aristanetworks.com>, "Serge E. Hallyn" <serue@us.ibm.com>, Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Thery <benjamin.thery@bull.net>
+To: Iiro Valkonen <iiro.valkonen@atmel.com>
+Cc: kyungmin.park@samsung.com, jy0922.shim@samsung.com, linux-input@vger.kernel.org
 
-On Fri, Nov 12, 2010 at 11:50:10AM -0800, Greg KH wrote:
-> On Fri, Nov 12, 2010 at 11:38:17AM -0800, Dmitry Torokhov wrote:
-> > On Fri, Nov 12, 2010 at 11:29:58AM -0800, Greg KH wrote:
-> > > On Fri, Nov 12, 2010 at 07:18:38PM +0100, Stefan Achatz wrote:
-> > > > Implemented group functions for easier creation of multiple binary sysfs
-> > > > attributes similar to existing attribute_group handling functions.
-> > > > The code reuses struct attribute_group instead of inventing a new struct
-> > > > binary_attribute_group.
-> > > > 
-> > > > Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
-> > > 
-> > > Looks good to me, nice job.
-> > > 
-> > > Dmitry, do you want to take this through your tree as the mouse driver
-> > > change needs it?  If so, feel free to do so and add a:
-> > > 	Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > > 
-> > > to the patch.
-> > > 
-> > > If not, I'll be glad to take it, and the mouse driver change through my
-> > > tree if needed.
-> > > 
-> > > Just let me know which is easier for you.
-> > > 
-> > 
-> > Actually the driver lives in hid so it's up to Jiri how he wants to
-> > handle this.
+Hi Iiro,
+
+On Fri, Nov 12, 2010 at 04:14:18PM +0200, Iiro Valkonen wrote:
 > 
-> Ah.  He's on vacation for a few weeks so I guess I'll take this for now.
+> Add Atmel maXTouch touchscreen driver (I2C interface).
+> The MT slots protocol will be implemented later.
 > 
 
-Those Europeans with their long vacations, geeze... Well, I hope he's
-having fun ;)
+I believe there is already a driver for this hardware in the tree
+(qt602240.c). Could you tell me what additional features your driver
+implements and why can't they be added to the existing driver.
+
+Thanks.
 
 -- 
 Dmitry

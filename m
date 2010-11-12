@@ -1,108 +1,123 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC/RFT] Reinject Alt+SysRq when no hotkeys have been pressed
-Date: Thu, 11 Nov 2010 17:00:41 -0800
-Message-ID: <20101112010041.GD17097@core.coreip.homeip.net>
-References: <20101109073416.GA14110@core.coreip.homeip.net>
- <4CDAFCE0.60002@windriver.com>
- <201011101227.51837.dmitry.torokhov@gmail.com>
- <4CDB03F3.3000006@windriver.com>
- <20101111014240.GF2121@core.coreip.homeip.net>
- <20101111085548.GF24415@core.coreip.homeip.net>
- <4CDBFF33.6090803@windriver.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH 1/3] Input: xpad - return proper error in error path
+Date: Fri, 12 Nov 2010 10:48:36 +0800
+Message-ID: <1289530116.20782.2.camel@mola>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:34760 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754658Ab0KLBAw (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:59328 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753787Ab0KLCog (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Nov 2010 20:00:52 -0500
-Received: by gxk23 with SMTP id 23so1592745gxk.19
-        for <linux-input@vger.kernel.org>; Thu, 11 Nov 2010 17:00:51 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <4CDBFF33.6090803@windriver.com>
+	Thu, 11 Nov 2010 21:44:36 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Wessel <jason.wessel@windriver.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Maxim Levitsky <maximlevitsky@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marko Friedemann <mfr@bmx-chemnitz.de>, Christoph Fritz <chf.fritz@googlemail.com>, linux-input@vger.kernel.org
 
-On Thu, Nov 11, 2010 at 08:35:31AM -0600, Jason Wessel wrote:
-> On 11/11/2010 02:55 AM, Dmitry Torokhov wrote:
-> > On Wed, Nov 10, 2010 at 05:42:41PM -0800, Dmitry Torokhov wrote:
-> >> On Wed, Nov 10, 2010 at 02:43:31PM -0600, Jason Wessel wrote:
-> >>> On 11/10/2010 02:27 PM, Dmitry Torokhov wrote:
-> >>>> On Wednesday, November 10, 2010 12:13:20 pm Jason Wessel wrote:
-> >>>>> On 11/09/2010 01:34 AM, Dmitry Torokhov wrote:
-> >>>>>> Now that KGDB knows how to release keys that have been pressed when
-> >>>>>> entering the debugger the only issue left is that SysRq handler is too
-> >>>>>> greedy and always swallows Alt+SysRq, causing print screen hotkey to
-> >>>>>> stop working. The solution is to re-inject the key combo when user
-> >>>>>> releases SysRq without pressing any other keys. The patch below does
-> >>>>>> just that and also releases keys that have been pressed before we enter
-> >>>>>> SysRq mode.
-> >>>>>>
-> >>>>>> Note that it depends on a patch to input core that will stop events
-> >>>>>> injected by one input handler from reaching the very same input handler
-> >>>>>> (attached).
-> >>>>>>
-> >>>>>> Comments/testing/suggestion are sought after.
-> >>>>> I applied both patches and tested all the known failures cases I had on
-> >>>>> my list and it looks good, for the non kdb cases.
-> >>>>>
-> >>>>> Tested-by: Jason Wessel <jason.wessel@windriver.com>
-> >>>>>
-> >>>>> However...  I also tested this with the kdb keyboard release
-> >>>>> patches plus your latest 2 patches and we appear to have an
-> >>>>> incompatibility.  The behavior is that when exiting kdb the print
-> >>>>> screen trigger fires.  I had not had a chance to debug it as of
-> >>>>> yet.
-> >>>>>
-> >>>> Hmm, let me think...
-> >>>>
-> >>> So I debugged it.  The key up events are peeled off in linear order
-> >>> with the kdb release key code.
-> >>>
-> >>> The sequence looks like this
-> >>>
-> >>> down - alt
-> >>> down - printScr
-> >>> down - g           <-- Enters kdb
-> >>>
-> >>> The kdb release code simulates the events
-> >>> up - g
-> >>> up - alt
-> >>> up - printScr
-> >>>
-> >>> That tells me we have something bad about the key events going on, or
-> >>> that we care about release ordering in the release handler.
-> >>>
-> >> Ah, I see. I bet the shortcut for print screen is actually triggered on
-> >> _release_ and X drivers do not filter release events for which they have
-> >> not seen presses. Oh well...
-> 
-> That is in fact what was happening, and I probably should have
-> mentioned that it was print screen handler that was trigging.
-> 
-> I tested you new patch with the prior sequence as well as the one that
-> worked before which was:
-> 
-> down - alt down - sysrq up - sysrq down - g
-> 
-> Both sequences work as desired with the latest patch.
-> 
+In current implementation, xpad_probe return 0 when
+usb_alloc_urb failed for xpad->bulk_out and kzalloc failed for xpad->bdata.
 
-Great, thank you for testing it.
+This patch removes the initialization for error variable,
+assign the error code at the place the error happens instead.
 
-> 
-> I imagine we want to put this into a pull request for 37 as it is a
-> regression, not being able to use alt-printScreen for the desktop
-> OS's.
-> 
-> Acked-by: Jason Wessel <jason.wessel@windriver.com>
->
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/joystick/xpad.c |   33 +++++++++++++++++++++++----------
+ 1 files changed, 23 insertions(+), 10 deletions(-)
 
-Yes, I agree, I will try to get it in, maybe not in the next pull
-request but in the following one.
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index f9fb7fa..39c0265 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -543,21 +543,25 @@ exit:
+ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
+ {
+ 	struct usb_endpoint_descriptor *ep_irq_out;
+-	int error = -ENOMEM;
++	int error;
+ 
+ 	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX)
+ 		return 0;
+ 
+ 	xpad->odata = usb_alloc_coherent(xpad->udev, XPAD_PKT_LEN,
+ 					 GFP_KERNEL, &xpad->odata_dma);
+-	if (!xpad->odata)
++	if (!xpad->odata) {
++		error = -ENOMEM;
+ 		goto fail1;
++	}
+ 
+ 	mutex_init(&xpad->odata_mutex);
+ 
+ 	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!xpad->irq_out)
++	if (!xpad->irq_out) {
++		error = -ENOMEM;
+ 		goto fail2;
++	}
+ 
+ 	ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
+ 	usb_fill_int_urb(xpad->irq_out, xpad->udev,
+@@ -789,8 +793,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	struct usb_xpad *xpad;
+ 	struct input_dev *input_dev;
+ 	struct usb_endpoint_descriptor *ep_irq_in;
+-	int i;
+-	int error = -ENOMEM;
++	int i, error;
+ 
+ 	for (i = 0; xpad_device[i].idVendor; i++) {
+ 		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
+@@ -800,17 +803,23 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 
+ 	xpad = kzalloc(sizeof(struct usb_xpad), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+-	if (!xpad || !input_dev)
++	if (!xpad || !input_dev) {
++		error = -ENOMEM;
+ 		goto fail1;
++	}
+ 
+ 	xpad->idata = usb_alloc_coherent(udev, XPAD_PKT_LEN,
+ 					 GFP_KERNEL, &xpad->idata_dma);
+-	if (!xpad->idata)
++	if (!xpad->idata) {
++		error = -ENOMEM;
+ 		goto fail1;
++	}
+ 
+ 	xpad->irq_in = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!xpad->irq_in)
++	if (!xpad->irq_in) {
++		error = -ENOMEM;
+ 		goto fail2;
++	}
+ 
+ 	xpad->udev = udev;
+ 	xpad->mapping = xpad_device[i].mapping;
+@@ -929,12 +938,16 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		 * controller when it shows up
+ 		 */
+ 		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
+-		if(!xpad->bulk_out)
++		if (!xpad->bulk_out) {
++			error = -ENOMEM;
+ 			goto fail5;
++		}
+ 
+ 		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
+-		if(!xpad->bdata)
++		if (!xpad->bdata) {
++			error = -ENOMEM;
+ 			goto fail6;
++		}
+ 
+ 		xpad->bdata[2] = 0x08;
+ 		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
 -- 
-Dmitry
+1.7.2
+
+
+

@@ -1,74 +1,52 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [RFC v1 PATCH 4/6] input: pmic8058_pwrkey: Add support for power
- key
-Date: Fri, 12 Nov 2010 14:26:28 +0530
-Message-ID: <4CDD013C.6050709@codeaurora.org>
-References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org> <1289393281-4459-5-git-send-email-tsoni@codeaurora.org> <20101111072107.GA24415@core.coreip.homeip.net> <4CDBDAD5.90406@codeaurora.org> <20101112005741.GC17097@core.coreip.homeip.net>
+From: "Hemanth V" <hemanthv@ti.com>
+Subject: Re: Sensor event related attribute naming.
+Date: Fri, 12 Nov 2010 15:34:36 +0530
+Message-ID: <7BC12C510D794F198DFA5A5C104CD7B6@wipblrx0099946>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:7545 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752465Ab0KLI40 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Nov 2010 03:56:26 -0500
-In-Reply-To: <20101112005741.GC17097@core.coreip.homeip.net>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:35891 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752465Ab0KLKG2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Nov 2010 05:06:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, wruan@codeaurora.org
+To: Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Manuel Stahl <manuel.stahl@iis.fraunhofer.de>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@linux-foundation.org>, drivers@analog.com, achew@nvidia.com, Donggeun Kim <dg77.kim@samsung.com>, Dmitry Torokhov <dtor@mail.ru>
 
-Hi Dmitry,
+----- Original Message ----- 
+From: "Hemanth V" <hemanthv@ti.com>
+To: "Jonathan Cameron" <jic23@cam.ac.uk>; "Dmitry Torokhov" <dtor@mail.ru>
 
-On 11/12/2010 6:27 AM, Dmitry Torokhov wrote:
-> On Thu, Nov 11, 2010 at 05:30:21PM +0530, Trilok Soni wrote:
->> Hi Dmitry,
+
+> ----- Original Message ----- 
+> From: "Jonathan Cameron" <jic23@cam.ac.uk>
+> To: "Jonathan Cameron" <jic23@cam.ac.uk>
+> Sent: Thursday, September 30, 2010 3:36 PM
+> Subject: Re: Sensor event related attribute naming.
+>
+>
+>> Given the lack of further comment, I went ahead and implemented the above 
+>> naming
+>> scheme for IIO. As the above discussion with Hemanth shows, there are 
+>> some corner cases
+>> that will need futher thought in the future.
 >>
->> On 11/11/2010 12:51 PM, Dmitry Torokhov wrote:
->>> Hi Trilkok,
->>>
->>> On Wed, Nov 10, 2010 at 06:17:59PM +0530, Trilok Soni wrote:
->>>> Add support for PMIC8058 power key driven over dedicated KYPD_PWR_N
->>>> pin. It allows the user to specify the amount of time by which the
->>>> power key reporting can be delayed.
->>>>
->>>
->>> Why do we need to delay KEY_POWER reporting? Do we need to use high
->>> resolution timers or regular timers would do as well? KEY_END
->>> appears to be abused (you don't want to move your cursor to the end
->>> of line, do you?). Also I wonder if header file should reside in
->>> linux/mfd with the rest of pmic8058 components.
->>
->> Most of the time Mobile devices come with single physical key for
->> POWER, which if pressed for less than 500ms (configurable) then it
->> will only report KEY_END (which say locks the screen on mobile) and if
->> it pressed more than 500ms then it will also report KEY_POWER event
->> too, which will say display menu on your mobile for asking you to
->> suspend/switch off/etc, operations.
->>
-> 
-> I see,. If you would have used KEY_SCREENLOCK iinstead of KEY_END I
-> would likely not ask this question ;)
-> 
+>
+> Jonathan, haven't seen many comments on this. Do u think the reason
+> might be that these interfaces are hidden behind a HAL layer like in 
+> android and
+> might not be a burning issue for many people.
+>
 
-KEY_SCRENNLOCK looks good, let me analyze the impact on userspace framework
-which I have. I will come back on this in a day.
+Dmitry, could you let us know your thoughts on this too.
+Would using a HAL layer be better compared to creating a standard
+sysfs interface, as it seems to be the popular approach.
 
->> For the timers I can move from hrtimers to regular timers.
->>
->> For the header file, I can move them to include/linux/mfd too. No
->> problem on that.
->>
-> 
-> I am not even sure we need to keep them in separate header files, but it
-> is up to you.
+Thanks
+Hemanth 
 
-Do you suggest that all the MFD sub-devices's platform data structures should come from single
-header file?
-
----Trilok Soni
-
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

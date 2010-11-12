@@ -1,19 +1,19 @@
 From: Gabor Juhos <juhosg@openwrt.org>
 Subject: [RFC 09/18] input: add input driver for polled GPIO buttons
-Date: Fri, 12 Nov 2010 20:50:36 +0100
-Message-ID: <1289591445-28842-10-git-send-email-juhosg@openwrt.org>
-References: <1289591445-28842-1-git-send-email-juhosg@openwrt.org>
+Date: Fri, 12 Nov 2010 22:51:15 +0100
+Message-ID: <1289598684-30624-10-git-send-email-juhosg@openwrt.org>
+References: <1289598684-30624-1-git-send-email-juhosg@openwrt.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:53412 "EHLO
+Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:54828 "EHLO
 	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932872Ab0KLUl5 (ORCPT
+	with ESMTP id S1757143Ab0KLVvw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Nov 2010 15:41:57 -0500
-In-Reply-To: <1289591445-28842-1-git-send-email-juhosg@openwrt.org>
+	Fri, 12 Nov 2010 16:51:52 -0500
+In-Reply-To: <1289598684-30624-1-git-send-email-juhosg@openwrt.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ralf Baechle <ralf@linux-mips.org>
-Cc: kaloz@openwrt.org, Gabor Juhos <juhosg@openwrt.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org
+Cc: linux-mips@linux-mips.org, "Luis R. Rodriguez" <mcgrof@gmail.com>, Cliff Holden <Cliff.Holden@Atheros.com>, Imre Kaloz <kaloz@openwrt.org>, Gabor Juhos <juhosg@openwrt.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org
 
 The existing gpio-keys driver can be usable only for GPIO lines with
 interrupt support. Several devices have buttons connected to a GPIO
@@ -26,6 +26,8 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mike Frysinger <vapier@gentoo.org>
 Cc: linux-input@vger.kernel.org
 ---
+Sorry for sending this twice, i forgot to add some CCs in the first round.
+
  drivers/input/misc/Kconfig        |   16 +++
  drivers/input/misc/Makefile       |    1 +
  drivers/input/misc/gpio_buttons.c |  232 +++++++++++++++++++++++++++++++++++++

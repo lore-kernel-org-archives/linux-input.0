@@ -1,114 +1,221 @@
-From: Stefan Achatz <stefan_achatz@web.de>
-Subject: [PATCH 2/2] HID: roccat: using new sysfs_create_bin_group() in
- kone driver
-Date: Fri, 12 Nov 2010 19:18:41 +0100
-Message-ID: <1289585921.2629.13.camel__24967.9076405757$1289586103$gmane$org@neuromancer>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] sysfs: Introducing sysfs_create_bin_group()
+Date: Fri, 12 Nov 2010 10:57:00 -0800
+Message-ID: <20101112185700.GE1224@core.coreip.homeip.net>
+References: <1289585918.2629.12.camel@neuromancer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fmmailgate01.web.de ([217.72.192.221]:56689 "EHLO
-	fmmailgate01.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932252Ab0KLSVE (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:56172 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752967Ab0KLS5I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Nov 2010 13:21:04 -0500
+	Fri, 12 Nov 2010 13:57:08 -0500
+Content-Disposition: inline
+In-Reply-To: <1289585918.2629.12.camel@neuromancer>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@suse.de>, "Eric W. Biederman" <ebiederm@aristanetworks.com>, "Serge E. Hallyn" <serue@us.ibm.com>, Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Stefan Achatz <stefan_achatz@web.de>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, "Eric W. Biederman" <ebiederm@aristanetworks.com>, "Serge E. Hallyn" <serue@us.ibm.com>, Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Thery <benjamin.thery@bull.net>
 
-hid-roccat-kone now uses new group functions for creating binary
-sysfs attributes.
+On Fri, Nov 12, 2010 at 07:18:38PM +0100, Stefan Achatz wrote:
+> Implemented group functions for easier creation of multiple binary sysfs
+> attributes similar to existing attribute_group handling functions.
+> The code reuses struct attribute_group instead of inventing a new struct
+> binary_attribute_group.
+> 
+> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-roccat-kone.c |   53 ++++++++++++----------------------------
- 1 files changed, 16 insertions(+), 37 deletions(-)
+Looks good to me, thanks for implementing this.
 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index f776957..43f1693 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -710,6 +710,20 @@ static struct bin_attribute kone_profile5_attr = {
- 	.write = kone_sysfs_write_profile5
- };
- 
-+static struct attribute *kone_bin_attributes[] = {
-+	&kone_settings_attr.attr,
-+	&kone_profile1_attr.attr,
-+	&kone_profile2_attr.attr,
-+	&kone_profile3_attr.attr,
-+	&kone_profile4_attr.attr,
-+	&kone_profile5_attr.attr,
-+	NULL
-+};
-+
-+static struct attribute_group kone_bin_attribute_group = {
-+	.attrs = kone_bin_attributes
-+};
-+
- static int kone_create_sysfs_attributes(struct usb_interface *intf)
- {
- 	int retval;
-@@ -718,42 +732,12 @@ static int kone_create_sysfs_attributes(struct usb_interface *intf)
- 	if (retval)
- 		goto exit_1;
- 
--	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_settings_attr);
-+	retval = sysfs_create_bin_group(&intf->dev.kobj, &kone_bin_attribute_group);
- 	if (retval)
- 		goto exit_2;
- 
--	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile1_attr);
--	if (retval)
--		goto exit_3;
--
--	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile2_attr);
--	if (retval)
--		goto exit_4;
--
--	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile3_attr);
--	if (retval)
--		goto exit_5;
--
--	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile4_attr);
--	if (retval)
--		goto exit_6;
--
--	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile5_attr);
--	if (retval)
--		goto exit_7;
--
- 	return 0;
- 
--exit_7:
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile4_attr);
--exit_6:
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile3_attr);
--exit_5:
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile2_attr);
--exit_4:
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile1_attr);
--exit_3:
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_settings_attr);
- exit_2:
- 	sysfs_remove_group(&intf->dev.kobj, &kone_attribute_group);
- exit_1:
-@@ -762,12 +746,7 @@ exit_1:
- 
- static void kone_remove_sysfs_attributes(struct usb_interface *intf)
- {
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile5_attr);
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile4_attr);
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile3_attr);
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile2_attr);
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile1_attr);
--	sysfs_remove_bin_file(&intf->dev.kobj, &kone_settings_attr);
-+	sysfs_remove_group(&intf->dev.kobj, &kone_bin_attribute_group);
- 	sysfs_remove_group(&intf->dev.kobj, &kone_attribute_group);
- }
- 
+> ---
+>  fs/sysfs/group.c      |   76 ++++++++++++++++++++++++++++++++++++------------
+>  include/linux/sysfs.h |   11 +++++++
+>  2 files changed, 68 insertions(+), 19 deletions(-)
+> 
+> diff --git a/fs/sysfs/group.c b/fs/sysfs/group.c
+> index 442f34f..841baed 100644
+> --- a/fs/sysfs/group.c
+> +++ b/fs/sysfs/group.c
+> @@ -27,7 +27,7 @@ static void remove_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
+>  }
+>  
+>  static int create_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
+> -			const struct attribute_group *grp, int update)
+> +			const struct attribute_group *grp, int update, int type)
+>  {
+>  	struct attribute *const* attr;
+>  	int error = 0, i;
+> @@ -45,7 +45,7 @@ static int create_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
+>  			if (!mode)
+>  				continue;
+>  		}
+> -		error = sysfs_add_file_mode(dir_sd, *attr, SYSFS_KOBJ_ATTR,
+> +		error = sysfs_add_file_mode(dir_sd, *attr, type,
+>  					    (*attr)->mode | mode);
+>  		if (unlikely(error))
+>  			break;
+> @@ -57,7 +57,7 @@ static int create_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
+>  
+>  
+>  static int internal_create_group(struct kobject *kobj, int update,
+> -				 const struct attribute_group *grp)
+> +				 const struct attribute_group *grp, int type)
+>  {
+>  	struct sysfs_dirent *sd;
+>  	int error;
+> @@ -75,7 +75,7 @@ static int internal_create_group(struct kobject *kobj, int update,
+>  	} else
+>  		sd = kobj->sd;
+>  	sysfs_get(sd);
+> -	error = create_files(sd, kobj, grp, update);
+> +	error = create_files(sd, kobj, grp, update, type);
+>  	if (error) {
+>  		if (grp->name)
+>  			sysfs_remove_subdir(sd);
+> @@ -97,9 +97,16 @@ static int internal_create_group(struct kobject *kobj, int update,
+>  int sysfs_create_group(struct kobject *kobj,
+>  		       const struct attribute_group *grp)
+>  {
+> -	return internal_create_group(kobj, 0, grp);
+> +	return internal_create_group(kobj, 0, grp, SYSFS_KOBJ_ATTR);
+>  }
+>  
+> +int sysfs_create_bin_group(struct kobject *kobj,
+> +			   const struct attribute_group *grp)
+> +{
+> +	return internal_create_group(kobj, 0, grp, SYSFS_KOBJ_BIN_ATTR);
+> +}
+> +EXPORT_SYMBOL_GPL(sysfs_create_bin_group);
+> +
+>  /**
+>   * sysfs_update_group - given a directory kobject, create an attribute group
+>   * @kobj:	The kobject to create the group on
+> @@ -120,10 +127,15 @@ int sysfs_create_group(struct kobject *kobj,
+>  int sysfs_update_group(struct kobject *kobj,
+>  		       const struct attribute_group *grp)
+>  {
+> -	return internal_create_group(kobj, 1, grp);
+> +	return internal_create_group(kobj, 1, grp, SYSFS_KOBJ_ATTR);
+>  }
+>  
+> -
+> +int sysfs_update_bin_group(struct kobject *kobj,
+> +			   const struct attribute_group *grp)
+> +{
+> +	return internal_create_group(kobj, 1, grp, SYSFS_KOBJ_BIN_ATTR);
+> +}
+> +EXPORT_SYMBOL_GPL(sysfs_update_bin_group);
+>  
+>  void sysfs_remove_group(struct kobject * kobj, 
+>  			const struct attribute_group * grp)
+> @@ -148,17 +160,15 @@ void sysfs_remove_group(struct kobject * kobj,
+>  	sysfs_put(sd);
+>  }
+>  
+> -/**
+> - * sysfs_merge_group - merge files into a pre-existing attribute group.
+> - * @kobj:	The kobject containing the group.
+> - * @grp:	The files to create and the attribute group they belong to.
+> - *
+> - * This function returns an error if the group doesn't exist or any of the
+> - * files already exist in that group, in which case none of the new files
+> - * are created.
+> - */
+> -int sysfs_merge_group(struct kobject *kobj,
+> -		       const struct attribute_group *grp)
+> +void sysfs_remove_bin_group(struct kobject * kobj,
+> +			    const struct attribute_group * grp)
+> +{
+> +	sysfs_remove_group(kobj, grp);
+> +}
+> +EXPORT_SYMBOL_GPL(sysfs_remove_bin_group);
+> +
+> +int internal_merge_group(struct kobject *kobj,
+> +		       const struct attribute_group *grp, int type)
+>  {
+>  	struct sysfs_dirent *dir_sd;
+>  	int error = 0;
+> @@ -173,7 +183,7 @@ int sysfs_merge_group(struct kobject *kobj,
+>  		return -ENOENT;
+>  
+>  	for ((i = 0, attr = grp->attrs); *attr && !error; (++i, ++attr))
+> -		error = sysfs_add_file(dir_sd, *attr, SYSFS_KOBJ_ATTR);
+> +		error = sysfs_add_file(dir_sd, *attr, type);
+>  	if (error) {
+>  		while (--i >= 0)
+>  			sysfs_hash_and_remove(dir_sd, NULL, (*--attr)->name);
+> @@ -182,8 +192,30 @@ int sysfs_merge_group(struct kobject *kobj,
+>  
+>  	return error;
+>  }
+> +
+> +/**
+> + * sysfs_merge_group - merge files into a pre-existing attribute group.
+> + * @kobj:	The kobject containing the group.
+> + * @grp:	The files to create and the attribute group they belong to.
+> + *
+> + * This function returns an error if the group doesn't exist or any of the
+> + * files already exist in that group, in which case none of the new files
+> + * are created.
+> + */
+> +int sysfs_merge_group(struct kobject *kobj,
+> +		       const struct attribute_group *grp)
+> +{
+> +	return internal_merge_group(kobj, grp, SYSFS_KOBJ_ATTR);
+> +}
+>  EXPORT_SYMBOL_GPL(sysfs_merge_group);
+>  
+> +int sysfs_merge_bin_group(struct kobject *kobj,
+> +			  const struct attribute_group *grp)
+> +{
+> +	return internal_merge_group(kobj, grp, SYSFS_KOBJ_BIN_ATTR);
+> +}
+> +EXPORT_SYMBOL_GPL(sysfs_merge_bin_group);
+> +
+>  /**
+>   * sysfs_unmerge_group - remove files from a pre-existing attribute group.
+>   * @kobj:	The kobject containing the group.
+> @@ -207,6 +239,12 @@ void sysfs_unmerge_group(struct kobject *kobj,
+>  }
+>  EXPORT_SYMBOL_GPL(sysfs_unmerge_group);
+>  
+> +void sysfs_unmerge_bin_group(struct kobject *kobj,
+> +			     const struct attribute_group *grp)
+> +{
+> +	sysfs_unmerge_group(kobj, grp);
+> +}
+> +EXPORT_SYMBOL_GPL(sysfs_unmerge_bin_group);
+>  
+>  EXPORT_SYMBOL_GPL(sysfs_create_group);
+>  EXPORT_SYMBOL_GPL(sysfs_update_group);
+> diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
+> index 30b8815..653b0b0 100644
+> --- a/include/linux/sysfs.h
+> +++ b/include/linux/sysfs.h
+> @@ -169,6 +169,17 @@ int sysfs_merge_group(struct kobject *kobj,
+>  void sysfs_unmerge_group(struct kobject *kobj,
+>  		       const struct attribute_group *grp);
+>  
+> +int sysfs_create_bin_group(struct kobject *kobj,
+> +			   const struct attribute_group *grp);
+> +int sysfs_update_bin_group(struct kobject *kobj,
+> +			   const struct attribute_group *grp);
+> +void sysfs_remove_bin_group(struct kobject * kobj,
+> +			const struct attribute_group * grp);
+> +int sysfs_merge_bin_group(struct kobject *kobj,
+> +		       const struct attribute_group *grp);
+> +void sysfs_unmerge_bin_group(struct kobject *kobj,
+> +		       const struct attribute_group *grp);
+> +
+>  void sysfs_notify(struct kobject *kobj, const char *dir, const char *attr);
+>  void sysfs_notify_dirent(struct sysfs_dirent *sd);
+>  struct sysfs_dirent *sysfs_get_dirent(struct sysfs_dirent *parent_sd,
+> -- 
+> 1.7.2.3
+> 
+> 
+> 
+
 -- 
-1.7.2.3
-
-
-
+Dmitry

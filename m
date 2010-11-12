@@ -1,221 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] sysfs: Introducing sysfs_create_bin_group()
-Date: Fri, 12 Nov 2010 10:57:00 -0800
-Message-ID: <20101112185700.GE1224@core.coreip.homeip.net>
-References: <1289585918.2629.12.camel@neuromancer>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: HID: questions about polling rates
+Date: Fri, 12 Nov 2010 20:15:52 +0100
+Message-ID: <1289589352.2629.95.camel@neuromancer>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:56172 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752967Ab0KLS5I (ORCPT
+Received: from mail-in-18.arcor-online.net ([151.189.21.58]:43365 "EHLO
+	mail-in-18.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932443Ab0KLTP4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Nov 2010 13:57:08 -0500
-Content-Disposition: inline
-In-Reply-To: <1289585918.2629.12.camel@neuromancer>
+	Fri, 12 Nov 2010 14:15:56 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <stefan_achatz@web.de>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, "Eric W. Biederman" <ebiederm@aristanetworks.com>, "Serge E. Hallyn" <serue@us.ibm.com>, Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Thery <benjamin.thery@bull.net>
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.orglinux-kernel@vger.kernel.org
 
-On Fri, Nov 12, 2010 at 07:18:38PM +0100, Stefan Achatz wrote:
-> Implemented group functions for easier creation of multiple binary sysfs
-> attributes similar to existing attribute_group handling functions.
-> The code reuses struct attribute_group instead of inventing a new struct
-> binary_attribute_group.
-> 
-> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+Hello,
 
-Looks good to me, thanks for implementing this.
+while working on my roccat device drivers I thought about the possiblity
+of on the fly polling rate changes and tested some things.
 
-> ---
->  fs/sysfs/group.c      |   76 ++++++++++++++++++++++++++++++++++++------------
->  include/linux/sysfs.h |   11 +++++++
->  2 files changed, 68 insertions(+), 19 deletions(-)
-> 
-> diff --git a/fs/sysfs/group.c b/fs/sysfs/group.c
-> index 442f34f..841baed 100644
-> --- a/fs/sysfs/group.c
-> +++ b/fs/sysfs/group.c
-> @@ -27,7 +27,7 @@ static void remove_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
->  }
->  
->  static int create_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
-> -			const struct attribute_group *grp, int update)
-> +			const struct attribute_group *grp, int update, int type)
->  {
->  	struct attribute *const* attr;
->  	int error = 0, i;
-> @@ -45,7 +45,7 @@ static int create_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
->  			if (!mode)
->  				continue;
->  		}
-> -		error = sysfs_add_file_mode(dir_sd, *attr, SYSFS_KOBJ_ATTR,
-> +		error = sysfs_add_file_mode(dir_sd, *attr, type,
->  					    (*attr)->mode | mode);
->  		if (unlikely(error))
->  			break;
-> @@ -57,7 +57,7 @@ static int create_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
->  
->  
->  static int internal_create_group(struct kobject *kobj, int update,
-> -				 const struct attribute_group *grp)
-> +				 const struct attribute_group *grp, int type)
->  {
->  	struct sysfs_dirent *sd;
->  	int error;
-> @@ -75,7 +75,7 @@ static int internal_create_group(struct kobject *kobj, int update,
->  	} else
->  		sd = kobj->sd;
->  	sysfs_get(sd);
-> -	error = create_files(sd, kobj, grp, update);
-> +	error = create_files(sd, kobj, grp, update, type);
->  	if (error) {
->  		if (grp->name)
->  			sysfs_remove_subdir(sd);
-> @@ -97,9 +97,16 @@ static int internal_create_group(struct kobject *kobj, int update,
->  int sysfs_create_group(struct kobject *kobj,
->  		       const struct attribute_group *grp)
->  {
-> -	return internal_create_group(kobj, 0, grp);
-> +	return internal_create_group(kobj, 0, grp, SYSFS_KOBJ_ATTR);
->  }
->  
-> +int sysfs_create_bin_group(struct kobject *kobj,
-> +			   const struct attribute_group *grp)
-> +{
-> +	return internal_create_group(kobj, 0, grp, SYSFS_KOBJ_BIN_ATTR);
-> +}
-> +EXPORT_SYMBOL_GPL(sysfs_create_bin_group);
-> +
->  /**
->   * sysfs_update_group - given a directory kobject, create an attribute group
->   * @kobj:	The kobject to create the group on
-> @@ -120,10 +127,15 @@ int sysfs_create_group(struct kobject *kobj,
->  int sysfs_update_group(struct kobject *kobj,
->  		       const struct attribute_group *grp)
->  {
-> -	return internal_create_group(kobj, 1, grp);
-> +	return internal_create_group(kobj, 1, grp, SYSFS_KOBJ_ATTR);
->  }
->  
-> -
-> +int sysfs_update_bin_group(struct kobject *kobj,
-> +			   const struct attribute_group *grp)
-> +{
-> +	return internal_create_group(kobj, 1, grp, SYSFS_KOBJ_BIN_ATTR);
-> +}
-> +EXPORT_SYMBOL_GPL(sysfs_update_bin_group);
->  
->  void sysfs_remove_group(struct kobject * kobj, 
->  			const struct attribute_group * grp)
-> @@ -148,17 +160,15 @@ void sysfs_remove_group(struct kobject * kobj,
->  	sysfs_put(sd);
->  }
->  
-> -/**
-> - * sysfs_merge_group - merge files into a pre-existing attribute group.
-> - * @kobj:	The kobject containing the group.
-> - * @grp:	The files to create and the attribute group they belong to.
-> - *
-> - * This function returns an error if the group doesn't exist or any of the
-> - * files already exist in that group, in which case none of the new files
-> - * are created.
-> - */
-> -int sysfs_merge_group(struct kobject *kobj,
-> -		       const struct attribute_group *grp)
-> +void sysfs_remove_bin_group(struct kobject * kobj,
-> +			    const struct attribute_group * grp)
-> +{
-> +	sysfs_remove_group(kobj, grp);
-> +}
-> +EXPORT_SYMBOL_GPL(sysfs_remove_bin_group);
-> +
-> +int internal_merge_group(struct kobject *kobj,
-> +		       const struct attribute_group *grp, int type)
->  {
->  	struct sysfs_dirent *dir_sd;
->  	int error = 0;
-> @@ -173,7 +183,7 @@ int sysfs_merge_group(struct kobject *kobj,
->  		return -ENOENT;
->  
->  	for ((i = 0, attr = grp->attrs); *attr && !error; (++i, ++attr))
-> -		error = sysfs_add_file(dir_sd, *attr, SYSFS_KOBJ_ATTR);
-> +		error = sysfs_add_file(dir_sd, *attr, type);
->  	if (error) {
->  		while (--i >= 0)
->  			sysfs_hash_and_remove(dir_sd, NULL, (*--attr)->name);
-> @@ -182,8 +192,30 @@ int sysfs_merge_group(struct kobject *kobj,
->  
->  	return error;
->  }
-> +
-> +/**
-> + * sysfs_merge_group - merge files into a pre-existing attribute group.
-> + * @kobj:	The kobject containing the group.
-> + * @grp:	The files to create and the attribute group they belong to.
-> + *
-> + * This function returns an error if the group doesn't exist or any of the
-> + * files already exist in that group, in which case none of the new files
-> + * are created.
-> + */
-> +int sysfs_merge_group(struct kobject *kobj,
-> +		       const struct attribute_group *grp)
-> +{
-> +	return internal_merge_group(kobj, grp, SYSFS_KOBJ_ATTR);
-> +}
->  EXPORT_SYMBOL_GPL(sysfs_merge_group);
->  
-> +int sysfs_merge_bin_group(struct kobject *kobj,
-> +			  const struct attribute_group *grp)
-> +{
-> +	return internal_merge_group(kobj, grp, SYSFS_KOBJ_BIN_ATTR);
-> +}
-> +EXPORT_SYMBOL_GPL(sysfs_merge_bin_group);
-> +
->  /**
->   * sysfs_unmerge_group - remove files from a pre-existing attribute group.
->   * @kobj:	The kobject containing the group.
-> @@ -207,6 +239,12 @@ void sysfs_unmerge_group(struct kobject *kobj,
->  }
->  EXPORT_SYMBOL_GPL(sysfs_unmerge_group);
->  
-> +void sysfs_unmerge_bin_group(struct kobject *kobj,
-> +			     const struct attribute_group *grp)
-> +{
-> +	sysfs_unmerge_group(kobj, grp);
-> +}
-> +EXPORT_SYMBOL_GPL(sysfs_unmerge_bin_group);
->  
->  EXPORT_SYMBOL_GPL(sysfs_create_group);
->  EXPORT_SYMBOL_GPL(sysfs_update_group);
-> diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
-> index 30b8815..653b0b0 100644
-> --- a/include/linux/sysfs.h
-> +++ b/include/linux/sysfs.h
-> @@ -169,6 +169,17 @@ int sysfs_merge_group(struct kobject *kobj,
->  void sysfs_unmerge_group(struct kobject *kobj,
->  		       const struct attribute_group *grp);
->  
-> +int sysfs_create_bin_group(struct kobject *kobj,
-> +			   const struct attribute_group *grp);
-> +int sysfs_update_bin_group(struct kobject *kobj,
-> +			   const struct attribute_group *grp);
-> +void sysfs_remove_bin_group(struct kobject * kobj,
-> +			const struct attribute_group * grp);
-> +int sysfs_merge_bin_group(struct kobject *kobj,
-> +		       const struct attribute_group *grp);
-> +void sysfs_unmerge_bin_group(struct kobject *kobj,
-> +		       const struct attribute_group *grp);
-> +
->  void sysfs_notify(struct kobject *kobj, const char *dir, const char *attr);
->  void sysfs_notify_dirent(struct sysfs_dirent *sd);
->  struct sysfs_dirent *sysfs_get_dirent(struct sysfs_dirent *parent_sd,
-> -- 
-> 1.7.2.3
-> 
-> 
-> 
+First I tried different polling rates by writing values from 1 to 10
+into /sys/bus/usb/drivers/usbhid/module/parameters/mousepoll. I observed
+that the polling rates seem to be capped on both sides. With value 1 I
+measure 2ms instead of 1ms with my hardware protocol analyzer. With 10 I
+get 8ms instead of 10ms.
+I only use cheap onboard usb controllers, but under windows they work
+with 1ms.
+A internet and code search revealed nothing regarding this to me. Is
+someone of you aware of this behaviour and could tell me more about it?
 
--- 
-Dmitry
+Changing the polling rate of a device on the fly would requires to use
+usb_kill_urb() and usb_submit_urb() with new interval. To get the
+int_urb I would need additional informations for incomplete struct
+usbhid_device that lie in drivers/hid/usbhid/usbhid.h.
+My driver code is at home in drivers/hid/. Is it okay to include a
+header further down in the structure? Or does anyone have concerns about
+moving the mentioned header to include/linux? Is this a matter to follow
+at all?
+
+Thanks in advance
+Stefan
+

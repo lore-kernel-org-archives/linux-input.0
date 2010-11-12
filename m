@@ -1,30 +1,193 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Fri, 12 Nov 2010 09:21:09 +0100
-Message-ID: <4CDCF8F5.20809@euromail.se>
-References: <AANLkTi=rxkJcmp8WLKCRnxqNd_1QBT4W_2YJNJBcsHzF@mail.gmail.com>	<AANLkTimPUYXe=Pno8O2k_U7u9N+ob6EQMD_DCDtLDTS5@mail.gmail.com>	<20101110050219.GB29110@barra.bne.redhat.com>	<4CDA6D25.4070501@euromail.se>	<20101110235355.GB4473@barra.bne.redhat.com>	<4CDB3D6C.2000507@euromail.se>	<20101111012251.GC2121@core.coreip.homeip.net>	<AANLkTinYE40qN7n98Vb-Pyh5npst6JN+1LzxZaU50X_H@mail.gmail.com>	<20101111082653.GC24415@core.coreip.homeip.net>	<AANLkTikVZBdTTR=jb=jpW+u5sHr4zazypwOnJSoR-RXv@mail.gmail.com>	<20101111192434.GA13163@core.coreip.homeip.net>	<4CDC46E5.8040703@euromail.se>	<AANLkTi=TVm1xUeM8nfnGFhyrjW9+3NL0AO9iCvVFTriZ@mail.gmail.com>	<4CDC626D.9050205@euromail.se> <AANLkTikjbqo3RdJjDzm4N+cDy+q4dC2h_9oMR7zVJTPn@mail.gmail.com>
+From: "Joey Lee" <jlee@novell.com>
+Subject: Re: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
+Date: Fri, 12 Nov 2010 01:36:39 -0700
+Message-ID: <4CDD97470200002300023C85@novprvlin0050.provo.novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:35585 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755298Ab0KLIXf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Nov 2010 03:23:35 -0500
-In-Reply-To: <AANLkTikjbqo3RdJjDzm4N+cDy+q4dC2h_9oMR7zVJTPn@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: platform-driver-x86-owner@vger.kernel.org
+Cc: corentin.chary@gmail.com, dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, Thomas Renninger <trenn@novell.com>, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, jdelvare@suse.de, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michal Suchanek <hramrach@centrum.cz>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>, Chris Bagwell <chris@cnpbagwell.com>, linux-input <linux-input@vger.kernel.org>
 
->
+Hi Carlos,=20
 
-> I'd love to wait for the implementation of input-mt.c. Do you have a
-> rough timeline for it?
+=E6=96=BC =E6=97=A5=EF=BC=8C2010-11-07 =E6=96=BC 21:54 -0700=EF=BC=8CJo=
+ey Lee =E6=8F=90=E5=88=B0=EF=BC=9A
+> Hi Jean,=20
+>=20
+> On =E6=97=A5, 2010-10-31 at 00:36 +0800, Lee, Chun-Yi wrote:
+> >  static acpi_status WMID_set_capabilities(void)
+> >  {
+> >  	struct acpi_buffer out =3D {ACPI_ALLOCATE_BUFFER, NULL};
+> > @@ -844,16 +869,24 @@ static acpi_status WMID_set_capabilities(void=
+)
+> >  		return AE_ERROR;
+> >  	}
+> > =20
+> > -	/* Not sure on the meaning of the relevant bits yet to detect the=
+se */
+> > -	interface->capability |=3D ACER_CAP_WIRELESS;
+> > -	interface->capability |=3D ACER_CAP_THREEG;
+> > +	dmi_walk(type_aa_dmi_decode, NULL);
+> > +	if (type_aa) {
+> > +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
+> > +			interface->capability |=3D ACER_CAP_WIRELESS;
+> > +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG)
+> > +			interface->capability |=3D ACER_CAP_THREEG;
+> > +		if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
+> > +			interface->capability |=3D ACER_CAP_BLUETOOTH;
+> > +	} else {
+> > +		interface->capability |=3D ACER_CAP_WIRELESS;
+> > +		interface->capability |=3D ACER_CAP_THREEG;
+> > +		if (devices & 0x10)
+> > +			interface->capability |=3D ACER_CAP_BLUETOOTH;
+> > +	}
+> > =20
+>=20
+> Thank's for your review and found out cann't use a global pointer to =
+a
+> DMI record to keep track of what dmi_walk() found. I modified the pat=
+ch
+> like following:
+>=20
+>=20
+> >From c8f99f9856bc79aa8f525595e5ff115f3d6c3c69 Mon Sep 17 00:00:00 20=
+01
+> From: Lee, Chun-Yi <jlee@novell.com>
+> Date: Mon, 8 Nov 2010 16:40:55 +0800
+> Subject: [PATCH 4/4] Detect the WiFi/Bluetooth/3G devices available
+>=20
+> Check the Acer OEM-specific Type AA to detect the WiFi/Bluetooth/3G
+> devices available or not, and set the devices capability flag.
+>=20
+> Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> ---
+>  drivers/platform/x86/acer-wmi.c |   49 +++++++++++++++++++++++++++++=
+++++-----
+>  1 files changed, 42 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/a=
+cer-wmi.c
+> index 6ac4656..dc23140 100644
+> --- a/drivers/platform/x86/acer-wmi.c
+> +++ b/drivers/platform/x86/acer-wmi.c
+> @@ -39,6 +39,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/input.h>
+>  #include <linux/input/sparse-keymap.h>
+> +#include <linux/dmi.h>
+> =20
+>  #include <acpi/acpi_drivers.h>
+> =20
+> @@ -138,7 +139,9 @@ struct lm_return_value {
+>  /*
+>   * GUID3 Get Device Status device flags
+>   */
+> +#define ACER_WMID3_GDS_WIRELESS		(1<<0)	/* WiFi */
+>  #define ACER_WMID3_GDS_THREEG		(1<<6)	/* 3G */
+> +#define ACER_WMID3_GDS_BLUETOOTH	(1<<11)	/* BT */
+> =20
+>  struct wmid3_gds_input_param {	/* Get Device Status input parameter =
+*/
+>  	u8 function_num;	/* Function Number */
+> @@ -153,6 +156,13 @@ struct wmid3_gds_return_value {	/* Get Device St=
+atus return value*/
+>  	u32 reserved;
+>  } __attribute__((packed));
+> =20
+> +struct hotkey_function_type_aa {
+> +	u8 type;
+> +	u8 length;
+> +	u16 handle;
+> +	u16 commun_func_bitmap;
+> +} __attribute__((packed));
+> +
+>  /*
+>   * Interface capability flags
+>   */
+> @@ -184,6 +194,7 @@ static int brightness =3D -1;
+>  static int threeg =3D -1;
+>  static int force_series;
+>  static bool ec_raw_mode;
+> +static bool has_type_aa;
+> =20
+>  module_param(mailled, int, 0444);
+>  module_param(brightness, int, 0444);
+> @@ -824,6 +835,28 @@ static acpi_status WMID_set_u32(u32 value, u32 c=
+ap, struct wmi_interface *iface)
+>  	return WMI_execute_u32(method_id, (u32)value, NULL);
+>  }
+> =20
+> +static void type_aa_dmi_decode(const struct dmi_header *header, void=
+ *dummy)
+> +{
+> +	struct hotkey_function_type_aa *type_aa;
+> +
+> +	/* We are looking for OEM-specific Type AAh */
+> +	if (header->type !=3D 0xAA)
+> +		return;
+> +
+> +	has_type_aa =3D true;
+> +	type_aa =3D (struct hotkey_function_type_aa *) header;
+> +
+> +	printk(ACER_INFO "Function bitmap for Communication Button: 0x%x\n"=
+,
+> +		type_aa->commun_func_bitmap);
+> +
+> +	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_WIRELESS)
+> +		interface->capability |=3D ACER_CAP_WIRELESS;
+> +	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_THREEG)
+> +		interface->capability |=3D ACER_CAP_THREEG;
+> +	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
+> +		interface->capability |=3D ACER_CAP_BLUETOOTH;
+> +}
+> +
+>  static acpi_status WMID_set_capabilities(void)
+>  {
+>  	struct acpi_buffer out =3D {ACPI_ALLOCATE_BUFFER, NULL};
+> @@ -844,16 +877,17 @@ static acpi_status WMID_set_capabilities(void)
+>  		return AE_ERROR;
+>  	}
+> =20
+> -	/* Not sure on the meaning of the relevant bits yet to detect these=
+ */
+> -	interface->capability |=3D ACER_CAP_WIRELESS;
+> -	interface->capability |=3D ACER_CAP_THREEG;
+> +	dmi_walk(type_aa_dmi_decode, NULL);
+> +	if (!has_type_aa) {
+> +		interface->capability |=3D ACER_CAP_WIRELESS;
+> +		interface->capability |=3D ACER_CAP_THREEG;
+> +		if (devices & 0x10)
+> +			interface->capability |=3D ACER_CAP_BLUETOOTH;
+> +	}
+> =20
+>  	/* WMID always provides brightness methods */
+>  	interface->capability |=3D ACER_CAP_BRIGHTNESS;
+> =20
+> -	if (devices & 0x10)
+> -		interface->capability |=3D ACER_CAP_BLUETOOTH;
+> -
+>  	if (!(devices & 0x20))
+>  		max_brightness =3D 0x9;
+> =20
+> @@ -932,7 +966,8 @@ static void __init acer_commandline_init(void)
+>  	 * capability isn't available on the given interface
+>  	 */
+>  	set_u32(mailled, ACER_CAP_MAILLED);
+> -	set_u32(threeg, ACER_CAP_THREEG);
+> +	if (!has_type_aa)
+> +		set_u32(threeg, ACER_CAP_THREEG);
+>  	set_u32(brightness, ACER_CAP_BRIGHTNESS);
+>  }
+> =20
+
+Could you please give me any suggestion for the acer-wmi patches 1/4 -
+4/4?
+Does those patches good enough for you to merge to mainline?
 
 
-Well... we have patches already, so we are talking weeks.
-
-Cheers,
-Henrik
+Thank's a lot!
+Joey Lee

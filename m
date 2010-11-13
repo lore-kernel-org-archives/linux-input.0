@@ -1,55 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC 09/18] input: add input driver for polled GPIO buttons
-Date: Fri, 12 Nov 2010 22:04:01 -0800
-Message-ID: <20101113060401.GA1919@core.coreip.homeip.net>
-References: <1289591445-28842-1-git-send-email-juhosg@openwrt.org>
- <1289591445-28842-10-git-send-email-juhosg@openwrt.org>
- <201011122015.01709.vapier@gentoo.org>
+Subject: Re: [PATCH 2/2] HID: roccat: using new sysfs_create_bin_group() in
+ kone driver
+Date: Fri, 12 Nov 2010 22:06:34 -0800
+Message-ID: <20101113060634.GB1919@core.coreip.homeip.net>
+References: <1289585921.2629.13.camel@neuromancer>
+ <AANLkTik4qPyBtKgJwHVnhkTASNORoKrWms6gk8NirYeU@mail.gmail.com>
+ <20101113005232.GA20865@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:43372 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751025Ab0KMGEK (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:50896 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751048Ab0KMGGm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Nov 2010 01:04:10 -0500
-Received: by gyh4 with SMTP id 4so2262049gyh.19
-        for <linux-input@vger.kernel.org>; Fri, 12 Nov 2010 22:04:09 -0800 (PST)
+	Sat, 13 Nov 2010 01:06:42 -0500
 Content-Disposition: inline
-In-Reply-To: <201011122015.01709.vapier@gentoo.org>
+In-Reply-To: <20101113005232.GA20865@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: Gabor Juhos <juhosg@openwrt.org>, Ralf Baechle <ralf@linux-mips.org>, kaloz@openwrt.org, linux-input@vger.kernel.org, michael.hennerich@analog.com, vapier.adi@gmail.com
+To: Greg KH <gregkh@suse.de>
+Cc: Eric Biederman <ebiederm@aristanetworks.com>, Stefan Achatz <stefan_achatz@web.de>, "Serge E. Hallyn" <serue@us.ibm.com>, Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Thery <benjamin.thery@bull.net>
 
-On Fri, Nov 12, 2010 at 08:14:59PM -0500, Mike Frysinger wrote:
-> On Friday, November 12, 2010 14:50:36 Gabor Juhos wrote:
-> > The existing gpio-keys driver can be usable only for GPIO lines with
-> > interrupt support. Several devices have buttons connected to a GPIO
-> > line which is not capable to generate interrupts. This patch adds a
-> > new input driver using the generic GPIO layer and the input-polldev
-> > to support such buttons.
+On Fri, Nov 12, 2010 at 04:52:32PM -0800, Greg KH wrote:
+> On Fri, Nov 12, 2010 at 04:21:45PM -0800, Eric Biederman wrote:
+> > On Fri, Nov 12, 2010 at 10:18 AM, Stefan Achatz <stefan_achatz@web.de> wrote:
+> > > hid-roccat-kone now uses new group functions for creating binary
+> > > sysfs attributes.
+> > 
+> > Looking at this, I have a problem with the way this works.
+> > You are still doing this the hard and racy way.
+> > 
+> > sysfs attributes that are only added when we initialize the hardware and
+> > are only removed when we remove the driver should use the device layer
+> > functions to create their attributes.
+> > 
+> > This achieves two things.  The code is easier to write because there
+> > is less of it.
+> > The notification to user space happens after the attributes appear so
+> > that you don't
+> > have strange hotplug races.
+> > 
+> > If there a chance you can look at implementing this in the simpler
+> > race free way?
 > 
-> i havent looked at the two drivers to compare, but my gut reaction is "do we 
-> really need two drivers" ?  cant the existing one be extended to support both 
-> types ? 
+> Good point, just attach this attribute group to the device and the
+> driver core will automatically create the files for you.
+> 
 
-I actually like it being separate. All previous attempts to combine
-interrupt-driven and polled devices complicated the drivers and had
-driver picking in the guts of the polled device implementation.
+Attribute group in device structure is normally owned and managed by
+subsystem core; without additional plumbing drivers should not be
+touching it, at least not normally.
 
-> conceivably, you could have a device with both sources and a sep 
-> driver would mean user space needs to watch two different devices.
-
-This is unlikely, however userspace usually watches a few devices
-anyway, nothing new here.
-
->  and it 
-> implicitly means userspace needs to be aware of interrupt vs polled 
-> limitations of the hardware instead of it simply caring about GPIOs.
-
-No, as long as userspace simply listens to all devices whose
-capabilities they are interested in they will be fine.
+Plus we do not have binary attribute group in device structure [yet].
 
 -- 
 Dmitry

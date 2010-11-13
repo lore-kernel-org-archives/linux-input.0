@@ -1,115 +1,77 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: [PATCH 3/4] Input: hgpk - Fix powersave mode
-Date: Sat, 13 Nov 2010 19:22:21 +0000 (GMT)
-Message-ID: <20101113192221.E7FBC9D401B@zog.reactivated.net>
+From: kevin granade <kevin.granade@gmail.com>
+Subject: [RFC PATCH] input: wacom - Add support for Bamboo Pen CTL460
+Date: Sat, 13 Nov 2010 14:22:16 -0600
+Message-ID: <AANLkTimCp=jt8J6S14Woh_BuNdvHxdDGZY8KEp3zty5m@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:49858 "EHLO
-	mtaout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932084Ab0KMTWZ (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:42641 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755331Ab0KMUWi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Nov 2010 14:22:25 -0500
+	Sat, 13 Nov 2010 15:22:38 -0500
+Received: by wwb29 with SMTP id 29so18412wwb.1
+        for <linux-input@vger.kernel.org>; Sat, 13 Nov 2010 12:22:37 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru
-Cc: linux-input@vger.kernel.org, pgf@laptop.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, pingc@wacom.com, chris@cnpbagwell.com
 
-From: Paul Fox <pgf@laptop.org>
+From: Kevin Granade <kevin.granade@gmail.com>
 
-Recent testing of this codepath showed that it wasn't working,
-perhaps due to changes within the input layer. This fixes it.
+Add support for Bamboo Pen CTL460 to wacom tablet driver.
 
-Signed-off-by: Daniel Drake <dsd@laptop.org>
+I've been able to get working input with a CTL460 through X, though
+I'm not sure if the settings are correct and there are a few issues.
+How does one determine these numbers?
+
+I tried 7336 and 4572 for x and y resolution based on the advertised
+lpi of the device multiplied by the dimensions of the active area, but
+these seemed to be off by about half, so I tried setting the
+resolution numbers to match the other Bamboo devices, which seems to
+work ok.
+
+I'm not seeing pressure sensitivity in gimp with a pressure levels
+setting of either 511 or 1023, is there additional X or gimp setup I
+need to do to enable this?
+
+I haven't been able to determine what the "distance" setting should be
+other than copying the number used by the other devices, is this
+correct?.
+
+The last nit is that I'm not sure how this device fits into the naming
+scheme for the similar tablets, would it be something like "Wacom
+Bamboo 2FG 4x6", or should it reflect the fact that it is pen-only
+somehow?
+
+Signed-off-by: Kevin Granade <kevin.granade@gmail.com>
 ---
- drivers/input/mouse/hgpk.c |   26 +++++++++++++++++---------
- 1 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/input/tablet/wacom_wac.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-index 95cef49..4917a08 100644
---- a/drivers/input/mouse/hgpk.c
-+++ b/drivers/input/mouse/hgpk.c
-@@ -689,11 +689,15 @@ static int hgpk_force_recalibrate(struct psmouse *psmouse)
- }
- 
- /*
-- * This kills power to the touchpad; according to ALPS, current consumption
-- * goes down to 50uA after running this.  To turn power back on, we drive
-- * MS-DAT low.
-+ * This puts the touchpad in a power saving mode; according to ALPS, current
-+ * consumption goes down to 50uA after running this.  To turn power back on,
-+ * we drive MS-DAT low.  Measuring with a 1mA resolution ammeter says that
-+ * the current on the SUS_3.3V rail drops from 3mA or 4mA to 0 when we do this.
-+ *
-+ * We have no formal spec that details this operation -- the low-power
-+ * sequence came from a long-lost email trail.
-  */
--static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
-+static int hgpk_toggle_powersave(struct psmouse *psmouse, int enable)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 	int timeo;
-@@ -711,13 +715,13 @@ static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
- 		 * the controller.  Once we get an ACK back from it, it
- 		 * means we can continue with the touchpad re-init.  ALPS
- 		 * tells us that 1s should be long enough, so set that as
--		 * the upper bound.
-+		 * the upper bound. (in practice, it takes about 3 loops.)
- 		 */
- 		for (timeo = 20; timeo > 0; timeo--) {
- 			if (!ps2_sendbyte(&psmouse->ps2dev,
- 					PSMOUSE_CMD_DISABLE, 20))
- 				break;
--			msleep(50);
-+			msleep(25);
- 		}
- 
- 		err = hgpk_reset_device(psmouse, false);
-@@ -729,10 +733,9 @@ static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
- 		/* should be all set, enable the touchpad */
- 		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
- 		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
--
-+		hgpk_dbg(psmouse, "Touchpad powered up.\n");
- 	} else {
- 		hgpk_dbg(psmouse, "Powering off touchpad.\n");
--		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
- 
- 		if (ps2_command(ps2dev, NULL, 0xec) ||
- 		    ps2_command(ps2dev, NULL, 0xec) ||
-@@ -740,6 +743,8 @@ static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
- 			return -1;
- 		}
- 
-+		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-+
- 		/* probably won't see an ACK, the touchpad will be off */
- 		ps2_sendbyte(&psmouse->ps2dev, 0xec, 20);
- 	}
-@@ -755,6 +760,8 @@ static int hgpk_poll(struct psmouse *psmouse)
- 
- static int hgpk_reconnect(struct psmouse *psmouse)
- {
-+	struct hgpk_data *priv = psmouse->private;
-+
- 	/*
- 	 * During suspend/resume the ps2 rails remain powered.  We don't want
- 	 * to do a reset because it's flush data out of buffers; however,
-@@ -765,6 +772,7 @@ static int hgpk_reconnect(struct psmouse *psmouse)
- 				PM_EVENT_ON)
- 			return 0;
- 
-+	priv->powered = 1;
- 	return hgpk_reset_device(psmouse, false);
- }
- 
-@@ -791,7 +799,7 @@ static ssize_t hgpk_set_powered(struct psmouse *psmouse, void *data,
- 		 * hgpk_toggle_power will deal w/ state so
- 		 * we're not racing w/ irq
- 		 */
--		err = hgpk_toggle_power(psmouse, value);
-+		err = hgpk_toggle_powersave(psmouse, value);
- 		if (!err)
- 			priv->powered = value;
- 	}
--- 
-1.7.3.2
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index b3252ef..aa08ec5 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1436,6 +1436,8 @@ static struct wacom_features wacom_features_0xD2 =
+        { "Wacom Bamboo Craft",   WACOM_PKGLEN_BBFUN,     14720,
+9200, 1023, 63, BAMBOO_PT };
+ static struct wacom_features wacom_features_0xD3 =
+        { "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648,
+13530, 1023, 63, BAMBOO_PT };
++static const struct wacom_features wacom_features_0xD4 =
++       { "Wacom Bamboo Pen CTL460", WACOM_PKGLEN_BBFUN,  14720,
+9200, 1023, 63, BAMBOO_PT };
 
+ #define USB_DEVICE_WACOM(prod)                                 \
+        USB_DEVICE(USB_VENDOR_ID_WACOM, prod),                  \
+@@ -1504,6 +1506,7 @@ const struct usb_device_id wacom_ids[] = {
+        { USB_DEVICE_WACOM(0xD1) },
+        { USB_DEVICE_WACOM(0xD2) },
+        { USB_DEVICE_WACOM(0xD3) },
++       { USB_DEVICE_WACOM(0xD4) },
+        { USB_DEVICE_WACOM(0xF0) },
+        { USB_DEVICE_WACOM(0xCC) },
+        { USB_DEVICE_WACOM(0x90) },
+--
+1.5.6.5

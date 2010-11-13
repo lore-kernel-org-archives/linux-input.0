@@ -1,107 +1,115 @@
 From: Daniel Drake <dsd@laptop.org>
-Subject: [PATCH 2/4] Input: hgpk - Recalibration tweaks
-Date: Sat, 13 Nov 2010 19:22:11 +0000 (GMT)
-Message-ID: <20101113192212.21E189D401B@zog.reactivated.net>
+Subject: [PATCH 3/4] Input: hgpk - Fix powersave mode
+Date: Sat, 13 Nov 2010 19:22:21 +0000 (GMT)
+Message-ID: <20101113192221.E7FBC9D401B@zog.reactivated.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:49836 "EHLO
+Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:49858 "EHLO
 	mtaout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932084Ab0KMTWT (ORCPT
+	by vger.kernel.org with ESMTP id S932084Ab0KMTWZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Nov 2010 14:22:19 -0500
+	Sat, 13 Nov 2010 14:22:25 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, dtor@mail.ru
 Cc: linux-input@vger.kernel.org, pgf@laptop.org
 
-Disable the recalibration guard where new recalibrations are triggered
-if we detect a packet too soon after calibrating - we found that this
-results in erroneous recalibrations, and if the recalibration failed
-then the rest of our badness-detection code will request another.
+From: Paul Fox <pgf@laptop.org>
 
-Add a module option disabling all of the recalibration code, in case
-an OLPC deployment thinks all of the workarounds we have are doing
-more damage than good and wants to experiment with them all disabled.
-
-Based on work by Paul Fox.
+Recent testing of this codepath showed that it wasn't working,
+perhaps due to changes within the input layer. This fixes it.
 
 Signed-off-by: Daniel Drake <dsd@laptop.org>
 ---
- drivers/input/mouse/hgpk.c |   31 ++++++++++++++++++++++---------
- 1 files changed, 22 insertions(+), 9 deletions(-)
+ drivers/input/mouse/hgpk.c |   26 +++++++++++++++++---------
+ 1 files changed, 17 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-index 7f6cb32..95cef49 100644
+index 95cef49..4917a08 100644
 --- a/drivers/input/mouse/hgpk.c
 +++ b/drivers/input/mouse/hgpk.c
-@@ -62,16 +62,20 @@ module_param(spew_delay, int, 0644);
- MODULE_PARM_DESC(spew_delay,
- 	"delay (ms) before recal after packet spew detected");
+@@ -689,11 +689,15 @@ static int hgpk_force_recalibrate(struct psmouse *psmouse)
+ }
  
--static int recal_guard_time = 2000;
-+static int recal_guard_time;
- module_param(recal_guard_time, int, 0644);
- MODULE_PARM_DESC(recal_guard_time,
- 	"interval (ms) during which recal will be restarted if packet received");
+ /*
+- * This kills power to the touchpad; according to ALPS, current consumption
+- * goes down to 50uA after running this.  To turn power back on, we drive
+- * MS-DAT low.
++ * This puts the touchpad in a power saving mode; according to ALPS, current
++ * consumption goes down to 50uA after running this.  To turn power back on,
++ * we drive MS-DAT low.  Measuring with a 1mA resolution ammeter says that
++ * the current on the SUS_3.3V rail drops from 3mA or 4mA to 0 when we do this.
++ *
++ * We have no formal spec that details this operation -- the low-power
++ * sequence came from a long-lost email trail.
+  */
+-static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
++static int hgpk_toggle_powersave(struct psmouse *psmouse, int enable)
+ {
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 	int timeo;
+@@ -711,13 +715,13 @@ static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
+ 		 * the controller.  Once we get an ACK back from it, it
+ 		 * means we can continue with the touchpad re-init.  ALPS
+ 		 * tells us that 1s should be long enough, so set that as
+-		 * the upper bound.
++		 * the upper bound. (in practice, it takes about 3 loops.)
+ 		 */
+ 		for (timeo = 20; timeo > 0; timeo--) {
+ 			if (!ps2_sendbyte(&psmouse->ps2dev,
+ 					PSMOUSE_CMD_DISABLE, 20))
+ 				break;
+-			msleep(50);
++			msleep(25);
+ 		}
  
--static int post_interrupt_delay = 1000;
-+static int post_interrupt_delay = 40;
- module_param(post_interrupt_delay, int, 0644);
- MODULE_PARM_DESC(post_interrupt_delay,
- 	"delay (ms) before recal after recal interrupt detected");
+ 		err = hgpk_reset_device(psmouse, false);
+@@ -729,10 +733,9 @@ static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
+ 		/* should be all set, enable the touchpad */
+ 		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
+ 		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
+-
++		hgpk_dbg(psmouse, "Touchpad powered up.\n");
+ 	} else {
+ 		hgpk_dbg(psmouse, "Powering off touchpad.\n");
+-		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
  
-+static int autorecal = 1;
-+module_param(autorecal, int, 0644);
-+MODULE_PARM_DESC(autorecal, "enable recalibration in the driver");
+ 		if (ps2_command(ps2dev, NULL, 0xec) ||
+ 		    ps2_command(ps2dev, NULL, 0xec) ||
+@@ -740,6 +743,8 @@ static int hgpk_toggle_power(struct psmouse *psmouse, int enable)
+ 			return -1;
+ 		}
+ 
++		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
 +
- static char hgpk_mode_name[16];
- module_param_string(hgpk_mode, hgpk_mode_name, sizeof(hgpk_mode_name), 0644);
- MODULE_PARM_DESC(hgpk_mode,
-@@ -642,6 +646,13 @@ static int hgpk_force_recalibrate(struct psmouse *psmouse)
- 	if (psmouse->model < HGPK_MODEL_C)
- 		return 0;
+ 		/* probably won't see an ACK, the touchpad will be off */
+ 		ps2_sendbyte(&psmouse->ps2dev, 0xec, 20);
+ 	}
+@@ -755,6 +760,8 @@ static int hgpk_poll(struct psmouse *psmouse)
  
-+	if (!autorecal) {
-+		hgpk_dbg(psmouse, "recalibrations disabled, ignoring\n");
-+		return 0;
-+	}
-+
-+	hgpk_dbg(psmouse, "recalibrating touchpad..\n");
-+
- 	/* we don't want to race with the irq handler, nor with resyncs */
- 	psmouse_set_state(psmouse, PSMOUSE_INITIALIZING);
- 
-@@ -662,13 +673,17 @@ static int hgpk_force_recalibrate(struct psmouse *psmouse)
- 
- 	psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
- 
-+	if (tpdebug)
-+		hgpk_dbg(psmouse, "touchpad reactivated\n");
+ static int hgpk_reconnect(struct psmouse *psmouse)
+ {
++	struct hgpk_data *priv = psmouse->private;
 +
  	/*
--	 * After we recalibrate, we shouldn't get any packets for 2s.  If
--	 * we do, it's likely that someone's finger was on the touchpad.
--	 * If someone's finger *was* on the touchpad, it's probably
--	 * miscalibrated.  So, we should schedule another recalibration
-+	 * If we get packets right away after recalibrating, it's likely
-+	 * that a finger was on the touchpad.  If so, it's probably
-+	 * miscalibrated, so we optionally schedule another.
- 	 */
--	priv->recalib_window = jiffies + msecs_to_jiffies(recal_guard_time);
-+	if (recal_guard_time)
-+		priv->recalib_window = jiffies +
-+			msecs_to_jiffies(recal_guard_time);
+ 	 * During suspend/resume the ps2 rails remain powered.  We don't want
+ 	 * to do a reset because it's flush data out of buffers; however,
+@@ -765,6 +772,7 @@ static int hgpk_reconnect(struct psmouse *psmouse)
+ 				PM_EVENT_ON)
+ 			return 0;
  
- 	return 0;
++	priv->powered = 1;
+ 	return hgpk_reset_device(psmouse, false);
  }
-@@ -898,8 +913,6 @@ static void hgpk_recalib_work(struct work_struct *work)
- 	struct hgpk_data *priv = container_of(w, struct hgpk_data, recalib_wq);
- 	struct psmouse *psmouse = priv->psmouse;
  
--	hgpk_dbg(psmouse, "recalibrating touchpad..\n");
--
- 	if (hgpk_force_recalibrate(psmouse))
- 		hgpk_err(psmouse, "recalibration failed!\n");
- }
+@@ -791,7 +799,7 @@ static ssize_t hgpk_set_powered(struct psmouse *psmouse, void *data,
+ 		 * hgpk_toggle_power will deal w/ state so
+ 		 * we're not racing w/ irq
+ 		 */
+-		err = hgpk_toggle_power(psmouse, value);
++		err = hgpk_toggle_powersave(psmouse, value);
+ 		if (!err)
+ 			priv->powered = value;
+ 	}
 -- 
 1.7.3.2
 

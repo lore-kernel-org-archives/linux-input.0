@@ -1,77 +1,77 @@
-From: kevin granade <kevin.granade@gmail.com>
-Subject: [RFC PATCH] input: wacom - Add support for Bamboo Pen CTL460
-Date: Sat, 13 Nov 2010 14:22:16 -0600
-Message-ID: <AANLkTimCp=jt8J6S14Woh_BuNdvHxdDGZY8KEp3zty5m@mail.gmail.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH 2/2] HID: roccat: using new sysfs_create_bin_group() in
+	kone driver
+Date: Sat, 13 Nov 2010 16:03:45 -0800
+Message-ID: <20101114000345.GA2040@suse.de>
+References: <1289585921.2629.13.camel@neuromancer> <AANLkTik4qPyBtKgJwHVnhkTASNORoKrWms6gk8NirYeU@mail.gmail.com> <20101113005232.GA20865@suse.de> <20101113060634.GB1919@core.coreip.homeip.net> <20101113143908.GA29750@suse.de> <1289666055.2191.1.camel@neuromancer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:42641 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755331Ab0KMUWi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Nov 2010 15:22:38 -0500
-Received: by wwb29 with SMTP id 29so18412wwb.1
-        for <linux-input@vger.kernel.org>; Sat, 13 Nov 2010 12:22:37 -0800 (PST)
+Received: from cantor.suse.de ([195.135.220.2]:44841 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754395Ab0KNADJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 13 Nov 2010 19:03:09 -0500
+Content-Disposition: inline
+In-Reply-To: <1289666055.2191.1.camel@neuromancer>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, pingc@wacom.com, chris@cnpbagwell.com
+To: Stefan Achatz <stefan_achatz@web.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Biederman <ebiederm@aristanetworks.com>, "Serge E. Hallyn" <serue@us.ibm.com>, Tejun Heo <tj@kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Thery <benjamin.thery@bull.net>
 
-From: Kevin Granade <kevin.granade@gmail.com>
+On Sat, Nov 13, 2010 at 05:34:15PM +0100, Stefan Achatz wrote:
+> Am Samstag, den 13.11.2010, 06:39 -0800 schrieb Greg KH:
+> > On Fri, Nov 12, 2010 at 10:06:34PM -0800, Dmitry Torokhov wrote:
+> > > On Fri, Nov 12, 2010 at 04:52:32PM -0800, Greg KH wrote:
+> > > > On Fri, Nov 12, 2010 at 04:21:45PM -0800, Eric Biederman wrote:
+> > > > > On Fri, Nov 12, 2010 at 10:18 AM, Stefan Achatz <stefan_achatz@web.de> wrote:
+> > > > > > hid-roccat-kone now uses new group functions for creating binary
+> > > > > > sysfs attributes.
+> > > > > 
+> > > > > Looking at this, I have a problem with the way this works.
+> > > > > You are still doing this the hard and racy way.
+> > > > > 
+> > > > > sysfs attributes that are only added when we initialize the hardware and
+> > > > > are only removed when we remove the driver should use the device layer
+> > > > > functions to create their attributes.
+> > > > > 
+> > > > > This achieves two things.  The code is easier to write because there
+> > > > > is less of it.
+> > > > > The notification to user space happens after the attributes appear so
+> > > > > that you don't
+> > > > > have strange hotplug races.
+> > > > > 
+> > > > > If there a chance you can look at implementing this in the simpler
+> > > > > race free way?
+> > > > 
+> > > > Good point, just attach this attribute group to the device and the
+> > > > driver core will automatically create the files for you.
+> > > > 
+> > > 
+> > > Attribute group in device structure is normally owned and managed by
+> > > subsystem core; without additional plumbing drivers should not be
+> > > touching it, at least not normally.
+> > > 
+> > > Plus we do not have binary attribute group in device structure [yet].
+> > 
+> > In thinking about it a bit more, why do you have so many binary
+> > attributes for this driver?  binary sysfs files are rare, so adding a
+> > binary attribute group pointer to the device or driver would just waste
+> > a lot of space that no one else uses.
+> > 
+> > What are these binary files for?  Who uses them?  I don't seem to be
+> > able to find them in the Documentation/ABI directory, or am I missing
+> > something here?
+> 
+> Documentation/ABI/testing/sysfs-driver-hid-roccat-kone
 
-Add support for Bamboo Pen CTL460 to wacom tablet driver.
+My apologies, that does look correct, thanks for doing it.
 
-I've been able to get working input with a CTL460 through X, though
-I'm not sure if the settings are correct and there are a few issues.
-How does one determine these numbers?
+Yeah, odds are udev wants to see these files when the device shows up so
+we need a way to get them created before the device event is sent out to
+userspace.  So we need to get them assigned to the device or driver
+somehow like the default attribute groups we have today.  Any ideas are
+appreciated.
 
-I tried 7336 and 4572 for x and y resolution based on the advertised
-lpi of the device multiplied by the dimensions of the active area, but
-these seemed to be off by about half, so I tried setting the
-resolution numbers to match the other Bamboo devices, which seems to
-work ok.
+thanks,
 
-I'm not seeing pressure sensitivity in gimp with a pressure levels
-setting of either 511 or 1023, is there additional X or gimp setup I
-need to do to enable this?
-
-I haven't been able to determine what the "distance" setting should be
-other than copying the number used by the other devices, is this
-correct?.
-
-The last nit is that I'm not sure how this device fits into the naming
-scheme for the similar tablets, would it be something like "Wacom
-Bamboo 2FG 4x6", or should it reflect the fact that it is pen-only
-somehow?
-
-Signed-off-by: Kevin Granade <kevin.granade@gmail.com>
----
- drivers/input/tablet/wacom_wac.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index b3252ef..aa08ec5 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1436,6 +1436,8 @@ static struct wacom_features wacom_features_0xD2 =
-        { "Wacom Bamboo Craft",   WACOM_PKGLEN_BBFUN,     14720,
-9200, 1023, 63, BAMBOO_PT };
- static struct wacom_features wacom_features_0xD3 =
-        { "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648,
-13530, 1023, 63, BAMBOO_PT };
-+static const struct wacom_features wacom_features_0xD4 =
-+       { "Wacom Bamboo Pen CTL460", WACOM_PKGLEN_BBFUN,  14720,
-9200, 1023, 63, BAMBOO_PT };
-
- #define USB_DEVICE_WACOM(prod)                                 \
-        USB_DEVICE(USB_VENDOR_ID_WACOM, prod),                  \
-@@ -1504,6 +1506,7 @@ const struct usb_device_id wacom_ids[] = {
-        { USB_DEVICE_WACOM(0xD1) },
-        { USB_DEVICE_WACOM(0xD2) },
-        { USB_DEVICE_WACOM(0xD3) },
-+       { USB_DEVICE_WACOM(0xD4) },
-        { USB_DEVICE_WACOM(0xF0) },
-        { USB_DEVICE_WACOM(0xCC) },
-        { USB_DEVICE_WACOM(0x90) },
---
-1.5.6.5
+greg k-h

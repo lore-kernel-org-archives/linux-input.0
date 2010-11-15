@@ -1,90 +1,82 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: RE: [PATCH 1/3] input: keyboard: MCS5080: support suspend/resume.
-Date: Mon, 15 Nov 2010 11:13:40 +0530
-Message-ID: <0680EC522D0CC943BC586913CF3768C003FF834855@dbde02.ent.ti.com>
-References: <4CE0B7B1.6060404@samsung.com>
+From: "Hemanth V" <hemanthv@ti.com>
+Subject: Re: Sensor event related attribute naming.
+Date: Mon, 15 Nov 2010 12:10:34 +0530
+Message-ID: <6100C6C94F5440C290CEC343F20F503F@wipblrx0099946>
+References: <7BC12C510D794F198DFA5A5C104CD7B6@wipblrx0099946> <20101112173227.GB1224@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ks_c_5601-1987"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:37431 "EHLO arroyo.ext.ti.com"
+Received: from comal.ext.ti.com ([198.47.26.152]:41307 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752181Ab0KOFns (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Nov 2010 00:43:48 -0500
-In-Reply-To: <4CE0B7B1.6060404@samsung.com>
-Content-Language: en-US
+	id S1755187Ab0KOGlX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Nov 2010 01:41:23 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "riverful.kim@samsung.com" <riverful.kim@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "kyungmin.park@samsung.com" <kyungmin.park@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Manuel Stahl <manuel.stahl@iis.fraunhofer.de>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@linux-foundation.org>, drivers@analog.com, achew@nvidia.com, Donggeun Kim <dg77.kim@samsung.com>
 
-SGkgS2ltLA0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGxpbnV4LWlu
-cHV0LW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmxpbnV4LWlucHV0LQ0KPiBvd25lckB2
-Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBLaW0sIEhldW5nSnVuDQo+IFNlbnQ6IE1vbmRh
-eSwgTm92ZW1iZXIgMTUsIDIwMTAgMTA6MDIgQU0NCj4gVG86IGxpbnV4LWlucHV0QHZnZXIua2Vy
-bmVsLm9yZzsgZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbQ0KPiBDYzoga3l1bmdtaW4ucGFya0Bz
-YW1zdW5nLmNvbQ0KPiBTdWJqZWN0OiBbUEFUQ0ggMS8zXSBpbnB1dDoga2V5Ym9hcmQ6IE1DUzUw
-ODA6IHN1cHBvcnQgc3VzcGVuZC9yZXN1bWUuDQo+IA0KPiBUaGlzIHBhdGNoIHN1cHBvcnRzIHN1
-c3BlbmQvcmVzdW1lIGZ1bmN0aW9ucyBmb3IgbWNzNTA4MCB0b3VjaGtleQ0KPiBkcml2ZXIuDQo+
-IA0KPiBTaWduZWQtb2ZmLWJ5OiBIZXVuZ2p1biBLaW0gPHJpdmVyZnVsLmtpbUBzYW1zdW5nLmNv
-bT4NCj4gU2lnbmVkLW9mZi1ieTogS3l1bmdtaW4gUGFyayA8a3l1bmdtaW4ucGFya0BzYW1zdW5n
-LmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2lucHV0L2tleWJvYXJkL21jc190b3VjaGtleS5jIHwg
-ICA0MQ0KPiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gIGluY2x1ZGUvbGlu
-dXgvaTJjL21jcy5oICAgICAgICAgICAgICAgfCAgICAxICsNCj4gIDIgZmlsZXMgY2hhbmdlZCwg
-NDIgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL2lucHV0L2tleWJvYXJkL21jc190b3VjaGtleS5jDQo+IGIvZHJpdmVycy9pbnB1dC9rZXli
-b2FyZC9tY3NfdG91Y2hrZXkuYw0KPiBpbmRleCA2M2I4NDlkLi4wNjM4NWY1IDEwMDY0NA0KPiAt
-LS0gYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL21jc190b3VjaGtleS5jDQo+ICsrKyBiL2RyaXZl
-cnMvaW5wdXQva2V5Ym9hcmQvbWNzX3RvdWNoa2V5LmMNCj4gQEAgLTQ1LDYgKzQ1LDggQEAgc3Ry
-dWN0IG1jc190b3VjaGtleV9jaGlwIHsNCj4gIH07DQo+IA0KPiAgc3RydWN0IG1jc190b3VjaGtl
-eV9kYXRhIHsNCj4gKyAgICAgICB2b2lkICgqcG93ZXJvbikoaW50KTsNCkNvdWxkIHlvdSBleHBs
-YWluIHdoYXQgaXQgZG9lcz8NCg0KPiArDQo+ICAgICAgICAgc3RydWN0IGkyY19jbGllbnQgKmNs
-aWVudDsNCj4gICAgICAgICBzdHJ1Y3QgaW5wdXRfZGV2ICppbnB1dF9kZXY7DQo+ICAgICAgICAg
-c3RydWN0IG1jc190b3VjaGtleV9jaGlwIGNoaXA7DQo+IEBAIC0xNjgsNiArMTcwLDggQEAgc3Rh
-dGljIGludCBfX2RldmluaXQgbWNzX3RvdWNoa2V5X3Byb2JlKHN0cnVjdA0KPiBpMmNfY2xpZW50
-ICpjbGllbnQsDQo+IA0KPiAgICAgICAgIGlmIChwZGF0YS0+Y2ZnX3BpbikNCj4gICAgICAgICAg
-ICAgICAgIHBkYXRhLT5jZmdfcGluKCk7DQo+ICsgICAgICAgaWYgKHBkYXRhLT5wb3dlcm9uKQ0K
-PiArICAgICAgICAgICAgICAgZGF0YS0+cG93ZXJvbiA9IHBkYXRhLT5wb3dlcm9uOw0KV2hlcmUg
-aXMgaXQgY2FsbGVkIHRoZSBmaXJzdCB0aW1lPw0KDQo+IA0KPiAgICAgICAgIGVycm9yID0gcmVx
-dWVzdF90aHJlYWRlZF9pcnEoY2xpZW50LT5pcnEsIE5VTEwsDQo+IG1jc190b3VjaGtleV9pbnRl
-cnJ1cHQsDQo+ICAgICAgICAgICAgICAgICAgICAgICAgIElSUUZfVFJJR0dFUl9GQUxMSU5HLCBj
-bGllbnQtPmRldi5kcml2ZXItPm5hbWUsDQo+IGRhdGEpOw0KPiBAQCAtMjAyLDYgKzIwNiw0MSBA
-QCBzdGF0aWMgaW50IF9fZGV2ZXhpdCBtY3NfdG91Y2hrZXlfcmVtb3ZlKHN0cnVjdA0KPiBpMmNf
-Y2xpZW50ICpjbGllbnQpDQo+ICAgICAgICAgcmV0dXJuIDA7DQo+ICB9DQo+IA0KPiArI2lmZGVm
-IENPTkZJR19QTQ0KPiArc3RhdGljIGludCBtY3NfdG91Y2hrZXlfc3VzcGVuZChzdHJ1Y3QgaTJj
-X2NsaWVudCAqY2xpZW50LCBwbV9tZXNzYWdlX3QNCj4gbWVzZykNCj4gK3sNCj4gKyAgICAgICBz
-dHJ1Y3QgbWNzX3RvdWNoa2V5X2RhdGEgKmRhdGEgPSBpMmNfZ2V0X2NsaWVudGRhdGEoY2xpZW50
-KTsNCj4gKw0KPiArICAgICAgIC8qIERpc2FibGUgdGhlIHdvcmsgKi8NCj4gKyAgICAgICBkaXNh
-YmxlX2lycShjbGllbnQtPmlycSk7DQo+ICsNCj4gKyAgICAgICAvKiBEb24ndCBJMkMgb3BlcmF0
-aW9uIHNpbmNlIHdlIGRvbid0IGtub3cgSTJDIGJ1cyBpcyBkZWFkIGFscmVhZHkNCj4gKi8NCj4g
-Kw0KPiArICAgICAgIC8qIEZpbmFsbHkgdHVybiBvZmYgdGhlIHBvd2VyICovDQo+ICsgICAgICAg
-aWYgKGRhdGEtPnBvd2Vyb24pDQo+ICsgICAgICAgICAgICAgICBkYXRhLT5wb3dlcm9uKDApOw0K
-PiArDQo+ICsgICAgICAgcmV0dXJuIDA7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBpbnQgbWNzX3Rv
-dWNoa2V5X3Jlc3VtZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQ0KPiArew0KPiArICAgICAg
-IHN0cnVjdCBtY3NfdG91Y2hrZXlfZGF0YSAqZGF0YSA9IGkyY19nZXRfY2xpZW50ZGF0YShjbGll
-bnQpOw0KPiArDQo+ICsgICAgICAgLyogRW5hYmxlIHRoZSBkZXZpY2UgZmlyc3QgKi8NCj4gKyAg
-ICAgICBpZiAoZGF0YS0+cG93ZXJvbikNCj4gKyAgICAgICAgICAgICAgIGRhdGEtPnBvd2Vyb24o
-MSk7DQo+ICsNCj4gKyAgICAgICAvKiBFbmFibGUgaXJxIGFnYWluICovDQo+ICsgICAgICAgZW5h
-YmxlX2lycShjbGllbnQtPmlycSk7DQo+ICsNCj4gKyAgICAgICByZXR1cm4gMDsNCj4gK30NCj4g
-KyNlbHNlDQo+ICsjZGVmaW5lIG1jc190b3VjaGtleV9zdXNwZW5kICAgTlVMTA0KPiArI2RlZmlu
-ZSBtY3NfdG91Y2hrZXlfcmVzdW1lICAgIE5VTEwNCj4gKyNlbmRpZg0KPiArDQo+ICBzdGF0aWMg
-Y29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQgbWNzX3RvdWNoa2V5X2lkW10gPSB7DQo+ICAgICAg
-ICAgeyAibWNzNTAwMF90b3VjaGtleSIsIE1DUzUwMDBfVE9VQ0hLRVkgfSwNCj4gICAgICAgICB7
-ICJtY3M1MDgwX3RvdWNoa2V5IiwgTUNTNTA4MF9UT1VDSEtFWSB9LA0KPiBAQCAtMjE2LDYgKzI1
-NSw4IEBAIHN0YXRpYyBzdHJ1Y3QgaTJjX2RyaXZlciBtY3NfdG91Y2hrZXlfZHJpdmVyID0gew0K
-PiAgICAgICAgIH0sDQo+ICAgICAgICAgLnByb2JlICAgICAgICAgID0gbWNzX3RvdWNoa2V5X3By
-b2JlLA0KPiAgICAgICAgIC5yZW1vdmUgICAgICAgICA9IF9fZGV2ZXhpdF9wKG1jc190b3VjaGtl
-eV9yZW1vdmUpLA0KPiArICAgICAgIC5zdXNwZW5kICAgICAgICA9IG1jc190b3VjaGtleV9zdXNw
-ZW5kLA0KPiArICAgICAgIC5yZXN1bWUgICAgICAgICA9IG1jc190b3VjaGtleV9yZXN1bWUsDQo+
-ICAgICAgICAgLmlkX3RhYmxlICAgICAgID0gbWNzX3RvdWNoa2V5X2lkLA0KPiAgfTsNCj4gDQo+
-IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L2kyYy9tY3MuaCBiL2luY2x1ZGUvbGludXgvaTJj
-L21jcy5oDQo+IGluZGV4IDcyNWFlN2MuLmM0YTM4NjkgMTAwNjQ0DQo+IC0tLSBhL2luY2x1ZGUv
-bGludXgvaTJjL21jcy5oDQo+ICsrKyBiL2luY2x1ZGUvbGludXgvaTJjL21jcy5oDQo+IEBAIC0x
-OCw2ICsxOCw3IEBADQo+ICAjZGVmaW5lIE1DU19LRVlfQ09ERSh2KSAgICAgICAgICAgICAgICAo
-KHYpICYgMHhmZmZmKQ0KPiANCj4gIHN0cnVjdCBtY3NfcGxhdGZvcm1fZGF0YSB7DQo+ICsgICAg
-ICAgdm9pZCAoKnBvd2Vyb24pKGludCk7DQo+ICAgICAgICAgdm9pZCAoKmNmZ19waW4pKHZvaWQp
-Ow0KPiANCj4gICAgICAgICAvKiB0b3VjaHNjcmVlbiAqLw0KPiAtLQ0KPiAxLjcuMC40DQo+IC0t
-DQo+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNj
-cmliZSBsaW51eC1pbnB1dCIgaW4NCj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9t
-b0B2Z2VyLmtlcm5lbC5vcmcNCj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIu
-a2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1sDQo=
+----- Original Message ----- 
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Sent: Friday, November 12, 2010 11:02 PM
+Subject: Re: Sensor event related attribute naming.
+
+
+> On Fri, Nov 12, 2010 at 03:34:36PM +0530, Hemanth V wrote:
+>> ----- Original Message ----- From: "Hemanth V" <hemanthv@ti.com>
+>> To: "Jonathan Cameron" <jic23@cam.ac.uk>; "Dmitry Torokhov" 
+>> <dtor@mail.ru>
+>>
+>>
+>> >----- Original Message ----- From: "Jonathan Cameron"
+>> ><jic23@cam.ac.uk>
+>> >To: "Jonathan Cameron" <jic23@cam.ac.uk>
+>> >Sent: Thursday, September 30, 2010 3:36 PM
+>> >Subject: Re: Sensor event related attribute naming.
+>> >
+>> >
+>> >>Given the lack of further comment, I went ahead and implemented
+>> >>the above naming
+>> >>scheme for IIO. As the above discussion with Hemanth shows,
+>> >>there are some corner cases
+>> >>that will need futher thought in the future.
+>> >>
+>> >
+>> >Jonathan, haven't seen many comments on this. Do u think the reason
+>> >might be that these interfaces are hidden behind a HAL layer like
+>> >in android and
+>> >might not be a burning issue for many people.
+>> >
+>>
+>> Dmitry, could you let us know your thoughts on this too.
+>> Would using a HAL layer be better compared to creating a standard
+>> sysfs interface, as it seems to be the popular approach.
+>>
+>
+> Hemanth,
+>
+> I do not really see the difference between sysfs interface and HAL
+> interface. They both abstract hardware details and bring them to common
+> denominator. If you guys can agree on HAL interface I trust sysfs should
+> be possible too ;)
+>
+> BTW, the reason I do not comment on sysfs accelerometer infrastructure
+> is because it is not topic I am vested in, my time budget barely covers
+> pure input matters. So as long as there is something that is common and
+> shared between drivers I would be good with it; you guys need to decide
+> on details, please.
+>
+
+Dmitry, thanks for the clarification, just wanted to make sure everyone is
+on the same page.
+
+As you had suggested, I will push the cma3000 driver without the sysfs
+interface. I will parallely work with Jonathan to come up with a standard
+sysfs interface.
+
+Thanks
+Hemanth 
+

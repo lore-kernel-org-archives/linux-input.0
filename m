@@ -1,31 +1,32 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] Drivers: hid: Makefile: Cleaned up Makefile
-Date: Mon, 15 Nov 2010 15:58:08 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1011151557510.7420@pobox.suse.cz>
-References: <1289141188-1447-1-git-send-email-tdent48227@gmail.com>
+From: <amandasaleeby1@centrum.sk>
+Subject: hello
+Date: Mon, 15 Nov 2010 17:30:59 +0100
+Message-ID: <201011151730.26890@centrum.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:41039 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754435Ab0KOO6K (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Nov 2010 09:58:10 -0500
-In-Reply-To: <1289141188-1447-1-git-send-email-tdent48227@gmail.com>
+Received: from farizej.centrum.cz ([90.183.38.130]:35686 "EHLO
+	farizej.centrum.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757895Ab0KOQbJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Nov 2010 11:31:09 -0500
+Received: by mail255.centrum.cz id S50353107Ab0KOQa7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Nov 2010 17:30:59 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tracey Dent <tdent48227@gmail.com>
-Cc: dmitry.torokhov@gmail.com, chatty@enac.fr, spbnick@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: amandasaleeby1 <amandasaleeby1@centrum.sk>
 
-On Sun, 7 Nov 2010, Tracey Dent wrote:
+hello with love and trust
+my dearest friend compliment of the day to you.my name is Amanda favour a
+girl of 23years old honest trusting kind caring loving and fun with
+compassionate and generous nature viewing your email address which really interest
+me to know more about you that is having communication friendship with you
+if you will have the desire with me.so that we can get to know each other
+better sharing feelings and thought together .i will like you to write me
+through my email for easiest communication.i will be waiting to read from
+you.I will be waiting for your mail;please make sure you replied to me with the email address below,it is very confidential and private,thanks and have a nice day.
+here is my email address
+Amandasaleeby@she.com
 
-> Changed Makefile to use <modules>-y instead of <modules>-objs because 
-> -objs is deprecated and should now be switched. According to 
-> (documentation/kbuild/makefiles.txt).
-
-Actually, where exactly does this file document it?
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.

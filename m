@@ -1,84 +1,125 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [RFC] Multi-Touch (MT) support - arbitration or not
-Date: Sun, 14 Nov 2010 12:40:10 -0800
-Message-ID: <AANLkTinR14-0Pvfm_jroCR3Ta27S_k-HXpgtgPwTzxWE@mail.gmail.com>
-References: <AANLkTi=rxkJcmp8WLKCRnxqNd_1QBT4W_2YJNJBcsHzF@mail.gmail.com>
-	<AANLkTimPUYXe=Pno8O2k_U7u9N+ob6EQMD_DCDtLDTS5@mail.gmail.com>
-	<20101110050219.GB29110@barra.bne.redhat.com>
-	<4CDA6D25.4070501@euromail.se>
-	<20101110235355.GB4473@barra.bne.redhat.com>
-	<4CDB3D6C.2000507@euromail.se>
-	<20101111012251.GC2121@core.coreip.homeip.net>
-	<AANLkTinYE40qN7n98Vb-Pyh5npst6JN+1LzxZaU50X_H@mail.gmail.com>
-	<20101111082653.GC24415@core.coreip.homeip.net>
-	<AANLkTikVZBdTTR=jb=jpW+u5sHr4zazypwOnJSoR-RXv@mail.gmail.com>
-	<20101111192434.GA13163@core.coreip.homeip.net>
-	<4CDC46E5.8040703@euromail.se>
-	<AANLkTi=TVm1xUeM8nfnGFhyrjW9+3NL0AO9iCvVFTriZ@mail.gmail.com>
-	<4CDC626D.9050205@euromail.se>
+From: "Kim, HeungJun" <riverful.kim@samsung.com>
+Subject: [PATCH 1/3] input: keyboard: MCS5080: support suspend/resume.
+Date: Mon, 15 Nov 2010 13:31:45 +0900
+Message-ID: <4CE0B7B1.6060404@samsung.com>
+Reply-To: riverful.kim@samsung.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:65001 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755888Ab0KNUkM (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:47674 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757342Ab0KOEbr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Nov 2010 15:40:12 -0500
-Received: by wwb39 with SMTP id 39so146190wwb.1
-        for <linux-input@vger.kernel.org>; Sun, 14 Nov 2010 12:40:11 -0800 (PST)
-In-Reply-To: <4CDC626D.9050205@euromail.se>
+	Sun, 14 Nov 2010 23:31:47 -0500
+Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
+ by mailout2.samsung.com
+ (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
+ 2010)) with ESMTP id <0LBW001XJSKX6RA0@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 15 Nov 2010 13:31:45 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LBW00DD8SKY17@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 15 Nov 2010 13:31:46 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: kyungmin.park@samsung.com
 
-On Thu, Nov 11, 2010 at 1:38 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
->
->> Are we going to do the tocuh and pen aribtration in input-mt.c? I need
->> to understand this to make my patches.
->
-> If the pen is implemented as just another contact, it will also be treated as
-> such, and arbitration becomes the same thing as single-pointer emulation.
+This patch supports suspend/resume functions for mcs5080 touchkey
+driver.
 
-New questions occured when I think about input-mt.c. How are we going
-to pass MT_TOOL types and resolution to the userland?
+Signed-off-by: Heungjun Kim <riverful.kim@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+---
+ drivers/input/keyboard/mcs_touchkey.c |   41 +++++++++++++++++++++++++++++++++
+ include/linux/i2c/mcs.h               |    1 +
+ 2 files changed, 42 insertions(+), 0 deletions(-)
 
-We need to pass MT_TOOL types to the userland since there would be
-different tools in the same slot array. Something like:
-input_report_key(input, MT_TOOL_PEN, prox); is needed.
+diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
+index 63b849d..06385f5 100644
+--- a/drivers/input/keyboard/mcs_touchkey.c
++++ b/drivers/input/keyboard/mcs_touchkey.c
+@@ -45,6 +45,8 @@ struct mcs_touchkey_chip {
+ };
 
-To do so, we need to enable them by a call to __set_bit(MT_TOOL_....
-first. But, __set_bit wasn't meant for MT_TOOL_ since 0
-(MT_TOOL_FINGER) and 1 (MT_TOOL_PEN) are used for KEY_RESERVED and
-KEY_ESC.
+ struct mcs_touchkey_data {
++       void (*poweron)(int);
++
+        struct i2c_client *client;
+        struct input_dev *input_dev;
+        struct mcs_touchkey_chip chip;
+@@ -168,6 +170,8 @@ static int __devinit mcs_touchkey_probe(struct i2c_client *client,
 
-One way to make this work is to increase  MT_TOOL_FINGER from 0 to
-something like 0x2ff (we need to increase KEY_MAX as well). Luckily
-MT_TOOL_ is not in any of the existing HID drivers.
+        if (pdata->cfg_pin)
+                pdata->cfg_pin();
++       if (pdata->poweron)
++               data->poweron = pdata->poweron;
 
-Another solution could be to pass the tool type as ABS values since we
-have ABS_MT_TOOL_TYPE defined already:
+        error = request_threaded_irq(client->irq, NULL, mcs_touchkey_interrupt,
+                        IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
+@@ -202,6 +206,41 @@ static int __devexit mcs_touchkey_remove(struct i2c_client *client)
+        return 0;
+ }
 
-input_report_abs(dev, ABS_MT_TOOL_TYPE, MT_TOOL_FINGER);
-.........
-input_set_abs_params(dev, ABS_MT_TOOL_TYPE, MT_TOOL_FINGER, MT_TOOL_PEN ....) .
++#ifdef CONFIG_PM
++static int mcs_touchkey_suspend(struct i2c_client *client, pm_message_t mesg)
++{
++       struct mcs_touchkey_data *data = i2c_get_clientdata(client);
++
++       /* Disable the work */
++       disable_irq(client->irq);
++
++       /* Don't I2C operation since we don't know I2C bus is dead already */
++
++       /* Finally turn off the power */
++       if (data->poweron)
++               data->poweron(0);
++
++       return 0;
++}
++
++static int mcs_touchkey_resume(struct i2c_client *client)
++{
++       struct mcs_touchkey_data *data = i2c_get_clientdata(client);
++
++       /* Enable the device first */
++       if (data->poweron)
++               data->poweron(1);
++
++       /* Enable irq again */
++       enable_irq(client->irq);
++
++       return 0;
++}
++#else
++#define mcs_touchkey_suspend   NULL
++#define mcs_touchkey_resume    NULL
++#endif
++
+ static const struct i2c_device_id mcs_touchkey_id[] = {
+        { "mcs5000_touchkey", MCS5000_TOUCHKEY },
+        { "mcs5080_touchkey", MCS5080_TOUCHKEY },
+@@ -216,6 +255,8 @@ static struct i2c_driver mcs_touchkey_driver = {
+        },
+        .probe          = mcs_touchkey_probe,
+        .remove         = __devexit_p(mcs_touchkey_remove),
++       .suspend        = mcs_touchkey_suspend,
++       .resume         = mcs_touchkey_resume,
+        .id_table       = mcs_touchkey_id,
+ };
 
-We need to add more MT tool types, such as MT_TOOL_AIRBRUSH...., for
-styli. Not sure if we want to go that far or not.
+diff --git a/include/linux/i2c/mcs.h b/include/linux/i2c/mcs.h
+index 725ae7c..c4a3869 100644
+--- a/include/linux/i2c/mcs.h
++++ b/include/linux/i2c/mcs.h
+@@ -18,6 +18,7 @@
+ #define MCS_KEY_CODE(v)                ((v) & 0xffff)
 
-I have thought about the resolution issue for a while. I didn't want
-to tocuh it since it affects all HID drivers. Resolution has been
-added to absinfo since kernel 2.6.31. But no kernel driver has passed
-resolution to the userland yet. We (linuxwacom project) still keep a
-resolution table in the X driver. Passing resolution to the userland
-from the kernel can get rid of those tables and avoid retrieving that
-information from HID descriptor.
+ struct mcs_platform_data {
++       void (*poweron)(int);
+        void (*cfg_pin)(void);
 
-One simple way to support resolution is to add "int res" to
-input_set_abs_params(...). This means an interface change. All HID
-drivers that call input_set_abs_params() have to be updated. We could
-introduce a new input_set_abs_something so only those drivers that
-want to pass the resolution switch to the new routine. Maybe you guys
-have other suggestions?
-
-Ping
+        /* touchscreen */
+--
+1.7.0.4

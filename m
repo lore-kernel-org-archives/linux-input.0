@@ -1,79 +1,59 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH 1/4] input: gpio_keys: polling mode support
-Date: Tue, 16 Nov 2010 18:36:05 +0900
-Message-ID: <20101116093605.GD1330@linux-sh.org>
-References: <cover.1289835508.git.bengardiner@nanometrics.ca> <8891d088e9a16122c780f737b1b1ec35f9517c36.1289835508.git.bengardiner@nanometrics.ca>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Aw: Re: [PATCH 0/3] HID: roccat: finishing usage of
+ sysfs_create_bin_group()
+Date: Tue, 16 Nov 2010 12:01:00 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1011161159590.7420@pobox.suse.cz>
+References: <alpine.LNX.2.00.1011152330540.7420@pobox.suse.cz> <1289853161.2188.44.camel@neuromancer> <20101115220828.GA9417@suse.de> <640538250.3216351289891020338.JavaMail.ngmail@webmail08.arcor-online.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 124x34x33x190.ap124.ftth.ucom.ne.jp ([124.34.33.190]:41849 "EHLO
-	master.linux-sh.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934072Ab0KPJgk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Nov 2010 04:36:40 -0500
-Content-Disposition: inline
-In-Reply-To: <8891d088e9a16122c780f737b1b1ec35f9517c36.1289835508.git.bengardiner@nanometrics.ca>
+Received: from cantor2.suse.de ([195.135.220.15]:47467 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932806Ab0KPLBC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Nov 2010 06:01:02 -0500
+In-Reply-To: <640538250.3216351289891020338.JavaMail.ngmail@webmail08.arcor-online.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gardiner <bengardiner@nanometrics.ca>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Cordahi <christophercordahi@nanometrics.ca>, Alexander Clouter <alex@digriz.org.uk>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: gregkh@suse.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Nov 15, 2010 at 02:07:50PM -0500, Ben Gardiner wrote:
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 6069abe..477802a 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -44,6 +48,26 @@ struct gpio_keys_drvdata {
->  	struct gpio_button_data data[0];
->  };
->  
-> +#if !defined(CONFIG_INPUT_POLLDEV) && !defined(CONFIG_INPUT_POLLDEV_MODULE)
-> +inline struct input_polled_dev *input_allocate_polled_device(void)
-> +{
-> +	return NULL;
-> +}
-> +
-> +inline void input_free_polled_device(struct input_polled_dev *poll_dev)
-> +{
-> +}
-> +
-> +inline int input_register_polled_device(struct input_polled_dev *dev)
-> +{
-> +	return -ENXIO;
-> +}
-> +
-> +inline void input_unregister_polled_device(struct input_polled_dev *poll_dev)
-> +{
-> +}
-> +#endif
-> +
+On Tue, 16 Nov 2010, Stefan Achatz wrote:
 
-Wouldn't these be better off in linux/input-polldev.h?
+> > > > These patches are against the newest roccat file versions (after
+> > > > applying everything I released the last days).
+> > > > They fix some inattentive (though not critical) failures from previous
+> > > > patches and change hid-roccat-koneplus and hid-roccat-pyra to use the
+> > > > new sysfs_create_bin_group()
+> > > > koneplus should be finished now (until I find errors)
+> > > 
+> > > Wait, they still don't resolve the main problem of this api is still
+> > > racy and I can't accept it.
+> > 
+> > Yeah, I have already pointed Stefan to
+> > 
+> > 	 http://lkml.org/lkml/2010/11/13/174
+> > 
+> > which he might have missed.
+> 
+> Hello again,
+> 
+> I don't see why these patches can't be applied. The bin attribute group 
+> functions standing for themself seem to be useful. The kone driver is 
+> already in the stable kernel and has less code with these patches. 
+> Though this does not change its functionality its a code cleanup. Thats 
+> also true for pyra and koneplus. So for me these are clear improvements 
+> until I make progress in the race problem. I will do it, but being a 
+> newbe I don't know where to start (feel free to point me to something), 
+> so it might take quite some time and sure needs some questions asked.
 
-> +#if !defined(CONFIG_INPUT_POLLDEV) && !defined(CONFIG_INPUT_POLLDEV_MODULE)
-> +	if (pdata->poll_interval) {
-> +		dev_err(dev, "device needs polling (enable INPUT_POLLDEV)\n");
-> +		return -EINVAL;
-> +	}
-> +#endif
-> +
-This you could probably just shove in to..
+Hi Stefan,
 
->  	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
->  			pdata->nbuttons * sizeof(struct gpio_button_data),
->  			GFP_KERNEL);
-> -	input = input_allocate_device();
-> +	if (pdata->poll_interval) {
-> +		poll_dev = input_allocate_polled_device();
-> +		input = poll_dev ? poll_dev->input : 0;
-> +	} else
-> +		input = input_allocate_device();
->  	if (!ddata || !input) {
->  		dev_err(dev, "failed to allocate state\n");
->  		error = -ENOMEM;
->  		goto fail1;
+the way the driver does things is racy and needs fixing. Introducing 
+interface into sysfs/driver core, which we now know is racy, is not 
+something we'd like to do.
 
-this. Then just get rid of the ifdefs, as the
-input_allocate_polled_device() case will have already NULL'ed out.
+Thanks,
 
-The rest is obviously fine with me!
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

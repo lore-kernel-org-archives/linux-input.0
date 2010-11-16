@@ -1,14 +1,15 @@
 From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Subject: [PATCH v2 0/4] da850-evm: add gpio-{keys,
-	leds} for UI and BB expanders
-Date: Tue, 16 Nov 2010 14:39:33 -0500
-Message-ID: <cover.1289935504.git.bengardiner@nanometrics.ca>
+Subject: [PATCH v2 3/4] da850-evm: extract defines for SEL{A, B,
+	C} pins in UI expander
+Date: Tue, 16 Nov 2010 14:39:36 -0500
+Message-ID: <aa85c5d83111add3a2ed3495ac13bffe5e6b885d.1289935504.git.bengardiner@nanometrics.ca>
 References: <cover.1289835508.git.bengardiner@nanometrics.ca>
+	<cover.1289935504.git.bengardiner@nanometrics.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <cover.1289835508.git.bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <cover.1289935504.git.bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
 List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
 	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
@@ -16,86 +17,89 @@ List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@pu
 List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
 List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
 	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Clouter <alex-L4GPcECwBoDe9xe1eoZjHA@public.gmane.org>, Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The da850-evm baseboard (BB) and its UI board both have tca6416 IO expanders.
-They are bootstrapped to different I2C addresses so they can be used
-concurrently.
+The setup and teardown methods of the UI expander reference the SEL_{A,B,C}
+pins by 'magic number' in each function. This patch extracts common #defines
+for their offsets in the expander and uses them.
 
-The expander on the UI board is currently used to enable/disable the
-peripherals that are available on the UI board. In addition to this
-functionality the expander is also connected to 8 pushbuttons. The expander
-on the baseboard is not currently used; it is connected to deep sleep enable,
-sw reset, a push button, some switches and LEDs.
-
-This proposed patch series enables the push buttons and switches on the UI and
-BB expanders using the gpio-keys polling mode patch by Alexander Clouter. Some
-work was performed to test irq-based gpio-keys support on the expanders (a WIP
-patch can be posted on request) but I believe that it is not possible to use 
-irq-based gpio-keys on IO expanders for arm systems at this time. 
-
-The attempt started when I noticed the patch of Alek Du and Alan Cox [1] which 
-was recently committed [2]; a stab at integrating irq-based gpio-keys support
-based on that patch was attempted. I found that I either got a warning that the
-irq could not be mapped for the given gpio ; or, when N_IRQ was increased, a
-system freeze.
-
->From what I have read (particularly the message by Grant Likely [3]) IRQs on
-IO expanders are not ready in ARM yet. I _think_ that the sparse IRQ rework by
-Thomas Gleixner [4] will resolve the blocker to irq-based gpio-keys support. 
-
-In the meantime we have buttons and switches that we would like to excersise
-in our prototyping development. The patch to convert this series to irq-based
-gpio-keys will be straighforward once the support in arch/arm is there.
-
-There is an existing tca6416-keypad driver with polling support which I did not
-employ because it isn't possible to keep the gpio's used for peripheral
-enable/disable on the UI board or the LEDs on the baseboard registered while
-simultaneously registering the pushbuttons or switches as a tca6416-keypad 
-instance.
-
-I tested this patch series using evtest on the resulting /dev/input/eventN 
-devices and also on the event node of a non-polling gpio-keys instance to 
-ensure that irq-based input handling is not broken by the introduction of the
-polling-mode gpio-keys patch. The non-polling instance creation and
-registration is not included in this series since it uses one of the boot-mode
-DIP switches and woult not (I think) be suitable for mainline.
-
-Disclaimer: 
-I'm not an expert in irq's or gpio-keys; this is, in fact, my first proposed
-feature. Please feel free to correct me -- I welcome the chance to learn from
-your expertise.
-
-[1] http://article.gmane.org/gmane.linux.kernel/1052551
-[2] http://article.gmane.org/gmane.linux.kernel.commits.head/260919
-[3] http://www.mail-archive.com/devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org/msg01974.html
-[4] http://article.gmane.org/gmane.linux.kernel.cross-arch/7786
-
-Alexander Clouter (1):
-  input: gpio_keys: polling mode support
-
-Ben Gardiner (3):
-  da850-evm: add UI Expander pushbuttons
-  da850-evm: extract defines for SEL{A,B,C} pins in UI expander
-  da850-evm: add baseboard UI expander buttons, switches and LEDs
-
- arch/arm/mach-davinci/Kconfig           |    3 +
- arch/arm/mach-davinci/board-da850-evm.c |  312 +++++++++++++++++++++++++++++--
- drivers/input/keyboard/gpio_keys.c      |  120 ++++++++++--
- include/linux/gpio_keys.h               |    1 +
- 4 files changed, 406 insertions(+), 30 deletions(-)
+Signed-off-by: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Reviewed-by: Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
 
 ---
 
-Changes since v1:
- * use locally defined functions that are no-ops/error checkers when
-   INPUT_POLLDEV is not defined.
- * disable polling mode support when input-polldev is a module and gpio_keys
-   is builtin
- * set INPUT_POLLDEV default for DA850_EVM machine, but don't select it
-   unconditionally
- * adding note to description about why tca6416-keypad was not used
+No changes since v1
+---
+ arch/arm/mach-davinci/board-da850-evm.c |   27 +++++++++++++++------------
+ 1 files changed, 15 insertions(+), 12 deletions(-)
+
+diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+index ff71ffd..dcf21e5 100644
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -292,6 +292,9 @@ static const char const *ui_expander_names[] = {
+ 	"pb7", "pb6", "pb5", "pb4", "pb3", "pb2", "pb1"
+ };
+ 
++#define DA850_SEL_A_OFFSET	7
++#define DA850_SEL_B_OFFSET	6
++#define DA850_SEL_C_OFFSET	5
+ #define DA850_UI_PB8_OFFSET	8
+ #define DA850_N_UI_PB		8
+ 
+@@ -336,23 +339,23 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
+ {
+ 	int sel_a, sel_b, sel_c, ret;
+ 
+-	sel_a = gpio + 7;
+-	sel_b = gpio + 6;
+-	sel_c = gpio + 5;
++	sel_a = gpio + DA850_SEL_A_OFFSET;
++	sel_b = gpio + DA850_SEL_B_OFFSET;
++	sel_c = gpio + DA850_SEL_C_OFFSET;
+ 
+-	ret = gpio_request(sel_a, "sel_a");
++	ret = gpio_request(sel_a, ui_expander_names[DA850_SEL_A_OFFSET]);
+ 	if (ret) {
+ 		pr_warning("Cannot open UI expander pin %d\n", sel_a);
+ 		goto exp_setup_sela_fail;
+ 	}
+ 
+-	ret = gpio_request(sel_b, "sel_b");
++	ret = gpio_request(sel_b, ui_expander_names[DA850_SEL_B_OFFSET]);
+ 	if (ret) {
+ 		pr_warning("Cannot open UI expander pin %d\n", sel_b);
+ 		goto exp_setup_selb_fail;
+ 	}
+ 
+-	ret = gpio_request(sel_c, "sel_c");
++	ret = gpio_request(sel_c, ui_expander_names[DA850_SEL_C_OFFSET]);
+ 	if (ret) {
+ 		pr_warning("Cannot open UI expander pin %d\n", sel_c);
+ 		goto exp_setup_selc_fail;
+@@ -396,13 +399,13 @@ static int da850_evm_ui_expander_teardown(struct i2c_client *client,
+ 	platform_device_unregister(&user_ui_pb_gpio_key_device);
+ 
+ 	/* deselect all functionalities */
+-	gpio_set_value(gpio + 5, 1);
+-	gpio_set_value(gpio + 6, 1);
+-	gpio_set_value(gpio + 7, 1);
++	gpio_set_value(gpio + DA850_SEL_C_OFFSET, 1);
++	gpio_set_value(gpio + DA850_SEL_B_OFFSET, 1);
++	gpio_set_value(gpio + DA850_SEL_A_OFFSET, 1);
+ 
+-	gpio_free(gpio + 5);
+-	gpio_free(gpio + 6);
+-	gpio_free(gpio + 7);
++	gpio_free(gpio + DA850_SEL_C_OFFSET);
++	gpio_free(gpio + DA850_SEL_B_OFFSET);
++	gpio_free(gpio + DA850_SEL_A_OFFSET);
+ 
+ 	return 0;
+ }
+-- 
+1.7.0.4

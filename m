@@ -1,105 +1,136 @@
-From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Subject: [PATCH v2 3/4] da850-evm: extract defines for SEL{A, B,
-	C} pins in UI expander
-Date: Tue, 16 Nov 2010 14:39:36 -0500
-Message-ID: <aa85c5d83111add3a2ed3495ac13bffe5e6b885d.1289935504.git.bengardiner@nanometrics.ca>
-References: <cover.1289835508.git.bengardiner@nanometrics.ca>
-	<cover.1289935504.git.bengardiner@nanometrics.ca>
+From: Chris Leech <christopher.leech@linux.intel.com>
+Subject: [PATCH 0/4] qt602240_ts changes for Intel mid platform
+Date: Tue, 16 Nov 2010 12:41:45 -0800
+Message-ID: <20101116203914.28796.23141.stgit@localhost6.localdomain6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <cover.1289935504.git.bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Clouter <alex-L4GPcECwBoDe9xe1eoZjHA@public.gmane.org>, Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:46758 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757111Ab0KPUlp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Nov 2010 15:41:45 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>
 
-The setup and teardown methods of the UI expander reference the SEL_{A,B,C}
-pins by 'magic number' in each function. This patch extracts common #defines
-for their offsets in the expander and uses them.
-
-Signed-off-by: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Reviewed-by: Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+The following changes were made while getting this driver to work on an Intel
+mid platform.
 
 ---
 
-No changes since v1
----
- arch/arm/mach-davinci/board-da850-evm.c |   27 +++++++++++++++------------
- 1 files changed, 15 insertions(+), 12 deletions(-)
+Chris Leech (4):
+      qt602240_ts: fix wrong sizeof in object table allocation
+      qt602240_ts: move clearing of pending interrupt closer to request_threaded_irq
+      qt602240_ts: Trust factory configuration of touchscreen.
+      qt602240_ts: add optional hooks for board specific reset logic
 
-diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-index ff71ffd..dcf21e5 100644
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -292,6 +292,9 @@ static const char const *ui_expander_names[] = {
- 	"pb7", "pb6", "pb5", "pb4", "pb3", "pb2", "pb1"
- };
+
+ drivers/input/touchscreen/qt602240_ts.c |  138 +++++++++++++++++++++++--------
+ include/linux/i2c/qt602240_ts.h         |   12 +++
+ 2 files changed, 114 insertions(+), 36 deletions(-)
+
+---
+
+Here is an example of the platform device setup code that makes use of these
+changes.  The platform code will be sent upstream via a different channel.
+
+diff --git a/arch/x86/kernel/mrst.c b/arch/x86/kernel/mrst.c
+index 9ed9e6b..d1ebdc8 100644
+--- a/arch/x86/kernel/mrst.c
++++ b/arch/x86/kernel/mrst.c
+@@ -34,6 +34,7 @@
+ #include <linux/i2c/tc35894xbg.h>
+ #include <linux/bh1770glc.h>
+ #include <linux/leds-lp5523.h>
++#include <linux/i2c/qt602240_ts.h>
  
-+#define DA850_SEL_A_OFFSET	7
-+#define DA850_SEL_B_OFFSET	6
-+#define DA850_SEL_C_OFFSET	5
- #define DA850_UI_PB8_OFFSET	8
- #define DA850_N_UI_PB		8
- 
-@@ -336,23 +339,23 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- {
- 	int sel_a, sel_b, sel_c, ret;
- 
--	sel_a = gpio + 7;
--	sel_b = gpio + 6;
--	sel_c = gpio + 5;
-+	sel_a = gpio + DA850_SEL_A_OFFSET;
-+	sel_b = gpio + DA850_SEL_B_OFFSET;
-+	sel_c = gpio + DA850_SEL_C_OFFSET;
- 
--	ret = gpio_request(sel_a, "sel_a");
-+	ret = gpio_request(sel_a, ui_expander_names[DA850_SEL_A_OFFSET]);
- 	if (ret) {
- 		pr_warning("Cannot open UI expander pin %d\n", sel_a);
- 		goto exp_setup_sela_fail;
- 	}
- 
--	ret = gpio_request(sel_b, "sel_b");
-+	ret = gpio_request(sel_b, ui_expander_names[DA850_SEL_B_OFFSET]);
- 	if (ret) {
- 		pr_warning("Cannot open UI expander pin %d\n", sel_b);
- 		goto exp_setup_selb_fail;
- 	}
- 
--	ret = gpio_request(sel_c, "sel_c");
-+	ret = gpio_request(sel_c, ui_expander_names[DA850_SEL_C_OFFSET]);
- 	if (ret) {
- 		pr_warning("Cannot open UI expander pin %d\n", sel_c);
- 		goto exp_setup_selc_fail;
-@@ -396,13 +399,13 @@ static int da850_evm_ui_expander_teardown(struct i2c_client *client,
- 	platform_device_unregister(&user_ui_pb_gpio_key_device);
- 
- 	/* deselect all functionalities */
--	gpio_set_value(gpio + 5, 1);
--	gpio_set_value(gpio + 6, 1);
--	gpio_set_value(gpio + 7, 1);
-+	gpio_set_value(gpio + DA850_SEL_C_OFFSET, 1);
-+	gpio_set_value(gpio + DA850_SEL_B_OFFSET, 1);
-+	gpio_set_value(gpio + DA850_SEL_A_OFFSET, 1);
- 
--	gpio_free(gpio + 5);
--	gpio_free(gpio + 6);
--	gpio_free(gpio + 7);
-+	gpio_free(gpio + DA850_SEL_C_OFFSET);
-+	gpio_free(gpio + DA850_SEL_B_OFFSET);
-+	gpio_free(gpio + DA850_SEL_A_OFFSET);
- 
- 	return 0;
+ #include <asm/setup.h>
+ #include <asm/mpspec_def.h>
+@@ -1032,6 +1033,76 @@ void *tc35894xbg_n_platform_data(void *info)
+ 		&tc35894xbg_ncdk_data);
  }
--- 
-1.7.0.4
+ 
++static int qt602240_reset;
++static int qt602240_intr;
++
++static int qt602240_hw_setup(struct i2c_client *client)
++{
++	int err;
++	int intr;
++
++	err = gpio_request(qt602240_intr, "maXTouch-intr");
++	if (err) {
++		dev_err(&client->dev, "GPIO-%d request failed (err %d)\n",
++			qt602240_intr, err);
++		goto err_request_intr;
++	}
++
++	err = gpio_request(qt602240_reset, "maXTouch-reset");
++	if (err) {
++		dev_err(&client->dev, "GPIO-%d request failed (err %d)\n",
++			qt602240_reset, err);
++		goto err_request_reset;
++	}
++
++	err = gpio_direction_output(qt602240_reset, 0);
++	if (err) {
++		dev_err(&client->dev, "GPIO-%d direction set failed (err %d)\n",
++			qt602240_reset, err);
++		goto err_reset_direction;
++	}
++
++	gpio_set_value(qt602240_reset, 1);
++	/* maXTouch wants 40mSec minimum after reset to get organized */
++	/* double that to be safe as a maximum required delay */
++	msleep(80);
++	return 0;
++
++err_reset_direction:
++	gpio_free(qt602240_reset);
++err_request_reset:
++	gpio_free(qt602240_intr);
++err_request_intr:
++	return -EIO;
++}
++
++static void qt602240_hw_teardown(struct i2c_client *client)
++{
++	gpio_set_value(qt602240_reset, 0);
++	gpio_free(qt602240_reset);
++	gpio_free(qt602240_intr);
++}
++
++static void *qt602240_platform_data(void *info)
++{
++	struct i2c_board_info *i2c_info = info;
++	static struct qt602240_platform_data pdata = {
++		.trust_nvm = 1,
++		.hw_setup = qt602240_hw_setup,
++		.hw_teardown = qt602240_hw_teardown,
++	};
++
++	qt602240_reset = get_gpio_by_name("TS0-reset");
++	qt602240_intr = get_gpio_by_name("TS0-intr");
++	if (qt602240_reset < 0  ||  qt602240_intr < 0) {
++		printk(KERN_ERR "Touchscreen-0 GPIOs not in SFI table\n");
++		return NULL;
++	}
++
++	i2c_info->irq = qt602240_intr + MRST_IRQ_OFFSET;
++	return &pdata;
++}
++
+ static const struct devs_id device_ids[] = {
+ 	{"pmic_gpio", SFI_DEV_TYPE_SPI, 1, &pmic_gpio_platform_data},
+ 	{"pmic_gpio", SFI_DEV_TYPE_IPC, 1, &pmic_gpio_platform_data},
+@@ -1053,6 +1124,7 @@ static const struct devs_id device_ids[] = {
+ 	{"pmic_audio", SFI_DEV_TYPE_IPC, 1, &no_platform_data},
+ 	{"msic_audio", SFI_DEV_TYPE_SPI, 1, &no_platform_data},
+ 	{"msic_audio", SFI_DEV_TYPE_IPC, 1, &no_platform_data},
++	{"mXT224", SFI_DEV_TYPE_I2C, 0, &qt602240_platform_data},
+ 	{"i2c_TC35894-nEB1", SFI_DEV_TYPE_I2C, 0, &tc35894xbg_n_platform_data},
+ 	{"i2c_TC35894-i", SFI_DEV_TYPE_I2C, 0, &tc35894xbg_i_platform_data},
+ 	{"bh1770glc", SFI_DEV_TYPE_I2C, 0, &bh1770glc_platform_data_init},
+

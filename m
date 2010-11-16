@@ -1,156 +1,40 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Fwd: [PATH] Fix rc-tbs-nec table after converting the cx88 driver
- to ir-core
-Date: Tue, 16 Nov 2010 15:39:09 -0200
-Message-ID: <4CE2C1BD.5040402@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Fwd: [PATH] Fix rc-tbs-nec table after converting the cx88 driver to ir-core
+Date: Tue, 16 Nov 2010 10:52:02 -0800
+Message-ID: <201011161052.04424.dmitry.torokhov@gmail.com>
+References: <4CE2C1BD.5040402@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:19463 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755905Ab0KPScc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Nov 2010 13:32:32 -0500
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:51938 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757009Ab0KPSwY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Nov 2010 13:52:24 -0500
+In-Reply-To: <4CE2C1BD.5040402@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+On Tuesday, November 16, 2010 09:39:09 am Mauro Carvalho Chehab wrote:
+> Hi Dmitry,
+> 
+> This patch fixes an IR table. The patch is trivial, but there are two
+> buttons on this IR that are not directly supported currently (buttons 10-
+> and 10+). In a matter of fact, some other IR's use other key codes
+> (KEY_DOT, KEY_KPPLUS, KEY_DIGITS) for a similar keyboard key (100+).
+> 
+> Mariusz is proposing the addition of two new keycodes for it. What do you
+> think?
+> 
 
-This patch fixes an IR table. The patch is trivial, but there are two b=
-uttons on
-this IR that are not directly supported currently (buttons 10- and 10+)=
-=2E In a matter
-of fact, some other IR's use other key codes (KEY_DOT, KEY_KPPLUS, KEY_=
-DIGITS)
-for a similar keyboard key (100+).
+Sure, why not. Just move them over to 0x1b8 please (somewhat 'closer' to
+other media keys).
 
-Mariusz is proposing the addition of two new keycodes for it. What do y=
-ou think?
+Thanks.
 
-Cheers,
-Mauro.
-
--------- Mensagem original --------
-Assunto: [PATH] Fix rc-tbs-nec table after converting the cx88 driver t=
-o ir-core
-Data: Mon, 15 Nov 2010 19:50:13 +0100
-De: Mariusz Bia=C5=82o=C5=84czyk <manio@skyboo.net>
-Para: Mauro Carvalho Chehab <mchehab@redhat.com>
-CC: linux-media@vger.kernel.org
-
-The patch fixes the rc-tbs-nec table after converting
-drivers/media/video/cx88 to ir-core
-(commit ba7e90c9f878e0ac3c0614a5446fe5c62ccc33ec).
-
-It is also adds two missing buttons (10- and 10+) with
-its definition (KEY_10CHANNELSUP and KEY_10CHANNELSDOWN).
-
-Signed-off-by: Mariusz Bia=C5=82o=C5=84czyk <manio@skyboo.net>
----
- drivers/media/rc/keymaps/rc-tbs-nec.c |   66 +++++++++++++++++--------=
---------
- include/linux/input.h                 |    2 +
- 2 files changed, 36 insertions(+), 32 deletions(-)
-
-diff --git a/drivers/media/rc/keymaps/rc-tbs-nec.c b/drivers/media/rc/k=
-eymaps/rc-tbs-nec.c
-index 3309631..9a1d9a3 100644
---- a/drivers/media/rc/keymaps/rc-tbs-nec.c
-+++ b/drivers/media/rc/keymaps/rc-tbs-nec.c
-@@ -13,38 +13,40 @@
- #include <media/rc-map.h>
-=20
- static struct ir_scancode tbs_nec[] =3D {
--	{ 0x04, KEY_POWER2},	/*power*/
--	{ 0x14, KEY_MUTE},	/*mute*/
--	{ 0x07, KEY_1},
--	{ 0x06, KEY_2},
--	{ 0x05, KEY_3},
--	{ 0x0b, KEY_4},
--	{ 0x0a, KEY_5},
--	{ 0x09, KEY_6},
--	{ 0x0f, KEY_7},
--	{ 0x0e, KEY_8},
--	{ 0x0d, KEY_9},
--	{ 0x12, KEY_0},
--	{ 0x16, KEY_CHANNELUP},	/*ch+*/
--	{ 0x11, KEY_CHANNELDOWN},/*ch-*/
--	{ 0x13, KEY_VOLUMEUP},	/*vol+*/
--	{ 0x0c, KEY_VOLUMEDOWN},/*vol-*/
--	{ 0x03, KEY_RECORD},	/*rec*/
--	{ 0x18, KEY_PAUSE},	/*pause*/
--	{ 0x19, KEY_OK},	/*ok*/
--	{ 0x1a, KEY_CAMERA},	/* snapshot */
--	{ 0x01, KEY_UP},
--	{ 0x10, KEY_LEFT},
--	{ 0x02, KEY_RIGHT},
--	{ 0x08, KEY_DOWN},
--	{ 0x15, KEY_FAVORITES},
--	{ 0x17, KEY_SUBTITLE},
--	{ 0x1d, KEY_ZOOM},
--	{ 0x1f, KEY_EXIT},
--	{ 0x1e, KEY_MENU},
--	{ 0x1c, KEY_EPG},
--	{ 0x00, KEY_PREVIOUS},
--	{ 0x1b, KEY_MODE},
-+	{ 0x84, KEY_POWER2},		/* power */
-+	{ 0x94, KEY_MUTE},		/* mute */
-+	{ 0x87, KEY_1},
-+	{ 0x86, KEY_2},
-+	{ 0x85, KEY_3},
-+	{ 0x8b, KEY_4},
-+	{ 0x8a, KEY_5},
-+	{ 0x89, KEY_6},
-+	{ 0x8f, KEY_7},
-+	{ 0x8e, KEY_8},
-+	{ 0x8d, KEY_9},
-+	{ 0x92, KEY_0},
-+	{ 0xc0, KEY_10CHANNELSUP},	/* 10+ */
-+	{ 0xd0, KEY_10CHANNELSDOWN},	/* 10- */
-+	{ 0x96, KEY_CHANNELUP},		/* ch+ */
-+	{ 0x91, KEY_CHANNELDOWN},	/* ch- */
-+	{ 0x93, KEY_VOLUMEUP},		/* vol+ */
-+	{ 0x8c, KEY_VOLUMEDOWN},	/* vol- */
-+	{ 0x83, KEY_RECORD},		/* rec */
-+	{ 0x98, KEY_PAUSE},		/* pause, yellow */
-+	{ 0x99, KEY_OK},		/* ok */
-+	{ 0x9a, KEY_CAMERA},		/* snapshot */
-+	{ 0x81, KEY_UP},
-+	{ 0x90, KEY_LEFT},
-+	{ 0x82, KEY_RIGHT},
-+	{ 0x88, KEY_DOWN},
-+	{ 0x95, KEY_FAVORITES},		/* blue */
-+	{ 0x97, KEY_SUBTITLE},		/* green */
-+	{ 0x9d, KEY_ZOOM},
-+	{ 0x9f, KEY_EXIT},
-+	{ 0x9e, KEY_MENU},
-+	{ 0x9c, KEY_EPG},
-+	{ 0x80, KEY_PREVIOUS},		/* red */
-+	{ 0x9b, KEY_MODE},
- };
-=20
- static struct rc_keymap tbs_nec_map =3D {
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 51af441..711c1307 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -623,6 +623,8 @@ struct input_keymap_entry {
-=20
- #define KEY_CAMERA_FOCUS	0x210
- #define KEY_WPS_BUTTON		0x211	/* WiFi Protected Setup key */
-+#define KEY_10CHANNELSUP        0x212   /* 10 channels up (10+) */
-+#define KEY_10CHANNELSDOWN      0x213   /* 10 channels down (10-) */
-=20
- #define BTN_TRIGGER_HAPPY		0x2c0
- #define BTN_TRIGGER_HAPPY1		0x2c0
-
---=20
-Mariusz Bia=C5=82o=C5=84czyk
-jabber/e-mail: manio@skyboo.net
-http://manio.skyboo.net
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

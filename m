@@ -1,80 +1,45 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [RFC v1 PATCH 5/6] input: pmic8058-othc: Add support for PM8058
- based OTHC
-Date: Tue, 16 Nov 2010 12:06:21 +0530
-Message-ID: <4CE22665.50209@codeaurora.org>
-References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org> <1289393281-4459-6-git-send-email-tsoni@codeaurora.org> <0680EC522D0CC943BC586913CF3768C003FF9009B6@dbde02.ent.ti.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: Aw: Re: [PATCH 0/3] HID: roccat: finishing usage of
+ sysfs_create_bin_group()
+Date: Tue, 16 Nov 2010 08:03:40 +0100 (CET)
+Message-ID: <640538250.3216351289891020338.JavaMail.ngmail@webmail08.arcor-online.net>
+References: <alpine.LNX.2.00.1011152330540.7420@pobox.suse.cz> <1289853161.2188.44.camel@neuromancer> <20101115220828.GA9417@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine01.qualcomm.com ([199.106.114.254]:50673 "EHLO
-	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932222Ab0KPGgY (ORCPT
+Received: from mail-in-13.arcor-online.net ([151.189.21.53]:33680 "EHLO
+	mail-in-13.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933886Ab0KPHDn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Nov 2010 01:36:24 -0500
-In-Reply-To: <0680EC522D0CC943BC586913CF3768C003FF9009B6@dbde02.ent.ti.com>
+	Tue, 16 Nov 2010 02:03:43 -0500
+In-Reply-To: <alpine.LNX.2.00.1011152330540.7420@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "rtc-linux@googlegroups.com" <rtc-linux@googlegroups.com>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, Anirudh Ghayal <aghayal@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: jkosina@suse.cz, gregkh@suse.de
+Cc: erazor_de@users.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-
-Hi Shubhrajyoti,
-
-On 11/16/2010 11:06 AM, Datta, Shubhrajyoti wrote:
-> Hi Anirudh,
+> On Mon, 15 Nov 2010, Greg KH wrote:
 > 
->> -----Original Message-----
->> From: linux-input-owner@vger.kernel.org [mailto:linux-input-
->> owner@vger.kernel.org] On Behalf Of Trilok Soni
->> Sent: Wednesday, November 10, 2010 6:18 PM
->> To: linux-kernel@vger.kernel.org
->> Cc: linux-input@vger.kernel.org; rtc-linux@googlegroups.com; linux-arm-
->> msm@vger.kernel.org; Anirudh Ghayal; Dmitry Torokhov
->> Subject: [RFC v1 PATCH 5/6] input: pmic8058-othc: Add support for PM8058
->> based OTHC
->>
->> From: Anirudh Ghayal <aghayal@codeaurora.org>
->>
->> One-touch headset controller is a hardware module in Qualcomm's PMIC8058.
->> It supports headset insert/remove and switch press/release detection
->> events
->> over 3 MIC BIAS lines. The MIC BIAS lines can be configured to support
->> headset detection or act as regular BIAS lines.
-> Could  you help with the datasheet link if it is free.
+> > > These patches are against the newest roccat file versions (after
+> > > applying everything I released the last days).
+> > > They fix some inattentive (though not critical) failures from previous
+> > > patches and change hid-roccat-koneplus and hid-roccat-pyra to use the
+> > > new sysfs_create_bin_group()
+> > > koneplus should be finished now (until I find errors)
+> > 
+> > Wait, they still don't resolve the main problem of this api is still
+> > racy and I can't accept it.
 > 
-
-datasheets are not available for open access.
-
->> +
->> +static int
-> If this is called only at init it can also be a devinit ?
-
-Ok.
-
->> +     if (rc) {
->> +             dev_dbg(&pd->dev, "Headset inserted during boot up!\n");
->> +             dd->othc_ir_state = true;
->> +             input_report_switch(dd->othc_ipd, SW_HEADPHONE_INSERT, 1);
->> +             input_sync(dd->othc_ipd);
->> +     }
-> Not a comment. However I did not understand why the status at boot is required here.
-
-We need to report right status when the system boots up with headset inserted.
-
->> +
->> +fail_sw_irq:
->> +     free_irq(dd->othc_irq_ir, dd);
->> +fail_ir_irq:
->> +     input_unregister_device(ipd);
-> Unregister and then falling back to free may not be what you intended.
+> Yeah, I have already pointed Stefan to
 > 
+> 	 http://lkml.org/lkml/2010/11/13/174
+> 
+> which he might have missed.
 
-Nope. Please see we are making othc_ipd = NULL, so everything should be fine.
+Hello again,
 
-Thanks for the review comments.
+I don't see why these patches can't be applied. The bin attribute group functions standing for themself seem to be useful. The kone driver is already in the stable kernel and has less code with these patches. Though this does not change its functionality its a code cleanup. Thats also true for pyra and koneplus. So for me these are clear improvements until I make progress in the race problem. I will do it, but being a newbe I don't know where to start (feel free to point me to something), so it might take quite some time and sure needs some questions asked.
 
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Have a nice day
+Stefan

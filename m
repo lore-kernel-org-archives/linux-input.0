@@ -1,59 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Aw: Re: [PATCH 0/3] HID: roccat: finishing usage of
- sysfs_create_bin_group()
-Date: Tue, 16 Nov 2010 12:01:00 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1011161159590.7420@pobox.suse.cz>
-References: <alpine.LNX.2.00.1011152330540.7420@pobox.suse.cz> <1289853161.2188.44.camel@neuromancer> <20101115220828.GA9417@suse.de> <640538250.3216351289891020338.JavaMail.ngmail@webmail08.arcor-online.net>
+From: Ming-Yang Lee <ming.yangfundsservice@qatar.io>
+Subject: (unknown)
+Date: Tue, 16 Nov 2010 13:59:33 +0000
+Message-ID: <20101116135933.9lfnni1reokcgc0o__38295.9593007856$1289917961$gmane$org@mail.idngh.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47467 "EHLO mx2.suse.de"
+Received: from mail.idngh.com ([41.204.36.5]:50536 "EHLO idngh.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932806Ab0KPLBC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Nov 2010 06:01:02 -0500
-In-Reply-To: <640538250.3216351289891020338.JavaMail.ngmail@webmail08.arcor-online.net>
+	id S1755183Ab0KPOaG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Nov 2010 09:30:06 -0500
+Subject: 
+Content-Disposition: inline
+Subject: 
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: gregkh@suse.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2010, Stefan Achatz wrote:
 
-> > > > These patches are against the newest roccat file versions (after
-> > > > applying everything I released the last days).
-> > > > They fix some inattentive (though not critical) failures from previous
-> > > > patches and change hid-roccat-koneplus and hid-roccat-pyra to use the
-> > > > new sysfs_create_bin_group()
-> > > > koneplus should be finished now (until I find errors)
-> > > 
-> > > Wait, they still don't resolve the main problem of this api is still
-> > > racy and I can't accept it.
-> > 
-> > Yeah, I have already pointed Stefan to
-> > 
-> > 	 http://lkml.org/lkml/2010/11/13/174
-> > 
-> > which he might have missed.
-> 
-> Hello again,
-> 
-> I don't see why these patches can't be applied. The bin attribute group 
-> functions standing for themself seem to be useful. The kone driver is 
-> already in the stable kernel and has less code with these patches. 
-> Though this does not change its functionality its a code cleanup. Thats 
-> also true for pyra and koneplus. So for me these are clear improvements 
-> until I make progress in the race problem. I will do it, but being a 
-> newbe I don't know where to start (feel free to point me to something), 
-> so it might take quite some time and sure needs some questions asked.
 
-Hi Stefan,
+Do you need a loan to pay your bills or to start up a business or for Xmas?.
+Kindly apply now for a low rate loan of 3%. for more information contact:
+ming.yangfundsservice@qatar.io
+We Await Your Response.
+Mr Ming-Yang Lee
 
-the way the driver does things is racy and needs fixing. Introducing 
-interface into sysfs/driver core, which we now know is racy, is not 
-something we'd like to do.
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.
 
-Thanks,
+
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
+

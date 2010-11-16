@@ -1,104 +1,42 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: xpad - ensure xpad->bulk_out is initialized before
-	submitting urb
-Date: Tue, 16 Nov 2010 10:15:31 +0800
-Message-ID: <1289873732.7485.4.camel@mola>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [RFC v1 PATCH 5/6] input: pmic8058-othc: Add support for PM8058
+ based OTHC
+Date: Tue, 16 Nov 2010 08:38:36 +0530
+Message-ID: <4CE1F5B4.3010001@codeaurora.org>
+References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org> <1289393281-4459-6-git-send-email-tsoni@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:41089 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759132Ab0KPCLP (ORCPT
+Received: from wolverine02.qualcomm.com ([199.106.114.251]:61969 "EHLO
+	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755550Ab0KPDIr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Nov 2010 21:11:15 -0500
+	Mon, 15 Nov 2010 22:08:47 -0500
+In-Reply-To: <1289393281-4459-6-git-send-email-tsoni@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Oliver Neukum <oneukum@suse.de>, Marko Friedemann <mfr@bmx-chemnitz.de>, Christoph Fritz <chf.fritz@googlemail.com>, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-As pointed out by Oliver Neukum:
-xpad->irq_in is currently submitted before xpad->bulk_out is allocated.
-That however is a race, because the callback for irq_in can call
-xpad360w_process_packet(), which will in turn submit the bulk URB.
+Hi Dmitry,
 
-This patch moves initialization for xpad->bulk_out earlier, so we can
-ensure xpad->bulk_out is initialized before submitting urb.
+On 11/10/2010 6:18 PM, Trilok Soni wrote:
+> From: Anirudh Ghayal <aghayal@codeaurora.org>
+> 
+> One-touch headset controller is a hardware module in Qualcomm's PMIC8058.
+> It supports headset insert/remove and switch press/release detection events
+> over 3 MIC BIAS lines. The MIC BIAS lines can be configured to support
+> headset detection or act as regular BIAS lines.
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
+> ---
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/joystick/xpad.c |   32 ++++++++++++++++----------------
- 1 files changed, 16 insertions(+), 16 deletions(-)
+Any comments on this patch?
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 4875de9..56abf3d 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -921,19 +921,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 
- 	usb_set_intfdata(intf, xpad);
- 
--	/*
--	 * Submit the int URB immediately rather than waiting for open
--	 * because we get status messages from the device whether
--	 * or not any controllers are attached.  In fact, it's
--	 * exactly the message that a controller has arrived that
--	 * we're waiting for.
--	 */
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		xpad->irq_in->dev = xpad->udev;
--		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
--		if (error)
--			goto fail7;
--
- 		/*
- 		 * Setup the message to set the LEDs on the
- 		 * controller when it shows up
-@@ -941,13 +929,13 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
- 		if (!xpad->bulk_out) {
- 			error = -ENOMEM;
--			goto fail8;
-+			goto fail7;
- 		}
- 
- 		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
- 		if (!xpad->bdata) {
- 			error = -ENOMEM;
--			goto fail9;
-+			goto fail8;
- 		}
- 
- 		xpad->bdata[2] = 0x08;
-@@ -969,12 +957,24 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		usb_fill_bulk_urb(xpad->bulk_out, udev,
- 				usb_sndbulkpipe(udev, ep_irq_in->bEndpointAddress),
- 				xpad->bdata, XPAD_PKT_LEN, xpad_bulk_out, xpad);
-+
-+		/*
-+		 * Submit the int URB immediately rather than waiting for open
-+		 * because we get status messages from the device whether
-+		 * or not any controllers are attached.  In fact, it's
-+		 * exactly the message that a controller has arrived that
-+		 * we're waiting for.
-+		 */
-+		xpad->irq_in->dev = xpad->udev;
-+		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
-+		if (error)
-+			goto fail9;
- 	}
- 
- 	return 0;
- 
-- fail9:	usb_free_urb(xpad->bulk_out);
-- fail8:	usb_kill_urb(xpad->irq_in);
-+ fail9:	kfree(xpad->bdata);
-+ fail8:	usb_free_urb(xpad->bulk_out);
-  fail7:	input_unregister_device(input_dev);
- 	input_dev = NULL;
-  fail6:	xpad_led_disconnect(xpad);
+---Trilok Soni
+
 -- 
-1.7.2
-
-
-
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

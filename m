@@ -1,40 +1,87 @@
-From: Chris Leech <christopher.leech@linux.intel.com>
-Subject: [PATCH 5/5] qt602240_ts: add mXT224 identifier to id_table,
-	to match Intel mid firmware identifier
-Date: Tue, 16 Nov 2010 12:42:11 -0800
-Message-ID: <20101116204211.28796.93820.stgit@localhost6.localdomain6>
-References: <20101116203914.28796.23141.stgit@localhost6.localdomain6>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Add Atmel maXTouch touchscreen driver
+Date: Tue, 16 Nov 2010 14:05:17 -0800
+Message-ID: <20101116220516.GB5224@core.coreip.homeip.net>
+References: <4CE2F692.8040403@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:38274 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756675Ab0KPUmL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Nov 2010 15:42:11 -0500
-In-Reply-To: <20101116203914.28796.23141.stgit@localhost6.localdomain6>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:48305 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932592Ab0KPWF1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Nov 2010 17:05:27 -0500
+Received: by gwj17 with SMTP id 17so753839gwj.19
+        for <linux-input@vger.kernel.org>; Tue, 16 Nov 2010 14:05:26 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <4CE2F692.8040403@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+To: Ulf Samuelsson <ulf.samuelsson@atmel.com>
+Cc: linux-input@vger.kernel.org, iiro.valkonen@atmel.com
 
-"mXT224" is used in the SFI tables to identify the presence of this I2C device.
+Hi Ulf,
 
-Signed-off-by: Chris Leech <christopher.leech@linux.intel.com>
----
- drivers/input/touchscreen/qt602240_ts.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+On Tue, Nov 16, 2010 at 10:24:34PM +0100, Ulf Samuelsson wrote:
+> Hi Iiro,
+> 
+> On Fri, Nov 12, 2010 at 04:14:18PM +0200, Iiro Valkonen wrote:
+> >/  /
+> >/  Add Atmel maXTouch touchscreen driver (I2C interface)./
+> >/  The MT slots protocol will be implemented later./
+> >/  /
+> 
+> I believe there is already a driver for this hardware in the tree
+> (qt602240.c). Could you tell me what additional features your driver
+> implements and why can't they be added to the existing driver.
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+> 
+> 
+> 
+> =========
+> When we reviewed the Samsung QT602240 driver internally,
+> we found 20 significant problems including memory leaks
+> and doing I2C transfers within interrupts.
+> I have been told that since I2C transfers can sleep, this is not a
+> good idea.
 
-diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/touchscreen/qt602240_ts.c
-index efe975e..cdd5a8b 100644
---- a/drivers/input/touchscreen/qt602240_ts.c
-+++ b/drivers/input/touchscreen/qt602240_ts.c
-@@ -1432,6 +1432,7 @@ static int qt602240_resume(struct i2c_client *client)
- 
- static const struct i2c_device_id qt602240_id[] = {
- 	{ "qt602240_ts", 0 },
-+	{ "mXT224", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, qt602240_id);
+It does so in _threaded_ interrupt which is perfectly fine. The need to
+access slower buses from the interrupt context was one of the reasons
+this facility was added to the kernel.
 
+> Configuration is done inside the driver, instead of using platform
+> data. etc. etc.
+
+The platform data is defined in include/linux/i2c/qt602240_ts.h and can
+be extended if needed.
+
+The driver passed both mutitouch protocol review process and the general
+review and I believe most (all?) memory leaks and other issues presented
+in the original version have been fixed.
+
+> 
+> This is why I started writing a new driver and Iiro has added significant
+> improvements/rewrites and is the current maintainer of the maXTouch
+> driver within Atmel - the manufacturer of the device in question.
+> 
+> Have not checked if the qt602240.c still does memory leaks,
+> but it still seems to make I2C transfers in the interrupt.
+> 
+> My suggestion is that we deprecate the qt602240.c and remove
+> it in some future version.
+> Instead we should use the official driver from Atmel, that Iiro sent
+> to the list.
+
+No. I regret to say but I find the in-tree version of qt602240.c in much
+better shape than what was submitted by Iiro. Please identify the
+improvements that are needed for the driver and submit separate patches
+implementing these improvements.
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,128 +1,154 @@
-From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: Re: [PATCH 1/4] input: gpio_keys: polling mode support
-Date: Tue, 16 Nov 2010 13:28:37 -0500
-Message-ID: <AANLkTikNQgyZBLVCxKXhiYr0c0st5eLbYvoThgraqxWu@mail.gmail.com>
-References: <cover.1289835508.git.bengardiner@nanometrics.ca>
-	<8891d088e9a16122c780f737b1b1ec35f9517c36.1289835508.git.bengardiner@nanometrics.ca>
-	<20101116093605.GD1330@linux-sh.org>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Fwd: [PATH] Fix rc-tbs-nec table after converting the cx88 driver
+ to ir-core
+Date: Tue, 16 Nov 2010 15:39:09 -0200
+Message-ID: <4CE2C1BD.5040402@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:56003 "HELO
-	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1755869Ab0KPS2i convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Nov 2010 13:28:38 -0500
-Received: by mail-pz0-f41.google.com with SMTP id 26so27707pzk.0
-        for <linux-input@vger.kernel.org>; Tue, 16 Nov 2010 10:28:37 -0800 (PST)
-In-Reply-To: <20101116093605.GD1330@linux-sh.org>
+Received: from mx1.redhat.com ([209.132.183.28]:19463 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755905Ab0KPScc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Nov 2010 13:32:32 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Cordahi <christophercordahi@nanometrics.ca>, Alexander Clouter <alex@digriz.org.uk>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-On Tue, Nov 16, 2010 at 4:36 AM, Paul Mundt <lethal@linux-sh.org> wrote=
-:
-> On Mon, Nov 15, 2010 at 02:07:50PM -0500, Ben Gardiner wrote:
->> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyb=
-oard/gpio_keys.c
->> index 6069abe..477802a 100644
->> --- a/drivers/input/keyboard/gpio_keys.c
->> +++ b/drivers/input/keyboard/gpio_keys.c
->> @@ -44,6 +48,26 @@ struct gpio_keys_drvdata {
->> =A0 =A0 =A0 struct gpio_button_data data[0];
->> =A0};
->>
->> +#if !defined(CONFIG_INPUT_POLLDEV) && !defined(CONFIG_INPUT_POLLDEV=
-_MODULE)
->> +inline struct input_polled_dev *input_allocate_polled_device(void)
->> +{
->> + =A0 =A0 return NULL;
->> +}
->> +
->> +inline void input_free_polled_device(struct input_polled_dev *poll_=
-dev)
->> +{
->> +}
->> +
->> +inline int input_register_polled_device(struct input_polled_dev *de=
-v)
->> +{
->> + =A0 =A0 return -ENXIO;
->> +}
->> +
->> +inline void input_unregister_polled_device(struct input_polled_dev =
-*poll_dev)
->> +{
->> +}
->> +#endif
->> +
->
-> Wouldn't these be better off in linux/input-polldev.h?
+Hi Dmitry,
 
-I'm not sure.
+This patch fixes an IR table. The patch is trivial, but there are two b=
+uttons on
+this IR that are not directly supported currently (buttons 10- and 10+)=
+=2E In a matter
+of fact, some other IR's use other key codes (KEY_DOT, KEY_KPPLUS, KEY_=
+DIGITS)
+for a similar keyboard key (100+).
 
-gpio-keys.c with these proposed changes appears to be the only user of
-input-polldev.c that needs to compile and execute when
-CONFIG_INPUT_POLLDEV is not defined. Moving these to input-polldev.h
-wouldn't have any impact on other in-tree targets but could there be
-effects on out-of-tree ones?
+Mariusz is proposing the addition of two new keycodes for it. What do y=
+ou think?
 
-How would you feel about a shim layer that does a pass-thru when
-CONFIG_INPUT_POLLDEV is defined and does some error checking
-otherwise? I'll show you what I mean in the next version of the patch.
+Cheers,
+Mauro.
 
->> +#if !defined(CONFIG_INPUT_POLLDEV) && !defined(CONFIG_INPUT_POLLDEV=
-_MODULE)
->> + =A0 =A0 if (pdata->poll_interval) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev_err(dev, "device needs polling (enable=
- INPUT_POLLDEV)\n");
->> + =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
->> + =A0 =A0 }
->> +#endif
->> +
-> This you could probably just shove in to..
->
->> =A0 =A0 =A0 ddata =3D kzalloc(sizeof(struct gpio_keys_drvdata) +
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->nbuttons * sizeof=
-(struct gpio_button_data),
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_KERNEL);
->> - =A0 =A0 input =3D input_allocate_device();
->> + =A0 =A0 if (pdata->poll_interval) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 poll_dev =3D input_allocate_polled_device(=
-);
->> + =A0 =A0 =A0 =A0 =A0 =A0 input =3D poll_dev ? poll_dev->input : 0;
->> + =A0 =A0 } else
->> + =A0 =A0 =A0 =A0 =A0 =A0 input =3D input_allocate_device();
->> =A0 =A0 =A0 if (!ddata || !input) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(dev, "failed to allocate state\n=
-");
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D -ENOMEM;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail1;
->
-> this. Then just get rid of the ifdefs, as the
-> input_allocate_polled_device() case will have already NULL'ed out.
+-------- Mensagem original --------
+Assunto: [PATH] Fix rc-tbs-nec table after converting the cx88 driver t=
+o ir-core
+Data: Mon, 15 Nov 2010 19:50:13 +0100
+De: Mariusz Bia=C5=82o=C5=84czyk <manio@skyboo.net>
+Para: Mauro Carvalho Chehab <mchehab@redhat.com>
+CC: linux-media@vger.kernel.org
 
-I like removing that #ifdef block -- as long as we keep the dev_err
-about enabling INPUT_POLLDEV. It is possible for INPUT_POLLDEV to be
-defined and an allocation error to occur; I think it is useful to the
-clients of gpio_keys -- particularly the board setup developers -- to
-differentiate between 'INPUT_POLLDEV needs to be defined' and 'failed
-to allocate state', at least by printing an error message as in the
-current state of this patch.
+The patch fixes the rc-tbs-nec table after converting
+drivers/media/video/cx88 to ir-core
+(commit ba7e90c9f878e0ac3c0614a5446fe5c62ccc33ec).
 
-> The rest is obviously fine with me!
+It is also adds two missing buttons (10- and 10+) with
+its definition (KEY_10CHANNELSUP and KEY_10CHANNELSDOWN).
 
-Alright! :) I will re-spin a version that tries to address your
-comments. Thank you for your input so far.
-
-Best Regards,
-Ben Gardiner
-
+Signed-off-by: Mariusz Bia=C5=82o=C5=84czyk <manio@skyboo.net>
 ---
-Nanometrics Inc.
-http://www.nanometrics.ca
+ drivers/media/rc/keymaps/rc-tbs-nec.c |   66 +++++++++++++++++--------=
+--------
+ include/linux/input.h                 |    2 +
+ 2 files changed, 36 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/media/rc/keymaps/rc-tbs-nec.c b/drivers/media/rc/k=
+eymaps/rc-tbs-nec.c
+index 3309631..9a1d9a3 100644
+--- a/drivers/media/rc/keymaps/rc-tbs-nec.c
++++ b/drivers/media/rc/keymaps/rc-tbs-nec.c
+@@ -13,38 +13,40 @@
+ #include <media/rc-map.h>
+=20
+ static struct ir_scancode tbs_nec[] =3D {
+-	{ 0x04, KEY_POWER2},	/*power*/
+-	{ 0x14, KEY_MUTE},	/*mute*/
+-	{ 0x07, KEY_1},
+-	{ 0x06, KEY_2},
+-	{ 0x05, KEY_3},
+-	{ 0x0b, KEY_4},
+-	{ 0x0a, KEY_5},
+-	{ 0x09, KEY_6},
+-	{ 0x0f, KEY_7},
+-	{ 0x0e, KEY_8},
+-	{ 0x0d, KEY_9},
+-	{ 0x12, KEY_0},
+-	{ 0x16, KEY_CHANNELUP},	/*ch+*/
+-	{ 0x11, KEY_CHANNELDOWN},/*ch-*/
+-	{ 0x13, KEY_VOLUMEUP},	/*vol+*/
+-	{ 0x0c, KEY_VOLUMEDOWN},/*vol-*/
+-	{ 0x03, KEY_RECORD},	/*rec*/
+-	{ 0x18, KEY_PAUSE},	/*pause*/
+-	{ 0x19, KEY_OK},	/*ok*/
+-	{ 0x1a, KEY_CAMERA},	/* snapshot */
+-	{ 0x01, KEY_UP},
+-	{ 0x10, KEY_LEFT},
+-	{ 0x02, KEY_RIGHT},
+-	{ 0x08, KEY_DOWN},
+-	{ 0x15, KEY_FAVORITES},
+-	{ 0x17, KEY_SUBTITLE},
+-	{ 0x1d, KEY_ZOOM},
+-	{ 0x1f, KEY_EXIT},
+-	{ 0x1e, KEY_MENU},
+-	{ 0x1c, KEY_EPG},
+-	{ 0x00, KEY_PREVIOUS},
+-	{ 0x1b, KEY_MODE},
++	{ 0x84, KEY_POWER2},		/* power */
++	{ 0x94, KEY_MUTE},		/* mute */
++	{ 0x87, KEY_1},
++	{ 0x86, KEY_2},
++	{ 0x85, KEY_3},
++	{ 0x8b, KEY_4},
++	{ 0x8a, KEY_5},
++	{ 0x89, KEY_6},
++	{ 0x8f, KEY_7},
++	{ 0x8e, KEY_8},
++	{ 0x8d, KEY_9},
++	{ 0x92, KEY_0},
++	{ 0xc0, KEY_10CHANNELSUP},	/* 10+ */
++	{ 0xd0, KEY_10CHANNELSDOWN},	/* 10- */
++	{ 0x96, KEY_CHANNELUP},		/* ch+ */
++	{ 0x91, KEY_CHANNELDOWN},	/* ch- */
++	{ 0x93, KEY_VOLUMEUP},		/* vol+ */
++	{ 0x8c, KEY_VOLUMEDOWN},	/* vol- */
++	{ 0x83, KEY_RECORD},		/* rec */
++	{ 0x98, KEY_PAUSE},		/* pause, yellow */
++	{ 0x99, KEY_OK},		/* ok */
++	{ 0x9a, KEY_CAMERA},		/* snapshot */
++	{ 0x81, KEY_UP},
++	{ 0x90, KEY_LEFT},
++	{ 0x82, KEY_RIGHT},
++	{ 0x88, KEY_DOWN},
++	{ 0x95, KEY_FAVORITES},		/* blue */
++	{ 0x97, KEY_SUBTITLE},		/* green */
++	{ 0x9d, KEY_ZOOM},
++	{ 0x9f, KEY_EXIT},
++	{ 0x9e, KEY_MENU},
++	{ 0x9c, KEY_EPG},
++	{ 0x80, KEY_PREVIOUS},		/* red */
++	{ 0x9b, KEY_MODE},
+ };
+=20
+ static struct rc_keymap tbs_nec_map =3D {
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 51af441..711c1307 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -623,6 +623,8 @@ struct input_keymap_entry {
+=20
+ #define KEY_CAMERA_FOCUS	0x210
+ #define KEY_WPS_BUTTON		0x211	/* WiFi Protected Setup key */
++#define KEY_10CHANNELSUP        0x212   /* 10 channels up (10+) */
++#define KEY_10CHANNELSDOWN      0x213   /* 10 channels down (10-) */
+=20
+ #define BTN_TRIGGER_HAPPY		0x2c0
+ #define BTN_TRIGGER_HAPPY1		0x2c0
+
+--=20
+Mariusz Bia=C5=82o=C5=84czyk
+jabber/e-mail: manio@skyboo.net
+http://manio.skyboo.net
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

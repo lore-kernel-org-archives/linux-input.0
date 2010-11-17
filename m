@@ -1,78 +1,202 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC v1 PATCH 1/6] matrix_keypad: Increase the max limit of rows
- and columns
-Date: Wed, 17 Nov 2010 09:54:29 -0800
-Message-ID: <20101117175429.GB6148@core.coreip.homeip.net>
+Subject: Re: [RFC v1 PATCH 2/6] input: pm8058_keypad: Qualcomm PMIC8058
+ keypad controller driver
+Date: Wed, 17 Nov 2010 10:02:40 -0800
+Message-ID: <20101117180240.GC6148@core.coreip.homeip.net>
 References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org>
- <1289393281-4459-2-git-send-email-tsoni@codeaurora.org>
- <AANLkTi=J2fGOC-RQsPB1SD4GcQ2Df2ZO_a=2mxneHbUa@mail.gmail.com>
- <20101110233036.GB2121@core.coreip.homeip.net>
+ <1289393281-4459-3-git-send-email-tsoni@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:53260 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935136Ab0KQSCu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Nov 2010 13:02:50 -0500
 Content-Disposition: inline
-In-Reply-To: <20101110233036.GB2121@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Trilok Soni <tsoni@codeaurora.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org
+In-Reply-To: <1289393281-4459-3-git-send-email-tsoni@codeaurora.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Trilok Soni <tsoni@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org
 
-On Wed, Nov 10, 2010 at 03:30:36PM -0800, Dmitry Torokhov wrote:
-> On Thu, Nov 11, 2010 at 02:33:45AM +0800, Eric Miao wrote:
-> > On Wed, Nov 10, 2010 at 8:47 PM, Trilok Soni <tsoni@codeaurora.org>=
- wrote:
-> > > Some keyboard controller have support for more than
-> > > 16 columns and rows.
-> > >
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Cc: Eric Miao <eric.y.miao@gmail.com>
-> > > Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
-> > > ---
-> > > =A0include/linux/input/matrix_keypad.h | =A0 =A08 ++++----
-> > > =A01 files changed, 4 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/include/linux/input/matrix_keypad.h b/include/linux/=
-input/matrix_keypad.h
-> > > index 80352ad..d80845e 100644
-> > > --- a/include/linux/input/matrix_keypad.h
-> > > +++ b/include/linux/input/matrix_keypad.h
-> > > @@ -4,11 +4,11 @@
-> > > =A0#include <linux/types.h>
-> > > =A0#include <linux/input.h>
-> > >
-> > > -#define MATRIX_MAX_ROWS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A016
-> > > -#define MATRIX_MAX_COLS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A016
-> > > +#define MATRIX_MAX_ROWS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A018
-> > > +#define MATRIX_MAX_COLS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A018
-> > >
-> > > -#define KEY(row, col, val) =A0 =A0 ((((row) & (MATRIX_MAX_ROWS -=
- 1)) << 24) |\
-> > > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
-(((col) & (MATRIX_MAX_COLS - 1)) << 16) |\
-> > > +#define KEY(row, col, val) =A0 =A0 ((((row) % (MATRIX_MAX_ROWS))=
- << 24) |\
-> > > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
-(((col) % (MATRIX_MAX_COLS)) << 16) |\
-> > > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (=
-val & 0xffff))
-> > >
-> >=20
-> > Or maybe we can solve this completely by introducing something like=
-:
-> >=20
-> > struct matrix_keycode {
-> >         int row;
-> >         int col;
-> >         int value;
->=20
-> Though that triples the space needed to store initial keymaps.
->=20
+On Wed, Nov 10, 2010 at 06:17:57PM +0530, Trilok Soni wrote:
+> Add Qualcomm PMIC8058 based keypad controller driver
+> supporting upto 18x8 matrix configuration.
+> 
 
-Looking at it I think we should simply bump up max cols/rows to 32 and
-be done with it. It will grow the matrix keypad structure by a few byte=
-s
-but nothing drastic.
+Looks good, just a couple of nitpicks:
 
---=20
+> +struct pmic8058_kp {
+> +	const struct pmic8058_keypad_data *pdata;
+> +	struct input_dev *input;
+> +	int key_sense_irq;
+> +	int key_stuck_irq;
+> +
+> +	unsigned short *keycodes;
+
+Since the size of keycode table is constant there is no need to allocate
+it separately (and even if it was variable you still could move it to
+the end of the structure and allocate together).
+
+> +
+> +static int pmic8058_detect_ghost_keys(struct pmic8058_kp *kp, u16 *new_state)
+
+bool
+
+> +{
+> +	int row, found_first = -1;
+> +	u16 check, row_state;
+> +
+> +	check = 0;
+> +	for (row = 0; row < kp->pdata->num_rows; row++) {
+> +		row_state = (~new_state[row]) &
+> +				 ((1 << kp->pdata->num_cols) - 1);
+> +
+> +		if (hweight16(row_state) > 1) {
+> +			if (found_first == -1)
+> +				found_first = row;
+> +			if (check & row_state) {
+> +				dev_dbg(kp->dev, "detected ghost key on row[%d]"
+> +					 " and row[%d]\n", found_first, row);
+> +				return 1;
+
+true
+
+> +			}
+> +		}
+> +		check |= row_state;
+> +	}
+> +	return 0;
+
+false
+
+> +static int __devinit pmic8058_kp_probe(struct platform_device *pdev)
+> +{
+> +	struct pmic8058_keypad_data *pdata = pdev->dev.platform_data;
+> +	const struct matrix_keymap_data *keymap_data;
+> +	struct pmic8058_kp *kp;
+> +	int rc;
+> +	unsigned short *keycodes;
+> +	u8 ctrl_val;
+> +	struct pm8058_chip	*pm_chip;
+> +
+> +	pm_chip = platform_get_drvdata(pdev);
+> +	if (pm_chip == NULL) {
+> +		dev_err(&pdev->dev, "no parent data passed in\n");
+> +		return -EFAULT;
+
+EFAULT is really odd, maybe -EINVAL?
+
+> +	}
+> +
+> +	/* Check PMIC8058 version. A0 version is not supported */
+> +	if (pm8058_rev(pm_chip) == PM_8058_REV_1p0) {
+> +		dev_err(&pdev->dev, "PMIC8058 1.0 version is not supported\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	if (!pdata || !pdata->num_cols || !pdata->num_rows ||
+> +		pdata->num_cols > PM8058_MAX_COLS ||
+> +		pdata->num_rows > PM8058_MAX_ROWS ||
+> +		pdata->num_cols < PM8058_MIN_COLS ||
+> +		pdata->num_rows < PM8058_MIN_ROWS) {
+> +		dev_err(&pdev->dev, "invalid platform data\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (pdata->rows_gpio_start < 0 || pdata->cols_gpio_start < 0) {
+> +		dev_err(&pdev->dev, "invalid gpio_start platform data\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!pdata->scan_delay_ms || pdata->scan_delay_ms > MAX_SCAN_DELAY
+> +		|| pdata->scan_delay_ms < MIN_SCAN_DELAY ||
+> +		!is_power_of_2(pdata->scan_delay_ms)) {
+> +		dev_err(&pdev->dev, "invalid keypad scan time supplied\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!pdata->row_hold_ns || pdata->row_hold_ns > MAX_ROW_HOLD_DELAY
+> +		|| pdata->row_hold_ns < MIN_ROW_HOLD_DELAY ||
+> +		((pdata->row_hold_ns % MIN_ROW_HOLD_DELAY) != 0)) {
+> +		dev_err(&pdev->dev, "invalid keypad row hold time supplied\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!pdata->debounce_ms
+> +		|| ((pdata->debounce_ms % 5) != 0)
+> +		|| pdata->debounce_ms > MAX_DEBOUNCE_TIME
+> +		|| pdata->debounce_ms < MIN_DEBOUNCE_TIME) {
+> +		dev_err(&pdev->dev, "invalid debounce time supplied\n");
+
+Mixing style (logical || either in front of expression or after), please use
+same style (and I prefer after).
+
+
+> +		return -EINVAL;
+> +	}
+> +
+> +	keymap_data = pdata->keymap_data;
+> +	if (!keymap_data) {
+> +		dev_err(&pdev->dev, "no keymap data supplied\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	kp = kzalloc(sizeof(*kp), GFP_KERNEL);
+> +	if (!kp)
+> +		return -ENOMEM;
+> +
+> +	keycodes = kzalloc(PM8058_MATRIX_MAX_SIZE * sizeof(*keycodes),
+> +				 GFP_KERNEL);
+> +	if (!keycodes) {
+> +		rc = -ENOMEM;
+> +		goto err_alloc_mem;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, kp);
+> +
+> +	kp->pdata	= pdata;
+> +	kp->dev		= &pdev->dev;
+> +	kp->keycodes	= keycodes;
+> +	kp->pm_chip	= pm_chip;
+> +
+> +	kp->input = input_allocate_device();
+> +	if (!kp->input) {
+> +		dev_err(&pdev->dev, "unable to allocate input device\n");
+> +		rc = -ENOMEM;
+> +		goto err_alloc_device;
+> +	}
+> +
+> +	kp->key_sense_irq = platform_get_irq(pdev, 0);
+> +	if (kp->key_sense_irq < 0) {
+> +		dev_err(&pdev->dev, "unable to get keypad sense irq\n");
+> +		rc = -ENXIO;
+> +		goto err_get_irq;
+> +	}
+> +
+> +	kp->key_stuck_irq = platform_get_irq(pdev, 1);
+> +	if (kp->key_stuck_irq < 0) {
+> +		dev_err(&pdev->dev, "unable to get keypad stuck irq\n");
+> +		rc = -ENXIO;
+> +		goto err_get_irq;
+> +	}
+> +
+> +	if (pdata->input_name)
+> +		kp->input->name = pdata->input_name;
+> +	else
+> +		kp->input->name = "PMIC8058 keypad";
+> +
+> +	if (pdata->input_phys_device)
+> +		kp->input->phys = pdata->input_phys_device;
+> +	else
+> +		kp->input->phys = "pmic8058_keypad/input0";
+
+	kp->input->phys = pdata->input_phys_device ?: "pmic8058_keypad/input0";
+
+Is shorter.
+
+Thanks.
+
+-- 
 Dmitry

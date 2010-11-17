@@ -1,80 +1,43 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH 1/2] HID: add support for force feedback in
- 'Thrustmaster F430 Force Feedback' steering wheel
-Date: Wed, 17 Nov 2010 09:56:50 +0100
-Message-ID: <20101117095650.1c2210e1.ospite@studenti.unina.it>
-References: <AANLkTimwZwG208QuBYaF7kXmeedcvUZ6iGwjNjJBOOMn@mail.gmail.com>
+From: Iiro Valkonen <iiro.valkonen@atmel.com>
+Subject: Re: [PATCH] input: Add Atmel maXTouch touchscreen driver
+Date: Wed, 17 Nov 2010 12:41:40 +0200
+Message-ID: <4CE3B164.9070607@atmel.com>
+References: <4CDD4BBA.5070301@atmel.com> <20101112201001.GE1299@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__17_Nov_2010_09_56_50_+0100_WADY0MF0CG2zvo+2"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp204.alice.it ([82.57.200.100]:38237 "EHLO smtp204.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759790Ab0KQI5F (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Nov 2010 03:57:05 -0500
-In-Reply-To: <AANLkTimwZwG208QuBYaF7kXmeedcvUZ6iGwjNjJBOOMn@mail.gmail.com>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:14219 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933229Ab0KQLGk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Nov 2010 06:06:40 -0500
+Received: from bagnes.atmel.com (bagnes.atmel.com [10.175.100.4])
+	by sjogate2.atmel.com (8.13.6/8.13.6) with ESMTP id oAHB4ECx022574
+	for <linux-input@vger.kernel.org>; Wed, 17 Nov 2010 03:04:14 -0800 (PST)
+In-Reply-To: <20101112201001.GE1299@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Orefice <aorefice77@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: kyungmin.park@samsung.com, jy0922.shim@samsung.com, linux-input@vger.kernel.org
 
---Signature=_Wed__17_Nov_2010_09_56_50_+0100_WADY0MF0CG2zvo+2
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 11/12/2010 10:10 PM, Dmitry Torokhov wrote:
+> Hi Iiro,
+> 
+> I believe there is already a driver for this hardware in the tree
+> (qt602240.c). Could you tell me what additional features your driver
+> implements and why can't they be added to the existing driver.
+> 
 
-On Wed, 17 Nov 2010 09:41:17 +0100
-Antonio Orefice <aorefice77@gmail.com> wrote:
+Hi Dmitry,
 
-Hi Antonio, have I heard of you from unina?
+the current driver is written for one maXTouch chip, mXT224. The driver that I submitted will support all current maXTouch chips, and it is built to be future-proof so it should work with yet to be released chips too, with minor or no changes. This shows in the naming too, part name "qt602240" is deprecated and it shouldn't be used. As the driver should work with all chips in the maXTouch family, a more generic naming convention in the driver name itself and all the code inside the driver would be more appropriate. 
 
->=20
-> --- hid-tmff.c-2.6.35	2010-11-16 13:54:29.563224822 +0100
-> +++ hid-tmff.c	2010-11-16 13:46:42.549871515 +0100
-> @@ -251,8 +252,12 @@
->  		.driver_data =3D (unsigned long)ff_rumble },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb651),	/* FGT Rumble
-> Force Wheel */
->  		.driver_data =3D (unsigned long)ff_rumble },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654),	/* FGT Force
-> Feedback Wheel */
->  		.driver_data =3D (unsigned long)ff_joystick },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a),	/* F430 Force
-> Feedback */
-> +		.driver_data =3D (unsigned long)ff_joystick },
->  	{ }
->  };
+Atmel would like to be the maintainer of this driver, and it would be easiest if we could use the code I submitted. Of course we would be happy to implement any improvements like the threaded IRQs.
 
-Patch looks space damaged, check your email client settings. Why don't
-you try using git (or at least quilt) instead of manual diffing? Tools
-are there for a reason :)
-
-Also, I really think the two patches can be folded into one, the commit
-messages are telling us so.
-
-Regards,
-   Antonio Ospite
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Wed__17_Nov_2010_09_56_50_+0100_WADY0MF0CG2zvo+2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkzjmNIACgkQ5xr2akVTsAFf8gCglyRiLSJ94B39j3uXsNpPz02G
-Jr8AoJPE2Jyh/bTLnVP6JtJUoEy54H1j
-=1K85
------END PGP SIGNATURE-----
-
---Signature=_Wed__17_Nov_2010_09_56_50_+0100_WADY0MF0CG2zvo+2--
+Best Regards,
+-- 
+Iiro Valkonen
+Application Engineer / Atmel Corporation
+Tel: +358(9)45208250 / Mobile: +358(40)5820012
+iiro.valkonen@atmel.com / www.atmel.com

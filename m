@@ -1,52 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Drivers: hid: Makefile: Cleaned up Makefile
-Date: Tue, 16 Nov 2010 23:21:17 -0800
-Message-ID: <20101117072117.GC7046@core.coreip.homeip.net>
-References: <1289141188-1447-1-git-send-email-tdent48227@gmail.com>
- <alpine.LNX.2.00.1011151557510.7420@pobox.suse.cz>
- <AANLkTikKTLpzafaE9oxRz1f_ZE9zv1eL6K8aAkYmR+TB@mail.gmail.com>
+From: Antonio Orefice <aorefice77@gmail.com>
+Subject: [PATCH 1/2] HID: add support for force feedback in 'Thrustmaster F430
+ Force Feedback' steering wheel
+Date: Wed, 17 Nov 2010 09:41:17 +0100
+Message-ID: <AANLkTimwZwG208QuBYaF7kXmeedcvUZ6iGwjNjJBOOMn@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:53081 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:56664 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751481Ab0KQHV0 (ORCPT
+	with ESMTP id S932288Ab0KQIlS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Nov 2010 02:21:26 -0500
-Content-Disposition: inline
-In-Reply-To: <AANLkTikKTLpzafaE9oxRz1f_ZE9zv1eL6K8aAkYmR+TB@mail.gmail.com>
+	Wed, 17 Nov 2010 03:41:18 -0500
+Received: by iwn35 with SMTP id 35so1846189iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 17 Nov 2010 00:41:17 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tracey Dent <tdent48227@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, spbnick@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tue, Nov 16, 2010 at 10:28:19PM -0500, Tracey Dent wrote:
-> On 11/15/10, Jiri Kosina <jkosina@suse.cz> wrote:
-> > On Sun, 7 Nov 2010, Tracey Dent wrote:
-> >
-> >> Changed Makefile to use <modules>-y instead of <modules>-objs because
-> >> -objs is deprecated and should now be switched. According to
-> >> (documentation/kbuild/makefiles.txt).
-> >
-> > Actually, where exactly does this file document it?
-> >
-> 
-> It documents how it should be done in the section entitled --- 3.7
-> Compilation flags (which starts on line 284).
-> 
+This patch add supports for force feedback Thrustmaster "F430 Force
+Feedback" steering wheel.
+I just added the right usb device id to the existing hid-tmff driver
+by Zinx Verituse and to the exceptions list in hid-core.c
+After the patches, the device correctly supports constant forces.
+For example, the wheel will move correctly accordingly to the mouse
+position when using ffmvforce from ffutils; ffset is able to set
+autocenter strenght and ff gain.
 
-Actually the only reference I could find is in 3.3:
+I tested the patches over a 2.6.35 kernel, but the changes are so
+minimal that they should work flawlessy on newer ones.
 
-        If a kernel module is built from several source files, you specify
-        that you want to build a module in the same way as above; however,
-        kbuild needs to know which object files you want to build your
-        module from, so you have to tell it by setting a $(<module_name>-y)
-        variable.
-
-See commit 4f8272802739f5c6ce6b0a548810a181d2f1b652 for reasoning behind
-the change.
-
-Thanks.
-
--- 
-Dmitry
+--- hid-tmff.c-2.6.35	2010-11-16 13:54:29.563224822 +0100
++++ hid-tmff.c	2010-11-16 13:46:42.549871515 +0100
+@@ -251,8 +252,12 @@
+ 		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb651),	/* FGT Rumble
+Force Wheel */
+ 		.driver_data = (unsigned long)ff_rumble },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654),	/* FGT Force
+Feedback Wheel */
+ 		.driver_data = (unsigned long)ff_joystick },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a),	/* F430 Force
+Feedback */
++		.driver_data = (unsigned long)ff_joystick },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, tm_devices);

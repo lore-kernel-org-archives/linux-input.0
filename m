@@ -1,61 +1,97 @@
-From: Tracey Dent <tdent48227@gmail.com>
-Subject: Re: [PATCH 1/2] Drivers: hid: Makefile: Cleaned up Makefile
-Date: Wed, 17 Nov 2010 13:18:46 -0500
-Message-ID: <AANLkTinCKEYvOj0CB=BpyezYnX41UchwqVLBy4LBSSG2@mail.gmail.com>
-References: <1289141188-1447-1-git-send-email-tdent48227@gmail.com>
-	<alpine.LNX.2.00.1011151557510.7420@pobox.suse.cz>
-	<AANLkTikKTLpzafaE9oxRz1f_ZE9zv1eL6K8aAkYmR+TB@mail.gmail.com>
-	<20101117072117.GC7046@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Add Atmel maXTouch touchscreen driver
+Date: Wed, 17 Nov 2010 10:23:37 -0800
+Message-ID: <20101117182337.GD6148@core.coreip.homeip.net>
+References: <4CDD4BBA.5070301@atmel.com>
+ <20101112201001.GE1299@core.coreip.homeip.net>
+ <4CE3B164.9070607@atmel.com>
+ <AANLkTikob_e2+gZJHb-KOFOeFxffjjwsnrY1=io0WGru@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:62250 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933148Ab0KQSSs (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:56166 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933882Ab0KQSXr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Nov 2010 13:18:48 -0500
-In-Reply-To: <20101117072117.GC7046@core.coreip.homeip.net>
+	Wed, 17 Nov 2010 13:23:47 -0500
+Received: by gyh4 with SMTP id 4so1300017gyh.19
+        for <linux-input@vger.kernel.org>; Wed, 17 Nov 2010 10:23:46 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <AANLkTikob_e2+gZJHb-KOFOeFxffjjwsnrY1=io0WGru@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, spbnick@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Murphy, Dan" <dmurphy@ti.com>
+Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, kyungmin.park@samsung.com, jy0922.shim@samsung.com, linux-input@vger.kernel.org
 
-On 11/17/10, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Tue, Nov 16, 2010 at 10:28:19PM -0500, Tracey Dent wrote:
->> On 11/15/10, Jiri Kosina <jkosina@suse.cz> wrote:
->> > On Sun, 7 Nov 2010, Tracey Dent wrote:
->> >
->> >> Changed Makefile to use <modules>-y instead of <modules>-objs because
->> >> -objs is deprecated and should now be switched. According to
->> >> (documentation/kbuild/makefiles.txt).
->> >
->> > Actually, where exactly does this file document it?
->> >
->>
->> It documents how it should be done in the section entitled --- 3.7
->> Compilation flags (which starts on line 284).
->>
+On Wed, Nov 17, 2010 at 08:04:32AM -0600, Murphy, Dan wrote:
+> Hi Dmitry
+> 
+> On Wed, Nov 17, 2010 at 4:41 AM, Iiro Valkonen <iiro.valkonen@atmel.com> wrote:
+> > On 11/12/2010 10:10 PM, Dmitry Torokhov wrote:
+> > Hi Dmitry,
+> >
+> > the current driver is written for one maXTouch chip, mXT224. The
+> > driver that I submitted will support all current >maXTouch chips,
+> > and it is built to be future-proof so it should work with yet to be
+> > released chips too, with minor or no changes. This shows in the
+> > naming too, part name "qt602240" is deprecated and it shouldn't be
+> > used. As the driver should work with all chips in the maXTouch
+> > family, a more generic naming convention in the driver name itself
+> > and all the code inside the driver would be more appropriate.
+
+The name of the driver is not important and can easily be changed, just
+send me a patch.
+
+> 
+> Having written this same driver for this IC I agree with Iiro that we
+> should have one driver that would support multiple IC firmware
+> revisions.  Once we had the base driver completed adding functionality
+> to the driver was a snap.
+> 
+> Can these two drivers co-exist and let the developer decide which driver to use?
+> Of course the Atmel driver needs to be scrubbed for problems.
+
+No, that would cause duplicate effort. Just witness patches form Intel
+submitted for the mainline driver a few days ago.
+
+Development process in Linux kernel is rarely revolutionary but rather
+evolutionary. That is why I asked Iiro to enumerate the changes needed
+for qt602240 to support entire line of maXTouch chips.
+
+> 
+> Now.  I also strongly agree with Dmitry that the driver you are
+> submitting is IMHO really rough and needs work.  Without even
+> reviewing the complete functionality I have many concerns about the
+> code.
+> 
+> For instance the header file spacing is really crazy.  I am not sure
+> if the spacing was intended but it is really hard to follow.  In the
+> source it seems like there is more debug code then functional working
+> code.  The driver should be updated to use the request_threaded_irq
+> call and not the request_irq then there is no need for scheduling work
+> queues.  I can go on and on.... But I won't do a complete review on
+> this driver unless Dmitry indicates that he will merge it once
+> complete.
+
+Like I said, I will not take the driver wholesale but I will take it
+piecemeal, feature by feature transforming qt602240.
+
+BTW, what is up with needing 2 custom character devices?
+
+> 
+> >
+> > Atmel would like to be the maintainer of this driver, and it would
+> > be easiest if we could use the code I submitted. Of course we would
+> > be happy to implement any improvements like the threaded IRQs.
 >
-> Actually the only reference I could find is in 3.3:
->
->         If a kernel module is built from several source files, you specify
->         that you want to build a module in the same way as above; however,
->         kbuild needs to know which object files you want to build your
->         module from, so you have to tell it by setting a $(<module_name>-y)
->         variable.
->
-> See commit 4f8272802739f5c6ce6b0a548810a181d2f1b652 for reasoning behind
-> the change.
+> I would prefer Atmel be the maintainer as they can expedite future
+> changes into the driver prior to releasing the support firmware.
 >
 
-You're right, I was thinking I changed to use ccflags-y flags. Sorry :(
+I will be delighted if Atmel takes over the driver, as long as they
+follow the standard kernel practices.
 
-> Thanks.
->
-> --
-> Dmitry
->
+Thanks.
 
-Thanks
-
-Tracey Dent
+-- 
+Dmitry

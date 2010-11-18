@@ -1,124 +1,91 @@
 From: Chris Leech <christopher.leech@linux.intel.com>
-Subject: Re: [PATCH 3/5] qt602240_ts: Trust factory configuration of
-	touchscreen.
-Date: Thu, 18 Nov 2010 11:41:12 -0800
-Message-ID: <20101118194112.GF1273@cleech-lnx.jf.intel.com>
-References: <20101116203914.28796.23141.stgit@localhost6.localdomain6> <20101116204200.28796.23013.stgit@localhost6.localdomain6> <4CE5258F.4030507@samsung.com>
+Subject: Re: [PATCH 4/5] qt602240_ts: add optional hooks for board specific
+	reset logic
+Date: Thu, 18 Nov 2010 11:46:28 -0800
+Message-ID: <20101118194628.GG1273@cleech-lnx.jf.intel.com>
+References: <20101116203914.28796.23141.stgit@localhost6.localdomain6> <20101116204206.28796.34520.stgit@localhost6.localdomain6> <4CE50ED7.8000802@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:59279 "EHLO mga14.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:49772 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751145Ab0KRTlN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Nov 2010 14:41:13 -0500
+	id S1754498Ab0KRTq2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Nov 2010 14:46:28 -0500
 Content-Disposition: inline
-In-Reply-To: <4CE5258F.4030507@samsung.com>
+In-Reply-To: <4CE50ED7.8000802@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Joonyoung Shim <jy0922.shim@samsung.com>
 Cc: linux-input@vger.kernel.org
 
-On Thu, Nov 18, 2010 at 10:09:35PM +0900, Joonyoung Shim wrote:
+On Thu, Nov 18, 2010 at 08:32:39PM +0900, Joonyoung Shim wrote:
 > Hi, Chris.
+>
 > On 2010-11-17 =EC=98=A4=EC=A0=84 5:42, Chris Leech wrote:
-
->> +static void qt602240_read_config(struct qt602240_data *data)
->> +{
->> +	struct qt602240_platform_data *pdata =3D data->pdata;
->> +	u8 val;
->> +	u8 high, low;
->> +
->> +	/* touchscreen lines */
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_XS=
-IZE,
->> +			&val);
->> +		pdata->x_line =3D val;
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_YS=
-IZE,
->> +			&val);
->> +		pdata->x_line =3D val;
->> +
->> +	/* touchscreen orient */
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_OR=
-IENT,
->> +			&val);
->> +		pdata->orient =3D val;
->> +
->> +	/* touchscreen burst length */
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_BL=
-EN,
->> +			&val);
->> +		pdata->blen =3D val;
->> +
->> +	/* touchscreen threshold */
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_TC=
-HTHR,
->> +			&val);
->> +		pdata->threshold =3D val;
->> +
->> +	/* touchscreen resolution */
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
->> +			QT602240_TOUCH_XRANGE_LSB,&low);
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
->> +			QT602240_TOUCH_XRANGE_MSB,&high);
->> +	pdata->x_size =3D (high<<  8) | (low + 1);
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
->> +			QT602240_TOUCH_YRANGE_LSB,&low);
->> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
->> +			QT602240_TOUCH_YRANGE_MSB,&high);
->> +	pdata->y_size =3D (high<<  8) | (low + 1);
->> +}
->> +
->
-> Please don't modify pdata, the pdata means platform specific data fro=
-m
-> machine file. The pdata of struct qt602240_data be used only in
-> qt602240_initialize function when driver is probed, so we need to
-> remove pdata from struct qt602240_data.
-
-OK. If I add the relevant fields to qt602240_data, and either copy over
-from pdata or read from the hardware configuration based on trust_nvm,
-does that approach seem acceptable to you?
-
->> +	/*
->> +	 * Bit 0 of TOUCH_ORIENT is the X/Y swap configuration.
->> +	 * If the axises are swapped the reporting will change, and in ord=
-er to
->> +	 * get the scaling correct we need to swap the maximum range value=
-s
->> +	 * reported to the input layer.
->> +	 */
->> +	if (data->pdata->orient&  1) {
->> +		x_size =3D data->pdata->y_size;
->> +		y_size =3D data->pdata->x_size;
->> +	} else {
->> +		x_size =3D data->pdata->x_size;
->> +		y_size =3D data->pdata->y_size;
+>> Hooks for board specific setup and tear-down, to be used if the cont=
+rollers
+>> reset is wired to a GPIO pin.
+>>
+>> Signed-off-by: Chris Leech<christopher.leech@linux.intel.com>
+>> ---
+>>   drivers/input/touchscreen/qt602240_ts.c |    7 +++++++
+>>   include/linux/i2c/qt602240_ts.h         |    4 ++++
+>>   2 files changed, 11 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input=
+/touchscreen/qt602240_ts.c
+>> index 11055ec..efe975e 100644
+>> --- a/drivers/input/touchscreen/qt602240_ts.c
+>> +++ b/drivers/input/touchscreen/qt602240_ts.c
+>> @@ -1307,6 +1307,11 @@ static int __devinit qt602240_probe(struct i2=
+c_client *client,
+>>
+>>   	i2c_set_clientdata(client, data);
+>>
+>> +	if (data->pdata->hw_setup) {
+>> +		error =3D data->pdata->hw_setup(client);
+>> +		if (error)
+>> +			goto err_free_object;
 >> +	}
+>>   	error =3D qt602240_initialize(data);
+>>   	if (error)
+>>   		goto err_free_object;
+>> @@ -1376,6 +1381,8 @@ static int __devexit qt602240_remove(struct i2=
+c_client *client)
+>>   	sysfs_remove_group(&client->dev.kobj,&qt602240_attr_group);
+>>   	free_irq(data->irq, data);
+>>   	input_unregister_device(data->input_dev);
+>> +	if (data->pdata->hw_teardown)
+>> +		data->pdata->hw_teardown(client);
+>>   	kfree(data->object_table);
+>>   	kfree(data);
+>>
+>> diff --git a/include/linux/i2c/qt602240_ts.h b/include/linux/i2c/qt6=
+02240_ts.h
+>> index d2aa1b6..764dd45 100644
+>> --- a/include/linux/i2c/qt602240_ts.h
+>> +++ b/include/linux/i2c/qt602240_ts.h
+>> @@ -41,6 +41,10 @@ struct qt602240_platform_data {
+>>   	 * platform_data).
+>>   	 */
+>>   	unsigned char trust_nvm;
 >> +
->> +	/* For single touch */
->> +	input_set_abs_params(input_dev, ABS_X, 0, x_size, 0, 0);
->> +	input_set_abs_params(input_dev, ABS_Y, 0, y_size, 0, 0);
->> +
->> +	/* For multi touch */
->> +	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
->> +			QT602240_MAX_AREA, 0, 0);
->> +	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, x_size, 0, 0=
-);
->> +	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, y_size, 0, 0=
-);
->> +
+>> +	/* Board-specific HW hooks; NULL if not needed */
+>> +	int (*hw_setup) (struct i2c_client *client);
+>> +	void (*hw_teardown) (struct i2c_client *client);
 >
-> I'm not sure but i know this max is maximum value to be supported by
-> touch chip.
+> Why does client need?
 
-I think the maxtouch scales it's output based on the TOUCH_XRANGE and
-TOUCH_YRANGE configuration, so there should be the maximum values that
-will ever be reported.
+I'm not sure I understand your question.
 
-I can test this again, but if these values are wrong I get messed up
-scaling when they events are translated to windowing coordinates.
+If it's why are these hooks needed, I want to make sure that if the
+reset pin is hooked up to a gpio the device is taken out of reset
+properly.
+
+If it's why the client argument is passed, it seemed like there should
+be some way to identify the device.  You could have a platform with
+multiple touchscreens.
 
 - Chris
 --

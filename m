@@ -1,64 +1,79 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RESEND] [PATCH] Input: add appleir USB driver
-Date: Thu, 18 Nov 2010 04:18:03 +0000
-Message-ID: <1290053884.1435.10.camel@novo.hadess.net>
-References: <1285844276.26405.26.camel@cookie.hadess.net>
-	 <201009300847.43090.dmitry.torokhov@gmail.com>
-	 <1285861890.26405.37.camel@cookie.hadess.net>
-	 <20101008003940.GF31804@redhat.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH 1/5] qt602240_ts: fix wrong sizeof in object table
+ allocation
+Date: Thu, 18 Nov 2010 20:16:25 +0900
+Message-ID: <4CE50B09.2020507@samsung.com>
+References: <20101116203914.28796.23141.stgit@localhost6.localdomain6>
+ <20101116204150.28796.21244.stgit@localhost6.localdomain6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay2-v.mail.gandi.net ([217.70.178.76]:56857 "EHLO
-	relay2-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752713Ab0KRESI (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:28587 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751369Ab0KRLQ1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Nov 2010 23:18:08 -0500
-In-Reply-To: <20101008003940.GF31804@redhat.com>
+	Thu, 18 Nov 2010 06:16:27 -0500
+Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
+ by mailout2.samsung.com
+ (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
+ 2010)) with ESMTP id <0LC2004C1VBDKK70@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 18 Nov 2010 20:16:25 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LC2009PQVBECO@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 18 Nov 2010 20:16:26 +0900 (KST)
+In-reply-to: <20101116204150.28796.21244.stgit@localhost6.localdomain6>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Chris Leech <christopher.leech@linux.intel.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, 2010-10-07 at 20:39 -0400, Jarod Wilson wrote:
-> On Thu, Sep 30, 2010 at 04:51:30PM +0100, Bastien Nocera wrote:
-> > On Thu, 2010-09-30 at 08:47 -0700, Dmitry Torokhov wrote:
-> > > Bastien,
-> ...
-> > >  I'll try
-> > > to get the driver in .37 but after that we should probably move it
-> > > over to the new IR infrastructure...
-> > 
-> > I'm not sure what that would bring us, nor do I have any experience in
-> > using the ir-core. From what I understood, it still needed fleshing out.
-> 
-> There are a few things that still need fleshing out, but nothing really
-> that should have any major impact on a potential port of this driver.
-> 
-> Off the top of my head, the main thing it would give you is the ability to
-> upload your own keymap for the receiver.
+Hi, Chris.
 
-You could already change the keymap...
+On 2010-11-17 =EC=98=A4=EC=A0=84 5:41, Chris Leech wrote:
+> The kcalloc call for the object table is using sizeof(struct qt602240=
+_data)
+> when it should be using sizeof(struct qt6602240_object), resulting in=
+ a larger
+> allocation than is required.
+>
+> Signed-off-by: Chris Leech<christopher.leech@linux.intel.com>
 
->  Then someone wanting to use more
-> than 6 buttons
+Acked-by: Joonyoung Shim <jy0922@samsung.com>
 
-But only for the 6 buttons supported.
+Thanks.
 
->  or whatever it is might still be able to get the benefits
-> of in-kernel decoding with everything coming through the input layer,
-> rather than using lirc or the like.
+> ---
+>   drivers/input/touchscreen/qt602240_ts.c |    2 +-
+>   1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/=
+touchscreen/qt602240_ts.c
+> index 66b26ad..0b92c9d 100644
+> --- a/drivers/input/touchscreen/qt602240_ts.c
+> +++ b/drivers/input/touchscreen/qt602240_ts.c
+> @@ -969,7 +969,7 @@ static int qt602240_initialize(struct qt602240_da=
+ta *data)
+>   		return error;
+>
+>   	data->object_table =3D kcalloc(info->object_num,
+> -				     sizeof(struct qt602240_data),
+> +				     sizeof(struct qt602240_object),
+>   				     GFP_KERNEL);
+>   	if (!data->object_table) {
+>   		dev_err(&client->dev, "Failed to allocate memory\n");
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-I see very little benefits myself (I mean, unless you're adamant that
-you want to use a remote that's not intended for that computer, but we
-already have lirc user-space driver for doing that), and it would remove
-metadata from the events, so we couldn't do "remote filtering" (each
-remote has a semi-random UID, which gets passed in with the events).
-
-When the appleir patch was finally accepted (which means I need to get
-off my arse and do the changes Oliver mentioned), working on UID
-filtering is next on my list of TODOs.
-
-Cheers
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

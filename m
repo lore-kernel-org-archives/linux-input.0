@@ -1,91 +1,66 @@
 From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH 4/5] qt602240_ts: add optional hooks for board specific
- reset	logic
-Date: Thu, 18 Nov 2010 20:32:39 +0900
-Message-ID: <4CE50ED7.8000802@samsung.com>
+Subject: Re: [PATCH 5/5] qt602240_ts: add mXT224 identifier to id_table,
+	to match Intel mid firmware identifier
+Date: Thu, 18 Nov 2010 20:34:28 +0900
+Message-ID: <4CE50F44.8080506@samsung.com>
 References: <20101116203914.28796.23141.stgit@localhost6.localdomain6>
- <20101116204206.28796.34520.stgit@localhost6.localdomain6>
+ <20101116204211.28796.93820.stgit@localhost6.localdomain6>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:44209 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751686Ab0KRLcl (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:48566 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753894Ab0KRLe3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Nov 2010 06:32:41 -0500
-Received: from epmmp1 (mailout3.samsung.com [203.254.224.33])
- by mailout3.samsung.com
+	Thu, 18 Nov 2010 06:34:29 -0500
+Received: from epmmp2 (mailout4.samsung.com [203.254.224.34])
+ by mailout4.samsung.com
  (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
- 2010)) with ESMTP id <0LC200DG5W2FSQ70@mailout3.samsung.com> for
- linux-input@vger.kernel.org; Thu, 18 Nov 2010 20:32:39 +0900 (KST)
+ 2010)) with ESMTP id <0LC200II3W5G9Q70@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 18 Nov 2010 20:34:28 +0900 (KST)
 Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0LC2004FJW2FF5@mmp1.samsung.com> for
- linux-input@vger.kernel.org; Thu, 18 Nov 2010 20:32:39 +0900 (KST)
-In-reply-to: <20101116204206.28796.34520.stgit@localhost6.localdomain6>
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LC2009OUW5GWB@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 18 Nov 2010 20:34:28 +0900 (KST)
+In-reply-to: <20101116204211.28796.93820.stgit@localhost6.localdomain6>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Chris Leech <christopher.leech@linux.intel.com>
 Cc: linux-input@vger.kernel.org
 
-Hi, Chris.
-
 On 2010-11-17 =EC=98=A4=EC=A0=84 5:42, Chris Leech wrote:
-> Hooks for board specific setup and tear-down, to be used if the contr=
-ollers
-> reset is wired to a GPIO pin.
+> "mXT224" is used in the SFI tables to identify the presence of this I=
+2C device.
 >
 > Signed-off-by: Chris Leech<christopher.leech@linux.intel.com>
+
+Acked-by: Joonyoung Shim <jy0922.shim@samsung.com>
+
+Thanks.
+
 > ---
->   drivers/input/touchscreen/qt602240_ts.c |    7 +++++++
->   include/linux/i2c/qt602240_ts.h         |    4 ++++
->   2 files changed, 11 insertions(+), 0 deletions(-)
+>   drivers/input/touchscreen/qt602240_ts.c |    1 +
+>   1 files changed, 1 insertions(+), 0 deletions(-)
 >
 > diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/=
 touchscreen/qt602240_ts.c
-> index 11055ec..efe975e 100644
+> index efe975e..cdd5a8b 100644
 > --- a/drivers/input/touchscreen/qt602240_ts.c
 > +++ b/drivers/input/touchscreen/qt602240_ts.c
-> @@ -1307,6 +1307,11 @@ static int __devinit qt602240_probe(struct i2c=
-_client *client,
+> @@ -1432,6 +1432,7 @@ static int qt602240_resume(struct i2c_client *c=
+lient)
 >
->   	i2c_set_clientdata(client, data);
+>   static const struct i2c_device_id qt602240_id[] =3D {
+>   	{ "qt602240_ts", 0 },
+> +	{ "mXT224", 0 },
+>   	{ }
+>   };
+>   MODULE_DEVICE_TABLE(i2c, qt602240_id);
 >
-> +	if (data->pdata->hw_setup) {
-> +		error =3D data->pdata->hw_setup(client);
-> +		if (error)
-> +			goto err_free_object;
-> +	}
->   	error =3D qt602240_initialize(data);
->   	if (error)
->   		goto err_free_object;
-> @@ -1376,6 +1381,8 @@ static int __devexit qt602240_remove(struct i2c=
-_client *client)
->   	sysfs_remove_group(&client->dev.kobj,&qt602240_attr_group);
->   	free_irq(data->irq, data);
->   	input_unregister_device(data->input_dev);
-> +	if (data->pdata->hw_teardown)
-> +		data->pdata->hw_teardown(client);
->   	kfree(data->object_table);
->   	kfree(data);
 >
-> diff --git a/include/linux/i2c/qt602240_ts.h b/include/linux/i2c/qt60=
-2240_ts.h
-> index d2aa1b6..764dd45 100644
-> --- a/include/linux/i2c/qt602240_ts.h
-> +++ b/include/linux/i2c/qt602240_ts.h
-> @@ -41,6 +41,10 @@ struct qt602240_platform_data {
->   	 * platform_data).
->   	 */
->   	unsigned char trust_nvm;
-> +
-> +	/* Board-specific HW hooks; NULL if not needed */
-> +	int (*hw_setup) (struct i2c_client *client);
-> +	void (*hw_teardown) (struct i2c_client *client);
 
-Why does client need?
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,107 +1,126 @@
 From: Chris Leech <christopher.leech@linux.intel.com>
-Subject: Re: [PATCH 2/5] qt602240_ts: move clearing of pending interrupt
-	closer to request_threaded_irq
-Date: Thu, 18 Nov 2010 11:29:02 -0800
-Message-ID: <20101118192902.GE1273@cleech-lnx.jf.intel.com>
-References: <20101116203914.28796.23141.stgit@localhost6.localdomain6> <20101116204155.28796.6682.stgit@localhost6.localdomain6> <4CE521B9.9070509@samsung.com>
+Subject: Re: [PATCH 3/5] qt602240_ts: Trust factory configuration of
+	touchscreen.
+Date: Thu, 18 Nov 2010 11:41:12 -0800
+Message-ID: <20101118194112.GF1273@cleech-lnx.jf.intel.com>
+References: <20101116203914.28796.23141.stgit@localhost6.localdomain6> <20101116204200.28796.23013.stgit@localhost6.localdomain6> <4CE5258F.4030507@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:7227 "EHLO mga11.intel.com"
+Received: from mga14.intel.com ([143.182.124.37]:59279 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753461Ab0KRT3D (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Nov 2010 14:29:03 -0500
+	id S1751145Ab0KRTlN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Nov 2010 14:41:13 -0500
 Content-Disposition: inline
-In-Reply-To: <4CE521B9.9070509@samsung.com>
+In-Reply-To: <4CE5258F.4030507@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Joonyoung Shim <jy0922.shim@samsung.com>
 Cc: linux-input@vger.kernel.org
 
-On Thu, Nov 18, 2010 at 09:53:13PM +0900, Joonyoung Shim wrote:
+On Thu, Nov 18, 2010 at 10:09:35PM +0900, Joonyoung Shim wrote:
 > Hi, Chris.
->
-> On 2010-11-17 =EC=98=A4=EC=A0=84 5:41, Chris Leech wrote:
->> I've seen interrupts asserted on the CHG pin between the call to mak=
-e_highcgh()
->> during initialization and registering the interrupt handler, leaving=
- CHG low
->> and no events get passed up.
->>
->
-> The CHG pin can be affected by control of gpios connected to touch
-> chip. Could you check it? I think it doesn't matter where
-> make_highchg() exists actually.
+> On 2010-11-17 =EC=98=A4=EC=A0=84 5:42, Chris Leech wrote:
 
-My understanding is that CHG is to be used to trigger interrupts, and
-the attached gpio should be set as an input.  I'm not sure trying to se=
-t
-the value from the gpio side is going to work.
+>> +static void qt602240_read_config(struct qt602240_data *data)
+>> +{
+>> +	struct qt602240_platform_data *pdata =3D data->pdata;
+>> +	u8 val;
+>> +	u8 high, low;
+>> +
+>> +	/* touchscreen lines */
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_XS=
+IZE,
+>> +			&val);
+>> +		pdata->x_line =3D val;
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_YS=
+IZE,
+>> +			&val);
+>> +		pdata->x_line =3D val;
+>> +
+>> +	/* touchscreen orient */
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_OR=
+IENT,
+>> +			&val);
+>> +		pdata->orient =3D val;
+>> +
+>> +	/* touchscreen burst length */
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_BL=
+EN,
+>> +			&val);
+>> +		pdata->blen =3D val;
+>> +
+>> +	/* touchscreen threshold */
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_TC=
+HTHR,
+>> +			&val);
+>> +		pdata->threshold =3D val;
+>> +
+>> +	/* touchscreen resolution */
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
+>> +			QT602240_TOUCH_XRANGE_LSB,&low);
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
+>> +			QT602240_TOUCH_XRANGE_MSB,&high);
+>> +	pdata->x_size =3D (high<<  8) | (low + 1);
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
+>> +			QT602240_TOUCH_YRANGE_LSB,&low);
+>> +	qt602240_read_object(data, QT602240_TOUCH_MULTI,
+>> +			QT602240_TOUCH_YRANGE_MSB,&high);
+>> +	pdata->y_size =3D (high<<  8) | (low + 1);
+>> +}
+>> +
+>
+> Please don't modify pdata, the pdata means platform specific data fro=
+m
+> machine file. The pdata of struct qt602240_data be used only in
+> qt602240_initialize function when driver is probed, so we need to
+> remove pdata from struct qt602240_data.
 
-The problem I was seeing was the attached gpio configured as a
-falling-edge-triggered interrupt stuck in the low state, and
-qt602240_interrupt is never called.  What that says to me is that CHG
-transitioned low before the interrupt handler was registered.  From wha=
-t
-I can see, the only way to reset CHG is to clear the queue of pending
-messages, which is what make_highchg does.
+OK. If I add the relevant fields to qt602240_data, and either copy over
+from pdata or read from the hardware configuration based on trust_nvm,
+does that approach seem acceptable to you?
+
+>> +	/*
+>> +	 * Bit 0 of TOUCH_ORIENT is the X/Y swap configuration.
+>> +	 * If the axises are swapped the reporting will change, and in ord=
+er to
+>> +	 * get the scaling correct we need to swap the maximum range value=
+s
+>> +	 * reported to the input layer.
+>> +	 */
+>> +	if (data->pdata->orient&  1) {
+>> +		x_size =3D data->pdata->y_size;
+>> +		y_size =3D data->pdata->x_size;
+>> +	} else {
+>> +		x_size =3D data->pdata->x_size;
+>> +		y_size =3D data->pdata->y_size;
+>> +	}
+>> +
+>> +	/* For single touch */
+>> +	input_set_abs_params(input_dev, ABS_X, 0, x_size, 0, 0);
+>> +	input_set_abs_params(input_dev, ABS_Y, 0, y_size, 0, 0);
+>> +
+>> +	/* For multi touch */
+>> +	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
+>> +			QT602240_MAX_AREA, 0, 0);
+>> +	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, x_size, 0, 0=
+);
+>> +	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, y_size, 0, 0=
+);
+>> +
+>
+> I'm not sure but i know this max is maximum value to be supported by
+> touch chip.
+
+I think the maxtouch scales it's output based on the TOUCH_XRANGE and
+TOUCH_YRANGE configuration, so there should be the maximum values that
+will ever be reported.
+
+I can test this again, but if these values are wrong I get messed up
+scaling when they events are translated to windowing coordinates.
 
 - Chris
-
-> Thanks.
->
->> This moves the clearing of pending messages to right before the call=
- to
->> request_threaded_irq().  I still think there's a race here that coul=
-d leave CHG
->> stuck low, but worry about clearing the message queue while the inte=
-rrupt
->> handler is registered without some sort of additional locking.
->>
->> Signed-off-by: Chris Leech<christopher.leech@linux.intel.com>
->> ---
->>   drivers/input/touchscreen/qt602240_ts.c |    8 ++++----
->>   1 files changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input=
-/touchscreen/qt602240_ts.c
->> index 0b92c9d..95496ec 100644
->> --- a/drivers/input/touchscreen/qt602240_ts.c
->> +++ b/drivers/input/touchscreen/qt602240_ts.c
->> @@ -991,10 +991,6 @@ static int qt602240_initialize(struct qt602240_=
-data *data)
->>   	if (error)
->>   		return error;
->>
->> -	error =3D qt602240_make_highchg(data);
->> -	if (error)
->> -		return error;
->> -
->>   	qt602240_handle_pdata(data);
->>
->>   	/* Backup to memory */
->> @@ -1280,6 +1276,10 @@ static int __devinit qt602240_probe(struct i2=
-c_client *client,
->>   	if (error)
->>   		goto err_free_object;
->>
->> +	error =3D qt602240_make_highchg(data);
->> +	if (error)
->> +		goto err_free_object;
->> +
->>   	error =3D request_threaded_irq(client->irq, NULL, qt602240_interr=
-upt,
->>   			IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
->>   	if (error) {
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
-t" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

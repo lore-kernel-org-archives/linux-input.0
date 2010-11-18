@@ -1,97 +1,197 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Add Atmel maXTouch touchscreen driver
-Date: Wed, 17 Nov 2010 10:23:37 -0800
-Message-ID: <20101117182337.GD6148@core.coreip.homeip.net>
-References: <4CDD4BBA.5070301@atmel.com>
- <20101112201001.GE1299@core.coreip.homeip.net>
- <4CE3B164.9070607@atmel.com>
- <AANLkTikob_e2+gZJHb-KOFOeFxffjjwsnrY1=io0WGru@mail.gmail.com>
+From: "Kim, HeungJun" <riverful.kim@samsung.com>
+Subject: Re: [PATCH 1/3] input: keyboard: MCS5080: support suspend/resume.
+Date: Thu, 18 Nov 2010 11:54:19 +0900
+Message-ID: <4CE4955B.3030607@samsung.com>
+References: <4CE0B7B1.6060404@samsung.com>
+ <20101115083235.GA11594@core.coreip.homeip.net>
+Reply-To: riverful.kim@samsung.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:56166 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933882Ab0KQSXr (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:8537 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750850Ab0KRCyV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Nov 2010 13:23:47 -0500
-Received: by gyh4 with SMTP id 4so1300017gyh.19
-        for <linux-input@vger.kernel.org>; Wed, 17 Nov 2010 10:23:46 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <AANLkTikob_e2+gZJHb-KOFOeFxffjjwsnrY1=io0WGru@mail.gmail.com>
+	Wed, 17 Nov 2010 21:54:21 -0500
+Received: from epmmp1 (mailout3.samsung.com [203.254.224.33])
+ by mailout3.samsung.com
+ (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
+ 2010)) with ESMTP id <0LC200H1R82JCME0@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 18 Nov 2010 11:54:19 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LC2001ZL82J3D@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 18 Nov 2010 11:54:19 +0900 (KST)
+In-reply-to: <20101115083235.GA11594@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Murphy, Dan" <dmurphy@ti.com>
-Cc: Iiro Valkonen <iiro.valkonen@atmel.com>, kyungmin.park@samsung.com, jy0922.shim@samsung.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Nov 17, 2010 at 08:04:32AM -0600, Murphy, Dan wrote:
-> Hi Dmitry
-> 
-> On Wed, Nov 17, 2010 at 4:41 AM, Iiro Valkonen <iiro.valkonen@atmel.com> wrote:
-> > On 11/12/2010 10:10 PM, Dmitry Torokhov wrote:
-> > Hi Dmitry,
-> >
-> > the current driver is written for one maXTouch chip, mXT224. The
-> > driver that I submitted will support all current >maXTouch chips,
-> > and it is built to be future-proof so it should work with yet to be
-> > released chips too, with minor or no changes. This shows in the
-> > naming too, part name "qt602240" is deprecated and it shouldn't be
-> > used. As the driver should work with all chips in the maXTouch
-> > family, a more generic naming convention in the driver name itself
-> > and all the code inside the driver would be more appropriate.
+Hi Dmitry,
 
-The name of the driver is not important and can easily be changed, just
-send me a patch.
+I'll fix the following points, and re-send patches, soon.
+And, I gonna send the led-trigger patch, later.
+Actually, the led-blink command & method is changed according to touchk=
+ey F/W, as you know.
+The cause of my sending led-patch is that I think it's the just basic f=
+unction.
+But, If the touchkey-drv use led-trigger framework, the driver code is =
+heavy, I guess.
 
-> 
-> Having written this same driver for this IC I agree with Iiro that we
-> should have one driver that would support multiple IC firmware
-> revisions.  Once we had the base driver completed adding functionality
-> to the driver was a snap.
-> 
-> Can these two drivers co-exist and let the developer decide which driver to use?
-> Of course the Atmel driver needs to be scrubbed for problems.
+After I consider that deeply, I'll re-send patch.=20
 
-No, that would cause duplicate effort. Just witness patches form Intel
-submitted for the mainline driver a few days ago.
+Thansk to review.
 
-Development process in Linux kernel is rarely revolutionary but rather
-evolutionary. That is why I asked Iiro to enumerate the changes needed
-for qt602240 to support entire line of maXTouch chips.
+2010-11-15 =EC=98=A4=ED=9B=84 5:32, Dmitry Torokhov =EC=93=B4 =EA=B8=80=
+:
+> Hi Kim,
+>=20
+> On Mon, Nov 15, 2010 at 01:31:45PM +0900, Kim, HeungJun wrote:
+>> This patch supports suspend/resume functions for mcs5080 touchkey
+>> driver.
+>>
+>> Signed-off-by: Heungjun Kim <riverful.kim@samsung.com>
+>> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+>> ---
+>>  drivers/input/keyboard/mcs_touchkey.c |   41 ++++++++++++++++++++++=
++++++++++++
+>>  include/linux/i2c/mcs.h               |    1 +
+>>  2 files changed, 42 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/k=
+eyboard/mcs_touchkey.c
+>> index 63b849d..06385f5 100644
+>> --- a/drivers/input/keyboard/mcs_touchkey.c
+>> +++ b/drivers/input/keyboard/mcs_touchkey.c
+>> @@ -45,6 +45,8 @@ struct mcs_touchkey_chip {
+>>  };
+>>
+>>  struct mcs_touchkey_data {
+>> +       void (*poweron)(int);
+>=20
+> int (*poweron)(bool);
+>=20
+> The method must be able to signal errors.
+Ok, I'll fix this.
 
-> 
-> Now.  I also strongly agree with Dmitry that the driver you are
-> submitting is IMHO really rough and needs work.  Without even
-> reviewing the complete functionality I have many concerns about the
-> code.
-> 
-> For instance the header file spacing is really crazy.  I am not sure
-> if the spacing was intended but it is really hard to follow.  In the
-> source it seems like there is more debug code then functional working
-> code.  The driver should be updated to use the request_threaded_irq
-> call and not the request_irq then there is no need for scheduling work
-> queues.  I can go on and on.... But I won't do a complete review on
-> this driver unless Dmitry indicates that he will merge it once
-> complete.
+>=20
+>> +
+>>         struct i2c_client *client;
+>>         struct input_dev *input_dev;
+>>         struct mcs_touchkey_chip chip;
+>> @@ -168,6 +170,8 @@ static int __devinit mcs_touchkey_probe(struct i=
+2c_client *client,
+>>
+>>         if (pdata->cfg_pin)
+>>                 pdata->cfg_pin();
+>> +       if (pdata->poweron)
+>> +               data->poweron =3D pdata->poweron;
+>>
+>>         error =3D request_threaded_irq(client->irq, NULL, mcs_touchk=
+ey_interrupt,
+>>                         IRQF_TRIGGER_FALLING, client->dev.driver->na=
+me, data);
+>> @@ -202,6 +206,41 @@ static int __devexit mcs_touchkey_remove(struct=
+ i2c_client *client)
+>>         return 0;
+>>  }
+>>
+>> +#ifdef CONFIG_PM
+>> +static int mcs_touchkey_suspend(struct i2c_client *client, pm_messa=
+ge_t mesg)
+>=20
+> Newer code should use dev_pm_ops please.
+I got it. I'll adapt new runtime-pm framework.
 
-Like I said, I will not take the driver wholesale but I will take it
-piecemeal, feature by feature transforming qt602240.
+> `
+>> +{
+>> +       struct mcs_touchkey_data *data =3D i2c_get_clientdata(client=
+);
+>> +
+>> +       /* Disable the work */
+>> +       disable_irq(client->irq);
+>> +
+>> +       /* Don't I2C operation since we don't know I2C bus is dead a=
+lready */
+>=20
+> ? I am not quite sure what you are trying to say here...
+It's kind of defensive(?) code for sure.
+If don't use this code and the I2C operation is crashed once,
+after I2C operation is crashed, too.
+It happened very frequently in the MCS5080 chip.
+But fortunatly, It affects just own bus, not any other one.
 
-BTW, what is up with needing 2 custom character devices?
+>=20
+>> +
+>> +       /* Finally turn off the power */
+>> +       if (data->poweron)
+>> +               data->poweron(0);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int mcs_touchkey_resume(struct i2c_client *client)
+>> +{
+>> +       struct mcs_touchkey_data *data =3D i2c_get_clientdata(client=
+);
+>> +
+>> +       /* Enable the device first */
+>> +       if (data->poweron)
+>> +               data->poweron(1);
+>> +
+>> +       /* Enable irq again */
+>> +       enable_irq(client->irq);
+>> +
+>> +       return 0;
+>> +}
+>> +#else
+>> +#define mcs_touchkey_suspend   NULL
+>> +#define mcs_touchkey_resume    NULL
+>> +#endif
+>> +
+>>  static const struct i2c_device_id mcs_touchkey_id[] =3D {
+>>         { "mcs5000_touchkey", MCS5000_TOUCHKEY },
+>>         { "mcs5080_touchkey", MCS5080_TOUCHKEY },
+>> @@ -216,6 +255,8 @@ static struct i2c_driver mcs_touchkey_driver =3D=
+ {
+>>         },
+>>         .probe          =3D mcs_touchkey_probe,
+>>         .remove         =3D __devexit_p(mcs_touchkey_remove),
+>> +       .suspend        =3D mcs_touchkey_suspend,
+>> +       .resume         =3D mcs_touchkey_resume,
+>>         .id_table       =3D mcs_touchkey_id,
+>>  };
+>>
+>> diff --git a/include/linux/i2c/mcs.h b/include/linux/i2c/mcs.h
+>> index 725ae7c..c4a3869 100644
+>> --- a/include/linux/i2c/mcs.h
+>> +++ b/include/linux/i2c/mcs.h
+>> @@ -18,6 +18,7 @@
+>>  #define MCS_KEY_CODE(v)                ((v) & 0xffff)
+>>
+>>  struct mcs_platform_data {
+>> +       void (*poweron)(int);
+>>         void (*cfg_pin)(void);
+>>
+>>         /* touchscreen */
+>> --
+>> 1.7.0.4
+>=20
+> Shouldn't you call poweron() at driver bind and unbind time (if you d=
+o not want to
+> supply open() and close() methods which wold be the best option)?
+I got it. I'll locate poweron() function at the bind & unbind time.
 
-> 
-> >
-> > Atmel would like to be the maintainer of this driver, and it would
-> > be easiest if we could use the code I submitted. Of course we would
-> > be happy to implement any improvements like the threaded IRQs.
->
-> I would prefer Atmel be the maintainer as they can expedite future
-> changes into the driver prior to releasing the support firmware.
->
+>=20
+> Thanks.
+>=20
 
-I will be delighted if Atmel takes over the driver, as long as they
-follow the standard kernel practices.
-
-Thanks.
-
--- 
-Dmitry
+Regards,
+HeundJun Kim
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

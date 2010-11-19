@@ -1,221 +1,140 @@
-From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: [PATCH v3 2/4] da850-evm: add UI Expander pushbuttons
-Date: Fri, 19 Nov 2010 16:37:21 -0500
-Message-ID: <bec98f4fde9dc7e2eb549eb9d88da9f7a551b2e1.1290201713.git.bengardiner@nanometrics.ca>
-References: <cover.1289935504.git.bengardiner@nanometrics.ca> <cover.1290201713.git.bengardiner@nanometrics.ca>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1290201713.git.bengardiner@nanometrics.ca>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, "Govindarajan, Sriramakrishnan" <srk@ti.com>
+From: Victor Rodriguez <vm.rod25@gmail.com>
+Subject: Re: [PATCH v3 3/4] da850-evm: extract defines for SEL{A, B, C} pins
+ in UI expander
+Date: Fri, 19 Nov 2010 15:41:11 -0600
+Message-ID: <AANLkTimOByqsZjCYoz=pjwT7jcgN76Sgi4W6SFJ9+N-d@mail.gmail.com>
+References: <cover.1289935504.git.bengardiner@nanometrics.ca>
+	<cover.1290201713.git.bengardiner@nanometrics.ca>
+	<a367bea7c1bdc198b5540b7fe3c02d10ad59cf16.1290201713.git.bengardiner@nanometrics.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:45045 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756889Ab0KSVlM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Nov 2010 16:41:12 -0500
+In-Reply-To: <a367bea7c1bdc198b5540b7fe3c02d10ad59cf16.1290201713.git.bengardiner@nanometrics.ca>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Gardiner <bengardiner@nanometrics.ca>
+Cc: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>
 
-This patch adds EV_KEYs for each of the 8 pushbuttons on the UI board via a
-gpio-key device.
+On Fri, Nov 19, 2010 at 3:37 PM, Ben Gardiner
+<bengardiner@nanometrics.ca> wrote:
+> The setup and teardown methods of the UI expander reference the SEL_{=
+A,B,C}
+> pins by 'magic number' in each function. This uses the common enum fo=
+r their offsets
+> in the expander setup and teardown functions.
+>
+> Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
+> Reviewed-by: Chris Cordahi <christophercordahi@nanometrics.ca>
+> Reviewed-by: Sekhar Nori <nsekhar@ti.com>
+> Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+>
+> ---
+>
+> Changes since v2:
+> =A0* rebased to 083eae3e28643e0eefc5243719f8b1572cf98299 of
+> =A0 git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davin=
+ci.git
+> =A0* integrated the static array initialization patch provided by Sek=
+har Nori
+>
+> Changes since v1:
+> =A0* No changes since v1
+>
+> ---
 
-The expander is a tca6416; it controls the SEL_{A,B,C} lines which enable and
-disable the peripherals found on the UI board in addition to the 8 pushbuttons
-mentioned above. The reason the existing tca6416-keypad driver is not employed
-is because there was no aparent way to keep the gpio lines used as
-SEL_{A,B,C} registered while simultaneously registering the pushbuttons as a
-tca6416-keypad instance.
+I think that ther must be just one   --- , This is extra
 
-Some experimentation with the polling interval was performed; we were searching
-for the largest polling interval that did not affect the feel of the
-responsiveness of the buttons. It is very subjective but 200ms seems to be a
-good value that accepts firm pushes but rejects very light ones. The key values
-assigned to the buttons were arbitrarily chosen to be F1-F8.
+Regards
 
-Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
-Reviewed-by: Chris Cordahi <christophercordahi@nanometrics.ca>
-CC: Govindarajan, Sriramakrishnan <srk@ti.com>
-Reviewed-by: Sekhar Nori <nsekhar@ti.com>
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+Victor Rodriguez
 
----
-
-Changes since v2:
- * rebased to 083eae3e28643e0eefc5243719f8b1572cf98299 of
-   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davinci.git
- * remove the "TODO : populate at runtime using" in this patch instead of 4/4
-   (Nori, Sekhar)
- * integrated the static array initialization patch of Sekhar Nori
- * use static array initialization ranges
- * rename DA850_PB_POLL_MS to DA850_GPIO_KEYS_POLL_MS
- * use shorter names prefixed with da850_evm
-
-Changes since v1:
- * set INPUT_POLLDEV default for DA850_EVM machine, but don't select it
-   unconditionally
- * adding note to description about why tca6416-keypad was not used
- * adding Govindarajan, Sriramakrishnan, the author of the tca6416-keypad
-   driver
-
----
- arch/arm/mach-davinci/Kconfig           |    3 +
- arch/arm/mach-davinci/board-da850-evm.c |   98 ++++++++++++++++++++++++++++++-
- 2 files changed, 100 insertions(+), 1 deletions(-)
-
-diff --git a/arch/arm/mach-davinci/Kconfig b/arch/arm/mach-davinci/Kconfig
-index 84066e8..1fbf73f 100644
---- a/arch/arm/mach-davinci/Kconfig
-+++ b/arch/arm/mach-davinci/Kconfig
-@@ -180,6 +180,9 @@ endchoice
- config GPIO_PCA953X
- 	default MACH_DAVINCI_DA850_EVM
- 
-+config INPUT_POLLDEV
-+	default MACH_DAVINCI_DA850_EVM
-+
- config MACH_TNETV107X
- 	bool "TI TNETV107X Reference Platform"
- 	default ARCH_DAVINCI_TNETV107X
-diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-index f89b0b7..b0763f7 100644
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -17,8 +17,10 @@
- #include <linux/i2c.h>
- #include <linux/i2c/at24.h>
- #include <linux/i2c/pca953x.h>
-+#include <linux/input.h>
- #include <linux/mfd/tps6507x.h>
- #include <linux/gpio.h>
-+#include <linux/gpio_keys.h>
- #include <linux/platform_device.h>
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/nand.h>
-@@ -272,6 +274,88 @@ static inline void da850_evm_setup_emac_rmii(int rmii_sel)
- static inline void da850_evm_setup_emac_rmii(int rmii_sel) { }
- #endif
- 
-+
-+#define DA850_KEYS_DEBOUNCE_MS	10
-+/*
-+ * At 200ms polling interval it is possible to miss an
-+ * event by tapping very lightly on the push button but most
-+ * pushes do result in an event; longer intervals require the
-+ * user to hold the button whereas shorter intervals require
-+ * more CPU time for polling.
-+ */
-+#define DA850_GPIO_KEYS_POLL_MS	200
-+
-+enum da850_evm_ui_exp_pins {
-+	DA850_EVM_UI_EXP_SEL_C = 5,
-+	DA850_EVM_UI_EXP_SEL_B,
-+	DA850_EVM_UI_EXP_SEL_A,
-+	DA850_EVM_UI_EXP_PB8,
-+	DA850_EVM_UI_EXP_PB7,
-+	DA850_EVM_UI_EXP_PB6,
-+	DA850_EVM_UI_EXP_PB5,
-+	DA850_EVM_UI_EXP_PB4,
-+	DA850_EVM_UI_EXP_PB3,
-+	DA850_EVM_UI_EXP_PB2,
-+	DA850_EVM_UI_EXP_PB1,
-+};
-+
-+static const char const *da850_evm_ui_exp[] = {
-+	[DA850_EVM_UI_EXP_SEL_C]        = "sel_c",
-+	[DA850_EVM_UI_EXP_SEL_B]        = "sel_b",
-+	[DA850_EVM_UI_EXP_SEL_A]        = "sel_a",
-+	[DA850_EVM_UI_EXP_PB8]          = "pb8",
-+	[DA850_EVM_UI_EXP_PB7]          = "pb7",
-+	[DA850_EVM_UI_EXP_PB6]          = "pb6",
-+	[DA850_EVM_UI_EXP_PB5]          = "pb5",
-+	[DA850_EVM_UI_EXP_PB4]          = "pb4",
-+	[DA850_EVM_UI_EXP_PB3]          = "pb3",
-+	[DA850_EVM_UI_EXP_PB2]          = "pb2",
-+	[DA850_EVM_UI_EXP_PB1]          = "pb1",
-+};
-+
-+#define DA850_N_UI_PB		8
-+
-+static struct gpio_keys_button da850_evm_ui_keys[] = {
-+	[0 ... DA850_N_UI_PB - 1] = {
-+		.type			= EV_KEY,
-+		.active_low		= 1,
-+		.wakeup			= 0,
-+		.debounce_interval	= DA850_KEYS_DEBOUNCE_MS,
-+		.code			= -1, /* assigned at runtime */
-+		.gpio			= -1, /* assigned at runtime */
-+		.desc			= NULL, /* assigned at runtime */
-+	},
-+};
-+
-+static struct gpio_keys_platform_data da850_evm_ui_keys_pdata = {
-+	.buttons = da850_evm_ui_keys,
-+	.nbuttons = ARRAY_SIZE(da850_evm_ui_keys),
-+	.rep = 0, /* disable auto-repeat */
-+	.poll_interval = DA850_GPIO_KEYS_POLL_MS,
-+};
-+
-+static struct platform_device da850_evm_ui_keys_device = {
-+	.name = "gpio-keys",
-+	.id = 0,
-+	.dev = {
-+		.platform_data = &da850_evm_ui_keys_pdata
-+	},
-+};
-+
-+static void da850_evm_ui_keys_init(unsigned gpio)
-+{
-+	int i;
-+	struct gpio_keys_button *button;
-+
-+	for (i = 0; i < DA850_N_UI_PB; i++) {
-+		button = &da850_evm_ui_keys[i];
-+		button->code = KEY_F8 - i;
-+		button->desc = (char *)
-+				da850_evm_ui_exp[DA850_EVM_UI_EXP_PB8 + i];
-+		button->gpio = gpio + DA850_EVM_UI_EXP_PB8 + i;
-+       }
-+}
-+
- static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- 						unsigned ngpio, void *c)
- {
-@@ -304,15 +388,24 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- 	gpio_direction_output(sel_b, 1);
- 	gpio_direction_output(sel_c, 1);
- 
-+	da850_evm_ui_keys_init(gpio);
-+	ret = platform_device_register(&da850_evm_ui_keys_device);
-+	if (ret) {
-+		pr_warning("Could not register UI GPIO expander push-buttons"
-+				" device\n");
-+		goto exp_setup_keys_fail;
-+	}
-+
- 	ui_card_detected = 1;
- 	pr_info("DA850/OMAP-L138 EVM UI card detected\n");
- 
- 	da850_evm_setup_nor_nand();
--
- 	da850_evm_setup_emac_rmii(sel_a);
- 
- 	return 0;
- 
-+exp_setup_keys_fail:
-+	gpio_free(sel_c);
- exp_setup_selc_fail:
- 	gpio_free(sel_b);
- exp_setup_selb_fail:
-@@ -324,6 +417,8 @@ exp_setup_sela_fail:
- static int da850_evm_ui_expander_teardown(struct i2c_client *client,
- 					unsigned gpio, unsigned ngpio, void *c)
- {
-+	platform_device_unregister(&da850_evm_ui_keys_device);
-+
- 	/* deselect all functionalities */
- 	gpio_set_value_cansleep(gpio + 5, 1);
- 	gpio_set_value_cansleep(gpio + 6, 1);
-@@ -340,6 +435,7 @@ static struct pca953x_platform_data da850_evm_ui_expander_info = {
- 	.gpio_base	= DAVINCI_N_GPIO,
- 	.setup		= da850_evm_ui_expander_setup,
- 	.teardown	= da850_evm_ui_expander_teardown,
-+	.names		= da850_evm_ui_exp,
- };
- 
- static struct i2c_board_info __initdata da850_evm_i2c_devices[] = {
--- 
-1.7.0.4
+> =A0arch/arm/mach-davinci/board-da850-evm.c | =A0 24 ++++++++++++-----=
+-------
+> =A01 files changed, 12 insertions(+), 12 deletions(-)
+>
+> diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-=
+davinci/board-da850-evm.c
+> index b0763f7..c689e7e 100644
+> --- a/arch/arm/mach-davinci/board-da850-evm.c
+> +++ b/arch/arm/mach-davinci/board-da850-evm.c
+> @@ -361,23 +361,23 @@ static int da850_evm_ui_expander_setup(struct i=
+2c_client *client, unsigned gpio,
+> =A0{
+> =A0 =A0 =A0 =A0int sel_a, sel_b, sel_c, ret;
+>
+> - =A0 =A0 =A0 sel_a =3D gpio + 7;
+> - =A0 =A0 =A0 sel_b =3D gpio + 6;
+> - =A0 =A0 =A0 sel_c =3D gpio + 5;
+> + =A0 =A0 =A0 sel_a =3D gpio + DA850_EVM_UI_EXP_SEL_A;
+> + =A0 =A0 =A0 sel_b =3D gpio + DA850_EVM_UI_EXP_SEL_B;
+> + =A0 =A0 =A0 sel_c =3D gpio + DA850_EVM_UI_EXP_SEL_C;
+>
+> - =A0 =A0 =A0 ret =3D gpio_request(sel_a, "sel_a");
+> + =A0 =A0 =A0 ret =3D gpio_request(sel_a, da850_evm_ui_exp[DA850_EVM_=
+UI_EXP_SEL_A]);
+> =A0 =A0 =A0 =A0if (ret) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pr_warning("Cannot open UI expander pi=
+n %d\n", sel_a);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto exp_setup_sela_fail;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 ret =3D gpio_request(sel_b, "sel_b");
+> + =A0 =A0 =A0 ret =3D gpio_request(sel_b, da850_evm_ui_exp[DA850_EVM_=
+UI_EXP_SEL_B]);
+> =A0 =A0 =A0 =A0if (ret) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pr_warning("Cannot open UI expander pi=
+n %d\n", sel_b);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto exp_setup_selb_fail;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 ret =3D gpio_request(sel_c, "sel_c");
+> + =A0 =A0 =A0 ret =3D gpio_request(sel_c, da850_evm_ui_exp[DA850_EVM_=
+UI_EXP_SEL_C]);
+> =A0 =A0 =A0 =A0if (ret) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pr_warning("Cannot open UI expander pi=
+n %d\n", sel_c);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto exp_setup_selc_fail;
+> @@ -420,13 +420,13 @@ static int da850_evm_ui_expander_teardown(struc=
+t i2c_client *client,
+> =A0 =A0 =A0 =A0platform_device_unregister(&da850_evm_ui_keys_device);
+>
+> =A0 =A0 =A0 =A0/* deselect all functionalities */
+> - =A0 =A0 =A0 gpio_set_value_cansleep(gpio + 5, 1);
+> - =A0 =A0 =A0 gpio_set_value_cansleep(gpio + 6, 1);
+> - =A0 =A0 =A0 gpio_set_value_cansleep(gpio + 7, 1);
+> + =A0 =A0 =A0 gpio_set_value_cansleep(gpio + DA850_EVM_UI_EXP_SEL_C, =
+1);
+> + =A0 =A0 =A0 gpio_set_value_cansleep(gpio + DA850_EVM_UI_EXP_SEL_B, =
+1);
+> + =A0 =A0 =A0 gpio_set_value_cansleep(gpio + DA850_EVM_UI_EXP_SEL_A, =
+1);
+>
+> - =A0 =A0 =A0 gpio_free(gpio + 5);
+> - =A0 =A0 =A0 gpio_free(gpio + 6);
+> - =A0 =A0 =A0 gpio_free(gpio + 7);
+> + =A0 =A0 =A0 gpio_free(gpio + DA850_EVM_UI_EXP_SEL_C);
+> + =A0 =A0 =A0 gpio_free(gpio + DA850_EVM_UI_EXP_SEL_B);
+> + =A0 =A0 =A0 gpio_free(gpio + DA850_EVM_UI_EXP_SEL_A);
+>
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
+> --
+> 1.7.0.4
+>
+> _______________________________________________
+> Davinci-linux-open-source mailing list
+> Davinci-linux-open-source@linux.davincidsp.com
+> http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-sourc=
+e
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

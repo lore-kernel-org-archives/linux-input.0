@@ -1,183 +1,236 @@
 From: "Nori, Sekhar" <nsekhar@ti.com>
-Subject: RE: [PATCH v2 3/4] da850-evm: extract defines for SEL{A, B,	C} pins
- in UI expander
-Date: Fri, 19 Nov 2010 16:49:18 +0530
-Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59302477EA9EE@dbde02.ent.ti.com>
+Subject: RE: [PATCH v2 4/4] da850-evm: add baseboard UI expander buttons,
+	switches and LEDs
+Date: Fri, 19 Nov 2010 17:44:49 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59302477EAA89@dbde02.ent.ti.com>
 References: <cover.1289835508.git.bengardiner@nanometrics.ca>
 	<cover.1289935504.git.bengardiner@nanometrics.ca>
- <aa85c5d83111add3a2ed3495ac13bffe5e6b885d.1289935504.git.bengardiner@nanometrics.ca>
+ <d6d59b4a3c34149008f3681e0d6106efa15f354d.1289935504.git.bengardiner@nanometrics.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:53349 "EHLO comal.ext.ti.com"
+Received: from comal.ext.ti.com ([198.47.26.152]:56160 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753239Ab0KSLTp convert rfc822-to-8bit (ORCPT
+	id S1753929Ab0KSMPK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Nov 2010 06:19:45 -0500
-In-Reply-To: <aa85c5d83111add3a2ed3495ac13bffe5e6b885d.1289935504.git.bengardiner@nanometrics.ca>
+	Fri, 19 Nov 2010 07:15:10 -0500
+In-Reply-To: <d6d59b4a3c34149008f3681e0d6106efa15f354d.1289935504.git.bengardiner@nanometrics.ca>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ben Gardiner <bengardiner@nanometrics.ca>, Kevin Hilman <khilman@deeprootsystems.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.co>
-Cc: Paul Mundt <lethal@linux-sh.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Alexander Clouter <alex@digriz.org.uk>, Chris Cordahi <christophercordahi@nanometrics.ca>
+Cc: "Govindarajan, Sriramakrishnan" <srk@ti.com>, Paul Mundt <lethal@linux-sh.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Alexander Clouter <alex@digriz.org.uk>, Chris Cordahi <christophercordahi@nanometrics.ca>
 
 Hi Ben,
 
-On Wed, Nov 17, 2010 at 01:09:36, Ben Gardiner wrote:
-> The setup and teardown methods of the UI expander reference the SEL_{A,B,C}
-> pins by 'magic number' in each function. This patch extracts common #defines
-> for their offsets in the expander and uses them.
+The board patches look good to me overall. Some minor comments below:
+
+On Wed, Nov 17, 2010 at 01:09:37, Ben Gardiner wrote:
+> This patch adds a pca953x platform device for the tca6416 found on the evm
+> baseboard. The tca6416 is a GPIO expander, also found on the UI board at a
+> separate I2C address. The pins of the baseboard IO expander are connected to
+> software reset, deep sleep enable, test points, a push button, DIP switches and
+> LEDs.
+>
+> Add support for the push button, DIP switches and LEDs and test points (as
+> free GPIOs). The reset and deep sleep enable connections are reserved by the
+> setup routine so that userspace can't toggle those lines.
+>
+> The existing tca6416-keypad driver was not employed because there was no
+> apararent way to register the LEDs connected to gpio's on the tca6416 while
+> simultaneously registering the tca6416-keypad instance.
 >
 > Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
 > Reviewed-by: Chris Cordahi <christophercordahi@nanometrics.ca>
+> CC: Govindarajan, Sriramakrishnan <srk@ti.com>
 >
 > ---
 >
-> No changes since v1
+> Changes since v1:
+>  * adding note about why the tca6416-keypad driver was not used.
+>  * adding Govindarajan, Sriramakrishnan, the author of the tca6416-keypad
+>    driver
 > ---
->  arch/arm/mach-davinci/board-da850-evm.c |   27 +++++++++++++++------------
->  1 files changed, 15 insertions(+), 12 deletions(-)
+>  arch/arm/mach-davinci/board-da850-evm.c |  217 ++++++++++++++++++++++++++++++-
+>  1 files changed, 213 insertions(+), 4 deletions(-)
 >
 > diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-> index ff71ffd..dcf21e5 100644
+> index dcf21e5..79f2c95 100644
 > --- a/arch/arm/mach-davinci/board-da850-evm.c
 > +++ b/arch/arm/mach-davinci/board-da850-evm.c
-> @@ -292,6 +292,9 @@ static const char const *ui_expander_names[] = {
->       "pb7", "pb6", "pb5", "pb4", "pb3", "pb2", "pb1"
->  };
+> @@ -410,6 +410,208 @@ static int da850_evm_ui_expander_teardown(struct i2c_client *client,
+>       return 0;
+>  }
 >
-> +#define DA850_SEL_A_OFFSET   7
-> +#define DA850_SEL_B_OFFSET   6
-> +#define DA850_SEL_C_OFFSET   5
->  #define DA850_UI_PB8_OFFSET  8
->  #define DA850_N_UI_PB                8
+> +/* assign the baseboard expander's GPIOs after the UI board's */
+> +#define DA850_UI_EXPANDER_N_GPIOS ARRAY_SIZE(ui_expander_names)
+> +#define DA850_BB_EXPANDER_GPIO_BASE (DAVINCI_N_GPIO + DA850_UI_EXPANDER_N_GPIOS)
+> +
+> +static const char const *baseboard_expander_names[] = {
+> +     "deep_sleep_en", "sw_rst", "tp_23", "tp_22", "tp_21", "user_pb1",
+> +     "user_led2", "user_led1", "user_sw_1", "user_sw_2", "user_sw_3",
+> +     "user_sw_4", "user_sw_5", "user_sw_6", "user_sw_7", "user_sw_8"
+> +};
+> +
+> +#define DA850_DEEP_SLEEP_EN_OFFSET           0
+> +#define DA850_SW_RST_OFFSET                  1
+> +#define DA850_PB1_OFFSET                     5
+> +#define DA850_USER_LED2_OFFSET                       6
+> +#define DA850_USER_SW_1_OFFSET                       8
 
-In this case, I think in this case indexed array initialization
-will help keep the offsets and names matched. Here is an untested
-patch on your patch, please consider using it.
+Again, I think index initialized array will work much
+better here. Currently it is error prone to keep the defines
+and the array of names in sync.
+
+> +
+> +#define DA850_N_USER_SW                              8
+> +#define DA850_N_USER_LED                     2
+> +
+> +static struct gpio_keys_button user_pb_gpio_key = {
+
+"da850evm_bb_pb" might be a better name?
+
+> +     .code = KEY_PROG1,
+> +     .type = EV_KEY,
+> +     .active_low = 1,
+> +     .wakeup = 0,
+> +     .debounce_interval = DA850_PB_DEBOUNCE_MS,
+> +     .gpio = -1, /* assigned at runtime */
+> +     .desc = NULL, /* assigned at runtime */
+> +};
+> +
+> +static struct gpio_keys_platform_data user_pb_gpio_key_platform_data = {
+
+Similarly "da850evm_bb_pb_pdata" instead of the long name?
+
+> +     .buttons = &user_pb_gpio_key,
+> +     .nbuttons = 1,
+> +     .rep = 0, /* disable auto-repeat */
+> +     .poll_interval = DA850_PB_POLL_MS,
+> +};
+> +
+> +static struct platform_device user_pb_gpio_key_device = {
+> +     .name = "gpio-keys",
+> +     .id = 1,
+> +     .dev = {
+> +             .platform_data = &user_pb_gpio_key_platform_data
+> +     }
+> +};
+> +
+> +static struct gpio_keys_button user_sw_gpio_keys[DA850_N_USER_SW];
+
+You could initialize most static fields here itself using:
+
+static struct gpio_keys_button user_sw_gpio_keys[] = {
+        [0 ... DA850_N_USER_SW] = {
+                ...
+                ...
+                ...
+        },
+};
+
+This way your runtime initialization will come down.
+
+> +
+> +static struct gpio_keys_platform_data user_sw_gpio_key_platform_data = {
+> +     .buttons = user_sw_gpio_keys,
+> +     .nbuttons = ARRAY_SIZE(user_sw_gpio_keys),
+> +     .rep = 0, /* disable auto-repeat */
+> +     .poll_interval = DA850_SW_POLL_MS,
+> +};
+
+I wonder if we really have create to separate platform data
+for switches and push buttons. If it is only the debounce period
+that is different, it can be handled by initializing that field
+differently.
+
+> +
+> +static struct platform_device user_sw_gpio_key_device = {
+> +     .name = "gpio-keys",
+> +     .id = 2,
+> +     .dev = {
+> +             .platform_data = &user_sw_gpio_key_platform_data
+
+End with a ',' here.
+
+> +     }
+> +};
+> +
+> +static void da850_user_switches_init(unsigned gpio)
+> +{
+> +     int i;
+> +     struct gpio_keys_button *button;
+> +
+> +     for (i = 0; i < DA850_N_USER_SW; i++) {
+> +             button = &user_sw_gpio_keys[i];
+> +
+> +             button->code = SW_LID + i;
+> +             button->type = EV_SW;
+> +             button->active_low = 1;
+> +             button->wakeup = 0;
+> +             button->debounce_interval = DA850_PB_DEBOUNCE_MS;
+> +             button->desc = (char *)
+> +                     baseboard_expander_names[DA850_USER_SW_1_OFFSET + i];
+
+You could use some shorter names here. In the context of EVM file, 'bb'
+will fit for "base board", "exp" works for expander. Also, here it is
+clear the macro is used as an array offset, so _OFFSET can be dropped
+altogether. Similarly with _names. Also, the global and static symbols
+should be pre-fixed with da850evm_ so it is easy to look up the symbol
+file or object dump.
+
+> +
+> +             button->gpio = gpio + DA850_USER_SW_1_OFFSET + i;
+> +     }
+> +}
+> +
+> +static struct gpio_led user_leds[DA850_N_USER_LED];
+> +
+> +static struct gpio_led_platform_data user_led_gpio_data = {
+> +     .leds = user_leds,
+> +     .num_leds = ARRAY_SIZE(user_leds),
+> +};
+> +
+> +static struct platform_device user_leds_gpio_device = {
+> +     .name           = "leds-gpio",
+> +     .id             = -1,
+> +     .dev = {
+> +             .platform_data = &user_led_gpio_data
+> +     }
+> +};
+> +
+> +static void da850_user_leds_init(unsigned gpio)
+> +{
+> +     int i;
+> +     struct gpio_led *led;
+> +
+> +     for (i = 0; i < DA850_N_USER_LED; i++) {
+> +             led = &user_leds[i];
+> +
+> +             led->active_low = 1;
+> +             led->gpio = gpio + DA850_USER_LED2_OFFSET + i;
+> +             led->name =
+> +                     baseboard_expander_names[DA850_USER_LED2_OFFSET + i];
+> +     }
+> +}
+> +
+> +static int da850_evm_baseboard_expander_setup(struct i2c_client *client,
+> +                                             unsigned gpio, unsigned ngpio,
+> +                                             void *c)
+> +{
+> +     int ret;
+> +     int deep_sleep_en, sw_rst;
+> +
+> +     deep_sleep_en   = gpio + DA850_DEEP_SLEEP_EN_OFFSET;
+> +     sw_rst          = gpio + DA850_SW_RST_OFFSET;
+> +
+> +     /* Do not allow sysfs control of deep_sleep_en */
+> +     ret = gpio_request(deep_sleep_en,
+> +                     baseboard_expander_names[DA850_DEEP_SLEEP_EN_OFFSET]);
+
+How does gpio_request prevent sysfs control?
 
 Thanks,
 Sekhar
 
----8<----
-diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-index dcf21e5..508e5f2 100644
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -287,16 +287,35 @@ static inline void da850_evm_setup_emac_rmii(int rmii_sel) { }
- /* No need to poll switches anywhere near as fast */
- #define DA850_SW_POLL_MS       700
-
--static const char const *ui_expander_names[] = {
--       "dgnd", "dgnd", "dgnd", "dgnd", "nc", "sel_c", "sel_b", "sel_a", "pb8",
--       "pb7", "pb6", "pb5", "pb4", "pb3", "pb2", "pb1"
--};
--
--#define DA850_SEL_A_OFFSET     7
--#define DA850_SEL_B_OFFSET     6
--#define DA850_SEL_C_OFFSET     5
--#define DA850_UI_PB8_OFFSET    8
--#define DA850_N_UI_PB          8
-+static enum da850_evm_ui_exp_pins {
-+       DA850_EVM_UI_EXP_SEL_C = 5,
-+       DA850_EVM_UI_EXP_SEL_B,
-+       DA850_EVM_UI_EXP_SEL_A,
-+       DA850_EVM_UI_EXP_PB8,
-+       DA850_EVM_UI_EXP_PB7,
-+       DA850_EVM_UI_EXP_PB6,
-+       DA850_EVM_UI_EXP_PB5,
-+       DA850_EVM_UI_EXP_PB4,
-+       DA850_EVM_UI_EXP_PB3,
-+       DA850_EVM_UI_EXP_PB2,
-+       DA850_EVM_UI_EXP_PB1,
-+};
-+
-+static const char const *da850_evm_ui_exp[] = {
-+       [DA850_EVM_UI_EXP_SEL_C]        = "sel_c",
-+       [DA850_EVM_UI_EXP_SEL_B]        = "sel_b",
-+       [DA850_EVM_UI_EXP_SEL_A]        = "sel_a",
-+       [DA850_EVM_UI_EXP_PB8]          = "pb8",
-+       [DA850_EVM_UI_EXP_PB7]          = "pb7",
-+       [DA850_EVM_UI_EXP_PB6]          = "pb6",
-+       [DA850_EVM_UI_EXP_PB5]          = "pb5",
-+       [DA850_EVM_UI_EXP_PB4]          = "pb4",
-+       [DA850_EVM_UI_EXP_PB3]          = "pb3",
-+       [DA850_EVM_UI_EXP_PB2]          = "pb2",
-+       [DA850_EVM_UI_EXP_PB1]          = "pb1",
-+};
-+
-+#define DA850_N_UI_PB  8
-
- static struct gpio_keys_button user_ui_pbs_gpio_keys[DA850_N_UI_PB];
-
-@@ -329,8 +348,8 @@ static void da850_ui_pushbuttons_init(unsigned gpio)
-                button->wakeup = 0;
-                button->debounce_interval = DA850_PB_DEBOUNCE_MS;
-                button->desc = (char *)
--                               ui_expander_names[DA850_UI_PB8_OFFSET + i];
--               button->gpio = gpio + DA850_UI_PB8_OFFSET + i;
-+                       da850_evm_ui_exp[DA850_EVM_UI_EXP_PB8 + i];
-+               button->gpio = gpio + DA850_EVM_UI_EXP_PB8 + i;
-        }
- }
-
-@@ -339,23 +358,23 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- {
-        int sel_a, sel_b, sel_c, ret;
-
--       sel_a = gpio + DA850_SEL_A_OFFSET;
--       sel_b = gpio + DA850_SEL_B_OFFSET;
--       sel_c = gpio + DA850_SEL_C_OFFSET;
-+       sel_a = gpio + DA850_EVM_UI_EXP_SEL_A;
-+       sel_b = gpio + DA850_EVM_UI_EXP_SEL_B;
-+       sel_c = gpio + DA850_EVM_UI_EXP_SEL_C;
-
--       ret = gpio_request(sel_a, ui_expander_names[DA850_SEL_A_OFFSET]);
-+       ret = gpio_request(sel_a, da850_evm_ui_exp[DA850_EVM_UI_EXP_SEL_A]);
-        if (ret) {
-                pr_warning("Cannot open UI expander pin %d\n", sel_a);
-                goto exp_setup_sela_fail;
-        }
-
--       ret = gpio_request(sel_b, ui_expander_names[DA850_SEL_B_OFFSET]);
-+       ret = gpio_request(sel_b, da850_evm_ui_exp[DA850_EVM_UI_EXP_SEL_B]);
-        if (ret) {
-                pr_warning("Cannot open UI expander pin %d\n", sel_b);
-                goto exp_setup_selb_fail;
-        }
-
--       ret = gpio_request(sel_c, ui_expander_names[DA850_SEL_C_OFFSET]);
-+       ret = gpio_request(sel_c, da850_evm_ui_exp[DA850_EVM_UI_EXP_SEL_B]);
-        if (ret) {
-                pr_warning("Cannot open UI expander pin %d\n", sel_c);
-                goto exp_setup_selc_fail;
-@@ -399,13 +418,13 @@ static int da850_evm_ui_expander_teardown(struct i2c_client *client,
-        platform_device_unregister(&user_ui_pb_gpio_key_device);
-
-        /* deselect all functionalities */
--       gpio_set_value(gpio + DA850_SEL_C_OFFSET, 1);
--       gpio_set_value(gpio + DA850_SEL_B_OFFSET, 1);
--       gpio_set_value(gpio + DA850_SEL_A_OFFSET, 1);
-+       gpio_set_value(gpio + DA850_EVM_UI_EXP_SEL_C, 1);
-+       gpio_set_value(gpio + DA850_EVM_UI_EXP_SEL_B, 1);
-+       gpio_set_value(gpio + DA850_EVM_UI_EXP_SEL_A, 1);
-
--       gpio_free(gpio + DA850_SEL_C_OFFSET);
--       gpio_free(gpio + DA850_SEL_B_OFFSET);
--       gpio_free(gpio + DA850_SEL_A_OFFSET);
-+       gpio_free(gpio + DA850_EVM_UI_EXP_SEL_C);
-+       gpio_free(gpio + DA850_EVM_UI_EXP_SEL_B);
-+       gpio_free(gpio + DA850_EVM_UI_EXP_SEL_A);
-
-        return 0;
- }
-@@ -414,7 +433,7 @@ static struct pca953x_platform_data da850_evm_ui_expander_info = {
-        .gpio_base      = DAVINCI_N_GPIO,
-        .setup          = da850_evm_ui_expander_setup,
-        .teardown       = da850_evm_ui_expander_teardown,
--       .names          = ui_expander_names,
-+       .names          = da850_evm_ui_exp,
- };
-
- static struct i2c_board_info __initdata da850_evm_i2c_devices[] = {

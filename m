@@ -1,96 +1,104 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [RESEND] [PATCH] Input: add appleir USB driver
-Date: Fri, 19 Nov 2010 13:07:02 -0500
-Message-ID: <20101119180702.GB5022@redhat.com>
-References: <1285844276.26405.26.camel@cookie.hadess.net>
- <201009300847.43090.dmitry.torokhov@gmail.com>
- <1285861890.26405.37.camel@cookie.hadess.net>
- <20101008003940.GF31804@redhat.com>
- <1290053884.1435.10.camel@novo.hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ben Gardiner <bengardiner@nanometrics.ca>
+Subject: [PATCH v3 0/4] da850-evm: add gpio-{keys,leds} for UI and BB expanders
+Date: Fri, 19 Nov 2010 16:37:19 -0500
+Message-ID: <cover.1290201713.git.bengardiner@nanometrics.ca>
+References: <cover.1289935504.git.bengardiner@nanometrics.ca>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:20381 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756169Ab0KSSHM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Nov 2010 13:07:12 -0500
-Content-Disposition: inline
-In-Reply-To: <1290053884.1435.10.camel@novo.hadess.net>
+Received: from na3sys009aog108.obsmtp.com ([74.125.149.199]:42481 "HELO
+	na3sys009aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756744Ab0KSVh2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Nov 2010 16:37:28 -0500
+In-Reply-To: <cover.1289935504.git.bengardiner@nanometrics.ca>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>, mchehab@redhat.com
+To: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>
 
-On Thu, Nov 18, 2010 at 04:18:03AM +0000, Bastien Nocera wrote:
-> On Thu, 2010-10-07 at 20:39 -0400, Jarod Wilson wrote:
-> > On Thu, Sep 30, 2010 at 04:51:30PM +0100, Bastien Nocera wrote:
-> > > On Thu, 2010-09-30 at 08:47 -0700, Dmitry Torokhov wrote:
-> > > > Bastien,
-> > ...
-> > > >  I'll try
-> > > > to get the driver in .37 but after that we should probably move it
-> > > > over to the new IR infrastructure...
-> > > 
-> > > I'm not sure what that would bring us, nor do I have any experience in
-> > > using the ir-core. From what I understood, it still needed fleshing out.
-> > 
-> > There are a few things that still need fleshing out, but nothing really
-> > that should have any major impact on a potential port of this driver.
-> > 
-> > Off the top of my head, the main thing it would give you is the ability to
-> > upload your own keymap for the receiver.
-> 
-> You could already change the keymap...
+The da850-evm baseboard (BB) and its UI board both have tca6416 IO expanders.
+They are bootstrapped to different I2C addresses so they can be used
+concurrently.
 
-You could change the mapping for the 6 buttons, but new scancode to
-keycode mappings wouldn't be possible. That's assuming the driver actually
-does raw IR decode -- the scancodes I see in the key tables in the driver
-definitely match decoded NEC that I get when using the Apple remote with
-another raw IR receiver (mceusb). Reading through the code though, it
-appears the IR signal is decoded in hardware and only the resulting
-scancodes are passed along... I wonder if it passes along scancodes for
-all NEC signals or if its doing filtering... I have sufficiently equipped
-Apple hardware of my own that I suppose I really ought to prod.
+The expander on the UI board is currently used to enable/disable the
+peripherals that are available on the UI board. In addition to this
+functionality the expander is also connected to 8 pushbuttons. The expander
+on the baseboard is not currently used; it is connected to deep sleep enable,
+sw reset, a push button, some switches and LEDs.
 
-> >  Then someone wanting to use more
-> > than 6 buttons
-> 
-> But only for the 6 buttons supported.
-> 
-> >  or whatever it is might still be able to get the benefits
-> > of in-kernel decoding with everything coming through the input layer,
-> > rather than using lirc or the like.
-> 
-> I see very little benefits myself (I mean, unless you're adamant that
-> you want to use a remote that's not intended for that computer, but we
-> already have lirc user-space driver for doing that),
+This proposed patch series enables the push buttons and switches on the UI and
+BB expanders using the gpio-keys polling mode patch by Alexander Clouter. Some
+work was performed to test irq-based gpio-keys support on the expanders (a WIP
+patch can be posted on request) but I believe that it is not possible to use 
+irq-based gpio-keys on IO expanders for arm systems at this time. 
 
-I don't see why we shouldn't be able to do it in-kernel too, without the
-need for any userspace daemon. The bigger win though is probably
-de-duplication of keyup/keydown/timer logic. I had similar duplication in
-the imon driver (which is also scancode-based), and the code is smaller
-and cleaner after being adapted to use ir/rc-core functions.
+The attempt started when I noticed the patch of Alek Du and Alan Cox [1] which 
+was recently committed [2]; a stab at integrating irq-based gpio-keys support
+based on that patch was attempted. I found that I either got a warning that the
+irq could not be mapped for the given gpio ; or, when N_IRQ was increased, a
+system freeze.
 
-> and it would remove
-> metadata from the events, so we couldn't do "remote filtering" (each
-> remote has a semi-random UID, which gets passed in with the events).
+>From what I have read (particularly the message by Grant Likely [3]) IRQs on
+IO expanders are not ready in ARM yet. I _think_ that the sparse IRQ rework by
+Thomas Gleixner [4] will resolve the blocker to irq-based gpio-keys support. 
 
-No it wouldn't. The lsb of the decoded NEC pulse train contains the ID,
-I'm able to see it just fine with other raw IR receivers and some
-experimental patches we're kicking around on linux-media.
+In the meantime we have buttons and switches that we would like to excersise
+in our prototyping development. The patch to convert this series to irq-based
+gpio-keys will be straighforward once the support in arch/arm is there.
 
-> When the appleir patch was finally accepted (which means I need to get
-> off my arse and do the changes Oliver mentioned), working on UID
-> filtering is next on my list of TODOs.
+There is an existing tca6416-keypad driver with polling support which I did not
+employ because it isn't possible to keep the gpio's used for peripheral
+enable/disable on the UI board or the LEDs on the baseboard registered while
+simultaneously registering the pushbuttons or switches as a tca6416-keypad 
+instance.
 
-I've got an implementation here using the in-kernel NEC decoder, an Apple
-remote any an mceusb transceiver that works. Its not terribly *elegant*,
-but it does work. (Executive summary: if not doing pairing, zero out the
-pair ID and use the full 32-bit scancode with a default keytable that has
-0x00 in the pair ID position. If doing pairing, pass that byte unmodified,
-and upload a keymap that matches).
+I tested this patch series using evtest on the resulting /dev/input/eventN 
+devices and also on the event node of a non-polling gpio-keys instance to 
+ensure that irq-based input handling is not broken by the introduction of the
+polling-mode gpio-keys patch. The non-polling instance creation and
+registration is not included in this series since it uses one of the boot-mode
+DIP switches and woult not (I think) be suitable for mainline.
 
--- 
-Jarod Wilson
-jarod@redhat.com
+Disclaimer: 
+I'm not an expert in irq's or gpio-keys; this is, in fact, my first proposed
+feature. Please feel free to correct me -- I welcome the chance to learn from
+your expertise.
+
+[1] http://article.gmane.org/gmane.linux.kernel/1052551
+[2] http://article.gmane.org/gmane.linux.kernel.commits.head/260919
+[3] http://www.mail-archive.com/devicetree-discuss@lists.ozlabs.org/msg01974.html
+[4] http://article.gmane.org/gmane.linux.kernel.cross-arch/7786
+
+Alexander Clouter (1):
+  input: gpio_keys: polling mode support
+
+Ben Gardiner (3):
+  da850-evm: add UI Expander pushbuttons
+  da850-evm: extract defines for SEL{A,B,C} pins in UI expander
+  da850-evm: add baseboard GPIO expander buttons, switches and LEDs
+
+ arch/arm/mach-davinci/Kconfig           |    3 +
+ arch/arm/mach-davinci/board-da850-evm.c |  347 +++++++++++++++++++++++++++++--
+ drivers/input/keyboard/gpio_keys.c      |  120 +++++++++--
+ include/linux/gpio_keys.h               |    1 +
+ 4 files changed, 440 insertions(+), 31 deletions(-)
+
+---
+Changes since v2:
+ * register a single input device for switches and keys on the baseboard since
+   there is no benefit to separate devices with different polling intervals
+   (Dmitry Torokhov)
+ * use static array intialization and range intialization for platform data 
+   structure to minimize the amount of runtime intialization needed:
+   (Sekhar Nori)
+ * Use the da850_evm variable name prefix for static symbols in
+   board-da850-evm.c
+
+Changes since v1:
+ * use locally defined functions that are no-ops/error checkers when
+   INPUT_POLLDEV is not defined.
+ * disable polling mode support when input-polldev is a module and gpio_keys
+   is builtin
+ * set INPUT_POLLDEV default for DA850_EVM machine, but don't select it
+   unconditionally
+ * adding note to description about why tca6416-keypad was not used
 

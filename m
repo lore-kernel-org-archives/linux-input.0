@@ -1,45 +1,119 @@
-From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Subject: Re: [PATCH v3 3/4] da850-evm: extract defines for SEL{A, B, C} pins
-	in UI expander
-Date: Fri, 19 Nov 2010 17:25:40 -0500
-Message-ID: <AANLkTinRXDZBaDArzTOYex+T3KP2KivcLD+Be1Kexznz@mail.gmail.com>
-References: <cover.1289935504.git.bengardiner@nanometrics.ca>
-	<cover.1290201713.git.bengardiner@nanometrics.ca>
-	<a367bea7c1bdc198b5540b7fe3c02d10ad59cf16.1290201713.git.bengardiner@nanometrics.ca>
-	<AANLkTimOByqsZjCYoz=pjwT7jcgN76Sgi4W6SFJ9+N-d@mail.gmail.com>
+From: Helge Deller <deller@gmx.de>
+Subject: Re: [PATCH RFC] serio HIL MLC: don't deref null, don't leak and return
+ proper error
+Date: Sat, 20 Nov 2010 22:13:45 +0100
+Message-ID: <4CE83A09.5020000@gmx.de>
+References: <alpine.LNX.2.00.1011072024100.26247@swampdragon.chaosbits.net> <20101109063520.GA10502@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <AANLkTimOByqsZjCYoz=pjwT7jcgN76Sgi4W6SFJ9+N-d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Victor Rodriguez <vm.rod25-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout-de.gmx.net ([213.165.64.23]:47532 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1752531Ab0KTVNs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 20 Nov 2010 16:13:48 -0500
+In-Reply-To: <20101109063520.GA10502@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jesper Juhl <jj@chaosbits.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, =?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-Hi Victor,
+On 11/09/2010 07:35 AM, Dmitry Torokhov wrote:
+> On Sun, Nov 07, 2010 at 08:36:33PM +0100, Jesper Juhl wrote:
+>> Hi,
+>>
+>> While reviewing various users of kernel memory allocation functions I came
+>> across drivers/input/serio/hil_mlc.c::hil_mlc_register() and noticed that
+>>   - it calls kzalloc() buf fails to check for a NULL return before use.
+>>   - it makes several allocations and if one fails it doesn't free the
+>>     previous ones.
+>>   - It doesn't return -ENOMEM in the failed memory allocation case (it just
+>>     crashes).
+>> This patch corrects all of the above and also reworks the only caller of
+>> this function that I could find
+>> (drivers/input/serio/hp_sdc_mlc.c::hp_sdc_mlc_out()) so that it now checks
+>> the return value of hil_mlc_register() and properly propagate it on
+>> failure and I also restructured the code to remove some labels and goto's
+>> to make it, IMHO nicer to read.
+>>
+>> I have no hardware to test, so please review carefully and let me know if
+>> I've done something completely stupid. Please don't merge this RFC patch
+>> unless at least one or more people who know this code and can actually
+>> test it have ACK'ed it.
+> I think Helge Deller (CCed) used to have access to such hardware...
 
-On Fri, Nov 19, 2010 at 4:41 PM, Victor Rodriguez <vm.rod25-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrot=
-e:
-[...]
+Yes, and I tested the patch successfully.
+
+Tested-by: Helge Deller <deller@gmx.de>
+Acked-by: Helge Deller <deller@gmx.de>
+
+
+>> Signed-off-by: Jesper Juhl<jj@chaosbits.net>
 >> ---
->
-> I think that ther must be just one =A0 --- , This is extra
+>>   hil_mlc.c    |    5 +++++
+>>   hp_sdc_mlc.c |   18 +++++++++---------
+>>   2 files changed, 14 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
+>> index e5624d8..bfd3865 100644
+>> --- a/drivers/input/serio/hil_mlc.c
+>> +++ b/drivers/input/serio/hil_mlc.c
+>> @@ -932,6 +932,11 @@ int hil_mlc_register(hil_mlc *mlc)
+>>   		hil_mlc_copy_di_scratch(mlc, i);
+>>   		mlc_serio = kzalloc(sizeof(*mlc_serio), GFP_KERNEL);
+>>   		mlc->serio[i] = mlc_serio;
+>> +		if (!mlc->serio[i]) {
+>> +			for (; i>= 0; i--)
+>> +				kfree(mlc->serio[i]);
+>> +			return -ENOMEM;
+>> +		}
+>>   		snprintf(mlc_serio->name, sizeof(mlc_serio->name)-1, "HIL_SERIO%d", i);
+>>   		snprintf(mlc_serio->phys, sizeof(mlc_serio->phys)-1, "HIL%d", i);
+>>   		mlc_serio->id			= hil_mlc_serio_id;
+>> diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
+>> index 7d2b820..d50f067 100644
+>> --- a/drivers/input/serio/hp_sdc_mlc.c
+>> +++ b/drivers/input/serio/hp_sdc_mlc.c
+>> @@ -305,6 +305,7 @@ static void hp_sdc_mlc_out(hil_mlc *mlc)
+>>   static int __init hp_sdc_mlc_init(void)
+>>   {
+>>   	hil_mlc *mlc =&hp_sdc_mlc;
+>> +	int err;
+>>
+>>   #ifdef __mc68000__
+>>   	if (!MACH_IS_HP300)
+>> @@ -323,22 +324,21 @@ static int __init hp_sdc_mlc_init(void)
+>>   	mlc->out =&hp_sdc_mlc_out;
+>>   	mlc->priv =&hp_sdc_mlc_priv;
+>>
+>> -	if (hil_mlc_register(mlc)) {
+>> +	err = hil_mlc_register(mlc);
+>> +	if (err) {
+>>   		printk(KERN_WARNING PREFIX "Failed to register MLC structure with hil_mlc\n");
+>> -		goto err0;
+>> +		return err;
+>>   	}
+>>
+>>   	if (hp_sdc_request_hil_irq(&hp_sdc_mlc_isr)) {
+>>   		printk(KERN_WARNING PREFIX "Request for raw HIL ISR hook denied\n");
+>> -		goto err1;
+>> +		if (hil_mlc_unregister(mlc))
+>> +			printk(KERN_ERR PREFIX "Failed to unregister MLC structure with hil_mlc.\n"
+>> +				"This is bad.  Could cause an oops.\n");
+>> +		return -EBUSY;
+>>   	}
+>> +
+>>   	return 0;
+>> - err1:
+>> -	if (hil_mlc_unregister(mlc))
+>> -		printk(KERN_ERR PREFIX "Failed to unregister MLC structure with hil_mlc.\n"
+>> -			"This is bad.  Could cause an oops.\n");
+>> - err0:
+>> -	return -EBUSY;
+>>   }
+>>
+>>   static void __exit hp_sdc_mlc_exit(void)
+>>
+>>
+>>
 
-Sorry, that is my bad habit. I believe that the patch should still be
-usable as-is.
-
-Best Regards,
-Ben Gardiner
-
----
-Nanometrics Inc.
-http://www.nanometrics.ca

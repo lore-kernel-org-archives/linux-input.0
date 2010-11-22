@@ -1,40 +1,41 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: ps2mult - fix wrong kfree in ps2mult_connect error
-	path
-Date: Mon, 22 Nov 2010 13:13:39 +0800
-Message-ID: <1290402820.6941.8.camel@mola>
+Subject: [PATCH] Input: ams_delta_serio - fix wrong kfree in
+	ams_delta_serio_exit
+Date: Mon, 22 Nov 2010 13:36:58 +0800
+Message-ID: <1290404218.6941.10.camel@mola>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:45528 "EHLO
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:44123 "EHLO
 	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750772Ab0KVFIn (ORCPT
+	with ESMTP id S1750768Ab0KVFcA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Nov 2010 00:08:43 -0500
+	Mon, 22 Nov 2010 00:32:00 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+Cc: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+
+serio_unregister_port() will call put_device() to free the memory.
+Thus remove kfree(ams_delta_serio) after serio_unregister_port(ams_delta_serio).
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/input/serio/ps2mult.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/input/serio/ams_delta_serio.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/serio/ps2mult.c b/drivers/input/serio/ps2mult.c
-index 6bce22e..15aa81c 100644
---- a/drivers/input/serio/ps2mult.c
-+++ b/drivers/input/serio/ps2mult.c
-@@ -207,7 +207,7 @@ static int ps2mult_connect(struct serio *serio, struct serio_driver *drv)
- err_out:
- 	while (--i >= 0)
- 		kfree(psm->ports[i].serio);
--	kfree(serio);
-+	kfree(psm);
- 	return error;
+diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
+index 8f1770e..ebe9553 100644
+--- a/drivers/input/serio/ams_delta_serio.c
++++ b/drivers/input/serio/ams_delta_serio.c
+@@ -172,6 +172,5 @@ static void __exit ams_delta_serio_exit(void)
+ 	free_irq(OMAP_GPIO_IRQ(AMS_DELTA_GPIO_PIN_KEYBRD_CLK), 0);
+ 	gpio_free(AMS_DELTA_GPIO_PIN_KEYBRD_CLK);
+ 	gpio_free(AMS_DELTA_GPIO_PIN_KEYBRD_DATA);
+-	kfree(ams_delta_serio);
  }
- 
+ module_exit(ams_delta_serio_exit);
 -- 
 1.7.2
 

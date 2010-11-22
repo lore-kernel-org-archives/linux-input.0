@@ -1,41 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC][PATCH] Input: ct82c710 - remove a redundant
- serio_register_port()
-Date: Sun, 21 Nov 2010 22:24:21 -0800
-Message-ID: <20101122062421.GA31175@core.coreip.homeip.net>
-References: <1290406007.6941.15.camel@mola>
+From: Glenn Sommer <gsommer@datanordisk.dk>
+Subject: Patch for LG Flatron T1710B Touchscreen
+Date: Mon, 22 Nov 2010 10:12:33 +0100
+Message-ID: <4CEA3401.8070804@datanordisk.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:37120 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751141Ab0KVGYa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Nov 2010 01:24:30 -0500
-Content-Disposition: inline
-In-Reply-To: <1290406007.6941.15.camel@mola>
+Received: from mail.pharmanord.com ([194.192.93.42]:51519 "EHLO pharmanord.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751133Ab0KVJMg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Nov 2010 04:12:36 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Vojtech Pavlik <vojtech@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, linux-input@vger.kernel.org
 
-On Mon, Nov 22, 2010 at 02:06:47PM +0800, Axel Lin wrote:
-> We already call serio_register_port() in ct82c710_probe(),
-> thus remove a redundant serio_register_port() in ct82c710_init().
-> 
-> Looks like this bug is introduced by 
-> 916d83cfe5da1cda454d8b0ae233f06b58bd7f91
-> "Input: ct82c710 - convert to the new platform device interface"
-> 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
-> I don't have this hardware handy, I appreciate if someone can test this patch.
-> 
+I've recently got my hands on a LG Flatron T1710B touchscreen.
+As other LG products, this seems to use the ITM panel.
 
-I doubt anyone has; maybe I should start pruning older drivers...
+I've patches my kernel to use the ITM driver with this device, and it seems to work great.
 
-BTW, the fix is obviously correct so I'll apply it and your other two
-patches as well. Thanks Axel.
+--- drivers/input/touchscreen/usbtouchscreen.c.orig	2010-11-18 16:33:40.806381557 +0100
++++ drivers/input/touchscreen/usbtouchscreen.c	2010-11-19 09:40:13.909222383 +0100
+@@ -173,6 +173,7 @@ static struct usb_device_id usbtouch_dev
+
+  #ifdef CONFIG_TOUCHSCREEN_USB_ITM
+  	{USB_DEVICE(0x0403, 0xf9e9), .driver_info = DEVTYPE_ITM},
++	{USB_DEVICE(0x16e3, 0xf9e9), .driver_info = DEVTYPE_ITM},
+  #endif
+
+  #ifdef CONFIG_TOUCHSCREEN_USB_ETURBO
+
+Signed-off-by: Glenn Sommer <gsommer@datanordisk.dk>
+
 
 -- 
-Dmitry
+Med venlig hilsen / Best regards
+Data Nordisk
+
+Glenn Sommer

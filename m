@@ -1,41 +1,52 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: ams_delta_serio - fix wrong kfree in
-	ams_delta_serio_exit
-Date: Mon, 22 Nov 2010 13:36:58 +0800
-Message-ID: <1290404218.6941.10.camel@mola>
+Subject: [RFC][PATCH] Input: ct82c710 - remove a redundant
+	serio_register_port()
+Date: Mon, 22 Nov 2010 14:06:47 +0800
+Message-ID: <1290406007.6941.15.camel@mola>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:44123 "EHLO
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:50365 "EHLO
 	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768Ab0KVFcA (ORCPT
+	with ESMTP id S1750967Ab0KVGBu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Nov 2010 00:32:00 -0500
+	Mon, 22 Nov 2010 01:01:50 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Vojtech Pavlik <vojtech@ucw.cz>
 
-serio_unregister_port() will call put_device() to free the memory.
-Thus remove kfree(ams_delta_serio) after serio_unregister_port(ams_delta_serio).
+We already call serio_register_port() in ct82c710_probe(),
+thus remove a redundant serio_register_port() in ct82c710_init().
+
+Looks like this bug is introduced by 
+916d83cfe5da1cda454d8b0ae233f06b58bd7f91
+"Input: ct82c710 - convert to the new platform device interface"
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/input/serio/ams_delta_serio.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+I don't have this hardware handy, I appreciate if someone can test this patch.
 
-diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
-index 8f1770e..ebe9553 100644
---- a/drivers/input/serio/ams_delta_serio.c
-+++ b/drivers/input/serio/ams_delta_serio.c
-@@ -172,6 +172,5 @@ static void __exit ams_delta_serio_exit(void)
- 	free_irq(OMAP_GPIO_IRQ(AMS_DELTA_GPIO_PIN_KEYBRD_CLK), 0);
- 	gpio_free(AMS_DELTA_GPIO_PIN_KEYBRD_CLK);
- 	gpio_free(AMS_DELTA_GPIO_PIN_KEYBRD_DATA);
--	kfree(ams_delta_serio);
- }
- module_exit(ams_delta_serio_exit);
+Regards,
+Axel
+
+ drivers/input/serio/ct82c710.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/serio/ct82c710.c b/drivers/input/serio/ct82c710.c
+index 4a30846..0f8304a 100644
+--- a/drivers/input/serio/ct82c710.c
++++ b/drivers/input/serio/ct82c710.c
+@@ -237,8 +237,6 @@ static int __init ct82c710_init(void)
+ 	if (error)
+ 		goto err_free_device;
+ 
+-	serio_register_port(ct82c710_port);
+-
+ 	printk(KERN_INFO "serio: C&T 82c710 mouse port at %#llx irq %d\n",
+ 		(unsigned long long)CT82C710_DATA, CT82C710_IRQ);
+ 
 -- 
 1.7.2
 

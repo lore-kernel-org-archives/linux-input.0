@@ -1,22 +1,24 @@
 From: Fabien Marteau <fabien.marteau@armadeus.com>
-Subject: [PATCH] input: joystick:   Adding Austria Microsystem AS5011 joystick
- driver
-Date: Tue, 23 Nov 2010 17:36:14 +0100
-Message-ID: <4CEBED7E.7010101@armadeus.com>
+Subject: [PATCH] input: joystick: Adding Austria Microsystem AS5011 joystick
+ driver (without wrapped lines)
+Date: Tue, 23 Nov 2010 18:25:11 +0100
+Message-ID: <4CEBF8F7.1060100@armadeus.com>
 Reply-To: fabien.marteau@armadeus.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 26.mail-out.ovh.net ([91.121.27.225]:53868 "HELO
+Received: from 26.mail-out.ovh.net ([91.121.27.225]:57855 "HELO
 	26.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754098Ab0KWQgW (ORCPT
+	with SMTP id S1753974Ab0KWRZP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Nov 2010 11:36:22 -0500
+	Tue, 23 Nov 2010 12:25:15 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Scott Moreau <oreaus@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+
+Sorry for the latest mail, thunderbird wrapped patch lines
 
 Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugged
 on an I2C bus. It as been tested on ARM processor (i.MX27).
@@ -25,8 +27,7 @@ Signed-off-by: Fabien Marteau <fabien.marteau@armadeus.com>
 ---
  drivers/input/joystick/Kconfig  |    9 +
  drivers/input/joystick/Makefile |    1 +
- drivers/input/joystick/as5011.c |  454
-+++++++++++++++++++++++++++++++++++++++
+ drivers/input/joystick/as5011.c |  454 +++++++++++++++++++++++++++++++++++++++
  include/linux/as5011.h          |   72 ++++++
  4 files changed, 536 insertions(+), 0 deletions(-)
  create mode 100644 drivers/input/joystick/as5011.c
@@ -52,8 +53,7 @@ index 5b59616..5fad03e 100644
  config JOYSTICK_JOYDUMP
  	tristate "Gameport data dumper"
  	select GAMEPORT
-diff --git a/drivers/input/joystick/Makefile
-b/drivers/input/joystick/Makefile
+diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
 index f3a8cbe..92dc0de 100644
 --- a/drivers/input/joystick/Makefile
 +++ b/drivers/input/joystick/Makefile
@@ -65,8 +65,7 @@ index f3a8cbe..92dc0de 100644
  obj-$(CONFIG_JOYSTICK_ANALOG)		+= analog.o
  obj-$(CONFIG_JOYSTICK_COBRA)		+= cobra.o
  obj-$(CONFIG_JOYSTICK_DB9)		+= db9.o
-diff --git a/drivers/input/joystick/as5011.c
-b/drivers/input/joystick/as5011.c
+diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
 new file mode 100644
 index 0000000..db0f129
 --- /dev/null
@@ -539,8 +538,7 @@ index 0000000..7db0a75
 + * Copyright (c) 2010 Fabien Marteau
 + *
 + * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as
-published by
++ * under the terms of the GNU General Public License version 2 as published by
 + * the Free Software Foundation.
 + */
 +

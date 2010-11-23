@@ -1,72 +1,67 @@
-From: "Nori, Sekhar" <nsekhar@ti.com>
-Subject: RE: [PATCH v2 2/4] da850-evm: add UI Expander pushbuttons
-Date: Tue, 23 Nov 2010 18:08:22 +0530
-Message-ID: <B85A65D85D7EB246BE421B3FB0FBB5930247931247@dbde02.ent.ti.com>
+From: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v2 4/4] da850-evm: add baseboard UI expander buttons,
+	switches and LEDs
+Date: Tue, 23 Nov 2010 18:12:38 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB593024793124F@dbde02.ent.ti.com>
 References: <cover.1289835508.git.bengardiner@nanometrics.ca>
 	<cover.1289935504.git.bengardiner@nanometrics.ca>
-	<95f48a32a0256ecdb7148aa08d16f64928a7e5d8.1289935504.git.bengardiner@nanometrics.ca>
-	<B85A65D85D7EB246BE421B3FB0FBB59302477EA939@dbde02.ent.ti.com>
-	<AANLkTi=HS7ym8n6=hF8vAg2WR33Md5=YRZL2NS7a+F2y@mail.gmail.com>
-	<B85A65D85D7EB246BE421B3FB0FBB59302477EB2BE@dbde02.ent.ti.com>
- <AANLkTimRbsmR6xMok8P_wXpQAd1Xykew6_pPhqUWGsEN@mail.gmail.com>
+	<d6d59b4a3c34149008f3681e0d6106efa15f354d.1289935504.git.bengardiner@nanometrics.ca>
+	<B85A65D85D7EB246BE421B3FB0FBB59302477EAA89@dbde02.ent.ti.com>
+	<AANLkTike4sRvptEe9PXLT2u+SrFMOpNC6pvLPSzBfVOX@mail.gmail.com>
+	<B85A65D85D7EB246BE421B3FB0FBB59302477EB2D8@dbde02.ent.ti.com>
+	<AANLkTin8+y0xkjv+RmnSZNKXgfwr2iV3c9P7cBMfVw3k@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:57990 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751520Ab0KWMiq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Nov 2010 07:38:46 -0500
-In-Reply-To: <AANLkTimRbsmR6xMok8P_wXpQAd1Xykew6_pPhqUWGsEN@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <AANLkTin8+y0xkjv+RmnSZNKXgfwr2iV3c9P7cBMfVw3k-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Cc: "Govindarajan, Sriramakrishnan" <srk-l0cyMroinI0@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, Alexander Clouter <alex-L4GPcECwBoDe9xe1eoZjHA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Ben Gardiner <bengardiner@nanometrics.ca>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Govindarajan, Sriramakrishnan" <srk@ti.com>, Paul Mundt <lethal@linux-sh.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Alexander Clouter <alex@digriz.org.uk>, Chris Cordahi <christophercordahi@nanometrics.ca>
 
 Hi Ben,
 
-On Mon, Nov 22, 2010 at 19:20:48, Ben Gardiner wrote:
-> On Mon, Nov 22, 2010 at 6:49 AM, Nori, Sekhar <nsekhar@ti.com> wrote:
-> > On Fri, Nov 19, 2010 at 21:08:10, Ben Gardiner wrote:
-> >> [...]
-> >> By setting INPUT_POLLDEV default for the da850-evm users will get
-> >> functioning pushbuttons and switches with the default config but they
-> >> will be able to disable INPUT_POLLDEV or gpio-keys drivers in their
-> >> defconfig at their convenience.
-> >
-> > I guess we could also just modify the defconfig to switch on
-> > INPUT_POLLDEV? Since only gpio-keys functionality is affected
-> > by not enabling the correct options in kernel, it should be OK.
+On Mon, Nov 22, 2010 at 19:45:46, Ben Gardiner wrote:
+> Hi Sekhar,
 >
-> Yes -- only gpio-keys is affected but enabling the option does
-> introduce an additional .o file:
+> On Mon, Nov 22, 2010 at 7:00 AM, Nori, Sekhar <nsekhar-l0cyMroinI0@public.gmane.org> wrote:
+> > Thanks for the explanation. I should have probably asked
+> > earlier, why do we need to prevent sysfs access of
+> > deep sleep enable and sw reset pins? We don't seem to be
+> > using them in the kernel either.
 >
-> drivers/input/Makefile:obj-$(CONFIG_INPUT_POLLDEV)      += input-polldev.o
+> You're welcome.
 >
-> I agree that in its current state a user couls inadvertently disable
-> the gpio-keys support on da850-evm simply by disabling INPUT_POLLDEV
-> -- which is less than Ideal. How about I replace the current changes
-> to arch/arm/mach-davinci/Kconfig with:
+> I was assuming that those pins were not exported as gpio pins on
+> purpose; I was taking the prudent approach to prevent haphazard
+> toggling of sw_rst and deep_sleep_en from userspace. sw_rst because it
+> could initiate a reset of the cpu when toggled and deep_sleep_en
+> because it can override the behaviour of davinci_pm_enter().
 >
-> config KEYBOARD_GPIO
->         default MACH_DAVINCI_DA850_EVM
->         select INPUT_POLLDEV
->
-> So 1) gpio-keys functionality is default for the da850evm and 2)
-> whenever gpio-keys is enabled so is INPUT_POLLDEV.
+> I'm not sure how they would be used by existing kernel classes either.
+> The sw_rst pin could be used for reset but since it is on the other
+> end of an i2c bus and there is an existing implementation of reset
+> using the on chip watchdog I don't think it would be benficial to
+> switch. Deep_sleep_en could override the behaviour in
+> davinci_pm_enter() -- _maybe_ (I don't really know) it could be used
+> as a hardware-assisted suspend-blocker? But I totally guessing here.
 
-This looks better than what was posted earlier, but I am not
-sure if platforms should influence driver configuration this
-way.
-
-I guess I am just afraid that this makes a precedent for
-many driver config symbols to get replicated in the platform
-Kconfig files.
-
-Lets see if others have an opinion on this.
+My preference would be to leave these pins as is
+(don't call a gpio_request() on them) till someone
+comes up with a use case for them. From what you
+described, sysfs access cannot happen "accidently"
+so someone accessing these pins from sysfs surely
+knows what he is doing.
 
 Thanks,
 Sekhar
-

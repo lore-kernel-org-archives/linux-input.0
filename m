@@ -1,49 +1,85 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Tue, 23 Nov 2010 12:48:07 -0800
-Message-ID: <AANLkTinw2pyZOPuVsG6ovBTFKstozamfWX=6EcjyYTfX@mail.gmail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [RESEND] - HID: add support for force feedback in
+ 'Thrustmaster  F430 Force Feedback' steering wheel
+Date: Tue, 23 Nov 2010 22:01:05 +0100
+Message-ID: <20101123220105.92db4832.ospite@studenti.unina.it>
+References: <ece69dfce015de7cc10b9c0257af3627.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__23_Nov_2010_22_01_05_+0100_9UA1mtSOC66WYXTO"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:43991 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751915Ab0KWUsJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Nov 2010 15:48:09 -0500
-Received: by wwa36 with SMTP id 36so9112775wwa.1
-        for <linux-input@vger.kernel.org>; Tue, 23 Nov 2010 12:48:08 -0800 (PST)
+Received: from smtp204.alice.it ([82.57.200.100]:59186 "EHLO smtp204.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750787Ab0KWVBU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Nov 2010 16:01:20 -0500
+In-Reply-To: <ece69dfce015de7cc10b9c0257af3627.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org, Antonio Orefice <aorefice77@gmail.com>
 
-Hi all,
+--Signature=_Tue__23_Nov_2010_22_01_05_+0100_9UA1mtSOC66WYXTO
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I am not going to write a patch for this request before I get the
-permission for the new tool type. It affects all touch screen devices
-(under drivers/input/touchscreen) that support both pen and touch.
+On Tue, 23 Nov 2010 15:21:05 -0500
+simon@mungewell.org wrote:
 
-Right now, in the user land, BTN_TOUCH is used to indicate a single
-touch events. BTN_TOUCH and !BTN_TOOL_PEN
-(http://udev.sourcearchive.com/documentation/161-1/input__id_8c-source.html)
-are used to determine if the device is a touch screen device or not a
-pen. With both pen and touch on the same logical port (serial touch
-screen with pen and touch enabled, refer to wacom_w8001.c), BTN_TOUCH
-and !BTN_TOOL_PEN will always be false, which indicates a
-non-touchscreen device. That is wrong.
+> Doesn't look like this was picked up by anybody... at least there was no
+> 'ack'.
+>=20
 
-Unless we have other means to tell the user land a device is a
-touchscreen, BTN_TOUCH with !BTN_TOOL_PEN won't do the job for us.
+missing [PATCH] prefix (maybe [PATCH v2] ot v3 for the next round?), and
+it was sent as attachment, while this list prefers patches in
+the email body, with out-of-patch comments after the '---' separator.
 
-I've already had a value for the new type:
+> On behalf of Antonio, please find attached a git-ized version of the patc=
+h.
+>
 
-+#define BTN_TOOL_TOUCH       0x149
+The commit short description is too long, limit it to 72 chars, and if
+needed add a longer description in the commit message body.
 
-This new type resolves the confusion we had for the existing serial
-pen and touch enabled touchscreen devices. Considering we are merging
-the two logical ports for USB devices, the new type is required for
-the future USB touchscreen support as well.
+Also the Signed-off-by line is missing, if you are the author, then it
+would need your sign off Simon, if Antonio Orefice is the author, then
+use his, with no need of the Reported-by.
 
-Thank you for reading and your timely comments would be greatly appreciated.
+The procedure may look tedious but the collaboration is based all on
+that, and on the other hand if you have interest to have the
+patch submitted, you have the motivation to conform to it; check out
+Documentation/SubmittingPatches in the kernel dir.
 
-Ping
+> This just add the USB ID's. Builds OK against Linus' git tree, but I don't
+> have the wheel to test.
+>=20
+> Cheers,
+> Simon Wood.
+> http://www.speed-dreams.org
+
+Regards,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Tue__23_Nov_2010_22_01_05_+0100_9UA1mtSOC66WYXTO
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkzsK5EACgkQ5xr2akVTsAGz5QCeIXKwAsr6N4w7jJKYUVqpHGzX
+3woAoINcYaiI6k+RaVyH20QGAhLAmIWg
+=7tEJ
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__23_Nov_2010_22_01_05_+0100_9UA1mtSOC66WYXTO--

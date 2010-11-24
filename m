@@ -1,65 +1,94 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH v2 2/4] da850-evm: add UI Expander pushbuttons
-Date: Wed, 24 Nov 2010 15:09:13 +0900
-Message-ID: <20101124060913.GE11705@linux-sh.org>
-References: <cover.1289835508.git.bengardiner@nanometrics.ca> <cover.1289935504.git.bengardiner@nanometrics.ca> <95f48a32a0256ecdb7148aa08d16f64928a7e5d8.1289935504.git.bengardiner@nanometrics.ca> <B85A65D85D7EB246BE421B3FB0FBB59302477EA939@dbde02.ent.ti.com> <AANLkTi=HS7ym8n6=hF8vAg2WR33Md5=YRZL2NS7a+F2y@mail.gmail.com> <B85A65D85D7EB246BE421B3FB0FBB59302477EB2BE@dbde02.ent.ti.com> <AANLkTimRbsmR6xMok8P_wXpQAd1Xykew6_pPhqUWGsEN@mail.gmail.com> <B85A65D85D7EB246BE421B3FB0FBB5930247931247@dbde02.ent.ti.com> <8739qshwhm.fsf@deeprootsystems.com>
+From: "Nori, Sekhar" <nsekhar@ti.com>
+Subject: RE: [PATCH v4 2/5] da850-evm: add UI Expander pushbuttons
+Date: Wed, 24 Nov 2010 18:46:01 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB593024793194E@dbde02.ent.ti.com>
+References: <cover.1290201713.git.bengardiner@nanometrics.ca>
+ <cover.1290540916.git.bengardiner@nanometrics.ca>
+ <9e73184bfb5c0a0d47377dd9b0627405dd87ce8a.1290540916.git.bengardiner@nanometrics.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 124x34x33x190.ap124.ftth.ucom.ne.jp ([124.34.33.190]:35261 "EHLO
-	master.linux-sh.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751854Ab0KXGKB (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:45094 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750845Ab0KXNQT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Nov 2010 01:10:01 -0500
-Content-Disposition: inline
-In-Reply-To: <8739qshwhm.fsf@deeprootsystems.com>
+	Wed, 24 Nov 2010 08:16:19 -0500
+In-Reply-To: <9e73184bfb5c0a0d47377dd9b0627405dd87ce8a.1290540916.git.bengardiner@nanometrics.ca>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: "Nori, Sekhar" <nsekhar@ti.com>, Ben Gardiner <bengardiner@nanometrics.ca>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Govindarajan, Sriramakrishnan" <srk@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Alexander Clouter <alex@digriz.org.uk>, Chris Cordahi <christophercordahi@nanometrics.ca>
+To: Ben Gardiner <bengardiner@nanometrics.ca>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.co>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, "Govindarajan, Sriramakrishnan" <srk@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
 
-On Tue, Nov 23, 2010 at 07:48:21AM -0800, Kevin Hilman wrote:
-> "Nori, Sekhar" <nsekhar@ti.com> writes:
-> > On Mon, Nov 22, 2010 at 19:20:48, Ben Gardiner wrote:
-> >> Yes -- only gpio-keys is affected but enabling the option does
-> >> introduce an additional .o file:
-> >>
-> >> drivers/input/Makefile:obj-$(CONFIG_INPUT_POLLDEV)      += input-polldev.o
-> >>
-> >> I agree that in its current state a user couls inadvertently disable
-> >> the gpio-keys support on da850-evm simply by disabling INPUT_POLLDEV
-> >> -- which is less than Ideal. How about I replace the current changes
-> >> to arch/arm/mach-davinci/Kconfig with:
-> >>
-> >> config KEYBOARD_GPIO
-> >>         default MACH_DAVINCI_DA850_EVM
-> >>         select INPUT_POLLDEV
-> >>
-> >> So 1) gpio-keys functionality is default for the da850evm and 2)
-> >> whenever gpio-keys is enabled so is INPUT_POLLDEV.
-> >
-> > This looks better than what was posted earlier, but I am not
-> > sure if platforms should influence driver configuration this
-> > way.
-> 
-> Agreed.  In general, we should not have machine/platform specific
-> conditionals in generic Kconfigs.   Generally, this should be handled in
-> machine/platform specific Kconfigs.
-> 
-The patch that I originally wrote for this had the select under the
-Kconfig option for the driver itself, with the decision to use it or not
-being dynamically determined based on the platform data. I maintain that
-this is the only sensible way to deal with things, but this was rejected
-by the input folks at the time who felt that it was adding in extra
-overhead for a corner case. The alternatives then are to either make an
-identical copy of the driver that uses a polled interface, come up with
-lame INPUT_POLLDEV wrapper shims, or simply accept the fact that drivers
-using optional interfaces are going to have to have those interfaces
-built in to the kernel. There has been zero progress on getting this
-functionality integrated for years now because of this issue, and I don't
-really see that changing until people accept that drivers will sometimes
-require additional functionality to be built-in, or provide a suitable
-alternative. Personally I don't care enough about this particular problem
-to put any more cycles in to it, and the hardware that I wrote this patch
-for initially will be end-of-lifed long before there's any coherent
-consensus in driver land.
+Hi Ben,
+
+I have some minor comments on this patch. You could
+wait for other pending items to get resolved before
+posting a re-spin.
+
+On Wed, Nov 24, 2010 at 01:10:57, Ben Gardiner wrote:
+
+>  arch/arm/mach-davinci/board-da850-evm.c |   98 ++++++++++++++++++++++++++++++-
+>  1 files changed, 97 insertions(+), 1 deletions(-)
+>
+> diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+
+> +static struct gpio_keys_button da850_evm_ui_keys[] = {
+> +     [0 ... DA850_N_UI_PB - 1] = {
+> +             .type                   = EV_KEY,
+> +             .active_low             = 1,
+> +             .wakeup                 = 0,
+> +             .debounce_interval      = DA850_KEYS_DEBOUNCE_MS,
+> +             .code                   = -1, /* assigned at runtime */
+> +             .gpio                   = -1, /* assigned at runtime */
+> +             .desc                   = NULL, /* assigned at runtime */
+> +     },
+> +};
+> +
+> +static struct gpio_keys_platform_data da850_evm_ui_keys_pdata = {
+> +     .buttons = da850_evm_ui_keys,
+> +     .nbuttons = ARRAY_SIZE(da850_evm_ui_keys),
+> +     .rep = 0, /* disable auto-repeat */
+> +     .poll_interval = DA850_GPIO_KEYS_POLL_MS,
+> +};
+> +
+> +static struct platform_device da850_evm_ui_keys_device = {
+> +     .name = "gpio-keys",
+> +     .id = 0,
+> +     .dev = {
+> +             .platform_data = &da850_evm_ui_keys_pdata
+> +     },
+> +};
+
+No need of zero/NULL initialization in structures above
+since they are static.
+
+> @@ -304,15 +388,24 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
+>       gpio_direction_output(sel_b, 1);
+>       gpio_direction_output(sel_c, 1);
+>
+> +     da850_evm_ui_keys_init(gpio);
+> +     ret = platform_device_register(&da850_evm_ui_keys_device);
+> +     if (ret) {
+> +             pr_warning("Could not register UI GPIO expander push-buttons"
+> +                             " device\n");
+
+Line-breaking an error message is not preferred since it becomes
+difficult to grep in code. Looking at this message, you could drop
+" device" altogether.
+
+> +             goto exp_setup_keys_fail;
+> +     }
+> +
+>       ui_card_detected = 1;
+>       pr_info("DA850/OMAP-L138 EVM UI card detected\n");
+>
+>       da850_evm_setup_nor_nand();
+> -
+
+Random white space change?
+
+Thanks,
+Sekhar
+

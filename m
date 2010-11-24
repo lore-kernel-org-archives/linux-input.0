@@ -1,95 +1,25 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
- joystick driver
-Date: Wed, 24 Nov 2010 11:55:24 -0800
-Message-ID: <20101124195523.GF27368@core.coreip.homeip.net>
-References: <4CEBED7E.7010101@armadeus.com>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: [PATCH 3/4] Add 3G rfkill sysfs file
+Date: Wed, 24 Nov 2010 20:03:39 +0000
+Message-ID: <201011242003.39773.carlos@strangeworlds.co.uk>
+References: <1290620379-10133-1-git-send-email-jlee@novell.com> <1290620379-10133-3-git-send-email-jlee@novell.com> <1290620379-10133-4-git-send-email-jlee@novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:34236 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756470Ab0KXTzp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Nov 2010 14:55:45 -0500
-Content-Disposition: inline
-In-Reply-To: <4CEBED7E.7010101@armadeus.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <1290620379-10133-4-git-send-email-jlee@novell.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
+Cc: mjg59@srcf.ucam.org, corentin.chary@gmail.com, dmitry.torokhov@gmail.com, tiwai@novell.com, jbenc@suse.cz, jdelvare@suse.de, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, "Lee, Chun-Yi" <jlee@novell.com>, Dmitry Torokhov <dtor@mail.ru>, Corentin Chary <corentincj@iksaif.net>
 List-Id: linux-input@vger.kernel.org
-To: Fabien Marteau <fabien.marteau@armadeus.com>
-Cc: Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Fabien,
-
-On Tue, Nov 23, 2010 at 05:36:14PM +0100, Fabien Marteau wrote:
-> Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugged
-> on an I2C bus. It as been tested on ARM processor (i.MX27).
+On Wednesday 24 November 2010 17:39:38 Lee, Chun-Yi wrote:
+> Add 3G rfkill sysfs file for provide userland to control 3G device
+> on/off by using WMI method.
 > 
+> Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
+> Acked-by: Thomas Renninger <trenn@suse.de>
+> Acked-by: Jiri Benc <jbenc@suse.cz>
 
-Thank you for the patch. In addiitoon to comments you got from the other
-reviewers I'd recommend switching to threaded IRQ instead of using a
-separate workqueue, it greatly simplifies the code.
-
-> +
-> +static irqreturn_t button_interrupt(int irq, void *dev_id)
-> +{
-> +	struct as5011_platform_data *plat_dat =
-> +		(struct as5011_platform_data *)dev_id;
-> +	int ret;
-> +
-> +	ret = gpio_get_value(plat_dat->button_gpio);
-> +	if (ret)
-> +		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 0);
-> +	else
-> +		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 1);
-> +	input_sync(plat_dat->input_dev);
-> +	return IRQ_HANDLED;
-
-That appears to be a hard IRQ; are you sure that gpio_get_value will not
-sleep?
-
-> +
-> +	plat_dat->input_dev->name = "Austria Microsystem as5011 joystick";
-> +	plat_dat->input_dev->uniq = "Austria0";
-> +	plat_dat->input_dev->id.bustype = BUS_I2C;
-> +	plat_dat->input_dev->phys = "/dev/input/event0";
-
-Phys is not the path in device tree but rather physical device
-connection path within the system. If there is not known connection path
-it is better just leave it as NULL.
-
-> +	plat_dat->input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> +	plat_dat->input_dev->keybit[BIT_WORD(BTN_JOYSTICK)] =
-> +					BIT_MASK(BTN_JOYSTICK);
-> +
-> +	input_set_abs_params(plat_dat->input_dev,
-> +			     ABS_X,
-> +			     AS5011_MIN_AXIS,
-> +			     AS5011_MAX_AXIS,
-> +			     AS5011_FUZZ,
-> +			     AS5011_FLAT);
-> +	input_set_abs_params(plat_dat->input_dev,
-> +			     ABS_Y,
-> +			     AS5011_MIN_AXIS,
-> +			     AS5011_MAX_AXIS,
-> +			     AS5011_FUZZ,
-> +			     AS5011_FLAT);
-> +
-> +	plat_dat->button_irq_name =
-> +		kmalloc(sizeof(unsigned char)*SIZE_NAME,
-> +					 GFP_KERNEL);
-
-Just why does it have to be separately allocated? I'd even stick with
-"as5011" for all IRQ names.
-
-> +
-> +	queue_work(plat_dat->workqueue, &plat_dat->update_axes_work);
-> +
-
-The device is quite likely not opened here so why do you want to send
-events?
-
-Thanks.
-
--- 
-Dmitry
+Signed-off-by: Carlos Corbaho <carlos@strangeworlds.co.uk>

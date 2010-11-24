@@ -1,55 +1,65 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH] USB HID Add support for F430 Force Feedback Wheel
-Date: Tue, 23 Nov 2010 22:49:43 -0700
-Message-ID: <1290577783-5756-1-git-send-email-simon@mungewell.org>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH v2 2/4] da850-evm: add UI Expander pushbuttons
+Date: Wed, 24 Nov 2010 15:09:13 +0900
+Message-ID: <20101124060913.GE11705@linux-sh.org>
+References: <cover.1289835508.git.bengardiner@nanometrics.ca> <cover.1289935504.git.bengardiner@nanometrics.ca> <95f48a32a0256ecdb7148aa08d16f64928a7e5d8.1289935504.git.bengardiner@nanometrics.ca> <B85A65D85D7EB246BE421B3FB0FBB59302477EA939@dbde02.ent.ti.com> <AANLkTi=HS7ym8n6=hF8vAg2WR33Md5=YRZL2NS7a+F2y@mail.gmail.com> <B85A65D85D7EB246BE421B3FB0FBB59302477EB2BE@dbde02.ent.ti.com> <AANLkTimRbsmR6xMok8P_wXpQAd1Xykew6_pPhqUWGsEN@mail.gmail.com> <B85A65D85D7EB246BE421B3FB0FBB5930247931247@dbde02.ent.ti.com> <8739qshwhm.fsf@deeprootsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from idcmail-mo2no.shaw.ca ([64.59.134.9]:33655 "EHLO
-	idcmail-mo2no.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751121Ab0KXFuT (ORCPT
+Received: from 124x34x33x190.ap124.ftth.ucom.ne.jp ([124.34.33.190]:35261 "EHLO
+	master.linux-sh.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751854Ab0KXGKB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Nov 2010 00:50:19 -0500
+	Wed, 24 Nov 2010 01:10:01 -0500
+Content-Disposition: inline
+In-Reply-To: <8739qshwhm.fsf@deeprootsystems.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: aorefice77@gmail.com, ospite@studenti.unina.it, Simon Wood <simon@mungewell.org>
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: "Nori, Sekhar" <nsekhar@ti.com>, Ben Gardiner <bengardiner@nanometrics.ca>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Govindarajan, Sriramakrishnan" <srk@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Alexander Clouter <alex@digriz.org.uk>, Chris Cordahi <christophercordahi@nanometrics.ca>
 
-This patch adds USB IDs to enable force feedback on the Thrustmaster
-F430 wheel.
-
-Antonio did the work, I just converted to git patch to include in Kernel.
-
-Reported by: "Antonio Orefice" <aorefice77@gmail.com>
-Signed-off by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-core.c |    1 +
- drivers/hid/hid-tmff.c |    2 ++
- 2 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 515345b..88cb04e 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1386,6 +1386,7 @@ static const struct hid_device_id hid_blacklist[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb651) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb653) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED, USB_DEVICE_ID_TOPSEED_CYBERLINK) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED2, USB_DEVICE_ID_TOPSEED2_RF_COMBO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TWINHAN, USB_DEVICE_ID_TWINHAN_IR_REMOTE) },
-diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
-index 15434c8..25be4e1 100644
---- a/drivers/hid/hid-tmff.c
-+++ b/drivers/hid/hid-tmff.c
-@@ -256,6 +256,8 @@ static const struct hid_device_id tm_devices[] = {
- 		.driver_data = (unsigned long)ff_joystick },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654),	/* FGT Force Feedback Wheel */
- 		.driver_data = (unsigned long)ff_joystick },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a),	/* F430 Force Feedback Wheel */
-+		.driver_data = (unsigned long)ff_joystick },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, tm_devices);
--- 
-1.7.0.4
-
+On Tue, Nov 23, 2010 at 07:48:21AM -0800, Kevin Hilman wrote:
+> "Nori, Sekhar" <nsekhar@ti.com> writes:
+> > On Mon, Nov 22, 2010 at 19:20:48, Ben Gardiner wrote:
+> >> Yes -- only gpio-keys is affected but enabling the option does
+> >> introduce an additional .o file:
+> >>
+> >> drivers/input/Makefile:obj-$(CONFIG_INPUT_POLLDEV)      += input-polldev.o
+> >>
+> >> I agree that in its current state a user couls inadvertently disable
+> >> the gpio-keys support on da850-evm simply by disabling INPUT_POLLDEV
+> >> -- which is less than Ideal. How about I replace the current changes
+> >> to arch/arm/mach-davinci/Kconfig with:
+> >>
+> >> config KEYBOARD_GPIO
+> >>         default MACH_DAVINCI_DA850_EVM
+> >>         select INPUT_POLLDEV
+> >>
+> >> So 1) gpio-keys functionality is default for the da850evm and 2)
+> >> whenever gpio-keys is enabled so is INPUT_POLLDEV.
+> >
+> > This looks better than what was posted earlier, but I am not
+> > sure if platforms should influence driver configuration this
+> > way.
+> 
+> Agreed.  In general, we should not have machine/platform specific
+> conditionals in generic Kconfigs.   Generally, this should be handled in
+> machine/platform specific Kconfigs.
+> 
+The patch that I originally wrote for this had the select under the
+Kconfig option for the driver itself, with the decision to use it or not
+being dynamically determined based on the platform data. I maintain that
+this is the only sensible way to deal with things, but this was rejected
+by the input folks at the time who felt that it was adding in extra
+overhead for a corner case. The alternatives then are to either make an
+identical copy of the driver that uses a polled interface, come up with
+lame INPUT_POLLDEV wrapper shims, or simply accept the fact that drivers
+using optional interfaces are going to have to have those interfaces
+built in to the kernel. There has been zero progress on getting this
+functionality integrated for years now because of this issue, and I don't
+really see that changing until people accept that drivers will sometimes
+require additional functionality to be built-in, or provide a suitable
+alternative. Personally I don't care enough about this particular problem
+to put any more cycles in to it, and the hardware that I wrote this patch
+for initially will be end-of-lifed long before there's any coherent
+consensus in driver land.

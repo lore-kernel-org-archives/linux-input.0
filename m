@@ -1,63 +1,71 @@
 From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: [PATCH WIP 0/6] suggested changes to gpio_buttons driver
-Date: Wed, 24 Nov 2010 16:01:34 -0500
-Message-ID: <cover.1290631852.git.bengardiner@nanometrics.ca>
-References: <1290524800-21419-10-git-send-email-juhosg@openwrt.org>
+Subject: [PATCH WIP 1/6] fixup gpio_buttons: use the same debounce_interval member found in gpio_key to obtain a threshold count based on polling interval
+Date: Wed, 24 Nov 2010 16:01:35 -0500
+Message-ID: <08372c879762c2b1c2accd013318ffb6765f806c.1290631852.git.bengardiner@nanometrics.ca>
+References: <1290524800-21419-10-git-send-email-juhosg@openwrt.org> <cover.1290631852.git.bengardiner@nanometrics.ca>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog109.obsmtp.com ([74.125.149.201]:38235 "HELO
-	na3sys009aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1756333Ab0KXVBn (ORCPT
+Received: from na3sys009aog113.obsmtp.com ([74.125.149.209]:34995 "HELO
+	na3sys009aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756333Ab0KXVBo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Nov 2010 16:01:43 -0500
-Received: by mail-gy0-f172.google.com with SMTP id 13so112220gyb.3
-        for <linux-input@vger.kernel.org>; Wed, 24 Nov 2010 13:01:42 -0800 (PST)
-In-Reply-To: <1290524800-21419-10-git-send-email-juhosg@openwrt.org>
+	Wed, 24 Nov 2010 16:01:44 -0500
+Received: by mail-yw0-f49.google.com with SMTP id 7so110886ywf.8
+        for <linux-input@vger.kernel.org>; Wed, 24 Nov 2010 13:01:43 -0800 (PST)
+In-Reply-To: <cover.1290631852.git.bengardiner@nanometrics.ca>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Gabor Juhos <juhosg@openwrt.org>
 Cc: linux-input@vger.kernel.org
 
-These are just some suggested changes from the review in patch-form. I will
-do my best to make time for reviewing and testing any future versions of the
-patch that you submit but I will regrettably be moving to other projects 
-for awhile. Until then I will not be able to spend much time on integration.
+my reasoning was that if the debounce interval was set then the platform 
+_wants_ to supress spurious events so it was better to roundup and swallow 
+real events than round down and not supress. 
 
-With these patches applied I was able to build the da850-evm buttons and keys
-support with minimal changes.As I said, these are just suggested changes,
-please feel free to squash, edit or drop them as you see fit. My motivation 
-here is that if you pickup the driver name and config symbol names as-is then
-I will have no remaining integration to perform in the da850-evm series. I
-hope you don't mind that I have to patch and run here.
+I'm fine also with using the poll_interval and debuonce_interval directly as
+you suggested.
 
-I look forward to your next version of the patch. 
-
-Best Regards,
-Ben Gardiner
-
+Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
 ---
-Nanometrics Inc.
-http://www.nanometrics.ca
+ drivers/input/misc/gpio_buttons.c |    7 +++++--
+ include/linux/gpio_buttons.h      |    2 +-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-Ben Gardiner (6):
-  fixup gpio_buttons: use the same debounce_interval member found in
-    gpio_key to obtain a threshold count based on polling interval
-  fixup gpio_buttons: use existing gpio_keys_button structure instead
-    of introducing new gpio_button structure
-  fixup gpio_buttons: detect and error-out if a button is requested for
-    wakeup
-  fixup gpio_buttons: show units of poll_interval platform data member
-  fixup gpio_buttons: move gpio_buttons.c to drivers/input/keyboard
-    from drivers/input/misc
-  fixup gpio_buttons : rename gpio-buttons / gpio_buttons to
-    gpio-keys-polled / gpio_keys_polled
-
- drivers/input/keyboard/Kconfig                     |   16 ++++
- drivers/input/keyboard/Makefile                    |    2 +
- .../gpio_buttons.c => keyboard/gpio_keys_polled.c} |   86 +++++++++++---------
- drivers/input/misc/Kconfig                         |   16 ----
- drivers/input/misc/Makefile                        |    1 -
- .../linux/{gpio_buttons.h => gpio_keys_polled.h}   |   15 +---
- 6 files changed, 69 insertions(+), 67 deletions(-)
- rename drivers/input/{misc/gpio_buttons.c => keyboard/gpio_keys_polled.c} (64%)
- rename include/linux/{gpio_buttons.h => gpio_keys_polled.h} (60%)
+diff --git a/drivers/input/misc/gpio_buttons.c b/drivers/input/misc/gpio_buttons.c
+index 51288a3..f42906c 100644
+--- a/drivers/input/misc/gpio_buttons.c
++++ b/drivers/input/misc/gpio_buttons.c
+@@ -68,13 +68,16 @@ static void gpio_buttons_poll(struct input_polled_dev *dev)
+ 	struct gpio_buttons_dev *bdev = dev->private;
+ 	struct gpio_buttons_platform_data *pdata = bdev->pdata;
+ 	struct input_dev *input = dev->input;
+-	int i;
++	int i, threshold;
+ 
+ 	for (i = 0; i < bdev->pdata->nbuttons; i++) {
+ 		struct gpio_button *button = &pdata->buttons[i];
+ 		struct gpio_button_data *bdata = &bdev->data[i];
+ 
+-		if (bdata->count < button->threshold)
++		threshold = round_up(button->debounce_interval,
++				pdata->poll_interval) /
++				pdata->poll_interval;
++		if (bdata->count < threshold)
+ 			bdata->count++;
+ 		else
+ 			gpio_buttons_check_state(input, button, bdata);
+diff --git a/include/linux/gpio_buttons.h b/include/linux/gpio_buttons.h
+index f85b993..c016f07 100644
+--- a/include/linux/gpio_buttons.h
++++ b/include/linux/gpio_buttons.h
+@@ -21,7 +21,7 @@ struct gpio_button {
+ 	char	*desc;		/* button description */
+ 	int	type;		/* input event type (EV_KEY, EV_SW) */
+ 	int	code;		/* input event code (KEY_*, SW_*) */
+-	int	threshold;	/* count threshold */
++	int debounce_interval;	/* debounce ticks interval in msecs */
+ };
+ 
+ struct gpio_buttons_platform_data {
+-- 
+1.7.0.4
 

@@ -1,213 +1,197 @@
-From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: [PATCH v5 2/5] da850-evm: add UI Expander pushbuttons
-Date: Wed, 24 Nov 2010 16:59:31 -0500
-Message-ID: <18c52f8d32a0a34a80644c14c9aae57032495019.1290635422.git.bengardiner@nanometrics.ca>
-References: <cover.1290540916.git.bengardiner@nanometrics.ca> <cover.1290635422.git.bengardiner@nanometrics.ca>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1290635422.git.bengardiner@nanometrics.ca>
-Sender: linux-kernel-owner@vger.kernel.org
-To: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>, "Govindarajan, Sriramakrishnan" <srk@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
+Date: Wed, 24 Nov 2010 16:55:32 -0600
+Message-ID: <AANLkTimZ7hDEEO7xbRT3Xt7fRHwBHgx=NT70q=C60tDS@mail.gmail.com>
+References: <AANLkTinw2pyZOPuVsG6ovBTFKstozamfWX=6EcjyYTfX@mail.gmail.com>
+	<20101123223018.GC20283@core.coreip.homeip.net>
+	<AANLkTi=sEJC9r=ZL7rJH9ojOjadmriNFbN97t+=HpTwy@mail.gmail.com>
+	<20101124025248.GD27368@core.coreip.homeip.net>
+	<AANLkTi=FLyZ5eWb0M4fNg76YuzU_Cpasb3b0xjeNhLE5@mail.gmail.com>
+	<20101124202603.GH27368@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:39315 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752827Ab0KXWzd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Nov 2010 17:55:33 -0500
+Received: by gxk22 with SMTP id 22so164818gxk.19
+        for <linux-input@vger.kernel.org>; Wed, 24 Nov 2010 14:55:32 -0800 (PST)
+In-Reply-To: <20101124202603.GH27368@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-This patch adds EV_KEYs for each of the 8 pushbuttons on the UI board via a
-gpio-key device.
+On Wed, Nov 24, 2010 at 2:26 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Nov 23, 2010 at 10:55:56PM -0600, Chris Bagwell wrote:
+>> On Tue, Nov 23, 2010 at 8:52 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Tue, Nov 23, 2010 at 02:40:00PM -0800, Ping Cheng wrote:
+>> >> On Tue, Nov 23, 2010 at 2:30 PM, Dmitry Torokhov
+>> >> <dmitry.torokhov@gmail.com> wrote:
+>> >> > On Tue, Nov 23, 2010 at 12:48:07PM -0800, Ping Cheng wrote:
+>> >> > How is BTN_TOOL_TOUCH is different from BTN_TOOL_FINGER?
+>> >>
+>> >> Good question.
+>> >>
+>> >> BTN_TOOL_FINGER is used for touchpad or trackpad, or whichever te=
+rm
+>> >> that works for you. It indicates a relative cursor movement. The =
+touch
+>> >> screen needs to translate the (x,y) events into absolute movement=
+=2E
+>> >> That's why none of those touchscreen drivers use BTN_TOOL_FINGER =
+so
+>> >> far.
+>> >>
+>> >
+>> > BTN_TOOL_FINGER and the new BTN_TOOL_TOUCH convey the same data to=
+ the
+>> > userspace, namely that there is a finger on the owrking surface, a=
+s
+>> > oopsed to pen, mouse, lens or something else. It does not dictate =
+how
+>> > exactly the data should be used, although right now we have heuris=
+tic to
+>> > decide the class of the device we are dealing with.
+>>
+>> I've a small clarification for readers that might not be aware. =A0F=
+or
+>> BTN_TOOL_FINGER, its still used to mean a kinda of "in proximity of
+>> surface" and BTN_TOUCH is used when actually touching touchpad. =A0F=
+or
+>
+> BTN_TOUCH means something (we do not specify what) touches working
+> surface.
+>
+>> touchpad, those two things probably should follow each other... but =
+as
+>> an example the synaptics driver only sets BTN_TOOL_FINGER immediatel=
+y
+>> but BTN_TOUCH when pressure is over some threshold. =A0So there is a
+>> time period when they do not match.
+>
+> In Synaptics BTN_TOUCH was used for legacy clients not understanding
+> BTN_TOOL_FINGER/ABS_PRESSURE (read: mousedev) and had arbitrary press=
+ure
+> thresholds.
 
-The expander is a tca6416; it controls the SEL_{A,B,C} lines which enable and
-disable the peripherals found on the UI board in addition to the 8 pushbuttons
-mentioned above. The reason the existing tca6416-keypad driver is not employed
-is because there was no aparent way to keep the gpio lines used as
-SEL_{A,B,C} registered while simultaneously registering the pushbuttons as a
-tca6416-keypad instance.
+Does this mean BTN_TOUCH is optional for absolute devices (tablets and
+touchpads)?  Its not for touchscreens simply because its defacto event
+used were other devices use BTN_TOOL_*.
 
-Some experimentation with the polling interval was performed; we were searching
-for the largest polling interval that did not affect the feel of the
-responsiveness of the buttons. It is very subjective but 200ms seems to be a
-good value that accepts firm pushes but rejects very light ones. The key values
-assigned to the buttons were arbitrarily chosen to be F1-F8.
+Probably we should document this stuff, similar to how MT did, for
+common understanding.  I may be up for that task soon.
 
-Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
-Reviewed-by: Chris Cordahi <christophercordahi@nanometrics.ca>
-CC: Govindarajan, Sriramakrishnan <srk@ti.com>
-Reviewed-by: Sekhar Nori <nsekhar@ti.com>
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
-CC: Kevin Hilman <khilman@deeprootsystems.com>
-CC: Gabor Juhos <juhosg@openwrt.org>
+>
+>>
+>> Touchscreens today can only send BTN_TOUCH event... which is a littl=
+e
+>> odd but works.
+>>
+>> >
+>> > It looks like that we getting into fuzzy area where it is hard to
+>> > classify the device solely by its capabilities. Maybe it is time w=
+e
+>> > revisited the topic of adding "flags" or "hint" to the device to
+>> > describe it's main purpose(s).
+>> >
+>>
+>> I think the proposed BTN_TOOL_TOUCH is in the same spirit of most
+>> other BTN_TOOL_*'s.
+>>
+>> We seem comfortable that userland wants to know difference between p=
+en
+>> and eraser tools. =A0The only thing unique they bring to table is a =
+type
+>> of resolution (fine tip vs. blunt tip) as well as an indication of
+>> tool switching.
+>
+> And the expected action when you actually using the tool.
 
----
+Agree.  Its important point that happens to be in line with why I like
+BTN_TOOL_TOUCH concept.  More below.
 
-Changes since v4:
- * integrated the use of Gabor Juhos' polled gpio buttons driver
- * removed spurious whitespace change (Sekhar Nori)
- * don't linebreak error messages (Sekhar Nori)
- * kept the explicit static initialization of structure members in-place
+>
+>>
+>> I'm not sure we needed 8 tools to express resolution concepts or too=
+l
+>> switching concepts but we do have them.
+>>
+>> To me, the BTN_TOOL_TOUCH fits in just fine with this. =A0It says it=
+s
+>> low resolution like both BTN_TOOL_ERASER and BTN_TOOL_FINGER say to
+>> different degrees. =A0But it also says that, unlike BTN_TOOL_FINGER,=
+ it
+>> has touchscreen visibility going for it to replace missing
+>> in-proximity concept and effectively increase its resolution... and =
+so
+>> you do not need to revert to relative emulation.
+>
+> Huh? I want to reiterate that I do not see any difference between
+> proposed BTN_TOOL_TOUCH and existing BTN_TOOL_FINGER - both indicate
+> that a finger either touches or is in proximity of the working surfac=
+e.
+>
+> The only difference between tablet, touchcsreen and touchpad is how w=
+e
+> react to the same data (i.e. relative/absolute movement; pointer
+> tracking or not, etc).
+>
 
-Changes since v3:
- * extracted Kconfig changes to patch 5/5
- * fixed leading whitespace problem
+Let me give an example of drawing program and worst case where all
+major device classes are merged in single input device.  The input has
+pen/eraser/touchscreen/touchpad/mouse and user expected behavior.
+All tools except mouse share ABS_X/Y/PRESSURE and BTN_TOUCH.   Mouse
+uses REL_* events.
 
-Changes since v2:
- * rebased to 083eae3e28643e0eefc5243719f8b1572cf98299 of
-   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davinci.git
- * remove the "TODO : populate at runtime using" in this patch instead of 4/4
-   (Nori, Sekhar)
- * integrated the static array initialization patch of Sekhar Nori
- * use static array initialization ranges
- * rename DA850_PB_POLL_MS to DA850_GPIO_KEYS_POLL_MS
- * use shorter names prefixed with da850_evm
+* BTN_TOOL_PEN - Small point pen with black ink.  Draws upon BTN_TOUCH
+or ABS_PRESSURE.
+* BTN_TOOL_ERASER - Large point pen with white ink (simple erase
+concept).  Draws upon BTN_TOUCH or ABS_PRESSURE.
+* BTN_TOOL_TOUCH - Large point pen with black ink.  Draws upon
+BTN_TOUCH or ABS_PRESSURE.
+* BTN_TOOL_FINGER - Small (maybe) point pen with black ink.  Only
+moves cursor with BTN_TOUCH or ABS_PRESSURE.  No drawing unless
+BTN_RIGHT clicked.
+* BTN_TOOL_MOUSE - Small (maybe) point pen with black ink.  Only moves
+cursor on REL_ events.  No drawing unless BTN_RIGHT clicked.  <-- this
+is existing wacom example.  If reports ABS_* then it would probably
+use BTN_TOOL_FINGER tool even though a mouse puck.
 
-Changes since v1:
- * set INPUT_POLLDEV default for DA850_EVM machine, but don't select it
-   unconditionally
- * adding note to description about why tca6416-keypad was not used
- * adding Govindarajan, Sriramakrishnan, the author of the tca6416-keypad
-   driver
----
- arch/arm/mach-davinci/board-da850-evm.c |   95 +++++++++++++++++++++++++++++++
- 1 files changed, 95 insertions(+), 0 deletions(-)
+Notice how expected behavior of touchscreen is so close to tablet
+tools.  TOUCH is just a complement tablet tool in same way ERASER is
+complement to PEN.  Touchpads are so unique in how they behave that I
+think they deserve their own tool type.
 
-diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-index f89b0b7..f6490f8 100644
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -17,8 +17,10 @@
- #include <linux/i2c.h>
- #include <linux/i2c/at24.h>
- #include <linux/i2c/pca953x.h>
-+#include <linux/input.h>
- #include <linux/mfd/tps6507x.h>
- #include <linux/gpio.h>
-+#include <linux/gpio_keys_polled.h>
- #include <linux/platform_device.h>
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/nand.h>
-@@ -272,6 +274,87 @@ static inline void da850_evm_setup_emac_rmii(int rmii_sel)
- static inline void da850_evm_setup_emac_rmii(int rmii_sel) { }
- #endif
- 
-+
-+#define DA850_KEYS_DEBOUNCE_MS	10
-+/*
-+ * At 200ms polling interval it is possible to miss an
-+ * event by tapping very lightly on the push button but most
-+ * pushes do result in an event; longer intervals require the
-+ * user to hold the button whereas shorter intervals require
-+ * more CPU time for polling.
-+ */
-+#define DA850_GPIO_KEYS_POLL_MS	200
-+
-+enum da850_evm_ui_exp_pins {
-+	DA850_EVM_UI_EXP_SEL_C = 5,
-+	DA850_EVM_UI_EXP_SEL_B,
-+	DA850_EVM_UI_EXP_SEL_A,
-+	DA850_EVM_UI_EXP_PB8,
-+	DA850_EVM_UI_EXP_PB7,
-+	DA850_EVM_UI_EXP_PB6,
-+	DA850_EVM_UI_EXP_PB5,
-+	DA850_EVM_UI_EXP_PB4,
-+	DA850_EVM_UI_EXP_PB3,
-+	DA850_EVM_UI_EXP_PB2,
-+	DA850_EVM_UI_EXP_PB1,
-+};
-+
-+static const char const *da850_evm_ui_exp[] = {
-+	[DA850_EVM_UI_EXP_SEL_C]        = "sel_c",
-+	[DA850_EVM_UI_EXP_SEL_B]        = "sel_b",
-+	[DA850_EVM_UI_EXP_SEL_A]        = "sel_a",
-+	[DA850_EVM_UI_EXP_PB8]          = "pb8",
-+	[DA850_EVM_UI_EXP_PB7]          = "pb7",
-+	[DA850_EVM_UI_EXP_PB6]          = "pb6",
-+	[DA850_EVM_UI_EXP_PB5]          = "pb5",
-+	[DA850_EVM_UI_EXP_PB4]          = "pb4",
-+	[DA850_EVM_UI_EXP_PB3]          = "pb3",
-+	[DA850_EVM_UI_EXP_PB2]          = "pb2",
-+	[DA850_EVM_UI_EXP_PB1]          = "pb1",
-+};
-+
-+#define DA850_N_UI_PB		8
-+
-+static struct gpio_keys_button da850_evm_ui_keys[] = {
-+	[0 ... DA850_N_UI_PB - 1] = {
-+		.type			= EV_KEY,
-+		.active_low		= 1,
-+		.wakeup			= 0,
-+		.debounce_interval	= DA850_KEYS_DEBOUNCE_MS,
-+		.code			= -1, /* assigned at runtime */
-+		.gpio			= -1, /* assigned at runtime */
-+		.desc			= NULL, /* assigned at runtime */
-+	},
-+};
-+
-+static struct gpio_keys_polled_platform_data da850_evm_ui_keys_pdata = {
-+	.buttons = da850_evm_ui_keys,
-+	.nbuttons = ARRAY_SIZE(da850_evm_ui_keys),
-+	.poll_interval = DA850_GPIO_KEYS_POLL_MS,
-+};
-+
-+static struct platform_device da850_evm_ui_keys_device = {
-+	.name = "gpio-keys-polled",
-+	.id = 0,
-+	.dev = {
-+		.platform_data = &da850_evm_ui_keys_pdata
-+	},
-+};
-+
-+static void da850_evm_ui_keys_init(unsigned gpio)
-+{
-+	int i;
-+	struct gpio_keys_button *button;
-+
-+	for (i = 0; i < DA850_N_UI_PB; i++) {
-+		button = &da850_evm_ui_keys[i];
-+		button->code = KEY_F8 - i;
-+		button->desc = (char *)
-+				da850_evm_ui_exp[DA850_EVM_UI_EXP_PB8 + i];
-+		button->gpio = gpio + DA850_EVM_UI_EXP_PB8 + i;
-+	}
-+}
-+
- static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- 						unsigned ngpio, void *c)
- {
-@@ -304,6 +387,13 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- 	gpio_direction_output(sel_b, 1);
- 	gpio_direction_output(sel_c, 1);
- 
-+	da850_evm_ui_keys_init(gpio);
-+	ret = platform_device_register(&da850_evm_ui_keys_device);
-+	if (ret) {
-+		pr_warning("Could not register UI GPIO expander push-buttons");
-+		goto exp_setup_keys_fail;
-+	}
-+
- 	ui_card_detected = 1;
- 	pr_info("DA850/OMAP-L138 EVM UI card detected\n");
- 
-@@ -313,6 +403,8 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- 
- 	return 0;
- 
-+exp_setup_keys_fail:
-+	gpio_free(sel_c);
- exp_setup_selc_fail:
- 	gpio_free(sel_b);
- exp_setup_selb_fail:
-@@ -324,6 +416,8 @@ exp_setup_sela_fail:
- static int da850_evm_ui_expander_teardown(struct i2c_client *client,
- 					unsigned gpio, unsigned ngpio, void *c)
- {
-+	platform_device_unregister(&da850_evm_ui_keys_device);
-+
- 	/* deselect all functionalities */
- 	gpio_set_value_cansleep(gpio + 5, 1);
- 	gpio_set_value_cansleep(gpio + 6, 1);
-@@ -340,6 +434,7 @@ static struct pca953x_platform_data da850_evm_ui_expander_info = {
- 	.gpio_base	= DAVINCI_N_GPIO,
- 	.setup		= da850_evm_ui_expander_setup,
- 	.teardown	= da850_evm_ui_expander_teardown,
-+	.names		= da850_evm_ui_exp,
- };
- 
- static struct i2c_board_info __initdata da850_evm_i2c_devices[] = {
--- 
-1.7.0.4
+Your point about only the "how to react" being different between
+touchpad and touchscreen is also true for all tools above.  I'm not
+sure why your limiting comment and not including tablet and mice
+tools.  We could switch to BTN_TOOL_1/2/3/4 and some sort of per tool
+hint (BTN_TOOL_CAPABILITIES sent with tool events perhaps?) but I'm
+not real excited about work involved in userland for that.
+
+If your still not convinced on BTN_TOOL_TOUCH (I've not really
+mentioned much new info) then can you give rough ideas of what flags
+interface should look like?
+
+=46or example, should it be sent as BTN_TOOL_CAPABILITIES event for eac=
+h
+tool change?  Or should it be an ioctl() per BTN_TOOL_*?  The former
+is good if we think BTN_TOOL_*'s will use tool ID's and two tools may
+have different capabilities.
+
+Once solved for ST, it also needs solution for MT.  For slot based MT,
+it may need to be sent as events if we allow tools to float between
+slots.
+
+Chris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

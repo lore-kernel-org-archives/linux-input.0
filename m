@@ -1,233 +1,137 @@
-From: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
-Subject: Re: [PATCH 1/4] Add acer wmi hotkey events support
-Date: Thu, 25 Nov 2010 09:56:52 +0800
-Message-ID: <1290650212-14944-1-git-send-email-jlee@novell.com>
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: carlos@strangeworlds.co.uk
-Cc: mjg59@srcf.ucam.org, corentin.chary@gmail.com, dmitry.torokhov@gmail.com, tiwai@novell.com, jbenc@suse.cz, jdelvare@suse.de, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, corentincj@iksaif.net, "Lee, Chun-Yi" <jlee@novell.com>
+From: Fabien Marteau <fabien.marteau@armadeus.com>
+Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
+ joystick driver
+Date: Thu, 25 Nov 2010 11:10:58 +0100
+Message-ID: <4CEE3632.6020502@armadeus.com>
+References: <4CEBED7E.7010101@armadeus.com> <20101124195523.GF27368@core.coreip.homeip.net>
+Reply-To: fabien.marteau@armadeus.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 31.mail-out.ovh.net ([213.186.62.10]:55385 "HELO
+	31.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751564Ab0KYKRp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Nov 2010 05:17:45 -0500
+In-Reply-To: <20101124195523.GF27368@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add acer wmi hotkey event support. Install a wmi notify handler to
-transfer wmi event key to key code, then send out keycode through acer
-wmi input device to userland.
+Hi Dmitry,
 
-Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
-Acked-by: Thomas Renninger <trenn@suse.de>
-Acked-by: Jiri Benc <jbenc@suse.cz> 
-Cc: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Cc: Corentin Chary <corentincj@iksaif.net> 
----
- drivers/platform/x86/Kconfig    |    2 +
- drivers/platform/x86/acer-wmi.c |  139 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 141 insertions(+), 0 deletions(-)
+Thank you for yours comments, it's my first kernel driver patch and you=
+r advices
+are really helpful.
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index cff7cc2..c242fdd 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -23,7 +23,9 @@ config ACER_WMI
- 	depends on BACKLIGHT_CLASS_DEVICE
- 	depends on SERIO_I8042
- 	depends on RFKILL || RFKILL = n
-+	depends on INPUT
- 	select ACPI_WMI
-+	select INPUT_SPARSEKMAP
- 	---help---
- 	  This is a driver for newer Acer (and Wistron) laptops. It adds
- 	  wireless radio and bluetooth control, and on some laptops,
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 2badee2..930df56 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -37,6 +37,8 @@
- #include <linux/workqueue.h>
- #include <linux/debugfs.h>
- #include <linux/slab.h>
-+#include <linux/input.h>
-+#include <linux/input/sparse-keymap.h>
- 
- #include <acpi/acpi_drivers.h>
- 
-@@ -48,6 +50,7 @@ MODULE_LICENSE("GPL");
- #define ACER_ERR KERN_ERR ACER_LOGPREFIX
- #define ACER_NOTICE KERN_NOTICE ACER_LOGPREFIX
- #define ACER_INFO KERN_INFO ACER_LOGPREFIX
-+#define ACER_WARNING KERN_WARNING ACER_LOGPREFIX
- 
- /*
-  * Magic Number
-@@ -83,8 +86,39 @@ MODULE_LICENSE("GPL");
- #define WMID_GUID1		"6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3"
- #define WMID_GUID2		"95764E09-FB56-4e83-B31A-37761F60994A"
- 
-+/*
-+ * Acer ACPI event GUIDs
-+ */
-+#define ACERWMID_EVENT_GUID "676AA15E-6A47-4D9F-A2CC-1E6D18D14026"
-+
- MODULE_ALIAS("wmi:67C3371D-95A3-4C37-BB61-DD47B491DAAB");
- MODULE_ALIAS("wmi:6AF4F258-B401-42fd-BE91-3D4AC2D7C0D3");
-+MODULE_ALIAS("wmi:676AA15E-6A47-4D9F-A2CC-1E6D18D14026");
-+
-+enum acer_wmi_event_ids {
-+	WMID_HOTKEY_EVENT = 0x1,
-+};
-+
-+static const struct key_entry acer_wmi_keymap[] = {
-+	{KE_KEY, 0x01, {KEY_WLAN} },     /* WiFi */
-+	{KE_KEY, 0x12, {KEY_BLUETOOTH} },	/* BT */
-+	{KE_KEY, 0x21, {KEY_PROG1} },    /* Backup */
-+	{KE_KEY, 0x22, {KEY_PROG2} },    /* Arcade */
-+	{KE_KEY, 0x23, {KEY_PROG3} },    /* P_Key */
-+	{KE_KEY, 0x24, {KEY_PROG4} },    /* Social networking_Key */
-+	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
-+	{KE_KEY, 0x82, {KEY_F22} },      /* Touch Pad On/Off */
-+	{KE_END, 0}
-+};
-+
-+static struct input_dev *acer_wmi_input_dev;
-+
-+struct event_return_value {
-+	u8 function;
-+	u8 key_num;
-+	u16 device_state;
-+	u32 reserved;
-+} __attribute__((packed));
- 
- /*
-  * Interface capability flags
-@@ -1085,6 +1119,99 @@ static ssize_t show_interface(struct device *dev, struct device_attribute *attr,
- 
- static DEVICE_ATTR(interface, S_IRUGO, show_interface, NULL);
- 
-+static void acer_wmi_notify(u32 value, void *context)
-+{
-+	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
-+	union acpi_object *obj;
-+	struct event_return_value return_value;
-+	acpi_status status;
-+
-+	status = wmi_get_event_data(value, &response);
-+	if (status != AE_OK) {
-+		printk(ACER_WARNING "bad event status 0x%x\n", status);
-+		return;
-+	}
-+
-+	obj = (union acpi_object *)response.pointer;
-+
-+	if (!obj)
-+		return;
-+	if (obj->type != ACPI_TYPE_BUFFER) {
-+		printk(ACER_WARNING "Unknown response received %d\n",
-+			obj->type);
-+		kfree(obj);
-+		return;
-+	}
-+	if (obj->buffer.length != 8) {
-+		printk(ACER_WARNING "Unknown buffer length %d\n",
-+			obj->buffer.length);
-+		kfree(obj);
-+		return;
-+	}
-+
-+	return_value = *((struct event_return_value *)obj->buffer.pointer);
-+	kfree(obj);
-+
-+	switch (return_value.function) {
-+	case WMID_HOTKEY_EVENT:
-+		if (!sparse_keymap_report_event(acer_wmi_input_dev,
-+				return_value.key_num, 1, true))
-+			printk(ACER_WARNING "Unknown key number - 0x%x\n",
-+				return_value.key_num);
-+		break;
-+	default:
-+		printk(ACER_WARNING "Unknown function number - %d - %d\n",
-+			return_value.function, return_value.key_num);
-+		break;
-+	}
-+}
-+
-+static int __init acer_wmi_input_setup(void)
-+{
-+	acpi_status status;
-+	int err;
-+
-+	acer_wmi_input_dev = input_allocate_device();
-+	if (!acer_wmi_input_dev)
-+		return -ENOMEM;
-+
-+	acer_wmi_input_dev->name = "Acer WMI hotkeys";
-+	acer_wmi_input_dev->phys = "wmi/input0";
-+	acer_wmi_input_dev->id.bustype = BUS_HOST;
-+
-+	err = sparse_keymap_setup(acer_wmi_input_dev, acer_wmi_keymap, NULL);
-+	if (err)
-+		goto err_free_dev;
-+
-+	status = wmi_install_notify_handler(ACERWMID_EVENT_GUID,
-+						acer_wmi_notify, NULL);
-+	if (ACPI_FAILURE(status)) {
-+		err = -EIO;
-+		goto err_free_keymap;
-+	}
-+
-+	err = input_register_device(acer_wmi_input_dev);
-+	if (err)
-+		goto err_uninstall_notifier;
-+
-+	return 0;
-+
-+err_uninstall_notifier:
-+	wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
-+err_free_keymap:
-+	sparse_keymap_free(acer_wmi_input_dev);
-+err_free_dev:
-+	input_free_device(acer_wmi_input_dev);
-+	return err;
-+}
-+
-+static void acer_wmi_input_destroy(void)
-+{
-+	wmi_remove_notify_handler(ACERWMID_EVENT_GUID);
-+	sparse_keymap_free(acer_wmi_input_dev);
-+	input_unregister_device(acer_wmi_input_dev);
-+}
-+
- /*
-  * debugfs functions
-  */
-@@ -1327,6 +1454,12 @@ static int __init acer_wmi_init(void)
- 		       "generic video driver\n");
- 	}
- 
-+	if (wmi_has_guid(ACERWMID_EVENT_GUID)) {
-+		err = acer_wmi_input_setup();
-+		if (err)
-+			return err;
-+	}
-+
- 	err = platform_driver_register(&acer_platform_driver);
- 	if (err) {
- 		printk(ACER_ERR "Unable to register platform driver.\n");
-@@ -1368,11 +1501,17 @@ error_device_add:
- error_device_alloc:
- 	platform_driver_unregister(&acer_platform_driver);
- error_platform_register:
-+	if (wmi_has_guid(ACERWMID_EVENT_GUID))
-+		acer_wmi_input_destroy();
-+
- 	return err;
- }
- 
- static void __exit acer_wmi_exit(void)
- {
-+	if (wmi_has_guid(ACERWMID_EVENT_GUID))
-+		acer_wmi_input_destroy();
-+
- 	remove_sysfs(acer_platform_device);
- 	remove_debugfs();
- 	platform_device_unregister(acer_platform_device);
--- 
-1.6.0.2
+On 24/11/2010 20:55, Dmitry Torokhov wrote:
+> Hi Fabien,
+>=20
+> On Tue, Nov 23, 2010 at 05:36:14PM +0100, Fabien Marteau wrote:
+>> Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugg=
+ed
+>> on an I2C bus. It as been tested on ARM processor (i.MX27).
+>>
+>=20
+> Thank you for the patch. In addiitoon to comments you got from the ot=
+her
+> reviewers I'd recommend switching to threaded IRQ instead of using a
+> separate workqueue, it greatly simplifies the code.
+
+Ok I will see it.
+
+>=20
+>> +
+>> +static irqreturn_t button_interrupt(int irq, void *dev_id)
+>> +{
+>> +	struct as5011_platform_data *plat_dat =3D
+>> +		(struct as5011_platform_data *)dev_id;
+>> +	int ret;
+>> +
+>> +	ret =3D gpio_get_value(plat_dat->button_gpio);
+>> +	if (ret)
+>> +		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 0);
+>> +	else
+>> +		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 1);
+>> +	input_sync(plat_dat->input_dev);
+>> +	return IRQ_HANDLED;
+>=20
+> That appears to be a hard IRQ; are you sure that gpio_get_value will =
+not
+> sleep?
+
+=46or my platform, yes I'm sure =85 but if somebody else use this drive=
+r with
+gpio that can sleep, it can be a bad idea of course.
+I did it because it's under an interrupt call, then we can't sleep.
+I will see how to use  a threaded IRQ to avoid it.
+
+>=20
+>> +
+>> +	plat_dat->input_dev->name =3D "Austria Microsystem as5011 joystick=
+";
+>> +	plat_dat->input_dev->uniq =3D "Austria0";
+>> +	plat_dat->input_dev->id.bustype =3D BUS_I2C;
+>> +	plat_dat->input_dev->phys =3D "/dev/input/event0";
+>=20
+> Phys is not the path in device tree but rather physical device
+> connection path within the system. If there is not known connection p=
+ath
+> it is better just leave it as NULL.
+
+Ok, done.
+
+>=20
+>> +	plat_dat->input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_A=
+BS);
+>> +	plat_dat->input_dev->keybit[BIT_WORD(BTN_JOYSTICK)] =3D
+>> +					BIT_MASK(BTN_JOYSTICK);
+>> +
+>> +	input_set_abs_params(plat_dat->input_dev,
+>> +			     ABS_X,
+>> +			     AS5011_MIN_AXIS,
+>> +			     AS5011_MAX_AXIS,
+>> +			     AS5011_FUZZ,
+>> +			     AS5011_FLAT);
+>> +	input_set_abs_params(plat_dat->input_dev,
+>> +			     ABS_Y,
+>> +			     AS5011_MIN_AXIS,
+>> +			     AS5011_MAX_AXIS,
+>> +			     AS5011_FUZZ,
+>> +			     AS5011_FLAT);
+>> +
+>> +	plat_dat->button_irq_name =3D
+>> +		kmalloc(sizeof(unsigned char)*SIZE_NAME,
+>> +					 GFP_KERNEL);
+>=20
+> Just why does it have to be separately allocated? I'd even stick with
+> "as5011" for all IRQ names.
+
+I thought that irq name should be different for each IRQ used under dev=
+ice and
+for each device used in system. I can use the same irq name if I've got=
+ several
+as5011 joystick in the same system ?
+
+>=20
+>> +
+>> +	queue_work(plat_dat->workqueue, &plat_dat->update_axes_work);
+>> +
+>=20
+> The device is quite likely not opened here so why do you want to send
+> events?
+It was a mistake.
+
+>=20
+> Thanks.
+>=20
+
+Thanks too.
+=46abien
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

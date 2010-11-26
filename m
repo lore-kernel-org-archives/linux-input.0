@@ -1,64 +1,82 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: Input event for blocking touchpad
-Date: Fri, 26 Nov 2010 19:10:57 -0200
-Message-ID: <20101126211056.GD3819@barata.holoscopio.com>
+From: James Hogan <james@albanarts.com>
+Subject: [PATCH] winbond-cir: fix extended NEC scancode encoding
+Date: Fri, 26 Nov 2010 21:37:49 +0000
+Message-ID: <20101126213749.GB21473@gandalf>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="q9KOos5vDmpwPx9o"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade2.minaslivre.org ([74.50.53.203]:42657 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751451Ab0KZVTX (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:34418 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399Ab0KZVhz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Nov 2010 16:19:23 -0500
+	Fri, 26 Nov 2010 16:37:55 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org
+To: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hi,
 
---q9KOos5vDmpwPx9o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This changes the scancode encoding behaviour for extended NEC on
+winbond-cir by swapping the address bytes. This makes it consistent with
+the software NEC decoder in drivers/media/IR, but changes the scancodes
+for extended NEC. Comments in the code suggest NEC wasn't tested, and
+I'm not sure if it has any users using extended NEC, so hopefully this
+won't be a problem?
 
-Hello,
+Note: i'm not able to test this patch other than compiling it.
 
-I have a notebook with an ACPI system that notifies about the pressing
-of the key for blocking touchpad. However, it does not notify it by
-itself. I was considering sending the event to userspace and let it does
-the blocking.
+Thanks
+James
+--
+Swap the placement of the address bytes in the scancodes for extended
+NEC in winbond-cir.
 
-Since other keys are also notified by this same ACPI object, it's even
-more natural that I use an input device to send this to userspace.
+After comparing the extended NEC scancode construction of the software
+NEC decoder (in media/IR) and winbond-cir it appears winbond-cir is
+putting the two address bytes the wrong way around.
 
-The problem is: there seems to be no event to represent this. Any
-suggestions?
+Here's how the decoders previously generated scancodes:
+winbond-cir normal NEC:   msb [ 0x0,      0x0, address1, command ] lsb
+soft normal NEC:          msb [ 0x0,      0x0, address1, command ] lsb
+winbond-cir extended NEC: msb [ 0x0, address2, address1, command ] lsb
+soft extended NEC:        msb [ 0x0, address1, address2, command ] lsb
 
-Best regards,
-Cascardo.
+A NEC data sheet [1] describes the first byte (address1) of extended NEC
+as 'Higher 8 bits of custom code' and the second byte (address2) as
+'Lower 8 bits of custom code'.
 
---q9KOos5vDmpwPx9o
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+[1] http://www.datasheetcatalog.org/datasheet/nec/UPD6122G-002.pdf
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Signed-off-by: James Hogan <james@albanarts.com>
+---
+ drivers/input/misc/winbond-cir.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-iQIcBAEBAgAGBQJM8CJfAAoJEEWxSg7udFZInIMP+gORojV1mq1gWdCIwVXxVyxv
-Vhrw2gdQkXrQc2y2Calx9EN8YWwp9RrshbFeBgpgk4UJFF3yorJywGNSwBMwCiwd
-8Qj90MPT3/MrGjPfieYKuULcbyw5fafpbHbQ8XeToq7wvG+Ekp5Dep8EWByAOqwn
-sIxWZwrC34Ae9O5CKaY9X6pBGS1VENnlvvTePqjQExwapOUUHDBA6FsOKmwpgdvn
-4YirdD2IYop+fyQoTA6t9K7neKyX9d/keyE0hB3mYXFN2sKNRHtDGuYBl/Oa1841
-MJYzm9xWLc2LUV6QNMs87ZLC1TDIvo5w+aAw6Mp1k5HHyl2O61VQ/6JzcxflAi0I
-QDTZMJMXrS6XBcDHB9mGMOHXu3ZK/QagpDTShCRhmRGs7tro8HOrfdSgn0Lze7bt
-63AnoW4h0Wmao4u0csZL/YP8WdISRMIuImdiZjCWETJ/S3EGYWcMUibVuH+Y+UC8
-oiNB4b4K/uYmuvo+1G24jmP1eGvL6Uv7Z5RAXS6XchGRpr+FT9PXHZ8YGtUsbXVG
-3H+LO5MszI5xBIJFfmrUxx+OS/l6It24zlQ1mEJdCSewCy4fFx2Ofr8maR2VnL5g
-pzu+LOnB5ZKOa0OrjTI8amPC5egJ+6vyC0jiyyqiJomzsIW9UObi4s8uNPGyJGiS
-ghMKDxRn7g+NQr5uODDg
-=KSZ+
------END PGP SIGNATURE-----
+diff --git a/drivers/input/misc/winbond-cir.c b/drivers/input/misc/winbond-cir.c
+index 64f1de7..01a9069 100644
+--- a/drivers/input/misc/winbond-cir.c
++++ b/drivers/input/misc/winbond-cir.c
+@@ -851,8 +851,8 @@ wbcir_parse_nec(struct device *dev, struct wbcir_data *data)
+ 	 * and Command2 was the inverse of Command1 and were used as
+ 	 * an error check.
+ 	 *
+-	 * With NEC extended, Address1 is the LSB of the Address and
+-	 * Address2 is the MSB, Command parsing remains unchanged.
++	 * With NEC extended, Address1 is the MSB of the Address and
++	 * Address2 is the LSB, Command parsing remains unchanged.
+ 	 *
+ 	 * A repeat message is coded as:
+ 	 * Leader		- 9 ms burst
+@@ -916,7 +916,7 @@ wbcir_parse_nec(struct device *dev, struct wbcir_data *data)
+ 	/* Check for extended NEC protocol */
+ 	address = address1;
+ 	if (address1 != ~address2)
+-		address |= address2 << 8;
++		address = address << 8 | address2;
+ 
+ 	scancode = address << 8 | command1;
+ 
+-- 
+1.7.3.2
 
---q9KOos5vDmpwPx9o--

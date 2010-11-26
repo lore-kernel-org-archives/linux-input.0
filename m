@@ -1,91 +1,64 @@
-From: James Hogan <james@albanarts.com>
-Subject: Re: [PATCH] ir-nec-decoder: fix extended NEC scancodes
-Date: Fri, 26 Nov 2010 21:12:13 +0000
-Message-ID: <20101126211213.GA21473@gandalf>
-References: <7m5j914h31hev0dqkj085vd7.1290777731791@email.android.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: Input event for blocking touchpad
+Date: Fri, 26 Nov 2010 19:10:57 -0200
+Message-ID: <20101126211056.GD3819@barata.holoscopio.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="q9KOos5vDmpwPx9o"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from liberdade2.minaslivre.org ([74.50.53.203]:42657 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751451Ab0KZVTX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Nov 2010 16:19:23 -0500
 Content-Disposition: inline
-In-Reply-To: <7m5j914h31hev0dqkj085vd7.1290777731791@email.android.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org
 
-(expanded cc list)
 
-On Fri, Nov 26, 2010 at 08:39:25AM -0500, Andy Walls wrote:
-> You might want to check the handling against this NEC datasheet
-> 
-> http://www.datasheetcatalog.org/datasheet/nec/UPD6122G-002.pdf
-> 
-> The datasheet calls the address bytes "custom code" (high byte apparently) and "custom code'" (low byte apparently) with both bytes sent lsb first.  It appears the high byte is sent first when using 16 bit codes.
+--q9KOos5vDmpwPx9o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks for the link Andy. You appear to be correct, which suggests that
-winbond-cir is the "wrong" one. Curiously there is a comment in
-winbond-cir.c which explicitly mentions which byte is which:
+Hello,
 
-854 * With NEC extended, Address1 is the LSB of the Address and
-855 * Address2 is the MSB, Command parsing remains unchanged.
+I have a notebook with an ACPI system that notifies about the pressing
+of the key for blocking touchpad. However, it does not notify it by
+itself. I was considering sending the event to userspace and let it does
+the blocking.
 
-but then it also says:
+Since other keys are also notified by this same ACPI object, it's even
+more natural that I use an input device to send this to userspace.
 
-25 *  To do:
-26 *    o Test NEC and RC5
+The problem is: there seems to be no event to represent this. Any
+suggestions?
 
-I suppose its all a matter of convention, but I think they should at
-least be consistent, so I'll go by the NEC datasheet and submit a patch
-to winbond-cir instead.
+Best regards,
+Cascardo.
 
-Cheers
-James
+--q9KOos5vDmpwPx9o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-> James Hogan <james@albanarts.com> wrote:
-> 
-> >Could somebody check this as I'm unable to test it.
-> >
-> >I'm also not entirely certain it isn't winbond-cir that is in error
-> >instead of ir-nec-decoder.
-> >
-> >Cheers
-> >James
-> >--
-> >After comparing the extended NEC scancode construction of the software
-> >decoder and winbond-cir it appears the software decoder is putting the
-> >two address bytes the wrong way around.
-> >
-> >Here's how the decoders currently generate scancodes:
-> >winbond-cir normal NEC:   msb [ 0x0,      0x0,     addr, cmd ] lsb
-> >soft normal NEC:          msb [ 0x0,      0x0,     addr, cmd ] lsb
-> >winbond-cir extended NEC: msb [ 0x0, not_addr,     addr, cmd ] lsb
-> >soft extended NEC:        msb [ 0x0,     addr, not_addr, cmd ] lsb
-> >
-> >The soft decider is not consistent with [1], assuming the "Address high"
-> >byte (not_addr) should be more significant than the "Address low" byte
-> >(addr) in the scancode.
-> >
-> >[1] http://www.sbprojects.com/knowledge/ir/nec.htm
-> >
-> >Signed-off-by: James Hogan <james@albanarts.com>
-> >---
-> > drivers/media/IR/ir-nec-decoder.c |    4 ++--
-> > 1 files changed, 2 insertions(+), 2 deletions(-)
-> >
-> >diff --git a/drivers/media/IR/ir-nec-decoder.c
-> >b/drivers/media/IR/ir-nec-decoder.c
-> >index 70993f7..11d3e78 100644
-> >--- a/drivers/media/IR/ir-nec-decoder.c
-> >+++ b/drivers/media/IR/ir-nec-decoder.c
-> >@@ -166,8 +166,8 @@ static int ir_nec_decode(struct input_dev
-> >*input_dev, struct ir_raw_event ev)
-> >
-> > 		if ((address ^ not_address) != 0xff) {
-> > 			/* Extended NEC */
-> >-			scancode = address     << 16 |
-> >-				   not_address <<  8 |
-> >+			scancode = not_address << 16 |
-> >+				   address     <<  8 |
-> > 				   command;
-> > 			IR_dprintk(1, "NEC (Ext) scancode 0x%06x\n", scancode);
-> > 		} else {
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iQIcBAEBAgAGBQJM8CJfAAoJEEWxSg7udFZInIMP+gORojV1mq1gWdCIwVXxVyxv
+Vhrw2gdQkXrQc2y2Calx9EN8YWwp9RrshbFeBgpgk4UJFF3yorJywGNSwBMwCiwd
+8Qj90MPT3/MrGjPfieYKuULcbyw5fafpbHbQ8XeToq7wvG+Ekp5Dep8EWByAOqwn
+sIxWZwrC34Ae9O5CKaY9X6pBGS1VENnlvvTePqjQExwapOUUHDBA6FsOKmwpgdvn
+4YirdD2IYop+fyQoTA6t9K7neKyX9d/keyE0hB3mYXFN2sKNRHtDGuYBl/Oa1841
+MJYzm9xWLc2LUV6QNMs87ZLC1TDIvo5w+aAw6Mp1k5HHyl2O61VQ/6JzcxflAi0I
+QDTZMJMXrS6XBcDHB9mGMOHXu3ZK/QagpDTShCRhmRGs7tro8HOrfdSgn0Lze7bt
+63AnoW4h0Wmao4u0csZL/YP8WdISRMIuImdiZjCWETJ/S3EGYWcMUibVuH+Y+UC8
+oiNB4b4K/uYmuvo+1G24jmP1eGvL6Uv7Z5RAXS6XchGRpr+FT9PXHZ8YGtUsbXVG
+3H+LO5MszI5xBIJFfmrUxx+OS/l6It24zlQ1mEJdCSewCy4fFx2Ofr8maR2VnL5g
+pzu+LOnB5ZKOa0OrjTI8amPC5egJ+6vyC0jiyyqiJomzsIW9UObi4s8uNPGyJGiS
+ghMKDxRn7g+NQr5uODDg
+=KSZ+
+-----END PGP SIGNATURE-----
+
+--q9KOos5vDmpwPx9o--

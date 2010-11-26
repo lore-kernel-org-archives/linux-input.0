@@ -1,61 +1,36 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 3/5] HID: roccat: declaring meaning of pack pragma usage in
- driver headers
-Date: Fri, 26 Nov 2010 20:57:36 +0100
-Message-ID: <1290801456.18750.164.camel__10961.5792557181$1290801577$gmane$org@neuromancer>
-Reply-To: erazor_de@users.sourceforge.net
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [PATCH 3/5] HID: roccat: declaring meaning of pack pragma
+ usage in driver headers
+Date: Fri, 26 Nov 2010 20:50:16 +0000
+Message-ID: <1290804616.3051.52.camel@localhost>
+References: <1290801456.18750.164.camel@neuromancer>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-14.arcor-online.net ([151.189.21.54]:41417 "EHLO
-	mail-in-14.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751596Ab0KZT5i (ORCPT
+Received: from mail.solarflare.com ([216.237.3.220]:24755 "EHLO
+	exchange.solarflare.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751310Ab0KZUu2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Nov 2010 14:57:38 -0500
+	Fri, 26 Nov 2010 15:50:28 -0500
+In-Reply-To: <1290801456.18750.164.camel@neuromancer>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, linux-doc@vger.kernel.orgl
+To: erazor_de@users.sourceforge.net
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
 
-Using pack pragma to prevent padding bytes in binary data structures
-used for hardware communication. Explanation of these pragmas was requested.
+On Fri, 2010-11-26 at 20:57 +0100, Stefan Achatz wrote:
+> Using pack pragma to prevent padding bytes in binary data structures
+> used for hardware communication. Explanation of these pragmas was requested.
+[...]
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-roccat-kone.h |    3 +++
- drivers/hid/hid-roccat-pyra.h |    3 +++
- 2 files changed, 6 insertions(+), 0 deletions(-)
+It would be clearer to use the '__packed' macro after each structure
+definition instead of using this awful Microsoft extension.
 
-diff --git a/drivers/hid/hid-roccat-kone.h b/drivers/hid/hid-roccat-kone.h
-index 130d656..11203a7 100644
---- a/drivers/hid/hid-roccat-kone.h
-+++ b/drivers/hid/hid-roccat-kone.h
-@@ -14,6 +14,9 @@
- 
- #include <linux/types.h>
- 
-+/*
-+ * Binary data structures used for hardware communication must have no padding.
-+ */
- #pragma pack(push)
- #pragma pack(1)
- 
-diff --git a/drivers/hid/hid-roccat-pyra.h b/drivers/hid/hid-roccat-pyra.h
-index 22f80a8..ac5996e 100644
---- a/drivers/hid/hid-roccat-pyra.h
-+++ b/drivers/hid/hid-roccat-pyra.h
-@@ -14,6 +14,9 @@
- 
- #include <linux/types.h>
- 
-+/*
-+ * Binary data structures used for hardware communication must have no padding.
-+ */
- #pragma pack(push)
- #pragma pack(1)
- 
+Ben. 
+
 -- 
-1.7.2.3
-
-
+Ben Hutchings, Senior Software Engineer, Solarflare Communications
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
 

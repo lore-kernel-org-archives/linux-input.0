@@ -1,85 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Lenovo S10-3t's touchpad support
-Date: Fri, 26 Nov 2010 23:55:28 -0800
-Message-ID: <20101127075528.GA28667@core.coreip.homeip.net>
-References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
+Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
+Date: Fri, 26 Nov 2010 23:59:20 -0800
+Message-ID: <20101127075920.GB28667@core.coreip.homeip.net>
+References: <4CEE6D2A.9040408@euromail.se>
+ <4CEE6EE8.4060805@gmail.com>
+ <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:54025 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:42580 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750939Ab0K0Hzh (ORCPT
+	with ESMTP id S1751649Ab0K0H71 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Nov 2010 02:55:37 -0500
+	Sat, 27 Nov 2010 02:59:27 -0500
+Received: by iwn35 with SMTP id 35so327860iwn.19
+        for <linux-input@vger.kernel.org>; Fri, 26 Nov 2010 23:59:27 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
+In-Reply-To: <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yan Li <yan.i.li@intel.com>
-Cc: linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, jian-feng.ding@intel.com, linux-kernel@vger.kernel.org, meego-kernel@lists.meego.com, Christopher Heiny <christopherheiny@gmail.com>
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Nikolai Kondrashov <spbnick@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
 
-Hi Yan,
+On Fri, Nov 26, 2010 at 05:02:05PM -0600, Chris Bagwell wrote:
+> On Thu, Nov 25, 2010 at 8:12 AM, Nikolai Kondrashov <spbnick@gmail.co=
+m> wrote:
+> > On 11/25/2010 05:05 PM, Henrik Rydberg wrote:
+> >>
+> >> =A0 =A0 =A0 =A0__u32 =A0 phys_abs_width; =A0 =A0 =A0 =A0 /* physic=
+al width of surface (mm)
+> >> */
+> >> =A0 =A0 =A0 =A0__u32 =A0 phys_abs_height; =A0 =A0 =A0 =A0/* physic=
+al height of surface (mm)
+> >> */
+> >
+> > This is better and is already covered by input_absinfo.
+> > You could calculate it with (maximum - minimum) / resolution.
+>=20
+> On this topic.  I'd like to start reporting resolution for a few waco=
+m
+> devices.
+>=20
+> When I looked at input_absinfo.resolution, I see only synaptics.c is
+> using it right now and it is defined using units/mm.  Currently, this
+> makes it up to xf86-input-synaptics were X is fed this value after
+> converting to units/meter.  Thats my intended usage as well.
+>=20
+> I'm more used to values in inches (lpi) or at least something higher
+> then mm.  If I converted my lpi to mm for resolution I'd lose some
+> accuracy.
 
-On Sat, Nov 27, 2010 at 11:56:59AM +0800, Yan Li wrote:
-> This is for kernel bug #18122 and MeeGo bug #4807.
-> 
-> Current code detects Clickpad by checking the 8 and 20 bits of 0x0c
-> cap. However, the code returns true if either of those bits is 1,
-> while it should only return true when both are 1. This has lead to the
-> touchpad on Lenovo S10-3t be mistakenly recognized as Clickpad and its
-> BTN_LEFT and BTN_RIGHT blocked.
-> 
-> So far we've found that the S10-3ts are shipped with two slightly
-> different models of touchpads, of which the 0x0c cap is either
-> 0x5a0400 or 0x4a0500. They are not Clickpad and return BTN_LEFT and
-> BTN_RIGHT normally.
+Right, with devices that have low accuracy you'd be losing accuracy her=
+e
+too.
 
-Hmm, this is weird. According to my data:
+>=20
+> We could solve that a few ways.  Provide units in input_absinfo,
+> convert to units/inch, units/cm or even units/meter, or define
+> physical size in mm.
 
->> Treat it as a two-bit field.
->>   0x00 == not a clickpad
->>   0x01 == 1 button clickpad
->>   0x02 == 2 button clickpad
->>   0x03 == reserved
+How big is the error and how important is it if we go with option 4 (do
+nothing)?
 
-Moreover, Takashi's HP returns 0x5a 0x04 0x00 in response to 0x0c query
-and _is_ a clickpad.
-
-Christopher, was there any more updates to the protocol by any chance?
-
-> 
-> This patch fixed this issue by checking both sign bits are 1. Tested
-> on my S10-3t and worked well.
-> 
-> Signed-off-by: Yan Li <yan.i.li@intel.com>
-> ---
->  drivers/input/mouse/synaptics.h |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index 613a365..0c1083c 100644
-> --- a/drivers/input/mouse/synaptics.h
-> +++ b/drivers/input/mouse/synaptics.h
-> @@ -51,7 +51,11 @@
->  #define SYN_EXT_CAP_REQUESTS(c)		(((c) & 0x700000) >> 20)
->  #define SYN_CAP_MULTI_BUTTON_NO(ec)	(((ec) & 0x00f000) >> 12)
->  #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
-> -#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100)
-> +/* Synaptics' ClickPad has both 8th and 20th bits set in the 0x0c
-> + * cap. Other models (like those shipped with Lenovo S10-3t) may have
-> + * either one of them set but not both, and they are *not* ClickPad
-> + * although they look similar. */
-> +#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100 == 0x100100)
-
-In C comparison operators have higher precedence than bitwise ones. Your
-expression reduces to ((ex0c) & 1) which is not correct. The proper
-expression would be:
-
-#define SYN_CAP_CLICKPAD(ex0c)		(((ex0c) & 0x100100) == 0x100100)
-
-but it really contradicts the data I have...
-
-Thanks.
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

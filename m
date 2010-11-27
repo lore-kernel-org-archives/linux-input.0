@@ -1,42 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Sat, 27 Nov 2010 00:32:30 -0800
-Message-ID: <20101127083229.GA28745@core.coreip.homeip.net>
-References: <4CEE6D2A.9040408@euromail.se>
- <4CEE6EE8.4060805@gmail.com>
- <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com>
- <4CF0BC13.2010800@gmail.com>
+Subject: Re: [PATCH] Input: serio - clear serio event queue after sysfs
+ driver rebind
+Date: Sat, 27 Nov 2010 00:41:53 -0800
+Message-ID: <20101127084153.GC28745@core.coreip.homeip.net>
+References: <1290467390-25302-1-git-send-email-dlaurie@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:45306 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751840Ab0K0Icg (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:51843 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751290Ab0K0ImA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Nov 2010 03:32:36 -0500
-Received: by iwn35 with SMTP id 35so349846iwn.19
-        for <linux-input@vger.kernel.org>; Sat, 27 Nov 2010 00:32:35 -0800 (PST)
+	Sat, 27 Nov 2010 03:42:00 -0500
 Content-Disposition: inline
-In-Reply-To: <4CF0BC13.2010800@gmail.com>
+In-Reply-To: <1290467390-25302-1-git-send-email-dlaurie@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
+To: Duncan Laurie <dlaurie@chromium.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Nov 27, 2010 at 11:06:43AM +0300, Nikolai Kondrashov wrote:
-> On 11/27/2010 02:02 AM, Chris Bagwell wrote:
-> >When I looked at input_absinfo.resolution, I see only synaptics.c is
-> >using it right now and it is defined using units/mm.
-> I'm not sure if it matters a lot, but Jiri has accepted my resolution
-> calculation patch to hid-input.c [1] which does it in *units/inch* for
-> generic HID devices, which choose to provide correct information in their
-> report descriptors.
+Hi Duncan,
+
+On Mon, Nov 22, 2010 at 03:09:50PM -0800, Duncan Laurie wrote:
+> When rebinding a serio driver via sysfs drvctl interface it is possible for
+> an interrupt to trigger after the disconnect of the existing driver and
+> before the binding of the new driver.  This will cause the serio interrupt
+> handler to queue a rescan event which will disconnect the new driver
+> immediately after it is attached.
 > 
+> This change clears the serio event queue after processing the drvctl
+> request but before releasing the serio mutex, which will clear any queued
+> rescans before they can get processed.
+> 
+> Reproduction involves issuing a rebind of device port from psmouse driver
+> to serio_raw driver while generating input to trigger interrupts.  Then
+> checking to see if the corresponding i8042/serio4/driver is correctly
+> attached to the serio_raw driver instead of psmouse.
+> 
+> Signed-off-by: Duncan Laurie <dlaurie@chromium.org>
+> ---
+>  drivers/input/serio/serio.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+> index 405bf21..a66307e 100644
+> --- a/drivers/input/serio/serio.c
+> +++ b/drivers/input/serio/serio.c
+> @@ -454,6 +454,7 @@ static ssize_t serio_rebind_driver(struct device *dev, struct device_attribute *
+>  		serio_disconnect_port(serio);
+>  		error = serio_bind_driver(serio, to_serio_driver(drv));
+>  		put_driver(drv);
+> +		serio_remove_pending_events(serio);
 
-OUCH. We need to fix this _now_. We can not allow reporting resolutions
-in random units. Since we started with unit/mm we have to keep it and
-if it gives issues we can think about adding other units later on, but
-for everyone.
+Hmm, makes sense, although should we limit events being removed to
+rescan events only?
 
 -- 
 Dmitry

@@ -1,72 +1,78 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Sat, 27 Nov 2010 16:22:21 -0600
-Message-ID: <AANLkTik7hdFxaXrnBwMXz1tYCBt-0FratFQzvgCXN8CY@mail.gmail.com>
-References: <4CEE6D2A.9040408@euromail.se>
-	<20101127081515.GD28667@core.coreip.homeip.net>
-	<4CF13A39.2080709@euromail.se>
+From: Jeremy Moles <jeremy@emperorlinux.com>
+Subject: Re: Researching An Experimental Touchscreen Driver
+Date: Sat, 27 Nov 2010 17:48:23 -0500
+Message-ID: <1290898103.2005.13.camel@bathysphere>
+References: <1290614820.3294.37.camel@bathysphere>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:48998 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753345Ab0K0WWV convert rfc822-to-8bit (ORCPT
+Received: from router.emperor-sw2.exsbs.net ([208.254.201.37]:38220 "EHLO
+	sade.emperorlinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753587Ab0K0WsK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Nov 2010 17:22:21 -0500
-Received: by ywl5 with SMTP id 5so1442922ywl.19
-        for <linux-input@vger.kernel.org>; Sat, 27 Nov 2010 14:22:21 -0800 (PST)
-In-Reply-To: <4CF13A39.2080709@euromail.se>
+	Sat, 27 Nov 2010 17:48:10 -0500
+Received: from [192.168.1.179] (dhcp179.emperorlinux.com [192.168.1.179])
+	by sade.emperorlinux.com (Postfix) with ESMTP id 00D243B0002
+	for <linux-input@vger.kernel.org>; Sat, 27 Nov 2010 17:41:43 -0500 (EST)
+In-Reply-To: <1290614820.3294.37.camel@bathysphere>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
+To: linux-input@vger.kernel.org
 
-On Sat, Nov 27, 2010 at 11:04 AM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
-> On 11/27/2010 09:15 AM, Dmitry Torokhov wrote:
->
->> On Thu, Nov 25, 2010 at 03:05:30PM +0100, Henrik Rydberg wrote:
->
->>>
->>> In short, my suggestion is to build a struct for device properties,=
- like this:
->>>
->>> struct input_devinfo {
->>> =A0 =A0 =A0__u32 =A0 type; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* b=
-itmask of possible dev types */
->>> =A0 =A0 =A0__u32 =A0 capabilities; =A0 =A0 =A0 =A0 =A0 /* bitmask o=
-f special device caps */
->>> =A0 =A0 =A0__u32 =A0 phys_abs_width; =A0 =A0 =A0 =A0 /* physical wi=
-dth of surface (mm) */
->>> =A0 =A0 =A0__u32 =A0 phys_abs_height; =A0 =A0 =A0 =A0/* physical he=
-ight of surface (mm) */
->>> };
->>>
->>> Adding more stuff here seems plausible. For instance, special devic=
-es like
->>> clickpads or integrated buttons would fit nicely in capabilities. T=
-he call would
->>> be very similar, like
->>>
->>> =A0 =A0 =A0ioctl(fd, EVIOCGDEVINFO, &info);
->>>
->>
->> Yep, should work, although the dimensions could be retrieved from
->> absinfo.
->>
->
->
-> I'll see if I can fit that (minus physical dimensions) into the upcom=
-ing patch sets.
->
+On Wed, 2010-11-24 at 11:07 -0500, Jeremy Moles wrote:
+> Hello everyone! I have a piece of hardware here using a vanilla 2.6.34
+> kernel (though I can easily change kernels if needed) that has attached
+> to it internally a USB touchscreen device. The relevant DMESG info is
+> below, and this is printed out whenever the module 'usbhid' is loaded.
+> 
+> --------------------------------------------------------------------
+> 
+> usbcore: registered new interface driver hiddev
+> input: Fujitsu Component USB Touch Panel
+> as /devices/pci0000:00/0000:00:1a.0/usb3/3-2/3-2:1.0/input/input9
+> generic-usb 0003:0430:0501.0002: input: USB HID v1.00 Mouse [Fujitsu
+> Component USB Touch Panel] on usb-0000:00:1a.0-2/input0
+> usbcore: registered new interface driver usbhid
+> usbhid: USB HID core driver
+> 
+> --------------------------------------------------------------------
+> 
+> For a long time now, we have been successfully configuring these
+> machines using the device node created when this driver is loaded, often
+> something like /dev/input/event5 (with a UDEV rule to make the name more
+> sensible). In X, we've been using the "evtouch" driver with this device
+> node, to great effect.
+> 
+> However, I am doing a bit of research and experimentation, and what I
+> would like to do is write some custom driver code to interface with this
+> device, instead of letting usbhid manage it. My question is, where is
+> the best place to start?
+> 
+> - Since usbhid already recognizes and binds to this device, what code
+> can I begin studying to see exactly how it's detecting this and
+> formatting input?
+> 
+> - Once usbhid attaches to this device, is the device in some kind of
+> lock? Is it possible to simply inject additional features or formatting
+> functions, possibly via quirks? (I don't quite understand how to do
+> anything with quirks other than blacklist a device).
+> 
+> - If I want to write a full driver for the device, what source file
+> would be best to start from? I've tried hacking usbtouchscreen.c and
+> hid-ntrig.c for the last few days to try and get them to bind to the
+> device, but neither attempt has seen any success. My hid-ntrig change
+> refuses to successfully call hid_parse(), and my usbtouchscreen change
+> continually returns some error code in the IRQ callback.
 
-Thanks, Henrik.  That will help move things along for up coming wacom
-changes needed.
+I hope this isn't bad etiquette to self-bump my owns posts... I was just
+curious if anyone might have any advice. I've continued to hack around,
+and I'm certainly gaining more knowledge, but not quite there yet.
 
-Chris
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Is there a good primer anywhere, or does have any skeleton code they
+use, for writing input drivers in Linux? The code is already there in
+usbhid.ko for this particular device, so I know it's just a matter of
+piecing it together, adding my modifications, and making them play
+nice. :)
+
+

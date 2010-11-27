@@ -1,333 +1,85 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: roccat: replaced #pragma pack() with __packed macro
-Date: Sat, 27 Nov 2010 08:35:11 +0100
-Message-ID: <1290843311.2308.3.camel@neuromancer>
-References: <1290801456.18750.164.camel@neuromancer>
-	 <1290804616.3051.52.camel@localhost>
-Reply-To: erazor_de@users.sourceforge.net
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Lenovo S10-3t's touchpad support
+Date: Fri, 26 Nov 2010 23:55:28 -0800
+Message-ID: <20101127075528.GA28667@core.coreip.homeip.net>
+References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1290804616.3051.52.camel@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ben Hutchings <bhutchings@solarflare.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:54025 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750939Ab0K0Hzh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 27 Nov 2010 02:55:37 -0500
+Content-Disposition: inline
+In-Reply-To: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yan Li <yan.i.li@intel.com>
+Cc: linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, jian-feng.ding@intel.com, linux-kernel@vger.kernel.org, meego-kernel@lists.meego.com, Christopher Heiny <christopherheiny@gmail.com>
 
-pragma pack() seems to be unwanted, so I replaced it with __packed.
+Hi Yan,
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-roccat-kone.h     |   22 +++++++---------------
- drivers/hid/hid-roccat-koneplus.h |   36 ++++++++++++++----------------------
- drivers/hid/hid-roccat-pyra.h     |   26 +++++++++-----------------
- 3 files changed, 30 insertions(+), 54 deletions(-)
+On Sat, Nov 27, 2010 at 11:56:59AM +0800, Yan Li wrote:
+> This is for kernel bug #18122 and MeeGo bug #4807.
+> 
+> Current code detects Clickpad by checking the 8 and 20 bits of 0x0c
+> cap. However, the code returns true if either of those bits is 1,
+> while it should only return true when both are 1. This has lead to the
+> touchpad on Lenovo S10-3t be mistakenly recognized as Clickpad and its
+> BTN_LEFT and BTN_RIGHT blocked.
+> 
+> So far we've found that the S10-3ts are shipped with two slightly
+> different models of touchpads, of which the 0x0c cap is either
+> 0x5a0400 or 0x4a0500. They are not Clickpad and return BTN_LEFT and
+> BTN_RIGHT normally.
 
-diff --git a/drivers/hid/hid-roccat-kone.h b/drivers/hid/hid-roccat-kone.h
-index 11203a7..f4e220f 100644
---- a/drivers/hid/hid-roccat-kone.h
-+++ b/drivers/hid/hid-roccat-kone.h
-@@ -14,17 +14,11 @@
- 
- #include <linux/types.h>
- 
--/*
-- * Binary data structures used for hardware communication must have no padding.
-- */
--#pragma pack(push)
--#pragma pack(1)
--
- struct kone_keystroke {
- 	uint8_t key;
- 	uint8_t action;
- 	uint16_t period; /* in milliseconds */
--};
-+} __packed;
- 
- enum kone_keystroke_buttons {
- 	kone_keystroke_button_1 = 0xf0, /* left mouse button */
-@@ -47,7 +41,7 @@ struct kone_button_info {
- 	uint8_t macro_name[16]; /* can be max 15 chars long */
- 	uint8_t count;
- 	struct kone_keystroke keystrokes[20];
--};
-+} __packed;
- 
- enum kone_button_info_types {
- 	/* valid button types until firmware 1.32 */
-@@ -98,7 +92,7 @@ struct kone_light_info {
- 	uint8_t red;   /* range 0x00-0xff */
- 	uint8_t green; /* range 0x00-0xff */
- 	uint8_t blue;  /* range 0x00-0xff */
--};
-+} __packed;
- 
- struct kone_profile {
- 	uint16_t size; /* always 975 */
-@@ -133,7 +127,7 @@ struct kone_profile {
- 	struct kone_button_info button_infos[8];
- 
- 	uint16_t checksum; /* \brief holds checksum of struct */
--};
-+} __packed;
- 
- enum kone_polling_rates {
- 	kone_polling_rate_125 = 1,
-@@ -150,7 +144,7 @@ struct kone_settings {
- 	uint8_t  calibration_data[4];
- 	uint8_t  unknown3[2];
- 	uint16_t checksum;
--};
-+} __packed;
- 
- /*
-  * 12 byte mouse event read by interrupt_read
-@@ -166,7 +160,7 @@ struct kone_mouse_event {
- 	uint8_t event;
- 	uint8_t value; /* press = 0, release = 1 */
- 	uint8_t macro_key; /* 0 to 8 */
--};
-+} __packed;
- 
- enum kone_mouse_events {
- 	/* osd events are thought to be display on screen */
-@@ -194,9 +188,7 @@ struct kone_roccat_report {
- 	uint8_t event;
- 	uint8_t value; /* holds dpi or profile value */
- 	uint8_t key; /* macro key on overlong macro execution */
--};
--
--#pragma pack(pop)
-+} __packed;
- 
- struct kone_device {
- 	/*
-diff --git a/drivers/hid/hid-roccat-koneplus.h b/drivers/hid/hid-roccat-koneplus.h
-index 905e33d..e26eebf 100644
---- a/drivers/hid/hid-roccat-koneplus.h
-+++ b/drivers/hid/hid-roccat-koneplus.h
-@@ -15,12 +15,6 @@
- #include <linux/types.h>
- 
- /*
-- * Binary data structures used for hardware communication must have no padding.
-- */
--#pragma pack(push)
--#pragma pack(1)
--
--/*
-  * case 1: writes request 80 and reads value 1
-  *
-  */
-@@ -32,7 +26,7 @@ struct koneplus_control {
- 	 */
- 	uint8_t value;
- 	uint8_t request;
--};
-+} __packed;
- 
- enum koneplus_control_requests {
- 	KONEPLUS_CONTROL_REQUEST_STATUS = 0x00,
-@@ -50,7 +44,7 @@ struct koneplus_startup_profile {
- 	uint8_t command; /* KONEPLUS_COMMAND_STARTUP_PROFILE */
- 	uint8_t size; /* always 3 */
- 	uint8_t startup_profile; /* Range 0-4! */
--};
-+} __packed;
- 
- struct koneplus_profile_settings {
- 	uint8_t command; /* KONEPLUS_COMMAND_PROFILE_SETTINGS */
-@@ -72,7 +66,7 @@ struct koneplus_profile_settings {
- 	uint8_t light_effect_speed;
- 	uint8_t lights[16];
- 	uint16_t checksum;
--};
-+} __packed;
- 
- struct koneplus_profile_buttons {
- 	uint8_t command; /* KONEPLUS_COMMAND_PROFILE_BUTTONS */
-@@ -80,7 +74,7 @@ struct koneplus_profile_buttons {
- 	uint8_t number; /* range 0-4 */
- 	uint8_t data[72];
- 	uint16_t checksum;
--};
-+} __packed;
- 
- struct koneplus_macro {
- 	uint8_t command; /* KONEPLUS_COMMAND_MACRO */
-@@ -89,31 +83,31 @@ struct koneplus_macro {
- 	uint8_t button; /* range 0-23 */
- 	uint8_t data[2075];
- 	uint16_t checksum;
--};
-+} __packed;
- 
- struct koneplus_info {
- 	uint8_t command; /* KONEPLUS_COMMAND_INFO */
- 	uint8_t size; /* always 6 */
- 	uint8_t firmware_version;
- 	uint8_t unknown[3];
--};
-+} __packed;
- 
- struct koneplus_e {
- 	uint8_t command; /* KONEPLUS_COMMAND_E */
- 	uint8_t size; /* always 3 */
- 	uint8_t unknown; /* TODO 1; 0 before firmware update */
--};
-+} __packed;
- 
- struct koneplus_sensor {
- 	uint8_t command;  /* KONEPLUS_COMMAND_SENSOR */
- 	uint8_t size; /* always 6 */
- 	uint8_t data[4];
--};
-+} __packed;
- 
- struct koneplus_firmware_write {
- 	uint8_t command; /* KONEPLUS_COMMAND_FIRMWARE_WRITE */
- 	uint8_t unknown[1025];
--};
-+} __packed;
- 
- struct koneplus_firmware_write_control {
- 	uint8_t command; /* KONEPLUS_COMMAND_FIRMWARE_WRITE_CONTROL */
-@@ -123,18 +117,18 @@ struct koneplus_firmware_write_control {
- 	 */
- 	uint8_t value;
- 	uint8_t unknown; /* always 0x75 */
--};
-+} __packed;
- 
- struct koneplus_tcu {
- 	uint16_t usb_command; /* KONEPLUS_USB_COMMAND_TCU */
- 	uint8_t data[2];
--};
-+} __packed;
- 
- struct koneplus_tcu_image {
- 	uint16_t usb_command; /* KONEPLUS_USB_COMMAND_TCU */
- 	uint8_t data[1024];
- 	uint16_t checksum;
--};
-+} __packed;
- 
- enum koneplus_commands {
- 	KONEPLUS_COMMAND_CONTROL = 0x4,
-@@ -177,7 +171,7 @@ struct koneplus_mouse_report_button {
- 	uint8_t data2;
- 	uint8_t zero2;
- 	uint8_t unknown[2];
--};
-+} __packed;
- 
- enum koneplus_mouse_report_button_types {
- 	/* data1 = new profile range 1-5 */
-@@ -211,9 +205,7 @@ struct koneplus_roccat_report {
- 	uint8_t data1;
- 	uint8_t data2;
- 	uint8_t profile;
--};
--
--#pragma pack(pop)
-+} __packed;
- 
- struct koneplus_device {
- 	int actual_profile;
-diff --git a/drivers/hid/hid-roccat-pyra.h b/drivers/hid/hid-roccat-pyra.h
-index ac5996e..4ab506f 100644
---- a/drivers/hid/hid-roccat-pyra.h
-+++ b/drivers/hid/hid-roccat-pyra.h
-@@ -14,17 +14,11 @@
- 
- #include <linux/types.h>
- 
--/*
-- * Binary data structures used for hardware communication must have no padding.
-- */
--#pragma pack(push)
--#pragma pack(1)
--
- struct pyra_b {
- 	uint8_t command; /* PYRA_COMMAND_B */
- 	uint8_t size; /* always 3 */
- 	uint8_t unknown; /* 1 */
--};
-+} __packed;
- 
- struct pyra_control {
- 	uint8_t command; /* PYRA_COMMAND_CONTROL */
-@@ -34,7 +28,7 @@ struct pyra_control {
- 	 */
- 	uint8_t value; /* Range 0-4 */
- 	uint8_t request;
--};
-+} __packed;
- 
- enum pyra_control_requests {
- 	PYRA_CONTROL_REQUEST_STATUS = 0x00,
-@@ -46,7 +40,7 @@ struct pyra_settings {
- 	uint8_t command; /* PYRA_COMMAND_SETTINGS */
- 	uint8_t size; /* always 3 */
- 	uint8_t startup_profile; /* Range 0-4! */
--};
-+} __packed;
- 
- struct pyra_profile_settings {
- 	uint8_t command; /* PYRA_COMMAND_PROFILE_SETTINGS */
-@@ -61,7 +55,7 @@ struct pyra_profile_settings {
- 	uint8_t light_effect;
- 	uint8_t handedness;
- 	uint16_t checksum; /* byte sum */
--};
-+} __packed;
- 
- struct pyra_profile_buttons {
- 	uint8_t command; /* PYRA_COMMAND_PROFILE_BUTTONS */
-@@ -69,7 +63,7 @@ struct pyra_profile_buttons {
- 	uint8_t number; /* Range 0-4 */
- 	uint8_t buttons[14];
- 	uint16_t checksum; /* byte sum */
--};
-+} __packed;
- 
- struct pyra_info {
- 	uint8_t command; /* PYRA_COMMAND_INFO */
-@@ -78,7 +72,7 @@ struct pyra_info {
- 	uint8_t unknown1; /* always 0 */
- 	uint8_t unknown2; /* always 1 */
- 	uint8_t unknown3; /* always 0 */
--};
-+} __packed;
- 
- enum pyra_commands {
- 	PYRA_COMMAND_CONTROL = 0x4,
-@@ -110,13 +104,13 @@ struct pyra_mouse_event_button {
- 	uint8_t type;
- 	uint8_t data1;
- 	uint8_t data2;
--};
-+} __packed;
- 
- struct pyra_mouse_event_audio {
- 	uint8_t report_number; /* always 2 */
- 	uint8_t type;
- 	uint8_t unused; /* always 0 */
--};
-+} __packed;
- 
- /* hid audio controls */
- enum pyra_mouse_event_audio_types {
-@@ -170,9 +164,7 @@ struct pyra_roccat_report {
- 	uint8_t type;
- 	uint8_t value;
- 	uint8_t key;
--};
--
--#pragma pack(pop)
-+} __packed;
- 
- struct pyra_device {
- 	int actual_profile;
+Hmm, this is weird. According to my data:
+
+>> Treat it as a two-bit field.
+>>   0x00 == not a clickpad
+>>   0x01 == 1 button clickpad
+>>   0x02 == 2 button clickpad
+>>   0x03 == reserved
+
+Moreover, Takashi's HP returns 0x5a 0x04 0x00 in response to 0x0c query
+and _is_ a clickpad.
+
+Christopher, was there any more updates to the protocol by any chance?
+
+> 
+> This patch fixed this issue by checking both sign bits are 1. Tested
+> on my S10-3t and worked well.
+> 
+> Signed-off-by: Yan Li <yan.i.li@intel.com>
+> ---
+>  drivers/input/mouse/synaptics.h |    6 +++++-
+>  1 files changed, 5 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+> index 613a365..0c1083c 100644
+> --- a/drivers/input/mouse/synaptics.h
+> +++ b/drivers/input/mouse/synaptics.h
+> @@ -51,7 +51,11 @@
+>  #define SYN_EXT_CAP_REQUESTS(c)		(((c) & 0x700000) >> 20)
+>  #define SYN_CAP_MULTI_BUTTON_NO(ec)	(((ec) & 0x00f000) >> 12)
+>  #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
+> -#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100)
+> +/* Synaptics' ClickPad has both 8th and 20th bits set in the 0x0c
+> + * cap. Other models (like those shipped with Lenovo S10-3t) may have
+> + * either one of them set but not both, and they are *not* ClickPad
+> + * although they look similar. */
+> +#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100 == 0x100100)
+
+In C comparison operators have higher precedence than bitwise ones. Your
+expression reduces to ((ex0c) & 1) which is not correct. The proper
+expression would be:
+
+#define SYN_CAP_CLICKPAD(ex0c)		(((ex0c) & 0x100100) == 0x100100)
+
+but it really contradicts the data I have...
+
+Thanks.
+
 -- 
-1.7.2.3
+Dmitry

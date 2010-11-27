@@ -1,37 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
- joystick driver
-Date: Sat, 27 Nov 2010 00:19:00 -0800
-Message-ID: <20101127081900.GE28667@core.coreip.homeip.net>
-References: <4CEBED7E.7010101@armadeus.com>
- <20101124195523.GF27368@core.coreip.homeip.net>
- <4CEE3632.6020502@armadeus.com>
+Subject: Re: [PATCH] input/tc3589x: add support for tc3589x driver
+Date: Sat, 27 Nov 2010 00:26:14 -0800
+Message-ID: <20101127082614.GG28667@core.coreip.homeip.net>
+References: <1290783913-30728-1-git-send-email-sundar.iyer@stericsson.com>
+ <33A307AF30D7BF4F811B1568FE7A9B1804713A917E@EXDCVYMBSTM006.EQ1STM.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:41252 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:55661 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751076Ab0K0ITH (ORCPT
+	with ESMTP id S1751449Ab0K0I0V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Nov 2010 03:19:07 -0500
+	Sat, 27 Nov 2010 03:26:21 -0500
+Received: by iwn35 with SMTP id 35so345651iwn.19
+        for <linux-input@vger.kernel.org>; Sat, 27 Nov 2010 00:26:21 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <4CEE3632.6020502@armadeus.com>
+In-Reply-To: <33A307AF30D7BF4F811B1568FE7A9B1804713A917E@EXDCVYMBSTM006.EQ1STM.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabien Marteau <fabien.marteau@armadeus.com>
-Cc: Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sundar R IYER <sundar.iyer@stericsson.com>
+Cc: "ken.lierman@windriver.com" <ken.lierman@windriver.com>, "alan@linux.intel.com" <alan@linux.intel.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, Rabin VINCENT <rabin.vincent@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Nov 25, 2010 at 11:10:58AM +0100, Fabien Marteau wrote:
-> > 
-> > Just why does it have to be separately allocated? I'd even stick with
-> > "as5011" for all IRQ names.
+Hi Sundar,
+
+On Fri, Nov 26, 2010 at 04:11:05PM +0100, Sundar R IYER wrote:
+> Hi Ken/Dmitry and all,
 > 
-> I thought that irq name should be different for each IRQ used under device and
-> for each device used in system. I can use the same irq name if I've got several
-> as5011 joystick in the same system ?
+> This is the preliminary patch which I have got the TC35893 keypad working
+> plugged in as a MFD client.
+> 
+> The MFD functions which are tc3589x_* are a find-replace for the tc35892
+> functions in the existing MFD driver. Also added are a few definitions for
+> the keypad platform data. I (realize now :() will also send out this patch too
+> for reference.
+> 
+> This is just a as-is driver migrated from our internal driver for the TC35893
+> standalone keypad driver; I may have missed removing redundant and legacy
+> code yet; but this is for Ken and Co. as a TC35893(x) plugged into the MFD.
+> 
 
-No, it's just a tag shown in /proc/interrupts and a few other places.
-Simply a driver name would work splendidly.
+The driver looks very reasonably with the exception of enable/disable
+sysfs attribute and its handling. As I mentioned in few other threads we
+can't keep adding custom PM methods to the drivers; instead we need to
+move this functionality into PM/driver core and allow userspace
+accelerate putting devices into low power state.
+
+BTW, I think spotted a few instances of space vs tab indentation and a
+few pointless casts from (void *).
 
 Thanks.
 

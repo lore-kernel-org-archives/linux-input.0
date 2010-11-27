@@ -1,61 +1,62 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Fri, 26 Nov 2010 17:02:05 -0600
-Message-ID: <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com>
-References: <4CEE6D2A.9040408@euromail.se>
-	<4CEE6EE8.4060805@gmail.com>
+From: Yan Li <yan.i.li@intel.com>
+Subject: [PATCH] Input: Lenovo S10-3t's touchpad support
+Date: Sat, 27 Nov 2010 11:56:59 +0800
+Message-ID: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:44965 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751625Ab0KZXCG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Nov 2010 18:02:06 -0500
-Received: by ywl5 with SMTP id 5so1155627ywl.19
-        for <linux-input@vger.kernel.org>; Fri, 26 Nov 2010 15:02:05 -0800 (PST)
-In-Reply-To: <4CEE6EE8.4060805@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, jian-feng.ding@intel.com, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, meego-kernel@lists.meego.com
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
 
-On Thu, Nov 25, 2010 at 8:12 AM, Nikolai Kondrashov <spbnick@gmail.com>=
- wrote:
-> On 11/25/2010 05:05 PM, Henrik Rydberg wrote:
->>
->> =A0 =A0 =A0 =A0__u32 =A0 phys_abs_width; =A0 =A0 =A0 =A0 /* physical=
- width of surface (mm)
->> */
->> =A0 =A0 =A0 =A0__u32 =A0 phys_abs_height; =A0 =A0 =A0 =A0/* physical=
- height of surface (mm)
->> */
->
-> This is better and is already covered by input_absinfo.
-> You could calculate it with (maximum - minimum) / resolution.
+This is for kernel bug #18122 and MeeGo bug #4807.
 
-On this topic.  I'd like to start reporting resolution for a few wacom
-devices.
+Current code detects Clickpad by checking the 8 and 20 bits of 0x0c
+cap. However, the code returns true if either of those bits is 1,
+while it should only return true when both are 1. This has lead to the
+touchpad on Lenovo S10-3t be mistakenly recognized as Clickpad and its
+BTN_LEFT and BTN_RIGHT blocked.
 
-When I looked at input_absinfo.resolution, I see only synaptics.c is
-using it right now and it is defined using units/mm.  Currently, this
-makes it up to xf86-input-synaptics were X is fed this value after
-converting to units/meter.  Thats my intended usage as well.
+So far we've found that the S10-3ts are shipped with two slightly
+different models of touchpads, of which the 0x0c cap is either
+0x5a0400 or 0x4a0500. They are not Clickpad and return BTN_LEFT and
+BTN_RIGHT normally.
 
-I'm more used to values in inches (lpi) or at least something higher
-then mm.  If I converted my lpi to mm for resolution I'd lose some
-accuracy.
+This patch fixed this issue by checking both sign bits are 1. Tested
+on my S10-3t and worked well.
 
-We could solve that a few ways.  Provide units in input_absinfo,
-convert to units/inch, units/cm or even units/meter, or define
-physical size in mm.
+Signed-off-by: Yan Li <yan.i.li@intel.com>
+---
+ drivers/input/mouse/synaptics.h |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-Any preferences?
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 613a365..0c1083c 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -51,7 +51,11 @@
+ #define SYN_EXT_CAP_REQUESTS(c)		(((c) & 0x700000) >> 20)
+ #define SYN_CAP_MULTI_BUTTON_NO(ec)	(((ec) & 0x00f000) >> 12)
+ #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
+-#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100)
++/* Synaptics' ClickPad has both 8th and 20th bits set in the 0x0c
++ * cap. Other models (like those shipped with Lenovo S10-3t) may have
++ * either one of them set but not both, and they are *not* ClickPad
++ * although they look similar. */
++#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100 == 0x100100)
+ #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
+ 
+ /* synaptics modes query bits */
+-- 
+1.7.2.3
 
-Chris
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Best regards,
+Li, Yan
+
+MeeGo Team, Opensource Technology Center, SSG, Intel
+Office tel.: +86-10-82171695 (inet: 8-758-1695)
+OpenPGP key: 5C6C31EF
+IRC: yanli on network irc.freenode.net

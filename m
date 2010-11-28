@@ -1,38 +1,64 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Sun, 28 Nov 2010 09:28:15 +0100
-Message-ID: <4CF2129F.40301@euromail.se>
-References: <4CEE6D2A.9040408@euromail.se> <4CEE6EE8.4060805@gmail.com> <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com> <4CF0BC13.2010800@gmail.com> <20101127083229.GA28745@core.coreip.homeip.net> <4CF0C69D.9080904@gmail.com> <20101127091533.GA27213@core.coreip.homeip.net> <4CF0D35B.4030807@gmail.com> <20101127233901.GA29981@core.coreip.homeip.net> <20101128080110.GD14499@core.coreip.homeip.net>
+From: Boris Savelev <boris.savelev@gmail.com>
+Subject: Re: keyboard doesn't work with acpi on lenovo s10-3c
+Date: Sun, 28 Nov 2010 11:30:58 +0300
+Message-ID: <AANLkTikagjOqgTSZjKPvgyR-73PJqgi2YiE5HmWKPP9+@mail.gmail.com>
+References: <AANLkTimZxNOuuK2+uEUF_RbHus1dgFRA6usMuYzrGjoD@mail.gmail.com> <20101128000648.GC29981@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:35191 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751720Ab0K1I3b (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Nov 2010 03:29:31 -0500
-In-Reply-To: <20101128080110.GD14499@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20101128000648.GC29981@core.coreip.homeip.net>
+Sender: linux-acpi-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nikolai Kondrashov <spbnick@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+
+Thanks for reply Dmitry!
+
+2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi Boris,
+>
+> On Sat, Nov 27, 2010 at 08:28:51PM +0300, Boris Savelev wrote:
+>> Hello!
+>>
+>> When I run linux on my netbook lenovo s10-3c -- keyboard doesn't wor=
+k!
+>> keyboard works perfectly in bios, in grub (or lilo), in windows, but
+>> not in linux.
+>> I try linux kernel 2.6.35, 2.6.36, 2.6.37-rc2 -- no way. keyboard do=
+esn't work
+>> I upgrade BIOS up to 3CCN13WW. keyboard doesn't work
+>> All keys are disabled, numlock, capslock... It's seems like keyboard
+>> haven't power.
+>> with Google I find topic [1] where solution is add to kernel opts
+>> 'noapic acpi=3Doff' -- Viola! keyboard work. But battery state,
+>> powersaving, powerbutton and other usefull things doesn't work.
+>> So this is not a workaround...
+>
+> The keyboard seems to get detected but is silent afterwards... =A0Doe=
+s the
+> touchpad work by default?
+
+Touchpad always work.
 
 >
+> Could you try a few kernel options: acpi=3Dnoirq, pci=3Dnoacpi, i8042=
+=2Ereset
+> and i8042.nomux please?
 
-> How about the following?
-> 
+acpi=3Dnoirq -- kernel panic
+pci=3Dnoacpi -- kernel panic
+i8042.reset=3D1 -- kbd doesn't work
+i8042.nomux=3D1 -- kbd doesn't work
 
->
-> Input: document struct input_absinfo
->
-> Add documentation for struct input_absinfo that is used in EVIOCGABS
-> and EVIOCSABS ioctl and specify units of measure used for reporting
-> resolution for an axis.
->
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
+combination of these options also doesn't help.
 
-Very nice, thank you.
+Need screenshots of kernel panic?
 
-Acked-by: Henrik Rydberg <rydberg@euromail.se>
+--=20
+Boris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

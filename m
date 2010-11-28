@@ -1,105 +1,49 @@
-From: Boris Savelev <boris.savelev@gmail.com>
-Subject: Re: keyboard doesn't work with acpi on lenovo s10-3c
-Date: Sun, 28 Nov 2010 21:49:31 +0300
-Message-ID: <AANLkTi=dxCgV1wKcpZwCQydrpMYhGVfiJWyV-5x9o0dt@mail.gmail.com>
-References: <AANLkTimZxNOuuK2+uEUF_RbHus1dgFRA6usMuYzrGjoD@mail.gmail.com>
- <20101128000648.GC29981@core.coreip.homeip.net> <AANLkTikagjOqgTSZjKPvgyR-73PJqgi2YiE5HmWKPP9+@mail.gmail.com>
- <20101128090241.GG14499@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
+Date: Sun, 28 Nov 2010 13:47:14 -0800
+Message-ID: <20101128214713.GA10513@core.coreip.homeip.net>
+References: <4CEE6EE8.4060805@gmail.com>
+ <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com>
+ <4CF0BC13.2010800@gmail.com>
+ <20101127083229.GA28745@core.coreip.homeip.net>
+ <4CF0C69D.9080904@gmail.com>
+ <20101127091533.GA27213@core.coreip.homeip.net>
+ <4CF0D35B.4030807@gmail.com>
+ <20101127233901.GA29981@core.coreip.homeip.net>
+ <20101128072256.GC14499@core.coreip.homeip.net>
+ <4CF26DE8.6020006@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:52863 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753866Ab0K1Sty convert rfc822-to-8bit (ORCPT
+Received: from mail-gy0-f194.google.com ([209.85.160.194]:57365 "EHLO
+	mail-gy0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751603Ab0K1VrX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Nov 2010 13:49:54 -0500
-In-Reply-To: <20101128090241.GG14499@core.coreip.homeip.net>
+	Sun, 28 Nov 2010 16:47:23 -0500
+Received: by gyd8 with SMTP id 8so3788459gyd.1
+        for <linux-input@vger.kernel.org>; Sun, 28 Nov 2010 13:47:22 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <4CF26DE8.6020006@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
 
-2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Sun, Nov 28, 2010 at 11:30:58AM +0300, Boris Savelev wrote:
->> Thanks for reply Dmitry!
->>
->> 2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
->> > Hi Boris,
->> >
->> > On Sat, Nov 27, 2010 at 08:28:51PM +0300, Boris Savelev wrote:
->> >> Hello!
->> >>
->> >> When I run linux on my netbook lenovo s10-3c -- keyboard doesn't =
-work!
->> >> keyboard works perfectly in bios, in grub (or lilo), in windows, =
-but
->> >> not in linux.
->> >> I try linux kernel 2.6.35, 2.6.36, 2.6.37-rc2 -- no way. keyboard=
- doesn't work
->> >> I upgrade BIOS up to 3CCN13WW. keyboard doesn't work
->> >> All keys are disabled, numlock, capslock... It's seems like keybo=
-ard
->> >> haven't power.
->> >> with Google I find topic [1] where solution is add to kernel opts
->> >> 'noapic acpi=3Doff' -- Viola! keyboard work. But battery state,
->> >> powersaving, powerbutton and other usefull things doesn't work.
->> >> So this is not a workaround...
->> >
->> > The keyboard seems to get detected but is silent afterwards... =A0=
-Does the
->> > touchpad work by default?
->>
->> Touchpad always work.
->>
->> >
->> > Could you try a few kernel options: acpi=3Dnoirq, pci=3Dnoacpi, i8=
-042.reset
->> > and i8042.nomux please?
->>
->> acpi=3Dnoirq -- kernel panic
->> pci=3Dnoacpi -- kernel panic
->> i8042.reset=3D1 -- kbd doesn't work
->> i8042.nomux=3D1 -- kbd doesn't work
->>
->> combination of these options also doesn't help.
->>
->> Need screenshots of kernel panic?
->
-> Might be interesting but not much.
->
-> If you plug an external USB keyboard and do:
->
-> =A0 =A0 =A0 =A0echo -n "reconnect" > /sys/bus/serio/devices/serio0/dr=
-vctl
->
-> or
->
-> =A0 =A0 =A0 =A0echo -n "rescan" > /sys/bus/serio/devices/serio0/drvct=
-l
->
-> after booting does it revive the keyboard?
+On Sun, Nov 28, 2010 at 05:57:44PM +0300, Nikolai Kondrashov wrote:
+> On 11/28/2010 10:22 AM, Dmitry Torokhov wrote:
+> >Does the following work by any chance?
+> Yes, works perfectly.
+> Thanks for fixing it for me.
+> I understand I was too slow :)
+> 
+> FWIW,
+> Tested-by: Nikolai Kondrashov <spbnick@gmail.com>
+> Acked-by: Nikolai Kondrashov <spbnick@gmail.com>
+> 
 
-I haven't external keyboard. I try to do this with ssh remotly.
-Keyboard doesn't revived-(
+Great, thanks for testing.
 
-> Also, what does /proc/interrupts look like?
+Jiri, will you pick it up for 2.6.37?
 
-Attached to lp bug:
-http://launchpadlibrarian.net/59755127/proc_interrupts_when_kbd_dn_work=
-=2Etxt
--- when keyboard doesn't work
-http://launchpadlibrarian.net/59755166/proc_interrupts_when_kbd_work.tx=
-t
--- when keyboard works
-
-additional info from /proc/cpuinfo
-model name: Intel(R) Atom(TM) CPU N455   @ 1.66GHz
-
---=20
-Boris
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

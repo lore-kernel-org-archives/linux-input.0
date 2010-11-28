@@ -1,34 +1,92 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Sun, 28 Nov 2010 17:57:44 +0300
-Message-ID: <4CF26DE8.6020006@gmail.com>
-References: <4CEE6D2A.9040408@euromail.se> <4CEE6EE8.4060805@gmail.com> <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com> <4CF0BC13.2010800@gmail.com> <20101127083229.GA28745@core.coreip.homeip.net> <4CF0C69D.9080904@gmail.com> <20101127091533.GA27213@core.coreip.homeip.net> <4CF0D35B.4030807@gmail.com> <20101127233901.GA29981@core.coreip.homeip.net> <20101128072256.GC14499@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Researching An Experimental Touchscreen Driver
+Date: Sun, 28 Nov 2010 16:38:57 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1011281637270.981@pobox.suse.cz>
+References: <1290614820.3294.37.camel@bathysphere> <20101127235133.GB29981@core.coreip.homeip.net> <1290911010.1932.9.camel@bathysphere> <20101128030729.GA4795@core.coreip.homeip.net> <20101128063829.GB14499@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:46077 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753123Ab0K1O6I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Nov 2010 09:58:08 -0500
-Received: by ewy5 with SMTP id 5so1568514ewy.19
-        for <linux-input@vger.kernel.org>; Sun, 28 Nov 2010 06:58:07 -0800 (PST)
-In-Reply-To: <20101128072256.GC14499@core.coreip.homeip.net>
+Received: from cantor.suse.de ([195.135.220.2]:36995 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753171Ab0K1PjB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 28 Nov 2010 10:39:01 -0500
+In-Reply-To: <20101128063829.GB14499@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
+Cc: Jeremy Moles <jeremy@emperorlinux.com>, linux-input@vger.kernel.org
 
-On 11/28/2010 10:22 AM, Dmitry Torokhov wrote:
-> Does the following work by any chance?
-Yes, works perfectly.
-Thanks for fixing it for me.
-I understand I was too slow :)
+On Sat, 27 Nov 2010, Dmitry Torokhov wrote:
 
-FWIW,
-Tested-by: Nikolai Kondrashov <spbnick@gmail.com>
-Acked-by: Nikolai Kondrashov <spbnick@gmail.com>
+> On Sat, Nov 27, 2010 at 07:07:29PM -0800, Dmitry Torokhov wrote:
+> > 
+> > You need to make sure you are adding entry to
+> > 
+> > drivers/hid/hid-core.c:static const struct hid_device_id hid_blacklist[]
+> > 
+> > and not to
+> > 
+> > drivers/hid/usbhid/hid-quirks.c:static const struct hid_blacklist
+> > 
+> > Hmm, I wonder if we should rename the first one to something different,
+> > like hid_has_custom_driver. Jiri?
+> > 
+> 
+> Something like this one I guess...
+> 
+> -- 
+> Dmitry
+> 
+> 
+> HID: hid-core - rename hid_blacklist to hid_have_special_driver
+> 
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> To avoid confusion with hid_blacklist describing various quirks in
+> usbhid code, let's rename this one.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+>  drivers/hid/hid-core.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index b133d47..8b421e6 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1230,7 +1230,7 @@ void hid_disconnect(struct hid_device *hdev)
+>  EXPORT_SYMBOL_GPL(hid_disconnect);
+>  
+>  /* a list of devices for which there is a specialized driver on HID bus */
+> -static const struct hid_device_id hid_blacklist[] = {
+> +static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+> @@ -1493,9 +1493,9 @@ static int hid_bus_match(struct device *dev, struct device_driver *drv)
+>  	if (!hid_match_device(hdev, hdrv))
+>  		return 0;
+>  
+> -	/* generic wants all non-blacklisted */
+> +	/* generic wants all that don't have specialized driver */
+>  	if (!strncmp(hdrv->name, "generic-", 8))
+> -		return !hid_match_id(hdev, hid_blacklist);
+> +		return !hid_match_id(hdev, hid_have_special_driver);
+>  
+>  	return 1;
 
-Sincerely,
-Nick
+Hi Dmitry,
+
+yes, this thing definitely needed renaming for quite a some time already.
+
+'hid_have_special_driver' sounds more like a boolean type variable to me, 
+but I wasn't able to come up with anything better after thinking about it 
+for a few seconds :) so I have applied your version.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Sat, 27 Nov 2010 23:22:56 -0800
-Message-ID: <20101128072256.GC14499@core.coreip.homeip.net>
+Date: Sun, 28 Nov 2010 00:01:10 -0800
+Message-ID: <20101128080110.GD14499@core.coreip.homeip.net>
 References: <4CEE6D2A.9040408@euromail.se>
  <4CEE6EE8.4060805@gmail.com>
  <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com>
@@ -14,13 +14,13 @@ References: <4CEE6D2A.9040408@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:54026 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751716Ab0K1HXF (ORCPT
+Received: from mail-iw0-f194.google.com ([209.85.214.194]:46634 "EHLO
+	mail-iw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751708Ab0K1IBR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Nov 2010 02:23:05 -0500
-Received: by yxt3 with SMTP id 3so1020629yxt.19
-        for <linux-input@vger.kernel.org>; Sat, 27 Nov 2010 23:23:03 -0800 (PST)
+	Sun, 28 Nov 2010 03:01:17 -0500
+Received: by iwn7 with SMTP id 7so643525iwn.1
+        for <linux-input@vger.kernel.org>; Sun, 28 Nov 2010 00:01:16 -0800 (PST)
 Content-Disposition: inline
 In-Reply-To: <20101127233901.GA29981@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
@@ -49,64 +49,64 @@ On Sat, Nov 27, 2010 at 03:39:02PM -0800, Dmitry Torokhov wrote:
 > 
 > Yes, I believe it does.
 > 
+> > Also, what do you think about units per radians for rotational axis?
+> 
 
-Does the following work by any chance?
-
-Thanks.
+How about the following?
 
 -- 
 Dmitry
 
 
-HID: length resolution should be reported units/mm
+Input: document struct input_absinfo
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Input ABI requires reporting resolution on main axes in units per
-millimeter, not units per inch, so we need to convert accordingly.
+Add documentation for struct input_absinfo that is used in EVIOCGABS
+and EVIOCSABS ioctl and specify units of measure used for reporting
+resolution for an axis.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/hid/hid-input.c |   19 +++++++++++--------
- 1 files changed, 11 insertions(+), 8 deletions(-)
+ include/linux/input.h |   21 ++++++++++++++++++++-
+ 1 files changed, 20 insertions(+), 1 deletions(-)
 
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index c9c90de..5cde845 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -203,8 +203,8 @@ static int hidinput_setkeycode(struct input_dev *dev,
-  *
-  * as seen in the HID specification v1.11 6.2.2.7 Global Items.
-  *
-- * Only exponent 1 length units are processed. Centimeters are converted to
-- * inches. Degrees are converted to radians.
-+ * Only exponent 1 length units are processed. Centimeters and inches are
-+ * converted to millimeters. Degrees are converted to radians.
-  */
- static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- {
-@@ -225,13 +225,16 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	 */
- 	if (code == ABS_X || code == ABS_Y || code == ABS_Z) {
- 		if (field->unit == 0x11) {		/* If centimeters */
--			/* Convert to inches */
--			prev = logical_extents;
--			logical_extents *= 254;
--			if (logical_extents < prev)
-+			/* Convert to millimeters */
-+			unit_exponent += 1;
-+		} else if (field->unit == 0x13) {	/* If inches */
-+			/* Convert to millimeters */
-+			prev = physical_extents;
-+			physical_extents *= 254;
-+			if (physical_extents < prev)
- 				return 0;
--			unit_exponent += 2;
--		} else if (field->unit != 0x13) {	/* If not inches */
-+			unit_exponent -= 1;
-+		} else {
- 			return 0;
- 		}
- 	} else if (code == ABS_RX || code == ABS_RY || code == ABS_RZ) {
+diff --git a/include/linux/input.h b/include/linux/input.h
+index a50046f..a8af21d 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -47,6 +47,25 @@ struct input_id {
+ 	__u16 version;
+ };
+ 
++/**
++ * struct input_absinfo - used by EVIOCGABS/EVIOCSABS ioctls
++ * @value: latest reported value for the axis.
++ * @minimum: specifies minimum value for the axis.
++ * @maximum: specifies maximum value for the axis.
++ * @fuzz: specifies fuzz value that is used to filter noise from
++ *	the event stream.
++ * @flat: values that are within this value will be discarded by
++ *	joydev interface and reported as 0 instead.
++ * @resolution: specifies resolution for the values reported for
++ *	the axis.
++ *
++ * Note that input core does not clamp reported values to the
++ * [minimum, maximum] limits, such task is left to userspace.
++ *
++ * Resolution for main axes (ABS_X, ABS_Y, ABS_Z) is reported in
++ * units per millimeter (units/mm), resolution for rotational axes
++ * (ABS_RX, ABS_RY, ABS_RZ) is reported in units per radian.
++ */
+ struct input_absinfo {
+ 	__s32 value;
+ 	__s32 minimum;
+@@ -1134,7 +1153,7 @@ struct input_mt_slot {
+  *	of tracked contacts
+  * @mtsize: number of MT slots the device uses
+  * @slot: MT slot currently being transmitted
+- * @absinfo: array of &struct absinfo elements holding information
++ * @absinfo: array of &struct input_absinfo elements holding information
+  *	about absolute axes (current value, min, max, flat, fuzz,
+  *	resolution)
+  * @key: reflects current state of device's keys/buttons

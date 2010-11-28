@@ -1,25 +1,44 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
-Date: Sun, 28 Nov 2010 13:14:40 +0300
-Message-ID: <4CF22B90.3080508@gmail.com>
-References: <4CEE6D2A.9040408@euromail.se> <4CEE6EE8.4060805@gmail.com> <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com> <4CF0BC13.2010800@gmail.com> <20101127083229.GA28745@core.coreip.homeip.net> <4CF0C69D.9080904@gmail.com> <20101127091533.GA27213@core.coreip.homeip.net> <4CF0D35B.4030807@gmail.com> <20101127233901.GA29981@core.coreip.homeip.net> <20101128080110.GD14499@core.coreip.homeip.net>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Input event for blocking touchpad
+Date: Sun, 28 Nov 2010 14:38:44 +0000
+Message-ID: <1290955125.819.4.camel@novo.hadess.net>
+References: <20101126211056.GD3819@barata.holoscopio.com>
+	 <20101128080743.GE14499@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:54978 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750982Ab0K1KPE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Nov 2010 05:15:04 -0500
-Received: by eye27 with SMTP id 27so1500152eye.19
-        for <linux-input@vger.kernel.org>; Sun, 28 Nov 2010 02:15:02 -0800 (PST)
-In-Reply-To: <20101128080110.GD14499@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20101128080743.GE14499@core.coreip.homeip.net>
+Sender: linux-acpi-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On 11/28/2010 11:01 AM, Dmitry Torokhov wrote:
-> How about the following?
-Very good, thanks :)
+On Sun, 2010-11-28 at 00:07 -0800, Dmitry Torokhov wrote:
+> On Fri, Nov 26, 2010 at 07:10:57PM -0200, Thadeu Lima de Souza Cascardo wrote:
+> > Hello,
+> > 
+> > I have a notebook with an ACPI system that notifies about the pressing
+> > of the key for blocking touchpad. However, it does not notify it by
+> > itself. I was considering sending the event to userspace and let it does
+> > the blocking.
+> > 
+> > Since other keys are also notified by this same ACPI object, it's even
+> > more natural that I use an input device to send this to userspace.
+> > 
+> > The problem is: there seems to be no event to represent this. Any
+> > suggestions?
+> > 
+> 
+> I have the patch below from Bastien that I will be queueing shortly.
+
+Note that KEY_TOUCHPAD_{ON,OFF} are for when:
+1) Your touchpad disables in hardware
+2) You can know for certain the status of the device
+
+You'll need to use KEY_TOUCHPAD_TOGGLE in your patch (and make changes
+to udev's keyboard remap scripts to map KEY_TOUCHPAD_TOGGLE to F21 until
+X can get access to those keycodes.
+
+Cheers
+

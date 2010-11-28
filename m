@@ -1,84 +1,112 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Researching An Experimental Touchscreen Driver
-Date: Sat, 27 Nov 2010 22:38:30 -0800
-Message-ID: <20101128063829.GB14499@core.coreip.homeip.net>
-References: <1290614820.3294.37.camel@bathysphere>
- <20101127235133.GB29981@core.coreip.homeip.net>
- <1290911010.1932.9.camel@bathysphere>
- <20101128030729.GA4795@core.coreip.homeip.net>
+Subject: Re: [RFC] Adding BTN_TOOL_TOUCH to input.h
+Date: Sat, 27 Nov 2010 23:22:56 -0800
+Message-ID: <20101128072256.GC14499@core.coreip.homeip.net>
+References: <4CEE6D2A.9040408@euromail.se>
+ <4CEE6EE8.4060805@gmail.com>
+ <AANLkTim3D0w5DzmKU6wckxJT3HeHK8eoMO1Zge1zOWOE@mail.gmail.com>
+ <4CF0BC13.2010800@gmail.com>
+ <20101127083229.GA28745@core.coreip.homeip.net>
+ <4CF0C69D.9080904@gmail.com>
+ <20101127091533.GA27213@core.coreip.homeip.net>
+ <4CF0D35B.4030807@gmail.com>
+ <20101127233901.GA29981@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f194.google.com ([209.85.214.194]:45335 "EHLO
-	mail-iw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750947Ab0K1Gih (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:54026 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751716Ab0K1HXF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Nov 2010 01:38:37 -0500
-Received: by iwn7 with SMTP id 7so621409iwn.1
-        for <linux-input@vger.kernel.org>; Sat, 27 Nov 2010 22:38:36 -0800 (PST)
+	Sun, 28 Nov 2010 02:23:05 -0500
+Received: by yxt3 with SMTP id 3so1020629yxt.19
+        for <linux-input@vger.kernel.org>; Sat, 27 Nov 2010 23:23:03 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20101128030729.GA4795@core.coreip.homeip.net>
+In-Reply-To: <20101127233901.GA29981@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeremy Moles <jeremy@emperorlinux.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suze.cz>
 
-On Sat, Nov 27, 2010 at 07:07:29PM -0800, Dmitry Torokhov wrote:
+On Sat, Nov 27, 2010 at 03:39:02PM -0800, Dmitry Torokhov wrote:
+> On Sat, Nov 27, 2010 at 12:46:03PM +0300, Nikolai Kondrashov wrote:
+> > On 11/27/2010 12:15 PM, Dmitry Torokhov wrote:
+> > >2000LPI == about 79 l/mm. How is it not useable?
+> > TBH, I didn't make any real calculations.
+> > The introduced error isn't very high, indeed. The vertical size of 4x3 inch
+> > tablet becomes 75 mm instead of 76 mm. So maybe it's alright.
+> > 
+> > >In mainline synaptics is the only one that does this. We do not know how
+> > >many drivers in vendor trees fill and use this data nor we do not know
+> > >about userspace. The fact that we were not able to locate them does not
+> > >mean they do not exist. The units/mm are part of input ABI now.
+> > Well, I can't argue with you here.
+> > I didn't think about 3rd party drivers, TBH.
+> > 
+> > >Right, standarize on existing UOM (which are per/mm) and then implement
+> > >other UOM if theya re really needed.
+> > Will this fix qualify for inclusion into 2.6.37?
 > 
-> You need to make sure you are adding entry to
-> 
-> drivers/hid/hid-core.c:static const struct hid_device_id hid_blacklist[]
-> 
-> and not to
-> 
-> drivers/hid/usbhid/hid-quirks.c:static const struct hid_blacklist
-> 
-> Hmm, I wonder if we should rename the first one to something different,
-> like hid_has_custom_driver. Jiri?
+> Yes, I believe it does.
 > 
 
-Something like this one I guess...
+Does the following work by any chance?
+
+Thanks.
 
 -- 
 Dmitry
 
 
-HID: hid-core - rename hid_blacklist to hid_have_special_driver
+HID: length resolution should be reported units/mm
 
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-To avoid confusion with hid_blacklist describing various quirks in
-usbhid code, let's rename this one.
+Input ABI requires reporting resolution on main axes in units per
+millimeter, not units per inch, so we need to convert accordingly.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/hid/hid-core.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-input.c |   19 +++++++++++--------
+ 1 files changed, 11 insertions(+), 8 deletions(-)
 
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index b133d47..8b421e6 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1230,7 +1230,7 @@ void hid_disconnect(struct hid_device *hdev)
- EXPORT_SYMBOL_GPL(hid_disconnect);
- 
- /* a list of devices for which there is a specialized driver on HID bus */
--static const struct hid_device_id hid_blacklist[] = {
-+static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
-@@ -1493,9 +1493,9 @@ static int hid_bus_match(struct device *dev, struct device_driver *drv)
- 	if (!hid_match_device(hdev, hdrv))
- 		return 0;
- 
--	/* generic wants all non-blacklisted */
-+	/* generic wants all that don't have specialized driver */
- 	if (!strncmp(hdrv->name, "generic-", 8))
--		return !hid_match_id(hdev, hid_blacklist);
-+		return !hid_match_id(hdev, hid_have_special_driver);
- 
- 	return 1;
- }
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index c9c90de..5cde845 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -203,8 +203,8 @@ static int hidinput_setkeycode(struct input_dev *dev,
+  *
+  * as seen in the HID specification v1.11 6.2.2.7 Global Items.
+  *
+- * Only exponent 1 length units are processed. Centimeters are converted to
+- * inches. Degrees are converted to radians.
++ * Only exponent 1 length units are processed. Centimeters and inches are
++ * converted to millimeters. Degrees are converted to radians.
+  */
+ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ {
+@@ -225,13 +225,16 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ 	 */
+ 	if (code == ABS_X || code == ABS_Y || code == ABS_Z) {
+ 		if (field->unit == 0x11) {		/* If centimeters */
+-			/* Convert to inches */
+-			prev = logical_extents;
+-			logical_extents *= 254;
+-			if (logical_extents < prev)
++			/* Convert to millimeters */
++			unit_exponent += 1;
++		} else if (field->unit == 0x13) {	/* If inches */
++			/* Convert to millimeters */
++			prev = physical_extents;
++			physical_extents *= 254;
++			if (physical_extents < prev)
+ 				return 0;
+-			unit_exponent += 2;
+-		} else if (field->unit != 0x13) {	/* If not inches */
++			unit_exponent -= 1;
++		} else {
+ 			return 0;
+ 		}
+ 	} else if (code == ABS_RX || code == ABS_RY || code == ABS_RZ) {

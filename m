@@ -1,92 +1,105 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Researching An Experimental Touchscreen Driver
-Date: Sun, 28 Nov 2010 16:38:57 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1011281637270.981@pobox.suse.cz>
-References: <1290614820.3294.37.camel@bathysphere> <20101127235133.GB29981@core.coreip.homeip.net> <1290911010.1932.9.camel@bathysphere> <20101128030729.GA4795@core.coreip.homeip.net> <20101128063829.GB14499@core.coreip.homeip.net>
+From: Boris Savelev <boris.savelev@gmail.com>
+Subject: Re: keyboard doesn't work with acpi on lenovo s10-3c
+Date: Sun, 28 Nov 2010 21:49:31 +0300
+Message-ID: <AANLkTi=dxCgV1wKcpZwCQydrpMYhGVfiJWyV-5x9o0dt@mail.gmail.com>
+References: <AANLkTimZxNOuuK2+uEUF_RbHus1dgFRA6usMuYzrGjoD@mail.gmail.com>
+ <20101128000648.GC29981@core.coreip.homeip.net> <AANLkTikagjOqgTSZjKPvgyR-73PJqgi2YiE5HmWKPP9+@mail.gmail.com>
+ <20101128090241.GG14499@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:36995 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753171Ab0K1PjB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Nov 2010 10:39:01 -0500
-In-Reply-To: <20101128063829.GB14499@core.coreip.homeip.net>
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:52863 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753866Ab0K1Sty convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 28 Nov 2010 13:49:54 -0500
+In-Reply-To: <20101128090241.GG14499@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jeremy Moles <jeremy@emperorlinux.com>, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
 
-On Sat, 27 Nov 2010, Dmitry Torokhov wrote:
+2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Sun, Nov 28, 2010 at 11:30:58AM +0300, Boris Savelev wrote:
+>> Thanks for reply Dmitry!
+>>
+>> 2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>> > Hi Boris,
+>> >
+>> > On Sat, Nov 27, 2010 at 08:28:51PM +0300, Boris Savelev wrote:
+>> >> Hello!
+>> >>
+>> >> When I run linux on my netbook lenovo s10-3c -- keyboard doesn't =
+work!
+>> >> keyboard works perfectly in bios, in grub (or lilo), in windows, =
+but
+>> >> not in linux.
+>> >> I try linux kernel 2.6.35, 2.6.36, 2.6.37-rc2 -- no way. keyboard=
+ doesn't work
+>> >> I upgrade BIOS up to 3CCN13WW. keyboard doesn't work
+>> >> All keys are disabled, numlock, capslock... It's seems like keybo=
+ard
+>> >> haven't power.
+>> >> with Google I find topic [1] where solution is add to kernel opts
+>> >> 'noapic acpi=3Doff' -- Viola! keyboard work. But battery state,
+>> >> powersaving, powerbutton and other usefull things doesn't work.
+>> >> So this is not a workaround...
+>> >
+>> > The keyboard seems to get detected but is silent afterwards... =A0=
+Does the
+>> > touchpad work by default?
+>>
+>> Touchpad always work.
+>>
+>> >
+>> > Could you try a few kernel options: acpi=3Dnoirq, pci=3Dnoacpi, i8=
+042.reset
+>> > and i8042.nomux please?
+>>
+>> acpi=3Dnoirq -- kernel panic
+>> pci=3Dnoacpi -- kernel panic
+>> i8042.reset=3D1 -- kbd doesn't work
+>> i8042.nomux=3D1 -- kbd doesn't work
+>>
+>> combination of these options also doesn't help.
+>>
+>> Need screenshots of kernel panic?
+>
+> Might be interesting but not much.
+>
+> If you plug an external USB keyboard and do:
+>
+> =A0 =A0 =A0 =A0echo -n "reconnect" > /sys/bus/serio/devices/serio0/dr=
+vctl
+>
+> or
+>
+> =A0 =A0 =A0 =A0echo -n "rescan" > /sys/bus/serio/devices/serio0/drvct=
+l
+>
+> after booting does it revive the keyboard?
 
-> On Sat, Nov 27, 2010 at 07:07:29PM -0800, Dmitry Torokhov wrote:
-> > 
-> > You need to make sure you are adding entry to
-> > 
-> > drivers/hid/hid-core.c:static const struct hid_device_id hid_blacklist[]
-> > 
-> > and not to
-> > 
-> > drivers/hid/usbhid/hid-quirks.c:static const struct hid_blacklist
-> > 
-> > Hmm, I wonder if we should rename the first one to something different,
-> > like hid_has_custom_driver. Jiri?
-> > 
-> 
-> Something like this one I guess...
-> 
-> -- 
-> Dmitry
-> 
-> 
-> HID: hid-core - rename hid_blacklist to hid_have_special_driver
-> 
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> To avoid confusion with hid_blacklist describing various quirks in
-> usbhid code, let's rename this one.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/hid/hid-core.c |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index b133d47..8b421e6 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1230,7 +1230,7 @@ void hid_disconnect(struct hid_device *hdev)
->  EXPORT_SYMBOL_GPL(hid_disconnect);
->  
->  /* a list of devices for which there is a specialized driver on HID bus */
-> -static const struct hid_device_id hid_blacklist[] = {
-> +static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
-> @@ -1493,9 +1493,9 @@ static int hid_bus_match(struct device *dev, struct device_driver *drv)
->  	if (!hid_match_device(hdev, hdrv))
->  		return 0;
->  
-> -	/* generic wants all non-blacklisted */
-> +	/* generic wants all that don't have specialized driver */
->  	if (!strncmp(hdrv->name, "generic-", 8))
-> -		return !hid_match_id(hdev, hid_blacklist);
-> +		return !hid_match_id(hdev, hid_have_special_driver);
->  
->  	return 1;
+I haven't external keyboard. I try to do this with ssh remotly.
+Keyboard doesn't revived-(
 
-Hi Dmitry,
+> Also, what does /proc/interrupts look like?
 
-yes, this thing definitely needed renaming for quite a some time already.
+Attached to lp bug:
+http://launchpadlibrarian.net/59755127/proc_interrupts_when_kbd_dn_work=
+=2Etxt
+-- when keyboard doesn't work
+http://launchpadlibrarian.net/59755166/proc_interrupts_when_kbd_work.tx=
+t
+-- when keyboard works
 
-'hid_have_special_driver' sounds more like a boolean type variable to me, 
-but I wasn't able to come up with anything better after thinking about it 
-for a few seconds :) so I have applied your version.
+additional info from /proc/cpuinfo
+model name: Intel(R) Atom(TM) CPU N455   @ 1.66GHz
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+--=20
+Boris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

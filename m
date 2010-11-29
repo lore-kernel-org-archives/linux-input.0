@@ -1,71 +1,82 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] input: mt: Add pressure to pointer emulation code
-Date: Mon, 29 Nov 2010 01:47:15 -0800
-Message-ID: <20101129094715.GA9303@core.coreip.homeip.net>
-References: <1291014802-17061-1-git-send-email-rydberg@euromail.se>
- <1291014802-17061-5-git-send-email-rydberg@euromail.se>
+From: Yan I Li <yan.i.li@intel.com>
+Subject: Re: [PATCH] Input: Lenovo S10-3t's touchpad support
+Date: Mon, 29 Nov 2010 16:53:11 +0800
+Message-ID: <1291020791.1338.13.camel@yli107-mobl.ccr.corp.intel.com>
+References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
+	<20101127075528.GA28667@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:44674 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751918Ab0K2JrX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Nov 2010 04:47:23 -0500
-Content-Disposition: inline
-In-Reply-To: <1291014802-17061-5-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <meego-kernel-bounces@lists.meego.com>
+In-Reply-To: <20101127075528.GA28667@core.coreip.homeip.net>
+List-Unsubscribe: <http://lists.meego.com/options/meego-kernel>,
+	<mailto:meego-kernel-request@lists.meego.com?subject=unsubscribe>
+List-Archive: <http://lists.meego.com/pipermail/meego-kernel>
+List-Post: <mailto:meego-kernel@lists.meego.com>
+List-Help: <mailto:meego-kernel-request@lists.meego.com?subject=help>
+List-Subscribe: <http://lists.meego.com/listinfo/meego-kernel>,
+	<mailto:meego-kernel-request@lists.meego.com?subject=subscribe>
+Sender: meego-kernel-bounces@lists.meego.com
+Errors-To: meego-kernel-bounces@lists.meego.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Takashi Iwai <tiwai@suse.de>, "Ding, Jian-feng" <jian-feng.ding@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "meego-kernel@lists.meego.com" <meego-kernel@lists.meego.com>, Christopher Heiny <christopherheiny@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2010 at 08:13:22AM +0100, Henrik Rydberg wrote:
-> Some MT devices report pressure per contact. This patch adds
-> ABS_PRESSURE to the pointer emulation code.
+On Sat, 2010-11-27 at 15:55 +0800, Dmitry Torokhov wrote:
+> Hi Yan,
 > 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->  drivers/input/input-mt.c |    7 ++++++-
->  1 files changed, 6 insertions(+), 1 deletions(-)
+> On Sat, Nov 27, 2010 at 11:56:59AM +0800, Yan Li wrote:
+> > This is for kernel bug #18122 and MeeGo bug #4807.
+> > 
+> > Current code detects Clickpad by checking the 8 and 20 bits of 0x0c
+> > cap. However, the code returns true if either of those bits is 1,
+> > while it should only return true when both are 1. This has lead to the
+> > touchpad on Lenovo S10-3t be mistakenly recognized as Clickpad and its
+> > BTN_LEFT and BTN_RIGHT blocked.
+> > 
+> > So far we've found that the S10-3ts are shipped with two slightly
+> > different models of touchpads, of which the 0x0c cap is either
+> > 0x5a0400 or 0x4a0500. They are not Clickpad and return BTN_LEFT and
+> > BTN_RIGHT normally.
 > 
-> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-> index 08aa682..49ccd15 100644
-> --- a/drivers/input/input-mt.c
-> +++ b/drivers/input/input-mt.c
-> @@ -97,7 +97,8 @@ EXPORT_SYMBOL(input_mt_report_slot_state);
->   * input_mt_report_pointer_emulation() - common pointer emulation
->   * @dev: input device with allocated MT slots
->   *
-> - * Performs legacy pointer emulation via BTN_TOUCH, ABS_X and ABS_Y.
-> + * Performs legacy pointer emulation via BTN_TOUCH, ABS_X, ABS_Y and
-> + * ABS_PRESSURE.
->   */
->  void input_mt_report_pointer_emulation(struct input_dev *dev)
->  {
-> @@ -124,9 +125,13 @@ void input_mt_report_pointer_emulation(struct input_dev *dev)
->  	if (oldest) {
->  		int x = input_mt_get_value(oldest, ABS_MT_POSITION_X);
->  		int y = input_mt_get_value(oldest, ABS_MT_POSITION_Y);
-> +		int p = input_mt_get_value(oldest, ABS_MT_PRESSURE);
+> Hmm, this is weird. According to my data:
+> 
+> >> Treat it as a two-bit field.
+> >>   0x00 == not a clickpad
+> >>   0x01 == 1 button clickpad
+> >>   0x02 == 2 button clickpad
+> >>   0x03 == reserved
 
-What if device does not report ABS_MT_PRESSURE/ABS_PRESSURE? Do we rely
-on input core to suppress unsupported events? A comment would be nice...
+That's interesting.
 
-Also, is there a gelper to set up pointer emulation capabilities for MT
-device?
+> Moreover, Takashi's HP returns 0x5a 0x04 0x00 in response to 0x0c query
+> and _is_ a clickpad.
 
->  
->  		input_event(dev, EV_ABS, ABS_X, x);
->  		input_event(dev, EV_ABS, ABS_Y, y);
-> +		input_event(dev, EV_ABS, ABS_PRESSURE, p);
-> +	} else {
-> +		input_event(dev, EV_ABS, ABS_PRESSURE, 0);
->  	}
->  }
->  EXPORT_SYMBOL(input_mt_report_pointer_emulation);
-> -- 
-> 1.7.1
+So how do we define clickpad? The touchpad used on S10-3t does have
+full-surface capacity sensor that covers the lower button area, but when
+you click the lower-left corner it emits BTN_LEFT, when you click the
+lower-right corner it emits BTN_RIGHT, not BTN_MIDDLE. So it should be
+handled as a normal touchpad, not a ClickPad.
+
+So how about checking the first byte of excap == 0xe4? If it is true
+then we still handle it as a normal touchpad.
+
+This is the hardware data for the touchpad used on S10-3t:
+Synaptics Touchpad, model: 1, fw: 7.4, id: 0x1e0b1, caps:
+0xd04771/0xe40000/0x5a0400
+
+> In C comparison operators have higher precedence than bitwise ones. Your
+> expression reduces to ((ex0c) & 1) which is not correct. The proper
+> expression would be:
 > 
 
--- 
-Dmitry
+That's definitely brain dead. I'll send out a new patch.
+
+> #define SYN_CAP_CLICKPAD(ex0c)		(((ex0c) & 0x100100) == 0x100100)
+> 
+> but it really contradicts the data I have...
+> 
+> Thanks.
+
+--
+Yan

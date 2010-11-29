@@ -1,48 +1,71 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 3/7] hid: egalax: Correct for device resolution report error (rev2)
-Date: Mon, 29 Nov 2010 08:43:28 +0100
-Message-ID: <1291016612-25102-4-git-send-email-rydberg@euromail.se>
-References: <1291016612-25102-1-git-send-email-rydberg@euromail.se>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/4] input: mt: Add pressure to pointer emulation code
+Date: Mon, 29 Nov 2010 01:47:15 -0800
+Message-ID: <20101129094715.GA9303@core.coreip.homeip.net>
+References: <1291014802-17061-1-git-send-email-rydberg@euromail.se>
+ <1291014802-17061-5-git-send-email-rydberg@euromail.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:35506 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755177Ab0K2Hqn (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:44674 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751918Ab0K2JrX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Nov 2010 02:46:43 -0500
-In-Reply-To: <1291016612-25102-1-git-send-email-rydberg@euromail.se>
+	Mon, 29 Nov 2010 04:47:23 -0500
+Content-Disposition: inline
+In-Reply-To: <1291014802-17061-5-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The firmware of both supported devices report a X/Y maximum of 4095,
-whereas in reality, it is eight times larger. Fixed with this patch.
+On Mon, Nov 29, 2010 at 08:13:22AM +0100, Henrik Rydberg wrote:
+> Some MT devices report pressure per contact. This patch adds
+> ABS_PRESSURE to the pointer emulation code.
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+>  drivers/input/input-mt.c |    7 ++++++-
+>  1 files changed, 6 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+> index 08aa682..49ccd15 100644
+> --- a/drivers/input/input-mt.c
+> +++ b/drivers/input/input-mt.c
+> @@ -97,7 +97,8 @@ EXPORT_SYMBOL(input_mt_report_slot_state);
+>   * input_mt_report_pointer_emulation() - common pointer emulation
+>   * @dev: input device with allocated MT slots
+>   *
+> - * Performs legacy pointer emulation via BTN_TOUCH, ABS_X and ABS_Y.
+> + * Performs legacy pointer emulation via BTN_TOUCH, ABS_X, ABS_Y and
+> + * ABS_PRESSURE.
+>   */
+>  void input_mt_report_pointer_emulation(struct input_dev *dev)
+>  {
+> @@ -124,9 +125,13 @@ void input_mt_report_pointer_emulation(struct input_dev *dev)
+>  	if (oldest) {
+>  		int x = input_mt_get_value(oldest, ABS_MT_POSITION_X);
+>  		int y = input_mt_get_value(oldest, ABS_MT_POSITION_Y);
+> +		int p = input_mt_get_value(oldest, ABS_MT_PRESSURE);
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/hid/hid-egalax.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+What if device does not report ABS_MT_PRESSURE/ABS_PRESSURE? Do we rely
+on input core to suppress unsupported events? A comment would be nice...
 
-diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-index 6fbb4e0..b3a1139 100644
---- a/drivers/hid/hid-egalax.c
-+++ b/drivers/hid/hid-egalax.c
-@@ -54,6 +54,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	case HID_UP_GENDESK:
- 		switch (usage->hid) {
- 		case HID_GD_X:
-+			field->logical_maximum = 32760;
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_POSITION_X);
- 			set_abs(input, ABS_MT_POSITION_X, field, 0);
-@@ -61,6 +62,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			set_abs(input, ABS_X, field, 0);
- 			return 1;
- 		case HID_GD_Y:
-+			field->logical_maximum = 32760;
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_POSITION_Y);
- 			set_abs(input, ABS_MT_POSITION_Y, field, 0);
+Also, is there a gelper to set up pointer emulation capabilities for MT
+device?
+
+>  
+>  		input_event(dev, EV_ABS, ABS_X, x);
+>  		input_event(dev, EV_ABS, ABS_Y, y);
+> +		input_event(dev, EV_ABS, ABS_PRESSURE, p);
+> +	} else {
+> +		input_event(dev, EV_ABS, ABS_PRESSURE, 0);
+>  	}
+>  }
+>  EXPORT_SYMBOL(input_mt_report_pointer_emulation);
+> -- 
+> 1.7.1
+> 
+
 -- 
-1.7.1
-
+Dmitry

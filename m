@@ -1,36 +1,57 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 3/5] HID: roccat: declaring meaning of pack pragma
- usage in driver headers
-Date: Tue, 30 Nov 2010 09:40:52 -0800
-Message-ID: <20101130174052.GA19977@kroah.com>
-References: <1290801456.18750.164.camel@neuromancer>
- <1290804616.3051.52.camel@localhost>
+From: Gabor Juhos <juhosg@openwrt.org>
+Subject: Re: [PATCH WIP 0/6] suggested changes to gpio_buttons driver
+Date: Tue, 30 Nov 2010 19:26:53 +0100
+Message-ID: <4CF541ED.80905@openwrt.org>
+References: <1290524800-21419-10-git-send-email-juhosg@openwrt.org>	<cover.1290631852.git.bengardiner@nanometrics.ca>	<20101130075610.GB15731@core.coreip.homeip.net>	<4CF4D241.1090401@openwrt.org> <AANLkTikv6CV-z1pkvwvRd+ahv3AvKzXVB0XivNT6G2XB@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1290804616.3051.52.camel@localhost>
-Sender: linux-doc-owner@vger.kernel.org
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: erazor_de@users.sourceforge.net, Randy Dunlap <rdunlap@xenotime.net>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:59739 "EHLO
+	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754728Ab0K3S1A (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 13:27:00 -0500
+In-Reply-To: <AANLkTikv6CV-z1pkvwvRd+ahv3AvKzXVB0XivNT6G2XB@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Gardiner <bengardiner@nanometrics.ca>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, "Nori, Sekhar" <nsekhar@ti.com>
 
-On Fri, Nov 26, 2010 at 08:50:16PM +0000, Ben Hutchings wrote:
-> On Fri, 2010-11-26 at 20:57 +0100, Stefan Achatz wrote:
-> > Using pack pragma to prevent padding bytes in binary data structures
-> > used for hardware communication. Explanation of these pragmas was requested.
-> [...]
+Hi Ben, Dmitry,
+
+>> <...>
+>> It works for me, however I have additional fixes on top of Ben's changes. I will
+>> post an updated version soon.
 > 
-> It would be clearer to use the '__packed' macro after each structure
-> definition instead of using this awful Microsoft extension.
+> This "polled gpio keys" driver was your invention. FWIW, I think your
+> upcoming updated version should be given consideration before
+> proceeding with the collection of patches discussed above.
+> 
+>> The original driver was a part of a patch-set which adds support for a new MIPS
+>> platform. There are a couple of patches in that series which requires this one.
+>> It would be nice if the driver would be able to go through the MIPS tree to
+>> avoid cross-tree dependencies.
+> 
+> Since the da850-evm series which depends on this patch is proposed for
+> the linux-davinci tree I think that to avoid cross-tree dependencies
+> they would all need to be taken in one tree. That is, unless there is
+> zero chance of the da850-evm series being taken-up for 2.6.38 along
+> with this driver. I have added Kevin Hilman, the linux-davinci
+> maintainer, and Sekhar Nori, the da850-evm maintainer, to the CC of
+> this email so that they can participate in the discussion of when and
+> how the patches should be merged.
+> 
+> Kevin, Sekhar, do you think that "da850-evm: add gpio-{keys,leds} for
+> UI and BB expanders" could be queued for 2.6.38?
 
-I agree, that's the "normal" Linux way of doing things.
+Well, I had to rethink that a bit. In my original patch-set I have several
+patches which must be acked by other subsystem maintainers.
 
-Other than that, this patch set looks good to me.  Jiri, if the packed
-change is made, do you want me to take these through my tree, or do you
-want to take them through yours?  Whatever is easier for you is fine
-with me.
+Given the possibility that my patch-set will not be merged for 2.6.38 I will
+drop the driver from that set so the driver can go through any tree.
+Additionally I will post my changes in a follow up e-mail. Those changes goes on
+top of Dmitry's changes, so the whole stuff can be folded into the original patch.
 
-thanks,
-
-greg k-h
+Regards,
+Gabor

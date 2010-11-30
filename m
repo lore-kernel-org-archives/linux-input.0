@@ -1,62 +1,31 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: hidp_output_raw_report, HID_OUTPUT_REPORT and Sixaxis
-Date: Tue, 30 Nov 2010 15:06:56 +0100
-Message-ID: <20101130150656.e3353e6e.ospite@studenti.unina.it>
-References: <20101130145405.d8142bc3.ospite@studenti.unina.it>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/7] hid: egalax: Rework to include Joojoo and Wetab
+ support
+Date: Tue, 30 Nov 2010 15:24:56 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1011301524390.23409@pobox.suse.cz>
+References: <1291016612-25102-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1011291248290.981@pobox.suse.cz> <20101130090843.GB3952@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Tue__30_Nov_2010_15_06_56_+0100_GGlWyX5IX9lPn3/E"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:40399 "EHLO smtp207.alice.it"
+Received: from cantor2.suse.de ([195.135.220.15]:60795 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751233Ab0K3OHL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 09:07:11 -0500
-In-Reply-To: <20101130145405.d8142bc3.ospite@studenti.unina.it>
+	id S1751233Ab0K3OY6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 09:24:58 -0500
+In-Reply-To: <20101130090843.GB3952@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Marcel Holtmann <marcel@holtmann.org>, Jiri Kosina <jkosina@suse.cz>, Alan Ott <alan@signal11.us>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---Signature=_Tue__30_Nov_2010_15_06_56_+0100_GGlWyX5IX9lPn3/E
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 30 Nov 2010, Dmitry Torokhov wrote:
 
-On Tue, 30 Nov 2010 14:54:05 +0100
-Antonio Ospite <ospite@studenti.unina.it> wrote:
+> > How are we going to handle this? Dmitry, what is your plan with input-mt 
+> > slots changes?
+> 
+> Hmm, I could create a branch for MT work and you could pull from it...
 
-> Hi,
->=20
-> another piece in the Sixaxis jigsaw:
-> in commit d4bfa033ed84e0ae446eff445d107ffd5ee78df3 support for setting
-> different report types was added to hidp, however in my Sixaxis
-> experiments setting leds (sending and output report) was not working
+That would work nicely for me, thanks.
 
-sending _an_ output report.
-
-Regards,
-   Antonio
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Tue__30_Nov_2010_15_06_56_+0100_GGlWyX5IX9lPn3/E
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkz1BQAACgkQ5xr2akVTsAEm/wCgkL4VAn34F4x9HQnxxS6vHwCK
-orIAnArtcp6RowYIazzZmYfYpQ5Fb8cu
-=9RFs
------END PGP SIGNATURE-----
-
---Signature=_Tue__30_Nov_2010_15_06_56_+0100_GGlWyX5IX9lPn3/E--
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

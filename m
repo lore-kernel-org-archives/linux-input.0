@@ -1,113 +1,50 @@
-From: Boris Savelev <boris.savelev@gmail.com>
-Subject: Re: keyboard doesn't work with acpi on lenovo s10-3c
-Date: Tue, 30 Nov 2010 19:37:15 +0300
-Message-ID: <AANLkTimHY1P0dfy+gsUXR7-A_kHfQuL38PoiAUqOZuZy@mail.gmail.com>
-References: <AANLkTimZxNOuuK2+uEUF_RbHus1dgFRA6usMuYzrGjoD@mail.gmail.com>
- <20101128000648.GC29981@core.coreip.homeip.net> <AANLkTikagjOqgTSZjKPvgyR-73PJqgi2YiE5HmWKPP9+@mail.gmail.com>
- <20101128090241.GG14499@core.coreip.homeip.net> <AANLkTi=dxCgV1wKcpZwCQydrpMYhGVfiJWyV-5x9o0dt@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/7] hid: egalax: Rework to include Joojoo and Wetab
+ support
+Date: Tue, 30 Nov 2010 17:58:33 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1011301758130.23409@pobox.suse.cz>
+References: <1291016612-25102-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1011291248290.981@pobox.suse.cz> <4CF3AD99.9050400@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:62727 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753938Ab0K3Qhq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 11:37:46 -0500
-In-Reply-To: <AANLkTi=dxCgV1wKcpZwCQydrpMYhGVfiJWyV-5x9o0dt@mail.gmail.com>
+Received: from cantor.suse.de ([195.135.220.2]:34555 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751806Ab0K3Q6f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 11:58:35 -0500
+In-Reply-To: <4CF3AD99.9050400@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-2010/11/28 Boris Savelev <boris.savelev@gmail.com>:
-> 2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
->> On Sun, Nov 28, 2010 at 11:30:58AM +0300, Boris Savelev wrote:
->>> Thanks for reply Dmitry!
->>>
->>> 2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
->>> > Hi Boris,
->>> >
->>> > On Sat, Nov 27, 2010 at 08:28:51PM +0300, Boris Savelev wrote:
->>> >> Hello!
->>> >>
->>> >> When I run linux on my netbook lenovo s10-3c -- keyboard doesn't=
- work!
->>> >> keyboard works perfectly in bios, in grub (or lilo), in windows,=
- but
->>> >> not in linux.
->>> >> I try linux kernel 2.6.35, 2.6.36, 2.6.37-rc2 -- no way. keyboar=
-d doesn't work
->>> >> I upgrade BIOS up to 3CCN13WW. keyboard doesn't work
->>> >> All keys are disabled, numlock, capslock... It's seems like keyb=
-oard
->>> >> haven't power.
->>> >> with Google I find topic [1] where solution is add to kernel opt=
-s
->>> >> 'noapic acpi=3Doff' -- Viola! keyboard work. But battery state,
->>> >> powersaving, powerbutton and other usefull things doesn't work.
->>> >> So this is not a workaround...
->>> >
->>> > The keyboard seems to get detected but is silent afterwards... =A0=
-Does the
->>> > touchpad work by default?
->>>
->>> Touchpad always work.
->>>
->>> >
->>> > Could you try a few kernel options: acpi=3Dnoirq, pci=3Dnoacpi, i=
-8042.reset
->>> > and i8042.nomux please?
->>>
->>> acpi=3Dnoirq -- kernel panic
->>> pci=3Dnoacpi -- kernel panic
->>> i8042.reset=3D1 -- kbd doesn't work
->>> i8042.nomux=3D1 -- kbd doesn't work
->>>
->>> combination of these options also doesn't help.
->>>
->>> Need screenshots of kernel panic?
->>
->> Might be interesting but not much.
+On Mon, 29 Nov 2010, Henrik Rydberg wrote:
 
-screenshot of kernel panic
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/677633/comments/8
+> Something like this, perhaps?
+> 
+> >From c6675000b59412b22f4f798de4268318e39b628c Mon Sep 17 00:00:00 2001
+> From: Henrik Rydberg <rydberg@euromail.se>
+> Date: Mon, 29 Nov 2010 14:40:11 +0100
+> Subject: [PATCH] hid: egalax: Document the newly supported models in Kconfig
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+>  drivers/hid/Kconfig |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 3052e29..401acec 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -154,7 +154,8 @@ config HID_EGALAX
+>  	tristate "eGalax multi-touch panel"
+>  	depends on USB_HID
+>  	---help---
+> -	Support for the eGalax dual-touch panel.
+> +	Support for the eGalax dual-touch panels, including the
+> +	Joojoo and Wetab tablets.
 
->>
->> If you plug an external USB keyboard and do:
->>
->> =A0 =A0 =A0 =A0echo -n "reconnect" > /sys/bus/serio/devices/serio0/d=
-rvctl
->>
->> or
->>
->> =A0 =A0 =A0 =A0echo -n "rescan" > /sys/bus/serio/devices/serio0/drvc=
-tl
->>
->> after booting does it revive the keyboard?
->
-> I haven't external keyboard. I try to do this with ssh remotly.
-> Keyboard doesn't revived-(
->
->> Also, what does /proc/interrupts look like?
->
-> Attached to lp bug:
-> http://launchpadlibrarian.net/59755127/proc_interrupts_when_kbd_dn_wo=
-rk.txt
-> -- when keyboard doesn't work
-> http://launchpadlibrarian.net/59755166/proc_interrupts_when_kbd_work.=
-txt
-> -- when keyboard works
->
-> additional info from /proc/cpuinfo
-> model name: Intel(R) Atom(TM) CPU N455 =A0 @ 1.66GHz
+Yes, that would be sufficient. Thanks,
 
-How can I help you to help me any more?-)
-
---=20
-Boris
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

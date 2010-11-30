@@ -1,85 +1,113 @@
-From: Tobyn Bertram <tobynbertram@hotmail.com>
-Subject: RE: [PATCH v2] Input: Bug 18122 - Support Lenovo S10-3t's 2-button ClickPad
-Date: Tue, 30 Nov 2010 07:48:12 -0800
-Message-ID: <BAY130-DS5A81442DAC5CC69983A4ADE250@phx.gbl>
-References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com> <ddb890ce98e91c7422da64168b1624c1e62a02ee.1291101955.git.yan.i.li@intel.com> <20101130075026.GA15731@core.coreip.homeip.net> <20101130080759.GA17830@thyme.bj.intel.com>
+From: Boris Savelev <boris.savelev@gmail.com>
+Subject: Re: keyboard doesn't work with acpi on lenovo s10-3c
+Date: Tue, 30 Nov 2010 19:37:15 +0300
+Message-ID: <AANLkTimHY1P0dfy+gsUXR7-A_kHfQuL38PoiAUqOZuZy@mail.gmail.com>
+References: <AANLkTimZxNOuuK2+uEUF_RbHus1dgFRA6usMuYzrGjoD@mail.gmail.com>
+ <20101128000648.GC29981@core.coreip.homeip.net> <AANLkTikagjOqgTSZjKPvgyR-73PJqgi2YiE5HmWKPP9+@mail.gmail.com>
+ <20101128090241.GG14499@core.coreip.homeip.net> <AANLkTi=dxCgV1wKcpZwCQydrpMYhGVfiJWyV-5x9o0dt@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bay0-omc4-s16.bay0.hotmail.com ([65.54.190.218]:45383 "EHLO
-	bay0-omc4-s16.bay0.hotmail.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752677Ab0K3Py6 (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:62727 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753938Ab0K3Qhq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 10:54:58 -0500
-In-Reply-To: <20101130080759.GA17830@thyme.bj.intel.com>
+	Tue, 30 Nov 2010 11:37:46 -0500
+In-Reply-To: <AANLkTi=dxCgV1wKcpZwCQydrpMYhGVfiJWyV-5x9o0dt@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "'Li, Yan I'" <yan.i.li@intel.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, 'Takashi Iwai' <tiwai@suse.de>, "'Ding, Jian-feng'" <jian-feng.ding@intel.com>, linux-kernel@vger.kernel.org, meego-kernel@lists.meego.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
 
-I do not have a S10-3t.  I have a HP DV7t with a standard 1 button Clickpad.
-I am sorry for any confusion.
+2010/11/28 Boris Savelev <boris.savelev@gmail.com>:
+> 2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>> On Sun, Nov 28, 2010 at 11:30:58AM +0300, Boris Savelev wrote:
+>>> Thanks for reply Dmitry!
+>>>
+>>> 2010/11/28 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>>> > Hi Boris,
+>>> >
+>>> > On Sat, Nov 27, 2010 at 08:28:51PM +0300, Boris Savelev wrote:
+>>> >> Hello!
+>>> >>
+>>> >> When I run linux on my netbook lenovo s10-3c -- keyboard doesn't=
+ work!
+>>> >> keyboard works perfectly in bios, in grub (or lilo), in windows,=
+ but
+>>> >> not in linux.
+>>> >> I try linux kernel 2.6.35, 2.6.36, 2.6.37-rc2 -- no way. keyboar=
+d doesn't work
+>>> >> I upgrade BIOS up to 3CCN13WW. keyboard doesn't work
+>>> >> All keys are disabled, numlock, capslock... It's seems like keyb=
+oard
+>>> >> haven't power.
+>>> >> with Google I find topic [1] where solution is add to kernel opt=
+s
+>>> >> 'noapic acpi=3Doff' -- Viola! keyboard work. But battery state,
+>>> >> powersaving, powerbutton and other usefull things doesn't work.
+>>> >> So this is not a workaround...
+>>> >
+>>> > The keyboard seems to get detected but is silent afterwards... =A0=
+Does the
+>>> > touchpad work by default?
+>>>
+>>> Touchpad always work.
+>>>
+>>> >
+>>> > Could you try a few kernel options: acpi=3Dnoirq, pci=3Dnoacpi, i=
+8042.reset
+>>> > and i8042.nomux please?
+>>>
+>>> acpi=3Dnoirq -- kernel panic
+>>> pci=3Dnoacpi -- kernel panic
+>>> i8042.reset=3D1 -- kbd doesn't work
+>>> i8042.nomux=3D1 -- kbd doesn't work
+>>>
+>>> combination of these options also doesn't help.
+>>>
+>>> Need screenshots of kernel panic?
+>>
+>> Might be interesting but not much.
 
-I think that 2 different Clickpads will need to be defined: 1 button
-Clickpads and 2 button Clickpads.  Maybe like this?
+screenshot of kernel panic
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/677633/comments/8
 
-#define SYN_CAP_CLICKPAD1BTN(ex0c)		((ex0c) & 0x100000)
-#define SYN_CAP_CLICKPAD2BTN(ex0c)		((ex0c) & 0x000100)
+>>
+>> If you plug an external USB keyboard and do:
+>>
+>> =A0 =A0 =A0 =A0echo -n "reconnect" > /sys/bus/serio/devices/serio0/d=
+rvctl
+>>
+>> or
+>>
+>> =A0 =A0 =A0 =A0echo -n "rescan" > /sys/bus/serio/devices/serio0/drvc=
+tl
+>>
+>> after booting does it revive the keyboard?
+>
+> I haven't external keyboard. I try to do this with ssh remotly.
+> Keyboard doesn't revived-(
+>
+>> Also, what does /proc/interrupts look like?
+>
+> Attached to lp bug:
+> http://launchpadlibrarian.net/59755127/proc_interrupts_when_kbd_dn_wo=
+rk.txt
+> -- when keyboard doesn't work
+> http://launchpadlibrarian.net/59755166/proc_interrupts_when_kbd_work.=
+txt
+> -- when keyboard works
+>
+> additional info from /proc/cpuinfo
+> model name: Intel(R) Atom(TM) CPU N455 =A0 @ 1.66GHz
 
-Tobyn
+How can I help you to help me any more?-)
 
------Original Message-----
-From: Li, Yan I [mailto:yan.i.li@intel.com] 
-Sent: Tuesday, November 30, 2010 12:08 AM
-To: Dmitry Torokhov; tobynbertram@hotmail.com
-Cc: linux-input@vger.kernel.org; Takashi Iwai; Ding, Jian-feng;
-linux-kernel@vger.kernel.org; meego-kernel@lists.meego.com
-Subject: Re: [PATCH v2] Input: Bug 18122 - Support Lenovo S10-3t's 2-button
-ClickPad
-
-On Tue, Nov 30, 2010 at 03:50:26PM +0800, Dmitry Torokhov wrote:
-> On Tue, Nov 30, 2010 at 03:44:06PM +0800, Yan Li wrote:
-> > This is for kernel bug #18122 and MeeGo bug #4807, version 2.
-> > 
-> > Lenovo S10-3t's ClickPad is a 2-button ClickPad that reports BTN_LEFT
-> > and BTN_RIGHT as normal touchpad, unlike the 1-button ClickPad used in
-> > HP mini 210 that reports solely BTN_MIDDLE.
-> > 
-> > Of c0-cap response, the 1-button ClickPad has the 20-bit set while
-> > 2-button ClickPad has the 8-bit set.
-> > 
-> > This patch makes the kernel only handle 1-button ClickPad specially,
-> > and treat 2-button ClickPad as same as other normal touchpads.
-> > 
-> 
-> As Takashi mentioned, HP Clickpads have the same 0x0c signature than
-> Lenovos non-clickpads so this is not that simple. We need to wait and
-> see if Christopher will shed some light here...
-
-So the only exception is the one reported by tob. These are the bits
-I've collected:
-
-Yan's S10-3t: model: 1, fw: 7.4, id: 0x1e0b1, caps:
-0xd04771/0xa40000/0x4a0500 (2 button clickpad)
-tob's S10-3t: model: 1, fw: 7.4, id: 0x1e0b1, caps:
-0xd04771/0xe40000/0x5a0400 (?)
-hp Envy 14/mini210:
-              model: 1, fw: 7.4, id: 0x1e0b1, caps:
-0xd04771/0xe40000/0x5a0400 (1 button clickpad)
-
-I asked tob to double-check his model and whether his touchpad emits
-BTN_MIDDLE or not but get no reply yet. I've checked 4 S10-3t
-purchased at different dates and all of them show same exc0 cap, but I
-have to say other models selling in other parts of the world may be
-still different.
-
--- 
-Best regards,
-Li, Yan
-
-MeeGo Team, Opensource Technology Center, SSG, Intel
-Office tel.: +86-10-82171695 (inet: 8-758-1695)
-OpenPGP key: 5C6C31EF
-IRC: yanli on network irc.freenode.net
-
+--=20
+Boris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

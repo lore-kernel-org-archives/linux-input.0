@@ -1,62 +1,67 @@
-From: "Li, Yan I" <yan.i.li@intel.com>
-Subject: Re: [PATCH] Input: Lenovo S10-3t's touchpad support
-Date: Tue, 30 Nov 2010 10:18:40 +0800
-Message-ID: <20101130021833.GA8369@thyme.bj.intel.com>
-References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
- <20101127075528.GA28667@core.coreip.homeip.net>
+From: "Favux ..." <favux.is@gmail.com>
+Subject: input: wacom - add 2 new Bamboo PT's
+Date: Tue, 30 Nov 2010 00:00:02 -0600
+Message-ID: <AANLkTikS1jRQ84F0h=mvd7-nE4ORoG9r7DRqUqXpJwNL@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary=20cf30549e614b3adf04963ee618
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:16272 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751609Ab0K3CSn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Nov 2010 21:18:43 -0500
-Content-Disposition: inline
-In-Reply-To: <20101127075528.GA28667@core.coreip.homeip.net>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:44222 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750949Ab0K3GAD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 01:00:03 -0500
+Received: by iwn5 with SMTP id 5so1066413iwn.19
+        for <linux-input@vger.kernel.org>; Mon, 29 Nov 2010 22:00:03 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Takashi Iwai <tiwai@suse.de>, "Ding, Jian-feng" <jian-feng.ding@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "meego-kernel@lists.meego.com" <meego-kernel@lists.meego.com>, Christopher Heiny <christopherheiny@gmail.com>
+To: linux-input@vger.kernel.org
 
-On Sat, Nov 27, 2010 at 03:55:28PM +0800, Dmitry Torokhov wrote:
-> > So far we've found that the S10-3ts are shipped with two slightly
-> > different models of touchpads, of which the 0x0c cap is either
-> > 0x5a0400 or 0x4a0500. They are not Clickpad and return BTN_LEFT and
-> > BTN_RIGHT normally.
-> 
-> Hmm, this is weird. According to my data:
-> 
-> >> Treat it as a two-bit field.
-> >>   0x00 == not a clickpad
-> >>   0x01 == 1 button clickpad
-> >>   0x02 == 2 button clickpad
-> >>   0x03 == reserved
+--20cf30549e614b3adf04963ee618
+Content-Type: text/plain; charset=UTF-8
 
-Wait, you said there are "2 button clickpad"? If so the current way
-the kernel handles clickpad is totally wrong:
+Adds two new Bamboo Pen & Touch models:
 
-    if (SYN_CAP_CLICKPAD(priv->ext_cap_0c)) {
-        /* Clickpads report only left button */
-        __clear_bit(BTN_RIGHT, dev->keybit);
-        __clear_bit(BTN_MIDDLE, dev->keybit);
-    }
+Bamboo Comic Medium			(CTH661/S1; Product ID = 0xd8)
+Bamboo P & T Special Edition Small	(CTH461/L;   Product ID = 0xdA)
 
-It could only handle those "1 button clickpad", which emits solely
-BTN_MIDDLE (and the kernel sends it out as BTN_LEFT instead). It can't
-handle "2 button clickpad" correctly.
+Signed-off-by: David Foley <favux.is@gmail.com>
 
-So I think the touchpad installed on the S10-3t is a "2 button
-clickpad" and it emits BTN_LEFT and BTN_RIGHT as usual.
+--20cf30549e614b3adf04963ee618
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="0001-input-wacom-add-2-new-Bamboo-PT-s.patch"
+Content-Disposition: attachment;
+	filename="0001-input-wacom-add-2-new-Bamboo-PT-s.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_gh4dnztb0
 
-Also IIRC the current X synaptics driver detects clickpad by checking
-whether it has one button only, obviously this could not work with 2
-button clickpad either.
-
--- 
-Best regards,
-Li, Yan
-
-MeeGo Team, Opensource Technology Center, SSG, Intel
-Office tel.: +86-10-82171695 (inet: 8-758-1695)
-OpenPGP key: 5C6C31EF
-IRC: yanli on network irc.freenode.net
+RnJvbSA0MWJjMzc0NmU1ZDc0Yzg4YTIyZjc3OGYwMzNmZDVjNzI0MTU3OWJlIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBEYXZpZCBGb2xleSA8ZmF2dXguaXNAZ21haWwuY29tPgpEYXRl
+OiBNb24sIDI5IE5vdiAyMDEwIDIzOjI5OjQ5IC0wNjAwClN1YmplY3Q6IFtQQVRDSF0gaW5wdXQ6
+IHdhY29tIC0gYWRkIDIgbmV3IEJhbWJvbyBQVCdzCgpBZGRzIHR3byBuZXcgQmFtYm9vIFBlbiAm
+IFRvdWNoIG1vZGVscy4KClRlc3RlZC1ieTogSVJJRSBTaGluc3VrZSA8aXJpZXNoaW5zdWtlQHlh
+aG9vLmNvLmpwPgpUZXN0ZWQtYnk6IEFuZHJlYSBDYWRlZGR1IDxtcmVybmlhQGdtYWlsLmNvbT4K
+U2lnbmVkLW9mZi1ieTogRGF2aWQgRm9sZXkgPGZhdnV4LmlzQGdtYWlsLmNvbT4KLS0tCiBkcml2
+ZXJzL2lucHV0L3RhYmxldC93YWNvbV93YWMuYyB8ICAgIDYgKysrKysrCiAxIGZpbGVzIGNoYW5n
+ZWQsIDYgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJz
+L2lucHV0L3RhYmxldC93YWNvbV93YWMuYyBiL2RyaXZlcnMvaW5wdXQvdGFibGV0L3dhY29tX3dh
+Yy5jCmluZGV4IGIzMjUyZWYuLmRiNzQ3ZTQgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5wdXQvdGFi
+bGV0L3dhY29tX3dhYy5jCisrKyBiL2RyaXZlcnMvaW5wdXQvdGFibGV0L3dhY29tX3dhYy5jCkBA
+IC0xNDM2LDYgKzE0MzYsMTAgQEAgc3RhdGljIHN0cnVjdCB3YWNvbV9mZWF0dXJlcyB3YWNvbV9m
+ZWF0dXJlc18weEQyID0KIAl7ICJXYWNvbSBCYW1ib28gQ3JhZnQiLCAgIFdBQ09NX1BLR0xFTl9C
+QkZVTiwgICAgIDE0NzIwLCAgOTIwMCwgMTAyMywgNjMsIEJBTUJPT19QVCB9Owogc3RhdGljIHN0
+cnVjdCB3YWNvbV9mZWF0dXJlcyB3YWNvbV9mZWF0dXJlc18weEQzID0KIAl7ICJXYWNvbSBCYW1i
+b28gMkZHIDZ4OCIsIFdBQ09NX1BLR0xFTl9CQkZVTiwgICAgIDIxNjQ4LCAxMzUzMCwgMTAyMywg
+NjMsIEJBTUJPT19QVCB9Oworc3RhdGljIHN0cnVjdCB3YWNvbV9mZWF0dXJlcyB3YWNvbV9mZWF0
+dXJlc18weEQ4ID0KKwl7ICJXYWNvbSBCYW1ib28gQ29taWMgMkZHIiwgV0FDT01fUEtHTEVOX0JC
+RlVOLCAgIDIxNjQ4LCAxMzUzMCwgMTAyMywgNjMsIEJBTUJPT19QVCB9Oworc3RhdGljIHN0cnVj
+dCB3YWNvbV9mZWF0dXJlcyB3YWNvbV9mZWF0dXJlc18weERBID0KKwl7ICJXYWNvbSBCYW1ib28g
+MkZHIDR4NSBTRSIsIFdBQ09NX1BLR0xFTl9CQkZVTiwgIDE0NzIwLCAgOTIwMCwgMTAyMywgNjMs
+IEJBTUJPT19QVCB9OwogCiAjZGVmaW5lIFVTQl9ERVZJQ0VfV0FDT00ocHJvZCkJCQkJCVwKIAlV
+U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfV0FDT00sIHByb2QpLAkJCVwKQEAgLTE1MDQsNiArMTUw
+OCw4IEBAIGNvbnN0IHN0cnVjdCB1c2JfZGV2aWNlX2lkIHdhY29tX2lkc1tdID0gewogCXsgVVNC
+X0RFVklDRV9XQUNPTSgweEQxKSB9LAogCXsgVVNCX0RFVklDRV9XQUNPTSgweEQyKSB9LAogCXsg
+VVNCX0RFVklDRV9XQUNPTSgweEQzKSB9LAorCXsgVVNCX0RFVklDRV9XQUNPTSgweEQ4KSB9LAor
+CXsgVVNCX0RFVklDRV9XQUNPTSgweERBKSB9LAogCXsgVVNCX0RFVklDRV9XQUNPTSgweEYwKSB9
+LAogCXsgVVNCX0RFVklDRV9XQUNPTSgweENDKSB9LAogCXsgVVNCX0RFVklDRV9XQUNPTSgweDkw
+KSB9LAotLSAKMS43LjEKCg==
+--20cf30549e614b3adf04963ee618--

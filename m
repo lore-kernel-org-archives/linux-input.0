@@ -1,36 +1,51 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 0/7] hid: egalax: Rework to include Joojoo and Wetab support
-Date: Tue, 30 Nov 2010 10:51:22 +0100
-Message-ID: <4CF4C91A.1020506@euromail.se>
-References: <1291016612-25102-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1011291248290.981@pobox.suse.cz> <20101130090843.GB3952@core.coreip.homeip.net>
+From: Gabor Juhos <juhosg@openwrt.org>
+Subject: Re: [PATCH WIP 0/6] suggested changes to gpio_buttons driver
+Date: Tue, 30 Nov 2010 11:30:25 +0100
+Message-ID: <4CF4D241.1090401@openwrt.org>
+References: <1290524800-21419-10-git-send-email-juhosg@openwrt.org> <cover.1290631852.git.bengardiner@nanometrics.ca> <20101130075610.GB15731@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:52571 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755060Ab0K3JwT (ORCPT
+Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:41634 "EHLO
+	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755195Ab0K3Kab (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 04:52:19 -0500
-In-Reply-To: <20101130090843.GB3952@core.coreip.homeip.net>
+	Tue, 30 Nov 2010 05:30:31 -0500
+In-Reply-To: <20101130075610.GB15731@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ben Gardiner <bengardiner@nanometrics.ca>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
 
-On 11/30/2010 10:08 AM, Dmitry Torokhov wrote:
+Hi Dmitry,
 
-> On Mon, Nov 29, 2010 at 12:50:05PM +0100, Jiri Kosina wrote:
+> On Wed, Nov 24, 2010 at 04:01:34PM -0500, Ben Gardiner wrote:
+>> These are just some suggested changes from the review in patch-form. I will
+>> do my best to make time for reviewing and testing any future versions of the
+>> patch that you submit but I will regrettably be moving to other projects 
+>> for awhile. Until then I will not be able to spend much time on integration.
 >>
->> How are we going to handle this? Dmitry, what is your plan with input-mt 
->> slots changes?
+>> With these patches applied I was able to build the da850-evm buttons and keys
+>> support with minimal changes.As I said, these are just suggested changes,
+>> please feel free to squash, edit or drop them as you see fit. My motivation 
+>> here is that if you pickup the driver name and config symbol names as-is then
+>> I will have no remaining integration to perform in the da850-evm series. I
+>> hope you don't mind that I have to patch and run here.
 >>
+>> I look forward to your next version of the patch. 
 > 
-> Hmm, I could create a branch for MT work and you could pull from it...
-> 
-> Henrik, have you set up your tree yet?
+> I do like the original patch and even more so Ben changes. Could you
+> tell me if the following still works for you (goes on top of Ben's)
+> and if it does I'll fold everything together and queue for 2.6.38.
 
-Nope, no account yet, unfortunately.
+It works for me, however I have additional fixes on top of Ben's changes. I will
+post an updated version soon.
 
-Henrik
+The original driver was a part of a patch-set which adds support for a new MIPS
+platform. There are a couple of patches in that series which requires this one.
+It would be nice if the driver would be able to go through the MIPS tree to
+avoid cross-tree dependencies.
 
+Regards,
+Gabor

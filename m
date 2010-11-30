@@ -1,50 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] input: mt: Add pressure to pointer emulation code
-Date: Tue, 30 Nov 2010 01:09:34 -0800
-Message-ID: <20101130090934.GC3952@core.coreip.homeip.net>
-References: <1291014802-17061-1-git-send-email-rydberg@euromail.se>
- <1291014802-17061-5-git-send-email-rydberg@euromail.se>
- <20101129094715.GA9303@core.coreip.homeip.net>
- <4CF38C67.20509@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 0/7] hid: egalax: Rework to include Joojoo and Wetab support
+Date: Tue, 30 Nov 2010 10:51:22 +0100
+Message-ID: <4CF4C91A.1020506@euromail.se>
+References: <1291016612-25102-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1011291248290.981@pobox.suse.cz> <20101130090843.GB3952@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4CF38C67.20509@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:52571 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755060Ab0K3JwT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 04:52:19 -0500
+In-Reply-To: <20101130090843.GB3952@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2010 at 12:20:07PM +0100, Henrik Rydberg wrote:
-> >> @@ -124,9 +125,13 @@ void input_mt_report_pointer_emulation(struct input_dev
-> *dev)
-> 
-> >>  	if (oldest) {
-> >>  		int x = input_mt_get_value(oldest, ABS_MT_POSITION_X);
-> >>  		int y = input_mt_get_value(oldest, ABS_MT_POSITION_Y);
-> >> +		int p = input_mt_get_value(oldest, ABS_MT_PRESSURE);
-> > 
-> > What if device does not report ABS_MT_PRESSURE/ABS_PRESSURE? Do we rely
-> > on input core to suppress unsupported events? A comment would be nice...
-> 
-> 
-> Yes, the setup values are the only ones producing output here. How about this
-> addition to the function text: "The input core ensures only the KEY and ABS axes
-> already setup for this device will produce output."?
+On 11/30/2010 10:08 AM, Dmitry Torokhov wrote:
 
-Yep, that works.
+> On Mon, Nov 29, 2010 at 12:50:05PM +0100, Jiri Kosina wrote:
+>>
+>> How are we going to handle this? Dmitry, what is your plan with input-mt 
+>> slots changes?
+>>
+> 
+> Hmm, I could create a branch for MT work and you could pull from it...
+> 
+> Henrik, have you set up your tree yet?
 
-> 
-> > Also, is there a gelper to set up pointer emulation capabilities for MT
-> > device?
-> 
-> 
-> This is certainly the plan with time, but currently it seemed best to leave the
-> rest of the event setup code untouched.
-> 
+Nope, no account yet, unfortunately.
 
-OK, just throwing ideas around ;)
+Henrik
 
--- 
-Dmitry

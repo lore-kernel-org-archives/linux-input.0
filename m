@@ -1,66 +1,78 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: [PATCH] input: misc: add lps001wp_prs driver
-Date: Tue, 30 Nov 2010 11:34:58 +0100
-Message-ID: <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com>
-References: <matteo.dameno@st.com> <1291049009-32597-1-git-send-email-matteo.dameno@st.com>
- <20101130060926.GA31838@core.coreip.homeip.net>
+From: "Hemanth V" <hemanthv@ti.com>
+Subject: Re: PATCH V4 1/2] input: CMA3000 Accelerometer Driver
+Date: Tue, 30 Nov 2010 18:20:43 +0530
+Message-ID: <5B8D58FB9E1C487FA94F2498E0B9E9AB@wipblrx0099946>
+References: <37129.10.24.255.17.1291028260.squirrel@dbdmail.itg.ti.com> <4CF38E4D.3070309@cam.ac.uk> <20101130075911.GC15731@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:58534 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754718Ab0K3KfU convert rfc822-to-8bit (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:39510 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750938Ab0K3Mu6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 05:35:20 -0500
-In-Reply-To: <20101130060926.GA31838@core.coreip.homeip.net>
+	Tue, 30 Nov 2010 07:50:58 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: mems applications <mems.applications@st.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, matteo.dameno@st.com, carmine.iascone@st.com, mems <mems@mems-laptopt43.corenet.prv>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, saaguirre@ti.com, Shubhrajyoti@ti.com, Jonathan Cameron <jic23@cam.ac.uk>
 
-On Tue, Nov 30, 2010 at 7:09 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->> + =C2=A0 =C2=A0 =C2=A0If you say yes here you get support for the
->> + =C2=A0 =C2=A0 =C2=A0STM LPS001D Barometer/Termometer on I2C bus.
+----- Original Message ----- 
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 >
-> This does not belong to input subsystem, IIO is a better fit.
+> Yep, almost there.
+>
+> Hemanth, does the driver still work if you apply the patch below?
 
-According to this site:
-http://www.cnbc.com/id/40413317
-and its datasheet:
-http://www.findmems.com/wp-content/uploads/2010/11/LPS001WP-DATASHEET.p=
-df
+Yes works pretty well, Thanks for your efforts
 
-This sensors applications are:
-=E2=96=A0 Altimeter and barometer for portable devices
-=E2=96=A0 Smartphones
-=E2=96=A0 Indoor navigation
-=E2=96=A0 GPS applications
-=E2=96=A0 Weather station equipment
-=E2=96=A0 Sports watches
+Some minor changes as below required.
 
-"the same devices would be able to identify the precise location in
-all three dimensions, allowing, for example, a mobile phone to send a
-call to an emergency fire, medical or police service that identified
-not only the location of the building but also the particular floor."
-Identifying 3d location is similar to what many joystick are doing.
+<snip>
 
-Specially the indoor navigation information means an information about
-the user. And the information is very tied to the user.
-I don't know whether this can be used to map with virtual reality in a
-game, or where you use sensors data to give user informations when
-visiting a museum.
+> +struct cma3000_accl_data {
+> + const struct cma3000_bus_ops *bus_ops;
+> + const struct cma3000_platform_data *pdata;
+> +
+> + struct device *dev;
+> + struct input_dev *input_dev;
+> +
+> + int bit_to_mg;
+> + int irq;
+> +
+> + int g_range;
+> + u8 mode;
+> +
+> + struct mutex mutex;
+
+Need a comment to overcome checkpatch warning.
+
+>
+> - pr_info("CMA3000 Accelerometer : Revision %x\n", ret);
+> + data->dev = dev;
+> + data->input_dev = input_dev;
+> + data->bus_ops = bops;
+> + data->pdata = pdata;
+
+Need to add data->irq = irq, else exit routine will dump stack
+
+>
+> - data->input_dev->name = "cma3000-accelerometer";
+> + data->g_range = pdata->g_range;
+> + if (data->g_range != CMARANGE_2G && data->g_range != CMA3000_RANGE8G) {
+
+Need to change this to "data->g_range != CMARANGE_2G   && data->g_range != 
+CMARANGE_8G "
+
+> - input_set_abs_params(data->input_dev, ABS_Z, -g_range,
+> - g_range, fuzz_z, 0);
+> - input_set_abs_params(data->input_dev, ABS_MISC, 0,
+> - 1, 0, 0);
+
+We use this ABS_MISC event to report free fall.
 
 
-Dmitry, is it possible to start putting similar drivers in a new
-drivers/input/sensors directory but which belongs to the input
-subsystem ? What do you think ?
 
-
-i
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

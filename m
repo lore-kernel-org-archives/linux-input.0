@@ -1,108 +1,85 @@
-From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: Re: [PATCH WIP 0/6] suggested changes to gpio_buttons driver
-Date: Tue, 30 Nov 2010 09:29:53 -0500
-Message-ID: <AANLkTikv6CV-z1pkvwvRd+ahv3AvKzXVB0XivNT6G2XB@mail.gmail.com>
-References: <1290524800-21419-10-git-send-email-juhosg@openwrt.org>
-	<cover.1290631852.git.bengardiner@nanometrics.ca>
-	<20101130075610.GB15731@core.coreip.homeip.net>
-	<4CF4D241.1090401@openwrt.org>
+From: Tobyn Bertram <tobynbertram@hotmail.com>
+Subject: RE: [PATCH v2] Input: Bug 18122 - Support Lenovo S10-3t's 2-button ClickPad
+Date: Tue, 30 Nov 2010 07:48:12 -0800
+Message-ID: <BAY130-DS5A81442DAC5CC69983A4ADE250@phx.gbl>
+References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com> <ddb890ce98e91c7422da64168b1624c1e62a02ee.1291101955.git.yan.i.li@intel.com> <20101130075026.GA15731@core.coreip.homeip.net> <20101130080759.GA17830@thyme.bj.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:54005 "EHLO
-	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751225Ab0K3O3y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 09:29:54 -0500
-Received: by mail-qy0-f175.google.com with SMTP id 8so1240621qyk.13
-        for <linux-input@vger.kernel.org>; Tue, 30 Nov 2010 06:29:53 -0800 (PST)
-In-Reply-To: <4CF4D241.1090401@openwrt.org>
+Received: from bay0-omc4-s16.bay0.hotmail.com ([65.54.190.218]:45383 "EHLO
+	bay0-omc4-s16.bay0.hotmail.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752677Ab0K3Py6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 10:54:58 -0500
+In-Reply-To: <20101130080759.GA17830@thyme.bj.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabor Juhos <juhosg@openwrt.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, "Nori, Sekhar" <nsekhar@ti.com>
+To: "'Li, Yan I'" <yan.i.li@intel.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, 'Takashi Iwai' <tiwai@suse.de>, "'Ding, Jian-feng'" <jian-feng.ding@intel.com>, linux-kernel@vger.kernel.org, meego-kernel@lists.meego.com
 
-Hi Dmitry, Gabor,
+I do not have a S10-3t.  I have a HP DV7t with a standard 1 button Clickpad.
+I am sorry for any confusion.
 
-On Tue, Nov 30, 2010 at 2:56 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->> [...]
-> I do like the original patch and even more so Ben changes. Could you
-> tell me if the following still works for you (goes on top of Ben's)
-> and if it does I'll fold everything together and queue for 2.6.38.
+I think that 2 different Clickpads will need to be defined: 1 button
+Clickpads and 2 button Clickpads.  Maybe like this?
 
-Thank you for considering the proposed changes and also for you r kind
-words: it is encouraging to hear as a newcomer to kernel development.\
+#define SYN_CAP_CLICKPAD1BTN(ex0c)		((ex0c) & 0x100000)
+#define SYN_CAP_CLICKPAD2BTN(ex0c)		((ex0c) & 0x000100)
 
-> [...]
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
->
-> =A0drivers/input/keyboard/gpio_keys_polled.c | =A0 38 +++++++++++++++=
-+++++++-------
-> =A0include/linux/gpio_keys.h =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 | =A0 =A0=
-2 ++
-> =A0include/linux/gpio_keys_polled.h =A0 =A0 =A0 =A0 =A0| =A0 26 -----=
----------------
-> =A03 files changed, 31 insertions(+), 35 deletions(-)
-> =A0delete mode 100644 include/linux/gpio_keys_polled.h
+Tobyn
 
-I have tested your patch with the "da850-evm: add gpio-{keys,leds} for
-UI and BB expanders" on top of Gabor's "[PATCH 09/18] input: add input
-driver for polled GPIO buttons" patch and my "[PATCH WIP 0/6]
-suggested changes to gpio_buttons driver" series. Only minimal changes
-were needed in the later patches of the da850-evm series.
+-----Original Message-----
+From: Li, Yan I [mailto:yan.i.li@intel.com] 
+Sent: Tuesday, November 30, 2010 12:08 AM
+To: Dmitry Torokhov; tobynbertram@hotmail.com
+Cc: linux-input@vger.kernel.org; Takashi Iwai; Ding, Jian-feng;
+linux-kernel@vger.kernel.org; meego-kernel@lists.meego.com
+Subject: Re: [PATCH v2] Input: Bug 18122 - Support Lenovo S10-3t's 2-button
+ClickPad
 
-They can be summarized (as you probably expected) by:
-s/gpio_keys_polled\.h/gpio_keys.\h/g and
-s/gpio_keys_polled_platform_data/gpio_keys_platform_data/g.
+On Tue, Nov 30, 2010 at 03:50:26PM +0800, Dmitry Torokhov wrote:
+> On Tue, Nov 30, 2010 at 03:44:06PM +0800, Yan Li wrote:
+> > This is for kernel bug #18122 and MeeGo bug #4807, version 2.
+> > 
+> > Lenovo S10-3t's ClickPad is a 2-button ClickPad that reports BTN_LEFT
+> > and BTN_RIGHT as normal touchpad, unlike the 1-button ClickPad used in
+> > HP mini 210 that reports solely BTN_MIDDLE.
+> > 
+> > Of c0-cap response, the 1-button ClickPad has the 20-bit set while
+> > 2-button ClickPad has the 8-bit set.
+> > 
+> > This patch makes the kernel only handle 1-button ClickPad specially,
+> > and treat 2-button ClickPad as same as other normal touchpads.
+> > 
+> 
+> As Takashi mentioned, HP Clickpads have the same 0x0c signature than
+> Lenovos non-clickpads so this is not that simple. We need to wait and
+> see if Christopher will shed some light here...
 
-With those changes I observed the expected input events with evtest.
+So the only exception is the one reported by tob. These are the bits
+I've collected:
 
-Tested-by: Ben Gardiner <bengardiner@nanometrics.ca>
+Yan's S10-3t: model: 1, fw: 7.4, id: 0x1e0b1, caps:
+0xd04771/0xa40000/0x4a0500 (2 button clickpad)
+tob's S10-3t: model: 1, fw: 7.4, id: 0x1e0b1, caps:
+0xd04771/0xe40000/0x5a0400 (?)
+hp Envy 14/mini210:
+              model: 1, fw: 7.4, id: 0x1e0b1, caps:
+0xd04771/0xe40000/0x5a0400 (1 button clickpad)
 
-On Tue, Nov 30, 2010 at 5:30 AM, Gabor Juhos <juhosg@openwrt.org> wrote=
-:
->> [...]
-> It works for me, however I have additional fixes on top of Ben's chan=
-ges. I will
-> post an updated version soon.
+I asked tob to double-check his model and whether his touchpad emits
+BTN_MIDDLE or not but get no reply yet. I've checked 4 S10-3t
+purchased at different dates and all of them show same exc0 cap, but I
+have to say other models selling in other parts of the world may be
+still different.
 
-This "polled gpio keys" driver was your invention. FWIW, I think your
-upcoming updated version should be given consideration before
-proceeding with the collection of patches discussed above.
+-- 
+Best regards,
+Li, Yan
 
-> The original driver was a part of a patch-set which adds support for =
-a new MIPS
-> platform. There are a couple of patches in that series which requires=
- this one.
-> It would be nice if the driver would be able to go through the MIPS t=
-ree to
-> avoid cross-tree dependencies.
+MeeGo Team, Opensource Technology Center, SSG, Intel
+Office tel.: +86-10-82171695 (inet: 8-758-1695)
+OpenPGP key: 5C6C31EF
+IRC: yanli on network irc.freenode.net
 
-Since the da850-evm series which depends on this patch is proposed for
-the linux-davinci tree I think that to avoid cross-tree dependencies
-they would all need to be taken in one tree. That is, unless there is
-zero chance of the da850-evm series being taken-up for 2.6.38 along
-with this driver. I have added Kevin Hilman, the linux-davinci
-maintainer, and Sekhar Nori, the da850-evm maintainer, to the CC of
-this email so that they can participate in the discussion of when and
-how the patches should be merged.
-
-Kevin, Sekhar, do you think that "da850-evm: add gpio-{keys,leds} for
-UI and BB expanders" could be queued for 2.6.38?
-
-Best Regards,
-Ben Gardiner
-
----
-Nanometrics Inc.
-http://www.nanometrics.ca
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,78 +1,75 @@
-From: "Hemanth V" <hemanthv@ti.com>
-Subject: Re: PATCH V4 1/2] input: CMA3000 Accelerometer Driver
-Date: Tue, 30 Nov 2010 18:20:43 +0530
-Message-ID: <5B8D58FB9E1C487FA94F2498E0B9E9AB@wipblrx0099946>
-References: <37129.10.24.255.17.1291028260.squirrel@dbdmail.itg.ti.com> <4CF38E4D.3070309@cam.ac.uk> <20101130075911.GC15731@core.coreip.homeip.net>
+From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Subject: hidp_output_raw_report, HID_OUTPUT_REPORT and Sixaxis
+Date: Tue, 30 Nov 2010 14:54:05 +0100
+Message-ID: <20101130145405.d8142bc3.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:39510 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750938Ab0K3Mu6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 07:50:58 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__30_Nov_2010_14_54_05_+0100_YiJSG2T6=FXVOzp/"
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, saaguirre@ti.com, Shubhrajyoti@ti.com, Jonathan Cameron <jic23@cam.ac.uk>
 
------ Original Message ----- 
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
->
-> Yep, almost there.
->
-> Hemanth, does the driver still work if you apply the patch below?
+--Signature=_Tue__30_Nov_2010_14_54_05_+0100_YiJSG2T6=FXVOzp/
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes works pretty well, Thanks for your efforts
+Hi,
 
-Some minor changes as below required.
+another piece in the Sixaxis jigsaw:
+in commit d4bfa033ed84e0ae446eff445d107ffd5ee78df3 support for setting
+different report types was added to hidp, however in my Sixaxis
+experiments setting leds (sending and output report) was not working
+until I made this change:
 
-<snip>
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index b68a608..0c443b7 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -402,7 +402,7 @@ static int hidp_output_raw_report(struct hid_device *hi=
+d, unsigned char *data, s
+ 		report_type =3D HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE;
+ 		break;
+ 	case HID_OUTPUT_REPORT:
+-		report_type =3D HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
++		report_type =3D HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
-> +struct cma3000_accl_data {
-> + const struct cma3000_bus_ops *bus_ops;
-> + const struct cma3000_platform_data *pdata;
-> +
-> + struct device *dev;
-> + struct input_dev *input_dev;
-> +
-> + int bit_to_mg;
-> + int irq;
-> +
-> + int g_range;
-> + u8 mode;
-> +
-> + struct mutex mutex;
+Is it only the Sixaxis which needs the output report as a SET_REPORT
+operation, or the change above is an actual fix?
+I don't know bluetooth at all, sorry.
 
-Need a comment to overcome checkpatch warning.
+In case this is a sixaxis specific behavior then I guess I'll be
+overriding hidp_output_raw_report() in hid-sony.c just like I did for the
+usbhid counterpart.
 
->
-> - pr_info("CMA3000 Accelerometer : Revision %x\n", ret);
-> + data->dev = dev;
-> + data->input_dev = input_dev;
-> + data->bus_ops = bops;
-> + data->pdata = pdata;
+Thanks,
+   Antonio
 
-Need to add data->irq = irq, else exit routine will dump stack
+--=20
+Antonio Ospite
+http://ao2.it
 
->
-> - data->input_dev->name = "cma3000-accelerometer";
-> + data->g_range = pdata->g_range;
-> + if (data->g_range != CMARANGE_2G && data->g_range != CMA3000_RANGE8G) {
+PGP public key ID: 0x4553B001
 
-Need to change this to "data->g_range != CMARANGE_2G   && data->g_range != 
-CMARANGE_8G "
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
 
-> - input_set_abs_params(data->input_dev, ABS_Z, -g_range,
-> - g_range, fuzz_z, 0);
-> - input_set_abs_params(data->input_dev, ABS_MISC, 0,
-> - 1, 0, 0);
+--Signature=_Tue__30_Nov_2010_14_54_05_+0100_YiJSG2T6=FXVOzp/
+Content-Type: application/pgp-signature
 
-We use this ABS_MISC event to report free fall.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
+iEYEARECAAYFAkz1Af0ACgkQ5xr2akVTsAG19gCdHrEkPPWdB+A7kwT7t8LNIFFv
+JLQAn1jxLCB7/5YN5kO+hRRf8oEdhRa7
+=6XyQ
+-----END PGP SIGNATURE-----
 
-
+--Signature=_Tue__30_Nov_2010_14_54_05_+0100_YiJSG2T6=FXVOzp/--

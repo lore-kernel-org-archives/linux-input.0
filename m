@@ -1,51 +1,66 @@
-From: Gabor Juhos <juhosg@openwrt.org>
-Subject: Re: [PATCH WIP 0/6] suggested changes to gpio_buttons driver
-Date: Tue, 30 Nov 2010 11:30:25 +0100
-Message-ID: <4CF4D241.1090401@openwrt.org>
-References: <1290524800-21419-10-git-send-email-juhosg@openwrt.org> <cover.1290631852.git.bengardiner@nanometrics.ca> <20101130075610.GB15731@core.coreip.homeip.net>
+From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Subject: Re: [PATCH] input: misc: add lps001wp_prs driver
+Date: Tue, 30 Nov 2010 11:34:58 +0100
+Message-ID: <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com>
+References: <matteo.dameno@st.com> <1291049009-32597-1-git-send-email-matteo.dameno@st.com>
+ <20101130060926.GA31838@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:41634 "EHLO
-	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755195Ab0K3Kab (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:58534 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754718Ab0K3KfU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 05:30:31 -0500
-In-Reply-To: <20101130075610.GB15731@core.coreip.homeip.net>
+	Tue, 30 Nov 2010 05:35:20 -0500
+In-Reply-To: <20101130060926.GA31838@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ben Gardiner <bengardiner@nanometrics.ca>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
+Cc: mems applications <mems.applications@st.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, matteo.dameno@st.com, carmine.iascone@st.com, mems <mems@mems-laptopt43.corenet.prv>
 
-Hi Dmitry,
+On Tue, Nov 30, 2010 at 7:09 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>> + =C2=A0 =C2=A0 =C2=A0If you say yes here you get support for the
+>> + =C2=A0 =C2=A0 =C2=A0STM LPS001D Barometer/Termometer on I2C bus.
+>
+> This does not belong to input subsystem, IIO is a better fit.
 
-> On Wed, Nov 24, 2010 at 04:01:34PM -0500, Ben Gardiner wrote:
->> These are just some suggested changes from the review in patch-form. I will
->> do my best to make time for reviewing and testing any future versions of the
->> patch that you submit but I will regrettably be moving to other projects 
->> for awhile. Until then I will not be able to spend much time on integration.
->>
->> With these patches applied I was able to build the da850-evm buttons and keys
->> support with minimal changes.As I said, these are just suggested changes,
->> please feel free to squash, edit or drop them as you see fit. My motivation 
->> here is that if you pickup the driver name and config symbol names as-is then
->> I will have no remaining integration to perform in the da850-evm series. I
->> hope you don't mind that I have to patch and run here.
->>
->> I look forward to your next version of the patch. 
-> 
-> I do like the original patch and even more so Ben changes. Could you
-> tell me if the following still works for you (goes on top of Ben's)
-> and if it does I'll fold everything together and queue for 2.6.38.
+According to this site:
+http://www.cnbc.com/id/40413317
+and its datasheet:
+http://www.findmems.com/wp-content/uploads/2010/11/LPS001WP-DATASHEET.p=
+df
 
-It works for me, however I have additional fixes on top of Ben's changes. I will
-post an updated version soon.
+This sensors applications are:
+=E2=96=A0 Altimeter and barometer for portable devices
+=E2=96=A0 Smartphones
+=E2=96=A0 Indoor navigation
+=E2=96=A0 GPS applications
+=E2=96=A0 Weather station equipment
+=E2=96=A0 Sports watches
 
-The original driver was a part of a patch-set which adds support for a new MIPS
-platform. There are a couple of patches in that series which requires this one.
-It would be nice if the driver would be able to go through the MIPS tree to
-avoid cross-tree dependencies.
+"the same devices would be able to identify the precise location in
+all three dimensions, allowing, for example, a mobile phone to send a
+call to an emergency fire, medical or police service that identified
+not only the location of the building but also the particular floor."
+Identifying 3d location is similar to what many joystick are doing.
 
-Regards,
-Gabor
+Specially the indoor navigation information means an information about
+the user. And the information is very tied to the user.
+I don't know whether this can be used to map with virtual reality in a
+game, or where you use sensors data to give user informations when
+visiting a museum.
+
+
+Dmitry, is it possible to start putting similar drivers in a new
+drivers/input/sensors directory but which belongs to the input
+subsystem ? What do you think ?
+
+
+i
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

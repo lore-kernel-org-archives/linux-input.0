@@ -1,84 +1,55 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: PATCH V4 1/2] input: CMA3000 Accelerometer Driver
-Date: Tue, 30 Nov 2010 17:05:53 +0000
-Message-ID: <4CF52EF1.3050000@cam.ac.uk>
-References: <37129.10.24.255.17.1291028260.squirrel@dbdmail.itg.ti.com> <4CF38E4D.3070309@cam.ac.uk> <20101130075911.GC15731@core.coreip.homeip.net> <5B8D58FB9E1C487FA94F2498E0B9E9AB@wipblrx0099946>
+From: "pascal@pabr.org" <pascal@pabr.org>
+Subject: Re: hidp_output_raw_report, HID_OUTPUT_REPORT and Sixaxis
+Date: Tue, 30 Nov 2010 18:40:03 +0100
+Message-ID: <id3cua$12v$2@dough.gmane.org>
+References: <20101130145405.d8142bc3.ospite@studenti.unina.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:37510 "EHLO
-	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754506Ab0K3Q7E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 11:59:04 -0500
-In-Reply-To: <5B8D58FB9E1C487FA94F2498E0B9E9AB@wipblrx0099946>
+Received: from lo.gmane.org ([80.91.229.12]:59052 "EHLO lo.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753716Ab0K3RpG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 12:45:06 -0500
+Received: from list by lo.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1PNUGG-0001Na-Ic
+	for linux-input@vger.kernel.org; Tue, 30 Nov 2010 18:45:04 +0100
+Received: from rob92-6-82-231-243-221.fbx.proxad.net ([82.231.243.221])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Tue, 30 Nov 2010 18:45:04 +0100
+Received: from pascal by rob92-6-82-231-243-221.fbx.proxad.net with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Tue, 30 Nov 2010 18:45:04 +0100
+In-Reply-To: <20101130145405.d8142bc3.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hemanth V <hemanthv@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, saaguirre@ti.com, Shubhrajyoti@ti.com
+To: linux-input@vger.kernel.org
 
-On 11/30/10 12:50, Hemanth V wrote:
-> ----- Original Message ----- From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
->>
->> Yep, almost there.
->>
->> Hemanth, does the driver still work if you apply the patch below?
-> 
-> Yes works pretty well, Thanks for your efforts
-> 
-> Some minor changes as below required.
-> 
-> <snip>
-> 
->> +struct cma3000_accl_data {
->> + const struct cma3000_bus_ops *bus_ops;
->> + const struct cma3000_platform_data *pdata;
->> +
->> + struct device *dev;
->> + struct input_dev *input_dev;
->> +
->> + int bit_to_mg;
->> + int irq;
->> +
->> + int g_range;
->> + u8 mode;
->> +
->> + struct mutex mutex;
-> 
-> Need a comment to overcome checkpatch warning.
-> 
->>
->> - pr_info("CMA3000 Accelerometer : Revision %x\n", ret);
->> + data->dev = dev;
->> + data->input_dev = input_dev;
->> + data->bus_ops = bops;
->> + data->pdata = pdata;
-> 
-> Need to add data->irq = irq, else exit routine will dump stack
-> 
->>
->> - data->input_dev->name = "cma3000-accelerometer";
->> + data->g_range = pdata->g_range;
->> + if (data->g_range != CMARANGE_2G && data->g_range != CMA3000_RANGE8G) {
-> 
-> Need to change this to "data->g_range != CMARANGE_2G   && data->g_range != CMARANGE_8G "
-> 
->> - input_set_abs_params(data->input_dev, ABS_Z, -g_range,
->> - g_range, fuzz_z, 0);
->> - input_set_abs_params(data->input_dev, ABS_MISC, 0,
->> - 1, 0, 0);
-> 
-> We use this ABS_MISC event to report free fall.
-Free fall isn't a conventional user input...  The lis3 driver
-and similar (currently hiding in hwmon)
-handle this via a separately registered chrdev.  It might not
-be the best plan, but it is an existing interface so we need to
-involve them in any discussion if you want to change it.
+Antonio Ospite wrote:
+> +++ b/net/bluetooth/hidp/core.c
+>  	case HID_OUTPUT_REPORT:
+> -		report_type = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
+> +		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
 
+> Is it only the Sixaxis which needs the output report as a SET_REPORT
+> operation, or the change above is an actual fix?
 
-> 
-> 
-> 
-> 
+My understanding of the Bluetooth HID Profile specification [1],
+section 7.4.9, is that on the control channel DATA is only for
+responding to an incoming GET_REPORT.  Since Linux is the HID
+Host, it will probably never need to reply to a GET_REPORT.
+So your patch looks good.
+
+Note that usbhid_output_raw_report() seems to send OUTPUT
+reports as USB interrupt messages and FEATURE reports as
+USB SET_REPORT control messages, which makes sense too.
+It would be nice if hidraw behaved the same over USB and
+over Bluetooth.  Unfortunately I don't think you can drive
+the sixaxis leds with DATA on the Bluetooth interrupt channel.
+
+Pascal
+
+[1] http://www.bluetooth.com/Specification%20Documents/HID_SPEC_V10.pdf
 

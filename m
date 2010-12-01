@@ -1,76 +1,77 @@
 From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: hidp_output_raw_report, HID_OUTPUT_REPORT and Sixaxis
-Date: Wed, 1 Dec 2010 22:06:35 +0100
-Message-ID: <20101201220635.ccba6b58.ospite@studenti.unina.it>
-References: <20101130145405.d8142bc3.ospite@studenti.unina.it>
-	<id3cua$12v$2@dough.gmane.org>
+Subject: Re: Rewriting wheels HID descriptor for complete functionality
+Date: Wed, 1 Dec 2010 22:20:22 +0100
+Message-ID: <20101201222022.b2e49a1b.ospite@studenti.unina.it>
+References: <e0bdb04c6bf793ed464934fd4f8b663e.squirrel@host171.canaca.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
  micalg="PGP-SHA1";
- boundary="Signature=_Wed__1_Dec_2010_22_06_35_+0100_ZsBi4JkdLLQ.mr+G"
+ boundary="Signature=_Wed__1_Dec_2010_22_20_23_+0100_7VLuNB1Wo1jVg7sl"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp204.alice.it ([82.57.200.100]:33095 "EHLO smtp204.alice.it"
+Received: from smtp206.alice.it ([82.57.200.102]:53954 "EHLO smtp206.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757224Ab0LAVGo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Dec 2010 16:06:44 -0500
-In-Reply-To: <id3cua$12v$2@dough.gmane.org>
+	id S1752752Ab0LAVUn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Dec 2010 16:20:43 -0500
+In-Reply-To: <e0bdb04c6bf793ed464934fd4f8b663e.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "pascal@pabr.org" <pascal@pabr.org>
-Cc: linux-input@vger.kernel.org
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org, Marcin Tolysz <tolysz@gmail.com>
 
---Signature=_Wed__1_Dec_2010_22_06_35_+0100_ZsBi4JkdLLQ.mr+G
+--Signature=_Wed__1_Dec_2010_22_20_23_+0100_7VLuNB1Wo1jVg7sl
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 30 Nov 2010 18:40:03 +0100
-"pascal@pabr.org" <pascal@pabr.org> wrote:
+On Wed, 1 Dec 2010 13:23:15 -0500
+simon@mungewell.org wrote:
 
-> Antonio Ospite wrote:
-> > +++ b/net/bluetooth/hidp/core.c
-> >  	case HID_OUTPUT_REPORT:
-> > -		report_type =3D HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
-> > +		report_type =3D HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
+> I am working on a driver for a Logitech gaming wheel where the HID
+> descriptor presents a 'joystick' with X and Y axis, the Y is a combined
+> acc/brake value even though the wheel has separate paddles for each.
 >=20
-> > Is it only the Sixaxis which needs the output report as a SET_REPORT
-> > operation, or the change above is an actual fix?
+> There are 'vendor defined' variables for both the acc/brake within the HID
+> descriptor, but these are not (by Linux) tied to their function.
+>
+> On the Windows, the specialised Logitech driver gives the option to use
+> either combined or separate acc/brake.
 >=20
-> My understanding of the Bluetooth HID Profile specification [1],
-> section 7.4.9, is that on the control channel DATA is only for
-> responding to an incoming GET_REPORT.  Since Linux is the HID
-> Host, it will probably never need to reply to a GET_REPORT.
-> So your patch looks good.
+> I am considering re-writing the HID descriptor to expose these separate
+> values as 'proper' axis, as they would provide both better resolution and
+> better functionality (ie. left foot braking).
 >
 
-Hi Pascal,
+Simon,
 
-I'll check with the specification you pointed at, and try to come up
-with a meaningful commit message then.
+have you tried Marcin Tolysz's approach of loading the new HID
+descriptor from an external file?
 
-> Note that usbhid_output_raw_report() seems to send OUTPUT
-> reports as USB interrupt messages and FEATURE reports as
-> USB SET_REPORT control messages, which makes sense too.
+Look at:
+https://patchwork.kernel.org/patch/69723/
 
-Well, but that does not work for sixaxis, it only accepts output
-reports on the control endpoint, look at a recent hid-sony.c
-overriding usbhid_output_raw_report().
+If there is interest maybe Marcin's way could be brought back on the
+discussion table (Marcin added to CC).
 
-> It would be nice if hidraw behaved the same over USB and
-> over Bluetooth.  Unfortunately I don't think you can drive
-> the sixaxis leds with DATA on the Bluetooth interrupt channel.
->
+I'll be needing descriptor patching for Sony Sixaxis too, after I solved
+some other issues, so I am also interested on settling on a "standard"
+way to achieve that.
 
-The non-standard USB behavior made me think that the patch proposed
-could not be an actual fix but another non-standard sixaxis quirk; as I
-said, I'll need to check this assumption against the document in [1].
-
-> Pascal
+> Q1. Is this an acceptable thing to do?
 >=20
-> [1] http://www.bluetooth.com/Specification%20Documents/HID_SPEC_V10.pdf
+> Q2. In the case where there is significant change to the HID descriptor,
+> is it OK to just re-write the whole block (rather than patch/swap a couple
+> of bytes)?
+>=20
+> Q3. In re-writing descriptor for the combined acc/brake. Is there a
+> particular 'variable' I should change it to (X, Y and Z would already be
+> used), or should I just make it 'vendor defined'?
+>=20
+> Thanks in advance,
+> Simon
+> (aka Mungewell)
 >=20
 
-Thanks,
+Regards,
    Antonio
 
 --=20
@@ -83,15 +84,15 @@ A: Because it messes up the order in which people normally read text.
    See http://en.wikipedia.org/wiki/Posting_style
 Q: Why is top-posting such a bad thing?
 
---Signature=_Wed__1_Dec_2010_22_06_35_+0100_ZsBi4JkdLLQ.mr+G
+--Signature=_Wed__1_Dec_2010_22_20_23_+0100_7VLuNB1Wo1jVg7sl
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkz2uNsACgkQ5xr2akVTsAGnPACfYbU8HTTm5koJ+CNg08UaNUgH
-scUAn01clcgd2ljxkP5NVFxIGyBYelfB
-=Lij6
+iEYEARECAAYFAkz2vBcACgkQ5xr2akVTsAH8SQCaA9sEzKFleAtPU6ehpjhoCp0Y
+/lEAnjFTB+9XICplEci/sIkeBy62s+6/
+=aOfh
 -----END PGP SIGNATURE-----
 
---Signature=_Wed__1_Dec_2010_22_06_35_+0100_ZsBi4JkdLLQ.mr+G--
+--Signature=_Wed__1_Dec_2010_22_20_23_+0100_7VLuNB1Wo1jVg7sl--

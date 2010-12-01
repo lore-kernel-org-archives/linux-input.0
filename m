@@ -1,44 +1,74 @@
-From: "Li, Yan I" <yan.i.li@intel.com>
-Subject: Re: [PATCH v2] Input: Bug 18122 - Support Lenovo S10-3t's 2-button
- ClickPad
-Date: Wed, 1 Dec 2010 15:18:19 +0800
-Message-ID: <20101201071817.GB3874@thyme.bj.intel.com>
-References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
- <ddb890ce98e91c7422da64168b1624c1e62a02ee.1291101955.git.yan.i.li@intel.com>
- <20101130075026.GA15731@core.coreip.homeip.net>
- <20101130080759.GA17830@thyme.bj.intel.com>
- <BAY130-DS5A81442DAC5CC69983A4ADE250@phx.gbl>
- <20101201041102.GC3411@thyme.bj.intel.com>
- <s5heia2ni58.wl%tiwai@suse.de>
- <BAY130-W15C8BF6B2994FAE083FAF5DE260@phx.gbl>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [PATCH] touchscreen: Cypress TTSP G3 MTDEV Core Driver
+Date: Wed, 01 Dec 2010 12:52:34 +0530
+Message-ID: <4CF5F7BA.7070909@codeaurora.org>
+References: <Kevin McNeely <kev@cypress.com> <1289327120-2612-1-git-send-email-kev@cypress.com> <4CE163CC.1060202@euromail.se> <FB9C2CB29A07AB45B575A4E8D2AABC090119784D@labamba.mis.cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:57264 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751260Ab0LAHSW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Dec 2010 02:18:22 -0500
-Content-Disposition: inline
-In-Reply-To: <BAY130-W15C8BF6B2994FAE083FAF5DE260@phx.gbl>
+Received: from wolverine02.qualcomm.com ([199.106.114.251]:60428 "EHLO
+	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751260Ab0LAHWi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Dec 2010 02:22:38 -0500
+In-Reply-To: <FB9C2CB29A07AB45B575A4E8D2AABC090119784D@labamba.mis.cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tobyn Bertram <tobynbertram@hotmail.com>
-Cc: "tiwai@suse.de" <tiwai@suse.de>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Ding, Jian-feng" <jian-feng.ding@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "meego-kernel@lists.meego.com" <meego-kernel@lists.meego.com>
+To: Kevin McNeely <Kevin.McNeely@cypress.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Simtec Linux Team <linux@simtec.co.uk>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2010 at 02:41:14PM +0800, Tobyn Bertram wrote:
-> The 2-button Clickpad will probably need some code to handle click and drag properly in multi-touch mode.
+Hi Henrik,
 
-Talk to a kernel developer and s/he will tell you to implement that
-logic in X. :)
+On 11/19/2010 11:09 PM, Kevin McNeely wrote:
+> Hello Henrik,
+> 
+> Thank you for reviewing this code submission.
+> 
+> I have replied to each of your comments below.
+> 
+> I would like to resubmit to include the changes.
+> 
+> Thanks and best regards,
+> Kevin
+> 
+> 
+>> -----Original Message-----
+>> From: Henrik Rydberg [mailto:rydberg@euromail.se]
+>> Sent: Monday, November 15, 2010 8:46 AM
+>> To: Kevin McNeely
+>> Cc: Dmitry Torokhov; David Brown; Trilok Soni; Samuel Ortiz; Eric
+> Miao;
+>> Simtec Linux Team; Luotao Fu; linux-input@vger.kernel.org; linux-
+>> kernel@vger.kernel.org
+>> Subject: Re: [PATCH] touchscreen: Cypress TTSP G3 MTDEV Core Driver
+>>
+>> On 11/09/2010 07:25 PM, Kevin McNeely wrote:
+>>
+>>> Initial release of Cypress TTSP Gen3 Core Driver.
+>>> Core Driver includes platform data definition file,
+>>> core driver definition file, and core touchscreen
+>>> touch handling of device data. Generates
+>>> multi-touch input events.
+>>>
+>>> Signed-off-by: Kevin McNeely <kev@cypress.com>
+>>
+>>> ---
+>>
+>>
+>> Thanks for your submission. Please find comments on MT inline. On a
+>> general
+>> note, it is strongly recommended that this driver be converted to the
+>> MT slots
+>> (type B) protocol.
+> 
+> I will resubmit with Protocol A only at this time.  I will remove the
+> Tracking ID's.
+> 
 
-In X we already have so much code to handle the complexity and quirks
-of 1000 different touchpads in the wild.
+Any comments on this? 
+
+---Trilok Soni
 
 -- 
-Best regards,
-Li, Yan
-
-MeeGo Team, Opensource Technology Center, SSG, Intel
-Office tel.: +86-10-82171695 (inet: 8-758-1695)
-OpenPGP key: 5C6C31EF
-IRC: yanli on network irc.freenode.net
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

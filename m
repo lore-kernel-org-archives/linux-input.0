@@ -1,83 +1,49 @@
-From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: Re: [PATCH 0/8] input: gpio_keys_polled fixes
-Date: Tue, 30 Nov 2010 17:16:15 -0500
-Message-ID: <AANLkTi=fYLTEkws+R+9PFtrgUzujQrOuN2PQcGoG7X=v@mail.gmail.com>
-References: <4CF541ED.80905@openwrt.org>
-	<1291142663-1011-1-git-send-email-juhosg@openwrt.org>
+From: "Li, Yan I" <yan.i.li@intel.com>
+Subject: Re: [PATCH v2] Input: Bug 18122 - Support Lenovo S10-3t's 2-button
+ ClickPad
+Date: Wed, 1 Dec 2010 12:11:04 +0800
+Message-ID: <20101201041102.GC3411@thyme.bj.intel.com>
+References: <aefc1833eeede37ae6ea4a9ddeaa602eb7d31101.1290823698.git.yan.i.li@intel.com>
+ <ddb890ce98e91c7422da64168b1624c1e62a02ee.1291101955.git.yan.i.li@intel.com>
+ <20101130075026.GA15731@core.coreip.homeip.net>
+ <20101130080759.GA17830@thyme.bj.intel.com>
+ <BAY130-DS5A81442DAC5CC69983A4ADE250@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:58196 "HELO
-	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751117Ab0K3WQR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Nov 2010 17:16:17 -0500
-Received: by qwi4 with SMTP id 4so1134794qwi.37
-        for <linux-input@vger.kernel.org>; Tue, 30 Nov 2010 14:16:16 -0800 (PST)
-In-Reply-To: <1291142663-1011-1-git-send-email-juhosg@openwrt.org>
+Received: from mga09.intel.com ([134.134.136.24]:13152 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753789Ab0LAELI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Nov 2010 23:11:08 -0500
+Content-Disposition: inline
+In-Reply-To: <BAY130-DS5A81442DAC5CC69983A4ADE250@phx.gbl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gabor Juhos <juhosg@openwrt.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, nsekhar@ti.com
+To: Tobyn Bertram <tobynbertram@hotmail.com>
+Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 'Takashi Iwai' <tiwai@suse.de>, "Ding, Jian-feng" <jian-feng.ding@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "meego-kernel@lists.meego.com" <meego-kernel@lists.meego.com>
 
-Hi Gabor,
+On Tue, Nov 30, 2010 at 11:48:12PM +0800, Tobyn Bertram wrote:
+> I do not have a S10-3t.  I have a HP DV7t with a standard 1 button Clickpad.
+> I am sorry for any confusion.
 
-On Tue, Nov 30, 2010 at 1:44 PM, Gabor Juhos <juhosg@openwrt.org> wrote=
-:
-> This set contains my latest fixes on top of Dmitry's changes.
->
-> Gabor Juhos (8):
-> =A0input: gpio_keys_polled: add MODULE_ALIAS
+Thank you. This clarify the S10-3t touchpad mystery. So I think my v2
+patch is valid.
 
-> =A0input: gpio_keys_polled: return -EINVAL if wakeup specified
-> =A0input: gpio_keys_polled: avoid possible division by zero
-Good idea to return -EINVAL in those cases.
+> I think that 2 different Clickpads will need to be defined: 1 button
+> Clickpads and 2 button Clickpads.  Maybe like this?
+> 
+> #define SYN_CAP_CLICKPAD1BTN(ex0c)		((ex0c) & 0x100000)
+> #define SYN_CAP_CLICKPAD2BTN(ex0c)		((ex0c) & 0x000100)
 
-> =A0input: gpio_keys_polled: use DIV_ROUND_UP to compute the threshold=
- value
-That's what I was looking for, thank you for fixing that up.
+Maybe, although we don't have any code that needs
+SYN_CAP_CLICKPAD2BTN() so far, only 1-button clickpad needs special
+handling, but it's good to have a more precise name.
 
-> =A0input: gpio_keys_polled: precompute threshold value in the probe r=
-outine
-Even better.
+-- 
+Best regards,
+Li, Yan
 
-> =A0input: gpio_keys_polled: use tabs instead of spaces for indentatio=
-n
-> =A0input: gpio_keys_polled: remove a local variable
-> =A0input: gpio_keys_polled: fix Kconfig help text
-I missed that remaining gpio-buttons reference, thanks for catching tha=
-t.
-
-> =A0drivers/input/keyboard/Kconfig =A0 =A0 =A0 =A0 =A0 =A0| =A0 =A04 +=
--
-> =A0drivers/input/keyboard/gpio_keys_polled.c | =A0 30 +++++++++++++++=
--------------
-> =A02 files changed, 18 insertions(+), 16 deletions(-)
-
-I have tested this series with the "da850-evm: add gpio-{keys,leds}
-for UI and BB expanders" on top of your "[PATCH 09/18] input:  add
-input driver for polled GPIO buttons" patch, my "[PATCH WIP 0/6]
-suggested changes to gpio_buttons driver" series and Dmitry's "Input:
-gpio-buttons - misc changes"  patch.
-
-Only minimal changes were needed in the later patches of the da850-evm
-series. They can be summarized by:
-s/gpio_keys_polled\.h/gpio_keys.\h/g and
-s/gpio_keys_polled_platform_data/gpio_keys_platform_data/g.
-
-With those changes I observed the expected input events with evtest.
-
-Tested-by: Ben Gardiner <bengardiner@nanometrics.ca>
-
-Best Regards,
-Ben Gardiner
-
----
-Nanometrics Inc.
-http://www.nanometrics.ca
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+MeeGo Team, Opensource Technology Center, SSG, Intel
+Office tel.: +86-10-82171695 (inet: 8-758-1695)
+OpenPGP key: 5C6C31EF
+IRC: yanli on network irc.freenode.net

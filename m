@@ -1,43 +1,57 @@
-From: simon@mungewell.org
-Subject: Re: Rewriting wheels HID descriptor for complete functionality
-Date: Wed, 1 Dec 2010 17:18:58 -0500
-Message-ID: <c7586f68fbd9dc8403b1dc74a028f906.squirrel@host171.canaca.com>
-References: <e0bdb04c6bf793ed464934fd4f8b663e.squirrel@host171.canaca.com>
-    <20101201222022.b2e49a1b.ospite@studenti.unina.it>
+From: "pascal@pabr.org" <pascal@pabr.org>
+Subject: Re: hidp_output_raw_report, HID_OUTPUT_REPORT and Sixaxis
+Date: Wed, 01 Dec 2010 23:40:37 +0100
+Message-ID: <id6itu$i3q$1@dough.gmane.org>
+References: <20101130145405.d8142bc3.ospite@studenti.unina.it>	<id3cua$12v$2@dough.gmane.org> <20101201220635.ccba6b58.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:43728 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752844Ab0LAWTA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Dec 2010 17:19:00 -0500
-In-Reply-To: <20101201222022.b2e49a1b.ospite@studenti.unina.it>
+Received: from lo.gmane.org ([80.91.229.12]:47322 "EHLO lo.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755941Ab0LAWlP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Dec 2010 17:41:15 -0500
+Received: from list by lo.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1PNvMQ-00046a-EY
+	for linux-input@vger.kernel.org; Wed, 01 Dec 2010 23:41:14 +0100
+Received: from rob92-6-82-231-243-221.fbx.proxad.net ([82.231.243.221])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Wed, 01 Dec 2010 23:41:14 +0100
+Received: from pascal by rob92-6-82-231-243-221.fbx.proxad.net with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Wed, 01 Dec 2010 23:41:14 +0100
+In-Reply-To: <20101201220635.ccba6b58.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: simon@mungewell.org, linux-input@vger.kernel.org, Marcin Tolysz <tolysz@gmail.com>
+To: linux-input@vger.kernel.org
 
+Antonio Ospite wrote:
+> The non-standard USB behavior made me think that the patch proposed
+> could not be an actual fix but another non-standard sixaxis quirk;
 
-> have you tried Marcin Tolysz's approach of loading the new HID
-> descriptor from an external file?
->
-> Look at:
-> https://patchwork.kernel.org/patch/69723/
->
+That sounds right; I hadn't noticed hid-sony.c overriding
+usbhid_output_raw_report().  Maybe it should simply override
+hidp_output_raw_report() as well.
 
-This looks plausable, and would be helpful to the hard-core hacker or
-developer. However it would not really help with 'out of the box'
-experience unless the distros would carry additional files for all known
-'patches'.
+And maybe the default hidp_output_raw_report() should be
+patched to behave like the default usbhid_output_raw_report(),
+for the sake of consistency.
 
-As it stands it would require a file for each USB bus (presumably to allow
-different settings for similar devices on a PC).
+I am not sure you will find a final answer in the HID spec, but
+the default usbhid_output_raw_report() certainly makes sense:
+Send OUTPUT reports as interrupt messages because this is more
+efficient e.g. for streaming reports to force-feedback devices;
+and use the control channel only when the spec leaves no other
+choice, i.e. for other report types.
 
-Given that you can bind/unbind USB devices via the
-'/sys/bus/usb/drivers/usb-hid/[un]bind' interface, could it be possible to
-present a HID descriptor file into which could be cat'ed a new descriptor
-by the hard-core hacker?
+Of course there is also the option of adding a specific function
+in struct hid_device for transactions on the control channel.
+That would be a good opportunity to enforce section 7.9.1
+("no more than one outstanding request on the control channel")
+and to implement callbacks for handshake results; but currently
+nobody needs these features AFAIK.
 
-Simon
+Pascal
 

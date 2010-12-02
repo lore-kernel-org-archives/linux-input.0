@@ -1,43 +1,105 @@
-From: Bill Gatliff <bgat@billgatliff.com>
-Subject: Synchronizing evdev readers and drivers?
-Date: Thu, 2 Dec 2010 11:26:53 -0600
-Message-ID: <AANLkTik8X-Xe9fvYUtRObRBP1PyedOu+zwb1SKKf+kgy@mail.gmail.com>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [PATCH] ir-nec-decoder: fix extended NEC scancodes
+Date: Thu, 02 Dec 2010 15:30:08 -0200
+Message-ID: <4CF7D7A0.7050607@infradead.org>
+References: <7m5j914h31hev0dqkj085vd7.1290777731791@email.android.com> <20101126211213.GA21473@gandalf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:51614 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757178Ab0LBR0y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Dec 2010 12:26:54 -0500
-Received: by vws16 with SMTP id 16so1168956vws.19
-        for <linux-input@vger.kernel.org>; Thu, 02 Dec 2010 09:26:53 -0800 (PST)
+Received: from casper.infradead.org ([85.118.1.10]:48163 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752830Ab0LBRa2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Dec 2010 12:30:28 -0500
+In-Reply-To: <20101126211213.GA21473@gandalf>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: James Hogan <james@albanarts.com>
+Cc: Andy Walls <awalls@md.metrocast.net>, =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Guys:
+Em 26-11-2010 19:12, James Hogan escreveu:
+> (expanded cc list)
+> 
+> On Fri, Nov 26, 2010 at 08:39:25AM -0500, Andy Walls wrote:
+>> You might want to check the handling against this NEC datasheet
+>>
+>> http://www.datasheetcatalog.org/datasheet/nec/UPD6122G-002.pdf
+>>
+>> The datasheet calls the address bytes "custom code" (high byte apparently) and "custom code'" (low byte apparently) with both bytes sent lsb first.  It appears the high byte is sent first when using 16 bit codes.
+> 
+> Thanks for the link Andy. You appear to be correct, which suggests that
+> winbond-cir is the "wrong" one. Curiously there is a comment in
+> winbond-cir.c which explicitly mentions which byte is which:
+> 
+> 854 * With NEC extended, Address1 is the LSB of the Address and
+> 855 * Address2 is the MSB, Command parsing remains unchanged.
+> 
+> but then it also says:
+> 
+> 25 *  To do:
+> 26 *    o Test NEC and RC5
+> 
+> I suppose its all a matter of convention, but I think they should at
+> least be consistent, so I'll go by the NEC datasheet and submit a patch
+> to winbond-cir instead.
 
+Yes, they should be consistent. I also think that RC core is right. So, the
+better is to change it at winbond-cir.
 
-Is there any  way for an input device driver (e.g. something that
-calls input_report_abs() and input_sync()) to know when there is a
-reader of its associated /dev/input/eventX?
+> 
+> Cheers
+> James
+> 
+>> James Hogan <james@albanarts.com> wrote:
+>>
+>>> Could somebody check this as I'm unable to test it.
+>>>
+>>> I'm also not entirely certain it isn't winbond-cir that is in error
+>>> instead of ir-nec-decoder.
+>>>
+>>> Cheers
+>>> James
+>>> --
+>>> After comparing the extended NEC scancode construction of the software
+>>> decoder and winbond-cir it appears the software decoder is putting the
+>>> two address bytes the wrong way around.
+>>>
+>>> Here's how the decoders currently generate scancodes:
+>>> winbond-cir normal NEC:   msb [ 0x0,      0x0,     addr, cmd ] lsb
+>>> soft normal NEC:          msb [ 0x0,      0x0,     addr, cmd ] lsb
+>>> winbond-cir extended NEC: msb [ 0x0, not_addr,     addr, cmd ] lsb
+>>> soft extended NEC:        msb [ 0x0,     addr, not_addr, cmd ] lsb
+>>>
+>>> The soft decider is not consistent with [1], assuming the "Address high"
+>>> byte (not_addr) should be more significant than the "Address low" byte
+>>> (addr) in the scancode.
+>>>
+>>> [1] http://www.sbprojects.com/knowledge/ir/nec.htm
+>>>
+>>> Signed-off-by: James Hogan <james@albanarts.com>
+>>> ---
+>>> drivers/media/IR/ir-nec-decoder.c |    4 ++--
+>>> 1 files changed, 2 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/media/IR/ir-nec-decoder.c
+>>> b/drivers/media/IR/ir-nec-decoder.c
+>>> index 70993f7..11d3e78 100644
+>>> --- a/drivers/media/IR/ir-nec-decoder.c
+>>> +++ b/drivers/media/IR/ir-nec-decoder.c
+>>> @@ -166,8 +166,8 @@ static int ir_nec_decode(struct input_dev
+>>> *input_dev, struct ir_raw_event ev)
+>>>
+>>> 		if ((address ^ not_address) != 0xff) {
+>>> 			/* Extended NEC */
+>>> -			scancode = address     << 16 |
+>>> -				   not_address <<  8 |
+>>> +			scancode = not_address << 16 |
+>>> +				   address     <<  8 |
+>>> 				   command;
+>>> 			IR_dprintk(1, "NEC (Ext) scancode 0x%06x\n", scancode);
+>>> 		} else {
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-media" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-I would love to know when something calls evdev_read() and/or
-evdev_poll(), so that I could then initiate a sampling operation on
-the hardware itself.  Otherwise, I'm forced to periodically poll the
-hardware and that means I'm either gathering data that no application
-wants, or I'm gathering it before (or faster than) an application is
-actually asking for it.
-
-I have stared at a lot of the evdev and related code, and can't find
-anything that looks like what I want.  Am I just not seeing it, or am
-I looking in the wrong place?
-
-
-Thanks!
-
-
-b.g.
--- 
-Bill Gatliff
-bgat@billgatliff.com

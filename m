@@ -1,105 +1,66 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH] ir-nec-decoder: fix extended NEC scancodes
-Date: Thu, 02 Dec 2010 15:30:08 -0200
-Message-ID: <4CF7D7A0.7050607@infradead.org>
-References: <7m5j914h31hev0dqkj085vd7.1290777731791@email.android.com> <20101126211213.GA21473@gandalf>
+From: Matteo DAMENO <matteo.dameno@st.com>
+Subject: RE: [PATCH] input: misc: add lps001wp_prs driver
+Date: Thu, 2 Dec 2010 18:35:59 +0100
+Message-ID: <9BF90A6D61BF154E973D03082989295CA22B3F7E95@SAFEX1MAIL3.st.com>
+References: <matteo.dameno@st.com>
+ <1291049009-32597-1-git-send-email-matteo.dameno@st.com>
+ <20101130060926.GA31838@core.coreip.homeip.net>
+ <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:48163 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752830Ab0LBRa2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Dec 2010 12:30:28 -0500
-In-Reply-To: <20101126211213.GA21473@gandalf>
+Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:59161 "EHLO
+	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757966Ab0LBR5O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Dec 2010 12:57:14 -0500
+In-Reply-To: <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: James Hogan <james@albanarts.com>
-Cc: Andy Walls <awalls@md.metrocast.net>, =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: mems applications <mems.applications@st.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Carmine IASCONE <carmine.iascone@st.com>, Greg KH <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>
 
-Em 26-11-2010 19:12, James Hogan escreveu:
-> (expanded cc list)
-> 
-> On Fri, Nov 26, 2010 at 08:39:25AM -0500, Andy Walls wrote:
->> You might want to check the handling against this NEC datasheet
->>
->> http://www.datasheetcatalog.org/datasheet/nec/UPD6122G-002.pdf
->>
->> The datasheet calls the address bytes "custom code" (high byte apparently) and "custom code'" (low byte apparently) with both bytes sent lsb first.  It appears the high byte is sent first when using 16 bit codes.
-> 
-> Thanks for the link Andy. You appear to be correct, which suggests that
-> winbond-cir is the "wrong" one. Curiously there is a comment in
-> winbond-cir.c which explicitly mentions which byte is which:
-> 
-> 854 * With NEC extended, Address1 is the LSB of the Address and
-> 855 * Address2 is the MSB, Command parsing remains unchanged.
-> 
-> but then it also says:
-> 
-> 25 *  To do:
-> 26 *    o Test NEC and RC5
-> 
-> I suppose its all a matter of convention, but I think they should at
-> least be consistent, so I'll go by the NEC datasheet and submit a patch
-> to winbond-cir instead.
-
-Yes, they should be consistent. I also think that RC core is right. So, the
-better is to change it at winbond-cir.
-
-> 
-> Cheers
-> James
-> 
->> James Hogan <james@albanarts.com> wrote:
->>
->>> Could somebody check this as I'm unable to test it.
->>>
->>> I'm also not entirely certain it isn't winbond-cir that is in error
->>> instead of ir-nec-decoder.
->>>
->>> Cheers
->>> James
->>> --
->>> After comparing the extended NEC scancode construction of the software
->>> decoder and winbond-cir it appears the software decoder is putting the
->>> two address bytes the wrong way around.
->>>
->>> Here's how the decoders currently generate scancodes:
->>> winbond-cir normal NEC:   msb [ 0x0,      0x0,     addr, cmd ] lsb
->>> soft normal NEC:          msb [ 0x0,      0x0,     addr, cmd ] lsb
->>> winbond-cir extended NEC: msb [ 0x0, not_addr,     addr, cmd ] lsb
->>> soft extended NEC:        msb [ 0x0,     addr, not_addr, cmd ] lsb
->>>
->>> The soft decider is not consistent with [1], assuming the "Address high"
->>> byte (not_addr) should be more significant than the "Address low" byte
->>> (addr) in the scancode.
->>>
->>> [1] http://www.sbprojects.com/knowledge/ir/nec.htm
->>>
->>> Signed-off-by: James Hogan <james@albanarts.com>
->>> ---
->>> drivers/media/IR/ir-nec-decoder.c |    4 ++--
->>> 1 files changed, 2 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/media/IR/ir-nec-decoder.c
->>> b/drivers/media/IR/ir-nec-decoder.c
->>> index 70993f7..11d3e78 100644
->>> --- a/drivers/media/IR/ir-nec-decoder.c
->>> +++ b/drivers/media/IR/ir-nec-decoder.c
->>> @@ -166,8 +166,8 @@ static int ir_nec_decode(struct input_dev
->>> *input_dev, struct ir_raw_event ev)
->>>
->>> 		if ((address ^ not_address) != 0xff) {
->>> 			/* Extended NEC */
->>> -			scancode = address     << 16 |
->>> -				   not_address <<  8 |
->>> +			scancode = not_address << 16 |
->>> +				   address     <<  8 |
->>> 				   command;
->>> 			IR_dprintk(1, "NEC (Ext) scancode 0x%06x\n", scancode);
->>> 		} else {
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-media" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTW9oYW1lZCBJa2JlbCBC
+b3VsYWJpYXIgW21haWx0bzpib3VsYWJpYXJAZ21haWwuY29tXQ0KPiBTZW50OiBUdWVzZGF5LCBO
+b3ZlbWJlciAzMCwgMjAxMCAxMTozNSBBTQ0KPiBUbzogRG1pdHJ5IFRvcm9raG92DQo+IENjOiBt
+ZW1zIGFwcGxpY2F0aW9uczsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4g
+a2VybmVsQHZnZXIua2VybmVsLm9yZzsgTWF0dGVvIERBTUVOTzsgQ2FybWluZSBJQVNDT05FOyBt
+ZW1zDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIGlucHV0OiBtaXNjOiBhZGQgbHBzMDAxd3BfcHJz
+IGRyaXZlcg0KPiANCj4gT24gVHVlLCBOb3YgMzAsIDIwMTAgYXQgNzowOSBBTSwgRG1pdHJ5IFRv
+cm9raG92DQo+IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPiB3cm90ZToNCj4gPj4gKyDCoCDC
+oCDCoElmIHlvdSBzYXkgeWVzIGhlcmUgeW91IGdldCBzdXBwb3J0IGZvciB0aGUNCj4gPj4gKyDC
+oCDCoCDCoFNUTSBMUFMwMDFEIEJhcm9tZXRlci9UZXJtb21ldGVyIG9uIEkyQyBidXMuDQo+ID4N
+Cj4gPiBUaGlzIGRvZXMgbm90IGJlbG9uZyB0byBpbnB1dCBzdWJzeXN0ZW0sIElJTyBpcyBhIGJl
+dHRlciBmaXQuDQo+IA0KPiBBY2NvcmRpbmcgdG8gdGhpcyBzaXRlOg0KPiBodHRwOi8vd3d3LmNu
+YmMuY29tL2lkLzQwNDEzMzE3DQo+IGFuZCBpdHMgZGF0YXNoZWV0Og0KPiBodHRwOi8vd3d3LmZp
+bmRtZW1zLmNvbS93cC1jb250ZW50L3VwbG9hZHMvMjAxMC8xMS9MUFMwMDFXUC0NCj4gREFUQVNI
+RUVULnBkZg0KPiANCj4gVGhpcyBzZW5zb3JzIGFwcGxpY2F0aW9ucyBhcmU6DQo+IOKWoCBBbHRp
+bWV0ZXIgYW5kIGJhcm9tZXRlciBmb3IgcG9ydGFibGUgZGV2aWNlcw0KPiDilqAgU21hcnRwaG9u
+ZXMNCj4g4pagIEluZG9vciBuYXZpZ2F0aW9uDQo+IOKWoCBHUFMgYXBwbGljYXRpb25zDQo+IOKW
+oCBXZWF0aGVyIHN0YXRpb24gZXF1aXBtZW50DQo+IOKWoCBTcG9ydHMgd2F0Y2hlcw0KPiANCj4g
+InRoZSBzYW1lIGRldmljZXMgd291bGQgYmUgYWJsZSB0byBpZGVudGlmeSB0aGUgcHJlY2lzZSBs
+b2NhdGlvbiBpbg0KPiBhbGwgdGhyZWUgZGltZW5zaW9ucywgYWxsb3dpbmcsIGZvciBleGFtcGxl
+LCBhIG1vYmlsZSBwaG9uZSB0byBzZW5kIGENCj4gY2FsbCB0byBhbiBlbWVyZ2VuY3kgZmlyZSwg
+bWVkaWNhbCBvciBwb2xpY2Ugc2VydmljZSB0aGF0IGlkZW50aWZpZWQNCj4gbm90IG9ubHkgdGhl
+IGxvY2F0aW9uIG9mIHRoZSBidWlsZGluZyBidXQgYWxzbyB0aGUgcGFydGljdWxhciBmbG9vci4i
+DQo+IElkZW50aWZ5aW5nIDNkIGxvY2F0aW9uIGlzIHNpbWlsYXIgdG8gd2hhdCBtYW55IGpveXN0
+aWNrIGFyZSBkb2luZy4NCj4gDQo+IFNwZWNpYWxseSB0aGUgaW5kb29yIG5hdmlnYXRpb24gaW5m
+b3JtYXRpb24gbWVhbnMgYW4gaW5mb3JtYXRpb24gYWJvdXQNCj4gdGhlIHVzZXIuIEFuZCB0aGUg
+aW5mb3JtYXRpb24gaXMgdmVyeSB0aWVkIHRvIHRoZSB1c2VyLg0KPiBJIGRvbid0IGtub3cgd2hl
+dGhlciB0aGlzIGNhbiBiZSB1c2VkIHRvIG1hcCB3aXRoIHZpcnR1YWwgcmVhbGl0eSBpbiBhDQo+
+IGdhbWUsIG9yIHdoZXJlIHlvdSB1c2Ugc2Vuc29ycyBkYXRhIHRvIGdpdmUgdXNlciBpbmZvcm1h
+dGlvbnMgd2hlbg0KPiB2aXNpdGluZyBhIG11c2V1bS4NCj4gDQo+IA0KPiBEbWl0cnksIGlzIGl0
+IHBvc3NpYmxlIHRvIHN0YXJ0IHB1dHRpbmcgc2ltaWxhciBkcml2ZXJzIGluIGEgbmV3DQo+IGRy
+aXZlcnMvaW5wdXQvc2Vuc29ycyBkaXJlY3RvcnkgYnV0IHdoaWNoIGJlbG9uZ3MgdG8gdGhlIGlu
+cHV0DQo+IHN1YnN5c3RlbSA/IFdoYXQgZG8geW91IHRoaW5rID8NCj4gDQoNCldlIGFncmVlIHdp
+dGggeW91Lg0KSXQgd291bGQgYmUgYSBnb29kIGlkZWEuDQpXZSBhcmUgd29ya2luZyBvbiBtYW55
+IGRldmljZSBkcml2ZXJzIHRoYXQgYXJlIG1hdGNoaW5nIHlvdXIgZGVzY3JpcHRpb24gYW5kDQp3
+ZSBhcmUgcmVhZHkgdG8gc3VibWl0IHRoZW0uDQoNCldlIGFyZSBkaXNvcmllbnRlZCBiZWNhdXNl
+IGV2ZXJ5IG1haW50YWluZXIgc2VlbXMgdG8gYm91bmNlIG91ciBzdWJtaXNzaW9ucw0KYmVjYXVz
+ZSBvZiBpbmFwcHJvcHJpYXRlIHBvc2l0aW9uIGZvciB0aGUgZGV2aWNlLg0KDQpJSU8sIGlucHV0
+L21pc2MsIEkyQyAod2UgZGlkbid0IHN1Ym1pdCBoZXJlIGJlY2F1c2Ugb2YgZGVwcmVjYXRpb24g
+c3RhdGVkIGluDQpEb2N1bWVudGF0aW9uKS4gU29tZSBvbmUgaXMgYWxzbyBzdWJtaXR0aW5nIG91
+ciBkcml2ZXJzIHdpdGggbW9kaWZpY2F0aW9ucyANCnVuZGVyIEh3bW9uLi4uDQoNCldoYXQgdG8g
+ZG8/DQoNCk1hdHRlbyBEYW1lbm8NCg0KPiANCj4gaQ0K

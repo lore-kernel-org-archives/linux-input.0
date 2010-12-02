@@ -1,74 +1,35 @@
-From: "Kevin McNeely" <Kevin.McNeely@cypress.com>
-Subject: RE: [PATCH] touchscreen: Cypress TTSP G3 MTDEV Core Driver
-Date: Wed, 1 Dec 2010 15:59:46 -0800
-Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC0901231946@labamba.mis.cypress.com>
-References: <Kevin McNeely <kev@cypress.com> <1289327120-2612-1-git-send-email-kev@cypress.com> <4CE163CC.1060202@euromail.se> <FB9C2CB29A07AB45B575A4E8D2AABC090119784D@labamba.mis.cypress.com> <4CF5F7BA.7070909@codeaurora.org> <4CF65DF8.2010806@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] touchscreen: Cypress TTSP G3 MTDEV Core Driver
+Date: Thu, 02 Dec 2010 01:01:06 +0100
+Message-ID: <4CF6E1C2.1090101@euromail.se>
+References: <Kevin McNeely <kev@cypress.com> <1289327120-2612-1-git-send-email-kev@cypress.com> <4CE163CC.1060202@euromail.se> <FB9C2CB29A07AB45B575A4E8D2AABC090119784D@labamba.mis.cypress.com> <4CF5F7BA.7070909@codeaurora.org> <4CF65DF8.2010806@euromail.se> <FB9C2CB29A07AB45B575A4E8D2AABC0901231946@labamba.mis.cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns2.cypress.com ([157.95.67.5]:59734 "EHLO ns2.cypress.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752093Ab0LBAAX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Dec 2010 19:00:23 -0500
-Content-class: urn:content-classes:message
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:40408 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755321Ab0LBACD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Dec 2010 19:02:03 -0500
+In-Reply-To: <FB9C2CB29A07AB45B575A4E8D2AABC0901231946@labamba.mis.cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Trilok Soni <tsoni@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Simtec Linux Team <linux@simtec.co.uk>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kevin McNeely <Kevin.McNeely@cypress.com>
+Cc: Trilok Soni <tsoni@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Simtec Linux Team <linux@simtec.co.uk>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Henrik,
+On 12/02/2010 12:59 AM, Kevin McNeely wrote:
 
-Cypress would like to submit as Protocol A now and provide a Protocol B
-update later.
-
-May I submit the updated Core Driver with the Protocol A only (tracking
-ID's removed)? The updated Core Driver also includes other changes as
-you recommended.
-
-Thank you,
-Kevin
-
-> -----Original Message-----
-> From: Henrik Rydberg [mailto:rydberg@euromail.se]
-> Sent: Wednesday, December 01, 2010 6:39 AM
-> To: Trilok Soni
-> Cc: Kevin McNeely; Dmitry Torokhov; David Brown; Samuel Ortiz; Eric
-> Miao; Simtec Linux Team; Luotao Fu; linux-input@vger.kernel.org;
-linux-
-> kernel@vger.kernel.org
-> Subject: Re: [PATCH] touchscreen: Cypress TTSP G3 MTDEV Core Driver
+> Hello Henrik,
 > 
-> >>>
+> Cypress would like to submit as Protocol A now and provide a Protocol B
+> update later.
 > 
-> >>> Thanks for your submission. Please find comments on MT inline. On
-a
-> >>> general
-> >>> note, it is strongly recommended that this driver be converted to
-> the
-> >>> MT slots
-> >>> (type B) protocol.
-> >>
-> >> I will resubmit with Protocol A only at this time.  I will remove
-> the
-> >> Tracking ID's.
-> >>
-> >
-> > Any comments on this?
-> 
-> 
-> It is not optimal, but it is not wrong. If the plan is to support
-> kernels 2.6.38
-> and later, I strongly recommend using the type B protocol, as already
-> stated.
-> 
-> Henrik
+> May I submit the updated Core Driver with the Protocol A only (tracking
+> ID's removed)? The updated Core Driver also includes other changes as
+> you recommended.
 
----------------------------------------------------------------
-This message and any attachments may contain Cypress (or its
-subsidiaries) confidential information. If it has been received
-in error, please advise the sender and immediately delete this
-message.
----------------------------------------------------------------
 
+Absolutely, you are welcome.
+
+Henrik

@@ -1,66 +1,175 @@
-From: Matteo DAMENO <matteo.dameno@st.com>
-Subject: RE: [PATCH] input: misc: add lps001wp_prs driver
-Date: Thu, 2 Dec 2010 18:35:59 +0100
-Message-ID: <9BF90A6D61BF154E973D03082989295CA22B3F7E95@SAFEX1MAIL3.st.com>
-References: <matteo.dameno@st.com>
- <1291049009-32597-1-git-send-email-matteo.dameno@st.com>
- <20101130060926.GA31838@core.coreip.homeip.net>
- <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [PATCH] input: misc: add lps001wp_prs driver
+Date: Thu, 02 Dec 2010 19:41:35 +0000
+Message-ID: <4CF7F66F.70808@cam.ac.uk>
+References: <matteo.dameno@st.com> <1291049009-32597-1-git-send-email-matteo.dameno@st.com> <20101130060926.GA31838@core.coreip.homeip.net> <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com> <9BF90A6D61BF154E973D03082989295CA22B3F7E95@SAFEX1MAIL3.st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog119.obsmtp.com ([207.126.144.147]:59161 "EHLO
-	eu1sys200aog119.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757966Ab0LBR5O (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 Dec 2010 12:57:14 -0500
-In-Reply-To: <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com>
-Content-Language: en-US
+Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:48489 "EHLO
+	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756091Ab0LBTfE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Dec 2010 14:35:04 -0500
+In-Reply-To: <9BF90A6D61BF154E973D03082989295CA22B3F7E95@SAFEX1MAIL3.st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: mems applications <mems.applications@st.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Carmine IASCONE <carmine.iascone@st.com>, Greg KH <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>
+To: Matteo DAMENO <matteo.dameno@st.com>
+Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, mems applications <mems.applications@st.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Carmine IASCONE <carmine.iascone@st.com>, Greg KH <gregkh@suse.de>, Guenter Roeck <guenter.roeck@ericsson.com>, Jean Delvare <khali@linux-fr.org>
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTW9oYW1lZCBJa2JlbCBC
-b3VsYWJpYXIgW21haWx0bzpib3VsYWJpYXJAZ21haWwuY29tXQ0KPiBTZW50OiBUdWVzZGF5LCBO
-b3ZlbWJlciAzMCwgMjAxMCAxMTozNSBBTQ0KPiBUbzogRG1pdHJ5IFRvcm9raG92DQo+IENjOiBt
-ZW1zIGFwcGxpY2F0aW9uczsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4g
-a2VybmVsQHZnZXIua2VybmVsLm9yZzsgTWF0dGVvIERBTUVOTzsgQ2FybWluZSBJQVNDT05FOyBt
-ZW1zDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIGlucHV0OiBtaXNjOiBhZGQgbHBzMDAxd3BfcHJz
-IGRyaXZlcg0KPiANCj4gT24gVHVlLCBOb3YgMzAsIDIwMTAgYXQgNzowOSBBTSwgRG1pdHJ5IFRv
-cm9raG92DQo+IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPiB3cm90ZToNCj4gPj4gKyDCoCDC
-oCDCoElmIHlvdSBzYXkgeWVzIGhlcmUgeW91IGdldCBzdXBwb3J0IGZvciB0aGUNCj4gPj4gKyDC
-oCDCoCDCoFNUTSBMUFMwMDFEIEJhcm9tZXRlci9UZXJtb21ldGVyIG9uIEkyQyBidXMuDQo+ID4N
-Cj4gPiBUaGlzIGRvZXMgbm90IGJlbG9uZyB0byBpbnB1dCBzdWJzeXN0ZW0sIElJTyBpcyBhIGJl
-dHRlciBmaXQuDQo+IA0KPiBBY2NvcmRpbmcgdG8gdGhpcyBzaXRlOg0KPiBodHRwOi8vd3d3LmNu
-YmMuY29tL2lkLzQwNDEzMzE3DQo+IGFuZCBpdHMgZGF0YXNoZWV0Og0KPiBodHRwOi8vd3d3LmZp
-bmRtZW1zLmNvbS93cC1jb250ZW50L3VwbG9hZHMvMjAxMC8xMS9MUFMwMDFXUC0NCj4gREFUQVNI
-RUVULnBkZg0KPiANCj4gVGhpcyBzZW5zb3JzIGFwcGxpY2F0aW9ucyBhcmU6DQo+IOKWoCBBbHRp
-bWV0ZXIgYW5kIGJhcm9tZXRlciBmb3IgcG9ydGFibGUgZGV2aWNlcw0KPiDilqAgU21hcnRwaG9u
-ZXMNCj4g4pagIEluZG9vciBuYXZpZ2F0aW9uDQo+IOKWoCBHUFMgYXBwbGljYXRpb25zDQo+IOKW
-oCBXZWF0aGVyIHN0YXRpb24gZXF1aXBtZW50DQo+IOKWoCBTcG9ydHMgd2F0Y2hlcw0KPiANCj4g
-InRoZSBzYW1lIGRldmljZXMgd291bGQgYmUgYWJsZSB0byBpZGVudGlmeSB0aGUgcHJlY2lzZSBs
-b2NhdGlvbiBpbg0KPiBhbGwgdGhyZWUgZGltZW5zaW9ucywgYWxsb3dpbmcsIGZvciBleGFtcGxl
-LCBhIG1vYmlsZSBwaG9uZSB0byBzZW5kIGENCj4gY2FsbCB0byBhbiBlbWVyZ2VuY3kgZmlyZSwg
-bWVkaWNhbCBvciBwb2xpY2Ugc2VydmljZSB0aGF0IGlkZW50aWZpZWQNCj4gbm90IG9ubHkgdGhl
-IGxvY2F0aW9uIG9mIHRoZSBidWlsZGluZyBidXQgYWxzbyB0aGUgcGFydGljdWxhciBmbG9vci4i
-DQo+IElkZW50aWZ5aW5nIDNkIGxvY2F0aW9uIGlzIHNpbWlsYXIgdG8gd2hhdCBtYW55IGpveXN0
-aWNrIGFyZSBkb2luZy4NCj4gDQo+IFNwZWNpYWxseSB0aGUgaW5kb29yIG5hdmlnYXRpb24gaW5m
-b3JtYXRpb24gbWVhbnMgYW4gaW5mb3JtYXRpb24gYWJvdXQNCj4gdGhlIHVzZXIuIEFuZCB0aGUg
-aW5mb3JtYXRpb24gaXMgdmVyeSB0aWVkIHRvIHRoZSB1c2VyLg0KPiBJIGRvbid0IGtub3cgd2hl
-dGhlciB0aGlzIGNhbiBiZSB1c2VkIHRvIG1hcCB3aXRoIHZpcnR1YWwgcmVhbGl0eSBpbiBhDQo+
-IGdhbWUsIG9yIHdoZXJlIHlvdSB1c2Ugc2Vuc29ycyBkYXRhIHRvIGdpdmUgdXNlciBpbmZvcm1h
-dGlvbnMgd2hlbg0KPiB2aXNpdGluZyBhIG11c2V1bS4NCj4gDQo+IA0KPiBEbWl0cnksIGlzIGl0
-IHBvc3NpYmxlIHRvIHN0YXJ0IHB1dHRpbmcgc2ltaWxhciBkcml2ZXJzIGluIGEgbmV3DQo+IGRy
-aXZlcnMvaW5wdXQvc2Vuc29ycyBkaXJlY3RvcnkgYnV0IHdoaWNoIGJlbG9uZ3MgdG8gdGhlIGlu
-cHV0DQo+IHN1YnN5c3RlbSA/IFdoYXQgZG8geW91IHRoaW5rID8NCj4gDQoNCldlIGFncmVlIHdp
-dGggeW91Lg0KSXQgd291bGQgYmUgYSBnb29kIGlkZWEuDQpXZSBhcmUgd29ya2luZyBvbiBtYW55
-IGRldmljZSBkcml2ZXJzIHRoYXQgYXJlIG1hdGNoaW5nIHlvdXIgZGVzY3JpcHRpb24gYW5kDQp3
-ZSBhcmUgcmVhZHkgdG8gc3VibWl0IHRoZW0uDQoNCldlIGFyZSBkaXNvcmllbnRlZCBiZWNhdXNl
-IGV2ZXJ5IG1haW50YWluZXIgc2VlbXMgdG8gYm91bmNlIG91ciBzdWJtaXNzaW9ucw0KYmVjYXVz
-ZSBvZiBpbmFwcHJvcHJpYXRlIHBvc2l0aW9uIGZvciB0aGUgZGV2aWNlLg0KDQpJSU8sIGlucHV0
-L21pc2MsIEkyQyAod2UgZGlkbid0IHN1Ym1pdCBoZXJlIGJlY2F1c2Ugb2YgZGVwcmVjYXRpb24g
-c3RhdGVkIGluDQpEb2N1bWVudGF0aW9uKS4gU29tZSBvbmUgaXMgYWxzbyBzdWJtaXR0aW5nIG91
-ciBkcml2ZXJzIHdpdGggbW9kaWZpY2F0aW9ucyANCnVuZGVyIEh3bW9uLi4uDQoNCldoYXQgdG8g
-ZG8/DQoNCk1hdHRlbyBEYW1lbm8NCg0KPiANCj4gaQ0K
+Sorry for my lack of response earlier in this thread. Looks
+like my linux-input subscription has died for some reason so
+I hadn't seen it until someone kindly cc'd me.
+
+>> -----Original Message-----
+>> From: Mohamed Ikbel Boulabiar [mailto:boulabiar@gmail.com]
+>> Sent: Tuesday, November 30, 2010 11:35 AM
+>> To: Dmitry Torokhov
+>> Cc: mems applications; linux-input@vger.kernel.org; linux-
+>> kernel@vger.kernel.org; Matteo DAMENO; Carmine IASCONE; mems
+>> Subject: Re: [PATCH] input: misc: add lps001wp_prs driver
+>>
+>> On Tue, Nov 30, 2010 at 7:09 AM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>>>> +      If you say yes here you get support for the
+>>>> +      STM LPS001D Barometer/Termometer on I2C bus.
+>>>
+>>> This does not belong to input subsystem, IIO is a better fit.
+>>
+>> According to this site:
+>> http://www.cnbc.com/id/40413317
+>> and its datasheet:
+>> http://www.findmems.com/wp-content/uploads/2010/11/LPS001WP-
+>> DATASHEET.pdf
+>>
+>> This sensors applications are:
+>> =E2=96=A0 Altimeter and barometer for portable devices
+>> =E2=96=A0 Smartphones
+>> =E2=96=A0 Indoor navigation
+>> =E2=96=A0 GPS applications
+>> =E2=96=A0 Weather station equipment
+>> =E2=96=A0 Sports watches
+>>
+>> "the same devices would be able to identify the precise location in
+>> all three dimensions, allowing, for example, a mobile phone to send =
+a
+>> call to an emergency fire, medical or police service that identified
+>> not only the location of the building but also the particular floor.=
+"
+>> Identifying 3d location is similar to what many joystick are doing.
+>>
+>> Specially the indoor navigation information means an information abo=
+ut
+>> the user. And the information is very tied to the user.
+>> I don't know whether this can be used to map with virtual reality in=
+ a
+>> game, or where you use sensors data to give user informations when
+>> visiting a museum.
+>>
+>>
+>> Dmitry, is it possible to start putting similar drivers in a new
+>> drivers/input/sensors directory but which belongs to the input
+>> subsystem ? What do you think ?
+>>
+>=20
+> We agree with you.
+> It would be a good idea.
+> We are working on many device drivers that are matching your descript=
+ion and
+> we are ready to submit them.
+>=20
+> We are disoriented because every maintainer seems to bounce our submi=
+ssions
+> because of inappropriate position for the device.
+>=20
+> IIO, input/misc, I2C (we didn't submit here because of deprecation st=
+ated in
+> Documentation).
+> Some one is also submitting our drivers with modifications=20
+> under Hwmon...
+If it's out of scope they are wasting their time so it will bounce anyw=
+ay.
+Hwmon is now actively (very well) maintained so inappropriate drivers w=
+ill
+get a reply quickly. (and if you are talking about the combined magneto=
+meter
+and accelerometer driver submitted the other day, it already has!)
+
+Note the big lis3* driver in there is getting kicked out to drivers/mis=
+c asap.
+No one seems quite sure why it went in there in the first place and it =
+has been
+causing confusion ever since!  The presence of that driver is the main =
+reason
+people new to these devices tend to think they should be in hwmon in th=
+e first
+place. (cc'd Guenter and Jean for their information)=20
+>=20
+> What to do?
+This is well within the scope of IIO, so we will be more than happy to =
+take
+the driver and assist with any issues etc caused by the move. The other=
+ existing
+option is to put it in drivers/misc and wait for IIO to move out of sta=
+ging
+or something else to come along. There are a few sensor drivers already=
+ there
+for exactly that reason.
+
+Disadvantages of MISC:
+* Not a coherent location for drivers.  Whether things match in abi etc
+is more fluid and relies on a few people shouting when new drivers arri=
+ve.
+
+Disadvantages of IIO:
+* User space interfaces aren't guaranteed to be stable. However, if you=
+ notify
+us that they need to be for a particular device we will support the cur=
+rent ones
+for a suitable period (and provide any new ones alongside).  Basically,=
+ it's
+taking a while to get the interfaces right though (except for new stuff=
+) I think
+we are pretty close.
+* Kernel abi's probably change more than in the majority of the kernel.
+This isn't a problem if you are in tree though as we will obviously upd=
+ate the
+driver in sync with the changes.
+* One or two core elements are in need of work (the buffering code need=
+s an
+easier to review implementation and the input bridge, in userspace need=
+s
+some actual work beyond a proof of concept).
+
+Conversely we have more flexibility to change things as and when we dis=
+cover
+we got a decision wrong.  We have quite a lot of drivers so working
+on unifying interfaces is becoming easier all the time.  It's Direct
+Digital Synthesis (DDS) chips this week ;)  No merged altimeter drivers
+yet though so there will probably be some new abi elements to pin down.
+
+Personally I don't really mind where drivers are physically located, ju=
+st that
+we use consistent interfaces to user space where ever possible.  The lo=
+cation
+is easy to change (as it's controlled more or less by kernel developers=
+),
+the interfaces less so as userspace applications depend on them.
+
+Nice looking device by the way. I'll take a look at the driver shortly
+(can do a lot of review independent of the subsystem it is going in).
+
+Thanks,
+
+Jonathan
+>=20
+> Matteo Dameno
+>=20
+>>
+>> i
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

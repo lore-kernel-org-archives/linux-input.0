@@ -1,7 +1,7 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: Synchronizing evdev readers and drivers?
-Date: Fri, 3 Dec 2010 13:24:46 -0800
-Message-ID: <20101203212445.GE21277@core.coreip.homeip.net>
+Date: Fri, 3 Dec 2010 22:27:45 +0000
+Message-ID: <20101203222744.GA15995@opensource.wolfsonmicro.com>
 References: <AANLkTik8X-Xe9fvYUtRObRBP1PyedOu+zwb1SKKf+kgy@mail.gmail.com>
  <20101202212223.GA9864@core.coreip.homeip.net>
  <AANLkTi=vc0b5Zcy=TuVq3=6yZ8eHCEwLQ0hkkk-x-AyZ@mail.gmail.com>
@@ -9,109 +9,102 @@ References: <AANLkTik8X-Xe9fvYUtRObRBP1PyedOu+zwb1SKKf+kgy@mail.gmail.com>
  <AANLkTimFoyFksd1orc9Bf8y5y7xQf14i_hhDoRyR3vnE@mail.gmail.com>
  <20101203135346.GI3182@sirena.org.uk>
  <AANLkTimKyU9dhxE5pkwTZ_0m7C1z+KjB-FMqLkA_UsNf@mail.gmail.com>
- <20101203195030.GB21277@core.coreip.homeip.net>
- <AANLkTim_f9dVdUVRmqO4dVfdta6b3LRbMKZArtON0ggb@mail.gmail.com>
+ <20101203185250.GA730@opensource.wolfsonmicro.com>
+ <AANLkTimG0t-1e1s+t-ytXf7e-ZpXFq32C_XVZY6vh59n@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:54405 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750837Ab0LCVY5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Dec 2010 16:24:57 -0500
-Received: by yxt3 with SMTP id 3so4528577yxt.19
-        for <linux-input@vger.kernel.org>; Fri, 03 Dec 2010 13:24:57 -0800 (PST)
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:45439 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752527Ab0LCW1f (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Dec 2010 17:27:35 -0500
 Content-Disposition: inline
-In-Reply-To: <AANLkTim_f9dVdUVRmqO4dVfdta6b3LRbMKZArtON0ggb@mail.gmail.com>
+In-Reply-To: <AANLkTimG0t-1e1s+t-ytXf7e-ZpXFq32C_XVZY6vh59n@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Bill Gatliff <bgat@billgatliff.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-On Fri, Dec 03, 2010 at 02:17:36PM -0600, Bill Gatliff wrote:
-> Dmitry:
-> 
-> 
-> On Fri, Dec 3, 2010 at 1:50 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Right. The indication that application wants the data is open() call. If
-> > userspace does not want data, it should close() the interface.
-> 
-> It *does* want the data, just at a specified rate.  And right now, we
-> have no consistent way of having applications express that rate to the
-> input device.  A read callback is one, very flexible way of correcting
-> that.
+On Fri, Dec 03, 2010 at 01:41:37PM -0600, Bill Gatliff wrote:
+> On Fri, Dec 3, 2010 at 12:52 PM, Mark Brown
 
-No it is not. Please re-read the paragraph below for the reasons why
-read, as it was proposed, does not correct this.
+I'm only going to reply to a couple of specific things that weren't
+covered in what Dimitry said here:
 
-> 
-> > Drivers have no idea what users want to do with the data so they can't
-> > decide whether to ignore the hardware or query it and queue events up.
-> > Some applications might be interested in "sample on demand", while
-> > others would prefer events to be queued and consumed at once.
-> 
-> Yep.  We've already covered that.
-> 
-> > [... cut long argument for an inconsistent and incompatible change to
-> > the interface ...]
-> 
-> I object.
-> 
-> My proposed change is carefully considered to be neither inconsistent
-> nor incompatible with the current interface.  Existing drivers will
-> continue to work exactly as they do now.  Future drivers that don't
-> utilize the read callback will work exactly as conventional drivers do
-> now.
-> 
-> Certain hardware drivers will want to take advantage of the read
-> callback, and those drivers will perform differently in ways that some
-> applications won't care about, and others won't even notice.  And
-> those drivers will perform usefully for applications that *do* care
-> about the differences.
+> It isn't a hypothetical situation: as far as I can tell right now,
+> most Android ports are already pacing their input device sampling in
+> userspace already.  That in itself doesn't justify implementing the
+> read callback, but it does suggest that there are situations (ok, at
+> least one) where users can truly benefit from that control.
 
-What about applications which will observe the change in behavior and it
-will stop them from working?
+When looking at Android phones it's important to remember how these
+things are typically made: Android devices are put together by teams
+that frequently have little prior Linux experience, and are often
+produced under great time pressure.  They're a great source of data
+about problems people are experiencing but you do have to really look
+to make sure you're addressing the root problem.
 
-You are arguing for interface which behavior changes from driver to
-driver, from one version of driver to another. I do not believe you will
-find many supporters for it.
+For example, in this case I would imagine that the thought process of
+people implementing the code you're looking at is something like "The
+data is coming in too quickly.  How can I slow it down?  Oh, I can't.
+Well, I'll just slow down my reading and worry about it later if that
+turns out to be a problem.".  It's most likely to be the lack of any
+current way to manage the data flow that is the underlying problem here,
+the implementations are just a convenient way for applications to bodge
+around the problem with the limited tools available to them.
 
-> 
-> I predicted (and welcomed) a lot of constructive challenges to making
-> a change to such a widely used API.  But your outright hostility isn't
-> a productive use of anyone's time.
+> > Right, and what I'm saying is that userspace should just say what rate
+> > it wants and then get that.
 
-It is not hostility. I simply state the fact - the proposed interface
-change is inconsistent (behavior varies from driver to driver) and
-incompatible (the same application get different behavior from drivers
-which utilize the callback in the way you suggest).
+> We're mostly in violent agreement here.  :)  We just differ in how the
+> application communicates the desired rate to the interface.  I'm not
+> sure that the two approaches are mutually-exclusive.
 
-> 
-> > BTW, if application reads (supplies space for) just one event should we
-> > disacard the rest of hardware state that we read from the device? You
-> > know, just asking...
-> 
-> Ridiculously hypothetical, distracting and unrelated question, but
-> I'll answer it anyway.  If the application wants more than one event,
-> it had better make room for them.
+I think they are; as Dimitry said in much more detail than me your
+approach alters the blocking behaviour of the API for drivers using it
+in a way that breaks expected behviour.
 
-For how many? Lets say we have ABS_X, ABS_Y, ABS_Z. We post a read for 4
-events (including EV_SYN), driver starts poll as you want it to and
-userspace gets all 3. Then we post another read for 4, driver reads HW
-state and this time Y stays the same so only 3 events (ABS_X, ABS_Z and
-EV_SYN). So what to do with the 4th slot? Should it start another poll
-so we could deliver another ABS_X and then what to do with the rest of
-the state. Or maybe you say that we need to reset the whole internal
-device state on every "read"? But what about other users reading from
-the same device? And it gets close and closer to already existing
-solution - open/close - anyway.
+> > For a devices like touchscreens driving the reads from the application
+> > would typically be a 50-100% overhead on the I/O costs and involves
+> > blocking the application while the conversion happens, neither of which
+> > seems desirable.
 
->  As for the events that remain in
-> the queue, if any: that depends on how the driver works.  Just like it
-> does today.
+> So a touch controller driver probably isn't going to bother with the
+> read callback.
 
-Today it does not depend on how the driver works. All events generated
-stay in the client queue unless it is so slow that it overfills.
+On the other hand a touch controller really can use rate control - the
+data rate required for handwriting recognition of Asian languages is
+much greater than that required for pushing buttons.
 
--- 
-Dmitry
+> > Assuming the applications are behaving as you describe and not blocking
+> > waiting for data - I'd expect that if they block waiting for data they'd
+> > also end up seeing data delievered much faster.
+
+> Even in my read callback implementation, the application still always
+> gets blocked until a sample shows up in the event FIFO.  The read
+> callback just gives a driver a chance to know when the application is
+> desiring another sample.
+
+Consider an application written like evtest: it sits and blocks waiting
+for data by calling read() (realistically in a thread).  With the
+current model drivers that can generate a continuous data stream will
+rate limit it to something tasteful.  If read() is a trigger for
+generating a new sample then the application will instead cause data to
+be generated as fast as the hardware is capable of doing so.  This is
+before you get to the issues with buffer sizes that Dimitry mentioned.
+
+Consider also what happens when an application that blocks waiting for
+data gets woken up and does a read().
+
+> > Perhaps I'm missing something here but my experience has always been
+> > that having to worry about time periods adds rather than removes
+> > complexity in applications
+
+> True.  But in this case, the code on the application side is already
+> there: a pthread running a while(1) loop with an msleep.  Ugly to
+> some, but it works.
+
+As someone working in embedded systems I'm sure you're aware of the
+unfortunate space between "makes the system behave" and "good design
+idea" - the ugly to some bit's a really issue here.

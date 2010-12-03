@@ -1,16 +1,20 @@
 From: Valentine Barshak <vbarshak@mvista.com>
 Subject: [PATCH] USB: USBHID: Fix race between disconnect and hiddev_ioctl
-Date: Fri, 3 Dec 2010 20:52:01 +0300
-Message-ID: <20101203175201.GA31307@mvista.com>
+Date: Fri, 3 Dec 2010 20:27:46 +0300
+Message-ID: <20101203172746.GA31045@mvista.com>
 Reply-To: Valentine Barshak <vbarshak@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 93.100.122.208.pool.sknt.ru ([93.100.122.208]:52152 "EHLO
+	localhost.localdomain" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752072Ab0LCSD4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Dec 2010 13:03:56 -0500
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 A USB HID device can be disconnected at any time.
 If this happens right before or while hiddev_ioctl is in progress,
@@ -28,7 +32,7 @@ and then use it.
 This change checks hiddev->exist flag while holding
 the existancelock and uses hid_device only if it exists.
 
-Signed-off-by: Valentine Barshak <vbarshak@mvista.com>
+Signed-off-by: Valentine Barshak <vaxon@black.localdomain>
 ---
  drivers/hid/usbhid/hiddev.c |  168 +++++++++++++++++++++++++++++++++----------
  1 files changed, 131 insertions(+), 37 deletions(-)
@@ -336,3 +340,4 @@ index 984feb3..cbb6974 100644
  	return -EINVAL;
 -- 
 1.6.0.6
+

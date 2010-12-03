@@ -1,216 +1,126 @@
 From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [PATCH 01/20] mfd/ab8500: remove spi support
-Date: Fri, 3 Dec 2010 20:35:34 +0530
-Message-ID: <1291388753-14662-2-git-send-email-sundar.iyer@stericsson.com>
+Subject: [PATCH 05/20] mach-ux500: add STMPE1601 platform data
+Date: Fri, 3 Dec 2010 20:35:38 +0530
+Message-ID: <1291388753-14662-6-git-send-email-sundar.iyer@stericsson.com>
 References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog104.obsmtp.com ([207.126.144.117]:59836 "EHLO
-	eu1sys200aog104.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750939Ab0LCPGj (ORCPT
+Received: from eu1sys200aog114.obsmtp.com ([207.126.144.137]:35016 "EHLO
+	eu1sys200aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750807Ab0LCPGk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Dec 2010 10:06:39 -0500
+	Fri, 3 Dec 2010 10:06:40 -0500
 In-Reply-To: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, ben-linux@fluff.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sundar Iyer <sundar.iyer@stericsson.com>
 
-Since the Ab8500 v1.0, the SPI support is deprecated on the HW.
-
 Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
 ---
- drivers/mfd/Kconfig      |    8 +-
- drivers/mfd/Makefile     |    2 +-
- drivers/mfd/ab8500-spi.c |  143 ----------------------------------------------
- 3 files changed, 5 insertions(+), 148 deletions(-)
- delete mode 100644 drivers/mfd/ab8500-spi.c
+ arch/arm/mach-ux500/board-mop500-keypads.c         |   32 ++++++++++++++++++++
+ arch/arm/mach-ux500/board-mop500.c                 |    3 ++
+ .../mach-ux500/include/mach/irqs-board-mop500.h    |   13 +++++++-
+ 3 files changed, 47 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 3a7b891..c856aa7 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -496,13 +496,13 @@ config EZX_PCAP
+diff --git a/arch/arm/mach-ux500/board-mop500-keypads.c b/arch/arm/mach-ux500/board-mop500-keypads.c
+index c1218c5..4acc4f1 100644
+--- a/arch/arm/mach-ux500/board-mop500-keypads.c
++++ b/arch/arm/mach-ux500/board-mop500-keypads.c
+@@ -128,7 +128,39 @@ static struct ske_keypad_platform_data ske_keypad_board = {
+ 	.debounce_ms    = 40,                   /* in millsecs */
+ };
  
- config AB8500_CORE
- 	bool "ST-Ericsson AB8500 Mixed Signal Power Management chip"
--	depends on GENERIC_HARDIRQS && ABX500_CORE && SPI_MASTER && ARCH_U8500
-+	depends on GENERIC_HARDIRQS && ABX500_CORE && ARCH_U8500
- 	select MFD_CORE
- 	help
- 	  Select this option to enable access to AB8500 power management
--	  chip. This connects to U8500 either on the SSP/SPI bus
--	  or the I2C bus via PRCMU. It also adds the irq_chip
--	  parts for handling the Mixed Signal chip events.
-+	  chip. This connects to U8500 either on the SSP/SPI bus (deprecated
-+	  since hardware version v1.0) or the I2C bus via PRCMU. It also adds
-+	  the irq_chip parts for handling the Mixed Signal chip events.
- 	  This chip embeds various other multimedia funtionalities as well.
++/*
++ * STMPE1601
++ */
++static struct stmpe_keypad_platform_data stmpe1601_keypad_data = {
++	.debounce_ms    = 64,
++	.scan_count     = 8,
++	.no_autorepeat  = true,
++	.keymap_data    = &mop500_keymap_data,
++};
++
++static struct stmpe_platform_data stmpe1601_data = {
++	.id             = 1,
++	.blocks         = STMPE_BLOCK_KEYPAD,
++	.irq_trigger    = IRQF_TRIGGER_FALLING,
++	.irq_base       = MOP500_STMPE1601_IRQ(0),
++	.keypad         = &stmpe1601_keypad_data,
++	.autosleep      = true,
++	.autosleep_timeout = 1024,
++};
++
++static struct i2c_board_info __initdata mop500_i2c0_devices_stuib[] = {
++	{
++		I2C_BOARD_INFO("stmpe1601", 0x40),
++		.irq = NOMADIK_GPIO_TO_IRQ(218),
++		.platform_data = &stmpe1601_data,
++		.flags = I2C_CLIENT_WAKE,
++	},
++};
++
+ void mop500_keypad_init(void)
+ {
+ 	db8500_add_ske_keypad(&ske_keypad_board);
++
++	i2c_register_board_info(0, mop500_i2c0_devices_stuib,
++			ARRAY_SIZE(mop500_i2c0_devices_stuib));
+ }
+diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
+index 9b5e66e..8f4a955 100644
+--- a/arch/arm/mach-ux500/board-mop500.c
++++ b/arch/arm/mach-ux500/board-mop500.c
+@@ -19,6 +19,7 @@
+ #include <linux/amba/pl022.h>
+ #include <linux/spi/spi.h>
+ #include <linux/mfd/ab8500.h>
++#include <linux/mfd/tc35892.h>
  
- config AB8500_I2C_CORE
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 04a7226..67c8bcb 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -70,7 +70,7 @@ obj-$(CONFIG_ABX500_CORE)	+= abx500-core.o
- obj-$(CONFIG_AB3100_CORE)	+= ab3100-core.o
- obj-$(CONFIG_AB3100_OTP)	+= ab3100-otp.o
- obj-$(CONFIG_AB3550_CORE)	+= ab3550-core.o
--obj-$(CONFIG_AB8500_CORE)	+= ab8500-core.o ab8500-spi.o
-+obj-$(CONFIG_AB8500_CORE)	+= ab8500-core.o
- obj-$(CONFIG_AB8500_I2C_CORE)	+= ab8500-i2c.o
- obj-$(CONFIG_AB8500_DEBUG)	+= ab8500-debugfs.o
- obj-$(CONFIG_MFD_TIMBERDALE)    += timberdale.o
-diff --git a/drivers/mfd/ab8500-spi.c b/drivers/mfd/ab8500-spi.c
-deleted file mode 100644
-index b165342..0000000
---- a/drivers/mfd/ab8500-spi.c
-+++ /dev/null
-@@ -1,143 +0,0 @@
--/*
-- * Copyright (C) ST-Ericsson SA 2010
-- *
-- * License Terms: GNU General Public License v2
-- * Author: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-- */
--
--#include <linux/kernel.h>
--#include <linux/slab.h>
--#include <linux/init.h>
--#include <linux/module.h>
--#include <linux/platform_device.h>
--#include <linux/spi/spi.h>
--#include <linux/mfd/ab8500.h>
--
--/*
-- * This funtion writes to any AB8500 registers using
-- * SPI protocol &  before it writes it packs the data
-- * in the below 24 bit frame format
-- *
-- *	 *|------------------------------------|
-- *	 *| 23|22...18|17.......10|9|8|7......0|
-- *	 *| r/w  bank       adr          data  |
-- *	 * ------------------------------------
-- *
-- * This function shouldn't be called from interrupt
-- * context
-- */
--static int ab8500_spi_write(struct ab8500 *ab8500, u16 addr, u8 data)
--{
--	struct spi_device *spi = container_of(ab8500->dev, struct spi_device,
--					      dev);
--	unsigned long spi_data = addr << 10 | data;
--	struct spi_transfer xfer;
--	struct spi_message msg;
--
--	ab8500->tx_buf[0] = spi_data;
--	ab8500->rx_buf[0] = 0;
--
--	xfer.tx_buf	= ab8500->tx_buf;
--	xfer.rx_buf	= NULL;
--	xfer.len	= sizeof(unsigned long);
--
--	spi_message_init(&msg);
--	spi_message_add_tail(&xfer, &msg);
--
--	return spi_sync(spi, &msg);
--}
--
--static int ab8500_spi_read(struct ab8500 *ab8500, u16 addr)
--{
--	struct spi_device *spi = container_of(ab8500->dev, struct spi_device,
--					      dev);
--	unsigned long spi_data = 1 << 23 | addr << 10;
--	struct spi_transfer xfer;
--	struct spi_message msg;
--	int ret;
--
--	ab8500->tx_buf[0] = spi_data;
--	ab8500->rx_buf[0] = 0;
--
--	xfer.tx_buf	= ab8500->tx_buf;
--	xfer.rx_buf	= ab8500->rx_buf;
--	xfer.len	= sizeof(unsigned long);
--
--	spi_message_init(&msg);
--	spi_message_add_tail(&xfer, &msg);
--
--	ret = spi_sync(spi, &msg);
--	if (!ret)
--		/*
--		 * Only the 8 lowermost bytes are
--		 * defined with value, the rest may
--		 * vary depending on chip/board noise.
--		 */
--		ret = ab8500->rx_buf[0] & 0xFFU;
--
--	return ret;
--}
--
--static int __devinit ab8500_spi_probe(struct spi_device *spi)
--{
--	struct ab8500 *ab8500;
--	int ret;
--
--	spi->bits_per_word = 24;
--	ret = spi_setup(spi);
--	if (ret < 0)
--		return ret;
--
--	ab8500 = kzalloc(sizeof *ab8500, GFP_KERNEL);
--	if (!ab8500)
--		return -ENOMEM;
--
--	ab8500->dev = &spi->dev;
--	ab8500->irq = spi->irq;
--
--	ab8500->read = ab8500_spi_read;
--	ab8500->write = ab8500_spi_write;
--
--	spi_set_drvdata(spi, ab8500);
--
--	ret = ab8500_init(ab8500);
--	if (ret)
--		kfree(ab8500);
--
--	return ret;
--}
--
--static int __devexit ab8500_spi_remove(struct spi_device *spi)
--{
--	struct ab8500 *ab8500 = spi_get_drvdata(spi);
--
--	ab8500_exit(ab8500);
--	kfree(ab8500);
--
--	return 0;
--}
--
--static struct spi_driver ab8500_spi_driver = {
--	.driver = {
--		.name = "ab8500-spi",
--		.owner = THIS_MODULE,
--	},
--	.probe	= ab8500_spi_probe,
--	.remove	= __devexit_p(ab8500_spi_remove)
--};
--
--static int __init ab8500_spi_init(void)
--{
--	return spi_register_driver(&ab8500_spi_driver);
--}
--subsys_initcall(ab8500_spi_init);
--
--static void __exit ab8500_spi_exit(void)
--{
--	spi_unregister_driver(&ab8500_spi_driver);
--}
--module_exit(ab8500_spi_exit);
--
--MODULE_AUTHOR("Srinidhi KASAGAR <srinidhi.kasagar@stericsson.com");
--MODULE_DESCRIPTION("AB8500 SPI");
--MODULE_LICENSE("GPL v2");
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
+@@ -71,6 +72,8 @@ static pin_cfg_t mop500_pins[] = {
+ 	GPIO168_KP_O0,
+ 
+ 	GPIO217_GPIO,		/* GPIO_EXP_INT */
++
++	GPIO218_GPIO    | PIN_INPUT_PULLUP, /* STMPE1601 IRQ */
+ };
+ 
+ static struct ab8500_platform_data ab8500_platdata = {
+diff --git a/arch/arm/mach-ux500/include/mach/irqs-board-mop500.h b/arch/arm/mach-ux500/include/mach/irqs-board-mop500.h
+index 7ee8aaa..c89ae0d 100644
+--- a/arch/arm/mach-ux500/include/mach/irqs-board-mop500.h
++++ b/arch/arm/mach-ux500/include/mach/irqs-board-mop500.h
+@@ -14,6 +14,7 @@
+ #define MOP500_AB8500_IRQ_END		(MOP500_AB8500_IRQ_BASE \
+ 					 + AB8500_NR_IRQS)
+ 
++/* TC35892 */
+ #define TC35892_NR_INTERNAL_IRQS	8
+ #define TC35892_INT_GPIO(x)		(TC35892_NR_INTERNAL_IRQS + (x))
+ #define TC35892_NR_GPIOS		24
+@@ -24,8 +25,18 @@
+ #define MOP500_EGPIO_IRQ_BASE		MOP500_AB8500_IRQ_END
+ #define MOP500_EGPIO_IRQ_END		(MOP500_EGPIO_IRQ_BASE \
+ 					 + MOP500_EGPIO_NR_IRQS)
++/* STMPE1601 irqs */
++#define STMPE_NR_INTERNAL_IRQS          9
++#define STMPE_INT_GPIO(x)               (STMPE_NR_INTERNAL_IRQS + (x))
++#define STMPE_NR_GPIOS                  24
++#define STMPE_NR_IRQS                   STMPE_INT_GPIO(STMPE_NR_GPIOS)
+ 
+-#define MOP500_IRQ_END			MOP500_EGPIO_IRQ_END
++#define MOP500_STMPE1601_IRQBASE        MOP500_EGPIO_IRQ_END
++#define MOP500_STMPE1601_IRQ(x)         (MOP500_STMPE1601_IRQBASE + (x))
++
++#define MOP500_NR_IRQS          MOP500_STMPE1601_IRQ(STMPE_NR_INTERNAL_IRQS)
++
++#define MOP500_IRQ_END          MOP500_NR_IRQS
+ 
+ #if MOP500_IRQ_END > IRQ_BOARD_END
+ #undef IRQ_BOARD_END
 -- 
 1.7.2.dirty
 

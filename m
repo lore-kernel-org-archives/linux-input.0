@@ -1,105 +1,191 @@
 From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [PATCH 07/20] mfd/tc35892: rename tc35892 core driver to tc3589x
-Date: Fri, 3 Dec 2010 20:35:40 +0530
-Message-ID: <1291388753-14662-8-git-send-email-sundar.iyer@stericsson.com>
+Subject: [PATCH 19/20] mach-ux500: clean up checkpatch spits
+Date: Fri, 3 Dec 2010 20:35:52 +0530
+Message-ID: <1291388753-14662-20-git-send-email-sundar.iyer@stericsson.com>
 References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog112.obsmtp.com ([207.126.144.133]:56042 "EHLO
+	eu1sys200aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752246Ab0LCPHK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Dec 2010 10:07:10 -0500
 In-Reply-To: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, ben-linux@fluff.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sundar Iyer <sundar.iyer@stericsson.com>
-List-Id: linux-input@vger.kernel.org
-
-Rename the tc35892 core/gpio drivers to tc3589x to include
-new variants in the same mfd core
 
 Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
 ---
- drivers/gpio/Kconfig                            |    8 ++++----
- drivers/gpio/Makefile                           |    2 +-
- drivers/gpio/{tc35892-gpio.c => tc3589x-gpio.c} |    0
- drivers/mfd/Kconfig                             |    6 +++---
- drivers/mfd/Makefile                            |    2 +-
- drivers/mfd/{tc35892.c => tc3589x.c}            |    0
- 6 files changed, 9 insertions(+), 9 deletions(-)
- rename drivers/gpio/{tc35892-gpio.c => tc3589x-gpio.c} (100%)
- rename drivers/mfd/{tc35892.c => tc3589x.c} (100%)
+ arch/arm/mach-ux500/clock.c |  118 +++++++++++++++++++++---------------------
+ 1 files changed, 59 insertions(+), 59 deletions(-)
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 3143ac7..082495b 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -230,11 +230,11 @@ config GPIO_STMPE
- 	  This enables support for the GPIOs found on the STMPE I/O
- 	  Expanders.
+diff --git a/arch/arm/mach-ux500/clock.c b/arch/arm/mach-ux500/clock.c
+index 6657b05..ca01368 100644
+--- a/arch/arm/mach-ux500/clock.c
++++ b/arch/arm/mach-ux500/clock.c
+@@ -334,92 +334,92 @@ static DEFINE_PRCMU_CLK(uiccclk,	0x4, 1, UICCCLK); /* v1 */
+  */
  
--config GPIO_TC35892
--	bool "TC35892 GPIOs"
--	depends on MFD_TC35892
-+config GPIO_TC3589X
-+	bool "TC3589X GPIOs"
-+	depends on MFD_TC3589X
- 	help
--	  This enables support for the GPIOs found on the TC35892
-+	  This enables support for the GPIOs found on the TC3589X
- 	  I/O Expander.
+ /* Peripheral Cluster #1 */
+-static DEFINE_PRCC_CLK(1, i2c4, 	10, 9, &clk_i2cclk);
++static DEFINE_PRCC_CLK(1, i2c4,		10, 9, &clk_i2cclk);
+ static DEFINE_PRCC_CLK(1, gpio0,	9, -1, NULL);
+-static DEFINE_PRCC_CLK(1, slimbus0, 	8,  8, &clk_slimclk);
+-static DEFINE_PRCC_CLK(1, spi3_ed, 	7,  7, NULL);
+-static DEFINE_PRCC_CLK(1, spi3_v1, 	7, -1, NULL);
+-static DEFINE_PRCC_CLK(1, i2c2, 	6,  6, &clk_i2cclk);
++static DEFINE_PRCC_CLK(1, slimbus0,	8,  8, &clk_slimclk);
++static DEFINE_PRCC_CLK(1, spi3_ed,	7,  7, NULL);
++static DEFINE_PRCC_CLK(1, spi3_v1,	7, -1, NULL);
++static DEFINE_PRCC_CLK(1, i2c2,		6,  6, &clk_i2cclk);
+ static DEFINE_PRCC_CLK(1, sdi0,		5,  5, &clk_sdmmcclk);
+-static DEFINE_PRCC_CLK(1, msp1_ed, 	4,  4, &clk_msp02clk);
+-static DEFINE_PRCC_CLK(1, msp1_v1, 	4,  4, &clk_msp1clk);
+-static DEFINE_PRCC_CLK(1, msp0, 	3,  3, &clk_msp02clk);
+-static DEFINE_PRCC_CLK(1, i2c1, 	2,  2, &clk_i2cclk);
+-static DEFINE_PRCC_CLK(1, uart1, 	1,  1, &clk_uartclk);
+-static DEFINE_PRCC_CLK(1, uart0, 	0,  0, &clk_uartclk);
++static DEFINE_PRCC_CLK(1, msp1_ed,	4,  4, &clk_msp02clk);
++static DEFINE_PRCC_CLK(1, msp1_v1,	4,  4, &clk_msp1clk);
++static DEFINE_PRCC_CLK(1, msp0,		3,  3, &clk_msp02clk);
++static DEFINE_PRCC_CLK(1, i2c1,		2,  2, &clk_i2cclk);
++static DEFINE_PRCC_CLK(1, uart1,	1,  1, &clk_uartclk);
++static DEFINE_PRCC_CLK(1, uart0,	0,  0, &clk_uartclk);
  
- config GPIO_TWL4030
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index bdf3dde..39bfd7a 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -24,7 +24,7 @@ obj-$(CONFIG_GPIO_PCF857X)	+= pcf857x.o
- obj-$(CONFIG_GPIO_PCH)		+= pch_gpio.o
- obj-$(CONFIG_GPIO_PL061)	+= pl061.o
- obj-$(CONFIG_GPIO_STMPE)	+= stmpe-gpio.o
--obj-$(CONFIG_GPIO_TC35892)	+= tc35892-gpio.o
-+obj-$(CONFIG_GPIO_TC3589X)	+= tc3589x-gpio.o
- obj-$(CONFIG_GPIO_TIMBERDALE)	+= timbgpio.o
- obj-$(CONFIG_GPIO_TWL4030)	+= twl4030-gpio.o
- obj-$(CONFIG_GPIO_UCB1400)	+= ucb1400_gpio.o
-diff --git a/drivers/gpio/tc35892-gpio.c b/drivers/gpio/tc3589x-gpio.c
-similarity index 100%
-rename from drivers/gpio/tc35892-gpio.c
-rename to drivers/gpio/tc3589x-gpio.c
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index c856aa7..a4c2e3e 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -218,12 +218,12 @@ config MFD_STMPE
- 		Keypad: stmpe-keypad
- 		Touchscreen: stmpe-ts
+ /* Peripheral Cluster #2 */
  
--config MFD_TC35892
--	bool "Support Toshiba TC35892"
-+config MFD_TC3589X
-+	bool "Support Toshiba TC35892 and variants"
- 	depends on I2C=y && GENERIC_HARDIRQS
- 	select MFD_CORE
- 	help
--	  Support for the Toshiba TC35892 I/O Expander.
-+	  Support for the Toshiba TC35892 and variants I/O Expander.
+ static DEFINE_PRCC_CLK(2, gpio1_ed,	12, -1, NULL);
+-static DEFINE_PRCC_CLK(2, ssitx_ed, 	11, -1, NULL);
+-static DEFINE_PRCC_CLK(2, ssirx_ed, 	10, -1, NULL);
+-static DEFINE_PRCC_CLK(2, spi0_ed, 	 9, -1, NULL);
+-static DEFINE_PRCC_CLK(2, sdi3_ed, 	 8,  6, &clk_sdmmcclk);
+-static DEFINE_PRCC_CLK(2, sdi1_ed, 	 7,  5, &clk_sdmmcclk);
+-static DEFINE_PRCC_CLK(2, msp2_ed, 	 6,  4, &clk_msp02clk);
+-static DEFINE_PRCC_CLK(2, sdi4_ed, 	 4,  2, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(2, ssitx_ed,	11, -1, NULL);
++static DEFINE_PRCC_CLK(2, ssirx_ed,	10, -1, NULL);
++static DEFINE_PRCC_CLK(2, spi0_ed,	 9, -1, NULL);
++static DEFINE_PRCC_CLK(2, sdi3_ed,	 8,  6, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(2, sdi1_ed,	 7,  5, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(2, msp2_ed,	 6,  4, &clk_msp02clk);
++static DEFINE_PRCC_CLK(2, sdi4_ed,	 4,  2, &clk_sdmmcclk);
+ static DEFINE_PRCC_CLK(2, pwl_ed,	 3,  1, NULL);
+-static DEFINE_PRCC_CLK(2, spi1_ed, 	 2, -1, NULL);
+-static DEFINE_PRCC_CLK(2, spi2_ed, 	 1, -1, NULL);
+-static DEFINE_PRCC_CLK(2, i2c3_ed, 	 0,  0, &clk_i2cclk);
++static DEFINE_PRCC_CLK(2, spi1_ed,	 2, -1, NULL);
++static DEFINE_PRCC_CLK(2, spi2_ed,	 1, -1, NULL);
++static DEFINE_PRCC_CLK(2, i2c3_ed,	 0,  0, &clk_i2cclk);
  
- 	  This driver provides common support for accessing the device,
- 	  additional drivers must be enabled in order to use the
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 67c8bcb..e42e0889 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -16,7 +16,7 @@ obj-$(CONFIG_MFD_DAVINCI_VOICECODEC)	+= davinci_voicecodec.o
- obj-$(CONFIG_MFD_DM355EVM_MSP)	+= dm355evm_msp.o
+ static DEFINE_PRCC_CLK(2, gpio1_v1,	11, -1, NULL);
+-static DEFINE_PRCC_CLK(2, ssitx_v1, 	10,  7, NULL);
+-static DEFINE_PRCC_CLK(2, ssirx_v1, 	 9,  6, NULL);
+-static DEFINE_PRCC_CLK(2, spi0_v1, 	 8, -1, NULL);
+-static DEFINE_PRCC_CLK(2, sdi3_v1, 	 7,  5, &clk_sdmmcclk);
+-static DEFINE_PRCC_CLK(2, sdi1_v1, 	 6,  4, &clk_sdmmcclk);
+-static DEFINE_PRCC_CLK(2, msp2_v1, 	 5,  3, &clk_msp02clk);
+-static DEFINE_PRCC_CLK(2, sdi4_v1, 	 4,  2, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(2, ssitx_v1,	10,  7, NULL);
++static DEFINE_PRCC_CLK(2, ssirx_v1,	 9,  6, NULL);
++static DEFINE_PRCC_CLK(2, spi0_v1,	 8, -1, NULL);
++static DEFINE_PRCC_CLK(2, sdi3_v1,	 7,  5, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(2, sdi1_v1,	 6,  4, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(2, msp2_v1,	 5,  3, &clk_msp02clk);
++static DEFINE_PRCC_CLK(2, sdi4_v1,	 4,  2, &clk_sdmmcclk);
+ static DEFINE_PRCC_CLK(2, pwl_v1,	 3,  1, NULL);
+-static DEFINE_PRCC_CLK(2, spi1_v1, 	 2, -1, NULL);
+-static DEFINE_PRCC_CLK(2, spi2_v1, 	 1, -1, NULL);
+-static DEFINE_PRCC_CLK(2, i2c3_v1, 	 0,  0, &clk_i2cclk);
++static DEFINE_PRCC_CLK(2, spi1_v1,	 2, -1, NULL);
++static DEFINE_PRCC_CLK(2, spi2_v1,	 1, -1, NULL);
++static DEFINE_PRCC_CLK(2, i2c3_v1,	 0,  0, &clk_i2cclk);
  
- obj-$(CONFIG_MFD_STMPE)		+= stmpe.o
--obj-$(CONFIG_MFD_TC35892)	+= tc35892.o
-+obj-$(CONFIG_MFD_TC3589X)	+= tc3589x.o
- obj-$(CONFIG_MFD_T7L66XB)	+= t7l66xb.o tmio_core.o
- obj-$(CONFIG_MFD_TC6387XB)	+= tc6387xb.o tmio_core.o
- obj-$(CONFIG_MFD_TC6393XB)	+= tc6393xb.o tmio_core.o
-diff --git a/drivers/mfd/tc35892.c b/drivers/mfd/tc3589x.c
-similarity index 100%
-rename from drivers/mfd/tc35892.c
-rename to drivers/mfd/tc3589x.c
+ /* Peripheral Cluster #3 */
+-static DEFINE_PRCC_CLK(3, gpio2, 	8, -1, NULL);
+-static DEFINE_PRCC_CLK(3, sdi5, 	7,  7, &clk_sdmmcclk);
+-static DEFINE_PRCC_CLK(3, uart2, 	6,  6, &clk_uartclk);
+-static DEFINE_PRCC_CLK(3, ske, 		5,  5, &clk_32khz);
+-static DEFINE_PRCC_CLK(3, sdi2, 	4,  4, &clk_sdmmcclk);
+-static DEFINE_PRCC_CLK(3, i2c0, 	3,  3, &clk_i2cclk);
+-static DEFINE_PRCC_CLK(3, ssp1_ed, 	2,  2, &clk_i2cclk);
+-static DEFINE_PRCC_CLK(3, ssp0_ed, 	1,  1, &clk_i2cclk);
+-static DEFINE_PRCC_CLK(3, ssp1_v1, 	2,  2, &clk_sspclk);
+-static DEFINE_PRCC_CLK(3, ssp0_v1, 	1,  1, &clk_sspclk);
+-static DEFINE_PRCC_CLK(3, fsmc, 	0, -1, NULL);
++static DEFINE_PRCC_CLK(3, gpio2,	8, -1, NULL);
++static DEFINE_PRCC_CLK(3, sdi5,		7,  7, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(3, uart2,	6,  6, &clk_uartclk);
++static DEFINE_PRCC_CLK(3, ske,		5,  5, &clk_32khz);
++static DEFINE_PRCC_CLK(3, sdi2,		4,  4, &clk_sdmmcclk);
++static DEFINE_PRCC_CLK(3, i2c0,		3,  3, &clk_i2cclk);
++static DEFINE_PRCC_CLK(3, ssp1_ed,	2,  2, &clk_i2cclk);
++static DEFINE_PRCC_CLK(3, ssp0_ed,	1,  1, &clk_i2cclk);
++static DEFINE_PRCC_CLK(3, ssp1_v1,	2,  2, &clk_sspclk);
++static DEFINE_PRCC_CLK(3, ssp0_v1,	1,  1, &clk_sspclk);
++static DEFINE_PRCC_CLK(3, fsmc,		0, -1, NULL);
+ 
+ /* Peripheral Cluster #4 is in the always on domain */
+ 
+ /* Peripheral Cluster #5 */
+-static DEFINE_PRCC_CLK(5, gpio3, 	1, -1, NULL);
+-static DEFINE_PRCC_CLK(5, usb_ed, 	0,  0, &clk_i2cclk);
+-static DEFINE_PRCC_CLK(5, usb_v1, 	0,  0, NULL);
++static DEFINE_PRCC_CLK(5, gpio3,	1, -1, NULL);
++static DEFINE_PRCC_CLK(5, usb_ed,	0,  0, &clk_i2cclk);
++static DEFINE_PRCC_CLK(5, usb_v1,	0,  0, NULL);
+ 
+ /* Peripheral Cluster #6 */
+ 
+ /* MTU ID in data */
+ static DEFINE_PRCC_CLK_CUSTOM(6, mtu1_v1, 8, -1, NULL, clk_mtu_get_rate, 1);
+ static DEFINE_PRCC_CLK_CUSTOM(6, mtu0_v1, 7, -1, NULL, clk_mtu_get_rate, 0);
+-static DEFINE_PRCC_CLK(6, cfgreg_v1, 	6,  6, NULL);
+-static DEFINE_PRCC_CLK(6, dmc_ed, 	6,  6, NULL);
+-static DEFINE_PRCC_CLK(6, hash1, 	5, -1, NULL);
+-static DEFINE_PRCC_CLK(6, unipro_v1, 	4,  1, &clk_uniproclk);
+-static DEFINE_PRCC_CLK(6, cryp1_ed, 	4, -1, NULL);
+-static DEFINE_PRCC_CLK(6, pka, 		3, -1, NULL);
+-static DEFINE_PRCC_CLK(6, hash0, 	2, -1, NULL);
+-static DEFINE_PRCC_CLK(6, cryp0, 	1, -1, NULL);
+-static DEFINE_PRCC_CLK(6, rng_ed, 	0,  0, &clk_i2cclk);
+-static DEFINE_PRCC_CLK(6, rng_v1, 	0,  0, &clk_rngclk);
++static DEFINE_PRCC_CLK(6, cfgreg_v1,	6,  6, NULL);
++static DEFINE_PRCC_CLK(6, dmc_ed,	6,  6, NULL);
++static DEFINE_PRCC_CLK(6, hash1,	5, -1, NULL);
++static DEFINE_PRCC_CLK(6, unipro_v1,	4,  1, &clk_uniproclk);
++static DEFINE_PRCC_CLK(6, cryp1_ed,	4, -1, NULL);
++static DEFINE_PRCC_CLK(6, pka,		3, -1, NULL);
++static DEFINE_PRCC_CLK(6, hash0,	2, -1, NULL);
++static DEFINE_PRCC_CLK(6, cryp0,	1, -1, NULL);
++static DEFINE_PRCC_CLK(6, rng_ed,	0,  0, &clk_i2cclk);
++static DEFINE_PRCC_CLK(6, rng_v1,	0,  0, &clk_rngclk);
+ 
+ /* Peripheral Cluster #7 */
+ 
+-static DEFINE_PRCC_CLK(7, tzpc0_ed, 	4, -1, NULL);
++static DEFINE_PRCC_CLK(7, tzpc0_ed,	4, -1, NULL);
+ /* MTU ID in data */
+ static DEFINE_PRCC_CLK_CUSTOM(7, mtu1_ed, 3, -1, NULL, clk_mtu_get_rate, 1);
+ static DEFINE_PRCC_CLK_CUSTOM(7, mtu0_ed, 2, -1, NULL, clk_mtu_get_rate, 0);
+-static DEFINE_PRCC_CLK(7, wdg_ed, 	1, -1, NULL);
+-static DEFINE_PRCC_CLK(7, cfgreg_ed, 	0, -1, NULL);
++static DEFINE_PRCC_CLK(7, wdg_ed,	1, -1, NULL);
++static DEFINE_PRCC_CLK(7, cfgreg_ed,	0, -1, NULL);
+ 
+ static struct clk clk_dummy_apb_pclk;
+ 
+@@ -522,7 +522,7 @@ static struct clk_lookup u8500_ed_clks[] = {
+ 
+ static struct clk_lookup u8500_v1_clks[] = {
+ 	/* Peripheral Cluster #1 */
+-	CLK(i2c4,	"nmk-i2c.4", 	NULL),
++	CLK(i2c4,	"nmk-i2c.4",	NULL),
+ 	CLK(spi3_v1,	"spi3",		NULL),
+ 	CLK(msp1_v1,	"msp1",		NULL),
+ 
 -- 
 1.7.2.dirty
+

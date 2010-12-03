@@ -1,39 +1,29 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: Synchronizing evdev readers and drivers?
-Date: Fri, 3 Dec 2010 12:42:41 +0000
-Message-ID: <20101203124240.GH3182@sirena.org.uk>
-References: <AANLkTik8X-Xe9fvYUtRObRBP1PyedOu+zwb1SKKf+kgy@mail.gmail.com> <20101202212223.GA9864@core.coreip.homeip.net> <AANLkTi=vc0b5Zcy=TuVq3=6yZ8eHCEwLQ0hkkk-x-AyZ@mail.gmail.com>
+From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Subject: Re: [PATCH] input: misc: add lps001wp_prs driver
+Date: Fri, 3 Dec 2010 13:47:07 +0100
+Message-ID: <AANLkTik9ODR4qGH0BTFMtQ=FY61tYj6bcHD5GLO3fWxY@mail.gmail.com>
+References: <matteo.dameno@st.com> <1291049009-32597-1-git-send-email-matteo.dameno@st.com>
+ <20101130060926.GA31838@core.coreip.homeip.net> <AANLkTikpVtq2cQVhhcsJhZwGFW74mTqo=-vVK1e50AC2@mail.gmail.com>
+ <9BF90A6D61BF154E973D03082989295CA22B3F7E95@SAFEX1MAIL3.st.com>
+ <4CF7F66F.70808@cam.ac.uk> <9BF90A6D61BF154E973D03082989295CA22B3F803A@SAFEX1MAIL3.st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:43365 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932466Ab0LCMmn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Dec 2010 07:42:43 -0500
-Content-Disposition: inline
-In-Reply-To: <AANLkTi=vc0b5Zcy=TuVq3=6yZ8eHCEwLQ0hkkk-x-AyZ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <9BF90A6D61BF154E973D03082989295CA22B3F803A@SAFEX1MAIL3.st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matteo DAMENO <matteo.dameno@st.com>
+Cc: Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, mems applications <mems.applications@st.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Carmine IASCONE <carmine.iascone@st.com>, Greg KH <gregkh@suse.de>, Guenter Roeck <guenter.roeck@ericsson.com>, Jean Delvare <khali@linux-fr.org>, Paolo BENDISCIOLI <paolo.bendiscioli@st.com>
 List-Id: linux-input@vger.kernel.org
-To: Bill Gatliff <bgat@billgatliff.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Dec 02, 2010 at 03:34:20PM -0600, Bill Gatliff wrote:
+there was an old discussion about this
 
-> I have noticed that several Android ports (among others) call read on
-> /dev/input/eventX inside of a delayed loop--- as if they want to pace
-> the rate of incoming events themselves.  In fact, in those ports the
-> length of each delay is controlled by how often Android applications
-> a.k.a. Activities want events streamed to them.
+here
+http://lkml.org/lkml/2010/8/30/290
+and here
+http://lkml.org/lkml/2010/8/30/410
 
-The sysfs interface offered by polldev is *mostly* doing the same thing
-(providing user space control of the sample rate) - see "Input:
-input-polldev - add sysfs interface for controlling poll interval".
-Implementing the same interface for other input devices seems like a
-reasonable approach to the problem?  It would mean that if the hardware
-is capable of autonomously controlling the rate at which it generates
-samples the application would be able to take advantage of that.
+But I don't know what was the final decision in the end.
+Maybe this needs more discussion as I have said in the first mail.
 
-A callback on read seems like it's a bit limited as it's more work for
-the application (handling the latency introduced by waking up from your
-delay and doing the read is faff) and requires polling in the hardware
-too.
+
+i

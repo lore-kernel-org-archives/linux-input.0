@@ -1,14 +1,14 @@
 From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [PATCH 15/20] mach-ux500: add touchscreen interfaces platform data
-Date: Fri, 3 Dec 2010 20:35:48 +0530
-Message-ID: <1291388753-14662-16-git-send-email-sundar.iyer@stericsson.com>
+Subject: [PATCH 20/20] i2c/nomadik: some checkpatch warnings
+Date: Fri, 3 Dec 2010 20:35:53 +0530
+Message-ID: <1291388753-14662-21-git-send-email-sundar.iyer@stericsson.com>
 References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog108.obsmtp.com ([207.126.144.125]:47483 "EHLO
-	eu1sys200aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752222Ab0LCPHW (ORCPT
+Received: from eu1sys200aog115.obsmtp.com ([207.126.144.139]:37688 "EHLO
+	eu1sys200aog115.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750965Ab0LCPHW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Fri, 3 Dec 2010 10:07:22 -0500
 In-Reply-To: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
@@ -19,227 +19,96 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sundar Iyer <sund
 
 Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
 ---
- arch/arm/mach-ux500/Makefile                   |    1 +
- arch/arm/mach-ux500/board-mop500-touchscreen.c |  170 ++++++++++++++++++++++++
- arch/arm/mach-ux500/board-mop500.c             |    6 +-
- arch/arm/mach-ux500/board-mop500.h             |    2 +-
- 4 files changed, 177 insertions(+), 2 deletions(-)
- create mode 100644 arch/arm/mach-ux500/board-mop500-touchscreen.c
+ drivers/i2c/busses/i2c-nomadik.c |   34 +++++++++++++++++-----------------
+ 1 files changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm/mach-ux500/Makefile b/arch/arm/mach-ux500/Makefile
-index e1d3822..e2af105 100644
---- a/arch/arm/mach-ux500/Makefile
-+++ b/arch/arm/mach-ux500/Makefile
-@@ -14,3 +14,4 @@ obj-$(CONFIG_REGULATOR_AB8500)	+= board-mop500-regulators.o
- obj-$(CONFIG_U5500_MODEM_IRQ)	+= modem_irq.o
- obj-$(CONFIG_U5500_MBOX)	+= mbox.o
- obj-$(CONFIG_INPUT_KEYBOARD)	+= board-mop500-keypads.o
-+obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= board-mop500-touchscreen.o
-diff --git a/arch/arm/mach-ux500/board-mop500-touchscreen.c b/arch/arm/mach-ux500/board-mop500-touchscreen.c
-new file mode 100644
-index 0000000..87cf2ac
---- /dev/null
-+++ b/arch/arm/mach-ux500/board-mop500-touchscreen.c
-@@ -0,0 +1,170 @@
-+/*
-+ * Copyright (C) ST-Ericsson SA 2010
-+ *
-+ * License Terms: GNU General Public License v2
-+ *
-+ * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com>
-+ *
-+ * Touchscreen interfaces for various boards
-+ */
-+#include <linux/i2c.h>
-+#include <linux/gpio.h>
-+#include <linux/interrupt.h>
-+#include <linux/input/bu21013.h>
-+#include <../drivers/staging/ste_rmi4/synaptics_i2c_rmi4.h>
-+
-+#include <mach/gpio.h>
-+#include <mach/irqs.h>
-+
-+/*
-+ * Synaptics RMI4 touchscreen interface on the NUIBs
-+ */
-+
-+/*
-+ * Descriptor structure.
-+ * Describes the number of i2c devices on the bus that speak RMI.
-+ */
-+static struct synaptics_rmi4_platform_data rmi4_i2c_dev_platformdata = {
-+	.name           = "synaptics_rmi4_i2c0",
-+	.irq_number     = NOMADIK_GPIO_TO_IRQ(84),
-+	.irq_type       = (IRQF_TRIGGER_FALLING | IRQF_SHARED),
-+	.x_flip         = true,
-+	.y_flip         = false,
-+	.regulator_en   = true,
-+};
-+
-+static struct i2c_board_info __initdata u8500_i2c3_devices_nuib[] = {
-+	{
-+		I2C_BOARD_INFO("synaptics_rmi4_i2c", 0x4B),
-+		.platform_data = &rmi4_i2c_dev_platformdata,
-+	},
-+};
-+
-+/*
-+ * BU21013 ROHM touchscreen interface on the STUIBs
-+ */
-+
-+/* tracks number of bu21013 devices being enabled */
-+static int bu21013_devices;
-+
-+#define TOUCH_GPIO_PIN  84
-+
-+#define TOUCH_XMAX	384
-+#define TOUCH_YMAX	704
-+
-+#define PRCMU_CLOCK_OCR		0x1CC
-+#define TSC_EXT_CLOCK_9_6MHZ	0x840000
-+
-+/**
-+ * bu21013_gpio_board_init : configures the touch panel.
-+ * @reset_pin: reset pin number
-+ * This function can be used to configures
-+ * the voltage and reset the touch panel controller.
-+ */
-+static int bu21013_gpio_board_init(int reset_pin)
-+{
-+	int retval = 0;
-+
-+	bu21013_devices++;
-+	if (bu21013_devices == 1) {
-+		retval = gpio_request(reset_pin, "touchp_reset");
-+		if (retval) {
-+			printk(KERN_ERR "Unable to request gpio reset_pin");
-+			return retval;
-+		}
-+		retval = gpio_direction_output(reset_pin, 1);
-+		if (retval < 0) {
-+			printk(KERN_ERR "%s: gpio direction failed\n",
-+					__func__);
-+			return retval;
-+		}
-+		gpio_set_value(reset_pin, 1);
-+	}
-+
-+	return retval;
-+}
-+
-+/**
-+ * bu21013_gpio_board_exit : deconfigures the touch panel controller
-+ * @reset_pin: reset pin number
-+ * This function can be used to deconfigures the chip selection
-+ * for touch panel controller.
-+ */
-+static int bu21013_gpio_board_exit(int reset_pin)
-+{
-+	int retval = 0;
-+
-+	if (bu21013_devices == 1) {
-+		retval = gpio_direction_output(reset_pin, 0);
-+		if (retval < 0) {
-+			printk(KERN_ERR "%s: gpio direction failed\n",
-+					__func__);
-+			return retval;
-+		}
-+		gpio_set_value(reset_pin, 0);
-+	}
-+	bu21013_devices--;
-+
-+	return retval;
-+}
-+
-+/**
-+ * bu21013_read_pin_val : get the interrupt pin value
-+ * This function can be used to get the interrupt pin value for touch panel
-+ * controller.
-+ */
-+static int bu21013_read_pin_val(void)
-+{
-+	return gpio_get_value(TOUCH_GPIO_PIN);
-+}
-+
-+static struct bu21013_platform_device tsc_plat_device = {
-+	.cs_en = bu21013_gpio_board_init,
-+	.cs_dis = bu21013_gpio_board_exit,
-+	.irq_read_val = bu21013_read_pin_val,
-+	.irq = NOMADIK_GPIO_TO_IRQ(TOUCH_GPIO_PIN),
-+	.cs_pin = EGPIO_PIN_13,
-+	.x_max_res = 480,
-+	.y_max_res = 864,
-+	.touch_x_max = TOUCH_XMAX,
-+	.touch_y_max = TOUCH_YMAX,
-+	.ext_clk = true,
-+	.x_flip         = true,
-+	.y_flip         = false,
-+};
-+
-+static struct bu21013_platform_device tsc_cntl2_plat_device = {
-+	.cs_en = bu21013_gpio_board_init,
-+	.cs_dis = bu21013_gpio_board_exit,
-+	.irq_read_val = bu21013_read_pin_val,
-+	.irq = NOMADIK_GPIO_TO_IRQ(TOUCH_GPIO_PIN),
-+	.cs_pin = EGPIO_PIN_13,
-+	.x_max_res = 480,
-+	.y_max_res = 864,
-+	.touch_x_max = TOUCH_XMAX,
-+	.touch_y_max = TOUCH_YMAX,
-+	.ext_clk = true,
-+	.x_flip         = true,
-+	.y_flip         = false,
-+};
-+
-+static struct i2c_board_info __initdata u8500_i2c3_devices_stuib[] = {
-+	{
-+		I2C_BOARD_INFO("bu21013_ts", 0x5C),
-+		.platform_data = &tsc_plat_device,
-+	},
-+	{
-+		I2C_BOARD_INFO("bu21013_ts", 0x5D),
-+		.platform_data = &tsc_cntl2_plat_device,
-+	},
-+};
-+
-+void mop500_touchpanel_init(void)
-+{
-+	i2c_register_board_info(3, u8500_i2c3_devices_nuib,
-+			ARRAY_SIZE(u8500_i2c3_devices_nuib));
-+
-+	i2c_register_board_info(3, u8500_i2c3_devices_stuib,
-+			ARRAY_SIZE(u8500_i2c3_devices_stuib));
-+}
-+
-diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
-index 703840b..63313c4 100644
---- a/arch/arm/mach-ux500/board-mop500.c
-+++ b/arch/arm/mach-ux500/board-mop500.c
-@@ -202,8 +202,12 @@ static void __init u8500_init_machine(void)
- 	mop500_spi_init();
- 	mop500_uart_init();
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index baa8ff7..3ead1b6 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -62,11 +62,11 @@
+ /* Master controller (MCR) register */
+ #define I2C_MCR_OP		(0x1 << 0)	/* Operation */
+ #define I2C_MCR_A7		(0x7f << 1)	/* 7-bit address */
+-#define I2C_MCR_EA10		(0x7 << 8) 	/* 10-bit Extended address */
++#define I2C_MCR_EA10		(0x7 << 8)	/* 10-bit Extended address */
+ #define I2C_MCR_SB		(0x1 << 11)	/* Extended address */
+ #define I2C_MCR_AM		(0x3 << 12)	/* Address type */
+-#define I2C_MCR_STOP		(0x1 << 14) 	/* Stop condition */
+-#define I2C_MCR_LENGTH		(0x7ff << 15) 	/* Transaction length */
++#define I2C_MCR_STOP		(0x1 << 14)	/* Stop condition */
++#define I2C_MCR_LENGTH		(0x7ff << 15)	/* Transaction length */
  
-+#ifdef CONFIG_INPUT_KEYBOARD
- 	mop500_keypad_init();
--
-+#endif
-+#ifdef CONFIG_INPUT_TOUCHSCREEN
-+	mop500_touchpanel_init();
-+#endif
- 	platform_device_register(&ab8500_device);
+ /* Status register (SR) */
+ #define I2C_SR_OP		(0x3 << 0)	/* Operation */
+@@ -76,7 +76,7 @@
+ #define I2C_SR_LENGTH		(0x7ff << 9)	/* Transfer length */
  
- 	i2c_register_board_info(0, mop500_i2c0_devices,
-diff --git a/arch/arm/mach-ux500/board-mop500.h b/arch/arm/mach-ux500/board-mop500.h
-index 3104ae2..bac81c5 100644
---- a/arch/arm/mach-ux500/board-mop500.h
-+++ b/arch/arm/mach-ux500/board-mop500.h
-@@ -17,5 +17,5 @@
- extern void mop500_sdi_init(void);
- extern void mop500_sdi_tc35892_init(void);
- extern void mop500_keypad_init(void);
--
-+extern void mop500_touchpanel_init(void);
- #endif
+ /* Interrupt mask set/clear (IMSCR) bits */
+-#define I2C_IT_TXFE 		(0x1 << 0)
++#define I2C_IT_TXFE		(0x1 << 0)
+ #define I2C_IT_TXFNE		(0x1 << 1)
+ #define I2C_IT_TXFF		(0x1 << 2)
+ #define I2C_IT_TXFOVR		(0x1 << 3)
+@@ -154,15 +154,15 @@ struct i2c_nmk_client {
+  */
+ struct nmk_i2c_dev {
+ 	struct platform_device		*pdev;
+-	struct i2c_adapter 		adap;
+-	int 				irq;
++	struct i2c_adapter		adap;
++	int				irq;
+ 	void __iomem			*virtbase;
+ 	struct clk			*clk;
+ 	struct nmk_i2c_controller	cfg;
+ 	struct i2c_nmk_client		cli;
+-	int 				stop;
++	int				stop;
+ 	struct completion		xfer_complete;
+-	int 				result;
++	int				result;
+ };
+ 
+ /* controller's abort causes */
+@@ -275,7 +275,7 @@ static int init_hw(struct nmk_i2c_dev *dev)
+ }
+ 
+ /* enable peripheral, master mode operation */
+-#define DEFAULT_I2C_REG_CR 	((1 << 1) | I2C_CR_PE)
++#define DEFAULT_I2C_REG_CR	((1 << 1) | I2C_CR_PE)
+ 
+ /**
+  * load_i2c_mcr_reg() - load the MCR register
+@@ -519,13 +519,13 @@ static int write_i2c(struct nmk_i2c_dev *dev)
+  *
+  * NOTE:
+  * READ TRANSFER : We impose a restriction of the first message to be the
+- * 		index message for any read transaction.
+- * 		- a no index is coded as '0',
+- * 		- 2byte big endian index is coded as '3'
+- * 		!!! msg[0].buf holds the actual index.
+- * 		This is compatible with generic messages of smbus emulator
+- * 		that send a one byte index.
+- * 		eg. a I2C transation to read 2 bytes from index 0
++ *		index message for any read transaction.
++ *		- a no index is coded as '0',
++ *		- 2byte big endian index is coded as '3'
++ *		!!! msg[0].buf holds the actual index.
++ *		This is compatible with generic messages of smbus emulator
++ *		that send a one byte index.
++ *		eg. a I2C transation to read 2 bytes from index 0
+  *			idx = 0;
+  *			msg[0].addr = client->addr;
+  *			msg[0].flags = 0x0;
+@@ -841,7 +841,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (request_mem_region(res->start, resource_size(res),
+-		DRIVER_NAME "I/O region") == 	NULL)	{
++		DRIVER_NAME "I/O region") ==	NULL)	{
+ 		ret = -EBUSY;
+ 		goto err_no_region;
+ 	}
 -- 
 1.7.2.dirty
 

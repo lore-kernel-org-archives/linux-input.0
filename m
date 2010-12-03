@@ -1,16 +1,16 @@
 From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [PATCH 16/20] i2c/nomadik: add adapter name for updated sanity checkings
-Date: Fri, 3 Dec 2010 20:35:49 +0530
-Message-ID: <1291388753-14662-17-git-send-email-sundar.iyer@stericsson.com>
+Subject: [PATCH 14/20] plat-nomadik/gpio: add expander gpio pins enumeration
+Date: Fri, 3 Dec 2010 20:35:47 +0530
+Message-ID: <1291388753-14662-15-git-send-email-sundar.iyer@stericsson.com>
 References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog112.obsmtp.com ([207.126.144.133]:55935 "EHLO
-	eu1sys200aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752216Ab0LCPHB (ORCPT
+Received: from eu1sys200aog106.obsmtp.com ([207.126.144.121]:34636 "EHLO
+	eu1sys200aog106.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752216Ab0LCPG6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Dec 2010 10:07:01 -0500
+	Fri, 3 Dec 2010 10:06:58 -0500
 In-Reply-To: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,21 +19,48 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sundar Iyer <sund
 
 Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
 ---
- drivers/i2c/busses/i2c-nomadik.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ arch/arm/mach-ux500/include/mach/gpio.h |   28 ++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 2bd3469..baa8ff7 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -872,6 +872,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- 	adap->owner	= THIS_MODULE;
- 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	adap->algo	= &nmk_i2c_algo;
-+	snprintf(adap->name, sizeof(adap->name), DRIVER_NAME);
+diff --git a/arch/arm/mach-ux500/include/mach/gpio.h b/arch/arm/mach-ux500/include/mach/gpio.h
+index d548a62..f28da77 100644
+--- a/arch/arm/mach-ux500/include/mach/gpio.h
++++ b/arch/arm/mach-ux500/include/mach/gpio.h
+@@ -8,6 +8,34 @@
+ #define ARCH_NR_GPIOS	350
  
- 	/* fetch the controller id */
- 	adap->nr	= pdev->id;
+ #include <plat/gpio.h>
++#include <mach/irqs.h>
++
++enum {
++	EGPIO_PIN_0 = NOMADIK_NR_GPIO,
++	EGPIO_PIN_1,
++	EGPIO_PIN_2,
++	EGPIO_PIN_3,
++	EGPIO_PIN_4,
++	EGPIO_PIN_5,
++	EGPIO_PIN_6,
++	EGPIO_PIN_7,
++	EGPIO_PIN_8,
++	EGPIO_PIN_9,
++	EGPIO_PIN_10,
++	EGPIO_PIN_11,
++	EGPIO_PIN_12,
++	EGPIO_PIN_13,
++	EGPIO_PIN_14,
++	EGPIO_PIN_15,
++	EGPIO_PIN_16,
++	EGPIO_PIN_17,
++	EGPIO_PIN_18,
++	EGPIO_PIN_19,
++	EGPIO_PIN_20,
++	EGPIO_PIN_21,
++	EGPIO_PIN_22,
++	EGPIO_PIN_23,
++};
+ 
+ #define __GPIO_RESOURCE(soc, block)					\
+ 	{								\
 -- 
 1.7.2.dirty
 

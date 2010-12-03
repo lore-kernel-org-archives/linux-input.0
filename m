@@ -1,191 +1,99 @@
 From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [PATCH 19/20] mach-ux500: clean up checkpatch spits
-Date: Fri, 3 Dec 2010 20:35:52 +0530
-Message-ID: <1291388753-14662-20-git-send-email-sundar.iyer@stericsson.com>
+Subject: [PATCH 18/20] mach-ux500: explicit enable MTU TCR in the kernel
+Date: Fri, 3 Dec 2010 20:35:51 +0530
+Message-ID: <1291388753-14662-19-git-send-email-sundar.iyer@stericsson.com>
 References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog112.obsmtp.com ([207.126.144.133]:56042 "EHLO
-	eu1sys200aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752246Ab0LCPHK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Dec 2010 10:07:10 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, ben-linux@fluff.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sundar Iyer <sundar.iyer@stericsson.com>
+List-Id: linux-input@vger.kernel.org
+
+PRCM_TCR enables the various timers in the system. This must be achieved
+before any of the MTUs are usable for kernel usage. Explicit enabling of
+this in the kernel makes it independent of bootloader actions.
 
 Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
 ---
- arch/arm/mach-ux500/clock.c |  118 +++++++++++++++++++++---------------------
- 1 files changed, 59 insertions(+), 59 deletions(-)
+ arch/arm/mach-ux500/clock.c |   49 ++++++++-----------------------------------
+ 1 files changed, 9 insertions(+), 40 deletions(-)
 
 diff --git a/arch/arm/mach-ux500/clock.c b/arch/arm/mach-ux500/clock.c
-index 6657b05..ca01368 100644
+index 531de5c..6657b05 100644
 --- a/arch/arm/mach-ux500/clock.c
 +++ b/arch/arm/mach-ux500/clock.c
-@@ -334,92 +334,92 @@ static DEFINE_PRCMU_CLK(uiccclk,	0x4, 1, UICCCLK); /* v1 */
-  */
+@@ -132,7 +132,7 @@ static unsigned long clk_mtu_get_rate(struct clk *clk)
+ {
+ 	void __iomem *addr = __io_address(UX500_PRCMU_BASE)
+ 		+ PRCM_TCR;
+-	u32 tcr = readl(addr);
++	u32 tcr;
+ 	int mtu = (int) clk->data;
+ 	/*
+ 	 * One of these is selected eventually
+@@ -143,6 +143,14 @@ static unsigned long clk_mtu_get_rate(struct clk *clk)
+ 	unsigned long mturate;
+ 	unsigned long retclk;
  
- /* Peripheral Cluster #1 */
--static DEFINE_PRCC_CLK(1, i2c4, 	10, 9, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(1, i2c4,		10, 9, &clk_i2cclk);
- static DEFINE_PRCC_CLK(1, gpio0,	9, -1, NULL);
--static DEFINE_PRCC_CLK(1, slimbus0, 	8,  8, &clk_slimclk);
--static DEFINE_PRCC_CLK(1, spi3_ed, 	7,  7, NULL);
--static DEFINE_PRCC_CLK(1, spi3_v1, 	7, -1, NULL);
--static DEFINE_PRCC_CLK(1, i2c2, 	6,  6, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(1, slimbus0,	8,  8, &clk_slimclk);
-+static DEFINE_PRCC_CLK(1, spi3_ed,	7,  7, NULL);
-+static DEFINE_PRCC_CLK(1, spi3_v1,	7, -1, NULL);
-+static DEFINE_PRCC_CLK(1, i2c2,		6,  6, &clk_i2cclk);
- static DEFINE_PRCC_CLK(1, sdi0,		5,  5, &clk_sdmmcclk);
--static DEFINE_PRCC_CLK(1, msp1_ed, 	4,  4, &clk_msp02clk);
--static DEFINE_PRCC_CLK(1, msp1_v1, 	4,  4, &clk_msp1clk);
--static DEFINE_PRCC_CLK(1, msp0, 	3,  3, &clk_msp02clk);
--static DEFINE_PRCC_CLK(1, i2c1, 	2,  2, &clk_i2cclk);
--static DEFINE_PRCC_CLK(1, uart1, 	1,  1, &clk_uartclk);
--static DEFINE_PRCC_CLK(1, uart0, 	0,  0, &clk_uartclk);
-+static DEFINE_PRCC_CLK(1, msp1_ed,	4,  4, &clk_msp02clk);
-+static DEFINE_PRCC_CLK(1, msp1_v1,	4,  4, &clk_msp1clk);
-+static DEFINE_PRCC_CLK(1, msp0,		3,  3, &clk_msp02clk);
-+static DEFINE_PRCC_CLK(1, i2c1,		2,  2, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(1, uart1,	1,  1, &clk_uartclk);
-+static DEFINE_PRCC_CLK(1, uart0,	0,  0, &clk_uartclk);
++	/*
++	 * On a startup, always conifgure the TCR to the doze mode;
++	 * bootloaders do it for us. Do this in the kernel too.
++	 */
++	writel(PRCM_TCR_DOZE_MODE, addr);
++
++	tcr = readl(addr);
++
+ 	/* Get the rate from the parent as a default */
+ 	if (clk->parent_periph)
+ 		mturate = clk_get_rate(clk->parent_periph);
+@@ -152,45 +160,6 @@ static unsigned long clk_mtu_get_rate(struct clk *clk)
+ 		/* We need to be connected SOMEWHERE */
+ 		BUG();
  
- /* Peripheral Cluster #2 */
- 
- static DEFINE_PRCC_CLK(2, gpio1_ed,	12, -1, NULL);
--static DEFINE_PRCC_CLK(2, ssitx_ed, 	11, -1, NULL);
--static DEFINE_PRCC_CLK(2, ssirx_ed, 	10, -1, NULL);
--static DEFINE_PRCC_CLK(2, spi0_ed, 	 9, -1, NULL);
--static DEFINE_PRCC_CLK(2, sdi3_ed, 	 8,  6, &clk_sdmmcclk);
--static DEFINE_PRCC_CLK(2, sdi1_ed, 	 7,  5, &clk_sdmmcclk);
--static DEFINE_PRCC_CLK(2, msp2_ed, 	 6,  4, &clk_msp02clk);
--static DEFINE_PRCC_CLK(2, sdi4_ed, 	 4,  2, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(2, ssitx_ed,	11, -1, NULL);
-+static DEFINE_PRCC_CLK(2, ssirx_ed,	10, -1, NULL);
-+static DEFINE_PRCC_CLK(2, spi0_ed,	 9, -1, NULL);
-+static DEFINE_PRCC_CLK(2, sdi3_ed,	 8,  6, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(2, sdi1_ed,	 7,  5, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(2, msp2_ed,	 6,  4, &clk_msp02clk);
-+static DEFINE_PRCC_CLK(2, sdi4_ed,	 4,  2, &clk_sdmmcclk);
- static DEFINE_PRCC_CLK(2, pwl_ed,	 3,  1, NULL);
--static DEFINE_PRCC_CLK(2, spi1_ed, 	 2, -1, NULL);
--static DEFINE_PRCC_CLK(2, spi2_ed, 	 1, -1, NULL);
--static DEFINE_PRCC_CLK(2, i2c3_ed, 	 0,  0, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(2, spi1_ed,	 2, -1, NULL);
-+static DEFINE_PRCC_CLK(2, spi2_ed,	 1, -1, NULL);
-+static DEFINE_PRCC_CLK(2, i2c3_ed,	 0,  0, &clk_i2cclk);
- 
- static DEFINE_PRCC_CLK(2, gpio1_v1,	11, -1, NULL);
--static DEFINE_PRCC_CLK(2, ssitx_v1, 	10,  7, NULL);
--static DEFINE_PRCC_CLK(2, ssirx_v1, 	 9,  6, NULL);
--static DEFINE_PRCC_CLK(2, spi0_v1, 	 8, -1, NULL);
--static DEFINE_PRCC_CLK(2, sdi3_v1, 	 7,  5, &clk_sdmmcclk);
--static DEFINE_PRCC_CLK(2, sdi1_v1, 	 6,  4, &clk_sdmmcclk);
--static DEFINE_PRCC_CLK(2, msp2_v1, 	 5,  3, &clk_msp02clk);
--static DEFINE_PRCC_CLK(2, sdi4_v1, 	 4,  2, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(2, ssitx_v1,	10,  7, NULL);
-+static DEFINE_PRCC_CLK(2, ssirx_v1,	 9,  6, NULL);
-+static DEFINE_PRCC_CLK(2, spi0_v1,	 8, -1, NULL);
-+static DEFINE_PRCC_CLK(2, sdi3_v1,	 7,  5, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(2, sdi1_v1,	 6,  4, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(2, msp2_v1,	 5,  3, &clk_msp02clk);
-+static DEFINE_PRCC_CLK(2, sdi4_v1,	 4,  2, &clk_sdmmcclk);
- static DEFINE_PRCC_CLK(2, pwl_v1,	 3,  1, NULL);
--static DEFINE_PRCC_CLK(2, spi1_v1, 	 2, -1, NULL);
--static DEFINE_PRCC_CLK(2, spi2_v1, 	 1, -1, NULL);
--static DEFINE_PRCC_CLK(2, i2c3_v1, 	 0,  0, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(2, spi1_v1,	 2, -1, NULL);
-+static DEFINE_PRCC_CLK(2, spi2_v1,	 1, -1, NULL);
-+static DEFINE_PRCC_CLK(2, i2c3_v1,	 0,  0, &clk_i2cclk);
- 
- /* Peripheral Cluster #3 */
--static DEFINE_PRCC_CLK(3, gpio2, 	8, -1, NULL);
--static DEFINE_PRCC_CLK(3, sdi5, 	7,  7, &clk_sdmmcclk);
--static DEFINE_PRCC_CLK(3, uart2, 	6,  6, &clk_uartclk);
--static DEFINE_PRCC_CLK(3, ske, 		5,  5, &clk_32khz);
--static DEFINE_PRCC_CLK(3, sdi2, 	4,  4, &clk_sdmmcclk);
--static DEFINE_PRCC_CLK(3, i2c0, 	3,  3, &clk_i2cclk);
--static DEFINE_PRCC_CLK(3, ssp1_ed, 	2,  2, &clk_i2cclk);
--static DEFINE_PRCC_CLK(3, ssp0_ed, 	1,  1, &clk_i2cclk);
--static DEFINE_PRCC_CLK(3, ssp1_v1, 	2,  2, &clk_sspclk);
--static DEFINE_PRCC_CLK(3, ssp0_v1, 	1,  1, &clk_sspclk);
--static DEFINE_PRCC_CLK(3, fsmc, 	0, -1, NULL);
-+static DEFINE_PRCC_CLK(3, gpio2,	8, -1, NULL);
-+static DEFINE_PRCC_CLK(3, sdi5,		7,  7, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(3, uart2,	6,  6, &clk_uartclk);
-+static DEFINE_PRCC_CLK(3, ske,		5,  5, &clk_32khz);
-+static DEFINE_PRCC_CLK(3, sdi2,		4,  4, &clk_sdmmcclk);
-+static DEFINE_PRCC_CLK(3, i2c0,		3,  3, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(3, ssp1_ed,	2,  2, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(3, ssp0_ed,	1,  1, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(3, ssp1_v1,	2,  2, &clk_sspclk);
-+static DEFINE_PRCC_CLK(3, ssp0_v1,	1,  1, &clk_sspclk);
-+static DEFINE_PRCC_CLK(3, fsmc,		0, -1, NULL);
- 
- /* Peripheral Cluster #4 is in the always on domain */
- 
- /* Peripheral Cluster #5 */
--static DEFINE_PRCC_CLK(5, gpio3, 	1, -1, NULL);
--static DEFINE_PRCC_CLK(5, usb_ed, 	0,  0, &clk_i2cclk);
--static DEFINE_PRCC_CLK(5, usb_v1, 	0,  0, NULL);
-+static DEFINE_PRCC_CLK(5, gpio3,	1, -1, NULL);
-+static DEFINE_PRCC_CLK(5, usb_ed,	0,  0, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(5, usb_v1,	0,  0, NULL);
- 
- /* Peripheral Cluster #6 */
- 
- /* MTU ID in data */
- static DEFINE_PRCC_CLK_CUSTOM(6, mtu1_v1, 8, -1, NULL, clk_mtu_get_rate, 1);
- static DEFINE_PRCC_CLK_CUSTOM(6, mtu0_v1, 7, -1, NULL, clk_mtu_get_rate, 0);
--static DEFINE_PRCC_CLK(6, cfgreg_v1, 	6,  6, NULL);
--static DEFINE_PRCC_CLK(6, dmc_ed, 	6,  6, NULL);
--static DEFINE_PRCC_CLK(6, hash1, 	5, -1, NULL);
--static DEFINE_PRCC_CLK(6, unipro_v1, 	4,  1, &clk_uniproclk);
--static DEFINE_PRCC_CLK(6, cryp1_ed, 	4, -1, NULL);
--static DEFINE_PRCC_CLK(6, pka, 		3, -1, NULL);
--static DEFINE_PRCC_CLK(6, hash0, 	2, -1, NULL);
--static DEFINE_PRCC_CLK(6, cryp0, 	1, -1, NULL);
--static DEFINE_PRCC_CLK(6, rng_ed, 	0,  0, &clk_i2cclk);
--static DEFINE_PRCC_CLK(6, rng_v1, 	0,  0, &clk_rngclk);
-+static DEFINE_PRCC_CLK(6, cfgreg_v1,	6,  6, NULL);
-+static DEFINE_PRCC_CLK(6, dmc_ed,	6,  6, NULL);
-+static DEFINE_PRCC_CLK(6, hash1,	5, -1, NULL);
-+static DEFINE_PRCC_CLK(6, unipro_v1,	4,  1, &clk_uniproclk);
-+static DEFINE_PRCC_CLK(6, cryp1_ed,	4, -1, NULL);
-+static DEFINE_PRCC_CLK(6, pka,		3, -1, NULL);
-+static DEFINE_PRCC_CLK(6, hash0,	2, -1, NULL);
-+static DEFINE_PRCC_CLK(6, cryp0,	1, -1, NULL);
-+static DEFINE_PRCC_CLK(6, rng_ed,	0,  0, &clk_i2cclk);
-+static DEFINE_PRCC_CLK(6, rng_v1,	0,  0, &clk_rngclk);
- 
- /* Peripheral Cluster #7 */
- 
--static DEFINE_PRCC_CLK(7, tzpc0_ed, 	4, -1, NULL);
-+static DEFINE_PRCC_CLK(7, tzpc0_ed,	4, -1, NULL);
- /* MTU ID in data */
- static DEFINE_PRCC_CLK_CUSTOM(7, mtu1_ed, 3, -1, NULL, clk_mtu_get_rate, 1);
- static DEFINE_PRCC_CLK_CUSTOM(7, mtu0_ed, 2, -1, NULL, clk_mtu_get_rate, 0);
--static DEFINE_PRCC_CLK(7, wdg_ed, 	1, -1, NULL);
--static DEFINE_PRCC_CLK(7, cfgreg_ed, 	0, -1, NULL);
-+static DEFINE_PRCC_CLK(7, wdg_ed,	1, -1, NULL);
-+static DEFINE_PRCC_CLK(7, cfgreg_ed,	0, -1, NULL);
- 
- static struct clk clk_dummy_apb_pclk;
- 
-@@ -522,7 +522,7 @@ static struct clk_lookup u8500_ed_clks[] = {
- 
- static struct clk_lookup u8500_v1_clks[] = {
- 	/* Peripheral Cluster #1 */
--	CLK(i2c4,	"nmk-i2c.4", 	NULL),
-+	CLK(i2c4,	"nmk-i2c.4",	NULL),
- 	CLK(spi3_v1,	"spi3",		NULL),
- 	CLK(msp1_v1,	"msp1",		NULL),
- 
+-	/*
+-	 * Are we in doze mode?
+-	 * In this mode the parent peripheral or the fixed 32768 Hz
+-	 * clock is fed into the block.
+-	 */
+-	if (!(tcr & PRCM_TCR_DOZE_MODE)) {
+-		/*
+-		 * Here we're using the clock input from the APE ULP
+-		 * clock domain. But first: are the timers stopped?
+-		 */
+-		if (tcr & PRCM_TCR_STOPPED) {
+-			clk32k = 0;
+-			mturate = 0;
+-		} else {
+-			/* Else default mode: 0 and 2.4 MHz */
+-			clk32k = 0;
+-			if (cpu_is_u5500())
+-				/* DB5500 divides by 8 */
+-				mturate /= 8;
+-			else if (cpu_is_u8500ed()) {
+-				/*
+-				 * This clocking setting must not be used
+-				 * in the ED chip, it is simply not
+-				 * connected anywhere!
+-				 */
+-				mturate = 0;
+-				BUG();
+-			} else
+-				/*
+-				 * In this mode the ulp38m4 clock is divided
+-				 * by a factor 16, on the DB8500 typically
+-				 * 38400000 / 16 ~ 2.4 MHz.
+-				 * TODO: Replace the constant with a reference
+-				 * to the ULP source once this is modeled.
+-				 */
+-				mturate = 38400000 / 16;
+-		}
+-	}
+-
+ 	/* Return the clock selected for this MTU */
+ 	if (tcr & (1 << mtu))
+ 		retclk = clk32k;
 -- 
 1.7.2.dirty
-

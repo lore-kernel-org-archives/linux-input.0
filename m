@@ -1,99 +1,245 @@
 From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [PATCH 18/20] mach-ux500: explicit enable MTU TCR in the kernel
-Date: Fri, 3 Dec 2010 20:35:51 +0530
-Message-ID: <1291388753-14662-19-git-send-email-sundar.iyer@stericsson.com>
+Subject: [PATCH 15/20] mach-ux500: add touchscreen interfaces platform data
+Date: Fri, 3 Dec 2010 20:35:48 +0530
+Message-ID: <1291388753-14662-16-git-send-email-sundar.iyer@stericsson.com>
 References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog108.obsmtp.com ([207.126.144.125]:47483 "EHLO
+	eu1sys200aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752222Ab0LCPHW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Dec 2010 10:07:22 -0500
 In-Reply-To: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, ben-linux@fluff.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sundar Iyer <sundar.iyer@stericsson.com>
-List-Id: linux-input@vger.kernel.org
-
-PRCM_TCR enables the various timers in the system. This must be achieved
-before any of the MTUs are usable for kernel usage. Explicit enabling of
-this in the kernel makes it independent of bootloader actions.
 
 Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
 ---
- arch/arm/mach-ux500/clock.c |   49 ++++++++-----------------------------------
- 1 files changed, 9 insertions(+), 40 deletions(-)
+ arch/arm/mach-ux500/Makefile                   |    1 +
+ arch/arm/mach-ux500/board-mop500-touchscreen.c |  170 ++++++++++++++++++++++++
+ arch/arm/mach-ux500/board-mop500.c             |    6 +-
+ arch/arm/mach-ux500/board-mop500.h             |    2 +-
+ 4 files changed, 177 insertions(+), 2 deletions(-)
+ create mode 100644 arch/arm/mach-ux500/board-mop500-touchscreen.c
 
-diff --git a/arch/arm/mach-ux500/clock.c b/arch/arm/mach-ux500/clock.c
-index 531de5c..6657b05 100644
---- a/arch/arm/mach-ux500/clock.c
-+++ b/arch/arm/mach-ux500/clock.c
-@@ -132,7 +132,7 @@ static unsigned long clk_mtu_get_rate(struct clk *clk)
- {
- 	void __iomem *addr = __io_address(UX500_PRCMU_BASE)
- 		+ PRCM_TCR;
--	u32 tcr = readl(addr);
-+	u32 tcr;
- 	int mtu = (int) clk->data;
- 	/*
- 	 * One of these is selected eventually
-@@ -143,6 +143,14 @@ static unsigned long clk_mtu_get_rate(struct clk *clk)
- 	unsigned long mturate;
- 	unsigned long retclk;
- 
-+	/*
-+	 * On a startup, always conifgure the TCR to the doze mode;
-+	 * bootloaders do it for us. Do this in the kernel too.
-+	 */
-+	writel(PRCM_TCR_DOZE_MODE, addr);
+diff --git a/arch/arm/mach-ux500/Makefile b/arch/arm/mach-ux500/Makefile
+index e1d3822..e2af105 100644
+--- a/arch/arm/mach-ux500/Makefile
++++ b/arch/arm/mach-ux500/Makefile
+@@ -14,3 +14,4 @@ obj-$(CONFIG_REGULATOR_AB8500)	+= board-mop500-regulators.o
+ obj-$(CONFIG_U5500_MODEM_IRQ)	+= modem_irq.o
+ obj-$(CONFIG_U5500_MBOX)	+= mbox.o
+ obj-$(CONFIG_INPUT_KEYBOARD)	+= board-mop500-keypads.o
++obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= board-mop500-touchscreen.o
+diff --git a/arch/arm/mach-ux500/board-mop500-touchscreen.c b/arch/arm/mach-ux500/board-mop500-touchscreen.c
+new file mode 100644
+index 0000000..87cf2ac
+--- /dev/null
++++ b/arch/arm/mach-ux500/board-mop500-touchscreen.c
+@@ -0,0 +1,170 @@
++/*
++ * Copyright (C) ST-Ericsson SA 2010
++ *
++ * License Terms: GNU General Public License v2
++ *
++ * Author: Naveen Kumar G <naveen.gaddipati@stericsson.com>
++ *
++ * Touchscreen interfaces for various boards
++ */
++#include <linux/i2c.h>
++#include <linux/gpio.h>
++#include <linux/interrupt.h>
++#include <linux/input/bu21013.h>
++#include <../drivers/staging/ste_rmi4/synaptics_i2c_rmi4.h>
 +
-+	tcr = readl(addr);
++#include <mach/gpio.h>
++#include <mach/irqs.h>
 +
- 	/* Get the rate from the parent as a default */
- 	if (clk->parent_periph)
- 		mturate = clk_get_rate(clk->parent_periph);
-@@ -152,45 +160,6 @@ static unsigned long clk_mtu_get_rate(struct clk *clk)
- 		/* We need to be connected SOMEWHERE */
- 		BUG();
++/*
++ * Synaptics RMI4 touchscreen interface on the NUIBs
++ */
++
++/*
++ * Descriptor structure.
++ * Describes the number of i2c devices on the bus that speak RMI.
++ */
++static struct synaptics_rmi4_platform_data rmi4_i2c_dev_platformdata = {
++	.name           = "synaptics_rmi4_i2c0",
++	.irq_number     = NOMADIK_GPIO_TO_IRQ(84),
++	.irq_type       = (IRQF_TRIGGER_FALLING | IRQF_SHARED),
++	.x_flip         = true,
++	.y_flip         = false,
++	.regulator_en   = true,
++};
++
++static struct i2c_board_info __initdata u8500_i2c3_devices_nuib[] = {
++	{
++		I2C_BOARD_INFO("synaptics_rmi4_i2c", 0x4B),
++		.platform_data = &rmi4_i2c_dev_platformdata,
++	},
++};
++
++/*
++ * BU21013 ROHM touchscreen interface on the STUIBs
++ */
++
++/* tracks number of bu21013 devices being enabled */
++static int bu21013_devices;
++
++#define TOUCH_GPIO_PIN  84
++
++#define TOUCH_XMAX	384
++#define TOUCH_YMAX	704
++
++#define PRCMU_CLOCK_OCR		0x1CC
++#define TSC_EXT_CLOCK_9_6MHZ	0x840000
++
++/**
++ * bu21013_gpio_board_init : configures the touch panel.
++ * @reset_pin: reset pin number
++ * This function can be used to configures
++ * the voltage and reset the touch panel controller.
++ */
++static int bu21013_gpio_board_init(int reset_pin)
++{
++	int retval = 0;
++
++	bu21013_devices++;
++	if (bu21013_devices == 1) {
++		retval = gpio_request(reset_pin, "touchp_reset");
++		if (retval) {
++			printk(KERN_ERR "Unable to request gpio reset_pin");
++			return retval;
++		}
++		retval = gpio_direction_output(reset_pin, 1);
++		if (retval < 0) {
++			printk(KERN_ERR "%s: gpio direction failed\n",
++					__func__);
++			return retval;
++		}
++		gpio_set_value(reset_pin, 1);
++	}
++
++	return retval;
++}
++
++/**
++ * bu21013_gpio_board_exit : deconfigures the touch panel controller
++ * @reset_pin: reset pin number
++ * This function can be used to deconfigures the chip selection
++ * for touch panel controller.
++ */
++static int bu21013_gpio_board_exit(int reset_pin)
++{
++	int retval = 0;
++
++	if (bu21013_devices == 1) {
++		retval = gpio_direction_output(reset_pin, 0);
++		if (retval < 0) {
++			printk(KERN_ERR "%s: gpio direction failed\n",
++					__func__);
++			return retval;
++		}
++		gpio_set_value(reset_pin, 0);
++	}
++	bu21013_devices--;
++
++	return retval;
++}
++
++/**
++ * bu21013_read_pin_val : get the interrupt pin value
++ * This function can be used to get the interrupt pin value for touch panel
++ * controller.
++ */
++static int bu21013_read_pin_val(void)
++{
++	return gpio_get_value(TOUCH_GPIO_PIN);
++}
++
++static struct bu21013_platform_device tsc_plat_device = {
++	.cs_en = bu21013_gpio_board_init,
++	.cs_dis = bu21013_gpio_board_exit,
++	.irq_read_val = bu21013_read_pin_val,
++	.irq = NOMADIK_GPIO_TO_IRQ(TOUCH_GPIO_PIN),
++	.cs_pin = EGPIO_PIN_13,
++	.x_max_res = 480,
++	.y_max_res = 864,
++	.touch_x_max = TOUCH_XMAX,
++	.touch_y_max = TOUCH_YMAX,
++	.ext_clk = true,
++	.x_flip         = true,
++	.y_flip         = false,
++};
++
++static struct bu21013_platform_device tsc_cntl2_plat_device = {
++	.cs_en = bu21013_gpio_board_init,
++	.cs_dis = bu21013_gpio_board_exit,
++	.irq_read_val = bu21013_read_pin_val,
++	.irq = NOMADIK_GPIO_TO_IRQ(TOUCH_GPIO_PIN),
++	.cs_pin = EGPIO_PIN_13,
++	.x_max_res = 480,
++	.y_max_res = 864,
++	.touch_x_max = TOUCH_XMAX,
++	.touch_y_max = TOUCH_YMAX,
++	.ext_clk = true,
++	.x_flip         = true,
++	.y_flip         = false,
++};
++
++static struct i2c_board_info __initdata u8500_i2c3_devices_stuib[] = {
++	{
++		I2C_BOARD_INFO("bu21013_ts", 0x5C),
++		.platform_data = &tsc_plat_device,
++	},
++	{
++		I2C_BOARD_INFO("bu21013_ts", 0x5D),
++		.platform_data = &tsc_cntl2_plat_device,
++	},
++};
++
++void mop500_touchpanel_init(void)
++{
++	i2c_register_board_info(3, u8500_i2c3_devices_nuib,
++			ARRAY_SIZE(u8500_i2c3_devices_nuib));
++
++	i2c_register_board_info(3, u8500_i2c3_devices_stuib,
++			ARRAY_SIZE(u8500_i2c3_devices_stuib));
++}
++
+diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
+index 703840b..63313c4 100644
+--- a/arch/arm/mach-ux500/board-mop500.c
++++ b/arch/arm/mach-ux500/board-mop500.c
+@@ -202,8 +202,12 @@ static void __init u8500_init_machine(void)
+ 	mop500_spi_init();
+ 	mop500_uart_init();
  
--	/*
--	 * Are we in doze mode?
--	 * In this mode the parent peripheral or the fixed 32768 Hz
--	 * clock is fed into the block.
--	 */
--	if (!(tcr & PRCM_TCR_DOZE_MODE)) {
--		/*
--		 * Here we're using the clock input from the APE ULP
--		 * clock domain. But first: are the timers stopped?
--		 */
--		if (tcr & PRCM_TCR_STOPPED) {
--			clk32k = 0;
--			mturate = 0;
--		} else {
--			/* Else default mode: 0 and 2.4 MHz */
--			clk32k = 0;
--			if (cpu_is_u5500())
--				/* DB5500 divides by 8 */
--				mturate /= 8;
--			else if (cpu_is_u8500ed()) {
--				/*
--				 * This clocking setting must not be used
--				 * in the ED chip, it is simply not
--				 * connected anywhere!
--				 */
--				mturate = 0;
--				BUG();
--			} else
--				/*
--				 * In this mode the ulp38m4 clock is divided
--				 * by a factor 16, on the DB8500 typically
--				 * 38400000 / 16 ~ 2.4 MHz.
--				 * TODO: Replace the constant with a reference
--				 * to the ULP source once this is modeled.
--				 */
--				mturate = 38400000 / 16;
--		}
--	}
++#ifdef CONFIG_INPUT_KEYBOARD
+ 	mop500_keypad_init();
 -
- 	/* Return the clock selected for this MTU */
- 	if (tcr & (1 << mtu))
- 		retclk = clk32k;
++#endif
++#ifdef CONFIG_INPUT_TOUCHSCREEN
++	mop500_touchpanel_init();
++#endif
+ 	platform_device_register(&ab8500_device);
+ 
+ 	i2c_register_board_info(0, mop500_i2c0_devices,
+diff --git a/arch/arm/mach-ux500/board-mop500.h b/arch/arm/mach-ux500/board-mop500.h
+index 3104ae2..bac81c5 100644
+--- a/arch/arm/mach-ux500/board-mop500.h
++++ b/arch/arm/mach-ux500/board-mop500.h
+@@ -17,5 +17,5 @@
+ extern void mop500_sdi_init(void);
+ extern void mop500_sdi_tc35892_init(void);
+ extern void mop500_keypad_init(void);
+-
++extern void mop500_touchpanel_init(void);
+ #endif
 -- 
 1.7.2.dirty
+

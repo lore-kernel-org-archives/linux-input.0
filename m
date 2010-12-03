@@ -1,53 +1,112 @@
 From: Sundar Iyer <sundar.iyer@stericsson.com>
-Subject: [PATCH 12/20] mfd/tc3589x: undo gpio module reset during chip init
-Date: Fri, 3 Dec 2010 20:35:45 +0530
-Message-ID: <1291388753-14662-13-git-send-email-sundar.iyer@stericsson.com>
+Subject: [PATCH 17/20] mach-ux500: add TC35893 keypad platform data
+Date: Fri, 3 Dec 2010 20:35:50 +0530
+Message-ID: <1291388753-14662-18-git-send-email-sundar.iyer@stericsson.com>
 References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog108.obsmtp.com ([207.126.144.125]:47486 "EHLO
-	eu1sys200aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752247Ab0LCPHX (ORCPT
+Received: from eu1sys200aog106.obsmtp.com ([207.126.144.121]:35087 "EHLO
+	eu1sys200aog106.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750837Ab0LCPHi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Dec 2010 10:07:23 -0500
+	Fri, 3 Dec 2010 10:07:38 -0500
 In-Reply-To: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, ben-linux@fluff.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sundar Iyer <sundar.iyer@stericsson.com>
 
-Skip putting the GPIO module into a reset during the chip init.  This makes
-sure to preserve any existing GPIO configurations done by pre-kernel boot code.
-
 Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
 ---
- drivers/mfd/tc3589x.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/mach-ux500/board-mop500-keypads.c |   63 ++++++++++++++++++++++++++++
+ 1 files changed, 63 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
-index e173f33..fd206fd 100644
---- a/drivers/mfd/tc3589x.c
-+++ b/drivers/mfd/tc3589x.c
-@@ -247,12 +247,15 @@ static int tc3589x_chip_init(struct tc3589x *tc3589x)
+diff --git a/arch/arm/mach-ux500/board-mop500-keypads.c b/arch/arm/mach-ux500/board-mop500-keypads.c
+index 4acc4f1..663f0c3 100644
+--- a/arch/arm/mach-ux500/board-mop500-keypads.c
++++ b/arch/arm/mach-ux500/board-mop500-keypads.c
+@@ -11,6 +11,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/mfd/stmpe.h>
++#include <linux/mfd/tc3589x.h>
+ #include <linux/input/matrix_keypad.h>
  
- 	dev_info(tc3589x->dev, "manufacturer: %#x, version: %#x\n", manf, ver);
+ #include <plat/pincfg.h>
+@@ -157,10 +158,72 @@ static struct i2c_board_info __initdata mop500_i2c0_devices_stuib[] = {
+ 	},
+ };
  
--	/* Put everything except the IRQ module into reset */
-+	/*
-+	 * Put everything except the IRQ module into reset;
-+	 * also spare the GPIO module for any pin initialization
-+	 * done during pre-kernel boot
-+	 */
- 	ret = tc3589x_reg_write(tc3589x, TC3589x_RSTCTRL,
- 				TC3589x_RSTCTRL_TIMRST
- 				| TC3589x_RSTCTRL_ROTRST
--				| TC3589x_RSTCTRL_KBDRST
--				| TC3589x_RSTCTRL_GPIRST);
-+				| TC3589x_RSTCTRL_KBDRST);
- 	if (ret < 0)
- 		return ret;
++/*
++ * TC35893
++ */
++
++static const unsigned int nuib_keymap[] = {
++	KEY(3, 1, KEY_END),
++	KEY(4, 1, KEY_POWER),
++	KEY(6, 4, KEY_VOLUMEDOWN),
++	KEY(4, 2, KEY_EMAIL),
++	KEY(3, 3, KEY_RIGHT),
++	KEY(2, 5, KEY_BACKSPACE),
++
++	KEY(6, 7, KEY_MENU),
++	KEY(5, 0, KEY_ENTER),
++	KEY(4, 3, KEY_0),
++	KEY(3, 4, KEY_DOT),
++	KEY(5, 2, KEY_UP),
++	KEY(3, 5, KEY_DOWN),
++
++	KEY(4, 5, KEY_SEND),
++	KEY(0, 5, KEY_BACK),
++	KEY(6, 2, KEY_VOLUMEUP),
++	KEY(1, 3, KEY_SPACE),
++	KEY(7, 6, KEY_LEFT),
++	KEY(5, 5, KEY_SEARCH),
++};
++
++static struct matrix_keymap_data nuib_keymap_data = {
++	.keymap         = nuib_keymap,
++	.keymap_size    = ARRAY_SIZE(nuib_keymap),
++};
++
++static struct tc3589x_keypad_platform_data tc35893_data = {
++	.krow = TC_KPD_ROWS,
++	.kcol = TC_KPD_COLUMNS,
++	.debounce_period = TC_KPD_DEBOUNCE_PERIOD,
++	.settle_time = TC_KPD_SETTLE_TIME,
++	.irqtype = IRQF_TRIGGER_FALLING,
++	.enable_wakeup = true,
++	.keymap_data    = &nuib_keymap_data,
++	.no_autorepeat  = true,
++};
++
++static struct tc3589x_platform_data tc3589x_keypad_data = {
++	.block = TC3589x_BLOCK_KEYPAD,
++	.keypad = &tc35893_data,
++	.irq_base = MOP500_EGPIO_IRQ_BASE,
++};
++
++static struct i2c_board_info __initdata mop500_i2c0_devices_nuib[] = {
++	{
++		I2C_BOARD_INFO("tc3589x", 0x44),
++		.platform_data = &tc3589x_keypad_data,
++		.irq = NOMADIK_GPIO_TO_IRQ(218),
++		.flags = I2C_CLIENT_WAKE,
++	},
++};
++
+ void mop500_keypad_init(void)
+ {
+ 	db8500_add_ske_keypad(&ske_keypad_board);
  
+ 	i2c_register_board_info(0, mop500_i2c0_devices_stuib,
+ 			ARRAY_SIZE(mop500_i2c0_devices_stuib));
++
++	i2c_register_board_info(0, mop500_i2c0_devices_nuib,
++			ARRAY_SIZE(mop500_i2c0_devices_nuib));
++
+ }
 -- 
 1.7.2.dirty
 

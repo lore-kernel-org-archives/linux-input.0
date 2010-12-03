@@ -1,343 +1,165 @@
-From: Valentine Barshak <vbarshak@mvista.com>
-Subject: [PATCH] USB: USBHID: Fix race between disconnect and hiddev_ioctl
-Date: Fri, 3 Dec 2010 20:27:46 +0300
-Message-ID: <20101203172746.GA31045@mvista.com>
-Reply-To: Valentine Barshak <vbarshak@mvista.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: Synchronizing evdev readers and drivers?
+Date: Fri, 3 Dec 2010 18:52:50 +0000
+Message-ID: <20101203185250.GA730@opensource.wolfsonmicro.com>
+References: <AANLkTik8X-Xe9fvYUtRObRBP1PyedOu+zwb1SKKf+kgy@mail.gmail.com>
+ <20101202212223.GA9864@core.coreip.homeip.net>
+ <AANLkTi=vc0b5Zcy=TuVq3=6yZ8eHCEwLQ0hkkk-x-AyZ@mail.gmail.com>
+ <20101203124240.GH3182@sirena.org.uk>
+ <AANLkTimFoyFksd1orc9Bf8y5y7xQf14i_hhDoRyR3vnE@mail.gmail.com>
+ <20101203135346.GI3182@sirena.org.uk>
+ <AANLkTimKyU9dhxE5pkwTZ_0m7C1z+KjB-FMqLkA_UsNf@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 93.100.122.208.pool.sknt.ru ([93.100.122.208]:52152 "EHLO
-	localhost.localdomain" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752072Ab0LCSD4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Dec 2010 13:03:56 -0500
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43620 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752230Ab0LCSwk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Dec 2010 13:52:40 -0500
 Content-Disposition: inline
+In-Reply-To: <AANLkTimKyU9dhxE5pkwTZ_0m7C1z+KjB-FMqLkA_UsNf@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bill Gatliff <bgat@billgatliff.com>
+Cc: linux-input@vger.kernel.org
 
-A USB HID device can be disconnected at any time.
-If this happens right before or while hiddev_ioctl is in progress,
-the hiddev_ioctl tries to access invalid hiddev->hid pointer.
-When the hid device is disconnected, the hiddev_disconnect()
-ends up with a call to hid_device_release() which frees
-hid_device, but doesn't set the hiddev->hid pointer to NULL.
-If the deallocated memory region has been re-used by the kernel,
-this can cause a crash or memory corruption.
+On Fri, Dec 03, 2010 at 11:36:50AM -0600, Bill Gatliff wrote:
 
-Since disconnect can happen at any time, we can't initialize
-struct hid_device *hid = hiddev->hid at the beginning of ioctl
-and then use it.
+I guess my main thing here is that I don't see why we'd want to present
+applications with an interface which means we can't make use of hardware
+scheduling facilities where they exist.  The other thing is that this
+feels like a workaround for applications that are already doing
+application layer scheduling rather than anything else and that feels
+more like a workaround for a lack of control provided by the kernel than
+anything else.
 
-This change checks hiddev->exist flag while holding
-the existancelock and uses hid_device only if it exists.
+> The poll() and blocking read() system calls allow an application to
+> tell an input device that it is prepared to receive an event, and for
+> an input device driver to tell userspace when an event has occurred.
+> As implemented in evdev, however, neither system call provides a
+> natural, consistent way for userspace to tell an input device driver
+> how often it wants data--- or even if it wants any (at the moment) at
+> all.
 
-Signed-off-by: Valentine Barshak <vaxon@black.localdomain>
----
- drivers/hid/usbhid/hiddev.c |  168 +++++++++++++++++++++++++++++++++----------
- 1 files changed, 131 insertions(+), 37 deletions(-)
+This is what I'm saying the sysfs interface polldev provides (or a
+similar interface done via ioctl() or whatever) should do.
 
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 984feb3..cbb6974 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -585,7 +585,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- {
- 	struct hiddev_list *list = file->private_data;
- 	struct hiddev *hiddev = list->hiddev;
--	struct hid_device *hid = hiddev->hid;
-+	struct hid_device *hid;
- 	struct usb_device *dev;
- 	struct hiddev_collection_info cinfo;
- 	struct hiddev_report_info rinfo;
-@@ -593,26 +593,33 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	struct hiddev_devinfo dinfo;
- 	struct hid_report *report;
- 	struct hid_field *field;
--	struct usbhid_device *usbhid = hid->driver_data;
-+	struct usbhid_device *usbhid;
- 	void __user *user_arg = (void __user *)arg;
- 	int i, r;
--	
-+
- 	/* Called without BKL by compat methods so no BKL taken */
- 
- 	/* FIXME: Who or what stop this racing with a disconnect ?? */
--	if (!hiddev->exist || !hid)
-+	if (!hiddev->exist)
- 		return -EIO;
- 
--	dev = hid_to_usb_dev(hid);
--
- 	switch (cmd) {
- 
- 	case HIDIOCGVERSION:
- 		return put_user(HID_VERSION, (int __user *)arg);
- 
- 	case HIDIOCAPPLICATION:
--		if (arg < 0 || arg >= hid->maxapplication)
--			return -EINVAL;
-+		mutex_lock(&hiddev->existancelock);
-+		if (!hiddev->exist) {
-+			r = -ENODEV;
-+			goto ret_unlock;
-+		}
-+
-+		hid = hiddev->hid;
-+		if (arg < 0 || arg >= hid->maxapplication) {
-+			r = -EINVAL;
-+			goto ret_unlock;
-+		}
- 
- 		for (i = 0; i < hid->maxcollection; i++)
- 			if (hid->collection[i].type ==
-@@ -620,11 +627,22 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 				break;
- 
- 		if (i == hid->maxcollection)
--			return -EINVAL;
--
--		return hid->collection[i].usage;
-+			r = -EINVAL;
-+		else
-+			r = hid->collection[i].usage;
-+		goto ret_unlock;
- 
- 	case HIDIOCGDEVINFO:
-+		mutex_lock(&hiddev->existancelock);
-+		if (!hiddev->exist) {
-+			r = -ENODEV;
-+			goto ret_unlock;
-+		}
-+
-+		hid = hiddev->hid;
-+		dev = hid_to_usb_dev(hid);
-+		usbhid = hid->driver_data;
-+
- 		dinfo.bustype = BUS_USB;
- 		dinfo.busnum = dev->bus->busnum;
- 		dinfo.devnum = dev->devnum;
-@@ -633,6 +651,8 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		dinfo.product = le16_to_cpu(dev->descriptor.idProduct);
- 		dinfo.version = le16_to_cpu(dev->descriptor.bcdDevice);
- 		dinfo.num_applications = hid->maxapplication;
-+		mutex_unlock(&hiddev->existancelock);
-+
- 		if (copy_to_user(user_arg, &dinfo, sizeof(dinfo)))
- 			return -EFAULT;
- 
-@@ -666,6 +686,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 			r = hiddev_ioctl_string(hiddev, cmd, user_arg);
- 		else
- 			r = -ENODEV;
-+ret_unlock:
- 		mutex_unlock(&hiddev->existancelock);
- 		return r;
- 
-@@ -675,6 +696,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 			mutex_unlock(&hiddev->existancelock);
- 			return -ENODEV;
- 		}
-+		hid = hiddev->hid;
- 		usbhid_init_reports(hid);
- 		mutex_unlock(&hiddev->existancelock);
- 
-@@ -687,14 +709,21 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		if (rinfo.report_type == HID_REPORT_TYPE_OUTPUT)
- 			return -EINVAL;
- 
--		if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
--			return -EINVAL;
--
- 		mutex_lock(&hiddev->existancelock);
--		if (hiddev->exist) {
--			usbhid_submit_report(hid, report, USB_DIR_IN);
--			usbhid_wait_io(hid);
-+		if (!hiddev->exist) {
-+			r = -ENODEV;
-+			goto ret_unlock;
-+		}
-+
-+		hid = hiddev->hid;
-+		report = hiddev_lookup_report(hid, &rinfo);
-+		if (report == NULL) {
-+			r = -EINVAL;
-+			goto ret_unlock;
- 		}
-+
-+		usbhid_submit_report(hid, report, USB_DIR_IN);
-+		usbhid_wait_io(hid);
- 		mutex_unlock(&hiddev->existancelock);
- 
- 		return 0;
-@@ -706,14 +735,21 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		if (rinfo.report_type == HID_REPORT_TYPE_INPUT)
- 			return -EINVAL;
- 
--		if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
--			return -EINVAL;
--
- 		mutex_lock(&hiddev->existancelock);
--		if (hiddev->exist) {
--			usbhid_submit_report(hid, report, USB_DIR_OUT);
--			usbhid_wait_io(hid);
-+		if (!hiddev->exist) {
-+			r = -ENODEV;
-+			goto ret_unlock;
-+		}
-+
-+		hid = hiddev->hid;
-+		report = hiddev_lookup_report(hid, &rinfo);
-+		if (report == NULL) {
-+			r = -EINVAL;
-+			goto ret_unlock;
- 		}
-+
-+		usbhid_submit_report(hid, report, USB_DIR_OUT);
-+		usbhid_wait_io(hid);
- 		mutex_unlock(&hiddev->existancelock);
- 
- 		return 0;
-@@ -722,10 +758,21 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		if (copy_from_user(&rinfo, user_arg, sizeof(rinfo)))
- 			return -EFAULT;
- 
--		if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
--			return -EINVAL;
-+		mutex_lock(&hiddev->existancelock);
-+		if (!hiddev->exist) {
-+			r = -ENODEV;
-+			goto ret_unlock;
-+		}
-+
-+		hid = hiddev->hid;
-+		report = hiddev_lookup_report(hid, &rinfo);
-+		if (report == NULL) {
-+			r = -EINVAL;
-+			goto ret_unlock;
-+		}
- 
- 		rinfo.num_fields = report->maxfield;
-+		mutex_unlock(&hiddev->existancelock);
- 
- 		if (copy_to_user(user_arg, &rinfo, sizeof(rinfo)))
- 			return -EFAULT;
-@@ -737,11 +784,23 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 			return -EFAULT;
- 		rinfo.report_type = finfo.report_type;
- 		rinfo.report_id = finfo.report_id;
--		if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
--			return -EINVAL;
-+		mutex_lock(&hiddev->existancelock);
-+		if (!hiddev->exist) {
-+			r = -ENODEV;
-+			goto ret_unlock;
-+		}
- 
--		if (finfo.field_index >= report->maxfield)
--			return -EINVAL;
-+		hid = hiddev->hid;
-+		report = hiddev_lookup_report(hid, &rinfo);
-+		if (report == NULL) {
-+			r = -EINVAL;
-+			goto ret_unlock;
-+		}
-+
-+		if (finfo.field_index >= report->maxfield) {
-+			r = -EINVAL;
-+			goto ret_unlock;
-+		}
- 
- 		field = report->field[finfo.field_index];
- 		memset(&finfo, 0, sizeof(finfo));
-@@ -759,6 +818,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		finfo.physical_maximum = field->physical_maximum;
- 		finfo.unit_exponent = field->unit_exponent;
- 		finfo.unit = field->unit;
-+		mutex_unlock(&hiddev->existancelock);
- 
- 		if (copy_to_user(user_arg, &finfo, sizeof(finfo)))
- 			return -EFAULT;
-@@ -784,12 +844,22 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		if (copy_from_user(&cinfo, user_arg, sizeof(cinfo)))
- 			return -EFAULT;
- 
--		if (cinfo.index >= hid->maxcollection)
--			return -EINVAL;
-+		mutex_lock(&hiddev->existancelock);
-+		if (!hiddev->exist) {
-+			r = -ENODEV;
-+			goto ret_unlock;
-+		}
-+
-+		hid = hiddev->hid;
-+		if (cinfo.index >= hid->maxcollection) {
-+			r = -EINVAL;
-+			goto ret_unlock;
-+		}
- 
- 		cinfo.type = hid->collection[cinfo.index].type;
- 		cinfo.usage = hid->collection[cinfo.index].usage;
- 		cinfo.level = hid->collection[cinfo.index].level;
-+		mutex_lock(&hiddev->existancelock);
- 
- 		if (copy_to_user(user_arg, &cinfo, sizeof(cinfo)))
- 			return -EFAULT;
-@@ -802,24 +872,48 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 
- 		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGNAME(0))) {
- 			int len;
--			if (!hid->name)
--				return 0;
-+
-+			mutex_lock(&hiddev->existancelock);
-+			if (!hiddev->exist) {
-+				r = -ENODEV;
-+				goto ret_unlock;
-+			}
-+
-+			hid = hiddev->hid;
-+			if (!hid->name) {
-+				r = 0;
-+				goto ret_unlock;
-+			}
-+
- 			len = strlen(hid->name) + 1;
- 			if (len > _IOC_SIZE(cmd))
- 				 len = _IOC_SIZE(cmd);
--			return copy_to_user(user_arg, hid->name, len) ?
-+			r = copy_to_user(user_arg, hid->name, len) ?
- 				-EFAULT : len;
-+			goto ret_unlock;
- 		}
- 
- 		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGPHYS(0))) {
- 			int len;
--			if (!hid->phys)
--				return 0;
-+
-+			mutex_lock(&hiddev->existancelock);
-+			if (!hiddev->exist) {
-+				r = -ENODEV;
-+				goto ret_unlock;
-+			}
-+
-+			hid = hiddev->hid;
-+			if (!hid->phys) {
-+				r = 0;
-+				goto ret_unlock;
-+			}
-+
- 			len = strlen(hid->phys) + 1;
- 			if (len > _IOC_SIZE(cmd))
- 				len = _IOC_SIZE(cmd);
--			return copy_to_user(user_arg, hid->phys, len) ?
-+			r = copy_to_user(user_arg, hid->phys, len) ?
- 				-EFAULT : len;
-+			goto ret_unlock;
- 		}
- 	}
- 	return -EINVAL;
--- 
-1.6.0.6
+> I think that you and I talking about two different scenarios.  You
+> seem to be focused on the one where userspace is informed when an
+> input event occurs, but has no ability to request or schedule those
 
+No, not at all.  What I'm saying is that userspace should be able to
+express to the kernel that it wants events delivering at a given rate
+and the kernel should then attempt to deliver events at that rate.
+
+> events.  That model makes perfect sense for USB mice and keyboards
+> where the hardware itself is inherently event-driven.  For those kinds
+> of devices, users don't know or care when a key will be pressed---
+> they just need to respond when one is.  So they simply block in a
+> poll() or read() until a keypress shows up.  Problem solved.
+
+This is also true for things like touchscreens which work by
+continuously delivering samples (ideally only while there is a touch) at
+intervals which currently can't be configured in the application layer -
+they're also polling, and they may not even be doing so in hardware.
+
+> I'm looking at input devices like accelerometers and compasses, which
+> must be explicitly sampled and can send events at upwards of 4K/sec if
+> you ask them to.  The vast majority of user applications don't need
+
+Right, and what I'm saying is that userspace should just say what rate
+it wants and then get that.
+
+> data anywhere near that fast, but the range of desirable rates can't
+> be met by a simple "just sample it at 100 Hz" kernel thread because of
+> other modes want the data at 200 Hz with minimal latency.  The current
+
+Resolving the rate needs of multiple simultaneous users sounds like a
+tractable bit of programming which we'd only ever need to do once in the
+input layer, surely?
+
+> architecture requires me to implement that range using a dedicated
+> kernel thread, plus a sysfs attribute/ioctl to dial the rate up or
+> down from userspace.
+
+No need for the kernel thread - timers should do the trick - but other
+than that I see no problem with this at all, other than the fact that we
+probably want to implement a standard API for setting the rate which can
+be used across devices.  Worst case a fully software implementation is
+pretty much equivalent to what you want to do but is very simple to use
+in the application layer.  Best case the hardware is able to clock out
+the samples by itself and we get to skip the bit where software
+initiates the transfer which saves us work and is especially nice at
+higher data rates.
+
+For a devices like touchscreens driving the reads from the application
+would typically be a 50-100% overhead on the I/O costs and involves
+blocking the application while the conversion happens, neither of which
+seems desirable.
+
+> I don't want to do an ad-hoc method for communicating a polling rate
+> request to the hardware for each hardware driver that I have to deal
+> with.  One way to avoid this is to add a standard sysfs attribute or
+
+I wasn't suggesting that at all.  Like you say, define a standard one
+and/or use the interface we already have in polldev which looks general
+enough for a lot of cases though it's pretty much root only.
+
+> The other option, which is the one I'm proposing and which seems more
+> natural for end users, is to add an optional read callback in the
+> input_dev structure that, if implemented by the driver, will call the
+> driver back whenever someone is asking for the state of the input
+> device.  Drivers can then choose to initiate a sampling operation only
+> when a user is asking for the data.  Users just call poll() or read()
+> at the rate they want the sampling to occur, and never get blocked for
+> longer than it takes to acquire a sample.
+
+This seems painful for applications, it means they need to deal with
+their own data scheduling and means we have to take the hit of
+explicitly polling the device even when it is capable of pushing the
+data at us.  If we triggered the callback on poll() they'd also have
+issues blocking on other file descriptors simultaneously.
+
+> Finally, with the read callback approach there isn't any behavioral
+> change in the evdev interface at all for existing drivers (and
+> existing drivers will continue to work as they do now).  When drivers
+> start implementing the read callback, users will just notice that
+> their drivers are simpler and their data is more recent--- if they
+> care to investigate either of those.
+
+Assuming the applications are behaving as you describe and not blocking
+waiting for data - I'd expect that if they block waiting for data they'd
+also end up seeing data delievered much faster.
+
+I don't see any meaningful difference in the timeliness of data
+delivery with the two approaches - no matter who's clocking the poll the
+application will get the data at pretty much the same time after the
+sample, the difference would be for applications that current schedule
+their own reads.  For drivers that don't or can't have the hardware push
+samples out I'd expect librification would mean that there'd be little
+impact on driver code, obviously if the hardware was helping the
+complexity would depend on how helpful the hardware is.
+
+> What I'm proposing is something that is very similar to input-polldev,
+> except that users don't even have to specify the polling rate: they
+> just call read() or poll() at the rate they want the input device
+> hardware to scan/sample itself.  Some current users of input-polldev
+> might be better served by a read callback, in fact.
+
+Perhaps I'm missing something here but my experience has always been
+that having to worry about time periods adds rather than removes
+complexity in applications; the raw POSIX APIs aren't especially
+convenient here.  Obviously higher level libraries will often provide
+timer facilities which make these useful (I've written such things
+myself) but it's still going to be more work for the system than if the
+hardware can push data out for us.
+
+> The read callback approach is completely wrong for USB-ish keyboards
+> and mice, so those drivers won't implement a read callback.  But for
+> accelerometers, pushbuttons and such, a read callback seems like a
+> very useful tool.  I hope to have first-hand evidence of that later
+> today, preferably in a way that will be useful to the broader
+> community as well.  :)
+
+Pushbuttons seem like they'd want to be event driven, surely?

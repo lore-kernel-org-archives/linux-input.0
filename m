@@ -1,99 +1,65 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: Re: [PATCH 0/4] Add new wmi support to acer-wmi driver
-Date: Sat, 4 Dec 2010 09:08:47 -0200
-Message-ID: <20101204110847.GA30435@barata.holoscopio.com>
-References: <1291424606-23383-1-git-send-email-jlee@novell.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: Synchronizing evdev readers and drivers?
+Date: Sat, 04 Dec 2010 17:46:20 +0000
+Message-ID: <4CFA7E6C.60809@cam.ac.uk>
+References: <AANLkTik8X-Xe9fvYUtRObRBP1PyedOu+zwb1SKKf+kgy@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1291424606-23383-1-git-send-email-jlee@novell.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
-Cc: mjg@redhat.com, carlos@strangeworlds.co.uk, corentin.chary@gmail.com, dmitry.torokhov@gmail.com, corentincj@iksaif.net, tiwai@novell.com, mjg59@srcf.ucam.org, jbenc@suse.cz, jdelvare@suse.de, trenn@suse.de, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, "Lee, Chun-Yi" <jlee@novell.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ppsw-50.csi.cam.ac.uk ([131.111.8.150]:44424 "EHLO
+	ppsw-50.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754657Ab0LDRjq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Dec 2010 12:39:46 -0500
+In-Reply-To: <AANLkTik8X-Xe9fvYUtRObRBP1PyedOu+zwb1SKKf+kgy@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bill Gatliff <bgat@billgatliff.com>
+Cc: linux-input@vger.kernel.org
 
+On 12/02/10 17:26, Bill Gatliff wrote:
+> Guys:
+> 
+> 
+> Is there any  way for an input device driver (e.g. something that
+> calls input_report_abs() and input_sync()) to know when there is a
+> reader of its associated /dev/input/eventX?
+> 
+> I would love to know when something calls evdev_read() and/or
+> evdev_poll(), so that I could then initiate a sampling operation on
+> the hardware itself.  Otherwise, I'm forced to periodically poll the
+> hardware and that means I'm either gathering data that no application
+> wants, or I'm gathering it before (or faster than) an application is
+> actually asking for it.
+> 
+> I have stared at a lot of the evdev and related code, and can't find
+> anything that looks like what I want.  Am I just not seeing it, or am
+> I looking in the wrong place?
+Hi Bill,
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's not entirely relevant, but I thought I'd take this opportunity
+to say how we would do the same in IIO.  In our case we have
+explicit triggers that cause data to be captured.  At the moment
+they are things like dataready signals and periodic timers, but
+they are intended to be more general.  The big requirement we have
+is that more than one device can be sampled from based on a single
+hardware or software event.  This is crucial for some inertial algorithms where
+we have to get readings from a number of sensors as close as possible
+in time.
 
-On Sat, Dec 04, 2010 at 09:03:22AM +0800, Lee, Chun-Yi wrote:
-> Hi Matthew,=20
->=20
-> These patches add new wmi support to acer-wmi driver, included the follow=
-ing
-> functions:
->=20
-> - Acer wmi hotkey events:
->   Acer BIOS applied wmi hotkey events from 2010, this patch adds support.
->=20
-> - Enabled Acer Launch Manager mode:
->   Directly enable it to avoid the raw EC behavior conflict with rfkill-in=
-put or
->   userland solution.
->=20
-> - Add 3G rfkill sysfs file:
->   Provide interface to userland for enable/disable 3G function by wmi met=
-hod.
->=20
-> - Detect the WiFi/Bluetooth/3G devices available:
->   Look for OEM type AAh in dmi to get the WiFi/BT/3G devices available.
->=20
+On the todo list that exists in my head is a userspace trigger.  That
+would allow us to set up as many devices as we want to capture on
+a poke from userspace (sysfs file write or something else if lower
+overheads are needed).
 
-Please, add a subsystem/driver prefix to the summary like:
+In our case this fine control of phase of capture is a key requirement
+and one that we don't have completely covered as yet.  Right now there
+is no consideration of how long a given device takes to get a sample
+and they are merely triggered in series. Obviously that time delay
+is dependant on hardware state (particularly if low power modes exist
+on the device).
 
-acer-wmi: Add 3G rfkill sysfs file.
+Of course this is not all that relevant to input, just thought I'd
+mention similar work elsewhere.
 
-Otherwise, any person reading summaries will ask perself: adding such
-file to what!?!
-
-Regards,
-Cascardo.
-
-> Signed-off-by: Lee, Chun-Yi <jlee@novell.com>
-> Reviewed-by: Thomas Renninger <trenn@suse.de>
->=20
-> Lee, Chun-Yi (4):
->   Add acer wmi hotkey events support
->   Enabled Acer Launch Manager mode
->   Add 3G rfkill sysfs file
->   Detect the WiFi/Bluetooth/3G devices available
->=20
->  drivers/platform/x86/Kconfig    |    2 +
->  drivers/platform/x86/acer-wmi.c |  400 +++++++++++++++++++++++++++++++++=
-+++++-
->  2 files changed, 394 insertions(+), 8 deletions(-)
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe platform-driver=
--x86" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
---rwEMma7ioTxnRzrJ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iQIcBAEBAgAGBQJM+iE8AAoJEEWxSg7udFZIVnsQAO4axVOXPaGQU2uKaAnwtrO3
-ipb1Xc0XTrAAtan4LApJfTtWK+4MVhvOBiW07LzEeAwXka7w/ID69adOiQLTuJPF
-SwzdVggcPrEAsxi934rY2o+Hesw8T54Lyy37cg7wn/WlxnQzfC6OM+zS1ERbRGJq
-MOZLBKs2nkkOPoKCq37a1dSYUa3JOM7XGuTb+CfQx/99a/GDcVmVNM+obp+cK8Df
-cibgHJR4OLFVT+3c/9eRzkTNDI4MDgjtG1a0QAXPmp5xBqGhukjb3e6TeCm/vPVP
-cn17LR0jevUxel/UJoZcnAcz9A/HeMGZt61NJnwJkuSupXBthI7SVXeHMRbcIuQq
-qd7IytrfZun+vA2UZCzHCpgQRFd8I1LlnblPrPHpjqD6PGgqKIgHuYSbBtQ2HF77
-RQkBUAF/SIUgX4/iUJoRtimpfPBdf+sD13R9zH3nvr7vnDL4zprHX7/yHqPqQhMw
-NNqMrXyk7zpxopI4KfEXdJP6Vp6O6d+oIz8cupCJ015x6oZwiH1ITbES5JTVSEvy
-Gj2eCoh2cgJIcMcilSUci3zNS3mp7b8Bju+wCqrKKzzCPXxyfKbDBECtVnEN21K2
-NtkCxNI6yKHNOYhFeZ1EkvM//BCjhMnm2zo3f7r47DgmH13rszS5wa7v3orKvMYK
-hXFIjMySJvx0nOcsstYA
-=y0aI
------END PGP SIGNATURE-----
-
---rwEMma7ioTxnRzrJ--
+Jonathan

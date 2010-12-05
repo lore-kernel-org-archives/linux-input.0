@@ -1,47 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] USB: USBHID: Fix race between disconnect and hiddev_ioctl
-Date: Sat, 4 Dec 2010 12:37:50 -0800
-Message-ID: <20101204203750.GA7326@core.coreip.homeip.net>
-References: <20101203172746.GA31045@mvista.com>
- <20101203231611.GB22969@core.coreip.homeip.net>
- <201012042122.23852.oliver@neukum.org>
+From: Gabor Juhos <juhosg@openwrt.org>
+Subject: Re: [PATCH 0/8] input: gpio_keys_polled fixes
+Date: Sun, 05 Dec 2010 10:11:10 +0100
+Message-ID: <4CFB572E.9010105@openwrt.org>
+References: <4CF541ED.80905@openwrt.org>	<1291142663-1011-1-git-send-email-juhosg@openwrt.org> <AANLkTi=fYLTEkws+R+9PFtrgUzujQrOuN2PQcGoG7X=v@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201012042122.23852.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Valentine Barshak <vbarshak-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:33388 "EHLO
+	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751467Ab0LEJLN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Dec 2010 04:11:13 -0500
+In-Reply-To: <AANLkTi=fYLTEkws+R+9PFtrgUzujQrOuN2PQcGoG7X=v@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Gardiner <bengardiner@nanometrics.ca>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, nsekhar@ti.com
 
-On Sat, Dec 04, 2010 at 09:22:23PM +0100, Oliver Neukum wrote:
-> Am Samstag, 4. Dezember 2010, 00:16:12 schrieb Dmitry Torokhov:
-> > > Since disconnect can happen at any time, we can't initialize
-> > > struct hid_device *hid = hiddev->hid at the beginning of ioctl
-> > > and then use it.
-> > > 
-> > > This change checks hiddev->exist flag while holding
-> > > the existancelock and uses hid_device only if it exists.
-> > 
-> > Why didn't you take the lock and check hiddev->exist at the beginning of
-> > ioctl handler instead of pushing it down into individual command
-> > handlers? I guess it would slow down HIDIOCGVERSION but I think we could
-> > pay this price for code that is more clear ;)
+Hi Ben,
+
+> <...>
+> I have tested this series with the "da850-evm: add gpio-{keys,leds}
+> for UI and BB expanders" on top of your "[PATCH 09/18] input:  add
+> input driver for polled GPIO buttons" patch, my "[PATCH WIP 0/6]
+> suggested changes to gpio_buttons driver" series and Dmitry's "Input:
+> gpio-buttons - misc changes"  patch.
 > 
-> Strictly speaking you'd change the semantics. Right now you can execute
-> the ioctl even if you know you are holding an fd to a disconnected device
-> open.
+> Only minimal changes were needed in the later patches of the da850-evm
+> series. They can be summarized by:
+> s/gpio_keys_polled\.h/gpio_keys.\h/g and
+> s/gpio_keys_polled_platform_data/gpio_keys_platform_data/g.
+> 
+> With those changes I observed the expected input events with evtest.
 
-No, I do not think I would. I do not believe that the availability for
-HIDIOCGVERSION on disconnected device is spelled out in API/ABI spec. We
-only know that ioctl will either succeed or appropriate error code is
-returned. The fact that right now HIDIOCGVERSION is available on
-disconnected devices is just an implementation detail subject to change.
+Superb.
 
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Tested-by: Ben Gardiner <bengardiner@nanometrics.ca>
+
+Thank you for the continuous testing.
+
+Regards,
+Gabor

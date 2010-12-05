@@ -1,39 +1,226 @@
-From: Gabor Juhos <juhosg@openwrt.org>
-Subject: Re: [PATCH 8/8] input: gpio_keys_polled: fix Kconfig help text
-Date: Sun, 05 Dec 2010 10:11:19 +0100
-Message-ID: <4CFB5737.7040506@openwrt.org>
-References: <4CF541ED.80905@openwrt.org>	<1291142663-1011-9-git-send-email-juhosg@openwrt.org> <87r5e1ksvd.fsf@tac.ki.iif.hu>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [v2] touchscreen Cypress TTSP G3 MTDEV Core Driver
+Date: Sun, 05 Dec 2010 10:11:16 +0100
+Message-ID: <4CFB5734.6080309@euromail.se>
+References: <Kevin McNeely <kev@cypress.com> <1291428384-26364-1-git-send-email-kev@cypress.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:33402 "EHLO
-	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751467Ab0LEJLV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Dec 2010 04:11:21 -0500
-In-Reply-To: <87r5e1ksvd.fsf@tac.ki.iif.hu>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:50732 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751467Ab0LEJM6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 5 Dec 2010 04:12:58 -0500
+In-Reply-To: <1291428384-26364-1-git-send-email-kev@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferenc Wagner <wferi@niif.hu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ben Gardiner <bengardiner@nanometrics.ca>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, nsekhar@ti.com
+To: Kevin McNeely <kev@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-2010.12.01. 23:53 keltez=E9ssel, Ferenc Wagner =EDrta:
-> Gabor Juhos <juhosg@openwrt.org> writes:
->=20
->> --- a/drivers/input/keyboard/Kconfig
->> +++ b/drivers/input/keyboard/Kconfig
->> @@ -491,7 +491,7 @@ config KEYBOARD_GPIO_POLLED
->> -	  to GPIO pins of various CPUs (and some other chips).
->> +	  to GPIO pins which is not capable to generate interrupts.
->=20
-> I suggest s/is/are/ or perhaps even s/which is //.
+On 12/04/2010 03:06 AM, Kevin McNeely wrote:
 
-Ok, i will send an updated patch.
+> Amended version of Cypress TTSP Gen3 Core Driver.
+> Core Driver includes platform data definition file,
+> core driver definition file, and core touchscreen
+> touch handling of device data. Generates
+> multi-touch input events.
+> Amendments include changes recommended by reviewers
+> of initial version.  Kconfig is for I2C and SPI modules
+> including the core.
+> 
+> Signed-off-by: Kevin McNeely <kev@cypress.com>
+
+
+Hi Kevin, please send full patches rather than diffs next round.
+
+> @@ -87,8 +89,8 @@
+>  
+>  /* Touch structure */
+>  struct cyttsp_touch {
+> -	u16 x __attribute__ ((packed));
+> -	u16 y __attribute__ ((packed));
+> +	u8 x[2];
+> +	u8 y[2];
+>  	u8 z;
+>  };
+
+
+Any particular reason why this could not stay as u16?
+
+
+> @@ -500,35 +492,27 @@ static void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
+>  	 * is missing from the current event
+>  	 */
+>  	for (id = 0; id < CY_NUM_TRK_ID; id++) {
+> -		if (t->cur_trk[id].tch) {
+> +		if (cur_trk[id].tch) {
+
+
+Here tch is used as a bool, and yet the values CY_NTCH and CY_TCH exist, which
+is inconsistent. Removing the defines reduces some lines and makes the code
+easier to read.
+
+>  			/* put active current track data */
+>  			input_report_abs(ts->input,
+> -				ABS_MT_TRACKING_ID, id);
+> -			input_report_abs(ts->input,
+> -				ABS_MT_WIDTH_MAJOR, t->cur_trk[id].w);
+> +				ABS_MT_POSITION_X, cur_trk[id].x);
+>  			input_report_abs(ts->input,
+> -				ABS_MT_POSITION_X, t->cur_trk[id].x);
+> +				ABS_MT_POSITION_Y, cur_trk[id].y);
+>  			input_report_abs(ts->input,
+> -				ABS_MT_POSITION_Y, t->cur_trk[id].y);
+> -			input_report_abs(ts->input,
+> -				ABS_MT_TOUCH_MAJOR, t->cur_trk[id].z);
+> +				ABS_MT_TOUCH_MAJOR, cur_trk[id].z);
+>  			input_mt_sync(ts->input);
+>  
+> -			dev_dbg(ts->dev, "%s: MT1: X=%d Y=%d Z=%d\n",
+> -				__func__,
+> -				t->cur_trk[id].x,
+> -				t->cur_trk[id].y,
+> -				t->cur_trk[id].z);
+> -			/* save current track data into previous track data */
+> -			ts->prv_trk[id] = t->cur_trk[id];
+> +			dev_dbg(ts->dev, "%s: MT% 2d: X=%d Y=%d Z=%d\n",
+> +				__func__, id,
+> +				cur_trk[id].x,
+> +				cur_trk[id].y,
+> +				cur_trk[id].z);
+> +			/* save current touch xy_data as previous track data */
+> +			ts->prv_trk[id] = cur_trk[id];
+
+>  			cnt++;
+>  		} else if (ts->prv_trk[id].tch) {
+>  			/* put lift-off previous track data */
+>  			input_report_abs(ts->input,
+> -				ABS_MT_TRACKING_ID, id);
+> -			input_report_abs(ts->input,
+> -				ABS_MT_WIDTH_MAJOR, ts->prv_trk[id].w);
+> -			input_report_abs(ts->input,
+>  				ABS_MT_POSITION_X, ts->prv_trk[id].x);
+>  			input_report_abs(ts->input,
+>  				ABS_MT_POSITION_Y, ts->prv_trk[id].y);
+> @@ -536,11 +520,12 @@ static void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
+>  				ABS_MT_TOUCH_MAJOR, CY_NTCH);
+>  			input_mt_sync(ts->input);
+>  
+> -			dev_dbg(ts->dev, "%s: MT1: X=%d Y=%d Z=%d lift-off\n",
+> -				__func__,
+> +			dev_dbg(ts->dev, "%s: MT% 2d: X=%d Y=%d Z=%d liftoff\n",
+> +				__func__, id,
+>  				ts->prv_trk[id].x,
+>  				ts->prv_trk[id].y,
+>  				CY_NTCH);
+> +			/* clear previous touch indication */
+>  			ts->prv_trk[id].tch = CY_NTCH;
+>  			cnt++;
+>  		}
+
+
+There seems to be no reason to keep the debug code and setting of prk_trk[] in
+different branches. Please simplify.
+
+> @@ -551,27 +536,21 @@ static void handle_multi_touch(struct cyttsp_track_data *t, struct cyttsp *ts)
+>  		input_sync(ts->input);
+>  }
+>  
+> -static void cyttsp_get_xydata(struct cyttsp *ts,
+> -	struct cyttsp_track_data *t,
+> -	u8 id, u8 w, u16 x, u16 y, u8 z)
+> -{
+> -	struct cyttsp_trk *trk;
+> -
+> -	trk = &(t->cur_trk[id]);
+> -	trk->tch = CY_TCH;
+> -	trk->w = w;
+> -	trk->x = x;
+> -	trk->y = y;
+> -	trk->z = z;
+> -}
+> -
+> +/* read xy_data for all current touches */
+>  static int cyttsp_xy_worker(struct cyttsp *ts)
+>  {
+>  	u8 cur_tch = 0;
+>  	u8 tch;
+> -	struct cyttsp_track_data trk;
+> +	u8 id;
+> +	u8 *x;
+> +	u8 *y;
+> +	u8 z;
+
+
+Please move these to the loop, if the loop is really needed.
+
+> +	struct cyttsp_trk cur_trk[CY_NUM_TRK_ID];
+>  
+> -	/* get event data from CYTTSP device */
+> +	/* Get event data from CYTTSP device.
+> +	 * The event data includes all data
+> +	 * for all active touches.
+> +	 */
+>  	if (ttsp_read_block_data(ts,
+>  		CY_REG_BASE, sizeof(struct cyttsp_xydata), &ts->xy_data))
+>  		return 0;
+> @@ -585,9 +564,11 @@ static int cyttsp_xy_worker(struct cyttsp *ts)
+>  		if (cyttsp_hndshk(ts, ts->xy_data.hst_mode))
+>  			return 0;
+>  
+> +	/* determine number of currently active touches */
+>  	cur_tch = GET_NUM_TOUCHES(ts->xy_data.tt_stat);
+>  
+> -	if (ts->bus_ops->power_state == CY_IDLE_STATE)
+> +	/* check for any error conditions */
+> +	if (ts->power_state == CY_IDLE_STATE)
+>  		return 0;
+>  	else if (GET_BOOTLOADERMODE(ts->xy_data.tt_mode)) {
+>  		return -1;
+> @@ -605,44 +586,70 @@ static int cyttsp_xy_worker(struct cyttsp *ts)
+>  		dev_dbg(ts->dev, "%s: Invalid buffer detected\n", __func__);
+>  	}
+>  
+> -	/* process the touches */
+> -	cyttsp_init_cur_trks(&trk);
+> +	/* clear current touch tracking structures */
+> +	memset(cur_trk, CY_NTCH, sizeof(cur_trk));
+>  
+> +	/* extract xy_data for all currently reported touches */
+>  	for (tch = 0; tch < cur_tch; tch++) {
+> -		cyttsp_get_xydata(ts, &trk,
+> -			tch & 0x01 ?
+> +		id = tch & 0x01 ?
+>  			(*(ts->tch_map[tch].id) & 0x0F) :
+> -			(*(ts->tch_map[tch].id) & 0xF0) >> 4,
+> -			CY_SMALL_TOOL_WIDTH,
+> -			be16_to_cpu((ts->tch_map[tch].tch)->x),
+> -			be16_to_cpu((ts->tch_map[tch].tch)->y),
+> -			(ts->tch_map[tch].tch)->z);
+> +			(*(ts->tch_map[tch].id) & 0xF0) >> 4;
+> +		x = (u8 *)&((ts->tch_map[tch].tch)->x);
+> +		y = (u8 *)&((ts->tch_map[tch].tch)->y);
+> +		z = (ts->tch_map[tch].tch)->z;
+> +		cur_trk[id].tch = CY_TCH;
+> +		cur_trk[id].x = ((u16)x[0] << 8) + x[1];
+> +		cur_trk[id].y = ((u16)y[0] << 8) + y[1];
+> +		cur_trk[id].z = z;
+>  	}
+>  
+> -	handle_multi_touch(&trk, ts);
+> +	/* provide input event signaling for each active touch */
+> +	handle_multi_touch(cur_trk, ts);
+>  
+>  	return 0;
+>  }
+
+
+This change does not seem to actually simplify much. How likely is it that this
+driver will support more than two fingers and still be using the type A
+protocol? A function setting up cur_trk[] explicitly from the device data would
+be cleaner.
 
 Thanks,
-Gabor
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Henrik
+

@@ -1,66 +1,65 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [RFC v1 PATCH 3/6] led: pmic8058: Add PMIC8058 leds driver
-Date: Mon, 06 Dec 2010 19:14:23 +0530
-Message-ID: <4CFCE8B7.8080305@codeaurora.org>
-References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org> <1289393281-4459-4-git-send-email-tsoni@codeaurora.org> <4CDB0451.3090303@metafoo.de> <4CDBDE5D.4040801@codeaurora.org>
+From: Valentine Barshak <vbarshak@mvista.com>
+Subject: Re: [PATCH] USB: USBHID: Fix race between disconnect and hiddev_ioctl
+Date: Mon, 06 Dec 2010 17:03:03 +0300
+Message-ID: <4CFCED17.9060702@mvista.com>
+References: <20101203172746.GA31045@mvista.com> <20101203231611.GB22969@core.coreip.homeip.net> <201012042122.23852.oliver@neukum.org> <20101204203750.GA7326@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:27763 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752399Ab0LFNo0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Dec 2010 08:44:26 -0500
-In-Reply-To: <4CDBDE5D.4040801@codeaurora.org>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:54613 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751204Ab0LFN6r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Dec 2010 08:58:47 -0500
+In-Reply-To: <20101204203750.GA7326@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Peter,
+Dmitry Torokhov wrote:
+> On Sat, Dec 04, 2010 at 09:22:23PM +0100, Oliver Neukum wrote:
+>   
+>> Am Samstag, 4. Dezember 2010, 00:16:12 schrieb Dmitry Torokhov:
+>>     
+>>>> Since disconnect can happen at any time, we can't initialize
+>>>> struct hid_device *hid = hiddev->hid at the beginning of ioctl
+>>>> and then use it.
+>>>>
+>>>> This change checks hiddev->exist flag while holding
+>>>> the existancelock and uses hid_device only if it exists.
+>>>>         
+>>> Why didn't you take the lock and check hiddev->exist at the beginning of
+>>> ioctl handler instead of pushing it down into individual command
+>>> handlers? I guess it would slow down HIDIOCGVERSION but I think we could
+>>> pay this price for code that is more clear ;)
+>>>       
+>> Strictly speaking you'd change the semantics. Right now you can execute
+>> the ioctl even if you know you are holding an fd to a disconnected device
+>> open.
+>>     
+>
+> No, I do not think I would. I do not believe that the availability for
+> HIDIOCGVERSION on disconnected device is spelled out in API/ABI spec. We
+> only know that ioctl will either succeed or appropriate error code is
+> returned. The fact that right now HIDIOCGVERSION is available on
+> disconnected devices is just an implementation detail subject to change.
+>
+>   
+It's not just HIDIOCGVERSION. A couple of other commands 
+(HIDIOCGFLAG/HIDIOCSFLAG) didn't check device existence in the first 
+place either.
+Current implementation depends on when the device is actually removed.
+If it has been removed before the hiddev_ioctl(), hiddev_ioctl() returns 
+-EIO.
+If the device is removed while hiddev_ioctl() is in progress, we either 
+do not notice that and handle HIDIOCGVERSION and HIDIOCGFLAG/HIDIOCSFLAG
+just fine, or return -ENODEV.
+I'll submit a patch in a bit that applies on top of the "[PATCH] USB: 
+USBHID: Fix race between disconnect and hiddev_ioctl" and makes the 
+hiddev_ioctl() check
+device existence before processing the command and always return -ENODEV 
+in case the device has been removed.
+Thanks,
+Val.
 
-> 
->>> +
->>> +/**
->>> + * struct pmic8058_led - per led data
->>> + * @name - name of the led
->>> + * @default_trigger - default trigger which needs to e attached
->>> + * @max_brightness - maximum brightness level supported by the led
->>> + * @id - supported led id
->>> + */
->>> +struct pmic8058_led {
->>> +	const char	*name;
->>> +	const char	*default_trigger;
->>> +	unsigned	max_brightness;
->> Should max_brightness not rather be hardcoded in the driver? As far as I can tell it
->> depend on the hardware and is 4 bits wide for flash and bl leds and 5 bits for the
->> others.
->>> +	int		id;
->>
->> enum pmic8058_leds instead of int
-> 
-> Ack.
-> 
->>> +struct pmic8058_leds_platform_data {
->>> +	int			num_leds;
->> size_t
-> 
-> Ack.
-> 
->>> +	struct pmic8058_led	*leds;
->>> +};
->>
->>
->> If max_brightness is hardcoded in the driver you can reuse "struct led_info" and
->> "struct struct led_platform_data" instead of adding your own structs.
-> 
-
-I couldn't remove these pmic8058_led structure due to the "enum pmic8058_led id" member
-info which I need from every led. This can be removed completely only if I abuse
-the "flags" parameter in struct led_info to pass the led id. Let me know what you think.
-
----Trilok Soni
-
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

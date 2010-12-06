@@ -1,67 +1,88 @@
-From: "Joey Lee" <jlee@novell.com>
-Subject: Re: [PATCH 2/4] Enabled Acer Launch Manager mode
-Date: Mon, 06 Dec 2010 01:20:27 -0700
-Message-ID: <4CFD377B0200002300025043@novprvlin0050.provo.novell.com>
+From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Subject: RE: [PATCH v6 8/8] Input: omap4 - pm runtime
+Date: Mon, 6 Dec 2010 18:30:00 +0530
+Message-ID: <0680EC522D0CC943BC586913CF3768C0041390E45B@dbde02.ent.ti.com>
+References: <1285825000-25622-1-git-send-email-x0066660@ti.com>
+ <87aamzl4pu.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <87aamzl4pu.fsf@deeprootsystems.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: Kevin Hilman <khilman@deeprootsystems.com>, "Arce, Abraham" <x0066660@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: corentin.chary@gmail.com
-Cc: dmitry.torokhov@gmail.com, Takashi Iwai <tiwai@novell.com>, mjg@redhat.com, mjg59@srcf.ucam.org, carlos@strangeworlds.co.uk, jbenc@suse.cz, jdelvare@suse.de, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-Hi Corentin,=20
 
-=E6=96=BC =E4=B8=80=EF=BC=8C2010-12-06 =E6=96=BC 08:17 +0100=EF=BC=8CCo=
-rentin Chary =E6=8F=90=E5=88=B0=EF=BC=9A
-> >>
-> >> Just noticed - this function (and others similar to this in your
-> >> subsequent patces) mixes acpi-style return values (acpi_status) wi=
-th
-> >> Linux ones (-ERRXXX). You need to pick one standard (I'd advocate =
-Linux
-> >> style) and stick with it.
-> >>
+Kevin,
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org [mailto:linux-input-
+> owner@vger.kernel.org] On Behalf Of Kevin Hilman
+> Sent: Thursday, September 30, 2010 7:21 PM
+> To: Arce, Abraham
+> Cc: linux-input@vger.kernel.org; linux-omap@vger.kernel.org
+> Subject: Re: [PATCH v6 8/8] Input: omap4 - pm runtime
+> 
+> Abraham Arce <x0066660@ti.com> writes:
+> 
+> > Enable pm runtime in driver
+> 
+> So power is enabled on probe and cut on _remove().  Did you consider
+> doing any more fine grained PM for this device?  For example, cutting
+> power after some inactivity timer and re-enabling on a
+> keypress/interrupt?
+My idea is that the clock needs to be on to get interrupts (OMAP4 the control is at module level and  ick/fclk level control is difficult). So disabling will prevent interrupts. 
+The keypad is in wakeup domain which is always on. So the power impact may be minimal.
+
+What do you think.
+> 
+> Kevin
+> 
+> 
+> 
+> > Reviewed-by: Basak, Partha <p-basak2@ti.com>
+> > Signed-off-by: Abraham Arce <x0066660@ti.com>
+> > ---
+> >  drivers/input/keyboard/omap4-keypad.c |    7 +++++++
+> >  1 files changed, 7 insertions(+), 0 deletions(-)
 > >
-> > Thank's for your review and suggestion, I choice use acpi-style bec=
-ause
-> > it don't need change too much and old functions in acer-wmi also fo=
-llow
-> > acpi-style.
-> > I replaced the -EINVAL with AE_ERROR, the following is new patch. I=
-f it's OK,
-> > I will modify patch 2/4 and patch 3/4 then re-send patchset again.
+> > diff --git a/drivers/input/keyboard/omap4-keypad.c
+> b/drivers/input/keyboard/omap4-keypad.c
+> > index 45bd097..ed47e9a 100644
+> > --- a/drivers/input/keyboard/omap4-keypad.c
+> > +++ b/drivers/input/keyboard/omap4-keypad.c
+> > @@ -29,6 +29,7 @@
+> >  #include <linux/io.h>
+> >  #include <linux/input.h>
+> >  #include <linux/slab.h>
+> > +#include <linux/pm_runtime.h>
 > >
+> >  #include <plat/omap4-keypad.h>
 > >
->=20
-> But if you use acpi-style errors won't be able to go back to the user=
- (errno)
-> and userspace programs won't be able to display appropriate errors (o=
-n modprobe,
-> manipulating sysfs files, etc...). I didn't read the code, so it may
-> not be an issue here,
-
-Yes, those functions are internal used in acer-wmi, and acer_wmi_init
-function will transfer all ACPI error to Linux style then send to
-userland.
-So, yes, there have no any issue even mix 2 different style return
-value.
-
-> but you should check that meaningful error codes are sent back to use=
-rspace.
->=20
-
-I still replaced the -EINVAL with AE_ERROR because those 2 functions
-declare return a acpi_status.
-
-
-Thank's a lot!
-Joey Lee
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > @@ -239,6 +240,9 @@ static int __devinit omap4_keypad_probe(struct
+> platform_device *pdev)
+> >  	matrix_keypad_build_keymap(pdata->keymap_data, row_shift,
+> >  			input_dev->keycode, input_dev->keybit);
+> >
+> > +	pm_runtime_enable(&pdev->dev);
+> > +	pm_runtime_get_sync(&pdev->dev);
+> > +
+> >  	omap4_keypad_config(keypad_data);
+> >
+> >  	error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+> > @@ -277,6 +281,9 @@ static int __devexit omap4_keypad_remove(struct
+> platform_device *pdev)
+> >  	struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
+> >  	struct resource *res;
+> >
+> > +	pm_runtime_put_sync(&pdev->dev);
+> > +	pm_runtime_disable(&pdev->dev);
+> > +
+> >  	free_irq(keypad_data->irq, keypad_data);
+> >  	input_unregister_device(keypad_data->input);
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

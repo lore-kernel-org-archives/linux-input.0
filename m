@@ -1,49 +1,58 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH V4 2/2] omap4: platform changes for CMA3000
-Date: Mon, 6 Dec 2010 11:39:13 -0800
-Message-ID: <20101206193913.GP8345@atomide.com>
-References: <37166.10.24.255.17.1291028266.squirrel@dbdmail.itg.ti.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 3/3] input: mt: Move tracking and pointer emulation to
+ input-mt (rev2)
+Date: Mon, 6 Dec 2010 13:52:12 -0600
+Message-ID: <AANLkTingU7pUSwt6myUYzDhMVWg7PqfFpftw_hjsE4iK@mail.gmail.com>
+References: <1291224069-11770-1-git-send-email-rydberg@euromail.se>
+	<4CFD2E15.50105@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <37166.10.24.255.17.1291028266.squirrel@dbdmail.itg.ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hemanth V <hemanthv@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:59976 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754087Ab0LFTwM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Dec 2010 14:52:12 -0500
+In-Reply-To: <4CFD2E15.50105@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-* Hemanth V <hemanthv@ti.com> [101129 02:48]:
-> From 8082870cc704d901d98cf0d6af90e45860927ceb Mon Sep 17 00:00:00 2001
-> From: Hemanth V <hemanthv@ti.com>
-> Date: Thu, 26 Aug 2010 17:49:12 +0530
-> Subject: [PATCH] Platform changes for CMA3000 Accelerometer driver
-> 
-> Update 4430 SDP board file with platform data for accelerometer driver
-> and select the driver in kconfig
-> 
-> Signed-off-by: Hemanth V <hemanthv@ti.com>
-> ---
->  arch/arm/mach-omap2/Kconfig         |    2 ++
->  arch/arm/mach-omap2/board-4430sdp.c |   30 ++++++++++++++++++++++++++++++
->  2 files changed, 32 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
-> index a928fd6..e87c049 100644
-> --- a/arch/arm/mach-omap2/Kconfig
-> +++ b/arch/arm/mach-omap2/Kconfig
-> @@ -255,6 +255,8 @@ config MACH_OMAP_4430SDP
->  	depends on ARCH_OMAP4
->  	select INPUT_TOUCHSCREEN
->  	select TOUCHSCREEN_SYNTM12XX
-> +	select INPUT_MISC
-> + 	select INPUT_CMA3000
-> + 	select INPUT_CMA3000_I2C
-> 
+On Mon, Dec 6, 2010 at 12:40 PM, Chase Douglas
+<chase.douglas@canonical.com> wrote:
+> On 12/01/2010 09:21 AM, Henrik Rydberg wrote:
+>> The drivers using the type B protocol all report tracking informatio=
+n
+>> the same way. The contact id is semantically equivalent to
+>> ABS_MT_SLOT, and the handling of ABS_MT_TRACKING_ID only complicates
+>> the driver. The situation can be improved upon by providing a common
+>> pointer emulation code, thereby removing the need for the tracking i=
+d
+>> in the driver. =A0This patch moves all tracking event handling over =
+to
+>> the input core, simplifying both the existing drivers and the ones
+>> currently in preparation.
+>
+> When two or more fingers are down, one of the fingers controls
+> ABS_{X,Y}. I think the aim is to emulate current behavior for
+> synaptics-style touchpads, which average the position in firmware. Th=
+us,
+> we should be averaging the touch positions to generate the ABS_{X,Y} =
+values.
+>
 
-The better way is to patch omap2plus_defconfig so these get added
-as modules.
+At least for modern synaptics hardware, it does track to first touch
+like this patch does.
 
-Regards,
+It is maybe a weighted average were its 90% first finger and 10%
+second finger.  Just moving second finger gives slight movement.
 
-Tony
+I can't really speak for other touchpad behavior.
+
+Chris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

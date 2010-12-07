@@ -1,204 +1,668 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v3] hid: egalax: Convert to MT slots
-Date: Tue,  7 Dec 2010 12:54:11 +0100
-Message-ID: <1291722851-22909-1-git-send-email-rydberg@euromail.se>
+From: Anirudh Ghayal <aghayal@codeaurora.org>
+Subject: Re: [RFC v1 PATCH 5/6] input: pmic8058-othc: Add support for PM8058
+ based OTHC
+Date: Tue, 07 Dec 2010 17:40:59 +0530
+Message-ID: <4CFE2453.6070304@codeaurora.org>
+References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org> <1289393281-4459-6-git-send-email-tsoni@codeaurora.org> <20101207100410.GC22416@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:60143 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751697Ab0LGLzQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Dec 2010 06:55:16 -0500
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:36806 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752388Ab0LGMLG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Dec 2010 07:11:06 -0500
+In-Reply-To: <20101207100410.GC22416@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Trilok Soni <tsoni@codeaurora.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org
 
-The firmware in the joojoo reports touches sequentially, one per
-report, which confuses the current driver. A further complication is
-the absense of any indication of a touch frame. This patch converts
-the driver to the MT slots protocol, and outputs one full touch frame
-per report. This way, proper handling for both firmwares is ensured.
+Hi Dimitry,
 
-Tested-by: Philipp Merkel <mail@philmerk.de>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Hi Jiri,
+Thanks for your comments.
 
-This is revision three of the patch, with one line changed to accomodate
-the explicit use of tool types. The rest of the patch set is intact.
+On 12/7/2010 3:34 PM, Dmitry Torokhov wrote:
+> Hi Trilok,
+>
+> On Wed, Nov 10, 2010 at 06:18:00PM +0530, Trilok Soni wrote:
+>> From: Anirudh Ghayal<aghayal@codeaurora.org>
+>>
+>> One-touch headset controller is a hardware module in Qualcomm's PMIC8058.
+>> It supports headset insert/remove and switch press/release detection events
+>> over 3 MIC BIAS lines. The MIC BIAS lines can be configured to support
+>> headset detection or act as regular BIAS lines.
+>>
+>> Cc: Dmitry Torokhov<dmitry.torokhov@gmail.com>
+>> Signed-off-by: Anirudh Ghayal<aghayal@codeaurora.org>
+>> ---
+>>   drivers/input/misc/Kconfig          |   10 +
+>>   drivers/input/misc/Makefile         |    1 +
+>>   drivers/input/misc/pmic8058-othc.c  |  544 +++++++++++++++++++++++++++++++++++
+>>   include/linux/input/pmic8058-othc.h |  117 ++++++++
+>>   4 files changed, 672 insertions(+), 0 deletions(-)
+>>   create mode 100644 drivers/input/misc/pmic8058-othc.c
+>>   create mode 100644 include/linux/input/pmic8058-othc.h
+>>
+>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>> index aeb9165..df6097c 100644
+>> --- a/drivers/input/misc/Kconfig
+>> +++ b/drivers/input/misc/Kconfig
+>> @@ -359,6 +359,16 @@ config INPUT_PMIC8058_PWRKEY
+>>   	  To compile this driver as a module, choose M here: the
+>>   	  module will be called pmic8058-pwrkey.
+>>
+>> +config INPUT_PMIC8058_OTHC
+>> +	tristate "Qualcomm PMIC8058 OTHC support"
+>> +	depends on PMIC8058
+>> +	help
+>> +	  Say Y here if you want support PMIC8058 One-touch Headset Controller
+>> +	  (OTHC)
+>> +
+>> +	  To compile this driver as a module, choose M here: the
+>> +	  module will be called pmic8058-othc.
+>> +
+>>   config INPUT_GPIO_ROTARY_ENCODER
+>>   	tristate "Rotary encoders connected to GPIO pins"
+>>   	depends on GPIOLIB&&  GENERIC_GPIO
+>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+>> index c4357a0..a713370 100644
+>> --- a/drivers/input/misc/Makefile
+>> +++ b/drivers/input/misc/Makefile
+>> @@ -29,6 +29,7 @@ obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+>>   obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
+>>   obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+>>   obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
+>> +obj-$(CONFIG_INPUT_PMIC8058_OTHC)	+= pmic8058-othc.o
+>>   obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+>>   obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+>>   obj-$(CONFIG_INPUT_PMIC8058_PWRKEY)	+= pmic8058-pwrkey.o
+>> diff --git a/drivers/input/misc/pmic8058-othc.c b/drivers/input/misc/pmic8058-othc.c
+>> new file mode 100644
+>> index 0000000..78f157a
+>> --- /dev/null
+>> +++ b/drivers/input/misc/pmic8058-othc.c
+>> @@ -0,0 +1,544 @@
+>> +/* Copyright (c) 2010, Code Aurora Forum. All rights reserved.
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 and
+>> + * only version 2 as published by the Free Software Foundation.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>> + * GNU General Public License for more details.
+>> + *
+>> + * You should have received a copy of the GNU General Public License
+>> + * along with this program; if not, write to the Free Software
+>> + * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+>> + * 02110-1301, USA.
+>> + */
+>> +
+>> +#define pr_fmt(fmt) "%s:" fmt, __func__
+>> +
+>> +#include<linux/module.h>
+>> +#include<linux/init.h>
+>> +#include<linux/kernel.h>
+>> +#include<linux/slab.h>
+>> +#include<linux/interrupt.h>
+>> +#include<linux/input.h>
+>> +#include<linux/platform_device.h>
+>> +#include<linux/pm.h>
+>> +
+>> +#include<linux/mfd/pmic8058.h>
+>> +#include<linux/input/pmic8058-othc.h>
+>> +
+>> +#define PM8058_OTHC_LOW_CURR_MASK	0xF0
+>> +#define PM8058_OTHC_HIGH_CURR_MASK	0x0F
+>> +#define PM8058_OTHC_EN_SIG_MASK		0x3F
+>> +#define PM8058_OTHC_HYST_PREDIV_MASK	0xC7
+>> +#define PM8058_OTHC_CLK_PREDIV_MASK	0xF8
+>> +#define PM8058_OTHC_HYST_CLK_MASK	0x0F
+>> +#define PM8058_OTHC_PERIOD_CLK_MASK	0xF0
+>> +
+>> +#define PM8058_OTHC_LOW_CURR_SHIFT	0x4
+>> +#define PM8058_OTHC_EN_SIG_SHIFT	0x6
+>> +#define PM8058_OTHC_HYST_PREDIV_SHIFT	0x3
+>> +#define PM8058_OTHC_HYST_CLK_SHIFT	0x4
+>> +
+>> +#define PM8058_OTHC_LOW_CURR_MIRROR	10
+>> +#define PM8058_OTHC_HIGH_CURR_MIRROR	100
+>> +#define PM8058_OTHC_CLK_SRC_SHIFT	10
+>> +
+>> +/**
+>> + * struct pm8058_othc - othc driver data structure
+>> + * @othc_ipd: input device for othc
+>> + * @othc_pdata:	a pointer to the platform data
+>> + * @othc_base: base address of the OTHC controller
+>> + * @othc_irq_sw: switch detect irq number
+>> + * @othc_irq_ir: headset jack detect irq number
+>> + * @othc_sw_state: current state of the switch
+>> + * @othc_ir_state: current state of the headset
+>> + * @switch_reject: indicates if valid switch press
+>> + * @switch_debounce_ms: the debounce time for the switch
+>> + * @lock: spin lock variable
+>> + * @timer: timer for switch debounce time
+>> + * @pm_chip: pointer to the pm8058 parent chip
+>> + */
+>> +struct pm8058_othc {
+>> +	struct input_dev *othc_ipd;
+>> +	struct pmic8058_othc_config_pdata *othc_pdata;
+>
+> const?
 
-Thanks,
-Henrik
+Ok.
 
- drivers/hid/hid-egalax.c |   86 ++++++++++++---------------------------------
- 1 files changed, 23 insertions(+), 63 deletions(-)
+>
+>> +	int othc_base;
+>> +	int othc_irq_sw;
+>> +	int othc_irq_ir;
+>> +	bool othc_sw_state;
+>> +	bool othc_ir_state;
+>> +	bool switch_reject;
+>> +	unsigned long switch_debounce_ms;
+>> +	spinlock_t lock;
+>> +	struct timer_list timer;
+>> +	struct pm8058_chip *pm_chip;
+>> +};
+>> +
+>> +static struct pm8058_othc *config[OTHC_MICBIAS_MAX];
+>> +
+>> +/**
+>> + * pm8058_micbias_enable() - Enables/Disables the MIC_BIAS
+>> + * @micbias:	MIC BIAS line which needs to be enabled
+>> + * @enable:	operational state for the MIC BIAS line
+>> + *
+>> + * The API pm8058_micbias_enable()  configures the MIC_BIAS. Only the lines
+>> + * which are not used for headset detection can be configured using this API.
+>> + * The API returns an error code if it fails to configure, else it returns 0.
+>> + */
+>> +int pm8058_micbias_enable(enum othc_micbias micbias,
+>> +		enum othc_micbias_enable enable)
+>> +{
+>> +	int rc;
+>> +	u8 reg;
+>> +	struct pm8058_othc *dd = config[micbias];
+>> +
+>> +	if (dd == NULL) {
+>> +		pr_err("MIC_BIAS not registered, cannot enable\n");
+>> +		return -ENODEV;
+>> +	}
+>> +
+>> +	if (dd->othc_pdata->micbias_capability != OTHC_MICBIAS) {
+>> +		pr_err("MIC_BIAS enable capability not supported\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	rc = pm8058_read(dd->pm_chip, dd->othc_base + 1,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 read failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	reg&= PM8058_OTHC_EN_SIG_MASK;
+>> +	reg |= (enable<<  PM8058_OTHC_EN_SIG_SHIFT);
+>> +
+>> +	rc = pm8058_write(dd->pm_chip, dd->othc_base + 1,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 write failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	return rc;
+>> +}
+>> +EXPORT_SYMBOL(pm8058_micbias_enable);
+>> +
+>> +#ifdef CONFIG_PM
+>> +static int pm8058_othc_suspend(struct device *dev)
+>> +{
+>> +	struct pm8058_othc *dd = dev_get_drvdata(dev);
+>> +
+>> +	if (dd->othc_pdata->micbias_capability == OTHC_MICBIAS_HSED) {
+>> +		if (device_may_wakeup(dev)) {
+>> +			enable_irq_wake(dd->othc_irq_sw);
+>> +			enable_irq_wake(dd->othc_irq_ir);
+>> +		}
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int pm8058_othc_resume(struct device *dev)
+>> +{
+>> +	struct pm8058_othc *dd = dev_get_drvdata(dev);
+>> +
+>> +	if (dd->othc_pdata->micbias_capability == OTHC_MICBIAS_HSED) {
+>> +		if (device_may_wakeup(dev)) {
+>> +			disable_irq_wake(dd->othc_irq_sw);
+>> +			disable_irq_wake(dd->othc_irq_ir);
+>> +		}
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static const struct dev_pm_ops pm8058_othc_pm_ops = {
+>> +	.suspend = pm8058_othc_suspend,
+>> +	.resume = pm8058_othc_resume,
+>> +};
+>> +#endif
+>> +
+>> +static int __devexit pm8058_othc_remove(struct platform_device *pd)
+>> +{
+>> +	struct pm8058_othc *dd = platform_get_drvdata(pd);
+>> +
+>> +	if (dd->othc_pdata->micbias_capability == OTHC_MICBIAS_HSED) {
+>
+> Why do we even bind to devices that are not OTHC_MICBIAS_HSED?
 
-diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-index 5da5ecb..725a5b0 100644
---- a/drivers/hid/hid-egalax.c
-+++ b/drivers/hid/hid-egalax.c
-@@ -2,6 +2,8 @@
-  *  HID driver for eGalax dual-touch panels
-  *
-  *  Copyright (c) 2010 Stephane Chatty <chatty@enac.fr>
-+ *  Copyright (c) 2010 Henrik Rydberg <rydberg@euromail.se>
-+ *  Copyright (c) 2010 Canonical, Ltd.
-  *
-  */
- 
-@@ -16,6 +18,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/usb.h>
-+#include <linux/input-mt.h>
- #include <linux/slab.h>
- #include "usbhid/usbhid.h"
- 
-@@ -25,17 +28,17 @@ MODULE_LICENSE("GPL");
- 
- #include "hid-ids.h"
- 
-+#define MAX_SLOTS		2
-+
- /* estimated signal-to-noise ratios */
- #define SN_MOVE			4096
- #define SN_PRESSURE		32
- 
- struct egalax_data {
--	__u16 x, y, z;
--	__u8 id;
--	bool first;		/* is this the first finger in the frame? */
--	bool valid;		/* valid finger data, or just placeholder? */
--	bool activity;		/* at least one active finger previously? */
--	__u16 lastx, lasty, lastz;	/* latest valid (x, y, z) in the frame */
-+	int valid;
-+	int slot;
-+	int touch;
-+	int x, y, z;
- };
- 
- static void set_abs(struct input_dev *input, unsigned int code,
-@@ -89,9 +92,7 @@ static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		case HID_DG_CONTACTMAX:
- 			return -1;
- 		case HID_DG_CONTACTID:
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_TRACKING_ID);
--			set_abs(input, ABS_MT_TRACKING_ID, field, 0);
-+			input_mt_init_slots(input, MAX_SLOTS);
- 			return 1;
- 		case HID_DG_TIPPRESSURE:
- 			field->logical_minimum = 0;
-@@ -125,58 +126,16 @@ static int egalax_input_mapped(struct hid_device *hdev, struct hid_input *hi,
-  */
- static void egalax_filter_event(struct egalax_data *td, struct input_dev *input)
- {
--	td->first = !td->first; /* touchscreen emulation */
--
--	if (td->valid) {
--		/* emit multitouch events */
--		input_event(input, EV_ABS, ABS_MT_TRACKING_ID, td->id);
--		input_event(input, EV_ABS, ABS_MT_POSITION_X, td->x >> 3);
--		input_event(input, EV_ABS, ABS_MT_POSITION_Y, td->y >> 3);
-+	input_mt_slot(input, td->slot);
-+	input_mt_report_slot_state(input, MT_TOOL_FINGER, td->touch);
-+	if (td->touch) {
-+		input_event(input, EV_ABS, ABS_MT_POSITION_X, td->x);
-+		input_event(input, EV_ABS, ABS_MT_POSITION_Y, td->y);
- 		input_event(input, EV_ABS, ABS_MT_PRESSURE, td->z);
--
--		input_mt_sync(input);
--
--		/*
--		 * touchscreen emulation: store (x, y) as
--		 * the last valid values in this frame
--		 */
--		td->lastx = td->x;
--		td->lasty = td->y;
--		td->lastz = td->z;
--	}
--
--	/*
--	 * touchscreen emulation: if this is the second finger and at least
--	 * one in this frame is valid, the latest valid in the frame is
--	 * the oldest on the panel, the one we want for single touch
--	 */
--	if (!td->first && td->activity) {
--		input_event(input, EV_ABS, ABS_X, td->lastx >> 3);
--		input_event(input, EV_ABS, ABS_Y, td->lasty >> 3);
-- 		input_event(input, EV_ABS, ABS_PRESSURE, td->lastz);
--	}
--
--	if (!td->valid) {
--		/*
--		 * touchscreen emulation: if the first finger is invalid
--		 * and there previously was finger activity, this is a release
--		 */ 
--		if (td->first && td->activity) {
--			input_event(input, EV_KEY, BTN_TOUCH, 0);
--			td->activity = false;
--		}
--		return;
--	}
--
--
--	/* touchscreen emulation: if no previous activity, emit touch event */
--	if (!td->activity) {
--		input_event(input, EV_KEY, BTN_TOUCH, 1);
--		td->activity = true;
- 	}
-+	input_mt_report_pointer_emulation(input);
- }
- 
--
- static int egalax_event(struct hid_device *hid, struct hid_field *field,
- 				struct hid_usage *usage, __s32 value)
- {
-@@ -186,25 +145,26 @@ static int egalax_event(struct hid_device *hid, struct hid_field *field,
- 	 * uses a standard parallel multitouch protocol (product ID ==
- 	 * 48xx).  The second is capacitive and uses an unusual "serial"
- 	 * protocol with a different message for each multitouch finger
--	 * (product ID == 72xx).  We do not yet generate a correct event
--	 * sequence for the capacitive/serial protocol.
-+	 * (product ID == 72xx).
- 	 */
- 	if (hid->claimed & HID_CLAIMED_INPUT) {
- 		struct input_dev *input = field->hidinput->input;
- 
- 		switch (usage->hid) {
- 		case HID_DG_INRANGE:
-+			td->valid = value;
-+			break;
- 		case HID_DG_CONFIDENCE:
- 			/* avoid interference from generic hidinput handling */
- 			break;
- 		case HID_DG_TIPSWITCH:
--			td->valid = value;
-+			td->touch = value;
- 			break;
- 		case HID_DG_TIPPRESSURE:
- 			td->z = value;
- 			break;
- 		case HID_DG_CONTACTID:
--			td->id = value;
-+			td->slot = clamp_val(value, 0, MAX_SLOTS - 1);
- 			break;
- 		case HID_GD_X:
- 			td->x = value;
-@@ -212,11 +172,11 @@ static int egalax_event(struct hid_device *hid, struct hid_field *field,
- 		case HID_GD_Y:
- 			td->y = value;
- 			/* this is the last field in a finger */
--			egalax_filter_event(td, input);
-+			if (td->valid)
-+				egalax_filter_event(td, input);
- 			break;
- 		case HID_DG_CONTACTCOUNT:
- 			/* touch emulation: this is the last field in a frame */
--			td->first = false;
- 			break;
- 
- 		default:
+On PMIC 8058 we have 3 MIC_BIAS lines and all 3 have the capability to 
+support HSED OTHC controller.  So, I register all the 3 BIAS lines, 
+though only the ones which are enabled for HSED regitser as input 
+devices. Also, I export an API pm8058_micbias_enable (above) which 
+allows to configure the non-HSED lines as regualr MIC_BIAS lines.
+
+>
+>> +		device_init_wakeup(&pd->dev, 0);
+>> +		free_irq(dd->othc_irq_sw, dd);
+>> +		free_irq(dd->othc_irq_ir, dd);
+>> +		del_timer_sync(&dd->timer);
+>> +		input_unregister_device(dd->othc_ipd);
+>> +	}
+>> +
+>> +	kfree(dd);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static void pm8058_othc_timer(unsigned long handle)
+>> +{
+>> +	unsigned long flags;
+>> +	struct pm8058_othc *dd = (struct pm8058_othc *)handle;
+>> +
+>> +	spin_lock_irqsave(&dd->lock, flags);
+>> +	dd->switch_reject = false;
+>> +	spin_unlock_irqrestore(&dd->lock, flags);
+>> +}
+>> +
+>> +static irqreturn_t pm8058_no_sw(int irq, void *dev_id)
+>> +{
+>> +	struct pm8058_othc *dd = dev_id;
+>> +	unsigned long flags;
+>> +
+>> +	/*
+>> +	 * Due to a hardware bug, spurious switch interrutps are seen while
+>> +	 * inserting the headset slowly. A timer based logic rejects these
+>> +	 * switch interrutps.
+>> +	 */
+>> +	spin_lock_irqsave(&dd->lock, flags);
+>> +	if (dd->switch_reject == true) {
+>> +		spin_unlock_irqrestore(&dd->lock, flags);
+>> +		return IRQ_HANDLED;
+>> +	}
+>> +	spin_unlock_irqrestore(&dd->lock, flags);
+>
+> I am not quite sure whether this locking helps anything... You do
+> protect the check by condition can change once you leave the protected
+> section since both IRQ handles and timer can run simultaneously...
+
+Sorry, I didn't quite get your concern. Here, only the timer updates the 
+varible and the int. handler checks for the condition and returns. As 
+these both can occur in parallel we need a lock.
+
+>
+>> +
+>> +	if (dd->othc_sw_state == false) {
+>> +		dd->othc_sw_state = true;
+>> +		input_report_key(dd->othc_ipd, KEY_MEDIA, 1);
+>> +	} else if (dd->othc_sw_state == true) {
+>> +		dd->othc_sw_state = false;
+>> +		input_report_key(dd->othc_ipd, KEY_MEDIA, 0);
+>> +	}
+>> +	input_sync(dd->othc_ipd);
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static irqreturn_t pm8058_nc_ir(int irq, void *dev_id)
+>> +{
+>> +	unsigned long flags;
+>> +	struct pm8058_othc *dd = dev_id;
+>> +
+>> +	spin_lock_irqsave(&dd->lock, flags);
+>> +	dd->switch_reject = true;
+>> +	spin_unlock_irqrestore(&dd->lock, flags);
+>> +
+>> +	mod_timer(&dd->timer, jiffies +
+>> +		msecs_to_jiffies(dd->switch_debounce_ms));
+>> +
+>> +	if (dd->othc_ir_state == false) {
+>> +		dd->othc_ir_state = true;
+>> +		input_report_key(dd->othc_ipd, SW_HEADPHONE_INSERT, 1);
+>> +	} else {
+>> +		dd->othc_ir_state = false;
+>> +		input_report_key(dd->othc_ipd, SW_HEADPHONE_INSERT, 0);
+>> +	}
+>> +
+>> +	input_sync(dd->othc_ipd);
+>
+> 	dd->othc_ir_state = !dd->othc_ir_state;
+> 	input_report_key(dd->othc_ipd, SW_HEADPHONE_INSERT, dd->othc_ir_state);
+> 	input_sync(dd->othc_ipd);
+
+Simpler :).
+
+>
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int pm8058_configure_othc(struct pm8058_othc *dd)
+>> +{
+>> +	int rc;
+>> +	u8 reg, value;
+>> +	u32 value1;
+>> +	u16 base_addr = dd->othc_base;
+>> +	struct othc_hsed_config *hsed_config = dd->othc_pdata->hsed_config;
+>> +
+>> +	/* Control Register 1*/
+>> +	rc = pm8058_read(dd->pm_chip, base_addr,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 read failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	if (hsed_config->othc_headset == OTHC_HEADSET_NO) {
+>> +		/* set iDAC high current threshold */
+>> +		value = (hsed_config->othc_highcurr_thresh_uA /
+>> +					PM8058_OTHC_HIGH_CURR_MIRROR) - 2;
+>> +		reg =  (reg&  PM8058_OTHC_HIGH_CURR_MASK) | value;
+>> +	} else {
+>> +		/* set iDAC low current threshold */
+>> +		value = (hsed_config->othc_lowcurr_thresh_uA /
+>> +					PM8058_OTHC_LOW_CURR_MIRROR) - 1;
+>> +		reg&= PM8058_OTHC_LOW_CURR_MASK;
+>> +		reg |= (value<<  PM8058_OTHC_LOW_CURR_SHIFT);
+>> +	}
+>> +
+>> +	rc = pm8058_write(dd->pm_chip, base_addr,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 read failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	/* Control register 2*/
+>> +	rc = pm8058_read(dd->pm_chip, base_addr + 1,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 read failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	value = dd->othc_pdata->micbias_enable;
+>> +	reg&= PM8058_OTHC_EN_SIG_MASK;
+>> +	reg |= (value<<  PM8058_OTHC_EN_SIG_SHIFT);
+>> +
+>> +	value = 0;
+>> +	value1 = (hsed_config->othc_hyst_prediv_us<<
+>> +				PM8058_OTHC_CLK_SRC_SHIFT) / USEC_PER_SEC;
+>> +	while (value1 != 0) {
+>> +		value1 = value1>>  1;
+>> +		value++;
+>> +	}
+>> +	if (value>  7) {
+>> +		pr_err("Invalid input argument - othc_hyst_prediv_us\n");
+>> +		return -EINVAL;
+>> +	}
+>> +	reg&= PM8058_OTHC_HYST_PREDIV_MASK;
+>> +	reg |= (value<<  PM8058_OTHC_HYST_PREDIV_SHIFT);
+>> +
+>> +	value = 0;
+>> +	value1 = (hsed_config->othc_period_clkdiv_us<<
+>> +				PM8058_OTHC_CLK_SRC_SHIFT) / USEC_PER_SEC;
+>> +	while (value1 != 1) {
+>> +		value1 = value1>>  1;
+>> +		value++;
+>> +	}
+>> +	if (value>  8) {
+>> +		pr_err("Invalid input argument - othc_period_clkdiv_us\n");
+>> +		return -EINVAL;
+>> +	}
+>> +	reg = (reg&   PM8058_OTHC_CLK_PREDIV_MASK) | (value - 1);
+>> +
+>> +	rc = pm8058_write(dd->pm_chip, base_addr + 1,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 read failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	/* Control register 3 */
+>> +	rc = pm8058_read(dd->pm_chip, base_addr + 2 ,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 read failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	value = hsed_config->othc_hyst_clk_us /
+>> +					hsed_config->othc_hyst_prediv_us;
+>> +	if (value>  15) {
+>> +		pr_err("Invalid input argument - othc_hyst_prediv_us\n");
+>> +		return -EINVAL;
+>> +	}
+>> +	reg&= PM8058_OTHC_HYST_CLK_MASK;
+>> +	reg |= value<<  PM8058_OTHC_HYST_CLK_SHIFT;
+>> +
+>> +	value = hsed_config->othc_period_clk_us /
+>> +					hsed_config->othc_period_clkdiv_us;
+>> +	if (value>  15) {
+>> +		pr_err("Invalid input argument - othc_hyst_prediv_us\n");
+>> +		return -EINVAL;
+>> +	}
+>> +	reg = (reg&  PM8058_OTHC_PERIOD_CLK_MASK) | value;
+>> +
+>> +	rc = pm8058_write(dd->pm_chip, base_addr + 2,&reg, 1);
+>> +	if (rc<  0) {
+>> +		pr_err("PM8058 read failed\n");
+>> +		return rc;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int
+>> +pm8058_othc_configure_hsed(struct pm8058_othc *dd, struct platform_device *pd)
+>> +{
+>> +	int rc;
+>> +	struct input_dev *ipd;
+>> +	struct pmic8058_othc_config_pdata *pdata = pd->dev.platform_data;
+>
+> const?
+>
+>> +	struct othc_hsed_config *hsed_config = pdata->hsed_config;
+>
+> And here as well?
+>
+
+Sure.
+
+>> +
+>> +	ipd = input_allocate_device();
+>> +	if (ipd == NULL) {
+>> +		dev_err(&pd->dev, "Memory allocate to input device failed!\n");
+>> +		rc = -ENOMEM;
+>> +		goto fail_input_alloc;
+>> +	}
+>> +
+>> +	dd->othc_irq_sw = platform_get_irq(pd, 0);
+>> +	dd->othc_irq_ir = platform_get_irq(pd, 1);
+>> +	if (dd->othc_irq_ir<  0 || dd->othc_irq_sw<  0) {
+>> +		dev_err(&pd->dev, "othc resource:IRQ_IR absent!\n");
+>> +		rc = -ENXIO;
+>> +		goto fail_othc_config;
+>> +	}
+>> +
+>> +	ipd->name = "pmic8058_othc";
+>> +	ipd->phys = "pmic8058_othc/input0";
+>> +	ipd->dev.parent =&pd->dev;
+>> +
+>> +	input_set_capability(ipd, EV_SW, SW_HEADPHONE_INSERT);
+>> +	input_set_capability(ipd, EV_KEY, KEY_MEDIA);
+>
+> What exactly this button is supposed to do? I do not think KEY_MEDIA is
+> the one you need here.
+
+This key acts as send/end key while in call and play/pause in case of 
+audio playback. So we used KEY_MEDIA as a generic media key. Could you 
+please suggest what can be used here?
+
+>
+>
+>> +
+>> +	input_set_drvdata(ipd, dd);
+>> +
+>> +	dd->othc_ipd = ipd;
+>> +	dd->othc_sw_state = false;
+>> +	dd->othc_ir_state = false;
+>> +	spin_lock_init(&dd->lock);
+>> +	dd->switch_debounce_ms = hsed_config->switch_debounce_ms;
+>> +	setup_timer(&dd->timer, pm8058_othc_timer, (unsigned long) dd);
+>> +
+>> +	rc = pm8058_configure_othc(dd);
+>> +	if (rc<  0)
+>> +		goto fail_othc_config;
+>> +
+>> +	rc = input_register_device(ipd);
+>> +	if (rc) {
+>> +		dev_err(&pd->dev, "Register OTHC device failed!\n");
+>> +		goto fail_othc_config;
+>> +	}
+>> +
+>> +	/* Check if the headset is already inserted during boot up */
+>> +	rc = pm8058_irq_get_rt_status(dd->pm_chip, dd->othc_irq_ir);
+>> +	if (rc<  0) {
+>> +		dev_err(&pd->dev, "Unable to get headset status at boot!\n");
+>> +		goto fail_ir_irq;
+>> +	}
+>> +	if (rc) {
+>> +		dev_dbg(&pd->dev, "Headset inserted during boot up!\n");
+>> +		dd->othc_ir_state = true;
+>> +		input_report_switch(dd->othc_ipd, SW_HEADPHONE_INSERT, 1);
+>> +		input_sync(dd->othc_ipd);
+>> +	}
+>> +
+>> +	rc = request_any_context_irq(dd->othc_irq_ir, pm8058_nc_ir,
+>> +		IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+>> +					"pm8058_othc_ir", dd);
+>
+> Hmm, non-threaded IRQs do not support IRQF_ONESHOT, do they? BTW, is
+> oneshot really needed here?
+
+Right, I donot need IRQF_ONESHOT here.
+
+>
+>> +	if (rc<  0) {
+>> +		dev_err(&pd->dev, "Request pm8058_othc_ir IRQ failed!\n");
+>> +		goto fail_ir_irq;
+>> +	}
+>> +
+>> +	rc = request_any_context_irq(dd->othc_irq_sw, pm8058_no_sw,
+>> +		IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+>> +					"pm8058_othc_sw", dd);
+>> +	if (rc<  0) {
+>> +		dev_err(&pd->dev, "Request pm8058_othc_sw IRQ failed!\n");
+>> +		goto fail_sw_irq;
+>> +	}
+>> +
+>> +	device_init_wakeup(&pd->dev, hsed_config->othc_wakeup);
+>> +
+>> +	return 0;
+>> +
+>> +fail_sw_irq:
+>> +	free_irq(dd->othc_irq_ir, dd);
+>> +fail_ir_irq:
+>> +	input_unregister_device(ipd);
+>> +	dd->othc_ipd = NULL;
+>> +fail_othc_config:
+>> +	input_free_device(ipd);
+>> +fail_input_alloc:
+>> +	return rc;
+>> +}
+>> +
+>> +static int __devinit pm8058_othc_probe(struct platform_device *pd)
+>> +{
+>> +	int rc;
+>> +	struct pm8058_othc *dd;
+>> +	struct pm8058_chip *chip;
+>> +	struct resource *res;
+>> +	struct pmic8058_othc_config_pdata *pdata = pd->dev.platform_data;
+>> +
+>> +	chip = platform_get_drvdata(pd);
+>> +	if (chip == NULL) {
+>> +		dev_err(&pd->dev, "Invalid driver information!\n");
+>> +		return  -EINVAL;
+>> +	}
+>> +
+>> +	/* PMIC8058 version A0 not supported */
+>> +	if (pm8058_rev(chip) == PM_8058_REV_1p0) {
+>> +		dev_err(&pd->dev, "PMIC8058 version not supported!\n");
+>> +		return -ENODEV;
+>> +	}
+>> +
+>> +	if (pdata == NULL) {
+>> +		dev_err(&pd->dev, "Platform data not present!\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	dd = kzalloc(sizeof(*dd), GFP_KERNEL);
+>> +	if (dd == NULL) {
+>> +		dev_err(&pd->dev, "Unable to allocate memory!\n");
+>> +		return -ENOMEM;
+>> +	}
+>> +
+>> +	res = platform_get_resource_byname(pd, IORESOURCE_IO, "othc_base");
+>> +	if (res == NULL) {
+>> +		dev_err(&pd->dev, "OTHC Base address, resource absent!\n");
+>> +		rc = -ENXIO;
+>> +		goto fail_get_res;
+>> +	}
+>> +
+>> +	dd->othc_pdata = pdata;
+>> +	dd->pm_chip = chip;
+>> +	dd->othc_base = res->start;
+>> +
+>> +	platform_set_drvdata(pd, dd);
+>> +
+>> +	if (pdata->micbias_capability == OTHC_MICBIAS_HSED) {
+>> +		/* HSED to be supported on this MICBIAS line */
+>> +		if (pdata->hsed_config != NULL) {
+>> +			rc = pm8058_othc_configure_hsed(dd, pd);
+>> +			if (rc<  0)
+>> +				goto fail_get_res;
+>> +		} else {
+>> +			dev_err(&pd->dev, "HSED config data absent!\n");
+>> +			rc = -EINVAL;
+>> +			goto fail_get_res;
+>> +		}
+>> +	}
+>> +
+>> +	/* Store the local driver data structure */
+>> +	if (dd->othc_pdata->micbias_select<  OTHC_MICBIAS_MAX)
+>> +		config[dd->othc_pdata->micbias_select] = dd;
+>> +
+>> +	dev_dbg(&pd->dev, "Device %s:%d successfully registered\n",
+>> +						pd->name, pd->id);
+>> +	return 0;
+>> +
+>> +fail_get_res:
+>> +	kfree(dd);
+>> +	return rc;
+>> +}
+>> +
+>
+> Thanks.
+>
+
+
 -- 
-1.7.1
-
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

@@ -1,24 +1,20 @@
-From: Ping Cheng <pinglinux@gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
 Subject: Re: [RFC][PATCH] input: Introduce device information ioctl
-Date: Tue, 7 Dec 2010 10:48:04 -0800
-Message-ID: <AANLkTi=dhFSrAnRHDB4Vcsxh8xqvztpg4Fxyorzu9q7u@mail.gmail.com>
+Date: Tue, 7 Dec 2010 13:18:41 -0600
+Message-ID: <AANLkTi=JcekxsbUXXUmxkUug_+hwiYkDxbCEKEe-DWDg@mail.gmail.com>
 References: <1291706726-8835-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:37005 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751697Ab0LGS4w convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Dec 2010 13:56:52 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1291706726-8835-1-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+List-Id: linux-input@vger.kernel.org
 
-On Mon, Dec 6, 2010 at 11:25 PM, Henrik Rydberg <rydberg@euromail.se> w=
-rote:
+On Tue, Dec 7, 2010 at 1:25 AM, Henrik Rydberg <rydberg@euromail.se> wr=
+ote:
 > Today, userspace sets up an input device based on the data it emits.
 > This is not always enough; a tablet and a touchscreen may emit exactl=
 y
@@ -87,17 +83,21 @@ of(struct input_devinfo)))
 > + * automatic setup in userspace, such as if the device is direct
 > + * (touchscreen) or indirect (touchpad), and if there are other
 > + * special considerations, such as the touchpad also being a button.
-
-I guess you are talking about the pad is also a button. What about the
-pad has buttons? And there could be more than one button on it. Can we
-pass the number of buttons on the pad as well?
-
 > + */
 > +struct input_devinfo {
 > + =A0 =A0 =A0 __u32 types;
 > + =A0 =A0 =A0 __u32 capabilities;
 > +};
 > +
+
+"types" sounds like it can support being more then one thing at a time
+but I don't think that is intent from below names.  Should rename to
+"type"?
+
+As example, I think combo devices that support fingers and pens will
+be either TOUCHSCREEN or TABLET and declare combo part with
+BTN_TOOL_PEN+BTN_TOOL_FINGER.
+
 > +/**
 > =A0* struct input_keymap_entry - used by EVIOCGKEYCODE/EVIOCSKEYCODE =
 ioctls
@@ -131,31 +131,27 @@ len) =A0 =A0 =A0 =A0 /* get all LEDs */
 > +#define DEVTYPE_TOUCHPAD =A0 =A0 =A0 3
 > +#define DEVTYPE_TABLET =A0 =A0 =A0 =A0 4
 > +#define DEVTYPE_TOUCHSCREEN =A0 =A05
-
-TOUCHSCREEN can be finger touch screen and pen touch screen. They are
-different types for clients. Should we add one for pen touch screen,
-something like DEVTYPE_TABLETPC?
-
 > +
 > +/*
 > + * Device capabilities
 > + */
 > +
 > +#define DEVCAPS_PAD_IS_BUTTON =A01
-
-Do we need the following:
-
-+#define DEVCAPS_PAD_HAS_BUTTONS           2
-+#define DEVCAPS_PAD_HAS_RINGS                  3
-+#define DEVCAPS_PAD_HAS_REL_WHEELS    4
-+#define DEVCAPS_PAD_HAS_ABS_WHEELS    5
-+#define DEVCAPS_PAD_HAS_STRIPS                6
-
-Thank you.
-
-Ping
-
 > +
+
+DEVCAPS_BUTTONPAD or DEVCAPS_CLICKPAD may be good choice if you want
+to save some characters.
+
+Once user knows this capability, they will want to know area of pad
+that is reserved for buttons.  Today it seems universally fixed to
+lower 20% of pad so doesn't need to be queried... but someday it may
+need a query.  I don't guess there is a generic way to query more
+details about specific capabilities.
+
+Thanks for prototype... Looking forward to using it once finalized.
+
+Chris
+
 > +/*
 > =A0* Event types
 > =A0*/
@@ -171,14 +167,4 @@ Ping
 > --
 > 1.7.1
 >
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
 >
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

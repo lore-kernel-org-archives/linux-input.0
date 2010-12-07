@@ -1,38 +1,150 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC][PATCH] input: Introduce device information ioctl
-Date: Tue, 7 Dec 2010 01:16:53 -0800
-Message-ID: <20101207091653.GA22416@core.coreip.homeip.net>
-References: <1291706726-8835-1-git-send-email-rydberg@euromail.se>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [RFC v1 PATCH 2/6] input: pm8058_keypad: Qualcomm PMIC8058 keypad
+ controller driver
+Date: Tue, 07 Dec 2010 14:52:11 +0530
+Message-ID: <4CFDFCC3.5000700@codeaurora.org>
+References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org> <1289393281-4459-3-git-send-email-tsoni@codeaurora.org> <20101206181427.GA18567@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:51888 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752990Ab0LGJRB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Dec 2010 04:17:01 -0500
-Content-Disposition: inline
-In-Reply-To: <1291706726-8835-1-git-send-email-rydberg@euromail.se>
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:8110 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753014Ab0LGJWR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Dec 2010 04:22:17 -0500
+In-Reply-To: <20101206181427.GA18567@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org
 
-Hi Henrik,
+Hi Dmitry
 
-On Tue, Dec 07, 2010 at 08:25:26AM +0100, Henrik Rydberg wrote:
-> Today, userspace sets up an input device based on the data it emits.
-> This is not always enough; a tablet and a touchscreen may emit exactly
-> the same data, for instance, but the former should be set up with a
-> pointer whereas the latter does not need to. Recently, a new type of
-> touchpad has emerged where the buttons are under the pad, which changes
-> handling logic without changing the emitted data. This patch introduces
-> a new ioctl, EVIOCGDEVINFO, which allows userspace to extract information
-> about the device resulting in proper setup.
+On 12/6/2010 11:44 PM, Dmitry Torokhov wrote:
+> Hi Trilok,
+> 
+> On Wed, Nov 10, 2010 at 06:17:57PM +0530, Trilok Soni wrote:
+>> Add Qualcomm PMIC8058 based keypad controller driver
+>> supporting upto 18x8 matrix configuration.
+>>
+> 
+> Looks very good, just a couple of small things:
 
-If we agree that the new ioctl is suitable we'llalso need to wireit up
-through sysfs. Also, can we keep all definitions to INPUT_ namespace?
+Thanks for reviewing same revision of the patch again :)
 
-Thanks.
+> 
+>> +
+>> +#include <linux/input/pmic8058-keypad.h>
+> 
+> Move to MFD directory with the rest of pmic8058 definitions?
+
+As discussed earlier we can either have one big header file having all of the
+sub-device(s) or have separate file for each sub-device driver, I need to check
+which one would be better but I will atleast move pmic8058-keypad.h header
+to "mfd" directory, as these patch series is in RFC state, we can have final
+changes like along with when core-driver gets submitted for review.
+
+> 
+>> + */
+>> +struct pmic8058_kp {
+>> +	const struct pmic8058_keypad_data *pdata;
+>> +	struct input_dev *input;
+>> +	int key_sense_irq;
+>> +	int key_stuck_irq;
+>> +
+>> +	unsigned short *keycodes;
+> 
+> I'd pull the keycodes into this structure (at the end) so it can be
+> allocated in one shot. Hmm it even appears to be constant-sized. So just
+> declare it right here and be done with it.
+
+Done. You had already commented on it during the 1st review :)
+
+> 
+>> +
+>> +static int pmic8058_detect_ghost_keys(struct pmic8058_kp *kp, u16 *new_state)
+> 
+> bool
+
+Done.
+
+> 
+>> +{
+>> +	int row, found_first = -1;
+>> +	u16 check, row_state;
+>> +
+>> +	check = 0;
+>> +	for (row = 0; row < kp->pdata->num_rows; row++) {
+>> +		row_state = (~new_state[row]) &
+>> +				 ((1 << kp->pdata->num_cols) - 1);
+>> +
+>> +		if (hweight16(row_state) > 1) {
+>> +			if (found_first == -1)
+>> +				found_first = row;
+>> +			if (check & row_state) {
+>> +				dev_dbg(kp->dev, "detected ghost key on row[%d]"
+>> +					 " and row[%d]\n", found_first, row);
+>> +				return 1;
+> 
+> true
+> 
+>> +			}
+>> +		}
+>> +		check |= row_state;
+>> +	}
+>> +	return 0;
+> 
+> false
+
+Done.
+
+> 
+>> +
+>> +static int pmic8058_kpd_init(struct pmic8058_kp *kp)
+>> +{
+>> +	int bits, rc, cycles;
+>> +	u8 scan_val = 0, ctrl_val = 0;
+>> +	static u8 row_bits[] = {
+> 
+> const?
+> 
+>> +		0, 1, 2, 3, 4, 4, 5, 5, 6, 6, 6, 7, 7, 7,
+>> +	};
+
+Sure.
+
+>> +
+>> +static int pmic8058_kp_open(struct input_dev *dev)
+>> +{
+>> +	struct pmic8058_kp *kp = input_get_drvdata(dev);
+>> +
+>> +	return pmic8058_kp_enable(kp);
+>> +}
+>> +
+>> +static void pmic8058_kp_close(struct input_dev *dev)
+>> +{
+>> +	struct pmic8058_kp *kp = input_get_drvdata(dev);
+>> +
+>> +	pmic8058_kp_disable(kp);
+>> +}
+>> +
+> 
+> You need to protect suspend/resume from racing with open_close. Take
+> dev->mutex and act depending on whether there are users of the device.
+
+Sure.
+
+> 
+>> +	if (pdata->rows_gpio_start < 0 || pdata->cols_gpio_start < 0) {
+>> +		dev_err(&pdev->dev, "invalid gpio_start platform data\n");
+>> +		return -EINVAL;
+> 
+> These are declared as unsigned. Hmm, doesn't sparse catch it?
+
+I will fix it.
+
+---Trilok Soni
 
 -- 
-Dmitry
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

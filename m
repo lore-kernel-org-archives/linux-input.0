@@ -1,129 +1,74 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [RFC][PATCH] input: Introduce device information ioctl
-Date: Tue,  7 Dec 2010 08:25:26 +0100
-Message-ID: <1291706726-8835-1-git-send-email-rydberg@euromail.se>
+Subject: [PATCH] input: mt: Add hovering distance axis
+Date: Tue,  7 Dec 2010 09:27:48 +0100
+Message-ID: <1291710468-2022-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:55166 "EHLO
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:48369 "EHLO
 	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751198Ab0LGH0M (ORCPT
+	by vger.kernel.org with ESMTP id S1754460Ab0LGI2q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Dec 2010 02:26:12 -0500
+	Tue, 7 Dec 2010 03:28:46 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Today, userspace sets up an input device based on the data it emits.
-This is not always enough; a tablet and a touchscreen may emit exactly
-the same data, for instance, but the former should be set up with a
-pointer whereas the latter does not need to. Recently, a new type of
-touchpad has emerged where the buttons are under the pad, which changes
-handling logic without changing the emitted data. This patch introduces
-a new ioctl, EVIOCGDEVINFO, which allows userspace to extract information
-about the device resulting in proper setup.
+Touch devices capable of hovering, i.e., fingers detected a distance
+from the surface, are not supported by the current input MT
+protocol. This patch adds ABS_MT_DISTANCE, which may be used to
+indicate the distance between the contact and the surface.
 
-Suggested-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-Cc: Ping Cheng <pingc@wacom.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>
 ---
-Hi all,
+ Documentation/input/multi-touch-protocol.txt |    9 ++++++++-
+ include/linux/input.h                        |    3 ++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-Here is a patch attempting to formulate Dmitry's device type idea. It
-compiles, but further testing awaits a general consesus on the device
-types and capabilities to start out with. Are the ones listed here apt
-for the job?
-
-Cheers,
-Henrik
-
- drivers/input/evdev.c |    6 ++++++
- include/linux/input.h |   34 ++++++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e3f7fc6..db78592 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -632,6 +632,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 			return -EFAULT;
- 		return 0;
+diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+index bdcba15..07215fa 100644
+--- a/Documentation/input/multi-touch-protocol.txt
++++ b/Documentation/input/multi-touch-protocol.txt
+@@ -161,7 +161,8 @@ against the glass. The inner region will increase, and in general, the
+ ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR, which is always smaller than
+ unity, is related to the contact pressure. For pressure-based devices,
+ ABS_MT_PRESSURE may be used to provide the pressure on the contact area
+-instead.
++instead. Devices capable of contact hovering can use ABS_MT_DISTANCE to
++indicate the distance between the contact and the surface.
  
-+	case EVIOCGDEVINFO:
-+		if (copy_to_user(p, &dev->devinfo,
-+				 sizeof(struct input_devinfo)))
-+			return -EFAULT;
-+		return 0;
+ In addition to the MAJOR parameters, the oval shape of the contact can be
+ described by adding the MINOR parameters, such that MAJOR and MINOR are the
+@@ -213,6 +214,12 @@ The pressure, in arbitrary units, on the contact area. May be used instead
+ of TOUCH and WIDTH for pressure-based devices or any device with a spatial
+ signal intensity distribution.
+ 
++ABS_MT_DISTANCE
 +
- 	case EVIOCGREP:
- 		if (!test_bit(EV_REP, dev->evbit))
- 			return -ENOSYS;
++The distance, in surface units, between the contact and the surface. Zero
++distance means the contact is touching the surface. A positive number means
++the contact is hovering above the surface.
++
+ ABS_MT_ORIENTATION
+ 
+ The orientation of the ellipse. The value should describe a signed quarter
 diff --git a/include/linux/input.h b/include/linux/input.h
-index 6ef4446..8c58d2a 100644
+index 1fc268b..08013aa 100644
 --- a/include/linux/input.h
 +++ b/include/linux/input.h
-@@ -57,6 +57,21 @@ struct input_absinfo {
- };
+@@ -766,11 +766,12 @@ struct input_keymap_entry {
+ #define ABS_MT_BLOB_ID		0x38	/* Group a set of packets as a blob */
+ #define ABS_MT_TRACKING_ID	0x39	/* Unique ID of initiated contact */
+ #define ABS_MT_PRESSURE		0x3a	/* Pressure on contact area */
++#define ABS_MT_DISTANCE		0x3b	/* Contact hover distance */
  
- /**
-+ * struct input_devinfo - device information via EVIOCGDEVINFO ioctl
-+ * @types: bitmask of types (DEVTYPE_*) matching this device
-+ * @capabilities: bitmask of capabilities (DEVCAPS_*) of this device
-+ *
-+ * This struct provides information about the device needed for
-+ * automatic setup in userspace, such as if the device is direct
-+ * (touchscreen) or indirect (touchpad), and if there are other
-+ * special considerations, such as the touchpad also being a button.
-+ */
-+struct input_devinfo {
-+	__u32 types;
-+	__u32 capabilities;
-+};
-+
-+/**
-  * struct input_keymap_entry - used by EVIOCGKEYCODE/EVIOCSKEYCODE ioctls
-  * @scancode: scancode represented in machine-endian form.
-  * @len: length of the scancode that resides in @scancode buffer.
-@@ -91,6 +106,7 @@ struct input_keymap_entry {
- #define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
- #define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
- #define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
-+#define EVIOCGDEVINFO		_IOR('E', 0x09, struct input_devinfo)	/* get device information */
+ #ifdef __KERNEL__
+ /* Implementation details, userspace should not care about these */
+ #define ABS_MT_FIRST		ABS_MT_TOUCH_MAJOR
+-#define ABS_MT_LAST		ABS_MT_PRESSURE
++#define ABS_MT_LAST		ABS_MT_DISTANCE
+ #endif
  
- #define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
- #define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
-@@ -108,6 +124,23 @@ struct input_keymap_entry {
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
- 
- /*
-+ * Device types
-+ */
-+
-+#define DEVTYPE_KEYBOARD	0
-+#define DEVTYPE_MOUSE		1
-+#define DEVTYPE_JOYSTICK	2
-+#define DEVTYPE_TOUCHPAD	3
-+#define DEVTYPE_TABLET		4
-+#define DEVTYPE_TOUCHSCREEN	5
-+
-+/*
-+ * Device capabilities
-+ */
-+
-+#define DEVCAPS_PAD_IS_BUTTON	1
-+
-+/*
-  * Event types
-  */
- 
-@@ -1177,6 +1210,7 @@ struct input_dev {
- 	const char *phys;
- 	const char *uniq;
- 	struct input_id id;
-+	struct input_devinfo devinfo;
- 
- 	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
- 	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
+ #define ABS_MAX			0x3f
 -- 
 1.7.1
 

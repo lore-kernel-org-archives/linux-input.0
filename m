@@ -1,36 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3] hid: egalax: Convert to MT slots
-Date: Tue, 7 Dec 2010 15:54:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1012071554050.14806@pobox.suse.cz>
-References: <1291722851-22909-1-git-send-email-rydberg@euromail.se>
+From: Valentine Barshak <vbarshak@mvista.com>
+Subject: Re: [PATCH 1/2] USB: HID: Fix race between disconnect and hiddev_ioctl
+Date: Tue, 07 Dec 2010 18:02:46 +0300
+Message-ID: <4CFE4C96.4000702@mvista.com>
+References: <20101206145141.GA8462@mvista.com> <alpine.LNX.2.00.1012071546040.14806@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36697 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754181Ab0LGOyc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Dec 2010 09:54:32 -0500
-In-Reply-To: <1291722851-22909-1-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1012071546040.14806@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philipp Merkel <mail@philmerk.de>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 7 Dec 2010, Henrik Rydberg wrote:
-
-> The firmware in the joojoo reports touches sequentially, one per
-> report, which confuses the current driver. A further complication is
-> the absense of any indication of a touch frame. This patch converts
-> the driver to the MT slots protocol, and outputs one full touch frame
-> per report. This way, proper handling for both firmwares is ensured.
-> 
-> Tested-by: Philipp Merkel <mail@philmerk.de>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
+Jiri Kosina wrote:
+> On Mon, 6 Dec 2010, Valentine Barshak wrote:
+>
+>   
+>> A USB HID device can be disconnected at any time.
+>> If this happens right before or while hiddev_ioctl is in progress,
+>> the hiddev_ioctl tries to access invalid hiddev->hid pointer.
+>> When the hid device is disconnected, the hiddev_disconnect()
+>> ends up with a call to hid_device_release() which frees
+>> hid_device, but doesn't set the hiddev->hid pointer to NULL.
+>> If the deallocated memory region has been re-used by the kernel,
+>> this can cause a crash or memory corruption.
+>>
+>> Since disconnect can happen at any time, we can't initialize
+>> struct hid_device *hid = hiddev->hid at the beginning of ioctl
+>> and then use it.
+>>
+>> This change checks hiddev->exist flag while holding
+>> the existancelock and uses hid_device only if it exists.
+>>     
+>
+> The code duplication isn't really particularly nice, but I don't see any 
+> way around it that wouldn't complicate things even more.
+>
+> I will be applying the patches, thanks.
+>   
+Thanks!
+> (BTW your patches didn't reach mail mailbox, I had to dig them out from 
+> mailinglist -- did you receive bounces by any chance?).
+>   
+Yes, they did bounce.
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Val.
+> Thanks,
+>
+>   

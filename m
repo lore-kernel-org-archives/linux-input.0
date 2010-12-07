@@ -1,61 +1,80 @@
-From: "Favux ..." <favux.is@gmail.com>
-Subject: input: wacom - add new Bamboo PT
-Date: Tue, 7 Dec 2010 15:29:15 -0600
-Message-ID: <AANLkTikLXD+4wMY=UzDjVsDy7joUFR7O431gK02c-ZSt@mail.gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: input: wacom - add new Bamboo PT
+Date: Tue, 7 Dec 2010 13:51:22 -0800
+Message-ID: <AANLkTinBDexTwwEQiaR6mjYEBPFWZiwiYXaM=3Jy50i4@mail.gmail.com>
+References: <AANLkTikLXD+4wMY=UzDjVsDy7joUFR7O431gK02c-ZSt@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=90e6ba6e88184c35340496d8b202
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:56530 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752617Ab0LGV3Q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Dec 2010 16:29:16 -0500
-Received: by gyb11 with SMTP id 11so277571gyb.19
-        for <linux-input@vger.kernel.org>; Tue, 07 Dec 2010 13:29:15 -0800 (PST)
+Received: from mail-ey0-f171.google.com ([209.85.215.171]:56294 "EHLO
+	mail-ey0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753283Ab0LGVv0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Dec 2010 16:51:26 -0500
+Received: by eyg5 with SMTP id 5so461913eyg.2
+        for <linux-input@vger.kernel.org>; Tue, 07 Dec 2010 13:51:24 -0800 (PST)
+In-Reply-To: <AANLkTikLXD+4wMY=UzDjVsDy7joUFR7O431gK02c-ZSt@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: "Favux ..." <favux.is@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
---90e6ba6e88184c35340496d8b202
-Content-Type: text/plain; charset=UTF-8
+On Tue, Dec 7, 2010 at 1:29 PM, Favux ... <favux.is@gmail.com> wrote:
+> Adds new Bamboo Pen & Touch model:
+>
+> Bamboo P & T Special Edition Medium =A0 =A0 =A0(CTH661/L; =A0 Product=
+ ID =3D 0xdB)
+>
+> Signed-off-by: David Foley <favux.is@gmail.com>
 
-Adds new Bamboo Pen & Touch model:
+Acked-by: Ping Cheng <pingc@wacom.com>
 
-Bamboo P & T Special Edition Medium      (CTH661/L;   Product ID = 0xdB)
+Ping
 
+-----------------
+
+=46rom: David Foley <favux.is@gmail.com>
+Date: Tue, 7 Dec 2010 14:50:36 -0600
+Subject: [PATCH 4/4] input: wacom - add new Bamboo PT
+
+Adds new Bamboo Pen & Touch model.
+
+Tested-by: Tobias Verbeke <tobias.verbeke@gmail.com>
 Signed-off-by: David Foley <favux.is@gmail.com>
+---
+ drivers/input/tablet/wacom_wac.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
---90e6ba6e88184c35340496d8b202
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0004-input-wacom-add-new-Bamboo-PT.patch"
-Content-Disposition: attachment;
-	filename="0004-input-wacom-add-new-Bamboo-PT.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ghfaw8420
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wa=
+com_wac.c
+index db747e4..4852b44 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1440,6 +1440,8 @@ static struct wacom_features wacom_features_0xD8 =
+=3D
+ 	{ "Wacom Bamboo Comic 2FG", WACOM_PKGLEN_BBFUN,   21648, 13530,
+1023, 63, BAMBOO_PT };
+ static struct wacom_features wacom_features_0xDA =3D
+ 	{ "Wacom Bamboo 2FG 4x5 SE", WACOM_PKGLEN_BBFUN,  14720,  9200,
+1023, 63, BAMBOO_PT };
++static struct wacom_features wacom_features_0xDB =3D
++	{ "Wacom Bamboo 2FG 6x8 SE", WACOM_PKGLEN_BBFUN,  21648, 13530,
+1023, 63, BAMBOO_PT };
 
-RnJvbSA0ZWFlNTljZGRhODkyYTE5MGI3MTEwMWJkMzZhYTllZGZhZmEzNzQ5IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBEYXZpZCBGb2xleSA8ZmF2dXguaXNAZ21haWwuY29tPgpEYXRl
-OiBUdWUsIDcgRGVjIDIwMTAgMTQ6NTA6MzYgLTA2MDAKU3ViamVjdDogW1BBVENIIDQvNF0gaW5w
-dXQ6IHdhY29tIC0gYWRkIG5ldyBCYW1ib28gUFQKCkFkZHMgbmV3IEJhbWJvbyBQZW4gJiBUb3Vj
-aCBtb2RlbC4KClRlc3RlZC1ieTogVG9iaWFzIFZlcmJla2UgPHRvYmlhcy52ZXJiZWtlQGdtYWls
-LmNvbT4KU2lnbmVkLW9mZi1ieTogRGF2aWQgRm9sZXkgPGZhdnV4LmlzQGdtYWlsLmNvbT4KLS0t
-CiBkcml2ZXJzL2lucHV0L3RhYmxldC93YWNvbV93YWMuYyB8ICAgIDMgKysrCiAxIGZpbGVzIGNo
-YW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2
-ZXJzL2lucHV0L3RhYmxldC93YWNvbV93YWMuYyBiL2RyaXZlcnMvaW5wdXQvdGFibGV0L3dhY29t
-X3dhYy5jCmluZGV4IGRiNzQ3ZTQuLjQ4NTJiNDQgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5wdXQv
-dGFibGV0L3dhY29tX3dhYy5jCisrKyBiL2RyaXZlcnMvaW5wdXQvdGFibGV0L3dhY29tX3dhYy5j
-CkBAIC0xNDQwLDYgKzE0NDAsOCBAQCBzdGF0aWMgc3RydWN0IHdhY29tX2ZlYXR1cmVzIHdhY29t
-X2ZlYXR1cmVzXzB4RDggPQogCXsgIldhY29tIEJhbWJvbyBDb21pYyAyRkciLCBXQUNPTV9QS0dM
-RU5fQkJGVU4sICAgMjE2NDgsIDEzNTMwLCAxMDIzLCA2MywgQkFNQk9PX1BUIH07CiBzdGF0aWMg
-c3RydWN0IHdhY29tX2ZlYXR1cmVzIHdhY29tX2ZlYXR1cmVzXzB4REEgPQogCXsgIldhY29tIEJh
-bWJvbyAyRkcgNHg1IFNFIiwgV0FDT01fUEtHTEVOX0JCRlVOLCAgMTQ3MjAsICA5MjAwLCAxMDIz
-LCA2MywgQkFNQk9PX1BUIH07CitzdGF0aWMgc3RydWN0IHdhY29tX2ZlYXR1cmVzIHdhY29tX2Zl
-YXR1cmVzXzB4REIgPQorCXsgIldhY29tIEJhbWJvbyAyRkcgNng4IFNFIiwgV0FDT01fUEtHTEVO
-X0JCRlVOLCAgMjE2NDgsIDEzNTMwLCAxMDIzLCA2MywgQkFNQk9PX1BUIH07CiAKICNkZWZpbmUg
-VVNCX0RFVklDRV9XQUNPTShwcm9kKQkJCQkJXAogCVVTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9X
-QUNPTSwgcHJvZCksCQkJXApAQCAtMTUxMCw2ICsxNTEyLDcgQEAgY29uc3Qgc3RydWN0IHVzYl9k
-ZXZpY2VfaWQgd2Fjb21faWRzW10gPSB7CiAJeyBVU0JfREVWSUNFX1dBQ09NKDB4RDMpIH0sCiAJ
-eyBVU0JfREVWSUNFX1dBQ09NKDB4RDgpIH0sCiAJeyBVU0JfREVWSUNFX1dBQ09NKDB4REEpIH0s
-CisJeyBVU0JfREVWSUNFX1dBQ09NKDB4REIpIH0sCiAJeyBVU0JfREVWSUNFX1dBQ09NKDB4RjAp
-IH0sCiAJeyBVU0JfREVWSUNFX1dBQ09NKDB4Q0MpIH0sCiAJeyBVU0JfREVWSUNFX1dBQ09NKDB4
-OTApIH0sCi0tIAoxLjcuMQoK
---90e6ba6e88184c35340496d8b202--
+ #define USB_DEVICE_WACOM(prod)					\
+ 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
+@@ -1510,6 +1512,7 @@ const struct usb_device_id wacom_ids[] =3D {
+ 	{ USB_DEVICE_WACOM(0xD3) },
+ 	{ USB_DEVICE_WACOM(0xD8) },
+ 	{ USB_DEVICE_WACOM(0xDA) },
++	{ USB_DEVICE_WACOM(0xDB) },
+ 	{ USB_DEVICE_WACOM(0xF0) },
+ 	{ USB_DEVICE_WACOM(0xCC) },
+ 	{ USB_DEVICE_WACOM(0x90) },
+--=20
+1.7.1
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

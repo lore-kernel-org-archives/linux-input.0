@@ -1,40 +1,32 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH] HID: magicmouse: Don't report REL_{X,Y} for Magic Trackpad
-Date: Wed,  8 Dec 2010 15:08:04 -0800
-Message-ID: <1291849685-2623-1-git-send-email-chase.douglas@canonical.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] input: mt: Add hovering distance axis
+Date: Wed, 8 Dec 2010 15:31:12 -0800
+Message-ID: <AANLkTinGhQC59jqdyJkVLs+mL9BydZp8gGi7c4XO_CL4@mail.gmail.com>
+References: <1291710468-2022-1-git-send-email-rydberg@euromail.se>
+	<4CFFC45C.2040107@canonical.com>
+	<20101208180521.GA31522@core.coreip.homeip.net>
+	<AANLkTinKVcc3KA3S_7-vwQWtDuUFZ2LSmjgrCrZXcRw5@mail.gmail.com>
+	<4CFFD11D.4070107@euromail.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4CFFD11D.4070107@euromail.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 List-Id: linux-input@vger.kernel.org
 
-With the recent switch to having the hid layer handle standard axis
-initialization, the Magic Trackpad now reports relative axes. This would
-be fine in the normal mode, but the driver puts the device in multitouch
-mode where no relative events are generated. Also, userspace software
-depends on accurate axis information for device type detection. Thus,
-ignoring the relative axes from the Magic Trackpad is best.
+On Wed, Dec 8, 2010 at 10:40 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> On 12/08/2010 07:20 PM, Ping Cheng wrote:
+>>
+>> ABS_DISTANCE is used in wacom driver as the distance between the tool
+>> tip and the tablet.
+>
+>
+> Thanks for the confirmation. While at it, what are the units for the distance,
+> for instance for the Cintiq?
 
-Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
----
- drivers/hid/hid-magicmouse.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+mm? I am not so sure. It is a rough count of how far the tool is away
+from the tablet.
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index e6dc151..ed732b7 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -433,6 +433,11 @@ static int magicmouse_input_mapping(struct hid_device *hdev,
- 	if (!msc->input)
- 		msc->input = hi->input;
- 
-+	/* Magic Trackpad does not give relative data after switching to MT */
-+	if (hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD &&
-+	    field->flags & HID_MAIN_ITEM_RELATIVE)
-+		return -1;
-+
- 	return 0;
- }
- 
--- 
-1.7.1
+Ping

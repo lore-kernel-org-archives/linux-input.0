@@ -1,42 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: mt: Add hovering distance axis
-Date: Wed, 8 Dec 2010 15:54:38 -0800
-Message-ID: <20101208235438.GD15294@core.coreip.homeip.net>
-References: <1291710468-2022-1-git-send-email-rydberg@euromail.se>
- <4CFFC45C.2040107@canonical.com>
- <20101208180521.GA31522@core.coreip.homeip.net>
- <AANLkTinKVcc3KA3S_7-vwQWtDuUFZ2LSmjgrCrZXcRw5@mail.gmail.com>
- <4CFFD11D.4070107@euromail.se>
- <AANLkTinGhQC59jqdyJkVLs+mL9BydZp8gGi7c4XO_CL4@mail.gmail.com>
+Subject: Re: [PATCH] input: mt: Add an envelope tool type
+Date: Wed, 8 Dec 2010 15:58:06 -0800
+Message-ID: <20101208235805.GE15294@core.coreip.homeip.net>
+References: <1291721340-22652-1-git-send-email-rydberg@euromail.se>
+ <4CFFC3C2.1080905@canonical.com>
+ <AANLkTikmomm2hd7AAJMTnY+=J2wPyVvodv2Ft0jFe7w2@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f42.google.com ([74.125.83.42]:33565 "EHLO
-	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754831Ab0LHXyq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 18:54:46 -0500
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:51643 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753103Ab0LHX6N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 18:58:13 -0500
 Content-Disposition: inline
-In-Reply-To: <AANLkTinGhQC59jqdyJkVLs+mL9BydZp8gGi7c4XO_CL4@mail.gmail.com>
+In-Reply-To: <AANLkTikmomm2hd7AAJMTnY+=J2wPyVvodv2Ft0jFe7w2@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ping Cheng <pinglinux@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2010 at 03:31:12PM -0800, Ping Cheng wrote:
-> On Wed, Dec 8, 2010 at 10:40 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> > On 12/08/2010 07:20 PM, Ping Cheng wrote:
+On Wed, Dec 08, 2010 at 03:43:51PM -0800, Ping Cheng wrote:
+> On Wed, Dec 8, 2010 at 9:43 AM, Chase Douglas
+> <chase.douglas@canonical.com> wrote:
+> > On 12/07/2010 03:29 AM, Henrik Rydberg wrote:
+> >> Some touch devices are capable of detecting the envelope or hull
+> >> of the touches, but not the touches themselves. This patch adds
+> >> the MT_TOOL_ENVELOPE touch type to be used for such devices.
 > >>
-> >> ABS_DISTANCE is used in wacom driver as the distance between the tool
-> >> tip and the tablet.
+> >> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> >> ---
+> >> Hi all,
+> >>
+> >> This patch represents an MT solution for those devices that can detect
+> >> and report some effects of dual touch, but cannot report individual
+> >> contacts. Synaptics and elantech are two examples. Having the drivers
+> >> report the bounding rectangle of the touches is useful in userland,
+> >> since the information makes it possible to implement zooming
+> >> gestures. At the same time, it would be confusing to send these
+> >> envelope points as fingers, since they clearly are not. As a remedy,
+> >> introduce MT_TOOL_ENVELOPE, which tells applications that care about
+> >> details that these are not real fingers, at the same time as it allows
+> >> gesture applications based on MT data to function without
+> >> modification.
 > >
-> >
-> > Thanks for the confirmation. While at it, what are the units for the distance,
-> > for instance for the Cintiq?
+> > Is it assumed that the envelop has only two touches comprising it? Or is
+> > it any number of touches? If it's any number of touches, how does one
+> > know how many touches it is?
 > 
-> mm? I am not so sure. It is a rough count of how far the tool is away
-> from the tablet.
+> Those are good questions. Specifying how many touches are in the
+> envelop makes sense. It also covers rectangle as a special case of
+> envelop.
 
-Count in what units? Millimeters, light years, pumpkins? ;)
+I have a feeling that trying to accomodate non-rectangular, more than 2
+point shapes without using native MT data is over-engineering the
+problem... Do we have examples other than older generation Elantechs and
+Synaptics that need envelope notion?
 
 -- 
 Dmitry

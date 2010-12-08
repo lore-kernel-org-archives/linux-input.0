@@ -1,70 +1,111 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC][PATCH] input: Introduce device information ioctl
-Date: Tue, 7 Dec 2010 22:02:00 -0800
-Message-ID: <20101208060200.GD4140@core.coreip.homeip.net>
-References: <1291706726-8835-1-git-send-email-rydberg@euromail.se>
- <20101207091653.GA22416@core.coreip.homeip.net>
- <4CFE919A.1040704@euromail.se>
+From: "Basak, Partha" <p-basak2@ti.com>
+Subject: RE: [PATCH v6 8/8] Input: omap4 - pm runtime
+Date: Wed, 8 Dec 2010 12:15:56 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB5930247C471A5@dbde02.ent.ti.com>
+References: <1285825000-25622-1-git-send-email-x0066660@ti.com>
+ <87aamzl4pu.fsf@deeprootsystems.com>
+ <0680EC522D0CC943BC586913CF3768C0041390E45B@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f180.google.com ([209.85.161.180]:39066 "EHLO
-	mail-gx0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752713Ab0LHGCI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 01:02:08 -0500
-Content-Disposition: inline
-In-Reply-To: <4CFE919A.1040704@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <0680EC522D0CC943BC586913CF3768C0041390E45B@dbde02.ent.ti.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, "Arce, Abraham" <x0066660@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>
 
-On Tue, Dec 07, 2010 at 08:57:14PM +0100, Henrik Rydberg wrote:
-> On 12/07/2010 10:16 AM, Dmitry Torokhov wrote:
-> 
-> > Hi Henrik,
-> > 
-> > On Tue, Dec 07, 2010 at 08:25:26AM +0100, Henrik Rydberg wrote:
-> >> Today, userspace sets up an input device based on the data it emits.
-> >> This is not always enough; a tablet and a touchscreen may emit exactly
-> >> the same data, for instance, but the former should be set up with a
-> >> pointer whereas the latter does not need to. Recently, a new type of
-> >> touchpad has emerged where the buttons are under the pad, which changes
-> >> handling logic without changing the emitted data. This patch introduces
-> >> a new ioctl, EVIOCGDEVINFO, which allows userspace to extract information
-> >> about the device resulting in proper setup.
-> > 
-> > If we agree that the new ioctl is suitable we'llalso need to wireit up
-> > through sysfs. Also, can we keep all definitions to INPUT_ namespace?
-> > 
-> > Thanks.
-> > 
-> 
-> 
-> Thanks all for the comments, this is what I extract from them:
-> 
-> * Split struct into separate calls, although this still seems debated.
-> 
-> * Use INPUT_ namespace
-> 
-> * Add sysfs version
-> 
-> * Keep bitmask for types. Is the list of types complete?
 
-Most likely not but it can be easily extended on as-needed basis.
 
+> -----Original Message-----
+> From: linux-omap-owner@vger.kernel.org [mailto:linux-omap-
+> owner@vger.kernel.org] On Behalf Of Datta, Shubhrajyoti
+> Sent: Monday, December 06, 2010 6:30 PM
+> To: Kevin Hilman; Arce, Abraham
+> Cc: linux-input@vger.kernel.org; linux-omap@vger.kernel.org
+> Subject: RE: [PATCH v6 8/8] Input: omap4 - pm runtime
 > 
-> * Still only one data point for capabilities. Anything else?
+> 
+> Kevin,
+> > -----Original Message-----
+> > From: linux-input-owner@vger.kernel.org [mailto:linux-input-
+> > owner@vger.kernel.org] On Behalf Of Kevin Hilman
+> > Sent: Thursday, September 30, 2010 7:21 PM
+> > To: Arce, Abraham
+> > Cc: linux-input@vger.kernel.org; linux-omap@vger.kernel.org
+> > Subject: Re: [PATCH v6 8/8] Input: omap4 - pm runtime
+> >
+> > Abraham Arce <x0066660@ti.com> writes:
+> >
+> > > Enable pm runtime in driver
+> >
+> > So power is enabled on probe and cut on _remove().  Did you consider
+> > doing any more fine grained PM for this device?  For example, cutting
+> > power after some inactivity timer and re-enabling on a
+> > keypress/interrupt?
+> My idea is that the clock needs to be on to get interrupts (OMAP4 the
+> control is at module level and  ick/fclk level control is difficult).
+> So disabling will prevent interrupts.
+> The keypad is in wakeup domain which is always on. So the power impact
+> may be minimal.
+> 
+> What do you think.
 
-Again, no need to define everything upfront.
+Kevin, I hope you are OK with this. 
 
-One concern is that while 32 distinct device types should be enough
-should we plan for larger capability array? Should we use variable
-length ioctl - like EVIOCGKEY(len) - even though Arnd does not like
-them?
-
-Also, we already have /sys/class/input/input0/capabilities/ so should we
-call new data item something else? Quirks maybe?
-
--- 
-Dmitry
+> >
+> > Kevin
+> >
+> >
+> >
+> > > Reviewed-by: Basak, Partha <p-basak2@ti.com>
+> > > Signed-off-by: Abraham Arce <x0066660@ti.com>
+> > > ---
+> > >  drivers/input/keyboard/omap4-keypad.c |    7 +++++++
+> > >  1 files changed, 7 insertions(+), 0 deletions(-)
+> > >
+> > > diff --git a/drivers/input/keyboard/omap4-keypad.c
+> > b/drivers/input/keyboard/omap4-keypad.c
+> > > index 45bd097..ed47e9a 100644
+> > > --- a/drivers/input/keyboard/omap4-keypad.c
+> > > +++ b/drivers/input/keyboard/omap4-keypad.c
+> > > @@ -29,6 +29,7 @@
+> > >  #include <linux/io.h>
+> > >  #include <linux/input.h>
+> > >  #include <linux/slab.h>
+> > > +#include <linux/pm_runtime.h>
+> > >
+> > >  #include <plat/omap4-keypad.h>
+> > >
+> > > @@ -239,6 +240,9 @@ static int __devinit omap4_keypad_probe(struct
+> > platform_device *pdev)
+> > >  	matrix_keypad_build_keymap(pdata->keymap_data, row_shift,
+> > >  			input_dev->keycode, input_dev->keybit);
+> > >
+> > > +	pm_runtime_enable(&pdev->dev);
+> > > +	pm_runtime_get_sync(&pdev->dev);
+> > > +
+> > >  	omap4_keypad_config(keypad_data);
+> > >
+> > >  	error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+> > > @@ -277,6 +281,9 @@ static int __devexit omap4_keypad_remove(struct
+> > platform_device *pdev)
+> > >  	struct omap4_keypad *keypad_data = platform_get_drvdata(pdev);
+> > >  	struct resource *res;
+> > >
+> > > +	pm_runtime_put_sync(&pdev->dev);
+> > > +	pm_runtime_disable(&pdev->dev);
+> > > +
+> > >  	free_irq(keypad_data->irq, keypad_data);
+> > >  	input_unregister_device(keypad_data->input);
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-
+> input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

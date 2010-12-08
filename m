@@ -1,52 +1,49 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] input: mt: Add an envelope tool type
-Date: Wed, 08 Dec 2010 12:44:40 -0800
-Message-ID: <4CFFEE38.2070609@canonical.com>
-References: <1291721340-22652-1-git-send-email-rydberg@euromail.se> <4CFFC3C2.1080905@canonical.com> <4CFFCD10.5030202@euromail.se> <4CFFD0BF.2020601@canonical.com> <4CFFD3FE.1090103@euromail.se> <4CFFD801.8060704@canonical.com> <4CFFDB35.2020506@euromail.se>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCH v6 8/8] Input: omap4 - pm runtime
+Date: Wed, 08 Dec 2010 13:11:51 -0800
+Message-ID: <87r5dsezqg.fsf@deeprootsystems.com>
+References: <1285825000-25622-1-git-send-email-x0066660@ti.com>
+	<87aamzl4pu.fsf@deeprootsystems.com>
+	<0680EC522D0CC943BC586913CF3768C0041390E45B@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:48791 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752755Ab0LHUor (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 15:44:47 -0500
-In-Reply-To: <4CFFDB35.2020506@euromail.se>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:46847 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753259Ab0LHVL4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 16:11:56 -0500
+In-Reply-To: <0680EC522D0CC943BC586913CF3768C0041390E45B@dbde02.ent.ti.com>
+	(Shubhrajyoti Datta's message of "Mon, 6 Dec 2010 18:30:00 +0530")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Cc: "Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-On 12/08/2010 11:23 AM, Henrik Rydberg wrote:
->>>> I suggest merely renaming this to MT_TOOL_RECT to avoid confusion.
-> 
->>
->> This is really the main point I wanted to make, even though it was
->> hidden among other things :). Do you have thoughts here?
-> 
-> 
-> I think envelope works fine - it is easier to associate with a single point that
-> the notion of a rectangle.
+"Datta, Shubhrajyoti" <shubhrajyoti@ti.com> writes:
 
-I thought we were talking specifically about two points? If I'm wrong,
-the following won't make any sense either :).
+[...]
 
-There would be two slots with MT_TOOL_ENVELOPE set to 1. These define
-the two possible combinations of touch points. I can't see how this
-concept could be expanded any further than a rectangle without switcing
-to full MT, thus I think it would be clearer to define it as such.
+>> Subject: Re: [PATCH v6 8/8] Input: omap4 - pm runtime
+>> 
+>> Abraham Arce <x0066660@ti.com> writes:
+>> 
+>> > Enable pm runtime in driver
+>> 
+>> So power is enabled on probe and cut on _remove().  Did you consider
+>> doing any more fine grained PM for this device?  For example, cutting
+>> power after some inactivity timer and re-enabling on a
+>> keypress/interrupt?
 
-This all drives at the heart of the frustrations felt about evdev
-property naming and documentation. The envelope tool, as you've
-proposed, is only useful for defining rectangles. I think leaving it
-named envelope is just begging for misuse, just as BTN_TOOL_DOUBLETAP
-has been misused.
+> My idea is that the clock needs to be on to get interrupts (OMAP4 the
+> control is at module level and ick/fclk level control is
+> difficult). So disabling will prevent interrupts.  The keypad is in
+> wakeup domain which is always on. So the power impact may be minimal.
+>
+> What do you think.
 
-Perhaps it will be clearer to me why you like the name envelope if I
-could read the formal documentation that would be merged along with the
-new property name. The documentation added by the patch just isn't
-enough to understand what it's for or how to use it, and the discussion
-so far hasn't left me with the feeling that MT_TOOL_ENVELOPE is the best
-name.
+I think the changelog needs to be updated to describe the reasons behind
+the decisions made.
 
--- Chase
+Kevin
+
+

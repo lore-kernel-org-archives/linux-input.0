@@ -1,43 +1,62 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] input: mt: Add hovering distance axis
-Date: Wed, 8 Dec 2010 10:20:10 -0800
-Message-ID: <AANLkTinKVcc3KA3S_7-vwQWtDuUFZ2LSmjgrCrZXcRw5@mail.gmail.com>
-References: <1291710468-2022-1-git-send-email-rydberg@euromail.se>
-	<4CFFC45C.2040107@canonical.com>
-	<20101208180521.GA31522@core.coreip.homeip.net>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: mt: Add an envelope tool type
+Date: Wed, 08 Dec 2010 19:23:12 +0100
+Message-ID: <4CFFCD10.5030202@euromail.se>
+References: <1291721340-22652-1-git-send-email-rydberg@euromail.se> <4CFFC3C2.1080905@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20101208180521.GA31522@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:33807 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755937Ab0LHSXc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Dec 2010 13:23:32 -0500
+In-Reply-To: <4CFFC3C2.1080905@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 8, 2010 at 10:05 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Dec 08, 2010 at 09:46:04AM -0800, Chase Douglas wrote:
->> On 12/07/2010 12:27 AM, Henrik Rydberg wrote:
->> > Touch devices capable of hovering, i.e., fingers detected a distance
->> > from the surface, are not supported by the current input MT
->> > protocol. This patch adds ABS_MT_DISTANCE, which may be used to
->> > indicate the distance between the contact and the surface.
->>
->> Have you given thought to calling it ABS_MT_Z instead? I have no real
->> problem with ABS_MT_DISTANCE per se, but ABS_MT_Z is more clearly
->> defined in my head. If I was new to MT development I may wonder if
->> ABS_MT_DISTANCE had anything to do with distance between points or some
->> other object.
->
-> X/Y/Z imply that we fully engaged the device and it is 3 dimensional.
-> Distance says that we are approaching the device but have not directly
-> engaged it yet.
->
-> I think ABS_DISTANCE was added at Pings request and ABS_MT_DISTANCE is
-> modeled after ST one. Ping, could you refresh my memory why we needed
-> ABS_DISTANCE?
+>> This patch represents an MT solution for those devices that can detect
 
-ABS_DISTANCE is used in wacom driver as the distance between the tool
-tip and the tablet.
+>> and report some effects of dual touch, but cannot report individual
+>> contacts. Synaptics and elantech are two examples. Having the drivers
+>> report the bounding rectangle of the touches is useful in userland,
+>> since the information makes it possible to implement zooming
+>> gestures. At the same time, it would be confusing to send these
+>> envelope points as fingers, since they clearly are not. As a remedy,
+>> introduce MT_TOOL_ENVELOPE, which tells applications that care about
+>> details that these are not real fingers, at the same time as it allows
+>> gesture applications based on MT data to function without
+>> modification.
+> 
+> Is it assumed that the envelop has only two touches comprising it? Or is
+> it any number of touches? If it's any number of touches, how does one
+> know how many touches it is?
 
-Ping
+
+It could be any number of points, although, as you say, the exact semantics of
+multiple points have not yet been defined/documented. Traditionally, a convex
+hull is defined as a sequence of points, such that the last links to the first.
+It makes sense to define the envelope points similarly. However, we can pass
+that bridge as we get there. Right now, we have use for the two-point case. The
+number is determined the same was as for fingers - count the number of active slots.
+
+> How are the envelop shape and position determined?
+
+
+I was imagining a convex polygon shape, but frankly, I see no immediate use for
+anything but the bounding rectangle.
+
+> I think the idea is good, I just don't have enough information to
+> understand how the tool type is supposed to be used. This has been an
+> issue with many evdev properties, so I'm hoping we can provide more
+> detailed documentation this time around :).
+
+
+Yes, it is a good point. The current patch at least documents the intended use,
+and seems apt for the moment. We can always add more as the concept matures.
+
+Thanks,
+Henrik

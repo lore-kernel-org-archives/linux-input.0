@@ -1,49 +1,40 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCH v6 8/8] Input: omap4 - pm runtime
-Date: Wed, 08 Dec 2010 13:11:51 -0800
-Message-ID: <87r5dsezqg.fsf@deeprootsystems.com>
-References: <1285825000-25622-1-git-send-email-x0066660@ti.com>
-	<87aamzl4pu.fsf@deeprootsystems.com>
-	<0680EC522D0CC943BC586913CF3768C0041390E45B@dbde02.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:46847 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753259Ab0LHVL4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 16:11:56 -0500
-In-Reply-To: <0680EC522D0CC943BC586913CF3768C0041390E45B@dbde02.ent.ti.com>
-	(Shubhrajyoti Datta's message of "Mon, 6 Dec 2010 18:30:00 +0530")
-Sender: linux-input-owner@vger.kernel.org
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH] HID: magicmouse: Don't report REL_{X,Y} for Magic Trackpad
+Date: Wed,  8 Dec 2010 15:08:04 -0800
+Message-ID: <1291849685-2623-1-git-send-email-chase.douglas@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Cc: "Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-"Datta, Shubhrajyoti" <shubhrajyoti@ti.com> writes:
+With the recent switch to having the hid layer handle standard axis
+initialization, the Magic Trackpad now reports relative axes. This would
+be fine in the normal mode, but the driver puts the device in multitouch
+mode where no relative events are generated. Also, userspace software
+depends on accurate axis information for device type detection. Thus,
+ignoring the relative axes from the Magic Trackpad is best.
 
-[...]
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ drivers/hid/hid-magicmouse.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
->> Subject: Re: [PATCH v6 8/8] Input: omap4 - pm runtime
->> 
->> Abraham Arce <x0066660@ti.com> writes:
->> 
->> > Enable pm runtime in driver
->> 
->> So power is enabled on probe and cut on _remove().  Did you consider
->> doing any more fine grained PM for this device?  For example, cutting
->> power after some inactivity timer and re-enabling on a
->> keypress/interrupt?
-
-> My idea is that the clock needs to be on to get interrupts (OMAP4 the
-> control is at module level and ick/fclk level control is
-> difficult). So disabling will prevent interrupts.  The keypad is in
-> wakeup domain which is always on. So the power impact may be minimal.
->
-> What do you think.
-
-I think the changelog needs to be updated to describe the reasons behind
-the decisions made.
-
-Kevin
-
-
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index e6dc151..ed732b7 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -433,6 +433,11 @@ static int magicmouse_input_mapping(struct hid_device *hdev,
+ 	if (!msc->input)
+ 		msc->input = hi->input;
+ 
++	/* Magic Trackpad does not give relative data after switching to MT */
++	if (hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD &&
++	    field->flags & HID_MAIN_ITEM_RELATIVE)
++		return -1;
++
+ 	return 0;
+ }
+ 
+-- 
+1.7.1

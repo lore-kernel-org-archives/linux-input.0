@@ -1,33 +1,52 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 1/5] sysfs: Introducing binary attributes for struct
- class
-Date: Wed, 8 Dec 2010 07:06:42 -0800
-Message-ID: <20101208150642.GA5669@suse.de>
-References: <1290801449.18750.162.camel@neuromancer>
- <alpine.LNX.2.00.1012081432230.14806@pobox.suse.cz>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH] input: mt: Add an envelope tool type
+Date: Wed, 08 Dec 2010 09:43:30 -0800
+Message-ID: <4CFFC3C2.1080905@canonical.com>
+References: <1291721340-22652-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1012081432230.14806@pobox.suse.cz>
-Sender: linux-doc-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:56454 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752371Ab0LHRnh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 12:43:37 -0500
+In-Reply-To: <1291721340-22652-1-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2010 at 02:33:14PM +0100, Jiri Kosina wrote:
-> On Fri, 26 Nov 2010, Stefan Achatz wrote:
+On 12/07/2010 03:29 AM, Henrik Rydberg wrote:
+> Some touch devices are capable of detecting the envelope or hull
+> of the touches, but not the touches themselves. This patch adds
+> the MT_TOOL_ENVELOPE touch type to be used for such devices.
 > 
-> > Added dev_bin_attrs to struct class similar to existing dev_attrs.
-> > 
-> > Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi all,
 > 
-> Greg, just to make sure (as you have stated your Ack in a thread belonging 
-> to different thread) -- I can add your Acked-by: to this patch and take it 
-> through my tree with the rest of the roccat patchset, is that correct?
+> This patch represents an MT solution for those devices that can detect
+> and report some effects of dual touch, but cannot report individual
+> contacts. Synaptics and elantech are two examples. Having the drivers
+> report the bounding rectangle of the touches is useful in userland,
+> since the information makes it possible to implement zooming
+> gestures. At the same time, it would be confusing to send these
+> envelope points as fingers, since they clearly are not. As a remedy,
+> introduce MT_TOOL_ENVELOPE, which tells applications that care about
+> details that these are not real fingers, at the same time as it allows
+> gesture applications based on MT data to function without
+> modification.
 
-Yes you can.
+Is it assumed that the envelop has only two touches comprising it? Or is
+it any number of touches? If it's any number of touches, how does one
+know how many touches it is?
 
-thanks,
+How are the envelop shape and position determined?
 
-greg k-h
+I think the idea is good, I just don't have enough information to
+understand how the tool type is supposed to be used. This has been an
+issue with many evdev properties, so I'm hoping we can provide more
+detailed documentation this time around :).
+
+-- Chase

@@ -1,61 +1,73 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: [GIT PULL] input: mt updates for 2.6.38
-Date: Wed, 08 Dec 2010 10:02:52 +0100
-Message-ID: <4CFF49BC.8030202@euromail.se>
+From: Alex Hudson <home@alexhudson.com>
+Subject: Driver problems: t213 on i8042 port
+Date: Wed, 08 Dec 2010 10:33:08 +0000
+Message-ID: <1291804388.3052.11.camel@lapland.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from vm2.hosting.betterhosted.com ([78.46.205.147]:49500 "EHLO
+	mx1.betterhosted.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751872Ab0LHLDd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 06:03:33 -0500
+Received: from services1.betterhosted.com (unknown [192.168.54.3])
+	by mx1.betterhosted.com (Postfix) with ESMTP id 232449F908
+	for <linux-input@vger.kernel.org>; Wed,  8 Dec 2010 09:34:47 +0000 (GMT)
+Received: from [192.168.178.101] (cpc2-croy13-0-0-cust346.croy.cable.virginmedia.com [77.103.217.91])
+	by services1.betterhosted.com (Postfix) with ESMTPSA id C93CC29C92
+	for <linux-input@vger.kernel.org>; Wed,  8 Dec 2010 10:34:46 +0000 (GMT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linux Input <linux-input@vger.kernel.org>
 
-Dmitry,
+Hi all,
 
-Please pull from
+I'm having some trouble with the serio support for a touchit213 device,
+and I'm hoping by describing what's going on someone can offer some
+clues.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git next
+The PC in question is a tablet PC with the touchscreen apparently
+connected to the fourth serial/ps2 port on the i8042 internally, rather
+than ttyS0 or something.
 
-to receive input-mt updates for 2.6.38.
+The manufacturer provides an xf86 driver which is extremely ropey, and
+requires raw access the port. This works:
 
-The tree contains core changes as well as dependent changes to hid drivers. You
-also find the new hid-egalax driver in there, signed off by Jiri.
+	echo -n "serio_raw" > /sys/bus/serio/devices/serio4/drvctl
 
-Thanks,
-Henrik
+.. and /dev/serio_raw0 is created.
 
-Henrik Rydberg (13):
-      input: mt: Break out slots handling
-      input: mt: Collect slots initialization code
-      input: mt: Add an envelope tool type
-      input: mt: Move tracking and pointer emulation to input-mt
-      input: mt: Add hovering distance axis
-      hid: egalax: Setup input device manually
-      hid: egalax: Correct for device resolution report error
-      hid: egalax: Report zero as minimum pressure
-      hid: egalax: Add event filtering
-      hid: egalax: Convert to MT slots
-      hid: egalax: Add support for Wetab
-      hid: egalax: Document the new devices in Kconfig
-      MAINTAINERS: Update input-mt entry
+Now, there is a serio driver for the touchit213 series, but the obvious:
 
- Documentation/input/multi-touch-protocol.txt |   14 ++-
- MAINTAINERS                                  |    2 +
- drivers/hid/Kconfig                          |    3 +-
- drivers/hid/hid-3m-pct.c                     |   36 +------
- drivers/hid/hid-core.c                       |    1 +
- drivers/hid/hid-egalax.c                     |  127 +++++++++-------------
- drivers/hid/hid-ids.h                        |    1 +
- drivers/input/Makefile                       |    2 +-
- drivers/input/input-mt.c                     |  153 ++++++++++++++++++++++++++
- drivers/input/input.c                        |   48 +--------
- drivers/input/misc/uinput.c                  |    4 +-
- drivers/input/tablet/wacom_wac.c             |   26 +---
- drivers/input/tablet/wacom_wac.h             |    4 -
- drivers/input/touchscreen/wacom_w8001.c      |   25 +---
- include/linux/input-mt.h                     |   56 ++++++++++
- include/linux/input.h                        |   22 +---
- 16 files changed, 306 insertions(+), 218 deletions(-)
- create mode 100644 drivers/input/input-mt.c
- create mode 100644 include/linux/input-mt.h
+	echo -n "touchit213" > /sys/bus/serio/devices/serio4/drvctl
+
+.. doesn't work. I don't see anything in the logs; whereas if I use
+inputattach to connect the driver to ttyS0 (which doesn't have the
+device, obviously) I can see that the driver is enabled
+in /var/log/messages and a touch /dev/input/event device is created.
+
+I've looked through the source for the touchit213 driver, and it's nice
+simple code - and I'm assuming that it's failing somewhere in the
+connect function. However, I'm struggling to get much further than this.
+
+I guess the first question is, should this work? Attaching touchit213 to
+a 'real' serial port appears to work, so I'm making the guess that this
+is something to do with it being a port on the i8042. However, I don't
+really know much serio and haven't been able to find any good
+documentation about it - it could be I'm just missing an appropriate
+incantation?
+
+Second question is, if it's supposed to work - does anyone have some
+good ideas for debugging this? I think otherwise I'm going to be
+sprinkling kprintfs() in the driver and seeing what happens - are there
+any better ways than this?
+
+Thanks for any help you can offer,
+
+Alex.
+
+
+--
+This message was scanned by Better Hosted and is believed to be clean.
+http://www.betterhosted.com
+

@@ -1,48 +1,119 @@
 From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: Re: [PATCH 0/8] input: gpio_keys_polled fixes
-Date: Thu, 9 Dec 2010 16:36:50 -0500
-Message-ID: <AANLkTim_vAeWVKzhSks0kw3_WBoAp4VxdcJRqfLH6uLm@mail.gmail.com>
-References: <4CF541ED.80905@openwrt.org>
-	<1291142663-1011-1-git-send-email-juhosg@openwrt.org>
-	<AANLkTi=fYLTEkws+R+9PFtrgUzujQrOuN2PQcGoG7X=v@mail.gmail.com>
-	<20101209000600.GF15294@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH v6 0/5] da850-evm: add gpio-{keys,leds} for UI and BB expanders
+Date: Thu,  9 Dec 2010 16:51:02 -0500
+Message-ID: <cover.1291931041.git.bengardiner@nanometrics.ca>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog108.obsmtp.com ([74.125.149.199]:49970 "EHLO
-	na3sys009aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754919Ab0LIVgw (ORCPT
+Received: from na3sys009aog111.obsmtp.com ([74.125.149.205]:37690 "HELO
+	na3sys009aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754919Ab0LIVvO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Dec 2010 16:36:52 -0500
-Received: by mail-qy0-f174.google.com with SMTP id 19so14128qyj.12
-        for <linux-input@vger.kernel.org>; Thu, 09 Dec 2010 13:36:50 -0800 (PST)
-In-Reply-To: <20101209000600.GF15294@core.coreip.homeip.net>
+	Thu, 9 Dec 2010 16:51:14 -0500
+In-Reply-To: <cover.1290635422.git.bengardiner@nanometrics.ca>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Gabor Juhos <juhosg@openwrt.org>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, nsekhar@ti.com
+To: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>
 
-Hi Dmitry,
+The da850-evm baseboard (BB) and its UI board both have tca6416 IO expanders.
+They are bootstrapped to different I2C addresses so they can be used
+concurrently.
 
-On Wed, Dec 8, 2010 at 7:06 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Ok, so driver is in mainline now [...]
+The expander on the UI board is currently used to enable/disable the
+peripherals that are available on the UI board. In addition to this
+functionality the expander is also connected to 8 pushbuttons. The expander
+on the baseboard is not currently used; it is connected to deep sleep enable,
+sw reset, a push button, some switches and LEDs.
 
-I see it in v2.6.37-rc5 (at 0e7d0c860a0dee49dacb7bbb248d1eba637075ad
-). With all the changes proposed folded-in and even a little Kconfig
-help text fixup. It is (still) working as expected.
+This proposed patch series enables the push buttons and switches on the UI and
+BB expanders using the gpio-keys polling mode patch by Gabor Juhos. Some
+work was performed to test irq-based gpio-keys support on the expanders (a WIP
+patch can be posted on request) but I believe that it is not possible to use 
+irq-based gpio-keys on IO expanders for arm systems at this time. 
 
-Thank you very much for picking up the driver changes...
+The attempt started when I noticed the patch of Alek Du and Alan Cox [1] which 
+was recently committed [2]; a stab at integrating irq-based gpio-keys support
+based on that patch was attempted. I found that I either got a warning that the
+irq could not be mapped for the given gpio ; or, when N_IRQ was increased, a
+system freeze.
 
-> [...] and you should have no problems with
-> merging your platform code in .38 merge window.
+>From what I have read (particularly the message by Grant Likely [3]) IRQs on
+IO expanders are not ready in ARM yet. I _think_ that the sparse IRQ rework by
+Thomas Gleixner [4] will resolve the blocker to irq-based gpio-keys support. 
 
-and thank you for the vote of confidence. I will post an updated
-version shortly.
+In the meantime we have buttons and switches that we would like to excersise
+in our prototyping development. The patch to convert this series to irq-based
+gpio-keys will be straighforward once the support in arch/arm is there.
 
-Best Regards,
-Ben Gardiner
+There is an existing tca6416-keypad driver with polling support which I did not
+employ because it isn't possible to keep the gpio's used for peripheral
+enable/disable on the UI board or the LEDs on the baseboard registered while
+simultaneously registering the pushbuttons or switches as a tca6416-keypad 
+instance.
+
+I tested this patch series using evtest on the resulting /dev/input/eventN 
+devices and also on the event node of a non-polling gpio-keys instance to 
+ensure that irq-based input handling is not broken by the introduction of the
+polling-mode gpio-keys patch. The non-polling instance creation and
+registration is not included in this series since it uses one of the boot-mode
+DIP switches and woult not (I think) be suitable for mainline.
+
+Disclaimer: 
+I'm not an expert in irq's or gpio-keys; this is, in fact, my first proposed
+feature. Please feel free to correct me -- I welcome the chance to learn from
+your expertise.
+
+Ben Gardiner (4):
+  da850-evm: add UI Expander pushbuttons
+  da850-evm: extract defines for SEL{A,B,C} pins in UI expander
+  da850-evm: add baseboard GPIO expander buttons, switches and LEDs
+  da850-evm: KEYBOARD_GPIO_POLLED Kconfig conditional
+
+Gabor Juhos (1):
+  Input: add input driver for polled GPIO buttons
+
+ arch/arm/mach-davinci/Kconfig             |    3 +
+ arch/arm/mach-davinci/board-da850-evm.c   |  306 +++++++++++++++++++++++++++--
+ drivers/input/keyboard/Kconfig            |   16 ++
+ drivers/input/keyboard/Makefile           |    1 +
+ drivers/input/keyboard/gpio_keys_polled.c |  261 ++++++++++++++++++++++++
+ include/linux/gpio_keys.h                 |    2 +
+ 6 files changed, 577 insertions(+), 12 deletions(-)
+ create mode 100644 drivers/input/keyboard/gpio_keys_polled.c
 
 ---
-Nanometrics Inc.
-http://www.nanometrics.ca
+Changes since v5:
+ * included the final polled gpio keys driver which is now in 2.6.37-rc5
+   at 0e7d0c860a0dee49dacb7bbb248d1eba637075ad 
+ * small changes to includes and structure names due to driver changes
+
+Changes since v4:
+ * integrated Gabor Juhos' polling gpio button driver in place of the
+   gpio-keys patch of Paul Mundt and Alex Clouter
+ * dont' line break error messages (Sekhar Nori)
+ * whitespace cleanup (Sekhar Nori)
+
+Changes since v3:
+ * introduced patch 5 in the series by extracting the Kconfig changes proposed
+   in patch 2 of v3.
+ * not gpio_request()'ing the sw_rst and deep_sleep_en lines as requested 
+   (Sekhar Nori)
+
+Changes since v2:
+ * register a single input device for switches and keys on the baseboard since
+   there is no benefit to separate devices with different polling intervals
+   (Dmitry Torokhov)
+ * use static array intialization and range intialization for platform data 
+   structure to minimize the amount of runtime intialization needed:
+   (Sekhar Nori)
+ * Use the da850_evm variable name prefix for static symbols in
+   board-da850-evm.c
+
+Changes since v1:
+ * use locally defined functions that are no-ops/error checkers when
+   INPUT_POLLDEV is not defined.
+ * disable polling mode support when input-polldev is a module and gpio_keys
+   is builtin
+ * set INPUT_POLLDEV default for DA850_EVM machine, but don't select it
+   unconditionally
+ * adding note to description about why tca6416-keypad was not used

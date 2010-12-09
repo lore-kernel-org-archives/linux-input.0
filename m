@@ -1,24 +1,22 @@
 From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: [PATCH v6 3/5] da850-evm: extract defines for SEL{A,B,C} pins in UI expander
-Date: Thu,  9 Dec 2010 16:51:05 -0500
-Message-ID: <9d143f9de4c8870d398c474e38cef4df05db1bea.1291931041.git.bengardiner@nanometrics.ca>
+Subject: [PATCH v6 5/5] da850-evm: KEYBOARD_GPIO_POLLED Kconfig conditional
+Date: Thu,  9 Dec 2010 16:51:07 -0500
+Message-ID: <939e12134ad83efb7a8706d16afec7c12663079e.1291931041.git.bengardiner@nanometrics.ca>
 References: <cover.1290635422.git.bengardiner@nanometrics.ca> <cover.1291931041.git.bengardiner@nanometrics.ca>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1291931041.git.bengardiner@nanometrics.ca>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>, Victor Rodriguez <vm.rod25@gmail.com>
+To: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>, Kevin Hilman <khilman@deeprootsystems.com>
 List-Id: linux-input@vger.kernel.org
 
-The setup and teardown methods of the UI expander reference the SEL_{A,B,C}
-pins by 'magic number' in each function. This uses the common enum for their offsets
-in the expander setup and teardown functions.
+Use the mach-davinci/Kconfig to enable gpio-keys-polled as default when
+da850-evm machine is enabled.
 
 Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
-Reviewed-by: Chris Cordahi <christophercordahi@nanometrics.ca>
-Reviewed-by: Sekhar Nori <nsekhar@ti.com>
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
-CC: Victor Rodriguez <vm.rod25@gmail.com>
+CC: Kevin Hilman <khilman@deeprootsystems.com>
+CC: "Nori, Sekhar" <nsekhar@ti.com>
+CC: Gabor Juhos <juhosg@openwrt.org>
 
 ---
 
@@ -26,75 +24,28 @@ Changes since v5:
  * no changes in this patch of the series
 
 Changes since v4:
- * no changes in this patch of the series
+ * integrated the use of Gabor Juhos' polled gpio buttons driver
 
 Changes since v3:
- * no changes in this patch of the series
-
-Changes since v2:
- * rebased to 083eae3e28643e0eefc5243719f8b1572cf98299 of
-   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davinci.git
- * integrated the static array initialization patch provided by Sekhar Nori
-
-Changes since v1:
- * No changes since v1
+ * no changes in this patch of the series / this patch was introduced in v4 of
+   the series
 ---
- arch/arm/mach-davinci/board-da850-evm.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ arch/arm/mach-davinci/Kconfig |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-index 4377679..dede268 100644
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -360,23 +360,23 @@ static int da850_evm_ui_expander_setup(struct i2c_client *client, unsigned gpio,
- {
- 	int sel_a, sel_b, sel_c, ret;
+diff --git a/arch/arm/mach-davinci/Kconfig b/arch/arm/mach-davinci/Kconfig
+index 84066e8..b93c327 100644
+--- a/arch/arm/mach-davinci/Kconfig
++++ b/arch/arm/mach-davinci/Kconfig
+@@ -180,6 +180,9 @@ endchoice
+ config GPIO_PCA953X
+ 	default MACH_DAVINCI_DA850_EVM
  
--	sel_a = gpio + 7;
--	sel_b = gpio + 6;
--	sel_c = gpio + 5;
-+	sel_a = gpio + DA850_EVM_UI_EXP_SEL_A;
-+	sel_b = gpio + DA850_EVM_UI_EXP_SEL_B;
-+	sel_c = gpio + DA850_EVM_UI_EXP_SEL_C;
- 
--	ret = gpio_request(sel_a, "sel_a");
-+	ret = gpio_request(sel_a, da850_evm_ui_exp[DA850_EVM_UI_EXP_SEL_A]);
- 	if (ret) {
- 		pr_warning("Cannot open UI expander pin %d\n", sel_a);
- 		goto exp_setup_sela_fail;
- 	}
- 
--	ret = gpio_request(sel_b, "sel_b");
-+	ret = gpio_request(sel_b, da850_evm_ui_exp[DA850_EVM_UI_EXP_SEL_B]);
- 	if (ret) {
- 		pr_warning("Cannot open UI expander pin %d\n", sel_b);
- 		goto exp_setup_selb_fail;
- 	}
- 
--	ret = gpio_request(sel_c, "sel_c");
-+	ret = gpio_request(sel_c, da850_evm_ui_exp[DA850_EVM_UI_EXP_SEL_C]);
- 	if (ret) {
- 		pr_warning("Cannot open UI expander pin %d\n", sel_c);
- 		goto exp_setup_selc_fail;
-@@ -419,13 +419,13 @@ static int da850_evm_ui_expander_teardown(struct i2c_client *client,
- 	platform_device_unregister(&da850_evm_ui_keys_device);
- 
- 	/* deselect all functionalities */
--	gpio_set_value_cansleep(gpio + 5, 1);
--	gpio_set_value_cansleep(gpio + 6, 1);
--	gpio_set_value_cansleep(gpio + 7, 1);
-+	gpio_set_value_cansleep(gpio + DA850_EVM_UI_EXP_SEL_C, 1);
-+	gpio_set_value_cansleep(gpio + DA850_EVM_UI_EXP_SEL_B, 1);
-+	gpio_set_value_cansleep(gpio + DA850_EVM_UI_EXP_SEL_A, 1);
- 
--	gpio_free(gpio + 5);
--	gpio_free(gpio + 6);
--	gpio_free(gpio + 7);
-+	gpio_free(gpio + DA850_EVM_UI_EXP_SEL_C);
-+	gpio_free(gpio + DA850_EVM_UI_EXP_SEL_B);
-+	gpio_free(gpio + DA850_EVM_UI_EXP_SEL_A);
- 
- 	return 0;
- }
++config KEYBOARD_GPIO_POLLED
++	default MACH_DAVINCI_DA850_EVM
++
+ config MACH_TNETV107X
+ 	bool "TI TNETV107X Reference Platform"
+ 	default ARCH_DAVINCI_TNETV107X
 -- 
 1.7.0.4

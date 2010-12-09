@@ -1,165 +1,49 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/2]input - wacom_w8001: Add one finger touch support
-Date: Wed,  8 Dec 2010 17:23:49 -0800
-Message-ID: <1291857829-13804-1-git-send-email-pinglinux@gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: mt: Add an envelope tool type
+Date: Thu, 09 Dec 2010 02:24:53 +0100
+Message-ID: <4D002FE5.2070609@euromail.se>
+References: <1291721340-22652-1-git-send-email-rydberg@euromail.se> <4CFFC3C2.1080905@canonical.com> <AANLkTikmomm2hd7AAJMTnY+=J2wPyVvodv2Ft0jFe7w2@mail.gmail.com> <20101208235805.GE15294@core.coreip.homeip.net> <4D002CE8.2060803@euromail.se> <20101209011752.GH15294@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:56870 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753581Ab0LIBXS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 20:23:18 -0500
-Received: by gyb11 with SMTP id 11so1082218gyb.19
-        for <linux-input@vger.kernel.org>; Wed, 08 Dec 2010 17:23:17 -0800 (PST)
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:33106 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750928Ab0LIB00 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Dec 2010 20:26:26 -0500
+In-Reply-To: <20101209011752.GH15294@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/touchscreen/wacom_w8001.c |   74 +++++++++++++++++++++++++++++--
- 1 files changed, 70 insertions(+), 4 deletions(-)
+On 12/09/2010 02:17 AM, Dmitry Torokhov wrote:
 
-diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index 90b92e8..68087d8 100644
---- a/drivers/input/touchscreen/wacom_w8001.c
-+++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -3,6 +3,7 @@
-  *
-  * Copyright (c) 2008 Jaya Kumar
-  * Copyright (c) 2010 Red Hat, Inc.
-+ * Copyright (c) 2010 Ping Cheng, Wacom. <pingc@wacom.com>
-  *
-  * This file is subject to the terms and conditions of the GNU General Public
-  * License. See the file COPYING in the main directory of this archive for
-@@ -86,6 +87,12 @@ struct w8001 {
- 	char phys[32];
- 	int type;
- 	unsigned int pktlen;
-+	bool pen_in_prox;
-+	bool has_touch;
-+	int max_touch_x;
-+	int max_touch_y;
-+	int max_pen_x;
-+	int max_pen_y;
- };
- 
- static void parse_data(u8 *data, struct w8001_coord *coord)
-@@ -112,6 +119,29 @@ static void parse_data(u8 *data, struct w8001_coord *coord)
- 	coord->tilt_y = data[8] & 0x7F;
- }
- 
-+static void parse_single_touch(struct w8001 *w8001)
-+{
-+	struct input_dev *dev = w8001->dev;
-+	unsigned char *data = w8001->data;
-+
-+	int x = (data[1] << 7) | data[2];
-+	int y = (data[3] << 7) | data[4];
-+	w8001->has_touch = data[0] & 0x1;
-+
-+	/* scale to pen maximum */
-+	if (w8001->max_pen_x && w8001->max_pen_y && w8001->max_touch_x) {
-+		x = x * w8001->max_pen_x / w8001->max_touch_x;
-+		y = y * w8001->max_pen_y / w8001->max_touch_y;
-+	}
-+
-+	input_report_abs(dev, ABS_X, x);
-+	input_report_abs(dev, ABS_Y, y);
-+	input_report_key(dev, BTN_TOUCH, w8001->has_touch);
-+	input_report_key(dev, BTN_TOOL_FINGER, w8001->has_touch);
-+
-+	input_sync(dev);
-+}
-+
- static void parse_touch(struct w8001 *w8001)
- {
- 	struct input_dev *dev = w8001->dev;
-@@ -151,6 +181,18 @@ static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
- 	query->y = data[5] << 9;
- 	query->y |= data[6] << 2;
- 	query->y |= (data[2] >> 3) & 0x3;
-+
-+	/* Early days' one finger touch models need the following defaults */
-+	if (!query->x && !query->y) {
-+		query->x = 1024;
-+		query->y = 1024;
-+		query->panel_res = 10;
-+		query->panel_res = 10;
-+		if (data[1]) {
-+			query->x = (1 << data[1]);
-+			query->y = (1 << data[1]);
-+		}
-+	}
- }
- 
- static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
-@@ -199,6 +241,7 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
- 				   unsigned char data, unsigned int flags)
- {
- 	struct w8001 *w8001 = serio_get_drvdata(serio);
-+	struct input_dev *dev = w8001->dev;
- 	struct w8001_coord coord;
- 	unsigned char tmp;
- 
-@@ -213,9 +256,15 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
- 
- 	case W8001_PKTLEN_TOUCH93 - 1:
- 	case W8001_PKTLEN_TOUCH9A - 1:
--		/* ignore one-finger touch packet. */
--		if (w8001->pktlen == w8001->idx)
-+		tmp = (w8001->data[0] & W8001_TOUCH_BYTE);
-+		if (tmp != W8001_TOUCH_BYTE)
-+			break;
-+
-+		if (w8001->pktlen == w8001->idx) {
- 			w8001->idx = 0;
-+			if (!w8001->pen_in_prox)
-+				parse_single_touch(w8001);
-+		}
- 		break;
- 
- 	/* Pen coordinates packet */
-@@ -228,9 +277,17 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
- 		if (tmp == W8001_TOUCH_BYTE)
- 			break;
- 
-+		if (w8001->has_touch) {
-+			/* send touch data out */
-+			w8001->has_touch = 0;
-+			input_report_key(dev, BTN_TOUCH, 0);
-+			input_report_key(dev, BTN_TOOL_FINGER, 0);
-+		}
-+
- 		w8001->idx = 0;
- 		parse_data(w8001->data, &coord);
- 		report_pen_events(w8001, &coord);
-+		w8001->pen_in_prox = coord.rdy ? true : false;
- 		break;
- 
- 	/* control packet */
-@@ -313,11 +370,20 @@ static int w8001_setup(struct w8001 *w8001)
- 	 */
- 	if (!error && w8001->response[1]) {
- 		struct w8001_touch_query touch;
-+		int px, py;
- 
- 		parse_touchquery(w8001->response, &touch);
- 
--		input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
--		input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
-+		px = w8001->max_touch_x = touch.x;
-+		py = w8001->max_touch_x = touch.y;
-+
-+		/* scale to pen maximum */
-+		if (coord.x && coord.y) {
-+			px = w8001->max_pen_x = coord.x;
-+			py = w8001->max_pen_y = coord.y;
-+		}
-+		input_set_abs_params(dev, ABS_X, 0, px, 0, 0);
-+		input_set_abs_params(dev, ABS_Y, 0, py, 0, 0);
- 		dev->keybit[BIT_WORD(BTN_TOOL_FINGER)] |= BIT_MASK(BTN_TOOL_FINGER);
- 
- 		switch (touch.sensor_id) {
--- 
-1.7.2.3
+> On Thu, Dec 09, 2010 at 02:12:08AM +0100, Henrik Rydberg wrote:
+>>>>>
+>>
+>>>>> Is it assumed that the envelop has only two touches comprising it? Or is
+>>>>> it any number of touches? If it's any number of touches, how does one
+>>>>> know how many touches it is?
+>>>>
+>>>> Those are good questions. Specifying how many touches are in the
+>>>> envelop makes sense. It also covers rectangle as a special case of
+>>>> envelop.
+>>>
+>>> I have a feeling that trying to accomodate non-rectangular, more than 2
+>>> point shapes without using native MT data is over-engineering the
+>>> problem... Do we have examples other than older generation Elantechs and
+>>> Synaptics that need envelope notion?
+>>>
+>>
+>>
+>> Those are the ones targeted so far. Maybe appletouch could be added to the list
+>> as well. I imagine all drivers will end up using zero, one and two envelope points.
+> 
+> Even ones that fully support independent finger tracking?
+> 
 
+
+No, sorry, that should read "all drivers in that list". The ones that can detect
+individual fingers in space are fine as they are.

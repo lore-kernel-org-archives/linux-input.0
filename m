@@ -1,376 +1,284 @@
-From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Subject: [PATCH v6 1/5] Input: add input driver for polled GPIO buttons
-Date: Thu,  9 Dec 2010 16:51:03 -0500
-Message-ID: <b534569073dec52718e99623858ea9dd146faf24.1291931041.git.bengardiner@nanometrics.ca>
-References: <cover.1290635422.git.bengardiner@nanometrics.ca>
-	<cover.1291931041.git.bengardiner@nanometrics.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <cover.1291931041.git.bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gabor Juhos <juhosg-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+From: Ben Gardiner <bengardiner@nanometrics.ca>
+Subject: [PATCH v6 4/5] da850-evm: add baseboard GPIO expander buttons, switches and LEDs
+Date: Thu,  9 Dec 2010 16:51:06 -0500
+Message-ID: <b74caa1c3d735d6ec915f825ee231840e7b4f862.1291931041.git.bengardiner@nanometrics.ca>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca> <cover.1291931041.git.bengardiner@nanometrics.ca>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1291931041.git.bengardiner@nanometrics.ca>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kevin Hilman <khilman@deeprootsystems.com>, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>, "Govindarajan, Sriramakrishnan" <srk@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Gabor Juhos <juhosg-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
+This patch adds a pca953x platform device for the tca6416 found on the evm
+baseboard. The tca6416 is a GPIO expander, also found on the UI board at a
+separate I2C address. The pins of the baseboard IO expander are connected to
+software reset, deep sleep enable, test points, a push button, DIP switches and
+LEDs.
 
-The existing gpio-keys driver can be usable only for GPIO lines with
-interrupt support. Several devices have buttons connected to a GPIO
-line which is not capable to generate interrupts. This patch adds a
-new input driver using the generic GPIO layer and the input-polldev
-to support such buttons.
+Add support for the push button, DIP switches and LEDs and test points (as
+free GPIOs). The reset and deep sleep enable connections are reserved by the
+setup routine so that userspace can't toggle those lines.
 
-[Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org: fold code to use more
- of the original gpio_keys infrastructure; cleanups and other
- improvements.]
+The existing tca6416-keypad driver was not employed because there was no
+apararent way to register the LEDs connected to gpio's on the tca6416 while
+simultaneously registering the tca6416-keypad instance.
 
-Signed-off-by: Gabor Juhos <juhosg-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
-Signed-off-by: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Tested-by: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Signed-off-by: Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
-(cherry picked from commit 0e7d0c860a0dee49dacb7bbb248d1eba637075ad)
-
----
-
-This a copy of the commit -- I included in the patch series since
-linux-davinci/master does not currently have it; but 2.6.37-rc5 does.
+Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
+Reviewed-by: Chris Cordahi <christophercordahi@nanometrics.ca>
+CC: Govindarajan, Sriramakrishnan <srk@ti.com>
+Reviewed-by: Sekhar Nori <nsekhar@ti.com>
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Gabor Juhos <juhosg@openwrt.org>
 
 ---
- drivers/input/keyboard/Kconfig            |   16 ++
- drivers/input/keyboard/Makefile           |    1 +
- drivers/input/keyboard/gpio_keys_polled.c |  261 +++++++++++++++++++++++++++++
- include/linux/gpio_keys.h                 |    2 +
- 4 files changed, 280 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/gpio_keys_polled.c
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index b8c51b9..3a87f3b 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -179,6 +179,22 @@ config KEYBOARD_GPIO
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called gpio_keys.
+Changes since v5:
+ * use platform_data type from final polled gpio keys driver
+
+Changes since v4:
+ * integrated the use of Gabor Juhos' polled gpio buttons driver
+ * removed extra indent (Sekhar Nori)
+ * don't line-break error messages (Sekhar Nori)
+ * left-in the explicit static initialization of structure members
+
+Changes since v3:
+ * don't request sw_rst and deep_sleep_en gpio pins -- let clients use them
+   freely
+
+Changes since v2:
+ * rebased to 083eae3e28643e0eefc5243719f8b1572cf98299 of
+   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davinci.git
+ * remove the "TODO : populate at runtime using" in 1/4 instead of this patch
+  (Nori, Sekhar)
+ * ui_expander_names was renamed to da850_evm_ui_exp
+ * DA850_SW_POLL_MS definition moved to this patch from 3/4
+ * use indexed array initialization pattern introduced by Sekhar Nori in 3/4
+ * shorter names prefixed with da850_evm
+ * static array range intializers
+ * using only a single gpio-keys instance for the pushbutton and switches on
+   baseboard since there is no advantage to separate device instances with
+   different polling intervals (Dmitry Torokhov)
+
+Changes since v1:
+ * adding note about why the tca6416-keypad driver was not used.
+ * adding Govindarajan, Sriramakrishnan, the author of the tca6416-keypad
+   driver
+---
+ arch/arm/mach-davinci/board-da850-evm.c |  187 +++++++++++++++++++++++++++++++
+ 1 files changed, 187 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+index dede268..0de789b 100644
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -430,6 +430,182 @@ static int da850_evm_ui_expander_teardown(struct i2c_client *client,
+ 	return 0;
+ }
  
-+config KEYBOARD_GPIO_POLLED
-+	tristate "Polled GPIO buttons"
-+	depends on GENERIC_GPIO
-+	select INPUT_POLLDEV
-+	help
-+	  This driver implements support for buttons connected
-+	  to GPIO pins that are not capable of generating interrupts.
++/* assign the baseboard expander's GPIOs after the UI board's */
++#define DA850_UI_EXPANDER_N_GPIOS ARRAY_SIZE(da850_evm_ui_exp)
++#define DA850_BB_EXPANDER_GPIO_BASE (DAVINCI_N_GPIO + DA850_UI_EXPANDER_N_GPIOS)
 +
-+	  Say Y here if your device has buttons connected
-+	  directly to such GPIO pins.  Your board-specific
-+	  setup logic must also provide a platform device,
-+	  with configuration data saying which GPIOs are used.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gpio_keys_polled.
-+
- config KEYBOARD_TCA6416
- 	tristate "TCA6416 Keypad Support"
- 	depends on I2C
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index a34452e..622de73 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -14,6 +14,7 @@ obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
- obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
- obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
-+obj-$(CONFIG_KEYBOARD_GPIO_POLLED)	+= gpio_keys_polled.o
- obj-$(CONFIG_KEYBOARD_TCA6416)		+= tca6416-keypad.o
- obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
- obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-new file mode 100644
-index 0000000..4c17aff
---- /dev/null
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -0,0 +1,261 @@
-+/*
-+ *  Driver for buttons on GPIO lines not capable of generating interrupts
-+ *
-+ *  Copyright (C) 2007-2010 Gabor Juhos <juhosg-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
-+ *  Copyright (C) 2010 Nuno Goncalves <nunojpg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-+ *
-+ *  This file was based on: /drivers/input/misc/cobalt_btns.c
-+ *	Copyright (C) 2007 Yoichi Yuasa <yoichi_yuasa-278FUkurQhETBYAz+LHnZg@public.gmane.org>
-+ *
-+ *  also was based on: /drivers/input/keyboard/gpio_keys.c
-+ *	Copyright 2005 Phil Blundell
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/input.h>
-+#include <linux/input-polldev.h>
-+#include <linux/ioport.h>
-+#include <linux/platform_device.h>
-+#include <linux/gpio.h>
-+#include <linux/gpio_keys.h>
-+
-+#define DRV_NAME	"gpio-keys-polled"
-+
-+struct gpio_keys_button_data {
-+	int last_state;
-+	int count;
-+	int threshold;
-+	int can_sleep;
++enum da850_evm_bb_exp_pins {
++	DA850_EVM_BB_EXP_DEEP_SLEEP_EN = 0,
++	DA850_EVM_BB_EXP_SW_RST,
++	DA850_EVM_BB_EXP_TP_23,
++	DA850_EVM_BB_EXP_TP_22,
++	DA850_EVM_BB_EXP_TP_21,
++	DA850_EVM_BB_EXP_USER_PB1,
++	DA850_EVM_BB_EXP_USER_LED2,
++	DA850_EVM_BB_EXP_USER_LED1,
++	DA850_EVM_BB_EXP_USER_SW1,
++	DA850_EVM_BB_EXP_USER_SW2,
++	DA850_EVM_BB_EXP_USER_SW3,
++	DA850_EVM_BB_EXP_USER_SW4,
++	DA850_EVM_BB_EXP_USER_SW5,
++	DA850_EVM_BB_EXP_USER_SW6,
++	DA850_EVM_BB_EXP_USER_SW7,
++	DA850_EVM_BB_EXP_USER_SW8
 +};
 +
-+struct gpio_keys_polled_dev {
-+	struct input_polled_dev *poll_dev;
-+	struct device *dev;
-+	struct gpio_keys_platform_data *pdata;
-+	struct gpio_keys_button_data data[0];
++static const char const *da850_evm_bb_exp[] = {
++	[DA850_EVM_BB_EXP_DEEP_SLEEP_EN]	= "deep_sleep_en",
++	[DA850_EVM_BB_EXP_SW_RST]		= "sw_rst",
++	[DA850_EVM_BB_EXP_TP_23]		= "tp_23",
++	[DA850_EVM_BB_EXP_TP_22]		= "tp_22",
++	[DA850_EVM_BB_EXP_TP_21]		= "tp_21",
++	[DA850_EVM_BB_EXP_USER_PB1]		= "user_pb1",
++	[DA850_EVM_BB_EXP_USER_LED2]		= "user_led2",
++	[DA850_EVM_BB_EXP_USER_LED1]		= "user_led1",
++	[DA850_EVM_BB_EXP_USER_SW1]		= "user_sw1",
++	[DA850_EVM_BB_EXP_USER_SW2]		= "user_sw2",
++	[DA850_EVM_BB_EXP_USER_SW3]		= "user_sw3",
++	[DA850_EVM_BB_EXP_USER_SW4]		= "user_sw4",
++	[DA850_EVM_BB_EXP_USER_SW5]		= "user_sw5",
++	[DA850_EVM_BB_EXP_USER_SW6]		= "user_sw6",
++	[DA850_EVM_BB_EXP_USER_SW7]		= "user_sw7",
++	[DA850_EVM_BB_EXP_USER_SW8]		= "user_sw8",
 +};
 +
-+static void gpio_keys_polled_check_state(struct input_dev *input,
-+					 struct gpio_keys_button *button,
-+					 struct gpio_keys_button_data *bdata)
-+{
-+	int state;
++#define DA850_N_BB_USER_SW	8
 +
-+	if (bdata->can_sleep)
-+		state = !!gpio_get_value_cansleep(button->gpio);
-+	else
-+		state = !!gpio_get_value(button->gpio);
-+
-+	if (state != bdata->last_state) {
-+		unsigned int type = button->type ?: EV_KEY;
-+
-+		input_event(input, type, button->code,
-+			    !!(state ^ button->active_low));
-+		input_sync(input);
-+		bdata->count = 0;
-+		bdata->last_state = state;
-+	}
-+}
-+
-+static void gpio_keys_polled_poll(struct input_polled_dev *dev)
-+{
-+	struct gpio_keys_polled_dev *bdev = dev->private;
-+	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	struct input_dev *input = dev->input;
-+	int i;
-+
-+	for (i = 0; i < bdev->pdata->nbuttons; i++) {
-+		struct gpio_keys_button_data *bdata = &bdev->data[i];
-+
-+		if (bdata->count < bdata->threshold)
-+			bdata->count++;
-+		else
-+			gpio_keys_polled_check_state(input, &pdata->buttons[i],
-+						     bdata);
-+	}
-+}
-+
-+static void gpio_keys_polled_open(struct input_polled_dev *dev)
-+{
-+	struct gpio_keys_polled_dev *bdev = dev->private;
-+	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+
-+	if (pdata->enable)
-+		pdata->enable(bdev->dev);
-+}
-+
-+static void gpio_keys_polled_close(struct input_polled_dev *dev)
-+{
-+	struct gpio_keys_polled_dev *bdev = dev->private;
-+	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+
-+	if (pdata->disable)
-+		pdata->disable(bdev->dev);
-+}
-+
-+static int __devinit gpio_keys_polled_probe(struct platform_device *pdev)
-+{
-+	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct device *dev = &pdev->dev;
-+	struct gpio_keys_polled_dev *bdev;
-+	struct input_polled_dev *poll_dev;
-+	struct input_dev *input;
-+	int error;
-+	int i;
-+
-+	if (!pdata || !pdata->poll_interval)
-+		return -EINVAL;
-+
-+	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
-+		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
-+		       GFP_KERNEL);
-+	if (!bdev) {
-+		dev_err(dev, "no memory for private data\n");
-+		return -ENOMEM;
-+	}
-+
-+	poll_dev = input_allocate_polled_device();
-+	if (!poll_dev) {
-+		dev_err(dev, "no memory for polled device\n");
-+		error = -ENOMEM;
-+		goto err_free_bdev;
-+	}
-+
-+	poll_dev->private = bdev;
-+	poll_dev->poll = gpio_keys_polled_poll;
-+	poll_dev->poll_interval = pdata->poll_interval;
-+	poll_dev->open = gpio_keys_polled_open;
-+	poll_dev->close = gpio_keys_polled_close;
-+
-+	input = poll_dev->input;
-+
-+	input->evbit[0] = BIT(EV_KEY);
-+	input->name = pdev->name;
-+	input->phys = DRV_NAME"/input0";
-+	input->dev.parent = &pdev->dev;
-+
-+	input->id.bustype = BUS_HOST;
-+	input->id.vendor = 0x0001;
-+	input->id.product = 0x0001;
-+	input->id.version = 0x0100;
-+
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		struct gpio_keys_button *button = &pdata->buttons[i];
-+		struct gpio_keys_button_data *bdata = &bdev->data[i];
-+		unsigned int gpio = button->gpio;
-+		unsigned int type = button->type ?: EV_KEY;
-+
-+		if (button->wakeup) {
-+			dev_err(dev, DRV_NAME " does not support wakeup\n");
-+			error = -EINVAL;
-+			goto err_free_gpio;
-+		}
-+
-+		error = gpio_request(gpio,
-+				     button->desc ? button->desc : DRV_NAME);
-+		if (error) {
-+			dev_err(dev, "unable to claim gpio %u, err=%d\n",
-+				gpio, error);
-+			goto err_free_gpio;
-+		}
-+
-+		error = gpio_direction_input(gpio);
-+		if (error) {
-+			dev_err(dev,
-+				"unable to set direction on gpio %u, err=%d\n",
-+				gpio, error);
-+			goto err_free_gpio;
-+		}
-+
-+		bdata->can_sleep = gpio_cansleep(gpio);
-+		bdata->last_state = -1;
-+		bdata->threshold = DIV_ROUND_UP(button->debounce_interval,
-+						pdata->poll_interval);
-+
-+		input_set_capability(input, type, button->code);
-+	}
-+
-+	bdev->poll_dev = poll_dev;
-+	bdev->dev = dev;
-+	bdev->pdata = pdata;
-+	platform_set_drvdata(pdev, bdev);
-+
-+	error = input_register_polled_device(poll_dev);
-+	if (error) {
-+		dev_err(dev, "unable to register polled device, err=%d\n",
-+			error);
-+		goto err_free_gpio;
-+	}
-+
-+	/* report initial state of the buttons */
-+	for (i = 0; i < pdata->nbuttons; i++)
-+		gpio_keys_polled_check_state(input, &pdata->buttons[i],
-+					 &bdev->data[i]);
-+
-+	return 0;
-+
-+err_free_gpio:
-+	while (--i >= 0)
-+		gpio_free(pdata->buttons[i].gpio);
-+
-+	input_free_polled_device(poll_dev);
-+
-+err_free_bdev:
-+	kfree(bdev);
-+
-+	platform_set_drvdata(pdev, NULL);
-+	return error;
-+}
-+
-+static int __devexit gpio_keys_polled_remove(struct platform_device *pdev)
-+{
-+	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
-+	struct gpio_keys_platform_data *pdata = bdev->pdata;
-+	int i;
-+
-+	input_unregister_polled_device(bdev->poll_dev);
-+
-+	for (i = 0; i < pdata->nbuttons; i++)
-+		gpio_free(pdata->buttons[i].gpio);
-+
-+	input_free_polled_device(bdev->poll_dev);
-+
-+	kfree(bdev);
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver gpio_keys_polled_driver = {
-+	.probe	= gpio_keys_polled_probe,
-+	.remove	= __devexit_p(gpio_keys_polled_remove),
-+	.driver	= {
-+		.name	= DRV_NAME,
-+		.owner	= THIS_MODULE,
++static struct gpio_keys_button da850_evm_bb_keys[] = {
++	[0] = {
++		.type			= EV_KEY,
++		.active_low		= 1,
++		.wakeup			= 0,
++		.debounce_interval	= DA850_KEYS_DEBOUNCE_MS,
++		.code			= KEY_PROG1,
++		.desc			= NULL, /* assigned at runtime */
++		.gpio			= -1, /* assigned at runtime */
++	},
++	[1 ... DA850_N_BB_USER_SW] = {
++		.type			= EV_SW,
++		.active_low		= 1,
++		.wakeup			= 0,
++		.debounce_interval	= DA850_KEYS_DEBOUNCE_MS,
++		.code			= -1, /* assigned at runtime */
++		.desc			= NULL, /* assigned at runtime */
++		.gpio			= -1, /* assigned at runtime */
 +	},
 +};
 +
-+static int __init gpio_keys_polled_init(void)
++static struct gpio_keys_platform_data da850_evm_bb_keys_pdata = {
++	.buttons = da850_evm_bb_keys,
++	.nbuttons = ARRAY_SIZE(da850_evm_bb_keys),
++	.poll_interval = DA850_GPIO_KEYS_POLL_MS,
++};
++
++static struct platform_device da850_evm_bb_keys_device = {
++	.name = "gpio-keys-polled",
++	.id = 1,
++	.dev = {
++		.platform_data = &da850_evm_bb_keys_pdata
++	},
++};
++
++static void da850_evm_bb_keys_init(unsigned gpio)
 +{
-+	return platform_driver_register(&gpio_keys_polled_driver);
++	int i;
++	struct gpio_keys_button *button;
++
++	button = &da850_evm_bb_keys[0];
++	button->desc = (char *)
++		da850_evm_bb_exp[DA850_EVM_BB_EXP_USER_PB1];
++	button->gpio = gpio + DA850_EVM_BB_EXP_USER_PB1;
++
++	for (i = 0; i < DA850_N_BB_USER_SW; i++) {
++		button = &da850_evm_bb_keys[i + 1];
++		button->code = SW_LID + i;
++		button->desc = (char *)
++				da850_evm_bb_exp[DA850_EVM_BB_EXP_USER_SW1 + i];
++		button->gpio = gpio + DA850_EVM_BB_EXP_USER_SW1 + i;
++	}
 +}
 +
-+static void __exit gpio_keys_polled_exit(void)
++#define DA850_N_BB_USER_LED	2
++
++static struct gpio_led da850_evm_bb_leds[] = {
++	[0 ... DA850_N_BB_USER_LED - 1] = {
++		.active_low = 1,
++		.gpio = -1, /* assigned at runtime */
++		.name = NULL, /* assigned at runtime */
++	},
++};
++
++static struct gpio_led_platform_data da850_evm_bb_leds_pdata = {
++	.leds = da850_evm_bb_leds,
++	.num_leds = ARRAY_SIZE(da850_evm_bb_leds),
++};
++
++static struct platform_device da850_evm_bb_leds_device = {
++	.name		= "leds-gpio",
++	.id		= -1,
++	.dev = {
++		.platform_data = &da850_evm_bb_leds_pdata
++	}
++};
++
++static void da850_evm_bb_leds_init(unsigned gpio)
 +{
-+	platform_driver_unregister(&gpio_keys_polled_driver);
++	int i;
++	struct gpio_led *led;
++
++	for (i = 0; i < DA850_N_BB_USER_LED; i++) {
++		led = &da850_evm_bb_leds[i];
++
++		led->gpio = gpio + DA850_EVM_BB_EXP_USER_LED2 + i;
++		led->name =
++			da850_evm_bb_exp[DA850_EVM_BB_EXP_USER_LED2 + i];
++	}
 +}
 +
-+module_init(gpio_keys_polled_init);
-+module_exit(gpio_keys_polled_exit);
++static int da850_evm_bb_expander_setup(struct i2c_client *client,
++						unsigned gpio, unsigned ngpio,
++						void *c)
++{
++	int ret;
 +
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Gabor Juhos <juhosg-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>");
-+MODULE_DESCRIPTION("Polled GPIO Buttons driver");
-+MODULE_ALIAS("platform:" DRV_NAME);
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index ce73a30..dd1a56f 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -16,6 +16,8 @@ struct gpio_keys_button {
- struct gpio_keys_platform_data {
- 	struct gpio_keys_button *buttons;
- 	int nbuttons;
-+	unsigned int poll_interval;	/* polling interval in msecs -
-+					   for polling driver only */
- 	unsigned int rep:1;		/* enable input subsystem auto repeat */
- 	int (*enable)(struct device *dev);
- 	void (*disable)(struct device *dev);
++	/*
++	 * Register the switches and pushbutton on the baseboard as a gpio-keys
++	 * device.
++	 */
++	da850_evm_bb_keys_init(gpio);
++	ret = platform_device_register(&da850_evm_bb_keys_device);
++	if (ret) {
++		pr_warning("Could not register baseboard GPIO expander keys");
++		goto io_exp_setup_sw_fail;
++	}
++
++	da850_evm_bb_leds_init(gpio);
++	ret = platform_device_register(&da850_evm_bb_leds_device);
++	if (ret) {
++		pr_warning("Could not register baseboard GPIO expander LEDS");
++		goto io_exp_setup_leds_fail;
++	}
++
++	return 0;
++
++io_exp_setup_leds_fail:
++	platform_device_unregister(&da850_evm_bb_keys_device);
++io_exp_setup_sw_fail:
++	return ret;
++}
++
++static int da850_evm_bb_expander_teardown(struct i2c_client *client,
++					unsigned gpio, unsigned ngpio, void *c)
++{
++	platform_device_unregister(&da850_evm_bb_leds_device);
++	platform_device_unregister(&da850_evm_bb_keys_device);
++
++	return 0;
++}
++
+ static struct pca953x_platform_data da850_evm_ui_expander_info = {
+ 	.gpio_base	= DAVINCI_N_GPIO,
+ 	.setup		= da850_evm_ui_expander_setup,
+@@ -437,6 +613,13 @@ static struct pca953x_platform_data da850_evm_ui_expander_info = {
+ 	.names		= da850_evm_ui_exp,
+ };
+ 
++static struct pca953x_platform_data da850_evm_bb_expander_info = {
++	.gpio_base	= DA850_BB_EXPANDER_GPIO_BASE,
++	.setup		= da850_evm_bb_expander_setup,
++	.teardown	= da850_evm_bb_expander_teardown,
++	.names		= da850_evm_bb_exp,
++};
++
+ static struct i2c_board_info __initdata da850_evm_i2c_devices[] = {
+ 	{
+ 		I2C_BOARD_INFO("tlv320aic3x", 0x18),
+@@ -445,6 +628,10 @@ static struct i2c_board_info __initdata da850_evm_i2c_devices[] = {
+ 		I2C_BOARD_INFO("tca6416", 0x20),
+ 		.platform_data = &da850_evm_ui_expander_info,
+ 	},
++	{
++		I2C_BOARD_INFO("tca6416", 0x21),
++		.platform_data = &da850_evm_bb_expander_info,
++	},
+ };
+ 
+ static struct davinci_i2c_platform_data da850_evm_i2c_0_pdata = {
 -- 
 1.7.0.4

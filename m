@@ -1,36 +1,73 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] HID: magicmouse: Don't report REL_{X,Y} for Magic Trackpad
-Date: Thu, 09 Dec 2010 07:13:27 -0800
-Message-ID: <4D00F217.6050609@canonical.com>
-References: <1291849685-2623-1-git-send-email-chase.douglas@canonical.com> <alpine.LNX.2.00.1012091440410.508@pobox.suse.cz>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH 06/20] mfd/tc35892: rename tc35892 header to tc3589x
+Date: Thu, 9 Dec 2010 16:41:56 +0100
+Message-ID: <20101209154155.GR8884@sortiz-mobl>
+References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
+ <1291388753-14662-7-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:39197 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753666Ab0LIPNe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 10:13:34 -0500
-In-Reply-To: <alpine.LNX.2.00.1012091440410.508@pobox.suse.cz>
+Received: from mga02.intel.com ([134.134.136.20]:21506 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751210Ab0LIPmA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Dec 2010 10:42:00 -0500
+Content-Disposition: inline
+In-Reply-To: <1291388753-14662-7-git-send-email-sundar.iyer@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sundar Iyer <sundar.iyer@stericsson.com>
+Cc: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/09/2010 05:41 AM, Jiri Kosina wrote:
-> On Wed, 8 Dec 2010, Chase Douglas wrote:
+Hi Sundar,
+
+On Fri, Dec 03, 2010 at 08:35:39PM +0530, Sundar Iyer wrote:
+> Rename the header file to include further variants within
+> the same mfd core driver
+
+Acked-by: Samuel Ortiz <sameo@linux.intel.com>
+
+> Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
+> ---
+>  drivers/gpio/tc35892-gpio.c                |    2 +-
+>  drivers/mfd/tc35892.c                      |    2 +-
+>  include/linux/mfd/{tc35892.h => tc3589x.h} |    0
+>  3 files changed, 2 insertions(+), 2 deletions(-)
+>  rename include/linux/mfd/{tc35892.h => tc3589x.h} (100%)
 > 
->> With the recent switch to having the hid layer handle standard axis
->> initialization, the Magic Trackpad now reports relative axes. This would
->> be fine in the normal mode, but the driver puts the device in multitouch
->> mode where no relative events are generated. Also, userspace software
->> depends on accurate axis information for device type detection. Thus,
->> ignoring the relative axes from the Magic Trackpad is best.
+> diff --git a/drivers/gpio/tc35892-gpio.c b/drivers/gpio/tc35892-gpio.c
+> index 7e10c93..027b857 100644
+> --- a/drivers/gpio/tc35892-gpio.c
+> +++ b/drivers/gpio/tc35892-gpio.c
+> @@ -13,7 +13,7 @@
+>  #include <linux/gpio.h>
+>  #include <linux/irq.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/mfd/tc35892.h>
+> +#include <linux/mfd/tc3589x.h>
+>  
+>  /*
+>   * These registers are modified under the irq bus lock and cached to avoid
+> diff --git a/drivers/mfd/tc35892.c b/drivers/mfd/tc35892.c
+> index e619e2a..f230235 100644
+> --- a/drivers/mfd/tc35892.c
+> +++ b/drivers/mfd/tc35892.c
+> @@ -12,7 +12,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/i2c.h>
+>  #include <linux/mfd/core.h>
+> -#include <linux/mfd/tc35892.h>
+> +#include <linux/mfd/tc3589x.h>
+>  
+>  /**
+>   * tc35892_reg_read() - read a single TC35892 register
+> diff --git a/include/linux/mfd/tc35892.h b/include/linux/mfd/tc3589x.h
+> similarity index 100%
+> rename from include/linux/mfd/tc35892.h
+> rename to include/linux/mfd/tc3589x.h
+> -- 
+> 1.7.2.dirty
 > 
-> Applied, thank you. I take it this should better go into .37 still, right?
 
-Yes, please.
-
-Thanks,
-
--- Chase
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/

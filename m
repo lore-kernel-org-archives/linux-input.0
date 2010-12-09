@@ -1,77 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/8] input: gpio_keys_polled fixes
-Date: Wed, 8 Dec 2010 16:06:00 -0800
-Message-ID: <20101209000600.GF15294@core.coreip.homeip.net>
-References: <4CF541ED.80905@openwrt.org>
- <1291142663-1011-1-git-send-email-juhosg@openwrt.org>
- <AANLkTi=fYLTEkws+R+9PFtrgUzujQrOuN2PQcGoG7X=v@mail.gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] input: mt: Add an envelope tool type
+Date: Wed, 8 Dec 2010 16:06:45 -0800
+Message-ID: <AANLkTink9aX=dV-+n5=2BpPF34kSZGSQQ6x2tUNJ8eSM@mail.gmail.com>
+References: <1291721340-22652-1-git-send-email-rydberg@euromail.se>
+	<4CFFC3C2.1080905@canonical.com>
+	<AANLkTikmomm2hd7AAJMTnY+=J2wPyVvodv2Ft0jFe7w2@mail.gmail.com>
+	<20101208235805.GE15294@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:33984 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750963Ab0LIAGL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 19:06:11 -0500
-Received: by ywl5 with SMTP id 5so1057006ywl.19
-        for <linux-input@vger.kernel.org>; Wed, 08 Dec 2010 16:06:10 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <AANLkTi=fYLTEkws+R+9PFtrgUzujQrOuN2PQcGoG7X=v@mail.gmail.com>
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:59141 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750963Ab0LIAGr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2010 19:06:47 -0500
+In-Reply-To: <20101208235805.GE15294@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Gardiner <bengardiner@nanometrics.ca>
-Cc: Gabor Juhos <juhosg@openwrt.org>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, nsekhar@ti.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2010 at 05:16:15PM -0500, Ben Gardiner wrote:
-> Hi Gabor,
->=20
-> On Tue, Nov 30, 2010 at 1:44 PM, Gabor Juhos <juhosg@openwrt.org> wro=
-te:
-> > This set contains my latest fixes on top of Dmitry's changes.
-> >
-> > Gabor Juhos (8):
-> > =A0input: gpio_keys_polled: add MODULE_ALIAS
->=20
-> > =A0input: gpio_keys_polled: return -EINVAL if wakeup specified
-> > =A0input: gpio_keys_polled: avoid possible division by zero
-> Good idea to return -EINVAL in those cases.
->=20
-> > =A0input: gpio_keys_polled: use DIV_ROUND_UP to compute the thresho=
-ld value
-> That's what I was looking for, thank you for fixing that up.
->=20
-> > =A0input: gpio_keys_polled: precompute threshold value in the probe=
- routine
-> Even better.
->=20
-> > =A0input: gpio_keys_polled: use tabs instead of spaces for indentat=
-ion
-> > =A0input: gpio_keys_polled: remove a local variable
-> > =A0input: gpio_keys_polled: fix Kconfig help text
-> I missed that remaining gpio-buttons reference, thanks for catching t=
-hat.
->=20
-> > =A0drivers/input/keyboard/Kconfig =A0 =A0 =A0 =A0 =A0 =A0| =A0 =A04=
- +-
-> > =A0drivers/input/keyboard/gpio_keys_polled.c | =A0 30 +++++++++++++=
-++-------------
-> > =A02 files changed, 18 insertions(+), 16 deletions(-)
->=20
-> I have tested this series with the "da850-evm: add gpio-{keys,leds}
-> for UI and BB expanders" on top of your "[PATCH 09/18] input:  add
-> input driver for polled GPIO buttons" patch, my "[PATCH WIP 0/6]
-> suggested changes to gpio_buttons driver" series and Dmitry's "Input:
-> gpio-buttons - misc changes"  patch.
+On Wed, Dec 8, 2010 at 3:58 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Wed, Dec 08, 2010 at 03:43:51PM -0800, Ping Cheng wrote:
+>> On Wed, Dec 8, 2010 at 9:43 AM, Chase Douglas
+>> <chase.douglas@canonical.com> wrote:
+>> > On 12/07/2010 03:29 AM, Henrik Rydberg wrote:
+>> >> Some touch devices are capable of detecting the envelope or hull
+>> >> of the touches, but not the touches themselves. This patch adds
+>> >> the MT_TOOL_ENVELOPE touch type to be used for such devices.
+>> >>
+>> >> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+>> >> ---
+>> >> Hi all,
+>> >>
+>> >> This patch represents an MT solution for those devices that can detect
+>> >> and report some effects of dual touch, but cannot report individual
+>> >> contacts. Synaptics and elantech are two examples. Having the drivers
+>> >> report the bounding rectangle of the touches is useful in userland,
+>> >> since the information makes it possible to implement zooming
+>> >> gestures. At the same time, it would be confusing to send these
+>> >> envelope points as fingers, since they clearly are not. As a remedy,
+>> >> introduce MT_TOOL_ENVELOPE, which tells applications that care about
+>> >> details that these are not real fingers, at the same time as it allows
+>> >> gesture applications based on MT data to function without
+>> >> modification.
+>> >
+>> > Is it assumed that the envelop has only two touches comprising it? Or is
+>> > it any number of touches? If it's any number of touches, how does one
+>> > know how many touches it is?
+>>
+>> Those are good questions. Specifying how many touches are in the
+>> envelop makes sense. It also covers rectangle as a special case of
+>> envelop.
+>
+> I have a feeling that trying to accomodate non-rectangular,
 
-Ok, so driver is in mainline now and you should have no problems with
-merging your platform code in .38 merge window.
+No, we are not talking about non-rectangular shape here. Envelop is
+always a rectangle. By rectangle above, I meant 2 touches.
 
-Thanks.
+An envelop that includes number of touches offers us more information
+than a rectangle does.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ping
+
+> more than 2 point shapes without using native MT data is over-engineering the
+> problem... Do we have examples other than older generation Elantechs and
+> Synaptics that need envelope notion?
+>
+> --
+> Dmitry
+>

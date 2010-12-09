@@ -1,53 +1,119 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: Re: [PATCH] msm: trout: add keypad support
-Date: Thu, 9 Dec 2010 00:34:15 -0600
-Message-ID: <AANLkTikOOH3qHHRtqETytYBk_MiCeVBU724CooUYqgdy@mail.gmail.com>
-References: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2]input - wacom_w8001: Support pen or touch only devices
+Date: Wed, 8 Dec 2010 22:42:22 -0800
+Message-ID: <20101209064222.GA6233@core.coreip.homeip.net>
+References: <1291857433-13731-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog113.obsmtp.com ([74.125.149.209]:36168 "EHLO
-	na3sys009aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754543Ab0LIGeR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Dec 2010 01:34:17 -0500
-In-Reply-To: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
+Received: from mail-gw0-f42.google.com ([74.125.83.42]:49730 "EHLO
+	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754849Ab0LIGm3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 01:42:29 -0500
+Received: by gwb20 with SMTP id 20so1737109gwb.1
+        for <linux-input@vger.kernel.org>; Wed, 08 Dec 2010 22:42:29 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1291857433-13731-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Walker <dwalker@codeaurora.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, tsoni@codeaurora.org, arve@android.com
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-Hi Daniel,
+Hi Ping,
 
-On Wed, Dec 8, 2010 at 6:24 PM, Daniel Walker <dwalker@codeaurora.org> =
-wrote:
-> This adds matrix keypad support, and gpio buttons support for
-> trout's various keys and buttons.
->
-> Signed-off-by: Daniel Walker <dwalker@codeaurora.org>
+On Wed, Dec 08, 2010 at 05:17:13PM -0800, Ping Cheng wrote:
+> Not all penabled devices support touch. The same idea is true for
+> touch devices. Setting up the devices according to the specific
+> querying results.
+> 
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 > ---
-> =A0arch/arm/mach-msm/Makefile =A0 =A0 =A0 =A0 =A0 =A0 | =A0 =A02 +-
-> =A0arch/arm/mach-msm/board-trout-keypad.c | =A0342 ++++++++++++++++++=
-++++++++++++++
-> =A02 files changed, 343 insertions(+), 1 deletions(-)
-> =A0create mode 100644 arch/arm/mach-msm/board-trout-keypad.c
->
+>  drivers/input/touchscreen/wacom_w8001.c |   39 ++++++++++++++++++++++++------
+>  1 files changed, 31 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+> index 361d00a..90b92e8 100644
+> --- a/drivers/input/touchscreen/wacom_w8001.c
+> +++ b/drivers/input/touchscreen/wacom_w8001.c
+> @@ -37,6 +37,7 @@ MODULE_LICENSE("GPL");
+>  
+>  #define W8001_QUERY_PACKET	0x20
+>  
+> +#define W8001_CMD_STOP		'0'
+>  #define W8001_CMD_START		'1'
+>  #define W8001_CMD_QUERY		'*'
+>  #define W8001_CMD_TOUCHQUERY	'%'
+> @@ -279,24 +280,46 @@ static int w8001_setup(struct w8001 *w8001)
+>  	struct w8001_coord coord;
+>  	int error;
+>  
+> -	error = w8001_command(w8001, W8001_CMD_QUERY, true);
+> +	error = w8001_command(w8001, W8001_CMD_STOP, false);
 
-[...]
+Isn't there any response from the device to W8001_CMD_STOP?
 
+>  	if (error)
+>  		return error;
+>  
+> -	parse_data(w8001->response, &coord);
+> +	mdelay(250);	/* wait 250ms before querying the device */
+>  
+> -	input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
+> -	input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
+> -	input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pressure, 0, 0);
+> -	input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
+> -	input_set_abs_params(dev, ABS_TILT_Y, 0, coord.tilt_y, 0, 0);
+> +	/* penabled? */
+> +	error = w8001_command(w8001, W8001_CMD_QUERY, true);
+> +	if (!error) {
+> +		dev->keybit[BIT_WORD(BTN_TOOL_PEN)] |= BIT_MASK(BTN_TOOL_PEN);
+> +		dev->keybit[BIT_WORD(BTN_TOOL_RUBBER)] |= BIT_MASK(BTN_TOOL_RUBBER);
+> +		dev->keybit[BIT_WORD(BTN_STYLUS)] |= BIT_MASK(BTN_STYLUS);
+> +		dev->keybit[BIT_WORD(BTN_STYLUS2)] |= BIT_MASK(BTN_STYLUS2);
+
+Could we start switching to __set_bit(BTN_TOOL_PEN, dev->keybit) style?
+The original way was somewhat OK when setting several buttons at once
+but I feel __set_bit() form is much safer.
+
+> +		parse_data(w8001->response, &coord);
 > +
-> +static unsigned int trout_col_gpios_evt2[] =3D { 35, 34, 33, 32, 31,=
- 23, 30, 109 };
+> +		input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
+> +		input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
+> +		input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pressure, 0, 0);
+> +		if (coord.tilt_x && coord.tilt_y)
+> +		{
 
-WARNING: line over 80 characters
+Formatting: opening brace goes on the same as the statement.
 
-[...]
+> +			input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
+> +			input_set_abs_params(dev, ABS_TILT_Y, 0, coord.tilt_y, 0, 0);
+> +		}
+> +	}
+>  
+> +	/* touch enabled? */
+>  	error = w8001_command(w8001, W8001_CMD_TOUCHQUERY, true);
+> -	if (!error) {
+> +
+> +	/* Some non-touch devices may reply to the touch query. But their
+> +	 * second byte is empty, which indicates touch is not supported.
+> +	 */
+> +	if (!error && w8001->response[1]) {
+>  		struct w8001_touch_query touch;
+>  
+>  		parse_touchquery(w8001->response, &touch);
+>  
+> +		input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
+> +		input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
+> +		dev->keybit[BIT_WORD(BTN_TOOL_FINGER)] |= BIT_MASK(BTN_TOOL_FINGER);
+> +
+>  		switch (touch.sensor_id) {
+>  		case 0:
+>  		case 2:
+> -- 
+> 1.7.2.3
+> 
 
-Best Regards
-Abraham
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks.
+
+-- 
+Dmitry

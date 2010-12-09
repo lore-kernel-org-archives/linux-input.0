@@ -1,72 +1,129 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2]input - wacom_w8001: Add one finger touch support
-Date: Thu, 9 Dec 2010 11:50:35 -0800
-Message-ID: <20101209195035.GD23781@core.coreip.homeip.net>
-References: <1291857829-13804-1-git-send-email-pinglinux@gmail.com>
- <AANLkTikatcsta_EQ26CzouHj+WMfQptJF_ZkMfCwUmnN@mail.gmail.com>
- <AANLkTi=w3uOQKFN3WBgzib9M0Cb143vChPPaYm6fWypi@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] input: mt: Move input MT header inside input directory
+Date: Thu,  9 Dec 2010 21:05:17 +0100
+Message-ID: <1291925117-22042-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:49001 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753920Ab0LITup (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 14:50:45 -0500
-Received: by qyj19 with SMTP id 19so137341qyj.19
-        for <linux-input@vger.kernel.org>; Thu, 09 Dec 2010 11:50:44 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <AANLkTi=w3uOQKFN3WBgzib9M0Cb143vChPPaYm6fWypi@mail.gmail.com>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:45592 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757124Ab0LIUFb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Dec 2010 15:05:31 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Thu, Dec 09, 2010 at 11:36:19AM -0800, Ping Cheng wrote:
-> On Thu, Dec 9, 2010 at 7:06 AM, Chris Bagwell <chris@cnpbagwell.com> =
-wrote:
-> > On Wed, Dec 8, 2010 at 7:23 PM, Ping Cheng <pinglinux@gmail.com> wr=
-ote:
-> >> @@ -228,9 +277,17 @@ static irqreturn_t w8001_interrupt(struct ser=
-io *serio,
-> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (tmp =3D=3D W8001_TOUCH_BYTE)
-> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> >>
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (w8001->has_touch) {
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* send touch data o=
-ut */
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 w8001->has_touch =3D=
- 0;
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(dev=
-, BTN_TOUCH, 0);
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(dev=
-, BTN_TOOL_FINGER, 0);
-> >
-> > Probably its better to set ABS_X/ABS_Y to zero and do a sync here? =
-=A0So
-> > duplicate x/y values don't get dropped and aligns with wacom_wac.c.
-> > This is related to comment about forcing ABS_X/Y to zero above. =A0=
-Its
-> > so pen has known starting point when coming in proximity. =A0I woul=
-dn't
-> > do one without the other.
->=20
-> I'll do both to make you happy (just kidding, to make it safe ;).
->=20
+As a clean-up, rename the input-mt.h header to
+input/mt.h. The patch contains no functional changes.
 
-Actually do not see how (0,0) is any safer than let's say (123,78)
-sincve i believe (0,0) is a valid coordinate. Userspace should still
-hang on to the last reported coordinate and use it if it did not get
-a new one.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/hid/hid-3m-pct.c                 |    2 +-
+ drivers/hid/hid-egalax.c                 |    2 +-
+ drivers/input/input-mt.c                 |    2 +-
+ drivers/input/input.c                    |    2 +-
+ drivers/input/misc/uinput.c              |    2 +-
+ drivers/input/tablet/wacom_wac.c         |    2 +-
+ drivers/input/touchscreen/wacom_w8001.c  |    2 +-
+ include/linux/{input-mt.h => input/mt.h} |    0
+ 8 files changed, 7 insertions(+), 7 deletions(-)
+ rename include/linux/{input-mt.h => input/mt.h} (100%)
 
-Also, if you add input_sync() here won't it cause (in certain
-situtations) false click or tap events - BTN_TOUCH goes from 1 to 0 and
-then again to 1 if pen is already in proximity...
+diff --git a/drivers/hid/hid-3m-pct.c b/drivers/hid/hid-3m-pct.c
+index f984f0f..c32b9fe 100644
+--- a/drivers/hid/hid-3m-pct.c
++++ b/drivers/hid/hid-3m-pct.c
+@@ -19,7 +19,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/usb.h>
+-#include <linux/input-mt.h>
++#include <linux/input/mt.h>
+ 
+ MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
+ MODULE_DESCRIPTION("3M PCT multitouch panels");
+diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
+index d1919bf..5795969 100644
+--- a/drivers/hid/hid-egalax.c
++++ b/drivers/hid/hid-egalax.c
+@@ -18,7 +18,7 @@
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ #include <linux/usb.h>
+-#include <linux/input-mt.h>
++#include <linux/input/mt.h>
+ #include <linux/slab.h>
+ #include "usbhid/usbhid.h"
+ 
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index c33d3ee..afaf059 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -8,7 +8,7 @@
+  * the Free Software Foundation.
+  */
+ 
+-#include <linux/input-mt.h>
++#include <linux/input/mt.h>
+ #include <linux/slab.h>
+ 
+ #define TRKID_SGN	((TRKID_MAX + 1) >> 1)
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index a0691d6..cddadd6 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -14,7 +14,7 @@
+ 
+ #include <linux/init.h>
+ #include <linux/types.h>
+-#include <linux/input-mt.h>
++#include <linux/input/mt.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/random.h>
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 67aa7ba..bea8972 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -37,7 +37,7 @@
+ #include <linux/fs.h>
+ #include <linux/miscdevice.h>
+ #include <linux/uinput.h>
+-#include <linux/input-mt.h>
++#include <linux/input/mt.h>
+ #include "../input-compat.h"
+ 
+ static int uinput_dev_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 0104e1a..58256ad 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -14,7 +14,7 @@
+ 
+ #include "wacom_wac.h"
+ #include "wacom.h"
+-#include <linux/input-mt.h>
++#include <linux/input/mt.h>
+ 
+ static int wacom_penpartner_irq(struct wacom_wac *wacom)
+ {
+diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+index 361d00a..2a0bec1 100644
+--- a/drivers/input/touchscreen/wacom_w8001.c
++++ b/drivers/input/touchscreen/wacom_w8001.c
+@@ -15,7 +15,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+-#include <linux/input-mt.h>
++#include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/init.h>
+ #include <linux/ctype.h>
+diff --git a/include/linux/input-mt.h b/include/linux/input/mt.h
+similarity index 100%
+rename from include/linux/input-mt.h
+rename to include/linux/input/mt.h
+-- 
+1.7.1
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,76 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [GIT PULL] input: mt updates for 2.6.38
-Date: Thu, 9 Dec 2010 01:08:26 -0800
-Message-ID: <20101209090826.GB8821@core.coreip.homeip.net>
-References: <4CFF49BC.8030202@euromail.se>
- <20101209085814.GA8821@core.coreip.homeip.net>
+Subject: Re: [RFC][PATCH] input: Introduce device information ioctl
+Date: Thu, 9 Dec 2010 01:25:02 -0800
+Message-ID: <20101209092502.GC8821@core.coreip.homeip.net>
+References: <1291706726-8835-1-git-send-email-rydberg@euromail.se>
+ <20101207091653.GA22416@core.coreip.homeip.net>
+ <4CFE919A.1040704@euromail.se>
+ <20101208060200.GD4140@core.coreip.homeip.net>
+ <4CFFD6D2.5060703@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:34290 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754183Ab0LIJZL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 04:25:11 -0500
 Content-Disposition: inline
-In-Reply-To: <20101209085814.GA8821@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4CFFD6D2.5060703@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>
 
-On Thu, Dec 09, 2010 at 12:58:14AM -0800, Dmitry Torokhov wrote:
-> On Wed, Dec 08, 2010 at 10:02:52AM +0100, Henrik Rydberg wrote:
-> > Dmitry,
-> > 
-> > Please pull from
-> > 
-> >   git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git next
-> > 
-> > to receive input-mt updates for 2.6.38.
-> > 
-> > The tree contains core changes as well as dependent changes to hid drivers. You
-> > also find the new hid-egalax driver in there, signed off by Jiri.
+On Wed, Dec 08, 2010 at 08:04:50PM +0100, Henrik Rydberg wrote:
+> > One concern is that while 32 distinct device types should be enough
 > 
-> Pulled, thank you Henrik.
+> > should we plan for larger capability array? Should we use variable
+> > length ioctl - like EVIOCGKEY(len) - even though Arnd does not like
+> > them?
 > 
-> I wonder if we should move input-mt.h into input/mt.h (and if someone
-> would bother to input-polldev.h there that would be great too).
 > 
-> Also I try to sync with mainline once per release, at -rc1, unless I
-> know that my changes will conflict with some other work. I'd recommend
-> you do the same so that when I pull from you I am getting just your
-> changes and not the rest of stuff from mainline.
-> 
-> BTW, we need to document dev->trkid to avoid complaints from 'make
-> htmldocs' and friends. I wonder if the patch below will do.
-> 
-> Thanks.
+> Sounds good, but then again the struct approach feels quite extensible too...
 > 
 
-And I think we need this one as well:
+Actually the more I think about it the less I like idea of extending the
+struct because while keeping ABI is pretty easy there are other issues.
 
-Input: include MT library as source for kerneldoc
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- Documentation/DocBook/device-drivers.tmpl |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-
-diff --git a/Documentation/DocBook/device-drivers.tmpl b/Documentation/DocBook/device-drivers.tmpl
-index 22edcbb..467beee 100644
---- a/Documentation/DocBook/device-drivers.tmpl
-+++ b/Documentation/DocBook/device-drivers.tmpl
-@@ -304,6 +304,10 @@ X!Idrivers/video/console/fonts.c
- !Edrivers/input/ff-core.c
- !Edrivers/input/ff-memless.c
-      </sect1>
-+     <sect1><title>Multitouch Library</title>
-+!Iinclude/linux/input-mt.h
-+!Edrivers/input/input-mt.c
-+     </sect1>
-      <sect1><title>Polled input devices</title>
- !Iinclude/linux/input-polldev.h
- !Edrivers/input/input-polldev.c
+I'll CC you on EVIOCGKEYCODE patch so you can see my concerns.
 
 -- 
 Dmitry

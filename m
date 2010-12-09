@@ -1,48 +1,41 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: Aw: Re: [PATCH 0/5] HID: roccat: Achieve userspace notification on
- sysfs attribute creation
-Date: Thu, 9 Dec 2010 14:44:06 +0100 (CET)
-Message-ID: <2069123096.22885.1291902246397.JavaMail.ngmail@webmail07.arcor-online.net>
-References: <alpine.LNX.2.00.1012091430130.508@pobox.suse.cz> <1290801444.18750.161.camel@neuromancer>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Aw: Re: [PATCH 0/5] HID: roccat: Achieve userspace notification
+ on sysfs attribute creation
+Date: Thu, 9 Dec 2010 14:52:24 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1012091451400.508@pobox.suse.cz>
+References: <alpine.LNX.2.00.1012091430130.508@pobox.suse.cz> <1290801444.18750.161.camel@neuromancer> <2069123096.22885.1291902246397.JavaMail.ngmail@webmail07.arcor-online.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1012091430130.508@pobox.suse.cz>
-Sender: linux-doc-owner@vger.kernel.org
-To: jkosina@suse.cz, erazor_de@users.sourceforge.net
-Cc: rdunlap@xenotime.net, gregkh@suse.de, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:54436 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756635Ab0LINw0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Dec 2010 08:52:26 -0500
+In-Reply-To: <2069123096.22885.1291902246397.JavaMail.ngmail@webmail07.arcor-online.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: rdunlap@xenotime.net, gregkh@suse.de, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
 
- 
+On Thu, 9 Dec 2010, Stefan Achatz wrote:
 
-
------ Original Nachricht ----
-Von:     Jiri Kosina <jkosina@suse.cz>
-An:      Stefan Achatz <erazor_de@users.sourceforge.net>
-Datum:   09.12.2010 14:30
-Betreff: Re: [PATCH 0/5] HID: roccat: Achieve userspace notification on sysfs
- attribute creation
-
-> On Fri, 26 Nov 2010, Stefan Achatz wrote:
+> > I have applied the series, and removed the #pragma pack ugliness. Thanks,
 > 
-> > Adding sysfs attributes to an already created device raises no userland
-> > notification.
-> > 
-> > Instead of fiddling around in the depths of busses and devices I reuse
-> the
-> > event char device (module hid-roccat). This device gets now created with
-> > a hardware specific class that contains the device attributes.
-> 
-> Hi Stefan,
-> 
-> I have applied the series, and removed the #pragma pack ugliness. Thanks,
 
-Hello Jiri,
-Using my patch replacing the #pragma pack with the __packed macro would have saved you some time:
-https://lkml.org/lkml/2010/11/27/14
+> Hello Jiri,
+> Using my patch replacing the #pragma pack with the __packed macro would 
+> have saved you some time: https://lkml.org/lkml/2010/11/27/14
 
-Just for the future: Whats better using the verbose version __attribute__ ((__packed__)) or the macro
-__packed as I did?
+Ah, missed that. Never mind.
 
-Thanks, Stefan
+> Just for the future: Whats better using the verbose version 
+> __attribute__ ((__packed__)) or the macro __packed as I did?
+
+I don't think I really care deeply here.
+
+For some rationale why these shortcuts exist, please see commit 
+82ddcb0405704.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

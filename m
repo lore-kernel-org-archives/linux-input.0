@@ -1,230 +1,152 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH 01/20] mfd/ab8500: remove spi support
-Date: Thu, 9 Dec 2010 15:29:12 +0100
-Message-ID: <20101209142912.GM8884@sortiz-mobl>
-References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
- <1291388753-14662-2-git-send-email-sundar.iyer@stericsson.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 1/2]input - wacom_w8001: Support pen or touch only devices
+Date: Thu, 9 Dec 2010 08:51:16 -0600
+Message-ID: <AANLkTinG++maK+VLS9qHJMyGEfwsTiYex08KftG0cbbO@mail.gmail.com>
+References: <1291857433-13731-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:55243 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752969Ab0LIO3Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Dec 2010 09:29:16 -0500
-Content-Disposition: inline
-In-Reply-To: <1291388753-14662-2-git-send-email-sundar.iyer@stericsson.com>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:37288 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753911Ab0LIOvR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 09:51:17 -0500
+Received: by yxt3 with SMTP id 3so1393131yxt.19
+        for <linux-input@vger.kernel.org>; Thu, 09 Dec 2010 06:51:17 -0800 (PST)
+In-Reply-To: <1291857433-13731-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sundar Iyer <sundar.iyer@stericsson.com>
-Cc: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Hi Sundar,
+Hi Ping,
 
-On Fri, Dec 03, 2010 at 08:35:34PM +0530, Sundar Iyer wrote:
-> Since the Ab8500 v1.0, the SPI support is deprecated on the HW.
-I'm fine with that, but you really don't want to be able to support pre 1.0
-devices ?
-
-Cheers,
-Samuel.
-
-
-> Signed-off-by: Sundar Iyer <sundar.iyer@stericsson.com>
+On Wed, Dec 8, 2010 at 7:17 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> Not all penabled devices support touch. The same idea is true for
+> touch devices. Setting up the devices according to the specific
+> querying results.
+>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 > ---
->  drivers/mfd/Kconfig      |    8 +-
->  drivers/mfd/Makefile     |    2 +-
->  drivers/mfd/ab8500-spi.c |  143 ----------------------------------------------
->  3 files changed, 5 insertions(+), 148 deletions(-)
->  delete mode 100644 drivers/mfd/ab8500-spi.c
-> 
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 3a7b891..c856aa7 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -496,13 +496,13 @@ config EZX_PCAP
->  
->  config AB8500_CORE
->  	bool "ST-Ericsson AB8500 Mixed Signal Power Management chip"
-> -	depends on GENERIC_HARDIRQS && ABX500_CORE && SPI_MASTER && ARCH_U8500
-> +	depends on GENERIC_HARDIRQS && ABX500_CORE && ARCH_U8500
->  	select MFD_CORE
->  	help
->  	  Select this option to enable access to AB8500 power management
-> -	  chip. This connects to U8500 either on the SSP/SPI bus
-> -	  or the I2C bus via PRCMU. It also adds the irq_chip
-> -	  parts for handling the Mixed Signal chip events.
-> +	  chip. This connects to U8500 either on the SSP/SPI bus (deprecated
-> +	  since hardware version v1.0) or the I2C bus via PRCMU. It also adds
-> +	  the irq_chip parts for handling the Mixed Signal chip events.
->  	  This chip embeds various other multimedia funtionalities as well.
->  
->  config AB8500_I2C_CORE
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 04a7226..67c8bcb 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -70,7 +70,7 @@ obj-$(CONFIG_ABX500_CORE)	+= abx500-core.o
->  obj-$(CONFIG_AB3100_CORE)	+= ab3100-core.o
->  obj-$(CONFIG_AB3100_OTP)	+= ab3100-otp.o
->  obj-$(CONFIG_AB3550_CORE)	+= ab3550-core.o
-> -obj-$(CONFIG_AB8500_CORE)	+= ab8500-core.o ab8500-spi.o
-> +obj-$(CONFIG_AB8500_CORE)	+= ab8500-core.o
->  obj-$(CONFIG_AB8500_I2C_CORE)	+= ab8500-i2c.o
->  obj-$(CONFIG_AB8500_DEBUG)	+= ab8500-debugfs.o
->  obj-$(CONFIG_MFD_TIMBERDALE)    += timberdale.o
-> diff --git a/drivers/mfd/ab8500-spi.c b/drivers/mfd/ab8500-spi.c
-> deleted file mode 100644
-> index b165342..0000000
-> --- a/drivers/mfd/ab8500-spi.c
-> +++ /dev/null
-> @@ -1,143 +0,0 @@
-> -/*
-> - * Copyright (C) ST-Ericsson SA 2010
-> - *
-> - * License Terms: GNU General Public License v2
-> - * Author: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-> - */
-> -
-> -#include <linux/kernel.h>
-> -#include <linux/slab.h>
-> -#include <linux/init.h>
-> -#include <linux/module.h>
-> -#include <linux/platform_device.h>
-> -#include <linux/spi/spi.h>
-> -#include <linux/mfd/ab8500.h>
-> -
-> -/*
-> - * This funtion writes to any AB8500 registers using
-> - * SPI protocol &  before it writes it packs the data
-> - * in the below 24 bit frame format
-> - *
-> - *	 *|------------------------------------|
-> - *	 *| 23|22...18|17.......10|9|8|7......0|
-> - *	 *| r/w  bank       adr          data  |
-> - *	 * ------------------------------------
-> - *
-> - * This function shouldn't be called from interrupt
-> - * context
-> - */
-> -static int ab8500_spi_write(struct ab8500 *ab8500, u16 addr, u8 data)
-> -{
-> -	struct spi_device *spi = container_of(ab8500->dev, struct spi_device,
-> -					      dev);
-> -	unsigned long spi_data = addr << 10 | data;
-> -	struct spi_transfer xfer;
-> -	struct spi_message msg;
-> -
-> -	ab8500->tx_buf[0] = spi_data;
-> -	ab8500->rx_buf[0] = 0;
-> -
-> -	xfer.tx_buf	= ab8500->tx_buf;
-> -	xfer.rx_buf	= NULL;
-> -	xfer.len	= sizeof(unsigned long);
-> -
-> -	spi_message_init(&msg);
-> -	spi_message_add_tail(&xfer, &msg);
-> -
-> -	return spi_sync(spi, &msg);
-> -}
-> -
-> -static int ab8500_spi_read(struct ab8500 *ab8500, u16 addr)
-> -{
-> -	struct spi_device *spi = container_of(ab8500->dev, struct spi_device,
-> -					      dev);
-> -	unsigned long spi_data = 1 << 23 | addr << 10;
-> -	struct spi_transfer xfer;
-> -	struct spi_message msg;
-> -	int ret;
-> -
-> -	ab8500->tx_buf[0] = spi_data;
-> -	ab8500->rx_buf[0] = 0;
-> -
-> -	xfer.tx_buf	= ab8500->tx_buf;
-> -	xfer.rx_buf	= ab8500->rx_buf;
-> -	xfer.len	= sizeof(unsigned long);
-> -
-> -	spi_message_init(&msg);
-> -	spi_message_add_tail(&xfer, &msg);
-> -
-> -	ret = spi_sync(spi, &msg);
-> -	if (!ret)
-> -		/*
-> -		 * Only the 8 lowermost bytes are
-> -		 * defined with value, the rest may
-> -		 * vary depending on chip/board noise.
-> -		 */
-> -		ret = ab8500->rx_buf[0] & 0xFFU;
-> -
-> -	return ret;
-> -}
-> -
-> -static int __devinit ab8500_spi_probe(struct spi_device *spi)
-> -{
-> -	struct ab8500 *ab8500;
-> -	int ret;
-> -
-> -	spi->bits_per_word = 24;
-> -	ret = spi_setup(spi);
-> -	if (ret < 0)
-> -		return ret;
-> -
-> -	ab8500 = kzalloc(sizeof *ab8500, GFP_KERNEL);
-> -	if (!ab8500)
-> -		return -ENOMEM;
-> -
-> -	ab8500->dev = &spi->dev;
-> -	ab8500->irq = spi->irq;
-> -
-> -	ab8500->read = ab8500_spi_read;
-> -	ab8500->write = ab8500_spi_write;
-> -
-> -	spi_set_drvdata(spi, ab8500);
-> -
-> -	ret = ab8500_init(ab8500);
-> -	if (ret)
-> -		kfree(ab8500);
-> -
-> -	return ret;
-> -}
-> -
-> -static int __devexit ab8500_spi_remove(struct spi_device *spi)
-> -{
-> -	struct ab8500 *ab8500 = spi_get_drvdata(spi);
-> -
-> -	ab8500_exit(ab8500);
-> -	kfree(ab8500);
-> -
-> -	return 0;
-> -}
-> -
-> -static struct spi_driver ab8500_spi_driver = {
-> -	.driver = {
-> -		.name = "ab8500-spi",
-> -		.owner = THIS_MODULE,
-> -	},
-> -	.probe	= ab8500_spi_probe,
-> -	.remove	= __devexit_p(ab8500_spi_remove)
-> -};
-> -
-> -static int __init ab8500_spi_init(void)
-> -{
-> -	return spi_register_driver(&ab8500_spi_driver);
-> -}
-> -subsys_initcall(ab8500_spi_init);
-> -
-> -static void __exit ab8500_spi_exit(void)
-> -{
-> -	spi_unregister_driver(&ab8500_spi_driver);
-> -}
-> -module_exit(ab8500_spi_exit);
-> -
-> -MODULE_AUTHOR("Srinidhi KASAGAR <srinidhi.kasagar@stericsson.com");
-> -MODULE_DESCRIPTION("AB8500 SPI");
-> -MODULE_LICENSE("GPL v2");
-> -- 
-> 1.7.2.dirty
-> 
+> =A0drivers/input/touchscreen/wacom_w8001.c | =A0 39 +++++++++++++++++=
++++++++------
+> =A01 files changed, 31 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/=
+touchscreen/wacom_w8001.c
+> index 361d00a..90b92e8 100644
+> --- a/drivers/input/touchscreen/wacom_w8001.c
+> +++ b/drivers/input/touchscreen/wacom_w8001.c
+> @@ -37,6 +37,7 @@ MODULE_LICENSE("GPL");
+>
+> =A0#define W8001_QUERY_PACKET =A0 =A0 0x20
+>
+> +#define W8001_CMD_STOP =A0 =A0 =A0 =A0 '0'
+> =A0#define W8001_CMD_START =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0'1'
+> =A0#define W8001_CMD_QUERY =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0'*'
+> =A0#define W8001_CMD_TOUCHQUERY =A0 '%'
+> @@ -279,24 +280,46 @@ static int w8001_setup(struct w8001 *w8001)
+> =A0 =A0 =A0 =A0struct w8001_coord coord;
+> =A0 =A0 =A0 =A0int error;
+>
+> - =A0 =A0 =A0 error =3D w8001_command(w8001, W8001_CMD_QUERY, true);
+> + =A0 =A0 =A0 error =3D w8001_command(w8001, W8001_CMD_STOP, false);
+> =A0 =A0 =A0 =A0if (error)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return error;
+>
+> - =A0 =A0 =A0 parse_data(w8001->response, &coord);
+> + =A0 =A0 =A0 mdelay(250); =A0 =A0/* wait 250ms before querying the d=
+evice */
+>
+> - =A0 =A0 =A0 input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
+> - =A0 =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
+> - =A0 =A0 =A0 input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pr=
+essure, 0, 0);
+> - =A0 =A0 =A0 input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, =
+0, 0);
+> - =A0 =A0 =A0 input_set_abs_params(dev, ABS_TILT_Y, 0, coord.tilt_y, =
+0, 0);
+> + =A0 =A0 =A0 /* penabled? */
+> + =A0 =A0 =A0 error =3D w8001_command(w8001, W8001_CMD_QUERY, true);
+> + =A0 =A0 =A0 if (!error) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_TOOL_PEN)] |=3D=
+ BIT_MASK(BTN_TOOL_PEN);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_TOOL_RUBBER)] =
+|=3D BIT_MASK(BTN_TOOL_RUBBER);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_STYLUS)] |=3D =
+BIT_MASK(BTN_STYLUS);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_STYLUS2)] |=3D=
+ BIT_MASK(BTN_STYLUS2);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 parse_data(w8001->response, &coord);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_X, 0, coo=
+rd.x, 0, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, coo=
+rd.y, 0, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_PRESSURE,=
+ 0, coord.pen_pressure, 0, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (coord.tilt_x && coord.tilt_y)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(de=
+v, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(de=
+v, ABS_TILT_Y, 0, coord.tilt_y, 0, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 }
+>
+> + =A0 =A0 =A0 /* touch enabled? */
+> =A0 =A0 =A0 =A0error =3D w8001_command(w8001, W8001_CMD_TOUCHQUERY, t=
+rue);
+> - =A0 =A0 =A0 if (!error) {
+> +
+> + =A0 =A0 =A0 /* Some non-touch devices may reply to the touch query.=
+ But their
+> + =A0 =A0 =A0 =A0* second byte is empty, which indicates touch is not=
+ supported.
+> + =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 if (!error && w8001->response[1]) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0struct w8001_touch_query touch;
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0parse_touchquery(w8001->response, &tou=
+ch);
+>
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_X, 0, tou=
+ch.x, 0, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, tou=
+ch.y, 0, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_TOOL_FINGER)] =
+|=3D BIT_MASK(BTN_TOOL_FINGER);
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+Sorry for such basic questions: Is this an either/or thing?  Is it
+either pen or touch device?  Is the answer different for single vs. 2
+touch devices?  Doesn't this create a single input device?
+
+If it can be combo on single input then it looks like it overrides its
+shared events.  Probably the easiest solution is to normalize to
+single range... and I'd think that pen is higher resolution then touch
+so I'd put this logic before pen logic so pens resolution wins in
+combo case.
+
+Shouldn't this also be disabling the MT events as well when touch
+isn't supported?
+
+Chris
+
+> +
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0switch (touch.sensor_id) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case 0:
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case 2:
+> --
+> 1.7.2.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

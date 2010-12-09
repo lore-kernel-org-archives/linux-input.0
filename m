@@ -1,164 +1,46 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 1/2]input - wacom_w8001: Support pen or touch only devices
-Date: Thu, 9 Dec 2010 11:01:01 -0800
-Message-ID: <AANLkTi=85Qsq37XOqcm9ESANqZW-q_YM7icBirtgh4A8@mail.gmail.com>
-References: <1291857433-13731-1-git-send-email-pinglinux@gmail.com>
-	<20101209064222.GA6233@core.coreip.homeip.net>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [RFC] Input: define separate EVIOCGKEYCODE_V2/EVIOCSKEYCODE_V2
+Date: Thu, 09 Dec 2010 20:04:36 +0100
+Message-ID: <4D012844.3020009@euromail.se>
+References: <20101209093948.GD8821@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f45.google.com ([209.85.215.45]:51942 "EHLO
-	mail-ew0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755499Ab0LITBD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 14:01:03 -0500
-Received: by ewy10 with SMTP id 10so2012370ewy.4
-        for <linux-input@vger.kernel.org>; Thu, 09 Dec 2010 11:01:02 -0800 (PST)
-In-Reply-To: <20101209064222.GA6233@core.coreip.homeip.net>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:46341 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754176Ab0LITFo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Dec 2010 14:05:44 -0500
+In-Reply-To: <20101209093948.GD8821@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Jarod Wilson <jarod@redhat.com>, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
 
-On Wed, Dec 8, 2010 at 10:42 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Ping,
->
-> On Wed, Dec 08, 2010 at 05:17:13PM -0800, Ping Cheng wrote:
->> Not all penabled devices support touch. The same idea is true for
->> touch devices. Setting up the devices according to the specific
->> querying results.
->>
->> Signed-off-by: Ping Cheng <pingc@wacom.com>
->> ---
->> =A0drivers/input/touchscreen/wacom_w8001.c | =A0 39 ++++++++++++++++=
-++++++++------
->> =A01 files changed, 31 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input=
-/touchscreen/wacom_w8001.c
->> index 361d00a..90b92e8 100644
->> --- a/drivers/input/touchscreen/wacom_w8001.c
->> +++ b/drivers/input/touchscreen/wacom_w8001.c
->> @@ -37,6 +37,7 @@ MODULE_LICENSE("GPL");
->>
->> =A0#define W8001_QUERY_PACKET =A0 0x20
->>
->> +#define W8001_CMD_STOP =A0 =A0 =A0 =A0 =A0 =A0 =A0 '0'
->> =A0#define W8001_CMD_START =A0 =A0 =A0 =A0 =A0 =A0 =A0'1'
->> =A0#define W8001_CMD_QUERY =A0 =A0 =A0 =A0 =A0 =A0 =A0'*'
->> =A0#define W8001_CMD_TOUCHQUERY '%'
->> @@ -279,24 +280,46 @@ static int w8001_setup(struct w8001 *w8001)
->> =A0 =A0 =A0 struct w8001_coord coord;
->> =A0 =A0 =A0 int error;
->>
->> - =A0 =A0 error =3D w8001_command(w8001, W8001_CMD_QUERY, true);
->> + =A0 =A0 error =3D w8001_command(w8001, W8001_CMD_STOP, false);
->
-> Isn't there any response from the device to W8001_CMD_STOP?
+On 12/09/2010 10:39 AM, Dmitry Torokhov wrote:
 
-No, there is no response. We just tell the device to set ready for
-QUERY command.
+> The desire to keep old names for the EVIOCGKEYCODE/EVIOCSKEYCODE while
+> extending them to support large scancodes was a mistake. While we tried
+> to keep ABI intact (and we succeeded in doing that, programs compiled
+> on older kernels will work on newer ones) there is still a problem with
+> recompiling existing software with newer kernel headers.
+> 
+> New kernel headers will supply updated ioctl numbers and kernel will
+> expect that userspace will use struct input_keymap_entry to set and
+> retrieve keymap data. But since the names of ioctls are still the same
+> userspace will happily compile even if not adjusted to make use of the
+> new structure and will start miraculously fail in the field.
+> 
+> To avoid this issue let's revert EVIOCGKEYCODE/EVIOCSKEYCODE definitions
+> and add EVIOCGKEYCODE_V2/EVIOCSKEYCODE_V2 so that userspace can explicitly
+> select the style of ioctls it wants to employ.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
 
->> =A0 =A0 =A0 if (error)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return error;
->>
->> - =A0 =A0 parse_data(w8001->response, &coord);
->> + =A0 =A0 mdelay(250); =A0 =A0/* wait 250ms before querying the devi=
-ce */
->>
->> - =A0 =A0 input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
->> - =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
->> - =A0 =A0 input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_press=
-ure, 0, 0);
->> - =A0 =A0 input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, =
-0);
->> - =A0 =A0 input_set_abs_params(dev, ABS_TILT_Y, 0, coord.tilt_y, 0, =
-0);
->> + =A0 =A0 /* penabled? */
->> + =A0 =A0 error =3D w8001_command(w8001, W8001_CMD_QUERY, true);
->> + =A0 =A0 if (!error) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_TOOL_PEN)] |=3D B=
-IT_MASK(BTN_TOOL_PEN);
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_TOOL_RUBBER)] |=3D=
- BIT_MASK(BTN_TOOL_RUBBER);
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_STYLUS)] |=3D BIT=
-_MASK(BTN_STYLUS);
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_STYLUS2)] |=3D BI=
-T_MASK(BTN_STYLUS2);
->
-> Could we start switching to __set_bit(BTN_TOOL_PEN, dev->keybit) styl=
-e?
 
-Sure, I'll make a new patch. I was following the existing code style
-for consistency ......
+Would the header change suffice in itself? Either way, also checked that the
+bugfixes following the original patch is still in effect, so looks ok to me.
 
-> The original way was somewhat OK when setting several buttons at once
-> but I feel __set_bit() form is much safer.
->
->> + =A0 =A0 =A0 =A0 =A0 =A0 parse_data(w8001->response, &coord);
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_X, 0, coord.=
-x, 0, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, coord.=
-y, 0, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_PRESSURE, 0,=
- coord.pen_pressure, 0, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (coord.tilt_x && coord.tilt_y)
->> + =A0 =A0 =A0 =A0 =A0 =A0 {
->
-> Formatting: opening brace goes on the same as the statement.
-
-Oops. I thought I've taken care of this already.
-
-Thanks.
-
-Ping
-
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, =
-ABS_TILT_X, 0, coord.tilt_x, 0, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, =
-ABS_TILT_Y, 0, coord.tilt_y, 0, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->> + =A0 =A0 }
->>
->> + =A0 =A0 /* touch enabled? */
->> =A0 =A0 =A0 error =3D w8001_command(w8001, W8001_CMD_TOUCHQUERY, tru=
-e);
->> - =A0 =A0 if (!error) {
->> +
->> + =A0 =A0 /* Some non-touch devices may reply to the touch query. Bu=
-t their
->> + =A0 =A0 =A0* second byte is empty, which indicates touch is not su=
-pported.
->> + =A0 =A0 =A0*/
->> + =A0 =A0 if (!error && w8001->response[1]) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct w8001_touch_query touch;
->>
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 parse_touchquery(w8001->response, &touch=
-);
->>
->> + =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_X, 0, touch.=
-x, 0, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, touch.=
-y, 0, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev->keybit[BIT_WORD(BTN_TOOL_FINGER)] |=3D=
- BIT_MASK(BTN_TOOL_FINGER);
->> +
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 switch (touch.sensor_id) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 case 0:
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 case 2:
->> --
->> 1.7.2.3
->>
->
-> Thanks.
->
-> --
-> Dmitry
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Henrik

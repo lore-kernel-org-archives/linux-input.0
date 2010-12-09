@@ -1,33 +1,53 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: mt: Add an envelope tool type
-Date: Thu, 09 Dec 2010 03:01:52 +0100
-Message-ID: <4D003890.2010809@euromail.se>
-References: <1291721340-22652-1-git-send-email-rydberg@euromail.se>	<4CFFC3C2.1080905@canonical.com>	<AANLkTikmomm2hd7AAJMTnY+=J2wPyVvodv2Ft0jFe7w2@mail.gmail.com>	<20101208235805.GE15294@core.coreip.homeip.net>	<4D002CE8.2060803@euromail.se> <AANLkTinzyNBT2u2QyFwpbJJDAPK1j5-tJZZzd8Q+eSMS@mail.gmail.com>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: Re: [PATCH] msm: trout: add keypad support
+Date: Thu, 9 Dec 2010 00:34:15 -0600
+Message-ID: <AANLkTikOOH3qHHRtqETytYBk_MiCeVBU724CooUYqgdy@mail.gmail.com>
+References: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:35006 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756812Ab0LICCc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Dec 2010 21:02:32 -0500
-In-Reply-To: <AANLkTinzyNBT2u2QyFwpbJJDAPK1j5-tJZZzd8Q+eSMS@mail.gmail.com>
+Received: from na3sys009aog113.obsmtp.com ([74.125.149.209]:36168 "EHLO
+	na3sys009aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754543Ab0LIGeR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Dec 2010 01:34:17 -0500
+In-Reply-To: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Walker <dwalker@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, tsoni@codeaurora.org, arve@android.com
 
+Hi Daniel,
+
+On Wed, Dec 8, 2010 at 6:24 PM, Daniel Walker <dwalker@codeaurora.org> =
+wrote:
+> This adds matrix keypad support, and gpio buttons support for
+> trout's various keys and buttons.
+>
+> Signed-off-by: Daniel Walker <dwalker@codeaurora.org>
+> ---
+> =A0arch/arm/mach-msm/Makefile =A0 =A0 =A0 =A0 =A0 =A0 | =A0 =A02 +-
+> =A0arch/arm/mach-msm/board-trout-keypad.c | =A0342 ++++++++++++++++++=
+++++++++++++++
+> =A02 files changed, 343 insertions(+), 1 deletions(-)
+> =A0create mode 100644 arch/arm/mach-msm/board-trout-keypad.c
 >
 
-> What are the "points" here? Do you mean the points inside the envelope
-> or number of envelopes?
+[...]
 
+> +
+> +static unsigned int trout_col_gpios_evt2[] =3D { 35, 34, 33, 32, 31,=
+ 23, 30, 109 };
 
-Oh well, I take this and Chase's comments as a hint that the documentation
-should have a section of MT_TOOL types, and each tool type should be explained,
-in particular the new MT_TOOL_ENVELOPE. It should also help when/if converting
-the Pen&Touch logic to MT.
+WARNING: line over 80 characters
 
-Thanks.
-Henrik
+[...]
+
+Best Regards
+Abraham
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

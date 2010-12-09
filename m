@@ -1,30 +1,34 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/5] HID: roccat: Achieve userspace notification on sysfs
- attribute creation
-Date: Thu, 9 Dec 2010 14:30:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1012091430130.508@pobox.suse.cz>
-References: <1290801444.18750.161.camel@neuromancer>
+Subject: Re: [PATCH] HID: magicmouse: Don't report REL_{X,Y} for Magic
+ Trackpad
+Date: Thu, 9 Dec 2010 14:41:01 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1012091440410.508@pobox.suse.cz>
+References: <1291849685-2623-1-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1290801444.18750.161.camel@neuromancer>
-Sender: netdev-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:54015 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750747Ab0LINlD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Dec 2010 08:41:03 -0500
+In-Reply-To: <1291849685-2623-1-git-send-email-chase.douglas@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 26 Nov 2010, Stefan Achatz wrote:
+On Wed, 8 Dec 2010, Chase Douglas wrote:
 
-> Adding sysfs attributes to an already created device raises no userland
-> notification.
-> 
-> Instead of fiddling around in the depths of busses and devices I reuse the
-> event char device (module hid-roccat). This device gets now created with
-> a hardware specific class that contains the device attributes.
+> With the recent switch to having the hid layer handle standard axis
+> initialization, the Magic Trackpad now reports relative axes. This would
+> be fine in the normal mode, but the driver puts the device in multitouch
+> mode where no relative events are generated. Also, userspace software
+> depends on accurate axis information for device type detection. Thus,
+> ignoring the relative axes from the Magic Trackpad is best.
 
-Hi Stefan,
+Applied, thank you. I take it this should better go into .37 still, right?
 
-I have applied the series, and removed the #pragma pack ugliness. Thanks,
+Thanks,
 
 -- 
 Jiri Kosina

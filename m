@@ -1,28 +1,73 @@
-From: Gabor Juhos <juhosg@openwrt.org>
-Subject: Re: [PATCH 0/8] input: gpio_keys_polled fixes
-Date: Thu, 09 Dec 2010 09:07:01 +0100
-Message-ID: <4D008E25.6030608@openwrt.org>
-References: <4CF541ED.80905@openwrt.org> <1291142663-1011-1-git-send-email-juhosg@openwrt.org> <AANLkTi=fYLTEkws+R+9PFtrgUzujQrOuN2PQcGoG7X=v@mail.gmail.com> <20101209000600.GF15294@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [GIT PULL] input: mt updates for 2.6.38
+Date: Thu, 9 Dec 2010 00:58:14 -0800
+Message-ID: <20101209085814.GA8821@core.coreip.homeip.net>
+References: <4CFF49BC.8030202@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from phoenix3.szarvasnet.hu ([87.101.127.16]:37502 "EHLO
-	phoenix3.szarvasnet.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751169Ab0LIIHL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 03:07:11 -0500
-In-Reply-To: <20101209000600.GF15294@core.coreip.homeip.net>
+Received: from mail-gw0-f42.google.com ([74.125.83.42]:36562 "EHLO
+	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751369Ab0LII6V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Dec 2010 03:58:21 -0500
+Content-Disposition: inline
+In-Reply-To: <4CFF49BC.8030202@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ben Gardiner <bengardiner@nanometrics.ca>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Kevin Hilman <khilman@deeprootsystems.com>, nsekhar@ti.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Dmitry,
+On Wed, Dec 08, 2010 at 10:02:52AM +0100, Henrik Rydberg wrote:
+> Dmitry,
+> 
+> Please pull from
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git next
+> 
+> to receive input-mt updates for 2.6.38.
+> 
+> The tree contains core changes as well as dependent changes to hid drivers. You
+> also find the new hid-egalax driver in there, signed off by Jiri.
 
-> <...>
-> Ok, so driver is in mainline now and you should have no problems with
-> merging your platform code in .38 merge window.
+Pulled, thank you Henrik.
 
-Thank you!
+I wonder if we should move input-mt.h into input/mt.h (and if someone
+would bother to input-polldev.h there that would be great too).
 
--Gabor
+Also I try to sync with mainline once per release, at -rc1, unless I
+know that my changes will conflict with some other work. I'd recommend
+you do the same so that when I pull from you I am getting just your
+changes and not the rest of stuff from mainline.
+
+BTW, we need to document dev->trkid to avoid complaints from 'make
+htmldocs' and friends. I wonder if the patch below will do.
+
+Thanks.
+
+-- 
+Dmitry
+
+
+Input: document new trkid field in struct input_dev
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ include/linux/input.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 6914269..56bf497 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1182,6 +1182,7 @@ struct ff_effect {
+  *	of tracked contacts
+  * @mtsize: number of MT slots the device uses
+  * @slot: MT slot currently being transmitted
++ * @trkid: stores MT tracking ID for the current contact
+  * @absinfo: array of &struct input_absinfo elements holding information
+  *	about absolute axes (current value, min, max, flat, fuzz,
+  *	resolution)

@@ -1,51 +1,52 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH] input: mt: Identify pointer emulation contact
-Date: Fri, 10 Dec 2010 09:11:13 -0600
-Message-ID: <AANLkTin+b_04qcOcFmP+0tYHCibvHHearfFXZJAb4R5R@mail.gmail.com>
-References: <1291936745-4973-1-git-send-email-rydberg@euromail.se>
-	<20101209234920.GA14810@core.coreip.homeip.net>
-	<4D01D6AF.6010202@euromail.se>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCH v6 1/5] Input: add input driver for polled GPIO buttons
+Date: Fri, 10 Dec 2010 07:50:18 -0800
+Message-ID: <87hbeleif9.fsf@deeprootsystems.com>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca>
+	<cover.1291931041.git.bengardiner@nanometrics.ca>
+	<b534569073dec52718e99623858ea9dd146faf24.1291931041.git.bengardiner@nanometrics.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f42.google.com ([74.125.83.42]:50449 "EHLO
-	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754558Ab0LJPLO (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:52134 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755637Ab0LJPuY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Dec 2010 10:11:14 -0500
-In-Reply-To: <4D01D6AF.6010202@euromail.se>
+	Fri, 10 Dec 2010 10:50:24 -0500
+In-Reply-To: <b534569073dec52718e99623858ea9dd146faf24.1291931041.git.bengardiner@nanometrics.ca>
+	(Ben Gardiner's message of "Thu, 9 Dec 2010 16:51:03 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ben Gardiner <bengardiner@nanometrics.ca>
+Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>, Dmitry Torokhov <dtor@mail.ru>
 
-On Fri, Dec 10, 2010 at 1:28 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
->>
+Ben Gardiner <bengardiner@nanometrics.ca> writes:
+
+> From: Gabor Juhos <juhosg@openwrt.org>
 >
->> So how do you propose userspace will use it? Obviously it will not help
->> old dumb (ST) applications and new smart applications should understand
->> MT protocol and thus do not need to pay much attention to ST events
->> anyway. Apparently you have some new dumb userspace in mind here?
+> The existing gpio-keys driver can be usable only for GPIO lines with
+> interrupt support. Several devices have buttons connected to a GPIO
+> line which is not capable to generate interrupts. This patch adds a
+> new input driver using the generic GPIO layer and the input-polldev
+> to support such buttons.
 >
+> [Ben Gardiner <bengardiner@nanometrics.ca: fold code to use more
+>  of the original gpio_keys infrastructure; cleanups and other
+>  improvements.]
 >
-> You are right, it is a dumb idea. Consider this one dropped.
+> Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+> Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
+> Tested-by: Ben Gardiner <bengardiner@nanometrics.ca>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> (cherry picked from commit 0e7d0c860a0dee49dacb7bbb248d1eba637075ad)
+>
+> ---
+>
+> This a copy of the commit -- I included in the patch series since
+> linux-davinci/master does not currently have it; but 2.6.37-rc5 does.
 
-If anyone is working on clickpad support, they may want to keep this
-idea in mind.  I guess I mean working on clickpads and with simple ST
-apps.
+I'll be updating davinci master to .37-rc5 today, so will drop this
+patch.
 
-If user clicks with one finger, I think currently that user expects
-dragging that one finger will move cursor still (click-and-drag).  I'd
-think its more usable though to click with one finger and drag with
-the other.  During this use case we need to switch pointer tracking
-from one finger to the other.
+Kevin
 
-Sending a new tracking ID is an easy way to inform apps about expected
-jump in values during switch.  I thought of things like
-BTN_TOOL_FINGER=0; sync; BTN_TOOL_FINGER=1 but that looks like tapping
-is occurring.
-
-Anyways, as you suggestion, this can be solved by forcing apps to
-process MT events so not to big a deal long term.
-
-Chris

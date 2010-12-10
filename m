@@ -1,36 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
 Subject: Re: [PATCH] input: mt: Interface and MT_TOOL documentation updates
-Date: Fri, 10 Dec 2010 10:52:12 -0800
-Message-ID: <20101210185211.GD1630@core.coreip.homeip.net>
+Date: Fri, 10 Dec 2010 11:00:25 -0800
+Message-ID: <AANLkTinctPSxGt36HCdyoWYH7TBznzY0CejLP3uALkV3@mail.gmail.com>
 References: <1291929732-5989-1-git-send-email-rydberg@euromail.se>
- <AANLkTi=mqMY_VG=0RdN5O0fDh6wpTRb5Z59L6440hvX6@mail.gmail.com>
- <4D026DB1.8070100@euromail.se>
+	<AANLkTi=mqMY_VG=0RdN5O0fDh6wpTRb5Z59L6440hvX6@mail.gmail.com>
+	<4D026DB1.8070100@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:59496 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752342Ab0LJTA1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Dec 2010 14:00:27 -0500
 In-Reply-To: <4D026DB1.8070100@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Ping Cheng <pinglinux@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2010 at 07:13:05PM +0100, Henrik Rydberg wrote:
-> >
-> 
-> > Can we make MT_TOOL_ENVELOPE cover a bit more cases by:
-> > 
-> > 1. Removing ", and is only used for legacy hardware";
-> > 2. Adding "Or the number of contacts inside the bounding rectangle is
-> > reported if hardware provides the number but not the real contact
-> > positions" to the end of the paragraph.
-> 
-> 
-> You might disagree, but "old" is still somewhat apt in this situation. How would
-> you suggest we report the number of fingers?
-> 
+On Fri, Dec 10, 2010 at 10:13 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>
+>> Can we make MT_TOOL_ENVELOPE cover a bit more cases by:
+>>
+>> 1. Removing ", and is only used for legacy hardware";
+>> 2. Adding "Or the number of contacts inside the bounding rectangle is
+>> reported if hardware provides the number but not the real contact
+>> positions" to the end of the paragraph.
+>
+> You might disagree, but "old" is still somewhat apt in this situation.
 
-BTN_TOOL_xxxTAP I guess...
+It's ok if we say the new type was inspired by legacy hardware. But
+saying that it "is only used for legacy hardware" closes the door for
+future development. That's not what we are trying to do, right?
 
--- 
-Dmitry
+> How would you suggest we report the number of fingers?
+
+I guess if we want to make it generic, we could have something like
+ABS_MT_NUM_CONTACTS to go with MT_TOOL_ENVELOPE. Clients, such as
+synaptics touchpads, that only care about the number of contacts
+inside the envelope don't need to process the contact positions even
+when they are reported. This also resolve the potential that
+BTN_TOOL_QUADTAP is not enough to tell us how many contacts are on the
+surface.
+
+Maybe we should also tell the clients whether they are going to get
+the contact positions or not.
+
+Ping

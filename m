@@ -1,79 +1,99 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] input: mt: Interface and MT_TOOL documentation updates
-Date: Fri, 10 Dec 2010 13:17:32 -0800
-Message-ID: <AANLkTim0H6La=A5W37f5NpMrOHGYbX4k8KED2=Bw-Hvd@mail.gmail.com>
-References: <1291929732-5989-1-git-send-email-rydberg@euromail.se>
-	<AANLkTi=mqMY_VG=0RdN5O0fDh6wpTRb5Z59L6440hvX6@mail.gmail.com>
-	<4D026DB1.8070100@euromail.se>
-	<AANLkTinctPSxGt36HCdyoWYH7TBznzY0CejLP3uALkV3@mail.gmail.com>
-	<4D02871E.6060204@euromail.se>
+From: "Mrs. Rosemary Peter" <gburini@unipg.it>
+Subject: (unknown)
+Date: Sat, 11 Dec 2010 00:36:10 +0100
+Message-ID: <20101211003610.g5qhsk1ohwkcsgw4__41361.1937118278$1292025782$gmane$org@webmail.unipg.it>
+Reply-To: ecobank_office202@yahoo.co.jp
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1;
+	DelSp=Yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:48639 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752796Ab0LJVRe (ORCPT
+Received: from rs.unipg.it ([141.250.1.235]:49861 "EHLO mail.unipg.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756557Ab0LKACT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Dec 2010 16:17:34 -0500
-In-Reply-To: <4D02871E.6060204@euromail.se>
+	Fri, 10 Dec 2010 19:02:19 -0500
+Subject: 
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2010 at 12:01 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> On 12/10/2010 08:00 PM, Ping Cheng wrote:
->
->> On Fri, Dec 10, 2010 at 10:13 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
->>>
->>>> Can we make MT_TOOL_ENVELOPE cover a bit more cases by:
->>>>
->>>> 1. Removing ", and is only used for legacy hardware";
->>>> 2. Adding "Or the number of contacts inside the bounding rectangle is
->>>> reported if hardware provides the number but not the real contact
->>>> positions" to the end of the paragraph.
->>>
->>> You might disagree, but "old" is still somewhat apt in this situation.
->>
->> It's ok if we say the new type was inspired by legacy hardware. But
->> saying that it "is only used for legacy hardware" closes the door for
->> future development. That's not what we are trying to do, right?
->
->
-> Well, in a sense we are. I would agree that data aiming to provide gestures as a
-> 2D transformation matrix can be handled quite well with two tracked points and a
-> finger count. However, a multitouch interface where users manipulate different
-> objects on the screen simultaneously is a different story.
->
->>
->>> How would you suggest we report the number of fingers?
->>
->> I guess if we want to make it generic, we could have something like
->> ABS_MT_NUM_CONTACTS to go with MT_TOOL_ENVELOPE. Clients, such as
->> synaptics touchpads, that only care about the number of contacts
->> inside the envelope don't need to process the contact positions even
->> when they are reported. This also resolve the potential that
->> BTN_TOOL_QUADTAP is not enough to tell us how many contacts are on the
->> surface.
->
->
-> I really would like to avoid adding a new way to solve an old problem, in
-> particular given the statement above. Adding something like BTN_TOOL_QUINTAP
-> would hurt a little bit, but not nearly as much.
 
-If we plan to add BTN_TOOL_QUINTAP, you can ignore my previous comments.
+2010 SCAM VICTIMS COMPENSATIONS PAYMENTS.
+YOUR REF/PAYMENTS CODE: ECB/06654 FOR $500,000 USD ONLY.
 
->> Maybe we should also tell the clients whether they are going to get
->> the contact positions or not.
->
->
-> I may not understand what you mean here, but if you are referring to an up-front
-> declaration of what MT_TOOL types are to be expected, we did discuss this
-> before, without any conclusion. Perhaps it is relevant to outline why this would
-> be important.
+This is to bring to your notice that our bank (ECOBANK INTL. PLC) is
+delegated by the ECOWAS/UNITED NATIONS in Central Bank to pay victims
+of scam $500,000 (Five Hundred Thousand Dollars Only).
 
-With BTN_TOOL_QUINTAP, this question can be ignored too.
+=46or verification you are to view the following link.
 
-Thank you.
+http://www.un.org/News/Press/docs/2003/ik344.doc.htm
 
-Ping
+You are to send the following informations for remittance.
+
+Your Name.___________________________
+Address.___________________________
+Phone .___________________________
+Amount Defrauded.___________________________
+Country.________________________
+
+Send a copy of your response with the PAYMENT CODE
+NUMBER(ECB/06654).
+
+NAME: MR.CLEMENT SYLVANIUS
+       SCAMMED VICTIM/REF/PAYMENTS CODE:
+       ECB/06654 $500,000 USD.
+
+
+Email: ecobank_office202@yahoo.co.jp
+
+Yours Faithfully,
+Mrs. Rosemary Peter
+PUBLIC RELATIONS OFFICER
+Copyright =A9 2010
+
+
+
+
+2010 SCAM VICTIMS COMPENSATIONS PAYMENTS.
+YOUR REF/PAYMENTS CODE: ECB/06654 FOR $500,000 USD ONLY.
+
+This is to bring to your notice that our bank (ECOBANK INTL. PLC) is
+delegated by the ECOWAS/UNITED NATIONS in Central Bank to pay victims
+of scam $500,000 (Five Hundred Thousand Dollars Only).
+
+=46or verification you are to view the following link.
+
+http://www.un.org/News/Press/docs/2003/ik344.doc.htm
+
+You are to send the following informations for remittance.
+
+Your Name.___________________________
+Address.___________________________
+Phone .___________________________
+Amount Defrauded.___________________________
+Country.________________________
+
+Send a copy of your response with the PAYMENT CODE
+NUMBER(ECB/06654).
+
+NAME: MR.CLEMENT SYLVANIUS
+       SCAMMED VICTIM/REF/PAYMENTS CODE:
+       ECB/06654 $500,000 USD.
+
+
+Email: ecobank_office202@yahoo.co.jp
+
+Yours Faithfully,
+Mrs. Rosemary Peter
+PUBLIC RELATIONS OFFICER
+Copyright =A9 2010
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

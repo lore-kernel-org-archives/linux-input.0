@@ -1,110 +1,50 @@
-From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,leds} for UI and BB expanders
-Date: Fri, 10 Dec 2010 11:33:41 -0500
-Message-ID: <AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
-References: <cover.1290635422.git.bengardiner@nanometrics.ca>
-	<cover.1291931041.git.bengardiner@nanometrics.ca>
-	<87tyild2ms.fsf@deeprootsystems.com>
+From: Daniel Walker <dwalker@codeaurora.org>
+Subject: Re: [PATCH] msm: trout: add keypad support
+Date: Fri, 10 Dec 2010 09:10:30 -0800
+Message-ID: <1292001031.8027.9.camel@m0nster>
+References: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
+	 <4D00800E.7050004@codeaurora.org>
+	 <1291916733.18827.1.camel@c-dwalke-linux.qualcomm.com>
+	 <AANLkTi=3LHHNJUh35AUkq--KtRCnRaBHx8Ky2bhxxzE4@mail.gmail.com>
+	 <1291932216.18827.16.camel@c-dwalke-linux.qualcomm.com>
+	 <4D01D776.6000309@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog111.obsmtp.com ([74.125.149.205]:42839 "HELO
-	na3sys009aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752261Ab0LJQdm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Dec 2010 11:33:42 -0500
-In-Reply-To: <87tyild2ms.fsf@deeprootsystems.com>
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:18116 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754667Ab0LJRKd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Dec 2010 12:10:33 -0500
+In-Reply-To: <4D01D776.6000309@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>
+To: Trilok Soni <tsoni@codeaurora.org>
+Cc: Arve =?ISO-8859-1?Q?Hj=F8nnev=E5g?= <arve@android.com>, linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Hi Kevin,
+On Fri, 2010-12-10 at 13:02 +0530, Trilok Soni wrote:
 
-On Fri, Dec 10, 2010 at 11:16 AM, Kevin Hilman
-<khilman@deeprootsystems.com> wrote:
-> Hi Ben,
->
-> Ben Gardiner <bengardiner@nanometrics.ca> writes:
->
->> The da850-evm baseboard (BB) and its UI board both have tca6416 IO e=
-xpanders.
->> They are bootstrapped to different I2C addresses so they can be used
->> concurrently.
->>
->> The expander on the UI board is currently used to enable/disable the
->> peripherals that are available on the UI board. In addition to this
->> functionality the expander is also connected to 8 pushbuttons. The e=
-xpander
->> on the baseboard is not currently used; it is connected to deep slee=
-p enable,
->> sw reset, a push button, some switches and LEDs.
->>
->> This proposed patch series enables the push buttons and switches on =
-the UI and
->> BB expanders using the gpio-keys polling mode patch by Gabor Juhos. =
-Some
->> work was performed to test irq-based gpio-keys support on the expand=
-ers (a WIP
->> patch can be posted on request) but I believe that it is not possibl=
-e to use
->> irq-based gpio-keys on IO expanders for arm systems at this time.
->
-> Thanks for your patience and persistence on this series, and thanks f=
-or
-> working closely with the input folks to get the issues worked through=
-=2E
+> To support this, we need to override the input device .name and submit the patches
+> for matrix keypad and gpio keys and let the name come through platform data. 
+> 
+> You can refer how I am doing in PM8058 keypad driver patch.
 
-It is my pleasure.
+ok ..
 
-> This series looks good to me, so I'll be queuing it in davinci-next f=
-or
-> 2.6.38. =A0It should show up in davinci git shortly. =A0Please valida=
-te
-> things are working as expected there. =A0Were there any changes neede=
-d to
-> the defaults in da8xx_omapl_defconfig to enable these features by
-> default? =A0or does the Kconfig change in PATCH 5/5 cover it?
+> But the real question is why can't we just do this in userspace? we should be able
+> to override the keymap using setkeycode functionality, isn't it?
 
-Thank you very much, Kevin.
+It might be possible, but some of the keys are missing in some of the
+configurations .. If you had one big configuration with all of the gpio
+lines, it might be possible that the missing gpio lines aren't
+configured or don't exist.
 
-I will check linux-davinci/master on monday.
+Daniel
 
-Yes, the 5/5 covers the necessary Kconfig changes; it makes the polled
-gpio keys default-on for da850evm.
+-- 
+Sent by an consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
+Forum.
 
-> Also, I really appreciate the thorough patch descriptions and history
-> information. =A0 This greatly eases the work of maintainers. =A0Thank=
-s!
 
-Again, you are most welcome.
-
-> One minor question: the series has a couple of Signed-off-by tags fro=
-m
-> Sekhar Nori. =A0The s-o-b tag is for folks on the delivery path, and =
-based
-> on what I saw, these should probably be Acked-by tags from Sekhar, si=
-nce
-> he certainly helped on the review/test/validate side, but AFAICT, was
-> not an author or on the delivery path. =A0If I'm wrong on this (e.g.,=
- if
-> Sekhar actually did author some of those patches) let me know, otherw=
-ise
-> I'll change the s-o-b to Acked-by for Sekhar.
-
-The s-o-b 's for Sehkar are because I folded-in suggested changes
-submitted in review by Sehkar in the form of a patch. I 'think' this
-qualifies as authorship. I'll leave it to your good judgement.
-
-Best Regards,
-Ben Gardiner
-
----
-Nanometrics Inc.
-http://www.nanometrics.ca
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

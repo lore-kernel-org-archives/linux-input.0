@@ -1,41 +1,61 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: mt: Interface and MT_TOOL documentation updates
-Date: Fri, 10 Dec 2010 14:54:07 +0100
-Message-ID: <4D0230FF.6070207@euromail.se>
-References: <1291929732-5989-1-git-send-email-rydberg@euromail.se> <20101210074351.GC21009@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/4] hid-multitouch: a first step towards multitouch
+ unification
+Date: Fri, 10 Dec 2010 15:08:51 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1012101507590.15140@pobox.suse.cz>
+References: <20101013222811.6EC0B95210@smtp.lii-enac.fr> <E8092693-D2F3-4544-A18E-C7F5DCD8507A@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:59365 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752712Ab0LJNyy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Dec 2010 08:54:54 -0500
-In-Reply-To: <20101210074351.GC21009@core.coreip.homeip.net>
+Received: from cantor.suse.de ([195.135.220.2]:42606 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753431Ab0LJOIx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Dec 2010 09:08:53 -0500
+In-Reply-To: <E8092693-D2F3-4544-A18E-C7F5DCD8507A@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: rydberg@euromail.se, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, benjamin.tissoires@enac.fr, tissoire@lii-enac.fr
 
-On 12/10/2010 08:43 AM, Dmitry Torokhov wrote:
+On Thu, 14 Oct 2010, St=E9phane Chatty wrote:
 
-> On Thu, Dec 09, 2010 at 10:22:12PM +0100, Henrik Rydberg wrote:
->> The recent input-mt interface changes together with
->> recent discussions about pen and touch and support
->> for legacy multitouch pads suggest that the documentation
->> on MT tool types be expanded. This patch adds references
->> to the new interface, and adds a section for MT_TOOL types,
->> in particular documenting the use of MT_TOOL_ENVELOPE.
->>
->> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> 
-> 
-> The explanation of the new types makes sense to me... Do you think we
-> could add some comments directly to input.h?
+>=20
+> Le 14 oct. 10 =E0 00:28, Stephane Chatty a =E9crit :
+>=20
+> >=20
+> > St=E9phane Chatty (4):
+> >  hid-multitouch: support for PixCir-based panels in a generic code =
+structure
+> >  hid-multitouch: migrated support for Cando panels
+> >  hid-multitouch: added support for Cypress TrueTouch panels
+> >  hid-multitouch: migrated support for MosArt panels
+>=20
+> I forgot to mention that:
+> - I am looking for testers for Quanta panels
+> - I have code that works for the GeneralTouch panels found in some re=
+cent
+> tablets. But these panels appear to have the exact same device ID as
+> previously existing single touch panels, with a different protocol. I=
+ am
+> working on a solution to discriminate the two types of panels.
 
+[ adding Bejnamin to CC ]
 
-Good idea, will do.
+Hi guys,
 
-Thanks,
-Henrik
+Henrik had quite a few reasonable comments to this patchset, and then=20
+there was a long silence :)
+
+Is there any respin going to happen?
+
+Thanks!
+
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

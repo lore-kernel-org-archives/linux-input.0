@@ -1,96 +1,53 @@
-From: "Mrs. Rosemary Peter" <gburini@unipg.it>
-Subject: (unknown)
-Date: Sat, 11 Dec 2010 00:36:10 +0100
-Message-ID: <20101211003610.g5qhsk1ohwkcsgw4__41361.1937118278$1292025782$gmane$org@webmail.unipg.it>
-Reply-To: ecobank_office202@yahoo.co.jp
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,leds} for UI and BB expanders
+Date: Fri, 10 Dec 2010 16:04:32 -0800
+Message-ID: <87lj3x899r.fsf@deeprootsystems.com>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca>
+	<cover.1291931041.git.bengardiner@nanometrics.ca>
+	<87tyild2ms.fsf@deeprootsystems.com>
+	<AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	DelSp=Yes	format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rs.unipg.it ([141.250.1.235]:49861 "EHLO mail.unipg.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756557Ab0LKACT convert rfc822-to-8bit (ORCPT
+Received: from mail-gy0-f194.google.com ([209.85.160.194]:59081 "EHLO
+	mail-gy0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756616Ab0LKAEi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Dec 2010 19:02:19 -0500
-Subject: 
-Content-Disposition: inline
+	Fri, 10 Dec 2010 19:04:38 -0500
+In-Reply-To: <AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
+	(Ben Gardiner's message of "Fri, 10 Dec 2010 11:33:41 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ben Gardiner <bengardiner@nanometrics.ca>
+Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>
 
+Hi Ben,=20
+Ben Gardiner <bengardiner@nanometrics.ca> writes:
 
-2010 SCAM VICTIMS COMPENSATIONS PAYMENTS.
-YOUR REF/PAYMENTS CODE: ECB/06654 FOR $500,000 USD ONLY.
+[...]
 
-This is to bring to your notice that our bank (ECOBANK INTL. PLC) is
-delegated by the ECOWAS/UNITED NATIONS in Central Bank to pay victims
-of scam $500,000 (Five Hundred Thousand Dollars Only).
+>> One minor question: the series has a couple of Signed-off-by tags fr=
+om
+>> Sekhar Nori. =C2=A0The s-o-b tag is for folks on the delivery path, =
+and based
+>> on what I saw, these should probably be Acked-by tags from Sekhar, s=
+ince
+>> he certainly helped on the review/test/validate side, but AFAICT, wa=
+s
+>> not an author or on the delivery path. =C2=A0If I'm wrong on this (e=
+=2Eg., if
+>> Sekhar actually did author some of those patches) let me know, other=
+wise
+>> I'll change the s-o-b to Acked-by for Sekhar.
+>
+> The s-o-b 's for Sehkar are because I folded-in suggested changes
+> submitted in review by Sehkar in the form of a patch. I 'think' this
+> qualifies as authorship. I'll leave it to your good judgement.
 
-=46or verification you are to view the following link.
+OK, thanks for clarification.   I'll leave the s-o-b tags as is.
 
-http://www.un.org/News/Press/docs/2003/ik344.doc.htm
-
-You are to send the following informations for remittance.
-
-Your Name.___________________________
-Address.___________________________
-Phone .___________________________
-Amount Defrauded.___________________________
-Country.________________________
-
-Send a copy of your response with the PAYMENT CODE
-NUMBER(ECB/06654).
-
-NAME: MR.CLEMENT SYLVANIUS
-       SCAMMED VICTIM/REF/PAYMENTS CODE:
-       ECB/06654 $500,000 USD.
-
-
-Email: ecobank_office202@yahoo.co.jp
-
-Yours Faithfully,
-Mrs. Rosemary Peter
-PUBLIC RELATIONS OFFICER
-Copyright =A9 2010
-
-
-
-
-2010 SCAM VICTIMS COMPENSATIONS PAYMENTS.
-YOUR REF/PAYMENTS CODE: ECB/06654 FOR $500,000 USD ONLY.
-
-This is to bring to your notice that our bank (ECOBANK INTL. PLC) is
-delegated by the ECOWAS/UNITED NATIONS in Central Bank to pay victims
-of scam $500,000 (Five Hundred Thousand Dollars Only).
-
-=46or verification you are to view the following link.
-
-http://www.un.org/News/Press/docs/2003/ik344.doc.htm
-
-You are to send the following informations for remittance.
-
-Your Name.___________________________
-Address.___________________________
-Phone .___________________________
-Amount Defrauded.___________________________
-Country.________________________
-
-Send a copy of your response with the PAYMENT CODE
-NUMBER(ECB/06654).
-
-NAME: MR.CLEMENT SYLVANIUS
-       SCAMMED VICTIM/REF/PAYMENTS CODE:
-       ECB/06654 $500,000 USD.
-
-
-Email: ecobank_office202@yahoo.co.jp
-
-Yours Faithfully,
-Mrs. Rosemary Peter
-PUBLIC RELATIONS OFFICER
-Copyright =A9 2010
-
-
+Kevin
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

@@ -1,84 +1,111 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,
-	leds} for UI and BB expanders
-Date: Mon, 13 Dec 2010 13:53:44 -0800
-Message-ID: <8762ux49w7.fsf@deeprootsystems.com>
-References: <cover.1290635422.git.bengardiner@nanometrics.ca>
-	<cover.1291931041.git.bengardiner@nanometrics.ca>
-	<87tyild2ms.fsf@deeprootsystems.com>
-	<AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
-	<AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-	(Ben Gardiner's message of "Mon, 13 Dec 2010 12:02:32 -0500")
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gabor Juhos <juhosg-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 2/2] Input: synaptics - emit multitouch data
+Date: Mon, 13 Dec 2010 23:55:48 +0100
+Message-ID: <1292280948-1933-2-git-send-email-rydberg@euromail.se>
+References: <1292280948-1933-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:43507 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751231Ab0LMW4P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Dec 2010 17:56:15 -0500
+In-Reply-To: <1292280948-1933-1-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-QmVuIEdhcmRpbmVyIDxiZW5nYXJkaW5lckBuYW5vbWV0cmljcy5jYT4gd3JpdGVzOgoKPiBIaSBL
-ZXZpbiwKPgo+IE9uIEZyaSwgRGVjIDEwLCAyMDEwIGF0IDExOjMzIEFNLCBCZW4gR2FyZGluZXIK
-PiA8YmVuZ2FyZGluZXJAbmFub21ldHJpY3MuY2E+IHdyb3RlOgo+PiBPbiBGcmksIERlYyAxMCwg
-MjAxMCBhdCAxMToxNiBBTSwgS2V2aW4gSGlsbWFuCj4+PiBbLi4uXQo+Pj4gVGhpcyBzZXJpZXMg
-bG9va3MgZ29vZCB0byBtZSwgc28gSSdsbCBiZSBxdWV1aW5nIGl0IGluIGRhdmluY2ktbmV4dCBm
-b3IKPj4+IDIuNi4zOC4gwqBJdCBzaG91bGQgc2hvdyB1cCBpbiBkYXZpbmNpIGdpdCBzaG9ydGx5
-LiBbLi4uXQo+Pgo+PiBUaGFuayB5b3UgdmVyeSBtdWNoLCBLZXZpbi4KPj4KPj4gSSB3aWxsIGNo
-ZWNrIGxpbnV4LWRhdmluY2kvbWFzdGVyIG9uIG1vbmRheS4KPgo+IEkgbG9va2VkIGF0IGdpdDov
-L2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9raGlsbWFuL2xpbnV4LWRh
-dmluY2kuZ2l0I2RhdmluY2ktbmV4dAo+IDsgSEVBRCBhdCB0aGUgdGltZSB3YXMKPgo+ICAgY29t
-bWl0IDMwMDRjZTBkM2E0NDUyNWRlNjNlMThiMDFmNzczNGJjOGQ2NGYyYzUKPiAgIEF1dGhvcjog
-QmVuIEdhcmRpbmVyIDxiZW5nYXJkaW5lckBuYW5vbWV0cmljcy5jYT4KPiAgIERhdGU6ICAgVGh1
-IERlYyA5IDE2OjUxOjA3IDIwMTAgLTA1MDAKPgo+ICAgICAgIGRhODUwLWV2bTogS0VZQk9BUkRf
-R1BJT19QT0xMRUQgS2NvbmZpZyBjb25kaXRpb25hbAo+Cj4gICAgICAgVXNlIHRoZSBtYWNoLWRh
-dmluY2kvS2NvbmZpZyB0byBlbmFibGUgZ3Bpby1rZXlzLXBvbGxlZCBhcyBkZWZhdWx0IHdoZW4K
-PiAgICAgICBkYTg1MC1ldm0gbWFjaGluZSBpcyBlbmFibGVkLgo+Cj4gICAgICAgU2lnbmVkLW9m
-Zi1ieTogQmVuIEdhcmRpbmVyIDxiZW5nYXJkaW5lckBuYW5vbWV0cmljcy5jYT4KPiAgICAgICBD
-QzogS2V2aW4gSGlsbWFuIDxraGlsbWFuQGRlZXByb290c3lzdGVtcy5jb20+Cj4gICAgICAgQ0M6
-ICJOb3JpLCBTZWtoYXIiIDxuc2VraGFyQHRpLmNvbT4KPiAgICAgICBDQzogR2Fib3IgSnVob3Mg
-PGp1aG9zZ0BvcGVud3J0Lm9yZz4KPiAgICAgICBTaWduZWQtb2ZmLWJ5OiBLZXZpbiBIaWxtYW4g
-PGtoaWxtYW5AZGVlcHJvb3RzeXN0ZW1zLmNvbT4KPgo+IEV2ZXJ5dGhpbmcgc2VlbXMgdG8gYmUg
-aW4gb3JkZXIgdGhlcmU7IEkgdGVzdGVkIHRoZSByZXN1bHRpbmcga2VybmVsCj4gd2l0aCBldnRl
-c3QgYW5kIHRoZSBleHBlY3RlZCBvdXRwdXQgd2FzIG9ic2VydmVkLiBOb3RlIHRoYXQKPiBkYXZp
-bmNpLW5leHQgc3RpbGwgY29udGFpbnMgdGhlIGNoZXJyeS1waWNrIG9mIHRoZSB1cHN0cmVhbSBj
-b21taXQgb2YKPiB0aGUgcG9sbGVkIGdwaW8ga2V5cyBkcml2ZXI6Cgpvb3BzLi4uIEkndmUgbm93
-IHJlbW92ZWQgdGhhdCwgc2luY2UgaXQgaXMgcGFydCBvZiB2Mi42LjM2LXJjNSBhbHJlYWR5LgpU
-aGFua3MgZm9yIGNoZWNraW5nLgoKWy4uLl0KID4gSSBhbHNvIGxvb2tlZCBhdAo+IGdpdDovL2dp
-dC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9raGlsbWFuL2xpbnV4LWRhdmlu
-Y2kuZ2l0I21hc3Rlcgo+IDsgSEVBRCBhdCB0aGUgdGltZSB3YXMKPgo+ICAgY29tbWl0IDRiZmJk
-ZGRjMDY1NWEyODRhOTgzMDRiYzM0M2M2YmNhZjgxYjhlNGQKPiAgIE1lcmdlOiA3NzEyMTVjIDc1
-MDdmZDMKPiAgIEF1dGhvcjogS2V2aW4gSGlsbWFuIDxraGlsbWFuQGRlZXByb290c3lzdGVtcy5j
-b20+Cj4gICBEYXRlOiAgIEZyaSBEZWMgMTAgMTY6MjU6MjcgMjAxMCAtMDgwMAo+Cj4gICAgICAg
-cmVidWlsZCBsaW51eC1kYXZpbmNpIGZyb20gYnJhbmNoZXMKPgo+IFRoZXJlIGFwcGVhcnMgdG8g
-YmUgc29tZSBkb3VibGUgY29tbWl0cyBvZiB0aGUgcGF0Y2ggc2VyaWVzLiBJIHRlc3RlZAo+IGl0
-IHdpdGggZXZ0ZXN0IGFueXdheXMgYW5kIGFsc28gb2JzZXJ2ZWQgdGhlIGV4cGVjdGVkIG91dHB1
-dC4KPgo+IFRoZSBmb2xsb3dpbmcgY29tbWFuZCBhbmQgaXRzIG91dHB1dCBob3BlZnVsbHkgZGVt
-b25zdHJhdGUgd2hhdCBJIGFtCj4gc2VlaW5nIGFzIGRvdWJsZSBjb21taXRzLgoKWWVzLCB0aGVy
-ZSB3aWxsIGJlIGRvdWJsZSBjb21taXRzIGluIG1hc3RlciwgYmVjYXVzZSBvZiB0aGUgd2F5IEkg
-bWFuYWdlCm1hc3RlciB1c2luZyAnZ2l0IG1lcmdlIC1vdXJzJy4gIEJ1dCB0aGVyZSBzaG91bGRu
-J3QgYmUgZG91YmxlIGNvbW1pdHMKYmV0d2VlbiBteSAicmVidWlsZCBmcm9tIGJyYWNoZXMiIG1l
-cmdlcy4gIEl0IGNhbiBiZSBjb25mdXNpbmcsIGJ1dCBpZgp5b3UgbG9vayBhdCB0aGUgaGlzdG9y
-eSB3aXRoIGEgZ3JhcGhpY2FsIHRvb2wgbGlrZSAnZ2l0aycsIGl0IG1pZ2h0IHNoZWQKc29tZSBs
-aWdodCBvbiB3aGF0IGlzIGdvaW5nIG9uLgoKSSBrbm93IGl0J3MgY29uZnVzaW5nLCBidXQgdGhl
-IGRhdmluY2ktbmV4dCBicmFuY2ggaXMgdGhlIG9ubHkgaW1wb3J0YW50CmJyYW5jaCBpbiB0aGlz
-IHRyZWUgZm9yIHVwc3RyZWFtIHB1cnBvc2VzLgoKWy4uLl0KCj4gTm90ZSB0aGF0IHRoZSBjaGVy
-cnkgcGljayBvZiB0aGUgdXBzdHJlYW0gY29tbWl0IG9mIHRoZSBwb2xsZWQgZ3Bpbwo+IGtleXMg
-ZHJpdmVyIGlzIGhlcmUgaW4gJ21hc3RlcicgYWxzby4KClllYWgsIHRoYXQgY2FtZSBmcm9tIGRh
-dmluYy1uZXh0LiAgTm93IHRoYXQgaXQncyByZW1vdmVkIGZyb20gdGhlcmUsIGl0CnNob3VsZCBi
-ZSBvay4KCkkganVzdCBwdXNoZWQgYW4gdXBkYXRlZCBkYXZpbmNpLW5leHQgYW5kIG1hc3RlciBi
-cmFuY2guICBJdCBzb21ldGltZXMKdGFrZXMgYSBiaXQgdG8gcHJvcGFnYXRlIHRvIGFsbCB0aGUg
-a2VybmVsLm9yZyBtaXJyb3JzLCBidXQgdGhlIHVwZGF0ZQpzaG91bGQgYmUgdGhlcmUgc2hvcnRs
-eS4KClRoYW5rcywKCktldmluCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fCkRhdmluY2ktbGludXgtb3Blbi1zb3VyY2UgbWFpbGluZyBsaXN0CkRhdmluY2kt
-bGludXgtb3Blbi1zb3VyY2VAbGludXguZGF2aW5jaWRzcC5jb20KaHR0cDovL2xpbnV4LmRhdmlu
-Y2lkc3AuY29tL21haWxtYW4vbGlzdGluZm8vZGF2aW5jaS1saW51eC1vcGVuLXNvdXJjZQo=
+In multitouch mode, two data packets are sent from the device.  Due to
+limitations in the hardware detection mechanism, individual contacts
+cannot be reliably extracted. However, the bounding rectangle of the
+individual contacts can be accurately reproduced. This patch emits the
+MT data as envelope coordinates, allowing userspace to track the
+bounding rectangle and produce appropriate gestures.
+
+Acked-by: Chris Bagwell <chris@cnpbagwell.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/synaptics.c |   46 ++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 45 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index de08d77..95d0670 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -25,7 +25,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/dmi.h>
+-#include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
+ #include <linux/slab.h>
+@@ -489,6 +489,36 @@ static int synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data *
+ 	return 0;
+ }
+ 
++static void set_slot(struct input_dev *dev, int slot, bool active,
++		     int x, int y, int z)
++{
++	input_mt_slot(dev, slot);
++	input_mt_report_slot_state(dev, MT_TOOL_ENVELOPE, active);
++	if (active) {
++		input_report_abs(dev, ABS_MT_POSITION_X, x);
++		input_report_abs(dev, ABS_MT_POSITION_Y,
++				 YMAX_NOMINAL + YMIN_NOMINAL - y);
++		input_report_abs(dev, ABS_MT_PRESSURE, z);
++	}
++}
++
++static void synaptics_report_mt_data(struct input_dev *dev,
++				     const struct synaptics_hw_state *a,
++				     const struct synaptics_hw_state *b,
++				     int num_fingers)
++{
++	if (num_fingers >= 2) {
++		set_slot(dev, 0, true, min(a->x, b->x), min(a->y, b->y), a->z);
++		set_slot(dev, 1, true, max(a->x, b->x), max(a->y, b->y), a->z);
++	} else if (num_fingers == 1) {
++		set_slot(dev, 0, true, a->x, a->y, a->z);
++		set_slot(dev, 1, false, 0, 0, 0);
++	} else {
++		set_slot(dev, 0, false, 0, 0, 0);
++		set_slot(dev, 1, false, 0, 0, 0);
++	}
++}
++
+ /*
+  *  called for each full received packet from the touchpad
+  */
+@@ -551,6 +581,9 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 		finger_width = 0;
+ 	}
+ 
++	if (priv->multitouch)
++		synaptics_report_mt_data(dev, &hw, &priv->mt, num_fingers);
++
+ 	/* Post events
+ 	 * BTN_TOUCH has to be first as mousedev relies on it when doing
+ 	 * absolute -> relative conversion
+@@ -668,6 +701,17 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 			     YMIN_NOMINAL, priv->y_max ?: YMAX_NOMINAL, 0, 0);
+ 	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
+ 
++	if (priv->multitouch) {
++		input_mt_init_slots(dev, 2);
++		input_set_abs_params(dev, ABS_MT_POSITION_X, XMIN_NOMINAL,
++				     priv->x_max ?: XMAX_NOMINAL, 0, 0);
++		input_set_abs_params(dev, ABS_MT_POSITION_Y, YMIN_NOMINAL,
++				     priv->y_max ?: YMAX_NOMINAL, 0, 0);
++		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
++		input_set_abs_params(dev, ABS_MT_TOOL_TYPE, 0, MT_TOOL_MAX,
++				     0, 0);
++	}
++
+ 	if (SYN_CAP_PALMDETECT(priv->capabilities))
+ 		input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
+ 
+-- 
+1.7.1
+

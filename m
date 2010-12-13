@@ -1,42 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] input: touchscreen: introduce tsc2005 driver
-Date: Mon, 13 Dec 2010 00:51:43 -0800
-Message-ID: <20101213085143.GE21401@core.coreip.homeip.net>
-References: <1290699913-26540-1-git-send-email-ext-srikar.1.bhavanarayana@nokia.com>
+Subject: Re: [PATCH v2 1/2] input: keyboard: MCS5080: support suspend/resume.
+Date: Mon, 13 Dec 2010 01:00:26 -0800
+Message-ID: <20101213090026.GF21401@core.coreip.homeip.net>
+References: <4CE6179A.5050404@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f170.google.com ([209.85.214.170]:52279 "EHLO
+Received: from mail-iw0-f170.google.com ([209.85.214.170]:56148 "EHLO
 	mail-iw0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752198Ab0LMIvz (ORCPT
+	with ESMTP id S1753227Ab0LMJAd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Dec 2010 03:51:55 -0500
-Received: by iwn6 with SMTP id 6so8814355iwn.1
-        for <linux-input@vger.kernel.org>; Mon, 13 Dec 2010 00:51:54 -0800 (PST)
+	Mon, 13 Dec 2010 04:00:33 -0500
+Received: by iwn6 with SMTP id 6so8824937iwn.1
+        for <linux-input@vger.kernel.org>; Mon, 13 Dec 2010 01:00:33 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1290699913-26540-1-git-send-email-ext-srikar.1.bhavanarayana@nokia.com>
+In-Reply-To: <4CE6179A.5050404@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srikar <ext-srikar.1.bhavanarayana@nokia.com>
-Cc: linux-input@vger.kernel.org, lauri.leukkunen@nokia.com, aaro.koskinen@nokia.com, ext-phil.2.carmody@nokia.com, David Brownell <dbrownell@users.sourceforge.net>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
+To: "Kim, HeungJun" <riverful.kim@samsung.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "kyungmin.park@samsung.com" <kyungmin.park@samsung.com>, "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
 
-Hi Srikar,
+Hi Kim,
 
-On Thu, Nov 25, 2010 at 05:45:13PM +0200, Srikar wrote:
-> From: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+On Fri, Nov 19, 2010 at 03:22:18PM +0900, Kim, HeungJun wrote:
+> This patch supports suspend/resume functions for mcs5080 touchkey
+> driver.
 > 
-> Discussions: http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26748.html
-> 
-> Introduce a driver for the Texas Instruments TSC2005 touchscreen
-> controller (http://focus.ti.com/docs/prod/folders/print/tsc2005.html).
-> 
-> The patch is based on a driver by Lauri Leukkunen, with modifications
-> by David Brownell, Phil Carmody, Imre Deak, Hiroshi DOYU, Ari Kauppi,
-> Tony Lindgren, Jarkko Nikula, Eero Nurkkala and Roman Tereshonkov.
->
+...
 
-Could you tell me how close TSC2005 is to TSC2007 (sans the different
-interface - I2C vs SPI)?
+> @@ -181,6 +188,9 @@ static int __devinit mcs_touchkey_probe(struct i2c_client *client,
+>  		goto err_free_irq;
+>  
+>  	i2c_set_clientdata(client, data);
+> +
+> +	pm_runtime_set_active(&client->dev);
+> +
+
+Why is this required? Won't this effectively disable PM suspend/resume?
 
 Thanks.
 

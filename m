@@ -1,37 +1,34 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 2/2] Input: synaptics - emit multitouch data
-Date: Mon, 13 Dec 2010 15:14:45 -0800
-Message-ID: <4D06A8E5.90808@canonical.com>
-References: <1292280948-1933-1-git-send-email-rydberg@euromail.se> <1292280948-1933-2-git-send-email-rydberg@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 1/2] Input: synaptics - add multitouch packet support
+Date: Tue, 14 Dec 2010 00:15:24 +0100
+Message-ID: <4D06A90C.90009@euromail.se>
+References: <1292280948-1933-1-git-send-email-rydberg@euromail.se> <4D06A7B1.6060609@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:57751 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755193Ab0LMXOv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Dec 2010 18:14:51 -0500
-In-Reply-To: <1292280948-1933-2-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4D06A7B1.6060609@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On 12/13/2010 02:55 PM, Henrik Rydberg wrote:
-> In multitouch mode, two data packets are sent from the device.  Due to
-> limitations in the hardware detection mechanism, individual contacts
-> cannot be reliably extracted. However, the bounding rectangle of the
-> individual contacts can be accurately reproduced. This patch emits the
-> MT data as envelope coordinates, allowing userspace to track the
-> bounding rectangle and produce appropriate gestures.
+On 12/14/2010 12:09 AM, Chase Douglas wrote:
+
+> On 12/13/2010 02:55 PM, Henrik Rydberg wrote:
+>> @@ -638,7 +677,7 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+>>  	__set_bit(BTN_LEFT, dev->keybit);
+>>  	__set_bit(BTN_RIGHT, dev->keybit);
+>>  
+>> -	if (SYN_CAP_MULTIFINGER(priv->capabilities)) {
+>> +	if (SYN_CAP_MULTIFINGER(priv->capabilities) | priv->multitouch) {
 > 
-> Acked-by: Chris Bagwell <chris@cnpbagwell.com>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ^^ Although I think this is functionally correct, it is nevertheless a
+> typo. Note that there's only one '|' where there should be two.
 
-I agree with the patch in theory, but I still have reservations about
-MT_TOOL_ENVELOPE. Once that's sorted out I'll add my ACK.
+
+Ah, this one was removed but kept popping back in subsequent versions. Will fix,
+but not resending now.
 
 Thanks,
-
--- Chase
+Henrik

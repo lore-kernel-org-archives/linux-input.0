@@ -1,40 +1,53 @@
 From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Add button support for five fingers
-Date: Mon, 13 Dec 2010 09:00:25 +0100
-Message-ID: <4D05D299.60106@euromail.se>
-References: <1292063308-15327-1-git-send-email-rydberg@euromail.se> <1292063308-15327-2-git-send-email-rydberg@euromail.se> <20101213025016.GC21401@core.coreip.homeip.net>
+Subject: [GIT PULL] input: mt updates for 2.6.38
+Date: Mon, 13 Dec 2010 09:29:26 +0100
+Message-ID: <4D05D966.5080104@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:56160 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752828Ab0LMIAj (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:48132 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751793Ab0LMI3v (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Dec 2010 03:00:39 -0500
-In-Reply-To: <20101213025016.GC21401@core.coreip.homeip.net>
+	Mon, 13 Dec 2010 03:29:51 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 12/13/2010 03:50 AM, Dmitry Torokhov wrote:
+Dmitry,
 
-> On Sat, Dec 11, 2010 at 11:28:28AM +0100, Henrik Rydberg wrote:
->> This patch adds BTN_TOOL_QUINTAP to be used by hardware reporting
->> finger counts different from the number of MT contacts.
-> 
-> I must say this is quite ugly, but so is introducing ABS_CONTACT_COUNT
-> or similar, except that the latter is more extensible so if
-> manufacturers decide to report 6, 7, 8 fingers (but not their
-> coordinates) we won't have to breed BTN_TOOL_xxxTAPs...
-> 
-> But let me ask you this: do we know what to do with 5 fingers? How do we
-> plan to react to such gestures? Maybe the best option is simply ignore
-> it and don't report anything if there are no userspace consumers?
+Please pull from
 
+  git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git next
 
-I agree - let's put the bar at four fingers for special solutions. Dropped.
+to receive input-mt updates for 2.6.38.
+
+The changes have all been discussed on the list, and are mostly janitory in nature.
 
 Thanks,
 Henrik
+
+Dmitry Torokhov (2):
+      Input: include MT library as source for kerneldoc
+      Input: document new trkid field in struct input_dev
+
+Henrik Rydberg (3):
+      input: mt: Move input MT header inside input directory
+      input: mt: Interface and MT_TOOL documentation updates
+      input: mt: Support separate contact and finger count reports
+
+ Documentation/DocBook/device-drivers.tmpl    |    4 ++
+ Documentation/input/multi-touch-protocol.txt |   39 ++++++++++++++++++--------
+ drivers/hid/hid-3m-pct.c                     |    4 +-
+ drivers/hid/hid-egalax.c                     |    4 +-
+ drivers/input/input-mt.c                     |   35 +++++++++++++++++------
+ drivers/input/input.c                        |    2 +-
+ drivers/input/misc/uinput.c                  |    2 +-
+ drivers/input/tablet/wacom_wac.c             |    4 +-
+ drivers/input/touchscreen/wacom_w8001.c      |    2 +-
+ include/linux/input.h                        |    7 ++--
+ include/linux/{input-mt.h => input/mt.h}     |    3 +-
+ 11 files changed, 72 insertions(+), 34 deletions(-)
+ rename include/linux/{input-mt.h => input/mt.h} (89%)

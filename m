@@ -1,90 +1,43 @@
-From: Daniel Walker <dwalker@codeaurora.org>
-Subject: Re: [PATCH] msm: trout: add keypad support
-Date: Mon, 13 Dec 2010 10:41:32 -0800
-Message-ID: <1292265692.2700.0.camel@c-dwalke-linux.qualcomm.com>
-References: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
-	 <4D00800E.7050004@codeaurora.org>
-	 <1291916733.18827.1.camel@c-dwalke-linux.qualcomm.com>
-	 <AANLkTi=3LHHNJUh35AUkq--KtRCnRaBHx8Ky2bhxxzE4@mail.gmail.com>
-	 <1291932216.18827.16.camel@c-dwalke-linux.qualcomm.com>
-	 <4D01D776.6000309@codeaurora.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 0/2] hid-mosart: small patches
+Date: Mon, 13 Dec 2010 19:52:23 +0100
+Message-ID: <4D066B67.9010701@euromail.se>
+References: <1292252353-3029-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:47166 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758683Ab0LMSlt (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:48069 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753988Ab0LMSwx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Dec 2010 13:41:49 -0500
-In-Reply-To: <4D01D776.6000309@codeaurora.org>
+	Mon, 13 Dec 2010 13:52:53 -0500
+In-Reply-To: <1292252353-3029-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>
-Cc: Arve =?ISO-8859-1?Q?Hj=F8nnev=E5g?= <arve@android.com>, linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org
 
-On Fri, 2010-12-10 at 13:02 +0530, Trilok Soni wrote:
-> Hi Daniel,
->=20
-> On 12/10/2010 3:33 AM, Daniel Walker wrote:
-> > On Thu, 2010-12-09 at 14:01 -0800, Arve Hj=C3=B8nnev=C3=A5g wrote:
-> >> On Thu, Dec 9, 2010 at 9:45 AM, Daniel Walker <dwalker@codeaurora.=
-org> wrote:
-> >>> On Thu, 2010-12-09 at 12:36 +0530, Trilok Soni wrote:
-> >>>
-> >>>>> +static char *keycaps =3D "--qwerty";
-> >>>>> +#undef MODULE_PARAM_PREFIX
-> >>>>> +#define MODULE_PARAM_PREFIX "board_trout."
-> >>>>> +module_param_named(keycaps, keycaps, charp, 0);
-> >>>>
-> >>>> I would like to know what is the use of this param?
-> >>>
-> >>> No idea .. It was part of Google's implementation ..
-> >>>
-> >>
-> >> You removed the code that uses it. If you look at the original fil=
-e
-> >> you can see how it is used:
-> >> http://android.git.kernel.org/?p=3Dkernel/msm.git;a=3Dblob;f=3Darc=
-h/arm/mach-msm/board-trout-keypad.c;hb=3Drefs/heads/android-msm-2.6.35
-> >> It is set by the bootloader according to the hardware version.
-> >>
-> >> You can also see that the "/* userspace needs to know about these
-> >> changes as well */" comments refer to the code that changes the na=
-me
-> >> of the input device.
-> >>
-> >> I don't think this change will work correctly with our existing
-> >> user-space code though since you are now reporting the power-key,
-> >> camera-key and slide-switch from a separate input device.
-> >=20
-> > Yeah, I did remove those parts.. I'm not sure where to put that stu=
-ff in
-> > this new implementation. I can try to find an appropriate place , u=
-nless
-> > you have some suggestions ?
->=20
-> To support this, we need to override the input device .name and submi=
-t the patches
-> for matrix keypad and gpio keys and let the name come through platfor=
-m data.=20
->=20
-> You can refer how I am doing in PM8058 keypad driver patch.
+Benjamin,
 
-Not sure what your talking about .. I'm not making a new driver. I'm
-just using the matrix keypad driver.
+Thanks for the patches, I will comment them separately.
+
+> Just a few patch before introducing hid-multitouch. It would be great if
+
+> this could be in 2.6.38 (or even before...) as hid-multitouch is a bit late.
 
 
-Daniel
+The first patch looks like 2.6.37 material. I know both patches have been tested
+for quite some time.
 
---=20
+> Henrik, I think that you added a device in your ppa.
 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora For=
-um.
+> Do you want me to send it?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Yes, please do. There is a hid-core change to go with it as well.
+
+Jiri, I assume these will eventually go through your tree.
+
+Thanks,
+Henrik

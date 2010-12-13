@@ -1,69 +1,84 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH v2] input: mt: Interface and MT_TOOL documentation updates
-Date: Mon, 13 Dec 2010 22:21:00 +0100
-Message-ID: <4D068E3C.8080100@euromail.se>
-References: <1292001842-5000-1-git-send-email-rydberg@euromail.se> <4D065BDE.5020107@canonical.com>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,
+	leds} for UI and BB expanders
+Date: Mon, 13 Dec 2010 13:53:44 -0800
+Message-ID: <8762ux49w7.fsf@deeprootsystems.com>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca>
+	<cover.1291931041.git.bengardiner@nanometrics.ca>
+	<87tyild2ms.fsf@deeprootsystems.com>
+	<AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
+	<AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4D065BDE.5020107@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+	(Ben Gardiner's message of "Mon, 13 Dec 2010 12:02:32 -0500")
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gabor Juhos <juhosg-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Chris Cordahi <christophercordahi-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 12/13/2010 06:46 PM, Chase Douglas wrote:
-
-> On 12/10/2010 09:24 AM, Henrik Rydberg wrote:
->> +- The MT_TOOL_ENVELOPE type is used to indicate that the contact position
->> +is not well-defined, and is only used for legacy hardware. The real contact
->> +positions are to be found within the bounding rectangle formed by the
->> +envelope contact positions.
-> 
-> By definition, this only covers rectangles with two coordinates to
-> define the shape and location. Why do we want to call it envelope? It's
-> just extra confusion to me. Why not call it MT_TOOL_RECT?
-
-
-The envelope contacts serve as a way to detect a small area of fingers or a
-large area of fingers. There is nothing inherently problematic with having one
-or three or more such contacts.
-
-
-> Please describe how to use this tool type. Its usage is different than
-> any tool type usage before, so an explanation would be helpful. Must the
-> value of the tool on the first touch be 0 until a second touch can
-> define the rect? Or, can touches always default the value to 1 since
-> we're talking about devices that only support two fingers?
-
-
-For a dual-touch driver sending the lower-left and upper-right corners as
-contacts, nothing really has to be done in user space. The contacts will look
-weird in a drawing program, because the actual fingers and the ones on the
-screen may diverge. The tool type indicates that this may be the case, so the
-application can take measures if it wants to. This is the primary intended usage.
-
-A driver can use MT_TOOL_ENVELOPE also for one finger.
-
-
-> If this is really to remedy only poor two finger devices, would it be
-> better to flag the device itself somehow to say "don't trust this
-> device's coordinate positions" (or something more elegant)? This would
-> prevent an extrapolation of tool types to multiple fingers at a time.
-
-
-Maybe the device also has a pen, for which the coordinates should be trusted.
-
-
-> Lastly, using tool types for this seems odd since this does not signify
-> a physical tool. It merely signifies that the device coordinates cannot
-> be trusted literally. Maybe we should use some other namespace for
-> binding information across multiple touches, like MT_BIND_RECT?
-
-
-The envelope coordinates can be trusted to yield a smoothly moving bounding
-area, similar to tracked contacts. Completely untrusted contacts would first
-have to be processed somewhere in order to be useful, which is less desirable.
-
-Henrik
+QmVuIEdhcmRpbmVyIDxiZW5nYXJkaW5lckBuYW5vbWV0cmljcy5jYT4gd3JpdGVzOgoKPiBIaSBL
+ZXZpbiwKPgo+IE9uIEZyaSwgRGVjIDEwLCAyMDEwIGF0IDExOjMzIEFNLCBCZW4gR2FyZGluZXIK
+PiA8YmVuZ2FyZGluZXJAbmFub21ldHJpY3MuY2E+IHdyb3RlOgo+PiBPbiBGcmksIERlYyAxMCwg
+MjAxMCBhdCAxMToxNiBBTSwgS2V2aW4gSGlsbWFuCj4+PiBbLi4uXQo+Pj4gVGhpcyBzZXJpZXMg
+bG9va3MgZ29vZCB0byBtZSwgc28gSSdsbCBiZSBxdWV1aW5nIGl0IGluIGRhdmluY2ktbmV4dCBm
+b3IKPj4+IDIuNi4zOC4gwqBJdCBzaG91bGQgc2hvdyB1cCBpbiBkYXZpbmNpIGdpdCBzaG9ydGx5
+LiBbLi4uXQo+Pgo+PiBUaGFuayB5b3UgdmVyeSBtdWNoLCBLZXZpbi4KPj4KPj4gSSB3aWxsIGNo
+ZWNrIGxpbnV4LWRhdmluY2kvbWFzdGVyIG9uIG1vbmRheS4KPgo+IEkgbG9va2VkIGF0IGdpdDov
+L2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9raGlsbWFuL2xpbnV4LWRh
+dmluY2kuZ2l0I2RhdmluY2ktbmV4dAo+IDsgSEVBRCBhdCB0aGUgdGltZSB3YXMKPgo+ICAgY29t
+bWl0IDMwMDRjZTBkM2E0NDUyNWRlNjNlMThiMDFmNzczNGJjOGQ2NGYyYzUKPiAgIEF1dGhvcjog
+QmVuIEdhcmRpbmVyIDxiZW5nYXJkaW5lckBuYW5vbWV0cmljcy5jYT4KPiAgIERhdGU6ICAgVGh1
+IERlYyA5IDE2OjUxOjA3IDIwMTAgLTA1MDAKPgo+ICAgICAgIGRhODUwLWV2bTogS0VZQk9BUkRf
+R1BJT19QT0xMRUQgS2NvbmZpZyBjb25kaXRpb25hbAo+Cj4gICAgICAgVXNlIHRoZSBtYWNoLWRh
+dmluY2kvS2NvbmZpZyB0byBlbmFibGUgZ3Bpby1rZXlzLXBvbGxlZCBhcyBkZWZhdWx0IHdoZW4K
+PiAgICAgICBkYTg1MC1ldm0gbWFjaGluZSBpcyBlbmFibGVkLgo+Cj4gICAgICAgU2lnbmVkLW9m
+Zi1ieTogQmVuIEdhcmRpbmVyIDxiZW5nYXJkaW5lckBuYW5vbWV0cmljcy5jYT4KPiAgICAgICBD
+QzogS2V2aW4gSGlsbWFuIDxraGlsbWFuQGRlZXByb290c3lzdGVtcy5jb20+Cj4gICAgICAgQ0M6
+ICJOb3JpLCBTZWtoYXIiIDxuc2VraGFyQHRpLmNvbT4KPiAgICAgICBDQzogR2Fib3IgSnVob3Mg
+PGp1aG9zZ0BvcGVud3J0Lm9yZz4KPiAgICAgICBTaWduZWQtb2ZmLWJ5OiBLZXZpbiBIaWxtYW4g
+PGtoaWxtYW5AZGVlcHJvb3RzeXN0ZW1zLmNvbT4KPgo+IEV2ZXJ5dGhpbmcgc2VlbXMgdG8gYmUg
+aW4gb3JkZXIgdGhlcmU7IEkgdGVzdGVkIHRoZSByZXN1bHRpbmcga2VybmVsCj4gd2l0aCBldnRl
+c3QgYW5kIHRoZSBleHBlY3RlZCBvdXRwdXQgd2FzIG9ic2VydmVkLiBOb3RlIHRoYXQKPiBkYXZp
+bmNpLW5leHQgc3RpbGwgY29udGFpbnMgdGhlIGNoZXJyeS1waWNrIG9mIHRoZSB1cHN0cmVhbSBj
+b21taXQgb2YKPiB0aGUgcG9sbGVkIGdwaW8ga2V5cyBkcml2ZXI6Cgpvb3BzLi4uIEkndmUgbm93
+IHJlbW92ZWQgdGhhdCwgc2luY2UgaXQgaXMgcGFydCBvZiB2Mi42LjM2LXJjNSBhbHJlYWR5LgpU
+aGFua3MgZm9yIGNoZWNraW5nLgoKWy4uLl0KID4gSSBhbHNvIGxvb2tlZCBhdAo+IGdpdDovL2dp
+dC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9raGlsbWFuL2xpbnV4LWRhdmlu
+Y2kuZ2l0I21hc3Rlcgo+IDsgSEVBRCBhdCB0aGUgdGltZSB3YXMKPgo+ICAgY29tbWl0IDRiZmJk
+ZGRjMDY1NWEyODRhOTgzMDRiYzM0M2M2YmNhZjgxYjhlNGQKPiAgIE1lcmdlOiA3NzEyMTVjIDc1
+MDdmZDMKPiAgIEF1dGhvcjogS2V2aW4gSGlsbWFuIDxraGlsbWFuQGRlZXByb290c3lzdGVtcy5j
+b20+Cj4gICBEYXRlOiAgIEZyaSBEZWMgMTAgMTY6MjU6MjcgMjAxMCAtMDgwMAo+Cj4gICAgICAg
+cmVidWlsZCBsaW51eC1kYXZpbmNpIGZyb20gYnJhbmNoZXMKPgo+IFRoZXJlIGFwcGVhcnMgdG8g
+YmUgc29tZSBkb3VibGUgY29tbWl0cyBvZiB0aGUgcGF0Y2ggc2VyaWVzLiBJIHRlc3RlZAo+IGl0
+IHdpdGggZXZ0ZXN0IGFueXdheXMgYW5kIGFsc28gb2JzZXJ2ZWQgdGhlIGV4cGVjdGVkIG91dHB1
+dC4KPgo+IFRoZSBmb2xsb3dpbmcgY29tbWFuZCBhbmQgaXRzIG91dHB1dCBob3BlZnVsbHkgZGVt
+b25zdHJhdGUgd2hhdCBJIGFtCj4gc2VlaW5nIGFzIGRvdWJsZSBjb21taXRzLgoKWWVzLCB0aGVy
+ZSB3aWxsIGJlIGRvdWJsZSBjb21taXRzIGluIG1hc3RlciwgYmVjYXVzZSBvZiB0aGUgd2F5IEkg
+bWFuYWdlCm1hc3RlciB1c2luZyAnZ2l0IG1lcmdlIC1vdXJzJy4gIEJ1dCB0aGVyZSBzaG91bGRu
+J3QgYmUgZG91YmxlIGNvbW1pdHMKYmV0d2VlbiBteSAicmVidWlsZCBmcm9tIGJyYWNoZXMiIG1l
+cmdlcy4gIEl0IGNhbiBiZSBjb25mdXNpbmcsIGJ1dCBpZgp5b3UgbG9vayBhdCB0aGUgaGlzdG9y
+eSB3aXRoIGEgZ3JhcGhpY2FsIHRvb2wgbGlrZSAnZ2l0aycsIGl0IG1pZ2h0IHNoZWQKc29tZSBs
+aWdodCBvbiB3aGF0IGlzIGdvaW5nIG9uLgoKSSBrbm93IGl0J3MgY29uZnVzaW5nLCBidXQgdGhl
+IGRhdmluY2ktbmV4dCBicmFuY2ggaXMgdGhlIG9ubHkgaW1wb3J0YW50CmJyYW5jaCBpbiB0aGlz
+IHRyZWUgZm9yIHVwc3RyZWFtIHB1cnBvc2VzLgoKWy4uLl0KCj4gTm90ZSB0aGF0IHRoZSBjaGVy
+cnkgcGljayBvZiB0aGUgdXBzdHJlYW0gY29tbWl0IG9mIHRoZSBwb2xsZWQgZ3Bpbwo+IGtleXMg
+ZHJpdmVyIGlzIGhlcmUgaW4gJ21hc3RlcicgYWxzby4KClllYWgsIHRoYXQgY2FtZSBmcm9tIGRh
+dmluYy1uZXh0LiAgTm93IHRoYXQgaXQncyByZW1vdmVkIGZyb20gdGhlcmUsIGl0CnNob3VsZCBi
+ZSBvay4KCkkganVzdCBwdXNoZWQgYW4gdXBkYXRlZCBkYXZpbmNpLW5leHQgYW5kIG1hc3RlciBi
+cmFuY2guICBJdCBzb21ldGltZXMKdGFrZXMgYSBiaXQgdG8gcHJvcGFnYXRlIHRvIGFsbCB0aGUg
+a2VybmVsLm9yZyBtaXJyb3JzLCBidXQgdGhlIHVwZGF0ZQpzaG91bGQgYmUgdGhlcmUgc2hvcnRs
+eS4KClRoYW5rcywKCktldmluCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fCkRhdmluY2ktbGludXgtb3Blbi1zb3VyY2UgbWFpbGluZyBsaXN0CkRhdmluY2kt
+bGludXgtb3Blbi1zb3VyY2VAbGludXguZGF2aW5jaWRzcC5jb20KaHR0cDovL2xpbnV4LmRhdmlu
+Y2lkc3AuY29tL21haWxtYW4vbGlzdGluZm8vZGF2aW5jaS1saW51eC1vcGVuLXNvdXJjZQo=

@@ -1,46 +1,59 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2] input: mt: Interface and MT_TOOL documentation updates
-Date: Tue, 14 Dec 2010 13:53:05 +1000
-Message-ID: <20101214035303.GA11781@salty.local>
-References: <1292001842-5000-1-git-send-email-rydberg@euromail.se>
- <20101210173611.GA1630@core.coreip.homeip.net>
- <4D026634.4000602@euromail.se>
- <AANLkTimnJpmRJCFhOvZndTmL3r21KEdqXr2Bd9ZT3kUb@mail.gmail.com>
- <4D0267A6.5020603@euromail.se>
+From: Ben Gardiner <bengardiner@nanometrics.ca>
+Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,leds} for UI and BB expanders
+Date: Mon, 13 Dec 2010 23:31:09 -0500
+Message-ID: <AANLkTin7v4opWvjTt7KLVek=t-Q9_TwhENk+5k-Z3BNW@mail.gmail.com>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca>
+	<cover.1291931041.git.bengardiner@nanometrics.ca>
+	<87tyild2ms.fsf@deeprootsystems.com>
+	<AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
+	<AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV@mail.gmail.com>
+	<8762ux49w7.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:48015 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757161Ab0LNDx3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Dec 2010 22:53:29 -0500
-Content-Disposition: inline
-In-Reply-To: <4D0267A6.5020603@euromail.se>
+Received: from na3sys009aog113.obsmtp.com ([74.125.149.209]:42576 "HELO
+	na3sys009aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1757833Ab0LNEbL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Dec 2010 23:31:11 -0500
+In-Reply-To: <8762ux49w7.fsf@deeprootsystems.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Ping Cheng <pinglinux@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>
 
-On Fri, Dec 10, 2010 at 06:47:18PM +0100, Henrik Rydberg wrote:
-> >>> Legacy to me implies we can upgrade, but this is hardware limitation.
-> 
-> >>> Can we say "rectangle corner - used by older hardware"?
-> >>>
-> >> How about "- older hw only", to stay within a single line?
-> > 
-> > Why do we suggest it will only be used by older hardware?
-> 
-> 
-> To limit its use - we really do not want to use anything but good contact data
-> anywhere, but we do not want to leave abundant (= old) hardware out, either.
-> Why, is there some case where it would be useful, you think?
+On Mon, Dec 13, 2010 at 4:53 PM, Kevin Hilman
+<khilman@deeprootsystems.com> wrote:
+> Ben Gardiner <bengardiner@nanometrics.ca> writes:
+> [...]
+> Yes, there will be double commits in master, because of the way I man=
+age
+> master using 'git merge -ours'. =A0But there shouldn't be double comm=
+its
+> between my "rebuild from braches" merges. =A0It can be confusing, but=
+ if
+> you look at the history with a graphical tool like 'gitk', it might s=
+hed
+> some light on what is going on.
 
-"old" implies a timeline but for all we know some new hardware may come out
-tomorrow that requires the use of this field. so it's new old hardware then
-:)
+Ok. I'll consider a graphical investigation. Thanks for confirming the
+state of master is as-designed.
 
-"limited capabilities hw" maybe? my bikeshed is green, btw.
+> I know it's confusing, but the davinci-next branch is the only import=
+ant
+> branch in this tree for upstream purposes.
 
-Cheers,
-  Peter
+Understood. Thanks for the clarification.
+
+Best Regards,
+Ben Gardiner
+
+---
+Nanometrics Inc.
+http://www.nanometrics.ca
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

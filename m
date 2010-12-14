@@ -1,45 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [v1] input/tc3589x: add tc3589x keypad support
-Date: Tue, 14 Dec 2010 10:46:54 -0800
-Message-ID: <20101214184654.GB11384@core.coreip.homeip.net>
-References: <33A307AF30D7BF4F811B1568FE7A9B18047C8B2DFA@EXDCVYMBSTM006.EQ1STM.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
+Date: Tue, 14 Dec 2010 13:21:08 -0800
+Message-ID: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:56356 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758534Ab0LNSrB (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:59809 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760000Ab0LNVV0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Dec 2010 13:47:01 -0500
-Received: by ywl5 with SMTP id 5so555332ywl.19
-        for <linux-input@vger.kernel.org>; Tue, 14 Dec 2010 10:47:01 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <33A307AF30D7BF4F811B1568FE7A9B18047C8B2DFA@EXDCVYMBSTM006.EQ1STM.local>
+	Tue, 14 Dec 2010 16:21:26 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sundar R IYER <sundar.iyer@stericsson.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2010 at 06:31:20AM +0100, Sundar R IYER wrote:
-> Hi Dmitry,
-> 
-> >I do not see where you'd enable the keypad. What will happen if you
-> >unbind/unload the driver (which will cause explicit call to disable) and
-> >then try loading the module again?
-> 
-> A minor doubt: I enable the keypad in the open call; leaving it to the user
-> space to control the input device. If I understand your question, then I
-> should not be disabling the keypad in the tc3589x_keypad_remove, which
-> might cause conflicts. Is my understanding correct?
+Hello all,
 
-Ah, I missed the fact that you have open and close. I think the best way
-would be to serialize open/close/suspend/resume (you can use dev->mutex)
-in suspend/resume and track device state so that you:
+I was left somewhat dissatisfied by the MT_TOOL_ENVELOPE addition, so I decided
+to try to propose a different solution for the problem. As a recap, the problem
+can best be defined by Synaptics hardware that provide two touch coordinates
+(X1, Y1) and (X2, Y2). Unfortunately, the real touches may be at (X1, Y2) and
+(X2, Y1). Further, three touches may be recognized, but only two coordinates are
+reported.
 
-1. On resume do not enable the device if it hasn't been opened.
-2. Can remove disable in remove().
+Following this are four patches. The first merely reverts the MT_TOOL_ENVELOPE
+addition. The second adds documentation for evdev codes to the Documentation
+directory. It was hastily created, so it has some ommissions and may have some
+mistakes. My hope is that we keep this or a similar document up to date whenever
+non-obvious codes are added to evdev. The third patch adds the following EV_ABS
+codes:
 
-Thanks.
+ABS_RECT_MIN_X
+ABS_RECT_MIN_Y
+ABS_RECT_MAX_X
+ABS_RECT_MAX_Y
 
--- 
-Dmitry
+The purpose of these codes is to provide for devices that at best report a
+rectangular bounding box of touches. Instead of using the MT evdev protocol,
+this approach uses ST protocol semantics.
+
+Finally, the last patch adds support for the above codes to the synaptics
+driver.
+
+It is my belief that this is a better interface than MT_TOOL_ENVELOPE for the
+following reasons:
+
+* The code meanings are more readily graspable from the names
+* The codes behave with ST semantics, which is useful because we likely cannot
+  split properties like pressure and orientation among the touches
+* ST semantics are easier to comprehend than MT semantics, and MT isn't required
+  to solve this problem
+* The codes provide only the max and min values, none in between. This is in
+  contrast with MT_TOOL_ENVELOPE, which provides all touches as presented by the
+  hardware. However, we don't trust all the coordinate pairings, so providing
+  faulty pairings may induce incorrect userspace usage of the events.
+* A clear distinction is made here that full multitouch devices should use the
+  MT protocol, while lesser devices should use the ST protocol.
+
+Thanks!
+
+-- Chase

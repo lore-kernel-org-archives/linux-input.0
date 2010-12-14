@@ -1,122 +1,58 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 1/4] Revert "input: mt: Interface and MT_TOOL documentation updates"
-Date: Tue, 14 Dec 2010 13:21:09 -0800
-Message-ID: <1292361672-2581-2-git-send-email-chase.douglas@canonical.com>
+Subject: [PATCH 4/4] Input: synaptics - Add support for ABS_RECT_*
+Date: Tue, 14 Dec 2010 13:21:12 -0800
+Message-ID: <1292361672-2581-5-git-send-email-chase.douglas@canonical.com>
 References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:60960 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760126Ab0LNVWU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Dec 2010 16:22:20 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 Cc: Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-The new MT_TOOL_ENVELOPE code has ambiguities that may be remedied by
-changing to a different interface construct.
-
-This reverts commit e665f5646d4b7d0b470be6afd817edfb43556921.
+Add support for partial multitouch support through the ABS_RECT_* evdev
+codes.
 
 Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 ---
- Documentation/input/multi-touch-protocol.txt |   39 ++++++++------------------
- include/linux/input.h                        |    6 ++--
- 2 files changed, 15 insertions(+), 30 deletions(-)
+ drivers/input/mouse/synaptics.c |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+), 0 deletions(-)
 
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-index 5ab352e..351fab8 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -169,14 +169,12 @@ described by adding the MINOR parameters, such that MAJOR and MINOR are the
- major and minor axis of an ellipse. Finally, the orientation of the oval
- shape can be describe with the ORIENTATION parameter.
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 2e300a4..7cebdce 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -525,6 +525,13 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 	}
+ 	input_report_abs(dev, ABS_PRESSURE, hw.z);
  
--For type A devices, further specification of the touch shape is possible
--via ABS_MT_BLOB_ID.
--
- The ABS_MT_TOOL_TYPE may be used to specify whether the touching tool is a
--contact or a pen or something else. Finally, the ABS_MT_TRACKING_ID event
--may be used to track identified contacts over time [5]. In the type B
--protocol, the use of ABS_MT_TOOL_TYPE and ABS_MT_TRACKING_ID is implicit
--via the input_mt_report_slot_state() function.
-+contact or a pen or something else.  Devices with more granular information
-+may specify general shapes as blobs, i.e., as a sequence of rectangular
-+shapes grouped together by an ABS_MT_BLOB_ID. Finally, for the few devices
-+that currently support it, the ABS_MT_TRACKING_ID event may be used to
-+report contact tracking from hardware [5].
++	if (priv->multitouch && num_fingers >= 2) {
++		input_report_abs(dev, ABS_RECT_MIN_X, min(hw.x, priv->mt.x));
++		input_report_abs(dev, ABS_RECT_MAX_X, max(hw.x, priv->mt.x));
++		input_report_abs(dev, ABS_RECT_MIN_Y, min(hw.y, priv->mt.y));
++		input_report_abs(dev, ABS_RECT_MAX_Y, max(hw.y, priv->mt.y));
++	}
++
+ 	if (SYN_CAP_PALMDETECT(priv->capabilities))
+ 		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
  
+@@ -667,6 +674,17 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 		__clear_bit(BTN_RIGHT, dev->keybit);
+ 		__clear_bit(BTN_MIDDLE, dev->keybit);
+ 	}
++
++	if (priv->multitouch) {
++		input_set_abs_params(dev, ABS_RECT_MIN_X, XMIN_NOMINAL,
++				     priv->x_max ?: XMAX_NOMINAL, 0, 0);
++		input_set_abs_params(dev, ABS_RECT_MAX_X, XMIN_NOMINAL,
++				     priv->x_max ?: XMAX_NOMINAL, 0, 0);
++		input_set_abs_params(dev, ABS_RECT_MIN_Y, YMIN_NOMINAL,
++				     priv->y_max ?: YMAX_NOMINAL, 0, 0);
++		input_set_abs_params(dev, ABS_RECT_MAX_Y, YMIN_NOMINAL,
++				     priv->y_max ?: YMAX_NOMINAL, 0, 0);
++	}
+ }
  
- Event Semantics
-@@ -248,35 +246,22 @@ ABS_MT_TOOL_TYPE
- 
- The type of approaching tool. A lot of kernel drivers cannot distinguish
- between different tool types, such as a finger or a pen. In such cases, the
--event should be omitted. The protocol currently supports MT_TOOL_FINGER,
--MT_TOOL_PEN and MT_TOOL_ENVELOPE [2]. For type B devices, this event is
--handled by input core, via the input_mt interface.
--
--- The MT_TOOL_FINGER type is the default, and represents a finger touch.
--
--- The MT_TOOL_PEN type represents a pen, and the list of related tools is
--expected to grow with time.
--
--- The MT_TOOL_ENVELOPE type is used to indicate that the contact position
--is not well-defined, and is only used for legacy hardware. The real contact
--positions are to be found within the bounding rectangle formed by the
--envelope contact positions.
-+event should be omitted. The protocol currently supports MT_TOOL_FINGER and
-+MT_TOOL_PEN and MT_TOOL_ENVELOPE [2].
- 
- ABS_MT_BLOB_ID
- 
- The BLOB_ID groups several packets together into one arbitrarily shaped
--contact. The sequence of points forms a polygon which defines the shape of
--the contact. This is a low-level anonymous grouping for type A devices, and
-+contact. This is a low-level anonymous grouping for type A devices, and
- should not be confused with the high-level trackingID [5]. Most type A
- devices do not have blob capability, so drivers can safely omit this event.
- 
- ABS_MT_TRACKING_ID
- 
- The TRACKING_ID identifies an initiated contact throughout its life cycle
--[5]. The value range of the TRACKING_ID should be large enough to ensure
--unique identification of a contact maintained over an extended period of
--time. For type B devices, this event is handled by input core, via the
--input_mt interface.
-+[5]. This event is mandatory for type B devices. The value range of the
-+TRACKING_ID should be large enough to ensure unique identification of a
-+contact maintained over an extended period of time.
- 
- 
- Event Computation
-@@ -336,6 +321,6 @@ difference between the contact position and the approaching tool position
- could be used to derive tilt.
- [2] ABS_MT_ENVELOPE contacts represent an envelope of the contacts rather
- than the actual contacts. Used with older, not fully MT capable, devices.
--[3] The mtdev project: http://bitmath.org/code/mtdev/.
-+[3] Multitouch X driver project: http://bitmath.org/code/multitouch/.
- [4] See the section on event computation.
- [5] See the section on finger tracking.
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 787aa7e..cd0618c 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -847,9 +847,9 @@ struct input_keymap_entry {
- /*
-  * MT_TOOL types
-  */
--#define MT_TOOL_FINGER		0	/* normal finger */
--#define MT_TOOL_PEN		1	/* pen tool */
--#define MT_TOOL_ENVELOPE	2	/* rectangle corner - older hw only */
-+#define MT_TOOL_FINGER		0
-+#define MT_TOOL_PEN		1
-+#define MT_TOOL_ENVELOPE	2
- #define MT_TOOL_MAX		2
- 
- /*
+ static void synaptics_disconnect(struct psmouse *psmouse)
 -- 
 1.7.1
-

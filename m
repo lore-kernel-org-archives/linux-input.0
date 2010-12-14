@@ -1,86 +1,81 @@
-From: Shubhrajyoti D <a0393217@india.ti.com>
-Subject: [PATCH v7] OMAP4:keypad: PM runtime
-Date: Tue, 14 Dec 2010 21:08:57 +0530
-Message-ID: <1292341137-14783-1-git-send-email-a0393217@india.ti.com>
+From: Ben Gardiner <bengardiner@nanometrics.ca>
+Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,leds} for UI and BB expanders
+Date: Tue, 14 Dec 2010 11:17:14 -0500
+Message-ID: <AANLkTikUoKPG4o1+pt9r6V6H+6LrwZpTN8X9X+AkimiB@mail.gmail.com>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca>
+	<cover.1291931041.git.bengardiner@nanometrics.ca>
+	<87tyild2ms.fsf@deeprootsystems.com>
+	<AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
+	<AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV@mail.gmail.com>
+	<8762ux49w7.fsf@deeprootsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:55736 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757490Ab0LNPjF (ORCPT
+Received: from na3sys009aog104.obsmtp.com ([74.125.149.73]:38292 "EHLO
+	na3sys009aog104.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754180Ab0LNQRQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Dec 2010 10:39:05 -0500
+	Tue, 14 Dec 2010 11:17:16 -0500
+In-Reply-To: <8762ux49w7.fsf@deeprootsystems.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>
 
-From: Abraham Arce <x0066660@ti.com>
+On Mon, Dec 13, 2010 at 4:53 PM, Kevin Hilman
+<khilman@deeprootsystems.com> wrote:
+> Ben Gardiner <bengardiner@nanometrics.ca> writes:
+>> [...]
+>> Everything seems to be in order there; I tested the resulting kernel
+>> with evtest and the expected output was observed. Note that
+>> davinci-next still contains the cherry-pick of the upstream commit of
+>> the polled gpio keys driver:
+>
+> oops... I've now removed that, since it is part of v2.6.36-rc5 already.
+> Thanks for checking.
 
-Enable Runtime PM functionality in OMAP4 driver based on the following assumptions
-- Runtime PM selected by ARCH_OMAP2PLUS_TYPICAL && ARCH_OMAP2PLUS,
-  which is the default OMAP2+ defconfig including OMAP4
-- Runtime PM APIs handles Clock Framework APIs
-- Do not do the keypadconfig if the irq request fails
+Oops on my part...
 
-A minimal pm runtime get/put approach is implemented in probe/remove calls
-respectively based on:
+I looked at git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davinci.git#davinci-next
+again ; HEAD at the time was:
 
-- Keyboard controller in wakeup domain so it is always on and
-  power impact may be minimal
-- Cutting of clocks will prevent interrupts
+  commit 5682cfebad5e68736f4c54a268b5b371698f5262
+  Author: Ben Gardiner <bengardiner@nanometrics.ca>
+  Date:   Thu Dec 9 16:51:07 2010 -0500
 
+      da850-evm: KEYBOARD_GPIO_POLLED Kconfig conditional
 
-Signed-off-by: Abraham Arce <x0066660@ti.com>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>
+      Use the mach-davinci/Kconfig to enable gpio-keys-polled as default when
+      da850-evm machine is enabled.
+
+      Signed-off-by: Ben Gardiner <bengardiner@nanometrics.ca>
+      CC: Kevin Hilman <khilman@deeprootsystems.com>
+      CC: "Nori, Sekhar" <nsekhar@ti.com>
+      CC: Gabor Juhos <juhosg@openwrt.org>
+      Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+
+and I was unable to build a kernel from da8xx_omapl_defconfig b/c:
+
+  arch/arm/mach-davinci/board-da850-evm.c:333: error: unknown field
+'poll_interval' specified in initializer
+
+It appears that dropping the cherry-pick caused the build failure.
+
+The commit that introduces the polled gpio keys driver (which was
+included in the series as a cherry pick) is commit
+0e7d0c860a0dee49dacb7bbb248d1eba637075ad which is in
+git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git#master
+_after_ the tag v2.6.37-rc5.
+
+That's my fault. I incorrectly thought that commit
+0e7d0c860a0dee49dacb7bbb248d1eba637075ad was _in_ 2.6.37-rc5 and
+stated this is previous emails. I'm sorry for the confusion; I think I
+jumped the gun there due to my excitement at getting this prerequisite
+driver committed.
+
+Best Regards,
+Ben Gardiner
+
 ---
-Updating the changelogs as per Kevin's suggestion
-
- drivers/input/keyboard/omap4-keypad.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 45bd097..36239e2 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -29,6 +29,7 @@
- #include <linux/io.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-+#include <linux/pm_runtime.h>
- 
- #include <plat/omap4-keypad.h>
- 
-@@ -239,7 +240,8 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
- 	matrix_keypad_build_keymap(pdata->keymap_data, row_shift,
- 			input_dev->keycode, input_dev->keybit);
- 
--	omap4_keypad_config(keypad_data);
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_get_sync(&pdev->dev);
- 
- 	error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
- 			     IRQF_TRIGGER_RISING,
-@@ -255,8 +257,9 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
- 		goto err_free_irq;
- 	}
- 
--
-+	omap4_keypad_config(keypad_data);
- 	platform_set_drvdata(pdev, keypad_data);
-+
- 	return 0;
- 
- err_free_irq:
-@@ -278,6 +281,10 @@ static int __devexit omap4_keypad_remove(struct platform_device *pdev)
- 	struct resource *res;
- 
- 	free_irq(keypad_data->irq, keypad_data);
-+
-+	pm_runtime_put_sync(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
- 	input_unregister_device(keypad_data->input);
- 
- 	iounmap(keypad_data->base);
--- 
-1.7.0.4
-
+Nanometrics Inc.
+http://www.nanometrics.ca

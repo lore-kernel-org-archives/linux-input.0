@@ -1,12 +1,13 @@
-From: shubhrajyoti@ti.com
-Subject: [PATCH v7] Enable Runtime PM functionality in OMAP4 driver based on the following assumptions:
-Date: Tue, 14 Dec 2010 21:00:19 +0530
-Message-ID: <1292340619-14504-1-git-send-email-a0393217@india.ti.com>
+From: Shubhrajyoti D <a0393217@india.ti.com>
+Subject: [PATCH v7] OMAP4:keypad: PM runtime
+Date: Tue, 14 Dec 2010 21:08:57 +0530
+Message-ID: <1292341137-14783-1-git-send-email-a0393217@india.ti.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:45488 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756540Ab0LNPaZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Dec 2010 10:30:25 -0500
+Received: from devils.ext.ti.com ([198.47.26.153]:55736 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757490Ab0LNPjF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Dec 2010 10:39:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -14,6 +15,7 @@ Cc: linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <kh
 
 From: Abraham Arce <x0066660@ti.com>
 
+Enable Runtime PM functionality in OMAP4 driver based on the following assumptions
 - Runtime PM selected by ARCH_OMAP2PLUS_TYPICAL && ARCH_OMAP2PLUS,
   which is the default OMAP2+ defconfig including OMAP4
 - Runtime PM APIs handles Clock Framework APIs

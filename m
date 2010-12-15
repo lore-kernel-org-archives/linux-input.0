@@ -1,89 +1,68 @@
-From: "Varadarajan, Charulatha" <charu@ti.com>
-Subject: Re: [PATCH v7] OMAP4:keypad: PM runtime
-Date: Wed, 15 Dec 2010 11:01:46 +0530
-Message-ID: <20101215053146.GA1822@charu-comp>
-References: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
+Date: Tue, 14 Dec 2010 23:25:29 -0800
+Message-ID: <20101215072528.GB11867@core.coreip.homeip.net>
+References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com>
+ <20101214221241.GA11519@core.coreip.homeip.net>
+ <4D080A13.6050601@canonical.com>
+ <4D081BF2.7000202@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:60979 "EHLO
-	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751731Ab0LOFbi (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:54617 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753434Ab0LOHZg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 00:31:38 -0500
+	Wed, 15 Dec 2010 02:25:36 -0500
 Content-Disposition: inline
-In-Reply-To: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
+In-Reply-To: <4D081BF2.7000202@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti D <a0393217@india.ti.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-* Shubhrajyoti D <a0393217@india.ti.com> [2010-12-15 09:39:58 +0530]:
+On Wed, Dec 15, 2010 at 02:37:54AM +0100, Henrik Rydberg wrote:
+> Hi Chase,
+> 
+> >
+> 
+> > I gave this some more thought, and I was close to accepting it with
+> > documentation of the above restrictions. Then I thought of how the
+> > following two devices would be presented to userspace:
+> > 
+> > 1. A real MT device supporting up to 2 touches (e.g. a bamboo touch)
+> >   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
+> >   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
+> > 
+> > 2. A partial MT device using MT_TOOL_ENVELOPE (e.g. synaptics MT)
+> >   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
+> >   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
+> > 
+> > Note that they are identical! The range of values for each axis would be
+> > identical too. The only way to tell the two apart would be to watch for
+> > the ABS_MT_TOOL_TYPE axis.
 
-> From: Abraham Arce <x0066660@ti.com>
-> 
-> Enable Runtime PM functionality in OMAP4 driver based on the following assumptions
-> 
-> A minimal pm runtime get/put approach is implemented in probe/remove calls
-> respectively.
-> 
-> - Keyboard controller in wakeup domain so it is always on and
->   power impact may be minimal
-> - In OMAP4 the device control is at module/device level and ick/fclk level control is
->   difficult so cutting of clocks will prevent interrupts.
-> 
-> Signed-off-by: Abraham Arce <x0066660@ti.com>
-> Cc: Kevin Hilman <khilman@deeprootsystems.com>
+Question: does the driver really need to know this data beforehand?  I'd
+expect MT-aware driver simply having handlers for both styles and then
+doing the best it can with the data stream it gets... There should not
+be ambiguity as to what event is - I believe we should be sending
+BTN_TOOL_ENVELOPE even for the single/first contact for devices that do
+not do full MT tracking.
 
-This patch is sent thrice (once with a different subject) but the
-version numbers are the same. It is not clear what is the intention of this
-patch without hwmod database update. Am I missing any more patch here?
+> 
+> 
+> Ping has touched upon this subject as well, from the pen & touch perspective.
+> Generally, some ABS axes are actually enumerations, for which we have no direct
+> abstraction. If we had a way to declare the used values for such enumerations,
+> it would resolve these and possibly other issues.
 
-> ---
-> Updating the changelogs as per Kevin's suggestion
->  drivers/input/keyboard/omap4-keypad.c |   10 +++++++++-
->  1 files changed, 9 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-> index 45bd097..3d35774 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -29,6 +29,7 @@
->  #include <linux/io.h>
->  #include <linux/input.h>
->  #include <linux/slab.h>
-> +#include <linux/pm_runtime.h>
->  
->  #include <plat/omap4-keypad.h>
->  
-> @@ -239,8 +240,11 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
->  	matrix_keypad_build_keymap(pdata->keymap_data, row_shift,
->  			input_dev->keycode, input_dev->keybit);
->  
-> -	omap4_keypad_config(keypad_data);
-> +	pm_runtime_enable(&pdev->dev);
-> +	pm_runtime_get_sync(&pdev->dev);
->  
-> +	omap4_keypad_config(keypad_data);
-> +	
->  	error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
->  			     IRQF_TRIGGER_RISING,
->  			     "omap4-keypad", keypad_data);
-> @@ -278,6 +282,10 @@ static int __devexit omap4_keypad_remove(struct platform_device *pdev)
->  	struct resource *res;
->  
->  	free_irq(keypad_data->irq, keypad_data);
-> +
-> +	pm_runtime_put_sync(&pdev->dev);
-> +	pm_runtime_disable(&pdev->dev);
-> +
->  	input_unregister_device(keypad_data->input);
->  
->  	iounmap(keypad_data->base);
-> -- 
-> 1.7.0.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I think that presence of pen/touch can be detected by having
+BTN_TOOL_PEN and BTN_TOOL_FINGER. However in this case the tool is
+finger, so I do not think we should introduce BTN_TOOL_ENVELOPE. Maybe
+this is another case where we should employ the proposed device flags?
+
+Anyway, it looks like we have a few concerns with current
+MT_TOOL_ENVELOPE so I want to rewind my 'next' branch.
+
+-- 
+Dmitry

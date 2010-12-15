@@ -1,141 +1,61 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [RFC v2] input: Introduce device information ioctl
-Date: Wed, 15 Dec 2010 20:20:07 +0100
-Message-ID: <1292440807-18502-1-git-send-email-rydberg@euromail.se>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
+Date: Wed, 15 Dec 2010 20:36:08 +0100
+Message-ID: <4D0918A8.6080207@bitmath.org>
+References: <4D0897F3.7040500@bitmath.org> <4D08FD74.4060403@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:51441 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754998Ab0LOTU5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 14:20:57 -0500
+Received: from csmtp2.one.com ([91.198.169.22]:35504 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755154Ab0LOTgL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Dec 2010 14:36:11 -0500
+In-Reply-To: <4D08FD74.4060403@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chase.douglas@canonical.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Today, userspace sets up an input device based on the data it emits.
-This is not always enough; a tablet and a touchscreen may emit exactly
-the same data, for instance, but the former should be set up with a
-pointer whereas the latter does not need to. Recently, a new type of
-touchpad has emerged where the buttons are under the pad, which
-changes handling logic without changing the emitted data. This patch
-introduces a new ioctl, EVIOCGPROP, which enables user access to a set
-of device properties useful during setup. The properties are given as
-a bitmap in the same fashion as the event types.
+>>> I think that presence of pen/touch can be detected by having
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Hi all,
+>>> BTN_TOOL_PEN and BTN_TOOL_FINGER. However in this case the tool is
+>>> finger, so I do not think we should introduce BTN_TOOL_ENVELOPE. Maybe
+>>> this is another case where we should employ the proposed device flags?
+>>
+>> Yes. Having something like INPUT_QUIRK_SEMI_MT might be enough, and we could
+>> drop the whole MT_TOOL_ENVELOPE circus. Chase, Peter, Chris, would you be
+>> comfortable with such a solution?
+> 
+> That sounds like a good solution to me. I believe it would resolve all
+> the issues I had.
 
-Here is version two of the device information proposal. In addition to
-implementing the feedback, this version only defines a single combined
-type/capabilities field. Since we want to support a device being of
-multiple types, it suggests that we are really after the properties
-that make up a type, rather than the types themselves. And since
-quirks are also properties, we end up with a single bitmap of
-properties instead.
 
-As an example of how this would work for the
-touchpad/tablet/touchscreen triplet, there are two properties defined,
-INPUT_PROP_POINTER and INPUT_PROP_DIRECT. A touchpad is an indirect
-pointer device, a tablet is a direct pointer device, and the
-touchscreen is simply a direct device.
+Sounds good.
 
-What do you think?
+
+> As I attempted to write up more documentation, I thought of the
+> following. What do you think?
+> 
+> With regards to partial MT devices, if the device provides a single
+> valued property, such as pressure and tool type for synaptics, it may
+> only be provided through the traditional property semantics, i.e.
+> ABS_PRESSURE and BTN_TOOL_*. If the device provides multiple values for
+> a property, then ABS_MT_* types may be used as well to provide up to two
+> values, though the client should understand there's no direct
+> correlation between the slot's coordinates and the property. I could see
+> this being used to provide info on multiple tool types or a high and low
+> pressure.
+> 
+> Enforcing the above behaviour provides even more information about the
+> capabilities of the device based solely on the evdev codes published.
+
+
+Looks good, but I do not think we need to formalize all possibilities here, only
+the usage of MT data for bounding rectangle and ST data for finger count.
+Referring to the patch just sent: whenever INPUT_PROP_SEMI_MT is true, this
+behavior is expected. In the event of new odd hardware, the combination of a new
+property quirk and a documented recipe should do the trick.
 
 Thanks,
 Henrik
-
-PS. As before, the patch compiles, but is not further tested.
-
- drivers/input/evdev.c |    4 ++++
- drivers/input/input.c |    2 ++
- include/linux/input.h |   16 ++++++++++++++++
- 3 files changed, 22 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e3f7fc6..0cd97e8 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -677,6 +677,10 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- #define EVIOC_MASK_SIZE(nr)	((nr) & ~(_IOC_SIZEMASK << _IOC_SIZESHIFT))
- 	switch (EVIOC_MASK_SIZE(cmd)) {
- 
-+	case EVIOCGPROP(0):
-+		return bits_to_user(dev->propbit, INPUT_PROP_MAX,
-+				    size, p, compat_mode);
-+
- 	case EVIOCGKEY(0):
- 		return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
- 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 37708d1..ac751ce 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1409,6 +1409,7 @@ INPUT_DEV_CAP_ATTR(LED, led);
- INPUT_DEV_CAP_ATTR(SND, snd);
- INPUT_DEV_CAP_ATTR(FF, ff);
- INPUT_DEV_CAP_ATTR(SW, sw);
-+INPUT_DEV_CAP_ATTR(INPUT_PROP, prop);
- 
- static struct attribute *input_dev_caps_attrs[] = {
- 	&dev_attr_ev.attr,
-@@ -1420,6 +1421,7 @@ static struct attribute *input_dev_caps_attrs[] = {
- 	&dev_attr_snd.attr,
- 	&dev_attr_ff.attr,
- 	&dev_attr_sw.attr,
-+	&dev_attr_prop.attr,
- 	NULL
- };
- 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index b3a1e02..53d6364 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -91,6 +91,7 @@ struct input_keymap_entry {
- #define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
- #define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
- #define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
-+#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)		/* get device properties */
- 
- #define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
- #define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
-@@ -108,6 +109,18 @@ struct input_keymap_entry {
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
- 
- /*
-+ * Device properties and quirks
-+ */
-+
-+#define INPUT_PROP_POINTER		0x00	/* needs a pointer */
-+#define INPUT_PROP_DIRECT		0x01	/* direct object manipulation */
-+#define INPUT_PROP_BUTTONPAD		0x02	/* has button(s) under pad */
-+#define INPUT_PROP_SEMI_MT		0x03	/* touch rectangle only */
-+
-+#define INPUT_PROP_MAX			0x1f
-+#define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
-+
-+/*
-  * Event types
-  */
- 
-@@ -1090,6 +1103,7 @@ struct ff_effect {
-  * @phys: physical path to the device in the system hierarchy
-  * @uniq: unique identification code for the device (if device has it)
-  * @id: id of the device (struct input_id)
-+ * @propbit: bitmap of device properties and quirks
-  * @evbit: bitmap of types of events supported by the device (EV_KEY,
-  *	EV_REL, etc.)
-  * @keybit: bitmap of keys/buttons this device has
-@@ -1173,6 +1187,8 @@ struct input_dev {
- 	const char *uniq;
- 	struct input_id id;
- 
-+	unsigned long propbit[BITS_TO_LONGS(INPUT_PROP_CNT)];
-+
- 	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
- 	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
- 	unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
--- 
-1.7.2.3
-

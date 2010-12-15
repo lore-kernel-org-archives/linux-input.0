@@ -1,68 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
-Date: Tue, 14 Dec 2010 23:25:29 -0800
-Message-ID: <20101215072528.GB11867@core.coreip.homeip.net>
-References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com>
- <20101214221241.GA11519@core.coreip.homeip.net>
- <4D080A13.6050601@canonical.com>
- <4D081BF2.7000202@euromail.se>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] msm: trout: add keypad support
+Date: Wed, 15 Dec 2010 08:48:41 +0100
+Message-ID: <20101215074841.GB2483@ucw.cz>
+References: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:54617 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753434Ab0LOHZg (ORCPT
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:40180 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752766Ab0LOHst (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 02:25:36 -0500
+	Wed, 15 Dec 2010 02:48:49 -0500
 Content-Disposition: inline
-In-Reply-To: <4D081BF2.7000202@euromail.se>
+In-Reply-To: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Walker <dwalker@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, tsoni@codeaurora.org, arve@android.com
 
-On Wed, Dec 15, 2010 at 02:37:54AM +0100, Henrik Rydberg wrote:
-> Hi Chase,
-> 
-> >
-> 
-> > I gave this some more thought, and I was close to accepting it with
-> > documentation of the above restrictions. Then I thought of how the
-> > following two devices would be presented to userspace:
-> > 
-> > 1. A real MT device supporting up to 2 touches (e.g. a bamboo touch)
-> >   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
-> >   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
-> > 
-> > 2. A partial MT device using MT_TOOL_ENVELOPE (e.g. synaptics MT)
-> >   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
-> >   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
-> > 
-> > Note that they are identical! The range of values for each axis would be
-> > identical too. The only way to tell the two apart would be to watch for
-> > the ABS_MT_TOOL_TYPE axis.
+On Wed 2010-12-08 16:24:45, Daniel Walker wrote:
+> This adds matrix keypad support, and gpio buttons support for
+> trout's various keys and buttons.
 
-Question: does the driver really need to know this data beforehand?  I'd
-expect MT-aware driver simply having handlers for both styles and then
-doing the best it can with the data stream it gets... There should not
-be ambiguity as to what event is - I believe we should be sending
-BTN_TOOL_ENVELOPE even for the single/first contact for devices that do
-not do full MT tracking.
+Yeah, but everyone knows trout as 'HTC Dream'.
 
-> 
-> 
-> Ping has touched upon this subject as well, from the pen & touch perspective.
-> Generally, some ABS axes are actually enumerations, for which we have no direct
-> abstraction. If we had a way to declare the used values for such enumerations,
-> it would resolve these and possibly other issues.
+> +static const uint32_t trout_keymap_evt2_1[] = {
 
-I think that presence of pen/touch can be detected by having
-BTN_TOOL_PEN and BTN_TOOL_FINGER. However in this case the tool is
-finger, so I do not think we should introduce BTN_TOOL_ENVELOPE. Maybe
-this is another case where we should employ the proposed device flags?
-
-Anyway, it looks like we have a few concerns with current
-MT_TOOL_ENVELOPE so I want to rewind my 'next' branch.
+u32?
 
 -- 
-Dmitry
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

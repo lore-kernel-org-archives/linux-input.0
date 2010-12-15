@@ -1,197 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Synaptics touchpad on Dell Vostro V13
-Date: Wed, 15 Dec 2010 15:23:09 -0800
-Message-ID: <201012151523.09476.dmitry.torokhov@gmail.com>
-References: <alpine.LNX.2.00.1012141547570.15140@pobox.suse.cz> <20101214170027.GA11318@core.coreip.homeip.net> <alpine.LNX.2.00.1012152348440.16569@pobox.suse.cz>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 1/2] Input: synaptics - add multitouch packet support
+Date: Thu, 16 Dec 2010 09:42:29 +1000
+Message-ID: <20101215234228.GA4694@salty.local>
+References: <1292280948-1933-1-git-send-email-rydberg@euromail.se>
+ <4D06A7B1.6060609@canonical.com>
+ <4D06A90C.90009@euromail.se>
+ <4D07E38C.4020201@canonical.com>
+ <4D08CEE8.9080804@euromail.se>
+ <4D08FF4F.1020307@canonical.com>
+ <AANLkTikM5dXSv2onvF5aqzqkEuwrvbS5DTeE0CiW91j3@mail.gmail.com>
+ <4D093218.8040707@canonical.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f180.google.com ([209.85.214.180]:63823 "EHLO
-	mail-iw0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752261Ab0LOXXR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 18:23:17 -0500
-In-Reply-To: <alpine.LNX.2.00.1012152348440.16569@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4D093218.8040707@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wednesday, December 15, 2010 02:51:01 pm Jiri Kosina wrote:
-> On Tue, 14 Dec 2010, Dmitry Torokhov wrote:
-> > > I have a bugreport about Synaptics touchpad not working as proper
-> > > Synaptics, but only being detected as standard PS/2.
-> > > 
-> > > Looking at the i8042.debug output, the device is clearly buggy, as it
-> > > 
-> > > doesn't identify itself by 0x47 when queried:
-> > > 	91 -> i8042 (command) [58]
-> > > 	e8 -> i8042 (parameter) [58]
-> > > 	fa <- i8042 (interrupt, 3, 12) [59]
-> > > 	91 -> i8042 (command) [59]
-> > > 	00 -> i8042 (parameter) [59]
-> > > 	fa <- i8042 (interrupt, 3, 12) [59]
-> > > 	91 -> i8042 (command) [59]
-> > > 	e8 -> i8042 (parameter) [59]
-> > > 	fa <- i8042 (interrupt, 3, 12) [60]
-> > > 	91 -> i8042 (command) [60]
-> > > 	00 -> i8042 (parameter) [60]
-> > > 	fa <- i8042 (interrupt, 3, 12) [61]
-> > > 	91 -> i8042 (command) [61]
-> > > 	e8 -> i8042 (parameter) [61]
-> > > 	fa <- i8042 (interrupt, 3, 12) [61]
-> > > 	91 -> i8042 (command) [61]
-> > > 	00 -> i8042 (parameter) [61]
-> > > 	fa <- i8042 (interrupt, 3, 12) [62]
-> > > 	91 -> i8042 (command) [62]
-> > > 	e8 -> i8042 (parameter) [62]
-> > > 	fa <- i8042 (interrupt, 3, 12) [63]
-> > > 	91 -> i8042 (command) [63]
-> > > 	00 -> i8042 (parameter) [63]
-> > > 	fa <- i8042 (interrupt, 3, 12) [64]
-> > > 	91 -> i8042 (command) [64]
-> > > 	e9 -> i8042 (parameter) [64]
-> > > 	fa <- i8042 (interrupt, 3, 12) [64]
-> > > 
-> > > ... and here we time out after approximately 0.5s. nomux doesn't really
-> > > fix it, we start getting a lot of timeouts on i8042 with that.
-> > > 
-> > > Apparently the device works with Synaptics driver in Other OS(TM)
-> > > though. Do you have any idea what they might be doing differently so
-> > > that they make the touchpad identify itself properly?
-> > 
-> > Hi Jiri,
-> > 
-> > Do you have the device in your possession? If so can you check if the
-> > driver installed in Other OS uses active multiplexing? I think you can
-> > infer whether it does or not by looking at the pointer properties - I
-> > think it would "Synaptics Blah at port X" or something like that...
+On Wed, Dec 15, 2010 at 04:24:40PM -0500, Chase Douglas wrote:
+> > Is this custom code or in upstream (are you talking about
+> > inside_active_area logic?)?  I'm not sure why your seeing a jump if
+> > its being discarded.  There is a chance that something related to this
+> > discard logic is defeating the other logic that handles jumps caused
+> > during finger transitions.
 > 
-> Unfortunately I don't have the hardware myself, it's only bugreport that
-> reached me. I will check this, thanks.
-> 
-> > Also you could try combining nomux with reset and see if it makes any
-> > sense...
-> 
-> Yes, I have already had the reporter to do this, but that's even better --
-> a lot of commands time out, as you can see below
-> 
->  20 -> i8042 (command) [0]
->  47 <- i8042 (return) [0]
->  20 -> i8042 (command) [0]
->  47 <- i8042 (return) [0]
->  60 -> i8042 (command) [0]
->  56 -> i8042 (parameter) [0]
->  d3 -> i8042 (command) [0]
->  5a -> i8042 (parameter) [0]
->  5a <- i8042 (return) [0]
->  a7 -> i8042 (command) [0]
->  20 -> i8042 (command) [0]
->  76 <- i8042 (return) [0]
->  a8 -> i8042 (command) [0]
->  20 -> i8042 (command) [0]
->  56 <- i8042 (return) [0]
->  60 -> i8042 (command) [0]
->  56 -> i8042 (parameter) [0]
->  d3 -> i8042 (command) [0]
->  a5 -> i8042 (parameter) [0]
->  a5 <- i8042 (aux_test_irq, aux) [1]
->  60 -> i8042 (command) [1]
->  74 -> i8042 (parameter) [1]
->  60 -> i8042 (command) [1]
->  56 -> i8042 (parameter) [1]
->  60 -> i8042 (command) [1]
->  47 -> i8042 (parameter) [1]
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> mice: PS/2 mouse device common for all mice
->  f2 -> i8042 (kbd-data) [1]
->  fa <- i8042 (interrupt, 0, 1, timeout) [1]
->  ab <- i8042 (interrupt, 0, 1, timeout) [1]
->  83 <- i8042 (interrupt, 0, 1, timeout) [1]
->  ed -> i8042 (kbd-data) [1]
->  fa <- i8042 (interrupt, 0, 1, timeout) [1]
->  00 -> i8042 (kbd-data) [1]
->  fa <- i8042 (interrupt, 0, 1, timeout) [1]
->  f3 -> i8042 (kbd-data) [1]
->  fa <- i8042 (interrupt, 0, 1, timeout) [1]
->  00 -> i8042 (kbd-data) [1]
->  fa <- i8042 (interrupt, 0, 1, timeout) [1]
->  f4 -> i8042 (kbd-data) [1]
->  fa <- i8042 (interrupt, 0, 1, timeout) [1]
-> input: AT Translated Set 2 keyboard as
-> /devices/platform/i8042/serio0/input/input0 d4 -> i8042 (command) [2]
->  f2 -> i8042 (parameter) [2]
->  fa <- i8042 (interrupt, 1, 12, timeout) [2]
->  00 <- i8042 (interrupt, 1, 12, timeout) [3]
->  60 -> i8042 (command) [3]
->  45 -> i8042 (parameter) [3]
->  60 -> i8042 (command) [3]
->  47 -> i8042 (parameter) [3]
->  d4 -> i8042 (command) [3]
->  f2 -> i8042 (parameter) [3]
->  fa <- i8042 (interrupt, 1, 12, timeout) [4]
->  60 -> i8042 (command) [4]
->  45 -> i8042 (parameter) [4]
->  60 -> i8042 (command) [4]
->  47 -> i8042 (parameter) [4]
->  00 <- i8042 (interrupt, 1, 12, timeout) [5]
-> 
-> ...
-> 
->  f3 -> i8042 (kbd-data) [6323]
->  fa <- i8042 (interrupt, 0, 1, timeout) [6323]
->  20 -> i8042 (kbd-data) [6323]
->  fa <- i8042 (interrupt, 0, 1, timeout) [6323]
->  2d <- i8042 (interrupt, 0, 1, timeout) [10631]
->  10 <- i8042 (interrupt, 0, 1, timeout) [10669]
->  ad <- i8042 (interrupt, 0, 1, timeout) [10674]
->  90 <- i8042 (interrupt, 0, 1, timeout) [10692]
->  2f <- i8042 (interrupt, 0, 1, timeout) [10737]
->  af <- i8042 (interrupt, 0, 1, timeout) [10760]
->  17 <- i8042 (interrupt, 0, 1, timeout) [10922]
->  97 <- i8042 (interrupt, 0, 1, timeout) [10945]
->  12 <- i8042 (interrupt, 0, 1, timeout) [10998]
->  92 <- i8042 (interrupt, 0, 1, timeout) [11025]
->  13 <- i8042 (interrupt, 0, 1, timeout) [11317]
->  93 <- i8042 (interrupt, 0, 1, timeout) [11345]
->  1c <- i8042 (interrupt, 0, 1, timeout) [11422]
->  9c <- i8042 (interrupt, 0, 1, timeout) [11449]
->  31 <- i8042 (interrupt, 0, 1, timeout) [11672]
->  b1 <- i8042 (interrupt, 0, 1, timeout) [11697]
->  18 <- i8042 (interrupt, 0, 1, timeout) [11704]
->  98 <- i8042 (interrupt, 0, 1, timeout) [11729]
->  2f <- i8042 (interrupt, 0, 1, timeout) [11800]
->  af <- i8042 (interrupt, 0, 1, timeout) [11821]
->  12 <- i8042 (interrupt, 0, 1, timeout) [11842]
->  92 <- i8042 (interrupt, 0, 1, timeout) [11866]
->  27 <- i8042 (interrupt, 0, 1, timeout) [11951]
->  a7 <- i8042 (interrupt, 0, 1, timeout) [11969]
->  0e <- i8042 (interrupt, 0, 1, timeout) [12061]
->  8e <- i8042 (interrupt, 0, 1, timeout) [12089]
->  26 <- i8042 (interrupt, 0, 1, timeout) [12169]
->  a6 <- i8042 (interrupt, 0, 1, timeout) [12187]
->  26 <- i8042 (interrupt, 0, 1, timeout) [12207]
->  a6 <- i8042 (interrupt, 0, 1, timeout) [12227]
->  1c <- i8042 (interrupt, 0, 1, timeout) [12428]
->  9c <- i8042 (interrupt, 0, 1, timeout) [12456]
-> 
-> ... and a lot of other timeouts.
+> In Ubuntu 10.10 I think we are using an in-house patched hack. It was
+> necessary for an Dell Minis, which was a paid OEM services project, so
+> we needed a fix ASAP at the time. I believe xf86-input-synaptics has an
+> option for this now, so we'll probably transition whenever someone gets
+> a chance to take another look. It may be something that would be handled
+> better by the upstream logic. When I get a chance I'll try the upstream
+> logic instead.
 
-Hmm, and what happens if you force dfl = 0 in i8042_interrupt()? It looks
-like controller FW screwed up...
+mostly identical logic, but the Ubuntu patches only covered the bottom edge
+(MovementBottomEdge option, IIRC). The upstream version covers all four
+edges with AreaLeftEdge and friends.
+recent X servers also support a percentage as option, so instead of the
+hardcoded value for the edge, you can say Option "AreaBottomEdge" "20%"
 
-> 
-> If the device wouldn't work with Synaptics driver in other OS, I'd just
-> claim the device to be broken behind hope and be done with this, but this
-> makes me really wonder what they do differently.
-> 
-> Are you aware of any means of i8042 debugging/sniffing facility in the
-> other OS that could be used? :)
+I've had a few attempts to fix this touchpad to work slighlty better but
+the box died on me before I could finish it. Feel free to send me one of
+these machines if you want it fixed, it's been bugging me for ages :)
 
-KVM + serio_raw but someone needs to write the glue...
-
--- 
-Dmitry
+Cheers,
+  Peter

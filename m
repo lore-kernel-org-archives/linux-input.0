@@ -1,144 +1,141 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 1/2] Input: synaptics - add multitouch packet support
-Date: Wed, 15 Dec 2010 13:14:52 -0600
-Message-ID: <AANLkTikM5dXSv2onvF5aqzqkEuwrvbS5DTeE0CiW91j3@mail.gmail.com>
-References: <1292280948-1933-1-git-send-email-rydberg@euromail.se>
-	<4D06A7B1.6060609@canonical.com>
-	<4D06A90C.90009@euromail.se>
-	<4D07E38C.4020201@canonical.com>
-	<4D08CEE8.9080804@euromail.se>
-	<4D08FF4F.1020307@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4D08FF4F.1020307@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [RFC v2] input: Introduce device information ioctl
+Date: Wed, 15 Dec 2010 20:20:07 +0100
+Message-ID: <1292440807-18502-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:51441 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754998Ab0LOTU5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Dec 2010 14:20:57 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chase.douglas@canonical.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Wed, Dec 15, 2010 at 11:47 AM, Chase Douglas
-<chase.douglas@canonical.com> wrote:
-> On 12/15/2010 09:21 AM, Henrik Rydberg wrote:
->>> After some testing this is mostly fine,
->>
->> =A0but I have one of those terrible
->>> "integrated buttons" (or whatever we call it) trackpads. When switc=
-hing
->>> to multitouch mode, the cursor will sometimes jump when I go to pus=
-h the
->>> button.
->>>
->>> Take the following sequence:
->>>
->>> 1. Touch in top right corner of pad to position cursor
->>> 2. Touch in bottom left corner over button
->>> 3. Press button, but finger moves a little
->>>
->>> Step 3 causes the primary coordinates in the synaptics MT protocol =
-to
->>> flip to the button-pressing touch. This causes a cursor jump. *Many=
-*
->>> times I have gone to press an "Ok" dialog button and found that I
->>> accidentally launched an application from my dock :).
->>
->>
->> I see - the behavior of the primary coordinates seems to vary betwee=
-n models,
->> then. On the other hand, if you point and click with the same finger=
-, one could
->> possibly go around this problem, even though it means less precision=
-=2E On my MT
->> laptop, I can click at the very edge of the pad without the cursor m=
-oving.
->
-> Because of the mechanical properties of my particular touchpad, it's
-> nearly impossible to click without dragging. My touchpad isn't one of
-> the new clickpads where the entire pad hinges. On a clickpad, I would
-> hope depress without movement is easy. On my trackpad, the buttons ar=
-e
-> somewhat stiff and flex non-uniformly, causing the unwanted movement.
->
-> So, in Ubuntu we mask out the area of the touchpad where the buttons
-> are. Any movement in that area is discarded. Thus, the only way to be
-> sure of a click is to position with one touch, then lift the touch, t=
-hen
-> click one of the buttons. Annoying :).
+Today, userspace sets up an input device based on the data it emits.
+This is not always enough; a tablet and a touchscreen may emit exactly
+the same data, for instance, but the former should be set up with a
+pointer whereas the latter does not need to. Recently, a new type of
+touchpad has emerged where the buttons are under the pad, which
+changes handling logic without changing the emitted data. This patch
+introduces a new ioctl, EVIOCGPROP, which enables user access to a set
+of device properties useful during setup. The properties are given as
+a bitmap in the same fashion as the event types.
 
-Is this custom code or in upstream (are you talking about
-inside_active_area logic?)?  I'm not sure why your seeing a jump if
-its being discarded.  There is a chance that something related to this
-discard logic is defeating the other logic that handles jumps caused
-during finger transitions.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Hi all,
 
->
->>> I think we should perform some rudimentary touch tracking to ensure=
- the
->>> same touch is always used for reporting ABS_X/ABS_Y. A simple dista=
-nce
->>> comparison between the two touches, as I implemented in one of my o=
-ther
->>> patches, would suffice.
->>
->>
->> One can certainly decide on the "best" coordinates when putting down=
- the second
->> finger, as we tried for elantech. However, after some movement, when=
- the second
->> finger is lifted, chances are you get a jump then instead.
->
-> Chris, isn't this filtered out in xf86-input-synaptics based on the
-> change in the number of touches?
+Here is version two of the device information proposal. In addition to
+implementing the feedback, this version only defines a single combined
+type/capabilities field. Since we want to support a device being of
+multiple types, it suggests that we are really after the properties
+that make up a type, rather than the types themselves. And since
+quirks are also properties, we end up with a single bitmap of
+properties instead.
 
-Yes, in version 1.30 or newer xf86-input-synaptics anyways.  And of
-course the *TAP transition needs to come in same sync window as jump
-for it to be helpful.  It may be able to handle if *TAP comes 1 sync
-window before jump but that would be about the limit.
+As an example of how this would work for the
+touchpad/tablet/touchscreen triplet, there are two properties defined,
+INPUT_PROP_POINTER and INPUT_PROP_DIRECT. A touchpad is an indirect
+pointer device, a tablet is a direct pointer device, and the
+touchscreen is simply a direct device.
 
-Mind sending me a evtest log snippet during
-touch-then-click-with-2nd-finger (with MT mode enabled)?  Seeing those
-tends to be better for understanding then words for me.  I'm
-interested for more then just this specific issue, btw.
+What do you think?
 
-I'm really interested in where the *TAP come (before or after)
-relative to cursor jump and how close it was to being filtered out by
-xf86-input-synaptics.
+Thanks,
+Henrik
 
->
->>> What do you think?
->>
->>
->> The general approach we have taken for the kernel is to provide a le=
-ft button
->> for both the macbooks and these clickpads, and in addition provide e=
-nough
->> information (read mt data) to solve this problem in userspace. In ot=
-her words,
->> one should probably see what additions are needed in the common X dr=
-ivers to
->> make the experience a pleasant one.
->
-> I think we're confusing clickpads and my "integrated buttons" trackpa=
-d
-> (I know we settled on a different name, but I can't remember it now :=
-).
-> I believe my issue is purely due to the primary coordinates switching
-> back and forth between two touches as I position and click with two f=
-ingers.
+PS. As before, the patch compiles, but is not further tested.
 
-I would think they both have same issue... Just yours may have some
-extra movement and pressure changes compared to the other.
+ drivers/input/evdev.c |    4 ++++
+ drivers/input/input.c |    2 ++
+ include/linux/input.h |   16 ++++++++++++++++
+ 3 files changed, 22 insertions(+), 0 deletions(-)
 
-Chris
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e3f7fc6..0cd97e8 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -677,6 +677,10 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ #define EVIOC_MASK_SIZE(nr)	((nr) & ~(_IOC_SIZEMASK << _IOC_SIZESHIFT))
+ 	switch (EVIOC_MASK_SIZE(cmd)) {
+ 
++	case EVIOCGPROP(0):
++		return bits_to_user(dev->propbit, INPUT_PROP_MAX,
++				    size, p, compat_mode);
++
+ 	case EVIOCGKEY(0):
+ 		return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
+ 
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 37708d1..ac751ce 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1409,6 +1409,7 @@ INPUT_DEV_CAP_ATTR(LED, led);
+ INPUT_DEV_CAP_ATTR(SND, snd);
+ INPUT_DEV_CAP_ATTR(FF, ff);
+ INPUT_DEV_CAP_ATTR(SW, sw);
++INPUT_DEV_CAP_ATTR(INPUT_PROP, prop);
+ 
+ static struct attribute *input_dev_caps_attrs[] = {
+ 	&dev_attr_ev.attr,
+@@ -1420,6 +1421,7 @@ static struct attribute *input_dev_caps_attrs[] = {
+ 	&dev_attr_snd.attr,
+ 	&dev_attr_ff.attr,
+ 	&dev_attr_sw.attr,
++	&dev_attr_prop.attr,
+ 	NULL
+ };
+ 
+diff --git a/include/linux/input.h b/include/linux/input.h
+index b3a1e02..53d6364 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -91,6 +91,7 @@ struct input_keymap_entry {
+ #define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
+ #define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
+ #define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
++#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)		/* get device properties */
+ 
+ #define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
+ #define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
+@@ -108,6 +109,18 @@ struct input_keymap_entry {
+ #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
+ 
+ /*
++ * Device properties and quirks
++ */
++
++#define INPUT_PROP_POINTER		0x00	/* needs a pointer */
++#define INPUT_PROP_DIRECT		0x01	/* direct object manipulation */
++#define INPUT_PROP_BUTTONPAD		0x02	/* has button(s) under pad */
++#define INPUT_PROP_SEMI_MT		0x03	/* touch rectangle only */
++
++#define INPUT_PROP_MAX			0x1f
++#define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
++
++/*
+  * Event types
+  */
+ 
+@@ -1090,6 +1103,7 @@ struct ff_effect {
+  * @phys: physical path to the device in the system hierarchy
+  * @uniq: unique identification code for the device (if device has it)
+  * @id: id of the device (struct input_id)
++ * @propbit: bitmap of device properties and quirks
+  * @evbit: bitmap of types of events supported by the device (EV_KEY,
+  *	EV_REL, etc.)
+  * @keybit: bitmap of keys/buttons this device has
+@@ -1173,6 +1187,8 @@ struct input_dev {
+ 	const char *uniq;
+ 	struct input_id id;
+ 
++	unsigned long propbit[BITS_TO_LONGS(INPUT_PROP_CNT)];
++
+ 	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
+ 	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
+ 	unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
+-- 
+1.7.2.3
 
->
-> Also, I have been told by an OEM partner that my trackpad will *never=
-*
-> be used again :). We could consider quirking it if what makes this
-> trackpad work is detrimental to other trackpads.
->
-> Thanks,
->
-> -- Chase
->

@@ -1,67 +1,64 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 1/2] Input: synaptics - add multitouch packet support
-Date: Wed, 15 Dec 2010 15:21:28 +0100
-Message-ID: <4D08CEE8.9080804@euromail.se>
-References: <1292280948-1933-1-git-send-email-rydberg@euromail.se> <4D06A7B1.6060609@canonical.com> <4D06A90C.90009@euromail.se> <4D07E38C.4020201@canonical.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
+Date: Wed, 15 Dec 2010 12:31:13 -0500
+Message-ID: <4D08FB61.6000404@canonical.com>
+References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com> <20101214221241.GA11519@core.coreip.homeip.net> <4D080A13.6050601@canonical.com> <4D081BF2.7000202@euromail.se> <20101215072528.GB11867@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:33350 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753942Ab0LOOVx (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:56835 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750886Ab0LORbW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 09:21:53 -0500
-In-Reply-To: <4D07E38C.4020201@canonical.com>
+	Wed, 15 Dec 2010 12:31:22 -0500
+In-Reply-To: <20101215072528.GB11867@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->
-
-> After some testing this is mostly fine,
-
- but I have one of those terrible
-> "integrated buttons" (or whatever we call it) trackpads. When switching
-> to multitouch mode, the cursor will sometimes jump when I go to push the
-> button.
+On 12/15/2010 02:25 AM, Dmitry Torokhov wrote:
+> On Wed, Dec 15, 2010 at 02:37:54AM +0100, Henrik Rydberg wrote:
+>> Hi Chase,
+>>
+>>>
+>>
+>>> I gave this some more thought, and I was close to accepting it with
+>>> documentation of the above restrictions. Then I thought of how the
+>>> following two devices would be presented to userspace:
+>>>
+>>> 1. A real MT device supporting up to 2 touches (e.g. a bamboo touch)
+>>>   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
+>>>   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
+>>>
+>>> 2. A partial MT device using MT_TOOL_ENVELOPE (e.g. synaptics MT)
+>>>   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
+>>>   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
+>>>
+>>> Note that they are identical! The range of values for each axis would be
+>>> identical too. The only way to tell the two apart would be to watch for
+>>> the ABS_MT_TOOL_TYPE axis.
 > 
-> Take the following sequence:
-> 
-> 1. Touch in top right corner of pad to position cursor
-> 2. Touch in bottom left corner over button
-> 3. Press button, but finger moves a little
-> 
-> Step 3 causes the primary coordinates in the synaptics MT protocol to
-> flip to the button-pressing touch. This causes a cursor jump. *Many*
-> times I have gone to press an "Ok" dialog button and found that I
-> accidentally launched an application from my dock :).
+> Question: does the driver really need to know this data beforehand?  I'd
+> expect MT-aware driver simply having handlers for both styles and then
+> doing the best it can with the data stream it gets... There should not
+> be ambiguity as to what event is - I believe we should be sending
+> BTN_TOOL_ENVELOPE even for the single/first contact for devices that do
+> not do full MT tracking.
 
+In XI 2.1 with MT, I would envision a partial MT device having different
+axis labels. We don't want to push an implementation specific
+abstraction, as MT_TOOL_ENVELOPE is, through the X protocol and require
+clients to watch the tool type. It should be readily apparent by the
+axis labels of the position valuators whether they represent true MT
+coordinates or a bounding rectangle of touches.
 
-I see - the behavior of the primary coordinates seems to vary between models,
-then. On the other hand, if you point and click with the same finger, one could
-possibly go around this problem, even though it means less precision. On my MT
-laptop, I can click at the very edge of the pad without the cursor moving.
-
-> I think we should perform some rudimentary touch tracking to ensure the
-> same touch is always used for reporting ABS_X/ABS_Y. A simple distance
-> comparison between the two touches, as I implemented in one of my other
-> patches, would suffice.
-
-
-One can certainly decide on the "best" coordinates when putting down the second
-finger, as we tried for elantech. However, after some movement, when the second
-finger is lifted, chances are you get a jump then instead.
-
-> What do you think?
-
-
-The general approach we have taken for the kernel is to provide a left button
-for both the macbooks and these clickpads, and in addition provide enough
-information (read mt data) to solve this problem in userspace. In other words,
-one should probably see what additions are needed in the common X drivers to
-make the experience a pleasant one.
+As for whether clients will want to know if the device is real or
+partial MT, I think we should design a protocol that allows for a client
+to know. Maybe the application gives visual feedback on how to perform
+gestures depending on the device type?
 
 Thanks,
-Henrik
+
+-- Chase

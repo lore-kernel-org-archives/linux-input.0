@@ -1,56 +1,89 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
-Date: Wed, 15 Dec 2010 12:40:04 -0500
-Message-ID: <4D08FD74.4060403@canonical.com>
-References: <4D0897F3.7040500@bitmath.org>
+Subject: Re: [PATCH 1/2] Input: synaptics - add multitouch packet support
+Date: Wed, 15 Dec 2010 12:47:59 -0500
+Message-ID: <4D08FF4F.1020307@canonical.com>
+References: <1292280948-1933-1-git-send-email-rydberg@euromail.se> <4D06A7B1.6060609@canonical.com> <4D06A90C.90009@euromail.se> <4D07E38C.4020201@canonical.com> <4D08CEE8.9080804@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:53246 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:60229 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751650Ab0LORkJ (ORCPT
+	with ESMTP id S1753476Ab0LORsG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 12:40:09 -0500
-In-Reply-To: <4D0897F3.7040500@bitmath.org>
+	Wed, 15 Dec 2010 12:48:06 -0500
+In-Reply-To: <4D08CEE8.9080804@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/15/2010 05:26 AM, Henrik Rydberg wrote:
->>> Ping has touched upon this subject as well, from the pen & touch perspective.
->>> Generally, some ABS axes are actually enumerations, for which we have no
->>> direct abstraction. If we had a way to declare the used values for such
->>> enumerations, it would resolve these and possibly other issues.
+On 12/15/2010 09:21 AM, Henrik Rydberg wrote:
+>> After some testing this is mostly fine,
 > 
->> I think that presence of pen/touch can be detected by having
->> BTN_TOOL_PEN and BTN_TOOL_FINGER. However in this case the tool is
->> finger, so I do not think we should introduce BTN_TOOL_ENVELOPE. Maybe
->> this is another case where we should employ the proposed device flags?
+>  but I have one of those terrible
+>> "integrated buttons" (or whatever we call it) trackpads. When switching
+>> to multitouch mode, the cursor will sometimes jump when I go to push the
+>> button.
+>>
+>> Take the following sequence:
+>>
+>> 1. Touch in top right corner of pad to position cursor
+>> 2. Touch in bottom left corner over button
+>> 3. Press button, but finger moves a little
+>>
+>> Step 3 causes the primary coordinates in the synaptics MT protocol to
+>> flip to the button-pressing touch. This causes a cursor jump. *Many*
+>> times I have gone to press an "Ok" dialog button and found that I
+>> accidentally launched an application from my dock :).
 > 
-> Yes. Having something like INPUT_QUIRK_SEMI_MT might be enough, and we could
-> drop the whole MT_TOOL_ENVELOPE circus. Chase, Peter, Chris, would you be
-> comfortable with such a solution?
+> 
+> I see - the behavior of the primary coordinates seems to vary between models,
+> then. On the other hand, if you point and click with the same finger, one could
+> possibly go around this problem, even though it means less precision. On my MT
+> laptop, I can click at the very edge of the pad without the cursor moving.
 
-That sounds like a good solution to me. I believe it would resolve all
-the issues I had.
+Because of the mechanical properties of my particular touchpad, it's
+nearly impossible to click without dragging. My touchpad isn't one of
+the new clickpads where the entire pad hinges. On a clickpad, I would
+hope depress without movement is easy. On my trackpad, the buttons are
+somewhat stiff and flex non-uniformly, causing the unwanted movement.
 
-As I attempted to write up more documentation, I thought of the
-following. What do you think?
+So, in Ubuntu we mask out the area of the touchpad where the buttons
+are. Any movement in that area is discarded. Thus, the only way to be
+sure of a click is to position with one touch, then lift the touch, then
+click one of the buttons. Annoying :).
 
-With regards to partial MT devices, if the device provides a single
-valued property, such as pressure and tool type for synaptics, it may
-only be provided through the traditional property semantics, i.e.
-ABS_PRESSURE and BTN_TOOL_*. If the device provides multiple values for
-a property, then ABS_MT_* types may be used as well to provide up to two
-values, though the client should understand there's no direct
-correlation between the slot's coordinates and the property. I could see
-this being used to provide info on multiple tool types or a high and low
-pressure.
+>> I think we should perform some rudimentary touch tracking to ensure the
+>> same touch is always used for reporting ABS_X/ABS_Y. A simple distance
+>> comparison between the two touches, as I implemented in one of my other
+>> patches, would suffice.
+> 
+> 
+> One can certainly decide on the "best" coordinates when putting down the second
+> finger, as we tried for elantech. However, after some movement, when the second
+> finger is lifted, chances are you get a jump then instead.
 
-Enforcing the above behaviour provides even more information about the
-capabilities of the device based solely on the evdev codes published.
+Chris, isn't this filtered out in xf86-input-synaptics based on the
+change in the number of touches?
+
+>> What do you think?
+> 
+> 
+> The general approach we have taken for the kernel is to provide a left button
+> for both the macbooks and these clickpads, and in addition provide enough
+> information (read mt data) to solve this problem in userspace. In other words,
+> one should probably see what additions are needed in the common X drivers to
+> make the experience a pleasant one.
+
+I think we're confusing clickpads and my "integrated buttons" trackpad
+(I know we settled on a different name, but I can't remember it now :).
+I believe my issue is purely due to the primary coordinates switching
+back and forth between two touches as I position and click with two fingers.
+
+Also, I have been told by an OEM partner that my trackpad will *never*
+be used again :). We could consider quirking it if what makes this
+trackpad work is detrimental to other trackpads.
 
 Thanks,
 

@@ -1,49 +1,72 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
-Date: Wed, 15 Dec 2010 02:37:54 +0100
-Message-ID: <4D081BF2.7000202@euromail.se>
-References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com> <20101214221241.GA11519@core.coreip.homeip.net> <4D080A13.6050601@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Shubhrajyoti D <a0393217@india.ti.com>
+Subject: [PATCH v7] OMAP4:keypad: PM runtime
+Date: Wed, 15 Dec 2010 09:39:58 +0530
+Message-ID: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:59936 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753518Ab0LOBiO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Dec 2010 20:38:14 -0500
-In-Reply-To: <4D080A13.6050601@canonical.com>
+Received: from bear.ext.ti.com ([192.94.94.41]:41852 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753167Ab0LOEKG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Dec 2010 23:10:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
 
-Hi Chase,
+From: Abraham Arce <x0066660@ti.com>
 
->
+Enable Runtime PM functionality in OMAP4 driver based on the following assumptions
 
-> I gave this some more thought, and I was close to accepting it with
-> documentation of the above restrictions. Then I thought of how the
-> following two devices would be presented to userspace:
-> 
-> 1. A real MT device supporting up to 2 touches (e.g. a bamboo touch)
->   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
->   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
-> 
-> 2. A partial MT device using MT_TOOL_ENVELOPE (e.g. synaptics MT)
->   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
->   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
-> 
-> Note that they are identical! The range of values for each axis would be
-> identical too. The only way to tell the two apart would be to watch for
-> the ABS_MT_TOOL_TYPE axis.
+A minimal pm runtime get/put approach is implemented in probe/remove calls
+respectively.
 
+- Keyboard controller in wakeup domain so it is always on and
+  power impact may be minimal
+- In OMAP4 the device control is at module/device level and ick/fclk level control is
+  difficult so cutting of clocks will prevent interrupts.
 
-Ping has touched upon this subject as well, from the pen & touch perspective.
-Generally, some ABS axes are actually enumerations, for which we have no direct
-abstraction. If we had a way to declare the used values for such enumerations,
-it would resolve these and possibly other issues.
+Signed-off-by: Abraham Arce <x0066660@ti.com>
+Cc: Kevin Hilman <khilman@deeprootsystems.com>
+---
+Updating the changelogs as per Kevin's suggestion
+ drivers/input/keyboard/omap4-keypad.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-Thanks,
-Henrik
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index 45bd097..3d35774 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -29,6 +29,7 @@
+ #include <linux/io.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
++#include <linux/pm_runtime.h>
+ 
+ #include <plat/omap4-keypad.h>
+ 
+@@ -239,8 +240,11 @@ static int __devinit omap4_keypad_probe(struct platform_device *pdev)
+ 	matrix_keypad_build_keymap(pdata->keymap_data, row_shift,
+ 			input_dev->keycode, input_dev->keybit);
+ 
+-	omap4_keypad_config(keypad_data);
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_get_sync(&pdev->dev);
+ 
++	omap4_keypad_config(keypad_data);
++	
+ 	error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+ 			     IRQF_TRIGGER_RISING,
+ 			     "omap4-keypad", keypad_data);
+@@ -278,6 +282,10 @@ static int __devexit omap4_keypad_remove(struct platform_device *pdev)
+ 	struct resource *res;
+ 
+ 	free_irq(keypad_data->irq, keypad_data);
++
++	pm_runtime_put_sync(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
++
+ 	input_unregister_device(keypad_data->input);
+ 
+ 	iounmap(keypad_data->base);
+-- 
+1.7.0.4
 

@@ -1,84 +1,67 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: Re: [PATCH v7] OMAP4:keypad: PM runtime
-Date: Wed, 15 Dec 2010 19:33:21 +0530
-Message-ID: <AANLkTimnq5Wa52vOvK0+WD_e=OFoQYXpzYf1H8BuJyER@mail.gmail.com>
-References: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
-	<20101215053146.GA1822@charu-comp>
-	<AANLkTimaLQYGp4pasuuvj8Z7pKYHQ+L_VCJmeXu+EACQ@mail.gmail.com>
-	<AANLkTinEoHySMos6X2PPAJLJJqRAGTo_dkwizRyJm-cA@mail.gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 1/2] Input: synaptics - add multitouch packet support
+Date: Wed, 15 Dec 2010 15:21:28 +0100
+Message-ID: <4D08CEE8.9080804@euromail.se>
+References: <1292280948-1933-1-git-send-email-rydberg@euromail.se> <4D06A7B1.6060609@canonical.com> <4D06A90C.90009@euromail.se> <4D07E38C.4020201@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:45152 "EHLO
-	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752650Ab0LOODa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 09:03:30 -0500
-In-Reply-To: <AANLkTinEoHySMos6X2PPAJLJJqRAGTo_dkwizRyJm-cA@mail.gmail.com>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:33350 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753942Ab0LOOVx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Dec 2010 09:21:53 -0500
+In-Reply-To: <4D07E38C.4020201@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Varadarajan, Charulatha" <charu@ti.com>
-Cc: Shubhrajyoti D <a0393217@india.ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 15, 2010 at 2:28 PM, Varadarajan, Charulatha <charu@ti.com>=
- wrote:
-> Shubhro,
 >
-> On Wed, Dec 15, 2010 at 13:24, Datta, Shubhrajyoti <shubhrajyoti@ti.c=
-om> wrote:
->> On Wed, Dec 15, 2010 at 11:01 AM, Varadarajan, Charulatha <charu@ti.=
-com> wrote:
->>> * Shubhrajyoti D <a0393217@india.ti.com> [2010-12-15 09:39:58 +0530=
-]:
->>>
->>>> From: Abraham Arce <x0066660@ti.com>
->>>>
->>>> Enable Runtime PM functionality in OMAP4 driver based on the follo=
-wing assumptions
->>>>
->>>> A minimal pm runtime get/put approach is implemented in probe/remo=
-ve calls
->>>> respectively.
->>>>
->>>> - Keyboard controller in wakeup domain so it is always on and
->>>> =A0 power impact may be minimal
->>>> - In OMAP4 the device control is at module/device level and ick/fc=
-lk level control is
->>>> =A0 difficult so cutting of clocks will prevent interrupts.
->>>>
->>>> Signed-off-by: Abraham Arce <x0066660@ti.com>
->>>> Cc: Kevin Hilman <khilman@deeprootsystems.com>
->>>
->>> This patch is sent thrice (once with a different subject) but the
->>> version numbers are the same. It is not clear what is the intention=
- of this
->>> patch without hwmod database update. Am I missing any more patch he=
-re?
->> Yes missed the version.
->> =A0I have updated the change logs to be more descriptive and the sub=
-ject line.
->>
->>
->> Regarding the hwmod database update. That I deffered for reasons
->> - The clock changes need to be there as the update would mean reset =
-of clocks.
->> - Thought of completing the drivers/input before the hwmod database
->> and the board changes.
->> - Also currently the driver relies on the uboot settings for clock
->> this might remove that dependency.
->
-> I wish to differ here. This patch would not fix the above issues beca=
-use
-> pm runtime APIs (for OMAP) purely rely on omap_device and the keypad
-> driver is not yet hwmod adapted. Atleast put a dependency on any
-> hwmod series if you had sent them before.
-OK  will send a series with both patches mentioning the dependency.
->
-> -V Charulatha
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> After some testing this is mostly fine,
+
+ but I have one of those terrible
+> "integrated buttons" (or whatever we call it) trackpads. When switching
+> to multitouch mode, the cursor will sometimes jump when I go to push the
+> button.
+> 
+> Take the following sequence:
+> 
+> 1. Touch in top right corner of pad to position cursor
+> 2. Touch in bottom left corner over button
+> 3. Press button, but finger moves a little
+> 
+> Step 3 causes the primary coordinates in the synaptics MT protocol to
+> flip to the button-pressing touch. This causes a cursor jump. *Many*
+> times I have gone to press an "Ok" dialog button and found that I
+> accidentally launched an application from my dock :).
+
+
+I see - the behavior of the primary coordinates seems to vary between models,
+then. On the other hand, if you point and click with the same finger, one could
+possibly go around this problem, even though it means less precision. On my MT
+laptop, I can click at the very edge of the pad without the cursor moving.
+
+> I think we should perform some rudimentary touch tracking to ensure the
+> same touch is always used for reporting ABS_X/ABS_Y. A simple distance
+> comparison between the two touches, as I implemented in one of my other
+> patches, would suffice.
+
+
+One can certainly decide on the "best" coordinates when putting down the second
+finger, as we tried for elantech. However, after some movement, when the second
+finger is lifted, chances are you get a jump then instead.
+
+> What do you think?
+
+
+The general approach we have taken for the kernel is to provide a left button
+for both the macbooks and these clickpads, and in addition provide enough
+information (read mt data) to solve this problem in userspace. In other words,
+one should probably see what additions are needed in the common X drivers to
+make the experience a pleasant one.
+
+Thanks,
+Henrik

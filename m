@@ -1,125 +1,81 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: Re: [PATCH v7] OMAP4:keypad: PM runtime
-Date: Wed, 15 Dec 2010 13:24:16 +0530
-Message-ID: <AANLkTimaLQYGp4pasuuvj8Z7pKYHQ+L_VCJmeXu+EACQ@mail.gmail.com>
-References: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
-	<20101215053146.GA1822@charu-comp>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Driver problems: t213 on i8042 port
+Date: Wed, 15 Dec 2010 00:03:52 -0800
+Message-ID: <20101215080352.GA11920@core.coreip.homeip.net>
+References: <1291804388.3052.11.camel@lapland.localdomain>
+ <20101211071532.GB5306@core.coreip.homeip.net>
+ <1292057765.2844.9.camel@lapland.localdomain>
+ <20101213091027.GI21401@core.coreip.homeip.net>
+ <1292235175.2805.19.camel@lapland.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20101215053146.GA1822@charu-comp>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Varadarajan, Charulatha" <charu@ti.com>
-Cc: Shubhrajyoti D <a0393217@india.ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f42.google.com ([74.125.83.42]:52131 "EHLO
+	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754053Ab0LOIEA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Dec 2010 03:04:00 -0500
+Received: by gwb20 with SMTP id 20so1251359gwb.1
+        for <linux-input@vger.kernel.org>; Wed, 15 Dec 2010 00:04:00 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1292235175.2805.19.camel@lapland.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alex Hudson <home@alexhudson.com>
+Cc: Linux Input <linux-input@vger.kernel.org>
 
-On Wed, Dec 15, 2010 at 11:01 AM, Varadarajan, Charulatha <charu@ti.com=
-> wrote:
-> * Shubhrajyoti D <a0393217@india.ti.com> [2010-12-15 09:39:58 +0530]:
+On Mon, Dec 13, 2010 at 10:12:54AM +0000, Alex Hudson wrote:
+> On Mon, 2010-12-13 at 01:10 -0800, Dmitry Torokhov wrote:
+> > > [re: xf86 driver for t213 device]
+> >
+> > Any chance you could post a link to the sources?
+> 
+> I can:
+> 
+> http://www.tabletkiosk.de/files//linux-general/drivers/testing/touchkit-linux-2.2.0.tar.bz2
+> 
+> There is a thread about this driver on their site as well:
+> 
+> http://www.tabletkiosk.com/forum/forum_posts.asp?TID=103
+> 
+> It doesn't compile at all against current X.org; I can send you my diff
+> for that but it's all X.org ABI stuff - nothing to do with the actual
+> t213 protocol. However, some of this might be moot anyway:
+> 
+> > You can't simply allowing binding to SERIO_8042 as it will cause
+> > touchkit213 to fight with the standard psmouse driver. What needs to be
+> > done is to write a sub-driver (or protocol driver) for psmouse module
+> > which would probe the devices and automatically select proper protocol.
+> > 
+> > Please take a look at drivers/input/mouse/psmouse-base.c and friends
+> > there.
+> 
+> Ah, ok, that makes sense then - originally when I was trying to make
+> sense of this hardware it kept coming through as a PS/2 mouse but of
+> course X.org went slightly nuts with that configuration. 
+> 
+> As an aside, I wonder if this speaks to some of the problems I was
+> having with the X.org driver. I was simply attaching serio_raw to serio4
+> as per the instructions; however, if this "fights" (as you describe it)
+> with the ps2 mouse, that could explain why it would mostly work but then
+> go weird.
+> 
+> I had a look at psmouse-base.c, and I can see what you mean: also,
+> there's a "Touchkit" driver for eGalax, and the protocol there looks
+> identical. Weirdly, this isn't working - even though looking at the code
+> the detect() function doesn't seem to need a manual trigger.
 >
->> From: Abraham Arce <x0066660@ti.com>
->>
->> Enable Runtime PM functionality in OMAP4 driver based on the followi=
-ng assumptions
->>
->> A minimal pm runtime get/put approach is implemented in probe/remove=
- calls
->> respectively.
->>
->> - Keyboard controller in wakeup domain so it is always on and
->> =A0 power impact may be minimal
->> - In OMAP4 the device control is at module/device level and ick/fclk=
- level control is
->> =A0 difficult so cutting of clocks will prevent interrupts.
->>
->> Signed-off-by: Abraham Arce <x0066660@ti.com>
->> Cc: Kevin Hilman <khilman@deeprootsystems.com>
->
-> This patch is sent thrice (once with a different subject) but the
-> version numbers are the same. It is not clear what is the intention o=
-f this
-> patch without hwmod database update. Am I missing any more patch here=
-?
-Yes missed the version.
- I have updated the change logs to be more descriptive and the subject =
-line.
 
+Touchkit initialization sequence looks similar to the one used in X
+driver. You probably want to boot with i8042.debug (or activate it via
+/sys/module/i8042/parameters/debug), load psmouse module and see what
+kind of response you are getting from the device.
 
-Regarding the hwmod database update. That I deffered for reasons
-- The clock changes need to be there as the update would mean reset of =
-clocks.
-- Thought of completing the drivers/input before the hwmod database
-and the board changes.
-- Also currently the driver relies on the uboot settings for clock
-this might remove that dependency.
+Also, have you tried forcing touchkit protocol by doing:
 
->
->> ---
->> Updating the changelogs as per Kevin's suggestion
->> =A0drivers/input/keyboard/omap4-keypad.c | =A0 10 +++++++++-
->> =A01 files changed, 9 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/k=
-eyboard/omap4-keypad.c
->> index 45bd097..3d35774 100644
->> --- a/drivers/input/keyboard/omap4-keypad.c
->> +++ b/drivers/input/keyboard/omap4-keypad.c
->> @@ -29,6 +29,7 @@
->> =A0#include <linux/io.h>
->> =A0#include <linux/input.h>
->> =A0#include <linux/slab.h>
->> +#include <linux/pm_runtime.h>
->>
->> =A0#include <plat/omap4-keypad.h>
->>
->> @@ -239,8 +240,11 @@ static int __devinit omap4_keypad_probe(struct =
-platform_device *pdev)
->> =A0 =A0 =A0 matrix_keypad_build_keymap(pdata->keymap_data, row_shift=
-,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_dev->keycode, inpu=
-t_dev->keybit);
->>
->> - =A0 =A0 omap4_keypad_config(keypad_data);
->> + =A0 =A0 pm_runtime_enable(&pdev->dev);
->> + =A0 =A0 pm_runtime_get_sync(&pdev->dev);
->>
->> + =A0 =A0 omap4_keypad_config(keypad_data);
->> +
->> =A0 =A0 =A0 error =3D request_irq(keypad_data->irq, omap4_keypad_int=
-errupt,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0IRQF_TRIGGER_=
-RISING,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"omap4-keypad=
-", keypad_data);
->> @@ -278,6 +282,10 @@ static int __devexit omap4_keypad_remove(struct=
- platform_device *pdev)
->> =A0 =A0 =A0 struct resource *res;
->>
->> =A0 =A0 =A0 free_irq(keypad_data->irq, keypad_data);
->> +
->> + =A0 =A0 pm_runtime_put_sync(&pdev->dev);
->> + =A0 =A0 pm_runtime_disable(&pdev->dev);
->> +
->> =A0 =A0 =A0 input_unregister_device(keypad_data->input);
->>
->> =A0 =A0 =A0 iounmap(keypad_data->base);
->> --
->> 1.7.0.4
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-omap=
-" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	echo "touchkit" > /sys/bus/serio/devices/serioX/protocol
+
+Thanks.
+
+-- 
+Dmitry

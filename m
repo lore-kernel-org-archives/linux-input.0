@@ -1,114 +1,40 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH v3] Input: add ST1232 touchscreen controller driver.
-Date: Wed, 15 Dec 2010 10:16:57 +0100
-Message-ID: <4D088789.9060102@euromail.se>
-References: <1292400728-15521-1-git-send-email-chinyeow.sim.xt@renesas.com>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
+Date: Wed, 15 Dec 2010 11:26:59 +0100
+Message-ID: <4D0897F3.7040500@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:60090 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750983Ab0LOJRs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 04:17:48 -0500
-In-Reply-To: <1292400728-15521-1-git-send-email-chinyeow.sim.xt@renesas.com>
+Received: from csmtp3.one.com ([91.198.169.23]:36743 "EHLO csmtp3.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752630Ab0LOKfu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Dec 2010 05:35:50 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chinyeow.sim.xt@renesas.com
-Cc: tsoni@codeaurora.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-> +
+>> Ping has touched upon this subject as well, from the pen & touch perspective.
+>> Generally, some ABS axes are actually enumerations, for which we have no
+>> direct abstraction. If we had a way to declare the used values for such
+>> enumerations, it would resolve these and possibly other issues.
 
-> +static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
-> +{
-> +	int i, ret, flg;
+> I think that presence of pen/touch can be detected by having
+> BTN_TOOL_PEN and BTN_TOOL_FINGER. However in this case the tool is
+> finger, so I do not think we should introduce BTN_TOOL_ENVELOPE. Maybe
+> this is another case where we should employ the proposed device flags?
 
+Yes. Having something like INPUT_QUIRK_SEMI_MT might be enough, and we could
+drop the whole MT_TOOL_ENVELOPE circus. Chase, Peter, Chris, would you be
+comfortable with such a solution?
 
-A "int count = 0;" makes more sense than flg.
+> Anyway, it looks like we have a few concerns with current
+> MT_TOOL_ENVELOPE so I want to rewind my 'next' branch.
 
-> +	struct st1232_ts_data *ts = dev_id;
-> +	struct st1232_ts_finger *finger = ts->finger;
-> +
-> +	ret = st1232_ts_read_data(ts);
-> +	if (ret < 0)
-> +		goto end;
-> +
-> +	/* multi touch protocol */
-> +	for (i = 0, flg = 0; i < MAX_FINGERS; i++) {
+Yep. Should I also take the opportunity to sync from -rc1 instead, and fold the
+cleanup patches into the appropriate places?
 
-
-flg initialization is hidden here, see above comment.
-
-> +		if (!finger[i].is_valid)
-> +			continue;
-> +		else
-> +			flg = 1;
-
-
-dropping this...
-
-> +
-> +		input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR,
-> +					finger[i].t);
-> +		input_report_abs(ts->input_dev, ABS_MT_POSITION_X, finger[i].x);
-> +		input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, finger[i].y);
-> +		input_mt_sync(ts->input_dev);
-
-
-and simply "count++;" here.
-
-> +	}
-> +
-> +	/* SYN_MT_REPORT only if no contact */
-> +	if (!flg)
-
-
-(!count)
-
-> +		input_mt_sync(ts->input_dev);
-> +
-> +	/* SYN_REPORT */
-> +	input_sync(ts->input_dev);
-> +
-> +end:
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +
-> +	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR,
-> +				0, MAX_AREA, 0, 0);
-> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
-> +				MIN_X, MAX_X, 0, 0);
-> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
-> +				MIN_Y, MAX_Y, 0, 0);
-> +
-> +	ret = input_register_device(ts->input_dev);
-> +	if (ret) {
-> +		dev_err(&client->dev, "Unable to register %s input device\n",
-> +			ts->input_dev->name);
-> +		goto err_free_input_device;
-> +	}
-> +
-> +	ret = request_threaded_irq(client->irq, NULL, st1232_ts_irq_handler,
-> +					IRQF_ONESHOT, client->name, ts);
-> +	if (ret) {
-> +		dev_err(&client->dev, "Failed to register interrupt\n");
-> +		goto err_free_input_device;
-> +	}
-> +
-> +	device_init_wakeup(&client->dev, 1);
-> +
-> +	return 0;
-> +
-> +err_free_input_device:
-> +	input_free_device(ts->input_dev);
-> +err_free_mem:
-> +	kfree(ts);
-> +err:
-> +	return ret;
-> +}
-
-
-Thank you,
+Thanks,
 Henrik
+

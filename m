@@ -1,33 +1,125 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] msm: trout: add keypad support
-Date: Wed, 15 Dec 2010 08:48:41 +0100
-Message-ID: <20101215074841.GB2483@ucw.cz>
-References: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
+From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Subject: Re: [PATCH v7] OMAP4:keypad: PM runtime
+Date: Wed, 15 Dec 2010 13:24:16 +0530
+Message-ID: <AANLkTimaLQYGp4pasuuvj8Z7pKYHQ+L_VCJmeXu+EACQ@mail.gmail.com>
+References: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
+	<20101215053146.GA1822@charu-comp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:40180 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752766Ab0LOHst (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 02:48:49 -0500
-Content-Disposition: inline
-In-Reply-To: <1291854285-29566-1-git-send-email-dwalker@codeaurora.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20101215053146.GA1822@charu-comp>
+Sender: linux-omap-owner@vger.kernel.org
+To: "Varadarajan, Charulatha" <charu@ti.com>
+Cc: Shubhrajyoti D <a0393217@india.ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
 List-Id: linux-input@vger.kernel.org
-To: Daniel Walker <dwalker@codeaurora.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, tsoni@codeaurora.org, arve@android.com
 
-On Wed 2010-12-08 16:24:45, Daniel Walker wrote:
-> This adds matrix keypad support, and gpio buttons support for
-> trout's various keys and buttons.
+On Wed, Dec 15, 2010 at 11:01 AM, Varadarajan, Charulatha <charu@ti.com=
+> wrote:
+> * Shubhrajyoti D <a0393217@india.ti.com> [2010-12-15 09:39:58 +0530]:
+>
+>> From: Abraham Arce <x0066660@ti.com>
+>>
+>> Enable Runtime PM functionality in OMAP4 driver based on the followi=
+ng assumptions
+>>
+>> A minimal pm runtime get/put approach is implemented in probe/remove=
+ calls
+>> respectively.
+>>
+>> - Keyboard controller in wakeup domain so it is always on and
+>> =A0 power impact may be minimal
+>> - In OMAP4 the device control is at module/device level and ick/fclk=
+ level control is
+>> =A0 difficult so cutting of clocks will prevent interrupts.
+>>
+>> Signed-off-by: Abraham Arce <x0066660@ti.com>
+>> Cc: Kevin Hilman <khilman@deeprootsystems.com>
+>
+> This patch is sent thrice (once with a different subject) but the
+> version numbers are the same. It is not clear what is the intention o=
+f this
+> patch without hwmod database update. Am I missing any more patch here=
+?
+Yes missed the version.
+ I have updated the change logs to be more descriptive and the subject =
+line.
 
-Yeah, but everyone knows trout as 'HTC Dream'.
 
-> +static const uint32_t trout_keymap_evt2_1[] = {
+Regarding the hwmod database update. That I deffered for reasons
+- The clock changes need to be there as the update would mean reset of =
+clocks.
+- Thought of completing the drivers/input before the hwmod database
+and the board changes.
+- Also currently the driver relies on the uboot settings for clock
+this might remove that dependency.
 
-u32?
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>
+>> ---
+>> Updating the changelogs as per Kevin's suggestion
+>> =A0drivers/input/keyboard/omap4-keypad.c | =A0 10 +++++++++-
+>> =A01 files changed, 9 insertions(+), 1 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/k=
+eyboard/omap4-keypad.c
+>> index 45bd097..3d35774 100644
+>> --- a/drivers/input/keyboard/omap4-keypad.c
+>> +++ b/drivers/input/keyboard/omap4-keypad.c
+>> @@ -29,6 +29,7 @@
+>> =A0#include <linux/io.h>
+>> =A0#include <linux/input.h>
+>> =A0#include <linux/slab.h>
+>> +#include <linux/pm_runtime.h>
+>>
+>> =A0#include <plat/omap4-keypad.h>
+>>
+>> @@ -239,8 +240,11 @@ static int __devinit omap4_keypad_probe(struct =
+platform_device *pdev)
+>> =A0 =A0 =A0 matrix_keypad_build_keymap(pdata->keymap_data, row_shift=
+,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_dev->keycode, inpu=
+t_dev->keybit);
+>>
+>> - =A0 =A0 omap4_keypad_config(keypad_data);
+>> + =A0 =A0 pm_runtime_enable(&pdev->dev);
+>> + =A0 =A0 pm_runtime_get_sync(&pdev->dev);
+>>
+>> + =A0 =A0 omap4_keypad_config(keypad_data);
+>> +
+>> =A0 =A0 =A0 error =3D request_irq(keypad_data->irq, omap4_keypad_int=
+errupt,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0IRQF_TRIGGER_=
+RISING,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"omap4-keypad=
+", keypad_data);
+>> @@ -278,6 +282,10 @@ static int __devexit omap4_keypad_remove(struct=
+ platform_device *pdev)
+>> =A0 =A0 =A0 struct resource *res;
+>>
+>> =A0 =A0 =A0 free_irq(keypad_data->irq, keypad_data);
+>> +
+>> + =A0 =A0 pm_runtime_put_sync(&pdev->dev);
+>> + =A0 =A0 pm_runtime_disable(&pdev->dev);
+>> +
+>> =A0 =A0 =A0 input_unregister_device(keypad_data->input);
+>>
+>> =A0 =A0 =A0 iounmap(keypad_data->base);
+>> --
+>> 1.7.0.4
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-omap=
+" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

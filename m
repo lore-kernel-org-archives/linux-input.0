@@ -1,63 +1,56 @@
 From: Chase Douglas <chase.douglas@canonical.com>
 Subject: Re: [PATCH 0/4] Alternative approach to MT_TOOL_ENVELOPE
-Date: Wed, 15 Dec 2010 12:31:13 -0500
-Message-ID: <4D08FB61.6000404@canonical.com>
-References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com> <20101214221241.GA11519@core.coreip.homeip.net> <4D080A13.6050601@canonical.com> <4D081BF2.7000202@euromail.se> <20101215072528.GB11867@core.coreip.homeip.net>
+Date: Wed, 15 Dec 2010 12:40:04 -0500
+Message-ID: <4D08FD74.4060403@canonical.com>
+References: <4D0897F3.7040500@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:56835 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:53246 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750886Ab0LORbW (ORCPT
+	with ESMTP id S1751650Ab0LORkJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 12:31:22 -0500
-In-Reply-To: <20101215072528.GB11867@core.coreip.homeip.net>
+	Wed, 15 Dec 2010 12:40:09 -0500
+In-Reply-To: <4D0897F3.7040500@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 12/15/2010 02:25 AM, Dmitry Torokhov wrote:
-> On Wed, Dec 15, 2010 at 02:37:54AM +0100, Henrik Rydberg wrote:
->> Hi Chase,
->>
->>>
->>
->>> I gave this some more thought, and I was close to accepting it with
->>> documentation of the above restrictions. Then I thought of how the
->>> following two devices would be presented to userspace:
->>>
->>> 1. A real MT device supporting up to 2 touches (e.g. a bamboo touch)
->>>   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
->>>   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
->>>
->>> 2. A partial MT device using MT_TOOL_ENVELOPE (e.g. synaptics MT)
->>>   - ABS_{X,Y}, BTN_TOUCH, BTN_TOOL_FINGER, and BTN_TOOL_DOUBLETAP for ST
->>>   - ABS_MT_SLOT, ABS_MT_TRACKING_ID, ABS_MT_POSITION_{X,Y}, ABS_MT_TOOL_TYPE
->>>
->>> Note that they are identical! The range of values for each axis would be
->>> identical too. The only way to tell the two apart would be to watch for
->>> the ABS_MT_TOOL_TYPE axis.
+On 12/15/2010 05:26 AM, Henrik Rydberg wrote:
+>>> Ping has touched upon this subject as well, from the pen & touch perspective.
+>>> Generally, some ABS axes are actually enumerations, for which we have no
+>>> direct abstraction. If we had a way to declare the used values for such
+>>> enumerations, it would resolve these and possibly other issues.
 > 
-> Question: does the driver really need to know this data beforehand?  I'd
-> expect MT-aware driver simply having handlers for both styles and then
-> doing the best it can with the data stream it gets... There should not
-> be ambiguity as to what event is - I believe we should be sending
-> BTN_TOOL_ENVELOPE even for the single/first contact for devices that do
-> not do full MT tracking.
+>> I think that presence of pen/touch can be detected by having
+>> BTN_TOOL_PEN and BTN_TOOL_FINGER. However in this case the tool is
+>> finger, so I do not think we should introduce BTN_TOOL_ENVELOPE. Maybe
+>> this is another case where we should employ the proposed device flags?
+> 
+> Yes. Having something like INPUT_QUIRK_SEMI_MT might be enough, and we could
+> drop the whole MT_TOOL_ENVELOPE circus. Chase, Peter, Chris, would you be
+> comfortable with such a solution?
 
-In XI 2.1 with MT, I would envision a partial MT device having different
-axis labels. We don't want to push an implementation specific
-abstraction, as MT_TOOL_ENVELOPE is, through the X protocol and require
-clients to watch the tool type. It should be readily apparent by the
-axis labels of the position valuators whether they represent true MT
-coordinates or a bounding rectangle of touches.
+That sounds like a good solution to me. I believe it would resolve all
+the issues I had.
 
-As for whether clients will want to know if the device is real or
-partial MT, I think we should design a protocol that allows for a client
-to know. Maybe the application gives visual feedback on how to perform
-gestures depending on the device type?
+As I attempted to write up more documentation, I thought of the
+following. What do you think?
+
+With regards to partial MT devices, if the device provides a single
+valued property, such as pressure and tool type for synaptics, it may
+only be provided through the traditional property semantics, i.e.
+ABS_PRESSURE and BTN_TOOL_*. If the device provides multiple values for
+a property, then ABS_MT_* types may be used as well to provide up to two
+values, though the client should understand there's no direct
+correlation between the slot's coordinates and the property. I could see
+this being used to provide info on multiple tool types or a high and low
+pressure.
+
+Enforcing the above behaviour provides even more information about the
+capabilities of the device based solely on the evdev codes published.
 
 Thanks,
 

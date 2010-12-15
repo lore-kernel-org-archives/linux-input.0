@@ -1,73 +1,114 @@
-From: "Varadarajan, Charulatha" <charu@ti.com>
-Subject: Re: [PATCH v7] OMAP4:keypad: PM runtime
-Date: Wed, 15 Dec 2010 14:28:20 +0530
-Message-ID: <AANLkTinEoHySMos6X2PPAJLJJqRAGTo_dkwizRyJm-cA@mail.gmail.com>
-References: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
- <20101215053146.GA1822@charu-comp> <AANLkTimaLQYGp4pasuuvj8Z7pKYHQ+L_VCJmeXu+EACQ@mail.gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH v3] Input: add ST1232 touchscreen controller driver.
+Date: Wed, 15 Dec 2010 10:16:57 +0100
+Message-ID: <4D088789.9060102@euromail.se>
+References: <1292400728-15521-1-git-send-email-chinyeow.sim.xt@renesas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <AANLkTimaLQYGp4pasuuvj8Z7pKYHQ+L_VCJmeXu+EACQ@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Cc: Shubhrajyoti D <a0393217@india.ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:60090 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750983Ab0LOJRs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Dec 2010 04:17:48 -0500
+In-Reply-To: <1292400728-15521-1-git-send-email-chinyeow.sim.xt@renesas.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: chinyeow.sim.xt@renesas.com
+Cc: tsoni@codeaurora.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Shubhro,
+> +
 
-On Wed, Dec 15, 2010 at 13:24, Datta, Shubhrajyoti <shubhrajyoti@ti.com=
-> wrote:
-> On Wed, Dec 15, 2010 at 11:01 AM, Varadarajan, Charulatha <charu@ti.c=
-om> wrote:
->> * Shubhrajyoti D <a0393217@india.ti.com> [2010-12-15 09:39:58 +0530]=
-:
->>
->>> From: Abraham Arce <x0066660@ti.com>
->>>
->>> Enable Runtime PM functionality in OMAP4 driver based on the follow=
-ing assumptions
->>>
->>> A minimal pm runtime get/put approach is implemented in probe/remov=
-e calls
->>> respectively.
->>>
->>> - Keyboard controller in wakeup domain so it is always on and
->>> =A0 power impact may be minimal
->>> - In OMAP4 the device control is at module/device level and ick/fcl=
-k level control is
->>> =A0 difficult so cutting of clocks will prevent interrupts.
->>>
->>> Signed-off-by: Abraham Arce <x0066660@ti.com>
->>> Cc: Kevin Hilman <khilman@deeprootsystems.com>
->>
->> This patch is sent thrice (once with a different subject) but the
->> version numbers are the same. It is not clear what is the intention =
-of this
->> patch without hwmod database update. Am I missing any more patch her=
-e?
-> Yes missed the version.
-> =A0I have updated the change logs to be more descriptive and the subj=
-ect line.
->
->
-> Regarding the hwmod database update. That I deffered for reasons
-> - The clock changes need to be there as the update would mean reset o=
-f clocks.
-> - Thought of completing the drivers/input before the hwmod database
-> and the board changes.
-> - Also currently the driver relies on the uboot settings for clock
-> this might remove that dependency.
+> +static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
+> +{
+> +	int i, ret, flg;
 
-I wish to differ here. This patch would not fix the above issues becaus=
-e
-pm runtime APIs (for OMAP) purely rely on omap_device and the keypad
-driver is not yet hwmod adapted. Atleast put a dependency on any
-hwmod series if you had sent them before.
 
--V Charulatha
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+A "int count = 0;" makes more sense than flg.
+
+> +	struct st1232_ts_data *ts = dev_id;
+> +	struct st1232_ts_finger *finger = ts->finger;
+> +
+> +	ret = st1232_ts_read_data(ts);
+> +	if (ret < 0)
+> +		goto end;
+> +
+> +	/* multi touch protocol */
+> +	for (i = 0, flg = 0; i < MAX_FINGERS; i++) {
+
+
+flg initialization is hidden here, see above comment.
+
+> +		if (!finger[i].is_valid)
+> +			continue;
+> +		else
+> +			flg = 1;
+
+
+dropping this...
+
+> +
+> +		input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR,
+> +					finger[i].t);
+> +		input_report_abs(ts->input_dev, ABS_MT_POSITION_X, finger[i].x);
+> +		input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, finger[i].y);
+> +		input_mt_sync(ts->input_dev);
+
+
+and simply "count++;" here.
+
+> +	}
+> +
+> +	/* SYN_MT_REPORT only if no contact */
+> +	if (!flg)
+
+
+(!count)
+
+> +		input_mt_sync(ts->input_dev);
+> +
+> +	/* SYN_REPORT */
+> +	input_sync(ts->input_dev);
+> +
+> +end:
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +
+> +	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR,
+> +				0, MAX_AREA, 0, 0);
+> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
+> +				MIN_X, MAX_X, 0, 0);
+> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
+> +				MIN_Y, MAX_Y, 0, 0);
+> +
+> +	ret = input_register_device(ts->input_dev);
+> +	if (ret) {
+> +		dev_err(&client->dev, "Unable to register %s input device\n",
+> +			ts->input_dev->name);
+> +		goto err_free_input_device;
+> +	}
+> +
+> +	ret = request_threaded_irq(client->irq, NULL, st1232_ts_irq_handler,
+> +					IRQF_ONESHOT, client->name, ts);
+> +	if (ret) {
+> +		dev_err(&client->dev, "Failed to register interrupt\n");
+> +		goto err_free_input_device;
+> +	}
+> +
+> +	device_init_wakeup(&client->dev, 1);
+> +
+> +	return 0;
+> +
+> +err_free_input_device:
+> +	input_free_device(ts->input_dev);
+> +err_free_mem:
+> +	kfree(ts);
+> +err:
+> +	return ret;
+> +}
+
+
+Thank you,
+Henrik

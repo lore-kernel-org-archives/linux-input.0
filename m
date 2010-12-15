@@ -1,49 +1,73 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [PATCH v3] Input: add ST1232 touchscreen controller driver.
-Date: Wed, 15 Dec 2010 14:09:51 +0530
-Message-ID: <4D087ED7.2000101@codeaurora.org>
-References: <1292400728-15521-1-git-send-email-chinyeow.sim.xt@renesas.com>
+From: "Varadarajan, Charulatha" <charu@ti.com>
+Subject: Re: [PATCH v7] OMAP4:keypad: PM runtime
+Date: Wed, 15 Dec 2010 14:28:20 +0530
+Message-ID: <AANLkTinEoHySMos6X2PPAJLJJqRAGTo_dkwizRyJm-cA@mail.gmail.com>
+References: <1292386198-3587-1-git-send-email-a0393217@india.ti.com>
+ <20101215053146.GA1822@charu-comp> <AANLkTimaLQYGp4pasuuvj8Z7pKYHQ+L_VCJmeXu+EACQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:12667 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750963Ab0LOIj4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 03:39:56 -0500
-In-Reply-To: <1292400728-15521-1-git-send-email-chinyeow.sim.xt@renesas.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <AANLkTimaLQYGp4pasuuvj8Z7pKYHQ+L_VCJmeXu+EACQ@mail.gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Cc: Shubhrajyoti D <a0393217@india.ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>
 List-Id: linux-input@vger.kernel.org
-To: chinyeow.sim.xt@renesas.com
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, linux-input@vger.kernel.org
 
-Hi Tony,
+Shubhro,
 
-On 12/15/2010 1:42 PM, chinyeow.sim.xt@renesas.com wrote:
-> From: Tony SIM <chinyeow.sim.xt@renesas.com>
-> 
-> This patch set introduces for Sitronix ST1232 touchscreen controller
-> driver. This is an integrated capacitive touchscreen with LCD module
-> which can detect two fingers's touch X/Y coordinate.
-> 
-> Signed-off-by: Tony SIM <chinyeow.sim.xt@renesas.com>
+On Wed, Dec 15, 2010 at 13:24, Datta, Shubhrajyoti <shubhrajyoti@ti.com=
+> wrote:
+> On Wed, Dec 15, 2010 at 11:01 AM, Varadarajan, Charulatha <charu@ti.c=
+om> wrote:
+>> * Shubhrajyoti D <a0393217@india.ti.com> [2010-12-15 09:39:58 +0530]=
+:
+>>
+>>> From: Abraham Arce <x0066660@ti.com>
+>>>
+>>> Enable Runtime PM functionality in OMAP4 driver based on the follow=
+ing assumptions
+>>>
+>>> A minimal pm runtime get/put approach is implemented in probe/remov=
+e calls
+>>> respectively.
+>>>
+>>> - Keyboard controller in wakeup domain so it is always on and
+>>> =A0 power impact may be minimal
+>>> - In OMAP4 the device control is at module/device level and ick/fcl=
+k level control is
+>>> =A0 difficult so cutting of clocks will prevent interrupts.
+>>>
+>>> Signed-off-by: Abraham Arce <x0066660@ti.com>
+>>> Cc: Kevin Hilman <khilman@deeprootsystems.com>
+>>
+>> This patch is sent thrice (once with a different subject) but the
+>> version numbers are the same. It is not clear what is the intention =
+of this
+>> patch without hwmod database update. Am I missing any more patch her=
+e?
+> Yes missed the version.
+> =A0I have updated the change logs to be more descriptive and the subj=
+ect line.
+>
+>
+> Regarding the hwmod database update. That I deffered for reasons
+> - The clock changes need to be there as the update would mean reset o=
+f clocks.
+> - Thought of completing the drivers/input before the hwmod database
+> and the board changes.
+> - Also currently the driver relies on the uboot settings for clock
+> this might remove that dependency.
 
-Thanks for submitting 3rd version. We are getting closer to acceptance :)
+I wish to differ here. This patch would not fix the above issues becaus=
+e
+pm runtime APIs (for OMAP) purely rely on omap_device and the keypad
+driver is not yet hwmod adapted. Atleast put a dependency on any
+hwmod series if you had sent them before.
 
-> +struct st1232_ts_data {
-> +	struct i2c_client *client;
-> +	struct input_dev *input_dev;
-> +	struct delayed_work work;
-
-work is not used anymore. Please remove.
-
-> +	struct st1232_ts_finger finger[MAX_FINGERS];
-> +};
-> +
-
----Trilok Soni
-
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+-V Charulatha
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

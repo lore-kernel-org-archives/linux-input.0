@@ -1,49 +1,242 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 1/2] Input: synaptics - add multitouch packet support
-Date: Thu, 16 Dec 2010 09:42:29 +1000
-Message-ID: <20101215234228.GA4694@salty.local>
-References: <1292280948-1933-1-git-send-email-rydberg@euromail.se>
- <4D06A7B1.6060609@canonical.com>
- <4D06A90C.90009@euromail.se>
- <4D07E38C.4020201@canonical.com>
- <4D08CEE8.9080804@euromail.se>
- <4D08FF4F.1020307@canonical.com>
- <AANLkTikM5dXSv2onvF5aqzqkEuwrvbS5DTeE0CiW91j3@mail.gmail.com>
- <4D093218.8040707@canonical.com>
+Subject: Re: [PATCH 2/4] Documentation: Add evdev type and code definitions
+Date: Thu, 16 Dec 2010 09:59:01 +1000
+Message-ID: <20101215235900.GA4952@salty.local>
+References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com>
+ <1292361672-2581-3-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:32679 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755717Ab0LOX7N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Dec 2010 18:59:13 -0500
 Content-Disposition: inline
-In-Reply-To: <4D093218.8040707@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1292361672-2581-3-git-send-email-chase.douglas@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 15, 2010 at 04:24:40PM -0500, Chase Douglas wrote:
-> > Is this custom code or in upstream (are you talking about
-> > inside_active_area logic?)?  I'm not sure why your seeing a jump if
-> > its being discarded.  There is a chance that something related to this
-> > discard logic is defeating the other logic that handles jumps caused
-> > during finger transitions.
+On Tue, Dec 14, 2010 at 01:21:10PM -0800, Chase Douglas wrote:
+> This commit adds the file Documentation/input/evdev-codes.txt.
 > 
-> In Ubuntu 10.10 I think we are using an in-house patched hack. It was
-> necessary for an Dell Minis, which was a paid OEM services project, so
-> we needed a fix ASAP at the time. I believe xf86-input-synaptics has an
-> option for this now, so we'll probably transition whenever someone gets
-> a chance to take another look. It may be something that would be handled
-> better by the upstream logic. When I get a chance I'll try the upstream
-> logic instead.
+> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> ---
+>  Documentation/input/evdev-codes.txt |  160 +++++++++++++++++++++++++++++++++++
+>  1 files changed, 160 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/input/evdev-codes.txt
+> 
+> diff --git a/Documentation/input/evdev-codes.txt b/Documentation/input/evdev-codes.txt
+> new file mode 100644
+> index 0000000..69c810f
+> --- /dev/null
+> +++ b/Documentation/input/evdev-codes.txt
+> @@ -0,0 +1,160 @@
+> +The evdev protocol uses a map of types and codes to express input device values
+> +to userspace. This document describes the types and codes and how and when they
+> +may be used.
+> +
+> +Types:
+> +==========
+> +Types are groupings of codes under a logical input construct. Each type has a
+> +set of applicable codes to be used in generating events. See the Codes section
+> +for details on valid codes for each type.
+> +
+> +* EV_SYN:
+> +  - Used as markers to separate events. Events may be separated in time or in
+> +    space, such as with the multitouch protocol.
+> +* EV_KEY:
+> +  - Used to describe keyboard and other key-like input events.
+> +* EV_REL:
+> +  - Used to describe relative input events, e.g. moving the mouse 5 units to the
+> +    left.
+> +* EV_ABS:
+> +  - Used to describe absolute input events, e.g. describing the coordinates of a
+> +    touch on a touchscreen.
+> +* EV_MSC:
+> +  - Used to describe miscellaneous input events that do not fit into other
+> +    types.
+> +* EV_SW:
+> +  - Used to describe binary state input switches.
+> +* EV_LED:
+> +  - Used to turn LEDs on devices on and off.
+> +* EV_SND:
+> +  - Used to output sound to devices.
+> +* EV_REP:
+> +  - Used for autorepeating devices.
+> +* EV_FF:
+> +  - Used to send force feedback commands to an input device.
+> +* EV_PWR:
+> +  - A special type for power button and switch input.
+> +* EV_FF_STATUS:
+> +  - Used to receive force feedback device status.
+> +
+> +Codes:
+> +==========
+> +Codes define the precise type of event.
+> +
+> +EV_SYN Codes:
+> +----------
+> +EV_SYN event values are undefined. Their usage is
+> +defined only by when they are sent in the evdev event stream.
+> +
+> +* SYN_REPORT:
+> +  - Used to synchronize and separate events in time. For example, motion of a
+> +    mouse may set the REL_X and REL_Y values for one motion, then emit a
+> +    SYN_REPORT. The next motion will emit more REL_X and REL_Y values and send
+> +    another SYN_REPORT.
+> +* SYN_CONFIG:
+> +  - TBD
+> +* SYN_MT_REPORT:
+> +  - Used to synchronize and separate touch events. See the
+> +    multi-touch-protocol.txt document for more information.
+> +
+> +EV_KEY:
+> +----------
+> +EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
+> +to represent the 'A' key on a keyboard. When a key is depressed, an event with
+> +the key's code is emitted with value 1. When the key is depressed, an event is
+> +emitted with value 0. In general, KEY_<name> is used for keyboard keys, and
+> +BTN_<name> is used for other types of momentary switch events.
 
-mostly identical logic, but the Ubuntu patches only covered the bottom edge
-(MovementBottomEdge option, IIRC). The upstream version covers all four
-edges with AreaLeftEdge and friends.
-recent X servers also support a percentage as option, so instead of the
-hardcoded value for the edge, you can say Option "AreaBottomEdge" "20%"
+repeat keys have value 2, might want to add this here.
 
-I've had a few attempts to fix this touchpad to work slighlty better but
-the box died on me before I could finish it. Feel free to send me one of
-these machines if you want it fixed, it's been bugging me for ages :)
+> +
+> +A few EV_KEY codes have special meanings:
+> +
+> +* BTN_TOOL_<name>, BTN_TOUCH:
+> +  - These codes are used in conjunction with input trackpads, tablets, and
+> +    touchscreens. These devices may be used with fingers, pens, or other tools.
+> +    When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
+> +    code should be set to a value of 1. When the tool is no longer interacting
+> +    with the input device, the BTN_TOOL_<name> code should be reset to 0. All
+> +    trackpads, tablets, and touchscreens should use at least one BTN_TOOL_<name>
+> +    code when events are generated. For non-tablet devices, the tool is usually
+> +    BTN_TOUCH.
+
+BTN_TOUCH is used as proximity delimiter. e.g. wacom sends BTN_TOOL_PEN when
+the pen comes into proximity and (in addition) BTN_TOUCH when the pen
+actually touches the tablet. synaptics does the same IIRC except that it
+doesn't support hovering, so BTN_TOOL_FINGER and BTN_TOUCH are always
+set/unset in the same EV_SYN frame.
+
+
+> +
+> +* BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
+> +  - These codes denote one, two, three, and four finger interaction on a
+> +    trackpad or touchscreen. For example, if the user uses two fingers and moves
+> +    them on the touchpad in an effort to scroll content on screen,
+> +    BTN_TOOL_DOUBLETAP should be set to value 1 for the duration of the motion.
+> +    Note that these codes and the BTN_TOOL_<name> and BTN_TOUCH codes are
+> +    orthogonal in purpose. A trackpad event generated by finger touches should
+> +    generate events for one code from each group.
+> +
+> +* KEY_SUSPEND, KEY_POWER:
+> +  - These codes are reserved for the EV_PWR type.
+> +
+> +EV_REL:
+> +----------
+> +EV_REL events describe relative changes in a property. For example, a mouse may
+> +move to the left by a certain number of units, but its absolute position in
+> +space is unknown. If the absolute position is known, EV_ABS codes should be used
+> +instead of EV_REL codes.
+> +
+> +A few EV_REL codes have special meanings:
+> +
+> +* REL_WHEEL, REL_HWHEEL:
+> +  - These codes are used for vertical and horizontal scroll wheels,
+> +    respectively.
+
+I'm not sure they're special, other than in X where we still treat them as
+buttons by convention. It's good to describe them here, just in case, but I
+wouldn't call that a "special meaning".
+
+> +
+> +EV_ABS:
+> +----------
+> +EV_ABS events describe absolute changes in a property. For example, a touchpad
+> +may emit coordinates for a touch location.
+> +
+> +A few EV_ABS codes have special meanings:
+> +
+> +* ABS_PRESSURE:
+> +  - Used to describe the pressure of a touch interaction on an input device.
+
+again, that's not really special IMO. it pretty much does what it says on
+the box :)
+
+fwiw, I know that even though the documentation should be enough as-is,
+having a few simple examples are always really useful to form the picture in
+one's head. especially for newcomers who don't understand the basic concepts
+yet.
+
+just something like:
+"for example, an absolute device moving to a new position and pressing and
+releasing a button may send events like this:
+code            value
+-----------------------
+ABS_X           10
+ABS_Y           100
+BTN_LEFT        1
+EV_SYN          SYN_REPORT
+BTN_LEFT        0
+EV_SYN          SYN_REPORT
+
+This immediately makes it obvious that buttons and axes can be mixed in the
+same frame. you may want to also point to a few tools that show the event
+stream (evtest comes to mind as the most widely distributed).
 
 Cheers,
   Peter
+
+> +* ABS_DISTANCE:
+> +  - Used to describe the distance of a tool from an interaction surface. This
+> +    should only be used while the tool is in close proximity of the device. If
+> +    the input device may be used freely in three dimensions, consider ABS_Z
+> +    instead.
+> +* ABS_MT_<name>:
+> +  - Used to describe multitouch input events. Please see
+> +    multi-touch-protocol.txt for details.
+> +
+> +EV_SW:
+> +----------
+> +EV_SW events describe stateful binary switches. For example, the SW_LID code is
+> +used to denote when a laptop lid is closed.
+> +
+> +EV_MSC:
+> +----------
+> +EV_MSC events are used for input and output events that do not fall under other
+> +categories.
+> +
+> +EV_LED:
+> +----------
+> +EV_LED events are used for input and output to set and query the state of
+> +various LEDs on devices.
+> +
+> +EV_REP:
+> +----------
+> +EV_REP events are used for specifying autorepeating events.
+> +
+> +EV_SND:
+> +----------
+> +EV_SND events are used for sending sound commands to simple sound output
+> +devices.
+> +
+> +EV_FF:
+> +----------
+> +EV_FF events are used to initialize a force feedback capable device and to cause
+> +such device to feedback.
+> +
+> +EV_PWR:
+> +----------
+> +EV_PWR events are a special type of key event used specifically for monitoring
+> +power buttons and switches. The two codes in use are:
+> +
+> +* KEY_POWER:
+> +  - Used to denote a power button event.
+> +* KEY_SUSPEND:
+> +  - Used to denote a suspend button event.
+> -- 
+> 1.7.1

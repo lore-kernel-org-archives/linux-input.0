@@ -1,147 +1,352 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC v2] input: Introduce device information ioctl
-Date: Wed, 15 Dec 2010 16:43:58 -0800
-Message-ID: <20101216004358.GA22066@core.coreip.homeip.net>
-References: <1292440807-18502-1-git-send-email-rydberg@euromail.se>
- <20101216002941.GC4952@salty.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: chinyeow.sim.xt@renesas.com
+Subject: [PATCH v4] Input: add ST1232 touchscreen controller driver.
+Date: Thu, 16 Dec 2010 09:45:25 +0900
+Message-ID: <1292460325-4438-1-git-send-email-chinyeow.sim.xt@renesas.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f180.google.com ([209.85.214.180]:60958 "EHLO
-	mail-iw0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751305Ab0LPAoH (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:54416 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751728Ab0LPApd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Dec 2010 19:44:07 -0500
-Content-Disposition: inline
-In-Reply-To: <20101216002941.GC4952@salty.local>
+	Wed, 15 Dec 2010 19:45:33 -0500
+Received: by vws16 with SMTP id 16so1181720vws.19
+        for <linux-input@vger.kernel.org>; Wed, 15 Dec 2010 16:45:33 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: tsoni@codeaurora.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, linux-input@vger.kernel.org
+Cc: chinyeow.sim.xt@renesas.com
 
-On Thu, Dec 16, 2010 at 10:29:42AM +1000, Peter Hutterer wrote:
-> On Wed, Dec 15, 2010 at 08:20:07PM +0100, Henrik Rydberg wrote:
-> > Today, userspace sets up an input device based on the data it emits.
-> > This is not always enough; a tablet and a touchscreen may emit exactly
-> > the same data, for instance, but the former should be set up with a
-> > pointer whereas the latter does not need to. Recently, a new type of
-> > touchpad has emerged where the buttons are under the pad, which
-> > changes handling logic without changing the emitted data. This patch
-> > introduces a new ioctl, EVIOCGPROP, which enables user access to a set
-> > of device properties useful during setup. The properties are given as
-> > a bitmap in the same fashion as the event types.
-> > 
-> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> > ---
-> > Hi all,
-> > 
-> > Here is version two of the device information proposal. In addition to
-> > implementing the feedback, this version only defines a single combined
-> > type/capabilities field. Since we want to support a device being of
-> > multiple types, it suggests that we are really after the properties
-> > that make up a type, rather than the types themselves. And since
-> > quirks are also properties, we end up with a single bitmap of
-> > properties instead.
-> > 
-> > As an example of how this would work for the
-> > touchpad/tablet/touchscreen triplet, there are two properties defined,
-> > INPUT_PROP_POINTER and INPUT_PROP_DIRECT. A touchpad is an indirect
-> > pointer device, a tablet is a direct pointer device, and the
-> > touchscreen is simply a direct device.
-> > 
-> > What do you think?
-> > 
-> > Thanks,
-> > Henrik
-> > 
-> > PS. As before, the patch compiles, but is not further tested.
-> > 
-> >  drivers/input/evdev.c |    4 ++++
-> >  drivers/input/input.c |    2 ++
-> >  include/linux/input.h |   16 ++++++++++++++++
-> >  3 files changed, 22 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> > index e3f7fc6..0cd97e8 100644
-> > --- a/drivers/input/evdev.c
-> > +++ b/drivers/input/evdev.c
-> > @@ -677,6 +677,10 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
-> >  #define EVIOC_MASK_SIZE(nr)	((nr) & ~(_IOC_SIZEMASK << _IOC_SIZESHIFT))
-> >  	switch (EVIOC_MASK_SIZE(cmd)) {
-> >  
-> > +	case EVIOCGPROP(0):
-> > +		return bits_to_user(dev->propbit, INPUT_PROP_MAX,
-> > +				    size, p, compat_mode);
-> > +
-> >  	case EVIOCGKEY(0):
-> >  		return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
-> >  
-> > diff --git a/drivers/input/input.c b/drivers/input/input.c
-> > index 37708d1..ac751ce 100644
-> > --- a/drivers/input/input.c
-> > +++ b/drivers/input/input.c
-> > @@ -1409,6 +1409,7 @@ INPUT_DEV_CAP_ATTR(LED, led);
-> >  INPUT_DEV_CAP_ATTR(SND, snd);
-> >  INPUT_DEV_CAP_ATTR(FF, ff);
-> >  INPUT_DEV_CAP_ATTR(SW, sw);
-> > +INPUT_DEV_CAP_ATTR(INPUT_PROP, prop);
-> >  
-> >  static struct attribute *input_dev_caps_attrs[] = {
-> >  	&dev_attr_ev.attr,
-> > @@ -1420,6 +1421,7 @@ static struct attribute *input_dev_caps_attrs[] = {
-> >  	&dev_attr_snd.attr,
-> >  	&dev_attr_ff.attr,
-> >  	&dev_attr_sw.attr,
-> > +	&dev_attr_prop.attr,
-> >  	NULL
-> >  };
-> >  
-> > diff --git a/include/linux/input.h b/include/linux/input.h
-> > index b3a1e02..53d6364 100644
-> > --- a/include/linux/input.h
-> > +++ b/include/linux/input.h
-> > @@ -91,6 +91,7 @@ struct input_keymap_entry {
-> >  #define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
-> >  #define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
-> >  #define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
-> > +#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)		/* get device properties */
-> >  
-> >  #define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
-> >  #define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
-> > @@ -108,6 +109,18 @@ struct input_keymap_entry {
-> >  #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
-> >  
-> >  /*
-> > + * Device properties and quirks
-> > + */
-> > +
-> > +#define INPUT_PROP_POINTER		0x00	/* needs a pointer */
-> > +#define INPUT_PROP_DIRECT		0x01	/* direct object manipulation */
-> 
-> fwiw, I think the common term for these is "direct input devices", at least
-> that's how a lot of the research literature refers to them. Might be good to
-> use the same term.
-> 
-> either way, not sure about this one.  I've worked with devices that were
-> indirect by nature but used directly. e.g. the magic touchpad could quite
-> easily be used as direct input device with an top-down projector. the
-> decision to use it as an indirect device is a UI decision.
-> Likewise, some mountable direct-touch touchscreens can be used indirectly if
-> the touchscreen isn't mounted straight on the display. This is very much a
-> setup-specific property and I'm not sure about the value of this
-> information.
+From: Tony SIM <chinyeow.sim.xt@renesas.com>
 
-All of these "props" would have no reflection on the event stream
-generated by the device, and exist solely for the benefits of userspace
-consumers to help them set up the device automatically and interpret the
-data appropriately. As such, if someone uses touchscreen as a tablet, I
-believe userspace should allow it, but at the price of manual setup.
+This patch set introduces for Sitronix ST1232 touchscreen controller
+driver. This is an integrated capacitive touchscreen with LCD module
+which can detect two fingers's touch X/Y coordinate.
 
-If we start seeing cuch devices we could consider EVIOCSPROPS so
-infrastructure (udev) could adjust the properties so that upper levels
-(X) can still use the data to set up devices properly.
+Signed-off-by: Tony SIM <chinyeow.sim.xt@renesas.com>
+---
 
-What do you think?
+Thanks for review!
 
+Changes since v3:
+- Removed unused variable.
+- Changed touch counting flag.
+
+ drivers/input/touchscreen/Kconfig  |   11 ++
+ drivers/input/touchscreen/Makefile |    1 +
+ drivers/input/touchscreen/st1232.c |  273 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 285 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/st1232.c
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 06ea8da..3ca7700 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -681,4 +681,15 @@ config TOUCHSCREEN_STMPE
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called stmpe-ts.
+ 
++config TOUCHSCREEN_ST1232
++	tristate "Sitronix ST1232 touchscreen controllers"
++	depends on I2C
++	help
++	  Say Y here if you want to support Sitronix ST1232
++	  touchscreen controller.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called st1232_ts.
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 7cc1b4f..718bcc8 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -39,6 +39,7 @@ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_QT602240)	+= qt602240_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
++obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TNETV107X)	+= tnetv107x-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+new file mode 100644
+index 0000000..f94a718
+--- /dev/null
++++ b/drivers/input/touchscreen/st1232.c
+@@ -0,0 +1,273 @@
++/*
++ * ST1232 Touchscreen Controller Driver
++ *
++ * Copyright (C) 2010 Renesas Solutions Corp.
++ *	Tony SIM <chinyeow.sim.xt@renesas.com>
++ *
++ * Using code from:
++ *  - android.git.kernel.org: projects/kernel/common.git: synaptics_i2c_rmi.c
++ *	Copyright (C) 2007 Google, Inc.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++
++#define ST1232_TS_NAME	"st1232-ts"
++
++#define MIN_X	0x00
++#define MIN_Y	0x00
++#define MAX_X	0x31f	/* (800 - 1) */
++#define MAX_Y	0x1df	/* (480 - 1) */
++#define MAX_AREA	0xff
++#define MAX_FINGERS	2
++
++struct st1232_ts_finger {
++	uint8_t is_valid;
++	uint16_t x;
++	uint16_t y;
++	uint8_t t;
++};
++
++struct st1232_ts_data {
++	struct i2c_client *client;
++	struct input_dev *input_dev;
++	struct st1232_ts_finger finger[MAX_FINGERS];
++};
++
++static int st1232_ts_read_data(struct st1232_ts_data *ts)
++{
++	int ret;
++	struct i2c_msg msg[2];
++	uint8_t start_reg;
++	uint8_t buf[10];
++	struct st1232_ts_finger *finger = ts->finger;
++
++	/* read touchscreen data from ST1232 */
++	msg[0].addr = ts->client->addr;
++	msg[0].flags = 0;
++	msg[0].len = 1;
++	msg[0].buf = &start_reg;
++	start_reg = 0x10;
++
++	msg[1].addr = ts->client->addr;
++	msg[1].flags = I2C_M_RD;
++	msg[1].len = sizeof(buf);
++	msg[1].buf = buf;
++
++	ret = i2c_transfer(ts->client->adapter, msg, 2);
++	if (ret < 0)
++		return ret;
++
++	/* get valid bit */
++	finger[0].is_valid = buf[2] >> 7;
++	finger[1].is_valid = buf[5] >> 7;
++
++	/* get xy coordinate */
++	if (finger[0].is_valid) {
++		finger[0].x = ((buf[2] & 0x0070) << 4) | buf[3];
++		finger[0].y = ((buf[2] & 0x0007) << 8) | buf[4];
++		finger[0].t = buf[8];
++	}
++
++	if (finger[1].is_valid) {
++		finger[1].x = ((buf[5] & 0x0070) << 4) | buf[6];
++		finger[1].y = ((buf[5] & 0x0007) << 8) | buf[7];
++		finger[1].t = buf[9];
++	}
++
++	return 0;
++}
++
++static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
++{
++	int i, ret;
++	int count = 0;
++	struct st1232_ts_data *ts = dev_id;
++	struct st1232_ts_finger *finger = ts->finger;
++
++	ret = st1232_ts_read_data(ts);
++	if (ret < 0)
++		goto end;
++
++	/* multi touch protocol */
++	for (i = 0; i < MAX_FINGERS; i++) {
++		if (!finger[i].is_valid)
++			continue;
++
++		input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR,
++					finger[i].t);
++		input_report_abs(ts->input_dev, ABS_MT_POSITION_X, finger[i].x);
++		input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, finger[i].y);
++		input_mt_sync(ts->input_dev);
++		count++;
++	}
++
++	/* SYN_MT_REPORT only if no contact */
++	if (!count)
++		input_mt_sync(ts->input_dev);
++
++	/* SYN_REPORT */
++	input_sync(ts->input_dev);
++
++end:
++	return IRQ_HANDLED;
++}
++
++static int __devinit st1232_ts_probe(struct i2c_client *client,
++					const struct i2c_device_id *id)
++{
++	struct st1232_ts_data *ts;
++	int ret;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "need I2C_FUNC_I2C\n");
++		return -EIO;
++	}
++
++	ts = kzalloc(sizeof(struct st1232_ts_data), GFP_KERNEL);
++	if (!ts) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	ts->client = client;
++	i2c_set_clientdata(client, ts);
++
++	ts->input_dev = input_allocate_device();
++	if (!ts->input_dev) {
++		ret = -ENOMEM;
++		dev_err(&client->dev, "Failed to allocate input device\n");
++		goto err_free_mem;
++	}
++	ts->input_dev->name = "st1232-touchscreen";
++
++	__set_bit(EV_SYN, ts->input_dev->evbit);
++	__set_bit(EV_KEY, ts->input_dev->evbit);
++	__set_bit(EV_ABS, ts->input_dev->evbit);
++
++	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR,
++				0, MAX_AREA, 0, 0);
++	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
++				MIN_X, MAX_X, 0, 0);
++	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
++				MIN_Y, MAX_Y, 0, 0);
++
++	ret = input_register_device(ts->input_dev);
++	if (ret) {
++		dev_err(&client->dev, "Unable to register %s input device\n",
++			ts->input_dev->name);
++		goto err_free_input_device;
++	}
++
++	ret = request_threaded_irq(client->irq, NULL, st1232_ts_irq_handler,
++					IRQF_ONESHOT, client->name, ts);
++	if (ret) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		goto err_free_input_device;
++	}
++
++	device_init_wakeup(&client->dev, 1);
++
++	return 0;
++
++err_free_input_device:
++	input_free_device(ts->input_dev);
++err_free_mem:
++	kfree(ts);
++err:
++	return ret;
++}
++
++static int __devexit st1232_ts_remove(struct i2c_client *client)
++{
++	struct st1232_ts_data *ts = i2c_get_clientdata(client);
++
++	device_init_wakeup(&client->dev, 0);
++	free_irq(client->irq, ts);
++	input_unregister_device(ts->input_dev);
++	kfree(ts);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int st1232_ts_suspend(struct device *dev)
++{
++	struct st1232_ts_data *ts = dev_get_drvdata(dev);
++	struct i2c_client *client = ts->client;
++
++	if (device_may_wakeup(&client->dev))
++		enable_irq_wake(client->irq);
++	else
++		disable_irq(client->irq);
++
++	return 0;
++}
++
++static int st1232_ts_resume(struct device *dev)
++{
++	struct st1232_ts_data *ts = dev_get_drvdata(dev);
++	struct i2c_client *client = ts->client;
++
++	if (device_may_wakeup(&client->dev))
++		disable_irq_wake(client->irq);
++	else
++		enable_irq(client->irq);
++
++	return 0;
++}
++
++static const struct dev_pm_ops st1232_ts_pm_ops = {
++	.suspend	= st1232_ts_suspend,
++	.resume		= st1232_ts_resume,
++};
++#endif
++
++static const struct i2c_device_id st1232_ts_id[] = {
++	{ ST1232_TS_NAME, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, st1232_ts_id);
++
++static struct i2c_driver st1232_ts_driver = {
++	.probe		= st1232_ts_probe,
++	.remove		= __devexit_p(st1232_ts_remove),
++	.id_table	= st1232_ts_id,
++	.driver = {
++		.name	= ST1232_TS_NAME,
++		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &st1232_ts_pm_ops,
++#endif
++	},
++};
++
++static int __init st1232_ts_init(void)
++{
++	return i2c_add_driver(&st1232_ts_driver);
++}
++module_init(st1232_ts_init);
++
++static void __exit st1232_ts_exit(void)
++{
++	i2c_del_driver(&st1232_ts_driver);
++}
++module_exit(st1232_ts_exit);
++
++MODULE_AUTHOR("Tony SIM <chinyeow.sim.xt@renesas.com>");
++MODULE_DESCRIPTION("SITRONIX ST1232 Touchscreen Controller Driver");
++MODULE_LICENSE("GPL");
 -- 
-Dmitry
+1.7.2.3
+

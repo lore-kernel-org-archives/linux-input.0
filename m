@@ -1,56 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.37-rc5
-Date: Wed, 15 Dec 2010 23:52:49 -0800
-Message-ID: <20101216075249.GC26567@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] hid: egalax: Add support for Samsung NB30 netbook
+Date: Thu, 16 Dec 2010 10:52:55 +0100
+Message-ID: <1292493175-21630-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:35456 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751895Ab0LPIAg (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:60410 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753931Ab0LPJxp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Dec 2010 03:00:36 -0500
-Content-Disposition: inline
+	Thu, 16 Dec 2010 04:53:45 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Nauber <richard.nauber@googlemail.com>, Richard Nauber <Richard.Nauber@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 
-Hi Linus,
+From: Richard Nauber <richard.nauber@googlemail.com>
 
-Please pull from:
+The Samsung NB30 touch has a DWAV dual-touch device. This patch adds
+the NB30 to the list of supported devices, and grabs it accordingly in
+hid-core.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+[rydberg@euromail.se: rename and log message changes]
+Signed-off-by: Richard Nauber <Richard.Nauber@gmail.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Hi Jiri,
 
-to receive updates for the input subsystem.
+do I have your ACK on this one?
 
-The main change it that we define new versions of EVIOC{G|S}KEYCODE_V2
-ioctls instead of reusing the old names. This is to avoid surprising
-people recompiling programs using old interface on newer kernels (while
-we kept ABI intact so existing binaries should continue working fine
-recompiled programs would start failing since they'd be using old ioctl
-data with new ioctl numbers).
+Thanks,
+Henrik
 
-Changelog:
----------
+ drivers/hid/hid-core.c   |    1 +
+ drivers/hid/hid-egalax.c |    2 ++
+ drivers/hid/hid-ids.h    |    1 +
+ 3 files changed, 4 insertions(+), 0 deletions(-)
 
-Dmitry Torokhov (1):
-      Input: define separate EVIOCGKEYCODE_V2/EVIOCSKEYCODE_V2
-
-Kevin Granade (1):
-      Input: wacom - add another Bamboo Pen ID (0xd4)
-
-
-Diffstat:
---------
-
- drivers/input/evdev.c            |  113 +++++++++++++++++++------------------
- drivers/input/tablet/wacom_wac.c |    3 +
- include/linux/input.h            |    6 +-
- 3 files changed, 65 insertions(+), 57 deletions(-)
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 9762de5..f4a37f8 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1301,6 +1301,7 @@ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
+index e367cb2..8787850 100644
+--- a/drivers/hid/hid-egalax.c
++++ b/drivers/hid/hid-egalax.c
+@@ -240,6 +240,8 @@ static const struct hid_device_id egalax_devices[] = {
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, egalax_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b76166a..a95719b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -197,6 +197,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH	0x480d
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1	0x720c
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2	0x72a1
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3	0x480e
+ 
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
 -- 
-Dmitry
+1.7.2.3
 

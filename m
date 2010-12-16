@@ -1,41 +1,43 @@
 From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH v4] Input: add ST1232 touchscreen controller driver.
-Date: Thu, 16 Dec 2010 08:27:47 +0100
-Message-ID: <4D09BF73.9060803@euromail.se>
-References: <1292460325-4438-1-git-send-email-chinyeow.sim.xt@renesas.com> <20101216061914.GA26567@core.coreip.homeip.net>
+Subject: Re: [RFC v2] input: Introduce device information ioctl
+Date: Thu, 16 Dec 2010 08:43:02 +0100
+Message-ID: <4D09C306.4050207@euromail.se>
+References: <1292440807-18502-1-git-send-email-rydberg@euromail.se> <4D09302C.4000309@canonical.com> <201012151352.23229.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:33617 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751803Ab0LPH2W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Dec 2010 02:28:22 -0500
-In-Reply-To: <20101216061914.GA26567@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <201012151352.23229.dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: chinyeow.sim.xt@renesas.com, tsoni@codeaurora.org, linux-input@vger.kernel.org
+Cc: Chase Douglas <chase.douglas@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On 12/16/2010 07:19 AM, Dmitry Torokhov wrote:
+>>> As an example of how this would work for the
 
-> Hi Tony,
+>>> touchpad/tablet/touchscreen triplet, there are two properties defined,
+>>> INPUT_PROP_POINTER and INPUT_PROP_DIRECT. A touchpad is an indirect
+>>> pointer device, a tablet is a direct pointer device, and the
+>>> touchscreen is simply a direct device.
+>>>
+>>> What do you think?
+>>
+>> I must have missed the first version of this patch, but I give two
+>> thumbs way up :). The detection code for touchpad/tablet/touchscreen in
+>> xf86-input-evdev is large and unwieldy, and seemingly simple changes to
+>> an input driver can cause incorrect interpretation. Having this
+>> available should help quite a bit!
+>>
+>> Acked-by: Chase Douglas <chase.douglas@canonical.com>
 > 
-> On Thu, Dec 16, 2010 at 09:45:25AM +0900, chinyeow.sim.xt@renesas.com wrote:
->> From: Tony SIM <chinyeow.sim.xt@renesas.com>
->>
->> This patch set introduces for Sitronix ST1232 touchscreen controller
->> driver. This is an integrated capacitive touchscreen with LCD module
->> which can detect two fingers's touch X/Y coordinate.
->>
->> Signed-off-by: Tony SIM <chinyeow.sim.xt@renesas.com>
->> ---
+> As long as we document that !pointer && !direct means "unknown" or
+> "unspecified" so as to avoid having to update all devices at once that
+> should be OK.
+> 
+> We also need to wire up uinput.
 
 
-Acked-by: Henrik Rydberg <rydberg@euromail.se>
+Great, will cook a proper patch.
 
-Thanks!
-
+Thanks,
 Henrik
-

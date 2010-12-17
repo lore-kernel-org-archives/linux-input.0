@@ -1,43 +1,103 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 1/3] input - wacom_w8001: use __set_bit to set keybits
-Date: Fri, 17 Dec 2010 09:36:41 -0800
-Message-ID: <1292607401-22603-1-git-send-email-pinglinux@gmail.com>
+Subject: [PATCH 2/3 v2] input - wacom_w8001: Support pen or touch only devices
+Date: Fri, 17 Dec 2010 09:37:00 -0800
+Message-ID: <1292607420-22638-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f180.google.com ([209.85.161.180]:43646 "EHLO
-	mail-gx0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754753Ab0LQRgF (ORCPT
+Received: from mail-gw0-f42.google.com ([74.125.83.42]:38606 "EHLO
+	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754753Ab0LQRg2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Dec 2010 12:36:05 -0500
-Received: by gxk19 with SMTP id 19so520059gxk.11
-        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2010 09:36:04 -0800 (PST)
+	Fri, 17 Dec 2010 12:36:28 -0500
+Received: by gwb20 with SMTP id 20so601647gwb.1
+        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2010 09:36:27 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
+Not all penabled devices support touch. The same holds true for
+touch devices. Setting up the devices according to the specific
+querying results.
+
 Signed-off-by: Ping Cheng <pingc@wacom.com>
 ---
- drivers/input/touchscreen/wacom_w8001.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/wacom_w8001.c |   42 ++++++++++++++++++++++---------
+ 1 files changed, 30 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index 2a0bec1..49bce13 100644
+index 49bce13..59664a8 100644
 --- a/drivers/input/touchscreen/wacom_w8001.c
 +++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -374,11 +374,11 @@ static int w8001_connect(struct serio *serio, struct serio_driver *drv)
- 	input_dev->dev.parent = &serio->dev;
+@@ -37,6 +37,7 @@ MODULE_LICENSE("GPL");
+ 
+ #define W8001_QUERY_PACKET	0x20
+ 
++#define W8001_CMD_STOP		'0'
+ #define W8001_CMD_START		'1'
+ #define W8001_CMD_QUERY		'*'
+ #define W8001_CMD_TOUCHQUERY	'%'
+@@ -279,24 +280,45 @@ static int w8001_setup(struct w8001 *w8001)
+ 	struct w8001_coord coord;
+ 	int error;
+ 
+-	error = w8001_command(w8001, W8001_CMD_QUERY, true);
++	error = w8001_command(w8001, W8001_CMD_STOP, false);
+ 	if (error)
+ 		return error;
+ 
+-	parse_data(w8001->response, &coord);
++	mdelay(250);	/* wait 250ms before querying the device */
+ 
+-	input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
+-	input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
+-	input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pressure, 0, 0);
+-	input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
+-	input_set_abs_params(dev, ABS_TILT_Y, 0, coord.tilt_y, 0, 0);
++	/* penabled? */
++	error = w8001_command(w8001, W8001_CMD_QUERY, true);
++	if (!error) {
++		__set_bit(BTN_TOOL_PEN, dev->keybit);
++		__set_bit(BTN_TOOL_RUBBER, dev->keybit);
++		__set_bit(BTN_STYLUS, dev->keybit);
++		__set_bit(BTN_STYLUS2, dev->keybit);
++		parse_data(w8001->response, &coord);
++
++		input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
++		input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
++		input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pressure, 0, 0);
++		if (coord.tilt_x && coord.tilt_y) {
++			input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
++			input_set_abs_params(dev, ABS_TILT_Y, 0, coord.tilt_y, 0, 0);
++		}
++	}
+ 
++	/* touch enabled? */
+ 	error = w8001_command(w8001, W8001_CMD_TOUCHQUERY, true);
+-	if (!error) {
++
++	/* Some non-touch devices may reply to the touch query. But their
++	 * second byte is empty, which indicates touch is not supported.
++	 */
++	if (!error && w8001->response[1]) {
+ 		struct w8001_touch_query touch;
+ 
+ 		parse_touchquery(w8001->response, &touch);
+ 
++		input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
++		input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
++		__set_bit(BTN_TOOL_FINGER, dev->keybit);
++
+ 		switch (touch.sensor_id) {
+ 		case 0:
+ 		case 2:
+@@ -375,10 +397,6 @@ static int w8001_connect(struct serio *serio, struct serio_driver *drv)
  
  	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
--	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
--	input_dev->keybit[BIT_WORD(BTN_TOOL_PEN)] |= BIT_MASK(BTN_TOOL_PEN);
--	input_dev->keybit[BIT_WORD(BTN_TOOL_RUBBER)] |= BIT_MASK(BTN_TOOL_RUBBER);
--	input_dev->keybit[BIT_WORD(BTN_STYLUS)] |= BIT_MASK(BTN_STYLUS);
--	input_dev->keybit[BIT_WORD(BTN_STYLUS2)] |= BIT_MASK(BTN_STYLUS2);
-+	__set_bit(BTN_TOUCH, input_dev->keybit);
-+	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
-+	__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
-+	__set_bit(BTN_STYLUS, input_dev->keybit);
-+	__set_bit(BTN_STYLUS2, input_dev->keybit);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+-	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+-	__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+-	__set_bit(BTN_STYLUS, input_dev->keybit);
+-	__set_bit(BTN_STYLUS2, input_dev->keybit);
  
  	serio_set_drvdata(serio, w8001);
  	err = serio_open(serio, drv);

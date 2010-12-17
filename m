@@ -1,87 +1,48 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: mt: Document interface updates
-Date: Fri, 17 Dec 2010 14:12:52 +0100
-Message-ID: <1292591572-4067-1-git-send-email-rydberg@euromail.se>
+From: Ben Gardiner <bengardiner@nanometrics.ca>
+Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,leds} for UI and BB expanders
+Date: Fri, 17 Dec 2010 10:15:35 -0500
+Message-ID: <AANLkTi=5vORsc4vxP60rBm5mWr=Ndt47SBFeEL5Guk9c@mail.gmail.com>
+References: <cover.1290635422.git.bengardiner@nanometrics.ca>
+	<cover.1291931041.git.bengardiner@nanometrics.ca>
+	<87tyild2ms.fsf@deeprootsystems.com>
+	<AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
+	<AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV@mail.gmail.com>
+	<8762ux49w7.fsf@deeprootsystems.com>
+	<AANLkTikUoKPG4o1+pt9r6V6H+6LrwZpTN8X9X+AkimiB@mail.gmail.com>
+	<87ei9kwa9w.fsf@deeprootsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:38858 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754051Ab0LQNNM (ORCPT
+Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:43693 "HELO
+	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754877Ab0LQPPg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Dec 2010 08:13:12 -0500
+	Fri, 17 Dec 2010 10:15:36 -0500
+In-Reply-To: <87ei9kwa9w.fsf@deeprootsystems.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>
 
-This patch documents the recent input-mt interface changes.
+Hi Kevin,
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+On Tue, Dec 14, 2010 at 12:10 PM, Kevin Hilman
+<khilman@deeprootsystems.com> wrote:
+> Just pushed an updated version, and this time, I actually build tested for
+> davinci_all_defconfig and da8xx_omapl_defconfig. :)
+>
+> Sorry for the churn,
+
+I tested linux-davinci master; HEAD was
+c63d0f1df0284f2fcb28c0943b17848500d01515. Everything is working as
+expected.
+
+Thanks again for taking up this series along with the complications
+introduced by the cherry pick.
+
+Best Regards,
+Ben Gardiner
+
 ---
- Documentation/input/multi-touch-protocol.txt |   27 +++++++++++++++----------
- 1 files changed, 16 insertions(+), 11 deletions(-)
-
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-index 07215fa..77ec34f 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -169,12 +169,14 @@ described by adding the MINOR parameters, such that MAJOR and MINOR are the
- major and minor axis of an ellipse. Finally, the orientation of the oval
- shape can be describe with the ORIENTATION parameter.
- 
-+For type A devices, further specification of the touch shape is possible
-+via ABS_MT_BLOB_ID.
-+
- The ABS_MT_TOOL_TYPE may be used to specify whether the touching tool is a
--contact or a pen or something else.  Devices with more granular information
--may specify general shapes as blobs, i.e., as a sequence of rectangular
--shapes grouped together by an ABS_MT_BLOB_ID. Finally, for the few devices
--that currently support it, the ABS_MT_TRACKING_ID event may be used to
--report contact tracking from hardware [5].
-+contact or a pen or something else. Finally, the ABS_MT_TRACKING_ID event
-+may be used to track identified contacts over time [5]. In the type B
-+protocol, ABS_MT_TOOL_TYPE and ABS_MT_TRACKING_ID are implicitly handled by
-+input core; drivers should instead call input_mt_report_slot_state().
- 
- 
- Event Semantics
-@@ -247,21 +249,24 @@ ABS_MT_TOOL_TYPE
- The type of approaching tool. A lot of kernel drivers cannot distinguish
- between different tool types, such as a finger or a pen. In such cases, the
- event should be omitted. The protocol currently supports MT_TOOL_FINGER and
--MT_TOOL_PEN [2].
-+MT_TOOL_PEN [2]. For type B devices, this event is handled by input core;
-+drivers should instead use input_mt_report_slot_state().
- 
- ABS_MT_BLOB_ID
- 
- The BLOB_ID groups several packets together into one arbitrarily shaped
--contact. This is a low-level anonymous grouping for type A devices, and
-+contact. The sequence of points forms a polygon which defines the shape of
-+the contact. This is a low-level anonymous grouping for type A devices, and
- should not be confused with the high-level trackingID [5]. Most type A
- devices do not have blob capability, so drivers can safely omit this event.
- 
- ABS_MT_TRACKING_ID
- 
- The TRACKING_ID identifies an initiated contact throughout its life cycle
--[5]. This event is mandatory for type B devices. The value range of the
--TRACKING_ID should be large enough to ensure unique identification of a
--contact maintained over an extended period of time.
-+[5]. The value range of the TRACKING_ID should be large enough to ensure
-+unique identification of a contact maintained over an extended period of
-+time. For type B devices, this event is handled by input core; drivers
-+should instead use input_mt_report_slot_state().
- 
- 
- Event Computation
-@@ -320,6 +325,6 @@ where examples can be found.
- difference between the contact position and the approaching tool position
- could be used to derive tilt.
- [2] The list can of course be extended.
--[3] Multitouch X driver project: http://bitmath.org/code/multitouch/.
-+[3] The mtdev project: http://bitmath.org/code/mtdev/.
- [4] See the section on event computation.
- [5] See the section on finger tracking.
--- 
-1.7.2.3
-
+Nanometrics Inc.
+http://www.nanometrics.ca

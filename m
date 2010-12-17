@@ -1,53 +1,24 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 0/3] input - wacom_w8001: support one finger touch etc.
+From: Andy Ross <andy@plausible.org>
+Subject: Re: [PATCH] WeTab device ID
 Date: Fri, 17 Dec 2010 13:21:07 -0800
-Message-ID: <AANLkTim3XdFHEtcaJOCre22ECVKPDgwagHT71Cxq1yc3@mail.gmail.com>
-References: <1292607369-22534-1-git-send-email-pinglinux@gmail.com>
+Message-ID: <4D0BD443.1070803@plausible.org>
+References: <4D0AA66F.6080506@plausible.org> <20101217120322.GA3873@polaris>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:58340 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755351Ab0LQVVK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Dec 2010 16:21:10 -0500
-Received: by wwi17 with SMTP id 17so956426wwi.1
-        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2010 13:21:08 -0800 (PST)
-In-Reply-To: <1292607369-22534-1-git-send-email-pinglinux@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20101217120322.GA3873@polaris>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Bagwell <chris@cnpbagwell.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Hi Chris,
+On 12/17/2010 04:03 AM, Henrik Rydberg wrote:
+> Thanks for the patch. Does the one below work for you?
 
-Does this patchset address your comments? I didn't add your
-reviewed-by since I want to get it from you directly.
+Looks like this is against more recent changes than I see in the "hid"
+branch of input-mt on kernel.org.  I don't see a
+"...EGALAX_MULTITOUCH3" defined there.  Maybe you missed a push?  So
+not tested as-is, but certainly looks correct by inspection.
 
-Thank you.
-
-Ping
-
-On Fri, Dec 17, 2010 at 9:36 AM, Ping Cheng <pinglinux@gmail.com> wrote=
-:
-> This is the v2 of adding one finger touch support for Wacom serial to=
-uchscreen.
-> It converts input_dev->keybit to __set_bit, supports pen or touch onl=
-y devices,
-> and adds one finger touch support to the driver.
->
-> The patchset is based on git://git.kernel.org/pub/scm/linux/kernel/gi=
-t/dtor/input.git next
->
-> Ping Cheng (3):
-> =A0 =A0 =A0input - wacom_w8001: use __set_bit to set keybits
-> =A0 =A0 =A0input - wacom_w8001: Support pen or touch only devices
-> =A0 =A0 =A0input - wacom_w8001: Add one finger touch support
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Andy

@@ -1,48 +1,28 @@
-From: Ben Gardiner <bengardiner@nanometrics.ca>
-Subject: Re: [PATCH v6 0/5] da850-evm: add gpio-{keys,leds} for UI and BB expanders
-Date: Fri, 17 Dec 2010 10:15:35 -0500
-Message-ID: <AANLkTi=5vORsc4vxP60rBm5mWr=Ndt47SBFeEL5Guk9c@mail.gmail.com>
-References: <cover.1290635422.git.bengardiner@nanometrics.ca>
-	<cover.1291931041.git.bengardiner@nanometrics.ca>
-	<87tyild2ms.fsf@deeprootsystems.com>
-	<AANLkTik78Lb0ejUiAvqbkToi=QAKSXXj_6JaBkPYw70Z@mail.gmail.com>
-	<AANLkTi=HiJGwtznGRzFDz-4ywsB3rYPW0yF5U_RUruzV@mail.gmail.com>
-	<8762ux49w7.fsf@deeprootsystems.com>
-	<AANLkTikUoKPG4o1+pt9r6V6H+6LrwZpTN8X9X+AkimiB@mail.gmail.com>
-	<87ei9kwa9w.fsf@deeprootsystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 0/3] input - wacom_w8001: support one finger touch etc.
+Date: Fri, 17 Dec 2010 09:36:09 -0800
+Message-ID: <1292607369-22534-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:43693 "HELO
-	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754877Ab0LQPPg (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:42601 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753465Ab0LQRfe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Dec 2010 10:15:36 -0500
-In-Reply-To: <87ei9kwa9w.fsf@deeprootsystems.com>
+	Fri, 17 Dec 2010 12:35:34 -0500
+Received: by ywl5 with SMTP id 5so433388ywl.19
+        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2010 09:35:33 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Chris Cordahi <christophercordahi@nanometrics.ca>, Paul Mundt <lethal@linux-sh.org>, Sekhar Nori <nsekhar@ti.com>, Gabor Juhos <juhosg@openwrt.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>
 
-Hi Kevin,
+This is the v2 of adding one finger touch support for Wacom serial touchscreen.
+It converts input_dev->keybit to __set_bit, supports pen or touch only devices,
+and adds one finger touch support to the driver.
 
-On Tue, Dec 14, 2010 at 12:10 PM, Kevin Hilman
-<khilman@deeprootsystems.com> wrote:
-> Just pushed an updated version, and this time, I actually build tested for
-> davinci_all_defconfig and da8xx_omapl_defconfig. :)
->
-> Sorry for the churn,
+The patchset is based on git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
 
-I tested linux-davinci master; HEAD was
-c63d0f1df0284f2fcb28c0943b17848500d01515. Everything is working as
-expected.
+Ping Cheng (3):
+      input - wacom_w8001: use __set_bit to set keybits
+      input - wacom_w8001: Support pen or touch only devices
+      input - wacom_w8001: Add one finger touch support
 
-Thanks again for taking up this series along with the complications
-introduced by the cherry pick.
-
-Best Regards,
-Ben Gardiner
-
----
-Nanometrics Inc.
-http://www.nanometrics.ca

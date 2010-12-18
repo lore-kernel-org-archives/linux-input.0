@@ -1,59 +1,61 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] WeTab device ID
-Date: Sat, 18 Dec 2010 01:06:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1012180105330.16569@pobox.suse.cz>
-References: <4D0AA66F.6080506@plausible.org> <20101217120322.GA3873@polaris>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 0/3] input - wacom_w8001: support one finger touch etc.
+Date: Fri, 17 Dec 2010 18:47:25 -0600
+Message-ID: <AANLkTinpXbGAx=3C=eocsAFcWVift4xAwFfkyWLxYQr_@mail.gmail.com>
+References: <1292607369-22534-1-git-send-email-pinglinux@gmail.com>
+	<AANLkTim3XdFHEtcaJOCre22ECVKPDgwagHT71Cxq1yc3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:47702 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756133Ab0LRAGG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Dec 2010 19:06:06 -0500
-In-Reply-To: <20101217120322.GA3873@polaris>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:32850 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756366Ab0LRAr0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Dec 2010 19:47:26 -0500
+Received: by ywl5 with SMTP id 5so594202ywl.19
+        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2010 16:47:25 -0800 (PST)
+In-Reply-To: <AANLkTim3XdFHEtcaJOCre22ECVKPDgwagHT71Cxq1yc3@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Andy Ross <andy@plausible.org>, "Dmitry Torokhov <dmitry.torokhov@gmail.com>"@suse.de, "Jiri Kosina <jkosina@suse.cz>"@suse.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-On Fri, 17 Dec 2010, Henrik Rydberg wrote:
+Yes, they do.  It seems to send events consistent with wacom_wac.c.
 
-> Hi Andy,
-> 
-> > > > Hi.  I'm looking at getting a WeTab running right now and just
-> > > > found this patch set.  It's a few weeks old now and not upstream
-> > > > yet, so before I start hacking at it I thought I should check with
-> > > > you to make sure there isn't a more current one available.
-> > >
-> > > You find the tip of the mt work at
-> > > git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git
-> > 
-> > Thanks much.  It works great, though on our WeTab it's missing the
-> > device ID of the part on the board.  Patch below:
-> 
-> Thanks for the patch. Does the one below work for you?
-> 
-> Henrik
-> ---
-> >From a8b4613b6d7e7cf04a7335930e9c5c2fb44302d0 Mon Sep 17 00:00:00 2001
-> From: Andy Ross <andy@plausible.org>
-> Date: Thu, 16 Dec 2010 15:53:19 -0800
-> Subject: [PATCH] hid: egalax: Add support for Wetab (726b)
-> 
-> This patch adds support for another Wetab device (726b), and grabs it
-> accordingly in hid-core.
-> 
-> [rydberg@euromail.se: rename and log message changes]
-> Signed-off-by: Andy Ross <andy@plausible.org>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-I guess you are going to take it together with your pile to Dmitry, right 
-Henrik?
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+On Fri, Dec 17, 2010 at 3:21 PM, Ping Cheng <pinglinux@gmail.com> wrote=
+:
+> Hi Chris,
+>
+> Does this patchset address your comments? I didn't add your
+> reviewed-by since I want to get it from you directly.
+>
+> Thank you.
+>
+> Ping
+>
+> On Fri, Dec 17, 2010 at 9:36 AM, Ping Cheng <pinglinux@gmail.com> wro=
+te:
+>> This is the v2 of adding one finger touch support for Wacom serial t=
+ouchscreen.
+>> It converts input_dev->keybit to __set_bit, supports pen or touch on=
+ly devices,
+>> and adds one finger touch support to the driver.
+>>
+>> The patchset is based on git://git.kernel.org/pub/scm/linux/kernel/g=
+it/dtor/input.git next
+>>
+>> Ping Cheng (3):
+>> =A0 =A0 =A0input - wacom_w8001: use __set_bit to set keybits
+>> =A0 =A0 =A0input - wacom_w8001: Support pen or touch only devices
+>> =A0 =A0 =A0input - wacom_w8001: Add one finger touch support
+>>
+>>
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,54 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] psmouse: disable the synaptics extension on OLPC
- machines.
-Date: Fri, 17 Dec 2010 23:02:06 -0800
-Message-ID: <20101218070205.GA15847@core.coreip.homeip.net>
-References: <20101217210939.19b6111a@queued.net>
- <20101218054927.GA14718@core.coreip.homeip.net>
- <20101217221447.375b9977@queued.net>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] Input: introduce device information ioctl
+Date: Sat, 18 Dec 2010 09:48:12 +0100
+Message-ID: <20101218084812.GA7297@polaris.bitmath.org>
+References: <1292531413-28924-1-git-send-email-rydberg@euromail.se>
+ <20101217193935.GB2576@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:48537 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751686Ab0LRHCM (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:51913 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751251Ab0LRIuq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Dec 2010 02:02:12 -0500
+	Sat, 18 Dec 2010 03:50:46 -0500
 Content-Disposition: inline
-In-Reply-To: <20101217221447.375b9977@queued.net>
+In-Reply-To: <20101217193935.GB2576@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andres Salomon <dilinger@queued.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dsd@laptop.org, pgf@laptop.org, James Cameron <quozl@laptop.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Chris Bagwell <chris@cnpbagwell.com>, Chase Douglas <chase.douglas@canonical.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2010 at 10:14:47PM -0800, Andres Salomon wrote:
-> On Fri, 17 Dec 2010 21:49:28 -0800
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > On Fri, Dec 17, 2010 at 09:09:39PM -0800, Andres Salomon wrote:
-> > > 
-> > > OLPC has switched to a Synaptics touchpad.  It turns out that it's
-> > > pretty useless in absolute mode.  This patch looks for an OLPC
-> > > system (via DMI tables), and refuses to init Synaptics mode in
-> > > that scenario (falling back to relative mode).
-> > > 
-> > > Signed-off-by: Andres Salomon <dilinger@queued.net>
-> > 
-> > Andres,
-> > 
-> > Can we do what hgpk does and add "depend on !OLPC" to the Kconfig
-> > instead?
-> > 
-> > Thanks.
+On Fri, Dec 17, 2010 at 11:39:36AM -0800, Dmitry Torokhov wrote:
+> On Thu, Dec 16, 2010 at 09:30:13PM +0100, Henrik Rydberg wrote:
+> > Today, userspace sets up an input device based on the data it emits.
+> > This is not always enough; a tablet and a touchscreen may emit exactly
+> > the same data, for instance, but the former should be set up with a
+> > pointer whereas the latter does not need to. Recently, a new type of
+> > touchpad has emerged where the buttons are under the pad, which
+> > changes handling logic without changing the emitted data. This patch
+> > introduces a new ioctl, EVIOCGPROP, which enables user access to a set
+> > of device properties useful during setup. The properties are given as
+> > a bitmap in the same fashion as the event types, and are also made
+> > available via sysfs.
 > > 
 > 
-> That wouldn't work for distro kernels, unfortunately.  Currently the
-> kernels that OLPC releases disable CONFIG_MOUSE_PS2_SYNAPTICS.  I'd
-> like to use a stock distribution kernel, which would need to enable
-> both CONFIG_OLPC *and* CONFIG_MOUSE_PS2_SYNAPTICS.. Hence the
-> motivation for this patch. :)
+> Looks good to me.
+> 
+> Could you please also wire up /proc/bus/input/devices to show new
+> 'props' (I think we could use  "B: PROP=" tags for them) and also to the
+> uevent handler?
 
-What about just adding psmouse.proto=exps then?
+Sure thing. Regarding the devices file, it would have been nice if an
+entry could be used to reproduce the device exactly. Currently, the
+ABS limits are missing. Should we add them as well?
 
--- 
-Dmitry
+Henrik

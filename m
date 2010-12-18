@@ -1,81 +1,56 @@
-From: Andres Salomon <dilinger@queued.net>
-Subject: [PATCH] psmouse: disable the synaptics extension on OLPC machines.
-Date: Fri, 17 Dec 2010 21:09:39 -0800
-Message-ID: <20101217210939.19b6111a@queued.net>
+From: Cory Maccarrone <darkstar6262@gmail.com>
+Subject: Re: [PATCH] Keyboard: omap-keypad: use matrix_keypad.h
+Date: Fri, 17 Dec 2010 21:29:12 -0800
+Message-ID: <AANLkTim_8wSpmY3fxjHGyczzCGk2Qe8Jmo9k9-ET6eSq@mail.gmail.com>
+References: <201012172332.06480.jkrzyszt@tis.icnet.pl> <AANLkTim3nFfo4PGf+krOJCsacxDuGyavvt4Pev3MWPj3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LUNGE.MIT.EDU ([18.54.1.69]:36919 "EHLO lunge.queued.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750721Ab0LRFJn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Dec 2010 00:09:43 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <AANLkTim3nFfo4PGf+krOJCsacxDuGyavvt4Pev3MWPj3@mail.gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dsd@laptop.org, pgf@laptop.org, James Cameron <quozl@laptop.org>
 
+On Fri, Dec 17, 2010 at 8:29 PM, Cory Maccarrone <darkstar6262@gmail.co=
+m> wrote:
+> On Fri, Dec 17, 2010 at 2:32 PM, Janusz Krzysztofik
+> <jkrzyszt@tis.icnet.pl> wrote:
+>> Most keypad drivers make use of the <linux/input/matrix_keypad.h>
+>> defined macros, structures and inline functions.
+>>
+>> Convert omap-keypad driver to use those as well, as suggested by a
+>> compile time warning, hardcoded into the OMAP <palt/keypad.h>.
+>>
+>> Created against linux-2.6.37-rc5.
+>> Tested on Amstrad Delta.
+>> Compile tested with omap1_defconfig and omap2plus_defconfig shrinked=
+ to
+>> board-h4.
+>>
+>> Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+>> ---
+>
+> Works perfectly on the herald, and no more warning message. =C2=A0Goo=
+d work!
+>
+> Tested-by: Cory Maccarrone <darkstar6262@gmail.com>
+>
+> - Cory
+>
 
-OLPC has switched to a Synaptics touchpad.  It turns out that it's
-pretty useless in absolute mode.  This patch looks for an OLPC
-system (via DMI tables), and refuses to init Synaptics mode in
-that scenario (falling back to relative mode).
+Hmm, I may have spoken too soon.  This works perfectly on the latest
+Torvalds master branch, but does not seem to work applied to
+linux-omap/master.  There, all my keys report the same KEY_RECORD
+event.
 
-Signed-off-by: Andres Salomon <dilinger@queued.net>
----
- drivers/input/mouse/synaptics.c |   30 ++++++++++++++++++++++++++++++
- 1 files changed, 30 insertions(+), 0 deletions(-)
+Probably not a problem in this patch, I think -- will try and track it
+down.  Out of curiosity, which branch did you test it on?
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 2e300a4..75fbf33 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -744,15 +744,45 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
- #endif
- };
- 
-+static bool broken_olpc_ec;
-+
-+static const struct dmi_system_id __initconst olpc_dmi_table[] = {
-+#if defined(CONFIG_DMI) && defined(CONFIG_OLPC)
-+	{
-+		/* OLPC XO-1 or XO-1.5 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "OLPC"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "XO"),
-+		},
-+	},
-+	{ }
-+#endif
-+};
-+
- void __init synaptics_module_init(void)
- {
- 	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
-+	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
- }
- 
- int synaptics_init(struct psmouse *psmouse)
- {
- 	struct synaptics_data *priv;
- 
-+	/*
-+	 * The OLPC XO has issues with Synaptics' absolute mode; similarly to
-+	 * the HGPK, it quickly degrades and the hardware becomes jumpy and
-+	 * overly sensitive.  Not only that, but the constant packet spew
-+	 * (even at a lowered 40pps rate) overloads the EC such that key
-+	 * presses on the keyboard are missed.  Given all of that, don't
-+	 * even attempt to use Synaptics mode.  Relative mode seems to work
-+	 * just fine.
-+	 */
-+	if (broken_olpc_ec) {
-+		printk(KERN_INFO "synaptics: OLPC XO detected, not enabling Synaptics protocol.\n");
-+		return -ENODEV;
-+	}
-+
- 	psmouse->private = priv = kzalloc(sizeof(struct synaptics_data), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
--- 
-1.7.2.3
-
+- Cory
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

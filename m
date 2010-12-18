@@ -1,74 +1,34 @@
-From: Cory Maccarrone <darkstar6262@gmail.com>
-Subject: Re: [PATCH] Keyboard: omap-keypad: use matrix_keypad.h
-Date: Fri, 17 Dec 2010 21:38:20 -0800
-Message-ID: <AANLkTinco-HzV-LY2F+Gguo1bsT8DkLmNHTZerPrvwDL@mail.gmail.com>
-References: <201012172332.06480.jkrzyszt@tis.icnet.pl> <AANLkTim3nFfo4PGf+krOJCsacxDuGyavvt4Pev3MWPj3@mail.gmail.com>
- <AANLkTim_8wSpmY3fxjHGyczzCGk2Qe8Jmo9k9-ET6eSq@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] psmouse: disable the synaptics extension on OLPC
+ machines.
+Date: Fri, 17 Dec 2010 21:49:28 -0800
+Message-ID: <20101218054927.GA14718@core.coreip.homeip.net>
+References: <20101217210939.19b6111a@queued.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:47065 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751294Ab0LRFim convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Dec 2010 00:38:42 -0500
-In-Reply-To: <AANLkTim_8wSpmY3fxjHGyczzCGk2Qe8Jmo9k9-ET6eSq@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20101217210939.19b6111a@queued.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andres Salomon <dilinger@queued.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dsd@laptop.org, pgf@laptop.org, James Cameron <quozl@laptop.org>
 List-Id: linux-input@vger.kernel.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel@lists.infradead.org
 
-On Fri, Dec 17, 2010 at 9:29 PM, Cory Maccarrone <darkstar6262@gmail.co=
-m> wrote:
-> On Fri, Dec 17, 2010 at 8:29 PM, Cory Maccarrone <darkstar6262@gmail.=
-com> wrote:
->> On Fri, Dec 17, 2010 at 2:32 PM, Janusz Krzysztofik
->> <jkrzyszt@tis.icnet.pl> wrote:
->>> Most keypad drivers make use of the <linux/input/matrix_keypad.h>
->>> defined macros, structures and inline functions.
->>>
->>> Convert omap-keypad driver to use those as well, as suggested by a
->>> compile time warning, hardcoded into the OMAP <palt/keypad.h>.
->>>
->>> Created against linux-2.6.37-rc5.
->>> Tested on Amstrad Delta.
->>> Compile tested with omap1_defconfig and omap2plus_defconfig shrinke=
-d to
->>> board-h4.
->>>
->>> Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
->>> ---
->>
->> Works perfectly on the herald, and no more warning message. =C2=A0Go=
-od work!
->>
->> Tested-by: Cory Maccarrone <darkstar6262@gmail.com>
->>
->> - Cory
->>
->
-> Hmm, I may have spoken too soon. =C2=A0This works perfectly on the la=
-test
-> Torvalds master branch, but does not seem to work applied to
-> linux-omap/master. =C2=A0There, all my keys report the same KEY_RECOR=
-D
-> event.
->
-> Probably not a problem in this patch, I think -- will try and track i=
-t
-> down. =C2=A0Out of curiosity, which branch did you test it on?
->
-> - Cory
->
+On Fri, Dec 17, 2010 at 09:09:39PM -0800, Andres Salomon wrote:
+> 
+> OLPC has switched to a Synaptics touchpad.  It turns out that it's
+> pretty useless in absolute mode.  This patch looks for an OLPC
+> system (via DMI tables), and refuses to init Synaptics mode in
+> that scenario (falling back to relative mode).
+> 
+> Signed-off-by: Andres Salomon <dilinger@queued.net>
 
-OK, looks like it definitely isn't this patch, something else on
-linux-omap/master broke it.  I'll bisect and see if I can figure it
-out.
+Andres,
 
-- Cory
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Can we do what hgpk does and add "depend on !OLPC" to the Kconfig
+instead?
+
+Thanks.
+
+-- 
+Dmitry

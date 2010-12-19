@@ -1,47 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Fix double equality sign in uevent
-Date: Sun, 19 Dec 2010 00:04:28 -0800
-Message-ID: <20101219080427.GA10074@core.coreip.homeip.net>
-References: <1292700717-1610-1-git-send-email-rydberg@euromail.se>
+Subject: Re: [PATCH v2] Input: introduce device properties
+Date: Sun, 19 Dec 2010 00:07:23 -0800
+Message-ID: <20101219080723.GB10074@core.coreip.homeip.net>
+References: <1292702719-1552-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:36658 "EHLO
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:55137 "EHLO
 	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751159Ab0LSIEf (ORCPT
+	with ESMTP id S1751159Ab0LSIHa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Dec 2010 03:04:35 -0500
+	Sun, 19 Dec 2010 03:07:30 -0500
 Content-Disposition: inline
-In-Reply-To: <1292700717-1610-1-git-send-email-rydberg@euromail.se>
+In-Reply-To: <1292702719-1552-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Dec 18, 2010 at 08:31:57PM +0100, Henrik Rydberg wrote:
-> Looking at the uevent stream for input devices, all properties
-> are on the form "A=B" except the bitmap values, which are on the
-> form "A==B". Remedied with this patch.
+On Sat, Dec 18, 2010 at 09:05:19PM +0100, Henrik Rydberg wrote:
+> Today, userspace sets up an input device based on the data it emits.
+> This is not always enough; a tablet and a touchscreen may emit exactly
+> the same data, for instance, but the former should be set up with a
+> pointer whereas the latter does not need to. Recently, a new type of
+> touchpad has emerged where the buttons are under the pad, which
+> changes logic without changing the emitted data. This patch introduces
+> a new ioctl, EVIOCGPROP, which enables user access to a set of device
+> properties useful during setup. The properties are given as a bitmap
+> in the same fashion as the event types, and are also made available
+> via sysfs, uevent and /proc/bus/input/devices.
 > 
-> Cc: stable@kernel.org
+> Acked-by: Ping Cheng <pingc@wacom.com>
+> Acked-by: Chase Douglas <chase.douglas@canonical.com>
 > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Hi Dmitry,
-> 
-> Unless the input bitmap properties should really behave differently,
-> this patch ought to be a candidate for 2.6.37.
-> 
 
-Hmm, I do not think so because:
+Looks good to me, thanks for making changes.
 
-- either nobody uses bitmap variables and then it is not priority
-- users worked around the problem and by applying fix we'd be
-  breaking their setups.
+BTW, we need to figure out how to tell when you CC me for review/FYI but
+will push the patch through your tree and when you want me to apply the
+patch directly to my tree.
 
-I think we should apply it but at the beginning of .38 cycle to give us
-a chance to evaluate and maybe revert.
-
-Does this make sense?
+Thanks.
 
 -- 
 Dmitry

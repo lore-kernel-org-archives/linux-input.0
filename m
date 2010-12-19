@@ -1,39 +1,32 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [Tool] mtdev2tuio - a Linux multitouch device to TUIO bridge
-Date: Sun, 19 Dec 2010 15:19:24 +0100
-Message-ID: <20101219141924.GA19714@polaris.bitmath.org>
-References: <1292751943.12340.314.camel@itzy>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 03/20] mach-ux500: move keymaps to new file
+Date: Sun, 19 Dec 2010 21:53:23 +0100
+Message-ID: <AANLkTikMtL=+HJfivh2MVfyzNvT8NyRXVcgPJNEV9XQu@mail.gmail.com>
+References: <1291388753-14662-1-git-send-email-sundar.iyer@stericsson.com>
+	<1291388753-14662-4-git-send-email-sundar.iyer@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:39050 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753938Ab0LSOUG (ORCPT
+Received: from mail-px0-f179.google.com ([209.85.212.179]:58410 "EHLO
+	mail-px0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751526Ab0LSUxY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Dec 2010 09:20:06 -0500
-Content-Disposition: inline
-In-Reply-To: <1292751943.12340.314.camel@itzy>
+	Sun, 19 Dec 2010 15:53:24 -0500
+In-Reply-To: <1291388753-14662-4-git-send-email-sundar.iyer@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Nauber <richard.nauber@googlemail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Sundar Iyer <sundar.iyer@stericsson.com>
+Cc: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Richard,
+2010/12/3 Sundar Iyer <sundar.iyer@stericsson.com>:
 
-> I like to introduce a little tool that allows to use a
-> multitouch-capable device (when supported by the linux kernel) as TUIO
-> client. This enables you to show off with a bunch of existing software
-> (e.g. a compiz plugin, multitouch numptyphysics, and a lot more:
-> http://www.tuio.org/?showcase ). The prerequisites are liblo and
-> libmtdev, which should be pretty standard for modern distributions.
+> Move keylayouts to a dedicated file and plug these keylayouts
+> for input platform data. This will make addition of new and custom
+> keylayouts localized.
 
-I managed to get the smoke application running, great stuff!
+Managed to rebase this somewhat easily on top of the last
+batch of tc3589x MFD patches and pushed for ux500-core,
+please check that I didn't screw anything up.
 
-> So have a look at
-> http://repo.or.cz/w/mtdev2tuio.git
-> and feel free to contribute!
-
-Thanks a lot for this, it is great to see all efforts coming together.
-
-Cheers,
-Henrik
+Yours,
+Linus Walleij

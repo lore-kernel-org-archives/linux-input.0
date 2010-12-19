@@ -1,56 +1,75 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2] Input: introduce device properties
-Date: Sun, 19 Dec 2010 09:54:28 +0100
-Message-ID: <20101219085428.GB5892@polaris.bitmath.org>
-References: <1292702719-1552-1-git-send-email-rydberg@euromail.se>
- <20101219080723.GB10074@core.coreip.homeip.net>
+Subject: Re: [PATCH 1/4] Input: synaptics - add multitouch packet support
+Date: Sun, 19 Dec 2010 10:36:07 +0100
+Message-ID: <20101219093607.GA6162@polaris.bitmath.org>
+References: <1292683981-6908-1-git-send-email-rydberg@euromail.se>
+ <1292683981-6908-2-git-send-email-rydberg@euromail.se>
+ <20101219081648.GC10074@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:46739 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750950Ab0LSIyr (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:50689 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750950Ab0LSJhk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 19 Dec 2010 03:54:47 -0500
+	Sun, 19 Dec 2010 04:37:40 -0500
 Content-Disposition: inline
-In-Reply-To: <20101219080723.GB10074@core.coreip.homeip.net>
+In-Reply-To: <20101219081648.GC10074@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
 
-On Sun, Dec 19, 2010 at 12:07:23AM -0800, Dmitry Torokhov wrote:
-> On Sat, Dec 18, 2010 at 09:05:19PM +0100, Henrik Rydberg wrote:
-> > Today, userspace sets up an input device based on the data it emits.
-> > This is not always enough; a tablet and a touchscreen may emit exactly
-> > the same data, for instance, but the former should be set up with a
-> > pointer whereas the latter does not need to. Recently, a new type of
-> > touchpad has emerged where the buttons are under the pad, which
-> > changes logic without changing the emitted data. This patch introduces
-> > a new ioctl, EVIOCGPROP, which enables user access to a set of device
-> > properties useful during setup. The properties are given as a bitmap
-> > in the same fashion as the event types, and are also made available
-> > via sysfs, uevent and /proc/bus/input/devices.
-> > 
-> > Acked-by: Ping Cheng <pingc@wacom.com>
-> > Acked-by: Chase Douglas <chase.douglas@canonical.com>
-> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> > @@ -279,6 +279,24 @@ static void synaptics_set_rate(struct psmouse *psmouse, unsigned int rate)
+> >  	synaptics_mode_cmd(psmouse, priv->mode);
+> >  }
+> >  
+> > +static int synaptics_set_multitouch_mode(struct psmouse *psmouse)
+> > +{
+> > +	static unsigned char param = 0xc8;
+> > +	struct synaptics_data *priv = psmouse->private;
+> > +
+> > +	if (!SYN_CAP_MULTITOUCH(priv->ext_cap_0c))
+> > +		return 0;
+> > +
+> > +	if (psmouse_sliced_command(psmouse, SYN_QUE_MODEL))
+> > +		return -1;
+> > +	if (ps2_command(&psmouse->ps2dev, &param, PSMOUSE_CMD_SETRATE))
+> > +		return -1;
+> > +
+> > +	priv->multitouch = 1;
 > 
-> Looks good to me, thanks for making changes.
+> That should be bool/true. Also, do we need to have this variable at all
+> since we seem to abort initialization if multitouch mode fails?
 
-Thank you, I take that as an ack, then.
- 
-> BTW, we need to figure out how to tell when you CC me for review/FYI but
-> will push the patch through your tree and when you want me to apply the
-> patch directly to my tree.
+The logic of the all-patches-applied version does depend on the
+advanced gesture flag, but sure, instead of this variable, one could
+set the SYN_CAP_MULTIFINGER bit, and use SYN_CAP_MULTITOUCH explicitly
+in remaining places. And, of course, another round of testing.
 
-Right, the subject is supposed to tell, but more often it becomes a
-question of patch ordering and testing convenience. It seems
-everything queued for next has been going through my tree, so maybe
-that should be the default. Had the present patch really been for
-2.6.37, for example, it would have been more convenient to have it
-applied directly to your tree.
+> 
+> > +	printk(KERN_INFO "Synaptics: Multitouch mode enabled\n");
+> 
+> I'd rather only reported if we failed to activate multitouch mode on
+> devices that ought support it.
 
-Makes sense?
+Ok.
 
+> > @@ -53,6 +53,7 @@
+> >  #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
+> >  #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100)
+> >  #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
+> > +#define SYN_CAP_MULTITOUCH(ex0c)	((ex0c) & 0x080000)
+> 
+> Synaptics calls this bit "Advanced Gesture", I think we should do the
+> same as they might produce full-MT devices in the future.
+> 
+> Also, how useful is this patch without the 4th one? Why aren't they
+> folded together?
+
+This first patch implements multi-finger support in the same fashion
+as older hardware, thus enabling for instance hw-finger scroll in
+synaptics.
+
+Thanks,
 Henrik

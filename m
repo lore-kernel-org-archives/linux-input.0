@@ -1,34 +1,64 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH 2/4] acer-wmi: Enabled Acer Launch Manager mode
-Date: Mon, 20 Dec 2010 16:06:12 +0000
-Message-ID: <20101220160612.GA25502@srcf.ucam.org>
-References: <1291688963-23232-1-git-send-email-jlee@novell.com> <1291688963-23232-2-git-send-email-jlee@novell.com> <1291688963-23232-3-git-send-email-jlee@novell.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 2/3] Input: synaptics - add multi-finger and semi-mt support
+Date: Mon, 20 Dec 2010 10:20:13 -0600
+Message-ID: <AANLkTin-o4VDnLS-bURhyzqb2Go5a9XJOoSCcdH2vkRT@mail.gmail.com>
+References: <1292852364-19127-1-git-send-email-rydberg@euromail.se>
+	<1292852364-19127-3-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1291688963-23232-3-git-send-email-jlee@novell.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
-Cc: dmitry.torokhov@gmail.com, corentin.chary@gmail.com, corentincj@iksaif.net, tiwai@novell.com, carlos@strangeworlds.co.uk, jbenc@suse.cz, jdelvare@suse.de, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, "Lee, Chun-Yi" <jlee@novell.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f42.google.com ([74.125.83.42]:53206 "EHLO
+	mail-gw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932780Ab0LTQUO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Dec 2010 11:20:14 -0500
+In-Reply-To: <1292852364-19127-3-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 07, 2010 at 10:29:21AM +0800, Lee, Chun-Yi wrote:
-> +	struct lm_return_value return_value;
-> +	acpi_status status;
-> +	struct lm_input_params params = {
-> +		.function_num = 0x1,
-> +		.commun_devices = 0x0041,	/* WiFi on, 3G on, BT off */
+On Mon, Dec 20, 2010 at 7:39 AM, Henrik Rydberg <rydberg@euromail.se> w=
+rote:
+> The Synaptics 2.7 series of touchpads support a mode for reporting tw=
+o
+> sets of X/Y/Pressure data (advanced gesture mode). By default, these
+> devices report only single finger data, depriving userspace of the
+> nowadays ubiquitous two-finger scroll gesture.
+>
+> Enabling advanced gesture mode also enables the multi-finger report,
+> although the device does not claim that capability. Up to three
+> fingers can be reported this way.
+>
+> While two or three fingers are touching, the normal packet is
+> prepended by a reduced finger packet of lower resolution. From the tw=
+o
+> packets (which do not represent the actual fingers), the bounding
+> rectangle of the individual contacts can be extracted. =A0This
+> information is sufficient to perform scaling gestures and a limited
+> form of rotation gesture. The behavior has been coined semi-mt
+> capability, and is signaled to userspace via the INPUT_PROP_SEMI_MT
+> device property.
+>
+> Work to decode the advanced gesture packet: Takashi Iwai.
+> Cleanup and testing of the original patch: Chase Douglas.
+> Minor cleanup and testing: Chris Bagwell.
+> Finalization and semi-mt support: Henrik Rydberg.
+>
+> Reported-by: Tobyn Bertram
+> Not-yet-signed-off-by: Takashi Iwai <tiwai@suse.de>
+> Not-yet-signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> Not-yet-signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
 
-Why this set of devices?
 
-> +		printk(ACER_INFO "Enabled Launch Manager");
+That turned out better.  You can keep my sign off on there.
 
-This is the default behaviour, so I don't think you need to print 
-anything in this case.
-
-The other patches in the series look fine - I'll apply those to -next 
-now.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Chris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

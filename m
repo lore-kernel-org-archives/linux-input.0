@@ -1,55 +1,34 @@
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: Re: [PATCH v2] Keyboard: omap-keypad: use matrix_keypad.h
-Date: Mon, 20 Dec 2010 17:29:32 +0200 (EET)
-Message-ID: <alpine.DEB.1.10.1012201720470.13087@esdhcp041196.research.nokia.com>
-References: <201012172332.06480.jkrzyszt@tis.icnet.pl> <20101218060104.GA1623@core.coreip.homeip.net> <201012181639.29820.jkrzyszt@tis.icnet.pl>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 2/4] acer-wmi: Enabled Acer Launch Manager mode
+Date: Mon, 20 Dec 2010 16:06:12 +0000
+Message-ID: <20101220160612.GA25502@srcf.ucam.org>
+References: <1291688963-23232-1-git-send-email-jlee@novell.com> <1291688963-23232-2-git-send-email-jlee@novell.com> <1291688963-23232-3-git-send-email-jlee@novell.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <201012181639.29820.jkrzyszt@tis.icnet.pl>
-Sender: linux-omap-owner@vger.kernel.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1291688963-23232-3-git-send-email-jlee@novell.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: "Lee, Chun-Yi" <joeyli.kernel@gmail.com>
+Cc: dmitry.torokhov@gmail.com, corentin.chary@gmail.com, corentincj@iksaif.net, tiwai@novell.com, carlos@strangeworlds.co.uk, jbenc@suse.cz, jdelvare@suse.de, trenn@suse.de, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, "Lee, Chun-Yi" <jlee@novell.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+On Tue, Dec 07, 2010 at 10:29:21AM +0800, Lee, Chun-Yi wrote:
+> +	struct lm_return_value return_value;
+> +	acpi_status status;
+> +	struct lm_input_params params = {
+> +		.function_num = 0x1,
+> +		.commun_devices = 0x0041,	/* WiFi on, 3G on, BT off */
 
-On Sat, 18 Dec 2010, Janusz Krzysztofik wrote:
-> Most keypad drivers make use of the <linux/input/matrix_keypad.h>
-> defined macros, structures and inline functions.
->
-> Convert omap-keypad driver to use those as well, as suggested by a
-> compile time warning, hardcoded into the OMAP <palt/keypad.h>.
->
-> Created against linux-2.6.37-rc5.
-> Tested on Amstrad Delta.
-> Compile tested with omap1_defconfig and omap2plus_defconfig shrinked to
-> board-h4.
->
-> Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Why this set of devices?
 
-[...]
+> +		printk(ACER_INFO "Enabled Launch Manager");
 
-> --- linux-2.6.37-rc5/arch/arm/mach-omap1/board-ams-delta.c.orig 2010-12-09 23:07:35.000000000 +0100
-> +++ linux-2.6.37-rc5/arch/arm/mach-omap1/board-ams-delta.c      2010-12-18 16:23:29.000000000 +0100
-> @@ -46,81 +46,79 @@ static u16 ams_delta_latch2_reg;
-> static int ams_delta_keymap[] = {
+This is the default behaviour, so I don't think you need to print 
+anything in this case.
 
-[...]
+The other patches in the series look fine - I'll apply those to -next 
+now.
 
-> +static const struct matrix_keymap_data ams_delta_keymap_data = {
-> +       .keymap         = ams_delta_keymap,
-> +       .keymap_size    = ARRAY_SIZE(ams_delta_keymap),
-> +};
-
-You should update the ams_delta_keymap type as well, otherwise this patch
-will introduce the following sparse warning:
-
-   CHECK   arch/arm/mach-omap1/board-ams-delta.c
-arch/arm/mach-omap1/board-ams-delta.c:191:27: warning: incorrect type in initializer (different signedness)
-arch/arm/mach-omap1/board-ams-delta.c:191:27:    expected unsigned int const [usertype] *keymap
-arch/arm/mach-omap1/board-ams-delta.c:191:27:    got int static [toplevel] *<noident>
-
-I only checked E3, so other boards should be checked as well.
-
-A.
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

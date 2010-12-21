@@ -1,61 +1,71 @@
-From: Chase Douglas <chase.douglas@canonical.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
 Subject: Re: [PATCH 2/3] Input: synaptics - add multi-finger and semi-mt support
-Date: Tue, 21 Dec 2010 12:32:38 -0500
-Message-ID: <4D10E4B6.8070003@canonical.com>
-References: <1292852364-19127-1-git-send-email-rydberg@euromail.se> <1292852364-19127-3-git-send-email-rydberg@euromail.se> <4D10D75D.80400@canonical.com> <20101221165956.GA28702@polaris.bitmath.org>
+Date: Tue, 21 Dec 2010 12:06:08 -0600
+Message-ID: <AANLkTi=rxBMDB+JKLY9A4iMZEtCBGNhfJxAERMb4CEjR@mail.gmail.com>
+References: <1292852364-19127-1-git-send-email-rydberg@euromail.se>
+	<1292852364-19127-3-git-send-email-rydberg@euromail.se>
+	<4D10D75D.80400@canonical.com>
+	<20101221165956.GA28702@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f180.google.com ([209.85.161.180]:62221 "EHLO
+	mail-gx0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751493Ab0LUSGJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Dec 2010 13:06:09 -0500
 In-Reply-To: <20101221165956.GA28702@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/21/2010 11:59 AM, Henrik Rydberg wrote:
->>> Reported-by: Tobyn Bertram
->>> Not-yet-signed-off-by: Takashi Iwai <tiwai@suse.de>
->>> Not-yet-signed-off-by: Chase Douglas <chase.douglas@canonical.com>
->>> Not-yet-signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
->>> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+On Tue, Dec 21, 2010 at 10:59 AM, Henrik Rydberg <rydberg@euromail.se> =
+wrote:
+>> > Reported-by: Tobyn Bertram
+>> > Not-yet-signed-off-by: Takashi Iwai <tiwai@suse.de>
+>> > Not-yet-signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+>> > Not-yet-signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+>> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 >>
 >> You can keep my SOB.
-> 
+>
 > Great, thanks.
->  
->>> +static void set_slot(struct input_dev *dev, int slot, bool active, int x, int y)
->>> +{
->>> +	input_mt_slot(dev, slot);
->>> +	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
->>> +	if (active) {
->>> +		input_report_abs(dev, ABS_MT_POSITION_X, x);
->>> +		input_report_abs(dev, ABS_MT_POSITION_Y,
->>> +				 YMAX_NOMINAL + YMIN_NOMINAL - y);
->>> +	}
->>> +}
+>
+>> > +static void set_slot(struct input_dev *dev, int slot, bool active=
+, int x, int y)
+>> > +{
+>> > + =A0 input_mt_slot(dev, slot);
+>> > + =A0 input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+>> > + =A0 if (active) {
+>> > + =A0 =A0 =A0 =A0 =A0 input_report_abs(dev, ABS_MT_POSITION_X, x);
+>> > + =A0 =A0 =A0 =A0 =A0 input_report_abs(dev, ABS_MT_POSITION_Y,
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0YMAX_NOMI=
+NAL + YMIN_NOMINAL - y);
+>> > + =A0 }
+>> > +}
 >>
 >> I take it that you feel MT_TOOL_FINGER should always be set, even if
 >> it's always the same as BTN_TOOL_*? I just want to be sure this is
 >> intended so we document it appropriately.
-> 
-> Yes - the MT_TOOLs are only emitted when explicitly set in absbit, but
+>
+> Yes - the MT_TOOLs are only emitted when explicitly set in absbit, bu=
+t
 > the internal interface always handles it. This is actually documented
 > in the code (and DocBook).
 
-Ahh, I had forgotten about this.
+That note is good guidance for developer side.  Its also worth noting
+on app side that MT_TOOL_FINGER is a little special since its value is
+0.  In most common case, I think it will get filtered out where as
+BTN_TOOL_FINGER will always be sent.
 
->>> @@ -623,6 +686,7 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
->>>  	int i;
->>>  
->>>  	__set_bit(INPUT_PROP_POINTER, dev->propbit);
->>> +	__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
->>
->> Shouldn't this only be set when SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) is
->> true?
-> 
-> Indeed - thanks.
+Since we can't yet query per slot ABS_MT_TOOL_TYPE, I guess apps have
+to just assume its a finger unless told otherwise?
 
-All looks good to me with this change :). Thanks again!
-
--- Chase
+Chris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

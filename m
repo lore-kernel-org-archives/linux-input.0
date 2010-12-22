@@ -1,45 +1,228 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Keyboard: omap-keypad: use matrix_keypad.h
-Date: Wed, 22 Dec 2010 02:16:57 -0800
-Message-ID: <20101222101657.GD22590@core.coreip.homeip.net>
-References: <201012172332.06480.jkrzyszt@tis.icnet.pl>
- <201012181639.29820.jkrzyszt@tis.icnet.pl>
- <alpine.DEB.1.10.1012201720470.13087@esdhcp041196.research.nokia.com>
- <201012202209.24068.jkrzyszt@tis.icnet.pl>
- <alpine.DEB.1.10.1012211150410.22164@esdhcp041196.research.nokia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.1.10.1012211150410.22164@esdhcp041196.research.nokia.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@nokia.com>
-Cc: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, Tony Lindgren <tony@atomide.com>, linux-arm-kernel@lists.infradead.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH v2 2/3] Input: synaptics - add multi-finger and semi-mt support
+Date: Wed, 22 Dec 2010 11:18:01 +0100
+Message-ID: <1293013081-30740-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Takashi Iwai <tiwai@suse.de>, Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Dec 21, 2010 at 01:20:35PM +0200, Aaro Koskinen wrote:
-> Hi,
-> 
-> On Mon, 20 Dec 2010, Janusz Krzysztofik wrote:
-> >Most keypad drivers make use of the <linux/input/matrix_keypad.h>
-> >defined macros, structures and inline functions.
-> >
-> >Convert omap-keypad driver to use those as well, as suggested by a
-> >compile time warning, hardcoded into the OMAP <palt/keypad.h>.
-> >
-> >Created against linux-2.6.37-rc5.
-> >Tested on Amstrad Delta.
-> >Compile tested with omap1_defconfig and omap2plus_defconfig shrinked to
-> >board-h4.
-> >
-> >Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-> 
-> Reviewed-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-> 
+The Synaptics 2.7 series of touchpads support a mode for reporting two
+sets of X/Y/Pressure data (advanced gesture mode). By default, these
+devices report only single finger data, depriving userspace of the
+nowadays ubiquitous two-finger scroll gesture.
 
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
+Enabling advanced gesture mode also enables the multi-finger report,
+although the device does not claim that capability. Up to three
+fingers can be reported this way.
 
-Thanks for making the changes.
+While two or three fingers are touching, the normal packet is
+prepended by a reduced finger packet of lower resolution. From the two
+packets (which do not represent the actual fingers), the bounding
+rectangle of the individual contacts can be extracted.  This
+information is sufficient to perform scaling gestures and a limited
+form of rotation gesture. The behavior has been coined semi-mt
+capability, and is signaled to userspace via the INPUT_PROP_SEMI_MT
+device property.
 
+Work to decode the advanced gesture packet: Takashi Iwai.
+Cleanup and testing of the original patch: Chase Douglas.
+Minor cleanup and testing: Chris Bagwell.
+Finalization and semi-mt support: Henrik Rydberg.
+
+Reported-by: Tobyn Bertram
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/synaptics.c |   88 +++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/synaptics.h |    3 +
+ 2 files changed, 88 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 8997cbc..6514928 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -25,7 +25,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/dmi.h>
+-#include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
+ #include <linux/slab.h>
+@@ -279,6 +279,25 @@ static void synaptics_set_rate(struct psmouse *psmouse, unsigned int rate)
+ 	synaptics_mode_cmd(psmouse, priv->mode);
+ }
+ 
++static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
++{
++	static unsigned char param = 0xc8;
++	struct synaptics_data *priv = psmouse->private;
++
++	if (!SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
++		return 0;
++
++	if (psmouse_sliced_command(psmouse, SYN_QUE_MODEL))
++		return -1;
++	if (ps2_command(&psmouse->ps2dev, &param, PSMOUSE_CMD_SETRATE))
++		return -1;
++
++	/* Advanced gesture mode also sends multi finger data */
++	priv->capabilities |= BIT(1);
++
++	return 0;
++}
++
+ /*****************************************************************************
+  *	Synaptics pass-through PS/2 port support
+  ****************************************************************************/
+@@ -380,7 +399,9 @@ static void synaptics_pt_create(struct psmouse *psmouse)
+  *	Functions to interpret the absolute mode packets
+  ****************************************************************************/
+ 
+-static void synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data *priv, struct synaptics_hw_state *hw)
++static int synaptics_parse_hw_state(const unsigned char buf[],
++				    struct synaptics_data *priv,
++				    struct synaptics_hw_state *hw)
+ {
+ 	memset(hw, 0, sizeof(struct synaptics_hw_state));
+ 
+@@ -397,6 +418,14 @@ static void synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data
+ 			 ((buf[0] & 0x04) >> 1) |
+ 			 ((buf[3] & 0x04) >> 2));
+ 
++		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
++			/* Gesture packet: (x, y, z) at half resolution */
++			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
++			priv->mt.y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
++			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
++			return 1;
++		}
++
+ 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
+ 		hw->right = (buf[0] & 0x02) ? 1 : 0;
+ 
+@@ -452,6 +481,36 @@ static void synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data
+ 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
+ 		hw->right = (buf[0] & 0x02) ? 1 : 0;
+ 	}
++
++	return 0;
++}
++
++static void set_slot(struct input_dev *dev, int slot, bool active, int x, int y)
++{
++	input_mt_slot(dev, slot);
++	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
++	if (active) {
++		input_report_abs(dev, ABS_MT_POSITION_X, x);
++		input_report_abs(dev, ABS_MT_POSITION_Y,
++				 YMAX_NOMINAL + YMIN_NOMINAL - y);
++	}
++}
++
++static void synaptics_report_semi_mt_data(struct input_dev *dev,
++					  const struct synaptics_hw_state *a,
++					  const struct synaptics_hw_state *b,
++					  int num_fingers)
++{
++	if (num_fingers >= 2) {
++		set_slot(dev, 0, true, min(a->x, b->x), min(a->y, b->y));
++		set_slot(dev, 1, true, max(a->x, b->x), max(a->y, b->y));
++	} else if (num_fingers == 1) {
++		set_slot(dev, 0, true, a->x, a->y);
++		set_slot(dev, 1, false, 0, 0);
++	} else {
++		set_slot(dev, 0, false, 0, 0);
++		set_slot(dev, 1, false, 0, 0);
++	}
+ }
+ 
+ /*
+@@ -466,7 +525,8 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 	int finger_width;
+ 	int i;
+ 
+-	synaptics_parse_hw_state(psmouse->packet, priv, &hw);
++	if (synaptics_parse_hw_state(psmouse->packet, priv, &hw))
++		return;
+ 
+ 	if (hw.scroll) {
+ 		priv->scroll += hw.scroll;
+@@ -512,6 +572,9 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 		finger_width = 0;
+ 	}
+ 
++	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
++		synaptics_report_semi_mt_data(dev, &hw, &priv->mt, num_fingers);
++
+ 	/* Post events
+ 	 * BTN_TOUCH has to be first as mousedev relies on it when doing
+ 	 * absolute -> relative conversion
+@@ -631,6 +694,15 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 			     YMIN_NOMINAL, priv->y_max ?: YMAX_NOMINAL, 0, 0);
+ 	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
+ 
++	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
++		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
++		input_mt_init_slots(dev, 2);
++		input_set_abs_params(dev, ABS_MT_POSITION_X, XMIN_NOMINAL,
++				     priv->x_max ?: XMAX_NOMINAL, 0, 0);
++		input_set_abs_params(dev, ABS_MT_POSITION_Y, YMIN_NOMINAL,
++				     priv->y_max ?: YMAX_NOMINAL, 0, 0);
++	}
++
+ 	if (SYN_CAP_PALMDETECT(priv->capabilities))
+ 		input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
+ 
+@@ -705,6 +777,11 @@ static int synaptics_reconnect(struct psmouse *psmouse)
+ 		return -1;
+ 	}
+ 
++	if (synaptics_set_advanced_gesture_mode(psmouse)) {
++		printk(KERN_ERR "Advanced gesture mode reconnect failed.\n");
++		return -1;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -772,6 +849,11 @@ int synaptics_init(struct psmouse *psmouse)
+ 		goto init_fail;
+ 	}
+ 
++	if (synaptics_set_advanced_gesture_mode(psmouse)) {
++		printk(KERN_ERR "Advanced gesture mode init failed.\n");
++		goto init_fail;
++	}
++
+ 	priv->pkt_type = SYN_MODEL_NEWABS(priv->model_id) ? SYN_NEWABS : SYN_OLDABS;
+ 
+ 	printk(KERN_INFO "Synaptics Touchpad, model: %ld, fw: %ld.%ld, id: %#lx, caps: %#lx/%#lx/%#lx\n",
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 613a365..50e20e9 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -53,6 +53,7 @@
+ #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
+ #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100)
+ #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
++#define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+ 
+ /* synaptics modes query bits */
+ #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
+@@ -112,6 +113,8 @@ struct synaptics_data {
+ 	int scroll;
+ 
+ 	struct serio *pt_port;			/* Pass-through serio port */
++
++	struct synaptics_hw_state mt;		/* current gesture packet */
+ };
+ 
+ void synaptics_module_init(void);
 -- 
-Dmitry
+1.7.2.3

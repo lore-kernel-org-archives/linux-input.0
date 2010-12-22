@@ -1,228 +1,236 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH v2 2/3] Input: synaptics - add multi-finger and semi-mt support
-Date: Wed, 22 Dec 2010 11:18:01 +0100
-Message-ID: <1293013081-30740-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Takashi Iwai <tiwai@suse.de>, Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: [PATCH] usbhid:implement runtime pm with the modern AP
+Date: Wed, 22 Dec 2010 15:33:40 +0100
+Message-ID: <201012221533.40490.oneukum@suse.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:53979 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752503Ab0LVOcT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Dec 2010 09:32:19 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz, Maulik Mankad <x0082077@ti.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The Synaptics 2.7 series of touchpads support a mode for reporting two
-sets of X/Y/Pressure data (advanced gesture mode). By default, these
-devices report only single finger data, depriving userspace of the
-nowadays ubiquitous two-finger scroll gesture.
+>From 4ab9b6c6b842c8bcbf29575935d178069cda2456 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oliver@neukum.org>
+Date: Wed, 22 Dec 2010 15:19:45 +0100
+Subject: [PATCH] usbhid:implement runtime pm with the modern API
 
-Enabling advanced gesture mode also enables the multi-finger report,
-although the device does not claim that capability. Up to three
-fingers can be reported this way.
+This patch doesn't alter functionality, but removes a dedicated kernel
+thread.
 
-While two or three fingers are touching, the normal packet is
-prepended by a reduced finger packet of lower resolution. From the two
-packets (which do not represent the actual fingers), the bounding
-rectangle of the individual contacts can be extracted.  This
-information is sufficient to perform scaling gestures and a limited
-form of rotation gesture. The behavior has been coined semi-mt
-capability, and is signaled to userspace via the INPUT_PROP_SEMI_MT
-device property.
-
-Work to decode the advanced gesture packet: Takashi Iwai.
-Cleanup and testing of the original patch: Chase Douglas.
-Minor cleanup and testing: Chris Bagwell.
-Finalization and semi-mt support: Henrik Rydberg.
-
-Reported-by: Tobyn Bertram
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Tested-by: Maulik Mankad <x0082077@ti.com>
 ---
- drivers/input/mouse/synaptics.c |   88 +++++++++++++++++++++++++++++++++++++-
- drivers/input/mouse/synaptics.h |    3 +
- 2 files changed, 88 insertions(+), 3 deletions(-)
+ drivers/hid/usbhid/hid-core.c |   57 +++++++++++++---------------------------
+ drivers/hid/usbhid/usbhid.h   |    1 -
+ 2 files changed, 19 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 8997cbc..6514928 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -25,7 +25,7 @@
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 5489eab..0d632e0 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -67,7 +67,6 @@ MODULE_PARM_DESC(quirks, "Add/modify USB HID quirks by specifying "
+  * Input submission and I/O error handler.
+  */
+ static DEFINE_MUTEX(hid_open_mut);
+-static struct workqueue_struct *resumption_waker;
  
- #include <linux/module.h>
- #include <linux/dmi.h>
--#include <linux/input.h>
-+#include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
- #include <linux/slab.h>
-@@ -279,6 +279,25 @@ static void synaptics_set_rate(struct psmouse *psmouse, unsigned int rate)
- 	synaptics_mode_cmd(psmouse, priv->mode);
- }
+ static void hid_io_error(struct hid_device *hid);
+ static int hid_submit_out(struct hid_device *hid);
+@@ -300,10 +299,19 @@ static int hid_submit_out(struct hid_device *hid)
+ 	struct hid_report *report;
+ 	char *raw_report;
+ 	struct usbhid_device *usbhid = hid->driver_data;
++	int r;
  
-+static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
-+{
-+	static unsigned char param = 0xc8;
-+	struct synaptics_data *priv = psmouse->private;
-+
-+	if (!SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
-+		return 0;
-+
-+	if (psmouse_sliced_command(psmouse, SYN_QUE_MODEL))
-+		return -1;
-+	if (ps2_command(&psmouse->ps2dev, &param, PSMOUSE_CMD_SETRATE))
+ 	report = usbhid->out[usbhid->outtail].report;
+ 	raw_report = usbhid->out[usbhid->outtail].raw_report;
+ 
++	r = usb_autopm_get_interface_async(usbhid->intf);
++	if (r < 0)
 +		return -1;
 +
-+	/* Advanced gesture mode also sends multi finger data */
-+	priv->capabilities |= BIT(1);
-+
-+	return 0;
-+}
-+
- /*****************************************************************************
-  *	Synaptics pass-through PS/2 port support
-  ****************************************************************************/
-@@ -380,7 +399,9 @@ static void synaptics_pt_create(struct psmouse *psmouse)
-  *	Functions to interpret the absolute mode packets
-  ****************************************************************************/
++	/*
++	 * if the device hasn't been woken, we leave the output
++	 * to resume()
++	 */
+ 	if (!test_bit(HID_REPORTED_IDLE, &usbhid->iofl)) {
+ 		usbhid->urbout->transfer_buffer_length = ((report->size - 1) >> 3) + 1 + (report->id > 0);
+ 		usbhid->urbout->dev = hid_to_usb_dev(hid);
+@@ -314,16 +322,10 @@ static int hid_submit_out(struct hid_device *hid)
  
--static void synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data *priv, struct synaptics_hw_state *hw)
-+static int synaptics_parse_hw_state(const unsigned char buf[],
-+				    struct synaptics_data *priv,
-+				    struct synaptics_hw_state *hw)
- {
- 	memset(hw, 0, sizeof(struct synaptics_hw_state));
- 
-@@ -397,6 +418,14 @@ static void synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data
- 			 ((buf[0] & 0x04) >> 1) |
- 			 ((buf[3] & 0x04) >> 2));
- 
-+		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
-+			/* Gesture packet: (x, y, z) at half resolution */
-+			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
-+			priv->mt.y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
-+			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
-+			return 1;
-+		}
-+
- 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
- 
-@@ -452,6 +481,36 @@ static void synaptics_parse_hw_state(unsigned char buf[], struct synaptics_data
- 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
- 	}
-+
-+	return 0;
-+}
-+
-+static void set_slot(struct input_dev *dev, int slot, bool active, int x, int y)
-+{
-+	input_mt_slot(dev, slot);
-+	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
-+	if (active) {
-+		input_report_abs(dev, ABS_MT_POSITION_X, x);
-+		input_report_abs(dev, ABS_MT_POSITION_Y,
-+				 YMAX_NOMINAL + YMIN_NOMINAL - y);
-+	}
-+}
-+
-+static void synaptics_report_semi_mt_data(struct input_dev *dev,
-+					  const struct synaptics_hw_state *a,
-+					  const struct synaptics_hw_state *b,
-+					  int num_fingers)
-+{
-+	if (num_fingers >= 2) {
-+		set_slot(dev, 0, true, min(a->x, b->x), min(a->y, b->y));
-+		set_slot(dev, 1, true, max(a->x, b->x), max(a->y, b->y));
-+	} else if (num_fingers == 1) {
-+		set_slot(dev, 0, true, a->x, a->y);
-+		set_slot(dev, 1, false, 0, 0);
-+	} else {
-+		set_slot(dev, 0, false, 0, 0);
-+		set_slot(dev, 1, false, 0, 0);
-+	}
- }
- 
- /*
-@@ -466,7 +525,8 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 	int finger_width;
- 	int i;
- 
--	synaptics_parse_hw_state(psmouse->packet, priv, &hw);
-+	if (synaptics_parse_hw_state(psmouse->packet, priv, &hw))
-+		return;
- 
- 	if (hw.scroll) {
- 		priv->scroll += hw.scroll;
-@@ -512,6 +572,9 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 		finger_width = 0;
+ 		if (usb_submit_urb(usbhid->urbout, GFP_ATOMIC)) {
+ 			err_hid("usb_submit_urb(out) failed");
++			usb_autopm_put_interface_async(usbhid->intf);
+ 			return -1;
+ 		}
+ 		usbhid->last_out = jiffies;
+-	} else {
+-		/*
+-		 * queue work to wake up the device.
+-		 * as the work queue is freezeable, this is safe
+-		 * with respect to STD and STR
+-		 */
+-		queue_work(resumption_waker, &usbhid->restart_work);
  	}
  
-+	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
-+		synaptics_report_semi_mt_data(dev, &hw, &priv->mt, num_fingers);
-+
- 	/* Post events
- 	 * BTN_TOUCH has to be first as mousedev relies on it when doing
- 	 * absolute -> relative conversion
-@@ -631,6 +694,15 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
- 			     YMIN_NOMINAL, priv->y_max ?: YMAX_NOMINAL, 0, 0);
- 	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
- 
-+	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
-+		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
-+		input_mt_init_slots(dev, 2);
-+		input_set_abs_params(dev, ABS_MT_POSITION_X, XMIN_NOMINAL,
-+				     priv->x_max ?: XMAX_NOMINAL, 0, 0);
-+		input_set_abs_params(dev, ABS_MT_POSITION_Y, YMIN_NOMINAL,
-+				     priv->y_max ?: YMAX_NOMINAL, 0, 0);
-+	}
-+
- 	if (SYN_CAP_PALMDETECT(priv->capabilities))
- 		input_set_abs_params(dev, ABS_TOOL_WIDTH, 0, 15, 0, 0);
- 
-@@ -705,6 +777,11 @@ static int synaptics_reconnect(struct psmouse *psmouse)
- 		return -1;
- 	}
- 
-+	if (synaptics_set_advanced_gesture_mode(psmouse)) {
-+		printk(KERN_ERR "Advanced gesture mode reconnect failed.\n");
-+		return -1;
-+	}
-+
  	return 0;
- }
+@@ -334,13 +336,16 @@ static int hid_submit_ctrl(struct hid_device *hid)
+ 	struct hid_report *report;
+ 	unsigned char dir;
+ 	char *raw_report;
+-	int len;
++	int len, r;
+ 	struct usbhid_device *usbhid = hid->driver_data;
  
-@@ -772,6 +849,11 @@ int synaptics_init(struct psmouse *psmouse)
- 		goto init_fail;
+ 	report = usbhid->ctrl[usbhid->ctrltail].report;
+ 	raw_report = usbhid->ctrl[usbhid->ctrltail].raw_report;
+ 	dir = usbhid->ctrl[usbhid->ctrltail].dir;
+ 
++	r = usb_autopm_get_interface_async(usbhid->intf);
++	if (r < 0)
++		return -1;
+ 	if (!test_bit(HID_REPORTED_IDLE, &usbhid->iofl)) {
+ 		len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
+ 		if (dir == USB_DIR_OUT) {
+@@ -375,17 +380,11 @@ static int hid_submit_ctrl(struct hid_device *hid)
+ 			usbhid->cr->wValue, usbhid->cr->wIndex, usbhid->cr->wLength);
+ 
+ 		if (usb_submit_urb(usbhid->urbctrl, GFP_ATOMIC)) {
++			usb_autopm_put_interface_async(usbhid->intf);
+ 			err_hid("usb_submit_urb(ctrl) failed");
+ 			return -1;
+ 		}
+ 		usbhid->last_ctrl = jiffies;
+-	} else {
+-		/*
+-		 * queue work to wake up the device.
+-		 * as the work queue is freezeable, this is safe
+-		 * with respect to STD and STR
+-		 */
+-		queue_work(resumption_waker, &usbhid->restart_work);
  	}
  
-+	if (synaptics_set_advanced_gesture_mode(psmouse)) {
-+		printk(KERN_ERR "Advanced gesture mode init failed.\n");
-+		goto init_fail;
-+	}
-+
- 	priv->pkt_type = SYN_MODEL_NEWABS(priv->model_id) ? SYN_NEWABS : SYN_OLDABS;
+ 	return 0;
+@@ -435,6 +434,7 @@ static void hid_irq_out(struct urb *urb)
  
- 	printk(KERN_INFO "Synaptics Touchpad, model: %ld, fw: %ld.%ld, id: %#lx, caps: %#lx/%#lx/%#lx\n",
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 613a365..50e20e9 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -53,6 +53,7 @@
- #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
- #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100)
- #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
-+#define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+ 	clear_bit(HID_OUT_RUNNING, &usbhid->iofl);
+ 	spin_unlock_irqrestore(&usbhid->lock, flags);
++	usb_autopm_put_interface_async(usbhid->intf);
+ 	wake_up(&usbhid->wait);
+ }
  
- /* synaptics modes query bits */
- #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
-@@ -112,6 +113,8 @@ struct synaptics_data {
- 	int scroll;
+@@ -481,11 +481,13 @@ static void hid_ctrl(struct urb *urb)
+ 			wake_up(&usbhid->wait);
+ 		}
+ 		spin_unlock(&usbhid->lock);
++		usb_autopm_put_interface_async(usbhid->intf);
+ 		return;
+ 	}
  
- 	struct serio *pt_port;			/* Pass-through serio port */
-+
-+	struct synaptics_hw_state mt;		/* current gesture packet */
+ 	clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
+ 	spin_unlock(&usbhid->lock);
++	usb_autopm_put_interface_async(usbhid->intf);
+ 	wake_up(&usbhid->wait);
+ }
+ 
+@@ -656,7 +658,7 @@ int usbhid_open(struct hid_device *hid)
+ 	mutex_lock(&hid_open_mut);
+ 	if (!hid->open++) {
+ 		res = usb_autopm_get_interface(usbhid->intf);
+-		/* the device must be awake to reliable request remote wakeup */
++		/* the device must be awake to reliably request remote wakeup */
+ 		if (res < 0) {
+ 			hid->open--;
+ 			mutex_unlock(&hid_open_mut);
+@@ -857,18 +859,6 @@ static void usbhid_restart_queues(struct usbhid_device *usbhid)
+ 	usbhid_restart_ctrl_queue(usbhid);
+ }
+ 
+-static void __usbhid_restart_queues(struct work_struct *work)
+-{
+-	struct usbhid_device *usbhid =
+-		container_of(work, struct usbhid_device, restart_work);
+-	int r;
+-
+-	r = usb_autopm_get_interface(usbhid->intf);
+-	if (r < 0)
+-		return;
+-	usb_autopm_put_interface(usbhid->intf);
+-}
+-
+ static void hid_free_buffers(struct usb_device *dev, struct hid_device *hid)
+ {
+ 	struct usbhid_device *usbhid = hid->driver_data;
+@@ -1206,7 +1196,6 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
+ 
+ 	init_waitqueue_head(&usbhid->wait);
+ 	INIT_WORK(&usbhid->reset_work, hid_reset);
+-	INIT_WORK(&usbhid->restart_work, __usbhid_restart_queues);
+ 	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
+ 	spin_lock_init(&usbhid->lock);
+ 
+@@ -1241,7 +1230,6 @@ static void usbhid_disconnect(struct usb_interface *intf)
+ static void hid_cancel_delayed_stuff(struct usbhid_device *usbhid)
+ {
+ 	del_timer_sync(&usbhid->io_retry);
+-	cancel_work_sync(&usbhid->restart_work);
+ 	cancel_work_sync(&usbhid->reset_work);
+ }
+ 
+@@ -1262,7 +1250,6 @@ static int hid_pre_reset(struct usb_interface *intf)
+ 	spin_lock_irq(&usbhid->lock);
+ 	set_bit(HID_RESET_PENDING, &usbhid->iofl);
+ 	spin_unlock_irq(&usbhid->lock);
+-	cancel_work_sync(&usbhid->restart_work);
+ 	hid_cease_io(usbhid);
+ 
+ 	return 0;
+@@ -1461,9 +1448,6 @@ static int __init hid_init(void)
+ {
+ 	int retval = -ENOMEM;
+ 
+-	resumption_waker = create_freezeable_workqueue("usbhid_resumer");
+-	if (!resumption_waker)
+-		goto no_queue;
+ 	retval = hid_register_driver(&hid_usb_driver);
+ 	if (retval)
+ 		goto hid_register_fail;
+@@ -1481,8 +1465,6 @@ usb_register_fail:
+ usbhid_quirks_init_fail:
+ 	hid_unregister_driver(&hid_usb_driver);
+ hid_register_fail:
+-	destroy_workqueue(resumption_waker);
+-no_queue:
+ 	return retval;
+ }
+ 
+@@ -1491,7 +1473,6 @@ static void __exit hid_exit(void)
+ 	usb_deregister(&hid_driver);
+ 	usbhid_quirks_exit();
+ 	hid_unregister_driver(&hid_usb_driver);
+-	destroy_workqueue(resumption_waker);
+ }
+ 
+ module_init(hid_init);
+diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
+index 89d2e84..1673cac 100644
+--- a/drivers/hid/usbhid/usbhid.h
++++ b/drivers/hid/usbhid/usbhid.h
+@@ -95,7 +95,6 @@ struct usbhid_device {
+ 	unsigned long stop_retry;                                       /* Time to give up, in jiffies */
+ 	unsigned int retry_delay;                                       /* Delay length in ms */
+ 	struct work_struct reset_work;                                  /* Task context for resets */
+-	struct work_struct restart_work;				/* waking up for output to be done in a task */
+ 	wait_queue_head_t wait;						/* For sleeping */
+ 	int ledcount;							/* counting the number of active leds */
  };
- 
- void synaptics_module_init(void);
 -- 
-1.7.2.3
+1.7.1
+

@@ -1,71 +1,153 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch -next] Staging: ste_rmi4: use after
- input_unregister_device()
-Date: Thu, 23 Dec 2010 00:07:33 +0300
-Message-ID: <20101222210733.GJ1936@bicker>
+From: Alexey Charkov <alchark@gmail.com>
+Subject: [PATCH 3/6 v3] input: Add support for VIA VT8500 and compatibles in
+ i8042
+Date: Thu, 23 Dec 2010 00:41:41 +0300
+Message-ID: <20101222214141.GA31173@alchark-u3s>
+References: <1289147348-31969-1-git-send-email-alchark@gmail.com>
+ <1289147348-31969-3-git-send-email-alchark@gmail.com>
+ <AANLkTi=zvGxpukjAv-XFAMLpKYiqqKD=p9S5FtGowdDu@mail.gmail.com>
+ <20101112233013.GA30946@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:33411 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751218Ab0LVVHv (ORCPT
+Received: from mail-ew0-f45.google.com ([209.85.215.45]:39486 "EHLO
+	mail-ew0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752000Ab0LVVlq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Dec 2010 16:07:51 -0500
+	Wed, 22 Dec 2010 16:41:46 -0500
 Content-Disposition: inline
+In-Reply-To: <20101112233013.GA30946@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Linus Walleij <linus.walleij@stericsson.com>, devel@driverdev.osuosl.org, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alexey Charkov <alchark@gmail.com>, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, Tony Lindgren <tony@atomide.com>, Feng Tang <feng.tang@intel.com>, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The original code called input_free_device(rmi4_data->input_dev) after
-input_unregister_device(rmi4_data->input_dev) and that's a double free.
-This is described in the comments to input_unregister_device().
+VIA and WonderMedia Systems-on-Chip feature a standard i8042-compatible
+keyboard and mouse controller. This adds necessary glue to enable use
+of the standard driver with these systems.
 
-The normal way to handle this is to make input_register_device() the
-last function in the probe which can fail.  That way you can avoid the
-call to input_unregister_device() entirely.
+Signed-off-by: Alexey Charkov <alchark@gmail.com>
+---
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+This version of the patch introduces yet another trivial update to
+follow changes in arch code (namely variables that hold the register
+and interrupt numbers). Otherwise it is identical to v2.
 
-diff --git a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-index e8f047e..80183a7 100644
---- a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-+++ b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-@@ -986,12 +986,6 @@ static int __devinit synaptics_rmi4_probe
- 	input_set_abs_params(rmi4_data->input_dev, ABS_MT_TOUCH_MAJOR, 0,
- 						MAX_TOUCH_MAJOR, 0, 0);
- 
--	retval = input_register_device(rmi4_data->input_dev);
--	if (retval) {
--		dev_err(&client->dev, "%s:input register failed\n", __func__);
--		goto err_input_register;
--	}
--
- 	/* Clear interrupts */
- 	synaptics_rmi4_i2c_block_read(rmi4_data,
- 			rmi4_data->fn01_data_base_addr + 1, intr_status,
-@@ -1003,15 +997,20 @@ static int __devinit synaptics_rmi4_probe
- 	if (retval) {
- 		dev_err(&client->dev, "%s:Unable to get attn irq %d\n",
- 				__func__, platformdata->irq_number);
--		goto err_request_irq;
-+		goto err_unset_clientdata;
-+	}
+Best regards,
+Alexey
+
+ drivers/input/serio/Kconfig        |    3 +-
+ drivers/input/serio/i8042-vt8500.h |   73 ++++++++++++++++++++++++++++++++++++
+ drivers/input/serio/i8042.h        |    2 +
+ 3 files changed, 77 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/input/serio/i8042-vt8500.h
+
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index 6256233..ff799f3 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -21,7 +21,8 @@ if SERIO
+ config SERIO_I8042
+ 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
+ 	default y
+-	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
++	depends on !PARISC && \
++		  (!ARM || ARCH_SHARK || ARCH_VT8500 || FOOTBRIDGE_HOST) && \
+ 		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN
+ 	help
+ 	  i8042 is the chip over which the standard AT keyboard and PS/2
+diff --git a/drivers/input/serio/i8042-vt8500.h b/drivers/input/serio/i8042-vt8500.h
+new file mode 100644
+index 0000000..a7e6673
+--- /dev/null
++++ b/drivers/input/serio/i8042-vt8500.h
+@@ -0,0 +1,73 @@
++#ifndef _I8042_VT8500_H
++#define _I8042_VT8500_H
 +
-+	retval = input_register_device(rmi4_data->input_dev);
-+	if (retval) {
-+		dev_err(&client->dev, "%s:input register failed\n", __func__);
-+		goto err_free_irq;
- 	}
++#include <mach/i8042.h>
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++static void __iomem *regbase;
++
++/*
++ * Names.
++ */
++
++#define I8042_KBD_PHYS_DESC "vt8500ps2/serio0"
++#define I8042_AUX_PHYS_DESC "vt8500ps2/serio1"
++#define I8042_MUX_PHYS_DESC "vt8500ps2/serio%d"
++
++/*
++ * IRQs.
++ */
++
++#define I8042_KBD_IRQ	(wmt_i8042_kbd_irq)
++#define I8042_AUX_IRQ	(wmt_i8042_aux_irq)
++
++
++/*
++ * Register numbers.
++ */
++
++#define I8042_COMMAND_REG	(regbase + 0x4)
++#define I8042_STATUS_REG	(regbase + 0x4)
++#define I8042_DATA_REG		(regbase + 0x0)
++
++static inline int i8042_read_data(void)
++{
++	return readl(I8042_DATA_REG);
++}
++
++static inline int i8042_read_status(void)
++{
++	return readl(I8042_STATUS_REG);
++}
++
++static inline void i8042_write_data(int val)
++{
++	writel(val, I8042_DATA_REG);
++}
++
++static inline void i8042_write_command(int val)
++{
++	writel(val, I8042_COMMAND_REG);
++}
++
++static inline int i8042_platform_init(void)
++{
++	i8042_reset = true;
++	regbase = ioremap(wmt_i8042_base, SZ_1K);
++	if (!regbase)
++		return -ENODEV;
++
++	return 0;
++}
++
++static inline void i8042_platform_exit(void)
++{
++	iounmap(regbase);
++}
++
++#endif /* _I8042_VT8500_H */
+diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
+index cbc1beb..bdb2aeb 100644
+--- a/drivers/input/serio/i8042.h
++++ b/drivers/input/serio/i8042.h
+@@ -16,6 +16,8 @@
  
- 	return retval;
- 
--err_request_irq:
-+err_free_irq:
- 	free_irq(platformdata->irq_number, rmi4_data);
--	input_unregister_device(rmi4_data->input_dev);
--err_input_register:
-+err_unset_clientdata:
- 	i2c_set_clientdata(client, NULL);
- err_query_dev:
- 	if (platformdata->regulator_en) {
+ #if defined(CONFIG_MACH_JAZZ)
+ #include "i8042-jazzio.h"
++#elif defined(CONFIG_ARCH_VT8500)
++#include "i8042-vt8500.h"
+ #elif defined(CONFIG_SGI_HAS_I8042)
+ #include "i8042-ip22io.h"
+ #elif defined(CONFIG_SNI_RM)
+-- 
+1.7.3.4
+

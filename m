@@ -1,53 +1,73 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v3] Keyboard: omap-keypad: use matrix_keypad.h
-Date: Wed, 22 Dec 2010 11:25:54 -0800
-Message-ID: <20101222192554.GE7771@atomide.com>
-References: <201012172332.06480.jkrzyszt@tis.icnet.pl>
- <201012181639.29820.jkrzyszt@tis.icnet.pl>
- <alpine.DEB.1.10.1012201720470.13087@esdhcp041196.research.nokia.com>
- <201012202209.24068.jkrzyszt@tis.icnet.pl>
- <alpine.DEB.1.10.1012211150410.22164@esdhcp041196.research.nokia.com>
- <20101222101657.GD22590@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] Add support for the built-in digitizer in the Lenovo W700
+Date: Wed, 22 Dec 2010 11:33:15 -0800
+Message-ID: <1293046395-2264-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:27059 "EHLO
-	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750943Ab0LVT0D (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:51694 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751364Ab0LVTdl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Dec 2010 14:26:03 -0500
-Content-Disposition: inline
-In-Reply-To: <20101222101657.GD22590@core.coreip.homeip.net>
+	Wed, 22 Dec 2010 14:33:41 -0500
+Received: by yxt3 with SMTP id 3so2337121yxt.19
+        for <linux-input@vger.kernel.org>; Wed, 22 Dec 2010 11:33:40 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Aaro Koskinen <aaro.koskinen@nokia.com>, Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ajay Ramaswamy <ajay@ramaswamy.net>
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [101222 02:16]:
-> On Tue, Dec 21, 2010 at 01:20:35PM +0200, Aaro Koskinen wrote:
-> > Hi,
-> > 
-> > On Mon, 20 Dec 2010, Janusz Krzysztofik wrote:
-> > >Most keypad drivers make use of the <linux/input/matrix_keypad.h>
-> > >defined macros, structures and inline functions.
-> > >
-> > >Convert omap-keypad driver to use those as well, as suggested by a
-> > >compile time warning, hardcoded into the OMAP <palt/keypad.h>.
-> > >
-> > >Created against linux-2.6.37-rc5.
-> > >Tested on Amstrad Delta.
-> > >Compile tested with omap1_defconfig and omap2plus_defconfig shrinked to
-> > >board-h4.
-> > >
-> > >Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-> > 
-> > Reviewed-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-> > 
-> 
-> Acked-by: Dmitry Torokhov <dtor@mail.ru>
-> 
-> Thanks for making the changes.
+From: Ajay Ramaswamy <ajay@ramaswamy.net>
 
-Thanks everybody, applying.
+The patch is based on git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
 
-Tony
+Signed-off-by: Ajay Ramaswamy <ajay@ramaswamy.net>
+Reviewed-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom.h     |    1 +
+ drivers/input/tablet/wacom_wac.c |    7 +++++++
+ 2 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
+index de5adb1..23317bd 100644
+--- a/drivers/input/tablet/wacom.h
++++ b/drivers/input/tablet/wacom.h
+@@ -103,6 +103,7 @@ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE(DRIVER_LICENSE);
+ 
+ #define USB_VENDOR_ID_WACOM	0x056a
++#define USB_VENDOR_ID_LENOVO	0x17ef
+ 
+ struct wacom {
+ 	dma_addr_t data_dma;
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 0b05254..0024d3e 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1424,11 +1424,17 @@ static struct wacom_features wacom_features_0xD2 =
+ 	{ "Wacom Bamboo Craft",   WACOM_PKGLEN_BBFUN,     14720,  9200, 1023, 63, BAMBOO_PT };
+ static struct wacom_features wacom_features_0xD3 =
+ 	{ "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648, 13530, 1023, 63, BAMBOO_PT };
++static const struct wacom_features wacom_features_0x6004 =
++	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800, 8000, 255, 0, TABLETPC };
+ 
+ #define USB_DEVICE_WACOM(prod)					\
+ 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
+ 	.driver_info = (kernel_ulong_t)&wacom_features_##prod
+ 
++#define USB_DEVICE_LENOVO(prod)					\
++	USB_DEVICE(USB_VENDOR_ID_LENOVO, prod),			\
++	.driver_info = (kernel_ulong_t)&wacom_features_##prod
++
+ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x00) },
+ 	{ USB_DEVICE_WACOM(0x10) },
+@@ -1501,6 +1507,7 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xE2) },
+ 	{ USB_DEVICE_WACOM(0xE3) },
+ 	{ USB_DEVICE_WACOM(0x47) },
++	{ USB_DEVICE_LENOVO(0x6004) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(usb, wacom_ids);
+-- 
+1.7.3.4
+

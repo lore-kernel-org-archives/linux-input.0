@@ -1,52 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add support for the built-in digitizer in the Lenovo W700
-Date: Thu, 23 Dec 2010 01:33:22 -0800
-Message-ID: <20101223093321.GA30823@core.coreip.homeip.net>
-References: <1293046395-2264-1-git-send-email-pinglinux@gmail.com>
- <20101222194703.GA15605@core.coreip.homeip.net>
- <AANLkTi=ptjY6N9Le8ern=jgwCj0k5exZ+5giaDd_hLr-@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [GIT PULL] input: mt updates for 2.6.38
+Date: Thu, 23 Dec 2010 16:20:31 +0100
+Message-ID: <20101223152031.GA1755@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:58770 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752094Ab0LWJd3 (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:42057 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752277Ab0LWPV0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Dec 2010 04:33:29 -0500
-Received: by iyi12 with SMTP id 12so4822474iyi.19
-        for <linux-input@vger.kernel.org>; Thu, 23 Dec 2010 01:33:28 -0800 (PST)
+	Thu, 23 Dec 2010 10:21:26 -0500
 Content-Disposition: inline
-In-Reply-To: <AANLkTi=ptjY6N9Le8ern=jgwCj0k5exZ+5giaDd_hLr-@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, Ajay Ramaswamy <ajay@ramaswamy.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Dec 22, 2010 at 11:56:16AM -0800, Ping Cheng wrote:
-> On Wed, Dec 22, 2010 at 11:47 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Dec 22, 2010 at 11:33:15AM -0800, Ping Cheng wrote:
-> >> From: Ajay Ramaswamy <ajay@ramaswamy.net>
-> >>
-> >> The patch is based on git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-> >>
-> >> Signed-off-by: Ajay Ramaswamy <ajay@ramaswamy.net>
-> >> Reviewed-by: Ping Cheng <pingc@wacom.com>
-> >
-> > Don't we need to add HID blacklist for this as well?
-> 
-> I thought about that as well (I don't have a system to test with).
-> Ajay told me that he did not need to do anything in hid-core.c for his
-> tablet to work. He has been using/testing the tablet for more than 4
-> months.
-> 
-> Hopefully, we'll get more feedback from the community when the patch
-> gets in the tree.
-> 
+Dmitry,
 
-OK, fair enough, applied.
+Please pull from
 
-Thanks everyone.
+  git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git next
 
--- 
-Dmitry
+to receive input-mt updates for 2.6.38.
+
+The device properties are in there, the synaptics patches are in
+there, and another wetab patch is in there.
+
+Merry Christmas,
+Henrik
+
+Andy Ross (1):
+      hid: egalax: Add support for Wetab (726b)
+
+Henrik Rydberg (6):
+      Input: introduce device properties
+      Input: fix double equality sign in uevent
+      input: mt: Document interface updates
+      Input: synaptics - report clickpad property
+      Input: synaptics - add multi-finger and semi-mt support
+      Input: synaptics - ignore bogus mt packet
+
+ Documentation/input/multi-touch-protocol.txt |   44 +++++++-----
+ drivers/hid/hid-core.c                       |    1 +
+ drivers/hid/hid-egalax.c                     |    2 +
+ drivers/hid/hid-ids.h                        |    1 +
+ drivers/input/evdev.c                        |    4 +
+ drivers/input/input.c                        |   21 ++++++-
+ drivers/input/misc/uinput.c                  |    4 +
+ drivers/input/mouse/synaptics.c              |   95 ++++++++++++++++++++++++--
+ drivers/input/mouse/synaptics.h              |    3 +
+ include/linux/input.h                        |   16 ++++
+ include/linux/uinput.h                       |    1 +
+ 11 files changed, 168 insertions(+), 24 deletions(-)

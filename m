@@ -1,55 +1,44 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [GIT PULL] input: mt updates for 2.6.38
-Date: Thu, 23 Dec 2010 16:20:31 +0100
-Message-ID: <20101223152031.GA1755@polaris.bitmath.org>
+From: Anisse Astier <anisse@astier.eu>
+Subject: Re: HID: Add MULTI_INPUT quirk for another D-WAV touchscreen
+Date: Thu, 23 Dec 2010 17:47:50 +0100
+Message-ID: <20101223174750.5eea0e7b@destiny.ordissimo>
+References: <1292928918-31264-1-git-send-email-anisse@astier.eu>
+	<20101222191926.GA30150@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:42057 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752277Ab0LWPV0 (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:62089 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752830Ab0LWQtJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Dec 2010 10:21:26 -0500
-Content-Disposition: inline
+	Thu, 23 Dec 2010 11:49:09 -0500
+Received: by wyb28 with SMTP id 28so6250417wyb.19
+        for <linux-input@vger.kernel.org>; Thu, 23 Dec 2010 08:49:08 -0800 (PST)
+In-Reply-To: <20101222191926.GA30150@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>
 
-Dmitry,
+On Wed, 22 Dec 2010 20:19:26 +0100, "Henrik Rydberg" <rydberg@euromail.se> wrote :
 
-Please pull from
+> On Tue, Dec 21, 2010 at 10:55:18AM -0000, Anisse Astier wrote:
+> > Signed-off-by: Anisse Astier <anisse@astier.eu>
+> 
+> Thanks for the patch - full multitouch support for this device will be enabled in 2.6.38.
+> 
+> (@jiri: yes, and it is already queued)
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git next
+I checked quickly Jiri's tree to see if it was already supported in the
+HID branch before sending. How could I check your patch queue or
+Stephane's in the future ?
+It's not really important if this patch goes in as long it's
+supported :-).
 
-to receive input-mt updates for 2.6.38.
+I've also had another USB touchscreen with USB id 222a:0001 needing the
+MULTI_INPUT quirk, but I don't have the hardware anymore and I don't know
+it'll be of useful to anyone.
 
-The device properties are in there, the synaptics patches are in
-there, and another wetab patch is in there.
-
-Merry Christmas,
-Henrik
-
-Andy Ross (1):
-      hid: egalax: Add support for Wetab (726b)
-
-Henrik Rydberg (6):
-      Input: introduce device properties
-      Input: fix double equality sign in uevent
-      input: mt: Document interface updates
-      Input: synaptics - report clickpad property
-      Input: synaptics - add multi-finger and semi-mt support
-      Input: synaptics - ignore bogus mt packet
-
- Documentation/input/multi-touch-protocol.txt |   44 +++++++-----
- drivers/hid/hid-core.c                       |    1 +
- drivers/hid/hid-egalax.c                     |    2 +
- drivers/hid/hid-ids.h                        |    1 +
- drivers/input/evdev.c                        |    4 +
- drivers/input/input.c                        |   21 ++++++-
- drivers/input/misc/uinput.c                  |    4 +
- drivers/input/mouse/synaptics.c              |   95 ++++++++++++++++++++++++--
- drivers/input/mouse/synaptics.h              |    3 +
- include/linux/input.h                        |   16 ++++
- include/linux/uinput.h                       |    1 +
- 11 files changed, 168 insertions(+), 24 deletions(-)
+Regards,
+Anisse

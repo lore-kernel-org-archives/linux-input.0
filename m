@@ -1,122 +1,27 @@
-From: shubhrajyoti@ti.com
-Subject: [PATCH v8 1/3] OMAP4: hwmod data: Add keypad in the hwmod database
-Date: Mon, 27 Dec 2010 11:21:44 +0530
-Message-ID: <1293429106-16543-2-git-send-email-shubhrajyoti@ti.com>
-References: <1293429106-16543-1-git-send-email-shubhrajyoti@ti.com>
+From: Important Notice <ielott@hotmail.com>
+Subject: (unknown)
+Date: Mon, 27 Dec 2010 05:36:09 -0800 (PST)
+Message-ID: <617424.28541.qm@web180213.mail.gq1.yahoo.com>
+Reply-To: irs.claimsdirectory@hotmail.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:41945 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751052Ab0L0Fvz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Dec 2010 00:51:55 -0500
-In-Reply-To: <1293429106-16543-1-git-send-email-shubhrajyoti@ti.com>
+Received: from nm7.bullet.mail.sp2.yahoo.com ([98.139.91.77]:23713 "HELO
+	nm7.bullet.mail.sp2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1753505Ab0L0NgK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Dec 2010 08:36:10 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Benoit Cousson <b-cousson@ti.com>, Abraham Arce <x0066660@ti.com>, Shubhrajyoti D <shubhrajyoti@ti.com>
 
-From: Benoit Cousson <b-cousson@ti.com>
+Your email has won =A3891,934.00 Pound Sterlings  in the Irish National=
+ Lottery Draws For Internet Users.
+To Begin Send:Name,Age, Address, Tel, Country
 
-Add hwmod data for OMAP4 keyboard controller
-taking Benoit's patch:
-
- OMAP4: hwmod: Add partial hwmod support for OMAP4430
-
-Signed-off-by: Benoit Cousson <b-cousson@ti.com>
-Signed-off-by: Abraham Arce <x0066660@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- arch/arm/mach-omap2/omap_hwmod_44xx_data.c |   70 ++++++++++++++++++++++++++++
- 1 files changed, 70 insertions(+), 0 deletions(-)
-
-diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-index f9778fb..a0c6c39 100644
---- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-@@ -657,6 +657,73 @@ static struct omap_hwmod omap44xx_mpu_private_hwmod = {
- };
- 
- /*
-+ * 'kbd' class
-+ * keyboard controller
-+ */
-+
-+static struct omap_hwmod_class_sysconfig omap44xx_kbd_sysc = {
-+	.rev_offs	= 0x0000,
-+	.sysc_offs	= 0x0010,
-+	.syss_offs	= 0x0014,
-+	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_CLOCKACTIVITY |
-+			   SYSC_HAS_ENAWAKEUP | SYSC_HAS_SOFTRESET |
-+			   SYSC_HAS_EMUFREE | SYSC_HAS_AUTOIDLE),
-+	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART),
-+	.sysc_fields	= &omap_hwmod_sysc_type1,
-+};
-+
-+static struct omap_hwmod_class omap44xx_kbd_hwmod_class = {
-+	.name = "kbd",
-+	.sysc = &omap44xx_kbd_sysc,
-+};
-+
-+/* kbd */
-+static struct omap_hwmod omap44xx_kbd_hwmod;
-+static struct omap_hwmod_irq_info omap44xx_kbd_irqs[] = {
-+	{ .irq = 120 + OMAP44XX_IRQ_GIC_START },
-+};
-+
-+static struct omap_hwmod_addr_space omap44xx_kbd_addrs[] = {
-+	{
-+		.pa_start	= 0x4a31c000,
-+		.pa_end		= 0x4a31c07f,
-+		.flags		= ADDR_TYPE_RT
-+	},
-+};
-+
-+/* l4_wkup -> kbd */
-+static struct omap_hwmod_ocp_if omap44xx_l4_wkup__kbd = {
-+	.master		= &omap44xx_l4_wkup_hwmod,
-+	.slave		= &omap44xx_kbd_hwmod,
-+	.clk		= "l4_wkup_clk_mux_ck",
-+	.addr		= omap44xx_kbd_addrs,
-+	.addr_cnt	= ARRAY_SIZE(omap44xx_kbd_addrs),
-+	.user		= OCP_USER_MPU | OCP_USER_SDMA,
-+};
-+
-+/* kbd slave ports */
-+static struct omap_hwmod_ocp_if *omap44xx_kbd_slaves[] = {
-+	&omap44xx_l4_wkup__kbd,
-+};
-+
-+static struct omap_hwmod omap44xx_kbd_hwmod = {
-+	.name		= "kbd",
-+	.class		= &omap44xx_kbd_hwmod_class,
-+	.mpu_irqs	= omap44xx_kbd_irqs,
-+	.mpu_irqs_cnt	= ARRAY_SIZE(omap44xx_kbd_irqs),
-+	.main_clk	= "kbd_fck",
-+	.prcm = {
-+		.omap4 = {
-+			.clkctrl_reg = OMAP4430_CM_WKUP_KEYBOARD_CLKCTRL,
-+		},
-+	},
-+	.slaves		= omap44xx_kbd_slaves,
-+	.slaves_cnt	= ARRAY_SIZE(omap44xx_kbd_slaves),
-+	.omap_chip	= OMAP_CHIP_INIT(CHIP_IS_OMAP4430),
-+};
-+
-+
-+/*
-  * 'mpu' class
-  * mpu sub-system
-  */
-@@ -1509,6 +1576,9 @@ static __initdata struct omap_hwmod *omap44xx_hwmods[] = {
- 	&omap44xx_gpio5_hwmod,
- 	&omap44xx_gpio6_hwmod,
- 
-+	/* kbd class */
-+	&omap44xx_kbd_hwmod,
-+
- 	/* mpu class */
- 	&omap44xx_mpu_hwmod,
- 	/* wd_timer class */
--- 
-1.7.0.4
-
+To Mr. Sean James
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

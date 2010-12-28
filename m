@@ -1,37 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: bu21013_ts: fix misuse of logical operation in
- place of bitop
-Date: Mon, 27 Dec 2010 17:40:21 -0800
-Message-ID: <20101228014020.GA25077@core.coreip.homeip.net>
-References: <1293464210-21649-1-git-send-email-dsterba@suse.cz>
- <AANLkTimaPn51QZNRFr-L5KgOQTWJf=RzoDSxegAiO_4O@mail.gmail.com>
+Subject: Re: [GIT PULL] input: mt updates for 2.6.38
+Date: Mon, 27 Dec 2010 17:42:23 -0800
+Message-ID: <20101228014223.GC25077@core.coreip.homeip.net>
+References: <20101223152031.GA1755@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:53274 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752721Ab0L1Bk2 (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:36990 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752188Ab0L1Bm3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Dec 2010 20:40:28 -0500
+	Mon, 27 Dec 2010 20:42:29 -0500
 Content-Disposition: inline
-In-Reply-To: <AANLkTimaPn51QZNRFr-L5KgOQTWJf=RzoDSxegAiO_4O@mail.gmail.com>
+In-Reply-To: <20101223152031.GA1755@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@stericsson.com>
-Cc: David Sterba <dsterba@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Henrik Rydberg <rydberg@euromail.se>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, Dec 28, 2010 at 01:38:43AM +0100, Linus Walleij wrote:
-> 010/12/27 David Sterba <dsterba@suse.cz>:
+On Thu, Dec 23, 2010 at 04:20:31PM +0100, Henrik Rydberg wrote:
+> Dmitry,
 > 
-> > CC: Linus Walleij <linus.walleij@stericsson.com>
-> > CC: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-> > CC: Henrik Rydberg <rydberg@euromail.se>
-> > Signed-off-by: David Sterba <dsterba@suse.cz>
+> Please pull from
 > 
-> Acked-by: Linus Walleij <linus.walleij@stericsson.com>
+>   git://git.kernel.org/pub/scm/linux/kernel/git/rydberg/input-mt.git next
+> 
+> to receive input-mt updates for 2.6.38.
+> 
+> The device properties are in there, the synaptics patches are in
+> there, and another wetab patch is in there.
 > 
 
-Applied, thank you.
+Pulled, thank you Henrik.
 
 -- 
 Dmitry

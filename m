@@ -1,569 +1,525 @@
-From: Fabien Marteau <fabien.marteau@armadeus.com>
-Subject: [PATCH] input: joystick:   Adding Austria Microsystem AS5011 joystick
- driver (second version)
-Date: Thu, 30 Dec 2010 11:37:37 +0100
-Message-ID: <4D1C60F1.5090305@armadeus.com>
-Reply-To: fabien.marteau@armadeus.com
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 3/3 v2] input - wacom_w8001: Add one finger touch support
+Date: Thu, 30 Dec 2010 10:25:20 -0800
+Message-ID: <AANLkTikpxkYUjEJQKqtW0KZJDnOZcWpjVho6JLtOt3dm@mail.gmail.com>
+References: <1292607474-22674-1-git-send-email-pinglinux@gmail.com>
+	<20101229074058.GA13061@core.coreip.homeip.net>
+	<AANLkTinmm1=Xp587ii4fHWUv25Skx_V=3eumjpuC48O6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Scott Moreau <oreaus@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:46578 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755108Ab0L3SZY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Dec 2010 13:25:24 -0500
+Received: by wwa36 with SMTP id 36so11822048wwa.1
+        for <linux-input@vger.kernel.org>; Thu, 30 Dec 2010 10:25:22 -0800 (PST)
+In-Reply-To: <AANLkTinmm1=Xp587ii4fHWUv25Skx_V=3eumjpuC48O6@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugged
-on an I2C bus. It has been tested on ARM processor (i.MX27).
+On Wed, Dec 29, 2010 at 2:30 PM, Ping Cheng <pinglinux@gmail.com> wrote=
+:
+> Dmitry,
+>
+> Thank you for your effort in updating the patch. Most changes work fo=
+r
+> me. I do have comments related to raw touch data scaling for MT and
+> single touch legacy client support. Details are inline.
 
-Interruptions are now managed by threaded irq.
+After revisited the change you made, I think I can accept both
+suggestions. The legacy client support may introduce issue. But it
+won't hurt too much, I hope ;).  The MT scaling offers a consistent
+support between one and two finger touch, which is good.
 
-Signed-off-by: Fabien Marteau <fabien.marteau@armadeus.com>
----
- drivers/input/joystick/Kconfig  |    9 +
- drivers/input/joystick/Makefile |    1 +
- drivers/input/joystick/as5011.c |  417 +++++++++++++++++++++++++++++++++++++++
- include/linux/as5011.h          |   76 +++++++
- 4 files changed, 503 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/joystick/as5011.c
- create mode 100644 include/linux/as5011.h
+So, the only change left is to scale the raw x,y of 2FGT to max_pen. I
+can make a version 3 of this patch for you or you can change those two
+lines if you don't mind. Just let me know.
 
-diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
-index 5b59616..5fad03e 100644
---- a/drivers/input/joystick/Kconfig
-+++ b/drivers/input/joystick/Kconfig
-@@ -255,6 +255,15 @@ config JOYSTICK_AMIGA
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called amijoy.
+Thank you.
 
-+config JOYSTICK_AS5011
-+	tristate "Austria Microsystem AS5011 joystick"
-+	depends on I2C
-+	help
-+	  Say Y here if you have an AS5011 digital joystick.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called as5011.
-+
- config JOYSTICK_JOYDUMP
- 	tristate "Gameport data dumper"
- 	select GAMEPORT
-diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
-index f3a8cbe..92dc0de 100644
---- a/drivers/input/joystick/Makefile
-+++ b/drivers/input/joystick/Makefile
-@@ -7,6 +7,7 @@
- obj-$(CONFIG_JOYSTICK_A3D)		+= a3d.o
- obj-$(CONFIG_JOYSTICK_ADI)		+= adi.o
- obj-$(CONFIG_JOYSTICK_AMIGA)		+= amijoy.o
-+obj-$(CONFIG_JOYSTICK_AS5011)		+= as5011.o
- obj-$(CONFIG_JOYSTICK_ANALOG)		+= analog.o
- obj-$(CONFIG_JOYSTICK_COBRA)		+= cobra.o
- obj-$(CONFIG_JOYSTICK_DB9)		+= db9.o
-diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
-new file mode 100644
-index 0000000..9f65357
---- /dev/null
-+++ b/drivers/input/joystick/as5011.c
-@@ -0,0 +1,417 @@
-+/*
-+ * Copyright (c) 2010 Fabien Marteau <fabien.marteau@armadeus.com>
-+ *
-+ * Sponsored by ARMadeus Systems
-+ */
-+
-+/*
-+ * Driver for Austria Microsystems joysticks AS5011
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ * TODO:
-+ *	- Manage power mode
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/string.h>
-+#include <linux/list.h>
-+#include <linux/sysfs.h>
-+#include <linux/ctype.h>
-+#include <linux/hwmon-sysfs.h>
-+
-+#include <linux/types.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/mutex.h>
-+
-+#include <linux/input.h>
-+#include <linux/gpio.h>
-+#include <linux/delay.h>
-+
-+#include <linux/as5011.h>
-+#define DRIVER_DESC "Driver for Austria Microsystems AS5011 joystick"
-+
-+MODULE_AUTHOR("Fabien Marteau <fabien.marteau@armadeus.com>");
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE("GPL");
-+
-+#define SIZE_NAME 30
-+#define SIZE_EVENT_PATH 40
-+#define AS5011_MAX_AXIS	80
-+#define AS5011_MIN_AXIS	(-80)
-+#define AS5011_FUZZ	8
-+#define AS5011_FLAT	40
-+
-+static int g_num = 1; /* device counter */
-+
-+static signed char as5011_i2c_read(struct i2c_client *client,
-+			   uint8_t aRegAddr);
-+static int as5011_i2c_write(struct i2c_client *client,
-+			    uint8_t aRegAddr,
-+			    uint8_t aValue);
-+
-+/*
-+ * interrupts operations
-+ */
-+
-+static irqreturn_t button_interrupt(int irq, void *dev_id)
-+{
-+	struct as5011_platform_data *plat_dat =
-+		(struct as5011_platform_data *)dev_id;
-+	int ret;
-+
-+	mutex_lock(&plat_dat->button_lock);
-+	ret = gpio_get_value(plat_dat->button_gpio);
-+	if (ret)
-+		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 0);
-+	else
-+		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 1);
-+	input_sync(plat_dat->input_dev);
-+	mutex_unlock(&plat_dat->button_lock);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void as5011_update_axes(struct as5011_platform_data *plat_dat)
-+{
-+	signed char x, y;
-+
-+	x = as5011_i2c_read(plat_dat->i2c_client, AS5011_X_RES_INT);
-+	y = as5011_i2c_read(plat_dat->i2c_client, AS5011_Y_RES_INT);
-+	input_report_abs(plat_dat->input_dev, ABS_X, x);
-+	input_report_abs(plat_dat->input_dev, ABS_Y, y);
-+	input_sync(plat_dat->input_dev);
-+}
-+
-+static irqreturn_t as5011_int_interrupt(int irq, void *dev_id)
-+{
-+	struct as5011_platform_data *plat_dat =
-+		(struct as5011_platform_data *)dev_id;
-+
-+	mutex_lock(&plat_dat->update_lock);
-+	as5011_update_axes(plat_dat);
-+	mutex_unlock(&plat_dat->update_lock);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * I2C bus operation
-+ */
-+
-+static int as5011_i2c_write(struct i2c_client *client,
-+			    uint8_t aRegAddr,
-+			    uint8_t aValue)
-+{
-+	int ret;
-+	uint8_t data[2] = { aRegAddr, aValue };
-+
-+	struct i2c_msg msg = {	client->addr,
-+				I2C_M_IGNORE_NAK,
-+				2,
-+				(uint8_t *)data };
-+
-+	ret = i2c_transfer(client->adapter, &msg, 1);
-+
-+	if (ret < 0)
-+		return ret;
-+	return 1;
-+}
-+
-+static signed char as5011_i2c_read(struct i2c_client *client,
-+			   uint8_t aRegAddr)
-+{
-+	int ret;
-+	uint8_t data[2];
-+	struct i2c_msg msg_set[2];
-+	struct i2c_msg msg1 = {	client->addr,
-+				I2C_M_REV_DIR_ADDR,
-+				1,
-+				(uint8_t *)data};
-+	struct i2c_msg msg2 = {	client->addr,
-+				I2C_M_RD|I2C_M_NOSTART,
-+				1,
-+				(uint8_t *)data};
-+
-+	data[0] = aRegAddr;
-+	msg_set[0] = msg1;
-+	msg_set[1] = msg2;
-+	ret = i2c_transfer(client->adapter, msg_set, 2);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (data[0] & 0x80)
-+		return -1*(1+(~data[0]));
-+	else
-+		return data[0];
-+}
-+
-+static int __devinit as5011_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct as5011_platform_data *plat_dat = client->dev.platform_data;
-+	int retval = 0;
-+
-+	plat_dat->num = g_num;
-+	g_num++;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+				     I2C_FUNC_PROTOCOL_MANGLING)) {
-+		dev_err(&client->dev,
-+		"i2c bus does not support protocol mangling, as5011 can't work\n");
-+		retval = -ENODEV;
-+		goto err_out;
-+	}
-+	plat_dat->i2c_client = client;
-+
-+
-+	plat_dat->input_dev = input_allocate_device();
-+	if (plat_dat->input_dev == NULL) {
-+		dev_err(&client->dev,
-+		"not enough memory for input devices structure\n");
-+		retval = -ENOMEM;
-+		goto err_out;
-+	}
-+
-+	plat_dat->input_dev->name = "Austria Microsystem as5011 joystick";
-+	plat_dat->input_dev->uniq = "Austria0";
-+	plat_dat->input_dev->id.bustype = BUS_I2C;
-+	plat_dat->input_dev->phys = NULL;
-+	plat_dat->input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	plat_dat->input_dev->keybit[BIT_WORD(BTN_JOYSTICK)] =
-+					BIT_MASK(BTN_JOYSTICK);
-+
-+	input_set_abs_params(plat_dat->input_dev,
-+			     ABS_X,
-+			     AS5011_MIN_AXIS,
-+			     AS5011_MAX_AXIS,
-+			     AS5011_FUZZ,
-+			     AS5011_FLAT);
-+	input_set_abs_params(plat_dat->input_dev,
-+			     ABS_Y,
-+			     AS5011_MIN_AXIS,
-+			     AS5011_MAX_AXIS,
-+			     AS5011_FUZZ,
-+			     AS5011_FLAT);
-+
-+	plat_dat->button_irq_name = kmalloc(SIZE_NAME, GFP_KERNEL);
-+	if (plat_dat->button_irq_name == NULL) {
-+		dev_err(&client->dev,
-+		"not enough memory for input devices irq name\n");
-+		retval = -ENOMEM;
-+		goto err_input_free_device;
-+	}
-+
-+	scnprintf(plat_dat->button_irq_name,
-+		  SIZE_NAME,
-+		  "as5011_%d_button",
-+		  plat_dat->num);
-+
-+	retval = request_threaded_irq(plat_dat->button_irq,
-+					NULL, button_interrupt,
-+					0, plat_dat->button_irq_name,
-+					(void *)plat_dat);
-+	if (retval < 0) {
-+		dev_err(&client->dev, "Can't allocate irq %d\n",
-+			plat_dat->button_irq);
-+		retval = -EBUSY;
-+		goto err_free_button_irq_name;
-+	}
-+
-+	if (plat_dat->init_gpio != NULL) {
-+		retval = plat_dat->init_gpio();
-+		if (retval < 0) {
-+			dev_err(&client->dev, "Failed to init gpios\n");
-+			goto err_free_irq_button_interrupt;
-+		}
-+	}
-+
-+	/* chip soft reset */
-+	retval = as5011_i2c_write(plat_dat->i2c_client,
-+				  AS5011_CTRL1,
-+				  AS5011_CTRL1_SOFT_RST);
-+	if (retval < 0) {
-+		dev_err(&plat_dat->i2c_client->dev,
-+			"Soft reset failed\n");
-+		goto err_exit_gpio;
-+	}
-+
-+	mdelay(10);
-+
-+	retval = as5011_i2c_write(plat_dat->i2c_client,
-+				  AS5011_CTRL1,
-+				  AS5011_CTRL1_LP_PULSED |
-+				  AS5011_CTRL1_LP_ACTIVE |
-+				  AS5011_CTRL1_INT_ACT_EN
-+				  );
-+	if (retval < 0) {
-+		dev_err(&plat_dat->i2c_client->dev,
-+			"Power config failed\n");
-+		goto err_exit_gpio;
-+	}
-+
-+	retval = as5011_i2c_write(plat_dat->i2c_client,
-+				  AS5011_CTRL2,
-+				  AS5011_CTRL2_INV_SPINNING);
-+	if (retval < 0) {
-+		dev_err(&plat_dat->i2c_client->dev,
-+			"Can't invert spinning\n");
-+		goto err_exit_gpio;
-+	}
-+
-+	/* write threshold */
-+	retval = as5011_i2c_write(plat_dat->i2c_client,
-+				  AS5011_XP,
-+				  plat_dat->Xp);
-+	if (retval < 0) {
-+		dev_err(&plat_dat->i2c_client->dev,
-+			"Can't write threshold\n");
-+		goto err_exit_gpio;
-+	}
-+
-+	retval = as5011_i2c_write(plat_dat->i2c_client,
-+				  AS5011_XN,
-+				  plat_dat->Xn);
-+	if (retval < 0) {
-+		dev_err(&plat_dat->i2c_client->dev,
-+			"Can't write threshold\n");
-+		goto err_exit_gpio;
-+	}
-+
-+	retval = as5011_i2c_write(plat_dat->i2c_client,
-+				  AS5011_YP,
-+				  plat_dat->Yp);
-+	if (retval < 0) {
-+		dev_err(&plat_dat->i2c_client->dev,
-+			"Can't write threshold\n");
-+		goto err_exit_gpio;
-+	}
-+
-+	retval = as5011_i2c_write(plat_dat->i2c_client,
-+				  AS5011_YN,
-+				  plat_dat->Yn);
-+	if (retval < 0) {
-+		dev_err(&plat_dat->i2c_client->dev,
-+			"Can't write threshold\n");
-+		goto err_exit_gpio;
-+	}
-+
-+	/* request irq */
-+	plat_dat->int_irq_name = kmalloc(SIZE_NAME, GFP_KERNEL);
-+	if (plat_dat->int_irq_name == NULL) {
-+		dev_err(&client->dev,
-+		"not enough memory for input devices int irq name\n");
-+		retval = -ENOMEM;
-+		goto err_exit_gpio;
-+	}
-+
-+
-+	/* to free irq gpio in chip*/
-+	as5011_i2c_read(plat_dat->i2c_client, AS5011_X_RES_INT);
-+
-+	/* initialize mutex */
-+	mutex_init(&plat_dat->update_lock);
-+	mutex_init(&plat_dat->button_lock);
-+
-+	scnprintf(plat_dat->int_irq_name,
-+		  SIZE_NAME,
-+		  "as5011_%d_int",
-+		  plat_dat->num);
-+
-+	if (request_threaded_irq(plat_dat->int_irq, NULL,
-+				as5011_int_interrupt,
-+				0, plat_dat->int_irq_name, (void *)plat_dat)) {
-+		dev_err(&client->dev, "Can't allocate int irq %d\n",
-+			plat_dat->int_irq);
-+		retval = -EBUSY;
-+		goto err_free_int_irq_name;
-+	}
-+
-+	retval = input_register_device(plat_dat->input_dev);
-+	if (retval) {
-+		dev_err(&client->dev, "Failed to register device\n");
-+		goto err_free_irq_int;
-+	}
-+
-+	return 0;
-+
-+	/* Error management */
-+err_free_irq_int:
-+	free_irq(plat_dat->int_irq, as5011_int_interrupt);
-+err_free_int_irq_name:
-+	kfree(plat_dat->int_irq_name);
-+err_exit_gpio:
-+	if (plat_dat->exit_gpio != NULL)
-+		plat_dat->exit_gpio();
-+err_free_irq_button_interrupt:
-+	free_irq(plat_dat->button_irq, button_interrupt);
-+err_free_button_irq_name:
-+	kfree(plat_dat->button_irq_name);
-+err_input_free_device:
-+	input_free_device(plat_dat->input_dev);
-+err_out:
-+	return retval;
-+}
-+static int as5011_remove(struct i2c_client *client)
-+{
-+	struct as5011_platform_data *plat_dat = client->dev.platform_data;
-+
-+	input_unregister_device(plat_dat->input_dev);
-+	free_irq(plat_dat->button_irq, plat_dat);
-+	free_irq(plat_dat->int_irq, plat_dat);
-+	kfree(plat_dat->button_irq_name);
-+	if (plat_dat->exit_gpio != NULL)
-+		plat_dat->exit_gpio();
-+
-+	return 0;
-+}
-+static const struct i2c_device_id as5011_id[] = {
-+	{ "as5011", 0 },
-+	{ }
-+};
-+
-+static struct i2c_driver as5011_driver = {
-+	.driver = {
-+		.name = "as5011",
-+	},
-+	.probe		= as5011_probe,
-+	.remove		= __devexit_p(as5011_remove),
-+	.id_table	= as5011_id,
-+};
-+
-+/*
-+ * Module initialization
-+ */
-+
-+static int __init as5011_init(void)
-+{
-+	return i2c_add_driver(&as5011_driver);
-+}
-+
-+static void __exit as5011_exit(void)
-+{
-+	i2c_del_driver(&as5011_driver);
-+}
-+
-+module_init(as5011_init);
-+module_exit(as5011_exit);
-diff --git a/include/linux/as5011.h b/include/linux/as5011.h
-new file mode 100644
-index 0000000..c224752
---- /dev/null
-+++ b/include/linux/as5011.h
-@@ -0,0 +1,76 @@
-+#ifndef _AS5011_H
-+#define _AS5011_H
-+
-+/*
-+ * Copyright (c) 2010 Fabien Marteau
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/mutex.h>
-+
-+#define AS5011_MAX_NAME_LENGTH	64
-+#define AS5011_MAX_CNAME_LENGTH	16
-+#define AS5011_MAX_PHYS_LENGTH	64
-+#define AS5011_MAX_LENGTH	64
-+
-+/* registers */
-+#define AS5011_CTRL1		0x76
-+#define AS5011_CTRL2		0x75
-+#define AS5011_XP		0x43
-+#define AS5011_XN		0x44
-+#define AS5011_YP		0x53
-+#define AS5011_YN		0x54
-+#define AS5011_X_REG		0x41
-+#define AS5011_Y_REG		0x42
-+#define AS5011_X_RES_INT	0x51
-+#define AS5011_Y_RES_INT	0x52
-+
-+/* CTRL1 bits */
-+#define AS5011_CTRL1_LP_PULSED		0x80
-+#define AS5011_CTRL1_LP_ACTIVE		0x40
-+#define AS5011_CTRL1_LP_CONTINUE	0x20
-+#define AS5011_CTRL1_INT_WUP_EN		0x10
-+#define AS5011_CTRL1_INT_ACT_EN		0x08
-+#define AS5011_CTRL1_EXT_CLK_EN		0x04
-+#define AS5011_CTRL1_SOFT_RST		0x02
-+#define AS5011_CTRL1_DATA_VALID		0x01
-+
-+/* CTRL2 bits */
-+#define AS5011_CTRL2_EXT_SAMPLE_EN	0x08
-+#define AS5011_CTRL2_RC_BIAS_ON		0x04
-+#define AS5011_CTRL2_INV_SPINNING	0x02
-+
-+
-+struct as5011_platform_data {
-+	/* public */
-+	int button_gpio;
-+	int button_irq;
-+	int int_gpio;
-+	int int_irq;
-+	char Xp, Xn; /* threshold for x axis */
-+	char Yp, Yn; /* threshold for y axis */
-+
-+	int (*init_gpio)(void); /* init interrupts gpios */
-+	void (*exit_gpio)(void);/* exit gpios */
-+
-+	/* private */
-+	int num;
-+	struct input_dev *input_dev;
-+	struct i2c_client *i2c_client;
-+	unsigned char *button_irq_name;
-+	unsigned char *int_irq_name;
-+	char name[AS5011_MAX_NAME_LENGTH];
-+	char cname[AS5011_MAX_CNAME_LENGTH];
-+	char phys[AS5011_MAX_PHYS_LENGTH];
-+	unsigned char data[AS5011_MAX_LENGTH];
-+	char workqueue_name[AS5011_MAX_NAME_LENGTH];
-+	struct workqueue_struct *workqueue;
-+	struct work_struct update_axes_work;
-+	struct mutex update_lock;
-+	struct mutex button_lock;
-+};
-+
-+#endif /* _AS5011_H */
--- 
-1.7.0.4
+Ping
+
+> On Tue, Dec 28, 2010 at 11:40 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi Ping,
+>>
+>> On Fri, Dec 17, 2010 at 09:37:54AM -0800, Ping Cheng wrote:
+>>> Signed-off-by: Ping Cheng <pingc@wacom.com>
+>>> ---
+>>> =C2=A0drivers/input/touchscreen/wacom_w8001.c | =C2=A0 89 +++++++++=
++++++++++++++++++++---
+>>> =C2=A01 files changed, 82 insertions(+), 7 deletions(-)
+>>>
+>>> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/inpu=
+t/touchscreen/wacom_w8001.c
+>>> index 59664a8..763eb8f 100644
+>>> --- a/drivers/input/touchscreen/wacom_w8001.c
+>>> +++ b/drivers/input/touchscreen/wacom_w8001.c
+>>> @@ -3,6 +3,7 @@
+>>> =C2=A0 *
+>>> =C2=A0 * Copyright (c) 2008 Jaya Kumar
+>>> =C2=A0 * Copyright (c) 2010 Red Hat, Inc.
+>>> + * Copyright (c) 2010 Ping Cheng, Wacom. <pingc@wacom.com>
+>>> =C2=A0 *
+>>> =C2=A0 * This file is subject to the terms and conditions of the GN=
+U General Public
+>>> =C2=A0 * License. See the file COPYING in the main directory of thi=
+s archive for
+>>> @@ -86,6 +87,12 @@ struct w8001 {
+>>> =C2=A0 =C2=A0 =C2=A0 char phys[32];
+>>> =C2=A0 =C2=A0 =C2=A0 int type;
+>>> =C2=A0 =C2=A0 =C2=A0 unsigned int pktlen;
+>>> + =C2=A0 =C2=A0 bool pen_in_prox;
+>>> + =C2=A0 =C2=A0 bool has_touch;
+>>
+>> We already have type, why do we need these 2 fields a well?
+>>
+>> Actually, I tried massaging the patch a bit, could you please tell m=
+e if
+>> the patch below still works for you?
+>>
+>> Thanks.
+>>
+>> --
+>> Dmitry
+>>
+>>
+>> Input: wacom_w8001 - add one finger touch support
+>>
+>> From: Ping Cheng <pinglinux@gmail.com>
+>>
+>> Signed-off-by: Ping Cheng <pingc@wacom.com>
+>> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+>> ---
+>>
+>> =C2=A0drivers/input/touchscreen/wacom_w8001.c | =C2=A0123 ++++++++++=
++++++++++++++++------
+>> =C2=A01 files changed, 101 insertions(+), 22 deletions(-)
+>>
+>>
+>> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input=
+/touchscreen/wacom_w8001.c
+>> index 4774c09..ce8c8e1 100644
+>> --- a/drivers/input/touchscreen/wacom_w8001.c
+>> +++ b/drivers/input/touchscreen/wacom_w8001.c
+>> @@ -3,6 +3,7 @@
+>> =C2=A0*
+>> =C2=A0* Copyright (c) 2008 Jaya Kumar
+>> =C2=A0* Copyright (c) 2010 Red Hat, Inc.
+>> + * Copyright (c) 2010 Ping Cheng, Wacom. <pingc@wacom.com>
+>> =C2=A0*
+>> =C2=A0* This file is subject to the terms and conditions of the GNU =
+General Public
+>> =C2=A0* License. See the file COPYING in the main directory of this =
+archive for
+>> @@ -63,11 +64,11 @@ struct w8001_coord {
+>>
+>> =C2=A0/* touch query reply packet */
+>> =C2=A0struct w8001_touch_query {
+>> + =C2=A0 =C2=A0 =C2=A0 u16 x;
+>> + =C2=A0 =C2=A0 =C2=A0 u16 y;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0u8 panel_res;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0u8 capacity_res;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0u8 sensor_id;
+>> - =C2=A0 =C2=A0 =C2=A0 u16 x;
+>> - =C2=A0 =C2=A0 =C2=A0 u16 y;
+>> =C2=A0};
+>>
+>> =C2=A0/*
+>> @@ -86,9 +87,13 @@ struct w8001 {
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0char phys[32];
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0int type;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned int pktlen;
+>> + =C2=A0 =C2=A0 =C2=A0 u16 max_touch_x;
+>> + =C2=A0 =C2=A0 =C2=A0 u16 max_touch_y;
+>> + =C2=A0 =C2=A0 =C2=A0 u16 max_pen_x;
+>> + =C2=A0 =C2=A0 =C2=A0 u16 max_pen_y;
+>> =C2=A0};
+>>
+>> -static void parse_data(u8 *data, struct w8001_coord *coord)
+>> +static void parse_pen_data(u8 *data, struct w8001_coord *coord)
+>> =C2=A0{
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0memset(coord, 0, sizeof(*coord));
+>>
+>> @@ -112,7 +117,14 @@ static void parse_data(u8 *data, struct w8001_c=
+oord *coord)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0coord->tilt_y =3D data[8] & 0x7F;
+>> =C2=A0}
+>>
+>> -static void parse_touch(struct w8001 *w8001)
+>> +static void parse_single_touch(u8 *data, struct w8001_coord *coord)
+>> +{
+>> + =C2=A0 =C2=A0 =C2=A0 coord->x =3D (data[1] << 7) | data[2];
+>> + =C2=A0 =C2=A0 =C2=A0 coord->y =3D (data[3] << 7) | data[4];
+>> + =C2=A0 =C2=A0 =C2=A0 coord->tsw =3D data[0] & 0x01;
+>> +}
+>> +
+>> +static void parse_multi_touch(struct w8001 *w8001)
+>> =C2=A0{
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct input_dev *dev =3D w8001->dev;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned char *data =3D w8001->data;
+>> @@ -124,8 +136,8 @@ static void parse_touch(struct w8001 *w8001)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_mt_slot=
+(dev, i);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_mt_repo=
+rt_slot_state(dev, MT_TOOL_FINGER, touch);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (touch) {
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 int x =3D (data[6 * i + 1] << 7) | (data[6 * i + 2]);
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 int y =3D (data[6 * i + 3] << 7) | (data[6 * i + 4]);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 int x =3D (data[6 * i + 1] << 7) | data[6 * i + 2];
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 int y =3D (data[6 * i + 3] << 7) | data[6 * i + 4];
+>
+> Since you scaled MT max_touch_x/y to max_pen_x/y, you would need to
+> scale the x and y here as well. I didn't scale MT touch data since MT
+> protocol can report touch resolution on its own. See more comments
+> below.
+>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0/* data[5,6] and [11,12] is finger capacity */
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0input_report_abs(dev, ABS_MT_POSITION_X, x);
+>> @@ -151,6 +163,15 @@ static void parse_touchquery(u8 *data, struct w=
+8001_touch_query *query)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0query->y =3D data[5] << 9;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0query->y |=3D data[6] << 2;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0query->y |=3D (data[2] >> 3) & 0x3;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 /* Early days' single-finger touch models nee=
+d the following defaults */
+>> + =C2=A0 =C2=A0 =C2=A0 if (!query->x && !query->y) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 query->x =3D 1024=
+;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 query->y =3D 1024=
+;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (query->panel_=
+res)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 query->x =3D query->y =3D (1 << query->panel_res);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 query->panel_res =
+=3D 10;
+>> + =C2=A0 =C2=A0 =C2=A0 }
+>> =C2=A0}
+>>
+>> =C2=A0static void report_pen_events(struct w8001 *w8001, struct w800=
+1_coord *coord)
+>> @@ -160,16 +181,15 @@ static void report_pen_events(struct w8001 *w8=
+001, struct w8001_coord *coord)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0/*
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 * We have 1 bit for proximity (rdy) and =
+3 bits for tip, side,
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 * side2/eraser. If rdy && f2 are set, th=
+is can be either pen + side2,
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0* or eraser. assume
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0* or eraser. Assume:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 * - if dev is already in proximity and f=
+2 is toggled =E2=86=92 pen + side2
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 * - if dev comes into proximity with f2 =
+set =E2=86=92 eraser
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 * If f2 disappears after assuming eraser=
+, fake proximity out for
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 * eraser and in for pen.
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 */
+>>
+>> - =C2=A0 =C2=A0 =C2=A0 if (!w8001->type) {
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->type =3D c=
+oord->f2 ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
+>> - =C2=A0 =C2=A0 =C2=A0 } else if (w8001->type =3D=3D BTN_TOOL_RUBBER=
+) {
+>> + =C2=A0 =C2=A0 =C2=A0 switch (w8001->type) {
+>> + =C2=A0 =C2=A0 =C2=A0 case BTN_TOOL_RUBBER:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (!coord->f=
+2) {
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0input_report_abs(dev, ABS_PRESSURE, 0);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0input_report_key(dev, BTN_TOUCH, 0);
+>> @@ -179,8 +199,21 @@ static void report_pen_events(struct w8001 *w80=
+01, struct w8001_coord *coord)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0input_sync(dev);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0w8001->type =3D BTN_TOOL_PEN;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+>> - =C2=A0 =C2=A0 =C2=A0 } else {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 break;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 case BTN_TOOL_FINGER:
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key(=
+dev, BTN_TOUCH, 0);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_report_key(=
+dev, BTN_TOOL_FINGER, 0);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 input_sync(dev);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* fall through *=
+/
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 case KEY_RESERVED:
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->type =3D c=
+oord->f2 ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 break;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 default:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_=
+key(dev, BTN_STYLUS2, coord->f2);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 break;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0input_report_abs(dev, ABS_X, coord->x);
+>> @@ -192,7 +225,30 @@ static void report_pen_events(struct w8001 *w80=
+01, struct w8001_coord *coord)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0input_sync(dev);
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (!coord->rdy)
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->type =3D 0=
+;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->type =3D K=
+EY_RESERVED;
+>> +}
+>> +
+>> +static void report_single_touch(struct w8001 *w8001, struct w8001_c=
+oord *coord)
+>> +{
+>> + =C2=A0 =C2=A0 =C2=A0 struct input_dev *dev =3D w8001->dev;
+>> + =C2=A0 =C2=A0 =C2=A0 unsigned int x =3D coord->x;
+>> + =C2=A0 =C2=A0 =C2=A0 unsigned int y =3D coord->y;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 /* scale to pen maximum */
+>> + =C2=A0 =C2=A0 =C2=A0 if (w8001->max_pen_x && w8001->max_touch_x)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 x =3D x * w8001->=
+max_pen_x / w8001->max_touch_x;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 if (w8001->max_pen_y && w8001->max_touch_y)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 y =3D y * w8001->=
+max_pen_y / w8001->max_touch_y;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 input_report_abs(dev, ABS_X, x);
+>> + =C2=A0 =C2=A0 =C2=A0 input_report_abs(dev, ABS_Y, y);
+>> + =C2=A0 =C2=A0 =C2=A0 input_report_key(dev, BTN_TOUCH, coord->tsw);
+>> + =C2=A0 =C2=A0 =C2=A0 input_report_key(dev, BTN_TOOL_FINGER, coord-=
+>tsw);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 input_sync(dev);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 w8001->type =3D coord->tsw ? BTN_TOOL_FINGER =
+: KEY_RESERVED;
+>> =C2=A0}
+>>
+>> =C2=A0static irqreturn_t w8001_interrupt(struct serio *serio,
+>> @@ -213,9 +269,18 @@ static irqreturn_t w8001_interrupt(struct serio=
+ *serio,
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0case W8001_PKTLEN_TOUCH93 - 1:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0case W8001_PKTLEN_TOUCH9A - 1:
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* ignore one-fin=
+ger touch packet. */
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (w8001->pktlen=
+ =3D=3D w8001->idx)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 tmp =3D w8001->da=
+ta[0] & W8001_TOUCH_BYTE;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (tmp !=3D W800=
+1_TOUCH_BYTE)
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 break;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (w8001->pktlen=
+ =3D=3D w8001->idx) {
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0w8001->idx =3D 0;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 if (w8001->type !=3D BTN_TOOL_PEN &&
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 w8001->type !=3D BTN_TOOL_RUBBER) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 parse_single_touch(w8001->data, =
+&coord);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 report_single_touch(w8001, &coor=
+d);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 }
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0break;
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Pen coordinates packet */
+>> @@ -224,18 +289,18 @@ static irqreturn_t w8001_interrupt(struct seri=
+o *serio,
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (unlikely(=
+tmp =3D=3D W8001_TAB_BYTE))
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0break;
+>>
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 tmp =3D (w8001->d=
+ata[0] & W8001_TOUCH_BYTE);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 tmp =3D w8001->da=
+ta[0] & W8001_TOUCH_BYTE;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (tmp =3D=3D=
+ W8001_TOUCH_BYTE)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0break;
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0w8001->idx =3D=
+ 0;
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 parse_data(w8001-=
+>data, &coord);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 parse_pen_data(w8=
+001->data, &coord);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0report_pen_ev=
+ents(w8001, &coord);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0break;
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* control packet */
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0case W8001_PKTLEN_TPCCTL - 1:
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 tmp =3D (w8001->d=
+ata[0] & W8001_TOUCH_MASK);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 tmp =3D w8001->da=
+ta[0] & W8001_TOUCH_MASK;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (tmp =3D=3D=
+ W8001_TOUCH_BYTE)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0break;
+>>
+>> @@ -248,7 +313,7 @@ static irqreturn_t w8001_interrupt(struct serio =
+*serio,
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* 2 finger touch packet */
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0case W8001_PKTLEN_TOUCH2FG - 1:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0w8001->idx =3D=
+ 0;
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 parse_touch(w8001=
+);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 parse_multi_touch=
+(w8001);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0break;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+>>
+>> @@ -278,6 +343,7 @@ static int w8001_setup(struct w8001 *w8001)
+>> =C2=A0{
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct input_dev *dev =3D w8001->dev;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct w8001_coord coord;
+>> + =C2=A0 =C2=A0 =C2=A0 struct w8001_touch_query touch;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0int error;
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0error =3D w8001_command(w8001, W8001_CMD_=
+STOP, false);
+>> @@ -289,11 +355,15 @@ static int w8001_setup(struct w8001 *w8001)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* penabled? */
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0error =3D w8001_command(w8001, W8001_CMD_=
+QUERY, true);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (!error) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOU=
+CH, dev->keybit);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__set_bit(BTN=
+_TOOL_PEN, dev->keybit);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__set_bit(BTN=
+_TOOL_RUBBER, dev->keybit);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__set_bit(BTN=
+_STYLUS, dev->keybit);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__set_bit(BTN=
+_STYLUS2, dev->keybit);
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 parse_data(w8001-=
+>response, &coord);
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 parse_pen_data(w8=
+001->response, &coord);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->max_pen_x =
+=3D coord.x;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->max_pen_y =
+=3D coord.y;
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_set_abs=
+_params(dev, ABS_X, 0, coord.x, 0, 0);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_set_abs=
+_params(dev, ABS_Y, 0, coord.y, 0, 0);
+>> @@ -312,24 +382,34 @@ static int w8001_setup(struct w8001 *w8001)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 * second byte is empty, which indicates =
+touch is not supported.
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 */
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (!error && w8001->response[1]) {
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct w8001_touc=
+h_query touch;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOU=
+CH, dev->keybit);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOO=
+L_FINGER, dev->keybit);
+>
+> I do not think we want to set BTN_TOUCH and BTN_TOOL_FINGER for MT
+> device since we do not need to support single touch for this MT
+> device. Please refer to my comments for your other patch in the next
+> email.
+>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0parse_touchqu=
+ery(w8001->response, &touch);
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->max_touch_=
+x =3D touch.x;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 w8001->max_touch_=
+y =3D touch.y;
+>> +
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* scale to pen m=
+aximum */
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (w8001->max_pe=
+n_x && w8001->max_pen_y) {
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 touch.x =3D w8001->max_pen_x;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 touch.y =3D w8001->max_pen_y;
+>> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
+>
+> If we scale touch for both single and MT, we need to scale the raw
+> (x,y) for both too. I purposely did not want to scale MT touch since
+> they can be supported in different resolution from pen by MT protocol
+> now.
+>
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_set_abs=
+_params(dev, ABS_X, 0, touch.x, 0, 0);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0input_set_abs=
+_params(dev, ABS_Y, 0, touch.y, 0, 0);
+>> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOO=
+L_FINGER, dev->keybit);
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0switch (touch=
+=2Esensor_id) {
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0case 0:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0case 2:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0w8001->pktlen =3D W8001_PKTLEN_TOUCH93;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0break;
+>> +
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0case 1:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0case 3:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0case 4:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0w8001->pktlen =3D W8001_PKTLEN_TOUCH9A;
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0break;
+>> +
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0case 5:
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0w8001->pktlen =3D W8001_PKTLEN_TOUCH2FG;
+>>
+>> @@ -397,7 +477,6 @@ static int w8001_connect(struct serio *serio, st=
+ruct serio_driver *drv)
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0input_dev->dev.parent =3D &serio->dev;
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0input_dev->evbit[0] =3D BIT_MASK(EV_KEY) =
+| BIT_MASK(EV_ABS);
+>> - =C2=A0 =C2=A0 =C2=A0 __set_bit(BTN_TOUCH, input_dev->keybit);
+>>
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0serio_set_drvdata(serio, w8001);
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0err =3D serio_open(serio, drv);
+>>
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

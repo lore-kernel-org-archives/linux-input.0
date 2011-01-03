@@ -1,62 +1,135 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [v3 1/3] 1/3 Touchscreen: Cypress TTSP G3 MTDEV Core Driver
-Date: Mon, 03 Jan 2011 15:14:52 +0530
-Message-ID: <4D219A94.8090908@codeaurora.org>
-References: <kev@cypress.com> <1293650268-1561-1-git-send-email-kev@cypress.com> <20101231115323.GA9709@polaris.bitmath.org> <4D1DD2D7.30108@codeaurora.org> <20101231135800.GA1513@polaris.bitmath.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Input: introduce 'notimeout' blacklist for Dell Vostro
+ V13 (was Re: Synaptics touchpad on Dell Vostro V13)
+Date: Mon, 3 Jan 2011 14:51:48 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101031450390.26685@pobox.suse.cz>
+References: <alpine.LNX.2.00.1012141547570.15140@pobox.suse.cz> <20101214170027.GA11318@core.coreip.homeip.net> <alpine.LNX.2.00.1012152348440.16569@pobox.suse.cz> <201012151523.09476.dmitry.torokhov@gmail.com> <alpine.LNX.2.00.1012281124030.16569@pobox.suse.cz>
+ <20101229074410.GC13061@core.coreip.homeip.net> <alpine.LNX.2.00.1012291341550.16569@pobox.suse.cz> <alpine.LNX.2.00.1012291444110.16569@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine01.qualcomm.com ([199.106.114.254]:11097 "EHLO
-	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753939Ab1ACJpz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Jan 2011 04:45:55 -0500
-In-Reply-To: <20101231135800.GA1513@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1012291444110.16569@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Kevin McNeely <kev@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Wed, 29 Dec 2010, Jiri Kosina wrote:
 
-Hi Henrik,
-
-On 12/31/2010 7:28 PM, Henrik Rydberg wrote:
-> On Fri, Dec 31, 2010 at 06:25:51PM +0530, Trilok Soni wrote:
->> Hi Henrik,
->>
->> On 12/31/2010 5:23 PM, Henrik Rydberg wrote:
->>> Hi Kevin,
->>>
->>> Thanks for the changes, it looks much better now. Some comments on the MT
->>> part inline.
->>>
->>>> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
->>>> index 06ea8da..7d886bc 100644
->>>> --- a/drivers/input/touchscreen/Kconfig
->>>> +++ b/drivers/input/touchscreen/Kconfig
->>>> @@ -124,6 +124,11 @@ config TOUCHSCREEN_CY8CTMG110
->>>>  	  To compile this driver as a module, choose M here: the
->>>>  	  module will be called cy8ctmg110_ts.
->>>>  
->>>> +config TOUCHSCREEN_CYTTSP_CORE
->>>> +	bool "Cypress TTSP touchscreen core"
->>>> +	help
->>>> +	  Always activated for Cypress TTSP touchscreen
->>>> +
->>>
->>> Tristate please.
->>
->> This code is just exporting APIs and doesn't need to be modular. No module_init/exit etc.,
+> On Wed, 29 Dec 2010, Jiri Kosina wrote:
 > 
-> Any particular reason why "grep cytt /proc/kallsyms | wc" should be
-> non-zero when no suitable hardware is available?
+> > > Well, another blacklist in i8042 I guess...
+> > 
+> > Sigh, seems so.
+> > 
+> > I'll send you patch once I get positive testing feedback.
 > 
+> 
+> 
+> 
+> From: Jiri Kosina <jkosina@suse.cz>
+> Subject: [PATCH] Input: introduce 'notimeout' blacklist for Dell Vostro V13
+> 
+> i8042 controller present in Dell Vostro V13 errorneously signals spurious
+> timeouts.
+> 
+> Introduce i8042.notimeout parameter for ignoring i8042-signalled timeouts
+> and apply this quirk automatically for Dell Vostro V13, based on DMI match.
+> 
+> In addition to that, this machine also needs to be added to nomux blacklist.
+> 
+> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-Ok. Let's make it tristate then. Thanks.
+Just to be clear -- I have already received positive feedback from the 
+bugreporter I had. I have attached the patch for testing to
 
----Trilok Soni
+	https://bugzilla.kernel.org/show_bug.cgi?id=15416
 
+as well, but I already have confirmation from person owning the hardware, 
+so I believe it could be applied.
+
+Thanks.
+
+> ---
+>  drivers/input/serio/i8042-x86ia64io.h |   21 +++++++++++++++++++++
+>  drivers/input/serio/i8042.c           |    6 +++++-
+>  2 files changed, 26 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index a5475b5..b04dd27 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -424,6 +424,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
+>  			DMI_MATCH(DMI_PRODUCT_VERSION, "0100"),
+>  		},
+>  	},
+> +	{
+> +		/* Dell Vostro V13 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
+> +		},
+> +	},
+>  	{ }
+>  };
+>  
+> @@ -545,6 +552,17 @@ static const struct dmi_system_id __initconst i8042_dmi_laptop_table[] = {
+>  };
+>  #endif
+>  
+> +static const struct dmi_system_id __initconst i8042_dmi_notimeout_table[] = {
+> +	{
+> +		/* Dell Vostro V13 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
+> +		},
+> +	},
+> +	{ }
+> +};
+> +
+>  /*
+>   * Some Wistron based laptops need us to explicitly enable the 'Dritek
+>   * keyboard extension' to make their extra keys start generating scancodes.
+> @@ -897,6 +915,9 @@ static int __init i8042_platform_init(void)
+>  	if (dmi_check_system(i8042_dmi_nomux_table))
+>  		i8042_nomux = true;
+>  
+> +	if (dmi_check_system(i8042_dmi_notimeout_table))
+> +		i8042_notimeout = true;
+> +
+>  	if (dmi_check_system(i8042_dmi_dritek_table))
+>  		i8042_dritek = true;
+>  #endif /* CONFIG_X86 */
+> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+> index 18db5a8..039037d 100644
+> --- a/drivers/input/serio/i8042.c
+> +++ b/drivers/input/serio/i8042.c
+> @@ -61,6 +61,10 @@ static bool i8042_noloop;
+>  module_param_named(noloop, i8042_noloop, bool, 0);
+>  MODULE_PARM_DESC(noloop, "Disable the AUX Loopback command while probing for the AUX port");
+>  
+> +static bool i8042_notimeout;
+> +module_param_named(notimeout, i8042_notimeout, bool, 0);
+> +MODULE_PARM_DESC(notimeout, "Ignore timeouts signalled by i8042");
+> +
+>  #ifdef CONFIG_X86
+>  static bool i8042_dritek;
+>  module_param_named(dritek, i8042_dritek, bool, 0);
+> @@ -503,7 +507,7 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
+>  	} else {
+>  
+>  		dfl = ((str & I8042_STR_PARITY) ? SERIO_PARITY : 0) |
+> -		      ((str & I8042_STR_TIMEOUT) ? SERIO_TIMEOUT : 0);
+> +		      ((str & I8042_STR_TIMEOUT && !i8042_notimeout) ? SERIO_TIMEOUT : 0);
+>  
+>  		port_no = (str & I8042_STR_AUXDATA) ?
+>  				I8042_AUX_PORT_NO : I8042_KBD_PORT_NO;
+> -- 
+> 1.7.3.1
+> 
+> 
 
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Jiri Kosina
+SUSE Labs, Novell Inc.

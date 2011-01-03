@@ -1,41 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Corrected errors and warnings reported by
- "checkpatch.pl" utility.
-Date: Sun, 2 Jan 2011 23:03:50 -0800
-Message-ID: <20110103070350.GD26703@core.coreip.homeip.net>
-References: <1294027991-2537-1-git-send-email-user@linux-mint>
- <1294027991-2537-3-git-send-email-user@linux-mint>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [v3 1/3] 1/3 Touchscreen: Cypress TTSP G3 MTDEV Core Driver
+Date: Mon, 03 Jan 2011 15:14:52 +0530
+Message-ID: <4D219A94.8090908@codeaurora.org>
+References: <kev@cypress.com> <1293650268-1561-1-git-send-email-kev@cypress.com> <20101231115323.GA9709@polaris.bitmath.org> <4D1DD2D7.30108@codeaurora.org> <20101231135800.GA1513@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:47639 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751119Ab1ACHD4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Jan 2011 02:03:56 -0500
-Received: by ywl5 with SMTP id 5so5177693ywl.19
-        for <linux-input@vger.kernel.org>; Sun, 02 Jan 2011 23:03:55 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1294027991-2537-3-git-send-email-user@linux-mint>
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:11097 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753939Ab1ACJpz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Jan 2011 04:45:55 -0500
+In-Reply-To: <20101231135800.GA1513@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Steve Grahovac <steve.grahovac@gmail.com>
-Cc: linux-input@vger.kernel.org, Steve Grahovac <steve.grahovac@microchip.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Kevin McNeely <kev@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2011 at 10:13:11PM -0600, Steve Grahovac wrote:
-> From: Steve Grahovac <steve.grahovac@microchip.com>
+
+Hi Henrik,
+
+On 12/31/2010 7:28 PM, Henrik Rydberg wrote:
+> On Fri, Dec 31, 2010 at 06:25:51PM +0530, Trilok Soni wrote:
+>> Hi Henrik,
+>>
+>> On 12/31/2010 5:23 PM, Henrik Rydberg wrote:
+>>> Hi Kevin,
+>>>
+>>> Thanks for the changes, it looks much better now. Some comments on the MT
+>>> part inline.
+>>>
+>>>> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+>>>> index 06ea8da..7d886bc 100644
+>>>> --- a/drivers/input/touchscreen/Kconfig
+>>>> +++ b/drivers/input/touchscreen/Kconfig
+>>>> @@ -124,6 +124,11 @@ config TOUCHSCREEN_CY8CTMG110
+>>>>  	  To compile this driver as a module, choose M here: the
+>>>>  	  module will be called cy8ctmg110_ts.
+>>>>  
+>>>> +config TOUCHSCREEN_CYTTSP_CORE
+>>>> +	bool "Cypress TTSP touchscreen core"
+>>>> +	help
+>>>> +	  Always activated for Cypress TTSP touchscreen
+>>>> +
+>>>
+>>> Tristate please.
+>>
+>> This code is just exporting APIs and doesn't need to be modular. No module_init/exit etc.,
 > 
-> diff --git a/include/linux/serio.h b/include/linux/serio.h
-> index b555256..13fd94b 100644
-> --- a/include/linux/serio.h
-> +++ b/include/linux/serio.h
-> @@ -197,5 +197,6 @@ static inline void serio_continue_rx(struct serio *serio)
->  #define SERIO_W8001	0x39
->  #define SERIO_DYNAPRO	0x3a
->  #define SERIO_HAMPSHIRE	0x3b
-> +#define SERIO_MCHPAR1XXX	0x3c
->  
+> Any particular reason why "grep cytt /proc/kallsyms | wc" should be
+> non-zero when no suitable hardware is available?
+> 
 
-0x3c has already been taken.
+Ok. Let's make it tristate then. Thanks.
+
+---Trilok Soni
+
 
 -- 
-Dmitry
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

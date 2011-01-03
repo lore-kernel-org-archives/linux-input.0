@@ -1,135 +1,89 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Input: introduce 'notimeout' blacklist for Dell Vostro
- V13 (was Re: Synaptics touchpad on Dell Vostro V13)
-Date: Mon, 3 Jan 2011 14:51:48 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101031450390.26685@pobox.suse.cz>
-References: <alpine.LNX.2.00.1012141547570.15140@pobox.suse.cz> <20101214170027.GA11318@core.coreip.homeip.net> <alpine.LNX.2.00.1012152348440.16569@pobox.suse.cz> <201012151523.09476.dmitry.torokhov@gmail.com> <alpine.LNX.2.00.1012281124030.16569@pobox.suse.cz>
- <20101229074410.GC13061@core.coreip.homeip.net> <alpine.LNX.2.00.1012291341550.16569@pobox.suse.cz> <alpine.LNX.2.00.1012291444110.16569@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Tejun Heo <tj@kernel.org>
+Subject: [PATCH 10/32] input/tps6507x-ts: use system_wq instead of dedicated workqueue
+Date: Mon,  3 Jan 2011 14:49:33 +0100
+Message-ID: <1294062595-30097-11-git-send-email-tj@kernel.org>
+References: <1294062595-30097-1-git-send-email-tj@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1012291444110.16569@pobox.suse.cz>
+In-Reply-To: <1294062595-30097-1-git-send-email-tj@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Tejun Heo <tj@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Dan Carpenter <error27@gmail.com>, Todd Fischer <todd.fischer@ridgerun.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 29 Dec 2010, Jiri Kosina wrote:
+With cmwq, there's no reason to use a separate workqueue.  Drop
+tps6507x_ts->wq and use system_wq instead.
 
-> On Wed, 29 Dec 2010, Jiri Kosina wrote:
-> 
-> > > Well, another blacklist in i8042 I guess...
-> > 
-> > Sigh, seems so.
-> > 
-> > I'll send you patch once I get positive testing feedback.
-> 
-> 
-> 
-> 
-> From: Jiri Kosina <jkosina@suse.cz>
-> Subject: [PATCH] Input: introduce 'notimeout' blacklist for Dell Vostro V13
-> 
-> i8042 controller present in Dell Vostro V13 errorneously signals spurious
-> timeouts.
-> 
-> Introduce i8042.notimeout parameter for ignoring i8042-signalled timeouts
-> and apply this quirk automatically for Dell Vostro V13, based on DMI match.
-> 
-> In addition to that, this machine also needs to be added to nomux blacklist.
-> 
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-Just to be clear -- I have already received positive feedback from the 
-bugreporter I had. I have attached the patch for testing to
-
-	https://bugzilla.kernel.org/show_bug.cgi?id=15416
-
-as well, but I already have confirmation from person owning the hardware, 
-so I believe it could be applied.
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: Dan Carpenter <error27@gmail.com>
+Cc: Todd Fischer <todd.fischer@ridgerun.com>
+---
+Only compile tested.  Please feel free to take it into the subsystem
+tree or simply ack - I'll route it through the wq tree.
 
 Thanks.
 
-> ---
->  drivers/input/serio/i8042-x86ia64io.h |   21 +++++++++++++++++++++
->  drivers/input/serio/i8042.c           |    6 +++++-
->  2 files changed, 26 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index a5475b5..b04dd27 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -424,6 +424,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
->  			DMI_MATCH(DMI_PRODUCT_VERSION, "0100"),
->  		},
->  	},
-> +	{
-> +		/* Dell Vostro V13 */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
-> +		},
-> +	},
->  	{ }
->  };
->  
-> @@ -545,6 +552,17 @@ static const struct dmi_system_id __initconst i8042_dmi_laptop_table[] = {
->  };
->  #endif
->  
-> +static const struct dmi_system_id __initconst i8042_dmi_notimeout_table[] = {
-> +	{
-> +		/* Dell Vostro V13 */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
-> +		},
-> +	},
-> +	{ }
-> +};
-> +
->  /*
->   * Some Wistron based laptops need us to explicitly enable the 'Dritek
->   * keyboard extension' to make their extra keys start generating scancodes.
-> @@ -897,6 +915,9 @@ static int __init i8042_platform_init(void)
->  	if (dmi_check_system(i8042_dmi_nomux_table))
->  		i8042_nomux = true;
->  
-> +	if (dmi_check_system(i8042_dmi_notimeout_table))
-> +		i8042_notimeout = true;
-> +
->  	if (dmi_check_system(i8042_dmi_dritek_table))
->  		i8042_dritek = true;
->  #endif /* CONFIG_X86 */
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index 18db5a8..039037d 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -61,6 +61,10 @@ static bool i8042_noloop;
->  module_param_named(noloop, i8042_noloop, bool, 0);
->  MODULE_PARM_DESC(noloop, "Disable the AUX Loopback command while probing for the AUX port");
->  
-> +static bool i8042_notimeout;
-> +module_param_named(notimeout, i8042_notimeout, bool, 0);
-> +MODULE_PARM_DESC(notimeout, "Ignore timeouts signalled by i8042");
-> +
->  #ifdef CONFIG_X86
->  static bool i8042_dritek;
->  module_param_named(dritek, i8042_dritek, bool, 0);
-> @@ -503,7 +507,7 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
->  	} else {
->  
->  		dfl = ((str & I8042_STR_PARITY) ? SERIO_PARITY : 0) |
-> -		      ((str & I8042_STR_TIMEOUT) ? SERIO_TIMEOUT : 0);
-> +		      ((str & I8042_STR_TIMEOUT && !i8042_notimeout) ? SERIO_TIMEOUT : 0);
->  
->  		port_no = (str & I8042_STR_AUXDATA) ?
->  				I8042_AUX_PORT_NO : I8042_KBD_PORT_NO;
-> -- 
-> 1.7.3.1
-> 
-> 
+ drivers/input/touchscreen/tps6507x-ts.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+index c8c136c..4303149 100644
+--- a/drivers/input/touchscreen/tps6507x-ts.c
++++ b/drivers/input/touchscreen/tps6507x-ts.c
+@@ -43,7 +43,6 @@ struct tps6507x_ts {
+ 	struct input_dev	*input_dev;
+ 	struct device		*dev;
+ 	char			phys[32];
+-	struct workqueue_struct *wq;
+ 	struct delayed_work	work;
+ 	unsigned		polling;	/* polling is active */
+ 	struct ts_event		tc;
+@@ -220,8 +219,8 @@ done:
+ 	poll = 1;
+ 
+ 	if (poll) {
+-		schd = queue_delayed_work(tsc->wq, &tsc->work,
+-					  msecs_to_jiffies(tsc->poll_period));
++		schd = schedule_delayed_work(&tsc->work,
++					msecs_to_jiffies(tsc->poll_period));
+ 		if (schd)
+ 			tsc->polling = 1;
+ 		else {
+@@ -303,7 +302,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+ 	tsc->input_dev = input_dev;
+ 
+ 	INIT_DELAYED_WORK(&tsc->work, tps6507x_ts_handler);
+-	tsc->wq = create_workqueue("TPS6507x Touchscreen");
+ 
+ 	if (init_data) {
+ 		tsc->poll_period = init_data->poll_period;
+@@ -325,8 +323,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+ 	if (error)
+ 		goto err2;
+ 
+-	schd = queue_delayed_work(tsc->wq, &tsc->work,
+-				  msecs_to_jiffies(tsc->poll_period));
++	schd = schedule_delayed_work(&tsc->work,
++				     msecs_to_jiffies(tsc->poll_period));
+ 
+ 	if (schd)
+ 		tsc->polling = 1;
+@@ -341,7 +339,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+ 
+ err2:
+ 	cancel_delayed_work_sync(&tsc->work);
+-	destroy_workqueue(tsc->wq);
+ 	input_free_device(input_dev);
+ err1:
+ 	kfree(tsc);
+@@ -357,7 +354,6 @@ static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
+ 	struct input_dev *input_dev = tsc->input_dev;
+ 
+ 	cancel_delayed_work_sync(&tsc->work);
+-	destroy_workqueue(tsc->wq);
+ 
+ 	input_unregister_device(input_dev);
+ 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.7.1

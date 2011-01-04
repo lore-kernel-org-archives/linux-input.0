@@ -1,123 +1,44 @@
-From: Hong Liu <hong.liu@intel.com>
-Subject: Re: [v3 1/3] 1/3 Touchscreen: Cypress TTSP G3 MTDEV Core Driver
-Date: Tue, 04 Jan 2011 09:50:14 +0800
-Message-ID: <1294105814.2570.17.camel@hongdev>
-References: <Kevin McNeely <kev@cypress.com>
-	 <1293650268-1561-1-git-send-email-kev@cypress.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Alan Ott <alan@signal11.us>
+Subject: [PATCH 1/1] hidraw: Added Compatibility ioctl() for 32-bit applications.
+Date: Tue,  4 Jan 2011 00:37:22 -0500
+Message-ID: <1294119442-6827-2-git-send-email-alan__20956.4268625856$1294120843$gmane$org@signal11.us>
+References: <1294119442-6827-1-git-send-email-alan@signal11.us>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:55367 "EHLO mga02.intel.com"
+Received: from core.signal11.us ([64.251.29.136]:58057 "EHLO core.signal11.us"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750803Ab1ADBrL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Jan 2011 20:47:11 -0500
-In-Reply-To: <1293650268-1561-1-git-send-email-kev@cypress.com>
+	id S1751699Ab1ADGAA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Jan 2011 01:00:00 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id 63DBD1CCAB6D
+	for <linux-input@vger.kernel.org>; Tue,  4 Jan 2011 00:37:29 -0500 (EST)
+In-Reply-To: <1294119442-6827-1-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin McNeely <kev@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Henrik Rydberg <rydberg@euromail.se>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, Antonio Ospite <ospite@studenti.unina.it>, Tejun Heo <tj@kernel.org>, Marcel Holtmann <marcel@holtmann>
+Cc: Alan Ott <alan@signal11.us>
 
-On Thu, 2010-12-30 at 03:17 +0800, Kevin McNeely wrote:
-[...]
+Added the ioctl function to the compat_ioctl pointer in the file_operations struct. Before this, some ioctls would fail for 32-bit apps on 64-bit systems.
 
-> +
-> +void *cyttsp_core_init(struct cyttsp_bus_ops *bus_ops, struct device *dev)
-> +{
-> +       struct input_dev *input_device;
-> +
-> +       struct cyttsp *ts = kzalloc(sizeof(*ts), GFP_KERNEL);
-> +
-> +       if (!ts) {
-> +               dev_dbg(ts->dev, "%s: Error, kzalloc\n", __func__);
-> +               goto error_alloc_data;
-> +       }
+Signed-off-by: Alan Ott <alan@signal11.us>
+---
+ drivers/hid/hidraw.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-ts->dev is not assigned yet.
-
-Thanks,
-Hong
-
-> +
-> +       if (dev == NULL || bus_ops == NULL) {
-> +               kfree(ts);
-> +               goto error_alloc_data;
-> +       }
-> +
-> +       mutex_init(&ts->mutex);
-> +       ts->dev = dev;
-> +       ts->platform_data = dev->platform_data;
-> +       ts->bus_ops = bus_ops;
-> +       init_completion(&ts->bl_ready);
-> +
-> +       if (ts->platform_data->init) {
-> +               if (ts->platform_data->init()) {
-> +                       dev_dbg(ts->dev, "%s: Error, platform init failed!\n",
-> +                               __func__);
-> +                       goto error_init;
-> +               }
-> +       }
-> +
-> +       ts->irq = gpio_to_irq(ts->platform_data->irq_gpio);
-> +       if (ts->irq <= 0) {
-> +               dev_dbg(ts->dev, "%s: Error, failed to allocate irq\n",
-> +                       __func__);
-> +                       goto error_init;
-> +       }
-> +
-> +       /* Create the input device and register it. */
-> +       input_device = input_allocate_device();
-> +       if (!input_device) {
-> +               dev_dbg(ts->dev, "%s: Error, failed to allocate input device\n",
-> +                       __func__);
-> +               goto error_input_allocate_device;
-> +       }
-> +
-> +       ts->input = input_device;
-> +       input_device->name = ts->platform_data->name;
-> +       snprintf(ts->phys, sizeof(ts->phys), "%s", dev_name(dev));
-> +       input_device->phys = ts->phys;
-> +       input_device->dev.parent = ts->dev;
-> +       ts->bus_type = bus_ops->dev->bus;
-> +       input_device->open = cyttsp_open;
-> +       input_device->close = cyttsp_close;
-> +       input_set_drvdata(input_device, ts);
-> +
-> +       __set_bit(EV_SYN, input_device->evbit);
-> +       __set_bit(EV_KEY, input_device->evbit);
-> +       __set_bit(EV_ABS, input_device->evbit);
-> +
-> +       input_set_abs_params(input_device, ABS_MT_POSITION_X,
-> +               0, ts->platform_data->maxx, 0, 0);
-> +       input_set_abs_params(input_device, ABS_MT_POSITION_Y,
-> +               0, ts->platform_data->maxy, 0, 0);
-> +       input_set_abs_params(input_device, ABS_MT_TOUCH_MAJOR,
-> +               0, CY_MAXZ, 0, 0);
-> +
-> +       if (input_register_device(input_device)) {
-> +               dev_dbg(ts->dev, "%s: Error, failed to register input device\n",
-> +                       __func__);
-> +               goto error_input_register_device;
-> +       }
-> +
-> +       goto no_error;
-> +
-> +error_input_register_device:
-> +       input_unregister_device(input_device);
-> +error_input_allocate_device:
-> +       if (ts->platform_data->exit)
-> +               ts->platform_data->exit();
-> +error_init:
-> +       mutex_destroy(&ts->mutex);
-> +       kfree(ts);
-> +error_alloc_data:
-> +no_error:
-> +       return ts;
-> +}
-> +EXPORT_SYMBOL_GPL(cyttsp_core_init);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_DESCRIPTION("Cypress TrueTouch(R) Standard touchscreen driver core");
-> +MODULE_AUTHOR("Cypress");
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 29495e6..57ccc5f 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -428,6 +428,9 @@ static const struct file_operations hidraw_ops = {
+ 	.open =         hidraw_open,
+ 	.release =      hidraw_release,
+ 	.unlocked_ioctl = hidraw_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= hidraw_ioctl,
++#endif
+ };
+ 
+ void hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+-- 
+1.7.0.4
 
 

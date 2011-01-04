@@ -1,42 +1,91 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] HID: magicmouse: Don't report REL_{X,Y} for Magic Trackpad
-Date: Mon, 03 Jan 2011 17:13:31 -0500
-Message-ID: <4D224A0B.8010408@canonical.com>
-References: <1291849685-2623-1-git-send-email-chase.douglas@canonical.com> <alpine.LNX.2.00.1012091440410.508@pobox.suse.cz> <4D00F217.6050609@canonical.com>
+From: Hong Liu <hong.liu@intel.com>
+Subject: Re: [v3 2/3] 2/3 i2c: Cypress TTSP G3 MTDEV I2C Device Driver
+Date: Tue, 04 Jan 2011 09:45:56 +0800
+Message-ID: <1294105556.2570.14.camel@hongdev>
+References: <Kevin McNeely <kev@cypress.com>
+	 <1293650268-1561-2-git-send-email-kev@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:53006 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751285Ab1ACWNf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Jan 2011 17:13:35 -0500
-In-Reply-To: <4D00F217.6050609@canonical.com>
+Received: from mga11.intel.com ([192.55.52.93]:62996 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750853Ab1ADBnh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Jan 2011 20:43:37 -0500
+In-Reply-To: <1293650268-1561-2-git-send-email-kev@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kevin McNeely <kev@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Henrik Rydberg <rydberg@euromail.se>, Alan Cox <alan@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 12/09/2010 10:13 AM, Chase Douglas wrote:
-> On 12/09/2010 05:41 AM, Jiri Kosina wrote:
->> On Wed, 8 Dec 2010, Chase Douglas wrote:
->>
->>> With the recent switch to having the hid layer handle standard axis
->>> initialization, the Magic Trackpad now reports relative axes. This would
->>> be fine in the normal mode, but the driver puts the device in multitouch
->>> mode where no relative events are generated. Also, userspace software
->>> depends on accurate axis information for device type detection. Thus,
->>> ignoring the relative axes from the Magic Trackpad is best.
->>
->> Applied, thank you. I take it this should better go into .37 still, right?
-> 
-> Yes, please.
+On Thu, 2010-12-30 at 03:17 +0800, Kevin McNeely wrote:
+[...]
+> +
+> +/* registered in driver struct */
+> +static int __devexit cyttsp_i2c_remove(struct i2c_client *client)
+> +{
+> +	struct cyttsp_i2c *ts;
+> +
+> +	ts = i2c_get_clientdata(client);
+> +	cyttsp_core_release(ts->ttsp_client);
+> +	kfree(ts);
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int cyttsp_i2c_suspend(struct i2c_client *client, pm_message_t message)
+> +{
+> +	return cyttsp_suspend(dev_get_drvdata(&client->dev));
+> +}
+> +
+> +static int cyttsp_i2c_resume(struct i2c_client *client)
+> +{
+> +	return cyttsp_resume(dev_get_drvdata(&client->dev));
+> +}
+> +#endif
 
-Jiri,
-
-It looks like this never got pushed to .37. Can you add "Cc:
-stable@kernel.org" to the SOB area and push it?
+I think what we get here is a pointer to cyttsp_i2c, and we need to pass
+cyttsp_i2c->ttsp_client to cyttsp_suspend/resume.
 
 Thanks,
+Hong
 
--- Chase
+> +
+> +static const struct i2c_device_id cyttsp_i2c_id[] = {
+> +	{ CY_I2C_NAME, 0 },  { }
+> +};
+> +
+> +static struct i2c_driver cyttsp_i2c_driver = {
+> +	.driver = {
+> +		.name = CY_I2C_NAME,
+> +		.owner = THIS_MODULE,
+> +	},
+> +	.probe = cyttsp_i2c_probe,
+> +	.remove = __devexit_p(cyttsp_i2c_remove),
+> +	.id_table = cyttsp_i2c_id,
+> +#ifdef CONFIG_PM
+> +	.suspend = cyttsp_i2c_suspend,
+> +	.resume = cyttsp_i2c_resume,
+> +#endif
+> +};
+> +
+> +static int __init cyttsp_i2c_init(void)
+> +{
+> +	return i2c_add_driver(&cyttsp_i2c_driver);
+> +}
+> +
+> +static void __exit cyttsp_i2c_exit(void)
+> +{
+> +	return i2c_del_driver(&cyttsp_i2c_driver);
+> +}
+> +
+> +module_init(cyttsp_i2c_init);
+> +module_exit(cyttsp_i2c_exit);
+> +
+> +MODULE_ALIAS("i2c:cyttsp");
+> +MODULE_LICENSE("GPL");
+> +MODULE_DESCRIPTION("Cypress TrueTouch(R) Standard Product (TTSP) I2C driver");
+> +MODULE_AUTHOR("Cypress");
+> +MODULE_DEVICE_TABLE(i2c, cyttsp_i2c_id);
+
+

@@ -1,15 +1,15 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [RFC v2 08/10] hid-multitouch: migrated support for Quanta dual-touch panels
-Date: Wed,  5 Jan 2011 18:27:46 +0100
-Message-ID: <1294248468-19979-9-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [RFC v2 07/10] hid-multitouch: migrated support for MosArt panels
+Date: Wed,  5 Jan 2011 18:27:45 +0100
+Message-ID: <1294248468-19979-8-git-send-email-benjamin.tissoires@enac.fr>
 References: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:39297 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:39298 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751330Ab1AER2G (ORCPT
+	with ESMTP id S1751373Ab1AER2G (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jan 2011 12:28:06 -0500
 In-Reply-To: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
@@ -17,79 +17,60 @@ List-Id: linux-input@vger.kernel.org
 To: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.orglinux
 Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-Migrated support for Quanta dual-touch panels to the unified driver.
+Migrated support for MosArt dual-touch panels to the unified driver.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 Signed-off-by: St=C3=A9phane Chatty <chatty@enac.fr>
 ---
  drivers/hid/Kconfig          |    6 -
  drivers/hid/Makefile         |    1 -
- drivers/hid/hid-multitouch.c |    8 ++
- drivers/hid/hid-quanta.c     |  261 ----------------------------------=
+ drivers/hid/hid-mosart.c     |  275 ----------------------------------=
 --------
- 4 files changed, 8 insertions(+), 268 deletions(-)
- delete mode 100644 drivers/hid/hid-quanta.c
+ drivers/hid/hid-multitouch.c |   15 +++
+ 4 files changed, 15 insertions(+), 282 deletions(-)
+ delete mode 100644 drivers/hid/hid-mosart.c
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 74c6bf5..989444f 100644
+index faf27c0..74c6bf5 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -370,12 +370,6 @@ config HID_PICOLCD_LEDS
+@@ -266,12 +266,6 @@ config HID_MICROSOFT
  	---help---
- 	  Provide access to PicoLCD's GPO pins via leds class.
+ 	Support for Microsoft devices that are not fully compliant with HID s=
+tandard.
 =20
--config HID_QUANTA
--	tristate "Quanta Optical Touch panels"
+-config HID_MOSART
+-	tristate "MosArt dual-touch panels"
 -	depends on USB_HID
 -	---help---
--	Support for Quanta Optical Touch dual-touch panels.
+-	Support for MosArt dual-touch panels.
 -
- config HID_ROCCAT
- 	tristate "Roccat special event support"
+ config HID_MONTEREY
+ 	tristate "Monterey Genius KB29E keyboard" if EMBEDDED
  	depends on USB_HID
 diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 28144cb..f8b4d95 100644
+index 1a0190d..28144cb 100644
 --- a/drivers/hid/Makefile
 +++ b/drivers/hid/Makefile
-@@ -48,7 +48,6 @@ obj-$(CONFIG_HID_MULTITOUCH)	+=3D hid-multitouch.o
+@@ -44,7 +44,6 @@ obj-$(CONFIG_HID_LOGITECH)	+=3D hid-logitech.o
+ obj-$(CONFIG_HID_MAGICMOUSE)    +=3D hid-magicmouse.o
+ obj-$(CONFIG_HID_MICROSOFT)	+=3D hid-microsoft.o
+ obj-$(CONFIG_HID_MONTEREY)	+=3D hid-monterey.o
+-obj-$(CONFIG_HID_MOSART)	+=3D hid-mosart.o
+ obj-$(CONFIG_HID_MULTITOUCH)	+=3D hid-multitouch.o
  obj-$(CONFIG_HID_NTRIG)		+=3D hid-ntrig.o
  obj-$(CONFIG_HID_ORTEK)		+=3D hid-ortek.o
- obj-$(CONFIG_HID_PRODIKEYS)	+=3D hid-prodikeys.o
--obj-$(CONFIG_HID_QUANTA)	+=3D hid-quanta.o
- obj-$(CONFIG_HID_PANTHERLORD)	+=3D hid-pl.o
- obj-$(CONFIG_HID_PETALYNX)	+=3D hid-petalynx.o
- obj-$(CONFIG_HID_PICOLCD)	+=3D hid-picolcd.o
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.=
-c
-index d3574ab..f5fa2c6 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -420,6 +420,14 @@ static const struct hid_device_id mt_devices[] =3D=
- {
- 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
- 			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
-=20
-+	/* Quanta panels */
-+	{ .driver_data =3D MT_CLS_DUAL1,
-+		HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
-+			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
-+	{ .driver_data =3D MT_CLS_DUAL1,
-+		HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
-+			USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
-+
- 	/* Cando panels */
- 	{ .driver_data =3D MT_CLS_DUAL2,
- 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-diff --git a/drivers/hid/hid-quanta.c b/drivers/hid/hid-quanta.c
+diff --git a/drivers/hid/hid-mosart.c b/drivers/hid/hid-mosart.c
 deleted file mode 100644
-index 54d3db5..0000000
---- a/drivers/hid/hid-quanta.c
+index ac5421d..0000000
+--- a/drivers/hid/hid-mosart.c
 +++ /dev/null
-@@ -1,261 +0,0 @@
+@@ -1,275 +0,0 @@
 -/*
-- *  HID driver for Quanta Optical Touch dual-touch panels
+- *  HID driver for the multitouch panel on the ASUS EeePC T91MT
 - *
 - *  Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
+- *  Copyright (c) 2010 Teemu Tuominen <teemu.tuominen@cybercom.com>
 - *
 - */
 -
@@ -107,14 +88,16 @@ ption)
 -#include <linux/hid.h>
 -#include <linux/module.h>
 -#include <linux/slab.h>
+-#include <linux/usb.h>
+-#include "usbhid/usbhid.h"
 -
 -MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
--MODULE_DESCRIPTION("Quanta dual-touch panel");
+-MODULE_DESCRIPTION("MosArt dual-touch panel");
 -MODULE_LICENSE("GPL");
 -
 -#include "hid-ids.h"
 -
--struct quanta_data {
+-struct mosart_data {
 -	__u16 x, y;
 -	__u8 id;
 -	bool valid;		/* valid finger data, or just placeholder? */
@@ -123,7 +106,7 @@ ption)
 -	bool activity;		/* at least one active finger previously? */
 -};
 -
--static int quanta_input_mapping(struct hid_device *hdev, struct hid_in=
+-static int mosart_input_mapping(struct hid_device *hdev, struct hid_in=
 put *hi,
 -		struct hid_field *field, struct hid_usage *usage,
 -		unsigned long **bit, int *max)
@@ -167,22 +150,24 @@ put *hi,
 -			/* touchscreen emulation */
 -			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
 -			return 1;
+-
 -		case HID_DG_CONTACTID:
 -			hid_map_usage(hi, usage, bit, max,
 -					EV_ABS, ABS_MT_TRACKING_ID);
 -			return 1;
+-
 -		}
 -		return 0;
 -
 -	case 0xff000000:
--		/* ignore vendor-specific features */
+-		/* ignore HID features */
 -		return -1;
 -	}
 -
 -	return 0;
 -}
 -
--static int quanta_input_mapped(struct hid_device *hdev, struct hid_inp=
+-static int mosart_input_mapped(struct hid_device *hdev, struct hid_inp=
 ut *hi,
 -		struct hid_field *field, struct hid_usage *usage,
 -		unsigned long **bit, int *max)
@@ -197,10 +182,9 @@ ut *hi,
 - * this function is called when a whole finger has been parsed,
 - * so that it can decide what to send to the input layer.
 - */
--static void quanta_filter_event(struct quanta_data *td, struct input_d=
+-static void mosart_filter_event(struct mosart_data *td, struct input_d=
 ev *input)
 -{
--=09
 -	td->first =3D !td->first; /* touchscreen emulation */
 -
 -	if (!td->valid) {
@@ -237,15 +221,14 @@ ev *input)
 -}
 -
 -
--static int quanta_event(struct hid_device *hid, struct hid_field *fiel=
+-static int mosart_event(struct hid_device *hid, struct hid_field *fiel=
 d,
 -				struct hid_usage *usage, __s32 value)
 -{
--	struct quanta_data *td =3D hid_get_drvdata(hid);
+-	struct mosart_data *td =3D hid_get_drvdata(hid);
 -
 -	if (hid->claimed & HID_CLAIMED_INPUT) {
 -		struct input_dev *input =3D field->hidinput->input;
--
 -		switch (usage->hid) {
 -		case HID_DG_INRANGE:
 -			td->valid =3D !!value;
@@ -255,7 +238,7 @@ d,
 -			break;
 -		case HID_GD_Y:
 -			td->y =3D value;
--			quanta_filter_event(td, input);
+-			mosart_filter_event(td, input);
 -			break;
 -		case HID_DG_CONTACTID:
 -			td->id =3D value;
@@ -283,15 +266,16 @@ d,
 -	return 1;
 -}
 -
--static int quanta_probe(struct hid_device *hdev, const struct hid_devi=
+-static int mosart_probe(struct hid_device *hdev, const struct hid_devi=
 ce_id *id)
 -{
 -	int ret;
--	struct quanta_data *td;
+-	struct mosart_data *td;
 -
--	td =3D kmalloc(sizeof(struct quanta_data), GFP_KERNEL);
+-
+-	td =3D kmalloc(sizeof(struct mosart_data), GFP_KERNEL);
 -	if (!td) {
--		dev_err(&hdev->dev, "cannot allocate Quanta Touch data\n");
+-		dev_err(&hdev->dev, "cannot allocate MosArt data\n");
 -		return -ENOMEM;
 -	}
 -	td->valid =3D false;
@@ -300,61 +284,123 @@ ce_id *id)
 -	td->first =3D false;
 -	hid_set_drvdata(hdev, td);
 -
+-	/* currently, it's better to have one evdev device only */
+-#if 0
+-	hdev->quirks |=3D HID_QUIRK_MULTI_INPUT;
+-#endif
+-
 -	ret =3D hid_parse(hdev);
--	if (!ret)
+-	if (ret =3D=3D 0)
 -		ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
 -
--	if (ret)
+-	if (ret =3D=3D 0) {
+-		struct hid_report_enum *re =3D hdev->report_enum
+-						+ HID_FEATURE_REPORT;
+-		struct hid_report *r =3D re->report_id_hash[7];
+-
+-		r->field[0]->value[0] =3D 0x02;
+-		usbhid_submit_report(hdev, r, USB_DIR_OUT);
+-	} else=20
 -		kfree(td);
 -
 -	return ret;
 -}
 -
--static void quanta_remove(struct hid_device *hdev)
+-static void mosart_remove(struct hid_device *hdev)
 -{
 -	hid_hw_stop(hdev);
 -	kfree(hid_get_drvdata(hdev));
 -	hid_set_drvdata(hdev, NULL);
 -}
 -
--static const struct hid_device_id quanta_devices[] =3D {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
--			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
--			USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+-static const struct hid_device_id mosart_devices[] =3D {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUSTEK_MULTITOUCH=
+_YFO) },
 -	{ }
 -};
--MODULE_DEVICE_TABLE(hid, quanta_devices);
+-MODULE_DEVICE_TABLE(hid, mosart_devices);
 -
--static const struct hid_usage_id quanta_grabbed_usages[] =3D {
+-static const struct hid_usage_id mosart_grabbed_usages[] =3D {
 -	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
 -	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
 -};
 -
--static struct hid_driver quanta_driver =3D {
--	.name =3D "quanta-touch",
--	.id_table =3D quanta_devices,
--	.probe =3D quanta_probe,
--	.remove =3D quanta_remove,
--	.input_mapping =3D quanta_input_mapping,
--	.input_mapped =3D quanta_input_mapped,
--	.usage_table =3D quanta_grabbed_usages,
--	.event =3D quanta_event,
+-static struct hid_driver mosart_driver =3D {
+-	.name =3D "mosart",
+-	.id_table =3D mosart_devices,
+-	.probe =3D mosart_probe,
+-	.remove =3D mosart_remove,
+-	.input_mapping =3D mosart_input_mapping,
+-	.input_mapped =3D mosart_input_mapped,
+-	.usage_table =3D mosart_grabbed_usages,
+-	.event =3D mosart_event,
 -};
 -
--static int __init quanta_init(void)
+-static int __init mosart_init(void)
 -{
--	return hid_register_driver(&quanta_driver);
+-	return hid_register_driver(&mosart_driver);
 -}
 -
--static void __exit quanta_exit(void)
+-static void __exit mosart_exit(void)
 -{
--	hid_unregister_driver(&quanta_driver);
+-	hid_unregister_driver(&mosart_driver);
 -}
 -
--module_init(quanta_init);
--module_exit(quanta_exit);
+-module_init(mosart_init);
+-module_exit(mosart_exit);
 -
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.=
+c
+index f9d537e..d3574ab 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -66,6 +66,7 @@ struct mt_class {
+ #define MT_CLS_DUAL1 1
+ #define MT_CLS_DUAL2 2
+ #define MT_CLS_CYPRESS 3
++#define MT_CLS_MOSART 4
+=20
+ /*
+  * these device-dependent functions determine what slot corresponds
+@@ -90,6 +91,11 @@ static int cypress_compute_slot(struct mt_device *td=
+)
+ 		return -1;
+ }
+=20
++static int slot_is_contactid_minus_one(struct mt_device *td)
++{
++	return td->curdata.contactid - 1;
++}
++
+ static int find_slot_from_contactid(struct mt_device *td)
+ {
+ 	int i;
+@@ -110,6 +116,7 @@ struct mt_class mt_classes[] =3D {
+ 	{ slot_is_contactid, 2 },             /* MT_CLS_DUAL1 */
+ 	{ slot_is_contactnumber, 2 },         /* MT_CLS_DUAL2 */
+ 	{ cypress_compute_slot, 10 },         /* MT_CLS_CYPRESS */
++	{ slot_is_contactid_minus_one, 2 },   /* MT_CLS_MOSART */
+ };
+=20
+ static void mt_feature_mapping(struct hid_device *hdev, struct hid_inp=
+ut *hi,
+@@ -429,6 +436,14 @@ static const struct hid_device_id mt_devices[] =3D=
+ {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
+ 			USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
+=20
++	/* MosArt panels */
++	{ .driver_data =3D MT_CLS_MOSART,
++		HID_USB_DEVICE(USB_VENDOR_ID_ASUS,
++			USB_DEVICE_ID_ASUS_T91MT)},
++	{ .driver_data =3D MT_CLS_MOSART,
++		HID_USB_DEVICE(USB_VENDOR_ID_ASUS,
++			USB_DEVICE_ID_ASUSTEK_MULTITOUCH_YFO) },
++
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mt_devices);
 --=20
 1.7.3.4
 

@@ -1,857 +1,1089 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [PATCH 1/1] input: tegra-kbc - Add tegra keyboard driver
-Date: Wed, 05 Jan 2011 14:06:45 +0530
-Message-ID: <4D242D9D.5060305@codeaurora.org>
-References: <1294189382-13657-1-git-send-email-riyer@nvidia.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
+Date: Wed, 5 Jan 2011 09:59:42 +0100
+Message-ID: <20110105085942.GA23321@polaris.bitmath.org>
+References: <kev@cypress.com>
+ <1294188847-24728-1-git-send-email-kev@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:52833 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751064Ab1AEIgx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jan 2011 03:36:53 -0500
-In-Reply-To: <1294189382-13657-1-git-send-email-riyer@nvidia.com>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:58254 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751064Ab1AEJAd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 5 Jan 2011 04:00:33 -0500
+Content-Disposition: inline
+In-Reply-To: <1294188847-24728-1-git-send-email-kev@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: riyer@nvidia.com
-Cc: ccross@android.com, konkers@android.com, olof@lixom.net, achew@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Kevin McNeely <kev@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-
-Hi Rakesh,
-
-On 1/5/2011 6:33 AM, riyer@nvidia.com wrote:
-> From: Rakesh Iyer <riyer@nvidia.com>
+> Cypress TTSP Gen3 Core Driver.
+> Core Driver includes platform data definition file,
+> core driver definition file, and core touchscreen
+> touch handling of device data. Generates
+> multi-touch input events.
 > 
-> This patch adds support for the internal matrix keyboard controller for
-> Nvidia Tegra platforms.
-> 
-> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-
-Thanks for the patch. Few comments.
-
+> Signed-off-by: Kevin McNeely <kev@cypress.com>
 > ---
->  arch/arm/mach-tegra/include/mach/kbc.h |   61 +++
->  drivers/input/keyboard/Kconfig         |    9 +
->  drivers/input/keyboard/Makefile        |    1 +
->  drivers/input/keyboard/tegra-kbc.c     |  691 ++++++++++++++++++++++++++++++++
->  4 files changed, 762 insertions(+), 0 deletions(-)
->  create mode 100644 arch/arm/mach-tegra/include/mach/kbc.h
->  create mode 100755 drivers/input/keyboard/tegra-kbc.c
 
-Wrong mode of file.
+Hi Kevin,
 
-> 
-> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
-> new file mode 100644
-> index 0000000..d1ef7fc
-> --- /dev/null
-> +++ b/arch/arm/mach-tegra/include/mach/kbc.h
-> @@ -0,0 +1,61 @@
-> +/*
-> + * arch/arm/mach-tegra/include/mach/kbc.h
-
-no paths please
-
-> + *
-> + * Platform definitions for tegra-kbc keyboard input driver
-> + *
-> + * Copyright (c) 2010, NVIDIA Corporation.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful, but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-> + * more details.
-> + *
-> + * You should have received a copy of the GNU General Public License along
-> + * with this program; if not, write to the Free Software Foundation, Inc.,
-> + * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-> + */
-> +
-> +#ifndef ASMARM_ARCH_TEGRA_KBC_H
-> +#define ASMARM_ARCH_TEGRA_KBC_H
-> +
-> +#include <linux/types.h>
-> +
-> +#ifdef CONFIG_ARCH_TEGRA_2x_SOC
-> +#define KBC_MAX_GPIO 24
-> +#define KBC_MAX_KPENT 8
-> +#else
-> +#define KBC_MAX_GPIO 20
-> +#define KBC_MAX_KPENT 7
-> +#endif
-> +
-> +#define KBC_MAX_ROW 16
-> +#define KBC_MAX_COL 8
-> +
-> +#define KBC_MAX_KEY (KBC_MAX_ROW*KBC_MAX_COL)
-> +
-> +struct tegra_kbc_pin_cfg {
-> +	bool is_row;
-> +	bool is_col;
-> +	unsigned char num;
-> +};
-> +
-> +struct tegra_kbc_wake_key {
-> +	u8 row:4;
-> +	u8 col:4;
-> +};
-> +
-> +struct tegra_kbc_platform_data {
-> +	unsigned int debounce_cnt;
-> +	unsigned int repeat_cnt;
-> +	int wake_cnt; /* 0:wake on any key >1:wake on wake_cfg */
-> +	int *plain_keycode;
-> +	int *fn_keycode;
-> +	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
-> +	struct tegra_kbc_wake_key *wake_cfg;
-> +};
-> +#endif
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 9cc488d..d582159 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -327,6 +327,15 @@ config KEYBOARD_NEWTON
+> @@ -124,6 +124,11 @@ config TOUCHSCREEN_CY8CTMG110
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called newtonkbd.
+>  	  module will be called cy8ctmg110_ts.
 >  
-> +config KEYBOARD_TEGRA
-> +	boolean "NVIDIA Tegra internal matrix keyboard controller support"
-
-This needs to be tristate. 
-
-> +	depends on ARCH_TEGRA
+> +config TOUCHSCREEN_CYTTSP_CORE
+> +	tristate "Cypress TTSP touchscreen core"
 > +	help
-> +	  Say Y here if you want to use a matrix keyboard connected directly
-> +	  to the internal keyboard controller on Tegra SoCs
-> +
-> +	  If unsure, say Y.
+> +	  Always activated for Cypress TTSP touchscreen
 > +
 
-once you are adding tristate above, you need to put text like when this selected
-as module etc; please refer other Kconfig options text.
+This one needs a bit of elaboration, see patch at the end.
 
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> new file mode 100755
-> index 0000000..0924d60
-> --- /dev/null
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -0,0 +1,691 @@
-> +/*
-> + * drivers/input/keyboard/tegra-kbc.c
-
-no paths please
-
-> +
-> +#include <linux/module.h>
-> +#include <linux/input.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/kthread.h>
-
-are you using anything related to thread? please audit this list of header 
-files includes and remove the one which are not used.
-
-> +#include <linux/delay.h>
-> +#include <linux/io.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/clk.h>
-> +#include <linux/slab.h>
-> +#include <mach/clk.h>
-> +#include <mach/kbc.h>
-> +
-> +#define KBC_CONTROL_0	0
-> +#define KBC_INT_0	4
-> +#define KBC_ROW_CFG0_0	8
-> +#define KBC_COL_CFG0_0	0x18
-> +#define KBC_INIT_DLY_0	0x28
-> +#define KBC_RPT_DLY_0	0x2c
-> +#define KBC_KP_ENT0_0	0x30
-> +#define KBC_KP_ENT1_0	0x34
-> +#define KBC_ROW0_MASK_0	0x38
-> +
-> +#define res_size(res)	((res)->end - (res)->start + 1)
-
-Use resource_size
-
-> +
-> +struct tegra_kbc {
-> +	void __iomem *mmio;
-> +	struct input_dev *idev;
-> +	int irq;
-> +	unsigned int wake_enable_rows;
-> +	unsigned int wake_enable_cols;
-> +	spinlock_t lock;
-> +	unsigned int repoll_time;
-> +	unsigned long cp_dly;
-> +	int fifo[KBC_MAX_KPENT];
-> +	struct tegra_kbc_platform_data *pdata;
-
-const
-
-> +	int *plain_keycode;
-> +	int *fn_keycode;
-> +	struct hrtimer timer;
-> +	struct clk *clk;
+> +static const u8 bl_command[] = {
+> +	0x00,			/* file offset */
+> +	0xFF,			/* command */
+> +	0xA5,			/* exit bootloader command */
+> +	0, 1, 2, 3, 4, 5, 6, 7	/* default keys */
 > +};
-> +
-> +static int plain_kbd_keycode[] = {
-> +	/*
-> +	 * Row 0 Unused, Unused, 'W', 'S', 'A', 'Z', Unused, Function,
-> +	 * Row 1 Unused, Unused, Unused, Unused, Unused, Unused, Unused, Menu
-> +	 * Row 2 Unused, Unused, Unused, Unused, Unused, Unused, Alt, Alt2
-> +	 * Row 3 '5', '4', 'R', 'E', 'F', 'D', 'X', Unused,
-> +	 * Row 4 '7', '6', 'T', 'H', 'G', 'V', 'C', SPACEBAR,
-> +	 * Row 5 '9', '8', 'U', 'Y', 'J', 'N', 'B', '|\',
-> +	 * Row 6 Minus, '0', 'O', 'I', 'L', 'K', '<', M,
-> +	 * Row 7 Unused, '+', '}]', '#', Unused, Unused, Unused, Menu,
-> +	 * Row 8 Unused, Unused, Unused, Unused, SHIFT, SHIFT, Unused, Unused,
-> +	 * Row 9 Unused, Unused, Unused, Unused, Unused, Ctrl, Unused, Ctrl,
-> +	 * Row A Unused, Unused, Unused, Unused, Unused, Unused, Unused, Unused,
-> +	 * Row B '{[', 'P', '"', ':;', '/?, '>', Unused, Unused,
-> +	 * Row C 'F10', 'F9', 'BckSpc', '3', '2', Up, Prntscr, Pause
-> +	 * Row D INS, DEL, Unused, Pgup, PgDn, right, Down, Left,
-> +	 * Row E F11, F12, F8, 'Q', F4, F3, '1', F7,
-> +	 * Row F ESC, '~', F5, TAB, F1, F2, CAPLOCK, F6,
-> +	 */
-> +	KEY_RESERVED, KEY_RESERVED, KEY_W, KEY_S,
-> +		KEY_A, KEY_Z, KEY_RESERVED, KEY_FN,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_MENU,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RIGHTALT, KEY_LEFTALT,
-> +	KEY_5, KEY_4, KEY_R, KEY_E,
-> +		KEY_F, KEY_D, KEY_X, KEY_RESERVED,
-> +	KEY_7, KEY_6, KEY_T, KEY_H,
-> +		KEY_G, KEY_V, KEY_C, KEY_SPACE,
-> +	KEY_9, KEY_8, KEY_U, KEY_Y,
-> +		KEY_J, KEY_N, KEY_B, KEY_BACKSLASH,
-> +	KEY_MINUS, KEY_0, KEY_O, KEY_I,
-> +		KEY_L, KEY_K, KEY_COMMA, KEY_M,
-> +	KEY_RESERVED, KEY_EQUAL, KEY_RIGHTBRACE, KEY_ENTER,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_MENU,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RIGHTSHIFT, KEY_LEFTSHIFT, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RIGHTCTRL, KEY_RESERVED, KEY_LEFTCTRL,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_LEFTBRACE, KEY_P, KEY_APOSTROPHE, KEY_SEMICOLON,
-> +		KEY_SLASH, KEY_DOT, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_F10, KEY_F9, KEY_BACKSPACE, KEY_3,
-> +		KEY_2, KEY_UP, KEY_PRINT, KEY_PAUSE,
-> +	KEY_INSERT, KEY_DELETE, KEY_RESERVED, KEY_PAGEUP,
-> +		KEY_PAGEDOWN, KEY_RIGHT, KEY_DOWN, KEY_LEFT,
-> +	KEY_F11, KEY_F12, KEY_F8, KEY_Q,
-> +		KEY_F4, KEY_F3, KEY_1, KEY_F7,
-> +	KEY_ESC, KEY_GRAVE, KEY_F5, KEY_TAB,
-> +		KEY_F1, KEY_F2, KEY_CAPSLOCK, KEY_F6
-> +};
-> +
-> +static int fn_kbd_keycode[] = {
-> +	/*
-> +	 * Row 0 Unused, Unused, 'W', 'S', 'A', 'Z', Unused, Function,
-> +	 * Row 1 Special, Unused, Unused, Unused, Unused, Unused, Unused, Menu
-> +	 * Row 2 Unused, Unused, Unused, Unused, Unused, Unused, Alt, Alt2
-> +	 * Row 3 '5', '4', 'R', 'E', 'F', 'D', 'X', Unused,
-> +	 * Row 4 '7', '6', 'T', 'H', 'G', 'V', 'C', SPACEBAR,
-> +	 * Row 5 '9', '8', 'U', 'Y', 'J', 'N', 'B', '|\',
-> +	 * Row 6 Minus, '0', 'O', 'I', 'L', 'K', '<', M,
-> +	 * Row 7 Unused, '+', '}]', '#', Unused, Unused, Unused, Menu,
-> +	 * Row 8 Unused, Unused, Unused, Unused, SHIFT, SHIFT, Unused, Unused,
-> +	 * Row 9 Unused, Unused, Unused, Unused, Unused, Ctrl, Unused, Control,
-> +	 * Row A Unused, Unused, Unused, Unused, Unused, Unused, Unused, Unused,
-> +	 * Row B '{[', 'P', '"', ':;', '/?, '>', Unused, Unused,
-> +	 * Row C 'F10', 'F9', 'BckSpc', '3', '2', 'Up, Prntscr, Pause
-> +	 * Row D INS, DEL, Unused, Pgup, PgDn, right, Down, Left,
-> +	 * Row E F11, F12, F8, 'Q', F4, F3, '1', F7,
-> +	 * Row F ESC, '~', F5, TAB, F1, F2, CAPLOCK, F6,
-> +	 */
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_7, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_9, KEY_8, KEY_4, KEY_RESERVED,
-> +		KEY_1, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_SLASH, KEY_6, KEY_5,
-> +		KEY_3, KEY_2, KEY_RESERVED, KEY_0,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_KPASTERISK, KEY_RESERVED, KEY_KPMINUS,
-> +		KEY_KPPLUS, KEY_DOT, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_VOLUMEUP, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_HOME,
-> +		KEY_END, KEY_BRIGHTNESSUP, KEY_VOLUMEDOWN, KEY_BRIGHTNESSDOWN,
-> +	KEY_NUMLOCK, KEY_SCROLLLOCK, KEY_MUTE, KEY_RESERVED,
-> +		KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-> +		KEY_QUESTION, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED
-> +};
-> +
-> +static int tegra_kbc_keycode(struct tegra_kbc *kbc, int r, int c, bool fn_key)
+
+Nice.
+
+> +/* process current touches */
+> +#define CY_MAX_TCH	2
+> +static int cyttsp_xy_worker(struct cyttsp *ts)
 > +{
-> +	if (!fn_key)
-> +		return kbc->plain_keycode[(r * KBC_MAX_COL) + c];
-> +	else
-> +		return kbc->fn_keycode[(r * KBC_MAX_COL) + c];
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int tegra_kbc_open(struct input_dev *dev);
-> +static void tegra_kbc_close(struct input_dev *dev);
-> +static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter);
-> +
+> +	u8 num_cur_tch;
+> +	u16 x[CY_MAX_TCH];
+> +	u16 y[CY_MAX_TCH];
+> +	u8 z[CY_MAX_TCH];
+> +	bool t[CY_MAX_TCH];
+> +	int i;
 
-I don't understand why these are here, why can't we re-arrange them in such
-a way that above is not required.
+This became more complicated than the previous patch...
 
-> +static int tegra_kbc_suspend(struct platform_device *pdev, pm_message_t state)
-> +{
-> +	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(&pdev->dev)) {
-> +		tegra_kbc_setup_wakekeys(kbc, true);
-> +		enable_irq_wake(kbc->irq);
-> +		/* Forcefully clear the interrupt status */
-> +		writel(0x7, kbc->mmio + KBC_INT_0);
-> +		msleep(30);
-> +	} else {
-> +		tegra_kbc_close(kbc->idev);
+> +	/* send touches */
+> +	if (!num_cur_tch)
+> +		/* terminate previous active touch */
+> +		input_mt_sync(ts->input);
+> +	else {
+> +		/* get touch 1 */
+> +		/*
+> +		 * If there is only one current active touch,
+> +		 * it will be reported in the touch 1 regardless
+> +		 * if it was reported in the touch 2 previously
+> +		 */
 
-May be you want to use input_dev->mutex here before making this decision and avoid
-race between open and close with suspend/resume.
+This statement says that t[] is not needed - the idea was to simply
+set all values in x[], y[] and z[], and then loop over the num_cur_tch
+touches.
 
+> +		x[0] = (ts->xy_data.tch1_xhi << 8) + ts->xy_data.tch1_xlo;
+> +		y[0] = (ts->xy_data.tch1_yhi << 8) + ts->xy_data.tch1_ylo;
+> +		z[0] = ts->xy_data.tch1_z;
+> +		t[0] = true;
 > +
-> +static void tegra_kbc_report_keys(struct tegra_kbc *kbc, int *fifo)
-> +{
-> +	int curr_fifo[KBC_MAX_KPENT];
-> +	int rows_val[KBC_MAX_KPENT], cols_val[KBC_MAX_KPENT];
-> +	u32 kp_ent_val[(KBC_MAX_KPENT + 3) / 4];
-> +	u32 *kp_ents = kp_ent_val;
-> +	u32 kp_ent = 0;
-> +	unsigned long flags;
-> +	int i, j, valid = 0;
-> +	bool fn = false;
-> +
-> +	local_irq_save(flags);
-> +	for (i = 0; i < ARRAY_SIZE(kp_ent_val); i++)
-> +		kp_ent_val[i] = readl(kbc->mmio + KBC_KP_ENT0_0 + (i*4));
-> +	local_irq_restore(flags);
-
-could you please explain why this disabling required? why can't we use spinlock?
-
-> +
-> +	valid = 0;
-> +	for (i = 0; i < KBC_MAX_KPENT; i++) {
-> +		if (!(i&3))
-> +			kp_ent = *kp_ents++;
-> +
-> +		if (kp_ent & 0x80) {
-> +			cols_val[valid] = kp_ent & 0x7;
-> +			rows_val[valid++] = (kp_ent >> 3) & 0xf;
+> +		/* get touch 2 */
+> +		if (num_cur_tch == CY_MAX_TCH) {
+> +			x[1] = (ts->xy_data.tch2_xhi << 8) +
+> +				ts->xy_data.tch2_xlo;
+> +			y[1] = (ts->xy_data.tch2_yhi << 8) +
+> +				ts->xy_data.tch2_ylo;
+> +			z[1] = ts->xy_data.tch2_z;
+> +			t[1] = true;
 > +		}
-> +		kp_ent >>= 8;
-> +	}
 > +
-> +	for (i = 0; i < valid; i++) {
-> +		int k = tegra_kbc_keycode(kbc, rows_val[i], cols_val[i], false);
-> +		if (k == KEY_FN) {
-> +			fn = true;
-> +			break;
-> +		}
-> +	}
-> +
-> +	j = 0;
-> +	for (i = 0; i < valid; i++) {
-> +		int k = tegra_kbc_keycode(kbc, rows_val[i], cols_val[i], fn);
-> +		if (likely(k != -1))
-> +			curr_fifo[j++] = k;
-> +	}
-> +	valid = j;
-> +
-> +	for (i = 0; i < KBC_MAX_KPENT; i++) {
-> +		if (fifo[i] == -1)
-> +			continue;
-> +		for (j = 0; j < valid; j++) {
-> +			if (curr_fifo[j] == fifo[i]) {
-> +				curr_fifo[j] = -1;
-> +				break;
+> +		for (i = 0; i < CY_MAX_TCH; i++) {
+
+Using num_cur_tch here,
+
+> +			if (t[i]) {
+
+and removing t[i] here makes the comment above obvious.
+
+> +				input_report_abs(ts->input,
+> +					ABS_MT_POSITION_X, x[i]);
+> +				input_report_abs(ts->input,
+> +					ABS_MT_POSITION_Y, y[i]);
+> +				input_report_abs(ts->input,
+> +					ABS_MT_TOUCH_MAJOR, z[i]);
+> +				input_mt_sync(ts->input);
 > +			}
 > +		}
-> +		if (j == valid) {
-> +			input_report_key(kbc->idev, fifo[i], 0);
-> +			fifo[i] = -1;
-> +		}
 > +	}
-> +	for (j = 0; j < valid; j++) {
-> +		if (curr_fifo[j] == -1)
-> +			continue;
-> +		for (i = 0; i < KBC_MAX_KPENT; i++) {
-> +			if (fifo[i] == -1)
-> +				break;
-> +		}
-> +		if (i != KBC_MAX_KPENT) {
-> +			fifo[i] = curr_fifo[j];
-> +			input_report_key(kbc->idev, fifo[i], 1);
-> +		} else
-> +			WARN_ON(1);
-> +	}
-> +}
 > +
-> +static enum hrtimer_restart tegra_kbc_key_repeat_timer(struct hrtimer *handle)
-> +{
-> +	struct tegra_kbc *kbc;
-> +	unsigned long flags;
-> +	u32 val;
-> +	int i;
-> +
-> +	kbc = container_of(handle, struct tegra_kbc, timer);
-> +
-> +	val = (readl(kbc->mmio + KBC_INT_0) >> 4) & 0xf;
-> +	if (val) {
-> +		unsigned long dly;
-> +
-> +		tegra_kbc_report_keys(kbc, kbc->fifo);
-> +
-> +		dly = ((val == 1) ? kbc->repoll_time : 1) * 1000000;
-> +		hrtimer_start(&kbc->timer, ktime_set(0, dly), HRTIMER_MODE_REL);
-> +	} else {
-> +		/* release any pressed keys and exit the loop */
-> +		for (i = 0; i < ARRAY_SIZE(kbc->fifo); i++) {
-> +			if (kbc->fifo[i] == -1)
-> +				continue;
-> +			input_report_key(kbc->idev, kbc->fifo[i], 0);
-> +			kbc->fifo[i] = -1;
-> +		}
-> +
-> +		/* All keys are released so enable the keypress interrupt */
-> +		spin_lock_irqsave(&kbc->lock, flags);
-> +		val = readl(kbc->mmio + KBC_CONTROL_0);
-> +		val |= (1<<3);
-> +		writel(val, kbc->mmio + KBC_CONTROL_0);
-> +		spin_unlock_irqrestore(&kbc->lock, flags);
-> +	}
-> +	return HRTIMER_NORESTART;
-> +}
-> +
-> +static void tegra_kbc_close(struct input_dev *dev)
-> +{
-> +	struct tegra_kbc *kbc = input_get_drvdata(dev);
-> +	unsigned long flags;
-> +	u32 val;
-> +
-> +	spin_lock_irqsave(&kbc->lock, flags);
-> +	val = readl(kbc->mmio + KBC_CONTROL_0);
-> +	val &= ~1;
-> +	writel(val, kbc->mmio + KBC_CONTROL_0);
-> +	spin_unlock_irqrestore(&kbc->lock, flags);
-> +
-> +	clk_disable(kbc->clk);
-> +}
-> +
-> +static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter)
-> +{
-> +	int i;
-> +	unsigned int rst_val;
-> +
-> +	BUG_ON(kbc->pdata->wake_cnt > KBC_MAX_KEY);
-> +	rst_val = (filter && kbc->pdata->wake_cnt) ? ~0 : 0;
-> +
-> +	for (i = 0; i < KBC_MAX_ROW; i++)
-> +		writel(rst_val, kbc->mmio+KBC_ROW0_MASK_0+i*4);
-> +
-> +	if (filter) {
-> +		for (i = 0; i < kbc->pdata->wake_cnt; i++) {
-> +			u32 val, addr;
-> +			addr = kbc->pdata->wake_cfg[i].row*4 + KBC_ROW0_MASK_0;
-> +			val = readl(kbc->mmio + addr);
-> +			val &= ~(1<<kbc->pdata->wake_cfg[i].col);
-> +			writel(val, kbc->mmio + addr);
-> +		}
-> +	}
-> +}
-
-could you please explain this functionality in detail? Are you making only selectable
-keys to be able to wakeup system and not all?
-
-> +
-> +static void tegra_kbc_config_pins(struct tegra_kbc *kbc)
-> +{
-> +	const struct tegra_kbc_platform_data *pdata = kbc->pdata;
-> +	int i;
-> +
-> +	for (i = 0; i < KBC_MAX_GPIO; i++) {
-> +		u32 row_cfg, col_cfg;
-> +		u32 r_shift = 5 * (i%6);
-> +		u32 c_shift = 4 * (i%8);
-> +		u32 r_mask = 0x1f << r_shift;
-> +		u32 c_mask = 0xf << c_shift;
-> +		u32 r_offs = (i / 6) * 4 + KBC_ROW_CFG0_0;
-> +		u32 c_offs = (i / 8) * 4 + KBC_COL_CFG0_0;
-> +
-> +		row_cfg = readl(kbc->mmio + r_offs);
-> +		col_cfg = readl(kbc->mmio + c_offs);
-> +
-> +		row_cfg &= ~r_mask;
-> +		col_cfg &= ~c_mask;
-> +
-> +		if (pdata->pin_cfg[i].is_row)
-> +			row_cfg |= ((pdata->pin_cfg[i].num<<1) | 1) << r_shift;
-> +		else if (pdata->pin_cfg[i].is_col)
-> +			col_cfg |= ((pdata->pin_cfg[i].num<<1) | 1) << c_shift;
-> +
-> +		writel(row_cfg, kbc->mmio + r_offs);
-> +		writel(col_cfg, kbc->mmio + c_offs);
-> +	}
-> +}
-> +
-> +static int tegra_kbc_open(struct input_dev *dev)
-> +{
-> +	struct tegra_kbc *kbc = input_get_drvdata(dev);
-> +	unsigned long flags;
-> +	u32 val = 0;
-> +
-> +	clk_enable(kbc->clk);
-> +
-> +	/* Reset the KBC controller to clear all previous status.*/
-> +	tegra_periph_reset_assert(kbc->clk);
-> +	udelay(100);
-> +	tegra_periph_reset_deassert(kbc->clk);
-> +	udelay(100);
-> +
-> +	tegra_kbc_config_pins(kbc);
-> +	tegra_kbc_setup_wakekeys(kbc, false);
-> +
-> +	writel(kbc->pdata->repeat_cnt, kbc->mmio + KBC_RPT_DLY_0);
-> +
-> +	val = kbc->pdata->debounce_cnt << 4;
-> +	val |= 1<<14; /* fifo interrupt threshold = 1 entry */
-> +	val |= 1<<3;  /* interrupt on FIFO threshold reached */
-> +	val |= 1;     /* enable */
-> +	writel(val, kbc->mmio + KBC_CONTROL_0);
-> +
-> +	/* Compute the delay(ns) from interrupt mode to continuous polling mode
-> +	 * so the timer routine is scheduled appropriately. */
-> +	val = readl(kbc->mmio + KBC_INIT_DLY_0);
-> +	kbc->cp_dly = (val & 0xfffff) * 32 * 1000;
-> +
-> +	/* atomically clear out any remaining entries in the key FIFO
-> +	 * and enable keyboard interrupts */
-> +	spin_lock_irqsave(&kbc->lock, flags);
-> +	while (1) {
-> +		val = readl(kbc->mmio + KBC_INT_0);
-> +		val >>= 4;
-> +		if (val) {
-> +			val = readl(kbc->mmio + KBC_KP_ENT0_0);
-> +			val = readl(kbc->mmio + KBC_KP_ENT1_0);
-> +		} else {
-> +			break;
-> +		}
-> +	}
-> +	writel(0x7, kbc->mmio + KBC_INT_0);
-> +	spin_unlock_irqrestore(&kbc->lock, flags);
+> +	input_sync(ts->input);
 > +
 > +	return 0;
 > +}
-> +
-> +
-> +static int __devexit tegra_kbc_remove(struct platform_device *pdev)
-> +{
-> +	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
-> +	struct resource *res;
-> +
-> +	free_irq(kbc->irq, pdev);
-> +	hrtimer_cancel(&kbc->timer);
-> +	clk_disable(kbc->clk);
-> +	clk_put(kbc->clk);
-> +
-> +	input_unregister_device(kbc->idev);
-> +	input_free_device(kbc->idev);
 
-input_free_device is not required after input_unregister_device.
+All in all, it seems we have yet to arrive at the most comfortable
+solution, in particular if there is a plan to magically enable more
+contacts.  Looking again at the data from the device, perhaps one can
+simplify things a bit more.  How about the patch below, does that
+still work for you?
 
-> +	iounmap(kbc->mmio);
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	release_mem_region(res->start, res_size(res));
-> +
-> +	kfree(kbc);
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t tegra_kbc_isr(int irq, void *args)
-> +{
-> +	struct tegra_kbc *kbc = args;
-> +	u32 val, ctl;
-> +
-> +	/* until all keys are released, defer further processing to
-> +	 * the polling loop in tegra_kbc_key_repeat */
-> +	ctl = readl(kbc->mmio + KBC_CONTROL_0);
-> +	ctl &= ~(1<<3);
-> +	writel(ctl, kbc->mmio + KBC_CONTROL_0);
-> +
-> +	/* quickly bail out & reenable interrupts if the interrupt source
-> +	 * wasn't fifo count threshold */
-> +	val = readl(kbc->mmio + KBC_INT_0);
-> +	writel(val, kbc->mmio + KBC_INT_0);
-> +
-> +	if (!(val & (1<<2))) {
-> +		ctl |= 1<<3;
-> +		writel(ctl, kbc->mmio + KBC_CONTROL_0);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	/* Schedule timer to run when hardware is in continuous polling mode. */
-> +	hrtimer_start(&kbc->timer, ktime_set(0, kbc->cp_dly), HRTIMER_MODE_REL);
+Thanks,
+Henrik
+---
 
-why can't we use the setup_timer and friends? do you really need hrtimers?
+>From f254daabcbd891bbcc3ccc4b923cf0a848b5f913 Mon Sep 17 00:00:00 2001
+From: Kevin McNeely <kev@cypress.com>
+Date: Wed, 5 Jan 2011 09:34:42 +0100
+Subject: [PATCH] Input: Cypress TTSP G3 Core Driver
 
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int __devinit tegra_kbc_probe(struct platform_device *pdev)
-> +{
-> +	struct tegra_kbc *kbc;
-> +	struct tegra_kbc_platform_data *pdata = pdev->dev.platform_data;
+Core Driver includes platform data definition file,
+core driver definition file, and core touchscreen
+touch handling of device data. Generates
+multi-touch input events.
 
-const 
+[rydberg@euromail.se: minor cleanup]
+Signed-off-by: Kevin McNeely <kev@cypress.com>
+---
+ drivers/input/touchscreen/Kconfig       |    5 +
+ drivers/input/touchscreen/Makefile      |    1 +
+ drivers/input/touchscreen/cyttsp_core.c |  758 +++++++++++++++++++++++++++++++
+ drivers/input/touchscreen/cyttsp_core.h |   55 +++
+ include/linux/input/cyttsp.h            |   68 +++
+ 5 files changed, 887 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/cyttsp_core.c
+ create mode 100644 drivers/input/touchscreen/cyttsp_core.h
+ create mode 100644 include/linux/input/cyttsp.h
 
-> +	struct resource *res;
-> +	int irq;
-> +	int err;
-> +	int rows[KBC_MAX_ROW];
-> +	int cols[KBC_MAX_COL];
-> +	int i, j;
-> +	int nr = 0;
-> +
-> +	if (!pdata)
-> +		return -EINVAL;
-> +
-> +	kbc = kzalloc(sizeof(*kbc), GFP_KERNEL);
-> +	if (!kbc)
-> +		return -ENOMEM;
-> +
-> +	kbc->pdata = pdata;
-> +	kbc->irq = -EINVAL;
-> +
-> +	memset(rows, 0, sizeof(rows));
-> +	memset(cols, 0, sizeof(cols));
-> +
-> +	kbc->idev = input_allocate_device();
-> +	if (!kbc->idev) {
-> +		err = -ENOMEM;
-> +		goto fail;
-> +	}
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "failed to get I/O memory\n");
-> +		err = -ENXIO;
-> +		goto fail;
-> +	}
-> +	res = request_mem_region(res->start, res_size(res), pdev->name);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "failed to request I/O memory\n");
-> +		err = -EBUSY;
-> +		goto fail;
-> +	}
-> +	kbc->mmio = ioremap(res->start, res_size(res));
-> +	if (!kbc->mmio) {
-> +		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-> +		err = -ENXIO;
-> +		goto fail;
-> +	}
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq < 0) {
-> +		dev_err(&pdev->dev, "failed to get keypad IRQ\n");
-> +		err = -ENXIO;
-> +		goto fail;
-> +	}
-> +	kbc->clk = clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR_OR_NULL(kbc->clk)) {
-> +		dev_err(&pdev->dev, "failed to get keypad clock\n");
-> +		err = (kbc->clk) ? PTR_ERR(kbc->clk) : -ENODEV;
-> +		kbc->clk = NULL;
-> +		goto fail;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, kbc);
-> +
-> +	kbc->idev->name = pdev->name;
-> +	input_set_drvdata(kbc->idev, kbc);
-> +	kbc->idev->id.bustype = BUS_HOST;
-> +	kbc->idev->open = tegra_kbc_open;
-> +	kbc->idev->close = tegra_kbc_close;
-> +	kbc->idev->dev.parent = &pdev->dev;
-> +	spin_lock_init(&kbc->lock);
-> +
-> +	for (i = 0; i < KBC_MAX_GPIO; i++) {
-> +		if (pdata->pin_cfg[i].is_row && pdata->pin_cfg[i].is_col) {
-> +			dev_err(&pdev->dev, "invalid pin configuration data\n");
-> +			err = -EINVAL;
-> +			goto fail;
-> +		}
-> +
-> +		if (pdata->pin_cfg[i].is_row) {
-> +			if (pdata->pin_cfg[i].num >= KBC_MAX_ROW) {
-> +				dev_err(&pdev->dev, "invalid row number\n");
-> +				err = -EINVAL;
-> +				goto fail;
-> +			}
-> +			rows[pdata->pin_cfg[i].num] = 1;
-> +			nr++;
-> +		} else if (pdata->pin_cfg[i].is_col) {
-> +			if (pdata->pin_cfg[i].num >= KBC_MAX_COL) {
-> +				dev_err(&pdev->dev, "invalid column number\n");
-> +				err = -EINVAL;
-> +				goto fail;
-> +			}
-> +			cols[pdata->pin_cfg[i].num] = 1;
-> +		}
-> +	}
-> +	kbc->wake_enable_rows = 0;
-> +	kbc->wake_enable_cols = 0;
-> +
-> +	for (i = 0; i < pdata->wake_cnt; i++) {
-> +		kbc->wake_enable_rows |= (1 << kbc->pdata->wake_cfg[i].row);
-> +		kbc->wake_enable_cols |= (1 << kbc->pdata->wake_cfg[i].col);
-> +	}
-> +
-> +	pdata->debounce_cnt = min_t(unsigned int, pdata->debounce_cnt, 0x3fful);
-> +	kbc->repoll_time = 5 + (16+pdata->debounce_cnt)*nr + pdata->repeat_cnt;
-> +	kbc->repoll_time = (kbc->repoll_time + 31) / 32;
-> +
-> +	kbc->idev->evbit[0] = BIT_MASK(EV_KEY);
-> +
-> +	/* Override the default keycodes with the board supplied ones. */
-> +	if (pdata->plain_keycode) {
-> +		kbc->plain_keycode = pdata->plain_keycode;
-> +		kbc->fn_keycode = pdata->fn_keycode;
-> +	} else {
-> +		kbc->plain_keycode = plain_kbd_keycode;
-> +		kbc->fn_keycode = fn_kbd_keycode;
-> +	}
-> +
-> +	for (i = 0; i < KBC_MAX_COL; i++) {
-> +		if (!cols[i])
-> +			continue;
-> +		for (j = 0; j < KBC_MAX_ROW; j++) {
-> +			int keycode;
-> +
-> +			if (!rows[j])
-> +				continue;
-> +
-> +			/* enable all the mapped keys. */
-> +			keycode = tegra_kbc_keycode(kbc, j, i, false);
-> +			if (keycode != -1)
-> +				set_bit(keycode, kbc->idev->keybit);
-> +
-> +			keycode = tegra_kbc_keycode(kbc, j, i, true);
-> +			if (keycode != -1)
-> +				set_bit(keycode, kbc->idev->keybit);
-> +		}
-> +	}
-> +
-> +	hrtimer_init(&kbc->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> +	kbc->timer.function = tegra_kbc_key_repeat_timer;
-> +	/* Initialize the FIFO to invalid entries */
-> +	for (i = 0; i < ARRAY_SIZE(kbc->fifo); i++)
-> +		kbc->fifo[i] = -1;
-> +
-> +	/* keycode FIFO needs to be read atomically; leave local
-> +	 * interrupts disabled when handling KBC interrupt */
-> +	err = request_irq(irq, tegra_kbc_isr, IRQF_TRIGGER_HIGH,
-> +		pdev->name, kbc);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "failed to request keypad IRQ\n");
-> +		goto fail;
-> +	}
-> +	kbc->irq = irq;
-> +
-> +	err = input_register_device(kbc->idev);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "failed to register input device\n");
-> +		goto fail;
-> +	}
-> +
-> +	device_init_wakeup(&pdev->dev, 1);
-
-why can't this be configured as pdata? We may not need this to be always wakeup.
-
-> +	return 0;
-> +
-> +fail:
-> +	if (kbc->irq >= 0)
-> +		free_irq(kbc->irq, pdev);
-> +	if (kbc->idev)
-> +		input_free_device(kbc->idev);
-> +	if (kbc->clk)
-> +		clk_put(kbc->clk);
-> +	if (kbc->mmio)
-> +		iounmap(kbc->mmio);
-> +	kfree(kbc);
-> +	return err;
-> +}
-> +
-> +static struct platform_driver tegra_kbc_driver = {
-> +	.probe		= tegra_kbc_probe,
-> +	.remove		= tegra_kbc_remove,
-
-__devexit_p
-
-> +#ifdef CONFIG_PM
-> +	.suspend	= tegra_kbc_suspend,
-> +	.resume		= tegra_kbc_resume,
-> +#endif
-> +	.driver	= {
-> +		.name	= "tegra-kbc"
-
-.owner
-
-> +	}
-> +};
-> +
-> +static void __exit tegra_kbc_exit(void)
-> +{
-> +	platform_driver_unregister(&tegra_kbc_driver);
-> +}
-> +
-> +static int __devinit tegra_kbc_init(void)
-
-__init should do
-
-> +{
-> +	return platform_driver_register(&tegra_kbc_driver);
-> +}
-> +
-> +module_exit(tegra_kbc_exit);
-> +module_init(tegra_kbc_init);
-
-I prefer to put init and exit with relevant functions.
-
-> +
-> +MODULE_DESCRIPTION("Tegra matrix keyboard controller driver");
-
-MODULE_LICENSE, MODULE_AUTHOR, MODULE_ALIAS please.
-
----Trilok Soni
-
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 06ea8da..c3240b8 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -124,6 +124,17 @@ config TOUCHSCREEN_CY8CTMG110
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called cy8ctmg110_ts.
+ 
++config TOUCHSCREEN_CYTTSP_CORE
++	tristate "Cypress TTSP touchscreen core"
++	help
++	  Say Y here if you have a Cypress TTSP touchscreen and want
++	  built-in support for it.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called cyttsp_core.
++
+ config TOUCHSCREEN_DA9034
+ 	tristate "Touchscreen support for Dialog Semiconductor DA9034"
+ 	depends on PMIC_DA903X
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 7cc1b4f..b6f1ba8 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -16,6 +16,7 @@ obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
+ obj-$(CONFIG_TOUCHSCREEN_BITSY)		+= h3600_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_BU21013)       += bu21013_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)	+= cy8ctmg110_ts.o
++obj-$(CONFIG_TOUCHSCREEN_CYTTSP_CORE)   += cyttsp_core.o
+ obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
+ obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
+diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+new file mode 100644
+index 0000000..6971533
+--- /dev/null
++++ b/drivers/input/touchscreen/cyttsp_core.c
+@@ -0,0 +1,757 @@
++/*
++ * Core Source for:
++ * Cypress TrueTouch(TM) Standard Product (TTSP) touchscreen drivers.
++ * For use with Cypress Txx3xx parts.
++ * Supported parts include:
++ * CY8CTST341
++ * CY8CTMA340
++ *
++ * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * Contact Cypress Semiconductor at www.cypress.com <kev@cypress.com>
++ *
++ */
++
++#include "cyttsp_core.h"
++
++#include <linux/delay.h>
++#include <linux/input.h>
++#include <linux/gpio.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++
++/* Bootloader number of command keys */
++#define CY_NUM_BL_KEYS    8
++
++/* helpers */
++#define GET_NUM_TOUCHES(x)          ((x) & 0x0F)
++#define IS_LARGE_AREA(x)            (((x) & 0x10) >> 4)
++#define IS_BAD_PKT(x)               ((x) & 0x20)
++#define IS_VALID_APP(x)             ((x) & 0x01)
++#define IS_OPERATIONAL_ERR(x)       ((x) & 0x3F)
++#define GET_HSTMODE(reg)            ((reg & 0x70) >> 4)
++#define GET_BOOTLOADERMODE(reg)     ((reg & 0x10) >> 4)
++
++#define CY_REG_BASE                 0x00
++#define CY_REG_ACT_DIST             0x1E
++#define CY_REG_ACT_INTRVL           0x1D
++#define CY_REG_TCH_TMOUT            (CY_REG_ACT_INTRVL+1)
++#define CY_REG_LP_INTRVL            (CY_REG_TCH_TMOUT+1)
++#define CY_MAXZ                     255
++#define CY_DELAY_DFLT               20 /* ms */
++#define CY_DELAY_MAX                (500/CY_DELAY_DFLT) /* half second */
++#define CY_ACT_DIST_DFLT            0xF8
++#define CY_HNDSHK_BIT               0x80
++/* device mode bits */
++#define CY_OPERATE_MODE             0x00
++#define CY_SYSINFO_MODE             0x10
++/* power mode select bits */
++#define CY_SOFT_RESET_MODE          0x01 /* return to Bootloader mode */
++#define CY_DEEP_SLEEP_MODE          0x02
++#define CY_LOW_POWER_MODE           0x04
++
++struct cyttsp_tch {
++	__be16 x, y;
++	u8 z, unused;
++} __attribute__((packed));
++
++/* TrueTouch Standard Product Gen3 interface definition */
++struct cyttsp_xydata {
++	u8 hst_mode;
++	u8 tt_mode;
++	u8 tt_stat;
++	struct cyttsp_tch tch[2];
++	u8 unused_grp[12];
++	u8 tt_undef[3];
++	u8 act_dist;
++	u8 tt_reserved;
++} __attribute__((packed));
++
++/* TTSP System Information interface definition */
++struct cyttsp_sysinfo_data {
++	u8 hst_mode;
++	u8 mfg_cmd;
++	u8 mfg_stat;
++	u8 cid[3];
++	u8 tt_undef1;
++	u8 uid[8];
++	u8 bl_verh;
++	u8 bl_verl;
++	u8 tts_verh;
++	u8 tts_verl;
++	u8 app_idh;
++	u8 app_idl;
++	u8 app_verh;
++	u8 app_verl;
++	u8 tt_undef[5];
++	u8 scn_typ;
++	u8 act_intrvl;
++	u8 tch_tmout;
++	u8 lp_intrvl;
++};
++
++/* TTSP Bootloader Register Map interface definition */
++#define CY_BL_CHKSUM_OK 0x01
++struct cyttsp_bootloader_data {
++	u8 bl_file;
++	u8 bl_status;
++	u8 bl_error;
++	u8 blver_hi;
++	u8 blver_lo;
++	u8 bld_blver_hi;
++	u8 bld_blver_lo;
++	u8 ttspver_hi;
++	u8 ttspver_lo;
++	u8 appid_hi;
++	u8 appid_lo;
++	u8 appver_hi;
++	u8 appver_lo;
++	u8 cid_0;
++	u8 cid_1;
++	u8 cid_2;
++};
++
++struct cyttsp {
++	struct device *dev;
++	int irq;
++	struct input_dev *input;
++	char phys[32];
++	const struct bus_type *bus_type;
++	const struct cyttsp_platform_data *platform_data;
++	struct cyttsp_bus_ops *bus_ops;
++	struct cyttsp_bootloader_data bl_data;
++	struct cyttsp_sysinfo_data sysinfo_data;
++	struct completion bl_ready;
++	enum cyttsp_powerstate power_state;
++};
++
++static const u8 bl_command[] = {
++	0x00,			/* file offset */
++	0xFF,			/* command */
++	0xA5,			/* exit bootloader command */
++	0, 1, 2, 3, 4, 5, 6, 7	/* default keys */
++};
++
++static int ttsp_read_block_data(struct cyttsp *ts, u8 command,
++	u8 length, void *buf)
++{
++	int retval;
++	int tries;
++
++	if (!buf || !length)
++		return -EINVAL;
++
++	for (tries = 0, retval = -1;
++		tries < CY_NUM_RETRY && (retval < 0);
++		tries++)
++		retval = ts->bus_ops->read(ts->bus_ops, command, length, buf);
++
++	return retval;
++}
++
++static int ttsp_write_block_data(struct cyttsp *ts, u8 command,
++	u8 length, void *buf)
++{
++	int retval;
++	if (!buf || !length)
++		return -EINVAL;
++
++	retval = ts->bus_ops->write(ts->bus_ops, command, length, buf);
++
++	return retval;
++}
++
++static int ttsp_tch_ext(struct cyttsp *ts, void *buf)
++{
++	int retval;
++
++	if (!buf)
++		return -EIO;
++
++	retval = ts->bus_ops->ext(ts->bus_ops, buf);
++
++	return retval;
++}
++
++static int cyttsp_load_bl_regs(struct cyttsp *ts)
++{
++	int retval;
++
++	memset(&(ts->bl_data), 0, sizeof(struct cyttsp_bootloader_data));
++
++	retval =  ttsp_read_block_data(ts, CY_REG_BASE,
++		sizeof(ts->bl_data), &(ts->bl_data));
++
++	return retval;
++}
++
++static int cyttsp_bl_app_valid(struct cyttsp *ts)
++{
++	int retval;
++
++	retval = cyttsp_load_bl_regs(ts);
++
++	if (retval < 0)
++		return -ENODEV;
++
++	if (GET_BOOTLOADERMODE(ts->bl_data.bl_status)) {
++		if (IS_VALID_APP(ts->bl_data.bl_status)) {
++			dev_dbg(ts->dev, "%s: App found; normal boot\n",
++				__func__);
++			return 0;
++		} else {
++			dev_dbg(ts->dev, "%s: NO APP; load firmware!!\n",
++				__func__);
++			return -ENODEV;
++		}
++	} else if (GET_HSTMODE(ts->bl_data.bl_file) == CY_OPERATE_MODE) {
++		if (!(IS_OPERATIONAL_ERR(ts->bl_data.bl_status))) {
++			dev_dbg(ts->dev, "%s: Operational\n",
++				__func__);
++			return 1;
++		} else {
++			dev_dbg(ts->dev, "%s: Operational failure\n",
++				__func__);
++			return -ENODEV;
++		}
++	} else {
++		dev_dbg(ts->dev, "%s: Non-Operational failure\n",
++			__func__);
++			return -ENODEV;
++	}
++
++}
++
++static int cyttsp_exit_bl_mode(struct cyttsp *ts)
++{
++	int retval;
++	int tries;
++	u8 bl_cmd[sizeof(bl_command)];
++
++	memcpy(bl_cmd, bl_command, sizeof(bl_command));
++	if (ts->platform_data->bl_keys)
++		memcpy(&bl_cmd[sizeof(bl_command) - CY_NUM_BL_KEYS],
++			ts->platform_data->bl_keys, sizeof(bl_command));
++
++	dev_dbg(ts->dev,
++		"%s: bl_cmd= "
++		"%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
++		__func__, bl_cmd[0], bl_cmd[1], bl_cmd[2],
++		bl_cmd[3], bl_cmd[4], bl_cmd[5], bl_cmd[6],
++		bl_cmd[7], bl_cmd[8], bl_cmd[9], bl_cmd[10]);
++
++	retval = ttsp_write_block_data(ts, CY_REG_BASE,
++		sizeof(bl_cmd), (void *)bl_cmd);
++	if (retval < 0)
++		return retval;
++
++	/* wait for TTSP Device to complete switch to Operational mode */
++	tries = 0;
++	do {
++		msleep(CY_DELAY_DFLT);
++		retval = cyttsp_load_bl_regs(ts);
++	} while (!((retval == 0) &&
++		!GET_BOOTLOADERMODE(ts->bl_data.bl_status)) &&
++		(tries++ < CY_DELAY_MAX));
++
++	dev_dbg(ts->dev, "%s: check bl ready tries=%d ret=%d stat=%02X\n",
++		__func__, tries, retval, ts->bl_data.bl_status);
++
++	if (retval < 0)
++		return retval;
++	else if (GET_BOOTLOADERMODE(ts->bl_data.bl_status))
++		return -ENODEV;
++	else
++		return 0;
++}
++
++static int cyttsp_set_operational_mode(struct cyttsp *ts)
++{
++	struct cyttsp_xydata xy_data;
++	int retval;
++	int tries;
++	u8 cmd = CY_OPERATE_MODE;
++
++	retval = ttsp_write_block_data(ts, CY_REG_BASE, sizeof(cmd), &cmd);
++
++	if (retval < 0)
++		return retval;
++
++	/* wait for TTSP Device to complete switch to Operational mode */
++	tries = 0;
++	do {
++		msleep(CY_DELAY_DFLT);
++		retval = ttsp_read_block_data(ts, CY_REG_BASE,
++			sizeof(xy_data), &xy_data);
++	} while (!((retval == 0) &&
++		(xy_data.act_dist == CY_ACT_DIST_DFLT)) &&
++		(tries++ < CY_DELAY_MAX));
++
++	dev_dbg(ts->dev, "%s: check op ready tries=%d ret=%d dist=%02X\n",
++		__func__, tries, retval, xy_data.act_dist);
++
++	return retval;
++}
++
++static int cyttsp_set_sysinfo_mode(struct cyttsp *ts)
++{
++	int retval;
++	int tries;
++	u8 cmd = CY_SYSINFO_MODE;
++
++	memset(&(ts->sysinfo_data), 0, sizeof(struct cyttsp_sysinfo_data));
++
++	/* switch to sysinfo mode */
++	retval = ttsp_write_block_data(ts, CY_REG_BASE, sizeof(cmd), &cmd);
++	if (retval < 0)
++		return retval;
++
++	/* read sysinfo registers */
++	tries = 0;
++	do {
++		msleep(CY_DELAY_DFLT);
++		retval = ttsp_read_block_data(ts, CY_REG_BASE,
++			sizeof(ts->sysinfo_data), &(ts->sysinfo_data));
++	} while (!((retval == 0) &&
++		!((ts->sysinfo_data.tts_verh == 0) &&
++		(ts->sysinfo_data.tts_verl == 0))) &&
++		(tries++ < CY_DELAY_MAX));
++
++	dev_dbg(ts->dev, "%s: check sysinfo ready tries=%d ret=%d\n",
++		__func__, tries, retval);
++
++	dev_info(ts->dev, "%s: tv=%02X%02X ai=0x%02X%02X "
++		"av=0x%02X%02X ci=0x%02X%02X%02X\n", "cyttsp",
++		ts->sysinfo_data.tts_verh, ts->sysinfo_data.tts_verl,
++		ts->sysinfo_data.app_idh, ts->sysinfo_data.app_idl,
++		ts->sysinfo_data.app_verh, ts->sysinfo_data.app_verl,
++		ts->sysinfo_data.cid[0], ts->sysinfo_data.cid[1],
++		ts->sysinfo_data.cid[2]);
++
++	return retval;
++}
++
++static int cyttsp_set_sysinfo_regs(struct cyttsp *ts)
++{
++	int retval = 0;
++
++	if (ts->platform_data->act_intrvl != CY_ACT_INTRVL_DFLT ||
++		ts->platform_data->tch_tmout != CY_TCH_TMOUT_DFLT ||
++		ts->platform_data->lp_intrvl != CY_LP_INTRVL_DFLT) {
++
++		u8 intrvl_ray[3];
++
++		intrvl_ray[0] = ts->platform_data->act_intrvl;
++		intrvl_ray[1] = ts->platform_data->tch_tmout;
++		intrvl_ray[2] = ts->platform_data->lp_intrvl;
++
++		/* set intrvl registers */
++		retval = ttsp_write_block_data(ts,
++				CY_REG_ACT_INTRVL,
++				sizeof(intrvl_ray), intrvl_ray);
++
++		msleep(CY_DELAY_DFLT);
++	}
++
++	return retval;
++}
++
++static int cyttsp_soft_reset(struct cyttsp *ts)
++{
++	int retval;
++	u8 cmd = CY_SOFT_RESET_MODE;
++
++	retval = ttsp_write_block_data(ts, CY_REG_BASE, sizeof(cmd), &cmd);
++	if (retval < 0)
++		return retval;
++
++	/* wait for interrupt to set ready completion */
++	INIT_COMPLETION(ts->bl_ready);
++
++	retval = wait_for_completion_interruptible_timeout(&ts->bl_ready,
++		msecs_to_jiffies(CY_DELAY_DFLT * CY_DELAY_MAX));
++
++	if (retval > 0)
++		retval = 0;
++
++	return retval;
++}
++
++static int cyttsp_act_dist_setup(struct cyttsp *ts)
++{
++	int retval;
++	u8 act_dist_setup;
++
++	/* Init gesture; active distance setup */
++	act_dist_setup = ts->platform_data->act_dist;
++	retval = ttsp_write_block_data(ts, CY_REG_ACT_DIST,
++		sizeof(act_dist_setup), &act_dist_setup);
++
++	return retval;
++}
++
++static int cyttsp_hndshk(struct cyttsp *ts, u8 hst_mode)
++{
++	int retval;
++	u8 cmd;
++
++	cmd = hst_mode & CY_HNDSHK_BIT ?
++		hst_mode & ~CY_HNDSHK_BIT :
++		hst_mode | CY_HNDSHK_BIT;
++
++	retval = ttsp_write_block_data(ts, CY_REG_BASE,
++		sizeof(cmd), (u8 *)&cmd);
++
++	return retval;
++}
++
++static int cyttsp_xy_worker(struct cyttsp *ts)
++{
++	struct cyttsp_xydata xy_data;
++	u8 num_cur_tch;
++	int i;
++
++	/* Get touch data from CYTTSP device */
++	if (ttsp_read_block_data(ts, CY_REG_BASE, sizeof(xy_data), &xy_data))
++		return 0;
++
++	/* touch extension handling */
++	if (ttsp_tch_ext(ts, &xy_data))
++		return 0;
++
++	/* provide flow control handshake */
++	if (ts->platform_data->use_hndshk)
++		if (cyttsp_hndshk(ts, xy_data.hst_mode))
++			return 0;
++
++	/* determine number of currently active touches */
++	num_cur_tch = GET_NUM_TOUCHES(xy_data.tt_stat);
++
++	/* check for any error conditions */
++	if (ts->power_state == CY_IDLE_STATE)
++		return 0;
++	else if (GET_BOOTLOADERMODE(xy_data.tt_mode)) {
++		return -1;
++	} else if (IS_LARGE_AREA(xy_data.tt_stat) == 1) {
++		/* terminate all active tracks */
++		num_cur_tch = 0;
++		dev_dbg(ts->dev, "%s: Large area detected\n", __func__);
++	} else if (num_cur_tch > 2) {
++		/* terminate all active tracks */
++		num_cur_tch = 0;
++		dev_dbg(ts->dev, "%s: Num touch error detected\n", __func__);
++	} else if (IS_BAD_PKT(xy_data.tt_mode)) {
++		/* terminate all active tracks */
++		num_cur_tch = 0;
++		dev_dbg(ts->dev, "%s: Invalid buffer detected\n", __func__);
++	}
++
++	for (i = 0; i < num_cur_tch; i++) {
++		struct cyttsp_tch *tch = &xy_data.tch[i];
++		int x = be16_to_cpu(tch->x);
++		int y = be16_to_cpu(tch->y);
++		int z = tch->z;
++
++		input_report_abs(ts->input, ABS_MT_POSITION_X, x);
++		input_report_abs(ts->input, ABS_MT_POSITION_Y, y);
++		input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR, z);
++		input_mt_sync(ts->input);
++	}
++
++	if (!num_cur_tch)
++		input_mt_sync(ts->input);
++	input_sync(ts->input);
++
++	return 0;
++}
++
++static void cyttsp_pr_state(struct cyttsp *ts)
++{
++	static char *cyttsp_powerstate_string[] = {
++		"IDLE",
++		"ACTIVE",
++		"LOW_PWR",
++		"SLEEP",
++		"BOOTLOADER",
++		"INVALID"
++	};
++
++	dev_info(ts->dev, "%s: %s\n", __func__,
++		ts->power_state < CY_INVALID_STATE ?
++		cyttsp_powerstate_string[ts->power_state] :
++		"INVALID");
++}
++
++static irqreturn_t cyttsp_irq(int irq, void *handle)
++{
++	struct cyttsp *ts = handle;
++	int retval;
++
++	if (ts->power_state == CY_BL_STATE)
++		complete(&ts->bl_ready);
++	else {
++		/* process the touches */
++		retval = cyttsp_xy_worker(ts);
++
++		if (retval < 0) {
++			/*
++			 * TTSP device has reset back to bootloader mode.
++			 * Restore to operational mode.
++			 */
++			retval = cyttsp_exit_bl_mode(ts);
++			if (retval)
++				ts->power_state = CY_IDLE_STATE;
++			else
++				ts->power_state = CY_ACTIVE_STATE;
++			cyttsp_pr_state(ts);
++		}
++	}
++	return IRQ_HANDLED;
++}
++
++static int cyttsp_power_on(struct cyttsp *ts)
++{
++	int retval = 0;
++
++	if (!ts)
++		return -ENOMEM;
++
++	ts->power_state = CY_BL_STATE;
++
++	/* enable interrupts */
++	retval = request_threaded_irq(ts->irq, NULL, cyttsp_irq,
++		IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++		ts->platform_data->name, ts);
++	if (retval < 0)
++		goto bypass;
++
++	retval = cyttsp_soft_reset(ts);
++	if (retval < 0)
++		goto bypass;
++
++	retval = cyttsp_bl_app_valid(ts);
++	if (retval < 0)
++		goto bypass;
++	else if (retval > 0)
++		goto no_bl_bypass;
++
++	retval = cyttsp_exit_bl_mode(ts);
++
++	if (retval < 0)
++		goto bypass;
++
++	ts->power_state = CY_IDLE_STATE;
++
++no_bl_bypass:
++	retval = cyttsp_set_sysinfo_mode(ts);
++	if (retval < 0)
++		goto bypass;
++
++	retval = cyttsp_set_sysinfo_regs(ts);
++	if (retval < 0)
++		goto bypass;
++
++	retval = cyttsp_set_operational_mode(ts);
++	if (retval < 0)
++		goto bypass;
++
++	/* init active distance */
++	retval = cyttsp_act_dist_setup(ts);
++	if (retval < 0)
++		goto bypass;
++
++	ts->power_state = CY_ACTIVE_STATE;
++	retval = 0;
++
++bypass:
++	cyttsp_pr_state(ts);
++	return retval;
++}
++
++#ifdef CONFIG_PM
++int cyttsp_resume(void *handle)
++{
++	struct cyttsp *ts = handle;
++	int retval = 0;
++	struct cyttsp_xydata xydata;
++
++	if (ts->platform_data->use_sleep && (ts->power_state !=
++		CY_ACTIVE_STATE)) {
++		if (ts->platform_data->wakeup) {
++			retval = ts->platform_data->wakeup();
++			if (retval < 0)
++				dev_dbg(ts->dev, "%s: Error, wakeup failed!\n",
++					__func__);
++		} else {
++			dev_dbg(ts->dev, "%s: Error, wakeup not implemented "
++				"(check board file).\n", __func__);
++			retval = -ENOSYS;
++		}
++		if (!(retval < 0)) {
++			retval = ttsp_read_block_data(ts, CY_REG_BASE,
++				sizeof(xydata), &xydata);
++			if (!(retval < 0) && !GET_HSTMODE(xydata.hst_mode))
++				ts->power_state = CY_ACTIVE_STATE;
++		}
++	}
++	dev_dbg(ts->dev, "%s: Wake Up %s\n", __func__,
++		(retval < 0) ? "FAIL" : "PASS");
++	return retval;
++}
++EXPORT_SYMBOL_GPL(cyttsp_resume);
++
++int cyttsp_suspend(void *handle)
++{
++	struct cyttsp *ts = handle;
++	u8 sleep_mode = 0;
++	int retval = 0;
++
++	if (ts->platform_data->use_sleep &&
++		(ts->power_state == CY_ACTIVE_STATE)) {
++		sleep_mode = CY_DEEP_SLEEP_MODE;
++		retval = ttsp_write_block_data(ts,
++			CY_REG_BASE, sizeof(sleep_mode), &sleep_mode);
++		if (!(retval < 0))
++			ts->power_state = CY_SLEEP_STATE;
++	}
++	dev_dbg(ts->dev, "%s: Sleep Power state is %s\n", __func__,
++		(ts->power_state == CY_ACTIVE_STATE) ?
++		"ACTIVE" :
++		((ts->power_state == CY_SLEEP_STATE) ?
++		"SLEEP" : "LOW POWER"));
++	return retval;
++}
++EXPORT_SYMBOL_GPL(cyttsp_suspend);
++#endif
++
++static int cyttsp_open(struct input_dev *dev)
++{
++	struct cyttsp *ts = input_get_drvdata(dev);
++
++	return cyttsp_power_on(ts);
++}
++
++void cyttsp_core_release(void *handle)
++{
++	struct cyttsp *ts = handle;
++
++	if (ts) {
++		free_irq(ts->irq, ts);
++		input_unregister_device(ts->input);
++		if (ts->platform_data->exit)
++			ts->platform_data->exit();
++		kfree(ts);
++	}
++}
++EXPORT_SYMBOL_GPL(cyttsp_core_release);
++
++static void cyttsp_close(struct input_dev *dev)
++{
++	struct cyttsp *ts = input_get_drvdata(dev);
++
++	free_irq(ts->irq, ts);
++}
++
++void *cyttsp_core_init(struct cyttsp_bus_ops *bus_ops, struct device *dev)
++{
++	struct input_dev *input_device;
++
++	struct cyttsp *ts = kzalloc(sizeof(*ts), GFP_KERNEL);
++
++	if (!ts) {
++		pr_err("%s: Error, kzalloc\n", __func__);
++		goto error_alloc_data;
++	}
++
++	if (dev == NULL || bus_ops == NULL) {
++		kfree(ts);
++		goto error_alloc_data;
++	}
++
++	ts->dev = dev;
++	ts->platform_data = dev->platform_data;
++	ts->bus_ops = bus_ops;
++	init_completion(&ts->bl_ready);
++
++	if (ts->platform_data->init) {
++		if (ts->platform_data->init()) {
++			dev_dbg(ts->dev, "%s: Error, platform init failed!\n",
++				__func__);
++			goto error_init;
++		}
++	}
++
++	ts->irq = gpio_to_irq(ts->platform_data->irq_gpio);
++	if (ts->irq <= 0) {
++		dev_dbg(ts->dev, "%s: Error, failed to allocate irq\n",
++			__func__);
++			goto error_init;
++	}
++
++	/* Create the input device and register it. */
++	input_device = input_allocate_device();
++	if (!input_device) {
++		dev_dbg(ts->dev, "%s: Error, failed to allocate input device\n",
++			__func__);
++		goto error_input_allocate_device;
++	}
++
++	ts->input = input_device;
++	input_device->name = ts->platform_data->name;
++	snprintf(ts->phys, sizeof(ts->phys), "%s", dev_name(dev));
++	input_device->phys = ts->phys;
++	input_device->dev.parent = ts->dev;
++	ts->bus_type = bus_ops->dev->bus;
++	input_device->open = cyttsp_open;
++	input_device->close = cyttsp_close;
++	input_set_drvdata(input_device, ts);
++
++	__set_bit(EV_SYN, input_device->evbit);
++	__set_bit(EV_KEY, input_device->evbit);
++	__set_bit(EV_ABS, input_device->evbit);
++
++	input_set_abs_params(input_device, ABS_MT_POSITION_X,
++		0, ts->platform_data->maxx, 0, 0);
++	input_set_abs_params(input_device, ABS_MT_POSITION_Y,
++		0, ts->platform_data->maxy, 0, 0);
++	input_set_abs_params(input_device, ABS_MT_TOUCH_MAJOR,
++		0, CY_MAXZ, 0, 0);
++
++	if (input_register_device(input_device)) {
++		dev_dbg(ts->dev, "%s: Error, failed to register input device\n",
++			__func__);
++		goto error_input_register_device;
++	}
++
++	goto no_error;
++
++error_input_register_device:
++	input_unregister_device(input_device);
++error_input_allocate_device:
++	if (ts->platform_data->exit)
++		ts->platform_data->exit();
++error_init:
++	kfree(ts);
++error_alloc_data:
++no_error:
++	return ts;
++}
++EXPORT_SYMBOL_GPL(cyttsp_core_init);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Cypress TrueTouch(R) Standard touchscreen driver core");
++MODULE_AUTHOR("Cypress");
+diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
+new file mode 100644
+index 0000000..78001b5
+--- /dev/null
++++ b/drivers/input/touchscreen/cyttsp_core.h
+@@ -0,0 +1,55 @@
++/*
++ * Header file for:
++ * Cypress TrueTouch(TM) Standard Product (TTSP) touchscreen drivers.
++ * For use with Cypress Txx3xx parts.
++ * Supported parts include:
++ * CY8CTST341
++ * CY8CTMA340
++ *
++ * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * Contact Cypress Semiconductor at www.cypress.com <kev@cypress.com>
++ *
++ */
++
++
++#ifndef __CYTTSP_CORE_H__
++#define __CYTTSP_CORE_H__
++
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <linux/input/cyttsp.h>
++
++#define CY_NUM_RETRY                4 /* max number of retries for read ops */
++
++
++struct cyttsp_bus_ops {
++	s32 (*write)(void *handle, u8 addr, u8 length, const void *values);
++	s32 (*read)(void *handle, u8 addr, u8 length, void *values);
++	s32 (*ext)(void *handle, void *values);
++	struct device *dev;
++};
++
++void *cyttsp_core_init(struct cyttsp_bus_ops *bus_ops, struct device *dev);
++
++void cyttsp_core_release(void *handle);
++#ifdef CONFIG_PM
++int cyttsp_resume(void *handle);
++int cyttsp_suspend(void *handle);
++#endif
++
++#endif /* __CYTTSP_CORE_H__ */
+diff --git a/include/linux/input/cyttsp.h b/include/linux/input/cyttsp.h
+new file mode 100644
+index 0000000..3907bfc
+--- /dev/null
++++ b/include/linux/input/cyttsp.h
+@@ -0,0 +1,68 @@
++/*
++ * Header file for:
++ * Cypress TrueTouch(TM) Standard Product (TTSP) touchscreen drivers.
++ * For use with Cypress Txx3xx parts.
++ * Supported parts include:
++ * CY8CTST341
++ * CY8CTMA340
++ *
++ * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2, and only version 2, as published by the
++ * Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * Contact Cypress Semiconductor at www.cypress.com (kev@cypress.com)
++ *
++ */
++#ifndef _CYTTSP_H_
++#define _CYTTSP_H_
++
++#define CY_SPI_NAME "cyttsp-spi"
++#define CY_I2C_NAME "cyttsp-i2c"
++/* Active Power state scanning/processing refresh interval */
++#define CY_ACT_INTRVL_DFLT 0x00 /* ms */
++/* touch timeout for the Active power */
++#define CY_TCH_TMOUT_DFLT 0xFF /* ms */
++/* Low Power state scanning/processing refresh interval */
++#define CY_LP_INTRVL_DFLT 0x0A /* ms */
++/* Active distance in pixels for a gesture to be reported */
++#define CY_ACT_DIST_DFLT 0xF8 /* pixels */
++
++enum cyttsp_powerstate {
++	CY_IDLE_STATE,
++	CY_ACTIVE_STATE,
++	CY_LOW_PWR_STATE,
++	CY_SLEEP_STATE,
++	CY_BL_STATE,
++	CY_INVALID_STATE	/* always last in the list */
++};
++
++struct cyttsp_platform_data {
++	u32 maxx;
++	u32 maxy;
++	bool use_hndshk;
++	bool use_sleep;
++	u8 act_dist;	/* Active distance */
++	u8 act_intrvl;  /* Active refresh interval; ms */
++	u8 tch_tmout;   /* Active touch timeout; ms */
++	u8 lp_intrvl;   /* Low power refresh interval; ms */
++	int (*wakeup)(void);
++	int (*init)(void);
++	void (*exit)(void);
++	char *name;
++	s16 irq_gpio;
++	u8 *bl_keys;
++};
++
++#endif /* _CYTTSP_H_ */
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+1.7.2.3
+

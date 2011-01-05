@@ -1,120 +1,43 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [RFC v2 06/10] hid-multitouch: added support for Cypress TrueTouch panels
-Date: Wed,  5 Jan 2011 18:27:44 +0100
-Message-ID: <1294248468-19979-7-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [RFC v2 02/10] hid: set HID_MAX_FIELD at 128
+Date: Wed,  5 Jan 2011 18:27:40 +0100
+Message-ID: <1294248468-19979-3-git-send-email-benjamin.tissoires@enac.fr>
 References: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:39279 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:39248 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751330Ab1AER1z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jan 2011 12:27:55 -0500
+	with ESMTP id S1751785Ab1AER1c (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jan 2011 12:27:32 -0500
 In-Reply-To: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.orglinux
 Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-Added support for Cypress TrueTouch panels, which detect up to 10 finge=
-rs
+Stantums multitouch panels sends more than 64 reports and this results
+in not being able to handle all the touches given by this device.
+
+This patch is required to be able to include Stantum panels in the
+unified hid-multitouch driver.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Signed-off-by: St=C3=A9phane Chatty <chatty@enac.fr>
 ---
- drivers/hid/hid-core.c       |    1 +
- drivers/hid/hid-ids.h        |    1 +
- drivers/hid/hid-multitouch.c |   15 +++++++++++++++
- 3 files changed, 17 insertions(+), 0 deletions(-)
+ include/linux/hid.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9f1ab80..1dcb4b0 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1299,6 +1299,7 @@ static const struct hid_device_id hid_blacklist[]=
- =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE=
-_2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE=
-_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) =
-},
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_TRUETOU=
-CH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTIT=
-OUCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTIT=
-OUCH1) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 70dd0fd..d8b0b3f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -181,6 +181,7 @@
- #define USB_DEVICE_ID_CYPRESS_BARCODE_1	0xde61
- #define USB_DEVICE_ID_CYPRESS_BARCODE_2	0xde64
- #define USB_DEVICE_ID_CYPRESS_BARCODE_3	0xbca1
-+#define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
-=20
- #define USB_VENDOR_ID_DEALEXTREAME	0x10c5
- #define USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701	0x819a
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.=
-c
-index 9edbf5d..f9d537e 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -65,6 +65,7 @@ struct mt_class {
- #define MT_CLS_DEFAULT 0
- #define MT_CLS_DUAL1 1
- #define MT_CLS_DUAL2 2
-+#define MT_CLS_CYPRESS 3
-=20
- /*
-  * these device-dependent functions determine what slot corresponds
-@@ -81,6 +82,14 @@ static int slot_is_contactnumber(struct mt_device *t=
-d)
- 	return td->num_received;
- }
-=20
-+static int cypress_compute_slot(struct mt_device *td)
-+{
-+	if (td->curdata.contactid !=3D 0 || td->num_received =3D=3D 0)
-+		return td->curdata.contactid;
-+	else
-+		return -1;
-+}
-+
- static int find_slot_from_contactid(struct mt_device *td)
- {
- 	int i;
-@@ -100,6 +109,7 @@ struct mt_class mt_classes[] =3D {
- 	{ find_slot_from_contactid, 10 },     /* MT_CLS_DEFAULT */
- 	{ slot_is_contactid, 2 },             /* MT_CLS_DUAL1 */
- 	{ slot_is_contactnumber, 2 },         /* MT_CLS_DUAL2 */
-+	{ cypress_compute_slot, 10 },         /* MT_CLS_CYPRESS */
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 75303b0..b76af97 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -402,7 +402,7 @@ struct hid_field {
+ 	__u16 dpad;			/* dpad input code */
  };
-=20
- static void mt_feature_mapping(struct hid_device *hdev, struct hid_inp=
-ut *hi,
-@@ -414,6 +424,11 @@ static const struct hid_device_id mt_devices[] =3D=
- {
- 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
- 			USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6) },
-=20
-+	/* Cypress panel */
-+	{ .driver_data =3D MT_CLS_CYPRESS,
-+		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
-+			USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
-+
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mt_devices);
---=20
+ 
+-#define HID_MAX_FIELDS 64
++#define HID_MAX_FIELDS 128
+ 
+ struct hid_report {
+ 	struct list_head list;
+-- 
 1.7.3.4
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

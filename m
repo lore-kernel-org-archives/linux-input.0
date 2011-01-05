@@ -1,82 +1,81 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] Input: cy8ctmg110_ts - Convert to dev_pm_ops
-Date: Wed,  5 Jan 2011 19:04:09 +0000
-Message-ID: <1294254249-25932-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: eeti_ts - Convert to dev_pm_ops
+Date: Wed,  5 Jan 2011 19:06:01 +0000
+Message-ID: <1294254361-26066-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37283 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37293 "EHLO
 	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752163Ab1AETFq (ORCPT
+	by vger.kernel.org with ESMTP id S1751989Ab1AETHi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Jan 2011 14:05:46 -0500
+	Wed, 5 Jan 2011 14:07:38 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuli Konttila <samuli.konttila@aavamobile.com>, Alan Cox <alan@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Daniel Mack <daniel@caiaq.de>, Sven Neumann <s.neumann@raumfeld.com>, Dmitry Torokhov <dtor@mail.ru>
 Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
 There is a general move towards the use of dev_pm_ops rather than
 bus specific suspend APIs as this simplifies both the bus and PM core
-implementations. Convert the cy8ctmg110_ts driver over.
+implementations. Convert the eeti_ts driver over.
 
 Compile tested only.
 
 Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 ---
- drivers/input/touchscreen/cy8ctmg110_ts.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/eeti_ts.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index d0c3a72..a93c5c2 100644
---- a/drivers/input/touchscreen/cy8ctmg110_ts.c
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -280,8 +280,9 @@ err_free_mem:
+diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+index 7a3a916..1f0ef91 100644
+--- a/drivers/input/touchscreen/eeti_ts.c
++++ b/drivers/input/touchscreen/eeti_ts.c
+@@ -261,8 +261,9 @@ static int __devexit eeti_ts_remove(struct i2c_client *client)
  }
  
  #ifdef CONFIG_PM
--static int cy8ctmg110_suspend(struct i2c_client *client, pm_message_t mesg)
-+static int cy8ctmg110_suspend(struct device *dev)
+-static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
++static int eeti_ts_suspend(struct device *dev)
  {
 +	struct i2c_client *client = to_i2c_client(dev);
- 	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
+ 	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+ 	struct input_dev *input_dev = priv->input;
  
- 	if (device_may_wakeup(&client->dev))
-@@ -293,8 +294,9 @@ static int cy8ctmg110_suspend(struct i2c_client *client, pm_message_t mesg)
+@@ -279,8 +280,9 @@ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
  	return 0;
  }
  
--static int cy8ctmg110_resume(struct i2c_client *client)
-+static int cy8ctmg110_resume(struct device *dev)
+-static int eeti_ts_resume(struct i2c_client *client)
++static int eeti_ts_resume(struct device *dev)
  {
 +	struct i2c_client *client = to_i2c_client(dev);
- 	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
+ 	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+ 	struct input_dev *input_dev = priv->input;
  
- 	if (device_may_wakeup(&client->dev))
-@@ -305,6 +307,8 @@ static int cy8ctmg110_resume(struct i2c_client *client)
- 	}
+@@ -296,9 +298,10 @@ static int eeti_ts_resume(struct i2c_client *client)
+ 
  	return 0;
  }
 +
-+static SIMPLE_DEV_PM_OPS(cy8ctmg110_pm, cy8ctmg110_suspend, cy8ctmg110_resume);
++static SIMPLE_DEV_PM_OPS(eeti_ts_pm, eeti_ts_suspend, eeti_ts_resume);
+ #else
+-#define eeti_ts_suspend NULL
+-#define eeti_ts_resume NULL
++#define eeti_ts_pm NULL
  #endif
  
- static int __devexit cy8ctmg110_remove(struct i2c_client *client)
-@@ -335,14 +339,13 @@ static struct i2c_driver cy8ctmg110_driver = {
- 	.driver		= {
- 		.owner	= THIS_MODULE,
- 		.name	= CY8CTMG110_DRIVER_NAME,
-+#ifdef CONFIG_PM
-+		.pm	= &cy8ctmg110_pm,
-+#endif
+ static const struct i2c_device_id eeti_ts_id[] = {
+@@ -310,11 +313,10 @@ MODULE_DEVICE_TABLE(i2c, eeti_ts_id);
+ static struct i2c_driver eeti_ts_driver = {
+ 	.driver = {
+ 		.name = "eeti_ts",
++		.pm = &eeti_ts_pm,
  	},
- 	.id_table	= cy8ctmg110_idtable,
- 	.probe		= cy8ctmg110_probe,
- 	.remove		= __devexit_p(cy8ctmg110_remove),
--#ifdef CONFIG_PM
--	.suspend	= cy8ctmg110_suspend,
--	.resume		= cy8ctmg110_resume,
--#endif
+ 	.probe = eeti_ts_probe,
+ 	.remove = __devexit_p(eeti_ts_remove),
+-	.suspend = eeti_ts_suspend,
+-	.resume = eeti_ts_resume,
+ 	.id_table = eeti_ts_id,
  };
  
- static int __init cy8ctmg110_init(void)
 -- 
 1.7.2.3
 

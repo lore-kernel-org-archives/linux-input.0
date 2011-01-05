@@ -1,34 +1,39 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
-Date: Wed, 5 Jan 2011 18:34:03 +0100
-Message-ID: <20110105173403.GA2146@polaris.bitmath.org>
-References: <kev@cypress.com>
- <1294188847-24728-1-git-send-email-kev@cypress.com>
- <20110105085942.GA23321@polaris.bitmath.org>
- <FB9C2CB29A07AB45B575A4E8D2AABC09014003B8@labamba.mis.cypress.com>
+Subject: Re: [RFC v2 0/10] hid-multitouch: a first step towards multitouch
+ unification
+Date: Wed, 5 Jan 2011 18:49:27 +0100
+Message-ID: <20110105174927.GB2146@polaris.bitmath.org>
+References: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:55971 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751626Ab1AERu2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 5 Jan 2011 12:50:28 -0500
 Content-Disposition: inline
-In-Reply-To: <FB9C2CB29A07AB45B575A4E8D2AABC09014003B8@labamba.mis.cypress.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin McNeely <Kevin.McNeely@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Kevin,
+Hi Benjamin,
 
-> Hi Henrik,
-> 
-> Thank you for the code modifications.
-> The mods work for both I2C and SPI builds.
+> these patches is the set for the unified driver hid-multitouch.
+> I'm putting the flag RFC as I'm still waiting some testers feedback on some devices. But I don't think they will change a lot.
 
-Great!
- 
-> Can you post your modified patch?
+This will be an interesting read, thank you very much for the patches.
 
-There might be more comments to v4, so if there is a v5, you can just
-send it then. Otherwise, we have what we need.
+> This would be great if this stuff could go into 2.6.38, if it's not too late.
+
+The merge window just opened, which generally means the work for
+2.6.38 is done. On top of that, we would expect some changes and
+further testing, and limited time from everybody involved. Given that
+also additional drivers should be added, which might affect the
+general solution, it seems like a good idea to let this mature over
+time, such that it is ready for the 2.6.39 merge window.
 
 Thanks,
 Henrik

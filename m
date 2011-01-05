@@ -1,29 +1,81 @@
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: Re: I2C Touchscreen OMAP OOPS
-Date: Tue, 4 Jan 2011 18:44:43 +0200 (EET)
-Message-ID: <alpine.DEB.1.10.1101041842590.18898@esdhcp041196.research.nokia.com>
-References: <1294124183.6822.335.camel@t-dhlii>  <BF127B05DE84486CBC072C314CD0178B@wipblrx0099946> <1294157084.6822.387.camel@t-dhlii>
+From: "Kevin McNeely" <Kevin.McNeely@cypress.com>
+Subject: RE: [v3 2/3] 2/3 i2c: Cypress TTSP G3 MTDEV I2C Device Driver
+Date: Tue, 4 Jan 2011 16:37:28 -0800
+Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC09014002D4@labamba.mis.cypress.com>
+References: <Kevin McNeely <kev@cypress.com> <1293650268-1561-2-git-send-email-kev@cypress.com> <1294105556.2570.14.camel@hongdev>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.1.48]:32867 "EHLO mgw-sa02.nokia.com"
+Received: from ns2.cypress.com ([157.95.67.5]:47372 "EHLO ns2.cypress.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751002Ab1ADQpZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Jan 2011 11:45:25 -0500
-In-Reply-To: <1294157084.6822.387.camel@t-dhlii>
+	id S1751047Ab1AEAkU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Jan 2011 19:40:20 -0500
+Content-class: urn:content-classes:message
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "David Lynch Jr." <dhlii@dlasys.net>
-Cc: Hemanth V <hemanthv@ti.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Hong Liu <hong.liu@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Henrik Rydberg <rydberg@euromail.se>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 4 Jan 2011, David Lynch Jr. wrote:
->        For reference the mcs5000 driver as well as an st1232 driver that was
-> in the linux input patch stream perform I2C xfers in an interrupt
-> context.
-
-They are using threaded IRQ handlers, which might be the solution you
-are looking for.
-
-A.
+SGVsbG8gSG9uZywNCg0KVGhlIHBvaW50ZXJzIHdpbGwgYmUgZml4ZWQgaW4g
+djQuDQoNClRoYW5rIHlvdSwNCktldmluDQoNCj4gLS0tLS1PcmlnaW5hbCBN
+ZXNzYWdlLS0tLS0NCj4gRnJvbTogSG9uZyBMaXUgW21haWx0bzpob25nLmxp
+dUBpbnRlbC5jb21dDQo+IFNlbnQ6IE1vbmRheSwgSmFudWFyeSAwMywgMjAx
+MSA1OjQ2IFBNDQo+IFRvOiBLZXZpbiBNY05lZWx5DQo+IENjOiBEbWl0cnkg
+VG9yb2tob3Y7IERhdmlkIEJyb3duOyBUcmlsb2sgU29uaTsgU2FtdWVsIE9y
+dGl6OyBFcmljIE1pYW87DQo+IE1pa2UgRnJ5c2luZ2VyOyBIZW5yaWsgUnlk
+YmVyZzsgQWxhbiBDb3g7IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsN
+Cj4gbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBS
+ZTogW3YzIDIvM10gMi8zIGkyYzogQ3lwcmVzcyBUVFNQIEczIE1UREVWIEky
+QyBEZXZpY2UgRHJpdmVyDQo+IA0KPiBPbiBUaHUsIDIwMTAtMTItMzAgYXQg
+MDM6MTcgKzA4MDAsIEtldmluIE1jTmVlbHkgd3JvdGU6DQo+IFsuLi5dDQo+
+ID4gKw0KPiA+ICsvKiByZWdpc3RlcmVkIGluIGRyaXZlciBzdHJ1Y3QgKi8N
+Cj4gPiArc3RhdGljIGludCBfX2RldmV4aXQgY3l0dHNwX2kyY19yZW1vdmUo
+c3RydWN0IGkyY19jbGllbnQgKmNsaWVudCkNCj4gPiArew0KPiA+ICsJc3Ry
+dWN0IGN5dHRzcF9pMmMgKnRzOw0KPiA+ICsNCj4gPiArCXRzID0gaTJjX2dl
+dF9jbGllbnRkYXRhKGNsaWVudCk7DQo+ID4gKwljeXR0c3BfY29yZV9yZWxl
+YXNlKHRzLT50dHNwX2NsaWVudCk7DQo+ID4gKwlrZnJlZSh0cyk7DQo+ID4g
+KwlyZXR1cm4gMDsNCj4gPiArfQ0KPiA+ICsNCj4gPiArI2lmZGVmIENPTkZJ
+R19QTQ0KPiA+ICtzdGF0aWMgaW50IGN5dHRzcF9pMmNfc3VzcGVuZChzdHJ1
+Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPiBwbV9tZXNzYWdlX3QgbWVzc2Fn
+ZSkNCj4gPiArew0KPiA+ICsJcmV0dXJuIGN5dHRzcF9zdXNwZW5kKGRldl9n
+ZXRfZHJ2ZGF0YSgmY2xpZW50LT5kZXYpKTsNCj4gPiArfQ0KPiA+ICsNCj4g
+PiArc3RhdGljIGludCBjeXR0c3BfaTJjX3Jlc3VtZShzdHJ1Y3QgaTJjX2Ns
+aWVudCAqY2xpZW50KQ0KPiA+ICt7DQo+ID4gKwlyZXR1cm4gY3l0dHNwX3Jl
+c3VtZShkZXZfZ2V0X2RydmRhdGEoJmNsaWVudC0+ZGV2KSk7DQo+ID4gK30N
+Cj4gPiArI2VuZGlmDQo+IA0KPiBJIHRoaW5rIHdoYXQgd2UgZ2V0IGhlcmUg
+aXMgYSBwb2ludGVyIHRvIGN5dHRzcF9pMmMsIGFuZCB3ZSBuZWVkIHRvDQo+
+IHBhc3MNCj4gY3l0dHNwX2kyYy0+dHRzcF9jbGllbnQgdG8gY3l0dHNwX3N1
+c3BlbmQvcmVzdW1lLg0KPiANCj4gVGhhbmtzLA0KPiBIb25nDQo+IA0KPiA+
+ICsNCj4gPiArc3RhdGljIGNvbnN0IHN0cnVjdCBpMmNfZGV2aWNlX2lkIGN5
+dHRzcF9pMmNfaWRbXSA9IHsNCj4gPiArCXsgQ1lfSTJDX05BTUUsIDAgfSwg
+IHsgfQ0KPiA+ICt9Ow0KPiA+ICsNCj4gPiArc3RhdGljIHN0cnVjdCBpMmNf
+ZHJpdmVyIGN5dHRzcF9pMmNfZHJpdmVyID0gew0KPiA+ICsJLmRyaXZlciA9
+IHsNCj4gPiArCQkubmFtZSA9IENZX0kyQ19OQU1FLA0KPiA+ICsJCS5vd25l
+ciA9IFRISVNfTU9EVUxFLA0KPiA+ICsJfSwNCj4gPiArCS5wcm9iZSA9IGN5
+dHRzcF9pMmNfcHJvYmUsDQo+ID4gKwkucmVtb3ZlID0gX19kZXZleGl0X3Ao
+Y3l0dHNwX2kyY19yZW1vdmUpLA0KPiA+ICsJLmlkX3RhYmxlID0gY3l0dHNw
+X2kyY19pZCwNCj4gPiArI2lmZGVmIENPTkZJR19QTQ0KPiA+ICsJLnN1c3Bl
+bmQgPSBjeXR0c3BfaTJjX3N1c3BlbmQsDQo+ID4gKwkucmVzdW1lID0gY3l0
+dHNwX2kyY19yZXN1bWUsDQo+ID4gKyNlbmRpZg0KPiA+ICt9Ow0KPiA+ICsN
+Cj4gPiArc3RhdGljIGludCBfX2luaXQgY3l0dHNwX2kyY19pbml0KHZvaWQp
+DQo+ID4gK3sNCj4gPiArCXJldHVybiBpMmNfYWRkX2RyaXZlcigmY3l0dHNw
+X2kyY19kcml2ZXIpOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgdm9p
+ZCBfX2V4aXQgY3l0dHNwX2kyY19leGl0KHZvaWQpDQo+ID4gK3sNCj4gPiAr
+CXJldHVybiBpMmNfZGVsX2RyaXZlcigmY3l0dHNwX2kyY19kcml2ZXIpOw0K
+PiA+ICt9DQo+ID4gKw0KPiA+ICttb2R1bGVfaW5pdChjeXR0c3BfaTJjX2lu
+aXQpOw0KPiA+ICttb2R1bGVfZXhpdChjeXR0c3BfaTJjX2V4aXQpOw0KPiA+
+ICsNCj4gPiArTU9EVUxFX0FMSUFTKCJpMmM6Y3l0dHNwIik7DQo+ID4gK01P
+RFVMRV9MSUNFTlNFKCJHUEwiKTsNCj4gPiArTU9EVUxFX0RFU0NSSVBUSU9O
+KCJDeXByZXNzIFRydWVUb3VjaChSKSBTdGFuZGFyZCBQcm9kdWN0IChUVFNQ
+KSBJMkMNCj4gZHJpdmVyIik7DQo+ID4gK01PRFVMRV9BVVRIT1IoIkN5cHJl
+c3MiKTsNCj4gPiArTU9EVUxFX0RFVklDRV9UQUJMRShpMmMsIGN5dHRzcF9p
+MmNfaWQpOw0KPiANCg0KCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpUaGlzIG1lc3Nh
+Z2UgYW5kIGFueSBhdHRhY2htZW50cyBtYXkgY29udGFpbiBDeXByZXNzIChv
+ciBpdHMKc3Vic2lkaWFyaWVzKSBjb25maWRlbnRpYWwgaW5mb3JtYXRpb24u
+IElmIGl0IGhhcyBiZWVuIHJlY2VpdmVkCmluIGVycm9yLCBwbGVhc2UgYWR2
+aXNlIHRoZSBzZW5kZXIgYW5kIGltbWVkaWF0ZWx5IGRlbGV0ZSB0aGlzCm1l
+c3NhZ2UuCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoK

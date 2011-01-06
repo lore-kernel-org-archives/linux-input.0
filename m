@@ -1,52 +1,92 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [RFC v2 0/10] hid-multitouch: a first step towards multitouch unification
-Date: Thu, 6 Jan 2011 17:08:39 +0100
-Message-ID: <AANLkTik9qHn4u_U6FGKR0A4AOyPoYPkXM7rTMxVjiXgk@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [RFC v2 01/10] hid: add feature_mapping callback
+Date: Thu, 6 Jan 2011 17:22:23 +0100
+Message-ID: <20110106162223.GB1790@polaris.bitmath.org>
 References: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr>
-	<20110105174927.GB2146@polaris.bitmath.org>
-	<AANLkTikCqufvOgYqqBZLjfmtSdsgyQV4L2HyvEP07+vf@mail.gmail.com>
-	<alpine.LNX.2.00.1101061610270.26685@pobox.suse.cz>
-	<20110106160418.GA1790@polaris.bitmath.org>
+ <1294248468-19979-2-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:40983 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753607Ab1AFQIk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jan 2011 11:08:40 -0500
-In-Reply-To: <20110106160418.GA1790@polaris.bitmath.org>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:39005 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751354Ab1AFQXa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Jan 2011 11:23:30 -0500
+Content-Disposition: inline
+In-Reply-To: <1294248468-19979-2-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 6, 2011 at 5:04 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
->> > The point is that currently we have users that want to have a proper
->> > support for their device (PixCir, Cypress TrueTouch and GeneralTouch),
->> > and it's a shame to ask them to wait for 3 more months.
->
-> That is understandable, but for the future, please bear in mind that
-> submitting patches in the merge window is the worst possible time
-> within that three-month period.
->
->> > Maybe a solution would be to make what we can here during this merge
->> > window to add support for at least the new devices. Then, in 2.6.39
->> > and above, we could still migrate other devices, and eventually modify
->> > some lines in the code.
->> >
->> > Jiri, Dmitry, what do you think?
->>
->> I still have to go through the patchset, my backlog has grown very badly
->> recently, sorry.
->>
->> In case the patchset doesn't impose danger of regressions for already
->> existing devices, we could merge this new 'unified' driver only for newly
->> supported devices, and finish the unification in 2.6.39.
->
-> Sounds reasonable.
+On Wed, Jan 05, 2011 at 06:27:39PM +0100, Benjamin Tissoires wrote:
+> Currently hid doesn't export the features it knows to the specific modules.
+> Some information can be really important in such features: MosArt and
+> Cypress devices are by default not in a multitouch mode.
+> We have to send the value 2 on the right feature.
+> 
+> This patch exports to the module the features report so they can find the
+> right feature to set up the correct mode.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+>  drivers/hid/hid-input.c |   10 +++++++++-
+>  include/linux/hid.h     |    4 ++++
+>  2 files changed, 13 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index bb0b365..07d8cb2 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -287,6 +287,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  		goto ignore;
+>  	}
+>  
+> +	if (field->report_type == HID_FEATURE_REPORT) {
+> +		if (device->driver->feature_mapping) {
+> +			device->driver->feature_mapping(device, hidinput, field,
+> +                                usage);
+> +		}
+> +		goto ignore;
+> +	}
+> +
+>  	if (device->driver->input_mapping) {
+>  		int ret = device->driver->input_mapping(device, hidinput, field,
+>  				usage, &bit, &max);
+> @@ -836,7 +844,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+>  	struct hid_input *hidinput = NULL;
+>  	struct input_dev *input_dev;
+>  	int i, j, k;
+> -	int max_report_type = HID_OUTPUT_REPORT;
+> +	int max_report_type = HID_FEATURE_REPORT;
 
-Thanks Henrik and Jiri.
+Doing it this way conflicts with the HID_QUIRK_SKIP_OUTPUT_REPORTS quirk.
 
-Do you want me to send a new patchset with only the new devices?
+>  
+>  	INIT_LIST_HEAD(&hid->inputs);
+>  
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index bb0f56f..75303b0 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -593,6 +593,7 @@ struct hid_usage_id {
+>   * @report_fixup: called before report descriptor parsing (NULL means nop)
+>   * @input_mapping: invoked on input registering before mapping an usage
+>   * @input_mapped: invoked on input registering after mapping an usage
+> + * @feature_mapping: invoked on feature registering
+>   * @suspend: invoked on suspend (NULL means nop)
+>   * @resume: invoked on resume if device was not reset (NULL means nop)
+>   * @reset_resume: invoked on resume if device was reset (NULL means nop)
+> @@ -636,6 +637,9 @@ struct hid_driver {
+>  	int (*input_mapped)(struct hid_device *hdev,
+>  			struct hid_input *hidinput, struct hid_field *field,
+>  			struct hid_usage *usage, unsigned long **bit, int *max);
+> +	void (*feature_mapping)(struct hid_device *hdev,
+> + 			struct hid_input *hidinput, struct hid_field *field,
+> + 			struct hid_usage *usage);
+>  #ifdef CONFIG_PM
+>  	int (*suspend)(struct hid_device *hdev, pm_message_t message);
+>  	int (*resume)(struct hid_device *hdev);
 
-Benjamin
+Thanks,
+Henrik

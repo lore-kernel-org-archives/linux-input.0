@@ -1,164 +1,90 @@
-From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: Re: [rtc-linux] Re: [RFC v1 PATCH 2/6] input: pm8058_keypad: Qualcomm
- PMIC8058 keypad controller driver
-Date: Thu, 06 Jan 2011 17:26:39 +0530
-Message-ID: <4D25ADF7.7010901@codeaurora.org>
-References: <1289393281-4459-1-git-send-email-tsoni@codeaurora.org> <1289393281-4459-3-git-send-email-tsoni@codeaurora.org> <20101206181427.GA18567@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20101206181427.GA18567@core.coreip.homeip.net>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <tsoni@codeaurora.org>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+From: Mark Brown <broonie@opensource.wolfsonmciro.com>
+Subject: [PATCH v2] Input: ad7879 - Convert I2C to dev_pm_ops
+Date: Thu,  6 Jan 2011 12:10:20 +0000
+Message-ID: <1294315820-9463-1-git-send-email-broonie@opensource.wolfsonmciro.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37419 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753201Ab1AFMMC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Jan 2011 07:12:02 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Hi Dimitry,
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On 12/6/2010 11:44 PM, Dmitry Torokhov wrote:
-> Hi Trilok,
->
-> On Wed, Nov 10, 2010 at 06:17:57PM +0530, Trilok Soni wrote:
->> Add Qualcomm PMIC8058 based keypad controller driver
->> supporting upto 18x8 matrix configuration.
->>
->
-> Looks very good, just a couple of small things:
->
->> +
->> +#include<linux/input/pmic8058-keypad.h>
->
-> Move to MFD directory with the rest of pmic8058 definitions?
->
->> + */
->> +struct pmic8058_kp {
->> +	const struct pmic8058_keypad_data *pdata;
->> +	struct input_dev *input;
->> +	int key_sense_irq;
->> +	int key_stuck_irq;
->> +
->> +	unsigned short *keycodes;
->
-> I'd pull the keycodes into this structure (at the end) so it can be
-> allocated in one shot. Hmm it even appears to be constant-sized. So just
-> declare it right here and be done with it.
->
->> +
->> +static int pmic8058_detect_ghost_keys(struct pmic8058_kp *kp, u16 *new_state)
->
-> bool
->
->> +{
->> +	int row, found_first = -1;
->> +	u16 check, row_state;
->> +
->> +	check = 0;
->> +	for (row = 0; row<  kp->pdata->num_rows; row++) {
->> +		row_state = (~new_state[row])&
->> +				 ((1<<  kp->pdata->num_cols) - 1);
->> +
->> +		if (hweight16(row_state)>  1) {
->> +			if (found_first == -1)
->> +				found_first = row;
->> +			if (check&  row_state) {
->> +				dev_dbg(kp->dev, "detected ghost key on row[%d]"
->> +					 " and row[%d]\n", found_first, row);
->> +				return 1;
->
-> true
->
->> +			}
->> +		}
->> +		check |= row_state;
->> +	}
->> +	return 0;
->
-> false
->
->> +
->> +static int pmic8058_kpd_init(struct pmic8058_kp *kp)
->> +{
->> +	int bits, rc, cycles;
->> +	u8 scan_val = 0, ctrl_val = 0;
->> +	static u8 row_bits[] = {
->
-> const?
->
->> +		0, 1, 2, 3, 4, 4, 5, 5, 6, 6, 6, 7, 7, 7,
->> +	};
->> +
->> +}
->> +
->> +static int pmic8058_kp_enable(struct pmic8058_kp *kp)
->> +{
->> +	int rc;
->> +
->> +	kp->ctrl_reg |= KEYP_CTRL_KEYP_EN;
->> +
->> +	rc = pmic8058_kp_write_u8(kp, kp->ctrl_reg, KEYP_CTRL);
->> +	if (rc<  0)
->> +		return rc;
->> +
->> +	enable_irq(kp->key_sense_irq);
->> +	enable_irq(kp->key_stuck_irq);
->> +
->> +	return rc;
->> +}
->> +
->> +static int pmic8058_kp_disable(struct pmic8058_kp *kp)
->> +{
->> +	int rc;
->> +
->> +	kp->ctrl_reg&= ~KEYP_CTRL_KEYP_EN;
->> +
->> +	rc = pmic8058_kp_write_u8(kp, kp->ctrl_reg, KEYP_CTRL);
->> +	if (rc<  0)
->> +		return rc;
->> +
->> +	disable_irq(kp->key_sense_irq);
->> +	disable_irq(kp->key_stuck_irq);
->> +
->> +	return rc;
->> +}
->> +
->> +static int pmic8058_kp_open(struct input_dev *dev)
->> +{
->> +	struct pmic8058_kp *kp = input_get_drvdata(dev);
->> +
->> +	return pmic8058_kp_enable(kp);
->> +}
->> +
->> +static void pmic8058_kp_close(struct input_dev *dev)
->> +{
->> +	struct pmic8058_kp *kp = input_get_drvdata(dev);
->> +
->> +	pmic8058_kp_disable(kp);
->> +}
->> +
->
-> You need to protect suspend/resume from racing with open_close. Take
-> dev->mutex and act depending on whether there are users of the device.
+There is a general move towards the use of dev_pm_ops rather than
+bus specific suspend APIs as this simplifies both the bus and PM core
+implementations. Convert the ad7879-ts I2C support over.
 
-In our case, we can only disable/enable the keypad in suspend/resume if 
-the device is not configured as wakeup. The call pmic8058_kp_disable(kp) 
-disables the keypad totally rather than placing it in the low power mode 
-(the hardware does support this capability). So, we plan to add the race 
-check only if the device is not configured as wakeup capable.
+Compile tested only.
 
->
->> +	if (pdata->rows_gpio_start<  0 || pdata->cols_gpio_start<  0) {
->> +		dev_err(&pdev->dev, "invalid gpio_start platform data\n");
->> +		return -EINVAL;
->
-> These are declared as unsigned. Hmm, doesn't sparse catch it?
->
-> Thanks.
->
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/ad7879-i2c.c |   17 ++++++++++-------
+ 1 files changed, 10 insertions(+), 7 deletions(-)
 
-Thanks,
-Anirudh
-
+diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
+index d82a38e..4e4e58c 100644
+--- a/drivers/input/touchscreen/ad7879-i2c.c
++++ b/drivers/input/touchscreen/ad7879-i2c.c
+@@ -10,14 +10,16 @@
+ #include <linux/i2c.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
++#include <linux/pm.h>
+ 
+ #include "ad7879.h"
+ 
+ #define AD7879_DEVID		0x79	/* AD7879-1/AD7889-1 */
+ 
+ #ifdef CONFIG_PM
+-static int ad7879_i2c_suspend(struct i2c_client *client, pm_message_t message)
++static int ad7879_i2c_suspend(struct device *dev)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	struct ad7879 *ts = i2c_get_clientdata(client);
+ 
+ 	ad7879_suspend(ts);
+@@ -25,17 +27,17 @@ static int ad7879_i2c_suspend(struct i2c_client *client, pm_message_t message)
+ 	return 0;
+ }
+ 
+-static int ad7879_i2c_resume(struct i2c_client *client)
++static int ad7879_i2c_resume(struct device *dev)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	struct ad7879 *ts = i2c_get_clientdata(client);
+ 
+ 	ad7879_resume(ts);
+ 
+ 	return 0;
+ }
+-#else
+-# define ad7879_i2c_suspend NULL
+-# define ad7879_i2c_resume  NULL
++
++static SIMPLE_DEV_PM_OPS(ad7879_i2c_pm, ad7879_i2c_suspend, ad7879_i2c_resume);
+ #endif
+ 
+ /* All registers are word-sized.
+@@ -117,11 +119,12 @@ static struct i2c_driver ad7879_i2c_driver = {
+ 	.driver = {
+ 		.name	= "ad7879",
+ 		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &ad7879_i2c_pm,
++#endif
+ 	},
+ 	.probe		= ad7879_i2c_probe,
+ 	.remove		= __devexit_p(ad7879_i2c_remove),
+-	.suspend	= ad7879_i2c_suspend,
+-	.resume		= ad7879_i2c_resume,
+ 	.id_table	= ad7879_id,
+ };
+ 
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+1.7.2.3
+

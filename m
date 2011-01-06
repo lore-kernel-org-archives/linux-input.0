@@ -1,88 +1,87 @@
 From: Mark Brown <broonie@opensource.wolfsonmciro.com>
-Subject: [PATCH v2] Input: ad7879 - Convert I2C to dev_pm_ops
-Date: Thu,  6 Jan 2011 12:10:20 +0000
-Message-ID: <1294315820-9463-1-git-send-email-broonie@opensource.wolfsonmciro.com>
+Subject: [PATCH v2] Input: eeti_ts - Convert to dev_pm_ops
+Date: Thu,  6 Jan 2011 12:11:39 +0000
+Message-ID: <1294315899-9532-1-git-send-email-broonie@opensource.wolfsonmciro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37419 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37442 "EHLO
 	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753201Ab1AFMMC (ORCPT
+	by vger.kernel.org with ESMTP id S1752187Ab1AFMNU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Jan 2011 07:12:02 -0500
+	Thu, 6 Jan 2011 07:13:20 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>
+To: Daniel Mack <daniel@caiaq.de>, Sven Neumann <s.neumann@raumfeld.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
 There is a general move towards the use of dev_pm_ops rather than
 bus specific suspend APIs as this simplifies both the bus and PM core
-implementations. Convert the ad7879-ts I2C support over.
+implementations. Convert the eeti_ts driver over.
 
-Compile tested only.
+Compile tested only by me, but Sven Neumann reports that the new code
+works.
 
 Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Tested-by: Sven Neumann <s.neumann@raumfeld.com>
 ---
- drivers/input/touchscreen/ad7879-i2c.c |   17 ++++++++++-------
- 1 files changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
-index d82a38e..4e4e58c 100644
---- a/drivers/input/touchscreen/ad7879-i2c.c
-+++ b/drivers/input/touchscreen/ad7879-i2c.c
-@@ -10,14 +10,16 @@
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/types.h>
-+#include <linux/pm.h>
- 
- #include "ad7879.h"
- 
- #define AD7879_DEVID		0x79	/* AD7879-1/AD7889-1 */
+Updated to not use dev_pm_ops when PM is not enabled.
+
+ drivers/input/touchscreen/eeti_ts.c |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+index 7a3a916..7f8f538 100644
+--- a/drivers/input/touchscreen/eeti_ts.c
++++ b/drivers/input/touchscreen/eeti_ts.c
+@@ -261,8 +261,9 @@ static int __devexit eeti_ts_remove(struct i2c_client *client)
+ }
  
  #ifdef CONFIG_PM
--static int ad7879_i2c_suspend(struct i2c_client *client, pm_message_t message)
-+static int ad7879_i2c_suspend(struct device *dev)
+-static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
++static int eeti_ts_suspend(struct device *dev)
  {
 +	struct i2c_client *client = to_i2c_client(dev);
- 	struct ad7879 *ts = i2c_get_clientdata(client);
+ 	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+ 	struct input_dev *input_dev = priv->input;
  
- 	ad7879_suspend(ts);
-@@ -25,17 +27,17 @@ static int ad7879_i2c_suspend(struct i2c_client *client, pm_message_t message)
+@@ -279,8 +280,9 @@ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
  	return 0;
  }
  
--static int ad7879_i2c_resume(struct i2c_client *client)
-+static int ad7879_i2c_resume(struct device *dev)
+-static int eeti_ts_resume(struct i2c_client *client)
++static int eeti_ts_resume(struct device *dev)
  {
 +	struct i2c_client *client = to_i2c_client(dev);
- 	struct ad7879 *ts = i2c_get_clientdata(client);
+ 	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+ 	struct input_dev *input_dev = priv->input;
  
- 	ad7879_resume(ts);
+@@ -296,9 +298,8 @@ static int eeti_ts_resume(struct i2c_client *client)
  
  	return 0;
  }
 -#else
--# define ad7879_i2c_suspend NULL
--# define ad7879_i2c_resume  NULL
+-#define eeti_ts_suspend NULL
+-#define eeti_ts_resume NULL
 +
-+static SIMPLE_DEV_PM_OPS(ad7879_i2c_pm, ad7879_i2c_suspend, ad7879_i2c_resume);
++static SIMPLE_DEV_PM_OPS(eeti_ts_pm, eeti_ts_suspend, eeti_ts_resume);
  #endif
  
- /* All registers are word-sized.
-@@ -117,11 +119,12 @@ static struct i2c_driver ad7879_i2c_driver = {
+ static const struct i2c_device_id eeti_ts_id[] = {
+@@ -310,11 +311,12 @@ MODULE_DEVICE_TABLE(i2c, eeti_ts_id);
+ static struct i2c_driver eeti_ts_driver = {
  	.driver = {
- 		.name	= "ad7879",
- 		.owner	= THIS_MODULE,
+ 		.name = "eeti_ts",
 +#ifdef CONFIG_PM
-+		.pm	= &ad7879_i2c_pm,
++		.pm = &eeti_ts_pm,
 +#endif
  	},
- 	.probe		= ad7879_i2c_probe,
- 	.remove		= __devexit_p(ad7879_i2c_remove),
--	.suspend	= ad7879_i2c_suspend,
--	.resume		= ad7879_i2c_resume,
- 	.id_table	= ad7879_id,
+ 	.probe = eeti_ts_probe,
+ 	.remove = __devexit_p(eeti_ts_remove),
+-	.suspend = eeti_ts_suspend,
+-	.resume = eeti_ts_resume,
+ 	.id_table = eeti_ts_id,
  };
  
 -- 

@@ -1,33 +1,47 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH] Input: migor_ts - Convert to dev_pm_ops
-Date: Thu, 6 Jan 2011 14:28:13 +0900
-Message-ID: <AANLkTikedP-fk5p2p58Fuy_C1S-_+Ls04RGKWaPyb1wt@mail.gmail.com>
-References: <1294254606-26277-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH 2/2] HID: roccat: Fix an error message when reading more
+ data from bin attributes
+Date: Thu, 06 Jan 2011 09:00:41 +0100
+Message-ID: <1294300841.5622.59.camel@neuromancer>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:64574 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1749667Ab1AFF2O (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jan 2011 00:28:14 -0500
-Received: by wyb28 with SMTP id 28so16084304wyb.19
-        for <linux-input@vger.kernel.org>; Wed, 05 Jan 2011 21:28:13 -0800 (PST)
-In-Reply-To: <1294254606-26277-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:60493 "EHLO
+	mail-in-05.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751855Ab1AFIAn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Jan 2011 03:00:43 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dtor@mail.ru>, Magnus Damm <damm@opensource.se>, linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-inp
 
-On Thu, Jan 6, 2011 at 4:10 AM, Mark Brown
-<broonie@opensource.wolfsonmicro.com> wrote:
-> There is a general move towards the use of dev_pm_ops rather than
-> bus specific suspend APIs as this simplifies both the bus and PM core
-> implementations. Convert the migor_ts driver over.
->
-> Compile tested only.
->
-> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Using cat or something to read from binary attributes would try to do an
+additional read with offset equal to filesize. This resulted in an invalid
+attribute error. This is fixed by giving the right answer instead of EINVAL.
 
-Great, thank you!
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-roccat-koneplus.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-Acked-by: Magnus Damm <damm@opensource.se>
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 1608c8d..2df87bb 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -256,6 +256,9 @@ static ssize_t koneplus_sysfs_read(struct file *fp, struct kobject *kobj,
+ 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 	int retval;
+ 
++	if (off >= real_size)
++		return 0;
++
+ 	if (off != 0 || count != real_size)
+ 		return -EINVAL;
+ 
+-- 
+1.7.3.4
+
+
+

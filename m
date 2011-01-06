@@ -1,12 +1,14 @@
 From: Kristen Carlson Accardi <kristen@linux.intel.com>
 Subject: [PATCH] input: move check for same handler in input_pass_event
-Date: Thu,  6 Jan 2011 14:24:48 -0800
-Message-ID: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
+Date: Thu,  6 Jan 2011 14:29:09 -0800
+Message-ID: <1294352949-29645-1-git-send-email-kristen@linux.intel.com>
+References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:3362 "EHLO mga02.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:13338 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754373Ab1AFWXS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Jan 2011 17:23:18 -0500
+	id S1754779Ab1AFW10 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Jan 2011 17:27:26 -0500
+In-Reply-To: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -16,6 +18,8 @@ If the handler that injected an event is the same,
 just skip the filter, but allow the handler->event()
 routine to be called.  This allows evdev to be able to
 be used to loopback events.
+
+Signed-off-by: Kristen Carlson Accardi <kristen@linux.intel.com>
 ---
  drivers/input/input.c |    7 +++----
  1 files changed, 3 insertions(+), 4 deletions(-)

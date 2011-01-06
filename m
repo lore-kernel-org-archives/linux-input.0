@@ -1,44 +1,45 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH v2] input: tegra-kbc - Add tegra keyboard driver
-Date: Thu, 6 Jan 2011 14:27:14 -0800
-Message-ID: <20110106142714.f823dea8.rdunlap@xenotime.net>
-References: <1294351512-17035-1-git-send-email-riyer@nvidia.com>
-	<alpine.LNX.2.00.1101062311340.13988@swampdragon.chaosbits.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC v2 0/10] hid-multitouch: a first step towards multitouch
+ unification
+Date: Fri, 7 Jan 2011 00:26:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101070024380.26685@pobox.suse.cz>
+References: <1294248468-19979-1-git-send-email-benjamin.tissoires@enac.fr> <20110105174927.GB2146@polaris.bitmath.org> <AANLkTikCqufvOgYqqBZLjfmtSdsgyQV4L2HyvEP07+vf@mail.gmail.com> <alpine.LNX.2.00.1101061610270.26685@pobox.suse.cz> <20110106160418.GA1790@polaris.bitmath.org>
+ <AANLkTik9qHn4u_U6FGKR0A4AOyPoYPkXM7rTMxVjiXgk@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xenotime.net ([72.52.115.56]:39036 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1754590Ab1AFW1Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Jan 2011 17:27:16 -0500
-Received: from chimera.site ([173.50.240.230]) by xenotime.net for <linux-input@vger.kernel.org>; Thu, 6 Jan 2011 14:27:15 -0800
-In-Reply-To: <alpine.LNX.2.00.1101062311340.13988@swampdragon.chaosbits.net>
+Received: from cantor2.suse.de ([195.135.220.15]:53310 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753909Ab1AFX0U (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Jan 2011 18:26:20 -0500
+In-Reply-To: <AANLkTik9qHn4u_U6FGKR0A4AOyPoYPkXM7rTMxVjiXgk@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jesper Juhl <jj@chaosbits.net>
-Cc: Rakesh Iyer <riyer@nvidia.com>, tsoni@codeaurora.org, shubhrajyoti@ti.com, ccross@android.com, konkers@android.com, olof@lixom.net, achew@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 6 Jan 2011 23:15:01 +0100 (CET) Jesper Juhl wrote:
+On Thu, 6 Jan 2011, Benjamin Tissoires wrote:
 
-> > +fail:
-> > +	if (kbc->irq >= 0)
-> > +		free_irq(kbc->irq, pdev);
-> > +	if (kbc->idev)
-> > +		input_free_device(kbc->idev);
+> >> I still have to go through the patchset, my backlog has grown very 
+> >> badly recently, sorry.
+> >>
+> >> In case the patchset doesn't impose danger of regressions for already
+> >> existing devices, we could merge this new 'unified' driver only for newly
+> >> supported devices, and finish the unification in 2.6.39.
+> >
+> > Sounds reasonable.
 > 
-> As far as I can tell input_free_device() deals gracefully with being 
-> passed a null pointer, so the 'if' seems superfluous.
+> Thanks Henrik and Jiri.
 > 
-> 
-> -- 
-> Jesper Juhl <jj@chaosbits.net>            http://www.chaosbits.net/
-> Don't top-post http://www.catb.org/~esr/jargon/html/T/top-post.html
-> Plain text mails only, please.
-+ Please trim replies to the relevant part(s) of patches.
+> Do you want me to send a new patchset with only the new devices?
 
+Yes, that would be best. And we will finish the thing up in .39 (you can 
+start sending me the patches any time once you have finished the 
+separation, I'll put the into separate branch queued for .39).
 
-thnx,
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+And thanks for doing this Benjamin, I am really looking forward to the 
+unified driver.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

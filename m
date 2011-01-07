@@ -1,37 +1,65 @@
-From: Chase Douglas <chase.douglas@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH v2] Documentation: Add evdev type and code definitions
-Date: Fri, 07 Jan 2011 17:36:57 -0500
-Message-ID: <4D279589.1060107@canonical.com>
-References: <1294435695-16750-1-git-send-email-chase.douglas@canonical.com> <4D278E6B.7020002@gmail.com> <4D279075.4080503@canonical.com> <4D279325.3040205@gmail.com>
+Date: Fri, 7 Jan 2011 14:42:02 -0800
+Message-ID: <20110107224202.GG28875@core.coreip.homeip.net>
+References: <1294435695-16750-1-git-send-email-chase.douglas@canonical.com>
+ <20110107215353.GF28875@core.coreip.homeip.net>
+ <4D278DC6.7070209@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4D279325.3040205@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:53029 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752263Ab1AGWmJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 17:42:09 -0500
+Content-Disposition: inline
+In-Reply-To: <4D278DC6.7070209@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 01/07/2011 05:26 PM, Nikolai Kondrashov wrote:
-> On 01/08/2011 01:15 AM, Chase Douglas wrote:
->> Hmm.. That seems incorrect to me. Why wouldn't it follow the behavior
->> outlined above?
-> Because the tablet doesn't report when the tool enters/leaves the proximity.
-> It just starts/stops sending the coordinates.
+On Fri, Jan 07, 2011 at 05:03:50PM -0500, Chase Douglas wrote:
+> On 01/07/2011 04:53 PM, Dmitry Torokhov wrote:
+> > Hi Chase,
+> > 
+> > On Fri, Jan 07, 2011 at 04:28:15PM -0500, Chase Douglas wrote:
+> >> +
+> >> +EV_SW:
+> >> +----------
+> >> +EV_SW events describe stateful binary switches. For example, the SW_LID code is
+> >> +used to denote when a laptop lid is closed.
+> > 
+> > Please add that drivers should refresh switch state upon binding to a
+> > device and also upon resume.
 > 
-> A leave timer could be used, though. Maybe we could ignore the case when the
-> mouse is laying still on the tablet or the pen is held very steadily in
-> place and just tell that tool left the surface.
+> I've not written any switch evdev drivers, can you clarify what you
+> mean, maybe give me something to paste in?
 > 
-> Maybe it will be beneficial to have it synthesised after all, as it would
-> probably ease the integration with xf86-input-wacom and will keep the evdev
-> protocol more consistent.
+> Are you meaning that the switch state may have physically changed, and
+> that the driver should query the physical state to be sure, or do you
 
-I think I understand now, and it sounds pretty broken :). Do we want to
-codify such behaviour, or leave it out as a special case? I don't see
-this document as a definitive guide to evdev usage and driver
-development, just a reference and best practices guide, so I'm inclined
-to say the latter.
+Right, switch state might be physically changed while the device/system
+was asleep and thus we need to ensure that kernel's (and userspace)
+switch state is consistent with physical state.
 
--- Chase
+Same should be done in the very beginnning, while registering input
+device - it is quite possible that we start with some switches in
+"on" state.
+
+Technically speaking, some keys might be depressed as well, but we
+ignore this possibility and assume that everything is released because
+it is simpler, we expect that all depressed keys will be released
+shortly anyway, and not all devices allow to query current state of a
+button (i.e. devices that only transmit state change).
+
+> mean that the driver must send a new event even if the state has not
+> changed?
+
+The drive should send the events and input core will filter them out if
+state still matches the old state.
+
+Thanks.
+
+-- 
+Dmitry

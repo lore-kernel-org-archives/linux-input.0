@@ -1,38 +1,100 @@
-From: Kristen Carlson Accardi <kristen@linux.intel.com>
-Subject: Re: [PATCH] input: move check for same handler in input_pass_event
-Date: Fri, 7 Jan 2011 10:24:34 -0800
-Message-ID: <20110107102434.7776091d@kcaccard-MOBL3>
-References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
-	<20110107060456.GA29038@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:56305 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754820Ab1AGSXX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Jan 2011 13:23:23 -0500
-In-Reply-To: <20110107060456.GA29038@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: [RFC v3 1/5] hid: add feature_mapping callback
+Date: Fri,  7 Jan 2011 19:42:38 +0100
+Message-ID: <1294425762-29730-2-git-send-email-benjamin.tissoires@enac.fr>
+References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.orglinux
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, arjan@linux.intel.com
 
-On Thu, 6 Jan 2011 22:04:56 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Currently hid doesn't export the features it knows to the specific modules.
+Some information can be really important in such features: MosArt and
+Cypress devices are by default not in a multitouch mode.
+We have to send the value 2 on the right feature.
 
-> On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
-> > If the handler that injected an event is the same,
-> > just skip the filter, but allow the handler->event()
-> > routine to be called.  This allows evdev to be able to
-> > be used to loopback events.
-> 
-> Why is it needed? Could you please give some examples?
-> 
-> Thanks.
-> 
+This patch exports to the module the features report so they can find the
+right feature to set up the correct mode.
 
-We have a customer who has a touchscreen device which sends
-a bitmap into a gesture engine, which then interprets that
-result and feeds it back into the kernel through a virtual
-input driver that X is listening to.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
+ drivers/hid/hid-input.c |   17 +++++++++++++----
+ include/linux/hid.h     |    4 ++++
+ 2 files changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index bb0b365..e1b48e4 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -287,6 +287,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		goto ignore;
+ 	}
+ 
++	if (field->report_type == HID_FEATURE_REPORT) {
++		if (device->driver->feature_mapping) {
++			device->driver->feature_mapping(device, hidinput, field,
++                                usage);
++		}
++		goto ignore;
++	}
++
+ 	if (device->driver->input_mapping) {
+ 		int ret = device->driver->input_mapping(device, hidinput, field,
+ 				usage, &bit, &max);
+@@ -836,7 +844,6 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 	struct hid_input *hidinput = NULL;
+ 	struct input_dev *input_dev;
+ 	int i, j, k;
+-	int max_report_type = HID_OUTPUT_REPORT;
+ 
+ 	INIT_LIST_HEAD(&hid->inputs);
+ 
+@@ -853,10 +860,11 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 			return -1;
+ 	}
+ 
+-	if (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
+-		max_report_type = HID_INPUT_REPORT;
++	for (k = HID_INPUT_REPORT; k <= HID_FEATURE_REPORT; k++) {
++		if (k == HID_OUTPUT_REPORT &&
++			hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
++			continue;
+ 
+-	for (k = HID_INPUT_REPORT; k <= max_report_type; k++)
+ 		list_for_each_entry(report, &hid->report_enum[k].report_list, list) {
+ 
+ 			if (!report->maxfield)
+@@ -909,6 +917,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 				hidinput = NULL;
+ 			}
+ 		}
++	}
+ 
+ 	if (hidinput && input_register_device(hidinput->input))
+ 		goto out_cleanup;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index bb0f56f..75303b0 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -593,6 +593,7 @@ struct hid_usage_id {
+  * @report_fixup: called before report descriptor parsing (NULL means nop)
+  * @input_mapping: invoked on input registering before mapping an usage
+  * @input_mapped: invoked on input registering after mapping an usage
++ * @feature_mapping: invoked on feature registering
+  * @suspend: invoked on suspend (NULL means nop)
+  * @resume: invoked on resume if device was not reset (NULL means nop)
+  * @reset_resume: invoked on resume if device was reset (NULL means nop)
+@@ -636,6 +637,9 @@ struct hid_driver {
+ 	int (*input_mapped)(struct hid_device *hdev,
+ 			struct hid_input *hidinput, struct hid_field *field,
+ 			struct hid_usage *usage, unsigned long **bit, int *max);
++	void (*feature_mapping)(struct hid_device *hdev,
++ 			struct hid_input *hidinput, struct hid_field *field,
++ 			struct hid_usage *usage);
+ #ifdef CONFIG_PM
+ 	int (*suspend)(struct hid_device *hdev, pm_message_t message);
+ 	int (*resume)(struct hid_device *hdev);
+-- 
+1.7.3.4

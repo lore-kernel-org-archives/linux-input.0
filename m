@@ -1,228 +1,59 @@
-From: Fabien Marteau <fabien.marteau@armadeus.com>
-Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
- joystick driver (third version)
-Date: Fri, 07 Jan 2011 20:42:37 +0100
-Message-ID: <4D276CAD.5090604@armadeus.com>
-References: <4D22ECB6.6090800@armadeus.com> <4D22FE0F.7010206@codeaurora.org>
-Reply-To: fabien.marteau@armadeus.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: move check for same handler in input_pass_event
+Date: Fri, 7 Jan 2011 11:43:13 -0800
+Message-ID: <20110107194313.GC28875@core.coreip.homeip.net>
+References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
+ <20110107060456.GA29038@core.coreip.homeip.net>
+ <20110107102434.7776091d@kcaccard-MOBL3>
+ <20110107192938.GB28875@core.coreip.homeip.net>
+ <4D276A51.5030102@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 27.mail-out.ovh.net ([91.121.30.210]:50820 "HELO
-	27.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754253Ab1AGTmy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 14:42:54 -0500
-In-Reply-To: <4D22FE0F.7010206@codeaurora.org>
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:42706 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752862Ab1AGTnT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 14:43:19 -0500
+Received: by gxk9 with SMTP id 9so4287592gxk.19
+        for <linux-input@vger.kernel.org>; Fri, 07 Jan 2011 11:43:18 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <4D276A51.5030102@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Kristen Carlson Accardi <kristen@linux.intel.com>, linux-input@vger.kernel.org
 
-On 04/01/2011 12:01, Trilok Soni wrote:
-> Hi Fabien,
+On Fri, Jan 07, 2011 at 11:32:33AM -0800, Arjan van de Ven wrote:
+> On 1/7/2011 11:29 AM, Dmitry Torokhov wrote:
+> >On Fri, Jan 07, 2011 at 10:24:34AM -0800, Kristen Carlson Accardi wrote:
+> >>On Thu, 6 Jan 2011 22:04:56 -0800
+> >>Dmitry Torokhov<dmitry.torokhov@gmail.com>  wrote:
+> >>
+> >>>On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
+> >>>>If the handler that injected an event is the same,
+> >>>>just skip the filter, but allow the handler->event()
+> >>>>routine to be called.  This allows evdev to be able to
+> >>>>be used to loopback events.
+> >>>Why is it needed? Could you please give some examples?
+> >>>
+> >>>Thanks.
+> >>>
+> >>We have a customer who has a touchscreen device which sends
+> >>a bitmap into a gesture engine, which then interprets that
+> >>result and feeds it back into the kernel through a virtual
+> >>input driver that X is listening to.
+> >That really should be done though uinput.
 > 
-> On 1/4/2011 3:17 PM, Fabien Marteau wrote:
->>  Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugged
->>  on an I2C bus. It has been tested on ARM processor (i.MX27).
->>
->> Third version, according to Dmitry Torokhov and Trilok Soni comments.
->>
->>
->> Signed-off-by: Fabien Marteau <fabien.marteau@armadeus.com>
->> ---
+> quite possible.
 > 
-> Looks good. Few comments.
-> 
->>  drivers/input/joystick/Kconfig  |    9 +
->>  drivers/input/joystick/Makefile |    1 +
->>  drivers/input/joystick/as5011.c |  377 +++++++++++++++++++++++++++++++++++++++
->>  include/linux/as5011.h          |   35 ++++
-> 
-> How about moving it to include/linux/input?
-
-It's better yes.
-
-> 
->> +
->> +#include <linux/module.h>
->> +#include <linux/init.h>
->> +#include <linux/slab.h>
->> +#include <linux/i2c.h>
->> +#include <linux/string.h>
->> +#include <linux/list.h>
->> +#include <linux/sysfs.h>
->> +#include <linux/ctype.h>
->> +#include <linux/hwmon-sysfs.h>
-> 
-> Are you using anything from this file? Please audit this list and remove
-> the files which are not used. Thanks.
-
-Done
-
-> 
->> +
->> +#define SIZE_NAME 30
->> +#define SIZE_EVENT_PATH 40
-> 
-> I don't find anybody using these #defines. Please remove the defines which
-> are not used.
-
-Old useless macro, deleted.
-
-> 
->> +#define AS5011_MAX_AXIS	80
->> +#define AS5011_MIN_AXIS	(-80)
->> +#define AS5011_FUZZ	8
->> +#define AS5011_FLAT	40
->> +
->> +static int as5011_i2c_write(struct i2c_client *client,
->> +			    uint8_t aregaddr,
->> +			    uint8_t avalue)
->> +{
->> +	int ret;
->> +	uint8_t data[2] = { aregaddr, avalue };
->> +
->> +	struct i2c_msg msg = {	client->addr,
->> +				I2C_M_IGNORE_NAK,
->> +				2,
->> +				(uint8_t *)data };
->> +
->> +	ret = i2c_transfer(client->adapter, &msg, 1);
->> +
->> +	if (ret < 0)
->> +		return ret;
->> +	return 1;
->> +}
-> 
-> We return '0' on success and negative error code for error.
-
-Ok.
-
-> 
->> +
->> +static irqreturn_t button_interrupt(int irq, void *dev_id)
->> +{
->> +	struct as5011_platform_data *plat_dat = dev_id;
->> +	int ret;
->> +
->> +	ret = gpio_get_value(plat_dat->button_gpio);
-> 
-> I don't find gpio_request call for this gpio anywhere in this driver. I prefer
-> that we do that for each gpio we use in the driver itself. Only muxing stuff
-> can be left out in your init/exit hooks.
-
-Ok I added it and deleted init/exit hooks.
-
-> 
->> +	if (ret)
->> +		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 0);
->> +	else
->> +		input_report_key(plat_dat->input_dev, BTN_JOYSTICK, 1);
->> +	input_sync(plat_dat->input_dev);
->> +
->> +	return IRQ_HANDLED;
->> +}
->> +
->> +static void as5011_update_axes(struct as5011_platform_data *plat_dat)
->> +{
->> +	signed char x, y;
->> +
->> +	x = as5011_i2c_read(plat_dat->i2c_client, AS5011_X_RES_INT);
->> +	y = as5011_i2c_read(plat_dat->i2c_client, AS5011_Y_RES_INT);
-> 
-> I prefer that i2c_read wrapper here would return the actual error code instead,
-> and have one function argument to return the "x, y" co-ordinates, that way
-> we don't loose the error codes, and return from here itself if i2c read fails.
-
-Ok
-
-> 
->> +	input_report_abs(plat_dat->input_dev, ABS_X, x);
->> +	input_report_abs(plat_dat->input_dev, ABS_Y, y);
->> +	input_sync(plat_dat->input_dev);
->> +}
->> +
->> +static irqreturn_t as5011_int_interrupt(int irq, void *dev_id)
->> +{
->> +	struct as5011_platform_data *plat_dat = dev_id;
->> +
->> +	mutex_lock(&plat_dat->update_lock);
->> +	as5011_update_axes(plat_dat);
->> +	mutex_unlock(&plat_dat->update_lock);
-> 
-> Please explain this lock. Sorry if I have missed out your explanation in the earlier threads.
-
-If a second interruption occurs the first update must be finished before update again.
-
-> 
->> +
->> +	return IRQ_HANDLED;
->> +}
->> +
->> +static int __devinit as5011_probe(struct i2c_client *client,
->> +			const struct i2c_device_id *id)
->> +{
->> +	struct as5011_platform_data *plat_dat = client->dev.platform_data;
-> 
-> const please. 
-
-ok
-
->> +
->> +	retval = request_threaded_irq(plat_dat->button_irq,
->> +					NULL, button_interrupt,
->> +					0, "as5011_button",
->> +					plat_dat);
->> +	if (retval < 0) {
->> +		dev_err(&client->dev, "Can't allocate irq %d\n",
->> +			plat_dat->button_irq);
->> +		retval = -EBUSY;
-> 
-> Why don't we return same error code instead of overwriting it here?
-
-Copy/paste error.
-
-
->> +
->> +	/* to free irq gpio in chip*/
->> +	as5011_i2c_read(plat_dat->i2c_client, AS5011_X_RES_INT);
-> 
-> Would you prefer to move some of the initialization of the chip except
-> reset of controller to open() call, so that if there is no user of this
-> device than we don't need to leave this device left configured?
-
-I it could be a good idea. I didn't know that I can catch the open() call under the driver.
-
->> +struct as5011_platform_data {
->> +	/* public */
->> +	int button_gpio;
->> +	int button_irq;
->> +	int int_gpio;
->> +	int int_irq;
->> +	char xp, xn; /* threshold for x axis */
->> +	char yp, yn; /* threshold for y axis */
->> +
->> +	int (*init_gpio)(void); /* init interrupts gpios */
->> +	void (*exit_gpio)(void);/* exit gpios */
->> +
->> +	/* private */
->> +	struct input_dev *input_dev;
->> +	struct i2c_client *i2c_client;
->> +	char name[AS5011_MAX_NAME_LENGTH];
->> +	struct mutex update_lock;
-> 
-> These private stuff should not be part of your platform data structure. When we say
-> platform data meaning that it will be all public with "const". Please allocate
-> local data structure in the probe itself with these private members. You can refer
-> other drivers.
-
-Ok done.
-
-> 
-> 
-> ---Trilok Soni
+> but the application already exists, and works just fine in 2.6.35...
+> causing this to be classified as a kernel ABI regression ;-(
 > 
 
--- Fabien Marteau
+Hmm... I'd probably call it "relying on implementation details not
+spelled out anywhere".
 
+Anyway, let me ponder this one a bit...
+
+-- 
+Dmitry

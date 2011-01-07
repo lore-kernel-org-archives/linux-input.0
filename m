@@ -1,44 +1,49 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch unification
-Date: Fri, 7 Jan 2011 20:12:21 +0100
-Message-ID: <AANLkTikxWv+zn1MdXAGFSZU=hNfF4OHnK7pCk6DgdKSg@mail.gmail.com>
-References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: move check for same handler in input_pass_event
+Date: Fri, 7 Jan 2011 11:29:38 -0800
+Message-ID: <20110107192938.GB28875@core.coreip.homeip.net>
+References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
+ <20110107060456.GA29038@core.coreip.homeip.net>
+ <20110107102434.7776091d@kcaccard-MOBL3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:52089 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755116Ab1AGTMW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 14:12:22 -0500
-In-Reply-To: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:37730 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753376Ab1AGT3p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 14:29:45 -0500
+Received: by ywl5 with SMTP id 5so6871867ywl.19
+        for <linux-input@vger.kernel.org>; Fri, 07 Jan 2011 11:29:45 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20110107102434.7776091d@kcaccard-MOBL3>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.orglinux
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+To: Kristen Carlson Accardi <kristen@linux.intel.com>
+Cc: linux-input@vger.kernel.org, arjan@linux.intel.com
 
-I forgot to mention that I keep the flag RFC as I'm waiting for more
-tests in the begining of the next week (only Cypress has been tested
-with the last release).
+On Fri, Jan 07, 2011 at 10:24:34AM -0800, Kristen Carlson Accardi wrote:
+> On Thu, 6 Jan 2011 22:04:56 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
+> > > If the handler that injected an event is the same,
+> > > just skip the filter, but allow the handler->event()
+> > > routine to be called.  This allows evdev to be able to
+> > > be used to loopback events.
+> > 
+> > Why is it needed? Could you please give some examples?
+> > 
+> > Thanks.
+> > 
+> 
+> We have a customer who has a touchscreen device which sends
+> a bitmap into a gesture engine, which then interprets that
+> result and feeds it back into the kernel through a virtual
+> input driver that X is listening to.
 
-Cheers,
-Benjamin
+That really should be done though uinput.
 
-On Fri, Jan 7, 2011 at 7:42 PM, Benjamin Tissoires
-<benjamin.tissoires@enac.fr> wrote:
-> Hi,
->
-> here is the v3.
->
-> all changes are coming from the mails with Henrik:
->
-> - restricted to new drivers only
-> - delete mt_buffer struct
-> - replace/adapt prev_valid in favor of seen_in_this_frame
-> - integrated fuzz
-> - introduce MT_QUIRKS
-> - other small fixes
->
-> Cheers,
-> Benjamin
->
->
+Thanks.
+
+-- 
+Dmitry

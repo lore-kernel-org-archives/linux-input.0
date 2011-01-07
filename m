@@ -1,43 +1,42 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [RFC v3 5/5] hid-mulitouch: added support for the 'Sensing
- Win7-TwoFinger'
-Date: Fri, 7 Jan 2011 21:03:49 +0100
-Message-ID: <20110107200349.GD29913@polaris.bitmath.org>
+Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch
+ unification
+Date: Fri, 7 Jan 2011 21:08:50 +0100
+Message-ID: <20110107200850.GE29913@polaris.bitmath.org>
 References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
- <1294425762-29730-6-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:54569 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752917Ab1AGUFZ (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:44477 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752552Ab1AGUJq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Jan 2011 15:05:25 -0500
+	Fri, 7 Jan 2011 15:09:46 -0500
 Content-Disposition: inline
-In-Reply-To: <1294425762-29730-6-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2011 at 07:42:42PM +0100, Benjamin Tissoires wrote:
-> Added support for the 'Sensing Win7-TwoFinger' panel by GeneralTouch =
-found on some tablets.
->=20
-> Because of conflicting VID/PID, this conflicts with previous support =
-for some single-touch panels by GeneralTouch
->=20
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> Signed-off-by: St=E9phane Chatty <chatty@enac.fr>
-> ---
+Hi Benjamin,
 
-Other than the class proposal from the previous patch, this looks nice.
+> here is the v3.
+> 
+> all changes are coming from the mails with Henrik:
+> 
+> - restricted to new drivers only
+> - delete mt_buffer struct
+> - replace/adapt prev_valid in favor of seen_in_this_frame
+> - integrated fuzz
+> - introduce MT_QUIRKS
+> - other small fixes
 
-Thanks,
+A lot of progress in one day - thank you very much for making the
+changes. I will be online for quite a bit longer in case there is more
+coming this way. With some testing over the weekend (I will be
+traveling, sorry), it doesn't look impossible to have this ready early
+next week.
+
+Cheers,
 Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

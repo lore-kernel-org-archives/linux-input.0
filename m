@@ -1,43 +1,179 @@
-From: Fabien Marteau <fabien.marteau@armadeus.com>
-Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
- joystick driver (third version)
-Date: Fri, 07 Jan 2011 20:55:36 +0100
-Message-ID: <4D276FB8.7030309@armadeus.com>
-References: <4D22ECB6.6090800@armadeus.com> <4D22FE0F.7010206@codeaurora.org> <4D276CAD.5090604@armadeus.com> <20110107195000.GD28875@core.coreip.homeip.net>
-Reply-To: fabien.marteau@armadeus.com
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [RFC v3 4/5] hid-multitouch: added support for Cypress TrueTouch
+ panels
+Date: Fri, 7 Jan 2011 21:00:14 +0100
+Message-ID: <20110107200014.GC29913@polaris.bitmath.org>
+References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
+ <1294425762-29730-5-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110107195000.GD28875@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Trilok Soni <tsoni@codeaurora.org>, Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:57278 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752188Ab1AGUAg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Jan 2011 15:00:36 -0500
+Content-Disposition: inline
+In-Reply-To: <1294425762-29730-5-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 07/01/2011 20:50, Dmitry Torokhov wrote:
-> On Fri, Jan 07, 2011 at 08:42:37PM +0100, Fabien Marteau wrote:
->> On 04/01/2011 12:01, Trilok Soni wrote:
->>> Hi Fabien,
->>>
->>> On 1/4/2011 3:17 PM, Fabien Marteau wrote:
->>>> +
->>>> +static irqreturn_t as5011_int_interrupt(int irq, void *dev_id)
->>>> +{
->>>> +	struct as5011_platform_data *plat_dat = dev_id;
->>>> +
->>>> +	mutex_lock(&plat_dat->update_lock);
->>>> +	as5011_update_axes(plat_dat);
->>>> +	mutex_unlock(&plat_dat->update_lock);
->>>
->>> Please explain this lock. Sorry if I have missed out your explanation in the earlier threads.
->>
->> If a second interruption occurs the first update must be finished before update again.
-> 
-> The ISR handler will not be called simultaneously on several CPUs. What
-> else can it race with?
-> 
-Hum in fact nothing I thinks. I will delete it.
+On Fri, Jan 07, 2011 at 07:42:41PM +0100, Benjamin Tissoires wrote:
+> Added support for Cypress TrueTouch panels, which detect up to 10 fin=
+gers
+>=20
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> Signed-off-by: St=E9phane Chatty <chatty@enac.fr>
+> ---
 
-Thanks
-Fabien
+Hi, just minor things.
+
+>  drivers/hid/Kconfig          |    1 +
+>  drivers/hid/hid-core.c       |    1 +
+>  drivers/hid/hid-ids.h        |    1 +
+>  drivers/hid/hid-multitouch.c |   19 +++++++++++++++++++
+>  4 files changed, 22 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 511554d..de31d75 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -293,6 +293,7 @@ config HID_MULTITOUCH
+> =20
+>  	  Say Y here if you have one of the following devices:
+>  	  - PixCir touchscreen
+> +	  - Cypress TrueTouch
+> =20
+>  config HID_NTRIG
+>  	tristate "N-Trig touch screen"
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 2b4d9b9..e6a86bf 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1298,6 +1298,7 @@ static const struct hid_device_id hid_blacklist=
+[] =3D {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCO=
+DE_2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCO=
+DE_3) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE=
+) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_TRUET=
+OUCH) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULT=
+ITOUCH) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULT=
+ITOUCH1) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 17b444b..c258c42 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -180,6 +180,7 @@
+>  #define USB_DEVICE_ID_CYPRESS_BARCODE_1	0xde61
+>  #define USB_DEVICE_ID_CYPRESS_BARCODE_2	0xde64
+>  #define USB_DEVICE_ID_CYPRESS_BARCODE_3	0xbca1
+> +#define USB_DEVICE_ID_CYPRESS_TRUETOUCH	0xc001
+> =20
+>  #define USB_VENDOR_ID_DEALEXTREAME	0x10c5
+>  #define USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701	0x819a
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
+h.c
+> index 3b05dfe..7af9f71 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -32,6 +32,7 @@ MODULE_LICENSE("GPL");
+>  /* quirks to control the device */
+>  #define MT_QUIRK_NOT_SEEN_MEANS_UP	(1 << 0)
+>  #define MT_QUIRK_SLOT_IS_CONTACTID	(1 << 1)
+> +#define MT_QUIRK_CYPRESS	(1 << 2)
+
+Missing tab.
+
+> =20
+>  struct mt_slot {
+>  	__s32 x, y, p, w, h;
+> @@ -62,6 +63,7 @@ struct mt_class {
+>  /* classes of device behavior */
+>  #define MT_CLS_DEFAULT 0
+>  #define MT_CLS_DUAL1 1
+> +#define MT_CLS_CYPRESS 2
+
+Missing tabs... goes for the previous patch as well, coming to think of=
+ it.
+
+It does seem slightly complicated, doesn't it. How about dropping
+these, and referring to explicit static structures instead?
+
+> =20
+>  /*
+>   * these device-dependent functions determine what slot corresponds
+> @@ -73,6 +75,14 @@ static int slot_is_contactid(struct mt_device *td)
+>  	return td->curdata.contactid;
+>  }
+> =20
+> +static int cypress_compute_slot(struct mt_device *td)
+> +{
+> +	if (td->curdata.contactid !=3D 0 || td->num_received =3D=3D 0)
+> +		return td->curdata.contactid;
+> +	else
+> +		return -1;
+> +}
+> +
+>  static int find_slot_from_contactid(struct mt_device *td)
+>  {
+>  	int i;
+> @@ -95,6 +105,7 @@ static int find_slot_from_contactid(struct mt_devi=
+ce *td)
+>  struct mt_class mt_classes[] =3D {
+>  	{ 0, 0, 0, 10 },                             /* MT_CLS_DEFAULT */
+>  	{ MT_QUIRK_SLOT_IS_CONTACTID, 0, 0, 2 },     /* MT_CLS_DUAL1 */
+> +	{ MT_QUIRK_CYPRESS | MT_QUIRK_NOT_SEEN_MEANS_UP, 0, 0, 10 }, /* MT_=
+CLS_CYPRESS */
+>  };
+
+These could be named structs instead of an array, e.g.,
+
+static const struct mt_class mt_cls_dual1 =3D {
+       .quirks =3D MT_QUIRK_SLOT_IS_CONTACTID,
+       .max_contacts =3D 2,
+};
+
+> =20
+>  static void mt_feature_mapping(struct hid_device *hdev, struct hid_i=
+nput *hi,
+> @@ -223,6 +234,9 @@ static int mt_compute_slot(struct mt_device *td)
+>  	if (cls->quirks & MT_QUIRK_SLOT_IS_CONTACTID)
+>  		return slot_is_contactid(td);
+> =20
+> +	if (cls->quirks & MT_QUIRK_CYPRESS)
+> +		return cypress_compute_slot(td);
+> +
+>  	return find_slot_from_contactid(td);
+>  }
+> =20
+> @@ -422,6 +436,11 @@ static void mt_remove(struct hid_device *hdev)
+> =20
+>  static const struct hid_device_id mt_devices[] =3D {
+> =20
+> +	/* Cypress panel */
+> +	{ .driver_data =3D MT_CLS_CYPRESS,
+> +		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
+> +			USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
+> +
+>  	/* PixCir-based panels */
+>  	{ .driver_data =3D MT_CLS_DUAL1,
+>  		HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
+
+Could use pointers here instead.
+
+Thanks!
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

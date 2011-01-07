@@ -1,93 +1,64 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 2/4] Documentation: Add evdev type and code definitions
-Date: Fri, 07 Jan 2011 15:43:01 -0500
-Message-ID: <4D277AD5.2090409@canonical.com>
-References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com> <1292361672-2581-3-git-send-email-chase.douglas@canonical.com> <4D0A1E49.2070604@euromail.se>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch unification
+Date: Fri, 7 Jan 2011 22:06:34 +0100
+Message-ID: <AANLkTim1qw_=9Z23wtU5BxTUrzfGiEJRdR3naQUrTrpK@mail.gmail.com>
+References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
+	<20110107200850.GE29913@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:38107 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751760Ab1AGUnG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 15:43:06 -0500
-In-Reply-To: <4D0A1E49.2070604@euromail.se>
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:49297 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751801Ab1AGVGf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 16:06:35 -0500
+In-Reply-To: <20110107200850.GE29913@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/16/2010 09:12 AM, Henrik Rydberg wrote:
-> On 12/14/2010 10:21 PM, Chase Douglas wrote:
->> +The evdev protocol uses a map of types and codes to express input device values
->> +to userspace. This document describes the types and codes and how and when they
->> +may be used.
-> 
-> 
-> On a general note, the transfer is stateful. It is assumed that the receiver
-> knows that prior state of an axes when the new value comes in. Only changed
-> values are emitted.
-> 
-> Most of the input state can be retrieved via ioctl/sysfs calls.
+On Fri, Jan 7, 2011 at 9:08 PM, Henrik Rydberg <rydberg@euromail.se> wr=
+ote:
+> Hi Benjamin,
+>
+>> here is the v3.
+>>
+>> all changes are coming from the mails with Henrik:
+>>
+>> - restricted to new drivers only
+>> - delete mt_buffer struct
+>> - replace/adapt prev_valid in favor of seen_in_this_frame
+>> - integrated fuzz
+>> - introduce MT_QUIRKS
+>> - other small fixes
+>
+> A lot of progress in one day - thank you very much for making the
+> changes. I will be online for quite a bit longer in case there is mor=
+e
+> coming this way. With some testing over the weekend (I will be
+> traveling, sorry), it doesn't look impossible to have this ready earl=
+y
+> next week.
 
-I've noted both of these for the next revision.
+=46or my part, I'm a bit tired, and I don't have any device at home to
+test. I wont publish anything for the evening as I will for sure
+introduce bugs.
 
->> +* SYN_REPORT:
->> +  - Used to synchronize and separate events in time. For example, motion of a
->> +    mouse may set the REL_X and REL_Y values for one motion, then emit a
->> +    SYN_REPORT. The next motion will emit more REL_X and REL_Y values and send
->> +    another SYN_REPORT.
-> 
-> 
-> We have not using the name @frame@ much so far, but i think it is a good name
-> for it.
+Good night,
+Benjamin
 
-Good idea. I began using 'frame' name for the next revision.
-
->> +* BTN_TOOL_<name>, BTN_TOUCH:
->> +  - These codes are used in conjunction with input trackpads, tablets, and
->> +    touchscreens. These devices may be used with fingers, pens, or other tools.
->> +    When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
->> +    code should be set to a value of 1. When the tool is no longer interacting
->> +    with the input device, the BTN_TOOL_<name> code should be reset to 0. All
->> +    trackpads, tablets, and touchscreens should use at least one BTN_TOOL_<name>
->> +    code when events are generated. For non-tablet devices, the tool is usually
->> +    BTN_TOUCH.
-> 
-> 
-> BTN_TOUCH is always required, and on top of that, one or several other BTN_TOOL
-> can be used. There is also a quirk in that BTN_TOUCH should come first in the
-> event stream, for the benefit of the mousedev emulation driver.
-
-I've tried to address both issues in the next revision.
-
->> +* BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
->> +  - These codes denote one, two, three, and four finger interaction on a
->> +    trackpad or touchscreen. For example, if the user uses two fingers and moves
->> +    them on the touchpad in an effort to scroll content on screen,
->> +    BTN_TOOL_DOUBLETAP should be set to value 1 for the duration of the motion.
->> +    Note that these codes and the BTN_TOOL_<name> and BTN_TOUCH codes are
->> +    orthogonal in purpose. A trackpad event generated by finger touches should
->> +    generate events for one code from each group.
-> 
-> 
-> In the input-mt interface, there is a function to report these,
-> input_mt_report_finger_count().
-
-I've added a note about this.
-
->> +* ABS_DISTANCE:
->> +  - Used to describe the distance of a tool from an interaction surface. This
->> +    should only be used while the tool is in close proximity of the device. If
->> +    the input device may be used freely in three dimensions, consider ABS_Z
->> +    instead.
-> 
-> 
-> The word "hovering" is commonly used to describe this usage. Many pen tablets
-> use it, and touch versions are emerging.
-
-I added use of the word 'hovering' to be clear.
-
-Thanks!
-
--- Chase
+>
+> Cheers,
+> Henrik
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

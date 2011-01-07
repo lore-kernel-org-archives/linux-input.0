@@ -1,56 +1,37 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Input: introduce 'notimeout' blacklist for Dell Vostro
- V13 (was Re: Synaptics touchpad on Dell Vostro V13)
-Date: Fri, 7 Jan 2011 11:06:41 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101071105350.26685@pobox.suse.cz>
-References: <8583070.26.1294325869588.JavaMail.root@butch.jtdata.net>
+From: Linus Walleij <linus.ml.walleij@gmail.com>
+Subject: Re: [patch] input/tc3589x: fix compile error
+Date: Fri, 7 Jan 2011 11:12:38 +0100
+Message-ID: <AANLkTi=izTVZ2OH+drgimtB3o=e9Ksu5G+a+VHFDPk=j@mail.gmail.com>
+References: <20110104110820.GC1886@bicker>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:42762 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754632Ab1AGKGn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Jan 2011 05:06:43 -0500
-In-Reply-To: <8583070.26.1294325869588.JavaMail.root@butch.jtdata.net>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:50130 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754410Ab1AGKMj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 05:12:39 -0500
+Received: by pwj3 with SMTP id 3so2313222pwj.19
+        for <linux-input@vger.kernel.org>; Fri, 07 Jan 2011 02:12:38 -0800 (PST)
+In-Reply-To: <20110104110820.GC1886@bicker>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "James T. Dickson" <james.dickson@jtdata.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sundar Iyer <sundar.iyer@stericsson.com>, linux-input@vger.kernel.org, Dan Carpenter <error27@gmail.com>
 
-On Thu, 6 Jan 2011, James T. Dickson wrote:
+2011/1/4 Dan Carpenter <error27@gmail.com>:
 
-> Correct .. Suspend worked fine when the touchpad was a generic mouse.
-> 
-> However, this appears a symptom of the synaptics driver. I was able to 
-> overcome it with this script from 
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/59867 .
-> 
-> Placing it in /etc/pm/sleeps.d/ .
-> 
-> #!/bin/sh
-> #
-> # Reload the AT keyboard interface.
-> 
-> case "$1" in
->         hibernate|suspend)
->                 rmmod psmouse
->                 ;;
->         thaw|resume)
->                 modprobe psmouse
->                 ;;
->         *)
->                 ;;
-> esac
+> There was a semi-colon missing and it broke the compile.
+>
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
 
-I have already came across reports of this being needed for synaptics 
-touchpads on several different machines already, so this seems to be 
-rather unrelated problem to me.
+Dmitry can you take this fixup into the input tree?
+Russell pulled the tc3589x driver into his tree and Torvalds
+pulled it into his tree, so if you are based on Torvalds' tree
+for today it should apply fine.
 
-Dmitry, what is your current plan with the notimeout thing for V13, 
-please? Still .38 material?
+(Sorry for the mistake, I've attempted to fix the root cause
+by a patch to make this throw compile errors under all
+circumstances to Rusty Russell.)
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Yours,
+Linus Walleij

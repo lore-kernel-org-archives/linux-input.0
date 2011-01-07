@@ -1,99 +1,107 @@
 From: Chase Douglas <chase.douglas@canonical.com>
 Subject: Re: [PATCH 2/4] Documentation: Add evdev type and code definitions
-Date: Fri, 07 Jan 2011 15:34:47 -0500
-Message-ID: <4D2778E7.4000201@canonical.com>
-References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com> <1292361672-2581-3-git-send-email-chase.douglas@canonical.com> <20101215235900.GA4952@salty.local>
+Date: Fri, 07 Jan 2011 15:39:39 -0500
+Message-ID: <4D277A0B.4020300@canonical.com>
+References: <1292361672-2581-1-git-send-email-chase.douglas@canonical.com>	<1292361672-2581-3-git-send-email-chase.douglas@canonical.com>	<20101215235900.GA4952@salty.local> <AANLkTinjHuOv=sd_C-e1OLXuH_AS0YU_Hfj77zien27F@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20101215235900.GA4952@salty.local>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:36496 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751579Ab1AGUjn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 15:39:43 -0500
+In-Reply-To: <AANLkTinjHuOv=sd_C-e1OLXuH_AS0YU_Hfj77zien27F@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/15/2010 06:59 PM, Peter Hutterer wrote:
-> On Tue, Dec 14, 2010 at 01:21:10PM -0800, Chase Douglas wrote:
->> +EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
->> +to represent the 'A' key on a keyboard. When a key is depressed, an event with
->> +the key's code is emitted with value 1. When the key is depressed, an event is
->> +emitted with value 0. In general, KEY_<name> is used for keyboard keys, and
->> +BTN_<name> is used for other types of momentary switch events.
+On 12/16/2010 09:56 AM, Chris Bagwell wrote:
+> On Wed, Dec 15, 2010 at 5:59 PM, Peter Hutterer
+> <peter.hutterer@who-t.net> wrote:
+>> On Tue, Dec 14, 2010 at 01:21:10PM -0800, Chase Douglas wrote:
+>>> +* BTN_TOOL_<name>, BTN_TOUCH:
+>>> +  - These codes are used in conjunction with input trackpads, tablets, and
+>>> +    touchscreens. These devices may be used with fingers, pens, or other tools.
+>>> +    When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
+>>> +    code should be set to a value of 1. When the tool is no longer interacting
+>>> +    with the input device, the BTN_TOOL_<name> code should be reset to 0. All
+>>> +    trackpads, tablets, and touchscreens should use at least one BTN_TOOL_<name>
+>>> +    code when events are generated. For non-tablet devices, the tool is usually
+>>> +    BTN_TOUCH.
+>>
+>> BTN_TOUCH is used as proximity delimiter. e.g. wacom sends BTN_TOOL_PEN when
+>> the pen comes into proximity and (in addition) BTN_TOUCH when the pen
+>> actually touches the tablet. synaptics does the same IIRC except that it
+>> doesn't support hovering, so BTN_TOOL_FINGER and BTN_TOUCH are always
+>> set/unset in the same EV_SYN frame.
 > 
-> repeat keys have value 2, might want to add this here.
-
-Done.
-
->> +* BTN_TOOL_<name>, BTN_TOUCH:
->> +  - These codes are used in conjunction with input trackpads, tablets, and
->> +    touchscreens. These devices may be used with fingers, pens, or other tools.
->> +    When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
->> +    code should be set to a value of 1. When the tool is no longer interacting
->> +    with the input device, the BTN_TOOL_<name> code should be reset to 0. All
->> +    trackpads, tablets, and touchscreens should use at least one BTN_TOOL_<name>
->> +    code when events are generated. For non-tablet devices, the tool is usually
->> +    BTN_TOUCH.
+> This area is where most special cases are so somehow I think it
+> deserves extra attention.  Either in paragraphs or in sample events.
 > 
-> BTN_TOUCH is used as proximity delimiter. e.g. wacom sends BTN_TOOL_PEN when
-> the pen comes into proximity and (in addition) BTN_TOUCH when the pen
-> actually touches the tablet. synaptics does the same IIRC except that it
-> doesn't support hovering, so BTN_TOOL_FINGER and BTN_TOUCH are always
-> set/unset in the same EV_SYN frame.
-
-I've added wording for this.
-
->> +* REL_WHEEL, REL_HWHEEL:
->> +  - These codes are used for vertical and horizontal scroll wheels,
->> +    respectively.
+> There is the special historical case of touchscreen were
+> BTN_TOOL_FINGER is not sent; which mostly works because most
+> touchscreens do not support proximity/hover concepts.  It can
+> recommend not to use this approach and to use new ioctl() to convey
+> touchscreen vs. touchpad information.
 > 
-> I'm not sure they're special, other than in X where we still treat them as
-> buttons by convention. It's good to describe them here, just in case, but I
-> wouldn't call that a "special meaning".
+> Just an FYI: Synaptics is only sending BTN_TOUCH when pressure is >30
+> for what ever historical reason (and duplicating logic in
+> xf86-input-synaptics) so it usually won't be in same sync window as
+> BTN_TOOL_FINGER.  I think its only touchpad left doing this so I think
+> we may want to recommend best practice is to have BTN_TOOL_FINGER/*TAP
+> and BTN_TOUCH track each other when hover is not supported.
 
-In my mind I thought people may confuse this with a generic knob input
-device. I've seen these in the local Apple store, and I believe they are
-used primarily for professional a/v editing to go forward and backward
-in time. I don't believe such devices should be using either of these
-codes, so I defined the codes to be for scroll wheels.
+I have attempted to capture this in the document.
 
-Any objections?
-
->> +* ABS_PRESSURE:
->> +  - Used to describe the pressure of a touch interaction on an input device.
+>>> +* BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
+>>> +  - These codes denote one, two, three, and four finger interaction on a
+>>> +    trackpad or touchscreen. For example, if the user uses two fingers and moves
+>>> +    them on the touchpad in an effort to scroll content on screen,
+>>> +    BTN_TOOL_DOUBLETAP should be set to value 1 for the duration of the motion.
+>>> +    Note that these codes and the BTN_TOOL_<name> and BTN_TOUCH codes are
+>>> +    orthogonal in purpose. A trackpad event generated by finger touches should
+>>> +    generate events for one code from each group.
 > 
-> again, that's not really special IMO. it pretty much does what it says on
-> the box :)
-
-I think I had something in mind for this like the above REL_WHEEL, but I
-can't think of it now. After re-reading this description, I don't think
-it yields any new information that can't be gleaned from the code name
-itself, so I've yanked it from the document.
-
-> fwiw, I know that even though the documentation should be enough as-is,
-> having a few simple examples are always really useful to form the picture in
-> one's head. especially for newcomers who don't understand the basic concepts
-> yet.
+> We should probably recommend a best practice here.  Almost all drivers
+> today send only 1 of BTN_TOOL_FINGER/*TAP today.  For example, if 1
+> touch then BTN_TOOL_FINGER=1 and BTN_TOOL_DOUBLETAP=0 and during 2
+> touch then BTN_TOOL_FINGER=0 and BTN_TOOL_DOUBLETAP=1.
 > 
-> just something like:
-> "for example, an absolute device moving to a new position and pressing and
-> releasing a button may send events like this:
-> code            value
-> -----------------------
-> ABS_X           10
-> ABS_Y           100
-> BTN_LEFT        1
-> EV_SYN          SYN_REPORT
-> BTN_LEFT        0
-> EV_SYN          SYN_REPORT
-> 
-> This immediately makes it obvious that buttons and axes can be mixed in the
-> same frame. you may want to also point to a few tools that show the event
-> stream (evtest comes to mind as the most widely distributed).
+> I think at least 1 driver sends them concurrently today and you must
+> look for highest finger count tool.  I'm pretty sure historically a
+> lot of the drivers sent them concurrently as well.
 
-I would like to see this as well, but I think I'll leave the initial
-commit to just the protocol documentation. We should add these in a
-subsequent commit (and I'm running out of time at the moment :).
+I tried to convey both points in the documentation for these codes, and
+hopefully examples added to the document will help as well.
+
+>>> +
+>>> +EV_ABS:
+>>> +----------
+>>> +EV_ABS events describe absolute changes in a property. For example, a touchpad
+>>> +may emit coordinates for a touch location.
+>>> +
+>>> +A few EV_ABS codes have special meanings:
+>>> +
+>>> +* ABS_PRESSURE:
+>>> +  - Used to describe the pressure of a touch interaction on an input device.
+>>
+>> again, that's not really special IMO. it pretty much does what it says on
+>> the box :)
+> 
+> :-)
+> 
+> It may be worth noting though that this is optional event.  When it
+> doesn't exist then BTN_TOUCH indicates touch.  When it does exist then
+> this is preferred indication of touch and should be used to debounced
+> touches because of fact that majority of touchpad/touchscreen will
+> start detecting contact while hovering.  But then that leads to
+> optional ABS_DISTANCE...
+
+All of the evdev codes are optional, unless stated somewhere in here
+otherwise like BTN_TOUCH (in my next revision). I feel this falls into
+how userspace should use the codes, not the definition of the codes.
 
 Thanks!
 

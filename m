@@ -1,46 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] input/tc3589x: fix compile error
-Date: Fri, 7 Jan 2011 09:45:16 -0800
-Message-ID: <20110107174516.GA28875@core.coreip.homeip.net>
-References: <20110104110820.GC1886@bicker>
- <AANLkTi=izTVZ2OH+drgimtB3o=e9Ksu5G+a+VHFDPk=j@mail.gmail.com>
+From: Kristen Carlson Accardi <kristen@linux.intel.com>
+Subject: Re: [PATCH] input: move check for same handler in input_pass_event
+Date: Fri, 7 Jan 2011 10:24:34 -0800
+Message-ID: <20110107102434.7776091d@kcaccard-MOBL3>
+References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
+	<20110107060456.GA29038@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:58623 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754603Ab1AGRpX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 12:45:23 -0500
-Received: by gyb11 with SMTP id 11so6649300gyb.19
-        for <linux-input@vger.kernel.org>; Fri, 07 Jan 2011 09:45:22 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <AANLkTi=izTVZ2OH+drgimtB3o=e9Ksu5G+a+VHFDPk=j@mail.gmail.com>
+Received: from mga02.intel.com ([134.134.136.20]:56305 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754820Ab1AGSXX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Jan 2011 13:23:23 -0500
+In-Reply-To: <20110107060456.GA29038@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.ml.walleij@gmail.com>
-Cc: Sundar Iyer <sundar.iyer@stericsson.com>, linux-input@vger.kernel.org, Dan Carpenter <error27@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, arjan@linux.intel.com
 
-On Fri, Jan 07, 2011 at 11:12:38AM +0100, Linus Walleij wrote:
-> 2011/1/4 Dan Carpenter <error27@gmail.com>:
+On Thu, 6 Jan 2011 22:04:56 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+> On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
+> > If the handler that injected an event is the same,
+> > just skip the filter, but allow the handler->event()
+> > routine to be called.  This allows evdev to be able to
+> > be used to loopback events.
 > 
-> > There was a semi-colon missing and it broke the compile.
-> >
-> > Signed-off-by: Dan Carpenter <error27@gmail.com>
+> Why is it needed? Could you please give some examples?
 > 
-> Dmitry can you take this fixup into the input tree?
-> Russell pulled the tc3589x driver into his tree and Torvalds
-> pulled it into his tree, so if you are based on Torvalds' tree
-> for today it should apply fine.
+> Thanks.
 > 
 
-I normally merge with mainline at -rc1 or -rc2 points so I do not have
-the driver yet.
-
-I think this is one of those times when forwarding patch directly to
-Linus instead of waiting for it to trickle through all the trees is the
-most sensible solution.
-
-Thanks.
-
--- 
-Dmitry
+We have a customer who has a touchscreen device which sends
+a bitmap into a gesture engine, which then interprets that
+result and feeds it back into the kernel through a virtual
+input driver that X is listening to.

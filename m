@@ -1,68 +1,33 @@
-From: Rakesh Iyer <riyer@nvidia.com>
-Subject: RE: [PATCH v2] input: tegra-kbc - Add tegra keyboard driver
-Date: Thu, 6 Jan 2011 18:49:45 -0800
-Message-ID: <1FC56210173BB445BD77F608D6FB8D03165A008053@HQMAIL03.nvidia.com>
-References: <1294351512-17035-1-git-send-email-riyer@nvidia.com>
-	<alpine.LNX.2.00.1101062311340.13988@swampdragon.chaosbits.net>
- <20110106142714.f823dea8.rdunlap@xenotime.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: move check for same handler in input_pass_event
+Date: Thu, 6 Jan 2011 22:04:56 -0800
+Message-ID: <20110107060456.GA29038@core.coreip.homeip.net>
+References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate03.nvidia.com ([216.228.121.140]:11265 "EHLO
-	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753924Ab1AGCwG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jan 2011 21:52:06 -0500
-In-Reply-To: <20110106142714.f823dea8.rdunlap@xenotime.net>
-Content-Language: en-US
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:53880 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753518Ab1AGGFD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 01:05:03 -0500
+Received: by gwj20 with SMTP id 20so7613400gwj.19
+        for <linux-input@vger.kernel.org>; Thu, 06 Jan 2011 22:05:02 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Randy Dunlap' <rdunlap@xenotime.net>, Jesper Juhl <jj@chaosbits.net>
-Cc: "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Kristen Carlson Accardi <kristen@linux.intel.com>
+Cc: linux-input@vger.kernel.org
 
+On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
+> If the handler that injected an event is the same,
+> just skip the filter, but allow the handler->event()
+> routine to be called.  This allows evdev to be able to
+> be used to loopback events.
 
+Why is it needed? Could you please give some examples?
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On
-> Behalf Of Randy Dunlap
-> Sent: Thursday, January 06, 2011 2:27 PM
-> To: Jesper Juhl
-> Cc: Rakesh Iyer; tsoni@codeaurora.org; shubhrajyoti@ti.com; ccross@android.com;
-> konkers@android.com; olof@lixom.net; Andrew Chew; linux-tegra@vger.kernel.org; linux-
-> kernel@vger.kernel.org; linux-input@vger.kernel.org
-> Subject: Re: [PATCH v2] input: tegra-kbc - Add tegra keyboard driver
-> 
-> On Thu, 6 Jan 2011 23:15:01 +0100 (CET) Jesper Juhl wrote:
-> 
-> > > +fail:
-> > > +	if (kbc->irq >= 0)
-> > > +		free_irq(kbc->irq, pdev);
-> > > +	if (kbc->idev)
-> > > +		input_free_device(kbc->idev);
-> >
-> > As far as I can tell input_free_device() deals gracefully with being
-> > passed a null pointer, so the 'if' seems superfluous.
-> >
-> >
-> > --
-> > Jesper Juhl <jj@chaosbits.net>            http://www.chaosbits.net/
-> > Don't top-post http://www.catb.org/~esr/jargon/html/T/top-post.html
-> > Plain text mails only, please.
-> + Please trim replies to the relevant part(s) of patches.
-> 
-> 
-> thnx,
-> ---
-> ~Randy
-> *** Remember to use Documentation/SubmitChecklist when testing your code ***
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks.
 
-Is having this check really an issue? 
-Can't input_free_device change in the future so that NULL as a parameter does cause undesirable side-effects?
-
-Regards
-Rakesh
+-- 
+Dmitry

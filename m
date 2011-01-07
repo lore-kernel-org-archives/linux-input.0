@@ -1,36 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ad7879 - Convert I2C to dev_pm_ops
-Date: Thu, 6 Jan 2011 17:15:42 -0800
-Message-ID: <20110107011542.GB7262@core.coreip.homeip.net>
-References: <1294254095-25844-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20110105221432.GA6086@core.coreip.homeip.net>
- <20110106121556.GE17184@sirena.org.uk>
+From: Rakesh Iyer <riyer@nvidia.com>
+Subject: RE: [PATCH v2] input: tegra-kbc - Add tegra keyboard driver
+Date: Thu, 6 Jan 2011 18:49:45 -0800
+Message-ID: <1FC56210173BB445BD77F608D6FB8D03165A008053@HQMAIL03.nvidia.com>
+References: <1294351512-17035-1-git-send-email-riyer@nvidia.com>
+	<alpine.LNX.2.00.1101062311340.13988@swampdragon.chaosbits.net>
+ <20110106142714.f823dea8.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:45508 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755019Ab1AGBPs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jan 2011 20:15:48 -0500
-Received: by gyb11 with SMTP id 11so6359796gyb.19
-        for <linux-input@vger.kernel.org>; Thu, 06 Jan 2011 17:15:48 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20110106121556.GE17184@sirena.org.uk>
+Received: from hqemgate03.nvidia.com ([216.228.121.140]:11265 "EHLO
+	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753924Ab1AGCwG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jan 2011 21:52:06 -0500
+In-Reply-To: <20110106142714.f823dea8.rdunlap@xenotime.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
+To: 'Randy Dunlap' <rdunlap@xenotime.net>, Jesper Juhl <jj@chaosbits.net>
+Cc: "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Jan 06, 2011 at 12:15:56PM +0000, Mark Brown wrote:
-> On Wed, Jan 05, 2011 at 02:14:32PM -0800, Dmitry Torokhov wrote:
+
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On
+> Behalf Of Randy Dunlap
+> Sent: Thursday, January 06, 2011 2:27 PM
+> To: Jesper Juhl
+> Cc: Rakesh Iyer; tsoni@codeaurora.org; shubhrajyoti@ti.com; ccross@android.com;
+> konkers@android.com; olof@lixom.net; Andrew Chew; linux-tegra@vger.kernel.org; linux-
+> kernel@vger.kernel.org; linux-input@vger.kernel.org
+> Subject: Re: [PATCH v2] input: tegra-kbc - Add tegra keyboard driver
 > 
-> > Please change to guard .pm = &ad7879_i2c_pm with #ifdef.
+> On Thu, 6 Jan 2011 23:15:01 +0100 (CET) Jesper Juhl wrote:
 > 
-> I've sent out updated versions of this and the other affected patches;
-> the rest were already either not guarding at all or had the define due
-> to following the idiom of the existing driver.
+> > > +fail:
+> > > +	if (kbc->irq >= 0)
+> > > +		free_irq(kbc->irq, pdev);
+> > > +	if (kbc->idev)
+> > > +		input_free_device(kbc->idev);
+> >
+> > As far as I can tell input_free_device() deals gracefully with being
+> > passed a null pointer, so the 'if' seems superfluous.
+> >
+> >
+> > --
+> > Jesper Juhl <jj@chaosbits.net>            http://www.chaosbits.net/
+> > Don't top-post http://www.catb.org/~esr/jargon/html/T/top-post.html
+> > Plain text mails only, please.
+> + Please trim replies to the relevant part(s) of patches.
+> 
+> 
+> thnx,
+> ---
+> ~Randy
+> *** Remember to use Documentation/SubmitChecklist when testing your code ***
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Thanks Mark. I'll get them in.
+Is having this check really an issue? 
+Can't input_free_device change in the future so that NULL as a parameter does cause undesirable side-effects?
 
--- 
-Dmitry
+Regards
+Rakesh

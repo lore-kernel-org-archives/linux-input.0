@@ -1,24 +1,52 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: add Add Cando touch screen 10.1-inch product id
-Date: Sat, 8 Jan 2011 16:28:19 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101081628050.26685@pobox.suse.cz>
-References: <1294485342-2492-1-git-send-email-benjamin.tissoires@enac.fr>
+Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch
+ unification
+Date: Sat, 8 Jan 2011 22:25:17 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101082224130.26685@pobox.suse.cz>
+References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr> <alpine.LNX.2.00.1101072355200.26685@pobox.suse.cz> <alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1294485342-2492-1-git-send-email-benjamin.tissoires@enac.fr>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:58520 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751641Ab1AHVZT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 8 Jan 2011 16:25:19 -0500
+In-Reply-To: <alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 Cc: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-On Sat, 8 Jan 2011, Benjamin Tissoires wrote:
+On Sat, 8 Jan 2011, Jiri Kosina wrote:
 
-> This device has been reported to be an hid-cando one.
+> > > all changes are coming from the mails with Henrik:
+> > > 
+> > > - restricted to new drivers only
+> > > - delete mt_buffer struct
+> > > - replace/adapt prev_valid in favor of seen_in_this_frame
+> > > - integrated fuzz
+> > > - introduce MT_QUIRKS
+> > > - other small fixes
+> > 
+> > Hi Bejnamin,
+> > 
+> > thanks a lot for spinning this up so nicely and quickly.
+> > 
+> > I have now applied the patchset as-is to the 'multitouch' branch in my 
+> > tree.
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> Which means -- could you please send any followup patches on top of that 
+> branch (i.e. on top of the v3 patchset)? It would help my workflow and 
+> make the merging process smoother.
 
-Applied altogether with the turbox patch. Thanks,
+'multitouch' brach now builds, as Linus has taken Dmitry's pull request 
+and I have merged from Linus.
+
+So once you have fixed for the minor issues raised by Henrik and once you 
+have finished your testing, please send the additional fixes to me and I 
+will be merging the branch upstream.
+
+Thanks,
 
 -- 
 Jiri Kosina

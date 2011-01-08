@@ -1,342 +1,809 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH v2] Documentation: Add evdev type and code definitions
-Date: Fri, 7 Jan 2011 19:15:56 -0600
-Message-ID: <AANLkTi=u=zft-0fyUEPz0n2+xC7EgWE7TyQudHScNu0P@mail.gmail.com>
-References: <1294435695-16750-1-git-send-email-chase.douglas@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
+ joystick driver (fourth version)
+Date: Sat, 8 Jan 2011 01:30:40 -0800
+Message-ID: <20110108093040.GA8671@core.coreip.homeip.net>
+References: <4D27735C.6000105@armadeus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:37391 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752573Ab1AHBP5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jan 2011 20:15:57 -0500
-In-Reply-To: <1294435695-16750-1-git-send-email-chase.douglas@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4D27735C.6000105@armadeus.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Fabien Marteau <fabien.marteau@armadeus.com>
+Cc: Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Peter Hutterer <peter.hutterer@who-t.net>, Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Chase,
+Hi Fabien,
+On Fri, Jan 07, 2011 at 09:11:08PM +0100, Fabien Marteau wrote:
+> Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugged  on an I2C bus.
+> It has been tested on ARM processor (i.MX27).
+> 
+> 
 
-On Fri, Jan 7, 2011 at 3:28 PM, Chase Douglas
-<chase.douglas@canonical.com> wrote:
-> This commit adds the file Documentation/input/evdev-codes.txt.
->
-> Cc: Henrik Rydberg <rydberg@euromail.se>
-> Cc: Chris Bagwell <chris@cnpbagwell.com>
-> Cc: Peter Hutterer <peter.hutterer@who-t.net>
-> Cc: Nikolai Kondrashov <spbnick@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> ---
-> =A0Documentation/input/evdev-codes.txt | =A0206 +++++++++++++++++++++=
-++++++++++++++
-> =A01 files changed, 206 insertions(+), 0 deletions(-)
-> =A0create mode 100644 Documentation/input/evdev-codes.txt
->
-> diff --git a/Documentation/input/evdev-codes.txt b/Documentation/inpu=
-t/evdev-codes.txt
+Some more comments and a patch for you  to try...
+
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/mutex.h>
+
+Not needed anymore.
+
+> +
+> +struct as5011_device {
+> +	int button_irq;
+> +	struct input_dev *input_dev;
+> +	struct i2c_client *i2c_client;
+> +	char name[AS5011_MAX_NAME_LENGTH];
+
+Name is not used.
+
+> +
+> +static int as5011_i2c_read(struct i2c_client *client,
+> +			   uint8_t aregaddr, signed char *value)
+> +{
+> +	int ret;
+> +	uint8_t data[2];
+> +	struct i2c_msg msg_set[2];
+> +	struct i2c_msg msg1 = {	client->addr,
+> +				I2C_M_REV_DIR_ADDR,
+> +				1,
+> +				(uint8_t *)data};
+> +	struct i2c_msg msg2 = {	client->addr,
+> +				I2C_M_RD|I2C_M_NOSTART,
+> +				1,
+> +				(uint8_t *)data};
+> +
+> +	data[0] = aregaddr;
+> +	msg_set[0] = msg1;
+> +	msg_set[1] = msg2;
+> +
+
+You do not need both the array and individual variables.
+
+> +	ret = i2c_transfer(client->adapter, msg_set, 2);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (data[0] & 0x80) {
+> +		*value = -1*(1+(~data[0]));
+> +		return 0;
+> +	} else {
+> +		*value = data[0];
+> +		return 0;
+> +	}
+> +}
+> +
+> +static irqreturn_t button_interrupt(int irq, void *dev_id)
+> +{
+> +	 struct as5011_device *dev = dev_id;
+> +	 struct as5011_platform_data *plat_dat =
+> +				dev->i2c_client->dev.platform_data;
+
+Looks like indented with spaces.
+
+> +	int ret;
+> +
+> +	ret = gpio_get_value(plat_dat->button_gpio);
+
+We should call gpio_get_value_cansleep() to avoid warnings if gpio
+operations require sleep - we can sleep here since we are using threaded
+interrupt.
+
+> +	if (ret)
+> +		input_report_key(dev->input_dev, BTN_JOYSTICK, 0);
+> +	else
+> +		input_report_key(dev->input_dev, BTN_JOYSTICK, 1);
+> +	input_sync(dev->input_dev);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int as5011_update_axes(struct as5011_device *dev)
+> +{
+> +	int ret;
+> +	signed char x, y;
+> +
+> +	ret = as5011_i2c_read(dev->i2c_client, AS5011_X_RES_INT, &x);
+> +	if (ret < 0)
+> +		return ret;
+> +	ret = as5011_i2c_read(dev->i2c_client, AS5011_Y_RES_INT, &y);
+> +	if (ret < 0)
+> +		return ret;
+> +	input_report_abs(dev->input_dev, ABS_X, x);
+> +	input_report_abs(dev->input_dev, ABS_Y, y);
+> +	input_sync(dev->input_dev);
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t as5011_int_interrupt(int irq, void *dev_id)
+> +{
+> +	int ret;
+> +	 struct as5011_device *dev = dev_id;
+> +
+> +	ret = as5011_update_axes(dev);
+> +	if (ret < 0)
+> +		return ret;
+
+Negative result is not a valid irqreturn_t value, we should not try to
+return it here.
+
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int __devinit as5011_probe(struct i2c_client *client,
+> +				const struct i2c_device_id *id)
+> +{
+> +	struct as5011_device *dev;
+> +	struct as5011_platform_data *plat_dat = client->dev.platform_data;
+
+Platform data should be const.
+
+> +	int retval = 0;
+
+Do not initialize error codes like this - it quite often masks problem
+like forgetting to update to proper error code in error handling branch
+and unintentionally returning success.
+
+> +	signed char value;
+> +
+> +	if (plat_dat == NULL)
+> +		return -EINVAL;
+> +
+> +	dev = kmalloc(sizeof(struct as5011_device), GFP_KERNEL);
+> +	if (dev == NULL) {
+> +		dev_err(&client->dev,
+> +			"Can't allocate memory for device structure\n");
+> +		goto err_out;
+> +	}
+> +
+> +	if (!i2c_check_functionality(client->adapter,
+> +				     I2C_FUNC_PROTOCOL_MANGLING)) {
+> +		dev_err(&client->dev,
+> +		"i2c bus does not support protocol mangling, as5011 can't work\n");
+> +		retval = -ENODEV;
+> +		goto err_free_device_structure;
+> +	}
+> +	dev->i2c_client = client;
+> +
+> +	dev->input_dev = input_allocate_device();
+> +	if (dev->input_dev == NULL) {
+> +		dev_err(&client->dev,
+> +		"not enough memory for input devices structure\n");
+> +		retval = -ENOMEM;
+> +		goto err_free_device_structure;
+> +	}
+> +
+> +	dev->input_dev->name = "Austria Microsystem as5011 joystick";
+> +	dev->input_dev->id.bustype = BUS_I2C;
+
+You also should be setting input_dev->dev.parent = &client->dev to
+ensure that the input device gets placed in proper place in sysfs tree.
+
+> +	__set_bit(EV_KEY, dev->input_dev->evbit);
+> +	__set_bit(EV_ABS, dev->input_dev->evbit);
+> +	__set_bit(BTN_JOYSTICK, dev->input_dev->keybit);
+> +
+> +	input_set_abs_params(dev->input_dev,
+> +			     ABS_X,
+> +			     AS5011_MIN_AXIS,
+> +			     AS5011_MAX_AXIS,
+> +			     AS5011_FUZZ,
+> +			     AS5011_FLAT);
+> +	input_set_abs_params(dev->input_dev,
+> +			     ABS_Y,
+> +			     AS5011_MIN_AXIS,
+> +			     AS5011_MAX_AXIS,
+> +			     AS5011_FUZZ,
+> +			     AS5011_FLAT);
+> +
+> +	retval = gpio_request(plat_dat->button_gpio, "AS5011 button");
+> +	if (retval < 0) {
+> +		dev_err(&client->dev, "Failed to request button gpio\n");
+> +		goto err_input_free_device;
+> +	}
+> +
+> +
+> +	dev->button_irq = gpio_to_irq(plat_dat->button_gpio);
+> +	if (dev->button_irq < 0) {
+> +		dev_err(&client->dev,
+> +			"Failed to get irq number for button gpio\n");
+> +		goto err_free_button_gpio;
+> +	}
+> +
+> +	set_irq_type(dev->button_irq, IRQ_TYPE_EDGE_BOTH);
+> +
+> +	retval = request_threaded_irq(dev->button_irq,
+> +					NULL, button_interrupt,
+> +					0, "as5011_button",
+> +					dev);
+
+Normally you just supply IRQF_TRIGGER_XXX flags to request_irq instead
+of calling set_irq_type().
+
+> +
+> +	retval = input_register_device(dev->input_dev);
+> +	if (retval) {
+> +		dev_err(&client->dev, "Failed to register device\n");
+> +		goto err_free_irq_int;
+> +	}
+> +	i2c_set_clientdata(client, dev);
+> +
+> +	return 0;
+> +
+> +	/* Error management */
+> +err_free_irq_int:
+> +	set_irq_type(plat_dat->int_irq, IRQ_TYPE_NONE);
+
+I do not believe you need to reset IRQ type here, free_irq() should
+suffice.
+
+> +	free_irq(plat_dat->int_irq, dev);
+> +err_free_irq_button_interrupt:
+> +	set_irq_type(dev->button_irq, IRQ_TYPE_NONE);
+> +	free_irq(dev->button_irq, dev);
+> +err_free_button_gpio:
+> +	gpio_free(plat_dat->button_gpio);
+> +err_input_free_device:
+> +	input_unregister_device(dev->input_dev);
+
+Unregistered devices should be freed with call to input_free_device()
+instead of input_unregister_device().
+
+> +err_free_device_structure:
+> +	kfree(dev);
+> +err_out:
+> +	return retval;
+> +}
+> +static int as5011_remove(struct i2c_client *client)
+> +{
+
+__devexit
+
+> +	struct as5011_device *dev;
+> +	struct as5011_platform_data *plat_dat = client->dev.platform_data;
+> +
+> +	dev = i2c_get_clientdata(client);
+> +
+> +	set_irq_type(plat_dat->int_irq, IRQ_TYPE_NONE);
+> +	free_irq(plat_dat->int_irq, dev);
+> +	set_irq_type(dev->button_irq, IRQ_TYPE_NONE);
+> +	free_irq(dev->button_irq, dev);
+> +	gpio_free(plat_dat->button_gpio);
+> +	input_unregister_device(dev->input_dev);
+> +	kfree(dev);
+> +	return 0;
+> +}
+> +static const struct i2c_device_id as5011_id[] = {
+> +	{ MODULE_DEVICE_ALIAS, 0 },
+> +	{ }
+> +};
+
+Also needs MODULE_DEVICE_TABLE(i2c, as5011_id);
+
+> +
+> +static struct i2c_driver as5011_driver = {
+> +	.driver = {
+> +		.name = "as5011",
+> +	},
+> +	.probe		= as5011_probe,
+> +	.remove		= __devexit_p(as5011_remove),
+> +	.id_table	= as5011_id,
+> +};
+> +
+> +static int __init as5011_init(void)
+> +{
+> +	return i2c_add_driver(&as5011_driver);
+> +}
+> +module_init(as5011_init);
+> +
+> +static void __exit as5011_exit(void)
+> +{
+> +	i2c_del_driver(&as5011_driver);
+> +}
+> +module_exit(as5011_exit);
+> +
+> diff --git a/include/linux/input/as5011.h b/include/linux/input/as5011.h
 > new file mode 100644
-> index 0000000..8d7262c
+> index 0000000..250b7bf
 > --- /dev/null
-> +++ b/Documentation/input/evdev-codes.txt
-> @@ -0,0 +1,206 @@
-> +The evdev protocol uses a map of types and codes to express input de=
-vice values
-> +to userspace. This document describes the types and codes and how an=
-d when they
-> +may be used.
+> +++ b/include/linux/input/as5011.h
+> @@ -0,0 +1,24 @@
+> +#ifndef _AS5011_H
+> +#define _AS5011_H
 > +
-> +The evdev protocol is a stateful protocol. Events are emitted only w=
-hen values
-> +of evdev codes have changed. However, the state is maintained within=
- the Linux
-> +input subsystem; drivers do not need to maintain the state and may a=
-ttempt to
-> +emit unchanged values without harm. Userspace may obtain the current=
- state of
-> +evdev code values using the EVIOCGABS ioctl defined in linux/input.h=
-=2E
+> +/*
+> + * Copyright (c) 2010, 2011 Fabien Marteau <fabien.marteau@armadeus.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
+> + */
 > +
-> +Types:
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +Types are groupings of codes under a logical input construct. Each t=
-ype has a
-> +set of applicable codes to be used in generating events. See the Cod=
-es section
-> +for details on valid codes for each type.
-> +
-> +* EV_SYN:
-> + =A0- Used as markers to separate events. Events may be separated in=
- time or in
-> + =A0 =A0space, such as with the multitouch protocol.
-> +
-> +* EV_KEY:
-> + =A0- Used to describe keyboard and other key-like input events.
-> +
-> +* EV_REL:
-> + =A0- Used to describe relative input events, e.g. moving the mouse =
-5 units to the
-> + =A0 =A0left.
-> +
-> +* EV_ABS:
-> + =A0- Used to describe absolute input events, e.g. describing the co=
-ordinates of a
-> + =A0 =A0touch on a touchscreen.
-> +
-> +* EV_MSC:
-> + =A0- Used to describe miscellaneous input events that do not fit in=
-to other
-> + =A0 =A0types.
-> +
-> +* EV_SW:
-> + =A0- Used to describe binary state input switches.
-> +
-> +* EV_LED:
-> + =A0- Used to turn LEDs on devices on and off.
-> +
-> +* EV_SND:
-> + =A0- Used to output sound to devices.
-> +
-> +* EV_REP:
-> + =A0- Used for autorepeating devices.
-> +
-> +* EV_FF:
-> + =A0- Used to send force feedback commands to an input device.
-> +
-> +* EV_PWR:
-> + =A0- A special type for power button and switch input.
-> +
-> +* EV_FF_STATUS:
-> + =A0- Used to receive force feedback device status.
-> +
-> +Codes:
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +Codes define the precise type of event.
-> +
-> +EV_SYN:
-> +----------
-> +EV_SYN event values are undefined. Their usage is
-> +defined only by when they are sent in the evdev event stream.
-> +
-> +* SYN_REPORT:
-> + =A0- Used to synchronize and separate events into frames of time. F=
-or example,
-> + =A0 =A0motion of a mouse may set the REL_X and REL_Y values for one=
- motion, then
-> + =A0 =A0emit a SYN_REPORT. The next motion will emit more REL_X and =
-REL_Y values and
-> + =A0 =A0send another SYN_REPORT.
-> +
-> +* SYN_CONFIG:
-> + =A0- TBD
-> +
-> +* SYN_MT_REPORT:
-> + =A0- Used to synchronize and separate touch events. See the
-> + =A0 =A0multi-touch-protocol.txt document for more information.
-> +
-> +EV_KEY:
-> +----------
-> +EV_KEY events take the form KEY_<name> or BTN_<name>. For example, K=
-EY_A is used
-> +to represent the 'A' key on a keyboard. When a key is depressed, an =
-event with
-> +the key's code is emitted with value 1. When the key is released, an=
- event is
-> +emitted with value 0. Some hardware send events when a key is repeat=
-ed. These
-> +events have a value of 2. In general, KEY_<name> is used for keyboar=
-d keys, and
-> +BTN_<name> is used for other types of momentary switch events.
-> +
-> +A few EV_KEY codes have special meanings:
-> +
-> +* BTN_TOOL_<name>:
-> + =A0- These codes are used in conjunction with input trackpads, tabl=
-ets, and
-> + =A0 =A0touchscreens. These devices may be used with fingers, pens, =
-or other tools.
-> + =A0 =A0When an event occurs and a tool is used, the corresponding B=
-TN_TOOL_<name>
-> + =A0 =A0code should be set to a value of 1. When the tool is no long=
-er interacting
-> + =A0 =A0with the input device, the BTN_TOOL_<name> code should be re=
-set to 0. All
-> + =A0 =A0trackpads, tablets, and touchscreens should use at least one=
- BTN_TOOL_<name>
-> + =A0 =A0code when events are generated.
-> +
-> +* BTN_TOUCH:
-> + =A0 =A0BTN_TOUCH is used for touch contact. While an input tool is =
-determined to be
-> + =A0 =A0within meaningful physical contact, the value of this proper=
-ty must be set
-> + =A0 =A0to 1. Meaningful physical contact may mean any contact, or i=
-t may mean
-> + =A0 =A0contact conditioned by an implementation defined property. F=
-or example, a
-> + =A0 =A0touchpad may set the value to 1 only when the touch pressure=
- rises above a
-> + =A0 =A0certain value. BTN_TOUCH may be combined with BTN_TOOL_<name=
-> codes. For
-> + =A0 =A0example, a pen tablet may set BTN_TOOL_PEN to 1 and BTN_TOUC=
-H to 0 while the
-> + =A0 =A0pen is hovering over but not touching the tablet surface.
-> +
-> +Note: For appropriate function of the legacy mousedev emulation driv=
-er,
-> +BTN_TOUCH must be the first evdev code emitted in a synchronization =
-frame.
-> +
-> +Note: Historically a touch device with BTN_TOOL_FINGER and BTN_TOUCH=
- was
-> +interpreted as a touchpad by userspace, while a similar device witho=
-ut
-> +BTN_TOOL_FINGER was interpreted as a touchscreen. For backwards comp=
-atibility
-> +with current userspace it is recommended to follow this distinction.=
- In the
-> +future, this distinction will be deprecated and the device propertie=
-s ioctl
-> +EVIOCGPROP, defined in linux/input.h, will be used to convey the dev=
-ice type.
-> +
-> +* BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_=
-QUADTAP:
-> + =A0- These codes denote one, two, three, and four finger interactio=
-n on a
-> + =A0 =A0trackpad or touchscreen. For example, if the user uses two f=
-ingers and moves
-> + =A0 =A0them on the touchpad in an effort to scroll content on scree=
-n,
-> + =A0 =A0BTN_TOOL_DOUBLETAP should be set to value 1 for the duration=
- of the motion.
-> + =A0 =A0Note that these codes and the BTN_TOOL_<name> and BTN_TOUCH =
-codes are
-> + =A0 =A0orthogonal in purpose. A trackpad event generated by finger =
-touches should
-> + =A0 =A0generate events for one code from each group. At most only o=
-ne of these
-> + =A0 =A0codes should have a value of 1 during any synchronization fr=
-ame.
+> +#include <linux/mutex.h>
 
-I think the "Note" sentence needs an update.  I can interpret it as
-defining 3 groups but only 2 exist.
+Not needed.
 
-Maybe: "Note that all BTN_TOOL_<name> codes (include these finger
-touch codes) and the BTN_TOUCH code are orthogonal in purpose. "
+> +
+> +#define AS5011_MAX_NAME_LENGTH	64
 
-Thats my only comment.  This doc will be great to have!
+Not needed.
 
-I'll propose a couple of example event sequences to add once this gets
-committed.
+> +
+> +struct as5011_platform_data {
+> +	int button_gpio;
+> +	int int_irq; /* irq number */
+> +	int int_edge;/* irq edge IRQ_TYPE_EDGE_[FALLING,RISING,BOTH] */
+> +	char xp, xn; /* threshold for x axis */
+> +	char yp, yn; /* threshold for y axis */
+> +};
+> +
+> +#endif /* _AS5011_H */
+> -- 
+> 1.7.0.4
+> 
 
-Chris
-> +
-> +Note: Historically some drivers emitted multiple of the finger count=
- codes with
-> +a value of 1 in the same synchronization frame. This usage is deprec=
-ated.
-> +
-> +Note: In multitouch drivers, the input_mt_report_finger_count() func=
-tion should
-> +be used to emit these codes. Please see multi-touch-protocol.txt for=
- details.
-> +
-> +* KEY_SUSPEND, KEY_POWER:
-> + =A0- These codes are reserved for the EV_PWR type.
-> +
-> +EV_REL:
-> +----------
-> +EV_REL events describe relative changes in a property. For example, =
-a mouse may
-> +move to the left by a certain number of units, but its absolute posi=
-tion in
-> +space is unknown. If the absolute position is known, EV_ABS codes sh=
-ould be used
-> +instead of EV_REL codes.
-> +
-> +A few EV_REL codes have special meanings:
-> +
-> +* REL_WHEEL, REL_HWHEEL:
-> + =A0- These codes are used for vertical and horizontal scroll wheels=
-,
-> + =A0 =A0respectively.
-> +
-> +EV_ABS:
-> +----------
-> +EV_ABS events describe absolute changes in a property. For example, =
-a touchpad
-> +may emit coordinates for a touch location.
-> +
-> +A few EV_ABS codes have special meanings:
-> +
-> +* ABS_DISTANCE:
-> + =A0- Used to describe the distance of a tool from an interaction su=
-rface. This
-> + =A0 =A0should only be used while the tool is hovering, meaning in c=
-lose proximity
-> + =A0 =A0of the device. If the input device may be used freely in thr=
-ee dimensions,
-> + =A0 =A0consider ABS_Z instead.
-> +
-> +* ABS_MT_<name>:
-> + =A0- Used to describe multitouch input events. Please see
-> + =A0 =A0multi-touch-protocol.txt for details.
-> +
-> +EV_SW:
-> +----------
-> +EV_SW events describe stateful binary switches. For example, the SW_=
-LID code is
-> +used to denote when a laptop lid is closed.
-> +
-> +EV_MSC:
-> +----------
-> +EV_MSC events are used for input and output events that do not fall =
-under other
-> +categories.
-> +
-> +EV_LED:
-> +----------
-> +EV_LED events are used for input and output to set and query the sta=
-te of
-> +various LEDs on devices.
-> +
-> +EV_REP:
-> +----------
-> +EV_REP events are used for specifying autorepeating events.
-> +
-> +EV_SND:
-> +----------
-> +EV_SND events are used for sending sound commands to simple sound ou=
-tput
-> +devices.
-> +
-> +EV_FF:
-> +----------
-> +EV_FF events are used to initialize a force feedback capable device =
-and to cause
-> +such device to feedback.
-> +
-> +EV_PWR:
-> +----------
-> +EV_PWR events are a special type of key event used specifically for =
-monitoring
-> +power buttons and switches. The two codes in use are:
-> +
-> +* KEY_POWER:
-> + =A0- Used to denote a power button event.
-> +
-> +* KEY_SUSPEND:
-> + =A0- Used to denote a suspend button event.
-> --
-> 1.7.1
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Does the patch below work for you or did I break it horribly?
+
+Thanks,
+
+-- 
+Dmitry
+
+
+Input: add Austria Microsystem AS5011 joystick driver
+
+From: Fabien Marteau <fabien.marteau@armadeus.com>
+
+This is driver for EasyPoint AS5011 2 axis joystick chip. This chip is
+plugged on an I2C bus.
+
+Tested on ARM processor (i.MX27).
+
+Signed-off-by: Fabien Marteau <fabien.marteau@armadeus.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/joystick/Kconfig  |   10 +
+ drivers/input/joystick/Makefile |    1 
+ drivers/input/joystick/as5011.c |  367 +++++++++++++++++++++++++++++++++++++++
+ include/linux/input/as5011.h    |   20 ++
+ 4 files changed, 398 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/joystick/as5011.c
+ create mode 100644 include/linux/input/as5011.h
+
+
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index 5b59616..56eb471 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -255,6 +255,16 @@ config JOYSTICK_AMIGA
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called amijoy.
+ 
++config JOYSTICK_AS5011
++	tristate "Austria Microsystem AS5011 joystick"
++	depends on I2C
++	help
++	  Say Y here if you have an AS5011 digital joystick connected to your
++	  system.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called as5011.
++
+ config JOYSTICK_JOYDUMP
+ 	tristate "Gameport data dumper"
+ 	select GAMEPORT
+diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+index f3a8cbe..92dc0de 100644
+--- a/drivers/input/joystick/Makefile
++++ b/drivers/input/joystick/Makefile
+@@ -7,6 +7,7 @@
+ obj-$(CONFIG_JOYSTICK_A3D)		+= a3d.o
+ obj-$(CONFIG_JOYSTICK_ADI)		+= adi.o
+ obj-$(CONFIG_JOYSTICK_AMIGA)		+= amijoy.o
++obj-$(CONFIG_JOYSTICK_AS5011)		+= as5011.o
+ obj-$(CONFIG_JOYSTICK_ANALOG)		+= analog.o
+ obj-$(CONFIG_JOYSTICK_COBRA)		+= cobra.o
+ obj-$(CONFIG_JOYSTICK_DB9)		+= db9.o
+diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
+new file mode 100644
+index 0000000..5037932
+--- /dev/null
++++ b/drivers/input/joystick/as5011.c
+@@ -0,0 +1,367 @@
++/*
++ * Copyright (c) 2010, 2011 Fabien Marteau <fabien.marteau@armadeus.com>
++ * Sponsored by ARMadeus Systems
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Driver for Austria Microsystems joysticks AS5011
++ *
++ * TODO:
++ *	- Power on the chip when open() and power down when close()
++ *	- Manage power mode
++ */
++
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/gpio.h>
++#include <linux/delay.h>
++#include <linux/input/as5011.h>
++#include <linux/slab.h>
++
++#define DRIVER_DESC "Driver for Austria Microsystems AS5011 joystick"
++#define MODULE_DEVICE_ALIAS "as5011"
++
++MODULE_AUTHOR("Fabien Marteau <fabien.marteau@armadeus.com>");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
++
++/* registers */
++#define AS5011_CTRL1		0x76
++#define AS5011_CTRL2		0x75
++#define AS5011_XP		0x43
++#define AS5011_XN		0x44
++#define AS5011_YP		0x53
++#define AS5011_YN		0x54
++#define AS5011_X_REG		0x41
++#define AS5011_Y_REG		0x42
++#define AS5011_X_RES_INT	0x51
++#define AS5011_Y_RES_INT	0x52
++
++/* CTRL1 bits */
++#define AS5011_CTRL1_LP_PULSED		0x80
++#define AS5011_CTRL1_LP_ACTIVE		0x40
++#define AS5011_CTRL1_LP_CONTINUE	0x20
++#define AS5011_CTRL1_INT_WUP_EN		0x10
++#define AS5011_CTRL1_INT_ACT_EN		0x08
++#define AS5011_CTRL1_EXT_CLK_EN		0x04
++#define AS5011_CTRL1_SOFT_RST		0x02
++#define AS5011_CTRL1_DATA_VALID		0x01
++
++/* CTRL2 bits */
++#define AS5011_CTRL2_EXT_SAMPLE_EN	0x08
++#define AS5011_CTRL2_RC_BIAS_ON		0x04
++#define AS5011_CTRL2_INV_SPINNING	0x02
++
++#define AS5011_MAX_AXIS	80
++#define AS5011_MIN_AXIS	(-80)
++#define AS5011_FUZZ	8
++#define AS5011_FLAT	40
++
++struct as5011_device {
++	struct input_dev *input_dev;
++	struct i2c_client *i2c_client;
++	unsigned int button_gpio;
++	unsigned int button_irq;
++	unsigned int axis_irq;
++};
++
++static int as5011_i2c_write(struct i2c_client *client,
++			    uint8_t aregaddr,
++			    uint8_t avalue)
++{
++	uint8_t data[2] = { aregaddr, avalue };
++	struct i2c_msg msg = {
++		client->addr, I2C_M_IGNORE_NAK, 2, (uint8_t *)data
++	};
++	int error;
++
++	error = i2c_transfer(client->adapter, &msg, 1);
++	return error < 0 ? error : 0;
++}
++
++static int as5011_i2c_read(struct i2c_client *client,
++			   uint8_t aregaddr, signed char *value)
++{
++	uint8_t data[2] = { aregaddr };
++	struct i2c_msg msg_set[2] = {
++		{ client->addr, I2C_M_REV_DIR_ADDR, 1, (uint8_t *)data },
++		{ client->addr, I2C_M_RD | I2C_M_NOSTART, 1, (uint8_t *)data }
++	};
++	int error;
++
++	error = i2c_transfer(client->adapter, msg_set, 2);
++	if (error < 0)
++		return error;
++
++	*value = data[0] & 0x80 ? -1 * (1 + ~data[0]) : data[0];
++	return 0;
++}
++
++static irqreturn_t as5011_button_interrupt(int irq, void *dev_id)
++{
++	struct as5011_device *as5011 = dev_id;
++	int val = gpio_get_value_cansleep(as5011->button_gpio);
++
++	input_report_key(as5011->input_dev, BTN_JOYSTICK, !val);
++	input_sync(as5011->input_dev);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t as5011_axis_interrupt(int irq, void *dev_id)
++{
++	struct as5011_device *as5011 = dev_id;
++	int error;
++	signed char x, y;
++
++	error = as5011_i2c_read(as5011->i2c_client, AS5011_X_RES_INT, &x);
++	if (error < 0)
++		goto out;
++
++	error = as5011_i2c_read(as5011->i2c_client, AS5011_Y_RES_INT, &y);
++	if (error < 0)
++		goto out;
++
++	input_report_abs(as5011->input_dev, ABS_X, x);
++	input_report_abs(as5011->input_dev, ABS_Y, y);
++	input_sync(as5011->input_dev);
++
++out:
++	return IRQ_HANDLED;
++}
++
++static int __devinit as5011_configure_chip(struct as5011_device *as5011,
++				const struct as5011_platform_data *plat_dat)
++{
++	struct i2c_client *client = as5011->i2c_client;
++	int error;
++	signed char value;
++
++	/* chip soft reset */
++	error = as5011_i2c_write(client, AS5011_CTRL1,
++				 AS5011_CTRL1_SOFT_RST);
++	if (error < 0) {
++		dev_err(&client->dev, "Soft reset failed\n");
++		return error;
++	}
++
++	mdelay(10);
++
++	error = as5011_i2c_write(client, AS5011_CTRL1,
++				 AS5011_CTRL1_LP_PULSED |
++				 AS5011_CTRL1_LP_ACTIVE |
++				 AS5011_CTRL1_INT_ACT_EN);
++	if (error < 0) {
++		dev_err(&client->dev, "Power config failed\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_CTRL2,
++				 AS5011_CTRL2_INV_SPINNING);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't invert spinning\n");
++		return error;
++	}
++
++	/* write threshold */
++	error = as5011_i2c_write(client, AS5011_XP, plat_dat->xp);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_XN, plat_dat->xn);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_YP, plat_dat->yp);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_YN, plat_dat->yn);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	/* to free irq gpio in chip */
++	error = as5011_i2c_read(client, AS5011_X_RES_INT, &value);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't read i2c X resolution value\n");
++		return error;
++	}
++
++	return 0;
++}
++
++static int __devinit as5011_probe(struct i2c_client *client,
++				const struct i2c_device_id *id)
++{
++	const struct as5011_platform_data *plat_data;
++	struct as5011_device *as5011;
++	struct input_dev *input_dev;
++	int irq;
++	int error;
++
++	plat_data = client->dev.platform_data;
++	if (!plat_data)
++		return -EINVAL;
++
++	if (!plat_data->axis_irq) {
++		dev_err(&client->dev, "No axis IRQ?\n");
++		return -EINVAL;
++	}
++
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_PROTOCOL_MANGLING)) {
++		dev_err(&client->dev,
++			"need i2c bus that supports protocol mangling\n");
++		return -ENODEV;
++	}
++
++	as5011 = kmalloc(sizeof(struct as5011_device), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!as5011 || !input_dev) {
++		dev_err(&client->dev,
++			"Can't allocate memory for device structure\n");
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	as5011->i2c_client = client;
++	as5011->input_dev = input_dev;
++	as5011->button_gpio = plat_data->button_gpio;
++	as5011->axis_irq = plat_data->axis_irq;
++
++	input_dev->name = "Austria Microsystem as5011 joystick";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = &client->dev;
++
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(EV_ABS, input_dev->evbit);
++	__set_bit(BTN_JOYSTICK, input_dev->keybit);
++
++	input_set_abs_params(input_dev, ABS_X,
++		AS5011_MIN_AXIS, AS5011_MAX_AXIS, AS5011_FUZZ, AS5011_FLAT);
++	input_set_abs_params(as5011->input_dev, ABS_Y,
++		AS5011_MIN_AXIS, AS5011_MAX_AXIS, AS5011_FUZZ, AS5011_FLAT);
++
++	error = gpio_request(as5011->button_gpio, "AS5011 button");
++	if (error < 0) {
++		dev_err(&client->dev, "Failed to request button gpio\n");
++		goto err_free_mem;
++	}
++
++	irq = gpio_to_irq(as5011->button_gpio);
++	if (irq < 0) {
++		dev_err(&client->dev,
++			"Failed to get irq number for button gpio\n");
++		goto err_free_button_gpio;
++	}
++
++	as5011->button_irq = irq;
++
++	error = request_threaded_irq(as5011->button_irq,
++				     NULL, as5011_button_interrupt,
++				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_RISING,
++				     "as5011_button", as5011);
++	if (error < 0) {
++		dev_err(&client->dev,
++			"Can't allocate button irq %d\n", as5011->button_irq);
++		goto err_free_button_gpio;
++	}
++
++	error = as5011_configure_chip(as5011, plat_data);
++	if (error)
++		goto err_free_button_irq;
++
++	error = request_threaded_irq(as5011->axis_irq, NULL,
++				     as5011_axis_interrupt,
++				     plat_data->axis_irqflags,
++				     "as5011_joystick", as5011);
++	if (error) {
++		dev_err(&client->dev,
++			"Can't allocate axis irq %d\n", plat_data->axis_irq);
++		goto err_free_button_irq;
++	}
++
++	error = input_register_device(as5011->input_dev);
++	if (error) {
++		dev_err(&client->dev, "Failed to register input device\n");
++		goto err_free_axis_irq;
++	}
++
++	i2c_set_clientdata(client, as5011);
++
++	return 0;
++
++err_free_axis_irq:
++	free_irq(as5011->axis_irq, as5011);
++err_free_button_irq:
++	free_irq(as5011->button_irq, as5011);
++err_free_button_gpio:
++	gpio_free(as5011->button_gpio);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(as5011);
++
++	return error;
++}
++
++static int __devexit as5011_remove(struct i2c_client *client)
++{
++	struct as5011_device *as5011 = i2c_get_clientdata(client);
++
++	free_irq(as5011->axis_irq, as5011);
++	free_irq(as5011->button_irq, as5011);
++	gpio_free(as5011->button_gpio);
++
++	input_unregister_device(as5011->input_dev);
++	kfree(as5011);
++
++	return 0;
++}
++
++static const struct i2c_device_id as5011_id[] = {
++	{ MODULE_DEVICE_ALIAS, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, as5011_id);
++
++static struct i2c_driver as5011_driver = {
++	.driver = {
++		.name = "as5011",
++	},
++	.probe		= as5011_probe,
++	.remove		= __devexit_p(as5011_remove),
++	.id_table	= as5011_id,
++};
++
++static int __init as5011_init(void)
++{
++	return i2c_add_driver(&as5011_driver);
++}
++module_init(as5011_init);
++
++static void __exit as5011_exit(void)
++{
++	i2c_del_driver(&as5011_driver);
++}
++module_exit(as5011_exit);
+diff --git a/include/linux/input/as5011.h b/include/linux/input/as5011.h
+new file mode 100644
+index 0000000..1affd0d
+--- /dev/null
++++ b/include/linux/input/as5011.h
+@@ -0,0 +1,20 @@
++#ifndef _AS5011_H
++#define _AS5011_H
++
++/*
++ * Copyright (c) 2010, 2011 Fabien Marteau <fabien.marteau@armadeus.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++struct as5011_platform_data {
++	unsigned int button_gpio;
++	unsigned int axis_irq; /* irq number */
++	unsigned long axis_irqflags;
++	char xp, xn; /* threshold for x axis */
++	char yp, yn; /* threshold for y axis */
++};
++
++#endif /* _AS5011_H */

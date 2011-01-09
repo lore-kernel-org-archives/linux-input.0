@@ -1,263 +1,215 @@
-From: "Henrik Rydberg" <rydberg@bitmath.org>
-Subject: Re: [PATCH v2] Documentation: Add evdev type and code definitions
-Date: Sun, 9 Jan 2011 15:51:42 +0100
-Message-ID: <20110109145142.GA1508@polaris.bitmath.org>
-References: <1294435695-16750-1-git-send-email-chase.douglas@canonical.com>
+From: Jim Hill <gjthill@gmail.com>
+Subject: [PATCH v2] psmouse: mitigate failing-mouse symptoms
+Date: Sun, 09 Jan 2011 14:00:40 -0800
+Message-ID: <4D2A3008.3000609@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:43704 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751793Ab1AIOwH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 9 Jan 2011 09:52:07 -0500
-Content-Disposition: inline
-In-Reply-To: <1294435695-16750-1-git-send-email-chase.douglas@canonical.com>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:57066 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751411Ab1AIWAn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Jan 2011 17:00:43 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 607242@bugs.debian.org
 
-On Fri, Jan 07, 2011 at 04:28:15PM -0500, Chase Douglas wrote:
-> This commit adds the file Documentation/input/evdev-codes.txt.
-> 
-> Cc: Henrik Rydberg <rydberg@euromail.se>
-> Cc: Chris Bagwell <chris@cnpbagwell.com>
-> Cc: Peter Hutterer <peter.hutterer@who-t.net>
-> Cc: Nikolai Kondrashov <spbnick@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+Keep a failing PS/2 mouse usable until it's convenient to replace it.
+Filter incoming packets: drop invalid ones and attempt to correct for
+dropped bytes.
 
-Hi Chase, thanks for the update! Minor comment below, otherwise
+New parameter 'filter' makes filtering and logging selectable, set to 0
+to shut off all effects.
 
-Acked-by: Henrik Rydberg <rydberg@euromail.se>
+Tested on AMD64, full coverage. No one else has tried this yet.
 
-> ---
->  Documentation/input/evdev-codes.txt |  206 +++++++++++++++++++++++++++++++++++
->  1 files changed, 206 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/input/evdev-codes.txt
-> 
-> diff --git a/Documentation/input/evdev-codes.txt b/Documentation/input/evdev-codes.txt
-> new file mode 100644
-> index 0000000..8d7262c
-> --- /dev/null
-> +++ b/Documentation/input/evdev-codes.txt
-> @@ -0,0 +1,206 @@
-> +The evdev protocol uses a map of types and codes to express input device values
-> +to userspace. This document describes the types and codes and how and when they
-> +may be used.
-> +
-> +The evdev protocol is a stateful protocol. Events are emitted only when values
-> +of evdev codes have changed. However, the state is maintained within the Linux
-> +input subsystem; drivers do not need to maintain the state and may attempt to
-> +emit unchanged values without harm. Userspace may obtain the current state of
-> +evdev code values using the EVIOCGABS ioctl defined in linux/input.h.
+Signed-off-by: Jim Hill <gjthill@gmail.com>
 
-GABS is only to retrieve EV_ABS type events, there is also GKEY, GLED,
-GSND, GSW, GBIT and GPROP. Perhaps simply changing "EVIOCGABS" to
-"EVIOCG*" would suffice. The same information is also available under
-/sys/class/input/eventX/device/, as files in the capabilities/ and
-properties/ directories.
+---
 
-> +
-> +Types:
-> +==========
-> +Types are groupings of codes under a logical input construct. Each type has a
-> +set of applicable codes to be used in generating events. See the Codes section
-> +for details on valid codes for each type.
-> +
-> +* EV_SYN:
-> +  - Used as markers to separate events. Events may be separated in time or in
-> +    space, such as with the multitouch protocol.
-> +
-> +* EV_KEY:
-> +  - Used to describe keyboard and other key-like input events.
-> +
-> +* EV_REL:
-> +  - Used to describe relative input events, e.g. moving the mouse 5 units to the
-> +    left.
-> +
-> +* EV_ABS:
-> +  - Used to describe absolute input events, e.g. describing the coordinates of a
-> +    touch on a touchscreen.
-> +
-> +* EV_MSC:
-> +  - Used to describe miscellaneous input events that do not fit into other
-> +    types.
-> +
-> +* EV_SW:
-> +  - Used to describe binary state input switches.
-> +
-> +* EV_LED:
-> +  - Used to turn LEDs on devices on and off.
-> +
-> +* EV_SND:
-> +  - Used to output sound to devices.
-> +
-> +* EV_REP:
-> +  - Used for autorepeating devices.
-> +
-> +* EV_FF:
-> +  - Used to send force feedback commands to an input device.
-> +
-> +* EV_PWR:
-> +  - A special type for power button and switch input.
-> +
-> +* EV_FF_STATUS:
-> +  - Used to receive force feedback device status.
-> +
-> +Codes:
-> +==========
-> +Codes define the precise type of event.
-> +
-> +EV_SYN:
-> +----------
-> +EV_SYN event values are undefined. Their usage is
-> +defined only by when they are sent in the evdev event stream.
-> +
-> +* SYN_REPORT:
-> +  - Used to synchronize and separate events into frames of time. For example,
-> +    motion of a mouse may set the REL_X and REL_Y values for one motion, then
-> +    emit a SYN_REPORT. The next motion will emit more REL_X and REL_Y values and
-> +    send another SYN_REPORT.
-> +
-> +* SYN_CONFIG:
-> +  - TBD
-> +
-> +* SYN_MT_REPORT:
-> +  - Used to synchronize and separate touch events. See the
-> +    multi-touch-protocol.txt document for more information.
-> +
-> +EV_KEY:
-> +----------
-> +EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
-> +to represent the 'A' key on a keyboard. When a key is depressed, an event with
-> +the key's code is emitted with value 1. When the key is released, an event is
-> +emitted with value 0. Some hardware send events when a key is repeated. These
-> +events have a value of 2. In general, KEY_<name> is used for keyboard keys, and
-> +BTN_<name> is used for other types of momentary switch events.
-> +
-> +A few EV_KEY codes have special meanings:
-> +
-> +* BTN_TOOL_<name>:
-> +  - These codes are used in conjunction with input trackpads, tablets, and
-> +    touchscreens. These devices may be used with fingers, pens, or other tools.
-> +    When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
-> +    code should be set to a value of 1. When the tool is no longer interacting
-> +    with the input device, the BTN_TOOL_<name> code should be reset to 0. All
-> +    trackpads, tablets, and touchscreens should use at least one BTN_TOOL_<name>
-> +    code when events are generated.
-> +
-> +* BTN_TOUCH:
-> +    BTN_TOUCH is used for touch contact. While an input tool is determined to be
-> +    within meaningful physical contact, the value of this property must be set
-> +    to 1. Meaningful physical contact may mean any contact, or it may mean
-> +    contact conditioned by an implementation defined property. For example, a
-> +    touchpad may set the value to 1 only when the touch pressure rises above a
-> +    certain value. BTN_TOUCH may be combined with BTN_TOOL_<name> codes. For
-> +    example, a pen tablet may set BTN_TOOL_PEN to 1 and BTN_TOUCH to 0 while the
-> +    pen is hovering over but not touching the tablet surface.
-> +
-> +Note: For appropriate function of the legacy mousedev emulation driver,
-> +BTN_TOUCH must be the first evdev code emitted in a synchronization frame.
-> +
-> +Note: Historically a touch device with BTN_TOOL_FINGER and BTN_TOUCH was
-> +interpreted as a touchpad by userspace, while a similar device without
-> +BTN_TOOL_FINGER was interpreted as a touchscreen. For backwards compatibility
-> +with current userspace it is recommended to follow this distinction. In the
-> +future, this distinction will be deprecated and the device properties ioctl
-> +EVIOCGPROP, defined in linux/input.h, will be used to convey the device type.
-> +
-> +* BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
-> +  - These codes denote one, two, three, and four finger interaction on a
-> +    trackpad or touchscreen. For example, if the user uses two fingers and moves
-> +    them on the touchpad in an effort to scroll content on screen,
-> +    BTN_TOOL_DOUBLETAP should be set to value 1 for the duration of the motion.
-> +    Note that these codes and the BTN_TOOL_<name> and BTN_TOUCH codes are
-> +    orthogonal in purpose. A trackpad event generated by finger touches should
-> +    generate events for one code from each group. At most only one of these
-> +    codes should have a value of 1 during any synchronization frame.
-> +
-> +Note: Historically some drivers emitted multiple of the finger count codes with
-> +a value of 1 in the same synchronization frame. This usage is deprecated.
-> +
-> +Note: In multitouch drivers, the input_mt_report_finger_count() function should
-> +be used to emit these codes. Please see multi-touch-protocol.txt for details.
-> +
-> +* KEY_SUSPEND, KEY_POWER:
-> +  - These codes are reserved for the EV_PWR type.
-> +
-> +EV_REL:
-> +----------
-> +EV_REL events describe relative changes in a property. For example, a mouse may
-> +move to the left by a certain number of units, but its absolute position in
-> +space is unknown. If the absolute position is known, EV_ABS codes should be used
-> +instead of EV_REL codes.
-> +
-> +A few EV_REL codes have special meanings:
-> +
-> +* REL_WHEEL, REL_HWHEEL:
-> +  - These codes are used for vertical and horizontal scroll wheels,
-> +    respectively.
-> +
-> +EV_ABS:
-> +----------
-> +EV_ABS events describe absolute changes in a property. For example, a touchpad
-> +may emit coordinates for a touch location.
-> +
-> +A few EV_ABS codes have special meanings:
-> +
-> +* ABS_DISTANCE:
-> +  - Used to describe the distance of a tool from an interaction surface. This
-> +    should only be used while the tool is hovering, meaning in close proximity
-> +    of the device. If the input device may be used freely in three dimensions,
-> +    consider ABS_Z instead.
-> +
-> +* ABS_MT_<name>:
-> +  - Used to describe multitouch input events. Please see
-> +    multi-touch-protocol.txt for details.
-> +
-> +EV_SW:
-> +----------
-> +EV_SW events describe stateful binary switches. For example, the SW_LID code is
-> +used to denote when a laptop lid is closed.
-> +
-> +EV_MSC:
-> +----------
-> +EV_MSC events are used for input and output events that do not fall under other
-> +categories.
-> +
-> +EV_LED:
-> +----------
-> +EV_LED events are used for input and output to set and query the state of
-> +various LEDs on devices.
-> +
-> +EV_REP:
-> +----------
-> +EV_REP events are used for specifying autorepeating events.
-> +
-> +EV_SND:
-> +----------
-> +EV_SND events are used for sending sound commands to simple sound output
-> +devices.
-> +
-> +EV_FF:
-> +----------
-> +EV_FF events are used to initialize a force feedback capable device and to cause
-> +such device to feedback.
-> +
-> +EV_PWR:
-> +----------
-> +EV_PWR events are a special type of key event used specifically for monitoring
-> +power buttons and switches. The two codes in use are:
-> +
-> +* KEY_POWER:
-> +  - Used to denote a power button event.
-> +
-> +* KEY_SUSPEND:
-> +  - Used to denote a suspend button event.
+This is a second version, choosier about accepting apparently-valid
+start bytes, no redundant test and more concise syslog and changelog
+text.
 
-Great document.
+This is my first patch, I hope I got the procedures right, apologies in
+advance if I goofed something.
 
-Thanks,
-Henrik
+My mouse failed while in XP, but I didn't know it - it seemed it'd need
+cleaning soon. On booting into Linux, it was dangerous, wild slews and
+random clicks.  The difference was consistent, making it seem the
+problem wasn't the mouse.
+
+Jim
+---
+ drivers/input/mouse/psmouse-base.c |  108 ++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/psmouse.h      |    7 ++
+ 2 files changed, 115 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index cd9d0c9..f7421ea 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -69,6 +69,22 @@ static unsigned int psmouse_resync_time;
+ module_param_named(resync_time, psmouse_resync_time, uint, 0644);
+ MODULE_PARM_DESC(resync_time, "How long can mouse stay idle before forcing resync (in seconds, 0 = never).");
+ 
++enum {
++	DROP_BAD = 1,
++	SUMMARIZE_ERRORS = 2,
++	LOG_REJECTS = 4,
++	LOG_ALL	 = 8,
++	ATTEMPT_RECOVERY = 16,
++	DROP_CLAMPED = 32,
++	DROP_PACKET = DROP_CLAMPED | DROP_BAD
++};
++static unsigned int psmouse_filter = DROP_BAD | SUMMARIZE_ERRORS |
++						ATTEMPT_RECOVERY | DROP_CLAMPED;
++module_param_named(filter, psmouse_filter, uint, 0644);
++MODULE_PARM_DESC(filter, "1 = drop invalid or hotio packets, +2=summary-log, "
++		"+4=log-rejected, +8=log-all, +16=attempt-recovery, "
++		"+32=drop-clamped.");
++
+ PSMOUSE_DEFINE_ATTR(protocol, S_IWUSR | S_IRUGO,
+ 			NULL,
+ 			psmouse_attr_show_protocol, psmouse_attr_set_protocol);
+@@ -119,6 +135,85 @@ struct psmouse_protocol {
+ 	int (*init)(struct psmouse *);
+ };
+ 
++static int psmouse_filter_packet(struct psmouse *m)
++{
++	int todo = 0;
++
++	int xoflow = m->packet[0]>>6 & 1;
++	int yoflow = m->packet[0]>>7 & 1;
++
++	if ((m->packet[0] & 0x08) != 0x08)
++		todo |= DROP_BAD + ATTEMPT_RECOVERY;
++	else if ((xoflow | yoflow) && psmouse_filter & DROP_CLAMPED)
++		todo |= DROP_CLAMPED;
++
++	if (todo & DROP_PACKET) {
++		todo |= LOG_REJECTS;
++		if (m->err_log_counter == 0)
++			m->err_log_base = m->last;
++		++m->err_log_counter;
++	}
++
++	if (time_after(m->last, m->interval_base + HZ/m->rate)) {
++		m->interval_pkts = 0;
++		m->interval_base = m->last;
++	}
++	if (m->interval_pkts > m->rate/HZ + 1) {
++		if (m->hotio_log_counter == 0)
++			m->hotio_log_base = m->last;
++		++m->hotio_log_counter;
++		todo |= DROP_BAD;
++	}
++	++m->interval_pkts;
++
++	if ((todo & psmouse_filter & LOG_REJECTS) |
++			(psmouse_filter & LOG_ALL)) {
++		unsigned long long packet = 0;
++		int p;
++		for (p = 0; p < m->pktcnt; ++p)
++			packet = packet<<8 | m->packet[p];
++		printk(KERN_INFO "psmouse.c: packet %0*llx%s\n", p*2, packet,
++				todo & DROP_PACKET ? " bad" : "");
++	}
++
++	if (m->err_log_counter && time_after(m->last, m->err_log_base + HZ) &&
++		psmouse_filter & (SUMMARIZE_ERRORS | LOG_ALL)) {
++		printk(KERN_WARNING "psmouse.c: %s at %s %lu bad packets\n",
++				m->name, m->phys, m->err_log_counter);
++		m->err_log_counter = m->err_log_base = 0;
++	}
++
++	if (m->hotio_log_counter && time_after(m->last, m->hotio_log_base + HZ)
++			&& psmouse_filter & (SUMMARIZE_ERRORS | LOG_ALL)) {
++		printk(KERN_WARNING "psmouse.c: %s at %s %lu excess packets\n",
++				m->name, m->phys, m->hotio_log_counter);
++		m->hotio_log_counter = m->hotio_log_base = 0;
++	}
++
++	/*
++	 * Take a flyer on recovery, works ok on dropped bytes. Work backwards
++	 * from end looking for a byte that could be a valid start-byte with
++	 * the same buttons down and general direction as the last good packet.
++	 */
++	if (todo & psmouse_filter & ATTEMPT_RECOVERY) {
++		int p = m->pktcnt;
++		while (--p) {
++			if (m->packet[p] == m->last_mbstate) {
++				m->pktcnt -= p;
++				memmove(m->packet, m->packet+p, m->pktcnt);
++				return todo; /* <-- */
++			}
++		}
++		todo &= ~ATTEMPT_RECOVERY;
++	}
++
++	if (todo & psmouse_filter & DROP_PACKET)
++		return todo & psmouse_filter;
++	if (!(todo & DROP_PACKET))
++		m->last_mbstate = m->packet[0] & 0x3f;
++	return 0;
++}
++
+ /*
+  * psmouse_process_byte() analyzes the PS/2 data stream and reports
+  * relevant events to the input module once full packet has arrived.
+@@ -135,6 +230,13 @@ static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
+ /*
+  * Full packet accumulated, process it
+  */
++	{
++		int check = psmouse_filter_packet(psmouse);
++		if (check & ATTEMPT_RECOVERY)
++			return PSMOUSE_GOOD_DATA;
++		if (check & DROP_PACKET)
++			return PSMOUSE_FULL_PACKET;
++	}
+ 
+ /*
+  * Scroll wheel on IntelliMice, scroll buttons on NetMice
+@@ -223,6 +325,12 @@ static inline void __psmouse_set_state(struct psmouse *psmouse, enum psmouse_sta
+ 	psmouse->pktcnt = psmouse->out_of_sync_cnt = 0;
+ 	psmouse->ps2dev.flags = 0;
+ 	psmouse->last = jiffies;
++	psmouse->err_log_base = 0;
++	psmouse->interval_base = 0;
++	psmouse->hotio_log_base = 0;
++	psmouse->err_log_counter = 0;
++	psmouse->interval_pkts = 0;
++	psmouse->hotio_log_counter = 0;
+ }
+ 
+ 
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index 593e910..fc4a939 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -47,12 +47,19 @@ struct psmouse {
+ 	unsigned char pktcnt;
+ 	unsigned char pktsize;
+ 	unsigned char type;
++	unsigned char last_mbstate;
+ 	bool ignore_parity;
+ 	bool acks_disable_command;
+ 	unsigned int model;
+ 	unsigned long last;
+ 	unsigned long out_of_sync_cnt;
+ 	unsigned long num_resyncs;
++	unsigned long interval_base;
++	unsigned long interval_pkts;
++	unsigned long hotio_log_base;
++	unsigned long hotio_log_counter;
++	unsigned long err_log_base;
++	unsigned long err_log_counter;
+ 	enum psmouse_state state;
+ 	char devname[64];
+ 	char phys[32];
+-- 
+1.7.2.3
+

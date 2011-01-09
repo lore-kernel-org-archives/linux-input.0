@@ -1,53 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch
- unification
-Date: Sat, 8 Jan 2011 22:25:17 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101082224130.26685@pobox.suse.cz>
-References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr> <alpine.LNX.2.00.1101072355200.26685@pobox.suse.cz> <alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz>
+From: "Henrik Rydberg" <rydberg@bitmath.org>
+Subject: Re: [PATCH] HID: Switch turbox/mosart touchscreen to hid-mosart
+Date: Sun, 9 Jan 2011 14:46:52 +0100
+Message-ID: <20110109134652.GA5299@polaris.bitmath.org>
+References: <1294485342-2492-1-git-send-email-benjamin.tissoires@enac.fr>
+ <1294485342-2492-2-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58520 "EHLO mx2.suse.de"
+Received: from csmtp3.one.com ([91.198.169.23]:33142 "EHLO csmtp3.one.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751641Ab1AHVZT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 8 Jan 2011 16:25:19 -0500
-In-Reply-To: <alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz>
+	id S1751140Ab1AINq6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 9 Jan 2011 08:46:58 -0500
+Content-Disposition: inline
+In-Reply-To: <1294485342-2492-2-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 8 Jan 2011, Jiri Kosina wrote:
-
-> > > all changes are coming from the mails with Henrik:
-> > > 
-> > > - restricted to new drivers only
-> > > - delete mt_buffer struct
-> > > - replace/adapt prev_valid in favor of seen_in_this_frame
-> > > - integrated fuzz
-> > > - introduce MT_QUIRKS
-> > > - other small fixes
-> > 
-> > Hi Bejnamin,
-> > 
-> > thanks a lot for spinning this up so nicely and quickly.
-> > 
-> > I have now applied the patchset as-is to the 'multitouch' branch in my 
-> > tree.
+On Sat, Jan 08, 2011 at 12:15:42PM +0100, Benjamin Tissoires wrote:
+> This device used the MULTI_INPUT quirk whereas it could be used
+> with hid-mosart instead to support the multitouch part.
 > 
-> Which means -- could you please send any followup patches on top of that 
-> branch (i.e. on top of the v3 patchset)? It would help my workflow and 
-> make the merging process smoother.
+> Reference: https://bugs.launchpad.net/ubuntu/+bug/620609/
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+> Hi Jiri,
+> 
+> This one is in the utouch ppa since Novembre.
+> The guy that sent the multi_input quirk was not able to
+> test it, but others reported it is ok.
+> 
+> I think it also can go to stable.
 
-'multitouch' brach now builds, as Linus has taken Dmitry's pull request 
-and I have merged from Linus.
-
-So once you have fixed for the minor issues raised by Henrik and once you 
-have finished your testing, please send the additional fixes to me and I 
-will be merging the branch upstream.
+Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Henrik

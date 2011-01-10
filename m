@@ -1,30 +1,28 @@
 From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: NVidia Multitouch driver.
-Date: Tue, 11 Jan 2011 00:41:19 +0100
-Message-ID: <AANLkTi=KQMrFR7rO=4gY=GX-aHo+sckA8nGrE-1A9rpe@mail.gmail.com>
+Subject: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
+Date: Tue, 11 Jan 2011 00:33:50 +0100
+Message-ID: <AANLkTi=JYf-7biH=nptrgE6L_DiM5S84hTTzA_JiwquA@mail.gmail.com>
+References: <1294422307-19107-1-git-send-email-riyer@nvidia.com> <AANLkTimUrKOX6ydXx8zUukk2+fBYQxEsp3=6qZwm5KRD@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f194.google.com ([209.85.213.194]:36468 "EHLO
-	mail-yx0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752061Ab1AJXlk (ORCPT
+Received: from mail-gx0-f194.google.com ([209.85.161.194]:38352 "EHLO
+	mail-gx0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752061Ab1AJXqL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Jan 2011 18:41:40 -0500
-Received: by yxd5 with SMTP id 5so4375707yxd.1
-        for <linux-input@vger.kernel.org>; Mon, 10 Jan 2011 15:41:39 -0800 (PST)
+	Mon, 10 Jan 2011 18:46:11 -0500
+In-Reply-To: <AANLkTimUrKOX6ydXx8zUukk2+fBYQxEsp3=6qZwm5KRD@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: USB list <linux-input@vger.kernel.org>
-Cc: Varun Wadekar <vwadekar@nvidia.com>, Harry Hong <hhong@nvidia.com>, Gary King <gking@nvidia.com>
+To: linux-kernel@vger.kernel.org, USB list <linux-input@vger.kernel.org>
 
-Hi,
+On Fri, Jan 7, 2011 at 6:45 PM, <riyer@nvidia.com> wrote:
+>
+> This patch adds support for the internal matrix keyboard controller for
+> Nvidia Tegra platforms.
 
-Are you working on rebasing this patch
-http://nv-tegra.nvidia.com/gitweb/?p=linux-2.6.git;a=commitdiff;h=570fbc982f90f7a85e4297a4a1e12785880fdab4
-
-to the last linux kernel with the last mt state ?
-(mt unification driver, protocol B, etc...)
-
-Thanks,
+Will you also post the nvidia's multitouch driver here ?
+I have only seen the code used in android tablet and published for
+android kernel.
 
 i

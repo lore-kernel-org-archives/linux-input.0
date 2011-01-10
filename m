@@ -1,490 +1,169 @@
-From: Fabien Marteau <fabien.marteau@armadeus.com>
-Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
- joystick driver (fourth version)
-Date: Mon, 10 Jan 2011 09:57:59 +0100
-Message-ID: <4D2ACA17.5060708@armadeus.com>
-References: <4D27735C.6000105@armadeus.com> <20110108093040.GA8671@core.coreip.homeip.net>
-Reply-To: fabien.marteau@armadeus.com
+From: Naveen Kumar G <naveen.gaddipati@stericsson.com>
+Subject: [PATCH v1] input:Regulator support in ROHM BU21013 touch panel
+Date: Mon, 10 Jan 2011 14:52:38 +0530
+Message-ID: <1294651358-7690-1-git-send-email-naveen.gaddipati@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110108093040.GA8671@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:46369 "EHLO
+	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752986Ab1AJJWy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Jan 2011 04:22:54 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: STEricsson_nomadik_linux@list.st.com, linux-input@vger.kernel.org, tsoni@codeaurora.org, rydberg@euromail.se, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-Hi Dmitry,
+From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-Thanks for the patch, I tested it on my platform and there is a little bug in irq request for the button :
+Added the regulator support in ROHM BU21013 touch
+panel driver.
 
-+	error = request_threaded_irq(as5011->button_irq,
-+				     NULL, as5011_button_interrupt,
-+				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_RISING,
-+				     "as5011_button", as5011);
-
-Should be :
-
-+	error = request_threaded_irq(as5011->button_irq,
-+				     NULL, as5011_button_interrupt,
-+				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+				     "as5011_button", as5011);
-
-With this modification the patch is ok.
-
-Thanks
-Fabien M
-
-ps: The patch :
-
-Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugged  on an I2C bus.
-
-Tested on ARM processor (i.MX27).
-
-
-Signed-off-by: Fabien Marteau <fabien.marteau@armadeus.com>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 ---
- drivers/input/joystick/Kconfig  |    9 +
- drivers/input/joystick/Makefile |    1 +
- drivers/input/joystick/as5011.c |  368 +++++++++++++++++++++++++++++++++++++++
- include/linux/input/as5011.h    |   20 ++
- 4 files changed, 398 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/joystick/as5011.c
- create mode 100644 include/linux/input/as5011.h
+ drivers/input/touchscreen/bu21013_ts.c |   33 +++++++++++++++++++++++++++++--
+ include/linux/input/bu21013.h          |    6 +---
+ 2 files changed, 32 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
-index 5b59616..5fad03e 100644
---- a/drivers/input/joystick/Kconfig
-+++ b/drivers/input/joystick/Kconfig
-@@ -255,6 +255,15 @@ config JOYSTICK_AMIGA
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called amijoy.
-
-+config JOYSTICK_AS5011
-+	tristate "Austria Microsystem AS5011 joystick"
-+	depends on I2C
-+	help
-+	  Say Y here if you have an AS5011 digital joystick.
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index f7fa9ef..62c4956 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -12,6 +12,7 @@
+ #include <linux/input.h>
+ #include <linux/input/bu21013.h>
+ #include <linux/slab.h>
++#include <linux/regulator/consumer.h>
+ 
+ #define PEN_DOWN_INTR	0
+ #define MAX_FINGERS	2
+@@ -129,7 +130,7 @@
+ #define BU21013_NUMBER_OF_X_SENSORS	(6)
+ #define BU21013_NUMBER_OF_Y_SENSORS	(11)
+ 
+-#define DRIVER_TP	"bu21013_tp"
++#define DRIVER_TP	"bu21013_ts"
+ 
+ /**
+  * struct bu21013_ts_data - touch panel data structure
+@@ -139,6 +140,7 @@
+  * @chip: pointer to the touch panel controller
+  * @in_dev: pointer to the input device structure
+  * @intr_pin: interrupt pin value
++ * @regulator: pointer to the Regulator used for touch screen
+  *
+  * Touch panel device data structure
+  */
+@@ -149,6 +151,7 @@ struct bu21013_ts_data {
+ 	const struct bu21013_platform_device *chip;
+ 	struct input_dev *in_dev;
+ 	unsigned int intr_pin;
++	struct regulator *regulator;
+ };
+ 
+ /**
+@@ -456,6 +459,16 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+ 	bu21013_data->in_dev = in_dev;
+ 	bu21013_data->chip = pdata;
+ 	bu21013_data->client = client;
++	dev_set_name(&client->dev, pdata->name);
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called as5011.
-+
- config JOYSTICK_JOYDUMP
- 	tristate "Gameport data dumper"
- 	select GAMEPORT
-diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
-index f3a8cbe..92dc0de 100644
---- a/drivers/input/joystick/Makefile
-+++ b/drivers/input/joystick/Makefile
-@@ -7,6 +7,7 @@
- obj-$(CONFIG_JOYSTICK_A3D)		+= a3d.o
- obj-$(CONFIG_JOYSTICK_ADI)		+= adi.o
- obj-$(CONFIG_JOYSTICK_AMIGA)		+= amijoy.o
-+obj-$(CONFIG_JOYSTICK_AS5011)		+= as5011.o
- obj-$(CONFIG_JOYSTICK_ANALOG)		+= analog.o
- obj-$(CONFIG_JOYSTICK_COBRA)		+= cobra.o
- obj-$(CONFIG_JOYSTICK_DB9)		+= db9.o
-diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
-new file mode 100644
-index 0000000..e499e78
---- /dev/null
-+++ b/drivers/input/joystick/as5011.c
-@@ -0,0 +1,368 @@
-+/*
-+ * Copyright (c) 2010, 2011 Fabien Marteau <fabien.marteau@armadeus.com>
-+ * Sponsored by ARMadeus Systems
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ * Driver for Austria Microsystems joysticks AS5011
-+ *
-+ * TODO:
-+ *	- Power on the chip when open() and power down when close()
-+ *	- Manage power mode
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/gpio.h>
-+#include <linux/delay.h>
-+#include <linux/input/as5011.h>
-+#include <linux/slab.h>
-+
-+#define DRIVER_DESC "Driver for Austria Microsystems AS5011 joystick"
-+#define MODULE_DEVICE_ALIAS "as5011"
-+
-+MODULE_AUTHOR("Fabien Marteau <fabien.marteau@armadeus.com>");
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE("GPL");
-+
-+/* registers */
-+#define AS5011_CTRL1		0x76
-+#define AS5011_CTRL2		0x75
-+#define AS5011_XP		0x43
-+#define AS5011_XN		0x44
-+#define AS5011_YP		0x53
-+#define AS5011_YN		0x54
-+#define AS5011_X_REG		0x41
-+#define AS5011_Y_REG		0x42
-+#define AS5011_X_RES_INT	0x51
-+#define AS5011_Y_RES_INT	0x52
-+
-+/* CTRL1 bits */
-+#define AS5011_CTRL1_LP_PULSED		0x80
-+#define AS5011_CTRL1_LP_ACTIVE		0x40
-+#define AS5011_CTRL1_LP_CONTINUE	0x20
-+#define AS5011_CTRL1_INT_WUP_EN		0x10
-+#define AS5011_CTRL1_INT_ACT_EN		0x08
-+#define AS5011_CTRL1_EXT_CLK_EN		0x04
-+#define AS5011_CTRL1_SOFT_RST		0x02
-+#define AS5011_CTRL1_DATA_VALID		0x01
-+
-+/* CTRL2 bits */
-+#define AS5011_CTRL2_EXT_SAMPLE_EN	0x08
-+#define AS5011_CTRL2_RC_BIAS_ON		0x04
-+#define AS5011_CTRL2_INV_SPINNING	0x02
-+
-+#define AS5011_MAX_AXIS	80
-+#define AS5011_MIN_AXIS	(-80)
-+#define AS5011_FUZZ	8
-+#define AS5011_FLAT	40
-+
-+struct as5011_device {
-+	struct input_dev *input_dev;
-+	struct i2c_client *i2c_client;
-+	unsigned int button_gpio;
-+	unsigned int button_irq;
-+	unsigned int axis_irq;
-+};
-+
-+static int as5011_i2c_write(struct i2c_client *client,
-+			    uint8_t aregaddr,
-+			    uint8_t avalue)
-+{
-+	uint8_t data[2] = { aregaddr, avalue };
-+	struct i2c_msg msg = {
-+		client->addr, I2C_M_IGNORE_NAK, 2, (uint8_t *)data
-+	};
-+	int error;
-+
-+	error = i2c_transfer(client->adapter, &msg, 1);
-+	return error < 0 ? error : 0;
-+}
-+
-+static int as5011_i2c_read(struct i2c_client *client,
-+			   uint8_t aregaddr, signed char *value)
-+{
-+	uint8_t data[2] = { aregaddr };
-+	struct i2c_msg msg_set[2] = {
-+		{ client->addr, I2C_M_REV_DIR_ADDR, 1, (uint8_t *)data },
-+		{ client->addr, I2C_M_RD | I2C_M_NOSTART, 1, (uint8_t *)data }
-+	};
-+	int error;
-+
-+	error = i2c_transfer(client->adapter, msg_set, 2);
-+	if (error < 0)
-+		return error;
-+
-+	*value = data[0] & 0x80 ? -1 * (1 + ~data[0]) : data[0];
-+	return 0;
-+}
-+
-+static irqreturn_t as5011_button_interrupt(int irq, void *dev_id)
-+{
-+	struct as5011_device *as5011 = dev_id;
-+	int val = gpio_get_value_cansleep(as5011->button_gpio);
-+
-+	input_report_key(as5011->input_dev, BTN_JOYSTICK, !val);
-+	input_sync(as5011->input_dev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t as5011_axis_interrupt(int irq, void *dev_id)
-+{
-+	struct as5011_device *as5011 = dev_id;
-+	int error;
-+	signed char x, y;
-+
-+	error = as5011_i2c_read(as5011->i2c_client, AS5011_X_RES_INT, &x);
-+	if (error < 0)
-+		goto out;
-+
-+	error = as5011_i2c_read(as5011->i2c_client, AS5011_Y_RES_INT, &y);
-+	if (error < 0)
-+		goto out;
-+
-+	input_report_abs(as5011->input_dev, ABS_X, x);
-+	input_report_abs(as5011->input_dev, ABS_Y, y);
-+	input_sync(as5011->input_dev);
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit as5011_configure_chip(struct as5011_device *as5011,
-+				const struct as5011_platform_data *plat_dat)
-+{
-+	struct i2c_client *client = as5011->i2c_client;
-+	int error;
-+	signed char value;
-+
-+	/* chip soft reset */
-+	error = as5011_i2c_write(client, AS5011_CTRL1,
-+				 AS5011_CTRL1_SOFT_RST);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Soft reset failed\n");
-+		return error;
++	bu21013_data->regulator = regulator_get(&client->dev, "V-TOUCH");
++	if (IS_ERR(bu21013_data->regulator)) {
++		dev_warn(&client->dev, "regulator_get failed\n");
++		bu21013_data->regulator = NULL;
 +	}
++	if (bu21013_data->regulator)
++		regulator_enable(bu21013_data->regulator);
 +
-+	mdelay(10);
-+
-+	error = as5011_i2c_write(client, AS5011_CTRL1,
-+				 AS5011_CTRL1_LP_PULSED |
-+				 AS5011_CTRL1_LP_ACTIVE |
-+				 AS5011_CTRL1_INT_ACT_EN);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Power config failed\n");
-+		return error;
+ 	bu21013_data->touch_stopped = false;
+ 	init_waitqueue_head(&bu21013_data->wait);
+ 
+@@ -485,9 +498,9 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+ 	__set_bit(EV_ABS, in_dev->evbit);
+ 
+ 	input_set_abs_params(in_dev, ABS_MT_POSITION_X, 0,
+-						pdata->x_max_res, 0, 0);
++						pdata->touch_x_max, 0, 0);
+ 	input_set_abs_params(in_dev, ABS_MT_POSITION_Y, 0,
+-						pdata->y_max_res, 0, 0);
++						pdata->touch_y_max, 0, 0);
+ 	input_set_drvdata(in_dev, bu21013_data);
+ 
+ 	error = request_threaded_irq(pdata->irq, NULL, bu21013_gpio_irq,
+@@ -514,6 +527,10 @@ err_free_irq:
+ err_cs_disable:
+ 	pdata->cs_dis(pdata->cs_pin);
+ err_free_mem:
++	if (bu21013_data->regulator) {
++		regulator_disable(bu21013_data->regulator);
++		regulator_put(bu21013_data->regulator);
 +	}
-+
-+	error = as5011_i2c_write(client, AS5011_CTRL2,
-+				 AS5011_CTRL2_INV_SPINNING);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Can't invert spinning\n");
-+		return error;
+ 	input_free_device(in_dev);
+ 	kfree(bu21013_data);
+ 
+@@ -535,6 +552,10 @@ static int __devexit bu21013_remove(struct i2c_client *client)
+ 	bu21013_data->chip->cs_dis(bu21013_data->chip->cs_pin);
+ 
+ 	input_unregister_device(bu21013_data->in_dev);
++	if (bu21013_data->regulator) {
++		regulator_disable(bu21013_data->regulator);
++		regulator_put(bu21013_data->regulator);
 +	}
+ 	kfree(bu21013_data);
+ 
+ 	device_init_wakeup(&client->dev, false);
+@@ -561,6 +582,9 @@ static int bu21013_suspend(struct device *dev)
+ 	else
+ 		disable_irq(bu21013_data->chip->irq);
+ 
++	if (bu21013_data->regulator)
++		regulator_disable(bu21013_data->regulator);
 +
-+	/* write threshold */
-+	error = as5011_i2c_write(client, AS5011_XP, plat_dat->xp);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Can't write threshold\n");
-+		return error;
-+	}
+ 	return 0;
+ }
+ 
+@@ -577,6 +601,9 @@ static int bu21013_resume(struct device *dev)
+ 	struct i2c_client *client = bu21013_data->client;
+ 	int retval;
+ 
++	if (bu21013_data->regulator)
++		regulator_enable(bu21013_data->regulator);
 +
-+	error = as5011_i2c_write(client, AS5011_XN, plat_dat->xn);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Can't write threshold\n");
-+		return error;
-+	}
-+
-+	error = as5011_i2c_write(client, AS5011_YP, plat_dat->yp);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Can't write threshold\n");
-+		return error;
-+	}
-+
-+	error = as5011_i2c_write(client, AS5011_YN, plat_dat->yn);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Can't write threshold\n");
-+		return error;
-+	}
-+
-+	/* to free irq gpio in chip */
-+	error = as5011_i2c_read(client, AS5011_X_RES_INT, &value);
-+	if (error < 0) {
-+		dev_err(&client->dev, "Can't read i2c X resolution value\n");
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __devinit as5011_probe(struct i2c_client *client,
-+				const struct i2c_device_id *id)
-+{
-+	const struct as5011_platform_data *plat_data;
-+	struct as5011_device *as5011;
-+	struct input_dev *input_dev;
-+	int irq;
-+	int error;
-+
-+	plat_data = client->dev.platform_data;
-+	if (!plat_data)
-+		return -EINVAL;
-+
-+	if (!plat_data->axis_irq) {
-+		dev_err(&client->dev, "No axis IRQ?\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!i2c_check_functionality(client->adapter,
-+				     I2C_FUNC_PROTOCOL_MANGLING)) {
-+		dev_err(&client->dev,
-+			"need i2c bus that supports protocol mangling\n");
-+		return -ENODEV;
-+	}
-+
-+	as5011 = kmalloc(sizeof(struct as5011_device), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!as5011 || !input_dev) {
-+		dev_err(&client->dev,
-+			"Can't allocate memory for device structure\n");
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	as5011->i2c_client = client;
-+	as5011->input_dev = input_dev;
-+	as5011->button_gpio = plat_data->button_gpio;
-+	as5011->axis_irq = plat_data->axis_irq;
-+
-+	input_dev->name = "Austria Microsystem as5011 joystick";
-+	input_dev->id.bustype = BUS_I2C;
-+	input_dev->dev.parent = &client->dev;
-+
-+	__set_bit(EV_KEY, input_dev->evbit);
-+	__set_bit(EV_ABS, input_dev->evbit);
-+	__set_bit(BTN_JOYSTICK, input_dev->keybit);
-+
-+	input_set_abs_params(input_dev, ABS_X,
-+		AS5011_MIN_AXIS, AS5011_MAX_AXIS, AS5011_FUZZ, AS5011_FLAT);
-+	input_set_abs_params(as5011->input_dev, ABS_Y,
-+		AS5011_MIN_AXIS, AS5011_MAX_AXIS, AS5011_FUZZ, AS5011_FLAT);
-+
-+	error = gpio_request(as5011->button_gpio, "AS5011 button");
-+	if (error < 0) {
-+		dev_err(&client->dev, "Failed to request button gpio\n");
-+		goto err_free_mem;
-+	}
-+
-+	irq = gpio_to_irq(as5011->button_gpio);
-+	if (irq < 0) {
-+		dev_err(&client->dev,
-+			"Failed to get irq number for button gpio\n");
-+		goto err_free_button_gpio;
-+	}
-+
-+	as5011->button_irq = irq;
-+
-+	error = request_threaded_irq(as5011->button_irq,
-+				     NULL, as5011_button_interrupt,
-+				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+				     "as5011_button", as5011);
-+	if (error < 0) {
-+		dev_err(&client->dev,
-+			"Can't allocate button irq %d\n", as5011->button_irq);
-+		goto err_free_button_gpio;
-+	}
-+
-+	error = as5011_configure_chip(as5011, plat_data);
-+	if (error)
-+		goto err_free_button_irq;
-+
-+	error = request_threaded_irq(as5011->axis_irq, NULL,
-+				     as5011_axis_interrupt,
-+				     plat_data->axis_irqflags,
-+				     "as5011_joystick", as5011);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"Can't allocate axis irq %d\n", plat_data->axis_irq);
-+		goto err_free_button_irq;
-+	}
-+
-+	error = input_register_device(as5011->input_dev);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to register input device\n");
-+		goto err_free_axis_irq;
-+	}
-+
-+	i2c_set_clientdata(client, as5011);
-+
-+	return 0;
-+
-+err_free_axis_irq:
-+	free_irq(as5011->axis_irq, as5011);
-+err_free_button_irq:
-+	free_irq(as5011->button_irq, as5011);
-+err_free_button_gpio:
-+	gpio_free(as5011->button_gpio);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(as5011);
-+
-+	return error;
-+}
-+
-+static int __devexit as5011_remove(struct i2c_client *client)
-+{
-+	struct as5011_device *as5011 = i2c_get_clientdata(client);
-+
-+	free_irq(as5011->axis_irq, as5011);
-+	free_irq(as5011->button_irq, as5011);
-+	gpio_free(as5011->button_gpio);
-+
-+	input_unregister_device(as5011->input_dev);
-+	kfree(as5011);
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id as5011_id[] = {
-+	{ MODULE_DEVICE_ALIAS, 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, as5011_id);
-+
-+static struct i2c_driver as5011_driver = {
-+	.driver = {
-+		.name = "as5011",
-+	},
-+	.probe		= as5011_probe,
-+	.remove		= __devexit_p(as5011_remove),
-+	.id_table	= as5011_id,
-+};
-+
-+static int __init as5011_init(void)
-+{
-+	return i2c_add_driver(&as5011_driver);
-+}
-+module_init(as5011_init);
-+
-+static void __exit as5011_exit(void)
-+{
-+	i2c_del_driver(&as5011_driver);
-+}
-+module_exit(as5011_exit);
-+
-diff --git a/include/linux/input/as5011.h b/include/linux/input/as5011.h
-new file mode 100644
-index 0000000..1affd0d
---- /dev/null
-+++ b/include/linux/input/as5011.h
-@@ -0,0 +1,20 @@
-+#ifndef _AS5011_H
-+#define _AS5011_H
-+
-+/*
-+ * Copyright (c) 2010, 2011 Fabien Marteau <fabien.marteau@armadeus.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+struct as5011_platform_data {
-+	unsigned int button_gpio;
-+	unsigned int axis_irq; /* irq number */
-+	unsigned long axis_irqflags;
-+	char xp, xn; /* threshold for x axis */
-+	char yp, yn; /* threshold for y axis */
-+};
-+
-+#endif /* _AS5011_H */
+ 	retval = bu21013_init_chip(bu21013_data);
+ 	if (retval < 0) {
+ 		dev_err(&client->dev, "bu21013 controller config failed\n");
+diff --git a/include/linux/input/bu21013.h b/include/linux/input/bu21013.h
+index e470d38..14bb641 100644
+--- a/include/linux/input/bu21013.h
++++ b/include/linux/input/bu21013.h
+@@ -9,11 +9,10 @@
+ 
+ /**
+  * struct bu21013_platform_device - Handle the platform data
++ * @name:	name of the touch panel device
+  * @cs_en:	pointer to the cs enable function
+  * @cs_dis:	pointer to the cs disable function
+  * @irq_read_val:    pointer to read the pen irq value function
+- * @x_max_res: xmax resolution
+- * @y_max_res: ymax resolution
+  * @touch_x_max: touch x max
+  * @touch_y_max: touch y max
+  * @cs_pin: chip select pin
+@@ -26,11 +25,10 @@
+  * This is used to handle the platform data
+  */
+ struct bu21013_platform_device {
++	const char *name;
+ 	int (*cs_en)(int reset_pin);
+ 	int (*cs_dis)(int reset_pin);
+ 	int (*irq_read_val)(void);
+-	int x_max_res;
+-	int y_max_res;
+ 	int touch_x_max;
+ 	int touch_y_max;
+ 	unsigned int cs_pin;
 -- 
-1.7.0.4
+1.7.2.dirty
+

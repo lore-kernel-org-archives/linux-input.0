@@ -1,22 +1,27 @@
 From: Alan Ott <alan@signal11.us>
-Subject: hidraw: Wait for Ack when Sending to Device
-Date: Mon, 10 Jan 2011 15:13:55 -0500
-Message-ID: <4D2B6883.7090900@signal11.us>
+Subject: Re: hidraw: Wait for Ack when Sending to Device
+Date: Mon, 10 Jan 2011 15:49:28 -0500
+Message-ID: <4D2B70D8.3030203@signal11.us>
+References: <4D2B6883.7090900@signal11.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:56251 "EHLO core.signal11.us"
+Received: from core.signal11.us ([64.251.29.136]:46993 "EHLO core.signal11.us"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753048Ab1AJUN7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Jan 2011 15:13:59 -0500
+	id S1754651Ab1AJUtb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Jan 2011 15:49:31 -0500
 Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id C4F441CCAB86
-	for <linux-input@vger.kernel.org>; Mon, 10 Jan 2011 15:13:58 -0500 (EST)
+	by core.signal11.us (Postfix) with SMTP id 69ED11CCAB82
+	for <linux-input@vger.kernel.org>; Mon, 10 Jan 2011 15:49:30 -0500 (EST)
+In-Reply-To: <4D2B6883.7090900@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Antonio Ospite <ospite@studenti.unina.it>, Ville Tervo <ville.tervo@nokia.com>, Jiri Kosina <jkosina@suse.cz>, Bill Good <bgood@velocity.net>, Marcel Holtmann <marcel@holtmann.org>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>
+
+[Re-sent with proper formatting on the patch this time. Sorry for the 
+bother.]
 
 Hello,
 
@@ -91,356 +96,181 @@ Alan.
 [2] https://lkml.org/lkml/2010/8/16/343
 [3] see the inline patch below
 
-
 diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-
 index 0e4880e..b55562a 100644
-
 --- a/net/bluetooth/hidp/core.c
-
 +++ b/net/bluetooth/hidp/core.c
-
 @@ -397,6 +397,9 @@ err_eio:
-
   static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, size_t count,
-
-          unsigned char report_type)
-
+  		unsigned char report_type)
   {
-
-+    struct hidp_session *session = hid->driver_data;
-
-+    int ret;
-
-+
-
-      switch (report_type) {
-
-      case HID_FEATURE_REPORT:
-
-          report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE;
-
++	struct hidp_session *session = hid->driver_data;
++	int ret;
++	
+  	switch (report_type) {
+  	case HID_FEATURE_REPORT:
+  		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE;
 @@ -408,10 +411,59 @@ static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, s
+  		return -EINVAL;
+  	}
 
-          return -EINVAL;
-
-      }
-
-  
-
-+    if (mutex_lock_interruptible(&session->report_mutex))
-
-+        return -ERESTARTSYS;
-
++	if (mutex_lock_interruptible(&session->report_mutex))
++		return -ERESTARTSYS;
 +
-
-+    /* Set up our wait, and send the report request to the device. */
-
-+    set_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags);
-
-      if (hidp_send_ctrl_message(hid->driver_data, report_type,
-
--            data, count))
-
--        return -ENOMEM;
-
--    return count;
-
-+            data, count)) {
-
-+        ret = -ENOMEM;
-
-+        goto err;
-
-+    }
-
++	/* Set up our wait, and send the report request to the device. */
++	set_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags);
+  	if (hidp_send_ctrl_message(hid->driver_data, report_type,
+-			data, count))
+-		return -ENOMEM;
+-	return count;
++			data, count)) {
++		ret = -ENOMEM;
++		goto err;
++	}
 +
-
-+    {
-
-+        int i;
-
-+        printk(KERN_WARNING "Sent %d message: %02hhx len: %d\n", report_type, data[0], (int)count);
-
-+        for (i = 0; i<  count; i++) {
-
-+            printk(KERN_WARNING " %02hhx", data[i]);
-
-+        }
-
-+        printk(KERN_WARNING "\n");
-
-+    }
-
++	{
++		int i;
++		printk(KERN_WARNING "Sent %d message: %02hhx len: %d\n", report_type, data[0], (int)count);
++		for (i = 0; i<  count; i++) {
++			printk(KERN_WARNING " %02hhx", data[i]);
++		}
++		printk(KERN_WARNING "\n");
++	}
 +
-
-+    /* Wait for the ACK from the device. */
-
-+    while (test_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags)) {
-
-+        int res;
-
++	/* Wait for the ACK from the device. */
++	while (test_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags)) {
++		int res;
 +
-
-+        res = wait_event_interruptible_timeout(session->report_queue,
-
-+            !test_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags),
-
-+            10*HZ);
-
-+        if (res == 0) {
-
-+            /* timeout */
-
-+            printk(KERN_WARNING "TIMEOUT\n");
-
-+            ret = -EIO;
-
-+            goto err;
-
-+        }
-
-+        if (res<  0) {
-
-+            /* signal */
-
-+            printk(KERN_WARNING "SIGNAL\n");
-
-+            ret = -ERESTARTSYS;
-
-+            goto err;
-
-+        }
-
-+    }
-
++		res = wait_event_interruptible_timeout(session->report_queue,
++			!test_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags),
++			10*HZ);
++		if (res == 0) {
++			/* timeout */
++			printk(KERN_WARNING "TIMEOUT\n");
++			ret = -EIO;
++			goto err;
++		}
++		if (res<  0) {
++			/* signal */
++			printk(KERN_WARNING "SIGNAL\n");
++			ret = -ERESTARTSYS;
++			goto err;
++		}
++	}
++	
++	if (!session->output_report_success) {
++		printk(KERN_WARNING "NOT SUCCESS: Returning -EIO\n");
++		ret = -EIO;
++		goto err;
++	}
 +
-
-+    if (!session->output_report_success) {
-
-+        printk(KERN_WARNING "NOT SUCCESS: Returning -EIO\n");
-
-+        ret = -EIO;
-
-+        goto err;
-
-+    }
-
++	ret = count;
 +
-
-+    ret = count;
-
-+
-
 +err:
-
-+    clear_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags);
-
-+    mutex_unlock(&session->report_mutex);
-
-+    return ret;
-
++	clear_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags);
++	mutex_unlock(&session->report_mutex);
++	return ret;
   }
-
-  
 
   static void hidp_idle_timeout(unsigned long arg)
-
 @@ -438,10 +490,14 @@ static void hidp_process_handshake(struct hidp_session *session,
-
-                      unsigned char param)
-
+  					unsigned char param)
   {
+  	BT_DBG("session %p param 0x%02x", session, param);
++	printk(KERN_WARNING "Handshake Packet %d\n", param);	
++	session->output_report_success = 0; /* default condition */
 
-      BT_DBG("session %p param 0x%02x", session, param);
+  	switch (param) {
+  	case HIDP_HSHK_SUCCESSFUL:
+  		/* FIXME: Call into SET_ GET_ handlers here */
++		printk(KERN_WARNING "   (Successful)\n");
++		session->output_report_success = 1;
+  		break;
 
-+    printk(KERN_WARNING "Handshake Packet %d\n", param);
-
-+    session->output_report_success = 0; /* default condition */
-
-  
-
-      switch (param) {
-
-      case HIDP_HSHK_SUCCESSFUL:
-
-          /* FIXME: Call into SET_ GET_ handlers here */
-
-+        printk(KERN_WARNING "   (Successful)\n");
-
-+        session->output_report_success = 1;
-
-          break;
-
-  
-
-      case HIDP_HSHK_NOT_READY:
-
+  	case HIDP_HSHK_NOT_READY:
 @@ -452,6 +508,7 @@ static void hidp_process_handshake(struct hidp_session *session,
-
-              clear_bit(HIDP_WAITING_FOR_RETURN,&session->flags);
-
-              wake_up_interruptible(&session->report_queue);
-
-          }
-
-+        printk(KERN_WARNING "   (not-successful %d)\n", param);
-
-          /* FIXME: Call into SET_ GET_ handlers here */
-
-          break;
-
-  
+  			clear_bit(HIDP_WAITING_FOR_RETURN,&session->flags);
+  			wake_up_interruptible(&session->report_queue);
+  		}
++		printk(KERN_WARNING "   (not-successful %d)\n", param);
+  		/* FIXME: Call into SET_ GET_ handlers here */
+  		break;
 
 @@ -470,6 +527,12 @@ static void hidp_process_handshake(struct hidp_session *session,
-
-              HIDP_TRANS_HANDSHAKE | HIDP_HSHK_ERR_INVALID_PARAMETER, NULL, 0);
-
-          break;
-
-      }
-
+  			HIDP_TRANS_HANDSHAKE | HIDP_HSHK_ERR_INVALID_PARAMETER, NULL, 0);
+  		break;
+  	}
 +
-
-+    /* Wake up the waiting thread. */
-
-+    if (test_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags)) {
-
-+        clear_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags);
-
-+        wake_up_interruptible(&session->report_queue);
-
-+    }
-
++	/* Wake up the waiting thread. */
++	if (test_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags)) {
++		clear_bit(HIDP_WAITING_FOR_SEND_ACK,&session->flags);
++		wake_up_interruptible(&session->report_queue);
++	}
   }
 
-  
-
   static void hidp_process_hid_control(struct hidp_session *session,
-
 @@ -494,6 +557,7 @@ static int hidp_process_data(struct hidp_session *session, struct sk_buff *skb,
-
   {
+  	int done_with_skb = 1;
+  	BT_DBG("session %p skb %p len %d param 0x%02x", session, skb, skb->len, param);
++	printk(KERN_WARNING "Got Data packet. param: %d\n", param);
 
-      int done_with_skb = 1;
-
-      BT_DBG("session %p skb %p len %d param 0x%02x", session, skb, skb->len, param);
-
-+    printk(KERN_WARNING "Got Data packet. param: %d\n", param);
-
-  
-
-      switch (param) {
-
-      case HIDP_DATA_RTYPE_INPUT:
-
+  	switch (param) {
+  	case HIDP_DATA_RTYPE_INPUT:
 @@ -647,6 +711,7 @@ static int hidp_session(void *arg)
+  	wait_queue_t ctrl_wait, intr_wait;
 
-      wait_queue_t ctrl_wait, intr_wait;
+  	BT_DBG("session %p", session);
++	printk(KERN_WARNING "SESSION STARTING\n");
 
-  
-
-      BT_DBG("session %p", session);
-
-+    printk(KERN_WARNING "SESSION STARTING\n");
-
-  
-
-      if (session->input) {
-
-          vendor  = session->input->id.vendor;
-
+  	if (session->input) {
+  		vendor  = session->input->id.vendor;
 @@ -665,6 +730,7 @@ static int hidp_session(void *arg)
-
-      init_waitqueue_entry(&intr_wait, current);
-
-      add_wait_queue(sk_sleep(ctrl_sk),&ctrl_wait);
-
-      add_wait_queue(sk_sleep(intr_sk),&intr_wait);
-
-+    printk(KERN_WARNING "session entering main loop\n");
-
-      while (!atomic_read(&session->terminate)) {
-
-          set_current_state(TASK_INTERRUPTIBLE);
-
-  
+  	init_waitqueue_entry(&intr_wait, current);
+  	add_wait_queue(sk_sleep(ctrl_sk),&ctrl_wait);
+  	add_wait_queue(sk_sleep(intr_sk),&intr_wait);
++	printk(KERN_WARNING "session entering main loop\n");
+  	while (!atomic_read(&session->terminate)) {
+  		set_current_state(TASK_INTERRUPTIBLE);
 
 @@ -673,6 +739,7 @@ static int hidp_session(void *arg)
 
-  
-
-          while ((skb = skb_dequeue(&ctrl_sk->sk_receive_queue))) {
-
-              skb_orphan(skb);
-
-+            printk(KERN_WARNING "Got CTRL Frame\n");
-
-              hidp_recv_ctrl_frame(session, skb);
-
-          }
-
-  
+  		while ((skb = skb_dequeue(&ctrl_sk->sk_receive_queue))) {
+  			skb_orphan(skb);
++			printk(KERN_WARNING "Got CTRL Frame\n");
+  			hidp_recv_ctrl_frame(session, skb);
+  		}
 
 @@ -925,6 +992,7 @@ int hidp_add_connection(struct hidp_connadd_req *req, struct socket *ctrl_sock,
+  	int err;
 
-      int err;
+  	BT_DBG("");
++	printk(KERN_WARNING "HIDP ADD CONNECTION");
 
-  
-
-      BT_DBG("");
-
-+    printk(KERN_WARNING "HIDP ADD CONNECTION");
-
-  
-
-      if (bacmp(&bt_sk(ctrl_sock->sk)->src,&bt_sk(intr_sock->sk)->src) ||
-
-              bacmp(&bt_sk(ctrl_sock->sk)->dst,&bt_sk(intr_sock->sk)->dst))
-
+  	if (bacmp(&bt_sk(ctrl_sock->sk)->src,&bt_sk(intr_sock->sk)->src) ||
+  			bacmp(&bt_sk(ctrl_sock->sk)->dst,&bt_sk(intr_sock->sk)->dst))
 diff --git a/net/bluetooth/hidp/hidp.h b/net/bluetooth/hidp/hidp.h
-
 index 00e71dd..2f16eea 100644
-
 --- a/net/bluetooth/hidp/hidp.h
-
 +++ b/net/bluetooth/hidp/hidp.h
-
 @@ -81,6 +81,7 @@
-
-  #define HIDP_BOOT_PROTOCOL_MODE        1
-
-  #define HIDP_BLUETOOTH_VENDOR_ID    9
-
-  #define    HIDP_WAITING_FOR_RETURN        10
-
-+#define HIDP_WAITING_FOR_SEND_ACK    11
-
-  
+  #define HIDP_BOOT_PROTOCOL_MODE		1
+  #define HIDP_BLUETOOTH_VENDOR_ID	9
+  #define	HIDP_WAITING_FOR_RETURN		10
++#define HIDP_WAITING_FOR_SEND_ACK	11
 
   struct hidp_connadd_req {
-
-      int   ctrl_sock;    // Connected control socket
-
+  	int   ctrl_sock;	// Connected control socket
 @@ -161,6 +162,9 @@ struct hidp_session {
+  	struct mutex report_mutex;
+  	struct sk_buff *report_return;
+  	wait_queue_head_t report_queue;
++	
++	/* Used in hidp_output_raw_report() */
++	int output_report_success; /* boolean */
 
-      struct mutex report_mutex;
-
-      struct sk_buff *report_return;
-
-      wait_queue_head_t report_queue;
-
-+
-
-+    /* Used in hidp_output_raw_report() */
-
-+    int output_report_success; /* boolean */
-
-  
-
-      /* Report descriptor */
-
-      __u8 *rd_data;
+  	/* Report descriptor */
+  	__u8 *rd_data;
 
 
 

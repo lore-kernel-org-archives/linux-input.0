@@ -1,215 +1,490 @@
-From: Jim Hill <gjthill@gmail.com>
-Subject: [PATCH v2] psmouse: mitigate failing-mouse symptoms
-Date: Sun, 09 Jan 2011 14:00:40 -0800
-Message-ID: <4D2A3008.3000609@gmail.com>
+From: Fabien Marteau <fabien.marteau@armadeus.com>
+Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
+ joystick driver (fourth version)
+Date: Mon, 10 Jan 2011 09:57:59 +0100
+Message-ID: <4D2ACA17.5060708@armadeus.com>
+References: <4D27735C.6000105@armadeus.com> <20110108093040.GA8671@core.coreip.homeip.net>
+Reply-To: fabien.marteau@armadeus.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:57066 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751411Ab1AIWAn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Jan 2011 17:00:43 -0500
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110108093040.GA8671@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 607242@bugs.debian.org
 
-Keep a failing PS/2 mouse usable until it's convenient to replace it.
-Filter incoming packets: drop invalid ones and attempt to correct for
-dropped bytes.
+Hi Dmitry,
 
-New parameter 'filter' makes filtering and logging selectable, set to 0
-to shut off all effects.
+Thanks for the patch, I tested it on my platform and there is a little bug in irq request for the button :
 
-Tested on AMD64, full coverage. No one else has tried this yet.
++	error = request_threaded_irq(as5011->button_irq,
++				     NULL, as5011_button_interrupt,
++				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_RISING,
++				     "as5011_button", as5011);
 
-Signed-off-by: Jim Hill <gjthill@gmail.com>
+Should be :
 
++	error = request_threaded_irq(as5011->button_irq,
++				     NULL, as5011_button_interrupt,
++				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++				     "as5011_button", as5011);
+
+With this modification the patch is ok.
+
+Thanks
+Fabien M
+
+ps: The patch :
+
+Driver for EasyPoint AS5011 2 axis joystick chip. This chip is plugged  on an I2C bus.
+
+Tested on ARM processor (i.MX27).
+
+
+Signed-off-by: Fabien Marteau <fabien.marteau@armadeus.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
+ drivers/input/joystick/Kconfig  |    9 +
+ drivers/input/joystick/Makefile |    1 +
+ drivers/input/joystick/as5011.c |  368 +++++++++++++++++++++++++++++++++++++++
+ include/linux/input/as5011.h    |   20 ++
+ 4 files changed, 398 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/joystick/as5011.c
+ create mode 100644 include/linux/input/as5011.h
 
-This is a second version, choosier about accepting apparently-valid
-start bytes, no redundant test and more concise syslog and changelog
-text.
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index 5b59616..5fad03e 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -255,6 +255,15 @@ config JOYSTICK_AMIGA
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called amijoy.
 
-This is my first patch, I hope I got the procedures right, apologies in
-advance if I goofed something.
-
-My mouse failed while in XP, but I didn't know it - it seemed it'd need
-cleaning soon. On booting into Linux, it was dangerous, wild slews and
-random clicks.  The difference was consistent, making it seem the
-problem wasn't the mouse.
-
-Jim
----
- drivers/input/mouse/psmouse-base.c |  108 ++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/psmouse.h      |    7 ++
- 2 files changed, 115 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index cd9d0c9..f7421ea 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -69,6 +69,22 @@ static unsigned int psmouse_resync_time;
- module_param_named(resync_time, psmouse_resync_time, uint, 0644);
- MODULE_PARM_DESC(resync_time, "How long can mouse stay idle before forcing resync (in seconds, 0 = never).");
- 
-+enum {
-+	DROP_BAD = 1,
-+	SUMMARIZE_ERRORS = 2,
-+	LOG_REJECTS = 4,
-+	LOG_ALL	 = 8,
-+	ATTEMPT_RECOVERY = 16,
-+	DROP_CLAMPED = 32,
-+	DROP_PACKET = DROP_CLAMPED | DROP_BAD
++config JOYSTICK_AS5011
++	tristate "Austria Microsystem AS5011 joystick"
++	depends on I2C
++	help
++	  Say Y here if you have an AS5011 digital joystick.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called as5011.
++
+ config JOYSTICK_JOYDUMP
+ 	tristate "Gameport data dumper"
+ 	select GAMEPORT
+diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+index f3a8cbe..92dc0de 100644
+--- a/drivers/input/joystick/Makefile
++++ b/drivers/input/joystick/Makefile
+@@ -7,6 +7,7 @@
+ obj-$(CONFIG_JOYSTICK_A3D)		+= a3d.o
+ obj-$(CONFIG_JOYSTICK_ADI)		+= adi.o
+ obj-$(CONFIG_JOYSTICK_AMIGA)		+= amijoy.o
++obj-$(CONFIG_JOYSTICK_AS5011)		+= as5011.o
+ obj-$(CONFIG_JOYSTICK_ANALOG)		+= analog.o
+ obj-$(CONFIG_JOYSTICK_COBRA)		+= cobra.o
+ obj-$(CONFIG_JOYSTICK_DB9)		+= db9.o
+diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
+new file mode 100644
+index 0000000..e499e78
+--- /dev/null
++++ b/drivers/input/joystick/as5011.c
+@@ -0,0 +1,368 @@
++/*
++ * Copyright (c) 2010, 2011 Fabien Marteau <fabien.marteau@armadeus.com>
++ * Sponsored by ARMadeus Systems
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Driver for Austria Microsystems joysticks AS5011
++ *
++ * TODO:
++ *	- Power on the chip when open() and power down when close()
++ *	- Manage power mode
++ */
++
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/gpio.h>
++#include <linux/delay.h>
++#include <linux/input/as5011.h>
++#include <linux/slab.h>
++
++#define DRIVER_DESC "Driver for Austria Microsystems AS5011 joystick"
++#define MODULE_DEVICE_ALIAS "as5011"
++
++MODULE_AUTHOR("Fabien Marteau <fabien.marteau@armadeus.com>");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
++
++/* registers */
++#define AS5011_CTRL1		0x76
++#define AS5011_CTRL2		0x75
++#define AS5011_XP		0x43
++#define AS5011_XN		0x44
++#define AS5011_YP		0x53
++#define AS5011_YN		0x54
++#define AS5011_X_REG		0x41
++#define AS5011_Y_REG		0x42
++#define AS5011_X_RES_INT	0x51
++#define AS5011_Y_RES_INT	0x52
++
++/* CTRL1 bits */
++#define AS5011_CTRL1_LP_PULSED		0x80
++#define AS5011_CTRL1_LP_ACTIVE		0x40
++#define AS5011_CTRL1_LP_CONTINUE	0x20
++#define AS5011_CTRL1_INT_WUP_EN		0x10
++#define AS5011_CTRL1_INT_ACT_EN		0x08
++#define AS5011_CTRL1_EXT_CLK_EN		0x04
++#define AS5011_CTRL1_SOFT_RST		0x02
++#define AS5011_CTRL1_DATA_VALID		0x01
++
++/* CTRL2 bits */
++#define AS5011_CTRL2_EXT_SAMPLE_EN	0x08
++#define AS5011_CTRL2_RC_BIAS_ON		0x04
++#define AS5011_CTRL2_INV_SPINNING	0x02
++
++#define AS5011_MAX_AXIS	80
++#define AS5011_MIN_AXIS	(-80)
++#define AS5011_FUZZ	8
++#define AS5011_FLAT	40
++
++struct as5011_device {
++	struct input_dev *input_dev;
++	struct i2c_client *i2c_client;
++	unsigned int button_gpio;
++	unsigned int button_irq;
++	unsigned int axis_irq;
 +};
-+static unsigned int psmouse_filter = DROP_BAD | SUMMARIZE_ERRORS |
-+						ATTEMPT_RECOVERY | DROP_CLAMPED;
-+module_param_named(filter, psmouse_filter, uint, 0644);
-+MODULE_PARM_DESC(filter, "1 = drop invalid or hotio packets, +2=summary-log, "
-+		"+4=log-rejected, +8=log-all, +16=attempt-recovery, "
-+		"+32=drop-clamped.");
 +
- PSMOUSE_DEFINE_ATTR(protocol, S_IWUSR | S_IRUGO,
- 			NULL,
- 			psmouse_attr_show_protocol, psmouse_attr_set_protocol);
-@@ -119,6 +135,85 @@ struct psmouse_protocol {
- 	int (*init)(struct psmouse *);
- };
- 
-+static int psmouse_filter_packet(struct psmouse *m)
++static int as5011_i2c_write(struct i2c_client *client,
++			    uint8_t aregaddr,
++			    uint8_t avalue)
 +{
-+	int todo = 0;
++	uint8_t data[2] = { aregaddr, avalue };
++	struct i2c_msg msg = {
++		client->addr, I2C_M_IGNORE_NAK, 2, (uint8_t *)data
++	};
++	int error;
 +
-+	int xoflow = m->packet[0]>>6 & 1;
-+	int yoflow = m->packet[0]>>7 & 1;
++	error = i2c_transfer(client->adapter, &msg, 1);
++	return error < 0 ? error : 0;
++}
 +
-+	if ((m->packet[0] & 0x08) != 0x08)
-+		todo |= DROP_BAD + ATTEMPT_RECOVERY;
-+	else if ((xoflow | yoflow) && psmouse_filter & DROP_CLAMPED)
-+		todo |= DROP_CLAMPED;
++static int as5011_i2c_read(struct i2c_client *client,
++			   uint8_t aregaddr, signed char *value)
++{
++	uint8_t data[2] = { aregaddr };
++	struct i2c_msg msg_set[2] = {
++		{ client->addr, I2C_M_REV_DIR_ADDR, 1, (uint8_t *)data },
++		{ client->addr, I2C_M_RD | I2C_M_NOSTART, 1, (uint8_t *)data }
++	};
++	int error;
 +
-+	if (todo & DROP_PACKET) {
-+		todo |= LOG_REJECTS;
-+		if (m->err_log_counter == 0)
-+			m->err_log_base = m->last;
-+		++m->err_log_counter;
-+	}
++	error = i2c_transfer(client->adapter, msg_set, 2);
++	if (error < 0)
++		return error;
 +
-+	if (time_after(m->last, m->interval_base + HZ/m->rate)) {
-+		m->interval_pkts = 0;
-+		m->interval_base = m->last;
-+	}
-+	if (m->interval_pkts > m->rate/HZ + 1) {
-+		if (m->hotio_log_counter == 0)
-+			m->hotio_log_base = m->last;
-+		++m->hotio_log_counter;
-+		todo |= DROP_BAD;
-+	}
-+	++m->interval_pkts;
-+
-+	if ((todo & psmouse_filter & LOG_REJECTS) |
-+			(psmouse_filter & LOG_ALL)) {
-+		unsigned long long packet = 0;
-+		int p;
-+		for (p = 0; p < m->pktcnt; ++p)
-+			packet = packet<<8 | m->packet[p];
-+		printk(KERN_INFO "psmouse.c: packet %0*llx%s\n", p*2, packet,
-+				todo & DROP_PACKET ? " bad" : "");
-+	}
-+
-+	if (m->err_log_counter && time_after(m->last, m->err_log_base + HZ) &&
-+		psmouse_filter & (SUMMARIZE_ERRORS | LOG_ALL)) {
-+		printk(KERN_WARNING "psmouse.c: %s at %s %lu bad packets\n",
-+				m->name, m->phys, m->err_log_counter);
-+		m->err_log_counter = m->err_log_base = 0;
-+	}
-+
-+	if (m->hotio_log_counter && time_after(m->last, m->hotio_log_base + HZ)
-+			&& psmouse_filter & (SUMMARIZE_ERRORS | LOG_ALL)) {
-+		printk(KERN_WARNING "psmouse.c: %s at %s %lu excess packets\n",
-+				m->name, m->phys, m->hotio_log_counter);
-+		m->hotio_log_counter = m->hotio_log_base = 0;
-+	}
-+
-+	/*
-+	 * Take a flyer on recovery, works ok on dropped bytes. Work backwards
-+	 * from end looking for a byte that could be a valid start-byte with
-+	 * the same buttons down and general direction as the last good packet.
-+	 */
-+	if (todo & psmouse_filter & ATTEMPT_RECOVERY) {
-+		int p = m->pktcnt;
-+		while (--p) {
-+			if (m->packet[p] == m->last_mbstate) {
-+				m->pktcnt -= p;
-+				memmove(m->packet, m->packet+p, m->pktcnt);
-+				return todo; /* <-- */
-+			}
-+		}
-+		todo &= ~ATTEMPT_RECOVERY;
-+	}
-+
-+	if (todo & psmouse_filter & DROP_PACKET)
-+		return todo & psmouse_filter;
-+	if (!(todo & DROP_PACKET))
-+		m->last_mbstate = m->packet[0] & 0x3f;
++	*value = data[0] & 0x80 ? -1 * (1 + ~data[0]) : data[0];
 +	return 0;
 +}
 +
- /*
-  * psmouse_process_byte() analyzes the PS/2 data stream and reports
-  * relevant events to the input module once full packet has arrived.
-@@ -135,6 +230,13 @@ static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
- /*
-  * Full packet accumulated, process it
-  */
-+	{
-+		int check = psmouse_filter_packet(psmouse);
-+		if (check & ATTEMPT_RECOVERY)
-+			return PSMOUSE_GOOD_DATA;
-+		if (check & DROP_PACKET)
-+			return PSMOUSE_FULL_PACKET;
++static irqreturn_t as5011_button_interrupt(int irq, void *dev_id)
++{
++	struct as5011_device *as5011 = dev_id;
++	int val = gpio_get_value_cansleep(as5011->button_gpio);
++
++	input_report_key(as5011->input_dev, BTN_JOYSTICK, !val);
++	input_sync(as5011->input_dev);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t as5011_axis_interrupt(int irq, void *dev_id)
++{
++	struct as5011_device *as5011 = dev_id;
++	int error;
++	signed char x, y;
++
++	error = as5011_i2c_read(as5011->i2c_client, AS5011_X_RES_INT, &x);
++	if (error < 0)
++		goto out;
++
++	error = as5011_i2c_read(as5011->i2c_client, AS5011_Y_RES_INT, &y);
++	if (error < 0)
++		goto out;
++
++	input_report_abs(as5011->input_dev, ABS_X, x);
++	input_report_abs(as5011->input_dev, ABS_Y, y);
++	input_sync(as5011->input_dev);
++
++out:
++	return IRQ_HANDLED;
++}
++
++static int __devinit as5011_configure_chip(struct as5011_device *as5011,
++				const struct as5011_platform_data *plat_dat)
++{
++	struct i2c_client *client = as5011->i2c_client;
++	int error;
++	signed char value;
++
++	/* chip soft reset */
++	error = as5011_i2c_write(client, AS5011_CTRL1,
++				 AS5011_CTRL1_SOFT_RST);
++	if (error < 0) {
++		dev_err(&client->dev, "Soft reset failed\n");
++		return error;
 +	}
- 
- /*
-  * Scroll wheel on IntelliMice, scroll buttons on NetMice
-@@ -223,6 +325,12 @@ static inline void __psmouse_set_state(struct psmouse *psmouse, enum psmouse_sta
- 	psmouse->pktcnt = psmouse->out_of_sync_cnt = 0;
- 	psmouse->ps2dev.flags = 0;
- 	psmouse->last = jiffies;
-+	psmouse->err_log_base = 0;
-+	psmouse->interval_base = 0;
-+	psmouse->hotio_log_base = 0;
-+	psmouse->err_log_counter = 0;
-+	psmouse->interval_pkts = 0;
-+	psmouse->hotio_log_counter = 0;
- }
- 
- 
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index 593e910..fc4a939 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -47,12 +47,19 @@ struct psmouse {
- 	unsigned char pktcnt;
- 	unsigned char pktsize;
- 	unsigned char type;
-+	unsigned char last_mbstate;
- 	bool ignore_parity;
- 	bool acks_disable_command;
- 	unsigned int model;
- 	unsigned long last;
- 	unsigned long out_of_sync_cnt;
- 	unsigned long num_resyncs;
-+	unsigned long interval_base;
-+	unsigned long interval_pkts;
-+	unsigned long hotio_log_base;
-+	unsigned long hotio_log_counter;
-+	unsigned long err_log_base;
-+	unsigned long err_log_counter;
- 	enum psmouse_state state;
- 	char devname[64];
- 	char phys[32];
++
++	mdelay(10);
++
++	error = as5011_i2c_write(client, AS5011_CTRL1,
++				 AS5011_CTRL1_LP_PULSED |
++				 AS5011_CTRL1_LP_ACTIVE |
++				 AS5011_CTRL1_INT_ACT_EN);
++	if (error < 0) {
++		dev_err(&client->dev, "Power config failed\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_CTRL2,
++				 AS5011_CTRL2_INV_SPINNING);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't invert spinning\n");
++		return error;
++	}
++
++	/* write threshold */
++	error = as5011_i2c_write(client, AS5011_XP, plat_dat->xp);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_XN, plat_dat->xn);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_YP, plat_dat->yp);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	error = as5011_i2c_write(client, AS5011_YN, plat_dat->yn);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't write threshold\n");
++		return error;
++	}
++
++	/* to free irq gpio in chip */
++	error = as5011_i2c_read(client, AS5011_X_RES_INT, &value);
++	if (error < 0) {
++		dev_err(&client->dev, "Can't read i2c X resolution value\n");
++		return error;
++	}
++
++	return 0;
++}
++
++static int __devinit as5011_probe(struct i2c_client *client,
++				const struct i2c_device_id *id)
++{
++	const struct as5011_platform_data *plat_data;
++	struct as5011_device *as5011;
++	struct input_dev *input_dev;
++	int irq;
++	int error;
++
++	plat_data = client->dev.platform_data;
++	if (!plat_data)
++		return -EINVAL;
++
++	if (!plat_data->axis_irq) {
++		dev_err(&client->dev, "No axis IRQ?\n");
++		return -EINVAL;
++	}
++
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_PROTOCOL_MANGLING)) {
++		dev_err(&client->dev,
++			"need i2c bus that supports protocol mangling\n");
++		return -ENODEV;
++	}
++
++	as5011 = kmalloc(sizeof(struct as5011_device), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!as5011 || !input_dev) {
++		dev_err(&client->dev,
++			"Can't allocate memory for device structure\n");
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	as5011->i2c_client = client;
++	as5011->input_dev = input_dev;
++	as5011->button_gpio = plat_data->button_gpio;
++	as5011->axis_irq = plat_data->axis_irq;
++
++	input_dev->name = "Austria Microsystem as5011 joystick";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = &client->dev;
++
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(EV_ABS, input_dev->evbit);
++	__set_bit(BTN_JOYSTICK, input_dev->keybit);
++
++	input_set_abs_params(input_dev, ABS_X,
++		AS5011_MIN_AXIS, AS5011_MAX_AXIS, AS5011_FUZZ, AS5011_FLAT);
++	input_set_abs_params(as5011->input_dev, ABS_Y,
++		AS5011_MIN_AXIS, AS5011_MAX_AXIS, AS5011_FUZZ, AS5011_FLAT);
++
++	error = gpio_request(as5011->button_gpio, "AS5011 button");
++	if (error < 0) {
++		dev_err(&client->dev, "Failed to request button gpio\n");
++		goto err_free_mem;
++	}
++
++	irq = gpio_to_irq(as5011->button_gpio);
++	if (irq < 0) {
++		dev_err(&client->dev,
++			"Failed to get irq number for button gpio\n");
++		goto err_free_button_gpio;
++	}
++
++	as5011->button_irq = irq;
++
++	error = request_threaded_irq(as5011->button_irq,
++				     NULL, as5011_button_interrupt,
++				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++				     "as5011_button", as5011);
++	if (error < 0) {
++		dev_err(&client->dev,
++			"Can't allocate button irq %d\n", as5011->button_irq);
++		goto err_free_button_gpio;
++	}
++
++	error = as5011_configure_chip(as5011, plat_data);
++	if (error)
++		goto err_free_button_irq;
++
++	error = request_threaded_irq(as5011->axis_irq, NULL,
++				     as5011_axis_interrupt,
++				     plat_data->axis_irqflags,
++				     "as5011_joystick", as5011);
++	if (error) {
++		dev_err(&client->dev,
++			"Can't allocate axis irq %d\n", plat_data->axis_irq);
++		goto err_free_button_irq;
++	}
++
++	error = input_register_device(as5011->input_dev);
++	if (error) {
++		dev_err(&client->dev, "Failed to register input device\n");
++		goto err_free_axis_irq;
++	}
++
++	i2c_set_clientdata(client, as5011);
++
++	return 0;
++
++err_free_axis_irq:
++	free_irq(as5011->axis_irq, as5011);
++err_free_button_irq:
++	free_irq(as5011->button_irq, as5011);
++err_free_button_gpio:
++	gpio_free(as5011->button_gpio);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(as5011);
++
++	return error;
++}
++
++static int __devexit as5011_remove(struct i2c_client *client)
++{
++	struct as5011_device *as5011 = i2c_get_clientdata(client);
++
++	free_irq(as5011->axis_irq, as5011);
++	free_irq(as5011->button_irq, as5011);
++	gpio_free(as5011->button_gpio);
++
++	input_unregister_device(as5011->input_dev);
++	kfree(as5011);
++
++	return 0;
++}
++
++static const struct i2c_device_id as5011_id[] = {
++	{ MODULE_DEVICE_ALIAS, 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, as5011_id);
++
++static struct i2c_driver as5011_driver = {
++	.driver = {
++		.name = "as5011",
++	},
++	.probe		= as5011_probe,
++	.remove		= __devexit_p(as5011_remove),
++	.id_table	= as5011_id,
++};
++
++static int __init as5011_init(void)
++{
++	return i2c_add_driver(&as5011_driver);
++}
++module_init(as5011_init);
++
++static void __exit as5011_exit(void)
++{
++	i2c_del_driver(&as5011_driver);
++}
++module_exit(as5011_exit);
++
+diff --git a/include/linux/input/as5011.h b/include/linux/input/as5011.h
+new file mode 100644
+index 0000000..1affd0d
+--- /dev/null
++++ b/include/linux/input/as5011.h
+@@ -0,0 +1,20 @@
++#ifndef _AS5011_H
++#define _AS5011_H
++
++/*
++ * Copyright (c) 2010, 2011 Fabien Marteau <fabien.marteau@armadeus.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++struct as5011_platform_data {
++	unsigned int button_gpio;
++	unsigned int axis_irq; /* irq number */
++	unsigned long axis_irqflags;
++	char xp, xn; /* threshold for x axis */
++	char yp, yn; /* threshold for y axis */
++};
++
++#endif /* _AS5011_H */
 -- 
-1.7.2.3
-
+1.7.0.4

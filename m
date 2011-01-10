@@ -1,94 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
-Date: Mon, 10 Jan 2011 15:06:22 -0800
-Message-ID: <20110110230622.GB16759@core.coreip.homeip.net>
-References: <1294422307-19107-1-git-send-email-riyer@nvidia.com>
- <20110110221624.GA16445@core.coreip.homeip.net>
- <1FC56210173BB445BD77F608D6FB8D03165A00805F@HQMAIL03.nvidia.com>
+From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Subject: NVidia Multitouch driver.
+Date: Tue, 11 Jan 2011 00:41:19 +0100
+Message-ID: <AANLkTi=KQMrFR7rO=4gY=GX-aHo+sckA8nGrE-1A9rpe@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FC56210173BB445BD77F608D6FB8D03165A00805F@HQMAIL03.nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rakesh Iyer <riyer@nvidia.com>
-Cc: "jj@chaosbits.net" <jj@chaosbits.net>, "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f194.google.com ([209.85.213.194]:36468 "EHLO
+	mail-yx0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752061Ab1AJXlk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Jan 2011 18:41:40 -0500
+Received: by yxd5 with SMTP id 5so4375707yxd.1
+        for <linux-input@vger.kernel.org>; Mon, 10 Jan 2011 15:41:39 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: USB list <linux-input@vger.kernel.org>
+Cc: Varun Wadekar <vwadekar@nvidia.com>, Harry Hong <hhong@nvidia.com>, Gary King <gking@nvidia.com>
 
-On Mon, Jan 10, 2011 at 02:49:25PM -0800, Rakesh Iyer wrote:
-> > On Fri, Jan 07, 2011 at 09:45:07AM -0800, riyer@nvidia.com wrote:
-> > > +
-> > > +struct tegra_kbc {
-> > > +	void __iomem *mmio;
-> > > +	struct input_dev *idev;
-> > > +	int irq;
-> > > +	unsigned int wake_enable_rows;
-> > > +	unsigned int wake_enable_cols;
-> > > +	spinlock_t lock;
-> > > +	unsigned int repoll_time;
-> > > +	unsigned long cp_dly_jiffies;
-> > > +	int fifo[KBC_MAX_KPENT];
-> > > +	const struct tegra_kbc_platform_data *pdata;
-> > > +	int *plain_keycode;
-> > > +	int *fn_keycode;
-> > 
-> > There should not be separate keycodes for FN and normal kys - FN is just
-> > a modifier, like SHIFT or CTRL or ALT are and shoudl be handled in upper
-> > layers.
-> 
-> We had the same thought regarding Function as a modifier akin to Shift, Ctrl an Alt.
-> But this does not appear to be the case. 
-> 
-> This keyboard is used primarily for Laptop-like form factors where function keys are used to overload the existing keys.
+Hi,
 
-So it is same SHIFT.
+Are you working on rebasing this patch
+http://nv-tegra.nvidia.com/gitweb/?p=linux-2.6.git;a=commitdiff;h=570fbc982f90f7a85e4297a4a1e12785880fdab4
 
-> In addition the Fn key mappings aren't identical in different keyboard layouts.
+to the last linux kernel with the last mt state ?
+(mt unification driver, protocol B, etc...)
 
+Thanks,
 
-Same as SHIFT - depending on layout used shifted KEY_1 produces either '!' or '1'.
-
-> 
-> So at this point in order to function with the target hardware and the target operating system which is Chrome, this modifier keymap is necessary.
-> 
-> Let me know what you think.
-> 
-
-I think that since FN in your example behaves similarly to the SHIFT
-key it should be handled in the same fashion.
-
-> > 
-> > Also you should wire up keycode/keycodemax/keycodesize in input_dev
-> > structuire so that keymap can be retrieved via EVIOCGKEYCODE and
-> > modified via EVIOGSKEYCODE.
-> 
-> I will proceed to do this.
-> 
-> >  Also, because keymap is modifiable, the
-> > original keymap should be copied in per-device structure, leaving
-> > original intact. It (the original) also should be marked as const.
-> I did not get the significance to preserving a copy of the original keymap.
-> In what situation would we use that.
-
-Unbinding and rebinding the device (via sysfs for example) should
-restore device's pristine state. If you modify the shared keymap then it
-will not be the case.
-
-> 
-> 
-> > Since this papears to be a matrix keypad consider using definitions from
-> > linux/input/matrix_keypad.h
-> >
-> 
-> I looked at the linux/input/matrix_keypad.h and noticed it shares a decent amount of structure with the tegra keyboard.
-> But the tegra kbc hardware differences from the matrix_keypad are significant enough to warrant its own structure.
-
-I was only referring to using struct matrix_keymap_data, KEY(),
-MATRIX_SCAN_CODE() and matrix_keypad_build_keymap() definitions. I
-understand that matrix_keypad_platform_data might not be directly
-applicable.
-
-Thanks.
-
--- 
-Dmitry
+i

@@ -1,62 +1,55 @@
-From: "Kevin McNeely" <Kevin.McNeely@cypress.com>
-Subject: RE: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
-Date: Mon, 10 Jan 2011 13:17:41 -0800
-Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC0901400A80@labamba.mis.cypress.com>
-References: <kev@cypress.com> <1294188847-24728-1-git-send-email-kev@cypress.com> <20110105085942.GA23321@polaris.bitmath.org> <FB9C2CB29A07AB45B575A4E8D2AABC09014003B8@labamba.mis.cypress.com> <20110105173403.GA2146@polaris.bitmath.org> <FB9C2CB29A07AB45B575A4E8D2AABC0901400A3F@labamba.mis.cypress.com> <20110110211103.GA16332@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
+Date: Mon, 10 Jan 2011 14:16:24 -0800
+Message-ID: <20110110221624.GA16445@core.coreip.homeip.net>
+References: <1294422307-19107-1-git-send-email-riyer@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns2.cypress.com ([157.95.67.5]:48562 "EHLO ns2.cypress.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754730Ab1AJVSH convert rfc822-to-8bit (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:60647 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754418Ab1AJWQc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Jan 2011 16:18:07 -0500
-Content-class: urn:content-classes:message
+	Mon, 10 Jan 2011 17:16:32 -0500
+Content-Disposition: inline
+In-Reply-To: <1294422307-19107-1-git-send-email-riyer@nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: riyer@nvidia.com
+Cc: jj@chaosbits.net, tsoni@codeaurora.org, shubhrajyoti@ti.com, ccross@android.com, konkers@android.com, olof@lixom.net, achew@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Ok. Thank you Dmitry,
-Kevin
+Hi Rakesh,
 
+On Fri, Jan 07, 2011 at 09:45:07AM -0800, riyer@nvidia.com wrote:
+> +
+> +struct tegra_kbc {
+> +	void __iomem *mmio;
+> +	struct input_dev *idev;
+> +	int irq;
+> +	unsigned int wake_enable_rows;
+> +	unsigned int wake_enable_cols;
+> +	spinlock_t lock;
+> +	unsigned int repoll_time;
+> +	unsigned long cp_dly_jiffies;
+> +	int fifo[KBC_MAX_KPENT];
+> +	const struct tegra_kbc_platform_data *pdata;
+> +	int *plain_keycode;
+> +	int *fn_keycode;
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Monday, January 10, 2011 1:11 PM
-> To: Kevin McNeely
-> Cc: Henrik Rydberg; David Brown; Trilok Soni; Samuel Ortiz; Eric Miao;
-> Mike Frysinger; Alan Cox; linux-input@vger.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: Re: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
-> 
-> On Mon, Jan 10, 2011 at 11:27:33AM -0800, Kevin McNeely wrote:
-> > Hello Henrik,
-> >
-> > As there have been no other changes requested for the v4 (other than
-> > your modifications), will you merge your modification patch along
-> with
-> > my  v4 SPI and v4 I2C patches?
-> >
-> > Do I need to submit a v5 with your patch in order to get merged?
-> >
-> 
-> Hi Kevin,
-> 
-> I have a few comments/changes, let me try to sort through them
-> tonight/tomorrow.
-> 
-> Thanks.
-> 
-> --
-> Dmitry
+There should not be separate keycodes for FN and normal kys - FN is just
+a modifier, like SHIFT or CTRL or ALT are and shoudl be handled in upper
+layers.
 
----------------------------------------------------------------
-This message and any attachments may contain Cypress (or its
-subsidiaries) confidential information. If it has been received
-in error, please advise the sender and immediately delete this
-message.
----------------------------------------------------------------
+Also you should wire up keycode/keycodemax/keycodesize in input_dev
+structuire so that keymap can be retrieved via EVIOCGKEYCODE and
+modified via EVIOGSKEYCODE. Also, because keymap is modifiable, the
+original keymap should be copied in per-device structure, leaving
+original intact. It (the original) also should be marked as const.
 
+Since this papears to be a matrix keypad consider using definitions from
+linux/input/matrix_keypad.h
+
+Thank you.
+
+-- 
+Dmitry

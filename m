@@ -1,86 +1,61 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch unification
-Date: Mon, 10 Jan 2011 20:24:12 +0100
-Message-ID: <AANLkTi=BoBPZ-KxAn9NSECVv+7FB9DBTu5nchS3TN-rT@mail.gmail.com>
-References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
-	<alpine.LNX.2.00.1101072355200.26685@pobox.suse.cz>
-	<alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz>
-	<alpine.LNX.2.00.1101082224130.26685@pobox.suse.cz>
-	<alpine.LNX.2.00.1101101931200.26685@pobox.suse.cz>
+From: "Kevin McNeely" <Kevin.McNeely@cypress.com>
+Subject: RE: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
+Date: Mon, 10 Jan 2011 11:27:33 -0800
+Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC0901400A3F@labamba.mis.cypress.com>
+References: <kev@cypress.com> <1294188847-24728-1-git-send-email-kev@cypress.com> <20110105085942.GA23321@polaris.bitmath.org> <FB9C2CB29A07AB45B575A4E8D2AABC09014003B8@labamba.mis.cypress.com> <20110105173403.GA2146@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:41463 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752622Ab1AJTYN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Jan 2011 14:24:13 -0500
-In-Reply-To: <alpine.LNX.2.00.1101101931200.26685@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-class: urn:content-classes:message
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2011 at 7:32 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Sat, 8 Jan 2011, Jiri Kosina wrote:
->
->> > > I have now applied the patchset as-is to the 'multitouch' branch=
- in my
->> > > tree.
->> >
->> > Which means -- could you please send any followup patches on top o=
-f that
->> > branch (i.e. on top of the v3 patchset)? It would help my workflow=
- and
->> > make the merging process smoother.
->>
->> 'multitouch' brach now builds, as Linus has taken Dmitry's pull requ=
-est
->> and I have merged from Linus.
->>
->> So once you have fixed for the minor issues raised by Henrik and onc=
-e you
->> have finished your testing, please send the additional fixes to me a=
-nd I
->> will be merging the branch upstream.
->
-> Hi Benjamin,
->
-> we are now slowly aproaching the point in time in which I would like =
-to
-> prepare second round of HID tree merge with Linus.
->
-> Have you finished your testing / fixing the minor issues raised by He=
-nrik
-> please?
->
+Hello Henrik,
+
+As there have been no other changes requested for the v4 (other than
+your modifications), will you merge your modification patch along with
+my  v4 SPI and v4 I2C patches?
+
+Do I need to submit a v5 with your patch in order to get merged?
+
+Thanks and best regards,
+Kevin
+
+
+> -----Original Message-----
+> From: Henrik Rydberg [mailto:rydberg@euromail.se]
+> Sent: Wednesday, January 05, 2011 9:34 AM
+> To: Kevin McNeely
+> Cc: Dmitry Torokhov; David Brown; Trilok Soni; Samuel Ortiz; Eric
+Miao;
+> Mike Frysinger; Alan Cox; linux-input@vger.kernel.org; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
+> 
+> Hi Kevin,
+> 
+> > Hi Henrik,
+> >
+> > Thank you for the code modifications.
+> > The mods work for both I2C and SPI builds.
+> 
+> Great!
+> 
+> > Can you post your modified patch?
+> 
+> There might be more comments to v4, so if there is a v5, you can just
+> send it then. Otherwise, we have what we need.
+> 
 > Thanks,
->
+> Henrik
 
-Hi Jiri,
-
-I'm still waiting for one tester (the generaltouch one).
-
-I hope he will be able to test it tomorrow (he told me he was busy unti=
-l today).
-
-I'm sure the driver works for two of the three devices (we have them
-at the lab). The generaltouch is less important as there is a conflict
-in the naming of the vendorID/deviceID:
-GeneralTouch sells two different devices with the same deviceID, and
-the older is handled by usbtouchscreen.
-St=E9phane explained to me today that people that want to use multitouc=
-h
-features will have to do some manipulations to enable it.
-
-I'll send the diff between v3-v4 tomorrow if you want or before if you
-really need.
-
-Cheers,
-Benjamin
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+---------------------------------------------------------------
+This message and any attachments may contain Cypress (or its
+subsidiaries) confidential information. If it has been received
+in error, please advise the sender and immediately delete this
+message.
+---------------------------------------------------------------

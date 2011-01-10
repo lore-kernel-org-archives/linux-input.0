@@ -1,27 +1,48 @@
-From: silvan shawn <silvanshawn@att.net>
-Subject: PURCHASE PROPERTY
-Date: Mon, 10 Jan 2011 14:58:39 +0000
-Message-ID: <52f335eb-eb42-43f6-9810-084a368da6fe@cashubb.sidiw.com.cn>
-Reply-To: <silvanshawn@peacemail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch
+ unification
+Date: Mon, 10 Jan 2011 19:32:10 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101101931200.26685@pobox.suse.cz>
+References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr> <alpine.LNX.2.00.1101072355200.26685@pobox.suse.cz> <alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz> <alpine.LNX.2.00.1101082224130.26685@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.sidiw.com.cn ([218.94.114.198]:58116 "EHLO
-	mail.sidiw.com.cn" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751800Ab1AJO6o (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Jan 2011 09:58:44 -0500
+Received: from cantor.suse.de ([195.135.220.2]:38265 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754177Ab1AJScM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Jan 2011 13:32:12 -0500
+In-Reply-To: <alpine.LNX.2.00.1101082224130.26685@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Good day
-Sorry for any inconveniences. I am in search of a reliable and trusted
- person(s)  to assist and advise me on lucrative areas for investment in
- in your Country.
- If you might be willing to offer your advise, Kindly get back to me so
-I can inform you of precise details of my area of interest.
-Thanks
- Waiting to hear from you
+On Sat, 8 Jan 2011, Jiri Kosina wrote:
 
- Capt Silvan shawn
+> > > I have now applied the patchset as-is to the 'multitouch' branch in my 
+> > > tree.
+> > 
+> > Which means -- could you please send any followup patches on top of that 
+> > branch (i.e. on top of the v3 patchset)? It would help my workflow and 
+> > make the merging process smoother.
+> 
+> 'multitouch' brach now builds, as Linus has taken Dmitry's pull request 
+> and I have merged from Linus.
+> 
+> So once you have fixed for the minor issues raised by Henrik and once you 
+> have finished your testing, please send the additional fixes to me and I 
+> will be merging the branch upstream.
+
+Hi Benjamin,
+
+we are now slowly aproaching the point in time in which I would like to 
+prepare second round of HID tree merge with Linus.
+
+Have you finished your testing / fixing the minor issues raised by Henrik 
+please?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,77 +1,236 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch
- unification
-Date: Tue, 11 Jan 2011 11:37:23 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101111136220.26685@pobox.suse.cz>
-References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr> <alpine.LNX.2.00.1101072355200.26685@pobox.suse.cz> <alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz> <alpine.LNX.2.00.1101082224130.26685@pobox.suse.cz>
- <alpine.LNX.2.00.1101101931200.26685@pobox.suse.cz> <AANLkTi=BoBPZ-KxAn9NSECVv+7FB9DBTu5nchS3TN-rT@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: [PATCH] hid-multitouch: changes from the review process
+Date: Tue, 11 Jan 2011 11:53:14 +0100
+Message-ID: <1294743194-2310-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52477 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755608Ab1AKKhZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jan 2011 05:37:25 -0500
-In-Reply-To: <AANLkTi=BoBPZ-KxAn9NSECVv+7FB9DBTu5nchS3TN-rT@mail.gmail.com>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:51801 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755684Ab1AKKwe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Jan 2011 05:52:34 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.orglinux
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-On Mon, 10 Jan 2011, Benjamin Tissoires wrote:
+* amended Kconfig
+* insert field name in mt_class and retrieving it in mt_probe
+* cosmetics changes (tabs and comments)
+* disable MT_QUIRK_NOT_SEEN_MEANS_UP: needs further tests for curvalid field
+* do not send unnecessary properties once the touch is up
 
-> > we are now slowly aproaching the point in time in which I would lik=
-e=20
-> > to prepare second round of HID tree merge with Linus.
-> >
-> > Have you finished your testing / fixing the minor issues raised by =
-Henrik
-> > please?
-> >
-> > Thanks,
-> >
->=20
-> Hi Jiri,
->=20
-> I'm still waiting for one tester (the generaltouch one).
->=20
-> I hope he will be able to test it tomorrow (he told me he was busy un=
-til=20
-> today).
->
->=20
-> I'm sure the driver works for two of the three devices (we have them
-> at the lab). The generaltouch is less important as there is a conflic=
-t
-> in the naming of the vendorID/deviceID:
-> GeneralTouch sells two different devices with the same deviceID, and
-> the older is handled by usbtouchscreen.
-> St=E9phane explained to me today that people that want to use multito=
-uch
-> features will have to do some manipulations to enable it.
->
-> I'll send the diff between v3-v4 tomorrow if you want or before if yo=
-u
-> really need.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
 
-Good, thanks for the update.
+Hi Jiri,
 
-We still have the whole development cycle to fix potential problems in =
-the=20
-driver found later by the testers, but the skeleton should rather reall=
-y=20
-be there in a few days from now, otherwise we'll have to postpone it fo=
-r=20
-=2E39.
+here are the updates of your branch multitouch.
+My tester still didn't contact me but I know the driver works for 
+PixCir and Cypress.
 
-Thanks,
+Cheers,
+Benjamin
 
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/hid/Kconfig          |    5 ++
+ drivers/hid/hid-multitouch.c |   88 ++++++++++++++++++++++++++----------------
+ 2 files changed, 60 insertions(+), 33 deletions(-)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 9bd2148..ecb2b2f 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -296,6 +296,11 @@ config HID_MULTITOUCH
+ 	  - Cypress TrueTouch
+ 	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
+ 
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called hid-multitouch.
++
+ config HID_NTRIG
+ 	tristate "N-Trig touch screen"
+ 	depends on USB_HID
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 3442ed5..88596fa 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -32,7 +32,7 @@ MODULE_LICENSE("GPL");
+ /* quirks to control the device */
+ #define MT_QUIRK_NOT_SEEN_MEANS_UP	(1 << 0)
+ #define MT_QUIRK_SLOT_IS_CONTACTID	(1 << 1)
+-#define MT_QUIRK_CYPRESS	(1 << 2)
++#define MT_QUIRK_CYPRESS		(1 << 2)
+ #define MT_QUIRK_SLOT_IS_CONTACTNUMBER	(1 << 3)
+ 
+ struct mt_slot {
+@@ -55,6 +55,7 @@ struct mt_device {
+ };
+ 
+ struct mt_class {
++	__s32 name;	/* MT_CLS */
+ 	__s32 quirks;
+ 	__s32 sn_move;	/* Signal/noise ratio for move events */
+ 	__s32 sn_pressure;	/* Signal/noise ratio for pressure events */
+@@ -62,10 +63,10 @@ struct mt_class {
+ };
+ 
+ /* classes of device behavior */
+-#define MT_CLS_DEFAULT 0
+-#define MT_CLS_DUAL1 1
+-#define MT_CLS_DUAL2 2
+-#define MT_CLS_CYPRESS 3
++#define MT_CLS_DEFAULT	1
++#define MT_CLS_DUAL1	2
++#define MT_CLS_DUAL2	3
++#define MT_CLS_CYPRESS	4
+ 
+ /*
+  * these device-dependent functions determine what slot corresponds
+@@ -103,17 +104,35 @@ static int find_slot_from_contactid(struct mt_device *td)
+ 			!td->slots[i].touch_state)
+ 			return i;
+ 	}
+-	return -1;
+ 	/* should not occurs. If this happens that means
+ 	 * that the device sent more touches that it says
+ 	 * in the report descriptor. It is ignored then. */
++	return -1;
+ }
+ 
+ struct mt_class mt_classes[] = {
+-	{ 0, 0, 0, 10 },                             /* MT_CLS_DEFAULT */
+-	{ MT_QUIRK_SLOT_IS_CONTACTID, 0, 0, 2 },     /* MT_CLS_DUAL1 */
+-	{ MT_QUIRK_SLOT_IS_CONTACTNUMBER, 0, 0, 10 },    /* MT_CLS_DUAL2 */
+-	{ MT_QUIRK_CYPRESS | MT_QUIRK_NOT_SEEN_MEANS_UP, 0, 0, 10 }, /* MT_CLS_CYPRESS */
++	{ .name = MT_CLS_DEFAULT,
++		.quirks = 0,
++		.sn_move = 0,
++		.sn_pressure = 0,
++		.maxcontacts = 10 },
++	{ .name = MT_CLS_DUAL1,
++		.quirks = MT_QUIRK_SLOT_IS_CONTACTID,
++		.sn_move = 0,
++		.sn_pressure = 0,
++		.maxcontacts = 2 },
++	{ .name = MT_CLS_DUAL2,
++		.quirks = MT_QUIRK_SLOT_IS_CONTACTNUMBER,
++		.sn_move = 0,
++		.sn_pressure = 0,
++		.maxcontacts = 2 },
++	{ .name = MT_CLS_CYPRESS,
++		.quirks = MT_QUIRK_CYPRESS,
++		.sn_move = 0,
++		.sn_pressure = 0,
++		.maxcontacts = 10 },
++
++	{ }
+ };
+ 
+ static void mt_feature_mapping(struct hid_device *hdev, struct hid_input *hi,
+@@ -192,7 +211,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_TOUCH_MINOR);
+ 			field->logical_maximum = 1;
+-			field->logical_minimum = 1;
++			field->logical_minimum = 0;
+ 			set_abs(hi->input, ABS_MT_ORIENTATION, field, 0);
+ 			td->last_slot_field = usage->hid;
+ 			return 1;
+@@ -257,16 +276,12 @@ static int mt_compute_slot(struct mt_device *td)
+  */
+ static void mt_complete_slot(struct mt_device *td)
+ {
++	td->curdata.seen_in_this_frame = true;
+ 	if (td->curvalid) {
+-		struct mt_slot *slot;
+ 		int slotnum = mt_compute_slot(td);
+ 
+-		if (slotnum >= 0 && slotnum < td->mtclass->maxcontacts) {
+-			slot = td->slots + slotnum;
+-
+-			memcpy(slot, &(td->curdata), sizeof(struct mt_slot));
+-			slot->seen_in_this_frame = true;
+-		}
++		if (slotnum >= 0 && slotnum < td->mtclass->maxcontacts)
++			td->slots[slotnum] = td->curdata;
+ 	}
+ 	td->num_received++;
+ }
+@@ -282,11 +297,10 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+ 
+ 	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
+ 		struct mt_slot *s = &(td->slots[i]);
+-		if ((td->mtclass->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP) &&
+-			!s->seen_in_this_frame) {
++		if (!s->seen_in_this_frame) {
+ 			/*
+-			 * this slot does not contain useful data,
+-			 * notify its closure
++			 * FixMe: use MT_QUIRK_NOT_SEEN_MEANS_UP here.
++			 * This requires to change the curvalid logic.
+ 			 */
+ 			s->touch_state = false;
+ 		}
+@@ -294,11 +308,13 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+ 		input_mt_slot(input, i);
+ 		input_mt_report_slot_state(input, MT_TOOL_FINGER,
+ 			s->touch_state);
+-		input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
+-		input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
+-		input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+-		input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, s->w);
+-		input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, s->h);
++		if (s->touch_state) {
++			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
++			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
++			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
++			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, s->w);
++			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, s->h);
++		}
+ 		s->seen_in_this_frame = false;
+ 
+ 	}
+@@ -345,9 +361,8 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 			break;
+ 		case HID_DG_CONTACTCOUNT:
+ 			/*
+-			 * We must not overwrite the previous value (some
+-			 * devices send one sequence splitted over several
+-			 * messages)
++			 * Includes multi-packet support where subsequent
++			 * packets are sent with zero contactcount.
+ 			 */
+ 			if (value)
+ 				td->num_expected = value - 1;
+@@ -392,9 +407,16 @@ static void mt_set_input_mode(struct hid_device *hdev)
+ 
+ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+-	int ret;
++	int ret, i;
+ 	struct mt_device *td;
+-	struct mt_class *mtclass = mt_classes + id->driver_data;
++	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
++
++	for (i = 0; mt_classes[i].name ; i++) {
++		if (id->driver_data == mt_classes[i].name) {
++			mtclass = &(mt_classes[i]);
++			break;
++		}
++	}
+ 
+ 	/* This allows the driver to correctly support devices
+ 	 * that emit events over several HID messages.
+@@ -417,7 +439,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto fail;
+ 
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+-	if (ret != 0)
++	if (ret)
+ 		goto fail;
+ 
+ 	mt_set_input_mode(hdev);
+-- 
+1.7.3.4
+

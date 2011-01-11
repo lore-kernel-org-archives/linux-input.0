@@ -1,55 +1,39 @@
-From: Jamie Iles <jamie@jamieiles.com>
-Subject: [PATCH 03/16] input: tnetv107x-keypad: don't treat NULL clk as an error
-Date: Tue, 11 Jan 2011 12:43:40 +0000
-Message-ID: <1294749833-32019-4-git-send-email-jamie@jamieiles.com>
-References: <1294749833-32019-1-git-send-email-jamie@jamieiles.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Input: introduce 'notimeout' blacklist for Dell Vostro
+ V13 (was Re: Synaptics touchpad on Dell Vostro V13)
+Date: Tue, 11 Jan 2011 14:00:27 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101111359410.26685@pobox.suse.cz>
+References: <8583070.26.1294325869588.JavaMail.root@butch.jtdata.net> <alpine.LNX.2.00.1101071105350.26685@pobox.suse.cz> <20110107172847.GA28785@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:45082 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755990Ab1AKMoW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jan 2011 07:44:22 -0500
-In-Reply-To: <1294749833-32019-1-git-send-email-jamie@jamieiles.com>
+Received: from cantor.suse.de ([195.135.220.2]:35148 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754144Ab1AKNA3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Jan 2011 08:00:29 -0500
+In-Reply-To: <20110107172847.GA28785@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Jamie Iles <jamie@jamieiles.com>, Cyril Chemparathy <cyril@ti.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "James T. Dickson" <james.dickson@jtdata.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-clk_get() returns a struct clk cookie to the driver and some platforms
-may return NULL if they only support a single clock.  clk_get() has only
-failed if it returns a ERR_PTR() encoded pointer.
+On Fri, 7 Jan 2011, Dmitry Torokhov wrote:
 
-Cc: Cyril Chemparathy <cyril@ti.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Jamie Iles <jamie@jamieiles.com>
----
- drivers/input/keyboard/tnetv107x-keypad.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+> > Dmitry, what is your current plan with the notimeout thing for V13, 
+> > please? Still .38 material?
+> 
+> Yeah, especially given that not all V13 seem to suffer from
+> suspend/resume issue.
 
-diff --git a/drivers/input/keyboard/tnetv107x-keypad.c b/drivers/input/keyboard/tnetv107x-keypad.c
-index b4a81eb..c8f097a 100644
---- a/drivers/input/keyboard/tnetv107x-keypad.c
-+++ b/drivers/input/keyboard/tnetv107x-keypad.c
-@@ -14,6 +14,7 @@
-  */
- 
- #include <linux/kernel.h>
-+#include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/input.h>
- #include <linux/platform_device.h>
-@@ -219,9 +220,9 @@ static int __devinit keypad_probe(struct platform_device *pdev)
- 	}
- 
- 	kp->clk = clk_get(dev, NULL);
--	if (!kp->clk) {
-+	if (IS_ERR(kp->clk)) {
- 		dev_err(dev, "cannot claim device clock\n");
--		error = -EINVAL;
-+		error = PTR_ERR(kp->clk);
- 		goto error_clk;
- 	}
- 
+Hi Dmitry,
+
+I can see that you applied the patch, thanks.
+
+It seems to be in 'next' branch -- does that mean that it will not go in 
+this merge window still?
+
+Thanks!
+
 -- 
-1.7.3.4
-
+Jiri Kosina
+SUSE Labs, Novell Inc.

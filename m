@@ -1,59 +1,37 @@
-From: Varun Wadekar <vwadekar@nvidia.com>
-Subject: Re: NVidia Multitouch driver.
-Date: Tue, 11 Jan 2011 11:12:05 +0530
-Message-ID: <4D2BEDAD.5050604@nvidia.com>
-References: <AANLkTi=KQMrFR7rO=4gY=GX-aHo+sckA8nGrE-1A9rpe@mail.gmail.com> <4D2BE29A.4060400@nvidia.com> <AANLkTike5xYAMCJKd7Lh0i4op3Z4fRDUMAOx5-s==541@mail.gmail.com>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
+Date: Tue, 11 Jan 2011 12:52:33 +0530
+Message-ID: <4D2C0539.7080602@codeaurora.org>
+References: <1294422307-19107-1-git-send-email-riyer@nvidia.com> <AANLkTimUrKOX6ydXx8zUukk2+fBYQxEsp3=6qZwm5KRD@mail.gmail.com> <AANLkTi=JYf-7biH=nptrgE6L_DiM5S84hTTzA_JiwquA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate03.nvidia.com ([216.228.121.140]:14509 "EHLO
-	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751117Ab1AKFqN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jan 2011 00:46:13 -0500
-In-Reply-To: <AANLkTike5xYAMCJKd7Lh0i4op3Z4fRDUMAOx5-s==541@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AANLkTi=JYf-7biH=nptrgE6L_DiM5S84hTTzA_JiwquA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Cc: USB list <linux-input@vger.kernel.org>, Harry Hong <hhong@nvidia.com>, Bharat Nihalani <bnihalani@nvidia.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: linux-kernel@vger.kernel.org, USB list <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-Got it. I will try to get these changes pushed upstream.
+Hi Mohamed,
 
-Support for multiple fingers is completely touch panel driven. We have
-successfully verified
-than 10 fingers also work fine on Android with another touch panel.
+On 1/11/2011 5:03 AM, Mohamed Ikbel Boulabiar wrote:
+> On Fri, Jan 7, 2011 at 6:45 PM, <riyer@nvidia.com> wrote:
+>>
+>> This patch adds support for the internal matrix keyboard controller for
+>> Nvidia Tegra platforms.
+> 
+> Will you also post the nvidia's multitouch driver here ?
+> I have only seen the code used in android tablet and published for
+> android kernel.
+> 
 
-On Tuesday 11 January 2011 11:00 AM, Mohamed Ikbel Boulabiar wrote:
-> On Tue, Jan 11, 2011 at 5:54 AM, Varun Wadekar <vwadekar@nvidia.com> wrote:
->> Do you mean to say there are certain things missing in the touch driver?
->> What do you mean by the last linux kernel?
-> I have found that patch by chance because I haven't seen it sent to
-> linux-input ml (which what is the std)
-> I just want it to get pushed to the mainline linux kernel as it is the
-> upstream of all linux distributions and for the android linux kernel
-> tree itself.
->
-> I just don't like to see only android getting drivers patches as it
-> can be seen as an action of forking the main kernel.
->
-> You can rebase the patch to the last tree and get help and feedback
-> from other developers for its integration. Company support of its own
-> drivers is very appreciated here.
->
->
-> And when analyzing the code I got a question. Does the nvodm hw
-> supports only 2 fingers or it's only caused by android limitation ?
-> Can the hw report more than 2 fingers ? (4 for example)
->
-> Thanks
->
-> i
+Please don't hijack the thread. I see that you have sent a new email on the linux-input,
+which is good practice instead. Thanks.
+
+---Trilok Soni
 
 
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+-- 
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

@@ -1,91 +1,75 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: NVidia Multitouch driver.
-Date: Tue, 11 Jan 2011 09:19:01 +0100
-Message-ID: <4E2BEA6D-84DA-446B-A045-AD0748B1A910@enac.fr>
-References: <AANLkTi=KQMrFR7rO=4gY=GX-aHo+sckA8nGrE-1A9rpe@mail.gmail.com>  <4D2BE29A.4060400@nvidia.com>  <AANLkTike5xYAMCJKd7Lh0i4op3Z4fRDUMAOx5-s==541@mail.gmail.com> <4D2BEDAD.5050604@nvidia.com>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC v3 0/5] hid-multitouch: a first step towards multitouch
+ unification
+Date: Tue, 11 Jan 2011 11:37:23 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101111136220.26685@pobox.suse.cz>
+References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr> <alpine.LNX.2.00.1101072355200.26685@pobox.suse.cz> <alpine.LNX.2.00.1101072359450.26685@pobox.suse.cz> <alpine.LNX.2.00.1101082224130.26685@pobox.suse.cz>
+ <alpine.LNX.2.00.1101101931200.26685@pobox.suse.cz> <AANLkTi=BoBPZ-KxAn9NSECVv+7FB9DBTu5nchS3TN-rT@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:56660 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752515Ab1AKI3f convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jan 2011 03:29:35 -0500
-In-Reply-To: <4D2BEDAD.5050604@nvidia.com>
+Received: from cantor2.suse.de ([195.135.220.15]:52477 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755608Ab1AKKhZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Jan 2011 05:37:25 -0500
+In-Reply-To: <AANLkTi=BoBPZ-KxAn9NSECVv+7FB9DBTu5nchS3TN-rT@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Varun Wadekar <vwadekar@nvidia.com>
-Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, USB list <linux-input@vger.kernel.org>, Harry Hong <hhong@nvidia.com>, Bharat Nihalani <bnihalani@nvidia.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Stephane Chatty <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Ikbel, hi Varun,
+On Mon, 10 Jan 2011, Benjamin Tissoires wrote:
 
-Benjamin and I are actually working on an Android-specific version of =20
-the multitouch drivers, until the time when Android (perhaps 3.0 =20
-Honeycomb) uses multitouch Protocol B. If you give us more details =20
-about this driver we might be able to combine our efforts.
-
-Cheers,
-
-St.
-
-
-
-Le 11 janv. 11 =E0 06:42, Varun Wadekar a =E9crit :
-
-> Got it. I will try to get these changes pushed upstream.
+> > we are now slowly aproaching the point in time in which I would lik=
+e=20
+> > to prepare second round of HID tree merge with Linus.
+> >
+> > Have you finished your testing / fixing the minor issues raised by =
+Henrik
+> > please?
+> >
+> > Thanks,
+> >
+>=20
+> Hi Jiri,
+>=20
+> I'm still waiting for one tester (the generaltouch one).
+>=20
+> I hope he will be able to test it tomorrow (he told me he was busy un=
+til=20
+> today).
 >
-> Support for multiple fingers is completely touch panel driven. We hav=
-e
-> successfully verified
-> than 10 fingers also work fine on Android with another touch panel.
+>=20
+> I'm sure the driver works for two of the three devices (we have them
+> at the lab). The generaltouch is less important as there is a conflic=
+t
+> in the naming of the vendorID/deviceID:
+> GeneralTouch sells two different devices with the same deviceID, and
+> the older is handled by usbtouchscreen.
+> St=E9phane explained to me today that people that want to use multito=
+uch
+> features will have to do some manipulations to enable it.
 >
-> On Tuesday 11 January 2011 11:00 AM, Mohamed Ikbel Boulabiar wrote:
->> On Tue, Jan 11, 2011 at 5:54 AM, Varun Wadekar =20
->> <vwadekar@nvidia.com> wrote:
->>> Do you mean to say there are certain things missing in the touch =20
->>> driver?
->>> What do you mean by the last linux kernel?
->> I have found that patch by chance because I haven't seen it sent to
->> linux-input ml (which what is the std)
->> I just want it to get pushed to the mainline linux kernel as it is =20
->> the
->> upstream of all linux distributions and for the android linux kernel
->> tree itself.
->>
->> I just don't like to see only android getting drivers patches as it
->> can be seen as an action of forking the main kernel.
->>
->> You can rebase the patch to the last tree and get help and feedback
->> from other developers for its integration. Company support of its ow=
-n
->> drivers is very appreciated here.
->>
->>
->> And when analyzing the code I got a question. Does the nvodm hw
->> supports only 2 fingers or it's only caused by android limitation ?
->> Can the hw report more than 2 fingers ? (4 for example)
->>
->> Thanks
->>
->> i
->
->
-> ---------------------------------------------------------------------=
--=20
-> -------------
-> This email message is for the sole use of the intended recipient(s) =20
-> and may contain
-> confidential information.  Any unauthorized review, use, disclosure =20
-> or distribution
-> is prohibited.  If you are not the intended recipient, please =20
-> contact the sender by
-> reply email and destroy all copies of the original message.
-> ---------------------------------------------------------------------=
--=20
-> -------------
+> I'll send the diff between v3-v4 tomorrow if you want or before if yo=
+u
+> really need.
 
+Good, thanks for the update.
+
+We still have the whole development cycle to fix potential problems in =
+the=20
+driver found later by the testers, but the skeleton should rather reall=
+y=20
+be there in a few days from now, otherwise we'll have to postpone it fo=
+r=20
+=2E39.
+
+Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

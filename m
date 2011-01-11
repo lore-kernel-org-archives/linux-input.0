@@ -1,109 +1,101 @@
-From: Rakesh Iyer <riyer@nvidia.com>
-Subject: RE: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
-Date: Tue, 11 Jan 2011 11:34:09 -0800
-Message-ID: <1FC56210173BB445BD77F608D6FB8D03165A008062@HQMAIL03.nvidia.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
+Date: Tue, 11 Jan 2011 12:01:55 -0800
+Message-ID: <20110111200155.GA20631@core.coreip.homeip.net>
 References: <1294422307-19107-1-git-send-email-riyer@nvidia.com>
  <20110110221624.GA16445@core.coreip.homeip.net>
  <1FC56210173BB445BD77F608D6FB8D03165A00805F@HQMAIL03.nvidia.com>
  <20110110230622.GB16759@core.coreip.homeip.net>
+ <1FC56210173BB445BD77F608D6FB8D03165A008062@HQMAIL03.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:12115 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932191Ab1AKTei convert rfc822-to-8bit (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:58987 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756032Ab1AKUCH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jan 2011 14:34:38 -0500
-In-Reply-To: <20110110230622.GB16759@core.coreip.homeip.net>
-Content-Language: en-US
+	Tue, 11 Jan 2011 15:02:07 -0500
+Content-Disposition: inline
+In-Reply-To: <1FC56210173BB445BD77F608D6FB8D03165A008062@HQMAIL03.nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Pavel Machek' <pavel@ucw.cz>
-Cc: "jj@chaosbits.net" <jj@chaosbits.net>, "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Rakesh Iyer <riyer@nvidia.com>
+Cc: 'Pavel Machek' <pavel@ucw.cz>, "jj@chaosbits.net" <jj@chaosbits.net>, "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hello All.
-
-I have combined Pavel's and Dmitry's comments so I can address them as one issue.
-
-Dmitry's comment
-
-> On Mon, Jan 10, 2011 at 02:49:25PM -0800, Rakesh Iyer wrote:
-> > > On Fri, Jan 07, 2011 at 09:45:07AM -0800, riyer@nvidia.com wrote:
-> > > > +
-> > > > +struct tegra_kbc {
-> > > > +	void __iomem *mmio;
-> > > > +	struct input_dev *idev;
-> > > > +	int irq;
-> > > > +	unsigned int wake_enable_rows;
-> > > > +	unsigned int wake_enable_cols;
-> > > > +	spinlock_t lock;
-> > > > +	unsigned int repoll_time;
-> > > > +	unsigned long cp_dly_jiffies;
-> > > > +	int fifo[KBC_MAX_KPENT];
-> > > > +	const struct tegra_kbc_platform_data *pdata;
-> > > > +	int *plain_keycode;
-> > > > +	int *fn_keycode;
+On Tue, Jan 11, 2011 at 11:34:09AM -0800, Rakesh Iyer wrote:
+> Hello All.
+> 
+> I have combined Pavel's and Dmitry's comments so I can address them as one issue.
+> 
+> Dmitry's comment
+> 
+> > On Mon, Jan 10, 2011 at 02:49:25PM -0800, Rakesh Iyer wrote:
+> > > > On Fri, Jan 07, 2011 at 09:45:07AM -0800, riyer@nvidia.com wrote:
+> > > > > +
+> > > > > +struct tegra_kbc {
+> > > > > +	void __iomem *mmio;
+> > > > > +	struct input_dev *idev;
+> > > > > +	int irq;
+> > > > > +	unsigned int wake_enable_rows;
+> > > > > +	unsigned int wake_enable_cols;
+> > > > > +	spinlock_t lock;
+> > > > > +	unsigned int repoll_time;
+> > > > > +	unsigned long cp_dly_jiffies;
+> > > > > +	int fifo[KBC_MAX_KPENT];
+> > > > > +	const struct tegra_kbc_platform_data *pdata;
+> > > > > +	int *plain_keycode;
+> > > > > +	int *fn_keycode;
+> > > >
+> > > > There should not be separate keycodes for FN and normal kys - FN is just
+> > > > a modifier, like SHIFT or CTRL or ALT are and shoudl be handled in upper
+> > > > layers.
 > > >
-> > > There should not be separate keycodes for FN and normal kys - FN is just
-> > > a modifier, like SHIFT or CTRL or ALT are and shoudl be handled in upper
-> > > layers.
-> >
-> > We had the same thought regarding Function as a modifier akin to Shift, Ctrl an Alt.
-> > But this does not appear to be the case.
-> >
-> > This keyboard is used primarily for Laptop-like form factors where function keys are used
-> to overload the existing keys.
-> 
-> So it is same SHIFT.
-> 
-> > In addition the Fn key mappings aren't identical in different keyboard layouts.
-> 
-> 
-> Same as SHIFT - depending on layout used shifted KEY_1 produces either '!' or '1'.
-
-The FN key modifiers are not identical to Shift Modifier. They map to totally different keys for this keyboard.
-If you are suggesting that you weren't implying they map to the same thing, then I agree it can be treated as a modifier.
-But the problem is the higher layers don't necessarily do so. 
-
-The documentation I have read all suggest the Fn key isn't a valid modifier for the operating system, 
-and that most keyboard hardware abstracts the Fn keypress and generates the modified key.
-Maybe my understanding is incorrect regarding this so please feel free to give me the information.
-
-Since our keyboard controller hardware (made for a SOC) is very simplistic the driver has to do this.
-
-
-Pavel's comment
-
-> > > +	int fifo[KBC_MAX_KPENT];
-> > > +	const struct tegra_kbc_platform_data *pdata;
-> > > +	int *plain_keycode;
-> > > +	int *fn_keycode;
+> > > We had the same thought regarding Function as a modifier akin to Shift, Ctrl an Alt.
+> > > But this does not appear to be the case.
+> > >
+> > > This keyboard is used primarily for Laptop-like form factors where function keys are used
+> > to overload the existing keys.
 > > 
-> > There should not be separate keycodes for FN and normal kys - FN is just
-> > a modifier, like SHIFT or CTRL or ALT are and shoudl be handled in upper
-> > layers.
+> > So it is same SHIFT.
+> > 
+> > > In addition the Fn key mappings aren't identical in different keyboard layouts.
+> > 
+> > 
+> > Same as SHIFT - depending on layout used shifted KEY_1 produces either '!' or '1'.
 > 
-> We had the same thought regarding Function as a modifier akin to Shift, Ctrl an Alt.
-> But this does not appear to be the case. 
-> 
-> This keyboard is used primarily for Laptop-like form factors where function keys are used to overload the existing keys. 
-> In addition the Fn key mappings aren't identical in different keyboard layouts.
-> 
-> So at this point in order to function with the target hardware and
-> the target operating system which is Chrome, this modifier
-> keymap is necessary.
+> The FN key modifiers are not identical to Shift Modifier. They map to
+> totally different keys for this keyboard.  If you are suggesting that
+> you weren't implying they map to the same thing, then I agree it can
+> be treated as a modifier.
 
-> Please find a way to do this cleanly. Other machines (zaurus) have
-> similar keyboards...
+Yes, I meant that FN is _similar_ to SHIFT, I did not suggest that they
+produce the same mapping.
 
-With regards to Pavel's comment of handling this within the driver without another keymap, we have explored using a smaller 
-key translation map, but we cannot use this as we support a varied number of keyboards depending on the OEM. 
-Thus our keymaps and the resultant function modified keys are dependent on the target keyboard and hence the need for the 
-Override keymaps.
+> But the problem is the higher layers don't necessarily do so. 
 
+It is just a matter of setting it up. The console has option for adding
+modifiers, xkb as well so please use them. No need to push this task
+into the kernel.
 
-Please let me know if you think the current approach is okay given our targeted configurations, or if there are alternative mechanisms.
+> The documentation I have read all suggest the Fn key isn't a valid
+> modifier for the operating system,
 
-Thanks and Regards
-Rakesh
+Huh? Why not? It mabe not a standard modifier but to say that it is not
+a valid one is a stretch.
+
+> and that most keyboard hardware
+> abstracts the Fn keypress and generates the modified key.
+
+Some hardware, like keyboards in most laptops, does abstract FN key.
+They do it by emitting completely different scancode. With such hardware
+the fact that FN is depressed is completely undetectable to the OS.
+
+Your case is different, FN is regular key to whuch you assign a special
+meaning, like you do for SHIFT, CTRL. ALT and other modifiers. And just
+like SHIFT, CTRL, ALT and others it should not be hardcoded in the
+kernel.
+
+Thanks.
+
+-- 
+Dmitry

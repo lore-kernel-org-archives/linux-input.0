@@ -1,43 +1,37 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
-Date: Tue, 11 Jan 2011 15:33:37 +0100
-Message-ID: <20110111143337.GB22390@atrey.karlin.mff.cuni.cz>
-References: <1294422307-19107-1-git-send-email-riyer@nvidia.com> <20110110221624.GA16445@core.coreip.homeip.net> <1FC56210173BB445BD77F608D6FB8D03165A00805F@HQMAIL03.nvidia.com>
+From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Subject: Re: NVidia Multitouch driver.
+Date: Tue, 11 Jan 2011 15:59:58 +0100
+Message-ID: <AANLkTimWH4da7BQCQ_z4akpy9oq6XWn8oJUjsbMR2PcM@mail.gmail.com>
+References: <AANLkTi=KQMrFR7rO=4gY=GX-aHo+sckA8nGrE-1A9rpe@mail.gmail.com>
+ <4D2BE29A.4060400@nvidia.com> <AANLkTike5xYAMCJKd7Lh0i4op3Z4fRDUMAOx5-s==541@mail.gmail.com>
+ <4D2BEDAD.5050604@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1FC56210173BB445BD77F608D6FB8D03165A00805F@HQMAIL03.nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rakesh Iyer <riyer@nvidia.com>
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, "jj@chaosbits.net" <jj@chaosbits.net>, "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f194.google.com ([209.85.161.194]:53713 "EHLO
+	mail-gx0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755817Ab1AKPAU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Jan 2011 10:00:20 -0500
+Received: by gxk1 with SMTP id 1so4692243gxk.1
+        for <linux-input@vger.kernel.org>; Tue, 11 Jan 2011 07:00:19 -0800 (PST)
+In-Reply-To: <4D2BEDAD.5050604@nvidia.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Varun Wadekar <vwadekar@nvidia.com>
+Cc: USB list <linux-input@vger.kernel.org>, Harry Hong <hhong@nvidia.com>, Bharat Nihalani <bnihalani@nvidia.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 
-Hi!
+On Tue, Jan 11, 2011 at 6:42 AM, Varun Wadekar <vwadekar@nvidia.com> wrote:
+> Got it. I will try to get these changes pushed upstream.
+Great, Thanks !
 
-> > > +	int fifo[KBC_MAX_KPENT];
-> > > +	const struct tegra_kbc_platform_data *pdata;
-> > > +	int *plain_keycode;
-> > > +	int *fn_keycode;
-> > 
-> > There should not be separate keycodes for FN and normal kys - FN is just
-> > a modifier, like SHIFT or CTRL or ALT are and shoudl be handled in upper
-> > layers.
-> 
-> We had the same thought regarding Function as a modifier akin to Shift, Ctrl an Alt.
-> But this does not appear to be the case. 
-> 
-> This keyboard is used primarily for Laptop-like form factors where function keys are used to overload the existing keys. 
-> In addition the Fn key mappings aren't identical in different keyboard layouts.
-> 
-> So at this point in order to function with the target hardware and
-> the target operating system which is Chrome, this modifier
-> keymap is necessary.
+> Support for multiple fingers is completely touch panel driven. We have
+> successfully verified
+> than 10 fingers also work fine on Android with another touch panel.
 
-Please find a way to do this cleanly. Other machines (zaurus) have
-similar keyboards...
-									Pavel
+Can you give us the full list of public hardware having nvidia touch
+panel inside ?
+I have found your touch panel in the Toshiba Folio 100 tablet, what
+are the others ?
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+i

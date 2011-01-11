@@ -1,70 +1,93 @@
-From: Colin Cross <ccross@android.com>
-Subject: Re: [PATCH v3] input: tegra-kbc - Add tegra keyboard driver
-Date: Mon, 10 Jan 2011 23:41:45 -0800
-Message-ID: <AANLkTim8Z1VYWVKBRiUFP1tc1uJwpq7Bendqp-F+s+db@mail.gmail.com>
-References: <1294422307-19107-1-git-send-email-riyer@nvidia.com>
-	<4D2B71CB.1060004@codeaurora.org>
-	<1FC56210173BB445BD77F608D6FB8D03165A00805E@HQMAIL03.nvidia.com>
-	<4D2C05C2.9040705@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: NVidia Multitouch driver.
+Date: Tue, 11 Jan 2011 09:19:01 +0100
+Message-ID: <4E2BEA6D-84DA-446B-A045-AD0748B1A910@enac.fr>
+References: <AANLkTi=KQMrFR7rO=4gY=GX-aHo+sckA8nGrE-1A9rpe@mail.gmail.com>  <4D2BE29A.4060400@nvidia.com>  <AANLkTike5xYAMCJKd7Lh0i4op3Z4fRDUMAOx5-s==541@mail.gmail.com> <4D2BEDAD.5050604@nvidia.com>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:28360 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753351Ab1AKHlt (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:56660 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752515Ab1AKI3f convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jan 2011 02:41:49 -0500
-Received: from kpbe18.cbf.corp.google.com (kpbe18.cbf.corp.google.com [172.25.105.82])
-	by smtp-out.google.com with ESMTP id p0B7fm8R020157
-	for <linux-input@vger.kernel.org>; Mon, 10 Jan 2011 23:41:48 -0800
-Received: from qyj19 (qyj19.prod.google.com [10.241.83.83])
-	by kpbe18.cbf.corp.google.com with ESMTP id p0B7fkGG006648
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Mon, 10 Jan 2011 23:41:46 -0800
-Received: by qyj19 with SMTP id 19so2245767qyj.12
-        for <linux-input@vger.kernel.org>; Mon, 10 Jan 2011 23:41:46 -0800 (PST)
-In-Reply-To: <4D2C05C2.9040705@codeaurora.org>
+	Tue, 11 Jan 2011 03:29:35 -0500
+In-Reply-To: <4D2BEDAD.5050604@nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>
-Cc: Rakesh Iyer <riyer@nvidia.com>, "jj@chaosbits.net" <jj@chaosbits.net>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Varun Wadekar <vwadekar@nvidia.com>
+Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, USB list <linux-input@vger.kernel.org>, Harry Hong <hhong@nvidia.com>, Bharat Nihalani <bnihalani@nvidia.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-On Mon, Jan 10, 2011 at 11:24 PM, Trilok Soni <tsoni@codeaurora.org> wrote:
-> Hi Rakesh,
+Hi Ikbel, hi Varun,
+
+Benjamin and I are actually working on an Android-specific version of =20
+the multitouch drivers, until the time when Android (perhaps 3.0 =20
+Honeycomb) uses multitouch Protocol B. If you give us more details =20
+about this driver we might be able to combine our efforts.
+
+Cheers,
+
+St.
+
+
+
+Le 11 janv. 11 =E0 06:42, Varun Wadekar a =E9crit :
+
+> Got it. I will try to get these changes pushed upstream.
 >
-> On 1/11/2011 2:41 AM, Rakesh Iyer wrote:
->> Thanks for the review.
->>
->> A quick response regarding the following comment.
->>
->>>
->>>> +
->>>> +#include <linux/module.h>
->>>> +#include <linux/input.h>
->>>> +#include <linux/platform_device.h>
->>>> +#include <linux/delay.h>
->>>> +#include <linux/io.h>
->>>> +#include <linux/interrupt.h>
->>>> +#include <linux/clk.h>
->>>> +#include <linux/slab.h>
->>>> +#include <mach/clk.h>
->>>
->>> You may not need this.
->>>
->>
->> The mach/clk.h file contains declarations for tegra_periph_reset_assert and tegra_periph_reset_deassert which are needed.
+> Support for multiple fingers is completely touch panel driven. We hav=
+e
+> successfully verified
+> than 10 fingers also work fine on Android with another touch panel.
 >
-> It is really bad if it can't be addressed through clk framework. I will check this, but this
-> keyboard controller is on-chip so we should be fine I guess.
+> On Tuesday 11 January 2011 11:00 AM, Mohamed Ikbel Boulabiar wrote:
+>> On Tue, Jan 11, 2011 at 5:54 AM, Varun Wadekar =20
+>> <vwadekar@nvidia.com> wrote:
+>>> Do you mean to say there are certain things missing in the touch =20
+>>> driver?
+>>> What do you mean by the last linux kernel?
+>> I have found that patch by chance because I haven't seen it sent to
+>> linux-input ml (which what is the std)
+>> I just want it to get pushed to the mainline linux kernel as it is =20
+>> the
+>> upstream of all linux distributions and for the android linux kernel
+>> tree itself.
+>>
+>> I just don't like to see only android getting drivers patches as it
+>> can be seen as an action of forking the main kernel.
+>>
+>> You can rebase the patch to the last tree and get help and feedback
+>> from other developers for its integration. Company support of its ow=
+n
+>> drivers is very appreciated here.
+>>
+>>
+>> And when analyzing the code I got a question. Does the nvodm hw
+>> supports only 2 fingers or it's only caused by android limitation ?
+>> Can the hw report more than 2 fingers ? (4 for example)
+>>
+>> Thanks
+>>
+>> i
+>
+>
+> ---------------------------------------------------------------------=
+-=20
+> -------------
+> This email message is for the sole use of the intended recipient(s) =20
+> and may contain
+> confidential information.  Any unauthorized review, use, disclosure =20
+> or distribution
+> is prohibited.  If you are not the intended recipient, please =20
+> contact the sender by
+> reply email and destroy all copies of the original message.
+> ---------------------------------------------------------------------=
+-=20
+> -------------
 
-The clk framework will deassert reset when a clock is enabled, but it
-cannot assert reset when a clock is disabled because some blocks need
-to turn of clocks when the block is not in use without reinitializing
-the whole block for the next transaction.  If a driver wants to reset
-the block, it must call tegra_periph_assert_reset.  Most drivers have
-no need to manually reset the block, and do not use these apis at all.
-
-> I hope that these APIs are not required for device drivers which are on external bus like I2C.
-
-These apis set registers internal to Tegra, they have no use for
-drivers for external devices.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

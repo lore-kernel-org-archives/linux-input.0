@@ -1,101 +1,166 @@
-From: "Henrik Rydberg" <rydberg@bitmath.org>
-Subject: Re: [PATCH] hid-multitouch: changes from the review process
-Date: Tue, 11 Jan 2011 14:11:54 +0100
-Message-ID: <20110111131154.GC1961@polaris.bitmath.org>
-References: <1294743194-2310-1-git-send-email-benjamin.tissoires@enac.fr>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [RFC v3 3/5] hid-multitouch: support for PixCir-based panels
+Date: Tue, 11 Jan 2011 14:53:45 +0100
+Message-ID: <AANLkTikqApgrHEh90dvw+8zUne1HA3FmDQYGeEnqZ2W6@mail.gmail.com>
+References: <1294425762-29730-1-git-send-email-benjamin.tissoires@enac.fr>
+	<1294425762-29730-4-git-send-email-benjamin.tissoires@enac.fr>
+	<20110107194918.GB29913@polaris.bitmath.org>
+	<AANLkTin8tHO5x2SBugSaEQ6mJ-7upS2YX9OANK1phmdM@mail.gmail.com>
+	<20110111130055.GB1961@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:38294 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754009Ab1AKNMD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jan 2011 08:12:03 -0500
-Content-Disposition: inline
-In-Reply-To: <1294743194-2310-1-git-send-email-benjamin.tissoires@enac.fr>
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:36384 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932089Ab1AKNxr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Jan 2011 08:53:47 -0500
+In-Reply-To: <20110111130055.GB1961@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+To: Henrik Rydberg <rydberg@bitmath.org>
 Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+On Tue, Jan 11, 2011 at 2:00 PM, Henrik Rydberg <rydberg@bitmath.org> w=
+rote:
+>> >> +static int mt_compute_slot(struct mt_device *td)
+>> >> +{
+>> >> + =A0 =A0 struct mt_class *cls =3D td->mtclass;
+>> >> +
+>> >> + =A0 =A0 if (cls->quirks & MT_QUIRK_SLOT_IS_CONTACTID)
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 return slot_is_contactid(td);
+>> >
+>> > No real need for a function call here...
+>>
+>> just to prepare for the other patches
+>
+> I mean the line could simply read
+>
+> =A0 =A0 =A0 =A0return td->curdata.contactid;
 
-seems we are cloing in now, although there is still an outstanding
-issue with the setting of curvalid, as replied in your previous
-mail. Some comments on this patch, too.
+If you want, but we will loose consistency in between the different
+slot computation functions.
 
->  struct mt_class mt_classes[] = {
-> -	{ 0, 0, 0, 10 },                             /* MT_CLS_DEFAULT */
-> -	{ MT_QUIRK_SLOT_IS_CONTACTID, 0, 0, 2 },     /* MT_CLS_DUAL1 */
-> -	{ MT_QUIRK_SLOT_IS_CONTACTNUMBER, 0, 0, 10 },    /* MT_CLS_DUAL2 */
-> -	{ MT_QUIRK_CYPRESS | MT_QUIRK_NOT_SEEN_MEANS_UP, 0, 0, 10 }, /* MT_CLS_CYPRESS */
-> +	{ .name = MT_CLS_DEFAULT,
-> +		.quirks = 0,
+>
+> [...]
+>> >> +static int mt_event(struct hid_device *hid, struct hid_field *fi=
+eld,
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct =
+hid_usage *usage, __s32 value)
+>> >> +{
+>> >> + =A0 =A0 struct mt_device *td =3D hid_get_drvdata(hid);
+>> >> +
+>> >> + =A0 =A0 if (hid->claimed & HID_CLAIMED_INPUT) {
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 switch (usage->hid) {
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 case HID_DG_INRANGE:
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 case HID_DG_TIPSWITCH:
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 td->curvalid =3D value;
+>> >
+>> > I do not think curvalid should depend on the touch state (which is
+>> > what tipswitch is). Either move to INRANGE, or simply set to true.
+>>
+>> INRANGE is not all the time used as curvalid as you are saying.
+>> At least for Stantum, curvalid is given by CONFIDENCE.
+>
+> Yes.
+>
+>> The solution of giving the value true to curvalid is not working too=
+:
+>> Cypress devices can send their touches over 2 reports of 7 touches,
+>> even if it handles 10 touches.
+>
+> Yes.
+>
+>> Solution:
+>> 1) td->curvalid =3D td->num_received < td->mtclass->maxcontacts;
+>> (not sure it will work for all devices)
+>
+> For the ones where NOT_SEEN_MEANS_UP, it ought to be true. For egalax=
+,
+> it is not true.
 
-Please do not zero-initialize.
+After thinking about it, this case doesn't work at all. It's working
+for cypress devices only because we are not using the default slot
+retrieval function.
+This device sends contactid=3D0 when the touch is not in range, and
+starts for the in range touches at 0 too. The MT_CLS_CYPRESS saved us
+here, but it won't save other devices.
 
-> +		.sn_move = 0,
-> +		.sn_pressure = 0,
-> +		.maxcontacts = 10 },
-> +	{ .name = MT_CLS_DUAL1,
-> +		.quirks = MT_QUIRK_SLOT_IS_CONTACTID,
-> +		.sn_move = 0,
-> +		.sn_pressure = 0,
-> +		.maxcontacts = 2 },
-> +	{ .name = MT_CLS_DUAL2,
-> +		.quirks = MT_QUIRK_SLOT_IS_CONTACTNUMBER,
-> +		.sn_move = 0,
-> +		.sn_pressure = 0,
-> +		.maxcontacts = 2 },
-> +	{ .name = MT_CLS_CYPRESS,
-> +		.quirks = MT_QUIRK_CYPRESS,
-> +		.sn_move = 0,
-> +		.sn_pressure = 0,
-> +		.maxcontacts = 10 },
-> +
-> +	{ }
->  };
+>
+>>
+>> or 2) introduce MT_QUIRK_VALID_IS_INRANGE and MT_QUIRK_VALID_IS_CONF=
+IDENCE
+>
+> Yes, I believe this is a good way to go.
 
-So no device is marked as NOT_SEEN_MEANS_UP, although allegedly some devices should...
+Will do this way, but it might implies another patch for generaltouch
+devices as I don't know if inrange or confidence is used.
 
-> @@ -282,11 +297,10 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
->  
->  	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
->  		struct mt_slot *s = &(td->slots[i]);
-> -		if ((td->mtclass->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP) &&
-> -			!s->seen_in_this_frame) {
-> +		if (!s->seen_in_this_frame) {
->  			/*
-> -			 * this slot does not contain useful data,
-> -			 * notify its closure
-> +			 * FixMe: use MT_QUIRK_NOT_SEEN_MEANS_UP here.
-> +			 * This requires to change the curvalid logic.
->  			 */
->  			s->touch_state = false;
->  		}
+>
+>> or 3) let curvalid=3Dvalue and disable the quirk
+>> MT_QUIRK_NOT_SEEN_MEANS_UP (adding a FixMe comment above)
+>
+> This would mean setting curvalid =3D touch_state again, which accordi=
+ng
+> to the discussion is precisely what we should not do. We know we need
+> to check whether the incoming packet represents data is whether it is
+> just filling up the transfer protocol size. We just need to identify,
+> per device, how that is done.
+>
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (value)
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 td->num=
+_expected =3D value - 1;
+>> >
+>> > The - 1 should be dropped here.
+>>
+>> Here is the really tricky one:
+>>
+>> if I drop -1,
+>>
+>> the test below will be:
+>> =A0if (field->index =3D=3D td->last_field_index
+>> =A0 =A0 =A0 && td->num_received >=3D td->num_expected)
+>>
+>> but during the init of the device, the kernel receive 1 event though
+>> the driver is not ready.
+>
+> So the current code really needs to also check whether the driver is
+> ready to events. Adding a state for it would be appropriate. As it
+> stands, an unrelated syntatic oddity is covering up this fact.
+>
+>>
+>> During this time, num_expected is at 0, and when we receive the
+>> last_field_index: segfault!
+>>
+>> To sum up, no, we can't.
+>
+> Yes we can. :-)
 
-If we were to push this broken behavior, simply to avoid changing the
-currently tested code, we would only push the problem of testing onto
-the next cycle, with a larger risk of introducing regressions. I
-really think we need to sort this out now.
-
-> @@ -392,9 +407,16 @@ static void mt_set_input_mode(struct hid_device *hdev)
->  
->  static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  {
-> -	int ret;
-> +	int ret, i;
->  	struct mt_device *td;
-> -	struct mt_class *mtclass = mt_classes + id->driver_data;
-> +	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
-> +
-> +	for (i = 0; mt_classes[i].name ; i++) {
-> +		if (id->driver_data == mt_classes[i].name) {
-> +			mtclass = &(mt_classes[i]);
-> +			break;
-> +		}
-> +	}
-
-Nice.
+I'll look into it but I promise nothing.
 
 Thanks,
-Henrik
+Benjamin
+
+>
+>> >> + =A0 =A0 if (field->index =3D=3D td->last_field_index
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 && td->num_received > td->num_expected)
+>> >
+>> > A ">=3D" here.
+>
+> still applies then.
+>
+> Thanks,
+> Henrik
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

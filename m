@@ -1,43 +1,98 @@
-From: "Henrik Rydberg" <rydberg@bitmath.org>
-Subject: Re: [PATCH v2] hid-multitouch: changes from the review process
-Date: Wed, 12 Jan 2011 15:13:41 +0100
-Message-ID: <20110112141341.GA31794@polaris.bitmath.org>
-References: <1294760754-7885-1-git-send-email-benjamin.tissoires@enac.fr>
- <20110111173511.GA3461@polaris.bitmath.org>
- <AANLkTin86WMvEpNAm2T8wR=GgUBtYqoqGJxZm7hKnEoE@mail.gmail.com>
- <20110112122741.GA29373@polaris.bitmath.org>
- <AANLkTimnY3QC+7tsGhHi8awkMYQTDH8ugn4U--qkmup4@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [v4 3/3] 3/3 spi: Cypress TTSP G3 SPI Device Driver
+Date: Wed, 12 Jan 2011 10:45:51 -0800
+Message-ID: <20110112184550.GB9168@core.coreip.homeip.net>
+References: <kev@cypress.com>
+ <1294188847-24728-3-git-send-email-kev@cypress.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp1.one.com ([195.47.247.21]:49716 "EHLO csmtp1.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751333Ab1ALOOF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Jan 2011 09:14:05 -0500
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:51178 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752263Ab1ALSp7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Jan 2011 13:45:59 -0500
 Content-Disposition: inline
-In-Reply-To: <AANLkTimnY3QC+7tsGhHi8awkMYQTDH8ugn4U--qkmup4@mail.gmail.com>
+In-Reply-To: <1294188847-24728-3-git-send-email-kev@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kevin McNeely <kev@cypress.com>
+Cc: David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Henrik Rydberg <rydberg@euromail.se>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> > Regarding the quanta patches you have pending, IFAICT the 0408:3001
-> > device is not properly supported currently, so perhaps that one could
-> > be added to the list, too.
-> >
-> 
-> Hi Henrik,
-> 
-> What do you mean by not properly supported?
+Hi Kevin,
 
-Buggy :-)
+On Tue, Jan 04, 2011 at 04:54:06PM -0800, Kevin McNeely wrote:
+> +
+> +static int spi_sync_tmo(struct cyttsp_spi *ts, struct spi_message *message)
+> +{
+> +	DECLARE_COMPLETION_ONSTACK(done);
+> +	int status;
+> +
+> +	message->complete = spi_complete;
+> +	message->context = &done;
+> +	status = spi_async(ts->spi_client, message);
+> +	if (status == 0) {
+> +		int ret = wait_for_completion_interruptible_timeout(&done, HZ);
+> +		if (!ret) {
+> +			dev_dbg(ts->ops.dev, "%s: timeout\n", __func__);
+> +			status = -EIO;
 
-> the device is in hid-quanta since 2.6.33: commit "HID: add support for
-> Pixart Imaging Optical Touch Screen"
+I do not believe we can do this and simply abort outstanding SPI
+transfer. What if we unload the driver and destroy the device and then
+SPI master will come around? And it does not look like SPI subsystem
+allows to cancel outstanding requests...
 
-The bug report has been around a while, I just assumed it was part of
-your coming patches. No worries if it isn't.
+Have you actually seen timeouts firing? Why isn't the same needed for
+I2C interface?
 
-Thanks,
-Henrik
+> +
+> +static s32 ttsp_spi_read_block_data(void *handle, u8 addr,
+> +				    u8 length, void *data)
+> +{
+> +	struct cyttsp_spi *ts = container_of(handle, struct cyttsp_spi, ops);
+> +	int retval;
+> +
+> +	retval = cyttsp_spi_xfer(CY_SPI_RD_OP, ts, addr, data, length);
+> +	if (retval < 0)
+> +		dev_dbg(ts->ops.dev,  "%s: ttsp_spi_read_block_data failed\n",
+> +			__func__);
+> +
+> +	/*
+> +	 * Do not print the above error if the data sync bytes were not found.
+> +	 * This is a normal condition for the bootloader loader startup and need
+> +	 * to retry until data sync bytes are found.
+> +	 */
+> +	if (retval > 0)
+> +		retval = -1;	/* now signal fail; so retry can be done */
 
+I am a bit confused here. First of all we do retries in
+cyttsp_spi_xfer(). Then cyttsp_core does retry transfer as well (but i2c
+methods do not retry). Can we settle on retrying in one place only?
+
+> +
+> +static s32 ttsp_spi_tch_ext(void *handle, void *values)
+> +{
+> +	struct cyttsp_spi *ts = container_of(handle, struct cyttsp_spi, ops);
+> +	int retval = 0;
+> +
+> +	/*
+> +	 * TODO: Add custom touch extension handling code here
+> +	 * set: retval < 0 for any returned system errors,
+> +	 *	retval = 0 if normal touch handling is required,
+> +	 *	retval > 0 if normal touch handling is *not* required
+> +	 */
+> +
+> +	if (!ts || !values)
+> +		retval = -EINVAL;
+> +
+> +	return retval;
+
+I question the utility of "per bus" extended touch handling. I can see
+it being supplied from platform data but niot by interface code.
+
+BTW, no need to resubmit patches not, it is just a discussion...
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,135 +1,60 @@
-From: Naveen Kumar G <naveen.gaddipati@stericsson.com>
-Subject: [PATCH v2] input:bu21013:added the regulator support
-Date: Wed, 12 Jan 2011 17:33:37 +0530
-Message-ID: <1294833817-2655-1-git-send-email-naveen.gaddipati@stericsson.com>
+From: "Henrik Rydberg" <rydberg@bitmath.org>
+Subject: Re: [PATCH v2] hid-multitouch: changes from the review process
+Date: Wed, 12 Jan 2011 13:27:41 +0100
+Message-ID: <20110112122741.GA29373@polaris.bitmath.org>
+References: <1294760754-7885-1-git-send-email-benjamin.tissoires@enac.fr>
+ <20110111173511.GA3461@polaris.bitmath.org>
+ <AANLkTin86WMvEpNAm2T8wR=GgUBtYqoqGJxZm7hKnEoE@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog118.obsmtp.com ([207.126.144.145]:41117 "EHLO
-	eu1sys200aog118.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755841Ab1ALMEh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Jan 2011 07:04:37 -0500
+Received: from csmtp1.one.com ([195.47.247.21]:45066 "EHLO csmtp1.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751947Ab1ALM1s (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Jan 2011 07:27:48 -0500
+Content-Disposition: inline
+In-Reply-To: <AANLkTin86WMvEpNAm2T8wR=GgUBtYqoqGJxZm7hKnEoE@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: STEricsson_nomadik_linux@list.st.com, linux-input@vger.kernel.org, tsoni@codeaurora.org, rydberg@euromail.se, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Stephane Chatty <chatty@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+On Tue, Jan 11, 2011 at 06:38:24PM +0100, Benjamin Tissoires wrote:
+> On Tue, Jan 11, 2011 at 6:35 PM, Henrik Rydberg <rydberg@bitmath.org>=
+ wrote:
+> > On Tue, Jan 11, 2011 at 04:45:54PM +0100, Benjamin Tissoires wrote:
+> >> * amended Kconfig (PixCir and Hanvon are the same panel but with
+> >> =A0 different name)
+> >> * insert field name in mt_class and retrieving it in mt_probe
+> >> * add 2 quirks: MT_QUIRK_VALID_IS_INRANGE, MT_QUIRK_VALID_IS_CONFI=
+DENCE,
+> >> =A0 in order to find the field "valid"
+> >> * inlined slot_is_contactid and slot_is_contact_number
+> >> * cosmetics changes (tabs and comments)
+> >> * do not send unnecessary properties once the touch is up
+> >>
+> >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> >
+> > There are some syntactic suboptimalities in the resulting file that
+> > perhaps could be fixed, but content-wise, I have nothing further. S=
+o,
+> > given that it actually works,
+> >
+> > Acked-by: Henrik Rydberg <rydberg@euromail.se>
+> >
+> > Thank you very much for your work, Benjamin.
+>=20
+> Thanks for the review Henrik,
 
-Added the regulator support in ROHM BU21013 touch
-panel driver.
+Regarding the quanta patches you have pending, IFAICT the 0408:3001
+device is not properly supported currently, so perhaps that one could
+be added to the list, too.
 
-Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
----
-Changes in v2:
-	Updated the Dmitry and Marc comments on v1 patch
-
- drivers/input/touchscreen/bu21013_ts.c |   35 +++++++++++++++++++++++++++++++-
- 1 files changed, 34 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index f7fa9ef..d58b421 100644
---- a/drivers/input/touchscreen/bu21013_ts.c
-+++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -12,6 +12,7 @@
- #include <linux/input.h>
- #include <linux/input/bu21013.h>
- #include <linux/slab.h>
-+#include <linux/regulator/consumer.h>
- 
- #define PEN_DOWN_INTR	0
- #define MAX_FINGERS	2
-@@ -139,6 +140,7 @@
-  * @chip: pointer to the touch panel controller
-  * @in_dev: pointer to the input device structure
-  * @intr_pin: interrupt pin value
-+ * @regulator: pointer to the Regulator used for touch screen
-  *
-  * Touch panel device data structure
-  */
-@@ -149,6 +151,7 @@ struct bu21013_ts_data {
- 	const struct bu21013_platform_device *chip;
- 	struct input_dev *in_dev;
- 	unsigned int intr_pin;
-+	struct regulator *regulator;
- };
- 
- /**
-@@ -456,6 +459,20 @@ static int __devinit bu21013_probe(struct i2c_client *client,
- 	bu21013_data->in_dev = in_dev;
- 	bu21013_data->chip = pdata;
- 	bu21013_data->client = client;
-+
-+	bu21013_data->regulator = regulator_get(&client->dev, "V-TOUCH");
-+	if (IS_ERR(bu21013_data->regulator)) {
-+		dev_err(&client->dev, "regulator_get failed\n");
-+		bu21013_data->regulator = NULL;
-+		goto err_free_mem;
-+	} else {
-+		error = regulator_enable(bu21013_data->regulator);
-+		if (error < 0) {
-+			dev_err(&client->dev, "regulator enable failed\n");
-+			goto err_get_regulator;
-+		}
-+	}
-+
- 	bu21013_data->touch_stopped = false;
- 	init_waitqueue_head(&bu21013_data->wait);
- 
-@@ -464,7 +481,7 @@ static int __devinit bu21013_probe(struct i2c_client *client,
- 		error = pdata->cs_en(pdata->cs_pin);
- 		if (error < 0) {
- 			dev_err(&client->dev, "chip init failed\n");
--			goto err_free_mem;
-+			goto err_free_regulator;
- 		}
- 	}
- 
-@@ -513,6 +530,10 @@ err_free_irq:
- 	bu21013_free_irq(bu21013_data);
- err_cs_disable:
- 	pdata->cs_dis(pdata->cs_pin);
-+err_free_regulator:
-+	regulator_disable(bu21013_data->regulator);
-+err_get_regulator:
-+	regulator_put(bu21013_data->regulator);
- err_free_mem:
- 	input_free_device(in_dev);
- 	kfree(bu21013_data);
-@@ -535,6 +556,10 @@ static int __devexit bu21013_remove(struct i2c_client *client)
- 	bu21013_data->chip->cs_dis(bu21013_data->chip->cs_pin);
- 
- 	input_unregister_device(bu21013_data->in_dev);
-+
-+	regulator_disable(bu21013_data->regulator);
-+	regulator_put(bu21013_data->regulator);
-+
- 	kfree(bu21013_data);
- 
- 	device_init_wakeup(&client->dev, false);
-@@ -561,6 +586,8 @@ static int bu21013_suspend(struct device *dev)
- 	else
- 		disable_irq(bu21013_data->chip->irq);
- 
-+	regulator_disable(bu21013_data->regulator);
-+
- 	return 0;
- }
- 
-@@ -577,6 +604,12 @@ static int bu21013_resume(struct device *dev)
- 	struct i2c_client *client = bu21013_data->client;
- 	int retval;
- 
-+	retval = regulator_enable(bu21013_data->regulator);
-+	if (retval < 0) {
-+		dev_err(&client->dev, "bu21013 regulator enable failed\n");
-+		return retval;
-+	}
-+
- 	retval = bu21013_init_chip(bu21013_data);
- 	if (retval < 0) {
- 		dev_err(&client->dev, "bu21013 controller config failed\n");
--- 
-1.7.2.dirty
-
+Cheers,
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

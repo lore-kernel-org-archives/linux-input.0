@@ -1,38 +1,90 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1] input:Regulator support in ROHM BU21013 touch panel
-Date: Tue, 11 Jan 2011 22:06:00 -0800
-Message-ID: <20110112060600.GD22944@core.coreip.homeip.net>
-References: <1294651358-7690-1-git-send-email-naveen.gaddipati@stericsson.com>
+Subject: [git pull] Input updates for 2.6.38-rc0 (round 2)
+Date: Tue, 11 Jan 2011 22:09:55 -0800
+Message-ID: <20110112060954.GE22944@core.coreip.homeip.net>
+References: <20110107065448.GC29038@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:38583 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932096Ab1ALGGH (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:61082 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750832Ab1ALGKB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Jan 2011 01:06:07 -0500
-Received: by pva4 with SMTP id 4so37983pva.19
-        for <linux-input@vger.kernel.org>; Tue, 11 Jan 2011 22:06:07 -0800 (PST)
+	Wed, 12 Jan 2011 01:10:01 -0500
 Content-Disposition: inline
-In-Reply-To: <1294651358-7690-1-git-send-email-naveen.gaddipati@stericsson.com>
+In-Reply-To: <20110107065448.GC29038@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Naveen Kumar G <naveen.gaddipati@stericsson.com>
-Cc: STEricsson_nomadik_linux@list.st.com, linux-input@vger.kernel.org, tsoni@codeaurora.org, rydberg@euromail.se
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Naveen,
+Hi Linus,
 
-On Mon, Jan 10, 2011 at 02:52:38PM +0530, Naveen Kumar G wrote:
-> From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-> 
-> Added the regulator support in ROHM BU21013 touch
-> panel driver.
-> 
+Please pull from:
 
-It looks like there a couple issues mixed up in a single patch, care to
-split them please?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Thanks.
+to receive 2nd round of updates for the input subsystem. One driver out,
+one driver in, and a bunch of minor fixes.
+
+Thanks!
+
+Changelog:
+---------
+
+Alexander Stein (1):
+      Input: fix force feedback capability query example
+
+Fabien Marteau (1):
+      Input: add Austria Microsystem AS5011 joystick driver
+
+Jamie Iles (1):
+      Input: remove aaed2000 keyboard driver
+
+Jekyll Lai (1):
+      Input: add SW_ROTATE_LOCK switch type
+
+Jiri Kosina (1):
+      Input: i8042 - introduce 'notimeout' blacklist for Dell Vostro V13
+
+Mark Brown (5):
+      Input: ad7879 - convert I2C to dev_pm_ops
+      Input: eeti_ts - convert to dev_pm_ops
+      Input: mcs5000_ts - convert to dev_pm_ops
+      Input: migor_ts - convert to dev_pm_ops
+      Input: cy8ctmg110_ts - Convert to dev_pm_ops
+
+Ping Cheng (1):
+      Input: wacom_w8001 - add single-touch support
+
+
+Diffstat:
+--------
+
+ Documentation/input/ff.txt                |    4 +-
+ Documentation/kernel-parameters.txt       |    1 +
+ drivers/input/joystick/Kconfig            |   10 +
+ drivers/input/joystick/Makefile           |    1 +
+ drivers/input/joystick/as5011.c           |  367 +++++++++++++++++++++++++++++
+ drivers/input/keyboard/Kconfig            |   12 -
+ drivers/input/keyboard/Makefile           |    1 -
+ drivers/input/keyboard/aaed2000_kbd.c     |  186 ---------------
+ drivers/input/serio/i8042-x86ia64io.h     |   21 ++
+ drivers/input/serio/i8042.c               |    6 +-
+ drivers/input/touchscreen/ad7879-i2c.c    |   17 +-
+ drivers/input/touchscreen/cy8ctmg110_ts.c |   15 +-
+ drivers/input/touchscreen/eeti_ts.c       |   16 +-
+ drivers/input/touchscreen/mcs5000_ts.c    |   17 +-
+ drivers/input/touchscreen/migor_ts.c      |   12 +-
+ drivers/input/touchscreen/wacom_w8001.c   |  182 ++++++++++++---
+ include/linux/input.h                     |    1 +
+ include/linux/input/as5011.h              |   20 ++
+ 18 files changed, 624 insertions(+), 265 deletions(-)
+ create mode 100644 drivers/input/joystick/as5011.c
+ delete mode 100644 drivers/input/keyboard/aaed2000_kbd.c
+ create mode 100644 include/linux/input/as5011.h
 
 -- 
 Dmitry

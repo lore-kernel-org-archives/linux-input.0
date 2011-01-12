@@ -1,49 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: joystick:   Adding Austria Microsystem AS5011
- joystick driver (fourth version)
-Date: Tue, 11 Jan 2011 21:50:02 -0800
-Message-ID: <20110112055002.GB22944@core.coreip.homeip.net>
-References: <4D27735C.6000105@armadeus.com>
- <20110108093040.GA8671@core.coreip.homeip.net>
- <4D2ACA17.5060708@armadeus.com>
+Subject: Re: [PATCH 04/16] input: tnetv107x-touchscreen: don't treat NULL clk
+ as an error
+Date: Tue, 11 Jan 2011 21:56:41 -0800
+Message-ID: <20110112055640.GC22944@core.coreip.homeip.net>
+References: <1294749833-32019-1-git-send-email-jamie@jamieiles.com>
+ <1294749833-32019-5-git-send-email-jamie@jamieiles.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:51150 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751740Ab1ALFuJ (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:52815 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932074Ab1ALF4q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Jan 2011 00:50:09 -0500
+	Wed, 12 Jan 2011 00:56:46 -0500
 Content-Disposition: inline
-In-Reply-To: <4D2ACA17.5060708@armadeus.com>
+In-Reply-To: <1294749833-32019-5-git-send-email-jamie@jamieiles.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabien Marteau <fabien.marteau@armadeus.com>
-Cc: Scott Moreau <oreaus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jamie Iles <jamie@jamieiles.com>
+Cc: linux-kernel@vger.kernel.org, Cyril Chemparathy <cyril@ti.com>, linux-input@vger.kernel.org
 
-On Mon, Jan 10, 2011 at 09:57:59AM +0100, Fabien Marteau wrote:
-> Hi Dmitry,
+On Tue, Jan 11, 2011 at 12:43:41PM +0000, Jamie Iles wrote:
+> clk_get() returns a struct clk cookie to the driver and some platforms
+> may return NULL if they only support a single clock.  clk_get() has only
+> failed if it returns a ERR_PTR() encoded pointer.
 > 
-> Thanks for the patch, I tested it on my platform and there is a little bug in irq request for the button :
-> 
-> +	error = request_threaded_irq(as5011->button_irq,
-> +				     NULL, as5011_button_interrupt,
-> +				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_RISING,
-> +				     "as5011_button", as5011);
-> 
-> Should be :
-> 
-> +	error = request_threaded_irq(as5011->button_irq,
-> +				     NULL, as5011_button_interrupt,
-> +				     IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-> +				     "as5011_button", as5011);
-> 
-> With this modification the patch is ok.
-> 
+> Cc: Cyril Chemparathy <cyril@ti.com>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Jamie Iles <jamie@jamieiles.com>
 
-Great, I applied it.
-
-Thanks.
+Applied both, thank you Jamie.
 
 -- 
 Dmitry

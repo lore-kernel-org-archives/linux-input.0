@@ -1,193 +1,242 @@
 From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 2/3] Input: add support for DragonRise PID 0011 gamepad
-Date: Thu, 13 Jan 2011 21:56:42 +0300
-Message-ID: <1294945003-7687-3-git-send-email-spbnick@gmail.com>
+Subject: [PATCH 1/3] Input: split hid-drff into general and ff parts
+Date: Thu, 13 Jan 2011 21:56:41 +0300
+Message-ID: <1294945003-7687-2-git-send-email-spbnick@gmail.com>
 References: <1294945003-7687-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:50053 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751835Ab1AMS5O (ORCPT
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:59514 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751835Ab1AMS5L (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Jan 2011 13:57:14 -0500
-Received: by eye27 with SMTP id 27so1038768eye.19
-        for <linux-input@vger.kernel.org>; Thu, 13 Jan 2011 10:57:13 -0800 (PST)
+	Thu, 13 Jan 2011 13:57:11 -0500
+Received: by mail-ew0-f46.google.com with SMTP id 5so1078333ewy.19
+        for <linux-input@vger.kernel.org>; Thu, 13 Jan 2011 10:57:11 -0800 (PST)
 In-Reply-To: <1294945003-7687-1-git-send-email-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input <linux-input@vger.kernel.org>, Vladislav Naumov <vnaum@vnaum.com>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Add support for DragonRise Inc. gamepad with USB PID 0x0011 by fixing its report
-descriptor. This mainly removes spurious axis.
+Split DragonRise Inc. HID gamepad driver (hid-drff.c) into a general
+(hid-dr.[hc]) and a force feedback part (hid-drff.c).
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
-Tested-by: Vladislav Naumov <vnaum@vnaum.com>
 ---
- drivers/hid/hid-core.c |    1 +
- drivers/hid/hid-dr.c   |  117 +++++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 117 insertions(+), 1 deletions(-)
+ drivers/hid/Makefile   |    7 ++++-
+ drivers/hid/hid-dr.c   |   71 ++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-dr.h   |   13 +++++++++
+ drivers/hid/hid-drff.c |   63 +-----------------------------------------
+ 4 files changed, 92 insertions(+), 62 deletions(-)
+ create mode 100644 drivers/hid/hid-dr.c
+ create mode 100644 drivers/hid/hid-dr.h
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 88cb04e..bae1c09 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1298,6 +1298,7 @@ static const struct hid_device_id hid_blacklist[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
-index bafd530..21c9f6b 100644
---- a/drivers/hid/hid-dr.c
-+++ b/drivers/hid/hid-dr.c
-@@ -19,6 +19,110 @@
- #include "hid-ids.h"
- #include "hid-dr.h"
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index c335605..3e18fdd 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -25,6 +25,11 @@ ifdef CONFIG_LOGIWII_FF
+ 	hid-logitech-objs	+= hid-lg4ff.o
+ endif
  
++hid-dragonrise-objs		:= hid-dr.o
++ifdef CONFIG_DRAGONRISE_FF
++	hid-dragonrise-objs	+= hid-drff.o
++endif
++
+ obj-$(CONFIG_HID_3M_PCT)	+= hid-3m-pct.o
+ obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
+ obj-$(CONFIG_HID_ACRUX_FF)	+= hid-axff.o
+@@ -34,7 +39,7 @@ obj-$(CONFIG_HID_CANDO)		+= hid-cando.o
+ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+-obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
++obj-$(CONFIG_HID_DRAGONRISE)	+= hid-dragonrise.o
+ obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
+ obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
+new file mode 100644
+index 0000000..bafd530
+--- /dev/null
++++ b/drivers/hid/hid-dr.c
+@@ -0,0 +1,71 @@
 +/*
-+ * The original descriptor of joystick with PID 0x0011, represented by DVTech PC
-+ * JS19. It seems both copied from another device and a result of confusion
-+ * either about the specification or about the program used to create the
-+ * descriptor. In any case, it's a wonder it works on Windows.
++ *  HID driver for DragonRise Inc. devices not fully compliant with HID standard
 + *
-+ *  Usage Page (Desktop),             ; Generic desktop controls (01h)
-+ *  Usage (Joystik),                  ; Joystik (04h, application collection)
-+ *  Collection (Application),
-+ *    Collection (Logical),
-+ *      Report Size (8),
-+ *      Report Count (5),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (255),
-+ *      Physical Minimum (0),
-+ *      Physical Maximum (255),
-+ *      Usage (X),                    ; X (30h, dynamic value)
-+ *      Usage (X),                    ; X (30h, dynamic value)
-+ *      Usage (X),                    ; X (30h, dynamic value)
-+ *      Usage (X),                    ; X (30h, dynamic value)
-+ *      Usage (Y),                    ; Y (31h, dynamic value)
-+ *      Input (Variable),
-+ *      Report Size (4),
-+ *      Report Count (1),
-+ *      Logical Maximum (7),
-+ *      Physical Maximum (315),
-+ *      Unit (Degrees),
-+ *      Usage (00h),
-+ *      Input (Variable, Null State),
-+ *      Unit,
-+ *      Report Size (1),
-+ *      Report Count (10),
-+ *      Logical Maximum (1),
-+ *      Physical Maximum (1),
-+ *      Usage Page (Button),          ; Button (09h)
-+ *      Usage Minimum (01h),
-+ *      Usage Maximum (0Ah),
-+ *      Input (Variable),
-+ *      Usage Page (FF00h),           ; FF00h, vendor-defined
-+ *      Report Size (1),
-+ *      Report Count (10),
-+ *      Logical Maximum (1),
-+ *      Physical Maximum (1),
-+ *      Usage (01h),
-+ *      Input (Variable),
-+ *    End Collection,
-+ *    Collection (Logical),
-+ *      Report Size (8),
-+ *      Report Count (4),
-+ *      Physical Maximum (255),
-+ *      Logical Maximum (255),
-+ *      Usage (02h),
-+ *      Output (Variable),
-+ *    End Collection,
-+ *  End Collection
++ *  Copyright (c) 2010 Nikolai Kondrashov <spbnick@gmail.com>
++ *  Copyright (c) 2009 Richard Walmsley <richwalm@gmail.com>
 + */
 +
-+/* Size of the original descriptor of the PID 0x0011 joystick */
-+#define PID0011_RDESC_ORIG_SIZE	101
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
 +
-+/* Fixed report descriptor for PID 0x011 joystick */
-+static __u8 pid0011_rdesc_fixed[] = {
-+	0x05, 0x01,         /*  Usage Page (Desktop),           */
-+	0x09, 0x04,         /*  Usage (Joystik),                */
-+	0xA1, 0x01,         /*  Collection (Application),       */
-+	0xA1, 0x02,         /*      Collection (Logical),       */
-+	0x14,               /*          Logical Minimum (0),    */
-+	0x75, 0x08,         /*          Report Size (8),        */
-+	0x95, 0x03,         /*          Report Count (3),       */
-+	0x81, 0x01,         /*          Input (Constant),       */
-+	0x26, 0xFF, 0x00,   /*          Logical Maximum (255),  */
-+	0x95, 0x02,         /*          Report Count (2),       */
-+	0x09, 0x30,         /*          Usage (X),              */
-+	0x09, 0x31,         /*          Usage (Y),              */
-+	0x81, 0x02,         /*          Input (Variable),       */
-+	0x75, 0x01,         /*          Report Size (1),        */
-+	0x95, 0x04,         /*          Report Count (4),       */
-+	0x81, 0x01,         /*          Input (Constant),       */
-+	0x25, 0x01,         /*          Logical Maximum (1),    */
-+	0x95, 0x0A,         /*          Report Count (10),      */
-+	0x05, 0x09,         /*          Usage Page (Button),    */
-+	0x19, 0x01,         /*          Usage Minimum (01h),    */
-+	0x29, 0x0A,         /*          Usage Maximum (0Ah),    */
-+	0x81, 0x02,         /*          Input (Variable),       */
-+	0x95, 0x0A,         /*          Report Count (10),      */
-+	0x81, 0x01,         /*          Input (Constant),       */
-+	0xC0,               /*      End Collection,             */
-+	0xC0                /*  End Collection                  */
-+};
++#include <linux/input.h>
++#include <linux/usb.h>
++#include <linux/hid.h>
 +
-+static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+				unsigned int *rsize)
++#include "hid-ids.h"
++#include "hid-dr.h"
++
++static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
 +{
-+	switch (hdev->product) {
-+	case 0x0011:
-+		if (*rsize == PID0011_RDESC_ORIG_SIZE) {
-+			rdesc = pid0011_rdesc_fixed;
-+			*rsize = sizeof(pid0011_rdesc_fixed);
-+		}
-+		break;
++	int ret;
++
++	dev_dbg(&hdev->dev, "DragonRise Inc. HID hardware probe...");
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "parse failed\n");
++		goto err;
 +	}
-+	return rdesc;
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++	if (ret) {
++		dev_err(&hdev->dev, "hw start failed\n");
++		goto err;
++	}
++
++	drff_init(hdev);
++
++	return 0;
++err:
++	return ret;
 +}
 +
- static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret;
-@@ -37,7 +141,16 @@ static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err;
- 	}
++static const struct hid_device_id dr_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006),  },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, dr_devices);
++
++static struct hid_driver dr_driver = {
++	.name = "dragonrise",
++	.id_table = dr_devices,
++	.probe = dr_probe,
++};
++
++static int __init dr_init(void)
++{
++	return hid_register_driver(&dr_driver);
++}
++
++static void __exit dr_exit(void)
++{
++	hid_unregister_driver(&dr_driver);
++}
++
++module_init(dr_init);
++module_exit(dr_exit);
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-dr.h b/drivers/hid/hid-dr.h
+new file mode 100644
+index 0000000..43eb631
+--- /dev/null
++++ b/drivers/hid/hid-dr.h
+@@ -0,0 +1,13 @@
++#ifndef __HID_DR_H
++#define __HID_DR_H
++
++#ifdef CONFIG_DRAGONRISE_FF
++extern int drff_init(struct hid_device *hid);
++#else
++static inline int drff_init(struct hid_device *hid)
++{
++	return 0;
++}
++#endif
++
++#endif
+diff --git a/drivers/hid/hid-drff.c b/drivers/hid/hid-drff.c
+index 968b04f..89adafe 100644
+--- a/drivers/hid/hid-drff.c
++++ b/drivers/hid/hid-drff.c
+@@ -32,10 +32,8 @@
+ #include <linux/usb.h>
+ #include <linux/hid.h>
  
--	drff_init(hdev);
-+	switch (hdev->product) {
-+	case 0x0006:
-+		ret = drff_init(hdev);
-+		if (ret) {
-+			dev_err(&hdev->dev, "force feedback init failed\n");
-+			hid_hw_stop(hdev);
-+			goto err;
-+		}
-+		break;
-+	}
+-#include "hid-ids.h"
+-
+-#ifdef CONFIG_DRAGONRISE_FF
+ #include "usbhid/usbhid.h"
++#include "hid-dr.h"
+ 
+ struct drff_device {
+ 	struct hid_report *report;
+@@ -84,7 +82,7 @@ static int drff_play(struct input_dev *dev, void *data,
+ 	return 0;
+ }
+ 
+-static int drff_init(struct hid_device *hid)
++int drff_init(struct hid_device *hid)
+ {
+ 	struct drff_device *drff;
+ 	struct hid_report *report;
+@@ -138,60 +136,3 @@ static int drff_init(struct hid_device *hid)
  
  	return 0;
- err:
-@@ -46,6 +159,7 @@ err:
- 
- static const struct hid_device_id dr_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006),  },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011),  },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, dr_devices);
-@@ -53,6 +167,7 @@ MODULE_DEVICE_TABLE(hid, dr_devices);
- static struct hid_driver dr_driver = {
- 	.name = "dragonrise",
- 	.id_table = dr_devices,
-+	.report_fixup = dr_report_fixup,
- 	.probe = dr_probe,
- };
- 
+ }
+-#else
+-static inline int drff_init(struct hid_device *hid)
+-{
+-	return 0;
+-}
+-#endif
+-
+-static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
+-{
+-	int ret;
+-
+-	dev_dbg(&hdev->dev, "DragonRise Inc. HID hardware probe...");
+-
+-	ret = hid_parse(hdev);
+-	if (ret) {
+-		dev_err(&hdev->dev, "parse failed\n");
+-		goto err;
+-	}
+-
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
+-	if (ret) {
+-		dev_err(&hdev->dev, "hw start failed\n");
+-		goto err;
+-	}
+-
+-	drff_init(hdev);
+-
+-	return 0;
+-err:
+-	return ret;
+-}
+-
+-static const struct hid_device_id dr_devices[] = {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006),  },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(hid, dr_devices);
+-
+-static struct hid_driver dr_driver = {
+-	.name = "dragonrise",
+-	.id_table = dr_devices,
+-	.probe = dr_probe,
+-};
+-
+-static int __init dr_init(void)
+-{
+-	return hid_register_driver(&dr_driver);
+-}
+-
+-static void __exit dr_exit(void)
+-{
+-	hid_unregister_driver(&dr_driver);
+-}
+-
+-module_init(dr_init);
+-module_exit(dr_exit);
+-MODULE_LICENSE("GPL");
 -- 
 1.7.2.3
 

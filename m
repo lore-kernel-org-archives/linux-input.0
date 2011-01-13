@@ -1,41 +1,90 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 1/1] input: tegra-kbc - Add tegra keyboard driver
-Date: Wed, 12 Jan 2011 23:26:23 +0100
-Message-ID: <20110112222622.GB4214@elf.ucw.cz>
-References: <1294869179-15102-1-git-send-email-riyer@nvidia.com>
- <1FC56210173BB445BD77F608D6FB8D03165A00806D@HQMAIL03.nvidia.com>
- <20110112220254.GA4214@elf.ucw.cz>
- <1FC56210173BB445BD77F608D6FB8D03165A00806E@HQMAIL03.nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH 0/1] input synaptics-rmi4: Synaptics Touchscreen Driver
+Date: Wed, 12 Jan 2011 18:40:52 -0800
+Message-ID: <1294886453-7972-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:44620 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753686Ab1ALW0K (ORCPT
+Received: from misc-148-66-126-238.pool.starband.net ([148.66.126.238]:57707
+	"EHLO archaeopteryx.synaptics.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751951Ab1AMOvH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Jan 2011 17:26:10 -0500
-Content-Disposition: inline
-In-Reply-To: <1FC56210173BB445BD77F608D6FB8D03165A00806E@HQMAIL03.nvidia.com>
+	Thu, 13 Jan 2011 09:51:07 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rakesh Iyer <riyer@nvidia.com>
-Cc: "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Abraham Arce <x0066660@ti.com>
 
-Hi!
+This patch implements a driver supporting Synaptics ClearPad and other
+touchscreens that use the RMI4 protocol, as defined here:
 
-> Here are the list of changes. I was not sure of the protocol of adding this into the patch email.
->
+http://www.synaptics.com/sites/default/files/511-000136-01_revA.pdf
 
-Thanks for detailed list of changes. Usually, these go under "---".
+This patch is against the synaptics-rmi4 branch of Dmitry's Torokhov's input
+git repository.  Base point is the origin of the branch, commit
+a6268cc5f94c89c9e661150fe136b24e69d6cc01.
 
-> b) Removed the Fn keymap and its references. This obviated the need for some helper functions.
-> 
+I2C functionality was previously ACK'ed by Jean Delvare on 2010/05/29.
 
-Thanks! Now if you could wrap emails at column 80, and you'll have
-perfect patches :-).
+This patch builds and runs in our development environment, but I cannot
+guarantee that it will build for you.  We're working on making sure it
+builds generically, and feedback relating to that will be greatly
+appreciated (special thanks to Joerie de Gram for his previous feedback on
+this).
 
-								Pavel
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+This version of the driver implements the following:
+    - basic device control support
+    - support basic multifinger touchscreen behavior
+    - support for device reflash
+It represents a significant rearchitecture and reimplementation since
+our patch of 2010/07/27, based on feedback from that patch and subsequent
+discussions with kernel maintainers.
+
+This patch supports a system having one or more RMI sensors attached to it.
+Most devices have just a single touch sensor, but some have more than one.
+An example is the Fuse concept phone, which has 4 RMI sensors in it).
+Each sensor implements a number of RMI4 functions, which are best represented
+as devices on the bus.
+
+Included in this patch are the following components:
+
+    - a low level layer providing access to the physical bus (rmi_i2c
+      and rmi_spi).
+
+    - an rmi_bus module, implementing /sys/bus/rmi.  This module presents
+      the individual devices on the bus, handles interdevice communications
+      (mostly just IRQ notifications from F01 to other functions), and
+      proxies register read/write requests to the appropriate physical layer
+      for a given sensor.
+
+    - individual sensors are presented on the bus as /sys/bus/rmi/sensor0/,
+      /sys/bus/rmi/sensor01/, and so on.
+      
+    - functions for each sensor are presented as devices below that sensor, for
+      example /sys/bus/rmi/sensor0/f01, /sys/bus/rmi/sensor0/f11, and so on.
+
+    - per-function drivers are matched to these devices by the kernel bus
+      functionality
+
+We chose this approach because almost all RMI4 functions are independent
+of one another.  The sole exception is F01, and its primary interaction
+with other functions is to notify them of the need to read or write data
+from or to the sensor.
+
+This structure eliminates the ad hoc device matching that was present in our
+previous driver submissions.  It also enables easy addition of support for 
+additional RMI4 functions, either by Synaptics or by third parties.
+
+
+Comments and other feedback on this driver are welcomed.
+
+Bill Manson
+Allie Xiong
+Christopher Heiny
+
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: Abraham Arce <x0066660@ti.com>
+
+
+---

@@ -1,167 +1,21 @@
-From: Stephan Raue <stephan@openelec.tv>
-Subject: [Patch] aureal remote quirk to fix an bogus HID report descriptor
-Date: Thu, 13 Jan 2011 19:58:45 +0100
-Message-ID: <4D2F4B65.1020807@openelec.tv>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------000505060801080900010007"
+From: Andy Ross <andy@windriver.com>
+Subject: [PATCH 0/3] Pegatron Lucid tablet accelerometer
+Date: Fri, 14 Jan 2011 12:14:08 -0800
+Message-ID: <1295036050-10553-1-git-send-email-andy@windriver.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail04.solnet.ch ([212.101.4.138]:59387 "EHLO mail04.solnet.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933142Ab1AMTGQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Jan 2011 14:06:16 -0500
+Received: from li44-10.members.linode.com ([72.14.181.10]:36106 "EHLO
+	plausible.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751276Ab1ANUOM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Jan 2011 15:14:12 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: stephan@openelec.tv
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Chary <corentincj@iksaif.net>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000505060801080900010007
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Driver for the ACPI interface to the accelerometer on the Pegatron
+Lucid tablets (sold as WeTab and ExoPC).  I put detection into
+asus-laptop, as that seems to be the owner of the "\_SB.ATKD." space
+in ACPI.  Hopefully that's the right choice.
 
-Remote Controls shipped with some new Jetway ION system has two event 
-interfaces : Keyboard and Mouse. Mouse buttons work but keyboard buttons 
-doesn't.
-
-The remote identifies itself as :
-
-Vendor:Device 0x0755:0x2626
-Cy se W-01RN USB_V3.1
-
-the Remote Control has a bogus HID Report Descriptor. According to that 
-report descriptor, the maximum logical value for key events is 1 and not 
-101 (101 keys).
-
-This quirk fixes this wrong Report Descriptor and is basically the same 
-found in hid-elecom.c.
-
-This patch is originally from 
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/607062 with changes 
-to not oops on linux-2.6.37.
+Andy
 
 
-Signed-off-by: Stephan Raue <stephan@openelec.tv>
-
---------------000505060801080900010007
-Content-Type: text/x-patch;
- name="linux-2.6.37-052-aureal_remote_quirk-0.1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="linux-2.6.37-052-aureal_remote_quirk-0.1.patch"
-
-diff -Naur linux-2.6.37/drivers/hid/hid-aureal.c linux-2.6.37.patch/drivers/hid/hid-aureal.c
---- linux-2.6.37/drivers/hid/hid-aureal.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.37.patch/drivers/hid/hid-aureal.c	2011-01-07 22:35:31.413389936 +0100
-@@ -0,0 +1,60 @@
-+/*
-+ *  HID driver for some sunplus "special" devices
-+ *
-+ *  Copyright (c) 1999 Andreas Gal
-+ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-+ *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
-+ *  Copyright (c) 2006-2007 Jiri Kosina
-+ *  Copyright (c) 2007 Paul Walmsley
-+ *  Copyright (c) 2008 Jiri Slaby
-+ *  Copyright (c) 2010 Franco Catrin <fcatrin@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+static __u8 *aureal_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	if (*rsize >= 54 && rdesc[52] == 0x25 && rdesc[53] == 0x01) {
-+		dev_info(&hdev->dev, "fixing Aureal Cy se W-01RN USB_V3.1 "
-+				"report descriptor. Keyboard Logical Maximum = 101\n");
-+		rdesc[53] = 0x65;
-+	} return rdesc;
-+}
-+
-+static const struct hid_device_id aureal_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, aureal_devices);
-+
-+static struct hid_driver aureal_driver = {
-+	.name = "aureal",
-+	.id_table = aureal_devices,
-+	.report_fixup = aureal_report_fixup,
-+};
-+
-+static int __init aureal_init(void)
-+{
-+	return hid_register_driver(&aureal_driver);
-+}
-+
-+static void __exit aureal_exit(void)
-+{
-+	hid_unregister_driver(&aureal_driver);
-+}
-+
-+module_init(aureal_init);
-+module_exit(aureal_exit);
-+MODULE_LICENSE("GPL");
-diff -Naur linux-2.6.37/drivers/hid/hid-ids.h linux-2.6.37.patch/drivers/hid/hid-ids.h
---- linux-2.6.37/drivers/hid/hid-ids.h	2011-01-05 01:50:19.000000000 +0100
-+++ linux-2.6.37.patch/drivers/hid/hid-ids.h	2011-01-07 22:35:31.414389949 +0100
-@@ -6,6 +6,7 @@
-  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
-  *  Copyright (c) 2006-2007 Jiri Kosina
-  *  Copyright (c) 2007 Paul Walmsley
-+ *  Copyright (c) 2010 Franco Catrin <fcatrin@gmail.com>
-  */
- 
- /*
-@@ -327,6 +328,9 @@
- #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
- #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
- 
-+#define USB_VENDOR_ID_AUREAL		0x0755
-+#define USB_DEVICE_ID_AUREAL_W01RN	0x2626
-+
- #define USB_VENDOR_ID_LABTEC		0x1020
- #define USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD	0x0006
- 
-diff -Naur linux-2.6.37/drivers/hid/Kconfig linux-2.6.37.patch/drivers/hid/Kconfig
---- linux-2.6.37/drivers/hid/Kconfig	2011-01-05 01:50:19.000000000 +0100
-+++ linux-2.6.37.patch/drivers/hid/Kconfig	2011-01-07 22:35:31.467390603 +0100
-@@ -87,6 +87,13 @@
- 	Say Y here if you want support for keyboards of	Apple iBooks, PowerBooks,
- 	MacBooks, MacBook Pros and Apple Aluminum.
- 
-+config HID_AUREAL
-+	tristate "Aureal" if EMBEDDED
-+	depends on USB_HID
-+	default !EMBEDDED
-+	---help---
-+	Support for Aureal Cy se W-01RN Remote Controller
-+
- config HID_BELKIN
- 	tristate "Belkin Flip KVM and Wireless keyboard" if EMBEDDED
- 	depends on USB_HID
-diff -Naur linux-2.6.37/drivers/hid/Makefile linux-2.6.37.patch/drivers/hid/Makefile
---- linux-2.6.37/drivers/hid/Makefile	2011-01-05 01:50:19.000000000 +0100
-+++ linux-2.6.37.patch/drivers/hid/Makefile	2011-01-07 22:35:31.547391590 +0100
-@@ -29,6 +29,7 @@
- obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX_FF)	+= hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-+obj-$(CONFIG_HID_AUREAL)	+= hid-aureal.o
- obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
- obj-$(CONFIG_HID_CANDO)		+= hid-cando.o
- obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
-
---------------000505060801080900010007--

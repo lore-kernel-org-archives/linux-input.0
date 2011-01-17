@@ -1,94 +1,115 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] alter_ps2: Add devicetree support
-Date: Mon, 17 Jan 2011 15:04:15 -0700
-Message-ID: <20110117220415.GB17963@angua.secretlab.ca>
-References: <4D040D1C.2020705@home.nl>
-	<1295245760-4566-1-git-send-email-thomas@wytron.com.tw>
-	<20110117213100.GC27245@core.coreip.homeip.net>
+From: Andy Ross <andy.ross@windriver.com>
+Subject: Re: [PATCH 0/2] Pegatron Lucid tablet accelerometer
+Date: Mon, 17 Jan 2011 14:14:29 -0800
+Message-ID: <4D34BF45.30804@windriver.com>
+References: <1295287011-12849-1-git-send-email-andy.ross@windriver.com> <20110117184927.GA27245@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110117213100.GC27245-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20110117184927.GA27245@core.coreip.homeip.net>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Corentin Chary <corentincj@iksaif.net>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 17, 2011 at 01:31:01PM -0800, Dmitry Torokhov wrote:
-> On Mon, Jan 17, 2011 at 02:29:20PM +0800, Thomas Chou wrote:
-> > From: Walter Goossens <waltergoossens-CmkmPbn3yAE@public.gmane.org>
-> > 
-> 
-> For my education, why is this needed?
-> 
-> > Signed-off-by: Walter Goossens <waltergoossens-CmkmPbn3yAE@public.gmane.org>
-> > Signed-off-by: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
-> > ---
-> >  drivers/input/serio/altera_ps2.c |   16 ++++++++++++++++
-> >  1 files changed, 16 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
-> > index 7998560..93054a1 100644
-> > --- a/drivers/input/serio/altera_ps2.c
-> > +++ b/drivers/input/serio/altera_ps2.c
-> > @@ -19,6 +19,9 @@
-> >  #include <linux/platform_device.h>
-> >  #include <linux/io.h>
-> >  #include <linux/slab.h>
-> > +#ifdef CONFIG_OF
-> > +#include <linux/of.h>
-> > +#endif
-> 
-> Does it have to be guarded?
+On 01/17/2011 10:49 AM, Dmitry Torokhov wrote:
+> It does not belong anywhere. Please create platform device dynamically
+> (for example using platfrom_device_register_simple) and destroy it when
+> done.
+>
+> The only time when static devices are [semi-]allowed (Greg has differing
+> opioon on this I believe) is in platform/arch code for devices that can
+> never be destroyed.
 
-Shouldn't need to be.
+OK, didn't know that rule.  I honestly thought avoiding the heap
+allocation for this driver (which is is stateless: the "device" is
+just a single bit of information indicating the presence of three acpi
+methods) would be desirable.
 
-> 
-> >  
-> >  #define DRV_NAME "altera_ps2"
-> >  
-> > @@ -173,6 +176,16 @@ static int __devexit altera_ps2_remove(struct platform_device *pdev)
-> >  	return 0;
-> >  }
-> >  
-> > +#ifdef CONFIG_OF
-> > +static struct of_device_id altera_ps2_match[] = {
-> 
-> Not const?
-> 
-> > +	{ 
-> > +		.compatible = "altera,altera_ps2",
-> > +	},
-> > +	{},
-> > +}
-> > +MODULE_DEVICE_TABLE(of, altera_jtaguart_match);
-> > +#endif /* CONFIG_OF */
-> > +
-> >  /*
-> >   * Our device driver structure
-> >   */
-> > @@ -182,6 +195,9 @@ static struct platform_driver altera_ps2_driver = {
-> >  	.driver	= {
-> >  		.name	= DRV_NAME,
-> >  		.owner	= THIS_MODULE,
-> > +#ifdef CONFIG_OF
-> > +		.of_match_table = altera_ps2_match,
-> > +#endif
-> 
-> Can't we spare 4 bytes per driver and have .of_match_table always
-> present?
+Fixed patch 2/2 below.
 
-Yeah, probably.  I've been trying to avoid it, but I suppose that is
-much ado about a tiny amount of data.  I'll craft a patch.
+Andy
 
-g.
+>From 83c679bc5687d293c12f566c348871fc4e55896c Mon Sep 17 00:00:00 2001
+From: Andy Ross <andy.ross@windriver.com>
+Date: Mon, 17 Jan 2011 09:19:58 -0800
+Subject: [PATCH 2/2] asus-laptop: Support pega_accel driver
+
+Add device detecton for the ACPI accelerometer interface on Pegatron
+Lucid tablets.
+
+Signed-off-by: Andy Ross <andy.ross@windriver.com>
+---
+ drivers/platform/x86/asus-laptop.c |   21 +++++++++++++++++++++
+ 1 files changed, 21 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/platform/x86/asus-laptop.c b/drivers/platform/x86/asus-laptop.c
+index d235f44..73f8ca0 100644
+--- a/drivers/platform/x86/asus-laptop.c
++++ b/drivers/platform/x86/asus-laptop.c
+@@ -4,6 +4,7 @@
+  *
+  *  Copyright (C) 2002-2005 Julien Lerouge, 2003-2006 Karol Kozimor
+  *  Copyright (C) 2006-2007 Corentin Chary
++ *  Copyright (C) 2011 Wind River Systems
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -31,6 +32,7 @@
+  *  Josh Green     - Light Sens support
+  *  Thomas Tuttle  - His first patch for led support was very helpfull
+  *  Sam Lin        - GPS support
++ *  Andy Ross      - Pegatron Lucid accelerometer
+  */
+
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -247,6 +249,7 @@ struct asus_laptop {
+ 	int wireless_status;
+ 	bool have_rsts;
+ 	int lcd_state;
++	struct platform_device *pega_accel;
+
+ 	struct rfkill *gps_rfkill;
+
+@@ -1556,6 +1559,19 @@ static int __devinit asus_acpi_init(struct asus_laptop *asus)
+ 	return result;
+ }
+
++static void __devinit asus_pega_accel_init(struct asus_laptop *asus)
++{
++	/* Pegatron Lucid tablets expose their accelerometer through ACPI.
++	 * Check for XLR{X,Y,Z} methods */
++	if (acpi_check_handle(asus->handle, "XLRX", NULL) ||
++	    acpi_check_handle(asus->handle, "XLRY", NULL) ||
++	    acpi_check_handle(asus->handle, "XLRZ", NULL))
++		return;
++
++	asus->pega_accel = platform_device_register_simple("pega_accel", -1,
++							   NULL, 0);
++}
++
+ static bool asus_device_present;
+
+ static int __devinit asus_acpi_add(struct acpi_device *device)
+@@ -1605,6 +1621,8 @@ static int __devinit asus_acpi_add(struct acpi_device *device)
+ 	if (result)
+ 		goto fail_rfkill;
+
++	asus_pega_accel_init(asus);
++
+ 	asus_device_present = true;
+ 	return 0;
+
+@@ -1627,6 +1645,9 @@ static int asus_acpi_remove(struct acpi_device *device, int type)
+ {
+ 	struct asus_laptop *asus = acpi_driver_data(device);
+
++	if (asus->pega_accel)
++		platform_device_unregister(asus->pega_accel);
++
+ 	asus_backlight_exit(asus);
+ 	asus_rfkill_exit(asus);
+ 	asus_led_exit(asus);
+-- 
+1.7.1

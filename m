@@ -1,167 +1,198 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] i8042 driver for unicore32 architecture
-Date: Mon, 17 Jan 2011 09:39:33 -0800
-Message-ID: <20110117173932.GB15404@core.coreip.homeip.net>
-References: <005b01cbb594$6398d9e0$2aca8da0$@mprc.pku.edu.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:61347 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752872Ab1AQRju (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Jan 2011 12:39:50 -0500
-Received: by pzk35 with SMTP id 35so822391pzk.19
-        for <linux-input@vger.kernel.org>; Mon, 17 Jan 2011 09:39:49 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <005b01cbb594$6398d9e0$2aca8da0$@mprc.pku.edu.cn>
-Sender: linux-input-owner@vger.kernel.org
+From: Andy Ross <andy.ross@windriver.com>
+Subject: [PATCH 1/2] input: Pegatron Lucid accelerometer
+Date: Mon, 17 Jan 2011 09:56:50 -0800
+Message-ID: <1295287011-12849-2-git-send-email-andy.ross@windriver.com>
+References: <1295287011-12849-1-git-send-email-andy.ross@windriver.com>
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <1295287011-12849-1-git-send-email-andy.ross@windriver.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Chary <corentincj@iksaif.net>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guan Xuetao <guanxuetao@mprc.pku.edu.cn>
-Cc: linux-input@vger.kernel.org
 
-Hi Guan,
+Add driver for the ACPI accelerometer interface on the Pegatron Lucid
+tablet.
 
-On Sun, Jan 16, 2011 at 11:45:23PM +0800, Guan Xuetao wrote:
-> This patch implements i8042 driver for unicore32 architecture.
-> 
-> Signed-off-by: Guan Xuetao <gxt@mprc.pku.edu.cn>
-> ---
->  drivers/input/serio/i8042.h       |    2 +
->  drivers/staging/puv3/i8042-ucio.h |   89 +++++++++++++++++++++++++++++++++++++
->  2 files changed, 91 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/staging/puv3/i8042-ucio.h
-> 
-> diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-> index cbc1beb..711b41c 100644
-> --- a/drivers/input/serio/i8042.h
-> +++ b/drivers/input/serio/i8042.h
-> @@ -26,6 +26,8 @@
->  #include "i8042-sparcio.h"
->  #elif defined(CONFIG_X86) || defined(CONFIG_IA64)
->  #include "i8042-x86ia64io.h"
-> +#elif defined(CONFIG_UNICORE32)
-> +#include "../../staging/puv3/i8042-ucio.h"
+Signed-off-by: Andy Ross <andy.ross@windriver.com>
+---
+ drivers/input/misc/Kconfig      |   10 +++
+ drivers/input/misc/Makefile     |    2 +-
+ drivers/input/misc/pega-accel.c |  130 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 141 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/input/misc/pega-accel.c
 
-I'd rather you put it directly into drivers/input/serio/
-Also, maybe we should call it i8042-unicore32io.h
-
->  #else
->  #include "i8042-io.h"
->  #endif
-> diff --git a/drivers/staging/puv3/i8042-ucio.h b/drivers/staging/puv3/i8042-ucio.h
-> new file mode 100644
-> index 0000000..c3221df
-> --- /dev/null
-> +++ b/drivers/staging/puv3/i8042-ucio.h
-> @@ -0,0 +1,89 @@
-> +/*
-> + * linux/drivers/staging/puv3/i8042-ucio.h
-
-Please do not put filenames in the comments.
-
-> + *
-> + * Code specific to PKUnity SoC and UniCore ISA
-> + *
-> + *	Maintained by GUAN Xue-tao <gxt@mprc.pku.edu.cn>
-> + *	Copyright (C) 2001-2010 Guan Xuetao
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + */
-> +#ifndef _I8042_UCIO_H
-> +#define _I8042_UCIO_H
-> +
-> +#include <linux/clk.h>
-> +#include <mach/hardware.h>
-> +
-> +/*
-> + * Names.
-> + */
-> +
-> +#define I8042_KBD_PHYS_DESC "isa0060/serio0"
-> +#define I8042_AUX_PHYS_DESC "isa0060/serio1"
-> +#define I8042_MUX_PHYS_DESC "isa0060/serio%d"
-> +
-> +/*
-> + * IRQs.
-> + */
-> +#define I8042_KBD_IRQ           IRQ_PS2_KBD
-> +#define I8042_AUX_IRQ           IRQ_PS2_AUX
-> +
-> +/*
-> + * Register numbers.
-> + */
-> +
-> +#define I8042_COMMAND_REG	((unsigned long)&PS2_COMMAND)
-> +#define I8042_STATUS_REG	((unsigned long)&PS2_STATUS)
-> +#define I8042_DATA_REG		((unsigned long)&PS2_DATA)
-
-This looks a bit iffy... any chance to simplify register definitions?
-
-> +
-> +void puv3_ps2_init(void)
-
-Should it be static?
-
-> +{
-> +	struct clk *bclk32;
-> +
-> +	bclk32 = clk_get(NULL, "BUS32_CLK");
-
-Error hanlding?
-
-> +	PS2_CNT = clk_get_rate(bclk32) / 200000; /* should > 5us */
-> +}
-> +
-> +static inline int i8042_read_data(void)
-> +{
-> +	return inb(I8042_DATA_REG);
-> +}
-> +
-> +static inline int i8042_read_status(void)
-> +{
-> +	return inb(I8042_STATUS_REG);
-> +}
-> +
-> +static inline void i8042_write_data(int val)
-> +{
-> +	outb(val, I8042_DATA_REG);
-> +}
-> +
-> +static inline void i8042_write_command(int val)
-> +{
-> +	outb(val, I8042_COMMAND_REG);
-> +}
-> +
-> +static inline int i8042_platform_init(void)
-> +{
-> +/*
-> + * On some platforms touching the i8042 data register region can do really
-> + * bad things. Because of this the region is always reserved on such boxes.
-> + */
-
-The comment is in wrong place and is not applicable to your arch I
-think.
-
-> +	puv3_ps2_init();
-> +
-> +	if (!request_region(I8042_DATA_REG, 16, "i8042"))
-> +		return -EBUSY;
-> +
-> +	i8042_reset = 1;
-> +	return 0;
-> +}
-> +
-> +static inline void i8042_platform_exit(void)
-> +{
-> +	release_region(I8042_DATA_REG, 16);
-> +}
-> +
-> +#endif /* _I8042_UCIO_H */
-
-Thanks.
-
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index b99b8cb..e60af95 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -74,6 +74,16 @@ config INPUT_PCSPKR
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcspkr.
+ 
++config INPUT_PEGA_ACCEL
++       tristate "Support Pegatron Lucid accelerometer"
++       depends on ASUS_LAPTOP
++       help
++         Say Y here if you want support for the built-in ACPI
++         accelerometer device on Pegatron Lucid tablet devices.
++
++	 To compile this driver as a module, choose M here: the module
++	 will be called pega_accel.
++
+ config INPUT_SPARCSPKR
+ 	tristate "SPARC Speaker support"
+ 	depends on PCI && SPARC64
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 1fe1f6c..79aca4d 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -29,6 +29,7 @@ obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+ obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
+ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
++obj-$(CONFIG_INPUT_PEGA_ACCEL)		+= pega-accel.o
+ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+@@ -42,4 +43,3 @@ obj-$(CONFIG_INPUT_WINBOND_CIR)		+= winbond-cir.o
+ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+-
+diff --git a/drivers/input/misc/pega-accel.c b/drivers/input/misc/pega-accel.c
+new file mode 100644
+index 0000000..7005b46
+--- /dev/null
++++ b/drivers/input/misc/pega-accel.c
+@@ -0,0 +1,130 @@
++/*
++ * Driver for accelerometer in Pegatron Lucid tablets
++ *
++ * Copyright (c) 2011 Wind River Systems
++ *
++ * Author: Andy Ross <andy.ross@windriver.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/input-polldev.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <acpi/acpi_bus.h>
++
++#define DRIVER_NAME "pega_accel"
++#define DRIVER_DESC "Pegatron Lucid Tablet Accelerometer"
++
++/* 1G accel is reported as ~256, so clamp to 2G */
++#define CLAMP 512
++
++static struct input_polled_dev *ipdev;
++
++/* FIXME: this mechanism is *very* slow: ~50ms to read the three
++ * values.  Pre-caching an acpi handle with acpi_get_handle has no
++ * effect, so the issue isn't in the parsing or tree walking... */
++static int acpi_s16(char *method)
++{
++	unsigned long long val = 0;
++	acpi_evaluate_integer(NULL, method, NULL, &val);
++	return (short)val;
++}
++
++static void pega_accel_poll(struct input_polled_dev *ipdev)
++{
++	/* Note transform, convert to "right/up/out" in the native
++	 * landscape orientation (i.e. the vector is the direction of
++	 * "real up" in the device's cartiesian coordinates).  FIXME:
++	 * is there a relevant convention to adhere to? */
++	int x = -acpi_s16("\\_SB.ATKD.XLRX");
++	int y = -acpi_s16("\\_SB.ATKD.XLRY");
++	int z =  acpi_s16("\\_SB.ATKD.XLRZ");
++
++	x = clamp_val(x, -CLAMP, CLAMP);
++	y = clamp_val(y, -CLAMP, CLAMP);
++	z = clamp_val(z, -CLAMP, CLAMP);
++
++	input_report_abs(ipdev->input, ABS_X, x);
++	input_report_abs(ipdev->input, ABS_Y, y);
++	input_report_abs(ipdev->input, ABS_Z, z);
++	input_sync(ipdev->input);
++}
++
++static int __devinit platform_probe(struct platform_device *pd)
++{
++	int err;
++
++	ipdev = input_allocate_polled_device();
++	if (!ipdev)
++		return -ENOMEM;
++
++	ipdev->poll = pega_accel_poll;
++	ipdev->poll_interval = 100;
++	ipdev->poll_interval_min = 10;
++	ipdev->poll_interval_max = 2000;
++
++	ipdev->input->dev.parent = &pd->dev;
++	ipdev->input->id.bustype = BUS_HOST;
++
++	ipdev->input->name = DRIVER_DESC;
++	ipdev->input->phys = DRIVER_NAME "/input0";
++
++	set_bit(EV_ABS, ipdev->input->evbit);
++	input_set_abs_params(ipdev->input, ABS_X, -CLAMP, CLAMP, 0, 0);
++	input_set_abs_params(ipdev->input, ABS_Y, -CLAMP, CLAMP, 0, 0);
++	input_set_abs_params(ipdev->input, ABS_Z, -CLAMP, CLAMP, 0, 0);
++
++	err = input_register_polled_device(ipdev);
++	if (err)
++		input_free_polled_device(ipdev);
++
++	return err;
++}
++
++static int __devexit platform_remove(struct platform_device *pd)
++{
++	input_unregister_polled_device(ipdev);
++	input_free_polled_device(ipdev);
++	ipdev = NULL;
++	return 0;
++}
++
++static struct platform_driver platform_driver = {
++	.driver = {
++		.owner = THIS_MODULE,
++		.name  = DRIVER_NAME,
++	},
++	.probe  = platform_probe,
++	.remove = __devexit_p(platform_remove),
++};
++
++static int __init mod_init(void)
++{
++	return platform_driver_register(&platform_driver);
++}
++
++static void __exit mod_exit(void)
++{
++	platform_driver_unregister(&platform_driver);
++}
++
++module_init(mod_init);
++module_exit(mod_exit);
++
++MODULE_AUTHOR("Andy Ross <andy.ross@windriver.com>");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_ALIAS("dmi:*:bvrLucid-CE-133:*");
 -- 
-Dmitry
+1.7.1

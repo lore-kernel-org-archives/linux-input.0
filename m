@@ -1,140 +1,74 @@
-From: "Guan Xuetao" <guanxuetao@mprc.pku.edu.cn>
-Subject: [PATCH] i8042 driver for unicore32 architecture
-Date: Sun, 16 Jan 2011 23:45:23 +0800
-Message-ID: <005b01cbb594$6398d9e0$2aca8da0$@mprc.pku.edu.cn>
+From: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+Subject: [PATCH] alter_ps2: Add devicetree support
+Date: Mon, 17 Jan 2011 14:29:20 +0800
+Message-ID: <1295245760-4566-1-git-send-email-thomas@wytron.com.tw>
+References: <4D040D1C.2020705@home.nl>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mprc.pku.edu.cn ([162.105.203.9]:42024 "EHLO mprc.pku.edu.cn"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753232Ab1APP5b (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Jan 2011 10:57:31 -0500
-Content-Language: zh-cn
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <4D040D1C.2020705-CmkmPbn3yAE@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
 
-This patch implements i8042 driver for unicore32 architecture.
+From: Walter Goossens <waltergoossens-CmkmPbn3yAE@public.gmane.org>
 
-Signed-off-by: Guan Xuetao <gxt@mprc.pku.edu.cn>
+Signed-off-by: Walter Goossens <waltergoossens-CmkmPbn3yAE@public.gmane.org>
+Signed-off-by: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
 ---
- drivers/input/serio/i8042.h       |    2 +
- drivers/staging/puv3/i8042-ucio.h |   89 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 91 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/puv3/i8042-ucio.h
+ drivers/input/serio/altera_ps2.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-index cbc1beb..711b41c 100644
---- a/drivers/input/serio/i8042.h
-+++ b/drivers/input/serio/i8042.h
-@@ -26,6 +26,8 @@
- #include "i8042-sparcio.h"
- #elif defined(CONFIG_X86) || defined(CONFIG_IA64)
- #include "i8042-x86ia64io.h"
-+#elif defined(CONFIG_UNICORE32)
-+#include "../../staging/puv3/i8042-ucio.h"
- #else
- #include "i8042-io.h"
- #endif
-diff --git a/drivers/staging/puv3/i8042-ucio.h b/drivers/staging/puv3/i8042-ucio.h
-new file mode 100644
-index 0000000..c3221df
---- /dev/null
-+++ b/drivers/staging/puv3/i8042-ucio.h
-@@ -0,0 +1,89 @@
-+/*
-+ * linux/drivers/staging/puv3/i8042-ucio.h
-+ *
-+ * Code specific to PKUnity SoC and UniCore ISA
-+ *
-+ *	Maintained by GUAN Xue-tao <gxt@mprc.pku.edu.cn>
-+ *	Copyright (C) 2001-2010 Guan Xuetao
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#ifndef _I8042_UCIO_H
-+#define _I8042_UCIO_H
-+
-+#include <linux/clk.h>
-+#include <mach/hardware.h>
-+
-+/*
-+ * Names.
-+ */
-+
-+#define I8042_KBD_PHYS_DESC "isa0060/serio0"
-+#define I8042_AUX_PHYS_DESC "isa0060/serio1"
-+#define I8042_MUX_PHYS_DESC "isa0060/serio%d"
-+
-+/*
-+ * IRQs.
-+ */
-+#define I8042_KBD_IRQ           IRQ_PS2_KBD
-+#define I8042_AUX_IRQ           IRQ_PS2_AUX
-+
-+/*
-+ * Register numbers.
-+ */
-+
-+#define I8042_COMMAND_REG	((unsigned long)&PS2_COMMAND)
-+#define I8042_STATUS_REG	((unsigned long)&PS2_STATUS)
-+#define I8042_DATA_REG		((unsigned long)&PS2_DATA)
-+
-+void puv3_ps2_init(void)
-+{
-+	struct clk *bclk32;
-+
-+	bclk32 = clk_get(NULL, "BUS32_CLK");
-+	PS2_CNT = clk_get_rate(bclk32) / 200000; /* should > 5us */
+diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+index 7998560..93054a1 100644
+--- a/drivers/input/serio/altera_ps2.c
++++ b/drivers/input/serio/altera_ps2.c
+@@ -19,6 +19,9 @@
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#ifdef CONFIG_OF
++#include <linux/of.h>
++#endif
+ 
+ #define DRV_NAME "altera_ps2"
+ 
+@@ -173,6 +176,16 @@ static int __devexit altera_ps2_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static struct of_device_id altera_ps2_match[] = {
++	{ 
++		.compatible = "altera,altera_ps2",
++	},
++	{},
 +}
++MODULE_DEVICE_TABLE(of, altera_jtaguart_match);
++#endif /* CONFIG_OF */
 +
-+static inline int i8042_read_data(void)
-+{
-+	return inb(I8042_DATA_REG);
-+}
-+
-+static inline int i8042_read_status(void)
-+{
-+	return inb(I8042_STATUS_REG);
-+}
-+
-+static inline void i8042_write_data(int val)
-+{
-+	outb(val, I8042_DATA_REG);
-+}
-+
-+static inline void i8042_write_command(int val)
-+{
-+	outb(val, I8042_COMMAND_REG);
-+}
-+
-+static inline int i8042_platform_init(void)
-+{
-+/*
-+ * On some platforms touching the i8042 data register region can do really
-+ * bad things. Because of this the region is always reserved on such boxes.
-+ */
-+	puv3_ps2_init();
-+
-+	if (!request_region(I8042_DATA_REG, 16, "i8042"))
-+		return -EBUSY;
-+
-+	i8042_reset = 1;
-+	return 0;
-+}
-+
-+static inline void i8042_platform_exit(void)
-+{
-+	release_region(I8042_DATA_REG, 16);
-+}
-+
-+#endif /* _I8042_UCIO_H */
+ /*
+  * Our device driver structure
+  */
+@@ -182,6 +195,9 @@ static struct platform_driver altera_ps2_driver = {
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 		.owner	= THIS_MODULE,
++#ifdef CONFIG_OF
++		.of_match_table = altera_ps2_match,
++#endif
+ 	},
+ };
+ 
 -- 
-1.7.3.5
-
-
+1.7.3.4

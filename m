@@ -1,115 +1,129 @@
-From: Andy Ross <andy.ross@windriver.com>
-Subject: Re: [PATCH 0/2] Pegatron Lucid tablet accelerometer
-Date: Mon, 17 Jan 2011 14:14:29 -0800
-Message-ID: <4D34BF45.30804@windriver.com>
-References: <1295287011-12849-1-git-send-email-andy.ross@windriver.com> <20110117184927.GA27245@core.coreip.homeip.net>
+From: Walter Goossens <waltergoossens@home.nl>
+Subject: Re: [PATCH] alter_ps2: Add devicetree support
+Date: Tue, 18 Jan 2011 00:27:02 +0100
+Message-ID: <4D34D046.20708@home.nl>
+References: <4D040D1C.2020705@home.nl> <1295245760-4566-1-git-send-email-thomas@wytron.com.tw> <AANLkTi=8+Q5dm+5Pa-cYkmaBWQ4S7jgjZOL0ovtmrdxB@mail.gmail.com> <4D34AEC3.60801@home.nl> <20110117220244.GA17963@angua.secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20110117184927.GA27245@core.coreip.homeip.net>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Corentin Chary <corentincj@iksaif.net>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110117220244.GA17963@angua.secretlab.ca>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Thomas Chou <thomas@wytron.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, nios2-dev@sopc.et.ntust.edu.tw, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 List-Id: linux-input@vger.kernel.org
 
-On 01/17/2011 10:49 AM, Dmitry Torokhov wrote:
-> It does not belong anywhere. Please create platform device dynamically
-> (for example using platfrom_device_register_simple) and destroy it when
-> done.
+On 1/17/11 11:02 PM, Grant Likely wrote:
+> On Mon, Jan 17, 2011 at 10:04:03PM +0100, Walter Goossens wrote:
+>> On 1/17/11 7:59 AM, Grant Likely wrote:
+>>> On Sun, Jan 16, 2011 at 11:29 PM, Thomas Chou<thomas@wytron.com.tw>  wrote:
+>>>> @@ -173,6 +176,16 @@ static int __devexit altera_ps2_remove(struct platform_device *pdev)
+>>>>         return 0;
+>>>>   }
+>>>>
+>>>> +#ifdef CONFIG_OF
+>>>> +static struct of_device_id altera_ps2_match[] = {
+>>>> +       {
+>>>> +               .compatible = "altera,altera_ps2",
+>>>> +       },
+>>> So is this an FPGA soft core PS2 device?  Is there any kind of version
+>>> attached to the soft core?  The compatible value should specify an
+>>> exact version of the implementation that this driver works with.
+>>> (Newer core versions can claim compatibility with older ones, so the
+>>> driver's compatible list doesn't need to be exhaustive).
+>>>
+>> What's the preferred way of versioning components in a device-tree?
+>> Quite a few components inside an fpga will get a new version number with
+>> every release of the tools. For example components supplied by Altera
+>> will get a new number with every release of their IP library (approx.
+>> twice a year) even when (at least from a software point of view) there
+>> is nothing changed in the core. Should we add the number to the
+>> "compatible" name and possibly get slightly more bulky drivers, or add a
+>> version tag to the components where a driver can make decisions based on
+>> the version of the core (if needed)?
+>> Another way to reduce the number of lines in a compatible section would
+>> be to add both their versioned and unversioned compatible entry in the
+>> dts so drivers not needing a specific version don't need to supply the
+>> entire list.
+>> We do have the version numbers available when generating the DTS and
+>> NiosII is still quite new to device-tree so we are still flexible in
+>> fixing this in the best possible way.
+> A good rule of thumb is to always choose compatible values that
+> reflect real working hardware.  ie. "xlnx,xps-uartlite-1.00.a" instead
+> of trying to define a generic "xlnx,uartlite".  You can see this value
+> in drivers/serial/uartlite.c, and write the driver to match the value
+> of the device that you actually worked with.
 >
-> The only time when static devices are [semi-]allowed (Greg has differing
-> opioon on this I believe) is in platform/arch code for devices that can
-> never be destroyed.
+> Then, when you produce a .dts for a design, each device must specify
+> exactly what it is (the specific version) plus an optional list of
+> devices that it is 100% register-level backwards compatible with.  In
+> the example above, the uartlite has retained the exact same interface,
+> so all designs claim compatibility with xlnx,xps-uartlite-1.00.a
+> regardless of the actual version.
+>
+> To take the example of the altera ps2 core; say altera has released
+> versions 1, 2, 3, 4 and 5 of the core, and say the behaviour changed
+> in a non-compatible way in version 3.  Then the driver might do
+> something like:
+>
+>
+> static struct of_device_id altera_ps2_match[] = {
+>         { .compatible = "altera,altera_ps2-1", .data = altera_ps2_1_ops, },
+>         { .compatible = "altera,altera_ps2-3", .data = altera_ps2_3_ops, },
+>         { }
+> };
+>
+> Then the compatible values for each version in a .dts file would be:
+>
+> v1: compatible = "altera,altera_ps2-1";
+> v2: compatible = "altera,altera_ps2-2", "altera,altera_ps2-1";
+> v3: compatible = "altera,altera_ps2-3";
+> v4: compatible = "altera,altera_ps2-4", "altera,altera_ps2-3";
+> v5: compatible = "altera,altera_ps2-5", "altera,altera_ps2-3";
+>
+> so, instead of trying to us a 'generic' value like "altera,altera_ps2"
+> which has a bunch of ambiguity about which hardware actually
+> implements the behaviour, the values "altera,altera_ps2-1" and
+> "altera,altera_ps2-3" become the de-facto 'generic' values without any
+> messiness or ambiguity about what they mean.
+>
+> Plus, each .dts file still specifies the exact version that is
+> implemented on the board so that the driver can still fixup
+> version-specific bugs if any are discovered in the future.
+>
+Ahh ok.
+That does look like a good solution. I'll try and cook something up for 
+that.
+Thanks for the explanation!
 
-OK, didn't know that rule.  I honestly thought avoiding the heap
-allocation for this driver (which is is stateless: the "device" is
-just a single bit of information indicating the presence of three acpi
-methods) would be desirable.
+Walter
 
-Fixed patch 2/2 below.
-
-Andy
-
->From 83c679bc5687d293c12f566c348871fc4e55896c Mon Sep 17 00:00:00 2001
-From: Andy Ross <andy.ross@windriver.com>
-Date: Mon, 17 Jan 2011 09:19:58 -0800
-Subject: [PATCH 2/2] asus-laptop: Support pega_accel driver
-
-Add device detecton for the ACPI accelerometer interface on Pegatron
-Lucid tablets.
-
-Signed-off-by: Andy Ross <andy.ross@windriver.com>
----
- drivers/platform/x86/asus-laptop.c |   21 +++++++++++++++++++++
- 1 files changed, 21 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/platform/x86/asus-laptop.c b/drivers/platform/x86/asus-laptop.c
-index d235f44..73f8ca0 100644
---- a/drivers/platform/x86/asus-laptop.c
-+++ b/drivers/platform/x86/asus-laptop.c
-@@ -4,6 +4,7 @@
-  *
-  *  Copyright (C) 2002-2005 Julien Lerouge, 2003-2006 Karol Kozimor
-  *  Copyright (C) 2006-2007 Corentin Chary
-+ *  Copyright (C) 2011 Wind River Systems
-  *
-  *  This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License as published by
-@@ -31,6 +32,7 @@
-  *  Josh Green     - Light Sens support
-  *  Thomas Tuttle  - His first patch for led support was very helpfull
-  *  Sam Lin        - GPS support
-+ *  Andy Ross      - Pegatron Lucid accelerometer
-  */
-
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-@@ -247,6 +249,7 @@ struct asus_laptop {
- 	int wireless_status;
- 	bool have_rsts;
- 	int lcd_state;
-+	struct platform_device *pega_accel;
-
- 	struct rfkill *gps_rfkill;
-
-@@ -1556,6 +1559,19 @@ static int __devinit asus_acpi_init(struct asus_laptop *asus)
- 	return result;
- }
-
-+static void __devinit asus_pega_accel_init(struct asus_laptop *asus)
-+{
-+	/* Pegatron Lucid tablets expose their accelerometer through ACPI.
-+	 * Check for XLR{X,Y,Z} methods */
-+	if (acpi_check_handle(asus->handle, "XLRX", NULL) ||
-+	    acpi_check_handle(asus->handle, "XLRY", NULL) ||
-+	    acpi_check_handle(asus->handle, "XLRZ", NULL))
-+		return;
-+
-+	asus->pega_accel = platform_device_register_simple("pega_accel", -1,
-+							   NULL, 0);
-+}
-+
- static bool asus_device_present;
-
- static int __devinit asus_acpi_add(struct acpi_device *device)
-@@ -1605,6 +1621,8 @@ static int __devinit asus_acpi_add(struct acpi_device *device)
- 	if (result)
- 		goto fail_rfkill;
-
-+	asus_pega_accel_init(asus);
-+
- 	asus_device_present = true;
- 	return 0;
-
-@@ -1627,6 +1645,9 @@ static int asus_acpi_remove(struct acpi_device *device, int type)
- {
- 	struct asus_laptop *asus = acpi_driver_data(device);
-
-+	if (asus->pega_accel)
-+		platform_device_unregister(asus->pega_accel);
-+
- 	asus_backlight_exit(asus);
- 	asus_rfkill_exit(asus);
- 	asus_led_exit(asus);
--- 
-1.7.1
+> g.
+>
+>>> Otherwise, this patch looks correct.
+>>>
+>>> g.
+>>>
+>>>> +       {},
+>>>> +}
+>>>> +MODULE_DEVICE_TABLE(of, altera_jtaguart_match);
+>>>> +#endif /* CONFIG_OF */
+>>>> +
+>>>>   /*
+>>>>   * Our device driver structure
+>>>>   */
+>>>> @@ -182,6 +195,9 @@ static struct platform_driver altera_ps2_driver = {
+>>>>         .driver = {
+>>>>                 .name   = DRV_NAME,
+>>>>                 .owner  = THIS_MODULE,
+>>>> +#ifdef CONFIG_OF
+>>>> +               .of_match_table = altera_ps2_match,
+>>>> +#endif
+>>>>         },
+>>>>   };
+>>>>
+>>>> --
+>>>> 1.7.3.4
+>>>>
+>>>>
+>>>

@@ -1,108 +1,25 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5] input: tegra-kbc - Add tegra keyboard driver
-Date: Mon, 17 Jan 2011 21:13:28 -0800
-Message-ID: <20110118051328.GE23851@core.coreip.homeip.net>
-References: <1294943248-18631-1-git-send-email-riyer@nvidia.com>
- <20110118051216.GD23851@core.coreip.homeip.net>
+From: Alessio Sangalli <alesan@manoweb.com>
+Subject: Input event "grabber" and "generator" for testing purposes
+Date: Mon, 17 Jan 2011 21:31:36 -0800
+Message-ID: <4D3525B8.7070300@manoweb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:52052 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750876Ab1ARFNg (ORCPT
+Received: from qmta09.emeryville.ca.mail.comcast.net ([76.96.30.96]:36735 "EHLO
+	qmta09.emeryville.ca.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750870Ab1ARFbi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jan 2011 00:13:36 -0500
-Content-Disposition: inline
-In-Reply-To: <20110118051216.GD23851@core.coreip.homeip.net>
+	Tue, 18 Jan 2011 00:31:38 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: riyer@nvidia.com
-Cc: tsoni@codeaurora.org, pavel@ucw.cz, shubhrajyoti@ti.com, ccross@android.com, konkers@android.com, olof@lixom.net, achew@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, Jan 17, 2011 at 09:12:16PM -0800, Dmitry Torokhov wrote:
-> On Thu, Jan 13, 2011 at 10:27:28AM -0800, riyer@nvidia.com wrote:
-> > From: Rakesh Iyer <riyer@nvidia.com>
-> > 
-> > This patch adds support for the internal matrix keyboard controller for
-> > Nvidia Tegra platforms.
-> > 
-> > Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> > ---
-> > Changes Done -
-> > Wrap the users field check within the mutex.
-> > Remove the KBC_MAX_KEYS define and use existing KBC_MAX_KEY.
-> > Patch v4 was named incorrectly as PATCH 1/1, so skipping ahead to PATCH v5.
-> > 
-> 
-> As I said, we should tty to reused definitions from matrix_keypad for
-> matrix keypads. Does the following still work for you?
-> 
+I was wondering if there is a tool that can "record" input events from a 
+given interface and then another to somewhat "generate" the same events, 
+with the proper timings, to reproduce several times the same exact input.
+I intend to use this with a mouse and then feed a program I am testing.
 
-And if it does then could you please try this one as well?
+bye!
+as
 
-Thanks.
-
--- 
-Dmitry
-
-Input: tegra-kbc - convert to dev_pm_ops
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/keyboard/tegra-kbc.c |   17 +++++++++--------
- 1 files changed, 9 insertions(+), 8 deletions(-)
-
-
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index a6ec3fc..c3c0c65 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -658,9 +658,10 @@ static int __devexit tegra_kbc_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM
--static int tegra_kbc_suspend(struct platform_device *pdev, pm_message_t state)
-+#ifdef CONFIG_PM_SLEEP
-+static int tegra_kbc_suspend(struct device *dev)
- {
-+	struct platform_device *pdev = to_platform_device(dev);
- 	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
- 
- 	if (device_may_wakeup(&pdev->dev)) {
-@@ -679,8 +680,9 @@ static int tegra_kbc_suspend(struct platform_device *pdev, pm_message_t state)
- 	return 0;
- }
- 
--static int tegra_kbc_resume(struct platform_device *pdev)
-+static int tegra_kbc_resume(struct device *dev)
- {
-+	struct platform_device *pdev = to_platform_device(dev);
- 	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
- 	int err = 0;
- 
-@@ -698,17 +700,16 @@ static int tegra_kbc_resume(struct platform_device *pdev)
- }
- #endif
- 
-+static SIMPLE_DEV_PM_OPS(tegra_kbc_pm_ops, tegra_kbc_suspend, tegra_kbc_resume);
-+
- static struct platform_driver tegra_kbc_driver = {
- 	.probe		= tegra_kbc_probe,
- 	.remove		= __devexit_p(tegra_kbc_remove),
--#ifdef CONFIG_PM
--	.suspend	= tegra_kbc_suspend,
--	.resume		= tegra_kbc_resume,
--#endif
- 	.driver	= {
- 		.name	= "tegra-kbc",
- 		.owner  = THIS_MODULE,
--	}
-+		.pm	= &tegra_kbc_pm_ops,
-+	},
- };
- 
- static void __exit tegra_kbc_exit(void)

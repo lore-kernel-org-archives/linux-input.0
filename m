@@ -1,59 +1,41 @@
-From: David Engraf <david.engraf@sysgo.com>
-Subject: [PATCH] serio: allow registered drivers to get status flag
-Date: Tue, 18 Jan 2011 13:57:21 +0100
-Message-ID: <4D358E31.4080700@sysgo.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/3] Input: add support for DragonRise PID 0011 gamepad
+Date: Tue, 18 Jan 2011 14:14:12 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101181413000.26685@pobox.suse.cz>
+References: <1294945003-7687-1-git-send-email-spbnick@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------070306030407000808000604"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.sysgo.com ([195.145.229.155]:43958 "EHLO mail.sysgo.com"
+Received: from cantor2.suse.de ([195.135.220.15]:54772 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751021Ab1ARNEU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jan 2011 08:04:20 -0500
+	id S1750865Ab1ARNOO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Jan 2011 08:14:14 -0500
+In-Reply-To: <1294945003-7687-1-git-send-email-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Vladislav Naumov <vnaum@vnaum.com>
 
-This is a multi-part message in MIME format.
---------------070306030407000808000604
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 13 Jan 2011, Nikolai Kondrashov wrote:
 
-Parse the status byte information to the registered serio drivers as 
-well as the character bytes.
+> These patches add support for a DragonRise Inc. gamepad with USB PID 0x0011.
+> 
+> The patches are made against 2.6.37. I'm almost sure it is wrong, but I wasn't
+> able to figure out for certain which branch of which repository to use.
+> 
+> Please tell me which one I should use, if I'm wrong. Thanks.
 
-Signed-off-by: David Engraf <david.engraf@sysgo.com>
+Hi Nikolai,
 
+two comments:
 
---------------070306030407000808000604
-Content-Type: text/x-diff;
- name="serport_parse_flags.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="serport_parse_flags.diff"
+1) please always CC me on patches against drivers/hid/*, as can be guessed 
+from MAINTAINERS file
+2) please send me the patch based on more-or-less current Linus' tree, as 
+that's what development is happening on top of.
 
---- linux-2.6.37/drivers/input/serio/serport.c.orig	2011-01-18 12:33:41.421709232 +0100
-+++ linux-2.6.37/drivers/input/serio/serport.c	2011-01-18 13:33:24.521711214 +0100
-@@ -116,8 +116,8 @@ static void serport_ldisc_close(struct t
- 
- /*
-  * serport_ldisc_receive() is called by the low level tty driver when characters
-- * are ready for us. We forward the characters, one by one to the 'interrupt'
-- * routine.
-+ * are ready for us. We forward the characters and flags, one by one to the 
-+ * 'interrupt' routine.
-  */
- 
- static void serport_ldisc_receive(struct tty_struct *tty, const unsigned char *cp, char *fp, int count)
-@@ -132,7 +132,7 @@ static void serport_ldisc_receive(struct
- 		goto out;
- 
- 	for (i = 0; i < count; i++)
--		serio_interrupt(serport->serio, cp[i], 0);
-+		serio_interrupt(serport->serio, cp[i], fp[i]);
- 
- out:
- 	spin_unlock_irqrestore(&serport->lock, flags);
+Otherwise, the series looks fine and I am willing to apply it. Thanks,
 
---------------070306030407000808000604--
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,37 +1,59 @@
-From: Andy Whitcroft <apw@canonical.com>
-Subject: Re: [PATCH 0/1] sysrq is half-enabled by default
-Date: Tue, 18 Jan 2011 09:38:44 +0000
-Message-ID: <20110118093844.GH16804@shadowen.org>
-References: <1295123037-2649-1-git-send-email-apw@canonical.com>
- <20110115215450.GB19872@core.coreip.homeip.net>
+From: David Engraf <david.engraf@sysgo.com>
+Subject: [PATCH] serio: allow registered drivers to get status flag
+Date: Tue, 18 Jan 2011 13:57:21 +0100
+Message-ID: <4D358E31.4080700@sysgo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110115215450.GB19872@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed;
+ boundary="------------070306030407000808000604"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.sysgo.com ([195.145.229.155]:43958 "EHLO mail.sysgo.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751021Ab1ARNEU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Jan 2011 08:04:20 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Jan 15, 2011 at 01:54:50PM -0800, Dmitry Torokhov wrote:
-> Hi Andy,
-> 
-> On Sat, Jan 15, 2011 at 08:23:56PM +0000, Andy Whitcroft wrote:
-> > It seems that recent cleanups to sysrq handling have lead to us having
-> > two copies of the sysrq enable status.  At boot these are currently
-> > inconsistently specified leading to sysrq actually being enabled but
-> > reported as not enabled in sysfs.  Following this email is a patch to
-> > link both of these copies to a common configuration setting.
-> > 
-> 
-> Thanks for noticing this, but I do not think we need a new configuration
-> parameter. We did not have it for about 10 years and distributions know
-> how to disable it upon boot if they want to.
-> 
-> Do youthink you could cange the patch and add a default value (1) to
-> inlude/linux/sysrq.h and use it in sysctl and the handler code?
+This is a multi-part message in MIME format.
+--------------070306030407000808000604
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sure thing.
+Parse the status byte information to the registered serio drivers as 
+well as the character bytes.
 
--apw
+Signed-off-by: David Engraf <david.engraf@sysgo.com>
+
+
+--------------070306030407000808000604
+Content-Type: text/x-diff;
+ name="serport_parse_flags.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="serport_parse_flags.diff"
+
+--- linux-2.6.37/drivers/input/serio/serport.c.orig	2011-01-18 12:33:41.421709232 +0100
++++ linux-2.6.37/drivers/input/serio/serport.c	2011-01-18 13:33:24.521711214 +0100
+@@ -116,8 +116,8 @@ static void serport_ldisc_close(struct t
+ 
+ /*
+  * serport_ldisc_receive() is called by the low level tty driver when characters
+- * are ready for us. We forward the characters, one by one to the 'interrupt'
+- * routine.
++ * are ready for us. We forward the characters and flags, one by one to the 
++ * 'interrupt' routine.
+  */
+ 
+ static void serport_ldisc_receive(struct tty_struct *tty, const unsigned char *cp, char *fp, int count)
+@@ -132,7 +132,7 @@ static void serport_ldisc_receive(struct
+ 		goto out;
+ 
+ 	for (i = 0; i < count; i++)
+-		serio_interrupt(serport->serio, cp[i], 0);
++		serio_interrupt(serport->serio, cp[i], fp[i]);
+ 
+ out:
+ 	spin_unlock_irqrestore(&serport->lock, flags);
+
+--------------070306030407000808000604--

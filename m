@@ -1,274 +1,37 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [PATCH v5 3/4] hid: Add Support for Setting and Getting Feature Reports from hidraw
-Date: Tue, 18 Jan 2011 03:04:39 -0500
-Message-ID: <1295337880-12452-4-git-send-email-alan__32236.7566325285$1295337968$gmane$org@signal11.us>
-References: <1295337880-12452-1-git-send-email-alan@signal11.us>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:47896 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752972Ab1ARIFL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jan 2011 03:05:11 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 0484F1CCABAE
-	for <linux-input@vger.kernel.org>; Tue, 18 Jan 2011 03:05:10 -0500 (EST)
-In-Reply-To: <1295337880-12452-1-git-send-email-alan@signal11.us>
-Sender: linux-input-owner@vger.kernel.org
+From: Andy Whitcroft <apw@canonical.com>
+Subject: Re: [PATCH 0/1] sysrq is half-enabled by default
+Date: Tue, 18 Jan 2011 09:38:44 +0000
+Message-ID: <20110118093844.GH16804@shadowen.org>
+References: <1295123037-2649-1-git-send-email-apw@canonical.com>
+ <20110115215450.GB19872@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110115215450.GB19872@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Marcel Holtmann <marcel@holtmann.org>, "Gustavo F. Padovan" <padovan@profusion.mobi>, "David S. Miller" <davem@davemloft.net>
-Cc: Alan Ott <alan@signal11.us>, Antonio Ospite <ospite@studenti.unina.it>
 
-Per the HID Specification, Feature reports must be sent and received on
-the Configuration endpoint (EP 0) through the Set_Report/Get_Report
-interfaces.  This patch adds two ioctls to hidraw to set and get feature
-reports to and from the device.  Modifications were made to hidraw and
-usbhid.
+On Sat, Jan 15, 2011 at 01:54:50PM -0800, Dmitry Torokhov wrote:
+> Hi Andy,
+> 
+> On Sat, Jan 15, 2011 at 08:23:56PM +0000, Andy Whitcroft wrote:
+> > It seems that recent cleanups to sysrq handling have lead to us having
+> > two copies of the sysrq enable status.  At boot these are currently
+> > inconsistently specified leading to sysrq actually being enabled but
+> > reported as not enabled in sysfs.  Following this email is a patch to
+> > link both of these copies to a common configuration setting.
+> > 
+> 
+> Thanks for noticing this, but I do not think we need a new configuration
+> parameter. We did not have it for about 10 years and distributions know
+> how to disable it upon boot if they want to.
+> 
+> Do youthink you could cange the patch and add a default value (1) to
+> inlude/linux/sysrq.h and use it in sysctl and the handler code?
 
-New hidraw ioctls:
-  HIDIOCSFEATURE - Perform a Set_Report transfer of a Feature report.
-  HIDIOCGFEATURE - Perform a Get_Report transfer of a Feature report.
+Sure thing.
 
-Signed-off-by: Alan Ott <alan@signal11.us>
-Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
----
- drivers/hid/hidraw.c          |  106 ++++++++++++++++++++++++++++++++++++++--
- drivers/hid/usbhid/hid-core.c |   35 +++++++++++++
- include/linux/hid.h           |    3 +
- include/linux/hidraw.h        |    3 +
- 4 files changed, 141 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 468e87b..8f06044 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -102,15 +102,14 @@ out:
- }
- 
- /* the first byte is expected to be a report number */
--static ssize_t hidraw_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
-+/* This function is to be called with the minors_lock mutex held */
-+static ssize_t hidraw_send_report(struct file *file, const char __user *buffer, size_t count, unsigned char report_type)
- {
- 	unsigned int minor = iminor(file->f_path.dentry->d_inode);
- 	struct hid_device *dev;
- 	__u8 *buf;
- 	int ret = 0;
- 
--	mutex_lock(&minors_lock);
--
- 	if (!hidraw_table[minor]) {
- 		ret = -ENODEV;
- 		goto out;
-@@ -148,14 +147,92 @@ static ssize_t hidraw_write(struct file *file, const char __user *buffer, size_t
- 		goto out_free;
- 	}
- 
--	ret = dev->hid_output_raw_report(dev, buf, count, HID_OUTPUT_REPORT);
-+	ret = dev->hid_output_raw_report(dev, buf, count, report_type);
- out_free:
- 	kfree(buf);
- out:
-+	return ret;
-+}
-+
-+/* the first byte is expected to be a report number */
-+static ssize_t hidraw_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
-+{
-+	ssize_t ret;
-+	mutex_lock(&minors_lock);
-+	ret = hidraw_send_report(file, buffer, count, HID_OUTPUT_REPORT);
- 	mutex_unlock(&minors_lock);
- 	return ret;
- }
- 
-+
-+/* This function performs a Get_Report transfer over the control endpoint
-+   per section 7.2.1 of the HID specification, version 1.1.  The first byte
-+   of buffer is the report number to request, or 0x0 if the defice does not
-+   use numbered reports. The report_type parameter can be HID_FEATURE_REPORT
-+   or HID_INPUT_REPORT.  This function is to be called with the minors_lock
-+   mutex held.  */
-+static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t count, unsigned char report_type)
-+{
-+	unsigned int minor = iminor(file->f_path.dentry->d_inode);
-+	struct hid_device *dev;
-+	__u8 *buf;
-+	int ret = 0, len;
-+	unsigned char report_number;
-+
-+	dev = hidraw_table[minor]->hid;
-+
-+	if (!dev->hid_get_raw_report) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+
-+	if (count > HID_MAX_BUFFER_SIZE) {
-+		printk(KERN_WARNING "hidraw: pid %d passed too large report\n",
-+				task_pid_nr(current));
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	if (count < 2) {
-+		printk(KERN_WARNING "hidraw: pid %d passed too short report\n",
-+				task_pid_nr(current));
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	buf = kmalloc(count * sizeof(__u8), GFP_KERNEL);
-+	if (!buf) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/* Read the first byte from the user. This is the report number,
-+	   which is passed to dev->hid_get_raw_report(). */
-+	if (copy_from_user(&report_number, buffer, 1)) {
-+		ret = -EFAULT;
-+		goto out_free;
-+	}
-+
-+	ret = dev->hid_get_raw_report(dev, report_number, buf, count, report_type);
-+
-+	if (ret < 0)
-+		goto out_free;
-+
-+	len = (ret < count) ? ret : count;
-+
-+	if (copy_to_user(buffer, buf, len)) {
-+		ret = -EFAULT;
-+		goto out_free;
-+	}
-+
-+	ret = len;
-+
-+out_free:
-+	kfree(buf);
-+out:
-+	return ret;
-+}
-+
- static unsigned int hidraw_poll(struct file *file, poll_table *wait)
- {
- 	struct hidraw_list *list = file->private_data;
-@@ -295,7 +372,24 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
- 		default:
- 			{
- 				struct hid_device *hid = dev->hid;
--				if (_IOC_TYPE(cmd) != 'H' || _IOC_DIR(cmd) != _IOC_READ) {
-+				if (_IOC_TYPE(cmd) != 'H') {
-+					ret = -EINVAL;
-+					break;
-+				}
-+
-+				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCSFEATURE(0))) {
-+					int len = _IOC_SIZE(cmd);
-+					ret = hidraw_send_report(file, user_arg, len, HID_FEATURE_REPORT);
-+					break;
-+				}
-+				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGFEATURE(0))) {
-+					int len = _IOC_SIZE(cmd);
-+					ret = hidraw_get_report(file, user_arg, len, HID_FEATURE_REPORT);
-+					break;
-+				}
-+
-+				/* Begin Read-only ioctls. */
-+				if (_IOC_DIR(cmd) != _IOC_READ) {
- 					ret = -EINVAL;
- 					break;
- 				}
-@@ -327,7 +421,7 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
- 						-EFAULT : len;
- 					break;
- 				}
--		}
-+			}
- 
- 		ret = -ENOTTY;
- 	}
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index b336dd8..38c261a 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -799,6 +799,40 @@ static int hid_alloc_buffers(struct usb_device *dev, struct hid_device *hid)
- 	return 0;
- }
- 
-+static int usbhid_get_raw_report(struct hid_device *hid,
-+		unsigned char report_number, __u8 *buf, size_t count,
-+		unsigned char report_type)
-+{
-+	struct usbhid_device *usbhid = hid->driver_data;
-+	struct usb_device *dev = hid_to_usb_dev(hid);
-+	struct usb_interface *intf = usbhid->intf;
-+	struct usb_host_interface *interface = intf->cur_altsetting;
-+	int skipped_report_id = 0;
-+	int ret;
-+
-+	/* Byte 0 is the report number. Report data starts at byte 1.*/
-+	buf[0] = report_number;
-+	if (report_number == 0x0) {
-+		/* Offset the return buffer by 1, so that the report ID
-+		   will remain in byte 0. */
-+		buf++;
-+		count--;
-+		skipped_report_id = 1;
-+	}
-+	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-+		HID_REQ_GET_REPORT,
-+		USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+		((report_type + 1) << 8) | report_number,
-+		interface->desc.bInterfaceNumber, buf, count,
-+		USB_CTRL_SET_TIMEOUT);
-+
-+	/* count also the report id */
-+	if (ret > 0 && skipped_report_id)
-+		ret++;
-+
-+	return ret;
-+}
-+
- static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t count,
- 		unsigned char report_type)
- {
-@@ -1139,6 +1173,7 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
- 
- 	usb_set_intfdata(intf, hid);
- 	hid->ll_driver = &usb_hid_driver;
-+	hid->hid_get_raw_report = usbhid_get_raw_report;
- 	hid->hid_output_raw_report = usbhid_output_raw_report;
- 	hid->ff_init = hid_pidff_init;
- #ifdef CONFIG_USB_HIDDEV
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index d91c25e..e8ee0a9 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -504,6 +504,9 @@ struct hid_device {							/* device report descriptor */
- 				  struct hid_usage *, __s32);
- 	void (*hiddev_report_event) (struct hid_device *, struct hid_report *);
- 
-+	/* handler for raw input (Get_Report) data, used by hidraw */
-+	int (*hid_get_raw_report) (struct hid_device *, unsigned char, __u8 *, size_t, unsigned char);
-+
- 	/* handler for raw output data, used by hidraw */
- 	int (*hid_output_raw_report) (struct hid_device *, __u8 *, size_t, unsigned char);
- 
-diff --git a/include/linux/hidraw.h b/include/linux/hidraw.h
-index dd8d692..4b88e69 100644
---- a/include/linux/hidraw.h
-+++ b/include/linux/hidraw.h
-@@ -35,6 +35,9 @@ struct hidraw_devinfo {
- #define HIDIOCGRAWINFO		_IOR('H', 0x03, struct hidraw_devinfo)
- #define HIDIOCGRAWNAME(len)     _IOC(_IOC_READ, 'H', 0x04, len)
- #define HIDIOCGRAWPHYS(len)     _IOC(_IOC_READ, 'H', 0x05, len)
-+/* The first byte of SFEATURE and GFEATURE is the report number */
-+#define HIDIOCSFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x06, len)
-+#define HIDIOCGFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x07, len)
- 
- #define HIDRAW_FIRST_MINOR 0
- #define HIDRAW_MAX_DEVICES 64
--- 
-1.7.0.4
-
-
+-apw

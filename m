@@ -1,66 +1,49 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [Patch] aureal remote quirk to fix an bogus HID report
- descriptor
-Date: Tue, 18 Jan 2011 14:19:45 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101181416430.26685@pobox.suse.cz>
-References: <4D2F4B65.1020807@openelec.tv>
+From: Thomas Chou <thomas@wytron.com.tw>
+Subject: Re: [PATCH] alter_ps2: Add devicetree support
+Date: Tue, 18 Jan 2011 22:26:15 +0800
+Message-ID: <4D35A307.5070706@wytron.com.tw>
+References: <4D040D1C.2020705@home.nl> <1295245760-4566-1-git-send-email-thomas@wytron.com.tw> <AANLkTi=8+Q5dm+5Pa-cYkmaBWQ4S7jgjZOL0ovtmrdxB@mail.gmail.com> <4D34AEC3.60801@home.nl> <20110117220244.GA17963@angua.secretlab.ca> <4D34D046.20708@home.nl>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55099 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750961Ab1ARNTq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jan 2011 08:19:46 -0500
-In-Reply-To: <4D2F4B65.1020807@openelec.tv>
+Received: from www.wytron.com.tw ([211.75.82.101]:57204 "EHLO
+	www.wytron.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751742Ab1ARO0g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Jan 2011 09:26:36 -0500
+In-Reply-To: <4D34D046.20708@home.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephan Raue <stephan@openelec.tv>
-Cc: linux-input@vger.kernel.org
+To: Walter Goossens <waltergoossens@home.nl>
+Cc: Grant Likely <grant.likely@secretlab.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, nios2-dev@sopc.et.ntust.edu.tw, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-On Thu, 13 Jan 2011, Stephan Raue wrote:
+On 01/18/2011 07:27 AM, Walter Goossens wrote:
+>> so, instead of trying to us a 'generic' value like "altera,altera_ps2"
+>> which has a bunch of ambiguity about which hardware actually
+>> implements the behaviour, the values "altera,altera_ps2-1" and
+>> "altera,altera_ps2-3" become the de-facto 'generic' values without any
+>> messiness or ambiguity about what they mean.
+>>
+>> Plus, each .dts file still specifies the exact version that is
+>> implemented on the board so that the driver can still fixup
+>> version-specific bugs if any are discovered in the future.
+>>
+> Ahh ok.
+> That does look like a good solution. I'll try and cook something up for
+> that.
 
-> Remote Controls shipped with some new Jetway ION system has two event
-> interfaces : Keyboard and Mouse. Mouse buttons work but keyboard buttons
-> doesn't.
-> 
-> The remote identifies itself as :
-> 
-> Vendor:Device 0x0755:0x2626
-> Cy se W-01RN USB_V3.1
-> 
-> the Remote Control has a bogus HID Report Descriptor. According to that report
-> descriptor, the maximum logical value for key events is 1 and not 101 (101
-> keys).
-> 
-> This quirk fixes this wrong Report Descriptor and is basically the same found
-> in hid-elecom.c.
-> 
-> This patch is originally from
-> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/607062 with changes to
-> not oops on linux-2.6.37.
-> 
-> 
-> Signed-off-by: Stephan Raue <stephan@openelec.tv>
+Hi Walter,
 
-Hi Stepahn,
+Can we use "kind" and "version" attribute of a sopcinfo file to build 
+the match string? This way, your dts converter won't need update for 
+each new component.
 
-thanks for the driver! 
+eg,
 
-A few comments though, before I can apply the driver
+kind="altera_avalon_spi" version="9.0" ==> "altera","avalon-spi-9.0"
 
-- please always CC me on patches against drivers/hid/
-- you are adding driver with Copyright of Franco Catrin 
-  <fcatrin@gmail.com>, but you are providing your own Signed-off-by only. 
-  What is the origin of the code, please?
-- additions to hid-ids.h don't really qualify for copyright
-- please don't add any new HID drivers with the 'EMBEDDED' stuff in 
-  Kconfig. You can read some explanation in the changelog text of commit 
-  73d5e8f77e88a4d3a154dfdbb4ed2cf461b7bf21 ("HID: fix up 'EMBEDDED' mess 
-  in Kconfig").
-- please send the patch inline in the message text, not attached
+kind="altera_up_avalon_ps2_classic" version="6.1" ==>
+   "altera","up-avalon-ps2-classic-6.1"
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+- Thomas

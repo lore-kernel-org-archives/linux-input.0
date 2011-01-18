@@ -1,63 +1,36 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] i8042 driver for unicore32 architecture
-Date: Mon, 17 Jan 2011 20:11:11 -0800
-Message-ID: <20110118041111.GA23678@core.coreip.homeip.net>
-References: <005b01cbb594$6398d9e0$2aca8da0$@mprc.pku.edu.cn>
- <20110117173932.GB15404@core.coreip.homeip.net>
- <00fd01cbb6c0$327510e0$975f32a0$@mprc.pku.edu.cn>
+Subject: Re: [PATCH 04/16] input: tnetv107x-touchscreen: don't treat NULL clk
+ as an error
+Date: Mon, 17 Jan 2011 20:25:35 -0800
+Message-ID: <20110118042535.GA23781@core.coreip.homeip.net>
+References: <1294749833-32019-1-git-send-email-jamie@jamieiles.com>
+ <1294749833-32019-5-git-send-email-jamie@jamieiles.com>
+ <20110112055640.GC22944@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:49573 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752641Ab1ARESf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Jan 2011 23:18:35 -0500
-Received: by gyb11 with SMTP id 11so2173852gyb.19
-        for <linux-input@vger.kernel.org>; Mon, 17 Jan 2011 20:18:34 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <00fd01cbb6c0$327510e0$975f32a0$@mprc.pku.edu.cn>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20110112055640.GC22944@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jamie Iles <jamie@jamieiles.com>
+Cc: linux-kernel@vger.kernel.org, Cyril Chemparathy <cyril@ti.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guan Xuetao <guanxuetao@mprc.pku.edu.cn>
-Cc: linux-input@vger.kernel.org
 
-On Tue, Jan 18, 2011 at 11:31:30AM +0800, Guan Xuetao wrote:
-> > > diff --git a/drivers/staging/puv3/i8042-ucio.h b/drivers/staging/puv3/i8042-ucio.h
-> > > new file mode 100644
-> > > index 0000000..c3221df
-> > > --- /dev/null
-> > > +++ b/drivers/staging/puv3/i8042-ucio.h
-> > > @@ -0,0 +1,89 @@
-> > > +/*
-> > > + * linux/drivers/staging/puv3/i8042-ucio.h
+On Tue, Jan 11, 2011 at 09:56:41PM -0800, Dmitry Torokhov wrote:
+> On Tue, Jan 11, 2011 at 12:43:41PM +0000, Jamie Iles wrote:
+> > clk_get() returns a struct clk cookie to the driver and some platforms
+> > may return NULL if they only support a single clock.  clk_get() has only
+> > failed if it returns a ERR_PTR() encoded pointer.
 > > 
-> > Please do not put filenames in the comments.
-> That's ok.
-> But why?
+> > Cc: Cyril Chemparathy <cyril@ti.com>
+> > Cc: linux-input@vger.kernel.org
+> > Signed-off-by: Jamie Iles <jamie@jamieiles.com>
+> 
+> Applied both, thank you Jamie.
+> 
 
-Because:
-
-1. It does not convey any additional information - your editor is sure
-capable of displaying the filename associated with a buffer, and
-
-2. It is one more thing that needs updating if you decide to move/rename
-the file.
-
-> > > +
-> > > +static inline int i8042_platform_init(void)
-> > > +{
-> > > +/*
-> > > + * On some platforms touching the i8042 data register region can do really
-> > > + * bad things. Because of this the region is always reserved on such boxes.
-> > > + */
-> > 
-> > The comment is in wrong place and is not applicable to your arch I
-> > think.
-> Ok, removed. Request_region and release_region are also removed.
-
-So are the regions reserved elsewhere? Might be a good idea to note this
-fact.
+Actually, if we pass clk that is NULL along we going to get oops on many
+arches, so I am going to change it to IS_ERR_OR_NULL.
 
 Thanks.
 

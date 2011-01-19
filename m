@@ -1,13 +1,15 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 1/3] Input: ad7877 - Convert to dev_pm_ops
-Date: Wed, 19 Jan 2011 12:45:37 +0000
-Message-ID: <1295441139-14706-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 3/3] Input: ads7846 - Convert to dev_pm_ops
+Date: Wed, 19 Jan 2011 12:45:39 +0000
+Message-ID: <1295441139-14706-3-git-send-email-broonie@opensource.wolfsonmicro.com>
+References: <1295441139-14706-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58153 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58152 "EHLO
 	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754221Ab1ASMpp (ORCPT
+	by vger.kernel.org with ESMTP id S1754212Ab1ASMpp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Wed, 19 Jan 2011 07:45:45 -0500
+In-Reply-To: <1295441139-14706-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -16,73 +18,71 @@ Cc: Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org, Mark Brown 
 There is a move to deprecate bus-specific PM operations and move to
 using dev_pm_ops instead in order to reduce the amount of boilerplate
 code in buses and facilitiate updates to the PM core. Do this move for
-the ad7879 SPI driver.
+the ads7846 driver.
 
 Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 ---
- drivers/input/touchscreen/ad7877.c |   19 ++++++++++---------
- 1 files changed, 10 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/ads7846.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index a1952fc..6ee868f 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -41,6 +41,7 @@
- #include <linux/delay.h>
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 14ea54b..ff13b93 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -26,6 +26,7 @@
  #include <linux/input.h>
  #include <linux/interrupt.h>
-+#include <linux/pm.h>
  #include <linux/slab.h>
++#include <linux/pm.h>
+ #include <linux/gpio.h>
  #include <linux/spi/spi.h>
- #include <linux/spi/ad7877.h>
-@@ -827,26 +828,25 @@ static int __devexit ad7877_remove(struct spi_device *spi)
+ #include <linux/spi/ads7846.h>
+@@ -892,9 +893,9 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
+ 	return IRQ_HANDLED;
  }
  
- #ifdef CONFIG_PM
--static int ad7877_suspend(struct spi_device *spi, pm_message_t message)
-+static int ad7877_suspend(struct device *dev)
+-static int ads7846_suspend(struct spi_device *spi, pm_message_t message)
++static int ads7846_suspend(struct device *dev)
  {
--	struct ad7877 *ts = dev_get_drvdata(&spi->dev);
-+	struct ad7877 *ts = dev_get_drvdata(dev);
+-	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
++	struct ads7846 *ts = dev_get_drvdata(dev);
  
- 	ad7877_disable(ts);
+ 	mutex_lock(&ts->lock);
  
+@@ -914,9 +915,9 @@ static int ads7846_suspend(struct spi_device *spi, pm_message_t message)
  	return 0;
  }
  
--static int ad7877_resume(struct spi_device *spi)
-+static int ad7877_resume(struct device *dev)
+-static int ads7846_resume(struct spi_device *spi)
++static int ads7846_resume(struct device *dev)
  {
--	struct ad7877 *ts = dev_get_drvdata(&spi->dev);
-+	struct ad7877 *ts = dev_get_drvdata(dev);
+-	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
++	struct ads7846 *ts = dev_get_drvdata(dev);
  
- 	ad7877_enable(ts);
+ 	mutex_lock(&ts->lock);
  
+@@ -936,6 +937,8 @@ static int ads7846_resume(struct spi_device *spi)
  	return 0;
  }
--#else
--#define ad7877_suspend NULL
--#define ad7877_resume  NULL
+ 
++static SIMPLE_DEV_PM_OPS(ads7846_pm, ads7846_suspend, ads7846_resume);
 +
-+static SIMPLE_DEV_PM_OPS(ad7877_pm, ad7877_suspend, ad7877_resume);
- #endif
- 
- static struct spi_driver ad7877_driver = {
-@@ -854,11 +854,12 @@ static struct spi_driver ad7877_driver = {
- 		.name	= "ad7877",
+ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads7846 *ts)
+ {
+ 	struct ads7846_platform_data *pdata = spi->dev.platform_data;
+@@ -1402,11 +1405,10 @@ static struct spi_driver ads7846_driver = {
+ 		.name	= "ads7846",
  		.bus	= &spi_bus_type,
  		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &ad7877_pm,
-+#endif
++		.pm	= &ads7846_pm,
  	},
- 	.probe		= ad7877_probe,
- 	.remove		= __devexit_p(ad7877_remove),
--	.suspend	= ad7877_suspend,
--	.resume		= ad7877_resume,
+ 	.probe		= ads7846_probe,
+ 	.remove		= __devexit_p(ads7846_remove),
+-	.suspend	= ads7846_suspend,
+-	.resume		= ads7846_resume,
  };
  
- static int __init ad7877_init(void)
+ static int __init ads7846_init(void)
 -- 
 1.7.2.3
 

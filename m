@@ -1,48 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5] input: tegra-kbc - Add tegra keyboard driver
-Date: Tue, 18 Jan 2011 21:23:24 -0800
-Message-ID: <20110119052324.GA27751@core.coreip.homeip.net>
-References: <1294943248-18631-1-git-send-email-riyer@nvidia.com>
- <20110118051216.GD23851@core.coreip.homeip.net>
- <1FC56210173BB445BD77F608D6FB8D03165A00807E@HQMAIL03.nvidia.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v5 0/4] Adding HID Feature Report Support to hidraw
+Date: Wed, 19 Jan 2011 13:17:00 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101191316230.26685@pobox.suse.cz>
+References: <1295337880-12452-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:33076 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750751Ab1ASFXc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Jan 2011 00:23:32 -0500
-Content-Disposition: inline
-In-Reply-To: <1FC56210173BB445BD77F608D6FB8D03165A00807E@HQMAIL03.nvidia.com>
+Received: from cantor2.suse.de ([195.135.220.15]:33612 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754101Ab1ASMRD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Jan 2011 07:17:03 -0500
+In-Reply-To: <1295337880-12452-1-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rakesh Iyer <riyer@nvidia.com>
-Cc: "tsoni@codeaurora.org" <tsoni@codeaurora.org>, "pavel@ucw.cz" <pavel@ucw.cz>, "shubhrajyoti@ti.com" <shubhrajyoti@ti.com>, "ccross@android.com" <ccross@android.com>, "konkers@android.com" <konkers@android.com>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Alan Ott <alan@signal11.us>, Marcel Holtmann <marcel@holtmann.org>
+Cc: "Gustavo F. Padovan" <padovan@profusion.mobi>, "David S. Miller" <davem@davemloft.net>, Michael Poole <mdpoole@troilus.org>, Eric Dumazet <eric.dumazet@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
 
-On Tue, Jan 18, 2011 at 07:28:29PM -0800, Rakesh Iyer wrote:
-> Sorry for the late response as I was not working on it on Monday.
+On Tue, 18 Jan 2011, Alan Ott wrote:
+
+> This patch adds Feature Report support for USB and Bluetooth HID devices
+> through hidraw.
 > 
-> The patch as is did not work. I am debugging this currently.
-
-Sorry about that. If you describe the effects you are seeing I might try
-to think where I messed up.
-
+> The first two patches prepare the bluetooth side for the change.
+> 	a. Make sure the hidp_session() thread is started before
+> 	   device's probe() functions are called.
+> 	b. Wait for ACK/NAK on sent reports, and return proper
+> 	   error codes.
+> The third patch is the hidraw core and USB changes.
+> The fourth patch is the Bluetooth changes.
 > 
-> Once I find a fix, can I resend all the driver code as one patch file?
-> I will include your 2nd patch in it as well.
-
-Sure.
-
+> Thanks to Antonio Ospite and Bill Good for providing testing and feedback.
 > 
-> Secondly, the driver is a platform driver for Tegra platforms. The
-> platform code needs some of the #defines to be present in kbc.h, so
-> you will see some of the defines moved back to kbc.h from tegra-kbc.c
 > 
+> Alan Ott (4):
+>   bt hidp: Move hid_add_device() call to after hidp_session() has
+>     started.
+>   bt hidp: Wait for ACK on Sent Reports
+>   HID: Add Support for Setting and Getting Feature Reports from hidraw
+>   Bluetooth hidp: Add support for hidraw HIDIOCGFEATURE and
+>     HIDIOCSFEATURE
+> 
+>  drivers/hid/hidraw.c          |  106 +++++++++++++++++++-
+>  drivers/hid/usbhid/hid-core.c |   35 +++++++
+>  include/linux/hid.h           |    3 +
+>  include/linux/hidraw.h        |    3 +
+>  net/bluetooth/hidp/core.c     |  214 ++++++++++++++++++++++++++++++++++++++---
+>  net/bluetooth/hidp/hidp.h     |   15 +++
 
-I only moved KBC_MAX_COL, KBC_MAX_ROW and KBC_MAX_KEY since they are
-not needed in keymaps expressed via struct matrix_keypad_data. But if
-they are needed for something else that's fine.
+Before proceeding with these patches, I'd really like to have comment 
+(ideally 'Acked-by') from Marcel on the net/bluetooth/hidp part, 
+obviously.
+
+Marcel?
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,56 +1,148 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [PATCH] input: replace request_irq by request_any_context_irq
- in keyboard GPIO driver
-Date: Thu, 20 Jan 2011 14:26:30 +0530
-Message-ID: <4D37F8BE.8040005@codeaurora.org>
-References: <1294825292-24134-1-git-send-email-philippe.langlais@stericsson.com> <1294825292-24134-2-git-send-email-philippe.langlais@stericsson.com> <20110120075348.GE30522@core.coreip.homeip.net> <4D37EB9F.4040103@codeaurora.org> <20110120081319.GC2498@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: move check for same handler in input_pass_event
+Date: Thu, 20 Jan 2011 00:56:54 -0800
+Message-ID: <20110120085654.GA19696@core.coreip.homeip.net>
+References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
+ <20110107060456.GA29038@core.coreip.homeip.net>
+ <20110107102434.7776091d@kcaccard-MOBL3>
+ <20110107192938.GB28875@core.coreip.homeip.net>
+ <4D276A51.5030102@linux.intel.com>
+ <20110107194313.GC28875@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine01.qualcomm.com ([199.106.114.254]:3528 "EHLO
-	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753118Ab1ATI4n (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:43359 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753118Ab1ATI5F (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Jan 2011 03:56:43 -0500
-In-Reply-To: <20110120081319.GC2498@core.coreip.homeip.net>
+	Thu, 20 Jan 2011 03:57:05 -0500
+Received: by pzk35 with SMTP id 35so59268pzk.19
+        for <linux-input@vger.kernel.org>; Thu, 20 Jan 2011 00:57:04 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20110107194313.GC28875@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Philippe Langlais <philippe.langlais@stericsson.com>, linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Kristen Carlson Accardi <kristen@linux.intel.com>, linux-input@vger.kernel.org, Jason Wessel <jason.wessel@windriver.com>
 
-Hi Dmitry,
-
-On 1/20/2011 1:43 PM, Dmitry Torokhov wrote:
->>>
->>> No, this it not correct. request_any_context_irq() means that you could
->>> either get a hardirq or a treaded one. However above you are changing to
->>> gpio_get_value_cansleep() which indicates that you can sleep.
->>>
->>> You need to either revert to gpio_get_value() or explicitly request
->>> threaded IRQ.
->>
->> This could be problem. Say, we are doing request_any_context_irq(..) and gpio is over slow-bus,
->> so we naturally get into the threaded code, and in the thread handler we are calling gpio_get_value(..),
->> but in this case gpio_get_value could throw a warning that we should call gpio_get_value_cansleep(...)
->> because sleep attribute is added into the gpiolib hook implementation for these gpios.
->>
->> Now suppose gpio is memory mapped and we enter into the hardirq and calling sleep variant into the 
->> handler code will be naturally bad. 
->>
->> How about checking maysleep explicitly here while using the request_any_context_irq() call though
->> the semantics of gpiolib framework discourages that. 
->>
+On Fri, Jan 07, 2011 at 11:43:13AM -0800, Dmitry Torokhov wrote:
+> On Fri, Jan 07, 2011 at 11:32:33AM -0800, Arjan van de Ven wrote:
+> > On 1/7/2011 11:29 AM, Dmitry Torokhov wrote:
+> > >On Fri, Jan 07, 2011 at 10:24:34AM -0800, Kristen Carlson Accardi wrote:
+> > >>On Thu, 6 Jan 2011 22:04:56 -0800
+> > >>Dmitry Torokhov<dmitry.torokhov@gmail.com>  wrote:
+> > >>
+> > >>>On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
+> > >>>>If the handler that injected an event is the same,
+> > >>>>just skip the filter, but allow the handler->event()
+> > >>>>routine to be called.  This allows evdev to be able to
+> > >>>>be used to loopback events.
+> > >>>Why is it needed? Could you please give some examples?
+> > >>>
+> > >>>Thanks.
+> > >>>
+> > >>We have a customer who has a touchscreen device which sends
+> > >>a bitmap into a gesture engine, which then interprets that
+> > >>result and feeds it back into the kernel through a virtual
+> > >>input driver that X is listening to.
+> > >That really should be done though uinput.
+> > 
+> > quite possible.
+> > 
+> > but the application already exists, and works just fine in 2.6.35...
+> > causing this to be classified as a kernel ABI regression ;-(
+> > 
 > 
-> Any drawbacks for explicitly switching to threaded IRQ and keeping
-> gpio_get_value_cansleep()? (That was the 2nd option I mentioned BTW).
+> Hmm... I'd probably call it "relying on implementation details not
+> spelled out anywhere".
+> 
+> Anyway, let me ponder this one a bit...
 > 
 
-Only drawback is that you get "dedicated thread" in case the irqs are not chained handler. In worst-case
-it would introduce the latencies otherwise fine.
+OK, I think if we apply the patch below and then completely revert
+5fdbe44d033d059cc56c2803e6b4dbd8cb4e5e39 we'll get the behavior we
+want.
 
----Trilok Soni
+Jason, could you please try this and see if SysRq still works for you?
+
+Thanks!
 
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Dmitry
+
+Input: sysrq - rework re-inject logic
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Internally 'disable' the filter when re-injecting Alt-SysRq instead
+of relying on input core to suppress delivery of injected events
+to the originating handler.
+
+This allows to revert commit 5fdbe44d033d059cc56c2803e6b4dbd8cb4e5e39
+which causes problems with existing userspace programs trying to
+loopback the events via evdev.
+
+Reported-by: Kristen Carlson Accardi <kristen@linux.intel.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/tty/sysrq.c |   17 ++++++++++++++++-
+ 1 files changed, 16 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+index c556ed9..ef3a983 100644
+--- a/drivers/tty/sysrq.c
++++ b/drivers/tty/sysrq.c
+@@ -571,6 +571,7 @@ struct sysrq_state {
+ 	unsigned int alt_use;
+ 	bool active;
+ 	bool need_reinject;
++	bool reinjecting;
+ };
+ 
+ static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+@@ -581,6 +582,10 @@ static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+ 	unsigned int alt_code = sysrq->alt_use;
+ 
+ 	if (sysrq->need_reinject) {
++		/* we do not want the assignment to be reordered */
++		sysrq->reinjecting = true;
++		mb();
++
+ 		/* Simulate press and release of Alt + SysRq */
+ 		input_inject_event(handle, EV_KEY, alt_code, 1);
+ 		input_inject_event(handle, EV_KEY, KEY_SYSRQ, 1);
+@@ -589,6 +594,9 @@ static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+ 		input_inject_event(handle, EV_KEY, KEY_SYSRQ, 0);
+ 		input_inject_event(handle, EV_KEY, alt_code, 0);
+ 		input_inject_event(handle, EV_SYN, SYN_REPORT, 1);
++
++		mb();
++		sysrq->reinjecting = false;
+ 	}
+ }
+ 
+@@ -599,6 +607,13 @@ static bool sysrq_filter(struct input_handle *handle,
+ 	bool was_active = sysrq->active;
+ 	bool suppress;
+ 
++	/*
++	 * Do not filter anything if we are in the process of re-injecting
++	 * Alt+SysRq combination.
++	 */
++	if (sysrq->reinjecting)
++		return false;
++
+ 	switch (type) {
+ 
+ 	case EV_SYN:
+@@ -629,7 +644,7 @@ static bool sysrq_filter(struct input_handle *handle,
+ 				sysrq->alt_use = sysrq->alt;
+ 				/*
+ 				 * If nothing else will be pressed we'll need
+-				 * to * re-inject Alt-SysRq keysroke.
++				 * to re-inject Alt-SysRq keysroke.
+ 				 */
+ 				sysrq->need_reinject = true;
+ 			}

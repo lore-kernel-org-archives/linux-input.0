@@ -1,44 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v7] input: tegra-kbc - Add tegra keyboard driver
-Date: Wed, 19 Jan 2011 23:42:52 -0800
-Message-ID: <20110120074252.GC30522@core.coreip.homeip.net>
-References: <1295485917-21278-1-git-send-email-riyer@nvidia.com>
- <4D37E265.9060304@codeaurora.org>
- <20110120072948.GA30522@core.coreip.homeip.net>
- <4D37E539.6020301@codeaurora.org>
+Subject: Re: [PATCH] input: replace request_irq by request_any_context_irq in
+ keyboard GPIO driver
+Date: Wed, 19 Jan 2011 23:53:48 -0800
+Message-ID: <20110120075348.GE30522@core.coreip.homeip.net>
+References: <1294825292-24134-1-git-send-email-philippe.langlais@stericsson.com>
+ <1294825292-24134-2-git-send-email-philippe.langlais@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:49694 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753404Ab1ATHm6 (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:41582 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754070Ab1ATHxz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Jan 2011 02:42:58 -0500
+	Thu, 20 Jan 2011 02:53:55 -0500
+Received: by iyj18 with SMTP id 18so293916iyj.19
+        for <linux-input@vger.kernel.org>; Wed, 19 Jan 2011 23:53:55 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <4D37E539.6020301@codeaurora.org>
+In-Reply-To: <1294825292-24134-2-git-send-email-philippe.langlais@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>
-Cc: riyer@nvidia.com, pavel@ucw.cz, shubhrajyoti@ti.com, ccross@android.com, konkers@android.com, olof@lixom.net, achew@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Philippe Langlais <philippe.langlais@stericsson.com>
+Cc: linux-input@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, Trilok Soni <tsoni@codeaurora.org>
 
-On Thu, Jan 20, 2011 at 01:03:13PM +0530, Trilok Soni wrote:
-> Hi Dmitry,
-> 
-> >>
-> >> Wearing my legal hat. You might want to do 2010-2011 ?
-> > 
-> > OK, Rakesh, if you want copyright adjusted please shout and I can fix it
-> > up locally.
-> > 
-> > Trilok, I understand you are happy, right? Can I put you down as
-> > reviewed-by?
-> 
-> Yes. 
-> 
-> Reviewed-by: Trilok Soni <tsoni@codeaurora.org>
-> 
+Hi Philippe,
 
-Great, thanks.
+On Wed, Jan 12, 2011 at 10:41:32AM +0100, Philippe Langlais wrote:
+> Signed-off-by: Philippe Langlais <philippe.langlais@stericsson.com>
+> ---
+>  drivers/input/keyboard/gpio_keys.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 6069abe..eb30063 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -322,7 +322,7 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
+>  	struct gpio_keys_button *button = bdata->button;
+>  	struct input_dev *input = bdata->input;
+>  	unsigned int type = button->type ?: EV_KEY;
+> -	int state = (gpio_get_value(button->gpio) ? 1 : 0) ^ button->active_low;
+> +	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+>  
+>  	input_event(input, type, button->code, !!state);
+>  	input_sync(input);
+> @@ -410,8 +410,8 @@ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+>  	if (!button->can_disable)
+>  		irqflags |= IRQF_SHARED;
+>  
+> -	error = request_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
+> -	if (error) {
+> +	error = request_any_context_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
+> +	if (error < 0) {
+
+No, this it not correct. request_any_context_irq() means that you could
+either get a hardirq or a treaded one. However above you are changing to
+gpio_get_value_cansleep() which indicates that you can sleep.
+
+You need to either revert to gpio_get_value() or explicitly request
+threaded IRQ.
+
+Thanks.
 
 -- 
 Dmitry

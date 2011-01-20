@@ -1,36 +1,43 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/2] HID: roccat: Add support for Arvo, small bugfix and
- a question
-Date: Thu, 20 Jan 2011 11:29:51 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101201129020.29002@pobox.suse.cz>
-References: <1294300829.5622.57.camel@neuromancer>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [v4 3/3] 3/3 spi: Cypress TTSP G3 SPI Device Driver
+Date: Thu, 20 Jan 2011 16:40:35 +0530
+Message-ID: <4D38182B.60803@codeaurora.org>
+References: <kev@cypress.com> <1294188847-24728-3-git-send-email-kev@cypress.com> <20110112184550.GB9168@core.coreip.homeip.net> <FB9C2CB29A07AB45B575A4E8D2AABC0901490D54@labamba.mis.cypress.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1294300829.5622.57.camel@neuromancer>
-Sender: linux-doc-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:10424 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755378Ab1ATLKo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Jan 2011 06:10:44 -0500
+In-Reply-To: <FB9C2CB29A07AB45B575A4E8D2AABC0901490D54@labamba.mis.cypress.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kevin McNeely <Kevin.McNeely@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Henrik Rydberg <rydberg@euromail.se>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 6 Jan 2011, Stefan Achatz wrote:
+Hi Dmitry,
 
-> This patchset adds support for the Roccat Arvo keyboard.
-> The driver is similar to my other roccat drivers.
+On 1/13/2011 12:32 AM, Kevin McNeely wrote:
+> Hi Dmitry,
+> 
+> Thank you for your review.
+> 
+> Will the existing patches get into the current merge?
+> 
+> Can I revisit this discussion as part of our plan to provide a Protocol
+> B driver?
+> 
+> Thanks and best regards,
+> Kevin
+> 
 
-Applied, thanks for the driver, Stefan.
+Any updates on Kevin's question here?
 
-> I'm now finished implementing new device support and my next step would 
-> be to abstract similarities to reduce code duplication.
-
-That would be very welcome.
-
-> Has the resulting file to be a module named like "roccat-common" that 
-> has to be selected as depencendy in Kconfig or is there another 
-> mechanism to hide this gratuitous decicion from the user?
-
-Yes, I think this would be a reasonable implementation in this case.
+---Trilok Soni
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

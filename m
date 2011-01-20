@@ -1,118 +1,56 @@
-From: David Engraf <david.engraf@sysgo.com>
-Subject: Re: [PATCH] serio: allow registered drivers to get status flag
-Date: Thu, 20 Jan 2011 10:05:51 +0100
-Message-ID: <4D37FAEF.8080504@sysgo.com>
-References: <4D358E31.4080700@sysgo.com> <20110118195710.GA27152@core.coreip.homeip.net>
+From: Rabin Vincent <rabin.vincent@stericsson.com>
+Subject: Re: [PATCH] input: replace request_irq by request_any_context_irq
+ in keyboard GPIO driver
+Date: Thu, 20 Jan 2011 14:53:30 +0530
+Message-ID: <20110120092330.GA1316@bnru05.bnr.st.com>
+References: <1294825292-24134-1-git-send-email-philippe.langlais@stericsson.com>
+ <1294825292-24134-2-git-send-email-philippe.langlais@stericsson.com>
+ <20110120075348.GE30522@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------030903060408030906070601"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110118195710.GA27152@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eu1sys200aog108.obsmtp.com ([207.126.144.125]:59642 "EHLO
+	eu1sys200aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755103Ab1ATJYG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Jan 2011 04:24:06 -0500
+Content-Disposition: inline
+In-Reply-To: <20110120075348.GE30522@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Philippe LANGLAIS <philippe.langlais@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, Trilok Soni <tsoni@codeaurora.org>
 
-This is a multi-part message in MIME format.
---------------030903060408030906070601
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Jan 20, 2011 at 08:53:48 +0100, Dmitry Torokhov wrote:
+> On Wed, Jan 12, 2011 at 10:41:32AM +0100, Philippe Langlais wrote:
+> > diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> > index 6069abe..eb30063 100644
+> > --- a/drivers/input/keyboard/gpio_keys.c
+> > +++ b/drivers/input/keyboard/gpio_keys.c
+> > @@ -322,7 +322,7 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
+> >  	struct gpio_keys_button *button = bdata->button;
+> >  	struct input_dev *input = bdata->input;
+> >  	unsigned int type = button->type ?: EV_KEY;
+> > -	int state = (gpio_get_value(button->gpio) ? 1 : 0) ^ button->active_low;
+> > +	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+> >  
+> >  	input_event(input, type, button->code, !!state);
+> >  	input_sync(input);
+> > @@ -410,8 +410,8 @@ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+> >  	if (!button->can_disable)
+> >  		irqflags |= IRQF_SHARED;
+> >  
+> > -	error = request_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
+> > -	if (error) {
+> > +	error = request_any_context_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
+> > +	if (error < 0) {
+> 
+> No, this it not correct. request_any_context_irq() means that you could
+> either get a hardirq or a treaded one. However above you are changing to
+> gpio_get_value_cansleep() which indicates that you can sleep.
 
-Am 18.01.2011 20:57, schrieb Dmitry Torokhov:
-> On Tue, Jan 18, 2011 at 01:57:21PM +0100, David Engraf wrote:
->> Parse the status byte information to the registered serio drivers as
->> well as the character bytes.
->>
->> Signed-off-by: David Engraf<david.engraf@sysgo.com>
->>
->
->> --- linux-2.6.37/drivers/input/serio/serport.c.orig	2011-01-18 12:33:41.421709232 +0100
->> +++ linux-2.6.37/drivers/input/serio/serport.c	2011-01-18 13:33:24.521711214 +0100
->> @@ -116,8 +116,8 @@ static void serport_ldisc_close(struct t
->>
->>   /*
->>    * serport_ldisc_receive() is called by the low level tty driver when characters
->> - * are ready for us. We forward the characters, one by one to the 'interrupt'
->> - * routine.
->> + * are ready for us. We forward the characters and flags, one by one to the
->> + * 'interrupt' routine.
->>    */
->>
->>   static void serport_ldisc_receive(struct tty_struct *tty, const unsigned char *cp, char *fp, int count)
->> @@ -132,7 +132,7 @@ static void serport_ldisc_receive(struct
->>   		goto out;
->>
->>   	for (i = 0; i<  count; i++)
->> -		serio_interrupt(serport->serio, cp[i], 0);
->> +		serio_interrupt(serport->serio, cp[i], fp[i]);
->>
->
-> Hi David,
->
-> The flags argument that serio_interrupt() accepts not the raw protocol
-> data, but sanitized, protocol-independent SERIO_TIMEOUT, SERIO_PARITY
-> and SERIO_FRAME bits.
->
-> Thanks.
->
+Note that gpio_get_value_cansleep() is not being called from the interrupt
+handler (threaded or not), but from a work queue.
 
-Hi Dmitry,
+Rabin
 
-I've updated the patch so that the raw protocol is converted to the 
-SERIO_ bits. The raw protocol can parse only one flag, so I don't need 
-to store multiple SERIO_ bits in the character flag variable.
-
-Thanks
-- David
-
-
-Signed-off-by: David Engraf<david.engraf@sysgo.com>
-
-
---------------030903060408030906070601
-Content-Type: text/x-diff;
- name="serport_parse_flags.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="serport_parse_flags.diff"
-
---- linux-2.6.37/drivers/input/serio/serport.c.orig	2011-01-18 12:33:41.421709232 +0100
-+++ linux-2.6.37/drivers/input/serio/serport.c	2011-01-20 09:55:53.849550065 +0100
-@@ -116,14 +116,15 @@ static void serport_ldisc_close(struct t
- 
- /*
-  * serport_ldisc_receive() is called by the low level tty driver when characters
-- * are ready for us. We forward the characters, one by one to the 'interrupt'
-- * routine.
-+ * are ready for us. We forward the characters and flags, one by one to the 
-+ * 'interrupt' routine.
-  */
- 
- static void serport_ldisc_receive(struct tty_struct *tty, const unsigned char *cp, char *fp, int count)
- {
- 	struct serport *serport = (struct serport*) tty->disc_data;
- 	unsigned long flags;
-+	unsigned int ch_flags;
- 	int i;
- 
- 	spin_lock_irqsave(&serport->lock, flags);
-@@ -131,8 +132,15 @@ static void serport_ldisc_receive(struct
- 	if (!test_bit(SERPORT_ACTIVE, &serport->flags))
- 		goto out;
- 
--	for (i = 0; i < count; i++)
--		serio_interrupt(serport->serio, cp[i], 0);
-+	for (i = 0; i < count; i++) {
-+		ch_flags = 0;
-+		if (fp[i] == TTY_FRAME)
-+			ch_flags = SERIO_FRAME;
-+		else if (fp[i] == TTY_PARITY)
-+			ch_flags = SERIO_PARITY;
-+
-+		serio_interrupt(serport->serio, cp[i], ch_flags);
-+	}
- 
- out:
- 	spin_unlock_irqrestore(&serport->lock, flags);
-
---------------030903060408030906070601--

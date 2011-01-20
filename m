@@ -1,94 +1,51 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH 3/3] Input: ads7846 - Convert to dev_pm_ops
-Date: Thu, 20 Jan 2011 21:20:46 +0000
-Message-ID: <544AC56F16B56944AEC3BD4E3D591771324C0A8BC3@LIMKCMBX1.ad.analog.com>
-References: <1295557823-20907-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1295557823-20907-3-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: EVIOC mechanism for MT slots
+Date: Thu, 20 Jan 2011 16:10:15 -0500
+Message-ID: <4D38A4B7.7060901@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:39143 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753838Ab1ATVUv convert rfc822-to-8bit (ORCPT
+Received: from fox.seas.upenn.edu ([158.130.68.12]:51303 "EHLO
+	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754259Ab1ATVVp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Jan 2011 16:20:51 -0500
-In-Reply-To: <1295557823-20907-3-git-send-email-broonie@opensource.wolfsonmicro.com>
-Content-Language: en-US
+	Thu, 20 Jan 2011 16:21:45 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosi>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>
 
-Mark Brown wrote on 2011-01-20:
-> There is a move to deprecate bus-specific PM operations and move to
-> using dev_pm_ops instead in order to reduce the amount of boilerplate
-> code in buses and facilitiate updates to the PM core. Do this move for
-> the ads7846 driver.
->
-> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Looks good to me.
+We've come across a little problem with filtered MT events.  It seems there
+isn't a mechanism to request the full state.  If a program opens a device
+there's no way it can see static objects.
 
-Acked-by: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Consider for example a board game.  If the user puts the pieces on a MT surface
+before starting the application, those pieces will not register and the state of
+the game will be incorrect.
 
-> ---
->  drivers/input/touchscreen/ads7846.c |   16 ++++++++++------
->  1 files changed, 10 insertions(+), 6 deletions(-)
-> diff --git a/drivers/input/touchscreen/ads7846.c
-> b/drivers/input/touchscreen/ads7846.c index 14ea54b..b31e90f 100644 ---
-> a/drivers/input/touchscreen/ads7846.c +++
-> b/drivers/input/touchscreen/ads7846.c @@ -26,6 +26,7 @@
->  #include <linux/input.h> #include <linux/interrupt.h> #include
->  <linux/slab.h> +#include <linux/pm.h> #include <linux/gpio.h> #include
->  <linux/spi/spi.h> #include <linux/spi/ads7846.h>
-> @@ -892,9 +893,10 @@ static irqreturn_t ads7846_irq(int irq, void
-> *handle)
->       return IRQ_HANDLED;
->  }
-> -static int ads7846_suspend(struct spi_device *spi, pm_message_t
-> message) +#ifdef CONFIG_PM_SLEEP +static int ads7846_suspend(struct
-> device *dev)
->  {
-> -     struct ads7846 *ts = dev_get_drvdata(&spi->dev);
-> +     struct ads7846 *ts = dev_get_drvdata(dev);
->
->       mutex_lock(&ts->lock);
-> @@ -914,9 +916,9 @@ static int ads7846_suspend(struct spi_device *spi,
-> pm_message_t message)
->       return 0;
->  }
-> -static int ads7846_resume(struct spi_device *spi)
-> +static int ads7846_resume(struct device *dev)
->  {
-> -     struct ads7846 *ts = dev_get_drvdata(&spi->dev);
-> +     struct ads7846 *ts = dev_get_drvdata(dev);
->
->       mutex_lock(&ts->lock);
-> @@ -935,6 +937,9 @@ static int ads7846_resume(struct spi_device *spi)
->
->       return 0;
->  }
-> +#endif + +static SIMPLE_DEV_PM_OPS(ads7846_pm, ads7846_suspend,
-> +ads7846_resume);
->
->  static int __devinit ads7846_setup_pendown(struct spi_device *spi,
-> struct ads7846 *ts)  { @@ -1402,11 +1407,10 @@ static struct
-> spi_driver ads7846_driver = {
->               .name   = "ads7846",            .bus    = &spi_bus_type,                .owner  = THIS_MODULE,
->  +            .pm     = &ads7846_pm,  },      .probe          = ads7846_probe,        .remove         =
->  __devexit_p(ads7846_remove),
-> -     .suspend        = ads7846_suspend,
-> -     .resume         = ads7846_resume,
->  };
->
->  static int __init ads7846_init(void)
+If there's opposition to this request, I suggest settling the dispute with a
+game of MT battleship :-)
 
-Greetings,
-Michael
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
---
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368; Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
-
-
+iQIcBAEBAgAGBQJNOKS3AAoJEPILXytRLnK2HssP/0HfUm6pcvI6DyRu5xUzVWWd
+THJ4lx9wytcxMkXucKugkai1l8lC60wUQeof1vE+T5TNWbQWPlA/dL+cmSGLCMkj
+4JHXUg0p91I54oNwcRmkutxw+G9YOq45O4qHWaKUNVrxapaGnY74cnYlSDYo3Jec
+OALRdV+flJAmdZPNhAuQAdSTn30QE4TSbcmIveYYy9WEsC1416Qx1zXFkNlaRrf/
+ytKe+oKg3tlVzcQ+sSjEMimRGoMmNnGv5EQ0ZdFVFIOphuqLWoWv6nE1ziiFiwWL
+bSoYN9vVjgBfUmhp+tOdxdKJMwARxoUiKsa/i2etyukJI5ULJ6s1I1oc3MQCw30m
+CUoe6jTkW9MPpMdZIN7ip2RNmCoCg5wQKZTlw/gx20ZTYBlaY0msdcf81O78/HuJ
+MqUqiCuI2ytnyKJQboOgfwmf6sau9BW4g36qkAdkITuunr653gCeHdTAMtETfAJ0
+EVHyGC2jMI+X+rkBWL2I2Ax0r+Vvtvna/cuC+KrOBY0nIkr02ed3azeF0CJoblps
+wr844XGgHsnus9nscSERLBVW4y0RvUt2AhX5JUChF4xM8zDTItY4CojCyg50Crc+
+J/3c/8QUBhSHgnDXxN4YEdxLlz3/xf/u2qaf/dVnY5P5sh6y6WoxjhHhI3M19yLq
+j26XxoED92WXFuz5Hv9s
+=GrDk
+-----END PGP SIGNATURE-----

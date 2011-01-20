@@ -1,125 +1,69 @@
-From: Trilok Soni <tsoni@codeaurora.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH v7] input: tegra-kbc - Add tegra keyboard driver
-Date: Thu, 20 Jan 2011 12:51:09 +0530
-Message-ID: <4D37E265.9060304@codeaurora.org>
+Date: Wed, 19 Jan 2011 23:29:48 -0800
+Message-ID: <20110120072948.GA30522@core.coreip.homeip.net>
 References: <1295485917-21278-1-git-send-email-riyer@nvidia.com>
+ <4D37E265.9060304@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine01.qualcomm.com ([199.106.114.254]:37074 "EHLO
-	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751721Ab1ATHVR (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:65029 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751088Ab1ATH34 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Jan 2011 02:21:17 -0500
-In-Reply-To: <1295485917-21278-1-git-send-email-riyer@nvidia.com>
+	Thu, 20 Jan 2011 02:29:56 -0500
+Content-Disposition: inline
+In-Reply-To: <4D37E265.9060304@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: riyer@nvidia.com
-Cc: dmitry.torokhov@gmail.com, pavel@ucw.cz, shubhrajyoti@ti.com, ccross@android.com, konkers@android.com, olof@lixom.net, achew@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Trilok Soni <tsoni@codeaurora.org>
+Cc: riyer@nvidia.com, pavel@ucw.cz, shubhrajyoti@ti.com, ccross@android.com, konkers@android.com, olof@lixom.net, achew@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Rakesh,
-
-On 1/20/2011 6:41 AM, riyer@nvidia.com wrote:
-> From: Rakesh Iyer <riyer@nvidia.com>
+On Thu, Jan 20, 2011 at 12:51:09PM +0530, Trilok Soni wrote:
+> Hi Rakesh,
 > 
-> This patch adds support for the internal matrix keyboard controller for
-> Nvidia Tegra platforms.
+> On 1/20/2011 6:41 AM, riyer@nvidia.com wrote:
+> > From: Rakesh Iyer <riyer@nvidia.com>
+> > 
+> > This patch adds support for the internal matrix keyboard controller for
+> > Nvidia Tegra platforms.
+> > 
+> > Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
+> > ---
+> > Fixed the stupid loop variable change.
+> > Fixed some code styling problems reported by checkpatch.pl.
+> > 
 > 
-> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> ---
-> Fixed the stupid loop variable change.
-> Fixed some code styling problems reported by checkpatch.pl.
+> Thanks a ton for creating quick revisions :)
 > 
-
-Thanks a ton for creating quick revisions :)
-
->  arch/arm/mach-tegra/include/mach/kbc.h |   61 +++
->  drivers/input/keyboard/Kconfig         |   10 +
->  drivers/input/keyboard/Makefile        |    1 +
->  drivers/input/keyboard/tegra-kbc.c     |  727 ++++++++++++++++++++++++++++++++
->  4 files changed, 799 insertions(+), 0 deletions(-)
->  create mode 100644 arch/arm/mach-tegra/include/mach/kbc.h
->  create mode 100644 drivers/input/keyboard/tegra-kbc.c
+> >  arch/arm/mach-tegra/include/mach/kbc.h |   61 +++
+> >  drivers/input/keyboard/Kconfig         |   10 +
+> >  drivers/input/keyboard/Makefile        |    1 +
+> >  drivers/input/keyboard/tegra-kbc.c     |  727 ++++++++++++++++++++++++++++++++
+> >  4 files changed, 799 insertions(+), 0 deletions(-)
+> >  create mode 100644 arch/arm/mach-tegra/include/mach/kbc.h
+> >  create mode 100644 drivers/input/keyboard/tegra-kbc.c
+> > 
+> > diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
+> > new file mode 100644
+> > index 0000000..60d646c
+> > --- /dev/null
+> > +++ b/arch/arm/mach-tegra/include/mach/kbc.h
+> > @@ -0,0 +1,61 @@
+> > +/*
+> > + * Platform definitions for tegra-kbc keyboard input driver
+> > + *
+> > + * Copyright (c) 2010, NVIDIA Corporation.
 > 
-> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
-> new file mode 100644
-> index 0000000..60d646c
-> --- /dev/null
-> +++ b/arch/arm/mach-tegra/include/mach/kbc.h
-> @@ -0,0 +1,61 @@
-> +/*
-> + * Platform definitions for tegra-kbc keyboard input driver
-> + *
-> + * Copyright (c) 2010, NVIDIA Corporation.
+> Wearing my legal hat. You might want to do 2010-2011 ?
 
-Wearing my legal hat. You might want to do 2010-2011 ?
+OK, Rakesh, if you want copyright adjusted please shout and I can fix it
+up locally.
 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 9cc488d..8be47da 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -327,6 +327,16 @@ config KEYBOARD_NEWTON
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called newtonkbd.
->  
-> +config KEYBOARD_TEGRA
-> +	tristate "NVIDIA Tegra internal matrix keyboard controller support"
-> +	depends on ARCH_TEGRA
-> +	help
-> +	  Say Y here if you want to use a matrix keyboard connected directly
-> +	  to the internal keyboard controller on Tegra SoCs.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called tegra-kbc.
-> +
->  config KEYBOARD_OPENCORES
->  	tristate "OpenCores Keyboard Controller"
->  	help
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 504b591..ac0dcb9 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -38,6 +38,7 @@ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
->  obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
->  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
->  obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
-> +obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
->  obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
->  obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
->  obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> new file mode 100644
-> index 0000000..33ac315
-> --- /dev/null
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -0,0 +1,727 @@
-> +/*
-> + * Keyboard class input driver for the NVIDIA Tegra SoC internal matrix
-> + * keyboard controller
-> + *
-> + * Copyright (c) 2009-2010, NVIDIA Corporation.
+Trilok, I understand you are happy, right? Can I put you down as
+reviewed-by?
 
-2009-2011
-
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful, but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-> + * more details.
-> + *
-> + * You should have received a copy of the GNU General Public License along
-> + * with this program; if not, write to the Free Software Foundation, Inc.,
-> + * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-> + */
-
----Trilok Soni
+Thanks.
 
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Dmitry

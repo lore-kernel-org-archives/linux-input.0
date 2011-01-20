@@ -1,86 +1,88 @@
 From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH 2/3] Input: ad7879 - Convert SPI to dev_pm_ops
-Date: Thu, 20 Jan 2011 21:19:38 +0000
-Message-ID: <544AC56F16B56944AEC3BD4E3D591771324C0A8BC1@LIMKCMBX1.ad.analog.com>
+Subject: RE: [PATCH 3/3] Input: ads7846 - Convert to dev_pm_ops
+Date: Thu, 20 Jan 2011 21:20:46 +0000
+Message-ID: <544AC56F16B56944AEC3BD4E3D591771324C0A8BC3@LIMKCMBX1.ad.analog.com>
 References: <1295557823-20907-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1295557823-20907-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <1295557823-20907-3-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:51628 "EHLO
+Received: from nwd2mail11.analog.com ([137.71.25.57]:39143 "EHLO
 	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754250Ab1ATVTn convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1753838Ab1ATVUv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Jan 2011 16:19:43 -0500
-In-Reply-To: <1295557823-20907-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Thu, 20 Jan 2011 16:20:51 -0500
+In-Reply-To: <1295557823-20907-3-git-send-email-broonie@opensource.wolfsonmicro.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
 Mark Brown wrote on 2011-01-20:
 > There is a move to deprecate bus-specific PM operations and move to
 > using dev_pm_ops instead in order to reduce the amount of boilerplate
 > code in buses and facilitiate updates to the PM core. Do this move for
-> the ad7979 SPI driver.
+> the ads7846 driver.
 >
 > Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+
+Looks good to me.
+
 Acked-by: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+
 > ---
->  drivers/input/touchscreen/ad7879-spi.c |   17 +++++++++--------
->  1 files changed, 9 insertions(+), 8 deletions(-)
-> diff --git a/drivers/input/touchscreen/ad7879-spi.c
-> b/drivers/input/touchscreen/ad7879-spi.c index 59c6e68..ddf732f 100644
-> --- a/drivers/input/touchscreen/ad7879-spi.c +++
-> b/drivers/input/touchscreen/ad7879-spi.c @@ -7,6 +7,7 @@
->   */
->  #include <linux/input.h>     /* BUS_SPI */ +#include <linux/pm.h> #include
->  <linux/spi/spi.h>
+>  drivers/input/touchscreen/ads7846.c |   16 ++++++++++------
+>  1 files changed, 10 insertions(+), 6 deletions(-)
+> diff --git a/drivers/input/touchscreen/ads7846.c
+> b/drivers/input/touchscreen/ads7846.c index 14ea54b..b31e90f 100644 ---
+> a/drivers/input/touchscreen/ads7846.c +++
+> b/drivers/input/touchscreen/ads7846.c @@ -26,6 +26,7 @@
+>  #include <linux/input.h> #include <linux/interrupt.h> #include
+>  <linux/slab.h> +#include <linux/pm.h> #include <linux/gpio.h> #include
+>  <linux/spi/spi.h> #include <linux/spi/ads7846.h>
+> @@ -892,9 +893,10 @@ static irqreturn_t ads7846_irq(int irq, void
+> *handle)
+>       return IRQ_HANDLED;
+>  }
+> -static int ads7846_suspend(struct spi_device *spi, pm_message_t
+> message) +#ifdef CONFIG_PM_SLEEP +static int ads7846_suspend(struct
+> device *dev)
+>  {
+> -     struct ads7846 *ts = dev_get_drvdata(&spi->dev);
+> +     struct ads7846 *ts = dev_get_drvdata(dev);
 >
->  #include "ad7879.h" @@ -20,9 +21,10 @@ #define AD7879_WRITECMD(reg)
->  (AD7879_CMD(reg))  #define
-> AD7879_READCMD(reg)  (AD7879_CMD(reg) | AD7879_CMD_READ)
->
-> -#ifdef CONFIG_PM -static int ad7879_spi_suspend(struct spi_device *spi,
-> pm_message_t message) +#ifdef CONFIG_PM_SLEEP +static int
-> ad7879_spi_suspend(struct device *dev)
->  { +  struct spi_device *spi = to_spi_device(dev);    struct ad7879 *ts =
->  spi_get_drvdata(spi);
->
->       ad7879_suspend(ts);
-> @@ -30,19 +32,19 @@ static int ad7879_spi_suspend(struct spi_device
-> *spi, pm_message_t message)
+>       mutex_lock(&ts->lock);
+> @@ -914,9 +916,9 @@ static int ads7846_suspend(struct spi_device *spi,
+> pm_message_t message)
 >       return 0;
 >  }
-> -static int ad7879_spi_resume(struct spi_device *spi)
-> +static int ad7879_spi_resume(struct device *dev)
->  { +  struct spi_device *spi = to_spi_device(dev);    struct ad7879 *ts =
->  spi_get_drvdata(spi);
+> -static int ads7846_resume(struct spi_device *spi)
+> +static int ads7846_resume(struct device *dev)
+>  {
+> -     struct ads7846 *ts = dev_get_drvdata(&spi->dev);
+> +     struct ads7846 *ts = dev_get_drvdata(dev);
 >
->       ad7879_resume(ts);
+>       mutex_lock(&ts->lock);
+> @@ -935,6 +937,9 @@ static int ads7846_resume(struct spi_device *spi)
 >
 >       return 0;
 >  }
-> -#else
-> -# define ad7879_spi_suspend NULL
-> -# define ad7879_spi_resume  NULL
->  #endif
-> +static SIMPLE_DEV_PM_OPS(ad7879_spi_pm, ad7879_spi_suspend,
-> +ad7879_spi_resume); +
->  /*
->   * ad7879_read/write are only used for initial setup and for sysfs
->   controls. * The main traffic is done in ad7879_collect().
-> @@ -173,11 +175,10 @@ static struct spi_driver ad7879_spi_driver = {
->               .name   = "ad7879",             .bus    = &spi_bus_type,                .owner  = THIS_MODULE,
->  +            .pm     = &ad7879_spi_pm,       },      .probe          = ad7879_spi_probe,     .remove         =
->  __devexit_p(ad7879_spi_remove),
-> -     .suspend        = ad7879_spi_suspend,
-> -     .resume         = ad7879_spi_resume,
+> +#endif + +static SIMPLE_DEV_PM_OPS(ads7846_pm, ads7846_suspend,
+> +ads7846_resume);
+>
+>  static int __devinit ads7846_setup_pendown(struct spi_device *spi,
+> struct ads7846 *ts)  { @@ -1402,11 +1407,10 @@ static struct
+> spi_driver ads7846_driver = {
+>               .name   = "ads7846",            .bus    = &spi_bus_type,                .owner  = THIS_MODULE,
+>  +            .pm     = &ads7846_pm,  },      .probe          = ads7846_probe,        .remove         =
+>  __devexit_p(ads7846_remove),
+> -     .suspend        = ads7846_suspend,
+> -     .resume         = ads7846_resume,
 >  };
 >
->  static int __init ad7879_spi_init(void)
+>  static int __init ads7846_init(void)
 
 Greetings,
 Michael

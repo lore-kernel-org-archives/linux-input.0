@@ -1,50 +1,43 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/1] HID: Report Descriptor in Sysfs
-Date: Fri, 21 Jan 2011 10:59:55 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101211054210.5725@pobox.suse.cz>
-References: <1295590785-7101-1-git-send-email-alan@signal11.us>
+From: Naveen Kumar G <naveen.gaddipati@stericsson.com>
+Subject: [PATCH] input:bu21013: Update the regulator name
+Date: Fri, 21 Jan 2011 17:08:25 +0530
+Message-ID: <1295609905-2905-1-git-send-email-naveen.gaddipati@stericsson.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:37408 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750955Ab1AUJ74 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Jan 2011 04:59:56 -0500
-In-Reply-To: <1295590785-7101-1-git-send-email-alan@signal11.us>
+Received: from eu1sys200aog107.obsmtp.com ([207.126.144.123]:58316 "EHLO
+	eu1sys200aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753847Ab1AULjm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Jan 2011 06:39:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: STEricsson_nomadik_linux@list.st.com, linux-input@vger.kernel.org, tsoni@codeaurora.org, rydberg@euromail.se, lee.jones@linaro.org, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-On Fri, 21 Jan 2011, Alan Ott wrote:
+From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-> So I'd like to have access to the HID report descriptor in a sysfs entry, so
-> I can read it without opening the device.  hid-core seemed like the place to
-> put it.
-> 
-> Using the /sys/class links, for hidraw devices, this puts a new file,
-> report_descriptor in the directory:
-> 	/sys/class/hidraw/hidraw0/device/
-> 
-> For my USB device (for example), the new file is in:
-> 	/sys/bus/usb/devices/1-5.3:1.0/0003:046D:C216.0001/
-> 
-> For my Bluetooth device, the new file is in:
-> 	/sys/class/bluetooth/hci0/hci0:11/0005:054C:0268.0002/
-> 
-> I'm not super confident that these file locations are the best place, but I
-> made a best guess so that it could be discussed.  The current location is
-> where the hid-core stuff lives.  Is there a reason these directories are
-> named bus:vendor:product:id (instead of hid-core or something similar)?  Is
-> there a better way to do this?
+Update the regulator name for getting the regulator of
+the bu21013 touch device.
 
-Hi Alan,
+Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+---
+ drivers/input/touchscreen/bu21013_ts.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-the report descriptor is provided through debugfs HID interface already. 
-Do you feel like that's not enough?
-
-Thanks,
-
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index 1507ce1..03e60d3 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -460,7 +460,7 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+ 	bu21013_data->chip = pdata;
+ 	bu21013_data->client = client;
+ 
+-	bu21013_data->regulator = regulator_get(&client->dev, "V-TOUCH");
++	bu21013_data->regulator = regulator_get(&client->dev, "avdd");
+ 	if (IS_ERR(bu21013_data->regulator)) {
+ 		dev_err(&client->dev, "regulator_get failed\n");
+ 		error = PTR_ERR(bu21013_data->regulator);
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.7.2.dirty
+

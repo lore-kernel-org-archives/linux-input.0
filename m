@@ -1,34 +1,40 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: ad7877 - Convert to dev_pm_ops
-Date: Thu, 20 Jan 2011 22:56:01 -0800
-Message-ID: <20110121065601.GA21842@core.coreip.homeip.net>
-References: <1295557823-20907-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] input: replace request_irq by request_any_context_irq in
+ keyboard GPIO driver
+Date: Thu, 20 Jan 2011 23:10:27 -0800
+Message-ID: <20110121071027.GB21842@core.coreip.homeip.net>
+References: <1294825292-24134-1-git-send-email-philippe.langlais@stericsson.com>
+ <1294825292-24134-2-git-send-email-philippe.langlais@stericsson.com>
+ <20110120075348.GE30522@core.coreip.homeip.net>
+ <20110120092330.GA1316@bnru05.bnr.st.com>
+ <20110120100419.GA3515@core.coreip.homeip.net>
+ <4D38273A.4020602@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:49127 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753741Ab1AUG4J (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:33056 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752966Ab1AUHKf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Jan 2011 01:56:09 -0500
-Received: by iyj18 with SMTP id 18so1378504iyj.19
-        for <linux-input@vger.kernel.org>; Thu, 20 Jan 2011 22:56:09 -0800 (PST)
+	Fri, 21 Jan 2011 02:10:35 -0500
+Received: by pva4 with SMTP id 4so241003pva.19
+        for <linux-input@vger.kernel.org>; Thu, 20 Jan 2011 23:10:34 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1295557823-20907-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+In-Reply-To: <4D38273A.4020602@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org
+To: Philippe Langlais <philippe.langlais@stericsson.com>
+Cc: Rabin VINCENT <rabin.vincent@stericsson.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, Trilok Soni <tsoni@codeaurora.org>, "lee.jones@linaro.org" <lee.jones@linaro.org>
 
-On Thu, Jan 20, 2011 at 09:10:21PM +0000, Mark Brown wrote:
-> There is a move to deprecate bus-specific PM operations and move to
-> using dev_pm_ops instead in order to reduce the amount of boilerplate
-> code in buses and facilitiate updates to the PM core. Do this move for
-> the ad7879 SPI driver.
+On Thu, Jan 20, 2011 at 01:14:50PM +0100, Philippe Langlais wrote:
+> Dmitry,
 > 
-> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> Sorry, I arrive after the war, thanks Rabin for your answer.
+> When can I hope this patch merged in kernel?
 
-Applied all 3 to next, thanks Mark.
+Applied and will be included in the next pull request.
+
+Thanks!
 
 -- 
 Dmitry

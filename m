@@ -1,46 +1,34 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [PATCH 0/1] HID: Report Descriptor in Sysfs
-Date: Fri, 21 Jan 2011 01:19:44 -0500
-Message-ID: <1295590785-7101-1-git-send-email-alan@signal11.us>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] Input: ad7877 - Convert to dev_pm_ops
+Date: Thu, 20 Jan 2011 22:56:01 -0800
+Message-ID: <20110121065601.GA21842@core.coreip.homeip.net>
+References: <1295557823-20907-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:37674 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753837Ab1AUGTv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Jan 2011 01:19:51 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id D66371CCABA9
-	for <linux-input@vger.kernel.org>; Fri, 21 Jan 2011 01:19:50 -0500 (EST)
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:49127 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753741Ab1AUG4J (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Jan 2011 01:56:09 -0500
+Received: by iyj18 with SMTP id 18so1378504iyj.19
+        for <linux-input@vger.kernel.org>; Thu, 20 Jan 2011 22:56:09 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1295557823-20907-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Alan Ott <alan@signal11.us>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org
 
-So I'd like to have access to the HID report descriptor in a sysfs entry, so
-I can read it without opening the device.  hid-core seemed like the place to
-put it.
+On Thu, Jan 20, 2011 at 09:10:21PM +0000, Mark Brown wrote:
+> There is a move to deprecate bus-specific PM operations and move to
+> using dev_pm_ops instead in order to reduce the amount of boilerplate
+> code in buses and facilitiate updates to the PM core. Do this move for
+> the ad7879 SPI driver.
+> 
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Using the /sys/class links, for hidraw devices, this puts a new file,
-report_descriptor in the directory:
-	/sys/class/hidraw/hidraw0/device/
+Applied all 3 to next, thanks Mark.
 
-For my USB device (for example), the new file is in:
-	/sys/bus/usb/devices/1-5.3:1.0/0003:046D:C216.0001/
-
-For my Bluetooth device, the new file is in:
-	/sys/class/bluetooth/hci0/hci0:11/0005:054C:0268.0002/
-
-I'm not super confident that these file locations are the best place, but I
-made a best guess so that it could be discussed.  The current location is
-where the hid-core stuff lives.  Is there a reason these directories are
-named bus:vendor:product:id (instead of hid-core or something similar)?  Is
-there a better way to do this?
-
-Alan.
-
-Alan Ott (1):
-  hid: Add HID Report Descriptor to sysfs.
-
- drivers/hid/hid-core.c |   28 ++++++++++++++++++++++++++++
- 1 files changed, 28 insertions(+), 0 deletions(-)
-
-
+-- 
+Dmitry

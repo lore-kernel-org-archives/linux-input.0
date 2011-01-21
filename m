@@ -1,36 +1,58 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Alan Ott <alan@signal11.us>
 Subject: Re: [PATCH 0/1] HID: Report Descriptor in Sysfs
-Date: Fri, 21 Jan 2011 16:09:25 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1101211607290.5725@pobox.suse.cz>
-References: <1295590785-7101-1-git-send-email-alan@signal11.us> <alpine.LNX.2.00.1101211054210.5725@pobox.suse.cz> <4D399DAB.3080808@signal11.us>
+Date: Fri, 21 Jan 2011 10:29:36 -0500
+Message-ID: <4D39A660.7040302@signal11.us>
+References: <1295590785-7101-1-git-send-email-alan@signal11.us> <alpine.LNX.2.00.1101211054210.5725@pobox.suse.cz> <4D399DAB.3080808@signal11.us> <alpine.LNX.2.00.1101211607290.5725@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4D399DAB.3080808@signal11.us>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from core.signal11.us ([64.251.29.136]:41052 "EHLO core.signal11.us"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752647Ab1AUQI7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Jan 2011 11:08:59 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id A792E1CCABA7
+	for <linux-input@vger.kernel.org>; Fri, 21 Jan 2011 11:08:58 -0500 (EST)
+In-Reply-To: <alpine.LNX.2.00.1101211607290.5725@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 21 Jan 2011, Alan Ott wrote:
+On 01/21/2011 10:09 AM, Jiri Kosina wrote:
+> On Fri, 21 Jan 2011, Alan Ott wrote:
+>
+>    
+>> Maybe it is. To be honest I didn't check debugfs. I have two concerns about
+>> it:
+>> 1. Is it wise for userspace programs to rely on:
+>>      
+> Ah, I didn't realize that you want it to be used by some acutal userspace
+> applications. Out of curiosity -- what is the usage pattern you are
+> targetting?
+>    
 
-> Maybe it is. To be honest I didn't check debugfs. I have two concerns about
-> it:
-> 1. Is it wise for userspace programs to rely on:
+Well, what I really want is the Usage Page and Usage of the device. For 
+some background, I maintain a library called hidapi[1] for accessing HID 
+devices in a cross platform way. There are currently four backends, 
+Linux-hidraw, Linux-libusb, Mac OS, and Windows.
 
-Ah, I didn't realize that you want it to be used by some acutal userspace 
-applications. Out of curiosity -- what is the usage pattern you are 
-targetting?
+I've recently received requests for supporting composite HID devices. 
+Since a composite device will show up as multiple devices with the same 
+VID/PID, one needs a way to differentiate between its different 
+interfaces. On Windows and Mac, the platform HID libraries support 
+getting the Usage Page and Usage of each interface. On Linux/libusb I 
+can request the HID report descriptor and parse it myself, but I have to 
+claim the interface to do it, and to do that, I have to detach the 
+kernel driver. Needless to say, detaching the kernel driver is not good, 
+especially when the library is supposed to be just scanning for devices.
 
-The idea behind debugfs-provided userspace descriptor is that driver 
-developer is easily able to inspect the descriptor, and write a kernel 
-driver that fixes it up in case it is bogus.
-There were also efforts to make the report descriptor replaceable in a 
-request_firmware() way, but that never converged to state in which it 
-could be applied IIRC.
+For these reasons, it would be really convenient to get the report 
+descriptor from sysfs.
 
-Thanks,
+Alan.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+[1] http://www.signal11.us/oss/hidapi/
+
+

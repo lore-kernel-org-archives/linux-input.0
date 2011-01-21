@@ -1,38 +1,78 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: Re: [PATCH 0/3] Input: add support for DragonRise PID 0011 gamepad
-Date: Fri, 21 Jan 2011 12:32:11 +0300
-Message-ID: <4D39529B.2030103@gmail.com>
-References: <1294945003-7687-1-git-send-email-spbnick@gmail.com> <alpine.LNX.2.00.1101181413000.26685@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 3/3] hid: return -ENOMEM when memory allocation fails
+Date: Fri, 21 Jan 2011 10:52:14 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101211049330.5725@pobox.suse.cz>
+References: <1295548330.2089.13.camel@offworld>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:55643 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750810Ab1AUJcb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Jan 2011 04:32:31 -0500
-Received: by ewy5 with SMTP id 5so773879ewy.19
-        for <linux-input@vger.kernel.org>; Fri, 21 Jan 2011 01:32:29 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1101181413000.26685@pobox.suse.cz>
+Received: from cantor.suse.de ([195.135.220.2]:37179 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751004Ab1AUJwQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Jan 2011 04:52:16 -0500
+In-Reply-To: <1295548330.2089.13.camel@offworld>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Vladislav Naumov <vnaum@vnaum.com>
+To: Davidlohr Bueso <dave@gnu.org>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-Hi Jiri,
+On Thu, 20 Jan 2011, Davidlohr Bueso wrote:
 
-On 01/18/2011 04:14 PM, Jiri Kosina wrote:
-> 1) please always CC me on patches against drivers/hid/*, as can be guessed
-> from MAINTAINERS file
-I'm sorry. I'm still a bit confused about who does what.
+> From: Davidlohr Bueso <dave@gnu.org>
+> 
+> Signed-off-by: Davidlohr Bueso <dave@gnu.org>
+> ---
+>  drivers/hid/hid-core.c      |    2 +-
+>  drivers/hid/usbhid/hiddev.c |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index d678cf3..eb2251c 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -129,7 +129,7 @@ static int open_collection(struct hid_parser *parser, unsigned type)
+>  				parser->device->collection_size * 2, GFP_KERNEL);
+>  		if (collection == NULL) {
+>  			dbg_hid("failed to reallocate collection array\n");
+> -			return -1;
+> +			return -ENOMEM;
+>  		}
 
-> 2) please send me the patch based on more-or-less current Linus' tree, as
-> that's what development is happening on top of.
-Done.
+That's not really complete, as the return value will be lost at caller 
+anyway, see hid_parse_report():
 
-> Otherwise, the series looks fine and I am willing to apply it. Thanks,
-Great, thanks :)
+                if (dispatch_type[item.type](parser, &item)) {
+                        dbg_hid("item %u %u %u %u parsing failed\n",
+                                item.format, (unsigned)item.size,
+                                (unsigned)item.type, (unsigned)item.tag);
+                        goto err;
+                }
 
-Sincerely,
-Nick
+Could you please re-spin the patch and add also the return value 
+propagation here as well?
+
+
+> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+> index af0a7c1..38513cc 100644
+> --- a/drivers/hid/usbhid/hiddev.c
+> +++ b/drivers/hid/usbhid/hiddev.c
+> @@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+>  	}
+>  
+>  	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
+> -		return -1;
+> +		return -ENOMEM;
+
+The same here. The actual return value from hiddev_connect() is being 
+checked by the caller only whether it's 0 (success) or not. See 
+hid_connect():
+
+        if ((connect_mask & HID_CONNECT_HIDDEV) && hdev->hiddev_connect &&
+                        !hdev->hiddev_connect(hdev,
+                                connect_mask & HID_CONNECT_HIDDEV_FORCE))
+                hdev->claimed |= HID_CLAIMED_HIDDEV;
+
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

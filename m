@@ -1,75 +1,56 @@
-From: Alan Ott <alan@signal11.us>
-Subject: Re: [PATCH 0/1] HID: Report Descriptor in Sysfs
-Date: Fri, 21 Jan 2011 11:57:25 -0500
-Message-ID: <4D39BAF5.9010506@signal11.us>
-References: <1295590785-7101-1-git-send-email-alan@signal11.us> <alpine.LNX.2.00.1101211054210.5725@pobox.suse.cz> <4D399DAB.3080808@signal11.us> <alpine.LNX.2.00.1101211607290.5725@pobox.suse.cz> <4D39A660.7040302@signal11.us> <alpine.LNX.2.00.1101211714050.5725@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input:bu21013: Update the regulator name
+Date: Fri, 21 Jan 2011 09:06:23 -0800
+Message-ID: <20110121170623.GA27756@core.coreip.homeip.net>
+References: <1295609905-2905-1-git-send-email-naveen.gaddipati@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:39129 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754579Ab1AUQ50 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Jan 2011 11:57:26 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id DF1171CCABA7
-	for <linux-input@vger.kernel.org>; Fri, 21 Jan 2011 11:57:25 -0500 (EST)
-In-Reply-To: <alpine.LNX.2.00.1101211714050.5725@pobox.suse.cz>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:56411 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753923Ab1AURGc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Jan 2011 12:06:32 -0500
+Received: by qwa26 with SMTP id 26so2009794qwa.19
+        for <linux-input@vger.kernel.org>; Fri, 21 Jan 2011 09:06:32 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1295609905-2905-1-git-send-email-naveen.gaddipati@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Naveen Kumar G <naveen.gaddipati@stericsson.com>
+Cc: STEricsson_nomadik_linux@list.st.com, linux-input@vger.kernel.org, tsoni@codeaurora.org, rydberg@euromail.se, lee.jones@linaro.org
 
-On 01/21/2011 11:14 AM, Jiri Kosina wrote:
-> On Fri, 21 Jan 2011, Alan Ott wrote:
->
->    
->> Well, what I really want is the Usage Page and Usage of the device. For some
->> background, I maintain a library called hidapi[1] for accessing HID devices in
->> a cross platform way. There are currently four backends, Linux-hidraw,
->> Linux-libusb, Mac OS, and Windows.
->>
->> I've recently received requests for supporting composite HID devices. Since a
->> composite device will show up as multiple devices with the same VID/PID, one
->> needs a way to differentiate between its different interfaces. On Windows and
->> Mac, the platform HID libraries support getting the Usage Page and Usage of
->> each interface. On Linux/libusb I can request the HID report descriptor and
->> parse it myself, but I have to claim the interface to do it, and to do that, I
->> have to detach the kernel driver. Needless to say, detaching the kernel driver
->> is not good, especially when the library is supposed to be just scanning for
->> devices.
->>
->> For these reasons, it would be really convenient to get the report descriptor
->> from sysfs.
->>      
-> In this case, you can still get the report descriptor from hidraw (which
-> is parallel to any other HID-bus based kernel driver). Woudl that suit
-> your needs?
->
->    
+On Fri, Jan 21, 2011 at 05:08:25PM +0530, Naveen Kumar G wrote:
+> From: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> 
+> Update the regulator name for getting the regulator of
+> the bu21013 touch device.
 
-Not exactly, because not all HID devices have a hidraw interface 
-(because some are blacklisted). These devices are still accessible 
-through libusb. Plus, getting it from hidraw involves having permissions 
-to open the device[1]. Maybe that's less of a limitation, but since I 
-can get everything else from sysfs (vid/pid, strings, device version), 
-it seemed to make sense to me to have the hid report descriptor in the 
-same place.
+... because <list of reasons this change is needed>.
 
-Again, if I'm completely wrong about how I should be going about this, 
-just let me know.
+Thanks.
 
-Alan.
+> Signed-off-by: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+> ---
+>  drivers/input/touchscreen/bu21013_ts.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+> index 1507ce1..03e60d3 100644
+> --- a/drivers/input/touchscreen/bu21013_ts.c
+> +++ b/drivers/input/touchscreen/bu21013_ts.c
+> @@ -460,7 +460,7 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+>  	bu21013_data->chip = pdata;
+>  	bu21013_data->client = client;
+>  
+> -	bu21013_data->regulator = regulator_get(&client->dev, "V-TOUCH");
+> +	bu21013_data->regulator = regulator_get(&client->dev, "avdd");
+>  	if (IS_ERR(bu21013_data->regulator)) {
+>  		dev_err(&client->dev, "regulator_get failed\n");
+>  		error = PTR_ERR(bu21013_data->regulator);
+> -- 
+> 1.7.2.dirty
+> 
 
-
-[1] Last year, I suggested adding some interfaces to hidraw to get 
-things like the serial number, and it was suggested to me on 
-linux-usb[2] that I use sysfs (through libudev) instead. I extrapolated 
-that the proper paradigm was to use sysfs to get information about the 
-device, and to use the device node itself to actually communicate with 
-the device. I could be wrong again.
-
-[2] I didn't realize at the time that I really should have asked on 
-linux-input instead of linux-usb.
-
-
+-- 
+Dmitry

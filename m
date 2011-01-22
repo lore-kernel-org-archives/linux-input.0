@@ -1,63 +1,63 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] input : wacom - Add 6 new Bamboo Pen and touch models
-Date: Fri, 21 Jan 2011 23:25:30 -0800
-Message-ID: <1295681130-27188-1-git-send-email-pinglinux@gmail.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 1/1] hid: Add HID Report Descriptor to sysfs.
+Date: Sat, 22 Jan 2011 05:55:16 -0800
+Message-ID: <20110122135516.GA4893@kroah.com>
+References: <1295590785-7101-1-git-send-email-alan@signal11.us>
+ <1295590785-7101-2-git-send-email-alan@signal11.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:43824 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751317Ab1AVH0H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Jan 2011 02:26:07 -0500
-Received: by pzk35 with SMTP id 35so414778pzk.19
-        for <linux-input@vger.kernel.org>; Fri, 21 Jan 2011 23:26:06 -0800 (PST)
+Received: from kroah.org ([198.145.64.141]:36172 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753083Ab1AVOLP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 22 Jan 2011 09:11:15 -0500
+Content-Disposition: inline
+In-Reply-To: <1295590785-7101-2-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>, David Foley <favux.is@gmail.com>, Ping Cheng <pingc@wacom.com>
+To: Alan Ott <alan@signal11.us>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Reported-by: David Foley <favux.is@gmail.com>
-Signed-off-by: David Foley <favux.is@gmail.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/tablet/wacom_wac.c |   18 ++++++++++++++++++
- 1 files changed, 18 insertions(+), 0 deletions(-)
+On Fri, Jan 21, 2011 at 01:19:45AM -0500, Alan Ott wrote:
+> Add a new sysfs entry called report_descriptor which contains the HID report
+> descriptor.
+> 
+> Signed-off-by: Alan Ott <alan@signal11.us>
+> ---
+>  drivers/hid/hid-core.c |   28 ++++++++++++++++++++++++++++
+>  1 files changed, 28 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index d678cf3..0ff1ba2 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1159,6 +1159,28 @@ static bool hid_hiddev(struct hid_device *hdev)
+>  	return !!hid_match_id(hdev, hid_hiddev_list);
+>  }
+>  
+> +
+> +static ssize_t show_report_descriptor(struct device *dev,
+> +				      struct device_attribute *attr,
+> +				      char *buf)
+> +{
+> +	int i, cur = 0;
+> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+> +
+> +	for (i = 0; i < hdev->rsize; i++) {
+> +		if (cur + 4 >= PAGE_SIZE)
+> +			break;
+> +		sprintf(buf + cur, "%02hhx ", hdev->rdesc[i]);
+> +		cur += 3;
+> +	}
+> +	/* Replace the last space with a newline. */
+> +	buf[cur-1] = '\n';
+> +	buf[PAGE_SIZE-1] = '\0';
+> +	return cur + 1;
+> +}
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 0b05254..4657c02 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1424,6 +1424,18 @@ static struct wacom_features wacom_features_0xD2 =
- 	{ "Wacom Bamboo Craft",   WACOM_PKGLEN_BBFUN,     14720,  9200, 1023, 63, BAMBOO_PT };
- static struct wacom_features wacom_features_0xD3 =
- 	{ "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648, 13530, 1023, 63, BAMBOO_PT };
-+static struct wacom_features wacom_features_0xD4 =
-+	{ "Wacom Bamboo 4x5",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023, 63, BAMBOO_PT };
-+static struct wacom_features wacom_features_0xD6 =
-+	{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023, 63, BAMBOO_PT };
-+static struct wacom_features wacom_features_0xD7 =
-+	{ "Wacom BambooPT 2FG Small", WACOM_PKGLEN_BBFUN, 14720,  9200, 1023, 63, BAMBOO_PT };
-+static struct wacom_features wacom_features_0xD8 =
-+	{ "Wacom Bamboo Comic 2FG", WACOM_PKGLEN_BBFUN,   21648, 13530, 1023, 63, BAMBOO_PT };
-+static struct wacom_features wacom_features_0xDA =
-+	{ "Wacom Bamboo 2FG 4x5 SE", WACOM_PKGLEN_BBFUN,  14720,  9200, 1023, 63, BAMBOO_PT };
-+static struct wacom_features wacom_features_0xDB =
-+	{ "Wacom Bamboo 2FG 6x8 SE", WACOM_PKGLEN_BBFUN,  21648, 13530, 1023, 63, BAMBOO_PT };
- 
- #define USB_DEVICE_WACOM(prod)					\
- 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
-@@ -1492,6 +1504,12 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0xD1) },
- 	{ USB_DEVICE_WACOM(0xD2) },
- 	{ USB_DEVICE_WACOM(0xD3) },
-+	{ USB_DEVICE_WACOM(0xD4) },
-+	{ USB_DEVICE_WACOM(0xD6) },
-+	{ USB_DEVICE_WACOM(0xD7) },
-+	{ USB_DEVICE_WACOM(0xD8) },
-+	{ USB_DEVICE_WACOM(0xDA) },
-+	{ USB_DEVICE_WACOM(0xDB) },
- 	{ USB_DEVICE_WACOM(0xF0) },
- 	{ USB_DEVICE_WACOM(0xCC) },
- 	{ USB_DEVICE_WACOM(0x90) },
--- 
-1.7.3.4
+If you are going to do this this way through sysfs, please make this a
+binary file, not a text one.
 
+thanks,
+
+greg k-h

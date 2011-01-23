@@ -1,27 +1,51 @@
-From: Mark Lord <kernel@teksavvy.com>
-Subject: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Sun, 23 Jan 2011 12:03:47 -0500
-Message-ID: <4D3C5F73.2050408@teksavvy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Alan Ott <alan@signal11.us>
+Subject: [PATCH v2 0/1] HID: Report Descriptor in Sysfs
+Date: Sun, 23 Jan 2011 17:35:06 -0500
+Message-ID: <1295822107-6820-1-git-send-email-alan@signal11.us>
+References: <20110122135516.GA4893@kroah.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ironport2-out.teksavvy.com ([206.248.154.181]:33661 "EHLO
-	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751054Ab1AWRDv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Jan 2011 12:03:51 -0500
+Received: from core.signal11.us ([64.251.29.136]:56476 "EHLO core.signal11.us"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752010Ab1AWWgF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Jan 2011 17:36:05 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id 96D311CCABB2
+	for <linux-input@vger.kernel.org>; Sun, 23 Jan 2011 17:36:03 -0500 (EST)
+In-Reply-To: <20110122135516.GA4893@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, greg@kroah.com, stern@rowland.harvard.edu, libusb-devel@lists.sourceforge.net
+Cc: Alan Ott <alan@signal11.us>
 
-As of the 2.6.36 kernel, the userspace commands lsinput and input-kbd
-no longer work.  And if I grab newer/patched versions of those from the latest
-Ubuntu 10.10, then those newer/patched versions do not work with kernels
-*before* 2.6.36.
+This is version 2 of the patch, with binary data in the sysfs file instead
+of ASCII, as suggested by Alan Stern and Greg KH.
 
-At first glance, this looks like a visible regression.
-Is there a version of input-utils that works with both
-old and new kernels ?
+So I'd like to have access to the HID report descriptor in a sysfs entry, so
+I can read it without opening the device.  hid-core seemed like the place to
+put it.
 
-Thanks
+Using the /sys/class links, for hidraw devices, this puts a new file,
+report_descriptor in the directory:
+	/sys/class/hidraw/hidraw0/device/
+
+For my USB device (for example), the new file is in:
+	/sys/bus/usb/devices/1-5.3:1.0/0003:046D:C216.0001/
+
+For my Bluetooth device, the new file is in:
+	/sys/class/bluetooth/hci0/hci0:11/0005:054C:0268.0002/
+
+I'm not super confident that these file locations are the best place, but I
+made a best guess so that it could be discussed.  The current location is
+where the hid-core stuff lives.  Is there a reason these directories are
+named bus:vendor:product:id (instead of hid-core or something similar)?  Is
+there a better way to do this?
+
+Alan.
+
+Alan Ott (1):
+  hid: Add HID Report Descriptor to sysfs.
+
+ drivers/hid/hid-core.c |   33 +++++++++++++++++++++++++++++++++
+ 1 files changed, 33 insertions(+), 0 deletions(-)
+
+

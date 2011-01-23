@@ -1,69 +1,27 @@
-From: =?ISO-8859-15?Q?Richard_Sch=FCtz?= <r.schtz@t-online.de>
-Subject: elantech touchpad issues
-Date: Sun, 23 Jan 2011 15:12:54 +0100
-Message-ID: <4D3C3766.6040805@t-online.de>
+From: Mark Lord <kernel@teksavvy.com>
+Subject: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
+Date: Sun, 23 Jan 2011 12:03:47 -0500
+Message-ID: <4D3C5F73.2050408@teksavvy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout04.t-online.de ([194.25.134.18]:53826 "EHLO
-	mailout04.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751073Ab1AWO3t (ORCPT
+Received: from ironport2-out.teksavvy.com ([206.248.154.181]:33661 "EHLO
+	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751054Ab1AWRDv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Jan 2011 09:29:49 -0500
+	Sun, 23 Jan 2011 12:03:51 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-I noticed that the elantech driver reports totally wrong axis range=20
-values to the xf86-input-synaptics driver for the touchpad in my Samsun=
-g=20
-N145 Plus netbook.
+As of the 2.6.36 kernel, the userspace commands lsinput and input-kbd
+no longer work.  And if I grab newer/patched versions of those from the latest
+Ubuntu 10.10, then those newer/patched versions do not work with kernels
+*before* 2.6.36.
 
-kernel output:
-elantech: assuming hardware version 2, firmware version 4.2.22
-elantech: Synaptics capabilities query result 0x09, 0x14, 0x0b.
+At first glance, this looks like a visible regression.
+Is there a version of input-utils that works with both
+old and new kernels ?
 
-As it's detected as hardware version 2 the hardcoded ranges from=20
-elantech.h are used:
-[    16.863] (--) ETPS/2 Elantech Touchpad: x-axis range 8 - 1144
-[    16.863] (--) ETPS/2 Elantech Touchpad: y-axis range 8 - 760
-
-But with synclient's monitor mode I discovered that the correct values=20
-for my touchpad seem to be:
-min x: 0
-max x: 819
-min y: 355
-max y: 760
-(without ETP_EDGE_FUZZ_V2)
-
-This results in unusuable edge areas by default.
-
-When using more then one finger on the touchpad also sometimes this=20
-strange thing happens and the cursor jumps:
-    time     x    y   z f  w  l r u d m     multi  gl gm gr gdx gdy
-155.600  1020 -268  31 2  0  0 0 0 0 0  00000000
-155.610  1020 -268   0 0  0  0 0 0 0 0  00000000
-(the second line is optional)
-
-I guess this would have no effect (like jumping cursor) with correct=20
-ranges. Can't they be queried from hardware? I have no clue if these=20
-ranges I figured out are valid for my netbook only or if there was a=20
-general change in newer firmware versions. Unfortunately, I own no othe=
-r=20
-hardware for figuring this out. I could patch the driver for my persona=
-l=20
-need, but I think this should by handled somehow in the driver=20
-automatically. If that would not work adequate I would suggest to=20
-introduce driver parameters to pass the ranges at runtime without the=20
-need for recompiling.
-
---=20
-Regards,
-Richard Sch=FCtz
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks

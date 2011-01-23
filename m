@@ -1,96 +1,33 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [PATCH v2 1/1] hid: Add HID Report Descriptor to sysfs.
-Date: Sun, 23 Jan 2011 17:35:07 -0500
-Message-ID: <1295822107-6820-2-git-send-email-alan@signal11.us>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH v2 1/1] hid: Add HID Report Descriptor to sysfs.
+Date: Mon, 24 Jan 2011 07:59:35 +0900
+Message-ID: <20110123225935.GB12488@kroah.com>
 References: <20110122135516.GA4893@kroah.com>
+ <1295822107-6820-2-git-send-email-alan@signal11.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:56477 "EHLO core.signal11.us"
+Received: from kroah.org ([198.145.64.141]:56889 "EHLO coco.kroah.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752478Ab1AWWgF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Jan 2011 17:36:05 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 99B6F1CCABB7
-	for <linux-input@vger.kernel.org>; Sun, 23 Jan 2011 17:36:03 -0500 (EST)
-In-Reply-To: <20110122135516.GA4893@kroah.com>
+	id S1752132Ab1AWW6l (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Jan 2011 17:58:41 -0500
+Content-Disposition: inline
+In-Reply-To: <1295822107-6820-2-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, greg@kroah.com, stern@rowland.harvard.edu, libusb-devel@lists.sourceforge.net
-Cc: Alan Ott <alan@signal11.us>
+To: Alan Ott <alan@signal11.us>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stern@rowland.harvard.edu, libusb-devel@lists.sourceforge.net
 
-Add a new binary sysfs entry called report_descriptor which contains
-the HID report descriptor.
+On Sun, Jan 23, 2011 at 05:35:07PM -0500, Alan Ott wrote:
+> Add a new binary sysfs entry called report_descriptor which contains
+> the HID report descriptor.
 
-Signed-off-by: Alan Ott <alan@signal11.us>
----
- drivers/hid/hid-core.c |   33 +++++++++++++++++++++++++++++++++
- 1 files changed, 33 insertions(+), 0 deletions(-)
+Oops, I forgot to mention that any new sysfs file needs to be documented
+in Documentation/ABI/
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index d678cf3..32bbd5d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1159,6 +1159,32 @@ static bool hid_hiddev(struct hid_device *hdev)
- 	return !!hid_match_id(hdev, hid_hiddev_list);
- }
- 
-+
-+static ssize_t
-+read_report_descriptor(struct file *filp, struct kobject *kobj,
-+		struct bin_attribute *attr,
-+		char *buf, loff_t off, size_t count)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+
-+	if (off >= hdev->rsize)
-+		return 0;
-+
-+	if (off + count > hdev->rsize)
-+		count = hdev->rsize - off;
-+
-+	memcpy(buf, hdev->rdesc + off, count);
-+
-+	return count;
-+}
-+
-+static struct bin_attribute dev_bin_attr_report_desc = {
-+	.attr = { .name = "report_descriptor", .mode = 0444 },
-+	.read = read_report_descriptor,
-+	.size = HID_MAX_DESCRIPTOR_SIZE,
-+};
-+
- int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- {
- 	static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
-@@ -1169,6 +1195,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 	char buf[64];
- 	unsigned int i;
- 	int len;
-+	int ret;
- 
- 	if (hdev->quirks & HID_QUIRK_HIDDEV_FORCE)
- 		connect_mask |= (HID_CONNECT_HIDDEV_FORCE | HID_CONNECT_HIDDEV);
-@@ -1230,6 +1257,11 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		bus = "<UNKNOWN>";
- 	}
- 
-+	ret = device_create_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
-+	if (ret)
-+		hid_warn(hdev,
-+			 "can't create sysfs report descriptor attribute err: %d\n", ret);
-+
- 	hid_info(hdev, "%s: %s HID v%x.%02x %s [%s] on %s\n",
- 		 buf, bus, hdev->version >> 8, hdev->version & 0xff,
- 		 type, hdev->name, hdev->phys);
-@@ -1240,6 +1272,7 @@ EXPORT_SYMBOL_GPL(hid_connect);
- 
- void hid_disconnect(struct hid_device *hdev)
- {
-+	device_remove_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
- 	if (hdev->claimed & HID_CLAIMED_INPUT)
- 		hidinput_disconnect(hdev);
- 	if (hdev->claimed & HID_CLAIMED_HIDDEV)
--- 
-1.7.0.4
+Can you please add that documentation to this patch so people know what
+the file is, and what it is for?
 
+thanks,
 
+greg k-h

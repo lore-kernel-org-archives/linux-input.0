@@ -1,78 +1,34 @@
-From: Thomas Chou <thomas@wytron.com.tw>
-Subject: [PATCH v2] altera_ps2: Add devicetree support
-Date: Mon, 24 Jan 2011 13:58:13 +0800
-Message-ID: <1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
-References: <20110117220415.GB17963@angua.secretlab.ca>
+From: Andy Whitcroft <apw@canonical.com>
+Subject: [PATCH 0/1] sysrq is half-enabled by default V2
+Date: Mon, 24 Jan 2011 14:06:11 +0000
+Message-ID: <1295877972-363-1-git-send-email-apw@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.wytron.com.tw ([211.75.82.101]:39854 "EHLO
-	www.wytron.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751255Ab1AXF4L (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:39042 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751346Ab1AXOGS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Jan 2011 00:56:11 -0500
-In-Reply-To: <20110117220415.GB17963@angua.secretlab.ca>
+	Mon, 24 Jan 2011 09:06:18 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, nios2-dev@sopc.et.ntust.edu.tw, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Walter Goossens <waltergoossens@home.nl>, Thomas Chou <thomas@wytron.com.tw>
+To: Dmitry Torokhov <dtor@mail.ru>
+Cc: Andy Whitcroft <apw@canonical.com>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 
-From: Walter Goossens <waltergoossens@home.nl>
 
-Signed-off-by: Walter Goossens <waltergoossens@home.nl>
-Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
----
-v2 use const and add compat version.
+It seems that recent cleanups to sysrq handling have lead to us having
+two copies of the sysrq enable status.  At boot these are currently
+inconsistently specified leading to sysrq actually being enabled but
+reported as not enabled in sysfs.  Following this email is a patch to
+link both of these copies to a common header define to prevent them becoming
+out of sync again.
 
- drivers/input/serio/altera_ps2.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
+-apw
 
-diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
-index 7998560..63325ee 100644
---- a/drivers/input/serio/altera_ps2.c
-+++ b/drivers/input/serio/altera_ps2.c
-@@ -19,6 +19,7 @@
- #include <linux/platform_device.h>
- #include <linux/io.h>
- #include <linux/slab.h>
-+#include <linux/of.h>
- 
- #define DRV_NAME "altera_ps2"
- 
-@@ -173,6 +174,12 @@ static int __devexit altera_ps2_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id altera_ps2_match[] = {
-+	{ .compatible = "altr,ps2-1.0", },
-+	{},
-+}
-+MODULE_DEVICE_TABLE(of, altera_ps2_match);
-+
- /*
-  * Our device driver structure
-  */
-@@ -182,6 +189,7 @@ static struct platform_driver altera_ps2_driver = {
- 	.driver	= {
- 		.name	= DRV_NAME,
- 		.owner	= THIS_MODULE,
-+		.of_match_table = altera_ps2_match,
- 	},
- };
- 
-@@ -189,13 +197,12 @@ static int __init altera_ps2_init(void)
- {
- 	return platform_driver_register(&altera_ps2_driver);
- }
-+module_init(altera_ps2_init);
- 
- static void __exit altera_ps2_exit(void)
- {
- 	platform_driver_unregister(&altera_ps2_driver);
- }
--
--module_init(altera_ps2_init);
- module_exit(altera_ps2_exit);
- 
- MODULE_DESCRIPTION("Altera University Program PS2 controller driver");
--- 
-1.7.3.4
+Andy Whitcroft (1):
+  Input: sysrq -- ensure sysrq_enabled and __sysrq_enabled are
+    consistent
+
+ drivers/tty/sysrq.c   |    2 +-
+ include/linux/sysrq.h |    3 +++
+ kernel/sysctl.c       |    3 ++-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 

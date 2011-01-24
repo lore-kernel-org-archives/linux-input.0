@@ -1,105 +1,78 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [PATCH v4 1/1] hid: Add HID Report Descriptor to sysfs.
-Date: Sun, 23 Jan 2011 22:50:18 -0500
-Message-ID: <1295841018-8561-2-git-send-email-alan@signal11.us>
-References: <20110123225935.GB12488@kroah.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110123225935.GB12488@kroah.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Alan Ott <alan@signal11.us>
+From: Thomas Chou <thomas@wytron.com.tw>
+Subject: [PATCH v2] altera_ps2: Add devicetree support
+Date: Mon, 24 Jan 2011 13:58:13 +0800
+Message-ID: <1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
+References: <20110117220415.GB17963@angua.secretlab.ca>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from www.wytron.com.tw ([211.75.82.101]:39854 "EHLO
+	www.wytron.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751255Ab1AXF4L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Jan 2011 00:56:11 -0500
+In-Reply-To: <20110117220415.GB17963@angua.secretlab.ca>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, nios2-dev@sopc.et.ntust.edu.tw, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Walter Goossens <waltergoossens@home.nl>, Thomas Chou <thomas@wytron.com.tw>
 
-Add a new binary sysfs entry called report_descriptor which contains
-the HID report descriptor.
+From: Walter Goossens <waltergoossens@home.nl>
 
-Signed-off-by: Alan Ott <alan@signal11.us>
+Signed-off-by: Walter Goossens <waltergoossens@home.nl>
+Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
 ---
- Documentation/ABI/testing/sysfs-driver-hid |   10 ++++++++
- drivers/hid/hid-core.c                     |   33 ++++++++++++++++++++++++++++
- 2 files changed, 43 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid
+v2 use const and add compat version.
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid b/Documentation/ABI/testing/sysfs-driver-hid
-new file mode 100644
-index 0000000..b6490e1
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-hid
-@@ -0,0 +1,10 @@
-+What:		For USB devices	: /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/report_descriptor
-+		For BT devices	: /sys/class/bluetooth/hci<addr>/<hid-bus>:<vendor-id>:<product-id>.<num>/report_descriptor
-+		Symlink		: /sys/class/hidraw/hidraw<num>/device/report_descriptor
-+Date:		Jan 2011
-+KernelVersion:	2.0.39
-+Contact:	Alan Ott <alan@signal11.us>
-+Description:	When read, this file returns the device's raw binary HID
-+		report descriptor.
-+		This file cannot be written.
-+Users:		HIDAPI library (http://www.signal11.us/oss/hidapi)
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index d678cf3..32bbd5d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1159,6 +1159,32 @@ static bool hid_hiddev(struct hid_device *hdev)
- 	return !!hid_match_id(hdev, hid_hiddev_list);
+ drivers/input/serio/altera_ps2.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+index 7998560..63325ee 100644
+--- a/drivers/input/serio/altera_ps2.c
++++ b/drivers/input/serio/altera_ps2.c
+@@ -19,6 +19,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#include <linux/of.h>
+ 
+ #define DRV_NAME "altera_ps2"
+ 
+@@ -173,6 +174,12 @@ static int __devexit altera_ps2_remove(struct platform_device *pdev)
+ 	return 0;
  }
  
-+
-+static ssize_t
-+read_report_descriptor(struct file *filp, struct kobject *kobj,
-+		struct bin_attribute *attr,
-+		char *buf, loff_t off, size_t count)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-+
-+	if (off >= hdev->rsize)
-+		return 0;
-+
-+	if (off + count > hdev->rsize)
-+		count = hdev->rsize - off;
-+
-+	memcpy(buf, hdev->rdesc + off, count);
-+
-+	return count;
++static const struct of_device_id altera_ps2_match[] = {
++	{ .compatible = "altr,ps2-1.0", },
++	{},
 +}
++MODULE_DEVICE_TABLE(of, altera_ps2_match);
 +
-+static struct bin_attribute dev_bin_attr_report_desc = {
-+	.attr = { .name = "report_descriptor", .mode = 0444 },
-+	.read = read_report_descriptor,
-+	.size = HID_MAX_DESCRIPTOR_SIZE,
-+};
-+
- int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ /*
+  * Our device driver structure
+  */
+@@ -182,6 +189,7 @@ static struct platform_driver altera_ps2_driver = {
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = altera_ps2_match,
+ 	},
+ };
+ 
+@@ -189,13 +197,12 @@ static int __init altera_ps2_init(void)
  {
- 	static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
-@@ -1169,6 +1195,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 	char buf[64];
- 	unsigned int i;
- 	int len;
-+	int ret;
+ 	return platform_driver_register(&altera_ps2_driver);
+ }
++module_init(altera_ps2_init);
  
- 	if (hdev->quirks & HID_QUIRK_HIDDEV_FORCE)
- 		connect_mask |= (HID_CONNECT_HIDDEV_FORCE | HID_CONNECT_HIDDEV);
-@@ -1230,6 +1257,11 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		bus = "<UNKNOWN>";
- 	}
- 
-+	ret = device_create_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
-+	if (ret)
-+		hid_warn(hdev,
-+			 "can't create sysfs report descriptor attribute err: %d\n", ret);
-+
- 	hid_info(hdev, "%s: %s HID v%x.%02x %s [%s] on %s\n",
- 		 buf, bus, hdev->version >> 8, hdev->version & 0xff,
- 		 type, hdev->name, hdev->phys);
-@@ -1240,6 +1272,7 @@ EXPORT_SYMBOL_GPL(hid_connect);
- 
- void hid_disconnect(struct hid_device *hdev)
+ static void __exit altera_ps2_exit(void)
  {
-+	device_remove_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
- 	if (hdev->claimed & HID_CLAIMED_INPUT)
- 		hidinput_disconnect(hdev);
- 	if (hdev->claimed & HID_CLAIMED_HIDDEV)
+ 	platform_driver_unregister(&altera_ps2_driver);
+ }
+-
+-module_init(altera_ps2_init);
+ module_exit(altera_ps2_exit);
+ 
+ MODULE_DESCRIPTION("Altera University Program PS2 controller driver");
 -- 
-1.7.0.4
+1.7.3.4
+

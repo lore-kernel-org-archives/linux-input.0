@@ -1,172 +1,40 @@
-From: chris schlund <chrisschlund@gmx.de>
-Subject: [PATCH] hid kernel module for wireless remote LC Power model RC1000MCE
-Date: Mon, 24 Jan 2011 17:51:59 +0100
-Message-ID: <4D3DAE2F.3080009@gmx.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input: sysrq -- ensure sysrq_enabled and
+ __sysrq_enabled are consistent
+Date: Mon, 24 Jan 2011 09:04:58 -0800
+Message-ID: <20110124170458.GA31066@core.coreip.homeip.net>
+References: <1295877972-363-1-git-send-email-apw@canonical.com>
+ <1295877972-363-2-git-send-email-apw@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.22]:41942 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753586Ab1AXQwA (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:33646 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752927Ab1AXRFH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Jan 2011 11:52:00 -0500
+	Mon, 24 Jan 2011 12:05:07 -0500
+Content-Disposition: inline
+In-Reply-To: <1295877972-363-2-git-send-email-apw@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Andy Whitcroft <apw@canonical.com>
+Cc: linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 24, 2011 at 02:06:12PM +0000, Andy Whitcroft wrote:
+> Currently sysrq_enabled and __sysrq_enabled are initialised separatly
+> and inconsitantly, leading to sysrq being actually enabled by reported
+> as not enabled in sysfs.  The first change to the sysfs configurable
+> synchronises these two:
+> 
+>     static int __read_mostly sysrq_enabled = 1;
+>     static int __sysrq_enabled;
+> 
+> Add a common define to carry the default for these preventing them becoming
+> out of sync again.  Default this to 1 to mirror previous behaviour.
+> 
+> Signed-off-by: Andy Whitcroft <apw@canonical.com>
 
-I bought a remote control LC Power RC1000MCE (usb rf keyboard). Some 
-keys were not working. Therefore I took the hid-topseed kernel module 
-copied it and prepared it as a new kernel module hid-lcpower which 
-provides the correct keymapping for this remote control.
-I tested it on the 2.6.32 kernel.
-I modified it to compile with the kernel version 2.6.37 (untested).
+Applied and will also tag for stable. Thank you Andy.
 
-Sorry If I made some formal errors in here. This is my first patch and I 
-am not used to this process.
-
-Thanks
-Chris
-
-
-  39$ cat lc-power.patch
-diff -urN linux-2.6.37/drivers/hid/hid-core.c linux/drivers/hid/hid-core.c
---- linux-2.6.37/drivers/hid/hid-core.c 2011-01-05 01:50:19.000000000 +0100
-+++ linux/drivers/hid/hid-core.c        2011-01-24 17:01:00.000000000 +0100
-@@ -1312,6 +1312,7 @@
-         { HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, 
-USB_DEVICE_ID_KS_SLIMBLADE) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, 
-USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_LCPOWER, 
-USB_DEVICE_ID_LCPOWER_LC1000 ) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
-USB_DEVICE_ID_MX3000_RECEIVER) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
-USB_DEVICE_ID_S510_RECEIVER) },
-         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
-USB_DEVICE_ID_S510_RECEIVER_2) },
-diff -urN linux-2.6.37/drivers/hid/hid-ids.h linux/drivers/hid/hid-ids.h
---- linux-2.6.37/drivers/hid/hid-ids.h  2011-01-05 01:50:19.000000000 +0100
-+++ linux/drivers/hid/hid-ids.h 2011-01-24 17:01:00.000000000 +0100
-@@ -330,6 +330,9 @@
-  #define USB_VENDOR_ID_LABTEC           0x1020
-  #define USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD 0x0006
-
-+#define USB_VENDOR_ID_LCPOWER          0x1241
-+#define USB_DEVICE_ID_LCPOWER_LC1000   0xf767
-+
-  #define USB_VENDOR_ID_LD               0x0f11
-  #define USB_DEVICE_ID_LD_CASSY         0x1000
-  #define USB_DEVICE_ID_LD_POCKETCASSY   0x1010
-diff -urN linux-2.6.37/drivers/hid/hid-lcpower.c 
-linux/drivers/hid/hid-lcpower.c
---- linux-2.6.37/drivers/hid/hid-lcpower.c      1970-01-01 
-01:00:00.000000000 +0100
-+++ linux/drivers/hid/hid-lcpower.c     2011-01-24 17:01:00.000000000 +0100
-@@ -0,0 +1,70 @@
-+/*
-+ *  HID driver for LC Power Model RC1000MCE
-+ *
-+ *  Copyright (c) 2011 Chris Schlund
-+ *  based on hid-topseed module
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by 
-the Free
-+ * Software Foundation; either version 2 of the License, or (at your 
-option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+#define ts_map_key_clear(c)    hid_map_usage_clear(hi, usage, bit, max, \
-+                                       EV_KEY, (c))
-+static int ts_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+               struct hid_field *field, struct hid_usage *usage,
-+               unsigned long **bit, int *max)
-+{
-+       if ((usage->hid & HID_USAGE_PAGE) != 0x0ffbc0000)
-+               return 0;
-+
-+       switch (usage->hid & HID_USAGE) {
-+        case 0x046: ts_map_key_clear(KEY_YELLOW);         break;
-+        case 0x047: ts_map_key_clear(KEY_GREEN);          break;
-+        case 0x049: ts_map_key_clear(KEY_RED);            break;
-+        case 0x04a: ts_map_key_clear(KEY_BLUE);           break;
-+        case 0x00d: ts_map_key_clear(KEY_HOME);           break;
-+        case 0x025: ts_map_key_clear(KEY_TV);             break;
-+        case 0x048: ts_map_key_clear(KEY_VCR);            break;
-+        case 0x024: ts_map_key_clear(KEY_MENU);           break;
-+        default:
-+               return 0;
-+       }
-+
-+       return 1;
-+}
-+
-+static const struct hid_device_id ts_devices[] = {
-+       { HID_USB_DEVICE( USB_VENDOR_ID_LCPOWER, 
-USB_DEVICE_ID_LCPOWER_LC1000) },
-+       { }
-+};
-+MODULE_DEVICE_TABLE(hid, ts_devices);
-+
-+static struct hid_driver ts_driver = {
-+       .name = "LC RC1000MCE",
-+       .id_table = ts_devices,
-+       .input_mapping = ts_input_mapping,
-+};
-+
-+static int __init ts_init(void)
-+{
-+       return hid_register_driver(&ts_driver);
-+}
-+
-+static void __exit ts_exit(void)
-+{
-+       hid_unregister_driver(&ts_driver);
-+}
-+
-+module_init(ts_init);
-+module_exit(ts_exit);
-+MODULE_LICENSE("GPL");
-diff -urN linux-2.6.37/drivers/hid/Kconfig linux/drivers/hid/Kconfig
---- linux-2.6.37/drivers/hid/Kconfig    2011-01-05 01:50:19.000000000 +0100
-+++ linux/drivers/hid/Kconfig   2011-01-24 17:01:00.000000000 +0100
-@@ -207,6 +207,13 @@
-         ---help---
-         Support for Kensington Slimblade Trackball.
-
-+config HID_LCPOWER
-+       tristate "LC-Power" if EMBEDDED
-+       depends on USB_HID
-+       default !EMBEDDED
-+       ---help---
-+       Support for LC-Power RC1000MCE RF remote control.
-+
-  config HID_LOGITECH
-         tristate "Logitech devices" if EMBEDDED
-         depends on USB_HID
-diff -urN linux-2.6.37/drivers/hid/Makefile linux/drivers/hid/Makefile
---- linux-2.6.37/drivers/hid/Makefile   2011-01-05 01:50:19.000000000 +0100
-+++ linux/drivers/hid/Makefile  2011-01-24 17:01:00.000000000 +0100
-@@ -41,6 +41,7 @@
-  obj-$(CONFIG_HID_GYRATION)     += hid-gyration.o
-  obj-$(CONFIG_HID_KENSINGTON)   += hid-kensington.o
-  obj-$(CONFIG_HID_KYE)          += hid-kye.o
-+obj-$(CONFIG_HID_LCPOWER)      += hid-lcpower.o
-  obj-$(CONFIG_HID_LOGITECH)     += hid-logitech.o
-  obj-$(CONFIG_HID_MAGICMOUSE)   += hid-magicmouse.o
-  obj-$(CONFIG_HID_MICROSOFT)    += hid-microsoft.o
-
+-- 
+Dmitry

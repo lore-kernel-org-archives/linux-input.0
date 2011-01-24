@@ -1,7 +1,7 @@
 From: Andy Ross <andy.ross@windriver.com>
-Subject: [PATCH 2/4] asus-laptop: Pegatron Lucid ALS support
-Date: Mon, 24 Jan 2011 14:48:06 -0800
-Message-ID: <1295909288-32650-3-git-send-email-andy.ross@windriver.com>
+Subject: [PATCH 4/4] input: Pegatron Lucid accelerometer
+Date: Mon, 24 Jan 2011 14:48:08 -0800
+Message-ID: <1295909288-32650-5-git-send-email-andy.ross@windriver.com>
 References: <1295909288-32650-1-git-send-email-andy.ross@windriver.com>
 Return-path: <platform-driver-x86-owner@vger.kernel.org>
 In-Reply-To: <1295909288-32650-1-git-send-email-andy.ross@windriver.com>
@@ -9,133 +9,190 @@ Sender: platform-driver-x86-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Chary <corentincj@iksaif.net>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add support for the ambient light sensor on the Pegatron Lucid tablet.
-This uses a different inteface but the same sysfs interface for
-ls_switch, has no equivalent to the existing ls_value threshold
-setting, and exports the actual brightness via a new attribute
-"ls_value".
+Add driver for the ACPI accelerometer interface on the Pegatron Lucid
+tablet.
 
 Signed-off-by: Andy Ross <andy.ross@windriver.com>
 ---
- drivers/platform/x86/asus-laptop.c |   64 +++++++++++++++++++++++++++++++++---
- 1 files changed, 59 insertions(+), 5 deletions(-)
+ drivers/input/misc/Kconfig      |   10 +++
+ drivers/input/misc/Makefile     |    2 +-
+ drivers/input/misc/pega-accel.c |  130 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 141 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/input/misc/pega-accel.c
 
-diff --git a/drivers/platform/x86/asus-laptop.c b/drivers/platform/x86/asus-laptop.c
-index 6f542af..b397a4c 100644
---- a/drivers/platform/x86/asus-laptop.c
-+++ b/drivers/platform/x86/asus-laptop.c
-@@ -383,6 +383,12 @@ static bool asus_check_pega_lucid(struct asus_laptop *asus)
- 	   !acpi_check_handle(asus->handle, METHOD_PEGA_READ, NULL);
- }
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index b99b8cb..e60af95 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -74,6 +74,16 @@ config INPUT_PCSPKR
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcspkr.
  
-+static int asus_pega_lucid_set(struct asus_laptop *asus, int unit, bool enable)
++config INPUT_PEGA_ACCEL
++       tristate "Support Pegatron Lucid accelerometer"
++       depends on ASUS_LAPTOP
++       help
++         Say Y here if you want support for the built-in ACPI
++         accelerometer device on Pegatron Lucid tablet devices.
++
++	 To compile this driver as a module, choose M here: the module
++	 will be called pega_accel.
++
+ config INPUT_SPARCSPKR
+ 	tristate "SPARC Speaker support"
+ 	depends on PCI && SPARC64
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 1fe1f6c..79aca4d 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -29,6 +29,7 @@ obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+ obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
+ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
++obj-$(CONFIG_INPUT_PEGA_ACCEL)		+= pega-accel.o
+ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+@@ -42,4 +43,3 @@ obj-$(CONFIG_INPUT_WINBOND_CIR)		+= winbond-cir.o
+ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+-
+diff --git a/drivers/input/misc/pega-accel.c b/drivers/input/misc/pega-accel.c
+new file mode 100644
+index 0000000..7005b46
+--- /dev/null
++++ b/drivers/input/misc/pega-accel.c
+@@ -0,0 +1,130 @@
++/*
++ * Driver for accelerometer in Pegatron Lucid tablets
++ *
++ * Copyright (c) 2011 Wind River Systems
++ *
++ * Author: Andy Ross <andy.ross@windriver.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/input-polldev.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <acpi/acpi_bus.h>
++
++#define DRIVER_NAME "pega_accel"
++#define DRIVER_DESC "Pegatron Lucid Tablet Accelerometer"
++
++/* 1G accel is reported as ~256, so clamp to 2G */
++#define CLAMP 512
++
++static struct input_polled_dev *ipdev;
++
++/* FIXME: this mechanism is *very* slow: ~50ms to read the three
++ * values.  Pre-caching an acpi handle with acpi_get_handle has no
++ * effect, so the issue isn't in the parsing or tree walking... */
++static int acpi_s16(char *method)
 +{
-+	char *method = enable ? METHOD_PEGA_ENABLE : METHOD_PEGA_DISABLE;
-+	return write_acpi_int(asus->handle, method, unit);
++	unsigned long long val = 0;
++	acpi_evaluate_integer(NULL, method, NULL, &val);
++	return (short)val;
 +}
 +
- /* Generic LED function */
- static int asus_led_set(struct asus_laptop *asus, const char *method,
- 			 int value)
-@@ -1051,7 +1057,15 @@ static ssize_t store_disp(struct device *dev, struct device_attribute *attr,
-  */
- static void asus_als_switch(struct asus_laptop *asus, int value)
- {
--	if (write_acpi_int(asus->handle, METHOD_ALS_CONTROL, value))
-+	int ret;
-+	if (asus->have_pega_lucid) {
-+		ret = asus_pega_lucid_set(asus, PEGA_ALS, value);
-+		if (!ret)
-+			ret = asus_pega_lucid_set(asus, PEGA_ALS_POWER, value);
-+	} else {
-+		ret = write_acpi_int(asus->handle, METHOD_ALS_CONTROL, value);
-+	}
-+	if (ret)
- 		pr_warning("Error setting light sensor switch\n");
- 	asus->light_switch = value;
- }
-@@ -1108,6 +1122,35 @@ static ssize_t store_lslvl(struct device *dev, struct device_attribute *attr,
- 	return rv;
- }
- 
-+static int pega_int_read(struct asus_laptop *asus, int arg, int *result)
++static void pega_accel_poll(struct input_polled_dev *ipdev)
 +{
-+	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
-+	int err = write_acpi_int_ret(asus->handle, METHOD_PEGA_READ, arg,
-+				     &buffer);
-+	if (!err) {
-+		union acpi_object *obj = buffer.pointer;
-+		if (obj && obj->type == ACPI_TYPE_INTEGER)
-+			*result = obj->integer.value;
-+		else
-+			err = -EIO;
-+	}
++	/* Note transform, convert to "right/up/out" in the native
++	 * landscape orientation (i.e. the vector is the direction of
++	 * "real up" in the device's cartiesian coordinates).  FIXME:
++	 * is there a relevant convention to adhere to? */
++	int x = -acpi_s16("\\_SB.ATKD.XLRX");
++	int y = -acpi_s16("\\_SB.ATKD.XLRY");
++	int z =  acpi_s16("\\_SB.ATKD.XLRZ");
++
++	x = clamp_val(x, -CLAMP, CLAMP);
++	y = clamp_val(y, -CLAMP, CLAMP);
++	z = clamp_val(z, -CLAMP, CLAMP);
++
++	input_report_abs(ipdev->input, ABS_X, x);
++	input_report_abs(ipdev->input, ABS_Y, y);
++	input_report_abs(ipdev->input, ABS_Z, z);
++	input_sync(ipdev->input);
++}
++
++static int __devinit platform_probe(struct platform_device *pd)
++{
++	int err;
++
++	ipdev = input_allocate_polled_device();
++	if (!ipdev)
++		return -ENOMEM;
++
++	ipdev->poll = pega_accel_poll;
++	ipdev->poll_interval = 100;
++	ipdev->poll_interval_min = 10;
++	ipdev->poll_interval_max = 2000;
++
++	ipdev->input->dev.parent = &pd->dev;
++	ipdev->input->id.bustype = BUS_HOST;
++
++	ipdev->input->name = DRIVER_DESC;
++	ipdev->input->phys = DRIVER_NAME "/input0";
++
++	set_bit(EV_ABS, ipdev->input->evbit);
++	input_set_abs_params(ipdev->input, ABS_X, -CLAMP, CLAMP, 0, 0);
++	input_set_abs_params(ipdev->input, ABS_Y, -CLAMP, CLAMP, 0, 0);
++	input_set_abs_params(ipdev->input, ABS_Z, -CLAMP, CLAMP, 0, 0);
++
++	err = input_register_polled_device(ipdev);
++	if (err)
++		input_free_polled_device(ipdev);
++
 +	return err;
 +}
 +
-+static ssize_t show_lsvalue(struct device *dev,
-+			    struct device_attribute *attr, char *buf)
++static int __devexit platform_remove(struct platform_device *pd)
 +{
-+	struct asus_laptop *asus = dev_get_drvdata(dev);
-+	int err, hi, lo;
-+
-+	err = pega_int_read(asus, PEGA_READ_ALS_H, &hi);
-+	if (!err)
-+		err = pega_int_read(asus, PEGA_READ_ALS_L, &lo);
-+	if (!err)
-+		return sprintf(buf, "%d\n", 10 * hi + lo);
-+	return err;
++	input_unregister_polled_device(ipdev);
++	input_free_polled_device(ipdev);
++	ipdev = NULL;
++	return 0;
 +}
 +
- /*
-  * GPS
-  */
-@@ -1305,6 +1348,7 @@ static DEVICE_ATTR(wimax, S_IRUGO | S_IWUSR, show_wimax, store_wimax);
- static DEVICE_ATTR(wwan, S_IRUGO | S_IWUSR, show_wwan, store_wwan);
- static DEVICE_ATTR(display, S_IRUGO | S_IWUSR, show_disp, store_disp);
- static DEVICE_ATTR(ledd, S_IRUGO | S_IWUSR, show_ledd, store_ledd);
-+static DEVICE_ATTR(ls_value, S_IRUGO, show_lsvalue, NULL);
- static DEVICE_ATTR(ls_level, S_IRUGO | S_IWUSR, show_lslvl, store_lslvl);
- static DEVICE_ATTR(ls_switch, S_IRUGO | S_IWUSR, show_lssw, store_lssw);
- static DEVICE_ATTR(gps, S_IRUGO | S_IWUSR, show_gps, store_gps);
-@@ -1317,6 +1361,7 @@ static struct attribute *asus_attributes[] = {
- 	&dev_attr_wwan.attr,
- 	&dev_attr_display.attr,
- 	&dev_attr_ledd.attr,
-+	&dev_attr_ls_value.attr,
- 	&dev_attr_ls_level.attr,
- 	&dev_attr_ls_switch.attr,
- 	&dev_attr_gps.attr,
-@@ -1354,8 +1399,15 @@ static mode_t asus_sysfs_is_visible(struct kobject *kobj,
- 
- 	} else if (attr == &dev_attr_ls_switch.attr ||
- 		   attr == &dev_attr_ls_level.attr) {
--		supported = !acpi_check_handle(handle, METHOD_ALS_CONTROL, NULL) &&
--			    !acpi_check_handle(handle, METHOD_ALS_LEVEL, NULL);
-+		if (asus_check_pega_lucid(asus)) {
-+			/* no ls_level interface on the Lucid */
-+			supported = attr == &dev_attr_ls_switch.attr;
-+		} else {
-+			supported = !acpi_check_handle(handle, METHOD_ALS_CONTROL, NULL) &&
-+				    !acpi_check_handle(handle, METHOD_ALS_LEVEL, NULL);
-+		}
-+	} else if (attr == &dev_attr_ls_value.attr) {
-+		supported = asus_check_pega_lucid(asus);
- 	} else if (attr == &dev_attr_gps.attr) {
- 		supported = !acpi_check_handle(handle, METHOD_GPS_ON, NULL) &&
- 			    !acpi_check_handle(handle, METHOD_GPS_OFF, NULL) &&
-@@ -1567,8 +1619,10 @@ static int __devinit asus_acpi_init(struct asus_laptop *asus)
- 	asus->light_switch = 0;	/* Default to light sensor disabled */
- 	asus->light_level = 5;	/* level 5 for sensor sensitivity */
- 
--	if (!acpi_check_handle(asus->handle, METHOD_ALS_CONTROL, NULL) &&
--	    !acpi_check_handle(asus->handle, METHOD_ALS_LEVEL, NULL)) {
-+	if (asus->have_pega_lucid) {
-+		asus_als_switch(asus, asus->light_switch);
-+	} else if (!acpi_check_handle(asus->handle, METHOD_ALS_CONTROL, NULL) &&
-+		   !acpi_check_handle(asus->handle, METHOD_ALS_LEVEL, NULL)) {
- 		asus_als_switch(asus, asus->light_switch);
- 		asus_als_level(asus, asus->light_level);
- 	}
++static struct platform_driver platform_driver = {
++	.driver = {
++		.owner = THIS_MODULE,
++		.name  = DRIVER_NAME,
++	},
++	.probe  = platform_probe,
++	.remove = __devexit_p(platform_remove),
++};
++
++static int __init mod_init(void)
++{
++	return platform_driver_register(&platform_driver);
++}
++
++static void __exit mod_exit(void)
++{
++	platform_driver_unregister(&platform_driver);
++}
++
++module_init(mod_init);
++module_exit(mod_exit);
++
++MODULE_AUTHOR("Andy Ross <andy.ross@windriver.com>");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_ALIAS("dmi:*:bvrLucid-CE-133:*");
 -- 
 1.7.1

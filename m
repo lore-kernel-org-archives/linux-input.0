@@ -1,40 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: sysrq -- ensure sysrq_enabled and
- __sysrq_enabled are consistent
-Date: Mon, 24 Jan 2011 09:04:58 -0800
-Message-ID: <20110124170458.GA31066@core.coreip.homeip.net>
-References: <1295877972-363-1-git-send-email-apw@canonical.com>
- <1295877972-363-2-git-send-email-apw@canonical.com>
+Subject: Re: [PATCH] input: Modify the qt602240 driver to be compatible with
+ mXT1386 device
+Date: Mon, 24 Jan 2011 09:07:57 -0800
+Message-ID: <20110124170756.GB31066@core.coreip.homeip.net>
+References: <4D3DAE3C.6060806@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:33646 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752927Ab1AXRFH (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:60596 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752867Ab1AXRIE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Jan 2011 12:05:07 -0500
+	Mon, 24 Jan 2011 12:08:04 -0500
+Received: by pva4 with SMTP id 4so709945pva.19
+        for <linux-input@vger.kernel.org>; Mon, 24 Jan 2011 09:08:03 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1295877972-363-2-git-send-email-apw@canonical.com>
+In-Reply-To: <4D3DAE3C.6060806@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Whitcroft <apw@canonical.com>
-Cc: linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+To: Iiro Valkonen <iiro.valkonen@atmel.com>
+Cc: linux-input@vger.kernel.org, jy0922.shim@samsung.com
 
-On Mon, Jan 24, 2011 at 02:06:12PM +0000, Andy Whitcroft wrote:
-> Currently sysrq_enabled and __sysrq_enabled are initialised separatly
-> and inconsitantly, leading to sysrq being actually enabled by reported
-> as not enabled in sysfs.  The first change to the sysfs configurable
-> synchronises these two:
-> 
->     static int __read_mostly sysrq_enabled = 1;
->     static int __sysrq_enabled;
-> 
-> Add a common define to carry the default for these preventing them becoming
-> out of sync again.  Default this to 1 to mirror previous behaviour.
-> 
-> Signed-off-by: Andy Whitcroft <apw@canonical.com>
+Hi Iiro,
 
-Applied and will also tag for stable. Thank you Andy.
+On Mon, Jan 24, 2011 at 06:52:12PM +0200, Iiro Valkonen wrote:
+> 
+> This patches the current qt602240 driver to be usable with mXT1386. Also all the qt602240 references are changed to more generic "MXT", as in the future this driver will be kept compatible with all the maXTouch variants.
+> 
+> 
+
+Thank you for the patch. Could I ask you to split the qt602240->mxt
+renames from the functional changes so latter are easier to review?
+
+Thanks!
 
 -- 
 Dmitry

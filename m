@@ -1,38 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Modify the qt602240 driver to be compatible with
- mXT1386 device
-Date: Mon, 24 Jan 2011 09:07:57 -0800
-Message-ID: <20110124170756.GB31066@core.coreip.homeip.net>
-References: <4D3DAE3C.6060806@atmel.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
+Date: Mon, 24 Jan 2011 09:54:57 -0800
+Message-ID: <20110124175456.GA17855@core.coreip.homeip.net>
+References: <4D3C5F73.2050408@teksavvy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:60596 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752867Ab1AXRIE (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:48585 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753354Ab1AXRzF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Jan 2011 12:08:04 -0500
-Received: by pva4 with SMTP id 4so709945pva.19
-        for <linux-input@vger.kernel.org>; Mon, 24 Jan 2011 09:08:03 -0800 (PST)
+	Mon, 24 Jan 2011 12:55:05 -0500
 Content-Disposition: inline
-In-Reply-To: <4D3DAE3C.6060806@atmel.com>
+In-Reply-To: <4D3C5F73.2050408@teksavvy.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Iiro Valkonen <iiro.valkonen@atmel.com>
-Cc: linux-input@vger.kernel.org, jy0922.shim@samsung.com
+To: Mark Lord <kernel@teksavvy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hi Iiro,
+Hi Mark,
 
-On Mon, Jan 24, 2011 at 06:52:12PM +0200, Iiro Valkonen wrote:
+On Sun, Jan 23, 2011 at 12:03:47PM -0500, Mark Lord wrote:
+> As of the 2.6.36 kernel, the userspace commands lsinput and input-kbd
+> no longer work.  And if I grab newer/patched versions of those from the latest
+> Ubuntu 10.10, then those newer/patched versions do not work with kernels
+> *before* 2.6.36.
 > 
-> This patches the current qt602240 driver to be usable with mXT1386. Also all the qt602240 references are changed to more generic "MXT", as in the future this driver will be kept compatible with all the maXTouch variants.
-> 
+> At first glance, this looks like a visible regression.
+> Is there a version of input-utils that works with both
+> old and new kernels ?
 > 
 
-Thank you for the patch. Could I ask you to split the qt602240->mxt
-renames from the functional changes so latter are easier to review?
-
-Thanks!
+The event protocol number was updated to reflect support of large
+scancodes, unfortunately some of the utilities expected exact version
+and refuse to work with updated one. Ubuntu's fix was simply recompile
+the code using the new define, this make it work on newer kernels but of
+course broke the old ones...
 
 -- 
 Dmitry

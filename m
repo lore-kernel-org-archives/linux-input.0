@@ -1,48 +1,86 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: Re: [patch] hid: check for kmalloc() failure
-Date: Mon, 24 Jan 2011 19:44:33 +0100
-Message-ID: <1295894673.4901.16.camel@neuromancer>
-References: <20110124183213.GA2721@bicker>
-Reply-To: erazor_de@users.sourceforge.net
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [2/2] input: wacom - Pass touch resolution to clients through input_absinfo
+Date: Mon, 24 Jan 2011 12:09:24 -0800
+Message-ID: <AANLkTi=8sDff350GAc+tkqYiTz+BQV6d44EgpUC5ToTC@mail.gmail.com>
+References: <1295825201-12567-1-git-send-email-pinglinux@gmail.com>
+	<20110124144017.GA4367@polaris.bitmath.org>
+	<AANLkTim39y5ZNdzvZ2=sO+sccpUMao3pqxyiv5VW9Ckv@mail.gmail.com>
+	<20110124183656.GC17855@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:43727 "EHLO
-	mail-in-01.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752945Ab1AXSon (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:37337 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752354Ab1AXUJ0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Jan 2011 13:44:43 -0500
-In-Reply-To: <20110124183213.GA2721@bicker>
+	Mon, 24 Jan 2011 15:09:26 -0500
+Received: by wyb28 with SMTP id 28so4463197wyb.19
+        for <linux-input@vger.kernel.org>; Mon, 24 Jan 2011 12:09:24 -0800 (PST)
+In-Reply-To: <20110124183656.GC17855@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-Am Montag, den 24.01.2011, 21:32 +0300 schrieb Dan Carpenter:
-> Return -ENOMEM if kmalloc() fails.
-> 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
-> 
-> diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-> index 1608c8d..c27bc91 100644
-> --- a/drivers/hid/hid-roccat-koneplus.c
-> +++ b/drivers/hid/hid-roccat-koneplus.c
-> @@ -220,6 +220,10 @@ static int koneplus_get_startup_profile(struct usb_device *usb_dev)
->  	int retval;
->  
->  	buf = kmalloc(sizeof(struct koneplus_startup_profile), GFP_KERNEL);
-> +	if (!buf) {
-> +		retval = -ENOMEM;
-> +		goto out;
-> +	}
->  
->  	retval = koneplus_receive(usb_dev, KONEPLUS_USB_COMMAND_STARTUP_PROFILE,
->  			buf, sizeof(struct koneplus_startup_profile));
+On Mon, Jan 24, 2011 at 10:36 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, Jan 24, 2011 at 10:18:54AM -0800, Ping Cheng wrote:
+>> On Mon, Jan 24, 2011 at 6:40 AM, Henrik Rydberg <rydberg@euromail.se=
+> wrote:
+>> > Hi Ping,
+>> >
+>> >> @@ -1228,8 +1228,13 @@ void wacom_setup_input_capabilities(struct=
+ input_dev *input_dev,
+>> >> =A0 =A0 =A0 case TABLETPC:
+>> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (features->device_type =3D=3D BTN_=
+TOOL_DOUBLETAP ||
+>> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->device_type =3D=3D =
+BTN_TOOL_TRIPLETAP) {
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(in=
+put_dev, ABS_RX, 0, features->x_phy, 0, 0);
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(in=
+put_dev, ABS_RY, 0, features->y_phy, 0, 0);
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* set touch resolution=
+ in points/mm */
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 res =3D features->x_phy=
+/100;
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input=
+_dev, ABS_X,
+>> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 features->x_max/res);
+>> >
+>> > It seems to me the construction above looses precision twice for n=
+o
+>> > apparent reason.
+>>
+>> Well, there was a reason (logically instead of mathematically though=
+):
+>> features->x_phy/100 gives us the physical size of the touch area in
+>> mm.
+>>
+>> > How about instead use "100 * features->x_max /
+>> > features->x_phy"?
+>>
+>> Sure.
+>>
+>> > Besides, it is a bit unfortunate that "res" is short
+>> > for both result and resolution.
+>>
+>> Resolution is defined as __s32 in input_absinfo. How about we use __=
+s32 then?
+>
+> input_abs_set_res() takes and int argument so keep it int =A0(or just
+> embed the expression into the call and forgo 'res').
 
-That was already fixed by Vasiliy Kulikov. The patch was applied to the
-roccat branch in Jiri Kosinas hid repository
-(dacfecdbf3a0a5072984ff8b3c224a48c8461008).
-Thank you anyway.
-Stefan
+I added 'res' to avoid confusion hence questions about the formula. I
+am still questioned ;).
 
+ I'll forgo 'res' in v2. Thank you for the suggestions.
+
+Ping
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

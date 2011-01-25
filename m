@@ -1,89 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Tue, 25 Jan 2011 13:01:54 -0800
-Message-ID: <20110125210153.GB19896@core.coreip.homeip.net>
-References: <20110125042016.GA7850@core.coreip.homeip.net>
- <4D3E5372.9010305@teksavvy.com>
- <20110125045559.GB7850@core.coreip.homeip.net>
- <4D3E59CA.6070107@teksavvy.com>
- <4D3E5A91.30207@teksavvy.com>
- <20110125053117.GD7850@core.coreip.homeip.net>
- <4D3EB734.5090100@redhat.com>
- <20110125164803.GA19701@core.coreip.homeip.net>
+Date: Wed, 26 Jan 2011 07:20:07 +1000
+Message-ID: <AANLkTiknmVaOhvhTXC_5G3m-HDrTJCyqbjOPgnUEFZpA@mail.gmail.com>
+References: <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com>
+ <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com>
+ <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net>
+ <4D3EB734.5090100@redhat.com> <20110125164803.GA19701@core.coreip.homeip.net>
  <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com>
- <20110125205453.GA19896@core.coreip.homeip.net>
+ <20110125205453.GA19896@core.coreip.homeip.net> <20110125210153.GB19896@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:62704 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753379Ab1AYVCA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 16:02:00 -0500
-Content-Disposition: inline
-In-Reply-To: <20110125205453.GA19896@core.coreip.homeip.net>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:53578 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753919Ab1AYVU6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Jan 2011 16:20:58 -0500
+In-Reply-To: <20110125210153.GB19896@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Mark Lord <kernel@teksavvy.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Tue, Jan 25, 2011 at 12:54:53PM -0800, Dmitry Torokhov wrote:
-> On Wed, Jan 26, 2011 at 06:09:45AM +1000, Linus Torvalds wrote:
-> > On Wed, Jan 26, 2011 at 2:48 AM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > >
-> > > We should be able to handle the case where scancode is valid even though
-> > > it might be unmapped yet. This is regardless of what version of
-> > > EVIOCGKEYCODE we use, 1 or 2, and whether it is sparse keymap or not.
-> > >
-> > > Is it possible to validate the scancode by driver?
-> > 
-> > More appropriately, why not just revert the thing? The version change
-> 
-> Well, then we'll break Ubuntu again as they recompiled their input-utils
-> package (without fixing the check). And the rest of distros do not seem
-> to be using that package...
-> 
-> > and the buggy EINVAL return both.
-> 
-> I believe that -EINVAL thing only affects RC devices that Mauro switched
-> to the new rc-core; input core in itself should be ABI compatible. Thus
-> I'll leave the decision to him whether he wants to revert or fix
-> compatibility issue.
-> 
-> > 
-> > As Mark said, breaking user space simply isn't acceptable. And since
-> > breaking user space isn't acceptable, then incrementing the version is
-> > stupid too.
-> 
-> It might not have been the best idea to increment, however I maintain
-> that if there exists version is can be changed. Otherwise there is no
-> point in having version at all.
-> 
-> As I said, reverting the version bump will cause yet another wave of
-> breakages so I propose leaving version as is.
-> 
-> > 
-> > The way we add new ioctl's is not by incrementing some "ABI version"
-> > crap. It's by adding new ioctl's or system calls or whatever that
-> > simply used to return -ENOSYS or other error before, while preserving
-> > the old ABI. That way old binaries don't break (for _ANY_ reason), and
-> > new binaries can see "oh, this doesn't support the new thing".
-> 
-> That has been done as well; we have 2 new ioctls and kept 2 old ioctls.
-> 
+On Wed, Jan 26, 2011 at 7:01 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> BTW, another issue is that evdev's ioctl returns -EINVAL for unknown
+> ioctls so applications would have hard time figuring out whether erro=
+r
+> returned because of kernel being too old or because they are trying t=
+o
+> retrieve/establish invalid mapping if they had to go only by the erro=
+r
+> code.
 
-BTW, another issue is that evdev's ioctl returns -EINVAL for unknown
-ioctls so applications would have hard time figuring out whether error
-returned because of kernel being too old or because they are trying to
-retrieve/establish invalid mapping if they had to go only by the error
-code.
+So that's just another evdev interface bug.
 
-As far as I can see EINVAL is a proper error for unknown ioctls:
+> As far as I can see EINVAL is a proper error for unknown ioctls:
+>
+> [dtor@hammer work]$ man 2 ioctl | grep EINVAL
+> =A0 =A0 =A0 EINVAL Request or argp is not valid.
 
-[dtor@hammer work]$ man 2 ioctl | grep EINVAL
-       EINVAL Request or argp is not valid.
-[dtor@hammer work]$
+Yeah, there's some confusion there.
 
--- 
-Dmitry
+The "unknown ioctl" error code is (for traditional reasons) ENOTTY,
+but yes, the EINVAL thing admittedly has a lot of legacy use too.
+
+Inside the kernel, the preferred way to say "I don't recognize that
+ioctl number" is actually ENOIOCTLCMD.  That's exactly so that various
+nested ioctl handlers can then tell the difference between "I didn't
+recognize that ioctl" and "I understand what you asked me to do, but
+your arguments were crap".
+
+vfs_ioctl() will then turn ENOIOCTLCMD to EINVAL to return to user spac=
+e.
+
+                  Linus
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

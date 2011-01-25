@@ -1,77 +1,108 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/4] Pegatron Lucid tablet acceleromter/ALS
-Date: Tue, 25 Jan 2011 09:12:38 -0800
-Message-ID: <20110125171238.GE19701@core.coreip.homeip.net>
-References: <1295909288-32650-1-git-send-email-andy.ross@windriver.com>
- <20110124230557.GA18135@core.coreip.homeip.net>
- <AANLkTinfDR4TnVC-NPLsCqXsc9nP+UWXKO6n8jXuT7ne@mail.gmail.com>
- <4D3EFDCF.7090308@windriver.com>
- <AANLkTi=tQpQ0wjfx-Cp13FuCSQNFitN7XAg-V2AcSHz2@mail.gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [v2] input: wacom - Pass touch resolution to clients through input_absinfo
+Date: Tue, 25 Jan 2011 09:59:09 -0800
+Message-ID: <AANLkTi=Nd+gLu-c_vwPdEoGKRauFHL8Q3JCuUPxm61gj@mail.gmail.com>
+References: <1295910373-2450-1-git-send-email-pinglinux@gmail.com>
+	<20110125100238.GA5837@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:44698 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752222Ab1AYRMq (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:51974 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751769Ab1AYR7K convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 12:12:46 -0500
-Content-Disposition: inline
-In-Reply-To: <AANLkTi=tQpQ0wjfx-Cp13FuCSQNFitN7XAg-V2AcSHz2@mail.gmail.com>
+	Tue, 25 Jan 2011 12:59:10 -0500
+Received: by wyb28 with SMTP id 28so47520wyb.19
+        for <linux-input@vger.kernel.org>; Tue, 25 Jan 2011 09:59:09 -0800 (PST)
+In-Reply-To: <20110125100238.GA5837@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Corentin Chary <corentin.chary@gmail.com>
-Cc: Andy Ross <andy.ross@windriver.com>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Tue, Jan 25, 2011 at 05:05:05PM +0000, Corentin Chary wrote:
-> On Tue, Jan 25, 2011 at 4:43 PM, Andy Ross <andy.ross@windriver.com> =
-wrote:
-> > On 01/24/2011 11:30 PM, Corentin Chary wrote:
-> >> Dmitry Torokhov wrote:
-> >> > I am happy with the input part but I wonder if it really needs t=
-o be
-> >> > separate? If you roll it up into asus-laptop you would not need =
-a new
-> >> > platform device and then it would be what - 20 lines of code?
-> >> >
-> >> > Corentin, what do you think?
-> >>
-> >> I think that it should be consistent, if there is already some cod=
-e
-> >> for pegatron tablet in asus-laptop, then why a new platform device
-> >> only for the accelerometer ?
-> >
-> > No strong feelings here. =A0I made it a separate file because
-> > asus-laptop.c is already very large and this was something that cou=
-ld
-> > be fairly easily split out, but obviously it's a really trivial
-> > device.
-> >
-> >> Andy, what is shared with asus-laptop exactly ? What sysfs files a=
-re
-> >> working and enabled ? =A0Are backlight and led classes working ?
-> >
-> > Just the key device, which exports the single touch area in the cor=
-ner
-> > of the tablet as KEY_MEDIA. =A0Some of the other sysfs devices
-> > (bluetooth, display, leds) appear because the methods exist, but
-> > they're stubbed out in the ASL and thus noops.
-> >
-> > Andy
->=20
-> If everybody is ok with that, I think you should move the code back
-> into asus-laptop.c. But if you do so, don't forget to modify the help
-> text of ASUS_LAPTOP section in KConfig.
->=20
-> Should we also change the description to
-> "Asus/Medion/JVC/Lenovo/Pegatron Extra" ? That seems really ugly
-> but....
+On Tue, Jan 25, 2011 at 2:02 AM, Henrik Rydberg <rydberg@euromail.se> w=
+rote:
+> On Mon, Jan 24, 2011 at 11:06:13PM -0000, Ping Cheng wrote:
+>> Fixed the workaround used for kernels older than 2.6.35.
+>>
+>> Signed-off-by: Ping Cheng <pingc@wacom.com>
+>>
+>> ---
+>> drivers/input/tablet/wacom_wac.c | =A0 12 ++++++++++--
+>> =A01 files changed, 10 insertions(+), 2 deletions(-)
+>
+> A define or a function would have been nicer than "100", but since
+> this wasn't obvious from the comments,
 
-"Kitchen sink" so we do not need to adjust the description going
-forward? ;P
+I'll make a version 3 to add a function with comments since I need to
+remove RX/RY from this patch anyway.
 
---=20
-Dmitry
+> Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+
+Thank you.
+
+Ping
+>
+> Thanks,
+> Henrik
+>
+>>
+>> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet=
+/wacom_wac.c
+>> index f44c822..12d5ccf 100644
+>> --- a/drivers/input/tablet/wacom_wac.c
+>> +++ b/drivers/input/tablet/wacom_wac.c
+>> @@ -1228,8 +1228,11 @@ void wacom_setup_input_capabilities(struct in=
+put_dev *input_dev,
+>> =A0 =A0 =A0 case TABLETPC:
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (features->device_type =3D=3D BTN_TOO=
+L_DOUBLETAP ||
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->device_type =3D=3D BTN=
+_TOOL_TRIPLETAP) {
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(input=
+_dev, ABS_RX, 0, features->x_phy, 0, 0);
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(input=
+_dev, ABS_RY, 0, features->y_phy, 0, 0);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* set touch resolution in=
+ points/mm */
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input_de=
+v, ABS_X,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 100 * feat=
+ures->x_max / features->x_phy);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input_de=
+v, ABS_Y,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 100 * feat=
+ures->y_max / features->y_phy);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_TOOL_DOUBL=
+ETAP, input_dev->keybit);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>>
+>> @@ -1272,6 +1275,11 @@ void wacom_setup_input_capabilities(struct in=
+put_dev *input_dev,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(inp=
+ut_dev, ABS_MT_PRESSURE,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A00, features->pressure_max,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0features->pressure_fuzz, 0);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* set touch resolution in=
+ points/mm */
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input_de=
+v, ABS_X,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 100 * feat=
+ures->x_max / features->x_phy);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input_de=
+v, ABS_Y,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 100 * feat=
+ures->y_max / features->y_phy);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else if (features->device_type =3D=3D =
+BTN_TOOL_PEN) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_TOOL_RUBBE=
+R, input_dev->keybit);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_TOOL_PEN, =
+input_dev->keybit);
+>
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

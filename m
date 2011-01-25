@@ -1,94 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Tue, 25 Jan 2011 08:48:03 -0800
-Message-ID: <20110125164803.GA19701@core.coreip.homeip.net>
-References: <4D3E1A08.5060303@teksavvy.com>
- <20110125005555.GA18338@core.coreip.homeip.net>
- <4D3E4DD1.60705@teksavvy.com>
- <20110125042016.GA7850@core.coreip.homeip.net>
- <4D3E5372.9010305@teksavvy.com>
- <20110125045559.GB7850@core.coreip.homeip.net>
- <4D3E59CA.6070107@teksavvy.com>
- <4D3E5A91.30207@teksavvy.com>
- <20110125053117.GD7850@core.coreip.homeip.net>
- <4D3EB734.5090100@redhat.com>
+Subject: Re: [PATCH 10/32] input/tps6507x-ts: use system_wq instead of
+ dedicated workqueue
+Date: Tue, 25 Jan 2011 08:50:06 -0800
+Message-ID: <20110125165005.GB19701@core.coreip.homeip.net>
+References: <1294062595-30097-1-git-send-email-tj@kernel.org>
+ <1294062595-30097-11-git-send-email-tj@kernel.org>
+ <20110103143926.GX1886@bicker>
+ <4D21FAA3.8030505@ridgerun.com>
+ <20110125141942.GA27510@htj.dyndns.org>
+ <4D3EF6B9.6080608@ridgerun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4D3EB734.5090100@redhat.com>
+In-Reply-To: <4D3EF6B9.6080608@ridgerun.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Mark Lord <kernel@teksavvy.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Todd Fischer <todd.fischer@ridgerun.com>
+Cc: Tejun Heo <tj@kernel.org>, Dan Carpenter <error27@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 25, 2011 at 09:42:44AM -0200, Mauro Carvalho Chehab wrote:
-> Em 25-01-2011 03:31, Dmitry Torokhov escreveu:
-> > On Tue, Jan 25, 2011 at 12:07:29AM -0500, Mark Lord wrote:
-> >> On 11-01-25 12:04 AM, Mark Lord wrote:
-> >>> On 11-01-24 11:55 PM, Dmitry Torokhov wrote:
-> >>>> On Mon, Jan 24, 2011 at 11:37:06PM -0500, Mark Lord wrote:
-> >>> ..
-> >>>>> This results in (map->size==10) for 2.6.36+ (wrong),
-> >>>>> and a much larger map->size for 2.6.35 and earlier.
-> >>>>>
-> >>>>> So perhaps EVIOCGKEYCODE has changed?
-> >>>>>
-> >>>>
-> >>>> So the utility expects that all devices have flat scancode space and
-> >>>> driver might have changed so it does not recognize scancode 10 as valid
-> >>>> scancode anymore.
-> >>>>
-> >>>> The options are:
-> >>>>
-> >>>> 1. Convert to EVIOCGKEYCODE2
-> >>>> 2. Ignore errors from EVIOCGKEYCODE and go through all 65536 iterations.
-> >>>
-> >>> or 3. Revert/fix the in-kernel regression.
-> >>>
-> >>> The EVIOCGKEYCODE ioctl is supposed to return KEY_RESERVED for unmapped
-> >>> (but value) keycodes, and only return -EINVAL when the keycode itself
-> >>> is out of range.
-> >>>
-> >>> That's how it worked in all kernels prior to 2.6.36,
-> >>> and now it is broken.  It now returns -EINVAL for any unmapped keycode,
-> >>> even though keycodes higher than that still have mappings.
-> >>>
-> >>> This is a bug, a regression, and breaks userspace.
-> >>> I haven't identified *where* in the kernel the breakage happened,
-> >>> though.. that code confuses me.  :)
-> >>
-> >> Note that this device DOES have "flat scancode space",
-> >> and the kernel is now incorrectly signalling an error (-EINVAL)
-> >> in response to a perfectly valid query of a VALID (and mappable)
-> >> keycode on the remote control
-> >>
-> >> The code really is a valid button, it just doesn't have a default mapping
-> >> set by the kernel (I can set a mapping for that code from userspace and it works).
-> >>
-> > 
-> > OK, in this case let's ping Mauro - I think he done the adjustments to
-> > IR keymap hanlding.
+On Tue, Jan 25, 2011 at 09:13:45AM -0700, Todd Fischer wrote:
+> On 01/25/2011 07:19 AM, Tejun Heo wrote:
+> >Shall I apply the patch?
+> >Thanks
+> Yes, apply the patch.  I am not sure of the syntax for attaching my
+> sign off.  Hope this is okay.
 > 
-> I lost part of the thread, but a quick search via the Internet showed that you're using
-> the input tools to work with a Remote Controller, right? Are you using a vanilla
-> kernel, or are you using the media_build backports? There are some distros that are
-> using those backports also like Fedora 14.
+> Todd
 > 
-> In the latter case, I found the reason why the backports were not working and I fixed
-> it a couple days ago:
-> 	http://git.linuxtv.org/media_build.git?a=commit;h=b83dc3e49d90527d8e1016d09e06f4842a6a847a
+> Signed-off-by: Todd Fischer<todd.fischer@ridgerun.com>
 > 
-> The issue is simple, and it is related on how the input.c used to handle EVIOSGKEYCODE.
-> Basically, before allowing you to change a key, it used to call EVIOCGKEYCODE to check
-> it that key exists. However, when you're creating a new association, the key didn't
-> exist, and, to be strict with input rules, EVIOCGKEYCODE should return -EINVAL.
 
-We should be able to handle the case where scancode is valid even though
-it might be unmapped yet. This is regardless of what version of
-EVIOCGKEYCODE we use, 1 or 2, and whether it is sparse keymap or not.
+That should be Acked-by since you are not passing the patch along.
 
-Is it possible to validate the scancode by driver?
+Fine with the as well.
+
+Thanks.
 
 -- 
 Dmitry

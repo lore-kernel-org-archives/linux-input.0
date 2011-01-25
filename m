@@ -1,94 +1,53 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
- ?
-Date: Tue, 25 Jan 2011 09:42:44 -0200
-Message-ID: <4D3EB734.5090100@redhat.com>
-References: <4D3C5F73.2050408@teksavvy.com> <20110124175456.GA17855@core.coreip.homeip.net> <4D3E1A08.5060303@teksavvy.com> <20110125005555.GA18338@core.coreip.homeip.net> <4D3E4DD1.60705@teksavvy.com> <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com> <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid kernel module for wireless remote LC Power model
+ RC1000MCE
+Date: Tue, 25 Jan 2011 14:01:36 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1101251359150.5725@pobox.suse.cz>
+References: <4D3DAE2F.3080009@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57366 "EHLO mx1.redhat.com"
+Received: from cantor.suse.de ([195.135.220.2]:39610 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751940Ab1AYLmw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 06:42:52 -0500
-In-Reply-To: <20110125053117.GD7850@core.coreip.homeip.net>
+	id S1752908Ab1AYNBh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Jan 2011 08:01:37 -0500
+In-Reply-To: <4D3DAE2F.3080009@gmx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Lord <kernel@teksavvy.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: chris schlund <chrisschlund@gmx.de>
+Cc: linux-input@vger.kernel.org
 
-Em 25-01-2011 03:31, Dmitry Torokhov escreveu:
-> On Tue, Jan 25, 2011 at 12:07:29AM -0500, Mark Lord wrote:
->> On 11-01-25 12:04 AM, Mark Lord wrote:
->>> On 11-01-24 11:55 PM, Dmitry Torokhov wrote:
->>>> On Mon, Jan 24, 2011 at 11:37:06PM -0500, Mark Lord wrote:
->>> ..
->>>>> This results in (map->size==10) for 2.6.36+ (wrong),
->>>>> and a much larger map->size for 2.6.35 and earlier.
->>>>>
->>>>> So perhaps EVIOCGKEYCODE has changed?
->>>>>
->>>>
->>>> So the utility expects that all devices have flat scancode space and
->>>> driver might have changed so it does not recognize scancode 10 as valid
->>>> scancode anymore.
->>>>
->>>> The options are:
->>>>
->>>> 1. Convert to EVIOCGKEYCODE2
->>>> 2. Ignore errors from EVIOCGKEYCODE and go through all 65536 iterations.
->>>
->>> or 3. Revert/fix the in-kernel regression.
->>>
->>> The EVIOCGKEYCODE ioctl is supposed to return KEY_RESERVED for unmapped
->>> (but value) keycodes, and only return -EINVAL when the keycode itself
->>> is out of range.
->>>
->>> That's how it worked in all kernels prior to 2.6.36,
->>> and now it is broken.  It now returns -EINVAL for any unmapped keycode,
->>> even though keycodes higher than that still have mappings.
->>>
->>> This is a bug, a regression, and breaks userspace.
->>> I haven't identified *where* in the kernel the breakage happened,
->>> though.. that code confuses me.  :)
->>
->> Note that this device DOES have "flat scancode space",
->> and the kernel is now incorrectly signalling an error (-EINVAL)
->> in response to a perfectly valid query of a VALID (and mappable)
->> keycode on the remote control
->>
->> The code really is a valid button, it just doesn't have a default mapping
->> set by the kernel (I can set a mapping for that code from userspace and it works).
->>
-> 
-> OK, in this case let's ping Mauro - I think he done the adjustments to
-> IR keymap hanlding.
+On Mon, 24 Jan 2011, chris schlund wrote:
 
-I lost part of the thread, but a quick search via the Internet showed that you're using
-the input tools to work with a Remote Controller, right? Are you using a vanilla
-kernel, or are you using the media_build backports? There are some distros that are
-using those backports also like Fedora 14.
+> I bought a remote control LC Power RC1000MCE (usb rf keyboard). Some keys were
+> not working. Therefore I took the hid-topseed kernel module copied it and
+> prepared it as a new kernel module hid-lcpower which provides the correct
+> keymapping for this remote control.
+> I tested it on the 2.6.32 kernel.
+> I modified it to compile with the kernel version 2.6.37 (untested).
 
-In the latter case, I found the reason why the backports were not working and I fixed
-it a couple days ago:
-	http://git.linuxtv.org/media_build.git?a=commit;h=b83dc3e49d90527d8e1016d09e06f4842a6a847a
+Hi Chris,
 
-The issue is simple, and it is related on how the input.c used to handle EVIOSGKEYCODE.
-Basically, before allowing you to change a key, it used to call EVIOCGKEYCODE to check
-it that key exists. However, when you're creating a new association, the key didn't
-exist, and, to be strict with input rules, EVIOCGKEYCODE should return -EINVAL.
-To circumvent that behaviour, old versions were returning 0, and associating unmapped
-scancodes to KEY_RESERVED. We used this workaround for a few kernel versions, while
-we were discussing the improvements so support larger scancodes.
+thanks a lot for the driver.
 
-Yet, on all vanilla kernels, changing the keycode association works fine.
+First, I am missing your Signed-off-by: line, without which I can't apply 
+your driver. Please see Documentation/SubmittingPatches for details.
 
-However, the backport patch at media_build were not taking this workaround into account,
-and were just returning -EINVAL. So, the backported media drivers stopped allowing
-some keytable changes. The patch above fixes it.
+Second, your mailer has damaged (line-wrapped) the patch.
 
-Cheers,
-Mauro
+[ ... snip ... ]
+> +config HID_LCPOWER
+> +       tristate "LC-Power" if EMBEDDED
+> +       depends on USB_HID
+> +       default !EMBEDDED
 
+Also, we are not going the EMBEDDED path any more (see commit 
+73d5e8f77e88a4 for explanation).
 
+Could you please fix that up and resend?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

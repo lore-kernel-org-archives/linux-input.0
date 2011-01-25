@@ -1,15 +1,19 @@
-From: Andy Ross <andy.ross-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
+From: Corentin Chary <corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 0/4] Pegatron Lucid tablet
 	acceleromter/ALS
-Date: Tue, 25 Jan 2011 09:09:04 -0800
-Message-ID: <4D3F03B0.7030607@windriver.com>
-References: <1295909288-32650-1-git-send-email-andy.ross@windriver.com>	<20110124230557.GA18135@core.coreip.homeip.net>	<AANLkTinfDR4TnVC-NPLsCqXsc9nP+UWXKO6n8jXuT7ne@mail.gmail.com>	<4D3EFDCF.7090308@windriver.com>
+Date: Tue, 25 Jan 2011 17:10:37 +0000
+Message-ID: <AANLkTikMBXne3w0aHq008fMo1RwE4u47doGBEiJLD_x2@mail.gmail.com>
+References: <1295909288-32650-1-git-send-email-andy.ross@windriver.com>
+	<20110124230557.GA18135@core.coreip.homeip.net>
+	<AANLkTinfDR4TnVC-NPLsCqXsc9nP+UWXKO6n8jXuT7ne@mail.gmail.com>
+	<4D3EFDCF.7090308@windriver.com>
 	<AANLkTi=tQpQ0wjfx-Cp13FuCSQNFitN7XAg-V2AcSHz2@mail.gmail.com>
+	<4D3F03B0.7030607@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <AANLkTi=tQpQ0wjfx-Cp13FuCSQNFitN7XAg-V2AcSHz2-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <4D3F03B0.7030607-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
 	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=acpi4asus-user>
@@ -18,27 +22,29 @@ List-Help: <mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@publi
 List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
 	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
 Errors-To: acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Corentin Chary <corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Andy Ross <andy.ross-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
 Cc: platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 01/25/2011 09:05 AM, Corentin Chary wrote:
-> If everybody is ok with that, I think you should move the code back
-> into asus-laptop.c. But if you do so, don't forget to modify the help
-> text of ASUS_LAPTOP section in KConfig.
-
-OK.  Though one gotcha I just realized is that this will pull input-polldev
-into the dependency list for asus-laptop, which may not be desirable just to
-support one obscure device.  But again, that's a small module...
-
-I have a few things to take care of this morning first, hopefully I'll have
-another version ready in a few hours.
-
-Andy
-
-------------------------------------------------------------------------------
-Special Offer-- Download ArcSight Logger for FREE (a $49 USD value)!
-Finally, a world-class log management solution at an even better price-free!
-Download using promo code Free_Logger_4_Dev2Dev. Offer expires 
-February 28th, so secure your free ArcSight Logger TODAY! 
-http://p.sf.net/sfu/arcsight-sfd2d
+T24gVHVlLCBKYW4gMjUsIDIwMTEgYXQgNTowOSBQTSwgQW5keSBSb3NzIDxhbmR5LnJvc3NAd2lu
+ZHJpdmVyLmNvbT4gd3JvdGU6Cj4gT24gMDEvMjUvMjAxMSAwOTowNSBBTSwgQ29yZW50aW4gQ2hh
+cnkgd3JvdGU6Cj4+IElmIGV2ZXJ5Ym9keSBpcyBvayB3aXRoIHRoYXQsIEkgdGhpbmsgeW91IHNo
+b3VsZCBtb3ZlIHRoZSBjb2RlIGJhY2sKPj4gaW50byBhc3VzLWxhcHRvcC5jLiBCdXQgaWYgeW91
+IGRvIHNvLCBkb24ndCBmb3JnZXQgdG8gbW9kaWZ5IHRoZSBoZWxwCj4+IHRleHQgb2YgQVNVU19M
+QVBUT1Agc2VjdGlvbiBpbiBLQ29uZmlnLgo+Cj4gT0suIMKgVGhvdWdoIG9uZSBnb3RjaGEgSSBq
+dXN0IHJlYWxpemVkIGlzIHRoYXQgdGhpcyB3aWxsIHB1bGwgaW5wdXQtcG9sbGRldgo+IGludG8g
+dGhlIGRlcGVuZGVuY3kgbGlzdCBmb3IgYXN1cy1sYXB0b3AsIHdoaWNoIG1heSBub3QgYmUgZGVz
+aXJhYmxlIGp1c3QgdG8KPiBzdXBwb3J0IG9uZSBvYnNjdXJlIGRldmljZS4gwqBCdXQgYWdhaW4s
+IHRoYXQncyBhIHNtYWxsIG1vZHVsZS4uLgoKTWF5YmUgeW91IGNhbiBtYWtlIHBlZ2F0cm9uIHN1
+cHBvcnQgb3B0aW9uYWwgaW4gYXN1cy1sYXB0b3AgPyAod2l0aCBhCmNoZWNrYm94IG9yIHNvbWV0
+aGluZyBsaWtlIHRoYXQpCgotLSAKQ29yZW50aW4gQ2hhcnkKaHR0cDovL3hmLmlrc2FpZi5uZXQK
+Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpTcGVjaWFsIE9mZmVyLS0gRG93bmxvYWQgQXJjU2lnaHQg
+TG9nZ2VyIGZvciBGUkVFIChhICQ0OSBVU0QgdmFsdWUpIQpGaW5hbGx5LCBhIHdvcmxkLWNsYXNz
+IGxvZyBtYW5hZ2VtZW50IHNvbHV0aW9uIGF0IGFuIGV2ZW4gYmV0dGVyIHByaWNlLWZyZWUhCkRv
+d25sb2FkIHVzaW5nIHByb21vIGNvZGUgRnJlZV9Mb2dnZXJfNF9EZXYyRGV2LiBPZmZlciBleHBp
+cmVzIApGZWJydWFyeSAyOHRoLCBzbyBzZWN1cmUgeW91ciBmcmVlIEFyY1NpZ2h0IExvZ2dlciBU
+T0RBWSEgCmh0dHA6Ly9wLnNmLm5ldC9zZnUvYXJjc2lnaHQtc2ZkMmQKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KQWNwaTRhc3VzLXVzZXIgbWFpbGluZyBs
+aXN0CkFjcGk0YXN1cy11c2VyQGxpc3RzLnNvdXJjZWZvcmdlLm5ldApodHRwczovL2xpc3RzLnNv
+dXJjZWZvcmdlLm5ldC9saXN0cy9saXN0aW5mby9hY3BpNGFzdXMtdXNlcgo=

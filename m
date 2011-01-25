@@ -1,52 +1,115 @@
-From: Mark Lord <kernel@teksavvy.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
- ?
-Date: Tue, 25 Jan 2011 09:32:51 -0500
-Message-ID: <4D3EDF13.7010007@teksavvy.com>
-References: <4D3C5F73.2050408@teksavvy.com> <20110124175456.GA17855@core.coreip.homeip.net> <4D3E1A08.5060303@teksavvy.com> <20110125005555.GA18338@core.coreip.homeip.net> <4D3E4DD1.60705@teksavvy.com> <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com> <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <4D3EB734.5090100@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Extending rc-core/userspace to handle bigger scancodes - Was: Re:
+ 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
+Date: Tue, 25 Jan 2011 12:42:57 -0200
+Message-ID: <4D3EE171.4020605@redhat.com>
+References: <20110124175456.GA17855@core.coreip.homeip.net> <4D3E1A08.5060303@teksavvy.com> <20110125005555.GA18338@core.coreip.homeip.net> <4D3E4DD1.60705@teksavvy.com> <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com> <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <20110125065217.GE7850@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ironport2-out.teksavvy.com ([206.248.154.183]:4118 "EHLO
-	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753620Ab1AYOcy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 09:32:54 -0500
-In-Reply-To: <4D3EB734.5090100@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:38843 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751977Ab1AYOnC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Jan 2011 09:43:02 -0500
+In-Reply-To: <20110125065217.GE7850@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, rjw@sisk.pl
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Lord <kernel@teksavvy.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On 11-01-25 06:42 AM, Mauro Carvalho Chehab wrote:
->
-> I lost part of the thread, but a quick search via the Internet showed that you're using
-> the input tools to work with a Remote Controller, right? Are you using a vanilla
-> kernel, or are you using the media_build backports? There are some distros that are
-> using those backports also like Fedora 14.
+Em 25-01-2011 04:52, Dmitry Torokhov escreveu:
+> On Mon, Jan 24, 2011 at 09:31:17PM -0800, Dmitry Torokhov wrote:
+>> On Tue, Jan 25, 2011 at 12:07:29AM -0500, Mark Lord wrote:
+>>> On 11-01-25 12:04 AM, Mark Lord wrote:
+>>>> On 11-01-24 11:55 PM, Dmitry Torokhov wrote:
+>>>>> On Mon, Jan 24, 2011 at 11:37:06PM -0500, Mark Lord wrote:
+>>>> ..
+>>>>>> This results in (map->size==10) for 2.6.36+ (wrong),
+>>>>>> and a much larger map->size for 2.6.35 and earlier.
+>>>>>>
+>>>>>> So perhaps EVIOCGKEYCODE has changed?
+>>>>>>
+>>>>>
+>>>>> So the utility expects that all devices have flat scancode space and
+>>>>> driver might have changed so it does not recognize scancode 10 as valid
+>>>>> scancode anymore.
+>>>>>
+>>>>> The options are:
+>>>>>
+>>>>> 1. Convert to EVIOCGKEYCODE2
+>>>>> 2. Ignore errors from EVIOCGKEYCODE and go through all 65536 iterations.
+>>>>
+>>>> or 3. Revert/fix the in-kernel regression.
+>>>>
+>>>> The EVIOCGKEYCODE ioctl is supposed to return KEY_RESERVED for unmapped
+>>>> (but value) keycodes, and only return -EINVAL when the keycode itself
+>>>> is out of range.
+>>>>
+>>>> That's how it worked in all kernels prior to 2.6.36,
+>>>> and now it is broken.  It now returns -EINVAL for any unmapped keycode,
+>>>> even though keycodes higher than that still have mappings.
+>>>>
+>>>> This is a bug, a regression, and breaks userspace.
+>>>> I haven't identified *where* in the kernel the breakage happened,
+>>>> though.. that code confuses me.  :)
+>>>
+>>> Note that this device DOES have "flat scancode space",
+>>> and the kernel is now incorrectly signalling an error (-EINVAL)
+>>> in response to a perfectly valid query of a VALID (and mappable)
+>>> keycode on the remote control
+>>>
+>>> The code really is a valid button, it just doesn't have a default mapping
+>>> set by the kernel (I can set a mapping for that code from userspace and it works).
+>>>
+>>
+>> OK, in this case let's ping Mauro - I think he done the adjustments to
+>> IR keymap hanlding.
+>>
+>> Thanks.
+>>
+> 
+> BTW, could you please try the following patch (it assumes that
+> EVIOCGVERSION in input.c is alreday relaxed).
 
-I use kernel.org kernels exclusively.
+Dmitry,
 
-> The issue is simple, and it is related on how the input.c used to handle EVIOSGKEYCODE.
-> Basically, before allowing you to change a key, it used to call EVIOCGKEYCODE to check
-> it that key exists. However, when you're creating a new association, the key didn't
-> exist, and, to be strict with input rules, EVIOCGKEYCODE should return -EINVAL.
+Thanks for your patch. I used part of his logic to improve the ir-keytable 
+tool at v4l-utils:
+	http://git.linuxtv.org/v4l-utils.git
 
-No, if the parameters are a valid key, then -EINVAL is never the correct
-thing for a kernel to return.  -EINVAL means "bad parameters",
-and that's not an accurate description of a valid yet unmapped key.
+The ir-keytable is a tool that just handles Remote Controller input devices,
+and do it well, allowing all sorts of operations related to it, and using the
+sysfs /sys/class/rc stuff to help its operation. Without any arguments, it
+lists the existing RC devices. Arguments are there to allow enabling/disabling
+RC protocols, reading/writing/cleaning keycode tables and to test if the
+remote is generating events (EV_MSC/EV_KEY/EV_REP/EV_SYN).
 
-> To circumvent that behaviour, old versions were returning 0, and associating unmapped
-> scancodes to KEY_RESERVED. We used this workaround for a few kernel versions, while
-> we were discussing the improvements so support larger scancodes.
+Now, it will be using V2 for reads and keycode cleanups, but will still use
+V1 for writes, as, currently with 32 bits scancodes, there's no gain to use
+V2 for it. Also, changing the tool to use more bits will require to rewrite
+part of the code.
 
-And now we're stuck with it.  If that is how it works,
-and userspace depends upon it (it does), then consider
-it cast in stone.  Immutable by Linus's Law: don't break userspace.
+Also, writing a rc-core code that can work with an arbitrary large scancode
+is still on our TODO list.
 
-Create a new ioctl() number for the new behaviour,
-but preserve the old behaviour in exact form for
-a suitable (multi-year) overlap period.
+I'm not entirely sure how to extend the scancode size, as there are a
+few options:
+	1) Core would always work internally with 32 bytes (1024 bits). Some
+logic will be required to accept entries with .len < 32;
+	2) Drivers will define the code lengtht, and core will use it,
+returning -EINVAL if userspace uses a len grater than used internally by
+the core. In this case, we'll need a sysfs node to tell userspace what's
+the maximum allowed size;
+	3) Drivers will define the max number of bits, and core will use it,
+truncating the number to the max size if userspace tries to write more bits 
+than the internal representation;
+	4) Drivers will define the max number of bits, and core will use it,
+returning an error if the number is bigger than the max scancode that can be
+represented internally.
 
-Cheers
+I think that (2) is the best way for doing it, but I'm not yet entirely sure.
+So, it is good to hear some comments about that.
+
+Cheers,
+Mauro

@@ -1,46 +1,53 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH 10/32] input/tps6507x-ts: use system_wq instead of
- dedicated workqueue
-Date: Tue, 25 Jan 2011 15:19:42 +0100
-Message-ID: <20110125141942.GA27510@htj.dyndns.org>
-References: <1294062595-30097-1-git-send-email-tj@kernel.org>
- <1294062595-30097-11-git-send-email-tj@kernel.org>
- <20110103143926.GX1886@bicker>
- <4D21FAA3.8030505@ridgerun.com>
+From: Mark Lord <kernel@teksavvy.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
+ ?
+Date: Tue, 25 Jan 2011 09:28:23 -0500
+Message-ID: <4D3EDE07.1080200@teksavvy.com>
+References: <4D3C5F73.2050408@teksavvy.com> <20110124175456.GA17855@core.coreip.homeip.net> <4D3E1A08.5060303@teksavvy.com> <20110125005555.GA18338@core.coreip.homeip.net> <4D3E4DD1.60705@teksavvy.com> <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com> <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com> <20110125052902.GC7850@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:63522 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753742Ab1AYOTr (ORCPT
+Received: from ironport2-out.teksavvy.com ([206.248.154.183]:27659 "EHLO
+	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753677Ab1AYO21 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 09:19:47 -0500
-Content-Disposition: inline
-In-Reply-To: <4D21FAA3.8030505@ridgerun.com>
+	Tue, 25 Jan 2011 09:28:27 -0500
+In-Reply-To: <20110125052902.GC7850@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Todd Fischer <todd.fischer@ridgerun.com>
-Cc: Dan Carpenter <error27@gmail.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, mchehab@redhat.com
 
-On Mon, Jan 03, 2011 at 09:34:43AM -0700, Todd Fischer wrote:
-> Hi Dan,
+On 11-01-25 12:29 AM, Dmitry Torokhov wrote:
+> On Tue, Jan 25, 2011 at 12:04:10AM -0500, Mark Lord wrote:
+>> On 11-01-24 11:55 PM, Dmitry Torokhov wrote:
+>>> On Mon, Jan 24, 2011 at 11:37:06PM -0500, Mark Lord wrote:
+..
+>>> The options are:
+>>>
+>>> 1. Convert to EVIOCGKEYCODE2
+>>> 2. Ignore errors from EVIOCGKEYCODE and go through all 65536 iterations.
+>>
+>> or 3. Revert/fix the in-kernel regression.
+>>
+>> The EVIOCGKEYCODE ioctl is supposed to return KEY_RESERVED for unmapped
+>> (but value) keycodes, and only return -EINVAL when the keycode itself
+>> is out of range.
 > 
-> Polling is only necessary because I was given brain dead hardware.
-> I was expecting updated hardware with the interrupt signal connected
-> properly, but haven't received it yet.
-> 
-> Any reasonable hardware will not need tps6507x-ts polling.  I was
-> under the impression I could only push patches that I have tested.
-> Since I haven't tested an interrupt version of the driver, I didn't
-> include a patch that removes the polling and replaces it with
-> interrupts.
-> 
-> I have another customer planning on using the TPS6507x chip for
-> touch screen.  I expect their hardware in around 3 weeks.
+> You are inventing rules.  You are requesting a scancode->keycode
+> mapping. If scancode is unknown/invalid for the device ioctl returns
+> -EINVAL.
 
-Shall I apply the patch?
+-EINVAL signals bad/invalid parameters.
+That's NOT what is happening here.
 
-Thanks.
+> For unmapped - yes, either KEY_RESERVED or KEY_UNKNOWN should be
+> returned. For invalid scancodes -EINVAL shoudl be returned. 
 
--- 
-tejun
+Exactly my point.  The scancode in question is 100% valid and mapable,
+yet the kernel is rejecting it as -EINVAL.  Incorrect.
+
+BUG. Regression. Breaks userspace. Must get fixed.
+
+Cheers

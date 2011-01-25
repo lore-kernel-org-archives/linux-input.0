@@ -1,50 +1,79 @@
-From: Corentin Chary <corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/4] Pegatron Lucid tablet
-	acceleromter/ALS
-Date: Tue, 25 Jan 2011 17:10:37 +0000
-Message-ID: <AANLkTikMBXne3w0aHq008fMo1RwE4u47doGBEiJLD_x2@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/4] Pegatron Lucid tablet acceleromter/ALS
+Date: Tue, 25 Jan 2011 09:12:38 -0800
+Message-ID: <20110125171238.GE19701@core.coreip.homeip.net>
 References: <1295909288-32650-1-git-send-email-andy.ross@windriver.com>
-	<20110124230557.GA18135@core.coreip.homeip.net>
-	<AANLkTinfDR4TnVC-NPLsCqXsc9nP+UWXKO6n8jXuT7ne@mail.gmail.com>
-	<4D3EFDCF.7090308@windriver.com>
-	<AANLkTi=tQpQ0wjfx-Cp13FuCSQNFitN7XAg-V2AcSHz2@mail.gmail.com>
-	<4D3F03B0.7030607@windriver.com>
+ <20110124230557.GA18135@core.coreip.homeip.net>
+ <AANLkTinfDR4TnVC-NPLsCqXsc9nP+UWXKO6n8jXuT7ne@mail.gmail.com>
+ <4D3EFDCF.7090308@windriver.com>
+ <AANLkTi=tQpQ0wjfx-Cp13FuCSQNFitN7XAg-V2AcSHz2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <4D3F03B0.7030607-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
-	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=acpi4asus-user>
-List-Post: <mailto:acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
-	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Andy Ross <andy.ross-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-Cc: platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:44698 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752222Ab1AYRMq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Jan 2011 12:12:46 -0500
+Content-Disposition: inline
+In-Reply-To: <AANLkTi=tQpQ0wjfx-Cp13FuCSQNFitN7XAg-V2AcSHz2@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Corentin Chary <corentin.chary@gmail.com>
+Cc: Andy Ross <andy.ross@windriver.com>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
 
-T24gVHVlLCBKYW4gMjUsIDIwMTEgYXQgNTowOSBQTSwgQW5keSBSb3NzIDxhbmR5LnJvc3NAd2lu
-ZHJpdmVyLmNvbT4gd3JvdGU6Cj4gT24gMDEvMjUvMjAxMSAwOTowNSBBTSwgQ29yZW50aW4gQ2hh
-cnkgd3JvdGU6Cj4+IElmIGV2ZXJ5Ym9keSBpcyBvayB3aXRoIHRoYXQsIEkgdGhpbmsgeW91IHNo
-b3VsZCBtb3ZlIHRoZSBjb2RlIGJhY2sKPj4gaW50byBhc3VzLWxhcHRvcC5jLiBCdXQgaWYgeW91
-IGRvIHNvLCBkb24ndCBmb3JnZXQgdG8gbW9kaWZ5IHRoZSBoZWxwCj4+IHRleHQgb2YgQVNVU19M
-QVBUT1Agc2VjdGlvbiBpbiBLQ29uZmlnLgo+Cj4gT0suIMKgVGhvdWdoIG9uZSBnb3RjaGEgSSBq
-dXN0IHJlYWxpemVkIGlzIHRoYXQgdGhpcyB3aWxsIHB1bGwgaW5wdXQtcG9sbGRldgo+IGludG8g
-dGhlIGRlcGVuZGVuY3kgbGlzdCBmb3IgYXN1cy1sYXB0b3AsIHdoaWNoIG1heSBub3QgYmUgZGVz
-aXJhYmxlIGp1c3QgdG8KPiBzdXBwb3J0IG9uZSBvYnNjdXJlIGRldmljZS4gwqBCdXQgYWdhaW4s
-IHRoYXQncyBhIHNtYWxsIG1vZHVsZS4uLgoKTWF5YmUgeW91IGNhbiBtYWtlIHBlZ2F0cm9uIHN1
-cHBvcnQgb3B0aW9uYWwgaW4gYXN1cy1sYXB0b3AgPyAod2l0aCBhCmNoZWNrYm94IG9yIHNvbWV0
-aGluZyBsaWtlIHRoYXQpCgotLSAKQ29yZW50aW4gQ2hhcnkKaHR0cDovL3hmLmlrc2FpZi5uZXQK
-Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpTcGVjaWFsIE9mZmVyLS0gRG93bmxvYWQgQXJjU2lnaHQg
-TG9nZ2VyIGZvciBGUkVFIChhICQ0OSBVU0QgdmFsdWUpIQpGaW5hbGx5LCBhIHdvcmxkLWNsYXNz
-IGxvZyBtYW5hZ2VtZW50IHNvbHV0aW9uIGF0IGFuIGV2ZW4gYmV0dGVyIHByaWNlLWZyZWUhCkRv
-d25sb2FkIHVzaW5nIHByb21vIGNvZGUgRnJlZV9Mb2dnZXJfNF9EZXYyRGV2LiBPZmZlciBleHBp
-cmVzIApGZWJydWFyeSAyOHRoLCBzbyBzZWN1cmUgeW91ciBmcmVlIEFyY1NpZ2h0IExvZ2dlciBU
-T0RBWSEgCmh0dHA6Ly9wLnNmLm5ldC9zZnUvYXJjc2lnaHQtc2ZkMmQKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KQWNwaTRhc3VzLXVzZXIgbWFpbGluZyBs
-aXN0CkFjcGk0YXN1cy11c2VyQGxpc3RzLnNvdXJjZWZvcmdlLm5ldApodHRwczovL2xpc3RzLnNv
-dXJjZWZvcmdlLm5ldC9saXN0cy9saXN0aW5mby9hY3BpNGFzdXMtdXNlcgo=
+On Tue, Jan 25, 2011 at 05:05:05PM +0000, Corentin Chary wrote:
+> On Tue, Jan 25, 2011 at 4:43 PM, Andy Ross <andy.ross@windriver.com> =
+wrote:
+> > On 01/24/2011 11:30 PM, Corentin Chary wrote:
+> >> Dmitry Torokhov wrote:
+> >> > I am happy with the input part but I wonder if it really needs t=
+o be
+> >> > separate? If you roll it up into asus-laptop you would not need =
+a new
+> >> > platform device and then it would be what - 20 lines of code?
+> >> >
+> >> > Corentin, what do you think?
+> >>
+> >> I think that it should be consistent, if there is already some cod=
+e
+> >> for pegatron tablet in asus-laptop, then why a new platform device
+> >> only for the accelerometer ?
+> >
+> > No strong feelings here. =A0I made it a separate file because
+> > asus-laptop.c is already very large and this was something that cou=
+ld
+> > be fairly easily split out, but obviously it's a really trivial
+> > device.
+> >
+> >> Andy, what is shared with asus-laptop exactly ? What sysfs files a=
+re
+> >> working and enabled ? =A0Are backlight and led classes working ?
+> >
+> > Just the key device, which exports the single touch area in the cor=
+ner
+> > of the tablet as KEY_MEDIA. =A0Some of the other sysfs devices
+> > (bluetooth, display, leds) appear because the methods exist, but
+> > they're stubbed out in the ASL and thus noops.
+> >
+> > Andy
+>=20
+> If everybody is ok with that, I think you should move the code back
+> into asus-laptop.c. But if you do so, don't forget to modify the help
+> text of ASUS_LAPTOP section in KConfig.
+>=20
+> Should we also change the description to
+> "Asus/Medion/JVC/Lenovo/Pegatron Extra" ? That seems really ugly
+> but....
+
+"Kitchen sink" so we do not need to adjust the description going
+forward? ;P
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

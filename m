@@ -1,115 +1,216 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Extending rc-core/userspace to handle bigger scancodes - Was: Re:
- 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Tue, 25 Jan 2011 12:42:57 -0200
-Message-ID: <4D3EE171.4020605@redhat.com>
-References: <20110124175456.GA17855@core.coreip.homeip.net> <4D3E1A08.5060303@teksavvy.com> <20110125005555.GA18338@core.coreip.homeip.net> <4D3E4DD1.60705@teksavvy.com> <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com> <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <20110125065217.GE7850@core.coreip.homeip.net>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Fromy: Hong Liu <hong.liu@intel.com>
+Date: Tue, 25 Jan 2011 14:32:12 +0000
+Message-ID: <20110125143139.10249.33984.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38843 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751977Ab1AYOnC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 09:43:02 -0500
-In-Reply-To: <20110125065217.GE7850@core.coreip.homeip.net>
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:49634 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752693Ab1AYO6x (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Jan 2011 09:58:53 -0500
+Received: from bob.linux.org.uk (earthlight.etchedpixels.co.uk [81.2.110.250])
+	by lxorguk.ukuu.org.uk (8.14.4/8.14.1) with ESMTP id p0PEvq3S008197
+	for <linux-input@vger.kernel.org>; Tue, 25 Jan 2011 14:57:57 GMT
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Lord <kernel@teksavvy.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Em 25-01-2011 04:52, Dmitry Torokhov escreveu:
-> On Mon, Jan 24, 2011 at 09:31:17PM -0800, Dmitry Torokhov wrote:
->> On Tue, Jan 25, 2011 at 12:07:29AM -0500, Mark Lord wrote:
->>> On 11-01-25 12:04 AM, Mark Lord wrote:
->>>> On 11-01-24 11:55 PM, Dmitry Torokhov wrote:
->>>>> On Mon, Jan 24, 2011 at 11:37:06PM -0500, Mark Lord wrote:
->>>> ..
->>>>>> This results in (map->size==10) for 2.6.36+ (wrong),
->>>>>> and a much larger map->size for 2.6.35 and earlier.
->>>>>>
->>>>>> So perhaps EVIOCGKEYCODE has changed?
->>>>>>
->>>>>
->>>>> So the utility expects that all devices have flat scancode space and
->>>>> driver might have changed so it does not recognize scancode 10 as valid
->>>>> scancode anymore.
->>>>>
->>>>> The options are:
->>>>>
->>>>> 1. Convert to EVIOCGKEYCODE2
->>>>> 2. Ignore errors from EVIOCGKEYCODE and go through all 65536 iterations.
->>>>
->>>> or 3. Revert/fix the in-kernel regression.
->>>>
->>>> The EVIOCGKEYCODE ioctl is supposed to return KEY_RESERVED for unmapped
->>>> (but value) keycodes, and only return -EINVAL when the keycode itself
->>>> is out of range.
->>>>
->>>> That's how it worked in all kernels prior to 2.6.36,
->>>> and now it is broken.  It now returns -EINVAL for any unmapped keycode,
->>>> even though keycodes higher than that still have mappings.
->>>>
->>>> This is a bug, a regression, and breaks userspace.
->>>> I haven't identified *where* in the kernel the breakage happened,
->>>> though.. that code confuses me.  :)
->>>
->>> Note that this device DOES have "flat scancode space",
->>> and the kernel is now incorrectly signalling an error (-EINVAL)
->>> in response to a perfectly valid query of a VALID (and mappable)
->>> keycode on the remote control
->>>
->>> The code really is a valid button, it just doesn't have a default mapping
->>> set by the kernel (I can set a mapping for that code from userspace and it works).
->>>
->>
->> OK, in this case let's ping Mauro - I think he done the adjustments to
->> IR keymap hanlding.
->>
->> Thanks.
->>
-> 
-> BTW, could you please try the following patch (it assumes that
-> EVIOCGVERSION in input.c is alreday relaxed).
+From: Alan Cox <alan@linux.intel.com>
 
-Dmitry,
+intel_mid_powerbtn: add power button driver for Medfield platform
 
-Thanks for your patch. I used part of his logic to improve the ir-keytable 
-tool at v4l-utils:
-	http://git.linuxtv.org/v4l-utils.git
+The power button is connected to MSIC on Medfield, we will get two
+interrupts from IOAPIC when pressing or releasing the power button.
 
-The ir-keytable is a tool that just handles Remote Controller input devices,
-and do it well, allowing all sorts of operations related to it, and using the
-sysfs /sys/class/rc stuff to help its operation. Without any arguments, it
-lists the existing RC devices. Arguments are there to allow enabling/disabling
-RC protocols, reading/writing/cleaning keycode tables and to test if the
-remote is generating events (EV_MSC/EV_KEY/EV_REP/EV_SYN).
+Signed-off-by: Hong Liu <hong.liu@intel.com>
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+---
 
-Now, it will be using V2 for reads and keycode cleanups, but will still use
-V1 for writes, as, currently with 32 bits scancodes, there's no gain to use
-V2 for it. Also, changing the tool to use more bits will require to rewrite
-part of the code.
+ drivers/platform/x86/Kconfig              |    9 ++
+ drivers/platform/x86/Makefile             |    2 
+ drivers/platform/x86/intel_mid_powerbtn.c |  143 +++++++++++++++++++++++++++++
+ 3 files changed, 154 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/platform/x86/intel_mid_powerbtn.c
 
-Also, writing a rc-core code that can work with an arbitrary large scancode
-is still on our TODO list.
 
-I'm not entirely sure how to extend the scancode size, as there are a
-few options:
-	1) Core would always work internally with 32 bytes (1024 bits). Some
-logic will be required to accept entries with .len < 32;
-	2) Drivers will define the code lengtht, and core will use it,
-returning -EINVAL if userspace uses a len grater than used internally by
-the core. In this case, we'll need a sysfs node to tell userspace what's
-the maximum allowed size;
-	3) Drivers will define the max number of bits, and core will use it,
-truncating the number to the max size if userspace tries to write more bits 
-than the internal representation;
-	4) Drivers will define the max number of bits, and core will use it,
-returning an error if the number is bigger than the max scancode that can be
-represented internally.
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index d163bc2..8ceea88 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -654,4 +654,13 @@ config XO1_RFKILL
+ 	  Support for enabling/disabling the WLAN interface on the OLPC XO-1
+ 	  laptop.
+ 
++config INTEL_MID_POWER_BUTTON
++	tristate "power button driver for Intel MID platforms"
++	depends on INTEL_SCU_IPC
++	default y
++	help
++	  This driver handles the power button on the Intel MID platforms.
++
++	  If unsure, say N.
++
+ endif # X86_PLATFORM_DEVICES
+diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
+index 4ec4ff8..a24cd62 100644
+--- a/drivers/platform/x86/Makefile
++++ b/drivers/platform/x86/Makefile
+@@ -34,3 +34,5 @@ obj-$(CONFIG_INTEL_IPS)		+= intel_ips.o
+ obj-$(CONFIG_GPIO_INTEL_PMIC)	+= intel_pmic_gpio.o
+ obj-$(CONFIG_XO1_RFKILL)	+= xo1-rfkill.o
+ obj-$(CONFIG_IBM_RTL)		+= ibm_rtl.o
++obj-$(CONFIG_INTEL_MID_POWER_BUTTON)	+= intel_mid_powerbtn.o
++
+diff --git a/drivers/platform/x86/intel_mid_powerbtn.c b/drivers/platform/x86/intel_mid_powerbtn.c
+new file mode 100644
+index 0000000..4f68f1d
+--- /dev/null
++++ b/drivers/platform/x86/intel_mid_powerbtn.c
+@@ -0,0 +1,143 @@
++/*
++ * Power button driver for Medfield.
++ *
++ * Copyright (C) 2010 Intel Corp
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <asm/intel_scu_ipc.h>
++
++#define DRIVER_NAME "msic_power_btn"
++
++#define MSIC_IRQ_STAT	0x02
++  #define MSIC_IRQ_PB	(1 << 0)
++#define MSIC_PB_CONFIG	0x3e
++#define MSIC_PB_STATUS	0x3f
++  #define MSIC_PB_LEVEL (1 << 3) /* 1 - release, 0 - press */
++
++struct mfld_pb_priv {
++	struct input_dev *input;
++	int irq;
++};
++
++static irqreturn_t mfld_pb_isr(int irq, void *dev_id)
++{
++	struct mfld_pb_priv *priv = dev_id;
++	int ret;
++	u8 pbstat;
++
++	ret = intel_scu_ipc_ioread8(MSIC_PB_STATUS, &pbstat);
++	if (ret < 0)
++		return IRQ_HANDLED;
++
++	input_event(priv->input, EV_KEY, KEY_POWER, !(pbstat & MSIC_PB_LEVEL));
++	input_sync(priv->input);
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit mfld_pb_probe(struct platform_device *pdev)
++{
++	struct mfld_pb_priv *priv;
++	struct input_dev *input;
++	int ret;
++	int irq;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return -EINVAL;
++
++	priv = kzalloc(sizeof(struct mfld_pb_priv), GFP_KERNEL);
++	input = input_allocate_device();
++	if (!priv || !input) {
++		ret = -ENOMEM;
++		goto fail;
++	}
++
++	priv->input = input;
++	priv->irq = irq;
++	platform_set_drvdata(pdev, priv);
++
++	input->name = pdev->name;
++	input->phys = "power-button/input0";
++	input->dev.parent = &pdev->dev;
++
++	input_set_capability(input, EV_KEY, KEY_POWER);
++
++	ret = request_threaded_irq(priv->irq, NULL, mfld_pb_isr,
++				   0, DRIVER_NAME, priv);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"unable to request irq %d for mfld power button\n",irq);
++		goto fail;
++	}
++
++	ret = input_register_device(input);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"unable to register input dev, error %d\n", ret);
++		goto fail;
++	}
++	return 0;
++
++fail:
++	platform_set_drvdata(pdev, NULL);
++	input_free_device(input);
++	kfree(priv);
++	return ret;
++}
++
++static int __devexit mfld_pb_remove(struct platform_device *pdev)
++{
++	struct mfld_pb_priv *priv = platform_get_drvdata(pdev);
++
++	free_irq(priv->irq, priv);
++	input_unregister_device(priv->input);
++	kfree(priv);
++
++	return 0;
++}
++
++static struct platform_driver mfld_pb_driver = {
++	.driver = {
++		.name = DRIVER_NAME,
++		.owner = THIS_MODULE,
++	},
++	.probe	= mfld_pb_probe,
++	.remove	= __devexit_p(mfld_pb_remove),
++};
++
++static int __init mfld_pb_init(void)
++{
++	return platform_driver_register(&mfld_pb_driver);
++}
++
++static void __exit mfld_pb_exit(void)
++{
++	platform_driver_unregister(&mfld_pb_driver);
++}
++
++module_init(mfld_pb_init);
++module_exit(mfld_pb_exit);
++
++MODULE_AUTHOR("Hong Liu <hong.liu@intel.com>");
++MODULE_DESCRIPTION("Intel Medfield Power Button Driver");
++MODULE_LICENSE("GPL v2");
 
-I think that (2) is the best way for doing it, but I'm not yet entirely sure.
-So, it is good to hear some comments about that.
-
-Cheers,
-Mauro

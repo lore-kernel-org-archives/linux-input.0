@@ -1,300 +1,44 @@
-From: Iiro Valkonen <iiro.valkonen@atmel.com>
-Subject: Re: [PATCH 2/2] input: Modify the qt602240 driver to be compatible
- with mXT1386 device - functional changes
-Date: Tue, 25 Jan 2011 12:37:17 +0200
-Message-ID: <4D3EA7DD.6000601@atmel.com>
-References: <4D3DAE3C.6060806@atmel.com> <20110124170756.GB31066@core.coreip.homeip.net>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [PATCH 1/2] input: Modify the qt602240 driver to be compatible
+ with mXT1386 device - renames
+Date: Tue, 25 Jan 2011 16:30:55 +0530
+Message-ID: <4D3EAD67.7030707@codeaurora.org>
+References: <4D3DAE3C.6060806@atmel.com> <20110124170756.GB31066@core.coreip.homeip.net> <4D3EA706.4020308@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:48377 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752424Ab1AYKhf (ORCPT
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:36600 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751129Ab1AYLA5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 05:37:35 -0500
-In-Reply-To: <20110124170756.GB31066@core.coreip.homeip.net>
+	Tue, 25 Jan 2011 06:00:57 -0500
+In-Reply-To: <4D3EA706.4020308@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, jy0922.shim@samsung.com
+To: Iiro Valkonen <iiro.valkonen@atmel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, jy0922.shim@samsung.com
 
-On 01/24/2011 07:07 PM, Dmitry Torokhov wrote:
+Hi Iiro,
+
+On 1/25/2011 4:03 PM, Iiro Valkonen wrote:
+> On 01/24/2011 07:07 PM, Dmitry Torokhov wrote:
+>>
+>> Thank you for the patch. Could I ask you to split the qt602240->mxt
+>> renames from the functional changes so latter are easier to review?
+>>
 > 
-> Thank you for the patch. Could I ask you to split the qt602240->mxt
-> renames from the functional changes so latter are easier to review?
+> Hi Dmitry,
 > 
+> here's the rename patch.
 
-And here are the minimum functional changes required to get mXT1386 running with this driver.
+Can you submit it as proper patch please, instead of copying it on the reply,
+it is hard for me to review. Same goes for the 2nd patch you have submitted
+just now.
 
-How to proceed with changing the name from "qt602240_ts.c/h"? My suggestion is "atmel_mxt_ts.c/h".
+---Trilok Soni
 
-BR,
+
 -- 
-Iiro Valkonen
-Applications Engineer / Atmel Corporation
-Tel: +358(9)45208250 / Mobile: +358(40)5820012
-iiro.valkonen@atmel.com / www.atmel.com
-
-The  information contained in this email message may be privileged, confidential and/or protected from unauthorized disclosure. If you are not the intended recipient, any dissemination, distribution or copying is strictly prohibited. Please immediately notify the sender by reply if you received this email in error. Thank you for your cooperation.
-
-
----
- drivers/input/touchscreen/qt602240_ts.c |  159 +++++--------------------------
- include/linux/i2c/qt602240_ts.h         |   18 ++++
- 2 files changed, 44 insertions(+), 133 deletions(-)
-
-diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/touchscreen/qt602240_ts.c
-index c89be42..dcbee06 100644
---- a/drivers/input/touchscreen/qt602240_ts.c
-+++ b/drivers/input/touchscreen/qt602240_ts.c
-@@ -199,122 +199,6 @@
- 
- #define MXT_MAX_FINGER		10
- 
--/* Initial register values recommended from chip vendor */
--static const u8 init_vals_ver_20[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x08, 0x05, 0x05, 0x00, 0x00, 0x00, 0x05, 0x14,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x64,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x00, 0x64, 0x64, 0x64, 0x64, 0x00, 0x00, 0x1e, 0x14, 0x04,
--	0x1e, 0x00,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x19, 0x00, 0xe7, 0xff, 0x04, 0x32, 0x00,
--	0x01, 0x0a, 0x0f, 0x14, 0x00, 0x00, 0xe8,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x04, 0x08,
--};
--
--static const u8 init_vals_ver_21[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
--	0x0f, 0x0a,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
--	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
--};
--
--static const u8 init_vals_ver_22[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
--	0x0f, 0x0a,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
--	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
--};
--
- struct mxt_info {
- 	u8 family_id;
- 	u8 variant_id;
-@@ -714,26 +598,18 @@ end:
- 
- static int mxt_check_reg_init(struct mxt_data *data)
- {
-+	const struct mxt_platform_data *pdata = data->pdata;
- 	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
- 	int index = 0;
- 	int i, j;
--	u8 version = data->info.version;
- 	u8 *init_vals;
- 
--	switch (version) {
--	case MXT_VER_20:
--		init_vals = (u8 *)init_vals_ver_20;
--		break;
--	case MXT_VER_21:
--		init_vals = (u8 *)init_vals_ver_21;
--		break;
--	case MXT_VER_22:
--		init_vals = (u8 *)init_vals_ver_22;
--		break;
--	default:
--		dev_err(dev, "Firmware version %d doesn't support\n", version);
--		return -EINVAL;
-+	if (pdata->config) {
-+		init_vals = pdata->config;
-+	} else {
-+		dev_err(dev, "No cfg data defined, skipping reg init\n");
-+		return 0;
- 	}
- 
- 	for (i = 0; i < data->info.object_num; i++) {
-@@ -823,16 +699,16 @@ static int mxt_check_matrix_size(struct mxt_data *data)
- static int mxt_make_highchg(struct mxt_data *data)
- {
- 	struct device *dev = &data->client->dev;
-+	struct mxt_message message;
- 	int count = 10;
- 	int error;
--	u8 val;
- 
- 	/* Read dummy message to make high CHG pin */
- 	do {
--		error = mxt_read_object(data, MXT_GEN_MESSAGE, 0, &val);
-+		error = mxt_read_message(data, &message);
- 		if (error)
- 			return error;
--	} while ((val != 0xff) && --count);
-+	} while ((message.reportid != 0xff) && --count);
- 
- 	if (!count) {
- 		dev_err(dev, "CHG pin isn't cleared\n");
-@@ -986,10 +862,17 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
-+      /*
-+       * Skip this and trust what's on the chip, as the current check
-+       * is not compatible with mXT1386. Revisit and fix.
-+       */
- 	/* Check X/Y matrix size */
-+
-+	/*
- 	error = mxt_check_matrix_size(data);
- 	if (error)
- 		return error;
-+	*/
- 
- 	error = mxt_make_highchg(data);
- 	if (error)
-@@ -1282,6 +1165,16 @@ static int __devinit mxt_probe(struct i2c_client *client,
- 
- 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
- 			IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
-+
-+	if (error) {
-+		/* If registering an interrupt with falling edge didn't work,
-+		   try any edge. */
-+		/* Todo: in this case, check the validity of the interrupt by
-+		   reading the CHG line state */
-+		error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
-+					0, client->dev.driver->name, data);
-+	}
-+
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
- 		goto err_free_object;
-diff --git a/include/linux/i2c/qt602240_ts.h b/include/linux/i2c/qt602240_ts.h
-index 0b4c72f..e4cd483 100644
---- a/include/linux/i2c/qt602240_ts.h
-+++ b/include/linux/i2c/qt602240_ts.h
-@@ -13,6 +13,23 @@
- #ifndef __LINUX_MAXTOUCH_TS_H
- #define __LINUX_MAXTOUCH_TS_H
- 
-+/* Chip I2C Addresses */
-+#define       MXT224_I2C_ADDR1                                0x4A
-+#define       MXT224_I2C_ADDR2                                0x4B
-+#define       MXT1386_I2C_ADDR1                               0x4C
-+#define       MXT1386_I2C_ADDR2                               0x4D
-+#define       MXT1386_I2C_ADDR3                               0x5A
-+#define       MXT1386_I2C_ADDR4                               0x5B
-+
-+/*
-+ * Select this address from above depending on what maXTouch
-+ * chip you have and how it's address pins are configured;
-+ * see datasheet.
-+ */
-+
-+#define MXT_I2C_ADDRESS                                 MXT1386_I2C_ADDR1
-+
-+
- /* Orient */
- #define MXT_NORMAL		0x0
- #define MXT_DIAGONAL		0x1
-@@ -33,6 +50,7 @@ struct mxt_platform_data {
- 	unsigned int threshold;
- 	unsigned int voltage;
- 	unsigned char orient;
-+	unsigned char *config;
- };
- 
- #endif /* __LINUX_MAXTOUCH_TS_H */
--- 
-1.7.0.4
-
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

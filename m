@@ -1,53 +1,52 @@
 From: Mark Lord <kernel@teksavvy.com>
 Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
  ?
-Date: Tue, 25 Jan 2011 09:28:23 -0500
-Message-ID: <4D3EDE07.1080200@teksavvy.com>
-References: <4D3C5F73.2050408@teksavvy.com> <20110124175456.GA17855@core.coreip.homeip.net> <4D3E1A08.5060303@teksavvy.com> <20110125005555.GA18338@core.coreip.homeip.net> <4D3E4DD1.60705@teksavvy.com> <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com> <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com> <20110125052902.GC7850@core.coreip.homeip.net>
+Date: Tue, 25 Jan 2011 09:32:51 -0500
+Message-ID: <4D3EDF13.7010007@teksavvy.com>
+References: <4D3C5F73.2050408@teksavvy.com> <20110124175456.GA17855@core.coreip.homeip.net> <4D3E1A08.5060303@teksavvy.com> <20110125005555.GA18338@core.coreip.homeip.net> <4D3E4DD1.60705@teksavvy.com> <20110125042016.GA7850@core.coreip.homeip.net> <4D3E5372.9010305@teksavvy.com> <20110125045559.GB7850@core.coreip.homeip.net> <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <4D3EB734.5090100@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ironport2-out.teksavvy.com ([206.248.154.183]:27659 "EHLO
+Received: from ironport2-out.teksavvy.com ([206.248.154.183]:4118 "EHLO
 	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753677Ab1AYO21 (ORCPT
+	with ESMTP id S1753620Ab1AYOcy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 09:28:27 -0500
-In-Reply-To: <20110125052902.GC7850@core.coreip.homeip.net>
+	Tue, 25 Jan 2011 09:32:54 -0500
+In-Reply-To: <4D3EB734.5090100@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, mchehab@redhat.com
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, rjw@sisk.pl
 
-On 11-01-25 12:29 AM, Dmitry Torokhov wrote:
-> On Tue, Jan 25, 2011 at 12:04:10AM -0500, Mark Lord wrote:
->> On 11-01-24 11:55 PM, Dmitry Torokhov wrote:
->>> On Mon, Jan 24, 2011 at 11:37:06PM -0500, Mark Lord wrote:
-..
->>> The options are:
->>>
->>> 1. Convert to EVIOCGKEYCODE2
->>> 2. Ignore errors from EVIOCGKEYCODE and go through all 65536 iterations.
->>
->> or 3. Revert/fix the in-kernel regression.
->>
->> The EVIOCGKEYCODE ioctl is supposed to return KEY_RESERVED for unmapped
->> (but value) keycodes, and only return -EINVAL when the keycode itself
->> is out of range.
-> 
-> You are inventing rules.  You are requesting a scancode->keycode
-> mapping. If scancode is unknown/invalid for the device ioctl returns
-> -EINVAL.
+On 11-01-25 06:42 AM, Mauro Carvalho Chehab wrote:
+>
+> I lost part of the thread, but a quick search via the Internet showed that you're using
+> the input tools to work with a Remote Controller, right? Are you using a vanilla
+> kernel, or are you using the media_build backports? There are some distros that are
+> using those backports also like Fedora 14.
 
--EINVAL signals bad/invalid parameters.
-That's NOT what is happening here.
+I use kernel.org kernels exclusively.
 
-> For unmapped - yes, either KEY_RESERVED or KEY_UNKNOWN should be
-> returned. For invalid scancodes -EINVAL shoudl be returned. 
+> The issue is simple, and it is related on how the input.c used to handle EVIOSGKEYCODE.
+> Basically, before allowing you to change a key, it used to call EVIOCGKEYCODE to check
+> it that key exists. However, when you're creating a new association, the key didn't
+> exist, and, to be strict with input rules, EVIOCGKEYCODE should return -EINVAL.
 
-Exactly my point.  The scancode in question is 100% valid and mapable,
-yet the kernel is rejecting it as -EINVAL.  Incorrect.
+No, if the parameters are a valid key, then -EINVAL is never the correct
+thing for a kernel to return.  -EINVAL means "bad parameters",
+and that's not an accurate description of a valid yet unmapped key.
 
-BUG. Regression. Breaks userspace. Must get fixed.
+> To circumvent that behaviour, old versions were returning 0, and associating unmapped
+> scancodes to KEY_RESERVED. We used this workaround for a few kernel versions, while
+> we were discussing the improvements so support larger scancodes.
+
+And now we're stuck with it.  If that is how it works,
+and userspace depends upon it (it does), then consider
+it cast in stone.  Immutable by Linus's Law: don't break userspace.
+
+Create a new ioctl() number for the new behaviour,
+but preserve the old behaviour in exact form for
+a suitable (multi-year) overlap period.
 
 Cheers

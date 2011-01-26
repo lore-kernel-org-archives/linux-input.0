@@ -1,97 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] serio: allow registered drivers to get status flag
-Date: Wed, 26 Jan 2011 09:00:43 -0800
-Message-ID: <20110126170043.GB29168@core.coreip.homeip.net>
-References: <4D358E31.4080700@sysgo.com>
- <20110118195710.GA27152@core.coreip.homeip.net>
- <4D37FAEF.8080504@sysgo.com>
- <4D3FEB2A.8010000@sysgo.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
+ ?
+Date: Wed, 26 Jan 2011 15:41:01 -0200
+Message-ID: <4D405CAD.5040107@redhat.com>
+References: <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <4D3EB734.5090100@redhat.com> <20110125164803.GA19701@core.coreip.homeip.net> <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com> <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D4004F9.6090200@redhat.com> <4D403693.50702@teksavvy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:59893 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752993Ab1AZRAv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 12:00:51 -0500
-Content-Disposition: inline
-In-Reply-To: <4D3FEB2A.8010000@sysgo.com>
+Received: from mx1.redhat.com ([209.132.183.28]:30787 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753469Ab1AZRqj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Jan 2011 12:46:39 -0500
+In-Reply-To: <4D403693.50702@teksavvy.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Engraf <david.engraf@sysgo.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mark Lord <kernel@teksavvy.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>
 
-On Wed, Jan 26, 2011 at 10:36:42AM +0100, David Engraf wrote:
-> Am 20.01.2011 10:05, schrieb David Engraf:
-> >Am 18.01.2011 20:57, schrieb Dmitry Torokhov:
-> >>On Tue, Jan 18, 2011 at 01:57:21PM +0100, David Engraf wrote:
-> >>>Parse the status byte information to the registered serio drivers as
-> >>>well as the character bytes.
-> >>>
-> >>>Signed-off-by: David Engraf<david.engraf@sysgo.com>
-> >>>
-> >>
-> >>>--- linux-2.6.37/drivers/input/serio/serport.c.orig 2011-01-18
-> >>>12:33:41.421709232 +0100
-> >>>+++ linux-2.6.37/drivers/input/serio/serport.c 2011-01-18
-> >>>13:33:24.521711214 +0100
-> >>>@@ -116,8 +116,8 @@ static void serport_ldisc_close(struct t
-> >>>
-> >>>/*
-> >>>* serport_ldisc_receive() is called by the low level tty driver when
-> >>>characters
-> >>>- * are ready for us. We forward the characters, one by one to the
-> >>>'interrupt'
-> >>>- * routine.
-> >>>+ * are ready for us. We forward the characters and flags, one by one
-> >>>to the
-> >>>+ * 'interrupt' routine.
-> >>>*/
-> >>>
-> >>>static void serport_ldisc_receive(struct tty_struct *tty, const
-> >>>unsigned char *cp, char *fp, int count)
-> >>>@@ -132,7 +132,7 @@ static void serport_ldisc_receive(struct
-> >>>goto out;
-> >>>
-> >>>for (i = 0; i< count; i++)
-> >>>- serio_interrupt(serport->serio, cp[i], 0);
-> >>>+ serio_interrupt(serport->serio, cp[i], fp[i]);
-> >>>
-> >>
-> >>Hi David,
-> >>
-> >>The flags argument that serio_interrupt() accepts not the raw protocol
-> >>data, but sanitized, protocol-independent SERIO_TIMEOUT, SERIO_PARITY
-> >>and SERIO_FRAME bits.
-> >>
-> >>Thanks.
-> >>
-> >
-> >Hi Dmitry,
-> >
-> >I've updated the patch so that the raw protocol is converted to the
-> >SERIO_ bits. The raw protocol can parse only one flag, so I don't need
-> >to store multiple SERIO_ bits in the character flag variable.
-> >
-> >Thanks
-> >- David
-> >
-> >
-> >Signed-off-by: David Engraf<david.engraf@sysgo.com>
-> >
+Em 26-01-2011 12:58, Mark Lord escreveu:
+> On 11-01-26 06:26 AM, Mauro Carvalho Chehab wrote:
+> ..
+>> However, as said previously in this thread, input-kbd won't work with any
+>> RC table that uses NEC extended (and there are several devices on the
+>> current Kernels with those tables), since it only reads up to 16 bits.
+>>
+>> ir-keytable works with all RC tables, if you use a kernel equal or upper to
+>> 2.6.36, due to the usage of the new ioctl's.
 > 
-> Hi Dmitry,
+> Is there a way to control the key repeat rate for a device
+> controlled by ir-kbd-i2c ?
 > 
-> is my last patch okay for you? Just want to know if I can give you
-> further help on this and if it is planned to integrate my patch.
-> 
+> It appears to be limited to a max of between 4 and 5 repeats/sec somewhere,
+> and I'd like to fix that.
 
-Hi David,
+It depends on what device do you have. Several I2C chips have the repeat
+logic inside the I2C microcontroller PROM firmware. or at the remote
+controller itself. So, there's nothing we can do to change it.
 
-The patch should hit mainline real soon now, no action is needed on your
-part.
+I have even one device here (I think it is a saa7134-based Kworld device) 
+that doesn't send any repeat event at all for most keys (I think it only
+sends repeat events for volume - Can't remember the specific details anymore -
+too many devices!).
 
-Thanks.
+The devices that produce repeat events can be adjusted via the normal
+input layer tools like kbdrate.
 
--- 
-Dmitry
+Thanks,
+Mauro

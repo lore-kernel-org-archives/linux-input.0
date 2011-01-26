@@ -1,66 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Wed, 26 Jan 2011 11:32:59 -0800
-Message-ID: <20110126193259.GC29268@core.coreip.homeip.net>
-References: <4D3F4D11.9040302@teksavvy.com>
- <20110125232914.GA20130@core.coreip.homeip.net>
- <20110126020003.GA23085@core.coreip.homeip.net>
- <4D4004F9.6090200@redhat.com>
- <4D401CC5.4020000@redhat.com>
- <4D402D35.4090206@redhat.com>
- <20110126165132.GC29163@core.coreip.homeip.net>
- <4D4059E5.7050300@redhat.com>
- <20110126182415.GB29268@core.coreip.homeip.net>
- <4D4072F9.5060206@redhat.com>
+From: Mark Lord <kernel@teksavvy.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
+ ?
+Date: Wed, 26 Jan 2011 14:33:17 -0500
+Message-ID: <4D4076FD.6070207@teksavvy.com>
+References: <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <4D3EB734.5090100@redhat.com> <20110125164803.GA19701@core.coreip.homeip.net> <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com> <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D403855.4050706@teksavvy.com> <4D405A9D.4070607@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:64499 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753661Ab1AZTdH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 14:33:07 -0500
-Content-Disposition: inline
-In-Reply-To: <4D4072F9.5060206@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4D405A9D.4070607@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, Jan 26, 2011 at 08:16:09PM +0100, Gerd Hoffmann wrote: >   Hi,
+On 11-01-26 12:32 PM, Mauro Carvalho Chehab wrote:
+> Em 26-01-2011 13:05, Mark Lord escreveu:
+..
+>> Nope. Does not work here:
+>>
+>> $ lsinput
+>> protocol version mismatch (expected 65536, got 65537)
 > 
-> >>>The check should be against concrete version (0x10000 in this case).
-> 
-> Stepping back: what does the version mean?
->
+> You need to relax the version test at the tree. As I said before, this is
+> a development tool from the early RC days, bound to work with one specific
+> version of the API, and programmed by purpose to fail if there would by any
+> updates at the Input layer.
+..
 
-Nothing, it is just a number.
- 
-> 0x10000 == 1.0 ?
-> 0x10001 == 1.1 ?
+As I said before, I personally have done that on my copy here.
+But that's not what this thread is about.
 
-No, not really.
+This thread is about broken userspace courtesy of these changes.
+So I am testing with the original userspace binary here,
+and it still fails.  And will continue to fail until that regression is fixed.
 
-> 
-> Can I expect the interface stay backward compatible if only the
-> minor revision changes, i.e. makes it sense to accept 1.x?
-
-I am not planning on breaking backward compatibility.
-
-> 
-> Will the major revision ever change?  Does it make sense to check
-> the version at all?
-
-It depends. We do not have a clear way to see if new ioctls are
-supported (and I do not consider "try new ioctl and see if data sticks"
-being a good way) so that facilitated protocol version rev-up. So keymap
-manipulating tools might be forced to check protocol version. For the
-rest I think doing EVIOCGVERSION just to check that ioctl is supported
-is an OK way to validate that we are dealing with an event device, but
-that's it.
-
-BTW, maybe we should move lsinput and input-kbd into linuxconsole
-package, together with evtest, fftest, etc?
-
--- 
-Dmitry
+Cheers

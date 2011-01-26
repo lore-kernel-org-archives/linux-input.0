@@ -1,47 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Wed, 26 Jan 2011 11:50:12 -0800
-Message-ID: <20110126195011.GF29268@core.coreip.homeip.net>
-References: <20110125205453.GA19896@core.coreip.homeip.net>
- <4D3F4804.6070508@redhat.com>
- <4D3F4D11.9040302@teksavvy.com>
- <20110125232914.GA20130@core.coreip.homeip.net>
- <20110126020003.GA23085@core.coreip.homeip.net>
- <4D403855.4050706@teksavvy.com>
- <4D405A9D.4070607@redhat.com>
- <4D4076FD.6070207@teksavvy.com>
- <20110126194127.GE29268@core.coreip.homeip.net>
- <4D407A46.4080407@teksavvy.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
+ ?
+Date: Wed, 26 Jan 2011 21:07:49 +0100
+Message-ID: <4D407F15.4030204@redhat.com>
+References: <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D4004F9.6090200@redhat.com> <4D401CC5.4020000@redhat.com> <4D402D35.4090206@redhat.com> <20110126165132.GC29163@core.coreip.homeip.net> <4D4059E5.7050300@redhat.com> <20110126182415.GB29268@core.coreip.homeip.net> <4D4072F9.5060206@redhat.com> <20110126193259.GC29268@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:46325 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751728Ab1AZTuU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 14:50:20 -0500
-Content-Disposition: inline
-In-Reply-To: <4D407A46.4080407@teksavvy.com>
+Received: from mx1.redhat.com ([209.132.183.28]:36876 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751906Ab1AZUIS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Jan 2011 15:08:18 -0500
+In-Reply-To: <20110126193259.GC29268@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <kernel@teksavvy.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, Jan 26, 2011 at 02:47:18PM -0500, Mark Lord wrote:
-> On 11-01-26 02:41 PM, Dmitry Torokhov wrote:
-> >
-> > I do not consider lsinput refusing to work a regression.
-> 
-> Obviously, since you don't use that tool.
-> Those of us who do use it see this as broken userspace compatibility.
-> 
-> Who the hell reviews this crap, anyway?
-> Code like that should never have made it upstream in the first place.
-> 
+   Hi,
 
-You are more than welcome spend more time on reviews.
+> It depends. We do not have a clear way to see if new ioctls are
+> supported (and I do not consider "try new ioctl and see if data sticks"
+> being a good way) so that facilitated protocol version rev-up.
 
-Thanks.
+Yea, EVIOCGKEYCODE_V2 on a old kernel returns EINVAL.  Not good.  There 
+is another one which should have been used to signal "unknown ioctl", 
+ENOTTY IIRC (a bit silly for historical reasons), so you can figure 
+whenever your input data is invalid or whenever the ioctl isn't 
+supported in the first place (in which case you could just fallback to 
+the old version).
 
--- 
-Dmitry
+> So keymap
+> manipulating tools might be forced to check protocol version.
+
+Guess that is the best way indeed.
+
+cheers,
+   Gerd.

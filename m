@@ -1,76 +1,214 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: move check for same handler in input_pass_event
-Date: Tue, 25 Jan 2011 20:59:05 -0800
-Message-ID: <20110126045905.GC23085@core.coreip.homeip.net>
-References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
- <20110107060456.GA29038@core.coreip.homeip.net>
- <20110107102434.7776091d@kcaccard-MOBL3>
- <20110107192938.GB28875@core.coreip.homeip.net>
- <4D276A51.5030102@linux.intel.com>
- <20110107194313.GC28875@core.coreip.homeip.net>
- <20110120085654.GA19696@core.coreip.homeip.net>
+Subject: Re: [PATCH] Fromy: Hong Liu <hong.liu@intel.com>
+Date: Tue, 25 Jan 2011 21:06:39 -0800
+Message-ID: <20110126050639.GD23085@core.coreip.homeip.net>
+References: <20110125143139.10249.33984.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:60068 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751379Ab1AZE7O (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:46074 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750773Ab1AZFGq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 23:59:14 -0500
-Received: by iyj18 with SMTP id 18so24595iyj.19
-        for <linux-input@vger.kernel.org>; Tue, 25 Jan 2011 20:59:13 -0800 (PST)
+	Wed, 26 Jan 2011 00:06:46 -0500
+Received: by gxk9 with SMTP id 9so2016053gxk.19
+        for <linux-input@vger.kernel.org>; Tue, 25 Jan 2011 21:06:45 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20110120085654.GA19696@core.coreip.homeip.net>
+In-Reply-To: <20110125143139.10249.33984.stgit@bob.linux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Kristen Carlson Accardi <kristen@linux.intel.com>, linux-input@vger.kernel.org, Jason Wessel <jason.wessel@windriver.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Jan 20, 2011 at 12:56:54AM -0800, Dmitry Torokhov wrote:
-> On Fri, Jan 07, 2011 at 11:43:13AM -0800, Dmitry Torokhov wrote:
-> > On Fri, Jan 07, 2011 at 11:32:33AM -0800, Arjan van de Ven wrote:
-> > > On 1/7/2011 11:29 AM, Dmitry Torokhov wrote:
-> > > >On Fri, Jan 07, 2011 at 10:24:34AM -0800, Kristen Carlson Accardi wrote:
-> > > >>On Thu, 6 Jan 2011 22:04:56 -0800
-> > > >>Dmitry Torokhov<dmitry.torokhov@gmail.com>  wrote:
-> > > >>
-> > > >>>On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
-> > > >>>>If the handler that injected an event is the same,
-> > > >>>>just skip the filter, but allow the handler->event()
-> > > >>>>routine to be called.  This allows evdev to be able to
-> > > >>>>be used to loopback events.
-> > > >>>Why is it needed? Could you please give some examples?
-> > > >>>
-> > > >>>Thanks.
-> > > >>>
-> > > >>We have a customer who has a touchscreen device which sends
-> > > >>a bitmap into a gesture engine, which then interprets that
-> > > >>result and feeds it back into the kernel through a virtual
-> > > >>input driver that X is listening to.
-> > > >That really should be done though uinput.
-> > > 
-> > > quite possible.
-> > > 
-> > > but the application already exists, and works just fine in 2.6.35...
-> > > causing this to be classified as a kernel ABI regression ;-(
-> > > 
-> > 
-> > Hmm... I'd probably call it "relying on implementation details not
-> > spelled out anywhere".
-> > 
-> > Anyway, let me ponder this one a bit...
-> > 
+Hi Alan,
+
+On Tue, Jan 25, 2011 at 02:32:12PM +0000, Alan Cox wrote:
+> From: Alan Cox <alan@linux.intel.com>
+
+I have "Fromy: Hong Liu <hong.liu@intel.com>" in the subject. It seems
+your scripts are misbehaving...
+
 > 
-> OK, I think if we apply the patch below and then completely revert
-> 5fdbe44d033d059cc56c2803e6b4dbd8cb4e5e39 we'll get the behavior we
-> want.
+> intel_mid_powerbtn: add power button driver for Medfield platform
 > 
-> Jason, could you please try this and see if SysRq still works for you?
->
+> The power button is connected to MSIC on Medfield, we will get two
+> interrupts from IOAPIC when pressing or releasing the power button.
+> 
+> Signed-off-by: Hong Liu <hong.liu@intel.com>
+> Signed-off-by: Alan Cox <alan@linux.intel.com>
+> ---
+> 
+>  drivers/platform/x86/Kconfig              |    9 ++
+>  drivers/platform/x86/Makefile             |    2 
+>  drivers/platform/x86/intel_mid_powerbtn.c |  143 +++++++++++++++++++++++++++++
 
-*ping*
+Hmm, if it is platform driver then you need to also post it to the
+platform driver list/Matthew. If you want it to be an input driver
+please move to drivers/input/misc/.
 
-Anyone?
+If you move it to input please try keeping Makefile and Konfig sorted
+alphabetically.
+
+>  3 files changed, 154 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/platform/x86/intel_mid_powerbtn.c
+> 
+> 
+> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+> index d163bc2..8ceea88 100644
+> --- a/drivers/platform/x86/Kconfig
+> +++ b/drivers/platform/x86/Kconfig
+> @@ -654,4 +654,13 @@ config XO1_RFKILL
+>  	  Support for enabling/disabling the WLAN interface on the OLPC XO-1
+>  	  laptop.
+>  
+> +config INTEL_MID_POWER_BUTTON
+> +	tristate "power button driver for Intel MID platforms"
+> +	depends on INTEL_SCU_IPC
+> +	default y
+
+'y' is for essential features I believe.
+
+> +	help
+> +	  This driver handles the power button on the Intel MID platforms.
+> +
+> +	  If unsure, say N.
+> +
+
+To compile this driver as a module...
+
+>  endif # X86_PLATFORM_DEVICES
+> diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
+> index 4ec4ff8..a24cd62 100644
+> --- a/drivers/platform/x86/Makefile
+> +++ b/drivers/platform/x86/Makefile
+> @@ -34,3 +34,5 @@ obj-$(CONFIG_INTEL_IPS)		+= intel_ips.o
+>  obj-$(CONFIG_GPIO_INTEL_PMIC)	+= intel_pmic_gpio.o
+>  obj-$(CONFIG_XO1_RFKILL)	+= xo1-rfkill.o
+>  obj-$(CONFIG_IBM_RTL)		+= ibm_rtl.o
+> +obj-$(CONFIG_INTEL_MID_POWER_BUTTON)	+= intel_mid_powerbtn.o
+> +
+> diff --git a/drivers/platform/x86/intel_mid_powerbtn.c b/drivers/platform/x86/intel_mid_powerbtn.c
+> new file mode 100644
+> index 0000000..4f68f1d
+> --- /dev/null
+> +++ b/drivers/platform/x86/intel_mid_powerbtn.c
+> @@ -0,0 +1,143 @@
+> +/*
+> + * Power button driver for Medfield.
+> + *
+> + * Copyright (C) 2010 Intel Corp
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; version 2 of the License.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+> + * General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License along
+> + * with this program; if not, write to the Free Software Foundation, Inc.,
+> + * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/slab.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/input.h>
+> +#include <asm/intel_scu_ipc.h>
+> +
+> +#define DRIVER_NAME "msic_power_btn"
+> +
+> +#define MSIC_IRQ_STAT	0x02
+> +  #define MSIC_IRQ_PB	(1 << 0)
+> +#define MSIC_PB_CONFIG	0x3e
+> +#define MSIC_PB_STATUS	0x3f
+> +  #define MSIC_PB_LEVEL (1 << 3) /* 1 - release, 0 - press */
+> +
+> +struct mfld_pb_priv {
+> +	struct input_dev *input;
+> +	int irq;
+> +};
+> +
+> +static irqreturn_t mfld_pb_isr(int irq, void *dev_id)
+> +{
+> +	struct mfld_pb_priv *priv = dev_id;
+> +	int ret;
+> +	u8 pbstat;
+> +
+> +	ret = intel_scu_ipc_ioread8(MSIC_PB_STATUS, &pbstat);
+
+Is this sleeping?
+
+> +	if (ret < 0)
+> +		return IRQ_HANDLED;
+> +
+> +	input_event(priv->input, EV_KEY, KEY_POWER, !(pbstat & MSIC_PB_LEVEL));
+> +	input_sync(priv->input);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int __devinit mfld_pb_probe(struct platform_device *pdev)
+> +{
+> +	struct mfld_pb_priv *priv;
+> +	struct input_dev *input;
+> +	int ret;
+> +	int irq;
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq < 0)
+> +		return -EINVAL;
+> +
+> +	priv = kzalloc(sizeof(struct mfld_pb_priv), GFP_KERNEL);
+> +	input = input_allocate_device();
+> +	if (!priv || !input) {
+> +		ret = -ENOMEM;
+> +		goto fail;
+> +	}
+> +
+> +	priv->input = input;
+> +	priv->irq = irq;
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	input->name = pdev->name;
+> +	input->phys = "power-button/input0";
+> +	input->dev.parent = &pdev->dev;
+> +
+> +	input_set_capability(input, EV_KEY, KEY_POWER);
+> +
+> +	ret = request_threaded_irq(priv->irq, NULL, mfld_pb_isr,
+> +				   0, DRIVER_NAME, priv);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"unable to request irq %d for mfld power button\n",irq);
+
+Space after comma please.
+
+> +		goto fail;
+> +	}
+> +
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"unable to register input dev, error %d\n", ret);
+> +		goto fail;
+> +	}
+> +	return 0;
+> +
+> +fail:
+> +	platform_set_drvdata(pdev, NULL);
+> +	input_free_device(input);
+
+You are forgetting to free IRQ.
+
+> +	kfree(priv);
+> +	return ret;
+> +}
+> +
 
 Thanks.
 

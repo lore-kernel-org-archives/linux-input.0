@@ -1,197 +1,161 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH] bma023: Support for Bosch BMA023 and SMB380 accelerometers
-Date: Wed, 26 Jan 2011 12:08:52 +0000
-Message-ID: <4D400ED4.6050508@cam.ac.uk>
-References: <20110125160418.30747.22469.stgit@bob.linux.org.uk>	<4D40016A.50704@cam.ac.uk> <20110126114247.71a7fd86@lxorguk.ukuu.org.uk>
+From: Chris Schlund <chrisschlund@gmx.de>
+Subject: Re: Re: [PATCH] hid kernel module for wireless remote LC Power model
+ RC1000MCE
+Date: Wed, 26 Jan 2011 13:56:12 +0100
+Message-ID: <4D4019EC.8060301@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-51.csi.cam.ac.uk ([131.111.8.151]:46185 "EHLO
-	ppsw-51.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753203Ab1AZMBU (ORCPT
+Received: from mailout-de.gmx.net ([213.165.64.23]:53354 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752267Ab1AZM4E (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 07:01:20 -0500
-In-Reply-To: <20110126114247.71a7fd86@lxorguk.ukuu.org.uk>
+	Wed, 26 Jan 2011 07:56:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-input@vger.kernel.org, Eric Piel <eric.piel@tremplin-utc.net>, Hemanth V <hemanthv@ti.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On 01/26/11 11:42, Alan Cox wrote:
->> * Lots of discussion on sysfs attributes needed, documentation will obviously
->> make this easier!  I think there are some magic numbers in here still in
->> no particular units? Difficult to tell without the datasheet.
-> 
-> I'll double check on that. I don't believe the data sheet is available
-> publically.
-Always worth kicking them manufacturers a bit more on this. One day they
-will learn...
-> 
->>> We expose the data from this device to uusers through sysfs interface in
->>> the same manner as the lis drivers 
->>
->> This is a somewhat misleading comment. Unless a lot of new sysfs changes to
-> 
-> I meant the XYZ are exposed in the same format but do need some scaling
-> info yes.
-> 
->> Whilst several discussions of sysfs interfaces for these devices have bounced
->> around, no particularly firm decisions have been reached and perhaps we need
->> futher discussion.  We do have a fairly extensive set of equivalents in IIO
->> but are still open to other suggestions. (please see our docs in
->> staging/iio/Documentation) They are reasonaly comprehensive, though a few
->> things have snuck into the drivers without proper documentation in place.
-> 
-> IIO is something that unfortunately isn't within our timescales -
-> especially with no certainty it'll ever go upstream. That's a hint btw -
-> I think IIO needs throwing at Linus ;)
-Hmm.. I admit to being somewhat nervous about moving out of staging, the ALS fun
-and games certainly didn't help.  Sadly we aren't ready quite
-yet - too many ugly corners that will just confuse the debate and a lot of
-ugly drivers that ideally would be cleaned up first as well.  We made an exception
-for the huge dump from Analog, but I don't think we'll take any in that state
-again. It just diverts attention from the core work.
+Hi Jiri,
 
-I have no problem with drivers going elsewhere (particularly 3d accelerometer
-drivers that are mainly used for input anyway).  I'm glad Dmitry has started
-taking these.  The IIO/input bridge may work, but it does add a userspace burden
-which would be nice to avoid in common cases!
+>>First, I am missing your Signed-off-by: line, without which I can't apply your driver. Please see Documentation/SubmittingPatches for details..
+>>Second, your mailer has damaged (line-wrapped) the patch..
+>>Also, we are not going the EMBEDDED path any more (see commit 73d5e8f77e88a4 for explanation).
 
-I'm also in favour of other drivers going in misc for now.
+I attached the newly prepared patch with removed EMBEDDED path and hopefully without line-wrap.
+I also added the Signed-off-by line.
 
-Still having said that, there is always unifying work that can be done
-on interfaces, wherever the drivers actually are and that is why I'm pushing
-back on drivers like these.
-> 
-> Once IIO was upstream then the rest would follow (and we've got a few
-> other driver bits in misc and in internal trees that would then be able
-> to follow nicely)
-> 
-> 
->>> +struct bma023_sensor {
->>> +	struct i2c_client *client;
->>> +	struct device *dev;
->>> +	struct input_dev *idev;
->>> +	struct mutex lock;
->>> +	struct bma023_data data;
->>> +	int auto_delay;
->> I for one have no idea what auto_delay and soft_power might be...
->> Perhaps some documentation?
-> 
-> Power management delay and our soft power state - will comment
-> accordingly.
-> 
-> 
->>> +static int bma023_read_reg(struct i2c_client *client, u8 reg)
->>> +{
->>> +	int ret = i2c_smbus_read_byte_data(client, reg);
->>> +	if (ret < 0)
->>> +		dev_err(&client->dev, "%s: reg 0x%x, err %d\n",
->>> +			__func__, reg, ret);
->>
->> Do we need this wrapper? It does pretty print any errors, but do we
->> care assuming they are correctly passed on?
-> 
-> At this point I'd certainly like to keep it but long term it may well not
-> be needed.
-Fair enough. I suspect it will stay for ever, but it is a trivial point
-anyway so no real problem.
-> 
-> 
->> I can't help feeling that much of the following could be combined
->> into 2 functions with the right macro foo and container structures,
->> much the way it is done in hwmon an others.
-> 
-> Some of it was originally macro foo, including some truely 'elegant' use
-> of the pre-processor. When I expanded it by hand it was several times
-> larger than the code now in its place. gcc is pretty good at its job so
-> letting gcc work out what it wants inlined seems best.
-Fair enough. I guess this sort of macro foo doesn't really belong
-in drivers but rather subsystems where it can be well tested and shared
-across a lot of drivers.
-> 
->>> + *	bma023_set_hg_dur	-	set high-g duration
->>> + *	@client: i2c client for the sensor
->>> + *	@dur: duration value, 0-255
->> Again, units are?  We really need this stuff to be clear.
-> 
->>> + *	bma023_set_hg_thres	-	set high-g threshold
->>> + *	@client: i2c client for the sensor
->>> + *	@thres: threshold value, 0-255
->> Units are?  
-> 
->>> +	mutex_lock(&sensor->lock);
->>> +	bma023_read_xyz(sensor->client, &sensor->data);
->>> +	mutex_unlock(&sensor->lock);
->>> +
->>> +	pm_runtime_put(dev);
->>> +
->> These look to be raw adc values. If you want to do that, please provide
->> in sysfs the numbers needed to convert them to SI units.
-> 
-> 
->>> +static struct attribute *bma023_attributes[] = {
->>> +	&dev_attr_accel_data.attr,
->> These are raw values I think?  Again, we allow this in IIO, but insist
->> on conversion factors to m/s^2 also being provided in the sysfs interface
->> so userspace knows what it is getting.
-> 
-> This isn't an IIO driver. As and when IIO isn't in staging then we can
-> worry about this a bit more IMHO.
-Was only using IIO elements as an examples to avoid reiterating whole
-discussion about how to handle this stuff; take the actual examples with
-a pinch of salt as you say.
-> 
->>> +	&dev_attr_power_mode.attr,
->> Perhaps rename this low_power_mode and invert the value as then
->> it won't be a pair of magic numbers.
-> 
-> I'll take a look - ultimately I'd like to kill it off and just rely on
-> runtime PM but not everyone builds runtime PM systems yet.
-Sure
-> 
->>> +	&dev_attr_new_data_int.attr,
->> (is this enabling and disabling the interrupt? Surely that should be handled
->> by the input code and doesn't really want to be exposed?
-> 
-> It depends what you are doing with the device what events you want to be
-> flagged. In almost all cases the platform would know and provide the
-> right defaults.
-> 
->> For reference, the IIO equivalents may seem long winded, but they
->> are clear, consistent and generalizable. I'm guessing a bit on
->> what the bosch chip is doing based on other parts.
-> 
-> Again when/if IIO is upstream it will make sense to follow IIO.
-Consistency matters whether we are dealing with the particular form
-we picked or another one...
-> 
-> 
->>> +		ret = request_threaded_irq(client->irq, NULL,
->>> +				bma023_interrupt_thread, IRQF_TRIGGER_RISING,
->>> +					"bma023_int", sensor);
->> Is there any reason to have the _int postfix?  It is clearly an interrupt and
->> I don't think the device has any others.
-> 
-> Good point - killed
-> 
->>> +	pm_runtime_enable(&client->dev);
->>
->> Why store auto_delay, it is only used here...
-> 
-> Already fixed
-> 
->>> +static int bma023_runtime_suspend(struct device *dev)
->>> +{
->>> +	struct bma023_sensor *sensor = dev_get_drvdata(dev);
->>> +	bma023_set_power_mode(sensor->client, BMA023_SUSPEND);
->> On these could we usefully pass on the return value from
->> bma023_set_power_mode?
-> 
-> In the suspend case it is pretty meaningless - on the resume case I will
-> do so.
-Fair enough.
+Thanks,
+Chris
 
-Jonathan
 
+Signed-off-by: Chris Schlund <chrisschlund@gmx.de>
+---
+
+
+diff -uprN linux-2.6.37/drivers/hid/hid-core.c linux/drivers/hid/hid-core.c
+--- linux-2.6.37/drivers/hid/hid-core.c	2011-01-05 01:50:19.000000000 +0100
++++ linux/drivers/hid/hid-core.c	2011-01-24 17:01:00.000000000 +0100
+@@ -1312,6 +1312,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LCPOWER, USB_DEVICE_ID_LCPOWER_LC1000 ) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER_2) },
+diff -uprN linux-2.6.37/drivers/hid/hid-ids.h linux/drivers/hid/hid-ids.h
+--- linux-2.6.37/drivers/hid/hid-ids.h	2011-01-05 01:50:19.000000000 +0100
++++ linux/drivers/hid/hid-ids.h	2011-01-24 17:01:00.000000000 +0100
+@@ -330,6 +330,9 @@
+ #define USB_VENDOR_ID_LABTEC		0x1020
+ #define USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD	0x0006
+ 
++#define USB_VENDOR_ID_LCPOWER		0x1241
++#define USB_DEVICE_ID_LCPOWER_LC1000	0xf767
++
+ #define USB_VENDOR_ID_LD		0x0f11
+ #define USB_DEVICE_ID_LD_CASSY		0x1000
+ #define USB_DEVICE_ID_LD_POCKETCASSY	0x1010
+diff -uprN linux-2.6.37/drivers/hid/hid-lcpower.c linux/drivers/hid/hid-lcpower.c
+--- linux-2.6.37/drivers/hid/hid-lcpower.c	1970-01-01 01:00:00.000000000 +0100
++++ linux/drivers/hid/hid-lcpower.c	2011-01-24 17:01:00.000000000 +0100
+@@ -0,0 +1,70 @@
++/*
++ *  HID driver for LC Power Model RC1000MCE
++ *
++ *  Copyright (c) 2011 Chris Schlund 
++ *  based on hid-topseed module
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++#define ts_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, max, \
++					EV_KEY, (c))
++static int ts_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	if ((usage->hid & HID_USAGE_PAGE) != 0x0ffbc0000)
++		return 0;
++
++	switch (usage->hid & HID_USAGE) {
++        case 0x046: ts_map_key_clear(KEY_YELLOW);         break;
++        case 0x047: ts_map_key_clear(KEY_GREEN);          break;
++        case 0x049: ts_map_key_clear(KEY_RED);            break;
++        case 0x04a: ts_map_key_clear(KEY_BLUE);           break;
++        case 0x00d: ts_map_key_clear(KEY_HOME);           break;
++        case 0x025: ts_map_key_clear(KEY_TV);             break;
++        case 0x048: ts_map_key_clear(KEY_VCR);            break;
++        case 0x024: ts_map_key_clear(KEY_MENU);           break;
++        default:
++        return 0;
++	}
++
++	return 1;
++}
++
++static const struct hid_device_id ts_devices[] = {
++	{ HID_USB_DEVICE( USB_VENDOR_ID_LCPOWER, USB_DEVICE_ID_LCPOWER_LC1000) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, ts_devices);
++
++static struct hid_driver ts_driver = {
++	.name = "LC RC1000MCE",
++	.id_table = ts_devices,
++	.input_mapping = ts_input_mapping,
++};
++
++static int __init ts_init(void)
++{
++	return hid_register_driver(&ts_driver);
++}
++
++static void __exit ts_exit(void)
++{
++	hid_unregister_driver(&ts_driver);
++}
++
++module_init(ts_init);
++module_exit(ts_exit);
++MODULE_LICENSE("GPL");
+diff -uprN linux-2.6.37/drivers/hid/Kconfig linux/drivers/hid/Kconfig
+--- linux-2.6.37/drivers/hid/Kconfig	2011-01-05 01:50:19.000000000 +0100
++++ linux/drivers/hid/Kconfig	2011-01-26 13:04:15.000000000 +0100
+@@ -207,6 +207,12 @@ config HID_KENSINGTON
+ 	---help---
+ 	Support for Kensington Slimblade Trackball.
+ 
++config HID_LCPOWER
++	tristate "LC-Power"
++	depends on USB_HID
++	---help---
++	Support for LC-Power RC1000MCE RF remote control.
++
+ config HID_LOGITECH
+ 	tristate "Logitech devices" if EMBEDDED
+ 	depends on USB_HID
+diff -uprN linux-2.6.37/drivers/hid/Makefile linux/drivers/hid/Makefile
+--- linux-2.6.37/drivers/hid/Makefile	2011-01-05 01:50:19.000000000 +0100
++++ linux/drivers/hid/Makefile	2011-01-24 17:01:00.000000000 +0100
+@@ -41,6 +41,7 @@ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+ obj-$(CONFIG_HID_GYRATION)	  += hid-gyration.o
+ obj-$(CONFIG_HID_KENSINGTON)	  += hid-kensington.o
+ obj-$(CONFIG_HID_KYE)		  += hid-kye.o
++obj-$(CONFIG_HID_LCPOWER)	  += hid-lcpower.o
+ obj-$(CONFIG_HID_LOGITECH)	  += hid-logitech.o
+ obj-$(CONFIG_HID_MAGICMOUSE)     += hid-magicmouse.o
+ obj-$(CONFIG_HID_MICROSOFT)	  += hid-microsoft.o

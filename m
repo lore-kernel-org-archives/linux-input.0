@@ -1,33 +1,53 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Mark Lord <kernel@teksavvy.com>
 Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
  ?
-Date: Wed, 26 Jan 2011 21:09:13 +0100
-Message-ID: <4D407F69.1070409@redhat.com>
-References: <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D4004F9.6090200@redhat.com> <4D401CC5.4020000@redhat.com> <4D402D35.4090206@redhat.com> <20110126165132.GC29163@core.coreip.homeip.net> <4D4059E5.7050300@redhat.com> <20110126182415.GB29268@core.coreip.homeip.net> <4D4072F9.5060206@redhat.com> <4D4075CD.8060402@teksavvy.com>
+Date: Wed, 26 Jan 2011 16:41:07 -0500
+Message-ID: <4D4094F3.3020607@teksavvy.com>
+References: <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D403855.4050706@teksavvy.com> <4D405A9D.4070607@redhat.com> <4D4076FD.6070207@teksavvy.com> <20110126194127.GE29268@core.coreip.homeip.net> <4D407A46.4080407@teksavvy.com> <20110126195011.GF29268@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:18517 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753689Ab1AZUJl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 15:09:41 -0500
-In-Reply-To: <4D4075CD.8060402@teksavvy.com>
+Received: from ironport2-out.teksavvy.com ([206.248.154.181]:43349 "EHLO
+	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753531Ab1AZVlK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Jan 2011 16:41:10 -0500
+In-Reply-To: <20110126195011.GF29268@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <kernel@teksavvy.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-   Hi,
+On 11-01-26 02:50 PM, Dmitry Torokhov wrote:
+> On Wed, Jan 26, 2011 at 02:47:18PM -0500, Mark Lord wrote:
+>> On 11-01-26 02:41 PM, Dmitry Torokhov wrote:
+>>>
+>>> I do not consider lsinput refusing to work a regression.
+>>
+>> Obviously, since you don't use that tool.
+>> Those of us who do use it see this as broken userspace compatibility.
+>>
+>> Who the hell reviews this crap, anyway?
+>> Code like that should never have made it upstream in the first place.
+>>
+> 
+> You are more than welcome spend more time on reviews.
 
->> Will the major revision ever change?  Does it make sense to check the version at
->> all?
->
-> As already established earlier in this thread,
-> by Linus Torvalds as well as by myself,
-> NO!
+Somehow I detect a totally lack of sincerity there.
 
-Check removed.
+But thanks for fixing the worst of this regression, at least.
 
-thanks,
-   Gerd
+Perhaps you might think about eventually fixing the bad use of -EINVAL
+in future revisions.  One way perhaps to approach that, would be to begin
+fixing it internally, but still returning the same things from the actual
+f_ops->ioctl() routine.
+
+Then eventually provide new ioctl numbers which return the correct -ENOTTY
+(or whatever is best there), rather than converting to -EVINAL at the interface.
+Then a nice multi-year overlap, with a scheduled removal of the old codes some day.
+
+Then the input subsystem would work more like most other subsystems,
+and make userspace programming simpler and easier to "get correct".
+
+Cheers

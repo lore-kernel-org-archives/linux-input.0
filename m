@@ -1,1633 +1,204 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH] bma023: Support for Bosch BMA023 and SMB380 accelerometers
-Date: Wed, 26 Jan 2011 11:11:38 +0000
-Message-ID: <4D40016A.50704@cam.ac.uk>
-References: <20110125160418.30747.22469.stgit@bob.linux.org.uk>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
+ ?
+Date: Wed, 26 Jan 2011 09:26:49 -0200
+Message-ID: <4D4004F9.6090200@redhat.com>
+References: <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <4D3EB734.5090100@redhat.com> <20110125164803.GA19701@core.coreip.homeip.net> <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com> <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-52.csi.cam.ac.uk ([131.111.8.152]:49867 "EHLO
-	ppsw-52.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751352Ab1AZLXR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 06:23:17 -0500
-In-Reply-To: <20110125160418.30747.22469.stgit@bob.linux.org.uk>
+Received: from mx1.redhat.com ([209.132.183.28]:46755 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751383Ab1AZL1Z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Jan 2011 06:27:25 -0500
+In-Reply-To: <20110126020003.GA23085@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-input@vger.kernel.org, Eric Piel <eric.piel@tremplin-utc.net>, Hemanth V <hemanthv@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>
 
-On 01/25/11 16:05, Alan Cox wrote:
-> From: Joseph Lai <joseph_lai@wistron.com>
->=20
-> This patch supports driver for BOSCH BMA023 and SMB380 which are acce=
-lerometers.
+Hi Dmitry,
 
-Hi Alan,
+Em 26-01-2011 00:00, Dmitry Torokhov escreveu:
+> On Tue, Jan 25, 2011 at 03:29:14PM -0800, Dmitry Torokhov wrote:
+>> On Tue, Jan 25, 2011 at 05:22:09PM -0500, Mark Lord wrote:
+>>> On 11-01-25 05:00 PM, Mauro Carvalho Chehab wrote:
+>>>> Em 25-01-2011 18:54, Dmitry Torokhov escreveu:
+>>>>> On Wed, Jan 26, 2011 at 06:09:45AM +1000, Linus Torvalds wrote:
+>>>>>> On Wed, Jan 26, 2011 at 2:48 AM, Dmitry Torokhov
+>>>>>> <dmitry.torokhov@gmail.com> wrote:
+>>>>>>>
+>>>>>>> We should be able to handle the case where scancode is valid even though
+>>>>>>> it might be unmapped yet. This is regardless of what version of
+>>>>>>> EVIOCGKEYCODE we use, 1 or 2, and whether it is sparse keymap or not.
+>>>>>>>
+>>>>>>> Is it possible to validate the scancode by driver?
+>>>>>>
+>>>>>> More appropriately, why not just revert the thing? The version change
+>>>>
+>>>> Reverting the version increment is a bad thing. I agree with Dmitry that
+>>>> an application that fails just because the API version were incremented
+>>>> is buggy.
+>>>>
+>>>>> Well, then we'll break Ubuntu again as they recompiled their input-utils
+>>>>> package (without fixing the check). And the rest of distros do not seem
+>>>>> to be using that package...
+>>>>
+>>>> Reverting it will also break the ir-keytable userspace program that it is
+>>>> meant to be used by the Remote Controller devices, and uses it to adjust
+>>>> its behaviour to support RC's with more than 16 bits of scancodes.
+>>>>
+>>>> I agree that it is bad that the ABI broke, but reverting it will cause even
+>>>> more damage.
+>>>
+>>> There we disagree.  Sure it's a very poorly thought out interface,
+>>> but the way to fix it is to put a new one along side the old,
+>>> and put the old back the way it was before it got broken.
+>>>
+>>> I'm not making a fuss here for myself -- I'm more than capable of working
+>>> around new kernel bugs like these, but for every person like me there are
+>>> likely hundreds of others who simply get frustrated and give up.
+>>>
+>>> If you're worried about Ubuntu's adaptation to the buggy regression,
+>>> then email their developers (kernel and input-utils packagers) explaining
+>>> the revert, and they can coordination their kernel and input-utils updates
+>>> to do the Right Thing.
+>>>
+>>> But for all of the rest of us, our systems are broken by this change.
+>>>
+>>> ...
+>>>
+>>>
+>>>>>> As Mark said, breaking user space simply isn't acceptable. And since
+>>>>>> breaking user space isn't acceptable, then incrementing the version is
+>>>>>> stupid too.
+>>>>>
+>>>>> It might not have been the best idea to increment, however I maintain
+>>>>> that if there exists version is can be changed. Otherwise there is no
+>>>>> point in having version at all.
+>>>>
+>>>> Not arguing in favor of the version numbering, but it is easy to read
+>>>> the version increment at the beginning of the application, and adjust
+>>>> if the code will use EVIOCGKEYCODE or EVIOCGKEYCODE_V2 of the ioctl's,
+>>>> depending on what kernel provides.
+>>>>
+>>>> Ok, we might be just calling the new ioctl and check for -ENOSYS at
+>>>> the beginning, using some fake arguments.
+>>>>
+>>>>> As I said, reverting the version bump will cause yet another wave of
+>>>>> breakages so I propose leaving version as is.
+>>>>>
+>>>>>>
+>>>>>> The way we add new ioctl's is not by incrementing some "ABI version"
+>>>>>> crap. It's by adding new ioctl's or system calls or whatever that
+>>>>>> simply used to return -ENOSYS or other error before, while preserving
+>>>>>> the old ABI. That way old binaries don't break (for _ANY_ reason), and
+>>>>>> new binaries can see "oh, this doesn't support the new thing".
+>>>>>
+>>>>> That has been done as well; we have 2 new ioctls and kept 2 old ioctls.
+>>>
+>>> That's the problem: you did NOT keep the two old ioctls().
+>>> Those got changed too.. so now we have four NEW ioctls(),
+>>> none of which backward compatible with userspace.
+>>>
+>>
+>> Please calm down. This, in fact, is not new vs old ioctl problem but
+>> rather particular driver (or rather set of drivers) implementation
+>> issue. Even if we drop the new ioctls and convert the RC code to use the
+>> old ones you'd be observing the same breakage as RC code responds with
+>> -EINVAL to not-yet-established mappings.
+>>
+>> I'll see what can be done for these drivers; I guess we could supply a
+>> fake KEY_RESERVED entry for not mapped scancodes if there are mapped
+>> scancodes "above" current one. That should result in the same behavior
+>> for RCs as before.
+>>
+> 
+> I wonder if the patch below is all that is needed...
+>
+> Input: ir-keymap - return KEY_RESERVED for unknown mappings
+> 
+> Do not respond with -EINVAL to EVIOCGKEYCODE for not-yet-mapped scancodes,
+> but rather return KEY_RESERVED.
+> 
+> This fixes breakage with Ubuntu's input-kbd utility that stopped returning
+> full keymaps for remote controls.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-Good to see this driver moving forward.
+I tested your patch with both ir-keytable and the input-kbd (with the
+version check fixed) on the top of a vanilla 2.6.37 kernel. It works
+with both tools.
 
-I've cc'd Eric and Hemanth as I think they may wish to review this driv=
-er
-or take part in any interface discussions.
+Feel free to add:
 
-A few general queries inline. (Note I review from the end so some comme=
-nts
-may seem backwards ;)
+Tested-by: Mauro Carvalho Chehab <mchehab@redhat.com>
 
-To sumarize
+-
 
-* Looks like a number of error codes that could usefully be passed on a=
-re
-being eaten in the power management functions.
+Btw, I took some time to take analyse the input-kbd stuff.
+As said at the README:
 
-* Big need for documentation. We have a whole host of new attributes. S=
-ome
-have come from other drivers, but still could do with documenting here.
+	This is a small collection of input layer utilities.  I wrote them
+	mainly for testing and debugging, but maybe others find them useful
+	too :-)
+	...
+	Gerd Knorr <kraxel@bytesex.org> [SUSE Labs]
 
-* Lots of discussion on sysfs attributes needed, documentation will obv=
-iously
-make this easier!  I think there are some magic numbers in here still i=
-n
-no particular units? Difficult to tell without the datasheet.
->=20
-> We expose the data from this device to uusers through sysfs interface=
- in
-> the same manner as the lis drivers=20
+This is an old testing tool written by Gerd Hoffmann probably used for him
+to test the V4L early Remote Controller implementations. I think he never
+meant to use it for anything else. So that's probably the reason why he 
+added a check for a specific input version.
 
-This is a somewhat misleading comment. Unless a lot of new sysfs change=
-s to
-lis3 drivers are set in a tree that hasn't merged, I'm seeing 3 attribu=
-tes
-in that driver (selftest, position and rate).  None of them match with =
-any
-in this driver. (obviously you don't actually say they are the same, bu=
-t
-the my initial assumption is that they would be so others may think thi=
-s!)
+The last "official" version seems to be this one:
+	http://dl.bytesex.org/cvs-snapshots/input-20081014-101501.tar.gz
 
-If equivalents of these are sat in a tree somewhere a pointer to that t=
-ree
-would be helpful.
+I don't think that Gerd is still maintaining it. On a quick search,
+it seems that most distros don't ship it (Debian being an exception).
 
-Whilst several discussions of sysfs interfaces for these devices have b=
-ounced
-around, no particularly firm decisions have been reached and perhaps we=
- need
-futher discussion.  We do have a fairly extensive set of equivalents in=
- IIO
-but are still open to other suggestions. (please see our docs in
-staging/iio/Documentation) They are reasonaly comprehensive, though a f=
-ew
-things have snuck into the drivers without proper documentation in plac=
-e.
+Gerd, if you're still maintaining it, it is a good idea to apply Dmitry's
+patch:
+	http://www.spinics.net/lists/linux-input/msg13728.html
+Otherwise, the tool won't work for NEC-extended and RC-6 tables.
 
+Most of the tools found on Gerd's input package can be replaced with gains
+by ir-keytable [1][2].
+[1] http://git.linuxtv.org/v4l-utils.git
+[2] http://linuxtv.org/downloads/v4l-utils/v4l-utils-0.8.2.tar.bz2
 
-Anyhow, few minors + interface issues.
+The output format for input-kbd is compatible with the input format of
+ir-keytable.
 
-Thanks for working on this one, it would be good to finally see it merg=
-e.
+So, people that are using input-kbd to work with a remote controller at
+/dev/input/event2 can read the existent RC tables with:
+	# input-kbd 2 >input_kbd_rc_map
+or:
+	# ir-keytable -r >ir_keytable_rc_map
 
-Jonathan
-> so that the data can be used for one off
-> uses, and also as as an input device for joystick type uses.
+In order to replace the table, people can use:
+	# input-kbd -f some_rc_map 2
+or:
+	# ir-keytable -cw input_kbd_rc_map
+	# ir-keytable -cw ir_keytable_rc_map
 
+To list Remote Controller input devices:
+	$ ir-keytable
+		(somewhat similar to what lsinput does)
 
+To test input events:
+	# input-events 2
+	# ir-keytable -t
 
->=20
-> The driver allows the setting and reading of the device's properties =
-via
-> sysfs attributes.
->=20
-> Based on an original driver
-> Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
->=20
-> [Extensively rewritten]
->=20
-> Signed-off-by: Joseph Lai <joseph_lai@wistron.com>
-> Signed-off-by: Alan Cox <alan@linux.intel.com>
-> ---
->=20
->  drivers/input/misc/Kconfig  |   10=20
->  drivers/input/misc/Makefile |    1=20
->  drivers/input/misc/bma023.c | 1306 +++++++++++++++++++++++++++++++++=
-++++++++++
->  include/linux/i2c/bma023.h  |   44 +
->  4 files changed, 1361 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/misc/bma023.c
->  create mode 100644 include/linux/i2c/bma023.h
->=20
->=20
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index b0c6772..3b595b8 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -454,4 +454,14 @@ config INPUT_CMA3000_I2C
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called cma3000_d0x_i2c.
-> =20
-> +config INPUT_BMA023
-> +	tristate "BMA023/SMB380 Triaxial acceleration sensor"
-> +	depends on I2C
-> +	help
-> +	  Say Y here if you want to support Bosch BMA023/SMB380
-> +	  connected via an I2C bus.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called bma023.
-> +
->  endif
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefil=
-e
-> index 9b47971..79b3f66 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -36,6 +36,7 @@ obj-$(CONFIG_INPUT_PWM_BEEPER)		+=3D pwm-beeper.o
->  obj-$(CONFIG_INPUT_RB532_BUTTON)	+=3D rb532_button.o
->  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+=3D rotary_encoder.o
->  obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
-> +obj-$(CONFIG_INPUT_BMA023)			+=3D bma023.o
->  obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
->  obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+=3D twl4030-pwrbutton.o
->  obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+=3D twl4030-vibra.o
-> diff --git a/drivers/input/misc/bma023.c b/drivers/input/misc/bma023.=
-c
-> new file mode 100644
-> index 0000000..489f363
-> --- /dev/null
-> +++ b/drivers/input/misc/bma023.c
-> @@ -0,0 +1,1306 @@
-> +/*
-> + * bma023.c - BMA023 Tri-axis accelerometer driver
-> + *
-> + * Copyright (C) 2010 Samsung Eletronics Co.Ltd
-> + * Kim Kyuwon <q1.kim@samsung.com>
-> + * Kyungmin Park <kyungmin.park@samsung.com>
-> + * Donggeun Kim <dg77.kim@samsung.com>
-> + *
-> + * Copyright (C) 2011 Wistron Co.Ltd
-> + * Joseph Lai <joseph_lai@wistron.com>
-> + *
-> + * Copyright (c) 2011 Intel Corporation
-> + * Alan Cox <alan@linux.intel.com>
-> + *
-> + * This program is free software; you can redistribute it and/or mod=
-ify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-> + *
-> + * TODO (After)
-> + *	Investigate if the IRQ disable is really needed (needs that data
-> + *		sheet reviewing in more detail)
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/mutex.h>
-> +#include <linux/err.h>
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/i2c/bma023.h>
-> +#include <linux/delay.h>
-> +#include <linux/slab.h>
-> +#include <linux/pm_runtime.h>
-> +
-> +#define BMA023_DEFAULT_AUTO_DELAY	250	/* mS */
-> +
-> +#define BMA023_CHIP_ID_REG	0x00
-> +#define BMA023_X_LSB_REG	0x02
-> +#define BMA023_X_MSB_REG	0x03
-> +#define BMA023_Y_LSB_REG	0x04
-> +#define BMA023_Y_MSB_REG	0x05
-> +#define BMA023_Z_LSB_REG	0x06
-> +#define BMA023_Z_MSB_REG	0x07
-> +#define BMA023_TEMP_REG		0x08 /*  An output of 0 equals -30C,
-> +					 1 LSB equals 0.5C */
-> +#define BMA023_CTRL1_REG	0x0a
-> +#define BMA023_CTRL2_REG	0x0b
-> +#define BMA023_SETTINGS1_REG	0x0c
-> +#define BMA023_SETTINGS2_REG	0x0d
-> +#define BMA023_SETTINGS3_REG	0x0e
-> +#define BMA023_SETTINGS4_REG	0x0f
-> +#define BMA023_SETTINGS5_REG	0x10
-> +#define BMA023_SETTINGS6_REG	0x11
-> +#define BMA023_RANGE_BW_REG	0x14
-> +#define BMA023_CONF2_REG	0x15
-> +
-> +#define BMA023_CHIP_ID		0x02
-> +
-> +#define BMA023_NEW_DATA_INT_SHIFT	5
-> +#define BMA023_NEW_DATA_INT_MASK	(0x1 << 5)
-> +
-> +#define BMA023_RANGE_SHIFT		3
-> +#define BMA023_RANGE_MASK		(0x3 << 3)
-> +#define BMA023_BANDWIDTH_SHIFT		0
-> +#define BMA023_BANDWIDTH_MASK		(0x7)
-> +
-> +#define BMA023_HG_HYST_SHIFT		3
-> +#define BMA023_HG_HYST_MASK		(0x7 << 3)
-> +#define BMA023_LG_HYST_SHIFT		0
-> +#define BMA023_LG_HYST_MASK		(0x7)
-> +
-> +#define BMA023_HG_DUR_SHIFT		(0x0)
-> +#define BMA023_HG_DUR_MASK		(0xff)
-> +#define BMA023_HG_THRES_SHIFT		(0x0)
-> +#define BMA023_HG_THRES_MASK		(0xff)
-> +#define BMA023_LG_DUR_SHIFT		(0x0)
-> +#define BMA023_LG_DUR_MASK		(0xff)
-> +#define BMA023_LG_THRES_SHIFT		(0x0)
-> +#define BMA023_LG_THRES_MASK		(0xff)
-> +
-> +#define BMA023_ENABLE_HG_SHIFT		1
-> +#define BMA023_ENABLE_HG_MASK		(0x1 << 1)
-> +#define BMA023_ENABLE_LG_SHIFT		0
-> +#define BMA023_ENABLE_LG_MASK		(0x1)
-> +
-> +#define BMA023_SLEEP_SHIFT		0
-> +#define BMA023_SLEEP_MASK		(0x1)
-> +
-> +#define BMA023_ACCEL_BITS		10
-> +#define BMA023_MAX_VALUE		((1 << ((BMA023_ACCEL_BITS) - 1)) - 1)
-> +#define BMA023_MIN_VALUE		(-(1 << ((BMA023_ACCEL_BITS) - 1)))
-> +
-> +#define BMA023_DEFAULT_RANGE		BMA023_RANGE_2G
-> +#define BMA023_DEFAULT_BANDWIDTH	BMA023_BW_190HZ
-> +#define BMA023_DEFAULT_NEW_DATA_INT	0
-> +#define BMA023_DEFAULT_HG_INT		0
-> +#define BMA023_DEFAULT_LG_INT		0
-> +#define BMA023_DEFAULT_HG_DURATION	0x05
-> +#define BMA023_DEFAULT_HG_THRESHOLD	0xa0
-> +#define BMA023_DEFAULT_HG_HYST		0
-> +#define BMA023_DEFAULT_LG_DURATION	0x05
-> +#define BMA023_DEFAULT_LG_THRESHOLD	0x14
-> +#define BMA023_DEFAULT_LG_HYST		0
-> +
-> +#define BMA023_SUSPEND	0
-> +#define BMA023_RESUME	1
-> +
-> +#define BMA023_CUSTOMER_REG	0x12
-> +#define BMA023_INSPECT_VAL	0xBB
-> +#define BMA023_CHECK_SHIFT	0
-> +#define BMA023_CHECK_MASK	0xff
-> +
-> +struct bma023_data {
-> +	s16 x;
-> +	s16 y;
-> +	s16 z;
-> +};
-> +
-> +struct bma023_sensor {
-> +	struct i2c_client *client;
-> +	struct device *dev;
-> +	struct input_dev *idev;
-> +	struct mutex lock;
-> +	struct bma023_data data;
-> +	int auto_delay;
-I for one have no idea what auto_delay and soft_power might be...
-Perhaps some documentation?
-> +	int soft_power;
-> +
-> +	u8 range;
-> +	u8 bandwidth;
-> +	u8 new_data_int;
-> +	u8 hg_int;
-> +	u8 lg_int;
-> +	u8 lg_dur;
-> +	u8 lg_thres;
-> +	u8 lg_hyst;
-> +	u8 hg_dur;
-> +	u8 hg_thres;
-> +	u8 hg_hyst;
-> +	u8 power_mode;
-> +};
-> +
-> +/**
-> + *	bma023_write_reg	-	write a BMA023 register via I2C
-> + *	@reg: register being updated
-> + *	@val: value to write
-> + *
-> + *	Updates the register or returns an error if the write fails.
-> + */
-> +static int bma023_write_reg(struct i2c_client *client, u8 reg, u8 va=
-l)
-> +{
-> +	int ret;
-> +	/*
-> +	 * According to the datasheet, the interrupt should be deactivated
-> +	 * on the host side when write sequences operate.
-> +	 */
-> +	disable_irq_nosync(client->irq);
-> +	ret =3D i2c_smbus_write_byte_data(client, reg, val);
-> +	enable_irq(client->irq);
-> +	if (ret < 0)
-> +		dev_err(&client->dev, "%s: reg 0x%x, val 0x%x, err %d\n",
-> +			__func__, reg, val, ret);
-> +	return ret;
-> +}
-> +
-> +/**
-> + *	bma023_read_reg	-	read a BMA023 register via I2C
-> + *	@reg: register being updated
-> + *	@val: value to write
-> + *
-> + *	Reads the register or returns a negative error code on failure.
-> + */
-> +static int bma023_read_reg(struct i2c_client *client, u8 reg)
-> +{
-> +	int ret =3D i2c_smbus_read_byte_data(client, reg);
-> +	if (ret < 0)
-> +		dev_err(&client->dev, "%s: reg 0x%x, err %d\n",
-> +			__func__, reg, ret);
+However, as said previously in this thread, input-kbd won't work with any
+RC table that uses NEC extended (and there are several devices on the
+current Kernels with those tables), since it only reads up to 16 bits.
 
-Do we need this wrapper? It does pretty print any errors, but do we
-care assuming they are correctly passed on?
-> +	return ret;
-> +}
-> +
-> +/**
-> + *	bma023_xyz_read_reg	-	read the axes values
-> + *	@reg: register being updated
-> + *	@val: value to write
-> + *
-> + *	Reads the register values in one transaction or returns a negativ=
-e
-> + *	error code on failure/
-> + */
-> +static int bma023_xyz_read_reg(struct i2c_client *client,
-> +			       u8 *buffer, int length)
-> +{
-> +	struct i2c_msg msg[] =3D {
-> +		{
-> +			.addr =3D client->addr,
-> +			.flags =3D 0,
-> +			.len =3D 1,
-> +			.buf =3D buffer,
-> +		},
-}, { ?
-> +		{
-> +			.addr =3D client->addr,
-> +			.flags =3D I2C_M_RD,
-> +			.len =3D length,
-> +			.buf =3D buffer,
-> +		},
-> +	};
-> +	return i2c_transfer(client->adapter, msg, 2);
-> +}
-> +
-> +/**
-> + *	bma023_set_reg_bits	-	update a subset of register bits
-> + *	@client: i2c client for the sensor
-> + *	@val: value to write
-> + *	@shift: bit offset of field
-> + *	@mask: bit mask of field to update
-> + *	@reg: register number
-> + *
-> + *	Update one of the many bitfield registers on the BMA023 by readin=
-g
-> + *	and writing back bits. The caller *MUST* hold the sensor lock whe=
-n
-> + *	using this function in order to prevent overlapping updates corru=
-pting
-> + *	the register.
-> + *
-> + *	Returns success or an error code
-> + */
-> +static int bma023_set_reg_bits(struct i2c_client *client,
-> +					int val, int shift, u8 mask, u8 reg)
-> +{
-> +	int data =3D bma023_read_reg(client, reg);
-> +
-> +	if (data < 0)
-> +		return data;
-> +
-> +	data =3D (data & ~mask) | ((val << shift) & mask);
-> +	return bma023_write_reg(client, reg, data);
-> +}
-> +
-> +/**
-> + *	bma023_get_reg_bits	-	read register bitfield
-> + *	@client: i2c client for the sensor
-> + *	@shift: bit offset of field
-> + *	@mask: bit mask of field to update
-> + *	@reg: register number
-> + *
-> + *	Read a bit field from the sensor and return the value of the fiel=
-d. The
-> + *	lock is not needed in this case
-> + */
-> +static int bma023_get_reg_bits(struct i2c_client *client, int shift,
-> +					u8 mask, u8 reg)
-> +{
-> +	int data =3D bma023_read_reg(client, reg);
-> +	if (data < 0)
-> +		return data;
-> +	data =3D (data & mask) >> shift;
-> +	return data;
-> +}
-> +
-I can't help feeling that much of the following could be combined
-into 2 functions with the right macro foo and container structures,
-much the way it is done in hwmon an others.
-> +/*
-> + *	Functions for handling all the configurable fields
-> + */
-> +
-> +/**
-> + *	bma023_set_check_reg	-	set an inspective value
-> + *	@client: i2c client for the sensor
-> + *	@check: update the inspective value
-> + *
-> + *	Set an inspective value to customer's register, which can record
-> + *	any value from user. The inspective value will keep until the chi=
-p
-> + *	off or shutdown. User can recognize the chip needs re-initialize
-> + *	or not by this register.
-> + */
-> +static int bma023_set_check_reg(struct i2c_client *client, u8 check)
-> +{
-> +	return bma023_set_reg_bits(client, check, BMA023_CHECK_SHIFT,
-> +				   BMA023_CHECK_MASK, BMA023_CUSTOMER_REG);
-> +}
-> +
-> +static int bma023_get_check_reg(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_CHECK_SHIFT,
-> +				   BMA023_CHECK_MASK, BMA023_CUSTOMER_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_range	-	set the full scale acceleration range
-> + *	@client: i2c client for the sensor
-> + *	@range: new range setting
-> + *
-> + *	The range of bma023 will affect the chip to change the sensitivit=
-y=20
-> + *	of gravitation. The value of range includes +/- 2g, 4g and 8g.
-> + *
-> + *	The change of range will respond to 3 axes directly.
-> + */
-> +static int bma023_set_range(struct i2c_client *client, u8 range)
-> +{
-> +	return bma023_set_reg_bits(client, range, BMA023_RANGE_SHIFT,
-> +				   BMA023_RANGE_MASK, BMA023_RANGE_BW_REG);
-> +}
-> +
-> +static int bma023_get_range(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_RANGE_SHIFT,
-> +				   BMA023_RANGE_MASK, BMA023_RANGE_BW_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_bandwidth	-	set the digital filtering of ADC output da=
-ta
-> + *	@client: i2c client for the sensor
-> + *	@bw: new bandwidth setting
-> + *
-> + *	The bandwidth affect the ability of noise filter. The value of ba=
-ndwidth
-> + *	includes 25Hz, 50Hz, 100Hz, 190Hz, 375Hz, 750Hz and 1500Hz.
-> + *
-> + *	The change of bandwidth will respond to 3 axes directly.
-> + */
-> +static int bma023_set_bandwidth(struct i2c_client *client, u8 bw)
-> +{
-> +	return bma023_set_reg_bits(client, bw, BMA023_BANDWIDTH_SHIFT,
-> +				   BMA023_BANDWIDTH_MASK, BMA023_RANGE_BW_REG);
-> +}
-> +
-> +static int bma023_get_bandwidth(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_BANDWIDTH_SHIFT,
-> +				   BMA023_BANDWIDTH_MASK, BMA023_RANGE_BW_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_new_data_int	-	switch on/off of new data interrupt
-> + *	@client: i2c client for the sensor
-> + *	@val: value to switch on/off, 1: on, 0: off
-> + *
-> + *	To turn on this interrupt will generate an interrupt when all thr=
-ee
-> + *	axes acceleration values are new.
-> + */
-> +static int bma023_set_new_data_int(struct i2c_client *client, u8 val=
-)
-> +{
-> +	return bma023_set_reg_bits(client, val, BMA023_NEW_DATA_INT_SHIFT,
-> +				   BMA023_NEW_DATA_INT_MASK, BMA023_CONF2_REG);
-> +}
-> +
-> +static int bma023_get_new_data_int(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_NEW_DATA_INT_SHIFT,
-> +				   BMA023_NEW_DATA_INT_MASK, BMA023_CONF2_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_hg_int	-	switch on/off of high-g interrupt
-> + *	@client: i2c client for the sensor
-> + *	@val: value to switch on/off, 1: on, 0: off
-> + *
-> + *	To turn on this interrupt will generate an interrupt when the
-> + *	oscillatory criteria is satisfied by hg_dur and hg_thres.
-> + *
-> + *	Usually, it is used to debounce the high-g criteria.
-> + */
-> +static int bma023_set_hg_int(struct i2c_client *client, u8 val)
-> +{
-> +	return bma023_set_reg_bits(client, val, BMA023_ENABLE_HG_SHIFT,
-> +				   BMA023_ENABLE_HG_MASK, BMA023_CTRL2_REG);
-> +}
-> +
-> +static int bma023_get_hg_int(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_ENABLE_HG_SHIFT,
-> +				   BMA023_ENABLE_HG_MASK, BMA023_CTRL2_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_lg_int	-	switch on/off of low-g interrupt
-> + *	@client: i2c client for the sensor
-> + *	@val: value to switch on/off, 1: on, 0: off
-> + *
-> + *	To turn on this setting will generate an interrupt when the
-> + *	oscillatory criteria is satisfied by lg_dur and lg_thres.
-> + *
-> + *	Usually, it is used to detect a free fall.
-> + */
-> +static int bma023_set_lg_int(struct i2c_client *client, u8 val)
-> +{
-> +	return bma023_set_reg_bits(client, val,	BMA023_ENABLE_LG_SHIFT,
-> +				   BMA023_ENABLE_LG_MASK, BMA023_CTRL2_REG);
-> +}
-> +
-> +static int bma023_get_lg_int(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_ENABLE_LG_SHIFT,
-> +				   BMA023_ENABLE_LG_MASK, BMA023_CTRL2_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_lg_dur	-	set low-g duration
-> + *	@client: i2c client for the sensor
-> + *	@dur: duration value, 0-255
-> + *=09
-> + *	Generate an interrupt when the gravitation is detected in low-g
-> + *	criterion for long enough duration.
-> + *
-> + *	This setting is used to interrupt detection.
-> + */
-> +static int bma023_set_lg_dur(struct i2c_client *client, u8 dur)
-> +{
-> +	return bma023_set_reg_bits(client, dur,	BMA023_LG_DUR_SHIFT,
-> +				   BMA023_LG_DUR_MASK, BMA023_SETTINGS2_REG);
-> +}
-> +
-> +static int bma023_get_lg_dur(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_LG_DUR_SHIFT,
-> +				   BMA023_LG_DUR_MASK, BMA023_SETTINGS2_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_lg_thres	-	set low-g threshold
-> + *	@client: i2c client for the sensor
-> + *	@thres: threshold value, 0-255
-> + *=09
-> + *	Filter 3 axes detection and limit to trigger an interrupt signal
-> + *	when the gravitation is detected in low-g threshold.
-> + *
-> + *	This setting is used to interrupt detection.
-> + */
-> +static int bma023_set_lg_thres(struct i2c_client *client, u8 thres)
-> +{
-> +	return bma023_set_reg_bits(client, thres, BMA023_LG_THRES_SHIFT,
-> +				   BMA023_LG_THRES_MASK, BMA023_SETTINGS1_REG);
-> +}
-> +
-> +static int bma023_get_lg_thres(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_LG_THRES_SHIFT,
-> +				   BMA023_LG_THRES_MASK, BMA023_SETTINGS1_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_lg_hyst	-	set low-g hysteresis
-> + *	@client: i2c client for the sensor
-> + *	@hyst: hysteresis value, 0-7
-> + *=09
-> + *	Expand the range of detectable gravitation to reset an interrupt.
-> + *	An interrupt will be latched until outside of low-g criterion wit=
-h=20
-> + *	hysteresis.
-> + *
-> + *	This setting is used to interrupt detection.
-> + */
-> +static int bma023_set_lg_hyst(struct i2c_client *client, u8 hyst)
-> +{
-> +	return bma023_set_reg_bits(client, hyst, BMA023_LG_HYST_SHIFT,
-> +				   BMA023_LG_HYST_MASK, BMA023_SETTINGS6_REG);
-> +}
-> +
-> +static int bma023_get_lg_hyst(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_LG_HYST_SHIFT,
-> +				   BMA023_LG_HYST_MASK,	BMA023_SETTINGS6_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_hg_dur	-	set high-g duration
-> + *	@client: i2c client for the sensor
-> + *	@dur: duration value, 0-255
-Again, units are?  We really need this stuff to be clear.
-> + *=09
-> + *	Generate an interrupt when the gravitation is detected in high-g
-> + *	criterion for long enough duration.
-> + *
-> + *	This setting is used to interrupt detection.
-> + */
-> +static int bma023_set_hg_dur(struct i2c_client *client, u8 dur)
-> +{
-> +	return bma023_set_reg_bits(client, dur,	BMA023_HG_DUR_SHIFT,
-> +				   BMA023_HG_DUR_MASK, BMA023_SETTINGS4_REG);
-> +}
-> +
-> +static int bma023_get_hg_dur(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_HG_DUR_SHIFT,
-> +				   BMA023_HG_DUR_MASK, BMA023_SETTINGS4_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_hg_thres	-	set high-g threshold
-> + *	@client: i2c client for the sensor
-> + *	@thres: threshold value, 0-255
-Units are? =20
-> + *=09
-> + *	Filter 3 axes detection and limit to trigger an interrupt signal
-> + *	when the gravitation is detected in high-g threshold.
-> + *
-> + *	This setting is used to interrupt detection.
-> + */
-> +static int bma023_set_hg_thres(struct i2c_client *client, u8 thres)
-> +{
-> +	return bma023_set_reg_bits(client, thres, BMA023_HG_THRES_SHIFT,
-> +				   BMA023_HG_THRES_MASK, BMA023_SETTINGS3_REG);
-> +}
-> +
-> +static int bma023_get_hg_thres(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_HG_THRES_SHIFT,
-> +				   BMA023_HG_THRES_MASK, BMA023_SETTINGS3_REG);
-> +}
-> +
-> +/**
-> + *	bma023_set_hg_hyst	-	set low-g hysteresis
-> + *	@client: i2c client for the sensor
-> + *	@hyst: hysteresis value, 0-7
-What units?  This is passed straight up to userspace, so unit free isn'=
-t
-a generalizable option.
-> + *=09
-> + *	Expand the range of detectable gravitation to reset an interrupt.
-> + *	An interrupt will be latched until outside of high-g criterion wi=
-th=20
-> + *	hysteresis.
-> + *
-> + *	This setting is used to interrupt detection.
-> + */
-> +static int bma023_set_hg_hyst(struct i2c_client *client, u8 hyst)
-> +{
-> +	return bma023_set_reg_bits(client, hyst, BMA023_HG_HYST_SHIFT,
-> +				   BMA023_HG_HYST_MASK,	BMA023_SETTINGS6_REG);
-> +}
-> +
-> +static int bma023_get_hg_hyst(struct i2c_client *client)
-> +{
-> +	return bma023_get_reg_bits(client, BMA023_HG_HYST_SHIFT,
-> +				   BMA023_HG_HYST_MASK,	BMA023_SETTINGS6_REG);
-> +}
-> +
-> +/**
-> + *	bma023_power_mode	-	set the power mode
-> + *	@client: i2c client for the sensor
-> + *	@val: value to switch on/off of power, 1: normal power, 0: low po=
-wer
-> + *
-> + *	Put device to normal-power mode or low-power mode.
-> + */
-> +static int bma023_set_power_mode(struct i2c_client *client, u8 val)
-> +{
-> +	return bma023_set_reg_bits(client, ~val, BMA023_SLEEP_SHIFT,
-> +				   BMA023_SLEEP_MASK, BMA023_CTRL1_REG);
-> +}
-> +
-> +static int bma023_get_power_mode(struct i2c_client *client)
-> +{
-> +	return !bma023_get_reg_bits(client, BMA023_SLEEP_SHIFT,
-> +				   BMA023_SLEEP_MASK, BMA023_CTRL1_REG);
-> +}
-> +
-> +/**
-> + *	bma023_correct_accel_sign	-	convert to expected format
-> + *	@val: twos complement value
-> + *
-> + *	The description of the digital signals x, y and z is "2' compleme=
-nt".
-> + *	So we need to correct the sign of data read by i2c.
-> + */
-I keep thinking this sort of sign extension really ought to be in a sta=
-ndard
-header somewhere. It turns up in so many drivers...
-> +static s16 bma023_correct_accel_sign(s16 val)
-> +{
-> +	val <<=3D (sizeof(s16) * BITS_PER_BYTE - BMA023_ACCEL_BITS);
-> +	val >>=3D (sizeof(s16) * BITS_PER_BYTE - BMA023_ACCEL_BITS);
-> +	return val;
-> +}
-> +
-> +/**
-> + *	bma023_merge_register_values	-	turn into co-ordinate
-> + *	@lsb: low bits from sensor
-> + *	@msb: high bits from sensor
-> + *
-> + *	Turns a sensor register reading into a Linux input layer
-> + *	value and returns it.
-> + */
-> +static s16 bma023_merge_register_values(u8 lsb, u8 msb)
-> +{
-> +	s16 val =3D (msb << 2) | (lsb >> 6);
-> +	return bma023_correct_accel_sign(val);
-> +}
-> +
-> +/**
-> + *	bma023_read_xyz		-	get co-ordinates from device
-> + *	@client: i2c address of sensor
-> + *	@coords: co-ordinates to update
-> + *
-> + *	Return the converted X Y and Z co-ordinates from the sensor devic=
-e
-> + */
-> +static void bma023_read_xyz(struct i2c_client *client,
-> +				struct bma023_data *coords)
-> +{
-> +	u8 buffer[6];
-> +	buffer[0] =3D BMA023_X_LSB_REG;
-> +	bma023_xyz_read_reg(client, buffer, 6);
-> +	coords->x =3D bma023_merge_register_values(buffer[0], buffer[1]);
-> +	coords->y =3D bma023_merge_register_values(buffer[2], buffer[3]);
-> +	coords->z =3D bma023_merge_register_values(buffer[4], buffer[5]);
-> +	dev_dbg(&client->dev, "%s: x %d, y %d, z %d\n", __func__,
-> +					coords->x, coords->y, coords->z);
-> +}
-> +
-> +/**
-> + *	bma023_show_xyz		-	show co-ordinate readings
-> + *	@dev: device of sensor
-> + *	@attr: device attributes of sysfs node
-> + *	@buf: buffer for output
-> + *
-> + *	Perform a one off read of the sensor data. In non-interrupt mode
-> + *	the sensor can be used for one off reads of the axes rather than
-> + *	as an input device.
-> + */
-> +static ssize_t bma023_show_xyz(struct device *dev,
-> +			       struct device_attribute *attr, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +
-> +	pm_runtime_get_sync(dev);
-> +
-> +	mutex_lock(&sensor->lock);
-> +	bma023_read_xyz(sensor->client, &sensor->data);
-> +	mutex_unlock(&sensor->lock);
-> +
-> +	pm_runtime_put(dev);
-> +
-These look to be raw adc values. If you want to do that, please provide
-in sysfs the numbers needed to convert them to SI units.
-> +	return sprintf(buf, "(%d,%d,%d)\n",
-> +		sensor->data.x, sensor->data.y, sensor->data.z);
-> +}
-> +static DEVICE_ATTR(accel_data, S_IRUGO, bma023_show_xyz, NULL);
-> +
-> +/**
-> + *	bma023_set_attr	-	set an attribute on the sensor
-> + *	@sensor sensor to update
-> + *	@buf: buffer to parse
-> + *	@count: length of buffer written
-> + *	@get: read function to use
-> + *	@set: write function to use
-> + *	@data: where to store cached result
-> + *
-> + *	Helper function for setting attributes of the sensor. This does
-> + *	all the parsing and locking in one place calling out to the helpe=
-r
-> + *	functions provided.
-> + */
-> +static ssize_t bma023_set_attr(struct bma023_sensor *sensor,
-> +				const char *buf, size_t count,
-> +				int (*get)(struct i2c_client *),
-> +				int (*set)(struct i2c_client *, u8 val),
-> +				u8 *data)
-> +{
-> +	unsigned long val;
-> +	int ret;
-> +
-> +	if (!count)
-> +		return count;
-> +
-> +	ret =3D strict_strtoul(buf, 10, &val);
-> +	if (!ret) {
-> +		/* We don't need the device to be fully powered up for this
-> +		   but we do need to be sure that we force the i=C2=B2c controller
-> +		   to be awake */
-> +		pm_runtime_get_sync(sensor->dev);
-> +		mutex_lock(&sensor->lock);
-> +		ret =3D set(sensor->client, val);
-> +		if (ret >=3D 0) {
-> +			ret =3D get(sensor->client);
-> +			if (ret >=3D 0)
-> +				*data =3D ret;
-> +		}
-> +		mutex_unlock(&sensor->lock);
-> +		pm_runtime_put(sensor->dev);
-> +		if (ret >=3D 0)
-> +			return count;
-> +	}
-> +	return ret;
-> +}
-> +
-> +/* Methods for the sysfs attributes */
-> +static ssize_t bma023_show_power_mode(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", bma023_get_power_mode(sensor->client));
-> +}
-> +
-> +static ssize_t bma023_store_power_mode(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	unsigned long val;
-> +	int ret =3D strict_strtoul(buf, 10, &val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	mutex_lock(&sensor->lock);
-> +	if (val & !sensor->soft_power)
-> +		pm_runtime_get(dev);
-> +	else if (!val && sensor->soft_power)
-> +		pm_runtime_put(dev);
-> +	sensor->soft_power =3D val;
-> +	mutex_unlock(&sensor->lock);
-> +
-> +	return count;
-> +}
-> +
-> +static DEVICE_ATTR(power_mode, S_IRUGO | S_IWUSR,
-> +		bma023_show_power_mode, bma023_store_power_mode);
-> +
-> +static ssize_t bma023_show_range(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->range);
-> +}
-> +
-> +static ssize_t bma023_store_range(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_range,
-> +			bma023_set_range,
-> +			&sensor->range);
-> +}
-> +
-> +static DEVICE_ATTR(range, S_IRUGO | S_IWUSR,
-> +		bma023_show_range, bma023_store_range);
-> +
-> +static ssize_t bma023_show_bandwidth(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->bandwidth);
-> +}
-> +
-> +static ssize_t bma023_store_bandwidth(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_bandwidth,
-> +			bma023_set_bandwidth,
-> +			&sensor->bandwidth);
-> +}
-> +
-> +static DEVICE_ATTR(bandwidth, S_IRUGO | S_IWUSR,
-> +		bma023_show_bandwidth, bma023_store_bandwidth);
-> +
-> +static ssize_t bma023_show_new_data_int(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->new_data_int);
-> +}
-> +
-> +static ssize_t bma023_store_new_data_int(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_new_data_int,
-> +			bma023_set_new_data_int,
-> +			&sensor->new_data_int);
-> +}
-> +
-> +static DEVICE_ATTR(new_data_int, S_IRUGO | S_IWUSR,
-> +		bma023_show_new_data_int, bma023_store_new_data_int);
-> +
-> +static ssize_t bma023_show_hg_int(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->hg_int);
-> +}
-> +
-> +static ssize_t bma023_store_hg_int(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_hg_int,
-> +			bma023_set_hg_int,
-> +			&sensor->hg_int);
-> +}
-> +
-> +static DEVICE_ATTR(hg_int, S_IRUGO | S_IWUSR,
-> +		bma023_show_hg_int, bma023_store_hg_int);
-> +
-> +static ssize_t bma023_show_lg_int(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->lg_int);
-> +}
-> +
-> +static ssize_t bma023_store_lg_int(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_lg_int,
-> +			bma023_set_lg_int,
-> +			&sensor->lg_int);
-> +}
-> +
-> +static DEVICE_ATTR(lg_int, S_IRUGO | S_IWUSR,
-> +		bma023_show_lg_int, bma023_store_lg_int);
-> +
-> +static ssize_t bma023_show_lg_dur(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->lg_dur);
-> +}
-> +
-> +static ssize_t bma023_store_lg_dur(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_lg_dur,
-> +			bma023_set_lg_dur,
-> +			&sensor->lg_dur);
-> +}
-> +
-> +static DEVICE_ATTR(lg_dur, S_IRUGO | S_IWUSR,
-> +		bma023_show_lg_dur, bma023_store_lg_dur);
-> +
-> +static ssize_t bma023_show_lg_thres(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->lg_thres);
-> +}
-> +
-> +static ssize_t bma023_store_lg_thres(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_lg_thres,
-> +			bma023_set_lg_thres,
-> +			&sensor->lg_thres);
-> +}
-> +
-> +static DEVICE_ATTR(lg_thres, S_IRUGO | S_IWUSR,
-> +		bma023_show_lg_thres, bma023_store_lg_thres);
-> +
-> +static ssize_t bma023_show_lg_hyst(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->lg_hyst);
-> +}
-> +
-> +static ssize_t bma023_store_lg_hyst(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_lg_hyst,
-> +			bma023_set_lg_hyst,
-> +			&sensor->lg_hyst);
-> +}
-> +
-> +static DEVICE_ATTR(lg_hyst, S_IRUGO | S_IWUSR,
-> +		bma023_show_lg_hyst, bma023_store_lg_hyst);
-> +
-> +static ssize_t bma023_show_hg_dur(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->hg_dur);
-> +}
-> +
-> +static ssize_t bma023_store_hg_dur(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_hg_dur,
-> +			bma023_set_hg_dur,
-> +			&sensor->hg_dur);
-> +}
-> +
-> +static DEVICE_ATTR(hg_dur, S_IRUGO | S_IWUSR,
-> +		bma023_show_hg_dur, bma023_store_hg_dur);
-> +
-> +static ssize_t bma023_show_hg_thres(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->hg_thres);
-> +}
-> +
-> +static ssize_t bma023_store_hg_thres(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_hg_thres,
-> +			bma023_set_hg_thres,
-> +			&sensor->hg_thres);
-> +}
-> +
-> +static DEVICE_ATTR(hg_thres, S_IRUGO | S_IWUSR,
-> +		bma023_show_hg_thres, bma023_store_hg_thres);
-> +
-> +static ssize_t bma023_show_hg_hyst(struct device *dev,
-> +		struct device_attribute *att, char *buf)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", sensor->hg_hyst);
-> +}
-> +
-> +static ssize_t bma023_store_hg_hyst(struct device *dev,
-> +		struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	return bma023_set_attr(sensor, buf, count,
-> +			bma023_get_hg_hyst,
-> +			bma023_set_hg_hyst,
-> +			&sensor->hg_hyst);
-> +}
-> +
-> +static DEVICE_ATTR(hg_hyst, S_IRUGO | S_IWUSR,
-> +		bma023_show_hg_hyst, bma023_store_hg_hyst);
-> +
-> +static struct attribute *bma023_attributes[] =3D {
-> +	&dev_attr_accel_data.attr,
-These are raw values I think?  Again, we allow this in IIO, but insist
-on conversion factors to m/s^2 also being provided in the sysfs interfa=
-ce
-so userspace knows what it is getting.
+ir-keytable works with all RC tables, if you use a kernel equal or upper to
+2.6.36, due to the usage of the new ioctl's.
 
-> +	&dev_attr_power_mode.attr,
-Perhaps rename this low_power_mode and invert the value as then
-it won't be a pair of magic numbers.
+ir-keytable also gets some additional data from the remote controllers,
+available via sysfs (/sys/class/rc).
 
-> +	&dev_attr_range.attr,
-Lots of discussion on this one has occured in the past. Personally I th=
-ink
-having an attribute for the gain is clearer (came out of ALS type devic=
-es
-where the concept of 'range' is very dependent on what the input light =
-spectrum
-is). Still don't really care about that one!
-
-> +	&dev_attr_bandwidth.attr,
-I'm guessing this controls a filter?  If so it is one area I don't thin=
-k
-anyone has come up with a convention for yet in sysfs.  One to discuss
-(quite a few of Analog's sensors have complex filtering options, but I
-don't think any drivers support them yet).
-
-> +	&dev_attr_new_data_int.attr,
-(is this enabling and disabling the interrupt? Surely that should be ha=
-ndled
-by the input code and doesn't really want to be exposed?
-> +	&dev_attr_hg_int.attr,
-I'm definitely against the terms hg and lg.  High g is a silly
-name even if Bosch have used it on the sensor.  Also, these really
-don't generalize well (again I'm thinking of other sensor types).
-(as an aside, I'd reorganise this list so either the equivalent
-parameters are together or all the lg and hg ones are grouped).
-
-=46or reference, the IIO equivalents may seem long winded, but they
-are clear, consistent and generalizable. I'm guessing a bit on
-what the bosch chip is doing based on other parts.
-
-accel_x&y&z_mag_falling_*
-(for low threshold detectors it tends to be all are below a level)
-accel_x|y|z_mag_rising_*
-(for high mag, they tend to detect if any channel is above a level).
-Otherwise, the naming difference are minor. We went with period instead
-of dur, _en instead of _int and hyst as you have
-(though looks like that one is missing docs).=20
-
-> +	&dev_attr_lg_int.attr,
-> +	&dev_attr_lg_dur.attr,
-> +	&dev_attr_lg_thres.attr,
-> +	&dev_attr_lg_hyst.attr,
-> +	&dev_attr_hg_dur.attr,
-> +	&dev_attr_hg_thres.attr,
-> +	&dev_attr_hg_hyst.attr,
-> +	NULL
-> +};
-> +
-> +static const struct attribute_group bma023_group =3D {
-> +	.attrs	=3D bma023_attributes,
-> +};
-> +
-> +/**
-> + *	bma023_interrupt_thread	-	handle an IRQ
-> + *	@irq: interrupt numner
-typo
-> + *	@data: the sensor
-> + *
-> + *	Called by the kernel single threaded after an interrupt occurs. R=
-ead
-> + *	the sensor data and generate an input event for it.
-> + */
-> +static irqreturn_t bma023_interrupt_thread(int irq, void *data)
-> +{
-> +	struct bma023_sensor *sensor =3D data;
-> +
-> +	mutex_lock(&sensor->lock);
-> +	bma023_read_xyz(sensor->client, &sensor->data);
-> +	mutex_unlock(&sensor->lock);
-> +
-> +	input_report_abs(sensor->idev, ABS_X, sensor->data.x);
-> +	input_report_abs(sensor->idev, ABS_Y, sensor->data.y);
-> +	input_report_abs(sensor->idev, ABS_Z, sensor->data.z);
-> +	input_sync(sensor->idev);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +/**
-> + *	bma023_initialize	-	set sensor parameters
-> + *	@sensor: sensor to configure
-> + *
-> + *	Load the actual hardware with the sensor values that were provide=
-d
-> + */
-> +static void bma023_initialize(struct bma023_sensor *sensor)
-> +{
-> +	bma023_set_range(sensor->client, sensor->range);
-> +	bma023_set_bandwidth(sensor->client, sensor->bandwidth);
-> +	bma023_set_new_data_int(sensor->client, sensor->new_data_int);
-> +	bma023_set_hg_dur(sensor->client, sensor->hg_dur);
-> +	bma023_set_hg_thres(sensor->client, sensor->hg_thres);
-> +	bma023_set_hg_hyst(sensor->client, sensor->hg_hyst);
-> +	bma023_set_lg_dur(sensor->client, sensor->lg_dur);
-> +	bma023_set_lg_thres(sensor->client, sensor->lg_thres);
-> +	bma023_set_lg_hyst(sensor->client, sensor->lg_hyst);
-> +	bma023_set_hg_int(sensor->client, sensor->hg_int);
-> +	bma023_set_lg_int(sensor->client, sensor->lg_int);
-> +	bma023_set_power_mode(sensor->client, sensor->power_mode);
-> +	bma023_set_check_reg(sensor->client, BMA023_INSPECT_VAL);
-> +}
-> +
-> +/**
-> + *	bma023_input_open	-	called on input event open
-> + *	@input: input dev of opened device
-> + *
-> + *	The input layer calls this function when input event is opened. T=
-he
-> + *	function will push the device to resume. Then, the device is read=
-y
-> + *	to provide data.
-> + */
-> +static int bma023_input_open(struct input_dev *input)
-> +{
-> +	struct bma023_sensor *sensor =3D input_get_drvdata(input);
-> +	pm_runtime_get(sensor->dev);
-> +	return 0;
-> +}
-> +
-> +/**
-> + *	bma023_input_close	-	called on input event close
-> + *	@input: input dev of closed device
-> + *
-> + *	The input layer calls this function when input event is closed. T=
-he
-> + *	function will push the device to suspend.
-> + */
-> +static void bma023_input_close(struct input_dev *input)
-> +{
-> +	struct bma023_sensor *sensor =3D input_get_drvdata(input);
-> +	pm_runtime_put(sensor->dev);
-> +}
-> +
-> +/**
-> + *	bma023_unregister_input_device	-	remove input dev
-> + *	@sensor: sensor to remove from input
-> + *
-> + *	Free the interrupt and input device for the sensor. We must free
-> + *	the interrupt first
-> + */
-> +static void bma023_unregister_input_device(struct bma023_sensor *sen=
-sor)
-> +{
-> +	struct i2c_client *client =3D sensor->client;
-> +	if (client->irq > 0)
-> +		free_irq(client->irq, sensor);
-> +	input_unregister_device(sensor->idev);
-> +	sensor->idev =3D NULL;
-> +}
-> +
-> +/**
-> + *	bma023_register_input_device	-	remove input dev
-> + *	@sensor: sensor to remove from input
-> + *
-> + *	Add an input device to the sensor. This will be used to report
-> + *	events from the sensor itself.
-> + */
-> +static int bma023_register_input_device(struct bma023_sensor *sensor=
-)
-> +{
-> +	struct i2c_client *client =3D sensor->client;
-> +	struct input_dev *idev;
-> +	int ret;
-> +	sensor->idev =3D input_allocate_device();
-> +	idev =3D sensor->idev;
-> +	if (!idev) {
-> +		dev_err(&client->dev, "failed to allocate input device\n");
-> +		ret =3D -ENOMEM;
-> +		goto failed_alloc;
-> +	}
-> +	idev->name =3D "BMA023 Sensor";
-> +	idev->open =3D bma023_input_open;
-> +	idev->close =3D bma023_input_close;
-> +	idev->id.bustype =3D BUS_I2C;
-> +	idev->dev.parent =3D &client->dev;
-> +	idev->evbit[0] =3D BIT_MASK(EV_ABS);
-> +	input_set_abs_params(idev, ABS_X, BMA023_MIN_VALUE,
-> +			BMA023_MAX_VALUE, 0, 0);
-> +	input_set_abs_params(idev, ABS_Y, BMA023_MIN_VALUE,
-> +			BMA023_MAX_VALUE, 0, 0);
-> +	input_set_abs_params(idev, ABS_Z, BMA023_MIN_VALUE,
-> +			BMA023_MAX_VALUE, 0, 0);
-> +	input_set_drvdata(idev, sensor);
-> +	ret =3D input_register_device(idev);
-> +	if (ret) {
-> +		dev_err(&client->dev, "failed to register input device\n");
-> +		goto failed_reg;
-> +	}
-> +	if (client->irq > 0) {
-> +		ret =3D request_threaded_irq(client->irq, NULL,
-> +				bma023_interrupt_thread, IRQF_TRIGGER_RISING,
-> +					"bma023_int", sensor);
-Is there any reason to have the _int postfix?  It is clearly an interru=
-pt and
-I don't think the device has any others.
-> +		if (ret) {
-> +			dev_err(&client->dev, "can't get IRQ %d, ret %d\n",
-> +					client->irq, ret);
-> +			goto failed_irq;
-> +		}
-> +	}
-> +	return 0;
-> +failed_irq:
-> +	input_unregister_device(idev);
-> +	return ret;
-> +
-> +failed_reg:
-> +	if (idev)
-> +		input_free_device(idev);
-> +failed_alloc:
-> +	return ret;
-> +}
-> +
-> +/**
-> + *	bma023_probe	-	device detection callback
-> + *	@client: i2c client of found device
-> + *	@id: id match information
-> + *
-> + *	The I2C layer calls us when it believes a sensor is present at th=
-is
-> + *	address. Probe to see if this is correct and to validate the devi=
-ce.
-> + *
-> + *	If present install the relevant sysfs interfaces and input device=
-=2E
-> + */
-> +static int __devinit bma023_probe(struct i2c_client *client,
-> +			const struct i2c_device_id *id)
-> +{
-> +	struct bma023_sensor *sensor;
-> +	struct bma023_platform_data *pdata;
-> +	int ret;
-> +	sensor =3D kzalloc(sizeof(struct bma023_sensor), GFP_KERNEL);
-> +	if (!sensor) {
-> +		dev_err(&client->dev, "failed to allocate driver data\n");
-> +		return -ENOMEM;
-> +	}
-> +	pdata =3D client->dev.platform_data;
-> +	sensor->dev =3D &client->dev;
-> +
-> +	sensor->client =3D client;
-> +	i2c_set_clientdata(client, sensor);
-> +
-> +	ret =3D bma023_read_reg(client, BMA023_CHIP_ID_REG);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "failed to detect device\n");
-> +		goto failed_free;
-> +	}
-> +	if (ret !=3D BMA023_CHIP_ID) {
-> +		dev_err(&client->dev, "unsupported chip id\n");
-> +		goto failed_free;
-> +	}
-> +
-> +	mutex_init(&sensor->lock);
-> +
-> +	ret =3D sysfs_create_group(&client->dev.kobj, &bma023_group);
-> +	if (ret) {
-> +		dev_err(&client->dev, "failed to create attribute group\n");
-> +		goto failed_free;
-> +	}
-> +
-> +	pm_runtime_set_active(&client->dev);
-> +
-> +	ret =3D bma023_register_input_device(sensor);
-> +	if (ret)
-> +		dev_err(&client->dev, "only provide sysfs\n");
-> +
-> +	if (pdata) {
-> +		sensor->range =3D pdata->range;
-> +		sensor->bandwidth =3D pdata->bandwidth;
-> +		sensor->new_data_int =3D pdata->new_data_int;
-> +		sensor->hg_int =3D pdata->hg_int;
-> +		sensor->lg_int =3D pdata->lg_int;
-> +		sensor->hg_dur =3D pdata->hg_dur;
-> +		sensor->hg_thres =3D pdata->hg_thres;
-> +		sensor->hg_hyst =3D pdata->hg_hyst;
-> +		sensor->lg_dur =3D pdata->lg_dur;
-> +		sensor->lg_thres =3D pdata->lg_thres;
-> +		sensor->lg_hyst =3D pdata->lg_hyst;
-> +		sensor->auto_delay =3D pdata->auto_delay;
-> +	} else {
-> +		sensor->range =3D BMA023_DEFAULT_RANGE;
-> +		sensor->bandwidth =3D BMA023_DEFAULT_BANDWIDTH;
-> +		sensor->new_data_int =3D BMA023_DEFAULT_NEW_DATA_INT;
-> +		sensor->hg_int =3D BMA023_DEFAULT_HG_INT;
-> +		sensor->lg_int =3D BMA023_DEFAULT_LG_INT;
-> +		sensor->hg_dur =3D BMA023_DEFAULT_HG_DURATION;
-> +		sensor->hg_thres =3D BMA023_DEFAULT_HG_THRESHOLD;
-> +		sensor->hg_hyst =3D BMA023_DEFAULT_HG_HYST;
-> +		sensor->lg_dur =3D BMA023_DEFAULT_LG_DURATION;
-> +		sensor->lg_thres =3D BMA023_DEFAULT_LG_THRESHOLD;
-> +		sensor->lg_hyst =3D BMA023_DEFAULT_LG_HYST;
-> +		sensor->auto_delay =3D BMA023_DEFAULT_AUTO_DELAY;
-> +	}
-> +	sensor->power_mode =3D BMA023_SUSPEND;
-> +
-> +	bma023_initialize(sensor);
-> +
-> +	pm_runtime_enable(&client->dev);
-
-Why store auto_delay, it is only used here...
-> +	pm_runtime_set_autosuspend_delay(&client->dev, sensor->auto_delay);
-> +
-> +	dev_info(&client->dev, "%s registered\n", id->name);
-> +	return 0;
-> +
-> +failed_free:
-> +	kfree(sensor);
-> +	return ret;
-> +}
-> +
-> +/**
-> + *	bam023_remove	-	remove a sensor
-> + *	@client: i2c client of sensor being removed
-> + *
-> + *	Our sensor is going away, clean up the resources.
-> + */
-> +static int __devexit bma023_remove(struct i2c_client *client)
-> +{
-> +	struct bma023_sensor *sensor =3D i2c_get_clientdata(client);
-> +
-> +	pm_runtime_disable(&client->dev);
-> +	pm_runtime_set_suspended(&client->dev);
-> +
-> +	if (sensor->idev)
-> +		bma023_unregister_input_device(sensor);
-> +	sysfs_remove_group(&client->dev.kobj, &bma023_group);
-> +	kfree(sensor);
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +
-> +/**
-> + *	bma023_suspend		-	called on device suspend
-> + *	@client: i2c client of sensor
-> + *	@mesg: actual suspend type
-> + *
-> + *	Put the device into sleep mode before we suspend the machine.
-> + */
-> +static int bma023_suspend(struct i2c_client *client, pm_message_t me=
-sg)
-> +{
-> +	bma023_set_power_mode(client, BMA023_SUSPEND);
-> +	return 0;
-> +}
-> +
-> +/**
-> + *	bma023_resume		-	called on device resume
-> + *	@client: i2c client of sensor
-> + *
-> + *	Put the device into powered mode on resume.
-> + */
-> +static int bma023_resume(struct i2c_client *client)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(&client->dev);
-> +	if (bma023_get_check_reg(client) !=3D BMA023_INSPECT_VAL)
-> +		bma023_initialize(sensor);
-> +	bma023_set_power_mode(client, sensor->power_mode);
-> +	msleep(4);  /* wait for accel chip resume */
-> +	return 0;
-> +}
-> +
-> +#else
-> +#define bma023_suspend NULL
-> +#define bma023_resume NULL
-> +#endif
-> +
-> +#ifdef CONFIG_PM_RUNTIME
-> +
-> +static int bma023_runtime_suspend(struct device *dev)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	bma023_set_power_mode(sensor->client, BMA023_SUSPEND);
-On these could we usefully pass on the return value from
-bma023_set_power_mode?
-
-> +	return 0;
-> +}
-> +
-> +static int bma023_runtime_resume(struct device *dev)
-> +{
-> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-> +	bma023_set_power_mode(sensor->client, BMA023_RESUME);
-> +	msleep(4);  /* wait for accel chip resume */
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops bma023_pm =3D {
-> +	.runtime_suspend =3D bma023_runtime_suspend,
-> +	.runtime_resume  =3D bma023_runtime_resume,
-> +};
-> +#endif
-> +
-> +static const struct i2c_device_id bma023_ids[] =3D {
-> +	{ "bma023", 0 },
-> +	{ "smb380", 1 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, bma023_ids);
-> +
-> +static struct i2c_driver bma023_i2c_driver =3D {
-> +	.driver	=3D {
-> +		.name	=3D "bma023",
-> +#ifdef CONFIG_PM_RUNTIME
-> +		.pm		=3D &bma023_pm,
-> +#endif	=09
-> +	},
-> +	.probe		=3D bma023_probe,
-> +	.remove		=3D __devexit_p(bma023_remove),
-> +	.suspend	=3D bma023_suspend,
-> +	.resume		=3D bma023_resume,
-> +	.id_table	=3D bma023_ids,
-> +};
-> +
-> +static int __init bma023_init(void)
-> +{
-> +	return i2c_add_driver(&bma023_i2c_driver);
-> +}
-> +module_init(bma023_init);
-> +
-> +static void __exit bma023_exit(void)
-> +{
-> +	i2c_del_driver(&bma023_i2c_driver);
-> +}
-> +module_exit(bma023_exit);
-> +
-> +MODULE_AUTHOR("Kim Kyuwon <q1.kim@samsung.com>, Wistron Corp.");
-> +MODULE_DESCRIPTION("BMA023/SMB380 Tri-axis accelerometer driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/include/linux/i2c/bma023.h b/include/linux/i2c/bma023.h
-> new file mode 100644
-> index 0000000..52a0df5
-> --- /dev/null
-> +++ b/include/linux/i2c/bma023.h
-> @@ -0,0 +1,44 @@
-> +/*
-> + * bma023.h - BMA023 Tri-axis accelerometer driver
-> + *
-> + * Copyright (c) 2010 Samsung Eletronics
-> + * Kyungmin Park <kyungmin.park@samsung.com>
-> + *
-> + * This program is free software; you can redistribute it and/or mod=
-ify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + */
-> +
-> +#ifndef _BMA023_H_
-> +#define _BMA023_H_
-> +
-> +#define	BMA023_RANGE_2G		0
-> +#define	BMA023_RANGE_4G		1
-> +#define	BMA023_RANGE_8G		2
-> +
-> +/* Used to setup the digital filtering bandwidth of ADC output */
-> +#define	BMA023_BW_25HZ		0
-> +#define	BMA023_BW_50HZ		1
-> +#define	BMA023_BW_100HZ		2
-> +#define	BMA023_BW_190HZ		3
-> +#define	BMA023_BW_375HZ		4
-> +#define	BMA023_BW_750HZ		5
-> +#define	BMA023_BW_1500HZ	6
-> +
-Documentation of this structure would probably be a useful addition.
-> +struct bma023_platform_data {
-> +	u8 range;
-> +	u8 bandwidth;
-> +	u8 new_data_int;
-> +	u8 hg_int;
-> +	u8 lg_int;
-> +	u8 lg_dur;
-> +	u8 lg_thres;
-> +	u8 lg_hyst;
-> +	u8 hg_dur;
-> +	u8 hg_thres;
-> +	u8 hg_hyst;
-> +	int auto_delay;		/* mS */
-> +};
-> +
-> +#endif /* _BMA023_H_ */
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->=20
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Mauro

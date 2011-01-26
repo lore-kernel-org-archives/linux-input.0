@@ -1,96 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.38-rc2
-Date: Tue, 25 Jan 2011 20:57:06 -0800
-Message-ID: <20110126045706.GB23085@core.coreip.homeip.net>
-References: <20110107065448.GC29038@core.coreip.homeip.net>
+Subject: Re: [PATCH] input: move check for same handler in input_pass_event
+Date: Tue, 25 Jan 2011 20:59:05 -0800
+Message-ID: <20110126045905.GC23085@core.coreip.homeip.net>
+References: <1294352688-29564-1-git-send-email-kristen@linux.intel.com>
+ <20110107060456.GA29038@core.coreip.homeip.net>
+ <20110107102434.7776091d@kcaccard-MOBL3>
+ <20110107192938.GB28875@core.coreip.homeip.net>
+ <4D276A51.5030102@linux.intel.com>
+ <20110107194313.GC28875@core.coreip.homeip.net>
+ <20110120085654.GA19696@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:46550 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751379Ab1AZE5N (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:60068 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751379Ab1AZE7O (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jan 2011 23:57:13 -0500
+	Tue, 25 Jan 2011 23:59:14 -0500
+Received: by iyj18 with SMTP id 18so24595iyj.19
+        for <linux-input@vger.kernel.org>; Tue, 25 Jan 2011 20:59:13 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20110107065448.GC29038@core.coreip.homeip.net>
+In-Reply-To: <20110120085654.GA19696@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Kristen Carlson Accardi <kristen@linux.intel.com>, linux-input@vger.kernel.org, Jason Wessel <jason.wessel@windriver.com>
 
-Hi Linus,
+On Thu, Jan 20, 2011 at 12:56:54AM -0800, Dmitry Torokhov wrote:
+> On Fri, Jan 07, 2011 at 11:43:13AM -0800, Dmitry Torokhov wrote:
+> > On Fri, Jan 07, 2011 at 11:32:33AM -0800, Arjan van de Ven wrote:
+> > > On 1/7/2011 11:29 AM, Dmitry Torokhov wrote:
+> > > >On Fri, Jan 07, 2011 at 10:24:34AM -0800, Kristen Carlson Accardi wrote:
+> > > >>On Thu, 6 Jan 2011 22:04:56 -0800
+> > > >>Dmitry Torokhov<dmitry.torokhov@gmail.com>  wrote:
+> > > >>
+> > > >>>On Thu, Jan 06, 2011 at 02:24:48PM -0800, Kristen Carlson Accardi wrote:
+> > > >>>>If the handler that injected an event is the same,
+> > > >>>>just skip the filter, but allow the handler->event()
+> > > >>>>routine to be called.  This allows evdev to be able to
+> > > >>>>be used to loopback events.
+> > > >>>Why is it needed? Could you please give some examples?
+> > > >>>
+> > > >>>Thanks.
+> > > >>>
+> > > >>We have a customer who has a touchscreen device which sends
+> > > >>a bitmap into a gesture engine, which then interprets that
+> > > >>result and feeds it back into the kernel through a virtual
+> > > >>input driver that X is listening to.
+> > > >That really should be done though uinput.
+> > > 
+> > > quite possible.
+> > > 
+> > > but the application already exists, and works just fine in 2.6.35...
+> > > causing this to be classified as a kernel ABI regression ;-(
+> > > 
+> > 
+> > Hmm... I'd probably call it "relying on implementation details not
+> > spelled out anywhere".
+> > 
+> > Anyway, let me ponder this one a bit...
+> > 
+> 
+> OK, I think if we apply the patch below and then completely revert
+> 5fdbe44d033d059cc56c2803e6b4dbd8cb4e5e39 we'll get the behavior we
+> want.
+> 
+> Jason, could you please try this and see if SysRq still works for you?
+>
 
-Please pull from:
+*ping*
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Anyone?
 
-to receive updates for the input subsystem.
-
-Mostly small fixups to the drivers, but also a new keyboard driver.
-Since it is for previously unsupported hardware; arch-specific and we
-are pretty early in the release cycle I hope it is still OK to get it
-in.
-
-Thanks!
-
-Changelog:
----------
-
-Andy Whitcroft (1):
-      Input: sysrq - ensure sysrq_enabled and __sysrq_enabled are consistent
-
-David Engraf (1):
-      Input: serio - allow registered drivers to get status flag
-
-Davidlohr Bueso (1):
-      Input: ct82710c - return proper error code for ct82c710_open
-
-Dmitry Torokhov (1):
-      Input: sparse-keymap - fix KEY_VSW handling in sparse_keymap_setup
-
-Jamie Iles (2):
-      Input: tnetv107x-keypad - don't treat NULL clk as an error
-      Input: tnetv107x-ts - don't treat NULL clk as an error
-
-Naveen Kumar Gaddipati (2):
-      Input: bu21013_ts - remove duplicate resolution parameters
-      Input: bu21013_ts - added regulator support
-
-Philippe Langlais (1):
-      Input: gpio_keys - switch to using request_any_context_irq
-
-Ping Cheng (2):
-      Input: wacom - add 2 Bamboo Pen and touch models
-      Input: wacom - pass touch resolution to clients through input_absinfo
-
-Rakesh Iyer (1):
-      Input: tegra-kbc - add tegra keyboard driver
-
-
-Diffstat:
---------
-
- arch/arm/mach-tegra/include/mach/kbc.h    |   61 +++
- drivers/input/keyboard/Kconfig            |   10 +
- drivers/input/keyboard/Makefile           |    1 +
- drivers/input/keyboard/gpio_keys.c        |    6 +-
- drivers/input/keyboard/tegra-kbc.c        |  727 +++++++++++++++++++++++++++++
- drivers/input/keyboard/tnetv107x-keypad.c |    5 +-
- drivers/input/serio/ct82c710.c            |    8 +-
- drivers/input/serio/serport.c             |   24 +-
- drivers/input/sparse-keymap.c             |    1 +
- drivers/input/tablet/wacom_wac.c          |   27 +-
- drivers/input/touchscreen/bu21013_ts.c    |   39 ++-
- drivers/input/touchscreen/tnetv107x-ts.c  |    5 +-
- drivers/tty/sysrq.c                       |    2 +-
- include/linux/input/bu21013.h             |    4 -
- include/linux/sysrq.h                     |    3 +
- kernel/sysctl.c                           |    3 +-
- 16 files changed, 901 insertions(+), 25 deletions(-)
- create mode 100644 arch/arm/mach-tegra/include/mach/kbc.h
- create mode 100644 drivers/input/keyboard/tegra-kbc.c
+Thanks.
 
 -- 
 Dmitry

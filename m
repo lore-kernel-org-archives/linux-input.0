@@ -1,65 +1,46 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Fromy: Hong Liu <hong.liu@intel.com>
-Date: Wed, 26 Jan 2011 10:01:51 +0000
-Message-ID: <20110126100151.6332e8ec@lxorguk.ukuu.org.uk>
-References: <20110125143139.10249.33984.stgit@bob.linux.org.uk>
-	<20110126050639.GD23085@core.coreip.homeip.net>
+From: Tejun Heo <tj@kernel.org>
+Subject: Re: [PATCH 10/32] input/tps6507x-ts: use system_wq instead of
+ dedicated workqueue
+Date: Wed, 26 Jan 2011 11:43:02 +0100
+Message-ID: <20110126104302.GI12520@htj.dyndns.org>
+References: <1294062595-30097-1-git-send-email-tj@kernel.org>
+ <1294062595-30097-11-git-send-email-tj@kernel.org>
+ <20110103143926.GX1886@bicker>
+ <4D21FAA3.8030505@ridgerun.com>
+ <20110125141942.GA27510@htj.dyndns.org>
+ <4D3EF6B9.6080608@ridgerun.com>
+ <20110125165005.GB19701@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:52513 "EHLO
-	localhost.localdomain" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751159Ab1AZKB1 (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:44952 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751159Ab1AZKnH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 05:01:27 -0500
-In-Reply-To: <20110126050639.GD23085@core.coreip.homeip.net>
+	Wed, 26 Jan 2011 05:43:07 -0500
+Content-Disposition: inline
+In-Reply-To: <20110125165005.GB19701@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: Todd Fischer <todd.fischer@ridgerun.com>, Dan Carpenter <error27@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-> Hmm, if it is platform driver then you need to also post it to the
-> platform driver list/Matthew. If you want it to be an input driver
-> please move to drivers/input/misc/.
-
-Will do - wanted to check it was ok on the input side first.
-
-> > +config INTEL_MID_POWER_BUTTON
-> > +	tristate "power button driver for Intel MID platforms"
-> > +	depends on INTEL_SCU_IPC
-> > +	default y
+On Tue, Jan 25, 2011 at 08:50:06AM -0800, Dmitry Torokhov wrote:
+> On Tue, Jan 25, 2011 at 09:13:45AM -0700, Todd Fischer wrote:
+> > On 01/25/2011 07:19 AM, Tejun Heo wrote:
+> > >Shall I apply the patch?
+> > >Thanks
+> > Yes, apply the patch.  I am not sure of the syntax for attaching my
+> > sign off.  Hope this is okay.
+> > 
+> > Todd
+> > 
+> > Signed-off-by: Todd Fischer<todd.fischer@ridgerun.com>
+> > 
 > 
-> 'y' is for essential features I believe.
+> That should be Acked-by since you are not passing the patch along.
 
-Good point - fixed
-> 
-> > +	help
-> > +	  This driver handles the power button on the Intel MID platforms.
-> > +
-> > +	  If unsure, say N.
-> > +
-> 
-> To compile this driver as a module...
+Added ack-by's of Todd and you.  Thank you.
 
-Thats a form the platform/x86 driver Kconfig never uses - not sure of the
-history of that choice
-
-
-> > +	ret = intel_scu_ipc_ioread8(MSIC_PB_STATUS, &pbstat);
-> 
-> Is this sleeping?
-
-Yes - hence the threade IRQ. The SCU is basically another device we send
-messages to and which sends us replies back.
-
-> Space after comma please.
-
-Fixed
-
-> You are forgetting to free IRQ.
-
-Fixed
-
-Will now send it to mjg
-
+-- 
+tejun

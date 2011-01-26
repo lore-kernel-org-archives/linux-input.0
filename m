@@ -1,38 +1,63 @@
-From: Mark Lord <kernel@teksavvy.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
- ?
-Date: Wed, 26 Jan 2011 14:33:17 -0500
-Message-ID: <4D4076FD.6070207@teksavvy.com>
-References: <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <4D3EB734.5090100@redhat.com> <20110125164803.GA19701@core.coreip.homeip.net> <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com> <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D403855.4050706@teksavvy.com> <4D405A9D.4070607@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
+Date: Wed, 26 Jan 2011 11:38:05 -0800
+Message-ID: <20110126193804.GD29268@core.coreip.homeip.net>
+References: <20110125164803.GA19701@core.coreip.homeip.net>
+ <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com>
+ <20110125205453.GA19896@core.coreip.homeip.net>
+ <4D3F4804.6070508@redhat.com>
+ <4D3F4D11.9040302@teksavvy.com>
+ <20110125232914.GA20130@core.coreip.homeip.net>
+ <20110126020003.GA23085@core.coreip.homeip.net>
+ <4D403855.4050706@teksavvy.com>
+ <20110126164359.GA29163@core.coreip.homeip.net>
+ <4D4076A0.9090805@teksavvy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4D405A9D.4070607@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:53206 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753853Ab1AZTiL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Jan 2011 14:38:11 -0500
+Content-Disposition: inline
+In-Reply-To: <4D4076A0.9090805@teksavvy.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Lord <kernel@teksavvy.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On 11-01-26 12:32 PM, Mauro Carvalho Chehab wrote:
-> Em 26-01-2011 13:05, Mark Lord escreveu:
-..
->> Nope. Does not work here:
->>
->> $ lsinput
->> protocol version mismatch (expected 65536, got 65537)
+On Wed, Jan 26, 2011 at 02:31:44PM -0500, Mark Lord wrote:
+> On 11-01-26 11:44 AM, Dmitry Torokhov wrote:
+> > On Wed, Jan 26, 2011 at 10:05:57AM -0500, Mark Lord wrote:
+> ..
+> >> Nope. Does not work here:
+> >>
+> >> $ lsinput
+> >> protocol version mismatch (expected 65536, got 65537)
+> >>
+> > 
+> > It would be much more helpful if you tried to test what has been fixed
+> > (hint: version change wasn't it).
 > 
-> You need to relax the version test at the tree. As I said before, this is
-> a development tool from the early RC days, bound to work with one specific
-> version of the API, and programmed by purpose to fail if there would by any
-> updates at the Input layer.
-..
+> It would be much more helpful if you would revert that which was broken
+> in 2.6.36.  (hint: version was part of it).
+> 
 
-As I said before, I personally have done that on my copy here.
-But that's not what this thread is about.
+No, version change will not be reverted as we do not have a way to
+validate whether new ioctls are supported. The older kernels are
+returning -EINVAL for unknown evdev ioctls so userspace can't know
+if ioctl failed because it is unsupported or because arguments are
+wrong/not applicable for the underlying device.
 
-This thread is about broken userspace courtesy of these changes.
-So I am testing with the original userspace binary here,
-and it still fails.  And will continue to fail until that regression is fixed.
+> The other part does indeed appear to work with the old binary for input-kbd,
+> but the binary for lsinput still fails as above.
+> 
 
-Cheers
+Great, then I'' include the fix for RC keytables in my next pull
+request. I guess it should go to stable as well.
+
+Thanks.
+
+-- 
+Dmitry

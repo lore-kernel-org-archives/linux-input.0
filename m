@@ -1,46 +1,95 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Wed, 26 Jan 2011 08:51:32 -0800
-Message-ID: <20110126165132.GC29163@core.coreip.homeip.net>
-References: <20110125164803.GA19701@core.coreip.homeip.net>
- <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com>
- <20110125205453.GA19896@core.coreip.homeip.net>
- <4D3F4804.6070508@redhat.com>
- <4D3F4D11.9040302@teksavvy.com>
- <20110125232914.GA20130@core.coreip.homeip.net>
- <20110126020003.GA23085@core.coreip.homeip.net>
- <4D4004F9.6090200@redhat.com>
- <4D401CC5.4020000@redhat.com>
- <4D402D35.4090206@redhat.com>
+Subject: Re: [PATCH] serio: allow registered drivers to get status flag
+Date: Wed, 26 Jan 2011 09:00:43 -0800
+Message-ID: <20110126170043.GB29168@core.coreip.homeip.net>
+References: <4D358E31.4080700@sysgo.com>
+ <20110118195710.GA27152@core.coreip.homeip.net>
+ <4D37FAEF.8080504@sysgo.com>
+ <4D3FEB2A.8010000@sysgo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:59893 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752993Ab1AZRAv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Jan 2011 12:00:51 -0500
 Content-Disposition: inline
-In-Reply-To: <4D402D35.4090206@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+In-Reply-To: <4D3FEB2A.8010000@sysgo.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Engraf <david.engraf@sysgo.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2011 at 12:18:29PM -0200, Mauro Carvalho Chehab wrote:
-> diff --git a/input.c b/input.c
-> index d57a31e..a9bd5e8 100644
-> --- a/input.c
-> +++ b/input.c
-> @@ -101,8 +101,8 @@ int device_open(int nr, int verbose)
->  		close(fd);
->  		return -1;
->  	}
-> -	if (EV_VERSION != version) {
-> -		fprintf(stderr, "protocol version mismatch (expected %d, got %d)\n",
-> +	if (EV_VERSION > version) {
-> +		fprintf(stderr, "protocol version mismatch (expected >= %d, got %d)\n",
->  			EV_VERSION, version);
+On Wed, Jan 26, 2011 at 10:36:42AM +0100, David Engraf wrote:
+> Am 20.01.2011 10:05, schrieb David Engraf:
+> >Am 18.01.2011 20:57, schrieb Dmitry Torokhov:
+> >>On Tue, Jan 18, 2011 at 01:57:21PM +0100, David Engraf wrote:
+> >>>Parse the status byte information to the registered serio drivers as
+> >>>well as the character bytes.
+> >>>
+> >>>Signed-off-by: David Engraf<david.engraf@sysgo.com>
+> >>>
+> >>
+> >>>--- linux-2.6.37/drivers/input/serio/serport.c.orig 2011-01-18
+> >>>12:33:41.421709232 +0100
+> >>>+++ linux-2.6.37/drivers/input/serio/serport.c 2011-01-18
+> >>>13:33:24.521711214 +0100
+> >>>@@ -116,8 +116,8 @@ static void serport_ldisc_close(struct t
+> >>>
+> >>>/*
+> >>>* serport_ldisc_receive() is called by the low level tty driver when
+> >>>characters
+> >>>- * are ready for us. We forward the characters, one by one to the
+> >>>'interrupt'
+> >>>- * routine.
+> >>>+ * are ready for us. We forward the characters and flags, one by one
+> >>>to the
+> >>>+ * 'interrupt' routine.
+> >>>*/
+> >>>
+> >>>static void serport_ldisc_receive(struct tty_struct *tty, const
+> >>>unsigned char *cp, char *fp, int count)
+> >>>@@ -132,7 +132,7 @@ static void serport_ldisc_receive(struct
+> >>>goto out;
+> >>>
+> >>>for (i = 0; i< count; i++)
+> >>>- serio_interrupt(serport->serio, cp[i], 0);
+> >>>+ serio_interrupt(serport->serio, cp[i], fp[i]);
+> >>>
+> >>
+> >>Hi David,
+> >>
+> >>The flags argument that serio_interrupt() accepts not the raw protocol
+> >>data, but sanitized, protocol-independent SERIO_TIMEOUT, SERIO_PARITY
+> >>and SERIO_FRAME bits.
+> >>
+> >>Thanks.
+> >>
+> >
+> >Hi Dmitry,
+> >
+> >I've updated the patch so that the raw protocol is converted to the
+> >SERIO_ bits. The raw protocol can parse only one flag, so I don't need
+> >to store multiple SERIO_ bits in the character flag variable.
+> >
+> >Thanks
+> >- David
+> >
+> >
+> >Signed-off-by: David Engraf<david.engraf@sysgo.com>
+> >
+> 
+> Hi Dmitry,
+> 
+> is my last patch okay for you? Just want to know if I can give you
+> further help on this and if it is planned to integrate my patch.
+> 
 
-Please do not do this. It causes check to "float" depending on the
-version of kernel headers it was compiled against.
+Hi David,
 
-The check should be against concrete version (0x10000 in this case).
+The patch should hit mainline real soon now, no action is needed on your
+part.
 
 Thanks.
 

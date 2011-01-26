@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Wed, 26 Jan 2011 08:46:57 -0800
-Message-ID: <20110126164657.GB29163@core.coreip.homeip.net>
+Date: Wed, 26 Jan 2011 08:51:32 -0800
+Message-ID: <20110126165132.GC29163@core.coreip.homeip.net>
 References: <20110125164803.GA19701@core.coreip.homeip.net>
  <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com>
  <20110125205453.GA19896@core.coreip.homeip.net>
@@ -14,58 +14,33 @@ References: <20110125164803.GA19701@core.coreip.homeip.net>
  <4D402D35.4090206@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:48483 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753098Ab1AZQrH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 11:47:07 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <4D402D35.4090206@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
 Cc: Gerd Hoffmann <kraxel@redhat.com>, Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 On Wed, Jan 26, 2011 at 12:18:29PM -0200, Mauro Carvalho Chehab wrote:
-> Em 26-01-2011 11:08, Gerd Hoffmann escreveu:
-> >   Hi,
-> > 
-> >> Btw, I took some time to take analyse the input-kbd stuff.
-> >> As said at the README:
-> >>
-> >>     This is a small collection of input layer utilities.  I wrote them
-> >>     mainly for testing and debugging, but maybe others find them useful
-> >>     too :-)
-> >>     ...
-> >>     Gerd Knorr<kraxel@bytesex.org>  [SUSE Labs]
-> >>
-> >> This is an old testing tool written by Gerd Hoffmann probably used for him
-> >> to test the V4L early Remote Controller implementations.
-> > 
-> > Indeed.
-> > 
-> >> The last "official" version seems to be this one:
-> >>     http://dl.bytesex.org/cvs-snapshots/input-20081014-101501.tar.gz
-> > 
-> > Just moved the bits to git a few days ago.
-> > http://bigendian.kraxel.org/cgit/input/
-> > 
-> > Code is unchanged since 2008 though.
-> > 
-> >> Gerd, if you're still maintaining it, it is a good idea to apply Dmitry's
-> >> patch:
-> >>     http://www.spinics.net/lists/linux-input/msg13728.html
-> > 
-> > Hmm, doesn't apply cleanly ...
-> 
-> I suspect that Dmitry did the patch against the Debian package, based on a 2007
-> version of it, as it seems that Debian is using an older version of the package.
+> diff --git a/input.c b/input.c
+> index d57a31e..a9bd5e8 100644
+> --- a/input.c
+> +++ b/input.c
+> @@ -101,8 +101,8 @@ int device_open(int nr, int verbose)
+>  		close(fd);
+>  		return -1;
+>  	}
+> -	if (EV_VERSION != version) {
+> -		fprintf(stderr, "protocol version mismatch (expected %d, got %d)\n",
+> +	if (EV_VERSION > version) {
+> +		fprintf(stderr, "protocol version mismatch (expected >= %d, got %d)\n",
+>  			EV_VERSION, version);
 
-Actually it was from Ubuntu, so it is based on 2008 checkout, but they
-also have more patches, take a peek here:
+Please do not do this. It causes check to "float" depending on the
+version of kernel headers it was compiled against.
 
-https://launchpad.net/ubuntu/+archive/primary/+files/input-utils_0.0.20081014-1.debian.tar.gz
+The check should be against concrete version (0x10000 in this case).
 
 Thanks.
 

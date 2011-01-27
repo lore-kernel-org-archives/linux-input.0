@@ -1,43 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Wed, 26 Jan 2011 14:07:41 -0800
-Message-ID: <20110126220741.GB29484@core.coreip.homeip.net>
-References: <20110125232914.GA20130@core.coreip.homeip.net>
- <20110126020003.GA23085@core.coreip.homeip.net>
- <4D403855.4050706@teksavvy.com>
- <4D405A9D.4070607@redhat.com>
- <4D4076FD.6070207@teksavvy.com>
- <20110126194127.GE29268@core.coreip.homeip.net>
- <4D407A46.4080407@teksavvy.com>
- <20110126195011.GF29268@core.coreip.homeip.net>
- <4D4094F3.3020607@teksavvy.com>
- <4D4096DA.804@teksavvy.com>
+From: Mark Lord <kernel@teksavvy.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
+ ?
+Date: Wed, 26 Jan 2011 20:01:11 -0500
+Message-ID: <4D40C3D7.90608@teksavvy.com>
+References: <4D3E59CA.6070107@teksavvy.com> <4D3E5A91.30207@teksavvy.com> <20110125053117.GD7850@core.coreip.homeip.net> <4D3EB734.5090100@redhat.com> <20110125164803.GA19701@core.coreip.homeip.net> <AANLkTi=1Mh0JrYk5itvef7O7e7pR+YKos-w56W5q4B8B@mail.gmail.com> <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D403855.4050706@teksavvy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:56957 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753853Ab1AZWHt (ORCPT
+Received: from ironport2-out.teksavvy.com ([206.248.154.183]:12617 "EHLO
+	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754126Ab1A0BBO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jan 2011 17:07:49 -0500
-Content-Disposition: inline
-In-Reply-To: <4D4096DA.804@teksavvy.com>
+	Wed, 26 Jan 2011 20:01:14 -0500
+In-Reply-To: <4D403855.4050706@teksavvy.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <kernel@teksavvy.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, Jan 26, 2011 at 04:49:14PM -0500, Mark Lord wrote:
-> Or perhaps get rid of that unworkable "version number" thing
-> (just freeze it in time with the 2.6.35 value returned),
-> and implement a "get_feature_flags" ioctl or something for going forward.
-> Then you can just turn on new bits in the flags as new features are added.
+On 11-01-26 10:05 AM, Mark Lord wrote:
+> On 11-01-25 09:00 PM, Dmitry Torokhov wrote:
+..
+>> I wonder if the patch below is all that is needed...
+>
+> Nope. Does not work here:
+>
+> $ lsinput
+> protocol version mismatch (expected 65536, got 65537)
 >
 
-That could be done but I do not expect retire features so far so version
-is about the same. Plus, what guarantees that someone in the future
-won't write a utility that compares exact capability bitmap and refuse
-to work when new ones will be added?
+Heh.. I just noticed something *new* in the bootlogs on my system:
 
--- 
-Dmitry
+kernel: Registered IR keymap rc-rc5-tv
+udevd-event[6438]: run_program: '/usr/bin/ir-keytable' abnormal exit
+kernel: input: i2c IR (Hauppauge) as /devices/virtual/rc/rc0/input7
+kernel: ir-keytable[6439]: segfault at 8 ip 00000000004012d2 sp 00007fff6d43ca60
+error 4 in ir-keytable[400000+7000]
+kernel: rc0: i2c IR (Hauppauge) as /devices/virtual/rc/rc0
+kernel: ir-kbd-i2c: i2c IR (Hauppauge) detected at i2c-0/0-0018/ir0 [ivtv i2c
+driver #0]
+
+That's udev invoking ir-keyboard when the ir-kbd-i2c kernel module is loaded,
+and that is also ir-keyboard (userspace) segfaulting when run.
+
+That behaviour is new, with the proposed "fix" patch from this thread.
+So the "fix" itself appears to also break userspace.
+
+The ir-keyboard program reports: IR keytable control version 0.8.2
+
+Cheers

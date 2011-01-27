@@ -1,54 +1,76 @@
-From: Mark Lord <kernel@teksavvy.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
- ?
-Date: Thu, 27 Jan 2011 10:00:07 -0500
-Message-ID: <4D418877.6030503@teksavvy.com>
-References: <20110125205453.GA19896@core.coreip.homeip.net> <4D3F4804.6070508@redhat.com> <4D3F4D11.9040302@teksavvy.com> <20110125232914.GA20130@core.coreip.homeip.net> <20110126020003.GA23085@core.coreip.homeip.net> <4D403855.4050706@teksavvy.com> <4D40C3D7.90608@teksavvy.com> <4D40C551.4020907@teksavvy.com> <20110127021227.GA29709@core.coreip.homeip.net> <4D40E41D.2030003@teksavvy.com> <20110127063815.GA29924@core.coreip.homeip.net> <4D414928.80801@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
+Date: Thu, 27 Jan 2011 08:39:31 -0800
+Message-ID: <20110127163931.GA1825@core.coreip.homeip.net>
+References: <20110125205453.GA19896@core.coreip.homeip.net>
+ <4D3F4804.6070508@redhat.com>
+ <4D3F4D11.9040302@teksavvy.com>
+ <20110125232914.GA20130@core.coreip.homeip.net>
+ <20110126020003.GA23085@core.coreip.homeip.net>
+ <4D403855.4050706@teksavvy.com>
+ <4D40C3D7.90608@teksavvy.com>
+ <4D40C551.4020907@teksavvy.com>
+ <20110127021227.GA29709@core.coreip.homeip.net>
+ <4D40E41D.2030003@teksavvy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ironport2-out.teksavvy.com ([206.248.154.181]:27904 "EHLO
-	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752059Ab1A0PAJ (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:45521 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751913Ab1A0Qjo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Jan 2011 10:00:09 -0500
-In-Reply-To: <4D414928.80801@redhat.com>
+	Thu, 27 Jan 2011 11:39:44 -0500
+Content-Disposition: inline
+In-Reply-To: <4D40E41D.2030003@teksavvy.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Mark Lord <kernel@teksavvy.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On 11-01-27 05:30 AM, Mauro Carvalho Chehab wrote:
-..
-> 0.8.2 is the new version that was released in Jan, 25. One of the major
-> differences is that it now installs the udev rules, with make install.
-
-Oh, and there's no "make uninstall" option in the Makefile, either.
-Where does it put those tentacles, so that I can delete them again ?
-
-> On my tests here, this is working fine, with Fedora and RHEL 6, on my
-> usual test devices, so I don't believe that the tool itself is broken, 
-> nor I think that the issue is due to the fix patch.
-
-Well, all I know is that it does NOT segfault without the patch,
-and now it does.  At this point I should refer you back to Linus's
-posts earlier in this thread for the definition of "breaks userspace".
-
-> I remember that when Kay added a persistence utility tool that opens a V4L
-> device in order to read some capabilities, this caused a race condition
-> into a number of drivers that use to register the video device too early.
-> The result is that udev were opening the device before the end of the
-> register process, causing OOPS and other problems.
+On Wed, Jan 26, 2011 at 10:18:53PM -0500, Mark Lord wrote:
+> On 11-01-26 09:12 PM, Dmitry Torokhov wrote:
+> > On Wed, Jan 26, 2011 at 08:07:29PM -0500, Mark Lord wrote:
+> >> On 11-01-26 08:01 PM, Mark Lord wrote:
+> >>> On 11-01-26 10:05 AM, Mark Lord wrote:
+> >>>> On 11-01-25 09:00 PM, Dmitry Torokhov wrote:
+> >>> ..
+> >>>>> I wonder if the patch below is all that is needed...
+> >>>>
+> >>>> Nope. Does not work here:
+> >>>>
+> >>>> $ lsinput
+> >>>> protocol version mismatch (expected 65536, got 65537)
+> >>>>
+> >>>
+> >>> Heh.. I just noticed something *new* in the bootlogs on my system:
+> >>>
+> >>> kernel: Registered IR keymap rc-rc5-tv
+> >>> udevd-event[6438]: run_program: '/usr/bin/ir-keytable' abnormal exit
+> >>> kernel: input: i2c IR (Hauppauge) as /devices/virtual/rc/rc0/input7
+> >>> kernel: ir-keytable[6439]: segfault at 8 ip 00000000004012d2 sp 00007fff6d43ca60
+> >>> error 4 in ir-keytable[400000+7000]
+> >>> kernel: rc0: i2c IR (Hauppauge) as /devices/virtual/rc/rc0
+> >>> kernel: ir-kbd-i2c: i2c IR (Hauppauge) detected at i2c-0/0-0018/ir0 [ivtv i2c
+> >>> driver #0]
+> >>>
+> >>> That's udev invoking ir-keyboard when the ir-kbd-i2c kernel module is loaded,
+> >>> and that is also ir-keyboard (userspace) segfaulting when run.
+> >>
+> >> Note: I tried to capture an strace of ir-keyboard segfaulting during boot
+> >> (as above), but doing so kills the system (hangs on boot).
+> >>
+> >> The command from udev was: /usr/bin/ir-keytable -a /etc/rc_maps.cfg -s rc0
+> > 
+> > Does it die when you try to invoke the command by hand? Can you see where?
 > 
-> I suspect that Mark may be experiencing a similar issue.
+> 
+> No, it does not seem to segfault when I unload/reload ir-kbd-i2c
+> and then invoke it by hand with the same parameters.
+> Quite possibly the environment is different when udev invokes it,
+> and my strace attempt with udev killed the system, so no info there.
+> 
 
-Could be.  I really don't know.
-Again, I could not care less about ir-keyboard,
-as I don't use it here at all.
+Hmm, what about compiling with debug and getting a core then?
 
-But also again, this thread isn't about what I need fixed,
-but rather about broken userspace from 2.6.36 onward.
-And the patch to "fix" it seems to possibly cause more breakage.
-
-Cheers
+-- 
+Dmitry

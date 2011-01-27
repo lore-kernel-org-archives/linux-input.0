@@ -1,44 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Thu, 27 Jan 2011 11:53:25 -0800
-Message-ID: <20110127195325.GB29910@core.coreip.homeip.net>
-References: <4D3F4D11.9040302@teksavvy.com>
- <20110125232914.GA20130@core.coreip.homeip.net>
- <20110126020003.GA23085@core.coreip.homeip.net>
- <4D403855.4050706@teksavvy.com>
- <4D40C3D7.90608@teksavvy.com>
- <4D40C551.4020907@teksavvy.com>
- <20110127021227.GA29709@core.coreip.homeip.net>
- <4D40E41D.2030003@teksavvy.com>
- <20110127163931.GA1825@core.coreip.homeip.net>
- <4D41B5A0.70704@teksavvy.com>
+From: Terry Lambert <tlambert@google.com>
+Subject: Interface for regression testing & input event capture/replay?
+Date: Thu, 27 Jan 2011 11:58:38 -0800
+Message-ID: <AANLkTim5_sFHphygm2enEDFc7GNKd=M0h6hSvT2QeyCP@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4D41B5A0.70704@teksavvy.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Lord <kernel@teksavvy.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out.google.com ([74.125.121.67]:22166 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752614Ab1A0T6m (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Jan 2011 14:58:42 -0500
+Received: from kpbe20.cbf.corp.google.com (kpbe20.cbf.corp.google.com [172.25.105.84])
+	by smtp-out.google.com with ESMTP id p0RJwe7g010560
+	for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 11:58:40 -0800
+Received: from yic1 (yic1.prod.google.com [10.243.65.129])
+	by kpbe20.cbf.corp.google.com with ESMTP id p0RJwceF027483
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 11:58:39 -0800
+Received: by yic1 with SMTP id 1so793804yic.11
+        for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 11:58:38 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Thu, Jan 27, 2011 at 01:12:48PM -0500, Mark Lord wrote:
-> On 11-01-27 11:39 AM, Dmitry Torokhov wrote:
-> > On Wed, Jan 26, 2011 at 10:18:53PM -0500, Mark Lord wrote:
-> >> No, it does not seem to segfault when I unload/reload ir-kbd-i2c
-> >> and then invoke it by hand with the same parameters.
-> >> Quite possibly the environment is different when udev invokes it,
-> >> and my strace attempt with udev killed the system, so no info there.
-> >>
-> > 
-> > Hmm, what about compiling with debug and getting a core then?
-> 
-> Sure.  debug is easy, -g, but you'll have to tell me how to get it
-> do produce a core dump.
-> 
+Hi;
 
-See if adjusting /etc/security/limits.conf will enable it to dump core.
-Otherwise you'll have to stick 'ulimit -c unlimited' somewhere...
+I'm looking for some guidance from Linux/input people...
 
--- 
-Dmitry
+I've looked through the archives, and around the net a bit, and I
+haven't been able to find anything to capture events from an arbitrary
+set of inputs, and then replay them back to software attached to those
+inputs.
+
+This would be useful for:
+
+o Regression testing user space algorithms
+o Training software for gesture recognition
+o Tuning drivers for new hardware to correct self-censor undesirable events
+o Probably lots of other things I haven't thought of
+
+The multiple event sources requirement comes from using things like
+keyboard modifier keys to change mouse button behaviours.  The most
+obvious example is probably option-click on Apple hardware with a one
+button mouse.
+
+The basic problems with just opening up /dev/eventX, /dev/eventY, ...
+and listening/injecting are:
+
+o If a piece of software grabs the input, I don't get events
+o If I grab the input, the software I'm testing doesn't get events
+o If neither of us grabs the input, filters apply
+o If the input is grabbed by someone, you can't inject events
+o It won't work if the event consuming software lives in kernel space
+
+The basic problems with using the filter mechanism are:
+
+o Filters are applied after grabs, so if it's grabbed the filter is not invoked
+    (I read the thread introducing filters; this makes sense)
+o You can only have one filter at a time
+    (there might already be one)
+
+Has anyone tried to solve this problem before?  Any suggestions?
+
+Thanks,
+-- Terry

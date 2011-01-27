@@ -1,40 +1,108 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCHv2] evdev: fix evdev_write return value on partial writes
-Date: Thu, 27 Jan 2011 13:04:49 +0100
-Message-ID: <87pqrir1r2.fsf@macbook.be.48ers.dk>
-References: <1296122607-9526-1-git-send-email-jacmet@sunsite.dk>
-	<20110127110255.GA15159@polaris.bitmath.org>
-	<871v3ysibp.fsf@macbook.be.48ers.dk>
-	<20110127114727.GA15626@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [RFC 1/2] input: mt: Add method to extract the MT slot state
+Date: Thu, 27 Jan 2011 13:06:03 +0100
+Message-ID: <20110127120603.GB15626@polaris.bitmath.org>
+References: <1296124547-3323-1-git-send-email-benjamin.tissoires@enac.fr>
+ <1296124547-3323-2-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:44609 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754368Ab1A0MFH (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:60819 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754637Ab1A0MFm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Jan 2011 07:05:07 -0500
-Received: by wyb28 with SMTP id 28so1994692wyb.19
-        for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 04:05:05 -0800 (PST)
-In-Reply-To: <20110127114727.GA15626@polaris.bitmath.org> (Henrik Rydberg's
-	message of "Thu, 27 Jan 2011 12:47:27 +0100")
+	Thu, 27 Jan 2011 07:05:42 -0500
+Content-Disposition: inline
+In-Reply-To: <1296124547-3323-2-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, baruch@tkos.co.il
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, Jiri Kosina <jkosina@suse.cz>, Chris Bagwell <chris@cnpbagwell.com>, Rafi Rubin <rafi@seas.upenn.edu>, Stephane Chatty <chatty@lii-enac.fr>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->>>>> "Henrik" == Henrik Rydberg <rydberg@euromail.se> writes:
+Hi Benjamin,
 
-Hi,
+On Thu, Jan 27, 2011 at 11:35:46AM +0100, Benjamin Tissoires wrote:
+> This patch adds the function input_mt_get_abs_value(), which may be
 
- Henrik> I won't argue against this case (with < 0) being frequent, but one
- Henrik> should really check "n < len" to be safe. Hopefully Dmitry has some
- Henrik> more input.
+Ehm, input_mt_get_absinfo?
 
-No, the point is that write (and read) can consume less data than
-requested, without it being an error. Robust userspace code should
-adjust buffer address / size and redo the work until all data is
-transferred or an error occurs.
+> used to extract the current state of the MT slots.
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 
--- 
-Bye, Peter Korsgaard
+I had rather re-add this myself, thanks.
+
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+>  drivers/input/input-mt.c |   32 ++++++++++++++++++++++++++++++++
+>  include/linux/input/mt.h |    1 +
+>  2 files changed, 33 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+> index c48c81f..5b95e38 100644
+> --- a/drivers/input/input-mt.c
+> +++ b/drivers/input/input-mt.c
+> @@ -168,3 +168,35 @@ void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count)
+>  	}
+>  }
+>  EXPORT_SYMBOL(input_mt_report_pointer_emulation);
+> +
+> +/**
+> + * input_mt_get_absinfo - retrieve MT state variables from a device slot
+> + * @dev: input device which state is being queried
+> + * @code: ABS code to retrieve
+> + * @slot: slot to retrieve from
+> + *
+> + * Return the ABS state of the given MT slot. If code is not an MT
+> + * event, the corresponding ABS event is returned.
+> + *
+> + * This function may be called by anyone interested in extracting the
+> + * current MT state. Used by evdev handlers.
+> + */
+> +struct input_absinfo input_mt_get_absinfo(struct input_dev *dev, unsigned int code, int slot)
+
+Why return the struct? Give it a pointer instead, so the return value
+can be used for errors.
+
+Also, I wonder about the usefulness of extracting the absinfo here -
+only the value depends on the slot argument, and absinfo does not
+require the same lock protection. Why not keep the layout from the
+original patch?
+
+> +{
+> +	unsigned int mtmap = code > ABS_MT_FIRST ? code - ABS_MT_FIRST : 0;
+
+Should rather return -EINVAL on bad argument.
+
+> +	unsigned long flags;
+> +	struct input_absinfo retval;
+> +
+> +	spin_lock_irqsave(&dev->event_lock, flags);
+> +	if (!mtmap)
+> +		retval = dev->absinfo[code];
+> +	else if (slot >= 0 && slot < dev->mtsize) {
+> +		retval = dev->absinfo[code];
+> +		retval.value = dev->mt[slot].abs[mtmap];
+
+Please use input_mt_get_value().
+
+> +	} else
+> +		retval.value = 0;
+> +	spin_unlock_irqrestore(&dev->event_lock, flags);
+> +
+> +	return retval;
+> +}
+> +EXPORT_SYMBOL(input_mt_get_absinfo);
+> diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
+> index b3ac06a..a71a27f 100644
+> --- a/include/linux/input/mt.h
+> +++ b/include/linux/input/mt.h
+> @@ -54,4 +54,5 @@ void input_mt_report_slot_state(struct input_dev *dev,
+>  void input_mt_report_finger_count(struct input_dev *dev, int count);
+>  void input_mt_report_pointer_emulation(struct input_dev *dev, bool use_count);
+>  
+> +struct input_absinfo input_mt_get_absinfo(struct input_dev *dev, unsigned int code, int slot);
+>  #endif
+
+Thanks,
+Henrik

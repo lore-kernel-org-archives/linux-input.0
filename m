@@ -1,98 +1,128 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
- ?
-Date: Fri, 28 Jan 2011 15:01:58 -0200
-Message-ID: <4D42F686.8010104@redhat.com>
-References: <4D40C3D7.90608@teksavvy.com> <4D40C551.4020907@teksavvy.com> <20110127021227.GA29709@core.coreip.homeip.net> <4D40E41D.2030003@teksavvy.com> <20110127063815.GA29924@core.coreip.homeip.net> <4D414928.80801@redhat.com> <20110127172128.GA19672@core.coreip.homeip.net> <4D41C071.2090201@redhat.com> <20110128093922.GA3357@core.coreip.homeip.net> <4D42AECE.3020402@redhat.com> <20110128164057.GA6252@core.coreip.homeip.net>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/2] hid-multitouch: work on default classes and renaming
+ of classes
+Date: Fri, 28 Jan 2011 18:18:52 +0100
+Message-ID: <20110128171852.GA2586@polaris.bitmath.org>
+References: <1296230680-2871-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35438 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754838Ab1A1RCj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 12:02:39 -0500
-In-Reply-To: <20110128164057.GA6252@core.coreip.homeip.net>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:34038 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753964Ab1A1RS5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Jan 2011 12:18:57 -0500
+Content-Disposition: inline
+In-Reply-To: <1296230680-2871-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Em 28-01-2011 14:40, Dmitry Torokhov escreveu:
-> On Fri, Jan 28, 2011 at 09:55:58AM -0200, Mauro Carvalho Chehab wrote:
+Hi Benjamin,
 
->> The rc-core register (and the corresponding input register) is done when
->> the device detected a remote controller, so, it should be safe to register
->> on that point. If not, IMHO, there's a bug somewhere. 
+> The safest quirk for a device (the one that works out of the box for
+> most of them) is the MT_QUIRK_NOT_SEEN_MEANS_UP. Indeed, it does not
+> make any assumption on the device. When adding a new device, we can
+> easily test it against MT_CLS_DEFAULT, and then optimize it with other
+> quirks: that's why no device use MT_CLS_DEFAULT right now.
 > 
-> It is not a matter of safe or unsafe registration. Registration is fine.
-> The problem is that with the current set up is that utility is fired
-> when trunk of [sub]tree is created, but the utility wants to operate on
-> leaves which may not be there yet.
+> This patch introduce also MT_CLS_DUAL_DEFAULT which has the same purpose
+> than MT_CLS_DEFAULT, but for dual touch panels.
 
-I'm not an udev expert. Is there a udev event that hits only after having
-the driver completely loaded? Starting an udev rule while modprobe is
-still running is asking for race conditions.
-
-I'm not entirely convinced that this is the bug that Mark is hitting, as
-rc-core does all needed setups before registering the evdev device. We
-need the core and the dmesg to be sure about what's happening there.
-
->> Yet, I agree that udev tries to set devices too fast.
+But it is used anywhere?
+ 
+> Finally, the patch renames MT_CLS_DUAL1 to MT_CLS_DUAL_INRANGE_CONTACTID
+> and MT_CLS_DUAL2 to MT_CLS_DUAL_INRANGE_CONTACTNUMBER for better
+> readability.
 > 
-> It tries to set devices exacty when you tell it to do so. It's not like
-> it goes trolling for random devices is sysfs.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+
+The patch description and the content lacks a certain
+distinctness. Please single out janitory actions into a separate
+patch, or, if possible, skip it altogether.
+
+>  drivers/hid/hid-multitouch.c |   25 +++++++++++++++----------
+>  1 files changed, 15 insertions(+), 10 deletions(-)
 > 
->> It would be better if
->> it would wait for a few milisseconds, to reduce the risk of race conditions.
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 07d3183..ffe2a76 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -24,6 +24,7 @@
+>  
+>  
+>  MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
+> +MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
+
+Adding this is fine, based on your prior contributions. Perhaps it
+should be motivated as such in a separate patch instead.
+
+>  MODULE_DESCRIPTION("HID multitouch panels");
+>  MODULE_LICENSE("GPL");
+>  
+> @@ -65,10 +66,11 @@ struct mt_class {
+>  };
+>  
+>  /* classes of device behavior */
+> -#define MT_CLS_DEFAULT	1
+> -#define MT_CLS_DUAL1	2
+> -#define MT_CLS_DUAL2	3
+> -#define MT_CLS_CYPRESS	4
+> +#define MT_CLS_DEFAULT				1
+> +#define MT_CLS_DUAL_DEFAULT			2
+> +#define MT_CLS_DUAL_INRANGE_CONTACTID		3
+> +#define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	4
+> +#define MT_CLS_CYPRESS				10
+
+There is no need to change the numbering for unchanged names.
+
+>  
+>  /*
+>   * these device-dependent functions determine what slot corresponds
+> @@ -104,13 +106,16 @@ static int find_slot_from_contactid(struct mt_device *td)
+>  
+>  struct mt_class mt_classes[] = {
+>  	{ .name = MT_CLS_DEFAULT,
+> -		.quirks = MT_QUIRK_VALID_IS_INRANGE,
+> +		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
+>  		.maxcontacts = 10 },
+> -	{ .name = MT_CLS_DUAL1,
+> +	{ .name = MT_CLS_DUAL_DEFAULT,
+> +		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
+> +		.maxcontacts = 2 },
+> +	{ .name = MT_CLS_DUAL_INRANGE_CONTACTID,
+>  		.quirks = MT_QUIRK_VALID_IS_INRANGE |
+>  			MT_QUIRK_SLOT_IS_CONTACTID,
+>  		.maxcontacts = 2 },
+> -	{ .name = MT_CLS_DUAL2,
+> +	{ .name = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+>  		.quirks = MT_QUIRK_VALID_IS_INRANGE |
+>  			MT_QUIRK_SLOT_IS_CONTACTNUMBER,
+>  		.maxcontacts = 2 },
+> @@ -466,15 +471,15 @@ static const struct hid_device_id mt_devices[] = {
+>  			USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
+>  
+>  	/* GeneralTouch panel */
+> -	{ .driver_data = MT_CLS_DUAL2,
+> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+>  		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+>  			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
+>  
+>  	/* PixCir-based panels */
+> -	{ .driver_data = MT_CLS_DUAL1,
+> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+>  		HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
+>  			USB_DEVICE_ID_HANVON_MULTITOUCH) },
+> -	{ .driver_data = MT_CLS_DUAL1,
+> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+>  		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+>  			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
+>  
+> -- 
+> 1.7.3.4
 > 
-> Gah, I really prefer using properly engineered solutions instead of
-> adding crutches.
 
-I agree.
-
->>> And this could be easily added to the udev's keymap utility that is
->>> fired up when we discover evdevX devices.
->>
->> Yes, it can, if you add the IR protocol selection on that tool. A remote 
->> controller keycode table has both the protocol and the keycodes.
->> This basically means to merge 99% of the logic inside ir-keytable into the
->> evdev generic tool.
-> 
-> Or just have an utility producing keymap name and feed it as input to
-> the generic tools. The way most of utilities work...
-
-I don't like the idea of running a some logic at udev that would generate
-such keymap in runtime just before calling the generic tool. The other
-alternative (e. g.) to maintain the RC-protocol dependent keytables separate
-from the RC protocol used by each table will be a maintenance nightmare.
-
->>>> Also, I'm currently working on a way to map media keys for remote controllers 
->>>> into X11 (basically, mapping them into the keyspace between 8-255, passing 
->>>> through Xorg evdev.c, and then mapping back into some X11 symbols). This way,
->>>> we don't need to violate the X11 protocol. (Yeah, I know this is hacky, but
->>>> while X11 cannot pass the full evdev keycode, at least the Remote Controllers
->>>> will work). This probably means that we may need to add some DBus logic
->>>> inside ir-keytable, when called via udev, to allow it to announce to X11.
->>>
->>> The same issue is present with other types of input devices (multimedia
->>> keyboards emitting codes that X can't consume) and so it again would
->>> make sense to enhance udev's utility instead of confining it all to
->>> ir-keytable.
->>
->> I agree with you, but I'm not sure if we can find a solution that will
->> work for both RC and media keyboards, as X11 evdev just maps keyboards
->> on the 8-255 range. I was thinking to add a detection there for RC, and
->> use a separate map for them, as RC don't need most of the normal keyboard
->> keys.
-> 
-> Well, there will always be clashes - there is reason why evdev goes
-> beyond 255 keycodes...
-
-Yeah. The most appropriate fix would be for X to just use the full evdev
-keycode range. However, I'm not seeing any indication that such change
-will happen soon. Not sure if there are some news about it at LCA, as
-there were one speech about this subject there.
-
-Cheers,
-Mauro
+Thanks,
+Henrik

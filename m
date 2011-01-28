@@ -1,80 +1,62 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/2] hid-multitouch: work on default classes and renaming
- of classes
-Date: Fri, 28 Jan 2011 19:43:26 +0100
-Message-ID: <20110128184326.GB2553@polaris.bitmath.org>
-References: <1296230680-2871-1-git-send-email-benjamin.tissoires@enac.fr>
- <20110128171852.GA2586@polaris.bitmath.org>
- <AANLkTimB2bA9JuhNox8UCsHkGEGyUQLBPnELBR0-=-ie@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input : wacom - report resolution for ABS_MT events
+Date: Fri, 28 Jan 2011 10:46:55 -0800
+Message-ID: <20110128184654.GG6252@core.coreip.homeip.net>
+References: <1296179245-14614-1-git-send-email-pinglinux@gmail.com>
+ <20110128173048.GC2586@polaris.bitmath.org>
+ <AANLkTi=d7frmTyAPzRSPmgXkvDh-Lc=WCvu9+tdA1Sg8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:32931 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753199Ab1A1Smh (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:62120 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755382Ab1A1SrG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 13:42:37 -0500
+	Fri, 28 Jan 2011 13:47:06 -0500
+Received: by gyb11 with SMTP id 11so1197890gyb.19
+        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 10:47:05 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <AANLkTimB2bA9JuhNox8UCsHkGEGyUQLBPnELBR0-=-ie@mail.gmail.com>
+In-Reply-To: <AANLkTi=d7frmTyAPzRSPmgXkvDh-Lc=WCvu9+tdA1Sg8@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-> >> This patch introduce also MT_CLS_DUAL_DEFAULT which has the same p=
-urpose
-> >> than MT_CLS_DEFAULT, but for dual touch panels.
+On Fri, Jan 28, 2011 at 10:23:59AM -0800, Ping Cheng wrote:
+> On Fri, Jan 28, 2011 at 9:30 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> > Hi Ping,
 > >
-> > But it is used anywhere?
->=20
-> Hi Henrik,
->=20
-> In it's current form, no. I often rely on it to make a quick patch
-> (just adding the ids in hid-ids, hid-core and hid-multitouch) to test
-> a new (dual touch) device. I thought it would be useful to be
-> mainstream.
-
-I see. However, it is just as easy to keep as a local patch. Quite
-generally, there really is a difference between what we do in our
-computers and what ends up in mainline, and it is almost always for a
-good reason.
-
-> >> @@ -65,10 +66,11 @@ struct mt_class {
-> >> =A0};
-> >>
-> >> =A0/* classes of device behavior */
-> >> -#define MT_CLS_DEFAULT =A0 =A0 =A0 1
-> >> -#define MT_CLS_DUAL1 2
-> >> -#define MT_CLS_DUAL2 3
-> >> -#define MT_CLS_CYPRESS =A0 =A0 =A0 4
-> >> +#define MT_CLS_DEFAULT =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 1
-> >> +#define MT_CLS_DUAL_DEFAULT =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A02
-> >> +#define MT_CLS_DUAL_INRANGE_CONTACTID =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A03
-> >> +#define MT_CLS_DUAL_INRANGE_CONTACTNUMBER =A0 =A04
-> >> +#define MT_CLS_CYPRESS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 10
+> >> This is mainly required by the serial pen and touch devices since
+> >> both pen and touch are on the same port. Updated the USB ones to
+> >> keep MT event definition consistent among serial and USB devices.
 > >
-> > There is no need to change the numbering for unchanged names.
->=20
-> I just wanted to keep device-specific at the end of the list. Hence
-> the 10 to keep a little space between generic and devices:
-> MT_CLS_DUAL_CONFIDENCE_CONTACT* are coming...
+> > Why is this change performed? What does the patch do? Please elaborate
+> > a little bit.
+> 
+> Let's see if I can explain it clearer or not.
+> 
+> We need to report resolution to userland for wacom_w8001.c. Since pen
+> and touch data are reported through the same logical port for serial
+> devices, using input_abs_set_res  for ABS_X/Y,  we can only pass the
+> resolution for pen or touch. So, I let ABS_X/Y report pen resolution
+> since most legacy ST clients process pen data over touch. However, for
+> multi-touch clients, especially for those that support gestures, touch
+> resolution is needed to calculate the physical distance between two
+> touch points. Using  ABS_MT_POSITION_X/Y does not cause confusion and
+> it is quite intuitive.
 
-It is very often the case that one would like to modify something to
-keep to a certain aesthetic classification or idea, but there is a
-very good reason not to do it. In order to maintain more than one
-branch, for instance a stable tree and several distributions, having
-simple patches makes a huge difference in maintenance burden. Not to
-mention how hard it can be to merge trees with unrelated changes in
-them. So please, keep patches short, sweet and to the point.
+We just went through the round of why we should scale events from
+different tools when they use the same event devices and I do not see
+why MT data is any different.
 
-Thanks,
-Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Devices have only one set of physical axes (MT or not) so I believe
+min, max and resultion should be reported on ABS_X, Y, X, etc, or, if
+you want to have this data in ABS_MT_POSITION, it should be trhe same.
+
+ABS_MT_POSITION is just a vehicle of delivering multipe contacts, not a
+new device axis.
+
+Thanks.
+
+-- 
+Dmitry

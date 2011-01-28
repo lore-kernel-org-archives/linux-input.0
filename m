@@ -1,42 +1,31 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: Bug 27362 - ThinkPad Fn key types NULs into the console
-Date: Fri, 28 Jan 2011 11:39:37 +0100
-Message-ID: <87lj25ia6u.fsf@tac.ki.iif.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nikolai Kondrashov <spbnick@gmail.com>
+Subject: [PATCH v3] Input: add support for DragonRise PID 0011 gamepad
+Date: Fri, 28 Jan 2011 14:50:50 +0300
+Message-ID: <1296215454-2586-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tac.ki.iif.hu ([193.6.222.43]:34495 "EHLO tac.ki.iif.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753355Ab1A1Kjj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 05:39:39 -0500
-Received: from wferi by tac.ki.iif.hu with local (Exim 4.72)
-	(envelope-from <wferi@niif.hu>)
-	id 1Piljt-0006XB-Vp
-	for linux-input@vger.kernel.org; Fri, 28 Jan 2011 11:39:38 +0100
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:33977 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754594Ab1A1LvO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Jan 2011 06:51:14 -0500
+Received: by ewy5 with SMTP id 5so1444229ewy.19
+        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 03:51:13 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Vladislav Naumov <vnaum@vnaum.com>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Hi,
+These three patches add support for DragonRise Inc. USB PID 0x0011 gamepad.
+This version is based on recent Linus' master (namely bffb276) and is using
+single file for both generic and force feedback support.
 
-I hope it's appropriate to advertise my kernel bug here to get some
-traction...
+[PATCH 1/3] Input: rename hid-drff.c to hid-dr.c
+[PATCH 2/3] Input: add support for DragonRise PID 0011 gamepad
+[PATCH 3/3] Input: update dragonrise Kconfig description
 
-In short: under vanilla 2.6.37, the Fn key of my ThinkPad R50e is active
-on the console: it adds NUL characters to the input stream on each
-release.  This happens without any userspace involvement, at the very
-start of the initramfs phase of bootup (after break=top for those using
-initramfs-tools):
-
-(initramfs) cat
-^@
-
-At this stage no modules are loaded (my .config and dmesg is linked from
-https://bugzilla.kernel.org/show_bug.cgi?id=27362).  Showkey prints
-0x00 0x81 0x8f 0x00 0x81 0x8f on release of the Fn key (with autorepeat).
-
-These NUL characters constitute a bug in my opinion.  Please let me know
-if I can help finding the cause.
--- 
-Thanks,
-Feri.
+ drivers/hid/Kconfig    |    7 +-
+ drivers/hid/Makefile   |    2 +-
+ drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-dr.c   |  312 ++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-drff.c |  197 ------------------------------
+ 5 files changed, 320 insertions(+), 199 deletions(-)

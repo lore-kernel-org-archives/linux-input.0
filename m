@@ -1,57 +1,81 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Fri, 28 Jan 2011 08:42:44 -0800
-Message-ID: <20110128164244.GB6252@core.coreip.homeip.net>
-References: <20110125232914.GA20130@core.coreip.homeip.net>
- <20110126020003.GA23085@core.coreip.homeip.net>
- <4D403855.4050706@teksavvy.com>
- <4D40C3D7.90608@teksavvy.com>
- <4D40C551.4020907@teksavvy.com>
- <20110127021227.GA29709@core.coreip.homeip.net>
- <4D40E41D.2030003@teksavvy.com>
- <20110127163931.GA1825@core.coreip.homeip.net>
- <4D41B5A0.70704@teksavvy.com>
- <20110127195325.GB29910@core.coreip.homeip.net>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [2/2] hid-multitouch: introduce IrTouch Infrared USB device
+Date: Fri, 28 Jan 2011 17:59:40 +0100
+Message-ID: <AANLkTinsry1Z6r=ch9-s7BDYOkOd9DeF_UmOJJn_0psd@mail.gmail.com>
+References: <1296230680-2871-2-git-send-email-benjamin.tissoires@enac.fr>
+	<1296231840.2959.23.camel@hanuta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:37097 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754805Ab1A1Qmy (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:49062 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755285Ab1A1Q7m convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 11:42:54 -0500
-Content-Disposition: inline
-In-Reply-To: <20110127195325.GB29910@core.coreip.homeip.net>
+	Fri, 28 Jan 2011 11:59:42 -0500
+In-Reply-To: <1296231840.2959.23.camel@hanuta>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <kernel@teksavvy.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Florian Echtler <floe@butterbrot.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2011 at 11:53:25AM -0800, Dmitry Torokhov wrote:
-> On Thu, Jan 27, 2011 at 01:12:48PM -0500, Mark Lord wrote:
-> > On 11-01-27 11:39 AM, Dmitry Torokhov wrote:
-> > > On Wed, Jan 26, 2011 at 10:18:53PM -0500, Mark Lord wrote:
-> > >> No, it does not seem to segfault when I unload/reload ir-kbd-i2c
-> > >> and then invoke it by hand with the same parameters.
-> > >> Quite possibly the environment is different when udev invokes it,
-> > >> and my strace attempt with udev killed the system, so no info there.
-> > >>
-> > > 
-> > > Hmm, what about compiling with debug and getting a core then?
-> > 
-> > Sure.  debug is easy, -g, but you'll have to tell me how to get it
-> > do produce a core dump.
-> > 
-> 
-> See if adjusting /etc/security/limits.conf will enable it to dump core.
-> Otherwise you'll have to stick 'ulimit -c unlimited' somewhere...
-> 
+Hi Florian,
 
-Mark,
 
-Any luck with getting the core? I'd really like to resolve this issue.
+On Fri, Jan 28, 2011 at 17:24, Florian Echtler <floe@butterbrot.org> wr=
+ote:
+> Hello everyone,
+>
+>> The product id is the 42 inches one. I don't know if they have
+>> other product id for the other size, or if it is a per-size product =
+id.
+> This is very interesting, I have access to a 65" IrTouch system which
+> has VID 0x6615 and PID 0x0C20. I wasn't aware that there are already
+> kernel drivers for their systems, I had been playing around with thei=
+r
+> awful binary driver and had done some experiments with libusb. Is the=
+re
+> a documentation of some kind available?
 
-Thanks.
+We just made the analysis of the hid reports that are send. We have no
+documentation for this particular device.
 
--- 
-Dmitry
+>
+>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> index 92a0d61..b1dd7ad 100644
+>> --- a/drivers/hid/hid-ids.h
+>> +++ b/drivers/hid/hid-ids.h
+>> @@ -333,6 +333,9 @@
+>> =A0#define USB_VENDOR_ID_IMATION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00x07=
+18
+>> =A0#define USB_DEVICE_ID_DISC_STAKKA =A0 =A00xd000
+>>
+>> +#define USB_VENDOR_ID_IRTOUCHSYSTEMS 0x6615
+>> +#define USB_DEVICE_ID_IRTOUCH_INFRARED_USB =A0 0x0070
+> I will test this on our screen next week.
+> I assume that I should use the tree from:
+> http://git.kernel.org/?p=3Dlinux/kernel/git/rydberg/input-mt.git;a=3D=
+summary
+
+hid-multitouch is schedulded for 2.6.38. So you can also use the stock
+2.6.38-rc2:
+http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
+summary
+
+
+>
+> Note: after briefly browsing through hid-multitouch.c, it seems to me
+> that there might be issues; the USB interface on our screen doesn't
+> report as HID device, but as vendor class (0xFF).
+
+This is more problematic. Hardware makers are forced to push hid aware
+firmware to be win7 certified. Maybe they have a new firmware for your
+device.
+
+Cheers,
+Benjamin
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

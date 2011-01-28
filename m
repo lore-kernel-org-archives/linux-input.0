@@ -1,169 +1,234 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
- ?
-Date: Fri, 28 Jan 2011 16:15:51 -0200
-Message-ID: <4D4307D7.8010301@redhat.com>
-References: <20110127021227.GA29709@core.coreip.homeip.net> <4D40E41D.2030003@teksavvy.com> <20110127063815.GA29924@core.coreip.homeip.net> <4D414928.80801@redhat.com> <20110127172128.GA19672@core.coreip.homeip.net> <4D41C071.2090201@redhat.com> <20110128093922.GA3357@core.coreip.homeip.net> <4D42AECE.3020402@redhat.com> <20110128164057.GA6252@core.coreip.homeip.net> <4D42F686.8010104@redhat.com> <20110128173305.GC6252@core.coreip.homeip.net>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] input : wacom - report resolution for ABS_MT events
+Date: Fri, 28 Jan 2011 10:23:59 -0800
+Message-ID: <AANLkTi=d7frmTyAPzRSPmgXkvDh-Lc=WCvu9+tdA1Sg8@mail.gmail.com>
+References: <1296179245-14614-1-git-send-email-pinglinux@gmail.com>
+	<20110128173048.GC2586@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110128173305.GC6252@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:53205 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755400Ab1A1SYB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Jan 2011 13:24:01 -0500
+Received: by wyb28 with SMTP id 28so3484789wyb.19
+        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 10:24:00 -0800 (PST)
+In-Reply-To: <20110128173048.GC2586@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Em 28-01-2011 15:33, Dmitry Torokhov escreveu:
-> On Fri, Jan 28, 2011 at 03:01:58PM -0200, Mauro Carvalho Chehab wrote:
->> Em 28-01-2011 14:40, Dmitry Torokhov escreveu:
->>> On Fri, Jan 28, 2011 at 09:55:58AM -0200, Mauro Carvalho Chehab wrote:
+On Fri, Jan 28, 2011 at 9:30 AM, Henrik Rydberg <rydberg@euromail.se> w=
+rote:
+> Hi Ping,
+>
+>> This is mainly required by the serial pen and touch devices since
+>> both pen and touch are on the same port. Updated the USB ones to
+>> keep MT event definition consistent among serial and USB devices.
+>
+> Why is this change performed? What does the patch do? Please elaborat=
+e
+> a little bit.
+
+Let's see if I can explain it clearer or not.
+
+We need to report resolution to userland for wacom_w8001.c. Since pen
+and touch data are reported through the same logical port for serial
+devices, using input_abs_set_res  for ABS_X/Y,  we can only pass the
+resolution for pen or touch. So, I let ABS_X/Y report pen resolution
+since most legacy ST clients process pen data over touch. However, for
+multi-touch clients, especially for those that support gestures, touch
+resolution is needed to calculate the physical distance between two
+touch points. Using  ABS_MT_POSITION_X/Y does not cause confusion and
+it is quite intuitive.
+
+This is not an issue for USB devices since pen and touch data are
+reported on separate logical port to the userland. I added
+ABS_MT_POSITION_X/Y for Bamboo touch only to make the interface
+consistent between USB and serial.
+
+Please see more comments inline.
+
+>> Signed-off-by: Ping Cheng <pingc@wacom.com>
+>> ---
+>> =A0drivers/input/tablet/wacom_wac.c =A0 =A0 =A0 =A0| =A0 =A06 ++++++
+>> =A0drivers/input/touchscreen/wacom_w8001.c | =A0 23 ++++++++++++++++=
+++++++-
+>> =A02 files changed, 28 insertions(+), 1 deletions(-)
 >>
->>>> The rc-core register (and the corresponding input register) is done when
->>>> the device detected a remote controller, so, it should be safe to register
->>>> on that point. If not, IMHO, there's a bug somewhere. 
->>>
->>> It is not a matter of safe or unsafe registration. Registration is fine.
->>> The problem is that with the current set up is that utility is fired
->>> when trunk of [sub]tree is created, but the utility wants to operate on
->>> leaves which may not be there yet.
+>> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet=
+/wacom_wac.c
+>> index 367fa82..f129440 100644
+>> --- a/drivers/input/tablet/wacom_wac.c
+>> +++ b/drivers/input/tablet/wacom_wac.c
+>> @@ -1283,6 +1283,12 @@ void wacom_setup_input_capabilities(struct in=
+put_dev *input_dev,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(inp=
+ut_dev, ABS_MT_PRESSURE,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A00, features->pressure_max,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0features->pressure_fuzz, 0);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input_de=
+v, ABS_MT_POSITION_X,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_calc=
+ulate_touch_res(features->x_max,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->x_phy));
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input_de=
+v, ABS_MT_POSITION_Y,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_calc=
+ulate_touch_res(features->y_max,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->y_phy));
+>
+> Is this for the BAMBOO_PT case? What about the extra x/y scaling for
+> some of those devices?
+
+Yes, it is for Bamboo. We do not need to scale the value here since
+touch and pen are on different ports. We had to scale the value for
+wacom_w8001 since both pen and touch are on the same port. Without
+scaling the data, the pen/finger tip will not follow the cursor on the
+screen (wacom_w8001 is a touchscren device).
+
+
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input_=
+dev, ABS_X,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_ca=
+lculate_touch_res(features->x_max,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->x_phy));
+>> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input=
+/touchscreen/wacom_w8001.c
+>> index 5cb8449..f54da5c 100644
+>> --- a/drivers/input/touchscreen/wacom_w8001.c
+>> +++ b/drivers/input/touchscreen/wacom_w8001.c
+>> @@ -51,6 +51,11 @@ MODULE_LICENSE("GPL");
+>> =A0#define W8001_PKTLEN_TPCCTL =A011 =A0 =A0 =A0/* control packet */
+>> =A0#define W8001_PKTLEN_TOUCH2FG =A0 =A0 =A0 =A013
 >>
->> I'm not an udev expert. Is there a udev event that hits only after having
->> the driver completely loaded?
-> 
-> Define completely loaded? For a PCI SCSI controller does fully loaded
-> mean all attached devices are discovered and registered with block layer?
-> For a wireless NIC does it mean that it assocuated with an AP? What if
-> you have more than one device that driver serves?
-> 
-> So teh answer is no and there should not be.
-> 
+>> +/* resolution in points/mm */
+>> +#define W8001_PEN_RESOLUTION =A0 =A0100
+>> +#define W8001_TOUCH_RESOLUTION =A010
+>> +
+>> +
+>> =A0struct w8001_coord {
+>> =A0 =A0 =A0 u8 rdy;
+>> =A0 =A0 =A0 u8 tsw;
+>> @@ -92,6 +97,8 @@ struct w8001 {
+>> =A0 =A0 =A0 u16 max_touch_y;
+>> =A0 =A0 =A0 u16 max_pen_x;
+>> =A0 =A0 =A0 u16 max_pen_y;
+>> + =A0 =A0 u16 touch_res_x;
+>> + =A0 =A0 u16 touch_res_y;
+>
+> Are these used anywhere?
+
+Nice catch! I thought we needed to keep those two values when I worked
+on it. But the final patch turned out they are only used once. I will
+remove them with version 2 after I hear from you about the other
+comments.
+
+Thank you.
+
+Ping
+
+>> =A0 =A0 =A0 char name[64];
+>> =A0};
 >>
->> Starting an udev rule while modprobe is
->> still running is asking for race conditions.
-> 
-> Not if we write stuff properly.
-> 
+>> @@ -198,7 +205,7 @@ static void parse_touchquery(u8 *data, struct w8=
+001_touch_query *query)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 query->y =3D 1024;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (query->panel_res)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 query->x =3D query->y =3D=
+ (1 << query->panel_res);
+>> - =A0 =A0 =A0 =A0 =A0 =A0 query->panel_res =3D 10;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 query->panel_res =3D W8001_TOUCH_RESOLUTIO=
+N;
+>> =A0 =A0 =A0 }
+>> =A0}
 >>
->> I'm not entirely convinced that this is the bug that Mark is hitting, as
-> 
-> I do not know yet.
-> 
->> rc-core does all needed setups before registering the evdev device. We
->> need the core and the dmesg to be sure about what's happening there.
-> 
-> I will say it again. Your udev rule triggers when you create rcX device.
-> eventX device may apeear 2 hours after that (I could have evdev as a
-> module and blacklisted and load it later manually).
-
-Blacklisting it won't (or shouldn't work).
-
->From rc-main, the registering sequence is:
-
-	dev_set_name(&dev->dev, "rc%ld", dev->devno);
-	dev_set_drvdata(&dev->dev, dev);
-	rc = device_add(&dev->dev);
-	if (rc)
-		return rc;
-
-	rc = ir_setkeytable(dev, rc_map);
-	if (rc)
-		goto out_dev;
-
-	dev->input_dev->dev.parent = &dev->dev;
-	memcpy(&dev->input_dev->id, &dev->input_id, sizeof(dev->input_id));
-	dev->input_dev->phys = dev->input_phys;
-	dev->input_dev->name = dev->input_name;
-	rc = input_register_device(dev->input_dev);
-	if (rc)
-		goto out_table;
-
-rc-main will wait for input_register_device() to finish, so even if you
-blacklist it, rc-core will load it, in order to solve the symbol dependency.
-
-Btw, there's really a race issue there: device_add is happening before
-input_register_device(), so the udev rule will cause troubles.
-
-> You need to split it into 2 separate steps:
-> 
-> 1. Triggers when rcX appears, accesses only rcX and it's parents and
->    does rcX related stuff.
-> 
-> 2. Triggers when eventX appears and loads keymap and what not. Because
->    it is a child of rcX (in  specific case of remotes) it may examine
->    rcX attributes as well.
-
-The fix is probably simpler: we need to change the udev rules to work at
-evdev registration and only if the device is a remote controller. This
-should solve the current issue.
-
->>>> Yet, I agree that udev tries to set devices too fast.
->>>
->>> It tries to set devices exacty when you tell it to do so. It's not like
->>> it goes trolling for random devices is sysfs.
->>>
->>>> It would be better if
->>>> it would wait for a few milisseconds, to reduce the risk of race conditions.
->>>
->>> Gah, I really prefer using properly engineered solutions instead of
->>> adding crutches.
+>> @@ -394,6 +401,8 @@ static int w8001_setup(struct w8001 *w8001)
 >>
->> I agree.
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_X, 0, coor=
+d.x, 0, 0);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, coor=
+d.y, 0, 0);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(dev, ABS_X, W8001_PEN_RE=
+SOLUTION);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(dev, ABS_Y, W8001_PEN_RE=
+SOLUTION);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_PRESSURE, =
+0, coord.pen_pressure, 0, 0);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (coord.tilt_x && coord.tilt_y) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev=
+, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
+>> @@ -411,6 +420,9 @@ static int w8001_setup(struct w8001 *w8001)
+>> =A0 =A0 =A0 =A0* second byte is empty, which indicates touch is not =
+supported.
+>> =A0 =A0 =A0 =A0*/
+>> =A0 =A0 =A0 if (!error && w8001->response[1]) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 u16 touch_res_x =A0=3D touch.panel_res;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 u16 touch_res_y =3D touch.panel_res;
+>> +
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_TOUCH, dev->keybit);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_TOOL_FINGER, dev->keybit);
 >>
->>>>> And this could be easily added to the udev's keymap utility that is
->>>>> fired up when we discover evdevX devices.
->>>>
->>>> Yes, it can, if you add the IR protocol selection on that tool. A remote 
->>>> controller keycode table has both the protocol and the keycodes.
->>>> This basically means to merge 99% of the logic inside ir-keytable into the
->>>> evdev generic tool.
->>>
->>> Or just have an utility producing keymap name and feed it as input to
->>> the generic tools. The way most of utilities work...
+>> @@ -422,10 +434,17 @@ static int w8001_setup(struct w8001 *w8001)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (w8001->max_pen_x && w8001->max_pen_y=
+) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 touch.x =3D w8001->max_p=
+en_x;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 touch.y =3D w8001->max_p=
+en_y;
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* scale resolution as wel=
+l */
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 touch_res_x *=3D w8001->ma=
+x_pen_x / w8001->max_touch_x;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 touch_res_y *=3D w8001->ma=
+x_pen_y / w8001->max_touch_y;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
 >>
->> I don't like the idea of running a some logic at udev that would generate
->> such keymap in runtime just before calling the generic tool. The other
-> 
-> Why? You'd just call something like:
-> 
->       keymap $name `rc-keymap-name -d $name`
-> 
-> where 'keymap' is udev's utility and 'rc-keymap-name' is new utility
-> that incorporates map selection logic currently found in rc-keytable.
-> 
-> It looks like format of the keymaps is compatible between 'keymap' and
-> 'ir-keytable' and metadata that is present in your keymaps will not
-> confuse 'keymap' utility.
-
-The format is, currently compatible. However, we'll likely need to change it
-(or to allow the tool to handle also a different format), due to some reasons:
-	1) Protocol and the device name where it is found by default is
-	   currently a comment;
-	2) We'll need to add a field there specifying the number of the bits
-	   to be used by the keymap table, in order to use the proper length
-	   with _V2 ioctls;
-	3) There are hundreds of keymaps already created for lircd. It
-	   would be nice to support lircd format, in order to make life
-	   easier for those that use lirc.
-
-If you want to add these to the generic tool, that's fine for me, but, IMO, this
-doesn't sound a good idea. There are already specialized tools for other kinds
-of input devices (mouse: gpm; joystick: jstest; etc). It seems a bad idea
-to merge them into the generic tools.
-
-I think it is better to have a tool that just handle one kind of device, but
-does it well, than trying to extend a generic tool to cover all possible
-devices, and adding lots of caveats there for it to handle all the specifics.
-
->> alternative (e. g.) to maintain the RC-protocol dependent keytables separate
->> from the RC protocol used by each table will be a maintenance nightmare.
-> 
-> I do not propose splitting keytables, I propose splittign utilities.
-> ir-keytable is a kitchen sink now. It implements 'keymap', 'evtest' and
-> bucnch of other stuff and would be much cleaner if split apart.
-
-It may be broken into a few utilities, by creating a library with the
-common code. I'll think about that when I have some spare time for it.
-
-Cheers,
-Mauro.
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_X, 0, touc=
+h.x, 0, 0);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_Y, 0, touc=
+h.y, 0, 0);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 /* don't report touch resolution for ST si=
+nce pen resolution
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0* is more important
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+>>
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 switch (touch.sensor_id) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 case 0:
+>> @@ -453,6 +472,8 @@ static int w8001_setup(struct w8001 *w8001)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 0, touch.y, 0, 0);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev=
+, ABS_MT_TOOL_TYPE,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 0, MT_TOOL_MAX, 0, 0);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(dev, ABS=
+_MT_POSITION_X, touch_res_x);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(dev, ABS=
+_MT_POSITION_Y, touch_res_y);
+>>
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 strlcat(w8001->name, " 2=
+=46G", sizeof(w8001->name));
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (w8001->max_pen_x && =
+w8001->max_pen_y)
+>> --
+>> 1.7.3.5
+>>
+>
+> Thanks,
+> Henrik
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

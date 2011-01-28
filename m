@@ -1,66 +1,127 @@
-From: Terry Lambert <tlambert@google.com>
-Subject: Interface for regression testing & input event capture/replay?
-Date: Thu, 27 Jan 2011 11:58:38 -0800
-Message-ID: <AANLkTim5_sFHphygm2enEDFc7GNKd=M0h6hSvT2QeyCP@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] input : wacom - report resolution for ABS_MT events
+Date: Thu, 27 Jan 2011 17:47:25 -0800
+Message-ID: <1296179245-14614-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:22166 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752614Ab1A0T6m (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:60421 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753863Ab1A1Br7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Jan 2011 14:58:42 -0500
-Received: from kpbe20.cbf.corp.google.com (kpbe20.cbf.corp.google.com [172.25.105.84])
-	by smtp-out.google.com with ESMTP id p0RJwe7g010560
-	for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 11:58:40 -0800
-Received: from yic1 (yic1.prod.google.com [10.243.65.129])
-	by kpbe20.cbf.corp.google.com with ESMTP id p0RJwceF027483
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 11:58:39 -0800
-Received: by yic1 with SMTP id 1so793804yic.11
-        for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 11:58:38 -0800 (PST)
+	Thu, 27 Jan 2011 20:47:59 -0500
+Received: by yxt3 with SMTP id 3so869658yxt.19
+        for <linux-input@vger.kernel.org>; Thu, 27 Jan 2011 17:47:59 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-Hi;
+This is mainly required by the serial pen and touch devices since
+both pen and touch are on the same port. Updated the USB ones to
+keep MT event definition consistent among serial and USB devices.
 
-I'm looking for some guidance from Linux/input people...
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c        |    6 ++++++
+ drivers/input/touchscreen/wacom_w8001.c |   23 ++++++++++++++++++++++-
+ 2 files changed, 28 insertions(+), 1 deletions(-)
 
-I've looked through the archives, and around the net a bit, and I
-haven't been able to find anything to capture events from an arbitrary
-set of inputs, and then replay them back to software attached to those
-inputs.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 367fa82..f129440 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1283,6 +1283,12 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 			input_set_abs_params(input_dev, ABS_MT_PRESSURE,
+ 					     0, features->pressure_max,
+ 					     features->pressure_fuzz, 0);
++			input_abs_set_res(input_dev, ABS_MT_POSITION_X,
++				wacom_calculate_touch_res(features->x_max,
++							features->x_phy));
++			input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
++				wacom_calculate_touch_res(features->y_max,
++							features->y_phy));
+ 			input_abs_set_res(input_dev, ABS_X,
+ 				wacom_calculate_touch_res(features->x_max,
+ 							features->x_phy));
+diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+index 5cb8449..f54da5c 100644
+--- a/drivers/input/touchscreen/wacom_w8001.c
++++ b/drivers/input/touchscreen/wacom_w8001.c
+@@ -51,6 +51,11 @@ MODULE_LICENSE("GPL");
+ #define W8001_PKTLEN_TPCCTL	11	/* control packet */
+ #define W8001_PKTLEN_TOUCH2FG	13
+ 
++/* resolution in points/mm */
++#define W8001_PEN_RESOLUTION    100
++#define W8001_TOUCH_RESOLUTION  10
++
++
+ struct w8001_coord {
+ 	u8 rdy;
+ 	u8 tsw;
+@@ -92,6 +97,8 @@ struct w8001 {
+ 	u16 max_touch_y;
+ 	u16 max_pen_x;
+ 	u16 max_pen_y;
++	u16 touch_res_x;
++	u16 touch_res_y;
+ 	char name[64];
+ };
+ 
+@@ -198,7 +205,7 @@ static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
+ 		query->y = 1024;
+ 		if (query->panel_res)
+ 			query->x = query->y = (1 << query->panel_res);
+-		query->panel_res = 10;
++		query->panel_res = W8001_TOUCH_RESOLUTION;
+ 	}
+ }
+ 
+@@ -394,6 +401,8 @@ static int w8001_setup(struct w8001 *w8001)
+ 
+ 		input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
+ 		input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
++		input_abs_set_res(dev, ABS_X, W8001_PEN_RESOLUTION);
++		input_abs_set_res(dev, ABS_Y, W8001_PEN_RESOLUTION);
+ 		input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pressure, 0, 0);
+ 		if (coord.tilt_x && coord.tilt_y) {
+ 			input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
+@@ -411,6 +420,9 @@ static int w8001_setup(struct w8001 *w8001)
+ 	 * second byte is empty, which indicates touch is not supported.
+ 	 */
+ 	if (!error && w8001->response[1]) {
++		u16 touch_res_x  = touch.panel_res;
++		u16 touch_res_y = touch.panel_res;
++
+ 		__set_bit(BTN_TOUCH, dev->keybit);
+ 		__set_bit(BTN_TOOL_FINGER, dev->keybit);
+ 
+@@ -422,10 +434,17 @@ static int w8001_setup(struct w8001 *w8001)
+ 		if (w8001->max_pen_x && w8001->max_pen_y) {
+ 			touch.x = w8001->max_pen_x;
+ 			touch.y = w8001->max_pen_y;
++
++			/* scale resolution as well */
++			touch_res_x *= w8001->max_pen_x / w8001->max_touch_x;
++			touch_res_y *= w8001->max_pen_y / w8001->max_touch_y;
+ 		}
+ 
+ 		input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
+ 		input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
++		/* don't report touch resolution for ST since pen resolution
++		 * is more important
++		 */
+ 
+ 		switch (touch.sensor_id) {
+ 		case 0:
+@@ -453,6 +472,8 @@ static int w8001_setup(struct w8001 *w8001)
+ 						0, touch.y, 0, 0);
+ 			input_set_abs_params(dev, ABS_MT_TOOL_TYPE,
+ 						0, MT_TOOL_MAX, 0, 0);
++			input_abs_set_res(dev, ABS_MT_POSITION_X, touch_res_x);
++			input_abs_set_res(dev, ABS_MT_POSITION_Y, touch_res_y);
+ 
+ 			strlcat(w8001->name, " 2FG", sizeof(w8001->name));
+ 			if (w8001->max_pen_x && w8001->max_pen_y)
+-- 
+1.7.3.5
 
-This would be useful for:
-
-o Regression testing user space algorithms
-o Training software for gesture recognition
-o Tuning drivers for new hardware to correct self-censor undesirable events
-o Probably lots of other things I haven't thought of
-
-The multiple event sources requirement comes from using things like
-keyboard modifier keys to change mouse button behaviours.  The most
-obvious example is probably option-click on Apple hardware with a one
-button mouse.
-
-The basic problems with just opening up /dev/eventX, /dev/eventY, ...
-and listening/injecting are:
-
-o If a piece of software grabs the input, I don't get events
-o If I grab the input, the software I'm testing doesn't get events
-o If neither of us grabs the input, filters apply
-o If the input is grabbed by someone, you can't inject events
-o It won't work if the event consuming software lives in kernel space
-
-The basic problems with using the filter mechanism are:
-
-o Filters are applied after grabs, so if it's grabbed the filter is not invoked
-    (I read the thread introducing filters; this makes sense)
-o You can only have one filter at a time
-    (there might already be one)
-
-Has anyone tried to solve this problem before?  Any suggestions?
-
-Thanks,
--- Terry

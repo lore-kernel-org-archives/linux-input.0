@@ -1,456 +1,192 @@
 From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 1/3] Input: rename hid-drff.c to hid-dr.c
-Date: Fri, 28 Jan 2011 14:50:51 +0300
-Message-ID: <1296215454-2586-2-git-send-email-spbnick@gmail.com>
+Subject: [PATCH 2/3] Input: add support for DragonRise PID 0011 gamepad
+Date: Fri, 28 Jan 2011 14:50:52 +0300
+Message-ID: <1296215454-2586-3-git-send-email-spbnick@gmail.com>
 References: <1296215454-2586-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:59067 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754594Ab1A1LvQ (ORCPT
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:33977 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754749Ab1A1LvR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 06:51:16 -0500
-Received: by eye27 with SMTP id 27so1476100eye.19
-        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 03:51:15 -0800 (PST)
+	Fri, 28 Jan 2011 06:51:17 -0500
+Received: by mail-ew0-f46.google.com with SMTP id 5so1444229ewy.19
+        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 03:51:16 -0800 (PST)
 In-Reply-To: <1296215454-2586-1-git-send-email-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Vladislav Naumov <vnaum@vnaum.com>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Rename drivers/hid/hid-drff.c (a DragonRise Inc. force feedback gamepad driver)
-to driver/hid/hid-dr.c.
-
-This prepares it for addition of support for another gamepad, without force
-feedback.
+Add support for DragonRise Inc. gamepad with USB PID 0x0011 by fixing its report
+descriptor. This mainly removes spurious axis.
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 ---
- drivers/hid/Makefile   |    2 +-
- drivers/hid/hid-dr.c   |  197 ++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-drff.c |  197 ------------------------------------------------
- 3 files changed, 198 insertions(+), 198 deletions(-)
- create mode 100644 drivers/hid/hid-dr.c
- delete mode 100644 drivers/hid/hid-drff.c
+ drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-dr.c   |  117 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 117 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 6efc2a0..bb744e6 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -34,7 +34,7 @@ obj-$(CONFIG_HID_CANDO)		+= hid-cando.o
- obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
- obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
--obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
-+obj-$(CONFIG_HID_DRAGONRISE)	+= hid-dr.o
- obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
- obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
- obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index d678cf3..75af1f8 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1328,6 +1328,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
 diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
-new file mode 100644
-index 0000000..afcf3d6
---- /dev/null
+index afcf3d6..61eece4 100644
+--- a/drivers/hid/hid-dr.c
 +++ b/drivers/hid/hid-dr.c
-@@ -0,0 +1,197 @@
+@@ -145,6 +145,110 @@ static inline int drff_init(struct hid_device *hid)
+ }
+ #endif
+ 
 +/*
-+ * Force feedback support for DragonRise Inc. game controllers
++ * The original descriptor of joystick with PID 0x0011, represented by DVTech PC
++ * JS19. It seems both copied from another device and a result of confusion
++ * either about the specification or about the program used to create the
++ * descriptor. In any case, it's a wonder it works on Windows.
 + *
-+ * From what I have gathered, these devices are mass produced in China and are
-+ * distributed under several vendors. They often share the same design as
-+ * the original PlayStation DualShock controller.
-+ *
-+ * 0079:0006 "DragonRise Inc.   Generic   USB  Joystick  "
-+ *  - tested with a Tesun USB-703 game controller.
-+ *
-+ * Copyright (c) 2009 Richard Walmsley <richwalm@gmail.com>
++ *  Usage Page (Desktop),             ; Generic desktop controls (01h)
++ *  Usage (Joystik),                  ; Joystik (04h, application collection)
++ *  Collection (Application),
++ *    Collection (Logical),
++ *      Report Size (8),
++ *      Report Count (5),
++ *      Logical Minimum (0),
++ *      Logical Maximum (255),
++ *      Physical Minimum (0),
++ *      Physical Maximum (255),
++ *      Usage (X),                    ; X (30h, dynamic value)
++ *      Usage (X),                    ; X (30h, dynamic value)
++ *      Usage (X),                    ; X (30h, dynamic value)
++ *      Usage (X),                    ; X (30h, dynamic value)
++ *      Usage (Y),                    ; Y (31h, dynamic value)
++ *      Input (Variable),
++ *      Report Size (4),
++ *      Report Count (1),
++ *      Logical Maximum (7),
++ *      Physical Maximum (315),
++ *      Unit (Degrees),
++ *      Usage (00h),
++ *      Input (Variable, Null State),
++ *      Unit,
++ *      Report Size (1),
++ *      Report Count (10),
++ *      Logical Maximum (1),
++ *      Physical Maximum (1),
++ *      Usage Page (Button),          ; Button (09h)
++ *      Usage Minimum (01h),
++ *      Usage Maximum (0Ah),
++ *      Input (Variable),
++ *      Usage Page (FF00h),           ; FF00h, vendor-defined
++ *      Report Size (1),
++ *      Report Count (10),
++ *      Logical Maximum (1),
++ *      Physical Maximum (1),
++ *      Usage (01h),
++ *      Input (Variable),
++ *    End Collection,
++ *    Collection (Logical),
++ *      Report Size (8),
++ *      Report Count (4),
++ *      Physical Maximum (255),
++ *      Logical Maximum (255),
++ *      Usage (02h),
++ *      Output (Variable),
++ *    End Collection,
++ *  End Collection
 + */
 +
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
++/* Size of the original descriptor of the PID 0x0011 joystick */
++#define PID0011_RDESC_ORIG_SIZE	101
 +
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/usb.h>
-+#include <linux/hid.h>
-+
-+#include "hid-ids.h"
-+
-+#ifdef CONFIG_DRAGONRISE_FF
-+#include "usbhid/usbhid.h"
-+
-+struct drff_device {
-+	struct hid_report *report;
++/* Fixed report descriptor for PID 0x011 joystick */
++static __u8 pid0011_rdesc_fixed[] = {
++	0x05, 0x01,         /*  Usage Page (Desktop),           */
++	0x09, 0x04,         /*  Usage (Joystik),                */
++	0xA1, 0x01,         /*  Collection (Application),       */
++	0xA1, 0x02,         /*      Collection (Logical),       */
++	0x14,               /*          Logical Minimum (0),    */
++	0x75, 0x08,         /*          Report Size (8),        */
++	0x95, 0x03,         /*          Report Count (3),       */
++	0x81, 0x01,         /*          Input (Constant),       */
++	0x26, 0xFF, 0x00,   /*          Logical Maximum (255),  */
++	0x95, 0x02,         /*          Report Count (2),       */
++	0x09, 0x30,         /*          Usage (X),              */
++	0x09, 0x31,         /*          Usage (Y),              */
++	0x81, 0x02,         /*          Input (Variable),       */
++	0x75, 0x01,         /*          Report Size (1),        */
++	0x95, 0x04,         /*          Report Count (4),       */
++	0x81, 0x01,         /*          Input (Constant),       */
++	0x25, 0x01,         /*          Logical Maximum (1),    */
++	0x95, 0x0A,         /*          Report Count (10),      */
++	0x05, 0x09,         /*          Usage Page (Button),    */
++	0x19, 0x01,         /*          Usage Minimum (01h),    */
++	0x29, 0x0A,         /*          Usage Maximum (0Ah),    */
++	0x81, 0x02,         /*          Input (Variable),       */
++	0x95, 0x0A,         /*          Report Count (10),      */
++	0x81, 0x01,         /*          Input (Constant),       */
++	0xC0,               /*      End Collection,             */
++	0xC0                /*  End Collection                  */
 +};
 +
-+static int drff_play(struct input_dev *dev, void *data,
-+				 struct ff_effect *effect)
++static __u8 *dr_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++				unsigned int *rsize)
 +{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct drff_device *drff = data;
-+	int strong, weak;
-+
-+	strong = effect->u.rumble.strong_magnitude;
-+	weak = effect->u.rumble.weak_magnitude;
-+
-+	dbg_hid("called with 0x%04x 0x%04x", strong, weak);
-+
-+	if (strong || weak) {
-+		strong = strong * 0xff / 0xffff;
-+		weak = weak * 0xff / 0xffff;
-+
-+		/* While reverse engineering this device, I found that when
-+		   this value is set, it causes the strong rumble to function
-+		   at a near maximum speed, so we'll bypass it. */
-+		if (weak == 0x0a)
-+			weak = 0x0b;
-+
-+		drff->report->field[0]->value[0] = 0x51;
-+		drff->report->field[0]->value[1] = 0x00;
-+		drff->report->field[0]->value[2] = weak;
-+		drff->report->field[0]->value[4] = strong;
-+		usbhid_submit_report(hid, drff->report, USB_DIR_OUT);
-+
-+		drff->report->field[0]->value[0] = 0xfa;
-+		drff->report->field[0]->value[1] = 0xfe;
-+	} else {
-+		drff->report->field[0]->value[0] = 0xf3;
-+		drff->report->field[0]->value[1] = 0x00;
++	switch (hdev->product) {
++	case 0x0011:
++		if (*rsize == PID0011_RDESC_ORIG_SIZE) {
++			rdesc = pid0011_rdesc_fixed;
++			*rsize = sizeof(pid0011_rdesc_fixed);
++		}
++		break;
 +	}
-+
-+	drff->report->field[0]->value[2] = 0x00;
-+	drff->report->field[0]->value[4] = 0x00;
-+	dbg_hid("running with 0x%02x 0x%02x", strong, weak);
-+	usbhid_submit_report(hid, drff->report, USB_DIR_OUT);
-+
-+	return 0;
++	return rdesc;
 +}
 +
-+static int drff_init(struct hid_device *hid)
-+{
-+	struct drff_device *drff;
-+	struct hid_report *report;
-+	struct hid_input *hidinput = list_first_entry(&hid->inputs,
-+						struct hid_input, list);
-+	struct list_head *report_list =
-+			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
-+	struct input_dev *dev = hidinput->input;
-+	int error;
-+
-+	if (list_empty(report_list)) {
-+		hid_err(hid, "no output reports found\n");
-+		return -ENODEV;
-+	}
-+
-+	report = list_first_entry(report_list, struct hid_report, list);
-+	if (report->maxfield < 1) {
-+		hid_err(hid, "no fields in the report\n");
-+		return -ENODEV;
-+	}
-+
-+	if (report->field[0]->report_count < 7) {
-+		hid_err(hid, "not enough values in the field\n");
-+		return -ENODEV;
-+	}
-+
-+	drff = kzalloc(sizeof(struct drff_device), GFP_KERNEL);
-+	if (!drff)
-+		return -ENOMEM;
-+
-+	set_bit(FF_RUMBLE, dev->ffbit);
-+
-+	error = input_ff_create_memless(dev, drff, drff_play);
-+	if (error) {
-+		kfree(drff);
-+		return error;
-+	}
-+
-+	drff->report = report;
-+	drff->report->field[0]->value[0] = 0xf3;
-+	drff->report->field[0]->value[1] = 0x00;
-+	drff->report->field[0]->value[2] = 0x00;
-+	drff->report->field[0]->value[3] = 0x00;
-+	drff->report->field[0]->value[4] = 0x00;
-+	drff->report->field[0]->value[5] = 0x00;
-+	drff->report->field[0]->value[6] = 0x00;
-+	usbhid_submit_report(hid, drff->report, USB_DIR_OUT);
-+
-+	hid_info(hid, "Force Feedback for DragonRise Inc. "
-+		 "game controllers by Richard Walmsley <richwalm@gmail.com>\n");
-+
-+	return 0;
-+}
-+#else
-+static inline int drff_init(struct hid_device *hid)
-+{
-+	return 0;
-+}
-+#endif
-+
-+static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int ret;
-+
-+	dev_dbg(&hdev->dev, "DragonRise Inc. HID hardware probe...");
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed\n");
-+		goto err;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		goto err;
-+	}
-+
-+	drff_init(hdev);
-+
-+	return 0;
-+err:
-+	return ret;
-+}
-+
-+static const struct hid_device_id dr_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006),  },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, dr_devices);
-+
-+static struct hid_driver dr_driver = {
-+	.name = "dragonrise",
-+	.id_table = dr_devices,
-+	.probe = dr_probe,
-+};
-+
-+static int __init dr_init(void)
-+{
-+	return hid_register_driver(&dr_driver);
-+}
-+
-+static void __exit dr_exit(void)
-+{
-+	hid_unregister_driver(&dr_driver);
-+}
-+
-+module_init(dr_init);
-+module_exit(dr_exit);
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-drff.c b/drivers/hid/hid-drff.c
-deleted file mode 100644
-index afcf3d6..0000000
---- a/drivers/hid/hid-drff.c
-+++ /dev/null
-@@ -1,197 +0,0 @@
--/*
-- * Force feedback support for DragonRise Inc. game controllers
-- *
-- * From what I have gathered, these devices are mass produced in China and are
-- * distributed under several vendors. They often share the same design as
-- * the original PlayStation DualShock controller.
-- *
-- * 0079:0006 "DragonRise Inc.   Generic   USB  Joystick  "
-- *  - tested with a Tesun USB-703 game controller.
-- *
-- * Copyright (c) 2009 Richard Walmsley <richwalm@gmail.com>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-- */
--
--#include <linux/input.h>
--#include <linux/slab.h>
--#include <linux/usb.h>
--#include <linux/hid.h>
--
--#include "hid-ids.h"
--
--#ifdef CONFIG_DRAGONRISE_FF
--#include "usbhid/usbhid.h"
--
--struct drff_device {
--	struct hid_report *report;
--};
--
--static int drff_play(struct input_dev *dev, void *data,
--				 struct ff_effect *effect)
--{
--	struct hid_device *hid = input_get_drvdata(dev);
--	struct drff_device *drff = data;
--	int strong, weak;
--
--	strong = effect->u.rumble.strong_magnitude;
--	weak = effect->u.rumble.weak_magnitude;
--
--	dbg_hid("called with 0x%04x 0x%04x", strong, weak);
--
--	if (strong || weak) {
--		strong = strong * 0xff / 0xffff;
--		weak = weak * 0xff / 0xffff;
--
--		/* While reverse engineering this device, I found that when
--		   this value is set, it causes the strong rumble to function
--		   at a near maximum speed, so we'll bypass it. */
--		if (weak == 0x0a)
--			weak = 0x0b;
--
--		drff->report->field[0]->value[0] = 0x51;
--		drff->report->field[0]->value[1] = 0x00;
--		drff->report->field[0]->value[2] = weak;
--		drff->report->field[0]->value[4] = strong;
--		usbhid_submit_report(hid, drff->report, USB_DIR_OUT);
--
--		drff->report->field[0]->value[0] = 0xfa;
--		drff->report->field[0]->value[1] = 0xfe;
--	} else {
--		drff->report->field[0]->value[0] = 0xf3;
--		drff->report->field[0]->value[1] = 0x00;
--	}
--
--	drff->report->field[0]->value[2] = 0x00;
--	drff->report->field[0]->value[4] = 0x00;
--	dbg_hid("running with 0x%02x 0x%02x", strong, weak);
--	usbhid_submit_report(hid, drff->report, USB_DIR_OUT);
--
--	return 0;
--}
--
--static int drff_init(struct hid_device *hid)
--{
--	struct drff_device *drff;
--	struct hid_report *report;
--	struct hid_input *hidinput = list_first_entry(&hid->inputs,
--						struct hid_input, list);
--	struct list_head *report_list =
--			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
--	struct input_dev *dev = hidinput->input;
--	int error;
--
--	if (list_empty(report_list)) {
--		hid_err(hid, "no output reports found\n");
--		return -ENODEV;
--	}
--
--	report = list_first_entry(report_list, struct hid_report, list);
--	if (report->maxfield < 1) {
--		hid_err(hid, "no fields in the report\n");
--		return -ENODEV;
--	}
--
--	if (report->field[0]->report_count < 7) {
--		hid_err(hid, "not enough values in the field\n");
--		return -ENODEV;
--	}
--
--	drff = kzalloc(sizeof(struct drff_device), GFP_KERNEL);
--	if (!drff)
--		return -ENOMEM;
--
--	set_bit(FF_RUMBLE, dev->ffbit);
--
--	error = input_ff_create_memless(dev, drff, drff_play);
--	if (error) {
--		kfree(drff);
--		return error;
--	}
--
--	drff->report = report;
--	drff->report->field[0]->value[0] = 0xf3;
--	drff->report->field[0]->value[1] = 0x00;
--	drff->report->field[0]->value[2] = 0x00;
--	drff->report->field[0]->value[3] = 0x00;
--	drff->report->field[0]->value[4] = 0x00;
--	drff->report->field[0]->value[5] = 0x00;
--	drff->report->field[0]->value[6] = 0x00;
--	usbhid_submit_report(hid, drff->report, USB_DIR_OUT);
--
--	hid_info(hid, "Force Feedback for DragonRise Inc. "
--		 "game controllers by Richard Walmsley <richwalm@gmail.com>\n");
--
--	return 0;
--}
--#else
--static inline int drff_init(struct hid_device *hid)
--{
--	return 0;
--}
--#endif
--
--static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
--{
--	int ret;
--
--	dev_dbg(&hdev->dev, "DragonRise Inc. HID hardware probe...");
--
--	ret = hid_parse(hdev);
--	if (ret) {
--		hid_err(hdev, "parse failed\n");
--		goto err;
--	}
--
--	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
--	if (ret) {
--		hid_err(hdev, "hw start failed\n");
--		goto err;
--	}
--
+ static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret;
+@@ -163,7 +267,16 @@ static int dr_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err;
+ 	}
+ 
 -	drff_init(hdev);
--
--	return 0;
--err:
--	return ret;
--}
--
--static const struct hid_device_id dr_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006),  },
--	{ }
--};
--MODULE_DEVICE_TABLE(hid, dr_devices);
--
--static struct hid_driver dr_driver = {
--	.name = "dragonrise",
--	.id_table = dr_devices,
--	.probe = dr_probe,
--};
--
--static int __init dr_init(void)
--{
--	return hid_register_driver(&dr_driver);
--}
--
--static void __exit dr_exit(void)
--{
--	hid_unregister_driver(&dr_driver);
--}
--
--module_init(dr_init);
--module_exit(dr_exit);
--MODULE_LICENSE("GPL");
++	switch (hdev->product) {
++	case 0x0006:
++		ret = drff_init(hdev);
++		if (ret) {
++			dev_err(&hdev->dev, "force feedback init failed\n");
++			hid_hw_stop(hdev);
++			goto err;
++		}
++		break;
++	}
+ 
+ 	return 0;
+ err:
+@@ -172,6 +285,7 @@ err:
+ 
+ static const struct hid_device_id dr_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006),  },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011),  },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, dr_devices);
+@@ -179,6 +293,7 @@ MODULE_DEVICE_TABLE(hid, dr_devices);
+ static struct hid_driver dr_driver = {
+ 	.name = "dragonrise",
+ 	.id_table = dr_devices,
++	.report_fixup = dr_report_fixup,
+ 	.probe = dr_probe,
+ };
+ 
 -- 
 1.7.2.3
 

@@ -1,112 +1,63 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH 2/2] hid-multitouch: introduce IrTouch Infrared USB device
-Date: Fri, 28 Jan 2011 18:59:13 +0100
-Message-ID: <AANLkTi=XKTdOBGcG8oo49=yPvSnsH5CpCsfhwwedm0eT@mail.gmail.com>
-References: <1296230680-2871-1-git-send-email-benjamin.tissoires@enac.fr>
-	<1296230680-2871-2-git-send-email-benjamin.tissoires@enac.fr>
-	<20110128172139.GB2586@polaris.bitmath.org>
+Subject: Re: [RFC 1/2] input: mt: Add method to extract the MT slot state
+Date: Fri, 28 Jan 2011 19:10:34 +0100
+Message-ID: <AANLkTikM-DguswOb6Hv5jgkrirfFf+MHTJgK_Xk45gz5@mail.gmail.com>
+References: <1296124547-3323-1-git-send-email-benjamin.tissoires@enac.fr>
+	<1296124547-3323-2-git-send-email-benjamin.tissoires@enac.fr>
+	<20110127120603.GB15626@polaris.bitmath.org>
+	<AANLkTim7DbxhEO7vHPFcC1PFf=d2mSEyL+wurzUQa0pg@mail.gmail.com>
+	<20110128173355.GD2586@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:39592 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751483Ab1A1R7O convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 12:59:14 -0500
-In-Reply-To: <20110128172139.GB2586@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110128173355.GD2586@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pingc@wacom.com>, Jiri Kosina <jkosina@suse.cz>, Chris Bagwell <chris@cnpbagwell.com>, Rafi Rubin <rafi@seas.upenn.edu>, Stephane Chatty <chatty@lii-enac.fr>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 28, 2011 at 18:21, Henrik Rydberg <rydberg@euromail.se> wro=
-te:
-> On Fri, Jan 28, 2011 at 05:04:40PM +0100, Benjamin Tissoires wrote:
->> The product id is the 42 inches one. I don't know if they have
->> other product id for the other size, or if it is a per-size product =
-id.
+On Fri, Jan 28, 2011 at 18:33, Henrik Rydberg <rydberg@euromail.se> wrote:
+> On Thu, Jan 27, 2011 at 01:49:18PM +0100, Benjamin Tissoires wrote:
+>> Hi Henrik,
 >>
->> Tested-by: Victor Zhuk <v.zhuk@acs-ltd.ru>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
->> ---
+>> On Thu, Jan 27, 2011 at 13:06, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> > Hi Benjamin,
+>> >
+>> > On Thu, Jan 27, 2011 at 11:35:46AM +0100, Benjamin Tissoires wrote:
+>> >> This patch adds the function input_mt_get_abs_value(), which may be
+>> >
+>> > Ehm, input_mt_get_absinfo?
+>>
+>> In fact, the idea was to put this on the table again ;). I have no
+>> idea of what is the right think to do in such case.
+>> So I'll take all comments.
+>>
+>> >
+>> >> used to extract the current state of the MT slots.
+>> >>
+>> >> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+>> >
+>> > I had rather re-add this myself, thanks.
+>>
+>> That was my question. Plus I had a subliminal message in which I
+>> intend you to take the drive on this work. ;)
 >
-> The canonical patch description presents the reason for the change,
-> and what the patch does (not necessarily how).
+> Thanks for the patches, Benjamin, perhaps they do need a bit of
+> rewrite or a new ioctl. We will see what happens.
+>
 
-It was just to keep trace of the kind of display it was. As Florian
-told the 63" does not have the same PID but not also the same
-protocol.
-Otherwise, we can also change the name of the define, but I'm not sure
-on the rule to apply here.
+Today  I found a bug in these 2 patches: they send garbage with
+devices that use protocol A.
+This is definitely a bad idea to send the input_absinfo.
 
-Thanks,
+In addition to that, using the original behavior (which seems better)
+does not seems to add sth in regard to input_mt_get_value.
+It would just add some guards that can be resumed in just a test:
+(code >= ABS_MT_FIRST && code <= ABS_MT_LAST && dev->mt &&
+	slot >= 0 && slot < dev->mtsize)
+
+Henrik, if you want to introduce the new IOCTL, feel free, I don't
+need it right now.
+
+Cheers,
 Benjamin
-
->
->> =A0drivers/hid/Kconfig =A0 =A0 =A0 =A0 =A0| =A0 =A01 +
->> =A0drivers/hid/hid-ids.h =A0 =A0 =A0 =A0| =A0 =A03 +++
->> =A0drivers/hid/hid-multitouch.c | =A0 =A05 +++++
->> =A03 files changed, 9 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->> index 24cca2f..a0b117d 100644
->> --- a/drivers/hid/Kconfig
->> +++ b/drivers/hid/Kconfig
->> @@ -304,6 +304,7 @@ config HID_MULTITOUCH
->> =A0 =A0 =A0 =A0 Say Y here if you have one of the following devices:
->> =A0 =A0 =A0 =A0 - Cypress TrueTouch panels
->> =A0 =A0 =A0 =A0 - Hanvon dual touch panels
->> + =A0 =A0 =A0 - IrTouch Infrared USB panels
->> =A0 =A0 =A0 =A0 - Pixcir dual touch panels
->> =A0 =A0 =A0 =A0 - 'Sensing Win7-TwoFinger' panel by GeneralTouch
->>
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index 92a0d61..b1dd7ad 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -333,6 +333,9 @@
->> =A0#define USB_VENDOR_ID_IMATION =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00x07=
-18
->> =A0#define USB_DEVICE_ID_DISC_STAKKA =A0 =A00xd000
->>
->> +#define USB_VENDOR_ID_IRTOUCHSYSTEMS 0x6615
->> +#define USB_DEVICE_ID_IRTOUCH_INFRARED_USB =A0 0x0070
->> +
->> =A0#define USB_VENDOR_ID_JESS =A0 =A0 =A0 =A0 =A0 0x0c45
->> =A0#define USB_DEVICE_ID_JESS_YUREX =A0 =A0 0x1010
->>
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitou=
-ch.c
->> index ffe2a76..1629296 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -475,6 +475,11 @@ static const struct hid_device_id mt_devices[] =
-=3D {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOU=
-CH,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_GENERAL_TO=
-UCH_WIN7_TWOFINGERS) },
->>
->> + =A0 =A0 /* IRTOUCH panels */
->> + =A0 =A0 { .driver_data =3D MT_CLS_DUAL_INRANGE_CONTACTID,
->> + =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEM=
-S,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_IRTOUCH_INFR=
-ARED_USB) },
->> +
->> =A0 =A0 =A0 /* PixCir-based panels */
->> =A0 =A0 =A0 { .driver_data =3D MT_CLS_DUAL_INRANGE_CONTACTID,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
->> --
->> 1.7.3.4
->>
->
-> Thanks,
-> Henrik
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

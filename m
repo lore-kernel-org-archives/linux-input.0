@@ -1,85 +1,160 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] hid-multitouch: introduce IrTouch Infrared USB device
-Date: Fri, 28 Jan 2011 18:21:39 +0100
-Message-ID: <20110128172139.GB2586@polaris.bitmath.org>
-References: <1296230680-2871-1-git-send-email-benjamin.tissoires@enac.fr>
- <1296230680-2871-2-git-send-email-benjamin.tissoires@enac.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
+Date: Fri, 28 Jan 2011 09:33:05 -0800
+Message-ID: <20110128173305.GC6252@core.coreip.homeip.net>
+References: <20110127021227.GA29709@core.coreip.homeip.net>
+ <4D40E41D.2030003@teksavvy.com>
+ <20110127063815.GA29924@core.coreip.homeip.net>
+ <4D414928.80801@redhat.com>
+ <20110127172128.GA19672@core.coreip.homeip.net>
+ <4D41C071.2090201@redhat.com>
+ <20110128093922.GA3357@core.coreip.homeip.net>
+ <4D42AECE.3020402@redhat.com>
+ <20110128164057.GA6252@core.coreip.homeip.net>
+ <4D42F686.8010104@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:41291 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752101Ab1A1RVG (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:40138 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751409Ab1A1RdS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 12:21:06 -0500
+	Fri, 28 Jan 2011 12:33:18 -0500
 Content-Disposition: inline
-In-Reply-To: <1296230680-2871-2-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <4D42F686.8010104@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Mark Lord <kernel@teksavvy.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Fri, Jan 28, 2011 at 05:04:40PM +0100, Benjamin Tissoires wrote:
-> The product id is the 42 inches one. I don't know if they have
-> other product id for the other size, or if it is a per-size product id.
+On Fri, Jan 28, 2011 at 03:01:58PM -0200, Mauro Carvalho Chehab wrote:
+> Em 28-01-2011 14:40, Dmitry Torokhov escreveu:
+> > On Fri, Jan 28, 2011 at 09:55:58AM -0200, Mauro Carvalho Chehab wrote:
 > 
-> Tested-by: Victor Zhuk <v.zhuk@acs-ltd.ru>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ---
-
-The canonical patch description presents the reason for the change,
-and what the patch does (not necessarily how).
-
->  drivers/hid/Kconfig          |    1 +
->  drivers/hid/hid-ids.h        |    3 +++
->  drivers/hid/hid-multitouch.c |    5 +++++
->  3 files changed, 9 insertions(+), 0 deletions(-)
+> >> The rc-core register (and the corresponding input register) is done when
+> >> the device detected a remote controller, so, it should be safe to register
+> >> on that point. If not, IMHO, there's a bug somewhere. 
+> > 
+> > It is not a matter of safe or unsafe registration. Registration is fine.
+> > The problem is that with the current set up is that utility is fired
+> > when trunk of [sub]tree is created, but the utility wants to operate on
+> > leaves which may not be there yet.
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 24cca2f..a0b117d 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -304,6 +304,7 @@ config HID_MULTITOUCH
->  	  Say Y here if you have one of the following devices:
->  	  - Cypress TrueTouch panels
->  	  - Hanvon dual touch panels
-> +	  - IrTouch Infrared USB panels
->  	  - Pixcir dual touch panels
->  	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
->  
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 92a0d61..b1dd7ad 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -333,6 +333,9 @@
->  #define USB_VENDOR_ID_IMATION		0x0718
->  #define USB_DEVICE_ID_DISC_STAKKA	0xd000
->  
-> +#define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
-> +#define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
-> +
->  #define USB_VENDOR_ID_JESS		0x0c45
->  #define USB_DEVICE_ID_JESS_YUREX	0x1010
->  
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index ffe2a76..1629296 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -475,6 +475,11 @@ static const struct hid_device_id mt_devices[] = {
->  		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
->  			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
->  
-> +	/* IRTOUCH panels */
-> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
-> +		HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
-> +			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
-> +
->  	/* PixCir-based panels */
->  	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
->  		HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
-> -- 
-> 1.7.3.4
+> I'm not an udev expert. Is there a udev event that hits only after having
+> the driver completely loaded?
+
+Define completely loaded? For a PCI SCSI controller does fully loaded
+mean all attached devices are discovered and registered with block layer?
+For a wireless NIC does it mean that it assocuated with an AP? What if
+you have more than one device that driver serves?
+
+So teh answer is no and there should not be.
+
+>
+> Starting an udev rule while modprobe is
+> still running is asking for race conditions.
+
+Not if we write stuff properly.
+
+> 
+> I'm not entirely convinced that this is the bug that Mark is hitting, as
+
+I do not know yet.
+
+> rc-core does all needed setups before registering the evdev device. We
+> need the core and the dmesg to be sure about what's happening there.
+
+I will say it again. Your udev rule triggers when you create rcX device.
+eventX device may apeear 2 hours after that (I could have evdev as a
+module and blacklisted and load it later manually).
+
+You need to split it into 2 separate steps:
+
+1. Triggers when rcX appears, accesses only rcX and it's parents and
+   does rcX related stuff.
+
+2. Triggers when eventX appears and loads keymap and what not. Because
+   it is a child of rcX (in  specific case of remotes) it may examine
+   rcX attributes as well.
+
+> 
+> >> Yet, I agree that udev tries to set devices too fast.
+> > 
+> > It tries to set devices exacty when you tell it to do so. It's not like
+> > it goes trolling for random devices is sysfs.
+> > 
+> >> It would be better if
+> >> it would wait for a few milisseconds, to reduce the risk of race conditions.
+> > 
+> > Gah, I really prefer using properly engineered solutions instead of
+> > adding crutches.
+> 
+> I agree.
+> 
+> >>> And this could be easily added to the udev's keymap utility that is
+> >>> fired up when we discover evdevX devices.
+> >>
+> >> Yes, it can, if you add the IR protocol selection on that tool. A remote 
+> >> controller keycode table has both the protocol and the keycodes.
+> >> This basically means to merge 99% of the logic inside ir-keytable into the
+> >> evdev generic tool.
+> > 
+> > Or just have an utility producing keymap name and feed it as input to
+> > the generic tools. The way most of utilities work...
+> 
+> I don't like the idea of running a some logic at udev that would generate
+> such keymap in runtime just before calling the generic tool. The other
+
+Why? You'd just call something like:
+
+      keymap $name `rc-keymap-name -d $name`
+
+where 'keymap' is udev's utility and 'rc-keymap-name' is new utility
+that incorporates map selection logic currently found in rc-keytable.
+
+It looks like format of the keymaps is compatible between 'keymap' and
+'ir-keytable' and metadata that is present in your keymaps will not
+confuse 'keymap' utility.
+
+> alternative (e. g.) to maintain the RC-protocol dependent keytables separate
+> from the RC protocol used by each table will be a maintenance nightmare.
+
+I do not propose splitting keytables, I propose splittign utilities.
+ir-keytable is a kitchen sink now. It implements 'keymap', 'evtest' and
+bucnch of other stuff and would be much cleaner if split apart.
+
+> 
+> >>>> Also, I'm currently working on a way to map media keys for remote controllers 
+> >>>> into X11 (basically, mapping them into the keyspace between 8-255, passing 
+> >>>> through Xorg evdev.c, and then mapping back into some X11 symbols). This way,
+> >>>> we don't need to violate the X11 protocol. (Yeah, I know this is hacky, but
+> >>>> while X11 cannot pass the full evdev keycode, at least the Remote Controllers
+> >>>> will work). This probably means that we may need to add some DBus logic
+> >>>> inside ir-keytable, when called via udev, to allow it to announce to X11.
+> >>>
+> >>> The same issue is present with other types of input devices (multimedia
+> >>> keyboards emitting codes that X can't consume) and so it again would
+> >>> make sense to enhance udev's utility instead of confining it all to
+> >>> ir-keytable.
+> >>
+> >> I agree with you, but I'm not sure if we can find a solution that will
+> >> work for both RC and media keyboards, as X11 evdev just maps keyboards
+> >> on the 8-255 range. I was thinking to add a detection there for RC, and
+> >> use a separate map for them, as RC don't need most of the normal keyboard
+> >> keys.
+> > 
+> > Well, there will always be clashes - there is reason why evdev goes
+> > beyond 255 keycodes...
+> 
+> Yeah. The most appropriate fix would be for X to just use the full evdev
+> keycode range. However, I'm not seeing any indication that such change
+> will happen soon. Not sure if there are some news about it at LCA, as
+> there were one speech about this subject there.
 > 
 
-Thanks,
-Henrik
+Would be nice...
+
+Thanks.
+
+-- 
+Dmitry

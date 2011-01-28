@@ -1,125 +1,82 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/2] hid-multitouch: work on default classes and renaming
- of classes
-Date: Fri, 28 Jan 2011 18:18:52 +0100
-Message-ID: <20110128171852.GA2586@polaris.bitmath.org>
+Subject: Re: [PATCH 2/2] hid-multitouch: introduce IrTouch Infrared USB device
+Date: Fri, 28 Jan 2011 18:21:39 +0100
+Message-ID: <20110128172139.GB2586@polaris.bitmath.org>
 References: <1296230680-2871-1-git-send-email-benjamin.tissoires@enac.fr>
+ <1296230680-2871-2-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:34038 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753964Ab1A1RS5 (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:41291 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752101Ab1A1RVG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 12:18:57 -0500
+	Fri, 28 Jan 2011 12:21:06 -0500
 Content-Disposition: inline
-In-Reply-To: <1296230680-2871-1-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <1296230680-2871-2-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
-
-> The safest quirk for a device (the one that works out of the box for
-> most of them) is the MT_QUIRK_NOT_SEEN_MEANS_UP. Indeed, it does not
-> make any assumption on the device. When adding a new device, we can
-> easily test it against MT_CLS_DEFAULT, and then optimize it with other
-> quirks: that's why no device use MT_CLS_DEFAULT right now.
+On Fri, Jan 28, 2011 at 05:04:40PM +0100, Benjamin Tissoires wrote:
+> The product id is the 42 inches one. I don't know if they have
+> other product id for the other size, or if it is a per-size product id.
 > 
-> This patch introduce also MT_CLS_DUAL_DEFAULT which has the same purpose
-> than MT_CLS_DEFAULT, but for dual touch panels.
-
-But it is used anywhere?
- 
-> Finally, the patch renames MT_CLS_DUAL1 to MT_CLS_DUAL_INRANGE_CONTACTID
-> and MT_CLS_DUAL2 to MT_CLS_DUAL_INRANGE_CONTACTNUMBER for better
-> readability.
-> 
+> Tested-by: Victor Zhuk <v.zhuk@acs-ltd.ru>
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 > ---
 
-The patch description and the content lacks a certain
-distinctness. Please single out janitory actions into a separate
-patch, or, if possible, skip it altogether.
+The canonical patch description presents the reason for the change,
+and what the patch does (not necessarily how).
 
->  drivers/hid/hid-multitouch.c |   25 +++++++++++++++----------
->  1 files changed, 15 insertions(+), 10 deletions(-)
+>  drivers/hid/Kconfig          |    1 +
+>  drivers/hid/hid-ids.h        |    3 +++
+>  drivers/hid/hid-multitouch.c |    5 +++++
+>  3 files changed, 9 insertions(+), 0 deletions(-)
 > 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 24cca2f..a0b117d 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -304,6 +304,7 @@ config HID_MULTITOUCH
+>  	  Say Y here if you have one of the following devices:
+>  	  - Cypress TrueTouch panels
+>  	  - Hanvon dual touch panels
+> +	  - IrTouch Infrared USB panels
+>  	  - Pixcir dual touch panels
+>  	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
+>  
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 92a0d61..b1dd7ad 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -333,6 +333,9 @@
+>  #define USB_VENDOR_ID_IMATION		0x0718
+>  #define USB_DEVICE_ID_DISC_STAKKA	0xd000
+>  
+> +#define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
+> +#define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
+> +
+>  #define USB_VENDOR_ID_JESS		0x0c45
+>  #define USB_DEVICE_ID_JESS_YUREX	0x1010
+>  
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 07d3183..ffe2a76 100644
+> index ffe2a76..1629296 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -24,6 +24,7 @@
->  
->  
->  MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
-> +MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
-
-Adding this is fine, based on your prior contributions. Perhaps it
-should be motivated as such in a separate patch instead.
-
->  MODULE_DESCRIPTION("HID multitouch panels");
->  MODULE_LICENSE("GPL");
->  
-> @@ -65,10 +66,11 @@ struct mt_class {
->  };
->  
->  /* classes of device behavior */
-> -#define MT_CLS_DEFAULT	1
-> -#define MT_CLS_DUAL1	2
-> -#define MT_CLS_DUAL2	3
-> -#define MT_CLS_CYPRESS	4
-> +#define MT_CLS_DEFAULT				1
-> +#define MT_CLS_DUAL_DEFAULT			2
-> +#define MT_CLS_DUAL_INRANGE_CONTACTID		3
-> +#define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	4
-> +#define MT_CLS_CYPRESS				10
-
-There is no need to change the numbering for unchanged names.
-
->  
->  /*
->   * these device-dependent functions determine what slot corresponds
-> @@ -104,13 +106,16 @@ static int find_slot_from_contactid(struct mt_device *td)
->  
->  struct mt_class mt_classes[] = {
->  	{ .name = MT_CLS_DEFAULT,
-> -		.quirks = MT_QUIRK_VALID_IS_INRANGE,
-> +		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
->  		.maxcontacts = 10 },
-> -	{ .name = MT_CLS_DUAL1,
-> +	{ .name = MT_CLS_DUAL_DEFAULT,
-> +		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
-> +		.maxcontacts = 2 },
-> +	{ .name = MT_CLS_DUAL_INRANGE_CONTACTID,
->  		.quirks = MT_QUIRK_VALID_IS_INRANGE |
->  			MT_QUIRK_SLOT_IS_CONTACTID,
->  		.maxcontacts = 2 },
-> -	{ .name = MT_CLS_DUAL2,
-> +	{ .name = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
->  		.quirks = MT_QUIRK_VALID_IS_INRANGE |
->  			MT_QUIRK_SLOT_IS_CONTACTNUMBER,
->  		.maxcontacts = 2 },
-> @@ -466,15 +471,15 @@ static const struct hid_device_id mt_devices[] = {
->  			USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
->  
->  	/* GeneralTouch panel */
-> -	{ .driver_data = MT_CLS_DUAL2,
-> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+> @@ -475,6 +475,11 @@ static const struct hid_device_id mt_devices[] = {
 >  		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
 >  			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
 >  
+> +	/* IRTOUCH panels */
+> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+> +		HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
+> +			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+> +
 >  	/* PixCir-based panels */
-> -	{ .driver_data = MT_CLS_DUAL1,
-> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+>  	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
 >  		HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
->  			USB_DEVICE_ID_HANVON_MULTITOUCH) },
-> -	{ .driver_data = MT_CLS_DUAL1,
-> +	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
->  		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
->  			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
->  
 > -- 
 > 1.7.3.4
 > 

@@ -1,69 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Fri, 28 Jan 2011 13:09:58 -0800
-Message-ID: <20110128210958.GJ6252@core.coreip.homeip.net>
-References: <4D40C3D7.90608@teksavvy.com>
- <4D40C551.4020907@teksavvy.com>
- <20110127021227.GA29709@core.coreip.homeip.net>
- <4D40E41D.2030003@teksavvy.com>
- <20110127163931.GA1825@core.coreip.homeip.net>
- <4D41B5A0.70704@teksavvy.com>
- <20110127195325.GB29910@core.coreip.homeip.net>
- <20110128164244.GB6252@core.coreip.homeip.net>
- <4D432D47.2000600@teksavvy.com>
- <4D432F0B.70808@teksavvy.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] input : wacom - report resolution for ABS_MT events
+Date: Fri, 28 Jan 2011 13:57:17 -0800
+Message-ID: <AANLkTikUmajiTDxNzOKNznevdutnefO7CgTrBg8=rRCu@mail.gmail.com>
+References: <1296179245-14614-1-git-send-email-pinglinux@gmail.com>
+	<20110128173048.GC2586@polaris.bitmath.org>
+	<AANLkTi=d7frmTyAPzRSPmgXkvDh-Lc=WCvu9+tdA1Sg8@mail.gmail.com>
+	<20110128184654.GG6252@core.coreip.homeip.net>
+	<AANLkTikgTYQvhTzEHWw0Yhigno7TLJ8jm9jaw10mOhk+@mail.gmail.com>
+	<20110128193731.GH6252@core.coreip.homeip.net>
+	<AANLkTi=31ckFhy28R30=64+BBmHkn43DA8js1b0pdoQ4@mail.gmail.com>
+	<20110128205403.GI6252@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4D432F0B.70808@teksavvy.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Mark Lord <kernel@teksavvy.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:63619 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751731Ab1A1V5T (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Jan 2011 16:57:19 -0500
+Received: by wwa36 with SMTP id 36so3876043wwa.1
+        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 13:57:18 -0800 (PST)
+In-Reply-To: <20110128205403.GI6252@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Fri, Jan 28, 2011 at 04:03:07PM -0500, Mark Lord wrote:
-> On 11-01-28 03:55 PM, Mark Lord wrote:
-> > On 11-01-28 11:42 AM, Dmitry Torokhov wrote:
-> >> On Thu, Jan 27, 2011 at 11:53:25AM -0800, Dmitry Torokhov wrote:
-> >>> On Thu, Jan 27, 2011 at 01:12:48PM -0500, Mark Lord wrote:
-> >>>> On 11-01-27 11:39 AM, Dmitry Torokhov wrote:
-> > ..
-> >>>>> Hmm, what about compiling with debug and getting a core then?
-> >>>>
-> >>>> Sure.  debug is easy, -g, but you'll have to tell me how to get it
-> >>>> do produce a core dump.
-> >>>>
-> >>>
-> >>> See if adjusting /etc/security/limits.conf will enable it to dump core.
-> >>> Otherwise you'll have to stick 'ulimit -c unlimited' somewhere...
-> > ..
-> >> Any luck with getting the core? I'd really like to resolve this issue.
-> > ..
-> > 
-> > I'm upgrading the box to new userspace now.
-> > But I still have the old installation drive,
-> > so perhaps I'll go there now and try this.
-> > 
-> > My plan is to replace /usr/bin/ir-keytable with a script
-> > that issues the 'ulimit -c unlimited' command and then
-> > invokes the original /usr/bin/ir-keytable binary.
-> > 
-> > Should take half an hour or so before I get back here again.
-> 
-> No-go.  According to the syslog, the segfault has not happened
-> since I reconfigured the kernel and startup sequence two days
-> ago to resolve an XFS mount issue.
-> 
-> Something in there changed the init timing just enough to make
-> it go away, I believe.
+On Fri, Jan 28, 2011 at 12:54 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>> >> > so I believe
+>> >> > min, max and resultion should be reported on ABS_X, Y, X, etc, or, if
+>> >> > you want to have this data in ABS_MT_POSITION, it should be trhe same.
+>> >>
+>> >> max/min is different from resolution. We can scale max/min since they
+>> >> are logical data. But we can not change the device's physical size.
+>> >> That's the root cause of the "stubborn" nature of resolution.
+>> >
+>> > This is the same device so it should have the same physical dimensions,
+>> > right?
+>>
+>> No, pen and touch use different chips. They can have different sizes.
+>
+> It does not matter how many chips you have inside. What matters whether
+> they share a working surface or not. If working surface is the same (and
+> consequentially you have single input_dev structure) then dimensions are
+> the same.
 
-OK, this reinforces my suspicion that the cause of segfault is the race
-we were discussing with Mauro, not the keymap retrieval fix.
+They do not always share the exact same surface. Most of the devices
+do have the same working surface. But not all of them although the
+differences are normally small. To represent a finger touch, it may
+not be too big a deal. But, making the assumption that they are the
+same size doesn't sound right.
 
-I shall be sending the patch to Linus/stable in the next pull then.
+Do we ignore that small imprecision? Or do I submit a version 2 (I'll
+update Bamboo resolution with Henrik's scale in the same patch)?
 
-Thank you for your help.
+Thank you.
 
--- 
-Dmitry
+Ping

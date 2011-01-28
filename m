@@ -1,87 +1,37 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH] input : wacom - report resolution for ABS_MT events
-Date: Fri, 28 Jan 2011 12:08:54 -0800
-Message-ID: <AANLkTikJt7So41PP06ac6JvsOg5L1tKLDYHzVzqsFzTP@mail.gmail.com>
-References: <1296179245-14614-1-git-send-email-pinglinux@gmail.com>
-	<20110128173048.GC2586@polaris.bitmath.org>
-	<AANLkTi=d7frmTyAPzRSPmgXkvDh-Lc=WCvu9+tdA1Sg8@mail.gmail.com>
-	<20110128191203.GA2729@polaris.bitmath.org>
+From: Mark Lord <kernel@teksavvy.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils
+ ?
+Date: Fri, 28 Jan 2011 15:53:33 -0500
+Message-ID: <4D432CCD.9010205@teksavvy.com>
+References: <20110127063815.GA29924@core.coreip.homeip.net> <4D414928.80801@redhat.com> <20110127172128.GA19672@core.coreip.homeip.net> <4D41C071.2090201@redhat.com> <20110128093922.GA3357@core.coreip.homeip.net> <4D42AECE.3020402@redhat.com> <20110128164057.GA6252@core.coreip.homeip.net> <4D42F686.8010104@redhat.com> <20110128173305.GC6252@core.coreip.homeip.net> <4D4307D7.8010301@redhat.com> <20110128183402.GF6252@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:44269 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751220Ab1A1UIz convert rfc822-to-8bit (ORCPT
+Received: from ironport2-out.teksavvy.com ([206.248.154.183]:33508 "EHLO
+	ironport2-out.pppoe.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751282Ab1A1Uxg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 15:08:55 -0500
-Received: by wyb28 with SMTP id 28so3594007wyb.19
-        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 12:08:54 -0800 (PST)
-In-Reply-To: <20110128191203.GA2729@polaris.bitmath.org>
+	Fri, 28 Jan 2011 15:53:36 -0500
+In-Reply-To: <20110128183402.GF6252@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Fri, Jan 28, 2011 at 11:12 AM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
->> >> This is mainly required by the serial pen and touch devices since
->> >> both pen and touch are on the same port. Updated the USB ones to
->> >> keep MT event definition consistent among serial and USB devices.
->> >
->> > Why is this change performed? What does the patch do? Please elabo=
-rate
->> > a little bit.
->>
->> Let's see if I can explain it clearer or not.
->>
->> We need to report resolution to userland for wacom_w8001.c.
->
-> Thanks, perfect - sentences like this one is great to put in the patc=
-h
-> description.
+Dmitry / Mauro,
 
-Thanks for the encouragement ;).
+I'm encouraged by all of the good dialog happening here,
+and regret that I am unable to poke any further at the
+issue with ir-keytable for now.
 
->> Since pen
->> and touch data are reported through the same logical port for serial
->> devices, using input_abs_set_res =A0for ABS_X/Y, =A0we can only pass=
- the
->> resolution for pen or touch. So, I let ABS_X/Y report pen resolution
->> since most legacy ST clients process pen data over touch. However, f=
-or
->> multi-touch clients, especially for those that support gestures, tou=
-ch
->> resolution is needed to calculate the physical distance between two
->> touch points. Using =A0ABS_MT_POSITION_X/Y does not cause confusion =
-and
->> it is quite intuitive.
->
-> I thought this was solved by reporting both pen and touch on the same
-> scale, which would render this problem moot. Or?
+The system in question is now getting rebuilt with new/modern
+userspace, and I expect the original issue to "vanish" as a result.
+If I do see ir-keytable acting up again afterward,
+I'll let you know.
 
-Yeah, see my reply to Dmitry for detail.
+But it will be whatever version Ubuntu 10.10 installs,
+not the newer one I used earlier in this thread.
 
-> [...]
->> > Is this for the BAMBOO_PT case? What about the extra x/y scaling f=
-or
->> > some of those devices?
->>
->> Yes, it is for Bamboo. We do not need to scale the value here since
->> touch and pen are on different ports. We had to scale the value for
->> wacom_w8001 since both pen and touch are on the same port. Without
->> scaling the data, the pen/finger tip will not follow the cursor on t=
-he
->> screen (wacom_w8001 is a touchscren device).
->
-> I was thinking of the scaling quirk in effect for the Bamboo
-> Touch. The resolution would have to change as well.
-
-Yes, If we need to report the right values ;).
-
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers!
+-Mark

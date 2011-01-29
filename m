@@ -1,56 +1,80 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: hidraw: fixed hidraw_disconnect()
-Date: Sat, 29 Jan 2011 02:17:30 +0100
-Message-ID: <1296263850.2299.11.camel@neuromancer>
-Reply-To: erazor_de@users.sourceforge.net
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH] input : wacom - report resolution for ABS_MT events
+Date: Fri, 28 Jan 2011 22:19:24 -0800
+Message-ID: <AANLkTi=OxB6ax8j7O-rb_-CNbL_5rYt=v87-Xtr9bOFe@mail.gmail.com>
+References: <1296179245-14614-1-git-send-email-pinglinux@gmail.com>
+	<20110128173048.GC2586@polaris.bitmath.org>
+	<AANLkTi=d7frmTyAPzRSPmgXkvDh-Lc=WCvu9+tdA1Sg8@mail.gmail.com>
+	<20110128184654.GG6252@core.coreip.homeip.net>
+	<AANLkTikgTYQvhTzEHWw0Yhigno7TLJ8jm9jaw10mOhk+@mail.gmail.com>
+	<20110128193731.GH6252@core.coreip.homeip.net>
+	<AANLkTi=31ckFhy28R30=64+BBmHkn43DA8js1b0pdoQ4@mail.gmail.com>
+	<20110128205403.GI6252@core.coreip.homeip.net>
+	<AANLkTikUmajiTDxNzOKNznevdutnefO7CgTrBg8=rRCu@mail.gmail.com>
+	<20110129000539.GL6252@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:54622 "EHLO
-	mail-in-01.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754722Ab1A2BRf (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:54694 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751030Ab1A2GTZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jan 2011 20:17:35 -0500
+	Sat, 29 Jan 2011 01:19:25 -0500
+Received: by wwa36 with SMTP id 36so4136620wwa.1
+        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 22:19:24 -0800 (PST)
+In-Reply-To: <20110129000539.GL6252@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-hidraw_disconnect() first sets an entry in hidraw_table to NULL
-and calls device_destroy() afterwards. The thereby called
-hidraw_release() tries to read this already cleared value resulting
-in never removing any device from the list.
-This got fixed by changing the order of events.
+On Fri, Jan 28, 2011 at 4:05 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Jan 28, 2011 at 01:57:17PM -0800, Ping Cheng wrote:
+>> On Fri, Jan 28, 2011 at 12:54 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> >> >> > so I believe
+>> >> >> > min, max and resultion should be reported on ABS_X, Y, X, etc, or, if
+>> >> >> > you want to have this data in ABS_MT_POSITION, it should be trhe same.
+>> >> >>
+>> >> >> max/min is different from resolution. We can scale max/min since they
+>> >> >> are logical data. But we can not change the device's physical size.
+>> >> >> That's the root cause of the "stubborn" nature of resolution.
+>> >> >
+>> >> > This is the same device so it should have the same physical dimensions,
+>> >> > right?
+>> >>
+>> >> No, pen and touch use different chips. They can have different sizes.
+>> >
+>> > It does not matter how many chips you have inside. What matters whether
+>> > they share a working surface or not. If working surface is the same (and
+>> > consequentially you have single input_dev structure) then dimensions are
+>> > the same.
+>>
+>> They do not always share the exact same surface. Most of the devices
+>> do have the same working surface. But not all of them although the
+>> differences are normally small. To represent a finger touch, it may
+>> not be too big a deal. But, making the assumption that they are the
+>> same size doesn't sound right.
+>>
+>> Do we ignore that small imprecision?
+>
+> I think we should consider these cases as having roughly the same
+> dimensions of working surfaces. Because if we do what you are proposing
+> the next thing we'll see an MT device that can report several tools
+> simultaneously and your scheme breaks apart.
+>
+> Devices with surface characteristics so different that they can't be
+> handled well by scaling to common denominator should probably be
+> presented as 2 independent logical devices.
 
-Maybe commit 0a504541b3ba593535d70f3124546e5e471a175e should be
-undone if the talkativeness was misdiagnosed due to this error.
+Dmitry,
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hidraw.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Version 2 will be sent incorporating the above comments in a moment.
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 468e87b..5516ea4 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -428,12 +428,12 @@ void hidraw_disconnect(struct hid_device *hid)
- 
- 	hidraw->exist = 0;
- 
-+	device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
-+
- 	mutex_lock(&minors_lock);
- 	hidraw_table[hidraw->minor] = NULL;
- 	mutex_unlock(&minors_lock);
- 
--	device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
--
- 	if (hidraw->open) {
- 		hid_hw_close(hid);
- 		wake_up_interruptible(&hidraw->wait);
--- 
-1.7.3.4
+Henrik,
 
+The Bamboo resolution has already been scaled since we calculated it
+through the scaled logical maximum. So, no changes needed there.
 
-
+Ping

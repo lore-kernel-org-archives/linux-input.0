@@ -1,98 +1,49 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH v3] input : wacom_w8001 - report resolution to userland
-Date: Fri, 28 Jan 2011 22:37:42 -0800
-Message-ID: <1296283062-20469-1-git-send-email-pinglinux@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:49242 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751135Ab1A2GiR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Jan 2011 01:38:17 -0500
-Received: by iyj18 with SMTP id 18so3257200iyj.19
-        for <linux-input@vger.kernel.org>; Fri, 28 Jan 2011 22:38:17 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.38-rc2
+Date: Fri, 28 Jan 2011 23:23:24 -0800
+Message-ID: <20110129072324.GA26915@core.coreip.homeip.net>
+References: <20110107065448.GC29038@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110107065448.GC29038@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-Serial devices send both pen and touch data through the same logical
-port. Since we scaled touch to pen maximum, we use pen resolution
-for touch as well here.
+Hi Linus,
 
-This is under the assumption that pen and touch share the same physical
-surface. In the case when a small physical dimensional difference occurs
-between pen and touch, we assume the tolerance for touch point precision
-is higher than pen and the difference is within touch point tolerance.
+Please pull from:
 
-A per-MT tool based resolution mechanism should be introduced if the
-above assumption does not hold true for the pen and touch devices any
-more. A good candidate to resolve this issue without introducing design
-change could be to report touch resolution through ABS_MT_POSITION_X/Y.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-This version corrected an oversimplified if statement in v2.
+to receive updates for the input subsystem. Nothing interesting, just
+small fixups for recent breakages.
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/touchscreen/wacom_w8001.c |   20 +++++++++++++++-----
- 1 files changed, 15 insertions(+), 5 deletions(-)
+Thanks!
 
-diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index 5cb8449..68dcca0 100644
---- a/drivers/input/touchscreen/wacom_w8001.c
-+++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -51,6 +51,10 @@ MODULE_LICENSE("GPL");
- #define W8001_PKTLEN_TPCCTL	11	/* control packet */
- #define W8001_PKTLEN_TOUCH2FG	13
- 
-+/* resolution in points/mm */
-+#define W8001_PEN_RESOLUTION    100
-+#define W8001_TOUCH_RESOLUTION  10
-+
- struct w8001_coord {
- 	u8 rdy;
- 	u8 tsw;
-@@ -198,7 +202,7 @@ static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
- 		query->y = 1024;
- 		if (query->panel_res)
- 			query->x = query->y = (1 << query->panel_res);
--		query->panel_res = 10;
-+		query->panel_res = W8001_TOUCH_RESOLUTION;
- 	}
- }
- 
-@@ -394,6 +398,8 @@ static int w8001_setup(struct w8001 *w8001)
- 
- 		input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
- 		input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
-+		input_abs_set_res(dev, ABS_X, W8001_PEN_RESOLUTION);
-+		input_abs_set_res(dev, ABS_Y, W8001_PEN_RESOLUTION);
- 		input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pressure, 0, 0);
- 		if (coord.tilt_x && coord.tilt_y) {
- 			input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
-@@ -418,15 +424,19 @@ static int w8001_setup(struct w8001 *w8001)
- 		w8001->max_touch_x = touch.x;
- 		w8001->max_touch_y = touch.y;
- 
--		/* scale to pen maximum */
-+		/* pen supported */
- 		if (w8001->max_pen_x && w8001->max_pen_y) {
-+			/* scale to pen maximum */
- 			touch.x = w8001->max_pen_x;
- 			touch.y = w8001->max_pen_y;
-+		} else { /* touch only */
-+			/* set axes with touch data */
-+			input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
-+			input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
-+			input_abs_set_res(dev, ABS_X, touch.panel_res);
-+			input_abs_set_res(dev, ABS_Y, touch.panel_res);
- 		}
- 
--		input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
--		input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
--
- 		switch (touch.sensor_id) {
- 		case 0:
- 		case 2:
+Changelog:
+---------
+
+Alexandre Peixoto Ferreira (2):
+      Input: synaptics - fix reconnect logic on MT devices
+      Input: synaptics - retry failed resets when reconnecting
+
+Rakesh Iyer (2):
+      Input: tegra-kbc - fix build error
+      Input: tegra-kbc - fix keymap entry for LeftMeta key
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/tegra-kbc.c |    6 +++---
+ drivers/input/mouse/synaptics.c    |   32 ++++++++++++++++++++++++--------
+ 2 files changed, 27 insertions(+), 11 deletions(-)
+
 -- 
-1.7.3.5
-
+Dmitry

@@ -1,144 +1,62 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 2/8] HID: roccat: Use new hid_err macros
-Date: Sun, 30 Jan 2011 13:38:21 +0100
-Message-ID: <1296391101.2283.181.camel__35200.6415756934$1296391246$gmane$org@neuromancer>
-Reply-To: erazor_de@users.sourceforge.net
+From: Jochen Friedrich <jochen@scram.de>
+Subject: [PATCH] ARM:ucb1x00-ts: ucb1x00_ts - add BTN_TOUCH event
+Date: Sun, 30 Jan 2011 13:40:56 +0100
+Message-ID: <1296391256-2127-1-git-send-email-jochen@scram.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:55235 "EHLO
-	mail-in-04.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753744Ab1A3Mi2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Jan 2011 07:38:28 -0500
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Samuel Ortiz <sameo@linux.intel.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: Samuel Ortiz <samuel@sortiz.org>, Jochen Friedrich <jochen@scram.de>
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hverkuil>
 
-Using the new hid_err macros instead of dev_err.
+Add BTN_TOUCH event reporting to ucb1x00_ts touchscreen driver.
+This will make this touchscreen driver behave consistently wrt.
+BTN_TOUCH.
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+Signed-off-by: Jochen Friedrich <jochen@scram.de>
 ---
- drivers/hid/hid-roccat-arvo.c     |   13 ++++++-------
- drivers/hid/hid-roccat-koneplus.c |   15 +++++++--------
- 2 files changed, 13 insertions(+), 15 deletions(-)
+ drivers/mfd/ucb1x00-ts.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
-index 8facbd3..ebf3c15 100644
---- a/drivers/hid/hid-roccat-arvo.c
-+++ b/drivers/hid/hid-roccat-arvo.c
-@@ -358,21 +358,20 @@ static int arvo_init_specials(struct hid_device *hdev)
+diff --git a/drivers/mfd/ucb1x00-ts.c b/drivers/mfd/ucb1x00-ts.c
+index 92b85e2..38ffbd5 100644
+--- a/drivers/mfd/ucb1x00-ts.c
++++ b/drivers/mfd/ucb1x00-ts.c
+@@ -60,6 +60,7 @@ static inline void ucb1x00_ts_evt_add(struct ucb1x00_ts *ts, u16 pressure, u16 x
+ 	input_report_abs(idev, ABS_X, x);
+ 	input_report_abs(idev, ABS_Y, y);
+ 	input_report_abs(idev, ABS_PRESSURE, pressure);
++	input_report_key(idev, BTN_TOUCH, 1);
+ 	input_sync(idev);
+ }
  
- 	arvo = kzalloc(sizeof(*arvo), GFP_KERNEL);
- 	if (!arvo) {
--		dev_err(&hdev->dev, "can't alloc device descriptor\n");
-+		hid_err(hdev, "can't alloc device descriptor\n");
- 		return -ENOMEM;
- 	}
- 	hid_set_drvdata(hdev, arvo);
+@@ -68,6 +69,7 @@ static inline void ucb1x00_ts_event_release(struct ucb1x00_ts *ts)
+ 	struct input_dev *idev = ts->idev;
  
- 	retval = arvo_init_arvo_device_struct(usb_dev, arvo);
- 	if (retval) {
--		dev_err(&hdev->dev,
--				"couldn't init struct arvo_device\n");
-+		hid_err(hdev, "couldn't init struct arvo_device\n");
- 		goto exit_free;
- 	}
+ 	input_report_abs(idev, ABS_PRESSURE, 0);
++	input_report_key(idev, BTN_TOUCH, 0);
+ 	input_sync(idev);
+ }
  
- 	retval = roccat_connect(arvo_class, hdev);
- 	if (retval < 0) {
--		dev_err(&hdev->dev, "couldn't init char dev\n");
-+		hid_err(hdev, "couldn't init char dev\n");
- 	} else {
- 		arvo->chrdev_minor = retval;
- 		arvo->roccat_claimed = 1;
-@@ -406,19 +405,19 @@ static int arvo_probe(struct hid_device *hdev,
+@@ -384,7 +386,8 @@ static int ucb1x00_ts_add(struct ucb1x00_dev *dev)
+ 	idev->open       = ucb1x00_ts_open;
+ 	idev->close      = ucb1x00_ts_close;
  
- 	retval = hid_parse(hdev);
- 	if (retval) {
--		dev_err(&hdev->dev, "parse failed\n");
-+		hid_err(hdev, "parse failed\n");
- 		goto exit;
- 	}
+-	__set_bit(EV_ABS, idev->evbit);
++	idev->evbit[0]   = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
++	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
  
- 	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (retval) {
--		dev_err(&hdev->dev, "hw start failed\n");
-+		hid_err(hdev, "hw start failed\n");
- 		goto exit;
- 	}
- 
- 	retval = arvo_init_specials(hdev);
- 	if (retval) {
--		dev_err(&hdev->dev, "couldn't install keyboard\n");
-+		hid_err(hdev, "couldn't install keyboard\n");
- 		goto exit_stop;
- 	}
- 
-diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-index 65d7cde..c826c0d 100644
---- a/drivers/hid/hid-roccat-koneplus.c
-+++ b/drivers/hid/hid-roccat-koneplus.c
-@@ -116,7 +116,7 @@ static int koneplus_receive_control_status(struct usb_device *usb_dev)
- 			goto out;
- 		}
- 
--		dev_err(&usb_dev->dev, "koneplus_receive_control_status: "
-+		hid_err(usb_dev, "koneplus_receive_control_status: "
- 				"unknown response value 0x%x\n", control->value);
- 		retval = -EINVAL;
- 		goto out;
-@@ -658,21 +658,20 @@ static int koneplus_init_specials(struct hid_device *hdev)
- 
- 		koneplus = kzalloc(sizeof(*koneplus), GFP_KERNEL);
- 		if (!koneplus) {
--			dev_err(&hdev->dev, "can't alloc device descriptor\n");
-+			hid_err(hdev, "can't alloc device descriptor\n");
- 			return -ENOMEM;
- 		}
- 		hid_set_drvdata(hdev, koneplus);
- 
- 		retval = koneplus_init_koneplus_device_struct(usb_dev, koneplus);
- 		if (retval) {
--			dev_err(&hdev->dev,
--					"couldn't init struct koneplus_device\n");
-+			hid_err(hdev, "couldn't init struct koneplus_device\n");
- 			goto exit_free;
- 		}
- 
- 		retval = roccat_connect(koneplus_class, hdev);
- 		if (retval < 0) {
--			dev_err(&hdev->dev, "couldn't init char dev\n");
-+			hid_err(hdev, "couldn't init char dev\n");
- 		} else {
- 			koneplus->chrdev_minor = retval;
- 			koneplus->roccat_claimed = 1;
-@@ -708,19 +707,19 @@ static int koneplus_probe(struct hid_device *hdev,
- 
- 	retval = hid_parse(hdev);
- 	if (retval) {
--		dev_err(&hdev->dev, "parse failed\n");
-+		hid_err(hdev, "parse failed\n");
- 		goto exit;
- 	}
- 
- 	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (retval) {
--		dev_err(&hdev->dev, "hw start failed\n");
-+		hid_err(hdev, "hw start failed\n");
- 		goto exit;
- 	}
- 
- 	retval = koneplus_init_specials(hdev);
- 	if (retval) {
--		dev_err(&hdev->dev, "couldn't install mouse\n");
-+		hid_err(hdev, "couldn't install mouse\n");
- 		goto exit_stop;
- 	}
+ 	input_set_drvdata(idev, ts);
  
 -- 
-1.7.3.4
-
-
-
+1.7.2.3

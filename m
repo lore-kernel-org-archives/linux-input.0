@@ -1,42 +1,141 @@
 From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 6/8] HID: roccat: Increased waiting time for Kone[+] to
- prevent occasional freezes
-Date: Sun, 30 Jan 2011 13:38:26 +0100
-Message-ID: <1296391106.2283.185.camel__26714.8771243685$1296391223$gmane$org@neuromancer>
+Subject: [PATCH 2/8] HID: roccat: Use new hid_err macros
+Date: Sun, 30 Jan 2011 13:38:21 +0100
+Message-ID: <1296391101.2283.181.camel__35200.6415756934$1296391246$gmane$org@neuromancer>
 Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:33478 "EHLO
-	mail-in-02.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754190Ab1A3Mif (ORCPT
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:55235 "EHLO
+	mail-in-04.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753744Ab1A3Mi2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Jan 2011 07:38:35 -0500
+	Sun, 30 Jan 2011 07:38:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hverkuil>
 
-On newer kernels the device freezes occasionally on initialization with just
-70msec between reads. Increased this value to safe 100msec.
+Using the new hid_err macros instead of dev_err.
 
 Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- drivers/hid/hid-roccat-koneplus.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/hid/hid-roccat-arvo.c     |   13 ++++++-------
+ drivers/hid/hid-roccat-koneplus.c |   15 +++++++--------
+ 2 files changed, 13 insertions(+), 15 deletions(-)
 
+diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
+index 8facbd3..ebf3c15 100644
+--- a/drivers/hid/hid-roccat-arvo.c
++++ b/drivers/hid/hid-roccat-arvo.c
+@@ -358,21 +358,20 @@ static int arvo_init_specials(struct hid_device *hdev)
+ 
+ 	arvo = kzalloc(sizeof(*arvo), GFP_KERNEL);
+ 	if (!arvo) {
+-		dev_err(&hdev->dev, "can't alloc device descriptor\n");
++		hid_err(hdev, "can't alloc device descriptor\n");
+ 		return -ENOMEM;
+ 	}
+ 	hid_set_drvdata(hdev, arvo);
+ 
+ 	retval = arvo_init_arvo_device_struct(usb_dev, arvo);
+ 	if (retval) {
+-		dev_err(&hdev->dev,
+-				"couldn't init struct arvo_device\n");
++		hid_err(hdev, "couldn't init struct arvo_device\n");
+ 		goto exit_free;
+ 	}
+ 
+ 	retval = roccat_connect(arvo_class, hdev);
+ 	if (retval < 0) {
+-		dev_err(&hdev->dev, "couldn't init char dev\n");
++		hid_err(hdev, "couldn't init char dev\n");
+ 	} else {
+ 		arvo->chrdev_minor = retval;
+ 		arvo->roccat_claimed = 1;
+@@ -406,19 +405,19 @@ static int arvo_probe(struct hid_device *hdev,
+ 
+ 	retval = hid_parse(hdev);
+ 	if (retval) {
+-		dev_err(&hdev->dev, "parse failed\n");
++		hid_err(hdev, "parse failed\n");
+ 		goto exit;
+ 	}
+ 
+ 	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (retval) {
+-		dev_err(&hdev->dev, "hw start failed\n");
++		hid_err(hdev, "hw start failed\n");
+ 		goto exit;
+ 	}
+ 
+ 	retval = arvo_init_specials(hdev);
+ 	if (retval) {
+-		dev_err(&hdev->dev, "couldn't install keyboard\n");
++		hid_err(hdev, "couldn't install keyboard\n");
+ 		goto exit_stop;
+ 	}
+ 
 diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-index 29a42b4..7367e4e 100644
+index 65d7cde..c826c0d 100644
 --- a/drivers/hid/hid-roccat-koneplus.c
 +++ b/drivers/hid/hid-roccat-koneplus.c
-@@ -557,7 +557,7 @@ static int koneplus_init_koneplus_device_struct(struct usb_device *usb_dev,
- 		struct koneplus_device *koneplus)
- {
- 	int retval, i;
--	static uint wait = 70; /* device will freeze with just 60 */
-+	static uint wait = 100; /* device will freeze with just 60 */
+@@ -116,7 +116,7 @@ static int koneplus_receive_control_status(struct usb_device *usb_dev)
+ 			goto out;
+ 		}
  
- 	mutex_init(&koneplus->koneplus_lock);
+-		dev_err(&usb_dev->dev, "koneplus_receive_control_status: "
++		hid_err(usb_dev, "koneplus_receive_control_status: "
+ 				"unknown response value 0x%x\n", control->value);
+ 		retval = -EINVAL;
+ 		goto out;
+@@ -658,21 +658,20 @@ static int koneplus_init_specials(struct hid_device *hdev)
+ 
+ 		koneplus = kzalloc(sizeof(*koneplus), GFP_KERNEL);
+ 		if (!koneplus) {
+-			dev_err(&hdev->dev, "can't alloc device descriptor\n");
++			hid_err(hdev, "can't alloc device descriptor\n");
+ 			return -ENOMEM;
+ 		}
+ 		hid_set_drvdata(hdev, koneplus);
+ 
+ 		retval = koneplus_init_koneplus_device_struct(usb_dev, koneplus);
+ 		if (retval) {
+-			dev_err(&hdev->dev,
+-					"couldn't init struct koneplus_device\n");
++			hid_err(hdev, "couldn't init struct koneplus_device\n");
+ 			goto exit_free;
+ 		}
+ 
+ 		retval = roccat_connect(koneplus_class, hdev);
+ 		if (retval < 0) {
+-			dev_err(&hdev->dev, "couldn't init char dev\n");
++			hid_err(hdev, "couldn't init char dev\n");
+ 		} else {
+ 			koneplus->chrdev_minor = retval;
+ 			koneplus->roccat_claimed = 1;
+@@ -708,19 +707,19 @@ static int koneplus_probe(struct hid_device *hdev,
+ 
+ 	retval = hid_parse(hdev);
+ 	if (retval) {
+-		dev_err(&hdev->dev, "parse failed\n");
++		hid_err(hdev, "parse failed\n");
+ 		goto exit;
+ 	}
+ 
+ 	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (retval) {
+-		dev_err(&hdev->dev, "hw start failed\n");
++		hid_err(hdev, "hw start failed\n");
+ 		goto exit;
+ 	}
+ 
+ 	retval = koneplus_init_specials(hdev);
+ 	if (retval) {
+-		dev_err(&hdev->dev, "couldn't install mouse\n");
++		hid_err(hdev, "couldn't install mouse\n");
+ 		goto exit_stop;
+ 	}
  
 -- 
 1.7.3.4

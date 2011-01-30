@@ -1,1228 +1,435 @@
 From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 3/8] HID: roccat: Introduced module hid-roccat-common
-Date: Sun, 30 Jan 2011 13:38:23 +0100
-Message-ID: <1296391103.2283.182.camel@neuromancer>
+Subject: [PATCH 5/8] HID: roccat: Added ioctl command to retreive report
+ size from chardev
+Date: Sun, 30 Jan 2011 13:38:25 +0100
+Message-ID: <1296391105.2283.184.camel@neuromancer>
 Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:55980 "EHLO
-	mail-in-03.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753972Ab1A3Mib (ORCPT
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:44130 "EHLO
+	mail-in-07.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754187Ab1A3Mie (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Jan 2011 07:38:31 -0500
+	Sun, 30 Jan 2011 07:38:34 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hverkuil>
 
-Module hid-roccat-common contains functions used by roccat device driver
-modules to reduce code duplication.
-At the moment it contains just two wrapper methods for usb_control_msg
-that ensure that the buffer used for transfer is dma capable which wasn't
-the case before.
-The kconfig option is not visible to the user but will be selected by the
-device specific drivers.
+Roccat chardev was reworked to support only a defined report size per
+device and this can be retreived by an ioctl now to enable future changes
+in report definitions.
+Header was moved/renamed from drivers/hid to include/linux for accessibility.
 
 Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- drivers/hid/Kconfig               |    7 ++
- drivers/hid/Makefile              |    1 +
- drivers/hid/hid-roccat-arvo.c     |  148 ++++++++++------------------------
- drivers/hid/hid-roccat-common.c   |   62 ++++++++++++++
- drivers/hid/hid-roccat-common.h   |   23 +++++
- drivers/hid/hid-roccat-kone.c     |  143 +++++++++------------------------
- drivers/hid/hid-roccat-koneplus.c |  135 +++++++++----------------------
- drivers/hid/hid-roccat-pyra.c     |  161 ++++++++++---------------------------
- 8 files changed, 254 insertions(+), 426 deletions(-)
- create mode 100644 drivers/hid/hid-roccat-common.c
- create mode 100644 drivers/hid/hid-roccat-common.h
+ Documentation/ioctl/ioctl-number.txt |    1 +
+ drivers/hid/hid-roccat-arvo.c        |    9 +++---
+ drivers/hid/hid-roccat-kone.c        |   11 +++----
+ drivers/hid/hid-roccat-koneplus.c    |    8 +++---
+ drivers/hid/hid-roccat-kovaplus.c    |    8 +++---
+ drivers/hid/hid-roccat-pyra.c        |   11 +++----
+ drivers/hid/hid-roccat.c             |   48 ++++++++++++++++++++++++++-------
+ drivers/hid/hid-roccat.h             |   22 ---------------
+ include/linux/roccat.h               |   29 ++++++++++++++++++++
+ 9 files changed, 91 insertions(+), 56 deletions(-)
+ delete mode 100644 drivers/hid/hid-roccat.h
+ create mode 100644 include/linux/roccat.h
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 539865a..7952369 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -417,10 +417,14 @@ config HID_ROCCAT
- 	Say Y here if you have a Roccat mouse or keyboard and want OSD or
- 	macro execution support.
- 
-+config HID_ROCCAT_COMMON
-+	tristate
-+
- config HID_ROCCAT_ARVO
- 	tristate "Roccat Arvo keyboard support"
- 	depends on USB_HID
- 	select HID_ROCCAT
-+	select HID_ROCCAT_COMMON
- 	---help---
- 	Support for Roccat Arvo keyboard.
- 
-@@ -428,6 +432,7 @@ config HID_ROCCAT_KONE
- 	tristate "Roccat Kone Mouse support"
- 	depends on USB_HID
- 	select HID_ROCCAT
-+	select HID_ROCCAT_COMMON
- 	---help---
- 	Support for Roccat Kone mouse.
- 
-@@ -435,6 +440,7 @@ config HID_ROCCAT_KONEPLUS
- 	tristate "Roccat Kone[+] mouse support"
- 	depends on USB_HID
- 	select HID_ROCCAT
-+	select HID_ROCCAT_COMMON
- 	---help---
- 	Support for Roccat Kone[+] mouse.
- 
-@@ -442,6 +448,7 @@ config HID_ROCCAT_PYRA
- 	tristate "Roccat Pyra mouse support"
- 	depends on USB_HID
- 	select HID_ROCCAT
-+	select HID_ROCCAT_COMMON
- 	---help---
- 	Support for Roccat Pyra mouse.
- 
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index fea4eb8..086cf62 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -56,6 +56,7 @@ obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
- obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
- obj-$(CONFIG_HID_PICOLCD)	+= hid-picolcd.o
- obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o
-+obj-$(CONFIG_HID_ROCCAT_COMMON)	+= hid-roccat-common.o
- obj-$(CONFIG_HID_ROCCAT_ARVO)	+= hid-roccat-arvo.o
- obj-$(CONFIG_HID_ROCCAT_KONE)	+= hid-roccat-kone.o
- obj-$(CONFIG_HID_ROCCAT_KONEPLUS)	+= hid-roccat-koneplus.o
+diff --git a/Documentation/ioctl/ioctl-number.txt b/Documentation/ioctl/ioctl-number.txt
+index ac293e9..b0f1fa0 100644
+--- a/Documentation/ioctl/ioctl-number.txt
++++ b/Documentation/ioctl/ioctl-number.txt
+@@ -133,6 +133,7 @@ Code  Seq#(hex)	Include File		Comments
+ 'H'	C0-DF	net/bluetooth/hidp/hidp.h	conflict!
+ 'H'	C0-DF	net/bluetooth/cmtp/cmtp.h	conflict!
+ 'H'	C0-DF	net/bluetooth/bnep/bnep.h	conflict!
++'H'	F1	linux/roccat.h		<mailto:erazor_de@users.sourceforge.net>
+ 'I'	all	linux/isdn.h		conflict!
+ 'I'	00-0F	drivers/isdn/divert/isdn_divert.h	conflict!
+ 'I'	40-4F	linux/mISDNif.h		conflict!
 diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
-index ebf3c15..d72ee41 100644
+index d72ee41..7b9a992 100644
 --- a/drivers/hid/hid-roccat-arvo.c
 +++ b/drivers/hid/hid-roccat-arvo.c
-@@ -19,41 +19,15 @@
- #include <linux/device.h>
- #include <linux/input.h>
+@@ -21,8 +21,8 @@
  #include <linux/hid.h>
--#include <linux/usb.h>
  #include <linux/module.h>
  #include <linux/slab.h>
++#include <linux/roccat.h>
  #include "hid-ids.h"
- #include "hid-roccat.h"
-+#include "hid-roccat-common.h"
+-#include "hid-roccat.h"
+ #include "hid-roccat-common.h"
  #include "hid-roccat-arvo.h"
  
- static struct class *arvo_class;
- 
--static int arvo_receive(struct usb_device *usb_dev, uint usb_command,
--		void *buf, uint size)
--{
--	int len;
--
--	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			usb_command, 0, buf, size, USB_CTRL_SET_TIMEOUT);
--
--	return (len != size) ? -EIO : 0;
--}
--
--static int arvo_send(struct usb_device *usb_dev, uint usb_command,
--		void const *buf, uint size)
--{
--	int len;
--
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			usb_command, 0, (void *)buf, size, USB_CTRL_SET_TIMEOUT);
--
--	return (len != size) ? -EIO : 0;
--}
--
- static ssize_t arvo_sysfs_show_mode_key(struct device *dev,
- 		struct device_attribute *attr, char *buf)
- {
-@@ -61,24 +35,17 @@ static ssize_t arvo_sysfs_show_mode_key(struct device *dev,
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
- 	struct usb_device *usb_dev =
- 			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_mode_key *temp_buf;
-+	struct arvo_mode_key temp_buf;
- 	int retval;
- 
--	temp_buf = kmalloc(sizeof(struct arvo_mode_key), GFP_KERNEL);
--	if (!temp_buf)
--		return -ENOMEM;
--
- 	mutex_lock(&arvo->arvo_lock);
--	retval = arvo_receive(usb_dev, ARVO_USB_COMMAND_MODE_KEY,
--			temp_buf, sizeof(struct arvo_mode_key));
-+	retval = roccat_common_receive(usb_dev, ARVO_USB_COMMAND_MODE_KEY,
-+			&temp_buf, sizeof(struct arvo_mode_key));
- 	mutex_unlock(&arvo->arvo_lock);
- 	if (retval)
--		goto out;
-+		return retval;
- 
--	retval = snprintf(buf, PAGE_SIZE, "%d\n", temp_buf->state);
--out:
--	kfree(temp_buf);
--	return retval;
-+	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.state);
- }
- 
- static ssize_t arvo_sysfs_set_mode_key(struct device *dev,
-@@ -88,32 +55,25 @@ static ssize_t arvo_sysfs_set_mode_key(struct device *dev,
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
- 	struct usb_device *usb_dev =
- 			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_mode_key *temp_buf;
-+	struct arvo_mode_key temp_buf;
- 	unsigned long state;
- 	int retval;
- 
--	temp_buf = kmalloc(sizeof(struct arvo_mode_key), GFP_KERNEL);
--	if (!temp_buf)
--		return -ENOMEM;
--
- 	retval = strict_strtoul(buf, 10, &state);
- 	if (retval)
--		goto out;
-+		return retval;
- 
--	temp_buf->command = ARVO_COMMAND_MODE_KEY;
--	temp_buf->state = state;
-+	temp_buf.command = ARVO_COMMAND_MODE_KEY;
-+	temp_buf.state = state;
- 
- 	mutex_lock(&arvo->arvo_lock);
--	retval = arvo_send(usb_dev, ARVO_USB_COMMAND_MODE_KEY,
--			temp_buf, sizeof(struct arvo_mode_key));
-+	retval = roccat_common_send(usb_dev, ARVO_USB_COMMAND_MODE_KEY,
-+			&temp_buf, sizeof(struct arvo_mode_key));
- 	mutex_unlock(&arvo->arvo_lock);
- 	if (retval)
--		goto out;
-+		return retval;
- 
--	retval = size;
--out:
--	kfree(temp_buf);
--	return retval;
-+	return size;
- }
- 
- static ssize_t arvo_sysfs_show_key_mask(struct device *dev,
-@@ -123,24 +83,17 @@ static ssize_t arvo_sysfs_show_key_mask(struct device *dev,
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
- 	struct usb_device *usb_dev =
- 			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_key_mask *temp_buf;
-+	struct arvo_key_mask temp_buf;
- 	int retval;
- 
--	temp_buf = kmalloc(sizeof(struct arvo_key_mask), GFP_KERNEL);
--	if (!temp_buf)
--		return -ENOMEM;
--
- 	mutex_lock(&arvo->arvo_lock);
--	retval = arvo_receive(usb_dev, ARVO_USB_COMMAND_KEY_MASK,
--			temp_buf, sizeof(struct arvo_key_mask));
-+	retval = roccat_common_receive(usb_dev, ARVO_USB_COMMAND_KEY_MASK,
-+			&temp_buf, sizeof(struct arvo_key_mask));
- 	mutex_unlock(&arvo->arvo_lock);
- 	if (retval)
--		goto out;
-+		return retval;
- 
--	retval = snprintf(buf, PAGE_SIZE, "%d\n", temp_buf->key_mask);
--out:
--	kfree(temp_buf);
--	return retval;
-+	return snprintf(buf, PAGE_SIZE, "%d\n", temp_buf.key_mask);
- }
- 
- static ssize_t arvo_sysfs_set_key_mask(struct device *dev,
-@@ -150,52 +103,40 @@ static ssize_t arvo_sysfs_set_key_mask(struct device *dev,
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
- 	struct usb_device *usb_dev =
- 			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_key_mask *temp_buf;
-+	struct arvo_key_mask temp_buf;
- 	unsigned long key_mask;
- 	int retval;
- 
--	temp_buf = kmalloc(sizeof(struct arvo_key_mask), GFP_KERNEL);
--	if (!temp_buf)
--		return -ENOMEM;
--
- 	retval = strict_strtoul(buf, 10, &key_mask);
- 	if (retval)
--		goto out;
-+		return retval;
- 
--	temp_buf->command = ARVO_COMMAND_KEY_MASK;
--	temp_buf->key_mask = key_mask;
-+	temp_buf.command = ARVO_COMMAND_KEY_MASK;
-+	temp_buf.key_mask = key_mask;
- 
- 	mutex_lock(&arvo->arvo_lock);
--	retval = arvo_send(usb_dev, ARVO_USB_COMMAND_KEY_MASK,
--			temp_buf, sizeof(struct arvo_key_mask));
-+	retval = roccat_common_send(usb_dev, ARVO_USB_COMMAND_KEY_MASK,
-+			&temp_buf, sizeof(struct arvo_key_mask));
- 	mutex_unlock(&arvo->arvo_lock);
- 	if (retval)
--		goto out;
-+		return retval;
- 
--	retval = size;
--out:
--	kfree(temp_buf);
--	return retval;
-+	return size;
- }
- 
- /* retval is 1-5 on success, < 0 on error */
- static int arvo_get_actual_profile(struct usb_device *usb_dev)
- {
--	struct arvo_actual_profile *temp_buf;
-+	struct arvo_actual_profile temp_buf;
- 	int retval;
- 
--	temp_buf = kmalloc(sizeof(struct arvo_actual_profile), GFP_KERNEL);
--	if (!temp_buf)
--		return -ENOMEM;
--
--	retval = arvo_receive(usb_dev, ARVO_USB_COMMAND_ACTUAL_PROFILE,
--			temp_buf, sizeof(struct arvo_actual_profile));
-+	retval = roccat_common_receive(usb_dev, ARVO_USB_COMMAND_ACTUAL_PROFILE,
-+			&temp_buf, sizeof(struct arvo_actual_profile));
- 
--	if (!retval)
--		retval = temp_buf->actual_profile;
-+	if (retval)
-+		return retval;
- 
--	kfree(temp_buf);
--	return retval;
-+	return temp_buf.actual_profile;
- }
- 
- static ssize_t arvo_sysfs_show_actual_profile(struct device *dev,
-@@ -214,32 +155,25 @@ static ssize_t arvo_sysfs_set_actual_profile(struct device *dev,
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
- 	struct usb_device *usb_dev =
- 			interface_to_usbdev(to_usb_interface(dev->parent->parent));
--	struct arvo_actual_profile *temp_buf;
-+	struct arvo_actual_profile temp_buf;
- 	unsigned long profile;
- 	int retval;
- 
--	temp_buf = kmalloc(sizeof(struct arvo_actual_profile), GFP_KERNEL);
--	if (!temp_buf)
--		return -ENOMEM;
--
- 	retval = strict_strtoul(buf, 10, &profile);
- 	if (retval)
--		goto out;
-+		return retval;
- 
--	temp_buf->command = ARVO_COMMAND_ACTUAL_PROFILE;
--	temp_buf->actual_profile = profile;
-+	temp_buf.command = ARVO_COMMAND_ACTUAL_PROFILE;
-+	temp_buf.actual_profile = profile;
- 
- 	mutex_lock(&arvo->arvo_lock);
--	retval = arvo_send(usb_dev, ARVO_USB_COMMAND_ACTUAL_PROFILE,
--			temp_buf, sizeof(struct arvo_actual_profile));
-+	retval = roccat_common_send(usb_dev, ARVO_USB_COMMAND_ACTUAL_PROFILE,
-+			&temp_buf, sizeof(struct arvo_actual_profile));
- 	if (!retval) {
- 		arvo->actual_profile = profile;
- 		retval = size;
+@@ -303,7 +303,8 @@ static int arvo_init_specials(struct hid_device *hdev)
+ 		goto exit_free;
  	}
- 	mutex_unlock(&arvo->arvo_lock);
--
--out:
--	kfree(temp_buf);
- 	return retval;
+ 
+-	retval = roccat_connect(arvo_class, hdev);
++	retval = roccat_connect(arvo_class, hdev,
++			sizeof(struct arvo_roccat_report));
+ 	if (retval < 0) {
+ 		hid_err(hdev, "couldn't init char dev\n");
+ 	} else {
+@@ -386,8 +387,8 @@ static void arvo_report_to_chrdev(struct arvo_device const *arvo,
+ 	else
+ 		roccat_report.action = ARVO_ROCCAT_REPORT_ACTION_RELEASE;
+ 
+-	roccat_report_event(arvo->chrdev_minor, (uint8_t const *)&roccat_report,
+-			sizeof(struct arvo_roccat_report));
++	roccat_report_event(arvo->chrdev_minor,
++			(uint8_t const *)&roccat_report);
  }
  
-@@ -257,7 +191,7 @@ static ssize_t arvo_sysfs_write(struct file *fp,
- 		return -EINVAL;
- 
- 	mutex_lock(&arvo->arvo_lock);
--	retval = arvo_send(usb_dev, command, buf, real_size);
-+	retval = roccat_common_send(usb_dev, command, buf, real_size);
- 	mutex_unlock(&arvo->arvo_lock);
- 
- 	return (retval ? retval : real_size);
-@@ -280,7 +214,7 @@ static ssize_t arvo_sysfs_read(struct file *fp,
- 		return -EINVAL;
- 
- 	mutex_lock(&arvo->arvo_lock);
--	retval = arvo_receive(usb_dev, command, buf, real_size);
-+	retval = roccat_common_receive(usb_dev, command, buf, real_size);
- 	mutex_unlock(&arvo->arvo_lock);
- 
- 	return (retval ? retval : real_size);
-diff --git a/drivers/hid/hid-roccat-common.c b/drivers/hid/hid-roccat-common.c
-new file mode 100644
-index 0000000..13b1eb0
---- /dev/null
-+++ b/drivers/hid/hid-roccat-common.c
-@@ -0,0 +1,62 @@
-+/*
-+ * Roccat common functions for device specific drivers
-+ *
-+ * Copyright (c) 2011 Stefan Achatz <erazor_de@users.sourceforge.net>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/slab.h>
-+#include "hid-roccat-common.h"
-+
-+int roccat_common_receive(struct usb_device *usb_dev, uint usb_command,
-+		void *data, uint size)
-+{
-+	char *buf;
-+	int len;
-+
-+	buf = kmalloc(size, GFP_KERNEL);
-+	if (buf == NULL)
-+		return -ENOMEM;
-+
-+	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-+			USB_REQ_CLEAR_FEATURE,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
-+			usb_command, 0, buf, size, USB_CTRL_SET_TIMEOUT);
-+
-+	memcpy(data, buf, size);
-+	kfree(buf);
-+	return ((len < 0) ? len : ((len != size) ? -EIO : 0));
-+}
-+EXPORT_SYMBOL_GPL(roccat_common_receive);
-+
-+int roccat_common_send(struct usb_device *usb_dev, uint usb_command,
-+		void const *data, uint size)
-+{
-+	char *buf;
-+	int len;
-+
-+	buf = kmalloc(size, GFP_KERNEL);
-+	if (buf == NULL)
-+		return -ENOMEM;
-+
-+	memcpy(buf, data, size);
-+
-+	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
-+			USB_REQ_SET_CONFIGURATION,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
-+			usb_command, 0, buf, size, USB_CTRL_SET_TIMEOUT);
-+
-+	kfree(buf);
-+	return ((len < 0) ? len : ((len != size) ? -EIO : 0));
-+}
-+EXPORT_SYMBOL_GPL(roccat_common_send);
-+
-+MODULE_AUTHOR("Stefan Achatz");
-+MODULE_DESCRIPTION("USB Roccat common driver");
-+MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat-common.h b/drivers/hid/hid-roccat-common.h
-new file mode 100644
-index 0000000..fe45fae
---- /dev/null
-+++ b/drivers/hid/hid-roccat-common.h
-@@ -0,0 +1,23 @@
-+#ifndef __HID_ROCCAT_COMMON_H
-+#define __HID_ROCCAT_COMMON_H
-+
-+/*
-+ * Copyright (c) 2011 Stefan Achatz <erazor_de@users.sourceforge.net>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/usb.h>
-+#include <linux/types.h>
-+
-+int roccat_common_receive(struct usb_device *usb_dev, uint usb_command,
-+		void *data, uint size);
-+int roccat_common_send(struct usb_device *usb_dev, uint usb_command,
-+		void const *data, uint size);
-+
-+#endif
+ static int arvo_raw_event(struct hid_device *hdev,
 diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index cbd8cc4..5516653 100644
+index 5516653..5cdb282 100644
 --- a/drivers/hid/hid-roccat-kone.c
 +++ b/drivers/hid/hid-roccat-kone.c
-@@ -28,11 +28,11 @@
- #include <linux/device.h>
- #include <linux/input.h>
+@@ -30,8 +30,8 @@
  #include <linux/hid.h>
--#include <linux/usb.h>
  #include <linux/module.h>
  #include <linux/slab.h>
++#include <linux/roccat.h>
  #include "hid-ids.h"
- #include "hid-roccat.h"
-+#include "hid-roccat-common.h"
+-#include "hid-roccat.h"
+ #include "hid-roccat-common.h"
  #include "hid-roccat-kone.h"
  
- static uint profile_numbers[5] = {0, 1, 2, 3, 4};
-@@ -58,12 +58,8 @@ static void kone_set_settings_checksum(struct kone_settings *settings)
-  */
- static int kone_check_write(struct usb_device *usb_dev)
- {
--	int len;
--	unsigned char *data;
--
--	data = kmalloc(1, GFP_KERNEL);
--	if (!data)
--		return -ENOMEM;
-+	int retval;
-+	uint8_t data;
- 
- 	do {
- 		/*
-@@ -72,56 +68,36 @@ static int kone_check_write(struct usb_device *usb_dev)
- 		 */
- 		msleep(80);
- 
--		len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--				USB_REQ_CLEAR_FEATURE,
--				USB_TYPE_CLASS | USB_RECIP_INTERFACE |
--				USB_DIR_IN,
--				kone_command_confirm_write, 0, data, 1,
--				USB_CTRL_SET_TIMEOUT);
--
--		if (len != 1) {
--			kfree(data);
--			return -EIO;
--		}
-+		retval = roccat_common_receive(usb_dev,
-+				kone_command_confirm_write, &data, 1);
-+		if (retval)
-+			return retval;
- 
- 		/*
- 		 * value of 3 seems to mean something like
- 		 * "not finished yet, but it looks good"
- 		 * So check again after a moment.
- 		 */
--	} while (*data == 3);
-+	} while (data == 3);
- 
--	if (*data == 1) { /* everything alright */
--		kfree(data);
-+	if (data == 1) /* everything alright */
- 		return 0;
--	} else { /* unknown answer */
--		hid_err(usb_dev, "got retval %d when checking write\n", *data);
--		kfree(data);
--		return -EIO;
--	}
-+
-+	/* unknown answer */
-+	hid_err(usb_dev, "got retval %d when checking write\n", data);
-+	return -EIO;
- }
- 
- /*
-  * Reads settings from mouse and stores it in @buf
-- * @buf has to be alloced with GFP_KERNEL
-  * On success returns 0
-  * On failure returns errno
-  */
- static int kone_get_settings(struct usb_device *usb_dev,
- 		struct kone_settings *buf)
- {
--	int len;
--
--	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			kone_command_settings, 0, buf,
--			sizeof(struct kone_settings), USB_CTRL_SET_TIMEOUT);
--
--	if (len != sizeof(struct kone_settings))
--		return -EIO;
--
--	return 0;
-+	return roccat_common_receive(usb_dev, kone_command_settings, buf,
-+			sizeof(struct kone_settings));
- }
- 
- /*
-@@ -132,22 +108,12 @@ static int kone_get_settings(struct usb_device *usb_dev,
- static int kone_set_settings(struct usb_device *usb_dev,
- 		struct kone_settings const *settings)
- {
--	int len;
--
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			kone_command_settings, 0, (char *)settings,
--			sizeof(struct kone_settings),
--			USB_CTRL_SET_TIMEOUT);
--
--	if (len != sizeof(struct kone_settings))
--		return -EIO;
--
--	if (kone_check_write(usb_dev))
--		return -EIO;
--
--	return 0;
-+	int retval;
-+	retval = roccat_common_send(usb_dev, kone_command_settings,
-+			settings, sizeof(struct kone_settings));
-+	if (retval)
-+		return retval;
-+	return kone_check_write(usb_dev);
- }
- 
- /*
-@@ -193,7 +159,7 @@ static int kone_set_profile(struct usb_device *usb_dev,
- 	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
- 			USB_REQ_SET_CONFIGURATION,
- 			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			kone_command_profile, number, (char *)profile,
-+			kone_command_profile, number, (void *)profile,
- 			sizeof(struct kone_profile),
- 			USB_CTRL_SET_TIMEOUT);
- 
-@@ -213,24 +179,15 @@ static int kone_set_profile(struct usb_device *usb_dev,
-  */
- static int kone_get_weight(struct usb_device *usb_dev, int *result)
- {
--	int len;
--	uint8_t *data;
-+	int retval;
-+	uint8_t data;
- 
--	data = kmalloc(1, GFP_KERNEL);
--	if (!data)
--		return -ENOMEM;
-+	retval = roccat_common_receive(usb_dev, kone_command_weight, &data, 1);
- 
--	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			kone_command_weight, 0, data, 1, USB_CTRL_SET_TIMEOUT);
-+	if (retval)
-+		return retval;
- 
--	if (len != 1) {
--		kfree(data);
--		return -EIO;
--	}
--	*result = (int)*data;
--	kfree(data);
-+	*result = (int)data;
- 	return 0;
- }
- 
-@@ -241,25 +198,15 @@ static int kone_get_weight(struct usb_device *usb_dev, int *result)
-  */
- static int kone_get_firmware_version(struct usb_device *usb_dev, int *result)
- {
--	int len;
--	unsigned char *data;
--
--	data = kmalloc(2, GFP_KERNEL);
--	if (!data)
--		return -ENOMEM;
-+	int retval;
-+	uint16_t data;
- 
--	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			kone_command_firmware_version, 0, data, 2,
--			USB_CTRL_SET_TIMEOUT);
-+	retval = roccat_common_receive(usb_dev, kone_command_firmware_version,
-+			&data, 2);
-+	if (retval)
-+		return retval;
- 
--	if (len != 2) {
--		kfree(data);
--		return -EIO;
--	}
--	*result = le16_to_cpu(*data);
--	kfree(data);
-+	*result = le16_to_cpu(data);
- 	return 0;
- }
- 
-@@ -435,23 +382,9 @@ static ssize_t kone_sysfs_show_tcu(struct device *dev,
- 
- static int kone_tcu_command(struct usb_device *usb_dev, int number)
- {
--	int len;
--	char *value;
--
--	value = kmalloc(1, GFP_KERNEL);
--	if (!value)
--		return -ENOMEM;
--
--	*value = number;
--
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			kone_command_calibrate, 0, value, 1,
--			USB_CTRL_SET_TIMEOUT);
--
--	kfree(value);
--	return ((len != 1) ? -EIO : 0);
-+	unsigned char value;
-+	value = number;
-+	return roccat_common_send(usb_dev, kone_command_calibrate, &value, 1);
- }
- 
- /*
-diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-index c826c0d..d1c3a02 100644
---- a/drivers/hid/hid-roccat-koneplus.c
-+++ b/drivers/hid/hid-roccat-koneplus.c
-@@ -19,11 +19,11 @@
- #include <linux/device.h>
- #include <linux/input.h>
- #include <linux/hid.h>
--#include <linux/usb.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include "hid-ids.h"
- #include "hid-roccat.h"
-+#include "hid-roccat-common.h"
- #include "hid-roccat-koneplus.h"
- 
- static uint profile_numbers[5] = {0, 1, 2, 3, 4};
-@@ -39,110 +39,63 @@ static void koneplus_profile_activated(struct koneplus_device *koneplus,
- static int koneplus_send_control(struct usb_device *usb_dev, uint value,
- 		enum koneplus_control_requests request)
- {
--	int len;
--	struct koneplus_control *control;
-+	struct koneplus_control control;
- 
- 	if ((request == KONEPLUS_CONTROL_REQUEST_PROFILE_SETTINGS ||
- 			request == KONEPLUS_CONTROL_REQUEST_PROFILE_BUTTONS) &&
- 			value > 4)
- 		return -EINVAL;
- 
--	control = kmalloc(sizeof(struct koneplus_control), GFP_KERNEL);
--	if (!control)
--		return -ENOMEM;
-+	control.command = KONEPLUS_COMMAND_CONTROL;
-+	control.value = value;
-+	control.request = request;
- 
--	control->command = KONEPLUS_COMMAND_CONTROL;
--	control->value = value;
--	control->request = request;
--
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			KONEPLUS_USB_COMMAND_CONTROL, 0, control,
--			sizeof(struct koneplus_control),
--			USB_CTRL_SET_TIMEOUT);
--
--	kfree(control);
--
--	if (len != sizeof(struct koneplus_control))
--		return len;
--
--	return 0;
--}
--
--static int koneplus_receive(struct usb_device *usb_dev, uint usb_command,
--		void *buf, uint size) {
--	int len;
--
--	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			usb_command, 0, buf, size, USB_CTRL_SET_TIMEOUT);
--
--	return (len != size) ? -EIO : 0;
-+	return roccat_common_send(usb_dev, KONEPLUS_USB_COMMAND_CONTROL,
-+			&control, sizeof(struct koneplus_control));
- }
- 
- static int koneplus_receive_control_status(struct usb_device *usb_dev)
- {
- 	int retval;
--	struct koneplus_control *control;
--
--	control = kmalloc(sizeof(struct koneplus_control), GFP_KERNEL);
--	if (!control)
--		return -ENOMEM;
-+	struct koneplus_control control;
- 
- 	do {
--		retval = koneplus_receive(usb_dev, KONEPLUS_USB_COMMAND_CONTROL,
--				control, sizeof(struct koneplus_control));
-+		retval = roccat_common_receive(usb_dev, KONEPLUS_USB_COMMAND_CONTROL,
-+				&control, sizeof(struct koneplus_control));
- 
- 		/* check if we get a completely wrong answer */
- 		if (retval)
--			goto out;
-+			return retval;
- 
--		if (control->value == KONEPLUS_CONTROL_REQUEST_STATUS_OK) {
--			retval = 0;
--			goto out;
--		}
-+		if (control.value == KONEPLUS_CONTROL_REQUEST_STATUS_OK)
-+			return 0;
- 
- 		/* indicates that hardware needs some more time to complete action */
--		if (control->value == KONEPLUS_CONTROL_REQUEST_STATUS_WAIT) {
-+		if (control.value == KONEPLUS_CONTROL_REQUEST_STATUS_WAIT) {
- 			msleep(500); /* windows driver uses 1000 */
- 			continue;
+@@ -660,7 +660,8 @@ static int kone_init_specials(struct hid_device *hdev)
+ 			goto exit_free;
  		}
  
- 		/* seems to be critical - replug necessary */
--		if (control->value == KONEPLUS_CONTROL_REQUEST_STATUS_OVERLOAD) {
--			retval = -EINVAL;
--			goto out;
--		}
-+		if (control.value == KONEPLUS_CONTROL_REQUEST_STATUS_OVERLOAD)
-+			return -EINVAL;
- 
- 		hid_err(usb_dev, "koneplus_receive_control_status: "
--				"unknown response value 0x%x\n", control->value);
--		retval = -EINVAL;
--		goto out;
--
-+				"unknown response value 0x%x\n", control.value);
-+		return -EINVAL;
- 	} while (1);
--out:
--	kfree(control);
--	return retval;
- }
- 
- static int koneplus_send(struct usb_device *usb_dev, uint command,
--		void *buf, uint size) {
--	int len;
--
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			command, 0, buf, size, USB_CTRL_SET_TIMEOUT);
--
--	if (len != size)
--		return -EIO;
-+		void const *buf, uint size)
-+{
-+	int retval;
- 
--	if (koneplus_receive_control_status(usb_dev))
--		return -EIO;
-+	retval = roccat_common_send(usb_dev, command, buf, size);
-+	if (retval)
-+		return retval;
- 
--	return 0;
-+	return koneplus_receive_control_status(usb_dev);
- }
- 
- static int koneplus_select_profile(struct usb_device *usb_dev, uint number,
-@@ -167,7 +120,7 @@ static int koneplus_select_profile(struct usb_device *usb_dev, uint number,
- static int koneplus_get_info(struct usb_device *usb_dev,
- 		struct koneplus_info *buf)
- {
--	return koneplus_receive(usb_dev, KONEPLUS_USB_COMMAND_INFO,
-+	return roccat_common_receive(usb_dev, KONEPLUS_USB_COMMAND_INFO,
- 			buf, sizeof(struct koneplus_info));
- }
- 
-@@ -181,7 +134,7 @@ static int koneplus_get_profile_settings(struct usb_device *usb_dev,
- 	if (retval)
- 		return retval;
- 
--	return koneplus_receive(usb_dev, KONEPLUS_USB_COMMAND_PROFILE_SETTINGS,
-+	return roccat_common_receive(usb_dev, KONEPLUS_USB_COMMAND_PROFILE_SETTINGS,
- 			buf, sizeof(struct koneplus_profile_settings));
- }
- 
-@@ -189,7 +142,7 @@ static int koneplus_set_profile_settings(struct usb_device *usb_dev,
- 		struct koneplus_profile_settings const *settings)
- {
- 	return koneplus_send(usb_dev, KONEPLUS_USB_COMMAND_PROFILE_SETTINGS,
--			(void *)settings, sizeof(struct koneplus_profile_settings));
-+			settings, sizeof(struct koneplus_profile_settings));
- }
- 
- static int koneplus_get_profile_buttons(struct usb_device *usb_dev,
-@@ -202,7 +155,7 @@ static int koneplus_get_profile_buttons(struct usb_device *usb_dev,
- 	if (retval)
- 		return retval;
- 
--	return koneplus_receive(usb_dev, KONEPLUS_USB_COMMAND_PROFILE_BUTTONS,
-+	return roccat_common_receive(usb_dev, KONEPLUS_USB_COMMAND_PROFILE_BUTTONS,
- 			buf, sizeof(struct koneplus_profile_buttons));
- }
- 
-@@ -210,29 +163,19 @@ static int koneplus_set_profile_buttons(struct usb_device *usb_dev,
- 		struct koneplus_profile_buttons const *buttons)
- {
- 	return koneplus_send(usb_dev, KONEPLUS_USB_COMMAND_PROFILE_BUTTONS,
--			(void *)buttons, sizeof(struct koneplus_profile_buttons));
-+			buttons, sizeof(struct koneplus_profile_buttons));
- }
- 
- /* retval is 0-4 on success, < 0 on error */
- static int koneplus_get_startup_profile(struct usb_device *usb_dev)
- {
--	struct koneplus_startup_profile *buf;
-+	struct koneplus_startup_profile buf;
- 	int retval;
- 
--	buf = kmalloc(sizeof(struct koneplus_startup_profile), GFP_KERNEL);
--	if (buf == NULL)
--		return -ENOMEM;
--
--	retval = koneplus_receive(usb_dev, KONEPLUS_USB_COMMAND_STARTUP_PROFILE,
--			buf, sizeof(struct koneplus_startup_profile));
-+	retval = roccat_common_receive(usb_dev, KONEPLUS_USB_COMMAND_STARTUP_PROFILE,
-+			&buf, sizeof(struct koneplus_startup_profile));
- 
--	if (retval)
--		goto out;
--
--	retval = buf->startup_profile;
--out:
--	kfree(buf);
--	return retval;
-+	return retval ? retval : buf.startup_profile;
- }
- 
- static int koneplus_set_startup_profile(struct usb_device *usb_dev,
-@@ -245,7 +188,7 @@ static int koneplus_set_startup_profile(struct usb_device *usb_dev,
- 	buf.startup_profile = startup_profile;
- 
- 	return koneplus_send(usb_dev, KONEPLUS_USB_COMMAND_STARTUP_PROFILE,
--			(char *)&buf, sizeof(struct koneplus_profile_buttons));
-+			&buf, sizeof(struct koneplus_profile_buttons));
- }
- 
- static ssize_t koneplus_sysfs_read(struct file *fp, struct kobject *kobj,
-@@ -265,7 +208,7 @@ static ssize_t koneplus_sysfs_read(struct file *fp, struct kobject *kobj,
- 		return -EINVAL;
- 
- 	mutex_lock(&koneplus->koneplus_lock);
--	retval = koneplus_receive(usb_dev, command, buf, real_size);
-+	retval = roccat_common_receive(usb_dev, command, buf, real_size);
- 	mutex_unlock(&koneplus->koneplus_lock);
- 
- 	if (retval)
-@@ -288,7 +231,7 @@ static ssize_t koneplus_sysfs_write(struct file *fp, struct kobject *kobj,
- 		return -EINVAL;
- 
- 	mutex_lock(&koneplus->koneplus_lock);
--	retval = koneplus_send(usb_dev, command, (void *)buf, real_size);
-+	retval = koneplus_send(usb_dev, command, buf, real_size);
- 	mutex_unlock(&koneplus->koneplus_lock);
- 
- 	if (retval)
-@@ -352,7 +295,7 @@ static ssize_t koneplus_sysfs_read_profilex_settings(struct file *fp,
- 		count = sizeof(struct koneplus_profile_settings) - off;
- 
- 	mutex_lock(&koneplus->koneplus_lock);
--	memcpy(buf, ((void const *)&koneplus->profile_settings[*(uint *)(attr->private)]) + off,
-+	memcpy(buf, ((char const *)&koneplus->profile_settings[*(uint *)(attr->private)]) + off,
- 			count);
- 	mutex_unlock(&koneplus->koneplus_lock);
- 
-@@ -411,7 +354,7 @@ static ssize_t koneplus_sysfs_read_profilex_buttons(struct file *fp,
- 		count = sizeof(struct koneplus_profile_buttons) - off;
- 
- 	mutex_lock(&koneplus->koneplus_lock);
--	memcpy(buf, ((void const *)&koneplus->profile_buttons[*(uint *)(attr->private)]) + off,
-+	memcpy(buf, ((char const *)&koneplus->profile_buttons[*(uint *)(attr->private)]) + off,
- 			count);
- 	mutex_unlock(&koneplus->koneplus_lock);
- 
-diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
-index 02c58e0..abe77d3 100644
---- a/drivers/hid/hid-roccat-pyra.c
-+++ b/drivers/hid/hid-roccat-pyra.c
-@@ -20,11 +20,11 @@
- #include <linux/device.h>
- #include <linux/input.h>
+-		retval = roccat_connect(kone_class, hdev);
++		retval = roccat_connect(kone_class, hdev,
++				sizeof(struct kone_roccat_report));
+ 		if (retval < 0) {
+ 			hid_err(hdev, "couldn't init char dev\n");
+ 			/* be tolerant about not getting chrdev */
+@@ -760,8 +761,7 @@ static void kone_report_to_chrdev(struct kone_device const *kone,
+ 		roccat_report.value = event->value;
+ 		roccat_report.key = 0;
+ 		roccat_report_event(kone->chrdev_minor,
+-				(uint8_t *)&roccat_report,
+-				sizeof(struct kone_roccat_report));
++				(uint8_t *)&roccat_report);
+ 		break;
+ 	case kone_mouse_event_call_overlong_macro:
+ 		if (event->value == kone_keystroke_action_press) {
+@@ -769,8 +769,7 @@ static void kone_report_to_chrdev(struct kone_device const *kone,
+ 			roccat_report.value = kone->actual_profile;
+ 			roccat_report.key = event->macro_key;
+ 			roccat_report_event(kone->chrdev_minor,
+-					(uint8_t *)&roccat_report,
+-					sizeof(struct kone_roccat_report));
++					(uint8_t *)&roccat_report);
+ 		}
+ 		break;
+ 	}
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index d1c3a02..29a42b4 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -21,8 +21,8 @@
  #include <linux/hid.h>
--#include <linux/usb.h>
  #include <linux/module.h>
  #include <linux/slab.h>
++#include <linux/roccat.h>
  #include "hid-ids.h"
- #include "hid-roccat.h"
-+#include "hid-roccat-common.h"
+-#include "hid-roccat.h"
+ #include "hid-roccat-common.h"
+ #include "hid-roccat-koneplus.h"
+ 
+@@ -612,7 +612,8 @@ static int koneplus_init_specials(struct hid_device *hdev)
+ 			goto exit_free;
+ 		}
+ 
+-		retval = roccat_connect(koneplus_class, hdev);
++		retval = roccat_connect(koneplus_class, hdev,
++				sizeof(struct koneplus_roccat_report));
+ 		if (retval < 0) {
+ 			hid_err(hdev, "couldn't init char dev\n");
+ 		} else {
+@@ -718,8 +719,7 @@ static void koneplus_report_to_chrdev(struct koneplus_device const *koneplus,
+ 	roccat_report.data2 = button_report->data2;
+ 	roccat_report.profile = koneplus->actual_profile + 1;
+ 	roccat_report_event(koneplus->chrdev_minor,
+-			(uint8_t const *)&roccat_report,
+-			sizeof(struct koneplus_roccat_report));
++			(uint8_t const *)&roccat_report);
+ }
+ 
+ static int koneplus_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 1f547a2..7664e2c 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -20,8 +20,8 @@
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
++#include <linux/roccat.h>
+ #include "hid-ids.h"
+-#include "hid-roccat.h"
+ #include "hid-roccat-common.h"
+ #include "hid-roccat-kovaplus.h"
+ 
+@@ -524,7 +524,8 @@ static int kovaplus_init_specials(struct hid_device *hdev)
+ 			goto exit_free;
+ 		}
+ 
+-		retval = roccat_connect(kovaplus_class, hdev);
++		retval = roccat_connect(kovaplus_class, hdev,
++				sizeof(struct kovaplus_roccat_report));
+ 		if (retval < 0) {
+ 			hid_err(hdev, "couldn't init char dev\n");
+ 		} else {
+@@ -648,8 +649,7 @@ static void kovaplus_report_to_chrdev(struct kovaplus_device const *kovaplus,
+ 	roccat_report.data2 = button_report->data2;
+ 
+ 	roccat_report_event(kovaplus->chrdev_minor,
+-			(uint8_t const *)&roccat_report,
+-			sizeof(struct kovaplus_roccat_report));
++			(uint8_t const *)&roccat_report);
+ }
+ 
+ static int kovaplus_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index abe77d3..be4daa9 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -22,8 +22,8 @@
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
++#include <linux/roccat.h>
+ #include "hid-ids.h"
+-#include "hid-roccat.h"
+ #include "hid-roccat-common.h"
  #include "hid-roccat-pyra.h"
  
- static uint profile_numbers[5] = {0, 1, 2, 3, 4};
-@@ -42,7 +42,6 @@ static void profile_activated(struct pyra_device *pyra,
- static int pyra_send_control(struct usb_device *usb_dev, int value,
- 		enum pyra_control_requests request)
- {
--	int len;
- 	struct pyra_control control;
+@@ -506,7 +506,8 @@ static int pyra_init_specials(struct hid_device *hdev)
+ 			goto exit_free;
+ 		}
  
- 	if ((request == PYRA_CONTROL_REQUEST_PROFILE_SETTINGS ||
-@@ -54,47 +53,31 @@ static int pyra_send_control(struct usb_device *usb_dev, int value,
- 	control.value = value;
- 	control.request = request;
- 
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			PYRA_USB_COMMAND_CONTROL, 0, (char *)&control,
--			sizeof(struct pyra_control),
--			USB_CTRL_SET_TIMEOUT);
--
--	if (len != sizeof(struct pyra_control))
--		return len;
--
--	return 0;
-+	return roccat_common_send(usb_dev, PYRA_USB_COMMAND_CONTROL,
-+			&control, sizeof(struct pyra_control));
- }
- 
- static int pyra_receive_control_status(struct usb_device *usb_dev)
- {
--	int len;
-+	int retval;
- 	struct pyra_control control;
- 
- 	do {
- 		msleep(10);
--
--		len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--				USB_REQ_CLEAR_FEATURE,
--				USB_TYPE_CLASS | USB_RECIP_INTERFACE |
--				USB_DIR_IN,
--				PYRA_USB_COMMAND_CONTROL, 0, (char *)&control,
--				sizeof(struct pyra_control),
--				USB_CTRL_SET_TIMEOUT);
-+		retval = roccat_common_receive(usb_dev, PYRA_USB_COMMAND_CONTROL,
-+				&control, sizeof(struct pyra_control));
- 
- 		/* requested too early, try again */
--	} while (len == -EPROTO);
-+	} while (retval == -EPROTO);
- 
--	if (len == sizeof(struct pyra_control) &&
--			control.command == PYRA_COMMAND_CONTROL &&
-+	if (!retval && control.command == PYRA_COMMAND_CONTROL &&
- 			control.request == PYRA_CONTROL_REQUEST_STATUS &&
- 			control.value == 1)
--			return 0;
-+		return 0;
- 	else {
- 		hid_err(usb_dev, "receive control status: unknown response 0x%x 0x%x\n",
- 			control.request, control.value);
--		return -EINVAL;
-+		return retval ? retval : -EINVAL;
+-		retval = roccat_connect(pyra_class, hdev);
++		retval = roccat_connect(pyra_class, hdev,
++				sizeof(struct pyra_roccat_report));
+ 		if (retval < 0) {
+ 			hid_err(hdev, "couldn't init char dev\n");
+ 		} else {
+@@ -610,8 +611,7 @@ static void pyra_report_to_chrdev(struct pyra_device const *pyra,
+ 		roccat_report.value = button_event->data1;
+ 		roccat_report.key = 0;
+ 		roccat_report_event(pyra->chrdev_minor,
+-				(uint8_t const *)&roccat_report,
+-				sizeof(struct pyra_roccat_report));
++				(uint8_t const *)&roccat_report);
+ 		break;
+ 	case PYRA_MOUSE_EVENT_BUTTON_TYPE_MACRO:
+ 	case PYRA_MOUSE_EVENT_BUTTON_TYPE_SHORTCUT:
+@@ -625,8 +625,7 @@ static void pyra_report_to_chrdev(struct pyra_device const *pyra,
+ 			 */
+ 			roccat_report.value = pyra->actual_profile + 1;
+ 			roccat_report_event(pyra->chrdev_minor,
+-					(uint8_t const *)&roccat_report,
+-					sizeof(struct pyra_roccat_report));
++					(uint8_t const *)&roccat_report);
+ 		}
+ 		break;
  	}
- }
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index a14c579..0fa23de 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -26,8 +26,7 @@
+ #include <linux/cdev.h>
+ #include <linux/poll.h>
+ #include <linux/sched.h>
+-
+-#include "hid-roccat.h"
++#include <linux/roccat.h>
  
-@@ -102,125 +85,72 @@ static int pyra_get_profile_settings(struct usb_device *usb_dev,
- 		struct pyra_profile_settings *buf, int number)
- {
- 	int retval;
--
- 	retval = pyra_send_control(usb_dev, number,
- 			PYRA_CONTROL_REQUEST_PROFILE_SETTINGS);
--
- 	if (retval)
- 		return retval;
--
--	retval = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			PYRA_USB_COMMAND_PROFILE_SETTINGS, 0, (char *)buf,
--			sizeof(struct pyra_profile_settings),
--			USB_CTRL_SET_TIMEOUT);
--
--	if (retval != sizeof(struct pyra_profile_settings))
--		return retval;
--
--	return 0;
-+	return roccat_common_receive(usb_dev, PYRA_USB_COMMAND_PROFILE_SETTINGS,
-+			buf, sizeof(struct pyra_profile_settings));
- }
+ #define ROCCAT_FIRST_MINOR 0
+ #define ROCCAT_MAX_DEVICES 8
+@@ -37,11 +36,11 @@
  
- static int pyra_get_profile_buttons(struct usb_device *usb_dev,
- 		struct pyra_profile_buttons *buf, int number)
- {
- 	int retval;
--
- 	retval = pyra_send_control(usb_dev, number,
- 			PYRA_CONTROL_REQUEST_PROFILE_BUTTONS);
--
- 	if (retval)
- 		return retval;
--
--	retval = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			PYRA_USB_COMMAND_PROFILE_BUTTONS, 0, (char *)buf,
--			sizeof(struct pyra_profile_buttons),
--			USB_CTRL_SET_TIMEOUT);
--
--	if (retval != sizeof(struct pyra_profile_buttons))
--		return retval;
--
--	return 0;
-+	return roccat_common_receive(usb_dev, PYRA_USB_COMMAND_PROFILE_BUTTONS,
-+			buf, sizeof(struct pyra_profile_buttons));
- }
- 
- static int pyra_get_settings(struct usb_device *usb_dev,
- 		struct pyra_settings *buf)
- {
+ struct roccat_report {
+ 	uint8_t *value;
 -	int len;
--	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			PYRA_USB_COMMAND_SETTINGS, 0, buf,
--			sizeof(struct pyra_settings), USB_CTRL_SET_TIMEOUT);
--	if (len != sizeof(struct pyra_settings))
--		return -EIO;
--	return 0;
-+	return roccat_common_receive(usb_dev, PYRA_USB_COMMAND_SETTINGS,
-+			buf, sizeof(struct pyra_settings));
- }
+ };
  
- static int pyra_get_info(struct usb_device *usb_dev, struct pyra_info *buf)
+ struct roccat_device {
+ 	unsigned int minor;
++	int report_size;
+ 	int open;
+ 	int exist;
+ 	wait_queue_head_t wait;
+@@ -123,7 +122,7 @@ static ssize_t roccat_read(struct file *file, char __user *buffer,
+ 	 * If report is larger than requested amount of data, rest of report
+ 	 * is lost!
+ 	 */
+-	len = report->len > count ? count : report->len;
++	len = device->report_size > count ? count : device->report_size;
+ 
+ 	if (copy_to_user(buffer, report->value, len)) {
+ 		retval = -EFAULT;
+@@ -248,26 +247,25 @@ static int roccat_release(struct inode *inode, struct file *file)
+  *
+  * This is called from interrupt handler.
+  */
+-int roccat_report_event(int minor, u8 const *data, int len)
++int roccat_report_event(int minor, u8 const *data)
  {
--	int len;
--	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
--			USB_REQ_CLEAR_FEATURE,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
--			PYRA_USB_COMMAND_INFO, 0, buf,
--			sizeof(struct pyra_info), USB_CTRL_SET_TIMEOUT);
--	if (len != sizeof(struct pyra_info))
--		return -EIO;
--	return 0;
-+	return roccat_common_receive(usb_dev, PYRA_USB_COMMAND_INFO,
-+			buf, sizeof(struct pyra_info));
+ 	struct roccat_device *device;
+ 	struct roccat_reader *reader;
+ 	struct roccat_report *report;
+ 	uint8_t *new_value;
+ 
+-	new_value = kmemdup(data, len, GFP_ATOMIC);
++	device = devices[minor];
++
++	new_value = kmemdup(data, device->report_size, GFP_ATOMIC);
+ 	if (!new_value)
+ 		return -ENOMEM;
+ 
+-	device = devices[minor];
+-
+ 	report = &device->cbuf[device->cbuf_end];
+ 
+ 	/* passing NULL is safe */
+ 	kfree(report->value);
+ 
+ 	report->value = new_value;
+-	report->len = len;
+ 	device->cbuf_end = (device->cbuf_end + 1) % ROCCAT_CBUF_SIZE;
+ 
+ 	list_for_each_entry(reader, &device->readers, node) {
+@@ -295,7 +293,7 @@ EXPORT_SYMBOL_GPL(roccat_report_event);
+  * Return value is minor device number in Range [0, ROCCAT_MAX_DEVICES] on
+  * success, a negative error code on failure.
+  */
+-int roccat_connect(struct class *klass, struct hid_device *hid)
++int roccat_connect(struct class *klass, struct hid_device *hid, int report_size)
+ {
+ 	unsigned int minor;
+ 	struct roccat_device *device;
+@@ -343,6 +341,7 @@ int roccat_connect(struct class *klass, struct hid_device *hid)
+ 	device->hid = hid;
+ 	device->exist = 1;
+ 	device->cbuf_end = 0;
++	device->report_size = report_size;
+ 
+ 	return minor;
+ }
+@@ -373,6 +372,34 @@ void roccat_disconnect(int minor)
+ }
+ EXPORT_SYMBOL_GPL(roccat_disconnect);
+ 
++static long roccat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct inode *inode = file->f_path.dentry->d_inode;
++	struct roccat_device *device;
++	unsigned int minor = iminor(inode);
++	long retval = 0;
++
++	mutex_lock(&devices_lock);
++
++	device = devices[minor];
++	if (!device) {
++		retval = -ENODEV;
++		goto out;
++	}
++
++	switch (cmd) {
++	case ROCCATIOCGREPSIZE:
++		if (put_user(device->report_size, (int __user *)arg))
++			retval = -EFAULT;
++		break;
++	default:
++		retval = -ENOTTY;
++	}
++out:
++	mutex_unlock(&devices_lock);
++	return retval;
 +}
 +
-+static int pyra_send(struct usb_device *usb_dev, uint command,
-+		void const *buf, uint size)
-+{
-+	int retval;
-+	retval = roccat_common_send(usb_dev, command, buf, size);
-+	if (retval)
-+		return retval;
-+	return pyra_receive_control_status(usb_dev);
- }
+ static const struct file_operations roccat_ops = {
+ 	.owner = THIS_MODULE,
+ 	.read = roccat_read,
+@@ -380,6 +407,7 @@ static const struct file_operations roccat_ops = {
+ 	.open = roccat_open,
+ 	.release = roccat_release,
+ 	.llseek = noop_llseek,
++	.unlocked_ioctl = roccat_ioctl,
+ };
  
- static int pyra_set_profile_settings(struct usb_device *usb_dev,
- 		struct pyra_profile_settings const *settings)
- {
--	int len;
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			PYRA_USB_COMMAND_PROFILE_SETTINGS, 0, (char *)settings,
--			sizeof(struct pyra_profile_settings),
--			USB_CTRL_SET_TIMEOUT);
--	if (len != sizeof(struct pyra_profile_settings))
--		return -EIO;
--	if (pyra_receive_control_status(usb_dev))
--		return -EIO;
--	return 0;
-+	return pyra_send(usb_dev, PYRA_USB_COMMAND_PROFILE_SETTINGS, settings,
-+			sizeof(struct pyra_profile_settings));
- }
- 
- static int pyra_set_profile_buttons(struct usb_device *usb_dev,
- 		struct pyra_profile_buttons const *buttons)
- {
--	int len;
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			PYRA_USB_COMMAND_PROFILE_BUTTONS, 0, (char *)buttons,
--			sizeof(struct pyra_profile_buttons),
--			USB_CTRL_SET_TIMEOUT);
--	if (len != sizeof(struct pyra_profile_buttons))
--		return -EIO;
--	if (pyra_receive_control_status(usb_dev))
--		return -EIO;
--	return 0;
-+	return pyra_send(usb_dev, PYRA_USB_COMMAND_PROFILE_BUTTONS, buttons,
-+			sizeof(struct pyra_profile_buttons));
- }
- 
- static int pyra_set_settings(struct usb_device *usb_dev,
- 		struct pyra_settings const *settings)
- {
--	int len;
--	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
--			USB_REQ_SET_CONFIGURATION,
--			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
--			PYRA_USB_COMMAND_SETTINGS, 0, (char *)settings,
--			sizeof(struct pyra_settings), USB_CTRL_SET_TIMEOUT);
--	if (len != sizeof(struct pyra_settings))
--		return -EIO;
--	if (pyra_receive_control_status(usb_dev))
--		return -EIO;
--	return 0;
-+	int retval;
-+	retval = roccat_common_send(usb_dev, PYRA_USB_COMMAND_SETTINGS, settings,
-+			sizeof(struct pyra_settings));
-+	if (retval)
-+		return retval;
-+	return pyra_receive_control_status(usb_dev);
- }
- 
- static ssize_t pyra_sysfs_read_profilex_settings(struct file *fp,
-@@ -521,21 +451,16 @@ static struct bin_attribute pyra_bin_attributes[] = {
- static int pyra_init_pyra_device_struct(struct usb_device *usb_dev,
- 		struct pyra_device *pyra)
- {
--	struct pyra_info *info;
-+	struct pyra_info info;
- 	int retval, i;
- 
- 	mutex_init(&pyra->pyra_lock);
- 
--	info = kmalloc(sizeof(struct pyra_info), GFP_KERNEL);
--	if (!info)
--		return -ENOMEM;
--	retval = pyra_get_info(usb_dev, info);
--	if (retval) {
--		kfree(info);
-+	retval = pyra_get_info(usb_dev, &info);
-+	if (retval)
- 		return retval;
--	}
--	pyra->firmware_version = info->firmware_version;
--	kfree(info);
+ static int __init roccat_init(void)
+diff --git a/drivers/hid/hid-roccat.h b/drivers/hid/hid-roccat.h
+deleted file mode 100644
+index c739337..0000000
+--- a/drivers/hid/hid-roccat.h
++++ /dev/null
+@@ -1,22 +0,0 @@
+-#ifndef __HID_ROCCAT_H
+-#define __HID_ROCCAT_H
+-
+-/*
+- * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
+- */
+-
+-/*
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License as published by the Free
+- * Software Foundation; either version 2 of the License, or (at your option)
+- * any later version.
+- */
+-
+-#include <linux/hid.h>
+-#include <linux/types.h>
+-
+-int roccat_connect(struct class *klass, struct hid_device *hid);
+-void roccat_disconnect(int minor);
+-int roccat_report_event(int minor, u8 const *data, int len);
+-
+-#endif
+diff --git a/include/linux/roccat.h b/include/linux/roccat.h
+new file mode 100644
+index 0000000..24e1ca0
+--- /dev/null
++++ b/include/linux/roccat.h
+@@ -0,0 +1,29 @@
++#ifndef __HID_ROCCAT_H
++#define __HID_ROCCAT_H
 +
-+	pyra->firmware_version = info.firmware_version;
- 
- 	retval = pyra_get_settings(usb_dev, &pyra->settings);
- 	if (retval)
++/*
++ * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/hid.h>
++#include <linux/types.h>
++
++#define ROCCATIOCGREPSIZE _IOR('H', 0xf1, int)
++
++#ifdef __KERNEL__
++
++int roccat_connect(struct class *klass, struct hid_device *hid,
++		int report_size);
++void roccat_disconnect(int minor);
++int roccat_report_event(int minor, u8 const *data);
++
++#endif
++
++#endif
 -- 
 1.7.3.4
 

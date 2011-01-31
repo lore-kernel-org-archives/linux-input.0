@@ -1,51 +1,44 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
-Date: Mon, 31 Jan 2011 22:28:42 +0100
-Message-ID: <20110131212842.GB1603@polaris.bitmath.org>
-References: <1296485689.7756.9.camel@novo.hadess.net>
+From: Matthew Garrett <mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: Pegatron Lucid accelerometer
+Date: Mon, 31 Jan 2011 21:30:57 +0000
+Message-ID: <20110131213057.GA9259@srcf.ucam.org>
+References: <1295287011-12849-1-git-send-email-andy.ross@windriver.com>
+	<1295287011-12849-2-git-send-email-andy.ross@windriver.com>
+	<4D3529A1.1030804@ti.com> <4D35CC1B.3020808@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out12.han.skanova.net ([195.67.226.212]:34070 "EHLO
-	smtp-out12.han.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753949Ab1AaV1d (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Jan 2011 16:27:33 -0500
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1296485689.7756.9.camel@novo.hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4D35CC1B.3020808-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
+	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=acpi4asus-user>
+List-Post: <mailto:acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
+	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Andy Ross <andy.ross-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
+Cc: acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
 
-Hi Bastien,
+On Tue, Jan 18, 2011 at 09:21:31AM -0800, Andy Ross wrote:
 
-> Built into my Lenovo A700 all-in-one is a touchscreen. lsusb says:
-> $ lsusb | grep -i touch
-> Bus 002 Device 006: ID 04e7:0022 Elo TouchSystems
+> It's just an ACPI method interface, so no dedicated IRQ certainly.
+> The firmware does issue ACPI events on coarse orientation changes
+> (i.e. which edge is up) that we're catching with acpid, so there's no
+> reason this needs to poll all the time in typical usage.
 
-I take it this is a dual-touch device?
+It'd be good to provide those via some more generally-usable mechanism 
+than raw ACPI events.
 
-> The touchscreen "works", in that tapping it will create a click event,
-> though that click event is always in the top left of the screen.
+-- 
+Matthew Garrett | mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org
 
-This is quite common for HID multitouch devices without proper driver
-support. Sometimes using the HID_MULTI_INPUT quirk helps. Check
-usbhid/hid-quirks.c for examples.
-
-> Full output of lsusb -vvv attached.
-> 
-> Anybody with ideas as to what I'm missing, or whether that particular
-> device is supported?
-
-You probably noted already that the 04e7:0020 device is listed in
-usbhid. Unless the device claims to be win7 compliant (implying
-patching up hid-multitouch), going with the evtouch X driver might get
-you a bit on the way. Or - god forbid - the binary blob drivers...
-
-> Using kernel 2.6.38-rc2-git5 (from Fedora rawhide).
-
-The serial elo driver has not been updated since 2007...
-
-Cheers,
-Henrik
+------------------------------------------------------------------------------
+Special Offer-- Download ArcSight Logger for FREE (a $49 USD value)!
+Finally, a world-class log management solution at an even better price-free!
+Download using promo code Free_Logger_4_Dev2Dev. Offer expires 
+February 28th, so secure your free ArcSight Logger TODAY! 
+http://p.sf.net/sfu/arcsight-sfd2d

@@ -1,38 +1,51 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3] input : wacom_w8001 - report resolution to userland
-Date: Mon, 31 Jan 2011 22:28:16 +0100
-Message-ID: <20110131212816.GA1603@polaris.bitmath.org>
-References: <1296283062-20469-1-git-send-email-pinglinux@gmail.com>
- <20110131115014.GA5576@polaris.bitmath.org>
- <20110131172643.GC31891@core.coreip.homeip.net>
- <AANLkTi=3hoFxhN6WSeHm3F8r5agzm_TMesZ-aVNRkyYi@mail.gmail.com>
+Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
+Date: Mon, 31 Jan 2011 22:28:42 +0100
+Message-ID: <20110131212842.GB1603@polaris.bitmath.org>
+References: <1296485689.7756.9.camel@novo.hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out21.han.skanova.net ([195.67.226.208]:60233 "EHLO
-	smtp-out21.han.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753949Ab1AaV1I (ORCPT
+Received: from smtp-out12.han.skanova.net ([195.67.226.212]:34070 "EHLO
+	smtp-out12.han.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753949Ab1AaV1d (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Jan 2011 16:27:08 -0500
+	Mon, 31 Jan 2011 16:27:33 -0500
 Content-Disposition: inline
-In-Reply-To: <AANLkTi=3hoFxhN6WSeHm3F8r5agzm_TMesZ-aVNRkyYi@mail.gmail.com>
+In-Reply-To: <1296485689.7756.9.camel@novo.hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
 
-> > I have the following for the resolution reporting:
+Hi Bastien,
+
+> Built into my Lenovo A700 all-in-one is a touchscreen. lsusb says:
+> $ lsusb | grep -i touch
+> Bus 002 Device 006: ID 04e7:0022 Elo TouchSystems
+
+I take it this is a dual-touch device?
+
+> The touchscreen "works", in that tapping it will create a click event,
+> though that click event is always in the top left of the screen.
+
+This is quite common for HID multitouch devices without proper driver
+support. Sometimes using the HID_MULTI_INPUT quirk helps. Check
+usbhid/hid-quirks.c for examples.
+
+> Full output of lsusb -vvv attached.
 > 
-> 
-> It works for me. Although the end result is the same as the v3 since
-> params and res have already been set in pen response blok if pen is
-> supported, it is more straight forward in logical to anyone who tries
-> to understand the code.
-> 
-> Thank you, Dmitry.
+> Anybody with ideas as to what I'm missing, or whether that particular
+> device is supported?
 
-Yep, looks good - thanks!
+You probably noted already that the 04e7:0020 device is listed in
+usbhid. Unless the device claims to be win7 compliant (implying
+patching up hid-multitouch), going with the evtouch X driver might get
+you a bit on the way. Or - god forbid - the binary blob drivers...
 
-Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+> Using kernel 2.6.38-rc2-git5 (from Fedora rawhide).
 
+The serial elo driver has not been updated since 2007...
+
+Cheers,
 Henrik

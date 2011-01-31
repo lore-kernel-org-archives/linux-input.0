@@ -1,124 +1,81 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3] input : wacom_w8001 - report resolution to userland
-Date: Mon, 31 Jan 2011 12:50:14 +0100
-Message-ID: <20110131115014.GA5576@polaris.bitmath.org>
-References: <1296283062-20469-1-git-send-email-pinglinux@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: wm831x-ts - Remove use of ternery operator
+Date: Mon, 31 Jan 2011 12:01:55 +0000
+Message-ID: <1296475315-15704-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:58621 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755631Ab1AaLuJ (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:42364 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755719Ab1AaMB6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Jan 2011 06:50:09 -0500
-Content-Disposition: inline
-In-Reply-To: <1296283062-20469-1-git-send-email-pinglinux@gmail.com>
+	Mon, 31 Jan 2011 07:01:58 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolsfonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Hi Ping,
+While being applied the driver was modified to add use of the ternery
+operator. Write the conditionals out longhand as I find it terribly
+unhelpful for legibility.
 
-On Fri, Jan 28, 2011 at 10:37:42PM -0800, Ping Cheng wrote:
-> Serial devices send both pen and touch data through the same logical
-> port. Since we scaled touch to pen maximum, we use pen resolution
-> for touch as well here.
-> 
-> This is under the assumption that pen and touch share the same physical
-> surface. In the case when a small physical dimensional difference occurs
-> between pen and touch, we assume the tolerance for touch point precision
-> is higher than pen and the difference is within touch point tolerance.
-> 
-> A per-MT tool based resolution mechanism should be introduced if the
-> above assumption does not hold true for the pen and touch devices any
-> more. A good candidate to resolve this issue without introducing design
-> change could be to report touch resolution through ABS_MT_POSITION_X/Y.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
 
-This still sounds a bit like mixing apples and oranges. If this case
-would ever happen, and I doubt it since the whole idea is to use
-different tools on the same surface, then splitting into separate
-devices would be appropriate.
+This is a bit of a preference issue but as I'm most likely to be
+updating the code it would be very helpful if you could apply it.
 
-> 
-> This version corrected an oversimplified if statement in v2.
-> 
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
+ drivers/input/touchscreen/wm831x-ts.c |   18 +++++++++++++-----
+ 1 files changed, 13 insertions(+), 5 deletions(-)
 
->  drivers/input/touchscreen/wacom_w8001.c |   20 +++++++++++++++-----
->  1 files changed, 15 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-> index 5cb8449..68dcca0 100644
-> --- a/drivers/input/touchscreen/wacom_w8001.c
-> +++ b/drivers/input/touchscreen/wacom_w8001.c
-> @@ -51,6 +51,10 @@ MODULE_LICENSE("GPL");
->  #define W8001_PKTLEN_TPCCTL	11	/* control packet */
->  #define W8001_PKTLEN_TOUCH2FG	13
->  
-> +/* resolution in points/mm */
-> +#define W8001_PEN_RESOLUTION    100
-> +#define W8001_TOUCH_RESOLUTION  10
-> +
->  struct w8001_coord {
->  	u8 rdy;
->  	u8 tsw;
-> @@ -198,7 +202,7 @@ static void parse_touchquery(u8 *data, struct w8001_touch_query *query)
->  		query->y = 1024;
->  		if (query->panel_res)
->  			query->x = query->y = (1 << query->panel_res);
-> -		query->panel_res = 10;
-> +		query->panel_res = W8001_TOUCH_RESOLUTION;
->  	}
->  }
->  
-> @@ -394,6 +398,8 @@ static int w8001_setup(struct w8001 *w8001)
->  
->  		input_set_abs_params(dev, ABS_X, 0, coord.x, 0, 0);
->  		input_set_abs_params(dev, ABS_Y, 0, coord.y, 0, 0);
-> +		input_abs_set_res(dev, ABS_X, W8001_PEN_RESOLUTION);
-> +		input_abs_set_res(dev, ABS_Y, W8001_PEN_RESOLUTION);
->  		input_set_abs_params(dev, ABS_PRESSURE, 0, coord.pen_pressure, 0, 0);
->  		if (coord.tilt_x && coord.tilt_y) {
->  			input_set_abs_params(dev, ABS_TILT_X, 0, coord.tilt_x, 0, 0);
-> @@ -418,15 +424,19 @@ static int w8001_setup(struct w8001 *w8001)
->  		w8001->max_touch_x = touch.x;
->  		w8001->max_touch_y = touch.y;
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index a6121bd..1022f71 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -76,9 +76,14 @@ static irqreturn_t wm831x_ts_data_irq(int irq, void *irq_data)
+ 	struct wm831x *wm831x = wm831x_ts->wm831x;
+ 	static int data_types[] = { ABS_X, ABS_Y, ABS_PRESSURE };
+ 	u16 data[3];
+-	int count = wm831x_ts->pressure ? 3 : 2;
++	int count;
+ 	int i, ret;
+ 
++	if (wm831x_ts->pressure)
++		count = 3;
++	else
++		count = 2;
++
+ 	wm831x_set_bits(wm831x, WM831X_INTERRUPT_STATUS_1,
+ 			WM831X_TCHDATA_EINT, WM831X_TCHDATA_EINT);
+ 
+@@ -134,10 +139,11 @@ static irqreturn_t wm831x_ts_pen_down_irq(int irq, void *irq_data)
+ {
+ 	struct wm831x_ts *wm831x_ts = irq_data;
+ 	struct wm831x *wm831x = wm831x_ts->wm831x;
+-	int ena;
++	int ena = 0;
+ 
+ 	/* Start collecting data */
+-	ena = wm831x_ts->pressure ? WM831X_TCH_Z_ENA : 0;
++	if (wm831x_ts->pressure)
++		ena |= WM831X_TCH_Z_ENA;
+ 
+ 	wm831x_set_bits(wm831x, WM831X_TOUCH_CONTROL_1,
+ 			WM831X_TCH_X_ENA | WM831X_TCH_Y_ENA | WM831X_TCH_Z_ENA,
+@@ -188,11 +194,13 @@ static __devinit int wm831x_ts_probe(struct platform_device *pdev)
+ 	struct wm831x_ts *wm831x_ts;
+ 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
+ 	struct wm831x_pdata *core_pdata = dev_get_platdata(pdev->dev.parent);
+-	struct wm831x_touch_pdata *pdata =
+-			core_pdata ? core_pdata->touch : NULL;
++	struct wm831x_touch_pdata *pdata = NULL;
+ 	struct input_dev *input_dev;
+ 	int error;
+ 
++	if (core_pdata)
++		pdata = core_pdata->touch;
++
+ 	wm831x_ts = kzalloc(sizeof(struct wm831x_ts), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!wm831x_ts || !input_dev) {
+-- 
+1.7.2.3
 
-So max_touch is set here
-
->  
-> -		/* scale to pen maximum */
-> +		/* pen supported */
->  		if (w8001->max_pen_x && w8001->max_pen_y) {
-> +			/* scale to pen maximum */
->  			touch.x = w8001->max_pen_x;
->  			touch.y = w8001->max_pen_y;
-
-And possibly redefined here
-
-> +		} else { /* touch only */
-> +			/* set axes with touch data */
-> +			input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
-> +			input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
-> +			input_abs_set_res(dev, ABS_X, touch.panel_res);
-> +			input_abs_set_res(dev, ABS_Y, touch.panel_res);
->  		}
->  
-> -		input_set_abs_params(dev, ABS_X, 0, touch.x, 0, 0);
-> -		input_set_abs_params(dev, ABS_Y, 0, touch.y, 0, 0);
-> -
->  		switch (touch.sensor_id) {
->  		case 0:
->  		case 2:
-
-And then just used to set MT later on, which will lead to
-ABS_MT_POSITION_X values different from ABS_X. This is just getting
-messier. In fact, the whole setup function is messy, with unclear
-handling of error paths. Any chance one could simplify the logic
-involved here? It should be possible to use a single code path for
-input_set_abs_params() and input_abs_set_res(), for instance.
-
-Thanks,
-Henrik

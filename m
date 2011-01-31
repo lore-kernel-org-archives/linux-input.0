@@ -1,81 +1,202 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] Input: wm831x-ts - Remove use of ternery operator
-Date: Mon, 31 Jan 2011 12:01:55 +0000
-Message-ID: <1296475315-15704-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:42364 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755719Ab1AaMB6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Jan 2011 07:01:58 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [PATCH] dvb-usb-remote - convert to new style of get/setkeycode
+Date: Mon, 31 Jan 2011 10:30:19 -0200
+Message-ID: <4D46AB5B.5060101@redhat.com>
+References: <20110131085352.GA30343@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20110131085352.GA30343@core.coreip.homeip.net>
+Sender: linux-media-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolsfonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-media@vger.kernel.org, Linux Input <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-While being applied the driver was modified to add use of the ternery
-operator. Write the conditionals out longhand as I find it terribly
-unhelpful for legibility.
+Hi Dmitry,
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
+Em 31-01-2011 06:53, Dmitry Torokhov escreveu:
+> Input: dvb-usb-remote - convert to new style of get/setkeycode
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+> Mauro,
+> 
+> This is needed so that I could rename get/setkeycode_new into
+> get/setkeycode and get rid of duplicate pointers and compat code in
+> input core.
+> 
+> Compiled only, not tested.
 
-This is a bit of a preference issue but as I'm most likely to be
-updating the code it would be very helpful if you could apply it.
+I can't test this patch, since all the DVB-USB devices I have here,
+I converted to use rc-core.
 
- drivers/input/touchscreen/wm831x-ts.c |   18 +++++++++++++-----
- 1 files changed, 13 insertions(+), 5 deletions(-)
+> If you are OK with the patch then I'd like to merge this through my
+> tree.
 
-diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
-index a6121bd..1022f71 100644
---- a/drivers/input/touchscreen/wm831x-ts.c
-+++ b/drivers/input/touchscreen/wm831x-ts.c
-@@ -76,9 +76,14 @@ static irqreturn_t wm831x_ts_data_irq(int irq, void *irq_data)
- 	struct wm831x *wm831x = wm831x_ts->wm831x;
- 	static int data_types[] = { ABS_X, ABS_Y, ABS_PRESSURE };
- 	u16 data[3];
--	int count = wm831x_ts->pressure ? 3 : 2;
-+	int count;
- 	int i, ret;
- 
-+	if (wm831x_ts->pressure)
-+		count = 3;
-+	else
-+		count = 2;
-+
- 	wm831x_set_bits(wm831x, WM831X_INTERRUPT_STATUS_1,
- 			WM831X_TCHDATA_EINT, WM831X_TCHDATA_EINT);
- 
-@@ -134,10 +139,11 @@ static irqreturn_t wm831x_ts_pen_down_irq(int irq, void *irq_data)
- {
- 	struct wm831x_ts *wm831x_ts = irq_data;
- 	struct wm831x *wm831x = wm831x_ts->wm831x;
--	int ena;
-+	int ena = 0;
- 
- 	/* Start collecting data */
--	ena = wm831x_ts->pressure ? WM831X_TCH_Z_ENA : 0;
-+	if (wm831x_ts->pressure)
-+		ena |= WM831X_TCH_Z_ENA;
- 
- 	wm831x_set_bits(wm831x, WM831X_TOUCH_CONTROL_1,
- 			WM831X_TCH_X_ENA | WM831X_TCH_Y_ENA | WM831X_TCH_Z_ENA,
-@@ -188,11 +194,13 @@ static __devinit int wm831x_ts_probe(struct platform_device *pdev)
- 	struct wm831x_ts *wm831x_ts;
- 	struct wm831x *wm831x = dev_get_drvdata(pdev->dev.parent);
- 	struct wm831x_pdata *core_pdata = dev_get_platdata(pdev->dev.parent);
--	struct wm831x_touch_pdata *pdata =
--			core_pdata ? core_pdata->touch : NULL;
-+	struct wm831x_touch_pdata *pdata = NULL;
- 	struct input_dev *input_dev;
- 	int error;
- 
-+	if (core_pdata)
-+		pdata = core_pdata->touch;
-+
- 	wm831x_ts = kzalloc(sizeof(struct wm831x_ts), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!wm831x_ts || !input_dev) {
--- 
-1.7.2.3
+Yeah, I'm ok. I don't have any intention on touching on those legacy
+support functions (except for their removal, after having the remaining
+drivers converted). So, feel free to submit it via your tree.
 
+Acked-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+> 
+> Thanks!
+> 
+>  drivers/media/dvb/dvb-usb/dvb-usb-remote.c |  113 +++++++++++++++++-----------
+>  1 files changed, 70 insertions(+), 43 deletions(-)
+> 
+> 
+> diff --git a/drivers/media/dvb/dvb-usb/dvb-usb-remote.c b/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
+> index 23005b3..347fbd4 100644
+> --- a/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
+> +++ b/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
+> @@ -8,60 +8,71 @@
+>  #include "dvb-usb-common.h"
+>  #include <linux/usb/input.h>
+>  
+> +static unsigned int
+> +legacy_dvb_usb_get_keymap_index(const struct input_keymap_entry *ke,
+> +				struct rc_map_table *keymap,
+> +				unsigned int keymap_size)
+> +{
+> +	unsigned int index;
+> +	unsigned int scancode;
+> +
+> +	if (ke->flags & INPUT_KEYMAP_BY_INDEX) {
+> +		index = ke->index;
+> +	} else {
+> +		if (input_scancode_to_scalar(ke, &scancode))
+> +			return keymap_size;
+> +
+> +		/* See if we can match the raw key code. */
+> +		for (index = 0; index < keymap_size; index++)
+> +			if (keymap[index].scancode == scancode)
+> +				break;
+> +
+> +		/* See if there is an unused hole in the map */
+> +		if (index >= keymap_size) {
+> +			for (index = 0; index < keymap_size; index++) {
+> +				if (keymap[index].keycode == KEY_RESERVED ||
+> +				    keymap[index].keycode == KEY_UNKNOWN) {
+> +					break;
+> +				}
+> +			}
+> +		}
+> +	}
+> +
+> +	return index;
+> +}
+> +
+>  static int legacy_dvb_usb_getkeycode(struct input_dev *dev,
+> -				unsigned int scancode, unsigned int *keycode)
+> +				     struct input_keymap_entry *ke)
+>  {
+>  	struct dvb_usb_device *d = input_get_drvdata(dev);
+> -
+>  	struct rc_map_table *keymap = d->props.rc.legacy.rc_map_table;
+> -	int i;
+> +	unsigned int keymap_size = d->props.rc.legacy.rc_map_size;
+> +	unsigned int index;
+>  
+> -	/* See if we can match the raw key code. */
+> -	for (i = 0; i < d->props.rc.legacy.rc_map_size; i++)
+> -		if (keymap[i].scancode == scancode) {
+> -			*keycode = keymap[i].keycode;
+> -			return 0;
+> -		}
+> +	index = legacy_dvb_usb_get_keymap_index(ke, keymap, keymap_size);
+> +	if (index >= keymap_size)
+> +		return -EINVAL;
+>  
+> -	/*
+> -	 * If is there extra space, returns KEY_RESERVED,
+> -	 * otherwise, input core won't let legacy_dvb_usb_setkeycode
+> -	 * to work
+> -	 */
+> -	for (i = 0; i < d->props.rc.legacy.rc_map_size; i++)
+> -		if (keymap[i].keycode == KEY_RESERVED ||
+> -		    keymap[i].keycode == KEY_UNKNOWN) {
+> -			*keycode = KEY_RESERVED;
+> -			return 0;
+> -		}
+> +	ke->keycode = keymap[index].keycode;
+> +	if (ke->keycode == KEY_UNKNOWN)
+> +		ke->keycode = KEY_RESERVED;
+> +	ke->len = sizeof(keymap[index].scancode);
+> +	memcpy(&ke->scancode, &keymap[index].scancode, ke->len);
+> +	ke->index = index;
+>  
+> -	return -EINVAL;
+> +	return 0;
+>  }
+>  
+>  static int legacy_dvb_usb_setkeycode(struct input_dev *dev,
+> -				unsigned int scancode, unsigned int keycode)
+> +				     const struct input_keymap_entry *ke,
+> +				     unsigned int *old_keycode)
+>  {
+>  	struct dvb_usb_device *d = input_get_drvdata(dev);
+> -
+>  	struct rc_map_table *keymap = d->props.rc.legacy.rc_map_table;
+> -	int i;
+> -
+> -	/* Search if it is replacing an existing keycode */
+> -	for (i = 0; i < d->props.rc.legacy.rc_map_size; i++)
+> -		if (keymap[i].scancode == scancode) {
+> -			keymap[i].keycode = keycode;
+> -			return 0;
+> -		}
+> -
+> -	/* Search if is there a clean entry. If so, use it */
+> -	for (i = 0; i < d->props.rc.legacy.rc_map_size; i++)
+> -		if (keymap[i].keycode == KEY_RESERVED ||
+> -		    keymap[i].keycode == KEY_UNKNOWN) {
+> -			keymap[i].scancode = scancode;
+> -			keymap[i].keycode = keycode;
+> -			return 0;
+> -		}
+> +	unsigned int keymap_size = d->props.rc.legacy.rc_map_size;
+> +	unsigned int index;
+>  
+> +	index = legacy_dvb_usb_get_keymap_index(ke, keymap, keymap_size);
+>  	/*
+>  	 * FIXME: Currently, it is not possible to increase the size of
+>  	 * scancode table. For it to happen, one possibility
+> @@ -69,8 +80,24 @@ static int legacy_dvb_usb_setkeycode(struct input_dev *dev,
+>  	 * copying data, appending the new key on it, and freeing
+>  	 * the old one - or maybe just allocating some spare space
+>  	 */
+> +	if (index >= keymap_size)
+> +		return -EINVAL;
+> +
+> +	*old_keycode = keymap[index].keycode;
+> +	keymap->keycode = ke->keycode;
+> +	__set_bit(ke->keycode, dev->keybit);
+> +
+> +	if (*old_keycode != KEY_RESERVED) {
+> +		__clear_bit(*old_keycode, dev->keybit);
+> +		for (index = 0; index < keymap_size; index++) {
+> +			if (keymap[index].keycode == *old_keycode) {
+> +				__set_bit(*old_keycode, dev->keybit);
+> +				break;
+> +			}
+> +		}
+> +	}
+>  
+> -	return -EINVAL;
+> +	return 0;
+>  }
+>  
+>  /* Remote-control poll function - called every dib->rc_query_interval ms to see
+> @@ -171,8 +198,8 @@ static int legacy_dvb_usb_remote_init(struct dvb_usb_device *d)
+>  	d->input_dev = input_dev;
+>  	d->rc_dev = NULL;
+>  
+> -	input_dev->getkeycode = legacy_dvb_usb_getkeycode;
+> -	input_dev->setkeycode = legacy_dvb_usb_setkeycode;
+> +	input_dev->getkeycode_new = legacy_dvb_usb_getkeycode;
+> +	input_dev->setkeycode_new = legacy_dvb_usb_setkeycode;
+>  
+>  	/* set the bits for the keys */
+>  	deb_rc("key map size: %d\n", d->props.rc.legacy.rc_map_size);

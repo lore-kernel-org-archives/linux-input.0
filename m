@@ -1,43 +1,34 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH v2 1/4] hid-multitouch: change default mt_class
-Date: Mon, 31 Jan 2011 11:28:19 +0100
-Message-ID: <1296469702-3710-2-git-send-email-benjamin.tissoires__44896.3413517506$1296469794$gmane$org@enac.fr>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH V2 0/4] hid-multitouch work
+Date: Mon, 31 Jan 2011 11:55:26 +0100
+Message-ID: <20110131105526.GA1551@polaris.bitmath.org>
 References: <1296469702-3710-1-git-send-email-benjamin.tissoires@enac.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:33263 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753322Ab1AaK2d (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:36305 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754022Ab1AaKym (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Jan 2011 05:28:33 -0500
+	Mon, 31 Jan 2011 05:54:42 -0500
+Content-Disposition: inline
 In-Reply-To: <1296469702-3710-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The safest quirk for a device (the one that works out of the box for
-most of them) is MT_QUIRK_NOT_SEEN_MEANS_UP. Indeed, it does not
-make any assumption on the device. When adding a new device, we can
-easily test it against MT_CLS_DEFAULT, and then optimize it with other
-quirks: that's why no device use MT_CLS_DEFAULT right now.
+On Mon, Jan 31, 2011 at 11:28:18AM +0100, Benjamin Tissoires wrote:
+> Hi guys,
+> 
+> here is the v2 of the work on hid-multitouch sent last friday.
+> I just split the former first patch and remove the MT_CLS_DUAL_DEFAUT stuff.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
----
- drivers/hid/hid-multitouch.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Excellent. You may want to add at least one sentence in the commit
+message of patch 3, but other than that,
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 07d3183..86863a3 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -104,7 +104,7 @@ static int find_slot_from_contactid(struct mt_device *td)
- 
- struct mt_class mt_classes[] = {
- 	{ .name = MT_CLS_DEFAULT,
--		.quirks = MT_QUIRK_VALID_IS_INRANGE,
-+		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
- 		.maxcontacts = 10 },
- 	{ .name = MT_CLS_DUAL1,
- 		.quirks = MT_QUIRK_VALID_IS_INRANGE |
--- 
-1.7.3.4
+Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
+on all four of them. Thank you Benjamin.
+
+Henrik

@@ -1,71 +1,72 @@
 From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: [RFC v2 PATCH 5/7] input: pmic8058-othc: Add support for PM8058 based OTHC
-Date: Tue,  1 Feb 2011 19:17:41 +0530
-Message-ID: <1296568063-12010-6-git-send-email-aghayal@codeaurora.org>
+Subject: [RFC v2 PATCH 6/7] drivers: rtc: Add support for Qualcomm PMIC8058 RTC
+Date: Tue,  1 Feb 2011 19:17:42 +0530
+Message-ID: <1296568063-12010-7-git-send-email-aghayal@codeaurora.org>
 References: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
 Sender: linux-arm-msm-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>, Shubhrajyoti Datta <shubhrajyoti@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-input@vger.kernel.org
 
-One-touch headset controller is a hardware module in Qualcomm's PMIC8058.
-It supports headset insert/remove and switch press/release detection events
-over 3 MIC BIAS lines. The MIC BIAS lines can be configured to support
-headset detection or act as regular BIAS lines.
+PMIC8058 is Qualcomm's power management IC. A
+32-bit RTC is housed inside this PMIC. The RTC driver
+uses SSBI to communicate with the RTC module.
 
-Cc: Shubhrajyoti Datta <shubhrajyoti@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
 ---
-Addressed review comments from Dimitry.
-removed IRQF_ONESHOT, const pdata. 
+Changes from v1:
+Addressed review comments from Peter.
+removed rtc"0", local variable to store ctrl register state,
+removed rtc_irq, added alarm_irq_enable
 
- drivers/input/misc/Kconfig          |    9 +
- drivers/input/misc/Makefile         |    1 +
- drivers/input/misc/pmic8058-othc.c  |  535 +++++++++++++++++++++++++++++++++++
- include/linux/input/pmic8058-othc.h |  117 ++++++++
- 4 files changed, 662 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/pmic8058-othc.c
- create mode 100644 include/linux/input/pmic8058-othc.h
+ drivers/rtc/Kconfig            |    9 +
+ drivers/rtc/Makefile           |    1 +
+ drivers/rtc/rtc-pm8058.c       |  488 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/rtc/rtc-pm8058.h |   29 +++
+ 4 files changed, 527 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/rtc/rtc-pm8058.c
+ create mode 100644 include/linux/rtc/rtc-pm8058.h
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index d70a7be..3802f54 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -465,4 +465,13 @@ config INPUT_CMA3000_I2C
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called cma3000_d0x_i2c.
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 4941cad..1458c26 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -985,4 +985,13 @@ config RTC_DRV_LPC32XX
+ 	  This driver can also be buillt as a module. If so, the module
+ 	  will be called rtc-lpc32xx.
  
-+config INPUT_PMIC8058_OTHC
-+	tristate "Qualcomm PMIC8058 OTHC support"
++config RTC_DRV_PM8058
++	tristate "Qualcomm PMIC8058 RTC"
 +	depends on PMIC8058
 +	help
-+	  Say Y here if you want support PMIC8058 One-touch Headset Controller
-+	  (OTHC)
++	  Say Y here if you want to support the Qualcomm PMIC8058 RTC.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called pmic8058-othc.
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 0348704..df9a679 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -31,6 +31,7 @@ obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
- obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
- obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
- obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
-+obj-$(CONFIG_INPUT_PMIC8058_OTHC)	+= pmic8058-othc.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_PMIC8058_PWRKEY)	+= pmic8058-pwrkey.o
-diff --git a/drivers/input/misc/pmic8058-othc.c b/drivers/input/misc/pmic8058-othc.c
++	  module will be called pmic8058-rtc.
++
+ endif # RTC_CLASS
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 2afdaf3..4bee015 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -74,6 +74,7 @@ obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
+ obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
+ obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
+ obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
++obj-$(CONFIG_RTC_DRV_PM8058)	+= rtc-pm8058.o
+ obj-$(CONFIG_RTC_DRV_PL030)	+= rtc-pl030.o
+ obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
+ obj-$(CONFIG_RTC_DRV_PS3)	+= rtc-ps3.o
+diff --git a/drivers/rtc/rtc-pm8058.c b/drivers/rtc/rtc-pm8058.c
 new file mode 100644
-index 0000000..83fd8a1
+index 0000000..3588273
 --- /dev/null
-+++ b/drivers/input/misc/pmic8058-othc.c
-@@ -0,0 +1,535 @@
++++ b/drivers/rtc/rtc-pm8058.c
+@@ -0,0 +1,488 @@
 +/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -83,530 +84,483 @@ index 0000000..83fd8a1
 + * 02110-1301, USA.
 + */
 +
-+#define pr_fmt(fmt) "%s:" fmt, __func__
++#define pr_fmt(fmt) "%s: " fmt, __func__
 +
 +#include <linux/module.h>
 +#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/platform_device.h>
-+#include <linux/pm.h>
-+#include <linux/spinlock.h>
-+
++#include <linux/rtc.h>
 +#include <linux/mfd/pmic8058.h>
-+#include <linux/input/pmic8058-othc.h>
++#include <linux/pm.h>
++#include <linux/slab.h>
++#include <linux/rtc/rtc-pm8058.h>
 +
-+#define PM8058_OTHC_LOW_CURR_MASK	0xF0
-+#define PM8058_OTHC_HIGH_CURR_MASK	0x0F
-+#define PM8058_OTHC_EN_SIG_MASK		0x3F
-+#define PM8058_OTHC_HYST_PREDIV_MASK	0xC7
-+#define PM8058_OTHC_CLK_PREDIV_MASK	0xF8
-+#define PM8058_OTHC_HYST_CLK_MASK	0x0F
-+#define PM8058_OTHC_PERIOD_CLK_MASK	0xF0
++/* RTC control registers */
++#define PM8058_RTC_CTRL		0x1E8
++#define PM8058_RTC_ALARM_CTRL	0x1E9
++#define PM8058_RTC_TEST		0x1F6
 +
-+#define PM8058_OTHC_LOW_CURR_SHIFT	0x4
-+#define PM8058_OTHC_EN_SIG_SHIFT	0x6
-+#define PM8058_OTHC_HYST_PREDIV_SHIFT	0x3
-+#define PM8058_OTHC_HYST_CLK_SHIFT	0x4
++/* RTC register bases */
++#define PM8058_RTC_READ_BASE	0x1EE
++#define PM8058_RTC_WRITE_BASE	0x1EA
++#define PM8058_RTC_ALARM_BASE	0x1F2
 +
-+#define PM8058_OTHC_LOW_CURR_MIRROR	10
-+#define PM8058_OTHC_HIGH_CURR_MIRROR	100
-+#define PM8058_OTHC_CLK_SRC_SHIFT	10
++/* RTC_CTRL register bit fields */
++#define PM8058_RTC_ENABLE	BIT(7)
++#define PM8058_RTC_ALARM_ENABLE	BIT(1)
++
++#define NUM_8_BIT_RTC_REGS	0x4
 +
 +/**
-+ * struct pm8058_othc - othc driver data structure
-+ * @othc_ipd: input device for othc
-+ * @othc_pdata:	a pointer to the platform data
-+ * @othc_base: base address of the OTHC controller
-+ * @othc_irq_sw: switch detect irq number
-+ * @othc_irq_ir: headset jack detect irq number
-+ * @othc_sw_state: current state of the switch
-+ * @othc_ir_state: current state of the headset
-+ * @switch_reject: indicates if valid switch press
-+ * @switch_debounce_ms: the debounce time for the switch
-+ * @lock: spin lock variable
-+ * @timer: timer for switch debounce time
-+ * @pm_chip: pointer to the pm8058 parent chip
++ * struct pm8058_rtc - rtc driver internal structure
++ * @rtc: rtc device for this driver
++ * @rtc_alarm_irq: rtc alarm irq number
++ * @pm_chip: pointer to pm8058 parent structure
 + */
-+struct pm8058_othc {
-+	struct input_dev *othc_ipd;
-+	const struct pmic8058_othc_config_pdata *othc_pdata;
-+	int othc_base;
-+	int othc_irq_sw;
-+	int othc_irq_ir;
-+	bool othc_sw_state;
-+	bool othc_ir_state;
-+	bool switch_reject;
-+	unsigned long switch_debounce_ms;
-+	spinlock_t lock;
-+	struct timer_list timer;
++struct pm8058_rtc {
++	struct rtc_device *rtc;
++	int rtc_alarm_irq;
++	u8 rtc_ctrl_reg;
 +	struct pm8058_chip *pm_chip;
 +};
 +
-+static struct pm8058_othc *config[OTHC_MICBIAS_MAX];
-+
-+/**
-+ * pm8058_micbias_enable() - Enables/Disables the MIC_BIAS
-+ * @micbias:	MIC BIAS line which needs to be enabled
-+ * @enable:	operational state for the MIC BIAS line
-+ *
-+ * The API pm8058_micbias_enable()  configures the MIC_BIAS. Only the lines
-+ * which are not used for headset detection can be configured using this API.
-+ * The API returns an error code if it fails to configure, else it returns 0.
++/*
++ * The RTC registers need to be read/written one byte at a time. This is a
++ * hardware limitation.
 + */
-+int pm8058_micbias_enable(enum othc_micbias micbias,
-+		enum othc_micbias_enable enable)
++static int
++pm8058_rtc_read_bytes(struct pm8058_rtc *rtc_dd, u8 *rtc_val, int base)
++{
++	int i, rc;
++
++	/* Read the 32-bit register value, 8 bits at a time. */
++	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
++		rc = pm8058_read(rtc_dd->pm_chip, base + i, &rtc_val[i], 1);
++		if (rc < 0) {
++			pr_err("PM8058 read failed\n");
++			return rc;
++		}
++	}
++
++	return 0;
++}
++
++static int
++pm8058_rtc_write_bytes(struct pm8058_rtc *rtc_dd, u8 *rtc_val, int base)
++{
++	int i, rc;
++
++	/* Write the 32-bit register value, 8 bits at a time. */
++	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
++		rc = pm8058_write(rtc_dd->pm_chip, base + i, &rtc_val[i], 1);
++		if (rc < 0) {
++			pr_err("PM8058 read failed\n");
++			return rc;
++		}
++	}
++
++	return 0;
++}
++
++/*
++ * Steps to write the RTC registers.
++ * 1. Disable alarm if enabled.
++ * 2. Write 0x00 to LSB.
++ * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
++ * 4. Enable alarm if disabled in step 1.
++ */
++static int
++pm8058_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	int rc;
++	unsigned long secs;
++	u8 value[4], reg = 0, alarm_enabled = 0, i;
++	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++
++	rtc_tm_to_time(tm, &secs);
++
++	value[0] = secs & 0xFF;
++	value[1] = (secs >> 8) & 0xFF;
++	value[2] = (secs >> 16) & 0xFF;
++	value[3] = (secs >> 24) & 0xFF;
++
++	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
++
++	if (rtc_dd->rtc_ctrl_reg & PM8058_RTC_ALARM_ENABLE) {
++		alarm_enabled = 1;
++		rtc_dd->rtc_ctrl_reg &= ~PM8058_RTC_ALARM_ENABLE;
++		rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_CTRL,
++						&rtc_dd->rtc_ctrl_reg, 1);
++		if (rc < 0) {
++			dev_err(dev, "PM8058 write failed\n");
++			rtc_dd->rtc_ctrl_reg |= PM8058_RTC_ALARM_ENABLE;
++			return rc;
++		}
++	}
++
++	/* Write Byte[1], Byte[2], Byte[3], Byte[0] */
++	reg = 0;
++	rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_WRITE_BASE, &reg, 1);
++	if (rc < 0) {
++		dev_err(dev, "PM8058 write failed\n");
++		return rc;
++	}
++
++	for (i = 1; i < NUM_8_BIT_RTC_REGS; i++) {
++		rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_WRITE_BASE + i,
++								&value[i], 1);
++		if (rc < 0) {
++			dev_err(dev, "Write to RTC registers failed\n");
++			return rc;
++		}
++	}
++
++	rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_WRITE_BASE,
++							&value[0], 1);
++	if (rc < 0) {
++		dev_err(dev, "PM8058 write failed\n");
++		return rc;
++	}
++
++	if (alarm_enabled) {
++		rtc_dd->rtc_ctrl_reg |= PM8058_RTC_ALARM_ENABLE;
++		rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_CTRL,
++						&rtc_dd->rtc_ctrl_reg, 1);
++		if (rc < 0) {
++			dev_err(dev, "PM8058 write failed\n");
++			rtc_dd->rtc_ctrl_reg &= ~PM8058_RTC_ALARM_ENABLE;
++			return rc;
++		}
++	}
++
++	return 0;
++}
++
++static int
++pm8058_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	int rc;
++	u8 value[4], reg;
++	unsigned long secs;
++	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++
++	rc = pm8058_rtc_read_bytes(rtc_dd, value, PM8058_RTC_READ_BASE);
++	if (rc < 0) {
++		dev_err(dev, "RTC time read failed\n");
++		return rc;
++	}
++
++	/*
++	 * Read the LSB again and check if there has been a carry over.
++	 * If there is, redo the read operation.
++	 */
++	rc = pm8058_read(rtc_dd->pm_chip, PM8058_RTC_READ_BASE, &reg, 1);
++	if (rc < 0) {
++		dev_err(dev, "PM8058 read failed\n");
++		return rc;
++	}
++
++	if (unlikely(reg < value[0])) {
++		rc = pm8058_rtc_read_bytes(rtc_dd, value,
++						PM8058_RTC_READ_BASE);
++		if (rc < 0) {
++			dev_err(dev, "RTC time read failed\n");
++			return rc;
++		}
++	}
++
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++
++	rtc_time_to_tm(secs, tm);
++
++	rc = rtc_valid_tm(tm);
++	if (rc < 0) {
++		dev_err(dev, "Invalid time read from PMIC8058\n");
++		return rc;
++	}
++
++	dev_dbg(dev, "secs = %lu, h:m:s == %d:%d:%d, d/m/y = %d/%d/%d\n",
++			secs, tm->tm_hour, tm->tm_min, tm->tm_sec,
++			tm->tm_mday, tm->tm_mon, tm->tm_year);
++
++	return 0;
++}
++
++static int
++pm8058_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++{
++	int rc;
++	u8 value[4], reg;
++	unsigned long secs;
++	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++
++	rtc_tm_to_time(&alarm->time, &secs);
++
++	value[0] = secs & 0xFF;
++	value[1] = (secs >> 8) & 0xFF;
++	value[2] = (secs >> 16) & 0xFF;
++	value[3] = (secs >> 24) & 0xFF;
++
++	rc = pm8058_rtc_write_bytes(rtc_dd, value, PM8058_RTC_ALARM_BASE);
++	if (rc < 0) {
++		dev_err(dev, "Alarm could not be set\n");
++		return rc;
++	}
++
++	reg = rtc_dd->rtc_ctrl_reg;
++
++	reg = (alarm->enabled) ? (reg | PM8058_RTC_ALARM_ENABLE) :
++					(reg & ~PM8058_RTC_ALARM_ENABLE);
++
++	rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_CTRL, &reg, 1);
++	if (rc < 0) {
++		dev_err(dev, "PM8058 write failed\n");
++		return rc;
++	}
++	rtc_dd->rtc_ctrl_reg = reg;
++
++	dev_dbg(dev, "Alarm Set for h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
++			alarm->time.tm_hour, alarm->time.tm_min,
++			alarm->time.tm_sec, alarm->time.tm_mday,
++			alarm->time.tm_mon, alarm->time.tm_year);
++
++	return 0;
++}
++
++static int
++pm8058_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++{
++	int rc;
++	u8 value[4];
++	unsigned long secs;
++	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++
++	/* Check if the alarm is enabled */
++	alarm->enabled = !!(rtc_dd->rtc_ctrl_reg & PM8058_RTC_ALARM_ENABLE);
++
++	rc = pm8058_rtc_read_bytes(rtc_dd, value,
++					PM8058_RTC_ALARM_BASE);
++	if (rc < 0) {
++		dev_err(dev, "RTC alarm time read failed\n");
++		return rc;
++	}
++
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++
++	rtc_time_to_tm(secs, &alarm->time);
++
++	rc = rtc_valid_tm(&alarm->time);
++	if (rc < 0) {
++		dev_err(dev, "Invalid time read from PMIC8058\n");
++		return rc;
++	}
++
++	dev_dbg(dev, "Alarm set for - h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
++		alarm->time.tm_hour, alarm->time.tm_min,
++				alarm->time.tm_sec, alarm->time.tm_mday,
++				alarm->time.tm_mon, alarm->time.tm_year);
++
++	return 0;
++}
++
++
++static int
++pm8058_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	int rc;
++	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++	u8 reg = rtc_dd->rtc_ctrl_reg;
++
++	reg = (enabled) ? (reg | PM8058_RTC_ALARM_ENABLE) :
++				(reg & ~PM8058_RTC_ALARM_ENABLE);
++
++	rc = pm8058_write(rtc_dd->pm_chip, PM8058_RTC_CTRL, &reg, 1);
++	if (rc < 0) {
++		dev_err(dev, "PM8058 write failed\n");
++		return rc;
++	}
++	rtc_dd->rtc_ctrl_reg = reg;
++
++	return 0;
++}
++
++static struct rtc_class_ops pm8058_rtc_ops = {
++	.read_time	= pm8058_rtc_read_time,
++	.set_alarm	= pm8058_rtc_set_alarm,
++	.read_alarm	= pm8058_rtc_read_alarm,
++	.alarm_irq_enable = pm8058_rtc_alarm_irq_enable,
++};
++
++static irqreturn_t pm8058_alarm_trigger(int irq, void *dev_id)
++{
++	struct pm8058_rtc *rtc_dd = dev_id;
++
++	rtc_update_irq(rtc_dd->rtc, 1, RTC_IRQF | RTC_AF);
++
++	pr_debug("Alarm Triggered !!\n");
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit pm8058_rtc_probe(struct platform_device *pdev)
 +{
 +	int rc;
 +	u8 reg;
-+	struct pm8058_othc *dd = config[micbias];
++	bool rtc_write_enable = false;
++	struct pm8058_rtc *rtc_dd;
++	struct pm8058_chip *pm_chip;
++	const struct pm8058_rtc_pdata *pdata = pdev->dev.platform_data;
 +
-+	if (dd == NULL) {
-+		pr_err("MIC_BIAS not registered, cannot enable\n");
-+		return -ENODEV;
++	if (pdata != NULL)
++		rtc_write_enable = pdata->rtc_write_enable;
++
++	pm_chip = platform_get_drvdata(pdev);
++	if (pm_chip == NULL) {
++		dev_err(&pdev->dev, "Invalid driver information!\n");
++		return -ENXIO;
 +	}
 +
-+	if (dd->othc_pdata->micbias_capability != OTHC_MICBIAS) {
-+		pr_err("MIC_BIAS enable capability not supported\n");
-+		return -EINVAL;
-+	}
-+
-+	rc = pm8058_read(dd->pm_chip, dd->othc_base + 1, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	reg &= PM8058_OTHC_EN_SIG_MASK;
-+	reg |= (enable << PM8058_OTHC_EN_SIG_SHIFT);
-+
-+	rc = pm8058_write(dd->pm_chip, dd->othc_base + 1, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 write failed\n");
-+		return rc;
-+	}
-+
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(pm8058_micbias_enable);
-+
-+#ifdef CONFIG_PM
-+static int pm8058_othc_suspend(struct device *dev)
-+{
-+	struct pm8058_othc *dd = dev_get_drvdata(dev);
-+
-+	if (dd->othc_pdata->micbias_capability == OTHC_MICBIAS_HSED) {
-+		if (device_may_wakeup(dev)) {
-+			enable_irq_wake(dd->othc_irq_sw);
-+			enable_irq_wake(dd->othc_irq_ir);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int pm8058_othc_resume(struct device *dev)
-+{
-+	struct pm8058_othc *dd = dev_get_drvdata(dev);
-+
-+	if (dd->othc_pdata->micbias_capability == OTHC_MICBIAS_HSED) {
-+		if (device_may_wakeup(dev)) {
-+			disable_irq_wake(dd->othc_irq_sw);
-+			disable_irq_wake(dd->othc_irq_ir);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops pm8058_othc_pm_ops = {
-+	.suspend = pm8058_othc_suspend,
-+	.resume = pm8058_othc_resume,
-+};
-+#endif
-+
-+static int __devexit pm8058_othc_remove(struct platform_device *pd)
-+{
-+	struct pm8058_othc *dd = platform_get_drvdata(pd);
-+
-+	if (dd->othc_pdata->micbias_capability == OTHC_MICBIAS_HSED) {
-+		device_init_wakeup(&pd->dev, 0);
-+		free_irq(dd->othc_irq_sw, dd);
-+		free_irq(dd->othc_irq_ir, dd);
-+		del_timer_sync(&dd->timer);
-+		input_unregister_device(dd->othc_ipd);
-+	}
-+
-+	kfree(dd);
-+
-+	return 0;
-+}
-+
-+static void pm8058_othc_timer(unsigned long handle)
-+{
-+	unsigned long flags;
-+	struct pm8058_othc *dd = (struct pm8058_othc *)handle;
-+
-+	spin_lock_irqsave(&dd->lock, flags);
-+	dd->switch_reject = false;
-+	spin_unlock_irqrestore(&dd->lock, flags);
-+}
-+
-+static irqreturn_t pm8058_no_sw(int irq, void *dev_id)
-+{
-+	struct pm8058_othc *dd = dev_id;
-+	unsigned long flags;
-+
-+	/*
-+	 * Due to a hardware bug, spurious switch interrutps are seen while
-+	 * inserting the headset slowly. A timer based logic rejects these
-+	 * switch interrutps.
-+	 */
-+	spin_lock_irqsave(&dd->lock, flags);
-+	if (dd->switch_reject == true) {
-+		spin_unlock_irqrestore(&dd->lock, flags);
-+		return IRQ_HANDLED;
-+	}
-+	spin_unlock_irqrestore(&dd->lock, flags);
-+
-+	dd->othc_sw_state = !dd->othc_sw_state;
-+	input_report_key(dd->othc_ipd, KEY_MEDIA, dd->othc_sw_state);
-+	input_sync(dd->othc_ipd);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t pm8058_nc_ir(int irq, void *dev_id)
-+{
-+	unsigned long flags;
-+	struct pm8058_othc *dd = dev_id;
-+
-+	spin_lock_irqsave(&dd->lock, flags);
-+	dd->switch_reject = true;
-+	spin_unlock_irqrestore(&dd->lock, flags);
-+
-+	mod_timer(&dd->timer, jiffies +
-+		msecs_to_jiffies(dd->switch_debounce_ms));
-+
-+	dd->othc_ir_state = !dd->othc_ir_state;
-+	input_report_key(dd->othc_ipd, SW_HEADPHONE_INSERT, dd->othc_ir_state);
-+	input_sync(dd->othc_ipd);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit
-+pm8058_configure_othc(struct pm8058_othc *dd)
-+{
-+	int rc;
-+	u8 reg, value;
-+	u32 value1;
-+	u16 base_addr = dd->othc_base;
-+	const struct othc_hsed_config *hsed_config =
-+					dd->othc_pdata->hsed_config;
-+
-+	/* Control Register 1*/
-+	rc = pm8058_read(dd->pm_chip, base_addr, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	if (hsed_config->othc_headset == OTHC_HEADSET_NO) {
-+		/* set iDAC high current threshold */
-+		value = (hsed_config->othc_highcurr_thresh_uA /
-+					PM8058_OTHC_HIGH_CURR_MIRROR) - 2;
-+		reg =  (reg & PM8058_OTHC_HIGH_CURR_MASK) | value;
-+	} else {
-+		/* set iDAC low current threshold */
-+		value = (hsed_config->othc_lowcurr_thresh_uA /
-+					PM8058_OTHC_LOW_CURR_MIRROR) - 1;
-+		reg &= PM8058_OTHC_LOW_CURR_MASK;
-+		reg |= (value << PM8058_OTHC_LOW_CURR_SHIFT);
-+	}
-+
-+	rc = pm8058_write(dd->pm_chip, base_addr, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	/* Control register 2*/
-+	rc = pm8058_read(dd->pm_chip, base_addr + 1, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	value = dd->othc_pdata->micbias_enable;
-+	reg &= PM8058_OTHC_EN_SIG_MASK;
-+	reg |= (value << PM8058_OTHC_EN_SIG_SHIFT);
-+
-+	value = 0;
-+	value1 = (hsed_config->othc_hyst_prediv_us <<
-+				PM8058_OTHC_CLK_SRC_SHIFT) / USEC_PER_SEC;
-+	while (value1 != 0) {
-+		value1 = value1 >> 1;
-+		value++;
-+	}
-+	if (value > 7) {
-+		pr_err("Invalid input argument - othc_hyst_prediv_us\n");
-+		return -EINVAL;
-+	}
-+	reg &= PM8058_OTHC_HYST_PREDIV_MASK;
-+	reg |= (value << PM8058_OTHC_HYST_PREDIV_SHIFT);
-+
-+	value = 0;
-+	value1 = (hsed_config->othc_period_clkdiv_us <<
-+				PM8058_OTHC_CLK_SRC_SHIFT) / USEC_PER_SEC;
-+	while (value1 != 1) {
-+		value1 = value1 >> 1;
-+		value++;
-+	}
-+	if (value > 8) {
-+		pr_err("Invalid input argument - othc_period_clkdiv_us\n");
-+		return -EINVAL;
-+	}
-+	reg = (reg &  PM8058_OTHC_CLK_PREDIV_MASK) | (value - 1);
-+
-+	rc = pm8058_write(dd->pm_chip, base_addr + 1, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	/* Control register 3 */
-+	rc = pm8058_read(dd->pm_chip, base_addr + 2 , &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	value = hsed_config->othc_hyst_clk_us /
-+					hsed_config->othc_hyst_prediv_us;
-+	if (value > 15) {
-+		pr_err("Invalid input argument - othc_hyst_prediv_us\n");
-+		return -EINVAL;
-+	}
-+	reg &= PM8058_OTHC_HYST_CLK_MASK;
-+	reg |= value << PM8058_OTHC_HYST_CLK_SHIFT;
-+
-+	value = hsed_config->othc_period_clk_us /
-+					hsed_config->othc_period_clkdiv_us;
-+	if (value > 15) {
-+		pr_err("Invalid input argument - othc_hyst_prediv_us\n");
-+		return -EINVAL;
-+	}
-+	reg = (reg & PM8058_OTHC_PERIOD_CLK_MASK) | value;
-+
-+	rc = pm8058_write(dd->pm_chip, base_addr + 2, &reg, 1);
-+	if (rc < 0) {
-+		pr_err("PM8058 read failed\n");
-+		return rc;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __devinit
-+pm8058_othc_configure_hsed(struct pm8058_othc *dd, struct platform_device *pd)
-+{
-+	int rc;
-+	struct input_dev *ipd;
-+	const struct pmic8058_othc_config_pdata *pdata = pd->dev.platform_data;
-+	const struct othc_hsed_config *hsed_config = pdata->hsed_config;
-+
-+	ipd = input_allocate_device();
-+	if (ipd == NULL) {
-+		dev_err(&pd->dev, "Memory allocate to input device failed!\n");
-+		rc = -ENOMEM;
-+		goto fail_input_alloc;
-+	}
-+
-+	dd->othc_irq_sw = platform_get_irq(pd, 0);
-+	dd->othc_irq_ir = platform_get_irq(pd, 1);
-+	if (dd->othc_irq_ir < 0 || dd->othc_irq_sw < 0) {
-+		dev_err(&pd->dev, "othc resource:IRQ_IR absent!\n");
-+		rc = -ENXIO;
-+		goto fail_othc_config;
-+	}
-+
-+	ipd->name = "pmic8058_othc";
-+	ipd->phys = "pmic8058_othc/input0";
-+	ipd->dev.parent = &pd->dev;
-+
-+	input_set_capability(ipd, EV_SW, SW_HEADPHONE_INSERT);
-+	input_set_capability(ipd, EV_KEY, KEY_MEDIA);
-+
-+	input_set_drvdata(ipd, dd);
-+
-+	dd->othc_ipd = ipd;
-+	dd->othc_sw_state = false;
-+	dd->othc_ir_state = false;
-+	spin_lock_init(&dd->lock);
-+	dd->switch_debounce_ms = hsed_config->switch_debounce_ms;
-+	setup_timer(&dd->timer, pm8058_othc_timer, (unsigned long) dd);
-+
-+	rc = pm8058_configure_othc(dd);
-+	if (rc < 0)
-+		goto fail_othc_config;
-+
-+	rc = input_register_device(ipd);
-+	if (rc) {
-+		dev_err(&pd->dev, "Register OTHC device failed!\n");
-+		goto fail_othc_config;
-+	}
-+
-+	/* Check if the headset is already inserted during boot up */
-+	rc = pm8058_irq_get_rt_status(dd->pm_chip, dd->othc_irq_ir);
-+	if (rc < 0) {
-+		dev_err(&pd->dev, "Unable to get headset status at boot!\n");
-+		goto fail_ir_irq;
-+	}
-+	if (rc) {
-+		dev_dbg(&pd->dev, "Headset inserted during boot up!\n");
-+		dd->othc_ir_state = true;
-+		input_report_switch(dd->othc_ipd, SW_HEADPHONE_INSERT, 1);
-+		input_sync(dd->othc_ipd);
-+	}
-+
-+	rc = request_any_context_irq(dd->othc_irq_ir, pm8058_nc_ir,
-+		IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+					"pm8058_othc_ir", dd);
-+	if (rc < 0) {
-+		dev_err(&pd->dev, "Request pm8058_othc_ir IRQ failed!\n");
-+		goto fail_ir_irq;
-+	}
-+
-+	rc = request_any_context_irq(dd->othc_irq_sw, pm8058_no_sw,
-+		IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+					"pm8058_othc_sw", dd);
-+	if (rc < 0) {
-+		dev_err(&pd->dev, "Request pm8058_othc_sw IRQ failed!\n");
-+		goto fail_sw_irq;
-+	}
-+
-+	device_init_wakeup(&pd->dev, hsed_config->othc_wakeup);
-+
-+	return 0;
-+
-+fail_sw_irq:
-+	free_irq(dd->othc_irq_ir, dd);
-+fail_ir_irq:
-+	input_unregister_device(ipd);
-+	dd->othc_ipd = NULL;
-+fail_othc_config:
-+	input_free_device(ipd);
-+fail_input_alloc:
-+	return rc;
-+}
-+
-+static int __devinit pm8058_othc_probe(struct platform_device *pd)
-+{
-+	int rc;
-+	struct pm8058_othc *dd;
-+	struct pm8058_chip *chip;
-+	struct resource *res;
-+	struct pmic8058_othc_config_pdata *pdata = pd->dev.platform_data;
-+
-+	chip = platform_get_drvdata(pd);
-+	if (chip == NULL) {
-+		dev_err(&pd->dev, "Invalid driver information!\n");
-+		return  -EINVAL;
-+	}
-+
-+	/* PMIC8058 version 1.0 not supported */
-+	if (pm8058_rev(chip) == PM_8058_REV_1p0) {
-+		dev_err(&pd->dev, "PMIC8058 version not supported!\n");
-+		return -ENODEV;
-+	}
-+
-+	if (pdata == NULL) {
-+		dev_err(&pd->dev, "Platform data not present!\n");
-+		return -EINVAL;
-+	}
-+
-+	dd = kzalloc(sizeof(*dd), GFP_KERNEL);
-+	if (dd == NULL) {
-+		dev_err(&pd->dev, "Unable to allocate memory!\n");
++	rtc_dd = kzalloc(sizeof(*rtc_dd), GFP_KERNEL);
++	if (rtc_dd == NULL) {
++		dev_err(&pdev->dev, "Unable to allocate memory!\n");
 +		return -ENOMEM;
 +	}
 +
-+	res = platform_get_resource_byname(pd, IORESOURCE_IO, "othc_base");
-+	if (res == NULL) {
-+		dev_err(&pd->dev, "OTHC Base address, resource absent!\n");
++	rtc_dd->rtc_alarm_irq = platform_get_irq(pdev, 0);
++	if (!rtc_dd->rtc_alarm_irq) {
++		dev_err(&pdev->dev, "RTC / Alarm IRQ resource absent!\n");
 +		rc = -ENXIO;
-+		goto fail_get_res;
++		goto fail_rtc_enable;
 +	}
 +
-+	dd->othc_pdata = pdata;
-+	dd->pm_chip = chip;
-+	dd->othc_base = res->start;
++	rtc_dd->pm_chip = pm_chip;
 +
-+	platform_set_drvdata(pd, dd);
++	/* Check if the RTC is on, else turn it on */
++	rc = pm8058_read(pm_chip, PM8058_RTC_CTRL, &reg, 1);
++	if (rc < 0) {
++		dev_err(&pdev->dev, "PM8058 read failed!\n");
++		goto fail_rtc_enable;
++	}
 +
-+	if (pdata->micbias_capability == OTHC_MICBIAS_HSED) {
-+		/* HSED to be supported on this MICBIAS line */
-+		if (pdata->hsed_config != NULL) {
-+			rc = pm8058_othc_configure_hsed(dd, pd);
-+			if (rc < 0)
-+				goto fail_get_res;
-+		} else {
-+			dev_err(&pd->dev, "HSED config data absent!\n");
-+			rc = -EINVAL;
-+			goto fail_get_res;
++	if (!(reg & PM8058_RTC_ENABLE)) {
++		reg |= PM8058_RTC_ENABLE;
++		rc = pm8058_write(pm_chip, PM8058_RTC_CTRL, &reg, 1);
++		if (rc < 0) {
++			dev_err(&pdev->dev, "PM8058 write failed!\n");
++			goto fail_rtc_enable;
 +		}
 +	}
++	rtc_dd->rtc_ctrl_reg = reg;
 +
-+	/* Store the local driver data structure */
-+	if (dd->othc_pdata->micbias_select < OTHC_MICBIAS_MAX)
-+		config[dd->othc_pdata->micbias_select] = dd;
++	if (rtc_write_enable == true)
++		pm8058_rtc_ops.set_time = pm8058_rtc_set_time,
 +
-+	dev_dbg(&pd->dev, "Device %s:%d successfully registered\n",
-+						pd->name, pd->id);
++	/* Register the RTC device */
++	rtc_dd->rtc = rtc_device_register("pm8058_rtc", &pdev->dev,
++				&pm8058_rtc_ops, THIS_MODULE);
++	if (IS_ERR(rtc_dd->rtc)) {
++		dev_err(&pdev->dev, "%s: RTC registration failed (%ld)\n",
++					__func__, PTR_ERR(rtc_dd->rtc));
++		rc = PTR_ERR(rtc_dd->rtc);
++		goto fail_rtc_enable;
++	}
++
++	platform_set_drvdata(pdev, rtc_dd);
++
++	/* Request the alarm IRQ */
++	rc = request_any_context_irq(rtc_dd->rtc_alarm_irq,
++				 pm8058_alarm_trigger, IRQF_TRIGGER_RISING,
++				 "pm8058_rtc_alarm", rtc_dd);
++	if (rc < 0) {
++		dev_err(&pdev->dev, "Request IRQ failed (%d)\n", rc);
++		goto fail_req_irq;
++	}
++
++	device_init_wakeup(&pdev->dev, 1);
++
++	dev_dbg(&pdev->dev, "Probe success !!\n");
++
 +	return 0;
 +
-+fail_get_res:
-+	kfree(dd);
++fail_req_irq:
++	rtc_device_unregister(rtc_dd->rtc);
++fail_rtc_enable:
++	kfree(rtc_dd);
 +	return rc;
 +}
 +
-+static struct platform_driver pm8058_othc_driver = {
-+	.driver = {
-+		.name = "pm8058-othc",
-+		.owner = THIS_MODULE,
 +#ifdef CONFIG_PM
-+		.pm = &pm8058_othc_pm_ops,
++static int pm8058_rtc_resume(struct device *dev)
++{
++	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		disable_irq_wake(rtc_dd->rtc_alarm_irq);
++
++	return 0;
++}
++
++static int pm8058_rtc_suspend(struct device *dev)
++{
++	struct pm8058_rtc *rtc_dd = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(rtc_dd->rtc_alarm_irq);
++
++	return 0;
++}
++
++static const struct dev_pm_ops pm8058_rtc_pm_ops = {
++	.suspend = pm8058_rtc_suspend,
++	.resume = pm8058_rtc_resume,
++};
++#endif
++
++static int __devexit pm8058_rtc_remove(struct platform_device *pdev)
++{
++	struct pm8058_rtc *rtc_dd = platform_get_drvdata(pdev);
++
++	device_init_wakeup(&pdev->dev, 0);
++	free_irq(rtc_dd->rtc_alarm_irq, rtc_dd);
++	rtc_device_unregister(rtc_dd->rtc);
++	kfree(rtc_dd);
++
++	return 0;
++}
++
++static struct platform_driver pm8058_rtc_driver = {
++	.probe		= pm8058_rtc_probe,
++	.remove		= __devexit_p(pm8058_rtc_remove),
++	.driver	= {
++		.name	= "pm8058-rtc",
++		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &pm8058_rtc_pm_ops,
 +#endif
 +	},
-+	.probe = pm8058_othc_probe,
-+	.remove = __devexit_p(pm8058_othc_remove),
 +};
 +
-+static int __init pm8058_othc_init(void)
++static int __init pm8058_rtc_init(void)
 +{
-+	return platform_driver_register(&pm8058_othc_driver);
++	return platform_driver_register(&pm8058_rtc_driver);
 +}
-+module_init(pm8058_othc_init);
++module_init(pm8058_rtc_init);
 +
-+static void __exit pm8058_othc_exit(void)
++static void __exit pm8058_rtc_exit(void)
 +{
-+	platform_driver_unregister(&pm8058_othc_driver);
++	platform_driver_unregister(&pm8058_rtc_driver);
 +}
-+module_exit(pm8058_othc_exit);
++module_exit(pm8058_rtc_exit);
 +
-+MODULE_ALIAS("platform:pmic8058_othc");
-+MODULE_DESCRIPTION("PMIC8058 OTHC");
++MODULE_ALIAS("platform:pm8058-rtc");
++MODULE_DESCRIPTION("PMIC8058 RTC driver");
 +MODULE_LICENSE("GPL v2");
 +MODULE_AUTHOR("Anirudh Ghayal <aghayal@codeaurora.org>");
-diff --git a/include/linux/input/pmic8058-othc.h b/include/linux/input/pmic8058-othc.h
+diff --git a/include/linux/rtc/rtc-pm8058.h b/include/linux/rtc/rtc-pm8058.h
 new file mode 100644
-index 0000000..2d7ff79
+index 0000000..651c5b4
 --- /dev/null
-+++ b/include/linux/input/pmic8058-othc.h
-@@ -0,0 +1,117 @@
++++ b/include/linux/rtc/rtc-pm8058.h
+@@ -0,0 +1,29 @@
 +/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -624,106 +578,18 @@ index 0000000..2d7ff79
 + * 02110-1301, USA.
 + */
 +
-+#ifndef __PMIC8058_OTHC_H__
-+#define __PMIC8058_OTHC_H__
++#ifndef __RTC_PM8058_H__
++#define __RTC_PM8058_H__
 +
 +/**
-+ * enum othc_micbias_enable - MIC BIAS operational states
-+ *
-+ * This enum describes the different configurations of the BIAS line.
++ * struct pm8058_rtc_pdata - RTC driver platform data
++ * @rtc_write_enable: variable stating RTC write capability
 + */
-+enum othc_micbias_enable {
-+	/* Turn off BIAS */
-+	OTHC_SIGNAL_OFF,
-+	/* Turn on BIAS if TCXO_EN is high */
-+	OTHC_SIGNAL_TCXO,
-+	/* Turn on BIAS if TCXO_EN or PWN is high */
-+	OTHC_SIGNAL_PWM_TCXO,
-+	/* Turn on BIAS always */
-+	OTHC_SIGNAL_ALWAYS_ON,
++struct pm8058_rtc_pdata {
++	bool rtc_write_enable;
 +};
 +
-+/**
-+ * enum othc_headset_type - Different type of supported headset
-+ *
-+ * This enum describes the different types of supported headsets.
-+ */
-+enum othc_headset_type {
-+	OTHC_HEADSET_NO,
-+	OTHC_HEADSET_NC,
-+};
-+
-+/**
-+ * enum othc_micbias -  Lists the number of MIC BIAS lines.
-+ *
-+ * This enum lists all the total number of BIAS lines.
-+ */
-+enum othc_micbias {
-+	OTHC_MICBIAS_0,
-+	OTHC_MICBIAS_1,
-+	OTHC_MICBIAS_2,
-+	OTHC_MICBIAS_MAX,
-+};
-+
-+/**
-+ * enum othc_micbias_capability - Capability of the MIC BIAS line
-+ *
-+ * This enum describes the capability of the MIC BIAS line, it can either be
-+ * used for headset or a regular speaker MIC BIAS.
-+ */
-+enum othc_micbias_capability {
-+	OTHC_MICBIAS,
-+	OTHC_MICBIAS_HSED,
-+};
-+
-+/**
-+ * struct othc_hsed_config - headset specific configuration structure
-+ * @othc_headset: type of headset
-+ * @othc_lowcurr_thresh_uA: low current threshold for the headset
-+ * @othc_highcurr_thresh_uA: high  current threshold for the headset
-+ * @othc_hyst_prediv_us: hysterisis time pre-divider
-+ * @othc_period_clkdiv_us: pwm period pre-divider
-+ * @othc_hyst_clk_us: hysterisis clock period
-+ * @othc_hyst_clk_us: hysterisis clock period
-+ * @othc_period_clk_us: pwm clock period
-+ * @othc_wakeup: wakeup capability
-+ * @switch_debounce_ms: specifies the switch debounce time
-+ *
-+ * This structure provides the configurable parameters for headset. This is a
-+ * part of the platform data.
-+ */
-+struct othc_hsed_config {
-+	enum othc_headset_type othc_headset;
-+	u16 othc_lowcurr_thresh_uA;
-+	u16 othc_highcurr_thresh_uA;
-+	u32 othc_hyst_prediv_us;
-+	u32 othc_period_clkdiv_us;
-+	u32 othc_hyst_clk_us;
-+	u32 othc_period_clk_us;
-+	int othc_wakeup;
-+	unsigned long switch_debounce_ms;
-+};
-+
-+/**
-+ * struct pmic8058_othc_config_pdata - platform data for OTHC
-+ * @micbias_select: selects the MIC BIAS
-+ * @micbias_enable: default operational configuration of the MIC BIAS
-+ * @micbias_capability: capability supported by the MIC BIAS
-+ * @hsed_config: pointer to headset configuration
-+ *
-+ * This structure is the platform data provided to the OTHC driver
-+ */
-+struct pmic8058_othc_config_pdata {
-+	enum othc_micbias micbias_select;
-+	enum othc_micbias_enable micbias_enable;
-+	enum othc_micbias_capability micbias_capability;
-+	struct othc_hsed_config *hsed_config;
-+};
-+
-+int pm8058_micbias_enable(enum othc_micbias micbias,
-+				enum othc_micbias_enable enable);
-+
-+#endif /* __PMIC8058_OTHC_H__ */
++#endif /* __RTC_PM8058_H__ */
 -- 
 1.7.3.5
 

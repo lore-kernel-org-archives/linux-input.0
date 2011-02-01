@@ -1,287 +1,90 @@
-From: "Valkonen, Iiro" <iiro.valkonen@atmel.com>
-Subject: RE: [PATCH 2/2] input: Modify the qt602240 driver to be compatible with mXT1386 device - functional changes
-Date: Tue, 1 Feb 2011 08:53:02 -0000
-Message-ID: <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com>
-References: <4D3DAE3C.6060806@atmel.com> <20110124170756.GB31066@core.coreip.homeip.net> <4D3EA7DD.6000601@atmel.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
+Date: Tue, 1 Feb 2011 10:00:12 +0100
+Message-ID: <AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
+References: <1296485689.7756.9.camel@novo.hadess.net>
+	<20110131212842.GB1603@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:25542 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750952Ab1BAIxx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 03:53:53 -0500
-Content-class: urn:content-classes:message
-In-Reply-To: <4D3EA7DD.6000601@atmel.com>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:44257 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751248Ab1BAJAN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 04:00:13 -0500
+Received: by wyb28 with SMTP id 28so6443232wyb.19
+        for <linux-input@vger.kernel.org>; Tue, 01 Feb 2011 01:00:12 -0800 (PST)
+In-Reply-To: <20110131212842.GB1603@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <tsoni@codeaurora.org>
-Cc: linux-input@vger.kernel.org, jy0922.shim@samsung.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
 
-Input: qt602240_ts - functional changes to support mXT1386
+Hi Bastien, Henrik,
 
-From: Iiro Valkonen (iiro.valkonen@atmel.com)
+On Mon, Jan 31, 2011 at 22:28, Henrik Rydberg <rydberg@euromail.se> wro=
+te:
+> Hi Bastien,
+>
+>> Built into my Lenovo A700 all-in-one is a touchscreen. lsusb says:
+>> $ lsusb | grep -i touch
+>> Bus 002 Device 006: ID 04e7:0022 Elo TouchSystems
+>
+> I take it this is a dual-touch device?
+>
+>> The touchscreen "works", in that tapping it will create a click even=
+t,
+>> though that click event is always in the top left of the screen.
+>
+> This is quite common for HID multitouch devices without proper driver
+> support. Sometimes using the HID_MULTI_INPUT quirk helps. Check
+> usbhid/hid-quirks.c for examples.
+>
+>> Full output of lsusb -vvv attached.
+>>
+>> Anybody with ideas as to what I'm missing, or whether that particula=
+r
+>> device is supported?
+>
+> You probably noted already that the 04e7:0020 device is listed in
+> usbhid. Unless the device claims to be win7 compliant (implying
+> patching up hid-multitouch), going with the evtouch X driver might ge=
+t
+> you a bit on the way. Or - god forbid - the binary blob drivers...
 
-Functional changes to qt602240_ts to support mXT1386 device.
+To know if the device is "win7 compliant" or not, we need the full
+output of lsusb (with the report descriptors).
+You need to tell usbhid to release the device before calling lsusb -v.
 
-Signed-off-by: Iiro Valkonen (iiro.valkonen@atmel.com)
----
- drivers/input/touchscreen/qt602240_ts.c |  159 +++++--------------------------
- include/linux/i2c/qt602240_ts.h         |   18 ++++
- 2 files changed, 44 insertions(+), 133 deletions(-)
+Please use the script at
+http://lii-enac.fr/en/architecture/linux-input/report.py
+and run, as root: python report.py > descriptors.txt
 
-diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/touchscreen/qt602240_ts.c
-index c89be42..dcbee06 100644
---- a/drivers/input/touchscreen/qt602240_ts.c
-+++ b/drivers/input/touchscreen/qt602240_ts.c
-@@ -199,122 +199,6 @@
- 
- #define MXT_MAX_FINGER		10
- 
--/* Initial register values recommended from chip vendor */
--static const u8 init_vals_ver_20[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x08, 0x05, 0x05, 0x00, 0x00, 0x00, 0x05, 0x14,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x64,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x00, 0x64, 0x64, 0x64, 0x64, 0x00, 0x00, 0x1e, 0x14, 0x04,
--	0x1e, 0x00,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x19, 0x00, 0xe7, 0xff, 0x04, 0x32, 0x00,
--	0x01, 0x0a, 0x0f, 0x14, 0x00, 0x00, 0xe8,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x04, 0x08,
--};
--
--static const u8 init_vals_ver_21[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
--	0x0f, 0x0a,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
--	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
--};
--
--static const u8 init_vals_ver_22[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
--	0x0f, 0x0a,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
--	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
--};
--
- struct mxt_info {
- 	u8 family_id;
- 	u8 variant_id;
-@@ -714,26 +598,18 @@ end:
- 
- static int mxt_check_reg_init(struct mxt_data *data)
- {
-+	const struct mxt_platform_data *pdata = data->pdata;
- 	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
- 	int index = 0;
- 	int i, j;
--	u8 version = data->info.version;
- 	u8 *init_vals;
- 
--	switch (version) {
--	case MXT_VER_20:
--		init_vals = (u8 *)init_vals_ver_20;
--		break;
--	case MXT_VER_21:
--		init_vals = (u8 *)init_vals_ver_21;
--		break;
--	case MXT_VER_22:
--		init_vals = (u8 *)init_vals_ver_22;
--		break;
--	default:
--		dev_err(dev, "Firmware version %d doesn't support\n", version);
--		return -EINVAL;
-+	if (pdata->config) {
-+		init_vals = pdata->config;
-+	} else {
-+		dev_err(dev, "No cfg data defined, skipping reg init\n");
-+		return 0;
- 	}
- 
- 	for (i = 0; i < data->info.object_num; i++) {
-@@ -823,16 +699,16 @@ static int mxt_check_matrix_size(struct mxt_data *data)
- static int mxt_make_highchg(struct mxt_data *data)
- {
- 	struct device *dev = &data->client->dev;
-+	struct mxt_message message;
- 	int count = 10;
- 	int error;
--	u8 val;
- 
- 	/* Read dummy message to make high CHG pin */
- 	do {
--		error = mxt_read_object(data, MXT_GEN_MESSAGE, 0, &val);
-+		error = mxt_read_message(data, &message);
- 		if (error)
- 			return error;
--	} while ((val != 0xff) && --count);
-+	} while ((message.reportid != 0xff) && --count);
- 
- 	if (!count) {
- 		dev_err(dev, "CHG pin isn't cleared\n");
-@@ -986,10 +862,17 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		return error;
- 
-+      /*
-+       * Skip this and trust what's on the chip, as the current check
-+       * is not compatible with mXT1386. Revisit and fix.
-+       */
- 	/* Check X/Y matrix size */
-+
-+	/*
- 	error = mxt_check_matrix_size(data);
- 	if (error)
- 		return error;
-+	*/
- 
- 	error = mxt_make_highchg(data);
- 	if (error)
-@@ -1282,6 +1165,16 @@ static int __devinit mxt_probe(struct i2c_client *client,
- 
- 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
- 			IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
-+
-+	if (error) {
-+		/* If registering an interrupt with falling edge didn't work,
-+		   try any edge. */
-+		/* Todo: in this case, check the validity of the interrupt by
-+		   reading the CHG line state */
-+		error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
-+					0, client->dev.driver->name, data);
-+	}
-+
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
- 		goto err_free_object;
-diff --git a/include/linux/i2c/qt602240_ts.h b/include/linux/i2c/qt602240_ts.h
-index 0b4c72f..e4cd483 100644
---- a/include/linux/i2c/qt602240_ts.h
-+++ b/include/linux/i2c/qt602240_ts.h
-@@ -13,6 +13,23 @@
- #ifndef __LINUX_MAXTOUCH_TS_H
- #define __LINUX_MAXTOUCH_TS_H
- 
-+/* Chip I2C Addresses */
-+#define       MXT224_I2C_ADDR1                                0x4A
-+#define       MXT224_I2C_ADDR2                                0x4B
-+#define       MXT1386_I2C_ADDR1                               0x4C
-+#define       MXT1386_I2C_ADDR2                               0x4D
-+#define       MXT1386_I2C_ADDR3                               0x5A
-+#define       MXT1386_I2C_ADDR4                               0x5B
-+
-+/*
-+ * Select this address from above depending on what maXTouch
-+ * chip you have and how it's address pins are configured;
-+ * see datasheet.
-+ */
-+
-+#define MXT_I2C_ADDRESS                                 MXT1386_I2C_ADDR1
-+
-+
- /* Orient */
- #define MXT_NORMAL		0x0
- #define MXT_DIAGONAL		0x1
-@@ -33,6 +50,7 @@ struct mxt_platform_data {
- 	unsigned int threshold;
- 	unsigned int voltage;
- 	unsigned char orient;
-+	unsigned char *config;
- };
- 
- #endif /* __LINUX_MAXTOUCH_TS_H */
--- 
-1.7.0.4
+This will do the job. You can then send us the descriptors.txt, and we
+will see what we can do.
 
+>
+>> Using kernel 2.6.38-rc2-git5 (from Fedora rawhide).
+
+If your device is "win7 compliant" you will have to recompile a new ker=
+nel.
+
+Cheers,
+Benjamin
+
+>
+> The serial elo driver has not been updated since 2007...
+>
+> Cheers,
+> Henrik
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

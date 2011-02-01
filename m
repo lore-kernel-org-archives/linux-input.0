@@ -1,44 +1,40 @@
-From: Matthew Garrett <mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org>
-Subject: Re: [PATCH 1/2] input: Pegatron Lucid accelerometer
-Date: Mon, 31 Jan 2011 21:30:57 +0000
-Message-ID: <20110131213057.GA9259@srcf.ucam.org>
-References: <1295287011-12849-1-git-send-email-andy.ross@windriver.com>
-	<1295287011-12849-2-git-send-email-andy.ross@windriver.com>
-	<4D3529A1.1030804@ti.com> <4D35CC1B.3020808@windriver.com>
+From: "Valkonen, Iiro" <iiro.valkonen@atmel.com>
+Subject: RE: [PATCH 2/2] input: Modify the qt602240 driver to be compatible with mXT1386 device - functional changes
+Date: Tue, 1 Feb 2011 08:17:09 -0000
+Message-ID: <F619927BD5260540BACE9E197A0F2A699CF0CD@hammb01.corp.atmel.com>
+References: <4D3DAE3C.6060806@atmel.com> <20110124170756.GB31066@core.coreip.homeip.net> <4D3EA7DD.6000601@atmel.com> <20110129082738.GC26915@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4D35CC1B.3020808-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
-	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=acpi4asus-user>
-List-Post: <mailto:acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
-	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Andy Ross <andy.ross-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-Cc: acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:7997 "EHLO sjogate2.atmel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752463Ab1BAIRr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 03:17:47 -0500
+Content-class: urn:content-classes:message
+In-Reply-To: <20110129082738.GC26915@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, jy0922.shim@samsung.com
 
-On Tue, Jan 18, 2011 at 09:21:31AM -0800, Andy Ross wrote:
+Hello Dmitry,
 
-> It's just an ACPI method interface, so no dedicated IRQ certainly.
-> The firmware does issue ACPI events on coarse orientation changes
-> (i.e. which edge is up) that we're catching with acpid, so there's no
-> reason this needs to poll all the time in typical usage.
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Saturday, January 29, 2011 10:28 AM
+> 
+> So I have the patch below for rename, please let me know if you are OK
+> with Kconfig wording.
+> 
+> BTW, I need your signoffs for the 2 patches you sent.
+> 
 
-It'd be good to provide those via some more generally-usable mechanism 
-than raw ACPI events.
+Thank you, the wording is fine by me. 
 
--- 
-Matthew Garrett | mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org
+I'll resend the patches in a minute in the correct format as requested by Trilok Soni, with signoffs.
 
-------------------------------------------------------------------------------
-Special Offer-- Download ArcSight Logger for FREE (a $49 USD value)!
-Finally, a world-class log management solution at an even better price-free!
-Download using promo code Free_Logger_4_Dev2Dev. Offer expires 
-February 28th, so secure your free ArcSight Logger TODAY! 
-http://p.sf.net/sfu/arcsight-sfd2d
+Regards,
+Iiro
+

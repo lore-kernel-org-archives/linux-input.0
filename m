@@ -1,384 +1,835 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
-Date: Tue, 01 Feb 2011 12:01:54 +0000
-Message-ID: <1296561717.15349.5.camel@novo.hadess.net>
-References: <1296485689.7756.9.camel@novo.hadess.net>
-	 <20110131212842.GB1603@polaris.bitmath.org>
-	 <AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] intel_mid: Keypad Driver
+Date: Tue, 01 Feb 2011 11:36:09 +0000
+Message-ID: <20110201113513.24707.6283.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-zxFFi+Rw9cp81XfThz14"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slow3-v.mail.gandi.net ([217.70.178.89]:53378 "EHLO
-	slow3-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754438Ab1BAMCj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 07:02:39 -0500
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-	by slow3-v.mail.gandi.net (Postfix) with ESMTP id 27595388B1
-	for <linux-input@vger.kernel.org>; Tue,  1 Feb 2011 13:02:22 +0100 (CET)
-In-Reply-To: <AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:59679 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754438Ab1BAMDp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 07:03:45 -0500
+Received: from bob.linux.org.uk (earthlight.etchedpixels.co.uk [81.2.110.250])
+	by lxorguk.ukuu.org.uk (8.14.4/8.14.1) with ESMTP id p11C2jZC009154
+	for <linux-input@vger.kernel.org>; Tue, 1 Feb 2011 12:02:51 GMT
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+
+From: Zheng Ba <zheng.ba@intel.com>
+
+This is a single patch of the Intel Moorestown keypad driver made up from
+the following
 
 
---=-zxFFi+Rw9cp81XfThz14
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Zheng Ba <zheng.ba@intel.com>
+	This patch adds the keypad support for the MID platform keypad
+	interfaces.
 
-On Tue, 2011-02-01 at 10:00 +0100, Benjamin Tissoires wrote:
-> Hi Bastien, Henrik,
-> 
-> On Mon, Jan 31, 2011 at 22:28, Henrik Rydberg <rydberg@euromail.se> wrote:
-> > Hi Bastien,
-> >
-> >> Built into my Lenovo A700 all-in-one is a touchscreen. lsusb says:
-> >> $ lsusb | grep -i touch
-> >> Bus 002 Device 006: ID 04e7:0022 Elo TouchSystems
-> >
-> > I take it this is a dual-touch device?
-> >
-> >> The touchscreen "works", in that tapping it will create a click event,
-> >> though that click event is always in the top left of the screen.
-> >
-> > This is quite common for HID multitouch devices without proper driver
-> > support. Sometimes using the HID_MULTI_INPUT quirk helps. Check
-> > usbhid/hid-quirks.c for examples.
-> >
-> >> Full output of lsusb -vvv attached.
-> >>
-> >> Anybody with ideas as to what I'm missing, or whether that particular
-> >> device is supported?
-> >
-> > You probably noted already that the 04e7:0020 device is listed in
-> > usbhid. Unless the device claims to be win7 compliant (implying
-> > patching up hid-multitouch), going with the evtouch X driver might get
-> > you a bit on the way. Or - god forbid - the binary blob drivers...
-> 
-> To know if the device is "win7 compliant" or not, we need the full
-> output of lsusb (with the report descriptors).
-> You need to tell usbhid to release the device before calling lsusb -v.
-> 
-> Please use the script at
-> http://lii-enac.fr/en/architecture/linux-input/report.py
-> and run, as root: python report.py > descriptors.txt
-> 
-> This will do the job. You can then send us the descriptors.txt, and we
-> will see what we can do.
+	Changes from Alpha2: solved "CRITICAL" issues marked by Klocwork
+		     HSD sighting 3469242
 
-Attached (with the rest of the input devices stripped).
+	(some tidying Alan Cox)
 
-> >> Using kernel 2.6.38-rc2-git5 (from Fedora rawhide).
-> 
-> If your device is "win7 compliant" you will have to recompile a new kernel.
+Jekyll Lai <jekyll_lai@wistron.com>
+	Rewrite keypad driver to keep only one default matrix keymap. Also add
+	an interface to pass the platform data via "mrst_keypad_set_pdata."
+	Howerver, this keypad controller also provides direct key function.
+	That one matrix keymap is not enough in this driver. It's necessary
+	that adding another default keymap for direct key. So, there would
+	be two default keymaps. One for the keypad matrix; one for direct
+	keys.
 
-That's alright, I've done this before ;)
+Alan Cox <alan@linux.intel.com>
+	Fix abuse of disable_irq/enable_irq on a shared IRQ line.
 
---=-zxFFi+Rw9cp81XfThz14
-Content-Disposition: attachment; filename="elo-touchscreen-descriptors.txt"
-Content-Type: text/plain; name="elo-touchscreen-descriptors.txt"; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Zheng Ba <zheng.ba@intel.com>
+Signed-off-by: Jekyll Lai <jekyll_lai@wistron.com>
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+---
 
-found device HID 0a5c:4502
-echo 2-1.1.1:1.0 > unbind
-found device USB Audio
-echo 2-1.3:1.3 > unbind
-found device HID 0a5c:4503
-echo 2-1.1.2:1.0 > unbind
-found device Elo TouchSystems Elo TouchSystems 2515 IntelliTouch Plus USB Touchmonitor
-echo 2-1.6:1.0 > unbind
-echo 1-1.5.1:1.0 > unbind
-echo 1-1.5.2:1.0 > unbind
+ drivers/input/keyboard/Kconfig            |    7 
+ drivers/input/keyboard/Makefile           |    1 
+ drivers/input/keyboard/intel_mid_keypad.c |  700 +++++++++++++++++++++++++++++
+ include/linux/input/intel_mid_keypad.h    |   32 +
+ 4 files changed, 740 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/keyboard/intel_mid_keypad.c
+ create mode 100644 include/linux/input/intel_mid_keypad.h
 
-lsusb -v -d 000004E7:00000022
 
-Bus 002 Device 006: ID 04e7:0022 Elo TouchSystems 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x04e7 Elo TouchSystems
-  idProduct          0x0022 
-  bcdDevice            1.16
-  iManufacturer           1 Elo TouchSystems
-  iProduct                2 Elo TouchSystems 2515 IntelliTouch Plus USB Touchmonitor
-  iSerial                 3 00000000
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           34
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                4mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength     273
-          Report Descriptor: (length is 273)
-            Item(Global): Usage Page, data= [ 0x0d ] 13
-                            Digitizer
-            Item(Local ): Usage, data= [ 0x04 ] 4
-                            Touch Screen
-            Item(Main  ): Collection, data= [ 0x01 ] 1
-                            Application
-            Item(Global): Report ID, data= [ 0x01 ] 1
-            Item(Local ): Usage, data= [ 0x22 ] 34
-                            Finger
-            Item(Main  ): Collection, data= [ 0x02 ] 2
-                            Logical
-            Item(Local ): Usage, data= [ 0x42 ] 66
-                            Tip Switch
-            Item(Global): Logical Minimum, data= [ 0x00 ] 0
-            Item(Global): Logical Maximum, data= [ 0x01 ] 1
-            Item(Global): Report Size, data= [ 0x01 ] 1
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Local ): Usage, data= [ 0x32 ] 50
-                            In Range
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Report Count, data= [ 0x06 ] 6
-            Item(Main  ): Input, data= [ 0x03 ] 3
-                            Constant Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Report Size, data= [ 0x08 ] 8
-            Item(Local ): Usage, data= [ 0x51 ] 81
-                            Contact ID
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Usage Page, data= [ 0x01 ] 1
-                            Generic Desktop Controls
-            Item(Global): Logical Maximum, data= [ 0xff 0x0f ] 4095
-            Item(Global): Report Size, data= [ 0x10 ] 16
-            Item(Global): Unit Exponent, data= [ 0x0e ] 14
-                            Unit Exponent: 14
-            Item(Global): Unit, data= [ 0x33 ] 51
-                            System: English Linear, Unit: Inch^3
-            Item(Local ): Usage, data= [ 0x30 ] 48
-                            Direction-X
-            Item(Global): Physical Minimum, data= [ 0x00 ] 0
-            Item(Global): Physical Maximum, data= [ 0xff 0x0f ] 4095
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Physical Maximum, data= [ 0xff 0x0f ] 4095
-            Item(Local ): Usage, data= [ 0x31 ] 49
-                            Direction-Y
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Main  ): End Collection, data=none
-            Item(Main  ): Collection, data= [ 0x02 ] 2
-                            Logical
-            Item(Global): Usage Page, data= [ 0x0d ] 13
-                            Digitizer
-            Item(Local ): Usage, data= [ 0x42 ] 66
-                            Tip Switch
-            Item(Global): Logical Minimum, data= [ 0x00 ] 0
-            Item(Global): Logical Maximum, data= [ 0x01 ] 1
-            Item(Global): Report Size, data= [ 0x01 ] 1
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Local ): Usage, data= [ 0x32 ] 50
-                            In Range
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Report Count, data= [ 0x06 ] 6
-            Item(Main  ): Input, data= [ 0x03 ] 3
-                            Constant Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Report Size, data= [ 0x08 ] 8
-            Item(Local ): Usage, data= [ 0x51 ] 81
-                            Contact ID
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Usage Page, data= [ 0x01 ] 1
-                            Generic Desktop Controls
-            Item(Global): Logical Maximum, data= [ 0xff 0x0f ] 4095
-            Item(Global): Report Size, data= [ 0x10 ] 16
-            Item(Global): Unit Exponent, data= [ 0x00 ] 0
-                            Unit Exponent: 0
-            Item(Global): Unit, data= [ 0x00 ] 0
-                            System: None, Unit: (None)
-            Item(Local ): Usage, data= [ 0x30 ] 48
-                            Direction-X
-            Item(Global): Physical Minimum, data= [ 0x00 ] 0
-            Item(Global): Physical Maximum, data= [ 0xff 0x0f ] 4095
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Physical Maximum, data= [ 0xff 0x0f ] 4095
-            Item(Local ): Usage, data= [ 0x31 ] 49
-                            Direction-Y
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Main  ): End Collection, data=none
-            Item(Global): Usage Page, data= [ 0x0d ] 13
-                            Digitizer
-            Item(Local ): Usage, data= [ 0x54 ] 84
-                            Contact Count
-            Item(Global): Logical Maximum, data= [ 0x10 ] 16
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Global): Report Size, data= [ 0x08 ] 8
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Report ID, data= [ 0x08 ] 8
-            Item(Local ): Usage, data= [ 0x55 ] 85
-                            Maximum Contact Number
-            Item(Global): Logical Maximum, data= [ 0x02 ] 2
-            Item(Main  ): Feature, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Main  ): End Collection, data=none
-            Item(Local ): Usage, data= [ 0x0e ] 14
-                            (null)
-            Item(Main  ): Collection, data= [ 0x01 ] 1
-                            Application
-            Item(Global): Report ID, data= [ 0x07 ] 7
-            Item(Local ): Usage, data= [ 0x22 ] 34
-                            Finger
-            Item(Main  ): Collection, data= [ 0x00 ] 0
-                            Physical
-            Item(Local ): Usage, data= [ 0x52 ] 82
-                            Input Mode
-            Item(Local ): Usage, data= [ 0x53 ] 83
-                            Device Index
-            Item(Global): Logical Minimum, data= [ 0x00 ] 0
-            Item(Global): Logical Maximum, data= [ 0x0a ] 10
-            Item(Global): Report Size, data= [ 0x08 ] 8
-            Item(Global): Report Count, data= [ 0x02 ] 2
-            Item(Main  ): Feature, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Main  ): End Collection, data=none
-            Item(Global): Usage Page, data= [ 0x00 0xff ] 65280
-                            (null)
-            Item(Local ): Usage, data= [ 0x55 ] 85
-                            (null)
-            Item(Global): Report ID, data= [ 0x80 ] 128
-            Item(Global): Logical Minimum, data= [ 0x00 ] 0
-            Item(Global): Logical Maximum, data= [ 0xff 0x00 ] 255
-            Item(Global): Report Size, data= [ 0x08 ] 8
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Feature, data= [ 0x82 ] 130
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Volatile Bitfield
-            Item(Main  ): End Collection, data=none
-            Item(Global): Usage Page, data= [ 0x01 ] 1
-                            Generic Desktop Controls
-            Item(Local ): Usage, data= [ 0x02 ] 2
-                            Mouse
-            Item(Main  ): Collection, data= [ 0x01 ] 1
-                            Application
-            Item(Global): Report ID, data= [ 0x54 ] 84
-            Item(Local ): Usage, data= [ 0x01 ] 1
-                            Pointer
-            Item(Main  ): Collection, data= [ 0x00 ] 0
-                            Physical
-            Item(Global): Usage Page, data= [ 0x09 ] 9
-                            Buttons
-            Item(Local ): Usage Minimum, data= [ 0x01 ] 1
-                            Button 1 (Primary)
-            Item(Local ): Usage Maximum, data= [ 0x02 ] 2
-                            Button 2 (Secondary)
-            Item(Global): Logical Minimum, data= [ 0x00 ] 0
-            Item(Global): Logical Maximum, data= [ 0x01 ] 1
-            Item(Global): Report Size, data= [ 0x01 ] 1
-            Item(Global): Report Count, data= [ 0x02 ] 2
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Report Count, data= [ 0x06 ] 6
-            Item(Main  ): Input, data= [ 0x03 ] 3
-                            Constant Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Global): Usage Page, data= [ 0x01 ] 1
-                            Generic Desktop Controls
-            Item(Local ): Usage, data= [ 0x30 ] 48
-                            Direction-X
-            Item(Global): Logical Minimum, data= [ 0x00 ] 0
-            Item(Global): Logical Maximum, data= [ 0xff 0x0f ] 4095
-            Item(Global): Report Size, data= [ 0x10 ] 16
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Local ): Usage, data= [ 0x31 ] 49
-                            Direction-Y
-            Item(Global): Report Size, data= [ 0x10 ] 16
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Input, data= [ 0x02 ] 2
-                            Data Variable Absolute No_Wrap Linear
-                            Preferred_State No_Null_Position Non_Volatile Bitfield
-            Item(Local ): Usage, data= [ 0x3b ] 59
-                            Byte Count
-            Item(Global): Logical Minimum, data= [ 0x00 0x00 ] 0
-            Item(Global): Logical Maximum, data= [ 0x00 0x01 ] 256
-            Item(Global): Physical Minimum, data= [ 0x00 0x00 ] 0
-            Item(Global): Physical Maximum, data= [ 0x00 0x01 ] 256
-            Item(Global): Unit, data= [ 0x00 0x00 ] 0
-                            System: None, Unit: (None)
-            Item(Global): Report Size, data= [ 0x10 ] 16
-            Item(Global): Report Count, data= [ 0x01 ] 1
-            Item(Main  ): Input, data= [ 0x62 ] 98
-                            Data Variable Absolute No_Wrap Linear
-                            No_Preferred_State Null_State Non_Volatile Bitfield
-            Item(Main  ): End Collection, data=none
-            Item(Main  ): End Collection, data=none
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0010  1x 16 bytes
-        bInterval               3
-Device Status:     0x0001
-  Self Powered
-
-echo 2-1.1.1:1.0 > bind
-echo 2-1.3:1.3 > bind
-echo 2-1.1.2:1.0 > bind
-echo 2-1.6:1.0 > bind
-echo 1-1.5.1:1.0 > bind
-echo 1-1.5.2:1.0 > bind
-
---=-zxFFi+Rw9cp81XfThz14--
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index c7a9202..0c8869b 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -324,6 +324,13 @@ config KEYBOARD_IMX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called imx_keypad.
+ 
++config KEYBOARD_INTEL_MID
++	tristate "Intel MID keypad support"
++	depends on GPIO_LANGWELL
++	help
++	  Say Y if you want support for Intel MID keypad devices
++	  depends on GPIO_LANGWELL
++
+ config KEYBOARD_NEWTON
+ 	tristate "Newton keyboard"
+ 	select SERIO
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 468c627..15eff1b 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_KEYBOARD_ATKBD)		+= atkbd.o
+ obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
+ obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
+ obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
++obj-$(CONFIG_KEYBOARD_INTEL_MID)	+= intel_mid_keypad.o
+ obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
+ obj-$(CONFIG_KEYBOARD_GPIO_POLLED)	+= gpio_keys_polled.o
+ obj-$(CONFIG_KEYBOARD_TCA6416)		+= tca6416-keypad.o
+diff --git a/drivers/input/keyboard/intel_mid_keypad.c b/drivers/input/keyboard/intel_mid_keypad.c
+new file mode 100644
+index 0000000..89ea025
+--- /dev/null
++++ b/drivers/input/keyboard/intel_mid_keypad.c
+@@ -0,0 +1,700 @@
++/*
++ * Driver for the matrix keypad controller on MID platform.
++ *
++ * Copyright (c) 2009 Intel Corporation.
++ * Created:	Sep 18, 2008
++ * Updated:	May 14, 2010
++ * Copyright (C) 2011 Jekyll Lai, Wistron <jekyll_lai@wistron.com>
++ *
++ * Based on pxa27x_keypad.c by Rodolfo Giometti <giometti@linux.it>
++ * pxa27x_keypad.c is based on a previous implementation by Kevin O'Connor
++ * <kevin_at_keconnor.net> and Alex Osborne <bobofdoom@gmail.com> and
++ * on some suggestions by Nicolas Pitre <nico@cam.org>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ */
++
++#define DRV_NAME	"mrst_keypad"
++#define DRV_VERSION	"1.3"
++#define MRST_KEYPAD_DRIVER_NAME   DRV_NAME " " DRV_VERSION
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/gpio.h>
++#include <linux/input/intel_mid_keypad.h>
++
++/*
++ * Keypad Controller registers
++ */
++#define KPC             0x0000 /* Keypad Control register */
++#define KPDK            0x0004 /* Keypad Direct Key register */
++#define KPREC           0x0008 /* Keypad Rotary Encoder register */
++#define KPMK            0x000C /* Keypad Matrix Key register */
++#define KPAS            0x0010 /* Keypad Automatic Scan register */
++
++/* Keypad Automatic Scan Multiple Key Presser register 0-3 */
++#define KPASMKP0        0x0014
++#define KPASMKP1        0x0018
++#define KPASMKP2        0x001C
++#define KPASMKP3        0x0020
++#define KPKDI           0x0024
++
++/* bit definitions */
++#define KPC_MKRN(n)	((((n) - 1) & 0x7) << 26) /* matrix key row number */
++#define KPC_MKCN(n)	((((n) - 1) & 0x7) << 23) /* matrix key col number */
++#define KPC_DKN(n)	((((n) - 1) & 0x7) << 6)  /* direct key number */
++
++#define KPC_AS          (0x1 << 30)  /* Automatic Scan bit */
++#define KPC_ASACT       (0x1 << 29)  /* Automatic Scan on Activity */
++#define KPC_MI          (0x1 << 22)  /* Matrix interrupt bit */
++#define KPC_IMKP        (0x1 << 21)  /* Ignore Multiple Key Press */
++
++#define KPC_MS(n)	(0x1 << (13 + (n)))	/* Matrix scan line 'n' */
++#define KPC_MS_ALL      (0xff << 13)
++
++#define KPC_ME          (0x1 << 12)  /* Matrix Keypad Enable */
++#define KPC_MIE         (0x1 << 11)  /* Matrix Interrupt Enable */
++#define KPC_DK_DEB_SEL	(0x1 <<  9)  /* Direct Keypad Debounce Select */
++#define KPC_DI          (0x1 <<  5)  /* Direct key interrupt bit */
++#define KPC_RE_ZERO_DEB (0x1 <<  4)  /* Rotary Encoder Zero Debounce */
++#define KPC_REE1        (0x1 <<  3)  /* Rotary Encoder1 Enable */
++#define KPC_REE0        (0x1 <<  2)  /* Rotary Encoder0 Enable */
++#define KPC_DE          (0x1 <<  1)  /* Direct Keypad Enable */
++#define KPC_DIE         (0x1 <<  0)  /* Direct Keypad interrupt Enable */
++
++#define KPDK_DKP        (0x1 << 31)
++#define KPDK_DK(n)	((n) & 0xff)
++
++#define KPREC_OF1       (0x1 << 31)
++#define kPREC_UF1       (0x1 << 30)
++#define KPREC_OF0       (0x1 << 15)
++#define KPREC_UF0       (0x1 << 14)
++
++#define KPREC_RECOUNT0(n)	((n) & 0xff)
++#define KPREC_RECOUNT1(n)	(((n) >> 16) & 0xff)
++
++#define KPMK_MKP        (0x1 << 31)
++#define KPAS_SO         (0x1 << 31)
++#define KPASMKPx_SO     (0x1 << 31)
++
++#define KPAS_MUKP(n)	(((n) >> 26) & 0x1f)
++#define KPAS_RP(n)	(((n) >> 4) & 0xf)
++#define KPAS_CP(n)	((n) & 0xf)
++
++#define KPASMKP_MKC_MASK	(0xff)
++
++#define	KEYPAD_MATRIX_GPIO_IN_PIN	24
++#define	KEYPAD_MATRIX_GPIO_OUT_PIN	32
++#define KEYPAD_DIRECT_GPIO_IN_PIN	40
++
++#define keypad_readl(off)	readl(keypad->mmio_base + (off))
++#define keypad_writel(off, v)	writel((v), keypad->mmio_base + (off))
++
++#define MAX_MATRIX_KEY_NUM	(8 * 8)
++#define MAX_DIRECT_KEY_NUM	(4)
++
++#define MAX_MATRIX_KEY_ROWS	(8)
++#define MAX_MATRIX_KEY_COLS	(8)
++#define MATRIX_ROW_SHIFT 3
++#define DEBOUNCE_INTERVAL	100
++
++#define KEY_HALFSHUTTER		KEY_PROG1
++#define KEY_FULLSHUTTER		KEY_CAMERA
++
++static unsigned int mrst_default_keymap[] = {
++	KEY(0, 0, KEY_1),
++	KEY(0, 1, KEY_8),
++	KEY(0, 2, KEY_T),
++	KEY(0, 3, KEY_S),
++	KEY(0, 4, KEY_L),
++	KEY(0, 5, KEY_N),
++
++	KEY(1, 0, KEY_2),
++	KEY(1, 1, KEY_9),
++	KEY(1, 2, KEY_Y),
++	KEY(1, 3, KEY_D),
++	KEY(1, 4, KEY_BACKSPACE),
++	KEY(1, 5, KEY_M),
++
++	KEY(2, 0, KEY_3),
++	KEY(2, 1, KEY_0),
++	KEY(2, 2, KEY_U),
++	KEY(2, 3, KEY_F),
++	KEY(2, 4, KEY_Z),
++	KEY(2, 5, KEY_F23),
++
++	KEY(3, 0, KEY_4),
++	KEY(3, 1, KEY_Q),
++	KEY(3, 2, KEY_I),
++	KEY(3, 3, KEY_G),
++	KEY(3, 4, KEY_X),
++	KEY(3, 5, KEY_F24),
++
++	KEY(4, 0, KEY_5),
++	KEY(4, 1, KEY_W),
++	KEY(4, 2, KEY_O),
++	KEY(4, 3, KEY_H),
++	KEY(4, 4, KEY_C),
++	KEY(4, 5, KEY_COMMA),
++
++	KEY(5, 0, KEY_6),
++	KEY(5, 1, KEY_E),
++	KEY(5, 2, KEY_P),
++	KEY(5, 3, KEY_J),
++	KEY(5, 4, KEY_V),
++	KEY(5, 5, KEY_DOT),
++
++	KEY(6, 0, KEY_7),
++	KEY(6, 1, KEY_R),
++	KEY(6, 2, KEY_A),
++	KEY(6, 3, KEY_K),
++	KEY(6, 4, KEY_B),
++	KEY(6, 5, KEY_SPACE),
++
++	KEY(7, 0, KEY_LEFTSHIFT),
++	KEY(7, 1, KEY_RIGHTALT),
++	KEY(7, 2, KEY_ENTER),
++};
++
++/* default direct key map */
++static const u32 mrst_default_direct_keymap[] = {
++	KEY(0, 0, KEY_VOLUMEUP),
++	KEY(0, 1, KEY_VOLUMEDOWN),
++	KEY(0, 2, KEY_HALFSHUTTER),
++	KEY(0, 3, KEY_FULLSHUTTER),
++};
++
++static const struct mrst_keypad_platform_data *mrst_keypad_pdata;
++
++static const struct matrix_keymap_data mrst_default_keymap_data = {
++	.keymap = mrst_default_keymap,
++	.keymap_size = ARRAY_SIZE(mrst_default_keymap),
++};
++
++static const struct matrix_keymap_data mrst_default_direct_keymap_data = {
++	.keymap = mrst_default_direct_keymap,
++	.keymap_size = ARRAY_SIZE(mrst_default_direct_keymap),
++};
++
++struct mrst_keypad {
++	struct input_dev *input_dev;
++	void __iomem *mmio_base;
++	unsigned int irq;
++
++	unsigned int	matrix_key_rows;
++	unsigned int	matrix_key_cols;
++	int		matrix_key_map_size;
++
++	/* key debounce interval */
++	unsigned int	debounce_interval;
++
++	const struct matrix_keymap_data *keymap_data;
++
++	/* state row bits of each column scan */
++	uint32_t matrix_key_state[MAX_MATRIX_KEY_COLS];
++	uint32_t direct_key_state;
++
++	unsigned int direct_key_mask;
++
++	int direct_key_num;
++
++	const struct matrix_keymap_data *direct_keymap_data;
++
++	unsigned short keycode[MAX_MATRIX_KEY_NUM];
++	unsigned short direct_keycode[MAX_DIRECT_KEY_NUM];
++
++	/* rotary encoders 0 */
++	int enable_rotary0;
++	int rotary0_rel_code;
++	int rotary0_up_key;
++	int rotary0_down_key;
++
++	/* rotary encoders 1 */
++	int enable_rotary1;
++	int rotary1_rel_code;
++	int rotary1_up_key;
++	int rotary1_down_key;
++
++	int rotary_rel_code[2];
++	int rotary_up_key[2];
++	int rotary_down_key[2];
++};
++
++static void mrst_keypad_build_keycode(struct mrst_keypad *keypad)
++{
++	struct input_dev *input_dev = keypad->input_dev;
++	const struct matrix_keymap_data *keymap_data;
++	const struct matrix_keymap_data *direct_keymap_data;
++
++	keypad->matrix_key_rows = MAX_MATRIX_KEY_ROWS;
++	keypad->matrix_key_cols = MAX_MATRIX_KEY_COLS;
++	keypad->matrix_key_map_size = MAX_MATRIX_KEY_NUM;
++	keypad->debounce_interval = DEBOUNCE_INTERVAL;
++	keymap_data = &mrst_default_keymap_data;
++
++	if (mrst_keypad_pdata) {
++		if (mrst_keypad_pdata->keymap_data)
++			keymap_data = mrst_keypad_pdata->keymap_data;
++
++		if (mrst_keypad_pdata->direct_key_num) {
++			keypad->direct_key_num =
++				mrst_keypad_pdata->direct_key_num;
++			direct_keymap_data =
++				mrst_keypad_pdata->direct_keymap_data ?:
++				&mrst_default_direct_keymap_data;
++		}
++		keypad->enable_rotary0 = mrst_keypad_pdata->enable_rotary0 ?: 0;
++		keypad->enable_rotary1 = mrst_keypad_pdata->enable_rotary1 ?: 0;
++	}
++
++	matrix_keypad_build_keymap(keymap_data, MATRIX_ROW_SHIFT,
++		 input_dev->keycode, input_dev->keybit);
++
++	if (keypad->direct_key_num) {
++		matrix_keypad_build_keymap(direct_keymap_data, MATRIX_ROW_SHIFT,
++			 keypad->direct_keycode, input_dev->keybit);
++	}
++}
++
++int __init mrst_keypad_set_pdata(const struct mrst_keypad_platform_data *data)
++{
++	if (mrst_keypad_pdata)
++		return -EBUSY;
++	if (!data)
++		return -EINVAL;
++
++	mrst_keypad_pdata = kmemdup(data, sizeof(*data), GFP_KERNEL);
++	if (!mrst_keypad_pdata)
++		return -ENOMEM;
++
++	return 0;
++}
++
++static void mrst_keypad_scan_matrix(struct mrst_keypad *keypad)
++{
++	int row, col, code, num_keys_pressed = 0;
++	uint32_t new_state[MAX_MATRIX_KEY_COLS];
++	uint32_t kpas = keypad_readl(KPAS);
++	int status;
++
++	num_keys_pressed = KPAS_MUKP(kpas);
++
++	memset(new_state, 0, sizeof(new_state));
++
++	if (num_keys_pressed == 0) {
++		status = keypad->matrix_key_state[0] & (1 << 0);
++		goto scan;
++	}
++
++	if (num_keys_pressed == 1) {
++		col = KPAS_CP(kpas);
++		row = KPAS_RP(kpas);
++
++		/* if invalid row/col, treat as no key pressed */
++		if (col < MAX_MATRIX_KEY_COLS &&
++			row < MAX_MATRIX_KEY_ROWS) {
++			status = keypad->matrix_key_state[col] & (1 << row);
++			new_state[col] = (1 << row);
++		}
++
++		goto scan;
++	}
++
++	if (num_keys_pressed > 1) {
++		uint32_t kpasmkp0 = keypad_readl(KPASMKP0);
++		uint32_t kpasmkp1 = keypad_readl(KPASMKP1);
++		uint32_t kpasmkp2 = keypad_readl(KPASMKP2);
++		uint32_t kpasmkp3 = keypad_readl(KPASMKP3);
++
++		new_state[0] = kpasmkp0 & KPASMKP_MKC_MASK;
++		new_state[1] = (kpasmkp0 >> 16) & KPASMKP_MKC_MASK;
++		new_state[2] = kpasmkp1 & KPASMKP_MKC_MASK;
++		new_state[3] = (kpasmkp1 >> 16) & KPASMKP_MKC_MASK;
++		new_state[4] = kpasmkp2 & KPASMKP_MKC_MASK;
++		new_state[5] = (kpasmkp2 >> 16) & KPASMKP_MKC_MASK;
++		new_state[6] = kpasmkp3 & KPASMKP_MKC_MASK;
++		new_state[7] = (kpasmkp3 >> 16) & KPASMKP_MKC_MASK;
++	}
++
++scan:
++	for (col = 0; col < keypad->matrix_key_cols; col++) {
++		uint32_t bits_changed;
++
++		bits_changed = keypad->matrix_key_state[col] ^ new_state[col];
++		if (bits_changed == 0)
++			continue;
++
++		for (row = 0; row < keypad->matrix_key_rows; row++) {
++			if ((bits_changed & (1 << row)) == 0)
++				continue;
++
++			code = MATRIX_SCAN_CODE(row, col, MATRIX_ROW_SHIFT);
++			input_report_key(keypad->input_dev,
++				keypad->keycode[code],
++				new_state[col] & (1 << row));
++		}
++	}
++	input_sync(keypad->input_dev);
++	memcpy(keypad->matrix_key_state, new_state, sizeof(new_state));
++}
++
++#define DEFAULT_KPREC	(0x007f007f)
++
++static inline int rotary_delta(uint32_t kprec)
++{
++	if (kprec & KPREC_OF0)
++		return (kprec & 0xff) + 0x7f;
++	else if (kprec & KPREC_UF0)
++		return (kprec & 0xff) - 0x7f - 0xff;
++	else
++		return (kprec & 0xff) - 0x7f;
++}
++
++static void report_rotary_event(struct mrst_keypad *keypad, int r, int delta)
++{
++	struct input_dev *dev = keypad->input_dev;
++
++	if (delta == 0)
++		return;
++
++	if (keypad->rotary_up_key[r] && keypad->rotary_down_key[r]) {
++		int keycode = (delta > 0) ? keypad->rotary_up_key[r] :
++					    keypad->rotary_down_key[r];
++
++		/* simulate a press-n-release */
++		input_report_key(dev, keycode, 1);
++		input_sync(dev);
++		input_report_key(dev, keycode, 0);
++		input_sync(dev);
++	} else {
++		input_report_rel(dev, keypad->rotary_rel_code[r], delta);
++		input_sync(dev);
++	}
++}
++
++static void mrst_keypad_scan_rotary(struct mrst_keypad *keypad)
++{
++	unsigned int kprec;
++
++	/* read and reset to default count value */
++	kprec = keypad_readl(KPREC);
++	keypad_writel(KPREC, DEFAULT_KPREC);
++
++	if (keypad->enable_rotary0)
++		report_rotary_event(keypad, 0, rotary_delta(kprec));
++
++	if (keypad->enable_rotary1)
++		report_rotary_event(keypad, 1, rotary_delta(kprec >> 16));
++}
++
++static void mrst_keypad_scan_direct(struct mrst_keypad *keypad)
++{
++	unsigned int new_state;
++	uint32_t kpdk, bits_changed;
++	int i;
++
++	kpdk = keypad_readl(KPDK);
++
++	if (keypad->enable_rotary0 || keypad->enable_rotary1)
++		mrst_keypad_scan_rotary(keypad);
++
++	if (!keypad->direct_key_num) {
++		keypad->direct_key_state = 0;
++		return;
++	}
++
++	new_state = KPDK_DK(kpdk) & keypad->direct_key_mask;
++	new_state = ~new_state;
++	bits_changed = keypad->direct_key_state ^ new_state;
++
++	if (bits_changed == 0)
++		return;
++
++	for (i = 0; i < keypad->direct_key_num; i++) {
++		if (bits_changed & (1 << i)) {
++			input_report_key(keypad->input_dev,
++					 keypad->direct_keycode[i],
++					 (new_state & (1 << i)));
++		}
++	}
++
++	input_sync(keypad->input_dev);
++	keypad->direct_key_state = new_state;
++}
++
++static irqreturn_t mrst_keypad_irq_handler(int irq, void *dev_id)
++{
++	struct mrst_keypad *keypad = dev_id;
++	unsigned long kpc = keypad_readl(KPC);
++
++	if (kpc & KPC_DI)
++		mrst_keypad_scan_direct(keypad);
++
++	if (kpc & KPC_MI)
++		mrst_keypad_scan_matrix(keypad);
++
++	return IRQ_HANDLED;
++}
++
++
++static int mrst_keypad_gpio_init(struct mrst_keypad *keypad)
++{
++	int i, err, cnt = 0;
++	int pins = KEYPAD_MATRIX_GPIO_IN_PIN + MAX_MATRIX_KEY_ROWS +
++	    MAX_MATRIX_KEY_COLS + keypad->direct_key_num;
++
++	/* explicitely tell which pins have been occupied... */
++	for (i = KEYPAD_MATRIX_GPIO_IN_PIN; i < pins; i++, cnt++) {
++		err = gpio_request(i, NULL);
++		if (err) {
++			pr_err(DRV_NAME "GPIO pin %d failed to request.\n", i);
++			goto err_request;
++		}
++	}
++
++	for (i = 0; i < MAX_MATRIX_KEY_ROWS; i++)
++		gpio_direction_input(KEYPAD_MATRIX_GPIO_IN_PIN + i);
++
++	for (i = 0; i < MAX_MATRIX_KEY_COLS; i++)
++		/* __gpio_set_value(KEYPAD_GPIO_OUT_PIN + i, 1); */
++		/* set action is executed in gpio_direction_output() */
++		gpio_direction_output(KEYPAD_MATRIX_GPIO_OUT_PIN + i, 1);
++
++	for (i = 0; i < keypad->direct_key_num; i++)
++		gpio_direction_input(KEYPAD_DIRECT_GPIO_IN_PIN + i);
++
++	return 0;
++
++err_request:
++	/* free requested pins... */
++	for (i = KEYPAD_MATRIX_GPIO_IN_PIN + cnt - 1;
++	     i >= KEYPAD_MATRIX_GPIO_IN_PIN; i--)
++		gpio_free(i);
++	return err;
++}
++
++static void mrst_keypad_config(struct mrst_keypad *keypad)
++{
++	unsigned int mask = 0, direct_key_num = 0;
++	unsigned long kpc = 0;
++
++	/* enable matrix keys with automatic scan */
++	if (keypad->matrix_key_rows && keypad->matrix_key_cols) {
++		kpc |= KPC_ASACT | KPC_MIE | KPC_ME | KPC_MS_ALL;
++		kpc |= KPC_MKRN(keypad->matrix_key_rows) |
++		       KPC_MKCN(keypad->matrix_key_cols);
++	}
++
++	/* enable rotary key, debounce interval same as direct keys */
++	if (keypad->enable_rotary0) {
++		mask |= 0x03;
++		direct_key_num = 2;
++		kpc |= KPC_REE0;
++	}
++
++	if (keypad->enable_rotary1) {
++		mask |= 0x0c;
++		direct_key_num = 4;
++		kpc |= KPC_REE1;
++	}
++
++	if (keypad->direct_key_num > direct_key_num)
++		direct_key_num = keypad->direct_key_num;
++
++	keypad->direct_key_mask = ((2 << direct_key_num) - 1) & ~mask;
++
++	/* enable direct key */
++	if (direct_key_num)
++		kpc |= KPC_DE | KPC_DIE | KPC_DKN(direct_key_num);
++
++	keypad_writel(KPC, kpc);
++	keypad_writel(KPREC, DEFAULT_KPREC);
++	keypad_writel(KPKDI, keypad->debounce_interval);
++}
++
++static int mrst_keypad_open(struct input_dev *dev)
++{
++	struct mrst_keypad *keypad = input_get_drvdata(dev);
++	int err;
++
++	err = mrst_keypad_gpio_init(keypad);
++	if (err)
++		return err;
++	mrst_keypad_config(keypad);
++
++	return 0;
++}
++
++static void mrst_keypad_close(struct input_dev *dev)
++{
++	struct mrst_keypad *keypad = input_get_drvdata(dev);
++	int pins = KEYPAD_MATRIX_GPIO_IN_PIN + MAX_MATRIX_KEY_ROWS +
++	    MAX_MATRIX_KEY_COLS + keypad->direct_key_num;
++
++	int i;
++
++	/* free occupied pins */
++	for (i = KEYPAD_MATRIX_GPIO_IN_PIN; i < pins; i++)
++		gpio_free(i);
++}
++
++static int __devinit mrst_keypad_probe(struct pci_dev *pdev,
++			const struct pci_device_id *ent)
++{
++	struct mrst_keypad *keypad;
++	struct input_dev *input_dev;
++	int error;
++
++	/* Disable flag will turn off keypad support */
++	if (mrst_keypad_pdata && mrst_keypad_pdata->disable)
++		return 0;
++
++	error = pci_enable_device(pdev);
++	if (error || (pdev->irq < 0)) {
++		dev_err(&pdev->dev, "failed to enable device/get irq\n");
++		return -ENXIO;
++	}
++
++	keypad = kzalloc(sizeof(struct mrst_keypad), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!keypad || !input_dev) {
++		dev_err(&pdev->dev, "failed to allocate driver data\n");
++		error = -ENOMEM;
++		goto failed_free_mem;
++	}
++
++	keypad->input_dev = input_dev;
++	keypad->irq = pdev->irq;
++
++	error = pci_request_regions(pdev, DRV_NAME);
++	if (error) {
++		dev_err(&pdev->dev, "failed to request I/O memory\n");
++		goto failed_free_mem;
++	}
++
++	keypad->mmio_base = ioremap(pci_resource_start(pdev, 0),
++		pci_resource_len(pdev, 0));
++	if (!keypad->mmio_base) {
++		dev_err(&pdev->dev, "failed to remap I/O memory\n");
++		error = -ENXIO;
++		goto failed_free_mem_region;
++	}
++
++	input_dev->name = pci_name(pdev);
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->open = mrst_keypad_open;
++	input_dev->close = mrst_keypad_close;
++	input_dev->dev.parent = &pdev->dev;
++	input_set_drvdata(input_dev, keypad);
++
++	input_dev->keycode = keypad->keycode;
++	input_dev->keycodesize = sizeof(unsigned int);
++	input_dev->keycodemax = ARRAY_SIZE(mrst_default_keymap);
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
++		BIT_MASK(EV_REL);
++
++	mrst_keypad_build_keycode(keypad);
++	pci_set_drvdata(pdev, keypad);
++
++	/* Register the input device */
++	error = input_register_device(input_dev);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register input device\n");
++		goto failed_free_iounmap;
++	}
++
++	error = request_irq(pdev->irq, mrst_keypad_irq_handler, IRQF_SHARED,
++		pci_name(pdev), keypad);
++	if (error) {
++		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
++		goto failed_free_input;
++	}
++
++
++	return 0;
++
++failed_free_input:
++	input_unregister_device(input_dev);
++	input_dev = NULL;
++	pci_set_drvdata(pdev, NULL);
++failed_free_iounmap:
++	iounmap(keypad->mmio_base);
++failed_free_mem_region:
++	pci_release_regions(pdev);
++failed_free_mem:
++	if (input_dev)
++		input_free_device(input_dev);
++	kfree(keypad);
++
++	return error;
++}
++
++static void __devexit mrst_keypad_remove(struct pci_dev *pdev)
++{
++	struct mrst_keypad *keypad = pci_get_drvdata(pdev);
++	int i;
++	int pins = KEYPAD_MATRIX_GPIO_IN_PIN + MAX_MATRIX_KEY_ROWS +
++	    MAX_MATRIX_KEY_COLS + keypad->direct_key_num;
++
++	free_irq(pdev->irq, keypad);
++	for (i = pins - 1; i > KEYPAD_MATRIX_GPIO_IN_PIN; i--)
++		gpio_free(i);
++
++	input_unregister_device(keypad->input_dev);
++	iounmap(keypad->mmio_base);
++	pci_release_regions(pdev);
++	pci_set_drvdata(pdev, NULL);
++	kfree(keypad);
++}
++
++static const struct pci_device_id keypad_pci_tbl[] = {
++	{0x8086, 0x0805, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
++	{0,}
++};
++MODULE_DEVICE_TABLE(pci, keypad_pci_tbl);
++
++static struct pci_driver mrst_keypad_driver = {
++	.name		= DRV_NAME,
++	.id_table	= keypad_pci_tbl,
++	.probe		= mrst_keypad_probe,
++	.remove		= __devexit_p(mrst_keypad_remove),
++#ifdef CONFIG_PM
++	.suspend	= NULL,
++	.resume	= NULL,
++#endif /* CONFIG_PM */
++};
++
++static int __init mrst_keypad_init(void)
++{
++	return pci_register_driver(&mrst_keypad_driver);
++}
++
++static void __exit mrst_keypad_exit(void)
++{
++	pci_unregister_driver(&mrst_keypad_driver);
++}
++
++module_init(mrst_keypad_init);
++module_exit(mrst_keypad_exit);
++
++MODULE_DESCRIPTION("MRST Keypad Controller Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Intel Corp, Jekyll Lai <jekyll_lai@wistron.com>");
+diff --git a/include/linux/input/intel_mid_keypad.h b/include/linux/input/intel_mid_keypad.h
+new file mode 100644
+index 0000000..4295db4
+--- /dev/null
++++ b/include/linux/input/intel_mid_keypad.h
+@@ -0,0 +1,32 @@
++/*
++ * Copyright (C) 2010 Jekyll Lai, Wistron <jekyll_lai@wistron.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
++ * 02110-1301 USA
++ *
++ */
++
++#include <linux/platform_device.h>
++#include <linux/input/matrix_keypad.h>
++
++struct mrst_keypad_platform_data {
++	const struct matrix_keymap_data *keymap_data;
++	const struct matrix_keymap_data *direct_keymap_data;
++	int disable;
++	int direct_key_num;
++	int enable_rotary0;
++	int enable_rotary1;
++};
++
++int mrst_keypad_set_pdata(const struct mrst_keypad_platform_data *data);
 

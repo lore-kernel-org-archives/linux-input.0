@@ -1,39 +1,75 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
-Date: Tue, 1 Feb 2011 14:26:28 +0100
-Message-ID: <20110201132628.GA5933@polaris.bitmath.org>
-References: <1296485689.7756.9.camel@novo.hadess.net>
- <20110131212842.GB1603@polaris.bitmath.org>
- <AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
- <1296561717.15349.5.camel@novo.hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [80.76.148.7] ([80.76.148.7]:56933 "EHLO
-	ch-smtp04.sth.basefarm.net" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753722Ab1BANea (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Feb 2011 08:34:30 -0500
-Content-Disposition: inline
-In-Reply-To: <1296561717.15349.5.camel@novo.hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Anirudh Ghayal <aghayal@codeaurora.org>
+Subject: [RFC v2 PATCH 0/7] Qualcomm PMIC8058 sub-device drivers
+Date: Tue,  1 Feb 2011 19:17:36 +0530
+Message-ID: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
 
-> > Please use the script at
-> > http://lii-enac.fr/en/architecture/linux-input/report.py
-> > and run, as root: python report.py > descriptors.txt
-> > 
-> > This will do the job. You can then send us the descriptors.txt, and we
-> > will see what we can do.
-> 
-> Attached (with the rest of the input devices stripped).
+This patch series contains the V2 RFC version of sub-device drivers
+for Qualcomm PMIC8058. It is submitted here as RFC, due the dependent
+drivers like PMIC8058 core driver and SSBI bus driver are not yet
+merged into the mainline. We are sending these patches early to get
+the feedback from the community.
 
-Good good, looks like there is a digitizer in there, with tipswitch,
-inrange, contactid, x, y and contactcount. Paching up hid-multitouch
-(and adding the device to the hid-core special device list) might
-actually do it.
+In this V2 version we have added one new driver- PM8058 based vibrator.
 
-Cheers,
-Henrik
+If you want to refer the PMIC8058 core and SSBI driver they are available
+here:
+
+PMIC8058 core driver:
+https://www.codeaurora.org/gitweb/quic/la/?p=kernel/msm.git;a=blob;f=drivers/mfd/pmic8058.c;h=dc561988c474721d76178ab1a2f82a3a4d1b03a1;hb=refs/heads/msm-2.6.35
+
+SSBI driver:
+https://www.codeaurora.org/gitweb/quic/la/?p=kernel/msm.git;a=blob;f=drivers/i2c/busses/i2c-ssbi.c;h=5bfcf3cb96f0c2e0f1a6b7f789458d2faf67f260;hb=refs/heads/msm-2.6.35
+
+Amy Maloche (1):
+  input: misc: Add support for PM8058 based vibrator driver
+
+Anirudh Ghayal (2):
+  input: pmic8058-othc: Add support for PM8058 based OTHC
+  drivers: rtc: Add support for Qualcomm PMIC8058 RTC
+
+Trilok Soni (4):
+  matrix_keypad: Increase the max limit of rows and columns
+  input: pm8058_keypad: Qualcomm PMIC8058 keypad controller driver
+  led: pmic8058: Add PMIC8058 leds driver
+  input: pmic8058_pwrkey: Add support for power key
+
+ drivers/input/keyboard/Kconfig           |   11 +
+ drivers/input/keyboard/Makefile          |    1 +
+ drivers/input/keyboard/pmic8058-keypad.c |  754 ++++++++++++++++++++++++++++++
+ drivers/input/misc/Kconfig               |   32 ++
+ drivers/input/misc/Makefile              |    3 +
+ drivers/input/misc/pmic8058-othc.c       |  535 +++++++++++++++++++++
+ drivers/input/misc/pmic8058-pwrkey.c     |  318 +++++++++++++
+ drivers/input/misc/pmic8058-vibrator.c   |  306 ++++++++++++
+ drivers/leds/Kconfig                     |   11 +
+ drivers/leds/Makefile                    |    1 +
+ drivers/leds/leds-pmic8058.c             |  360 ++++++++++++++
+ drivers/rtc/Kconfig                      |    9 +
+ drivers/rtc/Makefile                     |    1 +
+ drivers/rtc/rtc-pm8058.c                 |  488 +++++++++++++++++++
+ include/linux/input/matrix_keypad.h      |    4 +-
+ include/linux/input/pmic8058-keypad.h    |   53 +++
+ include/linux/input/pmic8058-othc.h      |  117 +++++
+ include/linux/input/pmic8058-pwrkey.h    |   37 ++
+ include/linux/leds-pmic8058.h            |   61 +++
+ include/linux/rtc/rtc-pm8058.h           |   29 ++
+ 20 files changed, 3129 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/input/keyboard/pmic8058-keypad.c
+ create mode 100644 drivers/input/misc/pmic8058-othc.c
+ create mode 100644 drivers/input/misc/pmic8058-pwrkey.c
+ create mode 100644 drivers/input/misc/pmic8058-vibrator.c
+ create mode 100644 drivers/leds/leds-pmic8058.c
+ create mode 100644 drivers/rtc/rtc-pm8058.c
+ create mode 100644 include/linux/input/pmic8058-keypad.h
+ create mode 100644 include/linux/input/pmic8058-othc.h
+ create mode 100644 include/linux/input/pmic8058-pwrkey.h
+ create mode 100644 include/linux/leds-pmic8058.h
+ create mode 100644 include/linux/rtc/rtc-pm8058.h
+
+-- 
+1.7.3.5

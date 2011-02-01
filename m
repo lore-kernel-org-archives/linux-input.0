@@ -1,27 +1,67 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hidraw: fixed hidraw_disconnect()
-Date: Tue, 1 Feb 2011 11:21:25 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1102011121110.5725@pobox.suse.cz>
-References: <1296263850.2299.11.camel@neuromancer>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH v5 0/4] Adding HID Feature Report Support to hidraw
+Date: Tue, 1 Feb 2011 12:47:30 +0100
+Message-ID: <20110201124730.ac1faf74.ospite@studenti.unina.it>
+References: <1295337880-12452-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1296263850.2299.11.camel@neuromancer>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__1_Feb_2011_12_47_30_+0100_SyiR/gWZILtkceNC"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp208.alice.it ([82.57.200.104]:44413 "EHLO smtp208.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752813Ab1BALxR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Feb 2011 06:53:17 -0500
+In-Reply-To: <1295337880-12452-1-git-send-email-alan@signal11.us>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Jiri Kosina <jkosina@suse.cz>, Marcel Holtmann <marcel@holtmann.org>, "Gustavo F. Padovan" <padovan@profusion.mobi>, "David S. Miller" <davem@davemloft.net>, Michael Poole <mdpoole@troilus.org>, Eric Dumazet <eric.dumazet@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-On Sat, 29 Jan 2011, Stefan Achatz wrote:
+--Signature=_Tue__1_Feb_2011_12_47_30_+0100_SyiR/gWZILtkceNC
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> hidraw_disconnect() first sets an entry in hidraw_table to NULL
-> and calls device_destroy() afterwards. The thereby called
-> hidraw_release() tries to read this already cleared value resulting
-> in never removing any device from the list.
-> This got fixed by changing the order of events.
+On Tue, 18 Jan 2011 03:04:36 -0500
+Alan Ott <alan@signal11.us> wrote:
 
-Applied, good catch. Thanks,
+> This patch adds Feature Report support for USB and Bluetooth HID devices
+> through hidraw.
+>=20
+> The first two patches prepare the bluetooth side for the change.
+> 	a. Make sure the hidp_session() thread is started before
+> 	   device's probe() functions are called.
+> 	b. Wait for ACK/NAK on sent reports, and return proper
+> 	   error codes.
+> The third patch is the hidraw core and USB changes.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+In particular, this third patch is a prerequisite for the bluez
+sixaxis-cable plugin, originally written by Bastien Nocera (added to
+CC) which I plan to submit when these changes are merged in mainline
+linux.
+
+[...]
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Tue__1_Feb_2011_12_47_30_+0100_SyiR/gWZILtkceNC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk1H8tIACgkQ5xr2akVTsAHjwACeOTUYIzHZTiJUum+6V7FtMEvN
+C+sAnjeBZ1nBbI+A7/ZZo6fGluN39I68
+=aGvS
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__1_Feb_2011_12_47_30_+0100_SyiR/gWZILtkceNC--

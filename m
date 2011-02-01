@@ -1,73 +1,77 @@
 From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: [RFC v2 PATCH 7/7] input: misc: Add support for PM8058 based vibrator driver
-Date: Tue,  1 Feb 2011 19:17:43 +0530
-Message-ID: <1296568063-12010-8-git-send-email-aghayal@codeaurora.org>
+Subject: [RFC v2 PATCH 4/7] input: pmic8058_pwrkey: Add support for power key
+Date: Tue,  1 Feb 2011 19:17:40 +0530
+Message-ID: <1296568063-12010-5-git-send-email-aghayal@codeaurora.org>
 References: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine01.qualcomm.com ([199.106.114.254]:27646 "EHLO
-	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752430Ab1BANsz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 08:48:55 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Amy Maloche <amaloche@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mohan Pallaka <mpallaka@codeaurora.org>
+Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-From: Amy Maloche <amaloche@codeaurora.org>
+From: Trilok Soni <tsoni@codeaurora.org>
 
-Add support for pmic8058 based vibrator to facilitate haptics.
+Add support for PMIC8058 power key driven over dedicated
+KYPD_PWR_N pin. It allows the user to specify the amount
+of time by which the power key reporting can be delayed.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Mohan Pallaka <mpallaka@codeaurora.org>
+Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
 ---
- drivers/input/misc/Kconfig             |   12 ++
- drivers/input/misc/Makefile            |    1 +
- drivers/input/misc/pmic8058-vibrator.c |  306 ++++++++++++++++++++++++++++++++
- 3 files changed, 319 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/pmic8058-vibrator.c
+Changes from v1:
+Addressed review comments from Dmitry.
+Added KEY_SCREENLOCK instead of KEY_END.
+Moved to timer list instead of hires timers.
+
+ drivers/input/misc/Kconfig            |   11 ++
+ drivers/input/misc/Makefile           |    1 +
+ drivers/input/misc/pmic8058-pwrkey.c  |  318 +++++++++++++++++++++++++++++++++
+ include/linux/input/pmic8058-pwrkey.h |   37 ++++
+ 4 files changed, 367 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/pmic8058-pwrkey.c
+ create mode 100644 include/linux/input/pmic8058-pwrkey.h
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 3802f54..e391f9e 100644
+index b0c6772..d70a7be 100644
 --- a/drivers/input/misc/Kconfig
 +++ b/drivers/input/misc/Kconfig
-@@ -74,6 +74,18 @@ config INPUT_PCSPKR
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called pcspkr.
+@@ -330,6 +330,17 @@ config INPUT_PWM_BEEPER
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called pwm-beeper.
  
-+config INPUT_PMIC8058_VIBRATOR
-+	tristate "Qualcomm PM8058 vibrator support"
++config INPUT_PMIC8058_PWRKEY
++	tristate "PMIC8058 power key support"
 +	depends on PMIC8058
-+	select INPUT_FF_MEMLESS
 +	help
-+	  This option enables device driver support for the vibrator
-+	  on Qualcomm PM8058 chip. This driver supports ff-memless interface
-+	  from input framework.
++	  Say Y here if you want support for the PMIC8058 power key.
 +
-+	  To compile this driver as module, choose M here: the
-+	  module will be called pmic8058-vibrator.
++	  If unsure, say N.
 +
- config INPUT_SPARCSPKR
- 	tristate "SPARC Speaker support"
- 	depends on PCI && SPARC64
++	  To compile this driver as a module, choose M here: the
++	  module will be called pmic8058-pwrkey.
++
+ config INPUT_GPIO_ROTARY_ENCODER
+ 	tristate "Rotary encoders connected to GPIO pins"
+ 	depends on GPIOLIB && GENERIC_GPIO
 diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index df9a679..b5fa9f6 100644
+index 9b47971..0348704 100644
 --- a/drivers/input/misc/Makefile
 +++ b/drivers/input/misc/Makefile
-@@ -32,6 +32,7 @@ obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
- obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+@@ -33,6 +33,7 @@ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
  obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
- obj-$(CONFIG_INPUT_PMIC8058_OTHC)	+= pmic8058-othc.o
-+obj-$(CONFIG_INPUT_PMIC8058_VIBRATOR)	+= pmic8058-vibrator.o
  obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
  obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_PMIC8058_PWRKEY)	+= pmic8058-pwrkey.o
-diff --git a/drivers/input/misc/pmic8058-vibrator.c b/drivers/input/misc/pmic8058-vibrator.c
++obj-$(CONFIG_INPUT_PMIC8058_PWRKEY)	+= pmic8058-pwrkey.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+diff --git a/drivers/input/misc/pmic8058-pwrkey.c b/drivers/input/misc/pmic8058-pwrkey.c
 new file mode 100644
-index 0000000..cb1a797
+index 0000000..029483e
 --- /dev/null
-+++ b/drivers/input/misc/pmic8058-vibrator.c
-@@ -0,0 +1,306 @@
++++ b/drivers/input/misc/pmic8058-pwrkey.c
+@@ -0,0 +1,318 @@
 +/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
 + *
 + * This program is free software; you can redistribute it and/or modify
@@ -89,176 +93,145 @@ index 0000000..cb1a797
 +#include <linux/init.h>
 +#include <linux/kernel.h>
 +#include <linux/errno.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
 +#include <linux/slab.h>
-+
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
 +#include <linux/mfd/pmic8058.h>
-+#include <linux/input/pmic8058-vibrator.h>
++#include <linux/log2.h>
++#include <linux/spinlock.h>
++#include <linux/timer.h>
 +
-+#define VIB_DRV			0x4A
++#include <linux/input/pmic8058-pwrkey.h>
 +
-+#define VIB_DRV_SEL_MASK	0xf8
-+#define VIB_DRV_SEL_SHIFT	0x03
-+#define VIB_DRV_EN_MANUAL_MASK	0xfc
++#define PON_CNTL_1	0x1C
++#define PON_CNTL_PULL_UP BIT(7)
++#define PON_CNTL_TRIG_DELAY_MASK (0x7)
 +
-+#define VIB_MAX_LEVEL_mV	(3100)
-+#define VIB_MIN_LEVEL_mV	(1200)
-+#define VIB_MAX_LEVELS		(VIB_MAX_LEVEL_mV - VIB_MIN_LEVEL_mV)
-+
-+#define MAX_FF_SPEED		0xff
-+
-+/*
-+ * struct pmic8058_vib - structure to hold vibrator data
-+ * vib_input_dev: input device supporting force feedback
-+ * work: work structure to set the vibration parameters
-+ * dev: device supporting force feedback
-+ * pdata: platform data
-+ * pm_chip: reference to pmic chip to carry out read/write operations
-+ * speed: speed of vibration set from userland
-+ * state: state of vibrator
-+ * level: level of vibration to set in the chip
-+ * reg_vib_drv: VIB_DRV register value
-+ *
++/**
++ * struct pmic8058_pwrkey - pmic8058 pwrkey information
++ * @key_press_irq: key press irq number
++ * @pm_chip: pmic8058 parent
++ * @timer: timer for end key simulation
++ * @key_pressed: flag to keep track for power key reporting
++ * @pdata: platform data
++ * @lock:  protect key press update and end key simulation
 + */
-+struct pmic8058_vib {
-+	struct input_dev *vib_input_dev;
-+	struct work_struct work;
-+	struct device *dev;
-+	const struct pmic8058_vibrator_pdata *pdata;
++struct pmic8058_pwrkey {
++	struct input_dev *pwr;
++	int key_press_irq;
 +	struct pm8058_chip	*pm_chip;
-+	int speed;
-+	int state;
-+	int level;
-+	u8  reg_vib_drv;
++	struct timer_list timer;
++	bool key_pressed;
++	const struct pmic8058_pwrkey_pdata *pdata;
++	spinlock_t lock;
 +};
 +
-+/*
-+ * pmic8058_vib_read_u8 - helper to read a byte from pmic chip
-+ * vib: pointer to vibrator structure
-+ * data: placeholder for data to be read
-+ * reg: register address
-+ *
-+ */
-+static int pmic8058_vib_read_u8(struct pmic8058_vib *vib,
-+				 u8 *data, u16 reg)
++static void pmic8058_pwrkey_timer(unsigned long handle)
 +{
-+	int rc;
++	unsigned long flags;
++	struct pmic8058_pwrkey *pwrkey = (struct pmic8058_pwrkey *)handle;
 +
-+	rc = pm8058_read(vib->pm_chip, reg, data, 1);
-+	if (rc < 0)
-+		dev_warn(vib->dev, "Error reading pmic8058 reg 0x%x(0x%x)\n",
-+				reg, rc);
-+	return rc;
++	spin_lock_irqsave(&pwrkey->lock, flags);
++	pwrkey->key_pressed = true;
++
++	input_report_key(pwrkey->pwr, KEY_POWER, 1);
++	input_sync(pwrkey->pwr);
++	spin_unlock_irqrestore(&pwrkey->lock, flags);
 +}
 +
-+/*
-+ * pmic8058_vib_write_u8 - helper to write a byte to pmic chip
-+ * vib: pointer to vibrator structure
-+ * data: data to write
-+ * reg: register address
-+ *
-+ */
-+static int pmic8058_vib_write_u8(struct pmic8058_vib *vib,
-+				 u8 data, u16 reg)
++static irqreturn_t pwrkey_press_irq(int irq, void *_pwrkey)
 +{
-+	int rc;
++	struct pmic8058_pwrkey *pwrkey = _pwrkey;
++	const struct pmic8058_pwrkey_pdata *pdata = pwrkey->pdata;
++	unsigned long flags;
 +
-+	rc = pm8058_write(vib->pm_chip, reg, &data, 1);
-+	if (rc < 0)
-+		dev_warn(vib->dev, "Error writing pmic8058 reg 0x%x(0x%x)\n",
-+				reg, rc);
-+	return rc;
-+}
-+
-+/*
-+ * pmic8058_vib_set - handler to start/stop vibration
-+ * vib: pointer to vibrator structure
-+ * on: state to set
-+ *
-+ */
-+static int pmic8058_vib_set(struct pmic8058_vib *vib, int on)
-+{
-+	int rc;
-+	u8 val;
-+
-+	val = vib->reg_vib_drv;
-+
-+	if (on)
-+		val |= ((vib->level << VIB_DRV_SEL_SHIFT) & VIB_DRV_SEL_MASK);
-+	else
-+		val &= ~VIB_DRV_SEL_MASK;
-+
-+	rc = pmic8058_vib_write_u8(vib, val, VIB_DRV);
-+	if (rc < 0)
-+		return rc;
-+
-+	vib->reg_vib_drv = val;
-+	return rc;
-+}
-+
-+/*
-+ * pmic8058_work_handler - worker to set vibration level
-+ * work: pointer to work_struct
-+ *
-+ */
-+static void pmic8058_work_handler(struct work_struct *work)
-+{
-+	struct pmic8058_vib *vib;
-+	int rc;
-+	u8 val;
-+
-+	vib  = container_of(work, struct pmic8058_vib, work);
-+
-+	rc = pmic8058_vib_read_u8(vib, &val, VIB_DRV);
-+	if (rc < 0)
-+		return;
-+
-+	/*
-+	 * pmic vibrator supports voltage ranges from 1.2 to 3.1V, so
-+	 * scale the level to fit into these ranges.
-+	 */
-+	if (vib->speed) {
-+		vib->state = 1;
-+		vib->level = ((VIB_MAX_LEVELS * vib->speed) / MAX_FF_SPEED) +
-+						VIB_MIN_LEVEL_mV;
-+		vib->level /= 100;
-+	} else {
-+		vib->state = 0;
-+		vib->level = VIB_MIN_LEVEL_mV / 100;
++	/* no pwrkey time duration, means no end key simulation */
++	if (!pwrkey->pdata->pwrkey_time_ms) {
++		input_report_key(pwrkey->pwr, KEY_POWER, 1);
++		input_sync(pwrkey->pwr);
++		return IRQ_HANDLED;
 +	}
-+	pmic8058_vib_set(vib, vib->state);
++
++	spin_lock_irqsave(&pwrkey->lock, flags);
++
++	input_report_key(pwrkey->pwr, KEY_SCROLLLOCK, 1);
++	input_sync(pwrkey->pwr);
++
++	mod_timer(&pwrkey->timer, jiffies +
++			 msecs_to_jiffies(pdata->pwrkey_time_ms));
++	spin_unlock_irqrestore(&pwrkey->lock, flags);
++
++	return IRQ_HANDLED;
 +}
 +
-+/*
-+ * pmic8058_vib_play_effect - function to handle vib effects.
-+ * dev: input device pointer
-+ * data: data of effect
-+ * effect: effect to play
-+ *
-+ * Currently this driver supports only rumble effects.
-+ *
-+ */
-+static int pmic8058_vib_play_effect(struct input_dev *dev, void *data,
-+		      struct ff_effect *effect)
++static irqreturn_t pwrkey_release_irq(int irq, void *_pwrkey)
 +{
-+	struct pmic8058_vib *vib = input_get_drvdata(dev);
++	struct pmic8058_pwrkey *pwrkey = _pwrkey;
++	unsigned long flags;
 +
-+	vib->speed = effect->u.rumble.strong_magnitude >> 8;
-+	if (!vib->speed)
-+		vib->speed = effect->u.rumble.weak_magnitude >> 9;
-+	schedule_work(&vib->work);
++	/* no pwrkey time, means no delay in pwr key reporting */
++	if (!pwrkey->pdata->pwrkey_time_ms) {
++		input_report_key(pwrkey->pwr, KEY_POWER, 0);
++		input_sync(pwrkey->pwr);
++		return IRQ_HANDLED;
++	}
++
++	spin_lock_irqsave(&pwrkey->lock, flags);
++	del_timer_sync(&pwrkey->timer);
++
++	if (pwrkey->key_pressed) {
++		pwrkey->key_pressed = false;
++		input_report_key(pwrkey->pwr, KEY_POWER, 0);
++		input_sync(pwrkey->pwr);
++	}
++
++	input_report_key(pwrkey->pwr, KEY_SCREENLOCK, 0);
++	input_sync(pwrkey->pwr);
++
++	spin_unlock_irqrestore(&pwrkey->lock, flags);
++
++	return IRQ_HANDLED;
++}
++
++#ifdef CONFIG_PM
++static int pmic8058_pwrkey_suspend(struct device *dev)
++{
++	struct pmic8058_pwrkey *pwrkey = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(pwrkey->key_press_irq);
++
 +	return 0;
 +}
 +
-+static int __devinit pmic8058_vib_probe(struct platform_device *pdev)
-+
++static int pmic8058_pwrkey_resume(struct device *dev)
 +{
-+	struct pm8058_chip *pm_chip;
-+	struct pmic8058_vib *vib;
-+	const struct pmic8058_vibrator_pdata *pdata = pdev->dev.platform_data;
-+	int rc;
-+	u8 val;
++	struct pmic8058_pwrkey *pwrkey = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		disable_irq_wake(pwrkey->key_press_irq);
++
++	return 0;
++}
++
++static const struct dev_pm_ops pm8058_pwr_key_pm_ops = {
++	.suspend	= pmic8058_pwrkey_suspend,
++	.resume		= pmic8058_pwrkey_resume,
++};
++#endif
++
++static int __devinit pmic8058_pwrkey_probe(struct platform_device *pdev)
++{
++	struct input_dev *pwr;
++	int key_release_irq = platform_get_irq(pdev, 0);
++	int key_press_irq = platform_get_irq(pdev, 1);
++	int err;
++	unsigned int delay;
++	u8 pon_cntl;
++	struct pmic8058_pwrkey *pwrkey;
++	struct pmic8058_pwrkey_pdata *pdata = pdev->dev.platform_data;
++	struct pm8058_chip	*pm_chip;
 +
 +	pm_chip = platform_get_drvdata(pdev);
 +	if (pm_chip == NULL) {
@@ -266,114 +239,199 @@ index 0000000..cb1a797
 +		return -EINVAL;
 +	}
 +
-+	if (!pdata)
++	if (!pdata) {
++		dev_err(&pdev->dev, "power key platform data not supplied\n");
 +		return -EINVAL;
++	}
 +
-+	if (pdata->level_mV < VIB_MIN_LEVEL_mV ||
-+			 pdata->level_mV > VIB_MAX_LEVEL_mV)
++	if (pdata->kpd_trigger_delay_us > 62500) {
++		dev_err(&pdev->dev, "invalid pwr key trigger delay\n");
 +		return -EINVAL;
++	}
 +
-+	vib = kzalloc(sizeof(*vib), GFP_KERNEL);
-+	if (!vib)
++	if (pdata->pwrkey_time_ms &&
++	     (pdata->pwrkey_time_ms < 500 || pdata->pwrkey_time_ms > 1000)) {
++		dev_err(&pdev->dev, "invalid pwr key time supplied\n");
++		return -EINVAL;
++	}
++
++	pwrkey = kzalloc(sizeof(*pwrkey), GFP_KERNEL);
++	if (!pwrkey)
 +		return -ENOMEM;
 +
-+	vib->pm_chip	= pm_chip;
-+	vib->pdata	= pdata;
-+	vib->dev	= &pdev->dev;
++	pwrkey->pm_chip = pm_chip;
++	pwrkey->pdata   = pdata;
 +
-+	INIT_WORK(&vib->work, pmic8058_work_handler);
-+
-+	vib->vib_input_dev = input_allocate_device();
-+
-+	if (vib->vib_input_dev == NULL) {
-+		dev_err(&pdev->dev, "couldn't allocate input device\n");
-+		rc = -ENOMEM;
-+		goto err_alloc_dev;
++	pwr = input_allocate_device();
++	if (!pwr) {
++		dev_dbg(&pdev->dev, "Can't allocate power button\n");
++		err = -ENOMEM;
++		goto free_pwrkey;
 +	}
 +
-+	input_set_drvdata(vib->vib_input_dev, vib);
++	input_set_capability(pwr, EV_KEY, KEY_POWER);
++	input_set_capability(pwr, EV_KEY, KEY_SCROLLLOCK);
 +
-+	vib->vib_input_dev->name = "pmic8058_vibrator";
-+	vib->vib_input_dev->id.version = 1;
-+	vib->vib_input_dev->dev.parent = &pdev->dev;
++	pwr->name = "pmic8058_pwrkey";
++	pwr->phys = "pmic8058_pwrkey/input0";
++	pwr->dev.parent = &pdev->dev;
 +
-+	/* operate in manual mode */
-+	rc = pmic8058_vib_read_u8(vib, &val, VIB_DRV);
-+	if (rc < 0)
-+		goto err_read_vib;
-+	val &= ~VIB_DRV_EN_MANUAL_MASK;
-+	rc = pmic8058_vib_write_u8(vib, val, VIB_DRV);
-+	if (rc < 0)
-+		goto err_read_vib;
++	delay = (pdata->kpd_trigger_delay_us << 10) / USEC_PER_SEC;
++	delay = 1 + ilog2(delay);
 +
-+	vib->reg_vib_drv = val;
-+
-+	input_set_capability(vib->vib_input_dev, EV_FF, FF_RUMBLE);
-+
-+	rc = input_ff_create_memless(vib->vib_input_dev, NULL,
-+					pmic8058_vib_play_effect);
-+	if (rc < 0) {
-+		dev_dbg(&pdev->dev, "couldn't register vibrator to FF\n");
-+		goto err_create_memless;
++	err = pm8058_read(pwrkey->pm_chip, PON_CNTL_1, &pon_cntl, 1);
++	if (err < 0) {
++		dev_err(&pdev->dev, "failed reading PON_CNTL_1 err=%d\n", err);
++		goto free_input_dev;
 +	}
 +
-+	platform_set_drvdata(pdev, vib);
 +
-+	rc = input_register_device(vib->vib_input_dev);
-+	if (rc < 0) {
-+		dev_dbg(&pdev->dev, "couldn't register input device\n");
-+		goto err_reg_input_dev;
++	pon_cntl &= ~PON_CNTL_TRIG_DELAY_MASK;
++	pon_cntl |= (delay & PON_CNTL_TRIG_DELAY_MASK);
++	pon_cntl |= (pdata->pull_up ? PON_CNTL_PULL_UP : ~PON_CNTL_PULL_UP);
++	err = pm8058_write(pwrkey->pm_chip, PON_CNTL_1, &pon_cntl, 1);
++	if (err < 0) {
++		dev_err(&pdev->dev, "failed writing PON_CNTL_1 err=%d\n", err);
++		goto free_input_dev;
 +	}
++
++	setup_timer(&pwrkey->timer, pmic8058_pwrkey_timer,
++				 (unsigned long) pwrkey);
++
++	spin_lock_init(&pwrkey->lock);
++
++	err = input_register_device(pwr);
++	if (err) {
++		dev_dbg(&pdev->dev, "Can't register power key: %d\n", err);
++		goto free_input_dev;
++	}
++
++	pwrkey->key_press_irq = key_press_irq;
++	pwrkey->pwr = pwr;
++
++	platform_set_drvdata(pdev, pwrkey);
++
++	err = request_any_context_irq(key_press_irq, pwrkey_press_irq,
++			 IRQF_TRIGGER_RISING, "pmic8058_pwrkey_press", pwrkey);
++	if (err < 0) {
++		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
++				 key_press_irq, err);
++		goto unreg_input_dev;
++	}
++
++	err = request_any_context_irq(key_release_irq, pwrkey_release_irq,
++			 IRQF_TRIGGER_RISING, "pmic8058_pwrkey_release",
++				 pwrkey);
++	if (err < 0) {
++		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
++				 key_release_irq, err);
++
++		goto free_press_irq;
++	}
++
++	device_init_wakeup(&pdev->dev, pdata->wakeup);
++
 +	return 0;
 +
-+err_reg_input_dev:
-+	input_ff_destroy(vib->vib_input_dev);
-+err_create_memless:
-+err_read_vib:
-+	input_free_device(vib->vib_input_dev);
-+err_alloc_dev:
-+	kfree(vib);
-+	return rc;
++free_press_irq:
++	free_irq(key_press_irq, NULL);
++unreg_input_dev:
++	input_unregister_device(pwr);
++	pwr = NULL;
++free_input_dev:
++	input_free_device(pwr);
++free_pwrkey:
++	kfree(pwrkey);
++	return err;
 +}
 +
-+static int __devexit pmic8058_vib_remove(struct platform_device *pdev)
++static int __devexit pmic8058_pwrkey_remove(struct platform_device *pdev)
 +{
-+	struct pmic8058_vib *vib = platform_get_drvdata(pdev);
++	struct pmic8058_pwrkey *pwrkey = platform_get_drvdata(pdev);
++	int key_release_irq = platform_get_irq(pdev, 0);
++	int key_press_irq = platform_get_irq(pdev, 1);
 +
-+	cancel_work_sync(&vib->work);
-+	if (vib->state)
-+		pmic8058_vib_set(vib, 0);
++	device_init_wakeup(&pdev->dev, 0);
 +
-+	input_unregister_device(vib->vib_input_dev);
-+	kfree(vib);
++	free_irq(key_press_irq, pwrkey);
++	free_irq(key_release_irq, pwrkey);
++	del_timer_sync(&pwrkey->timer);
++	input_unregister_device(pwrkey->pwr);
++	kfree(pwrkey);
++
 +	return 0;
 +}
 +
-+static struct platform_driver pmic8058_vib_driver = {
-+	.probe		= pmic8058_vib_probe,
-+	.remove		= __devexit_p(pmic8058_vib_remove),
++static struct platform_driver pmic8058_pwrkey_driver = {
++	.probe		= pmic8058_pwrkey_probe,
++	.remove		= __devexit_p(pmic8058_pwrkey_remove),
 +	.driver		= {
-+		.name	= "pm8058-vib",
++		.name	= "pm8058-pwrkey",
 +		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &pm8058_pwr_key_pm_ops,
++#endif
 +	},
 +};
 +
-+static int __init pmic8058_vib_init(void)
++static int __init pmic8058_pwrkey_init(void)
 +{
-+	return platform_driver_register(&pmic8058_vib_driver);
++	return platform_driver_register(&pmic8058_pwrkey_driver);
 +}
-+module_init(pmic8058_vib_init);
++module_init(pmic8058_pwrkey_init);
 +
-+static void __exit pmic8058_vib_exit(void)
++static void __exit pmic8058_pwrkey_exit(void)
 +{
-+	platform_driver_unregister(&pmic8058_vib_driver);
++	platform_driver_unregister(&pmic8058_pwrkey_driver);
 +}
-+module_exit(pmic8058_vib_exit);
++module_exit(pmic8058_pwrkey_exit);
 +
-+MODULE_ALIAS("platform:pmic8058_vib");
-+MODULE_DESCRIPTION("PMIC8058 vibrator driver based on ff-memless framework");
++MODULE_ALIAS("platform:pmic8058_pwrkey");
++MODULE_DESCRIPTION("PMIC8058 Power Key driver");
 +MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Amy Maloche <amaloche@codeaurora.org>");
++MODULE_AUTHOR("Trilok Soni <tsoni@codeaurora.org>");
+diff --git a/include/linux/input/pmic8058-pwrkey.h b/include/linux/input/pmic8058-pwrkey.h
+new file mode 100644
+index 0000000..e41c616
+--- /dev/null
++++ b/include/linux/input/pmic8058-pwrkey.h
+@@ -0,0 +1,37 @@
++/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++ * 02110-1301, USA.
++ */
++
++#ifndef __PMIC8058_PWRKEY_H__
++#define __PMIC8058_PWRKEY_H__
++/**
++ * struct pmic8058_pwrkey_pdata - platform data for pwrkey driver
++ * @pull up:  power on register control for pull up/down configuration
++ * @pwrkey_time_ms: time after which power key event should be generated, if
++ *                  key is released before then end key is reported.
++ *                  Supply zero for only power key reporting.
++ * @kpd_trigger_delay_us: time delay for power key state change interrupt
++ *                  trigger.
++ * @wakeup: configure power key as wakeup source
++ */
++struct pmic8058_pwrkey_pdata {
++	bool pull_up;
++	u16  pwrkey_time_ms;
++	u32  kpd_trigger_delay_us;
++	u32  wakeup;
++};
++
++#endif /* __PMIC8058_PWRKEY_H__ */
 -- 
 1.7.3.5
-

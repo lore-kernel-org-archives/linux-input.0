@@ -1,60 +1,168 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
-Date: Wed, 2 Feb 2011 14:18:36 +0100
-Message-ID: <AANLkTinOK+=J64NRWZjit3S7hAdGVXxRE9HYkxTxrxON@mail.gmail.com>
+Date: Wed, 2 Feb 2011 14:20:00 +0100
+Message-ID: <AANLkTi=MGNLfLHQpVEyJGtE-j-D0dj-RWXAihW1xMKDe@mail.gmail.com>
 References: <1296485689.7756.9.camel@novo.hadess.net>
 	<20110131212842.GB1603@polaris.bitmath.org>
 	<AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
 	<1296561717.15349.5.camel@novo.hadess.net>
 	<AANLkTim=RV1Cd0k08gv-DDho-Mim64bR7RRJ+c7D1RZf@mail.gmail.com>
 	<1296650569.2123.2.camel@novo.hadess.net>
+	<AANLkTinOK+=J64NRWZjit3S7hAdGVXxRE9HYkxTxrxON@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/mixed; boundary=20cf300258e4925d2a049b4c8162
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:57284 "EHLO
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:48314 "EHLO
 	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754010Ab1BBNSi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 08:18:38 -0500
-Received: by wyb28 with SMTP id 28so7841794wyb.19
-        for <linux-input@vger.kernel.org>; Wed, 02 Feb 2011 05:18:37 -0800 (PST)
-In-Reply-To: <1296650569.2123.2.camel@novo.hadess.net>
+	with ESMTP id S1751459Ab1BBNUB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 08:20:01 -0500
+Received: by wyb28 with SMTP id 28so7843199wyb.19
+        for <linux-input@vger.kernel.org>; Wed, 02 Feb 2011 05:20:00 -0800 (PST)
+In-Reply-To: <AANLkTinOK+=J64NRWZjit3S7hAdGVXxRE9HYkxTxrxON@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Bastien Nocera <hadess@hadess.net>
 Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Wed, Feb 2, 2011 at 13:42, Bastien Nocera <hadess@hadess.net> wrote:
-> On Tue, 2011-02-01 at 14:25 +0100, Benjamin Tissoires wrote:
-> <snip>
->> First pass:
->> - please get the branch multitouch of jiri's tree (at
->> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=shortlog;h=refs/heads/multitouch)
->> - then apply the attached patch (git am
->> 0001-hid-multitouch-Introduce-Elo-TouchSystems-2515-Intel.patch)
->> - get your config from your current kernel (check that hid-multitouch
->> is enabled as a module)
->> - compile, install, reboot
+--20cf300258e4925d2a049b4c8162
+Content-Type: text/plain; charset=ISO-8859-1
+
+With the patch this time.... ;)
+
+On Wed, Feb 2, 2011 at 14:18, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Wed, Feb 2, 2011 at 13:42, Bastien Nocera <hadess@hadess.net> wrote:
+>> On Tue, 2011-02-01 at 14:25 +0100, Benjamin Tissoires wrote:
+>> <snip>
+>>> First pass:
+>>> - please get the branch multitouch of jiri's tree (at
+>>> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=shortlog;h=refs/heads/multitouch)
+>>> - then apply the attached patch (git am
+>>> 0001-hid-multitouch-Introduce-Elo-TouchSystems-2515-Intel.patch)
+>>> - get your config from your current kernel (check that hid-multitouch
+>>> is enabled as a module)
+>>> - compile, install, reboot
+>>
+>> That's where I hit a problem. It seems that the kernel on which that
+>> branch is based has broken cgroups support (it panics on startup).
+>>
+>> Would your patch, or a patchset be available to apply to the close to
+>> Linus tree Fedora rawhide kernel?
 >
-> That's where I hit a problem. It seems that the kernel on which that
-> branch is based has broken cgroups support (it panics on startup).
+> Hi Bastien,
 >
-> Would your patch, or a patchset be available to apply to the close to
-> Linus tree Fedora rawhide kernel?
-
-Hi Bastien,
-
-Sorry for that. Attached a new version that bumps a Linus' 2.6.38-rc2
-or 2.6.38-rc3 to Jiri's tree and applies the patch above.
-
-If it's still not working, I'll send you the files directly ;)
-
+> Sorry for that. Attached a new version that bumps a Linus' 2.6.38-rc2
+> or 2.6.38-rc3 to Jiri's tree and applies the patch above.
 >
->> - Now your device should still work and must be handled by hid-multitouch
->> if it's the case:
+> If it's still not working, I'll send you the files directly ;)
 >
-> As soon as I manage to get it to boot, I'll be doing that :)
+>>
+>>> - Now your device should still work and must be handled by hid-multitouch
+>>> if it's the case:
+>>
+>> As soon as I manage to get it to boot, I'll be doing that :)
+>
+> Cool ;)
+>
+> Cheers,
+> Benjamin
+>
 
-Cool ;)
+--20cf300258e4925d2a049b4c8162
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="0001-hid-multitouch-Introduce-Elo-TouchSystems-2515-Intel.patch"
+Content-Disposition: attachment;
+	filename="0001-hid-multitouch-Introduce-Elo-TouchSystems-2515-Intel.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_gjo9kzdu0
 
-Cheers,
-Benjamin
+RnJvbSA1NGVjNDIxZWFiNTNmNWRhNGFiNGI2ODdkYTBiN2NhYzgyNGU1Y2M4IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMgPGJlbmphbWluLnRpc3NvaXJl
+c0BlbmFjLmZyPgpEYXRlOiBXZWQsIDIgRmViIDIwMTEgMTQ6MDM6MjggKzAxMDAKU3ViamVjdDog
+W1BBVENIXSBoaWQtbXVsdGl0b3VjaDogSW50cm9kdWNlIEVsbyBUb3VjaFN5c3RlbXMgMjUxNSBJ
+bnRlbGxpVG91Y2ggUGx1cwoKVGhpcyBwYXRjaCBhZGRzIHN1cHBvcnQgZm9yIEVsbyBUb3VjaFN5
+c3RlbXMgMjUxNSBJbnRlbGxpVG91Y2ggUGx1cwp0aGF0IGNhbiBiZSBmb3VuZCBpbiBMZW5vdm8g
+QTcwMCBhbGwtaW4tb25lLgoKSW4gYWRkaXRpb24sIGl0IGFsc28gc3luYyB3aXRoIEppcmkncyBk
+ZXZlbG9wbWVudCB0cmVlLgoKU2lnbmVkLW9mZi1ieTogQmVuamFtaW4gVGlzc29pcmVzIDxiZW5q
+YW1pbi50aXNzb2lyZXNAZW5hYy5mcj4KLS0tCiBkcml2ZXJzL2hpZC9LY29uZmlnICAgICAgICAg
+IHwgICAgMiArKwogZHJpdmVycy9oaWQvaGlkLWNvcmUuYyAgICAgICB8ICAgIDEgKwogZHJpdmVy
+cy9oaWQvaGlkLWlkcy5oICAgICAgICB8ICAgIDQgKysrKwogZHJpdmVycy9oaWQvaGlkLW11bHRp
+dG91Y2guYyB8ICAgMzEgKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLQogNCBmaWxlcyBj
+aGFuZ2VkLCAyOCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9k
+cml2ZXJzL2hpZC9LY29uZmlnIGIvZHJpdmVycy9oaWQvS2NvbmZpZwppbmRleCAyNTYwZjAxLi5j
+MjU1NWY4IDEwMDY0NAotLS0gYS9kcml2ZXJzL2hpZC9LY29uZmlnCisrKyBiL2RyaXZlcnMvaGlk
+L0tjb25maWcKQEAgLTMwMyw3ICszMDMsOSBAQCBjb25maWcgSElEX01VTFRJVE9VQ0gKIAogCSAg
+U2F5IFkgaGVyZSBpZiB5b3UgaGF2ZSBvbmUgb2YgdGhlIGZvbGxvd2luZyBkZXZpY2VzOgogCSAg
+LSBDeXByZXNzIFRydWVUb3VjaCBwYW5lbHMKKwkgIC0gRWxvIFRvdWNoU3lzdGVtcyBJbnRlbGxp
+VG91Y2ggUGx1cyBwYW5lbHMKIAkgIC0gSGFudm9uIGR1YWwgdG91Y2ggcGFuZWxzCisJICAtIEly
+VG91Y2ggSW5mcmFyZWQgVVNCIHBhbmVscwogCSAgLSBQaXhjaXIgZHVhbCB0b3VjaCBwYW5lbHMK
+IAkgIC0gJ1NlbnNpbmcgV2luNy1Ud29GaW5nZXInIHBhbmVsIGJ5IEdlbmVyYWxUb3VjaAogCmRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtY29yZS5jIGIvZHJpdmVycy9oaWQvaGlkLWNvcmUu
+YwppbmRleCBkNjc4Y2YzLi5lNzAxZTU3IDEwMDY0NAotLS0gYS9kcml2ZXJzL2hpZC9oaWQtY29y
+ZS5jCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMKQEAgLTEzMzQsNiArMTMzNCw3IEBAIHN0
+YXRpYyBjb25zdCBzdHJ1Y3QgaGlkX2RldmljZV9pZCBoaWRfaGF2ZV9zcGVjaWFsX2RyaXZlcltd
+ID0gewogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9EV0FWLCBVU0JfREVWSUNFX0lE
+X0RXQVZfRUdBTEFYX01VTFRJVE9VQ0gzKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
+Ul9JRF9EV0FWLCBVU0JfREVWSUNFX0lEX0RXQVZfRUdBTEFYX01VTFRJVE9VQ0g0KSB9LAogCXsg
+SElEX0JMVUVUT09USF9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9FTEVDT00sIFVTQl9ERVZJQ0VfSURf
+RUxFQ09NX0JNMDg0KSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9FTE8sIFVT
+Ql9ERVZJQ0VfSURfRUxPX1RTMjUxNSkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1Jf
+SURfRU1TLCBVU0JfREVWSUNFX0lEX0VNU19UUklPX0xJTktFUl9QTFVTX0lJKSB9LAogCXsgSElE
+X1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9FWktFWSwgVVNCX0RFVklDRV9JRF9CVENfODE5Mykg
+fSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfR0FNRVJPTiwgVVNCX0RFVklDRV9J
+RF9HQU1FUk9OX0RVQUxfUFNYX0FEQVBUT1IpIH0sCmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9o
+aWQtaWRzLmggYi9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKaW5kZXggOTJhMGQ2MS4uNzc4MGM0OCAx
+MDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1p
+ZHMuaApAQCAtMjE2LDYgKzIxNiw3IEBACiAjZGVmaW5lIFVTQl9WRU5ET1JfSURfRFJFQU1fQ0hF
+RUtZCTB4MWQzNAogCiAjZGVmaW5lIFVTQl9WRU5ET1JfSURfRUxPCQkweDA0RTcKKyNkZWZpbmUg
+VVNCX0RFVklDRV9JRF9FTE9fVFMyNTE1CTB4MDAyMgogI2RlZmluZSBVU0JfREVWSUNFX0lEX0VM
+T19UUzI3MDAJMHgwMDIwCiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9FTVMJCTB4MjAwNgpAQCAt
+MzMzLDYgKzMzNCw5IEBACiAjZGVmaW5lIFVTQl9WRU5ET1JfSURfSU1BVElPTgkJMHgwNzE4CiAj
+ZGVmaW5lIFVTQl9ERVZJQ0VfSURfRElTQ19TVEFLS0EJMHhkMDAwCiAKKyNkZWZpbmUgVVNCX1ZF
+TkRPUl9JRF9JUlRPVUNIU1lTVEVNUwkweDY2MTUKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9JUlRP
+VUNIX0lORlJBUkVEX1VTQgkweDAwNzAKKwogI2RlZmluZSBVU0JfVkVORE9SX0lEX0pFU1MJCTB4
+MGM0NQogI2RlZmluZSBVU0JfREVWSUNFX0lEX0pFU1NfWVVSRVgJMHgxMDEwCiAKZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvaGlkL2hpZC1tdWx0aXRvdWNoLmMgYi9kcml2ZXJzL2hpZC9oaWQtbXVsdGl0
+b3VjaC5jCmluZGV4IDA3ZDMxODMuLmE3MjE3MTAgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaGlkL2hp
+ZC1tdWx0aXRvdWNoLmMKKysrIGIvZHJpdmVycy9oaWQvaGlkLW11bHRpdG91Y2guYwpAQCAtMjQs
+NiArMjQsNyBAQAogCiAKIE1PRFVMRV9BVVRIT1IoIlN0ZXBoYW5lIENoYXR0eSA8Y2hhdHR5QGVu
+YWMuZnI+Iik7CitNT0RVTEVfQVVUSE9SKCJCZW5qYW1pbiBUaXNzb2lyZXMgPGJlbmphbWluLnRp
+c3NvaXJlc0BnbWFpbC5jb20+Iik7CiBNT0RVTEVfREVTQ1JJUFRJT04oIkhJRCBtdWx0aXRvdWNo
+IHBhbmVscyIpOwogTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwogCkBAIC02NSwxMCArNjYsMTAgQEAg
+c3RydWN0IG10X2NsYXNzIHsKIH07CiAKIC8qIGNsYXNzZXMgb2YgZGV2aWNlIGJlaGF2aW9yICov
+Ci0jZGVmaW5lIE1UX0NMU19ERUZBVUxUCTEKLSNkZWZpbmUgTVRfQ0xTX0RVQUwxCTIKLSNkZWZp
+bmUgTVRfQ0xTX0RVQUwyCTMKLSNkZWZpbmUgTVRfQ0xTX0NZUFJFU1MJNAorI2RlZmluZSBNVF9D
+TFNfREVGQVVMVAkJCQkxCisjZGVmaW5lIE1UX0NMU19EVUFMX0lOUkFOR0VfQ09OVEFDVElECQky
+CisjZGVmaW5lIE1UX0NMU19EVUFMX0lOUkFOR0VfQ09OVEFDVE5VTUJFUgkzCisjZGVmaW5lIE1U
+X0NMU19DWVBSRVNTCQkJCTQKIAogLyoKICAqIHRoZXNlIGRldmljZS1kZXBlbmRlbnQgZnVuY3Rp
+b25zIGRldGVybWluZSB3aGF0IHNsb3QgY29ycmVzcG9uZHMKQEAgLTEwNCwxMyArMTA1LDEzIEBA
+IHN0YXRpYyBpbnQgZmluZF9zbG90X2Zyb21fY29udGFjdGlkKHN0cnVjdCBtdF9kZXZpY2UgKnRk
+KQogCiBzdHJ1Y3QgbXRfY2xhc3MgbXRfY2xhc3Nlc1tdID0gewogCXsgLm5hbWUgPSBNVF9DTFNf
+REVGQVVMVCwKLQkJLnF1aXJrcyA9IE1UX1FVSVJLX1ZBTElEX0lTX0lOUkFOR0UsCisJCS5xdWly
+a3MgPSBNVF9RVUlSS19OT1RfU0VFTl9NRUFOU19VUCwKIAkJLm1heGNvbnRhY3RzID0gMTAgfSwK
+LQl7IC5uYW1lID0gTVRfQ0xTX0RVQUwxLAorCXsgLm5hbWUgPSBNVF9DTFNfRFVBTF9JTlJBTkdF
+X0NPTlRBQ1RJRCwKIAkJLnF1aXJrcyA9IE1UX1FVSVJLX1ZBTElEX0lTX0lOUkFOR0UgfAogCQkJ
+TVRfUVVJUktfU0xPVF9JU19DT05UQUNUSUQsCiAJCS5tYXhjb250YWN0cyA9IDIgfSwKLQl7IC5u
+YW1lID0gTVRfQ0xTX0RVQUwyLAorCXsgLm5hbWUgPSBNVF9DTFNfRFVBTF9JTlJBTkdFX0NPTlRB
+Q1ROVU1CRVIsCiAJCS5xdWlya3MgPSBNVF9RVUlSS19WQUxJRF9JU19JTlJBTkdFIHwKIAkJCU1U
+X1FVSVJLX1NMT1RfSVNfQ09OVEFDVE5VTUJFUiwKIAkJLm1heGNvbnRhY3RzID0gMiB9LApAQCAt
+NDY1LDE2ICs0NjYsMjYgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNlX2lkIG10X2Rl
+dmljZXNbXSA9IHsKIAkJSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9DWVBSRVNTLAogCQkJ
+VVNCX0RFVklDRV9JRF9DWVBSRVNTX1RSVUVUT1VDSCkgfSwKIAorCS8qIEVsbyBUb3VjaFN5c3Rl
+bXMgSW50ZWxsaVRvdWNoIFBsdXMgcGFuZWwgKi8KKwl7IC5kcml2ZXJfZGF0YSA9IE1UX0NMU19E
+RUZBVUxULAorCQlISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0VMTywKKwkJCVVTQl9ERVZJ
+Q0VfSURfRUxPX1RTMjUxNSkgfSwKKwogCS8qIEdlbmVyYWxUb3VjaCBwYW5lbCAqLwotCXsgLmRy
+aXZlcl9kYXRhID0gTVRfQ0xTX0RVQUwyLAorCXsgLmRyaXZlcl9kYXRhID0gTVRfQ0xTX0RVQUxf
+SU5SQU5HRV9DT05UQUNUTlVNQkVSLAogCQlISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0dF
+TkVSQUxfVE9VQ0gsCiAJCQlVU0JfREVWSUNFX0lEX0dFTkVSQUxfVE9VQ0hfV0lON19UV09GSU5H
+RVJTKSB9LAogCisJLyogSVJUT1VDSCBwYW5lbHMgKi8KKwl7IC5kcml2ZXJfZGF0YSA9IE1UX0NM
+U19EVUFMX0lOUkFOR0VfQ09OVEFDVElELAorCQlISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lE
+X0lSVE9VQ0hTWVNURU1TLAorCQkJVVNCX0RFVklDRV9JRF9JUlRPVUNIX0lORlJBUkVEX1VTQikg
+fSwKKwogCS8qIFBpeENpci1iYXNlZCBwYW5lbHMgKi8KLQl7IC5kcml2ZXJfZGF0YSA9IE1UX0NM
+U19EVUFMMSwKKwl7IC5kcml2ZXJfZGF0YSA9IE1UX0NMU19EVUFMX0lOUkFOR0VfQ09OVEFDVElE
+LAogCQlISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0hBTlZPTiwKIAkJCVVTQl9ERVZJQ0Vf
+SURfSEFOVk9OX01VTFRJVE9VQ0gpIH0sCi0JeyAuZHJpdmVyX2RhdGEgPSBNVF9DTFNfRFVBTDEs
+CisJeyAuZHJpdmVyX2RhdGEgPSBNVF9DTFNfRFVBTF9JTlJBTkdFX0NPTlRBQ1RJRCwKIAkJSElE
+X1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9DQU5ETywKIAkJCVVTQl9ERVZJQ0VfSURfQ0FORE9f
+UElYQ0lSX01VTFRJX1RPVUNIKSB9LAogCi0tIAoxLjcuMy40Cgo=
+--20cf300258e4925d2a049b4c8162--

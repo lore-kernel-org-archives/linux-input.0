@@ -1,51 +1,47 @@
-From: Tobias Klauser <klto@zhaw.ch>
-Subject: Re: [Nios2-dev] [PATCH v2] altera_ps2: Add devicetree support
-Date: Wed, 2 Feb 2011 13:11:08 +0100
-Message-ID: <20110202131108.5e7a9449@fermion>
-References: <20110117220415.GB17963@angua.secretlab.ca>
-	<1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
-	<20110202043121.GF29148@angua.secretlab.ca>
-	<4D4944AA.5040900@wytron.com.tw>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
+Date: Wed, 02 Feb 2011 12:42:47 +0000
+Message-ID: <1296650569.2123.2.camel@novo.hadess.net>
+References: <1296485689.7756.9.camel@novo.hadess.net>
+	 <20110131212842.GB1603@polaris.bitmath.org>
+	 <AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
+	 <1296561717.15349.5.camel@novo.hadess.net>
+	 <AANLkTim=RV1Cd0k08gv-DDho-Mim64bR7RRJ+c7D1RZf@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.zhaw.ch ([160.85.104.50]:61077 "EHLO mx1.zhaw.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753365Ab1BBMLL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Feb 2011 07:11:11 -0500
-In-Reply-To: <4D4944AA.5040900@wytron.com.tw>
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:60265 "EHLO
+	relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752113Ab1BBMmw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 07:42:52 -0500
+In-Reply-To: <AANLkTim=RV1Cd0k08gv-DDho-Mim64bR7RRJ+c7D1RZf@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: nios2-dev@sopc.et.ntust.edu.tw
-Cc: thomas@wytron.com.tw, Grant Likely <grant.likely@secretlab.ca>, devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Wed, 2 Feb 2011 19:48:58 +0800 Thomas Chou <thomas@wytron.com.tw> wrote:
-> On 02/02/2011 12:31 PM, Grant Likely wrote:
-> >> +static const struct of_device_id altera_ps2_match[] = {
-> >> +	{ .compatible = "altr,ps2-1.0", },
-> >
-> > I thought I had seen 'altera' instead of an abbreviation being used in
-> > a previous patch.  I don't care much whether 'altr' or 'altera' is
-> > used, but I'd like to know that there is consensus from the Altera
-> > users so that all the drivers use the same prefix.
-> >
-> 
-> We had discussed on nios2-dev mailing list, and decided to use 'altr' as 
-> Walter suggested that it saves space.
-> 
-> About the documentation on dts binding, shall we have a single 
-> altera.txt to describe all Altera related binding, and opencores.txt to 
-> describe all OpenCores binding? Or separate file for each core in its 
-> driver class?
+On Tue, 2011-02-01 at 14:25 +0100, Benjamin Tissoires wrote:
+<snip>
+> First pass:
+> - please get the branch multitouch of jiri's tree (at
+> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=shortlog;h=refs/heads/multitouch)
+> - then apply the attached patch (git am
+> 0001-hid-multitouch-Introduce-Elo-TouchSystems-2515-Intel.patch)
+> - get your config from your current kernel (check that hid-multitouch
+> is enabled as a module)
+> - compile, install, reboot
 
-As I will submit the device tree support for the altera_uart driver
-(and the altera_jtaguart driver sometime in the future) I was asking
-myself the same question. I'd vote for the altera.txt solution, as we
-could use that for documenting the uart drivers, other Altera component
-specific drivers and also the Nios2 arch specific parameters in the
-future.
+That's where I hit a problem. It seems that the kernel on which that
+branch is based has broken cgroups support (it panics on startup).
+
+Would your patch, or a patchset be available to apply to the close to
+Linus tree Fedora rawhide kernel?
+
+> - Now your device should still work and must be handled by hid-multitouch
+> if it's the case:
+
+As soon as I manage to get it to boot, I'll be doing that :)
 
 Cheers
-Tobias
 

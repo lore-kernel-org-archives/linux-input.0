@@ -1,271 +1,118 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
-Date: Wed, 2 Feb 2011 14:04:34 -0800
-Message-ID: <20110202220434.GA20033@core.coreip.homeip.net>
-References: <4D3C5F73.2050408@teksavvy.com>
- <4D496AAC.1010106@canonical.com>
- <20110202165800.GB3178@core.coreip.homeip.net>
- <4D49B7D7.9020003@canonical.com>
- <4D49D2AA.20201@teksavvy.com>
+From: Duncan Laurie <dlaurie@chromium.org>
+Subject: Re: [PATCH] Input: serio - clear serio event queue after sysfs driver rebind
+Date: Wed, 2 Feb 2011 14:41:38 -0800
+Message-ID: <AANLkTiknhubSN37ChYebWxd9Wx=R4dN38ETdZv2BZYee@mail.gmail.com>
+References: <1290467390-25302-1-git-send-email-dlaurie@chromium.org>
+ <20101127084153.GC28745@core.coreip.homeip.net> <AANLkTik1TE9zgKaiLQZ=1uFgMyZt43xp8VJBWfxdVyMY@mail.gmail.com>
+ <20101208051211.GB4140@core.coreip.homeip.net> <20110201092126.GC17706@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:38250 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755143Ab1BBWEq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 17:04:46 -0500
-Content-Disposition: inline
-In-Reply-To: <4D49D2AA.20201@teksavvy.com>
+Received: from smtp-out.google.com ([74.125.121.67]:44433 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755289Ab1BBWl5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 17:41:57 -0500
+Received: from hpaq7.eem.corp.google.com (hpaq7.eem.corp.google.com [172.25.149.7])
+	by smtp-out.google.com with ESMTP id p12MfuNt013966
+	for <linux-input@vger.kernel.org>; Wed, 2 Feb 2011 14:41:56 -0800
+Received: from vws11 (vws11.prod.google.com [10.241.21.139])
+	by hpaq7.eem.corp.google.com with ESMTP id p12Mfsli021210
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Wed, 2 Feb 2011 14:41:55 -0800
+Received: by vws11 with SMTP id 11so255172vws.15
+        for <linux-input@vger.kernel.org>; Wed, 02 Feb 2011 14:41:54 -0800 (PST)
+In-Reply-To: <20110201092126.GC17706@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <kernel@teksavvy.com>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, kraxel@redhat.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2011 at 04:54:50PM -0500, Mark Lord wrote:
-> On 11-02-02 03:00 PM, Chase Douglas wrote:
-> > On 02/02/2011 11:58 AM, Dmitry Torokhov wrote:
-> >> On Wed, Feb 02, 2011 at 09:31:08AM -0500, Chase Douglas wrote:
-> >>> On 01/23/2011 12:03 PM, Mark Lord wrote:
-> >>>> As of the 2.6.36 kernel, the userspace commands lsinput and input-kbd
-> >>>> no longer work.  And if I grab newer/patched versions of those from the latest
-> >>>> Ubuntu 10.10, then those newer/patched versions do not work with kernels
-> >>>> *before* 2.6.36.
-> >>>
-> >>> I planned on taking another look at this before we release Ubuntu 11.04
-> >>> at the end of April. That doesn't prevent someone else from helping out
-> >>> :), but I'll make sure the utility is working again if not.
-> >>>
-> >>
-> >> Here you go:
-> 
-> That patch was not enough for me to get input-kbd working here on Ubuntu-10.10.
-> It would still only let me map 10 keys of my 56(?) button remote.
-> 
-> I also had to hack it to ignore the read-in map->size value when writing-out
-> the new keymap.
+On Tue, Feb 1, 2011 at 1:21 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Dec 07, 2010 at 09:12:11PM -0800, Dmitry Torokhov wrote:
+>> On Mon, Nov 29, 2010 at 01:37:35PM -0800, Duncan Laurie wrote:
+>> > On Sat, Nov 27, 2010 at 12:41 AM, Dmitry Torokhov
+>> > <dmitry.torokhov@gmail.com> wrote:
+>> > > Hi Duncan,
+>> > >
+>> > > On Mon, Nov 22, 2010 at 03:09:50PM -0800, Duncan Laurie wrote:
+>> > >> When rebinding a serio driver via sysfs drvctl interface it is =
+possible for
+>> > >> an interrupt to trigger after the disconnect of the existing dr=
+iver and
+>> > >> before the binding of the new driver. =A0This will cause the se=
+rio interrupt
+>> > >> handler to queue a rescan event which will disconnect the new d=
+river
+>> > >> immediately after it is attached.
+>> > >>
+>> > >> This change clears the serio event queue after processing the d=
+rvctl
+>> > >> request but before releasing the serio mutex, which will clear =
+any queued
+>> > >> rescans before they can get processed.
+>> > >>
+>> > >> Reproduction involves issuing a rebind of device port from psmo=
+use driver
+>> > >> to serio_raw driver while generating input to trigger interrupt=
+s. =A0Then
+>> > >> checking to see if the corresponding i8042/serio4/driver is cor=
+rectly
+>> > >> attached to the serio_raw driver instead of psmouse.
+>> > >>
+>> > >> Signed-off-by: Duncan Laurie <dlaurie@chromium.org>
+>> > >> ---
+>> > >> =A0drivers/input/serio/serio.c | =A0 =A01 +
+>> > >> =A01 files changed, 1 insertions(+), 0 deletions(-)
+>> > >>
+>> > >> diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/=
+serio.c
+>> > >> index 405bf21..a66307e 100644
+>> > >> --- a/drivers/input/serio/serio.c
+>> > >> +++ b/drivers/input/serio/serio.c
+>> > >> @@ -454,6 +454,7 @@ static ssize_t serio_rebind_driver(struct d=
+evice *dev, struct device_attribute *
+>> > >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 serio_disconnect_port(serio);
+>> > >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D serio_bind_driver(serio, =
+to_serio_driver(drv));
+>> > >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 put_driver(drv);
+>> > >> + =A0 =A0 =A0 =A0 =A0 =A0 serio_remove_pending_events(serio);
+>> > >
+>> > > Hmm, makes sense, although should we limit events being removed =
+to
+>> > > rescan events only?
+>> > >
+>> >
+>> >
+>> > That seems reasonable. =A0It would mean adding a new function or a
+>> > parameter to the existing serio_remove_pending_events function, do=
+ you
+>> > have a preference?
+>> >
+>>
+>> I wonder if a boolean parameter (rescan_only) would not be the best
+>> option.
+>>
+>
+> Hi Duncan,
+>
+> I eneded up with the following patch, could you please try and see if
+> it still works for you?
+>
 
-I assumed that the fix to make RCs compatible with the pre-v2 getkeycode
-will trickle into Ubuntu through staging (I will be sending a patch to
-the stable team today now that it is in mainline). But if Chase wants to
-also add V2 keycode hdling then here's another patch.
 
-Thanks.
+Hi Dmitry,
 
--- 
-Dmitry
+I tested the patch on a CR-48 device (which is where I was seeing the
+problem because we switch to serio_raw at boot for the trackpad) and
+it does fix the problem.
 
+Thanks for sending this, it had slipped off my todo list.
 
->From cf5954a4db2d0e411bd6f717fb50bcdf37e80c9b Mon Sep 17 00:00:00 2001
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Mon, 24 Jan 2011 22:49:59 -0800
-Subject: [PATCH 2/2] input-kbd - switch to using EVIOCGKEYCODE2 when available
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- input-kbd.c |  118 ++++++++++++++++++++++++++++++++++++++++-------------------
- 1 files changed, 80 insertions(+), 38 deletions(-)
-
-diff --git a/input-kbd.c b/input-kbd.c
-index e94529d..5d93d54 100644
---- a/input-kbd.c
-+++ b/input-kbd.c
-@@ -9,9 +9,27 @@
- 
- #include "input.h"
- 
-+struct input_keymap_entry_v1 {
-+	uint32_t scancode;
-+	uint32_t keycode;
-+};
-+
-+struct input_keymap_entry_v2 {
-+#define KEYMAP_BY_INDEX	(1 << 0)
-+	uint8_t  flags;
-+	uint8_t  len;
-+	uint16_t index;
-+	uint32_t keycode;
-+	uint8_t  scancode[32];
-+};
-+
-+#ifndef EVIOCGKEYCODE2
-+#define EVIOCGKEYCODE2 _IOR('E', 0x04, struct input_keymap_entry_v2)
-+#endif
-+
- struct kbd_entry {
--	int scancode;
--	int keycode;
-+	unsigned int scancode;
-+	unsigned int keycode;
- };
- 
- struct kbd_map {
-@@ -23,7 +41,7 @@ struct kbd_map {
- 
- /* ------------------------------------------------------------------ */
- 
--static struct kbd_map* kbd_map_read(int fd)
-+static struct kbd_map* kbd_map_read(int fd, unsigned int version)
- {
- 	struct kbd_entry entry;
- 	struct kbd_map *map;
-@@ -32,16 +50,37 @@ static struct kbd_map* kbd_map_read(int fd)
- 	map = malloc(sizeof(*map));
- 	memset(map,0,sizeof(*map));
- 	for (map->size = 0; map->size < 65536; map->size++) {
--		entry.scancode = map->size;
--		entry.keycode  = KEY_RESERVED;
--		rc = ioctl(fd, EVIOCGKEYCODE, &entry);
--		if (rc < 0) {
--			break;
-+		if (version < 0x10001) {
-+			struct input_keymap_entry_v1 ke = {
-+				.scancode = map->size,
-+				.keycode = KEY_RESERVED,
-+			};
-+
-+			rc = ioctl(fd, EVIOCGKEYCODE, &ke);
-+			if (rc < 0)
-+				break;
-+		} else {
-+			struct input_keymap_entry_v2 ke = {
-+				.index = map->size,
-+				.flags = KEYMAP_BY_INDEX,
-+				.len = sizeof(uint32_t),
-+				.keycode = KEY_RESERVED,
-+			};
-+
-+			rc = ioctl(fd, EVIOCGKEYCODE2, &ke);
-+			if (rc < 0)
-+				break;
-+
-+			memcpy(&entry.scancode, ke.scancode,
-+				sizeof(entry.scancode));
-+			entry.keycode = ke.keycode;
- 		}
-+
- 		if (map->size >= map->alloc) {
- 			map->alloc += 64;
- 			map->map = realloc(map->map, map->alloc * sizeof(entry));
- 		}
-+
- 		map->map[map->size] = entry;
- 
- 		if (KEY_RESERVED != entry.keycode)
-@@ -155,40 +194,27 @@ static void kbd_print_bits(int fd)
- 	}
- }
- 
--static void show_kbd(int nr)
-+static void show_kbd(int fd, unsigned int protocol_version)
- {
- 	struct kbd_map *map;
--	int fd;
- 
--	fd = device_open(nr,1);
--	if (-1 == fd)
--		return;
- 	device_info(fd);
- 
--	map = kbd_map_read(fd);
--	if (NULL != map) {
--		kbd_map_print(stdout,map,0);
--	} else {
-+	map = kbd_map_read(fd, protocol_version);
-+	if (map)
-+		kbd_map_print(stdout, map, 0);
-+	else
- 		kbd_print_bits(fd);
--	}
--
--	close(fd);
- }
- 
--static int set_kbd(int nr, char *mapfile)
-+static int set_kbd(int fd, unsigned int protocol_version, char *mapfile)
- {
- 	struct kbd_map *map;
- 	FILE *fp;
--	int fd;
--
--	fd = device_open(nr,1);
--	if (-1 == fd)
--		return -1;
- 
--	map = kbd_map_read(fd);
-+	map = kbd_map_read(fd, protocol_version);
- 	if (NULL == map) {
- 		printf("device has no map\n");
--		close(fd);
- 		return -1;
- 	}
- 
-@@ -198,18 +224,15 @@ static int set_kbd(int nr, char *mapfile)
- 		fp = fopen(mapfile,"r");
- 		if (NULL == fp) {
- 			printf("open %s: %s\n",mapfile,strerror(errno));
--			close(fd);
- 			return -1;
- 		}
- 	}
--	
-+
- 	if (0 != kbd_map_parse(fp,map) ||
- 	    0 != kbd_map_write(fd,map)) {
--		close(fd);
- 		return -1;
- 	}
- 
--	close(fd);
- 	return 0;
- }
- 
-@@ -223,8 +246,10 @@ static int usage(char *prog, int error)
- 
- int main(int argc, char *argv[])
- {
--	int c,devnr;
-+	int c, devnr, fd;
- 	char *mapfile = NULL;
-+	unsigned int protocol_version;
-+	int rc = EXIT_FAILURE;
- 
- 	for (;;) {
- 		if (-1 == (c = getopt(argc, argv, "hf:")))
-@@ -244,12 +269,29 @@ int main(int argc, char *argv[])
- 		usage(argv[0],1);
- 
- 	devnr = atoi(argv[optind]);
--	if (mapfile) {
--		set_kbd(devnr,mapfile);
--	} else {
--		show_kbd(devnr);
-+
-+	fd = device_open(devnr, 1);
-+	if (fd < 0)
-+		goto out;
-+
-+	if (ioctl(fd, EVIOCGVERSION, &protocol_version) < 0) {
-+		fprintf(stderr,
-+			"Unable to query evdev protocol version: %s\n",
-+			strerror(errno));
-+		goto out_close;
- 	}
--	return 0;
-+
-+	if (mapfile)
-+		set_kbd(fd, protocol_version, mapfile);
-+	else
-+		show_kbd(fd, protocol_version);
-+
-+	rc = EXIT_SUCCESS;
-+
-+out_close:
-+	close(fd);
-+out:
-+	return rc;
- }
- 
- /* ---------------------------------------------------------------------
--- 
-1.7.3.5
-
+-duncan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

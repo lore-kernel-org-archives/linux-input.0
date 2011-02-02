@@ -1,42 +1,67 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH v2] altera_ps2: Add devicetree support
-Date: Wed, 2 Feb 2011 08:39:59 -0700
-Message-ID: <20110202153959.GD20275@angua.secretlab.ca>
-References: <20110117220415.GB17963@angua.secretlab.ca>
- <1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
- <20110202043121.GF29148@angua.secretlab.ca>
- <4D4944AA.5040900@wytron.com.tw>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 2.6.36/2.6.37: broken compatibility with userspace input-utils ?
+Date: Wed, 2 Feb 2011 08:58:00 -0800
+Message-ID: <20110202165800.GB3178@core.coreip.homeip.net>
+References: <4D3C5F73.2050408@teksavvy.com>
+ <4D496AAC.1010106@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:49216 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754404Ab1BBPkD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 10:40:03 -0500
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:38328 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754452Ab1BBQ6N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 11:58:13 -0500
 Content-Disposition: inline
-In-Reply-To: <4D4944AA.5040900@wytron.com.tw>
+In-Reply-To: <4D496AAC.1010106@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Chou <thomas@wytron.com.tw>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, nios2-dev@sopc.et.ntust.edu.tw, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Walter Goossens <waltergoossens@home.nl>
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Mark Lord <kernel@teksavvy.com>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, kraxel@redhat.com
 
-On Wed, Feb 02, 2011 at 07:48:58PM +0800, Thomas Chou wrote:
-> On 02/02/2011 12:31 PM, Grant Likely wrote:
-> >>+static const struct of_device_id altera_ps2_match[] = {
-> >>+	{ .compatible = "altr,ps2-1.0", },
-> >
-> >I thought I had seen 'altera' instead of an abbreviation being used in
-> >a previous patch.  I don't care much whether 'altr' or 'altera' is
-> >used, but I'd like to know that there is consensus from the Altera
-> >users so that all the drivers use the same prefix.
-> >
+On Wed, Feb 02, 2011 at 09:31:08AM -0500, Chase Douglas wrote:
+> On 01/23/2011 12:03 PM, Mark Lord wrote:
+> > As of the 2.6.36 kernel, the userspace commands lsinput and input-kbd
+> > no longer work.  And if I grab newer/patched versions of those from the latest
+> > Ubuntu 10.10, then those newer/patched versions do not work with kernels
+> > *before* 2.6.36.
 > 
-> We had discussed on nios2-dev mailing list, and decided to use
-> 'altr' as Walter suggested that it saves space.
+> I planned on taking another look at this before we release Ubuntu 11.04
+> at the end of April. That doesn't prevent someone else from helping out
+> :), but I'll make sure the utility is working again if not.
+> 
 
-Is altr the stock ticker symbol?  The convention is to either use the
-stock ticker in all uppercase (although the uppercase bit hasn't been
-consistently applied), or to use the full name in lowercase.
+Here you go:
 
-g.
+>From dbe48c8044987da6e64036fa3f36d7b2826994d5 Mon Sep 17 00:00:00 2001
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date: Mon, 24 Jan 2011 22:06:10 -0800
+Subject: [PATCH 1/2] Do not require exact version of EVDEV protocol, we can work with
+ other versions too.
 
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ input.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/input.c b/input.c
+index 73d5df1..08f4046 100644
+--- a/input.c
++++ b/input.c
+@@ -101,9 +101,11 @@ int device_open(int nr, int verbose)
+ 		close(fd);
+ 		return -1;
+ 	}
+-	if (EV_VERSION != version) {
+-		fprintf(stderr, "protocol version mismatch (expected %d, got %d)\n",
+-			EV_VERSION, version);
++
++#define EVDEV_MIN_VERSION 0x10000
++	if (version < EVDEV_MIN_VERSION) {
++		fprintf(stderr, "protocol version mismatch (need at least %d, got %d)\n",
++			EVDEV_MIN_VERSION, version);
+ 		close(fd);
+ 		return -1;
+ 	}
+
+-- 
+Dmitry

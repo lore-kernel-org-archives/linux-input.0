@@ -1,49 +1,96 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC v2 PATCH 4/7] input: pmic8058_pwrkey: Add support for power
- key
-Date: Tue, 1 Feb 2011 09:49:11 -0800
-Message-ID: <20110201174911.GA518@core.coreip.homeip.net>
-References: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
- <1296568063-12010-5-git-send-email-aghayal@codeaurora.org>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v2] altera_ps2: Add devicetree support
+Date: Tue, 1 Feb 2011 21:31:21 -0700
+Message-ID: <20110202043121.GF29148@angua.secretlab.ca>
+References: <20110117220415.GB17963@angua.secretlab.ca>
+ <1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:38456 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755882Ab1BARth (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 12:49:37 -0500
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:36384 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753770Ab1BBEb1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Feb 2011 23:31:27 -0500
 Content-Disposition: inline
-In-Reply-To: <1296568063-12010-5-git-send-email-aghayal@codeaurora.org>
+In-Reply-To: <1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anirudh Ghayal <aghayal@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>
+To: Thomas Chou <thomas@wytron.com.tw>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, nios2-dev@sopc.et.ntust.edu.tw, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, Walter Goossens <waltergoossens@home.nl>
 
-On Tue, Feb 01, 2011 at 07:17:40PM +0530, Anirudh Ghayal wrote:
-> From: Trilok Soni <tsoni@codeaurora.org>
+On Mon, Jan 24, 2011 at 01:58:13PM +0800, Thomas Chou wrote:
+> From: Walter Goossens <waltergoossens@home.nl>
 > 
-> Add support for PMIC8058 power key driven over dedicated
-> KYPD_PWR_N pin. It allows the user to specify the amount
-> of time by which the power key reporting can be delayed.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
+> Signed-off-by: Walter Goossens <waltergoossens@home.nl>
+> Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
 > ---
-> Changes from v1:
-> Addressed review comments from Dmitry.
-> Added KEY_SCREENLOCK instead of KEY_END.
+> v2 use const and add compat version.
+> 
+>  drivers/input/serio/altera_ps2.c |   11 +++++++++--
+>  1 files changed, 9 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+> index 7998560..63325ee 100644
+> --- a/drivers/input/serio/altera_ps2.c
+> +++ b/drivers/input/serio/altera_ps2.c
+> @@ -19,6 +19,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/io.h>
+>  #include <linux/slab.h>
+> +#include <linux/of.h>
+>  
+>  #define DRV_NAME "altera_ps2"
+>  
+> @@ -173,6 +174,12 @@ static int __devexit altera_ps2_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +static const struct of_device_id altera_ps2_match[] = {
+> +	{ .compatible = "altr,ps2-1.0", },
 
-...
-> +	input_report_key(pwrkey->pwr, KEY_SCROLLLOCK, 1);
-...
-> +	input_report_key(pwrkey->pwr, KEY_SCREENLOCK, 0);
-...
-> +	input_set_capability(pwr, EV_KEY, KEY_SCROLLLOCK);
+I thought I had seen 'altera' instead of an abbreviation being used in
+a previous patch.  I don't care much whether 'altr' or 'altera' is
+used, but I'd like to know that there is consensus from the Altera
+users so that all the drivers use the same prefix.
 
+> +	{},
+> +}
+> +MODULE_DEVICE_TABLE(of, altera_ps2_match);
+> +
+>  /*
+>   * Our device driver structure
+>   */
+> @@ -182,6 +189,7 @@ static struct platform_driver altera_ps2_driver = {
+>  	.driver	= {
+>  		.name	= DRV_NAME,
+>  		.owner	= THIS_MODULE,
+> +		.of_match_table = altera_ps2_match,
 
-You are confused about the event you are sending.
+At the moment, this patch can only be applied against my
+devicetree/next branch since there is a #ifdef CONFIG_OF around
+of_match_table in mainline, and the patch to remove it is in my next
+branch.  I'm okay with taking it through my tree if Dmitry agrees.
 
-Thanks.
+g.
 
--- 
-Dmitry
+>  	},
+>  };
+>  
+> @@ -189,13 +197,12 @@ static int __init altera_ps2_init(void)
+>  {
+>  	return platform_driver_register(&altera_ps2_driver);
+>  }
+> +module_init(altera_ps2_init);
+>  
+>  static void __exit altera_ps2_exit(void)
+>  {
+>  	platform_driver_unregister(&altera_ps2_driver);
+>  }
+> -
+> -module_init(altera_ps2_init);
+>  module_exit(altera_ps2_exit);
+>  
+>  MODULE_DESCRIPTION("Altera University Program PS2 controller driver");
+> -- 
+> 1.7.3.4
+> 

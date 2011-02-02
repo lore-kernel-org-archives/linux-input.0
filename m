@@ -1,46 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] altera_ps2: Add devicetree support
-Date: Tue, 1 Feb 2011 20:45:04 -0800
-Message-ID: <20110202044503.GA19533@core.coreip.homeip.net>
-References: <20110117220415.GB17963@angua.secretlab.ca>
-	<1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
-	<20110202043121.GF29148@angua.secretlab.ca>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [RFC v2 PATCH 4/7] input: pmic8058_pwrkey: Add support for power
+ key
+Date: Wed, 02 Feb 2011 13:13:23 +0530
+Message-ID: <4D490B1B.2060403@codeaurora.org>
+References: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org> <1296568063-12010-5-git-send-email-aghayal@codeaurora.org> <20110201174911.GA518@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110202043121.GF29148-MrY2KI0G/OVr83L8+7iqerDks+cytr/Z@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20110201174911.GA518@core.coreip.homeip.net>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Anirudh Ghayal <aghayal@codeaurora.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Feb 01, 2011 at 09:31:21PM -0700, Grant Likely wrote:
-> On Mon, Jan 24, 2011 at 01:58:13PM +0800, Thomas Chou wrote:
-> > @@ -182,6 +189,7 @@ static struct platform_driver altera_ps2_driver = {
-> >  	.driver	= {
-> >  		.name	= DRV_NAME,
-> >  		.owner	= THIS_MODULE,
-> > +		.of_match_table = altera_ps2_match,
-> 
-> At the moment, this patch can only be applied against my
-> devicetree/next branch since there is a #ifdef CONFIG_OF around
-> of_match_table in mainline, and the patch to remove it is in my next
-> branch.  I'm okay with taking it through my tree if Dmitry agrees.
-> 
+Hi Dmitry,
 
-Actually I was going to ask you if you could do just that.
+On 2/1/2011 11:19 PM, Dmitry Torokhov wrote:
+> On Tue, Feb 01, 2011 at 07:17:40PM +0530, Anirudh Ghayal wrote:
+>> From: Trilok Soni <tsoni@codeaurora.org>
+>>
+>> Add support for PMIC8058 power key driven over dedicated
+>> KYPD_PWR_N pin. It allows the user to specify the amount
+>> of time by which the power key reporting can be delayed.
+>>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
+>> ---
+>> Changes from v1:
+>> Addressed review comments from Dmitry.
+>> Added KEY_SCREENLOCK instead of KEY_END.
+> 
+> ...
+>> +	input_report_key(pwrkey->pwr, KEY_SCROLLLOCK, 1);
+> ...
+>> +	input_report_key(pwrkey->pwr, KEY_SCREENLOCK, 0);
+> ...
+>> +	input_set_capability(pwr, EV_KEY, KEY_SCROLLLOCK);
+> 
+> 
+> You are confused about the event you are sending.
 
-Thanks.
+My mistake. I will fix this to KEY_SCREENLOCK in v3.
+
+---Trilok Soni
 
 -- 
-Dmitry
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

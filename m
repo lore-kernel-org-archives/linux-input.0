@@ -1,122 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: serio - clear serio event queue after sysfs
- driver rebind
-Date: Wed, 2 Feb 2011 14:58:42 -0800
-Message-ID: <20110202225842.GA25306@core.coreip.homeip.net>
-References: <1290467390-25302-1-git-send-email-dlaurie@chromium.org>
- <20101127084153.GC28745@core.coreip.homeip.net>
- <AANLkTik1TE9zgKaiLQZ=1uFgMyZt43xp8VJBWfxdVyMY@mail.gmail.com>
- <20101208051211.GB4140@core.coreip.homeip.net>
- <20110201092126.GC17706@core.coreip.homeip.net>
- <AANLkTiknhubSN37ChYebWxd9Wx=R4dN38ETdZv2BZYee@mail.gmail.com>
+From: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+Subject: Re: [PATCH v2] altera_ps2: Add devicetree support
+Date: Thu, 03 Feb 2011 07:32:43 +0800
+Message-ID: <4D49E99B.8080400@wytron.com.tw>
+References: <20110117220415.GB17963@angua.secretlab.ca>
+	<1295848693-28472-1-git-send-email-thomas@wytron.com.tw>
+	<20110202043121.GF29148@angua.secretlab.ca>
+	<4D4944AA.5040900@wytron.com.tw>
+	<20110202153803.GC20275@angua.secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:47231 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755268Ab1BBW6v (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2011 17:58:51 -0500
-Content-Disposition: inline
-In-Reply-To: <AANLkTiknhubSN37ChYebWxd9Wx=R4dN38ETdZv2BZYee@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20110202153803.GC20275-MrY2KI0G/OVr83L8+7iqerDks+cytr/Z@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Duncan Laurie <dlaurie@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2011 at 02:41:38PM -0800, Duncan Laurie wrote:
-> On Tue, Feb 1, 2011 at 1:21 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Tue, Dec 07, 2010 at 09:12:11PM -0800, Dmitry Torokhov wrote:
-> >> On Mon, Nov 29, 2010 at 01:37:35PM -0800, Duncan Laurie wrote:
-> >> > On Sat, Nov 27, 2010 at 12:41 AM, Dmitry Torokhov
-> >> > <dmitry.torokhov@gmail.com> wrote:
-> >> > > Hi Duncan,
-> >> > >
-> >> > > On Mon, Nov 22, 2010 at 03:09:50PM -0800, Duncan Laurie wrote:
-> >> > >> When rebinding a serio driver via sysfs drvctl interface it i=
-s possible for
-> >> > >> an interrupt to trigger after the disconnect of the existing =
-driver and
-> >> > >> before the binding of the new driver. =A0This will cause the =
-serio interrupt
-> >> > >> handler to queue a rescan event which will disconnect the new=
- driver
-> >> > >> immediately after it is attached.
-> >> > >>
-> >> > >> This change clears the serio event queue after processing the=
- drvctl
-> >> > >> request but before releasing the serio mutex, which will clea=
-r any queued
-> >> > >> rescans before they can get processed.
-> >> > >>
-> >> > >> Reproduction involves issuing a rebind of device port from ps=
-mouse driver
-> >> > >> to serio_raw driver while generating input to trigger interru=
-pts. =A0Then
-> >> > >> checking to see if the corresponding i8042/serio4/driver is c=
-orrectly
-> >> > >> attached to the serio_raw driver instead of psmouse.
-> >> > >>
-> >> > >> Signed-off-by: Duncan Laurie <dlaurie@chromium.org>
-> >> > >> ---
-> >> > >> =A0drivers/input/serio/serio.c | =A0 =A01 +
-> >> > >> =A01 files changed, 1 insertions(+), 0 deletions(-)
-> >> > >>
-> >> > >> diff --git a/drivers/input/serio/serio.c b/drivers/input/seri=
-o/serio.c
-> >> > >> index 405bf21..a66307e 100644
-> >> > >> --- a/drivers/input/serio/serio.c
-> >> > >> +++ b/drivers/input/serio/serio.c
-> >> > >> @@ -454,6 +454,7 @@ static ssize_t serio_rebind_driver(struct=
- device *dev, struct device_attribute *
-> >> > >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 serio_disconnect_port(serio);
-> >> > >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D serio_bind_driver(serio=
-, to_serio_driver(drv));
-> >> > >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 put_driver(drv);
-> >> > >> + =A0 =A0 =A0 =A0 =A0 =A0 serio_remove_pending_events(serio);
-> >> > >
-> >> > > Hmm, makes sense, although should we limit events being remove=
-d to
-> >> > > rescan events only?
-> >> > >
-> >> >
-> >> >
-> >> > That seems reasonable. =A0It would mean adding a new function or=
- a
-> >> > parameter to the existing serio_remove_pending_events function, =
-do you
-> >> > have a preference?
-> >> >
-> >>
-> >> I wonder if a boolean parameter (rescan_only) would not be the bes=
-t
-> >> option.
-> >>
-> >
-> > Hi Duncan,
-> >
-> > I eneded up with the following patch, could you please try and see =
-if
-> > it still works for you?
-> >
->=20
->=20
-> Hi Dmitry,
->=20
-> I tested the patch on a CR-48 device (which is where I was seeing the
-> problem because we switch to serio_raw at boot for the trackpad) and
-> it does fix the problem.
->=20
-> Thanks for sending this, it had slipped off my todo list.
->=20
+On 02/02/2011 11:38 PM, Grant Likely wrote:
+> On Wed, Feb 02, 2011 at 07:48:58PM +0800, Thomas Chou wrote:
+>> On 02/02/2011 12:31 PM, Grant Likely wrote:
+>>>> +static const struct of_device_id altera_ps2_match[] = {
+>>>> +	{ .compatible = "altr,ps2-1.0", },
+>>>
+>>> I thought I had seen 'altera' instead of an abbreviation being used in
+>>> a previous patch.  I don't care much whether 'altr' or 'altera' is
+>>> used, but I'd like to know that there is consensus from the Altera
+>>> users so that all the drivers use the same prefix.
+>>>
+>>
+>> We had discussed on nios2-dev mailing list, and decided to use
+>> 'altr' as Walter suggested that it saves space.
+>>
+>> About the documentation on dts binding, shall we have a single
+>> altera.txt to describe all Altera related binding, and opencores.txt
+>> to describe all OpenCores binding? Or separate file for each core in
+>> its driver class?
+>
+> Since I'm reorganizing the binding documentation to reflect subsystems
+> (bindings/spi, bindings/i2c, bindings/powerpc, etc) I'd prefer to see
+> a separate file for each type of core.
 
-Great, thank you for testing.
+OK. We will use separate files. I will send an updated patch to include 
+the dts binding.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+As for nios2 cpu related binding, we shall use binding/nios2 dir. Right?
+
+- Thomas
+
+>
+> Eventually, I'd like to define a record format for documenting
+> bindings that can generate searchable and crosslinked output, but I've
+> not spent any time looking at that seriously yet.
+>
+> g.
+>
+>>
+>> - Thomas
+>

@@ -1,45 +1,316 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [rtc-linux] [RFC v2 PATCH 5/7] input: pmic8058-othc: Add	support
- for PM8058 based OTHC
-Date: Wed, 02 Feb 2011 13:21:50 +0530
-Message-ID: <4D490D16.3030601@codeaurora.org>
-References: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org> <1296568063-12010-6-git-send-email-aghayal@codeaurora.org> <20110201143356.GB20088@sirena.org.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC v2 PATCH 7/7] input: misc: Add support for PM8058 based
+ vibrator driver
+Date: Wed, 2 Feb 2011 00:33:15 -0800
+Message-ID: <20110202083315.GA23573@core.coreip.homeip.net>
+References: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
+ <1296568063-12010-8-git-send-email-aghayal@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20110201143356.GB20088@sirena.org.uk>
+Content-Disposition: inline
+In-Reply-To: <1296568063-12010-8-git-send-email-aghayal@codeaurora.org>
 Sender: linux-arm-msm-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>, Shubhrajyoti Datta <shubhrajyoti@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Anirudh Ghayal <aghayal@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Amy Maloche <amaloche@codeaurora.org>, Mohan Pallaka <mpallaka@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Mark,
+Hi Anirudh,
 
-On 2/1/2011 8:03 PM, Mark Brown wrote:
-> On Tue, Feb 01, 2011 at 07:17:41PM +0530, Anirudh Ghayal wrote:
->> One-touch headset controller is a hardware module in Qualcomm's PMIC8058.
->> It supports headset insert/remove and switch press/release detection events
->> over 3 MIC BIAS lines. The MIC BIAS lines can be configured to support
->> headset detection or act as regular BIAS lines.
-> 
-> This should probably be integrated with ASoC for management of the
-> biases if nothing else, though it'd also allow other stuff.  ALSA has
-> support for creating input devices from jacks already.
-> 
->> +	input_set_capability(ipd, EV_SW, SW_HEADPHONE_INSERT);
->> +	input_set_capability(ipd, EV_KEY, KEY_MEDIA);
-> 
-> The ALSA (well, ASoC) stuff would also allow the input device to be
-> merged with that for other detection methods so if you've got a headset
-> jack capable of detecting other things (eg, mechanical insertion or
-> separate mic and headphone detection).
+On Tue, Feb 01, 2011 at 07:17:43PM +0530, Anirudh Ghayal wrote:
+> +
+> +#include <linux/mfd/pmic8058.h>
+> +#include <linux/input/pmic8058-vibrator.h>
 
-Thanks for the review. We will analyze on how much we should be able to move
-from this OTHC driver to ALSA jack detection.
+Where is this header file? Shouldn't it be part of this patch?
 
----Trilok Soni
+> +
+> +#define VIB_DRV			0x4A
+> +
+> +#define VIB_DRV_SEL_MASK	0xf8
+> +#define VIB_DRV_SEL_SHIFT	0x03
+> +#define VIB_DRV_EN_MANUAL_MASK	0xfc
+> +
+> +#define VIB_MAX_LEVEL_mV	(3100)
+> +#define VIB_MIN_LEVEL_mV	(1200)
+> +#define VIB_MAX_LEVELS		(VIB_MAX_LEVEL_mV - VIB_MIN_LEVEL_mV)
+> +
+> +#define MAX_FF_SPEED		0xff
+> +
+> +/*
+> + * struct pmic8058_vib - structure to hold vibrator data
+> + * vib_input_dev: input device supporting force feedback
+> + * work: work structure to set the vibration parameters
+> + * dev: device supporting force feedback
+> + * pdata: platform data
+> + * pm_chip: reference to pmic chip to carry out read/write operations
+> + * speed: speed of vibration set from userland
+> + * state: state of vibrator
+> + * level: level of vibration to set in the chip
+> + * reg_vib_drv: VIB_DRV register value
+
+Hmm, this is kind of kerneldoc but not quite (kerneldoc's arguments
+start with '@').
+
+> + *
+> + */
+> +struct pmic8058_vib {
+> +	struct input_dev *vib_input_dev;
+> +	struct work_struct work;
+> +	struct device *dev;
+> +	const struct pmic8058_vibrator_pdata *pdata;
+> +	struct pm8058_chip	*pm_chip;
+> +	int speed;
+> +	int state;
+> +	int level;
+> +	u8  reg_vib_drv;
+> +};
+> +
+> +/*
+> + * pmic8058_vib_read_u8 - helper to read a byte from pmic chip
+> + * vib: pointer to vibrator structure
+> + * data: placeholder for data to be read
+> + * reg: register address
+> + *
+> + */
+> +static int pmic8058_vib_read_u8(struct pmic8058_vib *vib,
+> +				 u8 *data, u16 reg)
+> +{
+> +	int rc;
+> +
+> +	rc = pm8058_read(vib->pm_chip, reg, data, 1);
+> +	if (rc < 0)
+> +		dev_warn(vib->dev, "Error reading pmic8058 reg 0x%x(0x%x)\n",
+> +				reg, rc);
+> +	return rc;
+> +}
+> +
+> +/*
+> + * pmic8058_vib_write_u8 - helper to write a byte to pmic chip
+> + * vib: pointer to vibrator structure
+> + * data: data to write
+> + * reg: register address
+> + *
+> + */
+> +static int pmic8058_vib_write_u8(struct pmic8058_vib *vib,
+> +				 u8 data, u16 reg)
+> +{
+> +	int rc;
+> +
+> +	rc = pm8058_write(vib->pm_chip, reg, &data, 1);
+> +	if (rc < 0)
+> +		dev_warn(vib->dev, "Error writing pmic8058 reg 0x%x(0x%x)\n",
+> +				reg, rc);
+> +	return rc;
+> +}
+> +
+> +/*
+> + * pmic8058_vib_set - handler to start/stop vibration
+> + * vib: pointer to vibrator structure
+> + * on: state to set
+> + *
+> + */
+> +static int pmic8058_vib_set(struct pmic8058_vib *vib, int on)
+> +{
+> +	int rc;
+> +	u8 val;
+> +
+> +	val = vib->reg_vib_drv;
+> +
+> +	if (on)
+> +		val |= ((vib->level << VIB_DRV_SEL_SHIFT) & VIB_DRV_SEL_MASK);
+> +	else
+> +		val &= ~VIB_DRV_SEL_MASK;
+> +
+> +	rc = pmic8058_vib_write_u8(vib, val, VIB_DRV);
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	vib->reg_vib_drv = val;
+> +	return rc;
+> +}
+> +
+> +/*
+> + * pmic8058_work_handler - worker to set vibration level
+> + * work: pointer to work_struct
+> + *
+> + */
+> +static void pmic8058_work_handler(struct work_struct *work)
+> +{
+> +	struct pmic8058_vib *vib;
+> +	int rc;
+> +	u8 val;
+> +
+> +	vib  = container_of(work, struct pmic8058_vib, work);
+> +
+> +	rc = pmic8058_vib_read_u8(vib, &val, VIB_DRV);
+> +	if (rc < 0)
+> +		return;
+> +
+> +	/*
+> +	 * pmic vibrator supports voltage ranges from 1.2 to 3.1V, so
+> +	 * scale the level to fit into these ranges.
+> +	 */
+> +	if (vib->speed) {
+> +		vib->state = 1;
+> +		vib->level = ((VIB_MAX_LEVELS * vib->speed) / MAX_FF_SPEED) +
+> +						VIB_MIN_LEVEL_mV;
+> +		vib->level /= 100;
+> +	} else {
+> +		vib->state = 0;
+> +		vib->level = VIB_MIN_LEVEL_mV / 100;
+> +	}
+> +	pmic8058_vib_set(vib, vib->state);
+> +}
+> +
+> +/*
+> + * pmic8058_vib_play_effect - function to handle vib effects.
+> + * dev: input device pointer
+> + * data: data of effect
+> + * effect: effect to play
+> + *
+> + * Currently this driver supports only rumble effects.
+> + *
+> + */
+> +static int pmic8058_vib_play_effect(struct input_dev *dev, void *data,
+> +		      struct ff_effect *effect)
+> +{
+> +	struct pmic8058_vib *vib = input_get_drvdata(dev);
+> +
+> +	vib->speed = effect->u.rumble.strong_magnitude >> 8;
+> +	if (!vib->speed)
+> +		vib->speed = effect->u.rumble.weak_magnitude >> 9;
+> +	schedule_work(&vib->work);
+> +	return 0;
+> +}
+> +
+> +static int __devinit pmic8058_vib_probe(struct platform_device *pdev)
+> +
+> +{
+> +	struct pm8058_chip *pm_chip;
+> +	struct pmic8058_vib *vib;
+> +	const struct pmic8058_vibrator_pdata *pdata = pdev->dev.platform_data;
+> +	int rc;
+> +	u8 val;
+> +
+> +	pm_chip = platform_get_drvdata(pdev);
+
+The parent should not abuse platform data of _this_ device, it belongs
+to this driver. In fact you overwrite it with pmic8058_vib below, which
+means that you can't unbind the driver and bind it again.
+
+Please find other way to pass pm_chip.
+
+> +	if (pm_chip == NULL) {
+> +		dev_err(&pdev->dev, "no parent data passed in\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!pdata)
+> +		return -EINVAL;
+> +
+> +	if (pdata->level_mV < VIB_MIN_LEVEL_mV ||
+> +			 pdata->level_mV > VIB_MAX_LEVEL_mV)
+> +		return -EINVAL;
+> +
+> +	vib = kzalloc(sizeof(*vib), GFP_KERNEL);
+> +	if (!vib)
+> +		return -ENOMEM;
+> +
+> +	vib->pm_chip	= pm_chip;
+> +	vib->pdata	= pdata;
+> +	vib->dev	= &pdev->dev;
+> +
+> +	INIT_WORK(&vib->work, pmic8058_work_handler);
+> +
+> +	vib->vib_input_dev = input_allocate_device();
+> +
+> +	if (vib->vib_input_dev == NULL) {
+> +		dev_err(&pdev->dev, "couldn't allocate input device\n");
+> +		rc = -ENOMEM;
+> +		goto err_alloc_dev;
+> +	}
+> +
+> +	input_set_drvdata(vib->vib_input_dev, vib);
+> +
+> +	vib->vib_input_dev->name = "pmic8058_vibrator";
+> +	vib->vib_input_dev->id.version = 1;
+> +	vib->vib_input_dev->dev.parent = &pdev->dev;
+> +
+> +	/* operate in manual mode */
+> +	rc = pmic8058_vib_read_u8(vib, &val, VIB_DRV);
+> +	if (rc < 0)
+> +		goto err_read_vib;
+> +	val &= ~VIB_DRV_EN_MANUAL_MASK;
+> +	rc = pmic8058_vib_write_u8(vib, val, VIB_DRV);
+> +	if (rc < 0)
+> +		goto err_read_vib;
+> +
+> +	vib->reg_vib_drv = val;
+> +
+> +	input_set_capability(vib->vib_input_dev, EV_FF, FF_RUMBLE);
+> +
+> +	rc = input_ff_create_memless(vib->vib_input_dev, NULL,
+> +					pmic8058_vib_play_effect);
+> +	if (rc < 0) {
+> +		dev_dbg(&pdev->dev, "couldn't register vibrator to FF\n");
+> +		goto err_create_memless;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, vib);
+> +
+> +	rc = input_register_device(vib->vib_input_dev);
+> +	if (rc < 0) {
+> +		dev_dbg(&pdev->dev, "couldn't register input device\n");
+> +		goto err_reg_input_dev;
+> +	}
+
+platform_set_drvdata(pdev, vib) should go here so you do not need to
+clean it if input_register_device() fails.
+
+> +	return 0;
+> +
+> +err_reg_input_dev:
+> +	input_ff_destroy(vib->vib_input_dev);
+> +err_create_memless:
+> +err_read_vib:
+> +	input_free_device(vib->vib_input_dev);
+> +err_alloc_dev:
+> +	kfree(vib);
+> +	return rc;
+> +}
+> +
+> +static int __devexit pmic8058_vib_remove(struct platform_device *pdev)
+> +{
+> +	struct pmic8058_vib *vib = platform_get_drvdata(pdev);
+> +
+> +	cancel_work_sync(&vib->work);
+> +	if (vib->state)
+> +		pmic8058_vib_set(vib, 0);
+
+This should probably be part of pmic8058_vib_close() method.
+
+> +
+> +	input_unregister_device(vib->vib_input_dev);
+> +	kfree(vib);
+
+Need to call platform_set_drvdata(pdev, NULL);
+
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver pmic8058_vib_driver = {
+> +	.probe		= pmic8058_vib_probe,
+> +	.remove		= __devexit_p(pmic8058_vib_remove),
+> +	.driver		= {
+> +		.name	= "pm8058-vib",
+> +		.owner	= THIS_MODULE,
+> +	},
+> +};
+
+What about PM? Do you need to shut off vibration if device goes to sleep?
+
+Thanks.
 
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Dmitry

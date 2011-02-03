@@ -1,60 +1,53 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [PATCHv2 2/2] Input: ads7846 - configure pendown gpio as input
-Date: Thu, 3 Feb 2011 17:12:56 +0530
-Message-ID: <AANLkTi=dkNkqtBiUm-BJKw+RS2wFZ_mTSc9PFW+MrP05@mail.gmail.com>
-References: <1296726530-32199-1-git-send-email-sourav.poddar@ti.com>
-	<20110203095845.GK23561@legolas.emea.dhcp.ti.com>
-	<20110203100528.GA6508@pengutronix.de>
+From: Peter Ujfalusi <peter.ujfalusi@nokia.com>
+Subject: Re: [PATCH 12/19] twl4030: mfd_cell is now implicitly
+ available to drivers
+Date: Thu, 03 Feb 2011 14:23:46 +0200
+Message-ID: <4D4A9E52.7010000@nokia.com>
+References: <20110202195417.228e2656@queued.net>	<20110202201522.72d37f1e@queued.net>	<20110203060521.GA25739@core.coreip.homeip.net>	<20110202223959.244b4a01@queued.net>	<20110203065339.GA5592@core.coreip.homeip.net>
+	<20110202230326.167fe873@queued.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20110203100528.GA6508@pengutronix.de>
-Sender: linux-omap-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Felipe Balbi <balbi@ti.com>, dmitry.torokhov@gmail.com, charu@ti.com, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20110202230326.167fe873@queued.net>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: ext Andres Salomon <dilinger@queued.net>
+Cc: alsa-devel@alsa-project.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Timur Tabi <timur@freescale.com>, Liam Girdwood <lrg@slimlogic.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Feb 3, 2011 at 3:40 PM, Wolfram Sang <w.sang@pengutronix.de> wr=
-ote:
-> On Thu, Feb 03, 2011 at 11:58:45AM +0200, Felipe Balbi wrote:
->> On Thu, Feb 03, 2011 at 03:18:50PM +0530, Sourav Poddar wrote:
->> > The ads7846 driver requests a gpio to detect pendown events,
->> > but does not configure its direction. Configure this gpio
->> > as an input after requesting it.
->> >
->> > Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
->> > ---
->> > changes between v2 and v1: Added return error support in v2.
->> >
->> > drivers/input/touchscreen/ads7846.c | =A0 =A07 +++++++
->> > 1 files changed, 7 insertions(+), 0 deletions(-)
->> >
->> > diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/t=
-ouchscreen/ads7846.c
->> > index 036f245..f30768b 100644
->> > --- a/drivers/input/touchscreen/ads7846.c
->> > +++ b/drivers/input/touchscreen/ads7846.c
->> > @@ -962,6 +962,13 @@ static int __devinit ads7846_setup_pendown(st=
-ruct spi_device *spi, struct ads784
->> > =A0 =A0 =A0 =A0 =A0 =A0 return err;
->> > =A0 =A0 }
->> >
->> > + =A0 err =3D gpio_direction_input(pdata->gpio_pendown);
->> > + =A0 if (err) {
->> > + =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "failed to configure pend=
-own GPIO input direction %d\n",
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->gpio_pendown);
->> > + =A0 =A0 =A0 =A0 =A0 return err;
->>
->> and now you miss a gpio_free().
->
-> Better use gpio_request_one()?
+On 02/03/11 09:03, ext Andres Salomon wrote:
+> I believe some drivers are even using the parent device already.  See
+> drivers/leds/leds-mc13783.c, for example, whose parent device drvdata
+> is used to pass around a struct mc13783 to its children.  Sounds
+> like a possibility, will need to look into it further.
 
-Totally agreed,using gpio_request_one seems to be the better option.
-Will post a patch for it.
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I briefly looked at the drivers/leds/leds-mc13783.c, and the related
+drivers/mfd/mc13xxx.c drivers.
+This also uses the same way to pass the needed platform data to it's
+child devices, as the twl4030 (audio/codec/vibra) MFD does.
+Also the leds-mc13783.c does not actually uses any config values from
+the parent dev. The mc13783_led->master is needed to be locally stored,
+since the led driver calls functions from the MFD core, which needs that
+as parameter.
+
+I don't really see any need to change the drivers in this regard,
+however it would be nicer, if we replace for example the:
+	struct twl4030_codec_data *pdata =3D pdev->dev.platform_data;
+with
+	struct twl4030_codec_data *pdata =3D dev_get_platdata(&pdev->dev);
+
+The information passed to the vibra, and ASoC codec driver is for them
+only, so there is no need for the vibra driver to know anything about
+things, which concerns only the ASoC codec driver.
+
+-- =
+
+P=E9ter

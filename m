@@ -1,82 +1,62 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH v3 1/2] ads7846: fix gpio free without requesting
-Date: Thu, 3 Feb 2011 16:47:05 +0100
-Message-ID: <20110203154705.GE6508@pengutronix.de>
-References: <1296746486-12168-1-git-send-email-sourav.poddar@ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 4/8] HID: roccat: Add support for Kova[+] mouse
+Date: Thu, 3 Feb 2011 16:49:41 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102031648490.2160@pobox.suse.cz>
+References: <1296391104.2283.183.camel@neuromancer>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mrJd9p1Ce66CJMxE"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1296746486-12168-1-git-send-email-sourav.poddar@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Sourav Poddar <sourav.poddar@ti.com>
-Cc: LW@karo-electronics.de, Dmitry Torokhov <dtor@mail.ru>, balbi@ti.com, Kishon Vijay Abraham I <kishon@ti.com>, charu@ti.com, grinberg@compulab.co.il, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:46028 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752515Ab1BCPtn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Feb 2011 10:49:43 -0500
+In-Reply-To: <1296391104.2283.183.camel@neuromancer>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hverkuil@xs4all.nl>, Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Thomas Weber <weber@corscience.de>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
+On Sun, 30 Jan 2011, Stefan Achatz wrote:
 
---mrJd9p1Ce66CJMxE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> This patch adds support for Roccat Kova[+] mouse.
+> Userland tools can soon be found at http://sourceforge.net/projects/roccat
+> 
+> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+> ---
+>  .../ABI/testing/sysfs-driver-hid-roccat-kovaplus   |   91 +++
+>  drivers/hid/Kconfig                                |    8 +
+>  drivers/hid/Makefile                               |    1 +
+>  drivers/hid/hid-core.c                             |    1 +
+>  drivers/hid/hid-ids.h                              |    1 +
+>  drivers/hid/hid-roccat-kovaplus.c                  |  715 ++++++++++++++++++++
+>  drivers/hid/hid-roccat-kovaplus.h                  |  157 +++++
+>  7 files changed, 974 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
+>  create mode 100644 drivers/hid/hid-roccat-kovaplus.c
+>  create mode 100644 drivers/hid/hid-roccat-kovaplus.h
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
+> new file mode 100644
+> index 0000000..9e54af4
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
+> @@ -0,0 +1,91 @@
+> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/actual_cpi
+> +Date:		January 2011
+> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+> +Description:	The integer value of this attribute ranges from 1-4.
+> +		When read, this attribute returns the number of the active
+> +		cpi level.
+> +		This file is readonly.
+> +
 
-On Thu, Feb 03, 2011 at 08:51:26PM +0530, Sourav Poddar wrote:
-> gpio_pendown in ads7846_probe is not getting initalized (defaulted to 0)
-> resulting in gpio_free being called without a gpio_request. This
-> results in the following backtrace in bootup (at least on an OMAP3430 SDP=
-).
+Stefan, one more things comes to my mind here.
 
-I wonder if it makes sense to merge both patches under the name of "fix
-gpio-handling" or similar. Not sure, though...
+Could you please post a followup patch with 'Users:' tag included in the 
+sysfs documentation, pointing to the userspace application/library?
 
-> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscr=
-een/ads7846.c
-> index 14ea54b..ce5baee 100644
-> --- a/drivers/input/touchscreen/ads7846.c
-> +++ b/drivers/input/touchscreen/ads7846.c
-> @@ -952,6 +952,7 @@ static int __devinit ads7846_setup_pendown(struct spi=
-_device *spi, struct ads784
-> =20
->  	if (pdata->get_pendown_state) {
->  		ts->get_pendown_state =3D pdata->get_pendown_state;
-> +		ts->gpio_pendown =3D -EINVAL;
->  		return 0;
->  	}
+Thanks,
 
-Will probably work, but maybe it is better to reorganize the code to
-just have one success-exit-point. That would be mean adding an else
-branch to this if-block.
-
-> =20
-> @@ -1353,7 +1354,7 @@ static int __devinit ads7846_probe(struct spi_devic=
-e *spi)
->   err_put_regulator:
->  	regulator_put(ts->reg);
->   err_free_gpio:
-> -	if (ts->gpio_pendown !=3D -1)
-> +	if (gpio_is_valid(ts->gpio_pendown))
-
-You could do the same in the remove-path.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---mrJd9p1Ce66CJMxE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk1KzfkACgkQD27XaX1/VRsZXgCgjG3DI8NeazyG++12Y5DL7N5f
-3+wAnjrfEJ98JxoieGQ4lO7LfQZkF3cQ
-=OBeQ
------END PGP SIGNATURE-----
-
---mrJd9p1Ce66CJMxE--
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

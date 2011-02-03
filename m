@@ -1,200 +1,77 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 9/8] HID: roccat: Renamed header roccat.h -> hid-roccat.h
-Date: Thu, 03 Feb 2011 16:14:43 +0100
-Message-ID: <1296746083.2258.4.camel@neuromancer>
-References: <1296391105.2283.184.camel@neuromancer>
-	 <alpine.LNX.2.00.1102031116100.2160@pobox.suse.cz>
-Reply-To: erazor_de@users.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1102031116100.2160@pobox.suse.cz>
-Sender: linux-doc-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hverkuil@xs4all.nl>, Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Thomas Weber <weber@corscience.de>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Sourav Poddar <sourav.poddar@ti.com>
+Subject: [PATCH v3 1/2] ads7846: fix gpio free without requesting
+Date: Thu,  3 Feb 2011 20:51:26 +0530
+Message-ID: <1296746486-12168-1-git-send-email-sourav.poddar@ti.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:39380 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755435Ab1BCPV6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Feb 2011 10:21:58 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: LW@karo-electronics.de
+Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, gadiyar@ti.com, charu@ti.com, grinberg@compulab.co.il, balbi@ti.com, Sourav Poddar <sourav.poddar@ti.com>, Kishon Vijay Abraham I <kishon@ti.com>, Dmitry Torokhov <dtor@mail.ru>
 
-It was desired that the header roccat.h should be named hid-roccat.h
+gpio_pendown in ads7846_probe is not getting initalized (defaulted to 0)
+resulting in gpio_free being called without a gpio_request. This
+results in the following backtrace in bootup (at least on an OMAP3430 SDP).
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+------------[ cut here ]------------
+WARNING: at drivers/gpio/gpiolib.c:1258 gpio_free+0x100/0x12c()
+Modules linked in:
+[<c0061208>] (unwind_backtrace+0x0/0xe4) from [<c0091f58>](warn_slowpath_common+0x4c/0x64)
+[<c0091f58>] (warn_slowpath_common+0x4c/0x64) from [<c0091f88>](warn_slowpath_null+0x18/0x1c)
+[<c0091f88>] (warn_slowpath_null+0x18/0x1c) from [<c024e610>](gpio_free+0x100/0x12c)
+[<c024e610>] (gpio_free+0x100/0x12c) from [<c03e9fbc>](ads7846_probe+0xa38/0xc5c)
+[<c03e9fbc>] (ads7846_probe+0xa38/0xc5c) from [<c02cff14>](spi_drv_probe+0x18/0x1c)
+[<c02cff14>] (spi_drv_probe+0x18/0x1c) from [<c028bca4>](driver_probe_device+0xc8/0x184)
+[<c028bca4>] (driver_probe_device+0xc8/0x184) from [<c028bdc8>](__driver_attach+0x68/0x8c)
+[<c028bdc8>] (__driver_attach+0x68/0x8c) from [<c028b4c8>](bus_for_each_dev+0x48/0x74)
+[<c028b4c8>] (bus_for_each_dev+0x48/0x74) from [<c028ae08>](bus_add_driver+0xa0/0x220)
+[<c028ae08>] (bus_add_driver+0xa0/0x220) from [<c028c0c0>](driver_register+0xa8/0x134)
+[<c028c0c0>] (driver_register+0xa8/0x134) from [<c0050550>](do_one_initcall+0xcc/0x1a4)
+[<c0050550>] (do_one_initcall+0xcc/0x1a4) from [<c00084e4>](kernel_init+0x14c/0x214)
+[<c00084e4>] (kernel_init+0x14c/0x214) from [<c005b494>](kernel_thread_exit+0x0/0x8)
+---[ end trace 4053287f8a5ec18f ]---
+
+Initialize gpio_pendown in ads7846_probe to -EINVAL before
+ads7846_setup_pendown function and using gpio_is_valid function
+in conditional check removes the above backtrace
+warning.
+
+Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+
 ---
- Documentation/ioctl/ioctl-number.txt |    2 +-
- drivers/hid/hid-roccat-arvo.c        |    2 +-
- drivers/hid/hid-roccat-kone.c        |    2 +-
- drivers/hid/hid-roccat-koneplus.c    |    2 +-
- drivers/hid/hid-roccat-kovaplus.c    |    2 +-
- drivers/hid/hid-roccat-pyra.c        |    2 +-
- drivers/hid/hid-roccat.c             |    2 +-
- include/linux/hid-roccat.h           |   29 +++++++++++++++++++++++++++++
- include/linux/roccat.h               |   29 -----------------------------
- 9 files changed, 36 insertions(+), 36 deletions(-)
- create mode 100644 include/linux/hid-roccat.h
- delete mode 100644 include/linux/roccat.h
+ Links related to the previous discussions:
+ http://www.spinics.net/lists/linux-omap/msg45093.html
+ http://www.mail-archive.com/linux-omap@vger.kernel.org/msg43506.html
 
-diff --git a/Documentation/ioctl/ioctl-number.txt b/Documentation/ioctl/ioctl-number.txt
-index b0f1fa0..e68543f 100644
---- a/Documentation/ioctl/ioctl-number.txt
-+++ b/Documentation/ioctl/ioctl-number.txt
-@@ -133,7 +133,7 @@ Code  Seq#(hex)	Include File		Comments
- 'H'	C0-DF	net/bluetooth/hidp/hidp.h	conflict!
- 'H'	C0-DF	net/bluetooth/cmtp/cmtp.h	conflict!
- 'H'	C0-DF	net/bluetooth/bnep/bnep.h	conflict!
--'H'	F1	linux/roccat.h		<mailto:erazor_de@users.sourceforge.net>
-+'H'	F1	linux/hid-roccat.h	<mailto:erazor_de@users.sourceforge.net>
- 'I'	all	linux/isdn.h		conflict!
- 'I'	00-0F	drivers/isdn/divert/isdn_divert.h	conflict!
- 'I'	40-4F	linux/mISDNif.h		conflict!
-diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
-index 75f532f..2307471 100644
---- a/drivers/hid/hid-roccat-arvo.c
-+++ b/drivers/hid/hid-roccat-arvo.c
-@@ -21,7 +21,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--#include <linux/roccat.h>
-+#include <linux/hid-roccat.h>
- #include "hid-ids.h"
- #include "hid-roccat-common.h"
- #include "hid-roccat-arvo.h"
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index d749796..a57838d 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -30,7 +30,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--#include <linux/roccat.h>
-+#include <linux/hid-roccat.h>
- #include "hid-ids.h"
- #include "hid-roccat-common.h"
- #include "hid-roccat-kone.h"
-diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-index ac20107..a8e2117 100644
---- a/drivers/hid/hid-roccat-koneplus.c
-+++ b/drivers/hid/hid-roccat-koneplus.c
-@@ -21,7 +21,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--#include <linux/roccat.h>
-+#include <linux/hid-roccat.h>
- #include "hid-ids.h"
- #include "hid-roccat-common.h"
- #include "hid-roccat-koneplus.h"
-diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-index 4eeb62f..984be2f 100644
---- a/drivers/hid/hid-roccat-kovaplus.c
-+++ b/drivers/hid/hid-roccat-kovaplus.c
-@@ -20,7 +20,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--#include <linux/roccat.h>
-+#include <linux/hid-roccat.h>
- #include "hid-ids.h"
- #include "hid-roccat-common.h"
- #include "hid-roccat-kovaplus.h"
-diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
-index 02a7243..160f481 100644
---- a/drivers/hid/hid-roccat-pyra.c
-+++ b/drivers/hid/hid-roccat-pyra.c
-@@ -22,7 +22,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--#include <linux/roccat.h>
-+#include <linux/hid-roccat.h>
- #include "hid-ids.h"
- #include "hid-roccat-common.h"
- #include "hid-roccat-pyra.h"
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index bbe294c..5666e75 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -26,7 +26,7 @@
- #include <linux/cdev.h>
- #include <linux/poll.h>
- #include <linux/sched.h>
--#include <linux/roccat.h>
-+#include <linux/hid-roccat.h>
+ drivers/input/touchscreen/ads7846.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 14ea54b..ce5baee 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -952,6 +952,7 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
  
- #define ROCCAT_FIRST_MINOR 0
- #define ROCCAT_MAX_DEVICES 8
-diff --git a/include/linux/hid-roccat.h b/include/linux/hid-roccat.h
-new file mode 100644
-index 0000000..24e1ca0
---- /dev/null
-+++ b/include/linux/hid-roccat.h
-@@ -0,0 +1,29 @@
-+#ifndef __HID_ROCCAT_H
-+#define __HID_ROCCAT_H
-+
-+/*
-+ * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/types.h>
-+
-+#define ROCCATIOCGREPSIZE _IOR('H', 0xf1, int)
-+
-+#ifdef __KERNEL__
-+
-+int roccat_connect(struct class *klass, struct hid_device *hid,
-+		int report_size);
-+void roccat_disconnect(int minor);
-+int roccat_report_event(int minor, u8 const *data);
-+
-+#endif
-+
-+#endif
-diff --git a/include/linux/roccat.h b/include/linux/roccat.h
-deleted file mode 100644
-index 24e1ca0..0000000
---- a/include/linux/roccat.h
-+++ /dev/null
-@@ -1,29 +0,0 @@
--#ifndef __HID_ROCCAT_H
--#define __HID_ROCCAT_H
--
--/*
-- * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/hid.h>
--#include <linux/types.h>
--
--#define ROCCATIOCGREPSIZE _IOR('H', 0xf1, int)
--
--#ifdef __KERNEL__
--
--int roccat_connect(struct class *klass, struct hid_device *hid,
--		int report_size);
--void roccat_disconnect(int minor);
--int roccat_report_event(int minor, u8 const *data);
--
--#endif
--
--#endif
+ 	if (pdata->get_pendown_state) {
+ 		ts->get_pendown_state = pdata->get_pendown_state;
++		ts->gpio_pendown = -EINVAL;
+ 		return 0;
+ 	}
+ 
+@@ -1353,7 +1354,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+  err_put_regulator:
+ 	regulator_put(ts->reg);
+  err_free_gpio:
+-	if (ts->gpio_pendown != -1)
++	if (gpio_is_valid(ts->gpio_pendown))
+ 		gpio_free(ts->gpio_pendown);
+  err_cleanup_filter:
+ 	if (ts->filter_cleanup)
 -- 
-1.7.3.4
-
-
+1.7.0.4
 

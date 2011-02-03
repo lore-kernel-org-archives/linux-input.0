@@ -1,64 +1,224 @@
-From: "Poddar, Sourav" <sourav.poddar@ti.com>
-Subject: Re: [PATCHv2 2/2] Input: ads7846 - configure pendown gpio as input
-Date: Thu, 3 Feb 2011 18:31:24 +0530
-Message-ID: <AANLkTi=m1o2Fsw1OvCmZWJxmok2KCtCZp3F4aM7KmPch@mail.gmail.com>
-References: <1296726530-32199-1-git-send-email-sourav.poddar@ti.com>
-	<20110203095845.GK23561@legolas.emea.dhcp.ti.com>
-	<AANLkTi=J5dJ4N4_57fh0_HKmqfyo6C_tMs3BrnXHWQjq@mail.gmail.com>
+From: Iiro Valkonen <iiro.valkonen@atmel.com>
+Subject: [PATCH 1/5] Remove fixed config data from driver file; add config
+ to platform data
+Date: Thu, 03 Feb 2011 16:01:17 +0200
+Message-ID: <4D4AB52D.4020400@atmel.com>
+References: <4D3DAE3C.6060806@atmel.com> <20110124170756.GB31066@core.coreip.homeip.net> <4D3EA7DD.6000601@atmel.com> <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com> <20110203074318.GA5814@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <AANLkTi=J5dJ4N4_57fh0_HKmqfyo6C_tMs3BrnXHWQjq@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Varadarajan, Charulatha" <charu@ti.com>
-Cc: dmitry.torokhov@gmail.com, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com, linux-input@vger.kernel.org, balbi@ti.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:22266 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756418Ab1BCOBF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Feb 2011 09:01:05 -0500
+In-Reply-To: <20110203074318.GA5814@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Trilok Soni <tsoni@codeaurora.org>, linux-input@vger.kernel.org
 
-On Thu, Feb 3, 2011 at 3:34 PM, Varadarajan, Charulatha <charu@ti.com> =
-wrote:
-> Sourav,
->
-> On Thu, Feb 3, 2011 at 15:28, Felipe Balbi <balbi@ti.com> wrote:
->> On Thu, Feb 03, 2011 at 03:18:50PM +0530, Sourav Poddar wrote:
->>> The ads7846 driver requests a gpio to detect pendown events,
->>> but does not configure its direction. Configure this gpio
->>> as an input after requesting it.
->>>
->>> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
->>> ---
->>> changes between v2 and v1: Added return error support in v2.
->>>
->>> drivers/input/touchscreen/ads7846.c | =A0 =A07 +++++++
->>> 1 files changed, 7 insertions(+), 0 deletions(-)
->>>
->>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/to=
-uchscreen/ads7846.c
->>> index 036f245..f30768b 100644
->>> --- a/drivers/input/touchscreen/ads7846.c
->>> +++ b/drivers/input/touchscreen/ads7846.c
->>> @@ -962,6 +962,13 @@ static int __devinit ads7846_setup_pendown(str=
-uct spi_device *spi, struct ads784
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return err;
->>> =A0 =A0 =A0 }
->>>
->>> + =A0 =A0 err =3D gpio_direction_input(pdata->gpio_pendown);
->>> + =A0 =A0 if (err) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "failed to configure p=
-endown GPIO input direction %d\n",
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->gpio_pendown);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 return err;
->>
->> and now you miss a gpio_free().
->
-> My question to your previous version is still unanswered.
-> Would it be relevant to add gpio_set_debounce() for this
-> gpio?
->
- I was also wondering that.I too think that just a request and then an
- configuring direction would do.But,I am not so sure about this one.
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi Dmitry,
+
+On 02/03/2011 09:43 AM, Dmitry Torokhov wrote:
+> Iiro,
+> 
+> There appear to be several functional changes mixed into one (using
+> previously programmed config; CHG pin handling; matrix size check 
+> suppression, etc). Please split all these logical changes into separate
+> patches - this is a general requirement around here - one logical change
+> per patch.
+> 
+
+Sorry about that, changes are now split.
+
+-- 
+Iiro 
+
+
+Input: qt602240_ts - Remove fixed config data from driver file; add config to platform data
+
+From: Iiro Valkonen <iiro.valkonen@atmel.com>
+
+As there is no common configuration settings that would work in every situation, remove the fixed config data from driver file; and add config data to platform data.
+
+Signed-off-by: Iiro Valkonen <iiro.valkonen@atmel.com>
+---
+ drivers/input/touchscreen/qt602240_ts.c |  136 ++-----------------------------
+ include/linux/i2c/qt602240_ts.h         |    1 +
+ 2 files changed, 7 insertions(+), 130 deletions(-)
+
+diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/touchscreen/qt602240_ts.c
+index c89be42..739d18a 100644
+--- a/drivers/input/touchscreen/qt602240_ts.c
++++ b/drivers/input/touchscreen/qt602240_ts.c
+@@ -199,122 +199,6 @@
+ 
+ #define MXT_MAX_FINGER		10
+ 
+-/* Initial register values recommended from chip vendor */
+-static const u8 init_vals_ver_20[] = {
+-	/* MXT_GEN_COMMAND(6) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_GEN_POWER(7) */
+-	0x20, 0xff, 0x32,
+-	/* MXT_GEN_ACQUIRE(8) */
+-	0x08, 0x05, 0x05, 0x00, 0x00, 0x00, 0x05, 0x14,
+-	/* MXT_TOUCH_MULTI(9) */
+-	0x00, 0x00, 0x00, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x02, 0x00,
+-	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x64,
+-	/* MXT_TOUCH_KEYARRAY(15) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00,
+-	/* MXT_SPT_GPIOPWM(19) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00,
+-	/* MXT_PROCI_GRIPFACE(20) */
+-	0x00, 0x64, 0x64, 0x64, 0x64, 0x00, 0x00, 0x1e, 0x14, 0x04,
+-	0x1e, 0x00,
+-	/* MXT_PROCG_NOISE(22) */
+-	0x05, 0x00, 0x00, 0x19, 0x00, 0xe7, 0xff, 0x04, 0x32, 0x00,
+-	0x01, 0x0a, 0x0f, 0x14, 0x00, 0x00, 0xe8,
+-	/* MXT_TOUCH_PROXIMITY(23) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00,
+-	/* MXT_PROCI_ONETOUCH(24) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_SPT_SELFTEST(25) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00,
+-	/* MXT_PROCI_TWOTOUCH(27) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_SPT_CTECONFIG(28) */
+-	0x00, 0x00, 0x00, 0x04, 0x08,
+-};
+-
+-static const u8 init_vals_ver_21[] = {
+-	/* MXT_GEN_COMMAND(6) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_GEN_POWER(7) */
+-	0x20, 0xff, 0x32,
+-	/* MXT_GEN_ACQUIRE(8) */
+-	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
+-	/* MXT_TOUCH_MULTI(9) */
+-	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
+-	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_TOUCH_KEYARRAY(15) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00,
+-	/* MXT_SPT_GPIOPWM(19) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_PROCI_GRIPFACE(20) */
+-	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
+-	0x0f, 0x0a,
+-	/* MXT_PROCG_NOISE(22) */
+-	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
+-	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
+-	/* MXT_TOUCH_PROXIMITY(23) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00,
+-	/* MXT_PROCI_ONETOUCH(24) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_SPT_SELFTEST(25) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00,
+-	/* MXT_PROCI_TWOTOUCH(27) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_SPT_CTECONFIG(28) */
+-	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
+-};
+-
+-static const u8 init_vals_ver_22[] = {
+-	/* MXT_GEN_COMMAND(6) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_GEN_POWER(7) */
+-	0x20, 0xff, 0x32,
+-	/* MXT_GEN_ACQUIRE(8) */
+-	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
+-	/* MXT_TOUCH_MULTI(9) */
+-	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
+-	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00,
+-	/* MXT_TOUCH_KEYARRAY(15) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00,
+-	/* MXT_SPT_GPIOPWM(19) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_PROCI_GRIPFACE(20) */
+-	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
+-	0x0f, 0x0a,
+-	/* MXT_PROCG_NOISE(22) */
+-	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
+-	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
+-	/* MXT_TOUCH_PROXIMITY(23) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_PROCI_ONETOUCH(24) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_SPT_SELFTEST(25) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	0x00, 0x00, 0x00, 0x00,
+-	/* MXT_PROCI_TWOTOUCH(27) */
+-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+-	/* MXT_SPT_CTECONFIG(28) */
+-	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
+-};
+-
+ struct mxt_info {
+ 	u8 family_id;
+ 	u8 variant_id;
+@@ -714,26 +598,18 @@ end:
+ 
+ static int mxt_check_reg_init(struct mxt_data *data)
+ {
++	const struct mxt_platform_data *pdata = data->pdata;
+ 	struct mxt_object *object;
+ 	struct device *dev = &data->client->dev;
+ 	int index = 0;
+ 	int i, j;
+-	u8 version = data->info.version;
+ 	u8 *init_vals;
+ 
+-	switch (version) {
+-	case MXT_VER_20:
+-		init_vals = (u8 *)init_vals_ver_20;
+-		break;
+-	case MXT_VER_21:
+-		init_vals = (u8 *)init_vals_ver_21;
+-		break;
+-	case MXT_VER_22:
+-		init_vals = (u8 *)init_vals_ver_22;
+-		break;
+-	default:
+-		dev_err(dev, "Firmware version %d doesn't support\n", version);
+-		return -EINVAL;
++	if (pdata->config) {
++		init_vals = (u8 *)pdata->config;
++	} else {
++		dev_err(dev, "No cfg data defined, skipping reg init\n");
++		return 0;
+ 	}
+ 
+ 	for (i = 0; i < data->info.object_num; i++) {
+diff --git a/include/linux/i2c/qt602240_ts.h b/include/linux/i2c/qt602240_ts.h
+index 0b4c72f..130f8bc 100644
+--- a/include/linux/i2c/qt602240_ts.h
++++ b/include/linux/i2c/qt602240_ts.h
+@@ -33,6 +33,7 @@ struct mxt_platform_data {
+ 	unsigned int threshold;
+ 	unsigned int voltage;
+ 	unsigned char orient;
++	unsigned char *config;
+ };
+ 
+ #endif /* __LINUX_MAXTOUCH_TS_H */
+-- 
+1.7.0.4

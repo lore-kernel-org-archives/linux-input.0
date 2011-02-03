@@ -1,79 +1,60 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCHv2 2/2] Input: ads7846 - configure pendown gpio as input
-Date: Thu, 3 Feb 2011 11:10:33 +0100
-Message-ID: <20110203100528.GA6508@pengutronix.de>
-References: <1296726530-32199-1-git-send-email-sourav.poddar@ti.com>
- <20110203095845.GK23561@legolas.emea.dhcp.ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 5/8] HID: roccat: Added ioctl command to retreive report
+ size from chardev
+Date: Thu, 3 Feb 2011 11:17:24 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102031116100.2160@pobox.suse.cz>
+References: <1296391105.2283.184.camel@neuromancer>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:40472 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756048Ab1BCKKj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Feb 2011 05:10:39 -0500
-Content-Disposition: inline
-In-Reply-To: <20110203095845.GK23561@legolas.emea.dhcp.ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1296391105.2283.184.camel@neuromancer>
+Sender: linux-doc-owner@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hverkuil@xs4all.nl>, Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Thomas Weber <weber@corscience.de>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Sourav Poddar <sourav.poddar@ti.com>, dmitry.torokhov@gmail.com, charu@ti.com, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
 
+On Sun, 30 Jan 2011, Stefan Achatz wrote:
 
---cmJC7u66zC7hs+87
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> diff --git a/include/linux/roccat.h b/include/linux/roccat.h
+> new file mode 100644
+> index 0000000..24e1ca0
+> --- /dev/null
+> +++ b/include/linux/roccat.h
+> @@ -0,0 +1,29 @@
+> +#ifndef __HID_ROCCAT_H
+> +#define __HID_ROCCAT_H
+> +
+> +/*
+> + * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
+> +
+> +#include <linux/hid.h>
+> +#include <linux/types.h>
+> +
+> +#define ROCCATIOCGREPSIZE _IOR('H', 0xf1, int)
+> +
+> +#ifdef __KERNEL__
+> +
+> +int roccat_connect(struct class *klass, struct hid_device *hid,
+> +		int report_size);
+> +void roccat_disconnect(int minor);
+> +int roccat_report_event(int minor, u8 const *data);
+> +
+> +#endif
+> +
+> +#endif
 
-On Thu, Feb 03, 2011 at 11:58:45AM +0200, Felipe Balbi wrote:
-> On Thu, Feb 03, 2011 at 03:18:50PM +0530, Sourav Poddar wrote:
-> > The ads7846 driver requests a gpio to detect pendown events,
-> > but does not configure its direction. Configure this gpio
-> > as an input after requesting it.
-> >=20
-> > Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> > ---
-> > changes between v2 and v1: Added return error support in v2.=20
-> > =20
-> > drivers/input/touchscreen/ads7846.c |    7 +++++++
-> > 1 files changed, 7 insertions(+), 0 deletions(-)
-> >=20
-> > diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchs=
-creen/ads7846.c
-> > index 036f245..f30768b 100644
-> > --- a/drivers/input/touchscreen/ads7846.c
-> > +++ b/drivers/input/touchscreen/ads7846.c
-> > @@ -962,6 +962,13 @@ static int __devinit ads7846_setup_pendown(struct =
-spi_device *spi, struct ads784
-> >  		return err;
-> >  	}
-> > =20
-> > +	err =3D gpio_direction_input(pdata->gpio_pendown);
-> > +	if (err) {
-> > +		dev_err(&spi->dev, "failed to configure pendown GPIO input direction=
- %d\n",
-> > +			pdata->gpio_pendown);
-> > +		return err;
->=20
-> and now you miss a gpio_free().
+I think something like include/linux/hid-roccat.h would be better here.
 
-Better use gpio_request_one()?
+Thanks,
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---cmJC7u66zC7hs+87
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEUEARECAAYFAk1KfxkACgkQD27XaX1/VRtQUwCfSwaOdhF/I8/+fQebPvrGnFNJ
-vsEAlR/etvSdcf/IlV4SPVOkjAkNnPc=
-=oByj
------END PGP SIGNATURE-----
-
---cmJC7u66zC7hs+87--
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

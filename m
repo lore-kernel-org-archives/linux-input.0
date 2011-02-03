@@ -1,45 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input: Modify the qt602240 driver to be compatible
- with mXT1386 device - functional changes
-Date: Wed, 2 Feb 2011 23:43:19 -0800
-Message-ID: <20110203074318.GA5814@core.coreip.homeip.net>
-References: <4D3DAE3C.6060806@atmel.com>
- <20110124170756.GB31066@core.coreip.homeip.net>
- <4D3EA7DD.6000601@atmel.com>
- <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 12/19] twl4030: mfd_cell is now implicitly
+ available to drivers
+Date: Thu, 3 Feb 2011 09:31:54 +0000
+Message-ID: <20110203093154.GC21591@opensource.wolfsonmicro.com>
+References: <20110202195417.228e2656@queued.net>
+	<20110202201522.72d37f1e@queued.net>
+	<20110203060521.GA25739@core.coreip.homeip.net>
+	<20110202223959.244b4a01@queued.net>
+	<20110203065339.GA5592@core.coreip.homeip.net>
+	<20110202230326.167fe873@queued.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:47286 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752460Ab1BCHnZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Feb 2011 02:43:25 -0500
-Received: by pxi15 with SMTP id 15so164303pxi.19
-        for <linux-input@vger.kernel.org>; Wed, 02 Feb 2011 23:43:25 -0800 (PST)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
 Content-Disposition: inline
-In-Reply-To: <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20110202230326.167fe873@queued.net>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Andres Salomon <dilinger@queued.net>
+Cc: alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Ujfalusi <peter.ujfalusi@nokia.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Timur Tabi <timur@freescale.com>, Liam Girdwood <lrg@slimlogic.co.uk>
 List-Id: linux-input@vger.kernel.org
-To: "Valkonen, Iiro" <iiro.valkonen@atmel.com>
-Cc: Trilok Soni <tsoni@codeaurora.org>, linux-input@vger.kernel.org, jy0922.shim@samsung.com
 
-On Tue, Feb 01, 2011 at 08:53:02AM -0000, Valkonen, Iiro wrote:
-> Input: qt602240_ts - functional changes to support mXT1386
-> 
-> From: Iiro Valkonen (iiro.valkonen@atmel.com)
-> 
-> Functional changes to qt602240_ts to support mXT1386 device.
-> 
+On Wed, Feb 02, 2011 at 11:03:26PM -0800, Andres Salomon wrote:
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Iiro,
+> > Then they are doing it incorrectly. One possible way is to have parent
+> > device carry relevant data in its drvdata and have children get it
+> > from there.
 
-There appear to be several functional changes mixed into one (using
-previously programmed config; CHG pin handling; matrix size check 
-suppression, etc). Please split all these logical changes into separate
-patches - this is a general requirement around here - one logical change
-per patch.
+> I believe some drivers are even using the parent device already.  See
+> drivers/leds/leds-mc13783.c, for example, whose parent device drvdata
+> is used to pass around a struct mc13783 to its children.  Sounds
+> like a possibility, will need to look into it further.
 
-Thank you.
-
--- 
-Dmitry
+That's the current best practice approach.

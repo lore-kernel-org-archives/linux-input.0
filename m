@@ -1,56 +1,46 @@
-From: "G, Manjunath Kondaiah" <manjugk@ti.com>
-Subject: Re: [PATCH v3 2/2] Input: ads7846: use gpio_request_one to
- configure pendown_gpio
-Date: Fri, 4 Feb 2011 19:46:18 +0530
-Message-ID: <20110204141618.GE2070@m-desktop>
-References: <1296746506-12221-1-git-send-email-sourav.poddar@ti.com>
- <20110203165405.GB12802@core.coreip.homeip.net>
- <20110203171953.GA13997@core.coreip.homeip.net>
- <20110204133250.GB2070@m-desktop>
- <20110204140847.GA3178@pengutronix.de>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 5/5] Add chip I2C addresses to header file
+Date: Fri, 4 Feb 2011 14:25:36 +0000
+Message-ID: <20110204142536.GC5393@opensource.wolfsonmicro.com>
+References: <4D3DAE3C.6060806@atmel.com>
+ <20110124170756.GB31066@core.coreip.homeip.net>
+ <4D3EA7DD.6000601@atmel.com>
+ <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com>
+ <20110203074318.GA5814@core.coreip.homeip.net>
+ <4D4AB7F5.3070704@atmel.com>
+ <20110203144946.GA21568@sirena.org.uk>
+ <4D4BBAD7.8060300@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog102.obsmtp.com ([74.125.149.69]:37970 "EHLO
-	na3sys009aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751942Ab1BDORV (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:49095 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752267Ab1BDOZS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Feb 2011 09:17:21 -0500
+	Fri, 4 Feb 2011 09:25:18 -0500
 Content-Disposition: inline
-In-Reply-To: <20110204140847.GA3178@pengutronix.de>
+In-Reply-To: <4D4BBAD7.8060300@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: "G, Manjunath Kondaiah" <manjugk@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, balbi@ti.com, charu@ti.com, grinberg@compulab.co.il, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, linux-omap@vger.kernel.org, LW@karo-electronics.de, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
+To: Iiro Valkonen <iiro.valkonen@atmel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <tsoni@codeaurora.org>, linux-input@vger.kernel.org
 
-On Fri, Feb 04, 2011 at 03:08:47PM +0100, Wolfram Sang wrote:
-> On Fri, Feb 04, 2011 at 07:02:50PM +0530, G, Manjunath Kondaiah wrote:
-> > On Thu, Feb 03, 2011 at 09:19:53AM -0800, Dmitry Torokhov wrote:
-> > > On Thu, Feb 03, 2011 at 08:54:05AM -0800, Dmitry Torokhov wrote:
-> > > > On Thu, Feb 03, 2011 at 08:51:46PM +0530, Sourav Poddar wrote:
-> > > > > The ads7846 driver requests a gpio but does not currently
-> > > > > configure it explicitly as an input. Use gpio_request_one
-> > > > > to request and configure it at one shot.
-> > > > > 
-> > > > > Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-> > > > > Cc: Dmitry Torokhov <dtor@mail.ru>
-> > > > 
-> > > > Will apply this one, the other one is a bit messy IMO, will have to
-> > > > think about it.
-> > > > 
-> > > 
-> > > Something like below should do I think.
-> > Patch looks good but it applies only on top of previous patch:
-> > https://patchwork.kernel.org/patch/529941/
-> > 
-> > Why to have two patches for this fix?
-> 
-> http://www.spinics.net/lists/linux-omap/msg45167.html
-My point here is: 
-1. The first patch only replaces gpio_request with gpio_request_one
-2. Rest of the things are handled in 2nd patch posted by dmitry
+On Fri, Feb 04, 2011 at 10:37:43AM +0200, Iiro Valkonen wrote:
 
-What is harm in merging both the patches? I don't think it affects
-readability.
+Please fix your mail client to word wrap within paragraphs, I've
+reflowed your text for legibility.
 
--Manjunath
+> To help lazy developers, they don't have to dig up the datasheet to
+> see what address their chip is at? Well, I guess they might have to do
+> that anyway to see what address out of these is selected with the
+> address select pin. I thought it would be neat to have all the
+> possible addresses listed here, and the developer could pick the
+> correct one for his/her board file. Or in the case where he is not
+> sure about the state of the address select pin, maybe even try them
+> all. 
+
+If you're going to do this a comment in the driver describing what
+addresses correspond to which device configurations - having it as a
+bunch of #defines in the code is less discoverable and still requires
+users to look up in the datasheet to see which address the device
+actually has.

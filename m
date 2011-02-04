@@ -1,86 +1,199 @@
-From: Walter Goossens <waltergoossens@home.nl>
-Subject: Re: [PATCH v2] altera_ps2: Add devicetree support
-Date: Fri, 04 Feb 2011 00:02:28 +0100
-Message-ID: <4D4B3404.8010704@home.nl>
-References: <20110117220415.GB17963@angua.secretlab.ca> <1295848693-28472-1-git-send-email-thomas@wytron.com.tw> <20110202043121.GF29148@angua.secretlab.ca> <4D4944AA.5040900@wytron.com.tw> <20110202153959.GD20275@angua.secretlab.ca> <4D4B2BC9.1030000@home.nl> <4D4B31FF.6070509@firmworks.com>
+From: "Varadarajan, Charulatha" <charu@ti.com>
+Subject: Re: [PATCH v3 2/2] Input: ads7846: use gpio_request_one to configure pendown_gpio
+Date: Fri, 4 Feb 2011 13:35:10 +0530
+Message-ID: <AANLkTi=oYC8gbXrKodXvjdV-NHLCjM6Oz79Oob+MrP_8@mail.gmail.com>
+References: <1296746506-12221-1-git-send-email-sourav.poddar@ti.com>
+ <20110203165405.GB12802@core.coreip.homeip.net> <20110203171953.GA13997@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpq2.tb.mail.iss.as9143.net ([212.54.42.165]:40763 "EHLO
-	smtpq2.tb.mail.iss.as9143.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751200Ab1BCXCe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Feb 2011 18:02:34 -0500
-In-Reply-To: <4D4B31FF.6070509@firmworks.com>
+Received: from na3sys009aog109.obsmtp.com ([74.125.149.201]:45776 "EHLO
+	na3sys009aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752197Ab1BDIFv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Feb 2011 03:05:51 -0500
+In-Reply-To: <20110203171953.GA13997@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mitch Bradley <wmb@firmworks.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, nios2-dev@sopc.et.ntust.edu.tw, devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sourav Poddar <sourav.poddar@ti.com>, LW@karo-electronics.de, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, gadiyar@ti.com, grinberg@compulab.co.il, balbi@ti.com
 
-On 2/3/11 11:53 PM, Mitch Bradley wrote:
-> On 2/3/2011 12:27 PM, Walter Goossens wrote:
->> On 2/2/11 4:39 PM, Grant Likely wrote:
->>> On Wed, Feb 02, 2011 at 07:48:58PM +0800, Thomas Chou wrote:
->>>> On 02/02/2011 12:31 PM, Grant Likely wrote:
->>>>>> +static const struct of_device_id altera_ps2_match[] = {
->>>>>> + { .compatible = "altr,ps2-1.0", },
->>>>> I thought I had seen 'altera' instead of an abbreviation being 
->>>>> used in
->>>>> a previous patch. I don't care much whether 'altr' or 'altera' is
->>>>> used, but I'd like to know that there is consensus from the Altera
->>>>> users so that all the drivers use the same prefix.
->>>>>
->>>> We had discussed on nios2-dev mailing list, and decided to use
->>>> 'altr' as Walter suggested that it saves space.
->>> Is altr the stock ticker symbol? The convention is to either use the
->>> stock ticker in all uppercase (although the uppercase bit hasn't been
->>> consistently applied), or to use the full name in lowercase.
->>>
->>> g.
->>>
->>>
->> Risking my limbs here by breaking in this late in the discussion... (I
->> wasn't able to reply earlier) but where does it state it needs to be
->> uppercase? I found a bunch of microblaze code which seems to use the
->> lowercase xlnx and freescale seems happy with fsl. Unless I'm missing
->> something obvious here I guess ALTR would actually be the first to use
->> uppercase.
->> The only reference to uppercase I found in the ePAPR docs was chapter
->> 1.6 that talks about uppercase hex-characters as an OUI.
->> Not that I terribly mind either way, but I want to double-check before
->> we go ahead and change all altera-related devicetree stuff to uppercase.
+On Thu, Feb 3, 2011 at 22:49, Dmitry Torokhov <dmitry.torokhov@gmail.co=
+m> wrote:
+> On Thu, Feb 03, 2011 at 08:54:05AM -0800, Dmitry Torokhov wrote:
+>> On Thu, Feb 03, 2011 at 08:51:46PM +0530, Sourav Poddar wrote:
+>> > The ads7846 driver requests a gpio but does not currently
+>> > configure it explicitly as an input. Use gpio_request_one
+>> > to request and configure it at one shot.
+>> >
+>> > Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+>> > Cc: Dmitry Torokhov <dtor@mail.ru>
+>>
+>> Will apply this one, the other one is a bit messy IMO, will have to
+>> think about it.
+>>
+>
+> Something like below should do I think.
+>
+> --
+> Dmitry
 >
 >
-> The relevant text in IEEE 1275-1994 is in the description of the 
-> "name" property in Annex A.  If a node name begins with a sequence of 
-> from one to five uppercase letters followed by a comma, that means a 
-> stock symbol on some exchange whose names do not conflict with NYSE or 
-> NASDAQ.
+> Input: ads7846 - check proper condition when freeing gpio
 >
-> A lower-case prefix is okay, but it does not necessarily mean that it 
-> is a ticker symbol.  So in some sense, a lower case prefix provides 
-> less protection against collisions than an upper case prefix, which 
-> comes from an externally-arbitrated name space.  Case is explicitly 
-> significant in node names.
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 >
-> In practice, the important thing is that names must not conflict.  
-> Name collisions haven't been much of a problem so far.
+> When driver uses custom pendown detection method gpio_pendown is not
+> set up and so we should not try to free it, otherwise we are presente=
+d
+> with:
 >
-Excellent!
-Must have missed that one. Good reason. We'll change 'm!
+> ------------[ cut here ]------------
+> WARNING: at drivers/gpio/gpiolib.c:1258 gpio_free+0x100/0x12c()
+> Modules linked in:
+> [<c0061208>] (unwind_backtrace+0x0/0xe4) from [<c0091f58>](warn_slowp=
+ath_common+0x4c/0x64)
+> [<c0091f58>] (warn_slowpath_common+0x4c/0x64) from [<c0091f88>](warn_=
+slowpath_null+0x18/0x1c)
+> [<c0091f88>] (warn_slowpath_null+0x18/0x1c) from [<c024e610>](gpio_fr=
+ee+0x100/0x12c)
+> [<c024e610>] (gpio_free+0x100/0x12c) from [<c03e9fbc>](ads7846_probe+=
+0xa38/0xc5c)
+> [<c03e9fbc>] (ads7846_probe+0xa38/0xc5c) from [<c02cff14>](spi_drv_pr=
+obe+0x18/0x1c)
+> [<c02cff14>] (spi_drv_probe+0x18/0x1c) from [<c028bca4>](driver_probe=
+_device+0xc8/0x184)
+> [<c028bca4>] (driver_probe_device+0xc8/0x184) from [<c028bdc8>](__dri=
+ver_attach+0x68/0x8c)
+> [<c028bdc8>] (__driver_attach+0x68/0x8c) from [<c028b4c8>](bus_for_ea=
+ch_dev+0x48/0x74)
+> [<c028b4c8>] (bus_for_each_dev+0x48/0x74) from [<c028ae08>](bus_add_d=
+river+0xa0/0x220)
+> [<c028ae08>] (bus_add_driver+0xa0/0x220) from [<c028c0c0>](driver_reg=
+ister+0xa8/0x134)
+> [<c028c0c0>] (driver_register+0xa8/0x134) from [<c0050550>](do_one_in=
+itcall+0xcc/0x1a4)
+> [<c0050550>] (do_one_initcall+0xcc/0x1a4) from [<c00084e4>](kernel_in=
+it+0x14c/0x214)
+> [<c00084e4>] (kernel_init+0x14c/0x214) from [<c005b494>](kernel_threa=
+d_exit+0x0/0x8)
+> ---[ end trace 4053287f8a5ec18f ]---
+>
+> Also rearrange ads7846_setup_pendown() to have only one exit point
+> returning success.
+>
+> Reported-by: Sourav Poddar <sourav.poddar@ti.com>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-Thanks
-Walter
->>
->> Greetz
->> Walter
->>
->>
->> _______________________________________________
->> devicetree-discuss mailing list
->> devicetree-discuss@lists.ozlabs.org
->> https://lists.ozlabs.org/listinfo/devicetree-discuss
->>
->
+Reviewed-by: Charulatha V <charu@ti.com>
 
+> ---
+>
+> =A0drivers/input/touchscreen/ads7846.c | =A0 39 ++++++++++++++++++++-=
+--------------
+> =A01 files changed, 22 insertions(+), 17 deletions(-)
+>
+>
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touc=
+hscreen/ads7846.c
+> index 0e9492d..b1217e1 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -946,30 +946,30 @@ static int __devinit ads7846_setup_pendown(stru=
+ct spi_device *spi, struct ads784
+> =A0 =A0 =A0 =A0struct ads7846_platform_data *pdata =3D spi->dev.platf=
+orm_data;
+> =A0 =A0 =A0 =A0int err;
+>
+> - =A0 =A0 =A0 /* REVISIT when the irq can be triggered active-low, or=
+ if for some
+> + =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0* REVISIT when the irq can be triggered active-low, =
+or if for some
+> =A0 =A0 =A0 =A0 * reason the touchscreen isn't hooked up, we don't ne=
+ed to access
+> =A0 =A0 =A0 =A0 * the pendown state.
+> =A0 =A0 =A0 =A0 */
+> - =A0 =A0 =A0 if (!pdata->get_pendown_state && !gpio_is_valid(pdata->=
+gpio_pendown)) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "no get_pendown_stat=
+e nor gpio_pendown?\n");
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> - =A0 =A0 =A0 }
+>
+> =A0 =A0 =A0 =A0if (pdata->get_pendown_state) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ts->get_pendown_state =3D pdata->get_p=
+endown_state;
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> - =A0 =A0 =A0 }
+> + =A0 =A0 =A0 } else if (gpio_is_valid(pdata->gpio_pendown)) {
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D gpio_request_one(pdata->gpio_pe=
+ndown, GPIOF_DIR_IN,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "ads7846_pendown");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (err) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "fai=
+led to request pendown GPIO%d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->=
+gpio_pendown);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return err;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>
+> - =A0 =A0 =A0 err =3D gpio_request_one(pdata->gpio_pendown, GPIOF_DIR=
+_IN,
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "ads7846_pendown");
+> - =A0 =A0 =A0 if (err) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "failed to request p=
+endown GPIO%d\n",
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->gpio_pendown);
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return err;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->gpio_pendown =3D pdata->gpio_pendow=
+n;
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&spi->dev, "no get_pendown_stat=
+e nor gpio_pendown?\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 ts->gpio_pendown =3D pdata->gpio_pendown;
+> -
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
+>
+> @@ -1359,7 +1359,7 @@ static int __devinit ads7846_probe(struct spi_d=
+evice *spi)
+> =A0err_put_regulator:
+> =A0 =A0 =A0 =A0regulator_put(ts->reg);
+> =A0err_free_gpio:
+> - =A0 =A0 =A0 if (ts->gpio_pendown !=3D -1)
+> + =A0 =A0 =A0 if (!ts->get_pendown_state)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0gpio_free(ts->gpio_pendown);
+> =A0err_cleanup_filter:
+> =A0 =A0 =A0 =A0if (ts->filter_cleanup)
+> @@ -1389,8 +1389,13 @@ static int __devexit ads7846_remove(struct spi=
+_device *spi)
+> =A0 =A0 =A0 =A0regulator_disable(ts->reg);
+> =A0 =A0 =A0 =A0regulator_put(ts->reg);
+>
+> - =A0 =A0 =A0 if (ts->gpio_pendown !=3D -1)
+> + =A0 =A0 =A0 if (!ts->get_pendown_state) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* If we are not using specialized pe=
+ndown method we must
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* have been relying on gpio we set u=
+p ourselves.
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0gpio_free(ts->gpio_pendown);
+> + =A0 =A0 =A0 }
+>
+> =A0 =A0 =A0 =A0if (ts->filter_cleanup)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ts->filter_cleanup(ts->filter_data);
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

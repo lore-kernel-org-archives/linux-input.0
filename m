@@ -1,80 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/2] Input: ads7846: use gpio_request_one to configure
- pendown_gpio
-Date: Fri, 4 Feb 2011 08:09:12 -0800
-Message-ID: <20110204160912.GA11723@core.coreip.homeip.net>
-References: <1296746506-12221-1-git-send-email-sourav.poddar@ti.com>
- <20110203165405.GB12802@core.coreip.homeip.net>
- <20110203171953.GA13997@core.coreip.homeip.net>
- <20110204133250.GB2070@m-desktop>
- <20110204140847.GA3178@pengutronix.de>
- <20110204141618.GE2070@m-desktop>
- <4D4C116D.4080408@compulab.co.il>
- <20110204151532.GF2070@m-desktop>
- <4D4C1D39.5080208@compulab.co.il>
+Subject: Re: [PATCHv2] evdev: fix evdev_write return value on partial writes
+Date: Fri, 4 Feb 2011 09:15:19 -0800
+Message-ID: <20110204171519.GA14000@core.coreip.homeip.net>
+References: <20110127110255.GA15159@polaris.bitmath.org>
+ <871v3ysibp.fsf@macbook.be.48ers.dk>
+ <20110127114727.GA15626@polaris.bitmath.org>
+ <87pqrir1r2.fsf@macbook.be.48ers.dk>
+ <20110127122625.GD15626@polaris.bitmath.org>
+ <87lj26qzyy.fsf@macbook.be.48ers.dk>
+ <20110204084652.GB13046@core.coreip.homeip.net>
+ <20110204102405.GA1567@polaris.bitmath.org>
+ <877hdgrrn7.fsf@macbook.be.48ers.dk>
+ <20110204112314.GA1501@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:53871 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:33868 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752992Ab1BDQJU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Feb 2011 11:09:20 -0500
+	with ESMTP id S1752511Ab1BDRPa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Feb 2011 12:15:30 -0500
+Received: by iwn9 with SMTP id 9so2360169iwn.19
+        for <linux-input@vger.kernel.org>; Fri, 04 Feb 2011 09:15:30 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <4D4C1D39.5080208@compulab.co.il>
+In-Reply-To: <20110204112314.GA1501@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Igor Grinberg <grinberg@compulab.co.il>
-Cc: "G, Manjunath Kondaiah" <manjugk@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, balbi@ti.com, charu@ti.com, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, linux-omap@vger.kernel.org, LW@karo-electronics.de, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-input@vger.kernel.org, baruch@tkos.co.il
 
-Hi,
-
-On Fri, Feb 04, 2011 at 05:37:29PM +0200, Igor Grinberg wrote:
-> Hi,
+On Fri, Feb 04, 2011 at 12:23:14PM +0100, Henrik Rydberg wrote:
+> >  Henrik> The code below will return -EINVAL even if some parts of the buffer
+> >  Henrik> was successfully read, though.
+> > 
+> > You mean written? I don't see that. The only place we return -EINVAL is
+> > at the initial check.
 > 
-> On 02/04/11 17:15, G, Manjunath Kondaiah wrote:
+> Right, it should have been written, and -EFAULT, referring to the code
+> in the loop.
 > 
-> > On Fri, Feb 04, 2011 at 04:47:09PM +0200, Igor Grinberg wrote:
-> >> On 02/04/11 16:16, G, Manjunath Kondaiah wrote:
-> >>> On Fri, Feb 04, 2011 at 03:08:47PM +0100, Wolfram Sang wrote:
-> >>>> On Fri, Feb 04, 2011 at 07:02:50PM +0530, G, Manjunath Kondaiah wrote:
-> >>>>> On Thu, Feb 03, 2011 at 09:19:53AM -0800, Dmitry Torokhov wrote:
-> >>>>>> Something like below should do I think.
-> >>>>> Patch looks good but it applies only on top of previous patch:
-> >>>>> https://patchwork.kernel.org/patch/529941/
-> >>>>>
-> >>>>> Why to have two patches for this fix?
-> >>>> http://www.spinics.net/lists/linux-omap/msg45167.html
-> >>> My point here is: 
-> >>> 1. The first patch only replaces gpio_request with gpio_request_one
-> >>> 2. Rest of the things are handled in 2nd patch posted by dmitry
-> >>>
-> >>> What is harm in merging both the patches? I don't think it affects
-> >>> readability.
 
-I kept 2 patches because they solve 2 different problems.
-
-> >> Because the changes introduced by the patches are from different nature.
-> >> As stated in the link above, one is a functional change (gpio setup change)
-> >> and second is fixing the imbalance in request - free calls.
-> >> The impact is not readability, but bad bisect-ability.
-> > ok. But the patch2(dmitry's patch) is doing more than what it is mentioned in
-> > patch description. It checks for validity of gpio, comment correction
-> > etc which needs to be updated in the patch description.
-
-I am pretty sure I expanded on the scope of the change in the body of the
-changelog.
-
-> 
-> gpio validity is a part of request - free balance fix, comment change is
-> just a coding style fix - really minor.
-> 
-> Personally, I think Dmitry's description of the patch is just fine,
-> but if you insist on making it somehow better, then suggest it to Dmitry.
-
-The both patches are already in my public branch so patch description is
-set.
-
-Thanks.
+If we faulted somewhere midway the only sane thing it to treat the whole
+request as suspect and return -EFAULT. We really do not know what
+happened to the other data (it could have gone past the buffer user
+intended but haven't triggered the fault yet. We can't fully recover
+either since we aleady retrievend the event that caused fault.
 
 -- 
 Dmitry

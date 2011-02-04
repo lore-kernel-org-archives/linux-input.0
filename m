@@ -1,98 +1,59 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 12/19] twl4030: mfd_cell is now implicitly available to
- drivers
-Date: Fri, 4 Feb 2011 11:41:59 +0100
-Message-ID: <20110204104159.GA18714@pengutronix.de>
-References: <20110202195417.228e2656@queued.net>
- <20110202201522.72d37f1e@queued.net>
- <20110203060521.GA25739@core.coreip.homeip.net>
- <20110202223959.244b4a01@queued.net>
- <20110203065339.GA5592@core.coreip.homeip.net>
- <20110202230326.167fe873@queued.net>
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Subject: Re: [PATCHv2] evdev: fix evdev_write return value on partial writes
+Date: Fri, 04 Feb 2011 12:00:28 +0100
+Message-ID: <877hdgrrn7.fsf@macbook.be.48ers.dk>
+References: <1296122607-9526-1-git-send-email-jacmet@sunsite.dk>
+	<20110127110255.GA15159@polaris.bitmath.org>
+	<871v3ysibp.fsf@macbook.be.48ers.dk>
+	<20110127114727.GA15626@polaris.bitmath.org>
+	<87pqrir1r2.fsf@macbook.be.48ers.dk>
+	<20110127122625.GD15626@polaris.bitmath.org>
+	<87lj26qzyy.fsf@macbook.be.48ers.dk>
+	<20110204084652.GB13046@core.coreip.homeip.net>
+	<20110204102405.GA1567@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110202230326.167fe873@queued.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andres Salomon <dilinger@queued.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, alsa-devel@alsa-project.org, Samuel Ortiz <sameo@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, Brown <broonie@opensource.wolfsonmicro.com>, Peter Ujfalusi <peter.ujfalusi@nokia.com>, linux-kernel@vger.kernel.org, Mark@alsa-project.org, Jaroslav@alsa-project.org, linux-input@vger.kernel.org, Timur Tabi <timur@freescale.com>, Liam Girdwood <lrg@slimlogic.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:50077 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751009Ab1BDLAi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Feb 2011 06:00:38 -0500
+Received: by wyb28 with SMTP id 28so2117649wyb.19
+        for <linux-input@vger.kernel.org>; Fri, 04 Feb 2011 03:00:36 -0800 (PST)
+In-Reply-To: <20110204102405.GA1567@polaris.bitmath.org> (Henrik Rydberg's
+	message of "Fri, 4 Feb 2011 11:24:05 +0100")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, baruch@tkos.co.il
 
-Hello Andres,
+>>>>> "Henrik" == Henrik Rydberg <rydberg@euromail.se> writes:
 
-On Wed, Feb 02, 2011 at 11:03:26PM -0800, Andres Salomon wrote:
-> On Wed, 2 Feb 2011 22:53:39 -0800
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->=20
-> > On Wed, Feb 02, 2011 at 10:39:59PM -0800, Andres Salomon wrote:
-> > > On Wed, 2 Feb 2011 22:05:21 -0800
-> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > >=20
-> > > > On Wed, Feb 02, 2011 at 08:15:22PM -0800, Andres Salomon wrote:
-> > > > >  static int __devinit twl4030_vibra_probe(struct platform_dev=
-ice
-> > > > > *pdev) {
-> > > > > -	struct twl4030_codec_vibra_data *pdata =3D
-> > > > > pdev->dev.platform_data;
-> > > > > +	struct twl4030_codec_vibra_data *pdata =3D
-> > > > > platform_get_drvdata(pdev);
-> > > >=20
-> > > > No, device's drvdata belongs to _this_ driver, and it is suppos=
-ed
-> > > > to manage it and use as it sees fit.
-> > >=20
-> > > Right, so it's used to pass data to the probe function; once the
-> > > probe function has obtained the pdata pointer, it's free to do wi=
-th
-> > > it what it will.
-> > >=20
-> > >=20
-> > > >=20
-> > > > Note platform_set_drvdata(pdev, info) later in this function al=
-ong
-> > > > with platform_set_drvdata(pdev, NULL) in twl4030_vibra_remove()=
-,
-> > > > which means that with your change you will be able to bind the
-> > > > device only once.
-> > > >=20
-> > >=20
-> > > Hm, good point; if the driver is reloaded, the pdev that was
-> > > created by mfd-core will have lost the pointer to pdata.
-> > >=20
-> > > I wonder if I should be using mfd's driver_data instead. I used
-> > > platform_data because a bunch of drivers had already made use of =
-it
-> > > to pass cell information..
-> >=20
-> > Then they are doing it incorrectly. One possible way is to have par=
-ent
-> > device carry relevant data in its drvdata and have children get it
-> > from there.
-> >=20
->=20
-> I believe some drivers are even using the parent device already.  See
-> drivers/leds/leds-mc13783.c, for example, whose parent device drvdata
-> is used to pass around a struct mc13783 to its children.  Sounds
-> like a possibility, will need to look into it further.
-IMHO this isn't optimal done.  The led driver somehow needs access to a
-struct mc13xxx because that one defines how to change the led-related
-registers.
+Hi,
 
-If you ask me, the most clean solution would be that the functions like
-mc13xxx_lock and mc13xxx_reg_rmw wouldn't take a struct mc13xxx * as
-first parameter but a struct device *.  Because in fact it's not the le=
-d
-driver's business what the mfd driver stores in his driver data.
+ >> I think that returning -EINVAL is good idea, so I am going to apply it.
+ >> I also think we can change this loop to do-while kind since we already
+ >> checked there enough space for an event.
 
-(Note, I said clean, neither easy nor effective nor best.)
+ Henrik> The code below will return -EINVAL even if some parts of the buffer
+ Henrik> was successfully read, though.
 
-Uwe
+You mean written? I don't see that. The only place we return -EINVAL is
+at the initial check.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+ >> --- a/drivers/input/evdev.c
+ >> +++ b/drivers/input/evdev.c
+ >> @@ -321,6 +321,9 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ >> struct input_event event;
+ >> int retval;
+
+ Henrik> Alternatively,
+
+ Henrik> size_t num_written = 0;
+ Henrik> int ret = 0;
+
+Any reason for this bigger change? It's imho pretty clear as is. I don't
+see any functional change from your version.
+
+-- 
+Bye, Peter Korsgaard

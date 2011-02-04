@@ -1,30 +1,71 @@
-From: "G, Manjunath Kondaiah" <manjugk@ti.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
 Subject: Re: [PATCH v3 2/2] Input: ads7846: use gpio_request_one to
  configure pendown_gpio
-Date: Fri, 4 Feb 2011 19:11:34 +0530
-Message-ID: <20110204134134.GC2070@m-desktop>
+Date: Fri, 4 Feb 2011 15:08:47 +0100
+Message-ID: <20110204140847.GA3178@pengutronix.de>
 References: <1296746506-12221-1-git-send-email-sourav.poddar@ti.com>
  <20110203165405.GB12802@core.coreip.homeip.net>
  <20110203171953.GA13997@core.coreip.homeip.net>
  <20110204133250.GB2070@m-desktop>
- <AANLkTimynBC=0EiC1VOboqgYRC_swXnOB+EAm5aQwSmv@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:44820 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751857Ab1BDOI4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Feb 2011 09:08:56 -0500
 Content-Disposition: inline
-In-Reply-To: <AANLkTimynBC=0EiC1VOboqgYRC_swXnOB+EAm5aQwSmv@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Kishore Kadiyala <kishorek.kadiyala@gmail.com>
-Cc: "G, Manjunath Kondaiah" <manjugk@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sourav Poddar <sourav.poddar@ti.com>, LW@karo-electronics.de, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, gadiyar@ti.com, charu@ti.com, grinberg@compulab.co.il, balbi@ti.com
+In-Reply-To: <20110204133250.GB2070@m-desktop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "G, Manjunath Kondaiah" <manjugk@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, balbi@ti.com, charu@ti.com, grinberg@compulab.co.il, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, linux-omap@vger.kernel.org, LW@karo-electronics.de, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
 
-Kishore,
-On Fri, Feb 04, 2011 at 07:07:37PM +0530, Kishore Kadiyala wrote:
-> Manju,
-> 
-> Line wrapped, looks like your .muttrc needs to be configured for 80
-> characters limit.
-Thanks for reporting. Configured mutt on new machine recently. I will
-check and fix it.
 
--Manjunath
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Feb 04, 2011 at 07:02:50PM +0530, G, Manjunath Kondaiah wrote:
+> On Thu, Feb 03, 2011 at 09:19:53AM -0800, Dmitry Torokhov wrote:
+> > On Thu, Feb 03, 2011 at 08:54:05AM -0800, Dmitry Torokhov wrote:
+> > > On Thu, Feb 03, 2011 at 08:51:46PM +0530, Sourav Poddar wrote:
+> > > > The ads7846 driver requests a gpio but does not currently
+> > > > configure it explicitly as an input. Use gpio_request_one
+> > > > to request and configure it at one shot.
+> > > >=20
+> > > > Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+> > > > Cc: Dmitry Torokhov <dtor@mail.ru>
+> > >=20
+> > > Will apply this one, the other one is a bit messy IMO, will have to
+> > > think about it.
+> > >=20
+> >=20
+> > Something like below should do I think.
+> Patch looks good but it applies only on top of previous patch:
+> https://patchwork.kernel.org/patch/529941/
+>=20
+> Why to have two patches for this fix?
+
+http://www.spinics.net/lists/linux-omap/msg45167.html
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk1MCG8ACgkQD27XaX1/VRuRYQCfcr81Anr1cZkeCxboRg/ONLzZ
+3BwAnjF+UzHA+lOq7CSswN2ImGUp+O3F
+=Ce4p
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--

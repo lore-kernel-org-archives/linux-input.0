@@ -1,141 +1,107 @@
-From: Andres Salomon <dilinger@queued.net>
-Subject: Re: [PATCH 12/19] twl4030: mfd_cell is now implicitly available to
- drivers
-Date: Fri, 4 Feb 2011 19:25:35 -0800
-Message-ID: <20110204192535.329d2280@queued.net>
-References: <20110202195417.228e2656@queued.net>
-	<20110202201522.72d37f1e@queued.net>
-	<20110203060521.GA25739@core.coreip.homeip.net>
-	<20110202223959.244b4a01@queued.net>
-	<20110203065339.GA5592@core.coreip.homeip.net>
-	<20110202230326.167fe873@queued.net>
-	<20110203093154.GC21591@opensource.wolfsonmicro.com>
-	<20110204183913.318e6664@debxo>
+From: "Poddar, Sourav" <sourav.poddar@ti.com>
+Subject: Re: [PATCH v3 2/2] Input: ads7846: use gpio_request_one to configure pendown_gpio
+Date: Sat, 5 Feb 2011 12:29:58 +0530
+Message-ID: <AANLkTimQS_dNcaeTqqR=7vqFcGi-CtmH_ynrPyt4p1uK@mail.gmail.com>
+References: <1296746506-12221-1-git-send-email-sourav.poddar@ti.com>
+	<20110203165405.GB12802@core.coreip.homeip.net>
+	<20110203171953.GA13997@core.coreip.homeip.net>
+	<20110204133250.GB2070@m-desktop>
+	<20110204140847.GA3178@pengutronix.de>
+	<20110204141618.GE2070@m-desktop>
+	<4D4C116D.4080408@compulab.co.il>
+	<AANLkTi=23s6jxGFVM9vUr3XopgPnSyfie2Ywj-PcKHSF@mail.gmail.com>
+	<4D4C1B83.3020000@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LUNGE.MIT.EDU ([18.54.1.69]:36531 "EHLO lunge.queued.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751523Ab1BEDZj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Feb 2011 22:25:39 -0500
-In-Reply-To: <20110204183913.318e6664@debxo>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <4D4C1B83.3020000@compulab.co.il>
+Sender: linux-omap-owner@vger.kernel.org
+To: Igor Grinberg <grinberg@compulab.co.il>
+Cc: "G, Manjunath Kondaiah" <manjugk@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, balbi@ti.com, charu@ti.com, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, LW@karo-electronics.de, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@nokia.com>, Liam Girdwood <lrg@slimlogic.co.uk>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>, Timur Tabi <timur@freescale.com>, linux-input@vger.kernel.org, alsa-devel@alsa-project.org
 
-On Fri, 4 Feb 2011 18:39:13 -0800
-Andres Salomon <dilinger@queued.net> wrote:
+On Fri, Feb 4, 2011 at 9:00 PM, Igor Grinberg <grinberg@compulab.co.il>=
+ wrote:
+>
+>
+> On 02/04/11 17:11, Poddar, Sourav wrote:
+>
+>> On Fri, Feb 4, 2011 at 8:17 PM, Igor Grinberg <grinberg@compulab.co.=
+il> wrote:
+>>>
+>>> On 02/04/11 16:16, G, Manjunath Kondaiah wrote:
+>>>
+>>>> On Fri, Feb 04, 2011 at 03:08:47PM +0100, Wolfram Sang wrote:
+>>>>> On Fri, Feb 04, 2011 at 07:02:50PM +0530, G, Manjunath Kondaiah w=
+rote:
+>>>>>> On Thu, Feb 03, 2011 at 09:19:53AM -0800, Dmitry Torokhov wrote:
+>>>>>>> On Thu, Feb 03, 2011 at 08:54:05AM -0800, Dmitry Torokhov wrote=
+:
+>>>>>>>> On Thu, Feb 03, 2011 at 08:51:46PM +0530, Sourav Poddar wrote:
+>>>>>>>>> The ads7846 driver requests a gpio but does not currently
+>>>>>>>>> configure it explicitly as an input. Use gpio_request_one
+>>>>>>>>> to request and configure it at one shot.
+>>>>>>>>>
+>>>>>>>>> Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
+>>>>>>>>> Cc: Dmitry Torokhov <dtor@mail.ru>
+>>>>>>>> Will apply this one, the other one is a bit messy IMO, will ha=
+ve to
+>>>>>>>> think about it.
+>>>>>>>>
+>>>>>>> Something like below should do I think.
+>>>>>> Patch looks good but it applies only on top of previous patch:
+>>>>>> https://patchwork.kernel.org/patch/529941/
+>>>>>>
+>>>>>> Why to have two patches for this fix?
+>>>>> http://www.spinics.net/lists/linux-omap/msg45167.html
+>>>> My point here is:
+>>>> 1. The first patch only replaces gpio_request with gpio_request_on=
+e
+>>>> 2. Rest of the things are handled in 2nd patch posted by dmitry
+>>>>
+>>>> What is harm in merging both the patches? I don't think it affects
+>>>> readability.
+>>> Because the changes introduced by the patches are from different na=
+ture.
+>>> As stated in the link above, one is a functional change (gpio setup=
+ change)
+>>> and second is fixing the imbalance in request - free calls.
+>>> The impact is not readability, but bad bisect-ability.
+>> =A0 Dmitry's patch fixes both the problems(request/free and directio=
+n)
+>> =A0 in a single patch itself.Now there is no need of merging any pat=
+ches.
+>> =A0 Just that Dmitry's patch need to be rebased over the top of HEAD=
+=2E (Currently,
+>> =A0 its on top of my patch series).
+>
+> Well, here you have missed the point of direction:
+> ...
+>
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D gpio_request_one(pdata->gpio_pe=
+ndown, GPIOF_DIR_IN,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "ads7846_pendown");
+>
+> ...
+>
+> - =A0 =A0 =A0 err =3D gpio_request_one(pdata->gpio_pendown, GPIOF_DIR=
+_IN,
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "ads7846_pendown");
+> ...
+>
+>
+> It does not deal with direction, but only with request - free balance=
+=2E
+> The gpio direction is fixed by your patch.
+>
 
-> On Thu, 3 Feb 2011 09:31:54 +0000
-> Mark Brown <broonie@opensource.wolfsonmicro.com> wrote:
-> 
-> > On Wed, Feb 02, 2011 at 11:03:26PM -0800, Andres Salomon wrote:
-> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > 
-> > > > Then they are doing it incorrectly. One possible way is to have
-> > > > parent device carry relevant data in its drvdata and have
-> > > > children get it from there.
-> > 
-> > > I believe some drivers are even using the parent device already.
-> > > See drivers/leds/leds-mc13783.c, for example, whose parent device
-> > > drvdata is used to pass around a struct mc13783 to its children.
-> > > Sounds like a possibility, will need to look into it further.
-> > 
-> > That's the current best practice approach.
-> 
-[rambling]
-> Even that would require the weird API of mfd_add_devices needing to be
-> passed the type of what's pointed to by the parent's drvdata.
-> 
-
-Actually, how about something like the following?  This would leave
-drvdata unaffected.
-
-
-
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index d83ad0f..a324a83 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -25,6 +25,7 @@ static int mfd_add_device(struct device *parent, int id,
- {
- 	struct resource *res;
- 	struct platform_device *pdev;
-+	struct mfd_platform_data pdata = { NULL, NULL };
- 	int ret = -ENOMEM;
- 	int r;
- 
-@@ -39,12 +40,18 @@ static int mfd_add_device(struct device *parent, int id,
- 	pdev->dev.parent = parent;
- 	platform_set_drvdata(pdev, cell->driver_data);
- 
-+	pdata.cell = cell;
- 	if (cell->data_size) {
--		ret = platform_device_add_data(pdev,
--					cell->platform_data, cell->data_size);
--		if (ret)
-+		pdata.platform_data = kmemdup(cell->platform_data,
-+				cell->data_size, GFP_KERNEL);
-+		if  (!pdata.platform_data) {
-+			ret = -ENOMEM;
- 			goto fail_res;
-+		}
- 	}
-+	ret = platform_device_add_data(pdev, &pdata, sizeof(pdata));
-+	if (ret)
-+		goto fail_pdata;
- 
- 	for (r = 0; r < cell->num_resources; r++) {
- 		res[r].name = cell->resources[r].name;
-@@ -91,6 +98,9 @@ static int mfd_add_device(struct device *parent, int id,
- 	return 0;
- 
- /*	platform_device_del(pdev); */
-+fail_pdata:
-+	if (pdata.platform_data)
-+		kfree(pdata.platform_data);
- fail_res:
- 	kfree(res);
- fail_device:
-@@ -122,6 +132,7 @@ EXPORT_SYMBOL(mfd_add_devices);
- 
- static int mfd_remove_devices_fn(struct device *dev, void *unused)
- {
-+	/* TODO: nuke pdata memory */
- 	platform_device_unregister(to_platform_device(dev));
- 	return 0;
- }
-diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
-index 835996e..dbc52a2 100644
---- a/include/linux/mfd/core.h
-+++ b/include/linux/mfd/core.h
-@@ -55,6 +55,26 @@ struct mfd_cell {
- 	bool			pm_runtime_no_callbacks;
- };
- 
-+/* simple wrapper for a platform device's pdata */
-+struct mfd_platform_data {
-+	void *platform_data;
-+	struct mfd_cell *cell;
-+};
-+
-+/*
-+ * Given a platform device that's been created by mfd_add_devices(), fetch
-+ * the mfd_cell that created it.
-+ */
-+static inline const struct mfd_cell *mfd_get_cell(struct platform_device *pdev)
-+{
-+	return ((struct mfd_platform_data *)pdev->dev.platform_data)->cell;
-+}
-+
-+static inline void *mfd_platform_data(struct platform_device *pdev)
-+{
-+	return ((struct mfd_platform_data *)pdev->dev.platform_data)->data;
-+}
-+
- extern int mfd_add_devices(struct device *parent, int id,
- 			   const struct mfd_cell *cells, int n_devs,
- 			   struct resource *mem_base,
-
+gpio_request_one is a different API which calls  gpio_direction_input
+for configuring the direction.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

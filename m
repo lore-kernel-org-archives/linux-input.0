@@ -1,78 +1,69 @@
-From: Igor Grinberg <grinberg@compulab.co.il>
-Subject: Re: [PATCH v3 2/2] Input: ads7846: use gpio_request_one to configure
- pendown_gpio
-Date: Sun, 06 Feb 2011 09:31:28 +0200
-Message-ID: <4D4E4E50.4030709@compulab.co.il>
-References: <1296746506-12221-1-git-send-email-sourav.poddar@ti.com>	<20110203165405.GB12802@core.coreip.homeip.net>	<20110203171953.GA13997@core.coreip.homeip.net>	<20110204133250.GB2070@m-desktop>	<20110204140847.GA3178@pengutronix.de>	<20110204141618.GE2070@m-desktop>	<4D4C116D.4080408@compulab.co.il>	<AANLkTi=23s6jxGFVM9vUr3XopgPnSyfie2Ywj-PcKHSF@mail.gmail.com>	<4D4C1B83.3020000@compulab.co.il> <AANLkTimQS_dNcaeTqqR=7vqFcGi-CtmH_ynrPyt4p1uK@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from compulab.co.il ([67.18.134.219]:60367 "EHLO compulab.co.il"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751414Ab1BFHbs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 6 Feb 2011 02:31:48 -0500
-In-Reply-To: <AANLkTimQS_dNcaeTqqR=7vqFcGi-CtmH_ynrPyt4p1uK@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Keith Packard <keithp@keithp.com>
+Subject: [PATCH] hid: Ortek W/L rdesc has incorrect Logical Maximum for keyboard
+Date: Sun,  6 Feb 2011 17:44:23 -0800
+Message-ID: <1297043063-22539-1-git-send-email-keithp@keithp.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosnia@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@kernel.org, Keith Packard <keithp@keithp.com>
 List-Id: linux-input@vger.kernel.org
-To: "Poddar, Sourav" <sourav.poddar@ti.com>
-Cc: "G, Manjunath Kondaiah" <manjugk@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, balbi@ti.com, charu@ti.com, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, LW@karo-electronics.de, linux-arm-kernel@lists.infradead.org, gadiyar@ti.com
 
-> On Fri, Feb 4, 2011 at 9:00 PM, Igor Grinberg <grinberg@compulab.co.il> wrote:
->>
->> On 02/04/11 17:11, Poddar, Sourav wrote:
->>
->>> On Fri, Feb 4, 2011 at 8:17 PM, Igor Grinberg <grinberg@compulab.co.il> wrote:
->>>> On 02/04/11 16:16, G, Manjunath Kondaiah wrote:
->>>>
->>>>> On Fri, Feb 04, 2011 at 03:08:47PM +0100, Wolfram Sang wrote:
->>>>>> On Fri, Feb 04, 2011 at 07:02:50PM +0530, G, Manjunath Kondaiah wrote:
->>>>>>> On Thu, Feb 03, 2011 at 09:19:53AM -0800, Dmitry Torokhov wrote:
->>>>>>>> On Thu, Feb 03, 2011 at 08:54:05AM -0800, Dmitry Torokhov wrote:
->>>>>>>>> Something like below should do I think. 
->>>>>>> Patch looks good but it applies only on top of previous patch:
->>>>>>> https://patchwork.kernel.org/patch/529941/
->>>>>>>
->>>>>>> Why to have two patches for this fix?
->>>>>> http://www.spinics.net/lists/linux-omap/msg45167.html
->>>>> My point here is:
->>>>> 1. The first patch only replaces gpio_request with gpio_request_one
->>>>> 2. Rest of the things are handled in 2nd patch posted by dmitry
->>>>>
->>>>> What is harm in merging both the patches? I don't think it affects
->>>>> readability.
->>>> Because the changes introduced by the patches are from different nature.
->>>> As stated in the link above, one is a functional change (gpio setup change)
->>>> and second is fixing the imbalance in request - free calls.
->>>> The impact is not readability, but bad bisect-ability.
->>>   Dmitry's patch fixes both the problems(request/free and direction)
->>>   in a single patch itself.Now there is no need of merging any patches.
->>>   Just that Dmitry's patch need to be rebased over the top of HEAD. (Currently,
->>>   its on top of my patch series).
->> Well, here you have missed the point of direction:
->> ...
->>
->> +               err = gpio_request_one(pdata->gpio_pendown, GPIOF_DIR_IN,
->> +                                                       "ads7846_pendown");
->>
->> ...
->>
->> -       err = gpio_request_one(pdata->gpio_pendown, GPIOF_DIR_IN,
->> -                                               "ads7846_pendown");
->> ...
->>
->>
->> It does not deal with direction, but only with request - free balance.
->> The gpio direction is fixed by your patch.
->>
-> gpio_request_one is a different API which calls  gpio_direction_input
-> for configuring the direction.
+The Ortek WKB-2000 had the same rdesc bug -- the Logical Maximum value
+was reported as '1' instead of the correct value (146), preventing
+most of the keyboard keys from working. This patch simply shares
+precisely the same quirk code for this other device.
 
-That is exactly the point :)
-Your patch has added the gpio_request_one() and thus changed the gpio direction.
-This patch only moves it around.
+Signed-off-by: Keith Packard <keithp@keithp.com>
+---
+ drivers/hid/hid-core.c  |    1 +
+ drivers/hid/hid-ids.h   |    1 +
+ drivers/hid/hid-ortek.c |    3 ++-
+ 3 files changed, 4 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index d678cf3..233bbf2 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1401,6 +1401,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 92a0d61..b478b25 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -467,6 +467,7 @@
+ 
+ #define USB_VENDOR_ID_ORTEK		0x05a4
+ #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
++#define USB_DEVICE_ID_ORTEK_WL		0x1700
+ 
+ #define USB_VENDOR_ID_PANJIT		0x134c
+ 
+diff --git a/drivers/hid/hid-ortek.c b/drivers/hid/hid-ortek.c
+index e90edfc..74011af 100644
+--- a/drivers/hid/hid-ortek.c
++++ b/drivers/hid/hid-ortek.c
+@@ -23,7 +23,7 @@ static __u8 *ortek_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+ 	if (*rsize >= 56 && rdesc[54] == 0x25 && rdesc[55] == 0x01) {
+-		hid_info(hdev, "Fixing up Ortek WKB-2000 report descriptor\n");
++		hid_info(hdev, "Fixing up Ortek WKB-2000 or W/L report descriptor\n");
+ 		rdesc[55] = 0x92;
+ 	}
+ 	return rdesc;
+@@ -31,6 +31,7 @@ static __u8 *ortek_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 
+ static const struct hid_device_id ortek_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WL) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ortek_devices);
 -- 
-Regards,
-Igor.
-
+1.7.2.3

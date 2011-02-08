@@ -1,145 +1,152 @@
-From: Anton Chikin <Anton.Chikin@dataart.com>
-Subject: RE: [PATCH] HID: added new driver for Panasonic Elite Panaboard
- UB-T780 and UB-T880
-Date: Tue, 8 Feb 2011 15:28:24 +0300
-Message-ID: <3BF066A8BAB61C43B779966CEE6D7FA09B6CC9DB2D@e6.universe.dart.spb>
-References: <1297157786-2004-1-git-send-email-kverlin@gmail.com>
- <20110208103923.GA2009@polaris.bitmath.org>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] intel_mid: Keypad Driver
+Date: Tue, 8 Feb 2011 12:59:02 +0000
+Message-ID: <20110208125902.1beabf11@lxorguk.ukuu.org.uk>
+References: <20110201113513.24707.6283.stgit@bob.linux.org.uk>
+	<20110208081941.GD865@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110208103923.GA2009@polaris.bitmath.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Anton Chikin <kverlin@gmail.com>
-Cc: "jkosina@suse.cz" <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Gregory Burmistrov <grig@dataart.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:57474 "EHLO
+	localhost.localdomain" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753516Ab1BHMz2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Feb 2011 07:55:28 -0500
+In-Reply-To: <20110208081941.GD865@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Henrik,
+> There should be only one keymap per device. You can:
+> 
+> 1. Add "direct" keys as an additional row to the main keymap
+> 2. Set up a separate input device for direct keys.
 
-Thank you for your comments. I'll clean up the code. I still have several questions for you. Please find them above.
+Ok thats already fixed - the direct keys now use gpio_keys.
 
-With best regards,
-Anton
------Original Message-----
-From: Henrik Rydberg [mailto:rydberg@euromail.se] 
+> > +config KEYBOARD_INTEL_MID
+> > +	tristate "Intel MID keypad support"
+> > +	depends on GPIO_LANGWELL
+> > +	help
+> > +	  Say Y if you want support for Intel MID keypad devices
+> > +	  depends on GPIO_LANGWELL
+> > +
+> 
+> To compile this driver as a module...
 
+Added and put into alpha order (although one or two other entries are
+not ?)
 
-> +static int LTx = -1;
-> +static int LTy = -1;
-> +static int LBx = -1;
-> +static int LBy = -1;
-> +static int RTx = -1;
-> +static int RTy = -1;
-> +static int RBx = -1;
-> +static int RBy = -1;
-> +
-> +static int LTX = -1;
-> +static int LTY = -1;
-> +static int LBX = -1;
-> +static int LBY = -1;
-> +static int RTX = -1;
-> +static int RTY = -1;
-> +static int RBX = -1;
-> +static int RBY = -1;
-> +
-> +static int Xoff_A = -1;
-> +static int Xmag_A = -1;
-> +static int Xmag_B = -1;
-> +static int Yoff_A = -1;
-> +static int Ymag_A = -1;
-> +static int Ymag_B = -1;
+> >  obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
+> > +obj-$(CONFIG_KEYBOARD_INTEL_MID)	+= intel_mid_keypad.o
+> 
+> Alphabetic order please.
 
-> This is a lot of variables. Surely it can be simplified someway?
-First 16 vars are screen and device coordinates. Other 6 are precalculated in userspace during calibration.
-I can eliminate them and add more calculations to calibration function. Should I?
-
-> +	if (!Xmag)
-> +		Xmag = 1;
-
->Why?
-
-> +	x  = (inX * 10000 - Xoff) / Xmag;
-
-Not to divide by zero here.
-
-> +static void ubt780_set_input(struct input_dev *input) {
-> +	input->evbit[0] |= BIT(EV_KEY) | BIT(EV_ABS);
-> +	input->absbit[0] |= BIT(ABS_X) | BIT(ABS_Y);
-> +	set_bit(BTN_LEFT, input->keybit);
-> +	set_bit(BTN_RIGHT, input->keybit);
-> +
-> +	input->absmax[ABS_X] = UBT780_MAX_AXIS_X;
-> +	input->absmax[ABS_Y] = UBT780_MAX_AXIS_Y;
-> +	input->absmin[ABS_X] = 0;
-> +	input->absmin[ABS_Y] = 0;
-> +}
-
-> This looks like standard HID stuff, and could probably be setup automatically.
-The report of UB-T780 is a little bit broken. I prefer to write 8 straight and clear lines of code from scratch
-Instead of tuning and debugging standard HID parser.
-
-> +
-> +int ubt_set_device(struct ubt880_data *data, __u32 devid) {
-> +	int ret;
-> +	data->calib.calibrated = 0;
-> +	data->ubt_packet.report = 0;
-> +	set_calib_to_device(data);
-> +	switch (devid) {
-> +	case USB_DEVICE_ID_PANABOARD_UBT780: {
-> +		data->switch_mode = ubt780_switch_mode;
-> +		data->set_input = ubt780_set_input;
-> +		break;
-> +	}
-> +	case USB_DEVICE_ID_PANABOARD_UBT880: {
-> +		data->switch_mode = ubt880_switch_mode;
-> +		data->set_input = ubt880_set_input;
-> +		break;
-> +	}
-> +	default: {
-> +		ret = -1;
-> +	}
-> +	}
-> +	return 0;
-> +}
-
-> Static table would work too.
-Do you mean that it would be better to make a separate static table 
-for each device and keep one pointer to it instead of multiple pointers to functions?
+Fixed
 
 
-> +static const struct file_operations ubt880_fops = {
-> +	.owner = THIS_MODULE,
-> +	.open = ubt880_open_io,
-> +	.release = ubt880_release_io,
-> +	.unlocked_ioctl = ubt880_ioctl,
-> +};
+> > +int __init mrst_keypad_set_pdata(const struct mrst_keypad_platform_data *data)
+> > +{
+> > +	if (mrst_keypad_pdata)
+> > +		return -EBUSY;
+> > +	if (!data)
+> > +		return -EINVAL;
+> > +
+> > +	mrst_keypad_pdata = kmemdup(data, sizeof(*data), GFP_KERNEL);
+> > +	if (!mrst_keypad_pdata)
+> > +		return -ENOMEM;
+> > +
+> 
+> Surely there is a better way...
 
-> And this is used solely to communicate with the device for calibration and such? Why is it even part of this driver?
-> The above seems like a different driver altogether, and possibly better implemented in userland.
+The only thing that knows the keypad data for the platform is the
+firmware it's not in the PCI configuration.
 
-I really need your advice at this point. To calibrate the device we need to do the following:
-1. set particular device state
-2. read coordinates from device
-3. set calibration data back to device
-4. set back the device state
+> > +			code = MATRIX_SCAN_CODE(row, col, MATRIX_ROW_SHIFT);
+> 
+> Please add reporting of MSC_SCAN as well.
 
-I have not written this driver from scratch - I've got the driver and userland calibration utility from previous developers.
-At that time it was usbhid fork so I've considered to rewirte it using hid framework, but I've left ioctl communications to keep it compatible
-with userland utilities.
-Is there a better way to achieve all this not using ioctls? 
-Is it worth redoing all this work using sysfs?
+Already done in the updates by Kristen - I'll send you the 'latest and
+greatest' with the fixes from this after I've got feedback on the
+firmware interface question further down.
+
+> > +	err = mrst_keypad_gpio_init(keypad);
+> 
+> Setting up gpios should be part of probe, not open. Just rename
+> mrst_keypad_config() to mrst_keypad_open.
+
+Done, I'm not aware of anyone muxing those GPIO pins so it should be no
+problem.
+
+> Should be done in remove(). close() should only shut off the device.
+
+Done
+
+> 
+> > +}
+> > +
+> > +static int __devinit mrst_keypad_probe(struct pci_dev *pdev,
+> > +			const struct pci_device_id *ent)
+> > +{
+> > +	struct mrst_keypad *keypad;
+> > +	struct input_dev *input_dev;
+> > +	int error;
+> > +
+> > +	/* Disable flag will turn off keypad support */
+> > +	if (mrst_keypad_pdata && mrst_keypad_pdata->disable)
+> 
+> Why would you have a flag in platform data? If you do not want to use
+> the driver do not compile/load it.
+
+We need to compile it in for such devices normally, distributions
+require they can build a single image, and only the platform firmware
+knows if it should be enabled (the information isn't in the PCI space)
+
+I could turn the logic around a bit which might be cleaner - have the
+firmware code export
+
+	mrst_keypad_enabled();
+
+and
+	mrst_keypad_map();
+
+?
+
+> > +		return 0;
+> > +
+> > +	error = pci_enable_device(pdev);
+> > +	if (error || (pdev->irq < 0)) {
+> 
+> Extra parenthesis.
+
+Already fixed - along with the fact 0 isn't valid.
 
 
-> +static void ubt880_report_mt(struct input_dev *input, struct 
-> +ubt_mt_contact *pack, int size, struct ubt_calib *calib) {
-> +	int i = 0;
-> +	/* Report MT contacts */
-> +	if (size < 1)
-> +		return;
-> +	if (!input || !pack || !calib)
-> +		return;
+> If you move pci_set_drvdata() here you won't need to clear it in error
+> path.
 
-> what do these error paths mean?
-This is just checks to defend from errors in calling code.
+Fixed
+
+> > +	if (input_dev)
+> 
+> No need to check.
+> 
+> > +		input_free_device(input_dev);
+> > +	kfree(keypad);
+
+Ok didn't realise input_free_device(NULL) was guaranteed valid
+
+> Begs for a function as is called in several places.
+
+Fixed
+
+> > +	.remove		= __devexit_p(mrst_keypad_remove),
+> > +#ifdef CONFIG_PM
+> > +	.suspend	= NULL,
+> > +	.resume	= NULL,
+> 
+> Why?
+
+PM is added in the newest version so that goes sane
+

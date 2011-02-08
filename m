@@ -1,42 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HID: added new driver for Panasonic Elite Panaboard
- UB-T780 and UB-T880
-Date: Tue, 8 Feb 2011 10:12:04 -0800
-Message-ID: <20110208181204.GF4476@core.coreip.homeip.net>
-References: <1297157786-2004-1-git-send-email-kverlin@gmail.com>
- <20110208103923.GA2009@polaris.bitmath.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: drivers/input/touchscreen/ads7846.c:959: error: 'GPIOF_DIR_IN' undeclared
+Date: Tue, 8 Feb 2011 21:03:27 +0100
+Message-ID: <AANLkTim2706Negrvd-ektbNMLwucM9M0icphb_uFY_9D@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:46873 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754835Ab1BHSMq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Feb 2011 13:12:46 -0500
-Content-Disposition: inline
-In-Reply-To: <20110208103923.GA2009@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-next-owner@vger.kernel.org>
+Sender: linux-next-owner@vger.kernel.org
+To: Sourav Poddar <sourav.poddar@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Dmitry Torokhov <dtor@mail.ru>
+Cc: Linux-Next <linux-next@vger.kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Anton Chikin <kverlin@gmail.com>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Anton Chikin <anton.chikin@dataart.com>
 
-On Tue, Feb 08, 2011 at 11:39:23AM +0100, Henrik Rydberg wrote:
-> 
-> > +int xold = 0, yold = 0;
-> 
-> static
-> 
+linux-next/m68k-allmodconfig/m68k:
+http://kisskb.ellerman.id.au/kisskb/buildresult/3899710/
 
-Not even that. This is an USB device, not a platform one, so it shoudl
-be opssible to connect more than one to a box. All state should go into
-per-device structure.
+drivers/input/touchscreen/ads7846.c:959: error: 'GPIOF_DIR_IN'
+undeclared (first use in this function)
+drivers/input/touchscreen/ads7846.c:959: error: (Each undeclared
+identifier is reported only once
+drivers/input/touchscreen/ads7846.c:959: error: for each function it
+appears in.)
+make[4]: *** [drivers/input/touchscreen/ads7846.o] Error 1
 
-This is also does not appear to be a HID driver, really - it does not
-use HID infrastucture but does custom parsing.
+As of commit e9b6e245c727767e6d64cb3dd47a0c6982aa5d23
+("Input: ads7846 - use gpio_request_one to configure pendown_gpio"), th=
+is
+driver should depend on GENERIC_GPIO?
+Else <linux/gpio.h> doesn't include <asm/gpio.h>, and we never see the
+definition of GPIOF_DIR_IN.
 
-Calibration - normally we offload this task to userspace (tslib
-or other library/driver).
+Gr{oetje,eeting}s,
 
-Thanks.
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 Geert
 
--- 
-Dmitry
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
+
+In personal conversations with technical people, I call myself a hacker=
+=2E But
+when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 -- Linus Torvalds

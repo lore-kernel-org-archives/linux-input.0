@@ -1,12 +1,12 @@
 From: riyer@nvidia.com
-Subject: [PATCH v2] input: tegra-kbc: Add Function keymap.
-Date: Wed,  9 Feb 2011 11:11:56 -0800
-Message-ID: <1297278716-6375-1-git-send-email-riyer@nvidia.com>
+Subject: [PATCH v3] input: tegra-kbc: Add Function keymap.
+Date: Wed,  9 Feb 2011 11:44:40 -0800
+Message-ID: <1297280680-7555-1-git-send-email-riyer@nvidia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate03.nvidia.com ([216.228.121.140]:15898 "EHLO
+Received: from hqemgate03.nvidia.com ([216.228.121.140]:1510 "EHLO
 	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750976Ab1BITLw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Feb 2011 14:11:52 -0500
+	with ESMTP id S1752671Ab1BIToi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Feb 2011 14:44:38 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
@@ -18,7 +18,7 @@ Add Fn keymap support to allow for internal processing of Fn keys.
 
 Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
 ---
-Modified mappings to correctly use Keypad keys as suggested by Dmitry Torokhov.
+Modified mapping from KEY_SLASH to KEY_KPSLASH.
 
  arch/arm/mach-tegra/include/mach/kbc.h |    1 +
  drivers/input/keyboard/tegra-kbc.c     |   50 ++++++++++++++++++++++++++++++--
@@ -36,7 +36,7 @@ index 66ad276..04c7798 100644
  };
  #endif
 diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index ac471b7..530bc0e 100644
+index ac471b7..840463d 100644
 --- a/drivers/input/keyboard/tegra-kbc.c
 +++ b/drivers/input/keyboard/tegra-kbc.c
 @@ -60,7 +60,7 @@
@@ -82,7 +82,7 @@ index ac471b7..530bc0e 100644
  	KEY(6, 5, KEY_K),
  	KEY(6, 6, KEY_COMMA),
  	KEY(6, 7, KEY_M),
-+	KEY(6, 9, KEY_SLASH),
++	KEY(6, 9, KEY_KPSLASH),
 +	KEY(6, 10, KEY_KP6),
 +	KEY(6, 11, KEY_KP5),
 +	KEY(6, 12, KEY_KP3),

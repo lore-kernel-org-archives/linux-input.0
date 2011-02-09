@@ -1,56 +1,36 @@
-From: Alexander Strakh <cromlehg@gmail.com>
-Subject: [PATCH 1/1] Fix error path in wacom_probe
-Date: Wed,  9 Feb 2011 10:37:28 +0300
-Message-ID: <1297237048-32714-1-git-send-email-strakh@ispras.ru>
+From: Igor Grinberg <grinberg@compulab.co.il>
+Subject: Re: drivers/input/touchscreen/ads7846.c:959: error: 'GPIOF_DIR_IN'
+ undeclared
+Date: Wed, 09 Feb 2011 09:34:55 +0200
+Message-ID: <4D52439F.9090505@compulab.co.il>
+References: <AANLkTim2706Negrvd-ektbNMLwucM9M0icphb_uFY_9D@mail.gmail.com> <20110208211035.GC16527@core.coreip.homeip.net> <20110208212046.GA29410@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:33376 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750944Ab1BIHSu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Feb 2011 02:18:50 -0500
+Received: from compulab.co.il ([67.18.134.219]:57365 "EHLO compulab.co.il"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752056Ab1BIHfG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Feb 2011 02:35:06 -0500
+In-Reply-To: <20110208212046.GA29410@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, oneukum@suse.de, oblivian@users.sourceforge.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Strakh <cromlehg@gmail.com>, Alexander Strakh <strakh@ispras.ru>
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Sourav Poddar <sourav.poddar@ti.com>, Linux-Next <linux-next@vger.kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Alexander Strakh <cromlehg@gmail.com>
+On 02/08/11 23:20, Wolfram Sang wrote:
 
-  In file drivers/input/tablet/wacom_sys.c in
-wacom_probe after error we can goto label2. In
- this case function usb_free was not called. 
- It will be right goto for the label tail3.
+> On Tue, Feb 08, 2011 at 01:10:36PM -0800, Dmitry Torokhov wrote:
+>
+>> Crap, sorry about that, I'll fix it up tonight.
+> I had the same issue while working on some other gpio-cleanup.
+> I am just about to finish a patch.
 
-        wacom->irq = usb_alloc_urb(0, GFP_KERNEL);
+This was pretty obvious and I had a thought that this will happen,
+but failed in sharing my thoughts with you back then.
+May be because of too much talking around it... Sorry... :(
 
-	...
-
-        /* Retrieve the physical and logical size for OEM devices */
-        error = wacom_retrieve_hid_descriptor(intf, features);
-        if (error)
-                goto fail2;
-	...
-	 fail3: usb_free_urb(wacom->irq);
-	 fail2: usb_free_coherent(dev, WACOM_PKGLEN_MAX, wacom_wac->data, wacom->data_dma);
-
-Replaced wrong transition.
-
-Signed-off-by: Alexander Strakh <strakh@ispras.ru>
----
- drivers/input/tablet/wacom_sys.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index fc38149..cf8fb9f 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -519,7 +519,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	/* Retrieve the physical and logical size for OEM devices */
- 	error = wacom_retrieve_hid_descriptor(intf, features);
- 	if (error)
--		goto fail2;
-+		goto fail3;
- 
- 	wacom_setup_device_quirks(features);
- 
 -- 
-1.7.1
+Regards,
+Igor.
 

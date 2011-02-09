@@ -1,728 +1,1578 @@
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] intel_mid: Keypad Driver (Current snapshot for reference)
-Date: Wed, 09 Feb 2011 09:53:04 +0000
-Message-ID: <20110209095151.32388.66409.stgit@bob.linux.org.uk>
+Subject: [PATCH] bma023: Support for Bosch BMA023 and SMB380 accelerometers
+Date: Wed, 09 Feb 2011 09:59:22 +0000
+Message-ID: <20110209095712.32575.70429.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:51587 "EHLO
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:40121 "EHLO
 	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751723Ab1BIKVo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Feb 2011 05:21:44 -0500
+	with ESMTP id S1753274Ab1BIK2C (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Feb 2011 05:28:02 -0500
 Received: from bob.linux.org.uk (earthlight.etchedpixels.co.uk [81.2.110.250])
-	by lxorguk.ukuu.org.uk (8.14.4/8.14.1) with ESMTP id p19AKl4t010367
-	for <linux-input@vger.kernel.org>; Wed, 9 Feb 2011 10:20:52 GMT
+	by lxorguk.ukuu.org.uk (8.14.4/8.14.1) with ESMTP id p19AR57p010436
+	for <linux-input@vger.kernel.org>; Wed, 9 Feb 2011 10:27:10 GMT
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
-From: Zheng Ba <zheng.ba@intel.com>
+Updated patch to add documentation for the interfaces provided. Note th=
+at
+this is an input driver, it's not a driver for the staging IIO work, no=
+r is
+it intended to be.
 
-This is a single patch of the Intel Moorestown keypad driver made up from
-the following
+--
 
+=46rom: Joseph Lai <joseph_lai@wistron.com>
 
-Zheng Ba <zheng.ba@intel.com>
-	This patch adds the keypad support for the MID platform keypad
-	interfaces.
+This patch supports driver for BOSCH BMA023 and SMB380 which are accele=
+rometers.
 
-	Changes from Alpha2: solved "CRITICAL" issues marked by Klocwork
-		     HSD sighting 3469242
+We also expose some data from this device to uusers through sysfs inter=
+face in
+a similar manner as the lis drivers so that the data can be used for on=
+e off
+uses, and also as as an input device for joystick type uses.
 
-	(some tidying Alan Cox)
+The driver allows the setting and reading of the device's properties vi=
+a
+sysfs attributes.
 
-Jekyll Lai <jekyll_lai@wistron.com>
-	Rewrite keypad driver to keep only one default matrix keymap. Also add
-	an interface to pass the platform data via "mrst_keypad_set_pdata."
-	Howerver, this keypad controller also provides direct key function.
-	That one matrix keymap is not enough in this driver. It's necessary
-	that adding another default keymap for direct key. So, there would
-	be two default keymaps. One for the keypad matrix; one for direct
-	keys.
+Based on an original driver
+Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 
-Alan Cox <alan@linux.intel.com>
-	Fix abuse of disable_irq/enable_irq on a shared IRQ line.
-	Clean up some problems noted by Dmitry - add a gpio clearing helper
-	etc
+[Extensively rewritten]
 
-Kristen Carlson Accardi <kristen@linux.intel.com>
-	We already free the gpios in close(), we don't need to free them
-		again in remove().
-	IRQ will never be negative.
-	Switch to using pci_ioremap.
-	Add basic power management so we can wake off the keypad interrupt.
-	Remove rotary support as no hardware actually needs it.
-	Remove direct key handling as this is now handled (better) by gpio-keys.
-
-	Send out the scancode value in addition to the keycode so that
-	userspace may use the scancode to remap keys if they want.
-
-	Add PCI passed configuration information:
-	Right now the driver programs the number of matrix rows, cols,
-	debounce interval, direct key nums and rotary info.  This
-	information is passed into the driver from pdata, a new platform
-	data structure.  This information should really be programmed
-	into the KPC register by firmware, and then read by the driver
-	via the pci shim layer.  This patch removes this info from
-	the pdata structure and implements the code to read this info from
-	the KPC register.  Because firmware doesn't actually behave the
-	way it should right now, this patch creates a pci quirk for the
-	langwell keypad which programs the KPC register.
-	Document the KPC register setting
-	Allow input and output GPIO ranges to be separate
-
-Signed-off-by: Zheng Ba <zheng.ba@intel.com>
-Signed-off-by: Jekyll Lai <jekyll_lai@wistron.com>
-Signed-off-by: Kristen Carlson Accardi <kristen@linux.intel.com>
+Signed-off-by: Joseph Lai <joseph_lai@wistron.com>
 Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
 
- arch/x86/pci/mrst.c                       |   63 ++++
- arch/x86/platform/mrst/mrst.c             |   19 +
- drivers/input/keyboard/Kconfig            |   10 +
- drivers/input/keyboard/Makefile           |    1 
- drivers/input/keyboard/intel_mid_keypad.c |  457 +++++++++++++++++++++++++++++
- include/linux/input/intel_mid_keypad.h    |   29 ++
- 6 files changed, 579 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/intel_mid_keypad.c
- create mode 100644 include/linux/input/intel_mid_keypad.h
+ Documentation/ABI/testing/sysfs-i2c-bma023 |   93 ++
+ drivers/input/misc/Kconfig                 |   10=20
+ drivers/input/misc/Makefile                |    1=20
+ drivers/input/misc/bma023.c                | 1308 ++++++++++++++++++++=
+++++++++
+ include/linux/i2c/bma023.h                 |   44 +
+ 5 files changed, 1456 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-i2c-bma023
+ create mode 100644 drivers/input/misc/bma023.c
+ create mode 100644 include/linux/i2c/bma023.h
 
 
-diff --git a/arch/x86/pci/mrst.c b/arch/x86/pci/mrst.c
-index cb29191..c580fcc 100644
---- a/arch/x86/pci/mrst.c
-+++ b/arch/x86/pci/mrst.c
-@@ -265,3 +265,66 @@ static void __devinit pci_fixed_bar_fixup(struct pci_dev *dev)
- 	}
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, PCI_ANY_ID, pci_fixed_bar_fixup);
+diff --git a/Documentation/ABI/testing/sysfs-i2c-bma023 b/Documentation=
+/ABI/testing/sysfs-i2c-bma023
+new file mode 100644
+index 0000000..04a293c
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-i2c-bma023
+@@ -0,0 +1,93 @@
++*Note*: It is anticpated that if IIO ever makes it upstream that the
++preferred general purpose non-input interface to this hardware will be=
+come IIO.
 +
-+/*
-+ * The Firmware should program the Langwell keypad registers to indicate
-+ * system specific configuration.  This quirk can be removed when firmware
-+ * actually does this properly.
-+ */
-+static void __devinit langwell_keypad_fixup(struct pci_dev *dev)
-+{
-+	void __iomem *base;
-+	u32 val;
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/range
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Configure the sensing range of the device
++		0: +/- 2G
++		1: +/- 4G
++		2: +/- 8G
 +
-+	base = pci_ioremap_bar(dev, 0);
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/bandwidth
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Digital filtering on ADC output data
++		0: 25Hz
++		1: 50Hz
++		2: 100Hz
++		3: 190Hz
++		4: 375Hz
++		5: 750Hz
++		6: 1500Hz
 +
-+	if (base == NULL)
-+		return;
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/new_data_int
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Generate an interrupt when the axes values are changed
++		0: disable
++		1: enable
 +
-+	val = readl(base);
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_int
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Generate an interrupt when the high-g threshold is met
++		0: disable
++		1: enable
 +
-+	/*
-+	 * set the KPC register.  Please see the Langwell Docs
-+	 * for more detail.
-+	 *
-+	 * Bit 31: Reserved
-+	 * Bit 30: Automatic Scan Bit
-+	 * Bit 29: Automatic Scan on Activity bit
-+	 * Bit 28:26 : Matrix keypad row number
-+	 *		000 == 1, 001 == 2, ... 111 == 8
-+	 * Bit 25:23 : Matrix keypad column number
-+	 *		000 ==1, 001 == 2, ... 111 == 8
-+	 * Bit 22: Matrix Interrupt Bit
-+	 * Bit 21: Ignore Multiple Key Press
-+	 * Bit 20: Manual Matrix Scan line 7
-+	 * Bit 19: Manual Matrix Scan line 6
-+	 * Bit 18: Manual Matrix Scan line 5
-+	 * Bit 17: Manual Matrix Scan line 4
-+	 * Bit 16: Manual Matrix Scan line 3
-+	 * Bit 15: Manual Matrix Scan line 2
-+	 * Bit 14: Manual Matrix Scan line 1
-+	 * Bit 13: Manual Matrix Scan line 0
-+	 * Bit 12: Matrix Keypad Enable
-+	 * Bit 11: Matrix Interrupt Enable
-+	 * Bit 10:9  : Reserved
-+	 * Bit 8:6   : Direct Key Number + Roatry encoder sensor input
-+	 *		000 == 1, 001 == 2, ... 111 == 8
-+	 * Bit 5: Direct Interrupt bit
-+	 * Bit 4: Reserved
-+	 * Bit 3: Rotary Encoder 1 enable
-+	 * Bit 2: Rotary Encoder 0 enable
-+	 * Bit 1: Direct Keypad enable
-+	 * Bit 0: Direct Keypad Interrupt enable
-+	 */
-+	if (val == 0)
-+		writel(0x3f9ff800, base);
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_int
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Generate an interrupt when the low-g threshold is met
++		0: disable
++		1: enable
 +
-+	val = readl(base + 0x24);
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_dur
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	High G duration required to trigger.
++		(See the equations in the data sheet)
 +
-+	/* set the debounce interval (KPKDI) to 100ms */
-+	if (val == 0)
-+		writel(100, base + 0x24);
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_hyst
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	High G duration hysteresis
++		(See the equations in the data sheet)
 +
-+	iounmap(base);
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x0805, langwell_keypad_fixup);
-diff --git a/arch/x86/platform/mrst/mrst.c b/arch/x86/platform/mrst/mrst.c
-index dea829c..b16c5ae 100644
---- a/arch/x86/platform/mrst/mrst.c
-+++ b/arch/x86/platform/mrst/mrst.c
-@@ -21,6 +21,7 @@
- #include <linux/i2c/pca953x.h>
- #include <linux/gpio_keys.h>
- #include <linux/input.h>
-+#include <linux/input/intel_mid_keypad.h>
- #include <linux/platform_device.h>
- #include <linux/irq.h>
- #include <linux/module.h>
-@@ -809,3 +810,21 @@ static int __init pb_keys_init(void)
- 	return 0;
- }
- late_initcall(pb_keys_init);
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_thres
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	High G threshold
++		(See the equations in the data sheet)
 +
-+/*
-+ * Mininal initial implementation of the mrst keypad hooks. We need this 
-+ * to merge the keypad drivers and can then tweak this for the platforms
-+ * that are different
-+ */
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_dur
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Low G duration required to trigger
++		(See the equations in the data sheet)
 +
-+int mrst_keypad_enabled(void)
-+{
-+	return 1;
-+}
-+EXPORT_SYMBOL_GPL(mrst_keypad_enabled);
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_hyst
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Low G duration hysteresis
++		(See the equations in the data sheet)
 +
-+struct mrst_keypad_platform_data *mrst_keypad_platform_data(void)
-+{
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(mrst_keypad_platform_data);
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index c7a9202..b6beefa 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -324,6 +324,16 @@ config KEYBOARD_IMX
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_thres
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Low G threshold
++		(See the equations in the data sheet)
++
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/power_mode
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Power mode
++		0: Use runtime PM
++		1: Forced on
++
++What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/accel_data
++Date:		February 2011
++Contact:	Alan Cox <alan@linux.intel.com>
++Description:	Raw XYZ co-ordinate data, each ranges from -512 to +511,
++		formatted as (x,y,z) to match existing similar interfaces
++
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index b0c6772..3b595b8 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -454,4 +454,14 @@ config INPUT_CMA3000_I2C
  	  To compile this driver as a module, choose M here: the
- 	  module will be called imx_keypad.
- 
-+config KEYBOARD_INTEL_MID
-+	tristate "Intel MID keypad support"
-+	depends on GPIO_LANGWELL
+ 	  module will be called cma3000_d0x_i2c.
+=20
++config INPUT_BMA023
++	tristate "BMA023/SMB380 Triaxial acceleration sensor"
++	depends on I2C
 +	help
-+	  Say Y if you want support for Intel MID keypad devices
-+	  depends on GPIO_LANGWELL
++	  Say Y here if you want to support Bosch BMA023/SMB380
++	  connected via an I2C bus.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called intel_mid_keypad.
++	  module will be called bma023.
 +
- config KEYBOARD_NEWTON
- 	tristate "Newton keyboard"
- 	select SERIO
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 468c627..15eff1b 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -12,6 +12,7 @@ obj-$(CONFIG_KEYBOARD_ATKBD)		+= atkbd.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
- obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
-+obj-$(CONFIG_KEYBOARD_INTEL_MID)	+= intel_mid_keypad.o
- obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
- obj-$(CONFIG_KEYBOARD_GPIO_POLLED)	+= gpio_keys_polled.o
- obj-$(CONFIG_KEYBOARD_TCA6416)		+= tca6416-keypad.o
-diff --git a/drivers/input/keyboard/intel_mid_keypad.c b/drivers/input/keyboard/intel_mid_keypad.c
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 9b47971..79b3f66 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -36,6 +36,7 @@ obj-$(CONFIG_INPUT_PWM_BEEPER)		+=3D pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+=3D rb532_button.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+=3D rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
++obj-$(CONFIG_INPUT_BMA023)			+=3D bma023.o
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
+ obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+=3D twl4030-pwrbutton.o
+ obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+=3D twl4030-vibra.o
+diff --git a/drivers/input/misc/bma023.c b/drivers/input/misc/bma023.c
 new file mode 100644
-index 0000000..867458a
+index 0000000..d7abccd
 --- /dev/null
-+++ b/drivers/input/keyboard/intel_mid_keypad.c
-@@ -0,0 +1,457 @@
++++ b/drivers/input/misc/bma023.c
+@@ -0,0 +1,1308 @@
 +/*
-+ * Driver for the matrix keypad controller on MID platform.
++ * bma023.c - BMA023 Tri-axis accelerometer driver
 + *
-+ * Copyright (c) 2009-2011 Intel Corporation.
-+ * Created:	Sep 18, 2008
-+ * Updated:	May 14, 2010
-+ * Copyright (C) 2011 Jekyll Lai, Wistron <jekyll_lai@wistron.com>
++ * Copyright (C) 2010 Samsung Eletronics Co.Ltd
++ * Kim Kyuwon <q1.kim@samsung.com>
++ * Kyungmin Park <kyungmin.park@samsung.com>
++ * Donggeun Kim <dg77.kim@samsung.com>
 + *
-+ * Based on pxa27x_keypad.c by Rodolfo Giometti <giometti@linux.it>
-+ * pxa27x_keypad.c is based on a previous implementation by Kevin O'Connor
-+ * <kevin_at_keconnor.net> and Alex Osborne <bobofdoom@gmail.com> and
-+ * on some suggestions by Nicolas Pitre <nico@cam.org>
++ * Copyright (C) 2011 Wistron Co.Ltd
++ * Joseph Lai <joseph_lai@wistron.com>
 + *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
++ * Copyright (c) 2011 Intel Corporation
++ * Alan Cox <alan@linux.intel.com>
 + *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
 + *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * TODO (After)
++ *	Investigate if the IRQ disable is really needed (needs that data
++ *		sheet reviewing in more detail)
 + */
 +
-+#define DRV_NAME	"mrst_keypad"
-+#define DRV_VERSION	"1.4"
-+#define MRST_KEYPAD_DRIVER_NAME   DRV_NAME " " DRV_VERSION
-+
-+#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/pci.h>
 +#include <linux/init.h>
 +#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/mutex.h>
 +#include <linux/err.h>
-+#include <linux/gpio.h>
-+#include <linux/input/intel_mid_keypad.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/i2c/bma023.h>
++#include <linux/delay.h>
++#include <linux/slab.h>
++#include <linux/pm_runtime.h>
++
++#define BMA023_DEFAULT_AUTO_DELAY	250	/* mS */
++
++#define BMA023_CHIP_ID_REG	0x00
++#define BMA023_X_LSB_REG	0x02
++#define BMA023_X_MSB_REG	0x03
++#define BMA023_Y_LSB_REG	0x04
++#define BMA023_Y_MSB_REG	0x05
++#define BMA023_Z_LSB_REG	0x06
++#define BMA023_Z_MSB_REG	0x07
++#define BMA023_TEMP_REG		0x08 /*  An output of 0 equals -30C,
++					 1 LSB equals 0.5C */
++#define BMA023_CTRL1_REG	0x0a
++#define BMA023_CTRL2_REG	0x0b
++#define BMA023_SETTINGS1_REG	0x0c
++#define BMA023_SETTINGS2_REG	0x0d
++#define BMA023_SETTINGS3_REG	0x0e
++#define BMA023_SETTINGS4_REG	0x0f
++#define BMA023_SETTINGS5_REG	0x10
++#define BMA023_SETTINGS6_REG	0x11
++#define BMA023_RANGE_BW_REG	0x14
++#define BMA023_CONF2_REG	0x15
++
++#define BMA023_CHIP_ID		0x02
++
++#define BMA023_NEW_DATA_INT_SHIFT	5
++#define BMA023_NEW_DATA_INT_MASK	(0x1 << 5)
++
++#define BMA023_RANGE_SHIFT		3
++#define BMA023_RANGE_MASK		(0x3 << 3)
++#define BMA023_BANDWIDTH_SHIFT		0
++#define BMA023_BANDWIDTH_MASK		(0x7)
++
++#define BMA023_HG_HYST_SHIFT		3
++#define BMA023_HG_HYST_MASK		(0x7 << 3)
++#define BMA023_LG_HYST_SHIFT		0
++#define BMA023_LG_HYST_MASK		(0x7)
++
++#define BMA023_HG_DUR_SHIFT		(0x0)
++#define BMA023_HG_DUR_MASK		(0xff)
++#define BMA023_HG_THRES_SHIFT		(0x0)
++#define BMA023_HG_THRES_MASK		(0xff)
++#define BMA023_LG_DUR_SHIFT		(0x0)
++#define BMA023_LG_DUR_MASK		(0xff)
++#define BMA023_LG_THRES_SHIFT		(0x0)
++#define BMA023_LG_THRES_MASK		(0xff)
++
++#define BMA023_ENABLE_HG_SHIFT		1
++#define BMA023_ENABLE_HG_MASK		(0x1 << 1)
++#define BMA023_ENABLE_LG_SHIFT		0
++#define BMA023_ENABLE_LG_MASK		(0x1)
++
++#define BMA023_SLEEP_SHIFT		0
++#define BMA023_SLEEP_MASK		(0x1)
++
++#define BMA023_ACCEL_BITS		10
++#define BMA023_MAX_VALUE		((1 << ((BMA023_ACCEL_BITS) - 1)) - 1)
++#define BMA023_MIN_VALUE		(-(1 << ((BMA023_ACCEL_BITS) - 1)))
++
++#define BMA023_DEFAULT_RANGE		BMA023_RANGE_2G
++#define BMA023_DEFAULT_BANDWIDTH	BMA023_BW_190HZ
++#define BMA023_DEFAULT_NEW_DATA_INT	0
++#define BMA023_DEFAULT_HG_INT		0
++#define BMA023_DEFAULT_LG_INT		0
++#define BMA023_DEFAULT_HG_DURATION	0x05
++#define BMA023_DEFAULT_HG_THRESHOLD	0xa0
++#define BMA023_DEFAULT_HG_HYST		0
++#define BMA023_DEFAULT_LG_DURATION	0x05
++#define BMA023_DEFAULT_LG_THRESHOLD	0x14
++#define BMA023_DEFAULT_LG_HYST		0
++
++#define BMA023_SUSPEND	0
++#define BMA023_RESUME	1
++
++#define BMA023_CUSTOMER_REG	0x12
++#define BMA023_INSPECT_VAL	0xBB
++#define BMA023_CHECK_SHIFT	0
++#define BMA023_CHECK_MASK	0xff
++
++struct bma023_data {
++	s16 x;
++	s16 y;
++	s16 z;
++};
++
++struct bma023_sensor {
++	struct i2c_client *client;
++	struct device *dev;
++	struct input_dev *idev;
++	struct mutex lock;
++	struct bma023_data data;
++	int soft_power;		/* Our sysfs requested power status as
++				   opposed to the actual one which is
++				   a combination of this and pm runtime */
++	u8 range;
++	u8 bandwidth;
++	u8 new_data_int;
++	u8 hg_int;
++	u8 lg_int;
++	u8 lg_dur;
++	u8 lg_thres;
++	u8 lg_hyst;
++	u8 hg_dur;
++	u8 hg_thres;
++	u8 hg_hyst;
++	u8 power_mode;
++};
++
++/**
++ *	bma023_write_reg	-	write a BMA023 register via I2C
++ *	@reg: register being updated
++ *	@val: value to write
++ *
++ *	Updates the register or returns an error if the write fails.
++ */
++static int bma023_write_reg(struct i2c_client *client, u8 reg, u8 val)
++{
++	int ret;
++	/*
++	 * According to the datasheet, the interrupt should be deactivated
++	 * on the host side when write sequences operate.
++	 */
++	disable_irq_nosync(client->irq);
++	ret =3D i2c_smbus_write_byte_data(client, reg, val);
++	enable_irq(client->irq);
++	if (ret < 0)
++		dev_err(&client->dev, "%s: reg 0x%x, val 0x%x, err %d\n",
++			__func__, reg, val, ret);
++	return ret;
++}
++
++/**
++ *	bma023_read_reg	-	read a BMA023 register via I2C
++ *	@reg: register being updated
++ *	@val: value to write
++ *
++ *	Reads the register or returns a negative error code on failure.
++ */
++static int bma023_read_reg(struct i2c_client *client, u8 reg)
++{
++	int ret =3D i2c_smbus_read_byte_data(client, reg);
++	if (ret < 0)
++		dev_err(&client->dev, "%s: reg 0x%x, err %d\n",
++			__func__, reg, ret);
++	return ret;
++}
++
++/**
++ *	bma023_xyz_read_reg	-	read the axes values
++ *	@reg: register being updated
++ *	@val: value to write
++ *
++ *	Reads the register values in one transaction or returns a negative
++ *	error code on failure/
++ */
++static int bma023_xyz_read_reg(struct i2c_client *client,
++			       u8 *buffer, int length)
++{
++	struct i2c_msg msg[] =3D {
++		{
++			.addr =3D client->addr,
++			.flags =3D 0,
++			.len =3D 1,
++			.buf =3D buffer,
++		}, {
++			.addr =3D client->addr,
++			.flags =3D I2C_M_RD,
++			.len =3D length,
++			.buf =3D buffer,
++		},
++	};
++	return i2c_transfer(client->adapter, msg, 2);
++}
++
++/**
++ *	bma023_set_reg_bits	-	update a subset of register bits
++ *	@client: i2c client for the sensor
++ *	@val: value to write
++ *	@shift: bit offset of field
++ *	@mask: bit mask of field to update
++ *	@reg: register number
++ *
++ *	Update one of the many bitfield registers on the BMA023 by reading
++ *	and writing back bits. The caller *MUST* hold the sensor lock when
++ *	using this function in order to prevent overlapping updates corrupt=
+ing
++ *	the register.
++ *
++ *	Returns success or an error code
++ */
++static int bma023_set_reg_bits(struct i2c_client *client,
++					int val, int shift, u8 mask, u8 reg)
++{
++	int data =3D bma023_read_reg(client, reg);
++
++	if (data < 0)
++		return data;
++
++	data =3D (data & ~mask) | ((val << shift) & mask);
++	return bma023_write_reg(client, reg, data);
++}
++
++/**
++ *	bma023_get_reg_bits	-	read register bitfield
++ *	@client: i2c client for the sensor
++ *	@shift: bit offset of field
++ *	@mask: bit mask of field to update
++ *	@reg: register number
++ *
++ *	Read a bit field from the sensor and return the value of the field.=
+ The
++ *	lock is not needed in this case
++ */
++static int bma023_get_reg_bits(struct i2c_client *client, int shift,
++					u8 mask, u8 reg)
++{
++	int data =3D bma023_read_reg(client, reg);
++	if (data < 0)
++		return data;
++	data =3D (data & mask) >> shift;
++	return data;
++}
 +
 +/*
-+ * Keypad Controller registers
++ *	Functions for handling all the configurable fields
 + */
-+#define KPC             0x0000 /* Keypad Control register */
-+#define KPAS            0x0010 /* Keypad Automatic Scan register */
 +
-+#define KPC_MI          (0x1 << 22)  /* Matrix interrupt bit */
-+
-+/* Keypad Automatic Scan Multiple Key Presser register 0-3 */
-+#define KPASMKP0        0x0014
-+#define KPASMKP1        0x0018
-+#define KPASMKP2        0x001C
-+#define KPASMKP3        0x0020
-+#define KPKDI           0x0024
-+
-+#define KPAS_SO         (0x1 << 31)
-+#define KPAS_MUKP(n)	(((n) >> 26) & 0x1f)
-+#define KPAS_RP(n)	(((n) >> 4) & 0xf)
-+#define KPAS_CP(n)	((n) & 0xf)
-+#define KPASMKP_MKC_MASK	(0xff)
-+
-+#define	KEYPAD_MATRIX_GPIO_IN_PIN	24
-+#define	KEYPAD_MATRIX_GPIO_OUT_PIN	32
-+
-+#define keypad_readl(off)	readl(keypad->mmio_base + (off))
-+#define keypad_writel(off, v)	writel((v), keypad->mmio_base + (off))
-+
-+#define MAX_MATRIX_KEY_NUM	(8 * 8)
-+#define MAX_MATRIX_KEY_COLS	(8)
-+
-+static unsigned int mrst_default_keymap[] = {
-+	KEY(0, 0, KEY_1),
-+	KEY(0, 1, KEY_8),
-+	KEY(0, 2, KEY_T),
-+	KEY(0, 3, KEY_S),
-+	KEY(0, 4, KEY_L),
-+	KEY(0, 5, KEY_N),
-+
-+	KEY(1, 0, KEY_2),
-+	KEY(1, 1, KEY_9),
-+	KEY(1, 2, KEY_Y),
-+	KEY(1, 3, KEY_D),
-+	KEY(1, 4, KEY_BACKSPACE),
-+	KEY(1, 5, KEY_M),
-+
-+	KEY(2, 0, KEY_3),
-+	KEY(2, 1, KEY_0),
-+	KEY(2, 2, KEY_U),
-+	KEY(2, 3, KEY_F),
-+	KEY(2, 4, KEY_Z),
-+	KEY(2, 5, KEY_F23),
-+
-+	KEY(3, 0, KEY_4),
-+	KEY(3, 1, KEY_Q),
-+	KEY(3, 2, KEY_I),
-+	KEY(3, 3, KEY_G),
-+	KEY(3, 4, KEY_X),
-+	KEY(3, 5, KEY_F24),
-+
-+	KEY(4, 0, KEY_5),
-+	KEY(4, 1, KEY_W),
-+	KEY(4, 2, KEY_O),
-+	KEY(4, 3, KEY_H),
-+	KEY(4, 4, KEY_C),
-+	KEY(4, 5, KEY_COMMA),
-+
-+	KEY(5, 0, KEY_6),
-+	KEY(5, 1, KEY_E),
-+	KEY(5, 2, KEY_P),
-+	KEY(5, 3, KEY_J),
-+	KEY(5, 4, KEY_V),
-+	KEY(5, 5, KEY_DOT),
-+
-+	KEY(6, 0, KEY_7),
-+	KEY(6, 1, KEY_R),
-+	KEY(6, 2, KEY_A),
-+	KEY(6, 3, KEY_K),
-+	KEY(6, 4, KEY_B),
-+	KEY(6, 5, KEY_SPACE),
-+
-+	KEY(7, 0, KEY_LEFTSHIFT),
-+	KEY(7, 1, KEY_RIGHTALT),
-+	KEY(7, 2, KEY_ENTER),
-+};
-+
-+static const struct matrix_keymap_data mrst_default_keymap_data = {
-+	.keymap = mrst_default_keymap,
-+	.keymap_size = ARRAY_SIZE(mrst_default_keymap),
-+};
-+
-+struct mrst_keypad {
-+	struct input_dev *input_dev;
-+	void __iomem *mmio_base;
-+	unsigned int irq;
-+
-+	unsigned int	matrix_key_rows;
-+	unsigned int	matrix_key_cols;
-+	unsigned int	row_shift;
-+
-+	const struct matrix_keymap_data *keymap_data;
-+
-+	/* state row bits of each column scan */
-+	uint32_t matrix_key_state[MAX_MATRIX_KEY_COLS];
-+
-+	unsigned short keycode[MAX_MATRIX_KEY_NUM];
-+};
-+
-+static void mrst_keypad_build_keycode(struct mrst_keypad *keypad)
++/**
++ *	bma023_set_check_reg	-	set an inspective value
++ *	@client: i2c client for the sensor
++ *	@check: update the inspective value
++ *
++ *	Set an inspective value to customer's register, which can record
++ *	any value from user. The inspective value will keep until the chip
++ *	off or shutdown. User can recognize the chip needs re-initialize
++ *	or not by this register.
++ */
++static int bma023_set_check_reg(struct i2c_client *client, u8 check)
 +{
-+	struct input_dev *input_dev = keypad->input_dev;
-+	const struct matrix_keymap_data *keymap_data;
-+	struct mrst_keypad_platform_data *pdata;
-+
-+	keymap_data = &mrst_default_keymap_data;
-+
-+	pdata = mrst_keypad_platform_data();
-+
-+	if (pdata)
-+		keymap_data = pdata->keymap_data;
-+
-+	matrix_keypad_build_keymap(keymap_data, keypad->row_shift,
-+		 input_dev->keycode, input_dev->keybit);
++	return bma023_set_reg_bits(client, check, BMA023_CHECK_SHIFT,
++				   BMA023_CHECK_MASK, BMA023_CUSTOMER_REG);
 +}
 +
-+static void mrst_keypad_scan_matrix(struct mrst_keypad *keypad)
++static int bma023_get_check_reg(struct i2c_client *client)
 +{
-+	int row, col, code, num_keys_pressed = 0;
-+	uint32_t new_state[MAX_MATRIX_KEY_COLS];
-+	uint32_t kpas = keypad_readl(KPAS);
++	return bma023_get_reg_bits(client, BMA023_CHECK_SHIFT,
++				   BMA023_CHECK_MASK, BMA023_CUSTOMER_REG);
++}
 +
-+	num_keys_pressed = KPAS_MUKP(kpas);
++/**
++ *	bma023_set_range	-	set the full scale acceleration range
++ *	@client: i2c client for the sensor
++ *	@range: new range setting
++ *
++ *	The range of bma023 will affect the chip to change the sensitivity=20
++ *	of gravitation. The value of range includes +/- 2g, 4g and 8g.
++ *
++ *	The change of range will respond to 3 axes directly.
++ */
++static int bma023_set_range(struct i2c_client *client, u8 range)
++{
++	return bma023_set_reg_bits(client, range, BMA023_RANGE_SHIFT,
++				   BMA023_RANGE_MASK, BMA023_RANGE_BW_REG);
++}
 +
-+	memset(new_state, 0, sizeof(new_state));
++static int bma023_get_range(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_RANGE_SHIFT,
++				   BMA023_RANGE_MASK, BMA023_RANGE_BW_REG);
++}
 +
-+	if (num_keys_pressed == 1) {
-+		col = KPAS_CP(kpas);
-+		row = KPAS_RP(kpas);
++/**
++ *	bma023_set_bandwidth	-	set the digital filtering of ADC output data
++ *	@client: i2c client for the sensor
++ *	@bw: new bandwidth setting
++ *
++ *	The bandwidth affect the ability of noise filter. The value of band=
+width
++ *	includes 25Hz, 50Hz, 100Hz, 190Hz, 375Hz, 750Hz and 1500Hz.
++ *
++ *	The change of bandwidth will respond to 3 axes directly.
++ */
++static int bma023_set_bandwidth(struct i2c_client *client, u8 bw)
++{
++	return bma023_set_reg_bits(client, bw, BMA023_BANDWIDTH_SHIFT,
++				   BMA023_BANDWIDTH_MASK, BMA023_RANGE_BW_REG);
++}
 +
-+		if (row < 0 || col < 0)
-+			return;
++static int bma023_get_bandwidth(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_BANDWIDTH_SHIFT,
++				   BMA023_BANDWIDTH_MASK, BMA023_RANGE_BW_REG);
++}
 +
-+		new_state[col] = (1 << row);
-+	} else if (num_keys_pressed > 1) {
-+		uint32_t kpasmkp0 = keypad_readl(KPASMKP0);
-+		uint32_t kpasmkp1 = keypad_readl(KPASMKP1);
-+		uint32_t kpasmkp2 = keypad_readl(KPASMKP2);
-+		uint32_t kpasmkp3 = keypad_readl(KPASMKP3);
++/**
++ *	bma023_set_new_data_int	-	switch on/off of new data interrupt
++ *	@client: i2c client for the sensor
++ *	@val: value to switch on/off, 1: on, 0: off
++ *
++ *	To turn on this interrupt will generate an interrupt when all three
++ *	axes acceleration values are new.
++ */
++static int bma023_set_new_data_int(struct i2c_client *client, u8 val)
++{
++	return bma023_set_reg_bits(client, val, BMA023_NEW_DATA_INT_SHIFT,
++				   BMA023_NEW_DATA_INT_MASK, BMA023_CONF2_REG);
++}
 +
-+		new_state[0] = kpasmkp0 & KPASMKP_MKC_MASK;
-+		new_state[1] = (kpasmkp0 >> 16) & KPASMKP_MKC_MASK;
-+		new_state[2] = kpasmkp1 & KPASMKP_MKC_MASK;
-+		new_state[3] = (kpasmkp1 >> 16) & KPASMKP_MKC_MASK;
-+		new_state[4] = kpasmkp2 & KPASMKP_MKC_MASK;
-+		new_state[5] = (kpasmkp2 >> 16) & KPASMKP_MKC_MASK;
-+		new_state[6] = kpasmkp3 & KPASMKP_MKC_MASK;
-+		new_state[7] = (kpasmkp3 >> 16) & KPASMKP_MKC_MASK;
-+	}
++static int bma023_get_new_data_int(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_NEW_DATA_INT_SHIFT,
++				   BMA023_NEW_DATA_INT_MASK, BMA023_CONF2_REG);
++}
 +
-+	for (col = 0; col < keypad->matrix_key_cols; col++) {
-+		uint32_t bits_changed;
++/**
++ *	bma023_set_hg_int	-	switch on/off of high-g interrupt
++ *	@client: i2c client for the sensor
++ *	@val: value to switch on/off, 1: on, 0: off
++ *
++ *	To turn on this interrupt will generate an interrupt when the
++ *	oscillatory criteria is satisfied by hg_dur and hg_thres.
++ *
++ *	Usually, it is used to debounce the high-g criteria.
++ */
++static int bma023_set_hg_int(struct i2c_client *client, u8 val)
++{
++	return bma023_set_reg_bits(client, val, BMA023_ENABLE_HG_SHIFT,
++				   BMA023_ENABLE_HG_MASK, BMA023_CTRL2_REG);
++}
 +
-+		bits_changed = keypad->matrix_key_state[col] ^ new_state[col];
-+		if (bits_changed == 0)
-+			continue;
++static int bma023_get_hg_int(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_ENABLE_HG_SHIFT,
++				   BMA023_ENABLE_HG_MASK, BMA023_CTRL2_REG);
++}
 +
-+		for (row = 0; row < keypad->matrix_key_rows; row++) {
-+			if ((bits_changed & (1 << row)) == 0)
-+				continue;
++/**
++ *	bma023_set_lg_int	-	switch on/off of low-g interrupt
++ *	@client: i2c client for the sensor
++ *	@val: value to switch on/off, 1: on, 0: off
++ *
++ *	To turn on this setting will generate an interrupt when the
++ *	oscillatory criteria is satisfied by lg_dur and lg_thres.
++ *
++ *	Usually, it is used to detect a free fall.
++ */
++static int bma023_set_lg_int(struct i2c_client *client, u8 val)
++{
++	return bma023_set_reg_bits(client, val,	BMA023_ENABLE_LG_SHIFT,
++				   BMA023_ENABLE_LG_MASK, BMA023_CTRL2_REG);
++}
 +
-+			code = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
-+			input_event(keypad->input_dev, EV_MSC, MSC_SCAN, code);
-+			input_report_key(keypad->input_dev,
-+				keypad->keycode[code],
-+				new_state[col] & (1 << row));
++static int bma023_get_lg_int(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_ENABLE_LG_SHIFT,
++				   BMA023_ENABLE_LG_MASK, BMA023_CTRL2_REG);
++}
++
++/**
++ *	bma023_set_lg_dur	-	set low-g duration
++ *	@client: i2c client for the sensor
++ *	@dur: duration value, 0-255
++ *=09
++ *	Generate an interrupt when the gravitation is detected in low-g
++ *	criterion for long enough duration.
++ *
++ *	This setting is used to interrupt detection.
++ */
++static int bma023_set_lg_dur(struct i2c_client *client, u8 dur)
++{
++	return bma023_set_reg_bits(client, dur,	BMA023_LG_DUR_SHIFT,
++				   BMA023_LG_DUR_MASK, BMA023_SETTINGS2_REG);
++}
++
++static int bma023_get_lg_dur(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_LG_DUR_SHIFT,
++				   BMA023_LG_DUR_MASK, BMA023_SETTINGS2_REG);
++}
++
++/**
++ *	bma023_set_lg_thres	-	set low-g threshold
++ *	@client: i2c client for the sensor
++ *	@thres: threshold value, 0-255
++ *=09
++ *	Filter 3 axes detection and limit to trigger an interrupt signal
++ *	when the gravitation is detected in low-g threshold.
++ *
++ *	This setting is used to interrupt detection.
++ */
++static int bma023_set_lg_thres(struct i2c_client *client, u8 thres)
++{
++	return bma023_set_reg_bits(client, thres, BMA023_LG_THRES_SHIFT,
++				   BMA023_LG_THRES_MASK, BMA023_SETTINGS1_REG);
++}
++
++static int bma023_get_lg_thres(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_LG_THRES_SHIFT,
++				   BMA023_LG_THRES_MASK, BMA023_SETTINGS1_REG);
++}
++
++/**
++ *	bma023_set_lg_hyst	-	set low-g hysteresis
++ *	@client: i2c client for the sensor
++ *	@hyst: hysteresis value, 0-7
++ *=09
++ *	Expand the range of detectable gravitation to reset an interrupt.
++ *	An interrupt will be latched until outside of low-g criterion with=20
++ *	hysteresis.
++ *
++ *	This setting is used to interrupt detection.
++ */
++static int bma023_set_lg_hyst(struct i2c_client *client, u8 hyst)
++{
++	return bma023_set_reg_bits(client, hyst, BMA023_LG_HYST_SHIFT,
++				   BMA023_LG_HYST_MASK, BMA023_SETTINGS6_REG);
++}
++
++static int bma023_get_lg_hyst(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_LG_HYST_SHIFT,
++				   BMA023_LG_HYST_MASK,	BMA023_SETTINGS6_REG);
++}
++
++/**
++ *	bma023_set_hg_dur	-	set high-g duration
++ *	@client: i2c client for the sensor
++ *	@dur: duration value, 0-255
++ *=09
++ *	Generate an interrupt when the gravitation is detected in high-g
++ *	criterion for long enough duration.
++ *
++ *	This setting is used to interrupt detection.
++ */
++static int bma023_set_hg_dur(struct i2c_client *client, u8 dur)
++{
++	return bma023_set_reg_bits(client, dur,	BMA023_HG_DUR_SHIFT,
++				   BMA023_HG_DUR_MASK, BMA023_SETTINGS4_REG);
++}
++
++static int bma023_get_hg_dur(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_HG_DUR_SHIFT,
++				   BMA023_HG_DUR_MASK, BMA023_SETTINGS4_REG);
++}
++
++/**
++ *	bma023_set_hg_thres	-	set high-g threshold
++ *	@client: i2c client for the sensor
++ *	@thres: threshold value, 0-255
++ *=09
++ *	Filter 3 axes detection and limit to trigger an interrupt signal
++ *	when the gravitation is detected in high-g threshold.
++ *
++ *	This setting is used to interrupt detection.
++ */
++static int bma023_set_hg_thres(struct i2c_client *client, u8 thres)
++{
++	return bma023_set_reg_bits(client, thres, BMA023_HG_THRES_SHIFT,
++				   BMA023_HG_THRES_MASK, BMA023_SETTINGS3_REG);
++}
++
++static int bma023_get_hg_thres(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_HG_THRES_SHIFT,
++				   BMA023_HG_THRES_MASK, BMA023_SETTINGS3_REG);
++}
++
++/**
++ *	bma023_set_hg_hyst	-	set low-g hysteresis
++ *	@client: i2c client for the sensor
++ *	@hyst: hysteresis value, 0-7
++ *=09
++ *	Expand the range of detectable gravitation to reset an interrupt.
++ *	An interrupt will be latched until outside of high-g criterion with=
+=20
++ *	hysteresis.
++ *
++ *	This setting is used to interrupt detection.
++ */
++static int bma023_set_hg_hyst(struct i2c_client *client, u8 hyst)
++{
++	return bma023_set_reg_bits(client, hyst, BMA023_HG_HYST_SHIFT,
++				   BMA023_HG_HYST_MASK,	BMA023_SETTINGS6_REG);
++}
++
++static int bma023_get_hg_hyst(struct i2c_client *client)
++{
++	return bma023_get_reg_bits(client, BMA023_HG_HYST_SHIFT,
++				   BMA023_HG_HYST_MASK,	BMA023_SETTINGS6_REG);
++}
++
++/**
++ *	bma023_power_mode	-	set the power mode
++ *	@client: i2c client for the sensor
++ *	@val: value to switch on/off of power, 1: normal power, 0: low powe=
+r
++ *
++ *	Put device to normal-power mode or low-power mode.
++ */
++static int bma023_set_power_mode(struct i2c_client *client, u8 val)
++{
++	return bma023_set_reg_bits(client, ~val, BMA023_SLEEP_SHIFT,
++				   BMA023_SLEEP_MASK, BMA023_CTRL1_REG);
++}
++
++static int bma023_get_power_mode(struct i2c_client *client)
++{
++	return !bma023_get_reg_bits(client, BMA023_SLEEP_SHIFT,
++				   BMA023_SLEEP_MASK, BMA023_CTRL1_REG);
++}
++
++/**
++ *	bma023_correct_accel_sign	-	convert to expected format
++ *	@val: twos complement value
++ *
++ *	The description of the digital signals x, y and z is "2' complement=
+".
++ *	So we need to correct the sign of data read by i2c.
++ */
++static s16 bma023_correct_accel_sign(s16 val)
++{
++	val <<=3D (sizeof(s16) * BITS_PER_BYTE - BMA023_ACCEL_BITS);
++	val >>=3D (sizeof(s16) * BITS_PER_BYTE - BMA023_ACCEL_BITS);
++	return val;
++}
++
++/**
++ *	bma023_merge_register_values	-	turn into co-ordinate
++ *	@lsb: low bits from sensor
++ *	@msb: high bits from sensor
++ *
++ *	Turns a sensor register reading into a Linux input layer
++ *	value and returns it.
++ */
++static s16 bma023_merge_register_values(u8 lsb, u8 msb)
++{
++	s16 val =3D (msb << 2) | (lsb >> 6);
++	return bma023_correct_accel_sign(val);
++}
++
++/**
++ *	bma023_read_xyz		-	get co-ordinates from device
++ *	@client: i2c address of sensor
++ *	@coords: co-ordinates to update
++ *
++ *	Return the converted X Y and Z co-ordinates from the sensor device
++ */
++static void bma023_read_xyz(struct i2c_client *client,
++				struct bma023_data *coords)
++{
++	u8 buffer[6];
++	buffer[0] =3D BMA023_X_LSB_REG;
++	bma023_xyz_read_reg(client, buffer, 6);
++	coords->x =3D bma023_merge_register_values(buffer[0], buffer[1]);
++	coords->y =3D bma023_merge_register_values(buffer[2], buffer[3]);
++	coords->z =3D bma023_merge_register_values(buffer[4], buffer[5]);
++	dev_dbg(&client->dev, "%s: x %d, y %d, z %d\n", __func__,
++					coords->x, coords->y, coords->z);
++}
++
++/**
++ *	bma023_show_xyz		-	show co-ordinate readings
++ *	@dev: device of sensor
++ *	@attr: device attributes of sysfs node
++ *	@buf: buffer for output
++ *
++ *	Perform a one off read of the sensor data. In non-interrupt mode
++ *	the sensor can be used for one off reads of the axes rather than
++ *	as an input device.
++ */
++static ssize_t bma023_show_xyz(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++
++	pm_runtime_get_sync(dev);
++
++	mutex_lock(&sensor->lock);
++	bma023_read_xyz(sensor->client, &sensor->data);
++	mutex_unlock(&sensor->lock);
++
++	pm_runtime_put(dev);
++
++	return sprintf(buf, "(%d,%d,%d)\n",
++		sensor->data.x, sensor->data.y, sensor->data.z);
++}
++static DEVICE_ATTR(accel_data, S_IRUGO, bma023_show_xyz, NULL);
++
++/**
++ *	bma023_set_attr	-	set an attribute on the sensor
++ *	@sensor sensor to update
++ *	@buf: buffer to parse
++ *	@count: length of buffer written
++ *	@get: read function to use
++ *	@set: write function to use
++ *	@data: where to store cached result
++ *
++ *	Helper function for setting attributes of the sensor. This does
++ *	all the parsing and locking in one place calling out to the helper
++ *	functions provided.
++ */
++static ssize_t bma023_set_attr(struct bma023_sensor *sensor,
++				const char *buf, size_t count,
++				int (*get)(struct i2c_client *),
++				int (*set)(struct i2c_client *, u8 val),
++				u8 *data)
++{
++	unsigned long val;
++	int ret;
++
++	if (!count)
++		return count;
++
++	ret =3D strict_strtoul(buf, 10, &val);
++	if (!ret) {
++		/* We don't need the device to be fully powered up for this
++		   but we do need to be sure that we force the i=C2=B2c controller
++		   to be awake */
++		pm_runtime_get_sync(sensor->dev);
++		mutex_lock(&sensor->lock);
++		ret =3D set(sensor->client, val);
++		if (ret >=3D 0) {
++			ret =3D get(sensor->client);
++			if (ret >=3D 0)
++				*data =3D ret;
 +		}
++		mutex_unlock(&sensor->lock);
++		pm_runtime_put(sensor->dev);
++		if (ret >=3D 0)
++			return count;
 +	}
-+	input_sync(keypad->input_dev);
-+	memcpy(keypad->matrix_key_state, new_state, sizeof(new_state));
++	return ret;
 +}
 +
-+static irqreturn_t mrst_keypad_irq_handler(int irq, void *dev_id)
++/* Methods for the sysfs attributes */
++static ssize_t bma023_show_power_mode(struct device *dev,
++		struct device_attribute *att, char *buf)
 +{
-+	struct mrst_keypad *keypad = dev_id;
-+	unsigned long kpc = keypad_readl(KPC);
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", bma023_get_power_mode(sensor->client));
++}
 +
-+	if (kpc & KPC_MI)
-+		mrst_keypad_scan_matrix(keypad);
++static ssize_t bma023_store_power_mode(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	unsigned long val;
++	int ret =3D strict_strtoul(buf, 10, &val);
++	if (ret)
++		return ret;
++
++	mutex_lock(&sensor->lock);
++	if (val & !sensor->soft_power)
++		pm_runtime_get(dev);
++	else if (!val && sensor->soft_power)
++		pm_runtime_put(dev);
++	sensor->soft_power =3D val;
++	mutex_unlock(&sensor->lock);
++
++	return count;
++}
++
++static DEVICE_ATTR(power_mode, S_IRUGO | S_IWUSR,
++		bma023_show_power_mode, bma023_store_power_mode);
++
++static ssize_t bma023_show_range(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->range);
++}
++
++static ssize_t bma023_store_range(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_range,
++			bma023_set_range,
++			&sensor->range);
++}
++
++static DEVICE_ATTR(range, S_IRUGO | S_IWUSR,
++		bma023_show_range, bma023_store_range);
++
++static ssize_t bma023_show_bandwidth(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->bandwidth);
++}
++
++static ssize_t bma023_store_bandwidth(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_bandwidth,
++			bma023_set_bandwidth,
++			&sensor->bandwidth);
++}
++
++static DEVICE_ATTR(bandwidth, S_IRUGO | S_IWUSR,
++		bma023_show_bandwidth, bma023_store_bandwidth);
++
++static ssize_t bma023_show_new_data_int(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->new_data_int);
++}
++
++static ssize_t bma023_store_new_data_int(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_new_data_int,
++			bma023_set_new_data_int,
++			&sensor->new_data_int);
++}
++
++static DEVICE_ATTR(new_data_int, S_IRUGO | S_IWUSR,
++		bma023_show_new_data_int, bma023_store_new_data_int);
++
++static ssize_t bma023_show_hg_int(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->hg_int);
++}
++
++static ssize_t bma023_store_hg_int(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_hg_int,
++			bma023_set_hg_int,
++			&sensor->hg_int);
++}
++
++static DEVICE_ATTR(hg_int, S_IRUGO | S_IWUSR,
++		bma023_show_hg_int, bma023_store_hg_int);
++
++static ssize_t bma023_show_lg_int(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->lg_int);
++}
++
++static ssize_t bma023_store_lg_int(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_lg_int,
++			bma023_set_lg_int,
++			&sensor->lg_int);
++}
++
++static DEVICE_ATTR(lg_int, S_IRUGO | S_IWUSR,
++		bma023_show_lg_int, bma023_store_lg_int);
++
++static ssize_t bma023_show_lg_dur(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->lg_dur);
++}
++
++static ssize_t bma023_store_lg_dur(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_lg_dur,
++			bma023_set_lg_dur,
++			&sensor->lg_dur);
++}
++
++static DEVICE_ATTR(lg_dur, S_IRUGO | S_IWUSR,
++		bma023_show_lg_dur, bma023_store_lg_dur);
++
++static ssize_t bma023_show_lg_thres(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->lg_thres);
++}
++
++static ssize_t bma023_store_lg_thres(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_lg_thres,
++			bma023_set_lg_thres,
++			&sensor->lg_thres);
++}
++
++static DEVICE_ATTR(lg_thres, S_IRUGO | S_IWUSR,
++		bma023_show_lg_thres, bma023_store_lg_thres);
++
++static ssize_t bma023_show_lg_hyst(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->lg_hyst);
++}
++
++static ssize_t bma023_store_lg_hyst(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_lg_hyst,
++			bma023_set_lg_hyst,
++			&sensor->lg_hyst);
++}
++
++static DEVICE_ATTR(lg_hyst, S_IRUGO | S_IWUSR,
++		bma023_show_lg_hyst, bma023_store_lg_hyst);
++
++static ssize_t bma023_show_hg_dur(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->hg_dur);
++}
++
++static ssize_t bma023_store_hg_dur(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_hg_dur,
++			bma023_set_hg_dur,
++			&sensor->hg_dur);
++}
++
++static DEVICE_ATTR(hg_dur, S_IRUGO | S_IWUSR,
++		bma023_show_hg_dur, bma023_store_hg_dur);
++
++static ssize_t bma023_show_hg_thres(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->hg_thres);
++}
++
++static ssize_t bma023_store_hg_thres(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_hg_thres,
++			bma023_set_hg_thres,
++			&sensor->hg_thres);
++}
++
++static DEVICE_ATTR(hg_thres, S_IRUGO | S_IWUSR,
++		bma023_show_hg_thres, bma023_store_hg_thres);
++
++static ssize_t bma023_show_hg_hyst(struct device *dev,
++		struct device_attribute *att, char *buf)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return sprintf(buf, "%d\n", sensor->hg_hyst);
++}
++
++static ssize_t bma023_store_hg_hyst(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	return bma023_set_attr(sensor, buf, count,
++			bma023_get_hg_hyst,
++			bma023_set_hg_hyst,
++			&sensor->hg_hyst);
++}
++
++static DEVICE_ATTR(hg_hyst, S_IRUGO | S_IWUSR,
++		bma023_show_hg_hyst, bma023_store_hg_hyst);
++
++static struct attribute *bma023_attributes[] =3D {
++	&dev_attr_accel_data.attr,
++	&dev_attr_power_mode.attr,
++	&dev_attr_range.attr,
++	&dev_attr_bandwidth.attr,
++	&dev_attr_new_data_int.attr,
++	&dev_attr_hg_int.attr,
++	&dev_attr_lg_int.attr,
++	&dev_attr_lg_dur.attr,
++	&dev_attr_lg_thres.attr,
++	&dev_attr_lg_hyst.attr,
++	&dev_attr_hg_dur.attr,
++	&dev_attr_hg_thres.attr,
++	&dev_attr_hg_hyst.attr,
++	NULL
++};
++
++static const struct attribute_group bma023_group =3D {
++	.attrs	=3D bma023_attributes,
++};
++
++/**
++ *	bma023_interrupt_thread	-	handle an IRQ
++ *	@irq: interrupt numner
++ *	@data: the sensor
++ *
++ *	Called by the kernel single threaded after an interrupt occurs. Rea=
+d
++ *	the sensor data and generate an input event for it.
++ */
++static irqreturn_t bma023_interrupt_thread(int irq, void *data)
++{
++	struct bma023_sensor *sensor =3D data;
++
++	mutex_lock(&sensor->lock);
++	bma023_read_xyz(sensor->client, &sensor->data);
++	mutex_unlock(&sensor->lock);
++
++	input_report_abs(sensor->idev, ABS_X, sensor->data.x);
++	input_report_abs(sensor->idev, ABS_Y, sensor->data.y);
++	input_report_abs(sensor->idev, ABS_Z, sensor->data.z);
++	input_sync(sensor->idev);
 +
 +	return IRQ_HANDLED;
 +}
 +
-+
-+static void mrst_keypad_gpio_free(struct mrst_keypad *keypad)
++/**
++ *	bma023_initialize	-	set sensor parameters
++ *	@sensor: sensor to configure
++ *
++ *	Load the actual hardware with the sensor values that were provided
++ */
++static void bma023_initialize(struct bma023_sensor *sensor)
 +{
-+	int in_pins = KEYPAD_MATRIX_GPIO_IN_PIN + keypad->matrix_key_rows;
-+	int out_pins = KEYPAD_MATRIX_GPIO_OUT_PIN + keypad->matrix_key_cols;
-+	int i;
-+
-+	/* free occupied pins */
-+	for (i = KEYPAD_MATRIX_GPIO_IN_PIN; i < in_pins; i++)
-+		gpio_free(i);
-+	for (i = KEYPAD_MATRIX_GPIO_OUT_PIN; i < out_pins; i++)
-+ 		gpio_free(i);
++	bma023_set_range(sensor->client, sensor->range);
++	bma023_set_bandwidth(sensor->client, sensor->bandwidth);
++	bma023_set_new_data_int(sensor->client, sensor->new_data_int);
++	bma023_set_hg_dur(sensor->client, sensor->hg_dur);
++	bma023_set_hg_thres(sensor->client, sensor->hg_thres);
++	bma023_set_hg_hyst(sensor->client, sensor->hg_hyst);
++	bma023_set_lg_dur(sensor->client, sensor->lg_dur);
++	bma023_set_lg_thres(sensor->client, sensor->lg_thres);
++	bma023_set_lg_hyst(sensor->client, sensor->lg_hyst);
++	bma023_set_hg_int(sensor->client, sensor->hg_int);
++	bma023_set_lg_int(sensor->client, sensor->lg_int);
++	bma023_set_power_mode(sensor->client, sensor->power_mode);
++	bma023_set_check_reg(sensor->client, BMA023_INSPECT_VAL);
 +}
 +
-+static int mrst_keypad_gpio_init(struct mrst_keypad *keypad)
++/**
++ *	bma023_input_open	-	called on input event open
++ *	@input: input dev of opened device
++ *
++ *	The input layer calls this function when input event is opened. The
++ *	function will push the device to resume. Then, the device is ready
++ *	to provide data.
++ */
++static int bma023_input_open(struct input_dev *input)
 +{
-+	int i, err;
-+	int in_pins = KEYPAD_MATRIX_GPIO_IN_PIN + keypad->matrix_key_rows;
-+	int out_pins = KEYPAD_MATRIX_GPIO_OUT_PIN + keypad->matrix_key_cols;
++	struct bma023_sensor *sensor =3D input_get_drvdata(input);
++	pm_runtime_get(sensor->dev);
++	return 0;
++}
 +
-+	/* explicitely tell which pins have been occupied... */
-+	for (i = KEYPAD_MATRIX_GPIO_IN_PIN; i < in_pins; i++) {
-+		err = gpio_request(i, NULL);
++/**
++ *	bma023_input_close	-	called on input event close
++ *	@input: input dev of closed device
++ *
++ *	The input layer calls this function when input event is closed. The
++ *	function will push the device to suspend.
++ */
++static void bma023_input_close(struct input_dev *input)
++{
++	struct bma023_sensor *sensor =3D input_get_drvdata(input);
++	pm_runtime_put(sensor->dev);
++}
 +
-+		if (err) {
-+			pr_err(DRV_NAME "GPIO pin %d failed to request.\n", i);
-+			goto err_free_rows;
++/**
++ *	bma023_unregister_input_device	-	remove input dev
++ *	@sensor: sensor to remove from input
++ *
++ *	Free the interrupt and input device for the sensor. We must free
++ *	the interrupt first
++ */
++static void bma023_unregister_input_device(struct bma023_sensor *senso=
+r)
++{
++	struct i2c_client *client =3D sensor->client;
++	if (client->irq > 0)
++		free_irq(client->irq, sensor);
++	input_unregister_device(sensor->idev);
++	sensor->idev =3D NULL;
++}
++
++/**
++ *	bma023_register_input_device	-	remove input dev
++ *	@sensor: sensor to remove from input
++ *
++ *	Add an input device to the sensor. This will be used to report
++ *	events from the sensor itself.
++ */
++static int bma023_register_input_device(struct bma023_sensor *sensor)
++{
++	struct i2c_client *client =3D sensor->client;
++	struct input_dev *idev;
++	int ret;
++	sensor->idev =3D input_allocate_device();
++	idev =3D sensor->idev;
++	if (!idev) {
++		dev_err(&client->dev, "failed to allocate input device\n");
++		ret =3D -ENOMEM;
++		goto failed_alloc;
++	}
++	idev->name =3D "BMA023 Sensor";
++	idev->open =3D bma023_input_open;
++	idev->close =3D bma023_input_close;
++	idev->id.bustype =3D BUS_I2C;
++	idev->dev.parent =3D &client->dev;
++	idev->evbit[0] =3D BIT_MASK(EV_ABS);
++	input_set_abs_params(idev, ABS_X, BMA023_MIN_VALUE,
++			BMA023_MAX_VALUE, 0, 0);
++	input_set_abs_params(idev, ABS_Y, BMA023_MIN_VALUE,
++			BMA023_MAX_VALUE, 0, 0);
++	input_set_abs_params(idev, ABS_Z, BMA023_MIN_VALUE,
++			BMA023_MAX_VALUE, 0, 0);
++	input_set_drvdata(idev, sensor);
++	ret =3D input_register_device(idev);
++	if (ret) {
++		dev_err(&client->dev, "failed to register input device\n");
++		goto failed_reg;
++	}
++	if (client->irq > 0) {
++		ret =3D request_threaded_irq(client->irq, NULL,
++				bma023_interrupt_thread, IRQF_TRIGGER_RISING,
++					"bma023", sensor);
++		if (ret) {
++			dev_err(&client->dev, "can't get IRQ %d, ret %d\n",
++					client->irq, ret);
++			goto failed_irq;
 +		}
++	}
++	return 0;
++failed_irq:
++	input_unregister_device(idev);
++	return ret;
 +
-+		gpio_direction_input(i);
++failed_reg:
++	if (idev)
++		input_free_device(idev);
++failed_alloc:
++	return ret;
++}
++
++/**
++ *	bma023_probe	-	device detection callback
++ *	@client: i2c client of found device
++ *	@id: id match information
++ *
++ *	The I2C layer calls us when it believes a sensor is present at this
++ *	address. Probe to see if this is correct and to validate the device=
+=2E
++ *
++ *	If present install the relevant sysfs interfaces and input device.
++ */
++static int __devinit bma023_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct bma023_sensor *sensor;
++	struct bma023_platform_data *pdata;
++	int ret;
++	int auto_delay;		/* PM timeout */
++
++	sensor =3D kzalloc(sizeof(struct bma023_sensor), GFP_KERNEL);
++	if (!sensor) {
++		dev_err(&client->dev, "failed to allocate driver data\n");
++		return -ENOMEM;
++	}
++	pdata =3D client->dev.platform_data;
++	sensor->dev =3D &client->dev;
++
++	sensor->client =3D client;
++	i2c_set_clientdata(client, sensor);
++
++	ret =3D bma023_read_reg(client, BMA023_CHIP_ID_REG);
++	if (ret < 0) {
++		dev_err(&client->dev, "failed to detect device\n");
++		goto failed_free;
++	}
++	if (ret !=3D BMA023_CHIP_ID) {
++		dev_err(&client->dev, "unsupported chip id\n");
++		goto failed_free;
 +	}
 +
-+	for (i = KEYPAD_MATRIX_GPIO_OUT_PIN; i < out_pins; i++) {
-+		err = gpio_request(i, NULL);
++	mutex_init(&sensor->lock);
 +
-+		if (err) {
-+			pr_err(DRV_NAME "GPIO pin %d failed to request.\n", i);
-+			goto err_free_cols;
-+		}
-+
-+		gpio_direction_output(i, 1);
++	ret =3D sysfs_create_group(&client->dev.kobj, &bma023_group);
++	if (ret) {
++		dev_err(&client->dev, "failed to create attribute group\n");
++		goto failed_free;
 +	}
 +
++	pm_runtime_set_active(&client->dev);
++
++	ret =3D bma023_register_input_device(sensor);
++	if (ret)
++		dev_err(&client->dev, "only provide sysfs\n");
++
++	if (pdata) {
++		sensor->range =3D pdata->range;
++		sensor->bandwidth =3D pdata->bandwidth;
++		sensor->new_data_int =3D pdata->new_data_int;
++		sensor->hg_int =3D pdata->hg_int;
++		sensor->lg_int =3D pdata->lg_int;
++		sensor->hg_dur =3D pdata->hg_dur;
++		sensor->hg_thres =3D pdata->hg_thres;
++		sensor->hg_hyst =3D pdata->hg_hyst;
++		sensor->lg_dur =3D pdata->lg_dur;
++		sensor->lg_thres =3D pdata->lg_thres;
++		sensor->lg_hyst =3D pdata->lg_hyst;
++		auto_delay =3D pdata->auto_delay;
++	} else {
++		sensor->range =3D BMA023_DEFAULT_RANGE;
++		sensor->bandwidth =3D BMA023_DEFAULT_BANDWIDTH;
++		sensor->new_data_int =3D BMA023_DEFAULT_NEW_DATA_INT;
++		sensor->hg_int =3D BMA023_DEFAULT_HG_INT;
++		sensor->lg_int =3D BMA023_DEFAULT_LG_INT;
++		sensor->hg_dur =3D BMA023_DEFAULT_HG_DURATION;
++		sensor->hg_thres =3D BMA023_DEFAULT_HG_THRESHOLD;
++		sensor->hg_hyst =3D BMA023_DEFAULT_HG_HYST;
++		sensor->lg_dur =3D BMA023_DEFAULT_LG_DURATION;
++		sensor->lg_thres =3D BMA023_DEFAULT_LG_THRESHOLD;
++		sensor->lg_hyst =3D BMA023_DEFAULT_LG_HYST;
++		auto_delay =3D BMA023_DEFAULT_AUTO_DELAY;
++	}
++	sensor->power_mode =3D BMA023_SUSPEND;
++
++	bma023_initialize(sensor);
++
++	pm_runtime_enable(&client->dev);
++	pm_runtime_set_autosuspend_delay(&client->dev, auto_delay);
++
++	dev_info(&client->dev, "%s registered\n", id->name);
 +	return 0;
 +
-+err_free_cols:
-+	while (--i >= KEYPAD_MATRIX_GPIO_OUT_PIN)
-+		gpio_free(i);
-+
-+	i = in_pins;
-+
-+err_free_rows:
-+	while (--i >= KEYPAD_MATRIX_GPIO_IN_PIN)
-+		gpio_free(i);
-+
-+	return err;
++failed_free:
++	kfree(sensor);
++	return ret;
 +}
 +
-+static int __devinit mrst_keypad_probe(struct pci_dev *pdev,
-+			const struct pci_device_id *ent)
++/**
++ *	bam023_remove	-	remove a sensor
++ *	@client: i2c client of sensor being removed
++ *
++ *	Our sensor is going away, clean up the resources.
++ */
++static int __devexit bma023_remove(struct i2c_client *client)
 +{
-+	struct mrst_keypad *keypad;
-+	struct input_dev *input_dev;
-+	int error;
-+	u32 kpc;
++	struct bma023_sensor *sensor =3D i2c_get_clientdata(client);
 +
-+	/* Check with the firmware if the keypad is enabled */
-+	if (!mrst_keypad_enabled())
-+		return 0;
++	pm_runtime_disable(&client->dev);
++	pm_runtime_set_suspended(&client->dev);
 +
-+	error = pci_enable_device(pdev);
-+	if (error || pdev->irq == 0) {
-+		dev_err(&pdev->dev, "failed to enable device/get irq\n");
-+		return -ENXIO;
-+	}
-+
-+	keypad = kzalloc(sizeof(struct mrst_keypad), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!keypad || !input_dev) {
-+		dev_err(&pdev->dev, "failed to allocate driver data\n");
-+		error = -ENOMEM;
-+		goto failed_free_mem;
-+	}
-+
-+	keypad->input_dev = input_dev;
-+	keypad->irq = pdev->irq;
-+
-+	error = pci_request_regions(pdev, DRV_NAME);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to request I/O memory\n");
-+		goto failed_free_mem;
-+	}
-+
-+	keypad->mmio_base = pci_ioremap_bar(pdev, 0);
-+	if (!keypad->mmio_base) {
-+		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-+		error = -ENXIO;
-+		goto failed_free_mem_region;
-+	}
-+
-+	kpc = keypad_readl(KPC);
-+	keypad->matrix_key_rows = ((kpc >> 26) & 0x7) + 1;
-+	keypad->matrix_key_cols = ((kpc >> 23) & 0x7) + 1;
-+	keypad->row_shift = get_count_order(keypad->matrix_key_cols);
-+
-+	input_dev->name = pci_name(pdev);
-+	input_dev->id.bustype = BUS_PCI;
-+	input_dev->dev.parent = &pdev->dev;
-+	input_set_drvdata(input_dev, keypad);
-+
-+	input_dev->keycode = keypad->keycode;
-+	input_dev->keycodesize = sizeof(unsigned int);
-+	input_dev->keycodemax = keypad->matrix_key_rows << keypad->row_shift;
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
-+		BIT_MASK(EV_REL);
-+
-+	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-+
-+	mrst_keypad_build_keycode(keypad);
-+
-+	error = mrst_keypad_gpio_init(keypad);
-+	if (error)
-+		goto failed_free_iounmap;
-+
-+	/* Register the input device */
-+	error = input_register_device(input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to register input device\n");
-+		goto failed_free_gpio;
-+	}
-+
-+	error = request_irq(pdev->irq, mrst_keypad_irq_handler, IRQF_SHARED,
-+		pci_name(pdev), keypad);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to request keyboard IRQ\n");
-+		goto failed_free_input;
-+	}
-+	pci_set_drvdata(pdev, keypad);
++	if (sensor->idev)
++		bma023_unregister_input_device(sensor);
++	sysfs_remove_group(&client->dev.kobj, &bma023_group);
++	kfree(sensor);
 +	return 0;
-+
-+failed_free_input:
-+	input_unregister_device(input_dev);
-+	input_dev = NULL;
-+failed_free_gpio:
-+	mrst_keypad_gpio_free(keypad);
-+failed_free_iounmap:
-+	iounmap(keypad->mmio_base);
-+failed_free_mem_region:
-+	pci_release_regions(pdev);
-+failed_free_mem:
-+	if (input_dev)
-+		input_free_device(input_dev);
-+	kfree(keypad);
-+
-+	return error;
 +}
-+
-+static void __devexit mrst_keypad_remove(struct pci_dev *pdev)
-+{
-+	struct mrst_keypad *keypad = pci_get_drvdata(pdev);
-+
-+	free_irq(pdev->irq, keypad);
-+
-+	input_unregister_device(keypad->input_dev);
-+	mrst_keypad_gpio_free(keypad);
-+	iounmap(keypad->mmio_base);
-+	pci_release_regions(pdev);
-+	pci_set_drvdata(pdev, NULL);
-+	kfree(keypad);
-+}
-+
-+static const struct pci_device_id keypad_pci_tbl[] = {
-+	{0x8086, 0x0805, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{0,}
-+};
-+MODULE_DEVICE_TABLE(pci, keypad_pci_tbl);
 +
 +#ifdef CONFIG_PM
-+static int mrst_keypad_suspend(struct pci_dev *pdev, pm_message_t state)
-+{
-+	if (device_may_wakeup(&pdev->dev))
-+		enable_irq_wake(pdev->irq);
 +
++/**
++ *	bma023_suspend		-	called on device suspend
++ *	@client: i2c client of sensor
++ *	@mesg: actual suspend type
++ *
++ *	Put the device into sleep mode before we suspend the machine.
++ */
++static int bma023_suspend(struct i2c_client *client, pm_message_t mesg=
+)
++{
++	bma023_set_power_mode(client, BMA023_SUSPEND);
 +	return 0;
 +}
 +
-+static int mrst_keypad_resume(struct pci_dev *pdev)
++/**
++ *	bma023_resume		-	called on device resume
++ *	@client: i2c client of sensor
++ *
++ *	Put the device into powered mode on resume.
++ */
++static int bma023_resume(struct i2c_client *client)
 +{
-+	if (device_may_wakeup(&pdev->dev))
-+		disable_irq_wake(pdev->irq);
-+
++	struct bma023_sensor *sensor =3D dev_get_drvdata(&client->dev);
++	if (bma023_get_check_reg(client) !=3D BMA023_INSPECT_VAL)
++		bma023_initialize(sensor);
++	bma023_set_power_mode(client, sensor->power_mode);
++	msleep(4);  /* wait for accel chip resume */
 +	return 0;
 +}
++
++#else
++#define bma023_suspend NULL
++#define bma023_resume NULL
 +#endif
 +
-+static struct pci_driver mrst_keypad_driver = {
-+	.name		= DRV_NAME,
-+	.id_table	= keypad_pci_tbl,
-+	.probe		= mrst_keypad_probe,
-+	.remove		= __devexit_p(mrst_keypad_remove),
-+#ifdef CONFIG_PM
-+	.suspend	= mrst_keypad_suspend,
-+	.resume		= mrst_keypad_resume,
-+#endif /* CONFIG_PM */
++#ifdef CONFIG_PM_RUNTIME
++
++static int bma023_runtime_suspend(struct device *dev)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	bma023_set_power_mode(sensor->client, BMA023_SUSPEND);
++	return 0;
++}
++
++static int bma023_runtime_resume(struct device *dev)
++{
++	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
++	int ret =3D bma023_set_power_mode(sensor->client, BMA023_RESUME);
++	if (ret =3D=3D 0)
++		msleep(4);  /* wait for accel chip resume */
++	return ret;
++}
++
++static const struct dev_pm_ops bma023_pm =3D {
++	.runtime_suspend =3D bma023_runtime_suspend,
++	.runtime_resume  =3D bma023_runtime_resume,
++};
++#endif
++
++static const struct i2c_device_id bma023_ids[] =3D {
++	{ "bma023", 0 },
++	{ "smb380", 1 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, bma023_ids);
++
++static struct i2c_driver bma023_i2c_driver =3D {
++	.driver	=3D {
++		.name	=3D "bma023",
++#ifdef CONFIG_PM_RUNTIME
++		.pm		=3D &bma023_pm,
++#endif	=09
++	},
++	.probe		=3D bma023_probe,
++	.remove		=3D __devexit_p(bma023_remove),
++	.suspend	=3D bma023_suspend,
++	.resume		=3D bma023_resume,
++	.id_table	=3D bma023_ids,
 +};
 +
-+static int __init mrst_keypad_init(void)
++static int __init bma023_init(void)
 +{
-+	return pci_register_driver(&mrst_keypad_driver);
++	return i2c_add_driver(&bma023_i2c_driver);
 +}
++module_init(bma023_init);
 +
-+static void __exit mrst_keypad_exit(void)
++static void __exit bma023_exit(void)
 +{
-+	pci_unregister_driver(&mrst_keypad_driver);
++	i2c_del_driver(&bma023_i2c_driver);
 +}
++module_exit(bma023_exit);
 +
-+module_init(mrst_keypad_init);
-+module_exit(mrst_keypad_exit);
-+
-+MODULE_DESCRIPTION("MRST Keypad Controller Driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Intel Corp, Jekyll Lai <jekyll_lai@wistron.com>");
-diff --git a/include/linux/input/intel_mid_keypad.h b/include/linux/input/intel_mid_keypad.h
++MODULE_AUTHOR("Kim Kyuwon <q1.kim@samsung.com>, Wistron Corp.");
++MODULE_DESCRIPTION("BMA023/SMB380 Tri-axis accelerometer driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c/bma023.h b/include/linux/i2c/bma023.h
 new file mode 100644
-index 0000000..7a41bfc
+index 0000000..7c6e890
 --- /dev/null
-+++ b/include/linux/input/intel_mid_keypad.h
-@@ -0,0 +1,29 @@
++++ b/include/linux/i2c/bma023.h
+@@ -0,0 +1,44 @@
 +/*
-+ * Copyright (C) 2010 Jekyll Lai, Wistron <jekyll_lai@wistron.com>
++ * bma023.h - BMA023 Tri-axis accelerometer driver
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * version 2 as published by the Free Software Foundation.
++ * Copyright (c) 2010 Samsung Eletronics
++ * Kyungmin Park <kyungmin.park@samsung.com>
 + *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-+ * 02110-1301 USA
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + *
 + */
 +
-+#include <linux/platform_device.h>
-+#include <linux/input/matrix_keypad.h>
++#ifndef _BMA023_H_
++#define _BMA023_H_
 +
-+struct mrst_keypad_platform_data {
-+	const struct matrix_keymap_data *keymap_data;
++#define	BMA023_RANGE_2G		0
++#define	BMA023_RANGE_4G		1
++#define	BMA023_RANGE_8G		2
++
++/* Used to setup the digital filtering bandwidth of ADC output */
++#define	BMA023_BW_25HZ		0
++#define	BMA023_BW_50HZ		1
++#define	BMA023_BW_100HZ		2
++#define	BMA023_BW_190HZ		3
++#define	BMA023_BW_375HZ		4
++#define	BMA023_BW_750HZ		5
++#define BMA023_BW_1500HZ	6
++
++struct bma023_platform_data {
++	u8 range;		/* BMA023_RANGE_xxx */
++	u8 bandwidth;		/* BMA023_BW_xxx */
++	u8 new_data_int;	/* Set to enable new data interrupt */
++	u8 hg_int;		/* Set to enable high G interrupt */
++	u8 lg_int;		/* Set to enable low G interrupt */
++	u8 lg_dur;		/* Low G duration */
++	u8 lg_thres;		/* Low G threshold */
++	u8 lg_hyst;		/* Low G Hysterisis */
++	u8 hg_dur;		/* Ditto for High G */
++	u8 hg_thres;
++	u8 hg_hyst;
++	int auto_delay;		/* Runtime PM keeps active on use for mS */
 +};
 +
-+extern int mrst_keypad_enabled(void);
-+extern struct mrst_keypad_platform_data *mrst_keypad_platform_data(void);
-+
++#endif /* _BMA023_H_ */
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

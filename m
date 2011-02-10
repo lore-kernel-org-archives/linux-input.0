@@ -1,47 +1,88 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [RFC v2 PATCH 1/7] matrix_keypad: Increase the max limit of rows
- and columns
-Date: Thu, 10 Feb 2011 20:40:54 +0800
-Message-ID: <AANLkTi=MX0h-YU_Y_LSgZ1gLxS0iXSDGbRyHx4u4TVC1@mail.gmail.com>
-References: <1296568063-12010-1-git-send-email-aghayal@codeaurora.org>
- <1296568063-12010-2-git-send-email-aghayal@codeaurora.org>
- <AANLkTimZ9UwcQp5QQjyHVsRdEAcf6+rL18mCesishPoC@mail.gmail.com> <4D53D7FE.9070206@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: lm8323 - Convert to dev_pm_ops
+Date: Thu, 10 Feb 2011 13:16:39 +0000
+Message-ID: <1297343799-6620-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:52540 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755227Ab1BJMlP (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:48877 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751147Ab1BJNQW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Feb 2011 07:41:15 -0500
-In-Reply-To: <4D53D7FE.9070206@codeaurora.org>
+	Thu, 10 Feb 2011 08:16:22 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>
-Cc: Anirudh Ghayal <aghayal@codeaurora.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Felipe Balbi <me@felipebalbi.com>, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Thu, Feb 10, 2011 at 8:20 PM, Trilok Soni <tsoni@codeaurora.org> wrote:
-> Hi Dmitry,
->
-> On 2/9/2011 1:32 PM, Eric Miao wrote:
->> On Tue, Feb 1, 2011 at 9:47 PM, Anirudh Ghayal <aghayal@codeaurora.org> wrote:
->>> From: Trilok Soni <tsoni@codeaurora.org>
->>>
->>> Some keyboard controller have support for more than
->>> 16 columns and rows. Moving this value to 32.
->>>
->>> Cc: Eric Miao <eric.y.miao@gmail.com>
->>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>> Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
->>
->> This looks good to me, as long as the bits don't exceed 256, which
->> is used in the #KEY() macro. So far, 32 looks to be a sane number
->> to me, unless we have further requirement to get this larger.
->>
->> Acked-by: Eric Miao <eric.y.miao@gmail.com>
->>
->
-> Are you going to pick up this patch only from the series you want us to get
-> it submitted it separately?
+There is a general move away from bus specific PM operations to using
+dev_pm_ops in order to facilicate core improvements. Update lm8323 to
+the new model.
 
-I believe Dmitry will pick this series once all the patches are reviewed?
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/keyboard/lm8323.c |   15 ++++++++-------
+ 1 files changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
+index f7c2a16..b732870 100644
+--- a/drivers/input/keyboard/lm8323.c
++++ b/drivers/input/keyboard/lm8323.c
+@@ -30,6 +30,7 @@
+ #include <linux/delay.h>
+ #include <linux/input.h>
+ #include <linux/leds.h>
++#include <linux/pm.h>
+ #include <linux/i2c/lm8323.h>
+ #include <linux/slab.h>
+ 
+@@ -802,8 +803,9 @@ static int __devexit lm8323_remove(struct i2c_client *client)
+  * We don't need to explicitly suspend the chip, as it already switches off
+  * when there's no activity.
+  */
+-static int lm8323_suspend(struct i2c_client *client, pm_message_t mesg)
++static int lm8323_suspend(struct device *dev)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	struct lm8323_chip *lm = i2c_get_clientdata(client);
+ 	int i;
+ 
+@@ -821,8 +823,9 @@ static int lm8323_suspend(struct i2c_client *client, pm_message_t mesg)
+ 	return 0;
+ }
+ 
+-static int lm8323_resume(struct i2c_client *client)
++static int lm8323_resume(struct device *dev)
+ {
++	struct i2c_client *client = to_i2c_client(dev);
+ 	struct lm8323_chip *lm = i2c_get_clientdata(client);
+ 	int i;
+ 
+@@ -839,11 +842,10 @@ static int lm8323_resume(struct i2c_client *client)
+ 
+ 	return 0;
+ }
+-#else
+-#define lm8323_suspend	NULL
+-#define lm8323_resume	NULL
+ #endif
+ 
++static SIMPLE_DEV_PM_OPS(lm8323_pm_ops, lm8323_suspend, lm8323_resume);
++
+ static const struct i2c_device_id lm8323_id[] = {
+ 	{ "lm8323", 0 },
+ 	{ }
+@@ -852,11 +854,10 @@ static const struct i2c_device_id lm8323_id[] = {
+ static struct i2c_driver lm8323_i2c_driver = {
+ 	.driver = {
+ 		.name	= "lm8323",
++		.pm	= &lm8323_pm_ops,
+ 	},
+ 	.probe		= lm8323_probe,
+ 	.remove		= __devexit_p(lm8323_remove),
+-	.suspend	= lm8323_suspend,
+-	.resume		= lm8323_resume,
+ 	.id_table	= lm8323_id,
+ };
+ MODULE_DEVICE_TABLE(i2c, lm8323_id);
+-- 
+1.7.2.3
+

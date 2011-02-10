@@ -1,19 +1,19 @@
 From: Iiro Valkonen <iiro.valkonen@atmel.com>
-Subject: Re: [PATCH 1/5] Remove fixed config data from driver file; add config
- to platform data
-Date: Thu, 10 Feb 2011 09:57:25 +0200
-Message-ID: <4D539A65.1030000@atmel.com>
-References: <4D3DAE3C.6060806@atmel.com> <20110124170756.GB31066@core.coreip.homeip.net> <4D3EA7DD.6000601@atmel.com> <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com> <20110203074318.GA5814@core.coreip.homeip.net> <4D4AB52D.4020400@atmel.com> <20110204085754.GE13046@core.coreip.homeip.net>
+Subject: Re: [PATCH 4/5] Try IRQF_TRIGGER_NONE if IRQF_TRIGGER_FALLING returns
+ error
+Date: Thu, 10 Feb 2011 10:03:34 +0200
+Message-ID: <4D539BD6.6010007@atmel.com>
+References: <4D3DAE3C.6060806@atmel.com> <20110124170756.GB31066@core.coreip.homeip.net> <4D3EA7DD.6000601@atmel.com> <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com> <20110203074318.GA5814@core.coreip.homeip.net> <4D4AB770.7090407@atmel.com> <20110204085336.GC13046@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:50520 "EHLO
+Received: from newsmtp5.atmel.com ([204.2.163.5]:40463 "EHLO
 	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752269Ab1BJH4y (ORCPT
+	with ESMTP id S1752603Ab1BJIDB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Feb 2011 02:56:54 -0500
-In-Reply-To: <20110204085754.GE13046@core.coreip.homeip.net>
+	Thu, 10 Feb 2011 03:03:01 -0500
+In-Reply-To: <20110204085336.GC13046@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -21,225 +21,74 @@ Cc: Trilok Soni <tsoni@codeaurora.org>, linux-input@vger.kernel.org
 
 Hi Dmitry,
 
-On 02/04/2011 10:57 AM, Dmitry Torokhov wrote:
-> On Thu, Feb 03, 2011 at 04:01:17PM +0200, Iiro Valkonen wrote:
->> +	unsigned char *config;
+On 02/04/2011 10:53 AM, Dmitry Torokhov wrote:
 > 
-> This should be "const u8 *config". Also it would be a good idea to also
-> pass length and validate it when dereferencing.
-> 
-> Thanks.
+> I guess we should pass irqflags in platfrom data so board code can
+> adjust as needed.
 > 
 
-thanks for the feedback, here's a patch where those issues are fixed.
+here the irqflags are put to the platform data, and used when the interrupt is requested.
 
 -- 
 Iiro
 
-Input: qt602240_ts - Remove fixed config data from driver file; add config to platform data
+Input: qt602240_ts - Use irqflags from platform data to set the interrupt mode.
 
 From: Iiro Valkonen <iiro.valkonen@atmel.com>
 
-As there is no common configuration settings that would work in every situation, remove the fixed config data from driver file; and add config data to platform data.
+Use irqflags from platform data to set the interrupt mode
 
 Signed-off-by: Iiro Valkonen <iiro.valkonen@atmel.com>
 ---
- drivers/input/touchscreen/qt602240_ts.c |  147 +++----------------------------
- include/linux/i2c/qt602240_ts.h         |    2 +
- 2 files changed, 16 insertions(+), 133 deletions(-)
+ arch/arm/mach-s5pv210/mach-goni.c       |    2 ++
+ drivers/input/touchscreen/qt602240_ts.c |    2 +-
+ include/linux/i2c/qt602240_ts.h         |    1 +
+ 3 files changed, 4 insertions(+), 1 deletions(-)
 
+diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
+index e22d511..cb6a637 100644
+--- a/arch/arm/mach-s5pv210/mach-goni.c
++++ b/arch/arm/mach-s5pv210/mach-goni.c
+@@ -25,6 +25,7 @@
+ #include <linux/gpio_keys.h>
+ #include <linux/input.h>
+ #include <linux/gpio.h>
++#include <linux/interrupt.h>
+ 
+ #include <asm/mach/arch.h>
+ #include <asm/mach/map.h>
+@@ -231,6 +232,7 @@ static struct qt602240_platform_data qt602240_platform_data = {
+ 	.threshold	= 0x28,
+ 	.voltage	= 2800000,              /* 2.8V */
+ 	.orient		= QT602240_DIAGONAL,
++	.irqflags	= IRQF_TRIGGER_FALLING,
+ };
+ 
+ static struct s3c2410_platform_i2c i2c2_data __initdata = {
 diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/touchscreen/qt602240_ts.c
-index 3612678..115dcc4 100644
+index 115dcc4..08fd136 100644
 --- a/drivers/input/touchscreen/qt602240_ts.c
 +++ b/drivers/input/touchscreen/qt602240_ts.c
-@@ -199,122 +199,6 @@
+@@ -1162,7 +1162,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 		goto err_free_object;
  
- #define MXT_MAX_FINGER		10
- 
--/* Initial register values recommended from chip vendor */
--static const u8 init_vals_ver_20[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x08, 0x05, 0x05, 0x00, 0x00, 0x00, 0x05, 0x14,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x64,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x00, 0x64, 0x64, 0x64, 0x64, 0x00, 0x00, 0x1e, 0x14, 0x04,
--	0x1e, 0x00,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x19, 0x00, 0xe7, 0xff, 0x04, 0x32, 0x00,
--	0x01, 0x0a, 0x0f, 0x14, 0x00, 0x00, 0xe8,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x04, 0x08,
--};
--
--static const u8 init_vals_ver_21[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
--	0x0f, 0x0a,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
--	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
--};
--
--static const u8 init_vals_ver_22[] = {
--	/* MXT_GEN_COMMAND(6) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_GEN_POWER(7) */
--	0x20, 0xff, 0x32,
--	/* MXT_GEN_ACQUIRE(8) */
--	0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
--	/* MXT_TOUCH_MULTI(9) */
--	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
--	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_TOUCH_KEYARRAY(15) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00,
--	/* MXT_SPT_GPIOPWM(19) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_GRIPFACE(20) */
--	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
--	0x0f, 0x0a,
--	/* MXT_PROCG_NOISE(22) */
--	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
--	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
--	/* MXT_TOUCH_PROXIMITY(23) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_ONETOUCH(24) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_SELFTEST(25) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00,
--	/* MXT_PROCI_TWOTOUCH(27) */
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
--	/* MXT_SPT_CTECONFIG(28) */
--	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
--};
--
- struct mxt_info {
- 	u8 family_id;
- 	u8 variant_id;
-@@ -714,26 +598,18 @@ end:
- 
- static int mxt_check_reg_init(struct mxt_data *data)
- {
-+	const struct mxt_platform_data *pdata = data->pdata;
- 	struct mxt_object *object;
- 	struct device *dev = &data->client->dev;
- 	int index = 0;
--	int i, j;
--	u8 version = data->info.version;
-+	int i, j, config_offset;
- 	u8 *init_vals;
- 
--	switch (version) {
--	case MXT_VER_20:
--		init_vals = (u8 *)init_vals_ver_20;
--		break;
--	case MXT_VER_21:
--		init_vals = (u8 *)init_vals_ver_21;
--		break;
--	case MXT_VER_22:
--		init_vals = (u8 *)init_vals_ver_22;
--		break;
--	default:
--		dev_err(dev, "Firmware version %d doesn't support\n", version);
--		return -EINVAL;
-+	if (pdata->config) {
-+		init_vals = (u8 *)pdata->config;
-+	} else {
-+		dev_err(dev, "No cfg data defined, skipping reg init\n");
-+		return 0;
- 	}
- 
- 	for (i = 0; i < data->info.object_num; i++) {
-@@ -742,9 +618,14 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		if (!mxt_object_writable(object->type))
- 			continue;
- 
--		for (j = 0; j < object->size + 1; j++)
-+		for (j = 0; j < object->size + 1; j++) {
-+			config_offset = index + j;
-+			if (config_offset > pdata->config_length) {
-+				dev_err(dev, "Not enough config data!\n");
-+				return -EINVAL;
-+			}
- 			mxt_write_object(data, object->type, j,
--					init_vals[index + j]);
-+					init_vals[config_offset]);
- 
- 		index += object->size + 1;
- 	}
+ 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
+-			IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
++			pdata->irqflags, client->dev.driver->name, data);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+ 		goto err_free_object;
 diff --git a/include/linux/i2c/qt602240_ts.h b/include/linux/i2c/qt602240_ts.h
-index 0b4c72f..219392a 100644
+index 219392a..550f2a8 100644
 --- a/include/linux/i2c/qt602240_ts.h
 +++ b/include/linux/i2c/qt602240_ts.h
-@@ -33,6 +33,8 @@ struct mxt_platform_data {
- 	unsigned int threshold;
- 	unsigned int voltage;
+@@ -35,6 +35,7 @@ struct mxt_platform_data {
  	unsigned char orient;
-+	const u8 *config;
-+	unsigned int config_length;
+ 	const u8 *config;
+ 	unsigned int config_length;
++	unsigned long irqflags;
  };
  
  #endif /* __LINUX_MAXTOUCH_TS_H */
 -- 
 1.7.0.4
-
-

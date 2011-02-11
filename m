@@ -1,343 +1,72 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 3/4] input - wacom : support one finger touch the
- touchscreen way
-Date: Fri, 11 Feb 2011 12:40:47 -0800
-Message-ID: <AANLkTimBwdRE1xqpD0gRzp7+Q-ML1HyJmn6szo_Soz0s@mail.gmail.com>
-References: <1297387962-13723-1-git-send-email-pinglinux@gmail.com>
-	<20110211195656.GA2287@polaris.bitmath.org>
-	<AANLkTin0PWuMaB1T9sXj-VF9JUST3U=fHszR0RXG=ih4@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 4/4] input - wacom: Support 2FGT in MT format
+Date: Fri, 11 Feb 2011 21:47:42 +0100
+Message-ID: <20110211204742.GD2287@polaris.bitmath.org>
+References: <1297387983-13761-1-git-send-email-pinglinux@gmail.com>
+ <20110211202010.GB2287@polaris.bitmath.org>
+ <AANLkTimBPBDCBzw0fbDpLf8F7N_zG+ceKJAC9Li15g5P@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:56549 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758125Ab1BKUkt convert rfc822-to-8bit (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:44263 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758103Ab1BKUrb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Feb 2011 15:40:49 -0500
-Received: by wwa36 with SMTP id 36so2999232wwa.1
-        for <linux-input@vger.kernel.org>; Fri, 11 Feb 2011 12:40:48 -0800 (PST)
-In-Reply-To: <AANLkTin0PWuMaB1T9sXj-VF9JUST3U=fHszR0RXG=ih4@mail.gmail.com>
+	Fri, 11 Feb 2011 15:47:31 -0500
+Content-Disposition: inline
+In-Reply-To: <AANLkTimBPBDCBzw0fbDpLf8F7N_zG+ceKJAC9Li15g5P@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Ping Cheng <pinglinux@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Fri, Feb 11, 2011 at 12:24 PM, Ping Cheng <pinglinux@gmail.com> wrot=
-e:
-> On Fri, Feb 11, 2011 at 11:56 AM, Henrik Rydberg <rydberg@euromail.se=
-> wrote:
->> On Thu, Feb 10, 2011 at 05:32:42PM -0800, Ping Cheng wrote:
->>> There are two types of 1FGT devices supported in wacom_wac.c.
->>> Changing them to follow the existing touchscreen format, i.e.,
->>> only report BTN_TOUCH as a valid tool type.
->>>
->>> Touch data will be ignored if pen is in proximity. This requires
->>> a touch up sent if touch was down when pen comes in. The touch up
->>> event should be sent before any pen events emitted. Otherwise,
->>> two pointers would race for the cursor.
->>>
->>> However, we can not send a touch up inside wacom_tpc_pen since
->>> pen and touch are on different logical port. That is why we
->>> have to check if touch is up before sending pen events.
->>>
->>> Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
->>> Signed-off-by: Ping Cheng <pingc@wacom.com>
->>> ---
->>
->> Hi Ping,
->>
->>> =A0drivers/input/tablet/wacom_wac.c | =A0125 +++++++++++++---------=
----------------
->>> =A0drivers/input/tablet/wacom_wac.h | =A0 =A01 +
->>> =A02 files changed, 45 insertions(+), 81 deletions(-)
->>>
->>> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/table=
-t/wacom_wac.c
->>> index 15bab99..fc0669d 100644
->>> --- a/drivers/input/tablet/wacom_wac.c
->>> +++ b/drivers/input/tablet/wacom_wac.c
->>> @@ -675,51 +675,35 @@ static int wacom_intuos_irq(struct wacom_wac =
-*wacom)
->>> =A0 =A0 =A0 return 1;
->>> =A0}
->>>
->>> -static void wacom_tpc_touch_out(struct wacom_wac *wacom, int idx)
->>> -{
->>> - =A0 =A0 struct input_dev *input =3D wacom->input;
->>> - =A0 =A0 int finger =3D idx + 1;
->>> -
->>> - =A0 =A0 input_report_abs(input, ABS_X, 0);
->>> - =A0 =A0 input_report_abs(input, ABS_Y, 0);
->>> - =A0 =A0 input_report_abs(input, ABS_MISC, 0);
->>> - =A0 =A0 input_report_key(input, wacom->tool[finger], 0);
->>> - =A0 =A0 if (!idx)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_TOUCH, 0);
->>> - =A0 =A0 input_event(input, EV_MSC, MSC_SERIAL, finger);
->>> - =A0 =A0 input_sync(input);
->>> -}
->>> -
->>> -static void wacom_tpc_touch_in(struct wacom_wac *wacom, size_t len=
-)
->>> +static int wacom_tpc_single_touch(struct wacom_wac *wacom, size_t =
-len)
->>> =A0{
->>> =A0 =A0 =A0 char *data =3D wacom->data;
->>> =A0 =A0 =A0 struct input_dev *input =3D wacom->input;
->>> + =A0 =A0 bool prox =3D 0;
->>>
->>> - =A0 =A0 wacom->tool[1] =3D BTN_TOOL_DOUBLETAP;
->>> - =A0 =A0 wacom->id[0] =3D TOUCH_DEVICE_ID;
->>> -
->>> - =A0 =A0 if (len !=3D WACOM_PKGLEN_TPC1FG) {
->>> -
->>> - =A0 =A0 =A0 =A0 =A0 =A0 switch (data[0]) {
->>> + =A0 =A0 if (!wacom->shared->stylus_in_proximity) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 if (len =3D=3D WACOM_PKGLEN_TPC1FG)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 prox =3D data[0] & 0x01;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 else =A0/* with capacity */
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 prox =3D data[1] & 0x01;
->>> + =A0 =A0 } else if (wacom->shared->touch_down)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 prox =3D 0;
->>> + =A0 =A0 else
->>> + =A0 =A0 =A0 =A0 =A0 =A0 return 0;
->>>
->>> - =A0 =A0 =A0 =A0 =A0 =A0 case WACOM_REPORT_TPC1FG:
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, A=
-BS_X, le16_to_cpup((__le16 *)&data[2]));
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, A=
-BS_Y, le16_to_cpup((__le16 *)&data[4]));
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, A=
-BS_PRESSURE, le16_to_cpup((__le16 *)&data[6]));
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, B=
-TN_TOUCH, le16_to_cpup((__le16 *)&data[6]));
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, A=
-BS_MISC, wacom->id[0]);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, w=
-acom->tool[1], 1);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_sync(input);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 }
->>> - =A0 =A0 } else {
->>> + =A0 =A0 if (len =3D=3D WACOM_PKGLEN_TPC1FG) {
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_X, get_unal=
-igned_le16(&data[1]));
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_Y, get_unal=
-igned_le16(&data[3]));
->>> - =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_TOUCH, 1);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_MISC, wacom->=
-id[1]);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, wacom->tool[1], 1=
-);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 input_sync(input);
->>> + =A0 =A0 } else {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_X, le16_to_cp=
-up((__le16 *)&data[2]));
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_Y, le16_to_cp=
-up((__le16 *)&data[4]));
->>> =A0 =A0 =A0 }
->>> + =A0 =A0 input_report_key(input, BTN_TOUCH, prox);
->>> +
->>> + =A0 =A0 /* keep prox bit to send proper out-prox event */
->>> + =A0 =A0 wacom->shared->touch_down =3D prox;
->>> +
->>> + =A0 =A0 return 1;
->>> =A0}
->>>
->>> =A0static int wacom_tpc_pen(struct wacom_wac *wacom)
->>> @@ -731,7 +715,7 @@ static int wacom_tpc_pen(struct wacom_wac *waco=
-m)
->>>
->>> =A0 =A0 =A0 prox =3D data[1] & 0x20;
->>>
->>> - =A0 =A0 if (!wacom->shared->stylus_in_proximity) { /* first in pr=
-ox */
->>> + =A0 =A0 if (!wacom->shared->stylus_in_proximity) {
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Going into proximity select tool */
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->tool[0] =3D (data[1] & 0x0c) ? B=
-TN_TOOL_RUBBER : BTN_TOOL_PEN;
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wacom->tool[0] =3D=3D BTN_TOOL_PEN)
->>> @@ -740,58 +724,36 @@ static int wacom_tpc_pen(struct wacom_wac *wa=
-com)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[0] =3D ERASER=
-_DEVICE_ID;
->>>
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->shared->stylus_in_proximity =3D =
-true;
->>
->> Relying on additional events coming in to execute the part below thi=
+> >> +static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
+> >> +{
+> >> + =A0 =A0 struct input_dev *input =3D wacom->input;
+> >> + =A0 =A0 unsigned char *data =3D wacom->data;
+> >> + =A0 =A0 int i;
+> >> +
+> >> + =A0 =A0 if (wacom->shared->stylus_in_proximity && !wacom->shared=
+->touch_down)
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> >
+> > Seeing one case handled out of four possible always makes me nervou=
+s.
+>=20
+> The above statement is to avoid going through the input_mt_slot and
+> input_mt_report_slot_state routines without posting any meaningful
+> events. I guess it could be considered as a performance enhancement?
+
+It won't be posting events unless something changed.
+
+> Which case makes you nervous? I'll take care of it ;).
+
+Well, removing the logic above would suffice. :-)
+
+> > So only false->true is possible here.
+>=20
+> Yeah, both are bools. What else can they take?
+
+Only the transition false-to-true, that is.
+
+> > What I can see from the patchset, only wacom_tpc_single_touch() wil=
+l ever set touch_down to
+> > false. Is that sufficient?
+>=20
+> No,  wacom_tpc_mt_touch can set touch_down to false too. When touch i=
 s
->> comment is not causing any troubles, then?
->
-> That is right. My testing result shows a smooth transition between
-> touch and pen with this addition. This logical should be applied to
-> Bamboo pen and touch as well (I see the same issue there). But, it is
-> outside of this patchset. So, hopefully someone will make that change
-> later.
->
->>> + =A0 =A0 } else if (!wacom->shared->touch_down) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_STYLUS, data[=
-1] & 0x02);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_STYLUS2, data=
-[1] & 0x10);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_X, le16_to_cp=
-up((__le16 *)&data[2]));
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_Y, le16_to_cp=
-up((__le16 *)&data[4]));
->>> + =A0 =A0 =A0 =A0 =A0 =A0 pressure =3D ((data[7] & 0x01) << 8) | da=
-ta[6];
->>> + =A0 =A0 =A0 =A0 =A0 =A0 if (pressure < 0)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pressure =3D features->pr=
-essure_max + pressure + 1;
->>
->> And that conversion again...
->
-> Well, no code change. Just move them around.
->
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_PRESSURE, pre=
-ssure);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, BTN_TOUCH, data[1=
-] & 0x05);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 if (!prox) { /* out-prox */
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[0] =3D 0;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->shared->stylus_in_=
-proximity =3D false;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 }
->>> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input, wacom->tool[0], p=
-rox);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 return 1;
->>> =A0 =A0 =A0 }
->>> - =A0 =A0 input_report_key(input, BTN_STYLUS, data[1] & 0x02);
->>> - =A0 =A0 input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
->>> - =A0 =A0 input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&da=
-ta[2]));
->>> - =A0 =A0 input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&da=
-ta[4]));
->>> - =A0 =A0 pressure =3D ((data[7] & 0x01) << 8) | data[6];
->>> - =A0 =A0 if (pressure < 0)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 pressure =3D features->pressure_max + pre=
-ssure + 1;
->>> - =A0 =A0 input_report_abs(input, ABS_PRESSURE, pressure);
->>> - =A0 =A0 input_report_key(input, BTN_TOUCH, data[1] & 0x05);
->>> - =A0 =A0 if (!prox) { /* out-prox */
->>> - =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[0] =3D 0;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 wacom->shared->stylus_in_proximity =3D fa=
-lse;
->>> - =A0 =A0 }
->>> - =A0 =A0 input_report_key(input, wacom->tool[0], prox);
->>>
->>> - =A0 =A0 return 1;
->>> + =A0 =A0 return 0;
->>> =A0}
->>>
->>> =A0static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
->>> =A0{
->>> =A0 =A0 =A0 char *data =3D wacom->data;
->>> - =A0 =A0 int prox =3D 0;
->>>
->>> =A0 =A0 =A0 dbg("wacom_tpc_irq: received report #%d", data[0]);
->>>
->>> - =A0 =A0 if (len =3D=3D WACOM_PKGLEN_TPC1FG ||
->>> - =A0 =A0 =A0 =A0 data[0] =3D=3D WACOM_REPORT_TPC1FG) { =A0 /* sing=
-le touch */
->>> -
->>> - =A0 =A0 =A0 =A0 =A0 =A0 if (wacom->shared->stylus_in_proximity) {
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (wacom->id[1] & 0x01)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_tpc=
-_touch_out(wacom, 0);
->>> -
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[1] =3D 0;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 }
->>> -
->>> - =A0 =A0 =A0 =A0 =A0 =A0 if (len =3D=3D WACOM_PKGLEN_TPC1FG)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 prox =3D data[0] & 0x01;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 else =A0/* with capacity */
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 prox =3D data[1] & 0x01;
->>> -
->>> - =A0 =A0 =A0 =A0 =A0 =A0 if (prox)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_tpc_touch_in(wacom,=
- len);
->>> - =A0 =A0 =A0 =A0 =A0 =A0 else {
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_tpc_touch_out(wacom=
-, 0);
->>> -
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[0] =3D 0;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 }
->>> - =A0 =A0 =A0 =A0 =A0 =A0 /* keep prox bit to send proper out-prox =
-event */
->>> - =A0 =A0 =A0 =A0 =A0 =A0 wacom->id[1] =3D prox;
->>> - =A0 =A0 } else if (data[0] =3D=3D WACOM_REPORT_PENABLED)
->>> + =A0 =A0 if (len =3D=3D WACOM_PKGLEN_TPC1FG || data[0] =3D=3D WACO=
-M_REPORT_TPC1FG)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 return wacom_tpc_single_touch(wacom, len)=
-;
->>> + =A0 =A0 else if (data[0] =3D=3D WACOM_REPORT_PENABLED)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return wacom_tpc_pen(wacom);
->>>
->>> =A0 =A0 =A0 return 0;
->>> @@ -1172,6 +1134,8 @@ void wacom_setup_input_capabilities(struct in=
-put_dev *input_dev,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* fall through */
->>>
->>> =A0 =A0 =A0 case TABLETPC:
->>> + =A0 =A0 =A0 =A0 =A0 =A0 __clear_bit(ABS_MISC, input_dev->absbit);
->>> +
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (features->device_type =3D=3D BTN_TO=
-OL_DOUBLETAP ||
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->device_type =3D=3D BT=
-N_TOOL_TRIPLETAP) {
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input=
-_dev, ABS_X,
->>> @@ -1180,7 +1144,6 @@ void wacom_setup_input_capabilities(struct in=
-put_dev *input_dev,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_abs_set_res(input=
-_dev, ABS_Y,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom_c=
-alculate_touch_res(features->y_max,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 features->y_phy));
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(BTN_TOOL_DOUBLE=
-TAP, input_dev->keybit);
->>
->> Where is doubletap set now?
->
-> Oops. I must have missed that in 4/4. I'll add it in the new version
-> after I hear from you for the other comments.
+> false, touch_down will be false. This happens when pen in prox or whe=
+n
+> both fingers are up.
 
-Well, DOUBLETAP has been added in 4/4 already. Please take a close
-look. Too soon to admit an error ;).
+Now, that is what cannot happen, because of the max() function.
+=20
+> Where else do you see it can be changed? tpc_pen() can not do that
+> since it is on a different port, that's the reason of touch_down.
 
-Ping
-
-> I didn't think touchscreen needs a DOUBLETAP. It is meant for
-> touchpad. However, I have agreed with Chris to add DOUBLETAP anyway.
-> Having worked on this set for so long, I guess I must have
-> accidentally removed it somehow...
->
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->>>
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (features->device_type !=3D BTN_TOOL=
-_PEN)
->>> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/table=
-t/wacom_wac.h
->>> index 8f747dd..835f756 100644
->>> --- a/drivers/input/tablet/wacom_wac.h
->>> +++ b/drivers/input/tablet/wacom_wac.h
->>> @@ -88,6 +88,7 @@ struct wacom_features {
->>>
->>> =A0struct wacom_shared {
->>> =A0 =A0 =A0 bool stylus_in_proximity;
->>> + =A0 =A0 bool touch_down;
->>> =A0};
->>>
->>> =A0struct wacom_wac {
->>> --
->>
->> Thanks,
->> Henrik
->>
->
+Thanks,
+Henrik
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

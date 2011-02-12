@@ -1,39 +1,37 @@
-From: <peter.ujfalusi@nokia.com>
-Subject: Re: [PATCH 13/17] twl4030: mfd_cell is now implicitly
- available to drivers
-Date: Sat, 12 Feb 2011 15:15:02 +0000
-Message-ID: <CF32F28EDF8D20468EEDCBE4975DA0274A4309@008-AM1MPN1-027.mgdnok.nokia.com>
-References: <20110211181538.3230cb99@queued.net>
+From: ede000@post.uit.no
+Subject: (unknown)
+Date: Sat, 12 Feb 2011 22:57:36 +0100
+Message-ID: <15dc432a3613131574c11c64fb07f8e8.squirrel@ws.student.uit.no>
+Reply-To: robertson-s@gncn.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110211181538.3230cb99@queued.net>
-Content-Language: en-US
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: dilinger@queued.net, sameo@linux.intel.com
-Cc: alsa-devel@alsa-project.org, dmitry.torokhov@gmail.com, tiwai@suse.de, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, lrg@slimlogic.co.uk
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mux2.uit.no ([129.242.5.252]:49618 "EHLO mux2.uit.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753058Ab1BLWKE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Feb 2011 17:10:04 -0500
+Subject: 
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-> ________________________________________
-> From: ext Andres Salomon [dilinger@queued.net]
-> Sent: Saturday, February 12, 2011 04:15
-> To: Samuel Ortiz
-> Cc: linux-kernel@vger.kernel.org; Mark Brown; Dmitry Torokhov; Ujfalusi Peter (Nokia-MS/Tampere); Liam Girdwood; Jaroslav Kysela; Takashi Iwai; linux-input@vger.kernel.org; alsa-devel@alsa-project.org
-> Subject: [PATCH 13/17] twl4030: mfd_cell is now implicitly available to drivers
-> 
-> The cell's platform_data is now accessed with a helper function;
-> change clients to use that, and remove the now-unused data_size.
-> 
-> Signed-off-by: Andres Salomon <dilinger@queued.net>
-> ---
+Good day,
 
-Acked-by: Peter Ujfalusi <peter.ujfalusi@nokia.com>
+My name is Mr. Robertson Silverberg I work in the Euro Million Lottery. I
+am soliciting your assistance for a swift transfer of 1,500,000.00
+GBP,should you be willing to assist me in this project, and you will be
+giving me just 50% of your winnings from the 1,500,000.00 GBP.
+
+Just a brief on how it works, you requested to register free online in
+euro million online website. with my position in the company I can make it
+happen that you will be among winner for next week Euro Million Lottery
+winner for the above stated amount.
+Naturally, every body would like to play a lottery if they are assured of
+winning. I am assuring you today to be a winner, please do not take this
+for granted because this once in a life time opportunity as we both stand
+to collectively gain from this at the success of the transaction.
+
+Warmest Regards,
+Mr. Robertson Silverberg
+E-mail: robertson-s@gncn.net
+

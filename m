@@ -1,121 +1,87 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 4/4] input - wacom: Support 2FGT in MT format
-Date: Fri, 11 Feb 2011 15:47:50 -0800
-Message-ID: <AANLkTikZ3EMWkfqadaeHsNkQPtD8mZiZm+hNHeON+y8u@mail.gmail.com>
-References: <1297387983-13761-1-git-send-email-pinglinux@gmail.com>
-	<20110211202010.GB2287@polaris.bitmath.org>
-	<AANLkTimBPBDCBzw0fbDpLf8F7N_zG+ceKJAC9Li15g5P@mail.gmail.com>
-	<20110211204742.GD2287@polaris.bitmath.org>
-	<AANLkTinmUVW+cK1PJnCxiLSv1DiMQC-KkkeoAHVyckZe@mail.gmail.com>
-	<20110211220518.GB7375@polaris.bitmath.org>
+From: Andres Salomon <dilinger@queued.net>
+Subject: [PATCH 13/17] twl4030: mfd_cell is now implicitly available to
+ drivers
+Date: Fri, 11 Feb 2011 18:15:38 -0800
+Message-ID: <20110211181538.3230cb99@queued.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:47850 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756887Ab1BKXrw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Feb 2011 18:47:52 -0500
-Received: by wwa36 with SMTP id 36so3146982wwa.1
-        for <linux-input@vger.kernel.org>; Fri, 11 Feb 2011 15:47:51 -0800 (PST)
-In-Reply-To: <20110211220518.GB7375@polaris.bitmath.org>
+Received: from LUNGE.MIT.EDU ([18.54.1.69]:58301 "EHLO lunge.queued.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752148Ab1BLCPl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Feb 2011 21:15:41 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Ujfalusi <peter.ujfalusi@nokia.com>, Liam Girdwood <lrg@slimlogic.co.uk>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, alsa-devel@alsa-project.org
 
-On Fri, Feb 11, 2011 at 2:05 PM, Henrik Rydberg <rydberg@euromail.se> w=
-rote:
->> >> The above statement is to avoid going through the input_mt_slot a=
-nd
->> >> input_mt_report_slot_state routines without posting any meaningfu=
-l
->> >> events. I guess it could be considered as a performance enhanceme=
-nt?
->> >
->> > It won't be posting events unless something changed.
->>
->> But it still go through the =A0input_mt_slot and
->> input_mt_report_slot_state routines, which is unnecessary. If we kno=
-w
->> up front there is no events posting, what benefit do we get to go
->> through the routines?
->
-> Clarity. :-)
 
-Oh, that. We could add some comments to make it clear.
+The cell's platform_data is now accessed with a helper function;
+change clients to use that, and remove the now-unused data_size.
 
-In fact, Chris has suggested to add more comments in general. But I
-have seen review comments like "the code tells the others what you are
-saying". So, we deferred.
+Signed-off-by: Andres Salomon <dilinger@queued.net>
+---
+ drivers/input/misc/twl4030-vibra.c |    2 +-
+ drivers/mfd/twl4030-codec.c        |    2 --
+ sound/soc/codecs/twl4030.c         |    5 +++--
+ 3 files changed, 4 insertions(+), 5 deletions(-)
 
-How about this:
+diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+index 014dd4a..1246ae1 100644
+--- a/drivers/input/misc/twl4030-vibra.c
++++ b/drivers/input/misc/twl4030-vibra.c
+@@ -196,7 +196,7 @@ static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
+ 
+ static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
+ {
+-	struct twl4030_codec_vibra_data *pdata = pdev->dev.platform_data;
++	struct twl4030_codec_vibra_data *pdata = mfd_get_data(pdev);
+ 	struct vibra_info *info;
+ 	int ret;
+ 
+diff --git a/drivers/mfd/twl4030-codec.c b/drivers/mfd/twl4030-codec.c
+index 9a4b196..0f57426 100644
+--- a/drivers/mfd/twl4030-codec.c
++++ b/drivers/mfd/twl4030-codec.c
+@@ -209,14 +209,12 @@ static int __devinit twl4030_codec_probe(struct platform_device *pdev)
+ 		cell = &codec->cells[childs];
+ 		cell->name = "twl4030-codec";
+ 		cell->platform_data = pdata->audio;
+-		cell->data_size = sizeof(*pdata->audio);
+ 		childs++;
+ 	}
+ 	if (pdata->vibra) {
+ 		cell = &codec->cells[childs];
+ 		cell->name = "twl4030-vibra";
+ 		cell->platform_data = pdata->vibra;
+-		cell->data_size = sizeof(*pdata->vibra);
+ 		childs++;
+ 	}
+ 
+diff --git a/sound/soc/codecs/twl4030.c b/sound/soc/codecs/twl4030.c
+index e4d464b..37004afb 100644
+--- a/sound/soc/codecs/twl4030.c
++++ b/sound/soc/codecs/twl4030.c
+@@ -732,7 +732,8 @@ static int aif_event(struct snd_soc_dapm_widget *w,
+ 
+ static void headset_ramp(struct snd_soc_codec *codec, int ramp)
+ {
+-	struct twl4030_codec_audio_data *pdata = codec->dev->platform_data;
++	struct twl4030_codec_audio_data *pdata =
++			mfd_get_data(to_platform_device(codec->dev));
+ 	unsigned char hs_gain, hs_pop;
+ 	struct twl4030_priv *twl4030 = snd_soc_codec_get_drvdata(codec);
+ 	/* Base values for ramp delay calculation: 2^19 - 2^26 */
+@@ -2297,7 +2298,7 @@ static struct snd_soc_codec_driver soc_codec_dev_twl4030 = {
+ 
+ static int __devinit twl4030_codec_probe(struct platform_device *pdev)
+ {
+-	struct twl4030_codec_audio_data *pdata = pdev->dev.platform_data;
++	struct twl4030_codec_audio_data *pdata = mfd_get_data(pdev);
+ 
+ 	if (!pdata) {
+ 		dev_err(&pdev->dev, "platform_data is missing\n");
+-- 
+1.7.2.3
 
-+
-+       /* no touch events should be posted when pen is in proximity
-and touch was up */
-+       if (wacom->shared->stylus_in_proximity && !wacom->shared->touch=
-_down)
-+               return 0;
-
->> >> No, =A0wacom_tpc_mt_touch can set touch_down to false too. When t=
-ouch is
->> >> false, touch_down will be false. This happens when pen in prox or=
- when
->> >> both fingers are up.
->> >
->> > Now, that is what cannot happen, because of the max() function.
->>
->> This time is real. How about this one?
->>
->>
->> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet=
-/wacom_wac.c
->> index 39c289d..3cdafb9 100644
->> --- a/drivers/input/tablet/wacom_wac.c
->> +++ b/drivers/input/tablet/wacom_wac.c
->> @@ -699,7 +699,10 @@ static int wacom_tpc_mt_touch(struct wacom_wac =
-*wacom)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->>
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* keep touch bit to send proper tou=
-ch up event */
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->shared->touch_down =3D max(touc=
-h,
->> wacom->shared->touch_down);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (i =3D=3D 1)
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->shared->touch_d=
-own =3D max(touch,
->> wacom->shared->touch_down);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wacom->shared->touch_d=
-own =3D touch;
->> =A0 =A0 =A0 =A0 }
->>
->> =A0 =A0 =A0 =A0 input_mt_report_pointer_emulation(input, true);
->
-> Well... it might help to return to what the main goal is here. If the
-> purpose is to fix userspace, maybe it should actually be done in
-> userspace instead.
-
-The goal is to support legacy ST client. A clean support would be to
-send pen data and pen data only whenever pen is in prox, no matter
-touch is down or not; sending ST touch data only when pen is out-prox.
-The concept of ST is that in any single moment, there would be only
-one type of data in action.
-
-In that sense, avoiding both pen and touch in action at the same time
-is our (kernel's) responsibility. ST clients do not have the ability
-to deal with dual types.
-
-Can I put your reviewed-by if I make a v2 of this patch?
-
-Thank you for your help.
-
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

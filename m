@@ -1,37 +1,57 @@
-From: ede000@post.uit.no
-Subject: (unknown)
-Date: Sat, 12 Feb 2011 22:57:36 +0100
-Message-ID: <15dc432a3613131574c11c64fb07f8e8.squirrel@ws.student.uit.no>
-Reply-To: robertson-s@gncn.net
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Re: [PATCH] hid kernel module for wireless remote LC Power model
+ RC1000MCE
+Date: Sun, 13 Feb 2011 15:04:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102131503010.2160@pobox.suse.cz>
+References: <4D4019EC.8060301@gmx.de> <alpine.LNX.2.00.1102031642260.2160@pobox.suse.cz> <4D502376.5040505@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mux2.uit.no ([129.242.5.252]:49618 "EHLO mux2.uit.no"
+Received: from cantor2.suse.de ([195.135.220.15]:38466 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753058Ab1BLWKE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Feb 2011 17:10:04 -0500
-Subject: 
+	id S1750932Ab1BMOET (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Feb 2011 09:04:19 -0500
+In-Reply-To: <4D502376.5040505@gmx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chris Schlund <chrisschlund@gmx.de>
+Cc: linux-input@vger.kernel.org
 
-Good day,
+On Mon, 7 Feb 2011, Chris Schlund wrote:
 
-My name is Mr. Robertson Silverberg I work in the Euro Million Lottery. I
-am soliciting your assistance for a swift transfer of 1,500,000.00
-GBP,should you be willing to assist me in this project, and you will be
-giving me just 50% of your winnings from the 1,500,000.00 GBP.
+> Hi Jiri,
+> 
+> I already got some feedback for this module, telling me red and blue keys are exchanged.
+> I checked it, and they are right. Due to my incorrect userspace settings I missed this during my testing.
+> So here is the fixed mapping.
+> I am sorry for the inconvenience.
+> 
+> Thanks, Chris
+> 
+> 
+> Signed-off-by: Chris Schlund <chrisschlund@gmx.de>
+> ---
+> 
+> diff -urN linux-2.6.37/drivers/hid/hid-lcpower.c linux/drivers/hid/hid-lcpower.c
+> --- linux-2.6.37/drivers/hid/hid-lcpower.c      2011-02-07 17:31:49.000000000 +0100
+> +++ linux/drivers/hid/hid-lcpower.c     2011-02-07 17:32:50.000000000 +0100
+> @@ -30,8 +30,8 @@
+>         switch (usage->hid & HID_USAGE) {
+>         case 0x046: ts_map_key_clear(KEY_YELLOW);         break;
+>         case 0x047: ts_map_key_clear(KEY_GREEN);          break;
+> -        case 0x049: ts_map_key_clear(KEY_RED);            break;
+> -        case 0x04a: ts_map_key_clear(KEY_BLUE);           break;
+> +        case 0x04a: ts_map_key_clear(KEY_RED);            break;
+> +        case 0x049: ts_map_key_clear(KEY_BLUE);           break;
 
-Just a brief on how it works, you requested to register free online in
-euro million online website. with my position in the company I can make it
-happen that you will be among winner for next week Euro Million Lottery
-winner for the above stated amount.
-Naturally, every body would like to play a lottery if they are assured of
-winning. I am assuring you today to be a winner, please do not take this
-for granted because this once in a life time opportunity as we both stand
-to collectively gain from this at the success of the transaction.
+We'd rather keep the numbers sorted. Plus your patch has been 
+whitespace-damaged by your mail-client.
 
-Warmest Regards,
-Mr. Robertson Silverberg
-E-mail: robertson-s@gncn.net
+I have fixed both things and applied. Please fix your mail client for 
+further patch submissions.
 
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

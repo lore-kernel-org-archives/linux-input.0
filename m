@@ -1,112 +1,103 @@
-From: Jordi Pujol <jordipujolp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] usbmouse: random freeze/hangup; synchronize irq completion
-Date: Mon, 14 Feb 2011 09:51:00 +0100
-Message-ID: <201102140951.00866.jordipujolp@gmail.com>
+From: Igor Grinberg <grinberg@compulab.co.il>
+Subject: Re: [PATCH] Input: synaptics_i2c - Convert to dev_pm_ops
+Date: Mon, 14 Feb 2011 11:31:22 +0200
+Message-ID: <4D58F66A.8000705@compulab.co.il>
+References: <1297438904-27430-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_0zOWN4au+QJG70S"
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from compulab.co.il ([67.18.134.219]:41233 "EHLO compulab.co.il"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752219Ab1BNJb1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Feb 2011 04:31:27 -0500
+In-Reply-To: <1297438904-27430-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Mike Rapoport <mike@compulab.co.il>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 
---Boundary-00=_0zOWN4au+QJG70S
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+On 02/11/11 17:41, Mark Brown wrote:
 
-Hello,
+> There is a general move to convert drivers to dev_pm_ops rather than bus
+> specific PM ops in order to facilitate core development. Do this converison
+> for synaptics-i2c.
+>
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-usbmouse: synchonize the irq completion for each urb.
+Acked-by: Igor Grinberg <grinberg@compulab.co.il>
 
-Without this patch the mouse was a bit erratic and when
-using the mouse the system gets freezed/hangup randomly (one or two times a 
-day).
+> ---
+>  drivers/input/mouse/synaptics_i2c.c |   16 +++++++++-------
+>  1 files changed, 9 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+> index 0ae62f0..f6aa26d 100644
+> --- a/drivers/input/mouse/synaptics_i2c.c
+> +++ b/drivers/input/mouse/synaptics_i2c.c
+> @@ -18,6 +18,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/workqueue.h>
+>  #include <linux/slab.h>
+> +#include <linux/pm.h>
+>  
+>  #define DRIVER_NAME		"synaptics_i2c"
+>  /* maximum product id is 15 characters */
+> @@ -619,8 +620,9 @@ static int __devexit synaptics_i2c_remove(struct i2c_client *client)
+>  }
+>  
+>  #ifdef CONFIG_PM
+> -static int synaptics_i2c_suspend(struct i2c_client *client, pm_message_t mesg)
+> +static int synaptics_i2c_suspend(struct device *dev)
+>  {
+> +	struct i2c_client *client = to_i2c_client(dev);
+>  	struct synaptics_i2c *touch = i2c_get_clientdata(client);
+>  
+>  	cancel_delayed_work_sync(&touch->dwork);
+> @@ -631,9 +633,10 @@ static int synaptics_i2c_suspend(struct i2c_client *client, pm_message_t mesg)
+>  	return 0;
+>  }
+>  
+> -static int synaptics_i2c_resume(struct i2c_client *client)
+> +static int synaptics_i2c_resume(struct device *dev)
+>  {
+>  	int ret;
+> +	struct i2c_client *client = to_i2c_client(dev);
+>  	struct synaptics_i2c *touch = i2c_get_clientdata(client);
+>  
+>  	ret = synaptics_i2c_reset_config(client);
+> @@ -645,11 +648,11 @@ static int synaptics_i2c_resume(struct i2c_client *client)
+>  
+>  	return 0;
+>  }
+> -#else
+> -#define synaptics_i2c_suspend	NULL
+> -#define synaptics_i2c_resume	NULL
+>  #endif
+>  
+> +static SIMPLE_DEV_PM_OPS(synaptics_i2c_pm, synaptics_i2c_suspend,
+> +			 synaptics_i2c_resume);
+> +
+>  static const struct i2c_device_id synaptics_i2c_id_table[] = {
+>  	{ "synaptics_i2c", 0 },
+>  	{ },
+> @@ -660,13 +663,12 @@ static struct i2c_driver synaptics_i2c_driver = {
+>  	.driver = {
+>  		.name	= DRIVER_NAME,
+>  		.owner	= THIS_MODULE,
+> +		.pm	= &synaptics_i2c_pm,
+>  	},
+>  
+>  	.probe		= synaptics_i2c_probe,
+>  	.remove		= __devexit_p(synaptics_i2c_remove),
+>  
+> -	.suspend	= synaptics_i2c_suspend,
+> -	.resume		= synaptics_i2c_resume,
+>  	.id_table	= synaptics_i2c_id_table,
+>  };
+>  
 
-Jordi Pujol
+-- 
+Regards,
+Igor.
 
-Live never ending Tale
-GNU/Linux Live forever!
-http://livenet.selfip.com
-
---Boundary-00=_0zOWN4au+QJG70S
-Content-Type: text/x-patch;
-  charset="UTF-8";
-  name="usb_mouse_synchronize irq_urb.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="usb_mouse_synchronize irq_urb.patch"
-
- usbmouse: synchonize the irq completion
-
-Signed-off-by: Jordi Pujol <jordipujolp AT gmail DOT com>
-
---- linux-2.6.37-old/include/linux/usb.h	2011-01-05 01:50:19.000000000 +0100
-+++ linux-2.6.37/include/linux/usb.h	2011-02-10 09:31:30.098752709 +0100
-@@ -1214,6 +1214,7 @@ struct urb {
- 	int error_count;		/* (return) number of ISO errors */
- 	void *context;			/* (in) context for completion */
- 	usb_complete_t complete;	/* (in) completion routine */
-+	struct mutex		complete_mutex;		/* synchronize completion */
- 	struct usb_iso_packet_descriptor iso_frame_desc[0];
- 					/* (in) ISO ONLY */
- };
-@@ -1250,6 +1251,7 @@ static inline void usb_fill_control_urb(
- 	urb->transfer_buffer_length = buffer_length;
- 	urb->complete = complete_fn;
- 	urb->context = context;
-+	mutex_init(&urb->complete_mutex);
- }
-
- /**
-@@ -1279,6 +1281,7 @@ static inline void usb_fill_bulk_urb(str
- 	urb->transfer_buffer_length = buffer_length;
- 	urb->complete = complete_fn;
- 	urb->context = context;
-+	mutex_init(&urb->complete_mutex);
- }
-
- /**
-@@ -1326,6 +1329,7 @@ static inline void usb_fill_int_urb(stru
- 	else
- 		urb->interval = interval;
- 	urb->start_frame = -1;
-+	mutex_init(&urb->complete_mutex);
- }
-
- extern void usb_init_urb(struct urb *urb);
---- linux-2.6.37-old/drivers/hid/usbhid/usbmouse.c
-+++ linux-2.6.37/drivers/hid/usbhid/usbmouse.c	2011-02-06 16:15:10.432559673 +0100
-@@ -66,13 +71,15 @@ static void usb_mouse_irq(struct urb *ur
- 	struct input_dev *dev = mouse->dev;
- 	int status;
-
-+	mutex_lock(&urb->complete_mutex);
-+
- 	switch (urb->status) {
- 	case 0:			/* success */
- 		break;
- 	case -ECONNRESET:	/* unlink */
- 	case -ENOENT:
- 	case -ESHUTDOWN:
--		return;
-+		goto out;
- 	/* -EPIPE:  should clear the halt */
- 	default:		/* error */
- 		goto resubmit;
-@@ -95,6 +102,9 @@ resubmit:
- 		err ("can't resubmit intr, %s-%s/input0, status %d",
- 				mouse->usbdev->bus->bus_name,
- 				mouse->usbdev->devpath, status);
-+
-+out:
-+	mutex_unlock(&urb->complete_mutex);
- }
-
- static int usb_mouse_open(struct input_dev *dev)
-
---Boundary-00=_0zOWN4au+QJG70S--
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

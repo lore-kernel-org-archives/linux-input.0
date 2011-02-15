@@ -1,65 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.38-rc4
-Date: Tue, 15 Feb 2011 08:41:45 -0800
-Message-ID: <20110215164145.GA32308@core.coreip.homeip.net>
-References: <20110107065448.GC29038@core.coreip.homeip.net>
+Subject: Re: [PATCH] hidinput: kernel oops in out_cleanup in function
+ hidinput_connect
+Date: Tue, 15 Feb 2011 08:46:14 -0800
+Message-ID: <20110215164614.GA18862@core.coreip.homeip.net>
+References: <1297780870-4006-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qy0-f181.google.com ([209.85.216.181]:57966 "EHLO
+	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755089Ab1BOQq0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Feb 2011 11:46:26 -0500
 Content-Disposition: inline
-In-Reply-To: <20110107065448.GC29038@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1297780870-4006-1-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, Feb 15, 2011 at 03:41:10PM +0100, Benjamin Tissoires wrote:
+> Goto out_cleanup infers a kernel oops: hidinput_disconnect calls
+> input_unregister_driver to all members of hid->inputs.
+> However, hidinput already has been added to hid->inputs even
+> though input_register_device was not called.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-Please pull from:
+Yep, well spotted.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Reviewed-by: Dmitry Torokhov <dtor@mail.ru>
 
-to receive updates for the input subsystem. Nothing exciting, just small
-fixups to the drivers.
-
-Changelog:
----------
-
-Alexander Stein (1):
-      Input: rotary_encoder - use proper irqflags
-
-Alexander Strakh (1):
-      Input: wacom - fix error path in wacom_probe()
-
-Dmitry Torokhov (3):
-      Input: sysrq - rework re-inject logic
-      Revert "Input: do not pass injected events back to the originating handler"
-      Input: ads7846 - check proper condition when freeing gpio
-
-Duncan Laurie (1):
-      Input: serio - clear pending rescans after sysfs driver rebind
-
-Ping Cheng (1):
-      Input: wacom_w8001 - report resolution to userland
-
-Trilok Soni (1):
-      Input: matrix_keypad - increase the limit of rows and columns
-
-
-Diffstat:
---------
-
- drivers/input/input.c                   |   37 +++++++++---------------------
- drivers/input/misc/rotary_encoder.c     |    4 +-
- drivers/input/serio/serio.c             |   11 +++++---
- drivers/input/tablet/wacom_sys.c        |    2 +-
- drivers/input/touchscreen/ads7846.c     |   38 ++++++++++++++++++-------------
- drivers/input/touchscreen/wacom_w8001.c |   13 +++++++++-
- drivers/tty/sysrq.c                     |   17 +++++++++++++-
- include/linux/input/matrix_keypad.h     |    4 +-
- 8 files changed, 72 insertions(+), 54 deletions(-)
+> ---
+> Hi,
+> 
+> while playing with hidinput_connect, I found this bug.
+> 
+> Cheers,
+> Benjamin
+> 
+>  drivers/hid/hid-input.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 7f552bf..f53911d 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -928,6 +928,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+>  	return 0;
+>  
+>  out_cleanup:
+> +	list_del(&hidinput->list);
+>  	input_free_device(hidinput->input);
+>  	kfree(hidinput);
+>  out_unwind:
+> -- 
+> 1.7.4
+> 
 
 -- 
 Dmitry

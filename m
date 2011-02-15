@@ -1,44 +1,46 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH] HID: add IRTOUCH infrared USB to hid_have_special_driver
-Date: Tue, 15 Feb 2011 15:33:48 +0100
-Message-ID: <1297780428-3805-1-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [PATCH] hidinput: kernel oops in out_cleanup in function hidinput_connect
+Date: Tue, 15 Feb 2011 15:41:10 +0100
+Message-ID: <1297780870-4006-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:56435 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:43741 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755244Ab1BOOdy (ORCPT
+	with ESMTP id S1752124Ab1BOOlI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Feb 2011 09:33:54 -0500
+	Tue, 15 Feb 2011 09:41:08 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.ke
 
-Without this patch, the device is handled by hidinput and does
-not have the right behavior.
+Goto out_cleanup infers a kernel oops: hidinput_disconnect calls
+input_unregister_driver to all members of hid->inputs.
+However, hidinput already has been added to hid->inputs even
+though input_register_device was not called.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
-Hi guys,
+Hi,
 
-In the previous patch including the support to IRTOUCH devices, I forgot to add it to hid_have_special_driver. Sorry.
+while playing with hidinput_connect, I found this bug.
 
 Cheers,
 Benjamin
 
- drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-input.c |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index d678cf3..a5f6439 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1345,6 +1345,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HANVON, USB_DEVICE_ID_HANVON_MULTITOUCH) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS, USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 7f552bf..f53911d 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -928,6 +928,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 	return 0;
+ 
+ out_cleanup:
++	list_del(&hidinput->list);
+ 	input_free_device(hidinput->input);
+ 	kfree(hidinput);
+ out_unwind:
 -- 
 1.7.4
 

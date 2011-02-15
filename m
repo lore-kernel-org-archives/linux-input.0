@@ -1,51 +1,44 @@
-From: Jordi Pujol <jordipujolp@gmail.com>
-Subject: Re: [PATCH] usbmouse: random freeze/hangup; synchronize irq completion
-Date: Tue, 15 Feb 2011 11:30:30 +0100
-Message-ID: <201102151130.30998.jordipujolp@gmail.com>
-References: <Pine.LNX.4.44L0.1102140957180.1913-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: [PATCH] HID: add IRTOUCH infrared USB to hid_have_special_driver
+Date: Tue, 15 Feb 2011 15:33:48 +0100
+Message-ID: <1297780428-3805-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:54008 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752960Ab1BOKaj (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:56435 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755244Ab1BOOdy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Feb 2011 05:30:39 -0500
-In-Reply-To: <Pine.LNX.4.44L0.1102140957180.1913-100000@iolanthe.rowland.org>
+	Tue, 15 Feb 2011 09:33:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-A Dilluns 14 Febrer 2011 16:00:24, Alan Stern va escriure:
-> 	It calls mutex_lock(), which can sleep, from within an URB
-> 	completion routine, which runs with interrupts disabled.
-> 
-> 	It doesn't synchronize the completion _with_ anything else,
-> 	i.e., it calls mutex_lock() in only one place.
-this routine is synchronized with himself.
-I said synchronize thinking about synchronized routines that are pieces of 
-code scheduled to be executed only in a single thread simultaneously; 
-therefore a new call to this routine can not be executed until a previous call 
-has been completed.
+Without this patch, the device is handled by hidinput and does
+not have the right behavior.
 
-> 
-> Whatever is causing your problem, this is not the proper solution.
-Yes, that this is not a patch to be included in the kernel, it's only a 
-testing patch, but it solves the hangup. and so this probes that there is some 
-kind of problem related to the urb update process; I think the problem should 
-be external to this routine.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
+Hi guys,
 
-searching the web, some people has found problems like this, example:
-- [ubuntu] Ubuntu 10.04 (Lucid Lynx) Random Freeze / Hang-up
+In the previous patch including the support to IRTOUCH devices, I forgot to add it to hid_have_special_driver. Sorry.
 
-Consider this as an idea to point out the problem and, if possible, someone 
-more expert help to look for a good solution.
+Cheers,
+Benjamin
 
-Jordi Pujol
+ drivers/hid/hid-core.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-Live never ending Tale
-GNU/Linux Live forever!
-http://livenet.selfip.com
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index d678cf3..a5f6439 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1345,6 +1345,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HANVON, USB_DEVICE_ID_HANVON_MULTITOUCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS, USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
+-- 
+1.7.4
+

@@ -1,64 +1,65 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: [PATCH] usbmouse: random freeze/hangup; synchronize irq completion
-Date: Tue, 15 Feb 2011 10:04:15 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1102150949520.1852-100000@iolanthe.rowland.org>
-References: <201102151130.30998.jordipujolp@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.38-rc4
+Date: Tue, 15 Feb 2011 08:41:45 -0800
+Message-ID: <20110215164145.GA32308@core.coreip.homeip.net>
+References: <20110107065448.GC29038@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201102151130.30998.jordipujolp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jordi Pujol <jordipujolp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110107065448.GC29038@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 15 Feb 2011, Jordi Pujol wrote:
+Hi Linus,
 
-> A Dilluns 14 Febrer 2011 16:00:24, Alan Stern va escriure:
-> > 	It calls mutex_lock(), which can sleep, from within an URB
-> > 	completion routine, which runs with interrupts disabled.
-> > 
-> > 	It doesn't synchronize the completion _with_ anything else,
-> > 	i.e., it calls mutex_lock() in only one place.
-> this routine is synchronized with himself.
+Please pull from:
 
-No.  The code you added does not perform _any_ additional 
-synchronization.  If it did, you'd see a big fat error message in the 
-kernel log because the mutex_lock call would try to sleep while in 
-interrupt context.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> I said synchronize thinking about synchronized routines that are pieces of 
-> code scheduled to be executed only in a single thread simultaneously; 
-> therefore a new call to this routine can not be executed until a previous call 
-> has been completed.
+to receive updates for the input subsystem. Nothing exciting, just small
+fixups to the drivers.
 
-That is true even without your patch.  Go ahead and add a pair of
-debugging printouts to the usb_mouse_irq() routine (without your
-patch); print the value of urb upon entry and exit.  You'll see that
-there are never two instances of the routine running comcurrently for
-the same URB.  In fact, if you have only one USB mouse, you'll see that
-there are never two instances of the routine running concurrently at
-all.
+Changelog:
+---------
 
-> > Whatever is causing your problem, this is not the proper solution.
-> Yes, that this is not a patch to be included in the kernel, it's only a 
-> testing patch, but it solves the hangup. and so this probes that there is some 
-> kind of problem related to the urb update process; I think the problem should 
-> be external to this routine.
-> 
-> searching the web, some people has found problems like this, example:
-> - [ubuntu] Ubuntu 10.04 (Lucid Lynx) Random Freeze / Hang-up
-> 
-> Consider this as an idea to point out the problem and, if possible, someone 
-> more expert help to look for a good solution.
+Alexander Stein (1):
+      Input: rotary_encoder - use proper irqflags
 
-More to the point, why are you using the usbmouse driver in the first
-place?  You should be using usbhid instead.  See the warnings in the
-Kconfig help text for USB_MOUSE.
+Alexander Strakh (1):
+      Input: wacom - fix error path in wacom_probe()
 
-Alan Stern
+Dmitry Torokhov (3):
+      Input: sysrq - rework re-inject logic
+      Revert "Input: do not pass injected events back to the originating handler"
+      Input: ads7846 - check proper condition when freeing gpio
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Duncan Laurie (1):
+      Input: serio - clear pending rescans after sysfs driver rebind
+
+Ping Cheng (1):
+      Input: wacom_w8001 - report resolution to userland
+
+Trilok Soni (1):
+      Input: matrix_keypad - increase the limit of rows and columns
+
+
+Diffstat:
+--------
+
+ drivers/input/input.c                   |   37 +++++++++---------------------
+ drivers/input/misc/rotary_encoder.c     |    4 +-
+ drivers/input/serio/serio.c             |   11 +++++---
+ drivers/input/tablet/wacom_sys.c        |    2 +-
+ drivers/input/touchscreen/ads7846.c     |   38 ++++++++++++++++++-------------
+ drivers/input/touchscreen/wacom_w8001.c |   13 +++++++++-
+ drivers/tty/sysrq.c                     |   17 +++++++++++++-
+ include/linux/input/matrix_keypad.h     |    4 +-
+ 8 files changed, 72 insertions(+), 54 deletions(-)
+
+-- 
+Dmitry

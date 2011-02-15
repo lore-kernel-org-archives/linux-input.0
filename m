@@ -1,45 +1,48 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Add teletext/color keys - gyration remote - EU version
- (GYAR3101CKDE)
-Date: Tue, 15 Feb 2011 10:30:39 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1102151030310.2160@pobox.suse.cz>
-References: <20110214195348.568f92b3@grobi>
+From: Shubhrajyoti Datta <shubhrajyoti@ti.com>
+Subject: RE: [PATCH 0/3]OMAP4: Keypad support
+Date: Tue, 15 Feb 2011 15:11:06 +0530
+Message-ID: <194836c91e028071bd1db1dc6411935f@mail.gmail.com>
+References: <1293429106-16543-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56789 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752211Ab1BOJak (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Feb 2011 04:30:40 -0500
-In-Reply-To: <20110214195348.568f92b3@grobi>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1293429106-16543-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti Datta <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Shubhrajyoti D <a0393217@india.ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, "Cousson, Benoit" <b-cousson@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Steffen Barszus <steffenbpunkt@googlemail.com>
-Cc: linux-input@vger.kernel.org
 
-On Mon, 14 Feb 2011, Steffen Barszus wrote:
+Hi,
+Any comments on this series.
 
-> Dear List/Jiri,
-> 
-> This patch adds support for 5 keys which can be found
-> only on the EU version of the gyration remote, which has been not
-> mapped before. 
-> 
-> Signed-off-by: Steffen Barszus <steffenbpunkt[AT]googlemail[DOT]com>
-> --- linux-2.6/drivers/hid/hid-gyration.c.orig	2010-09-13 08:16:36.353369149 +0200
-> +++ linux-2.6/drivers/hid/hid-gyration.c	2010-09-13 08:17:56.629965460 +0200
-> @@ -43,6 +43,11 @@ static int gyration_input_mapping(struct
->  	case 0x048: gy_map_key_clear(KEY_MEDIA);	break;
->  	case 0x049: gy_map_key_clear(KEY_CAMERA);	break;
->  	case 0x04a: gy_map_key_clear(KEY_VIDEO);	break;
-> +	case 0x05a: gy_map_key_clear(KEY_TEXT);		break;
-> +	case 0x05b: gy_map_key_clear(KEY_RED);		break;
-> +	case 0x05c: gy_map_key_clear(KEY_GREEN);	break;
-> +	case 0x05d: gy_map_key_clear(KEY_YELLOW);	break;
-> +	case 0x05e: gy_map_key_clear(KEY_BLUE);		break;
-
-Applied, thanks.
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Thanking you,
+With Regards,
+Shubhro
+> -----Original Message-----
+> From: shubhrajyoti@ti.com [mailto:shubhrajyoti@ti.com]
+> Sent: Monday, December 27, 2010 11:22 AM
+> To: linux-omap@vger.kernel.org; linux-input@vger.kernel.org
+> Cc: Shubhrajyoti D
+> Subject: [PATCH 0/3]OMAP4: Keypad support
+>
+> From: Shubhrajyoti D <a0393217@india.ti.com>
+>
+> Adding the keypad 4430sdp board support and PM runtime change.
+> Tested on 4430sdp.
+>
+> Abraham Arce (1):
+>   OMAP4:keypad: PM runtime
+>
+> Benoit Cousson (1):
+>   OMAP4: hwmod data: Add keypad in the hwmod database
+>
+> Syed Rafiuddin (1):
+>   OMAP4: keypad: Add the board support.
+>
+>  arch/arm/mach-omap2/board-4430sdp.c        |   89
+> ++++++++++++++++++++++++++++
+>  arch/arm/mach-omap2/devices.c              |   41 +++++++++++++
+>  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |   70
+++++++++++++++++++++++
+>  drivers/input/keyboard/omap4-keypad.c      |    8 +++
+>  4 files changed, 208 insertions(+), 0 deletions(-)

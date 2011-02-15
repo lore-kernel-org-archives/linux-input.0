@@ -1,65 +1,80 @@
 From: Rakesh Iyer <riyer@nvidia.com>
 Subject: RE: [PATCH v1] input: tegra-kbc: Add Function keymap.
-Date: Tue, 15 Feb 2011 11:47:16 -0800
-Message-ID: <1FC56210173BB445BD77F608D6FB8D03165A0080D8@HQMAIL03.nvidia.com>
+Date: Tue, 15 Feb 2011 11:49:12 -0800
+Message-ID: <1FC56210173BB445BD77F608D6FB8D03165A0080D9@HQMAIL03.nvidia.com>
 References: <1297198584-4282-1-git-send-email-riyer@nvidia.com>
  <20110209084948.GB7256@core.coreip.homeip.net>
  <1FC56210173BB445BD77F608D6FB8D03165A0080B7@HQMAIL03.nvidia.com>
  <20110215185450.GB19688@core.coreip.homeip.net>
+ <1FC56210173BB445BD77F608D6FB8D03165A0080D8@HQMAIL03.nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:16401 "EHLO
+Received: from hqemgate04.nvidia.com ([216.228.121.35]:16541 "EHLO
 	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755216Ab1BOTrZ convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1755353Ab1BOTtV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Feb 2011 14:47:25 -0500
-In-Reply-To: <20110215185450.GB19688@core.coreip.homeip.net>
+	Tue, 15 Feb 2011 14:49:21 -0500
+In-Reply-To: <1FC56210173BB445BD77F608D6FB8D03165A0080D8@HQMAIL03.nvidia.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "olofj@chromium.org" <olofj@chromium.org>, Andrew Chew <AChew@nvidia.com>
+To: Rakesh Iyer <riyer@nvidia.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>, "'olofj@chromium.org'" <olofj@chromium.org>, Andrew Chew <AChew@nvidia.com>
 
-The following is a public image of the same keyboard we are using as default.
-
-http://www.laptopguts.co.uk/ekmps/shops/laptopguts/images/acer-aspire-3690-series-laptop-keyboard-uk-layout-108-p[ekm]758x300[ekm].jpg
+Just wanted to add  -> some of the keys on the extreme right are not present in our keyboard (Euro and Dollar) and some others such as PgUp, PgDown are laid out differently.
 
 Regards
 Rakesh
+
+
 > -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Tuesday, February 15, 2011 10:55 AM
-> To: Rakesh Iyer
+> From: Rakesh Iyer
+> Sent: Tuesday, February 15, 2011 11:47 AM
+> To: 'Dmitry Torokhov'
 > Cc: linux-input@vger.kernel.org; olofj@chromium.org; Andrew Chew
-> Subject: Re: [PATCH v1] input: tegra-kbc: Add Function keymap.
+> Subject: RE: [PATCH v1] input: tegra-kbc: Add Function keymap.
 > 
-> On Wed, Feb 09, 2011 at 09:21:36AM -0800, Rakesh Iyer wrote:
-> > > >
-> > > >  	KEY(15, 0, KEY_ESC),
-> > > >  	KEY(15, 1, KEY_GRAVE),
-> > > > @@ -178,6 +203,7 @@ static const u32 tegra_kbc_default_keymap[] = {
-> > > >  	KEY(15, 5, KEY_F2),
-> > > >  	KEY(15, 6, KEY_CAPSLOCK),
-> > > >  	KEY(15, 7, KEY_F6),
-> > > > +	KEY(15, 12, KEY_QUESTION),
-> > >
-> > > Not KEY_SLASH or similar?
-> > >
-> > Actually in this keyboard layout that key indeed maps to KEY_QUESTION and not
-> KEY_SLASH.
-> > Is that unexpected.
+> The following is a public image of the same keyboard we are using as default.
+> 
+> http://www.laptopguts.co.uk/ekmps/shops/laptopguts/images/acer-aspire-3690-series-laptop-
+> keyboard-uk-layout-108-p[ekm]758x300[ekm].jpg
+> 
+> Regards
+> Rakesh
+> > -----Original Message-----
+> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> > Sent: Tuesday, February 15, 2011 10:55 AM
+> > To: Rakesh Iyer
+> > Cc: linux-input@vger.kernel.org; olofj@chromium.org; Andrew Chew
+> > Subject: Re: [PATCH v1] input: tegra-kbc: Add Function keymap.
 > >
-> 
-> So it is a dedicated key for a question mark? KEY_QUESTION is not really
-> that although we could re-purpose it (the USB keyboard that is currently
-> using this keycode most likely wants KEY_HELP or similar).
-> 
-> Is there a picture of physical keypad somewhere?
-> 
-> --
-> Dmitry
+> > On Wed, Feb 09, 2011 at 09:21:36AM -0800, Rakesh Iyer wrote:
+> > > > >
+> > > > >  	KEY(15, 0, KEY_ESC),
+> > > > >  	KEY(15, 1, KEY_GRAVE),
+> > > > > @@ -178,6 +203,7 @@ static const u32 tegra_kbc_default_keymap[] = {
+> > > > >  	KEY(15, 5, KEY_F2),
+> > > > >  	KEY(15, 6, KEY_CAPSLOCK),
+> > > > >  	KEY(15, 7, KEY_F6),
+> > > > > +	KEY(15, 12, KEY_QUESTION),
+> > > >
+> > > > Not KEY_SLASH or similar?
+> > > >
+> > > Actually in this keyboard layout that key indeed maps to KEY_QUESTION and not
+> > KEY_SLASH.
+> > > Is that unexpected.
+> > >
+> >
+> > So it is a dedicated key for a question mark? KEY_QUESTION is not really
+> > that although we could re-purpose it (the USB keyboard that is currently
+> > using this keycode most likely wants KEY_HELP or similar).
+> >
+> > Is there a picture of physical keypad somewhere?
+> >
+> > --
+> > Dmitry
 -----------------------------------------------------------------------------------
 This email message is for the sole use of the intended recipient(s) and may contain
 confidential information.  Any unauthorized review, use, disclosure or distribution

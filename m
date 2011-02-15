@@ -1,55 +1,93 @@
-From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] usbmouse: random freeze/hangup; synchronize irq
- completion
-Date: Mon, 14 Feb 2011 17:05:30 -0800
-Message-ID: <20110215010530.GB16060@kroah.com>
-References: <201102140951.00866.jordipujolp@gmail.com>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCH] bma023: Support for Bosch BMA023, BMA150 and SMB380 accelerometers
+Date: Tue, 15 Feb 2011 10:37:52 +0530
+Message-ID: <4D5A0A28.6090700@ti.com>
+References: <20110214100622.2282.1584.stgit@bob.linux.org.uk>	<4D5916F5.1090301@ti.com> <20110214122727.0cb550a5@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201102140951.00866.jordipujolp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jordi Pujol <jordipujolp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog116.obsmtp.com ([74.125.149.240]:44074 "EHLO
+	na3sys009aog116.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751066Ab1BOFII (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Feb 2011 00:08:08 -0500
+Received: by mail-gw0-f43.google.com with SMTP id 17so2412395gwb.30
+        for <linux-input@vger.kernel.org>; Mon, 14 Feb 2011 21:07:57 -0800 (PST)
+In-Reply-To: <20110214122727.0cb550a5@lxorguk.ukuu.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Feb 14, 2011 at 09:51:00AM +0100, Jordi Pujol wrote:
-> Hello,
-> 
-> usbmouse: synchonize the irq completion for each urb.
-> 
-> Without this patch the mouse was a bit erratic and when
-> using the mouse the system gets freezed/hangup randomly (one or two times a 
-> day).
-> 
-> Jordi Pujol
-> 
-> Live never ending Tale
-> GNU/Linux Live forever!
-> http://livenet.selfip.com
+On Monday 14 February 2011 05:57 PM, Alan Cox wrote:
+> On Mon, 14 Feb 2011 17:20:13 +0530
+> Shubhrajyoti<shubhrajyoti@ti.com>  wrote:
+>
+>> Hello,
+>> Some comments inlined.
+> Please trim stuff when you add comments inline like that. Firstly it
+> saves bandwidth but more importantly it makes them easier to find !
+Yes, will take care henceforth.
+>
+>>>    obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
+>>> +obj-$(CONFIG_INPUT_BMA023)			+=3D bma023.o
+>> May consider alphabetical order
+> oops - yes good point. I didn't check that when merging.
+>
+>
+>>> + *	bma023_xyz_read_reg	-	read the axes values
+>>> + *	@reg: register being updated
+>>> + *	@val: value to write
+>> Didn=E2=80=99t understand this
+> That would be because the comments need updating. Will fix that now.
+>
+>
+>>> +	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
+>>> +
+>>> +	pm_runtime_get_sync(dev);
+>> Not a comment really , what does  pm_runtime_get_sync(dev); do ?
+> We need to be sure it's powered up when we read it via sysfs.
+>
+OK , so it powers up the device.thanks
+>>> +	pm_runtime_put(dev);
+>> Also did you  pm_runtime_put(dev); here? Didnt understand this did y=
+ou
+>> mean sync?
+> No - as we don't care if it powers off immediately just that it gets
+> around to it.
+>
+>>> +
+>>> +	return sprintf(buf, "(%d,%d,%d)\n",
+>>> +		sensor->data.x, sensor->data.y, sensor->data.z);
+>>> +}
+>>> +static DEVICE_ATTR(accel_data, S_IRUGO, bma023_show_xyz, NULL);
+>> Since it is reported as an input device do you need the sysfs entry?
+> Yes - the device is usable both as an input device (think about tilt
+> based games) and for other purposes like orientation or drop detectio=
+n.
+> The sysfs interface covers the latter.
+>
+>
+>>> + *	Add an input device to the sensor. This will be used to report
+>>> + *	events from the sensor itself.
+>>> + */
+>>> +static int bma023_register_input_device(struct bma023_sensor *sens=
+or)
+>> this could be devinit as well as called only from probe.
+> Looks like it could will check
+>
+>
+>>> +	if (idev)
+>>> +		input_free_device(idev);
+>> This check is there in the function
+> Yep
+>
+>
 
->  usbmouse: synchonize the irq completion
-> 
-> Signed-off-by: Jordi Pujol <jordipujolp AT gmail DOT com>
-> 
-> --- linux-2.6.37-old/include/linux/usb.h	2011-01-05 01:50:19.000000000 +0100
-> +++ linux-2.6.37/include/linux/usb.h	2011-02-10 09:31:30.098752709 +0100
-> @@ -1214,6 +1214,7 @@ struct urb {
->  	int error_count;		/* (return) number of ISO errors */
->  	void *context;			/* (in) context for completion */
->  	usb_complete_t complete;	/* (in) completion routine */
-> +	struct mutex		complete_mutex;		/* synchronize completion */
-
-Ick, no, this should never be needed.
-
-Please explain why the existing procedure for this isn't working for
-you?
-
-thanks,
-
-greg k-h
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

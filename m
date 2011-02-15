@@ -1,74 +1,45 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCH] bma023: Support for Bosch BMA023, BMA150 and SMB380 accelerometers
-Date: Tue, 15 Feb 2011 11:39:45 +0530
-Message-ID: <4D5A18A9.8090104@ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Add teletext/color keys - gyration remote - EU version
+ (GYAR3101CKDE)
+Date: Tue, 15 Feb 2011 10:30:39 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102151030310.2160@pobox.suse.cz>
+References: <20110214195348.568f92b3@grobi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog107.obsmtp.com ([74.125.149.197]:39291 "EHLO
-	na3sys009aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751268Ab1BOGJw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Feb 2011 01:09:52 -0500
-Received: by yxm8 with SMTP id 8so2644591yxm.21
-        for <linux-input@vger.kernel.org>; Mon, 14 Feb 2011 22:09:50 -0800 (PST)
+Received: from cantor2.suse.de ([195.135.220.15]:56789 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752211Ab1BOJak (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Feb 2011 04:30:40 -0500
+In-Reply-To: <20110214195348.568f92b3@grobi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-input@vger.kernel.org
+To: Steffen Barszus <steffenbpunkt@googlemail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Alan,
+On Mon, 14 Feb 2011, Steffen Barszus wrote:
 
-A few doubts
->  +
->  +/**
->  + *	bma023_suspend		-	called on device suspend
->  + *	@client: i2c client of sensor
+> Dear List/Jiri,
+> 
+> This patch adds support for 5 keys which can be found
+> only on the EU version of the gyration remote, which has been not
+> mapped before. 
+> 
+> Signed-off-by: Steffen Barszus <steffenbpunkt[AT]googlemail[DOT]com>
+> --- linux-2.6/drivers/hid/hid-gyration.c.orig	2010-09-13 08:16:36.353369149 +0200
+> +++ linux-2.6/drivers/hid/hid-gyration.c	2010-09-13 08:17:56.629965460 +0200
+> @@ -43,6 +43,11 @@ static int gyration_input_mapping(struct
+>  	case 0x048: gy_map_key_clear(KEY_MEDIA);	break;
+>  	case 0x049: gy_map_key_clear(KEY_CAMERA);	break;
+>  	case 0x04a: gy_map_key_clear(KEY_VIDEO);	break;
+> +	case 0x05a: gy_map_key_clear(KEY_TEXT);		break;
+> +	case 0x05b: gy_map_key_clear(KEY_RED);		break;
+> +	case 0x05c: gy_map_key_clear(KEY_GREEN);	break;
+> +	case 0x05d: gy_map_key_clear(KEY_YELLOW);	break;
+> +	case 0x05e: gy_map_key_clear(KEY_BLUE);		break;
 
- > + * @mesg: actual suspend type
- > + *
- > + * Put the device into sleep mode before we suspend the machine.
- > + */
- > +static int bma023_suspend(struct i2c_client *client, pm_message_t mesg)
- > +{
- > + bma023_set_power_mode(client, BMA023_SUSPEND);
- > + return 0;
- > +}
- > +
- > +/**
- > + * bma023_resume - called on device resume
- > + * @client: i2c client of sensor
- > + *
- > + * Put the device into powered mode on resume.
- > + */
- > +static int bma023_resume(struct i2c_client *client)
- > +{
- > + struct bma023_sensor *sensor = dev_get_drvdata(&client->dev);
- > + if (bma023_get_check_reg(client) != BMA023_INSPECT_VAL)
- > + bma023_initialize(sensor);
-The initialise is only in the resume and not in the runtime resume.
- > + bma023_set_power_mode(client, sensor->power_mode);
-where is sensor->power_mode getting updated.
- > + msleep(4); /* wait for accel chip resume */
-The startup time from poweroff seems to be 3ms am I missing something.
-May consider a #define for the time.
- > + return 0;
- > +}
- > +
- > +#else
- > +#define bma023_suspend NULL
- > +#define bma023_resume NULL
- > +#endif
-<snip>
+Applied, thanks.
 
-
- >+ .probe = bma023_probe,
- >+ .remove = __devexit_p(bma023_remove),
- >+ .suspend = bma023_suspend,
- >+ .resume = bma023_resume,
-You may consider moving these also to the pm ops.
-However these can be taken up later feel free to ignore such comments.
- >+ .id_table = bma023_ids,
-
-
-
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

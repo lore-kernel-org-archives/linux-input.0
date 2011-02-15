@@ -1,39 +1,34 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hidinput: kernel oops in out_cleanup in function
- hidinput_connect
-Date: Tue, 15 Feb 2011 23:48:14 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1102152347330.2160@pobox.suse.cz>
-References: <1297780870-4006-1-git-send-email-benjamin.tissoires@enac.fr> <20110215164614.GA18862@core.coreip.homeip.net>
+Subject: Re: [PATCH] HID: add IRTOUCH infrared USB to
+ hid_have_special_driver
+Date: Wed, 16 Feb 2011 00:04:33 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102160003420.2160@pobox.suse.cz>
+References: <1297780428-3805-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59734 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752706Ab1BOWsT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Feb 2011 17:48:19 -0500
-In-Reply-To: <20110215164614.GA18862@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1297780428-3805-1-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 15 Feb 2011, Dmitry Torokhov wrote:
+On Tue, 15 Feb 2011, Benjamin Tissoires wrote:
 
-> > Goto out_cleanup infers a kernel oops: hidinput_disconnect calls
-> > input_unregister_driver to all members of hid->inputs.
-> > However, hidinput already has been added to hid->inputs even
-> > though input_register_device was not called.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> Without this patch, the device is handled by hidinput and does
+> not have the right behavior.
 > 
-> Yep, well spotted.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+> Hi guys,
 > 
-> Reviewed-by: Dmitry Torokhov <dtor@mail.ru>
+> In the previous patch including the support to IRTOUCH devices, I forgot 
+> to add it to hid_have_special_driver. Sorry.
 
-Indeed, thanks a lot for spotting this Benjamin. Apparently this codepath 
-is not excercised too heavily (which is good :) ).
+Hmm, this happens quite often to people submitting patches, but I normally 
+catch it. This time my eyes have failed.
 
-Applied.
+Thanks for the fix, applied.
 
 -- 
 Jiri Kosina

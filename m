@@ -1,40 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: tegra-kbc: Add Function keymap.
-Date: Wed, 16 Feb 2011 13:19:40 -0800
-Message-ID: <20110216211940.GB31387@core.coreip.homeip.net>
-References: <1297280680-7555-1-git-send-email-riyer@nvidia.com>
- <20110216081208.GA12787@core.coreip.homeip.net>
- <1FC56210173BB445BD77F608D6FB8D03165A0080DF@HQMAIL03.nvidia.com>
- <20110216200349.GA31387@core.coreip.homeip.net>
- <1FC56210173BB445BD77F608D6FB8D03165A0080E0@HQMAIL03.nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 0/4 v2] input - wacom : USB Tablet PC support
+Date: Wed, 16 Feb 2011 14:50:07 -0800
+Message-ID: <1297896607-2445-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:56527 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751241Ab1BPVTw (ORCPT
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:57102 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751506Ab1BPWvD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Feb 2011 16:19:52 -0500
-Received: by yxt3 with SMTP id 3so810897yxt.19
-        for <linux-input@vger.kernel.org>; Wed, 16 Feb 2011 13:19:51 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1FC56210173BB445BD77F608D6FB8D03165A0080E0@HQMAIL03.nvidia.com>
+	Wed, 16 Feb 2011 17:51:03 -0500
+Received: by qwa26 with SMTP id 26so1803677qwa.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Feb 2011 14:51:02 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rakesh Iyer <riyer@nvidia.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "olofj@chromium.org" <olofj@chromium.org>, Andrew Chew <AChew@nvidia.com>
+To: linux-input@vger.kernel.org
+Cc: rydberg@euromail.se, Ping Cheng <pinglinux@gmail.com>
 
-On Wed, Feb 16, 2011 at 12:12:54PM -0800, Rakesh Iyer wrote:
-> I agree with that, and that was my original plan.
-> 
-> But I saw matrix_keypad.h has the MATRIX_MAX_ROWS defined at 16, and decided to
-> accommodate for it.
-> 
+Mainly to change the 1FGT devices to the existing touchscreen format and
+the 2FGT devices to MT format.
 
-Conveniently we just increased MATRIX_MAX_ROWS/COLS to 32 (see
-commit cfaea56741360311d0dabcb6603fa78c2e3de155 in mainline).
+Patch 4/4 is at v2. It is updated with Henrik's review comments. The 
+first three patches stay the same. To make it easy to review the whole
+set, all four are resent together.
 
-Thanks.
+Ping Cheng (4):
+  input : wacom - Remove 2FGT Tablet PC events in TAP format
+  input - wacom : process pen data in its own routine
+  input - wacom : support one finger touch the touchscreen way
+  input - wacom: Support 2FGT in MT format
+
+ drivers/input/tablet/wacom_sys.c |   12 +-
+ drivers/input/tablet/wacom_wac.c |  244 ++++++++++++++------------------------
+ drivers/input/tablet/wacom_wac.h |    6 +-
+ 3 files changed, 100 insertions(+), 162 deletions(-)
 
 -- 
-Dmitry
+1.7.4
+

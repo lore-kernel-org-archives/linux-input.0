@@ -1,50 +1,29 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH] HID: add IRTOUCH infrared USB to hid_have_special_driver
-Date: Wed, 16 Feb 2011 10:54:24 +0100
-Message-ID: <AANLkTi=QF-9QtGK8V795R9ZO4-c6sQ8MSTW+JMxwd2+d@mail.gmail.com>
-References: <1297780428-3805-1-git-send-email-benjamin.tissoires@enac.fr>
-	<alpine.LNX.2.00.1102160003420.2160@pobox.suse.cz>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v4 1/2] HID: Documentation for hidraw
+Date: Wed, 16 Feb 2011 07:12:00 -0700
+Message-ID: <20110216071200.02ccdaa5@bike.lwn.net>
+References: <1297829209-10511-1-git-send-email-alan@signal11.us>
+	<1297829209-10511-2-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1102160003420.2160@pobox.suse.cz>
+In-Reply-To: <1297829209-10511-2-git-send-email-alan@signal11.us>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, ospite@studenti.unina.it, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, bgood@velocity.net
 List-Id: linux-input@vger.kernel.org
 
-Hi Jiri,
+On Tue, 15 Feb 2011 23:06:48 -0500
+Alan Ott <alan@signal11.us> wrote:
 
-Thanks for applying those two patches.
-BTW I'm a little worried: apparently you applied this patch in the
-branch upstream-fixes but you didn't applied "HID: hid-multitouch:
-introduce IrTouch Infrared USB..." and it's parents in this branch....
-I'm afraid this will broke compilation of the upstream branch
-(USB_VENDOR_ID_IRTOUCHSYSTEMS and USB_DEVICE_ID_IRTOUCH_INFRARED_USB
-are not defined).
+>  Documentation/hid/Makefile      |    8 ++
+>  Documentation/hid/hid-example.c |  167 +++++++++++++++++++++++++++++++++++++++
+
+I believe we're trying to get code - especially runnable code - out of the
+Documentation tree.  Should this go under samples/ or, if it's useful
+enough, under tools/?
 
 Thanks,
-Benjamin
 
-On Wed, Feb 16, 2011 at 00:04, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 15 Feb 2011, Benjamin Tissoires wrote:
->
->> Without this patch, the device is handled by hidinput and does
->> not have the right behavior.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
->> ---
->> Hi guys,
->>
->> In the previous patch including the support to IRTOUCH devices, I forgot
->> to add it to hid_have_special_driver. Sorry.
->
-> Hmm, this happens quite often to people submitting patches, but I normally
-> catch it. This time my eyes have failed.
->
-> Thanks for the fix, applied.
->
-> --
-> Jiri Kosina
-> SUSE Labs, Novell Inc.
->
+jon

@@ -1,98 +1,235 @@
-From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Subject: Re: hidp_output_raw_report, HID_OUTPUT_REPORT and Sixaxis
-Date: Thu, 17 Feb 2011 15:19:31 +0100
-Message-ID: <20110217151931.d7ee7e29.ospite@studenti.unina.it>
-References: <20101130145405.d8142bc3.ospite@studenti.unina.it>
-	<id3cua$12v$2@dough.gmane.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RESEND PATCH]: Add support for Intellimouse Mode in ALPS touchpad
+ on Dell E2 series Laptops
+Date: Thu, 17 Feb 2011 16:05:34 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.1102171604310.9644@twin.jikos.cz>
+References: <1290543314-1114-1-git-send-email-Rezwanul_Kabir@dell.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__17_Feb_2011_15_19_31_+0100_GHNHvhdWrBsK0iEB"
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <id3cua$12v$2@dough.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "pascal-dXI0m6hRz7k@public.gmane.org" <pascal-dXI0m6hRz7k@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:51063 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756588Ab1BQPFn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Feb 2011 10:05:43 -0500
+In-Reply-To: <1290543314-1114-1-git-send-email-Rezwanul_Kabir@dell.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rezwanul Kabir <Rezwanul_Kabir@dell.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
---Signature=_Thu__17_Feb_2011_15_19_31_+0100_GHNHvhdWrBsK0iEB
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 23 Nov 2010, Rezwanul Kabir wrote:
 
-On Tue, 30 Nov 2010 18:40:03 +0100
-"pascal-dXI0m6hRz7k@public.gmane.org" <pascal-dXI0m6hRz7k@public.gmane.org> wrote:
+> Resending modified patch to fix suspend/resume issues and restricting the
+> quirks to Dell portables only.
+> 
+> Dell E2 series laptops ( M4500, E6510, E6410 etc.) have ALPS touchpads
+> which are enabled by default as 3-byte generic PS/2 mouse mode. This
+> patch enables the 4-byte "Intellimouse Mode" ( e.g scrolling support).
+> 
+> Signed-off-by: Rezwanul_Kabir <Rezwanul_Kabir@dell.com>
 
-Pascal, you were replying to linux-input only so some of the original
-recipients missed your comments.
+This seems to have never been merged. Adding Dmitry to CC -- Dmitry, do 
+you see any issues with the patch, or has it just slipped through cracks?
 
-> Antonio Ospite wrote:
-> > +++ b/net/bluetooth/hidp/core.c
-> >  	case HID_OUTPUT_REPORT:
-> > -		report_type =3D HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
-> > +		report_type =3D HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
->=20
-> > Is it only the Sixaxis which needs the output report as a SET_REPORT
-> > operation, or the change above is an actual fix?
->=20
-> My understanding of the Bluetooth HID Profile specification [1],
-> section 7.4.9, is that on the control channel DATA is only for
-> responding to an incoming GET_REPORT.  Since Linux is the HID
-> Host, it will probably never need to reply to a GET_REPORT.
-> So your patch looks good.
->
+Thanks.
 
-OK, I managed to study [1] a little bit, so yes, I also think my patch
-is acceptable right now, but just because as you note in another
-message hidp_output_raw_report() is relying only on the control channel.
-In section 7.9.1 there's no mention of DATA for Output reports on the
-Control channel (see also Figure 11: SET_ Flow Chart).
+> ---
+> 
+> diff -urNp a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> --- a/drivers/input/mouse/alps.c	2010-08-06 12:43:11.000000000 -0500
+> +++ b/drivers/input/mouse/alps.c	2010-09-20 15:42:26.000000000 -0500
+> @@ -15,6 +15,7 @@
+>   * the Free Software Foundation.
+>   */
+>  
+> +#include <linux/dmi.h>
+>  #include <linux/slab.h>
+>  #include <linux/input.h>
+>  #include <linux/serio.h>
+> @@ -63,6 +64,8 @@ static const struct alps_model_info alps
+>  	/* Dell Latitude E5500, E6400, E6500, Precision M4400 */
+>  	{ { 0x62, 0x02, 0x14 }, 0xcf, 0xcf,
+>  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
+> +	/* Dell Precision 4500 */
+> +	{ { 0x73, 0x02, 0x64 }, 0x80, 0x80, 0 },
+>  	{ { 0x73, 0x02, 0x50 }, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },	  /* Dell Vostro 1400 */
+>  	{ { 0x52, 0x01, 0x14 }, 0xff, 0xff,
+>  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },	  /* Toshiba Tecra A11-11L */
+> @@ -111,6 +114,92 @@ static const struct alps_model_info alps
+>   * on a dualpoint, etc.
+>   */
+>  
+> +static const struct dmi_system_id dell_quirk_table[] = {
+> +	{
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +			DMI_MATCH(DMI_CHASSIS_TYPE, "8"),
+> +		},
+> +	},
+> +	{
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +			DMI_MATCH(DMI_CHASSIS_TYPE, "9"),
+> +		},
+> +	},
+> +	{ }
+> +};
+> +
+> +int alps_model_quirk_enabled;
+> +static void dell_e2_model_init(void *data);
+> +
+> + /* Magic Sequence to enable Intellimouse Mode on Dell E2 Touchpads*/
+> +
+> +static int dell_e2_setup_intellimouse_mode(void *data)
+> +{
+> +	struct psmouse *psmouse = (struct psmouse *)(data);
+> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> +	unsigned char param[] = {0, 0, 0};
+> +
+> +	if (!dmi_check_system(dell_quirk_table))
+> +		return -1;
+> +
+> +	if (ps2_command(ps2dev, param, 0x00f5) ||
+> +		ps2_command(ps2dev, param, 0x00ea) ||
+> +		ps2_command(ps2dev, param, 0x00ec) ||
+> +		ps2_command(ps2dev, param, 0x00ec) ||
+> +		ps2_command(ps2dev, param, 0x00ec) ||
+> +		ps2_command(ps2dev, param, 0x03e9))
+> +			return -1;
+> +
+> +	dbg("alps:dell_e2_setup: param[0]: %x,"
+> +		"param[1]: %x, param[2]: %x\n", param[0],
+> +					param[1], param[2]);
+> + /* Check for supported model to continue */
+> +
+> +	if (!((param[0] == 0x88) && (param[1] == 0x07)
+> +		&& ((param[2] == 0x9D) || (param[2] == 0x9B))))
+> +		return -1;
+> +
+> +	if (ps2_command(ps2dev, NULL, 0x00ec) ||
+> +		ps2_command(ps2dev, NULL, 0x00f0) ||
+> +		ps2_command(ps2dev, NULL, 0x00f0) ||
+> +		ps2_command(ps2dev, NULL, 0x00f0) ||
+> +		ps2_command(ps2dev, NULL, 0x00f3) ||
+> +		ps2_command(ps2dev, NULL, 0x0028) ||
+> +		ps2_command(ps2dev, NULL, 0x00f0) ||
+> +		ps2_command(ps2dev, NULL, 0x00f6) ||
+> +		ps2_command(ps2dev, NULL, 0x00ea) ||
+> +		ps2_command(ps2dev, NULL, 0x00f4))
+> +			return -1;
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct alps_model_quirk alps_model_init_quirk_tbl[] = {
+> +
+> +	{ {0x73, 0x02, 0x64}, dell_e2_setup_intellimouse_mode, dell_e2_model_init }
+> +};
+> +
+> +static int alps_model_hw_init_quirk(struct psmouse *psmouse,
+> +					const struct alps_model_info *model)
+> +{
+> +	int rc = 1;
+> +	int i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(alps_model_init_quirk_tbl); i++) {
+> +		if (!memcmp(model->signature,
+> +			alps_model_init_quirk_tbl[i].signature,
+> +			    sizeof(alps_model_init_quirk_tbl[i].signature))) {
+> +				rc = alps_model_init_quirk_tbl[i].alps_model_quirk_hw_init(psmouse);
+> +				alps_model_quirk_enabled = i + 1;
+> +				break;
+> +		}
+> +	}
+> +
+> +	return rc;
+> +}
+> +
+>  static bool alps_is_valid_first_byte(const struct alps_model_info *model,
+>  				     unsigned char data)
+>  {
+> @@ -599,6 +688,10 @@ static int alps_hw_init(struct psmouse *
+>  	struct alps_data *priv = psmouse->private;
+>  	const struct alps_model_info *model = priv->i;
+>  
+> +	if (alps_model_hw_init_quirk(psmouse, model)) {
+> +		alps_model_quirk_enabled = 0;
+> +	}
+> +
+>  	if ((model->flags & ALPS_PASS) &&
+>  	    alps_passthrough_mode(psmouse, true)) {
+>  		return -1;
+> @@ -651,6 +744,21 @@ static void alps_disconnect(struct psmou
+>  	kfree(priv);
+>  }
+>  
+> +static void dell_e2_model_init(void *data)
+> +{
+> +	struct psmouse *psmouse = (struct psmouse *)(data);
+> +	struct input_dev *dev = psmouse->dev;
+> +
+> +	__set_bit(BTN_MIDDLE, dev->keybit);
+> +	__set_bit(REL_WHEEL, dev->relbit);
+> +
+> +	psmouse->pktsize = 4;
+> +	psmouse->type = PSMOUSE_IMPS;
+> +	psmouse->disconnect = alps_disconnect;
+> +	psmouse->reconnect = alps_reconnect;
+> +
+> +}
+> +
+>  int alps_init(struct psmouse *psmouse)
+>  {
+>  	struct alps_data *priv;
+> @@ -677,6 +785,12 @@ int alps_init(struct psmouse *psmouse)
+>  	if (alps_hw_init(psmouse))
+>  		goto init_fail;
+>  
+> +	if (alps_model_quirk_enabled) {
+> +		printk(KERN_WARNING "alps.c: Enabled hardware quirk, falling back to psmouse-core\n");
+> +		alps_model_init_quirk_tbl[alps_model_quirk_enabled-1].alps_model_quirk_init(psmouse);
+> +		return 0;
+> +	}
+> +
+>  	/*
+>  	 * Undo part of setup done for us by psmouse core since touchpad
+>  	 * is not a relative device.
+> diff -urNp a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+> --- a/drivers/input/mouse/alps.h	2010-08-06 12:43:06.000000000 -0500
+> +++ b/drivers/input/mouse/alps.h	2010-09-20 03:20:07.000000000 -0500
+> @@ -26,6 +26,12 @@ struct alps_data {
+>  	struct timer_list timer;
+>  };
+>  
+> +struct alps_model_quirk {
+> +unsigned char signature[3];
+> +int (*alps_model_quirk_hw_init)(void *data);
+> +void (*alps_model_quirk_init)(void *data);
+> +};
+> +
+>  #ifdef CONFIG_MOUSE_PS2_ALPS
+>  int alps_detect(struct psmouse *psmouse, bool set_properties);
+>  int alps_init(struct psmouse *psmouse);
+> diff -urNp a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+> --- a/drivers/input/mouse/psmouse-base.c	2010-08-06 12:42:57.000000000 -0500
+> +++ b/drivers/input/mouse/psmouse-base.c	2010-09-20 15:20:35.000000000 -0500
+> @@ -659,7 +659,8 @@ static int psmouse_extensions(struct psm
+>  		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+>  		if (alps_detect(psmouse, set_properties) == 0) {
+>  			if (!set_properties || alps_init(psmouse) == 0)
+> -				return PSMOUSE_ALPS;
+> +/* If ALPS model quirk was applied, don't change the settings */
+> +				return psmouse->type ? psmouse->type : PSMOUSE_ALPS;
+>  /*
+>   * Init failed, try basic relative protocols
+>   */
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-So I am resending it, it shouldn't hurt.
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.
 
-> Note that usbhid_output_raw_report() seems to send OUTPUT
-> reports as USB interrupt messages and FEATURE reports as
-> USB SET_REPORT control messages, which makes sense too.
-> It would be nice if hidraw behaved the same over USB and
-> over Bluetooth.  Unfortunately I don't think you can drive
-> the sixaxis leds with DATA on the Bluetooth interrupt channel.
->
-
-However, even if my patch gets is, Output reports on the Sixaxis will
-stop working again as soon as someone implements the behavior you are
-suggesting, that is:
-  Feature Report -> SET_REPORT on the Control channel
-  Output Report  -> DATA on the Interrupt channel
-
-So I am going to submit the hidp_output_raw_report() override in
-hid-sony.c as well, does this sound OK?
-
->=20
-> [1] http://www.bluetooth.com/Specification%20Documents/HID_SPEC_V10.pdf
->=20
-
-Regards,
-  Antonio
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Thu__17_Feb_2011_15_19_31_+0100_GHNHvhdWrBsK0iEB
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk1dLnMACgkQ5xr2akVTsAHGkQCdG2MlsjDWOkrIV16UbZF4WT5a
-lMkAnjRFt1dQcD82kUVhmYVZDxTF+r0f
-=TNpi
------END PGP SIGNATURE-----
-
---Signature=_Thu__17_Feb_2011_15_19_31_+0100_GHNHvhdWrBsK0iEB--

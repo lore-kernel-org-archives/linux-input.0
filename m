@@ -1,58 +1,41 @@
-From: Rakesh Iyer <riyer@nvidia.com>
-Subject: RE: [PATCH v3] input: tegra-kbc: Add Function keymap.
-Date: Wed, 16 Feb 2011 15:55:17 -0800
-Message-ID: <1FC56210173BB445BD77F608D6FB8D03165A0080E2@HQMAIL03.nvidia.com>
-References: <1297280680-7555-1-git-send-email-riyer@nvidia.com>
- <20110216081208.GA12787@core.coreip.homeip.net>
- <1FC56210173BB445BD77F608D6FB8D03165A0080DF@HQMAIL03.nvidia.com>
- <20110216200349.GA31387@core.coreip.homeip.net>
- <1FC56210173BB445BD77F608D6FB8D03165A0080E0@HQMAIL03.nvidia.com>
- <20110216211940.GB31387@core.coreip.homeip.net>
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH v4 1/2] HID: Documentation for hidraw
+Date: Wed, 16 Feb 2011 16:56:03 -0800
+Message-ID: <20110216165603.fe8c342d.rdunlap@xenotime.net>
+References: <1297829209-10511-1-git-send-email-alan@signal11.us>
+	<1297829209-10511-2-git-send-email-alan@signal11.us>
+	<20110216071200.02ccdaa5@bike.lwn.net>
+	<4D5C202B.5030403@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate03.nvidia.com ([216.228.121.140]:18371 "EHLO
-	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754377Ab1BPXzV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Feb 2011 18:55:21 -0500
-In-Reply-To: <20110216211940.GB31387@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <4D5C202B.5030403@signal11.us>
+Sender: linux-doc-owner@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, jkosina@suse.cz, ospite@studenti.unina.it, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, bgood@velocity.net
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "olofj@chromium.org" <olofj@chromium.org>, Andrew Chew <AChew@nvidia.com>
 
-Alright I will redo my patch with Function keys defined in their separate rows.
+On Wed, 16 Feb 2011 14:06:19 -0500 Alan Ott wrote:
 
-Regards
-Rakesh
+> On 02/16/2011 09:12 AM, Jonathan Corbet wrote:
+> >>   Documentation/hid/Makefile      |    8 ++
+> >>   Documentation/hid/hid-example.c |  167 +++++++++++++++++++++++++++++++++++++++
+> >>      
+> > I believe we're trying to get code - especially runnable code - out of the
+> > Documentation tree.  Should this go under samples/ or, if it's useful
+> > enough, under tools/?
+> >    
+> 
+> Hi Jon,
+> 
+> Not a problem. I'd say samples/ over tools/ for this stuff. I'll re-spin 
+> and re-submit.
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Wednesday, February 16, 2011 1:20 PM
-> To: Rakesh Iyer
-> Cc: linux-input@vger.kernel.org; olofj@chromium.org; Andrew Chew
-> Subject: Re: [PATCH v3] input: tegra-kbc: Add Function keymap.
-> 
-> On Wed, Feb 16, 2011 at 12:12:54PM -0800, Rakesh Iyer wrote:
-> > I agree with that, and that was my original plan.
-> >
-> > But I saw matrix_keypad.h has the MATRIX_MAX_ROWS defined at 16, and decided to
-> > accommodate for it.
-> >
-> 
-> Conveniently we just increased MATRIX_MAX_ROWS/COLS to 32 (see
-> commit cfaea56741360311d0dabcb6603fa78c2e3de155 in mainline).
-> 
-> Thanks.
-> 
-> --
-> Dmitry
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+and then
+Acked-by: Randy Dunlap <rdunlap@xenotime.net>
+
+Thanks.
+---
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***

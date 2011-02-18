@@ -1,46 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/5] Remove fixed config data from driver file; add
- config to platform data
-Date: Fri, 18 Feb 2011 08:48:12 -0800
-Message-ID: <20110218164812.GB9521@core.coreip.homeip.net>
-References: <4D3DAE3C.6060806@atmel.com>
- <20110124170756.GB31066@core.coreip.homeip.net>
- <4D3EA7DD.6000601@atmel.com>
- <F619927BD5260540BACE9E197A0F2A699CF0FB@hammb01.corp.atmel.com>
- <20110203074318.GA5814@core.coreip.homeip.net>
- <4D4AB52D.4020400@atmel.com>
- <20110204085754.GE13046@core.coreip.homeip.net>
- <4D539A65.1030000@atmel.com>
- <4D5E8075.30602@atmel.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
+Date: Fri, 18 Feb 2011 21:03:24 +0100
+Message-ID: <AANLkTik+xiJZNo8wcg=BpuwJnRA-0grgiW6P0VaKfGjH@mail.gmail.com>
+References: <1296485689.7756.9.camel@novo.hadess.net>
+	<20110131212842.GB1603@polaris.bitmath.org>
+	<AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
+	<1296561717.15349.5.camel@novo.hadess.net>
+	<AANLkTim=RV1Cd0k08gv-DDho-Mim64bR7RRJ+c7D1RZf@mail.gmail.com>
+	<1296650569.2123.2.camel@novo.hadess.net>
+	<AANLkTinOK+=J64NRWZjit3S7hAdGVXxRE9HYkxTxrxON@mail.gmail.com>
+	<AANLkTi=MGNLfLHQpVEyJGtE-j-D0dj-RWXAihW1xMKDe@mail.gmail.com>
+	<1296922260.4223.4.camel@novo.hadess.net>
+	<AANLkTi=yTh4YSPSQBnPFPyen9vfyfYGiT6GJVEKwGHjh@mail.gmail.com>
+	<1297098262.29885.14.camel@novo.hadess.net>
+	<AANLkTikxyJWxGH2P4WXMHqCbyOuKJaGgMBjxAWRsAREw@mail.gmail.com>
+	<AANLkTinfLunV5viac9vrvGfOwd-Z17ryJdfro9gtp+yB@mail.gmail.com>
+	<1298045713.2049.54.camel@novo.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:49505 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932100Ab1BRQsS (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:56779 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751732Ab1BRUDZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Feb 2011 11:48:18 -0500
-Received: by pvg11 with SMTP id 11so69783pvg.19
-        for <linux-input@vger.kernel.org>; Fri, 18 Feb 2011 08:48:17 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <4D5E8075.30602@atmel.com>
+	Fri, 18 Feb 2011 15:03:25 -0500
+Received: by wyb28 with SMTP id 28so4044106wyb.19
+        for <linux-input@vger.kernel.org>; Fri, 18 Feb 2011 12:03:24 -0800 (PST)
+In-Reply-To: <1298045713.2049.54.camel@novo.hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Iiro Valkonen <iiro.valkonen@atmel.com>
-Cc: Trilok Soni <tsoni@codeaurora.org>, linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Fri, Feb 18, 2011 at 04:21:41PM +0200, Iiro Valkonen wrote:
-> Hi,
-> 
-> The patch above had an error, obvious missing brace. Don't know how that got through...
-> 
+On Fri, Feb 18, 2011 at 17:15, Bastien Nocera <hadess@hadess.net> wrote:
+> On Tue, 2011-02-08 at 15:47 +0100, Benjamin Tissoires wrote:
+>> Hi Bastien,
+>>
+>> Can you give a try to the attached patch (it goes on top of the previous patch).
+>> It would be great if you could play a little with mtdiag (or any other
+>> multitouch application) and tell me if there is any problem.
+>
+> The patch to work well, at least for touches with a single finger. I
+> launched mtdiag, but I have absolutely no idea what to test with it.
+>
+> Hints?
+>
+>
 
-Iiro,
+Hi,
 
-I probably already fixed that... Could you please check 'next' branch of
-my tree on kernel.org and see what (if anything) is missing from there.
+If you run mtdiag as root, your multitouch panel should appear with a
+button "activate".
+Click on activate, and it will show up a canvas in which the different
+touch you made on the panel will be represented by a circle. The
+bigger circle represents the mouse emulation of the device.
 
-Thanks.
-
--- 
-Dmitry
+Cheers,
+Benjamin

@@ -1,39 +1,38 @@
-From: Peter Ujfalusi <peter.ujfalusi@nokia.com>
-Subject: Re: [PATCH 13/29] twl4030: mfd_cell is now implicitly
- available to drivers (v2)
-Date: Fri, 18 Feb 2011 08:44:14 +0200
-Message-ID: <4D5E153E.308@nokia.com>
-References: <1297998456-7615-1-git-send-email-dilinger@queued.net>
-	<1297998456-7615-14-git-send-email-dilinger@queued.net>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: hidp_output_raw_report, HID_OUTPUT_REPORT and Sixaxis
+Date: Fri, 18 Feb 2011 09:45:49 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102180944590.2160@pobox.suse.cz>
+References: <20101130145405.d8142bc3.ospite@studenti.unina.it> <id3cua$12v$2@dough.gmane.org> <20110217151931.d7ee7e29.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <1297998456-7615-14-git-send-email-dilinger@queued.net>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: ext Andres Salomon <dilinger@queued.net>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110217151931.d7ee7e29.ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: "pascal-dXI0m6hRz7k@public.gmane.org" <pascal-dXI0m6hRz7k@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 02/18/11 05:07, ext Andres Salomon wrote:
-> The cell's platform_data is now accessed with a helper function;
-> change clients to use that, and remove the now-unused data_size.
-> 
-> v2: add some missing mfd/core.h includes.
-> 
-> Signed-off-by: Andres Salomon <dilinger@queued.net>
-> ---
->  drivers/input/misc/twl4030-vibra.c |    3 ++-
->  drivers/mfd/twl4030-codec.c        |    2 --
->  sound/soc/codecs/twl4030.c         |    6 ++++--
->  3 files changed, 6 insertions(+), 5 deletions(-)
+On Thu, 17 Feb 2011, Antonio Ospite wrote:
 
-Acked-by: Peter Ujfalusi <peter.ujfalusi@nokia.com>
+> However, even if my patch gets is, Output reports on the Sixaxis will
+> stop working again as soon as someone implements the behavior you are
+> suggesting, that is:
+>   Feature Report -> SET_REPORT on the Control channel
+>   Output Report  -> DATA on the Interrupt channel
+> 
+> So I am going to submit the hidp_output_raw_report() override in
+> hid-sony.c as well, does this sound OK?
+
+That makes sense to me.
+
+Could you please repost all the patches that are currently being discussed 
+are flying around in the air?
+
+I feel I haven't been CCed on all of them, so I don't have the complete 
+picture.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

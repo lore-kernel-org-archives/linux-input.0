@@ -1,40 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v8 3/3] OMAP4:keypad: PM runtime
-Date: Fri, 18 Feb 2011 21:31:11 -0800
-Message-ID: <20110219053111.GA6991@core.coreip.homeip.net>
-References: <1293429106-16543-1-git-send-email-shubhrajyoti@ti.com>
- <1293429106-16543-2-git-send-email-shubhrajyoti@ti.com>
- <1293429106-16543-3-git-send-email-shubhrajyoti@ti.com>
- <1293429106-16543-4-git-send-email-shubhrajyoti@ti.com>
- <4D50FF42.1070401@ti.com>
- <4D5F33E3.7000501@ti.com>
+From: Dustan Bower <dustan.bower@gmail.com>
+Subject: [PATCH] Input: serio: Compile error fix (altera_ps2.c)
+Date: Sat, 19 Feb 2011 15:04:19 -0500
+Message-ID: <1298145859-10892-1-git-send-email-dustan.bower@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4D5F33E3.7000501@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti <shubhrajyoti@ti.com>
-Cc: linux-input@vger.kernel.org, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-omap@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:63417 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753568Ab1BSUFt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Feb 2011 15:05:49 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dustan Bower <dustan.bower@gmail.com>
 
-Hi Shubhrajyoti,
+=46ixed compile error, today's linux-next tree:
 
-On Sat, Feb 19, 2011 at 08:37:15AM +0530, Shubhrajyoti wrote:
-> Hello Dmitry,
-> If there are no further comments.
-> Can it be queued?
+  CC [M]  drivers/input/serio/altera_ps2.o
+drivers/input/serio/altera_ps2.c:182:1: error: expected =E2=80=98,=E2=80=
+=99 or =E2=80=98;=E2=80=99 before =E2=80=98extern=E2=80=99
+make[1]: *** [drivers/input/serio/altera_ps2.o] Error 1
+make: *** [_module_drivers/input/serio] Error 2
 
-I normally try not to merge board code leaving it to arch owner. Can we
-at least get arch/board maintainer ACKs on this?
+Signed-off-by: Dustan Bower <dustan.bower@gmail.com>
+---
+ drivers/input/serio/altera_ps2.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Also, I am wondering, what is the utility of this patch? Without it,
-as far as I understand, runtime PM is disabled for the device. With the
-patch we enable runtime PM but immediately bump up usage count, thus
-ensuring that the device is always powered on. So what changed? Or am I
-missing something?
+diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/alt=
+era_ps2.c
+index 3fee88b..d363dc4 100644
+--- a/drivers/input/serio/altera_ps2.c
++++ b/drivers/input/serio/altera_ps2.c
+@@ -178,7 +178,7 @@ static int __devexit altera_ps2_remove(struct platf=
+orm_device *pdev)
+ static const struct of_device_id altera_ps2_match[] =3D {
+ 	{ .compatible =3D "ALTR,ps2-1.0", },
+ 	{},
+-}
++};
+ MODULE_DEVICE_TABLE(of, altera_ps2_match);
+ #else /* CONFIG_OF */
+ #define altera_ps2_match NULL
+--=20
+1.7.4.1
 
-Thanks.
-
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

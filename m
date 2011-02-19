@@ -1,59 +1,89 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
-Date: Fri, 18 Feb 2011 21:03:24 +0100
-Message-ID: <AANLkTik+xiJZNo8wcg=BpuwJnRA-0grgiW6P0VaKfGjH@mail.gmail.com>
-References: <1296485689.7756.9.camel@novo.hadess.net>
-	<20110131212842.GB1603@polaris.bitmath.org>
-	<AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
-	<1296561717.15349.5.camel@novo.hadess.net>
-	<AANLkTim=RV1Cd0k08gv-DDho-Mim64bR7RRJ+c7D1RZf@mail.gmail.com>
-	<1296650569.2123.2.camel@novo.hadess.net>
-	<AANLkTinOK+=J64NRWZjit3S7hAdGVXxRE9HYkxTxrxON@mail.gmail.com>
-	<AANLkTi=MGNLfLHQpVEyJGtE-j-D0dj-RWXAihW1xMKDe@mail.gmail.com>
-	<1296922260.4223.4.camel@novo.hadess.net>
-	<AANLkTi=yTh4YSPSQBnPFPyen9vfyfYGiT6GJVEKwGHjh@mail.gmail.com>
-	<1297098262.29885.14.camel@novo.hadess.net>
-	<AANLkTikxyJWxGH2P4WXMHqCbyOuKJaGgMBjxAWRsAREw@mail.gmail.com>
-	<AANLkTinfLunV5viac9vrvGfOwd-Z17ryJdfro9gtp+yB@mail.gmail.com>
-	<1298045713.2049.54.camel@novo.hadess.net>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCH v8 3/3] OMAP4:keypad: PM runtime
+Date: Sat, 19 Feb 2011 08:37:15 +0530
+Message-ID: <4D5F33E3.7000501@ti.com>
+References: <1293429106-16543-1-git-send-email-shubhrajyoti@ti.com> <1293429106-16543-2-git-send-email-shubhrajyoti@ti.com> <1293429106-16543-3-git-send-email-shubhrajyoti@ti.com> <1293429106-16543-4-git-send-email-shubhrajyoti@ti.com> <4D50FF42.1070401@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:56779 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751732Ab1BRUDZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Feb 2011 15:03:25 -0500
-Received: by wyb28 with SMTP id 28so4044106wyb.19
-        for <linux-input@vger.kernel.org>; Fri, 18 Feb 2011 12:03:24 -0800 (PST)
-In-Reply-To: <1298045713.2049.54.camel@novo.hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <4D50FF42.1070401@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Abraham Arce <x0066660@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Fri, Feb 18, 2011 at 17:15, Bastien Nocera <hadess@hadess.net> wrote:
-> On Tue, 2011-02-08 at 15:47 +0100, Benjamin Tissoires wrote:
->> Hi Bastien,
+Hello Dmitry,
+If there are no further comments.
+Can it be queued?
+
+With Regards,
+Shubhro
+
+On Tuesday 08 February 2011 02:00 PM, Shubhrajyoti wrote:
+> Hello,
+> Any comments/suggestions.
+>
+> Thanks,
+>
+> On Monday 27 December 2010 11:21 AM, shubhrajyoti@ti.com wrote:
+>> From: Abraham Arce<x0066660@ti.com>
 >>
->> Can you give a try to the attached patch (it goes on top of the previous patch).
->> It would be great if you could play a little with mtdiag (or any other
->> multitouch application) and tell me if there is any problem.
->
-> The patch to work well, at least for touches with a single finger. I
-> launched mtdiag, but I have absolutely no idea what to test with it.
->
-> Hints?
->
+>> Enable Runtime PM functionality in OMAP4 driver based on the 
+>> following assumptions
+>>
+>> A minimal pm runtime get/put approach is implemented in probe/remove 
+>> calls
+>> respectively.
+>>
+>> - Keyboard controller in wakeup domain so it is always on and
+>>    power impact may be minimal
+>> - In OMAP4 the device control is at module/device level and ick/fclk 
+>> level control is
+>>    difficult so cutting of clocks will prevent interrupts.
+>>
+>> Signed-off-by: Abraham Arce<x0066660@ti.com>
+>> Cc: Kevin Hilman<khilman@deeprootsystems.com>
+>> Signed-off-by: Shubhrajyoti D<shubhrajyoti@ti.com>
+>> ---
+>>   drivers/input/keyboard/omap4-keypad.c |    8 ++++++++
+>>   1 files changed, 8 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/omap4-keypad.c 
+>> b/drivers/input/keyboard/omap4-keypad.c
+>> index 45bd097..fcfbb9b 100644
+>> --- a/drivers/input/keyboard/omap4-keypad.c
+>> +++ b/drivers/input/keyboard/omap4-keypad.c
+>> @@ -29,6 +29,7 @@
+>>   #include<linux/io.h>
+>>   #include<linux/input.h>
+>>   #include<linux/slab.h>
+>> +#include<linux/pm_runtime.h>
+>>
+>>   #include<plat/omap4-keypad.h>
+>>
+>> @@ -239,6 +240,9 @@ static int __devinit omap4_keypad_probe(struct 
+>> platform_device *pdev)
+>>       matrix_keypad_build_keymap(pdata->keymap_data, row_shift,
+>>               input_dev->keycode, input_dev->keybit);
+>>
+>> +    pm_runtime_enable(&pdev->dev);
+>> +    pm_runtime_get_sync(&pdev->dev);
+>> +
+>>       omap4_keypad_config(keypad_data);
+>>
+>>       error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+>> @@ -278,6 +282,10 @@ static int __devexit omap4_keypad_remove(struct 
+>> platform_device *pdev)
+>>       struct resource *res;
+>>
+>>       free_irq(keypad_data->irq, keypad_data);
+>> +
+>> +    pm_runtime_put_sync(&pdev->dev);
+>> +    pm_runtime_disable(&pdev->dev);
+>> +
+>>       input_unregister_device(keypad_data->input);
+>>
+>>       iounmap(keypad_data->base);
 >
 
-Hi,
-
-If you run mtdiag as root, your multitouch panel should appear with a
-button "activate".
-Click on activate, and it will show up a canvas in which the different
-touch you made on the panel will be represented by a circle. The
-bigger circle represents the mouse emulation of the device.
-
-Cheers,
-Benjamin

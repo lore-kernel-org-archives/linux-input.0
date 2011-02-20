@@ -1,78 +1,57 @@
-From: Grant Likely <grant.likely@secretlab.ca>
+From: Randy Dunlap <randy.dunlap@oracle.com>
 Subject: Re: [PATCH] Input: serio: Compile error fix (altera_ps2.c)
-Date: Sat, 19 Feb 2011 20:04:49 -0700
-Message-ID: <AANLkTinaVspNwHZFMUnbp=8F+K-=PRw95a1es+zyeCA+@mail.gmail.com>
-References: <1298145859-10892-1-git-send-email-dustan.bower@gmail.com> <20110219214549.GA4933@core.coreip.homeip.net>
+Date: Sat, 19 Feb 2011 20:47:50 -0800
+Message-ID: <20110219204750.88014cd8.randy.dunlap@oracle.com>
+References: <1298145859-10892-1-git-send-email-dustan.bower@gmail.com>
+	<20110219214549.GA4933@core.coreip.homeip.net>
+	<AANLkTinaVspNwHZFMUnbp=8F+K-=PRw95a1es+zyeCA+@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:58320 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752238Ab1BTDFJ convert rfc822-to-8bit (ORCPT
+Received: from rcsinet10.oracle.com ([148.87.113.121]:44604 "EHLO
+	rcsinet10.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751818Ab1BTEsx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Feb 2011 22:05:09 -0500
-In-Reply-To: <20110219214549.GA4933@core.coreip.homeip.net>
+	Sat, 19 Feb 2011 23:48:53 -0500
+In-Reply-To: <AANLkTinaVspNwHZFMUnbp=8F+K-=PRw95a1es+zyeCA+@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dustan Bower <dustan.bower@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Chou <thomas@wytron.com.tw>
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dustan Bower <dustan.bower@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Chou <thomas@wytron.com.tw>
 
-On Sat, Feb 19, 2011 at 2:45 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Sat, Feb 19, 2011 at 03:04:19PM -0500, Dustan Bower wrote:
->> Fixed compile error, today's linux-next tree:
->>
->> =A0 CC [M] =A0drivers/input/serio/altera_ps2.o
->> drivers/input/serio/altera_ps2.c:182:1: error: expected =91,=92 or =91=
-;=92 before =91extern=92
->> make[1]: *** [drivers/input/serio/altera_ps2.o] Error 1
->> make: *** [_module_drivers/input/serio] Error 2
->>
->> Signed-off-by: Dustan Bower <dustan.bower@gmail.com>
->
-> Thanks Dustan.
->
-> Grant, maybe you could amend the original patch so that we do not
-> introduce bisection failure point?
+On Sat, 19 Feb 2011 20:04:49 -0700 Grant Likely wrote:
 
-done, thanks.
+> On Sat, Feb 19, 2011 at 2:45 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Sat, Feb 19, 2011 at 03:04:19PM -0500, Dustan Bower wrote:
+> >> Fixed compile error, today's linux-next tree:
+> >>
+> >> =C2=A0 CC [M] =C2=A0drivers/input/serio/altera_ps2.o
+> >> drivers/input/serio/altera_ps2.c:182:1: error: expected =E2=80=98,=
+=E2=80=99 or =E2=80=98;=E2=80=99 before =E2=80=98extern=E2=80=99
+> >> make[1]: *** [drivers/input/serio/altera_ps2.o] Error 1
+> >> make: *** [_module_drivers/input/serio] Error 2
+> >>
+> >> Signed-off-by: Dustan Bower <dustan.bower@gmail.com>
+> >
+> > Thanks Dustan.
+> >
+> > Grant, maybe you could amend the original patch so that we do not
+> > introduce bisection failure point?
+>=20
+> done, thanks.
 
-g.
+Hi Grant,
 
->
->> ---
->> =A0drivers/input/serio/altera_ps2.c | =A0 =A02 +-
->> =A01 files changed, 1 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/=
-altera_ps2.c
->> index 3fee88b..d363dc4 100644
->> --- a/drivers/input/serio/altera_ps2.c
->> +++ b/drivers/input/serio/altera_ps2.c
->> @@ -178,7 +178,7 @@ static int __devexit altera_ps2_remove(struct pl=
-atform_device *pdev)
->> =A0static const struct of_device_id altera_ps2_match[] =3D {
->> =A0 =A0 =A0 { .compatible =3D "ALTR,ps2-1.0", },
->> =A0 =A0 =A0 {},
->> -}
->> +};
->> =A0MODULE_DEVICE_TABLE(of, altera_ps2_match);
->> =A0#else /* CONFIG_OF */
->> =A0#define altera_ps2_match NULL
->> --
->> 1.7.4.1
->>
->
-> --
-> Dmitry
->
+Did you also fix drivers/spi/spi_oc_tiny.c and
+drivers/spi/spi_altera.c ?  I hit those build errors when
+CONFIG_OF=3Dy.  Could there be others?
 
-
-
---=20
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+---
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your cod=
+e ***
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

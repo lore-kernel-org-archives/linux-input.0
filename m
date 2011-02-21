@@ -1,154 +1,78 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH] bma023: Support for Bosch BMA023, BMA150 and SMB380 accelerometers
-Date: Mon, 21 Feb 2011 19:08:22 +0000
-Message-ID: <4D62B826.2010201@cam.ac.uk>
-References: <20110214100622.2282.1584.stgit@bob.linux.org.uk>
+From: "Gustavo F. Padovan" <padovan@profusion.mobi>
+Subject: Re: [PATCH 2/2] bt hidp: send Output reports using SET_REPORT on the
+ Control channel
+Date: Mon, 21 Feb 2011 18:09:06 -0300
+Message-ID: <20110221210906.GI2965@joana>
+References: <alpine.LNX.2.00.1102180944590.2160@pobox.suse.cz>
+ <1298222806-19433-1-git-send-email-ospite@studenti.unina.it>
+ <1298222806-19433-3-git-send-email-ospite@studenti.unina.it>
+ <4D61DFE0.5020400@signal11.us>
+ <alpine.LNX.2.00.1102211349550.2160@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:54568 "EHLO
-	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751250Ab1BUTHz (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:52099 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753340Ab1BUVIe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Feb 2011 14:07:55 -0500
-In-Reply-To: <20110214100622.2282.1584.stgit@bob.linux.org.uk>
+	Mon, 21 Feb 2011 16:08:34 -0500
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1102211349550.2160@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Alan Ott <alan@signal11.us>, Antonio Ospite <ospite@studenti.unina.it>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Bastien Nocera <hadess@hadess.net>, Jim Paris <jim@jtan.com>, "pascal@pabr.org" <pascal@pabr.org>
 
-Hi Alan,
+Hi Jiri,
 
-As ever, it's my pet complaint... Complex device specific sysfs interfaces and
-their documentation :)
-...
+* Jiri Kosina <jkosina@suse.cz> [2011-02-21 13:50:40 +0100]:
+
+> On Sun, 20 Feb 2011, Alan Ott wrote:
 > 
+> > On 02/20/2011 12:26 PM, Antonio Ospite wrote:
+> > > The current implementation of hidp_output_raw_report() relies only on
+> > > the Control channel even for Output reports, and the BT HID
+> > > specification [1] does not mention using the DATA message for Output
+> > > reports on the Control channel (see section 7.9.1 and also Figure 11:
+> > > SET_ Flow Chart), so let us just use SET_REPORT.
+> > > 
+> > > This also fixes sending Output reports to some devices (like Sony
+> > > Sixaxis) which are not able to handle DATA messages on the Control
+> > > channel.
+> > > 
+> > > Ideally hidp_output_raw_report() could be improved to use this scheme:
+> > >    Feature Report -- SET_REPORT on the Control channel
+> > >    Output Report  -- DATA on the Interrupt channel
+> > > for more efficiency, but as said above, right now only the Control
+> > > channel is used.
+> > > 
+> > > [1] http://www.bluetooth.com/Specification%20Documents/HID_SPEC_V10.pdf
+> > > 
+> > >   	case HID_OUTPUT_REPORT:
+> > > -		report_type = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
+> > > +		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
+> > >    
+> > 
+> > I think this is right. Section 7.4[.0] says that SET_ and GET_ requests return
+> > with HANDSHAKE. Section 7.4.9 says that DATA does _not_ return a HANDSHAKE. My
+> > patch to hidp_output_raw_report() relies on getting a HANDSHAKE back, so it
+> > wouldn't have worked with BT devices that take output reports. Since I don't
+> > have any that do, I couldn't test it. (And it was like that when I got here :)
+> > )
+> > 
+> > For the whole set:
+> > Acked-by: Alan Ott <alan@signal11.us>
 > 
-> diff --git a/Documentation/ABI/testing/sysfs-i2c-bma023 b/Documentation/ABI/testing/sysfs-i2c-bma023
-> new file mode 100644
-> index 0000000..04a293c
-> --- /dev/null
-> +++ b/Documentation/ABI/testing/sysfs-i2c-bma023
-> @@ -0,0 +1,93 @@
-> +*Note*: It is anticpated that if IIO ever makes it upstream that the
-> +preferred general purpose non-input interface to this hardware will become IIO.
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/range
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Configure the sensing range of the device
-> +		0: +/- 2G
-> +		1: +/- 4G
-> +		2: +/- 8G
-Why the magic numbers? It would be trivial to just use the actual values so
-why not do so?
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/bandwidth
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Digital filtering on ADC output data
-> +		0: 25Hz
-> +		1: 50Hz
-> +		2: 100Hz
-> +		3: 190Hz
-> +		4: 375Hz
-> +		5: 750Hz
-> +		6: 1500Hz
-This one is even worse.  It's pretty trivial to use meaningful numbers. With
-the
-25 [50] 100 190 etc
- syntax you don't even need a separate attribute to tell userspace
-what is available.
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/new_data_int
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Generate an interrupt when the axes values are changed
-> +		0: disable
-> +		1: enable
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_int
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Generate an interrupt when the high-g threshold is met
-> +		0: disable
-> +		1: enable
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_int
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Generate an interrupt when the low-g threshold is met
-> +		0: disable
-> +		1: enable
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_dur
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	High G duration required to trigger.
-> +		(See the equations in the data sheet)
-If possible, please direct people to a particular equation. Or given these
-seem pretty simple, just put them in here.. I haven't checked the code, so
-might have guessed wrong setting for counter_HG. Here I assume you went
-with the reset counter version.
-
-High G duration. The number of samples for which acceleration must be greater
-than threshold for the interrupt to trigger.
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_hyst
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	High G duration hysteresis
-> +		(See the equations in the data sheet)
-Hysterisis for reset of threshold. |acc_x|< (hg_thres - 32*hg_hyst)/255 *range
-
-(which ought to convert to it just being a simple value with slightly odd units.
-The only confusing bit is what the value of 'range' is in the equation). Looks 
-like we get a divide by zero if we go with the 2g setting and assume it is the
-register value. Hence I guess it is the 'g' value. Only have 3 bits hence text
-might be something like.
-
-Hysteresis for reset of high acceleration magnitude threshold interrupt. Range 0 - 7
-corresponding to hysteresis of 0 to 0.878*range.
-
-(0.878 = 7*32/255)
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/hg_thres
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	High G threshold
-> +		(See the equations in the data sheet)
-Again, ought to be trivial to figure out what this is looking at datasheet
-
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_dur
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Low G duration required to trigger
-> +		(See the equations in the data sheet)
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_hyst
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Low G duration hysteresis
-> +		(See the equations in the data sheet)
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/lg_thres
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Low G threshold
-> +		(See the equations in the data sheet)
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/power_mode
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Power mode
-> +		0: Use runtime PM
-> +		1: Forced on
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/accel_data
-> +Date:		February 2011
-> +Contact:	Alan Cox <alan@linux.intel.com>
-> +Description:	Raw XYZ co-ordinate data, each ranges from -512 to +511,
-> +		formatted as (x,y,z) to match existing similar interfaces
+> Agreed.
 > 
+> As an author of the original code, I agree with the change. But as it is 
+> in net/bluetooth, I'd at least have Acked-by from some of the Bluetooth 
+> folks before I take it through my tree.
+> 
+> Marcel? Gustavo?
+
+Acked-by: Gustavo F. Padovan <padovan@profusion.mobi>
+
+-- 
+Gustavo F. Padovan
+http://profusion.mobi

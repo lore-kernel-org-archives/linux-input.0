@@ -1,131 +1,142 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] input: add driver for pixcir i2c touchscreens
-Date: Tue, 22 Feb 2011 03:48:08 +0000
-Message-ID: <20110222034808.GC18299@sirena.org.uk>
-References: <4D632AAD.8040405@pixcir.com.cn>
+From: Bill Gatliff <bgat@billgatliff.com>
+Subject: Re: [PATCH] input: evdev: Add a read() callback
+Date: Mon, 21 Feb 2011 22:07:12 -0600
+Message-ID: <AANLkTik8d1KZd_qSr2tKrBHq2X-9agA1BG7guK1SqzAd@mail.gmail.com>
+References: <1298297930-3937-1-git-send-email-bgat@billgatliff.com>
+	<20110222002315.GA18299@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:50953 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752847Ab1BVDsL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Feb 2011 22:48:11 -0500
-Content-Disposition: inline
-In-Reply-To: <4D632AAD.8040405@pixcir.com.cn>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-embedded-owner@vger.kernel.org>
+In-Reply-To: <20110222002315.GA18299@sirena.org.uk>
+Sender: linux-embedded-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, linux-embedded@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jcbian <jcbian@pixcir.com.cn>
-Cc: linux-input@vger.kernel.org, ?????? <dqmeng@pixcir.com.cn>, ?????? <zlchen@pixcir.com.cn>
 
-On Tue, Feb 22, 2011 at 11:17:01AM +0800, jcbian wrote:
+Mark:
 
-> +config TOUCHSCREEN_PIXCIR
-> + tristate "PIXCIR touchscreen panel support"
-> + depends on I2C
-> + help
-> + Say Y here if you have a PIXCIR based touchscreen.
-> +
-> + To compile this driver as a module, choose M here: the
-> + module will be called pixcir_i2c_ts.
 
-It looks like your mail client messes with the indentation of your
-files, it looks like it turned all the tabs into spaces.
+Thanks for the great feedback!
 
-> +#define DEBUG 0
+In a nutshell, I agree with your summary stating that my proposal "is
+going to cause problems for applications that try to do the right
+thing".  Were my suggestion to be adopted immediately and across the
+board, things would turn hairy indeed!
 
-Best just to remove this.
+I'm actually focused on a very narrow use case, however:
+accelerometers, compasses, polled switches, and similar hardware.  I'm
+wanting to propose a common method for dealing with these, as an
+alternative to the raft of incompatible approaches that are currently
+taking hold.  And in addition to avoiding the inconsistency of these
+implementations across devices, I also want to eliminate as much
+redundancy in the implementations as possible.
 
-> +static struct workqueue_struct *pixcir_wq;
+A good case in point comes up when someone moves an Android
+implementation from one platform to another.  No two accelerometer
+drivers seem to agree on how to specify the desired event generation
+rate, so the migration effort is increased.  And the work is divided
+between both kernel and userspace: the former in its mandate to
+provide a rate-request interface, and the latter to utilize that
+interface.  I really don't see the point in this.
 
-If you can have a single global workqueue could you use the system one
-and avoid having to create one at all?
+Granted, on all of MY platforms I can go ahead and implement this
+read-callback idea, and so far it has proven interesting and helpful.
+I'm just thinking that my success could appeal to a wider audience.
+Instead of all of us creating and repeating the same work over and
+over again, let's agree on SOMETHING.  Mine is of course a
+somewhat-different way of solving the problem, but not without merit.
 
-> + int posx1, posy1, posx2, posy2;
-> + u_int8_t Rdbuf[10], Wrbuf[1];
+As I mention in my commit log/essay, devices like USB keyboards and
+other event-driven hardware have no use for my read callback idea, and
+can safely ignore it.  And I don't see a day on the horizon where
+anyone will plug an accelerometer into X and expect X to deal with it
+as properly as it does today for keyboards and mice.  I don't think
+the "do the right thing" applications you are referring to will be
+affected by the read callback at all, since the callback doesn't apply
+to ordinary, "do the right thing"-type situations.
 
-Use u8.  The upper case at the start of teh bariable names is also a bit
-odd for Linux.
+More responses inline below:
 
-> + Wrbuf[0] = 0;
-> + ret = i2c_master_send(tsdata->client, Wrbuf, 1);
-> + if (ret != 1) {
-> + dev_err(&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
-> + goto out;
 
-It'd be good to print the error code.
+On Mon, Feb 21, 2011 at 6:23 PM, Mark Brown
+<broonie@opensource.wolfsonmicro.com> wrote:
+> I don't see how any of the above shows an issue with rate limiting in
+> the application image. =A0As was discussed in some detail the last ti=
+me
+> you posted this the issue that's causing the applications to experien=
+ce
+> delayed notifications of events is that rather than blocking waiting =
+for
+> an event to be delivered to them they're sleeping unconditionally.
 
-> +static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
-> +{
-> + struct pixcir_i2c_ts_data *tsdata = dev_id;
-> + disable_irq_nosync(irq);
-> +
-> + queue_work(pixcir_wq, &tsdata->work.work);
-> +
-> + return IRQ_HANDLED;
-> +}
+That is definitely one source of problems.
 
-Use a threaded IRQ handler - genirq can now implement this pattern for
-you.
+But if the accelerometer measurement has to be synchronized with some
+other event, things get a little trickier.  At the moment my concerns
+for this are theoretical, but I can see some situations coming soon
+where the theory could be usefully put to practice.
 
-> +static int pixcir_ts_open(struct input_dev *dev)
-> +{
-> + return 0;
-> +}
 
-You should have code to start the controller here, and matching shutdown
-code in close().
+> If the application were to use a rate control in conjunction with blo=
+cking
+> (which is the expected programming model) then a rate control will do
+> exactly what's expected.
 
-> + #ifdef DEBUG
-> + printk(KERN_EMERG "pixcir_i2c_ts probe!\n");
-> + #endif
+No argument with that.  My main complaint is that everyone is doing
+rate control APIs differently.  I'm proposing a way to standardize
+them by eliminating them altogether.  A side-effect of my idea is that
+applications get complete control over event generation.  Many of them
+won't care about that, but some will.
 
-dev_dbg() or just remove this.
+> This doesn't address the issue raised in the previous discussion with
+> the poor interaction with applications that do behave sensibly and bl=
+ock
+> for events from the device - either we can't use the ability to trigg=
+er
+> readings from the hardware or we end up doing extra readings because
+> every read triggers an additional sample.
 
-> + tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
-> + if (!tsdata) {
-> + dev_err(&client->dev, "Failed to allocate driver data!\n");
-> + error = -ENOMEM;
-> + dev_set_drvdata(&client->dev, NULL);
+I recognize your concern.  But I don't think that the applications
+which could be confused by the behavior I'm proposing would be the
+same applications that would take advantage of it.  Or, perhaps, such
+applications might welcome eliminating the code needed to support the
+different rate-limiting interfaces of a half-dozen or more devices
+that they claim compatibility with.
 
-Don't need to clear the driver data if you're exiting.
+Besides, it isn't like my proposal would be forced upon any of the
+existing mainline drivers.  Most of them, like keyboards and mice,
+couldn't use it anyway.
 
-> + if (request_irq(tsdata->irq, pixcir_ts_isr,
-> + IRQF_TRIGGER_LOW, client->name, tsdata)) {
-> + dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
-> + input_unregister_device(input);
-> + input = NULL;
-> + }
+> This is all stuff that can be put into a library (parts of it are
+> already) so there's no real cost to drivers from implementing anythin=
+g.
 
-Your error handling doesn't aways clean everything up - it's often best
-to use gotos to jump to cleanup code that unwinds everything to make
-sure you don't miss some things.
+=2E.. except the redundancy of everyone doing it slightly differently.
+Why not settle on a common approach, so the library you mention isn't
+necessary at all?
 
-> +
-> + dev_err(&tsdata->client->dev, "insmod successfully!\n");
+> This will again interact poorly with event driven applications - if
+> notifications to userspace don't happen (eg, because there has been n=
+o
+> change) then there will be no cause for the application to read.
 
-No need for logs like this in production code, and the priority is all
-wrong.
+Agreed.  But those situations don't describe users of accelerometers
+and compasses.  At least not in the code/situations I have
+encountered.
 
-> +#ifdef CONFIG_PM
-> +static int pixcir_i2c_ts_suspend(struct i2c_client *client,
-> pm_message_t mesg)
-> +{
-> + struct pixcir_i2c_ts_data *tsdata = dev_get_drvdata(&client->dev);
-> +
-> + if (device_may_wakeup(&client->dev))
-> + enable_irq_wake(tsdata->irq);
-> +
-> + return 0;
-> +}
+> I can see a use for a read on demand callback in the implementation o=
+f
+> polling (eg, if rate is set to zero or for the core polling library t=
+o
+> use) but the userspace API thats being proposed here seems like it's
+> going to cause problems for applications that try to do the right thi=
+ng.
 
-Please use dev_pm_ops instead of bus-specific suspend/resume callbacks -
-there is a general move to remove the bus specific ones to allow better
-development of the PM core.
+Such applications probably aren't a factor here.
 
-> +MODULE_AUTHOR(DRIVER_AUTHOR);
-> +MODULE_DESCRIPTION(DRIVER_DESC);
-> +MODULE_LICENSE(DRIVER_LICENSE);
 
-Just put the definitions of these in directly, they're only used in one
-place.
+b.g.
+--=20
+Bill Gatliff
+bgat@billgatliff.com

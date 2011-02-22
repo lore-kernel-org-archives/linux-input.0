@@ -1,66 +1,43 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH 2/2] bt hidp: send Output reports using SET_REPORT on
- the Control channel
-Date: Tue, 22 Feb 2011 11:09:01 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1102221108520.2160@pobox.suse.cz>
-References: <alpine.LNX.2.00.1102180944590.2160@pobox.suse.cz> <1298222806-19433-1-git-send-email-ospite@studenti.unina.it> <1298222806-19433-3-git-send-email-ospite@studenti.unina.it> <4D61DFE0.5020400@signal11.us> <alpine.LNX.2.00.1102211349550.2160@pobox.suse.cz>
- <20110221210906.GI2965@joana>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] bma023: Support for Bosch BMA023, BMA150 and SMB380
+ accelerometers
+Date: Tue, 22 Feb 2011 11:29:58 +0000
+Message-ID: <20110222112958.7802eaea@lxorguk.ukuu.org.uk>
+References: <20110214100622.2282.1584.stgit@bob.linux.org.uk>
+	<4D62B826.2010201@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110221210906.GI2965@joana>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Gustavo F. Padovan" <padovan-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>
-Cc: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, "pascal-dXI0m6hRz7k@public.gmane.org" <pascal-dXI0m6hRz7k@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:40497 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751860Ab1BVL2a (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Feb 2011 06:28:30 -0500
+In-Reply-To: <4D62B826.2010201@cam.ac.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 21 Feb 2011, Gustavo F. Padovan wrote:
+> > +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/range
+> > +Date:		February 2011
+> > +Contact:	Alan Cox <alan@linux.intel.com>
+> > +Description:	Configure the sensing range of the device
+> > +		0: +/- 2G
+> > +		1: +/- 4G
+> > +		2: +/- 8G
+> Why the magic numbers? It would be trivial to just use the actual values so
+> why not do so?
 
-> > > > The current implementation of hidp_output_raw_report() relies only on
-> > > > the Control channel even for Output reports, and the BT HID
-> > > > specification [1] does not mention using the DATA message for Output
-> > > > reports on the Control channel (see section 7.9.1 and also Figure 11:
-> > > > SET_ Flow Chart), so let us just use SET_REPORT.
-> > > > 
-> > > > This also fixes sending Output reports to some devices (like Sony
-> > > > Sixaxis) which are not able to handle DATA messages on the Control
-> > > > channel.
-> > > > 
-> > > > Ideally hidp_output_raw_report() could be improved to use this scheme:
-> > > >    Feature Report -- SET_REPORT on the Control channel
-> > > >    Output Report  -- DATA on the Interrupt channel
-> > > > for more efficiency, but as said above, right now only the Control
-> > > > channel is used.
-> > > > 
-> > > > [1] http://www.bluetooth.com/Specification%20Documents/HID_SPEC_V10.pdf
-> > > > 
-> > > >   	case HID_OUTPUT_REPORT:
-> > > > -		report_type = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
-> > > > +		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
-> > > >    
-> > > 
-> > > I think this is right. Section 7.4[.0] says that SET_ and GET_ requests return
-> > > with HANDSHAKE. Section 7.4.9 says that DATA does _not_ return a HANDSHAKE. My
-> > > patch to hidp_output_raw_report() relies on getting a HANDSHAKE back, so it
-> > > wouldn't have worked with BT devices that take output reports. Since I don't
-> > > have any that do, I couldn't test it. (And it was like that when I got here :)
-> > > )
-> > > 
-> > > For the whole set:
-> > > Acked-by: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-> > 
-> > Agreed.
-> > 
-> > As an author of the original code, I agree with the change. But as it is 
-> > in net/bluetooth, I'd at least have Acked-by from some of the Bluetooth 
-> > folks before I take it through my tree.
-> > 
-> > Marcel? Gustavo?
-> 
-> Acked-by: Gustavo F. Padovan <padovan-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>
+That seems sensible, especially if other variants then decided to do
+other frequencies
 
-Perfect, applied, thanks.
+> > +		(See the equations in the data sheet)
+> If possible, please direct people to a particular equation. Or given these
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+There is a datasheet link for the BMA150 in the driver now.
+
+I don't think duplicating the notes actually helps because you really
+need the data sheet to do the job anyway and it avoids duplicating stuff
+that may then go stale.

@@ -1,138 +1,344 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH] input: evdev: Add a read() callback
-Date: Tue, 22 Feb 2011 13:13:07 +0000
-Message-ID: <4D63B663.6070308@cam.ac.uk>
-References: <1298297930-3937-1-git-send-email-bgat@billgatliff.com> <20110222002315.GA18299@sirena.org.uk> <AANLkTik8d1KZd_qSr2tKrBHq2X-9agA1BG7guK1SqzAd@mail.gmail.com> <20110222043302.GD18299@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 3/4] input - wacom : support one finger touch the touchscreen way
+Date: Tue, 22 Feb 2011 09:40:13 -0800
+Message-ID: <1298396413-2900-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:44955 "EHLO
-	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751697Ab1BVNMk (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:58110 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754545Ab1BVRlQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Feb 2011 08:12:40 -0500
-In-Reply-To: <20110222043302.GD18299@sirena.org.uk>
+	Tue, 22 Feb 2011 12:41:16 -0500
+Received: by pxi15 with SMTP id 15so275148pxi.19
+        for <linux-input@vger.kernel.org>; Tue, 22 Feb 2011 09:41:15 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Bill Gatliff <bgat@billgatliff.com>, linux-input@vger.kernel.org, linux-embedded@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 02/22/11 04:33, Mark Brown wrote:
-> On Mon, Feb 21, 2011 at 10:07:12PM -0600, Bill Gatliff wrote:
-> 
->> A good case in point comes up when someone moves an Android
->> implementation from one platform to another.  No two accelerometer
->> drivers seem to agree on how to specify the desired event generation
->> rate, so the migration effort is increased.  And the work is divided
->> between both kernel and userspace: the former in its mandate to
->> provide a rate-request interface, and the latter to utilize that
->> interface.  I really don't see the point in this.
-> 
-> But surely the most obvious solution here is to standardise a rate
-> control interface?  Anything else means we need a completely different
-> implementation for hardware which does have the ability to schedule its
-> own conversions.
-I agree that standardizing would be a good idea.  Note that far from all
-accelerometers act as 'polled' devices.  Most I've encountered have their
-own sampling clocks and in many cases these can be set pretty low, saving
-power and sometimes applying filters to give lower noise on the output.
+On Sun, Feb 20, 2011 at 8:21 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
 
-For these I don't think the approach given in this thread makes sense.
-It's more promising for those devices that are using an in driver
-polling thread that actually initializes the sampling (more common
-in slow devices like magnetometers).  Still, whilst I initially liked
-the idea, the whole point about it interoperating badly with apps that
-are event driven is clearly a big issue...
-> 
->> As I mention in my commit log/essay, devices like USB keyboards and
->> other event-driven hardware have no use for my read callback idea, and
->> can safely ignore it.  And I don't see a day on the horizon where
->> anyone will plug an accelerometer into X and expect X to deal with it
->> as properly as it does today for keyboards and mice.  I don't think
->> the "do the right thing" applications you are referring to will be
->> affected by the read callback at all, since the callback doesn't apply
->> to ordinary, "do the right thing"-type situations.
-> 
-> The problem you're trying to solve is also an issue for really common
-> and standard things like touchscreens and polled switches/keys (the
-> latter of which you mentioned in your mail) which are used by standard
-> applications.
-> 
->> But if the accelerometer measurement has to be synchronized with some
->> other event, things get a little trickier.  At the moment my concerns
->> for this are theoretical, but I can see some situations coming soon
->> where the theory could be usefully put to practice.
-> 
-> Have you looked at the IIO subsystem for things like this?  There has
-> been talk of putting accelerometers in there and it certainly fits in
-> with the sync requirements you're mentioning.
-Hmm. We still need to do more work on this to get it to the level I'd like.
-To give background info:
+> Hi Ping,
+>
+> On Wed, Feb 16, 2011 at 02:53:11PM -0800, Ping Cheng wrote:
+> > There are two types of 1FGT devices supported in wacom_wac.c.
+> > Changing them to follow the existing touchscreen format, i.e.,
+> > only report BTN_TOUCH as a valid tool type.
+> >
+> > Touch data will be ignored if pen is in proximity. This requires
+> > a touch up sent if touch was down when pen comes in. The touch up
+> > event should be sent before any pen events emitted. Otherwise,
+> > two pointers would race for the cursor.
+> >
+> > However, we can not send a touch up inside wacom_tpc_pen since
+> > pen and touch are on different logical port. That is why we
+> > have to check if touch is up before sending pen events.
+> >
+> > Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+> > Signed-off-by: Ping Cheng <pingc@wacom.com>
+> > ---
+> >  drivers/input/tablet/wacom_wac.c |  125
+> +++++++++++++------------------------
+> >  drivers/input/tablet/wacom_wac.h |    1 +
+> >  2 files changed, 45 insertions(+), 81 deletions(-)
+> >
+> > diff --git a/drivers/input/tablet/wacom_wac.c
+> b/drivers/input/tablet/wacom_wac.c
+> > index 15bab99..fc0669d 100644
+> > --- a/drivers/input/tablet/wacom_wac.c
+> > +++ b/drivers/input/tablet/wacom_wac.c
+> > @@ -675,51 +675,35 @@ static int wacom_intuos_irq(struct wacom_wac
+> *wacom)
+> >       return 1;
+> >  }
+> >
+> > -static void wacom_tpc_touch_out(struct wacom_wac *wacom, int idx)
+> > -{
+> > -     struct input_dev *input = wacom->input;
+> > -     int finger = idx + 1;
+> > -
+> > -     input_report_abs(input, ABS_X, 0);
+> > -     input_report_abs(input, ABS_Y, 0);
+> > -     input_report_abs(input, ABS_MISC, 0);
+> > -     input_report_key(input, wacom->tool[finger], 0);
+> > -     if (!idx)
+> > -             input_report_key(input, BTN_TOUCH, 0);
+> > -     input_event(input, EV_MSC, MSC_SERIAL, finger);
+> > -     input_sync(input);
+> > -}
+> > -
+> > -static void wacom_tpc_touch_in(struct wacom_wac *wacom, size_t len)
+> > +static int wacom_tpc_single_touch(struct wacom_wac *wacom, size_t len)
+> >  {
+> >       char *data = wacom->data;
+> >       struct input_dev *input = wacom->input;
+> > +     bool prox = 0;
+> >
+> > -     wacom->tool[1] = BTN_TOOL_DOUBLETAP;
+> > -     wacom->id[0] = TOUCH_DEVICE_ID;
+> > -
+> > -     if (len != WACOM_PKGLEN_TPC1FG) {
+> > -
+> > -             switch (data[0]) {
+> > +     if (!wacom->shared->stylus_in_proximity) {
+> > +             if (len == WACOM_PKGLEN_TPC1FG)
+> > +                     prox = data[0] & 0x01;
+> > +             else  /* with capacity */
+> > +                     prox = data[1] & 0x01;
+> > +     } else if (wacom->shared->touch_down)
+> > +             prox = 0;
+> > +     else
+> > +             return 0;
+> >
+> > -             case WACOM_REPORT_TPC1FG:
+> > -                     input_report_abs(input, ABS_X, le16_to_cpup((__le16
+> *)&data[2]));
+> > -                     input_report_abs(input, ABS_Y, le16_to_cpup((__le16
+> *)&data[4]));
+> > -                     input_report_abs(input, ABS_PRESSURE,
+> le16_to_cpup((__le16 *)&data[6]));
+> > -                     input_report_key(input, BTN_TOUCH,
+> le16_to_cpup((__le16 *)&data[6]));
+> > -                     input_report_abs(input, ABS_MISC, wacom->id[0]);
+> > -                     input_report_key(input, wacom->tool[1], 1);
+> > -                     input_sync(input);
+> > -                     break;
+> > -             }
+> > -     } else {
+> > +     if (len == WACOM_PKGLEN_TPC1FG) {
+> >               input_report_abs(input, ABS_X,
+> get_unaligned_le16(&data[1]));
+> >               input_report_abs(input, ABS_Y,
+> get_unaligned_le16(&data[3]));
+> > -             input_report_key(input, BTN_TOUCH, 1);
+> > -             input_report_abs(input, ABS_MISC, wacom->id[1]);
+> > -             input_report_key(input, wacom->tool[1], 1);
+> > -             input_sync(input);
+> > +     } else {
+> > +             input_report_abs(input, ABS_X, le16_to_cpup((__le16
+> *)&data[2]));
+> > +             input_report_abs(input, ABS_Y, le16_to_cpup((__le16
+> *)&data[4]));
+> >       }
+> > +     input_report_key(input, BTN_TOUCH, prox);
+> > +
+> > +     /* keep prox bit to send proper out-prox event */
+> > +     wacom->shared->touch_down = prox;
+>
 
-A common reason for wanting this is Inertial Measurement Units (combination
-of typically accelerometers, gyros and magnetometers) made up of a number
-of discrete parts.  Some of these will run on their own internal clocks, so
-not much we can do about them, but others as for the devices you are considering
-here will sample based on a trigger pin, command over bus, or the bus read
-itself.
+touch_down represents the touch status that the driver gets/sets, not the
+actual touch down. Driver touch down (touch_down) is decided by both the
+actual touch and pen status, while it won't be changed by actual touch
+status when pen is in.
 
-IIO handles this via 'triggers'.  These are provided either by hardware
-(data ready signals from chips, or gpio pins), timers or userspace triggering.
-Any trigger can have as many separate poll functions attached as you like,
-allowing the 'trigger event' to cause data to be captured from lots of different
-sensors.  There are two queues, one for hammering capture pins as fast as possible
-and one for doing slower bus based reads.  Aim is to get all the captures as close
-as possible together subject to constraints of the actual board.
 
-Things we don't handle well:
-* delays.  Some devices have deterministic capture delays. Ideally we would take
-these into account though it isn't entirely clear what the desired behaviour actually
-is.
-* Triggering based on the data ready signal of a part that isn't attached to the
-same trigger.  This is fiddly and right now you can end up with the trigger not being
-cleared and hence only firing once.
-* Triggering form more esoteric events. E.g. Grab values from one device when another
-passes some threshold.  However these will only be added if anyone actually has a use
-case and even then will require support in the particular parts driver.
+> So in this function, touch-first-then-pen leads to touch_down =
+> touch_is_actually_down && !pen_in_prox.
 
-Still, it's a work in progress...
-> 
->>> If the application were to use a rate control in conjunction with blocking
->>> (which is the expected programming model) then a rate control will do
->>> exactly what's expected.
-> 
->> No argument with that.  My main complaint is that everyone is doing
->> rate control APIs differently.  I'm proposing a way to standardize
->> them by eliminating them altogether.  A side-effect of my idea is that
->> applications get complete control over event generation.  Many of them
->> won't care about that, but some will.
-> 
-> The problem with your proposal as it stands is that if they do use the
-> new interface they interact badly with existing applications.  This
-> isn't really a decision the driver should be taking, it needs to be
-> userspace policy if it's going to be a decision at all.
-> 
->> I recognize your concern.  But I don't think that the applications
->> which could be confused by the behavior I'm proposing would be the
->> same applications that would take advantage of it.  Or, perhaps, such
->> applications might welcome eliminating the code needed to support the
->> different rate-limiting interfaces of a half-dozen or more devices
->> that they claim compatibility with.
-> 
-> Again, you appear to be assuming that there are many rate limiting
-> interfaces.  Surely the solution to an excess of rate limit interfaces
-> is to standardise the rate limiting interfaces rather than invent a new
-> interface, especially one that interoperates poorly with blocking apps?
-> 
->>> This is all stuff that can be put into a library (parts of it are
->>> already) so there's no real cost to drivers from implementing anything.
-> 
->> ... except the redundancy of everyone doing it slightly differently.
->> Why not settle on a common approach, so the library you mention isn't
->> necessary at all?
-> 
-> Note that I'm talking about in-kernel code here, not a linked library in
-> userspace.  One way or another *something* is going to have to provide
-> the scheduling support.
+
+We need to think of the status in the driver's perspective, not the actual
+touch state.
+
+As soon as the pen is in, i.e., pen data is processed,  pen_in_prox will be
+true. The !pen_in_prox can only happen when pen data is not processed. So,
+to the driver, it is not in although it is actual in.
+
+In this block, there are two possible cases for touch-first-then-pen:
+
+touch in first (pen was not), so
+
+touch_down = true;
+pen_in_prox = false;
+
+touch still in and pen is in also:
+
+touch_down = true;
+pen_in_prox = true;
+
+
+> Conversely,
+> pen-first-then-touch second leads to no state transition at all, which
+> seems equivalent.
+
+
+pen-first-then-touch (and pen stays in) will always have:
+
+touch_down = false;
+pen_in_prox = true;
+
+
+> However, the code mixes the actual pen and touch
+> state with what gets reported. It seems cleaner to let touch_down =
+> touch_is_actually_down, and instead define what should be reported in
+> that case.
+>
+
+No, we are not reporting the actual down. The actual touch can be down while
+the driver touch_down is false since pen is in-prox.
+
+It is a logic generated by/for the driver, not from the firmware. Maybe I
+missed your point? Can you post a pesuo-code to show your idea?
+
+
+>
+> > +
+> > +     return 1;
+> >  }
+> >
+> >  static int wacom_tpc_pen(struct wacom_wac *wacom)
+> > @@ -731,7 +715,7 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
+> >
+> >       prox = data[1] & 0x20;
+> >
+> > -     if (!wacom->shared->stylus_in_proximity) { /* first in prox */
+> > +     if (!wacom->shared->stylus_in_proximity) {
+> >               /* Going into proximity select tool */
+> >               wacom->tool[0] = (data[1] & 0x0c) ? BTN_TOOL_RUBBER :
+> BTN_TOOL_PEN;
+> >               if (wacom->tool[0] == BTN_TOOL_PEN)
+> > @@ -740,58 +724,36 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
+> >                       wacom->id[0] = ERASER_DEVICE_ID;
+> >
+> >               wacom->shared->stylus_in_proximity = true;
+> > +     } else if (!wacom->shared->touch_down) {
+> > +             input_report_key(input, BTN_STYLUS, data[1] & 0x02);
+> > +             input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
+> > +             input_report_abs(input, ABS_X, le16_to_cpup((__le16
+> *)&data[2]));
+> > +             input_report_abs(input, ABS_Y, le16_to_cpup((__le16
+> *)&data[4]));
+> > +             pressure = ((data[7] & 0x01) << 8) | data[6];
+> > +             if (pressure < 0)
+> > +                     pressure = features->pressure_max + pressure + 1;
+> > +             input_report_abs(input, ABS_PRESSURE, pressure);
+> > +             input_report_key(input, BTN_TOUCH, data[1] & 0x05);
+> > +             if (!prox) { /* out-prox */
+> > +                     wacom->id[0] = 0;
+> > +                     wacom->shared->stylus_in_proximity = false;
+> > +             }
+> > +             input_report_key(input, wacom->tool[0], prox);
+> > +             return 1;
+>
+> If pen_in_prox is false on entry, and prox is false, this results in
+> pen_in_prox being true.
+>
+
+How?
+
+We get prox = false event from FW for pen only once when tool leaves prox.
+So, if prox is false, it means pen was in since without pen in, we do not
+get pen out event.
+
+If pen_in_prox was true, touch_down has to be false. Otherwise, we won't
+post any events for pen. The main purpose here is that we will not post pen
+(and/or touch) events before the driver sets touch_down to false.
+
+Firmware posts pen and touch data continuously as long as they both are
+in/down. It is the driver's responsibility to decide which ST to post so the
+events won't confuse the ST clients.
+
+It is a very small corner case. But it eliminates an obvious jumpy cursor
+during the touch and pen transition.
+
+I wish you have a Bamboo pen and touch to see what I mean.
+
+Thank you for the comments.
+
+Ping
+
+
+> >       }
+> > -     input_report_key(input, BTN_STYLUS, data[1] & 0x02);
+> > -     input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
+> > -     input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
+> > -     input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
+> > -     pressure = ((data[7] & 0x01) << 8) | data[6];
+> > -     if (pressure < 0)
+> > -             pressure = features->pressure_max + pressure + 1;
+> > -     input_report_abs(input, ABS_PRESSURE, pressure);
+> > -     input_report_key(input, BTN_TOUCH, data[1] & 0x05);
+> > -     if (!prox) { /* out-prox */
+> > -             wacom->id[0] = 0;
+> > -             wacom->shared->stylus_in_proximity = false;
+> > -     }
+> > -     input_report_key(input, wacom->tool[0], prox);
+> >
+> > -     return 1;
+> > +     return 0;
+> >  }
+> >
+> >  static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+> >  {
+> >       char *data = wacom->data;
+> > -     int prox = 0;
+> >
+> >       dbg("wacom_tpc_irq: received report #%d", data[0]);
+> >
+> > -     if (len == WACOM_PKGLEN_TPC1FG ||
+> > -         data[0] == WACOM_REPORT_TPC1FG) {   /* single touch */
+> > -
+> > -             if (wacom->shared->stylus_in_proximity) {
+> > -                     if (wacom->id[1] & 0x01)
+> > -                             wacom_tpc_touch_out(wacom, 0);
+> > -
+> > -                     wacom->id[1] = 0;
+> > -                     return 0;
+> > -             }
+> > -
+> > -             if (len == WACOM_PKGLEN_TPC1FG)
+> > -                     prox = data[0] & 0x01;
+> > -             else  /* with capacity */
+> > -                     prox = data[1] & 0x01;
+> > -
+> > -             if (prox)
+> > -                     wacom_tpc_touch_in(wacom, len);
+> > -             else {
+> > -                     wacom_tpc_touch_out(wacom, 0);
+> > -
+> > -                     wacom->id[0] = 0;
+> > -             }
+> > -             /* keep prox bit to send proper out-prox event */
+> > -             wacom->id[1] = prox;
+> > -     } else if (data[0] == WACOM_REPORT_PENABLED)
+> > +     if (len == WACOM_PKGLEN_TPC1FG || data[0] == WACOM_REPORT_TPC1FG)
+> > +             return wacom_tpc_single_touch(wacom, len);
+> > +     else if (data[0] == WACOM_REPORT_PENABLED)
+> >               return wacom_tpc_pen(wacom);
+> >
+> >       return 0;
+> > @@ -1172,6 +1134,8 @@ void wacom_setup_input_capabilities(struct
+> input_dev *input_dev,
+> >               /* fall through */
+> >
+> >       case TABLETPC:
+> > +             __clear_bit(ABS_MISC, input_dev->absbit);
+> > +
+> >               if (features->device_type == BTN_TOOL_DOUBLETAP ||
+> >                   features->device_type == BTN_TOOL_TRIPLETAP) {
+> >                       input_abs_set_res(input_dev, ABS_X,
+> > @@ -1180,7 +1144,6 @@ void wacom_setup_input_capabilities(struct
+> input_dev *input_dev,
+> >                       input_abs_set_res(input_dev, ABS_Y,
+> >                               wacom_calculate_touch_res(features->y_max,
+> >                                                       features->y_phy));
+> > -                     __set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+> >               }
+> >
+> >               if (features->device_type != BTN_TOOL_PEN)
+> > diff --git a/drivers/input/tablet/wacom_wac.h
+> b/drivers/input/tablet/wacom_wac.h
+> > index 8f747dd..835f756 100644
+> > --- a/drivers/input/tablet/wacom_wac.h
+> > +++ b/drivers/input/tablet/wacom_wac.h
+> > @@ -88,6 +88,7 @@ struct wacom_features {
+> >
+> >  struct wacom_shared {
+> >       bool stylus_in_proximity;
+> > +     bool touch_down;
+> >  };
+> >
+> >  struct wacom_wac {
+> > --
+> > 1.7.4
+> >
+>
+
 

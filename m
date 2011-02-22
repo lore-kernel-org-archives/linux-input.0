@@ -1,152 +1,98 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2] input: add driver for pixcir i2c touchscreens
-Date: Tue, 22 Feb 2011 09:15:34 +0100
-Message-ID: <20110222081534.GA2004@polaris.bitmath.org>
-References: <1eeef53.91a4.12e4b7257f9.Coremail.jcbian@pixcir.com.cn>
+Subject: Re: [PATCH] input: evdev: Add a read() callback
+Date: Tue, 22 Feb 2011 10:14:33 +0100
+Message-ID: <20110222091433.GA2183@polaris.bitmath.org>
+References: <1298297930-3937-1-git-send-email-bgat@billgatliff.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:34118 "EHLO
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:39502 "EHLO
 	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752270Ab1BVIOR (ORCPT
+	by vger.kernel.org with ESMTP id S1752282Ab1BVJNS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Feb 2011 03:14:17 -0500
+	Tue, 22 Feb 2011 04:13:18 -0500
 Content-Disposition: inline
-In-Reply-To: <1eeef53.91a4.12e4b7257f9.Coremail.jcbian@pixcir.com.cn>
+In-Reply-To: <1298297930-3937-1-git-send-email-bgat@billgatliff.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?5Y2e5bu65pil?= <jcbian@pixcir.com.cn>
-Cc: linux-input@vger.kernel.org, =?utf-8?B?5a2f5b6X5YWo?= <dqmeng@pixcir.com.cn>, =?utf-8?B?6ZmI5q2j6b6Z?= <zlchen@pixcir.com.cn>
+To: Bill Gatliff <bgat@billgatliff.com>
+Cc: linux-input@vger.kernel.org
 
-Hi jcbian,
+Hi Bill,
 
-Here are some duplicate comments and additions to what you already
-heard from Mark and Dmitry.
+Some additional comments inline.
 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 61834ae..f11c1ab 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -693,4 +693,13 @@ config TOUCHSCREEN_TPS6507X
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called tps6507x_ts.
->  
-> +config TOUCHSCREEN_PIXCIR
-> +	tristate "PIXCIR touchscreen panel support"
-> +	depends on I2C
-> +	help
-> +	  Say Y here if you have a PIXCIR based touchscreen.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called pixcir_i2c_ts.
-> +
->  endif
+On Mon, Feb 21, 2011 at 08:18:50AM -0600, Bill Gatliff wrote:
+> Some devices, like accelerometers, can manufacture as many input
+> events as userspace can consume.  The traditional method for limiting
+> the number of input events sent to userspace by such devices is to use
+> a kernel thread looping around an idle timer, to "throttle" the
+> creation and queuing of input events to a manageable rate.  Such
+> drivers often also provide a sysfs attribute (or similar means) that
+> allows userspace to indicate a desired event rate.
+>
+> Some operating systems and/or applications e.g. Android, might prefer
+> to control input event creation rates themselves.  They frequently
+> attempt to do so by implementing a userspace polling thread that loops
+> around an idle timer; this idle timer throttles the rate of calls to
+> the input devices' read() method, which (at least in theory) limits
+> the rate of input events arriving at the application to a desired
+> level.
 
-Please keep Kconfig entries in alphabetical order.
+In addition, we do have open/close and EV_ABS fuzz ioctl as two
+existing, user-controllable throttling techniques. Additional filter
+possibilities might do the trick?
 
-> +#define DRIVER_VERSION	"v1.0"
-> +#define DRIVER_AUTHOR	"Bee<jcbian@pixcir.com.cn>,Reed<dqmeng@pixcir.com.cn>"
-> +#define DRIVER_DESC		"Pixcir I2C Touchscreen Driver"
-> +#define DRIVER_LICENSE	"GPL"
+> The enclosed patch address all of the above problems by implementing
+> an advisory callback from the evdev read() and poll() methods to the
+> associated input device driver.  The driver may then choose to
+> populate the input event buffer at that time, rather than on a
+> schedule implemented by a polling loop, sysfs trigger, or other means.
 
-Please insert these directly in the module definition.
+As already stated, this does not play very well with the event model.
 
-> +/* todo:check specs for resolution of touch screen */
-> +#define	TOUCHSCREEN_MINX	0
-> +#define	TOUCHSCREEN_MAXX	400
-> +#define	TOUCHSCREEN_MINY	0
-> +#define	TOUCHSCREEN_MAXY	600
+> Use of this callback by a driver naturally synchronizes the generation
+> of input events to requests from userspace, because the driver now
+> "knows" when userspace is attempting to retrieve an input event and
+> can therefore produce one just-in-time.  It also allows the driver to
+> easily match the rate of input event generation, by simply sampling the
+> hardware only during this callback.
 
-This should really be settled before mainline inclusion.
+The same effect could be achieved if the driver could simply ask the
+input core if the read buffers are being emptied or not.
 
-> +
-> +#define	DEBUG	0
+> If an input device driver chooses to use only the read() callback as
+> its signal to produce an input event, then the driver need not
+> implement a polling kernel thread or other means of pacing its event
+> generation rate.
 
-Odd one...
+There is a generic polled input device for that.
 
-> +
-> +static struct workqueue_struct *pixcir_wq;
-> +
-> +struct pixcir_i2c_ts_data {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	struct delayed_work work;
-> +	int irq;
-> +};
-> +
-> +static void pixcir_ts_poscheck(struct work_struct *work)
-> +{
-> +	struct pixcir_i2c_ts_data *tsdata = container_of(work,
-> +						  struct pixcir_i2c_ts_data,
-> +						  work.work);
-> +
-> +	unsigned char touching, oldtouching;
-> +	int posx1, posy1, posx2, posy2;
-> +	u_int8_t Rdbuf[10], Wrbuf[1];
+> The driver also has no need to provide a sysfs
+> attribute to allow userspace to request a polling rate or to trigger a
+> measurement: userspace must only read() or poll() the interface at the
+> desired rate.  This can greatly simplify input device driver
+> implementation, while conveniently leaving the incoming event rate and
+> synchronization issues completely up to the application. (See POSIX.1b
+> interval timers and scheduler options for APIs allowing precise timing
+> within user applications).
 
-Please do not use capitals in variable names.
+Right, rate adaption should be transparent and automatic.
 
-> +	int ret;
-> +	int z = 50;
-> +	int w = 15;
+> Finally, input device drivers might choose to implement a holdoff
+> timer that gets reset in the read() callback; expiration of this timer
+> would mean that userspace is no longer actively reading from the
+> device, even though the interface itself might still be open.  In such
+> cases the driver might wish to invoke a power-management method to
+> idle the hardware until the next  callback occurs.
 
-Please remove these fake values altogether.
+Or userspace could actually close the device to accomplish the desired
+effect with existing infrastructure.
 
-> +
-> +	memset(Wrbuf, 0, sizeof(Wrbuf));
-> +	memset(Rdbuf, 0, sizeof(Rdbuf));
-> +
-> +	Wrbuf[0] = 0;
-> +	ret = i2c_master_send(tsdata->client, Wrbuf, 1);
-> +	if (ret != 1) {
-> +		dev_err(&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
-> +		goto out;
-> +	}
-> +
-> +	ret = i2c_master_recv(tsdata->client, Rdbuf, sizeof(Rdbuf));
-> +	if (ret != sizeof(Rdbuf)) {
-> +		dev_err(&tsdata->client->dev, "Unable to read i2c page!\n");
-> +		goto out;
-> +	}
-> +
-> +	touching = Rdbuf[0];
-> +	oldtouching = Rdbuf[1];
-> +	posx1 = ((Rdbuf[3] << 8) | Rdbuf[2]);
-> +	posy1 = ((Rdbuf[5] << 8) | Rdbuf[4]);
-> +	posx2 = ((Rdbuf[7] << 8) | Rdbuf[6]);
-> +	posy2 = ((Rdbuf[9] << 8) | Rdbuf[8]);
-> +
-> +	input_report_key(tsdata->input, BTN_TOUCH, (touching != 0 ? 1 : 0));
-> +
-> +	if (touching == 1) {
-> +		input_report_abs(tsdata->input, ABS_X, posx1);
-> +		input_report_abs(tsdata->input, ABS_Y, posy1);
-> +	}
-> +
-> +	if (!(touching)) {
-> +		z = 0;
-> +		w = 0;
-> +	}
-> +	if (touching == 2) {
-> +		input_report_abs(tsdata->input, ABS_MT_TOUCH_MAJOR, z);
-> +		input_report_abs(tsdata->input, ABS_MT_WIDTH_MAJOR, w);
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
-> +		input_mt_sync(tsdata->input);
-> +
-> +		input_report_abs(tsdata->input, ABS_MT_TOUCH_MAJOR, z);
-> +		input_report_abs(tsdata->input, ABS_MT_WIDTH_MAJOR, w);
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx2);
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy2);
-> +		input_mt_sync(tsdata->input);
-> +	}
-> +	input_sync(tsdata->input);
-
-Please use the slotted type B protocol instead. If the device can
-track fingers, it is very simple to do, see for instance
-drivers/input/touchscreen/wacom_w8001.c. If the device cannot do
-tracking, please do tell and we will add in pending tracking support
-to the input core together with this driver.
+> Polled devices like accelerometers and compasses (and perhaps some
+> types of pushbuttons or switch inputs) will get the most benefit from
+> utilizing the read() callback.  Other devices, like USB keyboards and
+> mice, will have no use for it and may safely ignore it.
 
 Thanks,
 Henrik

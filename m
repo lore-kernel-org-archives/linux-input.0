@@ -1,98 +1,66 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] input: evdev: Add a read() callback
-Date: Tue, 22 Feb 2011 10:14:33 +0100
-Message-ID: <20110222091433.GA2183@polaris.bitmath.org>
-References: <1298297930-3937-1-git-send-email-bgat@billgatliff.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH 2/2] bt hidp: send Output reports using SET_REPORT on
+ the Control channel
+Date: Tue, 22 Feb 2011 11:09:01 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102221108520.2160@pobox.suse.cz>
+References: <alpine.LNX.2.00.1102180944590.2160@pobox.suse.cz> <1298222806-19433-1-git-send-email-ospite@studenti.unina.it> <1298222806-19433-3-git-send-email-ospite@studenti.unina.it> <4D61DFE0.5020400@signal11.us> <alpine.LNX.2.00.1102211349550.2160@pobox.suse.cz>
+ <20110221210906.GI2965@joana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:39502 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752282Ab1BVJNS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Feb 2011 04:13:18 -0500
-Content-Disposition: inline
-In-Reply-To: <1298297930-3937-1-git-send-email-bgat@billgatliff.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110221210906.GI2965@joana>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Gustavo F. Padovan" <padovan-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>
+Cc: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, "pascal-dXI0m6hRz7k@public.gmane.org" <pascal-dXI0m6hRz7k@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Bill Gatliff <bgat@billgatliff.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Bill,
+On Mon, 21 Feb 2011, Gustavo F. Padovan wrote:
 
-Some additional comments inline.
+> > > > The current implementation of hidp_output_raw_report() relies only on
+> > > > the Control channel even for Output reports, and the BT HID
+> > > > specification [1] does not mention using the DATA message for Output
+> > > > reports on the Control channel (see section 7.9.1 and also Figure 11:
+> > > > SET_ Flow Chart), so let us just use SET_REPORT.
+> > > > 
+> > > > This also fixes sending Output reports to some devices (like Sony
+> > > > Sixaxis) which are not able to handle DATA messages on the Control
+> > > > channel.
+> > > > 
+> > > > Ideally hidp_output_raw_report() could be improved to use this scheme:
+> > > >    Feature Report -- SET_REPORT on the Control channel
+> > > >    Output Report  -- DATA on the Interrupt channel
+> > > > for more efficiency, but as said above, right now only the Control
+> > > > channel is used.
+> > > > 
+> > > > [1] http://www.bluetooth.com/Specification%20Documents/HID_SPEC_V10.pdf
+> > > > 
+> > > >   	case HID_OUTPUT_REPORT:
+> > > > -		report_type = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
+> > > > +		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
+> > > >    
+> > > 
+> > > I think this is right. Section 7.4[.0] says that SET_ and GET_ requests return
+> > > with HANDSHAKE. Section 7.4.9 says that DATA does _not_ return a HANDSHAKE. My
+> > > patch to hidp_output_raw_report() relies on getting a HANDSHAKE back, so it
+> > > wouldn't have worked with BT devices that take output reports. Since I don't
+> > > have any that do, I couldn't test it. (And it was like that when I got here :)
+> > > )
+> > > 
+> > > For the whole set:
+> > > Acked-by: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+> > 
+> > Agreed.
+> > 
+> > As an author of the original code, I agree with the change. But as it is 
+> > in net/bluetooth, I'd at least have Acked-by from some of the Bluetooth 
+> > folks before I take it through my tree.
+> > 
+> > Marcel? Gustavo?
+> 
+> Acked-by: Gustavo F. Padovan <padovan-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>
 
-On Mon, Feb 21, 2011 at 08:18:50AM -0600, Bill Gatliff wrote:
-> Some devices, like accelerometers, can manufacture as many input
-> events as userspace can consume.  The traditional method for limiting
-> the number of input events sent to userspace by such devices is to use
-> a kernel thread looping around an idle timer, to "throttle" the
-> creation and queuing of input events to a manageable rate.  Such
-> drivers often also provide a sysfs attribute (or similar means) that
-> allows userspace to indicate a desired event rate.
->
-> Some operating systems and/or applications e.g. Android, might prefer
-> to control input event creation rates themselves.  They frequently
-> attempt to do so by implementing a userspace polling thread that loops
-> around an idle timer; this idle timer throttles the rate of calls to
-> the input devices' read() method, which (at least in theory) limits
-> the rate of input events arriving at the application to a desired
-> level.
+Perfect, applied, thanks.
 
-In addition, we do have open/close and EV_ABS fuzz ioctl as two
-existing, user-controllable throttling techniques. Additional filter
-possibilities might do the trick?
-
-> The enclosed patch address all of the above problems by implementing
-> an advisory callback from the evdev read() and poll() methods to the
-> associated input device driver.  The driver may then choose to
-> populate the input event buffer at that time, rather than on a
-> schedule implemented by a polling loop, sysfs trigger, or other means.
-
-As already stated, this does not play very well with the event model.
-
-> Use of this callback by a driver naturally synchronizes the generation
-> of input events to requests from userspace, because the driver now
-> "knows" when userspace is attempting to retrieve an input event and
-> can therefore produce one just-in-time.  It also allows the driver to
-> easily match the rate of input event generation, by simply sampling the
-> hardware only during this callback.
-
-The same effect could be achieved if the driver could simply ask the
-input core if the read buffers are being emptied or not.
-
-> If an input device driver chooses to use only the read() callback as
-> its signal to produce an input event, then the driver need not
-> implement a polling kernel thread or other means of pacing its event
-> generation rate.
-
-There is a generic polled input device for that.
-
-> The driver also has no need to provide a sysfs
-> attribute to allow userspace to request a polling rate or to trigger a
-> measurement: userspace must only read() or poll() the interface at the
-> desired rate.  This can greatly simplify input device driver
-> implementation, while conveniently leaving the incoming event rate and
-> synchronization issues completely up to the application. (See POSIX.1b
-> interval timers and scheduler options for APIs allowing precise timing
-> within user applications).
-
-Right, rate adaption should be transparent and automatic.
-
-> Finally, input device drivers might choose to implement a holdoff
-> timer that gets reset in the read() callback; expiration of this timer
-> would mean that userspace is no longer actively reading from the
-> device, even though the interface itself might still be open.  In such
-> cases the driver might wish to invoke a power-management method to
-> idle the hardware until the next  callback occurs.
-
-Or userspace could actually close the device to accomplish the desired
-effect with existing infrastructure.
-
-> Polled devices like accelerometers and compasses (and perhaps some
-> types of pushbuttons or switch inputs) will get the most benefit from
-> utilizing the read() callback.  Other devices, like USB keyboards and
-> mice, will have no use for it and may safely ignore it.
-
-Thanks,
-Henrik
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

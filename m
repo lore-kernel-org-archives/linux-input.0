@@ -1,255 +1,164 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 4/4 v2] input - wacom: Support 2FGT in MT format
-Date: Tue, 22 Feb 2011 09:44:32 -0800
-Message-ID: <1298396672-2938-1-git-send-email-pinglinux@gmail.com>
+From: jcbian <jcbian@pixcir.com.cn>
+Subject: Re: [PATCH] input: add driver for pixcir i2c touchscreens
+Date: Wed, 23 Feb 2011 09:04:28 +0800 (HKT)
+Message-ID: <f2894b.b085.12e500bb5f2.Coremail.jcbian@pixcir.com.cn>
+References: <20110222034808.GC18299@sirena.org.uk>
+ <4D632AAD.8040405@pixcir.com.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:47624 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750784Ab1BVRpf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Feb 2011 12:45:35 -0500
-Received: by pvg12 with SMTP id 12so366667pvg.19
-        for <linux-input@vger.kernel.org>; Tue, 22 Feb 2011 09:45:34 -0800 (PST)
+Received: from mail37.corpease.net ([61.145.121.42]:22390 "EHLO corpease.net"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751517Ab1BWBEh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Feb 2011 20:04:37 -0500
+In-Reply-To: <20110222034808.GC18299@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, dqmeng <dqmeng@pixcir.com.cn>, zlchen <zlchen@pixcir.com.cn>
 
-On Sun, Feb 20, 2011 at 8:25 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+Dear Mark
+  Thanks for your feedbaxk!
 
-> Hi Ping,
->
-> On Wed, Feb 16, 2011 at 02:53:47PM -0800, Ping Cheng wrote:
-> > Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
-> > Signed-off-by: Ping Cheng <pingc@wacom.com>
-> > ---
-> > v2: Removed the touch status check if-statement as suggested
-> > by Henrik for code flow clarity.
-> > ---
-> >  drivers/input/tablet/wacom_sys.c |   12 ++++----
-> >  drivers/input/tablet/wacom_wac.c |   60
-> ++++++++++++++++++++++++++++++-------
-> >  2 files changed, 54 insertions(+), 18 deletions(-)
-> >
-> > diff --git a/drivers/input/tablet/wacom_sys.c
-> b/drivers/input/tablet/wacom_sys.c
-> > index fc38149..b97665f 100644
-> > --- a/drivers/input/tablet/wacom_sys.c
-> > +++ b/drivers/input/tablet/wacom_sys.c
-> > @@ -193,16 +193,16 @@ static int wacom_parse_hid(struct usb_interface
-> *intf, struct hid_descriptor *hi
-> >                       case HID_USAGE_X:
-> >                               if (usage == WCM_DESKTOP) {
-> >                                       if (finger) {
-> > -                                             features->device_type =
-> BTN_TOOL_DOUBLETAP;
-> > +                                             features->device_type =
-> BTN_TOOL_FINGER;
-> >                                               if (features->type ==
-> TABLETPC2FG) {
-> >                                                       /* need to reset
-> back */
-> >                                                       features->pktlen =
-> WACOM_PKGLEN_TPC2FG;
-> > -
-> features->device_type = BTN_TOOL_TRIPLETAP;
+> On Tue, Feb 22, 2011 at 11:17:01AM +0800, jcbian wrote:
+> 
+> > +config TOUCHSCREEN_PIXCIR
+> > + tristate "PIXCIR touchscreen panel support"
+> > + depends on I2C
+> > + help
+> > + Say Y here if you have a PIXCIR based touchscreen.
 > > +
-> features->device_type = BTN_TOOL_DOUBLETAP;
-> >                                               }
-> >                                               if (features->type ==
-> BAMBOO_PT) {
-> >                                                       /* need to reset
-> back */
-> >                                                       features->pktlen =
-> WACOM_PKGLEN_BBTOUCH;
-> > -
-> features->device_type = BTN_TOOL_TRIPLETAP;
-> > +
-> features->device_type = BTN_TOOL_DOUBLETAP;
-> >                                                       features->x_phy =
-> >
-> get_unaligned_le16(&report[i + 5]);
-> >                                                       features->x_max =
-> > @@ -241,11 +241,11 @@ static int wacom_parse_hid(struct usb_interface
-> *intf, struct hid_descriptor *hi
-> >                       case HID_USAGE_Y:
-> >                               if (usage == WCM_DESKTOP) {
-> >                                       if (finger) {
-> > -                                             features->device_type =
-> BTN_TOOL_DOUBLETAP;
-> > +                                             features->device_type =
-> BTN_TOOL_FINGER;
-> >                                               if (features->type ==
-> TABLETPC2FG) {
-> >                                                       /* need to reset
-> back */
-> >                                                       features->pktlen =
-> WACOM_PKGLEN_TPC2FG;
-> > -
-> features->device_type = BTN_TOOL_TRIPLETAP;
-> > +
-> features->device_type = BTN_TOOL_DOUBLETAP;
-> >                                                       features->y_max =
-> >
-> get_unaligned_le16(&report[i + 3]);
-> >                                                       features->y_phy =
-> > @@ -254,7 +254,7 @@ static int wacom_parse_hid(struct usb_interface
-> *intf, struct hid_descriptor *hi
-> >                                               } else if (features->type
-> == BAMBOO_PT) {
-> >                                                       /* need to reset
-> back */
-> >                                                       features->pktlen =
-> WACOM_PKGLEN_BBTOUCH;
-> > -
-> features->device_type = BTN_TOOL_TRIPLETAP;
-> > +
-> features->device_type = BTN_TOOL_DOUBLETAP;
-> >                                                       features->y_phy =
-> >
-> get_unaligned_le16(&report[i + 3]);
-> >                                                       features->y_max =
-> > diff --git a/drivers/input/tablet/wacom_wac.c
-> b/drivers/input/tablet/wacom_wac.c
-> > index fc0669d..8a21fcb 100644
-> > --- a/drivers/input/tablet/wacom_wac.c
-> > +++ b/drivers/input/tablet/wacom_wac.c
-> > @@ -675,6 +675,38 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
-> >       return 1;
-> >  }
-> >
-> > +static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
+> > + To compile this driver as a module, choose M here: the
+> > + module will be called pixcir_i2c_ts.
+> 
+> It looks like your mail client messes with the indentation of your
+> files, it looks like it turned all the tabs into spaces.
+> 
+Yes,so I resend the patch v2 which send from web.
+
+> > +#define DEBUG 0
+> 
+> Best just to remove this.
+> 
+Nice.
+
+> > +static struct workqueue_struct *pixcir_wq;
+> 
+> If you can have a single global workqueue could you use the system one
+> and avoid having to create one at all?
+> 
+The system one is less efficient then the the creating one in my opioion,is it right?
+
+> > + int posx1, posy1, posx2, posy2;
+> > + u_int8_t Rdbuf[10], Wrbuf[1];
+> 
+> Use u8.  The upper case at the start of teh bariable names is also a bit
+> odd for Linux.
+> 
+Nice.
+
+> > + Wrbuf[0] = 0;
+> > + ret = i2c_master_send(tsdata->client, Wrbuf, 1);
+> > + if (ret != 1) {
+> > + dev_err(&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
+> > + goto out;
+> 
+> It'd be good to print the error code.
+> 
+Great.
+
+> > +static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
 > > +{
-> > +     struct input_dev *input = wacom->input;
-> > +     unsigned char *data = wacom->data;
-> > +     int i;
+> > + struct pixcir_i2c_ts_data *tsdata = dev_id;
+> > + disable_irq_nosync(irq);
 > > +
-> > +     for (i = 0; i < 2; i++) {
-> > +             int p = data[1] & (1 << i);
-> > +             bool touch = p && !wacom->shared->stylus_in_proximity;
+> > + queue_work(pixcir_wq, &tsdata->work.work);
 > > +
-> > +             input_mt_slot(input, i);
-> > +             input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
-> > +             if (touch) {
-> > +                     int x = le16_to_cpup((__le16 *)&data[i * 2 + 2]) &
-> 0x7fff;
-> > +                     int y = le16_to_cpup((__le16 *)&data[i * 2 + 6]) &
-> 0x7fff;
-> > +
-> > +                     input_report_abs(input, ABS_MT_POSITION_X, x);
-> > +                     input_report_abs(input, ABS_MT_POSITION_Y, y);
-> > +             }
-> > +
-> > +             /* keep touch bit to send proper touch up event */
-> > +             if (i == 0)
-> > +                     wacom->shared->touch_down = touch;
-> > +             else
-> > +                     wacom->shared->touch_down = max(touch,
-> wacom->shared->touch_down);
-> > +     }
->
-> How about wacom->shared->touch_down = contact_count > 0 instead?
->
-
-I can change to that. It doesn't change the logic though.
-
-Ping
-
-
->
-> > +
-> > +     input_mt_report_pointer_emulation(input, true);
-> > +
-> > +     return 1;
+> > + return IRQ_HANDLED;
 > > +}
+> 
+> Use a threaded IRQ handler - genirq can now implement this pattern for
+> you.
+> 
+I do not use genirq before, what the diffetence? Thanks!
+
+> > +static int pixcir_ts_open(struct input_dev *dev)
+> > +{
+> > + return 0;
+> > +}
+> 
+> You should have code to start the controller here, and matching shutdown
+> code in close().
+> 
+Yes normally should do like this,but this controller need any command to open,may be take come code
+to test the device working? 
+
+> > + #ifdef DEBUG
+> > + printk(KERN_EMERG "pixcir_i2c_ts probe!\n");
+> > + #endif
+> 
+> dev_dbg() or just remove this.
+> 
+Nice.
+
+> > + tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
+> > + if (!tsdata) {
+> > + dev_err(&client->dev, "Failed to allocate driver data!\n");
+> > + error = -ENOMEM;
+> > + dev_set_drvdata(&client->dev, NULL);
+> 
+> Don't need to clear the driver data if you're exiting.
+> 
+Well,
+
+> > + if (request_irq(tsdata->irq, pixcir_ts_isr,
+> > + IRQF_TRIGGER_LOW, client->name, tsdata)) {
+> > + dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
+> > + input_unregister_device(input);
+> > + input = NULL;
+> > + }
+> 
+> Your error handling doesn't aways clean everything up - it's often best
+> to use gotos to jump to cleanup code that unwinds everything to make
+> sure you don't miss some things.
+> 
+Nice advice.
+
 > > +
-> >  static int wacom_tpc_single_touch(struct wacom_wac *wacom, size_t len)
-> >  {
-> >       char *data = wacom->data;
-> > @@ -753,6 +785,8 @@ static int wacom_tpc_irq(struct wacom_wac *wacom,
-> size_t len)
-> >
-> >       if (len == WACOM_PKGLEN_TPC1FG || data[0] == WACOM_REPORT_TPC1FG)
-> >               return wacom_tpc_single_touch(wacom, len);
-> > +     else if (data[0] == WACOM_REPORT_TPC2FG)
-> > +             return wacom_tpc_mt_touch(wacom);
-> >       else if (data[0] == WACOM_REPORT_PENABLED)
-> >               return wacom_tpc_pen(wacom);
-> >
-> > @@ -979,7 +1013,7 @@ void wacom_setup_device_quirks(struct wacom_features
-> *features)
-> >  {
-> >
-> >       /* touch device found but size is not defined. use default */
-> > -     if (features->device_type == BTN_TOOL_DOUBLETAP &&
-> !features->x_max) {
-> > +     if (features->device_type == BTN_TOOL_FINGER && !features->x_max) {
-> >               features->x_max = 1023;
-> >               features->y_max = 1023;
-> >       }
-> > @@ -991,7 +1025,7 @@ void wacom_setup_device_quirks(struct wacom_features
-> *features)
-> >
-> >       /* quirks for bamboo touch */
-> >       if (features->type == BAMBOO_PT &&
-> > -         features->device_type == BTN_TOOL_TRIPLETAP) {
-> > +         features->device_type == BTN_TOOL_DOUBLETAP) {
-> >               features->x_max <<= 5;
-> >               features->y_max <<= 5;
-> >               features->x_fuzz <<= 5;
-> > @@ -1127,28 +1161,30 @@ void wacom_setup_input_capabilities(struct
-> input_dev *input_dev,
-> >               break;
-> >
-> >       case TABLETPC2FG:
-> > -             if (features->device_type == BTN_TOOL_TRIPLETAP) {
-> > -                     __set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
-> > -                     input_set_capability(input_dev, EV_MSC,
-> MSC_SERIAL);
-> > +             if (features->device_type == BTN_TOOL_DOUBLETAP) {
+> > + dev_err(&tsdata->client->dev, "insmod successfully!\n");
+> 
+> No need for logs like this in production code, and the priority is all
+> wrong.
+> 
+I just want to show the correctly insmod.
+
+> > +#ifdef CONFIG_PM
+> > +static int pixcir_i2c_ts_suspend(struct i2c_client *client,
+> > pm_message_t mesg)
+> > +{
+> > + struct pixcir_i2c_ts_data *tsdata = dev_get_drvdata(&client->dev);
 > > +
-> > +                     input_mt_init_slots(input_dev, 2);
-> > +                     input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
-> > +                                     0, MT_TOOL_MAX, 0, 0);
-> > +                     input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> > +                                     0, features->x_max, 0, 0);
-> > +                     input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> > +                                     0, features->y_max, 0, 0);
-> >               }
-> >               /* fall through */
-> >
-> >       case TABLETPC:
-> >               __clear_bit(ABS_MISC, input_dev->absbit);
-> >
-> > -             if (features->device_type == BTN_TOOL_DOUBLETAP ||
-> > -                 features->device_type == BTN_TOOL_TRIPLETAP) {
-> > +             if (features->device_type != BTN_TOOL_PEN) {
-> >                       input_abs_set_res(input_dev, ABS_X,
-> >                               wacom_calculate_touch_res(features->x_max,
-> >                                                       features->x_phy));
-> >                       input_abs_set_res(input_dev, ABS_Y,
-> >                               wacom_calculate_touch_res(features->y_max,
-> >                                                       features->y_phy));
-> > -             }
-> > -
-> > -             if (features->device_type != BTN_TOOL_PEN)
-> >                       break;  /* no need to process stylus stuff */
-> > -
-> > +             }
-> >               /* fall through */
-> >
-> >       case PL:
-> > @@ -1166,7 +1202,7 @@ void wacom_setup_input_capabilities(struct
-> input_dev *input_dev,
-> >       case BAMBOO_PT:
-> >               __clear_bit(ABS_MISC, input_dev->absbit);
-> >
-> > -             if (features->device_type == BTN_TOOL_TRIPLETAP) {
-> > +             if (features->device_type == BTN_TOOL_DOUBLETAP) {
-> >                       __set_bit(BTN_LEFT, input_dev->keybit);
-> >                       __set_bit(BTN_FORWARD, input_dev->keybit);
-> >                       __set_bit(BTN_BACK, input_dev->keybit);
->
-> Thanks,
-> Henrik
->
+> > + if (device_may_wakeup(&client->dev))
+> > + enable_irq_wake(tsdata->irq);
+> > +
+> > + return 0;
+> > +}
+> 
+> Please use dev_pm_ops instead of bus-specific suspend/resume callbacks -
+> there is a general move to remove the bus specific ones to allow better
+> development of the PM core.
+> 
+Great idea, I never notice the dev_pm_ops before,thanks!
+
+> > +MODULE_AUTHOR(DRIVER_AUTHOR);
+> > +MODULE_DESCRIPTION(DRIVER_DESC);
+> > +MODULE_LICENSE(DRIVER_LICENSE);
+> 
+> Just put the definitions of these in directly, they're only used in one
+> place.
+Nice.
+
+
+
 

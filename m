@@ -1,60 +1,101 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.38-rc6
-Date: Wed, 23 Feb 2011 08:59:47 -0800
-Message-ID: <20110223165947.GA22962@core.coreip.homeip.net>
-References: <20110107065448.GC29038@core.coreip.homeip.net>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: libudev, a question about the enumerate API.
+Date: Wed, 23 Feb 2011 23:50:53 +0100
+Message-ID: <20110223235053.ae9d6b0a.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__23_Feb_2011_23_50_53_+0100_cS.AgMc97kef5fqc"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:56647 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932124Ab1BWQ7y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Feb 2011 11:59:54 -0500
-Content-Disposition: inline
-In-Reply-To: <20110107065448.GC29038@core.coreip.homeip.net>
+Received: from smtp209.alice.it ([82.57.200.105]:59724 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752474Ab1BWWvO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Feb 2011 17:51:14 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-hotplug@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Alan Ott <alan@signal11.us>
 
-Hi Linus,
+--Signature=_Wed__23_Feb_2011_23_50_53_+0100_cS.AgMc97kef5fqc
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Please pull from:
+Hi,
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+in my attempts to handle leds setting and usb pairing for the Sixaxis
+controller I had to fight with libudev a little bit, eventually I
+succeeded in what I wanted to achieve but I still have some questions
+about the libudev API, so here I am.
 
-to receive updates for the input subsystem. You will get a fix for
-recently reported boot time regression (longish serio works badly
-interacting with flush_scheduled_work() used by tty layer), update
-documenting new(ish) 0x0c query in Synaptics protocol and final polishes
-for the tegra keyboard driver (which is new in this release).
+This is basically the layout for the device:
 
-Thanks!
+4-1:1.0/
+|-- 0003:054C:0268.000C  (hid device)
+|   |-- hidraw
+|   |   `-- hidraw1
+|   `-- uevent  (which tells me HID_PHYS)
+|
+`-- input
+    `-- input17
+        |-- js0
+        `-- phys
 
+I needed to get the hidraw device node, and the js device number, the
+two sibling devices (from hid and input subsystem) can be matched using
+the 'phys' property.
 
-Changelog:
----------
+This is what I do now:
+ 0. Monitor with a filter matching the "hidraw" subsystem.
+ 1. When a matching device is connected we get the "hidraw" device.
+ 2. Go up to its "hid" parent device and check it is actually a
+    Sixaxis (using HID_NAME), if not GOTO 1.
+ 3. Store the hidraw device node for later use
+ 4. Store the HID_PHYS value in order to look for the matching joystick.
+ 5. Enumerate the joystick devices with the sysname filter "js*"
+ 6. For each joystick:
+    a. Go up to its input parent device
+    b. Check that the phys attribute matches HID_PHYS,
+       if so, store the joystick device number.
+ 7. Set leds
+ 8. If the Sixaxis is connected via USB do the cable pairing.
 
-Dmitry Torokhov (2):
-      Input: synaptics - document 0x0c query
-      Input: serio/gameport - use 'long' system workqueue
+My doubt is about 5. and 6a.: I have go deep in the hierarchy down to
+the js0 leaf device and then I have to go up one level to get the
+input device, naively I would have done the contrary:
+ 5'. Enumerate the input devices such that phys =3D=3D HID_PHYS
+ 6'. Enumerate the devices _below_ the input device from 5'. looking
+     for the jsX device.
 
-Rakesh Iyer (1):
-      Input: tegra-kbc - add function keymap
+But this is not possible because the enumerate API is designed to start
+always from the root of /sys.
 
+Finally the question: why the enumerate API in libudev does not allow
+enumerating only from a _subtree_? Has that been designed this way to
+keep the API simple, or because it is not considered useful?
 
-Diffstat:
---------
+Thanks,
+   Antonio
 
- arch/arm/mach-tegra/include/mach/kbc.h |    1 +
- drivers/input/gameport/gameport.c      |    2 +-
- drivers/input/keyboard/tegra-kbc.c     |   62 ++++++++++++++++++++++++++++++--
- drivers/input/mouse/synaptics.h        |   23 ++++++++++++
- drivers/input/serio/serio.c            |    2 +-
- 5 files changed, 85 insertions(+), 5 deletions(-)
+--=20
+Antonio Ospite
+http://ao2.it
 
--- 
-Dmitry
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Wed__23_Feb_2011_23_50_53_+0100_cS.AgMc97kef5fqc
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk1lj00ACgkQ5xr2akVTsAGVmQCgsBB8ltmkupFqdagenaH75t82
+o8AAn1W51WNBNzmVWVkkvswAoDZG+Bmb
+=8qkI
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__23_Feb_2011_23_50_53_+0100_cS.AgMc97kef5fqc--

@@ -1,161 +1,69 @@
-From: jcbian <jcbian@pixcir.com.cn>
-Subject: Re: [PATCH v2] input: add driver for pixcir i2c touchscreens
-Date: Wed, 23 Feb 2011 09:28:10 +0800 (HKT)
-Message-ID: <1bab07f.b240.12e5021693b.Coremail.jcbian@pixcir.com.cn>
-References: <20110222081534.GA2004@polaris.bitmath.org>
- <1eeef53.91a4.12e4b7257f9.Coremail.jcbian@pixcir.com.cn>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] input: add driver for pixcir i2c touchscreens
+Date: Tue, 22 Feb 2011 17:31:12 -0800
+Message-ID: <20110223013111.GA23939@opensource.wolfsonmicro.com>
+References: <20110222034808.GC18299@sirena.org.uk>
+ <4D632AAD.8040405@pixcir.com.cn>
+ <f2894b.b085.12e500bb5f2.Coremail.jcbian@pixcir.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail37.corpease.net ([61.145.121.42]:51891 "EHLO corpease.net"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755124Ab1BWB2V (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Feb 2011 20:28:21 -0500
-In-Reply-To: <20110222081534.GA2004@polaris.bitmath.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43586 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752041Ab1BWBa6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Feb 2011 20:30:58 -0500
+Content-Disposition: inline
+In-Reply-To: <f2894b.b085.12e500bb5f2.Coremail.jcbian@pixcir.com.cn>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: jcbian <jcbian@pixcir.com.cn>
 Cc: linux-input@vger.kernel.org, dqmeng <dqmeng@pixcir.com.cn>, zlchen <zlchen@pixcir.com.cn>
 
-Hi Henrik
-    Thank you very much!
+On Wed, Feb 23, 2011 at 09:04:28AM +0800, jcbian wrote:
+> > On Tue, Feb 22, 2011 at 11:17:01AM +0800, jcbian wrote:
 
-> 
-> Hi jcbian,
-> 
-> Here are some duplicate comments and additions to what you already
-> heard from Mark and Dmitry.
-> 
-> > diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> > index 61834ae..f11c1ab 100644
-> > --- a/drivers/input/touchscreen/Kconfig
-> > +++ b/drivers/input/touchscreen/Kconfig
-> > @@ -693,4 +693,13 @@ config TOUCHSCREEN_TPS6507X
-> >  	  To compile this driver as a module, choose M here: the
-> >  	  module will be called tps6507x_ts.
-> >  
-> > +config TOUCHSCREEN_PIXCIR
-> > +	tristate "PIXCIR touchscreen panel support"
-> > +	depends on I2C
-> > +	help
-> > +	  Say Y here if you have a PIXCIR based touchscreen.
-> > +
-> > +	  To compile this driver as a module, choose M here: the
-> > +	  module will be called pixcir_i2c_ts.
-> > +
-> >  endif
-> 
-> Please keep Kconfig entries in alphabetical order.
-> 
-> > +#define DRIVER_VERSION	"v1.0"
-> > +#define DRIVER_AUTHOR	"Bee<jcbian@pixcir.com.cn>,Reed<dqmeng@pixcir.com.cn>"
-> > +#define DRIVER_DESC		"Pixcir I2C Touchscreen Driver"
-> > +#define DRIVER_LICENSE	"GPL"
-> 
-> Please insert these directly in the module definition.
-> 
-> > +/* todo:check specs for resolution of touch screen */
-> > +#define	TOUCHSCREEN_MINX	0
-> > +#define	TOUCHSCREEN_MAXX	400
-> > +#define	TOUCHSCREEN_MINY	0
-> > +#define	TOUCHSCREEN_MAXY	600
-> 
-> This should really be settled before mainline inclusion.
-> 
-> > +
-> > +#define	DEBUG	0
-> 
-> Odd one...
-> 
-> > +
-> > +static struct workqueue_struct *pixcir_wq;
-> > +
-> > +struct pixcir_i2c_ts_data {
-> > +	struct i2c_client *client;
-> > +	struct input_dev *input;
-> > +	struct delayed_work work;
-> > +	int irq;
-> > +};
-> > +
-> > +static void pixcir_ts_poscheck(struct work_struct *work)
-> > +{
-> > +	struct pixcir_i2c_ts_data *tsdata = container_of(work,
-> > +						  struct pixcir_i2c_ts_data,
-> > +						  work.work);
-> > +
-> > +	unsigned char touching, oldtouching;
-> > +	int posx1, posy1, posx2, posy2;
-> > +	u_int8_t Rdbuf[10], Wrbuf[1];
-> 
-> Please do not use capitals in variable names.
-> 
-> > +	int ret;
-> > +	int z = 50;
-> > +	int w = 15;
-> 
-> Please remove these fake values altogether.
-> 
-> > +
-> > +	memset(Wrbuf, 0, sizeof(Wrbuf));
-> > +	memset(Rdbuf, 0, sizeof(Rdbuf));
-> > +
-> > +	Wrbuf[0] = 0;
-> > +	ret = i2c_master_send(tsdata->client, Wrbuf, 1);
-> > +	if (ret != 1) {
-> > +		dev_err(&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
-> > +		goto out;
-> > +	}
-> > +
-> > +	ret = i2c_master_recv(tsdata->client, Rdbuf, sizeof(Rdbuf));
-> > +	if (ret != sizeof(Rdbuf)) {
-> > +		dev_err(&tsdata->client->dev, "Unable to read i2c page!\n");
-> > +		goto out;
-> > +	}
-> > +
-> > +	touching = Rdbuf[0];
-> > +	oldtouching = Rdbuf[1];
-> > +	posx1 = ((Rdbuf[3] << 8) | Rdbuf[2]);
-> > +	posy1 = ((Rdbuf[5] << 8) | Rdbuf[4]);
-> > +	posx2 = ((Rdbuf[7] << 8) | Rdbuf[6]);
-> > +	posy2 = ((Rdbuf[9] << 8) | Rdbuf[8]);
-> > +
-> > +	input_report_key(tsdata->input, BTN_TOUCH, (touching != 0 ? 1 : 0));
-> > +
-> > +	if (touching == 1) {
-> > +		input_report_abs(tsdata->input, ABS_X, posx1);
-> > +		input_report_abs(tsdata->input, ABS_Y, posy1);
-> > +	}
-> > +
-> > +	if (!(touching)) {
-> > +		z = 0;
-> > +		w = 0;
-> > +	}
-> > +	if (touching == 2) {
-> > +		input_report_abs(tsdata->input, ABS_MT_TOUCH_MAJOR, z);
-> > +		input_report_abs(tsdata->input, ABS_MT_WIDTH_MAJOR, w);
-> > +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
-> > +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
-> > +		input_mt_sync(tsdata->input);
-> > +
-> > +		input_report_abs(tsdata->input, ABS_MT_TOUCH_MAJOR, z);
-> > +		input_report_abs(tsdata->input, ABS_MT_WIDTH_MAJOR, w);
-> > +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx2);
-> > +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy2);
-> > +		input_mt_sync(tsdata->input);
-> > +	}
-> > +	input_sync(tsdata->input);
-> 
-> Please use the slotted type B protocol instead. If the device can
-> track fingers, it is very simple to do, see for instance
-> drivers/input/touchscreen/wacom_w8001.c. If the device cannot do
-> tracking, please do tell and we will add in pending tracking support
-> to the input core together with this driver.
-> 
-> Thanks,
-> Henrik
+> > If you can have a single global workqueue could you use the system one
+> > and avoid having to create one at all?
 
+> The system one is less efficient then the the creating one in my opioion,is it right?
 
+Actually this is obsoleted by the comment below since you're using the
+workqueue for interrupt handling only.
 
+> > > + queue_work(pixcir_wq, &tsdata->work.work);
 
+> > > + return IRQ_HANDLED;
+> > > +}
 
+> > Use a threaded IRQ handler - genirq can now implement this pattern for
+> > you.
+
+> I do not use genirq before, what the diffetence? Thanks!
+
+genirq is the name of the standard kernel interrupt implementation.  If
+you use a threaded IRQ handler using request_threaded_irq() then all the
+workqueue stuff goes away.
+
+> > > +static int pixcir_ts_open(struct input_dev *dev)
+> > > +{
+> > > + return 0;
+> > > +}
+
+> > You should have code to start the controller here, and matching shutdown
+> > code in close().
+
+> Yes normally should do like this,but this controller need any command to open,may be take come code
+> to test the device working? 
+
+If there's nothing at all to do I guess you can remove the code, though
+at least disabling the IRQ while the device is closed would be nice.
+
+> > > + dev_err(&tsdata->client->dev, "insmod successfully!\n");
+
+> > No need for logs like this in production code, and the priority is all
+> > wrong.
+
+> I just want to show the correctly insmod.
+
+It's not something that should be shown in production code.

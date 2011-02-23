@@ -1,60 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: add driver for pixcir i2c touchscreens
-Date: Tue, 22 Feb 2011 17:36:39 -0800
-Message-ID: <20110223013639.GA891@core.coreip.homeip.net>
-References: <20110222054057.GB11681@core.coreip.homeip.net>
- <1eeef53.91a4.12e4b7257f9.Coremail.jcbian@pixcir.com.cn>
- <1c85eba.b1cd.12e501cebb7.Coremail.jcbian@pixcir.com.cn>
+From: jcbian <jcbian@pixcir.com.cn>
+Subject: Re: [PATCH] input: add driver for pixcir i2c touchscreens
+Date: Wed, 23 Feb 2011 09:47:23 +0800 (HKT)
+Message-ID: <36334f.b3d4.12e50330057.Coremail.jcbian@pixcir.com.cn>
+References: <20110223013111.GA23939@opensource.wolfsonmicro.com>
+ <20110222034808.GC18299@sirena.org.uk> <4D632AAD.8040405@pixcir.com.cn>
+ <f2894b.b085.12e500bb5f2.Coremail.jcbian@pixcir.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:40303 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755570Ab1BWBgs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Feb 2011 20:36:48 -0500
-Received: by gxk8 with SMTP id 8so1223867gxk.19
-        for <linux-input@vger.kernel.org>; Tue, 22 Feb 2011 17:36:48 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1c85eba.b1cd.12e501cebb7.Coremail.jcbian@pixcir.com.cn>
+Received: from mail37.corpease.net ([61.145.121.42]:50281 "EHLO corpease.net"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752789Ab1BWBr2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Feb 2011 20:47:28 -0500
+In-Reply-To: <20110223013111.GA23939@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jcbian <jcbian@pixcir.com.cn>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Cc: linux-input@vger.kernel.org, dqmeng <dqmeng@pixcir.com.cn>, zlchen <zlchen@pixcir.com.cn>
 
-On Wed, Feb 23, 2011 at 09:23:16AM +0800, jcbian wrote:
-> > > +
-> > > +static int pixcir_i2c_ts_remove(struct i2c_client *client)
-> > > +{
-> > > +	struct pixcir_i2c_ts_data *tsdata = dev_get_drvdata(&client->dev);
-> > 
-> > i2c_get_clientdata(). Also empty line between variable definitions and
-> > code.
-> > 
-> Sorry,what's the meaning here?
-
-1. Use i2c_get_clientdata() instead of dev_get_drvdata() to access
-driver-private data
-
-2. Add an empty line between variable definitions and the rest of the
-code.
-
-> > > +
-> > > +	pixcir_wq = create_singlethread_workqueue("pixcir_wq");
-> > 
-> > Not needed if you use threaded IRQ.
-> > 
-> You mean the threaded IRQ is better than workqueue? If using the threaded IRQ should remove the request_irq()?   
+> > > > + queue_work(pixcir_wq, &tsdata->work.work);
 > 
+> > > > + return IRQ_HANDLED;
+> > > > +}
+> 
+> > > Use a threaded IRQ handler - genirq can now implement this pattern for
+> > > you.
+> 
+> > I do not use genirq before, what the diffetence? Thanks!
+> 
+> genirq is the name of the standard kernel interrupt implementation.  If
+> you use a threaded IRQ handler using request_threaded_irq() then all the
+> workqueue stuff goes away.
+> 
+Oh,understand,thanks!It seems that request_threaded_irq() is more intelligent :)
 
-You request your IRQ to be serviced by a special thread by doing
-request_threaded_irq(). Since interrupt processing will happen in a
-thread you will be able to use sleeping functions directly in your
-interrupt handler and won't need to rely on a separate workqueue
-(and do not need to concern yourself with canceling/shutting down the
-workqeue upon driver unload - which you did not do anyway ;) ).
+Thanks
 
-Thanks.
+---
+Jcbian
 
--- 
-Dmitry
+
+
+
+

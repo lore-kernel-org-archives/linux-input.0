@@ -1,57 +1,60 @@
-From: "Kevin McNeely" <Kevin.McNeely@cypress.com>
-Subject: RE: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
-Date: Thu, 24 Feb 2011 10:31:19 -0800
-Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC0901629825@labamba.mis.cypress.com>
-References: <kev@cypress.com> <1294188847-24728-1-git-send-email-kev@cypress.com> <20110105085942.GA23321@polaris.bitmath.org> <FB9C2CB29A07AB45B575A4E8D2AABC09014003B8@labamba.mis.cypress.com> <20110105173403.GA2146@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] Input: bcm5974 - Report button also for zero fingers
+Date: Thu, 24 Feb 2011 20:37:44 +0100
+Message-ID: <1298576264-1563-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns2.cypress.com ([157.95.67.5]:52891 "EHLO ns2.cypress.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755229Ab1BXScj convert rfc822-to-8bit (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:57157 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756280Ab1BXTgi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Feb 2011 13:32:39 -0500
-Content-class: urn:content-classes:message
+	Thu, 24 Feb 2011 14:36:38 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Hi Henrik,
+With the current code, pressing the integrated button with an
+isolating tool does not result in any button report. Fixed
+with this this patch.
 
-I have been testing with Android based systems.
-What system configurations are good for testing the slot handling in
-Protocol B?
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Hi Dmitry,
 
-Thanks and best regards,
-Kevin
+that nobody every complained about this bug is beyond me...
 
+Thanks,
+Henrik
 
-> -----Original Message-----
-> From: Henrik Rydberg [mailto:rydberg@euromail.se]
-> Sent: Wednesday, January 05, 2011 9:34 AM
-> To: Kevin McNeely
-> Cc: Dmitry Torokhov; David Brown; Trilok Soni; Samuel Ortiz; Eric
-Miao;
-> Mike Frysinger; Alan Cox; linux-input@vger.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: Re: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
-> 
-> Hi Kevin,
-> 
-> > Hi Henrik,
-> >
-> > Thank you for the code modifications.
-> > The mods work for both I2C and SPI builds.
-> 
-> Great!
-> 
-> > Can you post your modified patch?
-> 
-> There might be more comments to v4, so if there is a v5, you can just
-> send it then. Otherwise, we have what we need.
-> 
-> Thanks,
-> Henrik
+ drivers/input/mouse/bcm5974.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index ee82851..0efaf66 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -430,10 +430,6 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 		ptest = int2bound(&c->p, raw_p);
+ 		origin = raw2int(f->origin);
+ 
+-		/* set the integrated button if applicable */
+-		if (c->tp_type == TYPE2)
+-			ibt = raw2int(dev->tp_data[BUTTON_TYPE2]);
+-
+ 		/* while tracking finger still valid, count all fingers */
+ 		if (ptest > PRESSURE_LOW && origin) {
+ 			abs_p = ptest;
+@@ -452,6 +448,10 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 		}
+ 	}
+ 
++	/* set the integrated button if applicable */
++	if (c->tp_type == TYPE2)
++		ibt = raw2int(dev->tp_data[BUTTON_TYPE2]);
++
+ 	if (dev->fingers < nmin)
+ 		dev->fingers = nmin;
+ 	if (dev->fingers > nmax)
+-- 
+1.7.4.1
+

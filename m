@@ -1,83 +1,123 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: Re: which driver to choose for a GPIO connected switch
-Date: Thu, 24 Feb 2011 16:17:50 +0100
-Message-ID: <87r5axa2ch.fsf@tac.ki.iif.hu>
-References: <201102240958.38401.alexander.stein@systec-electronic.com>
-	<87ipw9u3si.fsf@tac.ki.iif.hu>
-	<201102241207.56652.alexander.stein@systec-electronic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] hid: Do not create input devices for feature reports
+Date: Thu, 24 Feb 2011 19:30:59 +0100
+Message-ID: <1298572259-18173-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tac.ki.iif.hu ([193.6.222.43]:42578 "EHLO tac.ki.iif.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755248Ab1BXPRw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Feb 2011 10:17:52 -0500
-In-Reply-To: <201102241207.56652.alexander.stein@systec-electronic.com>
-	(Alexander Stein's message of "Thu, 24 Feb 2011 12:07:56 +0100")
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:53922 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755175Ab1BXS3k (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Feb 2011 13:29:40 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Alexander Stein <alexander.stein@systec-electronic.com> writes:
+When the multi input quirk is set, there is a new input device
+created for every feature report. Since the idea is to present
+features per hid device, not per input device, revert back to
+the original report loop and change the feature_mapping() callback
+to not take the input device as argument.
 
-> On Thursday 24 February 2011, 11:26:21 Ferenc Wagner wrote:
->
->> Alexander Stein <alexander.stein@systec-electronic.com> writes:
->>
->>> I'm just wondering which existing input driver I can choose to use an
->>> GPIO connected switch. The switch I'm talking about is connected via 3
->>> (interruptable) GPIOs and those GPIOs can be inverted.
->> 
->> How is the switch connected to the three GPIO inputs?
->> 
->>> I think gpio-keys is wrong as they will generate events on each state
->>> change. Note: The switch is likely to bounce
->> 
->> The gpio-keys driver has debouncing support.
->> 
->>> and the current GPIO state might be invalid (all 3 GPIOs are 0).
->> 
->> Why is this state invalid?
->> 
->>> I also think gpio-keys can't make sure only one switch state is currently
->>> present. So I may get a current state 1 on 2 or more GPIOs which is
->>> obviously wrong.
->> 
->> Sorry, I don't understand this.
->> 
->>> My use case is the userspace polls the current switch state if it needs
->>> to know.
->> 
->> EVIOCGKEY or EVIOCGSW ioctl, perhaps?  You can make it three keys or
->> switches in the driver, and put the validation logic into user space...
->> 
->>> Do you have any suggestions which driver to use or even write?
->> 
->> Maybe it's just me, but I think you'd better give a clearer description
->> of your problem to get useful suggestions.
->
-> Ok, let's give it a try. I have a sliding switch which has 3 positions, namely 
-> run, stop and reset. There can only be one position active at a time. None of 
-> them or more at the same time are invalid. At least none active GPIOs is 
-> possible due to the mechanical structure.
-> Each position has a GPIO connected which affects the mounted pull-down or 
-> pull-up. e.g. run GPIO has a pull-down to GND and when the switch goes to run 
-> state the GPIO is raised to Vcc. The other positions are similar.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+Hi Jiri, Benjamin,
 
-Got it, thanks.
+It seems the feature report callback was a bit intrusive, after all;
+for some devices such as ntrig, with multi input, there are additional
+input devices created. The following patch seems to fix the problem,
+but it has not been tested on any device using the hid-multitouch
+driver.
 
-> The problem I have with EV_KEY or EV_SW is they have just binary states. Maybe 
-> I just should create a new driver which uses EV_ABS. Or is there already 
-> something similar?
+Thanks,
+Henrik
 
-I don't know of anything similar, which doesn't mean anything at all.
+ drivers/hid/hid-input.c      |   30 +++++++++++++++++++++---------
+ drivers/hid/hid-multitouch.c |    2 +-
+ include/linux/hid.h          |    2 +-
+ 3 files changed, 23 insertions(+), 11 deletions(-)
 
-I'd simply settle for using three gpio_keys switches (one for each
-position) and poll all of them simultaneously by EVIOCGSW, filtering out
-invalid combinations in user space.  This avoids driver development.
-
-But don't listen to me, wait for the experts to chime in. :)
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 7f552bf..ebcc02a 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -290,14 +290,6 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		goto ignore;
+ 	}
+ 
+-	if (field->report_type == HID_FEATURE_REPORT) {
+-		if (device->driver->feature_mapping) {
+-			device->driver->feature_mapping(device, hidinput, field,
+-				usage);
+-		}
+-		goto ignore;
+-	}
+-
+ 	if (device->driver->input_mapping) {
+ 		int ret = device->driver->input_mapping(device, hidinput, field,
+ 				usage, &bit, &max);
+@@ -835,6 +827,24 @@ static void hidinput_close(struct input_dev *dev)
+ 	hid_hw_close(hid);
+ }
+ 
++static void report_features(struct hid_device *hid)
++{
++	struct hid_driver *drv = hid->driver;
++	struct hid_report_enum *rep_enum;
++	struct hid_report *rep;
++	int i, j;
++
++	if (!drv->feature_mapping)
++		return;
++
++	rep_enum = &hid->report_enum[HID_FEATURE_REPORT];
++	list_for_each_entry(rep, &rep_enum->report_list, list)
++		for (i = 0; i < rep->maxfield; i++)
++			for (j = 0; j < rep->field[i]->maxusage; j++)
++				drv->feature_mapping(hid, rep->field[i],
++						     rep->field[i]->usage + j);
++}
++
+ /*
+  * Register the input device; print a message.
+  * Configure the input layer interface
+@@ -863,7 +873,9 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 			return -1;
+ 	}
+ 
+-	for (k = HID_INPUT_REPORT; k <= HID_FEATURE_REPORT; k++) {
++	report_features(hid);
++
++	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
+ 		if (k == HID_OUTPUT_REPORT &&
+ 			hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
+ 			continue;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 07d3183..2bbc954 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -122,7 +122,7 @@ struct mt_class mt_classes[] = {
+ 	{ }
+ };
+ 
+-static void mt_feature_mapping(struct hid_device *hdev, struct hid_input *hi,
++static void mt_feature_mapping(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage)
+ {
+ 	if (usage->hid == HID_DG_INPUTMODE) {
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index d91c25e..fc5faf6 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -638,7 +638,7 @@ struct hid_driver {
+ 			struct hid_input *hidinput, struct hid_field *field,
+ 			struct hid_usage *usage, unsigned long **bit, int *max);
+ 	void (*feature_mapping)(struct hid_device *hdev,
+-			struct hid_input *hidinput, struct hid_field *field,
++			struct hid_field *field,
+ 			struct hid_usage *usage);
+ #ifdef CONFIG_PM
+ 	int (*suspend)(struct hid_device *hdev, pm_message_t message);
 -- 
-Good luck,
-Feri.
+1.7.4.1
+

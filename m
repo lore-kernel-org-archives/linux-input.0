@@ -1,55 +1,56 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH 2/2] HID: ntrig mapping more firmware id bits
-Date: Fri, 25 Feb 2011 00:15:32 -0500
-Message-ID: <1298610932-21957-2-git-send-email-rafi@seas.upenn.edu>
-References: <1298610932-21957-1-git-send-email-rafi@seas.upenn.edu>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH v2 2/3] Re-add manager_get_default_adapter()
+Date: Fri, 25 Feb 2011 11:04:51 +0100
+Message-ID: <1298628292-8842-3-git-send-email-ospite@studenti.unina.it>
+References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fox.seas.upenn.edu ([158.130.68.12]:60081 "EHLO
-	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768Ab1BYFWg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Feb 2011 00:22:36 -0500
-In-Reply-To: <1298610932-21957-1-git-send-email-rafi@seas.upenn.edu>
+Received: from smtp208.alice.it ([82.57.200.104]:47727 "EHLO smtp208.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932404Ab1BYKIK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Feb 2011 05:08:10 -0500
+In-Reply-To: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr, trivial@kernel.org, peter.hutterer@who-t.net, Rafi Rubin <rafi@seas.upenn.edu>
+To: linux-bluetooth@vger.kernel.org
+Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>, Antonio Ospite <ospite@studenti.unina.it>
 
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+From: Bastien Nocera <hadess@hadess.net>
+
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
 ---
-Two new firmwares supply hints to map three more bits of the raw
-firmware id code.
+ src/manager.c |    5 +++++
+ src/manager.h |    1 +
+ 2 files changed, 6 insertions(+), 0 deletions(-)
 
-Confirmation, and perhaps the rest of the mapping from someone with both
-the knowledge and legal rights would be appreciated.  Not that I mind
-the pleasure of the puzzle being filled in slowly over time.
----
- drivers/hid/hid-ntrig.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 616f091..3ce4624 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -96,15 +96,15 @@ struct ntrig_data {
-  */
- static int ntrig_version_string(unsigned char *raw, char *buf)
+diff --git a/src/manager.c b/src/manager.c
+index e805e0c..254ace4 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -262,6 +262,11 @@ static void manager_set_default_adapter(int id)
+ 			DBUS_TYPE_INVALID);
+ }
+ 
++struct btd_adapter *manager_get_default_adapter(void)
++{
++	return manager_find_adapter_by_id(default_adapter_id);
++}
++
+ static void manager_remove_adapter(struct btd_adapter *adapter)
  {
--	__u8 a =  (raw[1] & 0x0e) >> 1;
-+	__u8 a =  (raw[1] & 0x1e) >> 1;
- 	__u8 b =  (raw[0] & 0x3c) >> 2;
- 	__u8 c = ((raw[0] & 0x03) << 3) | ((raw[3] & 0xe0) >> 5);
- 	__u8 d = ((raw[3] & 0x07) << 3) | ((raw[2] & 0xe0) >> 5);
--	__u8 e =   raw[2] & 0x07;
-+	__u8 e =   raw[2] & 0x1f;
- 
- 	/*
- 	 * As yet unmapped bits:
--	 * 0b11000000 0b11110001 0b00011000 0b00011000
-+	 * 0b11000000 0b11100001 0b00000000 0b00011000
- 	 */
- 
- 	return sprintf(buf, "%u.%u.%u.%u.%u", a, b, c, d, e);
+ 	uint16_t dev_id = adapter_get_dev_id(adapter);
+diff --git a/src/manager.h b/src/manager.h
+index 05c38b3..4f92d2f 100644
+--- a/src/manager.h
++++ b/src/manager.h
+@@ -35,6 +35,7 @@ void manager_cleanup(DBusConnection *conn, const char *path);
+ const char *manager_get_base_path(void);
+ struct btd_adapter *manager_find_adapter(const bdaddr_t *sba);
+ struct btd_adapter *manager_find_adapter_by_id(int id);
++struct btd_adapter *manager_get_default_adapter(void);
+ void manager_foreach_adapter(adapter_cb func, gpointer user_data);
+ GSList *manager_get_adapters(void);
+ struct btd_adapter *btd_manager_register_adapter(int id);
 -- 
-1.7.2.3
+1.7.4.1
 

@@ -1,56 +1,100 @@
 From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: [PATCH v2 2/3] Re-add manager_get_default_adapter()
-Date: Fri, 25 Feb 2011 11:04:51 +0100
-Message-ID: <1298628292-8842-3-git-send-email-ospite@studenti.unina.it>
-References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
+Subject: [PATCH v2 0/3] Another try for the Sixaxis plugin
+Date: Fri, 25 Feb 2011 11:04:49 +0100
+Message-ID: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp208.alice.it ([82.57.200.104]:47727 "EHLO smtp208.alice.it"
+Received: from smtp205.alice.it ([82.57.200.101]:34252 "EHLO smtp205.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932404Ab1BYKIK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S932439Ab1BYKIK (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Fri, 25 Feb 2011 05:08:10 -0500
-In-Reply-To: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-bluetooth@vger.kernel.org
-Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>, Antonio Ospite <ospite@studenti.unina.it>
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>
 
-From: Bastien Nocera <hadess@hadess.net>
+Hi,
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
----
- src/manager.c |    5 +++++
- src/manager.h |    1 +
- 2 files changed, 6 insertions(+), 0 deletions(-)
+this is another attempt to get the sixaxis plugin merged upstream in
+bluez, now cable pairing is done without libusb, which is good because
+the hid driver does not need to be detached anymore.
 
-diff --git a/src/manager.c b/src/manager.c
-index e805e0c..254ace4 100644
---- a/src/manager.c
-+++ b/src/manager.c
-@@ -262,6 +262,11 @@ static void manager_set_default_adapter(int id)
- 			DBUS_TYPE_INVALID);
- }
- 
-+struct btd_adapter *manager_get_default_adapter(void)
-+{
-+	return manager_find_adapter_by_id(default_adapter_id);
-+}
-+
- static void manager_remove_adapter(struct btd_adapter *adapter)
- {
- 	uint16_t dev_id = adapter_get_dev_id(adapter);
-diff --git a/src/manager.h b/src/manager.h
-index 05c38b3..4f92d2f 100644
---- a/src/manager.h
-+++ b/src/manager.h
-@@ -35,6 +35,7 @@ void manager_cleanup(DBusConnection *conn, const char *path);
- const char *manager_get_base_path(void);
- struct btd_adapter *manager_find_adapter(const bdaddr_t *sba);
- struct btd_adapter *manager_find_adapter_by_id(int id);
-+struct btd_adapter *manager_get_default_adapter(void);
- void manager_foreach_adapter(adapter_cb func, gpointer user_data);
- GSList *manager_get_adapters(void);
- struct btd_adapter *btd_manager_register_adapter(int id);
+The work is based on patches by Bastian Nocera, so its SOB line comes
+first on the third patch, even though many parts have been totally
+reimplemented.  More comments on the patch itself.
+
+Bastien, I took the liberty to impersonate you in the second patch about
+re-adding manager_get_default_adapter(), because the change was taken
+out from your bluez rpm package. I hope this is OK.
+
+I was wondering if it was possible to have the equivalent of this plugin
+as a separate daemon doing the association part with bluez over dbus,
+instead of having it builtin (I do not know the bluez dbus interface at
+all), and if there were any major drawbacks with that compared to the
+builtin plugin. What are your opinions on that?
+
+Anyhow,
+
+HOWTO test it:
+  - Get a kernel supporting HIDIOCSFEATURE and HIDIOCGFEATURE: linux-next
+    should have that, or Jiki Kosina's hidraw-feature branch:
+    http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=shortlog;h=refs/heads/hidraw-feature
+  - Build it and install it with its linux-libc-dev package ("make
+    deb-pkg" on recent kernels builds that already).
+  - Apply the patches in this series and configure bluez, the ioctl
+    above should be detected automatically and the plugin enabled.
+  - If there is any problem, try backing up and cleaning up
+    /var/lib/bluetooth/
+
+TODO before merging:
+  - Check the routine about bluetooth association. Also, is it strictly
+    necessary to grant manually the first connection?
+  - Add the actual official version of linux-libc-dev in which the
+    hidraw ioctl will be merged (now it is just 2.6.3x as a
+    placeholder).
+  - Check the last comment from Marcel about the timeout in
+    http://marc.info/?l=linux-bluetooth&m=125525415718147&w=2 Could you
+    comment on the third patch about that, please?
+  - When the controller is connected via USB after it is working over BT
+    it is seen as a second controller and the second LED is turned on,
+    should we force BT disconnection on USB connection?
+  - Test with multiple controllers, and/or multiple BT adapters, which I
+    can't do right now.
+  - Remove the XXX comment about the lowercase hex bdaddr format.
+
+
+FUTURE plans:
+ - Add support for battery status report
+ - Add support for Playstation Move (I don't have the hardware, tho),
+   Pascal?
+
+Thanks,
+   Antonio
+
+
+Antonio Ospite (2):
+  Remove input/sixpair.c
+  Add sixaxis plugin: USB pairing and LEDs settings
+
+Bastien Nocera (1):
+  Re-add manager_get_default_adapter()
+
+ Makefile.am       |    9 +-
+ acinclude.m4      |   39 ++++
+ configure.ac      |    1 +
+ input/sixpair.c   |  299 -------------------------------
+ plugins/sixaxis.c |  506 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/manager.c     |    5 +
+ src/manager.h     |    1 +
+ 7 files changed, 559 insertions(+), 301 deletions(-)
+ delete mode 100644 input/sixpair.c
+ create mode 100644 plugins/sixaxis.c
+
 -- 
-1.7.4.1
+Antonio Ospite
+http://ao2.it
 
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

@@ -1,67 +1,54 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 1/2] HID: ntrig don't dereference unclaimed hidinput
-Date: Sat, 26 Feb 2011 02:50:06 -0500
-Message-ID: <4D68B0AE.2090000@seas.upenn.edu>
-References: <1298610932-21957-1-git-send-email-rafi@seas.upenn.edu> <20110226073633.GA1753@polaris.bitmath.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] input: evdev: Add a read() callback
+Date: Sat, 26 Feb 2011 09:45:08 +0000
+Message-ID: <20110226094507.GA13253@opensource.wolfsonmicro.com>
+References: <1298297930-3937-1-git-send-email-bgat@billgatliff.com>
+ <20110222002315.GA18299@sirena.org.uk>
+ <AANLkTik8d1KZd_qSr2tKrBHq2X-9agA1BG7guK1SqzAd@mail.gmail.com>
+ <20110222043302.GD18299@sirena.org.uk>
+ <AANLkTikWA3Vsa2O4_yi1L78_xX18_7WqVKqhTaD1-6Wm@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fox.seas.upenn.edu ([158.130.68.12]:41525 "EHLO
-	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751468Ab1BZHul (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:47367 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751656Ab1BZJo5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Feb 2011 02:50:41 -0500
-In-Reply-To: <20110226073633.GA1753@polaris.bitmath.org>
+	Sat, 26 Feb 2011 04:44:57 -0500
+Content-Disposition: inline
+In-Reply-To: <AANLkTikWA3Vsa2O4_yi1L78_xX18_7WqVKqhTaD1-6Wm@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, chatty@enac.fr, trivial@kernel.org, peter.hutterer@who-t.net
+To: Bill Gatliff <bgat@billgatliff.com>
+Cc: linux-input@vger.kernel.org, linux-embedded@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Feb 25, 2011 at 08:46:24PM -0600, Bill Gatliff wrote:
+> On Mon, Feb 21, 2011 at 10:33 PM, Mark Brown
+> <broonie@opensource.wolfsonmicro.com> wrote:
 
-On 02/26/11 02:36, Henrik Rydberg wrote:
-> Hi Rafi,
-> 
-> On Fri, Feb 25, 2011 at 12:15:31AM -0500, Rafi Rubin wrote:
->> Moved the claimed input check before dereferencing field->hidinput to
->> fix a reported invalid deference bug.
-> 
-> How long has this problem been seen? If it is recent, it should
-> perhaps be fixed in the hid core instead. If it turns out to be an old
-> problem, please add stable to the Cc.
+> > But surely the most obvious solution here is to standardise a rate
+> > control interface?
 
-I have no idea.  Peter discovered it with a preproduction unit.  He sent me a
-proposed fix which seemed quite sensible.  I have not seen the bug in action nor
-records of the traffic.
+> Yes, and no.  A standardized rate control interface would deal with
+> the rate control problem, but leave the synchronization problem
+> unsolved.
 
->> Switched to a goto instead of an extra indent for most of the function.
-> 
-> If you put these janitory changes into a separate patch, it will be
-> much easier to apply the bugfix to stable versions.
-> 
-> Thanks,
-> Henrik
+The main source of the problem with delayed readings was that
+applications weren't blocking waiting for events.  If applications block
+waiting for events then the data will be delivered to them promptly.
+For cases where multiple readings need to be synced IIO looks like the
+way forward.
 
-It might be a few days, but I'll split that into two patches when I get a chance.
+> > The problem you're trying to solve is also an issue for really common
+> > and standard things like touchscreens and polled switches/keys (the
+> > latter of which you mentioned in your mail) which are used by standard
+> > applications.
 
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+> The existing "polled switch" implementation sets up a throttled
+> polling loop in kernel code.  The "polled switch" that I was thinking
+> of when I wrote the essay for the commit was "a switch that is polled
+> each time read() gets called".  I should have been clearer--- and
+> probably picked a different name.  :)
 
-iQIcBAEBAgAGBQJNaLCrAAoJEPILXytRLnK2pQsP/3OgaO2YILN9YYuZZxJ+JVa0
-cgiFAZxV7BbznMo0sg05RbsF0r1H3rEAzf2JN1NadndC720E6DhDthjvkSZqkdkv
-v2gV+NHLyW9qaCsvgGMf7yy72880sA9fL0dzUde+W6rdgH7jgNiAp8ceiDpNIWQH
-yj1rOemNuJbXwaC9EiBb0kswxwrshA4nwaDtWxb1/e61nwRrletkrfOX6EX8uNdW
-6ogywsVARb1w5A3xZstF2SKPBz9Su/kSlGMgE/j2LizwVoFEZY7Or6JUwpBnHchr
-w7a9eKJ4GjW8phU6YQppkNS61tMO4FuToGEYkcDLKbJaGogWO+QeqNA9bqcSjPA/
-0F4Zf5CExQjnjmLK4yl0HUPzBtvmJQ/HjpMw6gPFwkqv0QwHUex8QA0Vw3t2LR24
-oliI6r6qnuGjHxJidpAdXnhaZn7rB5TCxmHejoAW9MYHKp52xY9IM4ys9lIRSDH+
-CbNN6sNL4/VLZrd5hBSnkZxXvPjUq3OQ/uzRPbrXPj0lz7hCt3YLZB1Me1N862uL
-81e4T6AqD79dMh/TcwT93PNFD3Sv2mAhgNYBo3j9lz2HjeQR3EvhLXOfHxFwoDgh
-k7QYeyKNzYRrTh96EA3zcBIR6yVk3Mq7ASAI/km35nqoEL/iFBAxELS0yKDuuR5z
-rtGDDwfYxJDxwsVV93Hx
-=AygA
------END PGP SIGNATURE-----
+It's the same thing, though - I'd really expect it to be handled by the
+same code in kernel.

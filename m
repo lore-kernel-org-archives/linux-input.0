@@ -1,54 +1,63 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] input: evdev: Add a read() callback
-Date: Sat, 26 Feb 2011 09:45:08 +0000
-Message-ID: <20110226094507.GA13253@opensource.wolfsonmicro.com>
-References: <1298297930-3937-1-git-send-email-bgat@billgatliff.com>
- <20110222002315.GA18299@sirena.org.uk>
- <AANLkTik8d1KZd_qSr2tKrBHq2X-9agA1BG7guK1SqzAd@mail.gmail.com>
- <20110222043302.GD18299@sirena.org.uk>
- <AANLkTikWA3Vsa2O4_yi1L78_xX18_7WqVKqhTaD1-6Wm@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: ntrig don't dereference unclaimed hidinput
+Date: Sat, 26 Feb 2011 11:58:47 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1102261156480.2160@pobox.suse.cz>
+References: <1298610932-21957-1-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:47367 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751656Ab1BZJo5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Feb 2011 04:44:57 -0500
-Content-Disposition: inline
-In-Reply-To: <AANLkTikWA3Vsa2O4_yi1L78_xX18_7WqVKqhTaD1-6Wm@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:45583 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751757Ab1BZK6t (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Feb 2011 05:58:49 -0500
+In-Reply-To: <1298610932-21957-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bill Gatliff <bgat@billgatliff.com>
-Cc: linux-input@vger.kernel.org, linux-embedded@vger.kernel.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr, peter.hutterer@who-t.net
 
-On Fri, Feb 25, 2011 at 08:46:24PM -0600, Bill Gatliff wrote:
-> On Mon, Feb 21, 2011 at 10:33 PM, Mark Brown
-> <broonie@opensource.wolfsonmicro.com> wrote:
+On Fri, 25 Feb 2011, Rafi Rubin wrote:
 
-> > But surely the most obvious solution here is to standardise a rate
-> > control interface?
+> Moved the claimed input check before dereferencing field->hidinput to
+> fix a reported invalid deference bug.
+> 
+> Switched to a goto instead of an extra indent for most of the function.
+> 
+> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+> ---
+> Peter Hutterer reported seeing ntrig_event called when field->hidinput
+> is NULL.
+> 
+> Seems like a reasonable opportunity to adjust the whitespace a bit.
 
-> Yes, and no.  A standardized rate control interface would deal with
-> the rate control problem, but leave the synchronization problem
-> unsolved.
+Hi Rafi,
 
-The main source of the problem with delayed readings was that
-applications weren't blocking waiting for events.  If applications block
-waiting for events then the data will be delivered to them promptly.
-For cases where multiple readings need to be synced IIO looks like the
-way forward.
+thanks for the fix. Even though it's obvious in this case what the actual 
+fix is, I'd prefer to have it separate from the other cleanup changes ...
 
-> > The problem you're trying to solve is also an issue for really common
-> > and standard things like touchscreens and polled switches/keys (the
-> > latter of which you mentioned in your mail) which are used by standard
-> > applications.
+> ---
+>  drivers/hid/hid-ntrig.c |  466 ++++++++++++++++++++++++-----------------------
+>  1 files changed, 236 insertions(+), 230 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+> index beb4034..616f091 100644
+> --- a/drivers/hid/hid-ntrig.c
+> +++ b/drivers/hid/hid-ntrig.c
+> @@ -539,277 +539,283 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>  static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  			struct hid_usage *usage, __s32 value)
+>  {
+> -	struct input_dev *input = field->hidinput->input;
+>  	struct ntrig_data *nd = hid_get_drvdata(hid);
+> +	struct input_dev *input;
+> +
+> +	/* Skip processing if not a claimed input */
+> +	if (!(hid->claimed & HID_CLAIMED_INPUT))
+> +		goto not_claimed_input;
 
-> The existing "polled switch" implementation sets up a throttled
-> polling loop in kernel code.  The "polled switch" that I was thinking
-> of when I wrote the essay for the commit was "a switch that is polled
-> each time read() gets called".  I should have been clearer--- and
-> probably picked a different name.  :)
+Makes me wonder why ntrig would be the only driver needing this ... 
+perhaps pushing it up the stack would make more sense?
 
-It's the same thing, though - I'd really expect it to be handled by the
-same code in kernel.
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,39 +1,80 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
-Date: Sun, 27 Feb 2011 13:34:05 +0100
-Message-ID: <20110227123405.GA4961@polaris.bitmath.org>
-References: <kev@cypress.com>
- <1294188847-24728-1-git-send-email-kev@cypress.com>
- <20110105085942.GA23321@polaris.bitmath.org>
- <FB9C2CB29A07AB45B575A4E8D2AABC09014003B8@labamba.mis.cypress.com>
- <20110105173403.GA2146@polaris.bitmath.org>
- <FB9C2CB29A07AB45B575A4E8D2AABC0901629825@labamba.mis.cypress.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 1/2] HID: ntrig don't dereference unclaimed hidinput
+Date: Mon, 28 Feb 2011 08:17:54 +1000
+Message-ID: <20110227221754.GB21883@barra.bne.redhat.com>
+References: <1298610932-21957-1-git-send-email-rafi@seas.upenn.edu>
+ <20110226073633.GA1753@polaris.bitmath.org>
+ <4D68B0AE.2090000@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:42639 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751150Ab1B0Mdr (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:19971 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751886Ab1B0Wes (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Feb 2011 07:33:47 -0500
+	Sun, 27 Feb 2011 17:34:48 -0500
 Content-Disposition: inline
-In-Reply-To: <FB9C2CB29A07AB45B575A4E8D2AABC0901629825@labamba.mis.cypress.com>
+In-Reply-To: <4D68B0AE.2090000@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin McNeely <Kevin.McNeely@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Henrik Rydberg <rydberg@euromail.se>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, chatty@enac.fr, trivial@kernel.org
 
-Hi Kevin,
+On Sat, Feb 26, 2011 at 02:50:06AM -0500, Rafi Rubin wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On 02/26/11 02:36, Henrik Rydberg wrote:
+> > Hi Rafi,
+> > 
+> > On Fri, Feb 25, 2011 at 12:15:31AM -0500, Rafi Rubin wrote:
+> >> Moved the claimed input check before dereferencing field->hidinput to
+> >> fix a reported invalid deference bug.
+> > 
+> > How long has this problem been seen? If it is recent, it should
+> > perhaps be fixed in the hid core instead. If it turns out to be an old
+> > problem, please add stable to the Cc.
+> 
+> I have no idea.  Peter discovered it with a preproduction unit.  He sent me a
+> proposed fix which seemed quite sensible.  I have not seen the bug in action nor
+> records of the traffic.
 
-> I have been testing with Android based systems.
-> What system configurations are good for testing the slot handling in
-> Protocol B?
+Ben tried to get some nouveau fixes in for a new box that box crashed on
+bootup. v2.6.38-rc5-115-g6f576d5 is the version I tried but I can't say when
+it started.
 
-The mtview project is a graphical way to test out hardware [1]. If no
-graphics is wanted, there is utouch-frame. For low-level testing, the
-mtdev project can be used, or even evtest.
+either way, given that the same fix is in at least one more driver it would
+make sense fixing this ealier in the stack.
 
-Thanks,
-Henrik
+Cheers,
+  Peter
 
-[1] https://launchpad.net/mtview/, or http://bitmath.org/code/mtview/
+> >> Switched to a goto instead of an extra indent for most of the function.
+> > 
+> > If you put these janitory changes into a separate patch, it will be
+> > much easier to apply the bugfix to stable versions.
+> > 
+> > Thanks,
+> > Henrik
+> 
+> It might be a few days, but I'll split that into two patches when I get a chance.
+> 
+> Rafi
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.11 (GNU/Linux)
+> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+> 
+> iQIcBAEBAgAGBQJNaLCrAAoJEPILXytRLnK2pQsP/3OgaO2YILN9YYuZZxJ+JVa0
+> cgiFAZxV7BbznMo0sg05RbsF0r1H3rEAzf2JN1NadndC720E6DhDthjvkSZqkdkv
+> v2gV+NHLyW9qaCsvgGMf7yy72880sA9fL0dzUde+W6rdgH7jgNiAp8ceiDpNIWQH
+> yj1rOemNuJbXwaC9EiBb0kswxwrshA4nwaDtWxb1/e61nwRrletkrfOX6EX8uNdW
+> 6ogywsVARb1w5A3xZstF2SKPBz9Su/kSlGMgE/j2LizwVoFEZY7Or6JUwpBnHchr
+> w7a9eKJ4GjW8phU6YQppkNS61tMO4FuToGEYkcDLKbJaGogWO+QeqNA9bqcSjPA/
+> 0F4Zf5CExQjnjmLK4yl0HUPzBtvmJQ/HjpMw6gPFwkqv0QwHUex8QA0Vw3t2LR24
+> oliI6r6qnuGjHxJidpAdXnhaZn7rB5TCxmHejoAW9MYHKp52xY9IM4ys9lIRSDH+
+> CbNN6sNL4/VLZrd5hBSnkZxXvPjUq3OQ/uzRPbrXPj0lz7hCt3YLZB1Me1N862uL
+> 81e4T6AqD79dMh/TcwT93PNFD3Sv2mAhgNYBo3j9lz2HjeQR3EvhLXOfHxFwoDgh
+> k7QYeyKNzYRrTh96EA3zcBIR6yVk3Mq7ASAI/km35nqoEL/iFBAxELS0yKDuuR5z
+> rtGDDwfYxJDxwsVV93Hx
+> =AygA
+> -----END PGP SIGNATURE-----

@@ -1,80 +1,49 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 1/2] HID: ntrig don't dereference unclaimed hidinput
-Date: Mon, 28 Feb 2011 08:17:54 +1000
-Message-ID: <20110227221754.GB21883@barra.bne.redhat.com>
-References: <1298610932-21957-1-git-send-email-rafi@seas.upenn.edu>
- <20110226073633.GA1753@polaris.bitmath.org>
- <4D68B0AE.2090000@seas.upenn.edu>
+From: Marcin Tolysz <tolysz@gmail.com>
+Subject: Re: Rewriting wheels HID descriptor for complete functionality
+Date: Sun, 27 Feb 2011 22:45:54 +0000
+Message-ID: <AANLkTi=O6b-XymswN+UJt7hFo=x+gDrbt9TEC1EAAurf@mail.gmail.com>
+References: <e0bdb04c6bf793ed464934fd4f8b663e.squirrel@host171.canaca.com>
+	<20101201222022.b2e49a1b.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:19971 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751886Ab1B0Wes (ORCPT
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:42717 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751266Ab1B0Wpz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Feb 2011 17:34:48 -0500
-Content-Disposition: inline
-In-Reply-To: <4D68B0AE.2090000@seas.upenn.edu>
+	Sun, 27 Feb 2011 17:45:55 -0500
+Received: by qwd7 with SMTP id 7so2443010qwd.19
+        for <linux-input@vger.kernel.org>; Sun, 27 Feb 2011 14:45:54 -0800 (PST)
+In-Reply-To: <20101201222022.b2e49a1b.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Henrik Rydberg <rydberg@euromail.se>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, chatty@enac.fr, trivial@kernel.org
+To: linux-input@vger.kernel.org
 
-On Sat, Feb 26, 2011 at 02:50:06AM -0500, Rafi Rubin wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 02/26/11 02:36, Henrik Rydberg wrote:
-> > Hi Rafi,
-> > 
-> > On Fri, Feb 25, 2011 at 12:15:31AM -0500, Rafi Rubin wrote:
-> >> Moved the claimed input check before dereferencing field->hidinput to
-> >> fix a reported invalid deference bug.
-> > 
-> > How long has this problem been seen? If it is recent, it should
-> > perhaps be fixed in the hid core instead. If it turns out to be an old
-> > problem, please add stable to the Cc.
-> 
-> I have no idea.  Peter discovered it with a preproduction unit.  He sent me a
-> proposed fix which seemed quite sensible.  I have not seen the bug in action nor
-> records of the traffic.
+Hi, All
 
-Ben tried to get some nouveau fixes in for a new box that box crashed on
-bootup. v2.6.38-rc5-115-g6f576d5 is the version I tried but I can't say when
-it started.
+I had been doing some external stuff regarding editing HID
+descriptors, just to prove it could be done fairly easy:
 
-either way, given that the same fix is in at least one more driver it would
-make sense fixing this ealier in the stack.
+0) read http://code.google.com/p/ghid/wiki/HowTo
 
-Cheers,
-  Peter
+1) haskell compiler to aid hid editing:
+  a) install haskell-platform
+  b) hg clone https://ghid.googlecode.com/hg/ ghid
 
-> >> Switched to a goto instead of an extra indent for most of the function.
-> > 
-> > If you put these janitory changes into a separate patch, it will be
-> > much easier to apply the bugfix to stable versions.
-> > 
-> > Thanks,
-> > Henrik
-> 
-> It might be a few days, but I'll split that into two patches when I get a chance.
-> 
-> Rafi
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.11 (GNU/Linux)
-> Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-> 
-> iQIcBAEBAgAGBQJNaLCrAAoJEPILXytRLnK2pQsP/3OgaO2YILN9YYuZZxJ+JVa0
-> cgiFAZxV7BbznMo0sg05RbsF0r1H3rEAzf2JN1NadndC720E6DhDthjvkSZqkdkv
-> v2gV+NHLyW9qaCsvgGMf7yy72880sA9fL0dzUde+W6rdgH7jgNiAp8ceiDpNIWQH
-> yj1rOemNuJbXwaC9EiBb0kswxwrshA4nwaDtWxb1/e61nwRrletkrfOX6EX8uNdW
-> 6ogywsVARb1w5A3xZstF2SKPBz9Su/kSlGMgE/j2LizwVoFEZY7Or6JUwpBnHchr
-> w7a9eKJ4GjW8phU6YQppkNS61tMO4FuToGEYkcDLKbJaGogWO+QeqNA9bqcSjPA/
-> 0F4Zf5CExQjnjmLK4yl0HUPzBtvmJQ/HjpMw6gPFwkqv0QwHUex8QA0Vw3t2LR24
-> oliI6r6qnuGjHxJidpAdXnhaZn7rB5TCxmHejoAW9MYHKp52xY9IM4ys9lIRSDH+
-> CbNN6sNL4/VLZrd5hBSnkZxXvPjUq3OQ/uzRPbrXPj0lz7hCt3YLZB1Me1N862uL
-> 81e4T6AqD79dMh/TcwT93PNFD3Sv2mAhgNYBo3j9lz2HjeQR3EvhLXOfHxFwoDgh
-> k7QYeyKNzYRrTh96EA3zcBIR6yVk3Mq7ASAI/km35nqoEL/iFBAxELS0yKDuuR5z
-> rtGDDwfYxJDxwsVV93Hx
-> =AygA
-> -----END PGP SIGNATURE-----
+2) Use the online thing which uses this comiler:
+  a) http://gem4.tolysz.co.uk/ghid/
+  b) you would need to click outside the texbox to make it work (it's AJAX)
+
+3) There is a CLI script which uses the above compiler from via the
+above AJAX interface:
+ a) https://code.google.com/p/ghid/source/browse/Docs/eHID.pl
+
+## those 2), 3) are using my low end server, I did only a small
+regression test so am not sure if it can not be slashdoted, but my
+guess, there is not this many people who wanted to see/edit their hid
+descriptors to kill this server.
+
+Regards.
+
+ps.
+Just a small apologize for this slightly off-topic.

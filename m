@@ -1,142 +1,110 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Do not create input devices for feature reports
-Date: Tue, 1 Mar 2011 17:03:23 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1103011702240.32580@pobox.suse.cz>
-References: <1298572259-18173-1-git-send-email-rydberg@euromail.se>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] uinput: allow events per packet to be specified
+Date: Tue, 01 Mar 2011 15:47:23 +0000
+Message-ID: <20110301154722.32433.45006.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42836 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753380Ab1CAQDZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Mar 2011 11:03:25 -0500
-In-Reply-To: <1298572259-18173-1-git-send-email-rydberg@euromail.se>
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:42389 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756125Ab1CAQJG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Mar 2011 11:09:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: aris@cathedrallabs.org, linux-input@vger.kernel.org
 
-On Thu, 24 Feb 2011, Henrik Rydberg wrote:
+From: Alan Cox <alan@linux.intel.com>
 
-> When the multi input quirk is set, there is a new input device
-> created for every feature report. Since the idea is to present
-> features per hid device, not per input device, revert back to
-> the original report loop and change the feature_mapping() callback
-> to not take the input device as argument.
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Implement an events per packet interface configuration. We do this by
+adding a new ioctl that must be called before creation and follows the
+pattern of the existing API.
 
-Hi Henrik,
+The behaviour is:
+	Not set:	input default or value computed by the uinput driver
+	Set:		value used in preference if larger than computed
+			value
 
-I agree with this implementation.
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+---
 
-Benjamin, did you manage to do the tests with hid-multitouch driver so 
-that I could put your Tested-by: to the patch and apply it?
+ drivers/input/misc/uinput.c |   25 +++++++++++++++++++++++--
+ include/linux/uinput.h      |    3 +++
+ 2 files changed, 26 insertions(+), 2 deletions(-)
 
-Thanks.
 
-> ---
-> Hi Jiri, Benjamin,
-> 
-> It seems the feature report callback was a bit intrusive, after all;
-> for some devices such as ntrig, with multi input, there are additional
-> input devices created. The following patch seems to fix the problem,
-> but it has not been tested on any device using the hid-multitouch
-> driver.
-> 
-> Thanks,
-> Henrik
-> 
->  drivers/hid/hid-input.c      |   30 +++++++++++++++++++++---------
->  drivers/hid/hid-multitouch.c |    2 +-
->  include/linux/hid.h          |    2 +-
->  3 files changed, 23 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 7f552bf..ebcc02a 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -290,14 +290,6 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  		goto ignore;
->  	}
->  
-> -	if (field->report_type == HID_FEATURE_REPORT) {
-> -		if (device->driver->feature_mapping) {
-> -			device->driver->feature_mapping(device, hidinput, field,
-> -				usage);
-> -		}
-> -		goto ignore;
-> -	}
-> -
->  	if (device->driver->input_mapping) {
->  		int ret = device->driver->input_mapping(device, hidinput, field,
->  				usage, &bit, &max);
-> @@ -835,6 +827,24 @@ static void hidinput_close(struct input_dev *dev)
->  	hid_hw_close(hid);
->  }
->  
-> +static void report_features(struct hid_device *hid)
-> +{
-> +	struct hid_driver *drv = hid->driver;
-> +	struct hid_report_enum *rep_enum;
-> +	struct hid_report *rep;
-> +	int i, j;
-> +
-> +	if (!drv->feature_mapping)
-> +		return;
-> +
-> +	rep_enum = &hid->report_enum[HID_FEATURE_REPORT];
-> +	list_for_each_entry(rep, &rep_enum->report_list, list)
-> +		for (i = 0; i < rep->maxfield; i++)
-> +			for (j = 0; j < rep->field[i]->maxusage; j++)
-> +				drv->feature_mapping(hid, rep->field[i],
-> +						     rep->field[i]->usage + j);
-> +}
-> +
->  /*
->   * Register the input device; print a message.
->   * Configure the input layer interface
-> @@ -863,7 +873,9 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
->  			return -1;
->  	}
->  
-> -	for (k = HID_INPUT_REPORT; k <= HID_FEATURE_REPORT; k++) {
-> +	report_features(hid);
-> +
-> +	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
->  		if (k == HID_OUTPUT_REPORT &&
->  			hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
->  			continue;
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 07d3183..2bbc954 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -122,7 +122,7 @@ struct mt_class mt_classes[] = {
->  	{ }
->  };
->  
-> -static void mt_feature_mapping(struct hid_device *hdev, struct hid_input *hi,
-> +static void mt_feature_mapping(struct hid_device *hdev,
->  		struct hid_field *field, struct hid_usage *usage)
->  {
->  	if (usage->hid == HID_DG_INPUTMODE) {
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index d91c25e..fc5faf6 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -638,7 +638,7 @@ struct hid_driver {
->  			struct hid_input *hidinput, struct hid_field *field,
->  			struct hid_usage *usage, unsigned long **bit, int *max);
->  	void (*feature_mapping)(struct hid_device *hdev,
-> -			struct hid_input *hidinput, struct hid_field *field,
-> +			struct hid_field *field,
->  			struct hid_usage *usage);
->  #ifdef CONFIG_PM
->  	int (*suspend)(struct hid_device *hdev, pm_message_t message);
-> -- 
-> 1.7.4.1
-> 
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index b941078..2d36ad8 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -349,6 +349,7 @@ static int uinput_setup_device(struct uinput_device *udev, const char __user *bu
+ 	char			*name;
+ 	int			i, size;
+ 	int			retval;
++	int			epp = 0;
+ 
+ 	if (count != sizeof(struct uinput_user_dev))
+ 		return -EINVAL;
+@@ -407,11 +408,19 @@ static int uinput_setup_device(struct uinput_device *udev, const char __user *bu
+ 		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+ 			int nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+ 			input_mt_create_slots(dev, nslot);
+-			input_set_events_per_packet(dev, 6 * nslot);
++			epp = 6 * nslot;
+ 		} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+-			input_set_events_per_packet(dev, 60);
++			epp =  60;
+ 		}
+ 	}
++	/* if the user forced the event information then honour their
++	 * request providing it is bigger than the value we have ascertained
++	 * is required */
++	if (udev->events_per_packet > epp)
++		epp = udev->events_per_packet;
++
++	if (epp)
++		input_set_events_per_packet(dev, epp);
+ 
+ 	udev->state = UIST_SETUP_COMPLETE;
+ 	retval = count;
+@@ -705,6 +714,18 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+ 			phys[length - 1] = '\0';
+ 			break;
+ 
++		case UI_SET_EPP:
++			if (udev->state == UIST_CREATED) {
++				retval = -EINVAL;
++				goto out;
++			}
++			if (arg < 1) {
++				retval = -EINVAL;
++				goto out;
++			}
++			udev->events_per_packet = arg;
++			break;
++			
+ 		case UI_BEGIN_FF_UPLOAD:
+ 			retval = uinput_ff_upload_from_user(p, &ff_up);
+ 			if (retval)
+diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+index 05f7fed2..85c8b17 100644
+--- a/include/linux/uinput.h
++++ b/include/linux/uinput.h
+@@ -73,6 +73,8 @@ struct uinput_device {
+ 	struct uinput_request	*requests[UINPUT_NUM_REQUESTS];
+ 	wait_queue_head_t	requests_waitq;
+ 	spinlock_t		requests_lock;
++
++	int			events_per_packet;
+ };
+ #endif	/* __KERNEL__ */
+ 
+@@ -104,6 +106,7 @@ struct uinput_ff_erase {
+ #define UI_SET_FFBIT		_IOW(UINPUT_IOCTL_BASE, 107, int)
+ #define UI_SET_PHYS		_IOW(UINPUT_IOCTL_BASE, 108, char*)
+ #define UI_SET_SWBIT		_IOW(UINPUT_IOCTL_BASE, 109, int)
++#define UI_SET_EPP		_IOW(UINPUT_IOCTL_BASE, 110, int)
+ 
+ #define UI_BEGIN_FF_UPLOAD	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload)
+ #define UI_END_FF_UPLOAD	_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload)
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.

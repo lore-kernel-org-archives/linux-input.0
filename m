@@ -1,73 +1,55 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] hid: Do not create input devices for feature reports
-Date: Thu, 3 Mar 2011 00:07:47 -0800
-Message-ID: <20110303080747.GB29929@core.coreip.homeip.net>
-References: <1298572259-18173-1-git-send-email-rydberg@euromail.se>
- <AANLkTi=VfSbbV5xwpacC+8yDUfjR3-S8OW47YPvtZwFX@mail.gmail.com>
- <20110224204300.GA2423@polaris.bitmath.org>
- <AANLkTi=YBYrgf66Md_G2Cas7t__BDD2nozvidYDj0p9W@mail.gmail.com>
- <20110225171911.GA22592@polaris.bitmath.org>
- <20110301175423.GC27560@core.coreip.homeip.net>
- <20110302150227.GA1973@polaris.bitmath.org>
+Subject: Re: Add new i2c-based input mouse driver into input subsystem for
+ Cypress trackpad devices. (issue6626009)
+Date: Thu, 3 Mar 2011 23:59:22 -0800
+Message-ID: <20110304075921.GA4323@core.coreip.homeip.net>
+References: <bcaec52c66a51e1eda049da36252@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:35554 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759046Ab1CDH7a (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Mar 2011 02:59:30 -0500
 Content-Disposition: inline
-In-Reply-To: <20110302150227.GA1973@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <bcaec52c66a51e1eda049da36252@google.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dudl@cypress.com, rubini@ipvvis.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@google.com, micahc@google.com, chromium-os-reviews@chromium.org, vb+kernel@g
 
-On Wed, Mar 02, 2011 at 04:02:27PM +0100, Henrik Rydberg wrote:
-> Hi Dmitry,
+Hi Dudley,
+
+On Fri, Mar 04, 2011 at 07:49:18AM +0000, dudl@cypress.com wrote:
+> Reviewers: rubini_ipvvis.unipv.it, dmitry.torokhov_gmail.com,
+> linux-input_vger.kernel.org, linux-kernel_vger.kernel.org, olofj_g,
+> Micah C, dudl,
 > 
-> > > For output devices, the only supported case is EV_LED, which passes
-> > > events to the input device. It is probably assumed that
-> > > HID_QUIRK_MULTI_INPUT is false for those devices. Jiri?
-> > > 
-> > 
-> > I am probably late to the party fut the above is not true. Here is an
-> > example of an USB keyboard (wih LEDs) that is split into two:
-> > 
-> > I: Bus=0003 Vendor=046d Product=c30e Version=0110
-> > N: Name="Logitech HID compliant keyboard"
-> > P: Phys=usb-0000:00:1d.0-1.2/input0
-> > S:
-> > Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/2-1.2:1.0/input/input3
-> > U: Uniq=
-> > H: Handlers=sysrq kbd event3
-> > B: PROP=0
-> > B: EV=120013
-> > B: KEY=1000000000007 ff800000000007ff febeffdff3cfffff fffffffffffffffe
-> > B: MSC=10
-> > B: LED=7
-> > 
-> > I: Bus=0003 Vendor=046d Product=c30e Version=0110
-> > N: Name="Logitech HID compliant keyboard"
-> > P: Phys=usb-0000:00:1d.0-1.2/input1
-> > S:
-> > Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/2-1.2:1.1/input/input4
-> > U: Uniq=
-> > H: Handlers=kbd event4
-> > B: PROP=0
-> > B: EV=13
-> > B: KEY=fff ffffffffffffffff 2000000 387ad800d001 1e000000000000 0
-> > B: MSC=10
-> > 
-> > This was done, most likely, because Logitech decided to reuse usage codes
-> > for different keys.
+> Description:
+> Add new i2c-based input mouse driver into input subsystem for
+> Cypress trackpad
+> devices.
 > 
-> This looks like different interfaces though, which should be fine. It
-> is only in the odd case of mixed input and output reports on the same
-> interface that the MULTI_INPUT quirk would ever have any strange
-> effect.
+> Through this new added driver,
+> Cypress i2c-based trackpad devices will be supported in Linux based system
+> which are developed based on Cypress self-designed PSOC chipset.
+> This driver reads trackpad data using i2c interfaces and report cursor
+> moving data and gesture combined keys to input subsystem.
+> 
+> 
+> Change-Id: I108ad1505f3d34ab24658921a772e937940a1b88
+> Signed-off-by: Du, Dudley <dudl@cypress.com>
+> 
+> BUG=None
+> TEST=Work fine on ARM tegra2 saeboard and kaen platfrom
+> 
+> Please review this at http://codereview.chromium.org/6626009/
 > 
 
-Gah, when I looked at it before posting I could swore they were on the
-same interface. OK, just ignore me...
+Please post your patches in unified diff format on the input mainling
+list (linux-input@vger.kernel.org, and please also CC me) - this is
+common (and only) way for mainline patch submission.
 
-Thanks.
+Thank you.
 
 -- 
 Dmitry

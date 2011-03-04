@@ -1,149 +1,102 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH] mouse: Add new i2c-based input mouse driver into input
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] mouse: Add new i2c-based input mouse driver into input
  subsystem for Cypress i2c trackpad devices.
-Date: Fri, 4 Mar 2011 05:46:39 -0500
-Message-ID: <B27AC323FA92C946BA36D2913DDC8E3701FD6F0B1A51@VMBX126.ihostexchange.net>
+Date: Fri, 4 Mar 2011 13:16:55 +0100
+Message-ID: <20110304121655.GA2670@polaris.bitmath.org>
 References: <B27AC323FA92C946BA36D2913DDC8E3701FD6F0B1A3B@VMBX126.ihostexchange.net>
  <20110304090450.GB4323@core.coreip.homeip.net>
+ <B27AC323FA92C946BA36D2913DDC8E3701FD6F0B1A51@VMBX126.ihostexchange.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.ihostexchange.net ([66.46.182.56]:24102 "EHLO
-	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751884Ab1CDKsp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Mar 2011 05:48:45 -0500
-In-Reply-To: <20110304090450.GB4323@core.coreip.homeip.net>
-Content-Language: zh-CN
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:35903 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751999Ab1CDMS5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Mar 2011 07:18:57 -0500
+Content-Disposition: inline
+In-Reply-To: <B27AC323FA92C946BA36D2913DDC8E3701FD6F0B1A51@VMBX126.ihostexchange.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "rubini@ipvvis.unipv.it" <rubini@cvml.unipv.it>, "olofj@google.com" <olofj@google.com>, "micahc@google.com" <micahc@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David Solda (David.Solda@cypress.com)" <David.Solda@cypress.com>
+To: Dudley Du <dudl@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "rubini@ipvvis.unipv.it" <rubini@cvml.unipv.it>, "olofj@google.com" <olofj@google.com>, "micahc@google.com" <micahc@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David Solda (David.Solda@cypress.com)" <David.Solda@cypress.com>
 
-SGkgRG1pdHJ5LA0KDQpUaGFua3MgZm9yIHlvdXIgcXVlc3Rpb25zLg0KDQpUaGlzIG5ldyBkcml2
-ZXIgYmVsb25ncyB0byBJbnB1dCBkZXZpY2UgRHJpdmVyLCBpdCBsb2NhdGVzIGluIHRoZSBsYXll
-ciB1bmRlciBJbnB1dCBDb3JlLA0KSXQgY29tbXVuaWNhdGVzIGRpcmVjdGx5IHRvIEN5cHJlc3Mg
-STJDIHRyYWNrcGFkIGhhcmR3YXJlIGRldmljZS4NCkN5cHJlc3MgSTJDIHRyYWNrcGFkIGhhcmR3
-YXJlIGRldmljZSBpcyBhIG11bHRpLXRvdWNoIGRldmljZSwgaXQgdXNlcyBpMmMgaW50ZXJmYWNl
-IHRvIGNvbW11bmljYXRlIHdpdGggaG9zdC4NClRoaXMgZGV2aWNlIGNhbiBkZXRlY3Qgb25lIGZp
-bmdlciBtb3ZlbWVudCwgY2FuIGRldGVjdCBtdWx0aS1maW5nZXIgbW92ZW1lbnRzLA0KQWxzbyBp
-dCBjYW4gcmVjb2duaXplIGFuZCByZXBvcnQgbXVsdGktZmluZ2VyIG1vdmVtZW50cyBhcyBwcmVk
-ZWZpbmVkIGdlc3R1cmVzLg0KU28gdXNpbmcgdGhlc2UgdHJhY2twYWQgZGV2aWNlcywgYWxsIGdl
-c3R1cmUgZGV0ZWN0IGFyZSBkb25lIGluIHRyYWNrcGFkIGRldmljZSwgbm90IGluIGRyaXZlciBv
-ciB1cHBlciBsYXllcnMuDQoNCkluIGJyaWVmLCB0aGUgYmFzaWMgZnVuY3Rpb25zIG9mIHRoaXMg
-aTJjLWJhc2VkIGlucHV0IG1vdXNlIGRyaXZlciBhcmUgbGlzdCBhcyBiZWxsb3c6DQoxLiBjb25u
-ZWN0IHRoaXMgZHJpdmVyIGludG8gaTJjIHN1YnN5c3RlbSBhbmQgaW5wdXQgc3Vic3lzdGVtOw0K
-ICAgQmVjYXVzZSBDeXByZXNzIHRyYWNrcGFkIGRldmljZXMgdXNlIGkyYyBpbnRlcmZhY2VzIHRv
-IGNvbm5lY3QgYW5kIGNvbW11bmljYXRlIHdpdGggaG9zdC4NCjIuIGNvbW11bmljYXRlIHdpdGgg
-Q3lwcmVzcyB0cmFja3BhZCBkZXZpY2VzIHRvIHJlYWQgcmF3IGRhdGEgb2YgZmluZ2VycyBtb3Zl
-bWVudCBhbmQgZGV0ZWN0ZWQgZ2VzdHVyZXM7DQozLiBwYXJzZSByZWNlaXZlZCByYXcgZGF0YSBm
-cm9tIHRyYWNrcGFkIGRldmljZXMgaW50byBzeXN0ZW0gcmVjb2duaXplcyBkYXRhOw0KNC4gcmVw
-b3J0IHJlY2VpdmVkIGZpbmdlciBtb3ZlbWVudCBkYXRhIGludG8gaW5wdXQgc3Vic3lzdGVtIGFz
-IGN1cnNvciBtb3ZlbWVudC4NCjUuIGNvbnZlcnQgcmVjZWl2ZWQgZmluZ2VyIGdlc3R1cmVzIGlu
-dG8ga2V5Ym9hcmQgcHJlc3MvcmVsZWFzZSwgbW91c2UgcHJlc3MvcmVsZWFzZSBhbmQgd2hlZWwg
-b3BlcmF0aW9ucywNCiAgIHRoZW4gcmVwb3J0IHRoZSBnZXN0dXJlcyBieSByZXBvcnRpbmcgY29t
-YmluZWQga2V5Ym9hcmQgcHJlc3MvcmVsZWFzZSwgbW91c2UgcHJlc3MvcmVsZWFzZSBhbmQgd2hl
-ZWwgb3BlcmF0aW9ucyBpbnRvIElucHV0IHN1YnN5c3RlbTsNCiAgIHRoYXQncyB3aHkgdGhlcmUg
-d2lsbCBiZSB2aXJ0dWFsIGtleWJvYXJkLCB2aXJ0dWFsIHdoZWVsIGhhbmRsaW5nLCBldGMgaW4g
-dGhpcyBkcml2ZXIuDQo2LiBEbyBjdXJzb3IgcGVyZm9ybWFuY2UgZmlsdGVyIHRvIGltcHJvdmUg
-Y3Vyc29yIG1vdmVtZW50IHBlcmZvcm1hbmNlOw0KICAgZS5nLjogbWFrZSBjdXJzb3IgbW92ZW1l
-bnQgbXVjaCBtb3JlIHNtb290aDsgaW1wcm92ZSBjdXJzb3IgbW92aW5nIGxpbmVhcml0eSBhbmQg
-c28gb24uDQo3LiBEbyBnZXN0dXJlIHBlcmZvcm1hbmNlIGZpbHRlciB0byBpbXByb3ZlIGdlc3R1
-cmUgcGVyZm9ybWFuY2U7DQogICBlLmcuOiB3aGVuIGRvIHR3byBmaW5nZXJzIHZlcnRpY2FsIHNj
-cm9sbCBvcGVyYXRpb24gb24gYSB3ZWIgcGFnZSwgbWFrZSB0aGUgd2ViIHBhZ2UgYmUgc2Nyb2xs
-ZWQgbXVjaCBtb3JlIHNtb290aCwNCiAgICAgICAgIGFuZCBhcHBseSBhY2NlbGVyYXRpb24gb24g
-dGhlIHNjcm9sbCB0byBtYWtlIGxvdyBmaW5nZXIgbW92ZW1lbnQgY29ycmVzcG9uZGluZyB0byBs
-b3cgc2Nyb2xsaW5nLA0KICAgICAgICAgZmFzdCBmaW5nZXIgbW92ZW1lbnQgY29ycmVzcG9uZGlu
-ZyB0byBmYXN0IHNjcm9sbGluZyBhbmQgY2FuIGJlIGVubGFyZ2VkIHRvIGZpdCB1c2VyJ3Mgc2Vu
-c2UuDQo4LiByZXBvcnQgZGF0YSB0byBpbnB1dCBzdWJzeXN0ZW0uDQoNCg0KQmVsbG93IHRyaWVz
-IHRvIGFuc3dlciB0aGUgcXVlc3Rpb25zIGluIHRoZSBtYWlsOg0KMS4gV2h5IHRoZXJlIGFyZSBh
-bW91bnQgb2YgY29kZSB0byByZWludGVycHJldCBkYXRhIGZyb20gZGV2aWNlIGFuZCBjb252ZXJ0
-IHRvIGdlc3R1cmVzIGluIHRoaXMgZHJpdmVyPw0KICAxKSBUcmFja3BhZCBkZXZpY2VzIHVzZSBJ
-MkMgaW50ZXJmYWNlIHRvIHJlcG9ydCBkYXRhIHRocm91Z2ggSTJDIHJlZ2lzdGVycy4gVGhlc2Ug
-STJDIHJlZ2lzdGVycyBhcmUgZGVmaW5lZCBhbmQgb3JnYW5pemVkIGJ5IEN5cHJlc3MsDQogICAg
-IHNvIGlucHV0IHN1YnN5c3RlbSBhbmQgb3RoZXIgdHJhY2twYWQgZGV2aWNlIGRyaXZlcnMgY2Fu
-J3QgcmVhZCBhbmQgcmVjb2duaXplIHRoZSBtZWFuaW5ncyBvZiB0aGlzIHJlZ2lzdGVycyBkaXJl
-Y3RseS4NCiAgMikgYWxzbyB0aGVyZSBhcmUgMiByZWxlYXNlZCByZWdpc3RlcnMgbWFwIHNwZWMg
-dGhhdCB1c2VkIGluIHRyYWNrcGFkIGRldmljZXMuDQogICAgIFNvIHRoZXJlIHdpbGwgYmUgdHdv
-IGNsdXN0ZXIgY29kZSBuYW1lZCBnZW4xIGFuZCBnZW4yIHRvIHJlaW50ZXJwcmV0IGRhdGEgZnJv
-bSBkZXZpY2UuDQogIDMpIGFsc28gZmluZ2VycyBnZXN0dXJlcyBhcmUgZGV0ZWN0ZWQgaW4gdHJh
-Y2twYWQgZGV2aWNlLCBhbmQgdGhlIGdlc3R1cmVzIGFyZSByZXBvcnRlZCBhcyBnZXN0dXJlIElE
-cywNCiAgICAgVGhlc2UgZ2VzdHVyZSBJRHMgYXJlIGFsbCBkZWZpbmVkIGFuZCBvbmx5IG1lYW5p
-bmdmdWxseSB0byBDeXByZXNzIHRyYWNrcGFkIGRldmljZXMuDQogICAgIFRoYXQgbWVhbnMgdGhl
-c2UgZ2VzdHVyZSBJRHMgY2FuJ3QgYmUgcmVjb2duaXplZCBieSBpbnB1dCBzdWJzeXN0ZW0gYW5k
-IG90aGVyIGRyaXZlcnMsDQogICAgIFNvIHRoaXMgZHJpdmVyIGlzIHJlcXVpcmVkIHRvIHJlaW50
-ZXJwcmV0IHRoZSBnZXN0dXJlIGRhdGEgZnJvbSBkZXZpY2UsIGFuZCBjYW5ub3QgZG8gdGhpcyBp
-biB1c2VyIHNwYWNlLg0KDQoyLiBXaHkgZ2l2ZSBhIGNob2ljZSBiZXR3ZWVuIHJlbGF0aXZlIG1v
-ZGUgYW5kIGFic29sdXRlIG1vZGUgdG8gcmVwb3J0IGRhdGE/DQogIEl0J3Mgc3VyZSB0aGF0IGFi
-c29sdXRlIG1vZGUgY2FuIHN1cHBseSBtb3JlIGludGVyZmFjZSB0byByZXBvcnQgbXVsdGktY2xh
-c3MgZGF0YSBhbmQgYWxzbyBwcm92aWRlIG1vcmUgZGF0YSBmb3IgZ2VzdHVyZSBwcm9jZXNzaW5n
-Lg0KICBDdXJyZW50bHkgYXMgd2Uga25vdywgd2l0aCBhYnNvbHV0ZSBtb2RlLCBJbnB1dCBzdWJz
-eXN0ZW0gcmVxdWlyZXMgdHJhY2twYWQgZGV2aWNlIHRvIHJlcG9ydCBhYnNvbHV0ZSBYIGFuZCBZ
-IHBvc2l0aW9uIGRhdGEgZGlyZWN0bHksDQogIHRoZW4gSW5wdXQgc3lzdGVtIHRyYW5zZmVycyB0
-aGVzZSBkYXRhIHRvIG1vdXNlZGV2IGRyaXZlciwgYW5kIG1vdXNlZGV2IGRyaXZlciBjYWxjdWxh
-dGVzIGJhc2VkIG9uIHRoaXMgYWJzb2x1dGUgWCBhbmQgWSBwb3NpdGlvbiBkYXRhDQogIGFuZCBj
-b252ZXJ0IHRoZW0gaW50byBYIGRlbHRhIGFuZCBZIGRlbHRhIGRhdGEuIEluIHRoaXMgcHJvY2Vz
-c2luZywgbW91c2VkZXYgZG9lc24ndCBhcHBseSBhbnkgY3Vyc29yIGFjY2VsZXJhdGlvbiBmdW5j
-dGlvbiB0byBjdXJzb3IgbW92ZW1lbnQNCiAgd2hlbiBjb252ZXJ0IGludG8gWCBkZWx0YSBhbmQg
-WSBkZWx0YSBkYXRhLCBzbyBjdXJzb3IgbW92ZW1lbnQgc2hvd24gaW4gc2NyZWVuIGhhcyBubyBh
-Y2NlbGVyYXRpb24uDQogIFRoYXQgbWVhbnMgd2hlbiBmYXN0IG1vdmUgZmluZ2VyIGluIHRyYWNr
-cGFkLCB0aGUgY3Vyc29yIG1vdmVtZW50IGluIHNjcmVlbiBjYW4ndCBiZSBlbmxhcmdlZCBqdXN0
-IGFzIHdlIHVzZSBVU0IgbW91c2UgZGV2aWNlLg0KICBBbmQgaW4gYWJzb2x1dGUgbW9kZSwgd2Ug
-YXJlIHVuYWJsZSB0byBhZGQgY3Vyc29yIGFjY2VsZXJhdGlvbiBmdW5jdGlvbiB0byBhYnNvbHV0
-aW9uIFggYW5kIFkgZGF0YS4NCiAgU28gaW4gb3JkZXIgdG8gYWRkIGN1cnNvciBhY2NlbGVyYXRp
-b24gZnVuY3Rpb24gdG8gY3Vyc29yIG1vdmVtZW50LCB3ZSBhZGRlZCByZWxhdGl2ZSBtb2RlIGFs
-c28gYmUgc3VwcG9ydGVkLg0KICBCZWNhdXNlIGluIHJlbGF0aXZlIG1vZGUsIHRyYWNrcGFkIGRl
-dmljZXMgcmVwb3J0IHJlbGF0aXZlIGRlbHRhIGRhdGEsIGFuZCBiYXNlZCBvbiB0aGlzIHJlbGF0
-aXZlIGRlbHRhIGRhdGEsDQogIGRyaXZlciBjYW4gYXBwbHkgY3Vyc29yIHBlcmZvcm1hbmNlIGZp
-bHRlciB0byB0aGlzIGRhdGEsIHNvIGN1cnNvciBhY2NlbGVyYXRpb24gZnVuY3Rpb24gY2FuIGFs
-c28gYmUgYXBwbGllZCBpbiByZWxhdGl2ZSBtb2RlLg0KDQozLiBXaHkgYWRkIHBvbGxpbmcgbW9k
-ZSBzdXBwb3J0ZWQgaW4gdGhpcyBkcml2ZXI/DQogIEJlc2lkZXMgSTJDIGJ1cyBoYXJkd2FyZSBw
-aW5zIG9mIFZERCwgR291bmQsIFNEQSBhbmQgU0RMLCBUcmFja3BhZCBkZXZpY2UgYWxzbyByZXF1
-aXJlcyBhbiBleHRlbmRlZCBHUElPIHBpbiB0byBhc3NlcnQgaW50ZXJydXB0cyB0byBob3N0Lg0K
-ICBCdXQgZm9yIHNvbWUgaG9zdCBkZXZpY2VzLCB0aGVyZSBpcyBubyBleHRlbmRlZCBHUElPIHBp
-biByZXNlcnZlZCBmb3IgdGhpcyBzbGF2ZSBpbnRlcnJ1cHQgcGluIChTSU5UKSwNCiAgU28gZm9y
-IHRoZXNlIGRldmljZXMsIGludGVycnVwdHMgZnJvbSB0cmFja3BhZCBkZXZpY2VzIGNhbid0IGJl
-IHN1cHBvcnRlZCwgYW5kIG9ubHkgcG9sbGluZyBtb2RlIGNhbiBiZSB1c2VkLg0KICBUaGF0J3Mg
-d2h5IHdlIGFkZCBwb2xsaW5nIG1vZGUgaW4gdGhpcyBkcml2ZXIsIGl0IHByb3ZpZGVzIGNvbXBh
-dGlibGUgdG8gdGhvc2UgZGV2aWNlIHRoYXQgd2l0aG91dCBleHRlbmRlZCBHUElPIHBpbiBzdXBw
-b3J0ZWQuDQoNClRoYW5rcy4NCg0KQmVzdCBXaXNoZXMsDQpEdWRsZXkgRHUNCjg2LTIxLTYxNjQ4
-OTUwDQoNCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IERtaXRyeSBUb3Jva2hv
-diBbbWFpbHRvOmRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb21dIA0KU2VudDogRnJpZGF5LCBNYXJj
-aCAwNCwgMjAxMSA1OjA1IFBNDQpUbzogRHVkbGV5IER1DQpDYzogcnViaW5pQGlwdnZpcy51bmlw
-di5pdDsgb2xvZmpAZ29vZ2xlLmNvbTsgbWljYWhjQGdvb2dsZS5jb207IGxpbnV4LWlucHV0QHZn
-ZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6
-IFtQQVRDSF0gbW91c2U6IEFkZCBuZXcgaTJjLWJhc2VkIGlucHV0IG1vdXNlIGRyaXZlciBpbnRv
-IGlucHV0IHN1YnN5c3RlbSBmb3IgQ3lwcmVzcyBpMmMgdHJhY2twYWQgZGV2aWNlcy4NCg0KSGkg
-RHVkbGV5LA0KDQpPbiBGcmksIE1hciAwNCwgMjAxMSBhdCAwMzo0ODoyMUFNIC0wNTAwLCBEdWRs
-ZXkgRHUgd3JvdGU6DQo+IEhpIExpbnV4LUlucHV0IE1haW50YWluZXJzLA0KPiANCj4gVGhpcyBw
-YXRjaCBhZGRzIG5ldyBpMmMtYmFzZWQgaW5wdXQgbW91c2UgZHJpdmVyIGludG8gaW5wdXQgc3Vi
-c3lzdGVtIGZvcg0KPiBDeXByZXNzIGkyYyB0cmFja3BhZCBkZXZpY2VzLiBUaHJvdWdoIHRoaXMg
-bmV3IGFkZGVkIGRyaXZlciwNCj4gQ3lwcmVzcyBpMmMgdHJhY2twYWQgZGV2aWNlcyB3aWxsIGJl
-IHN1cHBvcnRlZCBpbiBMaW51eCBiYXNlZCBzeXN0ZW0NCj4gd2hpY2ggYXJlIGRldmVsb3BlZCBi
-YXNlZCBvbiBDeXByZXNzIHNlbGYtZGVzaWduZWQgUFNPQyBjaGlwc2V0Lg0KPiBUaGUgZnVuY3Rp
-b24gb2YgdGhpcyBkcml2ZXIgcmVhZHMgdHJhY2twYWQgZGF0YSB1c2luZyBpMmMgaW50ZXJmYWNl
-cw0KPiBhbmQgcmVwb3J0IGN1cnNvciBtb3ZpbmcgZGF0YSBhbmQgZ2VzdHVyZSBjb21iaW5lZCBr
-ZXlzIHRvIGlucHV0IHN1YnN5c3RlbS4NCj4gDQo+IFRoaXMgZHJpdmVyIGFkZHMgb25lIGRyaXZl
-ciBtYWluIGZpbGUgY3lwcmVzcy5jIGluIGRyaXZlcnMvaW5wdXQvbW91c2UgZGlyZWN0b3J5LA0K
-PiBhbmQgb25lIGhlYWRlciBmaWxlIGN5YXBhLmggaW4gaW5jbHVkZS9saW51eCBkaXJlY3Rvcnks
-DQo+IGFuZCBtb2RpZmllZCBLY29uZmlnIGFuZCBNYWtlZmlsZSBmaWxlcyBpbiBkcml2ZXJzL2lu
-cHV0L21vdXNlIGRpcmVjdG9yeSB0byBpbmNsdWRlIHRoaXMgZHJpdmVyLg0KPiANCj4gQXR0YWNo
-ZWQgaXMgdGhlIHBhdGNoIGZpbGUgZm9yIHRoaXMgZHJpdmVyIGFuZCBiZWxsb3cgaXMgdGhlIGNv
-bnRlbnQgb2YgdGhpcyBkcml2ZXIuDQo+IA0KDQpDb3VsZCB5b3UgcGxlYXNlIHRyeSBkZXNjcmli
-aW5nIGNhcGFiaWxpdGllcyBvZiB5b3VyIGRldmljZS4gRnJvbSB0aGUNCmdsYW5jaW5nIGF0IGl0
-IGl0IGxvb2tzIGxpa2UgaXQgc3VwcG9ydHMgc29tZSBmb3JtIG9mIG11bHRpLXRvdWNoLi4uDQoN
-CkZyb20gdGhlIHZlcnkgcm91Z2ggY29kZSBzY2FubmluZyB0aGVyZSBhcHBlYXJzIHRvIGJlIGh1
-Z2UgYW1vdW50IG9mDQpjb2RlIHRoYXQgcmVpbnRlcnByZXRzIGRhdGEgY29taW5nIGZyb20gdGhl
-IGRldmljZSBhbmQgY29udmVydHMgaXQgaW50bw0KZ2VzdHVyZXMgKHZpcnR1YWwga2V5Ym9hcmQs
-IHZpcnR1YWwgd2hlZWwgaGFubGRpbmcsIGV0YywgZXRjKS4gU3VjaA0KcHJvY2Vzc2luZyBkb2Vz
-IG5vdCBiZWxvbmcgdG8gdGhlIGtlcm5lbCBkcml2ZXIgYnV0IHJhdGhlciB0byB1c2Vyc3BhY2Uu
-DQpQbGVhc2UgdGFrZSBhIGxvb2sgYW5kIG90aGVyIHRvdWNocGFkIGRyaXZlcnMgaW4gdGhlIGtl
-cm5lbCAoc3luYXB0aWNzLA0KYWxwcywgZWxhbnRlY2gsIGJjbSwgYW5kIHNvIGZvcikgYW5kIGhv
-dyB0aGV5IGFyZSB3b3JrIGluIHRhbmRlbSB3aXRoDQpzeW5hcHRpY3MgWCBkcml2ZXIgd2hpY2gg
-cHJvdmlkZXMgYWR2YW5jZWQgZ2VzdHVyZSBoYW5kbGluZy4NCg0KSSBhbHNvIHF1ZXN0aW9uIHdo
-eSBvbmUgd291bGQgZ2l2ZSBjaG9pc2UgYmV0d2VlbiB1c2luZyByZWxhdGl2ZSBhbmQNCmFic29s
-dXRlIHJlcG9ydGluZyB3aGVuIGFic29sdXRlIG1vZGUgcHJvdmlkZXMgbW9yZSBkYXRhIGZvciBn
-ZXN0dXJlDQpwcm9jZXNzaW5nLiBBbHNvIHBvbGxpbmcgbW9kZSBpcyBwcm9iYWJseSB1bnN1aXRh
-YmxlIGZvciBwcm9kdWN0aW9uDQpkcml2ZXIgYW5kIHNvIEknZCByZWNvbW1lbmQgZHJvcHBpbmcg
-aXQgZm9yIHRoZSBtYWlubGluZSBzdWJtaXNzaW9uLg0KDQpUaGFua3MuDQoNCi0tIA0KRG1pdHJ5
-DQo=
+Hi Dudley,
+
+to continue Dmitry's questioning, please find comments inline.
+
+> This new driver belongs to Input device Driver, it locates in the layer under Input Core,
+> It communicates directly to Cypress I2C trackpad hardware device.
+> Cypress I2C trackpad hardware device is a multi-touch device, it uses i2c interface to communicate with host.
+> This device can detect one finger movement, can detect multi-finger movements,
+> Also it can recognize and report multi-finger movements as predefined gestures.
+> So using these trackpad devices, all gesture detect are done in trackpad device, not in driver or upper layers.
+
+This is normally the case for devices conforming to other operating
+systems. However, the device-specific gestures are not used in the
+linux MT drivers; instead the raw contact data is sent to userspace,
+for further processing.
+
+> 
+> In brief, the basic functions of this i2c-based input mouse driver are list as bellow:
+> 1. connect this driver into i2c subsystem and input subsystem;
+>    Because Cypress trackpad devices use i2c interfaces to connect and communicate with host.
+> 2. communicate with Cypress trackpad devices to read raw data of fingers movement and detected gestures;
+> 3. parse received raw data from trackpad devices into system recognizes data;
+> 4. report received finger movement data into input subsystem as cursor movement.
+> 5. convert received finger gestures into keyboard press/release, mouse press/release and wheel operations,
+>    then report the gestures by reporting combined keyboard press/release, mouse press/release and wheel operations into Input subsystem;
+>    that's why there will be virtual keyboard, virtual wheel handling, etc in this driver.
+> 6. Do cursor performance filter to improve cursor movement performance;
+>    e.g.: make cursor movement much more smooth; improve cursor moving linearity and so on.
+> 7. Do gesture performance filter to improve gesture performance;
+>    e.g.: when do two fingers vertical scroll operation on a web page, make the web page be scrolled much more smooth,
+>          and apply acceleration on the scroll to make low finger movement corresponding to low scrolling,
+>          fast finger movement corresponding to fast scrolling and can be enlarged to fit user's sense.
+> 8. report data to input subsystem.
+
+Apart from simplicity (which is reason enough), the major reason not
+to do gesture handling in the driver is duplication of efforts. Please
+simplify the driver to an absolute minimum before submitting for
+review.
+
+> Bellow tries to answer the questions in the mail:
+> 1. Why there are amount of code to reinterpret data from device and convert to gestures in this driver?
+>   1) Trackpad devices use I2C interface to report data through I2C registers. These I2C registers are defined and organized by Cypress,
+>      so input subsystem and other trackpad device drivers can't read and recognize the meanings of this registers directly.
+>   2) also there are 2 released registers map spec that used in trackpad devices.
+>      So there will be two cluster code named gen1 and gen2 to reinterpret data from device.
+>   3) also fingers gestures are detected in trackpad device, and the gestures are reported as gesture IDs,
+>      These gesture IDs are all defined and only meaningfully to Cypress trackpad devices.
+>      That means these gesture IDs can't be recognized by input subsystem and other drivers,
+>      So this driver is required to reinterpret the gesture data from device, and cannot do this in user space.
+
+The simple solution is to not report the special gesture data at all,
+just raw contact data.
+
+> 2. Why give a choice between relative mode and absolute mode to report data?
+>   It's sure that absolute mode can supply more interface to report multi-class data and also provide more data for gesture processing.
+>   Currently as we know, with absolute mode, Input subsystem requires trackpad device to report absolute X and Y position data directly,
+>   then Input system transfers these data to mousedev driver, and mousedev driver calculates based on this absolute X and Y position data
+>   and convert them into X delta and Y delta data. In this processing, mousedev doesn't apply any cursor acceleration function to cursor movement
+>   when convert into X delta and Y delta data, so cursor movement shown in screen has no acceleration.
+>   That means when fast move finger in trackpad, the cursor movement in screen can't be enlarged just as we use USB mouse device.
+>   And in absolute mode, we are unable to add cursor acceleration function to absolution X and Y data.
+>   So in order to add cursor acceleration function to cursor movement, we added relative mode also be supported.
+>   Because in relative mode, trackpad devices report relative delta data, and based on this relative delta data,
+>   driver can apply cursor performance filter to this data, so cursor acceleration function can also be applied in relative mode.
+
+The cursor is a different entity from the touch, and although the
+cursor may employ acceleration, the touch on a touchpad cannot; it
+stays where it is.
+
+> 3. Why add polling mode supported in this driver?
+>   Besides I2C bus hardware pins of VDD, Gound, SDA and SDL, Trackpad device also requires an extended GPIO pin to assert interrupts to host.
+>   But for some host devices, there is no extended GPIO pin reserved for this slave interrupt pin (SINT),
+>   So for these devices, interrupts from trackpad devices can't be supported, and only polling mode can be used.
+>   That's why we add polling mode in this driver, it provides compatible to those device that without extended GPIO pin supported.
+
+An example of a hardware without interrupt support would be appreciated.
+
+Thanks,
+Henrik

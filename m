@@ -1,102 +1,262 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] mouse: Add new i2c-based input mouse driver into input
- subsystem for Cypress i2c trackpad devices.
-Date: Fri, 4 Mar 2011 13:16:55 +0100
-Message-ID: <20110304121655.GA2670@polaris.bitmath.org>
-References: <B27AC323FA92C946BA36D2913DDC8E3701FD6F0B1A3B@VMBX126.ihostexchange.net>
- <20110304090450.GB4323@core.coreip.homeip.net>
- <B27AC323FA92C946BA36D2913DDC8E3701FD6F0B1A51@VMBX126.ihostexchange.net>
+Subject: Re: [PATCH 3/4 v3] input - wacom : support one finger touch the
+ touchscreen way
+Date: Sat, 5 Mar 2011 09:32:53 +0100
+Message-ID: <20110305083253.GA4811@polaris.bitmath.org>
+References: <1299025123-8588-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:35903 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751999Ab1CDMS5 (ORCPT
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:44379 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752430Ab1CEIbG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Mar 2011 07:18:57 -0500
+	Sat, 5 Mar 2011 03:31:06 -0500
 Content-Disposition: inline
-In-Reply-To: <B27AC323FA92C946BA36D2913DDC8E3701FD6F0B1A51@VMBX126.ihostexchange.net>
+In-Reply-To: <1299025123-8588-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dudley Du <dudl@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "rubini@ipvvis.unipv.it" <rubini@cvml.unipv.it>, "olofj@google.com" <olofj@google.com>, "micahc@google.com" <micahc@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "David Solda (David.Solda@cypress.com)" <David.Solda@cypress.com>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-Hi Dudley,
+Hi Ping,
 
-to continue Dmitry's questioning, please find comments inline.
+I think it is getting there, just a couple of things inline.
 
-> This new driver belongs to Input device Driver, it locates in the layer under Input Core,
-> It communicates directly to Cypress I2C trackpad hardware device.
-> Cypress I2C trackpad hardware device is a multi-touch device, it uses i2c interface to communicate with host.
-> This device can detect one finger movement, can detect multi-finger movements,
-> Also it can recognize and report multi-finger movements as predefined gestures.
-> So using these trackpad devices, all gesture detect are done in trackpad device, not in driver or upper layers.
-
-This is normally the case for devices conforming to other operating
-systems. However, the device-specific gestures are not used in the
-linux MT drivers; instead the raw contact data is sent to userspace,
-for further processing.
-
+On Tue, Mar 01, 2011 at 04:18:43PM -0800, Ping Cheng wrote:
+> There are two types of 1FGT devices supported in wacom_wac.c.
+> Changing them to follow the existing touchscreen format, i.e.,
+> only report BTN_TOUCH as a valid tool type.
 > 
-> In brief, the basic functions of this i2c-based input mouse driver are list as bellow:
-> 1. connect this driver into i2c subsystem and input subsystem;
->    Because Cypress trackpad devices use i2c interfaces to connect and communicate with host.
-> 2. communicate with Cypress trackpad devices to read raw data of fingers movement and detected gestures;
-> 3. parse received raw data from trackpad devices into system recognizes data;
-> 4. report received finger movement data into input subsystem as cursor movement.
-> 5. convert received finger gestures into keyboard press/release, mouse press/release and wheel operations,
->    then report the gestures by reporting combined keyboard press/release, mouse press/release and wheel operations into Input subsystem;
->    that's why there will be virtual keyboard, virtual wheel handling, etc in this driver.
-> 6. Do cursor performance filter to improve cursor movement performance;
->    e.g.: make cursor movement much more smooth; improve cursor moving linearity and so on.
-> 7. Do gesture performance filter to improve gesture performance;
->    e.g.: when do two fingers vertical scroll operation on a web page, make the web page be scrolled much more smooth,
->          and apply acceleration on the scroll to make low finger movement corresponding to low scrolling,
->          fast finger movement corresponding to fast scrolling and can be enlarged to fit user's sense.
-> 8. report data to input subsystem.
+> Touch data will be ignored if pen is in proximity. This requires
+> a touch up event sent if touch was down when pen comes in. The
+> touch up event should be sent before any pen events are emitted.
+> Otherwise, two pointers would race for the cursor.
+> 
+> However, we can not send a touch up inside wacom_tpc_pen since
+> pen and touch are on different logical port. That is why we
+> have to check if touch is up before sending pen events.
+> 
+> Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
+> v3: Simplify the pen and touch logical flow to avoid manual state
+> change.
+> ---
+>  drivers/input/tablet/wacom_wac.c |  130 ++++++++++++++-----------------------
+>  drivers/input/tablet/wacom_wac.h |    1 +
+>  2 files changed, 50 insertions(+), 81 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index 15bab99..ebbb375 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -675,51 +675,37 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+>  	return 1;
+>  }
+>  
+> -static void wacom_tpc_touch_out(struct wacom_wac *wacom, int idx)
+> -{
+> -	struct input_dev *input = wacom->input;
+> -	int finger = idx + 1;
+> -
+> -	input_report_abs(input, ABS_X, 0);
+> -	input_report_abs(input, ABS_Y, 0);
+> -	input_report_abs(input, ABS_MISC, 0);
+> -	input_report_key(input, wacom->tool[finger], 0);
+> -	if (!idx)
+> -		input_report_key(input, BTN_TOUCH, 0);
+> -	input_event(input, EV_MSC, MSC_SERIAL, finger);
+> -	input_sync(input);
+> -}
+> -
+> -static void wacom_tpc_touch_in(struct wacom_wac *wacom, size_t len)
+> +static int wacom_tpc_single_touch(struct wacom_wac *wacom, size_t len)
+>  {
+>  	char *data = wacom->data;
+>  	struct input_dev *input = wacom->input;
+> +	bool prox = 0;
 
-Apart from simplicity (which is reason enough), the major reason not
-to do gesture handling in the driver is duplication of efforts. Please
-simplify the driver to an absolute minimum before submitting for
-review.
+Initialization not needed. Alternatively, the else-clause below can be dropped.
 
-> Bellow tries to answer the questions in the mail:
-> 1. Why there are amount of code to reinterpret data from device and convert to gestures in this driver?
->   1) Trackpad devices use I2C interface to report data through I2C registers. These I2C registers are defined and organized by Cypress,
->      so input subsystem and other trackpad device drivers can't read and recognize the meanings of this registers directly.
->   2) also there are 2 released registers map spec that used in trackpad devices.
->      So there will be two cluster code named gen1 and gen2 to reinterpret data from device.
->   3) also fingers gestures are detected in trackpad device, and the gestures are reported as gesture IDs,
->      These gesture IDs are all defined and only meaningfully to Cypress trackpad devices.
->      That means these gesture IDs can't be recognized by input subsystem and other drivers,
->      So this driver is required to reinterpret the gesture data from device, and cannot do this in user space.
+> +	int x = 0, y = 0;
+>  
+> -	wacom->tool[1] = BTN_TOOL_DOUBLETAP;
+> -	wacom->id[0] = TOUCH_DEVICE_ID;
+> +	if (!wacom->shared->stylus_in_proximity) {
+> +		if (len == WACOM_PKGLEN_TPC1FG) {
+> +			prox = data[0] & 0x01;
+> +			x = get_unaligned_le16(&data[1]);
+> +			y = get_unaligned_le16(&data[3]);
+> +		} else { /* with capacity */
+> +			prox = data[1] & 0x01;
+> +			x = le16_to_cpup((__le16 *)&data[2]);
+> +			y = le16_to_cpup((__le16 *)&data[4]);
+> +		}
+> +	} else
+> +		/* force touch out when pen is in prox */
+> +		prox = 0;
+>  
+> -	if (len != WACOM_PKGLEN_TPC1FG) {
+> +	if (prox) {
+> +		input_report_abs(input, ABS_X, x);
+> +		input_report_abs(input, ABS_Y, y);
+> +	}
+> +	input_report_key(input, BTN_TOUCH, prox);
+>  
+> -		switch (data[0]) {
+> +	/* keep touch state for pen events */
+> +	wacom->shared->touch_down = prox;
+>  
+> -		case WACOM_REPORT_TPC1FG:
+> -			input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
+> -			input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
+> -			input_report_abs(input, ABS_PRESSURE, le16_to_cpup((__le16 *)&data[6]));
+> -			input_report_key(input, BTN_TOUCH, le16_to_cpup((__le16 *)&data[6]));
+> -			input_report_abs(input, ABS_MISC, wacom->id[0]);
+> -			input_report_key(input, wacom->tool[1], 1);
+> -			input_sync(input);
+> -			break;
+> -		}
+> -	} else {
+> -		input_report_abs(input, ABS_X, get_unaligned_le16(&data[1]));
+> -		input_report_abs(input, ABS_Y, get_unaligned_le16(&data[3]));
+> -		input_report_key(input, BTN_TOUCH, 1);
+> -		input_report_abs(input, ABS_MISC, wacom->id[1]);
+> -		input_report_key(input, wacom->tool[1], 1);
+> -		input_sync(input);
+> -	}
+> +	return 1;
+>  }
+>  
+>  static int wacom_tpc_pen(struct wacom_wac *wacom)
+> @@ -731,7 +717,7 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
+>  
+>  	prox = data[1] & 0x20;
+>  
+> -	if (!wacom->shared->stylus_in_proximity) { /* first in prox */
+> +	if (!wacom->shared->stylus_in_proximity) {
 
-The simple solution is to not report the special gesture data at all,
-just raw contact data.
+Unrelated change, please drop.
 
-> 2. Why give a choice between relative mode and absolute mode to report data?
->   It's sure that absolute mode can supply more interface to report multi-class data and also provide more data for gesture processing.
->   Currently as we know, with absolute mode, Input subsystem requires trackpad device to report absolute X and Y position data directly,
->   then Input system transfers these data to mousedev driver, and mousedev driver calculates based on this absolute X and Y position data
->   and convert them into X delta and Y delta data. In this processing, mousedev doesn't apply any cursor acceleration function to cursor movement
->   when convert into X delta and Y delta data, so cursor movement shown in screen has no acceleration.
->   That means when fast move finger in trackpad, the cursor movement in screen can't be enlarged just as we use USB mouse device.
->   And in absolute mode, we are unable to add cursor acceleration function to absolution X and Y data.
->   So in order to add cursor acceleration function to cursor movement, we added relative mode also be supported.
->   Because in relative mode, trackpad devices report relative delta data, and based on this relative delta data,
->   driver can apply cursor performance filter to this data, so cursor acceleration function can also be applied in relative mode.
+>  		/* Going into proximity select tool */
+>  		wacom->tool[0] = (data[1] & 0x0c) ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
+>  		if (wacom->tool[0] == BTN_TOOL_PEN)
+> @@ -741,57 +727,38 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
+>  
+>  		wacom->shared->stylus_in_proximity = true;
+>  	}
+> -	input_report_key(input, BTN_STYLUS, data[1] & 0x02);
+> -	input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
+> -	input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
+> -	input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
+> -	pressure = ((data[7] & 0x01) << 8) | data[6];
+> -	if (pressure < 0)
+> -		pressure = features->pressure_max + pressure + 1;
+> -	input_report_abs(input, ABS_PRESSURE, pressure);
+> -	input_report_key(input, BTN_TOUCH, data[1] & 0x05);
+> -	if (!prox) { /* out-prox */
+> -		wacom->id[0] = 0;
+> -		wacom->shared->stylus_in_proximity = false;
+> +
+> +	/* send pen events only when touch is up or touch are forced out */
+> +	if (!wacom->shared->touch_down) {
+> +		input_report_key(input, BTN_STYLUS, data[1] & 0x02);
+> +		input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
+> +		input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
+> +		input_report_abs(input, ABS_Y, le16_to_cpup((__le16 *)&data[4]));
+> +		pressure = ((data[7] & 0x01) << 8) | data[6];
+> +		if (pressure < 0)
+> +			pressure = features->pressure_max + pressure + 1;
+> +		input_report_abs(input, ABS_PRESSURE, pressure);
+> +		input_report_key(input, BTN_TOUCH, data[1] & 0x05);
+> +		if (!prox) { /* out-prox */
+> +			wacom->id[0] = 0;
+> +			wacom->shared->stylus_in_proximity = false;
+> +		}
 
-The cursor is a different entity from the touch, and although the
-cursor may employ acceleration, the touch on a touchpad cannot; it
-stays where it is.
+It seems the if-clause here should be unrelated to the touch_down
+status. Please move out to the main branch.
 
-> 3. Why add polling mode supported in this driver?
->   Besides I2C bus hardware pins of VDD, Gound, SDA and SDL, Trackpad device also requires an extended GPIO pin to assert interrupts to host.
->   But for some host devices, there is no extended GPIO pin reserved for this slave interrupt pin (SINT),
->   So for these devices, interrupts from trackpad devices can't be supported, and only polling mode can be used.
->   That's why we add polling mode in this driver, it provides compatible to those device that without extended GPIO pin supported.
-
-An example of a hardware without interrupt support would be appreciated.
+> +		input_report_key(input, wacom->tool[0], prox);
+> +		return 1;
+>  	}
+> -	input_report_key(input, wacom->tool[0], prox);
+>  
+> -	return 1;
+> +	return 0;
+>  }
+>  
+>  static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+>  {
+>  	char *data = wacom->data;
+> -	int prox = 0;
+>  
+>  	dbg("wacom_tpc_irq: received report #%d", data[0]);
+>  
+> -	if (len == WACOM_PKGLEN_TPC1FG ||
+> -	    data[0] == WACOM_REPORT_TPC1FG) {	/* single touch */
+> -
+> -		if (wacom->shared->stylus_in_proximity) {
+> -			if (wacom->id[1] & 0x01)
+> -				wacom_tpc_touch_out(wacom, 0);
+> -
+> -			wacom->id[1] = 0;
+> -			return 0;
+> -		}
+> -
+> -		if (len == WACOM_PKGLEN_TPC1FG)
+> -			prox = data[0] & 0x01;
+> -		else  /* with capacity */
+> -			prox = data[1] & 0x01;
+> -
+> -		if (prox)
+> -			wacom_tpc_touch_in(wacom, len);
+> -		else {
+> -			wacom_tpc_touch_out(wacom, 0);
+> -
+> -			wacom->id[0] = 0;
+> -		}
+> -		/* keep prox bit to send proper out-prox event */
+> -		wacom->id[1] = prox;
+> -	} else if (data[0] == WACOM_REPORT_PENABLED)
+> +	if (len == WACOM_PKGLEN_TPC1FG || data[0] == WACOM_REPORT_TPC1FG)
+> +		return wacom_tpc_single_touch(wacom, len);
+> +	else if (data[0] == WACOM_REPORT_PENABLED)
+>  		return wacom_tpc_pen(wacom);
+>  
+>  	return 0;
+> @@ -1172,6 +1139,8 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  		/* fall through */
+>  
+>  	case TABLETPC:
+> +		__clear_bit(ABS_MISC, input_dev->absbit);
+> +
+>  		if (features->device_type == BTN_TOOL_DOUBLETAP ||
+>  		    features->device_type == BTN_TOOL_TRIPLETAP) {
+>  			input_abs_set_res(input_dev, ABS_X,
+> @@ -1180,7 +1149,6 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  			input_abs_set_res(input_dev, ABS_Y,
+>  				wacom_calculate_touch_res(features->y_max,
+>  							features->y_phy));
+> -			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+>  		}
+>  
+>  		if (features->device_type != BTN_TOOL_PEN)
+> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+> index 8f747dd..835f756 100644
+> --- a/drivers/input/tablet/wacom_wac.h
+> +++ b/drivers/input/tablet/wacom_wac.h
+> @@ -88,6 +88,7 @@ struct wacom_features {
+>  
+>  struct wacom_shared {
+>  	bool stylus_in_proximity;
+> +	bool touch_down;
+>  };
+>  
+>  struct wacom_wac {
+> -- 
+> 1.7.4
 
 Thanks,
 Henrik

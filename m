@@ -1,480 +1,142 @@
-From: Richard Nauber <richard.nauber@googlemail.com>
-Subject: [PATCH] [input-hid] Add hid-egalax driver to the unified
- hid-multitouch framework.
-Date: Sun, 06 Mar 2011 14:25:12 +0100
-Message-ID: <1299417912.9645.495.camel@itzy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: [PATCH 2/4] Input: atmel_mxt_ts - Support 12bit resolution
+Date: Mon, 07 Mar 2011 17:42:14 +0900
+Message-ID: <1299487335-24139-2-git-send-email-jy0922.shim@samsung.com>
+References: <1299487335-24139-1-git-send-email-jy0922.shim@samsung.com>
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:60661 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752548Ab1CFNZR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Mar 2011 08:25:17 -0500
-Received: by mail-fx0-f46.google.com with SMTP id 17so3384266fxm.19
-        for <linux-input@vger.kernel.org>; Sun, 06 Mar 2011 05:25:16 -0800 (PST)
+Received: from mailout4.samsung.com ([203.254.224.34]:50812 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751469Ab1CGImI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Mar 2011 03:42:08 -0500
+Received: from epmmp1 (mailout4.samsung.com [203.254.224.34])
+ by mailout4.samsung.com
+ (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
+ 2010)) with ESMTP id <0LHO00746IS6VJ90@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 07 Mar 2011 17:40:54 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LHO00I3DIS6T0@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 07 Mar 2011 17:40:54 +0900 (KST)
+In-reply-to: <1299487335-24139-1-git-send-email-jy0922.shim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, iiro.valkonen@atmel.com, kyungmin.park@samsung.com
 
-This patch merges the egalax devices to hid-multitouch and
-therefore adds an MT_QUIRK_EGALAX to work around the broken hid report.
-It also fixes suspend/resume issues with the old driver.
+Atmel touchscreen chip can support 12bit resolution and this patch
+modifies to get maximum x and y size from platform data.
 
-
-Signed-off-by: Richard Nauber <Richard.Nauber@gmail.com>
+Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
- drivers/hid/Kconfig          |    9 +-
- drivers/hid/Makefile         |    1 -
- drivers/hid/hid-egalax.c     |  279 ------------------------------------------
- drivers/hid/hid-multitouch.c |   48 +++++++-
- 4 files changed, 47 insertions(+), 290 deletions(-)
- delete mode 100644 drivers/hid/hid-egalax.c
+ drivers/input/touchscreen/atmel_mxt_ts.c |   50 +++++++++++++++++++++--------
+ 1 files changed, 36 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 2560f01..34959a2 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -160,13 +160,6 @@ config HID_EMS_FF
- 	Currently the following devices are known to be supported:
- 	 - Trio Linker Plus II
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 0986fa4..0ed0b1f 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -192,9 +192,12 @@
+ #define MXT_PRESS		(1 << 6)
+ #define MXT_DETECT		(1 << 7)
  
--config HID_EGALAX
--	tristate "eGalax multi-touch panel"
--	depends on USB_HID
--	---help---
--	Support for the eGalax dual-touch panels, including the
--	Joojoo and Wetab tablets.
--
- config HID_ELECOM
- 	tristate "ELECOM BM084 bluetooth mouse"
- 	depends on BT_HIDP
-@@ -306,6 +299,8 @@ config HID_MULTITOUCH
- 	  - Hanvon dual touch panels
- 	  - Pixcir dual touch panels
- 	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
-+          - eGalax dual-touch panels, including the
-+	    Joojoo and Wetab tablets
- 
- 	  If unsure, say N.
- 
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 6efc2a0..29e9898 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -36,7 +36,6 @@ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
- obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
- obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
--obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
- obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
- obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
- obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
-diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
-deleted file mode 100644
-index 03bee19..0000000
---- a/drivers/hid/hid-egalax.c
-+++ /dev/null
-@@ -1,279 +0,0 @@
--/*
-- *  HID driver for eGalax dual-touch panels
-- *
-- *  Copyright (c) 2010 Stephane Chatty <chatty@enac.fr>
-- *  Copyright (c) 2010 Henrik Rydberg <rydberg@euromail.se>
-- *  Copyright (c) 2010 Canonical, Ltd.
-- *
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/device.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/usb.h>
--#include <linux/input/mt.h>
--#include <linux/slab.h>
--#include "usbhid/usbhid.h"
--
--MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
--MODULE_DESCRIPTION("eGalax dual-touch panel");
--MODULE_LICENSE("GPL");
--
--#include "hid-ids.h"
--
--#define MAX_SLOTS		2
--
--/* estimated signal-to-noise ratios */
--#define SN_MOVE			4096
--#define SN_PRESSURE		32
--
--struct egalax_data {
--	int valid;
--	int slot;
--	int touch;
--	int x, y, z;
--};
--
--static void set_abs(struct input_dev *input, unsigned int code,
--		    struct hid_field *field, int snratio)
--{
--	int fmin = field->logical_minimum;
--	int fmax = field->logical_maximum;
--	int fuzz = snratio ? (fmax - fmin) / snratio : 0;
--	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
--}
--
--static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
--		struct hid_field *field, struct hid_usage *usage,
--		unsigned long **bit, int *max)
--{
--	struct input_dev *input = hi->input;
--
--	switch (usage->hid & HID_USAGE_PAGE) {
--
--	case HID_UP_GENDESK:
--		switch (usage->hid) {
--		case HID_GD_X:
--			field->logical_maximum = 32760;
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_POSITION_X);
--			set_abs(input, ABS_MT_POSITION_X, field, SN_MOVE);
--			/* touchscreen emulation */
--			set_abs(input, ABS_X, field, SN_MOVE);
--			return 1;
--		case HID_GD_Y:
--			field->logical_maximum = 32760;
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_POSITION_Y);
--			set_abs(input, ABS_MT_POSITION_Y, field, SN_MOVE);
--			/* touchscreen emulation */
--			set_abs(input, ABS_Y, field, SN_MOVE);
--			return 1;
--		}
--		return 0;
--
--	case HID_UP_DIGITIZER:
--		switch (usage->hid) {
--		case HID_DG_TIPSWITCH:
--			/* touchscreen emulation */
--			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
--			input_set_capability(input, EV_KEY, BTN_TOUCH);
--			return 1;
--		case HID_DG_INRANGE:
--		case HID_DG_CONFIDENCE:
--		case HID_DG_CONTACTCOUNT:
--		case HID_DG_CONTACTMAX:
--			return -1;
--		case HID_DG_CONTACTID:
--			input_mt_init_slots(input, MAX_SLOTS);
--			return 1;
--		case HID_DG_TIPPRESSURE:
--			field->logical_minimum = 0;
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_PRESSURE);
--			set_abs(input, ABS_MT_PRESSURE, field, SN_PRESSURE);
--			/* touchscreen emulation */
--			set_abs(input, ABS_PRESSURE, field, SN_PRESSURE);
--			return 1;
--		}
--		return 0;
--	}
--
--	/* ignore others (from other reports we won't get anyway) */
--	return -1;
--}
--
--static int egalax_input_mapped(struct hid_device *hdev, struct hid_input *hi,
--		struct hid_field *field, struct hid_usage *usage,
--		unsigned long **bit, int *max)
--{
--	/* tell hid-input to skip setup of these event types */
--	if (usage->type == EV_KEY || usage->type == EV_ABS)
--		set_bit(usage->type, hi->input->evbit);
--	return -1;
--}
--
--/*
-- * this function is called when a whole finger has been parsed,
-- * so that it can decide what to send to the input layer.
-- */
--static void egalax_filter_event(struct egalax_data *td, struct input_dev *input)
--{
--	input_mt_slot(input, td->slot);
--	input_mt_report_slot_state(input, MT_TOOL_FINGER, td->touch);
--	if (td->touch) {
--		input_event(input, EV_ABS, ABS_MT_POSITION_X, td->x);
--		input_event(input, EV_ABS, ABS_MT_POSITION_Y, td->y);
--		input_event(input, EV_ABS, ABS_MT_PRESSURE, td->z);
--	}
--	input_mt_report_pointer_emulation(input, true);
--}
--
--static int egalax_event(struct hid_device *hid, struct hid_field *field,
--				struct hid_usage *usage, __s32 value)
--{
--	struct egalax_data *td = hid_get_drvdata(hid);
--
--	/* Note, eGalax has two product lines: the first is resistive and
--	 * uses a standard parallel multitouch protocol (product ID ==
--	 * 48xx).  The second is capacitive and uses an unusual "serial"
--	 * protocol with a different message for each multitouch finger
--	 * (product ID == 72xx).
--	 */
--	if (hid->claimed & HID_CLAIMED_INPUT) {
--		struct input_dev *input = field->hidinput->input;
--
--		switch (usage->hid) {
--		case HID_DG_INRANGE:
--			td->valid = value;
--			break;
--		case HID_DG_CONFIDENCE:
--			/* avoid interference from generic hidinput handling */
--			break;
--		case HID_DG_TIPSWITCH:
--			td->touch = value;
--			break;
--		case HID_DG_TIPPRESSURE:
--			td->z = value;
--			break;
--		case HID_DG_CONTACTID:
--			td->slot = clamp_val(value, 0, MAX_SLOTS - 1);
--			break;
--		case HID_GD_X:
--			td->x = value;
--			break;
--		case HID_GD_Y:
--			td->y = value;
--			/* this is the last field in a finger */
--			if (td->valid)
--				egalax_filter_event(td, input);
--			break;
--		case HID_DG_CONTACTCOUNT:
--			/* touch emulation: this is the last field in a frame */
--			break;
--
--		default:
--			/* fallback to the generic hidinput handling */
--			return 0;
--		}
--	}
--
--	/* we have handled the hidinput part, now remains hiddev */
--	if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
--		hid->hiddev_hid_event(hid, field, usage, value);
--
--	return 1;
--}
--
--static int egalax_probe(struct hid_device *hdev, const struct hid_device_id *id)
--{
--	int ret;
--	struct egalax_data *td;
--	struct hid_report *report;
--
--	td = kzalloc(sizeof(struct egalax_data), GFP_KERNEL);
--	if (!td) {
--		hid_err(hdev, "cannot allocate eGalax data\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, td);
--
--	ret = hid_parse(hdev);
--	if (ret)
--		goto end;
--
--	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--	if (ret)
--		goto end;
--
--	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[5]; 
--	if (report) {
--		report->field[0]->value[0] = 2;
--		usbhid_submit_report(hdev, report, USB_DIR_OUT);
--	}
--
--end:
--	if (ret)
--		kfree(td);
--
--	return ret;
--}
--
--static void egalax_remove(struct hid_device *hdev)
--{
--	hid_hw_stop(hdev);
--	kfree(hid_get_drvdata(hdev));
--	hid_set_drvdata(hdev, NULL);
--}
--
--static const struct hid_device_id egalax_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
--			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
--			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
--			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
--			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
--			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
--	{ }
--};
--MODULE_DEVICE_TABLE(hid, egalax_devices);
--
--static const struct hid_usage_id egalax_grabbed_usages[] = {
--	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
--	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
--};
--
--static struct hid_driver egalax_driver = {
--	.name = "egalax-touch",
--	.id_table = egalax_devices,
--	.probe = egalax_probe,
--	.remove = egalax_remove,
--	.input_mapping = egalax_input_mapping,
--	.input_mapped = egalax_input_mapped,
--	.usage_table = egalax_grabbed_usages,
--	.event = egalax_event,
--};
--
--static int __init egalax_init(void)
--{
--	return hid_register_driver(&egalax_driver);
--}
--
--static void __exit egalax_exit(void)
--{
--	hid_unregister_driver(&egalax_driver);
--}
--
--module_init(egalax_init);
--module_exit(egalax_exit);
--
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 07d3183..58df924 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -36,6 +36,8 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_SLOT_IS_CONTACTNUMBER	(1 << 3)
- #define MT_QUIRK_VALID_IS_INRANGE	(1 << 4)
- #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 5)
-+#define MT_QUIRK_EGALAX			(1 << 6)
++/* Touch orient bits */
++#define MXT_XY_SWITCH		(1 << 0)
++#define MXT_X_INVERT		(1 << 1)
++#define MXT_Y_INVERT		(1 << 2)
 +
+ /* Touchscreen absolute values */
+-#define MXT_MAX_XC		0x3ff
+-#define MXT_MAX_YC		0x3ff
+ #define MXT_MAX_AREA		0xff
  
- struct mt_slot {
- 	__s32 x, y, p, w, h;
-@@ -69,6 +71,7 @@ struct mt_class {
- #define MT_CLS_DUAL1	2
- #define MT_CLS_DUAL2	3
- #define MT_CLS_CYPRESS	4
-+#define MT_CLS_EGALAX	5
- 
- /*
-  * these device-dependent functions determine what slot corresponds
-@@ -118,7 +121,13 @@ struct mt_class mt_classes[] = {
- 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
- 			MT_QUIRK_CYPRESS,
- 		.maxcontacts = 10 },
--
-+	{ .name = MT_CLS_EGALAX,
-+		.quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
-+			MT_QUIRK_VALID_IS_INRANGE |
-+			MT_QUIRK_EGALAX,
-+		.maxcontacts = 2 ,
-+		.sn_move = 4096,
-+		.sn_pressure = 32},
- 	{ }
+ #define MXT_MAX_FINGER		10
+@@ -242,6 +245,8 @@ struct mxt_data {
+ 	struct mxt_info info;
+ 	struct mxt_finger finger[MXT_MAX_FINGER];
+ 	unsigned int irq;
++	unsigned int x_size;
++	unsigned int y_size;
  };
  
-@@ -146,9 +155,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- {
- 	struct mt_device *td = hid_get_drvdata(hdev);
- 	struct mt_class *cls = td->mtclass;
-+
- 	switch (usage->hid & HID_USAGE_PAGE) {
+ static bool mxt_object_readable(unsigned int type)
+@@ -541,8 +546,13 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	if (!(status & (MXT_PRESS | MXT_MOVE)))
+ 		return;
  
- 	case HID_UP_GENDESK:
+-	x = (message->message[1] << 2) | ((message->message[3] & ~0x3f) >> 6);
+-	y = (message->message[2] << 2) | ((message->message[3] & ~0xf3) >> 2);
++	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
++	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
++	if (data->x_size - 1 < 1024)
++		x = x >> 2;
++	if (data->y_size - 1 < 1024)
++		y = y >> 2;
 +
-+	/* fix up the X/Y limits for egalax devices*/
-+	if ((cls->quirks & MT_QUIRK_EGALAX)
-+		&& ((usage->hid == HID_GD_X) || (usage->hid == HID_GD_Y)))
-+			field->logical_maximum = 32760;
-+
- 		switch (usage->hid) {
- 		case HID_GD_X:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -203,6 +219,10 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			td->last_slot_field = usage->hid;
- 			return 1;
- 		case HID_DG_TIPPRESSURE:
-+			/* fix up the pressure range for egalax devices*/
-+			if (cls->quirks & MT_QUIRK_EGALAX)
-+				field->logical_minimum = 0;
-+
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_PRESSURE);
- 			set_abs(hi->input, ABS_MT_PRESSURE, field,
-@@ -269,8 +289,10 @@ static void mt_complete_slot(struct mt_device *td)
+ 	area = message->message[4];
  
- 		if (slotnum >= 0 && slotnum < td->mtclass->maxcontacts)
- 			td->slots[slotnum] = td->curdata;
-+
- 	}
- 	td->num_received++;
-+
+ 	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+@@ -837,6 +847,17 @@ static int mxt_initialize(struct mxt_data *data)
+ 	return 0;
  }
  
- 
-@@ -366,12 +388,15 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
- 		if (usage->hid == td->last_slot_field)
- 			mt_complete_slot(td);
- 
--		if (field->index == td->last_field_index
-+		if ((field->index == td->last_field_index
- 			&& td->num_received >= td->num_expected)
-+			|| ((quirks & MT_QUIRK_EGALAX)
-+				&& (usage->hid == td->last_slot_field)))
-+			/* for egalax devices: emit an event for every finger
-+			to work around the wrong last_field_index in the report*/
- 			mt_emit_event(td, field->hidinput->input);
- 
- 	}
--
- 	/* we have handled the hidinput part, now remains hiddev */
- 	if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
- 		hid->hiddev_hid_event(hid, field, usage, value);
-@@ -478,6 +503,23 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
- 			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
- 
-+	/* eGalax devices */
-+	{  .driver_data = MT_CLS_EGALAX,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
-+	{  .driver_data = MT_CLS_EGALAX,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
-+	{  .driver_data = MT_CLS_EGALAX,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
-+	{  .driver_data = MT_CLS_EGALAX,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
-+	{  .driver_data = MT_CLS_EGALAX,
-+		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
++static void mxt_calc_resolution(struct mxt_data *data)
++{
++	if (data->pdata->orient & MXT_XY_SWITCH) {
++		data->x_size = data->pdata->y_size;
++		data->y_size = data->pdata->x_size;
++	} else {
++		data->x_size = data->pdata->x_size;
++		data->y_size = data->pdata->y_size;
++	}
++}
 +
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mt_devices);
+ static ssize_t mxt_object_show(struct device *dev,
+ 				    struct device_attribute *attr, char *buf)
+ {
+@@ -1044,31 +1065,32 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 	input_dev->open = mxt_input_open;
+ 	input_dev->close = mxt_input_close;
+ 
++	data->client = client;
++	data->input_dev = input_dev;
++	data->pdata = pdata;
++	data->irq = client->irq;
++
++	mxt_calc_resolution(data);
++
+ 	__set_bit(EV_ABS, input_dev->evbit);
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 
+ 	/* For single touch */
+ 	input_set_abs_params(input_dev, ABS_X,
+-			     0, MXT_MAX_XC, 0, 0);
++			     0, data->x_size, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_Y,
+-			     0, MXT_MAX_YC, 0, 0);
++			     0, data->y_size, 0, 0);
+ 
+ 	/* For multi touch */
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+ 			     0, MXT_MAX_AREA, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+-			     0, MXT_MAX_XC, 0, 0);
++			     0, data->x_size, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+-			     0, MXT_MAX_YC, 0, 0);
++			     0, data->y_size, 0, 0);
+ 
+ 	input_set_drvdata(input_dev, data);
+-
+-	data->client = client;
+-	data->input_dev = input_dev;
+-	data->pdata = pdata;
+-	data->irq = client->irq;
+-
+ 	i2c_set_clientdata(client, data);
+ 
+ 	error = mxt_initialize(data);
 -- 
-1.7.1
-
-
+1.7.0.4
 

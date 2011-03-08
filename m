@@ -1,13 +1,13 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 4/4] hid-multitouch: migrate Cando dual touch panels to the unified driver.
-Date: Tue,  8 Mar 2011 17:32:59 +0100
-Message-ID: <1299601979-4871-5-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [PATCH 2/4] hid-multitouch: migrate support for Stantum panels to the unified driver.
+Date: Tue,  8 Mar 2011 17:32:57 +0100
+Message-ID: <1299601979-4871-3-git-send-email-benjamin.tissoires__12025.8039249622$1299602066$gmane$org@enac.fr>
 References: <1299601979-4871-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:48907 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:48897 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754180Ab1CHQdy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2011 11:33:54 -0500
+	with ESMTP id S1756044Ab1CHQdu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2011 11:33:50 -0500
 In-Reply-To: <1299601979-4871-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -17,58 +17,97 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
  drivers/hid/Kconfig          |    7 +-
  drivers/hid/Makefile         |    1 -
- drivers/hid/hid-cando.c      |  276 ------------------------------------------
  drivers/hid/hid-multitouch.c |   14 ++
- 4 files changed, 15 insertions(+), 283 deletions(-)
- delete mode 100644 drivers/hid/hid-cando.c
+ drivers/hid/hid-stantum.c    |  286 ------------------------------------------
+ 4 files changed, 15 insertions(+), 293 deletions(-)
+ delete mode 100644 drivers/hid/hid-stantum.c
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index a1fbb36..3bf1001 100644
+index b152c91..1c9ca3ad 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -88,12 +88,6 @@ config HID_BELKIN
- 	---help---
- 	Support for Belkin Flip KVM and Wireless keyboard.
+@@ -321,6 +321,7 @@ config HID_MULTITOUCH
+ 	  - IrTouch Infrared USB panels
+ 	  - Pixcir dual touch panels
+ 	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
++	  - Stantum multitouch panel
  
--config HID_CANDO
--	tristate "Cando dual touch panel"
+ 	  If unsure, say N.
+ 
+@@ -487,12 +488,6 @@ config HID_SONY
+ 	---help---
+ 	Support for Sony PS3 controller.
+ 
+-config HID_STANTUM
+-	tristate "Stantum multitouch panel"
 -	depends on USB_HID
 -	---help---
--	Support for Cando dual touch panel.
+-	Support for Stantum multitouch panel.
 -
- config HID_CHERRY
- 	tristate "Cherry Cymotion keyboard" if EMBEDDED
+ config HID_SUNPLUS
+ 	tristate "Sunplus wireless desktop"
  	depends on USB_HID
-@@ -311,6 +305,7 @@ config HID_MULTITOUCH
- 
- 	  Say Y here if you have one of the following devices:
- 	  - 3M PCT touch screens
-+	  - Cando dual touch panel
- 	  - Cypress TrueTouch panels
- 	  - Hanvon dual touch panels
- 	  - IrTouch Infrared USB panels
 diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index bf7e623..9d63d2c 100644
+index 04496ab..397344a 100644
 --- a/drivers/hid/Makefile
 +++ b/drivers/hid/Makefile
-@@ -29,7 +29,6 @@ obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX_FF)	+= hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
- obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
--obj-$(CONFIG_HID_CANDO)		+= hid-cando.o
- obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
- obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
-diff --git a/drivers/hid/hid-cando.c b/drivers/hid/hid-cando.c
+@@ -67,7 +67,6 @@ obj-$(CONFIG_HID_ROCCAT_PYRA)	+= hid-roccat-pyra.o
+ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
+ obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
+ obj-$(CONFIG_HID_SONY)		+= hid-sony.o
+-obj-$(CONFIG_HID_STANTUM)	+= hid-stantum.o
+ obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
+ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 363ca08..e7a4f83 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -73,6 +73,7 @@ struct mt_class {
+ #define MT_CLS_DUAL_INRANGE_CONTACTID		2
+ #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	3
+ #define MT_CLS_CYPRESS				4
++#define MT_CLS_STANTUM				5
+ 
+ /*
+  * these device-dependent functions determine what slot corresponds
+@@ -121,6 +122,8 @@ struct mt_class mt_classes[] = {
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+ 			MT_QUIRK_CYPRESS,
+ 		.maxcontacts = 10 },
++	{ .name = MT_CLS_STANTUM,
++		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE },
+ 
+ 	{ }
+ };
+@@ -499,6 +502,17 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
+ 
++	/* Stantum panels */
++	{ .driver_data = MT_CLS_STANTUM,
++		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM,
++			USB_DEVICE_ID_MTP)},
++	{ .driver_data = MT_CLS_STANTUM,
++		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM,
++			USB_DEVICE_ID_MTP_STM)},
++	{ .driver_data = MT_CLS_STANTUM,
++		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM,
++			USB_DEVICE_ID_MTP_SITRONIX)},
++
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mt_devices);
+diff --git a/drivers/hid/hid-stantum.c b/drivers/hid/hid-stantum.c
 deleted file mode 100644
-index 1ea066c..0000000
---- a/drivers/hid/hid-cando.c
+index b2be1d1..0000000
+--- a/drivers/hid/hid-stantum.c
 +++ /dev/null
-@@ -1,276 +0,0 @@
+@@ -1,286 +0,0 @@
 -/*
-- *  HID driver for Cando dual-touch panels
+- *  HID driver for Stantum multitouch panels
 - *
-- *  Copyright (c) 2010 Stephane Chatty <chatty@enac.fr>
+- *  Copyright (c) 2009 Stephane Chatty <chatty@enac.fr>
 - *
 - */
 -
@@ -85,22 +124,20 @@ index 1ea066c..0000000
 -#include <linux/slab.h>
 -
 -MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
--MODULE_DESCRIPTION("Cando dual-touch panel");
+-MODULE_DESCRIPTION("Stantum HID multitouch panels");
 -MODULE_LICENSE("GPL");
 -
 -#include "hid-ids.h"
 -
--struct cando_data {
--	__u16 x, y;
--	__u8 id;
--	__s8 oldest;		/* id of the oldest finger in previous frame */
+-struct stantum_data {
+-	__s32 x, y, z, w, h;	/* x, y, pressure, width, height */
+-	__u16 id;		/* touch id */
 -	bool valid;		/* valid finger data, or just placeholder? */
--	bool first;		/* is this the first finger in this frame? */
--	__s8 firstid;		/* id of the first finger in the frame */
--	__u16 firstx, firsty;	/* (x, y) of the first finger in the frame */
+-	bool first;		/* first finger in the HID packet? */
+-	bool activity;		/* at least one active finger so far? */
 -};
 -
--static int cando_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+-static int stantum_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 -		struct hid_field *field, struct hid_usage *usage,
 -		unsigned long **bit, int *max)
 -{
@@ -129,25 +166,51 @@ index 1ea066c..0000000
 -
 -	case HID_UP_DIGITIZER:
 -		switch (usage->hid) {
--		case HID_DG_TIPSWITCH:
+-		case HID_DG_INRANGE:
+-		case HID_DG_CONFIDENCE:
+-		case HID_DG_INPUTMODE:
+-		case HID_DG_DEVICEINDEX:
+-		case HID_DG_CONTACTCOUNT:
 -		case HID_DG_CONTACTMAX:
 -			return -1;
--		case HID_DG_INRANGE:
+-
+-		case HID_DG_TIPSWITCH:
 -			/* touchscreen emulation */
 -			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
 -			return 1;
+-
+-		case HID_DG_WIDTH:
+-			hid_map_usage(hi, usage, bit, max,
+-					EV_ABS, ABS_MT_TOUCH_MAJOR);
+-			return 1;
+-		case HID_DG_HEIGHT:
+-			hid_map_usage(hi, usage, bit, max,
+-					EV_ABS, ABS_MT_TOUCH_MINOR);
+-			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
+-					1, 1, 0, 0);
+-			return 1;
+-		case HID_DG_TIPPRESSURE:
+-			hid_map_usage(hi, usage, bit, max,
+-					EV_ABS, ABS_MT_PRESSURE);
+-			return 1;
+-
 -		case HID_DG_CONTACTID:
 -			hid_map_usage(hi, usage, bit, max,
 -					EV_ABS, ABS_MT_TRACKING_ID);
 -			return 1;
+-
 -		}
 -		return 0;
+-
+-	case 0xff000000:
+-		/* no input-oriented meaning */
+-		return -1;
 -	}
 -
 -	return 0;
 -}
 -
--static int cando_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+-static int stantum_input_mapped(struct hid_device *hdev, struct hid_input *hi,
 -		struct hid_field *field, struct hid_usage *usage,
 -		unsigned long **bit, int *max)
 -{
@@ -161,102 +224,92 @@ index 1ea066c..0000000
 - * this function is called when a whole finger has been parsed,
 - * so that it can decide what to send to the input layer.
 - */
--static void cando_filter_event(struct cando_data *td, struct input_dev *input)
+-static void stantum_filter_event(struct stantum_data *sd,
+-					struct input_dev *input)
 -{
--	td->first = !td->first; /* touchscreen emulation */
+-	bool wide;
 -
--	if (!td->valid) {
+-	if (!sd->valid) {
 -		/*
--		 * touchscreen emulation: if this is the second finger and
--		 * the first was valid, the first was the oldest; if the
--		 * first was not valid and there was a valid finger in the
--		 * previous frame, this is a release.
+-		 * touchscreen emulation: if the first finger is not valid and
+-		 * there previously was finger activity, this is a release
 -		 */
--		if (td->first) {
--			td->firstid = -1;
--		} else if (td->firstid >= 0) {
--			input_event(input, EV_ABS, ABS_X, td->firstx);
--			input_event(input, EV_ABS, ABS_Y, td->firsty);
--			td->oldest = td->firstid;
--		} else if (td->oldest >= 0) {
+-		if (sd->first && sd->activity) {
 -			input_event(input, EV_KEY, BTN_TOUCH, 0);
--			td->oldest = -1;
+-			sd->activity = false;
 -		}
--
 -		return;
 -	}
--	
--	input_event(input, EV_ABS, ABS_MT_TRACKING_ID, td->id);
--	input_event(input, EV_ABS, ABS_MT_POSITION_X, td->x);
--	input_event(input, EV_ABS, ABS_MT_POSITION_Y, td->y);
+-
+-	input_event(input, EV_ABS, ABS_MT_TRACKING_ID, sd->id);
+-	input_event(input, EV_ABS, ABS_MT_POSITION_X, sd->x);
+-	input_event(input, EV_ABS, ABS_MT_POSITION_Y, sd->y);
+-
+-	wide = (sd->w > sd->h);
+-	input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+-	input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, wide ? sd->w : sd->h);
+-	input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, wide ? sd->h : sd->w);
+-
+-	input_event(input, EV_ABS, ABS_MT_PRESSURE, sd->z);
 -
 -	input_mt_sync(input);
+-	sd->valid = false;
 -
--	/*
--	 * touchscreen emulation: if there was no touching finger previously,
--	 * emit touch event
--	 */
--	if (td->oldest < 0) {
--		input_event(input, EV_KEY, BTN_TOUCH, 1);
--		td->oldest = td->id;
--	}
--
--	/*
--	 * touchscreen emulation: if this is the first finger, wait for the
--	 * second; the oldest is then the second if it was the oldest already
--	 * or if there was no first, the first otherwise.
--	 */
--	if (td->first) {
--		td->firstx = td->x;
--		td->firsty = td->y;
--		td->firstid = td->id;
--	} else {
--		int x, y, oldest;
--		if (td->id == td->oldest || td->firstid < 0) {
--			x = td->x;
--			y = td->y;
--			oldest = td->id;
--		} else {
--			x = td->firstx;
--			y = td->firsty;
--			oldest = td->firstid;
+-	/* touchscreen emulation */
+-	if (sd->first) {
+-		if (!sd->activity) {
+-			input_event(input, EV_KEY, BTN_TOUCH, 1);
+-			sd->activity = true;
 -		}
--		input_event(input, EV_ABS, ABS_X, x);
--		input_event(input, EV_ABS, ABS_Y, y);
--		td->oldest = oldest;
+-		input_event(input, EV_ABS, ABS_X, sd->x);
+-		input_event(input, EV_ABS, ABS_Y, sd->y);
 -	}
+-	sd->first = false;
 -}
 -
 -
--static int cando_event(struct hid_device *hid, struct hid_field *field,
+-static int stantum_event(struct hid_device *hid, struct hid_field *field,
 -				struct hid_usage *usage, __s32 value)
 -{
--	struct cando_data *td = hid_get_drvdata(hid);
+-	struct stantum_data *sd = hid_get_drvdata(hid);
 -
 -	if (hid->claimed & HID_CLAIMED_INPUT) {
 -		struct input_dev *input = field->hidinput->input;
 -
 -		switch (usage->hid) {
 -		case HID_DG_INRANGE:
--			td->valid = value;
+-			/* this is the last field in a finger */
+-			stantum_filter_event(sd, input);
 -			break;
--		case HID_DG_CONTACTID:
--			td->id = value;
+-		case HID_DG_WIDTH:
+-			sd->w = value;
+-			break;
+-		case HID_DG_HEIGHT:
+-			sd->h = value;
 -			break;
 -		case HID_GD_X:
--			td->x = value;
+-			sd->x = value;
 -			break;
 -		case HID_GD_Y:
--			td->y = value;
--			cando_filter_event(td, input);
+-			sd->y = value;
 -			break;
--		case HID_DG_TIPSWITCH:
--			/* avoid interference from generic hidinput handling */
+-		case HID_DG_TIPPRESSURE:
+-			sd->z = value;
+-			break;
+-		case HID_DG_CONTACTID:
+-			sd->id = value;
+-			break;
+-		case HID_DG_CONFIDENCE:
+-			sd->valid = !!value;
+-			break;
+-		case 0xff000002:
+-			/* this comes only before the first finger */
+-			sd->first = true;
 -			break;
 -
 -		default:
--			/* fallback to the generic hidinput handling */
--			return 0;
+-			/* ignore the others */
+-			return 1;
 -		}
 -	}
 -
@@ -267,105 +320,76 @@ index 1ea066c..0000000
 -	return 1;
 -}
 -
--static int cando_probe(struct hid_device *hdev, const struct hid_device_id *id)
+-static int stantum_probe(struct hid_device *hdev,
+-				const struct hid_device_id *id)
 -{
 -	int ret;
--	struct cando_data *td;
+-	struct stantum_data *sd;
 -
--	td = kmalloc(sizeof(struct cando_data), GFP_KERNEL);
--	if (!td) {
--		hid_err(hdev, "cannot allocate Cando Touch data\n");
+-	sd = kmalloc(sizeof(struct stantum_data), GFP_KERNEL);
+-	if (!sd) {
+-		hid_err(hdev, "cannot allocate Stantum data\n");
 -		return -ENOMEM;
 -	}
--	hid_set_drvdata(hdev, td);
--	td->first = false;
--	td->oldest = -1;
--	td->valid = false;
+-	sd->valid = false;
+-	sd->first = false;
+-	sd->activity = false;
+-	hid_set_drvdata(hdev, sd);
 -
 -	ret = hid_parse(hdev);
 -	if (!ret)
 -		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
 -
 -	if (ret)
--		kfree(td);
+-		kfree(sd);
 -
 -	return ret;
 -}
 -
--static void cando_remove(struct hid_device *hdev)
+-static void stantum_remove(struct hid_device *hdev)
 -{
 -	hid_hw_stop(hdev);
 -	kfree(hid_get_drvdata(hdev));
 -	hid_set_drvdata(hdev, NULL);
 -}
 -
--static const struct hid_device_id cando_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
--			USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
--			USB_DEVICE_ID_CANDO_MULTI_TOUCH_10_1) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
--			USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
--		USB_DEVICE_ID_CANDO_MULTI_TOUCH_15_6) },
+-static const struct hid_device_id stantum_devices[] = {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM, USB_DEVICE_ID_MTP_STM) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_SITRONIX, USB_DEVICE_ID_MTP_SITRONIX) },
 -	{ }
 -};
--MODULE_DEVICE_TABLE(hid, cando_devices);
+-MODULE_DEVICE_TABLE(hid, stantum_devices);
 -
--static const struct hid_usage_id cando_grabbed_usages[] = {
+-static const struct hid_usage_id stantum_grabbed_usages[] = {
 -	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
 -	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
 -};
 -
--static struct hid_driver cando_driver = {
--	.name = "cando-touch",
--	.id_table = cando_devices,
--	.probe = cando_probe,
--	.remove = cando_remove,
--	.input_mapping = cando_input_mapping,
--	.input_mapped = cando_input_mapped,
--	.usage_table = cando_grabbed_usages,
--	.event = cando_event,
+-static struct hid_driver stantum_driver = {
+-	.name = "stantum",
+-	.id_table = stantum_devices,
+-	.probe = stantum_probe,
+-	.remove = stantum_remove,
+-	.input_mapping = stantum_input_mapping,
+-	.input_mapped = stantum_input_mapped,
+-	.usage_table = stantum_grabbed_usages,
+-	.event = stantum_event,
 -};
 -
--static int __init cando_init(void)
+-static int __init stantum_init(void)
 -{
--	return hid_register_driver(&cando_driver);
+-	return hid_register_driver(&stantum_driver);
 -}
 -
--static void __exit cando_exit(void)
+-static void __exit stantum_exit(void)
 -{
--	hid_unregister_driver(&cando_driver);
+-	hid_unregister_driver(&stantum_driver);
 -}
 -
--module_init(cando_init);
--module_exit(cando_exit);
+-module_init(stantum_init);
+-module_exit(stantum_exit);
 -
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f32bf46..945b798 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -498,6 +498,20 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_3M,
- 			USB_DEVICE_ID_3M2256) },
- 
-+	/* Cando panels */
-+	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
-+		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-+			USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
-+	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
-+		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-+			USB_DEVICE_ID_CANDO_MULTI_TOUCH_10_1) },
-+	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
-+		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-+			USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6) },
-+	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
-+		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-+			USB_DEVICE_ID_CANDO_MULTI_TOUCH_15_6) },
-+
- 	/* Cypress panel */
- 	{ .driver_data = MT_CLS_CYPRESS,
- 		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
 -- 
 1.7.4
 

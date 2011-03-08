@@ -1,39 +1,56 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 0/4 v4] input - wacom : USB Tablet PC support
-Date: Mon, 7 Mar 2011 22:26:35 +0100
-Message-ID: <20110307212635.GA20309@polaris.bitmath.org>
-References: <1299532403-2861-1-git-send-email-pinglinux@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: [PATCH 1/2] HID: ntrig don't dereference unclaimed hidinput
+Date: Mon,  7 Mar 2011 21:13:27 -0500
+Message-ID: <1299550408-11457-1-git-send-email-rafi@seas.upenn.edu>
+References: <alpine.LNX.2.00.1102261156480.2160@pobox.suse.cz>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:34005 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752815Ab1CGVYa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Mar 2011 16:24:30 -0500
-Content-Disposition: inline
-In-Reply-To: <1299532403-2861-1-git-send-email-pinglinux@gmail.com>
+Received: from fox.seas.upenn.edu ([158.130.68.12]:46191 "EHLO
+	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750754Ab1CHCNy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Mar 2011 21:13:54 -0500
+In-Reply-To: <alpine.LNX.2.00.1102261156480.2160@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: jkosina@suse.cz, linux-input@vger.kernel.org
+Cc: rydberg@euromail.se, chatty@enac.fr, peter.hutterer@who-t.net, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Mon, Mar 07, 2011 at 01:13:23PM -0800, Ping Cheng wrote:
-> Mainly to change the 1FGT devices to the existing touchscreen format and
-> the 2FGT devices to MT format.
-> 
-> This is the final version with Henrik's "Reviewed-by" added in the patches.
-> 
-> Ping Cheng (4):
->   input : wacom - Remove 2FGT Tablet PC events in TAP format
->   input - wacom : process pen data in its own routine
->   input - wacom : support one finger touch the touchscreen way
->   input - wacom: Support 2FGT in MT format
-> 
->  drivers/input/tablet/wacom_sys.c |   12 +-
->  drivers/input/tablet/wacom_wac.c |  247 ++++++++++++++------------------------
->  drivers/input/tablet/wacom_wac.h |    6 +-
->  3 files changed, 99 insertions(+), 166 deletions(-)
+Check before dereferencing field->hidinput to fix a reported invalid
+deference bug.
 
-Thanks!
-Henrik
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+---
+ drivers/hid/hid-ntrig.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index beb4034..56a88d9 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -539,8 +539,14 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			struct hid_usage *usage, __s32 value)
+ {
+-	struct input_dev *input = field->hidinput->input;
+ 	struct ntrig_data *nd = hid_get_drvdata(hid);
++	struct input_dev *input;
++
++	/* Skip processing if not a claimed input */
++	if (!(hid->claimed & HID_CLAIMED_INPUT))
++		goto not_claimed_input;
++
++	input = field->hidinput->input;
+ 
+ 	/* No special handling needed for the pen */
+ 	if (field->application == HID_DG_PEN)
+@@ -810,6 +816,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 		}
+ 	}
+ 
++not_claimed_input:
++
+ 	/* we have handled the hidinput part, now remains hiddev */
+ 	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_hid_event)
+ 		hid->hiddev_hid_event(hid, field, usage, value);
+-- 
+1.7.2.3
+

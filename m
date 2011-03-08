@@ -1,49 +1,391 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2] [input-hid] Add hid-egalax driver to the unified
- hid-multitouch framework.
-Date: Tue, 8 Mar 2011 10:46:30 +0100
-Message-ID: <20110308094630.GA3396@polaris.bitmath.org>
-References: <1299417912.9645.495.camel@itzy>
- <AANLkTimkYHPvn0PqcVyJv1rPTn3F7F8p3+3Y0-4F=MwW@mail.gmail.com>
- <1299564524.2306.18.camel@itzy>
- <20110308080414.GA2888@polaris.bitmath.org>
- <AANLkTimT9q8mo3uW0P7T0B=D4kkE83OB9ycgdJ_muZ2W@mail.gmail.com>
- <20110308091434.GA3282@polaris.bitmath.org>
- <AANLkTiko_mKgW6fXeAuBY4D5AT_9OHAJnk_mfQEPQVF9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: voice <voice.shen@atmel.com>
+Subject: Add driver for Atmel AT42QT1070 driver
+Date: Tue,  8 Mar 2011 17:19:38 +0800
+Message-ID: <1299575978-16134-1-git-send-email-voice.shen@atmel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:39801 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754320Ab1CHJpM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Mar 2011 04:45:12 -0500
-Content-Disposition: inline
-In-Reply-To: <AANLkTiko_mKgW6fXeAuBY4D5AT_9OHAJnk_mfQEPQVF9@mail.gmail.com>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:48975 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751513Ab1CHJv3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2011 04:51:29 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Richard Nauber <richard.nauber@googlemail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
+To: linux-input@vger.kernel.org
+Cc: jm.lin@atmel.com, voice.shen@atmel.com
 
-> >> I'm not in favor of a quirk in this particular case: the information
-> >> is already here: max > 0.
-> >
-> > Only if min == 0, which is far from always the case. And setting a
-> > special value for a special hardware does what a quirk does, so maybe
-> > it is a quirk after all.
-> >
-> 
-> I think there is a misunderstanding:
-> if the class provides max_x (so > 0), or min_x, that means that the
-> person in charge of adding the driver wants to replace the two values
-> min/max.
+Add driver for Atmel AT42QT1070 QTouch sensor chip.
+The AT42QT1070 QTouch sensor support up to 7 keys.
+The driver has been tested on Atmel AT91SAM9M10-G45-EK board, it should work fine on other platform.
 
-What I meant is that (min_x < max_x) is the proper test.
+Signed-off-by: Shen Bo <voice.shen@atmel.com>
+--- 
+ drivers/input/keyboard/Kconfig  |    9 +
+ drivers/input/keyboard/Makefile |    1 +
+ drivers/input/keyboard/qt1070.c |  328 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 338 insertions(+), 0 deletions(-)
 
-> No need for a quirk that will be redundant with the hand-provided values.
-
-Yes, but I think we might be better off using a quirk than a generic
-way to replace the values provided by the hardware.
-
-Thanks,
-Henrik
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 9cc488d..2e7af9f 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -124,6 +124,15 @@ config KEYBOARD_ATKBD_RDI_KEYCODES
+ 	  right-hand column will be interpreted as the key shown in the
+ 	  left-hand column.
+ 
++config KEYBOARD_QT1070
++       tristate "Atmel AT42QT1070 Touch Sensor Chip"
++       depends on I2C
++       help
++         Say Y here if you want to use Atmel AT42QT1070 QTouch
++         Sensor chip as input device.
++         To compile this driver as a module, choose M here:
++         the module will be called qt1070
++
+ config KEYBOARD_QT2160
+ 	tristate "Atmel AT42QT2160 Touch Sensor Chip"
+ 	depends on I2C && EXPERIMENTAL
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 504b591..23ecb51 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -32,6 +32,7 @@ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+ obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+ obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
+ obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
++obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
+ obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+ obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
+ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+new file mode 100755
+index 0000000..37b25d3
+--- /dev/null
++++ b/drivers/input/keyboard/qt1070.c
+@@ -0,0 +1,328 @@
++/*
++ *  qt1070.c - Atmel AT42QT1070 QTouch Sensor Controller
++ *
++ *  Copyright (C) 2011 Atmel
++ *
++ *  Authors: Bo Shen <voice.shen@atmel.com>
++ *
++ *  Base on qt2160.c by:
++ *  Raphael Derosso Pereira <raphaelpereira@gmail.com>
++ *  Copyright (C) 2009
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <linux/jiffies.h>
++#include <linux/delay.h>
++
++/* QT1070 I2C Slave Address */
++#define QT1070_ADDR        0x1B
++
++/* Address for each register */
++#define CHIP_ID            0x00
++#define QT1070_CHIP_ID     0x2E
++
++#define FW_VERSION         0x01
++#define QT1070_FW_VERSION  0x15
++
++#define DET_STATUS         0x02
++
++#define KEY_STATUS         0x03
++
++/* Calibrate */
++#define CALIBRATE_CMD      0x38
++
++/* Reset */
++#define nRESET             0x39
++
++/* Key number will be used in system */
++#define KEY_NUMBER         0x7
++
++static unsigned char qt1070_key2code[] = {
++	KEY_1, KEY_2, KEY_3, KEY_4,
++	KEY_4, KEY_5, KEY_6,
++};
++
++struct qt1070_data {
++	struct i2c_client *client;
++	struct input_dev *input;
++	struct delayed_work dwork;
++	spinlock_t lock;
++	unsigned char keycodes[ARRAY_SIZE(qt1070_key2code)];
++	unsigned char key;
++};
++
++static int qt1070_read(struct i2c_client *client, u8 reg)
++{
++	int ret;
++
++	ret = i2c_smbus_write_byte(client, reg);
++	if (ret) {
++		dev_err(&client->dev,
++			"can not send request, returned %d\n", ret);
++		return ret;
++	}
++
++	ret = i2c_smbus_read_byte(client);
++	if (ret < 0) {
++		dev_err(&client->dev,
++			"can not read register, returned %d\n", ret);
++		return ret;
++	}
++
++	return ret;
++}
++
++static int qt1070_write(struct i2c_client *client, u8 reg, u8 data)
++{
++	int ret;
++
++	ret = i2c_smbus_write_byte(client, reg);
++	if (ret) {
++		dev_err(&client->dev,
++			"can not send request, returned %d\n", ret);
++		return ret;
++	}
++
++	ret = i2c_smbus_write_byte(client, data);
++	if (ret) {
++		dev_err(&client->dev,
++			"can not write register, returned %d\n", ret);
++		return ret;
++	}
++
++	return ret;
++}
++
++static bool __devinit qt1070_identify(struct i2c_client *client)
++{
++	int id, ver;
++
++	/* Read Chip ID */
++	id = qt1070_read(client, CHIP_ID);
++	if (id != QT1070_CHIP_ID) {
++		dev_err(&client->dev, "ID %d not supported\n", id);
++		return false;
++	}
++
++	/* Read firmware version */
++	ver = qt1070_read(client, FW_VERSION);
++	if (ver < 0) {
++		dev_err(&client->dev, "could not read the firmware version\n");
++		return false;
++	}
++
++	dev_info(&client->dev, "AT42QT1070 firmware version %x\n", ver);
++
++	return true;
++}
++
++static int qt1070_read_key(struct qt1070_data *data)
++{
++	struct i2c_client *client = data->client;
++	struct input_dev *input = data->input;
++	u8 new_key, old_key, keyval;
++	int ret, i, mask;
++
++	/* Read the detected status register */
++	ret = qt1070_read(client, DET_STATUS);
++
++	/* Read which key changed */
++	ret = qt1070_read(client, KEY_STATUS);
++	old_key = data->key;
++	data->key = new_key = ret;
++
++	mask = 0x01;
++	for (i = 0; i < KEY_NUMBER; i++) {
++		keyval = new_key & mask;
++		if ((old_key & mask) != keyval)
++			input_report_key(input, data->keycodes[i], keyval);
++		mask <<= 1;
++	}
++	input_sync(input);
++
++	return 0;
++}
++
++static irqreturn_t qt1070_irq(int irq, void *data)
++{
++	struct qt1070_data *qt1070 = data;
++	unsigned long flags;
++
++	spin_lock_irqsave(&qt1070->lock, flags);
++
++	cancel_delayed_work(&qt1070->dwork);
++	schedule_delayed_work(&qt1070->dwork, 0);
++
++	spin_unlock_irqrestore(&qt1070->lock, flags);
++
++	return IRQ_HANDLED;
++}
++
++static void qt1070_schedule_read(struct qt1070_data *data)
++{
++	spin_lock_irq(&data->lock);
++	schedule_delayed_work(&data->dwork, 0);
++	spin_unlock_irq(&data->lock);
++}
++
++static void qt1070_worker(struct delayed_work *work)
++{
++	struct qt1070_data *data = container_of(work,
++					struct qt1070_data, dwork.work);
++	qt1070_read_key(data);
++}
++
++static int __devinit qt1070_probe(struct i2c_client *client,
++				const struct i2c_device_id *id)
++{
++	struct qt1070_data *data;
++	struct input_dev *input;
++	int i;
++	int err;
++
++	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
++	if (!err) {
++		dev_err(&client->dev, "%s adapter not supported\n",
++			dev_driver_string(&client->adapter->dev));
++		return -ENODEV;
++	}
++
++	/* Identify the qt1070 chip */
++	if (!qt1070_identify(client))
++		return -ENODEV;
++
++	data = kzalloc(sizeof(struct qt1070_data), GFP_KERNEL);
++	input = input_allocate_device();
++	if (!data || !input) {
++		dev_err(&client->dev, "insufficient memory\n");
++		err = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	data->client = client;
++	data->input = input;
++	INIT_DELAYED_WORK(&data->dwork, qt1070_worker);
++	spin_lock_init(&data->lock);
++
++	input->name = "AT42QT1070 Touch Sense Keyboard";
++	input->id.bustype = BUS_I2C;
++
++	/* Add the keycode */
++	input->keycode = data->keycodes;
++	input->keycodesize = sizeof(data->keycodes[0]);
++	input->keycodemax = ARRAY_SIZE(qt1070_key2code);
++
++	__set_bit(EV_KEY, input->evbit);
++	__clear_bit(EV_REP, input->evbit);
++	for (i = 0; i < ARRAY_SIZE(qt1070_key2code); i++) {
++		data->keycodes[i] = qt1070_key2code[i];
++		__set_bit(qt1070_key2code[i], input->keybit);
++	}
++
++	__clear_bit(KEY_RESERVED, input->keybit);
++
++	/* Calibrate device */
++	err = qt1070_write(client, CALIBRATE_CMD, 1);
++	if (err) {
++		dev_err(&client->dev, "Failure to calibrate device\n");
++		goto err_free_mem;
++	}
++	msleep(100);
++
++	if (client->irq) {
++		err = request_irq(client->irq, qt1070_irq, 0, "qt1070", data);
++		if (err) {
++			dev_err(&client->dev, "fail to request irq\n");
++			goto err_free_mem;
++		}
++	}
++
++	/* Register the input device */
++	err = input_register_device(data->input);
++	if (err) {
++		dev_err(&client->dev, "Failed to register input device\n");
++		goto err_free_irq;
++	}
++
++	i2c_set_clientdata(client, data);
++
++	/* Read to clear the chang line */
++	qt1070_schedule_read(data);
++
++	return 0;
++
++err_free_irq:
++	if (client->irq)
++		free_irq(client->irq, data);
++err_free_mem:
++	input_free_device(input);
++	kfree(data);
++	return err;
++}
++
++static int __devexit qt1070_remove(struct i2c_client *client)
++{
++	struct qt1070_data *data = i2c_get_clientdata(client);
++
++	/* Release IRQ */
++	if (client->irq)
++		free_irq(client->irq, data);
++
++	input_unregister_device(data->input);
++	kfree(data);
++
++	i2c_set_clientdata(client, NULL);
++
++	return 0;
++}
++
++static const struct i2c_device_id qt1070_id[] = {
++	{ "qt1070", 0 },
++	{ },
++};
++
++static struct i2c_driver qt1070_driver = {
++	.driver = {
++		.name = "qt1070",
++		.owner = THIS_MODULE,
++	},
++	.id_table	= qt1070_id,
++	.probe = qt1070_probe,
++	.remove = __devexit_p(qt1070_remove),
++};
++
++static int __init qt1070_init(void)
++{
++	return i2c_add_driver(&qt1070_driver);
++}
++module_init(qt1070_init);
++
++static void __exit qt1070_exit(void)
++{
++	i2c_del_driver(&qt1070_driver);
++}
++module_exit(qt1070_exit);
++
++MODULE_AUTHOR("Bo Shen <voice.shen@atmel.com>");
++MODULE_DESCRIPTION("Driver for AT42QT1070 QTouch sensor");
++MODULE_LICENSE("GPL");

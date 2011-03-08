@@ -1,55 +1,69 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] hid: Do not create input devices for feature reports
-Date: Mon, 07 Mar 2011 22:44:06 -0500
-Message-ID: <4D75A606.8040104@seas.upenn.edu>
-References: <1298572259-18173-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1103011702240.32580@pobox.suse.cz> <AANLkTikd67q_j_ySam7RZvau8WoESLEmdXkfCWerVrLp@mail.gmail.com> <alpine.LNX.2.00.1103011726300.32580@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] HID: ntrig don't dereference unclaimed hidinput
+Date: Tue,  8 Mar 2011 00:24:29 -0500
+Message-ID: <1299561869-15165-1-git-send-email-rafi@seas.upenn.edu>
+References: <1299550408-11457-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fox.seas.upenn.edu ([158.130.68.12]:42530 "EHLO
+Received: from fox.seas.upenn.edu ([158.130.68.12]:48783 "EHLO
 	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752887Ab1CHDoX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Mar 2011 22:44:23 -0500
-In-Reply-To: <alpine.LNX.2.00.1103011726300.32580@pobox.suse.cz>
+	with ESMTP id S1750932Ab1CHFY5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2011 00:24:57 -0500
+In-Reply-To: <1299550408-11457-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org
+Cc: rydberg@euromail.se, chatty@enac.fr, peter.hutterer@who-t.net, Rafi Rubin <rafi@seas.upenn.edu>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Check before dereferencing field->hidinput to fix a reported invalid
+deference bug.
 
-A bit on the late side, I can confirm this reverts the annoying proliferation of
-input nodes mapped for ntrig hardware.
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+---
+After additional debugging, I realized I'm seeing a variant of Peter's
+bug.  On unloading and then reloading hid-ntrig I'm seeing calls during
+initialization to ntrig_event where field->hidinput is NULL and the
+claimed input flag is still set.  It seems to me this behavior shouldn't
+happen and the check should be further up the stack.
 
-The new firmwares seem to really enjoy exposing bugs, more on that later.
+Sorry about sending a such a trivial patch repeatedly :/
+---
+ drivers/hid/hid-ntrig.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
 
-Rafi
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index beb4034..a93e58c 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -539,8 +539,19 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			struct hid_usage *usage, __s32 value)
+ {
+-	struct input_dev *input = field->hidinput->input;
+ 	struct ntrig_data *nd = hid_get_drvdata(hid);
++	struct input_dev *input;
++
++	/* Skip processing if not a claimed input */
++	if (!(hid->claimed & HID_CLAIMED_INPUT))
++		goto not_claimed_input;
++
++	/* This function is being called before the structures are fully
++	 * initialized */
++	if(!(field->hidinput && field->hidinput->input))
++		return -EINVAL;
++
++	input = field->hidinput->input;
+ 
+ 	/* No special handling needed for the pen */
+ 	if (field->application == HID_DG_PEN)
+@@ -810,6 +821,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 		}
+ 	}
+ 
++not_claimed_input:
++
+ 	/* we have handled the hidinput part, now remains hiddev */
+ 	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_hid_event)
+ 		hid->hiddev_hid_event(hid, field, usage, value);
+-- 
+1.7.2.3
 
-On 03/01/11 11:26, Jiri Kosina wrote:
-> On Tue, 1 Mar 2011, Benjamin Tissoires wrote:
-> 
->> Tested-by: Benjamin Tissoires <benjmain.tissoires@gmail.com>
->> Acked-by: Benjamin Tissoires <benjmain.tissoires@gmail.com>
-> 
-> Applied, thanks.
-> 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iQIcBAEBAgAGBQJNdaYCAAoJEPILXytRLnK214MP/RC61mIowTq/2o4oWp8JQvy3
-l7zZumg3v/tInK7OS1XciWzMQl+zH09FfzutgAEULO7hGhN1RFiP8qiBHtuMrMVg
-80FWXIl24SykGe/MwgQPi9esipTx6ee8W7hmIpFOfyVIZIl/F4afdPe3a9fFhuH+
-0H5yn7+tUw5n7wglD57xkeDW4a3RD3ehf++ehZhmmwWoPKhr9119XN9UDAmHRBX4
-1DfdtOTtsVA161DJkiMipEO5KoeD6dH1VMiCBhxkn+WLpVPHP6zhV/3KUhIDEFDd
-oWMvldltbpe8UHQmh2KwiwrtJib0bLIrrmzS5EZkVm8bT2EFlM6ZsYt5tkp6NDwl
-/bD1gBrMd14KGwVjb7XflfprlUHbbgpvjDUF7L5B3I955LWsowFoFqjquoV6+Phj
-KOJRbUABvDa6esRpg79aAjD59Uh3adnmFydFFcHBHNc3Kb6ROJ4LVGlR1Zxt+QoT
-rEXEYuxPZwxJ0zZ08yO2Si+FaoPVOrZC7S2XNhv64MMpISGBWEIvRWowDPjpgutY
-v2aVdGiWskPsjqxjVXyR9MTqOgdXrp2JoZy2U2Jq7AV3vzwQfoJ+BJjgEAwkVmO3
-XpKuxJ2s5vYPTlxPga3PqUPT2r7PzfjakTcXM4UQ3f7iQy4RZ4qr4q6+4aI3saVy
-kvTrsCQV6SmmbbZuaFLh
-=h0h3
------END PGP SIGNATURE-----

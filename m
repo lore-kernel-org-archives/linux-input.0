@@ -1,437 +1,560 @@
-From: Mohan Pallaka <mohan1234@gmail.com>
-Subject: Re: Add driver for Atmel AT42QT1070 driver
-Date: Tue, 08 Mar 2011 23:08:50 +0530
-Message-ID: <4D7669AA.7080209@gmail.com>
-References: <1299575978-16134-1-git-send-email-voice.shen@atmel.com>
+From: Richard Nauber <richard.nauber@googlemail.com>
+Subject: Re: [PATCH v3] [input-hid] Add hid-egalax driver to the unified
+ hid-multitouch framework.
+Date: Wed, 09 Mar 2011 00:38:38 +0100
+Message-ID: <1299627518.2306.47.camel@itzy>
+References: <1299417912.9645.495.camel@itzy>
+	 <AANLkTimkYHPvn0PqcVyJv1rPTn3F7F8p3+3Y0-4F=MwW@mail.gmail.com>
+	 <1299564524.2306.18.camel@itzy> <20110308080414.GA2888@polaris.bitmath.org>
+	 <AANLkTimT9q8mo3uW0P7T0B=D4kkE83OB9ycgdJ_muZ2W@mail.gmail.com>
+	 <20110308091434.GA3282@polaris.bitmath.org>
+	 <AANLkTiko_mKgW6fXeAuBY4D5AT_9OHAJnk_mfQEPQVF9@mail.gmail.com>
+	 <20110308094630.GA3396@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:64258 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751471Ab1CHRjA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2011 12:39:00 -0500
-Received: by pxi15 with SMTP id 15so914095pxi.19
-        for <linux-input@vger.kernel.org>; Tue, 08 Mar 2011 09:38:59 -0800 (PST)
-In-Reply-To: <1299575978-16134-1-git-send-email-voice.shen@atmel.com>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:50522 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756078Ab1CHXit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Mar 2011 18:38:49 -0500
+Received: by wya21 with SMTP id 21so482010wya.19
+        for <linux-input@vger.kernel.org>; Tue, 08 Mar 2011 15:38:47 -0800 (PST)
+In-Reply-To: <20110308094630.GA3396@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: voice <voice.shen@atmel.com>
-Cc: linux-input@vger.kernel.org, jm.lin@atmel.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, =?ISO-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-Please find my review comments inline,
+Hi Henrik :), Benjamin, Stephane and Jiri,
 
-On 3/8/2011 2:49 PM, voice wrote:
-> Add driver for Atmel AT42QT1070 QTouch sensor chip.
-> The AT42QT1070 QTouch sensor support up to 7 keys.
-> The driver has been tested on Atmel AT91SAM9M10-G45-EK board, it should work fine on other platform.
->
-> Signed-off-by: Shen Bo<voice.shen@atmel.com>
-> ---
->   drivers/input/keyboard/Kconfig  |    9 +
->   drivers/input/keyboard/Makefile |    1 +
->   drivers/input/keyboard/qt1070.c |  328 +++++++++++++++++++++++++++++++++++++++
->   3 files changed, 338 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 9cc488d..2e7af9f 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -124,6 +124,15 @@ config KEYBOARD_ATKBD_RDI_KEYCODES
->   	  right-hand column will be interpreted as the key shown in the
->   	  left-hand column.
->
-> +config KEYBOARD_QT1070
-> +       tristate "Atmel AT42QT1070 Touch Sensor Chip"
-> +       depends on I2C
-> +       help
-> +         Say Y here if you want to use Atmel AT42QT1070 QTouch
-> +         Sensor chip as input device.
-> +         To compile this driver as a module, choose M here:
-> +         the module will be called qt1070
-> +
->   config KEYBOARD_QT2160
->   	tristate "Atmel AT42QT2160 Touch Sensor Chip"
->   	depends on I2C&&  EXPERIMENTAL
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 504b591..23ecb51 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -32,6 +32,7 @@ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
->   obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
->   obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
->   obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
-> +obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
->   obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
->   obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
->   obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-> new file mode 100755
-> index 0000000..37b25d3
-> --- /dev/null
-> +++ b/drivers/input/keyboard/qt1070.c
-> @@ -0,0 +1,328 @@
-> +/*
-> + *  qt1070.c - Atmel AT42QT1070 QTouch Sensor Controller
-> + *
-> + *  Copyright (C) 2011 Atmel
-> + *
-> + *  Authors: Bo Shen<voice.shen@atmel.com>
-> + *
-> + *  Base on qt2160.c by:
-> + *  Raphael Derosso Pereira<raphaelpereira@gmail.com>
-> + *  Copyright (C) 2009
-> + *
-> + *  This program is free software; you can redistribute it and/or modify
-> + *  it under the terms of the GNU General Public License as published by
-> + *  the Free Software Foundation; either version 2 of the License, or
-> + *  (at your option) any later version.
-> + *
-> + *  This program is distributed in the hope that it will be useful,
-> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + *  GNU General Public License for more details.
-> + *
-> + *  You should have received a copy of the GNU General Public License
-> + *  along with this program; if not, write to the Free Software
-> + *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-> + */
-Please don't add file names in the comment header.
-> +#include<linux/kernel.h>
-> +#include<linux/module.h>
-> +#include<linux/init.h>
-> +#include<linux/i2c.h>
-> +#include<linux/input.h>
-> +#include<linux/slab.h>
-> +#include<linux/irq.h>
-> +#include<linux/interrupt.h>
-> +#include<linux/jiffies.h>
-> +#include<linux/delay.h>
-> +
-> +/* QT1070 I2C Slave Address */
-> +#define QT1070_ADDR        0x1B
-> +
-> +/* Address for each register */
-> +#define CHIP_ID            0x00
-> +#define QT1070_CHIP_ID     0x2E
-> +
-> +#define FW_VERSION         0x01
-> +#define QT1070_FW_VERSION  0x15
-> +
-> +#define DET_STATUS         0x02
-> +
-> +#define KEY_STATUS         0x03
-> +
-> +/* Calibrate */
-> +#define CALIBRATE_CMD      0x38
-> +
-> +/* Reset */
-> +#define nRESET             0x39
-No camel case, please use all caps.
-> +
-> +/* Key number will be used in system */
-> +#define KEY_NUMBER         0x7
-Is this ARRAY_SIZE of qt1070_key2code?
-> +
-> +static unsigned char qt1070_key2code[] = {
-> +	KEY_1, KEY_2, KEY_3, KEY_4,
-> +	KEY_4, KEY_5, KEY_6,
-A typo; KEY_4 used twice. And also, consider passing this keymap as 
-platform data.
-> +};
-> +
-> +struct qt1070_data {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	struct delayed_work dwork;
-> +	spinlock_t lock;
-> +	unsigned char keycodes[ARRAY_SIZE(qt1070_key2code)];
-> +	unsigned char key;
-> +};
-> +
-> +static int qt1070_read(struct i2c_client *client, u8 reg)
-> +{
-> +	int ret;
-> +
-> +	ret = i2c_smbus_write_byte(client, reg);
-> +	if (ret) {
-> +		dev_err(&client->dev,
-> +			"can not send request, returned %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = i2c_smbus_read_byte(client);
-> +	if (ret<  0) {
-> +		dev_err(&client->dev,
-> +			"can not read register, returned %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	return ret;
-> +}
-Can't we use i2c_smbus_read_byte_data(...) here?
-> +
-> +static int qt1070_write(struct i2c_client *client, u8 reg, u8 data)
-> +{
-> +	int ret;
-> +
-> +	ret = i2c_smbus_write_byte(client, reg);
-> +	if (ret) {
-> +		dev_err(&client->dev,
-> +			"can not send request, returned %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = i2c_smbus_write_byte(client, data);
-> +	if (ret) {
-> +		dev_err(&client->dev,
-> +			"can not write register, returned %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-Can't we use i2c_smbus_write_byte_data(...) here? may be we can avoid 
-the helpers by using
-these functions directly.
-> +static bool __devinit qt1070_identify(struct i2c_client *client)
-> +{
-> +	int id, ver;
-> +
-> +	/* Read Chip ID */
-> +	id = qt1070_read(client, CHIP_ID);
-> +	if (id != QT1070_CHIP_ID) {
-> +		dev_err(&client->dev, "ID %d not supported\n", id);
-> +		return false;
-> +	}
-> +
-> +	/* Read firmware version */
-> +	ver = qt1070_read(client, FW_VERSION);
-> +	if (ver<  0) {
-> +		dev_err(&client->dev, "could not read the firmware version\n");
-> +		return false;
-> +	}
-> +
-> +	dev_info(&client->dev, "AT42QT1070 firmware version %x\n", ver);
-> +
-> +	return true;
-> +}
-> +
-> +static int qt1070_read_key(struct qt1070_data *data)
-> +{
-> +	struct i2c_client *client = data->client;
-> +	struct input_dev *input = data->input;
-> +	u8 new_key, old_key, keyval;
-> +	int ret, i, mask;
-> +
-> +	/* Read the detected status register */
-> +	ret = qt1070_read(client, DET_STATUS);
-Do we need DET_STATUS value? I don't see it being used here. If this 
-value is 0,
-does that mean it is a spurious interrupt? or is it needed for FSM?
-> +
-> +	/* Read which key changed */
-> +	ret = qt1070_read(client, KEY_STATUS);
-> +	old_key = data->key;
-> +	data->key = new_key = ret;
-> +
-> +	mask = 0x01;
-> +	for (i = 0; i<  KEY_NUMBER; i++) {
-> +		keyval = new_key&  mask;
-> +		if ((old_key&  mask) != keyval)
-> +			input_report_key(input, data->keycodes[i], keyval);
-> +		mask<<= 1;
-> +	}
-> +	input_sync(input);
-> +
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t qt1070_irq(int irq, void *data)
-> +{
-> +	struct qt1070_data *qt1070 = data;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&qt1070->lock, flags);
-> +
-> +	cancel_delayed_work(&qt1070->dwork);
-Are you sure we have to cancel this work? If you quickly press & 
-release, then
-two interrupts might run before the worker has a chance to run. In this 
-case, we
-will miss the key events. How about disable interrupts in irq handler,
-run the woker, enable irq at the end of worker. we can have an 
-additional read
-at the end of worker to maintain the FSM as well. With this we don't need
-spinlocks also. And how about normal workers instead of delayed work?
+here is the third version of this patch, improved according to your suggestions. 
 
-Otherwise, you can use request_threaded_irq with IRQF_ONESHOT so that you
-can run i2c commands in the handler itself.
-> +	schedule_delayed_work(&qt1070->dwork, 0);
-> +
-> +	spin_unlock_irqrestore(&qt1070->lock, flags);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static void qt1070_schedule_read(struct qt1070_data *data)
-> +{
-> +	spin_lock_irq(&data->lock);
-> +	schedule_delayed_work(&data->dwork, 0);
-> +	spin_unlock_irq(&data->lock);
-> +}
-> +
-> +static void qt1070_worker(struct delayed_work *work)
-> +{
-> +	struct qt1070_data *data = container_of(work,
-> +					struct qt1070_data, dwork.work);
-> +	qt1070_read_key(data);
-> +}
-> +
-> +static int __devinit qt1070_probe(struct i2c_client *client,
-> +				const struct i2c_device_id *id)
-> +{
-> +	struct qt1070_data *data;
-> +	struct input_dev *input;
-> +	int i;
-> +	int err;
-> +
-> +	err = i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE);
-> +	if (!err) {
-> +		dev_err(&client->dev, "%s adapter not supported\n",
-> +			dev_driver_string(&client->adapter->dev));
-> +		return -ENODEV;
-> +	}
-> +
-> +	/* Identify the qt1070 chip */
-> +	if (!qt1070_identify(client))
-> +		return -ENODEV;
-> +
-> +	data = kzalloc(sizeof(struct qt1070_data), GFP_KERNEL);
-> +	input = input_allocate_device();
-> +	if (!data || !input) {
-> +		dev_err(&client->dev, "insufficient memory\n");
-> +		err = -ENOMEM;
-> +		goto err_free_mem;
-> +	}
-> +
-> +	data->client = client;
-> +	data->input = input;
-> +	INIT_DELAYED_WORK(&data->dwork, qt1070_worker);
-> +	spin_lock_init(&data->lock);
-> +
-> +	input->name = "AT42QT1070 Touch Sense Keyboard";
-How about a short name with no spaces? please add parent also,
+> What I meant is that (min_x < max_x) is the proper test.
+> 
+> > No need for a quirk that will be redundant with the hand-provided values.
+> 
+> Yes, but I think we might be better off using a quirk than a generic
+> way to replace the values provided by the hardware.
 
-input->dev.parent = &client->dev;
-> +	input->id.bustype = BUS_I2C;
-> +
-> +	/* Add the keycode */
-> +	input->keycode = data->keycodes;
-> +	input->keycodesize = sizeof(data->keycodes[0]);
-> +	input->keycodemax = ARRAY_SIZE(qt1070_key2code);
-> +
-> +	__set_bit(EV_KEY, input->evbit);
-> +	__clear_bit(EV_REP, input->evbit);
-No need to clear the bit.
-> +	for (i = 0; i<  ARRAY_SIZE(qt1070_key2code); i++) {
-> +		data->keycodes[i] = qt1070_key2code[i];
-> +		__set_bit(qt1070_key2code[i], input->keybit);
-> +	}
-> +
-> +	__clear_bit(KEY_RESERVED, input->keybit);
-same here.
-> +
-> +	/* Calibrate device */
-> +	err = qt1070_write(client, CALIBRATE_CMD, 1);
-> +	if (err) {
-> +		dev_err(&client->dev, "Failure to calibrate device\n");
-> +		goto err_free_mem;
-> +	}
-> +	msleep(100);
-You can have a macro for 100.
-> +
-> +	if (client->irq) {
-> +		err = request_irq(client->irq, qt1070_irq, 0, "qt1070", data);
-consider using request_threaded_irq.
-> +		if (err) {
-> +			dev_err(&client->dev, "fail to request irq\n");
-> +			goto err_free_mem;
-> +		}
-> +	}
-> +
-> +	/* Register the input device */
-> +	err = input_register_device(data->input);
-> +	if (err) {
-> +		dev_err(&client->dev, "Failed to register input device\n");
-> +		goto err_free_irq;
-> +	}
-> +
-> +	i2c_set_clientdata(client, data);
-> +
-> +	/* Read to clear the chang line */
-> +	qt1070_schedule_read(data);
-> +
-> +	return 0;
-> +
-> +err_free_irq:
-> +	if (client->irq)
-> +		free_irq(client->irq, data);
-> +err_free_mem:
-> +	input_free_device(input);
-> +	kfree(data);
-> +	return err;
-> +}
-> +
-> +static int __devexit qt1070_remove(struct i2c_client *client)
-> +{
-> +	struct qt1070_data *data = i2c_get_clientdata(client);
-> +
-> +	/* Release IRQ */
-> +	if (client->irq)
-> +		free_irq(client->irq, data);
-> +
-> +	input_unregister_device(data->input);
-> +	kfree(data);
-> +
-> +	i2c_set_clientdata(client, NULL);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct i2c_device_id qt1070_id[] = {
-> +	{ "qt1070", 0 },
-> +	{ },
-> +};
-> +
-> +static struct i2c_driver qt1070_driver = {
-> +	.driver = {
-> +		.name = "qt1070",
-> +		.owner = THIS_MODULE,
-> +	},
-> +	.id_table	= qt1070_id,
-> +	.probe = qt1070_probe,
-> +	.remove = __devexit_p(qt1070_remove),
-> +};
-> +
-> +static int __init qt1070_init(void)
-> +{
-> +	return i2c_add_driver(&qt1070_driver);
-> +}
-> +module_init(qt1070_init);
-> +
-> +static void __exit qt1070_exit(void)
-> +{
-> +	i2c_del_driver(&qt1070_driver);
-> +}
-> +module_exit(qt1070_exit);
-> +
-> +MODULE_AUTHOR("Bo Shen<voice.shen@atmel.com>");
-> +MODULE_DESCRIPTION("Driver for AT42QT1070 QTouch sensor");
-> +MODULE_LICENSE("GPL");
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
--- Mohan
+My personal opinion is that the override should be triggered by your
+(min_x < max_x) test, which is safe, because the (min_x == max_x) case
+makes no sense for a device and we are allowed to attach a special
+meaning to it. Additionally this enables us to conveniently extend the
+mechanism to more axis, whose could be individually enabled without a
+bloat of quirk defines.
+
+So tell me what you think of this...
+
+Thanks again for the review,
+Richard 
+
+
+----snip----
+
+[PATCH] [input-hid] Add hid-egalax driver to the unified hid-multitouch framework.
+
+This patch merges the hid-egalax driver into hid-multitouch and
+therefore adds two device classes (MT_CLS_EGALAX_CAPACITIVE/RESISTIVE).
+It also gains the capability to work around broken hid reports by
+overriding X/Y limits and emitting events for each finger
+(MT_QUIRK_SEND_AT_EACH_REPORT). As a side effect, this patch
+fixes the broken suspend/resume behavior with the old driver.
+
+Signed-off-by: Richard Nauber <Richard.Nauber@gmail.com>
+---
+ drivers/hid/Kconfig          |    9 +-
+ drivers/hid/Makefile         |    1 -
+ drivers/hid/hid-egalax.c     |  279 ------------------------------------------
+ drivers/hid/hid-multitouch.c |   84 ++++++++++++-
+ 4 files changed, 84 insertions(+), 289 deletions(-)
+ delete mode 100644 drivers/hid/hid-egalax.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4b88bbe..3e25aa7 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -160,13 +160,6 @@ config HID_EMS_FF
+ 	Currently the following devices are known to be supported:
+ 	 - Trio Linker Plus II
+ 
+-config HID_EGALAX
+-	tristate "eGalax multi-touch panel"
+-	depends on USB_HID
+-	---help---
+-	Support for the eGalax dual-touch panels, including the
+-	Joojoo and Wetab tablets.
+-
+ config HID_ELECOM
+ 	tristate "ELECOM BM084 bluetooth mouse"
+ 	depends on BT_HIDP
+@@ -321,6 +314,8 @@ config HID_MULTITOUCH
+ 	  - IrTouch Infrared USB panels
+ 	  - Pixcir dual touch panels
+ 	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
++          - eGalax dual-touch panels, including the
++	    Joojoo and Wetab tablets
+ 
+ 	  If unsure, say N.
+ 
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 04496ab..1b6ddd3 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -36,7 +36,6 @@ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+ obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
+ obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
+-obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
+ obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+ obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+diff --git a/drivers/hid/hid-egalax.c b/drivers/hid/hid-egalax.c
+deleted file mode 100644
+index 03bee19..0000000
+--- a/drivers/hid/hid-egalax.c
++++ /dev/null
+@@ -1,279 +0,0 @@
+-/*
+- *  HID driver for eGalax dual-touch panels
+- *
+- *  Copyright (c) 2010 Stephane Chatty <chatty@enac.fr>
+- *  Copyright (c) 2010 Henrik Rydberg <rydberg@euromail.se>
+- *  Copyright (c) 2010 Canonical, Ltd.
+- *
+- */
+-
+-/*
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License as published by the Free
+- * Software Foundation; either version 2 of the License, or (at your option)
+- * any later version.
+- */
+-
+-#include <linux/device.h>
+-#include <linux/hid.h>
+-#include <linux/module.h>
+-#include <linux/usb.h>
+-#include <linux/input/mt.h>
+-#include <linux/slab.h>
+-#include "usbhid/usbhid.h"
+-
+-MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
+-MODULE_DESCRIPTION("eGalax dual-touch panel");
+-MODULE_LICENSE("GPL");
+-
+-#include "hid-ids.h"
+-
+-#define MAX_SLOTS		2
+-
+-/* estimated signal-to-noise ratios */
+-#define SN_MOVE			4096
+-#define SN_PRESSURE		32
+-
+-struct egalax_data {
+-	int valid;
+-	int slot;
+-	int touch;
+-	int x, y, z;
+-};
+-
+-static void set_abs(struct input_dev *input, unsigned int code,
+-		    struct hid_field *field, int snratio)
+-{
+-	int fmin = field->logical_minimum;
+-	int fmax = field->logical_maximum;
+-	int fuzz = snratio ? (fmax - fmin) / snratio : 0;
+-	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
+-}
+-
+-static int egalax_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+-		struct hid_field *field, struct hid_usage *usage,
+-		unsigned long **bit, int *max)
+-{
+-	struct input_dev *input = hi->input;
+-
+-	switch (usage->hid & HID_USAGE_PAGE) {
+-
+-	case HID_UP_GENDESK:
+-		switch (usage->hid) {
+-		case HID_GD_X:
+-			field->logical_maximum = 32760;
+-			hid_map_usage(hi, usage, bit, max,
+-					EV_ABS, ABS_MT_POSITION_X);
+-			set_abs(input, ABS_MT_POSITION_X, field, SN_MOVE);
+-			/* touchscreen emulation */
+-			set_abs(input, ABS_X, field, SN_MOVE);
+-			return 1;
+-		case HID_GD_Y:
+-			field->logical_maximum = 32760;
+-			hid_map_usage(hi, usage, bit, max,
+-					EV_ABS, ABS_MT_POSITION_Y);
+-			set_abs(input, ABS_MT_POSITION_Y, field, SN_MOVE);
+-			/* touchscreen emulation */
+-			set_abs(input, ABS_Y, field, SN_MOVE);
+-			return 1;
+-		}
+-		return 0;
+-
+-	case HID_UP_DIGITIZER:
+-		switch (usage->hid) {
+-		case HID_DG_TIPSWITCH:
+-			/* touchscreen emulation */
+-			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+-			input_set_capability(input, EV_KEY, BTN_TOUCH);
+-			return 1;
+-		case HID_DG_INRANGE:
+-		case HID_DG_CONFIDENCE:
+-		case HID_DG_CONTACTCOUNT:
+-		case HID_DG_CONTACTMAX:
+-			return -1;
+-		case HID_DG_CONTACTID:
+-			input_mt_init_slots(input, MAX_SLOTS);
+-			return 1;
+-		case HID_DG_TIPPRESSURE:
+-			field->logical_minimum = 0;
+-			hid_map_usage(hi, usage, bit, max,
+-					EV_ABS, ABS_MT_PRESSURE);
+-			set_abs(input, ABS_MT_PRESSURE, field, SN_PRESSURE);
+-			/* touchscreen emulation */
+-			set_abs(input, ABS_PRESSURE, field, SN_PRESSURE);
+-			return 1;
+-		}
+-		return 0;
+-	}
+-
+-	/* ignore others (from other reports we won't get anyway) */
+-	return -1;
+-}
+-
+-static int egalax_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+-		struct hid_field *field, struct hid_usage *usage,
+-		unsigned long **bit, int *max)
+-{
+-	/* tell hid-input to skip setup of these event types */
+-	if (usage->type == EV_KEY || usage->type == EV_ABS)
+-		set_bit(usage->type, hi->input->evbit);
+-	return -1;
+-}
+-
+-/*
+- * this function is called when a whole finger has been parsed,
+- * so that it can decide what to send to the input layer.
+- */
+-static void egalax_filter_event(struct egalax_data *td, struct input_dev *input)
+-{
+-	input_mt_slot(input, td->slot);
+-	input_mt_report_slot_state(input, MT_TOOL_FINGER, td->touch);
+-	if (td->touch) {
+-		input_event(input, EV_ABS, ABS_MT_POSITION_X, td->x);
+-		input_event(input, EV_ABS, ABS_MT_POSITION_Y, td->y);
+-		input_event(input, EV_ABS, ABS_MT_PRESSURE, td->z);
+-	}
+-	input_mt_report_pointer_emulation(input, true);
+-}
+-
+-static int egalax_event(struct hid_device *hid, struct hid_field *field,
+-				struct hid_usage *usage, __s32 value)
+-{
+-	struct egalax_data *td = hid_get_drvdata(hid);
+-
+-	/* Note, eGalax has two product lines: the first is resistive and
+-	 * uses a standard parallel multitouch protocol (product ID ==
+-	 * 48xx).  The second is capacitive and uses an unusual "serial"
+-	 * protocol with a different message for each multitouch finger
+-	 * (product ID == 72xx).
+-	 */
+-	if (hid->claimed & HID_CLAIMED_INPUT) {
+-		struct input_dev *input = field->hidinput->input;
+-
+-		switch (usage->hid) {
+-		case HID_DG_INRANGE:
+-			td->valid = value;
+-			break;
+-		case HID_DG_CONFIDENCE:
+-			/* avoid interference from generic hidinput handling */
+-			break;
+-		case HID_DG_TIPSWITCH:
+-			td->touch = value;
+-			break;
+-		case HID_DG_TIPPRESSURE:
+-			td->z = value;
+-			break;
+-		case HID_DG_CONTACTID:
+-			td->slot = clamp_val(value, 0, MAX_SLOTS - 1);
+-			break;
+-		case HID_GD_X:
+-			td->x = value;
+-			break;
+-		case HID_GD_Y:
+-			td->y = value;
+-			/* this is the last field in a finger */
+-			if (td->valid)
+-				egalax_filter_event(td, input);
+-			break;
+-		case HID_DG_CONTACTCOUNT:
+-			/* touch emulation: this is the last field in a frame */
+-			break;
+-
+-		default:
+-			/* fallback to the generic hidinput handling */
+-			return 0;
+-		}
+-	}
+-
+-	/* we have handled the hidinput part, now remains hiddev */
+-	if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
+-		hid->hiddev_hid_event(hid, field, usage, value);
+-
+-	return 1;
+-}
+-
+-static int egalax_probe(struct hid_device *hdev, const struct hid_device_id *id)
+-{
+-	int ret;
+-	struct egalax_data *td;
+-	struct hid_report *report;
+-
+-	td = kzalloc(sizeof(struct egalax_data), GFP_KERNEL);
+-	if (!td) {
+-		hid_err(hdev, "cannot allocate eGalax data\n");
+-		return -ENOMEM;
+-	}
+-	hid_set_drvdata(hdev, td);
+-
+-	ret = hid_parse(hdev);
+-	if (ret)
+-		goto end;
+-
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+-	if (ret)
+-		goto end;
+-
+-	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[5]; 
+-	if (report) {
+-		report->field[0]->value[0] = 2;
+-		usbhid_submit_report(hdev, report, USB_DIR_OUT);
+-	}
+-
+-end:
+-	if (ret)
+-		kfree(td);
+-
+-	return ret;
+-}
+-
+-static void egalax_remove(struct hid_device *hdev)
+-{
+-	hid_hw_stop(hdev);
+-	kfree(hid_get_drvdata(hdev));
+-	hid_set_drvdata(hdev, NULL);
+-}
+-
+-static const struct hid_device_id egalax_devices[] = {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+-			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+-			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+-			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+-			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+-			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(hid, egalax_devices);
+-
+-static const struct hid_usage_id egalax_grabbed_usages[] = {
+-	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
+-	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
+-};
+-
+-static struct hid_driver egalax_driver = {
+-	.name = "egalax-touch",
+-	.id_table = egalax_devices,
+-	.probe = egalax_probe,
+-	.remove = egalax_remove,
+-	.input_mapping = egalax_input_mapping,
+-	.input_mapped = egalax_input_mapped,
+-	.usage_table = egalax_grabbed_usages,
+-	.event = egalax_event,
+-};
+-
+-static int __init egalax_init(void)
+-{
+-	return hid_register_driver(&egalax_driver);
+-}
+-
+-static void __exit egalax_exit(void)
+-{
+-	hid_unregister_driver(&egalax_driver);
+-}
+-
+-module_init(egalax_init);
+-module_exit(egalax_exit);
+-
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 65e7f20..55a39ee 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -5,6 +5,12 @@
+  *  Copyright (c) 2010-2011 Benjamin Tissoires <benjamin.tissoires@gmail.com>
+  *  Copyright (c) 2010-2011 Ecole Nationale de l'Aviation Civile, France
+  *
++ *  This code is partly based on hid-egalax.c:
++ *
++ *  Copyright (c) 2010 Stephane Chatty <chatty@enac.fr>
++ *  Copyright (c) 2010 Henrik Rydberg <rydberg@euromail.se>
++ *  Copyright (c) 2010 Canonical, Ltd.
++ *
+  */
+ 
+ /*
+@@ -37,6 +43,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_SLOT_IS_CONTACTNUMBER	(1 << 3)
+ #define MT_QUIRK_VALID_IS_INRANGE	(1 << 4)
+ #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 5)
++#define MT_QUIRK_SEND_AT_EACH_REPORT	(1 << 6)
+ 
+ struct mt_slot {
+ 	__s32 x, y, p, w, h;
+@@ -62,7 +69,14 @@ struct mt_class {
+ 	__s32 quirks;
+ 	__s32 sn_move;	/* Signal/noise ratio for move events */
+ 	__s32 sn_pressure;	/* Signal/noise ratio for pressure events */
++	struct { /* correct the reported ranges for specified axis */
++		 __s32 min_x;
++		 __s32 max_x;
++		 __s32 min_y;
++		 __s32 max_y;
++	} axis;
+ 	__u8 maxcontacts;
++
+ };
+ 
+ /* classes of device behavior */
+@@ -70,6 +84,8 @@ struct mt_class {
+ #define MT_CLS_DUAL_INRANGE_CONTACTID		2
+ #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	3
+ #define MT_CLS_CYPRESS				4
++#define MT_CLS_EGALAX_CAPACITIVE		5
++#define MT_CLS_EGALAX_RESISTIVE			6
+ 
+ /*
+  * these device-dependent functions determine what slot corresponds
+@@ -119,7 +135,33 @@ struct mt_class mt_classes[] = {
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+ 			MT_QUIRK_CYPRESS,
+ 		.maxcontacts = 10 },
+-
++	{ .name = MT_CLS_EGALAX_CAPACITIVE,
++		.quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
++			MT_QUIRK_VALID_IS_INRANGE,
++		.maxcontacts = 2,
++		.sn_move = 4096,
++		.sn_pressure = 32,
++		.axis = {
++			.min_x = 0,
++			.max_x = 32760,
++			.min_y = 0,
++			.max_y = 32760
++		},
++	},
++	{ .name = MT_CLS_EGALAX_RESISTIVE,
++		.quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
++			MT_QUIRK_VALID_IS_INRANGE |
++			MT_QUIRK_SEND_AT_EACH_REPORT,
++		.maxcontacts = 2,
++		.sn_move = 4096,
++		.sn_pressure = 32,
++		.axis = {
++			.min_x = 0,
++			.max_x = 32760,
++			.min_y = 0,
++			.max_y = 32760
++		},
++	},
+ 	{ }
+ };
+ 
+@@ -152,6 +194,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	case HID_UP_GENDESK:
+ 		switch (usage->hid) {
+ 		case HID_GD_X:
++			/* fix up the reported X limits if necessary*/
++			if (cls->axis.min_x < cls->axis.max_x) {
++				field->logical_minimum = cls->axis.min_x;
++				field->logical_maximum = cls->axis.max_x;
++			}
++
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_X);
+ 			set_abs(hi->input, ABS_MT_POSITION_X, field,
+@@ -161,6 +209,11 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			td->last_slot_field = usage->hid;
+ 			return 1;
+ 		case HID_GD_Y:
++			/* fix up the reported Y limits if nessecary*/
++			if (cls->axis.min_y < cls->axis.max_y) {
++				field->logical_minimum = cls->axis.min_y;
++				field->logical_maximum = cls->axis.max_y;
++			}
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_POSITION_Y);
+ 			set_abs(hi->input, ABS_MT_POSITION_Y, field,
+@@ -204,6 +257,10 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			td->last_slot_field = usage->hid;
+ 			return 1;
+ 		case HID_DG_TIPPRESSURE:
++			/* fix up the pressure range for some devices
++			with broken report */
++			field->logical_minimum = 0;
++
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_PRESSURE);
+ 			set_abs(hi->input, ABS_MT_PRESSURE, field,
+@@ -367,8 +424,12 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 		if (usage->hid == td->last_slot_field)
+ 			mt_complete_slot(td);
+ 
+-		if (field->index == td->last_field_index
++		if ((field->index == td->last_field_index
+ 			&& td->num_received >= td->num_expected)
++			|| ((quirks & MT_QUIRK_SEND_AT_EACH_REPORT)
++				&& (usage->hid == td->last_slot_field)))
++			/* emit an event for every finger to work around
++			a corrupt last_field_index in the hid report*/
+ 			mt_emit_event(td, field->hidinput->input);
+ 
+ 	}
+@@ -484,6 +545,25 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
+ 
++	/* Resistive eGalax devices */
++	{  .driver_data = MT_CLS_EGALAX_RESISTIVE,
++		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
++	{  .driver_data = MT_CLS_EGALAX_RESISTIVE,
++		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
++
++	/* Capacitive eGalax devices */
++	{  .driver_data = MT_CLS_EGALAX_CAPACITIVE,
++		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH1) },
++	{  .driver_data = MT_CLS_EGALAX_CAPACITIVE,
++		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH2) },
++	{  .driver_data = MT_CLS_EGALAX_CAPACITIVE,
++		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
++
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mt_devices);
+-- 
+1.7.1
+
+

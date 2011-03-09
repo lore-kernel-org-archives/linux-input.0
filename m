@@ -1,85 +1,76 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [RFC] Port of hid-egalax to the unified hid-multitouch driver
-Date: Mon, 7 Mar 2011 11:04:14 +0100
-Message-ID: <AANLkTikWm3iBwqSTsQZWsLZ4b_q2aScUEo4dW9GJ9Kcz@mail.gmail.com>
-References: <1299417883.9645.494.camel@itzy>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: FW: [Bug 30792] New: MosArt touchscreen relative motion since kernel
+ upgrade
+Date: Wed, 9 Mar 2011 11:53:51 -0800
+Message-ID: <20110309195350.GA9604@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:38383 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755659Ab1CGKEP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Mar 2011 05:04:15 -0500
-Received: by bwz15 with SMTP id 15so3681355bwz.19
-        for <linux-input@vger.kernel.org>; Mon, 07 Mar 2011 02:04:14 -0800 (PST)
-In-Reply-To: <1299417883.9645.494.camel@itzy>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:57705 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751320Ab1CITx6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2011 14:53:58 -0500
+Received: by qwd7 with SMTP id 7so675195qwd.19
+        for <linux-input@vger.kernel.org>; Wed, 09 Mar 2011 11:53:58 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Nauber <richard.nauber@googlemail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: james.sharam@gmail.com, Linux Input <linux-input@vger.kernel.org>
 
-Hi Richard,
+Forwarding since Benjamin does not seem to have bugzilla account...
 
-Thank you very much for this work. This reminds me that we have to
-switch the other drivers to hid-multitouch too.
-Actually, I was not in favor of porting this driver into
-hid-multitouch. eGalax has two differents protocols: one for resistive
-technology (which is compatible with hid-multitouch in its current
-form), and one for capacitive technology (which requires the "corrupt
-packet length" quirk).
+----- Forwarded message from bugzilla-daemon@bugzilla.kernel.org -----
 
-Apparently, according to the kernel logs the Samsung MB30 is a
-resistive technology (correct me if I'm wrong). This means that we
-also need testings for the capacitive one.
+Date: Wed, 9 Mar 2011 10:25:31 GMT
+From: bugzilla-daemon@bugzilla.kernel.org
+To: dmitry.torokhov@gmail.com
+Subject: [Bug 30792] New: MosArt touchscreen relative motion since kernel upgrade
 
-I'll let the community decide whether we should include this in
-hid-multitouch. Henrik, Jiri, any idea?
+https://bugzilla.kernel.org/show_bug.cgi?id=30792
 
-Now let's go for the review!
+           Summary: MosArt touchscreen relative motion since kernel
+                    upgrade
+           Product: Drivers
+           Version: 2.5
+    Kernel Version: 2.6.37.2 and 2.6.37.3
+          Platform: All
+        OS/Version: Linux
+              Tree: Mainline
+            Status: NEW
+          Severity: normal
+          Priority: P1
+         Component: Input Devices
+        AssignedTo: drivers_input-devices@kernel-bugs.osdl.org
+        ReportedBy: james.sharam@gmail.com
+        Regression: No
 
-Cheers,
-Benjamin
 
-On Sun, Mar 6, 2011 at 14:24, Richard Nauber
-<richard.nauber@googlemail.com> wrote:
-> Hi everyone,
-> I wrote this little patch that merges hid-egalax into hid-multitouch.
-> (It applies to 2.6.38-rc7, but I can rebase it as you please...) The
-> latter driver has to gain a new quirk type (MT_QUIRK_EGALAX) for fixi=
-ng
-> the reported ranges (X,Y and Z) and work around the corrupt packet
-> length (td->last_field_index).
-> With these changes it works like a charm for my Samsung MB30
-> touchscreen and by the way fixes the broken suspend/resume behavior.
->
-> So I'd like you to test it for other egalax devices and give me your
-> feedback on this patch.
->
-> Thanks and Greetings,
-> Richard
->
-> =A0[input-hid] Add hid-egalax driver to the unified hid-multitouch
-> =A0 =A0framework.
->
-> =A0drivers/hid/Kconfig =A0 =A0 =A0 =A0 =A0| =A0 =A09 +-
-> =A0drivers/hid/Makefile =A0 =A0 =A0 =A0 | =A0 =A01 -
-> =A0drivers/hid/hid-egalax.c =A0 =A0 | =A0279
-> ------------------------------------------
-> =A0drivers/hid/hid-multitouch.c | =A0 48 +++++++-
-> =A04 files changed, 47 insertions(+), 290 deletions(-)
-> =A0delete mode 100644 drivers/hid/hid-egalax.c
->
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I have a laptop with a MosArt touchscreen and since upgrading to 2.6.37.2 it
+hasn't been behaving correctly.
+
+Motion since the update is relative rather than absolute. For example, when I
+touch part of the screen, nothing happens, the cursor doesn't jump to where my
+finger presses. However, when I touch the screen and drag my finger the mouse
+moves around in the same direction as my finger moves, but doesn't move to
+where my finger is.
+
+It seems to be behaving like a touchpad rather than like a touchscreen.
+
+I think this is related to commit c64f6f934c7490faff76faf96217066a1b3570a0
+which changes over the driver for the touchscreen to use hid-mosart.
+
+Is this likely to be a configuration issue with the new driver or a bug in the
+driver?
+
+Thanks.
+
+-- 
+Configure bugmail: https://bugzilla.kernel.org/userprefs.cgi?tab=email
+------- You are receiving this mail because: -------
+You are watching the assignee of the bug.
+
+----- End forwarded message -----
+
+-- 
+Dmitry

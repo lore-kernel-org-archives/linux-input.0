@@ -1,124 +1,85 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH 3/4] hid-multitouch: migrate 3M PCT touch screens to the
- unified driver.
-Date: Wed, 9 Mar 2011 10:13:55 +0100
-Message-ID: <AANLkTi=LHwdvpJOyeVqHrpFjikr5=uKsaa_T3LKgXtDP@mail.gmail.com>
-References: <1299601979-4871-1-git-send-email-benjamin.tissoires@enac.fr>
-	<1299601979-4871-4-git-send-email-benjamin.tissoires@enac.fr>
-	<20110309084645.GB3569@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3] [input-hid] Add hid-egalax driver to the unified
+ hid-multitouch framework.
+Date: Wed, 9 Mar 2011 10:23:37 +0100
+Message-ID: <20110309092337.GC3824@polaris.bitmath.org>
+References: <AANLkTimkYHPvn0PqcVyJv1rPTn3F7F8p3+3Y0-4F=MwW@mail.gmail.com>
+ <1299564524.2306.18.camel@itzy>
+ <20110308080414.GA2888@polaris.bitmath.org>
+ <AANLkTimT9q8mo3uW0P7T0B=D4kkE83OB9ycgdJ_muZ2W@mail.gmail.com>
+ <20110308091434.GA3282@polaris.bitmath.org>
+ <AANLkTiko_mKgW6fXeAuBY4D5AT_9OHAJnk_mfQEPQVF9@mail.gmail.com>
+ <20110308094630.GA3396@polaris.bitmath.org>
+ <1299627518.2306.47.camel@itzy>
+ <20110309082455.GA3166@polaris.bitmath.org>
+ <AANLkTikDBTFNWhYoR5B-kfZ8Ud_aiW36qrTNJsJgHdTJ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:51822 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756513Ab1CIJN4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2011 04:13:56 -0500
-In-Reply-To: <20110309084645.GB3569@polaris.bitmath.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:56005 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756873Ab1CIJVK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Mar 2011 04:21:10 -0500
+Content-Disposition: inline
+In-Reply-To: <AANLkTikDBTFNWhYoR5B-kfZ8Ud_aiW36qrTNJsJgHdTJ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Richard Nauber <richard.nauber@googlemail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-Hi Henrik
+> > @@ -147,11 +163,15 @@ static int mt_input_mapping(struct hid_device=
+ *hdev, struct hid_input *hi,
+> > =A0{
+> > =A0 =A0 =A0 =A0struct mt_device *td =3D hid_get_drvdata(hdev);
+> > =A0 =A0 =A0 =A0struct mt_class *cls =3D td->mtclass;
+> > + =A0 =A0 =A0 __s32 quirks =3D cls->quirks;
+> > +
+> > =A0 =A0 =A0 =A0switch (usage->hid & HID_USAGE_PAGE) {
+> >
+> > =A0 =A0 =A0 =A0case HID_UP_GENDESK:
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0switch (usage->hid) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case HID_GD_X:
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (quirks & MT_QUIRK=
+_EGALAX_XYZ_FIXUP)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 field=
+->logical_maximum =3D 32760;
+>=20
+> Please do not add numerical constants in a generic code. If I want to
+> override the values for another device, I'll have to rename your quir=
+k
+> to MT_QUIRK_EGALAX_XYZ_FIXUP_WITH_0_32760_0_32760_0_x and add mine.
+> These values have to be moved in the MT_CLS.
 
-On Wed, Mar 9, 2011 at 09:46, Henrik Rydberg <rydberg@euromail.se> wrot=
-e:
-> Hi Benjamin,
->
-> On Tue, Mar 08, 2011 at 05:32:58PM +0100, Benjamin Tissoires wrote:
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
->> ---
->
-> Semms this patch is missing a commit message.
+It is a specific value used for a specific code path, no need to
+over-generalize.  The quirk name could be specialized even more, i
+suppose, but the point is that it makes the hid-multitouch driver do
+exactly what is done in the hid-egalax driver, and it is easy to prove
+that there are no side effects for other devices.
 
-You can copy/paste this point to the other patches as well.
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case HID_DG_TIPPRESSURE:
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (quirks & MT_QUIRK=
+_EGALAX_XYZ_FIXUP)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 field=
+->logical_minimum =3D 0;
+>=20
+> No really need for the test and the quirk. In addition, here you do
+> not override logical_max. This shows that the quirk is not
+> MT_QUIRK_EGALAX_XYZ_FIXUP but the combination of
+> MT_QUIRK_EGALAX_XY_FIXUP and  MT_QUIRK_EGALAX_Z_MIN_FIXUP.
+> Just drop it here.
 
-How about:
-"3M PCT touch screens can be handled by the unified driver. This will
-ease future evolution. So, just move it."
+The added code path simply reflects what is in the hid-egalax
+driver. It is true that the statement _probably_ works for other
+devices as well, but it cannot be proven just by looking at the
+code. Also, we have no known additional case where it is needed.
 
-Then I'll copy/paste for the others.
-
->
-> [...]
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitou=
-ch.c
->> index e7a4f83..f32bf46 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -5,6 +5,11 @@
->> =A0 * =A0Copyright (c) 2010-2011 Benjamin Tissoires <benjamin.tissoi=
-res@gmail.com>
->> =A0 * =A0Copyright (c) 2010-2011 Ecole Nationale de l'Aviation Civil=
-e, France
->> =A0 *
->> + * =A0based on hid-3m-pct.c copyrighted as follows:
->> + * =A0 =A0Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
->> + * =A0 =A0Copyright (c) 2010 =A0 =A0 =A0Henrik Rydberg <rydberg@eur=
-omail.se>
->> + * =A0 =A0Copyright (c) 2010 =A0 =A0 =A0Canonical, Ltd.
->> + *
->> =A0 */
->>
->> =A0/*
->> @@ -74,6 +79,7 @@ struct mt_class {
->> =A0#define MT_CLS_DUAL_INRANGE_CONTACTNUMBER =A0 =A03
->> =A0#define MT_CLS_CYPRESS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 4
->> =A0#define MT_CLS_STANTUM =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 5
->> +#define MT_CLS_3M =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A06
->>
->> =A0/*
->> =A0 * these device-dependent functions determine what slot correspon=
-ds
->> @@ -124,6 +130,11 @@ struct mt_class mt_classes[] =3D {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 .maxcontacts =3D 10 },
->> =A0 =A0 =A0 { .name =3D MT_CLS_STANTUM,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 .quirks =3D MT_QUIRK_VALID_IS_CONFIDENCE=
- },
->> + =A0 =A0 { .name =3D MT_CLS_3M,
->> + =A0 =A0 =A0 =A0 =A0 =A0 .quirks =3D MT_QUIRK_VALID_IS_CONFIDENCE |
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 MT_QUIRK_SLOT_IS_CONTACTID=
-,
->> + =A0 =A0 =A0 =A0 =A0 =A0 .sn_move =3D 2048,
->> + =A0 =A0 =A0 =A0 =A0 =A0 .sn_pressure =3D 128 },
->>
->> =A0 =A0 =A0 { }
->> =A0};
->> @@ -479,6 +490,14 @@ static void mt_remove(struct hid_device *hdev)
->>
->> =A0static const struct hid_device_id mt_devices[] =3D {
->>
->> + =A0 =A0 /* 3M panels */
->> + =A0 =A0 { .driver_data =3D MT_CLS_3M,
->> + =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_3M,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_3M1968) },
->> + =A0 =A0 { .driver_data =3D MT_CLS_3M,
->> + =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_3M,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_3M2256) },
->> +
->> =A0 =A0 =A0 /* Cypress panel */
->> =A0 =A0 =A0 { .driver_data =3D MT_CLS_CYPRESS,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
->
-> The touch width correction from the original driver has gone missing
-> here. Otherwise, looks good, but will defer testing to the next round=
-=2E
-
-Oops, it's not missing, it has been transformed into sn_pressure...
-Will correct it.
-
-By looking at it, I just saw that we override values for HID_DG_HEIGHT
-to the range [0-1].
-I'll have to dig into.
-
-=46or the tests, I've tested it on the 1968.
+I am trying to think of a better name for the quirk, but frankly, I
+think it already says what it needs to say.
 
 Thanks,
-Benjamin
+Henrik
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

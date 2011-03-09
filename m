@@ -1,497 +1,167 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH v2 4/4] hid-multitouch: migrate 3M PCT touch screens to hid-multitouch
-Date: Wed,  9 Mar 2011 17:00:50 +0100
-Message-ID: <1299686450-5475-5-git-send-email-benjamin.tissoires__28777.4075441577$1299686524$gmane$org@enac.fr>
+Subject: [PATCH v2 1/4] hid-multitouch: Auto detection of maxcontacts
+Date: Wed,  9 Mar 2011 17:00:47 +0100
+Message-ID: <1299686450-5475-2-git-send-email-benjamin.tissoires__11481.8391776227$1299686534$gmane$org@enac.fr>
 References: <1299686450-5475-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:41440 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:41425 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755167Ab1CIQBR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2011 11:01:17 -0500
+	with ESMTP id S1755167Ab1CIQBE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2011 11:01:04 -0500
 In-Reply-To: <1299686450-5475-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-This patch merges the hid-3m-pct driver into hid-multitouch.
-To keep devices working the same way they used to with hid-3m-pct,
-we need to add two signal/noise ratios for width and height.
-We also need to work on width/height to send proper
-ABS_MT_ORIENTATION flag.
-
-Importing 3M into hid-multitouch also solved the bug in which
-devices handling width and height in their report descriptors
-did not show ABS_MT_TOUCH_MAJOR and ABS_MT_TOUCH_MINOR.
+This patch enables support of autodetection of maxcontacts.
+We can still manually provide maxcontact in case the device
+lies on it.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
 
-changes since v1:
-- introduce .sn_width and .sn_height
-- copy/paste width and height treatment from hid-3m-pct.c
+Changes since v1:
+- removed MT_CONTACTMAX_DEFAULT
+- test the return value of kzalloc
+- free td->slots when the device is removed
+- check for td->slots in mt_event to avoid a race as it is
+initialized after the device has been claimed.
 
-The width and height has been tested against the two other known devices
-that report them (stantum and cypress). But I was not able to test it
-against a 3M.
+ drivers/hid/hid-multitouch.c |   45 ++++++++++++++++++++++++++++-------------
+ 1 files changed, 31 insertions(+), 14 deletions(-)
 
-And many thanks Henrik for the review of the v1.
-
-Cheers,
-Benjamin
-
- drivers/hid/Kconfig          |    7 +-
- drivers/hid/Makefile         |    1 -
- drivers/hid/hid-3m-pct.c     |  305 ------------------------------------------
- drivers/hid/hid-multitouch.c |   37 +++++-
- 4 files changed, 36 insertions(+), 314 deletions(-)
- delete mode 100644 drivers/hid/hid-3m-pct.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 187c05e..3bf1001 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -55,12 +55,6 @@ source "drivers/hid/usbhid/Kconfig"
- menu "Special HID drivers"
- 	depends on HID
- 
--config HID_3M_PCT
--	tristate "3M PCT touchscreen"
--	depends on USB_HID
--	---help---
--	Support for 3M PCT touch screens.
--
- config HID_A4TECH
- 	tristate "A4 tech mice" if EMBEDDED
- 	depends on USB_HID
-@@ -310,6 +304,7 @@ config HID_MULTITOUCH
- 	  Generic support for HID multitouch panels.
- 
- 	  Say Y here if you have one of the following devices:
-+	  - 3M PCT touch screens
- 	  - Cando dual touch panel
- 	  - Cypress TrueTouch panels
- 	  - Hanvon dual touch panels
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 571ebb9..9d63d2c 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -25,7 +25,6 @@ ifdef CONFIG_LOGIWII_FF
- 	hid-logitech-y	+= hid-lg4ff.o
- endif
- 
--obj-$(CONFIG_HID_3M_PCT)	+= hid-3m-pct.o
- obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX_FF)	+= hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-diff --git a/drivers/hid/hid-3m-pct.c b/drivers/hid/hid-3m-pct.c
-deleted file mode 100644
-index 5243ae2..0000000
---- a/drivers/hid/hid-3m-pct.c
-+++ /dev/null
-@@ -1,305 +0,0 @@
--/*
-- *  HID driver for 3M PCT multitouch panels
-- *
-- *  Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
-- *  Copyright (c) 2010      Henrik Rydberg <rydberg@euromail.se>
-- *  Copyright (c) 2010      Canonical, Ltd.
-- *
-- */
--
--/*
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the Free
-- * Software Foundation; either version 2 of the License, or (at your option)
-- * any later version.
-- */
--
--#include <linux/device.h>
--#include <linux/hid.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/usb.h>
--#include <linux/input/mt.h>
--
--MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
--MODULE_DESCRIPTION("3M PCT multitouch panels");
--MODULE_LICENSE("GPL");
--
--#include "hid-ids.h"
--
--#define MAX_SLOTS		60
--
--/* estimated signal-to-noise ratios */
--#define SN_MOVE			2048
--#define SN_WIDTH		128
--
--struct mmm_finger {
--	__s32 x, y, w, h;
--	bool touch, valid;
--};
--
--struct mmm_data {
--	struct mmm_finger f[MAX_SLOTS];
--	__u8 curid;
--	__u8 nexp, nreal;
--	bool touch, valid;
--};
--
--static int mmm_input_mapping(struct hid_device *hdev, struct hid_input *hi,
--		struct hid_field *field, struct hid_usage *usage,
--		unsigned long **bit, int *max)
--{
--	int f1 = field->logical_minimum;
--	int f2 = field->logical_maximum;
--	int df = f2 - f1;
--
--	switch (usage->hid & HID_USAGE_PAGE) {
--
--	case HID_UP_BUTTON:
--		return -1;
--
--	case HID_UP_GENDESK:
--		switch (usage->hid) {
--		case HID_GD_X:
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_POSITION_X);
--			input_set_abs_params(hi->input, ABS_MT_POSITION_X,
--					     f1, f2, df / SN_MOVE, 0);
--			/* touchscreen emulation */
--			input_set_abs_params(hi->input, ABS_X,
--					     f1, f2, df / SN_MOVE, 0);
--			return 1;
--		case HID_GD_Y:
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_POSITION_Y);
--			input_set_abs_params(hi->input, ABS_MT_POSITION_Y,
--					     f1, f2, df / SN_MOVE, 0);
--			/* touchscreen emulation */
--			input_set_abs_params(hi->input, ABS_Y,
--					     f1, f2, df / SN_MOVE, 0);
--			return 1;
--		}
--		return 0;
--
--	case HID_UP_DIGITIZER:
--		switch (usage->hid) {
--		/* we do not want to map these: no input-oriented meaning */
--		case 0x14:
--		case 0x23:
--		case HID_DG_INPUTMODE:
--		case HID_DG_DEVICEINDEX:
--		case HID_DG_CONTACTCOUNT:
--		case HID_DG_CONTACTMAX:
--		case HID_DG_INRANGE:
--		case HID_DG_CONFIDENCE:
--			return -1;
--		case HID_DG_TIPSWITCH:
--			/* touchscreen emulation */
--			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
--			input_set_capability(hi->input, EV_KEY, BTN_TOUCH);
--			return 1;
--		case HID_DG_WIDTH:
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_TOUCH_MAJOR);
--			input_set_abs_params(hi->input, ABS_MT_TOUCH_MAJOR,
--					     f1, f2, df / SN_WIDTH, 0);
--			return 1;
--		case HID_DG_HEIGHT:
--			hid_map_usage(hi, usage, bit, max,
--					EV_ABS, ABS_MT_TOUCH_MINOR);
--			input_set_abs_params(hi->input, ABS_MT_TOUCH_MINOR,
--					     f1, f2, df / SN_WIDTH, 0);
--			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
--					0, 1, 0, 0);
--			return 1;
--		case HID_DG_CONTACTID:
--			input_mt_init_slots(hi->input, MAX_SLOTS);
--			return 1;
--		}
--		/* let hid-input decide for the others */
--		return 0;
--
--	case 0xff000000:
--		/* we do not want to map these: no input-oriented meaning */
--		return -1;
--	}
--
--	return 0;
--}
--
--static int mmm_input_mapped(struct hid_device *hdev, struct hid_input *hi,
--		struct hid_field *field, struct hid_usage *usage,
--		unsigned long **bit, int *max)
--{
--	/* tell hid-input to skip setup of these event types */
--	if (usage->type == EV_KEY || usage->type == EV_ABS)
--		set_bit(usage->type, hi->input->evbit);
--	return -1;
--}
--
--/*
-- * this function is called when a whole packet has been received and processed,
-- * so that it can decide what to send to the input layer.
-- */
--static void mmm_filter_event(struct mmm_data *md, struct input_dev *input)
--{
--	int i;
--	for (i = 0; i < MAX_SLOTS; ++i) {
--		struct mmm_finger *f = &md->f[i];
--		if (!f->valid) {
--			/* this finger is just placeholder data, ignore */
--			continue;
--		}
--		input_mt_slot(input, i);
--		input_mt_report_slot_state(input, MT_TOOL_FINGER, f->touch);
--		if (f->touch) {
--			/* this finger is on the screen */
--			int wide = (f->w > f->h);
--			/* divided by two to match visual scale of touch */
--			int major = max(f->w, f->h) >> 1;
--			int minor = min(f->w, f->h) >> 1;
--
--			input_event(input, EV_ABS, ABS_MT_POSITION_X, f->x);
--			input_event(input, EV_ABS, ABS_MT_POSITION_Y, f->y);
--			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
--			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
--			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
--		}
--		f->valid = 0;
--	}
--
--	input_mt_report_pointer_emulation(input, true);
--	input_sync(input);
--}
--
--/*
-- * this function is called upon all reports
-- * so that we can accumulate contact point information,
-- * and call input_mt_sync after each point.
-- */
--static int mmm_event(struct hid_device *hid, struct hid_field *field,
--				struct hid_usage *usage, __s32 value)
--{
--	struct mmm_data *md = hid_get_drvdata(hid);
--	/*
--	 * strangely, this function can be called before
--	 * field->hidinput is initialized!
--	 */
--	if (hid->claimed & HID_CLAIMED_INPUT) {
--		struct input_dev *input = field->hidinput->input;
--		switch (usage->hid) {
--		case HID_DG_TIPSWITCH:
--			md->touch = value;
--			break;
--		case HID_DG_CONFIDENCE:
--			md->valid = value;
--			break;
--		case HID_DG_WIDTH:
--			if (md->valid)
--				md->f[md->curid].w = value;
--			break;
--		case HID_DG_HEIGHT:
--			if (md->valid)
--				md->f[md->curid].h = value;
--			break;
--		case HID_DG_CONTACTID:
--			value = clamp_val(value, 0, MAX_SLOTS - 1);
--			if (md->valid) {
--				md->curid = value;
--				md->f[value].touch = md->touch;
--				md->f[value].valid = 1;
--				md->nreal++;
--			}
--			break;
--		case HID_GD_X:
--			if (md->valid)
--				md->f[md->curid].x = value;
--			break;
--		case HID_GD_Y:
--			if (md->valid)
--				md->f[md->curid].y = value;
--			break;
--		case HID_DG_CONTACTCOUNT:
--			if (value)
--				md->nexp = value;
--			if (md->nreal >= md->nexp) {
--				mmm_filter_event(md, input);
--				md->nreal = 0;
--			}
--			break;
--		}
--	}
--
--	/* we have handled the hidinput part, now remains hiddev */
--	if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
--		hid->hiddev_hid_event(hid, field, usage, value);
--
--	return 1;
--}
--
--static int mmm_probe(struct hid_device *hdev, const struct hid_device_id *id)
--{
--	int ret;
--	struct mmm_data *md;
--
--	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
--
--	md = kzalloc(sizeof(struct mmm_data), GFP_KERNEL);
--	if (!md) {
--		hid_err(hdev, "cannot allocate 3M data\n");
--		return -ENOMEM;
--	}
--	hid_set_drvdata(hdev, md);
--
--	ret = hid_parse(hdev);
--	if (!ret)
--		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--
--	if (ret)
--		kfree(md);
--	return ret;
--}
--
--static void mmm_remove(struct hid_device *hdev)
--{
--	hid_hw_stop(hdev);
--	kfree(hid_get_drvdata(hdev));
--	hid_set_drvdata(hdev, NULL);
--}
--
--static const struct hid_device_id mmm_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256) },
--	{ }
--};
--MODULE_DEVICE_TABLE(hid, mmm_devices);
--
--static const struct hid_usage_id mmm_grabbed_usages[] = {
--	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
--	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
--};
--
--static struct hid_driver mmm_driver = {
--	.name = "3m-pct",
--	.id_table = mmm_devices,
--	.probe = mmm_probe,
--	.remove = mmm_remove,
--	.input_mapping = mmm_input_mapping,
--	.input_mapped = mmm_input_mapped,
--	.usage_table = mmm_grabbed_usages,
--	.event = mmm_event,
--};
--
--static int __init mmm_init(void)
--{
--	return hid_register_driver(&mmm_driver);
--}
--
--static void __exit mmm_exit(void)
--{
--	hid_unregister_driver(&mmm_driver);
--}
--
--module_init(mmm_init);
--module_exit(mmm_exit);
--
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 02a77f9..0b92dfc 100644
+index 65e7f20..8a5fcc0 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -5,6 +5,11 @@
-  *  Copyright (c) 2010-2011 Benjamin Tissoires <benjamin.tissoires@gmail.com>
-  *  Copyright (c) 2010-2011 Ecole Nationale de l'Aviation Civile, France
-  *
-+ *  based on hid-3m-pct.c copyrighted as follows:
-+ *    Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
-+ *    Copyright (c) 2010      Henrik Rydberg <rydberg@euromail.se>
-+ *    Copyright (c) 2010      Canonical, Ltd.
-+ *
-  */
- 
- /*
-@@ -62,6 +67,8 @@ struct mt_class {
- 	__s32 name;	/* MT_CLS */
- 	__s32 quirks;
- 	__s32 sn_move;	/* Signal/noise ratio for move events */
-+	__s32 sn_width;	/* Signal/noise ratio for width events */
-+	__s32 sn_height;	/* Signal/noise ratio for height events */
- 	__s32 sn_pressure;	/* Signal/noise ratio for pressure events */
- 	__u8 maxcontacts;
+@@ -53,8 +53,9 @@ struct mt_device {
+ 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
+ 	__u8 num_received;	/* how many contacts we received */
+ 	__u8 num_expected;	/* expected last contact index */
++	__u8 maxcontacts;
+ 	bool curvalid;		/* is the current contact valid? */
+-	struct mt_slot slots[0];	/* first slot */
++	struct mt_slot *slots;
  };
-@@ -72,6 +79,7 @@ struct mt_class {
- #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	3
- #define MT_CLS_CYPRESS				4
- #define MT_CLS_STANTUM				5
-+#define MT_CLS_3M				6
  
- /*
-  * these device-dependent functions determine what slot corresponds
-@@ -123,6 +131,12 @@ struct mt_class mt_classes[] = {
- 		.maxcontacts = 10 },
- 	{ .name = MT_CLS_STANTUM,
- 		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE },
-+	{ .name = MT_CLS_3M,
-+		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE |
-+			MT_QUIRK_SLOT_IS_CONTACTID,
-+		.sn_move = 2048,
-+		.sn_width = 128,
-+		.sn_height = 128 },
+ struct mt_class {
+@@ -87,12 +88,12 @@ static int cypress_compute_slot(struct mt_device *td)
+ static int find_slot_from_contactid(struct mt_device *td)
+ {
+ 	int i;
+-	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
++	for (i = 0; i < td->maxcontacts; ++i) {
+ 		if (td->slots[i].contactid == td->curdata.contactid &&
+ 			td->slots[i].touch_state)
+ 			return i;
+ 	}
+-	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
++	for (i = 0; i < td->maxcontacts; ++i) {
+ 		if (!td->slots[i].seen_in_this_frame &&
+ 			!td->slots[i].touch_state)
+ 			return i;
+@@ -106,7 +107,7 @@ static int find_slot_from_contactid(struct mt_device *td)
+ struct mt_class mt_classes[] = {
+ 	{ .name = MT_CLS_DEFAULT,
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
+-		.maxcontacts = 10 },
++		.maxcontacts = 2 },
+ 	{ .name = MT_CLS_DUAL_INRANGE_CONTACTID,
+ 		.quirks = MT_QUIRK_VALID_IS_INRANGE |
+ 			MT_QUIRK_SLOT_IS_CONTACTID,
+@@ -126,9 +127,19 @@ struct mt_class mt_classes[] = {
+ static void mt_feature_mapping(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage)
+ {
+-	if (usage->hid == HID_DG_INPUTMODE) {
+-		struct mt_device *td = hid_get_drvdata(hdev);
++	struct mt_device *td = hid_get_drvdata(hdev);
++
++	switch (usage->hid) {
++	case HID_DG_INPUTMODE:
+ 		td->inputmode = field->report->id;
++		break;
++	case HID_DG_CONTACTMAX:
++		td->maxcontacts = *(field->value);
++		if (td->mtclass->maxcontacts > td->maxcontacts)
++			/* check if the maxcontacts is given by the class */
++			td->maxcontacts = td->mtclass->maxcontacts;
++
++		break;
+ 	}
+ }
  
- 	{ }
- };
-@@ -206,11 +220,15 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		case HID_DG_WIDTH:
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TOUCH_MAJOR);
-+			set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
-+				cls->sn_width);
+@@ -186,8 +197,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
  			td->last_slot_field = usage->hid;
  			return 1;
- 		case HID_DG_HEIGHT:
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TOUCH_MINOR);
-+			set_abs(hi->input, ABS_MT_TOUCH_MINOR, field,
-+				cls->sn_height);
- 			field->logical_maximum = 1;
- 			field->logical_minimum = 0;
- 			set_abs(hi->input, ABS_MT_ORIENTATION, field, 0);
-@@ -307,11 +325,18 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
- 		input_mt_report_slot_state(input, MT_TOOL_FINGER,
- 			s->touch_state);
- 		if (s->touch_state) {
-+			/* this finger is on the screen */
-+			int wide = (s->w > s->h);
-+			/* divided by two to match visual scale of touch */
-+			int major = max(s->w, s->h) >> 1;
-+			int minor = min(s->w, s->h) >> 1;
+ 		case HID_DG_CONTACTID:
+-			input_mt_init_slots(hi->input,
+-					td->mtclass->maxcontacts);
++			input_mt_init_slots(hi->input, td->maxcontacts);
+ 			td->last_slot_field = usage->hid;
+ 			return 1;
+ 		case HID_DG_WIDTH:
+@@ -268,7 +278,7 @@ static void mt_complete_slot(struct mt_device *td)
+ 	if (td->curvalid) {
+ 		int slotnum = mt_compute_slot(td);
+ 
+-		if (slotnum >= 0 && slotnum < td->mtclass->maxcontacts)
++		if (slotnum >= 0 && slotnum < td->maxcontacts)
+ 			td->slots[slotnum] = td->curdata;
+ 	}
+ 	td->num_received++;
+@@ -283,7 +293,7 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
++	for (i = 0; i < td->maxcontacts; ++i) {
+ 		struct mt_slot *s = &(td->slots[i]);
+ 		if ((td->mtclass->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP) &&
+ 			!s->seen_in_this_frame) {
+@@ -317,7 +327,7 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 	struct mt_device *td = hid_get_drvdata(hid);
+ 	__s32 quirks = td->mtclass->quirks;
+ 
+-	if (hid->claimed & HID_CLAIMED_INPUT) {
++	if (hid->claimed & HID_CLAIMED_INPUT && td->slots) {
+ 		switch (usage->hid) {
+ 		case HID_DG_INRANGE:
+ 			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
+@@ -415,9 +425,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 */
+ 	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
+ 
+-	td = kzalloc(sizeof(struct mt_device) +
+-				mtclass->maxcontacts * sizeof(struct mt_slot),
+-				GFP_KERNEL);
++	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
+ 	if (!td) {
+ 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
+ 		return -ENOMEM;
+@@ -434,6 +442,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (ret)
+ 		goto fail;
+ 
++	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
++				GFP_KERNEL);
++	if (!td->slots) {
++		dev_err(&hdev->dev, "cannot allocate multitouch slots\n");
++		ret = -ENOMEM;
++		goto fail;
++	}
 +
- 			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
- 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
-+			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
- 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
--			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, s->w);
--			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, s->h);
-+			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-+			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
- 		}
- 		s->seen_in_this_frame = false;
+ 	mt_set_input_mode(hdev);
  
-@@ -481,6 +506,14 @@ static void mt_remove(struct hid_device *hdev)
- 
- static const struct hid_device_id mt_devices[] = {
- 
-+	/* 3M panels */
-+	{ .driver_data = MT_CLS_3M,
-+		HID_USB_DEVICE(USB_VENDOR_ID_3M,
-+			USB_DEVICE_ID_3M1968) },
-+	{ .driver_data = MT_CLS_3M,
-+		HID_USB_DEVICE(USB_VENDOR_ID_3M,
-+			USB_DEVICE_ID_3M2256) },
-+
- 	/* Cando panels */
- 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
- 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 	return 0;
+@@ -455,6 +471,7 @@ static void mt_remove(struct hid_device *hdev)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	hid_hw_stop(hdev);
++	kfree(td->slots);
+ 	kfree(td);
+ 	hid_set_drvdata(hdev, NULL);
+ }
 -- 
 1.7.4
 

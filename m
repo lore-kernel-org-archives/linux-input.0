@@ -1,76 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: FW: [Bug 30792] New: MosArt touchscreen relative motion since kernel
- upgrade
-Date: Wed, 9 Mar 2011 11:53:51 -0800
-Message-ID: <20110309195350.GA9604@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: hid-magicmouse: Correct touch orientation
+ direction
+Date: Thu, 10 Mar 2011 00:06:36 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1103100006270.19969@pobox.suse.cz>
+References: <1299692337-1547-1-git-send-email-rydberg@euromail.se> <4D77BC8C.8040801@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:57705 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751320Ab1CITx6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2011 14:53:58 -0500
-Received: by qwd7 with SMTP id 7so675195qwd.19
-        for <linux-input@vger.kernel.org>; Wed, 09 Mar 2011 11:53:58 -0800 (PST)
-Content-Disposition: inline
+Received: from cantor.suse.de ([195.135.220.2]:44773 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750814Ab1CIXGi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Mar 2011 18:06:38 -0500
+In-Reply-To: <4D77BC8C.8040801@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: james.sharam@gmail.com, Linux Input <linux-input@vger.kernel.org>
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@kernel.org, Michael Poole <mdpoole@troilus.org>
 
-Forwarding since Benjamin does not seem to have bugzilla account...
+On Wed, 9 Mar 2011, Chase Douglas wrote:
 
------ Forwarded message from bugzilla-daemon@bugzilla.kernel.org -----
+> > The magic trackpad and mouse both report touch orientation in opposite
+> > direction to the bcm5974 driver and what is written in
+> > Documents/input/multi-touch-protocol.txt. This patch reverts the
+> > direction, so that all in-kernel devices with this feature behave the
+> > same way.
+> > 
+> > Since no known application has been utilizing this information yet, it
+> > seems appropriate also for stable.
+> > 
+> > Cc: stable@kernel.org
+> > Cc: Michael Poole <mdpoole@troilus.org>
+> > Cc: Chase Douglas <chase.douglas@canonical.com>
+> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> 
+> Acked-by: Chase Douglas <chase.douglas@canonical.com>
 
-Date: Wed, 9 Mar 2011 10:25:31 GMT
-From: bugzilla-daemon@bugzilla.kernel.org
-To: dmitry.torokhov@gmail.com
-Subject: [Bug 30792] New: MosArt touchscreen relative motion since kernel upgrade
-
-https://bugzilla.kernel.org/show_bug.cgi?id=30792
-
-           Summary: MosArt touchscreen relative motion since kernel
-                    upgrade
-           Product: Drivers
-           Version: 2.5
-    Kernel Version: 2.6.37.2 and 2.6.37.3
-          Platform: All
-        OS/Version: Linux
-              Tree: Mainline
-            Status: NEW
-          Severity: normal
-          Priority: P1
-         Component: Input Devices
-        AssignedTo: drivers_input-devices@kernel-bugs.osdl.org
-        ReportedBy: james.sharam@gmail.com
-        Regression: No
-
-
-I have a laptop with a MosArt touchscreen and since upgrading to 2.6.37.2 it
-hasn't been behaving correctly.
-
-Motion since the update is relative rather than absolute. For example, when I
-touch part of the screen, nothing happens, the cursor doesn't jump to where my
-finger presses. However, when I touch the screen and drag my finger the mouse
-moves around in the same direction as my finger moves, but doesn't move to
-where my finger is.
-
-It seems to be behaving like a touchpad rather than like a touchscreen.
-
-I think this is related to commit c64f6f934c7490faff76faf96217066a1b3570a0
-which changes over the driver for the touchscreen to use hid-mosart.
-
-Is this likely to be a configuration issue with the new driver or a bug in the
-driver?
-
-Thanks.
+Makes sense. Applied, thanks.
 
 -- 
-Configure bugmail: https://bugzilla.kernel.org/userprefs.cgi?tab=email
-------- You are receiving this mail because: -------
-You are watching the assignee of the bug.
-
------ End forwarded message -----
-
--- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.

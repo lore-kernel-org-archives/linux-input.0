@@ -1,167 +1,57 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH v2 1/4] hid-multitouch: Auto detection of maxcontacts
-Date: Wed,  9 Mar 2011 17:00:47 +0100
-Message-ID: <1299686450-5475-2-git-send-email-benjamin.tissoires__11481.8391776227$1299686534$gmane$org@enac.fr>
-References: <1299686450-5475-1-git-send-email-benjamin.tissoires@enac.fr>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] HID: hid-magicmouse: Correct touch orientation direction
+Date: Wed,  9 Mar 2011 18:38:57 +0100
+Message-ID: <1299692337-1547-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:41425 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755167Ab1CIQBE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2011 11:01:04 -0500
-In-Reply-To: <1299686450-5475-1-git-send-email-benjamin.tissoires@enac.fr>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:49284 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757106Ab1CIRhO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Mar 2011 12:37:14 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, stable@kernel.org, Michael Poole <mdpoole@troilus.org>, Chase Douglas <chase.douglas@canonical.com>
 
-This patch enables support of autodetection of maxcontacts.
-We can still manually provide maxcontact in case the device
-lies on it.
+The magic trackpad and mouse both report touch orientation in opposite
+direction to the bcm5974 driver and what is written in
+Documents/input/multi-touch-protocol.txt. This patch reverts the
+direction, so that all in-kernel devices with this feature behave the
+same way.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Since no known application has been utilizing this information yet, it
+seems appropriate also for stable.
+
+Cc: stable@kernel.org
+Cc: Michael Poole <mdpoole@troilus.org>
+Cc: Chase Douglas <chase.douglas@canonical.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
+ drivers/hid/hid-magicmouse.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Changes since v1:
-- removed MT_CONTACTMAX_DEFAULT
-- test the return value of kzalloc
-- free td->slots when the device is removed
-- check for td->slots in mt_event to avoid a race as it is
-initialized after the device has been claimed.
-
- drivers/hid/hid-multitouch.c |   45 ++++++++++++++++++++++++++++-------------
- 1 files changed, 31 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 65e7f20..8a5fcc0 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -53,8 +53,9 @@ struct mt_device {
- 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
- 	__u8 num_received;	/* how many contacts we received */
- 	__u8 num_expected;	/* expected last contact index */
-+	__u8 maxcontacts;
- 	bool curvalid;		/* is the current contact valid? */
--	struct mt_slot slots[0];	/* first slot */
-+	struct mt_slot *slots;
- };
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 698e645..318cc40 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -258,7 +258,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 		input_report_abs(input, ABS_MT_TRACKING_ID, id);
+ 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major << 2);
+ 		input_report_abs(input, ABS_MT_TOUCH_MINOR, touch_minor << 2);
+-		input_report_abs(input, ABS_MT_ORIENTATION, orientation);
++		input_report_abs(input, ABS_MT_ORIENTATION, -orientation);
+ 		input_report_abs(input, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input, ABS_MT_POSITION_Y, y);
  
- struct mt_class {
-@@ -87,12 +88,12 @@ static int cypress_compute_slot(struct mt_device *td)
- static int find_slot_from_contactid(struct mt_device *td)
- {
- 	int i;
--	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
-+	for (i = 0; i < td->maxcontacts; ++i) {
- 		if (td->slots[i].contactid == td->curdata.contactid &&
- 			td->slots[i].touch_state)
- 			return i;
- 	}
--	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
-+	for (i = 0; i < td->maxcontacts; ++i) {
- 		if (!td->slots[i].seen_in_this_frame &&
- 			!td->slots[i].touch_state)
- 			return i;
-@@ -106,7 +107,7 @@ static int find_slot_from_contactid(struct mt_device *td)
- struct mt_class mt_classes[] = {
- 	{ .name = MT_CLS_DEFAULT,
- 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
--		.maxcontacts = 10 },
-+		.maxcontacts = 2 },
- 	{ .name = MT_CLS_DUAL_INRANGE_CONTACTID,
- 		.quirks = MT_QUIRK_VALID_IS_INRANGE |
- 			MT_QUIRK_SLOT_IS_CONTACTID,
-@@ -126,9 +127,19 @@ struct mt_class mt_classes[] = {
- static void mt_feature_mapping(struct hid_device *hdev,
- 		struct hid_field *field, struct hid_usage *usage)
- {
--	if (usage->hid == HID_DG_INPUTMODE) {
--		struct mt_device *td = hid_get_drvdata(hdev);
-+	struct mt_device *td = hid_get_drvdata(hdev);
-+
-+	switch (usage->hid) {
-+	case HID_DG_INPUTMODE:
- 		td->inputmode = field->report->id;
-+		break;
-+	case HID_DG_CONTACTMAX:
-+		td->maxcontacts = *(field->value);
-+		if (td->mtclass->maxcontacts > td->maxcontacts)
-+			/* check if the maxcontacts is given by the class */
-+			td->maxcontacts = td->mtclass->maxcontacts;
-+
-+		break;
- 	}
- }
+@@ -397,7 +397,7 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
+ 		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 4, 0);
+ 		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255, 4, 0);
+-		input_set_abs_params(input, ABS_MT_ORIENTATION, -32, 31, 1, 0);
++		input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
  
-@@ -186,8 +197,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			td->last_slot_field = usage->hid;
- 			return 1;
- 		case HID_DG_CONTACTID:
--			input_mt_init_slots(hi->input,
--					td->mtclass->maxcontacts);
-+			input_mt_init_slots(hi->input, td->maxcontacts);
- 			td->last_slot_field = usage->hid;
- 			return 1;
- 		case HID_DG_WIDTH:
-@@ -268,7 +278,7 @@ static void mt_complete_slot(struct mt_device *td)
- 	if (td->curvalid) {
- 		int slotnum = mt_compute_slot(td);
- 
--		if (slotnum >= 0 && slotnum < td->mtclass->maxcontacts)
-+		if (slotnum >= 0 && slotnum < td->maxcontacts)
- 			td->slots[slotnum] = td->curdata;
- 	}
- 	td->num_received++;
-@@ -283,7 +293,7 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
- {
- 	int i;
- 
--	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
-+	for (i = 0; i < td->maxcontacts; ++i) {
- 		struct mt_slot *s = &(td->slots[i]);
- 		if ((td->mtclass->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP) &&
- 			!s->seen_in_this_frame) {
-@@ -317,7 +327,7 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
- 	struct mt_device *td = hid_get_drvdata(hid);
- 	__s32 quirks = td->mtclass->quirks;
- 
--	if (hid->claimed & HID_CLAIMED_INPUT) {
-+	if (hid->claimed & HID_CLAIMED_INPUT && td->slots) {
- 		switch (usage->hid) {
- 		case HID_DG_INRANGE:
- 			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
-@@ -415,9 +425,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	 */
- 	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
- 
--	td = kzalloc(sizeof(struct mt_device) +
--				mtclass->maxcontacts * sizeof(struct mt_slot),
--				GFP_KERNEL);
-+	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
- 	if (!td) {
- 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
- 		return -ENOMEM;
-@@ -434,6 +442,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (ret)
- 		goto fail;
- 
-+	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
-+				GFP_KERNEL);
-+	if (!td->slots) {
-+		dev_err(&hdev->dev, "cannot allocate multitouch slots\n");
-+		ret = -ENOMEM;
-+		goto fail;
-+	}
-+
- 	mt_set_input_mode(hdev);
- 
- 	return 0;
-@@ -455,6 +471,7 @@ static void mt_remove(struct hid_device *hdev)
- {
- 	struct mt_device *td = hid_get_drvdata(hdev);
- 	hid_hw_stop(hdev);
-+	kfree(td->slots);
- 	kfree(td);
- 	hid_set_drvdata(hdev, NULL);
- }
+ 		/* Note: Touch Y position from the device is inverted relative
+ 		 * to how pointer motion is reported (and relative to how USB
 -- 
-1.7.4
+1.7.4.1
 

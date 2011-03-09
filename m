@@ -1,177 +1,113 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/4] hid-multitouch: Auto detection of maxcontacts
-Date: Wed, 9 Mar 2011 12:22:55 +0100
-Message-ID: <20110309112255.GA9020@polaris.bitmath.org>
-References: <1299601979-4871-1-git-send-email-benjamin.tissoires@enac.fr>
- <1299601979-4871-2-git-send-email-benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH v3] [input-hid] Add hid-egalax driver to the unified
+ hid-multitouch framework.
+Date: Wed, 9 Mar 2011 12:40:38 +0100
+Message-ID: <20110309114038.GA9143@polaris.bitmath.org>
+References: <20110308080414.GA2888@polaris.bitmath.org>
+ <AANLkTimT9q8mo3uW0P7T0B=D4kkE83OB9ycgdJ_muZ2W@mail.gmail.com>
+ <20110308091434.GA3282@polaris.bitmath.org>
+ <AANLkTiko_mKgW6fXeAuBY4D5AT_9OHAJnk_mfQEPQVF9@mail.gmail.com>
+ <20110308094630.GA3396@polaris.bitmath.org>
+ <1299627518.2306.47.camel@itzy>
+ <20110309082455.GA3166@polaris.bitmath.org>
+ <AANLkTikDBTFNWhYoR5B-kfZ8Ud_aiW36qrTNJsJgHdTJ@mail.gmail.com>
+ <20110309092337.GC3824@polaris.bitmath.org>
+ <AANLkTi=TJ3RPOSP3XyqOfX8Aeep3-uFcHmcia6+a2Wxy@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:36298 "EHLO
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:47440 "EHLO
 	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751758Ab1CILUO (ORCPT
+	by vger.kernel.org with ESMTP id S1752084Ab1CILjS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Mar 2011 06:20:14 -0500
+	Wed, 9 Mar 2011 06:39:18 -0500
 Content-Disposition: inline
-In-Reply-To: <1299601979-4871-2-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <AANLkTi=TJ3RPOSP3XyqOfX8Aeep3-uFcHmcia6+a2Wxy@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Richard Nauber <richard.nauber@googlemail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-On Tue, Mar 08, 2011 at 05:32:56PM +0100, Benjamin Tissoires wrote:
-> This patch enables support of autodetection of maxcontacts.
-> We can still manually provide maxcontact in case the device
-> lies on it.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ---
->  drivers/hid/hid-multitouch.c |   43 ++++++++++++++++++++++++++++-------------
->  1 files changed, 29 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 65e7f20..363ca08 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -38,6 +38,8 @@ MODULE_LICENSE("GPL");
->  #define MT_QUIRK_VALID_IS_INRANGE	(1 << 4)
->  #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 5)
->  
-> +#define MT_CONTACTMAX_DEFAULT	11
-> +
+> >> Please do not add numerical constants in a generic code. If I want=
+ to
+> >> override the values for another device, I'll have to rename your q=
+uirk
+> >> to MT_QUIRK_EGALAX_XYZ_FIXUP_WITH_0_32760_0_32760_0_x and add mine=
+=2E
+> >> These values have to be moved in the MT_CLS.
+> >
+> > It is a specific value used for a specific code path, no need to
+> > over-generalize. =A0The quirk name could be specialized even more, =
+i
+> > suppose, but the point is that it makes the hid-multitouch driver d=
+o
+> > exactly what is done in the hid-egalax driver, and it is easy to pr=
+ove
+> > that there are no side effects for other devices.
+>=20
+> Or it's a generic code path for generic devices: if someone want to d=
+o
+> the same thing that have been done in hid-egalax (correct the logical
+> min/max reported by the device), this could be done.
 
-I think this one can be removed, se below.
+The point is that this is not generally needed, but necessitated by a
+bug in the firmware. Problems like this is why we have quirks.
 
->  struct mt_slot {
->  	__s32 x, y, p, w, h;
->  	__s32 contactid;	/* the device ContactID assigned to this slot */
-> @@ -53,8 +55,9 @@ struct mt_device {
->  	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
->  	__u8 num_received;	/* how many contacts we received */
->  	__u8 num_expected;	/* expected last contact index */
-> +	__u8 maxcontacts;
->  	bool curvalid;		/* is the current contact valid? */
-> -	struct mt_slot slots[0];	/* first slot */
-> +	struct mt_slot *slots;
->  };
->  
->  struct mt_class {
-> @@ -87,12 +90,12 @@ static int cypress_compute_slot(struct mt_device *td)
->  static int find_slot_from_contactid(struct mt_device *td)
->  {
->  	int i;
-> -	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
-> +	for (i = 0; i < td->maxcontacts; ++i) {
->  		if (td->slots[i].contactid == td->curdata.contactid &&
->  			td->slots[i].touch_state)
->  			return i;
->  	}
-> -	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
-> +	for (i = 0; i < td->maxcontacts; ++i) {
->  		if (!td->slots[i].seen_in_this_frame &&
->  			!td->slots[i].touch_state)
->  			return i;
-> @@ -105,8 +108,7 @@ static int find_slot_from_contactid(struct mt_device *td)
->  
->  struct mt_class mt_classes[] = {
->  	{ .name = MT_CLS_DEFAULT,
-> -		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP,
-> -		.maxcontacts = 10 },
-> +		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP },
+> Concerning the prove, I'm pretty sure we can manage to prove that bot=
+h
+> solutions are equivalent as the current code already relies on the
+> fact that static struct are null initialized.
 
-Keeping .maxcontacts at two here seems sensible
+The comment here was about using specific code paths enabled by quirks.
 
->  	{ .name = MT_CLS_DUAL_INRANGE_CONTACTID,
->  		.quirks = MT_QUIRK_VALID_IS_INRANGE |
->  			MT_QUIRK_SLOT_IS_CONTACTID,
-> @@ -126,9 +128,22 @@ struct mt_class mt_classes[] = {
->  static void mt_feature_mapping(struct hid_device *hdev,
->  		struct hid_field *field, struct hid_usage *usage)
->  {
-> -	if (usage->hid == HID_DG_INPUTMODE) {
-> -		struct mt_device *td = hid_get_drvdata(hdev);
-> +	struct mt_device *td = hid_get_drvdata(hdev);
-> +
-> +	switch (usage->hid) {
-> +	case HID_DG_INPUTMODE:
->  		td->inputmode = field->report->id;
-> +		break;
-> +	case HID_DG_CONTACTMAX:
-> +		td->maxcontacts = *(field->value);
-> +		if (td->mtclass->maxcontacts)
+> >> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0case HID_DG_TIPPRESSURE:
+> >> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (quirks & MT_QU=
+IRK_EGALAX_XYZ_FIXUP)
+> >> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 fi=
+eld->logical_minimum =3D 0;
+> >>
+> >> No really need for the test and the quirk. In addition, here you d=
+o
+> >> not override logical_max. This shows that the quirk is not
+> >> MT_QUIRK_EGALAX_XYZ_FIXUP but the combination of
+> >> MT_QUIRK_EGALAX_XY_FIXUP and =A0MT_QUIRK_EGALAX_Z_MIN_FIXUP.
+> >> Just drop it here.
+> >
+> > The added code path simply reflects what is in the hid-egalax
+> > driver. It is true that the statement _probably_ works for other
+> > devices as well, but it cannot be proven just by looking at the
+> > code. Also, we have no known additional case where it is needed.
+>=20
+> I didn't told to remove the test just by looking at the code. I'm
+> taking in account all the devices that have been reported to us:
+> http://lii-enac.fr/en/architecture/linux-input/multitouch-devices.htm=
+l
+> Among all of them, only asus, egalax (capacitive and resistive),
+> mosart (the same as asus), and stantum reports pressure.
+> Asus and mosart set only the logical maximum -> logical minimum is
+> therefore at 0.
+> Stantum does not set the min/max -> logical minimum is at 0 too.
+> EGalax set the minimum at 1 -> in your patch, you explained that was =
+a
+> bug for the upper layers.
 
-if (td->mtclass->maxcontacts > td->maxcontacts)
+=46ine. Since we will always want the pressure to have zero intercept, =
+I
+think it is ok to always execute that line, but I still think it is
+better to leave it conditional.
 
-> +			/* check if the maxcontacts is given by the class */
-> +			td->maxcontacts = td->mtclass->maxcontacts;
-> +
-> +		if (!td->maxcontacts)
-> +			td->maxcontacts = MT_CONTACTMAX_DEFAULT;
+> > I am trying to think of a better name for the quirk, but frankly, I
+> > think it already says what it needs to say.
+>=20
+> What about MT_QUIRK_XYZ_CORRECTIONS_FOR_SPECIAL_EGALAX_DEVICES?
 
-this part can be then dropped
+Maybe at bit long, I guess you aren't really serious.
 
-> +
-> +		break;
->  	}
->  }
->  
-> @@ -186,8 +201,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			td->last_slot_field = usage->hid;
->  			return 1;
->  		case HID_DG_CONTACTID:
-> -			input_mt_init_slots(hi->input,
-> -					td->mtclass->maxcontacts);
-> +			input_mt_init_slots(hi->input, td->maxcontacts);
->  			td->last_slot_field = usage->hid;
->  			return 1;
->  		case HID_DG_WIDTH:
-> @@ -268,7 +282,7 @@ static void mt_complete_slot(struct mt_device *td)
->  	if (td->curvalid) {
->  		int slotnum = mt_compute_slot(td);
->  
-> -		if (slotnum >= 0 && slotnum < td->mtclass->maxcontacts)
-> +		if (slotnum >= 0 && slotnum < td->maxcontacts)
->  			td->slots[slotnum] = td->curdata;
->  	}
->  	td->num_received++;
-> @@ -283,7 +297,7 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
->  {
->  	int i;
->  
-> -	for (i = 0; i < td->mtclass->maxcontacts; ++i) {
-> +	for (i = 0; i < td->maxcontacts; ++i) {
->  		struct mt_slot *s = &(td->slots[i]);
->  		if ((td->mtclass->quirks & MT_QUIRK_NOT_SEEN_MEANS_UP) &&
->  			!s->seen_in_this_frame) {
-> @@ -415,9 +429,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	 */
->  	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
->  
-> -	td = kzalloc(sizeof(struct mt_device) +
-> -				mtclass->maxcontacts * sizeof(struct mt_slot),
-> -				GFP_KERNEL);
-> +	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
->  	if (!td) {
->  		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
->  		return -ENOMEM;
-> @@ -434,6 +446,9 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (ret)
->  		goto fail;
->  
-> +	td->slots = kzalloc(td->maxcontacts * sizeof(struct mt_slot),
-> +				GFP_KERNEL);
-> +
-
-Don't we have a race problem here?  It seems the device is started at
-this point, so I worry that events will be handled when slots is still
-NULL.
-
->  	mt_set_input_mode(hdev);
->  
->  	return 0;
-> -- 
-> 1.7.4
-> 
-
-Thanks,
+Thanks.
 Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

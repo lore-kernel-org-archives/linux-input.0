@@ -1,19 +1,20 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/4] hid-multitouch: Auto detection of maxcontacts
-Date: Wed, 9 Mar 2011 09:42:22 +0100
-Message-ID: <20110309084222.GA3569@polaris.bitmath.org>
+Subject: Re: [PATCH 3/4] hid-multitouch: migrate 3M PCT touch screens to the
+ unified driver.
+Date: Wed, 9 Mar 2011 09:46:45 +0100
+Message-ID: <20110309084645.GB3569@polaris.bitmath.org>
 References: <1299601979-4871-1-git-send-email-benjamin.tissoires@enac.fr>
- <1299601979-4871-2-git-send-email-benjamin.tissoires@enac.fr>
+ <1299601979-4871-4-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:60339 "EHLO
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:55432 "EHLO
 	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756782Ab1CIIjw (ORCPT
+	by vger.kernel.org with ESMTP id S1756904Ab1CIIoZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Mar 2011 03:39:52 -0500
+	Wed, 9 Mar 2011 03:44:25 -0500
 Content-Disposition: inline
-In-Reply-To: <1299601979-4871-2-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <1299601979-4871-4-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
@@ -21,16 +22,67 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> This patch enables support of autodetection of maxcontacts.
-> We can still manually provide maxcontact in case the device
-> lies on it.
-> 
+On Tue, Mar 08, 2011 at 05:32:58PM +0100, Benjamin Tissoires wrote:
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
 
-It seems quite alright to let the classes contain the expected number
-of contacts, so I do not really see the reason for that part of the
-patch. How about keeping the maxcontacts in the class, and then do
-max(hid-provided-maxcontacts, default-maxcontacts)?
+Semms this patch is missing a commit message.
 
-Thanks,
+[...]
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index e7a4f83..f32bf46 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -5,6 +5,11 @@
+>   *  Copyright (c) 2010-2011 Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>   *  Copyright (c) 2010-2011 Ecole Nationale de l'Aviation Civile, France
+>   *
+> + *  based on hid-3m-pct.c copyrighted as follows:
+> + *    Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
+> + *    Copyright (c) 2010      Henrik Rydberg <rydberg@euromail.se>
+> + *    Copyright (c) 2010      Canonical, Ltd.
+> + *
+>   */
+>  
+>  /*
+> @@ -74,6 +79,7 @@ struct mt_class {
+>  #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	3
+>  #define MT_CLS_CYPRESS				4
+>  #define MT_CLS_STANTUM				5
+> +#define MT_CLS_3M				6
+>  
+>  /*
+>   * these device-dependent functions determine what slot corresponds
+> @@ -124,6 +130,11 @@ struct mt_class mt_classes[] = {
+>  		.maxcontacts = 10 },
+>  	{ .name = MT_CLS_STANTUM,
+>  		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE },
+> +	{ .name = MT_CLS_3M,
+> +		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE |
+> +			MT_QUIRK_SLOT_IS_CONTACTID,
+> +		.sn_move = 2048,
+> +		.sn_pressure = 128 },
+>  
+>  	{ }
+>  };
+> @@ -479,6 +490,14 @@ static void mt_remove(struct hid_device *hdev)
+>  
+>  static const struct hid_device_id mt_devices[] = {
+>  
+> +	/* 3M panels */
+> +	{ .driver_data = MT_CLS_3M,
+> +		HID_USB_DEVICE(USB_VENDOR_ID_3M,
+> +			USB_DEVICE_ID_3M1968) },
+> +	{ .driver_data = MT_CLS_3M,
+> +		HID_USB_DEVICE(USB_VENDOR_ID_3M,
+> +			USB_DEVICE_ID_3M2256) },
+> +
+>  	/* Cypress panel */
+>  	{ .driver_data = MT_CLS_CYPRESS,
+>  		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
+
+The touch width correction from the original driver has gone missing
+here. Otherwise, looks good, but will defer testing to the next round.
+
+Cheers,
 Henrik

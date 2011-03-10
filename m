@@ -1,147 +1,40 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 4/4] hid-multitouch: migrate 3M PCT touch screens to
- hid-multitouch
-Date: Thu, 10 Mar 2011 16:52:25 +0100
-Message-ID: <20110310155225.GA23034@polaris.bitmath.org>
-References: <1299686450-5475-1-git-send-email-benjamin.tissoires@enac.fr>
- <1299686450-5475-5-git-send-email-benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH] hid: Do not create input devices for feature reports
+Date: Thu, 10 Mar 2011 17:16:35 +0100
+Message-ID: <20110310161635.GA23223@polaris.bitmath.org>
+References: <1298572259-18173-1-git-send-email-rydberg@euromail.se>
+ <alpine.LNX.2.00.1103011702240.32580@pobox.suse.cz>
+ <AANLkTikd67q_j_ySam7RZvau8WoESLEmdXkfCWerVrLp@mail.gmail.com>
+ <alpine.LNX.2.00.1103011726300.32580@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:42495 "EHLO
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:47285 "EHLO
 	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751158Ab1CJPt7 (ORCPT
+	by vger.kernel.org with ESMTP id S1751938Ab1CJQUY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2011 10:49:59 -0500
+	Thu, 10 Mar 2011 11:20:24 -0500
 Content-Disposition: inline
-In-Reply-To: <1299686450-5475-5-git-send-email-benjamin.tissoires@enac.fr>
+In-Reply-To: <alpine.LNX.2.00.1103011726300.32580@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
-
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 02a77f9..0b92dfc 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -5,6 +5,11 @@
->   *  Copyright (c) 2010-2011 Benjamin Tissoires <benjamin.tissoires@gmail.com>
->   *  Copyright (c) 2010-2011 Ecole Nationale de l'Aviation Civile, France
->   *
-> + *  based on hid-3m-pct.c copyrighted as follows:
-> + *    Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
-> + *    Copyright (c) 2010      Henrik Rydberg <rydberg@euromail.se>
-> + *    Copyright (c) 2010      Canonical, Ltd.
-> + *
->   */
->  
->  /*
-> @@ -62,6 +67,8 @@ struct mt_class {
->  	__s32 name;	/* MT_CLS */
->  	__s32 quirks;
->  	__s32 sn_move;	/* Signal/noise ratio for move events */
-> +	__s32 sn_width;	/* Signal/noise ratio for width events */
-> +	__s32 sn_height;	/* Signal/noise ratio for height events */
->  	__s32 sn_pressure;	/* Signal/noise ratio for pressure events */
->  	__u8 maxcontacts;
->  };
-> @@ -72,6 +79,7 @@ struct mt_class {
->  #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	3
->  #define MT_CLS_CYPRESS				4
->  #define MT_CLS_STANTUM				5
-> +#define MT_CLS_3M				6
->  
->  /*
->   * these device-dependent functions determine what slot corresponds
-> @@ -123,6 +131,12 @@ struct mt_class mt_classes[] = {
->  		.maxcontacts = 10 },
->  	{ .name = MT_CLS_STANTUM,
->  		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE },
-
-I realize several of the entries are missing maxcontacts now, so all
-patches needs to be checked...
-
-> +	{ .name = MT_CLS_3M,
-> +		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE |
-> +			MT_QUIRK_SLOT_IS_CONTACTID,
-> +		.sn_move = 2048,
-> +		.sn_width = 128,
-> +		.sn_height = 128 },
-
-And this one does too
->  
->  	{ }
->  };
-> @@ -206,11 +220,15 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  		case HID_DG_WIDTH:
->  			hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_TOUCH_MAJOR);
-> +			set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
-> +				cls->sn_width);
->  			td->last_slot_field = usage->hid;
->  			return 1;
->  		case HID_DG_HEIGHT:
->  			hid_map_usage(hi, usage, bit, max,
->  					EV_ABS, ABS_MT_TOUCH_MINOR);
-> +			set_abs(hi->input, ABS_MT_TOUCH_MINOR, field,
-> +				cls->sn_height);
->  			field->logical_maximum = 1;
->  			field->logical_minimum = 0;
-
-These limits are not right - I doubt they are for any device.
-
->  			set_abs(hi->input, ABS_MT_ORIENTATION, field, 0);
-> @@ -307,11 +325,18 @@ static void mt_emit_event(struct mt_device *td, struct input_dev *input)
->  		input_mt_report_slot_state(input, MT_TOOL_FINGER,
->  			s->touch_state);
->  		if (s->touch_state) {
-> +			/* this finger is on the screen */
-> +			int wide = (s->w > s->h);
-> +			/* divided by two to match visual scale of touch */
-> +			int major = max(s->w, s->h) >> 1;
-> +			int minor = min(s->w, s->h) >> 1;
-> +
->  			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
->  			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
-> +			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
-> -			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, s->w);
-> -			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, s->h);
-> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
->  		}
->  		s->seen_in_this_frame = false;
->  
-> @@ -481,6 +506,14 @@ static void mt_remove(struct hid_device *hdev)
->  
->  static const struct hid_device_id mt_devices[] = {
->  
-> +	/* 3M panels */
-> +	{ .driver_data = MT_CLS_3M,
-> +		HID_USB_DEVICE(USB_VENDOR_ID_3M,
-> +			USB_DEVICE_ID_3M1968) },
-> +	{ .driver_data = MT_CLS_3M,
-> +		HID_USB_DEVICE(USB_VENDOR_ID_3M,
-> +			USB_DEVICE_ID_3M2256) },
-> +
->  	/* Cando panels */
->  	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
->  		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-> -- 
-> 1.7.4
+On Tue, Mar 01, 2011 at 05:26:41PM +0100, Jiri Kosina wrote:
+> On Tue, 1 Mar 2011, Benjamin Tissoires wrote:
 > 
+> > Tested-by: Benjamin Tissoires <benjmain.tissoires@gmail.com>
+> > Acked-by: Benjamin Tissoires <benjmain.tissoires@gmail.com>
+> 
+> Applied, thanks.
 
-Also, this line needs to be added in case no feature reports are sent:
+Hi Jiri,
 
-@@ -481,6 +481,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return -ENOMEM;
- 	}
- 	td->mtclass = mtclass;
-+	td->maxcontacts = mtclass->maxcontacts;
- 	td->inputmode = -1;
- 	hid_set_drvdata(hdev, td);
- 
+I was wondering if this patch will appear in the final 2.6.38? It
+seems the regression it fixes is pretty severe for ntrig devices, and
+once out there, the callback argument change will create problems for
+add-on modules such as dkms modules.
+
 Thanks,
 Henrik

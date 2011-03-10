@@ -1,52 +1,90 @@
 From: Mohan Pallaka <mpallaka@codeaurora.org>
-Subject: Re: [PATCH 0/2] Support for isa1200 haptic chip
-Date: Thu, 10 Mar 2011 17:53:43 +0530
-Message-ID: <4D78C2CF.1030708@codeaurora.org>
-References: <1299496182-26177-1-git-send-email-mpallaka@codeaurora.org>
+Subject: Re: [PATCH 1/2] pwm: Add __weak attributed functions for pwm operations
+Date: Thu, 10 Mar 2011 17:57:28 +0530
+Message-ID: <4D78C3B0.4050806@codeaurora.org>
+References: <1299496182-26177-1-git-send-email-mpallaka@codeaurora.org> <1299496182-26177-2-git-send-email-mpallaka@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:50649 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751022Ab1CJMWq (ORCPT
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:50753 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751022Ab1CJM0b (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2011 07:22:46 -0500
-In-Reply-To: <1299496182-26177-1-git-send-email-mpallaka@codeaurora.org>
+	Thu, 10 Mar 2011 07:26:31 -0500
+In-Reply-To: <1299496182-26177-2-git-send-email-mpallaka@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mohan Pallaka <mpallaka@codeaurora.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, linux@arm.linux.org.uk
 
 On 3/7/2011 4:39 PM, Mohan Pallaka wrote:
-> This patchset includes a __weak attributed pwm apis in pwm.h and
-> a ff-memless based isa1200 driver.
+> For chip drivers that support both pwm and non-pwm modes
+> would encounter compilation errors if the platform doesn't
+> have support for pwm though the chip is programmed to work
+> in non-pwm mode. Add __weak attributed pwm functions to avoid
+> compilation issues in these scenarios.
 > 
-> ISA1200 chip can operate in two modes and if the chip has been
-> configured for pwm-generation mode, which doesn't use pwm standard
-> apis then it'd encounter compilation errors if the host doesn't
-> support PWM. This driver is based on Park's isa1200 driver that uses
-> haptic class.
+> Signed-off-by: Mohan Pallaka <mpallaka@codeaurora.org>
+> ---
+>  include/linux/pwm.h |   21 ++++++++++++++++-----
+>  1 files changed, 16 insertions(+), 5 deletions(-)
 > 
-> Kyungmin Park (1):
->   input: misc: Add support for isa1200 chip
-> 
-> Mohan Pallaka (1):
->   pwm: Add __weak attributed functions for pwm operations
-> 
->  drivers/input/misc/Kconfig    |   12 ++
->  drivers/input/misc/Makefile   |    1 +
->  drivers/input/misc/isa1200.c  |  440 +++++++++++++++++++++++++++++++++++++++++
->  include/linux/input/isa1200.h |   45 +++++
->  include/linux/pwm.h           |   21 ++-
->  5 files changed, 514 insertions(+), 5 deletions(-)
->  create mode 100644 drivers/input/misc/isa1200.c
->  create mode 100644 include/linux/input/isa1200.h
+> diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+> index 7c77575..3a8c3df 100644
+> --- a/include/linux/pwm.h
+> +++ b/include/linux/pwm.h
+> @@ -3,29 +3,40 @@
+>  
+>  struct pwm_device;
+>  
+> +/* Add __weak functions to support PWM */
+> +
+>  /*
+>   * pwm_request - request a PWM device
+>   */
+> -struct pwm_device *pwm_request(int pwm_id, const char *label);
+> +struct pwm_device __weak *pwm_request(int pwm_id, const char *label)
+> +{
+> +	return NULL;
+> +}
+>  
+>  /*
+>   * pwm_free - free a PWM device
+>   */
+> -void pwm_free(struct pwm_device *pwm);
+> +void __weak pwm_free(struct pwm_device *pwm) { }
+>  
+>  /*
+>   * pwm_config - change a PWM device configuration
+>   */
+> -int pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns);
+> +int __weak pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns)
+> +{
+> +	return -ENODEV;
+> +}
+>  
+>  /*
+>   * pwm_enable - start a PWM output toggling
+>   */
+> -int pwm_enable(struct pwm_device *pwm);
+> +int __weak pwm_enable(struct pwm_device *pwm)
+> +{
+> +	return -EINVAL;
+> +}
+>  
+>  /*
+>   * pwm_disable - stop a PWM output toggling
+>   */
+> -void pwm_disable(struct pwm_device *pwm);
+> +void __weak pwm_disable(struct pwm_device *pwm) { }
+>  
+>  #endif /* __LINUX_PWM_H */
 > 
 
 Ping.
 
-Dmitry, could you spend sometime to review this.
+Please spend sometime to review this.
 
 Thanks,
 Mohan.

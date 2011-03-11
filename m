@@ -1,73 +1,111 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: Keycode for "main hardware button" on slate?
-Date: Fri, 11 Mar 2011 08:29:34 +0100
-Message-ID: <20110311082934.e0ecce45.ospite@studenti.unina.it>
-References: <1299520075.18332.146.camel@novo.hadess.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__11_Mar_2011_08_29_34_+0100_DD2+C=nDvcDPASLs"
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: [PATCH 2/2] hid-ntrig: calibration
+Date: Fri, 11 Mar 2011 02:37:52 -0500
+Message-ID: <1299829072-19489-2-git-send-email-rafi@seas.upenn.edu>
+References: <1299829072-19489-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp206.alice.it ([82.57.200.102]:44280 "EHLO smtp206.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753537Ab1CKHfO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2011 02:35:14 -0500
-In-Reply-To: <1299520075.18332.146.camel@novo.hadess.net>
+Received: from fox.seas.upenn.edu ([158.130.68.12]:54049 "EHLO
+	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753425Ab1CKHiX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Mar 2011 02:38:23 -0500
+In-Reply-To: <1299829072-19489-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr, dmitry.torokhov@gmail.com, Rafi Rubin <rafi@seas.upenn.edu>
 
---Signature=_Fri__11_Mar_2011_08_29_34_+0100_DD2+C=nDvcDPASLs
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Adding a function to tell the device to run its calibration routine.
+A number written to the sysfs specifies the duration of the calibration
+in milliseconds
 
-On Mon, 07 Mar 2011 17:47:54 +0000
-Bastien Nocera <hadess@hadess.net> wrote:
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+---
 
-> Heya,
->=20
-> I've installed Fedora 15 onto a WeTab slate, and it has 2 "hardware"
-> buttons. One is power (already used to come in and out of suspend), and
-> another one that I'd like to use to get the interface running on it to
-> go back to its "home" screen.
->
+The output needs to stay disconnected for the duration for this to work,
+otherwise I would have just used submit_report.  Please check to see
+that I handled that correctly, I can say it works for me.
 
-Is there any emblem near the button on the case? IMHO the first choice
-would be to assign a code following the visual hint given by the
-manufacturer if any.
+Is there a style problem with having wait and sleep in a sysfs call like
+this?
 
-> Any ideas what KEY_* I should use for this functionality?
->
+Micki: would you care to comment on this?  The windows driver seems to
+send extra messages to the device, but in testing they don't seem to
+have an effect.  If they do matter, it would be no trouble to put them
+back in.  Also can you comment on the difference between "trouble
+shooting" and the calibration that your windows tool offers?  As far as
+I can tell the actions look very similar.  Is it just a matter of
+interpretting the feedback?
+---
+ drivers/hid/hid-ntrig.c |   48 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 48 insertions(+), 0 deletions(-)
 
-If KEY_HOMEPAGE is meant specifically for the web browser maybe
-KEY_FRONT can represent the home screen of the main UI: it makes me
-think to "front desk", but I am not sure about what its intended use
-actually is.
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 24ab6a5..ddf2c76 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -490,6 +490,53 @@ static ssize_t store_mode(struct device *dev,
+ }
+ static DEVICE_ATTR(mode, S_IWUSR | S_IRUGO, show_mode, store_mode);
+ 
++static ssize_t ntrig_calibrate(struct device *dev,
++			       struct device_attribute *attr,
++			       const char *buf, size_t count)
++{
++	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
++	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
++	struct usbhid_device *usbhid = hdev->driver_data;
++	int ret;
++	unsigned long t;
++	unsigned char *data;
++
++	if (strict_strtoul(buf, 0, &t))
++		return -EINVAL;
++
++	data = kmalloc(4, GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	spin_lock(&usbhid->lock);
++	set_bit(HID_DISCONNECTED, &usbhid->iofl);
++	spin_unlock(&usbhid->lock);
++
++	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
++			      USB_REQ_CLEAR_FEATURE, USB_TYPE_CLASS
++			      | USB_RECIP_INTERFACE | USB_DIR_IN,
++			      0x30b, 1, data, 4, USB_CTRL_GET_TIMEOUT);
++	if (ret < 0)
++		goto fail;
++
++	msleep(t);
++
++	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
++			      USB_REQ_CLEAR_FEATURE, USB_TYPE_CLASS
++			      | USB_RECIP_INTERFACE | USB_DIR_IN,
++			      0x311, 1, data, 4, USB_CTRL_GET_TIMEOUT);
++
++fail:
++	kfree(data);
++	spin_lock(&usbhid->lock);
++	clear_bit(HID_DISCONNECTED, &usbhid->iofl);
++	spin_unlock(&usbhid->lock);
++	schedule_work(&usbhid->reset_work);
++
++	return (ret < 0) ? ret : count;
++}
++static DEVICE_ATTR(calibrate, S_IWUSR, NULL, ntrig_calibrate);
++
+ static struct attribute *sysfs_attrs[] = {
+ 	&dev_attr_sensor_physical_width.attr,
+ 	&dev_attr_sensor_physical_height.attr,
+@@ -502,6 +549,7 @@ static struct attribute *sysfs_attrs[] = {
+ 	&dev_attr_activation_height.attr,
+ 	&dev_attr_deactivate_slack.attr,
+ 	&dev_attr_mode.attr,
++	&dev_attr_calibrate.attr,
+ 	NULL
+ };
+ 
+-- 
+1.7.2.3
 
-Regards,
-   Antonio
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Fri__11_Mar_2011_08_29_34_+0100_DD2+C=nDvcDPASLs
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk15z14ACgkQ5xr2akVTsAE6aQCgknMj59SN3MtpJRQX2iNJcRcz
-jcEAniS1P0jsZV2P9m5dfcsev1PlwEh0
-=k2Yo
------END PGP SIGNATURE-----
-
---Signature=_Fri__11_Mar_2011_08_29_34_+0100_DD2+C=nDvcDPASLs--

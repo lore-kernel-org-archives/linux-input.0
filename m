@@ -1,110 +1,95 @@
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Subject: [PATCH] input/xen-fbfront: advertise either absolute or
- relative coordinates
-Date: Fri, 11 Mar 2011 11:30:10 +0000
-Message-ID: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: which handlers should bind to a device
+Date: Fri, 11 Mar 2011 16:24:50 +0100
+Message-ID: <201103111624.50552.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <xen-devel-bounces@lists.xensource.com>
-List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xensource.com>
-List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
-List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
-	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
-Sender: xen-devel-bounces@lists.xensource.com
-Errors-To: xen-devel-bounces@lists.xensource.com
-To: linux-kernel@vger.kernel.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, dmitry.torokhov@gmail.com, Olaf Hering <olaf@aepfle.de>, linux-input@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:43215 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755563Ab1CKPYj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Mar 2011 10:24:39 -0500
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	by mx2.suse.de (Postfix) with ESMTP id 149AE89B67
+	for <linux-input@vger.kernel.org>; Fri, 11 Mar 2011 16:24:38 +0100 (CET)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-From: Olaf Hering <olaf@aepfle.de>
+Hi,
 
-A virtualized display device is usually viewed with the vncviewer
-application, either by 'xm vnc domU' or with vncviewer localhost:port.
-vncviewer and the RFB protocol provides absolute coordinates to the
-virtual display. These coordinates are either passed through to a PV
-guest or converted to relative coordinates for a HVM guest.
+I have a set of USB speakers which also implement HID:
 
-A PV guest receives these coordinates and passes them to the kernels
-evdev driver. There it can be picked up by applications such as the
-xorg-input drivers. Using absolute coordinates avoids issues such as
-guest mouse pointer not tracking host mouse pointer due to wrong mouse
-acceleration settings in the guests X display.
+bDescriptorType        34 Report
+          wDescriptorLength      59
+          Report Descriptor: (length is 59)
+            Item(Global): Usage Page, data= [ 0x0c ] 12
+                            Consumer
+            Item(Local ): Usage, data= [ 0x01 ] 1
+                            Consumer Control
+            Item(Main  ): Collection, data= [ 0x01 ] 1
+                            Application
+            Item(Global): Usage Page, data= [ 0x0c ] 12
+                            Consumer
+            Item(Local ): Usage, data= [ 0xe9 ] 233
+                            Volume Increment
+            Item(Global): Usage Page, data= [ 0x0c ] 12
+                            Consumer
+            Item(Local ): Usage, data= [ 0xea ] 234
+                            Volume Decrement
+            Item(Global): Usage Page, data= [ 0x0c ] 12
+                            Consumer
+            Item(Local ): Usage, data= [ 0xe2 ] 226
+                            Mute
+            Item(Global): Logical Minimum, data= [ 0x00 ] 0
+            Item(Global): Logical Maximum, data= [ 0x01 ] 1
+            Item(Global): Report Count, data= [ 0x03 ] 3
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Main  ): Input, data= [ 0x42 ] 66
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State Null_State Non_Volatile Bitfield
+            Item(Global): Report Count, data= [ 0x01 ] 1
+            Item(Global): Report Size, data= [ 0x05 ] 5
+            Item(Main  ): Input, data= [ 0x01 ] 1
+                            Constant Array Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Usage Page, data= [ 0x0c ] 12
+                            Consumer
+            Item(Local ): Usage, data= [ 0x00 ] 0
+                            Unassigned
+            Item(Global): Usage Page, data= [ 0x0c ] 12
+                            Consumer
+            Item(Local ): Usage, data= [ 0x00 ] 0
+                            Unassigned
+            Item(Global): Logical Minimum, data= [ 0x00 ] 0
+            Item(Global): Logical Maximum, data= [ 0x01 ] 1
+            Item(Global): Report Count, data= [ 0x02 ] 2
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Main  ): Output, data= [ 0x06 ] 6
+                            Data Variable Relative No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Report Count, data= [ 0x01 ] 1
+            Item(Global): Report Size, data= [ 0x06 ] 6
+            Item(Main  ): Output, data= [ 0x03 ] 3
+                            Constant Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Main  ): End Collection, data=none
 
-Advertise either absolute or relative coordinates to the input system
-and the evdev driver, depending on what dom0 provides. The xorg-input
-driver prefers relative coordinates even if a devices provides both.
+According to the Usage Page the device is not a keyboard, yet the keyboard handler
+binds. Is this really sensible?
+I: Bus=0003 Vendor=0471 Product=0104 Version=0100
+N: Name="Philips Electronics Philips USB Digital Speaker System"
+P: Phys=usb-0000:00:1d.0-1/input2
+S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1:1.2/input/input15
+U: Uniq=
+H: Handlers=kbd event11 
+B: PROP=0
+B: EV=13
+B: KEY=e000000000000 0
+B: MSC=10
 
-Signed-off-by: Olaf Hering <olaf@aepfle.de>
-Signed-off-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+	Regards
+		Oliver
 
-diff --git a/drivers/input/xen-kbdfront.c b/drivers/input/xen-kbdfront.c
-index 7f85a86..24fc38b 100644
---- a/drivers/input/xen-kbdfront.c
-+++ b/drivers/input/xen-kbdfront.c
-@@ -110,7 +110,7 @@ static irqreturn_t input_handler(int rq, void *dev_id)
- static int __devinit xenkbd_probe(struct xenbus_device *dev,
- 				  const struct xenbus_device_id *id)
- {
--	int ret, i;
-+	int ret, i, abs;
- 	struct xenkbd_info *info;
- 	struct input_dev *kbd, *ptr;
- 
-@@ -128,6 +128,11 @@ static int __devinit xenkbd_probe(struct xenbus_device *dev,
- 	if (!info->page)
- 		goto error_nomem;
- 
-+	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
-+		abs = 0;
-+	if (abs)
-+		xenbus_printf(XBT_NIL, dev->nodename, "request-abs-pointer", "1");
-+
- 	/* keyboard */
- 	kbd = input_allocate_device();
- 	if (!kbd)
-@@ -160,10 +165,16 @@ static int __devinit xenkbd_probe(struct xenbus_device *dev,
- 	ptr->id.bustype = BUS_PCI;
- 	ptr->id.vendor = 0x5853;
- 	ptr->id.product = 0xfffe;
--	ptr->evbit[0] = BIT(EV_KEY) | BIT(EV_REL) | BIT(EV_ABS);
-+	ptr->evbit[0] = BIT(EV_KEY);
-+	if (abs)
-+		ptr->evbit[0] |= BIT(EV_ABS);
-+	else {
-+		ptr->evbit[0] |= BIT(EV_REL);
-+		ptr->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	}
-+	input_set_capability(ptr, EV_REL, REL_WHEEL);
- 	for (i = BTN_LEFT; i <= BTN_TASK; i++)
- 		set_bit(i, ptr->keybit);
--	ptr->relbit[0] = BIT(REL_X) | BIT(REL_Y) | BIT(REL_WHEEL);
- 	input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
- 	input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
- 
-@@ -272,7 +283,7 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
- 				   enum xenbus_state backend_state)
- {
- 	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
--	int ret, val;
-+	int val;
- 
- 	switch (backend_state) {
- 	case XenbusStateInitialising:
-@@ -285,16 +296,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
- 
- 	case XenbusStateInitWait:
- InitWait:
--		ret = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
--				   "feature-abs-pointer", "%d", &val);
--		if (ret < 0)
--			val = 0;
--		if (val) {
--			ret = xenbus_printf(XBT_NIL, info->xbdev->nodename,
--					    "request-abs-pointer", "1");
--			if (ret)
--				pr_warning("can't request abs-pointer\n");
--		}
- 		xenbus_switch_state(dev, XenbusStateConnected);
- 		break;

@@ -1,47 +1,68 @@
-From: Peter <peter@slim-one.de>
-Subject: Force Feedback Logitech G25/G25/Driving Force Pro
-Date: Fri, 11 Mar 2011 12:15:04 +0100
-Message-ID: <1299842104.2550.24.camel@slim-one-desktop>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3] [input-hid] Add hid-egalax driver to the unified
+ hid-multitouch framework.
+Date: Fri, 11 Mar 2011 12:31:57 +0100
+Message-ID: <20110311113157.GA3342@polaris.bitmath.org>
+References: <1299627518.2306.47.camel@itzy>
+ <20110309082455.GA3166@polaris.bitmath.org>
+ <AANLkTikDBTFNWhYoR5B-kfZ8Ud_aiW36qrTNJsJgHdTJ@mail.gmail.com>
+ <20110309092337.GC3824@polaris.bitmath.org>
+ <AANLkTi=TJ3RPOSP3XyqOfX8Aeep3-uFcHmcia6+a2Wxy@mail.gmail.com>
+ <20110309114038.GA9143@polaris.bitmath.org>
+ <1299823326.1910.11.camel@itzy>
+ <AANLkTims5Qg3m7pe-PBFNjmTmeOCPi6i8wqqrK1OJS84@mail.gmail.com>
+ <AANLkTi=Awco-yuQUr2ZFYHPGjfAFa2cLxN6aMby=M0VX@mail.gmail.com>
+ <AANLkTimQWT9BtLHVL8HgaiS8tabrtUYGK-Z3qjH73QvH@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay01.ispgateway.de ([80.67.31.39]:49164 "EHLO
-	smtprelay01.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753896Ab1CKLVz (ORCPT
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:42573 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752184Ab1CKL3r (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2011 06:21:55 -0500
-Received: from [88.65.56.250] (helo=[192.168.0.10])
-	by smtprelay01.ispgateway.de with esmtpsa (SSLv3:AES256-SHA:256)
-	(Exim 4.68)
-	(envelope-from <peter@slim-one.de>)
-	id 1Py0JD-0004RX-Jx
-	for linux-input@vger.kernel.org; Fri, 11 Mar 2011 12:15:03 +0100
+	Fri, 11 Mar 2011 06:29:47 -0500
+Content-Disposition: inline
+In-Reply-To: <AANLkTimQWT9BtLHVL8HgaiS8tabrtUYGK-Z3qjH73QvH@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Richard Nauber <richard.nauber@googlemail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-Hi,
+On Fri, Mar 11, 2011 at 10:52:55AM +0100, Benjamin Tissoires wrote:
+> Hi Richard,
+>=20
+> On Fri, Mar 11, 2011 at 10:23, Richard Nauber
+> <richard.nauber@googlemail.com> wrote:
+> >>On Fri, Mar 11, 2011 at 7:53 AM, Benjamin Tissoires
+> >><benjamin.tissoires@gmail.com> wrote:
+> >> Hi Richard,
+> >>
+> >> I'm really sorry, but it's a NACK for me:
+> >> what ever Henrik said, I do not want to have numerical constants
+> >> throughout the code. It would be the open door to many others. The
+> >> reason we have "mt_class" is to regroup each per-device parameters=
+ in
+> >> it. So there is no need to introduce those constants everywhere.
+> >
+> > Hm, so should I make a patch that applies on top of Henriks "Send
+> > events per slot if CONTACTCOUNT is missing" =A0and uses the generic=
+ XY
+> > fixup of my v3 patch?
+> >
+>=20
+> I would say so. Please just change the name of the field .axis by a b=
+etter name.
 
-i'd like to ask if someone could add the id's of the logitech wheels to
-drivers/hid/hid-lgff.c, so that the wheels autocenter can be
-enabled/disabled by userland programs like wine. There has been
-discussion over this before:
-http://www.mail-archive.com/linux-input@atrey.karlin.mff.cuni.cz/msg01426.html
+I disagree with this approach. The code in question is per device bug,
+not per device. The next firmware bug might be that the axis are
+shifted, or that the value is given with wrong byte order, we just
+don't know. Until we know what the next bug has in common with the old
+ones, let's be simple.
 
-Line 72:
-        { 0x046d, 0xc294, ff_wheel },
-has to be copied twice with 0xc294 changed to 0xc298 (DFP) and 0xc299
-(G25/G27), because after switching to native mode the devices report
-different ids:
-        { 0x046d, 0xc298, ff_wheel },
-        { 0x046d, 0xc299, ff_wheel },
-
-That's it. 
-I managed to get my G27 fully working in LFS (http://www.lfs.net) with
-this small modification and some additional fixes to wine. The G25's
-Force Feedback, all 4 axis and 20some buttons work like a charm.
-
-Thx in advance, Peter
-
-
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

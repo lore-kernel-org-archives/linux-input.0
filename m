@@ -1,114 +1,58 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 2/2] hid-ntrig: init settle and mode check
-Date: Fri, 11 Mar 2011 11:52:38 +1000
-Message-ID: <20110311015238.GA11505@barra.bne.redhat.com>
-References: <1299731632-9814-1-git-send-email-rafi@seas.upenn.edu>
- <1299731632-9814-2-git-send-email-rafi@seas.upenn.edu>
+From: Richard Nauber <richard.nauber@googlemail.com>
+Subject: Re: [PATCH v3] [input-hid] Add hid-egalax driver to the unified
+ hid-multitouch framework.
+Date: Fri, 11 Mar 2011 07:02:06 +0100
+Message-ID: <1299823326.1910.11.camel@itzy>
+References: <20110308080414.GA2888@polaris.bitmath.org>
+	 <AANLkTimT9q8mo3uW0P7T0B=D4kkE83OB9ycgdJ_muZ2W@mail.gmail.com>
+	 <20110308091434.GA3282@polaris.bitmath.org>
+	 <AANLkTiko_mKgW6fXeAuBY4D5AT_9OHAJnk_mfQEPQVF9@mail.gmail.com>
+	 <20110308094630.GA3396@polaris.bitmath.org> <1299627518.2306.47.camel@itzy>
+	 <20110309082455.GA3166@polaris.bitmath.org>
+	 <AANLkTikDBTFNWhYoR5B-kfZ8Ud_aiW36qrTNJsJgHdTJ@mail.gmail.com>
+	 <20110309092337.GC3824@polaris.bitmath.org>
+	 <AANLkTi=TJ3RPOSP3XyqOfX8Aeep3-uFcHmcia6+a2Wxy@mail.gmail.com>
+	 <20110309114038.GA9143@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:15636 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753888Ab1CKBxI (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:44665 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751595Ab1CKGCQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2011 20:53:08 -0500
-Content-Disposition: inline
-In-Reply-To: <1299731632-9814-2-git-send-email-rafi@seas.upenn.edu>
+	Fri, 11 Mar 2011 01:02:16 -0500
+Received: by wya21 with SMTP id 21so2138014wya.19
+        for <linux-input@vger.kernel.org>; Thu, 10 Mar 2011 22:02:15 -0800 (PST)
+In-Reply-To: <20110309114038.GA9143@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Richard Nauber <richard.nauber@googlemail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, =?ISO-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-On Wed, Mar 09, 2011 at 11:33:52PM -0500, Rafi Rubin wrote:
-> Adding a wait before the wakeup signal.
-> 
-> As a precautionary measure sanity check the current sensor mode.  If
-> needed reset it to "dual".
-> 
-> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> 
-> When the device is responding poorly and needs the wakeup call, it was
-> missing it.  Giving it a chance to settle first improves the chances
-> that signal gets through.
-> 
-> I was also seeing the device come up in strange modes where it did not
-> respond to physical stimulus.  Hopefully the quirk will fix that, but
-> even so it seems like a good idea to check.  It also makes me curious
-> what the "off" code is.
-> ---
->  drivers/hid/hid-ntrig.c |   45 +++++++++++++++++++++++++++++++++++++++++++--
->  1 files changed, 43 insertions(+), 2 deletions(-)
+Hi,
 
-no negative effects
+Except for a missing comma, Henriks patch works fine for me and I would
+be glad to have it submitted. So feel free to add my SIGNED-OFF-BY.
+(Or should I repost the patch?)
 
-Tested-by: Peter Hutterer <peter.hutterer@who-t.net>
+Greetings and thanks to all,
+Richard
 
-Cheers,
-  Peter
-> 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 850ba14..fa862c5 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -110,6 +110,36 @@ static int ntrig_version_string(unsigned char *raw, char *buf)
->  	return sprintf(buf, "%u.%u.%u.%u.%u", a, b, c, d, e);
->  }
->  
-> +static inline int ntrig_get_mode(struct hid_device *hdev)
-> +{
-> +	struct hid_report *report = hdev->report_enum[HID_FEATURE_REPORT].
-> +				    report_id_hash[0x0d];
-> +
-> +	if (!report)
-> +		return -EINVAL;
-> +
-> +	usbhid_submit_report(hdev, report, USB_DIR_IN);
-> +	usbhid_wait_io(hdev);
-> +	return (int)report->field[0]->value[0];
-> +}
-> +
-> +static inline void ntrig_set_mode(struct hid_device *hdev, const int mode)
-> +{
-> +	struct hid_report *report;
-> +	__u8 mode_commands[4] = { 0xe, 0xf, 0x1b, 0x10 };
-> +
-> +	if (mode < 0 || mode > 3)
-> +		return;
-> +
-> +	report = hdev->report_enum[HID_FEATURE_REPORT].
-> +		 report_id_hash[mode_commands[mode]];
-> +
-> +	if (!report)
-> +		return;
-> +
-> +	usbhid_submit_report(hdev, report, USB_DIR_IN);
-> +}
-> +
->  static void ntrig_report_version(struct hid_device *hdev)
->  {
->  	int ret;
-> @@ -905,8 +935,19 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  
->  	/* This is needed for devices with more recent firmware versions */
->  	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x0a];
-> -	if (report)
-> -		usbhid_submit_report(hdev, report, USB_DIR_OUT);
-> +	if (report) {
-> +		/* Let the device settle to ensure the wakeup message gets
-> +		 * through */
-> +		usbhid_wait_io(hdev);
-> +		usbhid_submit_report(hdev, report, USB_DIR_IN);
-> +
-> +		/*
-> +		 * Sanity check: if the current mode is invalid reset it to
-> +		 * something reasonable.
-> +		 */
-> +		if (ntrig_get_mode(hdev) >= 4)
-> +			ntrig_set_mode(hdev, 3);
-> +	}
->  
->  	ntrig_report_version(hdev);
->  
-> -- 
-> 1.7.4.1
-> 
+--- snip ---
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 57575ff..ee01e65 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -131,7 +131,7 @@ struct mt_class mt_classes[] = {
+        { .name = MT_CLS_EGALAX,
+                .quirks =  MT_QUIRK_SLOT_IS_CONTACTID |
+                        MT_QUIRK_VALID_IS_INRANGE |
+-                       MT_QUIRK_EGALAX_XYZ_FIXUP
++                       MT_QUIRK_EGALAX_XYZ_FIXUP,
+                .maxcontacts = 2,
+                .sn_move = 4096,
+                .sn_pressure = 32,
+
+

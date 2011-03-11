@@ -1,64 +1,114 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 1/2] hid: ntrig NO_INIT_REPORTS
-Date: Fri, 11 Mar 2011 11:42:20 +1000
-Message-ID: <20110311014220.GC8970@barra.bne.redhat.com>
+Subject: Re: [PATCH 2/2] hid-ntrig: init settle and mode check
+Date: Fri, 11 Mar 2011 11:52:38 +1000
+Message-ID: <20110311015238.GA11505@barra.bne.redhat.com>
 References: <1299731632-9814-1-git-send-email-rafi@seas.upenn.edu>
+ <1299731632-9814-2-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:22271 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:15636 "EHLO
 	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754444Ab1CKBmp (ORCPT
+	with ESMTP id S1753888Ab1CKBxI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Mar 2011 20:42:45 -0500
+	Thu, 10 Mar 2011 20:53:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1299731632-9814-1-git-send-email-rafi@seas.upenn.edu>
+In-Reply-To: <1299731632-9814-2-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Rafi Rubin <rafi@seas.upenn.edu>
 Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
 
-On Wed, Mar 09, 2011 at 11:33:51PM -0500, Rafi Rubin wrote:
-> Probing reports does bad things with some ntrig firmwares, better to
-> just leave them alone.
+On Wed, Mar 09, 2011 at 11:33:52PM -0500, Rafi Rubin wrote:
+> Adding a wait before the wakeup signal.
+> 
+> As a precautionary measure sanity check the current sensor mode.  If
+> needed reset it to "dual".
 > 
 > Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
 > 
-> ---
+> When the device is responding poorly and needs the wakeup call, it was
+> missing it.  Giving it a chance to settle first improves the chances
+> that signal gets through.
 > 
-> This resolves an annoying delay on initialization and reduces the
-> chance of the device coming up in an odd state or crashing.
+> I was also seeing the device come up in strange modes where it did not
+> respond to physical stimulus.  Hopefully the quirk will fix that, but
+> even so it seems like a good idea to check.  It also makes me curious
+> what the "off" code is.
+> ---
+>  drivers/hid/hid-ntrig.c |   45 +++++++++++++++++++++++++++++++++++++++++++--
+>  1 files changed, 43 insertions(+), 2 deletions(-)
 
-never saw those delays but this patch doesn't make anything worse for me.
+no negative effects
 
 Tested-by: Peter Hutterer <peter.hutterer@who-t.net>
 
 Cheers,
   Peter
-
-> ---
->  drivers/hid/hid-ntrig.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index b1e9cca..850ba14 100644
+> index 850ba14..fa862c5 100644
 > --- a/drivers/hid/hid-ntrig.c
 > +++ b/drivers/hid/hid-ntrig.c
-> @@ -837,7 +837,8 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	struct hid_report *report;
+> @@ -110,6 +110,36 @@ static int ntrig_version_string(unsigned char *raw, char *buf)
+>  	return sprintf(buf, "%u.%u.%u.%u.%u", a, b, c, d, e);
+>  }
 >  
->  	if (id->driver_data)
-> -		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> +		hdev->quirks |= HID_QUIRK_MULTI_INPUT
-> +				| HID_QUIRK_NO_INIT_REPORTS;
+> +static inline int ntrig_get_mode(struct hid_device *hdev)
+> +{
+> +	struct hid_report *report = hdev->report_enum[HID_FEATURE_REPORT].
+> +				    report_id_hash[0x0d];
+> +
+> +	if (!report)
+> +		return -EINVAL;
+> +
+> +	usbhid_submit_report(hdev, report, USB_DIR_IN);
+> +	usbhid_wait_io(hdev);
+> +	return (int)report->field[0]->value[0];
+> +}
+> +
+> +static inline void ntrig_set_mode(struct hid_device *hdev, const int mode)
+> +{
+> +	struct hid_report *report;
+> +	__u8 mode_commands[4] = { 0xe, 0xf, 0x1b, 0x10 };
+> +
+> +	if (mode < 0 || mode > 3)
+> +		return;
+> +
+> +	report = hdev->report_enum[HID_FEATURE_REPORT].
+> +		 report_id_hash[mode_commands[mode]];
+> +
+> +	if (!report)
+> +		return;
+> +
+> +	usbhid_submit_report(hdev, report, USB_DIR_IN);
+> +}
+> +
+>  static void ntrig_report_version(struct hid_device *hdev)
+>  {
+>  	int ret;
+> @@ -905,8 +935,19 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
 >  
->  	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
->  	if (!nd) {
+>  	/* This is needed for devices with more recent firmware versions */
+>  	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x0a];
+> -	if (report)
+> -		usbhid_submit_report(hdev, report, USB_DIR_OUT);
+> +	if (report) {
+> +		/* Let the device settle to ensure the wakeup message gets
+> +		 * through */
+> +		usbhid_wait_io(hdev);
+> +		usbhid_submit_report(hdev, report, USB_DIR_IN);
+> +
+> +		/*
+> +		 * Sanity check: if the current mode is invalid reset it to
+> +		 * something reasonable.
+> +		 */
+> +		if (ntrig_get_mode(hdev) >= 4)
+> +			ntrig_set_mode(hdev, 3);
+> +	}
+>  
+>  	ntrig_report_version(hdev);
+>  
 > -- 
 > 1.7.4.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 

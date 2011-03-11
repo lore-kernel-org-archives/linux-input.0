@@ -1,68 +1,110 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3] [input-hid] Add hid-egalax driver to the unified
- hid-multitouch framework.
-Date: Fri, 11 Mar 2011 12:31:57 +0100
-Message-ID: <20110311113157.GA3342@polaris.bitmath.org>
-References: <1299627518.2306.47.camel@itzy>
- <20110309082455.GA3166@polaris.bitmath.org>
- <AANLkTikDBTFNWhYoR5B-kfZ8Ud_aiW36qrTNJsJgHdTJ@mail.gmail.com>
- <20110309092337.GC3824@polaris.bitmath.org>
- <AANLkTi=TJ3RPOSP3XyqOfX8Aeep3-uFcHmcia6+a2Wxy@mail.gmail.com>
- <20110309114038.GA9143@polaris.bitmath.org>
- <1299823326.1910.11.camel@itzy>
- <AANLkTims5Qg3m7pe-PBFNjmTmeOCPi6i8wqqrK1OJS84@mail.gmail.com>
- <AANLkTi=Awco-yuQUr2ZFYHPGjfAFa2cLxN6aMby=M0VX@mail.gmail.com>
- <AANLkTimQWT9BtLHVL8HgaiS8tabrtUYGK-Z3qjH73QvH@mail.gmail.com>
+From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Subject: [PATCH] input/xen-fbfront: advertise either absolute or
+ relative coordinates
+Date: Fri, 11 Mar 2011 11:30:10 +0000
+Message-ID: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:42573 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752184Ab1CKL3r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2011 06:29:47 -0500
-Content-Disposition: inline
-In-Reply-To: <AANLkTimQWT9BtLHVL8HgaiS8tabrtUYGK-Z3qjH73QvH@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <xen-devel-bounces@lists.xensource.com>
+List-Unsubscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xensource.com>
+List-Help: <mailto:xen-devel-request@lists.xensource.com?subject=help>
+List-Subscribe: <http://lists.xensource.com/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xensource.com?subject=subscribe>
+Sender: xen-devel-bounces@lists.xensource.com
+Errors-To: xen-devel-bounces@lists.xensource.com
+To: linux-kernel@vger.kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, dmitry.torokhov@gmail.com, Olaf Hering <olaf@aepfle.de>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Richard Nauber <richard.nauber@googlemail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 
-On Fri, Mar 11, 2011 at 10:52:55AM +0100, Benjamin Tissoires wrote:
-> Hi Richard,
->=20
-> On Fri, Mar 11, 2011 at 10:23, Richard Nauber
-> <richard.nauber@googlemail.com> wrote:
-> >>On Fri, Mar 11, 2011 at 7:53 AM, Benjamin Tissoires
-> >><benjamin.tissoires@gmail.com> wrote:
-> >> Hi Richard,
-> >>
-> >> I'm really sorry, but it's a NACK for me:
-> >> what ever Henrik said, I do not want to have numerical constants
-> >> throughout the code. It would be the open door to many others. The
-> >> reason we have "mt_class" is to regroup each per-device parameters=
- in
-> >> it. So there is no need to introduce those constants everywhere.
-> >
-> > Hm, so should I make a patch that applies on top of Henriks "Send
-> > events per slot if CONTACTCOUNT is missing" =A0and uses the generic=
- XY
-> > fixup of my v3 patch?
-> >
->=20
-> I would say so. Please just change the name of the field .axis by a b=
-etter name.
+From: Olaf Hering <olaf@aepfle.de>
 
-I disagree with this approach. The code in question is per device bug,
-not per device. The next firmware bug might be that the axis are
-shifted, or that the value is given with wrong byte order, we just
-don't know. Until we know what the next bug has in common with the old
-ones, let's be simple.
+A virtualized display device is usually viewed with the vncviewer
+application, either by 'xm vnc domU' or with vncviewer localhost:port.
+vncviewer and the RFB protocol provides absolute coordinates to the
+virtual display. These coordinates are either passed through to a PV
+guest or converted to relative coordinates for a HVM guest.
 
-Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+A PV guest receives these coordinates and passes them to the kernels
+evdev driver. There it can be picked up by applications such as the
+xorg-input drivers. Using absolute coordinates avoids issues such as
+guest mouse pointer not tracking host mouse pointer due to wrong mouse
+acceleration settings in the guests X display.
+
+Advertise either absolute or relative coordinates to the input system
+and the evdev driver, depending on what dom0 provides. The xorg-input
+driver prefers relative coordinates even if a devices provides both.
+
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Signed-off-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+
+diff --git a/drivers/input/xen-kbdfront.c b/drivers/input/xen-kbdfront.c
+index 7f85a86..24fc38b 100644
+--- a/drivers/input/xen-kbdfront.c
++++ b/drivers/input/xen-kbdfront.c
+@@ -110,7 +110,7 @@ static irqreturn_t input_handler(int rq, void *dev_id)
+ static int __devinit xenkbd_probe(struct xenbus_device *dev,
+ 				  const struct xenbus_device_id *id)
+ {
+-	int ret, i;
++	int ret, i, abs;
+ 	struct xenkbd_info *info;
+ 	struct input_dev *kbd, *ptr;
+ 
+@@ -128,6 +128,11 @@ static int __devinit xenkbd_probe(struct xenbus_device *dev,
+ 	if (!info->page)
+ 		goto error_nomem;
+ 
++	if (xenbus_scanf(XBT_NIL, dev->otherend, "feature-abs-pointer", "%d", &abs) < 0)
++		abs = 0;
++	if (abs)
++		xenbus_printf(XBT_NIL, dev->nodename, "request-abs-pointer", "1");
++
+ 	/* keyboard */
+ 	kbd = input_allocate_device();
+ 	if (!kbd)
+@@ -160,10 +165,16 @@ static int __devinit xenkbd_probe(struct xenbus_device *dev,
+ 	ptr->id.bustype = BUS_PCI;
+ 	ptr->id.vendor = 0x5853;
+ 	ptr->id.product = 0xfffe;
+-	ptr->evbit[0] = BIT(EV_KEY) | BIT(EV_REL) | BIT(EV_ABS);
++	ptr->evbit[0] = BIT(EV_KEY);
++	if (abs)
++		ptr->evbit[0] |= BIT(EV_ABS);
++	else {
++		ptr->evbit[0] |= BIT(EV_REL);
++		ptr->relbit[0] = BIT(REL_X) | BIT(REL_Y);
++	}
++	input_set_capability(ptr, EV_REL, REL_WHEEL);
+ 	for (i = BTN_LEFT; i <= BTN_TASK; i++)
+ 		set_bit(i, ptr->keybit);
+-	ptr->relbit[0] = BIT(REL_X) | BIT(REL_Y) | BIT(REL_WHEEL);
+ 	input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
+ 	input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
+ 
+@@ -272,7 +283,7 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+ 				   enum xenbus_state backend_state)
+ {
+ 	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
+-	int ret, val;
++	int val;
+ 
+ 	switch (backend_state) {
+ 	case XenbusStateInitialising:
+@@ -285,16 +296,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+ 
+ 	case XenbusStateInitWait:
+ InitWait:
+-		ret = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
+-				   "feature-abs-pointer", "%d", &val);
+-		if (ret < 0)
+-			val = 0;
+-		if (val) {
+-			ret = xenbus_printf(XBT_NIL, info->xbdev->nodename,
+-					    "request-abs-pointer", "1");
+-			if (ret)
+-				pr_warning("can't request abs-pointer\n");
+-		}
+ 		xenbus_switch_state(dev, XenbusStateConnected);
+ 		break;

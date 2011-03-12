@@ -1,42 +1,41 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/2] hid-input: Keyboard and MT support for MacBookPro8
-Date: Sat, 12 Mar 2011 00:02:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1103120001020.19969@pobox.suse.cz>
-References: <1299869123-18346-1-git-send-email-rydberg@euromail.se>
+Subject: Re: [PATCH] HID: ACRUX - activate the device immediately after
+ binding
+Date: Sat, 12 Mar 2011 21:49:05 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1103122148270.19969@pobox.suse.cz>
+References: <20110311082734.GF10807@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38938 "EHLO mx2.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:60713 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750963Ab1CKXCH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Mar 2011 18:02:07 -0500
-In-Reply-To: <1299869123-18346-1-git-send-email-rydberg@euromail.se>
+	id S1755266Ab1CLUtH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Mar 2011 15:49:07 -0500
+In-Reply-To: <20110311082734.GF10807@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Sergei Kolzun <x0r@dv-life.ru>
 
-On Fri, 11 Mar 2011, Henrik Rydberg wrote:
+On Fri, 11 Mar 2011, Dmitry Torokhov wrote:
 
-> Hi Jiri, Dmitry,
+> This device does not tolerate delayed opening and goes into a coma if
+> we try to that. Ubuntu even has a crutch for udev that opened the device
+> upon seeing it for the first time, but it did not work if we happened to
+> boot with the device attached, since by the time userspace got around
+> opening the device it was too late. Let's start the device immediately
+> to deal with this issue.
 > 
-> Keyboard and MT support for the new MacBookPro models. The first patch
-> is against HID, the second against Input. As usual, they need to be
-> synced.
+> Reported-by: Sergei Kolzun <x0r@dv-life.ru>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
 > 
-> The patches have been tested on the Ubuntu forums, many thanks to Andy
-> for the nice patches.
+> Jiri,
+> 
+> Sergei reports that his friend was able to test the patch and it fixes
+> the issue for him so I believe we can now apply the patch.
 
-Thanks a lot Henrik for relaying those patches.
-
-Dmitry, what tree would you prefer these patches to go through? I am fine 
-either way, and
-
-	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-for the HID changes.
-
-Thanks,
+Applied, thanks guys.
 
 -- 
 Jiri Kosina

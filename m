@@ -1,94 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Add Atmel AT42QT1070 driver
-Date: Sun, 13 Mar 2011 00:48:37 -0800
-Message-ID: <20110313084837.GI31566@core.coreip.homeip.net>
-References: <1299575978-16134-1>
- <1299655137-2671-1-git-send-email-voice.shen@atmel.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] Input: wm831x-ts - Fix races with IRQ management
+Date: Sun, 13 Mar 2011 11:55:55 +0000
+Message-ID: <20110313115555.GA19520@opensource.wolfsonmicro.com>
+References: <1298998459-12526-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20110313061410.GA31566@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f179.google.com ([209.85.212.179]:34438 "EHLO
-	mail-px0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752767Ab1CMIsm (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:57290 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754407Ab1CMLz5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Mar 2011 04:48:42 -0400
-Received: by pxi2 with SMTP id 2so1085950pxi.10
-        for <linux-input@vger.kernel.org>; Sun, 13 Mar 2011 00:48:42 -0800 (PST)
+	Sun, 13 Mar 2011 07:55:57 -0400
 Content-Disposition: inline
-In-Reply-To: <1299655137-2671-1-git-send-email-voice.shen@atmel.com>
+In-Reply-To: <20110313061410.GA31566@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: voice <voice.shen@atmel.com>
-Cc: linux-input@vger.kernel.org, mohan1234@gmail.com, jm.lin@atmel.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
 
-Hi Shen,
+On Sat, Mar 12, 2011 at 10:14:10PM -0800, Dmitry Torokhov wrote:
 
-On Wed, Mar 09, 2011 at 03:18:57PM +0800, voice wrote:
-> +
-> +/* AT42QT1070 support up to 7 keys */
-> +static unsigned char qt1070_key2code[] = {
+> Hmm, this is quite ugly. The race that you mentioned should be dealt
+> with by rearranging the order in which you disable IRQ and enable the
+> conversions. I.e. in wm831x_ts_pen_down_irq() you should do:
 
-This should be const.
+> 	disable_irq_nosync(wm831x_ts->pd_irq);
+> 	wm831x_ts->pendown = true;
+> 
+> 	...
+> 	enable_irq(wm831x_ts->data_irq);
 
-> +	KEY_0, KEY_1, KEY_2, KEY_3,
-> +	KEY_4, KEY_5, KEY_6,
-> +};
+Sadly there's also some sensitivities in the hardware with regard to the
+interaction between the interrupt controller and the touchscreen
+controller which complicate things somewhat.
 
+> What is needed I guess is wm831x_ts->open flag that
+> wm831x_ts_input_open() would set and wm831x_ts_input_close() would reset
+> and the interrupt handlers would check before touching the registers
+> or enabling their counterparts. wm831x_ts_input_close() would reset the
+> flag first and then disable first pd_irq and then data_irq, before
+> writing to the control register. The only issue is to keep track of irq
+> disble counters.
 
-> +
-> +struct qt1070_data {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	unsigned char keycodes[ARRAY_SIZE(qt1070_key2code)];
+IIRC I did implement a version of this approach but it causes problems
+as if the interrupts fire you really do need to handle them to have
+things restart correctly when you reenable.  Possibly we can do
+something that fiddles with the workqueue scheduling only.  Also...
 
-This should be unsigned short since we have key values above 255.
+> The issue is that wm831x_ts_input_close() is racy; it simply writes into
+> WM831X_TOUCH_CONTROL_1 and hopes that it will stick...    
 
-> +
-> +static int qt1070_read_key(struct qt1070_data *data)
-> +{
-> +	struct i2c_client *client = data->client;
-> +	struct input_dev *input = data->input;
-> +	u8 new_key, old_key, keyval;
-> +	int ret, i, mask;
-> +
-> +	/* Read the detected status register, using to clear interrupt */
-> +	ret = qt1070_read(client, DET_STATUS);
-> +
-> +	/* Read which key changed */
-> +	ret = qt1070_read(client, KEY_STATUS);
-> +	old_key = data->key;
-> +	data->key = new_key = ret;
-> +
-> +	mask = 0x01;
-> +	for (i = 0; i < ARRAY_SIZE(qt1070_key2code); i++) {
-> +		keyval = new_key & mask;
-> +		if ((old_key & mask) != keyval)
-> +			input_report_key(input, data->keycodes[i], keyval);
-> +		mask <<= 1;
-> +	}
-> +	input_sync(input);
-> +
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t qt1070_interrupt(int irq, void *dev_id)
-> +{
-> +	struct qt1070_data *data = dev_id;
-> +	int ret;
-> +
-> +	ret = qt1070_read_key(data);
+The register I/O operations are locked so they can't race with each
+other and the only bit that's really important here is TCH_ENA which is
+only updated by open and close - it will stop any of the other bits
+taking effect later on.  We ought to explicitly disable the X, Y and Z
+conversions in open and have an explicit synchronise_irq() after turning
+off the controller, though.  We can also just flush the workqueues
+unconditionally and clean up the interrupts once we've done that.
 
-I'd fold qt1070_read_key into qt1070_interrupt.
+> The issue with enable_irq() not working in the irq handler thread should
+> be dealt at the controller level (i.e. fix it so that it works).
 
-> +
-> +	if (client->irq) {
-
-The driver is completely unusable without irq, I'd recommend simply
-refusing to bind if irq is not supplied.
-
-Otherwise looks very good.
-
-Thanks.
-
--- 
-Dmitry
+This is a genirq restriction which doesn't seem entirely unreasonable to
+me, the enable operation needs to take the bus lock which can't be done
+within IRQ context as the whole point is to deal with things that can't
+run there.  You'd have to check that you were running in the context of
+an operation which held the bus lock and then skip the bus locking in
+that case only which doesn't seem tasteful and won't work at all if
+we're using two different locking IRQ controllers for the two interrupts
+(which is entirely possible here).  Scheduling out of IRQ context to
+avoid these issues seems much more tasteful.

@@ -1,61 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wm831x-ts - Fix races with IRQ management
-Date: Sat, 12 Mar 2011 22:14:10 -0800
-Message-ID: <20110313061410.GA31566@core.coreip.homeip.net>
-References: <1298998459-12526-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] input/xen-fbfront: advertise either absolute or relative
+ coordinates
+Date: Sat, 12 Mar 2011 22:24:11 -0800
+Message-ID: <20110313062411.GB31566@core.coreip.homeip.net>
+References: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:64525 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:60515 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751105Ab1CMGOQ (ORCPT
+	with ESMTP id S1751714Ab1CMGYr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Mar 2011 01:14:16 -0500
-Received: by iyb26 with SMTP id 26so3952582iyb.19
-        for <linux-input@vger.kernel.org>; Sat, 12 Mar 2011 22:14:15 -0800 (PST)
+	Sun, 13 Mar 2011 01:24:47 -0500
 Content-Disposition: inline
-In-Reply-To: <1298998459-12526-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+In-Reply-To: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xensource.com, linux-input@vger.kernel.org, Olaf Hering <olaf@aepfle.de>
 
-On Tue, Mar 01, 2011 at 04:54:19PM +0000, Mark Brown wrote:
-> If the WM831x pen down and data IRQs run in parallel it is possible for the
-> data and pen down IRQs to deadlock themselves as one is part way through
-> disabling its operation while the other is part way through enabling. Fix
-> this by always disabling the pen down interrupt while data is active and
-> vice versa.
+Hi Stefano,
+
+On Fri, Mar 11, 2011 at 11:30:10AM +0000, Stefano Stabellini wrote:
+> From: Olaf Hering <olaf@aepfle.de>
 > 
-> This also fixes an issue when using the built in IRQs due to enable_irq()
-> not being valid from interrupt context on an interrupt controller with bus
-> operations like the built in IRQ controller - this issue may also have
-> affected other interrupt controllers.
+> A virtualized display device is usually viewed with the vncviewer
+> application, either by 'xm vnc domU' or with vncviewer localhost:port.
+> vncviewer and the RFB protocol provides absolute coordinates to the
+> virtual display. These coordinates are either passed through to a PV
+> guest or converted to relative coordinates for a HVM guest.
 > 
+> A PV guest receives these coordinates and passes them to the kernels
+> evdev driver. There it can be picked up by applications such as the
+> xorg-input drivers. Using absolute coordinates avoids issues such as
+> guest mouse pointer not tracking host mouse pointer due to wrong mouse
+> acceleration settings in the guests X display.
+> 
+> Advertise either absolute or relative coordinates to the input system
+> and the evdev driver, depending on what dom0 provides. The xorg-input
+> driver prefers relative coordinates even if a devices provides both.
 
-Hmm, this is quite ugly. The race that you mentioned should be dealt
-with by rearranging the order in which you disable IRQ and enable the
-conversions. I.e. in wm831x_ts_pen_down_irq() you should do:
+So if I am reading this correctly the original version handled changes
+in backend capabilities and could switch between delivering either
+relative or absolute coordinates. The new version selects the
+capabilities at boot time and sticks with them. Was it really the
+intended behavior?
 
-	disable_irq_nosync(wm831x_ts->pd_irq);
-	wm831x_ts->pendown = true;
-
-	...
-	enable_irq(wm831x_ts->data_irq);
-
-The issue is that wm831x_ts_input_close() is racy; it simply writes into
-WM831X_TOUCH_CONTROL_1 and hopes that it will stick...
-
-What is needed I guess is wm831x_ts->open flag that
-wm831x_ts_input_open() would set and wm831x_ts_input_close() would reset
-and the interrupt handlers would check before touching the registers
-or enabling their counterparts. wm831x_ts_input_close() would reset the
-flag first and then disable first pd_irq and then data_irq, before
-writing to the control register. The only issue is to keep track of irq
-disble counters.
-
-The issue with enable_irq() not working in the irq handler thread should
-be dealt at the controller level (i.e. fix it so that it works).
+BTW, drivers/input is intended for core input and handlers stuff with
+drivers suppsed to be in drivers/input/<type>. Would you mind if I moved
+this driver to drivers/input/misc?
 
 Thanks.
 

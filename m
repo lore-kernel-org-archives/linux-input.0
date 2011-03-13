@@ -1,46 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] hid-input: Keyboard and MT support for MacBookPro8
-Date: Sat, 12 Mar 2011 20:25:56 -0800
-Message-ID: <20110313042556.GB17351@core.coreip.homeip.net>
-References: <1299869123-18346-1-git-send-email-rydberg@euromail.se>
- <alpine.LNX.2.00.1103120001020.19969@pobox.suse.cz>
+Subject: Re: [PATCH] Input: wm831x-ts - Fix races with IRQ management
+Date: Sat, 12 Mar 2011 22:14:10 -0800
+Message-ID: <20110313061410.GA31566@core.coreip.homeip.net>
+References: <1298998459-12526-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:53149 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754248Ab1CME0B (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:64525 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751105Ab1CMGOQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Mar 2011 23:26:01 -0500
+	Sun, 13 Mar 2011 01:14:16 -0500
+Received: by iyb26 with SMTP id 26so3952582iyb.19
+        for <linux-input@vger.kernel.org>; Sat, 12 Mar 2011 22:14:15 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1103120001020.19969@pobox.suse.cz>
+In-Reply-To: <1298998459-12526-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
 
-On Sat, Mar 12, 2011 at 12:02:05AM +0100, Jiri Kosina wrote:
-> On Fri, 11 Mar 2011, Henrik Rydberg wrote:
+On Tue, Mar 01, 2011 at 04:54:19PM +0000, Mark Brown wrote:
+> If the WM831x pen down and data IRQs run in parallel it is possible for the
+> data and pen down IRQs to deadlock themselves as one is part way through
+> disabling its operation while the other is part way through enabling. Fix
+> this by always disabling the pen down interrupt while data is active and
+> vice versa.
 > 
-> > Hi Jiri, Dmitry,
-> > 
-> > Keyboard and MT support for the new MacBookPro models. The first patch
-> > is against HID, the second against Input. As usual, they need to be
-> > synced.
-> > 
-> > The patches have been tested on the Ubuntu forums, many thanks to Andy
-> > for the nice patches.
+> This also fixes an issue when using the built in IRQs due to enable_irq()
+> not being valid from interrupt context on an interrupt controller with bus
+> operations like the built in IRQ controller - this issue may also have
+> affected other interrupt controllers.
 > 
-> Thanks a lot Henrik for relaying those patches.
-> 
-> Dmitry, what tree would you prefer these patches to go through? I am fine 
-> either way, and
-> 
-> 	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> 
-> for the HID changes.
 
-I'll grab it then, thank you.
+Hmm, this is quite ugly. The race that you mentioned should be dealt
+with by rearranging the order in which you disable IRQ and enable the
+conversions. I.e. in wm831x_ts_pen_down_irq() you should do:
+
+	disable_irq_nosync(wm831x_ts->pd_irq);
+	wm831x_ts->pendown = true;
+
+	...
+	enable_irq(wm831x_ts->data_irq);
+
+The issue is that wm831x_ts_input_close() is racy; it simply writes into
+WM831X_TOUCH_CONTROL_1 and hopes that it will stick...
+
+What is needed I guess is wm831x_ts->open flag that
+wm831x_ts_input_open() would set and wm831x_ts_input_close() would reset
+and the interrupt handlers would check before touching the registers
+or enabling their counterparts. wm831x_ts_input_close() would reset the
+flag first and then disable first pd_irq and then data_irq, before
+writing to the control register. The only issue is to keep track of irq
+disble counters.
+
+The issue with enable_irq() not working in the irq handler thread should
+be dealt at the controller level (i.e. fix it so that it works).
+
+Thanks.
 
 -- 
 Dmitry

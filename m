@@ -1,54 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/xen-fbfront: advertise either absolute or relative
- coordinates
-Date: Sat, 12 Mar 2011 22:24:11 -0800
-Message-ID: <20110313062411.GB31566@core.coreip.homeip.net>
-References: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop>
+Subject: Re: [PATCH 1/2] hid-ntrig: sysfs nodes for modes
+Date: Sat, 12 Mar 2011 22:27:00 -0800
+Message-ID: <20110313062700.GC31566@core.coreip.homeip.net>
+References: <1299829072-19489-1-git-send-email-rafi@seas.upenn.edu>
+ <20110311081843.GE10807@core.coreip.homeip.net>
+ <4D79F1DD.10009@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:60515 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751714Ab1CMGYr (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:50410 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751303Ab1CMG1H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Mar 2011 01:24:47 -0500
+	Sun, 13 Mar 2011 01:27:07 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop>
+In-Reply-To: <4D79F1DD.10009@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xensource.com, linux-input@vger.kernel.org, Olaf Hering <olaf@aepfle.de>
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
 
-Hi Stefano,
-
-On Fri, Mar 11, 2011 at 11:30:10AM +0000, Stefano Stabellini wrote:
-> From: Olaf Hering <olaf@aepfle.de>
+On Fri, Mar 11, 2011 at 04:56:45AM -0500, Rafi Rubin wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> A virtualized display device is usually viewed with the vncviewer
-> application, either by 'xm vnc domU' or with vncviewer localhost:port.
-> vncviewer and the RFB protocol provides absolute coordinates to the
-> virtual display. These coordinates are either passed through to a PV
-> guest or converted to relative coordinates for a HVM guest.
+> User desires aren't exactly my specialty.  I just know the ntrig windows control
+> panel gives the user that control with cute little radio buttons.
 > 
-> A PV guest receives these coordinates and passes them to the kernels
-> evdev driver. There it can be picked up by applications such as the
-> xorg-input drivers. Using absolute coordinates avoids issues such as
-> guest mouse pointer not tracking host mouse pointer due to wrong mouse
-> acceleration settings in the guests X display.
+> Would it be cleaner to expose the control with an ioctrl or some other mechanism?
 > 
-> Advertise either absolute or relative coordinates to the input system
-> and the evdev driver, depending on what dom0 provides. The xorg-input
-> driver prefers relative coordinates even if a devices provides both.
+> I do have user space tools for mode and calibration, but that requires unbinding
+> the device, and just seems sloppier.  But if this really is inappropriate to add
+> the sysfs nodes, at least there's still some solution.
 
-So if I am reading this correctly the original version handled changes
-in backend capabilities and could switch between delivering either
-relative or absolute coordinates. The new version selects the
-capabilities at boot time and sticks with them. Was it really the
-intended behavior?
+No, this is not inappropriate, I was just musing how useful they are. Do
+we foresee users really using them or if is it more "we export because we can".
+I.e. in which cases the default mode is not suitable?
 
-BTW, drivers/input is intended for core input and handlers stuff with
-drivers suppsed to be in drivers/input/<type>. Would you mind if I moved
-this driver to drivers/input/misc?
+> 
+> Since you brought it up, I am thinking of removing some of the other nodes soon.
+>  I've learned the physical and logical ranges are already exposed both through
+> the event nodes and debugfs.  Also, I have better filtering that so far seems
+> not to need as many parameters so I should be able to remove those nodes as well.
+>
+
+Well, that's the issue with sysfs - it really forms kernel ABI so
+removing something that was once added is hard.
 
 Thanks.
 

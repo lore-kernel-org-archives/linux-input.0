@@ -1,34 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] HID: ntrig remove if and drop an indent
-Date: Mon, 14 Mar 2011 12:58:50 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1103141258410.19969@pobox.suse.cz>
-References: <alpine.LNX.2.00.1102261156480.2160@pobox.suse.cz> <1299550408-11457-2-git-send-email-rafi@seas.upenn.edu> <20110311014012.GB8970@barra.bne.redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH 0/4] Migrations to hid-multitouch, round 2
+Date: Mon, 14 Mar 2011 14:10:19 +0100
+Message-ID: <AANLkTiko4z7SJmObKsVCMHeqR2iAYdQ_j-aOhZWjssJ3@mail.gmail.com>
+References: <1299686450-5475-1-git-send-email-benjamin.tissoires@enac.fr>
+	<alpine.LNX.2.00.1103141307590.19969@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:36975 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755158Ab1CNMRZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2011 08:17:25 -0400
-In-Reply-To: <20110311014012.GB8970@barra.bne.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1103141307590.19969@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input@vger.kernel.org, rydberg@euromail.se, chatty@enac.fr
 
-On Fri, 11 Mar 2011, Peter Hutterer wrote:
+On Mon, Mar 14, 2011 at 13:08, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 9 Mar 2011, Benjamin Tissoires wrote:
+>
+>> Hi guys,
+>>
+>> This is the second version for this patch series.
+>>
+>> Since last time, I integrated Henrik's comments.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> =A0drivers/hid/Kconfig =A0 =A0 =A0 =A0 =A0| =A0 21 +---
+>> =A0drivers/hid/Makefile =A0 =A0 =A0 =A0 | =A0 =A03 -
+>> =A0drivers/hid/hid-3m-pct.c =A0 =A0 | =A0305 -----------------------=
+-------------------
+>> =A0drivers/hid/hid-cando.c =A0 =A0 =A0| =A0276 ---------------------=
+-----------------
+>> =A0drivers/hid/hid-multitouch.c | =A0110 +++++++++++++---
+>> =A0drivers/hid/hid-stantum.c =A0 =A0| =A0286 -----------------------=
+----------------
+>> =A06 files changed, 97 insertions(+), 904 deletions(-)
+>>
+>> ;-)
+>
+> Hi Benjamin,
+>
+> thanks a lot for this work you have done.
+>
+> Is there going to be second round of the patches with a few minor fix=
+es
+> coming out from Henrik's review?
+>
+> Thanks,
 
-> On Mon, Mar 07, 2011 at 09:13:28PM -0500, Rafi Rubin wrote:
-> > Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> > ---
-> >  drivers/hid/hid-ntrig.c |  456 +++++++++++++++++++++++------------------------
-> >  1 files changed, 227 insertions(+), 229 deletions(-)
-> 
-> 
-> Tested-by: Peter Hutterer <peter.hutterer@who-t.net>
+Hi Jiri,
 
-Applied, thanks.
+yes of course. I don't know if I'll have the time to do it today, but
+I'll do my best.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Cheers,
+Benjamin
+
+>
+> --
+> Jiri Kosina
+> SUSE Labs, Novell Inc.
+>

@@ -1,44 +1,45 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Add a driver to support InvenSense mpu3050 gyroscope
- chip.
-Date: Mon, 14 Mar 2011 20:14:52 +0000
-Message-ID: <20110314201452.1bf4cec8@lxorguk.ukuu.org.uk>
-References: <20110309134552.32007.52489.stgit@bob.linux.org.uk>
-	<4D7E36BA.2010007@cam.ac.uk>
-	<20110314182456.33a591dc@lxorguk.ukuu.org.uk>
-	<4D7E6C83.3040602@cam.ac.uk>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: Corrected mode of sysfs attr 'sensor' from
+ koneplus driver
+Date: Mon, 14 Mar 2011 21:43:07 +0100
+Message-ID: <1300135387.7466.0.camel@neuromancer>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:47264 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751320Ab1CNUPG (ORCPT
+Received: from mail-in-16.arcor-online.net ([151.189.21.56]:42697 "EHLO
+	mail-in-16.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756297Ab1CNUnM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2011 16:15:06 -0400
-In-Reply-To: <4D7E6C83.3040602@cam.ac.uk>
+	Mon, 14 Mar 2011 16:43:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> > It's not even ADC counts - the mpu3050 has its own processing.
-> Oh goody..
-> 
-> Just had a look at the datasheet. 'Interesting'
-> 
-> I'm particularly looking forward to seeing use of the on gyro master
-> i2c bus for talking to an external accelerometer :)
+Mode of sysfs attribute 'sensor' was wrongly set to writeonly.
+Corrected this to readwrite.
 
-A lot depends on the firmware in use. I don't have a test case for adding
-using the i2c bus as a sort of bypass for the mpu3050 alas, although it
-did occur to me.
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-roccat-koneplus.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index a8e2117..33eec74 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -460,7 +460,7 @@ static struct device_attribute koneplus_attributes[] = {
+ 
+ static struct bin_attribute koneplus_bin_attributes[] = {
+ 	{
+-		.attr = { .name = "sensor", .mode = 0220 },
++		.attr = { .name = "sensor", .mode = 0660 },
+ 		.size = sizeof(struct koneplus_sensor),
+ 		.read = koneplus_sysfs_read_sensor,
+ 		.write = koneplus_sysfs_write_sensor
+-- 
+1.7.3.4
 
 
-> There are quoted conversion parameters for going from the raw readings
-> to degree's per sec.  You 'could' apply them in kernel I guess, or maybe
-> provide details of what they are to userspace....
 
-Not sure how that is best done really - I guess I should at least
-document the "probable" conversions - again it seems it will be firmware
-specific in some cases.

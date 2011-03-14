@@ -1,37 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Add Atmel AT42QT1070 driver, version 2
-Date: Sun, 13 Mar 2011 23:58:17 -0700
-Message-ID: <20110314065817.GA5880@core.coreip.homeip.net>
-References: <1300082669-17772-1-git-send-email-voice.shen@atmel.com>
+From: Olaf Hering <olaf@aepfle.de>
+Subject: Re: [PATCH] input/xen-fbfront: advertise either absolute or relative
+ coordinates
+Date: Mon, 14 Mar 2011 11:01:44 +0100
+Message-ID: <20110314100144.GA4572@aepfle.de>
+References: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop>
+ <20110313062411.GB31566@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:64765 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752202Ab1CNG6W (ORCPT
+Received: from mo-p00-ob.rzone.de ([81.169.146.160]:59093 "EHLO
+	mo-p00-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750958Ab1CNKBz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2011 02:58:22 -0400
-Received: by iwn34 with SMTP id 34so4633987iwn.19
-        for <linux-input@vger.kernel.org>; Sun, 13 Mar 2011 23:58:21 -0700 (PDT)
+	Mon, 14 Mar 2011 06:01:55 -0400
 Content-Disposition: inline
-In-Reply-To: <1300082669-17772-1-git-send-email-voice.shen@atmel.com>
+In-Reply-To: <20110313062411.GB31566@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: voice <voice.shen@atmel.com>
-Cc: linux-input@vger.kernel.org, mohan1234@gmail.com, jm.lin@atmel.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xensource.com, linux-input@vger.kernel.org
 
-On Mon, Mar 14, 2011 at 02:04:29PM +0800, voice wrote:
-> Add driver for Atmel AT42QT1070 QTouch sensor chip.
-> The AT42QT1070 QTouch sensor support up to 7 keys.
-> The driver has been tested on Atmel AT91SAM9M10-G45-EK board, it should work fine on other platform.
-> 
-> [v1] Modify the driver according to the suggestion from Mohan
-> 
-> [v2] Modify the driver according to the suggestion from Dmitry
-> 
-> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+On Sat, Mar 12, Dmitry Torokhov wrote:
 
-Applied, thank you.
+> Hi Stefano,
+> 
+> On Fri, Mar 11, 2011 at 11:30:10AM +0000, Stefano Stabellini wrote:
+> > From: Olaf Hering <olaf@aepfle.de>
+> > 
+> > A virtualized display device is usually viewed with the vncviewer
+> > application, either by 'xm vnc domU' or with vncviewer localhost:port.
+> > vncviewer and the RFB protocol provides absolute coordinates to the
+> > virtual display. These coordinates are either passed through to a PV
+> > guest or converted to relative coordinates for a HVM guest.
+> > 
+> > A PV guest receives these coordinates and passes them to the kernels
+> > evdev driver. There it can be picked up by applications such as the
+> > xorg-input drivers. Using absolute coordinates avoids issues such as
+> > guest mouse pointer not tracking host mouse pointer due to wrong mouse
+> > acceleration settings in the guests X display.
+> > 
+> > Advertise either absolute or relative coordinates to the input system
+> > and the evdev driver, depending on what dom0 provides. The xorg-input
+> > driver prefers relative coordinates even if a devices provides both.
+> 
+> So if I am reading this correctly the original version handled changes
+> in backend capabilities and could switch between delivering either
+> relative or absolute coordinates. The new version selects the
+> capabilities at boot time and sticks with them. Was it really the
+> intended behavior?
 
--- 
-Dmitry
+Yes, as mentioned in the description above, using absolute coordinates in
+the guests X11 is prefered because it avoids that the guest mouse
+pointer gets out of sync with the host/desktop mouse pointer.
+Very old Xen versions did not send absolute coordinates, but recent
+versions do.
+
+Olaf

@@ -1,59 +1,35 @@
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Subject: Re: [PATCH] input/xen-fbfront: advertise either absolute or relative
- coordinates
-Date: Mon, 14 Mar 2011 11:39:15 +0000
-Message-ID: <alpine.DEB.2.00.1103141135170.3382@kaball-desktop>
-References: <alpine.DEB.2.00.1103111124400.2968@kaball-desktop> <20110313062411.GB31566@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3] [input-hid] Add hid-egalax driver to the unified
+ hid-multitouch framework.
+Date: Mon, 14 Mar 2011 13:06:04 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1103141305400.19969@pobox.suse.cz>
+References: <20110308080414.GA2888@polaris.bitmath.org>  <AANLkTimT9q8mo3uW0P7T0B=D4kkE83OB9ycgdJ_muZ2W@mail.gmail.com>  <20110308091434.GA3282@polaris.bitmath.org>  <AANLkTiko_mKgW6fXeAuBY4D5AT_9OHAJnk_mfQEPQVF9@mail.gmail.com>  <20110308094630.GA3396@polaris.bitmath.org>
+ <1299627518.2306.47.camel@itzy>  <20110309082455.GA3166@polaris.bitmath.org>  <AANLkTikDBTFNWhYoR5B-kfZ8Ud_aiW36qrTNJsJgHdTJ@mail.gmail.com>  <20110309092337.GC3824@polaris.bitmath.org>  <AANLkTi=TJ3RPOSP3XyqOfX8Aeep3-uFcHmcia6+a2Wxy@mail.gmail.com>
+ <20110309114038.GA9143@polaris.bitmath.org> <1299823326.1910.11.camel@itzy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.ctxuk.citrix.com ([62.200.22.115]:28645 "EHLO
-	SMTP.EU.CITRIX.COM" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752677Ab1CNLjp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2011 07:39:45 -0400
-In-Reply-To: <20110313062411.GB31566@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:49773 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751049Ab1CNMGG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Mar 2011 08:06:06 -0400
+In-Reply-To: <1299823326.1910.11.camel@itzy>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Olaf Hering <olaf@aepfle.de>
+To: Richard Nauber <richard.nauber@googlemail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input <linux-input@vger.kernel.org>, =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 
-On Sun, 13 Mar 2011, Dmitry Torokhov wrote:
-> Hi Stefano,
+On Fri, 11 Mar 2011, Richard Nauber wrote:
+
+> Hi,
 > 
-> On Fri, Mar 11, 2011 at 11:30:10AM +0000, Stefano Stabellini wrote:
-> > From: Olaf Hering <olaf@aepfle.de>
-> > 
-> > A virtualized display device is usually viewed with the vncviewer
-> > application, either by 'xm vnc domU' or with vncviewer localhost:port.
-> > vncviewer and the RFB protocol provides absolute coordinates to the
-> > virtual display. These coordinates are either passed through to a PV
-> > guest or converted to relative coordinates for a HVM guest.
-> > 
-> > A PV guest receives these coordinates and passes them to the kernels
-> > evdev driver. There it can be picked up by applications such as the
-> > xorg-input drivers. Using absolute coordinates avoids issues such as
-> > guest mouse pointer not tracking host mouse pointer due to wrong mouse
-> > acceleration settings in the guests X display.
-> > 
-> > Advertise either absolute or relative coordinates to the input system
-> > and the evdev driver, depending on what dom0 provides. The xorg-input
-> > driver prefers relative coordinates even if a devices provides both.
-> 
-> So if I am reading this correctly the original version handled changes
-> in backend capabilities and could switch between delivering either
-> relative or absolute coordinates. The new version selects the
-> capabilities at boot time and sticks with them. Was it really the
-> intended behavior?
- 
-Yes, as Olaf said, we prefer absolute coordinates so we want to make
-sure absolute coordinates are the ones that are used if both are
-available.
+> Except for a missing comma, Henriks patch works fine for me and I would
+> be glad to have it submitted. So feel free to add my SIGNED-OFF-BY.
+> (Or should I repost the patch?)
 
+I have now queued the changes in the 'multitiouch' branch of my tree. 
+Thanks,
 
-> BTW, drivers/input is intended for core input and handlers stuff with
-> drivers suppsed to be in drivers/input/<type>. Would you mind if I moved
-> this driver to drivers/input/misc?
-
-I am OK with it.
-Konrad, any comments on this?
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

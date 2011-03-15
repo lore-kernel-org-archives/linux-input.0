@@ -1,39 +1,48 @@
-From: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
-Subject: Re: [PATCH] input: generic driver for slide switches
-Date: Tue, 15 Mar 2011 14:13:49 +0100
-Message-ID: <201103151413.50042.alexander.stein@informatik.tu-chemnitz.de>
-References: <1298640558-3030-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: roccat: Corrected mode of sysfs attr 'sensor' from
+ koneplus driver
+Date: Tue, 15 Mar 2011 15:41:59 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1103151541540.19969@pobox.suse.cz>
+References: <1300135387.7466.0.camel@neuromancer>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jack.hrz.tu-chemnitz.de ([134.109.132.46]:37504 "EHLO
-	jack.hrz.tu-chemnitz.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757553Ab1CONOB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2011 09:14:01 -0400
-In-Reply-To: <1298640558-3030-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
+Received: from cantor2.suse.de ([195.135.220.15]:53958 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757543Ab1COOmA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Mar 2011 10:42:00 -0400
+In-Reply-To: <1300135387.7466.0.camel@neuromancer>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Friday 25 February 2011, 14:29:18 Alexander Stein wrote:
-> This patch adds a generic driver for slide switches connected to GPIO
-> pins of a system. It requires gpiolib and generic hardware irqs.
+On Mon, 14 Mar 2011, Stefan Achatz wrote:
+
+> Mode of sysfs attribute 'sensor' was wrongly set to writeonly.
+> Corrected this to readwrite.
 > 
-> Signed-off-by: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
+> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 > ---
->  drivers/input/misc/Kconfig         |    9 ++
->  drivers/input/misc/Makefile        |    1 +
->  drivers/input/misc/slide_switch.c  |  268
-> ++++++++++++++++++++++++++++++++++++ include/linux/input/slide_switch.h | 
->  16 ++
->  4 files changed, 294 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/misc/slide_switch.c
->  create mode 100644 include/linux/input/slide_switch.h
+>  drivers/hid/hid-roccat-koneplus.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+> index a8e2117..33eec74 100644
+> --- a/drivers/hid/hid-roccat-koneplus.c
+> +++ b/drivers/hid/hid-roccat-koneplus.c
+> @@ -460,7 +460,7 @@ static struct device_attribute koneplus_attributes[] = {
+>  
+>  static struct bin_attribute koneplus_bin_attributes[] = {
+>  	{
+> -		.attr = { .name = "sensor", .mode = 0220 },
+> +		.attr = { .name = "sensor", .mode = 0660 },
+>  		.size = sizeof(struct koneplus_sensor),
+>  		.read = koneplus_sysfs_read_sensor,
+>  		.write = koneplus_sysfs_write_sensor
 
-Did this get overlooked accidentaly?
+Applied.
 
-Alexander
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

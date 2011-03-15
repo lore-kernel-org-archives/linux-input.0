@@ -1,52 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add a driver to support InvenSense mpu3050 gyroscope
- chip.
-Date: Mon, 14 Mar 2011 23:02:03 -0700
-Message-ID: <20110315060203.GF1046@core.coreip.homeip.net>
-References: <20110309134552.32007.52489.stgit@bob.linux.org.uk>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: The way for disabling input device?
+Date: Tue, 15 Mar 2011 18:06:26 +0900
+Message-ID: <4D7F2C12.5020509@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:51500 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752060Ab1COGCJ (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:32100 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751499Ab1COJSV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Mar 2011 02:02:09 -0400
-Received: by iwn34 with SMTP id 34so283226iwn.19
-        for <linux-input@vger.kernel.org>; Mon, 14 Mar 2011 23:02:09 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20110309134552.32007.52489.stgit@bob.linux.org.uk>
+	Tue, 15 Mar 2011 05:18:21 -0400
+Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
+ by mailout2.samsung.com
+ (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
+ 2010)) with ESMTP id <0LI300LQQDAQTY40@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 15 Mar 2011 18:06:26 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LI300LW2DAQ50@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 15 Mar 2011 18:06:26 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Alan,
+Hi, all.
 
-On Wed, Mar 09, 2011 at 01:47:51PM +0000, Alan Cox wrote:
-> From: Joseph Lai <joseph_lai@wistron.com>
-> 
-> This driver is registered as an input device with sysfs control
-> interface, but it still can output 3 axes data in non-interrupt mode.
-> 
-> This is primarily an input device but can also be used as for other things.
-> It thus exposes the power control (so you can keep power on when you want) and
-> x/y/z co-ordinates directly.
+The many smartphones and embedded devices have LCD panel with
+touchscreen. The LCD panel is turned off for power saving and
+touchscreen also is disabled if there isn't user input for a while or if
+user presses power key briefly. This state is such idle, not suspend.
 
-I'd be more happy if it was just an input device. If non-wired interrupt
-is a common case then we should probably add polled input device mode,
-but we certainly should not register completely non-functional input
-device as the driver does now.
+The framebuffer device driver of kernel supplies sysfs interface to
+control blanking level of framebuffer and  we can turn off LCD panel
+using this sysfs at the above case.
 
-We also have a way of retrieving current (or rather most recent)
-coordinates via EVIOCGABS so I am not sure why we want the sysfs way of
-retrieving coordinates as well.
+Currently i know there isn't the generic way for disabling input device
+via user interface, so i am looking for the way for disabling
+input device on kernel side for above case.
 
-Regarding power mode - I really believe that this should be done on the
-driver core level instead of implementing "manual off" in every single
-driver out there.
+The above case has a condition which the touchscreen is disabled if LCD
+panel is turned off. The framebuffer framework of kernel has notifier
+block to callback on events like hardware display blank change occured,
+so the callback function disabling and enabling input device can be
+called using notifier block of framebuffer. The callback function is
+implemented in each touchscreen driver or can be implemented though
+input core if this can be generic way for input device.
+
+Actually i wonder whether this approach makes sense. I know this is a
+specific case but certainly necessary function in the smartphone and
+embedded devices.
 
 Thanks.
-
--- 
-Dmitry

@@ -1,149 +1,87 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 2/2] Input: wm831x-ts - Fix races with IRQ management
-Date: Mon, 14 Mar 2011 22:45:01 +0000
-Message-ID: <1300142701-22260-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1300142701-22260-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/2] hid-ntrig: sysfs nodes for modes
+Date: Tue, 15 Mar 2011 00:30:28 -0400
+Message-ID: <4D7EEB64.5050402@seas.upenn.edu>
+References: <1299829072-19489-1-git-send-email-rafi@seas.upenn.edu> <20110311081843.GE10807@core.coreip.homeip.net> <4D79F1DD.10009@seas.upenn.edu> <20110313062700.GC31566@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:35947 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751715Ab1CNWoq (ORCPT
+Received: from fox.seas.upenn.edu ([158.130.68.12]:48659 "EHLO
+	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750736Ab1COEat (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Mar 2011 18:44:46 -0400
-In-Reply-To: <1300142701-22260-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Tue, 15 Mar 2011 00:30:49 -0400
+In-Reply-To: <20110313062700.GC31566@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, rydberg@euromail.se, chatty@enac.fr
 
-If the WM831x pen down and data IRQs run in parallel it is possible for the
-data and pen down IRQs to deadlock themselves as one is part way through
-disabling its operation while the other is part way through enabling. Fix
-this by always disabling the pen down interrupt while data is active and
-vice versa.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This also fixes an issue when using the built in IRQs due to enable_irq()
-not being valid from interrupt context on an interrupt controller with bus
-operations like the built in IRQ controller - this issue may also have
-affected other interrupt controllers.
+On 03/13/11 01:27, Dmitry Torokhov wrote:
+> On Fri, Mar 11, 2011 at 04:56:45AM -0500, Rafi Rubin wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> User desires aren't exactly my specialty.  I just know the ntrig windows control
+>> panel gives the user that control with cute little radio buttons.
+>>
+>> Would it be cleaner to expose the control with an ioctrl or some other mechanism?
+>>
+>> I do have user space tools for mode and calibration, but that requires unbinding
+>> the device, and just seems sloppier.  But if this really is inappropriate to add
+>> the sysfs nodes, at least there's still some solution.
+> 
+> No, this is not inappropriate, I was just musing how useful they are. Do
+> we foresee users really using them or if is it more "we export because we can".
+> I.e. in which cases the default mode is not suitable?
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
+Calibration is handy, I haven't counted how many users have asked for help and
+calibrating fixed their problems.  It can be run with libusb from userspace, but
+that requires unbinding the device and running more stuff with elevated
+privileges.  X hotswap of input devices has improved, but transient settings are
+still lost.  And of course we're still talking pain for any application that
+uses the device directly but doesn't handle hotswap.
 
-This revision reworks the close() implementation, hopefully more
-robustly, which should address the main thrust of your comments
-previously.  As I said in my previous e-mail the restrictions on
-enable_irq() seem reasonable to me, the thing that's nasty here is that
-we need to enable and disable the IRQs at all.
 
- drivers/input/touchscreen/wm831x-ts.c |   60 ++++++++++++++++++++++++++++++--
- 1 files changed, 56 insertions(+), 4 deletions(-)
+As for mode setting, I know I have used that feature through userspace and my
+sysfs nodes.  But that doesn't mean other people care about that feature.
+N-trig put it in the firmware and their windows control panel, perhaps Micki or
+someone else from the company would care to weigh in on that.
 
-diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
-index 6ae054f..3f825cb 100644
---- a/drivers/input/touchscreen/wm831x-ts.c
-+++ b/drivers/input/touchscreen/wm831x-ts.c
-@@ -68,8 +68,29 @@ struct wm831x_ts {
- 	unsigned int pd_irq;
- 	bool pressure;
- 	bool pen_down;
-+	struct work_struct pd_data_work;
-+	struct work_struct data_pd_work;
- };
- 
-+static void wm831x_pd_data(struct work_struct *work)
-+{
-+	struct wm831x_ts *wm831x_ts =
-+		container_of(work, struct wm831x_ts, pd_data_work);
-+
-+	disable_irq(wm831x_ts->pd_irq);
-+	enable_irq(wm831x_ts->data_irq);
-+	dev_dbg(wm831x_ts->wm831x->dev, "IRQ PD->DATA done\n");
-+}
-+
-+static void wm831x_data_pd(struct work_struct *work)
-+{
-+	struct wm831x_ts *wm831x_ts =
-+		container_of(work, struct wm831x_ts, data_pd_work);
-+
-+	enable_irq(wm831x_ts->pd_irq);
-+	dev_dbg(wm831x_ts->wm831x->dev, "IRQ DATA->PD done\n");
-+}
-+
- static irqreturn_t wm831x_ts_data_irq(int irq, void *irq_data)
- {
- 	struct wm831x_ts *wm831x_ts = irq_data;
-@@ -110,7 +131,10 @@ static irqreturn_t wm831x_ts_data_irq(int irq, void *irq_data)
- 	}
- 
- 	if (!wm831x_ts->pen_down) {
-+		/* Switch from data to pen down */
-+		dev_dbg(wm831x->dev, "IRQ DATA->PD\n");
- 		disable_irq_nosync(wm831x_ts->data_irq);
-+		schedule_work(&wm831x_ts->data_pd_work);
- 
- 		/* Don't need data any more */
- 		wm831x_set_bits(wm831x, WM831X_TOUCH_CONTROL_1,
-@@ -156,7 +180,10 @@ static irqreturn_t wm831x_ts_pen_down_irq(int irq, void *irq_data)
- 			WM831X_TCHPD_EINT, WM831X_TCHPD_EINT);
- 
- 	wm831x_ts->pen_down = true;
--	enable_irq(wm831x_ts->data_irq);
-+
-+	/* Switch from pen down to data */
-+	dev_dbg(wm831x->dev, "IRQ PD->DATA\n");
-+	schedule_work(&wm831x_ts->pd_data_work);
- 
- 	return IRQ_HANDLED;
- }
-@@ -182,13 +209,36 @@ static void wm831x_ts_input_close(struct input_dev *idev)
- 	struct wm831x_ts *wm831x_ts = input_get_drvdata(idev);
- 	struct wm831x *wm831x = wm831x_ts->wm831x;
- 
-+	/* Shut the controller down, disabling all other functionality */
-+	wm831x_set_bits(wm831x, WM831X_TOUCH_CONTROL_1,
-+			WM831X_TCH_ENA, 0);
-+
-+	/* Make sure any pending IRQs are done, the above will prevent
-+	 * new ones firing.
-+	 */
-+	synchronize_irq(wm831x_ts->data_irq);
-+	synchronize_irq(wm831x_ts->pd_irq);
-+
-+	/* Make sure the IRQ completion work is quiesced */
-+	flush_work_sync(&wm831x_ts->data_pd_work);
-+	flush_work_sync(&wm831x_ts->pd_data_work);
-+
-+	/* If we ended up with the pen down then make sure we revert back
-+	 * to pen detection state for the next time we start up.
-+	 */
-+	if (wm831x_ts->pen_down) {
-+		disable_irq(wm831x_ts->data_irq);
-+		enable_irq(wm831x_ts->pd_irq);
-+		wm831x_ts->pen_down = false;
-+	}
-+
-+	/* Be nice to the next user and make sure everything is
-+	 * flagged as disabled.
-+	 */
- 	wm831x_set_bits(wm831x, WM831X_TOUCH_CONTROL_1,
- 			WM831X_TCH_ENA | WM831X_TCH_CVT_ENA |
- 			WM831X_TCH_X_ENA | WM831X_TCH_Y_ENA |
- 			WM831X_TCH_Z_ENA, 0);
--
--	if (wm831x_ts->pen_down)
--		disable_irq(wm831x_ts->data_irq);
- }
- 
- static __devinit int wm831x_ts_probe(struct platform_device *pdev)
-@@ -212,6 +262,8 @@ static __devinit int wm831x_ts_probe(struct platform_device *pdev)
- 
- 	wm831x_ts->wm831x = wm831x;
- 	wm831x_ts->input_dev = input_dev;
-+	INIT_WORK(&wm831x_ts->pd_data_work, wm831x_pd_data);
-+	INIT_WORK(&wm831x_ts->data_pd_work, wm831x_data_pd);
- 
- 	/*
- 	 * If we have a direct IRQ use it, otherwise use the interrupt
--- 
-1.7.4.1
+>> Since you brought it up, I am thinking of removing some of the other nodes soon.
+>>  I've learned the physical and logical ranges are already exposed both through
+>> the event nodes and debugfs.  Also, I have better filtering that so far seems
+>> not to need as many parameters so I should be able to remove those nodes as well.
+>>
+> 
+> Well, that's the issue with sysfs - it really forms kernel ABI so
+> removing something that was once added is hard.
 
+Hm, sorry I was careless about that.  I was hoping for some feedback on the
+tuning parameters and hoped to be able to remove some of those nodes once we
+established good values.  Of course almost nobody actually used them and let me
+know :(
+
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iQIcBAEBAgAGBQJNfuthAAoJEPILXytRLnK2brkP/1bj6+i+/umuuyJq58PBe8P1
++bagO7Rz2NUee7o++wdJSUW+GaL7lGLOySKi+gJ5N7vYHn7AekWT4lIUqjv0PinE
+mnI2nhFqnWTyTGjbOFxazR4o6DG7YcdSmHDvLbqUOh7mJbfxZI9XqFLV7E+mCDpG
+7VjtZMANq2Ju2/qr5B1h53WzvufEoXGhNIRyMpJbEaFAFjR0iG4UmTKNtsTPvNVt
+knzZfkKk4VX+h72WgvvQ85/ViTLtBQXIU/AFNlgn3hysM+orA/OF1Rp0OX5aAz/p
+rDQeJCYtP6GK1pzIbir2SS1tvnFfm+G2gxIDkBeh4ahL/x6z0D8EHl6rdZiodVeK
+bxaXRQJh8cFTWMUDrySlzVf88ZQRvNVK8+bRcNXlqWnCDoY2xopPrVGBninZwvIs
+laiWN64di1HVn7hgoy/iW/L2SA8NC9wQjd8X5TL9+EH0lToUvHxfqXooJzq31iwI
+UuHPpVdyIeBTVl81zj+/cHWi4mEXnnjoANbjWOnTfFwDzDwaxop4/OwKhl4yebRM
+t8ZJGPAJAzlse+FeuEd20P6kRvN7AUzBaG6Zwvyi9IRPfOPbsTF86jllNxJaEv4Y
+ExuR6QZQ+HFRveojqhoHgD79nvgtQZlpVvIIggnsm0ImQ0pmSMMuhMjSb+Mna8c+
+RfiTBxl9o6vVutQ4AkTk
+=QQ0T
+-----END PGP SIGNATURE-----

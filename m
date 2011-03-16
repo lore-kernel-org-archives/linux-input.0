@@ -1,240 +1,393 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 15/17] Input: tsc2005 - handle read errors from SPI layer
-Date: Wed, 16 Mar 2011 00:19:18 -0700
-Message-ID: <20110316071918.25664.70392.stgit@hammer.corenet.prv>
+Subject: [PATCH 16/17] Input: tsc2005 - add open/close
+Date: Wed, 16 Mar 2011 00:19:23 -0700
+Message-ID: <20110316071923.25664.10030.stgit@hammer.corenet.prv>
 References: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:36065 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752037Ab1CPHTX (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:43936 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752037Ab1CPHT2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 03:19:23 -0400
-Received: by mail-yw0-f46.google.com with SMTP id 3so546490ywj.19
-        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:19:23 -0700 (PDT)
+	Wed, 16 Mar 2011 03:19:28 -0400
+Received: by mail-yx0-f174.google.com with SMTP id 7so546881yxs.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:19:28 -0700 (PDT)
 In-Reply-To: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Aaro Koskinen <aaro.koskinen@nokia.com>
 Cc: linux-input@vger.kernel.org, lauri.leukkunen@nokia.com, David Brownell <dbrownell@users.sourceforge.net>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
 
+Introduce open and close methods for the input device to keep the device
+powered down when it is not in use. Also rework interaction between
+interrupt thread and starting/shutting off/resetting the device: instead
+of taking a mutex in the intterrupt thread and elsewhere disable interrupts
+before transitioning the device in a new state.
+
+The ESD handling is also separated from the IRQ thread; we poll regularly
+at a given interval and simply skip reads if we see that valid interrupt
+happened not so long ago. This allows us not cancel and reschedule ESD
+work from interrupt context all the time.
+
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/touchscreen/tsc2005.c |  100 ++++++++++++++++++++++++++++-------
- 1 files changed, 81 insertions(+), 19 deletions(-)
+ drivers/input/touchscreen/tsc2005.c |  216 ++++++++++++++++++++---------------
+ 1 files changed, 122 insertions(+), 94 deletions(-)
 
 diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index 16c9f57..f72df969 100644
+index f72df969..2e8c063 100644
 --- a/drivers/input/touchscreen/tsc2005.c
 +++ b/drivers/input/touchscreen/tsc2005.c
-@@ -146,7 +146,7 @@ struct tsc2005 {
- 	void			(*set_reset)(bool enable);
- };
+@@ -133,13 +133,14 @@ struct tsc2005 {
+ 	struct timer_list	penup_timer;
  
--static void tsc2005_cmd(struct tsc2005 *ts, u8 cmd)
-+static int tsc2005_cmd(struct tsc2005 *ts, u8 cmd)
+ 	unsigned int		esd_timeout;
+-	struct timer_list	esd_timer;
+-	struct work_struct	esd_work;
++	struct delayed_work	esd_work;
++	unsigned long		last_valid_interrupt;
+ 
+ 	unsigned int		x_plate_ohm;
+ 
+ 	bool			disabled;
+-	unsigned int		disable_depth;
++	bool			opened;
++	bool			suspended;
+ 
+ 	bool			pen_down;
+ 
+@@ -258,11 +259,6 @@ static irqreturn_t tsc2005_irq_thread(int irq, void *_ts)
+ 	u32 z1, z2;
+ 	int error;
+ 
+-	mutex_lock(&ts->mutex);
+-
+-	if (unlikely(ts->disable_depth))
+-		goto out;
+-
+ 	/* read the coordinates */
+ 	error = spi_sync(ts->spi, &ts->spi_read_msg);
+ 	if (unlikely(error))
+@@ -309,21 +305,13 @@ static irqreturn_t tsc2005_irq_thread(int irq, void *_ts)
+ 	spin_lock_irqsave(&ts->lock, flags);
+ 
+ 	tsc2005_update_pen_state(ts, x, y, pressure);
+-
+-	/* set the penup timer */
+ 	mod_timer(&ts->penup_timer,
+ 		  jiffies + msecs_to_jiffies(TSC2005_PENUP_TIME_MS));
+ 
+-	if (ts->esd_timeout && ts->set_reset) {
+-		/* update the watchdog timer */
+-		mod_timer(&ts->esd_timer, round_jiffies(jiffies +
+-					msecs_to_jiffies(ts->esd_timeout)));
+-	}
+-
+ 	spin_unlock_irqrestore(&ts->lock, flags);
+ 
++	ts->last_valid_interrupt = jiffies;
+ out:
+-	mutex_unlock(&ts->mutex);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -350,29 +338,31 @@ static void tsc2005_stop_scan(struct tsc2005 *ts)
+ 	tsc2005_cmd(ts, TSC2005_CMD_STOP);
+ }
+ 
+-/* must be called with mutex held */
+-static void tsc2005_disable(struct tsc2005 *ts)
++/* must be called with ts->mutex held */
++static void __tsc2005_disable(struct tsc2005 *ts)
  {
- 	u8 tx = TSC2005_CMD | TSC2005_CMD_12BIT | cmd;
- 	struct spi_transfer xfer = {
-@@ -155,13 +155,22 @@ static void tsc2005_cmd(struct tsc2005 *ts, u8 cmd)
- 		.bits_per_word	= 8,
- 	};
- 	struct spi_message msg;
-+	int error;
- 
- 	spi_message_init(&msg);
- 	spi_message_add_tail(&xfer, &msg);
--	spi_sync(ts->spi, &msg);
+-	if (ts->disable_depth++ != 0)
+-		return;
++	tsc2005_stop_scan(ts);
 +
-+	error = spi_sync(ts->spi, &msg);
-+	if (error) {
-+		dev_err(&ts->spi->dev, "%s: failed, command: %x, error: %d\n",
-+			__func__, cmd, error);
-+		return error;
+ 	disable_irq(ts->spi->irq);
+-	if (ts->esd_timeout)
+-		del_timer_sync(&ts->esd_timer);
+ 	del_timer_sync(&ts->penup_timer);
+-	tsc2005_stop_scan(ts);
++
++	cancel_delayed_work_sync(&ts->esd_work);
++
++	enable_irq(ts->spi->irq);
+ }
+ 
+-/* must be called with mutex held */
+-static void tsc2005_enable(struct tsc2005 *ts)
++/* must be called with ts->mutex held */
++static void __tsc2005_enable(struct tsc2005 *ts)
+ {
+-	if (--ts->disable_depth != 0)
+-		return;
+ 	tsc2005_start_scan(ts);
+-	enable_irq(ts->spi->irq);
+-	if (!ts->esd_timeout)
+-		return;
+-	mod_timer(&ts->esd_timer,
+-		  round_jiffies(jiffies + msecs_to_jiffies(ts->esd_timeout)));
++
++	if (ts->esd_timeout && ts->set_reset) {
++		ts->last_valid_interrupt = jiffies;
++		schedule_delayed_work(&ts->esd_work,
++				round_jiffies(jiffies +
++					msecs_to_jiffies(ts->esd_timeout)));
 +	}
 +
-+	return 0;
  }
  
--static void tsc2005_write(struct tsc2005 *ts, u8 reg, u16 value)
-+static int tsc2005_write(struct tsc2005 *ts, u8 reg, u16 value)
+ static ssize_t tsc2005_disable_show(struct device *dev,
+@@ -390,23 +380,29 @@ static ssize_t tsc2005_disable_store(struct device *dev,
  {
- 	u32 tx = ((reg | TSC2005_REG_PND0) << 16) | value;
- 	struct spi_transfer xfer = {
-@@ -170,10 +179,20 @@ static void tsc2005_write(struct tsc2005 *ts, u8 reg, u16 value)
- 		.bits_per_word	= 24,
- 	};
- 	struct spi_message msg;
+ 	struct spi_device *spi = to_spi_device(dev);
+ 	struct tsc2005 *ts = spi_get_drvdata(spi);
+-	unsigned long res;
+-	int i;
++	unsigned long val;
 +	int error;
  
- 	spi_message_init(&msg);
- 	spi_message_add_tail(&xfer, &msg);
--	spi_sync(ts->spi, &msg);
-+
-+	error = spi_sync(ts->spi, &msg);
-+	if (error) {
-+		dev_err(&ts->spi->dev,
-+			"%s: failed, register: %x, value: %x, error: %d\n",
-+			__func__, reg, value, error);
-+		return error;
-+	}
-+
-+	return 0;
- }
- 
- static void tsc2005_setup_read(struct tsc2005_spi_rd *rd, u8 reg, bool last)
-@@ -188,18 +207,23 @@ static void tsc2005_setup_read(struct tsc2005_spi_rd *rd, u8 reg, bool last)
- 	rd->spi_xfer.cs_change	   = !last;
- }
- 
--static void tsc2005_read(struct tsc2005 *ts, u8 reg, u16 *value)
-+static int tsc2005_read(struct tsc2005 *ts, u8 reg, u16 *value)
- {
- 	struct tsc2005_spi_rd spi_rd;
- 	struct spi_message msg;
-+	int error;
- 
- 	tsc2005_setup_read(&spi_rd, reg, true);
- 
- 	spi_message_init(&msg);
- 	spi_message_add_tail(&spi_rd.spi_xfer, &msg);
--	spi_sync(ts->spi, &msg);
-+
-+	error = spi_sync(ts->spi, &msg);
+-	if (strict_strtoul(buf, 10, &res) < 0)
+-		return -EINVAL;
+-	i = res ? 1 : 0;
++	error = strict_strtoul(buf, 10, &val);
 +	if (error)
 +		return error;
  
- 	*value = spi_rd.spi_rx;
-+	return 0;
- }
- 
- static void tsc2005_update_pen_state(struct tsc2005 *ts,
-@@ -232,6 +256,7 @@ static irqreturn_t tsc2005_irq_thread(int irq, void *_ts)
- 	unsigned int pressure;
- 	u32 x, y;
- 	u32 z1, z2;
-+	int error;
- 
  	mutex_lock(&ts->mutex);
- 
-@@ -239,7 +264,10 @@ static irqreturn_t tsc2005_irq_thread(int irq, void *_ts)
- 		goto out;
- 
- 	/* read the coordinates */
--	spi_sync(ts->spi, &ts->spi_read_msg);
-+	error = spi_sync(ts->spi, &ts->spi_read_msg);
-+	if (unlikely(error))
-+		goto out;
+-	if (i == ts->disabled)
+-		goto out;
+-	ts->disabled = i;
+-	if (i)
+-		tsc2005_disable(ts);
+-	else
+-		tsc2005_enable(ts);
+-out:
 +
- 	x = ts->spi_x.spi_rx;
- 	y = ts->spi_y.spi_rx;
- 	z1 = ts->spi_z1.spi_rx;
-@@ -392,7 +420,8 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
- 	u16 temp_high;
- 	u16 temp_high_orig;
- 	u16 temp_high_test;
--	unsigned int result;
-+	bool success = true;
-+	int error;
- 
- 	mutex_lock(&ts->mutex);
- 
-@@ -400,34 +429,65 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
++	if (!ts->suspended && ts->opened) {
++		if (val) {
++			if (!ts->disabled)
++				__tsc2005_disable(ts);
++		} else {
++			if (ts->disabled)
++				__tsc2005_enable(ts);
++		}
++	}
++
++	ts->disabled = !!val;
++
+ 	mutex_unlock(&ts->mutex);
++
+ 	return count;
+ }
+ static DEVICE_ATTR(disable, 0664, tsc2005_disable_show, tsc2005_disable_store);
+@@ -428,7 +424,7 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
+ 	/*
  	 * Test TSC2005 communications via temp high register.
  	 */
- 	tsc2005_disable(ts);
--	result = 1;
--	tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high_orig);
-+
-+	error = tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high_orig);
-+	if (error) {
-+		dev_warn(dev, "selftest failed: read error %d\n", error);
-+		success = false;
-+		goto out;
-+	}
-+
- 	temp_high_test = (temp_high_orig - 1) & MAX_12BIT;
--	tsc2005_write(ts, TSC2005_REG_TEMP_HIGH, temp_high_test);
--	tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high);
-+
-+	error = tsc2005_write(ts, TSC2005_REG_TEMP_HIGH, temp_high_test);
-+	if (error) {
-+		dev_warn(dev, "selftest failed: write error %d\n", error);
-+		success = false;
-+		goto out;
-+	}
-+
-+	error = tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high);
-+	if (error) {
-+		dev_warn(dev, "selftest failed: read error %d after write\n",
-+			 error);
-+		success = false;
-+		goto out;
-+	}
-+
- 	if (temp_high != temp_high_test) {
- 		dev_warn(dev, "selftest failed: %d != %d\n",
- 			 temp_high, temp_high_test);
--		result = 0;
-+		success = false;
+-	tsc2005_disable(ts);
++	__tsc2005_disable(ts);
+ 
+ 	error = tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high_orig);
+ 	if (error) {
+@@ -484,7 +480,7 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
  	}
  
- 	/* hardware reset */
- 	ts->set_reset(false);
- 	usleep_range(100, 500); /* only 10us required */
- 	ts->set_reset(true);
+ out:
 -	tsc2005_enable(ts);
-+
-+	if (!success)
-+		goto out;
- 
- 	/* test that the reset really happened */
--	tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high);
-+	error = tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high);
-+	if (error) {
-+		dev_warn(dev, "selftest failed: read error %d after reset\n",
-+			 error);
-+		success = false;
-+		goto out;
-+	}
-+
- 	if (temp_high != temp_high_orig) {
- 		dev_warn(dev, "selftest failed after reset: %d != %d\n",
- 			 temp_high, temp_high_orig);
--		result = 0;
-+		success = false;
- 	}
- 
-+out:
-+	tsc2005_enable(ts);
++	__tsc2005_enable(ts);
  	mutex_unlock(&ts->mutex);
  
--	return sprintf(buf, "%u\n", result);
-+	return sprintf(buf, "%d\n", success);
- }
+ 	return sprintf(buf, "%d\n", success);
+@@ -519,44 +515,79 @@ static const struct attribute_group tsc2005_attr_group = {
+ 	.attrs		= tsc2005_attrs,
+ };
  
- static DEVICE_ATTR(selftest, S_IRUGO, tsc2005_selftest_show, NULL);
-@@ -469,6 +529,7 @@ static void tsc2005_esd_timer(unsigned long data)
+-static void tsc2005_esd_timer(unsigned long data)
+-{
+-	struct tsc2005 *ts = (struct tsc2005 *)data;
+-
+-	schedule_work(&ts->esd_work);
+-}
+-
  static void tsc2005_esd_work(struct work_struct *work)
  {
- 	struct tsc2005 *ts = container_of(work, struct tsc2005, esd_work);
-+	int error;
+-	struct tsc2005 *ts = container_of(work, struct tsc2005, esd_work);
++	struct tsc2005 *ts = container_of(work, struct tsc2005, esd_work.work);
+ 	int error;
  	u16 r;
  
  	mutex_lock(&ts->mutex);
-@@ -480,8 +541,9 @@ static void tsc2005_esd_work(struct work_struct *work)
- 	 * If we cannot read our known value from configuration register 0 then
- 	 * reset the controller as if from power-up and start scanning again.
- 	 */
--	tsc2005_read(ts, TSC2005_REG_CFR0, &r);
--	if ((r ^ TSC2005_CFR0_INITVALUE) & TSC2005_CFR0_RW_MASK) {
-+	error = tsc2005_read(ts, TSC2005_REG_CFR0, &r);
-+	if (error ||
-+	    ((r ^ TSC2005_CFR0_INITVALUE) & TSC2005_CFR0_RW_MASK)) {
- 		dev_info(&ts->spi->dev, "TSC2005 not responding - resetting\n");
- 		ts->set_reset(false);
- 		tsc2005_update_pen_state(ts, 0, 0, 0);
+ 
+-	if (ts->disable_depth)
++	if (time_is_after_jiffies(ts->last_valid_interrupt +
++				  msecs_to_jiffies(ts->esd_timeout)))
+ 		goto out;
+ 
+-	/*
+-	 * If we cannot read our known value from configuration register 0 then
+-	 * reset the controller as if from power-up and start scanning again.
+-	 */
++	/* We should be able to read register without disabling interrupts. */
+ 	error = tsc2005_read(ts, TSC2005_REG_CFR0, &r);
+-	if (error ||
+-	    ((r ^ TSC2005_CFR0_INITVALUE) & TSC2005_CFR0_RW_MASK)) {
+-		dev_info(&ts->spi->dev, "TSC2005 not responding - resetting\n");
+-		ts->set_reset(false);
+-		tsc2005_update_pen_state(ts, 0, 0, 0);
+-		usleep_range(100, 500); /* only 10us required */
+-		ts->set_reset(true);
+-		tsc2005_start_scan(ts);
++	if (!error &&
++	    !((r ^ TSC2005_CFR0_INITVALUE) & TSC2005_CFR0_RW_MASK)) {
++		goto out;
+ 	}
+ 
+-	/* re-arm the watchdog */
+-	mod_timer(&ts->esd_timer,
+-		  round_jiffies(jiffies + msecs_to_jiffies(ts->esd_timeout)));
++	/*
++	 * If we could not read our known value from configuration register 0
++	 * then we should reset the controller as if from power-up and start
++	 * scanning again.
++	 */
++	dev_info(&ts->spi->dev, "TSC2005 not responding - resetting\n");
++
++	disable_irq(ts->spi->irq);
++	del_timer_sync(&ts->penup_timer);
++
++	tsc2005_update_pen_state(ts, 0, 0, 0);
++
++	ts->set_reset(false);
++	usleep_range(100, 500); /* only 10us required */
++	ts->set_reset(true);
++
++	enable_irq(ts->spi->irq);
++	tsc2005_start_scan(ts);
+ 
+ out:
++	/* re-arm the watchdog */
++	schedule_delayed_work(&ts->esd_work,
++			      round_jiffies(jiffies +
++					msecs_to_jiffies(ts->esd_timeout)));
++	mutex_unlock(&ts->mutex);
++}
++
++static int tsc2005_open(struct input_dev *input)
++{
++	struct tsc2005 *ts = input_get_drvdata(input);
++
++	mutex_lock(&ts->mutex);
++
++	if (!ts->suspended && !ts->disabled)
++		__tsc2005_enable(ts);
++
++	ts->opened = true;
++
++	mutex_unlock(&ts->mutex);
++
++	return 0;
++}
++
++static void tsc2005_close(struct input_dev *input)
++{
++	struct tsc2005 *ts = input_get_drvdata(input);
++
++	mutex_lock(&ts->mutex);
++
++	if (!ts->suspended && !ts->disabled)
++		__tsc2005_disable(ts);
++
++	ts->opened = false;
++
+ 	mutex_unlock(&ts->mutex);
+ }
+ 
+@@ -626,8 +657,7 @@ static int __devinit tsc2005_probe(struct spi_device *spi)
+ 	spin_lock_init(&ts->lock);
+ 	setup_timer(&ts->penup_timer, tsc2005_penup_timer, (unsigned long)ts);
+ 
+-	setup_timer(&ts->esd_timer, tsc2005_esd_timer, (unsigned long)ts);
+-	INIT_WORK(&ts->esd_work, tsc2005_esd_work);
++	INIT_DELAYED_WORK(&ts->esd_work, tsc2005_esd_work);
+ 
+ 	tsc2005_setup_spi_xfer(ts);
+ 
+@@ -645,6 +675,12 @@ static int __devinit tsc2005_probe(struct spi_device *spi)
+ 	input_set_abs_params(input_dev, ABS_Y, 0, max_y, fudge_y, 0);
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, max_p, fudge_p, 0);
+ 
++	input_dev->open = tsc2005_open;
++	input_dev->close = tsc2005_close;
++
++	/* Ensure the touchscreen is off */
++	tsc2005_stop_scan(ts);
++
+ 	error = request_threaded_irq(spi->irq, NULL, tsc2005_irq_thread,
+ 				     IRQF_TRIGGER_RISING, "tsc2005", ts);
+ 	if (error) {
+@@ -667,14 +703,6 @@ static int __devinit tsc2005_probe(struct spi_device *spi)
+ 		goto err_remove_sysfs;
+ 	}
+ 
+-	tsc2005_start_scan(ts);
+-
+-	if (ts->esd_timeout && ts->set_reset) {
+-		/* start the optional ESD watchdog */
+-		mod_timer(&ts->esd_timer, round_jiffies(jiffies +
+-					msecs_to_jiffies(ts->esd_timeout)));
+-	}
+-
+ 	set_irq_wake(spi->irq, 1);
+ 	return 0;
+ 
+@@ -695,16 +723,6 @@ static int __devexit tsc2005_remove(struct spi_device *spi)
+ 
+ 	sysfs_remove_group(&ts->spi->dev.kobj, &tsc2005_attr_group);
+ 
+-	mutex_lock(&ts->mutex);
+-	tsc2005_disable(ts);
+-	mutex_unlock(&ts->mutex);
+-
+-	if (ts->esd_timeout)
+-		del_timer_sync(&ts->esd_timer);
+-	del_timer_sync(&ts->penup_timer);
+-
+-	flush_work(&ts->esd_work);
+-
+ 	free_irq(ts->spi->irq, ts);
+ 	input_unregister_device(ts->idev);
+ 	kfree(ts);
+@@ -720,7 +738,12 @@ static int tsc2005_suspend(struct device *dev)
+ 	struct tsc2005 *ts = spi_get_drvdata(spi);
+ 
+ 	mutex_lock(&ts->mutex);
+-	tsc2005_disable(ts);
++
++	if (!ts->suspended && !ts->disabled && ts->opened)
++		__tsc2005_disable(ts);
++
++	ts->suspended = true;
++
+ 	mutex_unlock(&ts->mutex);
+ 
+ 	return 0;
+@@ -732,7 +755,12 @@ static int tsc2005_resume(struct device *dev)
+ 	struct tsc2005 *ts = spi_get_drvdata(spi);
+ 
+ 	mutex_lock(&ts->mutex);
+-	tsc2005_enable(ts);
++
++	if (ts->suspended && !ts->disabled && ts->opened)
++		__tsc2005_enable(ts);
++
++	ts->suspended = false;
++
+ 	mutex_unlock(&ts->mutex);
+ 
+ 	return 0;
 

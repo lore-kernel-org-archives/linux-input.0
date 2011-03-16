@@ -1,95 +1,70 @@
-From: Herton Ronaldo Krzesinski <herton.krzesinski@canonical.com>
-Subject: [PATCH v2] HID: add support for Ortek PKB-1700
-Date: Wed, 16 Mar 2011 14:13:53 -0300
-Message-ID: <1300295633-8627-1-git-send-email-herton.krzesinski@canonical.com>
+From: Stephen Kitt <steve@sk2.org>
+Subject: Re: [PATCH] HID: ACRUX - activate the device immediately after
+ binding
+Date: Wed, 16 Mar 2011 20:13:25 +0100
+Message-ID: <20110316201325.2b6132ad@sk2.org>
+References: <20110311082734.GF10807@core.coreip.homeip.net>
+	<alpine.LNX.2.00.1103122148270.19969@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=PGP-SHA256;
+ boundary="Sig_/NDMidDF.gmesSJSqVrj1zoP"; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:52975 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751131Ab1CPRN5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 13:13:57 -0400
+Received: from smtp5-g21.free.fr ([212.27.42.5]:50691 "EHLO smtp5-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750951Ab1CPTNs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Mar 2011 15:13:48 -0400
+In-Reply-To: <alpine.LNX.2.00.1103122148270.19969@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Sergei Kolzun <x0r@dv-life.ru>
 
-As reported on http://ubuntuforums.org/showthread.php?t=1594007 the
-PKB-1700 needs same special handling as WKB-2000. This change is
-originally based on patch posted by user asmoore82 on the Ubuntu
-forums.
+--Sig_/NDMidDF.gmesSJSqVrj1zoP
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-BugLink: http://bugs.launchpad.net/bugs/735640
-Cc: stable@kernel.org
-Signed-off-by: Herton Ronaldo Krzesinski <herton.krzesinski@canonical.com>
----
- drivers/hid/Kconfig     |    4 ++--
- drivers/hid/hid-core.c  |    1 +
- drivers/hid/hid-ids.h   |    1 +
- drivers/hid/hid-ortek.c |    3 ++-
- 4 files changed, 6 insertions(+), 3 deletions(-)
+On Sat, 12 Mar 2011 21:49:05 +0100 (CET), Jiri Kosina <jkosina@suse.cz> wro=
+te:
+> On Fri, 11 Mar 2011, Dmitry Torokhov wrote:
+> > This device does not tolerate delayed opening and goes into a coma if
+> > we try to that. Ubuntu even has a crutch for udev that opened the device
+> > upon seeing it for the first time, but it did not work if we happened to
+> > boot with the device attached, since by the time userspace got around
+> > opening the device it was too late. Let's start the device immediately
+> > to deal with this issue.
+>=20
+> Applied, thanks guys.
 
-v2: add PKB-1700 to Kconfig descriptions and hid-ortek.c comment 
+Excellent, thanks! I'll remove the workaround from future versions of the
+joystick package in Debian and Ubuntu.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 2560f01..3a07b4d 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -319,10 +319,10 @@ config HID_NTRIG
- 	Support for N-Trig touch screen.
- 
- config HID_ORTEK
--	tristate "Ortek WKB-2000 wireless keyboard and mouse trackpad"
-+	tristate "Ortek PKB-1700/WKB-2000 wireless keyboard and mouse trackpad"
- 	depends on USB_HID
- 	---help---
--	Support for Ortek WKB-2000 wireless keyboard + mouse trackpad.
-+	Support for Ortek PKB-1700/WKB-2000 wireless keyboard + mouse trackpad.
- 
- config HID_PANTHERLORD
- 	tristate "Pantherlord/GreenAsia game controller"
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index d678cf3..295e248 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1400,6 +1400,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 92a0d61..5f5cc91 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -466,6 +466,7 @@
- #define USB_DEVICE_ID_ONTRAK_ADU100	0x0064
- 
- #define USB_VENDOR_ID_ORTEK		0x05a4
-+#define USB_DEVICE_ID_ORTEK_PKB1700	0x1700
- #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
- 
- #define USB_VENDOR_ID_PANJIT		0x134c
-diff --git a/drivers/hid/hid-ortek.c b/drivers/hid/hid-ortek.c
-index e90edfc..ad6faa6 100644
---- a/drivers/hid/hid-ortek.c
-+++ b/drivers/hid/hid-ortek.c
-@@ -1,5 +1,5 @@
- /*
-- *  HID driver for Ortek WKB-2000 (wireless keyboard + mouse trackpad).
-+ *  HID driver for Ortek PKB-1700/WKB-2000 (wireless keyboard + mouse trackpad).
-  *  Fixes LogicalMaximum error in USB report description, see
-  *  http://bugzilla.kernel.org/show_bug.cgi?id=14787
-  *
-@@ -30,6 +30,7 @@ static __u8 *ortek_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- }
- 
- static const struct hid_device_id ortek_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
- 	{ }
- };
--- 
-1.7.1
+Would it be possibke to submit this patch to stable too, so that it can make
+it into distribution kernels sooner rather than later?
 
+Regards,
+
+Stephen
+
+--Sig_/NDMidDF.gmesSJSqVrj1zoP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBCAAGBQJNgQvVAAoJEHWXeKmja0lPqZ4QAKH0lOZGp9nfIo9SqQbAaAr7
+e9dIN040hFmrwsRU7lBAa/Ml0JD+F7X9VbZ6sQNpqQanvEAJtLpyiOwk0asbJJss
+cd1S2GPWl+MIG+d6MjjFLkhyHCLltQrsQBFCPdwbiGkzKt+SXfkyiziU52lCIX73
+YfimKQ8pyO6dNMG3RyxuEUQoHSDOb2dOWEjhcu94SivXIEa0xFGZsk2jnC9Ioe+D
+Egooif44+lT6CjjizGDHxASu9yin1CIs/ylIoygjoJudjVn4fpp3wgL9Vw5wcXs2
+q+nPIOmCvWIkY08iDMhmAzpHmekTwQvKXRjuqdWLkoIA3ZuzbXxerDlzBU7nsyiz
+JbV6oeFrTlxx2D+vi97CfokleAxmmtvs+5U+3oD3vkj7wNKySTCBVbqSWjzvsIym
+KT9p4oY34vA1s9dffy/999YAlEPbcQuVfNB1sdq7KzeBFN8dTRRNEtWSf+rWoFzg
+Y9BTG5ElzxeDYNgC05e9xF3gBzzkT/LyXiPFKsuqs+wo9BJIDk7EB5CG+vQ/xCo4
+wLHsYL1ktUtgrcVn/zSdb2VKcS23lH0GzNXjoVqGFz8Ls+CIuNdiElwc4ui58By9
+UJ5mi5vufGuuZPqXCCWzVIaSM73MW2Wcz8MOgqVWkDqcQaKYBIVwoCPaAwD45dX0
+fxYLJQBizB4epF7gnrlo
+=5uHM
+-----END PGP SIGNATURE-----
+
+--Sig_/NDMidDF.gmesSJSqVrj1zoP--

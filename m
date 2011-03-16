@@ -1,52 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: generic driver for slide switches
-Date: Tue, 15 Mar 2011 23:36:18 -0700
-Message-ID: <20110316063617.GG14604@core.coreip.homeip.net>
-References: <1298640558-3030-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
- <201103151413.50042.alexander.stein@informatik.tu-chemnitz.de>
+Subject: [PATCH 00/17] Series short description
+Date: Wed, 16 Mar 2011 00:12:49 -0700
+Message-ID: <20110316071246.25081.27438.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:37722 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751527Ab1CPGgX (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:45354 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751933Ab1CPHM5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 02:36:23 -0400
-Received: by iyb26 with SMTP id 26so1356653iyb.19
-        for <linux-input@vger.kernel.org>; Tue, 15 Mar 2011 23:36:22 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201103151413.50042.alexander.stein@informatik.tu-chemnitz.de>
+	Wed, 16 Mar 2011 03:12:57 -0400
+Received: by iwn34 with SMTP id 34so1376381iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:12:56 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
-Cc: linux-input@vger.kernel.org
+To: Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Aaro Koskinen <aaro.koskinen@nokia.com>
+Cc: linux-input@vger.kernel.org, lauri.leukkunen@nokia.com, David Brownell <dbrownell@users.sourceforge.net>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
 
-On Tue, Mar 15, 2011 at 02:13:49PM +0100, Alexander Stein wrote:
-> On Friday 25 February 2011, 14:29:18 Alexander Stein wrote:
-> > This patch adds a generic driver for slide switches connected to GPIO
-> > pins of a system. It requires gpiolib and generic hardware irqs.
-> > 
-> > Signed-off-by: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
-> > ---
-> >  drivers/input/misc/Kconfig         |    9 ++
-> >  drivers/input/misc/Makefile        |    1 +
-> >  drivers/input/misc/slide_switch.c  |  268
-> > ++++++++++++++++++++++++++++++++++++ include/linux/input/slide_switch.h | 
-> >  16 ++
-> >  4 files changed, 294 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/input/misc/slide_switch.c
-> >  create mode 100644 include/linux/input/slide_switch.h
-> 
-> Did this get overlooked accidentaly?
-> 
+The following series implements...
 
-Hi Alexander,
+---
 
-Hm, can't it be merged with gpio_keys? Just add the 'value' to the
-gpio_keys_button structure that would be valid for EV_ABS (or even
-EV_REL) types. Debouncing should filter out jittery events...
+Dmitry Torokhov (17):
+      Input: tsc2005 - remove 'disable' sysfs attribute
+      Input: tsc2005 - add open/close
+      Input: tsc2005 - handle read errors from SPI layer
+      Input: tsc2005 - do not rearm timer in hardirq handler
+      Input: tsc2005 - don't use work for 'pen up' handling
+      Input: tsc2005 - do not use 0 in place of NULL
+      Input: tsc2005 - use true/false for boolean variables
+      Input: tsc2005 - hide selftest attribute if we can't reset
+      Input: tsc2005 - rework driver initialization code
+      Input: tsc2005 - set up bus type in input device
+      Input: tsc2005 - set up parent device
+      Input: tsc2005 - clear driver data after unbinding
+      Input: tsc2005 - add module description
+      Input: tsc2005 - remove driver banner message
+      Input: tsc2005 - remove incorrect module alias
+      Input: tsc2005 - convert to using dev_pm_ops
+      Input: tsc2005 - use spi_get/set_drvdata()
 
-Thanks.
+
+ drivers/input/touchscreen/tsc2005.c |  659 +++++++++++++++++++----------------
+ 1 files changed, 349 insertions(+), 310 deletions(-)
 
 -- 
-Dmitry
+Signature

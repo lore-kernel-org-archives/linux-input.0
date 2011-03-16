@@ -1,81 +1,103 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] Add a driver to support InvenSense mpu3050 gyroscope chip.
-Date: Wed, 16 Mar 2011 22:07:31 +0100
-Message-ID: <201103162207.32030.rjw@sisk.pl>
-References: <20110309134552.32007.52489.stgit@bob.linux.org.uk> <20110315125846.34b6af32@lxorguk.ukuu.org.uk> <20110316063024.GE14604@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2] HID: add support for Ortek PKB-1700
+Date: Thu, 17 Mar 2011 00:33:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1103170033290.19969@pobox.suse.cz>
+References: <1300295633-8627-1-git-send-email-herton.krzesinski@canonical.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:39759 "EHLO ogre.sisk.pl"
+Received: from cantor.suse.de ([195.135.220.2]:59885 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752136Ab1CPVHZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 17:07:25 -0400
-In-Reply-To: <20110316063024.GE14604@core.coreip.homeip.net>
+	id S1751661Ab1CPXdn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Mar 2011 19:33:43 -0400
+In-Reply-To: <1300295633-8627-1-git-send-email-herton.krzesinski@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-input@vger.kernel.org
+To: Herton Ronaldo Krzesinski <herton.krzesinski@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wednesday, March 16, 2011, Dmitry Torokhov wrote:
-> On Tue, Mar 15, 2011 at 12:58:46PM +0000, Alan Cox wrote:
-> > > I'd be more happy if it was just an input device. If non-wired interrupt
-> > > is a common case then we should probably add polled input device mode,
-> > 
-> > I can't really answer how common it is or would be - its a generic chip
-> > that is used on all sorts of equipment
-> > 
-> > > but we certainly should not register completely non-functional input
-> > > device as the driver does now.
-> > 
-> > Agreed
-> > 
-> > > We also have a way of retrieving current (or rather most recent)
-> > > coordinates via EVIOCGABS so I am not sure why we want the sysfs way of
-> > > retrieving coordinates as well.
-> > 
-> > The sysfs way comes about because the devices are very very power
-> > oriented, waking up and polling regularly burns power, hence also the
-> > power control side. Opening an input device would power it up for the
-> > duration it was open and the polling would cause a lot of wakeups burning
-> > power.
-> > 
-> > Doing open/EVIOCGABS/close to avoid that aspect of the input layer
-> > won't ensure you get current data that I can see - because an IRQ may not
-> > have occurred between the open and the EVIOCGABS so any data may be very
-> > stale or non-existent.
+On Wed, 16 Mar 2011, Herton Ronaldo Krzesinski wrote:
+
+> As reported on http://ubuntuforums.org/showthread.php?t=1594007 the
+> PKB-1700 needs same special handling as WKB-2000. This change is
+> originally based on patch posted by user asmoore82 on the Ubuntu
+> forums.
 > 
-> I would be perfectly fine with a driver that does refresh it's state in
-> dev->open() if we expect that data might be stale. We normally do not do
-> that because old data is normally not interesting for touchpads, mice or
-> keyboards and we not always have option of querying current hardware
-> state.
+> BugLink: http://bugs.launchpad.net/bugs/735640
+> Cc: stable@kernel.org
+> Signed-off-by: Herton Ronaldo Krzesinski <herton.krzesinski@canonical.com>
+> ---
+>  drivers/hid/Kconfig     |    4 ++--
+>  drivers/hid/hid-core.c  |    1 +
+>  drivers/hid/hid-ids.h   |    1 +
+>  drivers/hid/hid-ortek.c |    3 ++-
+>  4 files changed, 6 insertions(+), 3 deletions(-)
 > 
-> > 
-> > The polled case looks trivial to sort but for an IRQ driver driver it
-> > looks like you would need a new "get co-ordinates right now" optional
-> > method tht EVIOCGABS would use if available ?
-> > 
-> > > Regarding power mode - I really believe that this should be done on the
-> > > driver core level instead of implementing "manual off" in every single
-> > > driver out there.
-> > 
-> > Definitely - not sure what plans Rafael has there ?
-> >
+> v2: add PKB-1700 to Kconfig descriptions and hid-ortek.c comment 
 > 
-> Last time we discussed this we were talking about sysfs entry at the
-> driver core level allowing userspace to "expire" idle timer and force
-> runtime PM action. Rafael, did I remember that right?
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 2560f01..3a07b4d 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -319,10 +319,10 @@ config HID_NTRIG
+>  	Support for N-Trig touch screen.
+>  
+>  config HID_ORTEK
+> -	tristate "Ortek WKB-2000 wireless keyboard and mouse trackpad"
+> +	tristate "Ortek PKB-1700/WKB-2000 wireless keyboard and mouse trackpad"
+>  	depends on USB_HID
+>  	---help---
+> -	Support for Ortek WKB-2000 wireless keyboard + mouse trackpad.
+> +	Support for Ortek PKB-1700/WKB-2000 wireless keyboard + mouse trackpad.
+>  
+>  config HID_PANTHERLORD
+>  	tristate "Pantherlord/GreenAsia game controller"
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index d678cf3..295e248 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1400,6 +1400,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 92a0d61..5f5cc91 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -466,6 +466,7 @@
+>  #define USB_DEVICE_ID_ONTRAK_ADU100	0x0064
+>  
+>  #define USB_VENDOR_ID_ORTEK		0x05a4
+> +#define USB_DEVICE_ID_ORTEK_PKB1700	0x1700
+>  #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
+>  
+>  #define USB_VENDOR_ID_PANJIT		0x134c
+> diff --git a/drivers/hid/hid-ortek.c b/drivers/hid/hid-ortek.c
+> index e90edfc..ad6faa6 100644
+> --- a/drivers/hid/hid-ortek.c
+> +++ b/drivers/hid/hid-ortek.c
+> @@ -1,5 +1,5 @@
+>  /*
+> - *  HID driver for Ortek WKB-2000 (wireless keyboard + mouse trackpad).
+> + *  HID driver for Ortek PKB-1700/WKB-2000 (wireless keyboard + mouse trackpad).
+>   *  Fixes LogicalMaximum error in USB report description, see
+>   *  http://bugzilla.kernel.org/show_bug.cgi?id=14787
+>   *
+> @@ -30,6 +30,7 @@ static __u8 *ortek_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  }
+>  
+>  static const struct hid_device_id ortek_devices[] = {
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+>  	{ }
+>  };
 
-Well, I'm not exactly sure what the question is about. :-)
+Applied, thanks.
 
-There's the family of pm_*_autosuspend() routines in the runtime PM
-framework (recently introduced by Alan Stern) that allow you to use delay
-timers and deal with them automatically (as described in
-Documentation/power/runtime_pm.txt, Section 9).
-
-Is that what you mean?
-
-Rafael
-
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

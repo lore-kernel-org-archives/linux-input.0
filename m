@@ -1,39 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 00/17] Merging of TSC2005 driver
-Date: Wed, 16 Mar 2011 00:41:31 -0700
-Message-ID: <20110316074131.GB25912@core.coreip.homeip.net>
-References: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: The way for disabling input device?
+Date: Wed, 16 Mar 2011 09:48:06 +0000
+Message-ID: <20110316094805.GA2688@opensource.wolfsonmicro.com>
+References: <4D7F2C12.5020509@samsung.com>
+ <20110315151728.GD17277@sirena.org.uk>
+ <20110316045346.GA2582@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:51737 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751470Ab1CPHlh (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:52514 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752508Ab1CPJru (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 03:41:37 -0400
-Received: by iwn34 with SMTP id 34so1393622iwn.19
-        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:41:37 -0700 (PDT)
+	Wed, 16 Mar 2011 05:47:50 -0400
 Content-Disposition: inline
-In-Reply-To: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
+In-Reply-To: <20110316045346.GA2582@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Aaro Koskinen <aaro.koskinen@nokia.com>
-Cc: linux-input@vger.kernel.org, lauri.leukkunen@nokia.com, David Brownell <dbrownell@users.sourceforge.net>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org
 
-On Wed, Mar 16, 2011 at 12:17:58AM -0700, Dmitry Torokhov wrote:
-> Hi,
-> 
-> So I guess the common core for tsc2005/2007 will not materialize anytime
-> soon and I should finally merge the standalone version of driver... Still
-> there were a few issues with it and I would appreciate if you take a look
-> at the following patches and let me know if the driver still works if
-> you apply them.
-> 
-> Thanks.
-> 
+On Tue, Mar 15, 2011 at 09:53:46PM -0700, Dmitry Torokhov wrote:
 
-Also apologies to whoever gets multiple copies of patches - I fudged
-stgit invocation a couple of times.
+> Closing the device might be a bit unwieldy, I was thinking more along
+> the lines of having a way of "accelerating" runtime PM timeout and using
+> that framework to put the device to sleep.
 
--- 
-Dmitry
+I guess if I get the time to get the rate control stuff I've mentioned
+before done that'd also be another way of doing this.

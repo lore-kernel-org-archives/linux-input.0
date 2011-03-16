@@ -1,139 +1,83 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 17/17] Input: tsc2005 - remove 'disable' sysfs attribute
-Date: Wed, 16 Mar 2011 00:19:28 -0700
-Message-ID: <20110316071928.25664.46040.stgit@hammer.corenet.prv>
-References: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
+Subject: Re: The way for disabling input device?
+Date: Wed, 16 Mar 2011 00:22:54 -0700
+Message-ID: <20110316072250.GA25912@core.coreip.homeip.net>
+References: <4D7F2C12.5020509@samsung.com>
+ <20110316045551.GB2582@core.coreip.homeip.net>
+ <4D8062E3.30305@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:43936 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752037Ab1CPHTd (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:54508 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752097Ab1CPHW7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 03:19:33 -0400
-Received: by mail-yx0-f174.google.com with SMTP id 7so546881yxs.19
-        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:19:33 -0700 (PDT)
-In-Reply-To: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
+	Wed, 16 Mar 2011 03:22:59 -0400
+Received: by iwn34 with SMTP id 34so1382611iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:22:59 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4D8062E3.30305@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Aaro Koskinen <aaro.koskinen@nokia.com>
-Cc: linux-input@vger.kernel.org, lauri.leukkunen@nokia.com, David Brownell <dbrownell@users.sourceforge.net>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org
 
-I believe that enable/disable functionality should not be implemented on
-the individual driver level but rather in device core, potentially
-reusing parts of PM framework. Therefore the driver-specific "disable"
-attribute is removed from the mainline driver.
+On Wed, Mar 16, 2011 at 04:12:35PM +0900, Joonyoung Shim wrote:
+> On 2011-03-16 =EC=98=A4=ED=9B=84 1:55, Dmitry Torokhov wrote:
+> >On Tue, Mar 15, 2011 at 06:06:26PM +0900, Joonyoung Shim wrote:
+> >>Hi, all.
+> >>
+> >>The many smartphones and embedded devices have LCD panel with
+> >>touchscreen. The LCD panel is turned off for power saving and
+> >>touchscreen also is disabled if there isn't user input for a while =
+or if
+> >>user presses power key briefly. This state is such idle, not suspen=
+d.
+> >>
+> >>The framebuffer device driver of kernel supplies sysfs interface to
+> >>control blanking level of framebuffer and  we can turn off LCD pane=
+l
+> >>using this sysfs at the above case.
+> >>
+> >>Currently i know there isn't the generic way for disabling input de=
+vice
+> >>via user interface, so i am looking for the way for disabling
+> >>input device on kernel side for above case.
+> >>
+> >>The above case has a condition which the touchscreen is disabled if=
+ LCD
+> >>panel is turned off. The framebuffer framework of kernel has notifi=
+er
+> >>block to callback on events like hardware display blank change occu=
+red,
+> >>so the callback function disabling and enabling input device can be
+> >>called using notifier block of framebuffer. The callback function i=
+s
+> >>implemented in each touchscreen driver or can be implemented though
+> >>input core if this can be generic way for input device.
+> >>
+> >>Actually i wonder whether this approach makes sense. I know this is=
+ a
+> >>specific case but certainly necessary function in the smartphone an=
+d
+> >>embedded devices.
+> >
+> >I do not believe that we should tie the 2 together. I can come up wi=
+th
+> >scenarios where you woudl want to put the keeboard/touchcsreen to sl=
+eep
+> >before turning off the display and vice versa.
+>=20
+> Right, as you say, various scenarios can come up, so i think generic
+> way for disabling input device needs more and more.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+Not only input, other devices need this facility as well.
 
- drivers/input/touchscreen/tsc2005.c |   52 +++--------------------------------
- 1 files changed, 4 insertions(+), 48 deletions(-)
-
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index 2e8c063..0e3c403 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -138,7 +138,6 @@ struct tsc2005 {
- 
- 	unsigned int		x_plate_ohm;
- 
--	bool			disabled;
- 	bool			opened;
- 	bool			suspended;
- 
-@@ -365,48 +364,6 @@ static void __tsc2005_enable(struct tsc2005 *ts)
- 
- }
- 
--static ssize_t tsc2005_disable_show(struct device *dev,
--				    struct device_attribute *attr, char *buf)
--{
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
--
--	return sprintf(buf, "%u\n", ts->disabled);
--}
--
--static ssize_t tsc2005_disable_store(struct device *dev,
--				     struct device_attribute *attr,
--				     const char *buf, size_t count)
--{
--	struct spi_device *spi = to_spi_device(dev);
--	struct tsc2005 *ts = spi_get_drvdata(spi);
--	unsigned long val;
--	int error;
--
--	error = strict_strtoul(buf, 10, &val);
--	if (error)
--		return error;
--
--	mutex_lock(&ts->mutex);
--
--	if (!ts->suspended && ts->opened) {
--		if (val) {
--			if (!ts->disabled)
--				__tsc2005_disable(ts);
--		} else {
--			if (ts->disabled)
--				__tsc2005_enable(ts);
--		}
--	}
--
--	ts->disabled = !!val;
--
--	mutex_unlock(&ts->mutex);
--
--	return count;
--}
--static DEVICE_ATTR(disable, 0664, tsc2005_disable_show, tsc2005_disable_store);
--
- static ssize_t tsc2005_selftest_show(struct device *dev,
- 				     struct device_attribute *attr,
- 				     char *buf)
-@@ -489,7 +446,6 @@ out:
- static DEVICE_ATTR(selftest, S_IRUGO, tsc2005_selftest_show, NULL);
- 
- static struct attribute *tsc2005_attrs[] = {
--	&dev_attr_disable.attr,
- 	&dev_attr_selftest.attr,
- 	NULL
- };
-@@ -567,7 +523,7 @@ static int tsc2005_open(struct input_dev *input)
- 
- 	mutex_lock(&ts->mutex);
- 
--	if (!ts->suspended && !ts->disabled)
-+	if (!ts->suspended)
- 		__tsc2005_enable(ts);
- 
- 	ts->opened = true;
-@@ -583,7 +539,7 @@ static void tsc2005_close(struct input_dev *input)
- 
- 	mutex_lock(&ts->mutex);
- 
--	if (!ts->suspended && !ts->disabled)
-+	if (!ts->suspended)
- 		__tsc2005_disable(ts);
- 
- 	ts->opened = false;
-@@ -739,7 +695,7 @@ static int tsc2005_suspend(struct device *dev)
- 
- 	mutex_lock(&ts->mutex);
- 
--	if (!ts->suspended && !ts->disabled && ts->opened)
-+	if (!ts->suspended && ts->opened)
- 		__tsc2005_disable(ts);
- 
- 	ts->suspended = true;
-@@ -756,7 +712,7 @@ static int tsc2005_resume(struct device *dev)
- 
- 	mutex_lock(&ts->mutex);
- 
--	if (ts->suspended && !ts->disabled && ts->opened)
-+	if (ts->suspended && ts->opened)
- 		__tsc2005_enable(ts);
- 
- 	ts->suspended = false;
-
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,109 +1,108 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 10/17] Input: tsc2005 - hide selftest attribute if we can't
- reset
-Date: Wed, 16 Mar 2011 00:18:51 -0700
-Message-ID: <20110316071851.25664.73652.stgit@hammer.corenet.prv>
+Subject: [PATCH 11/17] Input: tsc2005 - use true/false for boolean variables
+Date: Wed, 16 Mar 2011 00:18:56 -0700
+Message-ID: <20110316071856.25664.13228.stgit@hammer.corenet.prv>
 References: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:43936 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752037Ab1CPHS4 (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:60566 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752037Ab1CPHTB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 03:18:56 -0400
-Received: by yxs7 with SMTP id 7so546881yxs.19
-        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:18:56 -0700 (PDT)
+	Wed, 16 Mar 2011 03:19:01 -0400
+Received: by gxk21 with SMTP id 21so543968gxk.19
+        for <linux-input@vger.kernel.org>; Wed, 16 Mar 2011 00:19:01 -0700 (PDT)
 In-Reply-To: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Aaro Koskinen <aaro.koskinen@nokia.com>
 Cc: linux-input@vger.kernel.org, lauri.leukkunen@nokia.com, David Brownell <dbrownell@users.sourceforge.net>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
 
-If implementation to perform self-test/reset has not been provided by the
-platform code hide 'selftest' sysfs attribute instead of returning error
-when someone tries to use it.
-
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/touchscreen/tsc2005.c |   46 +++++++++++++++++++++--------------
- 1 files changed, 28 insertions(+), 18 deletions(-)
+ drivers/input/touchscreen/tsc2005.c |   25 +++++++++++++------------
+ 1 files changed, 13 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index d7ea906..4f1c041 100644
+index 4f1c041..bfcff96 100644
 --- a/drivers/input/touchscreen/tsc2005.c
 +++ b/drivers/input/touchscreen/tsc2005.c
-@@ -411,13 +411,6 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
- 	u16 temp_high_test;
- 	unsigned int result;
+@@ -140,7 +140,8 @@ struct tsc2005 {
  
--	if (!ts->set_reset) {
--		dev_warn(&ts->spi->dev,
--			 "unable to selftest: no reset function\n");
--		result = 0;
--		goto out;
--	}
--
- 	mutex_lock(&ts->mutex);
+ 	bool			disabled;
+ 	unsigned int		disable_depth;
+-	unsigned int		pen_down;
++
++	bool			pen_down;
  
- 	/*
-@@ -451,11 +444,38 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
+ 	void			(*set_reset)(bool enable);
+ };
+@@ -197,7 +198,7 @@ static void tsc2005_read(struct tsc2005 *ts, u8 reg, u16 *value)
+ 	struct spi_message msg;
+ 	struct tsc2005_spi_rd spi_rd = { { 0 }, 0, 0 };
  
- 	mutex_unlock(&ts->mutex);
+-	tsc2005_setup_read(&spi_rd, reg, 1);
++	tsc2005_setup_read(&spi_rd, reg, true);
  
--out:
- 	return sprintf(buf, "%u\n", result);
- }
-+
- static DEVICE_ATTR(selftest, S_IRUGO, tsc2005_selftest_show, NULL);
+ 	spi_message_init(&msg);
+ 	spi_message_add_tail(&spi_rd.spi_xfer, &msg);
+@@ -214,13 +215,13 @@ static void tsc2005_update_pen_state(struct tsc2005 *ts,
+ 		input_report_abs(ts->idev, ABS_PRESSURE, pressure);
+ 		if (!ts->pen_down) {
+ 			input_report_key(ts->idev, BTN_TOUCH, !!pressure);
+-			ts->pen_down = 1;
++			ts->pen_down = true;
+ 		}
+ 	} else {
+ 		input_report_abs(ts->idev, ABS_PRESSURE, 0);
+ 		if (ts->pen_down) {
+ 			input_report_key(ts->idev, BTN_TOUCH, 0);
+-			ts->pen_down = 0;
++			ts->pen_down = false;
+ 		}
+ 	}
+ 	input_sync(ts->idev);
+@@ -429,9 +430,9 @@ static ssize_t tsc2005_selftest_show(struct device *dev,
+ 	}
  
-+static struct attribute *tsc2005_attrs[] = {
-+	&dev_attr_disable.attr,
-+	&dev_attr_selftest.attr,
-+	NULL
-+};
-+
-+static mode_t tsc2005_attr_is_visible(struct kobject *kobj,
-+				      struct attribute *attr, int n)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct spi_device *spi = to_spi_device(dev);
-+	struct tsc2005 *ts = spi_get_drvdata(spi);
-+	mode_t mode = attr->mode;
-+
-+	if (attr == &dev_attr_selftest.attr) {
-+		if (!ts->set_reset)
-+			mode = 0;
-+	}
-+
-+	return mode;
-+}
-+
-+static const struct attribute_group tsc2005_attr_group = {
-+	.is_visible	= tsc2005_attr_is_visible,
-+	.attrs		= tsc2005_attrs,
-+};
-+
- static void tsc2005_esd_timer(unsigned long data)
- {
- 	struct tsc2005 *ts = (struct tsc2005 *)data;
-@@ -495,16 +515,6 @@ out:
- 	mutex_unlock(&ts->mutex);
- }
+ 	/* hardware reset */
+-	ts->set_reset(0);
++	ts->set_reset(false);
+ 	usleep_range(100, 500); /* only 10us required */
+-	ts->set_reset(1);
++	ts->set_reset(true);
+ 	tsc2005_enable(ts);
  
--static struct attribute *tsc2005_attrs[] = {
--	&dev_attr_disable.attr,
--	&dev_attr_selftest.attr,
--	NULL
--};
--
--static struct attribute_group tsc2005_attr_group = {
--	.attrs = tsc2005_attrs,
--};
--
+ 	/* test that the reset really happened */
+@@ -500,10 +501,10 @@ static void tsc2005_esd_work(struct work_struct *work)
+ 	tsc2005_read(ts, TSC2005_REG_CFR0, &r);
+ 	if ((r ^ TSC2005_CFR0_INITVALUE) & TSC2005_CFR0_RW_MASK) {
+ 		dev_info(&ts->spi->dev, "TSC2005 not responding - resetting\n");
+-		ts->set_reset(0);
++		ts->set_reset(false);
+ 		tsc2005_update_pen_state(ts, 0, 0, 0);
+ 		usleep_range(100, 500); /* only 10us required */
+-		ts->set_reset(1);
++		ts->set_reset(true);
+ 		tsc2005_start_scan(ts);
+ 	}
+ 
+@@ -517,10 +518,10 @@ out:
+ 
  static void __devinit tsc2005_setup_spi_xfer(struct tsc2005 *ts)
  {
- 	tsc2005_setup_read(&ts->spi_x, TSC2005_REG_X, 0);
+-	tsc2005_setup_read(&ts->spi_x, TSC2005_REG_X, 0);
+-	tsc2005_setup_read(&ts->spi_y, TSC2005_REG_Y, 0);
+-	tsc2005_setup_read(&ts->spi_z1, TSC2005_REG_Z1, 0);
+-	tsc2005_setup_read(&ts->spi_z2, TSC2005_REG_Z2, 1);
++	tsc2005_setup_read(&ts->spi_x, TSC2005_REG_X, false);
++	tsc2005_setup_read(&ts->spi_y, TSC2005_REG_Y, false);
++	tsc2005_setup_read(&ts->spi_z1, TSC2005_REG_Z1, false);
++	tsc2005_setup_read(&ts->spi_z2, TSC2005_REG_Z2, true);
+ 
+ 	spi_message_init(&ts->spi_read_msg);
+ 	spi_message_add_tail(&ts->spi_x.spi_xfer, &ts->spi_read_msg);
 

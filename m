@@ -1,33 +1,67 @@
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: Re: [PATCH 00/17] Merging of TSC2005 driver
-Date: Wed, 16 Mar 2011 17:44:23 +0200 (EET)
-Message-ID: <alpine.DEB.1.10.1103161737540.2634@esdhcp041196.research.nokia.com>
-References: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Herton Ronaldo Krzesinski <herton.krzesinski@canonical.com>
+Subject: [PATCH] HID: add support for Ortek PKB-1700
+Date: Wed, 16 Mar 2011 12:48:08 -0300
+Message-ID: <1300290488-8128-1-git-send-email-herton.krzesinski@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.1.47]:32250 "EHLO mgw-sa01.nokia.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753392Ab1CPPqv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Mar 2011 11:46:51 -0400
-In-Reply-To: <20110316071503.25664.55116.stgit@hammer.corenet.prv>
+Received: from adelie.canonical.com ([91.189.90.139]:50926 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753012Ab1CPPsN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Mar 2011 11:48:13 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Aaro Koskinen <aaro.koskinen@nokia.com>, linux-input@vger.kernel.org, lauri.leukkunen@nokia.com, David Brownell <dbrownell@users.sourceforge.net>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+As reported on http://ubuntuforums.org/showthread.php?t=1594007 the
+PKB-1700 needs same special handling as WKB-2000. This patch is
+originally from user asmoore82 on the Ubuntu forums.
 
-On Wed, 16 Mar 2011, Dmitry Torokhov wrote:
-> So I guess the common core for tsc2005/2007 will not materialize anytime
-> soon and I should finally merge the standalone version of driver... Still
-> there were a few issues with it and I would appreciate if you take a look
-> at the following patches and let me know if the driver still works if
-> you apply them.
+BugLink: http://bugs.launchpad.net/bugs/735640
+Cc: stable@kernel.org
+Signed-off-by: Herton Ronaldo Krzesinski <herton.krzesinski@canonical.com>
+---
+ drivers/hid/hid-core.c  |    1 +
+ drivers/hid/hid-ids.h   |    1 +
+ drivers/hid/hid-ortek.c |    1 +
+ 3 files changed, 3 insertions(+), 0 deletions(-)
 
-Thanks, I think those are good changes. There are two bugs (about which
-I already sent mails) but with those fixed it appeared to work fine
-with RX-51 (Nokia N900) based on a brief sanity check. I tested with
-mainline v2.6.38.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index d678cf3..295e248 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1400,6 +1400,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 92a0d61..5f5cc91 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -466,6 +466,7 @@
+ #define USB_DEVICE_ID_ONTRAK_ADU100	0x0064
+ 
+ #define USB_VENDOR_ID_ORTEK		0x05a4
++#define USB_DEVICE_ID_ORTEK_PKB1700	0x1700
+ #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
+ 
+ #define USB_VENDOR_ID_PANJIT		0x134c
+diff --git a/drivers/hid/hid-ortek.c b/drivers/hid/hid-ortek.c
+index e90edfc..96804bb 100644
+--- a/drivers/hid/hid-ortek.c
++++ b/drivers/hid/hid-ortek.c
+@@ -30,6 +30,7 @@ static __u8 *ortek_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ }
+ 
+ static const struct hid_device_id ortek_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
+ 	{ }
+ };
+-- 
+1.7.1
 
-A.

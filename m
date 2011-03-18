@@ -1,32 +1,24 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 2/2] Input: wm831x-ts - Fix races with IRQ management
-Date: Fri, 18 Mar 2011 11:20:44 +0000
-Message-ID: <20110318112043.GA27129@sirena.org.uk>
-References: <1300142701-22260-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1300142701-22260-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: [PATCH 0/5] Migrations to hid-multitouch, round 3
+Date: Fri, 18 Mar 2011 14:27:51 +0100
+Message-ID: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:52591 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752110Ab1CRLUp (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:39037 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756486Ab1CRN1i (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Mar 2011 07:20:45 -0400
-Content-Disposition: inline
-In-Reply-To: <1300142701-22260-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Fri, 18 Mar 2011 09:27:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-On Mon, Mar 14, 2011 at 10:45:01PM +0000, Mark Brown wrote:
+Hi guys,
 
-> This revision reworks the close() implementation, hopefully more
-> robustly, which should address the main thrust of your comments
-> previously.  As I said in my previous e-mail the restrictions on
-> enable_irq() seem reasonable to me, the thing that's nasty here is that
-> we need to enable and disable the IRQs at all.
+This is the third version for this patch series.
 
-It'd be good to get something for this into 2.6.39.  At the very least
-this version of the patch avoids issues while the device is open and
-keeps any issues in close() which is an improvement.  If this approach
-isn't going to be OK please let me know so I can look into alternatives.
+Since last time, I mainly modified the patch #1 to adapt
+Henrik's comments. I also added #4 as the code path was confusing.
+
+Cheers,
+Benjamin
+

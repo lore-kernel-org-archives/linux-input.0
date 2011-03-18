@@ -1,56 +1,66 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH v3 4/5] hid-multitouch: refactor initialization of ABS_MT_ORIENTATION
-Date: Fri, 18 Mar 2011 14:27:55 +0100
-Message-ID: <1300454876-5017-5-git-send-email-benjamin.tissoires__3966.6979843334$1300454944$gmane$org@enac.fr>
-References: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
+From: Anisse Astier <anisse@astier.eu>
+Subject: Re: [PATCH 1/2] input: Pegatron Lucid accelerometer
+Date: Fri, 18 Mar 2011 16:39:38 +0100
+Message-ID: <20110318163938.3cb91027@destiny.ordissimo>
+References: <1295287011-12849-1-git-send-email-andy.ross@windriver.com>
+	<1295287011-12849-2-git-send-email-andy.ross@windriver.com>
+	<4D3529A1.1030804@ti.com>
+	<4D35CC1B.3020808@windriver.com>
+	<20110131213057.GA9259@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:39060 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932113Ab1CRN1s (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:40212 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756748Ab1CRPjs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Mar 2011 09:27:48 -0400
-In-Reply-To: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
+	Fri, 18 Mar 2011 11:39:48 -0400
+In-Reply-To: <20110131213057.GA9259@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Andy Ross <andy.ross@windriver.com>, Shubhrajyoti <shubhrajyoti@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Chary <corentincj@iksaif.net>, linux-input@vger.kernel.org, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
 
-No semantic changes, it's just easier to read the code.
+On Mon, 31 Jan 2011 21:30:57 +0000, Matthew Garrett <mjg59@srcf.ucam.org> wrote :
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Reviewed-by: St=C3=A9phane Chatty <chatty@enac.fr>
+> On Tue, Jan 18, 2011 at 09:21:31AM -0800, Andy Ross wrote:
+> 
+> > It's just an ACPI method interface, so no dedicated IRQ certainly.
+> > The firmware does issue ACPI events on coarse orientation changes
+> > (i.e. which edge is up) that we're catching with acpid, so there's no
+> > reason this needs to poll all the time in typical usage.
+> 
+> It'd be good to provide those via some more generally-usable mechanism 
+> than raw ACPI events.
+> 
+Something like that ?
+
+
+From: Anisse Astier <anisse@astier.eu>
+Subject: [PATCH] asus-laptop: Send input event when orientation changes on Pegatron Lucid
+
+Pegatron Lucid tablet sends an ACPI event on coarse orientation changes.
+Translate this into KEY_DIRECTION input event.
+
+Signed-off-by: Anisse Astier <anisse@astier.eu>
 ---
+ drivers/platform/x86/asus-laptop.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-new in v3
+diff --git a/drivers/platform/x86/asus-laptop.c b/drivers/platform/x86/asus-laptop.c
+index 75c84f8..d32395c 100644
+--- a/drivers/platform/x86/asus-laptop.c
++++ b/drivers/platform/x86/asus-laptop.c
+@@ -312,6 +312,8 @@ static const struct key_entry asus_keymap[] = {
+ 	{KE_KEY, 0xc4, { KEY_KBDILLUMUP } },
+ 	{KE_KEY, 0xc5, { KEY_KBDILLUMDOWN } },
+ 	{KE_KEY, 0xb5, { KEY_CALC } },
++	/* Pegatron Lucid tablet specific */
++	{KE_KEY, 0xEA, { KEY_DIRECTION } }, /* Orientation changed */
+ 	{KE_END, 0},
+ };
+ 
+-- 
+1.7.3.2
 
- drivers/hid/hid-multitouch.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.=
-c
-index e6e1ea2..d31301e 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -235,9 +235,8 @@ static int mt_input_mapping(struct hid_device *hdev=
-, struct hid_input *hi,
- 		case HID_DG_HEIGHT:
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TOUCH_MINOR);
--			field->logical_maximum =3D 1;
--			field->logical_minimum =3D 0;
--			set_abs(hi->input, ABS_MT_ORIENTATION, field, 0);
-+			input_set_abs_params(hi->input,
-+					ABS_MT_ORIENTATION, 0, 1, 0, 0);
- 			td->last_slot_field =3D usage->hid;
- 			return 1;
- 		case HID_DG_TIPPRESSURE:
---=20
-1.7.4
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

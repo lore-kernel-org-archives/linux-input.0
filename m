@@ -1,16 +1,16 @@
 From: Alan Ott <alan@signal11.us>
 Subject: [PATCH v5 0/2] Documentation and Sample for hidraw
 Date: Sat, 19 Mar 2011 20:29:43 -0400
-Message-ID: <1300580985-10726-1-git-send-email-alan__1400.31894338808$1300645916$gmane$org@signal11.us>
+Message-ID: <1300580985-10726-1-git-send-email-alan__19312.5702477575$1300646150$gmane$org@signal11.us>
 References: <1297829209-10511-1-git-send-email-alan@signal11.us>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:34041 "EHLO core.signal11.us"
+Received: from core.signal11.us ([64.251.29.136]:57005 "EHLO core.signal11.us"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752038Ab1CTSbq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Mar 2011 14:31:46 -0400
+	id S1752053Ab1CTSfm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 20 Mar 2011 14:35:42 -0400
 Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 5D9B31CCAC29
-	for <linux-input@vger.kernel.org>; Sun, 20 Mar 2011 13:31:45 -0500 (EST)
+	by core.signal11.us (Postfix) with SMTP id 5B4371042EE
+	for <linux-input@vger.kernel.org>; Sun, 20 Mar 2011 13:35:40 -0500 (EST)
 In-Reply-To: <1297829209-10511-1-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

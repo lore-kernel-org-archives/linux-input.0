@@ -1,60 +1,45 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH v3 4/5] hid-multitouch: refactor initialization of ABS_MT_ORIENTATION
-Date: Mon, 21 Mar 2011 14:32:16 +0100
-Message-ID: <AANLkTimx6YR_ByHDeqyMmSuE659xyRNkaAoOffTp_RgC@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 4/5] hid-multitouch: refactor initialization of
+ ABS_MT_ORIENTATION
+Date: Mon, 21 Mar 2011 14:50:13 +0100
+Message-ID: <20110321135013.GB3363@polaris.bitmath.org>
 References: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
-	<1300454876-5017-5-git-send-email-benjamin.tissoires@enac.fr>
-	<20110321090240.GD3784@polaris.bitmath.org>
+ <1300454876-5017-5-git-send-email-benjamin.tissoires@enac.fr>
+ <20110321090240.GD3784@polaris.bitmath.org>
+ <AANLkTimx6YR_ByHDeqyMmSuE659xyRNkaAoOffTp_RgC@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:33639 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751176Ab1CUNcS convert rfc822-to-8bit (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:34462 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751247Ab1CUNqj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Mar 2011 09:32:18 -0400
-In-Reply-To: <20110321090240.GD3784@polaris.bitmath.org>
+	Mon, 21 Mar 2011 09:46:39 -0400
+Content-Disposition: inline
+In-Reply-To: <AANLkTimx6YR_ByHDeqyMmSuE659xyRNkaAoOffTp_RgC@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Henrik,
+On Mon, Mar 21, 2011 at 02:32:16PM +0100, Benjamin Tissoires wrote:
+> Hi Henrik,
+> 
+> On Mon, Mar 21, 2011 at 10:02, Henrik Rydberg <rydberg@euromail.se> wrote:
+> > On Fri, Mar 18, 2011 at 02:27:55PM +0100, Benjamin Tissoires wrote:
+> >> No semantic changes, it's just easier to read the code.
+> >
+> > Please augment this commit message.
+> 
+> How about:
+> 
+> "The way the input_set_abs_params was called for the new composite
+> field ABS_MT_ORIENTATION was not very clear at second reading.
+> We can remove the non-necessary call to set_abs and use the simple
+> call to input_set_abs_params."
 
-On Mon, Mar 21, 2011 at 10:02, Henrik Rydberg <rydberg@euromail.se> wro=
-te:
-> On Fri, Mar 18, 2011 at 02:27:55PM +0100, Benjamin Tissoires wrote:
->> No semantic changes, it's just easier to read the code.
->
-> Please augment this commit message.
+Sure thing. In addition, the old code was setting the hid parameters
+for the wrong field, which was odd.
 
-How about:
-
-"The way the input_set_abs_params was called for the new composite
-field ABS_MT_ORIENTATION was not very clear at second reading.
-We can remove the non-necessary call to set_abs and use the simple
-call to input_set_abs_params."
-
-Cheers,
-Benjamin
-
->
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
->> Reviewed-by: St=E9phane Chatty <chatty@enac.fr>
->> ---
->
-> Thanks,
-> Henrik
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Henrik

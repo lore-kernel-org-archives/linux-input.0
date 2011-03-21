@@ -1,45 +1,36 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 4/5] hid-multitouch: refactor initialization of
- ABS_MT_ORIENTATION
-Date: Mon, 21 Mar 2011 14:50:13 +0100
-Message-ID: <20110321135013.GB3363@polaris.bitmath.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/5] Migrations to hid-multitouch, round 3
+Date: Mon, 21 Mar 2011 17:09:14 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1103211707520.19969@pobox.suse.cz>
 References: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
- <1300454876-5017-5-git-send-email-benjamin.tissoires@enac.fr>
- <20110321090240.GD3784@polaris.bitmath.org>
- <AANLkTimx6YR_ByHDeqyMmSuE659xyRNkaAoOffTp_RgC@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:34462 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751247Ab1CUNqj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Mar 2011 09:46:39 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTimx6YR_ByHDeqyMmSuE659xyRNkaAoOffTp_RgC@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:60685 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752173Ab1CUQJQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Mar 2011 12:09:16 -0400
+In-Reply-To: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2011 at 02:32:16PM +0100, Benjamin Tissoires wrote:
-> Hi Henrik,
-> 
-> On Mon, Mar 21, 2011 at 10:02, Henrik Rydberg <rydberg@euromail.se> wrote:
-> > On Fri, Mar 18, 2011 at 02:27:55PM +0100, Benjamin Tissoires wrote:
-> >> No semantic changes, it's just easier to read the code.
-> >
-> > Please augment this commit message.
-> 
-> How about:
-> 
-> "The way the input_set_abs_params was called for the new composite
-> field ABS_MT_ORIENTATION was not very clear at second reading.
-> We can remove the non-necessary call to set_abs and use the simple
-> call to input_set_abs_params."
+On Fri, 18 Mar 2011, Benjamin Tissoires wrote:
 
-Sure thing. In addition, the old code was setting the hid parameters
-for the wrong field, which was odd.
+> This is the third version for this patch series.
+> 
+> Since last time, I mainly modified the patch #1 to adapt
+> Henrik's comments. I also added #4 as the code path was confusing.
+
+Thanks a lot to everyone for working on this.
+
+I have applied all the patches except for 5/5, where Henrik has reported 
+problems with testing against 1968 model. The problem hasn't been 
+understood/debugged yet.
 
 Thanks,
-Henrik
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

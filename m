@@ -1,62 +1,47 @@
 From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: [PATCH] input: tsc2005: fix locking issue
-Date: Mon, 21 Mar 2011 18:24:10 +0200
-Message-ID: <1300724650-6641-1-git-send-email-aaro.koskinen@nokia.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH] input: tsc2005: use relative jiffies to schedule the watchdog
+Date: Mon, 21 Mar 2011 19:07:51 +0200
+Message-ID: <1300727271-20120-1-git-send-email-aaro.koskinen@nokia.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.nokia.com ([147.243.128.24]:38505 "EHLO mgw-da01.nokia.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752220Ab1CURKi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Mar 2011 13:10:38 -0400
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Aaro Koskinen <aaro.koskinen@nokia.com>
-List-Id: linux-input@vger.kernel.org
 
-Commit 0b950d3 (Input: tsc2005 - add open/close) introduced a
-locking issue with the ESD watchdog: __tsc2005_disable() is calling
-cancel_delayed_work_sync() with mutex held, and the work also needs the
-same mutex.
-
-Fix the problem by using cancel_delayed_work() on disable. If
-the ESD work was running it will check if the device is closed
-or suspended, and in that case it will do nothing and skip
-re-arming. cancel_delayed_work_sync() is still needed when the module
-is removed.
+Use relative jiffies to schedule the watchdog. Otherwise it will run
+like a mad one.
 
 Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
 ---
- drivers/input/touchscreen/tsc2005.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/tsc2005.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index 8742061..3a15587 100644
+index 3a15587..ea7f436 100644
 --- a/drivers/input/touchscreen/tsc2005.c
 +++ b/drivers/input/touchscreen/tsc2005.c
-@@ -345,7 +345,7 @@ static void __tsc2005_disable(struct tsc2005 *ts)
- 	disable_irq(ts->spi->irq);
- 	del_timer_sync(&ts->penup_timer);
+@@ -358,7 +358,7 @@ static void __tsc2005_enable(struct tsc2005 *ts)
+ 	if (ts->esd_timeout && ts->set_reset) {
+ 		ts->last_valid_interrupt = jiffies;
+ 		schedule_delayed_work(&ts->esd_work,
+-				round_jiffies(jiffies +
++				round_jiffies_relative(
+ 					msecs_to_jiffies(ts->esd_timeout)));
+ 	}
  
--	cancel_delayed_work_sync(&ts->esd_work);
-+	cancel_delayed_work(&ts->esd_work);
- 
- 	enable_irq(ts->spi->irq);
+@@ -518,7 +518,7 @@ static void tsc2005_esd_work(struct work_struct *work)
+ out:
+ 	/* re-arm the watchdog */
+ 	schedule_delayed_work(&ts->esd_work,
+-			      round_jiffies(jiffies +
++			      round_jiffies_relative(
+ 					msecs_to_jiffies(ts->esd_timeout)));
+ 	mutex_unlock(&ts->mutex);
  }
-@@ -479,6 +479,12 @@ static void tsc2005_esd_work(struct work_struct *work)
- 
- 	mutex_lock(&ts->mutex);
- 
-+	/* The device has been just closed or suspended. */
-+	if (!ts->opened || ts->suspended) {
-+		mutex_unlock(&ts->mutex);
-+		return;
-+	}
-+
- 	if (time_is_after_jiffies(ts->last_valid_interrupt +
- 				  msecs_to_jiffies(ts->esd_timeout)))
- 		goto out;
-@@ -685,6 +691,7 @@ static int __devexit tsc2005_remove(struct spi_device *spi)
- 
- 	free_irq(ts->spi->irq, ts);
- 	input_unregister_device(ts->idev);
-+	cancel_delayed_work_sync(&ts->esd_work);
- 	kfree(ts);
- 
- 	spi_set_drvdata(spi, NULL);
 -- 
 1.5.6.5
+

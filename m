@@ -1,177 +1,53 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 2/2] hid-ntrig: calibration
-Date: Mon, 21 Mar 2011 14:25:20 -0400
-Message-ID: <4D879810.9000408@seas.upenn.edu>
-References: <1299829072-19489-1-git-send-email-rafi@seas.upenn.edu> <1299829072-19489-2-git-send-email-rafi@seas.upenn.edu> <20110321171550.GA4602@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 5/5] hid-multitouch: migrate 3M PCT touch screens to
+ hid-multitouch
+Date: Mon, 21 Mar 2011 20:06:07 +0100
+Message-ID: <20110321190606.GA1792@polaris.bitmath.org>
+References: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
+ <1300454876-5017-6-git-send-email-benjamin.tissoires@enac.fr>
+ <20110321090533.GE3784@polaris.bitmath.org>
+ <AANLkTinAPFnHA=MWbb=Yu7U0AXrxHv2-95M=OequsAL7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110321171550.GA4602@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, chatty@enac.fr, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:48959 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752908Ab1CUTCd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Mar 2011 15:02:33 -0400
+Content-Disposition: inline
+In-Reply-To: <AANLkTinAPFnHA=MWbb=Yu7U0AXrxHv2-95M=OequsAL7@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Benjamin,
 
+> I tested it against 3M1968. I'll try to have it again to make more testing.
+> What symptoms do you have?
 
+With the modification below, it works as expected, and you can add
 
-On 03/21/11 13:15, Henrik Rydberg wrote:
-> Hi Rafi,
-> 
-> On Fri, Mar 11, 2011 at 02:37:52AM -0500, Rafi Rubin wrote:
->> Adding a function to tell the device to run its calibration routine.
->> A number written to the sysfs specifies the duration of the calibration
->> in milliseconds
->>
->> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
->> ---
-> 
-> This is great functionality, and from what it seems, it
-> works. However, the poking at the usb layer makes me wonder if there
-> is another way... Jiri? Dmitry? Awaiting answers from someone more
-> knowledgeable, please find some comments inline.
-> 
->> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
->> index 24ab6a5..ddf2c76 100644
->> --- a/drivers/hid/hid-ntrig.c
->> +++ b/drivers/hid/hid-ntrig.c
->> @@ -490,6 +490,53 @@ static ssize_t store_mode(struct device *dev,
->>  }
->>  static DEVICE_ATTR(mode, S_IWUSR | S_IRUGO, show_mode, store_mode);
->>  
->> +static ssize_t ntrig_calibrate(struct device *dev,
->> +			       struct device_attribute *attr,
->> +			       const char *buf, size_t count)
->> +{
->> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
->> +	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
->> +	struct usbhid_device *usbhid = hdev->driver_data;
->> +	int ret;
->> +	unsigned long t;
->> +	unsigned char *data;
->> +
->> +	if (strict_strtoul(buf, 0, &t))
->> +		return -EINVAL;
->> +
->> +	data = kmalloc(4, GFP_KERNEL);
->> +	if (!data)
->> +		return -ENOMEM;
->> +
->> +	spin_lock(&usbhid->lock);
->> +	set_bit(HID_DISCONNECTED, &usbhid->iofl);
->> +	spin_unlock(&usbhid->lock);
-> 
-> Perhaps an addition to the internal HID api instead of the above?
+    Reviewed-and-tested-by: Henrik Rydberg <rydberg@euromail.se>
 
-I don't have a personal preference.  I figured this is probably unusual enough
-that there might not be a point in putting the support in the core, but that's
-part of the point of review by other people who know if this would be useful
-elsewhere.
+Thanks!
 
->> +
->> +	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
->> +			      USB_REQ_CLEAR_FEATURE, USB_TYPE_CLASS
->> +			      | USB_RECIP_INTERFACE | USB_DIR_IN,
->> +			      0x30b, 1, data, 4, USB_CTRL_GET_TIMEOUT);
->> +	if (ret < 0)
->> +		goto fail;
-> 
-> How about launching restoration work here, instead of waiting?
+Henrik
 
-The user needs some feedback bracketing the calibration routine.  If one touches
-the screen during calibration alters the result and typically results in dead
-zones (a useful check to verify it works).
+---
 
-Perhaps during the loading of the driver that would make more sense.  I hadn't
-really thought about it.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 7684e96..0f5b89f 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -424,6 +424,8 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 			break;
+ 
+ 		default:
++			if (td->last_field_index && field->index == td->last_field_index)
++				break;
+ 			/* fallback to the generic hidinput handling */
+ 			return 0;
+ 		}
 
-
-I would like some pointers of how to use work queues.  That's the last item
-holding me back from sending in my new track and filter code for review.
-
->> +
->> +	msleep(t);
->> +
->> +	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
->> +			      USB_REQ_CLEAR_FEATURE, USB_TYPE_CLASS
->> +			      | USB_RECIP_INTERFACE | USB_DIR_IN,
->> +			      0x311, 1, data, 4, USB_CTRL_GET_TIMEOUT);
->> +
->> +fail:
->> +	kfree(data);
->> +	spin_lock(&usbhid->lock);
->> +	clear_bit(HID_DISCONNECTED, &usbhid->iofl);
->> +	spin_unlock(&usbhid->lock);
->> +	schedule_work(&usbhid->reset_work);
->> +
->> +	return (ret < 0) ? ret : count;
->> +}
->> +static DEVICE_ATTR(calibrate, S_IWUSR, NULL, ntrig_calibrate);
->> +
->>  static struct attribute *sysfs_attrs[] = {
->>  	&dev_attr_sensor_physical_width.attr,
->>  	&dev_attr_sensor_physical_height.attr,
->> @@ -502,6 +549,7 @@ static struct attribute *sysfs_attrs[] = {
->>  	&dev_attr_activation_height.attr,
->>  	&dev_attr_deactivate_slack.attr,
->>  	&dev_attr_mode.attr,
->> +	&dev_attr_calibrate.attr,
-> 
-> Maybe one could actually run the calibration at module load, or even
-> at start/stop? A few seconds of unresponsiveness might be ok at that
-> time.
-
-I still have mixed feelings about that.  I like the idea, but I'm concerned
-about keeping hands off the screen during calibration.  This seems like a
-Hippocratic issue, first do no harm.  For the devices that are stable, I
-wouldn't be surprised if we actually make things worse more often than better.
-
-For the devices that are really screwed up (I've heard reports of machines that
-are stable for a few hours at best), we'll need something more active than load
-time calibration.
-
-I've been thinking for a while about using feedback from the filters to decide
-when its time to recalibrate (a problem that's closer to my day job than most of
-this).  In those cases it would be nice to either notify that it needs
-calibration, or in the extreme that calibration is already running and to keep
-hands off.
-
-I need to play more with short calibrations, I've played a bit, but not
-carefully.  If we can do some good with a few milliseconds of calibrations that
-would make auto-calibration more tempting.
-
-Also I don't know how frequent calibrations will affect the device.  If, for
-example, calibration is stored in flash that's only intended to be written a few
-hundred times we could wear it out pretty quickly.  If only we had some feedback
-from the folks that build these things....
-
->>  	NULL
->>  };
-> 
-> Thanks,
-> Henrik
-> 
-
-Thanks for the feedback,
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iQIcBAEBAgAGBQJNh5gQAAoJEPILXytRLnK2Kl0P+we4k9fhKOPx/VP7gW1l0KZT
-61PNdKXhMdeg4T4ZmOa2n6pz2xzfDozP+vuRJgkilS0eEz3TZqKvTdiiw0ykjZlK
-+Ko1a+T7gAN+ZnSP4AFFglF82K4mbW/Vd0vVwbbC3tUbyzwqxvPrLRxWKhgDJ6FY
-CP4i0jW4AJawpB3UoIVwli66X1DzD9RaPNqCJrQiSEDxcay6H1oPB3rwDKGdrZ51
-RMKsMaGF7kfeQ1SfrnDhrhEM/8tvs86FQTkHkZ2m2bHdjDEh3uMwfavCe7z4hWUL
-4Ln1RMc4fjBoudSMU20WkT38PyqnC5FMfhtxcP50SNjxzsDIQttXU6WE6xjBGAG1
-Jt0AKbM/nr3QjhlD7AbbC8NjvgP6JY4ZfneBm5e2tFATluzeRoTfY2e9m76PRr1t
-QUhdF26qKZf6Vzt7OnOSxHWH5SyL92C+3q0ScV0c7F8l0MFCnALKCxs7RXIPE1kT
-DCmN5fEp6SvtYdkWOtddvR3qex6gCipaUu4lq7mf/snHn4yw2iuMsisns0XGv7AU
-MRF0gwzYhWAkbeFvHPuhwE0/R10w7pZXXiPGyARH92nlpGJxOiHb6gZ32TdMUlm/
-h5DOhggXGI0wSLSAAP6BTz2f0+pMihTGNvlgKgu5AnvTbYS5coYkpufGQ+qKltHV
-oQHICuniy4uI6s88PrZ/
-=Fx2M
------END PGP SIGNATURE-----

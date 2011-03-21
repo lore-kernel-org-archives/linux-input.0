@@ -1,115 +1,47 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] hid-ntrig: calibration
-Date: Mon, 21 Mar 2011 18:15:50 +0100
-Message-ID: <20110321171550.GA4602@polaris.bitmath.org>
-References: <1299829072-19489-1-git-send-email-rafi@seas.upenn.edu>
- <1299829072-19489-2-git-send-email-rafi@seas.upenn.edu>
+Subject: Re: [PATCH 0/5] Migrations to hid-multitouch, round 3
+Date: Mon, 21 Mar 2011 19:22:10 +0100
+Message-ID: <20110321182210.GA5181@polaris.bitmath.org>
+References: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
+ <alpine.LNX.2.00.1103211707520.19969@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:54483 "EHLO
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:57329 "EHLO
 	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753815Ab1CURMz (ORCPT
+	by vger.kernel.org with ESMTP id S1752425Ab1CUSSw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Mar 2011 13:12:55 -0400
+	Mon, 21 Mar 2011 14:18:52 -0400
 Content-Disposition: inline
-In-Reply-To: <1299829072-19489-2-git-send-email-rafi@seas.upenn.edu>
+In-Reply-To: <alpine.LNX.2.00.1103211707520.19969@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, chatty@enac.fr, dmitry.torokhov@gmail.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Rafi,
+Hi,
 
-On Fri, Mar 11, 2011 at 02:37:52AM -0500, Rafi Rubin wrote:
-> Adding a function to tell the device to run its calibration routine.
-> A number written to the sysfs specifies the duration of the calibration
-> in milliseconds
+On Mon, Mar 21, 2011 at 05:09:14PM +0100, Jiri Kosina wrote:
+> On Fri, 18 Mar 2011, Benjamin Tissoires wrote:
 > 
-> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> ---
+> > This is the third version for this patch series.
+> > 
+> > Since last time, I mainly modified the patch #1 to adapt
+> > Henrik's comments. I also added #4 as the code path was confusing.
+> 
+> Thanks a lot to everyone for working on this.
+> 
+> I have applied all the patches except for 5/5, where Henrik has reported 
+> problems with testing against 1968 model. The problem hasn't been 
 
-This is great functionality, and from what it seems, it
-works. However, the poking at the usb layer makes me wonder if there
-is another way... Jiri? Dmitry? Awaiting answers from someone more
-knowledgeable, please find some comments inline.
+s/1968/2256/
 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 24ab6a5..ddf2c76 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -490,6 +490,53 @@ static ssize_t store_mode(struct device *dev,
->  }
->  static DEVICE_ATTR(mode, S_IWUSR | S_IRUGO, show_mode, store_mode);
->  
-> +static ssize_t ntrig_calibrate(struct device *dev,
-> +			       struct device_attribute *attr,
-> +			       const char *buf, size_t count)
-> +{
-> +	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-> +	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
-> +	struct usbhid_device *usbhid = hdev->driver_data;
-> +	int ret;
-> +	unsigned long t;
-> +	unsigned char *data;
-> +
-> +	if (strict_strtoul(buf, 0, &t))
-> +		return -EINVAL;
-> +
-> +	data = kmalloc(4, GFP_KERNEL);
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	spin_lock(&usbhid->lock);
-> +	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-> +	spin_unlock(&usbhid->lock);
+> understood/debugged yet.
 
-Perhaps an addition to the internal HID api instead of the above?
-
-> +
-> +	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-> +			      USB_REQ_CLEAR_FEATURE, USB_TYPE_CLASS
-> +			      | USB_RECIP_INTERFACE | USB_DIR_IN,
-> +			      0x30b, 1, data, 4, USB_CTRL_GET_TIMEOUT);
-> +	if (ret < 0)
-> +		goto fail;
-
-How about launching restoration work here, instead of waiting?
-
-> +
-> +	msleep(t);
-> +
-> +	ret = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-> +			      USB_REQ_CLEAR_FEATURE, USB_TYPE_CLASS
-> +			      | USB_RECIP_INTERFACE | USB_DIR_IN,
-> +			      0x311, 1, data, 4, USB_CTRL_GET_TIMEOUT);
-> +
-> +fail:
-> +	kfree(data);
-> +	spin_lock(&usbhid->lock);
-> +	clear_bit(HID_DISCONNECTED, &usbhid->iofl);
-> +	spin_unlock(&usbhid->lock);
-> +	schedule_work(&usbhid->reset_work);
-> +
-> +	return (ret < 0) ? ret : count;
-> +}
-> +static DEVICE_ATTR(calibrate, S_IWUSR, NULL, ntrig_calibrate);
-> +
->  static struct attribute *sysfs_attrs[] = {
->  	&dev_attr_sensor_physical_width.attr,
->  	&dev_attr_sensor_physical_height.attr,
-> @@ -502,6 +549,7 @@ static struct attribute *sysfs_attrs[] = {
->  	&dev_attr_activation_height.attr,
->  	&dev_attr_deactivate_slack.attr,
->  	&dev_attr_mode.attr,
-> +	&dev_attr_calibrate.attr,
-
-Maybe one could actually run the calibration at module load, or even
-at start/stop? A few seconds of unresponsiveness might be ok at that
-time.
-
->  	NULL
->  };
+The reason is that the 2256 model sends extra data in each packet,
+data that is not intercepted by the mt_event() function. The
+last_field_index is therefore never seen, and no data is emitted. I
+will reply to the original patch with a fix.
 
 Thanks,
 Henrik

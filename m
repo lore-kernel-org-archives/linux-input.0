@@ -1,33 +1,32 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 4/4] Input: atmel_mxt_ts - Convert to MT protocol B
-Date: Mon, 21 Mar 2011 09:24:18 +0100
-Message-ID: <20110321082418.GA3556@polaris.bitmath.org>
-References: <1299826046-20081-1-git-send-email-jy0922.shim@samsung.com>
+Subject: Re: [PATCH v3 1/5] hid-multitouch: Auto detection of maxcontacts
+Date: Mon, 21 Mar 2011 09:47:55 +0100
+Message-ID: <20110321084755.GA3784@polaris.bitmath.org>
+References: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
+ <1300454876-5017-2-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:35232 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751757Ab1CUIVA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Mar 2011 04:21:00 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1299826046-20081-1-git-send-email-jy0922.shim@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1300454876-5017-2-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, iiro.valkonen@atmel.com, kyungmin.park@samsung.com
 
-On Fri, Mar 11, 2011 at 03:47:26PM +0900, Joonyoung Shim wrote:
-> Atmel touchscreen chips can use MT protocol B because they can assign
-> unique id to ABS_MT_TRACKING_ID from finger id provided by hardware.
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+On Fri, Mar 18, 2011 at 02:27:52PM +0100, Benjamin Tissoires wrote:
+> This patch enables support of autodetection of maxcontacts.
+> When adding support for a new device, one is now able to let
+> the device tell how many contacts it supports, or to manually
+> set the value if the device happens to provide wrong information.
+>=20
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> Reviewed-by: St=E9phane Chatty <chatty@enac.fr>
 > ---
 
-Looks good,
+Looks ok now. Thank you, Benjamin.
 
 Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
-Thank you.
 Henrik

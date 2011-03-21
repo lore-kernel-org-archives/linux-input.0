@@ -1,80 +1,65 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH v3 5/5] hid-multitouch: migrate 3M PCT touch screens to hid-multitouch
-Date: Mon, 21 Mar 2011 20:56:59 +0100
-Message-ID: <AANLkTimFF3pgMMgOcEhYnRm5adgsCL5S6Hjkz+GFcpCT@mail.gmail.com>
-References: <1300454876-5017-1-git-send-email-benjamin.tissoires@enac.fr>
-	<1300454876-5017-6-git-send-email-benjamin.tissoires@enac.fr>
-	<20110321090533.GE3784@polaris.bitmath.org>
-	<AANLkTinAPFnHA=MWbb=Yu7U0AXrxHv2-95M=OequsAL7@mail.gmail.com>
-	<20110321190606.GA1792@polaris.bitmath.org>
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH v5 0/2] Documentation and Sample for hidraw
+Date: Mon, 21 Mar 2011 13:17:32 -0700
+Message-ID: <20110321131732.8e8906a8.rdunlap@xenotime.net>
+References: <1297829209-10511-1-git-send-email-alan@signal11.us>
+	<1300580985-10726-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:40933 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754289Ab1CUT5B convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Mar 2011 15:57:01 -0400
-In-Reply-To: <20110321190606.GA1792@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1300580985-10726-1-git-send-email-alan@signal11.us>
+Sender: linux-doc-owner@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Jonathan Corbet <corbet@lwn.net>, Antonio Ospite <ospite@studenti.unina.it>, Jiri Kosina <jkosina@suse.cz>, Jason Wessel <jason.wessel@windriver.com>, Andrew Morton <akpm@linux-foundation.org>, Stefani Seibold <stefani@seibold.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Henrik,
+On Sat, 19 Mar 2011 20:29:43 -0400 Alan Ott wrote:
 
-thanks a lot for spotting this.
-I think the modification is safe, but I'll give a final test tomorrow
-against our hardware.
+> Sorry I've been slack in getting v5 of this patch out. Because
+> it's been so long, I'll recap what happened last time:
+> 
+>  * Jon Corbet suggested that the example programs be moved into samples/ .
+>  * Randy Dunlap indicated his acked-by when this was done.
+> 
+> These patches add hidraw.txt to a new Documentation/hid/ directory.
+> 
+> It creates an example program which is now in samples/ with a Kconfig item.
+> 
+> The existing hiddev.txt has been moved from Documentation/usb/ to
+> Documentation/hid/
 
-Thanks,
-Benjamin
+Jiri,
 
-On Mon, Mar 21, 2011 at 20:06, Henrik Rydberg <rydberg@euromail.se> wro=
-te:
-> Hi Benjamin,
->
->> I tested it against 3M1968. I'll try to have it again to make more t=
-esting.
->> What symptoms do you have?
->
-> With the modification below, it works as expected, and you can add
->
-> =A0 =A0Reviewed-and-tested-by: Henrik Rydberg <rydberg@euromail.se>
->
-> Thanks!
->
-> Henrik
->
-> ---
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
-h.c
-> index 7684e96..0f5b89f 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -424,6 +424,8 @@ static int mt_event(struct hid_device *hid, struc=
-t hid_field *field,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0default:
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (td->last_field_inde=
-x && field->index =3D=3D td->last_field_index)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* fallback to the gen=
-eric hidinput handling */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return 0;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
->
+I suppose that you will merge these patches?
+or did you want me to do it?
+
+
+> This is based on .38+
+> 
+> Alan Ott (2):
+>   HID: Documentation for hidraw
+>   HID: Move hiddev.txt to the new Documentation/HID directory
+> 
+>  Documentation/{usb => hid}/hiddev.txt |    0
+>  Documentation/hid/hidraw.txt          |  119 +++++++++++++++++++++++
+>  samples/Kconfig                       |    6 +
+>  samples/Makefile                      |    2 +-
+>  samples/hidraw/Makefile               |    8 ++
+>  samples/hidraw/hid-example.c          |  167 +++++++++++++++++++++++++++++++++
+>  6 files changed, 301 insertions(+), 1 deletions(-)
+>  rename Documentation/{usb => hid}/hiddev.txt (100%)
+>  create mode 100644 Documentation/hid/hidraw.txt
+>  create mode 100644 samples/hidraw/Makefile
+>  create mode 100644 samples/hidraw/hid-example.c
+> 
+> 
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
+> To unsubscribe from this list: send the line "unsubscribe linux-doc" in
 > the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+---
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***

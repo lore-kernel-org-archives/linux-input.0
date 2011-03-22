@@ -1,30 +1,42 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
-Date: Tue, 22 Mar 2011 23:33:07 +0900
-Message-ID: <20110322143307.GB24004@linux-sh.org>
-References: <20110322142619.1109.89105.sendpatchset@t400s> <20110322142855.GB2202@sirena.org.uk>
+From: Aaro Koskinen <aaro.koskinen@nokia.com>
+Subject: Re: [PATCH] input: tsc2005: fix locking issue
+Date: Tue, 22 Mar 2011 16:59:02 +0200 (EET)
+Message-ID: <alpine.DEB.1.10.1103221655370.2634@esdhcp041196.research.nokia.com>
+References: <1300724650-6641-1-git-send-email-aaro.koskinen@nokia.com> <20110322061958.GA7990@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110322142855.GB2202@sirena.org.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, dmitry.torokhov@gmail.com, srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.nokia.com ([147.243.128.26]:16588 "EHLO mgw-da02.nokia.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753099Ab1CVPBh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Mar 2011 11:01:37 -0400
+In-Reply-To: <20110322061958.GA7990@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Aaro Koskinen <aaro.koskinen@nokia.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2011 at 02:28:55PM +0000, Mark Brown wrote:
-> On Tue, Mar 22, 2011 at 11:26:19PM +0900, Magnus Damm wrote:
-> 
-> > The tca6416 driver makes use of the I2C bus for chatting
-> > with the actual hardware device. Without this patch both
-> > the I2C bus driver and the tca6416 driver are initialized
-> > at the subsys_initcall() level. This may lead to problems
-> > with the tca6416 driver being initialized before the I2C
-> > bus driver.
-> 
-> While this change seems reasonable I'm curious what the problems caused
-> by out of order registration are?
+Hi,
 
-I'm also curious as to why link order isn't a sufficient gaurantee like
-it is for everyone else?
+On Mon, 21 Mar 2011, Dmitry Torokhov wrote:
+> On Mon, Mar 21, 2011 at 06:24:10PM +0200, Aaro Koskinen wrote:
+>> Commit 0b950d3 (Input: tsc2005 - add open/close) introduced a
+>> locking issue with the ESD watchdog: __tsc2005_disable() is calling
+>> cancel_delayed_work_sync() with mutex held, and the work also needs the
+>> same mutex.
+>>
+>> Fix the problem by using cancel_delayed_work() on disable. If
+>> the ESD work was running it will check if the device is closed
+>> or suspended, and in that case it will do nothing and skip
+>> re-arming. cancel_delayed_work_sync() is still needed when the module
+>> is removed.
+>
+> Hmm, indeed. However, instead of moving cancel_delayed_work_sync() to
+> remove maybe we should use mutex_trylock() in tsc2005_esd_work()?
+> If trylock fails that means that device is in the middle of open/close
+> transition. We should just reschedule the work and get out of there.
+
+But I guess the reschedule should not happen if we are in the middle of
+close/disable? And without the mutex we cannot know that.
+
+A.

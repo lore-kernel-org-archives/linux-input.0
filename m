@@ -1,102 +1,58 @@
-From: Darren Salt <linux@youmustbejoking.demon.co.uk>
-Subject: [PATCH 2.6.38] Mode button quirk for Saitek Cyborg R.A.T. 7
-Date: Tue, 22 Mar 2011 14:31:04 +0000
-Message-ID: <mpro.ligqzs1xd6elc0462.linux@youmustbejoking.demon.co.uk>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
+Date: Wed, 23 Mar 2011 00:16:04 +0900
+Message-ID: <AANLkTimBkGCxzV8czXimkc5X_+SX8qRUrUiJRiS_UeV1@mail.gmail.com>
+References: <20110322142619.1109.89105.sendpatchset@t400s>
+	<20110322142855.GB2202@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from anchor-post-1.mail.demon.net ([195.173.77.132]:57477 "EHLO
-	anchor-post-1.mail.demon.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753239Ab1CVPO7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Mar 2011 11:14:59 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20110322142855.GB2202@sirena.org.uk>
+Sender: linux-sh-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: dmitry.torokhov@gmail.com, srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-This patch implements a quirk for the Saitek Cyborg R.A.T. 7 mouse. It has a
-"mode" button, to the left of button 1, which behaves strangely: it cycles
-through three logical button numbers (8, 9 and 10 as seen by the kernel and
-13, 14 and 15, as seen by X), and defers sending the release event until the
-next time this button is pressed. This, I've noticed, confuses X into
-thinking that a drag operation is in progress when this button is clicked.
+On Tue, Mar 22, 2011 at 11:28 PM, Mark Brown
+<broonie@opensource.wolfsonmicro.com> wrote:
+> On Tue, Mar 22, 2011 at 11:26:19PM +0900, Magnus Damm wrote:
+>
+>> The tca6416 driver makes use of the I2C bus for chatting
+>> with the actual hardware device. Without this patch both
+>> the I2C bus driver and the tca6416 driver are initialized
+>> at the subsys_initcall() level. This may lead to problems
+>> with the tca6416 driver being initialized before the I2C
+>> bus driver.
+>
+> While this change seems reasonable I'm curious what the problems caused
+> by out of order registration are?
 
-The only sensible workaround is, I think, to have these logical buttons
-treated as instant-release.
+The boot up time is delayed with 5 seconds or so due to a delay that
+only happens if subsys_initcall() level is used for both tca6416 and
+the I2C driver. By disabling the tca6416 driver in the kernel
+configuration the delay goes away. I have not tracked it down further
+than using module_init() instead of subsys_initcall() in the tca6416
+driver. This because tca6416-keypad.c is the only keyboard driver that
+uses subsys_initcall().
 
-(Other R.A.T. mice are almost certainly affected.)
+If I enable initcall_debug then I get this output:
 
-Signed-off-by: Darren Salt <linux@youmustbejoking.demon.co.uk>
+calling  input_init+0x0/0x114 @ 1
+initcall input_init+0x0/0x114 returned 0 after 0 usecs
+calling  tca6416_keypad_init+0x0/0x10 @ 1
+initcall tca6416_keypad_init+0x0/0x10 returned 0 after 0 usecs
+calling  sh_mobile_i2c_adap_init+0x0/0xc @ 1
+i2c-sh_mobile i2c-sh_mobile.0: clocks managed by runtime pm
+input: tca6408-keys as
+/devices/platform/i2c-sh_mobile.0/i2c-0/0-0020/input/input0
+[delay]
 
-diff -ur linux-2.6.38.orig/drivers/hid/hid-ids.h
-linux-2.6.38/drivers/hid/hid-ids.h
---- linux-2.6.38.orig/drivers/hid/hid-ids.h	2011-03-15 01:20:32.000000000
-+0000
-+++ linux-2.6.38/drivers/hid/hid-ids.h	2011-03-22 12:55:13.413659466 +0000
-@@ -502,6 +502,7 @@
- #define USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS	0x2cf6
- 
- #define USB_VENDOR_ID_SAITEK		0x06a3
-+#define USB_DEVICE_ID_SAITEK_RAT7	0x0ccb
- #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
- 
- #define USB_VENDOR_ID_SAMSUNG		0x0419
-diff -ur linux-2.6.38.orig/drivers/hid/hid-input.c
-linux-2.6.38/drivers/hid/hid-input.c
---- linux-2.6.38.orig/drivers/hid/hid-input.c	2011-03-15 01:20:32.000000000
-+0000
-+++ linux-2.6.38/drivers/hid/hid-input.c	2011-03-22 13:45:47.507874406 +0000
-@@ -790,6 +790,13 @@
- 
- 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
- 		input_event(input, usage->type, usage->code, 0);
-+
-+        /* hack for Saitek RAT mice which report release events for their
-+         * mode button on the NEXT press event
-+         */
-+	if ((*quirks & HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE) &&
-+            (usage->code >= BTN_MOUSE + 8) && (usage->code <= BTN_MOUSE +
-10))
-+		input_event(input, usage->type, usage->code, 0);
- }
- 
- void hidinput_report_event(struct hid_device *hid, struct hid_report
-*report)
-diff -ur linux-2.6.38.orig/drivers/hid/usbhid/hid-quirks.c
-linux-2.6.38/drivers/hid/usbhid/hid-quirks.c
---- linux-2.6.38.orig/drivers/hid/usbhid/hid-quirks.c	2011-03-15
-01:20:32.000000000 +0000
-+++ linux-2.6.38/drivers/hid/usbhid/hid-quirks.c	2011-03-22
-12:58:23.016556607 +0000
-@@ -85,6 +85,8 @@
- 
- 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH,
-HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS,
-HID_QUIRK_MULTI_INPUT },
-+
-+	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7,
-HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE },
- 	{ 0, 0 }
- };
- 
-diff -ur linux-2.6.38.orig/include/linux/hid.h
-linux-2.6.38/include/linux/hid.h
---- linux-2.6.38.orig/include/linux/hid.h	2011-03-15 01:20:32.000000000 +0000
-+++ linux-2.6.38/include/linux/hid.h	2011-03-22 12:58:12.688834637 +0000
-@@ -312,6 +312,7 @@
- #define HID_QUIRK_BADPAD			0x00000020
- #define HID_QUIRK_MULTI_INPUT			0x00000040
- #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
-+#define HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE	0x00000100
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
- #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
- #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+If my interpretation of the log above is correct then
+tca6416_keypad_init() is executed before sh_mobile_i2c_adap_init().
 
--- 
-| Darren Salt            | linux at youmustbejoking | nr. Ashington, | Toon
-| using Debian GNU/Linux | or ds    ,demon,co,uk    | Northumberland | back!
-| + Buy less and make it last longer.         INDUSTRY CAUSES GLOBAL WARMING.
+As for link order, i2c is located after input in driver/Makefile. I
+believe that matches well with the log above.
 
-A clean desk is a sign of a sick mind.
+Thanks,
+
+/ magnus

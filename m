@@ -1,39 +1,52 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v5 0/2] Documentation and Sample for hidraw
-Date: Tue, 22 Mar 2011 11:44:15 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1103221143560.19969@pobox.suse.cz>
-References: <1297829209-10511-1-git-send-email-alan@signal11.us> <1300580985-10726-1-git-send-email-alan@signal11.us> <20110321131732.8e8906a8.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20110321131732.8e8906a8.rdunlap@xenotime.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Alan Ott <alan@signal11.us>, Jonathan Corbet <corbet@lwn.net>, Antonio Ospite <ospite@studenti.unina.it>, Jason Wessel <jason.wessel@windriver.com>, Andrew Morton <akpm@linux-foundation.org>, Stefani Seibold <stefani@seibold.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] Input: tca6416-keypad: Change to module_init()
+Date: Tue, 22 Mar 2011 23:26:19 +0900
+Message-ID: <20110322142619.1109.89105.sendpatchset@t400s>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 21 Mar 2011, Randy Dunlap wrote:
+From: Magnus Damm <damm@opensource.se>
 
-> > Sorry I've been slack in getting v5 of this patch out. Because
-> > it's been so long, I'll recap what happened last time:
-> > 
-> >  * Jon Corbet suggested that the example programs be moved into samples/ .
-> >  * Randy Dunlap indicated his acked-by when this was done.
-> > 
-> > These patches add hidraw.txt to a new Documentation/hid/ directory.
-> > 
-> > It creates an example program which is now in samples/ with a Kconfig item.
-> > 
-> > The existing hiddev.txt has been moved from Documentation/usb/ to
-> > Documentation/hid/
-> 
-> Jiri,
-> 
-> I suppose that you will merge these patches?
-> or did you want me to do it?
+The tca6416 driver makes use of the I2C bus for chatting
+with the actual hardware device. Without this patch both
+the I2C bus driver and the tca6416 driver are initialized
+at the subsys_initcall() level. This may lead to problems
+with the tca6416 driver being initialized before the I2C
+bus driver.
 
-Yeah, I am taking it through hid.git tree. Thanks!
+By using module_init() in the tca6416 driver we make sure
+the I2C bus driver always is initialized before the keypad
+driver.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+With this patch applied the boot order becomes:
+ - arch_initcall: the ARM architecture ->init_machine()
+ - arch_initcall: i2c_register_board_info()
+ - arch_initcall: I2C bus device registration
+ - subsys_initcall: I2C bus driver probe()
+ - module_init: tca6416 driver probe()
+
+Affects the following in-tree platforms:
+ - arch/arm/mach-davinci/board-da850-evm.c
+ - arch/arm/mach-omap2/board-am3517evm.c
+ - arch/arm/mach-shmobile/board-mackerel.c
+
+Signed-off-by: Magnus Damm <damm@opensource.se>
+---
+
+ drivers/input/keyboard/tca6416-keypad.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- 0001/drivers/input/keyboard/tca6416-keypad.c
++++ work/drivers/input/keyboard/tca6416-keypad.c	2011-03-22 22:44:26.000000000 +0900
+@@ -369,7 +369,7 @@ static int __init tca6416_keypad_init(vo
+ 	return i2c_add_driver(&tca6416_keypad_driver);
+ }
+ 
+-subsys_initcall(tca6416_keypad_init);
++module_init(tca6416_keypad_init);
+ 
+ static void __exit tca6416_keypad_exit(void)
+ {

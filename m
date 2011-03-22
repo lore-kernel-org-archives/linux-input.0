@@ -1,42 +1,102 @@
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: Re: [PATCH] input: tsc2005: fix locking issue
-Date: Tue, 22 Mar 2011 16:59:02 +0200 (EET)
-Message-ID: <alpine.DEB.1.10.1103221655370.2634@esdhcp041196.research.nokia.com>
-References: <1300724650-6641-1-git-send-email-aaro.koskinen@nokia.com> <20110322061958.GA7990@core.coreip.homeip.net>
+From: Darren Salt <linux@youmustbejoking.demon.co.uk>
+Subject: [PATCH 2.6.38] Mode button quirk for Saitek Cyborg R.A.T. 7
+Date: Tue, 22 Mar 2011 14:31:04 +0000
+Message-ID: <mpro.ligqzs1xd6elc0462.linux@youmustbejoking.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.128.26]:16588 "EHLO mgw-da02.nokia.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753099Ab1CVPBh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Mar 2011 11:01:37 -0400
-In-Reply-To: <20110322061958.GA7990@core.coreip.homeip.net>
+Received: from anchor-post-1.mail.demon.net ([195.173.77.132]:57477 "EHLO
+	anchor-post-1.mail.demon.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753239Ab1CVPO7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Mar 2011 11:14:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Aaro Koskinen <aaro.koskinen@nokia.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-Hi,
+This patch implements a quirk for the Saitek Cyborg R.A.T. 7 mouse. It has a
+"mode" button, to the left of button 1, which behaves strangely: it cycles
+through three logical button numbers (8, 9 and 10 as seen by the kernel and
+13, 14 and 15, as seen by X), and defers sending the release event until the
+next time this button is pressed. This, I've noticed, confuses X into
+thinking that a drag operation is in progress when this button is clicked.
 
-On Mon, 21 Mar 2011, Dmitry Torokhov wrote:
-> On Mon, Mar 21, 2011 at 06:24:10PM +0200, Aaro Koskinen wrote:
->> Commit 0b950d3 (Input: tsc2005 - add open/close) introduced a
->> locking issue with the ESD watchdog: __tsc2005_disable() is calling
->> cancel_delayed_work_sync() with mutex held, and the work also needs the
->> same mutex.
->>
->> Fix the problem by using cancel_delayed_work() on disable. If
->> the ESD work was running it will check if the device is closed
->> or suspended, and in that case it will do nothing and skip
->> re-arming. cancel_delayed_work_sync() is still needed when the module
->> is removed.
->
-> Hmm, indeed. However, instead of moving cancel_delayed_work_sync() to
-> remove maybe we should use mutex_trylock() in tsc2005_esd_work()?
-> If trylock fails that means that device is in the middle of open/close
-> transition. We should just reschedule the work and get out of there.
+The only sensible workaround is, I think, to have these logical buttons
+treated as instant-release.
 
-But I guess the reschedule should not happen if we are in the middle of
-close/disable? And without the mutex we cannot know that.
+(Other R.A.T. mice are almost certainly affected.)
 
-A.
+Signed-off-by: Darren Salt <linux@youmustbejoking.demon.co.uk>
+
+diff -ur linux-2.6.38.orig/drivers/hid/hid-ids.h
+linux-2.6.38/drivers/hid/hid-ids.h
+--- linux-2.6.38.orig/drivers/hid/hid-ids.h	2011-03-15 01:20:32.000000000
++0000
++++ linux-2.6.38/drivers/hid/hid-ids.h	2011-03-22 12:55:13.413659466 +0000
+@@ -502,6 +502,7 @@
+ #define USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS	0x2cf6
+ 
+ #define USB_VENDOR_ID_SAITEK		0x06a3
++#define USB_DEVICE_ID_SAITEK_RAT7	0x0ccb
+ #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
+ 
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+diff -ur linux-2.6.38.orig/drivers/hid/hid-input.c
+linux-2.6.38/drivers/hid/hid-input.c
+--- linux-2.6.38.orig/drivers/hid/hid-input.c	2011-03-15 01:20:32.000000000
++0000
++++ linux-2.6.38/drivers/hid/hid-input.c	2011-03-22 13:45:47.507874406 +0000
+@@ -790,6 +790,13 @@
+ 
+ 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
+ 		input_event(input, usage->type, usage->code, 0);
++
++        /* hack for Saitek RAT mice which report release events for their
++         * mode button on the NEXT press event
++         */
++	if ((*quirks & HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE) &&
++            (usage->code >= BTN_MOUSE + 8) && (usage->code <= BTN_MOUSE +
+10))
++		input_event(input, usage->type, usage->code, 0);
+ }
+ 
+ void hidinput_report_event(struct hid_device *hid, struct hid_report
+*report)
+diff -ur linux-2.6.38.orig/drivers/hid/usbhid/hid-quirks.c
+linux-2.6.38/drivers/hid/usbhid/hid-quirks.c
+--- linux-2.6.38.orig/drivers/hid/usbhid/hid-quirks.c	2011-03-15
+01:20:32.000000000 +0000
++++ linux-2.6.38/drivers/hid/usbhid/hid-quirks.c	2011-03-22
+12:58:23.016556607 +0000
+@@ -85,6 +85,8 @@
+ 
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH,
+HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS,
+HID_QUIRK_MULTI_INPUT },
++
++	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7,
+HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE },
+ 	{ 0, 0 }
+ };
+ 
+diff -ur linux-2.6.38.orig/include/linux/hid.h
+linux-2.6.38/include/linux/hid.h
+--- linux-2.6.38.orig/include/linux/hid.h	2011-03-15 01:20:32.000000000 +0000
++++ linux-2.6.38/include/linux/hid.h	2011-03-22 12:58:12.688834637 +0000
+@@ -312,6 +312,7 @@
+ #define HID_QUIRK_BADPAD			0x00000020
+ #define HID_QUIRK_MULTI_INPUT			0x00000040
+ #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
++#define HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE	0x00000100
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+ #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+
+-- 
+| Darren Salt            | linux at youmustbejoking | nr. Ashington, | Toon
+| using Debian GNU/Linux | or ds    ,demon,co,uk    | Northumberland | back!
+| + Buy less and make it last longer.         INDUSTRY CAUSES GLOBAL WARMING.
+
+A clean desk is a sign of a sick mind.

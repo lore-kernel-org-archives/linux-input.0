@@ -1,79 +1,65 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v4] hid-multitouch: migrate 3M PCT touch screens to
- hid-multitouch
-Date: Tue, 22 Mar 2011 17:58:15 +0100
-Message-ID: <20110322165815.GA6706@polaris.bitmath.org>
-References: <AANLkTimFF3pgMMgOcEhYnRm5adgsCL5S6Hjkz+GFcpCT@mail.gmail.com>
- <1300811641-3327-1-git-send-email-benjamin.tissoires@enac.fr>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: [PATCH] Downgrade i8042 selftest error message to dbg()
+Date: Tue, 22 Mar 2011 21:31:48 +0100
+Message-ID: <1300825908.20447.1.camel@x61.thuisdomein>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp04.sth.basefarm.net ([80.76.153.5]:33166 "EHLO
-	ch-smtp04.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752265Ab1CVRDM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Mar 2011 13:03:12 -0400
-Content-Disposition: inline
-In-Reply-To: <1300811641-3327-1-git-send-email-benjamin.tissoires@enac.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2011 at 05:34:01PM +0100, Benjamin Tissoires wrote:
-> This patch merges the hid-3m-pct driver into hid-multitouch.
-> To keep devices working the same way they used to with hid-3m-pct,
-> we need to add two signal/noise ratios for width and height.
-> We also need to work on width/height to send proper
-> ABS_MT_ORIENTATION flag.
->=20
-> Importing 3M into hid-multitouch also solved the bug in which
-> devices handling width and height in their report descriptors
-> did not show ABS_MT_TOUCH_MAJOR and ABS_MT_TOUCH_MINOR.
->=20
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> Reviewed-by: St=E9phane Chatty <chatty@enac.fr>
-> ---
-[...]
-> Henrik, do I still have your Reviewed-and-tested-by ?
+On a "really fragile" latop I noticed a single
+    i8042.c: i8042 controller selftest failed. (0x1 != 0x55)
 
-Yep, looks good. One more thing, though:
+error in the log. But there's no reason to print this message at
+KERN_ERR level each time that loop fails, especially since the message
+telling about the overall selftest failure is printed at KERN_INFO level
+(on X86).
 
-> @@ -332,11 +351,18 @@ static void mt_emit_event(struct mt_device *td,=
- struct input_dev *input)
->  		input_mt_report_slot_state(input, MT_TOOL_FINGER,
->  			s->touch_state);
->  		if (s->touch_state) {
-> +			/* this finger is on the screen */
-> +			int wide =3D (s->w > s->h);
-> +			/* divided by two to match visual scale of touch */
-> +			int major =3D max(s->w, s->h) >> 1;
-> +			int minor =3D min(s->w, s->h) >> 1;
+Add an actual error message for non-X86 systems, where a selftest
+failure is (apparently) more serious. Remove a space in an another error
+message.
 
-This scaling is most likely not correct for all devices. I went
-through a set of devices some time ago, running mtview on all of them,
-visually inspecting the touch size. Some were low by a factor of two,
-some were high by a factor of two. A confirmation that the other
-devices supported by this driver seem right would be good. If not, a
-quirk should probably be added here.
+Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
+---
+Compile tested only.
 
-> +
->  			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
->  			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
-> +			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
-> -			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, s->w);
-> -			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, s->h);
-> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
->  		}
->  		s->seen_in_this_frame =3D false;
+ drivers/input/serio/i8042.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-Thanks,
-Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index ac4c936..d37a48e 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -869,15 +869,15 @@ static int i8042_controller_selftest(void)
+ 	do {
+ 
+ 		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
+-			pr_err("i8042 controller self test timeout\n");
++			pr_err("i8042 controller selftest timeout\n");
+ 			return -ENODEV;
+ 		}
+ 
+ 		if (param == I8042_RET_CTL_TEST)
+ 			return 0;
+ 
+-		pr_err("i8042 controller selftest failed. (%#x != %#x)\n",
+-		       param, I8042_RET_CTL_TEST);
++		dbg("i8042 controller selftest: %#x != %#x\n",
++		    param, I8042_RET_CTL_TEST);
+ 		msleep(50);
+ 	} while (i++ < 5);
+ 
+@@ -891,6 +891,7 @@ static int i8042_controller_selftest(void)
+ 	pr_info("giving up on controller selftest, continuing anyway...\n");
+ 	return 0;
+ #else
++	pr_err("i8042 controller selftest failed\n");
+ 	return -EIO;
+ #endif
+ }
+-- 
+1.7.4

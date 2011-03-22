@@ -1,65 +1,104 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: [PATCH] Downgrade i8042 selftest error message to dbg()
-Date: Tue, 22 Mar 2011 21:31:48 +0100
-Message-ID: <1300825908.20447.1.camel@x61.thuisdomein>
+From: Darren Salt <linux@youmustbejoking.demon.co.uk>
+Subject: [PATCH v2 2.6.38] Mode button quirk for Saitek Cyborg R.A.T. 7
+Date: Tue, 22 Mar 2011 20:29:49 +0000
+Message-ID: <51BD8E4644%ds@youmustbejoking.demon.co.uk>
+References: <mpro.ligqzs1xd6elc0462.linux@youmustbejoking.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lon1-post-3.mail.demon.net ([195.173.77.150]:65251 "EHLO
+	lon1-post-3.mail.demon.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750969Ab1CVUgQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Mar 2011 16:36:16 -0400
+In-Reply-To: <mpro.ligqzs1xd6elc0462.linux@youmustbejoking.demon.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On a "really fragile" latop I noticed a single
-    i8042.c: i8042 controller selftest failed. (0x1 != 0x55)
+Mode button quirk for Saitek Cyborg R.A.T. 7
 
-error in the log. But there's no reason to print this message at
-KERN_ERR level each time that loop fails, especially since the message
-telling about the overall selftest failure is printed at KERN_INFO level
-(on X86).
+This patch implements a quirk for the Saitek Cyborg R.A.T. 7 mouse. It has a
+"mode" button, to the left of button 1, which behaves strangely: it cycles
+through three logical button numbers (8, 9 and 10 as seen by the kernel and
+13, 14 and 15, as seen by X), and defers sending the release event until the
+next time this button is pressed. This, I've noticed, confuses X into
+thinking that a drag operation is in progress when this button is clicked.
 
-Add an actual error message for non-X86 systems, where a selftest
-failure is (apparently) more serious. Remove a space in an another error
-message.
+The only sensible workaround is, I think, to have these logical buttons
+treated as instant-release. This implementation does this, but also causes
+extra release events to be reported to userspace; X copes fine, and I don't
+expect that anything won't.
 
-Signed-off-by: Paul Bolle <pebolle@tiscali.nl>
----
-Compile tested only.
+(Other R.A.T. mice are almost certainly affected.)
 
- drivers/input/serio/i8042.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+Signed-off-by: Darren Salt <linux@youmustbejoking.demon.co.uk>
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index ac4c936..d37a48e 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -869,15 +869,15 @@ static int i8042_controller_selftest(void)
- 	do {
+diff -ur linux-2.6.38.orig/drivers/hid/hid-ids.h linux-2.6.38/drivers/hid/hid-ids.h
+--- linux-2.6.38.orig/drivers/hid/hid-ids.h	2011-03-22 17:27:45.628320449 +0000
++++ linux-2.6.38/drivers/hid/hid-ids.h	2011-03-22 17:29:01.844925858 +0000
+@@ -502,6 +502,7 @@
+ #define USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS	0x2cf6
  
- 		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
--			pr_err("i8042 controller self test timeout\n");
-+			pr_err("i8042 controller selftest timeout\n");
- 			return -ENODEV;
- 		}
+ #define USB_VENDOR_ID_SAITEK		0x06a3
++#define USB_DEVICE_ID_SAITEK_RAT7	0x0ccb
+ #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
  
- 		if (param == I8042_RET_CTL_TEST)
- 			return 0;
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+diff -ur linux-2.6.38.orig/drivers/hid/hid-input.c linux-2.6.38/drivers/hid/hid-input.c
+--- linux-2.6.38.orig/drivers/hid/hid-input.c	2011-03-22 17:27:45.644319741 +0000
++++ linux-2.6.38/drivers/hid/hid-input.c	2011-03-22 20:07:20.254290914 +0000
+@@ -790,6 +790,22 @@
  
--		pr_err("i8042 controller selftest failed. (%#x != %#x)\n",
--		       param, I8042_RET_CTL_TEST);
-+		dbg("i8042 controller selftest: %#x != %#x\n",
-+		    param, I8042_RET_CTL_TEST);
- 		msleep(50);
- 	} while (i++ < 5);
- 
-@@ -891,6 +891,7 @@ static int i8042_controller_selftest(void)
- 	pr_info("giving up on controller selftest, continuing anyway...\n");
- 	return 0;
- #else
-+	pr_err("i8042 controller selftest failed\n");
- 	return -EIO;
- #endif
+ 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
+ 		input_event(input, usage->type, usage->code, 0);
++
++        /* hack for Saitek RAT mice which report release events for their
++         * mode button on the NEXT press event: instant release
++         */
++	if ((*quirks & HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE) &&
++	    value && usage->type == EV_KEY &&
++	    usage->code >= BTN_MOUSE + 8 && usage->code <= BTN_MOUSE + 10 &&
++	    test_bit(usage->code, input->key)) {
++		input_event(input, usage->type, usage->code, 0);
++		/* we'll get a real release event from the mouse anyway, and
++		 * userspace should cope with the extra input-layer
++		 * button-up events anyway; just re-set the bit to stop
++		 * spurious button-down events
++		 */
++		set_bit(usage->code, input->key);
++	}
  }
+ 
+ void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
+diff -ur linux-2.6.38.orig/drivers/hid/usbhid/hid-quirks.c linux-2.6.38/drivers/hid/usbhid/hid-quirks.c
+--- linux-2.6.38.orig/drivers/hid/usbhid/hid-quirks.c	2011-03-22 17:27:45.652319385 +0000
++++ linux-2.6.38/drivers/hid/usbhid/hid-quirks.c	2011-03-22 17:29:01.844925858 +0000
+@@ -85,6 +85,8 @@
+ 
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
++
++	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7, HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE },
+ 	{ 0, 0 }
+ };
+ 
+diff -ur linux-2.6.38.orig/include/linux/hid.h linux-2.6.38/include/linux/hid.h
+--- linux-2.6.38.orig/include/linux/hid.h	2011-03-22 17:27:45.692317595 +0000
++++ linux-2.6.38/include/linux/hid.h	2011-03-22 17:29:01.884924059 +0000
+@@ -312,6 +312,7 @@
+ #define HID_QUIRK_BADPAD			0x00000020
+ #define HID_QUIRK_MULTI_INPUT			0x00000040
+ #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
++#define HID_QUIRK_RAT_BROKEN_BUTTON_RELEASE	0x00000100
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+ #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+
 -- 
-1.7.4
+| Darren Salt            | linux at youmustbejoking | nr. Ashington, | Toon
+| using Debian GNU/Linux | or ds    ,demon,co,uk    | Northumberland | back!
+| + http://www.youmustbejoking.demon.co.uk/ & http://tartarus.org/ds/
+
+The shifts of Fortune test the reliability of friends.

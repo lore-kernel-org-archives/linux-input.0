@@ -1,48 +1,41 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH] G25_support
-Date: Mon, 21 Mar 2011 22:57:00 -0600
-Message-ID: <1300769820-16198-1-git-send-email-simon@mungewell.org>
-References: <1299842104.2550.24.camel@slim-one-desktop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: tsc2005: fix locking issue
+Date: Mon, 21 Mar 2011 23:19:58 -0700
+Message-ID: <20110322061958.GA7990@core.coreip.homeip.net>
+References: <1300724650-6641-1-git-send-email-aaro.koskinen@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from idcmail-mo1so.shaw.ca ([24.71.223.10]:61396 "EHLO
-	idcmail-mo1so.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753204Ab1CVE5S (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:51748 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754048Ab1CVGUE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Mar 2011 00:57:18 -0400
-In-Reply-To: <1299842104.2550.24.camel@slim-one-desktop>
+	Tue, 22 Mar 2011 02:20:04 -0400
+Content-Disposition: inline
+In-Reply-To: <1300724650-6641-1-git-send-email-aaro.koskinen@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>, Peter <peter@slim-one.de>, Simon Wood <simon@mungewell.org>
+To: Aaro Koskinen <aaro.koskinen@nokia.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Peter <peter@slim-one.de>
+On Mon, Mar 21, 2011 at 06:24:10PM +0200, Aaro Koskinen wrote:
+> Commit 0b950d3 (Input: tsc2005 - add open/close) introduced a
+> locking issue with the ESD watchdog: __tsc2005_disable() is calling
+> cancel_delayed_work_sync() with mutex held, and the work also needs the
+> same mutex.
+> 
+> Fix the problem by using cancel_delayed_work() on disable. If
+> the ESD work was running it will check if the device is closed
+> or suspended, and in that case it will do nothing and skip
+> re-arming. cancel_delayed_work_sync() is still needed when the module
+> is removed.
 
-Small patch to add support for the G25/G27 by adding USB ID's
-as suggested by Peter.
-
-Boots but otherwise untested as I don't have hardware, .debs for
-kernel (2.6.38) here if want to test/run Ubuntu/Debian:
-http://www.mungewell.org/Logitech_Wii_Wheel/
-
-Reported-by: Peter <peter@slim-one.de>
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-lgff.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-lgff.c b/drivers/hid/hid-lgff.c
-index 90d0ef2..f099079 100644
---- a/drivers/hid/hid-lgff.c
-+++ b/drivers/hid/hid-lgff.c
-@@ -73,6 +73,8 @@ static const struct dev_type devices[] = {
- 	{ 0x046d, 0xc293, ff_joystick },
- 	{ 0x046d, 0xc294, ff_wheel },
- 	{ 0x046d, 0xc295, ff_joystick },
-+	{ 0x046d, 0xc298, ff_wheel },
-+	{ 0x046d, 0xc299, ff_wheel },
- 	{ 0x046d, 0xca03, ff_wheel },
- };
+Hmm, indeed. However, instead of moving cancel_delayed_work_sync() to
+remove maybe we should use mutex_trylock() in tsc2005_esd_work()?
+If trylock fails that means that device is in the middle of open/close
+transition. We should just reschedule the work and get out of there.
  
--- 
-1.7.0.4
+Thanks.
 
+-- 
+Dmitry

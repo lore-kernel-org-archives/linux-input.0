@@ -1,41 +1,31 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: Re: [Device-drivers-devel] [PATCH] Input: ADP5589 - new driver for
- I2C Keypad Decoder and I/O Expander
-Date: Wed, 23 Mar 2011 14:32:39 -0400
-Message-ID: <AANLkTi=qx+rcsLQDmY0crma+dAdaOrNxd2QcmSSusjKE@mail.gmail.com>
-References: <1300896316-15391-1-git-send-email-vapier@gentoo.org> <4D8A3B52.4000409@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:44899 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752653Ab1CWSdA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Mar 2011 14:33:00 -0400
-Received: by fxm17 with SMTP id 17so7604884fxm.19
-        for <linux-input@vger.kernel.org>; Wed, 23 Mar 2011 11:32:59 -0700 (PDT)
-In-Reply-To: <4D8A3B52.4000409@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH 0/2] sparse-keymap: Emit events useful for key debugging
+Date: Wed, 23 Mar 2011 16:13:41 -0500
+Message-ID: <1300914823-9440-1-git-send-email-seth.forshee@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti <shubhrajyoti@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-On Wed, Mar 23, 2011 at 14:26, Shubhrajyoti wrote:
-> On Wednesday 23 March 2011 09:35 PM, Mike Frysinger wrote:
->> +#define ADP_BANK(offs) =C2=A0 =C2=A0 =C2=A0 =C2=A0 ((offs)>> =C2=A0=
-3)
->> +#define ADP_BIT(offs) =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0(1u<< =C2=A0=
-((offs)& =C2=A00x7))
+A number of ACPI/WMI drivers use sparse-keymap for hotkeys. Some of the
+most common hotkey problems are new keys with perviously unused scan
+codes and keys that reuse scan codes for different functions than in
+previous models. Diagnosis of these key problems can be done easily
+from userspace as long as the drivers emit MSC_SCAN events for all keys
+and KEY_UNKNOWN key events for unknown scan codes. sparse-keymap does
+neither.
 
-Shubhrajyoti: your e-mail client is weird.  it moves spaces around in
-the output for no good reason.  your replies made me think Michael's
-original style was all screwed up until i looked at the original .c/.h
-files on disk.  not sure if there's something you could do to rectify
-this ...
--mike
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The following patches modify sparse-keymap to emit these events,
+facilitating easier debugging of malfunctioning keys from userspace.
+
+Thanks,
+Seth
+
+
+Seth Forshee (2):
+  Input: sparse-keymap - report scancodes with key events
+  Input: sparse-keymap - report KEY_UNKNOWN for unknown scan codes
+
+ drivers/input/sparse-keymap.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)

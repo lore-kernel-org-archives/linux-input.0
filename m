@@ -1,95 +1,71 @@
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: Re: [PATCH] input: tsc2005: fix locking issue
-Date: Wed, 23 Mar 2011 15:05:40 +0200 (EET)
-Message-ID: <alpine.DEB.1.10.1103231452530.2634@esdhcp041196.research.nokia.com>
-References: <1300724650-6641-1-git-send-email-aaro.koskinen@nokia.com> <20110322061958.GA7990@core.coreip.homeip.net> <alpine.DEB.1.10.1103221655370.2634@esdhcp041196.research.nokia.com> <20110322154202.GA24772@core.coreip.homeip.net>
+From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
+Date: Thu, 24 Mar 2011 01:04:31 +0900
+Message-ID: <AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
+References: <20110322142619.1109.89105.sendpatchset@t400s>
+	<20110322142855.GB2202@sirena.org.uk>
+	<20110322143307.GB24004@linux-sh.org>
+	<AANLkTimRV9vzOE7+VPX48y3KebLJSvBOkqxoM--9gqGb@mail.gmail.com>
+	<20110322153226.GC30303@linux-sh.org>
+	<AANLkTimyxdcJ-eEke9x7X1zdiJNbFtncfv0=NzKjtAme@mail.gmail.com>
+	<20110322155730.GD30303@linux-sh.org>
+	<AANLkTi=Fjc2f837ifH152Rh8W0PfiZvViYaLe=8XZo4Z@mail.gmail.com>
+	<20110322163144.GC2202@sirena.org.uk>
+	<AANLkTiniBVWhSiNZMRYbO857D_Vj03KxH4qYqkVo-11J@mail.gmail.com>
+	<20110322165907.GG22583@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([147.243.128.24]:61145 "EHLO mgw-da01.nokia.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932830Ab1CWNIP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Mar 2011 09:08:15 -0400
-In-Reply-To: <20110322154202.GA24772@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110322165907.GG22583-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, srk-l0cyMroinI0@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, chinyeow.sim.xt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 22 Mar 2011, Dmitry Torokhov wrote:
-> On Tue, Mar 22, 2011 at 04:59:02PM +0200, Aaro Koskinen wrote:
->> Hi,
->>
->> On Mon, 21 Mar 2011, Dmitry Torokhov wrote:
->>> On Mon, Mar 21, 2011 at 06:24:10PM +0200, Aaro Koskinen wrote:
->>>> Commit 0b950d3 (Input: tsc2005 - add open/close) introduced a
->>>> locking issue with the ESD watchdog: __tsc2005_disable() is calling
->>>> cancel_delayed_work_sync() with mutex held, and the work also needs the
->>>> same mutex.
->>>>
->>>> Fix the problem by using cancel_delayed_work() on disable. If
->>>> the ESD work was running it will check if the device is closed
->>>> or suspended, and in that case it will do nothing and skip
->>>> re-arming. cancel_delayed_work_sync() is still needed when the module
->>>> is removed.
->>>
->>> Hmm, indeed. However, instead of moving cancel_delayed_work_sync() to
->>> remove maybe we should use mutex_trylock() in tsc2005_esd_work()?
->>> If trylock fails that means that device is in the middle of open/close
->>> transition. We should just reschedule the work and get out of there.
->>
->> But I guess the reschedule should not happen if we are in the middle of
->> close/disable? And without the mutex we cannot know that.
+On Wed, Mar 23, 2011 at 1:59 AM, Mark Brown
+<broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org> wrote:
+> On Wed, Mar 23, 2011 at 01:51:02AM +0900, Magnus Damm wrote:
 >
-> It should be OK to reschedule even as we enabling/disabling because
-> cancel_delayed_work_sync() handles re-arming works so even if ESD work
-> is being executed at the time we closing the device it will be killed
-> off completely.
+>> I'm not sure if this is i2c specific though - in general you probabl=
+y
+>> need to register the parent bus driver first.
+>
+> This was my original question - I'm not aware of any reason why you
+> should need to register the driver for the specific bus first, it see=
+ms
+> odd.
 
-Ok, so here's an updated version:
+Can't see why it wouldn't work - in theory at least. I'll have a look t=
+omorrow.
 
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: [PATCH] input: tsc2005: fix locking issue
+The use of subsys_initcall() in the keypad driver is also a bit odd IMO=
+=2E
 
-Commit 0b950d3 (Input: tsc2005 - add open/close) introduced a
-locking issue with the ESD watchdog: __tsc2005_disable() is calling
-cancel_delayed_work_sync() with mutex held, and the work also needs the
-same mutex.
+>> > In general embedded platforms register I2C early as things like PM=
+ICs
+>> > typically hang off them. =A0Grant was trying to push people to use
+>> > deferred registration for this stuff but it didn't happen yet and =
+I'd
+>> > personally be more comfortable with more infastructure supporting =
+that.
+>
+>> The dependency tracking is a bit primitive with only initcalls. I
+>> wouldn't mind something like this:
+>
+> That's not a general solution as it doesn't cover things like cross
+> dependencies between devices on the same bus type. =A0You really want=
+ to
+> be able to say "I depend on this set of other devices" somehow, the
+> proposal from Grant that I'm talking about was to only register devic=
+es
+> once their dependencies had appeared which solves the issue but is a =
+bit
+> manual for the board files.
 
-Fix the problem by using mutex_trylock() in tsc2005_esd_work(). If the
-mutex is taken, we know we are in the middle of disable or enable and
-the watchdog check can be skipped.
+Sounds nice. Hopefully that will allow us to use module_init() in
+drivers instead of other initcall levels depending on bus type.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
----
-  drivers/input/touchscreen/tsc2005.c |   12 +++++++++++-
-  1 files changed, 11 insertions(+), 1 deletions(-)
+Thanks,
 
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
-index 03e4968..cf244be 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -477,7 +477,17 @@ static void tsc2005_esd_work(struct work_struct *work)
-  	int error;
-  	u16 r;
-
--	mutex_lock(&ts->mutex);
-+	if (!mutex_trylock(&ts->mutex)) {
-+		/*
-+		 * If the mutex is taken, it means that disable or enable is in
-+		 * progress. In that case just reschedule the work. If the work
-+		 * is not needed, it will be canceled by disable.
-+		 */
-+		schedule_delayed_work(&ts->esd_work,
-+			round_jiffies_relative(
-+				msecs_to_jiffies(ts->esd_timeout)));
-+		return;
-+	}
-
-  	if (time_is_after_jiffies(ts->last_valid_interrupt +
-  				  msecs_to_jiffies(ts->esd_timeout)))
--- 
-1.5.6.5
-
+/ magnus

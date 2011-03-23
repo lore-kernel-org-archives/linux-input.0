@@ -1,37 +1,58 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
-Date: Wed, 23 Mar 2011 16:20:22 +0000
-Message-ID: <20110323162021.GA26594@opensource.wolfsonmicro.com>
-References: <20110322143307.GB24004@linux-sh.org>
- <AANLkTimRV9vzOE7+VPX48y3KebLJSvBOkqxoM--9gqGb@mail.gmail.com>
- <20110322153226.GC30303@linux-sh.org>
- <AANLkTimyxdcJ-eEke9x7X1zdiJNbFtncfv0=NzKjtAme@mail.gmail.com>
- <20110322155730.GD30303@linux-sh.org>
- <AANLkTi=Fjc2f837ifH152Rh8W0PfiZvViYaLe=8XZo4Z@mail.gmail.com>
- <20110322163144.GC2202@sirena.org.uk>
- <AANLkTiniBVWhSiNZMRYbO857D_Vj03KxH4qYqkVo-11J@mail.gmail.com>
- <20110322165907.GG22583@opensource.wolfsonmicro.com>
- <AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: Add support for wireless variant of Pyra
+Date: Wed, 23 Mar 2011 18:11:36 +0100
+Message-ID: <1300900296.2328.7.camel@neuromancer>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:47749 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751629Ab1CWQUY (ORCPT
+Received: from mail-in-16.arcor-online.net ([151.189.21.56]:33349 "EHLO
+	mail-in-16.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754281Ab1CWRLl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Mar 2011 12:20:24 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
+	Wed, 23 Mar 2011 13:11:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>, dmitry.torokhov@gmail.com, srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2011 at 01:04:31AM +0900, Magnus Damm wrote:
+Wireless variant of Roccat Pyra finally has been tested with
+existing driver.
 
-> Sounds nice. Hopefully that will allow us to use module_init() in
-> drivers instead of other initcall levels depending on bus type.
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-core.c        |    1 +
+ drivers/hid/hid-roccat-pyra.c |    3 ++-
+ 2 files changed, 3 insertions(+), 1 deletions(-)
 
-None of this is anything to do with the bus type - it's to do with the
-function of the devices within the system.  Things that are required for
-early init of the kernel get bumped up the list.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c3d6626..84a0ca2 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1446,6 +1446,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPLUS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KOVAPLUS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index 160f481..38280c0 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -652,7 +652,8 @@ static int pyra_raw_event(struct hid_device *hdev, struct hid_report *report,
+ static const struct hid_device_id pyra_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT,
+ 			USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
+-	/* TODO add USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS after testing */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT,
++			USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
+ 	{ }
+ };
+ 
+-- 
+1.7.3.4
+
+
+

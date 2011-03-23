@@ -1,30 +1,88 @@
 From: Jeff Brown <jeffbrown@android.com>
-Subject: [PATCH 0/4] input: Sizing the evdev ring buffer for MT devices and reporting overruns.
-Date: Tue, 22 Mar 2011 18:04:00 -0700
-Message-ID: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
+Subject: [PATCH 1/4] input: Set default events per packet.
+Date: Tue, 22 Mar 2011 18:04:01 -0700
+Message-ID: <1300842244-42723-2-git-send-email-jeffbrown@android.com>
+References: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jeff Brown <jeffbrown@google.com>, jeffbrown@android.com
 List-Id: linux-input@vger.kernel.org
 
-In recent kernels, input device drivers can specify a hint for the number of input events per packet.  However, most drivers don't do this.  There is some code in hid/hid-input.c that attempts to choose a larger default for MT devices but it does not apply to all input devices.  In particular, it does not apply to embedded touchscreens in phones and the like.
+From: Jeff Brown <jeffbrown@google.com>
 
-Currently, when the evdev ring buffer overflows, all old events are dropped.  (See input/evdev.c: evdev_pass_event)
+Calculate a default based on the number of ABS axes, REL axes,
+and MT slots for the device during input device registration.
 
-Unfortunately, the reader has no idea that this has occurred.  The next event that the reader receives will likely be in the middle of a new packet.  This can cause the reader getting confused about which fingers are down or which slots are in use.
+Signed-off-by: jeffbrown@android.com
+---
+ drivers/input/input.c |   46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 46 insertions(+), 0 deletions(-)
 
-There are also problems on SMP systems where an evdev client may end up in a degenerate case where it reads events one at a time at the same rate they are produced instead of reading the entire packet all at once when it is ready.  This causes high CPU usage, particularly when reading from MT devices.  Ideally, evdev should only wake up poll() when the packet is complete.  (Assuming all input drivers call input_sync after they are finished writing events.  Some drivers seem to be broken in this regard.)
-
-As a point of departure for further discussion, here are four patches.
-
-1. During input device registration, choose a default size for the buffer based on the number of slots or tracking ids that a device reports and the number of axes it has.
-
-2. Remove a redundant hardcoded default from hid-input.c.
-
-3. Add a new SYN_DROPPED code that is used by evdev to indicate that some input events were dropped from the ring buffer and are missing.  The client can use this event as a hint that it should reset its state or ignore all following events until the next packet begins.
-
-4. Only wake evdev clients from poll() when an EV_SYN is enqueued, excluding SYN_MT_REPORT.
-
-Thanks,
-Jeff.
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index d6e8bd8..c27292b 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1746,6 +1746,49 @@ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int
+ }
+ EXPORT_SYMBOL(input_set_capability);
+ 
++static inline bool is_mt_axis(int axis)
++{
++	return axis == ABS_MT_SLOT ||
++		(axis >= ABS_MT_FIRST && axis <= ABS_MT_LAST);
++}
++
++static void input_set_default_events_per_packet(struct input_dev *dev)
++{
++	int mt_slots;
++	int i;
++	int events;
++
++	if (dev->hint_events_per_packet)
++		return;
++
++	if (dev->mtsize)
++		mt_slots = dev->mtsize;
++	else if (test_bit(ABS_MT_TRACKING_ID, dev->absbit))
++		mt_slots = dev->absinfo[ABS_MT_TRACKING_ID].maximum -
++			dev->absinfo[ABS_MT_TRACKING_ID].minimum + 1;
++	else if (test_bit(ABS_MT_POSITION_X, dev->absbit))
++		mt_slots = 2;
++	else
++		mt_slots = 0;
++
++	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
++
++	for (i = 0; i < ABS_CNT; i++) {
++		if (test_bit(i, dev->absbit)) {
++			if (is_mt_axis(i))
++				events += mt_slots;
++			else
++				events++;
++		}
++	}
++
++	for (i = 0; i < REL_CNT; i++)
++		if (test_bit(i, dev->relbit))
++			events++;
++
++	input_set_events_per_packet(dev, events);
++}
++
+ #define INPUT_CLEANSE_BITMASK(dev, type, bits)				\
+ 	do {								\
+ 		if (!test_bit(EV_##type, dev->evbit))			\
+@@ -1784,6 +1827,9 @@ int input_register_device(struct input_dev *dev)
+ 	const char *path;
+ 	int error;
+ 
++	/* Use a larger default input buffer for MT devices */
++	input_set_default_events_per_packet(dev);
++
+ 	/* Every input device generates EV_SYN/SYN_REPORT events. */
+ 	__set_bit(EV_SYN, dev->evbit);
+ 
+-- 
+1.7.0.4

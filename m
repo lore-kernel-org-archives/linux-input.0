@@ -1,31 +1,60 @@
 From: Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH 0/2] sparse-keymap: Emit events useful for key debugging
-Date: Wed, 23 Mar 2011 16:13:41 -0500
-Message-ID: <1300914823-9440-1-git-send-email-seth.forshee@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 2/2] Input: sparse-keymap - report KEY_UNKNOWN for unknown scan codes
+Date: Wed, 23 Mar 2011 16:13:43 -0500
+Message-ID: <1300914823-9440-3-git-send-email-seth.forshee@canonical.com>
+References: <1300914823-9440-1-git-send-email-seth.forshee@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:48519 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754434Ab1CWVRX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Mar 2011 17:17:23 -0400
+In-Reply-To: <1300914823-9440-1-git-send-email-seth.forshee@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-A number of ACPI/WMI drivers use sparse-keymap for hotkeys. Some of the
-most common hotkey problems are new keys with perviously unused scan
-codes and keys that reuse scan codes for different functions than in
-previous models. Diagnosis of these key problems can be done easily
-from userspace as long as the drivers emit MSC_SCAN events for all keys
-and KEY_UNKNOWN key events for unknown scan codes. sparse-keymap does
-neither.
+This allows for debugging non-functional keys easily from
+userspace.
 
-The following patches modify sparse-keymap to emit these events,
-facilitating easier debugging of malfunctioning keys from userspace.
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+---
+ drivers/input/sparse-keymap.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-Thanks,
-Seth
+diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
+index 74bca5d..744980e 100644
+--- a/drivers/input/sparse-keymap.c
++++ b/drivers/input/sparse-keymap.c
+@@ -209,6 +209,7 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	}
+ 
+ 	if (test_bit(EV_KEY, dev->evbit)) {
++		__set_bit(KEY_UNKNOWN, dev->keybit);
+ 		__set_bit(EV_MSC, dev->evbit);
+ 		__set_bit(MSC_SCAN, dev->mscbit);
+ 	}
+@@ -311,12 +312,19 @@ bool sparse_keymap_report_event(struct input_dev *dev, unsigned int code,
+ {
+ 	const struct key_entry *ke =
+ 		sparse_keymap_entry_from_scancode(dev, code);
++	struct key_entry unknown_ke;
+ 
+ 	if (ke) {
+ 		sparse_keymap_report_entry(dev, ke, value, autorelease);
+ 		return true;
+ 	}
+ 
++	/* Report an unknown key event as a debugging aid */
++	unknown_ke.type = KE_KEY;
++	unknown_ke.code = code;
++	unknown_ke.keycode = KEY_UNKNOWN;
++	sparse_keymap_report_entry(dev, &unknown_ke, value, autorelease);
++
+ 	return false;
+ }
+ EXPORT_SYMBOL(sparse_keymap_report_event);
+-- 
+1.7.4.1
 
-
-Seth Forshee (2):
-  Input: sparse-keymap - report scancodes with key events
-  Input: sparse-keymap - report KEY_UNKNOWN for unknown scan codes
-
- drivers/input/sparse-keymap.c |   14 ++++++++++++++
- 1 files changed, 14 insertions(+), 0 deletions(-)

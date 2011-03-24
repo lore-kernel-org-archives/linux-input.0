@@ -1,59 +1,40 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: roccat: Add support for wireless variant of Pyra
-Date: Thu, 24 Mar 2011 12:48:29 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1103241248200.19969@pobox.suse.cz>
-References: <1300900296.2328.7.camel@neuromancer>
+Subject: Re: [PATCH 2/2] hid-ntrig: calibration
+Date: Thu, 24 Mar 2011 15:32:00 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1103241531130.19969@pobox.suse.cz>
+References: <1299829072-19489-1-git-send-email-rafi@seas.upenn.edu> <1299829072-19489-2-git-send-email-rafi@seas.upenn.edu> <20110321171550.GA4602@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:51002 "EHLO mx1.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:55687 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753508Ab1CXLsa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Mar 2011 07:48:30 -0400
-In-Reply-To: <1300900296.2328.7.camel@neuromancer>
+	id S1751634Ab1CXOcD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Mar 2011 10:32:03 -0400
+In-Reply-To: <20110321171550.GA4602@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, micki@n-trig.com, chatty@enac.fr, dmitry.torokhov@gmail.com
 
-On Wed, 23 Mar 2011, Stefan Achatz wrote:
+On Mon, 21 Mar 2011, Henrik Rydberg wrote:
 
-> Wireless variant of Roccat Pyra finally has been tested with
-> existing driver.
+> > Adding a function to tell the device to run its calibration routine.
+> > A number written to the sysfs specifies the duration of the calibration
+> > in milliseconds
+> > 
+> > Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+> > ---
 > 
-> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
-> ---
->  drivers/hid/hid-core.c        |    1 +
->  drivers/hid/hid-roccat-pyra.c |    3 ++-
->  2 files changed, 3 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index c3d6626..84a0ca2 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1446,6 +1446,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPLUS) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KOVAPLUS) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
-> diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
-> index 160f481..38280c0 100644
-> --- a/drivers/hid/hid-roccat-pyra.c
-> +++ b/drivers/hid/hid-roccat-pyra.c
-> @@ -652,7 +652,8 @@ static int pyra_raw_event(struct hid_device *hdev, struct hid_report *report,
->  static const struct hid_device_id pyra_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT,
->  			USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
-> -	/* TODO add USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS after testing */
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT,
-> +			USB_DEVICE_ID_ROCCAT_PYRA_WIRELESS) },
->  	{ }
->  };
+> This is great functionality, and from what it seems, it works. However, 
+> the poking at the usb layer makes me wonder if there is another way... 
+> Jiri? Dmitry? Awaiting answers from someone more knowledgeable, please 
+> find some comments inline.
 
-Applied, thanks Stefan.
+Actually, let me put it another way -- is there any reason not to have 
+this as a functionality provided by HID core code (with driver registering 
+callbacks if they want to provide calibration functionality)?
+
+Thanks,
 
 -- 
 Jiri Kosina

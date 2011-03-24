@@ -1,117 +1,297 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH v2 0/3] Another try for the Sixaxis plugin
-Date: Thu, 24 Mar 2011 18:32:47 +0100
-Message-ID: <20110324183247.3291e59e.ospite@studenti.unina.it>
-References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
-	<1298637244.10364.19.camel@novo.hadess.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__24_Mar_2011_18_32_48_+0100_cWkTovzvAH6CRF4M"
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH v3] Documentation: Add evdev type and code definitions
+Date: Thu, 24 Mar 2011 13:44:12 -0400
+Message-ID: <1300988652-25353-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp209.alice.it ([82.57.200.105]:60904 "EHLO smtp209.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751198Ab1CXRdY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Mar 2011 13:33:24 -0400
-In-Reply-To: <1298637244.10364.19.camel@novo.hadess.net>
+Received: from adelie.canonical.com ([91.189.90.139]:51859 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932070Ab1CXRoU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Mar 2011 13:44:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-bluetooth@vger.kernel.org, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>, Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---Signature=_Thu__24_Mar_2011_18_32_48_+0100_cWkTovzvAH6CRF4M
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This commit adds the file Documentation/input/evdev-codes.txt.
 
-On Fri, 25 Feb 2011 12:34:02 +0000
-Bastien Nocera <hadess@hadess.net> wrote:
+Cc: Henrik Rydberg <rydberg@euromail.se>
+Cc: Chris Bagwell <chris@cnpbagwell.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Acked-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+This revision has been a long time coming. Sorry for the delay! Changes from the
+previous revision:
 
-> On Fri, 2011-02-25 at 11:04 +0100, Antonio Ospite wrote:
-[...]
-> >=20
-> > TODO before merging:
-> >   - Check the routine about bluetooth association. Also, is it strictly
-> >     necessary to grant manually the first connection?
->=20
-> The line setting the device trust should be enough to not have to
-> manually grant the first connection. You might want to double-check what
-> changes between the state of /var/lib/bluetooth after cable pairing and
-> before connecting for the first time.
->
+* Use EVIOCG* to retrieve evdev state and note sysfs capabilities info
+* Clarify wording of BTN_TOOL_<name> and BTN_TOUCH usage for multi-finger modes
+* Remove KEY_POWER, KEY_SUSPEND documentation
+* State that EV_PWR is not well defined and will be addressed later
+* Add text about reporting switch state when binding or resuming
+* Add a "Guidelines" section describing basic mouse, touchscreen, and trackpad
+  protocol usage
 
-Calling write_trust() before adapter_get_device() fixes the prompt on
-the first association, AFAICS adapter_get_device() reads the trust file.
+This is perhaps more important than ever before. We're seeing a lot of new
+drivers that were obviously only written to support Android and do not conform
+to the evdev protocol that X.org's input modules need and expect. I've had
+multiple people come to me asking why their android derived touchscreen driver
+isn't working properly in Ubuntu, only to find that the driver is only reporting
+ABS_MT_POSITION_{X,Y} and ABS_MT_TOUCH_MAJOR. Hopefully this will help others
+understand what is required for a full window management system based on
+historical X.org usage.
 
-> >   - When the controller is connected via USB after it is working over BT
-> >     it is seen as a second controller and the second LED is turned on,
-> >     should we force BT disconnection on USB connection?
->=20
-> If we can assert that the device is the same one, yes, I think we
-> should.
->
+ Documentation/input/evdev-codes.txt |  238 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 238 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/input/evdev-codes.txt
 
-With regard to that, I'd like to see some USB dumps of a Sixaxis
-talking with GameOS to check if the PS3 can turn off BT on the
-controller explicitly, can anyone help here? (Pascal? Do you have
-access to a USB analyzer?):
+diff --git a/Documentation/input/evdev-codes.txt b/Documentation/input/evdev-codes.txt
+new file mode 100644
+index 0000000..473ce9d
+--- /dev/null
++++ b/Documentation/input/evdev-codes.txt
+@@ -0,0 +1,238 @@
++The evdev protocol uses a map of types and codes to express input device values
++to userspace. This document describes the types and codes and how and when they
++may be used.
++
++The evdev protocol is a stateful protocol. Events are emitted only when values
++of evdev codes have changed. However, the state is maintained within the Linux
++input subsystem; drivers do not need to maintain the state and may attempt to
++emit unchanged values without harm. Userspace may obtain the current state of
++evdev code values using the EVIOCG* ioctls defined in linux/input.h. The evdev
++reports supported by a device are also provided by sysfs in
++class/input/event*/device/capabilities/, and the properties of a device are
++provided in class/input/event*/device/properties.
++
++Types:
++==========
++Types are groupings of codes under a logical input construct. Each type has a
++set of applicable codes to be used in generating events. See the Codes section
++for details on valid codes for each type.
++
++* EV_SYN:
++  - Used as markers to separate events. Events may be separated in time or in
++    space, such as with the multitouch protocol.
++
++* EV_KEY:
++  - Used to describe keyboard and other key-like input events.
++
++* EV_REL:
++  - Used to describe relative input events, e.g. moving the mouse 5 units to the
++    left.
++
++* EV_ABS:
++  - Used to describe absolute input events, e.g. describing the coordinates of a
++    touch on a touchscreen.
++
++* EV_MSC:
++  - Used to describe miscellaneous input events that do not fit into other
++    types.
++
++* EV_SW:
++  - Used to describe binary state input switches.
++
++* EV_LED:
++  - Used to turn LEDs on devices on and off.
++
++* EV_SND:
++  - Used to output sound to devices.
++
++* EV_REP:
++  - Used for autorepeating devices.
++
++* EV_FF:
++  - Used to send force feedback commands to an input device.
++
++* EV_PWR:
++  - A special type for power button and switch input.
++
++* EV_FF_STATUS:
++  - Used to receive force feedback device status.
++
++Codes:
++==========
++Codes define the precise type of event.
++
++EV_SYN:
++----------
++EV_SYN event values are undefined. Their usage is
++defined only by when they are sent in the evdev event stream.
++
++* SYN_REPORT:
++  - Used to synchronize and separate events into frames of time. For example,
++    motion of a mouse may set the REL_X and REL_Y values for one motion, then
++    emit a SYN_REPORT. The next motion will emit more REL_X and REL_Y values and
++    send another SYN_REPORT.
++
++* SYN_CONFIG:
++  - TBD
++
++* SYN_MT_REPORT:
++  - Used to synchronize and separate touch events. See the
++    multi-touch-protocol.txt document for more information.
++
++EV_KEY:
++----------
++EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
++to represent the 'A' key on a keyboard. When a key is depressed, an event with
++the key's code is emitted with value 1. When the key is released, an event is
++emitted with value 0. Some hardware send events when a key is repeated. These
++events have a value of 2. In general, KEY_<name> is used for keyboard keys, and
++BTN_<name> is used for other types of momentary switch events.
++
++A few EV_KEY codes have special meanings:
++
++* BTN_TOOL_<name>:
++  - These codes are used in conjunction with input trackpads, tablets, and
++    touchscreens. These devices may be used with fingers, pens, or other tools.
++    When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
++    code should be set to a value of 1. When the tool is no longer interacting
++    with the input device, the BTN_TOOL_<name> code should be reset to 0. All
++    trackpads, tablets, and touchscreens should use at least one BTN_TOOL_<name>
++    code when events are generated.
++
++* BTN_TOUCH:
++    BTN_TOUCH is used for touch contact. While an input tool is determined to be
++    within meaningful physical contact, the value of this property must be set
++    to 1. Meaningful physical contact may mean any contact, or it may mean
++    contact conditioned by an implementation defined property. For example, a
++    touchpad may set the value to 1 only when the touch pressure rises above a
++    certain value. BTN_TOUCH may be combined with BTN_TOOL_<name> codes. For
++    example, a pen tablet may set BTN_TOOL_PEN to 1 and BTN_TOUCH to 0 while the
++    pen is hovering over but not touching the tablet surface.
++
++Note: For appropriate function of the legacy mousedev emulation driver,
++BTN_TOUCH must be the first evdev code emitted in a synchronization frame.
++
++Note: Historically a touch device with BTN_TOOL_FINGER and BTN_TOUCH was
++interpreted as a touchpad by userspace, while a similar device without
++BTN_TOOL_FINGER was interpreted as a touchscreen. For backwards compatibility
++with current userspace it is recommended to follow this distinction. In the
++future, this distinction will be deprecated and the device properties ioctl
++EVIOCGPROP, defined in linux/input.h, will be used to convey the device type.
++
++* BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
++  - These codes denote one, two, three, and four finger interaction on a
++    trackpad or touchscreen. For example, if the user uses two fingers and moves
++    them on the touchpad in an effort to scroll content on screen,
++    BTN_TOOL_DOUBLETAP should be set to value 1 for the duration of the motion.
++    Note that all BTN_TOOL_<name> codes and the BTN_TOUCH code are orthogonal in
++    purpose. A trackpad event generated by finger touches should generate events
++    for one code from each group. At most only one of these BTN_TOOL_<name>
++    codes should have a value of 1 during any synchronization frame.
++
++Note: Historically some drivers emitted multiple of the finger count codes with
++a value of 1 in the same synchronization frame. This usage is deprecated.
++
++Note: In multitouch drivers, the input_mt_report_finger_count() function should
++be used to emit these codes. Please see multi-touch-protocol.txt for details.
++
++EV_REL:
++----------
++EV_REL events describe relative changes in a property. For example, a mouse may
++move to the left by a certain number of units, but its absolute position in
++space is unknown. If the absolute position is known, EV_ABS codes should be used
++instead of EV_REL codes.
++
++A few EV_REL codes have special meanings:
++
++* REL_WHEEL, REL_HWHEEL:
++  - These codes are used for vertical and horizontal scroll wheels,
++    respectively.
++
++EV_ABS:
++----------
++EV_ABS events describe absolute changes in a property. For example, a touchpad
++may emit coordinates for a touch location.
++
++A few EV_ABS codes have special meanings:
++
++* ABS_DISTANCE:
++  - Used to describe the distance of a tool from an interaction surface. This
++    should only be used while the tool is hovering, meaning in close proximity
++    of the device. If the input device may be used freely in three dimensions,
++    consider ABS_Z instead.
++
++* ABS_MT_<name>:
++  - Used to describe multitouch input events. Please see
++    multi-touch-protocol.txt for details.
++
++EV_SW:
++----------
++EV_SW events describe stateful binary switches. For example, the SW_LID code is
++used to denote when a laptop lid is closed.
++
++Upon binding to a device or resuming from suspend, a driver must report the
++the current switch state. This ensures that the device, kernel, and userspace
++state is in sync.
++
++Upon resume, if the switch state is the same as before suspend, then the input
++subsystem will filter out the duplicate switch state reports. The driver does
++not need to keep the state of the switch at any time.
++
++EV_MSC:
++----------
++EV_MSC events are used for input and output events that do not fall under other
++categories.
++
++EV_LED:
++----------
++EV_LED events are used for input and output to set and query the state of
++various LEDs on devices.
++
++EV_REP:
++----------
++EV_REP events are used for specifying autorepeating events.
++
++EV_SND:
++----------
++EV_SND events are used for sending sound commands to simple sound output
++devices.
++
++EV_FF:
++----------
++EV_FF events are used to initialize a force feedback capable device and to cause
++such device to feedback.
++
++EV_PWR:
++----------
++EV_PWR events are a special type of event used specifically for power
++mangement. Its usage is not well defined. To be addressed later.
++
++Guidelines:
++==========
++The guidelines below ensure proper single-touch and multi-finger functionality.
++For multi-touch functionality, see the multi-touch-protocol.txt document for
++more information.
++
++Mice:
++----------
++REL_{X,Y} must be reported when the mouse moves. BTN_LEFT must be used to report
++the primary button press. BTN_{MIDDLE,RIGHT,4,5,etc.} should be used to report
++further buttons of the device. REL_WHEEL and REL_HWHEEL should be used to report
++scroll wheel events where available.
++
++Touchscreens:
++----------
++ABS_{X,Y} must be reported with the location of the touch. BTN_TOUCH must be
++used to report when a touch is active on the screen.
++BTN_{MOUSE,LEFT,MIDDLE,RIGHT} must not be reported. BTN_TOOL_<name> events
++should be reported where possible.
++
++Trackpads:
++----------
++Legacy trackpads that only provide relative position information must report
++events like mice described above.
++
++Trackpads that provide absolute touch position must report ABS_{X,Y} for the
++location of the touch. BTN_TOUCH should be used to report when a touch is active
++on the trackpad. Where multi-finger support is available, BTN_TOOL_<name> should
++be used to report the number of touches active on the trackpad.
+-- 
+1.7.1
 
-The scenarios I am interested in are:
- 1. Connect a non-paired Sixaxis to the PS3 via USB
- 2. Connect an already paired Sixaxis to the PS3 via USB
- 3. Connect a Sixaxis already associated via BT to a PS3 via USB
-
-> >   - Test with multiple controllers, and/or multiple BT adapters, which I
-> >     can't do right now.
-> >   - Remove the XXX comment about the lowercase hex bdaddr format.
-> >
-
-Another TODO item: avoid setting the led before the controller sends
-input events (this is the GameOS behavior as well): I am planning to add
-a blocking read() in order to wait for the user to press the PS button
-before setting the led, I'll emphasize that in the next review round.
-
-> >=20
-> > FUTURE plans:
-> >  - Add support for battery status report
->=20
-> Where is the battery level exported currently?
->
-
-It is exported in the input report.
-
-> >  - Add support for Playstation Move (I don't have the hardware, tho),
-> >    Pascal?
->=20
-> The PS3 add-on keyboard, and the PS3 headset both use cable pairing. I
-> have them around, but was unable to get them to pair.
->
-
-I don't have the hardware so I never searched to see what the
-differences with the Sixaxis are.
-
-Regards,
-   Antonio
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Thu__24_Mar_2011_18_32_48_+0100_cWkTovzvAH6CRF4M
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk2LgEAACgkQ5xr2akVTsAEG4QCdHTJui2WaEhDa13GKrytKtCan
-R2MAn1fvtdOmYpssTXKGAcL+39R2nVfF
-=w3nf
------END PGP SIGNATURE-----
-
---Signature=_Thu__24_Mar_2011_18_32_48_+0100_cWkTovzvAH6CRF4M--

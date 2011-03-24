@@ -1,47 +1,62 @@
 From: Michael Hennerich <michael.hennerich@analog.com>
 Subject: Re: [PATCH] Input: ADP5589 - new driver for I2C Keypad Decoder and
  I/O Expander
-Date: Thu, 24 Mar 2011 09:55:52 +0100
-Message-ID: <4D8B0718.2050001@analog.com>
-References: <1300896316-15391-1-git-send-email-vapier@gentoo.org> <4D8A3B52.4000409@ti.com>
+Date: Thu, 24 Mar 2011 10:40:13 +0100
+Message-ID: <4D8B117D.8060004@analog.com>
+References: <1300896316-15391-1-git-send-email-vapier@gentoo.org> <20110324080849.GC8990@core.coreip.homeip.net>
 Reply-To: michael.hennerich@analog.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:17662 "EHLO
+Received: from nwd2mail10.analog.com ([137.71.25.55]:24700 "EHLO
 	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755846Ab1CXJEU (ORCPT
+	with ESMTP id S1754245Ab1CXJsk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Mar 2011 05:04:20 -0400
-In-Reply-To: <4D8A3B52.4000409@ti.com>
+	Thu, 24 Mar 2011 05:48:40 -0400
+In-Reply-To: <20110324080849.GC8990@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti <shubhrajyoti@ti.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
 
-On 03/23/2011 07:26 PM, Shubhrajyoti wrote:
-> Hi Michael,
+On 03/24/2011 09:08 AM, Dmitry Torokhov wrote:
+> Hi Mike, Michael,
 >
-> On Wednesday 23 March 2011 09:35 PM, Mike Frysinger wrote:
+> On Wed, Mar 23, 2011 at 12:05:16PM -0400, Mike Frysinger wrote:
 >   
->> From: Michael Hennerich<michael.hennerich@analog.com>
+>> From: Michael Hennerich <michael.hennerich@analog.com>
 >>
->>  From http://www.analog.com/ADP5589:
+>> From http://www.analog.com/ADP5589:
 >> The ADP5589 is an I/O port expander and keypad matrix decoder designed
 >> for QWERTY type phones that require a large keypad matrix and expanded
 >> I/O lines.
 >>
->> Signed-off-by: Michael Hennerich<michael.hennerich@analog.com>
->> Signed-off-by: Mike Frysinger<vapier@gentoo.org>
+>>     
+> Looks mostly good, just a few comments below.
+>
+> However the biggest question is if it could be folded into
+> adp5588-keys.c as they look somewhat similar.
+>   
+
+Hi Dmitry,
+
+These parts have a totally different register map, and also different
+bit-fields.
+I agree there is some common function set, but overall the two parts are
+too different.
+
+>   
+>> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+>> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 >> ---
->>   drivers/input/keyboard/Kconfig        |   10 +
->>   drivers/input/keyboard/Makefile       |    1 +
->>   drivers/input/keyboard/adp5589-keys.c |  769 +++++++++++++++++++++++++++++++++
->>   include/linux/input/adp5589.h         |  213 +++++++++
->>   4 files changed, 993 insertions(+), 0 deletions(-)
->>   create mode 100644 drivers/input/keyboard/adp5589-keys.c
->>   create mode 100644 include/linux/input/adp5589.h
+>>  drivers/input/keyboard/Kconfig        |   10 +
+>>  drivers/input/keyboard/Makefile       |    1 +
+>>  drivers/input/keyboard/adp5589-keys.c |  769 +++++++++++++++++++++++++++++++++
+>>  include/linux/input/adp5589.h         |  213 +++++++++
+>>  4 files changed, 993 insertions(+), 0 deletions(-)
+>>  create mode 100644 drivers/input/keyboard/adp5589-keys.c
+>>  create mode 100644 include/linux/input/adp5589.h
 >>
 >> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
 >> index b16bed0..688a55c 100644
@@ -61,7 +76,7 @@ On 03/23/2011 07:26 PM, Shubhrajyoti wrote:
 >> +       To compile this driver as a module, choose M here: the
 >> +       module will be called adp5589-keys.
 >> +
->>   config KEYBOARD_AMIGA
+>>  config KEYBOARD_AMIGA
 >>       tristate "Amiga keyboard"
 >>       depends on AMIGA
 >> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
@@ -70,12 +85,12 @@ On 03/23/2011 07:26 PM, Shubhrajyoti wrote:
 >> +++ b/drivers/input/keyboard/Makefile
 >> @@ -6,6 +6,7 @@
 >>
->>   obj-$(CONFIG_KEYBOARD_ADP5520)              += adp5520-keys.o
->>   obj-$(CONFIG_KEYBOARD_ADP5588)              += adp5588-keys.o
+>>  obj-$(CONFIG_KEYBOARD_ADP5520)               += adp5520-keys.o
+>>  obj-$(CONFIG_KEYBOARD_ADP5588)               += adp5588-keys.o
 >> +obj-$(CONFIG_KEYBOARD_ADP5589)               += adp5589-keys.o
->>   obj-$(CONFIG_KEYBOARD_AMIGA)                += amikbd.o
->>   obj-$(CONFIG_KEYBOARD_ATARI)                += atakbd.o
->>   obj-$(CONFIG_KEYBOARD_ATKBD)                += atkbd.o
+>>  obj-$(CONFIG_KEYBOARD_AMIGA)         += amikbd.o
+>>  obj-$(CONFIG_KEYBOARD_ATARI)         += atakbd.o
+>>  obj-$(CONFIG_KEYBOARD_ATKBD)         += atkbd.o
 >> diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
 >> new file mode 100644
 >> index 0000000..ab7a880
@@ -91,72 +106,72 @@ On 03/23/2011 07:26 PM, Shubhrajyoti wrote:
 >> + * Licensed under the GPL-2.
 >> + */
 >> +
->> +#include<linux/module.h>
->> +#include<linux/version.h>
->> +#include<linux/init.h>
->> +#include<linux/interrupt.h>
->> +#include<linux/irq.h>
->> +#include<linux/workqueue.h>
->> +#include<linux/errno.h>
->> +#include<linux/pm.h>
->> +#include<linux/platform_device.h>
->> +#include<linux/input.h>
->> +#include<linux/i2c.h>
->> +#include<linux/gpio.h>
->> +#include<linux/slab.h>
+>> +#include <linux/module.h>
+>> +#include <linux/version.h>
+>> +#include <linux/init.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/irq.h>
+>> +#include <linux/workqueue.h>
+>> +#include <linux/errno.h>
+>> +#include <linux/pm.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/input.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/gpio.h>
+>> +#include <linux/slab.h>
 >> +
->> +#include<linux/input/adp5589.h>
+>> +#include <linux/input/adp5589.h>
 >> +
 >> +/* GENERAL_CFG Register */
->> +#define OSC_EN               (1<<  7)
->> +#define CORE_CLK(x)  (((x)&  0x3)<<  5)
->> +#define LCK_TRK_LOGIC        (1<<  4)
->> +#define LCK_TRK_GPI  (1<<  3)
->> +#define INT_CFG              (1<<  1)
->> +#define RST_CFG              (1<<  0)
+>> +#define OSC_EN               (1 << 7)
+>> +#define CORE_CLK(x)  (((x) & 0x3) << 5)
+>> +#define LCK_TRK_LOGIC        (1 << 4)
+>> +#define LCK_TRK_GPI  (1 << 3)
+>> +#define INT_CFG              (1 << 1)
+>> +#define RST_CFG              (1 << 0)
 >> +
 >> +/* INT_EN Register */
->> +#define LOGIC2_IEN   (1<<  5)
->> +#define LOGIC1_IEN   (1<<  4)
->> +#define LOCK_IEN     (1<<  3)
->> +#define OVRFLOW_IEN  (1<<  2)
->> +#define GPI_IEN              (1<<  1)
->> +#define EVENT_IEN    (1<<  0)
+>> +#define LOGIC2_IEN   (1 << 5)
+>> +#define LOGIC1_IEN   (1 << 4)
+>> +#define LOCK_IEN     (1 << 3)
+>> +#define OVRFLOW_IEN  (1 << 2)
+>> +#define GPI_IEN              (1 << 1)
+>> +#define EVENT_IEN    (1 << 0)
 >> +
 >> +/* Interrupt Status Register */
->> +#define LOGIC2_INT   (1<<  5)
->> +#define LOGIC1_INT   (1<<  4)
->> +#define LOCK_INT     (1<<  3)
->> +#define OVRFLOW_INT  (1<<  2)
->> +#define GPI_INT              (1<<  1)
->> +#define EVENT_INT    (1<<  0)
+>> +#define LOGIC2_INT   (1 << 5)
+>> +#define LOGIC1_INT   (1 << 4)
+>> +#define LOCK_INT     (1 << 3)
+>> +#define OVRFLOW_INT  (1 << 2)
+>> +#define GPI_INT              (1 << 1)
+>> +#define EVENT_INT    (1 << 0)
 >> +
 >> +/* STATUS Register */
 >> +
->> +#define LOGIC2_STAT  (1<<  7)
->> +#define LOGIC1_STAT  (1<<  6)
->> +#define LOCK_STAT    (1<<  5)
+>> +#define LOGIC2_STAT  (1 << 7)
+>> +#define LOGIC1_STAT  (1 << 6)
+>> +#define LOCK_STAT    (1 << 5)
 >> +#define KEC          0xF
 >> +
 >> +/* PIN_CONFIG_D Register */
->> +#define C4_EXTEND_CFG        (1<<  6)        /* RESET2 */
->> +#define R4_EXTEND_CFG        (1<<  5)        /* RESET1 */
+>> +#define C4_EXTEND_CFG        (1 << 6)        /* RESET2 */
+>> +#define R4_EXTEND_CFG        (1 << 5)        /* RESET1 */
 >> +
 >> +/* LOCK_CFG */
->> +#define LOCK_EN              (1<<  0)
+>> +#define LOCK_EN              (1 << 0)
 >> +
 >> +#define PTIME_MASK   0x3
 >> +#define LTIME_MASK   0x3
 >> +
 >> +/* Key Event Register xy */
->> +#define KEY_EV_PRESSED               (1<<  7)
+>> +#define KEY_EV_PRESSED               (1 << 7)
 >> +#define KEY_EV_MASK          (0x7F)
 >> +
 >> +#define KEYP_MAX_EVENT               16
 >> +
 >> +#define MAXGPIO                      19
->> +#define ADP_BANK(offs)               ((offs)>>  3)
->> +#define ADP_BIT(offs)                (1u<<  ((offs)&  0x7))
+>> +#define ADP_BANK(offs)               ((offs) >> 3)
+>> +#define ADP_BIT(offs)                (1u << ((offs) & 0x7))
 >> +
 >> +struct adp5589_kpad {
 >> +     struct i2c_client *client;
@@ -178,16 +193,8 @@ On 03/23/2011 07:26 PM, Shubhrajyoti wrote:
 >> +static int adp5589_read(struct i2c_client *client, u8 reg)
 >> +{
 >> +     int ret = i2c_smbus_read_byte_data(client, reg);
->>     
-> I  felt that this function does nothing could we use smbus_read directly?
->   
-Hi Shubhrajyoti,
-
-Well - it does something.
-It prints in error in the very unlikely case that the read fails,
-therefore it simplifies the code quite a bit.
 >> +
->> +     if (ret<  0)
+>> +     if (ret < 0)
 >> +             dev_err(&client->dev, "Read Error\n");
 >> +
 >> +     return ret;
@@ -196,12 +203,6 @@ therefore it simplifies the code quite a bit.
 >> +static int adp5589_write(struct i2c_client *client, u8 reg, u8 val)
 >> +{
 >> +     return i2c_smbus_write_byte_data(client, reg, val);
->>     
-> Same here
->   
-Here you are right - however this is intended to be consistent with the
-wrapper function used by the read.
-
 >> +}
 >> +
 >> +#ifdef CONFIG_GPIOLIB
@@ -211,7 +212,7 @@ wrapper function used by the read.
 >> +     unsigned int bank = ADP_BANK(kpad->gpiomap[off]);
 >> +     unsigned int bit = ADP_BIT(kpad->gpiomap[off]);
 >> +
->> +     return !!(adp5589_read(kpad->client, ADP5589_GPI_STATUS_A + bank)&
+>> +     return !!(adp5589_read(kpad->client, ADP5589_GPI_STATUS_A + bank) &
 >> +               bit);
 >> +}
 >> +
@@ -227,7 +228,7 @@ wrapper function used by the read.
 >> +     if (val)
 >> +             kpad->dat_out[bank] |= bit;
 >> +     else
->> +             kpad->dat_out[bank]&= ~bit;
+>> +             kpad->dat_out[bank] &= ~bit;
 >> +
 >> +     adp5589_write(kpad->client, ADP5589_GPO_DATA_OUT_A + bank,
 >> +                   kpad->dat_out[bank]);
@@ -244,7 +245,7 @@ wrapper function used by the read.
 >> +
 >> +     mutex_lock(&kpad->gpio_lock);
 >> +
->> +     kpad->dir[bank]&= ~bit;
+>> +     kpad->dir[bank] &= ~bit;
 >> +     ret =
 >> +         adp5589_write(kpad->client, ADP5589_GPIO_DIRECTION_A + bank,
 >> +                       kpad->dir[bank]);
@@ -269,7 +270,7 @@ wrapper function used by the read.
 >> +     if (val)
 >> +             kpad->dat_out[bank] |= bit;
 >> +     else
->> +             kpad->dat_out[bank]&= ~bit;
+>> +             kpad->dat_out[bank] &= ~bit;
 >> +
 >> +     ret = adp5589_write(kpad->client, ADP5589_GPO_DATA_OUT_A + bank,
 >> +                         kpad->dat_out[bank]);
@@ -290,20 +291,20 @@ wrapper function used by the read.
 >> +
 >> +     memset(pin_used, false, sizeof(pin_used));
 >> +
->> +     for (i = 0; i<  MAXGPIO; i++)
->> +             if (pdata->keypad_en_mask&  (1<<  i))
+>> +     for (i = 0; i < MAXGPIO; i++)
+>> +             if (pdata->keypad_en_mask & (1 << i))
 >> +                     pin_used[i] = true;
 >> +
->> +     for (i = 0; i<  kpad->gpimapsize; i++)
+>> +     for (i = 0; i < kpad->gpimapsize; i++)
 >> +             pin_used[kpad->gpimap[i].pin - ADP5589_GPI_PIN_BASE] = true;
 >> +
->> +     if (kpad->extend_cfg&  R4_EXTEND_CFG)
+>> +     if (kpad->extend_cfg & R4_EXTEND_CFG)
 >> +             pin_used[4] = true;
 >> +
->> +     if (kpad->extend_cfg&  C4_EXTEND_CFG)
+>> +     if (kpad->extend_cfg & C4_EXTEND_CFG)
 >> +             pin_used[12] = true;
 >> +
->> +     for (i = 0; i<  MAXGPIO; i++)
+>> +     for (i = 0; i < MAXGPIO; i++)
 >> +             if (!pin_used[i])
 >> +                     kpad->gpiomap[n_unused++] = i;
 >> +
@@ -312,7 +313,7 @@ wrapper function used by the read.
 >> +
 >> +static int __devinit adp5589_gpio_add(struct adp5589_kpad *kpad)
 >> +{
->> +     struct device *dev =&kpad->client->dev;
+>> +     struct device *dev = &kpad->client->dev;
 >> +     const struct adp5589_kpad_platform_data *pdata = dev->platform_data;
 >> +     const struct adp5589_gpio_platform_data *gpio_data = pdata->gpio_data;
 >> +     int i, error;
@@ -346,7 +347,7 @@ wrapper function used by the read.
 >> +             return error;
 >> +     }
 >> +
->> +     for (i = 0; i<= ADP_BANK(MAXGPIO); i++) {
+>> +     for (i = 0; i <= ADP_BANK(MAXGPIO); i++) {
 >> +             kpad->dat_out[i] = adp5589_read(kpad->client,
 >> +                                             ADP5589_GPO_DATA_OUT_A + i);
 >> +             kpad->dir[i] =
@@ -366,7 +367,7 @@ wrapper function used by the read.
 >> +
 >> +static void __devexit adp5589_gpio_remove(struct adp5589_kpad *kpad)
 >> +{
->> +     struct device *dev =&kpad->client->dev;
+>> +     struct device *dev = &kpad->client->dev;
 >> +     const struct adp5589_kpad_platform_data *pdata = dev->platform_data;
 >> +     const struct adp5589_gpio_platform_data *gpio_data = pdata->gpio_data;
 >> +     int error;
@@ -378,11 +379,6 @@ wrapper function used by the read.
 >> +             error = gpio_data->teardown(kpad->client,
 >> +                                         kpad->gc.base, kpad->gc.ngpio,
 >> +                                         gpio_data->context);
->>     
-> Not a comment however was curious to know what it does?
->   
-What ever the user want. Typically the opposite of the setup callback.
-Both functions are user supplied callbacks.
 >> +             if (error)
 >> +                     dev_warn(dev, "teardown failed %d\n", error);
 >> +     }
@@ -406,18 +402,18 @@ Both functions are user supplied callbacks.
 >> +{
 >> +     int i, j;
 >> +
->> +     for (i = 0; i<  ev_cnt; i++) {
+>> +     for (i = 0; i < ev_cnt; i++) {
 >> +             int key = adp5589_read(kpad->client, ADP5589_FIFO_1 + i);
->> +             int key_val = key&  KEY_EV_MASK;
+>> +             int key_val = key & KEY_EV_MASK;
 >> +
->> +             if (key_val>= ADP5589_GPI_PIN_BASE
->> +             &&  key_val<= ADP5589_GPI_PIN_END) {
->> +                     for (j = 0; j<  kpad->gpimapsize; j++) {
+>> +             if (key_val >= ADP5589_GPI_PIN_BASE
+>> +                 && key_val <= ADP5589_GPI_PIN_END) {
+>> +                     for (j = 0; j < kpad->gpimapsize; j++) {
 >> +                             if (key_val == kpad->gpimap[j].pin) {
 >> +                                     input_report_switch(kpad->input,
 >> +                                                         kpad->gpimap[j].
 >> +                                                         sw_evt,
->> +                                                         key&
+>> +                                                         key &
 >> +                                                         KEY_EV_PRESSED);
 >> +                                     break;
 >> +                             }
@@ -425,7 +421,7 @@ Both functions are user supplied callbacks.
 >> +             } else {
 >> +                     input_report_key(kpad->input,
 >> +                                      kpad->keycode[key_val - 1],
->> +                                      key&  KEY_EV_PRESSED);
+>> +                                      key & KEY_EV_PRESSED);
 >> +             }
 >> +     }
 >> +}
@@ -438,19 +434,11 @@ Both functions are user supplied callbacks.
 >> +
 >> +     status = adp5589_read(client, ADP5589_INT_STATUS);
 >> +
->> +     if (status&  OVRFLOW_INT)       /* Unlikely and should never happen */
+>> +     if (status & OVRFLOW_INT)       /* Unlikely and should never happen */
 >> +             dev_err(&client->dev, "Event Overflow Error\n");
->>     
-> Should we continue here?
->   
-Yes - Like the comment states this should never happen.
-And in case it does, there are still some valid keycodes that can be
-processed.
-Aborting would make things worse.
-
 >> +
->> +     if (status&  EVENT_INT) {
->> +             ev_cnt = adp5589_read(client, ADP5589_STATUS)&  KEC;
+>> +     if (status & EVENT_INT) {
+>> +             ev_cnt = adp5589_read(client, ADP5589_STATUS) & KEC;
 >> +             if (ev_cnt) {
 >> +                     adp5589_report_events(kpad, ev_cnt);
 >> +                     input_sync(kpad->input);
@@ -464,7 +452,7 @@ Aborting would make things worse.
 >> +static int __devinit adp5589_get_evcode(struct adp5589_kpad *kpad, unsigned short key)
 >> +{
 >> +     int i;
->> +     for (i = 0; i<  ADP5589_KEYMAPSIZE; i++)
+>> +     for (i = 0; i < ADP5589_KEYMAPSIZE; i++)
 >> +             if (key == kpad->keycode[i])
 >> +                     return (i + 1) | KEY_EV_PRESSED;
 >> +
@@ -481,11 +469,11 @@ Aborting would make things worse.
 >> +     unsigned char pull_mask = 0;
 >> +
 >> +     ret = adp5589_write(client, ADP5589_PIN_CONFIG_A,
->> +                         pdata->keypad_en_mask&  0xFF);
+>> +                         pdata->keypad_en_mask & 0xFF);
 >> +     ret |= adp5589_write(client, ADP5589_PIN_CONFIG_B,
->> +                          (pdata->keypad_en_mask>>  8)&  0xFF);
+>> +                          (pdata->keypad_en_mask >> 8) & 0xFF);
 >> +     ret |= adp5589_write(client, ADP5589_PIN_CONFIG_C,
->> +                          (pdata->keypad_en_mask>>  16)&  0xFF);
+>> +                          (pdata->keypad_en_mask >> 16) & 0xFF);
 >> +
 >> +     if (pdata->en_keylock) {
 >> +             ret |= adp5589_write(client, ADP5589_UNLOCK1,
@@ -493,23 +481,23 @@ Aborting would make things worse.
 >> +             ret |= adp5589_write(client, ADP5589_UNLOCK2,
 >> +                                  pdata->unlock_key2);
 >> +             ret |= adp5589_write(client, ADP5589_UNLOCK_TIMERS,
->> +                                  pdata->unlock_timer&  LTIME_MASK);
+>> +                                  pdata->unlock_timer & LTIME_MASK);
 >> +             ret |= adp5589_write(client, ADP5589_LOCK_CFG, LOCK_EN);
 >> +     }
 >> +
->> +     for (i = 0; i<  KEYP_MAX_EVENT; i++)
+>> +     for (i = 0; i < KEYP_MAX_EVENT; i++)
 >> +             ret |= adp5589_read(client, ADP5589_FIFO_1 + i);
 >> +
->> +     for (i = 0; i<  pdata->gpimapsize; i++) {
+>> +     for (i = 0; i < pdata->gpimapsize; i++) {
 >> +             unsigned short pin = pdata->gpimap[i].pin;
 >> +
->> +             if (pin<= ADP5589_GPI_PIN_ROW_END) {
->> +                     evt_mode1 |= (1<<  (pin - ADP5589_GPI_PIN_ROW_BASE));
+>> +             if (pin <= ADP5589_GPI_PIN_ROW_END) {
+>> +                     evt_mode1 |= (1 << (pin - ADP5589_GPI_PIN_ROW_BASE));
 >> +             } else {
 >> +                     evt_mode2 |=
->> +                         ((1<<  (pin - ADP5589_GPI_PIN_COL_BASE))&  0xFF);
+>> +                         ((1 << (pin - ADP5589_GPI_PIN_COL_BASE)) & 0xFF);
 >> +                     evt_mode3 |=
->> +                         ((1<<  (pin - ADP5589_GPI_PIN_COL_BASE))>>  8);
+>> +                         ((1 << (pin - ADP5589_GPI_PIN_COL_BASE)) >> 8);
 >> +             }
 >> +     }
 >> +
@@ -519,32 +507,32 @@ Aborting would make things worse.
 >> +             ret |= adp5589_write(client, ADP5589_GPI_EVENT_EN_C, evt_mode3);
 >> +     }
 >> +
->> +     if (pdata->pull_dis_mask&  pdata->pullup_en_100k&
->> +         pdata->pullup_en_300k&  pdata->pulldown_en_300k)
+>> +     if (pdata->pull_dis_mask & pdata->pullup_en_100k &
+>> +         pdata->pullup_en_300k & pdata->pulldown_en_300k)
 >> +             dev_warn(&client->dev, "Conflicting pull resistor config\n");
 >> +
->> +     for (i = 0; i<  MAXGPIO; i++) {
+>> +     for (i = 0; i < MAXGPIO; i++) {
 >> +             unsigned val = 0;
->> +             if (pdata->pullup_en_300k&  (1<<  i))
+>> +             if (pdata->pullup_en_300k & (1 << i))
 >> +                     val = 0;
->> +             else if (pdata->pulldown_en_300k&  (1<<  i))
+>> +             else if (pdata->pulldown_en_300k & (1 << i))
 >> +                     val = 1;
->> +             else if (pdata->pullup_en_100k&  (1<<  i))
+>> +             else if (pdata->pullup_en_100k & (1 << i))
 >> +                     val = 2;
->> +             else if (pdata->pull_dis_mask&  (1<<  i))
+>> +             else if (pdata->pull_dis_mask & (1 << i))
 >> +                     val = 3;
 >> +
->> +             pull_mask |= val<<  (2 * (i&  0x3));
+>> +             pull_mask |= val << (2 * (i & 0x3));
 >> +
->> +             if (((i&  0x3) == 0x3) || (i == (MAXGPIO - 1))) {
+>> +             if (((i & 0x3) == 0x3) || (i == (MAXGPIO - 1))) {
 >> +                     ret |= adp5589_write(client,
->> +                                          ADP5589_RPULL_CONFIG_A + (i>>  2),
+>> +                                          ADP5589_RPULL_CONFIG_A + (i >> 2),
 >> +                                          pull_mask);
 >> +                     pull_mask = 0;
 >> +             }
 >> +     }
 >> +
->> +     if (pdata->reset1_key_1&&  pdata->reset1_key_2&&
+>> +     if (pdata->reset1_key_1 && pdata->reset1_key_2 &&
 >> +             pdata->reset1_key_3) {
 >> +             ret |= adp5589_write(client, ADP5589_RESET1_EVENT_A,
 >> +                                  adp5589_get_evcode(kpad,
@@ -558,7 +546,7 @@ Aborting would make things worse.
 >> +             kpad->extend_cfg |= R4_EXTEND_CFG;
 >> +     }
 >> +
->> +     if (pdata->reset2_key_1&&  pdata->reset2_key_2) {
+>> +     if (pdata->reset2_key_1 && pdata->reset2_key_2) {
 >> +             ret |= adp5589_write(client, ADP5589_RESET2_EVENT_A,
 >> +                                  adp5589_get_evcode(kpad,
 >> +                                  pdata->reset2_key_1));
@@ -575,12 +563,12 @@ Aborting would make things worse.
 >> +                                  kpad->extend_cfg);
 >> +     }
 >> +
->> +     for (i = 0; i<= ADP_BANK(MAXGPIO); i++)
+>> +     for (i = 0; i <= ADP_BANK(MAXGPIO); i++)
 >> +             ret |= adp5589_write(client, ADP5589_DEBOUNCE_DIS_A + i,
->> +                                  pdata->debounce_dis_mask>>  (i * 8));
+>> +                                  pdata->debounce_dis_mask >> (i * 8));
 >> +
 >> +     ret |= adp5589_write(client, ADP5589_POLL_PTIME_CFG,
->> +                          pdata->scan_cycle_time&  PTIME_MASK);
+>> +                          pdata->scan_cycle_time & PTIME_MASK);
 >> +     ret |= adp5589_write(client, ADP5589_INT_STATUS, LOGIC2_INT |
 >> +                          LOGIC1_INT | OVRFLOW_INT | LOCK_INT |
 >> +                          GPI_INT | EVENT_INT);      /* Status is W1C */
@@ -590,7 +578,7 @@ Aborting would make things worse.
 >> +     ret |= adp5589_write(client, ADP5589_INT_EN,
 >> +                          OVRFLOW_IEN | GPI_IEN | EVENT_IEN);
 >> +
->> +     if (ret<  0) {
+>> +     if (ret < 0) {
 >> +             dev_err(&client->dev, "Write Error\n");
 >> +             return ret;
 >> +     }
@@ -603,19 +591,16 @@ Aborting would make things worse.
 >> +     int gpi_stat1 = adp5589_read(kpad->client, ADP5589_GPI_STATUS_A);
 >> +     int gpi_stat2 = adp5589_read(kpad->client, ADP5589_GPI_STATUS_B);
 >> +     int gpi_stat3 = adp5589_read(kpad->client, ADP5589_GPI_STATUS_C);
->>     
-> Here we are ignoring the i2c transaction return errors.
->   
 >> +     int gpi_stat_tmp, pin_loc;
 >> +     int i;
 >> +
->> +     for (i = 0; i<  kpad->gpimapsize; i++) {
+>> +     for (i = 0; i < kpad->gpimapsize; i++) {
 >> +             unsigned short pin = kpad->gpimap[i].pin;
 >> +
->> +             if (pin<= ADP5589_GPI_PIN_ROW_END) {
+>> +             if (pin <= ADP5589_GPI_PIN_ROW_END) {
 >> +                     gpi_stat_tmp = gpi_stat1;
 >> +                     pin_loc = pin - ADP5589_GPI_PIN_ROW_BASE;
->> +             } else if ((pin - ADP5589_GPI_PIN_COL_BASE)<  8) {
+>> +             } else if ((pin - ADP5589_GPI_PIN_COL_BASE) < 8) {
 >> +                     gpi_stat_tmp = gpi_stat2;
 >> +                     pin_loc = pin - ADP5589_GPI_PIN_COL_BASE;
 >> +             } else {
@@ -623,7 +608,7 @@ Aborting would make things worse.
 >> +                     pin_loc = pin - ADP5589_GPI_PIN_COL_BASE - 8;
 >> +             }
 >> +
->> +             if (gpi_stat_tmp<  0) {
+>> +             if (gpi_stat_tmp < 0) {
 >> +                     dev_err(&kpad->client->dev,
 >> +                             "Can't read GPIO_DAT_STAT switch"
 >> +                             " %d default to OFF\n", pin);
@@ -632,7 +617,7 @@ Aborting would make things worse.
 >> +
 >> +             input_report_switch(kpad->input,
 >> +                                 kpad->gpimap[i].sw_evt,
->> +                                 !(gpi_stat_tmp&  (1<<  pin_loc)));
+>> +                                 !(gpi_stat_tmp & (1 << pin_loc)));
 >> +     }
 >> +
 >> +     input_sync(kpad->input);
@@ -660,8 +645,8 @@ Aborting would make things worse.
 >> +             return -EINVAL;
 >> +     }
 >> +
->> +     if (!((pdata->keypad_en_mask&  0xFF)&&
->> +             (pdata->keypad_en_mask>>  8)) || !pdata->keymap) {
+>> +     if (!((pdata->keypad_en_mask & 0xFF) &&
+>> +             (pdata->keypad_en_mask >> 8)) || !pdata->keymap) {
 >> +             dev_err(&client->dev, "no rows, cols or keymap from pdata\n");
 >> +             return -EINVAL;
 >> +     }
@@ -671,25 +656,25 @@ Aborting would make things worse.
 >> +             return -EINVAL;
 >> +     }
 >> +
->> +     if (!pdata->gpimap&&  pdata->gpimapsize) {
+>> +     if (!pdata->gpimap && pdata->gpimapsize) {
 >> +             dev_err(&client->dev, "invalid gpimap from pdata\n");
 >> +             return -EINVAL;
 >> +     }
 >> +
->> +     if (pdata->gpimapsize>  ADP5589_GPIMAPSIZE_MAX) {
+>> +     if (pdata->gpimapsize > ADP5589_GPIMAPSIZE_MAX) {
 >> +             dev_err(&client->dev, "invalid gpimapsize\n");
 >> +             return -EINVAL;
 >> +     }
 >> +
->> +     for (i = 0; i<  pdata->gpimapsize; i++) {
+>> +     for (i = 0; i < pdata->gpimapsize; i++) {
 >> +             unsigned short pin = pdata->gpimap[i].pin;
 >> +
->> +             if (pin<  ADP5589_GPI_PIN_BASE || pin>  ADP5589_GPI_PIN_END) {
+>> +             if (pin < ADP5589_GPI_PIN_BASE || pin > ADP5589_GPI_PIN_END) {
 >> +                     dev_err(&client->dev, "invalid gpi pin data\n");
 >> +                     return -EINVAL;
 >> +             }
 >> +
->> +             if ((1<<  (pin - ADP5589_GPI_PIN_ROW_BASE))&
+>> +             if ((1 << (pin - ADP5589_GPI_PIN_ROW_BASE)) &
 >> +                     pdata->keypad_en_mask) {
 >> +                     dev_err(&client->dev, "invalid gpi row/col data\n");
 >> +                     return -EINVAL;
@@ -712,16 +697,16 @@ Aborting would make things worse.
 >> +     kpad->input = input;
 >> +
 >> +     ret = adp5589_read(client, ADP5589_ID);
->> +     if (ret<  0) {
+>> +     if (ret < 0) {
 >> +             error = ret;
 >> +             goto err_free_mem;
 >> +     }
 >> +
->> +     revid = (u8) ret&  ADP5589_DEVICE_ID_MASK;
+>> +     revid = (u8) ret & ADP5589_DEVICE_ID_MASK;
 >> +
 >> +     input->name = client->name;
 >> +     input->phys = "adp5589-keys/input0";
->> +     input->dev.parent =&client->dev;
+>> +     input->dev.parent = &client->dev;
 >> +
 >> +     input_set_drvdata(input, kpad);
 >> +
@@ -746,13 +731,13 @@ Aborting would make things worse.
 >> +     if (pdata->repeat)
 >> +             __set_bit(EV_REP, input->evbit);
 >> +
->> +     for (i = 0; i<  input->keycodemax; i++)
->> +             __set_bit(kpad->keycode[i]&  KEY_MAX, input->keybit);
+>> +     for (i = 0; i < input->keycodemax; i++)
+>> +             __set_bit(kpad->keycode[i] & KEY_MAX, input->keybit);
 >> +     __clear_bit(KEY_RESERVED, input->keybit);
 >> +
 >> +     if (kpad->gpimapsize)
 >> +             __set_bit(EV_SW, input->evbit);
->> +     for (i = 0; i<  kpad->gpimapsize; i++)
+>> +     for (i = 0; i < kpad->gpimapsize; i++)
 >> +             __set_bit(kpad->gpimap[i].sw_evt, input->swbit);
 >> +
 >> +     error = input_register_device(input);
@@ -781,12 +766,6 @@ Aborting would make things worse.
 >> +             goto err_free_irq;
 >> +
 >> +     device_init_wakeup(&client->dev, 1);
->>     
-> Could this be passed as a platform param?
->   
-it could but the user can also enable or disable afterwards by writing
-the appropriate sysfs file.
-
 >> +     i2c_set_clientdata(client, kpad);
 >> +
 >> +     dev_info(&client->dev, "Rev.%d keypad, irq %d\n", revid, client->irq);
@@ -818,6 +797,11 @@ the appropriate sysfs file.
 >> +}
 >> +
 >> +#ifdef CONFIG_PM
+>>     
+> CONFIG_PM_SLEEP
+>   
+ok
+>   
 >> +static int adp5589_suspend(struct device *dev)
 >> +{
 >> +     struct adp5589_kpad *kpad = dev_get_drvdata(dev);
@@ -827,16 +811,6 @@ the appropriate sysfs file.
 >> +
 >> +     if (device_may_wakeup(&client->dev))
 >> +             enable_irq_wake(client->irq);
->>     
-> Why disable and then enable? Didnt understand this.
-> Could we not check and disable?
->   
-irq and irq_wake must not be the same.
-It's always the same physical Interrupt line.
-However the wakeup mechanism behind is machine dependant.
-In addition enable/disable_irq and enable/disable_irq_wake serves
-two completely different purposes.
- 
 >> +
 >> +     return 0;
 >> +}
@@ -859,6 +833,13 @@ two completely different purposes.
 >> +     .resume = adp5589_resume,
 >> +};
 >> +#endif
+>>     
+> Just use unguarded
+>
+> static SIMPLE_DEV_PM_OPS(adp5589_dev_pm_ops, adp5589_suspend, adp5589_resume);
+>   
+ok
+>   
 >> +
 >> +static const struct i2c_device_id adp5589_id[] = {
 >> +     {"adp5589-keys", 0},
@@ -871,9 +852,16 @@ two completely different purposes.
 >> +     .driver = {
 >> +                .name = KBUILD_MODNAME,
 >> +#ifdef CONFIG_PM
->> +                .pm =&adp5589_dev_pm_ops,
+>> +                .pm = &adp5589_dev_pm_ops,
 >> +#endif
+>>     
+>                 .owner ?
+>   
 >> +                },
+>>     
+> Identation seems wrong.
+>
+>   
 >> +     .probe = adp5589_probe,
 >> +     .remove = __devexit_p(adp5589_remove),
 >> +     .id_table = adp5589_id,
@@ -894,9 +882,14 @@ two completely different purposes.
 >> +module_exit(adp5589_exit);
 >> +
 >> +MODULE_LICENSE("GPL");
->> +MODULE_AUTHOR("Michael Hennerich<hennerich@blackfin.uclinux.org>");
+>> +MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
 >> +MODULE_DESCRIPTION("ADP5589 Keypad driver");
 >> +MODULE_ALIAS("i2c:adp5589-keys");
+>>     
+> This is not needed since you define MODULE_DEVICE_TABLE()
+>   
+I see - thanks - I remove it
+>   
 >> diff --git a/include/linux/input/adp5589.h b/include/linux/input/adp5589.h
 >> new file mode 100644
 >> index 0000000..998d148
@@ -1049,20 +1042,20 @@ two completely different purposes.
 >> +#define RESET_PULSE_WIDTH_2ms                2
 >> +#define RESET_PULSE_WIDTH_10ms               3
 >> +
->> +#define RESET_TRIG_TIME_0ms          (0<<  2)
->> +#define RESET_TRIG_TIME_1000ms               (1<<  2)
->> +#define RESET_TRIG_TIME_1500ms               (2<<  2)
->> +#define RESET_TRIG_TIME_2000ms               (3<<  2)
->> +#define RESET_TRIG_TIME_2500ms               (4<<  2)
->> +#define RESET_TRIG_TIME_3000ms               (5<<  2)
->> +#define RESET_TRIG_TIME_3500ms               (6<<  2)
->> +#define RESET_TRIG_TIME_4000ms               (7<<  2)
+>> +#define RESET_TRIG_TIME_0ms          (0 << 2)
+>> +#define RESET_TRIG_TIME_1000ms               (1 << 2)
+>> +#define RESET_TRIG_TIME_1500ms               (2 << 2)
+>> +#define RESET_TRIG_TIME_2000ms               (3 << 2)
+>> +#define RESET_TRIG_TIME_2500ms               (4 << 2)
+>> +#define RESET_TRIG_TIME_3000ms               (5 << 2)
+>> +#define RESET_TRIG_TIME_3500ms               (6 << 2)
+>> +#define RESET_TRIG_TIME_4000ms               (7 << 2)
 >> +
->> +#define RESET_PASSTHRU_EN            (1<<  5)
->> +#define RESET1_POL_HIGH                      (1<<  6)
->> +#define RESET1_POL_LOW                       (0<<  6)
->> +#define RESET2_POL_HIGH                      (1<<  7)
->> +#define RESET2_POL_LOW                       (0<<  7)
+>> +#define RESET_PASSTHRU_EN            (1 << 5)
+>> +#define RESET1_POL_HIGH                      (1 << 6)
+>> +#define RESET1_POL_LOW                       (0 << 6)
+>> +#define RESET2_POL_HIGH                      (1 << 7)
+>> +#define RESET2_POL_LOW                       (0 << 7)
 >> +
 >> +/* Mask Bits:
 >> + * C C C C C C C C C C C | R R R R R R R R
@@ -1073,8 +1066,17 @@ two completely different purposes.
 >> + * 8 7 6 5 4 3 2 1 0 9 8 | 7 6 5 4 3 2 1 0
 >> + */
 >> +
->> +#define ADP_ROW(x)                   (1<<  (x))
->> +#define ADP_COL(x)                   (1<<  (x + 8))
+>> +#define ADP_ROW(x)                   (1 << (x))
+>> +#define ADP_COL(x)                   (1 << (x + 8))
+>>     
+> Is this used anywhere?
+>
+>   
+not in the driver file itself.
+It's there as convenience macro intended to be used in the platform
+file, where
+platform data is supplied.
+
 >> +
 >> +struct adp5589_kpad_platform_data {
 >> +     unsigned keypad_en_mask;        /* Keypad (Rows/Columns) enable mask */
@@ -1082,6 +1084,12 @@ two completely different purposes.
 >> +     unsigned short keymapsize;      /* Keymap size */
 >> +     unsigned repeat:1;              /* Enable key repeat */
 >> +     unsigned en_keylock:1;          /* Enable key lock feature */
+>>     
+> Maybe use bools? You are not saving any space with bitfields as far as
+> I can see...
+>
+>   
+ok
 >> +     unsigned char unlock_key1;      /* Unlock Key 1 */
 >> +     unsigned char unlock_key2;      /* Unlock Key 2 */
 >> +     unsigned char unlock_timer;     /* Time in seconds [0..7] between the two unlock keys 0=disable */
@@ -1116,9 +1124,17 @@ two completely different purposes.
 >> +};
 >> +
 >> +#endif
+>> --
+>> 1.7.4.1
+>>
 >>     
+> Thanks.
+>
+> --
+> Dmitry
 >   
 
+Thanks for your feedback.
 
 -- 
 Greetings,

@@ -1,107 +1,66 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/4] input: Set default events per packet.
-Date: Fri, 25 Mar 2011 09:20:30 +0100
-Message-ID: <20110325082030.GB5664@polaris.bitmath.org>
+Subject: Re: [PATCH 4/4] input: evdev: only wake poll on EV_SYN
+Date: Fri, 25 Mar 2011 09:34:48 +0100
+Message-ID: <20110325083448.GA5738@polaris.bitmath.org>
 References: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
- <1300842244-42723-2-git-send-email-jeffbrown@android.com>
+ <1300842244-42723-5-git-send-email-jeffbrown@android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp04.sth.basefarm.net ([80.76.153.5]:56900 "EHLO
+Received: from ch-smtp04.sth.basefarm.net ([80.76.153.5]:51647 "EHLO
 	ch-smtp04.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932788Ab1CYIR3 (ORCPT
+	by vger.kernel.org with ESMTP id S933465Ab1CYIbF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2011 04:17:29 -0400
+	Fri, 25 Mar 2011 04:31:05 -0400
 Content-Disposition: inline
-In-Reply-To: <1300842244-42723-2-git-send-email-jeffbrown@android.com>
+In-Reply-To: <1300842244-42723-5-git-send-email-jeffbrown@android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jeff Brown <jeffbrown@android.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeff Brown <jeffbrown@google.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jeff,
-
-> Calculate a default based on the number of ABS axes, REL axes,
-> and MT slots for the device during input device registration.
+On Tue, Mar 22, 2011 at 06:04:04PM -0700, Jeff Brown wrote:
+> On SMP systems, it is possible for an evdev client blocked on poll()
+> to wake up and read events from the evdev ring buffer at the same
+> rate as they are enqueued.  This can result in high CPU usage,
+> particularly for MT devices, because the client ends up reading
+> events one at a time instead of reading complete packets.  This patch
+> ensures that the client only wakes from poll() when a complete packet
+> is ready to be read.
 > 
 > Signed-off-by: jeffbrown@android.com
 > ---
->  drivers/input/input.c |   46 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 46 insertions(+), 0 deletions(-)
+>  drivers/input/evdev.c |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index d6e8bd8..c27292b 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -1746,6 +1746,49 @@ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 203ed70..7b6770d 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -73,7 +73,7 @@ static void evdev_pass_event(struct evdev_client *client,
+>  	}
+>  	spin_unlock(&client->buffer_lock);
+>  
+> -	if (event->type == EV_SYN)
+> +	if (event->type == EV_SYN && event->code != SYN_MT_REPORT)
+
+It is not clear what should happen at the other SYN events.  Maybe
+event->code == SYN_REPORT instead?
+
+>  		kill_fasync(&client->fasync, SIGIO, POLL_IN);
 >  }
->  EXPORT_SYMBOL(input_set_capability);
 >  
-> +static inline bool is_mt_axis(int axis)
-> +{
-> +	return axis == ABS_MT_SLOT ||
-> +		(axis >= ABS_MT_FIRST && axis <= ABS_MT_LAST);
-> +}
-
-It would be great to get this inline into input/mt.h instead.
-
-> +static void input_set_default_events_per_packet(struct input_dev *dev)
-> +{
-> +	int mt_slots;
-> +	int i;
-> +	int events;
-> +
-> +	if (dev->hint_events_per_packet)
-> +		return;
-> +
-> +	if (dev->mtsize)
-> +		mt_slots = dev->mtsize;
-> +	else if (test_bit(ABS_MT_TRACKING_ID, dev->absbit))
-> +		mt_slots = dev->absinfo[ABS_MT_TRACKING_ID].maximum -
-> +			dev->absinfo[ABS_MT_TRACKING_ID].minimum + 1;
-
-This one is a bit iffy - the tracking id is not limited like this in
-mainline, looks like android usage. A test againts some arbitrary max
-should do it.
-
-> +	else if (test_bit(ABS_MT_POSITION_X, dev->absbit))
-> +		mt_slots = 2;
-> +	else
-> +		mt_slots = 0;
-> +
-> +	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
-> +
-> +	for (i = 0; i < ABS_CNT; i++) {
-> +		if (test_bit(i, dev->absbit)) {
-> +			if (is_mt_axis(i))
-> +				events += mt_slots;
-> +			else
-> +				events++;
-> +		}
-> +	}
-> +
-> +	for (i = 0; i < REL_CNT; i++)
-> +		if (test_bit(i, dev->relbit))
-> +			events++;
-> +
-> +	input_set_events_per_packet(dev, events);
-> +}
-> +
->  #define INPUT_CLEANSE_BITMASK(dev, type, bits)				\
->  	do {								\
->  		if (!test_bit(EV_##type, dev->evbit))			\
-> @@ -1784,6 +1827,9 @@ int input_register_device(struct input_dev *dev)
->  	const char *path;
->  	int error;
+> @@ -103,7 +103,8 @@ static void evdev_event(struct input_handle *handle,
 >  
-> +	/* Use a larger default input buffer for MT devices */
-> +	input_set_default_events_per_packet(dev);
-> +
->  	/* Every input device generates EV_SYN/SYN_REPORT events. */
->  	__set_bit(EV_SYN, dev->evbit);
+>  	rcu_read_unlock();
 >  
-> -- 
-> 1.7.0.4
+> -	wake_up_interruptible(&evdev->wait);
+> +	if (type == EV_SYN && code != SYN_MT_REPORT)
+> +		wake_up_interruptible(&evdev->wait);
+
+Ah, this is a good one. Since the code depends on the same logic being
+applied in evdev_pass_event as well, a boolean argument to that
+function would be good.
 
 Thanks,
 Henrik

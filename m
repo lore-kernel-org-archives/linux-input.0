@@ -1,73 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Documentation: Add evdev type and code definitions
-Date: Thu, 24 Mar 2011 23:16:24 -0700
-Message-ID: <20110325061624.GA1973@core.coreip.homeip.net>
-References: <1300988652-25353-1-git-send-email-chase.douglas@canonical.com>
- <AANLkTimv3ZVQmgB-tbMthCYdEsK3Spk0WY9Vs9VLQEVs@mail.gmail.com>
- <4D8B9F6F.5010705@canonical.com>
- <20110325003602.GA14035@barra.bne.redhat.com>
- <20110325055023.GB4137@core.coreip.homeip.net>
- <20110325060434.GB24855@barra.bne.redhat.com>
+Subject: [git pull] Input updates for 2.6.39-rc0
+Date: Fri, 25 Mar 2011 00:27:59 -0700
+Message-ID: <20110325072759.GA2590@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:59256 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753752Ab1CYGQ3 (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:64284 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750883Ab1CYH2F (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2011 02:16:29 -0400
+	Fri, 25 Mar 2011 03:28:05 -0400
 Content-Disposition: inline
-In-Reply-To: <20110325060434.GB24855@barra.bne.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Chase Douglas <chase.douglas@canonical.com>, Chris Bagwell <chris@cnpbagwell.com>, Henrik Rydberg <rydberg@euromail.se>, Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Mar 25, 2011 at 04:04:34PM +1000, Peter Hutterer wrote:
-> On Thu, Mar 24, 2011 at 10:50:23PM -0700, Dmitry Torokhov wrote:
-> > On Fri, Mar 25, 2011 at 10:36:02AM +1000, Peter Hutterer wrote:
-> > > On Thu, Mar 24, 2011 at 03:45:51PM -0400, Chase Douglas wrote:
-> > > > On 03/24/2011 02:44 PM, Chris Bagwell wrote:
-> > > > > Looking good.  Minor comments at end.
-> > > > > 
-> > > > > On Thu, Mar 24, 2011 at 12:44 PM, Chase Douglas
-> > > > > <chase.douglas@canonical.com> wrote:
-> > > > >> +Touchscreens:
-> > > > >> +----------
-> > > > >> +ABS_{X,Y} must be reported with the location of the touch. BTN_TOUCH must be
-> > > > >> +used to report when a touch is active on the screen.
-> > > > >> +BTN_{MOUSE,LEFT,MIDDLE,RIGHT} must not be reported. BTN_TOOL_<name> events
-> > > > >> +should be reported where possible.
-> > > > > 
-> > > > > Does the real button event restriction solve something?  I know
-> > > > > majority of touchscreens are not sending a button today but usually
-> > > > > there is a button on the touchscreen frame that I'd image at least
-> > > > > some devices hooking it up to touchscreen interface.
-> > > > >
-> > > > > stylus+touchscreen combo devices are surely going to want to do this.
-> > > > 
-> > > > Perhaps this should be more clearly for touchscreen-only devices (not
-> > > > tablets or a mix). The problem we end up seeing is drivers who use
-> > > > BTN_LEFT because they want a touch to generate a primary button press in
-> > > > X. I want to prevent people from doing this.
-> > > 
-> > > suggest that they use BTN_0 instead then?
-> > > 
-> > 
-> > Umm, I'd hope X evdev driver could handle BTN_TOUCH without
-> > BTN_LEFT/BTN_0 to indicate primary button. Legacy mode (mousedev)
-> > already translateds BTN_TOUCH/BTN_LEFT/BTN_0 into "left PS/2 button".
-> 
-> evdev treats BTN_TOUCH as button, yes. my comment above refers to additional
-> buttons on the tablet that aren't touch. maybe I misread the above though.
-> 
+Hi Linus,
 
-I guess it depends on the purpose of the buttons. BTN_LEFT is really a
-"primary button" so would not make sense for additional buttons on a
-touchscreen. BTN_0 is more like "we have no idea what it is so here you
-go" though...
+Please pull from:
 
-Thanks.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive a few updates to recently merged tsc2005 driver.
+
+Changelog:
+---------
+
+Aaro Koskinen (2):
+      Input: tsc2005 - use relative jiffies to schedule the watchdog
+      Input: tsc2005 - fix locking issue
+
+Geert Uytterhoeven (1):
+      Input: tsc2005 - driver should depend on GENERIC_HARDIRQS
+
+
+Diffstat:
+--------
+
+ drivers/input/touchscreen/Kconfig   |    2 +-
+ drivers/input/touchscreen/tsc2005.c |   18 +++++++++++++-----
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
 -- 
 Dmitry
+

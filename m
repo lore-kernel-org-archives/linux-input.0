@@ -1,66 +1,69 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 4/4] input: evdev: only wake poll on EV_SYN
-Date: Fri, 25 Mar 2011 09:34:48 +0100
-Message-ID: <20110325083448.GA5738@polaris.bitmath.org>
+Subject: Re: [PATCH 3/4] input: evdev: Indicate buffer overrun with
+ SYN_DROPPED.
+Date: Fri, 25 Mar 2011 10:02:10 +0100
+Message-ID: <20110325090210.GA5860@polaris.bitmath.org>
 References: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
- <1300842244-42723-5-git-send-email-jeffbrown@android.com>
+ <1300842244-42723-4-git-send-email-jeffbrown@android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp04.sth.basefarm.net ([80.76.153.5]:51647 "EHLO
-	ch-smtp04.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933465Ab1CYIbF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2011 04:31:05 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1300842244-42723-5-git-send-email-jeffbrown@android.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <1300842244-42723-4-git-send-email-jeffbrown@android.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jeff Brown <jeffbrown@android.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeff Brown <jeffbrown@google.com>
+List-Id: linux-input@vger.kernel.org
 
-On Tue, Mar 22, 2011 at 06:04:04PM -0700, Jeff Brown wrote:
-> On SMP systems, it is possible for an evdev client blocked on poll()
-> to wake up and read events from the evdev ring buffer at the same
-> rate as they are enqueued.  This can result in high CPU usage,
-> particularly for MT devices, because the client ends up reading
-> events one at a time instead of reading complete packets.  This patch
-> ensures that the client only wakes from poll() when a complete packet
-> is ready to be read.
-> 
-> Signed-off-by: jeffbrown@android.com
-> ---
->  drivers/input/evdev.c |    5 +++--
->  1 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 203ed70..7b6770d 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -73,7 +73,7 @@ static void evdev_pass_event(struct evdev_client *client,
->  	}
+> @@ -57,14 +57,20 @@ static void evdev_pass_event(struct evdev_client *client,
+>  {
+>  	/*
+>  	 * Interrupts are disabled, just acquire the lock.
+> -	 * Make sure we don't leave with the client buffer
+> -	 * "empty" by having client->head == client->tail.
+> +	 * When the client buffer is full, replace the tail with SYN_DROPPED
+> +	 * to let the client know that events were dropped.  Ensure that the
+> +	 * head and tail never coincide so the buffer does not appear "empty".
+>  	 */
+>  	spin_lock(&client->buffer_lock);
+> -	do {
+> -		client->buffer[client->head++] = *event;
+> -		client->head &= client->bufsize - 1;
+> -	} while (client->head == client->tail);
+> +	client->buffer[client->head++] = *event;
+> +	client->head &= client->bufsize - 1;
+> +	if (client->head == client->tail) {
+> +		client->tail = (client->tail + 1) & (client->bufsize - 1);
+> +		client->buffer[client->tail].time = event->time;
+> +		client->buffer[client->tail].type = EV_SYN;
+> +		client->buffer[client->tail].code = SYN_DROPPED;
+> +		client->buffer[client->tail].value = 0;
+> +	}
 >  	spin_unlock(&client->buffer_lock);
->  
-> -	if (event->type == EV_SYN)
-> +	if (event->type == EV_SYN && event->code != SYN_MT_REPORT)
 
-It is not clear what should happen at the other SYN events.  Maybe
-event->code == SYN_REPORT instead?
+My last comment was not right, the SYN_DROPPED is pushed ahead in the
+buffer, sorry about that. However, this change does not shrink the
+number of buffered elements in case of an overrun, which has been
+discussed before as a possibly important feature of the current
+code. I would be more comfortable prepending the head with a
+SYN_DROPPED, like this:
 
->  		kill_fasync(&client->fasync, SIGIO, POLL_IN);
->  }
->  
-> @@ -103,7 +103,8 @@ static void evdev_event(struct input_handle *handle,
->  
->  	rcu_read_unlock();
->  
-> -	wake_up_interruptible(&evdev->wait);
-> +	if (type == EV_SYN && code != SYN_MT_REPORT)
-> +		wake_up_interruptible(&evdev->wait);
+if (client->head == client->tail) {
+	struct input_event drop;
 
-Ah, this is a good one. Since the code depends on the same logic being
-applied in evdev_pass_event as well, a boolean argument to that
-function would be good.
+	drop.time = event->time;
+	drop.type = EV_SYN;
+	drop.code = SYN_DROPPED;
+	drop.value = 0;
+	client->buffer[client->head++] = drop;
+	client->head &= client->bufsize - 1;
+
+	client->buffer[client->head++] = *event;
+	client->head &= client->bufsize - 1;
+}
+
+The main point is that if we end up having to drop an event, it is
+likely we will have to drop the next one, too.
 
 Thanks,
 Henrik

@@ -1,42 +1,55 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 2/2] Input: wm831x-ts - Fix races with IRQ management
-Date: Fri, 25 Mar 2011 10:49:46 +0000
-Message-ID: <20110325104945.GA31415@opensource.wolfsonmicro.com>
-References: <1300142701-22260-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1300142701-22260-2-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20110318112043.GA27129@sirena.org.uk>
- <20110325073032.GB2590@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60420 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S934195Ab1CYKts (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2011 06:49:48 -0400
-Content-Disposition: inline
-In-Reply-To: <20110325073032.GB2590@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v2 2/2] Input: sparse-keymap - report KEY_UNKNOWN for unknown scan codes
+Date: Fri, 25 Mar 2011 08:40:03 -0500
+Message-ID: <1301060403-19229-3-git-send-email-seth.forshee@canonical.com>
+References: <20110325073554.GD2590@core.coreip.homeip.net>
+ <1301060403-19229-1-git-send-email-seth.forshee@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1301060403-19229-1-git-send-email-seth.forshee@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 25, 2011 at 12:30:32AM -0700, Dmitry Torokhov wrote:
+This allows for debugging non-functional keys easily from
+userspace.
 
-> I am just not comfortable with a touchcsreen requiring essentially 2
-> threads to operate (2 IRQ threads, 2 works).  I was thinking about
-> converting to a thread with a state machine and 2 non-threaded IRQs
-> disabling themselves and waking the thread up. Do you think something
-> like that would work?
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+---
+ drivers/input/sparse-keymap.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-You can't use non-threaded IRQs as the chip is accessed over I2C or SPI
-so when using the built in interrupts you're in thread context before
-you've decoded the IRQ.  Given the need to ack the IRQ to stop it trying
-to do something it doesn't seem worth trying to move the chip
-interaction out of the IRQ handlers there - it'd just be performance
-pain and you'd still need to worry about which IRQs are enabled at any
-given moment since you'd need to disable the IRQs if you wanted to defer
-handling them.
-
-Combining the two work items to do the IRQ enable handovers should be
-doable, though.
+diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
+index 74bca5d..fdb6a39 100644
+--- a/drivers/input/sparse-keymap.c
++++ b/drivers/input/sparse-keymap.c
+@@ -209,6 +209,7 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	}
+ 
+ 	if (test_bit(EV_KEY, dev->evbit)) {
++		__set_bit(KEY_UNKNOWN, dev->keybit);
+ 		__set_bit(EV_MSC, dev->evbit);
+ 		__set_bit(MSC_SCAN, dev->mscbit);
+ 	}
+@@ -311,12 +312,19 @@ bool sparse_keymap_report_event(struct input_dev *dev, unsigned int code,
+ {
+ 	const struct key_entry *ke =
+ 		sparse_keymap_entry_from_scancode(dev, code);
++	struct key_entry unknown_ke;
+ 
+ 	if (ke) {
+ 		sparse_keymap_report_entry(dev, ke, value, autorelease);
+ 		return true;
+ 	}
+ 
++	/* Report an unknown key event as a debugging aid */
++	unknown_ke.type = KE_KEY;
++	unknown_ke.code = code;
++	unknown_ke.keycode = KEY_UNKNOWN;
++	sparse_keymap_report_entry(dev, &unknown_ke, value, true);
++
+ 	return false;
+ }
+ EXPORT_SYMBOL(sparse_keymap_report_event);
+-- 
+1.7.4.1

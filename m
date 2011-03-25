@@ -1,20 +1,19 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 3/4] input: evdev: Indicate buffer overrun with
- SYN_DROPPED.
-Date: Fri, 25 Mar 2011 09:14:42 +0100
-Message-ID: <20110325081442.GA5664@polaris.bitmath.org>
+Subject: Re: [PATCH 1/4] input: Set default events per packet.
+Date: Fri, 25 Mar 2011 09:20:30 +0100
+Message-ID: <20110325082030.GB5664@polaris.bitmath.org>
 References: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
- <1300842244-42723-4-git-send-email-jeffbrown@android.com>
+ <1300842244-42723-2-git-send-email-jeffbrown@android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp05.sth.basefarm.net ([80.76.153.6]:32981 "EHLO
-	ch-smtp05.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752180Ab1CYILA (ORCPT
+Received: from ch-smtp04.sth.basefarm.net ([80.76.153.5]:56900 "EHLO
+	ch-smtp04.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932788Ab1CYIR3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2011 04:11:00 -0400
+	Fri, 25 Mar 2011 04:17:29 -0400
 Content-Disposition: inline
-In-Reply-To: <1300842244-42723-4-git-send-email-jeffbrown@android.com>
+In-Reply-To: <1300842244-42723-2-git-send-email-jeffbrown@android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jeff Brown <jeffbrown@android.com>
@@ -22,37 +21,87 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeff Brown <jeffb
 
 Hi Jeff,
 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 7f42d3a..203ed70 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -57,14 +57,20 @@ static void evdev_pass_event(struct evdev_client *client,
->  {
->  	/*
->  	 * Interrupts are disabled, just acquire the lock.
-> -	 * Make sure we don't leave with the client buffer
-> -	 * "empty" by having client->head == client->tail.
-> +	 * When the client buffer is full, replace the tail with SYN_DROPPED
-> +	 * to let the client know that events were dropped.  Ensure that the
-> +	 * head and tail never coincide so the buffer does not appear "empty".
->  	 */
->  	spin_lock(&client->buffer_lock);
-> -	do {
-> -		client->buffer[client->head++] = *event;
-> -		client->head &= client->bufsize - 1;
-> -	} while (client->head == client->tail);
-> +	client->buffer[client->head++] = *event;
-> +	client->head &= client->bufsize - 1;
-> +	if (client->head == client->tail) {
-> +		client->tail = (client->tail + 1) & (client->bufsize - 1);
-> +		client->buffer[client->tail].time = event->time;
-> +		client->buffer[client->tail].type = EV_SYN;
-> +		client->buffer[client->tail].code = SYN_DROPPED;
-> +		client->buffer[client->tail].value = 0;
-> +	}
+> Calculate a default based on the number of ABS axes, REL axes,
+> and MT slots for the device during input device registration.
+> 
+> Signed-off-by: jeffbrown@android.com
+> ---
+>  drivers/input/input.c |   46 ++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 46 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index d6e8bd8..c27292b 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -1746,6 +1746,49 @@ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int
+>  }
+>  EXPORT_SYMBOL(input_set_capability);
+>  
+> +static inline bool is_mt_axis(int axis)
+> +{
+> +	return axis == ABS_MT_SLOT ||
+> +		(axis >= ABS_MT_FIRST && axis <= ABS_MT_LAST);
+> +}
 
-It looks like this will eventually fill the entire buffer with
-SYN_DROPPED events if the client does not catch up.
+It would be great to get this inline into input/mt.h instead.
+
+> +static void input_set_default_events_per_packet(struct input_dev *dev)
+> +{
+> +	int mt_slots;
+> +	int i;
+> +	int events;
+> +
+> +	if (dev->hint_events_per_packet)
+> +		return;
+> +
+> +	if (dev->mtsize)
+> +		mt_slots = dev->mtsize;
+> +	else if (test_bit(ABS_MT_TRACKING_ID, dev->absbit))
+> +		mt_slots = dev->absinfo[ABS_MT_TRACKING_ID].maximum -
+> +			dev->absinfo[ABS_MT_TRACKING_ID].minimum + 1;
+
+This one is a bit iffy - the tracking id is not limited like this in
+mainline, looks like android usage. A test againts some arbitrary max
+should do it.
+
+> +	else if (test_bit(ABS_MT_POSITION_X, dev->absbit))
+> +		mt_slots = 2;
+> +	else
+> +		mt_slots = 0;
+> +
+> +	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
+> +
+> +	for (i = 0; i < ABS_CNT; i++) {
+> +		if (test_bit(i, dev->absbit)) {
+> +			if (is_mt_axis(i))
+> +				events += mt_slots;
+> +			else
+> +				events++;
+> +		}
+> +	}
+> +
+> +	for (i = 0; i < REL_CNT; i++)
+> +		if (test_bit(i, dev->relbit))
+> +			events++;
+> +
+> +	input_set_events_per_packet(dev, events);
+> +}
+> +
+>  #define INPUT_CLEANSE_BITMASK(dev, type, bits)				\
+>  	do {								\
+>  		if (!test_bit(EV_##type, dev->evbit))			\
+> @@ -1784,6 +1827,9 @@ int input_register_device(struct input_dev *dev)
+>  	const char *path;
+>  	int error;
+>  
+> +	/* Use a larger default input buffer for MT devices */
+> +	input_set_default_events_per_packet(dev);
+> +
+>  	/* Every input device generates EV_SYN/SYN_REPORT events. */
+>  	__set_bit(EV_SYN, dev->evbit);
+>  
+> -- 
+> 1.7.0.4
 
 Thanks,
 Henrik

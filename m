@@ -1,78 +1,61 @@
-From: Jeffrey Brown <jeffbrown@android.com>
-Subject: Re: [PATCH 1/4] input: Set default events per packet.
-Date: Fri, 25 Mar 2011 16:30:20 -0700
-Message-ID: <AANLkTi=KotXd4TyyUrhMdKn3mEq+pz2ac3Vnraa5udFh@mail.gmail.com>
-References: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
- <1300842244-42723-2-git-send-email-jeffbrown@android.com> <20110325082030.GB5664@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/2] Constify wacom_features for a new missed Bamboo models
+Date: Fri, 25 Mar 2011 17:29:05 -0700
+Message-ID: <1301099345-5464-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:42638 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:56083 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751637Ab1CYXbA convert rfc822-to-8bit (ORCPT
+	with ESMTP id S934148Ab1CZAa4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Mar 2011 19:31:00 -0400
-In-Reply-To: <20110325082030.GB5664@polaris.bitmath.org>
+	Fri, 25 Mar 2011 20:30:56 -0400
+Received: by iyb14 with SMTP id 14so1058562iyb.19
+        for <linux-input@vger.kernel.org>; Fri, 25 Mar 2011 17:30:56 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-On Fri, Mar 25, 2011 at 1:20 AM, Henrik Rydberg <rydberg@euromail.se> w=
-rote:
->> +static inline bool is_mt_axis(int axis)
->> +{
->> + =A0 =A0 return axis =3D=3D ABS_MT_SLOT ||
->> + =A0 =A0 =A0 =A0 =A0 =A0 (axis >=3D ABS_MT_FIRST && axis <=3D ABS_M=
-T_LAST);
->> +}
->
-> It would be great to get this inline into input/mt.h instead.
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
-Makes sense.  I'll do that.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 5597637..ba6e17c 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1366,23 +1366,23 @@ static const struct wacom_features wacom_features_0xE3 =
+ 	{ "Wacom ISDv4 E3",       WACOM_PKGLEN_TPC2FG,    26202, 16325,  255,  0, TABLETPC2FG };
+ static const struct wacom_features wacom_features_0x47 =
+ 	{ "Wacom Intuos2 6x8",    WACOM_PKGLEN_INTUOS,    20320, 16240, 1023, 31, INTUOS };
+-static struct wacom_features wacom_features_0xD0 =
++static const struct wacom_features wacom_features_0xD0 =
+ 	{ "Wacom Bamboo 2FG",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023, 63, BAMBOO_PT };
+-static struct wacom_features wacom_features_0xD1 =
++static const struct wacom_features wacom_features_0xD1 =
+ 	{ "Wacom Bamboo 2FG 4x5", WACOM_PKGLEN_BBFUN,     14720,  9200, 1023, 63, BAMBOO_PT };
+-static struct wacom_features wacom_features_0xD2 =
++static const struct wacom_features wacom_features_0xD2 =
+ 	{ "Wacom Bamboo Craft",   WACOM_PKGLEN_BBFUN,     14720,  9200, 1023, 63, BAMBOO_PT };
+-static struct wacom_features wacom_features_0xD3 =
++static const struct wacom_features wacom_features_0xD3 =
+ 	{ "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648, 13530, 1023, 63, BAMBOO_PT };
+ static const struct wacom_features wacom_features_0xD4 =
+ 	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200,  255, 63, BAMBOO_PT };
+-static struct wacom_features wacom_features_0xD6 =
++static const struct wacom_features wacom_features_0xD6 =
+ 	{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023, 63, BAMBOO_PT };
+-static struct wacom_features wacom_features_0xD7 =
++static const struct wacom_features wacom_features_0xD7 =
+ 	{ "Wacom BambooPT 2FG Small", WACOM_PKGLEN_BBFUN, 14720,  9200, 1023, 63, BAMBOO_PT };
+-static struct wacom_features wacom_features_0xD8 =
++static const struct wacom_features wacom_features_0xD8 =
+ 	{ "Wacom Bamboo Comic 2FG", WACOM_PKGLEN_BBFUN,   21648, 13530, 1023, 63, BAMBOO_PT };
+-static struct wacom_features wacom_features_0xDA =
++static const struct wacom_features wacom_features_0xDA =
+ 	{ "Wacom Bamboo 2FG 4x5 SE", WACOM_PKGLEN_BBFUN,  14720,  9200, 1023, 63, BAMBOO_PT };
+ static struct wacom_features wacom_features_0xDB =
+ 	{ "Wacom Bamboo 2FG 6x8 SE", WACOM_PKGLEN_BBFUN,  21648, 13530, 1023, 63, BAMBOO_PT };
+-- 
+1.7.4
 
->> + =A0 =A0 else if (test_bit(ABS_MT_TRACKING_ID, dev->absbit))
->> + =A0 =A0 =A0 =A0 =A0 =A0 mt_slots =3D dev->absinfo[ABS_MT_TRACKING_=
-ID].maximum -
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->absinfo[ABS_MT_TRACKI=
-NG_ID].minimum + 1;
->
-> This one is a bit iffy - the tracking id is not limited like this in
-> mainline, looks like android usage. A test againts some arbitrary max
-> should do it.
-
-Yeah, I'm not sure about this one.  Tracking ID could effectively have
-any range.  All of the MT Protocol A touch screen drivers I have
-looked at, assuming they report tracking ids at all, report a
-reasonable upper bound on the contact points they support.
-
-Originally, I set an arbitrary maximum bound of 20 slots.  In the
-interests of keeping it simple, I decided to remove that bound when I
-submitted the patch for review here.
-
-How about:
-
-mt_slots =3D min(MAX_MT_SLOTS_TO_INFER_FROM_TRACKING_ID_RANGE,
-   dev->absinfo[ABS_MT_TRACKING_ID].maximum -
-dev->absinfo[ABS_MT_TRACKING_ID].minimum + 1);
-
-Where MAX_MT_SLOTS_TO_INFER_FROM_TRACKING_ID_RANGE is set to 32 or some=
-thing.
-
-There's also the question of how many slots we should infer when
-neither ABS_MT_SLOT or ABS_MT_TRACKING_ID is available.  The drivers
-I've seen that don't provide tracking ids, are very basic and tend to
-only support 2 touch points.
-
-I guess we could add a DEFAULT_NUMBER_OF_MT_SLOTS constant to handle th=
-at case.
-
-Please feel free to suggest better names for these constants.
-
-Jeff.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

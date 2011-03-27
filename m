@@ -1,13 +1,13 @@
 From: wanlong.gao@gmail.com
-Subject: [PATCH] Add the support of the touchscreen keypad of tsc2007 .
-Date: Sun, 27 Mar 2011 17:29:22 +0800
-Message-ID: <1301218162-5210-1-git-send-email-wanlong.gao@gmail.com>
+Subject: [PATCH V2] Add the support of the touchscreen keypad of tsc2007 .
+Date: Sun, 27 Mar 2011 17:46:32 +0800
+Message-ID: <1301219192-5293-1-git-send-email-wanlong.gao@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yi0-f46.google.com ([209.85.218.46]:46958 "EHLO
-	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750798Ab1C3NgP (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:49532 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754163Ab1C3Nxc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Mar 2011 09:36:15 -0400
+	Wed, 30 Mar 2011 09:53:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, w.sang@pengutronix.de, rpurdie@linux.intel.com, broonie@opensource.wolfsonmicro.com, khali@linux-fr.org
@@ -29,11 +29,11 @@ keys ,too.
 
 Signed-off-by: Wanlong Gao <wanlong.gao@gmail.com>
 ---
- drivers/input/touchscreen/tsc2007.c |   47 +++++++++++++++++++++++++++++++++++
- 1 files changed, 47 insertions(+), 0 deletions(-)
+ drivers/input/touchscreen/tsc2007.c |   48 +++++++++++++++++++++++++++++++++++
+ 1 files changed, 48 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-index 80467f2..496369f 100644
+index 80467f2..8f70fca 100644
 --- a/drivers/input/touchscreen/tsc2007.c
 +++ b/drivers/input/touchscreen/tsc2007.c
 @@ -83,6 +83,51 @@ struct tsc2007 {
@@ -104,6 +104,14 @@ index 80467f2..496369f 100644
  			input_report_key(input, BTN_TOUCH, 1);
  			ts->pendown = true;
  		}
+@@ -308,6 +355,7 @@ static int __devinit tsc2007_probe(struct i2c_client *client,
+ 	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
++	ts_key_set_capacity(input_dev);
+ 
+ 	if (pdata->init_platform_hw)
+ 		pdata->init_platform_hw();
 -- 
 1.7.3
 

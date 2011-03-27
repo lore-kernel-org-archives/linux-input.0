@@ -1,670 +1,239 @@
-From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: [PATCH 3/3] drivers: rtc: Add support for Qualcomm PMIC8xxx RTC
-Date: Sat, 26 Mar 2011 22:22:25 +0530
-Message-ID: <1301158345-22206-4-git-send-email-aghayal@codeaurora.org>
-References: <1301158345-22206-1-git-send-email-aghayal@codeaurora.org>
+From: Eduard Hasenleithner <eduard@hasenleithner.at>
+Subject: [PATCH] Wacom Intuos4 LED and OLED support
+Date: Sun, 27 Mar 2011 13:28:00 +0200
+Message-ID: <1301225280-5642-1-git-send-email-eduard@hasenleithner.at>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine01.qualcomm.com ([199.106.114.254]:41595 "EHLO
-	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753007Ab1CZQxV (ORCPT
+Received: from [93.83.152.182] ([93.83.152.182]:49184 "EHLO
+	phenom.hasenleithner.at" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753324Ab1C0LeY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Mar 2011 12:53:21 -0400
-In-Reply-To: <1301158345-22206-1-git-send-email-aghayal@codeaurora.org>
+	Sun, 27 Mar 2011 07:34:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, rtc-linux@googlegroups.com
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Anirudh Ghayal <aghayal@codeaurora.org>, Alessandro Zummo <a.zummo@towertech.it>, Lars-Peter Clausen <lars@metafoo.de>
+To: linux-input@vger.kernel.org
 
-PMIC8xxx is Qualcomm's power management IC. A
-32-bit RTC is housed inside this PMIC. The RTC driver
-uses SSBI to communicate with the RTC module.
+This commit enables control of the LEDs and OLED displays found
+on the Wacom Intuos4 M, L, and XL. For this purpose, an IOCTL
+interface is added to the wacom input driver. The IOCTLs can be
+issued on the raw USB device of the tablet.
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
+Summary of changes:
+* A new ioctl-number (0xB2) for the Wacom IOCTL is allocated.
+* A new header file for the IOCTLs is introduced
+	(include/linux/usb/wacom-dev.h)
+* Implementation of LED and OLED control in wacom_wac.c
+
+Signed-off-by: Eduard Hasenleithner <eduard@hasenleithner.at>
 ---
- drivers/rtc/Kconfig            |    9 +
- drivers/rtc/Makefile           |    1 +
- drivers/rtc/rtc-pm8xxx.c       |  567 ++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/pm8xxx/rtc.h |   25 ++
- 4 files changed, 602 insertions(+), 0 deletions(-)
- create mode 100644 drivers/rtc/rtc-pm8xxx.c
- create mode 100644 include/linux/mfd/pm8xxx/rtc.h
+ Documentation/ioctl/ioctl-number.txt |    1 +
+ drivers/input/tablet/wacom.h         |    1 +
+ drivers/input/tablet/wacom_sys.c     |    1 +
+ drivers/input/tablet/wacom_wac.c     |   96 ++++++++++++++++++++++++++++++++++
+ include/linux/usb/wacom-dev.h        |   48 +++++++++++++++++
+ 5 files changed, 147 insertions(+), 0 deletions(-)
+ create mode 100644 include/linux/usb/wacom-dev.h
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e187887..a66672a 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -995,4 +995,13 @@ config RTC_DRV_TEGRA
- 	  This drive can also be built as a module. If so, the module
- 	  will be called rtc-tegra.
+diff --git a/Documentation/ioctl/ioctl-number.txt b/Documentation/ioctl/ioctl-number.txt
+index ac293e9..80aa4c3 100644
+--- a/Documentation/ioctl/ioctl-number.txt
++++ b/Documentation/ioctl/ioctl-number.txt
+@@ -302,6 +302,7 @@ Code  Seq#(hex)	Include File		Comments
+ 0xB0	all	RATIO devices		in development:
+ 					<mailto:vgo@ratio.de>
+ 0xB1	00-1F	PPPoX			<mailto:mostrows@styx.uwaterloo.ca>
++0xB2	00-1F	WACOM tablets		<mailto:linuxwacom-devel@lists.sourceforge.net>
+ 0xC0	00-0F	linux/usb/iowarrior.h
+ 0xCB	00-1F	CBM serial IEC bus	in development:
+ 					<mailto:michael.klein@puffin.lb.shuttle.de>
+diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
+index 23317bd..76446ec 100644
+--- a/drivers/input/tablet/wacom.h
++++ b/drivers/input/tablet/wacom.h
+@@ -118,6 +118,7 @@ struct wacom {
  
-+config RTC_DRV_PM8XXX
-+	tristate "Qualcomm PMIC8XXX RTC"
-+	depends on MFD_PM8XXX
-+	help
-+	  Say Y here if you want to support the Qualcomm PMIC8XXX RTC.
+ extern const struct usb_device_id wacom_ids[];
+ 
++int wacom_ioctl(struct usb_interface *intf, unsigned int code, void *buf);
+ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len);
+ void wacom_setup_device_quirks(struct wacom_features *features);
+ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index b97665f..d11aa54 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -628,6 +628,7 @@ static struct usb_driver wacom_driver = {
+ 	.id_table =	wacom_ids,
+ 	.probe =	wacom_probe,
+ 	.disconnect =	wacom_disconnect,
++	.unlocked_ioctl = wacom_ioctl,
+ 	.suspend =	wacom_suspend,
+ 	.resume =	wacom_resume,
+ 	.reset_resume =	wacom_reset_resume,
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 5597637..8db4543 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -15,6 +15,7 @@
+ #include "wacom_wac.h"
+ #include "wacom.h"
+ #include <linux/input/mt.h>
++#include <linux/usb/wacom-dev.h>
+ 
+ static int wacom_penpartner_irq(struct wacom_wac *wacom)
+ {
+@@ -1479,3 +1480,98 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(usb, wacom_ids);
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rtc-pm8xxx.
++#define WAC_CMD_RETRIES 10
 +
- endif # RTC_CLASS
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index ca91c3c..ff40366 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -72,6 +72,7 @@ obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
- obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
- obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
- obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
-+obj-$(CONFIG_RTC_DRV_PM8XXX)    += rtc-pm8xxx.o
- obj-$(CONFIG_RTC_DRV_PL030)	+= rtc-pl030.o
- obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
- obj-$(CONFIG_RTC_DRV_PS3)	+= rtc-ps3.o
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-new file mode 100644
-index 0000000..ce2dad3
---- /dev/null
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -0,0 +1,567 @@
-+/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
++#define WAC_CMD_LED_CTRL 0x20
++#define WAC_CMD_ICON_START 0x21
++#define WAC_CMD_ICON_XFER 0x23
 +
-+#define pr_fmt(fmt) "%s: " fmt, __func__
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/rtc.h>
-+#include <linux/pm.h>
-+#include <linux/slab.h>
-+#include<linux/spinlock.h>
-+
-+#include <linux/mfd/pm8xxx/core.h>
-+#include <linux/mfd/pm8xxx/rtc.h>
-+
-+/* RTC Register offsets from RTC CTRL REG */
-+#define PM8XXX_ALARM_CTRL_OFFSET 0x01
-+#define PM8XXX_RTC_WRITE_OFFSET 0x02
-+#define PM8XXX_RTC_READ_OFFSET 0x06
-+#define PM8XXX_ALARM_RW_OFFSET 0x0A
-+
-+/* RTC_CTRL register bit fields */
-+#define PM8xxx_RTC_ENABLE	BIT(7)
-+#define PM8xxx_RTC_ALARM_ENABLE	BIT(1)
-+#define PM8xxx_RTC_ALARM_CLEAR  BIT(0)
-+
-+#define NUM_8_BIT_RTC_REGS	0x4
-+
-+/**
-+ * struct pm8xxx_rtc - rtc driver internal structure
-+ * @rtc: rtc device for this driver
-+ * @rtc_alarm_irq: rtc alarm irq number
-+ */
-+struct pm8xxx_rtc {
-+	struct rtc_device *rtc;
-+	int rtc_alarm_irq;
-+	int rtc_base;
-+	int rtc_read_base;
-+	int rtc_write_base;
-+	int alarm_rw_base;
-+	u8  ctrl_reg;
-+	struct device *parent;
-+	spinlock_t ctrl_reg_lock;
-+};
-+
-+/*
-+ * The RTC registers need to be read/written one byte at a time. This is a
-+ * hardware limitation.
-+ */
-+static int pm8xxx_read_wrapper(struct pm8xxx_rtc *rtc_dd, u8 *rtc_val,
-+			int base, int count)
++static int wacom_command_xfer(struct usb_interface *intf,
++	unsigned char id, void *buf, int size)
 +{
-+	int i, rc;
++	int rval, retries = WAC_CMD_RETRIES;
++	do rval = usb_control_msg(interface_to_usbdev(intf),
++		usb_sndctrlpipe(interface_to_usbdev(intf), 0),
++		0x09, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++		0x300 | id, intf->altsetting[0].desc.bInterfaceNumber,
++		buf, size, 1000);
++	while ((rval == -ETIMEDOUT || rval == -EPIPE) && --retries>0);
 +
-+	for (i = 0; i < count; i++) {
-+		rc = pm8xxx_readb(rtc_dd->parent, base + i, &rtc_val[i]);
-+		if (rc < 0) {
-+			pr_err("PM8xxx read failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	return 0;
++	return rval;
 +}
 +
-+static int pm8xxx_write_wrapper(struct pm8xxx_rtc *rtc_dd, u8 *rtc_val,
-+			int base, int count)
++static int wacom_ioctl_led_control(struct usb_interface *intf,
++	struct wacom_led_ctrl *arg)
 +{
-+	int i, rc;
++	struct wacom *wacom = usb_get_intfdata(intf);
++	char buf[9] = {
++		WAC_CMD_LED_CTRL,
++		((arg->led_enable!=0)<<2) | (arg->led_select & 0x03),
++		arg->led_llv & 0x7f,
++		arg->led_hlv & 0x7f,
++		arg->img_lum & 0x0f,
++		0, 0, 0, 0
++	};
 +
-+	for (i = 0; i < count; i++) {
-+		rc = pm8xxx_writeb(rtc_dd->parent, base + i, rtc_val[i]);
-+		if (rc < 0) {
-+			pr_err("PM8xxx write failed\n");
-+			return rc;
-+		}
++	if (
++		wacom->wacom_wac.features.type < INTUOS4 ||
++		wacom->wacom_wac.features.type > INTUOS4L
++	) {
++		/* device not supported */
++		return -ENODEV;
 +	}
 +
-+	return 0;
++	return wacom_command_xfer(intf, WAC_CMD_LED_CTRL, buf, sizeof buf);
 +}
 +
-+
-+/*
-+ * Steps to write the RTC registers.
-+ * 1. Disable alarm if enabled.
-+ * 2. Write 0x00 to LSB.
-+ * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
-+ * 4. Enable alarm if disabled in step 1.
-+ */
-+static int
-+pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
++static int wacom_icon_start(struct usb_interface *intf, int start)
 +{
-+	int rc;
-+	unsigned long secs, irq_flags;
-+	u8 value[4], reg = 0, alarm_enabled = 0, ctrl_reg;
-+	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-+
-+	rtc_tm_to_time(tm, &secs);
-+
-+	value[0] = secs & 0xFF;
-+	value[1] = (secs >> 8) & 0xFF;
-+	value[2] = (secs >> 16) & 0xFF;
-+	value[3] = (secs >> 24) & 0xFF;
-+
-+	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
-+
-+	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
-+	ctrl_reg = rtc_dd->ctrl_reg;
-+
-+	if (ctrl_reg & PM8xxx_RTC_ALARM_ENABLE) {
-+		alarm_enabled = 1;
-+		ctrl_reg &= ~PM8xxx_RTC_ALARM_ENABLE;
-+		rc = pm8xxx_write_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base,
-+									1);
-+		if (rc < 0) {
-+			dev_err(dev, "PM8xxx write failed\n");
-+			goto rtc_rw_fail;
-+		}
-+	} else
-+		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
-+	/* Write Byte[1], Byte[2], Byte[3], Byte[0] */
-+	/* Write 0 to Byte[0] */
-+	reg = 0;
-+	rc = pm8xxx_write_wrapper(rtc_dd, &reg, rtc_dd->rtc_write_base, 1);
-+	if (rc < 0) {
-+		dev_err(dev, "PM8xxx write failed\n");
-+		goto rtc_rw_fail;
-+	}
-+
-+	/* Write Byte[1], Byte[2], Byte[3] */
-+	rc = pm8xxx_write_wrapper(rtc_dd, value + 1,
-+					rtc_dd->rtc_write_base + 1, 3);
-+	if (rc < 0) {
-+		dev_err(dev, "Write to RTC registers failed\n");
-+		goto rtc_rw_fail;
-+	}
-+
-+	/* Write Byte[0] */
-+	rc = pm8xxx_write_wrapper(rtc_dd, value, rtc_dd->rtc_write_base, 1);
-+	if (rc < 0) {
-+		dev_err(dev, "Write to RTC register failed\n");
-+		goto rtc_rw_fail;
-+	}
-+
-+	if (alarm_enabled) {
-+		ctrl_reg |= PM8xxx_RTC_ALARM_ENABLE;
-+		rc = pm8xxx_write_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base,
-+									1);
-+		if (rc < 0) {
-+			dev_err(dev, "PM8xxx write failed\n");
-+			goto rtc_rw_fail;
-+		}
-+	}
-+
-+	rtc_dd->ctrl_reg = ctrl_reg;
-+
-+rtc_rw_fail:
-+	if (alarm_enabled)
-+		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
-+	return rc;
++	char buf[2] = { WAC_CMD_ICON_START, start };
++	return wacom_command_xfer(intf, WAC_CMD_ICON_START, buf, sizeof buf);
 +}
 +
-+static int
-+pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
++static int wacom_ioctl_image_put(struct usb_interface *intf,
++	struct wacom_img_put *arg)
 +{
-+	int rc;
-+	u8 value[4], reg;
-+	unsigned long secs;
-+	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-+
-+	rc = pm8xxx_read_wrapper(rtc_dd, value, rtc_dd->rtc_read_base,
-+							NUM_8_BIT_RTC_REGS);
-+	if (rc < 0) {
-+		dev_err(dev, "RTC time read failed\n");
-+		return rc;
++	unsigned char *buf;
++	int i, rval;
++	struct wacom *wacom = usb_get_intfdata(intf);
++	if (
++		wacom->wacom_wac.features.type < INTUOS4 ||
++		wacom->wacom_wac.features.type > INTUOS4L
++	) {
++		/* device not supported */
++		return -ENODEV;
 +	}
 +
-+	/*
-+	 * Read the LSB again and check if there has been a carry over.
-+	 * If there is, redo the read operation.
-+	 */
-+	rc = pm8xxx_read_wrapper(rtc_dd, &reg, rtc_dd->rtc_read_base, 1);
-+	if (rc < 0) {
-+		dev_err(dev, "PM8xxx read failed\n");
-+		return rc;
-+	}
-+
-+	if (unlikely(reg < value[0])) {
-+		rc = pm8xxx_read_wrapper(rtc_dd, value,
-+				rtc_dd->rtc_read_base, NUM_8_BIT_RTC_REGS);
-+		if (rc < 0) {
-+			dev_err(dev, "RTC time read failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) \
-+						| (value[3] << 24);
-+
-+	rtc_time_to_tm(secs, tm);
-+
-+	rc = rtc_valid_tm(tm);
-+	if (rc < 0) {
-+		dev_err(dev, "Invalid time read from PM8xxx\n");
-+		return rc;
-+	}
-+
-+	dev_dbg(dev, "secs = %lu, h:m:s == %d:%d:%d, d/m/y = %d/%d/%d\n",
-+			secs, tm->tm_hour, tm->tm_min, tm->tm_sec,
-+			tm->tm_mday, tm->tm_mon, tm->tm_year);
-+
-+	return 0;
-+}
-+
-+static int
-+pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+{
-+	int rc;
-+	u8 value[4], ctrl_reg;
-+	unsigned long secs, secs_rtc, irq_flags;
-+	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-+	struct rtc_time rtc_tm;
-+
-+	rtc_tm_to_time(&alarm->time, &secs);
-+
-+	/*
-+	 * Read the current RTC time and verify if the alarm time is in the
-+	 * past. If yes, return invalid.
-+	 */
-+	rc = pm8xxx_rtc_read_time(dev, &rtc_tm);
-+	if (rc < 0) {
-+		dev_err(dev, "Unamble to read RTC time\n");
-+		return -EINVAL;
-+	}
-+
-+	rtc_tm_to_time(&rtc_tm, &secs_rtc);
-+	if (secs < secs_rtc) {
-+		dev_err(dev, "Trying to set alarm in the past\n");
-+		return -EINVAL;
-+	}
-+
-+	value[0] = secs & 0xFF;
-+	value[1] = (secs >> 8) & 0xFF;
-+	value[2] = (secs >> 16) & 0xFF;
-+	value[3] = (secs >> 24) & 0xFF;
-+
-+	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
-+	rc = pm8xxx_write_wrapper(rtc_dd, value, rtc_dd->alarm_rw_base,
-+							NUM_8_BIT_RTC_REGS);
-+	if (rc < 0) {
-+		dev_err(dev, "Write to RTC ALARM registers failed\n");
-+		goto rtc_rw_fail;
-+	}
-+
-+	ctrl_reg = rtc_dd->ctrl_reg;
-+	ctrl_reg = (alarm->enabled) ? (ctrl_reg | PM8xxx_RTC_ALARM_ENABLE) :
-+					(ctrl_reg & ~PM8xxx_RTC_ALARM_ENABLE);
-+
-+	rc = pm8xxx_write_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base, 1);
-+	if (rc < 0) {
-+		dev_err(dev, "PM8xxx write failed\n");
-+		goto rtc_rw_fail;
-+	}
-+
-+	rtc_dd->ctrl_reg = ctrl_reg;
-+
-+	dev_dbg(dev, "Alarm Set for h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
-+			alarm->time.tm_hour, alarm->time.tm_min,
-+			alarm->time.tm_sec, alarm->time.tm_mday,
-+			alarm->time.tm_mon, alarm->time.tm_year);
-+rtc_rw_fail:
-+	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+	return rc;
-+}
-+
-+static int
-+pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+{
-+	int rc;
-+	u8 value[4];
-+	unsigned long secs;
-+	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-+
-+	rc = pm8xxx_read_wrapper(rtc_dd, value, rtc_dd->alarm_rw_base,
-+			NUM_8_BIT_RTC_REGS);
-+	if (rc < 0) {
-+		dev_err(dev, "RTC alarm time read failed\n");
-+		return rc;
-+	}
-+
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) | \
-+						 (value[3] << 24);
-+
-+	rtc_time_to_tm(secs, &alarm->time);
-+
-+	rc = rtc_valid_tm(&alarm->time);
-+	if (rc < 0) {
-+		dev_err(dev, "Invalid time read from PM8xxx\n");
-+		return rc;
-+	}
-+
-+	dev_dbg(dev, "Alarm set for - h:r:s=%d:%d:%d, d/m/y=%d/%d/%d\n",
-+		alarm->time.tm_hour, alarm->time.tm_min,
-+				alarm->time.tm_sec, alarm->time.tm_mday,
-+				alarm->time.tm_mon, alarm->time.tm_year);
-+
-+	return 0;
-+}
-+
-+
-+static int
-+pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	int rc;
-+	unsigned long irq_flags;
-+	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-+	u8 ctrl_reg;
-+
-+	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
-+	ctrl_reg = rtc_dd->ctrl_reg;
-+	ctrl_reg = (enabled) ? (ctrl_reg | PM8xxx_RTC_ALARM_ENABLE) :
-+				(ctrl_reg & ~PM8xxx_RTC_ALARM_ENABLE);
-+
-+	rc = pm8xxx_write_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base, 1);
-+	if (rc < 0) {
-+		dev_err(dev, "PM8xxx write failed\n");
-+		goto rtc_rw_fail;
-+	}
-+
-+	rtc_dd->ctrl_reg = ctrl_reg;
-+
-+rtc_rw_fail:
-+	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+	return rc;
-+}
-+
-+static struct rtc_class_ops pm8xxx_rtc_ops = {
-+	.read_time	= pm8xxx_rtc_read_time,
-+	.set_alarm	= pm8xxx_rtc_set_alarm,
-+	.read_alarm	= pm8xxx_rtc_read_alarm,
-+	.alarm_irq_enable = pm8xxx_rtc_alarm_irq_enable,
-+};
-+
-+static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
-+{
-+	struct pm8xxx_rtc *rtc_dd = dev_id;
-+	u8 ctrl_reg;
-+	int rc;
-+	unsigned long irq_flags;
-+
-+	rtc_update_irq(rtc_dd->rtc, 1, RTC_IRQF | RTC_AF);
-+
-+	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
-+	/* Clear the alarm enable bit */
-+	ctrl_reg = rtc_dd->ctrl_reg;
-+	ctrl_reg &= ~PM8xxx_RTC_ALARM_ENABLE;
-+
-+	rc = pm8xxx_write_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base, 1);
-+	if (rc < 0) {
-+		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+		pr_err("PM8xxx write failed!\n");
-+		goto rtc_alarm_handled;
-+	}
-+
-+	rtc_dd->ctrl_reg = ctrl_reg;
-+	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
-+	/* Clear RTC alarm register */
-+	rc = pm8xxx_read_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base +
-+						PM8XXX_ALARM_CTRL_OFFSET, 1);
-+	if (rc < 0) {
-+		pr_err("PM8xxx write failed!\n");
-+		goto rtc_alarm_handled;
-+	}
-+
-+	ctrl_reg &= ~PM8xxx_RTC_ALARM_CLEAR;
-+	rc = pm8xxx_write_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base +
-+						PM8XXX_ALARM_CTRL_OFFSET, 1);
-+	if (rc < 0)
-+		pr_err("PM8xxx write failed!\n");
-+
-+rtc_alarm_handled:
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit pm8xxx_rtc_probe(struct platform_device *pdev)
-+{
-+	int rc;
-+	u8 ctrl_reg;
-+	bool rtc_write_enable = false;
-+	struct pm8xxx_rtc *rtc_dd;
-+	struct resource *rtc_resource;
-+	const struct pm8xxx_rtc_platform_data *pdata =
-+		pdev->dev.platform_data;
-+
-+	if (pdata != NULL)
-+		rtc_write_enable = pdata->rtc_write_enable;
-+
-+	rtc_dd = kzalloc(sizeof(*rtc_dd), GFP_KERNEL);
-+	if (rtc_dd == NULL) {
-+		dev_err(&pdev->dev, "Unable to allocate memory!\n");
++	buf = kzalloc(259, GFP_KERNEL);
++	if (!buf)
 +		return -ENOMEM;
-+	}
-+
-+	/* Initialise spinlock to protect RTC cntrol register */
-+	spin_lock_init(&rtc_dd->ctrl_reg_lock);
-+
-+	rtc_dd->rtc_alarm_irq = platform_get_irq(pdev, 0);
-+	if (!rtc_dd->rtc_alarm_irq) {
-+		dev_err(&pdev->dev, "Alarm IRQ resource absent!\n");
-+		rc = -ENXIO;
-+		goto fail_rtc_enable;
-+	}
-+
-+	rtc_resource = platform_get_resource_byname(pdev, IORESOURCE_IO,
-+							"pmic_rtc_base");
-+	if (rtc_resource)
-+		rtc_dd->rtc_base = rtc_resource->start;
-+	if (!rtc_dd->rtc_base) {
-+		dev_err(&pdev->dev, "RTC IO resource absent!\n");
-+		rc = -ENXIO;
-+		goto fail_rtc_enable;
-+	}
-+
-+	/* Setup RTC register addresses */
-+	rtc_dd->rtc_write_base = rtc_dd->rtc_base + PM8XXX_RTC_WRITE_OFFSET;
-+	rtc_dd->rtc_read_base = rtc_dd->rtc_base + PM8XXX_RTC_READ_OFFSET;
-+	rtc_dd->alarm_rw_base = rtc_dd->rtc_base + PM8XXX_ALARM_RW_OFFSET;
-+
-+	rtc_dd->parent = pdev->dev.parent;
-+
-+	/* Check if the RTC is on, else turn it on */
-+	rc = pm8xxx_read_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base, 1);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "PM8xxx read failed!\n");
-+		goto fail_rtc_enable;
-+	}
-+
-+	if (!(ctrl_reg & PM8xxx_RTC_ENABLE)) {
-+		ctrl_reg |= PM8xxx_RTC_ENABLE;
-+		rc = pm8xxx_write_wrapper(rtc_dd, &ctrl_reg, rtc_dd->rtc_base,
-+									1);
-+		if (rc < 0) {
-+			dev_err(&pdev->dev, "PM8xxx write failed!\n");
-+			goto fail_rtc_enable;
++	rval = wacom_icon_start(intf, 1);
++	if (rval >= 0) {
++		buf[0] = WAC_CMD_ICON_XFER;
++		buf[1] = arg->button_id & 0x07;
++		for (i=0; i<4; i++) {
++			buf[2] = i;
++			memcpy(buf+3, arg->buf + i*256, 256);
++			rval = wacom_command_xfer(intf, WAC_CMD_ICON_XFER, buf, 259);
++			if (rval<0) break;
 +		}
 +	}
++	kfree(buf);
++	wacom_icon_start(intf, 0);
++	return rval;
++}
 +
-+	rtc_dd->ctrl_reg = ctrl_reg;
-+	if (rtc_write_enable == true)
-+		pm8xxx_rtc_ops.set_time = pm8xxx_rtc_set_time,
-+
-+	platform_set_drvdata(pdev, rtc_dd);
-+
-+	/* Register the RTC device */
-+	rtc_dd->rtc = rtc_device_register("pm8xxx_rtc", &pdev->dev,
-+				&pm8xxx_rtc_ops, THIS_MODULE);
-+	if (IS_ERR(rtc_dd->rtc)) {
-+		dev_err(&pdev->dev, "%s: RTC registration failed (%ld)\n",
-+					__func__, PTR_ERR(rtc_dd->rtc));
-+		rc = PTR_ERR(rtc_dd->rtc);
-+		goto fail_rtc_enable;
++int wacom_ioctl(struct usb_interface *intf, unsigned int code, void *buf)
++{
++	switch (code) {
++		case WACOM_LED_CONTROL:
++			return wacom_ioctl_led_control(intf, buf);
++		case WACOM_IMAGE_PUT:
++			return wacom_ioctl_image_put(intf, buf);
++		default:
++			return -EINVAL;
 +	}
-+
-+	/* Request the alarm IRQ */
-+	rc = request_any_context_irq(rtc_dd->rtc_alarm_irq,
-+				 pm8xxx_alarm_trigger, IRQF_TRIGGER_RISING,
-+				 "pm8xxx_rtc_alarm", rtc_dd);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "Request IRQ failed (%d)\n", rc);
-+		goto fail_req_irq;
-+	}
-+
-+	device_init_wakeup(&pdev->dev, 1);
-+
-+	dev_dbg(&pdev->dev, "Probe success !!\n");
-+
-+	return 0;
-+
-+fail_req_irq:
-+	rtc_device_unregister(rtc_dd->rtc);
-+fail_rtc_enable:
-+	platform_set_drvdata(pdev, NULL);
-+	kfree(rtc_dd);
-+	return rc;
 +}
-+
-+#ifdef CONFIG_PM
-+static int pm8xxx_rtc_resume(struct device *dev)
-+{
-+	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(rtc_dd->rtc_alarm_irq);
-+
-+	return 0;
-+}
-+
-+static int pm8xxx_rtc_suspend(struct device *dev)
-+{
-+	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(rtc_dd->rtc_alarm_irq);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops pm8xxx_rtc_pm_ops = {
-+	.suspend = pm8xxx_rtc_suspend,
-+	.resume = pm8xxx_rtc_resume,
-+};
-+#endif
-+static int __devexit pm8xxx_rtc_remove(struct platform_device *pdev)
-+{
-+	struct pm8xxx_rtc *rtc_dd = platform_get_drvdata(pdev);
-+
-+	device_init_wakeup(&pdev->dev, 0);
-+	free_irq(rtc_dd->rtc_alarm_irq, rtc_dd);
-+	rtc_device_unregister(rtc_dd->rtc);
-+	platform_set_drvdata(pdev, NULL);
-+	kfree(rtc_dd);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver pm8xxx_rtc_driver = {
-+	.probe		= pm8xxx_rtc_probe,
-+	.remove		= __devexit_p(pm8xxx_rtc_remove),
-+	.driver	= {
-+		.name	= PM8XXX_RTC_DEV_NAME,
-+		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &pm8xxx_rtc_pm_ops,
-+#endif
-+	},
-+};
-+
-+static int __init pm8xxx_rtc_init(void)
-+{
-+	return platform_driver_register(&pm8xxx_rtc_driver);
-+}
-+module_init(pm8xxx_rtc_init);
-+
-+static void __exit pm8xxx_rtc_exit(void)
-+{
-+	platform_driver_unregister(&pm8xxx_rtc_driver);
-+}
-+module_exit(pm8xxx_rtc_exit);
-+
-+MODULE_ALIAS("platform:rtc-pm8xxx");
-+MODULE_DESCRIPTION("PMIC8xxx RTC driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Anirudh Ghayal <aghayal@codeaurora.org>");
-diff --git a/include/linux/mfd/pm8xxx/rtc.h b/include/linux/mfd/pm8xxx/rtc.h
+diff --git a/include/linux/usb/wacom-dev.h b/include/linux/usb/wacom-dev.h
 new file mode 100644
-index 0000000..2528e1d
+index 0000000..ac28e08
 --- /dev/null
-+++ b/include/linux/mfd/pm8xxx/rtc.h
-@@ -0,0 +1,25 @@
-+/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-+ *
++++ b/include/linux/usb/wacom-dev.h
+@@ -0,0 +1,48 @@
++/*
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * Copyright (c) 2011 Eduard Hasenleithner <eduard@hasenleithner.at>
 + */
 +
-+#ifndef __RTC_PM8XXX_H__
-+#define __RTC_PM8XXX_H__
++#ifndef _WACOM_DEV_H
++#define _WACOM_DEV_H
 +
-+#define PM8XXX_RTC_DEV_NAME     "rtc-pm8xxx"
-+/**
-+ * struct pm8058_rtc_pdata - RTC driver platform data
-+ * @rtc_write_enable: variable stating RTC write capability
++/*
++ * IOCTL interface for wacom tablets.
++ *
++ * The IOCTLs can be sent to the wacom driver by means of its
++ * raw usb device (i.e. usbdevice_fs).
++ *
++ * Currently only used for control of LEDs and the OLED display
++ * on the Intuos4 M, L, and XL tablets.
 + */
-+struct pm8xxx_rtc_platform_data {
-+	bool rtc_write_enable;
++
++struct wacom_led_ctrl {
++	/* Status LED enable/disable */
++	char led_enable;
++	/* Status LED selector (0..3) when led_enable is true */
++	char led_select;
++	/* Luminance (0..127) of Status LED without stylus button pressed */
++	char led_llv;
++	/* Luminance (0..127) of Status LED with stylus button pressed */
++	char led_hlv;
++	/* Luminance (0..15) of button images */
++	char img_lum;
 +};
 +
-+#endif /* __RTC_PM8XXX_H__ */
++struct wacom_img_put {
++	/* Button id (0..7) to set image for */
++	unsigned char button_id;
++	/* 64x32 4-bit grayscale pixels with Intuos4 specific interleaving */
++	unsigned char buf[1024];
++};
++
++#define WACOM_IOCTL 0xB2
++
++#define WACOM_LED_CONTROL _IOW(WACOM_IOCTL, 0x00, struct wacom_led_ctrl)
++#define WACOM_IMAGE_PUT _IOW(WACOM_IOCTL, 0x01, struct wacom_img_put)
++
++#endif
 -- 
-1.7.3.5
+1.7.0.4
 

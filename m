@@ -1,55 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input : wacom - report resolution for pen devices
-Date: Sun, 27 Mar 2011 12:07:51 -0700
-Message-ID: <20110327190751.GA31692@core.coreip.homeip.net>
-References: <1301099376-5502-1-git-send-email-pinglinux@gmail.com>
- <AANLkTi=tAt8ZoBur1qdyK3aroquBHGhUnMY458RROHhz@mail.gmail.com>
- <AANLkTinV4KzSkF9eRY8urZ7sM9dxz2pPaQs+vtX52GAF@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] G25_support
+Date: Sun, 27 Mar 2011 21:41:12 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1103272140430.26754@pobox.suse.cz>
+References: <1299842104.2550.24.camel@slim-one-desktop> <1300769820-16198-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:34976 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754195Ab1C0TH4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Mar 2011 15:07:56 -0400
-Received: by iwn34 with SMTP id 34so2910040iwn.19
-        for <linux-input@vger.kernel.org>; Sun, 27 Mar 2011 12:07:56 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <AANLkTinV4KzSkF9eRY8urZ7sM9dxz2pPaQs+vtX52GAF@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:57749 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754202Ab1C0TlO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 27 Mar 2011 15:41:14 -0400
+In-Reply-To: <1300769820-16198-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input <linux-input@vger.kernel.org>, Peter <peter@slim-one.de>
 
-On Sun, Mar 27, 2011 at 11:59:29AM -0700, Ping Cheng wrote:
-> On Sun, Mar 27, 2011 at 7:32 AM, Chris Bagwell <chris@cnpbagwell.com> wrote:
-> 
-> > On Fri, Mar 25, 2011 at 7:29 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> > > Touch resolution is reported to the userland by retrieving
-> > > the value from the HID descriptor. But pen resolution is not
-> > > since it can not be retrieved. The current Wacom X driver
-> > > has a resolution table. To centralize the source of these
-> > > values, the resolution entries are added in the wacom_features
-> > > struct for x and y coordinates respectively. The values are
-> > > then reported to the userland.
-> > >
-> > > Signed-off-by: Ping Cheng <pingc@wacom.com>
-> >
-> > I'm glad you gave up on me saying I'd eventually make this change. :-)
-> >
-> > My hold up was I was debating to myself if it should have separate X/Y
-> > resolutions or just a single field.  Its unlikely Wacom will ship
-> > unmatched X/Y's.  For what its worth, a  version of this change in my
-> > local tree also kept separate X/Y's.
-> >
-> 
-> I thought about that when I worked on the patch too. I decided to have
-> separate entries for x and y since it adds flexibility for future devices.
-> 
+On Mon, 21 Mar 2011, Simon Wood wrote:
 
-Applied both, altough without Chris's reviwed-by tags as I already pushed
-by public branch out...
+> From: Peter <peter@slim-one.de>
+
+Could you please provide full name here, so that I could apply the patch 
+with proper authorship attribution?
+
+Thanks.
+
+> 
+> Small patch to add support for the G25/G27 by adding USB ID's
+> as suggested by Peter.
+> 
+> Boots but otherwise untested as I don't have hardware, .debs for
+> kernel (2.6.38) here if want to test/run Ubuntu/Debian:
+> http://www.mungewell.org/Logitech_Wii_Wheel/
+> 
+> Reported-by: Peter <peter@slim-one.de>
+> Signed-off-by: Simon Wood <simon@mungewell.org>
+> ---
+>  drivers/hid/hid-lgff.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-lgff.c b/drivers/hid/hid-lgff.c
+> index 90d0ef2..f099079 100644
+> --- a/drivers/hid/hid-lgff.c
+> +++ b/drivers/hid/hid-lgff.c
+> @@ -73,6 +73,8 @@ static const struct dev_type devices[] = {
+>  	{ 0x046d, 0xc293, ff_joystick },
+>  	{ 0x046d, 0xc294, ff_wheel },
+>  	{ 0x046d, 0xc295, ff_joystick },
+> +	{ 0x046d, 0xc298, ff_wheel },
+> +	{ 0x046d, 0xc299, ff_wheel },
+>  	{ 0x046d, 0xca03, ff_wheel },
+>  };
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.

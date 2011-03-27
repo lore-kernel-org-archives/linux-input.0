@@ -1,239 +1,95 @@
-From: Eduard Hasenleithner <eduard@hasenleithner.at>
-Subject: [PATCH] Wacom Intuos4 LED and OLED support
-Date: Sun, 27 Mar 2011 13:28:00 +0200
-Message-ID: <1301225280-5642-1-git-send-email-eduard@hasenleithner.at>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 1/2] Constify wacom_features for a new missed Bamboo models
+Date: Sun, 27 Mar 2011 09:14:33 -0500
+Message-ID: <AANLkTikV4YJEukLXgwUBnxP5G058hHhvftNENKqb8-CO@mail.gmail.com>
+References: <1301099345-5464-1-git-send-email-pinglinux@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [93.83.152.182] ([93.83.152.182]:49184 "EHLO
-	phenom.hasenleithner.at" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753324Ab1C0LeY (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:41717 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753545Ab1C0OOf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Mar 2011 07:34:24 -0400
+	Sun, 27 Mar 2011 10:14:35 -0400
+Received: by bwz15 with SMTP id 15so1868613bwz.19
+        for <linux-input@vger.kernel.org>; Sun, 27 Mar 2011 07:14:33 -0700 (PDT)
+In-Reply-To: <1301099345-5464-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-This commit enables control of the LEDs and OLED displays found
-on the Wacom Intuos4 M, L, and XL. For this purpose, an IOCTL
-interface is added to the wacom input driver. The IOCTLs can be
-issued on the raw USB device of the tablet.
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
-Summary of changes:
-* A new ioctl-number (0xB2) for the Wacom IOCTL is allocated.
-* A new header file for the IOCTLs is introduced
-	(include/linux/usb/wacom-dev.h)
-* Implementation of LED and OLED control in wacom_wac.c
-
-Signed-off-by: Eduard Hasenleithner <eduard@hasenleithner.at>
----
- Documentation/ioctl/ioctl-number.txt |    1 +
- drivers/input/tablet/wacom.h         |    1 +
- drivers/input/tablet/wacom_sys.c     |    1 +
- drivers/input/tablet/wacom_wac.c     |   96 ++++++++++++++++++++++++++++++++++
- include/linux/usb/wacom-dev.h        |   48 +++++++++++++++++
- 5 files changed, 147 insertions(+), 0 deletions(-)
- create mode 100644 include/linux/usb/wacom-dev.h
-
-diff --git a/Documentation/ioctl/ioctl-number.txt b/Documentation/ioctl/ioctl-number.txt
-index ac293e9..80aa4c3 100644
---- a/Documentation/ioctl/ioctl-number.txt
-+++ b/Documentation/ioctl/ioctl-number.txt
-@@ -302,6 +302,7 @@ Code  Seq#(hex)	Include File		Comments
- 0xB0	all	RATIO devices		in development:
- 					<mailto:vgo@ratio.de>
- 0xB1	00-1F	PPPoX			<mailto:mostrows@styx.uwaterloo.ca>
-+0xB2	00-1F	WACOM tablets		<mailto:linuxwacom-devel@lists.sourceforge.net>
- 0xC0	00-0F	linux/usb/iowarrior.h
- 0xCB	00-1F	CBM serial IEC bus	in development:
- 					<mailto:michael.klein@puffin.lb.shuttle.de>
-diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
-index 23317bd..76446ec 100644
---- a/drivers/input/tablet/wacom.h
-+++ b/drivers/input/tablet/wacom.h
-@@ -118,6 +118,7 @@ struct wacom {
- 
- extern const struct usb_device_id wacom_ids[];
- 
-+int wacom_ioctl(struct usb_interface *intf, unsigned int code, void *buf);
- void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len);
- void wacom_setup_device_quirks(struct wacom_features *features);
- void wacom_setup_input_capabilities(struct input_dev *input_dev,
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index b97665f..d11aa54 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -628,6 +628,7 @@ static struct usb_driver wacom_driver = {
- 	.id_table =	wacom_ids,
- 	.probe =	wacom_probe,
- 	.disconnect =	wacom_disconnect,
-+	.unlocked_ioctl = wacom_ioctl,
- 	.suspend =	wacom_suspend,
- 	.resume =	wacom_resume,
- 	.reset_resume =	wacom_reset_resume,
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 5597637..8db4543 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -15,6 +15,7 @@
- #include "wacom_wac.h"
- #include "wacom.h"
- #include <linux/input/mt.h>
-+#include <linux/usb/wacom-dev.h>
- 
- static int wacom_penpartner_irq(struct wacom_wac *wacom)
- {
-@@ -1479,3 +1480,98 @@ const struct usb_device_id wacom_ids[] = {
- 	{ }
- };
- MODULE_DEVICE_TABLE(usb, wacom_ids);
-+
-+#define WAC_CMD_RETRIES 10
-+
-+#define WAC_CMD_LED_CTRL 0x20
-+#define WAC_CMD_ICON_START 0x21
-+#define WAC_CMD_ICON_XFER 0x23
-+
-+static int wacom_command_xfer(struct usb_interface *intf,
-+	unsigned char id, void *buf, int size)
-+{
-+	int rval, retries = WAC_CMD_RETRIES;
-+	do rval = usb_control_msg(interface_to_usbdev(intf),
-+		usb_sndctrlpipe(interface_to_usbdev(intf), 0),
-+		0x09, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+		0x300 | id, intf->altsetting[0].desc.bInterfaceNumber,
-+		buf, size, 1000);
-+	while ((rval == -ETIMEDOUT || rval == -EPIPE) && --retries>0);
-+
-+	return rval;
-+}
-+
-+static int wacom_ioctl_led_control(struct usb_interface *intf,
-+	struct wacom_led_ctrl *arg)
-+{
-+	struct wacom *wacom = usb_get_intfdata(intf);
-+	char buf[9] = {
-+		WAC_CMD_LED_CTRL,
-+		((arg->led_enable!=0)<<2) | (arg->led_select & 0x03),
-+		arg->led_llv & 0x7f,
-+		arg->led_hlv & 0x7f,
-+		arg->img_lum & 0x0f,
-+		0, 0, 0, 0
-+	};
-+
-+	if (
-+		wacom->wacom_wac.features.type < INTUOS4 ||
-+		wacom->wacom_wac.features.type > INTUOS4L
-+	) {
-+		/* device not supported */
-+		return -ENODEV;
-+	}
-+
-+	return wacom_command_xfer(intf, WAC_CMD_LED_CTRL, buf, sizeof buf);
-+}
-+
-+static int wacom_icon_start(struct usb_interface *intf, int start)
-+{
-+	char buf[2] = { WAC_CMD_ICON_START, start };
-+	return wacom_command_xfer(intf, WAC_CMD_ICON_START, buf, sizeof buf);
-+}
-+
-+static int wacom_ioctl_image_put(struct usb_interface *intf,
-+	struct wacom_img_put *arg)
-+{
-+	unsigned char *buf;
-+	int i, rval;
-+	struct wacom *wacom = usb_get_intfdata(intf);
-+	if (
-+		wacom->wacom_wac.features.type < INTUOS4 ||
-+		wacom->wacom_wac.features.type > INTUOS4L
-+	) {
-+		/* device not supported */
-+		return -ENODEV;
-+	}
-+
-+	buf = kzalloc(259, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+	rval = wacom_icon_start(intf, 1);
-+	if (rval >= 0) {
-+		buf[0] = WAC_CMD_ICON_XFER;
-+		buf[1] = arg->button_id & 0x07;
-+		for (i=0; i<4; i++) {
-+			buf[2] = i;
-+			memcpy(buf+3, arg->buf + i*256, 256);
-+			rval = wacom_command_xfer(intf, WAC_CMD_ICON_XFER, buf, 259);
-+			if (rval<0) break;
-+		}
-+	}
-+	kfree(buf);
-+	wacom_icon_start(intf, 0);
-+	return rval;
-+}
-+
-+int wacom_ioctl(struct usb_interface *intf, unsigned int code, void *buf)
-+{
-+	switch (code) {
-+		case WACOM_LED_CONTROL:
-+			return wacom_ioctl_led_control(intf, buf);
-+		case WACOM_IMAGE_PUT:
-+			return wacom_ioctl_image_put(intf, buf);
-+		default:
-+			return -EINVAL;
-+	}
-+}
-diff --git a/include/linux/usb/wacom-dev.h b/include/linux/usb/wacom-dev.h
-new file mode 100644
-index 0000000..ac28e08
---- /dev/null
-+++ b/include/linux/usb/wacom-dev.h
-@@ -0,0 +1,48 @@
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * Copyright (c) 2011 Eduard Hasenleithner <eduard@hasenleithner.at>
-+ */
-+
-+#ifndef _WACOM_DEV_H
-+#define _WACOM_DEV_H
-+
-+/*
-+ * IOCTL interface for wacom tablets.
-+ *
-+ * The IOCTLs can be sent to the wacom driver by means of its
-+ * raw usb device (i.e. usbdevice_fs).
-+ *
-+ * Currently only used for control of LEDs and the OLED display
-+ * on the Intuos4 M, L, and XL tablets.
-+ */
-+
-+struct wacom_led_ctrl {
-+	/* Status LED enable/disable */
-+	char led_enable;
-+	/* Status LED selector (0..3) when led_enable is true */
-+	char led_select;
-+	/* Luminance (0..127) of Status LED without stylus button pressed */
-+	char led_llv;
-+	/* Luminance (0..127) of Status LED with stylus button pressed */
-+	char led_hlv;
-+	/* Luminance (0..15) of button images */
-+	char img_lum;
-+};
-+
-+struct wacom_img_put {
-+	/* Button id (0..7) to set image for */
-+	unsigned char button_id;
-+	/* 64x32 4-bit grayscale pixels with Intuos4 specific interleaving */
-+	unsigned char buf[1024];
-+};
-+
-+#define WACOM_IOCTL 0xB2
-+
-+#define WACOM_LED_CONTROL _IOW(WACOM_IOCTL, 0x00, struct wacom_led_ctrl)
-+#define WACOM_IMAGE_PUT _IOW(WACOM_IOCTL, 0x01, struct wacom_img_put)
-+
-+#endif
--- 
-1.7.0.4
-
+On Fri, Mar 25, 2011 at 7:29 PM, Ping Cheng <pinglinux@gmail.com> wrote=
+:
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
+> =A0drivers/input/tablet/wacom_wac.c | =A0 16 ++++++++--------
+> =A01 files changed, 8 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
+wacom_wac.c
+> index 5597637..ba6e17c 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -1366,23 +1366,23 @@ static const struct wacom_features wacom_feat=
+ures_0xE3 =3D
+> =A0 =A0 =A0 =A0{ "Wacom ISDv4 E3", =A0 =A0 =A0 WACOM_PKGLEN_TPC2FG, =A0=
+ =A026202, 16325, =A0255, =A00, TABLETPC2FG };
+> =A0static const struct wacom_features wacom_features_0x47 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Intuos2 6x8", =A0 =A0WACOM_PKGLEN_INTUOS, =A0=
+ =A020320, 16240, 1023, 31, INTUOS };
+> -static struct wacom_features wacom_features_0xD0 =3D
+> +static const struct wacom_features wacom_features_0xD0 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo 2FG", =A0 =A0 WACOM_PKGLEN_BBFUN, =A0 =
+=A0 14720, =A09200, 1023, 63, BAMBOO_PT };
+> -static struct wacom_features wacom_features_0xD1 =3D
+> +static const struct wacom_features wacom_features_0xD1 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo 2FG 4x5", WACOM_PKGLEN_BBFUN, =A0 =A0 =
+14720, =A09200, 1023, 63, BAMBOO_PT };
+> -static struct wacom_features wacom_features_0xD2 =3D
+> +static const struct wacom_features wacom_features_0xD2 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo Craft", =A0 WACOM_PKGLEN_BBFUN, =A0 =A0=
+ 14720, =A09200, 1023, 63, BAMBOO_PT };
+> -static struct wacom_features wacom_features_0xD3 =3D
+> +static const struct wacom_features wacom_features_0xD3 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN, =A0 =A0 =
+21648, 13530, 1023, 63, BAMBOO_PT };
+> =A0static const struct wacom_features wacom_features_0xD4 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo Pen", =A0 =A0 WACOM_PKGLEN_BBFUN, =A0 =
+=A0 14720, =A09200, =A0255, 63, BAMBOO_PT };
+> -static struct wacom_features wacom_features_0xD6 =3D
+> +static const struct wacom_features wacom_features_0xD6 =3D
+> =A0 =A0 =A0 =A0{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN, =A0 14=
+720, =A09200, 1023, 63, BAMBOO_PT };
+> -static struct wacom_features wacom_features_0xD7 =3D
+> +static const struct wacom_features wacom_features_0xD7 =3D
+> =A0 =A0 =A0 =A0{ "Wacom BambooPT 2FG Small", WACOM_PKGLEN_BBFUN, 1472=
+0, =A09200, 1023, 63, BAMBOO_PT };
+> -static struct wacom_features wacom_features_0xD8 =3D
+> +static const struct wacom_features wacom_features_0xD8 =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo Comic 2FG", WACOM_PKGLEN_BBFUN, =A0 21=
+648, 13530, 1023, 63, BAMBOO_PT };
+> -static struct wacom_features wacom_features_0xDA =3D
+> +static const struct wacom_features wacom_features_0xDA =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo 2FG 4x5 SE", WACOM_PKGLEN_BBFUN, =A014=
+720, =A09200, 1023, 63, BAMBOO_PT };
+> =A0static struct wacom_features wacom_features_0xDB =3D
+> =A0 =A0 =A0 =A0{ "Wacom Bamboo 2FG 6x8 SE", WACOM_PKGLEN_BBFUN, =A021=
+648, 13530, 1023, 63, BAMBOO_PT };
+> --
+> 1.7.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

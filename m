@@ -1,159 +1,103 @@
-From: "Joey Lee" <jlee@novell.com>
-Subject: Re: acer-wmi: rfkill and bluetooth enabling doesn't work as in
- 2.6.37
-Date: Mon, 28 Mar 2011 02:51:52 -0600
-Message-ID: <4D90E6D8020000230002A7E1@novprvlin0050.provo.novell.com>
-References: <4D79E5230200002300029ADA@novprvlin0050.provo.novell.com>
- <201103242234.03598.oldium.pro@seznam.cz>
- <4D8CE950020000230002A5DA@novprvlin0050.provo.novell.com>
- <201103252022.26766.oldium.pro@seznam.cz>
- <4D8DB372020000230002A653@novprvlin0050.provo.novell.com>
- <20110327170928.GB30244@core.coreip.homeip.net>
+From: Jeffrey Brown <jeffbrown@android.com>
+Subject: Re: [PATCH 4/4] input: evdev: only wake poll on EV_SYN
+Date: Mon, 28 Mar 2011 01:54:37 -0700
+Message-ID: <AANLkTikai5zePwGicXXKj1hpHt=4JLaKN3migfXe_8QE@mail.gmail.com>
+References: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
+ <1300842244-42723-5-git-send-email-jeffbrown@android.com> <20110325074920.GF2590@core.coreip.homeip.net>
+ <AANLkTikTOEimVER8eWT7yTUe7+4QS5epQWUAnoJD=B+=@mail.gmail.com> <20110328061214.GD31692@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20110327170928.GB30244@core.coreip.homeip.net>
-Content-Disposition: inline
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:32833 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753396Ab1C1IzS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Mar 2011 04:55:18 -0400
+In-Reply-To: <20110328061214.GD31692@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: davem@davemloft.net, marcel@holtmann.org, Al Cho <ACho@novell.com>, Gary Lin <GLin@novell.com>, oldium.pro@seznam.cz, johannes@sipsolutions.net, mjg59@srcf.ucam.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 Hi Dmitry,
 
-=E6=96=BC =E6=97=A5=EF=BC=8C2011-03-27 =E6=96=BC 10:09 -0700=EF=BC=8CDm=
-itry Torokhov =E6=8F=90=E5=88=B0=EF=BC=9A
-> On Fri, Mar 25, 2011 at 04:35:46PM -0600, Joey Lee wrote:
-> >=20
-> > Thank's for your information, I will look at it.
-> >=20
-> > Finally,
-> > I borrow a Acer Aspire one ZG8 from Gary, it can reproduce your
-> > situation.
-> >=20
-> > The BAD thing is you are right,=20
-> > I CAN REPRODUCE rfkill-input didn't receive any input, it not make =
-sense
-> > because rfkill-input registered input handler.
-> >=20
-> > The BT HW key still works because acer-wmi have polling to sync the
-> > state with EC and killswitch, and EC also take care the BT device p=
-ower
-> > off job.
-> >=20
-> > But, I also found SOMETIMES after system reboot, rfkill-input can
-> > capture the key event.
-> > We need find out why input handle didn't receive KEY_* event.
-> >=20
-> >=20
-> > Hi, Dmitry=20
-> >=20
-> > Appreciate if you can give us any good suggestions!
-> > Why keyboard emit KEY_BLUETOOTH, but rfkill-input, registered input
-> > handler, can't capture it?
-> >=20
-> > *** 06:32:42.972: lshal: device_condition,
-> > udi=3D/org/freedesktop/Hal/devices/platform_i8042_i8042_KBD_port_lo=
-gicaldev_input
-> >            condition_name=3DButtonPressed
-> >            condition_details=3Dbluetooth
-> >=20
-> > But, SOMETIMES after reboot system, rfkill-input can capture the ke=
-y.
-> > We are working on 2.6.38 kernel, and Acer notebook.
->=20
-> Hi Joey,
->=20
-> If you look in /proc/bus/input/devices do you see rfkill-input as
-> actually bound to the device that has KEY_BLUETOOTH?
->=20
+On Sun, Mar 27, 2011 at 11:12 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>> =A0 =A0 count =3D read(fd, buffer, sizeof(buffer) / sizeof(buffer[0]=
+));
+>
+> I hope this is simply a typo in pseudo-code - read takes size in byte=
+s,
+> not in number of structures.
 
-Like you said, we fell into the trap:
+Definitely a typo.  :)
 
-=46ail case:
+> Unfortunately your change fixes only first packet, like I mentioned.
+> Consider the following scenario:
+>
+> =A0- input core delivers events, we postpone waking up waiters
+> =A0 till we get EV_SYN/SYN_REPORT;
+> =A0- userspace is waken and consumes entire packet;
+> =A0- in the meantime input core delivered 3 more events;
+> =A0- userpsace executes poll;
+> =A0- kernel adds the process to poll waiters list (poll_wait() call i=
+n
+> =A0 evdev_poll();
+> =A0- evdev_poll() checks the condition, sees that there are events an=
+d
+> =A0 signals that the data is ready even though we did not accumulate
+> =A0 full event packet.
+>
+> Hence your fix did not reliably fix the issue you are seeing.
 
-linux-uy92:/proc/bus/input # vi devices
+Ahh, I see what you mean.  As long as the buffer is non-empty, poll()
+considers the stream to be readable therefore it does not block.
+That's a good thing as otherwise clients that poll() / read() one
+event at a time would be broken.
 
-I: Bus=3D0011 Vendor=3D0001 Product=3D0001 Version=3Dab41
-N: Name=3D"AT Translated Set 2 keyboard"
-P: Phys=3Disa0060/serio0/input0
-S: Sysfs=3D/devices/platform/i8042/serio0/input/input0
-U: Uniq=3D
-H: Handlers=3Dsysrq kbd event0
-B: PROP=3D0
-B: EV=3D120013
-B: KEY=3D10000 c0200 0 0 0 0 0 700f 2000003 3803078 f830f401 febfffdf f=
-fefffff ffffffff fffffffe
-B: MSC=3D10
-B: LED=3D7
+Delaying when we wake waiters is helpful in the common case but as you
+point out there still exists a potential degenerate case if the writer
+is busy and prevents the reader from ever catching up completely and
+blocking when the buffer is empty.  I haven't seen that happen but
+it's certainly possible.  In any case, it would be no worse than what
+we have now.
 
+> We might entertain notion of not considering device readable unless
+> there is a sync event that has not been consumed, but this is
+> significant change in semantics and we need much more consideration.
 
-Success case:
+Indeed.  That's why I brought the idea here for discussion.  :)
 
-linux-uy92:/proc/bus/input # vi devices=20
+=46or maximum compatibility we could define an ioctl to enable new
+readability semantics.  Existing clients would retain the old behavior
+(device is readable whenever it is non-empty).  I'm not sure this is
+really necessary but it might be useful to help diagnose bad drivers
+that never write sync packets.
 
-I: Bus=3D0011 Vendor=3D0001 Product=3D0001 Version=3Dab41
-N: Name=3D"AT Translated Set 2 keyboard"
-P: Phys=3Disa0060/serio0/input0
-S: Sysfs=3D/devices/platform/i8042/serio0/input/input0
-U: Uniq=3D
-H: Handlers=3Dsysrq kbd event0 rfkill
-B: PROP=3D0
-B: EV=3D120013
-B: KEY=3D10000 c0200 0 0 0 0 0 700f 2000003 3803078 f830f401 febfffdf f=
-fefffff ffffffff fffffffe
-B: MSC=3D10
-B: LED=3D7
+Suppose we adopt the invariant that when new readability semantics are
+enabled, clients are only allowed to read events that belong to
+complete packets.  That is, they can read events one at a time or in
+batches all they like but only up to and including the last sync
+event.
 
+Implementing this behavior is straightforward.
 
-In fail case, rfkill didn't register to keyboard's Handlers. And, I als=
-o
-checked the rfkill-input's .connect didn't call by input when system
-boot:
+Keep track of the end index one past the last readable event in the
+ring buffer.  The end index marks the end of the readable portion of
+the buffer.  Initially the read index and end index are the same
+(zero).  The read index is never allowed to advance past the end
+index.  When the read index equals the end index, the device is not
+readable.  (Equivalently, the device is only readable when the buffer
+contains at least one sync event that has not yet been read.)  When a
+sync event (other than SYN_MT_REPORT) is written, advance the end
+index past the sync event so that the entire packet becomes readable,
+then wake up the waiters because readability may have changed.
 
-=46ail case:
+How's that sound?
 
-[    7.144252] rfkill: rfkill_handler_init
-[    7.144277] rfkill: rfkill_handler_init, start input_register_handle=
-r
-
-
-Success case:
-
-[    7.580683] rfkill: rfkill_handler_init
-[    7.580714] rfkill: rfkill_handler_init, start input_register_handle=
-r
-[    7.580737] rfkill: doing input_register_handle
-
-> Since it is atkbd that is emitting KEY_BLUETOOTH and this key is not =
-in
-> the default keymap I think you must be loading Acer-specific keymap v=
-ia
-> udev or some other mechanism, and I guess stumbling upon a deficiency=
- in
-> input layer: we do not re-match devices after changing keymap. So if
-> rfkill-input was loaded before keymap was altered, then it will not b=
-ind
-> to the keyboard even if you add KE_BLUETOOTH at a later time. Fixing
-> this is something that was on my TODO list for a while now...
->=20
-> Thaks.
->=20
-
-Yes,
-this a race condition for rfkill-input register before udev set
-Acer-specific keymap.=20
-
-We didn't find it just because old acer-wmi driver hide the BIOS defaul=
-t
-devices states and always set bluetooth state to enabled when system
-boot.
-
-
-Thank's
-Joey Lee
-
+Thanks,
+Jeff.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

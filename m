@@ -1,54 +1,41 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/4] input: Set default events per packet.
-Date: Mon, 28 Mar 2011 09:10:16 +0200
-Message-ID: <20110328071016.GA6863@polaris.bitmath.org>
-References: <1300842244-42723-1-git-send-email-jeffbrown@android.com>
- <1300842244-42723-2-git-send-email-jeffbrown@android.com>
- <20110325082030.GB5664@polaris.bitmath.org>
- <AANLkTi=KotXd4TyyUrhMdKn3mEq+pz2ac3Vnraa5udFh@mail.gmail.com>
+Subject: Re: [PATCH] Wacom Intuos4 LED and OLED support
+Date: Mon, 28 Mar 2011 10:30:58 +0200
+Message-ID: <20110328083058.GA7368@polaris.bitmath.org>
+References: <1301225280-5642-1-git-send-email-eduard@hasenleithner.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp05.sth.basefarm.net ([80.76.153.6]:53121 "EHLO
-	ch-smtp05.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752517Ab1C1HGi (ORCPT
+Received: from ch-smtp04.sth.basefarm.net ([80.76.153.5]:40558 "EHLO
+	ch-smtp04.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752005Ab1C1I1U (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Mar 2011 03:06:38 -0400
+	Mon, 28 Mar 2011 04:27:20 -0400
 Content-Disposition: inline
-In-Reply-To: <AANLkTi=KotXd4TyyUrhMdKn3mEq+pz2ac3Vnraa5udFh@mail.gmail.com>
+In-Reply-To: <1301225280-5642-1-git-send-email-eduard@hasenleithner.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeffrey Brown <jeffbrown@android.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eduard Hasenleithner <eduard@hasenleithner.at>
+Cc: linux-input@vger.kernel.org
 
-> Originally, I set an arbitrary maximum bound of 20 slots.  In the
-> interests of keeping it simple, I decided to remove that bound when I
-> submitted the patch for review here.
+On Sun, Mar 27, 2011 at 01:28:00PM +0200, Eduard Hasenleithner wrote:
+> This commit enables control of the LEDs and OLED displays found
+> on the Wacom Intuos4 M, L, and XL. For this purpose, an IOCTL
+> interface is added to the wacom input driver. The IOCTLs can be
+> issued on the raw USB device of the tablet.
 > 
-> How about:
+> Summary of changes:
+> * A new ioctl-number (0xB2) for the Wacom IOCTL is allocated.
+> * A new header file for the IOCTLs is introduced
+> 	(include/linux/usb/wacom-dev.h)
+> * Implementation of LED and OLED control in wacom_wac.c
 > 
-> mt_slots = min(MAX_MT_SLOTS_TO_INFER_FROM_TRACKING_ID_RANGE,
->    dev->absinfo[ABS_MT_TRACKING_ID].maximum -
-> dev->absinfo[ABS_MT_TRACKING_ID].minimum + 1);
-> 
-> Where MAX_MT_SLOTS_TO_INFER_FROM_TRACKING_ID_RANGE is set to 32 or something.
+> Signed-off-by: Eduard Hasenleithner <eduard@hasenleithner.at>
 
-Sure, 32 works for me.
+Hi Eduard,
 
-> There's also the question of how many slots we should infer when
-> neither ABS_MT_SLOT or ABS_MT_TRACKING_ID is available.  The drivers
-> I've seen that don't provide tracking ids, are very basic and tend to
-> only support 2 touch points.
-
-There is the bcm5974 driver, but it sets its own limit, so 2 is fine.
-
-> I guess we could add a DEFAULT_NUMBER_OF_MT_SLOTS constant to handle that case.
-> 
-> Please feel free to suggest better names for these constants.
-
-With the same interest of keeping it simple in mind, inserting the
-actual values is fine. We do not expect to duplicate the decisions
-made in this function anywhere else.
+Did you consider using the LED input interface? Implement the
+input_dev event hook and write EV_LED events to the device node.
 
 Thanks,
 Henrik

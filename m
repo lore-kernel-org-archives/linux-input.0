@@ -1,82 +1,76 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH 2/3] input: pmic8xxx_pwrkey: Add support for power key
-Date: Mon, 28 Mar 2011 13:57:21 -0700
-Message-ID: <4D90F631.908@codeaurora.org>
-References: <1301158345-22206-1-git-send-email-aghayal@codeaurora.org> <1301158345-22206-3-git-send-email-aghayal@codeaurora.org>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
+Date: Tue, 29 Mar 2011 16:11:12 +0900
+Message-ID: <AANLkTimX+SQHaFjc=zARjuvdzX8OisQMHCBUgcR4V7sa@mail.gmail.com>
+References: <20110322142619.1109.89105.sendpatchset@t400s>
+	<20110322142855.GB2202@sirena.org.uk>
+	<20110322143307.GB24004@linux-sh.org>
+	<AANLkTimRV9vzOE7+VPX48y3KebLJSvBOkqxoM--9gqGb@mail.gmail.com>
+	<20110322153226.GC30303@linux-sh.org>
+	<AANLkTimyxdcJ-eEke9x7X1zdiJNbFtncfv0=NzKjtAme@mail.gmail.com>
+	<20110322155730.GD30303@linux-sh.org>
+	<AANLkTi=Fjc2f837ifH152Rh8W0PfiZvViYaLe=8XZo4Z@mail.gmail.com>
+	<20110322163144.GC2202@sirena.org.uk>
+	<AANLkTiniBVWhSiNZMRYbO857D_Vj03KxH4qYqkVo-11J@mail.gmail.com>
+	<20110322165907.GG22583@opensource.wolfsonmicro.com>
+	<AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1301158345-22206-3-git-send-email-aghayal@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Anirudh Ghayal <aghayal@codeaurora.org>
-Cc: linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Paul Mundt <lethal@linux-sh.org>, dmitry.torokhov@gmail.com, srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On 3/26/2011 9:52 AM, Anirudh Ghayal wrote:
-> +static void pmic8xxx_pwrkey_timer(unsigned long handle)
-> +{
-> +	unsigned long flags;
-> +	struct pmic8xxx_pwrkey *pwrkey = (struct pmic8xxx_pwrkey *)handle;
-> +
-> +	spin_lock_irqsave(&pwrkey->lock, flags);
-> +	pwrkey->key_pressed = true;
-> +
-> +	input_report_key(pwrkey->pwr, KEY_POWER, 1);
-> +	input_sync(pwrkey->pwr);
-> +	spin_unlock_irqrestore(&pwrkey->lock, flags);
-> +}
-> +
+On Thu, Mar 24, 2011 at 1:04 AM, Magnus Damm <magnus.damm@gmail.com> wrote:
+> On Wed, Mar 23, 2011 at 1:59 AM, Mark Brown
+> <broonie@opensource.wolfsonmicro.com> wrote:
+>> On Wed, Mar 23, 2011 at 01:51:02AM +0900, Magnus Damm wrote:
+>>
+>>> I'm not sure if this is i2c specific though - in general you probably
+>>> need to register the parent bus driver first.
+>>
+>> This was my original question - I'm not aware of any reason why you
+>> should need to register the driver for the specific bus first, it seems
+>> odd.
 >
-[snip]
-> +
-> +static irqreturn_t pwrkey_release_irq(int irq, void *_pwrkey)
-> +{
-> +	struct pmic8xxx_pwrkey *pwrkey = _pwrkey;
-> +	unsigned long flags;
-> +
-> +	/* no pwrkey time, means no delay in pwr key reporting */
-> +	if (!pwrkey->pdata->pwrkey_time_ms) {
-> +		input_report_key(pwrkey->pwr, KEY_POWER, 0);
-> +		input_sync(pwrkey->pwr);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	spin_lock_irqsave(&pwrkey->lock, flags);
-> +	del_timer_sync(&pwrkey->timer);
+> Can't see why it wouldn't work - in theory at least. I'll have a look tomorrow.
 
-Can you call del_timer_sync() while holding the lock that your timer
-function also acquires? I thought lockdep would have complained loudly
-about that but I'm not sure. It looks like a deadlock scenario.
+Ok, it seems like the I2C bus registration is working as expected.
+After digging into this a bit more I've discovered that the root cause
+seems to be related to clocks. On sh7372 the I2C controller and the
+serial console share the parent clock, and the setup order is
+affecting the serial console.
 
-> +static int __devinit pmic8xxx_pwrkey_probe(struct platform_device *pdev)
-> +{
->
-[snip]
-> +
-> +	if (pdata->kpd_trigger_delay_us > 62500) {
-> +		dev_err(&pdev->dev, "invalid pwr key trigger delay\n");
+Without this patch, if subsys_init() is used for tca6416-keypad then
+the I2C controller will be used at probe() time from the function
+tca6416_setup_registers() - this before the serial console driver has
+been initialized properly. The I2C controller used by tca6416 will
+stop the parent clock when the I2C bus access is finished. The serial
+console driver is driven early using earlyprintk at this time, and the
+clock is assumed to be enabled until the real driver is installed at
+module_init() time. So with subsys_init() in tca6416 the I2C
+controller stops the clock while the earlyprintk code assumes it to be
+on. This is causing delays.
 
-Nitpick: Can you spell out "power" here instead of pwr? Or use
-"kpd_trigger_delay_us" instead.
+If the tca6416 driver is changed to module_init() then the serial
+console driver will be initialized before the tca6416 driver due to
+the linking order and all is working fine.
 
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (pdata->pwrkey_time_ms &&
-> +	     (pdata->pwrkey_time_ms < 500 || pdata->pwrkey_time_ms > 1000)) {
-> +		dev_err(&pdev->dev, "invalid pwr key time supplied\n");
+As we already knew, the clock framework code in drivers/sh/clk should
+be updated to turn off unused clocks. To fix the issue in this mail
+thread we should also update the code to force the console clock to be
+enabled early on to make sure the serial console clock isn't turned
+off by accident.
 
-Ditto
+I propose that we convert the tca6416 driver to module_init() as a
+short term fix _and_ at the same time work on improving the clock
+framework code.
 
-> +
-> +	pon_cntl &= ~PON_CNTL_TRIG_DELAY_MASK;
-> +	pon_cntl |= (delay & PON_CNTL_TRIG_DELAY_MASK);
-> +	pon_cntl |= (pdata->pull_up ? PON_CNTL_PULL_UP : ~PON_CNTL_PULL_UP);
+Can anyone think of a reason why the tca6416 driver shouldn't be
+changed to module_init()?
 
-Did you just set a bunch of bits you didn't want to when pdata->pull_up
-== false?
+Thanks,
 
--- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+/ magnus

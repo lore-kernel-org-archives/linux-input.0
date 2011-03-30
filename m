@@ -1,73 +1,60 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] Remove debug_hid module parameter and replace debug
- statements with pr_debug()
-Date: Wed, 30 Mar 2011 16:56:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1103301654560.26754@pobox.suse.cz>
+From: "Jan Beulich" <JBeulich@novell.com>
+Subject: [PATCH] fix crash in synaptics_module_init()
+Date: Wed, 30 Mar 2011 17:05:38 +0100
+Message-ID: <4D9370F202000078000392A9@vpn.id2.novell.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:34886 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932599Ab1C3O4u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Mar 2011 10:56:50 -0400
-In-Reply-To: <1301445026-16442-2-git-send-email-root@yunbtp.(none
-References: <1301445026-16442-1-git-send-email-root@yunbtp.(none <1301445026-16442-2-git-send-email-root@yunbtp.(none
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Becka <yuen@klacno.sk>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: stable@kernel.org, dtor@mail.ru, dilinger@queued.net
 
-On Wed, 30 Mar 2011, root wrote:
+'struct dmi_system_id' arrays must always have a terminator to keep
+dmi_check_system() from looking at data (and possibly crashing) it
+isn't supposed to look at.
 
-> From: Marek Becka <yuen@klacno.sk>
+The issue went unnoticed until ef8313bb1a22e7d2125d9d758aa8a81f1de91d81,
+but was introduced about a year earlier with
+7705d548cbe33f18ea7713b9a07aa11047aaeca4 (which also similarly changed
+lifebook.c, but the problem there got eliminated shortly afterwards).
 
-Some explanation (changelog) would be good to have.
+The first hunk therefore is a stable candidate back to 2.6.33, while
+the full change is needed only on 2.6.38.
 
-Also, your message has been sent with 'From: root <root@yunbtp.suse.de>', 
-which looks rather strange.
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Cc: Andres Salomon <dilinger@queued.net>
+Cc: stable@kernel.org 
 
-> diff --git a/drivers/hid/hid-axff.c b/drivers/hid/hid-axff.c
-> index b455428..c0a4bf6 100644
-> --- a/drivers/hid/hid-axff.c
-> +++ b/drivers/hid/hid-axff.c
-> @@ -50,7 +50,7 @@ static int axff_play(struct input_dev *dev, void *data, struct ff_effect *effect
->  	left = effect->u.rumble.strong_magnitude;
->  	right = effect->u.rumble.weak_magnitude;
->  
-> -	dbg_hid("called with 0x%04x 0x%04x", left, right);
-> +	HID_DBG("called with 0x%04x 0x%04x", left, right);
+---
+ drivers/input/mouse/synaptics.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-[ ... snip ... ]
+--- 2.6.39-rc1/drivers/input/mouse/synaptics.c
++++ 2.6.39-rc1-mouse-synaptics-dmi/drivers/input/mouse/synaptics.c
+@@ -836,8 +836,8 @@ static const struct dmi_system_id __init
+ 		},
+ 
+ 	},
+-	{ }
+ #endif
++	{ }
+ };
+ 
+ static bool broken_olpc_ec;
+@@ -851,8 +851,8 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "XO"),
+ 		},
+ 	},
+-	{ }
+ #endif
++	{ }
+ };
+ 
+ void __init synaptics_module_init(void)
 
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index bb29bb1..eaad657 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -686,8 +686,6 @@ struct hid_ll_driver {
->  
->  /* HID core API */
->  
-> -extern int hid_debug;
-> -
->  extern int hid_add_device(struct hid_device *);
->  extern void hid_destroy_device(struct hid_device *);
->  
-> @@ -888,11 +886,8 @@ int hid_pidff_init(struct hid_device *hid);
->  #define hid_pidff_init NULL
->  #endif
->  
-> -#define dbg_hid(format, arg...)						\
-> -do {									\
-> -	if (hid_debug)							\
-> -		printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);	\
-> -} while (0)
-> +#define HID_DBG(fmt, arg...)				\
-> +       pr_debug("%s: " fmt "\n" , __func__ , ##arg)
->  
 
-1) why changing the name from dbg_hid to HID_DBG all over the place?
-2) why removing the 'if (hid_debug)' condition?
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.

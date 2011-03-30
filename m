@@ -1,60 +1,48 @@
-From: "Jan Beulich" <JBeulich@novell.com>
-Subject: [PATCH] fix crash in synaptics_module_init()
-Date: Wed, 30 Mar 2011 17:05:38 +0100
-Message-ID: <4D9370F202000078000392A9@vpn.id2.novell.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH 1/3] input/touchscreen: Synaptics RMI4 Touchscreen Driver
+Date: Wed, 30 Mar 2011 11:36:04 -0700
+Message-ID: <4D937814.5010604@synaptics.com>
+References: <1301446249-13646-1-git-send-email-cheiny@synaptics.com> <1301446249-13646-2-git-send-email-cheiny@synaptics.com> <20110330080223.GB2232@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
+Received: from us-mx4.synaptics.com ([12.178.49.178]:48386 "EHLO
+	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754680Ab1C3SgH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Mar 2011 14:36:07 -0400
+In-Reply-To: <20110330080223.GB2232@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: stable@kernel.org, dtor@mail.ru, dilinger@queued.net
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <WManson@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-'struct dmi_system_id' arrays must always have a terminator to keep
-dmi_check_system() from looking at data (and possibly crashing) it
-isn't supposed to look at.
+On 03/30/2011 01:02 AM, Wolfram Sang wrote:
+> * PGP Signed by an unknown key: 03/30/2011 at 12:02:23 AM
+> Hi,
+>
+>> +	retval = rmi_register_sensor(&instancedata->rmiphysdrvr, platformdata->perfunctiondata);
+>> +	if (retval) {
+>> +		dev_err(&client->dev, "%s: Failed to Register %s sensor drivers\n",
+>> +				__func__, instancedata->rmiphysdrvr.name);
+>> +		i2c_set_clientdata(client, NULL);
+>
+> I originally just wanted to say that this line can be removed. Then I
+> remembered that I already sent a patch for a similar driver in staging
+> (dc7b202a4ee6cb686e2bbef80c84443f43ec91bd). The staging driver looks in
+> a better shape to me. Do you know about it?
 
-The issue went unnoticed until ef8313bb1a22e7d2125d9d758aa8a81f1de91d81,
-but was introduced about a year earlier with
-7705d548cbe33f18ea7713b9a07aa11047aaeca4 (which also similarly changed
-lifebook.c, but the problem there got eliminated shortly afterwards).
+Hi Wolfram,
 
-The first hunk therefore is a stable candidate back to 2.6.33, while
-the full change is needed only on 2.6.38.
+That call is required in order to register the sensor device on the rmi 
+bus, so that the rmi functions can be associated with it.  Without that 
+call, the driver will not function.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
-Cc: Dmitry Torokhov <dtor@mail.ru>
-Cc: Andres Salomon <dilinger@queued.net>
-Cc: stable@kernel.org 
+I'm afraid I can't locate the commit you specified.  I do find a driver 
+in staging/ste_rmi4/synaptics_i2c_rmi4.[ch] - is that the one?  If not 
+which, tree/branch can I find it in?
 
----
- drivers/input/mouse/synaptics.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- 2.6.39-rc1/drivers/input/mouse/synaptics.c
-+++ 2.6.39-rc1-mouse-synaptics-dmi/drivers/input/mouse/synaptics.c
-@@ -836,8 +836,8 @@ static const struct dmi_system_id __init
- 		},
- 
- 	},
--	{ }
- #endif
-+	{ }
- };
- 
- static bool broken_olpc_ec;
-@@ -851,8 +851,8 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "XO"),
- 		},
- 	},
--	{ }
- #endif
-+	{ }
- };
- 
- void __init synaptics_module_init(void)
-
-
+					Thanks,
+						Chris
 

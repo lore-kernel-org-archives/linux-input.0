@@ -1,37 +1,94 @@
-From: Christopher Heiny <Cheiny@synaptics.com>
-Subject: RE: [PATCH 1/3] input/touchscreen: Synaptics RMI4 Touchscreen Driver
-Date: Wed, 30 Mar 2011 07:00:39 -0700
-Message-ID: <7F4B01C67BC89E4CB219B3E4BCFAE7F16BEBEF6167@USW-EX2K7-1.synaptics-inc.local>
-References: <1301446249-13646-1-git-send-email-cheiny@synaptics.com>
- <1301446249-13646-2-git-send-email-cheiny@synaptics.com>,<AANLkTi=jFSrbRaAN57JxRfTyVZTCtB+3jOGPL4yLs=_w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH 3/3] (corrected) input/touchscreen: Synaptics RMI4 Touchscreen Driver
+Date: Wed, 30 Mar 2011 07:05:27 -0700
+Message-ID: <1301493927-30237-4-git-send-email-cheiny@synaptics.com>
+References: <1301493927-30237-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx4.synaptics.com ([12.178.49.178]:24079 "EHLO
-	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755127Ab1C3OKw convert rfc822-to-8bit (ORCPT
+Received: from misc-148-66-126-238.pool.starband.net ([148.66.126.238]:48832
+	"EHLO brontomerus.synaptics.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754812Ab1C3OYZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Mar 2011 10:10:52 -0400
-In-Reply-To: <AANLkTi=jFSrbRaAN57JxRfTyVZTCtB+3jOGPL4yLs=_w@mail.gmail.com>
-Content-Language: en-US
+	Wed, 30 Mar 2011 10:24:25 -0400
+In-Reply-To: <1301493927-30237-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joerie de Gram <j.de.gram@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <WManson@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-Yoicks!  Stand by for a correction.
-________________________________________
-From: Joerie de Gram [j.de.gram@gmail.com]
-Sent: Wednesday, March 30, 2011 4:46 AM
-To: Christopher Heiny
-Cc: Dmitry Torokhov; Jean Delvare; Linux Kernel; Linux Input; Allie Xiong; William Manson; Linus Walleij; Naveen Kumar Gaddipati
-Subject: Re: [PATCH 1/3] input/touchscreen: Synaptics RMI4 Touchscreen Driver
+Driver for Synaptics touchscreens using RMI4 protocol.
 
-Hi,
+Signed-off-by: William Manson <wmanson@synaptics.com>
+Signed-off-by: Allie Xiong <axiong@synaptics.com>
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 
-> +#include "rmi.h"
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: Joeri de Gram <j.de.gram@gmail.com>
 
-This header is missing.
+Acked-by: Jean Delvare <khali@linux-fr.org>
 
-Joerie
+---
+
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 718bcc8..3181008 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -41,6 +41,16 @@ obj-$(CONFIG_TOUCHSCREEN_QT602240)	+= qt602240_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
++CFLAGS_rmi_bus.o := -DDEBUG
++CFLAGS_rmi_sensor.o := -DDEBUG
++CFLAGS_rmi_function.o := -DDEBUG
++CFLAGS_rmi_f01.o := -DDEBUG
++CFLAGS_rmi_f11.o := -DDEBUG
++CFLAGS_rmi_f19.o := -DDEBUG
++CFLAGS_rmi_f34.o := -DDEBUG
++CFLAGS_rmi_i2c.o := -DDEBUG
++obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_RMI4_I2C)	+=  rmi_bus.o rmi_sensor.o rmi_function.o rmi_f01.o rmi_f11.o rmi_f19.o rmi_f34.o rmi_i2c.o
++obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_RMI4_SPI)	+=  rmi_bus.o rmi_sensor.o rmi_function.o rmi_f01.o rmi_f11.o rmi_f19.o rmi_f34.o rmi_spi.o
+ obj-$(CONFIG_TOUCHSCREEN_TNETV107X)	+= tnetv107x-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 61834ae..2b2f6dc 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -362,6 +362,36 @@ config TOUCHSCREEN_MIGOR
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called migor_ts.
+ 
++config TOUCHSCREEN_SYNAPTICS_RMI4_I2C
++	tristate "Synaptics RMI4 I2C touchscreens"
++	depends on I2C
++	help
++	  Say Y here if you have a Synaptics RMI4 I2C touchscreen connected to
++	  your system. This enables support for Synaptics RMI4 over I2C based
++	  touchscreens.
++
++	  If unsure, say N.
++
++	  To compile this driver as a set of modules, choose M here: the
++	  modules will be called rmi_core, rmi_app_touchpad, rmi_phys_i2c.
++
++config TOUCHSCREEN_SYNAPTICS_RMI4_SPI
++	tristate "Synaptics RMI4 SPI touchscreens"
++	depends on SPI
++	help
++	  Say Y here if you have a Synaptics RMI4 SPI touchscreen connected to
++	  your system. This enables support for Synaptics RMI4 over SPI based
++	  touchscreens.
++
++	  If unsure, say N.
++
++	  To compile this driver as a set of modules, choose M here: the
++	  modules will be called rmi_core, rmi_app_touchpad, rmi_phys_spi.
++
++config SYNA_MULTI_TOUCH
++	bool "Synaptics pointing using multi-touch events"
++	depends on TOUCHSCREEN_SYNAPTICS_RMI4_I2C || TOUCHSCREEN_SYNAPTICS_RMI4_SPI
++
+ config TOUCHSCREEN_TNETV107X
+ 	tristate "TI TNETV107X touchscreen support"
+ 	depends on ARCH_DAVINCI_TNETV107X

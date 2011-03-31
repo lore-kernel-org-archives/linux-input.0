@@ -1,54 +1,23 @@
-From: Richard Purdie <richard.purdie@linuxfoundation.org>
-Subject: Re: [PATCH V2] Add the support of the touchscreen keypad of
- tsc2007 .
-Date: Thu, 31 Mar 2011 09:49:04 +0100
-Message-ID: <1301561344.24596.102.camel@rex>
-References: <1301219192-5293-1-git-send-email-wanlong.gao@gmail.com>
-	 <20110331053324.GB31630@core.coreip.homeip.net>
+From: "wanlong.gao" <wanlong.gao@gmail.com>
+Subject: Re: Re: [PATCH V2] Add the support of the touchscreen keypad of tsc2007 .
+Date: Thu, 31 Mar 2011 20:08:13 +0800
+Message-ID: <201103312006547968762@gmail.com>
+References: <1301219192-5293-1-git-send-email-wanlong.gao@gmail.com>,
+ <20110331053324.GB31630@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 93-97-173-237.zone5.bethere.co.uk ([93.97.173.237]:53582 "EHLO
-	tim.rpsys.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756340Ab1CaJYc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Mar 2011 05:24:32 -0400
-In-Reply-To: <20110331053324.GB31630@core.coreip.homeip.net>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:61812 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754531Ab1CaMIZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Mar 2011 08:08:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: wanlong.gao@gmail.com, w.sang@pengutronix.de, broonie@opensource.wolfsonmicro.com, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiaweiwei.xiyou@gmail.com
+Cc: "w.sang" <w.sang@pengutronix.de>, rpurdie <rpurdie@linux.intel.com>, broonie <broonie@opensource.wolfsonmicro.com>, khali <khali@linux-fr.org>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "jiaweiwei.xiyou" <jiaweiwei.xiyou@gmail.com>
 
-On Wed, 2011-03-30 at 22:33 -0700, Dmitry Torokhov wrote:
-> Hi Wanlong,
-> 
-> On Sun, Mar 27, 2011 at 05:46:32PM +0800, wanlong.gao@gmail.com wrote:
-> > From: Wanlong Gao <wanlong.gao@gmail.com>
-> > 
-> > Many touchscreens support touch-keypad .
-> > Open the definition of the TOUCHSCREEN_TSC2007_WITH_KEYPAD, you can
-> > open the support of the touchscreen's keypad .
-> > We can add the support of the touchscreen keypad in the driver.
-> > In this patch , add the ts_key_pos array to determine the position
-> > of the key's X. And the ts_key_sensitivity can use to detemine the
-> > key's sensitivity. You can modify the ts_key_pos array for you own
-> > touchscreen keys . And modify the ts_key_sensitivity for you own
-> > key's sensitivity .
-> > If you want to modify the ts_key_map, change the position of the
-> > keys ,too.
-> 
-> No, this kind of data transformation does not belong to a driver (or,
-> really in kernel). It is in no way TSC2007 specific (any touchscreen
-> could be used in place of TSC2007 here).
-> 
-> Do it in userspace and either loop the events back into kernel (after
-> parsing) via uinput or feed directly into your framework.
-
-There is even code out there already which does exactly that:
-
-http://svn.o-hand.com/view/misc/trunk/zaurusd/apps/tskeys/tskeys.c?rev=415&view=markup
-
-Cheers,
-
-Richard
+Thank you for your comments, and benefited a lot.
 

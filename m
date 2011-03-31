@@ -1,54 +1,40 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH resend] input/spear-keyboard fix: return IRQ_NONE if
- (status reg & DATA_AVAIL)
-Date: Wed, 30 Mar 2011 22:34:03 -0700
-Message-ID: <20110331053402.GC31630@core.coreip.homeip.net>
-References: <1301313546-24420-1-git-send-email-rajeev-dlh.kumar@st.com>
+Subject: Re: [PATCH] fix crash in synaptics_module_init()
+Date: Thu, 31 Mar 2011 00:06:46 -0700
+Message-ID: <20110331070646.GA12711@core.coreip.homeip.net>
+References: <4D9370F202000078000392A9@vpn.id2.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:40893 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:55971 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754594Ab1CaFfA (ORCPT
+	with ESMTP id S1753252Ab1CaHGu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Mar 2011 01:35:00 -0400
-Received: by iwn34 with SMTP id 34so2018569iwn.19
-        for <linux-input@vger.kernel.org>; Wed, 30 Mar 2011 22:35:00 -0700 (PDT)
+	Thu, 31 Mar 2011 03:06:50 -0400
+Received: by iwn34 with SMTP id 34so2083434iwn.19
+        for <linux-input@vger.kernel.org>; Thu, 31 Mar 2011 00:06:50 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1301313546-24420-1-git-send-email-rajeev-dlh.kumar@st.com>
+In-Reply-To: <4D9370F202000078000392A9@vpn.id2.novell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rajeev Kumar <rajeev-dlh.kumar@st.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, shiraz.hashim@st.com, armando.visconti@st.com, viresh.kumar@st.com, amit.goel@st.com
+To: Jan Beulich <JBeulich@novell.com>
+Cc: linux-input@vger.kernel.org, stable@kernel.org, dilinger@queued.net
 
-On Mon, Mar 28, 2011 at 05:29:06PM +0530, Rajeev Kumar wrote:
-> We should return IRQ_NONE from interrupt handler in case data is not
-> avail for keyboard
+On Wed, Mar 30, 2011 at 05:05:38PM +0100, Jan Beulich wrote:
+> 'struct dmi_system_id' arrays must always have a terminator to keep
+> dmi_check_system() from looking at data (and possibly crashing) it
+> isn't supposed to look at.
+> 
+> The issue went unnoticed until ef8313bb1a22e7d2125d9d758aa8a81f1de91d81,
+> but was introduced about a year earlier with
+> 7705d548cbe33f18ea7713b9a07aa11047aaeca4 (which also similarly changed
+> lifebook.c, but the problem there got eliminated shortly afterwards).
+> 
+> The first hunk therefore is a stable candidate back to 2.6.33, while
+> the full change is needed only on 2.6.38.
 > 
 
-Applied, thank you Rajeev.
-
-> Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar@st.com>
-> ---
->  drivers/input/keyboard/spear-keyboard.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
-> index f18dc67..c6ab1df 100644
-> --- a/drivers/input/keyboard/spear-keyboard.c
-> +++ b/drivers/input/keyboard/spear-keyboard.c
-> @@ -70,7 +70,7 @@ static irqreturn_t spear_kbd_interrupt(int irq, void *dev_id)
->  	u8 sts, val;
->  
->  	sts = readb(kbd->io_base + STATUS_REG);
-> -	if (sts & DATA_AVAIL)
-> +	if (!(sts & DATA_AVAIL))
->  		return IRQ_NONE;
->  
->  	if (kbd->last_key != KEY_RESERVED) {
-> -- 
-> 1.6.0.2
-> 
+Applied, thanks Jan.
 
 -- 
 Dmitry

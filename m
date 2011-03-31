@@ -1,80 +1,131 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 1/3] input/touchscreen: Synaptics RMI4 Touchscreen Driver
-Date: Wed, 30 Mar 2011 14:08:43 -0700
-Message-ID: <4D939BDB.6050304@synaptics.com>
-References: <1301446249-13646-1-git-send-email-cheiny@synaptics.com> <1301446249-13646-2-git-send-email-cheiny@synaptics.com> <20110330080223.GB2232@pengutronix.de> <4D937814.5010604@synaptics.com> <20110330194412.GA26261@pengutronix.de>
+From: Harry Wei <jiaweiwei.xiyou@gmail.com>
+Subject: Re: [PATCH V2] Add the support of the touchscreen keypad of
+ tsc2007 .
+Date: Thu, 31 Mar 2011 09:36:02 +0800
+Message-ID: <20110331013600.GA3163@gmail.com>
+References: <1301219192-5293-1-git-send-email-wanlong.gao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110330194412.GA26261@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <WManson@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:59646 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755502Ab1CaBgS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Mar 2011 21:36:18 -0400
+Content-Disposition: inline
+In-Reply-To: <1301219192-5293-1-git-send-email-wanlong.gao@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: wanlong.gao@gmail.com
+Cc: khali@linux-fr.org, broonie@opensource.wolfsonmicro.com, rpurdie@linux.intel.com, w.sang@pengutronix.de, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 03/30/2011 12:44 PM, Wolfram Sang wrote:
-> * PGP Signed by an unknown key: 03/30/2011 at 11:44:12 AM
-> On Wed, Mar 30, 2011 at 11:36:04AM -0700, Christopher Heiny wrote:
->> On 03/30/2011 01:02 AM, Wolfram Sang wrote:
->>>> Old Signed by an unknown key: 03/30/2011 at 12:02:23 AM
->>> Hi,
->>>
->>>> +	retval = rmi_register_sensor(&instancedata->rmiphysdrvr, platformdata->perfunctiondata);
->>>> +	if (retval) {
->>>> +		dev_err(&client->dev, "%s: Failed to Register %s sensor drivers\n",
->>>> +				__func__, instancedata->rmiphysdrvr.name);
->>>> +		i2c_set_clientdata(client, NULL);
->>>
->>> I originally just wanted to say that this line can be removed. Then I
->>> remembered that I already sent a patch for a similar driver in staging
->>> (dc7b202a4ee6cb686e2bbef80c84443f43ec91bd). The staging driver looks in
->>> a better shape to me. Do you know about it?
->>
->> That call is required in order to register the sensor device on the
->
-> I meant the last line, setting clientdata to NULL is not needed anymore.
-
-D'oh!  OK, we'll remove that.
-
-
->> I'm afraid I can't locate the commit you specified.
->
-> Direct search failed for me, too, but here is the link:
->
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=dc7b202a4ee6cb686e2bbef80c84443f43ec91bd
-
-Thanks - yes, I looked at that one when it was first submitted.
-
->> I do find a driver in staging/ste_rmi4/synaptics_i2c_rmi4.[ch] - is that the
->> one?
->
-> Yes, I meant this one. Looks a bit better from a glimpse; no '#if 0'-blocks,
-> much less printk. I just wondered how these two are related and if it makes
-> sense to join efforts here.
-
-Yah, the ste_rmi4 patch is a lot tidier in those terms.  One of the 
-issues we're facing is that not only are we developing our code for 
-kernel.org submission, we also have to support various in-development 
-customer projects at the same time out of the same codebase.  The #ifs 
-and printks tend to slip in under the radar in that process - we'll work 
-on vetting this better during the patch preparation process.
-
-The ste_rmi4 patch and our work share a common ancestor in some older 
-reference code that we distributed in 2009.  There's nothing 
-particularly wrong with the ste_rmi4 patch in and of itself, but for our 
-purposes going forward we require a more generic and modular structure. 
-  In particular, we needed to separate the communications code from the 
-functional implementation code, allow multiple RMI4 sensors on a single 
-system (possibly using different communications mechanisms) and to 
-enable future modular loading of individual function implementations. 
-Along with some other features, Dmitry required implementing an rmi bus, 
-and we've been proceeding with that design.
-
-It does make sense to join efforts going forward.  Any contributions you 
-would like to make would be happily accepted.  Our current architecture 
-is pretty much committed as the direction going forward (both for 
-Synaptics and for kernel.org), so I think the most sensible thing is to 
-use the recent Synaptics patch as the basis for that.
-
-					Chris
+On Sun, Mar 27, 2011 at 05:46:32PM +0800, wanlong.gao@gmail.com wrote:
+> From: Wanlong Gao <wanlong.gao@gmail.com>
+> 
+> Many touchscreens support touch-keypad .
+> Open the definition of the TOUCHSCREEN_TSC2007_WITH_KEYPAD, you can
+> open the support of the touchscreen's keypad .
+> We can add the support of the touchscreen keypad in the driver.
+> In this patch , add the ts_key_pos array to determine the position
+> of the key's X. And the ts_key_sensitivity can use to detemine the
+> key's sensitivity. You can modify the ts_key_pos array for you own
+> touchscreen keys . And modify the ts_key_sensitivity for you own
+> key's sensitivity .
+> If you want to modify the ts_key_map, change the position of the
+> keys ,too.
+> 
+> Signed-off-by: Wanlong Gao <wanlong.gao@gmail.com>
+Reviewed-by: Harry Wei <harryxiyou@gmail.com>
+> ---
+>  drivers/input/touchscreen/tsc2007.c |   48 +++++++++++++++++++++++++++++++++++
+>  1 files changed, 48 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+> index 80467f2..8f70fca 100644
+> --- a/drivers/input/touchscreen/tsc2007.c
+> +++ b/drivers/input/touchscreen/tsc2007.c
+> @@ -83,6 +83,51 @@ struct tsc2007 {
+>  	void			(*clear_penirq)(void);
+>  };
+>  
+> +/*
+> +#define	TOUCHSCREEN_TSC2007_WITH_KEYPAD
+> +*/
+> +#ifndef	TOUCHSCREEN_TSC2007_WITH_KEYPAD
+> +static void ts_key_set_capacity(struct input_dev *input) {};
+> +static void ts_key_up(struct input_dev *input) {};
+> +static void ts_key_event(struct input_dev *input, u16 x, u16 y) {};
+> +#else
+> +static int ts_key_pos[] = {700, 1650, 2550, 3500};
+> +static int ts_key_map[] = {KEY_MENU, KEY_HOME, KEY_BACK, KEY_SEARCH};
+> +/* you can modify this value to change the touch_key's sensitivity */
+> +static int ts_key_sensitivity = 50;
+> +
+> +static void ts_key_set_capacity(struct input_dev *input)
+> +{
+> +	int i;
+> +	for (i = 0; i < ARRAY_SIZE(ts_key_map); i++) {
+> +		input_set_capability(input, EV_KEY, ts_key_map[i]);
+> +	}
+You only have one statement after 'for-recycle', so it should program
+like following.
+for (i = 0; i < ARRAY_SIZE(ts_key_map); i++)
+	input_set_capability(input, EV_KEY, ts_key_map[i]);
+> +}
+> +
+> +/* you must have an input_sync() followed this func . */
+> +static void ts_key_up(struct input_dev *input)
+> +{
+> +	int i;
+> +	for (i = 0; i < ARRAY_SIZE(ts_key_map); i++) {
+> +		input_report_key(input, ts_key_map[i], 0);
+> +	}
+for (i = 0; i < ARRAY_SIZE(ts_key_map); i++)
+	input_report_key(input, ts_key_map[i], 0);
+> +}
+> +
+> +static void ts_key_event(struct input_dev *input, u16 x, u16 y)
+> +{
+> +	int i;
+> +	if (y > MAX_12BIT) {
+> +		for (i = 0; i < ARRAY_SIZE(ts_key_pos); i++) {
+> +			if ((x > (ts_key_pos[i] - ts_key_sensitivity)) &&
+> +				(x < (ts_key_pos[i] + ts_key_sensitivity))) {
+> +				input_report_key(input, ts_key_map[i], 1);
+> +				input_sync(input);
+> +			}
+> +		}
+> +	}
+> +}
+> +#endif
+> +
+>  static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
+>  {
+>  	s32 data;
+> @@ -149,6 +194,7 @@ static void tsc2007_send_up_event(struct tsc2007 *tsc)
+>  
+>  	input_report_key(input, BTN_TOUCH, 0);
+>  	input_report_abs(input, ABS_PRESSURE, 0);
+> +	ts_key_up(input);
+>  	input_sync(input);
+>  }
+>  
+> @@ -201,6 +247,7 @@ static void tsc2007_work(struct work_struct *work)
+>  		if (!ts->pendown) {
+>  			dev_dbg(&ts->client->dev, "DOWN\n");
+>  
+> +			ts_key_event(input, tc.x, tc.y);
+>  			input_report_key(input, BTN_TOUCH, 1);
+>  			ts->pendown = true;
+>  		}
+> @@ -308,6 +355,7 @@ static int __devinit tsc2007_probe(struct i2c_client *client,
+>  	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+>  	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+>  	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
+> +	ts_key_set_capacity(input_dev);
+>  
+>  	if (pdata->init_platform_hw)
+>  		pdata->init_platform_hw();
+> -- 
+> 1.7.3
+> 

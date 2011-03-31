@@ -1,131 +1,52 @@
-From: Harry Wei <jiaweiwei.xiyou@gmail.com>
-Subject: Re: [PATCH V2] Add the support of the touchscreen keypad of
- tsc2007 .
-Date: Thu, 31 Mar 2011 09:36:02 +0800
-Message-ID: <20110331013600.GA3163@gmail.com>
-References: <1301219192-5293-1-git-send-email-wanlong.gao@gmail.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH 0/3] input/touchscreen: Synaptics RMI4 Touchscreen Driver
+Date: Wed, 30 Mar 2011 19:35:09 -0700
+Message-ID: <4D93E85D.6080204@synaptics.com>
+References: <1301493927-30237-1-git-send-email-cheiny@synaptics.com> <20110330200238.GA9493@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:59646 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755502Ab1CaBgS (ORCPT
+Received: from us-mx4.synaptics.com ([12.178.49.178]:55898 "EHLO
+	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755543Ab1CaCfM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Mar 2011 21:36:18 -0400
-Content-Disposition: inline
-In-Reply-To: <1301219192-5293-1-git-send-email-wanlong.gao@gmail.com>
+	Wed, 30 Mar 2011 22:35:12 -0400
+In-Reply-To: <20110330200238.GA9493@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: wanlong.gao@gmail.com
-Cc: khali@linux-fr.org, broonie@opensource.wolfsonmicro.com, rpurdie@linux.intel.com, w.sang@pengutronix.de, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <WManson@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-On Sun, Mar 27, 2011 at 05:46:32PM +0800, wanlong.gao@gmail.com wrote:
-> From: Wanlong Gao <wanlong.gao@gmail.com>
-> 
-> Many touchscreens support touch-keypad .
-> Open the definition of the TOUCHSCREEN_TSC2007_WITH_KEYPAD, you can
-> open the support of the touchscreen's keypad .
-> We can add the support of the touchscreen keypad in the driver.
-> In this patch , add the ts_key_pos array to determine the position
-> of the key's X. And the ts_key_sensitivity can use to detemine the
-> key's sensitivity. You can modify the ts_key_pos array for you own
-> touchscreen keys . And modify the ts_key_sensitivity for you own
-> key's sensitivity .
-> If you want to modify the ts_key_map, change the position of the
-> keys ,too.
-> 
-> Signed-off-by: Wanlong Gao <wanlong.gao@gmail.com>
-Reviewed-by: Harry Wei <harryxiyou@gmail.com>
-> ---
->  drivers/input/touchscreen/tsc2007.c |   48 +++++++++++++++++++++++++++++++++++
->  1 files changed, 48 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-> index 80467f2..8f70fca 100644
-> --- a/drivers/input/touchscreen/tsc2007.c
-> +++ b/drivers/input/touchscreen/tsc2007.c
-> @@ -83,6 +83,51 @@ struct tsc2007 {
->  	void			(*clear_penirq)(void);
->  };
->  
-> +/*
-> +#define	TOUCHSCREEN_TSC2007_WITH_KEYPAD
-> +*/
-> +#ifndef	TOUCHSCREEN_TSC2007_WITH_KEYPAD
-> +static void ts_key_set_capacity(struct input_dev *input) {};
-> +static void ts_key_up(struct input_dev *input) {};
-> +static void ts_key_event(struct input_dev *input, u16 x, u16 y) {};
-> +#else
-> +static int ts_key_pos[] = {700, 1650, 2550, 3500};
-> +static int ts_key_map[] = {KEY_MENU, KEY_HOME, KEY_BACK, KEY_SEARCH};
-> +/* you can modify this value to change the touch_key's sensitivity */
-> +static int ts_key_sensitivity = 50;
-> +
-> +static void ts_key_set_capacity(struct input_dev *input)
-> +{
-> +	int i;
-> +	for (i = 0; i < ARRAY_SIZE(ts_key_map); i++) {
-> +		input_set_capability(input, EV_KEY, ts_key_map[i]);
-> +	}
-You only have one statement after 'for-recycle', so it should program
-like following.
-for (i = 0; i < ARRAY_SIZE(ts_key_map); i++)
-	input_set_capability(input, EV_KEY, ts_key_map[i]);
-> +}
-> +
-> +/* you must have an input_sync() followed this func . */
-> +static void ts_key_up(struct input_dev *input)
-> +{
-> +	int i;
-> +	for (i = 0; i < ARRAY_SIZE(ts_key_map); i++) {
-> +		input_report_key(input, ts_key_map[i], 0);
-> +	}
-for (i = 0; i < ARRAY_SIZE(ts_key_map); i++)
-	input_report_key(input, ts_key_map[i], 0);
-> +}
-> +
-> +static void ts_key_event(struct input_dev *input, u16 x, u16 y)
-> +{
-> +	int i;
-> +	if (y > MAX_12BIT) {
-> +		for (i = 0; i < ARRAY_SIZE(ts_key_pos); i++) {
-> +			if ((x > (ts_key_pos[i] - ts_key_sensitivity)) &&
-> +				(x < (ts_key_pos[i] + ts_key_sensitivity))) {
-> +				input_report_key(input, ts_key_map[i], 1);
-> +				input_sync(input);
-> +			}
-> +		}
-> +	}
-> +}
-> +#endif
-> +
->  static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
->  {
->  	s32 data;
-> @@ -149,6 +194,7 @@ static void tsc2007_send_up_event(struct tsc2007 *tsc)
->  
->  	input_report_key(input, BTN_TOUCH, 0);
->  	input_report_abs(input, ABS_PRESSURE, 0);
-> +	ts_key_up(input);
->  	input_sync(input);
->  }
->  
-> @@ -201,6 +247,7 @@ static void tsc2007_work(struct work_struct *work)
->  		if (!ts->pendown) {
->  			dev_dbg(&ts->client->dev, "DOWN\n");
->  
-> +			ts_key_event(input, tc.x, tc.y);
->  			input_report_key(input, BTN_TOUCH, 1);
->  			ts->pendown = true;
->  		}
-> @@ -308,6 +355,7 @@ static int __devinit tsc2007_probe(struct i2c_client *client,
->  	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
->  	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
->  	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
-> +	ts_key_set_capacity(input_dev);
->  
->  	if (pdata->init_platform_hw)
->  		pdata->init_platform_hw();
-> -- 
-> 1.7.3
-> 
+On 03/30/2011 01:02 PM, Dmitry Torokhov wrote:
+> Hi Chris,
+>
+> On Wed, Mar 30, 2011 at 07:05:24AM -0700, Christopher Heiny wrote:
+>> This patch implements a driver supporting Synaptics ClearPad and other
+>> touchscreens that use the RMI4 protocol, as defined here:
+>>
+>>      http://www.synaptics.com/sites/default/files/511-000136-01_revD.pdf
+>>
+>> This patch is against the v2.6.38 tag of Linus' kernel tree, commit
+>> 521cb40b0c44418a4fd36dc633f575813d59a43d.  Note that previous patches
+>> were against the synaptics-rmi4 branch of Dmitry Torokhov's input
+>> tree.  At Dmitry's request, we have switched the base for our work
+>> to v2.6.38 - this should make it easier for people to pick up and
+>> test this and future patches.
+>>
+>
+> The source as sumitted is quite "dirty" i.e. littered with multiple #if
+> 0...#endif etc. Cooudl you please clean it up and resubmit so that
+> unneeded details/code would not get into the way of reviiewing the
+> driver?
+
+I've done some tidy up.  Two #if 0's still exist, surrounding code that 
+causes problems on some dev systems.  The remaining #if 0's have been 
+removed or converted to a more conventional and compact approach that 
+shouldn't interfere with understanding the code.
+
+I've also removed a bunch of extraneous printks.
+
+Patch to follow in a few minutes.
+
+						Chris

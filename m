@@ -1,32 +1,46 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH] Input: twl4030_keypad - fix potential NULL dereference
- in twl4030_kp_probe()
-Date: Fri, 1 Apr 2011 18:18:44 +0300
-Message-ID: <20110401151843.GB2164@legolas.emea.dhcp.ti.com>
-References: <1301670483.6013.4.camel@phoenix>
-Reply-To: balbi@ti.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH resend] hid-magicmouse: Increase evdev buffer size
+Date: Fri,  1 Apr 2011 17:03:39 -0400
+Message-ID: <1301691819-2090-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog102.obsmtp.com ([74.125.149.69]:37658 "EHLO
-	na3sys009aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757193Ab1DAPSv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 Apr 2011 11:18:51 -0400
-Content-Disposition: inline
-In-Reply-To: <1301670483.6013.4.camel@phoenix>
+Received: from adelie.canonical.com ([91.189.90.139]:36093 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753582Ab1DAVDn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Apr 2011 17:03:43 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, David Brownell <dbrownell@users.sourceforge.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Simon Budig <simon@budig.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Apr 01, 2011 at 11:08:03PM +0800, Axel Lin wrote:
-> We should first check whether platform data is NULL or not, before
-> dereferencing it to get the keymap.
-> 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+The evdev buffer isn't big enough when you get many fingers on the
+device. Bump up the buffer to a reasonable size, matching what other
+multitouch devices use. Without this change, events may be discarded in
+the evdev buffer before they are read.
 
-Reviewed-by: Felipe Balbi <balbi@ti.com>
+Reported-by: Simon Budig <simon@budig.de>
+Cc: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: stable@kernel.org
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+Forgot to Cc the mailing lists on the first send.
 
+ drivers/hid/hid-magicmouse.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 698e645..404dcbc 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -418,6 +418,8 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 			input_set_abs_params(input, ABS_MT_POSITION_Y, -2456,
+ 				2565, 4, 0);
+ 		}
++
++		input_set_events_per_packet(input, 60);
+ 	}
+ 
+ 	if (report_undeciphered) {
 -- 
-balbi
+1.7.4.1
+

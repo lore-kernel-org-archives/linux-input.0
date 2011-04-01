@@ -1,53 +1,32 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: twl4030_keypad - fix potential NULL dereference in
- twl4030_kp_probe()
-Date: Fri, 01 Apr 2011 23:08:03 +0800
-Message-ID: <1301670483.6013.4.camel@phoenix>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH] Input: twl4030_keypad - fix potential NULL dereference
+ in twl4030_kp_probe()
+Date: Fri, 1 Apr 2011 18:18:44 +0300
+Message-ID: <20110401151843.GB2164@legolas.emea.dhcp.ti.com>
+References: <1301670483.6013.4.camel@phoenix>
+Reply-To: balbi@ti.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:54917 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750936Ab1DAPIN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Apr 2011 11:08:13 -0400
+Received: from na3sys009aog102.obsmtp.com ([74.125.149.69]:37658 "EHLO
+	na3sys009aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757193Ab1DAPSv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Apr 2011 11:18:51 -0400
+Content-Disposition: inline
+In-Reply-To: <1301670483.6013.4.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: David Brownell <dbrownell@users.sourceforge.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, David Brownell <dbrownell@users.sourceforge.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-We should first check whether platform data is NULL or not, before
-dereferencing it to get the keymap.
+On Fri, Apr 01, 2011 at 11:08:03PM +0800, Axel Lin wrote:
+> We should first check whether platform data is NULL or not, before
+> dereferencing it to get the keymap.
+> 
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/keyboard/twl4030_keypad.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+Reviewed-by: Felipe Balbi <balbi@ti.com>
 
-diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index 09bef79..d02811c 100644
---- a/drivers/input/keyboard/twl4030_keypad.c
-+++ b/drivers/input/keyboard/twl4030_keypad.c
-@@ -332,7 +332,7 @@ static int __devinit twl4030_kp_program(struct twl4030_keypad *kp)
- static int __devinit twl4030_kp_probe(struct platform_device *pdev)
- {
- 	struct twl4030_keypad_data *pdata = pdev->dev.platform_data;
--	const struct matrix_keymap_data *keymap_data = pdata->keymap_data;
-+	const struct matrix_keymap_data *keymap_data;
- 	struct twl4030_keypad *kp;
- 	struct input_dev *input;
- 	u8 reg;
-@@ -344,6 +344,8 @@ static int __devinit twl4030_kp_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
-+	keymap_data = pdata->keymap_data;
-+
- 	kp = kzalloc(sizeof(*kp), GFP_KERNEL);
- 	input = input_allocate_device();
- 	if (!kp || !input) {
 -- 
-1.7.1
-
-
-
+balbi

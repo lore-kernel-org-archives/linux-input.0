@@ -1,98 +1,56 @@
-From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: Re: [rtc-linux] Re: [PATCH 2/3] input: pmic8xxx_pwrkey: Add support
- for power key
-Date: Fri, 01 Apr 2011 14:53:18 +0530
-Message-ID: <4D959986.2040108@codeaurora.org>
-References: <1301158345-22206-1-git-send-email-aghayal@codeaurora.org> <1301158345-22206-3-git-send-email-aghayal@codeaurora.org> <4D90F631.908@codeaurora.org>
+From: Iiro Valkonen <iiro.valkonen@atmel.com>
+Subject: Re: [PATCH 2/4] Input: atmel_mxt_ts - Support 12bit resolution
+Date: Fri, 01 Apr 2011 12:58:23 +0300
+Message-ID: <4D95A1BF.6070100@atmel.com>
+References: <1299487335-24139-1-git-send-email-jy0922.shim@samsung.com> <1299487335-24139-2-git-send-email-jy0922.shim@samsung.com> <4D94850C.1020301@atmel.com> <4D956C64.6000906@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4D90F631.908@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Boyd <sboyd@codeaurora.org>, linux-input@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:37100 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755256Ab1DAJ6r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Apr 2011 05:58:47 -0400
+In-Reply-To: <4D956C64.6000906@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-Hi Stephen,
+Hi,
 
-Thanks for reviewing. I will submit a V2 patch with the changes.
-
-On 3/29/2011 2:27 AM, Stephen Boyd wrote:
-> On 3/26/2011 9:52 AM, Anirudh Ghayal wrote:
->> +static void pmic8xxx_pwrkey_timer(unsigned long handle)
->> +{
->> +	unsigned long flags;
->> +	struct pmic8xxx_pwrkey *pwrkey = (struct pmic8xxx_pwrkey *)handle;
->> +
->> +	spin_lock_irqsave(&pwrkey->lock, flags);
->> +	pwrkey->key_pressed = true;
->> +
->> +	input_report_key(pwrkey->pwr, KEY_POWER, 1);
->> +	input_sync(pwrkey->pwr);
->> +	spin_unlock_irqrestore(&pwrkey->lock, flags);
->> +}
->> +
+On 04/01/2011 09:10 AM, Joonyoung Shim wrote:
+>>> @@ -837,6 +847,17 @@ static int mxt_initialize(struct mxt_data *data)
+>>>          return 0;
+>>>   }
+>>>
+>>> +static void mxt_calc_resolution(struct mxt_data *data)
+>>> +{
+>>> +       if (data->pdata->orient&  MXT_XY_SWITCH) {
+>>> +               data->x_size = data->pdata->y_size;
+>>> +               data->y_size = data->pdata->x_size;
+>>> +       } else {
+>>> +               data->x_size = data->pdata->x_size;
+>>> +               data->y_size = data->pdata->y_size;
+>>> +       }
+>>> +}
+>>> +
 >>
-> [snip]
->> +
->> +static irqreturn_t pwrkey_release_irq(int irq, void *_pwrkey)
->> +{
->> +	struct pmic8xxx_pwrkey *pwrkey = _pwrkey;
->> +	unsigned long flags;
->> +
->> +	/* no pwrkey time, means no delay in pwr key reporting */
->> +	if (!pwrkey->pdata->pwrkey_time_ms) {
->> +		input_report_key(pwrkey->pwr, KEY_POWER, 0);
->> +		input_sync(pwrkey->pwr);
->> +		return IRQ_HANDLED;
->> +	}
->> +
->> +	spin_lock_irqsave(&pwrkey->lock, flags);
->> +	del_timer_sync(&pwrkey->timer);
->
-> Can you call del_timer_sync() while holding the lock that your timer
-> function also acquires? I thought lockdep would have complained loudly
-> about that but I'm not sure. It looks like a deadlock scenario.
-Right. I will move del_timer_sync outside the spinlock.
-
->
->> +static int __devinit pmic8xxx_pwrkey_probe(struct platform_device *pdev)
->> +{
+>> What's the reason for this? If we have set the x/y switch in the config, then
+>> we probably want to swap the axes. Or is this axis swap something that should be
+>> done on upper layers? Even so, then we shouldn't have the MXT_XY_SWITCH bit set
+>> in the config, and we could just say "data->x_max_value = data->pdata->xsize - 1"
+>> (and same for y) in the probe function. We wouldn't need Touch orient bit defines
+>> either.
 >>
-> [snip]
->> +
->> +	if (pdata->kpd_trigger_delay_us>  62500) {
->> +		dev_err(&pdev->dev, "invalid pwr key trigger delay\n");
->
-> Nitpick: Can you spell out "power" here instead of pwr? Or use
-> "kpd_trigger_delay_us" instead.
-Ok.
+> 
+> If we set XY_SWITCH for special purpose then the axis is swapped and
+> driver will report also coordinates out of max value.
+> 
 
->
->> +		return -EINVAL;
->> +	}
->> +
->> +	if (pdata->pwrkey_time_ms&&
->> +	     (pdata->pwrkey_time_ms<  500 || pdata->pwrkey_time_ms>  1000)) {
->> +		dev_err(&pdev->dev, "invalid pwr key time supplied\n");
->
-Ok.
-> Ditto
->
->> +
->> +	pon_cntl&= ~PON_CNTL_TRIG_DELAY_MASK;
->> +	pon_cntl |= (delay&  PON_CNTL_TRIG_DELAY_MASK);
->> +	pon_cntl |= (pdata->pull_up ? PON_CNTL_PULL_UP : ~PON_CNTL_PULL_UP);
->
-> Did you just set a bunch of bits you didn't want to when pdata->pull_up
-> == false?
-Oops right. I will fix this.
->
+Right, of course.
 
-Thank you,
-~Anirudh
+Regards,
 
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Iiro

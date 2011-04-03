@@ -1,72 +1,43 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH resend] hid-magicmouse: Increase evdev buffer size
-Date: Sat, 02 Apr 2011 12:36:02 -0400
-Message-ID: <4D975072.1040507@canonical.com>
-References: <1301691819-2090-1-git-send-email-chase.douglas@canonical.com> <AANLkTim-tN=siA8tJVCzNZHs+oM0hN-N8Ckc+9ynnNpb@mail.gmail.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: rpckbd - fix a leak of the IRQ during init failure
+Date: Sun, 03 Apr 2011 09:41:06 +0800
+Message-ID: <1301794866.3657.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:55070 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754225Ab1DBQgJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Apr 2011 12:36:09 -0400
-In-Reply-To: <AANLkTim-tN=siA8tJVCzNZHs+oM0hN-N8Ckc+9ynnNpb@mail.gmail.com>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:36045 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751909Ab1DCBlO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Apr 2011 21:41:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeffrey Brown <jeffbrown@android.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Simon Budig <simon@budig.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 04/01/2011 07:51 PM, Jeffrey Brown wrote:
-> I've got another change in the works that fixes this problem more
-> systematically.
+In rpckbd_open prror path, free_irq() was using NULL rather than the
+driver data as the data pointer so free_irq() wouldn't have matched.
 
-That would be great :). I still would like to see this patch added so
-it's released with the 2.6.39 kernel and backported to earlier stable
-releases. I hope that's not a problem.
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/serio/rpckbd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Thanks,
+diff --git a/drivers/input/serio/rpckbd.c b/drivers/input/serio/rpckbd.c
+index 9da6fbc..7ec3c97 100644
+--- a/drivers/input/serio/rpckbd.c
++++ b/drivers/input/serio/rpckbd.c
+@@ -90,7 +90,7 @@ static int rpckbd_open(struct serio *port)
+ 
+ 	if (request_irq(IRQ_KEYBOARDTX, rpckbd_tx, 0, "rpckbd", port) != 0) {
+ 		printk(KERN_ERR "rpckbd.c: Could not allocate keyboard transmit IRQ\n");
+-		free_irq(IRQ_KEYBOARDRX, NULL);
++		free_irq(IRQ_KEYBOARDRX, port);
+ 		return -EBUSY;
+ 	}
+ 
+-- 
+1.7.1
 
--- Chase
 
-> On Fri, Apr 1, 2011 at 2:03 PM, Chase Douglas
-> <chase.douglas@canonical.com> wrote:
->> The evdev buffer isn't big enough when you get many fingers on the
->> device. Bump up the buffer to a reasonable size, matching what other
->> multitouch devices use. Without this change, events may be discarded in
->> the evdev buffer before they are read.
->>
->> Reported-by: Simon Budig <simon@budig.de>
->> Cc: Henrik Rydberg <rydberg@euromail.se>
->> Cc: Jiri Kosina <jkosina@suse.cz>
->> Cc: stable@kernel.org
->> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
->> ---
->> Forgot to Cc the mailing lists on the first send.
->>
->>  drivers/hid/hid-magicmouse.c |    2 ++
->>  1 files changed, 2 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
->> index 698e645..404dcbc 100644
->> --- a/drivers/hid/hid-magicmouse.c
->> +++ b/drivers/hid/hid-magicmouse.c
->> @@ -418,6 +418,8 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
->>                        input_set_abs_params(input, ABS_MT_POSITION_Y, -2456,
->>                                2565, 4, 0);
->>                }
->> +
->> +               input_set_events_per_packet(input, 60);
->>        }
->>
->>        if (report_undeciphered) {
->> --
->> 1.7.4.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
-> 
 

@@ -1,99 +1,153 @@
-From: Stephen Kitt <steve@sk2.org>
-Subject: Release candidate of the linuxconsole tools (jscal etc.,
- inputattach, evtest)
-Date: Mon, 4 Apr 2011 21:52:48 +0200
-Message-ID: <20110404215248.7ec876b6@sk2.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 3/4] input: evdev: Indicate buffer overrun with
+ SYN_DROPPED.
+Date: Mon, 4 Apr 2011 14:33:38 -0700
+Message-ID: <20110404213338.GB984@core.coreip.homeip.net>
+References: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
+ <1301727259-5185-3-git-send-email-jeffbrown@android.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA256;
- boundary="Sig_/jy5HUn6_mLqBA4OTTCNVxPT"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5-g21.free.fr ([212.27.42.5]:57168 "EHLO smtp5-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754194Ab1DDTxF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Apr 2011 15:53:05 -0400
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:58858 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751016Ab1DDVdo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Apr 2011 17:33:44 -0400
+Content-Disposition: inline
+In-Reply-To: <1301727259-5185-3-git-send-email-jeffbrown@android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: rneri@libero.it
+To: Jeff Brown <jeffbrown@android.com>
+Cc: rydberg@euromail.se, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeff Brown <jeffbrown@google.com>
 
---Sig_/jy5HUn6_mLqBA4OTTCNVxPT
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi Jeff,
 
-Hi everyone,
+On Fri, Apr 01, 2011 at 11:54:18PM -0700, Jeff Brown wrote:
+>  	/*
+>  	 * Interrupts are disabled, just acquire the lock.
+> -	 * Make sure we don't leave with the client buffer
+> -	 * "empty" by having client->head == client->tail.
+> +	 * When the client buffer is full, drain the buffer and enqueue a
+> +	 * SYN_DROPPED event to let the client know that events were dropped
+> +	 * and the last packet was incomplete.  We then consume all remaining
+> +	 * events from the dropped packet until the next packet begins.
 
-I'm pleased to announce that after many years without a packaged release, I=
-'m
-preparing an update to the venerable linuxconsole tools: the joystick
-utilities (jscal, jstest, the various force-feedback tools), inputattach and
-evtest.
+I do not think we (kernel) should be doing this. Clients should take
+care and not allow overruns but if they happen the pain should be on the
+client to restore the context. It has to query the device to get its
+current state and it can drop the events till next sync as well.
 
-The update is based on the Debian packages which I've maintained since 2008;
-these include all the patches I've found concerning jscal, jstest and
-inputattach, and a few which people have pointed out to me for evtest. I
-would greatly appreciate it if interested parties could have a look at the
-package and let me know if they have any comments or improvements!
+Therefore I intend to apply the patch in the form below.
 
-The tarball is available at
-https://sourceforge.net/projects/linuxconsole/files/
+Thanks!
 
-The user-visible changes since the last commonly-used snapshot (20051019) a=
-re
-as follows:
+-- 
+Dmitry
 
-* inputattach has been cleaned up, and now supports the following new
-  devices:
-  - Sahara Touch-iT213
-  - PS/2 multiplexers on TQM85xx boards
-  - Zhen Hua PCM-4CH RC transmitters
-  - TAOS evaluation modules
-  - Wacom W8001
-  - Microtouch, Touchright, Touchwindow, Penmount and Fujitsu
-    touchscreens
 
-* jscal tolerates greater jitter (so joysticks which don't send stable
-  values can still be calibrated).
+Input: evdev - indicate buffer overrun with SYN_DROPPED
 
-* jscal supports axis and button remapping.
+From: Jeff Brown <jeffbrown@google.com>
 
-* Various USB devices which caused jscal and/or jstest to segfault are
-  now handled correctly.
+Add a new EV_SYN code, SYN_DROPPED, to inform the client when input
+events have been dropped from the evdev input buffer due to a
+buffer overrun.  The client should use this event as a hint to
+reset its state or ignore all following events until the next
+packet begins.
 
-* jscal-store and jscal-restore allow joystick calibration and
-  remapping settings to be stored and restored.
+Signed-off-by: Jeff Brown <jeffbrown@android.com>
+[dtor@mail.ru: Implement Henrik's suggestion and drop old events in
+ case of overflow.]
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-* Documentation is provided, with manpages for all the provided
-  utilities and sample udev rules.
+ Documentation/input/event-codes.txt |    6 ++++++
+ drivers/input/evdev.c               |   33 +++++++++++++++++++++------------
+ include/linux/input.h               |    1 +
+ 3 files changed, 28 insertions(+), 12 deletions(-)
 
-The tools build with recent kernels, and probably older ones too. The only
-requirement is the SDL development tools for the ffmvforce force-feedback
-testing tool (the documentation fails to mention this so I guess that's the
-first improvement needed!).
 
-Regards,
-
-Stephen
-
---Sig_/jy5HUn6_mLqBA4OTTCNVxPT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBCAAGBQJNmiGQAAoJEHWXeKmja0lPmO0P/2Nw7Cc63hJsJEs0gYd+9uMU
-+FJTBowm7553ac6dttnnHUOaTl9KGHztUVQ8W6HXbV3qh8VePsDQFP0YGuWQ3Hy9
-uco6HUuejXLqWuX2F/qsZ8Kwfu3ke1ETMjjk2VGXSiGOSFKAhb3HBv9NMIecqyAx
-WpCj1ckzU812LAteCLdxYFwKo8+QkfKaqlaI+MfqFEGuyl7rmyl5Q911Fr2H8I2V
-hdkbQuOK5Q12XK7tKToHA9JX7JlOEpfl9EVZxSd8C8+yX+Z3ggIR1RmnnEgdaY0G
-OIzEC30PwY6dY/4bU/J7bOSO8aOO9uHG7zm75LxqmcdL+Fc9N3QTlZdoNPePwcxi
-MoGFOv2U2POAl/RHNSK7+XNjUdmJbT5mSpiCSz0rYlZjuJ3WG3rmwQ/dsgnmE4Kz
-doRLQZe5lWde906MKje6uqRbkEWq7+WeU4EKoAY7JvRkaOpMm7HPPd8Mok40SIVM
-0DjFhBKXpDlTWAxFC3icuVVnE0SMbFjJpwy68coAUSQ2THxH3AO8T6ZAIK8VuMar
-KN//OqaDB3W/6NnNbj2A4xeF4zFUKtRxJ+edsVwfRqduhQ0BuIpfpp9V/ash9Kya
-x3A34ly+df5sqcBzdyxWuYVReQ1Qvad3GGFqBdQBHdc0zS4c2o8M1lf/WmTFHM36
-Sbwz0fZMEYG1HlI9454C
-=vctm
------END PGP SIGNATURE-----
-
---Sig_/jy5HUn6_mLqBA4OTTCNVxPT--
+diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+index d6732a4..e0326a0 100644
+--- a/Documentation/input/event-codes.txt
++++ b/Documentation/input/event-codes.txt
+@@ -79,6 +79,12 @@ defined only by when they are sent in the evdev event stream.
+   - Used to synchronize and separate touch events. See the
+     multi-touch-protocol.txt document for more information.
+ 
++* SYN_DROPPED:
++  - Used to indicate buffer overrun in the evdev client's event queue.
++    Client should ignore all events up to and including next SYN_REPORT
++    event and query the device (using EVIOCG* ioctls) to obtain its
++    current state.
++
+ EV_KEY:
+ ----------
+ EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 7f42d3a..f1c0910 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -39,13 +39,13 @@ struct evdev {
+ };
+ 
+ struct evdev_client {
+-	int head;
+-	int tail;
++	unsigned int head;
++	unsigned int tail;
+ 	spinlock_t buffer_lock; /* protects access to buffer, head and tail */
+ 	struct fasync_struct *fasync;
+ 	struct evdev *evdev;
+ 	struct list_head node;
+-	int bufsize;
++	unsigned int bufsize;
+ 	struct input_event buffer[];
+ };
+ 
+@@ -55,16 +55,25 @@ static DEFINE_MUTEX(evdev_table_mutex);
+ static void evdev_pass_event(struct evdev_client *client,
+ 			     struct input_event *event)
+ {
+-	/*
+-	 * Interrupts are disabled, just acquire the lock.
+-	 * Make sure we don't leave with the client buffer
+-	 * "empty" by having client->head == client->tail.
+-	 */
++	/* Interrupts are disabled, just acquire the lock. */
+ 	spin_lock(&client->buffer_lock);
+-	do {
+-		client->buffer[client->head++] = *event;
+-		client->head &= client->bufsize - 1;
+-	} while (client->head == client->tail);
++
++	client->buffer[client->head++] = *event;
++	client->head &= client->bufsize - 1;
++
++	if (unlikely(client->head == client->tail)) {
++		/*
++		 * This effectively "drops" all unconsumed events, leaving
++		 * EV_SYN/SYN_DROPPED plus the newest event in the queue.
++		 */
++		client->tail = (client->head - 2) & (client->bufsize - 1);
++
++		client->buffer[client->tail].time = event->time;
++		client->buffer[client->tail].type = EV_SYN;
++		client->buffer[client->tail].code = SYN_DROPPED;
++		client->buffer[client->tail].value = 0;
++	}
++
+ 	spin_unlock(&client->buffer_lock);
+ 
+ 	if (event->type == EV_SYN)
+diff --git a/include/linux/input.h b/include/linux/input.h
+index f3a7794..71d3651 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -167,6 +167,7 @@ struct input_keymap_entry {
+ #define SYN_REPORT		0
+ #define SYN_CONFIG		1
+ #define SYN_MT_REPORT		2
++#define SYN_DROPPED		3
+ 
+ /*
+  * Keys and buttons

@@ -1,61 +1,32 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 4/4] input: evdev: Make device readable only when it
- contains a complete packet.
-Date: Tue, 5 Apr 2011 14:03:27 +0200
-Message-ID: <20110405120327.GA19300@polaris.bitmath.org>
+Subject: Re: [PATCH v2 1/4] input: Set default events per packet.
+Date: Tue, 5 Apr 2011 14:16:45 +0200
+Message-ID: <20110405121645.GB19391@polaris.bitmath.org>
 References: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
- <1301727259-5185-4-git-send-email-jeffbrown@android.com>
- <20110404213659.GC984@core.coreip.homeip.net>
- <BANLkTi=0q6DbXki5RhE8eakermnVixN67g@mail.gmail.com>
- <20110404224611.GA2783@core.coreip.homeip.net>
- <BANLkTinLcXsZpHm3_uzRUEdrJQsbozgghA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:37993 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753424Ab1DEMDA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 08:03:00 -0400
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:39939 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752856Ab1DEMQU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 08:16:20 -0400
 Content-Disposition: inline
-In-Reply-To: <BANLkTinLcXsZpHm3_uzRUEdrJQsbozgghA@mail.gmail.com>
+In-Reply-To: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeffrey Brown <jeffbrown@android.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jeff Brown <jeffbrown@android.com>
+Cc: dmitry.torokhov@gmail.com, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeff Brown <jeffbrown@google.com>
 
-> >> Should use client->head here so that the SYN_DROPPED is readable.
-> >
-> > It is readable, but we do not want to signal on it.
+On Fri, Apr 01, 2011 at 11:54:16PM -0700, Jeff Brown wrote:
+> From: Jeff Brown <jeffbrown@google.com>
 > 
-> I think we do want to signal on it.  We should signal whenever the
-> device becomes readable.
+> Calculate a default based on the number of ABS axes, REL axes,
+> and MT slots for the device during input device registration.
 > 
-> Signaling on dropped is useful in the case where a misbehaving device
-> driver fails to ever call input_sync.  If that happens, we might
-> enqueue a dropped event and then never wake up the client which makes
-> the issue hard to diagnose.
+> Signed-off-by: jeffbrown@android.com
+> ---
 
-A device that never wakes up the client seems like a detectable
-symptom. I agree with Dmitry, the dropped event is more of a note in
-passing, and as such can stay in the pipe until a real EV_SYN event
-comes along.
-
-> >> I don't think it's safe to modify last_syn outside of the spin lock.
-> >> This should be done above.
-> >
-> > This is the only writer, plus we are running under event_lock with
-> > interrupts off, so it is safe.
-> 
-> The value will be read concurrently by evdev_fetch_next_event.  So if
-> this were safe, then we wouldn't need the spin lock at all.
-
-The spinlock ensures atomic read/write of the event buffer. The
-position into the buffer does not need the lock.
-
-> At the very least for the sake of consistency, I think we should keep
-> the buffer manipulations within the guarded region.
-
-Sounds reasonable.
+    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
 Thanks,
 Henrik

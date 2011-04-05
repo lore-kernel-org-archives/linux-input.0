@@ -1,76 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: generic driver for slide switches
-Date: Tue, 5 Apr 2011 11:36:52 -0700
-Message-ID: <20110405183651.GD13086@core.coreip.homeip.net>
-References: <1298640558-3030-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
- <201104021031.53430.alexander.stein@informatik.tu-chemnitz.de>
- <20110403042305.GB24788@core.coreip.homeip.net>
- <201104031021.26509.alexander.stein@informatik.tu-chemnitz.de>
+From: Eduard Hasenleithner <ehasenle@gmail.com>
+Subject: Re: [PATCH v2] Wacom Intuos4 LED and OLED support
+Date: Tue, 5 Apr 2011 21:28:52 +0200
+Message-ID: <BANLkTikmHMg=TVpQ_e7U2yED_2ciznsuCg@mail.gmail.com>
+References: <1301817429-12782-1-git-send-email-eduard@hasenleithner.at>
+	<BANLkTimvgdahQyu94Ep=C8JU_Cfra_kdjg@mail.gmail.com>
+	<20110405182808.GB13086@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:61173 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753466Ab1DESg5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 14:36:57 -0400
-Received: by iwn34 with SMTP id 34so648209iwn.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 11:36:57 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201104031021.26509.alexander.stein@informatik.tu-chemnitz.de>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:60315 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753739Ab1DET2w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 15:28:52 -0400
+Received: by iyb14 with SMTP id 14so688733iyb.19
+        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 12:28:52 -0700 (PDT)
+In-Reply-To: <20110405182808.GB13086@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-Hi Alexander,
+Hi
 
-On Sun, Apr 03, 2011 at 10:21:26AM +0200, Alexander Stein wrote:
-> Hello Dimitry,
-> 
-> On Sunday 03 April 2011 06:23:05 Dmitry Torokhov wrote:
-> > On Sat, Apr 02, 2011 at 10:31:53AM +0200, Alexander Stein wrote:
-> > > Hello Dimitry,
-> > > 
-> > > On Wednesday 16 March 2011 07:36:18 Dmitry Torokhov wrote:
-> > > > On Tue, Mar 15, 2011 at 02:13:49PM +0100, Alexander Stein wrote:
-> > > > > On Friday 25 February 2011, 14:29:18 Alexander Stein wrote:
-> > > > > > This patch adds a generic driver for slide switches connected to
-> > > > > > GPIO pins of a system. It requires gpiolib and generic hardware
-> > > > > > irqs.
-> > > > 
-> > > > Hm, can't it be merged with gpio_keys? Just add the 'value' to the
-> > > > gpio_keys_button structure that would be valid for EV_ABS (or even
-> > > > EV_REL) types. Debouncing should filter out jittery events...
-> > > 
-> > > Sorry, for no answer long time.
-> > > I just tried merging both. The problem i noticed is that the PGIO
-> > > interrupts are independable and each GPIO will generate an event, which
-> > > is wrong. Assume the switch state change from position 2 to 1 it will
-> > > actually generate lots of interrupts: e.g. 2, 1, 2, 1.
-> > > Depending from the order of such interrupts the last event shows a
-> > > possible wrong position.
-> > 
-> > However at some point the output should stabilize. Does not setting
-> > appropriate debouncing interval help here?
-> 
-> Well, a debounce interval will prevent to get events for position 2, 1, 2, 1 
-> (from the example above). You will get only 2 and 1.
+2011/4/5 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Tue, Apr 05, 2011 at 08:12:07PM +0200, Eduard Hasenleithner wrote:
+>> I have been encouraged by Ping Cheng to submit the OLED matrix display
+>> patch for the Intuos4 to the linux-input mailing list. In absence of
+>> any comment by you on this issue, I'm a bit lost. Could you give
+>> something like a quick ACK (e.g. you will have a look into it later,
+>> when you have time) or NACK (e.g. no way for inclusion, needs major
+>> change, ...).
+>
+> Sorry, just a bit swamped at the moment (unfortunately happens to be
+> quite often ;( ), that is why not responding...
 
-No, if the switch settles in position 2 then we will report only 2. I.e.
-if you set debounce interval for 200 msecs for all gpios at the end of
-this period gpio representing "1" position will not be active so you
-will not send any event for it. The gpio representing "2" will still be
-active and thus you will send ABS_whatever/2.
+If you like, I can come back in a month or so for discussion. Or you
+write me an email when you are less stressed (you being a maintainer,
+this is probably just wishful thinking).
 
-> The debounce will only decrease the amount of events for _each_ GPIO 
-> interrupt. It will not prevent GPIO interrupts from different pins while moving 
-> the switch one position.
+> The main issue for me is adding a new device-specific interface. Are
+> there any other suitable ways to provide access to the functionality?
+> Something like auxdisplay?
 
-It will not prevent interrupts but should prevent unstable events. It
-might be beneficial if you posted the code you tried and we'd see why
-debouncing does not work for you.
+I had the impression that using the existing RAW USB-device IOCTL
+mechanism would not be considered an additional interface. There is no
+change in the event- or any other subsystem, just in the wacom driver.
+And, as a bonus, using sysfs the RAW USB Device belonging to the event
+device can be located in a straight forward way. Since the wacom
+driver "grabs" the USB device and the OLED part of the Intuos4 is not
+a separate USB device, the display control has to be performed in any
+case in the wacom (input) driver. A "auxdisplay" implementation would
+then have to be done also there.
 
-Thanks.
+Wrt auxdisplay: a quick look at the driver reveals that it exposes a
+(generic?) framebuffer device. If you say: "This is the way to go",
+I'll try it. It is just that I fear that some X-Server might
+automatically use it as display, which is not exactly my intention ;)
+Furthermore, there are four LEDs (only one can be lit at a time) on
+the device, and three different luminace settings, which would
+probably need some IOCTL anyway. And due to the higher complexity,
+implementing a (simulated) framebuffer device provides more
+possibilities for bugs.
 
--- 
-Dmitry
+Thanks,
+Eduard

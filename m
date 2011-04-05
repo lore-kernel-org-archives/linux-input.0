@@ -1,47 +1,134 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCH] Prevent the NULL dereferencing
-Date: Tue, 05 Apr 2011 15:55:38 +0530
-Message-ID: <4D9AEE22.3050602@ti.com>
-References: <1301997495-20876-1-git-send-email-shubhrajyoti@ti.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v2 3/4] input: evdev: Indicate buffer overrun with
+ SYN_DROPPED.
+Date: Tue, 5 Apr 2011 13:41:18 +0200
+Message-ID: <20110405114118.GA19217@polaris.bitmath.org>
+References: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
+ <1301727259-5185-3-git-send-email-jeffbrown@android.com>
+ <20110404213338.GB984@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog109.obsmtp.com ([74.125.149.201]:44879 "EHLO
-	na3sys009aog109.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751682Ab1DEKZp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Apr 2011 06:25:45 -0400
-Received: by gwj16 with SMTP id 16so86337gwj.23
-        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 03:25:44 -0700 (PDT)
-In-Reply-To: <1301997495-20876-1-git-send-email-shubhrajyoti@ti.com>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:42815 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752743Ab1DEMCf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 08:02:35 -0400
+Content-Disposition: inline
+In-Reply-To: <20110404213338.GB984@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: axel.lin@gmail.com, Shubhrajyoti D <a0393217@india.ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jeff Brown <jeffbrown@android.com>, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeff Brown <jeffbrown@google.com>
 
-On Tuesday 05 April 2011 03:28 PM, shubhrajyoti@ti.com wrote:
-> From: Shubhrajyoti D<a0393217@india.ti.com>
->
->
-> Signed-off-by: Shubhrajyoti D<a0393217@india.ti.com>
-Axel's patch added changes to prevent NULL access if pdata is NULL 
-adding a check for keymap_data.
+> Input: evdev - indicate buffer overrun with SYN_DROPPED
+> 
+> From: Jeff Brown <jeffbrown@google.com>
+> 
+> Add a new EV_SYN code, SYN_DROPPED, to inform the client when input
+> events have been dropped from the evdev input buffer due to a
+> buffer overrun.  The client should use this event as a hint to
+> reset its state or ignore all following events until the next
+> packet begins.
+> 
+> Signed-off-by: Jeff Brown <jeffbrown@android.com>
+> [dtor@mail.ru: Implement Henrik's suggestion and drop old events in
+>  case of overflow.]
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 > ---
->   drivers/input/keyboard/twl4030_keypad.c |    2 +-
->   1 files changed, 1 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-> index 09bef79..cc06c4b 100644
-> --- a/drivers/input/keyboard/twl4030_keypad.c
-> +++ b/drivers/input/keyboard/twl4030_keypad.c
-> @@ -338,7 +338,7 @@ static int __devinit twl4030_kp_probe(struct platform_device *pdev)
->   	u8 reg;
->   	int error;
->
-> -	if (!pdata || !pdata->rows || !pdata->cols ||
-> +	if (!pdata || !pdata->rows || !pdata->cols || !pdata->keymap_data ||
->   	    pdata->rows>  TWL4030_MAX_ROWS || pdata->cols>  TWL4030_MAX_COLS) {
->   		dev_err(&pdev->dev, "Invalid platform_data\n");
->   		return -EINVAL;
+> 
+>  Documentation/input/event-codes.txt |    6 ++++++
+>  drivers/input/evdev.c               |   33 +++++++++++++++++++++------------
+>  include/linux/input.h               |    1 +
+>  3 files changed, 28 insertions(+), 12 deletions(-)
+> 
+> 
+> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+> index d6732a4..e0326a0 100644
+> --- a/Documentation/input/event-codes.txt
+> +++ b/Documentation/input/event-codes.txt
+> @@ -79,6 +79,12 @@ defined only by when they are sent in the evdev event stream.
+>    - Used to synchronize and separate touch events. See the
+>      multi-touch-protocol.txt document for more information.
+>  
+> +* SYN_DROPPED:
+> +  - Used to indicate buffer overrun in the evdev client's event queue.
+> +    Client should ignore all events up to and including next SYN_REPORT
+> +    event and query the device (using EVIOCG* ioctls) to obtain its
+> +    current state.
+> +
+>  EV_KEY:
+>  ----------
+>  EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 7f42d3a..f1c0910 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -39,13 +39,13 @@ struct evdev {
+>  };
+>  
+>  struct evdev_client {
+> -	int head;
+> -	int tail;
+> +	unsigned int head;
+> +	unsigned int tail;
+>  	spinlock_t buffer_lock; /* protects access to buffer, head and tail */
+>  	struct fasync_struct *fasync;
+>  	struct evdev *evdev;
+>  	struct list_head node;
+> -	int bufsize;
+> +	unsigned int bufsize;
+>  	struct input_event buffer[];
+>  };
+>  
+> @@ -55,16 +55,25 @@ static DEFINE_MUTEX(evdev_table_mutex);
+>  static void evdev_pass_event(struct evdev_client *client,
+>  			     struct input_event *event)
+>  {
+> -	/*
+> -	 * Interrupts are disabled, just acquire the lock.
+> -	 * Make sure we don't leave with the client buffer
+> -	 * "empty" by having client->head == client->tail.
+> -	 */
+> +	/* Interrupts are disabled, just acquire the lock. */
+>  	spin_lock(&client->buffer_lock);
+> -	do {
+> -		client->buffer[client->head++] = *event;
+> -		client->head &= client->bufsize - 1;
+> -	} while (client->head == client->tail);
+> +
+> +	client->buffer[client->head++] = *event;
+> +	client->head &= client->bufsize - 1;
+> +
+> +	if (unlikely(client->head == client->tail)) {
+> +		/*
+> +		 * This effectively "drops" all unconsumed events, leaving
+> +		 * EV_SYN/SYN_DROPPED plus the newest event in the queue.
+> +		 */
+> +		client->tail = (client->head - 2) & (client->bufsize - 1);
+> +
+> +		client->buffer[client->tail].time = event->time;
+> +		client->buffer[client->tail].type = EV_SYN;
+> +		client->buffer[client->tail].code = SYN_DROPPED;
+> +		client->buffer[client->tail].value = 0;
+> +	}
+> +
+>  	spin_unlock(&client->buffer_lock);
+>  
+>  	if (event->type == EV_SYN)
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index f3a7794..71d3651 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -167,6 +167,7 @@ struct input_keymap_entry {
+>  #define SYN_REPORT		0
+>  #define SYN_CONFIG		1
+>  #define SYN_MT_REPORT		2
+> +#define SYN_DROPPED		3
+>  
+>  /*
+>   * Keys and buttons
 
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
+
+Thanks,
+Henrik

@@ -1,78 +1,81 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: [PATCH] Input: h3600_ts - fix error handling at connect
-Date: Tue, 05 Apr 2011 00:57:12 +0200
-Message-ID: <1301957832.3352.8.camel@lovely>
+From: Jeffrey Brown <jeffbrown@android.com>
+Subject: Re: [PATCH v2 4/4] input: evdev: Make device readable only when it
+ contains a complete packet.
+Date: Mon, 4 Apr 2011 17:34:09 -0700
+Message-ID: <BANLkTinLcXsZpHm3_uzRUEdrJQsbozgghA@mail.gmail.com>
+References: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
+ <1301727259-5185-4-git-send-email-jeffbrown@android.com> <20110404213659.GC984@core.coreip.homeip.net>
+ <BANLkTi=0q6DbXki5RhE8eakermnVixN67g@mail.gmail.com> <20110404224611.GA2783@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:55030 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753920Ab1DDW5T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Apr 2011 18:57:19 -0400
-Received: by wya21 with SMTP id 21so5099084wya.19
-        for <linux-input@vger.kernel.org>; Mon, 04 Apr 2011 15:57:17 -0700 (PDT)
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:54497 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751009Ab1DEAet convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Apr 2011 20:34:49 -0400
+In-Reply-To: <20110404224611.GA2783@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, jsimmons@transvirtual.com
+Cc: rydberg@euromail.se, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-In case of an error in h3600ts_connect(), deconstruct by correct order
-and with the right calls.
+Dmitry,
 
-Signed-off-by: Christoph Fritz <chf.fritz@googlemail.com>
----
- drivers/input/touchscreen/h3600_ts_input.c |   17 ++++++++++-------
- 1 files changed, 10 insertions(+), 7 deletions(-)
+On Mon, Apr 4, 2011 at 3:46 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, Apr 04, 2011 at 03:16:13PM -0700, Jeffrey Brown wrote:
+>> bool full_sync =3D (type =3D=3D EV_SYN && code =3D=3D SYN_REPORT);
+>
+> I am not sure what is cheaper - 2 conditionals or stack manipulation
+> needed to push another argument if we happed to be register-starved.
 
-diff --git a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
-index b4d7f63..6ae063e 100644
---- a/drivers/input/touchscreen/h3600_ts_input.c
-+++ b/drivers/input/touchscreen/h3600_ts_input.c
-@@ -399,31 +399,34 @@ static int h3600ts_connect(struct serio *serio, struct serio_driver *drv)
- 			IRQF_SHARED | IRQF_DISABLED, "h3600_action", &ts->dev)) {
- 		printk(KERN_ERR "h3600ts.c: Could not allocate Action Button IRQ!\n");
- 		err = -EBUSY;
--		goto fail2;
-+		goto fail1;
- 	}
- 
- 	if (request_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, npower_button_handler,
- 			IRQF_SHARED | IRQF_DISABLED, "h3600_suspend", &ts->dev)) {
- 		printk(KERN_ERR "h3600ts.c: Could not allocate Power Button IRQ!\n");
- 		err = -EBUSY;
--		goto fail3;
-+		goto fail2;
- 	}
- 
- 	serio_set_drvdata(serio, ts);
- 
- 	err = serio_open(serio, drv);
- 	if (err)
--		return err;
-+		goto fail3;
- 
- 	//h3600_flite_control(1, 25);     /* default brightness */
--	input_register_device(ts->dev);
-+	err = input_register_device(ts->dev);
-+	if (err)
-+		goto fail4;
- 
- 	return 0;
- 
--fail3:	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, ts->dev);
-+fail4:	serio_close(serio);
-+fail3:	serio_set_drvdata(serio, NULL);
-+	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, ts->dev);
- fail2:	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, ts->dev);
--fail1:	serio_set_drvdata(serio, NULL);
--	input_free_device(input_dev);
-+fail1:	input_free_device(input_dev);
- 	kfree(ts);
- 	return err;
- }
--- 
-1.7.2.5
+Not a question of the computational cost.  It was mostly done to avoid
+repeating the same predicate in multiple places.  This was one of the
+suggested improvements to my earlier patch.
 
+>> This comment for last_syn is not quite right. =A0We need last_syn to
+>> refer to the position just beyond the last sync. =A0Otherwise the de=
+vice
+>> will not become readable until another event is written there. =A0Th=
+e
+>> invariants for last_syn should be similar to those for head.
+>
+> Hm, yes, comment is incorrect. Given this fact I do not like the name
+> anymore either (nor do I like 'end'). Need to think about something
+> better.
 
+Heh, I faced this very same dilemma.  I tried 'last_sync',
+'readable_tail', 'read_end', and others before settling on 'end' and a
+descriptive comment.
 
+>> Should use client->head here so that the SYN_DROPPED is readable.
+>
+> It is readable, but we do not want to signal on it.
+
+I think we do want to signal on it.  We should signal whenever the
+device becomes readable.
+
+Signaling on dropped is useful in the case where a misbehaving device
+driver fails to ever call input_sync.  If that happens, we might
+enqueue a dropped event and then never wake up the client which makes
+the issue hard to diagnose.
+
+>> I don't think it's safe to modify last_syn outside of the spin lock.
+>> This should be done above.
+>
+> This is the only writer, plus we are running under event_lock with
+> interrupts off, so it is safe.
+
+The value will be read concurrently by evdev_fetch_next_event.  So if
+this were safe, then we wouldn't need the spin lock at all.
+
+At the very least for the sake of consistency, I think we should keep
+the buffer manipulations within the guarded region.
+
+Jeff.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

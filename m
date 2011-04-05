@@ -1,51 +1,146 @@
-From: Eduard Hasenleithner <ehasenle@gmail.com>
-Subject: Re: [PATCH v2] Wacom Intuos4 LED and OLED support
-Date: Tue, 5 Apr 2011 20:12:07 +0200
-Message-ID: <BANLkTimvgdahQyu94Ep=C8JU_Cfra_kdjg@mail.gmail.com>
-References: <1301817429-12782-1-git-send-email-eduard@hasenleithner.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Johan Hovold <jhovold@gmail.com>
+Subject: [PATCH 1/2] input: rotary-encoder: refactor and clean up
+Date: Tue,  5 Apr 2011 20:15:12 +0200
+Message-ID: <1302027313-27130-2-git-send-email-jhovold@gmail.com>
+References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:48298 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754618Ab1DESMI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 14:12:08 -0400
-Received: by iwn34 with SMTP id 34so625848iwn.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 11:12:08 -0700 (PDT)
-In-Reply-To: <1301817429-12782-1-git-send-email-eduard@hasenleithner.at>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:54438 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755595Ab1DESPr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 14:15:47 -0400
+Received: by eyx24 with SMTP id 24so205122eyx.19
+        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 11:15:46 -0700 (PDT)
+In-Reply-To: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org, Johan Hovold <jhovold@gmail.com>
 
-Hi Dmitry.
+Refactor state retrieval and event reporting in interrupt handler.
+Remove a few empty lines.
 
-I have been encouraged by Ping Cheng to submit the OLED matrix display
-patch for the Intuos4 to the linux-input mailing list. In absence of
-any comment by you on this issue, I'm a bit lost. Could you give
-something like a quick ACK (e.g. you will have a look into it later,
-when you have time) or NACK (e.g. no way for inclusion, needs major
-change, ...).
+Signed-off-by: Johan Hovold <jhovold@gmail.com>
+---
+ drivers/input/misc/rotary_encoder.c |   83 ++++++++++++++++++++--------------
+ 1 files changed, 49 insertions(+), 34 deletions(-)
 
-Thanks,
-Eduard
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index 7e64d01..253e502 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -40,58 +40,74 @@ struct rotary_encoder {
+ 	unsigned char dir;	/* 0 - clockwise, 1 - CCW */
+ };
+ 
+-static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
++static int rotary_encoder_get_state(struct rotary_encoder_platform_data *pdata)
+ {
+-	struct rotary_encoder *encoder = dev_id;
+-	struct rotary_encoder_platform_data *pdata = encoder->pdata;
+ 	int a = !!gpio_get_value(pdata->gpio_a);
+ 	int b = !!gpio_get_value(pdata->gpio_b);
+-	int state;
+ 
+ 	a ^= pdata->inverted_a;
+ 	b ^= pdata->inverted_b;
+-	state = (a << 1) | b;
+ 
+-	switch (state) {
++	return ((a << 1) | b);
++}
+ 
+-	case 0x0:
+-		if (!encoder->armed)
+-			break;
++static void rotary_encoder_report_event(struct rotary_encoder *encoder)
++{
++	struct rotary_encoder_platform_data *pdata = encoder->pdata;
++	unsigned pos;
++	int value;
+ 
+-		if (pdata->relative_axis) {
+-			input_report_rel(encoder->input, pdata->axis,
+-					 encoder->dir ? -1 : 1);
+-		} else {
+-			unsigned int pos = encoder->pos;
+-
+-			if (encoder->dir) {
+-				/* turning counter-clockwise */
+-				if (pdata->rollover)
+-					pos += pdata->steps;
+-				if (pos)
+-					pos--;
+-			} else {
+-				/* turning clockwise */
+-				if (pdata->rollover || pos < pdata->steps)
+-					pos++;
+-			}
++	if (pdata->relative_axis) {
++		if (encoder->dir)
++			value = -1;
++		else
++			value = 1;
++
++		input_report_rel(encoder->input, pdata->axis, value);
++	} else {
++		pos = encoder->pos;
++
++		if (encoder->dir) {
++			/* turning counter-clockwise */
+ 			if (pdata->rollover)
+-				pos %= pdata->steps;
+-			encoder->pos = pos;
+-			input_report_abs(encoder->input, pdata->axis,
+-					 encoder->pos);
++				pos += pdata->steps;
++			if (pos)
++				pos--;
++		} else {
++			/* turning clockwise */
++			if (pdata->rollover || pos < pdata->steps)
++				pos++;
+ 		}
+-		input_sync(encoder->input);
+ 
++		if (pdata->rollover)
++			pos %= pdata->steps;
++
++		encoder->pos = pos;
++		input_report_abs(encoder->input, pdata->axis, encoder->pos);
++	}
++
++	input_sync(encoder->input);
++}
++
++static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
++{
++	struct rotary_encoder *encoder = dev_id;
++	int state;
++
++	state = rotary_encoder_get_state(encoder->pdata);
++
++	switch (state) {
++	case 0x0:
++		if (!encoder->armed)
++			break;
++		rotary_encoder_report_event(encoder);
+ 		encoder->armed = false;
+ 		break;
+-
+ 	case 0x1:
+ 	case 0x2:
+ 		if (encoder->armed)
+ 			encoder->dir = state - 1;
+ 		break;
+-
+ 	case 0x3:
+ 		encoder->armed = true;
+ 		break;
+@@ -254,4 +270,3 @@ MODULE_ALIAS("platform:" DRV_NAME);
+ MODULE_DESCRIPTION("GPIO rotary encoder driver");
+ MODULE_AUTHOR("Daniel Mack <daniel@caiaq.de>");
+ MODULE_LICENSE("GPL v2");
+-
+-- 
+1.7.4.1
 
-2011/4/3 Eduard Hasenleithner <eduard@hasenleithner.at>:
-> This commit enables control of the LEDs and OLED displays found
-> on the Wacom Intuos4 M, L, and XL. For this purpose, an IOCTL
-> interface is added to the wacom input driver. The IOCTLs can be
-> issued on the raw USB device of the tablet.
->
-> Summary of changes:
-> * A new ioctl-number (0xB2) for the Wacom IOCTL is allocated.
-> * A new header file for the IOCTLs is introduced
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0(include/linux/usb/wacom-dev.h)
-> * Implementation of LED and OLED control in wacom_wac.c
->
-> Signed-off-by: Eduard Hasenleithner <eduard@hasenleithner.at>
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

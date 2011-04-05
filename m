@@ -1,34 +1,43 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 2/4] hid: hid-input: Remove obsolete default events
- per packet setting.
-Date: Tue, 5 Apr 2011 14:20:16 +0200
-Message-ID: <20110405122016.GA19455@polaris.bitmath.org>
-References: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
- <1301727259-5185-2-git-send-email-jeffbrown@android.com>
+From: Manoj <manoj.iyer@canonical.com>
+Subject: Lenovo X220 Touchpad + Trackpoint BIOS issue workaround ?
+Date: Tue, 05 Apr 2011 09:53:04 -0500
+Message-ID: <4D9B2CD0.20404@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:56304 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752856Ab1DEMTz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 08:19:55 -0400
-Content-Disposition: inline
-In-Reply-To: <1301727259-5185-2-git-send-email-jeffbrown@android.com>
+Received: from adelie.canonical.com ([91.189.90.139]:35192 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753573Ab1DEOzQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 10:55:16 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeff Brown <jeffbrown@android.com>
-Cc: dmitry.torokhov@gmail.com, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jeff Brown <jeffbrown@google.com>
+To: linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>
 
-On Fri, Apr 01, 2011 at 11:54:17PM -0700, Jeff Brown wrote:
-> From: Jeff Brown <jeffbrown@google.com>
-> 
-> The hardcoded default is no longer needed because the input core now
-> calculates an appropriate value when the input device is registered.
-> 
-> Signed-off-by: jeffbrown@android.com
-> ---
+The Lenovo X220 has a touch pad and a track point.  I would like to get 
+some clues as to if there is any work around in the kernel for the issue 
+I am seeing below:
 
-    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+Case 1: Touchpad and Trackpoint enabled in BIOS.
+================================================
+In this case the touchpad works correctly, but the trackpoint is not 
+detected at all. Some times after random number of reboots, the 
+trackpoint will start to respond approximately 15mts after X starts. But 
+the mouse will be detected as PS2 Generic Mouse.
 
-Thanks,
-Henrik
+Case 2: Touchpad Disabled Trackpoint Enabled in BIOS
+======================================================
+In this case the trackpoint works as expected, and it is detected as 
+TPPS/2 IBM TrackPoint.
+[    9.675396] input: TPPS/2 IBM TrackPoint as 
+/devices/platform/i8042/serio1/input/input9
+
+I suspect this is a BIOS bug? Is it possible to work around this in the 
+kernel?
+
+
+-- 
+Manoj Iyer
+Ubuntu/Canonical
+Hardware Enablement

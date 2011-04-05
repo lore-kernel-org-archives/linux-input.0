@@ -1,40 +1,45 @@
-From: Johan Hovold <jhovold@gmail.com>
-Subject: [PATCH 0/2] input: rotary-encoder: add support for half-period encoders
-Date: Tue,  5 Apr 2011 20:15:11 +0200
-Message-ID: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Wacom Intuos4 LED and OLED support
+Date: Tue, 5 Apr 2011 11:28:09 -0700
+Message-ID: <20110405182808.GB13086@core.coreip.homeip.net>
+References: <1301817429-12782-1-git-send-email-eduard@hasenleithner.at>
+ <BANLkTimvgdahQyu94Ep=C8JU_Cfra_kdjg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:50965 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754716Ab1DESPr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 14:15:47 -0400
-Received: by ewy4 with SMTP id 4so203813ewy.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 11:15:46 -0700 (PDT)
+Received: from mail-px0-f179.google.com ([209.85.212.179]:53907 "EHLO
+	mail-px0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753951Ab1DES2R (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 14:28:17 -0400
+Received: by pxi2 with SMTP id 2so378807pxi.10
+        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 11:28:16 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <BANLkTimvgdahQyu94Ep=C8JU_Cfra_kdjg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org, Johan Hovold <jhovold@gmail.com>
+To: Eduard Hasenleithner <ehasenle@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi, 
+Hi Eduard,
 
-These patches add support for rotary-encoders which have two stable states per
-input signal period.
+On Tue, Apr 05, 2011 at 08:12:07PM +0200, Eduard Hasenleithner wrote:
+> Hi Dmitry.
+> 
+> I have been encouraged by Ping Cheng to submit the OLED matrix display
+> patch for the Intuos4 to the linux-input mailing list. In absence of
+> any comment by you on this issue, I'm a bit lost. Could you give
+> something like a quick ACK (e.g. you will have a look into it later,
+> when you have time) or NACK (e.g. no way for inclusion, needs major
+> change, ...).
 
-The first patch refactors state retrieval and event reporting and the second
-adds support for such half-period encoders.
+Sorry, just a bit swamped at the moment (unfortunately happens to be
+quite often ;( ), that is why not responding...
 
-Thanks,
-Johan
+The main issue for me is adding a new device-specific interface. Are
+there any other suitable ways to provide access to the functionality?
+Something like auxdisplay?
 
-
-Johan Hovold (2):
-  input: rotary-encoder: refactor and clean up
-  input: rotary-encoder: add support for half-period encoders
-
- Documentation/input/rotary-encoder.txt |   13 ++++
- drivers/input/misc/rotary_encoder.c    |  124 ++++++++++++++++++++++----------
- include/linux/rotary_encoder.h         |    1 +
- 3 files changed, 101 insertions(+), 37 deletions(-)
+Thanks.
 
 -- 
-1.7.4.1
-
+Dmitry

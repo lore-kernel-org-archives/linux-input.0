@@ -1,81 +1,38 @@
-From: Jeffrey Brown <jeffbrown@android.com>
-Subject: Re: [PATCH v2 4/4] input: evdev: Make device readable only when it
- contains a complete packet.
-Date: Mon, 4 Apr 2011 17:34:09 -0700
-Message-ID: <BANLkTinLcXsZpHm3_uzRUEdrJQsbozgghA@mail.gmail.com>
-References: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
- <1301727259-5185-4-git-send-email-jeffbrown@android.com> <20110404213659.GC984@core.coreip.homeip.net>
- <BANLkTi=0q6DbXki5RhE8eakermnVixN67g@mail.gmail.com> <20110404224611.GA2783@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: shubhrajyoti@ti.com
+Subject: [PATCH] Prevent the NULL dereferencing
+Date: Tue,  5 Apr 2011 15:28:15 +0530
+Message-ID: <1301997495-20876-1-git-send-email-shubhrajyoti@ti.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:54497 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751009Ab1DEAet convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Apr 2011 20:34:49 -0400
-In-Reply-To: <20110404224611.GA2783@core.coreip.homeip.net>
+Received: from bear.ext.ti.com ([192.94.94.41]:35473 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750920Ab1DEJ6X (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Apr 2011 05:58:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rydberg@euromail.se, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: axel.lin@gmail.com, Shubhrajyoti D <a0393217@india.ti.com>
 
-Dmitry,
+From: Shubhrajyoti D <a0393217@india.ti.com>
 
-On Mon, Apr 4, 2011 at 3:46 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Apr 04, 2011 at 03:16:13PM -0700, Jeffrey Brown wrote:
->> bool full_sync =3D (type =3D=3D EV_SYN && code =3D=3D SYN_REPORT);
->
-> I am not sure what is cheaper - 2 conditionals or stack manipulation
-> needed to push another argument if we happed to be register-starved.
 
-Not a question of the computational cost.  It was mostly done to avoid
-repeating the same predicate in multiple places.  This was one of the
-suggested improvements to my earlier patch.
+Signed-off-by: Shubhrajyoti D <a0393217@india.ti.com>
+---
+ drivers/input/keyboard/twl4030_keypad.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
->> This comment for last_syn is not quite right. =A0We need last_syn to
->> refer to the position just beyond the last sync. =A0Otherwise the de=
-vice
->> will not become readable until another event is written there. =A0Th=
-e
->> invariants for last_syn should be similar to those for head.
->
-> Hm, yes, comment is incorrect. Given this fact I do not like the name
-> anymore either (nor do I like 'end'). Need to think about something
-> better.
+diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+index 09bef79..cc06c4b 100644
+--- a/drivers/input/keyboard/twl4030_keypad.c
++++ b/drivers/input/keyboard/twl4030_keypad.c
+@@ -338,7 +338,7 @@ static int __devinit twl4030_kp_probe(struct platform_device *pdev)
+ 	u8 reg;
+ 	int error;
+ 
+-	if (!pdata || !pdata->rows || !pdata->cols ||
++	if (!pdata || !pdata->rows || !pdata->cols || !pdata->keymap_data ||
+ 	    pdata->rows > TWL4030_MAX_ROWS || pdata->cols > TWL4030_MAX_COLS) {
+ 		dev_err(&pdev->dev, "Invalid platform_data\n");
+ 		return -EINVAL;
+-- 
+1.7.1
 
-Heh, I faced this very same dilemma.  I tried 'last_sync',
-'readable_tail', 'read_end', and others before settling on 'end' and a
-descriptive comment.
-
->> Should use client->head here so that the SYN_DROPPED is readable.
->
-> It is readable, but we do not want to signal on it.
-
-I think we do want to signal on it.  We should signal whenever the
-device becomes readable.
-
-Signaling on dropped is useful in the case where a misbehaving device
-driver fails to ever call input_sync.  If that happens, we might
-enqueue a dropped event and then never wake up the client which makes
-the issue hard to diagnose.
-
->> I don't think it's safe to modify last_syn outside of the spin lock.
->> This should be done above.
->
-> This is the only writer, plus we are running under event_lock with
-> interrupts off, so it is safe.
-
-The value will be read concurrently by evdev_fetch_next_event.  So if
-this were safe, then we wouldn't need the spin lock at all.
-
-At the very least for the sake of consistency, I think we should keep
-the buffer manipulations within the guarded region.
-
-Jeff.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

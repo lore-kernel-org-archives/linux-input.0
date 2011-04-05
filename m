@@ -1,79 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.39-rc1
-Date: Tue, 5 Apr 2011 09:27:39 -0700
-Message-ID: <20110405162739.GA4183@core.coreip.homeip.net>
+Subject: Re: [PATCH v2 4/4] input: evdev: Make device readable only when it
+ contains a complete packet.
+Date: Tue, 5 Apr 2011 09:32:39 -0700
+Message-ID: <20110405163239.GB4183@core.coreip.homeip.net>
+References: <1301727259-5185-1-git-send-email-jeffbrown@android.com>
+ <1301727259-5185-4-git-send-email-jeffbrown@android.com>
+ <20110404213659.GC984@core.coreip.homeip.net>
+ <BANLkTi=0q6DbXki5RhE8eakermnVixN67g@mail.gmail.com>
+ <20110404224611.GA2783@core.coreip.homeip.net>
+ <BANLkTinLcXsZpHm3_uzRUEdrJQsbozgghA@mail.gmail.com>
+ <20110405120327.GA19300@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:46468 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753386Ab1DEQ1p (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 12:27:45 -0400
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:48797 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752321Ab1DEQcp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 12:32:45 -0400
 Content-Disposition: inline
+In-Reply-To: <20110405120327.GA19300@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jeffrey Brown <jeffbrown@android.com>, djkurtz@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, Apr 05, 2011 at 02:03:27PM +0200, Henrik Rydberg wrote:
+> > >> Should use client->head here so that the SYN_DROPPED is readable.
+> > >
+> > > It is readable, but we do not want to signal on it.
+> > 
+> > I think we do want to signal on it.  We should signal whenever the
+> > device becomes readable.
+> > 
+> > Signaling on dropped is useful in the case where a misbehaving device
+> > driver fails to ever call input_sync.  If that happens, we might
+> > enqueue a dropped event and then never wake up the client which makes
+> > the issue hard to diagnose.
+> 
+> A device that never wakes up the client seems like a detectable
+> symptom. I agree with Dmitry, the dropped event is more of a note in
+> passing, and as such can stay in the pipe until a real EV_SYN event
+> comes along.
 
-Please pull from:
+Also we have evbug module to report raw event stream from theinput core
+without evdev involvement. It should show missing SYN_REPORT should such
+a driver appear.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> 
+> > >> I don't think it's safe to modify last_syn outside of the spin lock.
+> > >> This should be done above.
+> > >
+> > > This is the only writer, plus we are running under event_lock with
+> > > interrupts off, so it is safe.
+> > 
+> > The value will be read concurrently by evdev_fetch_next_event.  So if
+> > this were safe, then we wouldn't need the spin lock at all.
+> 
+> The spinlock ensures atomic read/write of the event buffer. The
+> position into the buffer does not need the lock.
+> 
+> > At the very least for the sake of consistency, I think we should keep
+> > the buffer manipulations within the guarded region.
+> 
+> Sounds reasonable.
 
-to receive updates for the input subsystem. Small driver fixups and a
-change to sparse-keymap to report MSC_SCAN and KEY_UNKNOWN to aid in
-establishing new keymaps.
-
-Changelog:
----------
-
-Axel Lin (1):
-      Input: rpckbd - fix a leak of the IRQ during init failure
-
-Jan Beulich (1):
-      Input: synaptics - fix crash in synaptics_module_init()
-
-Manoj Iyer (1):
-      Input: wacom - add support for Lenovo tablet ID (0xE6)
-
-Paul Bolle (1):
-      Input: i8042 - downgrade selftest error message to dbg()
-
-Peter Hutterer (1):
-      Input: uinput - allow for 0/0 min/max on absolute axes.
-
-Ping Cheng (2):
-      Input: wacom - constify wacom_features for a new missed Bamboo models
-      Input: wacom - report resolution for pen devices
-
-Rajeev Kumar (1):
-      Input: spear-keyboard - fix inverted condition in interrupt handler
-
-Seth Forshee (2):
-      Input: sparse-keymap - report scancodes with key events
-      Input: sparse-keymap - report KEY_UNKNOWN for unknown scan codes
-
-Sylvestre Ledru (1):
-      Input: h3600_ts_input - fix a spelling error
-
-
-Diffstat:
---------
-
- drivers/input/keyboard/spear-keyboard.c    |    2 +-
- drivers/input/misc/uinput.c                |    6 +-
- drivers/input/mouse/synaptics.c            |    4 +-
- drivers/input/serio/i8042.c                |    7 +-
- drivers/input/serio/rpckbd.c               |    2 +-
- drivers/input/sparse-keymap.c              |   14 ++
- drivers/input/tablet/wacom_wac.c           |  291 ++++++++++++++++++----------
- drivers/input/tablet/wacom_wac.h           |    2 +
- drivers/input/touchscreen/h3600_ts_input.c |    2 +-
- 9 files changed, 221 insertions(+), 109 deletions(-)
+OK, we can pull kill_fasync inside spin_lock/unlock pair, it should
+change nothing.
 
 -- 
 Dmitry
-

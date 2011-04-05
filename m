@@ -1,56 +1,76 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Lenovo X220 Touchpad + Trackpoint BIOS issue workaround ?
-Date: Tue, 5 Apr 2011 11:30:01 -0700
-Message-ID: <20110405183001.GC13086@core.coreip.homeip.net>
-References: <4D9B2CD0.20404@canonical.com>
- <4D9B522B.7080201@canonical.com>
- <20110405173940.GA13086@core.coreip.homeip.net>
- <4D9B5807.9090406@canonical.com>
+Subject: Re: [PATCH] input: generic driver for slide switches
+Date: Tue, 5 Apr 2011 11:36:52 -0700
+Message-ID: <20110405183651.GD13086@core.coreip.homeip.net>
+References: <1298640558-3030-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
+ <201104021031.53430.alexander.stein@informatik.tu-chemnitz.de>
+ <20110403042305.GB24788@core.coreip.homeip.net>
+ <201104031021.26509.alexander.stein@informatik.tu-chemnitz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:57145 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:61173 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753907Ab1DESaH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 14:30:07 -0400
-Received: by iwn34 with SMTP id 34so641773iwn.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 11:30:06 -0700 (PDT)
+	with ESMTP id S1753466Ab1DESg5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2011 14:36:57 -0400
+Received: by iwn34 with SMTP id 34so648209iwn.19
+        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2011 11:36:57 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4D9B5807.9090406@canonical.com>
+In-Reply-To: <201104031021.26509.alexander.stein@informatik.tu-chemnitz.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Manoj <manoj.iyer@canonical.com>
+To: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
 Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 05, 2011 at 12:57:27PM -0500, Manoj wrote:
-> 
-> >When both are enabled in BIOS what protocol does the kernel use to talk
-> >to the touchpad? Does it use synaptics protocol?
-> 
-> Yes it uses Synaptics TouchPad.
-> 
-> if (max_proto > PSMOUSE_PS2 && synaptics_detect(p .. etc...
-> 
-> I should say here that the trackpoint is not detected. And sometimes
-> (very random) the trackpad is detected as PS/2 Mouse when touchpad
-> and trackpoint are enabled in the BIOS... here is what it looks like
-> in dmesg when it shows up as PS/2 Mouse instead of TPPS/2 IBM
-> TrackPoint.
-> 
-> [    9.797624] input: ThinkPad Extra Buttons as
-> /devices/platform/thinkpad_acpi/input/input8
-> [   10.480034] serio: Synaptics pass-through port at isa0060/serio1/input0
-> [   10.536122] input: SynPS/2 Synaptics TouchPad as
-> /devices/platform/i8042/serio1/input/input9
-> [   34.507201] input: PS/2 Generic Mouse as
-> /devices/platform/i8042/serio1/serio2/input/input10
-> 
+Hi Alexander,
 
-Ah, so we do know that the touchpad has a pass-through port.
+On Sun, Apr 03, 2011 at 10:21:26AM +0200, Alexander Stein wrote:
+> Hello Dimitry,
+> 
+> On Sunday 03 April 2011 06:23:05 Dmitry Torokhov wrote:
+> > On Sat, Apr 02, 2011 at 10:31:53AM +0200, Alexander Stein wrote:
+> > > Hello Dimitry,
+> > > 
+> > > On Wednesday 16 March 2011 07:36:18 Dmitry Torokhov wrote:
+> > > > On Tue, Mar 15, 2011 at 02:13:49PM +0100, Alexander Stein wrote:
+> > > > > On Friday 25 February 2011, 14:29:18 Alexander Stein wrote:
+> > > > > > This patch adds a generic driver for slide switches connected to
+> > > > > > GPIO pins of a system. It requires gpiolib and generic hardware
+> > > > > > irqs.
+> > > > 
+> > > > Hm, can't it be merged with gpio_keys? Just add the 'value' to the
+> > > > gpio_keys_button structure that would be valid for EV_ABS (or even
+> > > > EV_REL) types. Debouncing should filter out jittery events...
+> > > 
+> > > Sorry, for no answer long time.
+> > > I just tried merging both. The problem i noticed is that the PGIO
+> > > interrupts are independable and each GPIO will generate an event, which
+> > > is wrong. Assume the switch state change from position 2 to 1 it will
+> > > actually generate lots of interrupts: e.g. 2, 1, 2, 1.
+> > > Depending from the order of such interrupts the last event shows a
+> > > possible wrong position.
+> > 
+> > However at some point the output should stabilize. Does not setting
+> > appropriate debouncing interval help here?
+> 
+> Well, a debounce interval will prevent to get events for position 2, 1, 2, 1 
+> (from the example above). You will get only 2 and 1.
 
-I guess you can try booting with i8042.debug with touchpad enabled and
-disabled and see where exactly we fail to enable trackpoint the the
-former case.
+No, if the switch settles in position 2 then we will report only 2. I.e.
+if you set debounce interval for 200 msecs for all gpios at the end of
+this period gpio representing "1" position will not be active so you
+will not send any event for it. The gpio representing "2" will still be
+active and thus you will send ABS_whatever/2.
+
+> The debounce will only decrease the amount of events for _each_ GPIO 
+> interrupt. It will not prevent GPIO interrupts from different pins while moving 
+> the switch one position.
+
+It will not prevent interrupts but should prevent unstable events. It
+might be beneficial if you posted the code you tried and we'd see why
+debouncing does not work for you.
+
+Thanks.
 
 -- 
 Dmitry

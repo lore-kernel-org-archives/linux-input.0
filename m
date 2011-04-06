@@ -1,45 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] Documentation: Add evdev type and code definitions
-Date: Wed, 6 Apr 2011 15:07:01 -0700
-Message-ID: <20110406220701.GA11611@core.coreip.homeip.net>
-References: <1302121172-16703-1-git-send-email-chase.douglas@canonical.com>
+Subject: Re: [PATCH] Prevent the NULL dereferencing
+Date: Wed, 6 Apr 2011 15:31:49 -0700
+Message-ID: <20110406223149.GC11611@core.coreip.homeip.net>
+References: <1301997495-20876-1-git-send-email-shubhrajyoti@ti.com>
+ <4D9AEE22.3050602@ti.com>
+ <BANLkTi=m+mmnResbhBKZ+7oeR7RtvrTvWw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:64116 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932117Ab1DFWHI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2011 18:07:08 -0400
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:64855 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754476Ab1DFWby (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2011 18:31:54 -0400
+Received: by iwn34 with SMTP id 34so1887017iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 06 Apr 2011 15:31:53 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1302121172-16703-1-git-send-email-chase.douglas@canonical.com>
+In-Reply-To: <BANLkTi=m+mmnResbhBKZ+7oeR7RtvrTvWw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Peter Hutterer <peter.hutterer@who-t.net>, Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>
+To: Axel Lin <axel.lin@gmail.com>
+Cc: Shubhrajyoti <shubhrajyoti@ti.com>, linux-input@vger.kernel.org, Shubhrajyoti D <a0393217@india.ti.com>
 
-Hi Chase,
-
-On Wed, Apr 06, 2011 at 04:19:31PM -0400, Chase Douglas wrote:
-> This commit adds the file Documentation/input/evdev-codes.txt.
+On Wed, Apr 06, 2011 at 08:47:12PM +0800, Axel Lin wrote:
+> 2011/4/5 Shubhrajyoti <shubhrajyoti@ti.com>:
+> > On Tuesday 05 April 2011 03:28 PM, shubhrajyoti@ti.com wrote:
+> >>
+> >> From: Shubhrajyoti D<a0393217@india.ti.com>
+> >>
+> >>
+> >> Signed-off-by: Shubhrajyoti D<a0393217@india.ti.com>
+> >
+> > Axel's patch added changes to prevent NULL access if pdata is NULL adding a
+> > check for keymap_data.
+> >>
 > 
-> Cc: Henrik Rydberg <rydberg@euromail.se>
-> Cc: Peter Hutterer <peter.hutterer@who-t.net>
-> Cc: Nikolai Kondrashov <spbnick@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Acked-by: Henrik Rydberg <rydberg@euromail.se>
-> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+> Acked-by: Axel Lin <axel.lin@gmail.com>
 
-Thank you very much for doing this. I am very happy with the state of
-document at the moment and I want to apply it and get in .39.
-
-The only 2 changes I'd like (I'll do them on my side) is renaming the
-file from evdev-codes to event-codes and evdev protocol to input
-protocol since the data applicable not only to evdev but to entire input
-core.
-
-Thanks.
+Applied, thanks Shubhrajyoti.
 
 -- 
 Dmitry

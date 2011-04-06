@@ -1,31 +1,34 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: h3600_ts - fix error handling at connect
-Date: Wed, 6 Apr 2011 15:35:25 -0700
-Message-ID: <20110406223525.GD11611@core.coreip.homeip.net>
-References: <1301957832.3352.8.camel@lovely>
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+Subject: RE: [PATCH 1/2] input: rotary-encoder: refactor and clean up
+Date: Wed, 6 Apr 2011 18:30:56 -0500
+Message-ID: <0D753D10438DA54287A00B027084269764D1D78457@AUSP01VMBX24.collaborationhost.net>
+References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
+ <1302027313-27130-2-git-send-email-jhovold@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:33791 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752005Ab1DFWfa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2011 18:35:30 -0400
-Received: by iyb14 with SMTP id 14so1881759iyb.19
-        for <linux-input@vger.kernel.org>; Wed, 06 Apr 2011 15:35:29 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1301957832.3352.8.camel@lovely>
+Received: from mail160.messagelabs.com ([216.82.253.99]:44984 "EHLO
+	mail160.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757013Ab1DFXa6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2011 19:30:58 -0400
+In-Reply-To: <1302027313-27130-2-git-send-email-jhovold@gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, jsimmons@transvirtual.com
+To: Johan Hovold <jhovold@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Mack <daniel@caiaq.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Apr 05, 2011 at 12:57:12AM +0200, Christoph Fritz wrote:
-> In case of an error in h3600ts_connect(), deconstruct by correct order
-> and with the right calls.
-> 
-> Signed-off-by: Christoph Fritz <chf.fritz@googlemail.com>
+On Tuesday, April 05, 2011 11:15 AM, Johan Hovold wrote:
+>
+> Refactor state retrieval and event reporting in interrupt handler.
+> Remove a few empty lines.
+>
+> Signed-off-by: Johan Hovold <jhovold@gmail.com>
+> ---
+>  drivers/input/misc/rotary_encoder.c |   83 ++++++++++++++++++++--------------
+>  1 files changed, 49 insertions(+), 34 deletions(-)
 
-Applied, thanks Christoph.
+Looks sane to me.
 
--- 
-Dmitry
+Reviewed-by: H Hartley Sweeten <hsweeten@visionengravers.com>

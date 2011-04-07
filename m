@@ -1,309 +1,302 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v4] Documentation: Add evdev type and code definitions
-Date: Thu, 7 Apr 2011 10:48:03 +1000
-Message-ID: <20110407004802.GA31867@barra.redhat.com>
-References: <1302121172-16703-1-git-send-email-chase.douglas@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+Subject: [RFC 1/6]Fix typo "recieve" in various parts of the kernel.
+Date: Thu,  7 Apr 2011 09:09:22 -0700
+Message-ID: <1302192567-842-1-git-send-email-justinmattock@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:14900 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755619Ab1DGAsY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2011 20:48:24 -0400
-Content-Disposition: inline
-In-Reply-To: <1302121172-16703-1-git-send-email-chase.douglas@canonical.com>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:63563 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755560Ab1DGQJl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Apr 2011 12:09:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Nikolai Kondrashov <spbnick@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Bagwell <chris@cnpbagwell.com>
+To: trivial@kernel.org
+Cc: linux-kernel@vger.kernel.org, "Justin P. Mattock" <justinmattock@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mtd@lists.infradead.org, netdev@vger.kernel.org, socketcan-core@lists.berlios.de, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Wed, Apr 06, 2011 at 04:19:31PM -0400, Chase Douglas wrote:
-> This commit adds the file Documentation/input/evdev-codes.txt.
-> 
-> Cc: Henrik Rydberg <rydberg@euromail.se>
-> Cc: Peter Hutterer <peter.hutterer@who-t.net>
-> Cc: Nikolai Kondrashov <spbnick@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Acked-by: Henrik Rydberg <rydberg@euromail.se>
-> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
-> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
-> ---
->  Documentation/input/evdev-codes.txt |  256 +++++++++++++++++++++++++++++++++++
->  1 files changed, 256 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/input/evdev-codes.txt
-> 
+The patch below fixes some typos "recieve" in various parts of the kernel.
+Note: these below are in actual code rather than comments(excpet for r852.c which
+has a code fix, and comment).
+compile tested as best as I can...
 
-Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
+CC: linux-input@vger.kernel.org
+CC: linux-arm-kernel@lists.infradead.org 
+CC: linux-mtd@lists.infradead.org
+CC: netdev@vger.kernel.org
+CC: socketcan-core@lists.berlios.de
+CC: linux-scsi@vger.kernel.org 
+CC: linux-usb@vger.kernel.org
+---
+ drivers/input/misc/keyspan_remote.c |    2 +-
+ drivers/mfd/ab8500-gpadc.c          |    2 +-
+ drivers/mtd/nand/r852.c             |    6 +++---
+ drivers/net/bnx2x/bnx2x_link.c      |    8 ++++----
+ drivers/net/can/janz-ican3.c        |    4 ++--
+ drivers/scsi/scsi_netlink.c         |    2 +-
+ drivers/usb/misc/ftdi-elan.c        |   28 ++++++++++++++--------------
+ drivers/uwb/reset.c                 |    2 +-
+ 8 files changed, 27 insertions(+), 27 deletions(-)
 
-thanks!
+diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
+index a93c525..fc62256 100644
+--- a/drivers/input/misc/keyspan_remote.c
++++ b/drivers/input/misc/keyspan_remote.c
+@@ -312,7 +312,7 @@ static void keyspan_check_data(struct usb_keyspan *remote)
+ 			remote->data.tester = remote->data.tester >> 5;
+ 			remote->data.bits_left -= 5;
+ 		} else {
+-			err("Bad message recieved, no stop bit found.\n");
++			err("Bad message received, no stop bit found.\n");
+ 		}
+ 
+ 		dev_dbg(&remote->udev->dev,
+diff --git a/drivers/mfd/ab8500-gpadc.c b/drivers/mfd/ab8500-gpadc.c
+index bc93b2e..ea91ef1 100644
+--- a/drivers/mfd/ab8500-gpadc.c
++++ b/drivers/mfd/ab8500-gpadc.c
+@@ -314,7 +314,7 @@ int ab8500_gpadc_convert(struct ab8500_gpadc *gpadc, u8 input)
+ 	/* wait for completion of conversion */
+ 	if (!wait_for_completion_timeout(&gpadc->ab8500_gpadc_complete, 2*HZ)) {
+ 		dev_err(gpadc->dev,
+-			"timeout: didnt recieve GPADC conversion interrupt\n");
++			"timeout: didnt receive GPADC conversion interrupt\n");
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+diff --git a/drivers/mtd/nand/r852.c b/drivers/mtd/nand/r852.c
+index 6322d1f..45a3f60 100644
+--- a/drivers/mtd/nand/r852.c
++++ b/drivers/mtd/nand/r852.c
+@@ -766,7 +766,7 @@ static irqreturn_t r852_irq(int irq, void *data)
+ 		ret = IRQ_HANDLED;
+ 		dev->card_detected = !!(card_status & R852_CARD_IRQ_INSERT);
+ 
+-		/* we shouldn't recieve any interrupts if we wait for card
++		/* we shouldn't receive any interrupts if we wait for card
+ 			to settle */
+ 		WARN_ON(dev->card_unstable);
+ 
+@@ -794,13 +794,13 @@ static irqreturn_t r852_irq(int irq, void *data)
+ 		ret = IRQ_HANDLED;
+ 
+ 		if (dma_status & R852_DMA_IRQ_ERROR) {
+-			dbg("recieved dma error IRQ");
++			dbg("received dma error IRQ");
+ 			r852_dma_done(dev, -EIO);
+ 			complete(&dev->dma_done);
+ 			goto out;
+ 		}
+ 
+-		/* recieved DMA interrupt out of nowhere? */
++		/* received DMA interrupt out of nowhere? */
+ 		WARN_ON_ONCE(dev->dma_stage == 0);
+ 
+ 		if (dev->dma_stage == 0)
+diff --git a/drivers/net/bnx2x/bnx2x_link.c b/drivers/net/bnx2x/bnx2x_link.c
+index f2f367d..d25491b 100644
+--- a/drivers/net/bnx2x/bnx2x_link.c
++++ b/drivers/net/bnx2x/bnx2x_link.c
+@@ -2385,7 +2385,7 @@ static void bnx2x_check_fallback_to_cl37(struct bnx2x_phy *phy,
+ 					 struct link_params *params)
+ {
+ 	struct bnx2x *bp = params->bp;
+-	u16 rx_status, ustat_val, cl37_fsm_recieved;
++	u16 rx_status, ustat_val, cl37_fsm_received;
+ 	DP(NETIF_MSG_LINK, "bnx2x_check_fallback_to_cl37\n");
+ 	/* Step 1: Make sure signal is detected */
+ 	CL22_RD_OVER_CL45(bp, phy,
+@@ -2423,15 +2423,15 @@ static void bnx2x_check_fallback_to_cl37(struct bnx2x_phy *phy,
+ 	CL22_RD_OVER_CL45(bp, phy,
+ 			  MDIO_REG_BANK_REMOTE_PHY,
+ 			  MDIO_REMOTE_PHY_MISC_RX_STATUS,
+-			  &cl37_fsm_recieved);
+-	if ((cl37_fsm_recieved &
++			  &cl37_fsm_received);
++	if ((cl37_fsm_received &
+ 	     (MDIO_REMOTE_PHY_MISC_RX_STATUS_CL37_FSM_RECEIVED_OVER1G_MSG |
+ 	     MDIO_REMOTE_PHY_MISC_RX_STATUS_CL37_FSM_RECEIVED_BRCM_OUI_MSG)) !=
+ 	    (MDIO_REMOTE_PHY_MISC_RX_STATUS_CL37_FSM_RECEIVED_OVER1G_MSG |
+ 	      MDIO_REMOTE_PHY_MISC_RX_STATUS_CL37_FSM_RECEIVED_BRCM_OUI_MSG)) {
+ 		DP(NETIF_MSG_LINK, "No CL37 FSM were received. "
+ 			     "misc_rx_status(0x8330) = 0x%x\n",
+-			 cl37_fsm_recieved);
++			 cl37_fsm_received);
+ 		return;
+ 	}
+ 	/*
+diff --git a/drivers/net/can/janz-ican3.c b/drivers/net/can/janz-ican3.c
+index 102b16c..98667f9 100644
+--- a/drivers/net/can/janz-ican3.c
++++ b/drivers/net/can/janz-ican3.c
+@@ -1050,7 +1050,7 @@ static void ican3_handle_inquiry(struct ican3_dev *mod, struct ican3_msg *msg)
+ 		complete(&mod->termination_comp);
+ 		break;
+ 	default:
+-		dev_err(mod->dev, "recieved an unknown inquiry response\n");
++		dev_err(mod->dev, "received an unknown inquiry response\n");
+ 		break;
+ 	}
+ }
+@@ -1058,7 +1058,7 @@ static void ican3_handle_inquiry(struct ican3_dev *mod, struct ican3_msg *msg)
+ static void ican3_handle_unknown_message(struct ican3_dev *mod,
+ 					struct ican3_msg *msg)
+ {
+-	dev_warn(mod->dev, "recieved unknown message: spec 0x%.2x length %d\n",
++	dev_warn(mod->dev, "received unknown message: spec 0x%.2x length %d\n",
+ 			   msg->spec, le16_to_cpu(msg->len));
+ }
+ 
+diff --git a/drivers/scsi/scsi_netlink.c b/drivers/scsi/scsi_netlink.c
+index a2ed201..26a8a45 100644
+--- a/drivers/scsi/scsi_netlink.c
++++ b/drivers/scsi/scsi_netlink.c
+@@ -499,7 +499,7 @@ scsi_netlink_init(void)
+ 				SCSI_NL_GRP_CNT, scsi_nl_rcv_msg, NULL,
+ 				THIS_MODULE);
+ 	if (!scsi_nl_sock) {
+-		printk(KERN_ERR "%s: register of recieve handler failed\n",
++		printk(KERN_ERR "%s: register of receive handler failed\n",
+ 				__func__);
+ 		netlink_unregister_notifier(&scsi_netlink_notifier);
+ 		return;
+diff --git a/drivers/usb/misc/ftdi-elan.c b/drivers/usb/misc/ftdi-elan.c
+index 7839c98..1871a30 100644
+--- a/drivers/usb/misc/ftdi-elan.c
++++ b/drivers/usb/misc/ftdi-elan.c
+@@ -187,7 +187,7 @@ struct usb_ftdi {
+         u32 controlreg;
+         u8 response[4 + 1024];
+         int expected;
+-        int recieved;
++        int received;
+         int ed_found;
+ };
+ #define kref_to_usb_ftdi(d) container_of(d, struct usb_ftdi, kref)
+@@ -353,7 +353,7 @@ static void ftdi_elan_abandon_targets(struct usb_ftdi *ftdi)
+                         mutex_lock(&ftdi->u132_lock);
+                 }
+         }
+-        ftdi->recieved = 0;
++        ftdi->received = 0;
+         ftdi->expected = 4;
+         ftdi->ed_found = 0;
+         mutex_unlock(&ftdi->u132_lock);
+@@ -411,7 +411,7 @@ static void ftdi_elan_flush_targets(struct usb_ftdi *ftdi)
+                         }
+                 }
+         }
+-        ftdi->recieved = 0;
++        ftdi->received = 0;
+         ftdi->expected = 4;
+         ftdi->ed_found = 0;
+         mutex_unlock(&ftdi->u132_lock);
+@@ -447,7 +447,7 @@ static void ftdi_elan_cancel_targets(struct usb_ftdi *ftdi)
+                         }
+                 }
+         }
+-        ftdi->recieved = 0;
++        ftdi->received = 0;
+         ftdi->expected = 4;
+         ftdi->ed_found = 0;
+         mutex_unlock(&ftdi->u132_lock);
+@@ -874,7 +874,7 @@ static char *have_ed_set_response(struct usb_ftdi *ftdi,
+                         mutex_unlock(&ftdi->u132_lock);
+                         ftdi_elan_do_callback(ftdi, target, 4 + ftdi->response,
+                                 payload);
+-                        ftdi->recieved = 0;
++                        ftdi->received = 0;
+                         ftdi->expected = 4;
+                         ftdi->ed_found = 0;
+                         return ftdi->response;
+@@ -890,7 +890,7 @@ static char *have_ed_set_response(struct usb_ftdi *ftdi,
+                         mutex_unlock(&ftdi->u132_lock);
+                         ftdi_elan_do_callback(ftdi, target, 4 + ftdi->response,
+                                 payload);
+-                        ftdi->recieved = 0;
++                        ftdi->received = 0;
+                         ftdi->expected = 4;
+                         ftdi->ed_found = 0;
+                         return ftdi->response;
+@@ -905,7 +905,7 @@ static char *have_ed_set_response(struct usb_ftdi *ftdi,
+                 mutex_unlock(&ftdi->u132_lock);
+                 ftdi_elan_do_callback(ftdi, target, 4 + ftdi->response,
+                         payload);
+-                ftdi->recieved = 0;
++                ftdi->received = 0;
+                 ftdi->expected = 4;
+                 ftdi->ed_found = 0;
+                 return ftdi->response;
+@@ -914,7 +914,7 @@ static char *have_ed_set_response(struct usb_ftdi *ftdi,
+                 mutex_unlock(&ftdi->u132_lock);
+                 ftdi_elan_do_callback(ftdi, target, 4 + ftdi->response,
+                         payload);
+-                ftdi->recieved = 0;
++                ftdi->received = 0;
+                 ftdi->expected = 4;
+                 ftdi->ed_found = 0;
+                 return ftdi->response;
+@@ -934,7 +934,7 @@ static char *have_ed_get_response(struct usb_ftdi *ftdi,
+         if (target->active)
+                 ftdi_elan_do_callback(ftdi, target, NULL, 0);
+         target->abandoning = 0;
+-        ftdi->recieved = 0;
++        ftdi->received = 0;
+         ftdi->expected = 4;
+         ftdi->ed_found = 0;
+         return ftdi->response;
+@@ -951,7 +951,7 @@ static char *have_ed_get_response(struct usb_ftdi *ftdi,
+ */
+ static int ftdi_elan_respond_engine(struct usb_ftdi *ftdi)
+ {
+-        u8 *b = ftdi->response + ftdi->recieved;
++        u8 *b = ftdi->response + ftdi->received;
+         int bytes_read = 0;
+         int retry_on_empty = 1;
+         int retry_on_timeout = 3;
+@@ -1043,11 +1043,11 @@ static int ftdi_elan_respond_engine(struct usb_ftdi *ftdi)
+                 u8 c = ftdi->bulk_in_buffer[++ftdi->bulk_in_last];
+                 bytes_read += 1;
+                 ftdi->bulk_in_left -= 1;
+-                if (ftdi->recieved == 0 && c == 0xFF) {
++                if (ftdi->received == 0 && c == 0xFF) {
+                         goto have;
+                 } else
+                         *b++ = c;
+-                if (++ftdi->recieved < ftdi->expected) {
++                if (++ftdi->received < ftdi->expected) {
+                         goto have;
+                 } else if (ftdi->ed_found) {
+                         int ed_number = (ftdi->response[0] >> 5) & 0x03;
+@@ -1069,7 +1069,7 @@ static int ftdi_elan_respond_engine(struct usb_ftdi *ftdi)
+                         }
+                         ftdi_elan_do_callback(ftdi, target, 4 + ftdi->response,
+                                 payload);
+-                        ftdi->recieved = 0;
++                        ftdi->received = 0;
+                         ftdi->expected = 4;
+                         ftdi->ed_found = 0;
+                         b = ftdi->response;
+@@ -1089,7 +1089,7 @@ static int ftdi_elan_respond_engine(struct usb_ftdi *ftdi)
+                         *respond->value = data;
+                         *respond->result = 0;
+                         complete(&respond->wait_completion);
+-                        ftdi->recieved = 0;
++                        ftdi->received = 0;
+                         ftdi->expected = 4;
+                         ftdi->ed_found = 0;
+                         b = ftdi->response;
+diff --git a/drivers/uwb/reset.c b/drivers/uwb/reset.c
+index 2784929..3de630b 100644
+--- a/drivers/uwb/reset.c
++++ b/drivers/uwb/reset.c
+@@ -52,7 +52,7 @@ const char *__strerror[] = {
+ 	"cancelled",
+ 	"invalid state",
+ 	"invalid size",
+-	"ack not recieved",
++	"ack not received",
+ 	"no more asie notification",
+ };
+ 
+-- 
+1.7.4.2
 
-Cheers,
-  Peter
-
-
-> diff --git a/Documentation/input/evdev-codes.txt b/Documentation/input/evdev-codes.txt
-> new file mode 100644
-> index 0000000..b50bc49
-> --- /dev/null
-> +++ b/Documentation/input/evdev-codes.txt
-> @@ -0,0 +1,256 @@
-> +The evdev protocol uses a map of types and codes to express input device values
-> +to userspace. This document describes the types and codes and how and when they
-> +may be used.
-> +
-> +A single hardware event generates multiple input events. Each input event
-> +contains the new value of a single data item. A special event type, EV_SYN, is
-> +used to separate input events into packets of input data changes occurring at
-> +the same moment in time. In the following, the term "event" refers to a single
-> +input event encompassing a type, code, and value.
-> +
-> +The evdev protocol is a stateful protocol. Events are emitted only when values
-> +of evdev codes have changed. However, the state is maintained within the Linux
-> +input subsystem; drivers do not need to maintain the state and may attempt to
-> +emit unchanged values without harm. Userspace may obtain the current state of
-> +evdev code values using the EVIOCG* ioctls defined in linux/input.h. The evdev
-> +reports supported by a device are also provided by sysfs in
-> +class/input/event*/device/capabilities/, and the properties of a device are
-> +provided in class/input/event*/device/properties.
-> +
-> +Types:
-> +==========
-> +Types are groupings of codes under a logical input construct. Each type has a
-> +set of applicable codes to be used in generating events. See the Codes section
-> +for details on valid codes for each type.
-> +
-> +* EV_SYN:
-> +  - Used as markers to separate events. Events may be separated in time or in
-> +    space, such as with the multitouch protocol.
-> +
-> +* EV_KEY:
-> +  - Used to describe state changes of keyboards, buttons, or other key-like
-> +    devices.
-> +
-> +* EV_REL:
-> +  - Used to describe relative axis value changes, e.g. moving the mouse 5 units
-> +    to the left.
-> +
-> +* EV_ABS:
-> +  - Used to describe absolute axis value changes, e.g. describing the
-> +    coordinates of a touch on a touchscreen.
-> +
-> +* EV_MSC:
-> +  - Used to describe miscellaneous input data that do not fit into other types.
-> +
-> +* EV_SW:
-> +  - Used to describe binary state input switches.
-> +
-> +* EV_LED:
-> +  - Used to turn LEDs on devices on and off.
-> +
-> +* EV_SND:
-> +  - Used to output sound to devices.
-> +
-> +* EV_REP:
-> +  - Used for autorepeating devices.
-> +
-> +* EV_FF:
-> +  - Used to send force feedback commands to an input device.
-> +
-> +* EV_PWR:
-> +  - A special type for power button and switch input.
-> +
-> +* EV_FF_STATUS:
-> +  - Used to receive force feedback device status.
-> +
-> +Codes:
-> +==========
-> +Codes define the precise type of event.
-> +
-> +EV_SYN:
-> +----------
-> +EV_SYN event values are undefined. Their usage is defined only by when they are
-> +sent in the evdev event stream.
-> +
-> +* SYN_REPORT:
-> +  - Used to synchronize and separate events into packets of input data changes
-> +    occurring at the same moment in time. For example, motion of a mouse may set
-> +    the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
-> +    motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
-> +
-> +* SYN_CONFIG:
-> +  - TBD
-> +
-> +* SYN_MT_REPORT:
-> +  - Used to synchronize and separate touch events. See the
-> +    multi-touch-protocol.txt document for more information.
-> +
-> +EV_KEY:
-> +----------
-> +EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
-> +to represent the 'A' key on a keyboard. When a key is depressed, an event with
-> +the key's code is emitted with value 1. When the key is released, an event is
-> +emitted with value 0. Some hardware send events when a key is repeated. These
-> +events have a value of 2. In general, KEY_<name> is used for keyboard keys, and
-> +BTN_<name> is used for other types of momentary switch events.
-> +
-> +A few EV_KEY codes have special meanings:
-> +
-> +* BTN_TOOL_<name>:
-> +  - These codes are used in conjunction with input trackpads, tablets, and
-> +    touchscreens. These devices may be used with fingers, pens, or other tools.
-> +    When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
-> +    code should be set to a value of 1. When the tool is no longer interacting
-> +    with the input device, the BTN_TOOL_<name> code should be reset to 0. All
-> +    trackpads, tablets, and touchscreens should use at least one BTN_TOOL_<name>
-> +    code when events are generated.
-> +
-> +* BTN_TOUCH:
-> +    BTN_TOUCH is used for touch contact. While an input tool is determined to be
-> +    within meaningful physical contact, the value of this property must be set
-> +    to 1. Meaningful physical contact may mean any contact, or it may mean
-> +    contact conditioned by an implementation defined property. For example, a
-> +    touchpad may set the value to 1 only when the touch pressure rises above a
-> +    certain value. BTN_TOUCH may be combined with BTN_TOOL_<name> codes. For
-> +    example, a pen tablet may set BTN_TOOL_PEN to 1 and BTN_TOUCH to 0 while the
-> +    pen is hovering over but not touching the tablet surface.
-> +
-> +Note: For appropriate function of the legacy mousedev emulation driver,
-> +BTN_TOUCH must be the first evdev code emitted in a synchronization frame.
-> +
-> +Note: Historically a touch device with BTN_TOOL_FINGER and BTN_TOUCH was
-> +interpreted as a touchpad by userspace, while a similar device without
-> +BTN_TOOL_FINGER was interpreted as a touchscreen. For backwards compatibility
-> +with current userspace it is recommended to follow this distinction. In the
-> +future, this distinction will be deprecated and the device properties ioctl
-> +EVIOCGPROP, defined in linux/input.h, will be used to convey the device type.
-> +
-> +* BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
-> +  - These codes denote one, two, three, and four finger interaction on a
-> +    trackpad or touchscreen. For example, if the user uses two fingers and moves
-> +    them on the touchpad in an effort to scroll content on screen,
-> +    BTN_TOOL_DOUBLETAP should be set to value 1 for the duration of the motion.
-> +    Note that all BTN_TOOL_<name> codes and the BTN_TOUCH code are orthogonal in
-> +    purpose. A trackpad event generated by finger touches should generate events
-> +    for one code from each group. At most only one of these BTN_TOOL_<name>
-> +    codes should have a value of 1 during any synchronization frame.
-> +
-> +Note: Historically some drivers emitted multiple of the finger count codes with
-> +a value of 1 in the same synchronization frame. This usage is deprecated.
-> +
-> +Note: In multitouch drivers, the input_mt_report_finger_count() function should
-> +be used to emit these codes. Please see multi-touch-protocol.txt for details.
-> +
-> +EV_REL:
-> +----------
-> +EV_REL events describe relative changes in a property. For example, a mouse may
-> +move to the left by a certain number of units, but its absolute position in
-> +space is unknown. If the absolute position is known, EV_ABS codes should be used
-> +instead of EV_REL codes.
-> +
-> +A few EV_REL codes have special meanings:
-> +
-> +* REL_WHEEL, REL_HWHEEL:
-> +  - These codes are used for vertical and horizontal scroll wheels,
-> +    respectively.
-> +
-> +EV_ABS:
-> +----------
-> +EV_ABS events describe absolute changes in a property. For example, a touchpad
-> +may emit coordinates for a touch location.
-> +
-> +A few EV_ABS codes have special meanings:
-> +
-> +* ABS_DISTANCE:
-> +  - Used to describe the distance of a tool from an interaction surface. This
-> +    event should only be emitted while the tool is hovering, meaning in close
-> +    proximity of the device and while the value of the BTN_TOUCH code is 0. If
-> +    the input device may be used freely in three dimensions, consider ABS_Z
-> +    instead.
-> +
-> +* ABS_MT_<name>:
-> +  - Used to describe multitouch input events. Please see
-> +    multi-touch-protocol.txt for details.
-> +
-> +EV_SW:
-> +----------
-> +EV_SW events describe stateful binary switches. For example, the SW_LID code is
-> +used to denote when a laptop lid is closed.
-> +
-> +Upon binding to a device or resuming from suspend, a driver must report the
-> +the current switch state. This ensures that the device, kernel, and userspace
-> +state is in sync.
-> +
-> +Upon resume, if the switch state is the same as before suspend, then the input
-> +subsystem will filter out the duplicate switch state reports. The driver does
-> +not need to keep the state of the switch at any time.
-> +
-> +EV_MSC:
-> +----------
-> +EV_MSC events are used for input and output events that do not fall under other
-> +categories.
-> +
-> +EV_LED:
-> +----------
-> +EV_LED events are used for input and output to set and query the state of
-> +various LEDs on devices.
-> +
-> +EV_REP:
-> +----------
-> +EV_REP events are used for specifying autorepeating events.
-> +
-> +EV_SND:
-> +----------
-> +EV_SND events are used for sending sound commands to simple sound output
-> +devices.
-> +
-> +EV_FF:
-> +----------
-> +EV_FF events are used to initialize a force feedback capable device and to cause
-> +such device to feedback.
-> +
-> +EV_PWR:
-> +----------
-> +EV_PWR events are a special type of event used specifically for power
-> +mangement. Its usage is not well defined. To be addressed later.
-> +
-> +Guidelines:
-> +==========
-> +The guidelines below ensure proper single-touch and multi-finger functionality.
-> +For multi-touch functionality, see the multi-touch-protocol.txt document for
-> +more information.
-> +
-> +Mice:
-> +----------
-> +REL_{X,Y} must be reported when the mouse moves. BTN_LEFT must be used to report
-> +the primary button press. BTN_{MIDDLE,RIGHT,4,5,etc.} should be used to report
-> +further buttons of the device. REL_WHEEL and REL_HWHEEL should be used to report
-> +scroll wheel events where available.
-> +
-> +Touchscreens:
-> +----------
-> +ABS_{X,Y} must be reported with the location of the touch. BTN_TOUCH must be
-> +used to report when a touch is active on the screen.
-> +BTN_{MOUSE,LEFT,MIDDLE,RIGHT} must not be reported as the result of touch
-> +contact. BTN_TOOL_<name> events should be reported where possible.
-> +
-> +Trackpads:
-> +----------
-> +Legacy trackpads that only provide relative position information must report
-> +events like mice described above.
-> +
-> +Trackpads that provide absolute touch position must report ABS_{X,Y} for the
-> +location of the touch. BTN_TOUCH should be used to report when a touch is active
-> +on the trackpad. Where multi-finger support is available, BTN_TOOL_<name> should
-> +be used to report the number of touches active on the trackpad.
-> +
-> +Tablets:
-> +----------
-> +BTN_TOOL_<name> events must be reported when a stylus or other tool is active on
-> +the tablet. ABS_{X,Y} must be reported with the location of the tool. BTN_TOUCH
-> +should be used to report when the tool is in contact with the tablet.
-> +BTN_{STYLUS,STYLUS2} should be used to report buttons on the tool itself. Any
-> +button may be used for buttons on the tablet except BTN_{MOUSE,LEFT}.
-> +BTN_{0,1,2,etc} are good generic codes for unlabeled buttons. Do not use
-> +meaningful buttons, like BTN_FORWARD, unless the button is labeled for that
-> +purpose on the device.
-> -- 
-> 1.7.4.1
-> 

@@ -1,72 +1,91 @@
-From: wanlong.gao@gmail.com
-Subject: [PATCH] INPUT:Change a more clearly name for the input handlers' table
-Date: Fri,  8 Apr 2011 20:23:44 +0800
-Message-ID: <1302265424-4434-1-git-send-email-wanlong.gao@gmail.com>
+From: Iiro Valkonen <iiro.valkonen@atmel.com>
+Subject: Re: [PATCH 2/2 v3] Input: atmel_mxt_ts - Make CHG line high after
+ the interrupts are enabled
+Date: Fri, 08 Apr 2011 15:58:34 +0300
+Message-ID: <4D9F067A.8070204@atmel.com>
+References: <4D821E00.5060104@atmel.com>	<AANLkTikncdvefBBYyhmjNGrqy5915Xw_pqmSG85VO2xV@mail.gmail.com>	<4D95DB70.2090604@atmel.com> <BANLkTi=PRjx3nN0LQs9Asdj0PHj-ripv4g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:49043 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755015Ab1DHMZN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2011 08:25:13 -0400
+Received: from newsmtp5.atmel.com ([204.2.163.5]:10423 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751826Ab1DHNAM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2011 09:00:12 -0400
+In-Reply-To: <BANLkTi=PRjx3nN0LQs9Asdj0PHj-ripv4g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Wanlong Gao <wanlong.gao@gmail.com>
+To: Joonyoung Shim <dofmind@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-From: Wanlong Gao <wanlong.gao@gmail.com>
+Hello,
 
-Change the input handlers' table name to input_handler_table for
-making more clearly sense .
+On 04/08/2011 07:56 AM, Joonyoung Shim wrote:
+> Hi,
+> 
+> 2011/4/1 Iiro Valkonen <iiro.valkonen@atmel.com>:
+>> This is version 2 of the patch, where sysfs group is correctly removed in case of error, and the firmware update is also considered (mxt_make_highchg is also called from mxt_initialize).
+>>
+>> Original description:
+>>
+>> Make the CHG line (interrupt line) go high after the interrupts have been enabled to make sure we don't miss the falling edge.
+>>
+>> Signed-off-by: Iiro Valkonen <iiro.valkonen@atmel.com>
+>> ---
+>>  drivers/input/touchscreen/atmel_mxt_ts.c |   14 ++++++++++----
+>>  1 files changed, 10 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> index 4012436..08ea846 100644
+>> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+>> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> @@ -804,10 +804,6 @@ static int mxt_initialize(struct mxt_data *data)
+>>        if (error)
+>>                return error;
+>>
+>> -       error = mxt_make_highchg(data);
+>> -       if (error)
+>> -               return error;
+>> -
+>>        mxt_handle_pdata(data);
+>>
+>>        /* Backup to memory */
+>> @@ -832,6 +828,10 @@ static int mxt_initialize(struct mxt_data *data)
+>>                return error;
+>>        info->matrix_ysize = val;
+>>
+>> +       error = mxt_make_highchg(data);
+>> +       if (error)
+>> +               return error;
+>> +
+> 
+> This is unnecessary patch. If you add this for firmware update part,
+> how about move to mxt_update_fw_store()?
+> 
 
-Signed-off-by: Wanlong Gao <wanlong.gao@gmail.com>
----
- drivers/input/input.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+Good call.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index d6e8bd8..00511dc 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -45,7 +45,7 @@ static LIST_HEAD(input_handler_list);
-  */
- static DEFINE_MUTEX(input_mutex);
- 
--static struct input_handler *input_table[8];
-+static struct input_handler *input_handler_table[8];
- 
- static inline int is_event_supported(unsigned int code,
- 				     unsigned long *bm, unsigned int max)
-@@ -1893,11 +1893,11 @@ int input_register_handler(struct input_handler *handler)
- 	INIT_LIST_HEAD(&handler->h_list);
- 
- 	if (handler->fops != NULL) {
--		if (input_table[handler->minor >> 5]) {
-+		if (input_handler_table[handler->minor >> 5]) {
- 			retval = -EBUSY;
- 			goto out;
- 		}
--		input_table[handler->minor >> 5] = handler;
-+		input_handler_table[handler->minor >> 5] = handler;
- 	}
- 
- 	list_add_tail(&handler->node, &input_handler_list);
-@@ -1933,7 +1933,7 @@ void input_unregister_handler(struct input_handler *handler)
- 	list_del_init(&handler->node);
- 
- 	if (handler->fops != NULL)
--		input_table[handler->minor >> 5] = NULL;
-+		input_handler_table[handler->minor >> 5] = NULL;
- 
- 	input_wakeup_procfs_readers();
- 
-@@ -2062,7 +2062,7 @@ static int input_open_file(struct inode *inode, struct file *file)
- 		return err;
- 
- 	/* No load-on-demand here? */
--	handler = input_table[iminor(inode) >> 5];
-+	handler = input_handler_table[iminor(inode) >> 5];
- 	if (handler)
- 		new_fops = fops_get(handler->fops);
- 
+>>        dev_info(&client->dev,
+>>                        "Family ID: %d Variant ID: %d Version: %d Build: %d\n",
+>>                        info->family_id, info->variant_id, info->version,
+>> @@ -1098,8 +1098,14 @@ static int __devinit mxt_probe(struct i2c_client *client,
+>>        if (error)
+>>                goto err_unregister_device;
+>>
+>> +       error = mxt_make_highchg(data);
+>> +       if (error)
+>> +               goto err_remove_sysfs_group;
+>> +
+> 
+> This is ok, but how about move this to the below request_threaded_irq()
+> instead of adding error handling?
+> 
+
+Makes sense, will move it.
+
+Thanks for the feedback.
+
+BR,
+
 -- 
-1.7.3
-
+Iiro

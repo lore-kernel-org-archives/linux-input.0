@@ -1,353 +1,145 @@
-From: Zhang Jiejing <jiejing.zhang@freescale.com>
-Subject: [PATCH V2] input: add maxim max11801 resistance touchscreen controller driver.
-Date: Fri, 8 Apr 2011 13:15:02 +0800
-Message-ID: <1302239702-29905-1-git-send-email-jiejing.zhang@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: [PATCH v2] Input: atmel_mxt_ts - Support 12bit resolution
+Date: Fri, 08 Apr 2011 14:44:06 +0900
+Message-ID: <1302241446-29201-1-git-send-email-jy0922.shim@samsung.com>
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch1outboundpool.messaging.microsoft.com ([216.32.181.181]:25721
-	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752657Ab1DHFKR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 Apr 2011 01:10:17 -0400
+Received: from mailout3.samsung.com ([203.254.224.33]:34248 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751554Ab1DHFox (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2011 01:44:53 -0400
+Received: from epmmp2 (mailout3.samsung.com [203.254.224.33])
+ by mailout3.samsung.com
+ (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
+ 2010)) with ESMTP id <0LJB00APFJYRPI60@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Fri, 08 Apr 2011 14:44:51 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LJB00B17JYRS8@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Fri, 08 Apr 2011 14:44:51 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
-Cc: kzjeef@gmail.com
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, iiro.valkonen@atmel.com, kyungmin.park@samsung.com
 
-Add MAXI max11801 resistance touch screen controller driver,
-This driver use Auto Mode and Aperture Mode.
+Atmel touchscreen chip can support 12bit resolution and this patch
+modifies to get maximum x and y size from platform data.
 
-Other max1180x driver can support in this driver, they use
-almost same register address and define, you can find a table in
-max11801_ts.c
-
-You can find data sheet under this link:
-http://www.maxim-ic.com/datasheet/index.mvp/id/5943
-
-Signed-off-by: Zhang Jiejing <jiejing.zhang@freescale.com>
-
+Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
+v2: Fix absinfo->maximum value of x and y
 
-Change since V1:
-* remove file name in comments,
-* fix typo,
-* using threaded_irq to replace private workqueue.
-  clean up workqueue related stuff.
----
- drivers/input/touchscreen/Kconfig       |   12 ++
- drivers/input/touchscreen/Makefile      |    1 +
- drivers/input/touchscreen/max11801_ts.c |  270 +++++++++++++++++++++++++++++++
- 3 files changed, 283 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/max11801_ts.c
+ drivers/input/touchscreen/atmel_mxt_ts.c |   53 ++++++++++++++++++++++--------
+ 1 files changed, 39 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 61834ae..1ca05a0 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -693,4 +693,16 @@ config TOUCHSCREEN_TPS6507X
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called tps6507x_ts.
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 4012436..a97905a 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -196,9 +196,12 @@
+ #define MXT_PRESS		(1 << 6)
+ #define MXT_DETECT		(1 << 7)
  
-+config TOUCHSCREEN_MAX11801
-+       tristate "MAX11801 based touchscreens"
-+       depends on I2C
-+       help
-+        Say Y here if you have a MAX11801 based touchscreen
-+        controller
++/* Touch orient bits */
++#define MXT_XY_SWITCH		(1 << 0)
++#define MXT_X_INVERT		(1 << 1)
++#define MXT_Y_INVERT		(1 << 2)
 +
-+        If unsure, say N.
+ /* Touchscreen absolute values */
+-#define MXT_MAX_XC		0x3ff
+-#define MXT_MAX_YC		0x3ff
+ #define MXT_MAX_AREA		0xff
+ 
+ #define MXT_MAX_FINGER		10
+@@ -246,6 +249,8 @@ struct mxt_data {
+ 	struct mxt_info info;
+ 	struct mxt_finger finger[MXT_MAX_FINGER];
+ 	unsigned int irq;
++	unsigned int max_x;
++	unsigned int max_y;
+ };
+ 
+ static bool mxt_object_readable(unsigned int type)
+@@ -549,8 +554,13 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	if (!(status & (MXT_PRESS | MXT_MOVE)))
+ 		return;
+ 
+-	x = (message->message[1] << 2) | ((message->message[3] & ~0x3f) >> 6);
+-	y = (message->message[2] << 2) | ((message->message[3] & ~0xf3) >> 2);
++	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
++	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
++	if (data->max_x < 1024)
++		x = x >> 2;
++	if (data->max_y < 1024)
++		y = y >> 2;
 +
-+        To compile this driver as a module, choose M here: the
-+	  module will be called max11801_ts
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 718bcc8..fd88748 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -57,3 +57,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
- obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
-+obj-$(CONFIG_TOUCHSCREEN_MAX11801)	+= max11801_ts.o
-diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
-new file mode 100644
-index 0000000..556a8f5
---- /dev/null
-+++ b/drivers/input/touchscreen/max11801_ts.c
-@@ -0,0 +1,270 @@
-+/*
-+ * Driver for MAXI MAX11801 - A Resistive touch screen controller with
-+ * i2c interface
-+ *
-+ * Copyright (C) 2011 Freescale Semiconductor, Inc.
-+ * Author: Zhang Jiejing <jiejing.zhang@freescale.com>
-+ *
-+ * Based on mcs5000_ts.c
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License.
-+ */
-+
-+/* This driver is aim for support the serial of MAXI touch chips
-+ * max11801-max11803, the main different of this 4 chips can get from
-+ * this table
-+ * -----------------------------------------------------
-+ * | CHIP     |  AUTO MODE SUPPORT(FIFO) | INTERFACE    |
-+ * |----------------------------------------------------|
-+ * | max11800 |  YES                     |   SPI        |
-+ * | max11801 |  YES                     |   I2C        |
-+ * | max11802 |  NO                      |   SPI        |
-+ * | max11803 |  NO                      |   I2C        |
-+ * ------------------------------------------------------
-+ *
-+ * Currently, this driver only support max11801.
-+ *
-+ * Data Sheet:
-+ * http://www.maxim-ic.com/datasheet/index.mvp/id/5943
-+ * */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/irq.h>
-+#include <linux/slab.h>
-+#include <linux/bitops.h>
-+
-+/* Register Address define */
-+#define GENERNAL_STATUS_REG		0x00
-+#define GENERNAL_CONF_REG		0x01
-+#define MESURE_RES_CONF_REG		0x02
-+#define MESURE_AVER_CONF_REG		0x03
-+#define ADC_SAMPLE_TIME_CONF_REG	0x04
-+#define PANEL_SETUPTIME_CONF_REG	0x05
-+#define DELAY_CONVERSION_CONF_REG	0x06
-+#define TOUCH_DETECT_PULLUP_CONF_REG	0x07
-+#define AUTO_MODE_TIME_CONF_REG		0x08 /* only for max11800/max11801 */
-+#define APERTURE_CONF_REG		0x09 /* only for max11800/max11801 */
-+#define AUX_MESURE_CONF_REG		0x0a
-+#define OP_MODE_CONF_REG		0x0b
-+
-+/* FIFO is only in max11800 & max11801 */
-+#define FIFO_RD_CMD			(0x50 << 1)
-+#define MAX11801_FIFO_INT		(1 << 2)
-+#define MAX11801_FIFO_OVERFLOW		(1 << 3)
-+
-+#define XY_BUFSIZE			4
-+#define XY_BUF_OFFSET			4
-+
-+#define MAX11801_MAX_X			0xfff
-+#define MAX11801_MAX_Y			0xfff
-+
-+#define MEASURE_TAG_OFFSET		2
-+#define MEASURE_TAG_MASK		(3 << MEASURE_TAG_OFFSET)
-+#define EVENT_TAG_OFFSET		0
-+#define EVENT_TAG_MASK			(3 << EVENT_TAG_OFFSET)
-+#define MEASURE_X_TAG			(0 << MEASURE_TAG_OFFSET)
-+#define MEASURE_Y_TAG			(1 << MEASURE_TAG_OFFSET)
-+
-+/* These are the state of touch event state machine */
-+enum {
-+	EVENT_INIT,
-+	EVENT_MIDDLE,
-+	EVENT_RELEASE,
-+	EVENT_FIFO_END
-+};
-+
-+struct max11801_data {
-+	struct i2c_client		*client;
-+	struct input_dev		*input_dev;
-+};
-+
-+static u8 read_register(struct i2c_client *client, int addr)
+ 	area = message->message[4];
+ 
+ 	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+@@ -845,6 +855,20 @@ static int mxt_initialize(struct mxt_data *data)
+ 	return 0;
+ }
+ 
++static void mxt_calc_resolution(struct mxt_data *data)
 +{
-+	/* XXX: The chip ignores LSB of register address */
-+	return i2c_smbus_read_byte_data(client, addr << 1);
-+}
++	unsigned int max_x = data->pdata->x_size - 1;
++	unsigned int max_y = data->pdata->y_size - 1;
 +
-+static int max11801_write_reg(struct i2c_client *client, int addr, int data)
-+{
-+	/* XXX: The chip ignores LSB of register address */
-+	return i2c_smbus_write_byte_data(client, addr << 1, data);
-+}
-+
-+static irqreturn_t max11801_ts_interrupt(int irq, void *dev_id)
-+{
-+	struct max11801_data *data = dev_id;
-+	struct i2c_client *client = data->client;
-+	int status, i, ret;
-+	u8 buf[XY_BUFSIZE];
-+	int x = -1;
-+	int y = -1;
-+
-+	status = read_register(data->client, GENERNAL_STATUS_REG);
-+
-+	if (status & (MAX11801_FIFO_INT | MAX11801_FIFO_OVERFLOW)) {
-+		status = read_register(data->client, GENERNAL_STATUS_REG);
-+
-+		ret = i2c_smbus_read_i2c_block_data(client, FIFO_RD_CMD,
-+						    XY_BUFSIZE, buf);
-+
-+		/* We will get 4 bytes buffer that contains X,Y and event tag */
-+		if (ret < XY_BUFSIZE)
-+			goto out;
-+
-+		for (i = 0; i < XY_BUFSIZE; i += XY_BUFSIZE / 2) {
-+			if ((buf[i+1] & MEASURE_TAG_MASK) == MEASURE_X_TAG)
-+				x = (buf[i] << XY_BUF_OFFSET) + (buf[i+1] >> XY_BUF_OFFSET);
-+			else if ((buf[i+1] & MEASURE_TAG_MASK) == MEASURE_Y_TAG)
-+				y = (buf[i] << XY_BUF_OFFSET) + (buf[i+1] >> XY_BUF_OFFSET);
-+		}
-+
-+		if ((buf[1] & EVENT_TAG_MASK) != (buf[3] & EVENT_TAG_MASK))
-+			goto out;
-+
-+		switch (buf[1] & EVENT_TAG_MASK) {
-+		case EVENT_INIT:
-+			/* go through */
-+		case EVENT_MIDDLE:
-+			input_report_abs(data->input_dev, ABS_X, x);
-+			input_report_abs(data->input_dev, ABS_Y, y);
-+			input_event(data->input_dev, EV_KEY, BTN_TOUCH, 1);
-+			input_sync(data->input_dev);
-+			goto out;
-+		case EVENT_RELEASE:
-+			input_event(data->input_dev, EV_KEY, BTN_TOUCH, 0);
-+			input_sync(data->input_dev);
-+			goto out;
-+		case EVENT_FIFO_END:
-+			goto out;
-+		}
++	if (data->pdata->orient & MXT_XY_SWITCH) {
++		data->max_x = max_y;
++		data->max_y = max_x;
++	} else {
++		data->max_x = max_x;
++		data->max_y = max_y;
 +	}
-+out:
-+	return IRQ_HANDLED;
 +}
 +
-+static void max11801_ts_phy_init(struct max11801_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+
-+	/* Average X,Y, take 16 samples, average eight media sample */
-+	max11801_write_reg(client, MESURE_AVER_CONF_REG, 0xff);
-+	/* X,Y panel setup time set to 20us */
-+	max11801_write_reg(client, PANEL_SETUPTIME_CONF_REG, 0x11);
-+	/* Rough pullup time (2uS), Fine pullup time (10us)  */
-+	max11801_write_reg(client, TOUCH_DETECT_PULLUP_CONF_REG, 0x10);
-+	/* Auto mode init period = 5ms , scan period = 5ms*/
-+	max11801_write_reg(client, AUTO_MODE_TIME_CONF_REG, 0xaa);
-+	/* Aperture X,Y set to +- 4LSB */
-+	max11801_write_reg(client, APERTURE_CONF_REG, 0x33);
-+	/* Enable Power, enable Automode, enable Aperture, enable Average X,Y */
-+	max11801_write_reg(client, OP_MODE_CONF_REG, 0x36);
-+}
-+
-+static int __devinit max11801_ts_probe(struct i2c_client *client,
-+				       const struct i2c_device_id *id)
-+{
-+	struct max11801_data *data;
-+	struct input_dev *input_dev;
-+	int ret;
-+
-+	data = kzalloc(sizeof(struct max11801_data), GFP_KERNEL);
-+	if (!data) {
-+		dev_err(&client->dev, "Failed to allocate memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		dev_err(&client->dev, "Failed to allocate memory\n");
-+		ret = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
+ static ssize_t mxt_object_show(struct device *dev,
+ 				    struct device_attribute *attr, char *buf)
+ {
+@@ -1052,31 +1076,32 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 	input_dev->open = mxt_input_open;
+ 	input_dev->close = mxt_input_close;
+ 
 +	data->client = client;
 +	data->input_dev = input_dev;
-+	max11801_ts_phy_init(data);
++	data->pdata = pdata;
++	data->irq = client->irq;
 +
-+	input_dev->name = "max11801_ts";
-+	input_dev->id.bustype = BUS_I2C;
-+	input_dev->dev.parent = &client->dev;
++	mxt_calc_resolution(data);
 +
-+	__set_bit(EV_ABS, input_dev->evbit);
-+	__set_bit(EV_KEY, input_dev->evbit);
-+	__set_bit(BTN_TOUCH, input_dev->keybit);
-+	__set_bit(ABS_X, input_dev->absbit);
-+	__set_bit(ABS_Y, input_dev->absbit);
-+	input_set_abs_params(input_dev, ABS_X, 0, MAX11801_MAX_X, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, MAX11801_MAX_Y, 0, 0);
-+	input_set_drvdata(input_dev, data);
-+
-+	ret = request_threaded_irq(client->irq, NULL, max11801_ts_interrupt,
-+				   IRQF_TRIGGER_LOW | IRQF_ONESHOT, "max11801_ts", data);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to register interrupt\n");
-+		goto err_free_dev;
-+	}
-+
-+	ret = input_register_device(data->input_dev);
-+	if (ret < 0)
-+		goto err_free_irq;
-+	i2c_set_clientdata(client, data);
-+	return 0;
-+
-+err_free_irq:
-+	free_irq(client->irq, data);
-+err_free_dev:
-+	input_free_device(input_dev);
-+err_free_mem:
-+	kfree(data);
-+	return ret;
-+}
-+
-+static __devexit int max11801_ts_remove(struct i2c_client *client)
-+{
-+	struct max11801_data *data = i2c_get_clientdata(client);
-+
-+	free_irq(client->irq, data);
-+	input_unregister_device(data->input_dev);
-+	input_free_device(data->input_dev);
-+	kfree(data);
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id max11801_ts_id[] = {
-+	{"max11801", 0},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, max11801_ts_id);
-+
-+static struct i2c_driver max11801_ts_driver = {
-+	.probe		= max11801_ts_probe,
-+	.remove		= __devexit_p(max11801_ts_remove),
-+	.driver = {
-+		.name = "max11801_ts",
-+	},
-+	.id_table	= max11801_ts_id,
-+};
-+
-+static int __init max11801_ts_init(void)
-+{
-+	return i2c_add_driver(&max11801_ts_driver);
-+}
-+
-+static void __exit max11801_ts_exit(void)
-+{
-+	i2c_del_driver(&max11801_ts_driver);
-+}
-+
-+module_init(max11801_ts_init);
-+module_exit(max11801_ts_exit);
-+
-+MODULE_AUTHOR("Zhang Jiejing <jiejing.zhang@freescale.com>");
-+MODULE_DESCRIPTION("Touchscreen driver for MAXI MAX11801 controller");
-+MODULE_LICENSE("GPL");
+ 	__set_bit(EV_ABS, input_dev->evbit);
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 
+ 	/* For single touch */
+ 	input_set_abs_params(input_dev, ABS_X,
+-			     0, MXT_MAX_XC, 0, 0);
++			     0, data->max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_Y,
+-			     0, MXT_MAX_YC, 0, 0);
++			     0, data->max_y, 0, 0);
+ 
+ 	/* For multi touch */
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+ 			     0, MXT_MAX_AREA, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+-			     0, MXT_MAX_XC, 0, 0);
++			     0, data->max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+-			     0, MXT_MAX_YC, 0, 0);
++			     0, data->max_y, 0, 0);
+ 
+ 	input_set_drvdata(input_dev, data);
+-
+-	data->client = client;
+-	data->input_dev = input_dev;
+-	data->pdata = pdata;
+-	data->irq = client->irq;
+-
+ 	i2c_set_clientdata(client, data);
+ 
+ 	error = mxt_initialize(data);
 -- 
 1.7.0.4
-
 

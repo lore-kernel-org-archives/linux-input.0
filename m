@@ -1,67 +1,40 @@
-From: Ricard Wanderlof <ricard.wanderlof@axis.com>
-Subject: Re: [RFC 1/6]Fix typo "recieve" in various parts of the kernel.
-Date: Fri, 8 Apr 2011 09:14:04 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1104080909040.5186@lnxricardw.se.axis.com>
-References: <1302192567-842-1-git-send-email-justinmattock@gmail.com>
- <20110407200541.GC8569@pengutronix.de> <4D9E4A59.8010604@gmail.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH 0/2] input: rotary-encoder: add support for half-period encoders
+Date: Fri, 8 Apr 2011 09:39:21 +0200
+Message-ID: <BANLkTimw=tiCn2gbVg7DCqe2ydexgByuEQ@mail.gmail.com>
+References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4D9E4A59.8010604@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-Cc: =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, "trivial@kernel.org" <trivial@kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "socketcan-core@lists.berlios.de" <socketcan-core@lists.berlios.de>, "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:34503 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756258Ab1DHHjW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2011 03:39:22 -0400
+Received: by vws1 with SMTP id 1so2496933vws.19
+        for <linux-input@vger.kernel.org>; Fri, 08 Apr 2011 00:39:21 -0700 (PDT)
+In-Reply-To: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Johan Hovold <jhovold@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-
-On Fri, 8 Apr 2011, Justin P. Mattock wrote:
-
-> On 04/07/2011 01:05 PM, Uwe Kleine-K=F6nig wrote:
->> On Thu, Apr 07, 2011 at 09:09:22AM -0700, Justin P. Mattock wrote:
->>> The patch below fixes some typos "recieve" in various parts of the =
-kernel.
->>> Note: these below are in actual code rather than comments(excpet fo=
-r r852.c which
->> s/excpet/except/
->>
->>> has a code fix, and comment).
->>> compile tested as best as I can...
->> I'm not a native speaker, but "as good as" sounds better in my ears.
->>
->> Best regards
->> Uwe
->>
+On Tue, Apr 5, 2011 at 8:15 PM, Johan Hovold <jhovold@gmail.com> wrote:
+> Hi,
 >
-> your right.. gcc and friends are the one's doing all the reall work: =
-"as=20
-> good as *"
+> These patches add support for rotary-encoders which have two stable states per
+> input signal period.
+>
+> The first patch refactors state retrieval and event reporting and the second
+> adds support for such half-period encoders.
 
-I think Uwe was thinking of grammar rather than who was doing the actua=
-l=20
-work.
+I have no objections to let the code in, and the patch looks sane to me.
 
-Now that I've gone more or less off topic I may as well voice my opinio=
-n=20
-the 'as best as I can' sounds like a mixup of two constructs: either 'a=
-s=20
-best I can' (which is probably slightly unusual these days), or 'as wel=
-l=20
-as I can'. 'I've done it as good as I can' is gramatically wrong (since=
-=20
-'good' is an adjective and 'well' is an adverb, and it is referring to=20
-'how I did it' (or in the case above, 'how well I tested it'), but fair=
-ly=20
-common nevertheless, and given the large percentage of non-native speak=
-ers=20
-in the Linux community I wouldn't worry about it, the meaning is clear=20
-anyway.
+However, I don't currently have access to the hardware I wrote the
+driver for, so I can't test right now, but will do at some later
+point.
 
-I'll shut up and go now. :-)
+Feel free to add my Acked-by:, and I will get back to you in case I
+encounter any trouble.
 
-/Ricard
---=20
-Ricard Wolf Wanderl=F6f                           ricardw(at)axis.com
-Axis Communications AB, Lund, Sweden            www.axis.com
-Phone +46 46 272 2016                           Fax +46 46 13 61 30
+Thanks,
+Daniel

@@ -1,40 +1,72 @@
-From: Daniel Mack <zonque@gmail.com>
-Subject: Re: [PATCH 0/2] input: rotary-encoder: add support for half-period encoders
-Date: Fri, 8 Apr 2011 09:39:21 +0200
-Message-ID: <BANLkTimw=tiCn2gbVg7DCqe2ydexgByuEQ@mail.gmail.com>
-References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: wanlong.gao@gmail.com
+Subject: [PATCH] INPUT:Change a more clearly name for the input handlers' table
+Date: Fri,  8 Apr 2011 20:23:44 +0800
+Message-ID: <1302265424-4434-1-git-send-email-wanlong.gao@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:34503 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756258Ab1DHHjW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2011 03:39:22 -0400
-Received: by vws1 with SMTP id 1so2496933vws.19
-        for <linux-input@vger.kernel.org>; Fri, 08 Apr 2011 00:39:21 -0700 (PDT)
-In-Reply-To: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:49043 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755015Ab1DHMZN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Apr 2011 08:25:13 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <jhovold@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Wanlong Gao <wanlong.gao@gmail.com>
 
-On Tue, Apr 5, 2011 at 8:15 PM, Johan Hovold <jhovold@gmail.com> wrote:
-> Hi,
->
-> These patches add support for rotary-encoders which have two stable states per
-> input signal period.
->
-> The first patch refactors state retrieval and event reporting and the second
-> adds support for such half-period encoders.
+From: Wanlong Gao <wanlong.gao@gmail.com>
 
-I have no objections to let the code in, and the patch looks sane to me.
+Change the input handlers' table name to input_handler_table for
+making more clearly sense .
 
-However, I don't currently have access to the hardware I wrote the
-driver for, so I can't test right now, but will do at some later
-point.
+Signed-off-by: Wanlong Gao <wanlong.gao@gmail.com>
+---
+ drivers/input/input.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-Feel free to add my Acked-by:, and I will get back to you in case I
-encounter any trouble.
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index d6e8bd8..00511dc 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -45,7 +45,7 @@ static LIST_HEAD(input_handler_list);
+  */
+ static DEFINE_MUTEX(input_mutex);
+ 
+-static struct input_handler *input_table[8];
++static struct input_handler *input_handler_table[8];
+ 
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
+@@ -1893,11 +1893,11 @@ int input_register_handler(struct input_handler *handler)
+ 	INIT_LIST_HEAD(&handler->h_list);
+ 
+ 	if (handler->fops != NULL) {
+-		if (input_table[handler->minor >> 5]) {
++		if (input_handler_table[handler->minor >> 5]) {
+ 			retval = -EBUSY;
+ 			goto out;
+ 		}
+-		input_table[handler->minor >> 5] = handler;
++		input_handler_table[handler->minor >> 5] = handler;
+ 	}
+ 
+ 	list_add_tail(&handler->node, &input_handler_list);
+@@ -1933,7 +1933,7 @@ void input_unregister_handler(struct input_handler *handler)
+ 	list_del_init(&handler->node);
+ 
+ 	if (handler->fops != NULL)
+-		input_table[handler->minor >> 5] = NULL;
++		input_handler_table[handler->minor >> 5] = NULL;
+ 
+ 	input_wakeup_procfs_readers();
+ 
+@@ -2062,7 +2062,7 @@ static int input_open_file(struct inode *inode, struct file *file)
+ 		return err;
+ 
+ 	/* No load-on-demand here? */
+-	handler = input_table[iminor(inode) >> 5];
++	handler = input_handler_table[iminor(inode) >> 5];
+ 	if (handler)
+ 		new_fops = fops_get(handler->fops);
+ 
+-- 
+1.7.3
 
-Thanks,
-Daniel

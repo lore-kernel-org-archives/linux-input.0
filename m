@@ -1,108 +1,271 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: generic driver for slide switches
-Date: Sat, 9 Apr 2011 17:10:19 -0700
-Message-ID: <20110410001019.GA22737@core.coreip.homeip.net>
-References: <1298640558-3030-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
- <201104031021.26509.alexander.stein@informatik.tu-chemnitz.de>
- <20110405183651.GD13086@core.coreip.homeip.net>
- <201104071945.52232.alexander.stein@informatik.tu-chemnitz.de>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: fixing actual/startup profile sysfs attribute
+ in koneplus
+Date: Sun, 10 Apr 2011 16:02:45 +0200
+Message-ID: <1302444165.12514.2.camel__49833.5158605643$1302444183$gmane$org@neuromancer>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:64853 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755731Ab1DJAK0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Apr 2011 20:10:26 -0400
-Received: by iwn34 with SMTP id 34so4521461iwn.19
-        for <linux-input@vger.kernel.org>; Sat, 09 Apr 2011 17:10:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201104071945.52232.alexander.stein@informatik.tu-chemnitz.de>
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:55308 "EHLO
+	mail-in-07.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750910Ab1DJOCv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 10 Apr 2011 10:02:51 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
-Cc: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-inp
 
-On Thu, Apr 07, 2011 at 07:45:51PM +0200, Alexander Stein wrote:
-> On Tuesday 05 April 2011 20:36:52 Dmitry Torokhov wrote:
-> > Hi Alexander,
-> > 
-> > On Sun, Apr 03, 2011 at 10:21:26AM +0200, Alexander Stein wrote:
-> > > Hello Dimitry,
-> > > 
-> > > On Sunday 03 April 2011 06:23:05 Dmitry Torokhov wrote:
-> > > > On Sat, Apr 02, 2011 at 10:31:53AM +0200, Alexander Stein wrote:
-> > > > > Hello Dimitry,
-> > > > > 
-> > > > > On Wednesday 16 March 2011 07:36:18 Dmitry Torokhov wrote:
-> > > > > > On Tue, Mar 15, 2011 at 02:13:49PM +0100, Alexander Stein wrote:
-> > > > > > > On Friday 25 February 2011, 14:29:18 Alexander Stein wrote:
-> > > > > > > > This patch adds a generic driver for slide switches connected
-> > > > > > > > to GPIO pins of a system. It requires gpiolib and generic
-> > > > > > > > hardware irqs.
-> > > > > > 
-> > > > > > Hm, can't it be merged with gpio_keys? Just add the 'value' to the
-> > > > > > gpio_keys_button structure that would be valid for EV_ABS (or even
-> > > > > > EV_REL) types. Debouncing should filter out jittery events...
-> > > > > 
-> > > > > Sorry, for no answer long time.
-> > > > > I just tried merging both. The problem i noticed is that the PGIO
-> > > > > interrupts are independable and each GPIO will generate an event,
-> > > > > which is wrong. Assume the switch state change from position 2 to 1
-> > > > > it will actually generate lots of interrupts: e.g. 2, 1, 2, 1.
-> > > > > Depending from the order of such interrupts the last event shows a
-> > > > > possible wrong position.
-> > > > 
-> > > > However at some point the output should stabilize. Does not setting
-> > > > appropriate debouncing interval help here?
-> > > 
-> > > Well, a debounce interval will prevent to get events for position 2, 1,
-> > > 2, 1 (from the example above). You will get only 2 and 1.
-> > 
-> > No, if the switch settles in position 2 then we will report only 2. I.e.
-> > if you set debounce interval for 200 msecs for all gpios at the end of
-> > this period gpio representing "1" position will not be active so you
-> > will not send any event for it. The gpio representing "2" will still be
-> > active and thus you will send ABS_whatever/2.
-> 
-> Mh, i think you had a slightly different implementation in mind than me.
-> 
-> > > The debounce will only decrease the amount of events for _each_ GPIO
-> > > interrupt. It will not prevent GPIO interrupts from different pins while
-> > > moving the switch one position.
-> > 
-> > It will not prevent interrupts but should prevent unstable events. It
-> > might be beneficial if you posted the code you tried and we'd see why
-> > debouncing does not work for you.
-> 
-> Here we go:
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c 
-> b/drivers/input/keyboard/gpio_keys.c
-> index eb30063..544db8f 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -324,7 +324,10 @@ static void gpio_keys_report_event(struct 
-> gpio_button_data *bdata)
->  	unsigned int type = button->type ?: EV_KEY;
->  	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button-
-> >active_low;
->  
-> -	input_event(input, type, button->code, !!state);
-> +	if ((type == EV_ABS) || (type == EV_REL))
-> +		input_event(input, type, button->code, button->value);
+startup_profile and actual_profile didn't work as expected. Also
+as the actual profile is persistent, the distinction between the
+two was ambiguous. And the event is now propagated through chardev.
+The userland tool has been updated to support this change.
 
-Ok, so here you unconditionally send the event, regardless of the state
-of the gpio. I think that you should only send the ABS event if the GPIO
-is in active state. I.e.
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ .../ABI/testing/sysfs-driver-hid-roccat-koneplus   |   19 ++---
+ drivers/hid/hid-roccat-koneplus.c                  |   81 ++++++++++----------
+ drivers/hid/hid-roccat-koneplus.h                  |   11 +--
+ 3 files changed, 53 insertions(+), 58 deletions(-)
 
-	if (type == EV_ABS) {
-		if (state)
-			input_report_abs(input, button->code, button->value);
-	} else {
-		input_event(input, type, button->code, !!state);
-	}
-
-Thanks.
-
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus b/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
+index 00efced..e5311a0 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
++++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
+@@ -1,9 +1,12 @@
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/actual_profile
+ Date:		October 2010
+ Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+-Description:	When read, this file returns the number of the actual profile in
+-		range 0-4.
+-		This file is readonly.
++Description:	The integer value of this attribute ranges from 0-4.
++                When read, this attribute returns the number of the actual
++                profile. This value is persistent, so its equivalent to the
++                profile that's active when the mouse is powered on next time.
++		When written, this file sets the number of the startup profile
++		and the mouse activates this profile immediately.
+ Users:		http://roccat.sourceforge.net
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/firmware_version
+@@ -89,16 +92,6 @@ Description:	The mouse has a tracking- and a distance-control-unit. These
+ 		This file is writeonly.
+ Users:		http://roccat.sourceforge.net
+ 
+-What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/startup_profile
+-Date:		October 2010
+-Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+-Description:	The integer value of this attribute ranges from 0-4.
+-                When read, this attribute returns the number of the profile
+-                that's active when the mouse is powered on.
+-		When written, this file sets the number of the startup profile
+-		and the mouse activates this profile immediately.
+-Users:		http://roccat.sourceforge.net
+-
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/tcu
+ Date:		October 2010
+ Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 33eec74..182c954 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -167,28 +167,28 @@ static int koneplus_set_profile_buttons(struct usb_device *usb_dev,
+ }
+ 
+ /* retval is 0-4 on success, < 0 on error */
+-static int koneplus_get_startup_profile(struct usb_device *usb_dev)
++static int koneplus_get_actual_profile(struct usb_device *usb_dev)
+ {
+-	struct koneplus_startup_profile buf;
++	struct koneplus_actual_profile buf;
+ 	int retval;
+ 
+-	retval = roccat_common_receive(usb_dev, KONEPLUS_USB_COMMAND_STARTUP_PROFILE,
+-			&buf, sizeof(struct koneplus_startup_profile));
++	retval = roccat_common_receive(usb_dev, KONEPLUS_USB_COMMAND_ACTUAL_PROFILE,
++			&buf, sizeof(struct koneplus_actual_profile));
+ 
+-	return retval ? retval : buf.startup_profile;
++	return retval ? retval : buf.actual_profile;
+ }
+ 
+-static int koneplus_set_startup_profile(struct usb_device *usb_dev,
+-		int startup_profile)
++static int koneplus_set_actual_profile(struct usb_device *usb_dev,
++		int new_profile)
+ {
+-	struct koneplus_startup_profile buf;
++	struct koneplus_actual_profile buf;
+ 
+-	buf.command = KONEPLUS_COMMAND_STARTUP_PROFILE;
+-	buf.size = sizeof(struct koneplus_startup_profile);
+-	buf.startup_profile = startup_profile;
++	buf.command = KONEPLUS_COMMAND_ACTUAL_PROFILE;
++	buf.size = sizeof(struct koneplus_actual_profile);
++	buf.actual_profile = new_profile;
+ 
+-	return koneplus_send(usb_dev, KONEPLUS_USB_COMMAND_STARTUP_PROFILE,
+-			&buf, sizeof(struct koneplus_profile_buttons));
++	return koneplus_send(usb_dev, KONEPLUS_USB_COMMAND_ACTUAL_PROFILE,
++			&buf, sizeof(struct koneplus_actual_profile));
+ }
+ 
+ static ssize_t koneplus_sysfs_read(struct file *fp, struct kobject *kobj,
+@@ -398,21 +398,22 @@ static ssize_t koneplus_sysfs_write_profile_buttons(struct file *fp,
+ 	return sizeof(struct koneplus_profile_buttons);
+ }
+ 
+-static ssize_t koneplus_sysfs_show_startup_profile(struct device *dev,
++static ssize_t koneplus_sysfs_show_actual_profile(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
+ {
+ 	struct koneplus_device *koneplus =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", koneplus->startup_profile);
++	return snprintf(buf, PAGE_SIZE, "%d\n", koneplus->actual_profile);
+ }
+ 
+-static ssize_t koneplus_sysfs_set_startup_profile(struct device *dev,
++static ssize_t koneplus_sysfs_set_actual_profile(struct device *dev,
+ 		struct device_attribute *attr, char const *buf, size_t size)
+ {
+ 	struct koneplus_device *koneplus;
+ 	struct usb_device *usb_dev;
+ 	unsigned long profile;
+ 	int retval;
++	struct koneplus_roccat_report roccat_report;
+ 
+ 	dev = dev->parent->parent;
+ 	koneplus = hid_get_drvdata(dev_get_drvdata(dev));
+@@ -423,20 +424,25 @@ static ssize_t koneplus_sysfs_set_startup_profile(struct device *dev,
+ 		return retval;
+ 
+ 	mutex_lock(&koneplus->koneplus_lock);
+-	retval = koneplus_set_startup_profile(usb_dev, profile);
+-	mutex_unlock(&koneplus->koneplus_lock);
+-	if (retval)
++
++	retval = koneplus_set_actual_profile(usb_dev, profile);
++	if (retval) {
++		mutex_unlock(&koneplus->koneplus_lock);
+ 		return retval;
++	}
+ 
+-	return size;
+-}
++	koneplus->actual_profile = profile;
+ 
+-static ssize_t koneplus_sysfs_show_actual_profile(struct device *dev,
+-		struct device_attribute *attr, char *buf)
+-{
+-	struct koneplus_device *koneplus =
+-			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", koneplus->actual_profile);
++	roccat_report.type = KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE;
++	roccat_report.data1 = profile + 1;
++	roccat_report.data2 = 0;
++	roccat_report.profile = profile + 1;
++	roccat_report_event(koneplus->chrdev_minor,
++			(uint8_t const *)&roccat_report);
++
++	mutex_unlock(&koneplus->koneplus_lock);
++
++	return size;
+ }
+ 
+ static ssize_t koneplus_sysfs_show_firmware_version(struct device *dev,
+@@ -448,11 +454,9 @@ static ssize_t koneplus_sysfs_show_firmware_version(struct device *dev,
+ }
+ 
+ static struct device_attribute koneplus_attributes[] = {
+-	__ATTR(startup_profile, 0660,
+-			koneplus_sysfs_show_startup_profile,
+-			koneplus_sysfs_set_startup_profile),
+-	__ATTR(actual_profile, 0440,
+-			koneplus_sysfs_show_actual_profile, NULL),
++	__ATTR(actual_profile, 0660,
++			koneplus_sysfs_show_actual_profile,
++			koneplus_sysfs_set_actual_profile),
+ 	__ATTR(firmware_version, 0440,
+ 			koneplus_sysfs_show_firmware_version, NULL),
+ 	__ATTR_NULL
+@@ -557,15 +561,10 @@ static int koneplus_init_koneplus_device_struct(struct usb_device *usb_dev,
+ 		struct koneplus_device *koneplus)
+ {
+ 	int retval, i;
+-	static uint wait = 100; /* device will freeze with just 60 */
++	static uint wait = 200;
+ 
+ 	mutex_init(&koneplus->koneplus_lock);
+ 
+-	koneplus->startup_profile = koneplus_get_startup_profile(usb_dev);
+-	if (koneplus->startup_profile < 0)
+-		return koneplus->startup_profile;
+-
+-	msleep(wait);
+ 	retval = koneplus_get_info(usb_dev, &koneplus->info);
+ 	if (retval)
+ 		return retval;
+@@ -584,7 +583,11 @@ static int koneplus_init_koneplus_device_struct(struct usb_device *usb_dev,
+ 			return retval;
+ 	}
+ 
+-	koneplus_profile_activated(koneplus, koneplus->startup_profile);
++	msleep(wait);
++	retval = koneplus_get_actual_profile(usb_dev);
++	if (retval < 0)
++		return retval;
++	koneplus_profile_activated(koneplus, retval);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/hid/hid-roccat-koneplus.h b/drivers/hid/hid-roccat-koneplus.h
+index 57a5c1a..c57a376 100644
+--- a/drivers/hid/hid-roccat-koneplus.h
++++ b/drivers/hid/hid-roccat-koneplus.h
+@@ -40,10 +40,10 @@ enum koneplus_control_values {
+ 	KONEPLUS_CONTROL_REQUEST_STATUS_WAIT = 3,
+ };
+ 
+-struct koneplus_startup_profile {
+-	uint8_t command; /* KONEPLUS_COMMAND_STARTUP_PROFILE */
++struct koneplus_actual_profile {
++	uint8_t command; /* KONEPLUS_COMMAND_ACTUAL_PROFILE */
+ 	uint8_t size; /* always 3 */
+-	uint8_t startup_profile; /* Range 0-4! */
++	uint8_t actual_profile; /* Range 0-4! */
+ } __attribute__ ((__packed__));
+ 
+ struct koneplus_profile_settings {
+@@ -132,7 +132,7 @@ struct koneplus_tcu_image {
+ 
+ enum koneplus_commands {
+ 	KONEPLUS_COMMAND_CONTROL = 0x4,
+-	KONEPLUS_COMMAND_STARTUP_PROFILE = 0x5,
++	KONEPLUS_COMMAND_ACTUAL_PROFILE = 0x5,
+ 	KONEPLUS_COMMAND_PROFILE_SETTINGS = 0x6,
+ 	KONEPLUS_COMMAND_PROFILE_BUTTONS = 0x7,
+ 	KONEPLUS_COMMAND_MACRO = 0x8,
+@@ -145,7 +145,7 @@ enum koneplus_commands {
+ 
+ enum koneplus_usb_commands {
+ 	KONEPLUS_USB_COMMAND_CONTROL = 0x304,
+-	KONEPLUS_USB_COMMAND_STARTUP_PROFILE = 0x305,
++	KONEPLUS_USB_COMMAND_ACTUAL_PROFILE = 0x305,
+ 	KONEPLUS_USB_COMMAND_PROFILE_SETTINGS = 0x306,
+ 	KONEPLUS_USB_COMMAND_PROFILE_BUTTONS = 0x307,
+ 	KONEPLUS_USB_COMMAND_MACRO = 0x308,
+@@ -215,7 +215,6 @@ struct koneplus_device {
+ 
+ 	struct mutex koneplus_lock;
+ 
+-	int startup_profile;
+ 	struct koneplus_info info;
+ 	struct koneplus_profile_settings profile_settings[5];
+ 	struct koneplus_profile_buttons profile_buttons[5];
 -- 
-Dmitry
+1.7.3.4
+
+
+

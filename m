@@ -1,52 +1,103 @@
-From: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
-Subject: [PATCH] gpio-keys: Add input device name support
-Date: Sun, 10 Apr 2011 17:26:26 +0200
-Message-ID: <1302449186-20441-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
+From: Kenney Phillis <kphillisjr@gmail.com>
+Subject: [PATCH] HID: add USB ID for Alienware Dual Compatible Game Pad in
+ hid-pl
+Date: Sun, 10 Apr 2011 10:57:11 -0500
+Message-ID: <1302451031.21823.39.camel@dandel-desktop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jessica.hrz.tu-chemnitz.de ([134.109.132.47]:44441 "EHLO
-	jessica.hrz.tu-chemnitz.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753995Ab1DJP0W (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:59508 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754449Ab1DJP5Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Apr 2011 11:26:22 -0400
+	Sun, 10 Apr 2011 11:57:25 -0400
+Received: by gxk21 with SMTP id 21so1906390gxk.19
+        for <linux-input@vger.kernel.org>; Sun, 10 Apr 2011 08:57:25 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
 
-This patch allows to set a device name which helps distinguishing several
-gpio-keys devices.
+Add support for 187c:0600 device into hid-pl driver. This device has
+the values in separate fields and resembles devices handled by hid-zpff=
+=2E
 
-Signed-off-by: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
+Signed-off-by: Kenney Phillis <kphillisjr@gmail.com>
 ---
- drivers/input/keyboard/gpio_keys.c |    2 +-
- include/linux/gpio_keys.h          |    1 +
- 2 files changed, 2 insertions(+), 1 deletions(-)
+=46orgot to sign the last email.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index f319884..3a923b3 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -473,7 +473,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, ddata);
- 	input_set_drvdata(input, ddata);
- 
--	input->name = pdev->name;
-+	input->name = pdata->name ? : pdev->name;
- 	input->phys = "gpio-keys/input0";
- 	input->dev.parent = &pdev->dev;
- 	input->open = gpio_keys_open;
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index c09d7fb..cedc39f 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -22,6 +22,7 @@ struct gpio_keys_platform_data {
- 	unsigned int rep:1;		/* enable input subsystem auto repeat */
- 	int (*enable)(struct device *dev);
- 	void (*disable)(struct device *dev);
-+	char *name;			/* input device name */
- };
- 
- #endif
--- 
-1.7.4.1
+The tests for the modifications used the fftest tool. The only effects =
+not
+working are called 'Dampening Condition', 'Constant Force' and
+'Spring Condition'.=20
 
+drivers/hid/hid-core.c |    1 +
+drivers/hid/hid-ids.h  |    3 +++
+drivers/hid/hid-pl.c   |    5 +++++
+3 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index e968776..d7cb7aa 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1290,6 +1290,7 @@ static const struct hid_device_id
+hid_have_special_driver[] =3D {
+{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
++ { HID_USB_DEVICE(USB_VENDOR_ID_ALIENWARE,
+USB_DEVICE_ID_ALIENWARE_GAMEPAD) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) }=
+,
+{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 65ac53d..c0bda19 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -58,6 +58,9 @@
+#define USB_VENDOR_ID_ALCOR 0x058f
+#define USB_DEVICE_ID_ALCOR_USBRS232 0x9720
+
++#define USB_VENDOR_ID_ALIENWARE 0x187c
++#define USB_DEVICE_ID_ALIENWARE_GAMEPAD 0x0600
++
+#define USB_VENDOR_ID_ALPS 0x0433
+#define USB_DEVICE_ID_IBM_GAMEPAD 0x1101
+
+diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
+index 06e5300..46d117d 100644
+--- a/drivers/hid/hid-pl.c
++++ b/drivers/hid/hid-pl.c
+@@ -14,6 +14,9 @@
+  *  0e8f:0003 "GASIA USB Gamepad"
+  *   - another version of the K=C3=B6nig gamepad
+  *
++ *  187c:0600 "Alienware Dual Compatible Game Pad"
++ *   - USB/PS2 Game Controller with Alienware branding.
++ *
+  *  Copyright (c) 2007, 2009 Anssi Hannula <anssi.hannula@gmail.com>
+  */
+
+@@ -201,6 +204,8 @@ err:
+}
+
+static const struct hid_device_id pl_devices[] =3D {
++ { HID_USB_DEVICE(USB_VENDOR_ID_ALIENWARE,
+USB_DEVICE_ID_ALIENWARE_GAMEPAD) },
++ /* Alienware Dual Compatible */
+{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON,
+USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR),
+=2Edriver_data =3D 1 }, /* Twin USB Joystick */
+{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON,
+USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR),
+--=20
+1.7.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

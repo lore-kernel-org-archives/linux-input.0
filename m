@@ -1,61 +1,52 @@
 From: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
-Subject: [PATCH] gpio_keys: Add support for EV_ABS
-Date: Sun, 10 Apr 2011 17:03:11 +0200
-Message-ID: <1302447791-9284-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
+Subject: [PATCH] gpio-keys: Add input device name support
+Date: Sun, 10 Apr 2011 17:26:26 +0200
+Message-ID: <1302449186-20441-1-git-send-email-alexander.stein@informatik.tu-chemnitz.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jack.hrz.tu-chemnitz.de ([134.109.132.46]:46399 "EHLO
-	jack.hrz.tu-chemnitz.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753467Ab1DJPDL (ORCPT
+Received: from jessica.hrz.tu-chemnitz.de ([134.109.132.47]:44441 "EHLO
+	jessica.hrz.tu-chemnitz.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753995Ab1DJP0W (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Apr 2011 11:03:11 -0400
+	Sun, 10 Apr 2011 11:26:22 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
 
-With this patch you can setup a group of GPIOs representing a specific
-position on an EV_ABS axis.
+This patch allows to set a device name which helps distinguishing several
+gpio-keys devices.
 
 Signed-off-by: Alexander Stein <alexander.stein@informatik.tu-chemnitz.de>
 ---
-See also the discussion thread beginning at http://www.spinics.net/lists/linux-input/msg14324.html
-
- drivers/input/keyboard/gpio_keys.c |    7 ++++++-
- include/linux/gpio_keys.h          |    3 ++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/gpio_keys.c |    2 +-
+ include/linux/gpio_keys.h          |    1 +
+ 2 files changed, 2 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index eb30063..f319884 100644
+index f319884..3a923b3 100644
 --- a/drivers/input/keyboard/gpio_keys.c
 +++ b/drivers/input/keyboard/gpio_keys.c
-@@ -324,7 +324,12 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
- 	unsigned int type = button->type ?: EV_KEY;
- 	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+@@ -473,7 +473,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, ddata);
+ 	input_set_drvdata(input, ddata);
  
--	input_event(input, type, button->code, !!state);
-+	if (type == EV_ABS) {
-+		if (state)
-+			input_event(input, type, button->code, button->value);
-+	} else {
-+		input_event(input, type, button->code, !!state);
-+	}
- 	input_sync(input);
- }
- 
+-	input->name = pdev->name;
++	input->name = pdata->name ? : pdev->name;
+ 	input->phys = "gpio-keys/input0";
+ 	input->dev.parent = &pdev->dev;
+ 	input->open = gpio_keys_open;
 diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index dd1a56f..c09d7fb 100644
+index c09d7fb..cedc39f 100644
 --- a/include/linux/gpio_keys.h
 +++ b/include/linux/gpio_keys.h
-@@ -7,7 +7,8 @@ struct gpio_keys_button {
- 	int gpio;
- 	int active_low;
- 	char *desc;
--	int type;		/* input event type (EV_KEY, EV_SW) */
-+	int type;		/* input event type (EV_KEY, EV_SW, EV_ABS) */
-+	int value;		/* axis value for EV_ABS */
- 	int wakeup;		/* configure the button as a wake-up source */
- 	int debounce_interval;	/* debounce ticks interval in msecs */
- 	bool can_disable;
+@@ -22,6 +22,7 @@ struct gpio_keys_platform_data {
+ 	unsigned int rep:1;		/* enable input subsystem auto repeat */
+ 	int (*enable)(struct device *dev);
+ 	void (*disable)(struct device *dev);
++	char *name;			/* input device name */
+ };
+ 
+ #endif
 -- 
 1.7.4.1
 

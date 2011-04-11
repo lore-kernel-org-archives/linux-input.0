@@ -1,51 +1,187 @@
-From: Johan Hovold <jhovold@gmail.com>
-Subject: Re: [PATCH 0/2] input: rotary-encoder: add support for half-period
- encoders
-Date: Mon, 11 Apr 2011 12:44:00 +0200
-Message-ID: <20110411104400.GB27286@localhost>
-References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
- <BANLkTimw=tiCn2gbVg7DCqe2ydexgByuEQ@mail.gmail.com>
+From: <paul.chavent@fnac.net>
+Subject: input_polling_devices design question + adxl34x polling mode patch
+Date: Mon, 11 Apr 2011 18:21:02 +0200 (CEST)
+Message-ID: <17876647.33591302538862973.JavaMail.www@wsfrf1114>
+Reply-To: <paul.chavent@fnac.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+	boundary="----=_Part_1282_22171704.1302538862971"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:40584 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750880Ab1DKKoG (ORCPT
+Received: from smtp23.services.sfr.fr ([93.17.128.19]:5835 "EHLO
+	smtp23.services.sfr.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751596Ab1DKQYL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Apr 2011 06:44:06 -0400
-Received: by ewy4 with SMTP id 4so1665296ewy.19
-        for <linux-input@vger.kernel.org>; Mon, 11 Apr 2011 03:44:04 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <BANLkTimw=tiCn2gbVg7DCqe2ydexgByuEQ@mail.gmail.com>
+	Mon, 11 Apr 2011 12:24:11 -0400
+Received: from smtp11.services.sfr.fr (msfrf1101 [10.18.24.51])
+	by msfrf2305.sfr.fr (SMTP Server) with ESMTP id C12C070002F8
+	for <linux-input@vger.kernel.org>; Mon, 11 Apr 2011 18:24:08 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <zonque@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: michael.hennerich@analog.com
+Cc: dmitry.torokhov@gmail.com, device-driver-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-On Fri, Apr 08, 2011 at 09:39:21AM +0200, Daniel Mack wrote:
-> On Tue, Apr 5, 2011 at 8:15 PM, Johan Hovold <jhovold@gmail.com> wrote:
-> > Hi,
-> >
-> > These patches add support for rotary-encoders which have two stable states per
-> > input signal period.
-> >
-> > The first patch refactors state retrieval and event reporting and the second
-> > adds support for such half-period encoders.
-> 
-> I have no objections to let the code in, and the patch looks sane to me.
-> 
-> However, I don't currently have access to the hardware I wrote the
-> driver for, so I can't test right now, but will do at some later
-> point.
+------=_Part_1282_22171704.1302538862971
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-It is possible to test non-half-period mode with a half-period encoder
-(and vice verse) and I've verified that my patches do not change the
-original state machine. In particular, every other event is still
-missing as no event is delivered in the armed-state in non-half-period
-mode.
+Hi.
 
-> Feel free to add my Acked-by:, and I will get back to you in case I
-> encounter any trouble.
+I have=C2=A0 a board with an adxl34x (an accelerometer) on a two wire bus. =
+Its interrupt line aren't routed.
 
-Thanks,
-Johan
+So i would like to use the driver in polling mode.
+
+I submit this patch as a beta version of my work.
+
+I tried to reuse the input_polling structure but I'm facing some problems.
+
+The driver has a "rate" attribute that i would like to control when i setup=
+ the "interval" attribute of the input_pollling.
+
+And vice versa, when i setup the "interval" attribute i would like to setup=
+ the "rate".
+
+So my questions :
+=C2=A0- Is it possible to reimplement a workqueue for this driver only ? As=
+ it seems to have been done yet in other drivers, i wonder if it's acceptab=
+le, or if we should avoid this practice.
+=C2=A0- I think it would be complicated to have hooks in input and input_po=
+lling for calling each other. I wonder if i haven't any design problem.
+
+I would need an advice in order to cleaning this patch please.
+
+Thank for your help.
+
+Paul.
+
+
+
+------=_Part_1282_22171704.1302538862971
+Content-Type: application/octet-stream;
+	name=0001-Polling-option-for-adxl34x-input-driver.patch
+content-transfer-encoding: base64
+Content-Disposition: attachment; size=9502;
+	filename=0001-Polling-option-for-adxl34x-input-driver.patch
+
+RnJvbSBhMDNmZmM0MTRiZmY2MjgzMTdkMTkxZmRlNGE5ZThmZThiNmU2NjljIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBQYXVsIENoYXZlbnQgPHBhdWwuY2hhdmVudEBmbmFjLm5ldD4K
+RGF0ZTogTW9uLCAxMSBBcHIgMjAxMSAxODowMTozMyArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIFBv
+bGxpbmcgb3B0aW9uIGZvciBhZHhsMzR4IGlucHV0IGRyaXZlci4KCi0tLQogZHJpdmVycy9pbnB1
+dC9taXNjL2FkeGwzNHguYyB8ICAxMzggKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKy0tLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDEyMiBpbnNlcnRpb25zKCspLCAxNiBkZWxldGlv
+bnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21pc2MvYWR4bDM0eC5jIGIvZHJpdmVy
+cy9pbnB1dC9taXNjL2FkeGwzNHguYwppbmRleCAxNDRkZGJkLi44OGI5OWY0IDEwMDY0NAotLS0g
+YS9kcml2ZXJzL2lucHV0L21pc2MvYWR4bDM0eC5jCisrKyBiL2RyaXZlcnMvaW5wdXQvbWlzYy9h
+ZHhsMzR4LmMKQEAgLTExLDYgKzExLDkgQEAKICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+CiAjaW5j
+bHVkZSA8bGludXgvZGVsYXkuaD4KICNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgorI2lmIGRlZmlu
+ZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisjaW5jbHVkZSA8bGludXgvaW5wdXQtcG9sbGRldi5o
+PgorI2VuZGlmIC8qIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpICovCiAjaW5jbHVkZSA8
+bGludXgvaW50ZXJydXB0Lmg+CiAjaW5jbHVkZSA8bGludXgvaXJxLmg+CiAjaW5jbHVkZSA8bGlu
+dXgvc2xhYi5oPgpAQCAtMTkwLDYgKzE5Myw5IEBAIHN0cnVjdCBheGlzX3RyaXBsZSB7CiBzdHJ1
+Y3QgYWR4bDM0eCB7CiAJc3RydWN0IGRldmljZSAqZGV2OwogCXN0cnVjdCBpbnB1dF9kZXYgKmlu
+cHV0OworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJc3RydWN0IGlucHV0X3Bv
+bGxlZF9kZXYgKmlucHV0X3BvbGxlZDsKKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9Q
+T0xMREVWKSAqLwogCXN0cnVjdCBtdXRleCBtdXRleDsJLyogcmVlbnRyYW50IHByb3RlY3Rpb24g
+Zm9yIHN0cnVjdCAqLwogCXN0cnVjdCBhZHhsMzR4X3BsYXRmb3JtX2RhdGEgcGRhdGE7CiAJc3Ry
+dWN0IGF4aXNfdHJpcGxlIHN3Y2FsOwpAQCAtNjg4LDI3ICs2OTQsNzUgQEAgc3RhdGljIHZvaWQg
+YWR4bDM0eF9pbnB1dF9jbG9zZShzdHJ1Y3QgaW5wdXRfZGV2ICppbnB1dCkKIAltdXRleF91bmxv
+Y2soJmFjLT5tdXRleCk7CiB9CiAKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKQor
+CitzdGF0aWMgdm9pZCBhZHhsMzR4X2lucHV0X3BvbGxlZF9vcGVuKHN0cnVjdCBpbnB1dF9wb2xs
+ZWRfZGV2ICpkZXYpCit7CisJYWR4bDM0eF9pbnB1dF9vcGVuKGRldi0+aW5wdXQpOworfQorCitz
+dGF0aWMgdm9pZCBhZHhsMzR4X2lucHV0X3BvbGxlZF9jbG9zZShzdHJ1Y3QgaW5wdXRfcG9sbGVk
+X2RldiAqZGV2KQoreworCWFkeGwzNHhfaW5wdXRfY2xvc2UoZGV2LT5pbnB1dCk7Cit9CisKK3N0
+YXRpYyB2b2lkIGFkeGwzNHhfaW5wdXRfcG9sbGVkX3BvbGwoc3RydWN0IGlucHV0X3BvbGxlZF9k
+ZXYgKmRldikKK3sKKwlzdHJ1Y3QgYWR4bDM0eCAqYWMgPSBpbnB1dF9nZXRfZHJ2ZGF0YShkZXYt
+PmlucHV0KTsKKworCWFkeGwzNHhfaXJxKGFjLT5pcnEsIGFjKTsKK30KKworI2VuZGlmIC8qIGRl
+ZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpICovCisKIHN0cnVjdCBhZHhsMzR4ICphZHhsMzR4
+X3Byb2JlKHN0cnVjdCBkZXZpY2UgKmRldiwgaW50IGlycSwKIAkJCSAgICAgIGJvb2wgZmlmb19k
+ZWxheV9kZWZhdWx0LAogCQkJICAgICAgY29uc3Qgc3RydWN0IGFkeGwzNHhfYnVzX29wcyAqYm9w
+cykKIHsKIAlzdHJ1Y3QgYWR4bDM0eCAqYWM7CiAJc3RydWN0IGlucHV0X2RldiAqaW5wdXRfZGV2
+OworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJc3RydWN0IGlucHV0X3BvbGxl
+ZF9kZXYgKmlucHV0X3BvbGxlZF9kZXY7CisjZW5kaWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRf
+UE9MTERFVikgKi8KIAljb25zdCBzdHJ1Y3QgYWR4bDM0eF9wbGF0Zm9ybV9kYXRhICpwZGF0YTsK
+IAlpbnQgZXJyLCByYW5nZSwgaTsKIAl1bnNpZ25lZCBjaGFyIHJldmlkOwogCi0JaWYgKCFpcnEp
+IHsKLQkJZGV2X2VycihkZXYsICJubyBJUlE/XG4iKTsKLQkJZXJyID0gLUVOT0RFVjsKKworCWFj
+ID0ga3phbGxvYyhzaXplb2YoKmFjKSwgR0ZQX0tFUk5FTCk7CisJaWYgKCFhYykgeworCQllcnIg
+PSAtRU5PTUVNOwogCQlnb3RvIGVycl9vdXQ7CiAJfQogCi0JYWMgPSBremFsbG9jKHNpemVvZigq
+YWMpLCBHRlBfS0VSTkVMKTsKKwlhYy0+aXJxID0gaXJxOworCisJaWYgKGFjLT5pcnEpIHsKKyNp
+ZiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKQorCQlpbnB1dF9wb2xsZWRfZGV2ID0gMDsK
+KwkJYWMtPmlucHV0X3BvbGxlZCA9IGlucHV0X3BvbGxlZF9kZXY7CisjZW5kaWYgLyogZGVmaW5l
+ZChDT05GSUdfSU5QVVRfUE9MTERFVikgKi8KKwogCWlucHV0X2RldiA9IGlucHV0X2FsbG9jYXRl
+X2RldmljZSgpOwotCWlmICghYWMgfHwgIWlucHV0X2RldikgeworCQlpZiAoIWlucHV0X2Rldikg
+ewogCQllcnIgPSAtRU5PTUVNOwotCQlnb3RvIGVycl9mcmVlX21lbTsKKwkJCWdvdG8gZXJyX2Zy
+ZWVfYWM7CisJCX0KKwl9IGVsc2UgeworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYp
+CisJCWlucHV0X3BvbGxlZF9kZXYgPSBpbnB1dF9hbGxvY2F0ZV9wb2xsZWRfZGV2aWNlKCk7CisJ
+CWlmICghaW5wdXRfcG9sbGVkX2RldikgeworCQkJZXJyID0gLUVOT01FTTsKKwkJCWdvdG8gZXJy
+X2ZyZWVfYWM7CisJCX0KKwkJYWMtPmlucHV0X3BvbGxlZCA9IGlucHV0X3BvbGxlZF9kZXY7CisK
+KwkJaW5wdXRfZGV2ID0gaW5wdXRfcG9sbGVkX2Rldi0+aW5wdXQ7CisjZWxzZQorCQlkZXZfZXJy
+KGRldiwgIm5vIElSUT8gKHBlcmhhcHMgeW91IG5lZWQgdG8gc2V0IENPTkZJR19JTlBVVF9QT0xM
+REVWPXkpXG4iKTsKKwkJZXJyID0gLUVOT0RFVjsKKwkJZ290byBlcnJfZnJlZV9hYzsKKyNlbmRp
+ZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKSAqLwogCX0KIAogCWFjLT5maWZvX2Rl
+bGF5ID0gZmlmb19kZWxheV9kZWZhdWx0OwpAQCAtNzI1LDcgKzc3OSw2IEBAIHN0cnVjdCBhZHhs
+MzR4ICphZHhsMzR4X3Byb2JlKHN0cnVjdCBkZXZpY2UgKmRldiwgaW50IGlycSwKIAogCWFjLT5p
+bnB1dCA9IGlucHV0X2RldjsKIAlhYy0+ZGV2ID0gZGV2OwotCWFjLT5pcnEgPSBpcnE7CiAJYWMt
+PmJvcHMgPSBib3BzOwogCiAJbXV0ZXhfaW5pdCgmYWMtPm11dGV4KTsKQEAgLTc0Myw3ICs3OTYs
+NyBAQCBzdHJ1Y3QgYWR4bDM0eCAqYWR4bDM0eF9wcm9iZShzdHJ1Y3QgZGV2aWNlICpkZXYsIGlu
+dCBpcnEsCiAJZGVmYXVsdDoKIAkJZGV2X2VycihkZXYsICJGYWlsZWQgdG8gcHJvYmUgJXNcbiIs
+IGlucHV0X2Rldi0+bmFtZSk7CiAJCWVyciA9IC1FTk9ERVY7Ci0JCWdvdG8gZXJyX2ZyZWVfbWVt
+OworCQlnb3RvIGVycl9mcmVlX2RldjsKIAl9CiAKIAlzbnByaW50ZihhYy0+cGh5cywgc2l6ZW9m
+KGFjLT5waHlzKSwgIiVzL2lucHV0MCIsIGRldl9uYW1lKGRldikpOwpAQCAtNzUyLDggKzgwNSwx
+NSBAQCBzdHJ1Y3QgYWR4bDM0eCAqYWR4bDM0eF9wcm9iZShzdHJ1Y3QgZGV2aWNlICpkZXYsIGlu
+dCBpcnEsCiAJaW5wdXRfZGV2LT5kZXYucGFyZW50ID0gZGV2OwogCWlucHV0X2Rldi0+aWQucHJv
+ZHVjdCA9IGFjLT5tb2RlbDsKIAlpbnB1dF9kZXYtPmlkLmJ1c3R5cGUgPSBib3BzLT5idXN0eXBl
+OworCWlmIChhYy0+aXJxKSB7CiAJaW5wdXRfZGV2LT5vcGVuID0gYWR4bDM0eF9pbnB1dF9vcGVu
+OwogCWlucHV0X2Rldi0+Y2xvc2UgPSBhZHhsMzR4X2lucHV0X2Nsb3NlOworCX0gZWxzZSB7Cisj
+aWYgZGVmaW5lZChDT05GSUdfSU5QVVRfUE9MTERFVikKKwkJaW5wdXRfcG9sbGVkX2Rldi0+b3Bl
+biA9IGFkeGwzNHhfaW5wdXRfcG9sbGVkX29wZW47CisJCWlucHV0X3BvbGxlZF9kZXYtPmNsb3Nl
+ID0gYWR4bDM0eF9pbnB1dF9wb2xsZWRfY2xvc2U7CisjZW5kaWYgLyogZGVmaW5lZChDT05GSUdf
+SU5QVVRfUE9MTERFVikgKi8KKwl9CiAKIAlpbnB1dF9zZXRfZHJ2ZGF0YShpbnB1dF9kZXYsIGFj
+KTsKIApAQCAtODEwLDIxICs4NzAsNDQgQEAgc3RydWN0IGFkeGwzNHggKmFkeGwzNHhfcHJvYmUo
+c3RydWN0IGRldmljZSAqZGV2LCBpbnQgaXJxLAogCiAJYWMtPmJvcHMtPndyaXRlKGRldiwgUE9X
+RVJfQ1RMLCAwKTsKIAorCWlmIChhYy0+aXJxKSB7CiAJZXJyID0gcmVxdWVzdF90aHJlYWRlZF9p
+cnEoYWMtPmlycSwgTlVMTCwgYWR4bDM0eF9pcnEsCiAJCQkJICAgSVJRRl9UUklHR0VSX0hJR0gg
+fCBJUlFGX09ORVNIT1QsCiAJCQkJICAgZGV2X25hbWUoZGV2KSwgYWMpOworCiAJaWYgKGVycikg
+ewogCQlkZXZfZXJyKGRldiwgImlycSAlZCBidXN5P1xuIiwgYWMtPmlycSk7Ci0JCWdvdG8gZXJy
+X2ZyZWVfbWVtOworCQkJZ290byBlcnJfZnJlZV9kZXY7CiAJfQogCi0JZXJyID0gc3lzZnNfY3Jl
+YXRlX2dyb3VwKCZkZXYtPmtvYmosICZhZHhsMzR4X2F0dHJfZ3JvdXApOworCQllcnIgPSBpbnB1
+dF9yZWdpc3Rlcl9kZXZpY2UoaW5wdXRfZGV2KTsKIAlpZiAoZXJyKQogCQlnb3RvIGVycl9mcmVl
+X2lycTsKIAotCWVyciA9IGlucHV0X3JlZ2lzdGVyX2RldmljZShpbnB1dF9kZXYpOworCQllcnIg
+PSBzeXNmc19jcmVhdGVfZ3JvdXAoJmRldi0+a29iaiwgJmFkeGwzNHhfYXR0cl9ncm91cCk7CisJ
+CWlmIChlcnIpCisJCQlnb3RvIGVycl91bnJlZ2lzdGVyX2RldjsKKwl9IGVsc2UgeworI2lmIGRl
+ZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJCWlucHV0X3BvbGxlZF9kZXYtPnBvbGwgPSBh
+ZHhsMzR4X2lucHV0X3BvbGxlZF9wb2xsOworCisJCWVyciA9IGlucHV0X3JlZ2lzdGVyX3BvbGxl
+ZF9kZXZpY2UoaW5wdXRfcG9sbGVkX2Rldik7CisJCWlmIChlcnIpCisJCQlnb3RvIGVycl9mcmVl
+X2RldjsKKworI2lmIDAKKwkJZXJyID0gc3lzZnNfbWVyZ2VfZ3JvdXAoJmRldi0+a29iaiwgJmFk
+eGwzNHhfYXR0cl9ncm91cCk7CiAJaWYgKGVycikKLQkJZ290byBlcnJfcmVtb3ZlX2F0dHI7CisJ
+CQlnb3RvIGVycl91bnJlZ2lzdGVyX2RldjsKKyNlbHNlCisjd2FybmluZyAiRklYTUUgOiB0ZXN0
+IHdpdGggPiAyLjYuMzYiCisJCWVyciA9IHN5c2ZzX2NyZWF0ZV9ncm91cCgmZGV2LT5rb2JqLCAm
+YWR4bDM0eF9hdHRyX2dyb3VwKTsKKwkJaWYgKGVycikKKwkJCWdvdG8gZXJyX3VucmVnaXN0ZXJf
+ZGV2OworI2VuZGlmCisjZW5kaWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRfUE9MTERFVikgKi8K
+Kwl9CisKIAogCUFDX1dSSVRFKGFjLCBUSFJFU0hfVEFQLCBwZGF0YS0+dGFwX3RocmVzaG9sZCk7
+CiAJQUNfV1JJVEUoYWMsIE9GU1gsIHBkYXRhLT54X2F4aXNfb2Zmc2V0KTsKQEAgLTg4NSwxMiAr
+OTY4LDI3IEBAIHN0cnVjdCBhZHhsMzR4ICphZHhsMzR4X3Byb2JlKHN0cnVjdCBkZXZpY2UgKmRl
+diwgaW50IGlycSwKIAogCXJldHVybiBhYzsKIAotIGVycl9yZW1vdmVfYXR0cjoKLQlzeXNmc19y
+ZW1vdmVfZ3JvdXAoJmRldi0+a29iaiwgJmFkeGwzNHhfYXR0cl9ncm91cCk7CisgZXJyX3VucmVn
+aXN0ZXJfZGV2OgorCWlmIChhYy0+aXJxKSB7CisJCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGlu
+cHV0X2Rldik7CisJfSBlbHNlIHsKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKQor
+CQlpbnB1dF91bnJlZ2lzdGVyX3BvbGxlZF9kZXZpY2UoaW5wdXRfcG9sbGVkX2Rldik7CisjZW5k
+aWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRfUE9MTERFVikgKi8KKwl9CiAgZXJyX2ZyZWVfaXJx
+OgorCWlmIChhYy0+aXJxKSB7CiAJZnJlZV9pcnEoYWMtPmlycSwgYWMpOwotIGVycl9mcmVlX21l
+bToKKwl9CisgZXJyX2ZyZWVfZGV2OgorCWlmIChhYy0+aXJxKSB7CiAJaW5wdXRfZnJlZV9kZXZp
+Y2UoaW5wdXRfZGV2KTsKKwl9IGVsc2UgeworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExE
+RVYpCisJCWlucHV0X2ZyZWVfcG9sbGVkX2RldmljZShpbnB1dF9wb2xsZWRfZGV2KTsKKyNlbmRp
+ZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKSAqLworCX0KKyBlcnJfZnJlZV9hYzoK
+IAlrZnJlZShhYyk7CiAgZXJyX291dDoKIAlyZXR1cm4gRVJSX1BUUihlcnIpOwpAQCAtODk5LDkg
+Kzk5NywxNyBAQCBFWFBPUlRfU1lNQk9MX0dQTChhZHhsMzR4X3Byb2JlKTsKIAogaW50IGFkeGwz
+NHhfcmVtb3ZlKHN0cnVjdCBhZHhsMzR4ICphYykKIHsKKwlpZiAoYWMtPmlycSkgewogCXN5c2Zz
+X3JlbW92ZV9ncm91cCgmYWMtPmRldi0+a29iaiwgJmFkeGwzNHhfYXR0cl9ncm91cCk7Ci0JZnJl
+ZV9pcnEoYWMtPmlycSwgYWMpOwogCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGFjLT5pbnB1dCk7
+CisJCWZyZWVfaXJxKGFjLT5pcnEsIGFjKTsKKwkJaW5wdXRfZnJlZV9kZXZpY2UoYWMtPmlucHV0
+KTsKKwl9IGVsc2UgeworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJCWlucHV0
+X3VucmVnaXN0ZXJfcG9sbGVkX2RldmljZShhYy0+aW5wdXRfcG9sbGVkKTsKKwkJaW5wdXRfZnJl
+ZV9wb2xsZWRfZGV2aWNlKGFjLT5pbnB1dF9wb2xsZWQpOworI2VuZGlmIC8qIGRlZmluZWQoQ09O
+RklHX0lOUFVUX1BPTExERVYpICovCisJfQogCWRldl9kYmcoYWMtPmRldiwgInVucmVnaXN0ZXJl
+ZCBhY2NlbGVyb21ldGVyXG4iKTsKIAlrZnJlZShhYyk7CiAKLS0gCjEuNi40Cgo=
+------=_Part_1282_22171704.1302538862971--
+
+

@@ -1,187 +1,451 @@
-From: <paul.chavent@fnac.net>
-Subject: input_polling_devices design question + adxl34x polling mode patch
-Date: Mon, 11 Apr 2011 18:21:02 +0200 (CEST)
-Message-ID: <17876647.33591302538862973.JavaMail.www@wsfrf1114>
-Reply-To: <paul.chavent@fnac.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_1282_22171704.1302538862971"
+From: Jiejing Zhang <kzjeef@gmail.com>
+Subject: [PATCH] input: add mpr121 capacitive touchkey driver
+Date: Tue, 12 Apr 2011 01:02:17 +0800
+Message-ID: <1302541337-2934-1-git-send-email-kzjeef@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp23.services.sfr.fr ([93.17.128.19]:5835 "EHLO
-	smtp23.services.sfr.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751596Ab1DKQYL (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:34032 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751275Ab1DKRC6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Apr 2011 12:24:11 -0400
-Received: from smtp11.services.sfr.fr (msfrf1101 [10.18.24.51])
-	by msfrf2305.sfr.fr (SMTP Server) with ESMTP id C12C070002F8
-	for <linux-input@vger.kernel.org>; Mon, 11 Apr 2011 18:24:08 +0200 (CEST)
+	Mon, 11 Apr 2011 13:02:58 -0400
+Received: by iyb14 with SMTP id 14so5791949iyb.19
+        for <linux-input@vger.kernel.org>; Mon, 11 Apr 2011 10:02:58 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: michael.hennerich@analog.com
-Cc: dmitry.torokhov@gmail.com, device-driver-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: Zhang Jiejing <jiejing.zhang@freescale.com>
 
-------=_Part_1282_22171704.1302538862971
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+From: Zhang Jiejing <jiejing.zhang@freescale.com>
 
-Hi.
+This touchkey driver is based on Freescale mpr121 capacitive
+touch sensor controller.
 
-I have=C2=A0 a board with an adxl34x (an accelerometer) on a two wire bus. =
-Its interrupt line aren't routed.
+It can support up to 12 keys, it use i2c interface.
 
-So i would like to use the driver in polling mode.
+The product infomation(data sheet, application notes) can
+be found under this link:
+http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=MPR121
 
-I submit this patch as a beta version of my work.
+Signed-off-by: Zhang Jiejing <jiejing.zhang@freescale.com>
+---
+ drivers/input/keyboard/Kconfig  |   12 ++
+ drivers/input/keyboard/Makefile |    1 +
+ drivers/input/keyboard/mpr121.c |  301 +++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/mpr.h         |   64 ++++++++
+ 4 files changed, 378 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/keyboard/mpr121.c
+ create mode 100644 include/linux/i2c/mpr.h
 
-I tried to reuse the input_polling structure but I'm facing some problems.
-
-The driver has a "rate" attribute that i would like to control when i setup=
- the "interval" attribute of the input_pollling.
-
-And vice versa, when i setup the "interval" attribute i would like to setup=
- the "rate".
-
-So my questions :
-=C2=A0- Is it possible to reimplement a workqueue for this driver only ? As=
- it seems to have been done yet in other drivers, i wonder if it's acceptab=
-le, or if we should avoid this practice.
-=C2=A0- I think it would be complicated to have hooks in input and input_po=
-lling for calling each other. I wonder if i haven't any design problem.
-
-I would need an advice in order to cleaning this patch please.
-
-Thank for your help.
-
-Paul.
-
-
-
-------=_Part_1282_22171704.1302538862971
-Content-Type: application/octet-stream;
-	name=0001-Polling-option-for-adxl34x-input-driver.patch
-content-transfer-encoding: base64
-Content-Disposition: attachment; size=9502;
-	filename=0001-Polling-option-for-adxl34x-input-driver.patch
-
-RnJvbSBhMDNmZmM0MTRiZmY2MjgzMTdkMTkxZmRlNGE5ZThmZThiNmU2NjljIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBQYXVsIENoYXZlbnQgPHBhdWwuY2hhdmVudEBmbmFjLm5ldD4K
-RGF0ZTogTW9uLCAxMSBBcHIgMjAxMSAxODowMTozMyArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIFBv
-bGxpbmcgb3B0aW9uIGZvciBhZHhsMzR4IGlucHV0IGRyaXZlci4KCi0tLQogZHJpdmVycy9pbnB1
-dC9taXNjL2FkeGwzNHguYyB8ICAxMzggKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKy0tLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDEyMiBpbnNlcnRpb25zKCspLCAxNiBkZWxldGlv
-bnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21pc2MvYWR4bDM0eC5jIGIvZHJpdmVy
-cy9pbnB1dC9taXNjL2FkeGwzNHguYwppbmRleCAxNDRkZGJkLi44OGI5OWY0IDEwMDY0NAotLS0g
-YS9kcml2ZXJzL2lucHV0L21pc2MvYWR4bDM0eC5jCisrKyBiL2RyaXZlcnMvaW5wdXQvbWlzYy9h
-ZHhsMzR4LmMKQEAgLTExLDYgKzExLDkgQEAKICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+CiAjaW5j
-bHVkZSA8bGludXgvZGVsYXkuaD4KICNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgorI2lmIGRlZmlu
-ZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisjaW5jbHVkZSA8bGludXgvaW5wdXQtcG9sbGRldi5o
-PgorI2VuZGlmIC8qIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpICovCiAjaW5jbHVkZSA8
-bGludXgvaW50ZXJydXB0Lmg+CiAjaW5jbHVkZSA8bGludXgvaXJxLmg+CiAjaW5jbHVkZSA8bGlu
-dXgvc2xhYi5oPgpAQCAtMTkwLDYgKzE5Myw5IEBAIHN0cnVjdCBheGlzX3RyaXBsZSB7CiBzdHJ1
-Y3QgYWR4bDM0eCB7CiAJc3RydWN0IGRldmljZSAqZGV2OwogCXN0cnVjdCBpbnB1dF9kZXYgKmlu
-cHV0OworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJc3RydWN0IGlucHV0X3Bv
-bGxlZF9kZXYgKmlucHV0X3BvbGxlZDsKKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9Q
-T0xMREVWKSAqLwogCXN0cnVjdCBtdXRleCBtdXRleDsJLyogcmVlbnRyYW50IHByb3RlY3Rpb24g
-Zm9yIHN0cnVjdCAqLwogCXN0cnVjdCBhZHhsMzR4X3BsYXRmb3JtX2RhdGEgcGRhdGE7CiAJc3Ry
-dWN0IGF4aXNfdHJpcGxlIHN3Y2FsOwpAQCAtNjg4LDI3ICs2OTQsNzUgQEAgc3RhdGljIHZvaWQg
-YWR4bDM0eF9pbnB1dF9jbG9zZShzdHJ1Y3QgaW5wdXRfZGV2ICppbnB1dCkKIAltdXRleF91bmxv
-Y2soJmFjLT5tdXRleCk7CiB9CiAKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKQor
-CitzdGF0aWMgdm9pZCBhZHhsMzR4X2lucHV0X3BvbGxlZF9vcGVuKHN0cnVjdCBpbnB1dF9wb2xs
-ZWRfZGV2ICpkZXYpCit7CisJYWR4bDM0eF9pbnB1dF9vcGVuKGRldi0+aW5wdXQpOworfQorCitz
-dGF0aWMgdm9pZCBhZHhsMzR4X2lucHV0X3BvbGxlZF9jbG9zZShzdHJ1Y3QgaW5wdXRfcG9sbGVk
-X2RldiAqZGV2KQoreworCWFkeGwzNHhfaW5wdXRfY2xvc2UoZGV2LT5pbnB1dCk7Cit9CisKK3N0
-YXRpYyB2b2lkIGFkeGwzNHhfaW5wdXRfcG9sbGVkX3BvbGwoc3RydWN0IGlucHV0X3BvbGxlZF9k
-ZXYgKmRldikKK3sKKwlzdHJ1Y3QgYWR4bDM0eCAqYWMgPSBpbnB1dF9nZXRfZHJ2ZGF0YShkZXYt
-PmlucHV0KTsKKworCWFkeGwzNHhfaXJxKGFjLT5pcnEsIGFjKTsKK30KKworI2VuZGlmIC8qIGRl
-ZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpICovCisKIHN0cnVjdCBhZHhsMzR4ICphZHhsMzR4
-X3Byb2JlKHN0cnVjdCBkZXZpY2UgKmRldiwgaW50IGlycSwKIAkJCSAgICAgIGJvb2wgZmlmb19k
-ZWxheV9kZWZhdWx0LAogCQkJICAgICAgY29uc3Qgc3RydWN0IGFkeGwzNHhfYnVzX29wcyAqYm9w
-cykKIHsKIAlzdHJ1Y3QgYWR4bDM0eCAqYWM7CiAJc3RydWN0IGlucHV0X2RldiAqaW5wdXRfZGV2
-OworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJc3RydWN0IGlucHV0X3BvbGxl
-ZF9kZXYgKmlucHV0X3BvbGxlZF9kZXY7CisjZW5kaWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRf
-UE9MTERFVikgKi8KIAljb25zdCBzdHJ1Y3QgYWR4bDM0eF9wbGF0Zm9ybV9kYXRhICpwZGF0YTsK
-IAlpbnQgZXJyLCByYW5nZSwgaTsKIAl1bnNpZ25lZCBjaGFyIHJldmlkOwogCi0JaWYgKCFpcnEp
-IHsKLQkJZGV2X2VycihkZXYsICJubyBJUlE/XG4iKTsKLQkJZXJyID0gLUVOT0RFVjsKKworCWFj
-ID0ga3phbGxvYyhzaXplb2YoKmFjKSwgR0ZQX0tFUk5FTCk7CisJaWYgKCFhYykgeworCQllcnIg
-PSAtRU5PTUVNOwogCQlnb3RvIGVycl9vdXQ7CiAJfQogCi0JYWMgPSBremFsbG9jKHNpemVvZigq
-YWMpLCBHRlBfS0VSTkVMKTsKKwlhYy0+aXJxID0gaXJxOworCisJaWYgKGFjLT5pcnEpIHsKKyNp
-ZiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKQorCQlpbnB1dF9wb2xsZWRfZGV2ID0gMDsK
-KwkJYWMtPmlucHV0X3BvbGxlZCA9IGlucHV0X3BvbGxlZF9kZXY7CisjZW5kaWYgLyogZGVmaW5l
-ZChDT05GSUdfSU5QVVRfUE9MTERFVikgKi8KKwogCWlucHV0X2RldiA9IGlucHV0X2FsbG9jYXRl
-X2RldmljZSgpOwotCWlmICghYWMgfHwgIWlucHV0X2RldikgeworCQlpZiAoIWlucHV0X2Rldikg
-ewogCQllcnIgPSAtRU5PTUVNOwotCQlnb3RvIGVycl9mcmVlX21lbTsKKwkJCWdvdG8gZXJyX2Zy
-ZWVfYWM7CisJCX0KKwl9IGVsc2UgeworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYp
-CisJCWlucHV0X3BvbGxlZF9kZXYgPSBpbnB1dF9hbGxvY2F0ZV9wb2xsZWRfZGV2aWNlKCk7CisJ
-CWlmICghaW5wdXRfcG9sbGVkX2RldikgeworCQkJZXJyID0gLUVOT01FTTsKKwkJCWdvdG8gZXJy
-X2ZyZWVfYWM7CisJCX0KKwkJYWMtPmlucHV0X3BvbGxlZCA9IGlucHV0X3BvbGxlZF9kZXY7CisK
-KwkJaW5wdXRfZGV2ID0gaW5wdXRfcG9sbGVkX2Rldi0+aW5wdXQ7CisjZWxzZQorCQlkZXZfZXJy
-KGRldiwgIm5vIElSUT8gKHBlcmhhcHMgeW91IG5lZWQgdG8gc2V0IENPTkZJR19JTlBVVF9QT0xM
-REVWPXkpXG4iKTsKKwkJZXJyID0gLUVOT0RFVjsKKwkJZ290byBlcnJfZnJlZV9hYzsKKyNlbmRp
-ZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKSAqLwogCX0KIAogCWFjLT5maWZvX2Rl
-bGF5ID0gZmlmb19kZWxheV9kZWZhdWx0OwpAQCAtNzI1LDcgKzc3OSw2IEBAIHN0cnVjdCBhZHhs
-MzR4ICphZHhsMzR4X3Byb2JlKHN0cnVjdCBkZXZpY2UgKmRldiwgaW50IGlycSwKIAogCWFjLT5p
-bnB1dCA9IGlucHV0X2RldjsKIAlhYy0+ZGV2ID0gZGV2OwotCWFjLT5pcnEgPSBpcnE7CiAJYWMt
-PmJvcHMgPSBib3BzOwogCiAJbXV0ZXhfaW5pdCgmYWMtPm11dGV4KTsKQEAgLTc0Myw3ICs3OTYs
-NyBAQCBzdHJ1Y3QgYWR4bDM0eCAqYWR4bDM0eF9wcm9iZShzdHJ1Y3QgZGV2aWNlICpkZXYsIGlu
-dCBpcnEsCiAJZGVmYXVsdDoKIAkJZGV2X2VycihkZXYsICJGYWlsZWQgdG8gcHJvYmUgJXNcbiIs
-IGlucHV0X2Rldi0+bmFtZSk7CiAJCWVyciA9IC1FTk9ERVY7Ci0JCWdvdG8gZXJyX2ZyZWVfbWVt
-OworCQlnb3RvIGVycl9mcmVlX2RldjsKIAl9CiAKIAlzbnByaW50ZihhYy0+cGh5cywgc2l6ZW9m
-KGFjLT5waHlzKSwgIiVzL2lucHV0MCIsIGRldl9uYW1lKGRldikpOwpAQCAtNzUyLDggKzgwNSwx
-NSBAQCBzdHJ1Y3QgYWR4bDM0eCAqYWR4bDM0eF9wcm9iZShzdHJ1Y3QgZGV2aWNlICpkZXYsIGlu
-dCBpcnEsCiAJaW5wdXRfZGV2LT5kZXYucGFyZW50ID0gZGV2OwogCWlucHV0X2Rldi0+aWQucHJv
-ZHVjdCA9IGFjLT5tb2RlbDsKIAlpbnB1dF9kZXYtPmlkLmJ1c3R5cGUgPSBib3BzLT5idXN0eXBl
-OworCWlmIChhYy0+aXJxKSB7CiAJaW5wdXRfZGV2LT5vcGVuID0gYWR4bDM0eF9pbnB1dF9vcGVu
-OwogCWlucHV0X2Rldi0+Y2xvc2UgPSBhZHhsMzR4X2lucHV0X2Nsb3NlOworCX0gZWxzZSB7Cisj
-aWYgZGVmaW5lZChDT05GSUdfSU5QVVRfUE9MTERFVikKKwkJaW5wdXRfcG9sbGVkX2Rldi0+b3Bl
-biA9IGFkeGwzNHhfaW5wdXRfcG9sbGVkX29wZW47CisJCWlucHV0X3BvbGxlZF9kZXYtPmNsb3Nl
-ID0gYWR4bDM0eF9pbnB1dF9wb2xsZWRfY2xvc2U7CisjZW5kaWYgLyogZGVmaW5lZChDT05GSUdf
-SU5QVVRfUE9MTERFVikgKi8KKwl9CiAKIAlpbnB1dF9zZXRfZHJ2ZGF0YShpbnB1dF9kZXYsIGFj
-KTsKIApAQCAtODEwLDIxICs4NzAsNDQgQEAgc3RydWN0IGFkeGwzNHggKmFkeGwzNHhfcHJvYmUo
-c3RydWN0IGRldmljZSAqZGV2LCBpbnQgaXJxLAogCiAJYWMtPmJvcHMtPndyaXRlKGRldiwgUE9X
-RVJfQ1RMLCAwKTsKIAorCWlmIChhYy0+aXJxKSB7CiAJZXJyID0gcmVxdWVzdF90aHJlYWRlZF9p
-cnEoYWMtPmlycSwgTlVMTCwgYWR4bDM0eF9pcnEsCiAJCQkJICAgSVJRRl9UUklHR0VSX0hJR0gg
-fCBJUlFGX09ORVNIT1QsCiAJCQkJICAgZGV2X25hbWUoZGV2KSwgYWMpOworCiAJaWYgKGVycikg
-ewogCQlkZXZfZXJyKGRldiwgImlycSAlZCBidXN5P1xuIiwgYWMtPmlycSk7Ci0JCWdvdG8gZXJy
-X2ZyZWVfbWVtOworCQkJZ290byBlcnJfZnJlZV9kZXY7CiAJfQogCi0JZXJyID0gc3lzZnNfY3Jl
-YXRlX2dyb3VwKCZkZXYtPmtvYmosICZhZHhsMzR4X2F0dHJfZ3JvdXApOworCQllcnIgPSBpbnB1
-dF9yZWdpc3Rlcl9kZXZpY2UoaW5wdXRfZGV2KTsKIAlpZiAoZXJyKQogCQlnb3RvIGVycl9mcmVl
-X2lycTsKIAotCWVyciA9IGlucHV0X3JlZ2lzdGVyX2RldmljZShpbnB1dF9kZXYpOworCQllcnIg
-PSBzeXNmc19jcmVhdGVfZ3JvdXAoJmRldi0+a29iaiwgJmFkeGwzNHhfYXR0cl9ncm91cCk7CisJ
-CWlmIChlcnIpCisJCQlnb3RvIGVycl91bnJlZ2lzdGVyX2RldjsKKwl9IGVsc2UgeworI2lmIGRl
-ZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJCWlucHV0X3BvbGxlZF9kZXYtPnBvbGwgPSBh
-ZHhsMzR4X2lucHV0X3BvbGxlZF9wb2xsOworCisJCWVyciA9IGlucHV0X3JlZ2lzdGVyX3BvbGxl
-ZF9kZXZpY2UoaW5wdXRfcG9sbGVkX2Rldik7CisJCWlmIChlcnIpCisJCQlnb3RvIGVycl9mcmVl
-X2RldjsKKworI2lmIDAKKwkJZXJyID0gc3lzZnNfbWVyZ2VfZ3JvdXAoJmRldi0+a29iaiwgJmFk
-eGwzNHhfYXR0cl9ncm91cCk7CiAJaWYgKGVycikKLQkJZ290byBlcnJfcmVtb3ZlX2F0dHI7CisJ
-CQlnb3RvIGVycl91bnJlZ2lzdGVyX2RldjsKKyNlbHNlCisjd2FybmluZyAiRklYTUUgOiB0ZXN0
-IHdpdGggPiAyLjYuMzYiCisJCWVyciA9IHN5c2ZzX2NyZWF0ZV9ncm91cCgmZGV2LT5rb2JqLCAm
-YWR4bDM0eF9hdHRyX2dyb3VwKTsKKwkJaWYgKGVycikKKwkJCWdvdG8gZXJyX3VucmVnaXN0ZXJf
-ZGV2OworI2VuZGlmCisjZW5kaWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRfUE9MTERFVikgKi8K
-Kwl9CisKIAogCUFDX1dSSVRFKGFjLCBUSFJFU0hfVEFQLCBwZGF0YS0+dGFwX3RocmVzaG9sZCk7
-CiAJQUNfV1JJVEUoYWMsIE9GU1gsIHBkYXRhLT54X2F4aXNfb2Zmc2V0KTsKQEAgLTg4NSwxMiAr
-OTY4LDI3IEBAIHN0cnVjdCBhZHhsMzR4ICphZHhsMzR4X3Byb2JlKHN0cnVjdCBkZXZpY2UgKmRl
-diwgaW50IGlycSwKIAogCXJldHVybiBhYzsKIAotIGVycl9yZW1vdmVfYXR0cjoKLQlzeXNmc19y
-ZW1vdmVfZ3JvdXAoJmRldi0+a29iaiwgJmFkeGwzNHhfYXR0cl9ncm91cCk7CisgZXJyX3VucmVn
-aXN0ZXJfZGV2OgorCWlmIChhYy0+aXJxKSB7CisJCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGlu
-cHV0X2Rldik7CisJfSBlbHNlIHsKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKQor
-CQlpbnB1dF91bnJlZ2lzdGVyX3BvbGxlZF9kZXZpY2UoaW5wdXRfcG9sbGVkX2Rldik7CisjZW5k
-aWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRfUE9MTERFVikgKi8KKwl9CiAgZXJyX2ZyZWVfaXJx
-OgorCWlmIChhYy0+aXJxKSB7CiAJZnJlZV9pcnEoYWMtPmlycSwgYWMpOwotIGVycl9mcmVlX21l
-bToKKwl9CisgZXJyX2ZyZWVfZGV2OgorCWlmIChhYy0+aXJxKSB7CiAJaW5wdXRfZnJlZV9kZXZp
-Y2UoaW5wdXRfZGV2KTsKKwl9IGVsc2UgeworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExE
-RVYpCisJCWlucHV0X2ZyZWVfcG9sbGVkX2RldmljZShpbnB1dF9wb2xsZWRfZGV2KTsKKyNlbmRp
-ZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9QT0xMREVWKSAqLworCX0KKyBlcnJfZnJlZV9hYzoK
-IAlrZnJlZShhYyk7CiAgZXJyX291dDoKIAlyZXR1cm4gRVJSX1BUUihlcnIpOwpAQCAtODk5LDkg
-Kzk5NywxNyBAQCBFWFBPUlRfU1lNQk9MX0dQTChhZHhsMzR4X3Byb2JlKTsKIAogaW50IGFkeGwz
-NHhfcmVtb3ZlKHN0cnVjdCBhZHhsMzR4ICphYykKIHsKKwlpZiAoYWMtPmlycSkgewogCXN5c2Zz
-X3JlbW92ZV9ncm91cCgmYWMtPmRldi0+a29iaiwgJmFkeGwzNHhfYXR0cl9ncm91cCk7Ci0JZnJl
-ZV9pcnEoYWMtPmlycSwgYWMpOwogCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGFjLT5pbnB1dCk7
-CisJCWZyZWVfaXJxKGFjLT5pcnEsIGFjKTsKKwkJaW5wdXRfZnJlZV9kZXZpY2UoYWMtPmlucHV0
-KTsKKwl9IGVsc2UgeworI2lmIGRlZmluZWQoQ09ORklHX0lOUFVUX1BPTExERVYpCisJCWlucHV0
-X3VucmVnaXN0ZXJfcG9sbGVkX2RldmljZShhYy0+aW5wdXRfcG9sbGVkKTsKKwkJaW5wdXRfZnJl
-ZV9wb2xsZWRfZGV2aWNlKGFjLT5pbnB1dF9wb2xsZWQpOworI2VuZGlmIC8qIGRlZmluZWQoQ09O
-RklHX0lOUFVUX1BPTExERVYpICovCisJfQogCWRldl9kYmcoYWMtPmRldiwgInVucmVnaXN0ZXJl
-ZCBhY2NlbGVyb21ldGVyXG4iKTsKIAlrZnJlZShhYyk7CiAKLS0gCjEuNi40Cgo=
-------=_Part_1282_22171704.1302538862971--
-
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index b16bed0..0666e1e 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -520,6 +520,18 @@ config KEYBOARD_XTKBD
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called xtkbd.
+ 
++config KEYBOARD_MPR121
++	tristate "Freescale MPR121 Touchkey Driver"
++	depends on I2C
++	help
++	  Say Y here if you have the  touchkey Freescale mpr121 capacitive
++	  touch sensor controller in your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here
++endif
++
+ config KEYBOARD_W90P910
+ 	tristate "W90P910 Matrix Keypad support"
+ 	depends on ARCH_W90X900
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 878e6c2..b110ca8 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -47,4 +47,5 @@ obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+ obj-$(CONFIG_KEYBOARD_TNETV107X)	+= tnetv107x-keypad.o
+ obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
++obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121.o
+ obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
+diff --git a/drivers/input/keyboard/mpr121.c b/drivers/input/keyboard/mpr121.c
+new file mode 100644
+index 0000000..ee149a8
+--- /dev/null
++++ b/drivers/input/keyboard/mpr121.c
+@@ -0,0 +1,301 @@
++/*
++ * Touchkey driver for Freescale MPR121 Controllor
++ *
++ * Copyright (C) 2011 Freescale Semiconductor, Inc.
++ * Author: Zhang Jiejing <jiejing.zhang@freescale.com>
++ *
++ * Based on mcs_touchkey.c
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/i2c/mpr.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/irq.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/bitops.h>
++
++struct mpr121_touchkey_data {
++	struct i2c_client	*client;
++	struct input_dev	*input_dev;
++	unsigned int		key_val;
++	int			statusbits;
++	int			keycount;
++	u16			keycodes[MPR121_MAX_KEY_COUNT];
++};
++
++struct mpr121_init_register {
++	int addr;
++	u8 val;
++};
++
++static struct mpr121_init_register init_reg_table[] = {
++	{MHD_RISING_ADDR,	0x1},
++	{NHD_RISING_ADDR,	0x1},
++	{MHD_FALLING_ADDR,	0x1},
++	{NHD_FALLING_ADDR,	0x1},
++	{NCL_FALLING_ADDR,	0xff},
++	{FDL_FALLING_ADDR,	0x02},
++	{FILTER_CONF_ADDR,	0x04},
++	{AFE_CONF_ADDR,		0x0b},
++	{AUTO_CONFIG_CTRL_ADDR, 0x0b},
++};
++
++static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
++{
++	struct mpr121_touchkey_data *data = dev_id;
++	struct i2c_client *client = data->client;
++	struct input_dev *input = data->input_dev;
++	unsigned int key_num, pressed;
++	int reg;
++
++	reg = i2c_smbus_read_byte_data(client, ELE_TOUCH_STATUS_1_ADDR);
++	if (reg < 0) {
++		dev_err(&client->dev, "i2c read error [%d]\n", reg);
++		goto out;
++	}
++
++	reg <<= 8;
++	reg |= i2c_smbus_read_byte_data(client, ELE_TOUCH_STATUS_0_ADDR);
++	if (reg < 0) {
++		dev_err(&client->dev, "i2c read error [%d]\n", reg);
++		goto out;
++	}
++
++	reg &= TOUCH_STATUS_MASK;
++	/* use old press bit to figure out which bit changed */
++	key_num = ffs(reg ^ data->statusbits) - 1;
++	/* use the bit check the press status */
++	pressed = (reg & (1 << (key_num))) >> key_num;
++	data->statusbits = reg;
++	data->key_val = data->keycodes[key_num];
++
++	input_event(input, EV_MSC, MSC_SCAN, data->key_val);
++	input_report_key(input, data->key_val, pressed);
++	input_sync(input);
++
++	dev_dbg(&client->dev, "key %d %d %s\n", key_num, data->key_val,
++		pressed ? "pressed" : "released");
++
++out:
++	return IRQ_HANDLED;
++}
++
++static int mpr121_phys_init(struct mpr121_platform_data *pdata,
++			    struct mpr121_touchkey_data *data,
++			    struct i2c_client *client)
++{
++	struct mpr121_init_register *reg;
++	unsigned char usl, lsl, tl;
++	int i, t, vdd, ret;
++
++	/* setup touch/release threshold for ele0-ele11 */
++	for (i = 0; i <= MPR121_MAX_KEY_COUNT; i++) {
++		t = ELE0_TOUCH_THRESHOLD_ADDR + (i * 2);
++		ret = i2c_smbus_write_byte_data(client, t, TOUCH_THRESHOLD);
++		if (ret < 0)
++			goto err_i2c_write;
++		ret = i2c_smbus_write_byte_data(client, t + 1,
++						RELEASE_THRESHOLD);
++		if (ret < 0)
++			goto err_i2c_write;
++	}
++	/* setup init register */
++	for (i = 0; i < ARRAY_SIZE(init_reg_table); i++) {
++		reg = &init_reg_table[i];
++		ret = i2c_smbus_write_byte_data(client, reg->addr, reg->val);
++		if (ret < 0)
++			goto err_i2c_write;
++	}
++	/* setup auto-register by vdd,the formula please ref: AN3889
++	 * These register *must* set acrodding your VDD voltage supply
++	 * to the chip*/
++	vdd = pdata->vdd_uv / 1000;
++	usl = ((vdd - 700) * 256) / vdd;
++	lsl = (usl * 65) / 100;
++	tl = (usl * 90) / 100;
++	ret = i2c_smbus_write_byte_data(client, AUTO_CONFIG_USL_ADDR, usl);
++	ret |= i2c_smbus_write_byte_data(client, AUTO_CONFIG_LSL_ADDR, lsl);
++	ret |= i2c_smbus_write_byte_data(client, AUTO_CONFIG_TL_ADDR, tl);
++	ret |= i2c_smbus_write_byte_data(client, ELECTRODE_CONF_ADDR,
++					data->keycount);
++	if (ret != 0)
++		goto err_i2c_write;
++
++	dev_info(&client->dev, "mpr121: config as enable %x of electrode.\n",
++		 data->keycount);
++
++	return 0;
++
++err_i2c_write:
++	dev_err(&client->dev, "i2c write error: %d\n", ret);
++	return ret;
++}
++
++static int __devinit mpr_touchkey_probe(struct i2c_client *client,
++					const struct i2c_device_id *id)
++{
++	struct mpr121_platform_data *pdata;
++	struct mpr121_touchkey_data *data;
++	struct input_dev *input_dev;
++	int error;
++	int i;
++
++	pdata = client->dev.platform_data;
++	if (!pdata) {
++		dev_err(&client->dev, "no platform data defined\n");
++		return -EINVAL;
++	}
++
++	if (!client->irq) {
++		dev_err(&client->dev, "The irq number should not be zero\n");
++		return -EINVAL;
++	}
++
++	data = kzalloc(sizeof(struct mpr121_touchkey_data), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!data || !input_dev) {
++		dev_err(&client->dev, "Falied to allocate memory\n");
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	data->client = client;
++	data->input_dev = input_dev;
++	data->keycount = pdata->keycount;
++
++	if (data->keycount > MPR121_MAX_KEY_COUNT) {
++		dev_err(&client->dev, "Too many key defined\n");
++		error = -EINVAL;
++		goto err_free_mem;
++	}
++
++	error = mpr121_phys_init(pdata, data, client);
++	if (error) {
++		dev_err(&client->dev, "Failed to init register\n");
++		goto err_free_mem;
++	}
++
++	i2c_set_clientdata(client, data);
++
++	input_dev->name = "FSL MPR121 Touchkey";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = &client->dev;
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
++	input_dev->keycode = pdata->matrix;
++	input_dev->keycodesize = sizeof(pdata->matrix[0]);
++	input_dev->keycodemax = data->keycount;
++
++	for (i = 0; i < input_dev->keycodemax; i++) {
++		__set_bit(pdata->matrix[i], input_dev->keybit);
++		data->keycodes[i] = pdata->matrix[i];
++	}
++
++	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
++	input_set_drvdata(input_dev, data);
++
++	error = request_threaded_irq(client->irq, NULL,
++				     mpr_touchkey_interrupt,
++				     IRQF_TRIGGER_FALLING,
++				     client->dev.driver->name, data);
++	if (error) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		goto err_free_mem;
++	}
++
++	error = input_register_device(input_dev);
++	if (error)
++		goto err_free_irq;
++	i2c_set_clientdata(client, data);
++	device_init_wakeup(&client->dev, pdata->wakeup);
++	dev_info(&client->dev, "Mpr121 touch keyboard init success.\n");
++	return 0;
++
++err_free_irq:
++	free_irq(client->irq, data);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(data);
++	return error;
++}
++
++static int __devexit mpr_touchkey_remove(struct i2c_client *client)
++{
++	struct mpr121_touchkey_data *data = i2c_get_clientdata(client);
++
++	free_irq(client->irq, data);
++	input_unregister_device(data->input_dev);
++	kfree(data);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int mpr_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (device_may_wakeup(&client->dev))
++		enable_irq_wake(client->irq);
++
++	i2c_smbus_write_byte_data(client, ELECTRODE_CONF_ADDR, 0x00);
++
++	return 0;
++}
++
++static int mpr_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mpr121_touchkey_data *data = i2c_get_clientdata(client);
++
++	if (device_may_wakeup(&client->dev))
++		disable_irq_wake(client->irq);
++
++	i2c_smbus_write_byte_data(client, ELECTRODE_CONF_ADDR, data->keycount);
++
++	return 0;
++}
++#endif
++
++static const struct i2c_device_id mpr121_id[] = {
++	{"mpr121_touchkey", 0},
++	{ }
++};
++
++static SIMPLE_DEV_PM_OPS(mpr121_touchkey_pm_ops, mpr_suspend, mpr_resume);
++
++static struct i2c_driver mpr_touchkey_driver = {
++	.driver = {
++		.name	= "mpr121",
++		.owner	= THIS_MODULE,
++		.pm	= &mpr121_touchkey_pm_ops,
++	},
++	.id_table	= mpr121_id,
++	.probe		= mpr_touchkey_probe,
++	.remove		= __devexit_p(mpr_touchkey_remove),
++};
++
++static int __init mpr_touchkey_init(void)
++{
++	return i2c_add_driver(&mpr_touchkey_driver);
++}
++
++static void __exit mpr_touchkey_exit(void)
++{
++	i2c_del_driver(&mpr_touchkey_driver);
++}
++
++module_init(mpr_touchkey_init);
++module_exit(mpr_touchkey_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Zhang Jiejing <jiejing.zhang@freescale.com>");
++MODULE_DESCRIPTION("Touch Key driver for FSL MPR121 Chip");
+diff --git a/include/linux/i2c/mpr.h b/include/linux/i2c/mpr.h
+new file mode 100644
+index 0000000..52d6e33
+--- /dev/null
++++ b/include/linux/i2c/mpr.h
+@@ -0,0 +1,64 @@
++/* mpr.h - Header file for Freescale mpr121 capacitive touch sensor
++ * controllor */
++
++#ifndef MPR_H
++#define MPR_H
++
++/* Register definitions */
++#define ELE_TOUCH_STATUS_0_ADDR	0x0
++#define ELE_TOUCH_STATUS_1_ADDR	0X1
++#define MHD_RISING_ADDR		0x2b
++#define NHD_RISING_ADDR		0x2c
++#define NCL_RISING_ADDR		0x2d
++#define FDL_RISING_ADDR		0x2e
++#define MHD_FALLING_ADDR	0x2f
++#define NHD_FALLING_ADDR	0x30
++#define NCL_FALLING_ADDR	0x31
++#define FDL_FALLING_ADDR	0x32
++#define ELE0_TOUCH_THRESHOLD_ADDR	0x41
++#define ELE0_RELEASE_THRESHOLD_ADDR	0x42
++/* ELE0...ELE11's threshold will set in a loop */
++#define AFE_CONF_ADDR			0x5c
++#define FILTER_CONF_ADDR		0x5d
++
++/* ELECTRODE_CONF: this register is most important register, it
++ * control how many of electrode is enabled. If you set this register
++ * to 0x0, it make the sensor going to suspend mode. Other value(low
++ * bit is non-zero) will make the sensor into Run mode.  This register
++ * should be write at last.
++ */
++#define ELECTRODE_CONF_ADDR		0x5e
++#define AUTO_CONFIG_CTRL_ADDR		0x7b
++/* AUTO_CONFIG_USL: Upper Limit for auto baseline search, this
++ * register is related to VDD supplied on your board, the value of
++ * this register is calc by EQ: `((VDD-0.7)/VDD) * 256`.
++ * AUTO_CONFIG_LSL: Low Limit of auto baseline search. This is 65% of
++ * USL AUTO_CONFIG_TL: The Traget Level of auto baseline search, This
++ * is 90% of USL  */
++#define AUTO_CONFIG_USL_ADDR		0x7d
++#define AUTO_CONFIG_LSL_ADDR		0x7e
++#define AUTO_CONFIG_TL_ADDR		0x7f
++
++/* Threshold of touch/release trigger */
++#define TOUCH_THRESHOLD			0x0f
++#define RELEASE_THRESHOLD		0x0a
++/* Mask Button bits of STATUS_0 & STATUS_1 register */
++#define TOUCH_STATUS_MASK		0xfff
++/* MPR121 have 12 electrodes */
++#define MPR121_MAX_KEY_COUNT		12
++
++
++/**
++ * @keycount: how many key maped
++ * @vdd_uv: voltage of vdd supply the chip in uV
++ * @matrix: maxtrix of keys
++ * @wakeup: can key wake up system.
++ */
++struct mpr121_platform_data {
++	u16 keycount;
++	u16 *matrix;
++	int wakeup;
++	int vdd_uv;
++};
++
++#endif
+-- 
+1.7.1
 

@@ -1,149 +1,190 @@
-From: "Valkonen, Iiro" <iiro.valkonen@atmel.com>
-Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Support 12bit resolution
-Date: Tue, 12 Apr 2011 15:54:33 +0100
-Message-ID: <F619927BD5260540BACE9E197A0F2A69013A4CFD@hammb01.corp.atmel.com>
-References: <1302241446-29201-1-git-send-email-jy0922.shim@samsung.com>
+From: <paul.chavent@fnac.net>
+Subject: Re: input_polling_devices design question + adxl34x polling mode
+ patch
+Date: Tue, 12 Apr 2011 18:57:34 +0200 (CEST)
+Message-ID: <5230560.97581302627454423.JavaMail.www@wsfrf1112>
+Reply-To: <paul.chavent@fnac.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/mixed;
+	boundary="----=_Part_4103_28435830.1302627454420"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:1308 "EHLO sjogate2.atmel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757163Ab1DLOyr convert rfc822-to-8bit (ORCPT
+Received: from mtaweb11.services.sfr.fr ([93.17.128.28]:16057 "EHLO
+	smtp11.services.sfr.fr" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757917Ab1DLQ5g (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Apr 2011 10:54:47 -0400
-Content-class: urn:content-classes:message
-In-Reply-To: <1302241446-29201-1-git-send-email-jy0922.shim@samsung.com>
+	Tue, 12 Apr 2011 12:57:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: michael.hennerich@analog.com, device-driver-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-On 04/08/2011 08:44 AM, Joonyoung Shim wrote:
-> Atmel touchscreen chip can support 12bit resolution and this patch
-> modifies to get maximum x and y size from platform data.
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+------=_Part_4103_28435830.1302627454420
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Iiro Valkonen <iiro.valkonen@atmel.com>
+Hi.
 
-Thanks,
-Iiro
+This patch allow to use the device even if its interrupts lines aren't rout=
+ed.
 
-> ---
-> v2: Fix absinfo->maximum value of x and y
-> 
->  drivers/input/touchscreen/atmel_mxt_ts.c |   53 ++++++++++++++++++++++--------
->  1 files changed, 39 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 4012436..a97905a 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -196,9 +196,12 @@
->  #define MXT_PRESS		(1 << 6)
->  #define MXT_DETECT		(1 << 7)
->  
-> +/* Touch orient bits */
-> +#define MXT_XY_SWITCH		(1 << 0)
-> +#define MXT_X_INVERT		(1 << 1)
-> +#define MXT_Y_INVERT		(1 << 2)
-> +
->  /* Touchscreen absolute values */
-> -#define MXT_MAX_XC		0x3ff
-> -#define MXT_MAX_YC		0x3ff
->  #define MXT_MAX_AREA		0xff
->  
->  #define MXT_MAX_FINGER		10
-> @@ -246,6 +249,8 @@ struct mxt_data {
->  	struct mxt_info info;
->  	struct mxt_finger finger[MXT_MAX_FINGER];
->  	unsigned int irq;
-> +	unsigned int max_x;
-> +	unsigned int max_y;
->  };
->  
->  static bool mxt_object_readable(unsigned int type)
-> @@ -549,8 +554,13 @@ static void mxt_input_touchevent(struct mxt_data *data,
->  	if (!(status & (MXT_PRESS | MXT_MOVE)))
->  		return;
->  
-> -	x = (message->message[1] << 2) | ((message->message[3] & ~0x3f) >> 6);
-> -	y = (message->message[2] << 2) | ((message->message[3] & ~0xf3) >> 2);
-> +	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
-> +	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
-> +	if (data->max_x < 1024)
-> +		x = x >> 2;
-> +	if (data->max_y < 1024)
-> +		y = y >> 2;
-> +
->  	area = message->message[4];
->  
->  	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
-> @@ -845,6 +855,20 @@ static int mxt_initialize(struct mxt_data *data)
->  	return 0;
->  }
->  
-> +static void mxt_calc_resolution(struct mxt_data *data)
-> +{
-> +	unsigned int max_x = data->pdata->x_size - 1;
-> +	unsigned int max_y = data->pdata->y_size - 1;
-> +
-> +	if (data->pdata->orient & MXT_XY_SWITCH) {
-> +		data->max_x = max_y;
-> +		data->max_y = max_x;
-> +	} else {
-> +		data->max_x = max_x;
-> +		data->max_y = max_y;
-> +	}
-> +}
-> +
->  static ssize_t mxt_object_show(struct device *dev,
->  				    struct device_attribute *attr, char *buf)
->  {
-> @@ -1052,31 +1076,32 @@ static int __devinit mxt_probe(struct i2c_client *client,
->  	input_dev->open = mxt_input_open;
->  	input_dev->close = mxt_input_close;
->  
-> +	data->client = client;
-> +	data->input_dev = input_dev;
-> +	data->pdata = pdata;
-> +	data->irq = client->irq;
-> +
-> +	mxt_calc_resolution(data);
-> +
->  	__set_bit(EV_ABS, input_dev->evbit);
->  	__set_bit(EV_KEY, input_dev->evbit);
->  	__set_bit(BTN_TOUCH, input_dev->keybit);
->  
->  	/* For single touch */
->  	input_set_abs_params(input_dev, ABS_X,
-> -			     0, MXT_MAX_XC, 0, 0);
-> +			     0, data->max_x, 0, 0);
->  	input_set_abs_params(input_dev, ABS_Y,
-> -			     0, MXT_MAX_YC, 0, 0);
-> +			     0, data->max_y, 0, 0);
->  
->  	/* For multi touch */
->  	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
->  			     0, MXT_MAX_AREA, 0, 0);
->  	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> -			     0, MXT_MAX_XC, 0, 0);
-> +			     0, data->max_x, 0, 0);
->  	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> -			     0, MXT_MAX_YC, 0, 0);
-> +			     0, data->max_y, 0, 0);
->  
->  	input_set_drvdata(input_dev, data);
-> -
-> -	data->client = client;
-> -	data->input_dev = input_dev;
-> -	data->pdata = pdata;
-> -	data->irq = client->irq;
-> -
->  	i2c_set_clientdata(client, data);
->  
->  	error = mxt_initialize(data);
+I tried to minimize the impact of the patch on the original code, and if th=
+e CONFIG_INPUT_ADXL34X_ALLOW_POLLING option is disabled, the code should be=
+ unchanged.
+
+Please give me your opinion.
+
+Thanks.
+
+Paul.
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Message du 12/04/11 08:23
+De : "Dmitry Torokhov"=20
+A : paul.chavent@fnac.net
+Copie =C3=A0 : michael.hennerich@analog.com, device-driver-devel@blackfin.u=
+clinux.org, linux-input@vger.kernel.org
+Objet : Re: input_polling_devices design question + adxl34x polling mode pa=
+tch
+
+
+Hi Paul,
+
+On Mon, Apr 11, 2011 at 06:21:02PM +0200, paul.chavent@fnac.net wrote:
+> Hi.
+>=20
+> I have =C2=A0a board with an adxl34x (an accelerometer) on a two wire bus=
+.
+> Its interrupt line aren't routed.
+>=20
+> So i would like to use the driver in polling mode.
+>=20
+> I submit this patch as a beta version of my work.
+>=20
+> I tried to reuse the input_polling structure but I'm facing some
+> problems.
+>=20
+> The driver has a "rate" attribute that i would like to control when i
+> setup the "interval" attribute of the input_pollling.
+>=20
+> And vice versa, when i setup the "interval" attribute i would like to
+> setup the "rate".
+>=20
+> So my questions : =C2=A0- Is it possible to reimplement a workqueue for
+> this driver only ? As it seems to have been done yet in other drivers,
+> i wonder if it's acceptable, or if we should avoid this practice. =C2=A0 =
+-
+> I think it would be complicated to have hooks in input and
+> input_polling for calling each other. I wonder if i haven't any design
+> problem.
+>=20
+> I would need an advice in order to cleaning this patch please.
+>=20
+
+Yes, just use the system workqueue (now even dedicated workqueue is not
+really needed) and leave input_polldev alone - it makes sense to use for
+devices that are purely polled ones. The devices that may or may not be
+interrupt driven I think we should just hook workqueue handling in the
+driver.
+
+Note that I normally oppose supporting polling mode for devices that may
+be interrupt driven, since this normally increases power consumption.
+
+--=20
+Dmitry
+
+
+------=_Part_4103_28435830.1302627454420
+Content-Type: application/octet-stream; name=linux-2.6.38.2-adxl.patch
+content-transfer-encoding: base64
+Content-Disposition: attachment; size=6794;
+	filename=linux-2.6.38.2-adxl.patch
+
+T25seSBpbiBsaW51eC0yLjYuMzguMi5tb2QvZHJpdmVycy9pbnB1dC9taXNjLzogLmFkeGwzNHgt
+aTJjLm8uY21kCk9ubHkgaW4gbGludXgtMi42LjM4LjIubW9kL2RyaXZlcnMvaW5wdXQvbWlzYy86
+IC5hZHhsMzR4Lm8uY21kCk9ubHkgaW4gbGludXgtMi42LjM4LjIubW9kL2RyaXZlcnMvaW5wdXQv
+bWlzYy86IC5idWlsdC1pbi5vLmNtZApkaWZmIC14ICdsaW51eC0yLjYuMzguMi1hZHhsLnBhdGNo
+ficgLXUgbGludXgtMi42LjM4LjIub3JpZy9kcml2ZXJzL2lucHV0L21pc2MvS2NvbmZpZyBsaW51
+eC0yLjYuMzguMi5tb2QvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcKLS0tIGxpbnV4LTIuNi4z
+OC4yLm9yaWcvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcJMjAxMS0wMy0yNyAyMDozNzoyMC4w
+MDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4zOC4yLm1vZC9kcml2ZXJzL2lucHV0L21pc2Mv
+S2NvbmZpZwkyMDExLTA0LTEyIDE4OjA4OjQzLjUzMDAwMDA1OCArMDIwMApAQCAtNDMwLDYgKzQz
+MCwxMyBAQAogCSAgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0g
+aGVyZTogdGhlCiAJICBtb2R1bGUgd2lsbCBiZSBjYWxsZWQgYWR4bDM0eC1zcGkuCiAKK2NvbmZp
+ZyBJTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcKKwlib29sICJhbGxvdyB0byBmYWxsYmFjayB0
+byBwb2xsaW5nIG1vZGUiCisJZGVwZW5kcyBvbiBJTlBVVF9BRFhMMzRYCisJZGVmYXVsdCBuCisJ
+aGVscAorCSAgU2F5IFkgaGVyZSBpZiB0aGUgaW50IGxpbmVzIG9mIHlvdXIgQURYTDM0NS82IGFy
+ZSB1bnVzZWQuCisKIGNvbmZpZyBJTlBVVF9DTUEzMDAwCiAJdHJpc3RhdGUgIlZUSSBDTUEzMDAw
+IFRyaS1heGlzIGFjY2VsZXJvbWV0ZXIiCiAJaGVscApPbmx5IGluIGxpbnV4LTIuNi4zOC4yLm1v
+ZC9kcml2ZXJzL2lucHV0L21pc2MvOiBLY29uZmlnfgpPbmx5IGluIGxpbnV4LTIuNi4zOC4yLm1v
+ZC9kcml2ZXJzL2lucHV0L21pc2MvOiBhZHhsMzR4LWkyYy5vCmRpZmYgLXggJ2xpbnV4LTIuNi4z
+OC4yLWFkeGwucGF0Y2h+JyAtdSBsaW51eC0yLjYuMzguMi5vcmlnL2RyaXZlcnMvaW5wdXQvbWlz
+Yy9hZHhsMzR4LmMgbGludXgtMi42LjM4LjIubW9kL2RyaXZlcnMvaW5wdXQvbWlzYy9hZHhsMzR4
+LmMKLS0tIGxpbnV4LTIuNi4zOC4yLm9yaWcvZHJpdmVycy9pbnB1dC9taXNjL2FkeGwzNHguYwky
+MDExLTAzLTI3IDIwOjM3OjIwLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LjM4LjIubW9k
+L2RyaXZlcnMvaW5wdXQvbWlzYy9hZHhsMzR4LmMJMjAxMS0wNC0xMiAxODo0Nzo1NC45NjYwMDAw
+NTkgKzAyMDAKQEAgLTk4LDYgKzk4LDcgQEAKIC8qIEJXX1JBVEUgQml0cyAqLwogI2RlZmluZSBM
+T1dfUE9XRVIJKDEgPDwgNCkKICNkZWZpbmUgUkFURSh4KQkJKCh4KSAmIDB4RikKKyNkZWZpbmUg
+UkFURTJVU0VDKHgpICAgICgxMDI0MDAwMCA+PiBSQVRFKHgpKQogCiAvKiBQT1dFUl9DVEwgQml0
+cyAqLwogI2RlZmluZSBQQ1RMX0xJTksJKDEgPDwgNSkKQEAgLTIwNSw2ICsyMDYsOSBAQAogCWlu
+dCBpcnE7CiAJdW5zaWduZWQgbW9kZWw7CiAJdW5zaWduZWQgaW50X21hc2s7CisjaWYgZGVmaW5l
+ZChDT05GSUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HKQorCXN0cnVjdCBkZWxheWVkX3dv
+cmsgd29yazsKKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhMMzRYX0FMTE9XX1BP
+TExJTkcpICovCiAKIAljb25zdCBzdHJ1Y3QgYWR4bDM0eF9idXNfb3BzICpib3BzOwogfTsKQEAg
+LTM5OCw2ICs0MDIsMzQgQEAKIAlyZXR1cm4gSVJRX0hBTkRMRUQ7CiB9CiAKKyNpZiBkZWZpbmVk
+KENPTkZJR19JTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpCitzdGF0aWMgdm9pZCBhZHhsMzR4
+X3BvbGxfcmVzY2hlZHVsZShzdHJ1Y3QgYWR4bDM0eCAqYWMpCit7CisJdW5zaWduZWQgbG9uZyBk
+ZWxheV91c2VjczsKKwl1bnNpZ25lZCBsb25nIGRlbGF5X2ppZmZpZXM7CisKKwlkZWxheV91c2Vj
+cyA9IFJBVEUyVVNFQyhhYy0+cGRhdGEuZGF0YV9yYXRlKTsKKwlkZWxheV9qaWZmaWVzID0gdXNl
+Y3NfdG9famlmZmllcyhkZWxheV91c2Vjcyk7CisJaWYgKGRlbGF5X2ppZmZpZXMgPj0gSFopCisJ
+CWRlbGF5X2ppZmZpZXMgPSByb3VuZF9qaWZmaWVzX3JlbGF0aXZlKGRlbGF5X2ppZmZpZXMpOwor
+CXNjaGVkdWxlX2RlbGF5ZWRfd29yaygmYWMtPndvcmssIGRlbGF5X2ppZmZpZXMpOworfQorc3Rh
+dGljIHZvaWQgYWR4bDM0eF9wb2xsX2NhbmNlbChzdHJ1Y3QgYWR4bDM0eCAqYWMpCit7CisJY2Fu
+Y2VsX2RlbGF5ZWRfd29yaygmYWMtPndvcmspOworfQorCitzdGF0aWMgdm9pZCBhZHhsMzR4X3Bv
+bGwoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQoreworCXN0cnVjdCBkZWxheWVkX3dvcmsgKmR3
+ID0gY29udGFpbmVyX29mKHdvcmssIHN0cnVjdCBkZWxheWVkX3dvcmssIHdvcmspOworCXN0cnVj
+dCBhZHhsMzR4ICphYyA9IGNvbnRhaW5lcl9vZihkdywgc3RydWN0IGFkeGwzNHgsIHdvcmspOwor
+CisJYWR4bDM0eF9pcnEoYWMtPmlycSwgYWMpOworCisJYWR4bDM0eF9wb2xsX3Jlc2NoZWR1bGUo
+YWMpOworfQorI2VuZGlmIC8qIGRlZmluZWQoQ09ORklHX0lOUFVUX0FEWEwzNFhfQUxMT1dfUE9M
+TElORykgKi8KKwogc3RhdGljIHZvaWQgX19hZHhsMzR4X2Rpc2FibGUoc3RydWN0IGFkeGwzNHgg
+KmFjKQogewogCS8qCkBAIC02NzEsNiArNzAzLDEyIEBACiAKIAltdXRleF91bmxvY2soJmFjLT5t
+dXRleCk7CiAKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcp
+CisJaWYgKCFhYy0+aXJxKSB7CisJCWFkeGwzNHhfcG9sbF9yZXNjaGVkdWxlKGFjKTsKKwl9Cisj
+ZW5kaWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HKSAqLwor
+CiAJcmV0dXJuIDA7CiB9CiAKQEAgLTY4Niw2ICs3MjQsMTIgQEAKIAlhYy0+b3BlbmVkID0gZmFs
+c2U7CiAKIAltdXRleF91bmxvY2soJmFjLT5tdXRleCk7CisKKyNpZiBkZWZpbmVkKENPTkZJR19J
+TlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpCisJaWYgKCFhYy0+aXJxKSB7CisJCWFkeGwzNHhf
+cG9sbF9jYW5jZWwoYWMpOworCX0KKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhM
+MzRYX0FMTE9XX1BPTExJTkcpICovCiB9CiAKIHN0cnVjdCBhZHhsMzR4ICphZHhsMzR4X3Byb2Jl
+KHN0cnVjdCBkZXZpY2UgKmRldiwgaW50IGlycSwKQEAgLTY5OSw5ICs3NDMsMTMgQEAKIAl1bnNp
+Z25lZCBjaGFyIHJldmlkOwogCiAJaWYgKCFpcnEpIHsKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBV
+VF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpCisJCWRldl9kYmcoZGV2LCAibm8gSVJRLCBzd2l0Y2gg
+dG8gcG9sbCBtb2RlXG4iKTsKKyNlbHNlCiAJCWRldl9lcnIoZGV2LCAibm8gSVJRP1xuIik7CiAJ
+CWVyciA9IC1FTk9ERVY7CiAJCWdvdG8gZXJyX291dDsKKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJ
+R19JTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpICovCiAJfQogCiAJYWMgPSBremFsbG9jKHNp
+emVvZigqYWMpLCBHRlBfS0VSTkVMKTsKQEAgLTgxMCwxMyArODU4LDIwIEBACiAKIAlhYy0+Ym9w
+cy0+d3JpdGUoZGV2LCBQT1dFUl9DVEwsIDApOwogCi0JZXJyID0gcmVxdWVzdF90aHJlYWRlZF9p
+cnEoYWMtPmlycSwgTlVMTCwgYWR4bDM0eF9pcnEsCi0JCQkJICAgSVJRRl9UUklHR0VSX0hJR0gg
+fCBJUlFGX09ORVNIT1QsCi0JCQkJICAgZGV2X25hbWUoZGV2KSwgYWMpOwotCWlmIChlcnIpIHsK
+LQkJZGV2X2VycihkZXYsICJpcnEgJWQgYnVzeT9cbiIsIGFjLT5pcnEpOwotCQlnb3RvIGVycl9m
+cmVlX21lbTsKKwlpZiAoYWMtPmlycSkgeworCQllcnIgPSByZXF1ZXN0X3RocmVhZGVkX2lycShh
+Yy0+aXJxLCBOVUxMLCBhZHhsMzR4X2lycSwKKwkJCQkJICAgSVJRRl9UUklHR0VSX0hJR0ggfCBJ
+UlFGX09ORVNIT1QsCisJCQkJCSAgIGRldl9uYW1lKGRldiksIGFjKTsKKwkJaWYgKGVycikgewor
+CQkJZGV2X2VycihkZXYsICJpcnEgJWQgYnVzeT9cbiIsIGFjLT5pcnEpOworCQkJZ290byBlcnJf
+ZnJlZV9tZW07CisJCX0KKwl9CisjaWYgZGVmaW5lZChDT05GSUdfSU5QVVRfQURYTDM0WF9BTExP
+V19QT0xMSU5HKQorCWVsc2UgeworCQlJTklUX0RFTEFZRURfV09SSygmYWMtPndvcmssICZhZHhs
+MzR4X3BvbGwpOwogCX0KKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhMMzRYX0FM
+TE9XX1BPTExJTkcpICovCiAKIAllcnIgPSBzeXNmc19jcmVhdGVfZ3JvdXAoJmRldi0+a29iaiwg
+JmFkeGwzNHhfYXR0cl9ncm91cCk7CiAJaWYgKGVycikKQEAgLTg4OCw3ICs5NDMsOCBAQAogIGVy
+cl9yZW1vdmVfYXR0cjoKIAlzeXNmc19yZW1vdmVfZ3JvdXAoJmRldi0+a29iaiwgJmFkeGwzNHhf
+YXR0cl9ncm91cCk7CiAgZXJyX2ZyZWVfaXJxOgotCWZyZWVfaXJxKGFjLT5pcnEsIGFjKTsKKwlp
+ZiAoYWMtPmlycSkKKwkJZnJlZV9pcnEoYWMtPmlycSwgYWMpOwogIGVycl9mcmVlX21lbToKIAlp
+bnB1dF9mcmVlX2RldmljZShpbnB1dF9kZXYpOwogCWtmcmVlKGFjKTsKQEAgLTkwMCw3ICs5NTYs
+OCBAQAogaW50IGFkeGwzNHhfcmVtb3ZlKHN0cnVjdCBhZHhsMzR4ICphYykKIHsKIAlzeXNmc19y
+ZW1vdmVfZ3JvdXAoJmFjLT5kZXYtPmtvYmosICZhZHhsMzR4X2F0dHJfZ3JvdXApOwotCWZyZWVf
+aXJxKGFjLT5pcnEsIGFjKTsKKwlpZiAoYWMtPmlycSkKKwkJZnJlZV9pcnEoYWMtPmlycSwgYWMp
+OwogCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGFjLT5pbnB1dCk7CiAJZGV2X2RiZyhhYy0+ZGV2
+LCAidW5yZWdpc3RlcmVkIGFjY2VsZXJvbWV0ZXJcbiIpOwogCWtmcmVlKGFjKTsK
+------=_Part_4103_28435830.1302627454420--
 
 

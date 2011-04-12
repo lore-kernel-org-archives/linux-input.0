@@ -1,190 +1,70 @@
-From: <paul.chavent@fnac.net>
-Subject: Re: input_polling_devices design question + adxl34x polling mode
- patch
-Date: Tue, 12 Apr 2011 18:57:34 +0200 (CEST)
-Message-ID: <5230560.97581302627454423.JavaMail.www@wsfrf1112>
-Reply-To: <paul.chavent@fnac.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_4103_28435830.1302627454420"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mtaweb11.services.sfr.fr ([93.17.128.28]:16057 "EHLO
-	smtp11.services.sfr.fr" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757917Ab1DLQ5g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Apr 2011 12:57:36 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [RFC PATCH] input: add KEY_IMAGES specifically for AL Image Browser
+Date: Tue, 12 Apr 2011 16:19:17 -0400
+Message-ID: <1302639557-22186-1-git-send-email-jarod@redhat.com>
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Linux Media <linux-media@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: michael.hennerich@analog.com, device-driver-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-------=_Part_4103_28435830.1302627454420
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Many media center remotes have buttons intended for jumping straight to
+one type of media browser or another -- commonly, images/photos/pictures,
+audio/music, television, and movies. At present, remotes with an images
+or photos or pictures button use any number of different keycodes which
+sort of maybe fit. I've seen at least KEY_MEDIA, KEY_CAMERA,
+KEY_GRAPHICSEDITOR and KEY_PRESENTATION. None of those seem quite right.
+In my mind, KEY_MEDIA should be something more like a media center
+application launcher (and I'd like to standardize on that for things
+like the windows media center button on the mce remotes). KEY_CAMERA is
+used in a lot of webcams, and typically means "take a picture now".
+KEY_GRAPHICSEDITOR implies an editor, not a browser. KEY_PRESENTATION
+might be the closest fit here, if you think "photo slide show", but it
+may well be more intended for "run application in full-screen
+presentation mode" or to launch something like magicpoint, I dunno.
+And thus, I'd like to have a KEY_IMAGES, which matches the HID Usage AL
+Image Browser, the meaning of which I think is crystal-clear. I believe
+AL Audio Browser is already covered by KEY_AUDIO, and AL Movie Browser
+by KEY_VIDEO, so I'm also adding appropriate comments next to those
+keys.
 
-Hi.
+I have follow-on patches for drivers/hid/hid-input.c and for
+drivers/media/rc/* that make use of this new key, if its deemed
+appropriate for addition. To make it simpler to merge the additional
+patches, it would be nice if this could sneak into 2.6.39, and the
+rest can then get queued up for 2.6.40, avoiding any multi-tree
+integration headaches.
 
-This patch allow to use the device even if its interrupts lines aren't rout=
-ed.
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: Jiri Kosina <jkosina@suse.cz>
+CC: Linux Media <linux-media@vger.kernel.org>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+---
+ include/linux/input.h |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-I tried to minimize the impact of the patch on the original code, and if th=
-e CONFIG_INPUT_ADXL34X_ALLOW_POLLING option is disabled, the code should be=
- unchanged.
-
-Please give me your opinion.
-
-Thanks.
-
-Paul.
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Message du 12/04/11 08:23
-De : "Dmitry Torokhov"=20
-A : paul.chavent@fnac.net
-Copie =C3=A0 : michael.hennerich@analog.com, device-driver-devel@blackfin.u=
-clinux.org, linux-input@vger.kernel.org
-Objet : Re: input_polling_devices design question + adxl34x polling mode pa=
-tch
-
-
-Hi Paul,
-
-On Mon, Apr 11, 2011 at 06:21:02PM +0200, paul.chavent@fnac.net wrote:
-> Hi.
->=20
-> I have =C2=A0a board with an adxl34x (an accelerometer) on a two wire bus=
-.
-> Its interrupt line aren't routed.
->=20
-> So i would like to use the driver in polling mode.
->=20
-> I submit this patch as a beta version of my work.
->=20
-> I tried to reuse the input_polling structure but I'm facing some
-> problems.
->=20
-> The driver has a "rate" attribute that i would like to control when i
-> setup the "interval" attribute of the input_pollling.
->=20
-> And vice versa, when i setup the "interval" attribute i would like to
-> setup the "rate".
->=20
-> So my questions : =C2=A0- Is it possible to reimplement a workqueue for
-> this driver only ? As it seems to have been done yet in other drivers,
-> i wonder if it's acceptable, or if we should avoid this practice. =C2=A0 =
--
-> I think it would be complicated to have hooks in input and
-> input_polling for calling each other. I wonder if i haven't any design
-> problem.
->=20
-> I would need an advice in order to cleaning this patch please.
->=20
-
-Yes, just use the system workqueue (now even dedicated workqueue is not
-really needed) and leave input_polldev alone - it makes sense to use for
-devices that are purely polled ones. The devices that may or may not be
-interrupt driven I think we should just hook workqueue handling in the
-driver.
-
-Note that I normally oppose supporting polling mode for devices that may
-be interrupt driven, since this normally increases power consumption.
-
---=20
-Dmitry
-
-
-------=_Part_4103_28435830.1302627454420
-Content-Type: application/octet-stream; name=linux-2.6.38.2-adxl.patch
-content-transfer-encoding: base64
-Content-Disposition: attachment; size=6794;
-	filename=linux-2.6.38.2-adxl.patch
-
-T25seSBpbiBsaW51eC0yLjYuMzguMi5tb2QvZHJpdmVycy9pbnB1dC9taXNjLzogLmFkeGwzNHgt
-aTJjLm8uY21kCk9ubHkgaW4gbGludXgtMi42LjM4LjIubW9kL2RyaXZlcnMvaW5wdXQvbWlzYy86
-IC5hZHhsMzR4Lm8uY21kCk9ubHkgaW4gbGludXgtMi42LjM4LjIubW9kL2RyaXZlcnMvaW5wdXQv
-bWlzYy86IC5idWlsdC1pbi5vLmNtZApkaWZmIC14ICdsaW51eC0yLjYuMzguMi1hZHhsLnBhdGNo
-ficgLXUgbGludXgtMi42LjM4LjIub3JpZy9kcml2ZXJzL2lucHV0L21pc2MvS2NvbmZpZyBsaW51
-eC0yLjYuMzguMi5tb2QvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcKLS0tIGxpbnV4LTIuNi4z
-OC4yLm9yaWcvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcJMjAxMS0wMy0yNyAyMDozNzoyMC4w
-MDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4zOC4yLm1vZC9kcml2ZXJzL2lucHV0L21pc2Mv
-S2NvbmZpZwkyMDExLTA0LTEyIDE4OjA4OjQzLjUzMDAwMDA1OCArMDIwMApAQCAtNDMwLDYgKzQz
-MCwxMyBAQAogCSAgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0g
-aGVyZTogdGhlCiAJICBtb2R1bGUgd2lsbCBiZSBjYWxsZWQgYWR4bDM0eC1zcGkuCiAKK2NvbmZp
-ZyBJTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcKKwlib29sICJhbGxvdyB0byBmYWxsYmFjayB0
-byBwb2xsaW5nIG1vZGUiCisJZGVwZW5kcyBvbiBJTlBVVF9BRFhMMzRYCisJZGVmYXVsdCBuCisJ
-aGVscAorCSAgU2F5IFkgaGVyZSBpZiB0aGUgaW50IGxpbmVzIG9mIHlvdXIgQURYTDM0NS82IGFy
-ZSB1bnVzZWQuCisKIGNvbmZpZyBJTlBVVF9DTUEzMDAwCiAJdHJpc3RhdGUgIlZUSSBDTUEzMDAw
-IFRyaS1heGlzIGFjY2VsZXJvbWV0ZXIiCiAJaGVscApPbmx5IGluIGxpbnV4LTIuNi4zOC4yLm1v
-ZC9kcml2ZXJzL2lucHV0L21pc2MvOiBLY29uZmlnfgpPbmx5IGluIGxpbnV4LTIuNi4zOC4yLm1v
-ZC9kcml2ZXJzL2lucHV0L21pc2MvOiBhZHhsMzR4LWkyYy5vCmRpZmYgLXggJ2xpbnV4LTIuNi4z
-OC4yLWFkeGwucGF0Y2h+JyAtdSBsaW51eC0yLjYuMzguMi5vcmlnL2RyaXZlcnMvaW5wdXQvbWlz
-Yy9hZHhsMzR4LmMgbGludXgtMi42LjM4LjIubW9kL2RyaXZlcnMvaW5wdXQvbWlzYy9hZHhsMzR4
-LmMKLS0tIGxpbnV4LTIuNi4zOC4yLm9yaWcvZHJpdmVycy9pbnB1dC9taXNjL2FkeGwzNHguYwky
-MDExLTAzLTI3IDIwOjM3OjIwLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LjM4LjIubW9k
-L2RyaXZlcnMvaW5wdXQvbWlzYy9hZHhsMzR4LmMJMjAxMS0wNC0xMiAxODo0Nzo1NC45NjYwMDAw
-NTkgKzAyMDAKQEAgLTk4LDYgKzk4LDcgQEAKIC8qIEJXX1JBVEUgQml0cyAqLwogI2RlZmluZSBM
-T1dfUE9XRVIJKDEgPDwgNCkKICNkZWZpbmUgUkFURSh4KQkJKCh4KSAmIDB4RikKKyNkZWZpbmUg
-UkFURTJVU0VDKHgpICAgICgxMDI0MDAwMCA+PiBSQVRFKHgpKQogCiAvKiBQT1dFUl9DVEwgQml0
-cyAqLwogI2RlZmluZSBQQ1RMX0xJTksJKDEgPDwgNSkKQEAgLTIwNSw2ICsyMDYsOSBAQAogCWlu
-dCBpcnE7CiAJdW5zaWduZWQgbW9kZWw7CiAJdW5zaWduZWQgaW50X21hc2s7CisjaWYgZGVmaW5l
-ZChDT05GSUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HKQorCXN0cnVjdCBkZWxheWVkX3dv
-cmsgd29yazsKKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhMMzRYX0FMTE9XX1BP
-TExJTkcpICovCiAKIAljb25zdCBzdHJ1Y3QgYWR4bDM0eF9idXNfb3BzICpib3BzOwogfTsKQEAg
-LTM5OCw2ICs0MDIsMzQgQEAKIAlyZXR1cm4gSVJRX0hBTkRMRUQ7CiB9CiAKKyNpZiBkZWZpbmVk
-KENPTkZJR19JTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpCitzdGF0aWMgdm9pZCBhZHhsMzR4
-X3BvbGxfcmVzY2hlZHVsZShzdHJ1Y3QgYWR4bDM0eCAqYWMpCit7CisJdW5zaWduZWQgbG9uZyBk
-ZWxheV91c2VjczsKKwl1bnNpZ25lZCBsb25nIGRlbGF5X2ppZmZpZXM7CisKKwlkZWxheV91c2Vj
-cyA9IFJBVEUyVVNFQyhhYy0+cGRhdGEuZGF0YV9yYXRlKTsKKwlkZWxheV9qaWZmaWVzID0gdXNl
-Y3NfdG9famlmZmllcyhkZWxheV91c2Vjcyk7CisJaWYgKGRlbGF5X2ppZmZpZXMgPj0gSFopCisJ
-CWRlbGF5X2ppZmZpZXMgPSByb3VuZF9qaWZmaWVzX3JlbGF0aXZlKGRlbGF5X2ppZmZpZXMpOwor
-CXNjaGVkdWxlX2RlbGF5ZWRfd29yaygmYWMtPndvcmssIGRlbGF5X2ppZmZpZXMpOworfQorc3Rh
-dGljIHZvaWQgYWR4bDM0eF9wb2xsX2NhbmNlbChzdHJ1Y3QgYWR4bDM0eCAqYWMpCit7CisJY2Fu
-Y2VsX2RlbGF5ZWRfd29yaygmYWMtPndvcmspOworfQorCitzdGF0aWMgdm9pZCBhZHhsMzR4X3Bv
-bGwoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQoreworCXN0cnVjdCBkZWxheWVkX3dvcmsgKmR3
-ID0gY29udGFpbmVyX29mKHdvcmssIHN0cnVjdCBkZWxheWVkX3dvcmssIHdvcmspOworCXN0cnVj
-dCBhZHhsMzR4ICphYyA9IGNvbnRhaW5lcl9vZihkdywgc3RydWN0IGFkeGwzNHgsIHdvcmspOwor
-CisJYWR4bDM0eF9pcnEoYWMtPmlycSwgYWMpOworCisJYWR4bDM0eF9wb2xsX3Jlc2NoZWR1bGUo
-YWMpOworfQorI2VuZGlmIC8qIGRlZmluZWQoQ09ORklHX0lOUFVUX0FEWEwzNFhfQUxMT1dfUE9M
-TElORykgKi8KKwogc3RhdGljIHZvaWQgX19hZHhsMzR4X2Rpc2FibGUoc3RydWN0IGFkeGwzNHgg
-KmFjKQogewogCS8qCkBAIC02NzEsNiArNzAzLDEyIEBACiAKIAltdXRleF91bmxvY2soJmFjLT5t
-dXRleCk7CiAKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcp
-CisJaWYgKCFhYy0+aXJxKSB7CisJCWFkeGwzNHhfcG9sbF9yZXNjaGVkdWxlKGFjKTsKKwl9Cisj
-ZW5kaWYgLyogZGVmaW5lZChDT05GSUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HKSAqLwor
-CiAJcmV0dXJuIDA7CiB9CiAKQEAgLTY4Niw2ICs3MjQsMTIgQEAKIAlhYy0+b3BlbmVkID0gZmFs
-c2U7CiAKIAltdXRleF91bmxvY2soJmFjLT5tdXRleCk7CisKKyNpZiBkZWZpbmVkKENPTkZJR19J
-TlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpCisJaWYgKCFhYy0+aXJxKSB7CisJCWFkeGwzNHhf
-cG9sbF9jYW5jZWwoYWMpOworCX0KKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhM
-MzRYX0FMTE9XX1BPTExJTkcpICovCiB9CiAKIHN0cnVjdCBhZHhsMzR4ICphZHhsMzR4X3Byb2Jl
-KHN0cnVjdCBkZXZpY2UgKmRldiwgaW50IGlycSwKQEAgLTY5OSw5ICs3NDMsMTMgQEAKIAl1bnNp
-Z25lZCBjaGFyIHJldmlkOwogCiAJaWYgKCFpcnEpIHsKKyNpZiBkZWZpbmVkKENPTkZJR19JTlBV
-VF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpCisJCWRldl9kYmcoZGV2LCAibm8gSVJRLCBzd2l0Y2gg
-dG8gcG9sbCBtb2RlXG4iKTsKKyNlbHNlCiAJCWRldl9lcnIoZGV2LCAibm8gSVJRP1xuIik7CiAJ
-CWVyciA9IC1FTk9ERVY7CiAJCWdvdG8gZXJyX291dDsKKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJ
-R19JTlBVVF9BRFhMMzRYX0FMTE9XX1BPTExJTkcpICovCiAJfQogCiAJYWMgPSBremFsbG9jKHNp
-emVvZigqYWMpLCBHRlBfS0VSTkVMKTsKQEAgLTgxMCwxMyArODU4LDIwIEBACiAKIAlhYy0+Ym9w
-cy0+d3JpdGUoZGV2LCBQT1dFUl9DVEwsIDApOwogCi0JZXJyID0gcmVxdWVzdF90aHJlYWRlZF9p
-cnEoYWMtPmlycSwgTlVMTCwgYWR4bDM0eF9pcnEsCi0JCQkJICAgSVJRRl9UUklHR0VSX0hJR0gg
-fCBJUlFGX09ORVNIT1QsCi0JCQkJICAgZGV2X25hbWUoZGV2KSwgYWMpOwotCWlmIChlcnIpIHsK
-LQkJZGV2X2VycihkZXYsICJpcnEgJWQgYnVzeT9cbiIsIGFjLT5pcnEpOwotCQlnb3RvIGVycl9m
-cmVlX21lbTsKKwlpZiAoYWMtPmlycSkgeworCQllcnIgPSByZXF1ZXN0X3RocmVhZGVkX2lycShh
-Yy0+aXJxLCBOVUxMLCBhZHhsMzR4X2lycSwKKwkJCQkJICAgSVJRRl9UUklHR0VSX0hJR0ggfCBJ
-UlFGX09ORVNIT1QsCisJCQkJCSAgIGRldl9uYW1lKGRldiksIGFjKTsKKwkJaWYgKGVycikgewor
-CQkJZGV2X2VycihkZXYsICJpcnEgJWQgYnVzeT9cbiIsIGFjLT5pcnEpOworCQkJZ290byBlcnJf
-ZnJlZV9tZW07CisJCX0KKwl9CisjaWYgZGVmaW5lZChDT05GSUdfSU5QVVRfQURYTDM0WF9BTExP
-V19QT0xMSU5HKQorCWVsc2UgeworCQlJTklUX0RFTEFZRURfV09SSygmYWMtPndvcmssICZhZHhs
-MzR4X3BvbGwpOwogCX0KKyNlbmRpZiAvKiBkZWZpbmVkKENPTkZJR19JTlBVVF9BRFhMMzRYX0FM
-TE9XX1BPTExJTkcpICovCiAKIAllcnIgPSBzeXNmc19jcmVhdGVfZ3JvdXAoJmRldi0+a29iaiwg
-JmFkeGwzNHhfYXR0cl9ncm91cCk7CiAJaWYgKGVycikKQEAgLTg4OCw3ICs5NDMsOCBAQAogIGVy
-cl9yZW1vdmVfYXR0cjoKIAlzeXNmc19yZW1vdmVfZ3JvdXAoJmRldi0+a29iaiwgJmFkeGwzNHhf
-YXR0cl9ncm91cCk7CiAgZXJyX2ZyZWVfaXJxOgotCWZyZWVfaXJxKGFjLT5pcnEsIGFjKTsKKwlp
-ZiAoYWMtPmlycSkKKwkJZnJlZV9pcnEoYWMtPmlycSwgYWMpOwogIGVycl9mcmVlX21lbToKIAlp
-bnB1dF9mcmVlX2RldmljZShpbnB1dF9kZXYpOwogCWtmcmVlKGFjKTsKQEAgLTkwMCw3ICs5NTYs
-OCBAQAogaW50IGFkeGwzNHhfcmVtb3ZlKHN0cnVjdCBhZHhsMzR4ICphYykKIHsKIAlzeXNmc19y
-ZW1vdmVfZ3JvdXAoJmFjLT5kZXYtPmtvYmosICZhZHhsMzR4X2F0dHJfZ3JvdXApOwotCWZyZWVf
-aXJxKGFjLT5pcnEsIGFjKTsKKwlpZiAoYWMtPmlycSkKKwkJZnJlZV9pcnEoYWMtPmlycSwgYWMp
-OwogCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGFjLT5pbnB1dCk7CiAJZGV2X2RiZyhhYy0+ZGV2
-LCAidW5yZWdpc3RlcmVkIGFjY2VsZXJvbWV0ZXJcbiIpOwogCWtmcmVlKGFjKTsK
-------=_Part_4103_28435830.1302627454420--
-
-
+diff --git a/include/linux/input.h b/include/linux/input.h
+index e428382..be082e9 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -553,8 +553,8 @@ struct input_keymap_entry {
+ #define KEY_DVD			0x185	/* Media Select DVD */
+ #define KEY_AUX			0x186
+ #define KEY_MP3			0x187
+-#define KEY_AUDIO		0x188
+-#define KEY_VIDEO		0x189
++#define KEY_AUDIO		0x188	/* AL Audio Browser */
++#define KEY_VIDEO		0x189	/* AL Movie Browser */
+ #define KEY_DIRECTORY		0x18a
+ #define KEY_LIST		0x18b
+ #define KEY_MEMO		0x18c	/* Media Select Messages */
+@@ -605,6 +605,7 @@ struct input_keymap_entry {
+ #define KEY_MEDIA_REPEAT	0x1b7	/* Consumer - transport control */
+ #define KEY_10CHANNELSUP        0x1b8   /* 10 channels up (10+) */
+ #define KEY_10CHANNELSDOWN      0x1b9   /* 10 channels down (10-) */
++#define KEY_IMAGES		0x1ba	/* AL Image Browser */
+ 
+ #define KEY_DEL_EOL		0x1c0
+ #define KEY_DEL_EOS		0x1c1
+-- 
+1.7.1

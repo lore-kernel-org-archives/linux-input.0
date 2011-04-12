@@ -1,38 +1,33 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] input: add maxim max11801 resistance touchscreen
- controller driver.
-Date: Mon, 11 Apr 2011 23:49:25 -0700
-Message-ID: <20110412064925.GA9566@core.coreip.homeip.net>
-References: <1302239702-29905-1-git-send-email-jiejing.zhang@freescale.com>
+Subject: Re: [PATCH RESEND] Input: twl4030_keypad - fix potential NULL
+ dereference in twl4030_kp_probe()
+Date: Mon, 11 Apr 2011 23:50:40 -0700
+Message-ID: <20110412065040.GB9566@core.coreip.homeip.net>
+References: <1302590871.17965.1.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:41185 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753122Ab1DLGtb (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:44870 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754215Ab1DLGuq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Apr 2011 02:49:31 -0400
-Received: by iyb14 with SMTP id 14so6341266iyb.19
-        for <linux-input@vger.kernel.org>; Mon, 11 Apr 2011 23:49:30 -0700 (PDT)
+	Tue, 12 Apr 2011 02:50:46 -0400
 Content-Disposition: inline
-In-Reply-To: <1302239702-29905-1-git-send-email-jiejing.zhang@freescale.com>
+In-Reply-To: <1302590871.17965.1.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zhang Jiejing <jiejing.zhang@freescale.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, kzjeef@gmail.com
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, David Brownell <dbrownell@users.sourceforge.net>, Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org
 
-On Fri, Apr 08, 2011 at 01:15:02PM +0800, Zhang Jiejing wrote:
-> +
-> +static __devexit int max11801_ts_remove(struct i2c_client *client)
-> +{
-> +	struct max11801_data *data = i2c_get_clientdata(client);
-> +
-> +	free_irq(client->irq, data);
-> +	input_unregister_device(data->input_dev);
-> +	input_free_device(data->input_dev);
+On Tue, Apr 12, 2011 at 02:47:51PM +0800, Axel Lin wrote:
+> We should first check whether platform data is NULL or not, before
+> dereferencing it to get the keymap.
+> 
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> Reviewed-by: Felipe Balbi <balbi@ti.com>
 
-You should not call input_free_device() after input_unregister_device().
-Otherwise queued for .40 (witho some minor edits).
+Hmm, I thought I already applied it but I guess I managed to loose it.
+Let's try again...
 
 Thanks.
 

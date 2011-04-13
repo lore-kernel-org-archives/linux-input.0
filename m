@@ -1,19 +1,19 @@
 From: Alan Cox <alan@linux.jf.intel.com>
 Subject: [PATCH] Add a driver to support InvenSense mpu3050 gyroscope chip.
-Date: Wed, 13 Apr 2011 15:55:15 +0100
-Message-ID: <20110413145500.21109.16879.stgit@localhost.localdomain>
+Date: Wed, 13 Apr 2011 15:58:58 +0100
+Message-ID: <20110413145528.21171.4197.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:48992 "EHLO
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:60053 "EHLO
 	localhost.localdomain" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757012Ab1DMPMi (ORCPT
+	with ESMTP id S1757130Ab1DMPQT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Apr 2011 11:12:38 -0400
+	Wed, 13 Apr 2011 11:16:19 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
-	by localhost.localdomain (8.14.4/8.14.4) with ESMTP id p3DEtFC4021141
-	for <linux-input@vger.kernel.org>; Wed, 13 Apr 2011 15:55:16 +0100
+	by localhost.localdomain (8.14.4/8.14.4) with ESMTP id p3DEwwVs021203
+	for <linux-input@vger.kernel.org>; Wed, 13 Apr 2011 15:58:58 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -25,15 +25,15 @@ basic driver configuration.
 
 Signed-off-by: Joseph Lai <joseph_lai@wistron.com>
 
-[Cleaned up PM_RUNTIME defines, fixed points raised in review]
+[Cleaned up PM_RUNTIME defines, fixed various things raised in review]
 
 Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
 
  drivers/input/misc/Kconfig   |   10 +
  drivers/input/misc/Makefile  |    1 
- drivers/input/misc/mpu3050.c |  419 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 430 insertions(+), 0 deletions(-)
+ drivers/input/misc/mpu3050.c |  421 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 432 insertions(+), 0 deletions(-)
  create mode 100644 drivers/input/misc/mpu3050.c
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
@@ -69,10 +69,10 @@ index b7100c2..1cc2132 100644
  obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
 diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
 new file mode 100644
-index 0000000..e29c147
+index 0000000..190e373
 --- /dev/null
 +++ b/drivers/input/misc/mpu3050.c
-@@ -0,0 +1,419 @@
+@@ -0,0 +1,421 @@
 +/*
 + * mpu3050.c - MPU3050 Tri-axis gyroscope driver
 + *
@@ -152,7 +152,9 @@ index 0000000..e29c147
 +static int mpu3050_xyz_read_reg(struct i2c_client *client,
 +			       u8 *buffer, int length)
 +{
-+	static const char cmd = MPU3050_XOUT_H;
++	/* Annoying we can't make this const because the i2c layer doesn't
++	   declare input buffers const */
++	char cmd = MPU3050_XOUT_H;
 +	struct i2c_msg msg[] = {
 +		{
 +			.addr = client->addr,

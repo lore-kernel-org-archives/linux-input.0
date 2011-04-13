@@ -1,17 +1,15 @@
 From: Zhang Jiejing <jiejing.zhang@freescale.com>
-Subject: [PATCH v2] input: keyboard: FSL MPR121 capacitive touch button.
-Date: Wed, 13 Apr 2011 10:28:18 +0800
-Message-ID: <1302661698-32011-1-git-send-email-jiejing.zhang@freescale.com>
-References: <20110412061825.GC1854@core.coreip.homeip.net>
+Subject: [PATCH v3] input: keyboard: FSL MPR121 capacitive touch button.
+Date: Wed, 13 Apr 2011 10:37:26 +0800
+Message-ID: <1302662246-10221-1-git-send-email-jiejing.zhang@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tx2ehsobe003.messaging.microsoft.com ([65.55.88.13]:59360 "EHLO
-	TX2EHSOBE006.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754285Ab1DMCWW (ORCPT
+Received: from va3ehsobe001.messaging.microsoft.com ([216.32.180.11]:59656
+	"EHLO VA3EHSOBE008.bigfish.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751882Ab1DMCbu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Apr 2011 22:22:22 -0400
-In-Reply-To: <20110412061825.GC1854@core.coreip.homeip.net>
+	Tue, 12 Apr 2011 22:31:50 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Fritz <chf.fritz@googlemail.com>, kzjeef@gmail.com
@@ -25,6 +23,9 @@ http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=MPR121
 
 Signed-off-by: Zhang Jiejing <jiejing.zhang@freescale.com>
 ---
+Changes since v2:
+1. remove a endif in Kconfig
+2. comments style align
 Changes since v1:
 1. change files name from mpr121.c to mpr121_touchkey.c
 2. lots of typo fix, thanks to Christoph Fritz
@@ -34,19 +35,19 @@ Changes since v1:
 6. use matrix_keypad_data in platform_data
 7. move register define into .c file rather than header file.
 ---
- drivers/input/keyboard/Kconfig           |   15 ++-
+ drivers/input/keyboard/Kconfig           |   12 +
  drivers/input/keyboard/Makefile          |    1 +
  drivers/input/keyboard/mpr121_touchkey.c |  330 ++++++++++++++++++++++++++++++
  include/linux/i2c/mpr.h                  |   19 ++
- 4 files changed, 363 insertions(+), 2 deletions(-)
+ 4 files changed, 362 insertions(+), 0 deletions(-)
  create mode 100644 drivers/input/keyboard/mpr121_touchkey.c
  create mode 100644 include/linux/i2c/mpr.h
 
 diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index c7a9202..58670d7 100644
+index c7a9202..67850c9 100644
 --- a/drivers/input/keyboard/Kconfig
 +++ b/drivers/input/keyboard/Kconfig
-@@ -315,6 +315,19 @@ config KEYBOARD_MCS
+@@ -315,6 +315,18 @@ config KEYBOARD_MCS
  	  To compile this driver as a module, choose M here: the
  	  module will be called mcs_touchkey.
  
@@ -61,17 +62,10 @@ index c7a9202..58670d7 100644
 +
 +	  To compile this driver as a module, choose M here: the
 +	  module will be called mpr121_touchkey
-+endif
 +
  config KEYBOARD_IMX
  	tristate "IMX keypad support"
  	depends on ARCH_MXC
-@@ -519,5 +532,3 @@ config KEYBOARD_W90P910
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called w90p910_keypad.
--
--endif
 diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
 index 468c627..37fa96b 100644
 --- a/drivers/input/keyboard/Makefile
@@ -86,7 +80,7 @@ index 468c627..37fa96b 100644
  obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
 diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
 new file mode 100644
-index 0000000..5f0d51a
+index 0000000..b0da16b
 --- /dev/null
 +++ b/drivers/input/keyboard/mpr121_touchkey.c
 @@ -0,0 +1,330 @@
@@ -242,9 +236,9 @@ index 0000000..5f0d51a
 +
 +
 +	/* Capacitance on sensing input varies and needs to be
-+	   compensated. The internal MPR121-auto-configuration can do
-+	   this if it's registers are set properly (based on
-+	   pdata->vdd_uv). */
++	 * compensated. The internal MPR121-auto-configuration can do
++	 * this if it's registers are set properly (based on
++	 * pdata->vdd_uv). */
 +	vdd = pdata->vdd_uv / 1000;
 +	usl = ((vdd - 700) * 256) / vdd;
 +	lsl = (usl * 65) / 100;

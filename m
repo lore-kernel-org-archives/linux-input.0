@@ -1,72 +1,59 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: input_polling_devices design question + adxl34x polling mode
- patch
-Date: Wed, 13 Apr 2011 09:39:48 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D59177137546EF7C7@LIMKCMBX1.ad.analog.com>
-References: <5230560.97581302627454423.JavaMail.www@wsfrf1112>
+From: Eduard Hasenleithner <ehasenle@gmail.com>
+Subject: Re: [PATCH] Wacom Intuos4 LED and OLED control
+Date: Wed, 13 Apr 2011 11:08:06 +0200
+Message-ID: <BANLkTimWMNm7siYXXA2=3cmd+VY=wCcdOA@mail.gmail.com>
+References: <1302303254-3062-1-git-send-email-eduard@hasenleithner.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:9645 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752016Ab1DMIjx (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:39254 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757895Ab1DMJIH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Apr 2011 04:39:53 -0400
-In-Reply-To: <5230560.97581302627454423.JavaMail.www@wsfrf1112>
-Content-Language: en-US
+	Wed, 13 Apr 2011 05:08:07 -0400
+Received: by iwn34 with SMTP id 34so400076iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 13 Apr 2011 02:08:06 -0700 (PDT)
+In-Reply-To: <1302303254-3062-1-git-send-email-eduard@hasenleithner.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "paul.chavent@fnac.net" <paul.chavent@fnac.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "device-driver-devel@blackfin.uclinux.org" <device-driver-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Eduard Hasenleithner <eduard@hasenleithner.at>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-cGF1bC5jaGF2ZW50QGZuYWMubmV0IHdyb3RlIG9uIDIwMTEtMDQtMTI6DQo+IEhpLg0KPg0KPiBU
-aGlzIHBhdGNoIGFsbG93IHRvIHVzZSB0aGUgZGV2aWNlIGV2ZW4gaWYgaXRzIGludGVycnVwdHMg
-bGluZXMgYXJlbid0DQo+IHJvdXRlZC4NCj4NCj4gSSB0cmllZCB0byBtaW5pbWl6ZSB0aGUgaW1w
-YWN0IG9mIHRoZSBwYXRjaCBvbiB0aGUgb3JpZ2luYWwgY29kZSwgYW5kDQo+IGlmIHRoZSBDT05G
-SUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HIG9wdGlvbiBpcyBkaXNhYmxlZCwgdGhlIGNv
-ZGUNCj4gc2hvdWxkIGJlIHVuY2hhbmdlZC4NCj4NCj4gUGxlYXNlIGdpdmUgbWUgeW91ciBvcGlu
-aW9uLg0KDQpIaSBQYXVsLA0KDQpMb29rcyBnb29kIHRvIG1lLiBIb3dldmVyIEkgd291bGRuJ3Qg
-ZG8gdGhlDQpDT05GSUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HIGlmZGVmZXJ5IGF0IGFs
-bC4NCkluIGNhc2Ugbm8gaXJxIGlzIGdpdmVuLCBkZXZfaW5mbyBhYm91dCB0aGUgc3dpdGNoIHRv
-IHBvbGxpbmcgbW9kZS4NCkp1c3QgaW4gY2FzZSBubyBpcnEgd2FzIG5vdCBvbiBwdXJwb3NlLg0K
-DQpXaGF0ZXZlciBEbWl0cnkgcHJlZmVycyBtb3N0Lg0KDQpBY2tlZC1ieTogTWljaGFlbCBIZW5u
-ZXJpY2ggPG1pY2hhZWwuaGVubmVyaWNoQGFuYWxvZy5jb20+DQoNCi1NaWNoYWVsDQoNCj4NCj4g
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KPiBNZXNzYWdlIGR1IDEy
-LzA0LzExIDA4OjIzDQo+IERlIDogIkRtaXRyeSBUb3Jva2hvdiINCj4gQSA6IHBhdWwuY2hhdmVu
-dEBmbmFjLm5ldA0KPiBDb3BpZSDDoCA6IG1pY2hhZWwuaGVubmVyaWNoQGFuYWxvZy5jb20sIGRl
-dmljZS1kcml2ZXItDQo+IGRldmVsQGJsYWNrZmluLnVjbGludXgub3JnLCBsaW51eC1pbnB1dEB2
-Z2VyLmtlcm5lbC5vcmcgT2JqZXQgOiBSZToNCj4gaW5wdXRfcG9sbGluZ19kZXZpY2VzIGRlc2ln
-biBxdWVzdGlvbiArIGFkeGwzNHggcG9sbGluZyBtb2RlIHBhdGNoDQo+DQo+DQo+IEhpIFBhdWws
-DQo+DQo+IE9uIE1vbiwgQXByIDExLCAyMDExIGF0IDA2OjIxOjAyUE0gKzAyMDAsIHBhdWwuY2hh
-dmVudEBmbmFjLm5ldCB3cm90ZToNCj4+IEhpLg0KPj4NCj4+IEkgaGF2ZSAgYSBib2FyZCB3aXRo
-IGFuIGFkeGwzNHggKGFuIGFjY2VsZXJvbWV0ZXIpIG9uIGEgdHdvIHdpcmUgYnVzLg0KPj4gSXRz
-IGludGVycnVwdCBsaW5lIGFyZW4ndCByb3V0ZWQuDQo+Pg0KPj4gU28gaSB3b3VsZCBsaWtlIHRv
-IHVzZSB0aGUgZHJpdmVyIGluIHBvbGxpbmcgbW9kZS4NCj4+DQo+PiBJIHN1Ym1pdCB0aGlzIHBh
-dGNoIGFzIGEgYmV0YSB2ZXJzaW9uIG9mIG15IHdvcmsuDQo+Pg0KPj4gSSB0cmllZCB0byByZXVz
-ZSB0aGUgaW5wdXRfcG9sbGluZyBzdHJ1Y3R1cmUgYnV0IEknbSBmYWNpbmcgc29tZQ0KPj4gcHJv
-YmxlbXMuDQo+Pg0KPj4gVGhlIGRyaXZlciBoYXMgYSAicmF0ZSIgYXR0cmlidXRlIHRoYXQgaSB3
-b3VsZCBsaWtlIHRvIGNvbnRyb2wgd2hlbiBpDQo+PiBzZXR1cCB0aGUgImludGVydmFsIiBhdHRy
-aWJ1dGUgb2YgdGhlIGlucHV0X3BvbGxsaW5nLg0KPj4NCj4+IEFuZCB2aWNlIHZlcnNhLCB3aGVu
-IGkgc2V0dXAgdGhlICJpbnRlcnZhbCIgYXR0cmlidXRlIGkgd291bGQgbGlrZSB0bw0KPj4gc2V0
-dXAgdGhlICJyYXRlIi4NCj4+DQo+PiBTbyBteSBxdWVzdGlvbnMgOiAgLSBJcyBpdCBwb3NzaWJs
-ZSB0byByZWltcGxlbWVudCBhIHdvcmtxdWV1ZSBmb3INCj4+IHRoaXMgZHJpdmVyIG9ubHkgPyBB
-cyBpdCBzZWVtcyB0byBoYXZlIGJlZW4gZG9uZSB5ZXQgaW4gb3RoZXINCj4+IGRyaXZlcnMsIGkg
-d29uZGVyIGlmIGl0J3MgYWNjZXB0YWJsZSwgb3IgaWYgd2Ugc2hvdWxkIGF2b2lkIHRoaXMNCj4+
-IHByYWN0aWNlLiAgIC0gSSB0aGluayBpdCB3b3VsZCBiZSBjb21wbGljYXRlZCB0byBoYXZlIGhv
-b2tzIGluIGlucHV0DQo+PiBhbmQgaW5wdXRfcG9sbGluZyBmb3IgY2FsbGluZyBlYWNoIG90aGVy
-LiBJIHdvbmRlciBpZiBpIGhhdmVuJ3QgYW55IGRlc2lnbiBwcm9ibGVtLg0KPj4NCj4+IEkgd291
-bGQgbmVlZCBhbiBhZHZpY2UgaW4gb3JkZXIgdG8gY2xlYW5pbmcgdGhpcyBwYXRjaCBwbGVhc2Uu
-DQo+Pg0KPg0KPiBZZXMsIGp1c3QgdXNlIHRoZSBzeXN0ZW0gd29ya3F1ZXVlIChub3cgZXZlbiBk
-ZWRpY2F0ZWQgd29ya3F1ZXVlIGlzDQo+IG5vdCByZWFsbHkgbmVlZGVkKSBhbmQgbGVhdmUgaW5w
-dXRfcG9sbGRldiBhbG9uZSAtIGl0IG1ha2VzIHNlbnNlIHRvDQo+IHVzZSBmb3IgZGV2aWNlcyB0
-aGF0IGFyZSBwdXJlbHkgcG9sbGVkIG9uZXMuIFRoZSBkZXZpY2VzIHRoYXQgbWF5IG9yDQo+IG1h
-eSBub3QgYmUgaW50ZXJydXB0IGRyaXZlbiBJIHRoaW5rIHdlIHNob3VsZCBqdXN0IGhvb2sgd29y
-a3F1ZXVlDQo+IGhhbmRsaW5nIGluIHRoZSBkcml2ZXIuDQo+DQo+IE5vdGUgdGhhdCBJIG5vcm1h
-bGx5IG9wcG9zZSBzdXBwb3J0aW5nIHBvbGxpbmcgbW9kZSBmb3IgZGV2aWNlcyB0aGF0DQo+IG1h
-eSBiZSBpbnRlcnJ1cHQgZHJpdmVuLCBzaW5jZSB0aGlzIG5vcm1hbGx5IGluY3JlYXNlcyBwb3dl
-ciBjb25zdW1wdGlvbi4NCj4NCg0KR3JlZXRpbmdzLA0KTWljaGFlbA0KDQotLQ0KQW5hbG9nIERl
-dmljZXMgR21iSCAgICAgIFdpbGhlbG0tV2FnZW5mZWxkLVN0ci4gNiAgICAgIDgwODA3IE11ZW5j
-aGVuDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IE11ZW5jaGVuOyBSZWdpc3RlcmdlcmljaHQ6IE11
-ZW5jaGVuIEhSQiA0MDM2ODsgR2VzY2hhZWZ0c2Z1ZWhyZXI6RHIuQ2Fyc3RlbiBTdWNrcm93LCBU
-aG9tYXMgV2Vzc2VsLCBXaWxsaWFtIEEuIE1hcnRpbiwgTWFyZ2FyZXQgU2VpZg0KDQoNCg==
+Hi Dmitry.
+
+Did this new patch reach your inbox?
+
+Thanks,
+Eduard
+
+2011/4/9 Eduard Hasenleithner <eduard@hasenleithner.at>:
+> This commit enables control of the LEDs and OLED displays found
+> on the Wacom Intuos4 M, L, and XL. For this purpose, a new "led"
+> attribute group is added to the sysfs entry of the input device.
+>
+> This "led" group only shows up when the correct device (M, L,
+> or XL) is detected. Four write-only attributes are created:
+> * "luminance":
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0array of three integers specfying
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0* status led brightness when no button is =
+pressed (0..127)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0* status led brightness when a button is p=
+ressed (0..127)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0* brightness of the OLED display (0..15)
+> * "status_select":
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0specifies the id (0..3) of the status led,=
+ -1 =3D none
+> * "button_select":
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0specifies the button id (0..7) of the imag=
+e
+> * "button_rawimg":
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0sets the raw image data of the button (bin=
+ary, 1024 octets)
+>
+> Signed-off-by: Eduard Hasenleithner <eduard@hasenleithner.at>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

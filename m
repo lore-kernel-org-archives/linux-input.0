@@ -1,97 +1,72 @@
-From: Joonyoung Shim <dofmind@gmail.com>
-Subject: Re: [PATCH 2/2 v3] Input: atmel_mxt_ts - Make CHG line high after the
- interrupts are enabled
-Date: Wed, 13 Apr 2011 14:17:49 +0900
-Message-ID: <BANLkTikQ1Z+_7N9-Do_56Ry-1+vUVjOdiA@mail.gmail.com>
-References: <4D821E00.5060104@atmel.com>
-	<AANLkTikncdvefBBYyhmjNGrqy5915Xw_pqmSG85VO2xV@mail.gmail.com>
-	<4D95DB70.2090604@atmel.com>
-	<BANLkTi=PRjx3nN0LQs9Asdj0PHj-ripv4g@mail.gmail.com>
-	<4D9F0AA2.3010501@atmel.com>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: input_polling_devices design question + adxl34x polling mode
+ patch
+Date: Wed, 13 Apr 2011 09:39:48 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D59177137546EF7C7@LIMKCMBX1.ad.analog.com>
+References: <5230560.97581302627454423.JavaMail.www@wsfrf1112>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:33278 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751526Ab1DMFRu convert rfc822-to-8bit (ORCPT
+Received: from nwd2mail11.analog.com ([137.71.25.57]:9645 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752016Ab1DMIjx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Apr 2011 01:17:50 -0400
-Received: by qyg14 with SMTP id 14so155957qyg.19
-        for <linux-input@vger.kernel.org>; Tue, 12 Apr 2011 22:17:49 -0700 (PDT)
-In-Reply-To: <4D9F0AA2.3010501@atmel.com>
+	Wed, 13 Apr 2011 04:39:53 -0400
+In-Reply-To: <5230560.97581302627454423.JavaMail.www@wsfrf1112>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Iiro Valkonen <iiro.valkonen@atmel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: "paul.chavent@fnac.net" <paul.chavent@fnac.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "device-driver-devel@blackfin.uclinux.org" <device-driver-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-2011/4/8 Iiro Valkonen <iiro.valkonen@atmel.com>:
-> Make the CHG line (interrupt line) go high after the interrupts have =
-been enabled to make sure
-> we don't miss the falling edge.
->
-> Signed-off-by: Iiro Valkonen <iiro.valkonen@atmel.com>
-> ---
-> v3: Change the locations where this is done to ensure correct operati=
-on at FW update,
-> =A0 =A0and to get rid of some error handling
->
-> =A0drivers/input/touchscreen/atmel_mxt_ts.c | =A0 12 ++++++++----
-> =A01 files changed, 8 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input=
-/touchscreen/atmel_mxt_ts.c
-> index 4012436..5f09f57 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -804,10 +804,6 @@ static int mxt_initialize(struct mxt_data *data)
-> =A0 =A0 =A0 =A0if (error)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return error;
->
-> - =A0 =A0 =A0 error =3D mxt_make_highchg(data);
-> - =A0 =A0 =A0 if (error)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return error;
-> -
-> =A0 =A0 =A0 =A0mxt_handle_pdata(data);
->
-> =A0 =A0 =A0 =A0/* Backup to memory */
-> @@ -981,6 +977,10 @@ static ssize_t mxt_update_fw_store(struct device=
- *dev,
->
-> =A0 =A0 =A0 =A0enable_irq(data->irq);
->
-> + =A0 =A0 =A0 error =3D mxt_make_highchg(data);
-> + =A0 =A0 =A0 if (error)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return error;
-> +
-> =A0 =A0 =A0 =A0return count;
-> =A0}
->
-> @@ -1090,6 +1090,10 @@ static int __devinit mxt_probe(struct i2c_clie=
-nt *client,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_free_object;
-> =A0 =A0 =A0 =A0}
->
-> + =A0 =A0 =A0 error =3D mxt_make_highchg(data);
-> + =A0 =A0 =A0 if (error)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_free_irq;
-> +
-> =A0 =A0 =A0 =A0error =3D input_register_device(input_dev);
-> =A0 =A0 =A0 =A0if (error)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_free_irq;
-> --
-> 1.7.0.4
->
->
-
-Acked-by: Joonyoung Shim <jy0922.shim@samsung.com>
-
-Thanks.
-
---=20
-- Joonyoung Shim
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+cGF1bC5jaGF2ZW50QGZuYWMubmV0IHdyb3RlIG9uIDIwMTEtMDQtMTI6DQo+IEhpLg0KPg0KPiBU
+aGlzIHBhdGNoIGFsbG93IHRvIHVzZSB0aGUgZGV2aWNlIGV2ZW4gaWYgaXRzIGludGVycnVwdHMg
+bGluZXMgYXJlbid0DQo+IHJvdXRlZC4NCj4NCj4gSSB0cmllZCB0byBtaW5pbWl6ZSB0aGUgaW1w
+YWN0IG9mIHRoZSBwYXRjaCBvbiB0aGUgb3JpZ2luYWwgY29kZSwgYW5kDQo+IGlmIHRoZSBDT05G
+SUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HIG9wdGlvbiBpcyBkaXNhYmxlZCwgdGhlIGNv
+ZGUNCj4gc2hvdWxkIGJlIHVuY2hhbmdlZC4NCj4NCj4gUGxlYXNlIGdpdmUgbWUgeW91ciBvcGlu
+aW9uLg0KDQpIaSBQYXVsLA0KDQpMb29rcyBnb29kIHRvIG1lLiBIb3dldmVyIEkgd291bGRuJ3Qg
+ZG8gdGhlDQpDT05GSUdfSU5QVVRfQURYTDM0WF9BTExPV19QT0xMSU5HIGlmZGVmZXJ5IGF0IGFs
+bC4NCkluIGNhc2Ugbm8gaXJxIGlzIGdpdmVuLCBkZXZfaW5mbyBhYm91dCB0aGUgc3dpdGNoIHRv
+IHBvbGxpbmcgbW9kZS4NCkp1c3QgaW4gY2FzZSBubyBpcnEgd2FzIG5vdCBvbiBwdXJwb3NlLg0K
+DQpXaGF0ZXZlciBEbWl0cnkgcHJlZmVycyBtb3N0Lg0KDQpBY2tlZC1ieTogTWljaGFlbCBIZW5u
+ZXJpY2ggPG1pY2hhZWwuaGVubmVyaWNoQGFuYWxvZy5jb20+DQoNCi1NaWNoYWVsDQoNCj4NCj4g
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KPiBNZXNzYWdlIGR1IDEy
+LzA0LzExIDA4OjIzDQo+IERlIDogIkRtaXRyeSBUb3Jva2hvdiINCj4gQSA6IHBhdWwuY2hhdmVu
+dEBmbmFjLm5ldA0KPiBDb3BpZSDDoCA6IG1pY2hhZWwuaGVubmVyaWNoQGFuYWxvZy5jb20sIGRl
+dmljZS1kcml2ZXItDQo+IGRldmVsQGJsYWNrZmluLnVjbGludXgub3JnLCBsaW51eC1pbnB1dEB2
+Z2VyLmtlcm5lbC5vcmcgT2JqZXQgOiBSZToNCj4gaW5wdXRfcG9sbGluZ19kZXZpY2VzIGRlc2ln
+biBxdWVzdGlvbiArIGFkeGwzNHggcG9sbGluZyBtb2RlIHBhdGNoDQo+DQo+DQo+IEhpIFBhdWws
+DQo+DQo+IE9uIE1vbiwgQXByIDExLCAyMDExIGF0IDA2OjIxOjAyUE0gKzAyMDAsIHBhdWwuY2hh
+dmVudEBmbmFjLm5ldCB3cm90ZToNCj4+IEhpLg0KPj4NCj4+IEkgaGF2ZSAgYSBib2FyZCB3aXRo
+IGFuIGFkeGwzNHggKGFuIGFjY2VsZXJvbWV0ZXIpIG9uIGEgdHdvIHdpcmUgYnVzLg0KPj4gSXRz
+IGludGVycnVwdCBsaW5lIGFyZW4ndCByb3V0ZWQuDQo+Pg0KPj4gU28gaSB3b3VsZCBsaWtlIHRv
+IHVzZSB0aGUgZHJpdmVyIGluIHBvbGxpbmcgbW9kZS4NCj4+DQo+PiBJIHN1Ym1pdCB0aGlzIHBh
+dGNoIGFzIGEgYmV0YSB2ZXJzaW9uIG9mIG15IHdvcmsuDQo+Pg0KPj4gSSB0cmllZCB0byByZXVz
+ZSB0aGUgaW5wdXRfcG9sbGluZyBzdHJ1Y3R1cmUgYnV0IEknbSBmYWNpbmcgc29tZQ0KPj4gcHJv
+YmxlbXMuDQo+Pg0KPj4gVGhlIGRyaXZlciBoYXMgYSAicmF0ZSIgYXR0cmlidXRlIHRoYXQgaSB3
+b3VsZCBsaWtlIHRvIGNvbnRyb2wgd2hlbiBpDQo+PiBzZXR1cCB0aGUgImludGVydmFsIiBhdHRy
+aWJ1dGUgb2YgdGhlIGlucHV0X3BvbGxsaW5nLg0KPj4NCj4+IEFuZCB2aWNlIHZlcnNhLCB3aGVu
+IGkgc2V0dXAgdGhlICJpbnRlcnZhbCIgYXR0cmlidXRlIGkgd291bGQgbGlrZSB0bw0KPj4gc2V0
+dXAgdGhlICJyYXRlIi4NCj4+DQo+PiBTbyBteSBxdWVzdGlvbnMgOiAgLSBJcyBpdCBwb3NzaWJs
+ZSB0byByZWltcGxlbWVudCBhIHdvcmtxdWV1ZSBmb3INCj4+IHRoaXMgZHJpdmVyIG9ubHkgPyBB
+cyBpdCBzZWVtcyB0byBoYXZlIGJlZW4gZG9uZSB5ZXQgaW4gb3RoZXINCj4+IGRyaXZlcnMsIGkg
+d29uZGVyIGlmIGl0J3MgYWNjZXB0YWJsZSwgb3IgaWYgd2Ugc2hvdWxkIGF2b2lkIHRoaXMNCj4+
+IHByYWN0aWNlLiAgIC0gSSB0aGluayBpdCB3b3VsZCBiZSBjb21wbGljYXRlZCB0byBoYXZlIGhv
+b2tzIGluIGlucHV0DQo+PiBhbmQgaW5wdXRfcG9sbGluZyBmb3IgY2FsbGluZyBlYWNoIG90aGVy
+LiBJIHdvbmRlciBpZiBpIGhhdmVuJ3QgYW55IGRlc2lnbiBwcm9ibGVtLg0KPj4NCj4+IEkgd291
+bGQgbmVlZCBhbiBhZHZpY2UgaW4gb3JkZXIgdG8gY2xlYW5pbmcgdGhpcyBwYXRjaCBwbGVhc2Uu
+DQo+Pg0KPg0KPiBZZXMsIGp1c3QgdXNlIHRoZSBzeXN0ZW0gd29ya3F1ZXVlIChub3cgZXZlbiBk
+ZWRpY2F0ZWQgd29ya3F1ZXVlIGlzDQo+IG5vdCByZWFsbHkgbmVlZGVkKSBhbmQgbGVhdmUgaW5w
+dXRfcG9sbGRldiBhbG9uZSAtIGl0IG1ha2VzIHNlbnNlIHRvDQo+IHVzZSBmb3IgZGV2aWNlcyB0
+aGF0IGFyZSBwdXJlbHkgcG9sbGVkIG9uZXMuIFRoZSBkZXZpY2VzIHRoYXQgbWF5IG9yDQo+IG1h
+eSBub3QgYmUgaW50ZXJydXB0IGRyaXZlbiBJIHRoaW5rIHdlIHNob3VsZCBqdXN0IGhvb2sgd29y
+a3F1ZXVlDQo+IGhhbmRsaW5nIGluIHRoZSBkcml2ZXIuDQo+DQo+IE5vdGUgdGhhdCBJIG5vcm1h
+bGx5IG9wcG9zZSBzdXBwb3J0aW5nIHBvbGxpbmcgbW9kZSBmb3IgZGV2aWNlcyB0aGF0DQo+IG1h
+eSBiZSBpbnRlcnJ1cHQgZHJpdmVuLCBzaW5jZSB0aGlzIG5vcm1hbGx5IGluY3JlYXNlcyBwb3dl
+ciBjb25zdW1wdGlvbi4NCj4NCg0KR3JlZXRpbmdzLA0KTWljaGFlbA0KDQotLQ0KQW5hbG9nIERl
+dmljZXMgR21iSCAgICAgIFdpbGhlbG0tV2FnZW5mZWxkLVN0ci4gNiAgICAgIDgwODA3IE11ZW5j
+aGVuDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IE11ZW5jaGVuOyBSZWdpc3RlcmdlcmljaHQ6IE11
+ZW5jaGVuIEhSQiA0MDM2ODsgR2VzY2hhZWZ0c2Z1ZWhyZXI6RHIuQ2Fyc3RlbiBTdWNrcm93LCBU
+aG9tYXMgV2Vzc2VsLCBXaWxsaWFtIEEuIE1hcnRpbiwgTWFyZ2FyZXQgU2VpZg0KDQoNCg==

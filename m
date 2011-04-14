@@ -1,507 +1,447 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH] Add a driver to support InvenSense mpu3050 gyroscope
- chip.
-Date: Wed, 13 Apr 2011 16:54:22 +0100
-Message-ID: <4DA5C72E.1020100@cam.ac.uk>
-References: <20110413145528.21171.4197.stgit@localhost.localdomain>
+From: Zhang Jiejing <jiejing.zhang@freescale.com>
+Subject: [PATCH v4] input: keyboard: FSL MPR121 capacitive touch button.
+Date: Thu, 14 Apr 2011 10:42:13 +0800
+Message-ID: <1302748933-25935-1-git-send-email-jiejing.zhang@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-51.csi.cam.ac.uk ([131.111.8.151]:48333 "EHLO
-	ppsw-51.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757116Ab1DMPwd (ORCPT
+Received: from ch1ehsobe001.messaging.microsoft.com ([216.32.181.181]:36837
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758440Ab1DNCf5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Apr 2011 11:52:33 -0400
-In-Reply-To: <20110413145528.21171.4197.stgit@localhost.localdomain>
+	Wed, 13 Apr 2011 22:35:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@linux.jf.intel.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Fritz <chf.fritz@googlemail.com>
 
-On 04/13/11 15:58, Alan Cox wrote:
-> From: Joseph Lai <joseph_lai@wistron.com>
-> 
-> This driver is registered as an input device. An IRQ is required in this
-> basic driver configuration.
-> 
-> Signed-off-by: Joseph Lai <joseph_lai@wistron.com>
-> 
-> [Cleaned up PM_RUNTIME defines, fixed various things raised in review]
-> 
-> Signed-off-by: Alan Cox <alan@linux.intel.com>
-Acked-by: Jonathan Cameron <jic23@cam.ac.uk>
+This patch adds basic support for Freescale MPR121 capacitive touch
+sensor.
+It's an i2c controller with up to 12 capacitance sensing inputs.
 
-> ---
-> 
->  drivers/input/misc/Kconfig   |   10 +
->  drivers/input/misc/Makefile  |    1 
->  drivers/input/misc/mpu3050.c |  421 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 432 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/misc/mpu3050.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 406a730..4f403ad 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -477,4 +477,14 @@ config INPUT_BMA023
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called bma023.
->  
-> +config INPUT_MPU3050
-> +	tristate "MPU3050 Triaxial gyroscope sensor"
-> +	depends on I2C
-> +	help
-> +	  Say Y here if you want to support InvenSense MPU3050
-> +	  connected via an I2C bus.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called mpu3050.
-> +
->  endif
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index b7100c2..1cc2132 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -28,6 +28,7 @@ obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
->  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
->  obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
->  obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
-> +obj-$(CONFIG_INPUT_MPU3050)		+= mpu3050.o
->  obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
->  obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
->  obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
-> diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
-> new file mode 100644
-> index 0000000..190e373
-> --- /dev/null
-> +++ b/drivers/input/misc/mpu3050.c
-> @@ -0,0 +1,421 @@
-> +/*
-> + * mpu3050.c - MPU3050 Tri-axis gyroscope driver
-> + *
-> + * Copyright (C) 2011 Wistron Co.Ltd
-> + * Joseph Lai <joseph_lai@wistron.com>
-> + *
-> + * Trimmed down by Alan Cox <alan@linux.intel.com> to produce this version
-> + *
-> + * This is a 'lite' version of the driver, while we consider the right way
-> + * to present the other features to user space. In particular it requires the
-> + * device has an IRQ, and it only provides an input interface, so is not much
-> + * use for device orientation. A fuller version is available from the Meego
-> + * tree.
-> + *
-> + * This program is based on bma023.c.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; version 2 of the License.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-> + * General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License along
-> + * with this program; if not, write to the Free Software Foundation, Inc.,
-> + * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-> + *
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/mutex.h>
-> +#include <linux/err.h>
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/delay.h>
-> +#include <linux/slab.h>
-> +#include <linux/pm_runtime.h>
-> +
-> +#define MPU3050_CHIP_ID_REG	0x00
-> +#define MPU3050_CHIP_ID		0x69
-> +#define MPU3050_XOUT_H		0x1D
-> +#define MPU3050_PWR_MGM		0x3E
-> +#define MPU3050_PWR_MGM_POS	6
-> +#define MPU3050_PWR_MGM_MASK	0x40
-> +
-> +#define MPU3050_AUTO_DELAY	1000
-> +
-> +#define MPU3050_MIN_VALUE	-32768
-> +#define MPU3050_MAX_VALUE	32767
-> +
-> +struct axis_data {
-> +	s16 x;
-> +	s16 y;
-> +	s16 z;
-> +};
-> +
-> +struct mpu3050_sensor {
-> +	struct i2c_client *client;
-> +	struct device *dev;
-> +	struct input_dev *idev;
-> +	struct mutex lock;
-> +};
-> +
-> +/**
-> + *	mpu3050_xyz_read_reg	-	read the axes values
-> + *	@buffer: provide register addr and get register
-> + *	@length: length of register
-> + *
-> + *	Reads the register values in one transaction or returns a negative
-> + *	error code on failure.
-> + */
-> +static int mpu3050_xyz_read_reg(struct i2c_client *client,
-> +			       u8 *buffer, int length)
-> +{
-> +	/* Annoying we can't make this const because the i2c layer doesn't
-> +	   declare input buffers const */
-> +	char cmd = MPU3050_XOUT_H;
-> +	struct i2c_msg msg[] = {
-> +		{
-> +			.addr = client->addr,
-> +			.flags = 0,
-> +			.len = 1,
-> +			.buf = &cmd,
-> +		},
-> +		{
-> +			.addr = client->addr,
-> +			.flags = I2C_M_RD,
-> +			.len = length,
-> +			.buf = buffer,
-> +		},
-> +	};
-> +	return i2c_transfer(client->adapter, msg, 2);
-> +}
-> +
-> +/**
-> + *	mpu3050_read_xyz	-	get co-ordinates from device
-> + *	@client: i2c address of sensor
-> + *	@coords: co-ordinates to update
-> + *
-> + *	Return the converted X Y and Z co-ordinates from the sensor device
-> + */
-> +static void mpu3050_read_xyz(struct i2c_client *client,
-> +				struct axis_data *coords)
-> +{
-> +	u16 buffer[3];
-> +	mpu3050_xyz_read_reg(client, (u8 *)buffer, 6);
-> +	coords->x = be16_to_cpu(buffer[0]);
-> +	coords->y = be16_to_cpu(buffer[1]);
-> +	coords->z = be16_to_cpu(buffer[2]);
-> +	dev_dbg(&client->dev, "%s: x %d, y %d, z %d\n", __func__,
-> +					coords->x, coords->y, coords->z);
-> +}
-> +
-> +/**
-> + *	mpu3050_set_power_mode	-	set the power mode
-> + *	@client: i2c client for the sensor
-> + *	@val: value to switch on/off of power, 1: normal power, 0: low power
-> + *
-> + *	Put device to normal-power mode or low-power mode.
-> + */
-> +static void mpu3050_set_power_mode(struct i2c_client *client, u8 val)
-> +{
-> +	u8 value;
-> +	value = i2c_smbus_read_byte_data(client, MPU3050_PWR_MGM);
-> +	value = (value & ~MPU3050_PWR_MGM_MASK) |
-> +		(((val << MPU3050_PWR_MGM_POS) & MPU3050_PWR_MGM_MASK) ^
-> +		 MPU3050_PWR_MGM_MASK);
-> +	i2c_smbus_write_byte_data(client, MPU3050_PWR_MGM, value);
-> +}
-> +
-> +/**
-> + *	mpu3050_input_open	-	called on input event open
-> + *	@input: input dev of opened device
-> + *
-> + *	The input layer calls this function when input event is opened. The
-> + *	function will push the device to resume. Then, the device is ready
-> + *	to provide data.
-> + */
-> +static int mpu3050_input_open(struct input_dev *input)
-> +{
-> +	struct mpu3050_sensor *sensor = input_get_drvdata(input);
-> +	pm_runtime_get(sensor->dev);
-> +	return 0;
-> +}
-> +
-> +/**
-> + *	mpu3050_input_close	-	called on input event close
-> + *	@input: input dev of closed device
-> + *
-> + *	The input layer calls this function when input event is closed. The
-> + *	function will push the device to suspend.
-> + */
-> +static void mpu3050_input_close(struct input_dev *input)
-> +{
-> +	struct mpu3050_sensor *sensor = input_get_drvdata(input);
-> +	pm_runtime_put(sensor->dev);
-> +}
-> +
-> +/**
-> + *	mpu3050_interrupt_thread	-	handle an IRQ
-> + *	@irq: interrupt numner
-> + *	@data: the sensor
-> + *
-> + *	Called by the kernel single threaded after an interrupt occurs. Read
-> + *	the sensor data and generate an input event for it.
-> + */
-> +static irqreturn_t mpu3050_interrupt_thread(int irq, void *data)
-> +{
-> +	struct mpu3050_sensor *sensor = data;
-> +	struct axis_data axis;
-> +
-> +	mutex_lock(&sensor->lock);
-> +	mpu3050_read_xyz(sensor->client, &axis);
-> +	mutex_unlock(&sensor->lock);
-> +
-> +	input_report_abs(sensor->idev, ABS_X, axis.x);
-> +	input_report_abs(sensor->idev, ABS_Y, axis.y);
-> +	input_report_abs(sensor->idev, ABS_Z, axis.z);
-> +	input_sync(sensor->idev);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +/**
-> + *	mpu3050_unregister_input_device	-	remove input dev
-> + *	@sensor: sensor to remove from input
-> + *
-> + *	Free the interrupt and input device for the sensor. We must free
-> + *	the interrupt first
-> + */
-> +static void mpu3050_unregister_input_device(struct mpu3050_sensor *sensor)
-> +{
-> +	struct i2c_client *client = sensor->client;
-> +	free_irq(client->irq, sensor);
-> +	input_unregister_device(sensor->idev);
-> +	sensor->idev = NULL;
-> +}
-> +
-> +/**
-> + *	mpu3050_register_input_device	-	remove input dev
-> + *	@sensor: sensor to remove from input
-> + *
-> + *	Add an input device to the sensor. This will be used to report
-> + *	events from the sensor itself.
-> + */
-> +static int mpu3050_register_input_device(struct mpu3050_sensor *sensor)
-> +{
-> +	struct i2c_client *client = sensor->client;
-> +	struct input_dev *idev;
-> +	int ret;
-> +	sensor->idev = input_allocate_device();
-> +	idev = sensor->idev;
-> +	if (!idev) {
-> +		dev_err(&client->dev, "failed to allocate input device\n");
-> +		ret = -ENOMEM;
-> +		goto failed_alloc;
-> +	}
-> +	idev->name = "MPU3050";
-> +	idev->open = mpu3050_input_open;
-> +	idev->close = mpu3050_input_close;
-> +	idev->id.bustype = BUS_I2C;
-> +	idev->dev.parent = &client->dev;
-> +	idev->evbit[0] = BIT_MASK(EV_ABS);
-> +	input_set_abs_params(idev, ABS_X, MPU3050_MIN_VALUE,
-> +			MPU3050_MAX_VALUE, 0, 0);
-> +	input_set_abs_params(idev, ABS_Y, MPU3050_MIN_VALUE,
-> +			MPU3050_MAX_VALUE, 0, 0);
-> +	input_set_abs_params(idev, ABS_Z, MPU3050_MIN_VALUE,
-> +			MPU3050_MAX_VALUE, 0, 0);
-> +	input_set_drvdata(idev, sensor);
-> +	ret = input_register_device(idev);
-> +	if (ret) {
-> +		dev_err(&client->dev, "failed to register input device\n");
-> +		goto failed_reg;
-> +	}
-> +	ret = request_threaded_irq(client->irq, NULL,
-> +			mpu3050_interrupt_thread, IRQF_TRIGGER_RISING,
-> +				"mpu_int", sensor);
-> +	if (ret) {
-> +		dev_err(&client->dev, "can't get IRQ %d, ret %d\n",
-> +				client->irq, ret);
-> +		goto failed_irq;
-> +	}
-> +	return 0;
-> +failed_irq:
-> +	input_unregister_device(idev);
-> +	return ret;
-> +failed_reg:
-> +	if (idev)
-> +		input_free_device(idev);
-> +failed_alloc:
-> +	return ret;
-> +}
-> +
-> +/**
-> + *	mpu3050_probe	-	device detection callback
-> + *	@client: i2c client of found device
-> + *	@id: id match information
-> + *
-> + *	The I2C layer calls us when it believes a sensor is present at this
-> + *	address. Probe to see if this is correct and to validate the device.
-> + *
-> + *	If present install the relevant sysfs interfaces and input device.
-> + */
-> +static int __devinit mpu3050_probe(struct i2c_client *client,
-> +			const struct i2c_device_id *id)
-> +{
-> +	struct mpu3050_sensor *sensor;
-> +	int ret;
-> +	sensor = kzalloc(sizeof(struct mpu3050_sensor), GFP_KERNEL);
-> +	if (!sensor) {
-> +		dev_err(&client->dev, "failed to allocate driver data\n");
-> +		return -ENOMEM;
-> +	}
-> +	sensor->dev = &client->dev;
-> +	sensor->client = client;
-> +	i2c_set_clientdata(client, sensor);
-> +
-> +	mpu3050_set_power_mode(client, 1);
-> +	msleep(10);
-> +	ret = i2c_smbus_read_byte_data(client, MPU3050_CHIP_ID_REG);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "failed to detect device\n");
-> +		goto failed_free;
-> +	}
-> +	if (ret != MPU3050_CHIP_ID) {
-> +		dev_err(&client->dev, "unsupported chip id\n");
-> +		goto failed_free;
-> +	}
-> +
-> +	mutex_init(&sensor->lock);
-> +
-> +	pm_runtime_set_active(&client->dev);
-> +
-> +	ret = mpu3050_register_input_device(sensor);
-> +	if (ret)
-> +		dev_err(&client->dev, "only provide sysfs\n");
-> +
-> +	pm_runtime_enable(&client->dev);
-> +	pm_runtime_set_autosuspend_delay(&client->dev, MPU3050_AUTO_DELAY);
-> +
-> +	dev_info(&client->dev, "%s registered\n", id->name);
-> +	return 0;
-> +
-> +failed_free:
-> +	kfree(sensor);
-> +	return ret;
-> +}
-> +
-> +/**
-> + *	mpu3050_remove	-	remove a sensor
-> + *	@client: i2c client of sensor being removed
-> + *
-> + *	Our sensor is going away, clean up the resources.
-> + */
-> +static int __devexit mpu3050_remove(struct i2c_client *client)
-> +{
-> +	struct mpu3050_sensor *sensor = i2c_get_clientdata(client);
-> +
-> +	pm_runtime_disable(&client->dev);
-> +	pm_runtime_set_suspended(&client->dev);
-> +
-> +	if (sensor->idev)
-> +		mpu3050_unregister_input_device(sensor);
-> +	kfree(sensor);
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +/**
-> + *	mpu3050_suspend		-	called on device suspend
-> + *	@client: i2c client of sensor
-> + *	@mesg: actual suspend type
-> + *
-> + *	Put the device into sleep mode before we suspend the machine.
-> + */
-> +static int mpu3050_suspend(struct i2c_client *client, pm_message_t mesg)
-> +{
-> +	mpu3050_set_power_mode(client, 0);
-> +	return 0;
-> +}
-> +
-> +/**
-> + *	mpu3050_resume		-	called on device resume
-> + *	@client: i2c client of sensor
-> + *
-> + *	Put the device into powered mode on resume.
-> + */
-> +static int mpu3050_resume(struct i2c_client *client)
-> +{
-> +	mpu3050_set_power_mode(client, 1);
-> +	msleep(100);  /* wait for gyro chip resume */
-> +	return 0;
-> +}
-> +#else
-> +#define mpu3050_suspend NULL
-> +#define mpu3050_resume NULL
-> +#endif
-> +
-> +#ifdef CONFIG_PM_RUNTIME
-> +static int mpu3050_runtime_suspend(struct device *dev)
-> +{
-> +	struct mpu3050_sensor *sensor = dev_get_drvdata(dev);
-> +	mpu3050_set_power_mode(sensor->client, 0);
-> +	return 0;
-> +}
-> +
-> +static int mpu3050_runtime_resume(struct device *dev)
-> +{
-> +	struct mpu3050_sensor *sensor = dev_get_drvdata(dev);
-> +	mpu3050_set_power_mode(sensor->client, 1);
-> +	msleep(100);  /* wait for gyro chip resume */
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops mpu3050_pm = {
-> +	.runtime_suspend = mpu3050_runtime_suspend,
-> +	.runtime_resume  = mpu3050_runtime_resume,
-> +};
-> +#endif
-> +
-> +static const struct i2c_device_id mpu3050_ids[] = {
-> +	{ "mpu3050", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, mpu3050_ids);
-> +
-> +static struct i2c_driver mpu3050_i2c_driver = {
-> +	.driver	= {
-> +		.name	= "mpu3050",
-> +#ifdef CONFIG_PM_RUNTIME
-> +		.pm		= &mpu3050_pm,
-> +#endif
-> +	},
-> +	.probe		= mpu3050_probe,
-> +	.remove		= __devexit_p(mpu3050_remove),
-> +	.suspend	= mpu3050_suspend,
-> +	.resume		= mpu3050_resume,
-> +	.id_table	= mpu3050_ids,
-> +};
-> +
-> +static int __init mpu3050_init(void)
-> +{
-> +	return i2c_add_driver(&mpu3050_i2c_driver);
-> +}
-> +module_init(mpu3050_init);
-> +
-> +static void __exit mpu3050_exit(void)
-> +{
-> +	i2c_del_driver(&mpu3050_i2c_driver);
-> +}
-> +module_exit(mpu3050_exit);
-> +
-> +MODULE_AUTHOR("Wistron Corp.");
-> +MODULE_DESCRIPTION("MPU3050 Tri-axis gyroscope driver");
-> +MODULE_LICENSE("GPL");
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Product information (data sheet, application notes) can be found here:
+http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=MPR121
+
+Signed-off-by: Zhang Jiejing <jiejing.zhang@freescale.com>
+---
+Changes since v3:
+1. spell fixs.
+Changes since v2:
+1. remove a endif in Kconfig
+2. comments style align
+Changes since v1:
+1. change files name from mpr121.c to mpr121_touchkey.c
+2. lots of typo fix, thanks to Christoph Fritz
+3. correct data declear function.
+4. fix report MSC_SCAN to report key_num
+5. remove print
+6. use matrix_keypad_data in platform_data
+7. move register define into .c file rather than header file.
+---
+ drivers/input/keyboard/Kconfig           |   12 +
+ drivers/input/keyboard/Makefile          |    1 +
+ drivers/input/keyboard/mpr121_touchkey.c |  330 ++++++++++++++++++++++++++++++
+ include/linux/i2c/mpr.h                  |   19 ++
+ 4 files changed, 362 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/keyboard/mpr121_touchkey.c
+ create mode 100644 include/linux/i2c/mpr.h
+
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index c7a9202..af43f95 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -315,6 +315,18 @@ config KEYBOARD_MCS
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called mcs_touchkey.
+ 
++config KEYBOARD_MPR121
++	tristate "Freescale MPR121 Touchkey"
++	depends on I2C
++	help
++	  Say Y here if you have Freescale MPR121 touchkey controller
++	  chip in your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called mpr121_touchkey.
++
+ config KEYBOARD_IMX
+ 	tristate "IMX keypad support"
+ 	depends on ARCH_MXC
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 468c627..37fa96b 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
+ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+ obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
+ obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
++obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+ obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
+ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+new file mode 100644
+index 0000000..f3fc0f4
+--- /dev/null
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -0,0 +1,330 @@
++/*
++ * Touchkey driver for Freescale MPR121 Controllor
++ *
++ * Copyright (C) 2011 Freescale Semiconductor, Inc.
++ * Author: Zhang Jiejing <jiejing.zhang@freescale.com>
++ *
++ * Based on mcs_touchkey.c
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/i2c/mpr.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/input/matrix_keypad.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/bitops.h>
++
++/* Register definitions */
++#define ELE_TOUCH_STATUS_0_ADDR	0x0
++#define ELE_TOUCH_STATUS_1_ADDR	0X1
++#define MHD_RISING_ADDR		0x2b
++#define NHD_RISING_ADDR		0x2c
++#define NCL_RISING_ADDR		0x2d
++#define FDL_RISING_ADDR		0x2e
++#define MHD_FALLING_ADDR	0x2f
++#define NHD_FALLING_ADDR	0x30
++#define NCL_FALLING_ADDR	0x31
++#define FDL_FALLING_ADDR	0x32
++#define ELE0_TOUCH_THRESHOLD_ADDR	0x41
++#define ELE0_RELEASE_THRESHOLD_ADDR	0x42
++#define AFE_CONF_ADDR			0x5c
++#define FILTER_CONF_ADDR		0x5d
++
++/* ELECTRODE_CONF_ADDR: This register mainly configures the number of
++ * enabled capacitance sensing inputs and its run/suspend mode. */
++#define ELECTRODE_CONF_ADDR		0x5e
++#define AUTO_CONFIG_CTRL_ADDR		0x7b
++#define AUTO_CONFIG_USL_ADDR		0x7d
++#define AUTO_CONFIG_LSL_ADDR		0x7e
++#define AUTO_CONFIG_TL_ADDR		0x7f
++
++/* Threshold of touch/release trigger */
++#define TOUCH_THRESHOLD			0x0f
++#define RELEASE_THRESHOLD		0x0a
++/* Masks for touch and release triggers */
++#define TOUCH_STATUS_MASK		0xfff
++/* MPR121 have 12 keys */
++#define MPR121_MAX_KEY_COUNT		12
++
++struct mpr121_touchkey {
++	struct i2c_client	*client;
++	struct input_dev	*input_dev;
++	unsigned int		key_val;
++	int			statusbits;
++	int			keycount;
++	u16			keycodes[MPR121_MAX_KEY_COUNT];
++};
++
++struct mpr121_init_register {
++	int addr;
++	u8 val;
++};
++
++static const
++struct mpr121_init_register init_reg_table[] __devinitconst = {
++	{MHD_RISING_ADDR,	0x1},
++	{NHD_RISING_ADDR,	0x1},
++	{MHD_FALLING_ADDR,	0x1},
++	{NHD_FALLING_ADDR,	0x1},
++	{NCL_FALLING_ADDR,	0xff},
++	{FDL_FALLING_ADDR,	0x02},
++	{FILTER_CONF_ADDR,	0x04},
++	{AFE_CONF_ADDR,		0x0b},
++	{AUTO_CONFIG_CTRL_ADDR, 0x0b},
++};
++
++static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
++{
++	struct mpr121_touchkey *mpr121 = dev_id;
++	struct i2c_client *client = mpr121->client;
++	struct input_dev *input = mpr121->input_dev;
++	unsigned int key_num, pressed;
++	int reg;
++
++	reg = i2c_smbus_read_byte_data(client, ELE_TOUCH_STATUS_1_ADDR);
++	if (reg < 0) {
++		dev_err(&client->dev, "i2c read error [%d]\n", reg);
++		goto out;
++	}
++
++	reg <<= 8;
++	reg |= i2c_smbus_read_byte_data(client, ELE_TOUCH_STATUS_0_ADDR);
++	if (reg < 0) {
++		dev_err(&client->dev, "i2c read error [%d]\n", reg);
++		goto out;
++	}
++
++	reg &= TOUCH_STATUS_MASK;
++	/* use old press bit to figure out which bit changed */
++	key_num = ffs(reg ^ mpr121->statusbits) - 1;
++	pressed = reg & (1 << (key_num));
++	mpr121->statusbits = reg;
++	mpr121->key_val = mpr121->keycodes[key_num];
++
++	input_event(input, EV_MSC, MSC_SCAN, key_num);
++	input_report_key(input, mpr121->key_val, pressed);
++	input_sync(input);
++
++	dev_dbg(&client->dev, "key %d %d %s\n", key_num, mpr121->key_val,
++		pressed ? "pressed" : "released");
++
++out:
++	return IRQ_HANDLED;
++}
++
++static int __devinit mpr121_phys_init(const struct mpr121_platform_data *pdata,
++				      struct mpr121_touchkey *mpr121,
++				      struct i2c_client *client)
++{
++	const struct mpr121_init_register *reg;
++	unsigned char usl, lsl, tl;
++	int i, t, vdd, ret;
++
++	/* setup touch/release threshold for ele0-ele11 */
++	for (i = 0; i <= MPR121_MAX_KEY_COUNT; i++) {
++		t = ELE0_TOUCH_THRESHOLD_ADDR + (i * 2);
++		ret = i2c_smbus_write_byte_data(client, t, TOUCH_THRESHOLD);
++		if (ret < 0)
++			goto err_i2c_write;
++		ret = i2c_smbus_write_byte_data(client, t + 1,
++						RELEASE_THRESHOLD);
++		if (ret < 0)
++			goto err_i2c_write;
++	}
++	/* setup init register */
++	for (i = 0; i < ARRAY_SIZE(init_reg_table); i++) {
++		reg = &init_reg_table[i];
++		ret = i2c_smbus_write_byte_data(client, reg->addr, reg->val);
++		if (ret < 0)
++			goto err_i2c_write;
++	}
++
++
++	/* Capacitance on sensing input varies and needs to be
++	 * compensated. The internal MPR121-auto-configuration can do
++	 * this if it's registers are set properly (based on
++	 * pdata->vdd_uv). */
++	vdd = pdata->vdd_uv / 1000;
++	usl = ((vdd - 700) * 256) / vdd;
++	lsl = (usl * 65) / 100;
++	tl = (usl * 90) / 100;
++	ret = i2c_smbus_write_byte_data(client, AUTO_CONFIG_USL_ADDR, usl);
++	ret |= i2c_smbus_write_byte_data(client, AUTO_CONFIG_LSL_ADDR, lsl);
++	ret |= i2c_smbus_write_byte_data(client, AUTO_CONFIG_TL_ADDR, tl);
++	ret |= i2c_smbus_write_byte_data(client, ELECTRODE_CONF_ADDR,
++					 mpr121->keycount);
++	if (ret != 0)
++		goto err_i2c_write;
++
++	dev_dbg(&client->dev, "mpr121: setup with %x keys.\n",
++		mpr121->keycount);
++
++	return 0;
++
++err_i2c_write:
++	dev_err(&client->dev, "i2c write error: %d\n", ret);
++	return ret;
++}
++
++static int __devinit mpr_touchkey_probe(struct i2c_client *client,
++					const struct i2c_device_id *id)
++{
++	const struct mpr121_platform_data *pdata = client->dev.platform_data;
++	struct mpr121_touchkey *mpr121;
++	struct input_dev *input_dev;
++	int error;
++	int i;
++
++	if (!pdata) {
++		dev_err(&client->dev, "no platform data defined\n");
++		return -EINVAL;
++	}
++
++	if (!client->irq) {
++		dev_err(&client->dev, "The irq number should not be zero\n");
++		return -EINVAL;
++	}
++
++	mpr121 = kzalloc(sizeof(struct mpr121_touchkey), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!mpr121 || !input_dev) {
++		dev_err(&client->dev, "Failed to allocate memory\n");
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	mpr121->client = client;
++	mpr121->input_dev = input_dev;
++	mpr121->keycount = pdata->matrix->keymap_size;
++
++	if (mpr121->keycount > MPR121_MAX_KEY_COUNT) {
++		dev_err(&client->dev, "too many keys defined\n");
++		error = -EINVAL;
++		goto err_free_mem;
++	}
++
++	error = mpr121_phys_init(pdata, mpr121, client);
++	if (error) {
++		dev_err(&client->dev, "Failed to init register\n");
++		goto err_free_mem;
++	}
++
++	input_dev->name = "Freescale MPR121 Touchkey";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = &client->dev;
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
++	input_dev->keycodesize = sizeof(mpr121->keycodes[0]);
++	input_dev->keycodemax = mpr121->keycount;
++
++	for (i = 0; i < input_dev->keycodemax; i++) {
++		input_set_capability(input_dev, EV_KEY,
++				     KEY_VAL(pdata->matrix->keymap[i]));
++		mpr121->keycodes[i] = KEY_VAL(pdata->matrix->keymap[i]);
++	}
++
++	error = request_threaded_irq(client->irq, NULL,
++				     mpr_touchkey_interrupt,
++				     IRQF_TRIGGER_FALLING,
++				     client->dev.driver->name, mpr121);
++	if (error) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		goto err_free_mem;
++	}
++
++	error = input_register_device(input_dev);
++	if (error)
++		goto err_free_irq;
++	i2c_set_clientdata(client, mpr121);
++	device_init_wakeup(&client->dev, pdata->wakeup);
++	return 0;
++
++err_free_irq:
++	free_irq(client->irq, mpr121);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(mpr121);
++	return error;
++}
++
++static int __devexit mpr_touchkey_remove(struct i2c_client *client)
++{
++	struct mpr121_touchkey *mpr121 = i2c_get_clientdata(client);
++
++	free_irq(client->irq, mpr121);
++	input_unregister_device(mpr121->input_dev);
++	kfree(mpr121);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int mpr_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (device_may_wakeup(&client->dev))
++		enable_irq_wake(client->irq);
++
++	i2c_smbus_write_byte_data(client, ELECTRODE_CONF_ADDR, 0x00);
++
++	return 0;
++}
++
++static int mpr_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct mpr121_touchkey *mpr121 = i2c_get_clientdata(client);
++
++	if (device_may_wakeup(&client->dev))
++		disable_irq_wake(client->irq);
++
++	i2c_smbus_write_byte_data(client, ELECTRODE_CONF_ADDR,
++				  mpr121->keycount);
++
++	return 0;
++}
++#endif
++
++static const struct i2c_device_id mpr121_id[] = {
++	{"mpr121_touchkey", 0},
++	{}
++};
++
++static SIMPLE_DEV_PM_OPS(mpr121_touchkey_pm_ops, mpr_suspend, mpr_resume);
++
++static struct i2c_driver mpr_touchkey_driver = {
++	.driver = {
++		.name	= "mpr121",
++		.owner	= THIS_MODULE,
++		.pm	= &mpr121_touchkey_pm_ops,
++	},
++	.id_table	= mpr121_id,
++	.probe		= mpr_touchkey_probe,
++	.remove		= __devexit_p(mpr_touchkey_remove),
++};
++
++static int __init mpr_touchkey_init(void)
++{
++	return i2c_add_driver(&mpr_touchkey_driver);
++}
++
++static void __exit mpr_touchkey_exit(void)
++{
++	i2c_del_driver(&mpr_touchkey_driver);
++}
++
++module_init(mpr_touchkey_init);
++module_exit(mpr_touchkey_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Zhang Jiejing <jiejing.zhang@freescale.com>");
++MODULE_DESCRIPTION("Touch Key driver for Freescale MPR121 Chip");
+diff --git a/include/linux/i2c/mpr.h b/include/linux/i2c/mpr.h
+new file mode 100644
+index 0000000..f5e8e71
+--- /dev/null
++++ b/include/linux/i2c/mpr.h
+@@ -0,0 +1,19 @@
++/* Header file for Freescale MPR121 Capacitive Touch Sensor */
++
++#ifndef MPR_H
++#define MPR_H
++
++struct matrix_keymap_data;
++
++/**
++ * @matrix: pointer to &matrix_keymap_data.
++ * @wakeup: configure the button as a wake-up source
++ * @vdd_uv: VDD voltage in uV
++ */
++struct mpr121_platform_data {
++	const struct matrix_keymap_data *matrix;
++	bool wakeup;
++	int vdd_uv;
++};
++
++#endif
+-- 
+1.7.0.4
+
 

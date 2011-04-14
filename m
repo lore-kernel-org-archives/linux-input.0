@@ -1,92 +1,595 @@
-From: "Jiejing.Zhang " <kzjeef@gmail.com>
-Subject: Re: [PATCH] hwmod: sensors: mma845x gravity sensor chips
-Date: Thu, 14 Apr 2011 11:10:12 +0800
-Message-ID: <BANLkTimxuG+H5YGdiNZx58PBQPO18xWy1A@mail.gmail.com>
-References: <1302695813-9606-1-git-send-email-jiejing.zhang@freescale.com>
- <20110413143324.3fae2a75@endymion.delvare> <4DA5A0EE.7040505@cam.ac.uk>
+From: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [PATCH 2/2] input: misc: Add support for isa1200 chip
+Date: Thu, 14 Apr 2011 12:24:15 +0530
+Message-ID: <4DA69A17.8080207@codeaurora.org>
+References: <1302697533-20456-1-git-send-email-mpallaka@codeaurora.org> <1302697533-20456-3-git-send-email-mpallaka@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:58548 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758639Ab1DNDKd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Apr 2011 23:10:33 -0400
-Received: by pzk9 with SMTP id 9so432601pzk.19
-        for <linux-input@vger.kernel.org>; Wed, 13 Apr 2011 20:10:33 -0700 (PDT)
-In-Reply-To: <4DA5A0EE.7040505@cam.ac.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1302697533-20456-3-git-send-email-mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWNrRvHsEVmBkkB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: Jean Delvare <khali@linux-fr.org>, Zhang Jiejing <jiejing.zhang@freescale.com>, linux-input@vger.kernel.org
 
-Hi Jonathan,
+Hi Dmitry,
 
-2011/4/13 Jonathan Cameron <jic23@cam.ac.uk>:
-> On 04/13/11 13:33, Jean Delvare wrote:
->> On Wed, 13 Apr 2011 19:56:53 +0800, Zhang Jiejing wrote:
->>> This patch add basic support for mma8450 mma8451 gravity
->>> sensor chips, and will support mma8452, mma8453 in same
->>> driver file.
->>>
->>> They are i2c controller and support 3-axis gravity accelerator
->>> sensor.
->>>
->>> mma8450 have some different from mma845[1,2,3] in register map, so
->>> there are some switch case between mma8450 and others.
->>>
->>> Product Information can be found here:
->>> http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=3DMM=
-A8450Q
->>> http://www.freescale.com/webapp/sps/site/prod_summary.jsp?code=3DMM=
-A8451Q
->>>
->>> Signed-off-by: Zhang Jiejing <jiejing.zhang@freescale.com>
->>> ---
->>> =A0drivers/hwmon/Kconfig =A0 | =A0 10 +
->>> =A0drivers/hwmon/Makefile =A0| =A0 =A01 +
->>> =A0drivers/hwmon/mma845x.c | =A0568 +++++++++++++++++++++++++++++++=
-++++++++++++++++
->>> =A03 files changed, 579 insertions(+), 0 deletions(-)
->>> =A0create mode 100644 drivers/hwmon/mma845x.c
->>
->> Nack. Accelerometers don't belong to hwmon. Several such drivers wer=
-e
->> kicked out of drivers/hwmon recently, and we won't accept any such
->> driver in the future. Push this to drivers/misc, drivers/input or
->> drivers/staging/iio, whichever your prefer, but not drivers/hwmon.
-> Taking a quick look, you already have a polled input device in here
-> and it makes no use of hwmon interfaces whatsoever so input is the
-> obvious target.
->
-> Couple of quick things I noticed whilst scan reading...
->
-> id table contains only 8451 and 8450, get_mmax845x_name contains
-> 8452 and 8453.
->
-> Use the names in the id table to provide you with the names rather th=
-an
-> an additional function.
->
-> Take a look at how other drivers handle subtly different parts. There
-> are much neater ways of doing it than things like get_ctrl_register.
-Could you give a filename or example driver name ? I can use them as an=
- example.
+I've addressed your comments from previous revision. Please review and let me know if you have comments.
+
+Thanks,
+Mohan.
+
+On 4/13/2011 5:55 PM, Mohan Pallaka wrote:
+> From: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> 
+> isa1200 chip can be used to generate vibrations to indicate
+> silent alerts, providing gaming haptic actions or vibrations
+> in response to touches. It can operate in two modes, pwm
+> generation and pwm input mode. Pwm generation mode requires
+> external clock and pwm input mode needs the pwm signal to be
+> given as input to the chip.
+> 
+> This patch has been derived based on Kyungmin Park's haptic
+> framework patches at http://lkml.org/lkml/2009/10/7/50 . Park's
+> isa1200 driver registers to the haptic class, which is also
+> introduced as part of the same patch series, and userspace will
+> operate the vibrator through exported sysfs entries. This version
+> supports only pwm input mode.
+> 
+> This derived patch converts the driver from haptic framework to
+> the Linux supported force feeback framework. It also supports the
+> chip operation in both pwm input and generation modes.
+> 
+> Change-Id: If253c71e833e629431a35864e33824d8d6dadb35
+> Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+> ---
+>  drivers/input/misc/Kconfig    |   12 +
+>  drivers/input/misc/Makefile   |    1 +
+>  drivers/input/misc/isa1200.c  |  442 +++++++++++++++++++++++++++++++++++++++++
+>  include/linux/input/isa1200.h |   46 +++++
+>  4 files changed, 501 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/misc/isa1200.c
+>  create mode 100644 include/linux/input/isa1200.h
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index f9cf088..9fd762d 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -302,6 +302,18 @@ config HP_SDC_RTC
+>  	  Say Y here if you want to support the built-in real time clock
+>  	  of the HP SDC controller.
+>  
+> +config INPUT_ISA1200
+> +	tristate "ISA1200 haptic support"
+> +	depends on I2C
+> +	select INPUT_FF_MEMLESS
+> +	help
+> +	  ISA1200 is a high performance enhanced haptic chip.
+> +	  Say Y here if you want to support ISA1200 connected via I2C,
+> +	  and select N if you are unsure.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called isa1200.
+> +
+>  config INPUT_PCF50633_PMU
+>  	tristate "PCF50633 PMU events"
+>  	depends on MFD_PCF50633
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index e3f7984..47f74f7 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -23,6 +23,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+>  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
+>  obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+>  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+> +obj-$(CONFIG_INPUT_ISA1200)		+= isa1200.o
+>  obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
+>  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+>  obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
+> diff --git a/drivers/input/misc/isa1200.c b/drivers/input/misc/isa1200.c
+> new file mode 100644
+> index 0000000..0f5448a
+> --- /dev/null
+> +++ b/drivers/input/misc/isa1200.c
+> @@ -0,0 +1,442 @@
+> +/*
+> + *  Copyright (C) 2009 Samsung Electronics
+> + *  Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> + *
+> + *  Copyright (c) 2011, Code Aurora Forum. All rights reserved.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#define pr_fmt(fmt) "%s: " fmt, __func__
+> +
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/i2c.h>
+> +#include <linux/gpio.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/delay.h>
+> +#include <linux/pwm.h>
+> +#include <linux/input.h>
+> +#include <linux/slab.h>
+> +#include <linux/pm.h>
+> +#include <linux/input/isa1200.h>
+> +
+> +#define ISA1200_HCTRL0			0x30
+> +#define HCTRL0_MODE_CTRL_BIT		(3)
+> +#define HCTRL0_OVERDRIVE_HIGH_BIT	(5)
+> +#define HCTRL0_OVERDRIVE_EN_BIT		(6)
+> +#define HCTRL0_HAP_EN			(7)
+> +#define HCTRL0_RESET			0x01
+> +#define HCTRL1_RESET			0x4B
+> +
+> +#define ISA1200_HCTRL1			0x31
+> +#define HCTRL1_SMART_ENABLE_BIT		(3)
+> +#define HCTRL1_ERM_BIT			(5)
+> +#define HCTRL1_EXT_CLK_ENABLE_BIT	(7)
+> +
+> +#define ISA1200_HCTRL5			0x35
+> +#define HCTRL5_VIB_STRT			0xD5
+> +#define HCTRL5_VIB_STOP			0x6B
+> +
+> +#define DIVIDER_128			(128)
+> +#define DIVIDER_1024			(1024)
+> +#define DIVIDE_SHIFTER_128		(7)
+> +
+> +#define FREQ_22400			(22400)
+> +#define FREQ_172600			(172600)
+> +
+> +#define POR_DELAY_USEC			(250)
+> +
+> +struct isa1200_chip {
+> +	const struct isa1200_platform_data *pdata;
+> +	struct i2c_client *client;
+> +	struct input_dev *input_device;
+> +	struct pwm_device *pwm;
+> +	unsigned int period_ns;
+> +	unsigned int state;
+> +	struct work_struct work;
+> +};
+> +
+> +static void isa1200_vib_set(struct isa1200_chip *haptic, bool enable)
+> +{
+> +	int rc;
+> +
+> +	if (enable) {
+> +		if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE) {
+> +			rc = pwm_config(haptic->pwm,
+> +				(haptic->period_ns * haptic->pdata->duty) / 100,
+> +				haptic->period_ns);
+> +			if (rc < 0)
+> +				pr_err("pwm_config fail\n");
+> +			rc = pwm_enable(haptic->pwm);
+> +			if (rc < 0)
+> +				pr_err("pwm_enable fail\n");
+> +		} else if (haptic->pdata->mode_ctrl == PWM_GEN_MODE) {
+> +			rc = i2c_smbus_write_byte_data(haptic->client,
+> +						ISA1200_HCTRL5,
+> +						HCTRL5_VIB_STRT);
+> +			if (rc < 0)
+> +				pr_err("start vibration fail\n");
+> +		}
+> +	} else {
+> +		if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE)
+> +			pwm_disable(haptic->pwm);
+> +		else if (haptic->pdata->mode_ctrl == PWM_GEN_MODE) {
+> +			rc = i2c_smbus_write_byte_data(haptic->client,
+> +						ISA1200_HCTRL5,
+> +						HCTRL5_VIB_STOP);
+> +			if (rc < 0)
+> +				pr_err("stop vibration fail\n");
+> +		}
+> +	}
+> +}
+> +
+> +static int isa1200_setup(struct i2c_client *client)
+> +{
+> +	struct isa1200_chip *haptic = i2c_get_clientdata(client);
+> +	int value, temp, rc;
+> +
+> +	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio)
+> +		gpio_set_value_cansleep(haptic->pdata->hap_len_gpio, 1);
+> +
+> +	gpio_set_value_cansleep(haptic->pdata->hap_en_gpio, 0);
+> +	udelay(POR_DELAY_USEC);
+> +	gpio_set_value_cansleep(haptic->pdata->hap_en_gpio, 1);
+> +
+> +	value =	(haptic->pdata->smart_en << HCTRL1_SMART_ENABLE_BIT) |
+> +		(haptic->pdata->is_erm << HCTRL1_ERM_BIT) |
+> +		(haptic->pdata->ext_clk_en << HCTRL1_EXT_CLK_ENABLE_BIT);
+> +
+> +	rc = i2c_smbus_write_byte_data(client, ISA1200_HCTRL1, value);
+> +	if (rc < 0) {
+> +		pr_err("i2c write failure\n");
+> +		return rc;
+> +	}
+> +
+> +	if (haptic->pdata->mode_ctrl == PWM_GEN_MODE) {
+> +		temp = haptic->pdata->pwm_fd.pwm_div;
+> +		if (temp < DIVIDER_128 || temp > DIVIDER_1024 ||
+> +					temp % DIVIDER_128) {
+> +			pr_err("Invalid divisor\n");
+> +			rc = -EINVAL;
+> +			goto reset_hctrl1;
+> +		}
+> +		value = ((temp >> DIVIDE_SHIFTER_128) - 1);
+> +	} else if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE) {
+> +		temp = haptic->pdata->pwm_fd.pwm_freq;
+> +		if (temp < FREQ_22400 || temp > FREQ_172600 ||
+> +					temp % FREQ_22400) {
+> +			pr_err("Invalid frequency\n");
+> +			rc = -EINVAL;
+> +			goto reset_hctrl1;
+> +		}
+> +		value = ((temp / FREQ_22400) - 1);
+> +		haptic->period_ns = NSEC_PER_SEC / temp;
+> +	}
+> +	value |= (haptic->pdata->mode_ctrl << HCTRL0_MODE_CTRL_BIT) |
+> +		(haptic->pdata->overdrive_high << HCTRL0_OVERDRIVE_HIGH_BIT) |
+> +		(haptic->pdata->overdrive_en << HCTRL0_OVERDRIVE_EN_BIT) |
+> +		(haptic->pdata->chip_en << HCTRL0_HAP_EN);
+> +
+> +	rc = i2c_smbus_write_byte_data(client, ISA1200_HCTRL0, value);
+> +	if (rc < 0) {
+> +		pr_err("i2c write failure\n");
+> +		goto reset_hctrl1;
+> +	}
+> +
+> +	return 0;
+> +
+> +reset_hctrl1:
+> +	i2c_smbus_write_byte_data(client, ISA1200_HCTRL1,
+> +				HCTRL1_RESET);
+> +	return rc;
+> +}
+> +
+> +static void isa1200_worker(struct work_struct *work)
+> +{
+> +	struct isa1200_chip *haptic;
+> +
+> +	haptic = container_of(work, struct isa1200_chip, work);
+> +	isa1200_vib_set(haptic, !!haptic->state);
+> +}
+> +
+> +static int isa1200_play_effect(struct input_dev *dev, void *data,
+> +				struct ff_effect *effect)
+> +{
+> +	struct isa1200_chip *haptic = input_get_drvdata(dev);
+> +
+> +	/* support basic vibration */
+> +	haptic->state = effect->u.rumble.strong_magnitude >> 8;
+> +	if (!haptic->state)
+> +		haptic->state = effect->u.rumble.weak_magnitude >> 9;
+> +
+> +	schedule_work(&haptic->work);
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int isa1200_suspend(struct device *dev)
+> +{
+> +	struct isa1200_chip *haptic = dev_get_drvdata(dev);
+> +	int rc;
+> +
+> +	cancel_work_sync(&haptic->work);
+> +	/* turn-off current vibration */
+> +	isa1200_vib_set(haptic, false);
+> +
+> +	if (haptic->pdata->power_on) {
+> +		rc = haptic->pdata->power_on(false);
+> +		if (rc) {
+> +			pr_err("power-down failed\n");
+> +			return rc;
+> +		}
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int isa1200_resume(struct device *dev)
+> +{
+> +	struct isa1200_chip *haptic = dev_get_drvdata(dev);
+> +	int rc;
+> +
+> +	if (haptic->pdata->power_on) {
+> +		rc = haptic->pdata->power_on(true);
+> +		if (rc) {
+> +			pr_err("power-up failed\n");
+> +			return rc;
+> +		}
+> +	}
+> +
+> +	isa1200_setup(haptic->client);
+> +	return 0;
+> +}
+> +#else
+> +#define isa1200_suspend		NULL
+> +#define isa1200_resume		NULL
+> +#endif
+> +
+> +static int __devinit isa1200_probe(struct i2c_client *client,
+> +			const struct i2c_device_id *id)
+> +{
+> +	struct isa1200_chip *haptic;
+> +	int rc;
+> +
+> +	if (!i2c_check_functionality(client->adapter,
+> +			I2C_FUNC_SMBUS_BYTE_DATA)) {
+> +		pr_err("i2c is not supported\n");
+> +		return -EIO;
+> +	}
+> +
+> +	if (!client->dev.platform_data) {
+> +		pr_err("pdata is not avaiable\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	haptic = kzalloc(sizeof(struct isa1200_chip), GFP_KERNEL);
+> +	if (!haptic) {
+> +		pr_err("no memory\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	haptic->pdata = client->dev.platform_data;
+> +	haptic->client = client;
+> +
+> +	i2c_set_clientdata(client, haptic);
+> +
+> +	/* device setup */
+> +	if (haptic->pdata->dev_setup) {
+> +		rc = haptic->pdata->dev_setup(true);
+> +		if (rc < 0) {
+> +			pr_err("setup failed!\n");
+> +			goto err_mem_alloc;
+> +		}
+> +	}
+> +
+> +	/* power on */
+> +	if (haptic->pdata->power_on) {
+> +		rc = haptic->pdata->power_on(true);
+> +		if (rc < 0) {
+> +			pr_err("power failed\n");
+> +			goto err_setup;
+> +		}
+> +	}
+> +
+> +	/* request gpio */
+> +	rc = gpio_is_valid(haptic->pdata->hap_en_gpio);
+> +	if (rc) {
+> +		rc = gpio_request(haptic->pdata->hap_en_gpio, "haptic_gpio");
+> +		if (rc) {
+> +			pr_err("gpio %d request failed\n",
+> +					haptic->pdata->hap_en_gpio);
+> +			goto err_power_on;
+> +		}
+> +	} else {
+> +		pr_err("Invalid gpio %d\n",
+> +					haptic->pdata->hap_en_gpio);
+> +		goto err_power_on;
+> +	}
+> +
+> +	rc = gpio_direction_output(haptic->pdata->hap_en_gpio, 0);
+> +	if (rc) {
+> +		pr_err("gpio %d set direction failed\n",
+> +					haptic->pdata->hap_en_gpio);
+> +		goto err_hap_en_gpio_free;
+> +	}
+> +
+> +	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio) {
+> +		rc = gpio_request(haptic->pdata->hap_len_gpio,
+> +					"haptic_len_gpio");
+> +		if (rc) {
+> +			pr_err("gpio %d request failed\n",
+> +					haptic->pdata->hap_len_gpio);
+> +			goto err_hap_en_gpio_free;
+> +		}
+> +	}
+> +
+> +	/* setup registers */
+> +	rc = isa1200_setup(haptic->client);
+> +	if (rc < 0) {
+> +		pr_err("setup fail %d\n", rc);
+> +		goto err_ldo_en_gpio_free;
+> +	}
+> +
+> +	if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE) {
+> +		haptic->pwm = pwm_request(haptic->pdata->pwm_ch_id,
+> +				haptic->client->driver->id_table->name);
+> +		if (IS_ERR(haptic->pwm)) {
+> +			pr_err("pwm request failed\n");
+> +			rc = PTR_ERR(haptic->pwm);
+> +			goto err_reset_hctrl0;
+> +		}
+> +	}
+> +
+> +	/* init workqeueue */
+> +	INIT_WORK(&haptic->work, isa1200_worker);
+> +
+> +	haptic->input_device = input_allocate_device();
+> +	if (!haptic->input_device) {
+> +		pr_err("input device alloc failed\n");
+> +		rc = -ENOMEM;
+> +		goto err_pwm_free ;
+> +	}
+> +
+> +	input_set_drvdata(haptic->input_device, haptic);
+> +	haptic->input_device->name = haptic->pdata->name ? :
+> +					"isa1200-haptic-device";
+> +
+> +	haptic->input_device->dev.parent = &client->dev;
+> +	haptic->input_device->id.bustype = BUS_I2C;
+> +
+> +	input_set_capability(haptic->input_device, EV_FF, FF_RUMBLE);
+> +
+> +	rc = input_ff_create_memless(haptic->input_device, NULL,
+> +					isa1200_play_effect);
+> +	if (rc < 0) {
+> +		pr_err("unable to register with ff\n");
+> +		goto err_free_dev;
+> +	}
+> +
+> +	rc = input_register_device(haptic->input_device);
+> +	if (rc < 0) {
+> +		pr_err("unable to register input device\n");
+> +		goto err_ff_destroy;
+> +	}
+> +	return 0;
+> +
+> +err_ff_destroy:
+> +	input_ff_destroy(haptic->input_device);
+> +err_free_dev:
+> +	input_free_device(haptic->input_device);
+> +err_pwm_free:
+> +	if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE)
+> +		pwm_free(haptic->pwm);
+> +err_reset_hctrl0:
+> +	i2c_smbus_write_byte_data(haptic->client, ISA1200_HCTRL0,
+> +					HCTRL0_RESET);
+> +err_ldo_en_gpio_free:
+> +	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio)
+> +		gpio_free(haptic->pdata->hap_len_gpio);
+> +err_hap_en_gpio_free:
+> +	gpio_free(haptic->pdata->hap_en_gpio);
+> +err_power_on:
+> +	if (haptic->pdata->power_on)
+> +		haptic->pdata->power_on(false);
+> +err_setup:
+> +	if (haptic->pdata->dev_setup)
+> +		haptic->pdata->dev_setup(false);
+> +err_mem_alloc:
+> +	kfree(haptic);
+> +	return rc;
+> +}
+> +
+> +static int __devexit isa1200_remove(struct i2c_client *client)
+> +{
+> +	struct isa1200_chip *haptic = i2c_get_clientdata(client);
+> +
+> +	cancel_work_sync(&haptic->work);
+> +	/* turn-off current vibration */
+> +	isa1200_vib_set(haptic, false);
+> +
+> +	if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE)
+> +		pwm_free(haptic->pwm);
+> +
+> +	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio)
+> +		gpio_free(haptic->pdata->hap_len_gpio);
+> +	gpio_free(haptic->pdata->hap_en_gpio);
+> +
+> +	/* reset hardware registers */
+> +	i2c_smbus_write_byte_data(haptic->client, ISA1200_HCTRL0,
+> +				HCTRL0_RESET);
+> +	i2c_smbus_write_byte_data(haptic->client, ISA1200_HCTRL1,
+> +				HCTRL1_RESET);
+> +
+> +	if (haptic->pdata->dev_setup)
+> +		haptic->pdata->dev_setup(false);
+> +
+> +	/* power-off the chip */
+> +	if (haptic->pdata->power_on)
+> +		haptic->pdata->power_on(false);
+> +
+> +	input_unregister_device(haptic->input_device);
+> +	kfree(haptic);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct i2c_device_id isa1200_id_table[] = {
+> +	{"isa1200", 0},
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(i2c, isa1200_id_table);
+> +
+> +static SIMPLE_DEV_PM_OPS(isa1200_pm_ops, isa1200_suspend, isa1200_resume);
+> +
+> +static struct i2c_driver isa1200_driver = {
+> +	.driver = {
+> +		.name = "isa1200",
+> +		.owner = THIS_MODULE,
+> +		.pm = &isa1200_pm_ops,
+> +	},
+> +	.probe = isa1200_probe,
+> +	.remove = __devexit_p(isa1200_remove),
+> +	.id_table = isa1200_id_table,
+> +};
+> +
+> +static int __init isa1200_init(void)
+> +{
+> +	return i2c_add_driver(&isa1200_driver);
+> +}
+> +module_init(isa1200_init);
+> +
+> +static void __exit isa1200_exit(void)
+> +{
+> +	i2c_del_driver(&isa1200_driver);
+> +}
+> +module_exit(isa1200_exit);
+> +
+> +MODULE_DESCRIPTION("isa1200 based vibrator chip driver");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>");
+> +MODULE_AUTHOR("Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>");
+> diff --git a/include/linux/input/isa1200.h b/include/linux/input/isa1200.h
+> new file mode 100644
+> index 0000000..a1b43d5
+> --- /dev/null
+> +++ b/include/linux/input/isa1200.h
+> @@ -0,0 +1,46 @@
+> +/*
+> + *  Copyright (C) 2009 Samsung Electronics
+> + *  Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> + *
+> + *  Copyright (c) 2011, Code Aurora Forum. All rights reserved.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#ifndef __LINUX_ISA1200_H
+> +#define __LINUX_ISA1200_H
+> +
+> +enum mode_control {
+> +	POWER_DOWN_MODE = 0,
+> +	PWM_INPUT_MODE,
+> +	PWM_GEN_MODE,
+> +	WAVE_GEN_MODE
+> +};
+> +
+> +union pwm_div_freq {
+> +	unsigned int pwm_div; /* PWM gen mode */
+> +	unsigned int pwm_freq; /* PWM input mode */
+> +};
+> +
+> +struct isa1200_platform_data {
+> +	const char *name;
+> +	unsigned int pwm_ch_id; /* pwm channel id */
+> +	unsigned int max_timeout;
+> +	unsigned int hap_en_gpio;
+> +	unsigned int hap_len_gpio; /* GPIO to enable the internal LDO */
+> +	bool overdrive_high; /* high/low overdrive */
+> +	bool overdrive_en; /* enable/disable overdrive */
+> +	enum mode_control mode_ctrl; /* input/generation/wave */
+> +	union pwm_div_freq pwm_fd;
+> +	bool smart_en; /* smart mode enable/disable */
+> +	bool is_erm;
+> +	bool ext_clk_en;
+> +	unsigned int chip_en;
+> +	unsigned int duty;
+> +	int (*power_on)(bool on);
+> +	int (*dev_setup)(bool on);
+> +};
+> +
+> +#endif /* __LINUX_ISA1200_H */
 
 
-since mma845[1-3] have same operation flow, and data byte order, but
-mma8450 is different on both register address and data byte order.
-
-Do you think split mma8450 and mma845x (8451, 8452, 8453) into two
-file is better?
-
-
->
-> Shift it over to input and I'll do a full review.
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

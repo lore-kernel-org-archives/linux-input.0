@@ -1,51 +1,74 @@
-From: Jan Losinski <losinski@wh2.tu-dresden.de>
-Subject: [PATCH 0/1] Input: ati_remote - extend keytable for medion remotes
-Date: Mon, 18 Apr 2011 12:41:08 +0200
-Message-ID: <20110418104108.GA4876@atlantis.wh2.tu-dresden.de.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.39-rc3
+Date: Mon, 18 Apr 2011 10:23:01 -0700
+Message-ID: <20110418172301.GA14259@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: losinski@wh2.tu-dresden.de
-List-Id: linux-input@vger.kernel.org
-
-
---h31gzZEtNLTqOjlF
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:39380 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754758Ab1DRRXL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Apr 2011 13:23:11 -0400
 Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hello,
+Hi Linus,
 
-the following patch will extend the ati_remote input driver to support
-multiple key translation tables. I have a device produced by medion that
-is supported by this driver. Unfortunately the single hardcoded key
-translation table does not enable all the keys and maps some of them to
-completely wrong key events.
+Please pull from:
 
-So I changed the driver to choose another table if the product-id is the
-one this device has. For any other device the old "default" table will
-be used. I also provide a full table with meaningful key events for my
-device.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-I hope you can merge this patch to the mainline version. Please let me
-know if this patch causes any issues.
+to receive updates for the input subsystem. Couple of driver fixes plus
+changes to evdev to signal buffer overruns to userspace and also change
+to input core to estimate number of events in a packet (mostly useful
+for multitouch devices).
 
-Thanks,
-Jan Losinski
+Changelog:
+---------
 
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Axel Lin (1):
+      Input: twl4030_keypad - fix potential NULL dereference in twl4030_kp_probe()
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Chase Douglas (1):
+      Input: document event types and codes and their intended use
 
-iEYEARECAAYFAk2sFUQACgkQ1Hv7AMjH+2E4LQCfd2k0EqzQlYD3FB2PUoJY4n9r
-AbEAn1zT1uiY2GtFQkTZen8DXVU5Mt2Z
-=TjHz
------END PGP SIGNATURE-----
+Christoph Fritz (1):
+      Input: h3600_ts - fix error handling at connect
 
---h31gzZEtNLTqOjlF--
+Igor Mammedov (1):
+      Input: xen-kbdfront - fix mouse getting stuck after save/restore
+
+Jarod Wilson (1):
+      Input: add KEY_IMAGES specifically for AL Image Browser
+
+Jeff Brown (2):
+      Input: evdev - indicate buffer overrun with SYN_DROPPED
+      Input: estimate number of events per packet
+
+Shubhrajyoti D (1):
+      Input: twl4030_keypad - avoid potential NULL-pointer dereference
+
+
+Diffstat:
+--------
+
+ Documentation/input/event-codes.txt        |  262 ++++++++++++++++++++++++++++
+ drivers/input/evdev.c                      |   33 +++--
+ drivers/input/input.c                      |   40 +++++
+ drivers/input/keyboard/twl4030_keypad.c    |    6 +-
+ drivers/input/misc/xen-kbdfront.c          |   13 ++-
+ drivers/input/touchscreen/h3600_ts_input.c |   17 +-
+ include/linux/input.h                      |   10 +-
+ include/linux/input/mt.h                   |    6 +
+ 8 files changed, 361 insertions(+), 26 deletions(-)
+ create mode 100644 Documentation/input/event-codes.txt
+
+-- 
+Dmitry
+

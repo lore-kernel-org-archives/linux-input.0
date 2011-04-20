@@ -1,106 +1,102 @@
-From: riyer@nvidia.com
-Subject: [PATCH v1] Input: tegra-kbc - add ghost key filter.
-Date: Tue, 19 Apr 2011 14:20:31 -0700
-Message-ID: <1303248031-9633-1-git-send-email-riyer@nvidia.com>
+From: TAO HU <tghk48@motorola.com>
+Subject: [HELP] OOM:Page allocation fragment issue
+Date: Wed, 20 Apr 2011 10:59:45 +0800
+Message-ID: <BANLkTinOV=tXcC-XipPzUhs-yODjnOu=8g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate03.nvidia.com ([216.228.121.140]:6428 "EHLO
-	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755530Ab1DSVUc (ORCPT
+Received: from exprod5og113.obsmtp.com ([64.18.0.26]:58764 "EHLO
+	exprod5og113.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752098Ab1DTC7s (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Apr 2011 17:20:32 -0400
+	Tue, 19 Apr 2011 22:59:48 -0400
+Received: from DE01MGRG01.AM.MOT-MOBILITY.COM ([10.22.94.168])
+	by DE01MGRG01.AM.MOT-MOBILITY.COM (8.14.3/8.14.3) with ESMTP id p3K30AI1016970
+	for <linux-input@vger.kernel.org>; Tue, 19 Apr 2011 23:00:10 -0400 (EDT)
+Received: from mail-pv0-f170.google.com (mail-pv0-f170.google.com [74.125.83.170])
+	by DE01MGRG01.AM.MOT-MOBILITY.COM (8.14.3/8.14.3) with ESMTP id p3K2vaDq016108
+	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=OK)
+	for <linux-input@vger.kernel.org>; Tue, 19 Apr 2011 23:00:09 -0400 (EDT)
+Received: by mail-pv0-f170.google.com with SMTP id 16so259788pvg.15
+        for <linux-input@vger.kernel.org>; Tue, 19 Apr 2011 19:59:45 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: olof@lixom.net, amartin@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rakesh Iyer <riyer@nvidia.com>
+To: linux-mm@kvack.org
+Cc: linux-input@vger.kernel.org, Christoph Lameter <cl@linux-foundation.org>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>
 
-From: Rakesh Iyer <riyer@nvidia.com>
+Hi, All
 
-Add ghost key filtering support for the Nvidia Tegra matrix keyboard.
+I got a issue that kmalloc() fails to allocate 32-K page while there
+are still pretty much total memory available (60+MB).
+Any suggestions? Any thing I can tune to reduced the failure cases?
 
-Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
----
-v1: Do not report keypresses when matrix keyboard encounters key ghosting.
+It happens with 2.6.35 kernel
 
- arch/arm/mach-tegra/include/mach/kbc.h |    1 +
- drivers/input/keyboard/tegra-kbc.c     |   40 ++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+), 0 deletions(-)
+<4>[ 6232.631622] getevent invoked oom-killer: gfp_mask=0xd0, order=3, oom_adj=0
+<4>[ 6232.639312] [<c0053230>] (unwind_backtrace+0x0/0xf0) from
+[<c0109a88>] (dump_header.clone.1+0x50/0x84)
+<4>[ 6232.649597] [<c0109a88>] (dump_header.clone.1+0x50/0x84) from
+[<c0109af0>] (oom_kill_process.clone.0+0x34/0xec)
+<4>[ 6232.660705] [<c0109af0>] (oom_kill_process.clone.0+0x34/0xec)
+from [<c0109d04>] (__out_of_memory+0x15c/0x184)
+<4>[ 6232.671630] [<c0109d04>] (__out_of_memory+0x15c/0x184) from
+[<c0109dc0>] (out_of_memory+0x94/0xd4)
+<4>[ 6232.681488] [<c0109dc0>] (out_of_memory+0x94/0xd4) from
+[<c010d474>] (__alloc_pages_nodemask+0x4c4/0x6e8)
+<4>[ 6232.692016] [<c010d474>] (__alloc_pages_nodemask+0x4c4/0x6e8)
+from [<c0131fec>] (cache_grow.clone.0+0xac/0x3e4)
+<4>[ 6232.703125] [<c0131fec>] (cache_grow.clone.0+0xac/0x3e4) from
+[<c013334c>] (__kmalloc+0x3ec/0x6c4)
+<4>[ 6232.712982] [<c013334c>] (__kmalloc+0x3ec/0x6c4) from
+[<c0393f9c>] (evdev_open+0x94/0x1ec)
+<4>[ 6232.722137] [<c0393f9c>] (evdev_open+0x94/0x1ec) from
+[<c0390cac>] (input_open_file+0x184/0x2d8)
+<4>[ 6232.731781] [<c0390cac>] (input_open_file+0x184/0x2d8) from
+[<c013b668>] (chrdev_open+0x20c/0x234)
+<4>[ 6232.741638] [<c013b668>] (chrdev_open+0x20c/0x234) from
+[<c0136b80>] (__dentry_open+0x200/0x324)
+<4>[ 6232.751281] [<c0136b80>] (__dentry_open+0x200/0x324) from
+[<c0136d60>] (nameidata_to_filp+0x3c/0x50)
+<4>[ 6232.761322] [<c0136d60>] (nameidata_to_filp+0x3c/0x50) from
+[<c0142878>] (do_last+0x4c8/0x5ec)
+<4>[ 6232.770782] [<c0142878>] (do_last+0x4c8/0x5ec) from [<c0144450>]
+(do_filp_open+0x184/0x514)
+<4>[ 6232.779937] [<c0144450>] (do_filp_open+0x184/0x514) from
+[<c0136824>] (do_sys_open+0x58/0x18c)
+<4>[ 6232.789428] [<c0136824>] (do_sys_open+0x58/0x18c) from
+[<c004db20>] (ret_fast_syscall+0x0/0x30)
+<4>[ 6232.798980] Mem-info:
+<4>[ 6232.801483] Normal per-cpu:
+<4>[ 6232.804565] CPU    0: hi:  186, btch:  31 usd:  15
+<4>[ 6232.809844] active_anon:34424 inactive_anon:36745 isolated_anon:3
+<4>[ 6232.809875]  active_file:2 inactive_file:0 isolated_file:65
+<4>[ 6232.809875]  unevictable:95 dirty:0 writeback:0 unstable:0
+<4>[ 6232.809906]  free:16133 slab_reclaimable:1274 slab_unreclaimable:3892
+<4>[ 6232.809906]  mapped:8809 shmem:263 pagetables:4657 bounce:0
+<4>[ 6232.841766] Normal free:64532kB min:2884kB low:3604kB
+high:4324kB active_anon:137696kB inactive_anon:146980kB
+active_file:8kB inactive_file:0kB unevictable:380kB
+isolated(anon):12kB isolated(file):260kB present:520192kB mlocked:0kB
+dirty:0kB writeback:0kB mapped:35236kB shmem:1052kB
+slab_reclaimable:5096kB slab_unreclaimable:15568kB kernel_stack:6544kB
+pagetables:18628kB unstable:0kB bounce:0kB writeback_tmp:0kB
+pages_scanned:34 all_unreclaimable? no
+<4>[ 6232.885314] lowmem_reserve[]: 0 0 0
+<4>[ 6232.889190] Normal: 10659*4kB 2735*8kB 1*16kB 0*32kB 0*64kB
+0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 64532kB
+<4>[ 6232.901367] 397 total pagecache pages
+<4>[ 6232.905395] 0 pages in swap cache
+<4>[ 6232.909027] Swap cache stats: add 0, delete 0, find 0/0
+<4>[ 6232.914764] Free swap  = 0kB
+<4>[ 6232.917968] Total swap = 0kB
+<4>[ 6232.945617] 131072 pages of RAM
+<4>[ 6232.949127] 17229 free pages
+<4>[ 6232.952270] 22953 reserved pages
+<4>[ 6232.955810] 5166 slab pages
+<4>[ 6232.958892] 123153 pages shared
+<4>[ 6232.962341] 0 pages swap cached
 
-diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
-index 04c7798..bd99744 100644
---- a/arch/arm/mach-tegra/include/mach/kbc.h
-+++ b/arch/arm/mach-tegra/include/mach/kbc.h
-@@ -58,5 +58,6 @@ struct tegra_kbc_platform_data {
- 
- 	bool wakeup;
- 	bool use_fn_map;
-+	bool use_ghost_filter;
- };
- #endif
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 99ce903..bff8bfe 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -72,6 +72,7 @@ struct tegra_kbc {
- 	unsigned int repoll_dly;
- 	unsigned long cp_dly_jiffies;
- 	bool use_fn_map;
-+	bool use_ghost_filter;
- 	const struct tegra_kbc_platform_data *pdata;
- 	unsigned short keycode[KBC_MAX_KEY * 2];
- 	unsigned short current_keys[KBC_MAX_KPENT];
-@@ -285,6 +286,44 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
- 	}
- 
- 	/*
-+	 * Matrix keyboard designs are prone to keyboard ghosting.
-+	 * Ghosting occurs if there are 3 keys such that -
-+	 * any 2 of the 3 keys share a row, and any 2 of them share a column.
-+	 * If so ignore the keypresses for this iteration.
-+	 */
-+	if ((kbc->use_ghost_filter) && (num_down >= 3)) {
-+		for (i = 0; i < num_down; i++) {
-+			unsigned int j;
-+			u8 curr_col = scancodes[i] & 0x07;
-+			u8 curr_row = scancodes[i] >> KBC_ROW_SHIFT;
-+			bool key_in_same_row = false;
-+			bool key_in_same_col = false;
-+
-+			/*
-+			 * Find 2 keys such that one key is in the same row
-+			 * and the other is in the same column as the i-th key.
-+			 */
-+			for (j = 0; j < num_down; j++) {
-+				u8 col = scancodes[j] & 0x07;
-+				u8 row = scancodes[j] >> KBC_ROW_SHIFT;
-+
-+				/* Skip checking the i-th key. */
-+				if (i == j)
-+					continue;
-+
-+				if (col == curr_col)
-+					key_in_same_col = true;
-+				if (row == curr_row)
-+					key_in_same_row = true;
-+			}
-+			if (key_in_same_col && key_in_same_row) {
-+				spin_unlock_irqrestore(&kbc->lock, flags);
-+				return;
-+			}
-+		}
-+	}
-+
-+	/*
- 	 * If the platform uses Fn keymaps, translate keys on a Fn keypress.
- 	 * Function keycodes are KBC_MAX_KEY apart from the plain keycodes.
- 	 */
-@@ -652,6 +691,7 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 		input_dev->keycodemax *= 2;
- 
- 	kbc->use_fn_map = pdata->use_fn_map;
-+	kbc->use_ghost_filter = pdata->use_ghost_filter;
- 	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
- 	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
- 				   input_dev->keycode, input_dev->keybit);
+
 -- 
-1.7.0.4
-
+Best Regards
+Hu Tao

@@ -1,33 +1,125 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: add support for PenMount dual-touch panel
-Date: Thu, 21 Apr 2011 08:58:49 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1104210857170.12035@pobox.suse.cz>
-References: <1303291155-3148-1-git-send-email-salt@salt.com.tw> <201104201054.36974.dmitry.torokhov@gmail.com> <BANLkTikwjPc9w-HJLitBYG1tdix1U=4ckg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: John Sung <penmount.touch@gmail.com>
+Subject: [PATCH] HID: add support for PenMount dual-touch panel
+Date: Thu, 21 Apr 2011 15:31:07 +0800
+Message-ID: <1303371067-1703-1-git-send-email-penmount.touch@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52917 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750799Ab1DUG6w (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Apr 2011 02:58:52 -0400
-In-Reply-To: <BANLkTikwjPc9w-HJLitBYG1tdix1U=4ckg@mail.gmail.com>
+Received: from mail-px0-f179.google.com ([209.85.212.179]:50719 "EHLO
+	mail-px0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753006Ab1DUHbi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Apr 2011 03:31:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: PenMount salt <penmount.touch@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, PenMount <salt@salt.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>
+Cc: penmount.touch@gmail.com
 
-On Thu, 21 Apr 2011, PenMount salt wrote:
+This patch adds PenMount support to hid-multitouch.
+A new class MT_CLS_CONFIDENCE_SERIAL_MODE is defined for PenMount,
+since it uses HID_DG_CONFIDENCE as the valid flag.
+A new quirk MT_QUIRK_SERIAL_REPORT_MODE is defined,
+since PenMount uses serial reporting mode and there is no
+HID_DG_CONTACTCOUNT usage in it's report descriptor.
 
-> We are sorry, this is the first time we summit patches, and don't know 
-> the rules well yet. Is there a proper way we can correct this?
+Signed-off-by: John Sung <penmount.touch@gmail.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
+ drivers/hid/Kconfig          |    1 +
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    3 +++
+ drivers/hid/hid-multitouch.c |   14 ++++++++++++++
+ 4 files changed, 19 insertions(+), 0 deletions(-)
 
-Please just resubmit the patch with modified From: and Signed-off-by: 
-lines so that they use real names.
-
-See Documentation/SubmittingPatches, namely chapter 12 for details.
-
-Thanks a lot for your work on supporting the new deivce.
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 996ae3a..8058cf1 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -313,6 +313,7 @@ config HID_MULTITOUCH
+ 	  - Cypress TrueTouch panels
+ 	  - Hanvon dual touch panels
+ 	  - IrTouch Infrared USB panels
++	  - PenMount dual touch panels
+ 	  - Pixcir dual touch panels
+ 	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
+           - eGalax dual-touch panels, including the
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c3d6626..6e31b9f 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1438,6 +1438,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_PCI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d485894..a4d0505 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -487,6 +487,9 @@
+ #define USB_VENDOR_ID_PETALYNX		0x18b1
+ #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
+ 
++#define USB_VENDOR_ID_PENMOUNT		0x14e1
++#define USB_DEVICE_ID_PENMOUNT_PCI	0x3500
++
+ #define USB_VENDOR_ID_PHILIPS		0x0471
+ #define USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE 0x0617
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 0175f85..c88d96d 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -50,6 +50,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_VALID_IS_INRANGE	(1 << 4)
+ #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 5)
+ #define MT_QUIRK_EGALAX_XYZ_FIXUP	(1 << 6)
++#define MT_QUIRK_SERIAL_REPORT_MODE	(1 << 7)
+ 
+ struct mt_slot {
+ 	__s32 x, y, p, w, h;
+@@ -89,6 +90,7 @@ struct mt_class {
+ #define MT_CLS_EGALAX				5
+ #define MT_CLS_STANTUM				6
+ #define MT_CLS_3M				7
++#define MT_CLS_CONFIDENCE_SERIAL_MODE		8
+ 
+ #define MT_DEFAULT_MAXCONTACT	10
+ 
+@@ -156,6 +158,9 @@ struct mt_class mt_classes[] = {
+ 		.sn_move = 2048,
+ 		.sn_width = 128,
+ 		.sn_height = 128 },
++	{ .name = MT_CLS_CONFIDENCE_SERIAL_MODE,
++		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE |
++			MT_QUIRK_SERIAL_REPORT_MODE },
+ 
+ 	{ }
+ };
+@@ -196,6 +201,10 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	struct mt_class *cls = td->mtclass;
+ 	__s32 quirks = cls->quirks;
+ 
++	if ((quirks & MT_QUIRK_SERIAL_REPORT_MODE) &&
++		(!td->last_field_index))
++		td->last_field_index = field->report->maxfield - 1;
++
+ 	switch (usage->hid & HID_USAGE_PAGE) {
+ 
+ 	case HID_UP_GENDESK:
+@@ -585,6 +594,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
+ 			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+ 
++	/* PenMount panels */
++	{  .driver_data = MT_CLS_CONFIDENCE_SERIAL_MODE,
++		HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT,
++			USB_DEVICE_ID_PENMOUNT_PCI) },
++
+ 	/* PixCir-based panels */
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.7.4.1
+

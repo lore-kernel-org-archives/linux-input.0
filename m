@@ -1,125 +1,153 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v1] Input: tegra-kbc - add ghost key filter.
-Date: Thu, 21 Apr 2011 15:13:17 +0200
-Message-ID: <20110421131317.GA8661@polaris.bitmath.org>
-References: <1303248031-9633-1-git-send-email-riyer@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] input: sh_keysc: Runtime PM support
+Date: Thu, 21 Apr 2011 22:35:14 +0900
+Message-ID: <20110421133514.8688.44489.sendpatchset@t400s>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:49444 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751299Ab1DUNL0 (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:38524 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751984Ab1DUN2a (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Apr 2011 09:11:26 -0400
-Content-Disposition: inline
-In-Reply-To: <1303248031-9633-1-git-send-email-riyer@nvidia.com>
+	Thu, 21 Apr 2011 09:28:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: riyer@nvidia.com
-Cc: dmitry.torokhov@gmail.com, olof@lixom.net, amartin@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, dmitry.torokhov@gmail.com, rjw@sisk.pl, lethal@linux-sh.org, simon@horms.net, Magnus Damm <magnus.damm@gmail.com>
 
-Hi Rakesh,
+From: Magnus Damm <damm@opensource.se>
 
-> Add ghost key filtering support for the Nvidia Tegra matrix keyboard.
-> 
-> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> ---
-> v1: Do not report keypresses when matrix keyboard encounters key ghosting.
-> 
->  arch/arm/mach-tegra/include/mach/kbc.h |    1 +
->  drivers/input/keyboard/tegra-kbc.c     |   40 ++++++++++++++++++++++++++++++++
->  2 files changed, 41 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
-> index 04c7798..bd99744 100644
-> --- a/arch/arm/mach-tegra/include/mach/kbc.h
-> +++ b/arch/arm/mach-tegra/include/mach/kbc.h
-> @@ -58,5 +58,6 @@ struct tegra_kbc_platform_data {
->  
->  	bool wakeup;
->  	bool use_fn_map;
-> +	bool use_ghost_filter;
->  };
->  #endif
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> index 99ce903..bff8bfe 100644
-> --- a/drivers/input/keyboard/tegra-kbc.c
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -72,6 +72,7 @@ struct tegra_kbc {
->  	unsigned int repoll_dly;
->  	unsigned long cp_dly_jiffies;
->  	bool use_fn_map;
-> +	bool use_ghost_filter;
->  	const struct tegra_kbc_platform_data *pdata;
->  	unsigned short keycode[KBC_MAX_KEY * 2];
->  	unsigned short current_keys[KBC_MAX_KPENT];
-> @@ -285,6 +286,44 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
->  	}
->  
->  	/*
-> +	 * Matrix keyboard designs are prone to keyboard ghosting.
-> +	 * Ghosting occurs if there are 3 keys such that -
-> +	 * any 2 of the 3 keys share a row, and any 2 of them share a column.
-> +	 * If so ignore the keypresses for this iteration.
-> +	 */
-> +	if ((kbc->use_ghost_filter) && (num_down >= 3)) {
-> +		for (i = 0; i < num_down; i++) {
-> +			unsigned int j;
-> +			u8 curr_col = scancodes[i] & 0x07;
-> +			u8 curr_row = scancodes[i] >> KBC_ROW_SHIFT;
-> +			bool key_in_same_row = false;
-> +			bool key_in_same_col = false;
+Convert the KEYSC driver from MSTP bit control through
+a magic clock string to making use of Runtime PM.
 
-How about moving these outside the loop,
+Also, update the system suspend/resume callbacks to drop
+the Runtime PM reference in the case of wakeup disabled.
 
-> +
-> +			/*
-> +			 * Find 2 keys such that one key is in the same row
-> +			 * and the other is in the same column as the i-th key.
-> +			 */
-> +			for (j = 0; j < num_down; j++) {
+Signed-off-by: Magnus Damm <damm@opensource.se>
+---
 
-using j = i + 1 here,
+ drivers/input/keyboard/sh_keysc.c |   40 +++++++++++++------------------------
+ 1 file changed, 15 insertions(+), 25 deletions(-)
 
-> +				u8 col = scancodes[j] & 0x07;
-> +				u8 row = scancodes[j] >> KBC_ROW_SHIFT;
-> +
-> +				/* Skip checking the i-th key. */
-> +				if (i == j)
-> +					continue;
-
-skipping this,
-
-> +
-> +				if (col == curr_col)
-> +					key_in_same_col = true;
-> +				if (row == curr_row)
-> +					key_in_same_row = true;
-> +			}
-> +			if (key_in_same_col && key_in_same_row) {
-> +				spin_unlock_irqrestore(&kbc->lock, flags);
-> +				return;
-> +			}
-
-and placing this test after the irqrestore instead?
-
-> +		}
-> +	}
-> +
-> +	/*
->  	 * If the platform uses Fn keymaps, translate keys on a Fn keypress.
->  	 * Function keycodes are KBC_MAX_KEY apart from the plain keycodes.
->  	 */
-> @@ -652,6 +691,7 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
->  		input_dev->keycodemax *= 2;
->  
->  	kbc->use_fn_map = pdata->use_fn_map;
-> +	kbc->use_ghost_filter = pdata->use_ghost_filter;
->  	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
->  	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
->  				   input_dev->keycode, input_dev->keybit);
-> -- 
-> 1.7.0.4
-
-Thanks,
-Henrik
+--- 0001/drivers/input/keyboard/sh_keysc.c
++++ work/drivers/input/keyboard/sh_keysc.c	2011-04-21 22:26:54.000000000 +0900
+@@ -20,7 +20,7 @@
+ #include <linux/input.h>
+ #include <linux/input/sh_keysc.h>
+ #include <linux/bitmap.h>
+-#include <linux/clk.h>
++#include <linux/pm_runtime.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ 
+@@ -37,7 +37,6 @@ static const struct {
+ 
+ struct sh_keysc_priv {
+ 	void __iomem *iomem_base;
+-	struct clk *clk;
+ 	DECLARE_BITMAP(last_keys, SH_KEYSC_MAXKEYS);
+ 	struct input_dev *input;
+ 	struct sh_keysc_info pdata;
+@@ -169,7 +168,6 @@ static int __devinit sh_keysc_probe(stru
+ 	struct sh_keysc_info *pdata;
+ 	struct resource *res;
+ 	struct input_dev *input;
+-	char clk_name[8];
+ 	int i;
+ 	int irq, error;
+ 
+@@ -210,19 +208,11 @@ static int __devinit sh_keysc_probe(stru
+ 		goto err1;
+ 	}
+ 
+-	snprintf(clk_name, sizeof(clk_name), "keysc%d", pdev->id);
+-	priv->clk = clk_get(&pdev->dev, clk_name);
+-	if (IS_ERR(priv->clk)) {
+-		dev_err(&pdev->dev, "cannot get clock \"%s\"\n", clk_name);
+-		error = PTR_ERR(priv->clk);
+-		goto err2;
+-	}
+-
+ 	priv->input = input_allocate_device();
+ 	if (!priv->input) {
+ 		dev_err(&pdev->dev, "failed to allocate input device\n");
+ 		error = -ENOMEM;
+-		goto err3;
++		goto err2;
+ 	}
+ 
+ 	input = priv->input;
+@@ -244,7 +234,7 @@ static int __devinit sh_keysc_probe(stru
+ 	error = request_irq(irq, sh_keysc_isr, 0, pdev->name, pdev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to request IRQ\n");
+-		goto err4;
++		goto err3;
+ 	}
+ 
+ 	for (i = 0; i < SH_KEYSC_MAXKEYS; i++)
+@@ -254,10 +244,11 @@ static int __devinit sh_keysc_probe(stru
+ 	error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to register input device\n");
+-		goto err5;
++		goto err4;
+ 	}
+ 
+-	clk_enable(priv->clk);
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_get_sync(&pdev->dev);
+ 
+ 	sh_keysc_write(priv, KYCR1, (sh_keysc_mode[pdata->mode].kymd << 8) |
+ 		       pdata->scan_timing);
+@@ -267,12 +258,10 @@ static int __devinit sh_keysc_probe(stru
+ 
+ 	return 0;
+ 
+- err5:
+-	free_irq(irq, pdev);
+  err4:
+-	input_free_device(input);
++	free_irq(irq, pdev);
+  err3:
+-	clk_put(priv->clk);
++	input_free_device(input);
+  err2:
+ 	iounmap(priv->iomem_base);
+  err1:
+@@ -292,8 +281,8 @@ static int __devexit sh_keysc_remove(str
+ 	free_irq(platform_get_irq(pdev, 0), pdev);
+ 	iounmap(priv->iomem_base);
+ 
+-	clk_disable(priv->clk);
+-	clk_put(priv->clk);
++	pm_runtime_put_sync(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
+ 
+ 	platform_set_drvdata(pdev, NULL);
+ 	kfree(priv);
+@@ -311,14 +300,13 @@ static int sh_keysc_suspend(struct devic
+ 	value = sh_keysc_read(priv, KYCR1);
+ 
+ 	if (device_may_wakeup(dev)) {
+-		value |= 0x80;
++		sh_keysc_write(priv, KYCR1, value | 0x80);
+ 		enable_irq_wake(irq);
+ 	} else {
+-		value &= ~0x80;
++		sh_keysc_write(priv, KYCR1, value & ~0x80);
++		pm_runtime_put_sync(dev);
+ 	}
+ 
+-	sh_keysc_write(priv, KYCR1, value);
+-
+ 	return 0;
+ }
+ 
+@@ -329,6 +317,8 @@ static int sh_keysc_resume(struct device
+ 
+ 	if (device_may_wakeup(dev))
+ 		disable_irq_wake(irq);
++	else
++		pm_runtime_get_sync(dev);
+ 
+ 	return 0;
+ }

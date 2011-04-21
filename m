@@ -1,116 +1,117 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH] HID: add support for PenMount dual-touch panel
-Date: Thu, 21 Apr 2011 16:21:52 +0200
-Message-ID: <1303395712-4572-1-git-send-email-benjamin.tissoires@enac.fr>
-References: <1303388160-2814-3-git-send-email-benjamin.tissoires@enac.fr>
+From: riyer@nvidia.com
+Subject: [PATCH v2] Input: tegra-kbc - add ghost key filter.
+Date: Thu, 21 Apr 2011 15:10:15 -0700
+Message-ID: <1303423815-22786-1-git-send-email-riyer@nvidia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1-g21.free.fr ([212.27.42.1]:60676 "EHLO smtp1-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750915Ab1DUOWN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Apr 2011 10:22:13 -0400
-In-Reply-To: <1303388160-2814-3-git-send-email-benjamin.tissoires@enac.fr>
+Received: from hqemgate03.nvidia.com ([216.228.121.140]:9645 "EHLO
+	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752998Ab1DUWKW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Apr 2011 18:10:22 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: olof@lixom.net, amartin@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rakesh Iyer <riyer@nvidia.com>
 
-From: John Sung <penmount.touch@gmail.com>
+From: Rakesh Iyer <riyer@nvidia.com>
 
-This patch adds PenMount support to hid-multitouch.
-A new class MT_CLS_CONFIDENCE is defined for PenMount,
-since it uses HID_DG_CONFIDENCE as the valid flag.
+Add ghost key filtering support for the Nvidia Tegra matrix keyboard.
 
-Signed-off-by: John Sung <penmount.touch@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Acked-by: Henrik Rydberg <rydberg@euromail.se>
-
+Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
 ---
+v2: Incorporated Henrik Rydberg's suggestions.
+v1: Do not report keypresses when matrix keyboard encounters key ghosting.
 
-Hi Guys,
+ arch/arm/mach-tegra/include/mach/kbc.h |    1 +
+ drivers/input/keyboard/tegra-kbc.c     |   36 ++++++++++++++++++++++++++++++++
+ 2 files changed, 37 insertions(+), 0 deletions(-)
 
-this is the final version (I hope so).
-I changed the from, restored back the Kconfig part and reintroduced the commit message.
-John, I hope it's good for you.
-
-Cheers,
-Benjamin
-
- drivers/hid/Kconfig          |    1 +
- drivers/hid/hid-core.c       |    1 +
- drivers/hid/hid-ids.h        |    3 +++
- drivers/hid/hid-multitouch.c |    8 ++++++++
- 4 files changed, 13 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 996ae3a..8058cf1 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -313,6 +313,7 @@ config HID_MULTITOUCH
- 	  - Cypress TrueTouch panels
- 	  - Hanvon dual touch panels
- 	  - IrTouch Infrared USB panels
-+	  - PenMount dual touch panels
- 	  - Pixcir dual touch panels
- 	  - 'Sensing Win7-TwoFinger' panel by GeneralTouch
-           - eGalax dual-touch panels, including the
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c3d6626..6e31b9f 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1438,6 +1438,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_PCI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index d485894..252aeba 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -484,6 +484,9 @@
- #define USB_VENDOR_ID_PANTHERLORD	0x0810
- #define USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK	0x0001
+diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
+index 04c7798..bd99744 100644
+--- a/arch/arm/mach-tegra/include/mach/kbc.h
++++ b/arch/arm/mach-tegra/include/mach/kbc.h
+@@ -58,5 +58,6 @@ struct tegra_kbc_platform_data {
  
-+#define USB_VENDOR_ID_PENMOUNT		0x14e1
-+#define USB_DEVICE_ID_PENMOUNT_PCI	0x3500
-+
- #define USB_VENDOR_ID_PETALYNX		0x18b1
- #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6005e78..51b5d27 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -89,6 +89,7 @@ struct mt_class {
- #define MT_CLS_EGALAX				5
- #define MT_CLS_STANTUM				6
- #define MT_CLS_3M				7
-+#define MT_CLS_CONFIDENCE			8
- 
- #define MT_DEFAULT_MAXCONTACT	10
- 
-@@ -156,6 +157,8 @@ struct mt_class mt_classes[] = {
- 		.sn_move = 2048,
- 		.sn_width = 128,
- 		.sn_height = 128 },
-+	{ .name = MT_CLS_CONFIDENCE,
-+		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE },
- 
- 	{ }
+ 	bool wakeup;
+ 	bool use_fn_map;
++	bool use_ghost_filter;
  };
-@@ -584,6 +587,11 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
- 			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+ #endif
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 99ce903..56f6668 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -72,6 +72,7 @@ struct tegra_kbc {
+ 	unsigned int repoll_dly;
+ 	unsigned long cp_dly_jiffies;
+ 	bool use_fn_map;
++	bool use_ghost_filter;
+ 	const struct tegra_kbc_platform_data *pdata;
+ 	unsigned short keycode[KBC_MAX_KEY * 2];
+ 	unsigned short current_keys[KBC_MAX_KPENT];
+@@ -260,6 +261,8 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 	unsigned int num_down = 0;
+ 	unsigned long flags;
+ 	bool fn_keypress = false;
++	bool key_in_same_row = false;
++	bool key_in_same_col = false;
  
-+	/* PenMount panels */
-+	{ .driver_data = MT_CLS_CONFIDENCE,
-+		HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT,
-+			USB_DEVICE_ID_PENMOUNT_PCI) },
+ 	spin_lock_irqsave(&kbc->lock, flags);
+ 	for (i = 0; i < KBC_MAX_KPENT; i++) {
+@@ -285,6 +288,34 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 	}
+ 
+ 	/*
++	 * Matrix keyboard designs are prone to keyboard ghosting.
++	 * Ghosting occurs if there are 3 keys such that -
++	 * any 2 of the 3 keys share a row, and any 2 of them share a column.
++	 * If so ignore the keypresses for this iteration.
++	 */
++	if ((kbc->use_ghost_filter) && (num_down >= 3)) {
++		for (i = 0; i < num_down; i++) {
++			unsigned int j;
++			u8 curr_col = scancodes[i] & 0x07;
++			u8 curr_row = scancodes[i] >> KBC_ROW_SHIFT;
 +
- 	/* PixCir-based panels */
- 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
- 		HID_USB_DEVICE(USB_VENDOR_ID_HANVON,
++			/*
++			 * Find 2 keys such that one key is in the same row
++			 * and the other is in the same column as the i-th key.
++			 */
++			for (j = i + 1; j < num_down; j++) {
++				u8 col = scancodes[j] & 0x07;
++				u8 row = scancodes[j] >> KBC_ROW_SHIFT;
++
++				if (col == curr_col)
++					key_in_same_col = true;
++				if (row == curr_row)
++					key_in_same_row = true;
++			}
++		}
++	}
++
++	/*
+ 	 * If the platform uses Fn keymaps, translate keys on a Fn keypress.
+ 	 * Function keycodes are KBC_MAX_KEY apart from the plain keycodes.
+ 	 */
+@@ -297,6 +328,10 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 
+ 	spin_unlock_irqrestore(&kbc->lock, flags);
+ 
++	/* Ignore the keypresses for this iteration? */
++	if (key_in_same_col && key_in_same_row)
++		return;
++
+ 	tegra_kbc_report_released_keys(kbc->idev,
+ 				       kbc->current_keys, kbc->num_pressed_keys,
+ 				       keycodes, num_down);
+@@ -652,6 +687,7 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 		input_dev->keycodemax *= 2;
+ 
+ 	kbc->use_fn_map = pdata->use_fn_map;
++	kbc->use_ghost_filter = pdata->use_ghost_filter;
+ 	keymap_data = pdata->keymap_data ?: &tegra_kbc_default_keymap_data;
+ 	matrix_keypad_build_keymap(keymap_data, KBC_ROW_SHIFT,
+ 				   input_dev->keycode, input_dev->keybit);
 -- 
-1.7.4.2
+1.7.1
 

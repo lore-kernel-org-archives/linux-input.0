@@ -1,47 +1,33 @@
-From: Chris Friesen <cbf123@mail.usask.ca>
-Subject: alps.c patch for Dell E5410?
-Date: Wed, 20 Apr 2011 14:48:34 -0600
-Message-ID: <4DAF46A2.6050703@mail.usask.ca>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: add support for PenMount dual-touch panel
+Date: Thu, 21 Apr 2011 08:58:49 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1104210857170.12035@pobox.suse.cz>
+References: <1303291155-3148-1-git-send-email-salt@salt.com.tw> <201104201054.36974.dmitry.torokhov@gmail.com> <BANLkTikwjPc9w-HJLitBYG1tdix1U=4ckg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from idcmail-mo2no.shaw.ca ([64.59.134.9]:64804 "EHLO
-	idcmail-mo2no.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750814Ab1DTUsi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Apr 2011 16:48:38 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:52917 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750799Ab1DUG6w (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Apr 2011 02:58:52 -0400
+In-Reply-To: <BANLkTikwjPc9w-HJLitBYG1tdix1U=4ckg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chase.douglas@canonical.com, dtor@mail.ru, sebastian_kapfer@gmx.net, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: PenMount salt <penmount.touch@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, PenMount <salt@salt.com.tw>
 
-Hi everyone,
+On Thu, 21 Apr 2011, PenMount salt wrote:
 
-I've got an E5410 on which I'm trying to get the touchpad working
-properly. I'm running Fedora 14 with 2.6.35 and by default it's just
-recognized as a mouse.
+> We are sorry, this is the first time we summit patches, and don't know 
+> the rules well yet. Is there a proper way we can correct this?
 
-I found a patch on the web at:
-https://confluence.nau.edu/display/~cmg238@nau.edu/Recognize+ALPS+Touchpad+on+Dell+E6510+in+Ubuntu
+Please just resubmit the patch with modified From: and Signed-off-by: 
+lines so that they use real names.
 
-It appears similar (but not identical) to the patch that was added for
-the HP Pavilion dm3 but then backed out.
+See Documentation/SubmittingPatches, namely chapter 12 for details.
 
-With the patch applied, the kernel appears to recognize it as a
-DualPoint Stick and a DualPoint Touchpad.  On this particular machine
-the stick doesn't seem to be actually wired up, but the trackpad looks
-visually identical to the E6510.
+Thanks a lot for your work on supporting the new deivce.
 
-However, even after it was recognized I haven't yet been able to get
-scrolling to work, and "synclient -m 100" doesn't give anything
-useful--but various comments have led me to wonder if it actually should
-at this point.
-
-So what's the deal here?  Is someone working on getting full support for
-these things?  Should "synclient -m 100" work?
-
-Thanks,
-Chris
-
-
-
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

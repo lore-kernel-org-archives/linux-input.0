@@ -1,51 +1,43 @@
-From: Jerone Young <jerone.young@gmail.com>
-Subject: [PATCH] Add keycode for microphone mute key
-Date: Fri, 22 Apr 2011 21:14:49 -0500
-Message-ID: <1303524889.2457.24.camel@laptop>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: qt1070 - Add MODULE_DEVICE_TABLE
+Date: Sun, 24 Apr 2011 23:22:45 +0800
+Message-ID: <1303658565.8556.1.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yi0-f46.google.com ([209.85.218.46]:55722 "EHLO
-	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757074Ab1DWCOx (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:53941 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757366Ab1DXPWx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Apr 2011 22:14:53 -0400
-Received: by yia27 with SMTP id 27so263879yia.19
-        for <linux-input@vger.kernel.org>; Fri, 22 Apr 2011 19:14:52 -0700 (PDT)
+	Sun, 24 Apr 2011 11:22:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Herton Ronaldo Krzesinski <herton.krzesinski@canonical.com>
+To: linux-kernel@vger.kernel.org
+Cc: Bo Shen <voice.shen@atmel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Lenovo is now including a key for muting the microphone on all Thinkpad
-models & peripheral keyboards. Currently there is no way to deal with
-this key being handled in a common fashion under Linux. This patch
-defines a key code for microphone mute so that this key can be mapped
-for Thinkpad models & peripheral keyboards.
+Adding the necessary MODULE_DEVICE_TABLE() information allows the
+driver to be automatically loaded by udev
 
-By having a set keycode this key can be remapped to the common keycode
-and userspace can then listen and take some action once the key is
-pressed. A common action would be to mute the microphone mixer. 
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/keyboard/qt1070.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-Thinkpad keyboard pic: http://bit.ly/hLxXL1
-Thinkpad usb keyboard pic: http://bit.ly/gfNaQz
-
-Signed-off-by: Jerone Young <jerone.young@gmail.com>
-
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 771d6d8..4d8a8ae 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -673,6 +673,8 @@ struct input_keymap_entry {
- #define KEY_CAMERA_LEFT		0x219
- #define KEY_CAMERA_RIGHT	0x21a
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+index fba8404..ca7b891 100644
+--- a/drivers/input/keyboard/qt1070.c
++++ b/drivers/input/keyboard/qt1070.c
+@@ -248,6 +248,7 @@ static const struct i2c_device_id qt1070_id[] = {
+ 	{ "qt1070", 0 },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(i2c, qt1070_id);
  
-+#define KEY_MICROPHONE_MUTE	0x21b	/* microphone mute key */
-+
- #define BTN_TRIGGER_HAPPY		0x2c0
- #define BTN_TRIGGER_HAPPY1		0x2c0
- #define BTN_TRIGGER_HAPPY2		0x2c1
+ static struct i2c_driver qt1070_driver = {
+ 	.driver	= {
+-- 
+1.7.1
 
 
 

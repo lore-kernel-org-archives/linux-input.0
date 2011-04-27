@@ -1,51 +1,48 @@
-From: Alan Stern <stern@rowland.harvard.edu>
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
 Subject: Re: Wonkiness with keyboard adapter - not sure if it's in USB or
- input systems
-Date: Wed, 27 Apr 2011 13:23:31 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1104271316370.2239-100000@iolanthe.rowland.org>
-References: <alpine.LNX.2.00.1104262319240.12035@pobox.suse.cz>
+	input systems
+Date: Wed, 27 Apr 2011 18:27:18 +0100
+Message-ID: <20110427172718.GA16118@gallifrey>
+References: <11501.1303832820@localhost>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:37632 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1759677Ab1D0RXc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Apr 2011 13:23:32 -0400
-In-Reply-To: <alpine.LNX.2.00.1104262319240.12035@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <11501.1303832820@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Valdis.Kletnieks@vt.edu
+Cc: Jiri Kosina <jkosina@suse.cz>, Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Valdis.Kletnieks@vt.edu, Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, 26 Apr 2011, Jiri Kosina wrote:
-
-> It seems like the BIOS handover of the USB input device doesn't work 
-> properly.
+* Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
+> Running 2.6.39-rc1-mmotm at the moment on a Dell Latitude E6500, that wants an
+> external USB keyboard/mouse and monitor when it's in its docking station in the
+> office. I have an old Microsoft Natural keyboard that has a PS/2 connector, but
+> I like the tactile feel so I didn't want to get rid of it.  So we recently got
+> some PS2->USB adapters, which appear in lsusb as follows:
 > 
-> The way things usually work in such situations -- BIOS is able to 
-> understand USB input devices in a very basic mode (hidp) and translate the 
-> events into PS/2-looking events, so that things like grub (which don't 
-> understand USB HID) are able to see keyboard events -- BIOS presents those 
-> as PS/2 devices.
+> Bus 001 Device 006: ID 0e8f:0020 GreenAsia Inc. USB to PS/2 Adapter
 > 
-> Once kernel is booted, it takes over devices in this 'legacy' mode from 
-> BIOS, and initializes them properly as USB input devices.
+> Now, when I first power up the laptop in the docking station, it *does* see the
+> keyboard just fine, and Grub is able to talk to it, and everything works (this
+> particular boot, I was able to hit the space bar to get to the Grub menu, use
+> arrow up/down to move between entries, all looked good).  So it isn't like the
+> device needs any initialization above and beyond what the BIOS is doing at
+> initial power-on.
 > 
-> Seems like this process is broken on your system. Could you please try to 
-> disable legacy USB emulation in your BIOS, and see if the problem 
-> persists? (it will make USB keyboard unavailable in grub).
+> However, when the Linux kernel starts up, it sees the adapter, but doesn't
+> recognize key presses until I disconnect and then reconnect the keyboard:
 
-If the drivers are set up properly in the initrd image, this shouldn't 
-be a problem.  Still, it's worth testing.  A good test would be to use 
-two keyboards, one attached to the PS2 port for typing in the 
-decryption key and one attached to the adapter.  Does the second 
-keyboard work after the kernel has finished starting up?
+I've experienced the same behaviour on at least two very different machines
+(one a Tosh laptop, the other a Dell desktop), in both cases using a Model M
+PS/2 keyboard connected to two different USB<->PS/2 converters (one a 
+really ancient Belkin one and the other a recent no-name soap-on-a-rope type
+thing).
 
-If it doesn't, does "rmmod ehci ; modprobe ehci" make any difference?  
+Dave
 
-Also, once the kernel is running, it is possible to fire up usbmon and
-see what it reveals.
-
-Alan Stern
-
+-- 
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    |       Running GNU/Linux       | Happy  \ 
+\ gro.gilbert @ treblig.org |                               | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

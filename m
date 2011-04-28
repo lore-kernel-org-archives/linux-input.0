@@ -1,29 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: twl4030-pwrbutton - fix a leak of the IRQ during
- init failure
-Date: Wed, 27 Apr 2011 23:26:35 -0700
-Message-ID: <20110428062635.GE31734@core.coreip.homeip.net>
-References: <1303963041.2588.3.camel@phoenix>
+Subject: Re: [PATCH] input: sh_keysc: Switch to threaded IRQ handler
+Date: Wed, 27 Apr 2011 23:29:52 -0700
+Message-ID: <20110428062952.GF31734@core.coreip.homeip.net>
+References: <20110421133824.8698.22092.sendpatchset@t400s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:65197 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751758Ab1D1G0k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Apr 2011 02:26:40 -0400
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1303963041.2588.3.camel@phoenix>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20110421133824.8698.22092.sendpatchset@t400s>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-input@vger.kernel.org, lethal@linux-sh.org, simon@horms.net, linux-sh@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Peter De Schrijver <peter.de-schrijver@nokia.com>, Felipe Balbi <felipe.balbi@nokia.com>, linux-input@vger.kernel.org
 
-On Thu, Apr 28, 2011 at 11:57:21AM +0800, Axel Lin wrote:
-> In twl4030_pwrbutton_probe error path, free_irq() was using NULL rather than
-> the driver data as the data pointer so free_irq() wouldn't have matched.
+On Thu, Apr 21, 2011 at 10:38:24PM +0900, Magnus Damm wrote:
+> From: Magnus Damm <damm@opensource.se>
+> 
+> Update the KEYSC driver to make use of threaded IRQs
+> with IRQF_ONESHOT.
+> 
 
-Applied, thanks Axel.
+Explanation of why this is needed is missing.
+
+Thanks.
+
+> Also pass dev_name() as string for /proc/interrupts.
+> 
+> Signed-off-by: Magnus Damm <damm@opensource.se>
+> ---
+> 
+>  drivers/input/keyboard/sh_keysc.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> --- 0011/drivers/input/keyboard/sh_keysc.c
+> +++ work/drivers/input/keyboard/sh_keysc.c	2011-04-21 19:42:33.000000000 +0900
+> @@ -231,7 +231,8 @@ static int __devinit sh_keysc_probe(stru
+>  	input->keycodesize = sizeof(pdata->keycodes[0]);
+>  	input->keycodemax = ARRAY_SIZE(pdata->keycodes);
+>  
+> -	error = request_irq(irq, sh_keysc_isr, 0, pdev->name, pdev);
+> +	error = request_threaded_irq(irq, NULL, sh_keysc_isr, IRQF_ONESHOT,
+> +				     dev_name(&pdev->dev), pdev);
+>  	if (error) {
+>  		dev_err(&pdev->dev, "failed to request IRQ\n");
+>  		goto err3;
 
 -- 
 Dmitry

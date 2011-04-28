@@ -1,68 +1,33 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH] HID: add support for PenMount dual-touch panel
-Date: Thu, 28 Apr 2011 16:58:01 +0200
-Message-ID: <BANLkTi=7_qi7OPnToa1Pta5Eq2-M7Rc0QA@mail.gmail.com>
-References: <1303291155-3148-1-git-send-email-salt@salt.com.tw>
-	<20110420094700.GA2258@polaris.bitmath.org>
-	<BANLkTin7Q3fD3vg90qCk12MGaVEvLBe0Mg@mail.gmail.com>
-	<20110420100759.GA2436@polaris.bitmath.org>
-	<alpine.LNX.2.00.1104211115570.12035@pobox.suse.cz>
-	<BANLkTinND+uw=JYS4WbwNLAX8P5SF1VGqw@mail.gmail.com>
-	<20110421115843.GA7837@polaris.bitmath.org>
-	<BANLkTimku6reQpkNZ9-WUvhvv0pm+gSrSg@mail.gmail.com>
-	<BANLkTi=XZ+VHP8bpDy3yuovi=kM2va3J2A@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: h3600_ts_input - bugfix for
+ request_irq()/free_irq() parameters
+Date: Thu, 28 Apr 2011 09:26:20 -0700
+Message-ID: <20110428162620.GA9529@core.coreip.homeip.net>
+References: <1302698231.3002.4.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:51558 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932969Ab1D1O6E convert rfc822-to-8bit (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:53000 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757751Ab1D1Q01 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Apr 2011 10:58:04 -0400
-Received: by wwa36 with SMTP id 36so3215652wwa.1
-        for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 07:58:03 -0700 (PDT)
-In-Reply-To: <BANLkTi=XZ+VHP8bpDy3yuovi=kM2va3J2A@mail.gmail.com>
+	Thu, 28 Apr 2011 12:26:27 -0400
+Content-Disposition: inline
+In-Reply-To: <1302698231.3002.4.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Nauber <richard.nauber@googlemail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, PenMount <penmount.touch@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, PenMount <salt@salt.com.tw>
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Richard,
+On Wed, Apr 13, 2011 at 08:37:11PM +0800, Axel Lin wrote:
+> The dev field of h3600_dev is a pointer, thus use ts->dev instead of &ts->dev
+> as the dev_id argument while calling request_irq()/free_irq().
 
-On Thu, Apr 28, 2011 at 16:16, Richard Nauber
-<richard.nauber@googlemail.com> wrote:
-> Pardon my latency,
-> but I was busy during the holidays...
->
-> Benjamin, is my testing still required? I could give the patch a try
+dev_id does not need to have specific type, it is just a cookie so as
+long as it's value is unique we are OK. &ts->dev works as well as
+ts->dev.
 
-Well, Henrik made the tests for us. But you can still give a try (I
-don't remember which device Henrik had).
+Thanks.
 
-> on this beauty:
-> Bus 002 Device 002: ID 0eef:480e D-WAV Scientific Co., Ltd
-> when it is needed. But I see that your new patches are already
-> accepted by Jiri and a breakage on my device is not very likely,
-> right?!
-
-Yep, the patch has already been accepted. But if it's not working, we
-can still re-patch on top of it ;-)
-
-Cheers,
-Benjamin
-
->
-> Greetings,
-> Richard
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

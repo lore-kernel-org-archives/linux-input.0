@@ -1,29 +1,29 @@
 From: Armando Visconti <armando.visconti@st.com>
 Subject: BUG: hid_report_raw_event() crash
-Date: Thu, 28 Apr 2011 11:12:17 +0200
-Message-ID: <4DB92F71.5070900@st.com>
-References: <4DB92D93.7090602@st.com>
+Date: Thu, 28 Apr 2011 11:17:10 +0200
+Message-ID: <4DB93096.6090601@st.com>
+References: <4DB92D93.7090602@st.com> <4DB92F71.5070900@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="------------000103030301000008090904"
+	boundary="------------060501050901020207070509"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:44106 "EHLO
+Received: from eu1sys200aog117.obsmtp.com ([207.126.144.143]:49217 "EHLO
 	eu1sys200aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752660Ab1D1JMU (ORCPT
+	by vger.kernel.org with ESMTP id S1750755Ab1D1JRM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Apr 2011 05:12:20 -0400
+	Thu, 28 Apr 2011 05:17:12 -0400
 Received: from zeta.dmz-eu.st.com (ns2.st.com [164.129.230.9])
-	by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 11D46127
-	for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 09:12:17 +0000 (GMT)
+	by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 358F219B
+	for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 09:17:11 +0000 (GMT)
 Received: from Webmail-eu.st.com (safex1hubcas6.st.com [10.75.90.73])
-	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id D9CA21F26
-	for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 09:12:17 +0000 (GMT)
-In-Reply-To: <4DB92D93.7090602@st.com>
+	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 02B49200F
+	for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 09:17:10 +0000 (GMT)
+In-Reply-To: <4DB92F71.5070900@st.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
---------------000103030301000008090904
+--------------060501050901020207070509
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 
@@ -37,9 +37,8 @@ Using it I have found a crash in hid_report_raw_event() on kernel
 
 Debugging the issue it seems that it is caused by the fact that
 TP72055 module issues a hid report with a size equals to 0. The rsize
-value gets
-set to 536870912 and Linux is crashing in the memset because the
-value is too big.
+value gets set to 536870912 and Linux is crashing in the memset because 
+the value is too big.
 
 I think a proper checking on rsize must be made to avoid cases like that.
 I'm attaching the simple patch I made.
@@ -50,7 +49,7 @@ THx,
 Arm
 
 
---------------000103030301000008090904
+--------------060501050901020207070509
 Content-Type: text/plain;
 	name="0001-HID-Fixed-a-crash-in-hid_report_raw_event-function.patch"
 Content-Transfer-Encoding: 7bit
@@ -91,4 +90,4 @@ index b144b38..c5efca3 100644
 1.7.4
 
 
---------------000103030301000008090904--
+--------------060501050901020207070509--

@@ -1,60 +1,40 @@
-From: dudl@cypress.com
-Subject: Update cyapa driver support MT type-A protocol, add cyapa_misc_dev
- interface (issue6905092)
-Date: Thu, 28 Apr 2011 10:04:13 +0000
-Message-ID: <90e6ba6e8adee93df104a1f7ad35@google.com>
-Reply-To: dudl@cypress.com, rubini@ipvvis.unipv.it,
-	  dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-	  linux-kernel@vger.kernel.org, olofj@google.com,
-	  micahc@google.com, dso@cypress.com,
-	  chromium-os-reviews@chromium.org, vb+kernel@google.com,
-	  msb@chromium.org, olofj@chromium.org
+From: Richard Nauber <richard.nauber@googlemail.com>
+Subject: Re: [PATCH] HID: add support for PenMount dual-touch panel
+Date: Thu, 28 Apr 2011 16:16:44 +0200
+Message-ID: <BANLkTi=XZ+VHP8bpDy3yuovi=kM2va3J2A@mail.gmail.com>
+References: <1303291155-3148-1-git-send-email-salt@salt.com.tw>
+	<20110420094700.GA2258@polaris.bitmath.org>
+	<BANLkTin7Q3fD3vg90qCk12MGaVEvLBe0Mg@mail.gmail.com>
+	<20110420100759.GA2436@polaris.bitmath.org>
+	<alpine.LNX.2.00.1104211115570.12035@pobox.suse.cz>
+	<BANLkTinND+uw=JYS4WbwNLAX8P5SF1VGqw@mail.gmail.com>
+	<20110421115843.GA7837@polaris.bitmath.org>
+	<BANLkTimku6reQpkNZ9-WUvhvv0pm+gSrSg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed; delsp=yes
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f198.google.com ([209.85.210.198]:33241 "EHLO
-	mail-iy0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759116Ab1D1K1c (ORCPT
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:42859 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760451Ab1D1OQo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Apr 2011 06:27:32 -0400
-Received: by iye22 with SMTP id 22so5767540iye.1
-        for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 03:27:32 -0700 (PDT)
+	Thu, 28 Apr 2011 10:16:44 -0400
+Received: by vxi39 with SMTP id 39so2057248vxi.19
+        for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 07:16:44 -0700 (PDT)
+In-Reply-To: <BANLkTimku6reQpkNZ9-WUvhvv0pm+gSrSg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: rubini@ipvvis.unipv.it, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@google.com, micahc@google.com, dudl@cypress.com, dso@cypress.com
-Cc: chromium-os-reviews@chromium.org, vb+kernel@google.com, msb@chromium.org, olofj@chromium.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, PenMount <penmount.touch@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, PenMount <salt@salt.com.tw>
 
-Reviewers: rubini_ipvvis.unipv.it, dmitry.torokhov_gmail.com,  
-linux-input_vger.kernel.org, linux-kernel_vger.kernel.org,  
-olofj_dontusethisaddress, Micah C, dudl, dso_cypress.com,
+Pardon my latency,
+but I was busy during the holidays...
 
-Description:
-Update cyapa driver support MT type-A protocol, add cyapa_misc_dev interface
+Benjamin, is my testing still required? I could give the patch a try
+on this beauty:
+Bus 002 Device 002: ID 0eef:480e D-WAV Scientific Co., Ltd
+when it is needed. But I see that your new patches are already
+accepted by Jiri and a breakage on my device is not very likely,
+right?!
 
-
-Change-Id: I8c70391a581bd1f62803f25fe3a52589b56aeed7
-Signed-off-by: Du, Dudley <dudl@cypress.com>
-
-R=rubini@ipvvis.unipv.it,dmitry.torokhov@gmail.com,linux-input@vger.kernel.org,linux-kernel@vger.kernel.org,olofj@google.com,micahc@google.com,dudl@cypress.com,dso@cypress.com
-BUG=3220 6902105
-TEST=test on kaen board
-
-1. Remove codes that support relative report data, this mode is not  
-required for
-trackpad any more;
-2. Modify cyapa driver support MT type-A protocol working with multitouch X
-driver;
-3. Add cyapa_misc_dev interface, so applications can get driver, firmware  
-and
-hardware version of the trackpad device.
-
-
-Please review this at http://codereview.chromium.org/6905092/
-
-SVN Base: http://git.chromium.org/git/kernel-next.git@chromeos-2.6.38
-
-Affected files:
-   M drivers/input/mouse/cypress_i2c.c
-   M include/linux/cyapa.h
-
-
+Greetings,
+Richard

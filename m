@@ -1,55 +1,92 @@
-From: Srinidhi KASAGAR <srinidhi.kasagar@stericsson.com>
-Subject: Re: [v4 1/3] 1/3 Touchscreen: Cypress TTSP G3 Core Driver
-Date: Thu, 28 Apr 2011 13:47:09 +0530
-Message-ID: <20110428080631.GA26730@bnru02>
-References: <kev@cypress.com>
- <1294188847-24728-1-git-send-email-kev@cypress.com>
+From: Armando Visconti <armando.visconti@st.com>
+Subject: BUG: hid_report_raw_event() crash
+Date: Thu, 28 Apr 2011 11:04:19 +0200
+Message-ID: <4DB92D93.7090602@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/mixed;
+	boundary="------------030205090802060603050905"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog112.obsmtp.com ([207.126.144.133]:47603 "EHLO
-	eu1sys200aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754546Ab1D1IRl (ORCPT
+Received: from eu1sys200aog120.obsmtp.com ([207.126.144.149]:49000 "EHLO
+	eu1sys200aog120.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754697Ab1D1JEZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Apr 2011 04:17:41 -0400
-Content-Disposition: inline
-In-Reply-To: <1294188847-24728-1-git-send-email-kev@cypress.com>
+	Thu, 28 Apr 2011 05:04:25 -0400
+Received: from zeta.dmz-eu.st.com (ns2.st.com [164.129.230.9])
+	by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 5D20619F
+	for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 09:04:20 +0000 (GMT)
+Received: from Webmail-eu.st.com (safex1hubcas6.st.com [10.75.90.73])
+	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 2D1E22689
+	for <linux-input@vger.kernel.org>; Thu, 28 Apr 2011 09:04:20 +0000 (GMT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Henrik Rydberg <rydberg@euromail.se>, Samuel Ortiz <sameo@linux.intel.com>
+To: linux-input@vger.kernel.org
 
-Hi Kevin,
+--------------030205090802060603050905
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jan 05, 2011 at 01:54:04 +0100, Kevin McNeely wrote:
-> Cypress TTSP Gen3 Core Driver.
-> Core Driver includes platform data definition file,
-> core driver definition file, and core touchscreen
-> touch handling of device data. Generates
-> multi-touch input events.
-> 
-> Signed-off-by: Kevin McNeely <kev@cypress.com>
-> ---
-> Changes since v3:
-> - Removed unused items
-> - replace EIO with EINVAL
-> - add x[], y[] and loop on mt signaling
-> - removed uninitialized use of ts->dev
-> 
->  drivers/input/touchscreen/Kconfig       |    5 +
->  drivers/input/touchscreen/Makefile      |    1 +
->  drivers/input/touchscreen/cyttsp_core.c |  794 +++++++++++++++++++++++++++++++
->  drivers/input/touchscreen/cyttsp_core.h |   55 +++
->  include/linux/input/cyttsp.h            |   68 +++
->  5 files changed, 923 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/touchscreen/cyttsp_core.c
->  create mode 100644 drivers/input/touchscreen/cyttsp_core.h
->  create mode 100644 include/linux/input/cyttsp.h
+Hello,
 
-I did not find any further updates on this driver, any 
-development ongoing to support type B as suggested?
+I'm using a particular multi touch screen module, which is the
+TP 72055 from Data Modul. They have tested it only for Win7.
 
-we badly in need of this driver, and so wondering if
-you have plans to take up this further?
+Using it I have found a crash in hid_report_raw_event() on kernel
+2.6.37, but I believe is there also in latest one.
 
-srinidhi
+Debugging the issue it seems that it is caused by the fact that
+TP72055 module issues a hid report with a size equals to 0. The rsize
+value gets
+set to 536870912 and Linux is crashing in the memset because the
+value is too big.
+
+I think a proper checking on rsize must be made to avoid cases like that.
+I'm attaching the simple patch I made.
+
+Pls let me know if the fix makes sense or not.
+
+THx,
+Arm
+
+
+--------------030205090802060603050905
+Content-Type: text/plain;
+	name="0001-HID-Fixed-a-crash-in-hid_report_raw_event-function.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename*0="0001-HID-Fixed-a-crash-in-hid_report_raw_event-function.patc";
+	filename*1="h"
+
+>From 4e3af7356b4973f8733669ba4c201e61b36e998a Mon Sep 17 00:00:00 2001
+From: Armando Visconti <armando.visconti@st.com>
+Date: Tue, 26 Apr 2011 17:07:54 +0200
+Subject: [PATCH] HID: Fixed a crash in hid_report_raw_event() function.
+
+I'm using a Data Modul EasyTouch USB multitouch controller, which is
+issuing a hid report with a size equals to 0. The rsize value gets
+set to 536870912 and Linux is crashing in the memset because the
+value is too big.
+
+Signed-off-by: Armando Visconti <armando.visconti@st.com>
+---
+ drivers/hid/hid-core.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index b144b38..c5efca3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1024,6 +1024,9 @@ void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+ 
+ 	rsize = ((report->size - 1) >> 3) + 1;
+ 
++	if (rsize > HID_MAX_BUFFER_SIZE)
++		rsize = HID_MAX_BUFFER_SIZE;
++
+ 	if (csize < rsize) {
+ 		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
+ 				csize, rsize);
+-- 
+1.7.4
+
+
+--------------030205090802060603050905--

@@ -1,48 +1,31 @@
-From: "Adi J. Sieker" <adi@sieker.io>
-Subject: USB keyboard recognized as HID keyboard but doesn't work
-Date: Sat, 30 Apr 2011 22:23:05 +0200
-Message-ID: <4DBC6FA9.3080008@sieker.io>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] input: misc: Add support for isa1200 chip
+Date: Sat, 30 Apr 2011 22:31:35 -0700
+Message-ID: <20110501053135.GA10886@core.coreip.homeip.net>
+References: <1302697533-20456-1-git-send-email-mpallaka@codeaurora.org>
+ <1302697533-20456-3-git-send-email-mpallaka@codeaurora.org>
+ <4DA69A17.8080207@codeaurora.org>
+ <4DBAB3A2.9040100@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4DBAB3A2.9040100-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWNrRvHsEVmBkkB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+Hi Mohan,
 
-the lovely folks from #kernelnewbies suggested I write this mail since 
-they are at a loss.
-I recently got a new USB keyboard which works fine in the BIOS and also 
-in VBox Windows guests, but not on the host.
+On Fri, Apr 29, 2011 at 06:18:34PM +0530, Mohan Pallaka wrote:
+> Ping.
+> 
 
-The keyboard is a Keysonic KSK-8003 UX product details here: 
-http://maxpoint.de/de/products/keyboards.php?pid=1_3_7&we_objectID=1220
+Sorry for the delay. The patch looks good, but could you tell me if you
+got the ack for the "weak" annotation for PWM symbols?
 
-The menu key and the backspace keys do work. The num lock led is on, 
-though I can't switch num lock off.
-If I attch the keyboard to a VirtualBox VM running WindowsXP as a guest, 
-it works as expected in the VM.
+Thanks.
 
-I'm running 2.6.32-27-generic #49-Ubuntu. I tried the Ubuntu 10.10 
-LiveCD and that also didn't work. I haven't tried 11.04 yet though.
-
-The output of lsusb -v  is available here http://pastie.org/1851416
-
-The relevant part of dmesg output:
-[    6.501902] input: KB USB Keyboard as 
-/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.3/2-1.3:1.0/input/input9
-[    6.502028] generic-usb 0003:060B:0230.0001: input,hidraw0: USB HID 
-v1.10 Keyboard [KB USB Keyboard] on usb-0000:00:1d.0-1.3/input0
-[    6.503408] Bluetooth: Generic Bluetooth USB driver ver 0.6
-[    6.503508] usbcore: registered new interface driver btusb
-[    6.516681] generic-usb: probe of 0003:060B:0230.0002 failed with 
-error -22
-
-I'd be grateful for any help and or pointers in the right to get this 
-keyboard to work.
-
-Regards
-    Adi
+-- 
+Dmitry

@@ -1,46 +1,38 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
-Date: Sun, 1 May 2011 09:53:27 +0200
-Message-ID: <201105010953.27052.oliver@neukum.org>
-References: <4DBC6FA9.3080008@sieker.io>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: h3600_ts: fix a leak of the IRQ during init failure
+Date: Mon, 02 May 2011 00:13:32 +0800
+Message-ID: <1304266412.3000.4.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4DBC6FA9.3080008-D1akFU9K7Sphl2p70BpVqQ@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Adi J. Sieker" <adi-D1akFU9K7Sphl2p70BpVqQ@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Am Samstag, 30. April 2011, 22:23:05 schrieb Adi J. Sieker:
-> Hello,
-> 
-> the lovely folks from #kernelnewbies suggested I write this mail since 
-> they are at a loss.
-> I recently got a new USB keyboard which works fine in the BIOS and also 
-> in VBox Windows guests, but not on the host.
-> 
-> The keyboard is a Keysonic KSK-8003 UX product details here: 
-> http://maxpoint.de/de/products/keyboards.php?pid=1_3_7&we_objectID=1220
-> 
-> The menu key and the backspace keys do work. The num lock led is on, 
-> though I can't switch num lock off.
-> If I attch the keyboard to a VirtualBox VM running WindowsXP as a guest, 
-> it works as expected in the VM.
+In h3600ts_connect error path, free_irq() was using ts->dev rather than the
+&ts->dev as the data pointer so free_irq() wouldn't have matched.
 
-This indicates that it is working on the USB level.
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/touchscreen/h3600_ts_input.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-> I'm running 2.6.32-27-generic #49-Ubuntu. I tried the Ubuntu 10.10 
-> LiveCD and that also didn't work. I haven't tried 11.04 yet though.
-
-Do you get anything on the event device? What does udev say when you
-plug in the device?
-
-	Regards
-		Oliver
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
+index 45f93d0..e45ae38 100644
+--- a/drivers/input/touchscreen/h3600_ts_input.c
++++ b/drivers/input/touchscreen/h3600_ts_input.c
+@@ -424,8 +424,8 @@ static int h3600ts_connect(struct serio *serio, struct serio_driver *drv)
+ 
+ fail4:	serio_close(serio);
+ fail3:	serio_set_drvdata(serio, NULL);
+-	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, ts->dev);
+-fail2:	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, ts->dev);
++	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, &ts->dev);
++fail2:	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, &ts->dev);
+ fail1:	input_free_device(input_dev);
+ 	kfree(ts);
+ 	return err;
+-- 
+1.7.1

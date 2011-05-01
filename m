@@ -1,38 +1,38 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: h3600_ts: fix a leak of the IRQ during init failure
-Date: Mon, 02 May 2011 00:13:32 +0800
-Message-ID: <1304266412.3000.4.camel@phoenix>
+Subject: Re: [PATCH] Input: h3600_ts_input - bugfix for request_irq()/free_irq()
+ parameters
+Date: Mon, 2 May 2011 00:23:43 +0800
+Message-ID: <BANLkTi=BpdfE+VmBZuzaodNiE9JUhARbfg@mail.gmail.com>
+References: <1302698231.3002.4.camel@phoenix> <20110428162620.GA9529@core.coreip.homeip.net>
+Reply-To: axel.lin@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:57875 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755062Ab1EAQYF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 May 2011 12:24:05 -0400
+In-Reply-To: <20110428162620.GA9529@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-In h3600ts_connect error path, free_irq() was using ts->dev rather than the
-&ts->dev as the data pointer so free_irq() wouldn't have matched.
+Hi Dmitry,
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/touchscreen/h3600_ts_input.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+2011/4/29 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Wed, Apr 13, 2011 at 08:37:11PM +0800, Axel Lin wrote:
+>> The dev field of h3600_dev is a pointer, thus use ts->dev instead of &ts->dev
+>> as the dev_id argument while calling request_irq()/free_irq().
+>
+> dev_id does not need to have specific type, it is just a cookie so as
+> long as it's value is unique we are OK. &ts->dev works as well as
+> ts->dev.
 
-diff --git a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
-index 45f93d0..e45ae38 100644
---- a/drivers/input/touchscreen/h3600_ts_input.c
-+++ b/drivers/input/touchscreen/h3600_ts_input.c
-@@ -424,8 +424,8 @@ static int h3600ts_connect(struct serio *serio, struct serio_driver *drv)
- 
- fail4:	serio_close(serio);
- fail3:	serio_set_drvdata(serio, NULL);
--	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, ts->dev);
--fail2:	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, ts->dev);
-+	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, &ts->dev);
-+fail2:	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, &ts->dev);
- fail1:	input_free_device(input_dev);
- 	kfree(ts);
- 	return err;
--- 
-1.7.1
+Then you might want to apply below patch:
+http://www.spinics.net/lists/linux-input/msg15042.html
+
+My original intension was to fix the irq driver data mismatch.
+
+Regards,
+Axel

@@ -1,50 +1,72 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
-Date: Mon, 2 May 2011 16:27:28 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1105021622510.2106-100000@iolanthe.rowland.org>
-References: <4DBF077B.8080903@sieker.io>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+Subject: Re: ad714x driver help and possible bug
+Date: Mon, 2 May 2011 16:43:18 -0400
+Message-ID: <8EAE2AA4-C5A9-411C-B7E9-BB74C0716421@gmail.com>
+References: <62821D7C-1637-4F7E-A53A-F52AEB2A6C87@gmail.com> <4DBA8AFE.6080807@cam.ac.uk> <4DBAD0AC.3010608@analog.com> <4DBAD21F.7040406@analog.com>
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:50515 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752990Ab1EBU13 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 May 2011 16:27:29 -0400
-In-Reply-To: <4DBF077B.8080903@sieker.io>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:49549 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752965Ab1EBUnN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 May 2011 16:43:13 -0400
+In-Reply-To: <4DBAD21F.7040406@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Adi J. Sieker" <adi@sieker.io>
-Cc: Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Jonathan Cameron <jic23@cam.ac.uk>, Barry Song <21cnbao@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, 2 May 2011, Adi J. Sieker wrote:
 
-> > Something else that might help is a usbmon trace showing what happens
-> > when you plug in the keyboard.  Instructions are in the kernel source
-> > file Documentation/usb/usbmon.txt.  In particular, while running the
-> > test try pressing some of the normal keys that don't work.
-> >
+On Apr 29, 2011, at 10:58, Michael Hennerich wrote:
+
+> On 04/29/2011 04:52 PM, Michael Hennerich wrote:
+>> On 04/29/2011 11:55 AM, Jonathan Cameron wrote:
+>>> Cc'd input, and analog devices driver list...
+>>> 
+>>> On 04/28/11 19:17, Jean-Francois Dagenais wrote:
+>>> 
+>>> 
+>>>> I also had to change the request_threaded_irq flags to specify
+>>>> IRQF_ONESHOT so the kernel keeps the interrupt masked while we are
+>>>> running ad714x_interrupt_thread(). Otherwise we were getting storms
+>>>> of interrupts each time only one was requested. I am wondering if
+>>>> this should be pulled back to the mainline kernel?
+>>>> 
+>>>> Thanks for pointers and clues!
+>>>> 
+>>>> 
+>> I assume this is due to the fact that the interrupt on the host is
+>> level sensitive.
+>> In this case you need to use the IRQF_ONESHOT flag.
+>> The unmodified driver requests the IRQ as IRQF_TRIGGER_FALLING, so
+>> this is not necessary.
+I succeeded in making the ISR occur only once per real interrupt, the problem I explained earlier remains.
+>> 
+>> To my knowledge we regularly test the driver with the sliders, wheels
+>> and buttons found on the
+>> official evaluation board, and so far we haven't found oddities.
+>> For an example platform file see: arch/blackfin/mach-bf537/boards/stamp.c
+>> From top of my head I don't know whether we're testing with the SPI or
+>> I2C interface.
+>> 
+>> http://wiki.analog.com/software/driver/linux/ad714x
+>> 
+> -- 
 > 
-> The attached file usbmon-working.out is the output when I pressed the 
-> backspace key. When I press any of the non working keys which is 
-> everything but the backspace and menu key. I don't get any output even 
-> when using 0u.
-
-Sorry, I wasn't clear enough.  I meant for you to start the usbmon
-trace _before_ plugging in the keyboard, so we can see what happens as
-the keyboard is initialized and probed.
-
-> > Also, it would help to see the output from "lsusb -v" for this device
-> > -- but you'll have to unbind it from the usbhid driver first.
-> >
+> Greetings,
+> Michael
 > 
-> When attaching the keyboard I get 2 devices in
-> /sys/bus/usb/drivers/usbhid/2-1.1:1.0  and
-> /sys/bus/usb/drivers/usbhid/2-1.1:1.1
+> --
+> Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+> Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+> Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
+> Margaret Seif
 > 
-> The output is in the attached lsusb.txt.
-
-The output looks good.  It doesn't mean much to me, but the people on 
-the linux-input mailing list should be able to get something out of it.
-
-Alan Stern
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

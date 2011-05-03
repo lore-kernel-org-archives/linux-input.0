@@ -1,50 +1,126 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
-Date: Mon, 2 May 2011 18:29:06 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1105021826040.8810-100000@netrider.rowland.org>
-References: <4DBF1FD6.1000809@sieker.io>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: riyer@nvidia.com
+Subject: [v1] Input: tegra-kbc - modify keypress wakeup logic.
+Date: Mon,  2 May 2011 17:23:08 -0700
+Message-ID: <1304382188-29530-1-git-send-email-riyer@nvidia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:34348 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753971Ab1EBW3I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 May 2011 18:29:08 -0400
-In-Reply-To: <4DBF1FD6.1000809@sieker.io>
+Received: from hqemgate03.nvidia.com ([216.228.121.140]:15273 "EHLO
+	hqemgate03.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754010Ab1ECAXC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 May 2011 20:23:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Adi J. Sieker" <adi@sieker.io>, Jiri Kosina <jkosina@suse.cz>
-Cc: Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: amartin@nvidia.com, olof@lixom.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rakesh Iyer <riyer@nvidia.com>
 
-On Mon, 2 May 2011, Adi J. Sieker wrote:
+From: Rakesh Iyer <riyer@nvidia.com>
 
-> > Interestingly, the usbmon trace shows that the interrupt endpoint for
-> > interface 1 isn't being used by usbhid.  I don't know why, but it
-> > shouldn't make much difference for your purposes since that interface
-> > appears to be associated with the gaming interface.  But maybe I'm
-> > wrong and it is important somehow...
-> >
-> > The other noticeable thing is that the keyboard didn't accept the
-> > Set-Idle request for interface 1.
-> >
-> > You said before that the keyboard worked okay when driven by a guest
-> > Windows OS, right?  Can you collect an equivalent usbmon trace for
-> > that?  Comparing the two traces may be instructive.
-> 
-> I hope this is what you meant. :)
-> Attached is a usbmon trace when I attach the keyboard to a VBox VM 
-> running a Windows XP guest. I have no idea how to get a USB trace from 
-> within Windows. The last block is when I pressed h twice in the Windows 
-> XP guest.
+Modify wakeup logic so either all keypresses wake the system or none do.
 
-This is perfect.  It shows that the H key is reported using the 
-interrupt endpoint on interface 1, which explains why it's not working 
-with usbhid.  It also shows that the rejected Set-Idle request doesn't 
-matter.
+Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
+---
+v1: Modify wakeup logic so either all keypresses wake the system or none do.
 
-At this point I don't know what the problem is, but now there's plenty 
-of information in the email thread for the people on linux-input to 
-debug this.
+ arch/arm/mach-tegra/include/mach/kbc.h |    4 +---
+ drivers/input/keyboard/tegra-kbc.c     |   28 ++++------------------------
+ 2 files changed, 5 insertions(+), 27 deletions(-)
 
-Alan Stern
+diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
+index bd99744..6b8e934 100644
+--- a/arch/arm/mach-tegra/include/mach/kbc.h
++++ b/arch/arm/mach-tegra/include/mach/kbc.h
+@@ -50,14 +50,12 @@ struct tegra_kbc_platform_data {
+ 	unsigned int debounce_cnt;
+ 	unsigned int repeat_cnt;
+ 
+-	unsigned int wake_cnt; /* 0:wake on any key >1:wake on wake_cfg */
+-	const struct tegra_kbc_wake_key *wake_cfg;
+-
+ 	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
+ 	const struct matrix_keymap_data *keymap_data;
+ 
+ 	bool wakeup;
+ 	bool use_fn_map;
+ 	bool use_ghost_filter;
++	bool wake_on_keypress;
+ };
+ #endif
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 5fb4b97..cdbc55b 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -66,8 +66,6 @@ struct tegra_kbc {
+ 	void __iomem *mmio;
+ 	struct input_dev *idev;
+ 	unsigned int irq;
+-	unsigned int wake_enable_rows;
+-	unsigned int wake_enable_cols;
+ 	spinlock_t lock;
+ 	unsigned int repoll_dly;
+ 	unsigned long cp_dly_jiffies;
+@@ -291,7 +289,7 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 	 * Matrix keyboard designs are prone to keyboard ghosting.
+ 	 * Ghosting occurs if there are 3 keys such that -
+ 	 * any 2 of the 3 keys share a row, and any 2 of them share a column.
+-	 * If so ignore the key presses for this iteration.
++	 * If so ignore the keypresses for this iteration.
+ 	 */
+ 	if ((kbc->use_ghost_filter) && (num_down >= 3)) {
+ 		for (i = 0; i < num_down; i++) {
+@@ -328,7 +326,7 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 
+ 	spin_unlock_irqrestore(&kbc->lock, flags);
+ 
+-	/* Ignore the key presses for this iteration? */
++	/* Ignore the keypresses for this iteration? */
+ 	if (key_in_same_col && key_in_same_row)
+ 		return;
+ 
+@@ -418,21 +416,11 @@ static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter)
+ 	int i;
+ 	unsigned int rst_val;
+ 
+-	BUG_ON(pdata->wake_cnt > KBC_MAX_KEY);
+-	rst_val = (filter && pdata->wake_cnt) ? ~0 : 0;
++	/* Either mask all keys or none. */
++	rst_val = (filter && !pdata->wake_on_keypress) ? ~0 : 0;
+ 
+ 	for (i = 0; i < KBC_MAX_ROW; i++)
+ 		writel(rst_val, kbc->mmio + KBC_ROW0_MASK_0 + i * 4);
+-
+-	if (filter) {
+-		for (i = 0; i < pdata->wake_cnt; i++) {
+-			u32 val, addr;
+-			addr = pdata->wake_cfg[i].row * 4 + KBC_ROW0_MASK_0;
+-			val = readl(kbc->mmio + addr);
+-			val &= ~(1 << pdata->wake_cfg[i].col);
+-			writel(val, kbc->mmio + addr);
+-		}
+-	}
+ }
+ 
+ static void tegra_kbc_config_pins(struct tegra_kbc *kbc)
+@@ -594,7 +582,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int irq;
+ 	int err;
+-	int i;
+ 	int num_rows = 0;
+ 	unsigned int debounce_cnt;
+ 	unsigned int scan_time_rows;
+@@ -651,13 +638,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 		goto err_iounmap;
+ 	}
+ 
+-	kbc->wake_enable_rows = 0;
+-	kbc->wake_enable_cols = 0;
+-	for (i = 0; i < pdata->wake_cnt; i++) {
+-		kbc->wake_enable_rows |= (1 << pdata->wake_cfg[i].row);
+-		kbc->wake_enable_cols |= (1 << pdata->wake_cfg[i].col);
+-	}
+-
+ 	/*
+ 	 * The time delay between two consecutive reads of the FIFO is
+ 	 * the sum of the repeat time and the time taken for scanning
+-- 
+1.7.2.3
 

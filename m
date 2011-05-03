@@ -1,48 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3 2.6.39] Input: wm831x-ts - Fix races with IRQ
- management
-Date: Tue, 3 May 2011 08:49:18 -0700
-Message-ID: <20110503154918.GB6509@core.coreip.homeip.net>
-References: <1303237074-12878-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20110503144618.GD2893@sirena.org.uk>
- <20110503154303.GA6509@core.coreip.homeip.net>
- <20110503154414.GX1762@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Igor Grinberg <grinberg@compulab.co.il>
+Subject: [PATCH] input: ads7846: fix gpio_pendown configuration
+Date: Tue,  3 May 2011 19:02:53 +0300
+Message-ID: <1304438573-7692-1-git-send-email-grinberg@compulab.co.il>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f170.google.com ([209.85.212.170]:41342 "EHLO
-	mail-px0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752469Ab1ECPtZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 May 2011 11:49:25 -0400
-Received: by pxi19 with SMTP id 19so146318pxi.1
-        for <linux-input@vger.kernel.org>; Tue, 03 May 2011 08:49:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20110503154414.GX1762@opensource.wolfsonmicro.com>
+Received: from 50.23.254.54-static.reverse.softlayer.com ([50.23.254.54]:48922
+	"EHLO softlayer.compulab.co.il" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751680Ab1ECQC7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 May 2011 12:02:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Igor Grinberg <grinberg@compulab.co.il>
 
-On Tue, May 03, 2011 at 04:44:14PM +0100, Mark Brown wrote:
-> On Tue, May 03, 2011 at 08:43:03AM -0700, Dmitry Torokhov wrote:
-> > On Tue, May 03, 2011 at 03:46:18PM +0100, Mark Brown wrote:
-> 
-> > > Any updates on this?
-> 
-> > I sent a pull request to Linus last night, hopefully he'll pull.
-> 
-> Oh, OK - I hadn't noticed that you'd applied the patches at all (they
-> didn't vanish in my last -next rebase on Thursday
+The pendown gpio was requested but not configured for input.
+Request and configure it in one shot.
 
-I think I applied them on Thursday night, rigth after -next was
-released.
+Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
+---
+ drivers/input/touchscreen/ads7846.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-> and you didn't reply to my mail) 
-
-Yeah, sorry about this, a few things are going on so I am slow with my
-mail.
-
-> so I thought they'd slipped by when you were reviewing.
-
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index c24946f..bf067aa 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -956,7 +956,8 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
+ 		ts->get_pendown_state = pdata->get_pendown_state;
+ 	} else if (gpio_is_valid(pdata->gpio_pendown)) {
+ 
+-		err = gpio_request(pdata->gpio_pendown, "ads7846_pendown");
++		err = gpio_request_one(pdata->gpio_pendown, GPIOF_IN,
++				       "ads7846_pendown");
+ 		if (err) {
+ 			dev_err(&spi->dev, "failed to request pendown GPIO%d\n",
+ 				pdata->gpio_pendown);
 -- 
-Dmitry
+1.7.3.4
+

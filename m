@@ -1,14 +1,18 @@
 From: y@vger.kernel.org
 Subject: [PATCH V2 2/3] input: pmic8xxx-keypad: Add row and column gpio configuration
 Date: Thu,  5 May 2011 10:59:24 +0530
-Message-ID: <24658.2837812186$1304573396@news.gmane.org>
+Message-ID: <22281.0854939327$1304573400@news.gmane.org>
 References: <1304573365-21427-1-git-send-email-y>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:56659 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751232Ab1EEF3t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2011 01:29:49 -0400
 In-Reply-To: <1304573365-21427-1-git-send-email-y>
-Sender: linux-arm-msm-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-arm-msm@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Anirudh Ghayal <aghayal@codeaurora.org>
-List-Id: linux-input@vger.kernel.org
 
 From: Anirudh Ghayal <aghayal@codeaurora.org>
 
@@ -140,3 +144,4 @@ index fc2ac4c..5f1e2f9 100644
  	unsigned int scan_delay_ms;
 -- 
 Sent by a consultant of the Qualcomm Innovation Center, Inc.\nThe Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+

@@ -1,118 +1,172 @@
-From: Alexander Stein <alexander.stein@systec-electronic.com>
-Subject: [PATCH v2] ads7846: Add possibility to use external vref on ads7846
-Date: Thu,  5 May 2011 12:55:27 +0200
-Message-ID: <1304592927-22687-1-git-send-email-alexander.stein@systec-electronic.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH V2 2/3] input: pmic8xxx-keypad: Add row and column gpio
+ configuration
+Date: Thu, 5 May 2011 09:05:19 -0700
+Message-ID: <20110505160519.GC27251@core.coreip.homeip.net>
+References: <1304573604-21843-1-git-send-email-aghayal@codeaurora.org>
+ <1304573604-21843-2-git-send-email-aghayal@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from webbox687.server-home.net ([195.149.74.151]:42562 "EHLO
-	webbox687.server-home.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753623Ab1EEKza (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2011 06:55:30 -0400
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:49035 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751714Ab1EEQF0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2011 12:05:26 -0400
+Content-Disposition: inline
+In-Reply-To: <1304573604-21843-2-git-send-email-aghayal@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Stein <alexander.stein@systec-electronic.com>
+To: Anirudh Ghayal <aghayal@codeaurora.org>
+Cc: linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>
 
-Just set vref_mv in your platform config to use external vref. Otherwise
-the internal one is used.
+On Thu, May 05, 2011 at 11:03:23AM +0530, Anirudh Ghayal wrote:
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
 
-Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
----
-Changes since v1:
-* Actually change the SPI commands to select internal or external reference.
+Looks reasonable with the following nitpicks:
 
- drivers/input/touchscreen/ads7846.c |   19 +++++++++++--------
- include/linux/spi/ads7846.h         |    3 ++-
- 2 files changed, 13 insertions(+), 9 deletions(-)
+> ---
+>  drivers/input/keyboard/pmic8xxx-keypad.c |   74 ++++++++++++++++++++++++++++++
+>  include/linux/input/pmic8xxx-keypad.h    |    2 +
+>  2 files changed, 76 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
+> index 0229325..cad09d7 100644
+> --- a/drivers/input/keyboard/pmic8xxx-keypad.c
+> +++ b/drivers/input/keyboard/pmic8xxx-keypad.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/mutex.h>
+>  
+>  #include <linux/mfd/pm8xxx/core.h>
+> +#include <linux/mfd/pm8xxx/gpio.h>
+>  #include <linux/input/pmic8xxx-keypad.h>
+>  
+>  #define PM8XXX_MAX_ROWS		18
+> @@ -446,6 +447,64 @@ static int __devinit pmic8xxx_kpd_init(struct pmic8xxx_kp *kp)
+>  
+>  }
+>  
+> +static int __devinit pmic8xxx_kp_config_drv(int gpio_start, int num_gpios)
+> +{
+> +	int	rc;
+> +	struct pm_gpio kypd_drv = {
+> +		.direction	= PM_GPIO_DIR_OUT,
+> +		.output_buffer	= PM_GPIO_OUT_BUF_OPEN_DRAIN,
+> +		.output_value	= 0,
+> +		.pull		= PM_GPIO_PULL_NO,
+> +		.vin_sel	= PM_GPIO_VIN_S3,
+> +		.out_strength	= PM_GPIO_STRENGTH_LOW,
+> +		.function	= PM_GPIO_FUNC_1,
+> +		.inv_int_pol	= 1,
+> +	};
+> +
+> +	if (gpio_start < 0 || num_gpios < 0 ||
+> +		num_gpios > (PM8XXX_MAX_ROWS + gpio_start))
+> +		return -EINVAL;
+> +
+> +	while (num_gpios--) {
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 1de1c19..c25049c 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -109,6 +109,7 @@ struct ads7846 {
- 	u16			pressure_max;
- 
- 	bool			swap_xy;
-+	bool			use_internal;
- 
- 	struct ads7846_packet	*packet;
- 
-@@ -307,7 +308,6 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
- 	struct ads7846 *ts = dev_get_drvdata(dev);
- 	struct ser_req *req;
- 	int status;
--	int use_internal;
- 
- 	req = kzalloc(sizeof *req, GFP_KERNEL);
- 	if (!req)
-@@ -315,11 +315,8 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
- 
- 	spi_message_init(&req->msg);
- 
--	/* FIXME boards with ads7846 might use external vref instead ... */
--	use_internal = (ts->model == 7846);
--
- 	/* maybe turn on internal vREF, and let it settle */
--	if (use_internal) {
-+	if (ts->use_internal) {
- 		req->ref_on = REF_ON;
- 		req->xfer[0].tx_buf = &req->ref_on;
- 		req->xfer[0].len = 1;
-@@ -331,8 +328,14 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
- 		/* for 1uF, settle for 800 usec; no cap, 100 usec.  */
- 		req->xfer[1].delay_usecs = ts->vref_delay_usecs;
- 		spi_message_add_tail(&req->xfer[1], &req->msg);
-+
-+		/* Enable reference voltage */
-+		command |= ADS_PD10_REF_ON;
- 	}
- 
-+	/* Enable ADC in every case */
-+	command |= ADS_PD10_ADC_ON;
-+
- 	/* take sample */
- 	req->command = (u8) command;
- 	req->xfer[2].tx_buf = &req->command;
-@@ -416,7 +419,7 @@ name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
- { \
- 	struct ads7846 *ts = dev_get_drvdata(dev); \
- 	ssize_t v = ads7846_read12_ser(dev, \
--			READ_12BIT_SER(var) | ADS_PD10_ALL_ON); \
-+			READ_12BIT_SER(var)); \
- 	if (v < 0) \
- 		return v; \
- 	return sprintf(buf, "%u\n", adjust(ts, v)); \
-@@ -509,6 +512,7 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
- 		if (!ts->vref_mv) {
- 			dev_dbg(&spi->dev, "assuming 2.5V internal vREF\n");
- 			ts->vref_mv = 2500;
-+			ts->use_internal = true;
- 		}
- 		break;
- 	case 7845:
-@@ -1340,8 +1344,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 	if (ts->model == 7845)
- 		ads7845_read12_ser(&spi->dev, PWRDOWN);
- 	else
--		(void) ads7846_read12_ser(&spi->dev,
--				READ_12BIT_SER(vaux) | ADS_PD10_ALL_ON);
-+		(void) ads7846_read12_ser(&spi->dev, READ_12BIT_SER(vaux));
- 
- 	err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
- 	if (err)
-diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
-index 92bd083..c64de9d 100644
---- a/include/linux/spi/ads7846.h
-+++ b/include/linux/spi/ads7846.h
-@@ -14,7 +14,8 @@ enum ads7846_filter {
- struct ads7846_platform_data {
- 	u16	model;			/* 7843, 7845, 7846, 7873. */
- 	u16	vref_delay_usecs;	/* 0 for external vref; etc */
--	u16	vref_mv;		/* external vref value, milliVolts */
-+	u16	vref_mv;		/* external vref value, milliVolts
-+					 * ads7846: if 0, use internal vref */
- 	bool	keep_vref_on;		/* set to keep vref on for differential
- 					 * measurements as well */
- 	bool	swap_xy;		/* swap x and y axes */
+Personally I prefer "while (x--)" constructs when you really need to
+count backwards, for example when unwinding in error handling path.
+I'd prefer more straightforward
+
+	for (i = 0; i < num_gpios; i++) {
+		rc = pm8xxx_gpio_config(gpio_start + i, &kypd_drv);
+
+
+> +		rc = pm8xxx_gpio_config(gpio_start++, &kypd_drv);
+> +		if (rc) {
+> +			pr_err("%s: FAIL pm8xxx_gpio_config(): rc=%d.\n",
+> +				__func__, rc);
+
+Use dev_err() here as well, and probably print the pin number that failed?
+
+> +			return rc;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit pmic8xxx_kp_config_sns(int gpio_start, int num_gpios)
+> +{
+> +	int	rc;
+> +	struct pm_gpio kypd_sns = {
+> +		.direction	= PM_GPIO_DIR_IN,
+> +		.pull		= PM_GPIO_PULL_UP_31P5,
+> +		.vin_sel	= PM_GPIO_VIN_S3,
+> +		.out_strength	= PM_GPIO_STRENGTH_NO,
+> +		.function	= PM_GPIO_FUNC_NORMAL,
+> +		.inv_int_pol	= 1,
+> +	};
+> +
+> +	if (gpio_start < 0 || num_gpios < 0 ||
+> +		num_gpios > (PM8XXX_MAX_COLS + gpio_start))
+> +		return -EINVAL;
+> +
+> +	while (num_gpios--) {
+> +		rc = pm8xxx_gpio_config(gpio_start++, &kypd_sns);
+> +		if (rc) {
+> +			pr_err("%s: FAIL pm8xxx_gpio_config(): rc=%d.\n",
+> +				__func__, rc);
+> +			return rc;
+> +		}
+> +	}
+> +
+
+This function is exactly as the one before. You can fold them together
+if you pass "struct pm_gpio" as a 3rd argument.
+
+> +	return 0;
+> +}
+> +
+>  static int pmic8xxx_kp_enable(struct pmic8xxx_kp *kp)
+>  {
+>  	int rc;
+> @@ -609,6 +668,20 @@ static int __devinit pmic8xxx_kp_probe(struct platform_device *pdev)
+>  		goto err_get_irq;
+>  	}
+>  
+> +	rc = pmic8xxx_kp_config_sns(pdata->cols_gpio_start,
+> +					pdata->num_cols);
+> +	if (rc < 0) {
+> +		dev_err(&pdev->dev, "unable to configure keypad sense lines\n");
+> +		goto err_gpio_config;
+> +	}
+> +
+> +	rc = pmic8xxx_kp_config_drv(pdata->rows_gpio_start,
+> +					pdata->num_rows);
+> +	if (rc < 0) {
+> +		dev_err(&pdev->dev, "unable to configure keypad drive lines\n");
+> +		goto err_gpio_config;
+> +	}
+> +
+>  	rc = request_any_context_irq(kp->key_sense_irq, pmic8xxx_kp_irq,
+>  				 IRQF_TRIGGER_RISING, "pmic-keypad", kp);
+>  	if (rc < 0) {
+> @@ -645,6 +718,7 @@ err_pmic_reg_read:
+>  	free_irq(kp->key_stuck_irq, NULL);
+>  err_req_stuck_irq:
+>  	free_irq(kp->key_sense_irq, NULL);
+> +err_gpio_config:
+>  err_get_irq:
+>  	input_free_device(kp->input);
+>  err_alloc_device:
+> diff --git a/include/linux/input/pmic8xxx-keypad.h b/include/linux/input/pmic8xxx-keypad.h
+> index fc2ac4c..5f1e2f9 100644
+> --- a/include/linux/input/pmic8xxx-keypad.h
+> +++ b/include/linux/input/pmic8xxx-keypad.h
+> @@ -38,6 +38,8 @@ struct pm8xxx_keypad_platform_data {
+>  
+>  	unsigned int num_cols;
+>  	unsigned int num_rows;
+> +	unsigned int rows_gpio_start;
+> +	unsigned int cols_gpio_start;
+>  
+>  	unsigned int debounce_ms;
+>  	unsigned int scan_delay_ms;
+
+Thanks.
+
 -- 
-1.7.3.4
-
+Dmitry

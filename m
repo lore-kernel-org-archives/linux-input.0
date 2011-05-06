@@ -1,52 +1,63 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
-Date: Fri, 6 May 2011 14:58:12 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105061456320.28291@pobox.suse.cz>
-References: <Pine.LNX.4.44L0.1105030945410.2085-100000@iolanthe.rowland.org>
+From: Anirudh Ghayal <aghayal@codeaurora.org>
+Subject: Re: [PATCH V2 3/3] input: pmic8xxx_pwrkey: Add support for power
+ key
+Date: Fri, 06 May 2011 19:02:38 +0530
+Message-ID: <4DC3F876.6010008@codeaurora.org>
+References: <1304573604-21843-1-git-send-email-aghayal@codeaurora.org> <1304573604-21843-3-git-send-email-aghayal@codeaurora.org> <20110505160819.GD27251@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:60809 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754872Ab1EFM6R (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 May 2011 08:58:17 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1105030945410.2085-100000@iolanthe.rowland.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20110505160819.GD27251@core.coreip.homeip.net>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Trilok Soni <tsoni@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>, "Adi J. Sieker" <adi@sieker.io>
-Cc: Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
 
-On Tue, 3 May 2011, Alan Stern wrote:
+Hi Dmitry,
 
-> > Do you know of a way for me to tell the kernel/usbhid to use interface 1 
-> > and ignore interface 0?
-> 
-> Well, you can always unbind interface 0 from usbhid -- it corresponds
-> to the 2-1.1:1.0 file in /sys/bus/usb/drivers/usbhid/.  If you do that,
-> you'll probably find the few keys which _do_ currently work suddenly
-> stop working.
-> 
-> But there's nothing to be done immediately about interface 1; usbhid is
-> _already_ using it.  It just isn't using it correctly.
+On 5/5/2011 9:38 PM, Dmitry Torokhov wrote:
+> Hi Anirudh,
+>
+> On Thu, May 05, 2011 at 11:03:24AM +0530, Anirudh Ghayal wrote:
+>> From: Trilok Soni<tsoni@codeaurora.org>
+>>
+>> Add support for PMIC8XXX power key driven over dedicated
+>> KYPD_PWR_N pin. It allows the user to specify the amount
+>> of time by which the power key reporting can be delayed.
+>>
+>> +
+>> +static irqreturn_t pwrkey_press_irq(int irq, void *_pwrkey)
+>> +{
+>> +	struct pmic8xxx_pwrkey *pwrkey = _pwrkey;
+>> +	const struct pm8xxx_pwrkey_platform_data *pdata = pwrkey->pdata;
+>> +	unsigned long flags;
+>> +
+>> +	/* no pwrkey time duration, means no screen lock key simulation */
+>> +	if (!pwrkey->pdata->pwrkey_time_ms) {
+>> +		input_report_key(pwrkey->pwr, KEY_POWER, 1);
+>> +		input_sync(pwrkey->pwr);
+>> +		return IRQ_HANDLED;
+>> +	}
+>> +
+>> +	spin_lock_irqsave(&pwrkey->lock, flags);
+>> +
+>> +	input_report_key(pwrkey->pwr, KEY_SCREENLOCK, 1);
+>> +	input_sync(pwrkey->pwr);
+>> +
+>
+> I am very sorry for misleading Trilok and you earlier but I think this
+> kind of transformation should be done in your userspace framework. Have
+> the driver emit KEY_SCREENLOCK and have userspace initiate device
+> shutdown if it detects that KEY_SCREENLOCK is pressed for longer than X
+> seconds.
 
-Adi,
+After giving this a further thought, I agree that this handling should 
+be in the userspace. I will submit a new patch with the changes.
 
-could you please provide output of
+>
+> Thanks.
+>
 
-	cat /syse/kernel/debug/hid/<keyboard>/rdesc
-
-anytime after the keyboard has been plugged, and
-
-	cat /syse/kernel/debug/hid/<keyboard>/events
-
-from the time you press any of the working and non-working keys? (both 
-cases will be interesting).
-
-Oh, and the above assumes that you have debugfs mounted under 
-/sys/kernel/debug.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Thank you,
+~Anirudh

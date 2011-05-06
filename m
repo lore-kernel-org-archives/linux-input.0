@@ -1,40 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] ads7846: Make buffers in struct ser_req and struct
- ads7845_ser_req DMA save
-Date: Thu, 5 May 2011 09:15:19 -0700
-Message-ID: <20110505161519.GG27251@core.coreip.homeip.net>
-References: <1304578268-24887-1-git-send-email-alexander.stein@systec-electronic.com>
- <4DC26896.5090800@cam.ac.uk>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] Add sixaxis plugin: USB pairing and LEDs settings
+Date: Fri, 06 May 2011 02:14:38 +0100
+Message-ID: <1304644488.16101.28.camel@novo.hadess.net>
+References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
+	 <1298628292-8842-4-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:39016 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753810Ab1EEQPZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2011 12:15:25 -0400
-Received: by pzk9 with SMTP id 9so1031201pzk.19
-        for <linux-input@vger.kernel.org>; Thu, 05 May 2011 09:15:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4DC26896.5090800@cam.ac.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1298628292-8842-4-git-send-email-ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: Alexander Stein <alexander.stein@systec-electronic.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, May 05, 2011 at 10:06:30AM +0100, Jonathan Cameron wrote:
-> On 05/05/11 07:51, Alexander Stein wrote:
-> > req.sample needs its own cacheline otherwise accessing req.msg fetches
-> > it in again.
-> > 
-> > Note: This effect doesn't occur if the underlying SPI driver doesn't use
-> > DMA at all.
-> I would say the comment is a bit obvious, but then you are fixing a bug
-> because it was wrong - so fair call.
-> > 
-> > Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> Acked-by: Jonathan Cameron <jic23@cam.ac.uk>
+On Fri, 2011-02-25 at 11:04 +0100, Antonio Ospite wrote:
+> +                       [AC_LANG_PROGRAM([[
+> +                               #include <sys/ioctl.h>
+> +                               #include <linux/hidraw.h>
+> +                               #if ! (defined(HIDIOCSFEATURE) &&
+> defined(HIDIOCGFEATURE))
+> +                               #error "HIDIOCSFEATURE and
+> HIDIOCGFEATURE are required (linux-libc-dev >= 2.6.3x)"
+> +                               #endif
+> +                               ]], 
 
-Both applied, thanks Alexander and Jonathan.
+The only part of the patch I have a problem with is this one.
 
--- 
-Dmitry
+I'd rather the code had:
+#ifndef HIDIOCSFEATURE
+#define HIDIOCSFEATURE bleh
+#endif
+
+And gracefully handled the ioctl not being available on the running
+kernel (eg. "Not handling plugged in Sixaxis joypad because the kernel
+lacks HIDIOCSFEATURE support").
+
+The rest looks fine, and I'll be testing whether my Fedora 15 kernel has
+the feature merged in yet (which would make testing your code much
+easier).
+
+Cheers

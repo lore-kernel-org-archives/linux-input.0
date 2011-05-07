@@ -1,91 +1,60 @@
-From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] Add sixaxis plugin: USB pairing and LEDs
- settings
-Date: Sat, 7 May 2011 01:14:12 +0200
-Message-ID: <20110507011412.ba0ad1e9.ospite@studenti.unina.it>
-References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
-	<1298628292-8842-4-git-send-email-ospite@studenti.unina.it>
-	<1304644488.16101.28.camel@novo.hadess.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [v1] Input: tegra-kbc - modify keypress wakeup logic.
+Date: Fri, 6 May 2011 22:56:42 -0700
+Message-ID: <20110507055641.GA5291@core.coreip.homeip.net>
+References: <1304382188-29530-1-git-send-email-riyer@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__7_May_2011_01_14_12_+0200_m1L=30Z7B48nU6BT"
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1304644488.16101.28.camel-7u+x0O+HiKDXoxyGr5pmpw@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>
-List-Id: linux-input@vger.kernel.org
-
---Signature=_Sat__7_May_2011_01_14_12_+0200_m1L=30Z7B48nU6BT
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f173.google.com ([209.85.212.173]:34885 "EHLO
+	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751906Ab1EGF4t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 May 2011 01:56:49 -0400
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1304382188-29530-1-git-send-email-riyer@nvidia.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: riyer@nvidia.com
+Cc: rydberg@euromail.se, amartin@nvidia.com, olof@lixom.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, 06 May 2011 02:14:38 +0100
-Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
+Hi Rakesh,
 
-> On Fri, 2011-02-25 at 11:04 +0100, Antonio Ospite wrote:
-> > +                       [AC_LANG_PROGRAM([[
-> > +                               #include <sys/ioctl.h>
-> > +                               #include <linux/hidraw.h>
-> > +                               #if ! (defined(HIDIOCSFEATURE) &&
-> > defined(HIDIOCGFEATURE))
-> > +                               #error "HIDIOCSFEATURE and
-> > HIDIOCGFEATURE are required (linux-libc-dev >=3D 2.6.3x)"
-> > +                               #endif
-> > +                               ]],=20
->=20
-> The only part of the patch I have a problem with is this one.
->=20
-> I'd rather the code had:
-> #ifndef HIDIOCSFEATURE
-> #define HIDIOCSFEATURE bleh
-> #endif
->=20
-> And gracefully handled the ioctl not being available on the running
-> kernel (eg. "Not handling plugged in Sixaxis joypad because the kernel
-> lacks HIDIOCSFEATURE support").
->
+On Mon, May 02, 2011 at 05:23:08PM -0700, riyer@nvidia.com wrote:
+> From: Rakesh Iyer <riyer@nvidia.com>
+> 
+> Modify wakeup logic so either all keypresses wake the system or none do.
+> 
+> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
+> ---
+> v1: Modify wakeup logic so either all keypresses wake the system or none do.
+> 
+>  arch/arm/mach-tegra/include/mach/kbc.h |    4 +---
+>  drivers/input/keyboard/tegra-kbc.c     |   28 ++++------------------------
+>  2 files changed, 5 insertions(+), 27 deletions(-)
+> 
+> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
+> index bd99744..6b8e934 100644
+> --- a/arch/arm/mach-tegra/include/mach/kbc.h
+> +++ b/arch/arm/mach-tegra/include/mach/kbc.h
+> @@ -50,14 +50,12 @@ struct tegra_kbc_platform_data {
+>  	unsigned int debounce_cnt;
+>  	unsigned int repeat_cnt;
+>  
+> -	unsigned int wake_cnt; /* 0:wake on any key >1:wake on wake_cfg */
+> -	const struct tegra_kbc_wake_key *wake_cfg;
+> -
+>  	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
+>  	const struct matrix_keymap_data *keymap_data;
+>  
+>  	bool wakeup;
+>  	bool use_fn_map;
+>  	bool use_ghost_filter;
+> +	bool wake_on_keypress;
 
-Thinking twice about that, maybe I haven't fully understood what you
-mean.
+Why do we need new wake_on_keypress flag if we already have 'wakeup'?
+What besides a keypress can be used as a wakeup source with this device?
 
-Do you want that the plugin can be enabled and _compiled_ on _older_
-kernels as well?
+Thanks.
 
-Because about compiling on _supported_ ones and then _running_ it on
-_older_ ones, well, the ioctl return values are already checked and
-they should just (gracefully?) fail on unsupported kernels. But I'll
-double check this scenario.
-
-If you want indeed it to be _compiled_ on older kernels and nonetheless
-still work on supported ones, I think we just have to copy the iotcls
-request defines from hidraw.h if they are not defined but I still don't
-know if I like that.
-
-Regards,
-   Antonio
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Sat__7_May_2011_01_14_12_+0200_m1L=30Z7B48nU6BT
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk3EgMQACgkQ5xr2akVTsAGiVACbB2x6eiQ9qOMSUW46rpu0XO2o
-/O0AnijqRSImnpNHabur9gOgtLQAoQit
-=OFRL
------END PGP SIGNATURE-----
-
---Signature=_Sat__7_May_2011_01_14_12_+0200_m1L=30Z7B48nU6BT--
+-- 
+Dmitry

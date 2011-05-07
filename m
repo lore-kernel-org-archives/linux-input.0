@@ -1,78 +1,103 @@
-From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] Add sixaxis plugin: USB pairing and LEDs settings
-Date: Sat, 07 May 2011 17:57:07 +0100
-Message-ID: <1304787442.2427.11.camel@novo.hadess.net>
-References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
-	 <1298628292-8842-4-git-send-email-ospite@studenti.unina.it>
-	 <1304644488.16101.28.camel@novo.hadess.net>
-	 <20110507011412.ba0ad1e9.ospite@studenti.unina.it>
+From: Christoph Fritz <chf.fritz@googlemail.com>
+Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
+Date: Sun, 08 May 2011 00:24:53 +0200
+Message-ID: <1304807093.5891.45.camel@mars>
+References: <Pine.LNX.4.44L0.1105030945410.2085-100000@iolanthe.rowland.org>
+	 <alpine.LNX.2.00.1105061456320.28291@pobox.suse.cz>
+	 <4DC3FEC7.6050503@sieker.io>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110507011412.ba0ad1e9.ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:47934 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755116Ab1EGWZA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 May 2011 18:25:00 -0400
+In-Reply-To: <4DC3FEC7.6050503@sieker.io>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Adi J. Sieker" <adi@sieker.io>
+Cc: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
 
-On Sat, 2011-05-07 at 01:14 +0200, Antonio Ospite wrote:
-> On Fri, 06 May 2011 02:14:38 +0100
-> Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
-> 
-> > On Fri, 2011-02-25 at 11:04 +0100, Antonio Ospite wrote:
-> > > +                       [AC_LANG_PROGRAM([[
-> > > +                               #include <sys/ioctl.h>
-> > > +                               #include <linux/hidraw.h>
-> > > +                               #if ! (defined(HIDIOCSFEATURE) &&
-> > > defined(HIDIOCGFEATURE))
-> > > +                               #error "HIDIOCSFEATURE and
-> > > HIDIOCGFEATURE are required (linux-libc-dev >= 2.6.3x)"
-> > > +                               #endif
-> > > +                               ]], 
-> > 
-> > The only part of the patch I have a problem with is this one.
-> > 
-> > I'd rather the code had:
-> > #ifndef HIDIOCSFEATURE
-> > #define HIDIOCSFEATURE bleh
-> > #endif
-> > 
-> > And gracefully handled the ioctl not being available on the running
-> > kernel (eg. "Not handling plugged in Sixaxis joypad because the kernel
-> > lacks HIDIOCSFEATURE support").
+On Fri, 2011-05-06 at 15:59 +0200, Adi J. Sieker wrote:
+> On 06/05/11 14:58, Jiri Kosina wrote:
+> > On Tue, 3 May 2011, Alan Stern wrote:
 > >
+> >>> Do you know of a way for me to tell the kernel/usbhid to use interface 1
+> >>> and ignore interface 0?
+> >>
+> >> Well, you can always unbind interface 0 from usbhid -- it corresponds
+> >> to the 2-1.1:1.0 file in /sys/bus/usb/drivers/usbhid/.  If you do that,
+> >> you'll probably find the few keys which _do_ currently work suddenly
+> >> stop working.
+> >>
+> >> But there's nothing to be done immediately about interface 1; usbhid is
+> >> _already_ using it.  It just isn't using it correctly.
+> >
+> > Adi,
+> >
+> > could you please provide output of
+> >
+> > 	cat /syse/kernel/debug/hid/<keyboard>/rdesc
+> >
+> > anytime after the keyboard has been plugged, and
 > 
-> Thinking twice about that, maybe I haven't fully understood what you
-> mean.
+> in /sys/kernel/debug/hid I have two devices for the keyboard. One is 
+> 0003:060B:0230.0002 and the other 0003:060B:0230.0003
 > 
-> Do you want that the plugin can be enabled and _compiled_ on _older_
-> kernels as well?
-
-No, the plugin can be built with older kernel headers. The kernel
-headers are shipped as part of the glibc, and should offer a "stable"
-interface to the Linux kernel. The Debian way of shipping supposed glibc
-kernel headers which actually come from the running kernel is something
-that's frowned upon.
-
-> Because about compiling on _supported_ ones and then _running_ it on
-> _older_ ones, well, the ioctl return values are already checked and
-> they should just (gracefully?) fail on unsupported kernels. But I'll
-> double check this scenario.
+> attached are the rdesc files for both devices.
 > 
-> If you want indeed it to be _compiled_ on older kernels and nonetheless
-> still work on supported ones, I think we just have to copy the iotcls
-> request defines from hidraw.h if they are not defined but I still don't
-> know if I like that.
+> >
+> > 	cat /syse/kernel/debug/hid/<keyboard>/events
+>  > from the time you press any of the working and non-working keys? (both
+>  > cases will be interesting).
+> 
+> I only get events for the working keys on the *:0002 device.
+> All other files were empty after I pressed some keys.
+> 
+> The events for the working keys are attached in the *.events file.
+> I first pressed backspace and then the menu key.
 
-Again, it's not compiling against older kernels. but compiling against
-older kernel headers, which is a wildly different thing.
+Hi Adi,
+ 
+ I'm not sure about my patch below because of interface one, maybe you
+can give it a try.
 
-I'd like the plugin to be enabled, even if building with older kernel
-headers, as those have no relation to the capabilities of the running
-kernel.
+Thanks,
+ -- chf
 
-It would also make the whole thing easier to test (just install a newer
-kernel with the patches merged in, and voila, working sisaxis pairing).
+---
+Subject: [PATCH] HID: add quirk for Solid Year keyboard ACK231
 
-Cheers
+This patch adds HID_QUIRK_MULTI_INPUT to Solid Year keyboard ACK231
+which reports keystrokes from inside a firmware-configuration
+interface instead of using its own interface.
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 00a94b5..abbace9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -528,6 +528,9 @@
+ #define USB_VENDOR_ID_SKYCABLE			0x1223
+ #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
+ 
++#define USB_VENDOR_ID_SOLIDYEAR		0x060b
++#define USB_DEVICE_ID_SOLIDYEAR_KEYBOARD_ACK231	0x0230
++
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+ #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index a8426f1..b099380 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -49,6 +49,7 @@
+ 	{ USB_VENDOR_ID_ETURBOTOUCH, USB_DEVICE_ID_ETURBOTOUCH, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_SOLIDYEAR, USB_DEVICE_ID_SOLIDYEAR_KEYBOARD_ACK231, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
+ 
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM, HID_QUIRK_NOGET },
+
+

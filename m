@@ -1,60 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [v1] Input: tegra-kbc - modify keypress wakeup logic.
-Date: Fri, 6 May 2011 22:56:42 -0700
-Message-ID: <20110507055641.GA5291@core.coreip.homeip.net>
-References: <1304382188-29530-1-git-send-email-riyer@nvidia.com>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] Add sixaxis plugin: USB pairing and LEDs settings
+Date: Sat, 07 May 2011 17:57:07 +0100
+Message-ID: <1304787442.2427.11.camel@novo.hadess.net>
+References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
+	 <1298628292-8842-4-git-send-email-ospite@studenti.unina.it>
+	 <1304644488.16101.28.camel@novo.hadess.net>
+	 <20110507011412.ba0ad1e9.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f173.google.com ([209.85.212.173]:34885 "EHLO
-	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751906Ab1EGF4t (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 May 2011 01:56:49 -0400
-Content-Disposition: inline
-In-Reply-To: <1304382188-29530-1-git-send-email-riyer@nvidia.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110507011412.ba0ad1e9.ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: riyer@nvidia.com
-Cc: rydberg@euromail.se, amartin@nvidia.com, olof@lixom.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Rakesh,
-
-On Mon, May 02, 2011 at 05:23:08PM -0700, riyer@nvidia.com wrote:
-> From: Rakesh Iyer <riyer@nvidia.com>
+On Sat, 2011-05-07 at 01:14 +0200, Antonio Ospite wrote:
+> On Fri, 06 May 2011 02:14:38 +0100
+> Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
 > 
-> Modify wakeup logic so either all keypresses wake the system or none do.
+> > On Fri, 2011-02-25 at 11:04 +0100, Antonio Ospite wrote:
+> > > +                       [AC_LANG_PROGRAM([[
+> > > +                               #include <sys/ioctl.h>
+> > > +                               #include <linux/hidraw.h>
+> > > +                               #if ! (defined(HIDIOCSFEATURE) &&
+> > > defined(HIDIOCGFEATURE))
+> > > +                               #error "HIDIOCSFEATURE and
+> > > HIDIOCGFEATURE are required (linux-libc-dev >= 2.6.3x)"
+> > > +                               #endif
+> > > +                               ]], 
+> > 
+> > The only part of the patch I have a problem with is this one.
+> > 
+> > I'd rather the code had:
+> > #ifndef HIDIOCSFEATURE
+> > #define HIDIOCSFEATURE bleh
+> > #endif
+> > 
+> > And gracefully handled the ioctl not being available on the running
+> > kernel (eg. "Not handling plugged in Sixaxis joypad because the kernel
+> > lacks HIDIOCSFEATURE support").
+> >
 > 
-> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> ---
-> v1: Modify wakeup logic so either all keypresses wake the system or none do.
+> Thinking twice about that, maybe I haven't fully understood what you
+> mean.
 > 
->  arch/arm/mach-tegra/include/mach/kbc.h |    4 +---
->  drivers/input/keyboard/tegra-kbc.c     |   28 ++++------------------------
->  2 files changed, 5 insertions(+), 27 deletions(-)
+> Do you want that the plugin can be enabled and _compiled_ on _older_
+> kernels as well?
+
+No, the plugin can be built with older kernel headers. The kernel
+headers are shipped as part of the glibc, and should offer a "stable"
+interface to the Linux kernel. The Debian way of shipping supposed glibc
+kernel headers which actually come from the running kernel is something
+that's frowned upon.
+
+> Because about compiling on _supported_ ones and then _running_ it on
+> _older_ ones, well, the ioctl return values are already checked and
+> they should just (gracefully?) fail on unsupported kernels. But I'll
+> double check this scenario.
 > 
-> diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
-> index bd99744..6b8e934 100644
-> --- a/arch/arm/mach-tegra/include/mach/kbc.h
-> +++ b/arch/arm/mach-tegra/include/mach/kbc.h
-> @@ -50,14 +50,12 @@ struct tegra_kbc_platform_data {
->  	unsigned int debounce_cnt;
->  	unsigned int repeat_cnt;
->  
-> -	unsigned int wake_cnt; /* 0:wake on any key >1:wake on wake_cfg */
-> -	const struct tegra_kbc_wake_key *wake_cfg;
-> -
->  	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
->  	const struct matrix_keymap_data *keymap_data;
->  
->  	bool wakeup;
->  	bool use_fn_map;
->  	bool use_ghost_filter;
-> +	bool wake_on_keypress;
+> If you want indeed it to be _compiled_ on older kernels and nonetheless
+> still work on supported ones, I think we just have to copy the iotcls
+> request defines from hidraw.h if they are not defined but I still don't
+> know if I like that.
 
-Why do we need new wake_on_keypress flag if we already have 'wakeup'?
-What besides a keypress can be used as a wakeup source with this device?
+Again, it's not compiling against older kernels. but compiling against
+older kernel headers, which is a wildly different thing.
 
-Thanks.
+I'd like the plugin to be enabled, even if building with older kernel
+headers, as those have no relation to the capabilities of the running
+kernel.
 
--- 
-Dmitry
+It would also make the whole thing easier to test (just install a newer
+kernel with the patches merged in, and voila, working sisaxis pairing).
+
+Cheers

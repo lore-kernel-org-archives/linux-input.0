@@ -1,50 +1,37 @@
-From: Igor Grinberg <grinberg@compulab.co.il>
-Subject: [PATCH v2] input: ads7846: fix gpio_pendown configuration
-Date: Sun,  8 May 2011 11:44:50 +0300
-Message-ID: <1304844290-31233-1-git-send-email-grinberg@compulab.co.il>
-References: <20110505161356.GF27251@core.coreip.homeip.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 0/3] Atari input patches
+Date: Sun,  8 May 2011 11:17:24 +0200
+Message-ID: <1304846247-12401-1-git-send-email-geert@linux-m68k.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 50.23.254.54-static.reverse.softlayer.com ([50.23.254.54]:41810
-	"EHLO softlayer.compulab.co.il" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751999Ab1EHIo5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 8 May 2011 04:44:57 -0400
-In-Reply-To: <20110505161356.GF27251@core.coreip.homeip.net>
+Received: from gerard.telenet-ops.be ([195.130.132.48]:43514 "EHLO
+	gerard.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752032Ab1EHJRh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 8 May 2011 05:17:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Igor Grinberg <grinberg@compulab.co.il>
+Cc: linux-input@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
 
-The pendown gpio was requested but not configured for input.
-Configure it for input.
+	Hi Dmitry,
 
-Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
----
-v2:	add a separate gpio_direction_input() call
-	instead of a single gpio_request_one() call
-	so the driver will compile with !CONFIG_GENERIC_GPIO
+Here are 3 patches to fix keyboard and mouse on Atari, after conversion to
+the "new" (several years old) input framework.
 
- drivers/input/touchscreen/ads7846.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+  [1/3] input/atari: Use the correct mouse interrupt hook
+  [2/3] input/atari: Fix atarimouse init
+  [3/3] input/atari: Fix mouse movement and button mapping
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 1de1c19..886ec55 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -969,6 +969,13 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
- 				pdata->gpio_pendown);
- 			return err;
- 		}
-+		err = gpio_direction_input(pdata->gpio_pendown);
-+		if (err) {
-+			dev_err(&spi->dev, "failed to setup pendown GPIO%d\n",
-+				pdata->gpio_pendown);
-+			gpio_free(pdata->gpio_pendown);
-+			return err;
-+		}
- 
- 		ts->gpio_pendown = pdata->gpio_pendown;
- 
--- 
-1.7.3.4
+Will you take them for 2.6.40, or can I get them in through my m68k tree?
 
+Thanks in advance!
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,103 +1,79 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
-Date: Sun, 08 May 2011 00:24:53 +0200
-Message-ID: <1304807093.5891.45.camel@mars>
-References: <Pine.LNX.4.44L0.1105030945410.2085-100000@iolanthe.rowland.org>
-	 <alpine.LNX.2.00.1105061456320.28291@pobox.suse.cz>
-	 <4DC3FEC7.6050503@sieker.io>
+From: Anssi Hannula <anssi.hannula@iki.fi>
+Subject: IR remote control autorepeat / evdev
+Date: Sun, 08 May 2011 07:38:00 +0300
+Message-ID: <4DC61E28.4090301@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:47934 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755116Ab1EGWZA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 May 2011 18:25:00 -0400
-In-Reply-To: <4DC3FEC7.6050503@sieker.io>
+Received: from sypressi.dnainternet.net ([83.102.40.135]:59023 "EHLO
+	sypressi.dnainternet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750768Ab1EHEoG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 8 May 2011 00:44:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Adi J. Sieker" <adi@sieker.io>
-Cc: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
+To: linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
 
-On Fri, 2011-05-06 at 15:59 +0200, Adi J. Sieker wrote:
-> On 06/05/11 14:58, Jiri Kosina wrote:
-> > On Tue, 3 May 2011, Alan Stern wrote:
-> >
-> >>> Do you know of a way for me to tell the kernel/usbhid to use interface 1
-> >>> and ignore interface 0?
-> >>
-> >> Well, you can always unbind interface 0 from usbhid -- it corresponds
-> >> to the 2-1.1:1.0 file in /sys/bus/usb/drivers/usbhid/.  If you do that,
-> >> you'll probably find the few keys which _do_ currently work suddenly
-> >> stop working.
-> >>
-> >> But there's nothing to be done immediately about interface 1; usbhid is
-> >> _already_ using it.  It just isn't using it correctly.
-> >
-> > Adi,
-> >
-> > could you please provide output of
-> >
-> > 	cat /syse/kernel/debug/hid/<keyboard>/rdesc
-> >
-> > anytime after the keyboard has been plugged, and
-> 
-> in /sys/kernel/debug/hid I have two devices for the keyboard. One is 
-> 0003:060B:0230.0002 and the other 0003:060B:0230.0003
-> 
-> attached are the rdesc files for both devices.
-> 
-> >
-> > 	cat /syse/kernel/debug/hid/<keyboard>/events
->  > from the time you press any of the working and non-working keys? (both
->  > cases will be interesting).
-> 
-> I only get events for the working keys on the *:0002 device.
-> All other files were empty after I pressed some keys.
-> 
-> The events for the working keys are attached in the *.events file.
-> I first pressed backspace and then the menu key.
+Hi all!
 
-Hi Adi,
- 
- I'm not sure about my patch below because of interface one, maybe you
-can give it a try.
+Most IR/RF remotes differ from normal keyboards in that they don't
+provide release events. They do provide native repeat events, though.
 
-Thanks,
- -- chf
+Currently the Linux kernel RC/input subsystems provide a simulated
+autorepeat for remote controls (default delay 500ms, period 33ms), and
+X.org server ignores these events and generates its own autorepeat for them.
 
----
-Subject: [PATCH] HID: add quirk for Solid Year keyboard ACK231
+The kernel RC subsystem provides a simulated release event when 250ms
+has passed since the last native event (repeat or non-repeat) was
+received from the device.
 
-This patch adds HID_QUIRK_MULTI_INPUT to Solid Year keyboard ACK231
-which reports keystrokes from inside a firmware-configuration
-interface instead of using its own interface.
+This is problematic, since it causes lots of extra repeat events to be
+always sent (for up to 250ms) after the user has released the remote
+control button, which makes the remote quite uncomfortable to use.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 00a94b5..abbace9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -528,6 +528,9 @@
- #define USB_VENDOR_ID_SKYCABLE			0x1223
- #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
- 
-+#define USB_VENDOR_ID_SOLIDYEAR		0x060b
-+#define USB_DEVICE_ID_SOLIDYEAR_KEYBOARD_ACK231	0x0230
-+
- #define USB_VENDOR_ID_SONY			0x054c
- #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
- #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index a8426f1..b099380 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -49,6 +49,7 @@
- 	{ USB_VENDOR_ID_ETURBOTOUCH, USB_DEVICE_ID_ETURBOTOUCH, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
- 	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
-+	{ USB_VENDOR_ID_SOLIDYEAR, USB_DEVICE_ID_SOLIDYEAR_KEYBOARD_ACK231, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
- 
- 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM, HID_QUIRK_NOGET },
+Now, IMO something should be done to fix this. But what exactly?
 
+Here are two ideas that would remove these ghost repeats:
 
+1. Do not provide any repeat/release simulation in the kernel for RC
+devices (by default?), just provide both keydown and immediate release
+events for every native keypress or repeat received from the device.
++ Very simple to implement
+- We lose the ability to track repeats, i.e. if a new event was a repeat
+  or a new keypress; "holding down" a key becomes impossible
+
+or
+2. Replace kernel autorepeat simulation by passing through the native
+repeat events (probably filtering them according to REP_DELAY and
+REP_PERIOD), and have a device property bit (fetchable via EVIOCGPROP)
+indicating that the keyrelease is simulated, and have the X server use
+the native repeats instead of softrepeats for such a device.
++ The userspace correctly gets repeat events tagged as repeats and
+  release events when appropriate (albeit a little late)
+- Adds complexity. Also, while the kernel part is quite easy to
+  implement, I'm not sure if the X server part is.
+
+or
+3. Same as 1., but indicate the repeatness of an event with a new
+   additional special event before EV_SYN (sync event).
++ Simple to implement
+- Quite hacky, and userspace still can't guess from initial
+  keypress/release if the key is still pressed down or not.
+
+4. Same as 1., but have a new EV_RC with RC_KEYDOWN and RC_KEYUP events,
+   with RC_KEYDOWN sent when a key is pressed down a first time along
+   with the normal EV_KEY event, and RC_KEYUP sent when the key is
+   surely released (e.g. 250ms without native repeat events or another
+   key got pressed, i.e. like the simulated keyup now).
++ Simple to implement, works as expected with most userspace apps with
+  no changes to them; and if an app wants to know the repeatness of an
+  event or held-down-ness of a key, it can do that.
+- Repeatness of the event is hidden behind a new API.
+
+What do you think? Or any other ideas?
+
+2 and 4 seem nicest to me.
+(I don't know how feasible 2 would be on X server side, though)
+
+-- 
+Anssi Hannula

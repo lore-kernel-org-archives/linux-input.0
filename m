@@ -1,49 +1,72 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: HID generic-bluetooth driver
-Date: Sun, 8 May 2011 17:02:54 +0200
-Message-ID: <20110508150253.GA3271@lovely.krouter>
-References: <BANLkTi=tUNCMyCKVEXtv0W=8jYbK-k7HMg@mail.gmail.com>
- <1304855553.4742.3.camel@mars>
- <BANLkTim7BJHV528DvJZvSnzmTzFjn=4qSw@mail.gmail.com>
+From: "Adi J. Sieker" <adi@sieker.io>
+Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
+Date: Sun, 08 May 2011 21:51:42 +0200
+Message-ID: <4DC6F44E.1000703@sieker.io>
+References: <Pine.LNX.4.44L0.1105030945410.2085-100000@iolanthe.rowland.org>	 <alpine.LNX.2.00.1105061456320.28291@pobox.suse.cz>	 <4DC3FEC7.6050503@sieker.io> <1304807093.5891.45.camel@mars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:35184 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752900Ab1EHPLD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 8 May 2011 11:11:03 -0400
-Received: by wwa36 with SMTP id 36so4976090wwa.1
-        for <linux-input@vger.kernel.org>; Sun, 08 May 2011 08:11:01 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <BANLkTim7BJHV528DvJZvSnzmTzFjn=4qSw@mail.gmail.com>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:47704 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751173Ab1EHTvs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 8 May 2011 15:51:48 -0400
+In-Reply-To: <1304807093.5891.45.camel@mars>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org, padovan@profusion.mobi
+To: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>
 
-On Sun, May 08, 2011 at 02:20:40PM +0200, David Herrmann wrote:
-> On Sun, May 8, 2011 at 1:52 PM, Christoph Fritz
-> <chf.fritz@googlemail.com> wrote:
-> > =A0you can add it to hid_have_special_driver[] (drivers/hid/hid-cor=
-e.c).
-> >
->=20
-> Since I cannot see any MODULE_DEVICE_TABLE() entry there, I guess I
-> can't extend this table on runtime?
+On 08/05/11 00:24, Christoph Fritz wrote:
+> On Fri, 2011-05-06 at 15:59 +0200, Adi J. Sieker wrote:
+>> On 06/05/11 14:58, Jiri Kosina wrote:
+>>> On Tue, 3 May 2011, Alan Stern wrote:
+>>>
+>>>>> Do you know of a way for me to tell the kernel/usbhid to use interface 1
+>>>>> and ignore interface 0?
+>>>>
+>>>> Well, you can always unbind interface 0 from usbhid -- it corresponds
+>>>> to the 2-1.1:1.0 file in /sys/bus/usb/drivers/usbhid/.  If you do that,
+>>>> you'll probably find the few keys which _do_ currently work suddenly
+>>>> stop working.
+>>>>
+>>>> But there's nothing to be done immediately about interface 1; usbhid is
+>>>> _already_ using it.  It just isn't using it correctly.
+>>>
+>>> Adi,
+>>>
+>>> could you please provide output of
+>>>
+>>> 	cat /syse/kernel/debug/hid/<keyboard>/rdesc
+>>>
+>>> anytime after the keyboard has been plugged, and
+>>
+>> in /sys/kernel/debug/hid I have two devices for the keyboard. One is
+>> 0003:060B:0230.0002 and the other 0003:060B:0230.0003
+>>
+>> attached are the rdesc files for both devices.
+>>
+>>>
+>>> 	cat /syse/kernel/debug/hid/<keyboard>/events
+>>   >  from the time you press any of the working and non-working keys? (both
+>>   >  cases will be interesting).
+>>
+>> I only get events for the working keys on the *:0002 device.
+>> All other files were empty after I pressed some keys.
+>>
+>> The events for the working keys are attached in the *.events file.
+>> I first pressed backspace and then the menu key.
+>
+> Hi Adi,
+>
+>   I'm not sure about my patch below because of interface one, maybe you
+> can give it a try.
+>
+What kernel version do I need? I'm running Ubuntu 10.04, so can I apply 
+this to a 2.6.32 Ubuntu kernel or do I need a current 2.6.39?
 
-No you can't extend this table at runtime.
+Any ideas if I'll run into problems if I run Ubuntu 10.04 on a 2.6.39 
+kernel.
 
-> Adding my device there helped. Thank you.
->=20
-
-You are welcome.
-
- happy hacking,
-  -- chf
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers
+    Adi

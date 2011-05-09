@@ -1,45 +1,121 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC] Reporting "orientation changed" event
-Date: Mon, 9 May 2011 19:06:19 +0100
-Message-ID: <20110509180619.GA8563@srcf.ucam.org>
-References: <20110407181800.27b441b1@destiny.ordissimo>
- <20110509143828.GA2632@srcf.ucam.org>
- <4DC80A53.7050609@windriver.com>
- <20110509154729.GA5043@srcf.ucam.org>
- <4DC80F45.2040508@windriver.com>
- <20110509164006.GA6570@srcf.ucam.org>
- <20110509195802.0389639d@destiny.ordissimo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110509195802.0389639d@destiny.ordissimo>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Anisse Astier <anisse@astier.eu>
-Cc: Andy Ross <andy.ross@windriver.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Corentin Chary <corentin.chary@gmail.com>
+From: riyer@nvidia.com
+Subject: [v2] Input: tegra-kbc - modify keypress wakeup logic.
+Date: Mon,  9 May 2011 12:22:37 -0700
+Message-ID: <1304968957-10288-1-git-send-email-riyer@nvidia.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hqemgate04.nvidia.com ([216.228.121.35]:2319 "EHLO
+	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754073Ab1EITWU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2011 15:22:20 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: amartin@nvidia.com, olof@lixom.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rakesh Iyer <riyer@nvidia.com>
 
-On Mon, May 09, 2011 at 07:58:02PM +0200, Anisse Astier wrote:
+From: Rakesh Iyer <riyer@nvidia.com>
 
-> diff --git a/drivers/platform/x86/asus-laptop.c b/drivers/platform/x86/asus-laptop.c
-> index 2105b42..e23d555 100644
-> --- a/drivers/platform/x86/asus-laptop.c
-> +++ b/drivers/platform/x86/asus-laptop.c
-> @@ -1337,6 +1337,13 @@ static void asus_acpi_notify(struct acpi_device *device, u32 event)
->  		}
->  		return ;
->  	}
-> +
-> +	/* Accelerometer "coarse orientation change" event */
-> +	if (asus->pega_accel && event == 0xEA) {
-> +		kobject_uevent(&asus->pega_accel->dev.kobj, KOBJ_CHANGE);
-> +		return ;
-> +	}
-> +
->  	asus_input_notify(asus, event);
->  }
+Modify wakeup logic so either all keypresses wake the system or none do.
 
-Precisely that.
+Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
+---
+v2: Use platform data member 'wakeup' to indicate keyboard wakeup capability.
+v1: Modify wakeup logic so either all keypresses wake the system or none do.
 
+ arch/arm/mach-tegra/include/mach/kbc.h |    3 ---
+ drivers/input/keyboard/tegra-kbc.c     |   28 ++++------------------------
+ 2 files changed, 4 insertions(+), 27 deletions(-)
+
+diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
+index bd99744..4f3572a 100644
+--- a/arch/arm/mach-tegra/include/mach/kbc.h
++++ b/arch/arm/mach-tegra/include/mach/kbc.h
+@@ -50,9 +50,6 @@ struct tegra_kbc_platform_data {
+ 	unsigned int debounce_cnt;
+ 	unsigned int repeat_cnt;
+ 
+-	unsigned int wake_cnt; /* 0:wake on any key >1:wake on wake_cfg */
+-	const struct tegra_kbc_wake_key *wake_cfg;
+-
+ 	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
+ 	const struct matrix_keymap_data *keymap_data;
+ 
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 5fb4b97..c851fe6 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -66,8 +66,6 @@ struct tegra_kbc {
+ 	void __iomem *mmio;
+ 	struct input_dev *idev;
+ 	unsigned int irq;
+-	unsigned int wake_enable_rows;
+-	unsigned int wake_enable_cols;
+ 	spinlock_t lock;
+ 	unsigned int repoll_dly;
+ 	unsigned long cp_dly_jiffies;
+@@ -291,7 +289,7 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 	 * Matrix keyboard designs are prone to keyboard ghosting.
+ 	 * Ghosting occurs if there are 3 keys such that -
+ 	 * any 2 of the 3 keys share a row, and any 2 of them share a column.
+-	 * If so ignore the key presses for this iteration.
++	 * If so ignore the keypresses for this iteration.
+ 	 */
+ 	if ((kbc->use_ghost_filter) && (num_down >= 3)) {
+ 		for (i = 0; i < num_down; i++) {
+@@ -328,7 +326,7 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 
+ 	spin_unlock_irqrestore(&kbc->lock, flags);
+ 
+-	/* Ignore the key presses for this iteration? */
++	/* Ignore the keypresses for this iteration? */
+ 	if (key_in_same_col && key_in_same_row)
+ 		return;
+ 
+@@ -418,21 +416,11 @@ static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter)
+ 	int i;
+ 	unsigned int rst_val;
+ 
+-	BUG_ON(pdata->wake_cnt > KBC_MAX_KEY);
+-	rst_val = (filter && pdata->wake_cnt) ? ~0 : 0;
++	/* Either mask all keys or none. */
++	rst_val = (filter && !pdata->wakeup) ? ~0 : 0;
+ 
+ 	for (i = 0; i < KBC_MAX_ROW; i++)
+ 		writel(rst_val, kbc->mmio + KBC_ROW0_MASK_0 + i * 4);
+-
+-	if (filter) {
+-		for (i = 0; i < pdata->wake_cnt; i++) {
+-			u32 val, addr;
+-			addr = pdata->wake_cfg[i].row * 4 + KBC_ROW0_MASK_0;
+-			val = readl(kbc->mmio + addr);
+-			val &= ~(1 << pdata->wake_cfg[i].col);
+-			writel(val, kbc->mmio + addr);
+-		}
+-	}
+ }
+ 
+ static void tegra_kbc_config_pins(struct tegra_kbc *kbc)
+@@ -594,7 +582,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int irq;
+ 	int err;
+-	int i;
+ 	int num_rows = 0;
+ 	unsigned int debounce_cnt;
+ 	unsigned int scan_time_rows;
+@@ -651,13 +638,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+ 		goto err_iounmap;
+ 	}
+ 
+-	kbc->wake_enable_rows = 0;
+-	kbc->wake_enable_cols = 0;
+-	for (i = 0; i < pdata->wake_cnt; i++) {
+-		kbc->wake_enable_rows |= (1 << pdata->wake_cfg[i].row);
+-		kbc->wake_enable_cols |= (1 << pdata->wake_cfg[i].col);
+-	}
+-
+ 	/*
+ 	 * The time delay between two consecutive reads of the FIFO is
+ 	 * the sum of the repeat time and the time taken for scanning
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+1.7.2.3
+

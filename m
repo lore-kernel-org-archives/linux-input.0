@@ -1,37 +1,41 @@
-From: Christoph Fritz <chf.fritz-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: USB keyboard recognized as HID keyboard but doesn't work
-Date: Sun, 8 May 2011 23:26:15 +0200
-Message-ID: <20110508212615.GA4193@lovely.krouter>
-References: <Pine.LNX.4.44L0.1105030945410.2085-100000@iolanthe.rowland.org>
- <alpine.LNX.2.00.1105061456320.28291@pobox.suse.cz>
- <4DC3FEC7.6050503@sieker.io>
- <1304807093.5891.45.camel@mars>
- <4DC6F44E.1000703@sieker.io>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/3] Atari input patches
+Date: Sun, 8 May 2011 23:00:48 -0700
+Message-ID: <20110509060048.GA27577@core.coreip.homeip.net>
+References: <1304846247-12401-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f173.google.com ([209.85.212.173]:36243 "EHLO
+	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750977Ab1EIGAz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2011 02:00:55 -0400
 Content-Disposition: inline
-In-Reply-To: <4DC6F44E.1000703-D1akFU9K7Sphl2p70BpVqQ@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Adi J. Sieker" <adi-D1akFU9K7Sphl2p70BpVqQ@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kernel development list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1304846247-12401-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-input@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
 
-On Sun, May 08, 2011 at 09:51:42PM +0200, Adi J. Sieker wrote:
-> On 08/05/11 00:24, Christoph Fritz wrote:
-> >
-> >  I'm not sure about my patch below because of interface one, maybe you
-> >can give it a try.
-> >
-> What kernel version do I need? I'm running Ubuntu 10.04, so can I
-> apply this to a 2.6.32 Ubuntu kernel or do I need a current 2.6.39?
+Hi Geert,
 
-A current kernel is recommended.
+On Sun, May 08, 2011 at 11:17:24AM +0200, Geert Uytterhoeven wrote:
+> 	Hi Dmitry,
+> 
+> Here are 3 patches to fix keyboard and mouse on Atari, after conversion to
+> the "new" (several years old) input framework.
+> 
+>   [1/3] input/atari: Use the correct mouse interrupt hook
+>   [2/3] input/atari: Fix atarimouse init
+>   [3/3] input/atari: Fix mouse movement and button mapping
+> 
+> Will you take them for 2.6.40, or can I get them in through my m68k tree?
 
+I can either take them or you can push them. I do not really have a
+preference. There is nothing in my tree that would conflict with these
+as far as I know.
 
-bye,
- -- chf
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks.
+
+-- 
+Dmitry

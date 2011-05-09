@@ -1,46 +1,85 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC] Reporting "orientation changed" event
-Date: Mon, 9 May 2011 16:47:29 +0100
-Message-ID: <20110509154729.GA5043@srcf.ucam.org>
-References: <20110407181800.27b441b1@destiny.ordissimo>
- <20110509143828.GA2632@srcf.ucam.org>
- <4DC80A53.7050609@windriver.com>
+From: Austin Zhang <zhang.austin@gmail.com>
+Subject: HID: hid-multitouch: add support for Ilitek dual-touch panel
+Date: Mon, 9 May 2011 23:54:14 +0800
+Message-ID: <BANLkTinZWKw_YNTswC0OHRNDf1FQ+s8BKA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:58860 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751758Ab1EIPrt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2011 11:47:49 -0400
-Content-Disposition: inline
-In-Reply-To: <4DC80A53.7050609@windriver.com>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:55719 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752319Ab1EIPyP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2011 11:54:15 -0400
+Received: by pvg12 with SMTP id 12so2406625pvg.19
+        for <linux-input@vger.kernel.org>; Mon, 09 May 2011 08:54:14 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Ross <andy.ross@windriver.com>
-Cc: Anisse Astier <anisse@astier.eu>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Corentin Chary <corentin.chary@gmail.com>
+To: linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 
-On Mon, May 09, 2011 at 08:37:55AM -0700, Andy Ross wrote:
+Added ILITEK hid dual touch panel support into hid-multitouch.
 
-> How would that work?  If it's an extra sysfs node, it would require an
-> extra file descriptor in the reader.  And if it's an event inside the
-> input stream, that would require the reader implement handling to throttle
-> the polling rate.  The point here was to avoid having to poll the
-> (noisy) accelerometer stream just for gross orientation changes.
+Signed-off-by: Austin Zhang <zhang.austin@gmail.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
+ Kconfig          |    1 +
+ hid-core.c       |    1 +
+ hid-ids.h        |    3 +++
+ hid-multitouch.c |    5 +++++
+ 4 files changed, 10 insertions(+)
 
-Yes, so the accelerometer driver should (in-kernel) know that a coarse 
-orientation event has occured and then send an appropriate uevent to 
-userspace indiciating that it has new data.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index d2d4e5f..d9635d6 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -306,6 +306,7 @@ config HID_MULTITOUCH
+ 	  - Cando dual touch panel
+ 	  - Cypress TrueTouch panels
+ 	  - Hanvon dual touch panels
++	  - Ilitek dual touch panel
+ 	  - IrTouch Infrared USB panels
+ 	  - MosArt dual-touch panels
+ 	  - PenMount dual touch panels
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 6e31b9f..c0ea857 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1377,6 +1377,7 @@ static const struct hid_device_id
+hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HANVON, USB_DEVICE_ID_HANVON_MULTITOUCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
+USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 252aeba..0f29b3f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -330,6 +330,9 @@
+ #define USB_DEVICE_ID_UGCI_FLYING	0x0020
+ #define USB_DEVICE_ID_UGCI_FIGHTING	0x0030
 
-> http://build.meego.com/package/files?package=sensorfw-pegatron&project=Trunk
++#define USB_VENDOR_ID_ILITEK		0x222a
++#define USB_DEVICE_ID_ILITEK_MULTITOUCH	0x0001
++
+ #define USB_VENDOR_ID_IMATION		0x0718
+ #define USB_DEVICE_ID_DISC_STAKKA	0xd000
 
-Yeah, that's absolutely dreadful. Don't do that.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index bf46804..b21251b 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -589,6 +589,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+ 			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
 
-> Does it really need to be "fixed"?  If this were a whole class of
-> hardware, then I guess I'd agree.  But right now it's one quirky
-> device.
-
-I'm going to NAK anything that reports "Coarse orientation change" to 
-userspace without providing any context.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
++	/* Ilitek dual touch panel */
++	{  .driver_data = MT_CLS_DEFAULT,
++		HID_USB_DEVICE(USB_VENDOR_ID_ILITEK,
++			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
++
+ 	/* IRTOUCH panels */
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTID,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,

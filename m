@@ -1,30 +1,38 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HID: hid-multitouch: add support for Ilitek dual-touch panel
-Date: Mon, 9 May 2011 17:58:42 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105091758330.28291@pobox.suse.cz>
-References: <BANLkTinZWKw_YNTswC0OHRNDf1FQ+s8BKA@mail.gmail.com>
+From: Andy Ross <andy.ross@windriver.com>
+Subject: Re: [RFC] Reporting "orientation changed" event
+Date: Mon, 09 May 2011 08:59:01 -0700
+Message-ID: <4DC80F45.2040508@windriver.com>
+References: <20110407181800.27b441b1@destiny.ordissimo> <20110509143828.GA2632@srcf.ucam.org> <4DC80A53.7050609@windriver.com> <20110509154729.GA5043@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33539 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752697Ab1EIP6o (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 May 2011 11:58:44 -0400
-In-Reply-To: <BANLkTinZWKw_YNTswC0OHRNDf1FQ+s8BKA@mail.gmail.com>
+Received: from li44-10.members.linode.com ([72.14.181.10]:32801 "EHLO
+	plausible.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752778Ab1EIP7E (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 May 2011 11:59:04 -0400
+In-Reply-To: <20110509154729.GA5043@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Austin Zhang <zhang.austin@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Benjamin Tissoires <benjamin.tissoires@enac.fr>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Anisse Astier <anisse@astier.eu>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Corentin Chary <corentin.chary@gmail.com>
 
-On Mon, 9 May 2011, Austin Zhang wrote:
+On 05/09/2011 08:47 AM, Matthew Garrett wrote:
+> Yes, so the accelerometer driver should (in-kernel) know that a coarse 
+> orientation event has occured and then send an appropriate uevent to 
+> userspace indiciating that it has new data.
 
-> Added ILITEK hid dual touch panel support into hid-multitouch.
-> 
-> Signed-off-by: Austin Zhang <zhang.austin@gmail.com>
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+OK, so substituting udev for acpid, but otherwise leaving the
+input-polldev device alone.  That certainly sounds nice to me, though
+I'm not sure where the "dreadful / don't do that" advice is directed
+as the handling in userspace will be virtual identical (moving the
+dbus-send from the acpid event file into a udev rule).
 
-Applied, thanks.
+> I'm going to NAK anything that reports "Coarse orientation change"
+> to userspace without providing any context.
 
--- 
-Jiri Kosina
-SUSE Labs
+Just to be clear: there's no kernel code to NAK here.  The acpid hook
+is raw, and in userspace.  It's not clean, but it's also a single-device
+fixup: seems to me to be pretty much exactly what apcid is for, no?
+
+Andy

@@ -1,121 +1,106 @@
-From: riyer@nvidia.com
-Subject: [v2] Input: tegra-kbc - modify keypress wakeup logic.
-Date: Mon,  9 May 2011 12:22:37 -0700
-Message-ID: <1304968957-10288-1-git-send-email-riyer@nvidia.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: IR remote control autorepeat / evdev
+Date: Tue, 10 May 2011 14:11:07 +1000
+Message-ID: <20110510041107.GA32552@barra.redhat.com>
+References: <4DC61E28.4090301@iki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:2319 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754073Ab1EITWU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 May 2011 15:22:20 -0400
+Received: from leo.clearchain.com ([199.73.29.74]:39487 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750703Ab1EJELd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 May 2011 00:11:33 -0400
+Content-Disposition: inline
+In-Reply-To: <4DC61E28.4090301@iki.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@euromail.se
-Cc: amartin@nvidia.com, olof@lixom.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rakesh Iyer <riyer@nvidia.com>
+To: Anssi Hannula <anssi.hannula@iki.fi>
+Cc: linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
 
-From: Rakesh Iyer <riyer@nvidia.com>
+On Sun, May 08, 2011 at 07:38:00AM +0300, Anssi Hannula wrote:
+> Hi all!
+> 
+> Most IR/RF remotes differ from normal keyboards in that they don't
+> provide release events. They do provide native repeat events, though.
+> 
+> Currently the Linux kernel RC/input subsystems provide a simulated
+> autorepeat for remote controls (default delay 500ms, period 33ms), and
+> X.org server ignores these events and generates its own autorepeat for them.
+>
+> The kernel RC subsystem provides a simulated release event when 250ms
+> has passed since the last native event (repeat or non-repeat) was
+> received from the device.
+> 
+> This is problematic, since it causes lots of extra repeat events to be
+> always sent (for up to 250ms) after the user has released the remote
+> control button, which makes the remote quite uncomfortable to use.
 
-Modify wakeup logic so either all keypresses wake the system or none do.
+I got a bit confused reading this description. Does this mean that remotes
+usually send:
+    key press - repeat - repeat - ... - repeat - <silence>
+where the silence indicates that the key has been released? Which the kernel
+after 250ms translates into a release event.
+And the kernel discards the repeats and generates it's own on 500/33?
+Do I get this right so far?
 
-Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
----
-v2: Use platform data member 'wakeup' to indicate keyboard wakeup capability.
-v1: Modify wakeup logic so either all keypresses wake the system or none do.
+If so, I'm not sure how to avoid the 250ms delay since we have no indication
+from the hardware when the silence will stop, right?
 
- arch/arm/mach-tegra/include/mach/kbc.h |    3 ---
- drivers/input/keyboard/tegra-kbc.c     |   28 ++++------------------------
- 2 files changed, 4 insertions(+), 27 deletions(-)
+Note that the repeat delay and ratio are configurable per-device using XKB,
+so you could set up the 500/33 in X too.
 
-diff --git a/arch/arm/mach-tegra/include/mach/kbc.h b/arch/arm/mach-tegra/include/mach/kbc.h
-index bd99744..4f3572a 100644
---- a/arch/arm/mach-tegra/include/mach/kbc.h
-+++ b/arch/arm/mach-tegra/include/mach/kbc.h
-@@ -50,9 +50,6 @@ struct tegra_kbc_platform_data {
- 	unsigned int debounce_cnt;
- 	unsigned int repeat_cnt;
- 
--	unsigned int wake_cnt; /* 0:wake on any key >1:wake on wake_cfg */
--	const struct tegra_kbc_wake_key *wake_cfg;
--
- 	struct tegra_kbc_pin_cfg pin_cfg[KBC_MAX_GPIO];
- 	const struct matrix_keymap_data *keymap_data;
- 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 5fb4b97..c851fe6 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -66,8 +66,6 @@ struct tegra_kbc {
- 	void __iomem *mmio;
- 	struct input_dev *idev;
- 	unsigned int irq;
--	unsigned int wake_enable_rows;
--	unsigned int wake_enable_cols;
- 	spinlock_t lock;
- 	unsigned int repoll_dly;
- 	unsigned long cp_dly_jiffies;
-@@ -291,7 +289,7 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
- 	 * Matrix keyboard designs are prone to keyboard ghosting.
- 	 * Ghosting occurs if there are 3 keys such that -
- 	 * any 2 of the 3 keys share a row, and any 2 of them share a column.
--	 * If so ignore the key presses for this iteration.
-+	 * If so ignore the keypresses for this iteration.
- 	 */
- 	if ((kbc->use_ghost_filter) && (num_down >= 3)) {
- 		for (i = 0; i < num_down; i++) {
-@@ -328,7 +326,7 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
- 
- 	spin_unlock_irqrestore(&kbc->lock, flags);
- 
--	/* Ignore the key presses for this iteration? */
-+	/* Ignore the keypresses for this iteration? */
- 	if (key_in_same_col && key_in_same_row)
- 		return;
- 
-@@ -418,21 +416,11 @@ static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter)
- 	int i;
- 	unsigned int rst_val;
- 
--	BUG_ON(pdata->wake_cnt > KBC_MAX_KEY);
--	rst_val = (filter && pdata->wake_cnt) ? ~0 : 0;
-+	/* Either mask all keys or none. */
-+	rst_val = (filter && !pdata->wakeup) ? ~0 : 0;
- 
- 	for (i = 0; i < KBC_MAX_ROW; i++)
- 		writel(rst_val, kbc->mmio + KBC_ROW0_MASK_0 + i * 4);
--
--	if (filter) {
--		for (i = 0; i < pdata->wake_cnt; i++) {
--			u32 val, addr;
--			addr = pdata->wake_cfg[i].row * 4 + KBC_ROW0_MASK_0;
--			val = readl(kbc->mmio + addr);
--			val &= ~(1 << pdata->wake_cfg[i].col);
--			writel(val, kbc->mmio + addr);
--		}
--	}
- }
- 
- static void tegra_kbc_config_pins(struct tegra_kbc *kbc)
-@@ -594,7 +582,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	int irq;
- 	int err;
--	int i;
- 	int num_rows = 0;
- 	unsigned int debounce_cnt;
- 	unsigned int scan_time_rows;
-@@ -651,13 +638,6 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 		goto err_iounmap;
- 	}
- 
--	kbc->wake_enable_rows = 0;
--	kbc->wake_enable_cols = 0;
--	for (i = 0; i < pdata->wake_cnt; i++) {
--		kbc->wake_enable_rows |= (1 << pdata->wake_cfg[i].row);
--		kbc->wake_enable_cols |= (1 << pdata->wake_cfg[i].col);
--	}
--
- 	/*
- 	 * The time delay between two consecutive reads of the FIFO is
- 	 * the sum of the repeat time and the time taken for scanning
--- 
-1.7.2.3
+Cheers,
+  Peter
 
+> Now, IMO something should be done to fix this. But what exactly?
+> 
+> Here are two ideas that would remove these ghost repeats:
+> 
+> 1. Do not provide any repeat/release simulation in the kernel for RC
+> devices (by default?), just provide both keydown and immediate release
+> events for every native keypress or repeat received from the device.
+> + Very simple to implement
+> - We lose the ability to track repeats, i.e. if a new event was a repeat
+>   or a new keypress; "holding down" a key becomes impossible
+> 
+> or
+> 2. Replace kernel autorepeat simulation by passing through the native
+> repeat events (probably filtering them according to REP_DELAY and
+> REP_PERIOD), and have a device property bit (fetchable via EVIOCGPROP)
+> indicating that the keyrelease is simulated, and have the X server use
+> the native repeats instead of softrepeats for such a device.
+> + The userspace correctly gets repeat events tagged as repeats and
+>   release events when appropriate (albeit a little late)
+> - Adds complexity. Also, while the kernel part is quite easy to
+>   implement, I'm not sure if the X server part is.
+> 
+> or
+> 3. Same as 1., but indicate the repeatness of an event with a new
+>    additional special event before EV_SYN (sync event).
+> + Simple to implement
+> - Quite hacky, and userspace still can't guess from initial
+>   keypress/release if the key is still pressed down or not.
+> 
+> 4. Same as 1., but have a new EV_RC with RC_KEYDOWN and RC_KEYUP events,
+>    with RC_KEYDOWN sent when a key is pressed down a first time along
+>    with the normal EV_KEY event, and RC_KEYUP sent when the key is
+>    surely released (e.g. 250ms without native repeat events or another
+>    key got pressed, i.e. like the simulated keyup now).
+> + Simple to implement, works as expected with most userspace apps with
+>   no changes to them; and if an app wants to know the repeatness of an
+>   event or held-down-ness of a key, it can do that.
+> - Repeatness of the event is hidden behind a new API.
+> 
+> What do you think? Or any other ideas?
+> 
+> 2 and 4 seem nicest to me.
+> (I don't know how feasible 2 would be on X server side, though)
+> 
+> -- 
+> Anssi Hannula
+> _______________________________________________
+> xorg-devel@lists.x.org: X.Org development
+> Archives: http://lists.x.org/archives/xorg-devel
+> Info: http://lists.x.org/mailman/listinfo/xorg-devel
+> 

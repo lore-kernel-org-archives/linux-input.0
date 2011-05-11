@@ -1,110 +1,50 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: IR remote control autorepeat / evdev
-Date: Thu, 12 May 2011 01:52:26 +0200
-Message-ID: <4DCB213A.8040306@redhat.com>
-References: <4DC61E28.4090301@iki.fi> <20110510041107.GA32552@barra.redhat.com> <4DC8C9B6.5000501@iki.fi> <20110510053038.GA5808@barra.redhat.com> <4DC940E5.2070902@iki.fi> <4DCA1496.20304@redhat.com> <4DCABA42.30505@iki.fi> <4DCABEAE.4080607@redhat.com> <4DCACE74.6050601@iki.fi>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: rotary encoder patches?
+Date: Wed, 11 May 2011 16:58:58 -0700
+Message-ID: <20110511235858.GA16789@core.coreip.homeip.net>
+References: <201102021433.23687.alexander.stein@systec-electronic.com>
+ <20110208074037.GB865@core.coreip.homeip.net>
+ <201104281159.51397.alexander.stein@systec-electronic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36560 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750815Ab1EKXwj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 May 2011 19:52:39 -0400
-In-Reply-To: <4DCACE74.6050601@iki.fi>
+Received: from mail-px0-f173.google.com ([209.85.212.173]:59071 "EHLO
+	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751895Ab1EKX7F (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 May 2011 19:59:05 -0400
+Received: by pxi16 with SMTP id 16so665122pxi.4
+        for <linux-input@vger.kernel.org>; Wed, 11 May 2011 16:59:05 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <201104281159.51397.alexander.stein@systec-electronic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@iki.fi>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
+To: Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: linux-input@vger.kernel.org
 
-Em 11-05-2011 19:59, Anssi Hannula escreveu:
->> No. It actually depends on what driver you're using. For example, for most dvb-usb
->> devices, this is given by the logic bellow:
->>
->> 	if (d->props.rc.legacy.rc_interval < 40)
->> 		d->props.rc.legacy.rc_interval = 100; /* default */
->>
->> 	input_dev->rep[REP_PERIOD] = d->props.rc.legacy.rc_interval;
->> 	input_dev->rep[REP_DELAY]  = d->props.rc.legacy.rc_interval + 150;
->>
->> where the rc_interval defined by device entry at the dvb usb drivers.
+On Thu, Apr 28, 2011 at 11:59:51AM +0200, Alexander Stein wrote:
+> Hello Dimitry,
 > 
-> Isn't that function only called for DVB_RC_LEGACY mode?
-
-I just picked one random piece of the code that covers several RC remotes (most
-dvb-usb drivers are still using the legacy mode). Similar code are there for
-other devices.
-
-> Maybe I wasn't clear, but I'm talking only about the devices handled by
-> rc-core.
-
-With just a few exceptions, the repeat period/delay that were there before
-porting to rc-core were maintained. There are space for adjustments, as we
-did on a few cases.
-
-
-Em 11-05-2011 22:53, Dmitry Torokhov escreveu:
-> On Wed, May 11, 2011 at 08:59:16PM +0300, Anssi Hannula wrote:
->>
->> I meant replacing the softrepeat with native repeat for such devices
->> that have native repeats but no native release events:
->>
->> - keypress from device => keydown + keyup
->> - repeat from device => keydown + keyup
->> - repeat from device => keydown + keyup
->>
->> This is what e.g. ati_remote driver now does.
->>
->> Or alternatively
->>
->> - keypress from device => keydown
->> - repeat from device => repeat
->> - repeat from device => repeat
->> - nothing for 250ms => keyup
->> (doing it this way requires some extra handling in X server to stop its
->> softrepeat from triggering, though, as previously noted)
->>
->> With either of these, if one holds down volumeup, the repeat works, and
->> stops volumeup'ing immediately when user releases the button (as it is
->> supposed to).
->>
+> Am Dienstag, 8. Februar 2011, 08:40:37 schrieb Dmitry Torokhov:
+> > On Wed, Feb 02, 2011 at 02:33:23PM +0100, Alexander Stein wrote:
+> > > Hello,
+> > > 
+> > > I've found those 3 patches on input patchwork:
+> > > https://patchwork.kernel.org/patch/99004/
+> > > https://patchwork.kernel.org/patch/99005/
+> > > https://patchwork.kernel.org/patch/99006/
+> > > 
+> > > The entries don't state if they will get accepted or rejected.
+> > > Especially the first one changes the behavior as most encoders do work.
+> > > Can somebody put a few lines about the current state?
+> > 
+> > I was waiting for Daniel's response. I can see that the 3rd one could be
+> > useful but needs some cleaning up.
 > 
-> Unfortunately this does not work for devices that do not have hardware
-> autorepeat and also stops users from adjusting autorepeat parameters to
-> their liking.
+> Any news on this topic?
+> 
 
-Yes. A solution like the above would limit the usage. There are some remotes
-(like for example, the Hauppauge Grey remotes I have here) that a simple
-keypress generates, in general, up to 3 scancodes (the normal keypress and
-up to two "bounced" repeat keycodes). So, the software key delay also serves
-as a way to de-bounce the keypress.
+Queued for 2.6.40, thanks Alexander.
 
-> It appears that the delay to check whether the key has been released is
-> too long (almost order of magnitude longer than our typical autorepeat
-> period).
-
-Yes, because, for example, with NEC and RC-5 protocols, one keystroke or one
-repeat event takes 110/114 ms to be transmitted. The delay actually varies 
-from protocol to protocol, so it is possible to do some adjustments, based on
-the protocol type, but it is an order of magnitude longer than a keyboard or
-mouse.
-
-> I think we should increase the period for remotes (both in
-> kernel and in X, and also see if the release check delay can be made
-> shorter, like 50-100 ms.
-
-Some adjustments like that can be made, but they are device-driver specific.
-
-For example, some in-hardware IR decoders with KS007 micro-controller just
-removes all repeat keycodes and replace them with new keystrokes. There are
-some shipped remotes that don't support the RC-5 or NEC key repeat event. So,
-on those, if you keep a key pressed, you just receive the same scancode several
-times.
-
-The last time I double checked all remotes I have here, on all cases the auto-repeat
-logic were doing the right job, but I won't doubt that we need to add some additional
-adjustments for some boards/devices.
-
-Anssi, what's the hardware that you're using?
-
-Mauro.
+-- 
+Dmitry

@@ -1,30 +1,30 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [v2] Input: tegra-kbc - modify keypress wakeup logic.
-Date: Wed, 11 May 2011 15:40:18 -0700
-Message-ID: <20110511224018.GE11178@core.coreip.homeip.net>
-References: <1304968957-10288-1-git-send-email-riyer@nvidia.com>
+Subject: Re: [PATCH] input: remove useless synchronize_rcu() calls
+Date: Wed, 11 May 2011 15:42:25 -0700
+Message-ID: <20110511224225.GF11178@core.coreip.homeip.net>
+References: <1305149155.3232.11.camel@edumazet-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:56957 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932587Ab1EKWkZ (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:55587 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932265Ab1EKWmb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 May 2011 18:40:25 -0400
+	Wed, 11 May 2011 18:42:31 -0400
 Content-Disposition: inline
-In-Reply-To: <1304968957-10288-1-git-send-email-riyer@nvidia.com>
+In-Reply-To: <1305149155.3232.11.camel@edumazet-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: riyer@nvidia.com
-Cc: rydberg@euromail.se, amartin@nvidia.com, olof@lixom.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 
-On Mon, May 09, 2011 at 12:22:37PM -0700, riyer@nvidia.com wrote:
-> From: Rakesh Iyer <riyer@nvidia.com>
+On Wed, May 11, 2011 at 11:25:55PM +0200, Eric Dumazet wrote:
+> There is no need to call synchronize_rcu() after a list insertion,
+> or a NULL->ptr assignment.
 > 
-> Modify wakeup logic so either all keypresses wake the system or none do.
-> 
+> However, the reverse operations do need this call.
 
-Applied, thanks Rakesh.
+Applied, thanks Eric.
 
 -- 
 Dmitry

@@ -1,34 +1,73 @@
-From: Johan Hovold <jhovold@gmail.com>
-Subject: Re: [PATCH 0/2] input: rotary-encoder: add support for half-period
- encoders
-Date: Tue, 10 May 2011 21:05:16 +0200
-Message-ID: <20110510190516.GB436@localhost>
-References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
+From: Steven Liu <lingjiujianke@gmail.com>
+Subject: [PATCH] touchscreen: check kzalloc memory for data first
+Date: Wed, 11 May 2011 10:23:16 +0800
+Message-ID: <BANLkTi=yWrPiz9Wp0H46at4NVfMSJ8n1uw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:58928 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750799Ab1EJTFY (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:59603 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752971Ab1EKCXS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 May 2011 15:05:24 -0400
-Received: by ewy4 with SMTP id 4so1923027ewy.19
-        for <linux-input@vger.kernel.org>; Tue, 10 May 2011 12:05:23 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
+	Tue, 10 May 2011 22:23:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org
+To: jy0922.shim@samsung.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, liuqi@thunderst.com
 
-Hi Dmitry,
+Hi Joonyoung Shim ,
 
-On Tue, Apr 05, 2011 at 08:15:11PM +0200, Johan Hovold wrote:
-> These patches add support for rotary-encoders which have two stable
-> states per input signal period.
+            Can this patch be fixed in?
 
-Is there any chance to get these into 2.6.40? I haven't received any
-feedback from you so I thought I'd send a reminder.
 
-Thanks,
-Johan
+if kzalloc memroy for data was faild, it will multi free data
+memory space. so check the data memory first, is it kzalloc faild
+for data, it should goto end and do nothing.
+
+Signed-off-by: LiuQi <lingjiujianke@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c
+b/drivers/input/touchscreen/atmel_mxt_ts.c
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1039,8 +1039,15 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 		return -EINVAL;
+
+ 	data = kzalloc(sizeof(struct mxt_data), GFP_KERNEL);
++
++	if(!data){
++		dev_err(&client->dev, "Failed to allocate memory\n");
++		error = -ENOMEM;
++		goto err_alloc_data_mem_faild;
++	}
++
+ 	input_dev = input_allocate_device();
+-	if (!data || !input_dev) {
++	if (!input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate memory\n");
+ 		error = -ENOMEM;
+ 		goto err_free_mem;
+@@ -1107,9 +1114,10 @@ err_free_irq:
+ 	free_irq(client->irq, data);
+ err_free_object:
+ 	kfree(data->object_table);
+-err_free_mem:
+ 	input_free_device(input_dev);
++err_free_mem:
+ 	kfree(data);
++err_alloc_data_mem_faild:
+ 	return error;
+ }
+
+
+
+
+
+
+
+Best Regards
+
+Steven Liu

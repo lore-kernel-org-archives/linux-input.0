@@ -1,50 +1,82 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: rotary encoder patches?
-Date: Wed, 11 May 2011 16:58:58 -0700
-Message-ID: <20110511235858.GA16789@core.coreip.homeip.net>
-References: <201102021433.23687.alexander.stein@systec-electronic.com>
- <20110208074037.GB865@core.coreip.homeip.net>
- <201104281159.51397.alexander.stein@systec-electronic.com>
+From: Anssi Hannula <anssi.hannula@iki.fi>
+Subject: Re: IR remote control autorepeat / evdev
+Date: Thu, 12 May 2011 03:17:21 +0300
+Message-ID: <4DCB2711.5050406@iki.fi>
+References: <4DC61E28.4090301@iki.fi> <20110510041107.GA32552@barra.redhat.com> <4DC8C9B6.5000501@iki.fi> <20110510053038.GA5808@barra.redhat.com> <4DC940E5.2070902@iki.fi> <4DCA1496.20304@redhat.com> <4DCABA42.30505@iki.fi> <4DCABEAE.4080607@redhat.com> <4DCACE74.6050601@iki.fi> <20110511205332.GA11123@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f173.google.com ([209.85.212.173]:59071 "EHLO
-	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751895Ab1EKX7F (ORCPT
+Received: from saarni.dnainternet.net ([83.102.40.136]:42537 "EHLO
+	saarni.dnainternet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752835Ab1ELAR3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 May 2011 19:59:05 -0400
-Received: by pxi16 with SMTP id 16so665122pxi.4
-        for <linux-input@vger.kernel.org>; Wed, 11 May 2011 16:59:05 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201104281159.51397.alexander.stein@systec-electronic.com>
+	Wed, 11 May 2011 20:17:29 -0400
+In-Reply-To: <20110511205332.GA11123@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
 
-On Thu, Apr 28, 2011 at 11:59:51AM +0200, Alexander Stein wrote:
-> Hello Dimitry,
+On 11.05.2011 23:53, Dmitry Torokhov wrote:
+> On Wed, May 11, 2011 at 08:59:16PM +0300, Anssi Hannula wrote:
+>>
+>> I meant replacing the softrepeat with native repeat for such devices
+>> that have native repeats but no native release events:
+>>
+>> - keypress from device => keydown + keyup
+>> - repeat from device => keydown + keyup
+>> - repeat from device => keydown + keyup
+>>
+>> This is what e.g. ati_remote driver now does.
+>>
+>> Or alternatively
+>>
+>> - keypress from device => keydown
+>> - repeat from device => repeat
+>> - repeat from device => repeat
+>> - nothing for 250ms => keyup
+>> (doing it this way requires some extra handling in X server to stop its
+>> softrepeat from triggering, though, as previously noted)
+>>
+>> With either of these, if one holds down volumeup, the repeat works, and
+>> stops volumeup'ing immediately when user releases the button (as it is
+>> supposed to).
+>>
 > 
-> Am Dienstag, 8. Februar 2011, 08:40:37 schrieb Dmitry Torokhov:
-> > On Wed, Feb 02, 2011 at 02:33:23PM +0100, Alexander Stein wrote:
-> > > Hello,
-> > > 
-> > > I've found those 3 patches on input patchwork:
-> > > https://patchwork.kernel.org/patch/99004/
-> > > https://patchwork.kernel.org/patch/99005/
-> > > https://patchwork.kernel.org/patch/99006/
-> > > 
-> > > The entries don't state if they will get accepted or rejected.
-> > > Especially the first one changes the behavior as most encoders do work.
-> > > Can somebody put a few lines about the current state?
-> > 
-> > I was waiting for Daniel's response. I can see that the 3rd one could be
-> > useful but needs some cleaning up.
-> 
-> Any news on this topic?
-> 
+> Unfortunately this does not work for devices that do not have hardware
+> autorepeat
 
-Queued for 2.6.40, thanks Alexander.
+Devices that have no hardware autorepeat have hardware release events,
+no? I'm only suggesting to do this for devices with hardware autorepeat.
+
+If there are no hw repeat events and no hw release events, obviously
+making repeat work at all is impossible.
+
+> and also stops users from adjusting autorepeat parameters to
+> their liking.
+
+True. However, I don't think adjustable autorepeat parameters are much
+of use for the users if the autorepeat itself is unusable (due to ghost
+repeats).
+
+> It appears that the delay to check whether the key has been released is
+> too long (almost order of magnitude longer than our typical autorepeat
+> period). I think we should increase the period for remotes (both in
+> kernel and in X, and also see if the release check delay can be made
+> shorter, like 50-100 ms.
+
+To make the ghost repeat issue disappear, one would have to use a
+release timeout of just over the native repeat rate of the remote, and a
+softrepeat period of just over the release timeout, right?
+
+This will make the repeat rate slower than the native repeats. I'm not
+100% sure if that is an issue, but I'd guess there might be some devices
+that already have a slowish repeat rate, where we wouldn't want to add
+such additional delay.
+
+(plus there is the issue of having to fiddle the rates for every
+device/protocol)
 
 -- 
-Dmitry
+Anssi Hannula

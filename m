@@ -1,82 +1,87 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH] thinkpad-acpi: Improve hardware volume controls
-Date: Thu, 12 May 2011 13:42:14 -0700
-Message-ID: <20110512204213.GA8776@core.coreip.homeip.net>
-References: <bf402af225e7005f052a8ccf92962efa48cbe703.1304979290.git.luto@mit.edu>
- <20110512134827.GA26159@srcf.ucam.org>
- <BANLkTimmrM4HMATSbsYzz6kh=e9hrfAZmg@mail.gmail.com>
- <20110512143912.GA28141@srcf.ucam.org>
- <BANLkTikX7mMu2me6+O1e-Ub=Cbzerd=J3Q@mail.gmail.com>
- <20110512153921.GB8293@core.coreip.homeip.net>
- <BANLkTinzOn1mMQ9BntEfBrQ+n=WC9=Ewrg@mail.gmail.com>
+From: Anssi Hannula <anssi.hannula@iki.fi>
+Subject: Re: IR remote control autorepeat / evdev
+Date: Fri, 13 May 2011 02:48:05 +0300
+Message-ID: <4DCC71B5.8080306@iki.fi>
+References: <4DC61E28.4090301@iki.fi> <20110510041107.GA32552@barra.redhat.com> <4DC8C9B6.5000501@iki.fi> <20110510053038.GA5808@barra.redhat.com> <4DC940E5.2070902@iki.fi> <4DCA1496.20304@redhat.com> <4DCABA42.30505@iki.fi> <4DCABEAE.4080607@redhat.com> <4DCACE74.6050601@iki.fi> <4DCB213A.8040306@redhat.com> <4DCB2BD9.6090105@iki.fi> <4DCB336B.2090303@redhat.com> <4DCB39AF.2000807@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <BANLkTinzOn1mMQ9BntEfBrQ+n=WC9=Ewrg@mail.gmail.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Andrew Lutomirski <luto@mit.edu>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Henrique de Moraes Holschuh <hmh@hmh.eng.br>, ibm-acpi-devel@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from saarni.dnainternet.net ([83.102.40.136]:33698 "EHLO
+	saarni.dnainternet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758709Ab1ELX6F (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 May 2011 19:58:05 -0400
+In-Reply-To: <4DCB39AF.2000807@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
 
-On Thu, May 12, 2011 at 03:33:54PM -0400, Andrew Lutomirski wrote:
-> On Thu, May 12, 2011 at 11:39 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Andrew,
-> >
-> > On Thu, May 12, 2011 at 10:50:54AM -0400, Andrew Lutomirski wrote:
-> >>
-> >> I do, however, have a question for the input people. =A0Dmitry: Le=
-novo
-> >> makes laptops which are kind enough to tell us that the volume cha=
-nged
-> >> by sending a keystroke over the atkbd-based keyboard. =A0(wtf!) =A0=
-I've
-> >> modified the thinkpad-acpi driver to register an input handler to
-> >> catch those events coming from the keyboard and send them to ALSA
-> >> where they belong. =A0But if there's a keyboard grab, it won't wor=
-k.
-> >> Would you accept a patch to the input layer to allow filters (or m=
-aybe
-> >> just filters that specifically request it) to run even if there's =
-a
-> >> grab?
-> >
-> > There is a filter on i8042 level that was introduced specifically f=
-or
-> > cases when events not having any relation to the input are routed v=
-ia
-> > KBC interface. It looks like this is the one you want to use. See
-> > include/linux/i8042.h::i8042_install_filter(). It allows for such e=
-vents
-> > to completely bypass input layer.
-> >
-> > Hope this helps.
->=20
-> Sort of.
->=20
-> dell-laptop and msi-laptop are content to take some action on the key=
-s
-> they see but still leave the keys in the input stream, so their job i=
-s
-> a bit easier.
->=20
-> I need to swallow one kind of extended key, detect and not swallow tw=
-o
-> others, and ignore all the ones that are normal keys.  But that means
-> that I don't know whether I should filter out 0xe0 until it's too
-> late.
->=20
-> So either I'd need a function to feed an event back into i8042 or I
-> need to filter a little farther downstream when the keys are resolved
-> into keycodes (or scancodes -- I'm not really up on the terminology).
+On 12.05.2011 04:36, Mauro Carvalho Chehab wrote:
+> Em 12-05-2011 03:10, Mauro Carvalho Chehab escreveu:
+>> Em 12-05-2011 02:37, Anssi Hannula escreveu:
+> 
+>>> I don't see any other places:
+>>> $ git grep 'REP_PERIOD' .
+>>> dvb/dvb-usb/dvb-usb-remote.c:   input_dev->rep[REP_PERIOD] =
+>>> d->props.rc.legacy.rc_interval;
+>>
+>> Indeed, the REP_PERIOD is not adjusted on other drivers. I agree that we
+>> should change it to something like 125ms, for example, as 33ms is too 
+>> short, as it takes up to 114ms for a repeat event to arrive.
+>>
+> IMO, the enclosed patch should do a better job with repeat events, without
+> needing to change rc-core/input/event logic.
 
-You can use serio_interrupt() to inject additional bytes into serio dat=
-a
-stream.
+It will indeed reduce the amount of ghost events so it brings us in the
+right direction.
 
-Thanks.
+I'd still like to get rid of the ghost repeats entirely, or at least
+some way for users to do it if we don't do it by default.
 
---=20
-Dmitry
+Maybe we could replace the kernel softrepeat with native repeats (for
+those protocols/drivers that have them), while making sure that repeat
+events before REP_DELAY are ignored and repeat events less than
+REP_PERIOD since the previous event are ignored, so the users can still
+configure them as they like?
+
+Or maybe just a module option that causes rc-core to use native repeat
+events, for those of us that want accurate repeat events without ghosting?
+
+
+> -
+> 
+> Subject: Use a more consistent value for RC repeat period
+> From: Mauro Carvalho Chehab <mchehab@redhat.com>
+> 
+> The default REP_PERIOD is 33 ms. This doesn't make sense for IR's,
+> as, in general, an IR repeat scancode is provided at every 110/115ms,
+> depending on the RC protocol. So, increase its default, to do a
+> better job avoiding ghost repeat events.
+> 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+> 
+> diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
+> index f53f9c6..ee67169 100644
+> --- a/drivers/media/rc/rc-main.c
+> +++ b/drivers/media/rc/rc-main.c
+> @@ -1044,6 +1044,13 @@ int rc_register_device(struct rc_dev *dev)
+>  	 */
+>  	dev->input_dev->rep[REP_DELAY] = 500;
+>  
+> +	/*
+> +	 * As a repeat event on protocols like RC-5 and NEC take as long as
+> +	 * 110/114ms, using 33ms as a repeat period is not the right thing
+> +	 * to do.
+> +	 */
+> +	dev->input_dev->rep[REP_PERIOD] = 125;
+> +
+>  	path = kobject_get_path(&dev->dev.kobj, GFP_KERNEL);
+>  	printk(KERN_INFO "%s: %s as %s\n",
+>  		dev_name(&dev->dev),
+> 
+
+
+-- 
+Anssi Hannula

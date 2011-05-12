@@ -1,61 +1,24 @@
-From: Anssi Hannula <anssi.hannula@iki.fi>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: IR remote control autorepeat / evdev
-Date: Thu, 12 May 2011 03:37:45 +0300
-Message-ID: <4DCB2BD9.6090105@iki.fi>
-References: <4DC61E28.4090301@iki.fi> <20110510041107.GA32552@barra.redhat.com> <4DC8C9B6.5000501@iki.fi> <20110510053038.GA5808@barra.redhat.com> <4DC940E5.2070902@iki.fi> <4DCA1496.20304@redhat.com> <4DCABA42.30505@iki.fi> <4DCABEAE.4080607@redhat.com> <4DCACE74.6050601@iki.fi> <4DCB213A.8040306@redhat.com>
+Date: Thu, 12 May 2011 02:55:03 +0200
+Message-ID: <4DCB2FE7.9010709@redhat.com>
+References: <4DC61E28.4090301@iki.fi> <20110510041107.GA32552@barra.redhat.com> <4DC8C9B6.5000501@iki.fi> <20110510053038.GA5808@barra.redhat.com> <4DC940E5.2070902@iki.fi> <4DCA1496.20304@redhat.com> <4DCABA42.30505@iki.fi> <4DCABEAE.4080607@redhat.com> <4DCACE74.6050601@iki.fi> <20110511205332.GA11123@core.coreip.homeip.net> <4DCB2711.5050406@iki.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tulikuusama.dnainternet.net ([83.102.40.132]:37584 "EHLO
-	tulikuusama.dnainternet.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755389Ab1ELAhx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 May 2011 20:37:53 -0400
-In-Reply-To: <4DCB213A.8040306@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:44858 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750815Ab1ELAzS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 May 2011 20:55:18 -0400
+In-Reply-To: <4DCB2711.5050406@iki.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
+To: Anssi Hannula <anssi.hannula@iki.fi>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
 
-On 12.05.2011 02:52, Mauro Carvalho Chehab wrote:
-> Em 11-05-2011 19:59, Anssi Hannula escreveu:
->>> No. It actually depends on what driver you're using. For example, for most dvb-usb
->>> devices, this is given by the logic bellow:
->>>
->>> 	if (d->props.rc.legacy.rc_interval < 40)
->>> 		d->props.rc.legacy.rc_interval = 100; /* default */
->>>
->>> 	input_dev->rep[REP_PERIOD] = d->props.rc.legacy.rc_interval;
->>> 	input_dev->rep[REP_DELAY]  = d->props.rc.legacy.rc_interval + 150;
->>>
->>> where the rc_interval defined by device entry at the dvb usb drivers.
->>
->> Isn't that function only called for DVB_RC_LEGACY mode?
-> 
-> I just picked one random piece of the code that covers several RC remotes (most
-> dvb-usb drivers are still using the legacy mode). Similar code are there for
-> other devices.
-
-I don't see any other places:
-$ git grep 'REP_PERIOD' .
-dvb/dvb-usb/dvb-usb-remote.c:   input_dev->rep[REP_PERIOD] =
-d->props.rc.legacy.rc_interval;
-
->> Maybe I wasn't clear, but I'm talking only about the devices handled by
->> rc-core.
-> 
-> With just a few exceptions, the repeat period/delay that were there before
-> porting to rc-core were maintained. There are space for adjustments, as we
-> did on a few cases.
-
-The above is the only place where the repeat period is set in the
-drivers/media tree, and it is not an rc-core device. Other devices
-therefore use the 33ms kernel default.
-
-Maybe I am missing something?
-
-> Em 11-05-2011 22:53, Dmitry Torokhov escreveu:
+Em 12-05-2011 02:17, Anssi Hannula escreveu:
+> On 11.05.2011 23:53, Dmitry Torokhov wrote:
 >> On Wed, May 11, 2011 at 08:59:16PM +0300, Anssi Hannula wrote:
 >>>
 >>> I meant replacing the softrepeat with native repeat for such devices
@@ -82,60 +45,87 @@ Maybe I am missing something?
 >>>
 >>
 >> Unfortunately this does not work for devices that do not have hardware
->> autorepeat and also stops users from adjusting autorepeat parameters to
+>> autorepeat
+> 
+> Devices that have no hardware autorepeat have hardware release events,
+> no? I'm only suggesting to do this for devices with hardware autorepeat.
+
+What I meant to say is that some devices produce:
+	<KEY><KEY><KEY>...<KEY>
+instead of:
+	<KEY><REP><REP>...<REP>
+
+In other words, there's not a solution that fits all. Adjustments need to be
+done per device, and not as a change at the core.
+
+> If there are no hw repeat events and no hw release events, obviously
+> making repeat work at all is impossible.
+> 
+>> and also stops users from adjusting autorepeat parameters to
 >> their liking.
 > 
-> Yes. A solution like the above would limit the usage. There are some remotes
-> (like for example, the Hauppauge Grey remotes I have here) that a simple
-> keypress generates, in general, up to 3 scancodes (the normal keypress and
-> up to two "bounced" repeat keycodes). So, the software key delay also serves
-> as a way to de-bounce the keypress.
-
-I probably forgot to mention it, but I'm not suggesting removal of the
-repetition delay (500ms), it can stay for this reason exactly.
-
+> True. However, I don't think adjustable autorepeat parameters are much
+> of use for the users if the autorepeat itself is unusable (due to ghost
+> repeats).
+> 
 >> It appears that the delay to check whether the key has been released is
 >> too long (almost order of magnitude longer than our typical autorepeat
->> period).
-> 
-> Yes, because, for example, with NEC and RC-5 protocols, one keystroke or one
-> repeat event takes 110/114 ms to be transmitted. The delay actually varies 
-> from protocol to protocol, so it is possible to do some adjustments, based on
-> the protocol type, but it is an order of magnitude longer than a keyboard or
-> mouse.
-> 
->> I think we should increase the period for remotes (both in
+>> period). I think we should increase the period for remotes (both in
 >> kernel and in X, and also see if the release check delay can be made
 >> shorter, like 50-100 ms.
 > 
-> Some adjustments like that can be made, but they are device-driver specific.
+> To make the ghost repeat issue disappear, one would have to use a
+> release timeout of just over the native repeat rate of the remote, and a
+> softrepeat period of just over the release timeout, right?
+
+There's no known "ghost repeat" issue at rc-core. If you're seeing an issue, 
+it is probably device-specific, and should be handle are such. Don't blame
+the core [1].
+
+On what device(s) are you noticing such ghost repeat, and with what
+protocols? please provide the rc-core and driver-specific debug information
+and let's work to fix on the case you've detected.
+
+[1] I'm referring to the way input/event is providing the events. If Xorg is
+discarding the in-kernel repeat logic and using its own logic, then we may
+have ghost events there, as RC timings are different than keyboards. So a
+250/33 would produce a crappy result with RC's.
+
+> This will make the repeat rate slower than the native repeats. I'm not
+> 100% sure if that is an issue, but I'd guess there might be some devices
+> that already have a slowish repeat rate, where we wouldn't want to add
+> such additional delay.
+
+If we use the native repeat, we would have one keystroke on every 110ms, and
+the initial delay would be also 110ms. On my experiences, while repeating
+keys close to 110ms is generally ok, 110ms is too short for the initial events,
+especially due to the debouncing. Depending on the RC device, as I said before,
+a normal keypress in general produces more than just one event, due to debounce
+issues.
+
+In other words, It really doesn't makes sense to wait for 250ms at a keyboard to
+start repeat, and to wait for just 110ms to start repeat at IR. The rc-core logic
+does the right thing here:
+	- a keystroke generates a key down and starts a timer;
+	- a repeat event (or the same keypress) resets the timer;
+	- at timer's timeout, it produces a keyup.
+
+This way, the input-event knows when the key was pressed and when the key were
+released, and can produce repeat events at the right way, provided that
+the timer periods are compatible with the timings generated by the IR protocol.
+
+So, all that it is needed is to adjust the two EV_REP timings (delay and period)
+and the rc-core timer's timeout to remove the ghost effects.
+
+It is possible to control two of the 2 EV_REP timers via userspace. 
+
+For now, we're using just one timer for the rc-core logic (IR_KEYPRESS_TIMEOUT, 
+currently hardcoded as 250 ms). Such value is a little bigger than 2 x 114 ms,
+to avoid bouncing effects with RC-5 REPEAT events. Values smaller than 230 ms
+produced ghost keystrokes on some tests I did at the time such logic were added.
+
 > 
-> For example, some in-hardware IR decoders with KS007 micro-controller just
-> removes all repeat keycodes and replace them with new keystrokes. There are
-> some shipped remotes that don't support the RC-5 or NEC key repeat event. So,
-> on those, if you keep a key pressed, you just receive the same scancode several
-> times.
+> (plus there is the issue of having to fiddle the rates for every
+> device/protocol)
 > 
-> The last time I double checked all remotes I have here, on all cases the auto-repeat
-> logic were doing the right job, but I won't doubt that we need to add some additional
-> adjustments for some boards/devices.
 
-Does "doing the right job" mean that you are getting zero repeat (2)
-events after releasing a remote button?
-
-Because that is what I expect to happen, and that is what e.g. LIRC
-(which most people seem to still use with HTPC software - like XBMC
-which I'm a developer of) does.
-
-> Anssi, what's the hardware that you're using?
-
-I'm using ati_remote ported to rc-core (don't know yet if it makes any
-sense, though).
-
-However, as noted, reading ir-main.c I fail to see why this wouldn't
-happen with all rc-core devices, as all devices seem to use same
-IR_KEYPRESS_TIMEOUT and REP_PERIOD (though you seem to suggest otherwise
-above, maybe you can show me wrong? :) ).
-
--- 
-Anssi Hannula

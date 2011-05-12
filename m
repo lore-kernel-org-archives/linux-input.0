@@ -1,182 +1,81 @@
-From: <michael.hennerich@analog.com>
-Subject: [PATCH v2 6/6] input: misc: AD714x: Fix endianness issues.
-Date: Thu, 12 May 2011 10:45:11 +0200
-Message-ID: <1305189911-24769-6-git-send-email-michael.hennerich@analog.com>
-References: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: IR remote control autorepeat / evdev
+Date: Thu, 12 May 2011 09:24:46 -0400
+Message-ID: <4DCBDF9E.4040506@redhat.com>
+References: <20110510053038.GA5808@barra.redhat.com> <4DC940E5.2070902@iki.fi> <4DCA1496.20304@redhat.com> <4DCABA42.30505@iki.fi> <4DCABEAE.4080607@redhat.com> <4DCACE74.6050601@iki.fi> <4DCB213A.8040306@redhat.com> <4DCB2BD9.6090105@iki.fi> <4DCB336B.2090303@redhat.com> <4DCB39AF.2000807@redhat.com> <20110512060529.GA14710@barra.bne.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from am1ehsobe003.messaging.microsoft.com ([213.199.154.206]:36626
-	"EHLO AM1EHSOBE003.bigfish.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754558Ab1ELI4E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 May 2011 04:56:04 -0400
-In-Reply-To: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
+Received: from mx1.redhat.com ([209.132.183.28]:33955 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752192Ab1ELNYs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 May 2011 09:24:48 -0400
+In-Reply-To: <20110512060529.GA14710@barra.bne.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, jeff.dagenais@gmail.com, drivers@analog.com, device-drivers-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Anssi Hannula <anssi.hannula@iki.fi>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+Peter Hutterer wrote:
+> On Thu, May 12, 2011 at 03:36:47AM +0200, Mauro Carvalho Chehab wrote:
+>> Em 12-05-2011 03:10, Mauro Carvalho Chehab escreveu:
+>>> Em 12-05-2011 02:37, Anssi Hannula escreveu:
+>>>> I don't see any other places:
+>>>> $ git grep 'REP_PERIOD' .
+>>>> dvb/dvb-usb/dvb-usb-remote.c:   input_dev->rep[REP_PERIOD] =
+>>>> d->props.rc.legacy.rc_interval;
+>>> Indeed, the REP_PERIOD is not adjusted on other drivers. I agree that we
+>>> should change it to something like 125ms, for example, as 33ms is too
+>>> short, as it takes up to 114ms for a repeat event to arrive.
+>>>
+>> IMO, the enclosed patch should do a better job with repeat events, without
+>> needing to change rc-core/input/event logic.
+>>
+>> -
+>>
+>> Subject: Use a more consistent value for RC repeat period
+>> From: Mauro Carvalho Chehab<mchehab@redhat.com>
+>>
+>> The default REP_PERIOD is 33 ms. This doesn't make sense for IR's,
+>> as, in general, an IR repeat scancode is provided at every 110/115ms,
+>> depending on the RC protocol. So, increase its default, to do a
+>> better job avoiding ghost repeat events.
+>>
+>> Signed-off-by: Mauro Carvalho Chehab<mchehab@redhat.com>
+>>
+>> diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
+>> index f53f9c6..ee67169 100644
+>> --- a/drivers/media/rc/rc-main.c
+>> +++ b/drivers/media/rc/rc-main.c
+>> @@ -1044,6 +1044,13 @@ int rc_register_device(struct rc_dev *dev)
+>>   	 */
+>>   	dev->input_dev->rep[REP_DELAY] = 500;
+>>
+>> +	/*
+>> +	 * As a repeat event on protocols like RC-5 and NEC take as long as
+>> +	 * 110/114ms, using 33ms as a repeat period is not the right thing
+>> +	 * to do.
+>> +	 */
+>> +	dev->input_dev->rep[REP_PERIOD] = 125;
+>> +
+>>   	path = kobject_get_path(&dev->dev.kobj, GFP_KERNEL);
+>>   	printk(KERN_INFO "%s: %s as %s\n",
+>>   		dev_name(&dev->dev),
+>
+> so if I get this right, a XkbSetControls(.. XkbRepeatKeysMask ...) by a
+> client to set the repeat rate would provide the same solution - for those
+> clients/devices affected.
+>
+> The interesting question is how clients would identify the devices that are
+> affected by this (other than trial and error).
 
-Add support for Big Endian.
-Force SPI bus into the default 8-bit mode.
+ir-keytable in v4l-utils is able to identify rc event devices by way of 
+prodding in /sys/class/rc/, but I'm assuming that means every client 
+would have to grow insight into how to do the same.
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
----
- drivers/input/misc/ad714x-i2c.c |   43 ++++++++++----------------------------
- drivers/input/misc/ad714x-spi.c |   33 +++++++++++++++++++++++------
- 2 files changed, 38 insertions(+), 38 deletions(-)
-
-diff --git a/drivers/input/misc/ad714x-i2c.c b/drivers/input/misc/ad714x-i2c.c
-index fb6564e..9794b36 100644
---- a/drivers/input/misc/ad714x-i2c.c
-+++ b/drivers/input/misc/ad714x-i2c.c
-@@ -32,17 +32,12 @@ static int ad714x_i2c_write(struct device *dev, unsigned short reg,
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	int ret = 0;
--	u8 *_reg = (u8 *)&reg;
--	u8 *_data = (u8 *)&data;
--
--	u8 tx[4] = {
--		_reg[1],
--		_reg[0],
--		_data[1],
--		_data[0]
-+	unsigned short tx[2] = {
-+		cpu_to_be16(reg),
-+		cpu_to_be16(data)
- 	};
- 
--	ret = i2c_master_send(client, tx, 4);
-+	ret = i2c_master_send(client, (u8 *)tx, 4);
- 	if (ret < 0)
- 		dev_err(&client->dev, "I2C write error\n");
- 
-@@ -54,25 +49,16 @@ static int ad714x_i2c_read(struct device *dev, unsigned short reg,
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	int ret = 0;
--	u8 *_reg = (u8 *)&reg;
--	u8 *_data = (u8 *)data;
-+	unsigned short tx = cpu_to_be16(reg);
- 
--	u8 tx[2] = {
--		_reg[1],
--		_reg[0]
--	};
--	u8 rx[2];
--
--	ret = i2c_master_send(client, tx, 2);
-+	ret = i2c_master_send(client, (u8 *)&tx, 2);
- 	if (ret >= 0)
--		ret = i2c_master_recv(client, rx, 2);
-+		ret = i2c_master_recv(client, (u8 *)data, 2);
- 
--	if (unlikely(ret < 0)) {
-+	if (unlikely(ret < 0))
- 		dev_err(&client->dev, "I2C read error\n");
--	} else {
--		_data[0] = rx[1];
--		_data[1] = rx[0];
--	}
-+	else
-+		*data = be16_to_cpu(*data);
- 
- 	return ret;
- }
-@@ -82,14 +68,9 @@ static int ad714x_i2c_read_seq(struct device *dev, unsigned short reg,
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	int ret = 0, i;
--	u8 *_reg = (u8 *)&reg;
--
--	u8 tx[2] = {
--		_reg[1],
--		_reg[0]
--	};
-+	unsigned short tx = cpu_to_be16(reg);
- 
--	ret = i2c_master_send(client, tx, 2);
-+	ret = i2c_master_send(client, (u8 *)&tx, 2);
- 	if (ret >= 0)
- 		ret = i2c_master_recv(client, (u8 *)data, len * 2);
- 
-diff --git a/drivers/input/misc/ad714x-spi.c b/drivers/input/misc/ad714x-spi.c
-index d352aa5..4418b5b 100644
---- a/drivers/input/misc/ad714x-spi.c
-+++ b/drivers/input/misc/ad714x-spi.c
-@@ -6,7 +6,7 @@
-  * Licensed under the GPL-2 or later.
-  */
- 
--#include <linux/input.h>	/* BUS_I2C */
-+#include <linux/input.h>	/* BUS_SPI */
- #include <linux/module.h>
- #include <linux/spi/spi.h>
- #include <linux/pm.h>
-@@ -34,18 +34,31 @@ static int ad714x_spi_read(struct device *dev, unsigned short reg,
- 		unsigned short *data)
- {
- 	struct spi_device *spi = to_spi_device(dev);
--	unsigned short tx = AD714x_SPI_CMD_PREFIX | AD714x_SPI_READ | reg;
-+	int ret;
-+	unsigned short tx = cpu_to_be16(AD714x_SPI_CMD_PREFIX |
-+					AD714x_SPI_READ | reg);
- 
--	return spi_write_then_read(spi, (u8 *)&tx, 2, (u8 *)data, 2);
-+	ret = spi_write_then_read(spi, (u8 *)&tx, 2, (u8 *)data, 2);
-+
-+	*data = be16_to_cpu(*data);
-+
-+	return ret;
- }
- 
- static int ad714x_spi_read_seq(struct device *dev, unsigned short reg,
- 		unsigned short *data, unsigned len)
- {
- 	struct spi_device *spi = to_spi_device(dev);
--	unsigned short tx = AD714x_SPI_CMD_PREFIX | AD714x_SPI_READ | reg;
-+	int ret, i;
-+	unsigned short tx = cpu_to_be16(AD714x_SPI_CMD_PREFIX |
-+					AD714x_SPI_READ | reg);
-+
-+	ret = spi_write_then_read(spi, (u8 *)&tx, 2, (u8 *)data, len * 2);
- 
--	return spi_write_then_read(spi, (u8 *)&tx, 2, (u8 *)data, len * 2);
-+	for (i = 0; i < len; i++)
-+		data[i] = be16_to_cpu(data[i]);
-+
-+	return ret;
- }
- 
- static int ad714x_spi_write(struct device *dev, unsigned short reg,
-@@ -53,8 +66,8 @@ static int ad714x_spi_write(struct device *dev, unsigned short reg,
- {
- 	struct spi_device *spi = to_spi_device(dev);
- 	unsigned short tx[2] = {
--		AD714x_SPI_CMD_PREFIX | reg,
--		data
-+		cpu_to_be16(AD714x_SPI_CMD_PREFIX | reg),
-+		cpu_to_be16(data)
- 	};
- 
- 	return spi_write(spi, (u8 *)tx, 4);
-@@ -63,6 +76,12 @@ static int ad714x_spi_write(struct device *dev, unsigned short reg,
- static int __devinit ad714x_spi_probe(struct spi_device *spi)
- {
- 	struct ad714x_chip *chip;
-+	int err;
-+
-+	spi->bits_per_word = 8;
-+	err = spi_setup(spi);
-+	if (err < 0)
-+		return err;
- 
- 	chip = ad714x_probe(&spi->dev, BUS_SPI, spi->irq,
- 			    ad714x_spi_read, ad714x_spi_read_seq,
 -- 
-1.6.0.2
+Jarod Wilson
+jarod@redhat.com
 
 

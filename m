@@ -1,583 +1,1204 @@
-From: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: [PATCH 2/2] input: misc: Add support for isa1200 chip
-Date: Fri, 13 May 2011 18:13:22 +0530
-Message-ID: <1305290602-29859-3-git-send-email-mpallaka@codeaurora.org>
-References: <1305290602-29859-1-git-send-email-mpallaka@codeaurora.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1305290602-29859-1-git-send-email-mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWNrRvHsEVmBkkB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rmk-MIedHU+rSCMANfyc6IWni62ZND6+EDdj@public.gmane.org, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+From: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Subject: [PATCH 1/1] HID: Add full support for logitech Unifying receivers
+Date: Fri, 13 May 2011 16:31:24 +0200
+Message-ID: <1305297084-10224-1-git-send-email-nlopezcasad@logitech.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:52824 "HELO
+	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1758490Ab1EMOnr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 May 2011 10:43:47 -0400
+Received: by wya21 with SMTP id 21so2904466wya.33
+        for <linux-input@vger.kernel.org>; Fri, 13 May 2011 07:43:41 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, xnlopez@gmail.com, rtitmuss@logitech.com, ogay@logitech.com, Nestor Lopez Casado <nlopezcasad@logitech.com>
 
-From: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+With this driver, all the devices paired to a single Unifying receiver are exposed to user processes in separated /input/dev nodes.
+Keyboards with different layouts can be treated differently
+Multiplayer games on single PC (like home theater PC) can differentiate input coming from different kbds paired to the same receiver
 
-isa1200 chip can be used to generate vibrations to indicate
-silent alerts, providing gaming haptic actions or vibrations
-in response to touches. It can operate in two modes, pwm
-generation and pwm input mode. Pwm generation mode requires
-external clock and pwm input mode needs the pwm signal to be
-given as input to the chip.
+Up to now, when Logitech Unifying receivers are connected to a Linux based system, a single keyboard and a single mouse are presented to
+the HID Layer, even if the Unifying receiver can pair up to six compatible devices. The Unifying receiver by default multiplexes all
+incoming events (from multiple keyboards/mice) into these two.
 
-This patch has been derived based on Kyungmin Park's haptic
-framework patches at http://lkml.org/lkml/2009/10/7/50 . Park's
-isa1200 driver registers to the haptic class, which is also
-introduced as part of the same patch series, and userspace will
-operate the vibrator through exported sysfs entries. This version
-supports only pwm input mode.
-
-This derived patch converts the driver from haptic framework to
-the Linux supported force feeback framework. It also supports the
-chip operation in both pwm input and generation modes.
-
-Change-Id: If253c71e833e629431a35864e33824d8d6dadb35
-Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Signed-off-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
 ---
- drivers/input/misc/Kconfig    |   12 +
- drivers/input/misc/Makefile   |    1 +
- drivers/input/misc/isa1200.c  |  442 +++++++++++++++++++++++++++++++++++++++++
- include/linux/input/isa1200.h |   46 +++++
- 4 files changed, 501 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/isa1200.c
- create mode 100644 include/linux/input/isa1200.h
+ drivers/hid/Kconfig           |   11 +
+ drivers/hid/Makefile          |    2 +
+ drivers/hid/hid-core.c        |    8 +-
+ drivers/hid/hid-logitech-dj.c |  940 +++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-logitech-dj.h |  117 +++++
+ include/linux/hid.h           |    1 +
+ include/linux/input.h         |    2 +
+ 7 files changed, 1080 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/hid/hid-logitech-dj.c
+ create mode 100644 drivers/hid/hid-logitech-dj.h
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index f9cf088..9fd762d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -302,6 +302,18 @@ config HP_SDC_RTC
- 	  Say Y here if you want to support the built-in real time clock
- 	  of the HP SDC controller.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 9de9e97..7006761 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -243,6 +243,17 @@ config HID_LOGITECH
+ 	---help---
+ 	Support for Logitech devices that are not fully compliant with HID standard.
  
-+config INPUT_ISA1200
-+	tristate "ISA1200 haptic support"
-+	depends on I2C
-+	select INPUT_FF_MEMLESS
-+	help
-+	  ISA1200 is a high performance enhanced haptic chip.
-+	  Say Y here if you want to support ISA1200 connected via I2C,
-+	  and select N if you are unsure.
++config HID_LOGITECH_DJ
++	tristate "Logitech Unifying receivers full support"
++	depends on USB_HID
++	---help---
++	Full support for Logitech Unifying receivers. Unifying receivers are capable
++	of pairing up to 6 Logitech compliant devices to the same receiver.
++	Note: If you say N here, Unifying receivers/devices will still be supported
++	but Linux will not be able to know how many devices are connected to a
++	receiver nor will be able to differentiate input coming from different devices
++	connected to the same Unifying receiver.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called isa1200.
+ config LOGITECH_FF
+ 	bool "Logitech force feedback support"
+ 	depends on HID_LOGITECH
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 06c68ae..1581e1a 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -44,6 +44,7 @@ obj-$(CONFIG_HID_KEYTOUCH)	+= hid-keytouch.o
+ obj-$(CONFIG_HID_KYE)		+= hid-kye.o
+ obj-$(CONFIG_HID_LCPOWER)       += hid-lcpower.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
++obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
+ obj-$(CONFIG_HID_MAGICMOUSE)    += hid-magicmouse.o
+ obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
+ obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
+@@ -78,6 +79,7 @@ obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
+ obj-$(CONFIG_HID_WACOM)		+= hid-wacom.o
+ obj-$(CONFIG_HID_WALTOP)	+= hid-waltop.o
+ 
 +
- config INPUT_PCF50633_PMU
- 	tristate "PCF50633 PMU events"
- 	depends on MFD_PCF50633
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index e3f7984..47f74f7 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -23,6 +23,7 @@ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
- obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
- obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
-+obj-$(CONFIG_INPUT_ISA1200)		+= isa1200.o
- obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
- obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
-diff --git a/drivers/input/misc/isa1200.c b/drivers/input/misc/isa1200.c
+ obj-$(CONFIG_USB_HID)		+= usbhid/
+ obj-$(CONFIG_USB_MOUSE)		+= usbhid/
+ obj-$(CONFIG_USB_KBD)		+= usbhid/
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 408c4be..2855403 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1253,6 +1253,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 	case BUS_BLUETOOTH:
+ 		bus = "BLUETOOTH";
+ 		break;
++	case BUS_DJ:
++		bus = "UNIFYING";
++		break;
+ 	default:
+ 		bus = "<UNKNOWN>";
+ 	}
+@@ -1485,8 +1488,11 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+-
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
++#if defined(CONFIG_HID_LOGITECH_DJ) || defined(CONFIG_HID_LOGITECH_DJ_MODULE)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xc52b) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xc532) },
++#endif
+ 	{ }
+ };
+ 
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
 new file mode 100644
-index 0000000..0f5448a
+index 0000000..76fb9bd
 --- /dev/null
-+++ b/drivers/input/misc/isa1200.c
-@@ -0,0 +1,442 @@
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -0,0 +1,940 @@
 +/*
-+ *  Copyright (C) 2009 Samsung Electronics
-+ *  Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
++ *  HID driver for Logitech Unifying receivers
 + *
-+ *  Copyright (c) 2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ *  Copyright (c) 2011 Logitech (c)
 + */
 +
-+#define pr_fmt(fmt) "%s: " fmt, __func__
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Should you need to contact me, the author, you can do so by e-mail send
++ * your message to Nestor Lopez Casado <xnlopez at gmail com>
++ *
++ */
 +
++
++#include <linux/device.h>
++#include <linux/hid.h>
 +#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/i2c.h>
-+#include <linux/gpio.h>
-+#include <linux/workqueue.h>
-+#include <linux/delay.h>
-+#include <linux/pwm.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/pm.h>
-+#include <linux/input/isa1200.h>
++#include <linux/usb.h>
++#include "usbhid/usbhid.h"
++#include "hid-ids.h"
++#include "hid-logitech-dj.h"
 +
-+#define ISA1200_HCTRL0			0x30
-+#define HCTRL0_MODE_CTRL_BIT		(3)
-+#define HCTRL0_OVERDRIVE_HIGH_BIT	(5)
-+#define HCTRL0_OVERDRIVE_EN_BIT		(6)
-+#define HCTRL0_HAP_EN			(7)
-+#define HCTRL0_RESET			0x01
-+#define HCTRL1_RESET			0x4B
-+
-+#define ISA1200_HCTRL1			0x31
-+#define HCTRL1_SMART_ENABLE_BIT		(3)
-+#define HCTRL1_ERM_BIT			(5)
-+#define HCTRL1_EXT_CLK_ENABLE_BIT	(7)
-+
-+#define ISA1200_HCTRL5			0x35
-+#define HCTRL5_VIB_STRT			0xD5
-+#define HCTRL5_VIB_STOP			0x6B
-+
-+#define DIVIDER_128			(128)
-+#define DIVIDER_1024			(1024)
-+#define DIVIDE_SHIFTER_128		(7)
-+
-+#define FREQ_22400			(22400)
-+#define FREQ_172600			(172600)
-+
-+#define POR_DELAY_USEC			(250)
-+
-+struct isa1200_chip {
-+	const struct isa1200_platform_data *pdata;
-+	struct i2c_client *client;
-+	struct input_dev *input_device;
-+	struct pwm_device *pwm;
-+	unsigned int period_ns;
-+	unsigned int state;
-+	struct work_struct work;
++/* Keyboard descriptor (1) */
++static const char kbd_descriptor[] = {
++	0x05, 0x01,		/* USAGE_PAGE (generic Desktop)     */
++	0x09, 0x06,		/* USAGE (Keyboard)         */
++	0xA1, 0x01,		/* COLLECTION (Application)     */
++	0x85, 0x01,		/* REPORT_ID (1)            */
++	0x95, 0x08,		/*   REPORT_COUNT (8)           */
++	0x75, 0x01,		/*   REPORT_SIZE (1)            */
++	0x15, 0x00,		/*   LOGICAL_MINIMUM (0)        */
++	0x25, 0x01,		/*   LOGICAL_MAXIMUM (1)        */
++	0x05, 0x07,		/*   USAGE_PAGE (Keyboard)      */
++	0x19, 0xE0,		/*   USAGE_MINIMUM (Left Control)   */
++	0x29, 0xE7,		/*   USAGE_MAXIMUM (Right GUI)      */
++	0x81, 0x02,		/*   INPUT (Data,Var,Abs)       */
++	0x95, 0x05,		/*   REPORT COUNT (5)           */
++	0x05, 0x08,		/*   USAGE PAGE (LED page)      */
++	0x19, 0x01,		/*   USAGE MINIMUM (1)          */
++	0x29, 0x05,		/*   USAGE MAXIMUM (5)          */
++	0x91, 0x02,		/*   OUTPUT (Data, Variable, Absolute)  */
++	0x95, 0x01,		/*   REPORT COUNT (1)           */
++	0x75, 0x03,		/*   REPORT SIZE (3)            */
++	0x91, 0x01,		/*   OUTPUT (Constant)          */
++	0x95, 0x06,		/*   REPORT_COUNT (6)           */
++	0x75, 0x08,		/*   REPORT_SIZE (8)            */
++	0x15, 0x00,		/*   LOGICAL_MINIMUM (0)        */
++	0x26, 0xFF, 0x00,	/*   LOGICAL_MAXIMUM (255)      */
++	0x05, 0x07,		/*   USAGE_PAGE (Keyboard)      */
++	0x19, 0x00,		/*   USAGE_MINIMUM (no event)       */
++	0x2A, 0xFF, 0x00,	/*   USAGE_MAXIMUM (reserved)       */
++	0x81, 0x00,		/*   INPUT (Data,Ary,Abs)       */
++	0xC0
 +};
 +
-+static void isa1200_vib_set(struct isa1200_chip *haptic, bool enable)
-+{
-+	int rc;
++/* Mouse descriptor (2)     */
++static const char mse_descriptor[] = {
++	0x05, 0x01,		/*  USAGE_PAGE (Generic Desktop)        */
++	0x09, 0x02,		/*  USAGE (Mouse)                       */
++	0xA1, 0x01,		/*  COLLECTION (Application)            */
++	0x85, 0x02,		/*    REPORT_ID = 2                     */
++	0x09, 0x01,		/*    USAGE (pointer)                   */
++	0xA1, 0x00,		/*    COLLECTION (physical)             */
++	0x05, 0x09,		/*      USAGE_PAGE (buttons)            */
++	0x19, 0x01,		/*      USAGE_MIN (1)                   */
++	0x29, 0x10,		/*      USAGE_MAX (16)                  */
++	0x15, 0x00,		/*      LOGICAL_MIN (0)                 */
++	0x25, 0x01,		/*      LOGICAL_MAX (1)                 */
++	0x95, 0x10,		/*      REPORT_COUNT (16)               */
++	0x75, 0x01,		/*      REPORT_SIZE (1)                 */
++	0x81, 0x02,		/*      INPUT (data var abs)            */
++	0x05, 0x01,		/*      USAGE_PAGE (generic desktop)    */
++	0x16, 0x01, 0xF8,	/*      LOGICAL_MIN (-2047)             */
++	0x26, 0xFF, 0x07,	/*      LOGICAL_MAX (2047)              */
++	0x75, 0x0C,		/*      REPORT_SIZE (12)                */
++	0x95, 0x02,		/*      REPORT_COUNT (2)                */
++	0x09, 0x30,		/*      USAGE (X)                       */
++	0x09, 0x31,		/*      USAGE (Y)                       */
++	0x81, 0x06,		/*      INPUT                           */
++	0x15, 0x81,		/*      LOGICAL_MIN (-127)              */
++	0x25, 0x7F,		/*      LOGICAL_MAX (127)               */
++	0x75, 0x08,		/*      REPORT_SIZE (8)                 */
++	0x95, 0x01,		/*      REPORT_COUNT (1)                */
++	0x09, 0x38,		/*      USAGE (wheel)                   */
++	0x81, 0x06,		/*      INPUT                           */
++	0x05, 0x0C,		/*      USAGE_PAGE(consumer)            */
++	0x0A, 0x38, 0x02,	/*      USAGE(AC Pan)                   */
++	0x95, 0x01,		/*      REPORT_COUNT (1)                */
++	0x81, 0x06,		/*      INPUT                           */
++	0xC0,			/*    END_COLLECTION                    */
++	0xC0,			/*  END_COLLECTION                      */
++};
 +
-+	if (enable) {
-+		if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE) {
-+			rc = pwm_config(haptic->pwm,
-+				(haptic->period_ns * haptic->pdata->duty) / 100,
-+				haptic->period_ns);
-+			if (rc < 0)
-+				pr_err("pwm_config fail\n");
-+			rc = pwm_enable(haptic->pwm);
-+			if (rc < 0)
-+				pr_err("pwm_enable fail\n");
-+		} else if (haptic->pdata->mode_ctrl == PWM_GEN_MODE) {
-+			rc = i2c_smbus_write_byte_data(haptic->client,
-+						ISA1200_HCTRL5,
-+						HCTRL5_VIB_STRT);
-+			if (rc < 0)
-+				pr_err("start vibration fail\n");
-+		}
++/* Consumer Control descriptor (3) */
++static const char consumer_descriptor[] = {
++	0x05, 0x0C,		/* USAGE_PAGE (Consumer Devices)       */
++	0x09, 0x01,		/* USAGE (Consumer Control)            */
++	0xA1, 0x01,		/* COLLECTION (Application)            */
++	0x85, 0x03,		/* REPORT_ID = 3                       */
++	0x75, 0x10,		/* REPORT_SIZE (16)                    */
++	0x95, 0x02,		/* REPORT_COUNT (2)                    */
++	0x15, 0x01,		/* LOGICAL_MIN (1)                     */
++	0x26, 0x8C, 0x02,	/* LOGICAL_MAX (652)                   */
++	0x19, 0x01,		/* USAGE_MIN (1)                       */
++	0x2A, 0x8C, 0x02,	/* USAGE_MAX (652)                     */
++	0x81, 0x00,		/* INPUT (Data Ary Abs)                */
++	0xC0,			/* END_COLLECTION                      */
++};				/*                                     */
++
++/* System control descriptor (4) */
++static const char syscontrol_descriptor[] = {
++	0x05, 0x01,		/*   USAGE_PAGE (Generic Desktop)      */
++	0x09, 0x80,		/*   USAGE (System Control)            */
++	0xA1, 0x01,		/*   COLLECTION (Application)          */
++	0x85, 0x04,		/*   REPORT_ID = 4                     */
++	0x75, 0x02,		/*   REPORT_SIZE (2)                   */
++	0x95, 0x01,		/*   REPORT_COUNT (1)                  */
++	0x15, 0x01,		/*   LOGICAL_MIN (1)                   */
++	0x25, 0x03,		/*   LOGICAL_MAX (3)                   */
++	0x09, 0x82,		/*   USAGE (System Sleep)              */
++	0x09, 0x81,		/*   USAGE (System Power Down)         */
++	0x09, 0x83,		/*   USAGE (System Wake Up)            */
++	0x81, 0x60,		/*   INPUT (Data Ary Abs NPrf Null)    */
++	0x75, 0x06,		/*   REPORT_SIZE (6)                   */
++	0x81, 0x03,		/*   INPUT (Cnst Var Abs)              */
++	0xC0,			/*   END_COLLECTION                    */
++};
++
++/* Media descriptor (8) */
++static const char media_descriptor[] = {
++	0x06, 0xbc, 0xff,	/* Usage Page 0xffbc                   */
++	0x09, 0x88,		/* Usage 0x0088                        */
++	0xa1, 0x01,		/* BeginCollection                     */
++	0x85, 0x08,		/*   Report ID 8                       */
++	0x19, 0x01,		/*   Usage Min 0x0001                  */
++	0x29, 0xff,		/*   Usage Max 0x00ff                  */
++	0x15, 0x01,		/*   Logical Min 1                     */
++	0x26, 0xff, 0x00,	/*   Logical Max 255                   */
++	0x75, 0x08,		/*   Report Size 8                     */
++	0x95, 0x01,		/*   Report Count 1                    */
++	0x81, 0x00,		/*   Input                             */
++	0xc0,			/* EndCollection                       */
++};				/*                                     */
++
++/* Maximum size of all defined hid reports in bytes (including report id) */
++#define MAX_REPORT_SIZE 8
++
++/* Number of possible hid report types that can be created by this driver.
++ *
++ * Right now, RF report types have the same report types (or report id's)
++ * than the hid report created from those RF reports. In the future
++ * this doesnt have to be true.
++ *
++ * For instance, RF report type 0x01 which has a size of 8 bytes, corresponds
++ * to hid report id 0x01, this is standard keyboard. Same thing applies to mice
++ * reports and consumer control, etc. If a new RF report is created, it doesn't
++ * has to have the same report id as its corresponding hid report, so an
++ * translation may have to take place for future report types.
++ */
++#define NUMBER_OF_HID_REPORTS 32
++static const u8 hid_reportid_size_map[NUMBER_OF_HID_REPORTS] = {
++	0,			/* Not used */
++	8,			/* Standard keyboard */
++	8,			/* Standard mouse */
++	5,			/* Consumer control */
++	2,			/* System control */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	2,			/* Media Center */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0,			/* Not used */
++	0			/* Not used */
++};
++
++
++#define LOGITECH_DJ_INTERFACE_NUMBER 0x02
++
++static struct hid_ll_driver logi_dj_ll_driver;
++
++static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
++					size_t count,
++					unsigned char report_type);
++
++static void logi_dj_recv_destroy_djhid_device(struct dj_receiver_dev *djrcv_dev,
++						struct dj_report *dj_report)
++{
++	/* Called in delayed work context */
++	struct dj_device *dj_dev;
++	unsigned long flags;
++
++	spin_lock_irqsave(&djrcv_dev->lock, flags);
++	dj_dev = djrcv_dev->paired_dj_devices[dj_report->device_index];
++	djrcv_dev->paired_dj_devices[dj_report->device_index] = NULL;
++	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++
++	if (dj_dev != NULL) {
++		hid_destroy_device(dj_dev->hdev);
++		kfree(dj_dev);
 +	} else {
-+		if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE)
-+			pwm_disable(haptic->pwm);
-+		else if (haptic->pdata->mode_ctrl == PWM_GEN_MODE) {
-+			rc = i2c_smbus_write_byte_data(haptic->client,
-+						ISA1200_HCTRL5,
-+						HCTRL5_VIB_STOP);
-+			if (rc < 0)
-+				pr_err("stop vibration fail\n");
++		dev_err(&djrcv_dev->hdev->dev, "logi_dj_recv_destroy_djhid_device"
++					":cant destroy a NULL device\n");
++	}
++}
++
++
++static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev
++					  *djrcv_dev,
++					  struct dj_report *dj_report)
++{
++	/* Called in delayed work context */
++	struct usb_interface *intf = to_usb_interface(djrcv_dev->hdev->dev.parent);
++	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct hid_device *dj_hiddev;
++	struct dj_device *dj_dev;
++	unsigned long flags;
++	unsigned char tmpstr[20];
++
++	if (dj_report->report_params[NOTIF_DEVICE_PAIRED_PARAM_SPFUNCTION] &
++	    SPFUNCTION_DEVICE_LIST_EMPTY) {
++		dbg_hid("logi_dj_recv_add_djhid_device: device list is empty\n");
++		return;
++	}
++
++	dj_hiddev = hid_allocate_device();
++	if (IS_ERR(dj_hiddev)) {
++		dev_err(&djrcv_dev->hdev->dev, "logi_dj_recv_add_djhid_device:"
++						"hid_allocate_device failed\n");
++		return;
++	}
++
++	dj_hiddev->ll_driver = &logi_dj_ll_driver;
++	dj_hiddev->hid_output_raw_report = logi_dj_output_hidraw_report;
++
++	dj_hiddev->dev.parent = &djrcv_dev->hdev->dev;
++	dj_hiddev->bus = BUS_DJ;
++	dj_hiddev->vendor = le16_to_cpu(usbdev->descriptor.idVendor);
++	dj_hiddev->product = le16_to_cpu(usbdev->descriptor.idProduct);
++	dj_hiddev->name[0] = 0;
++	strlcpy(dj_hiddev->name, "Logitech Unifying Device. ", sizeof(dj_hiddev->name));
++	snprintf(tmpstr, sizeof(tmpstr), "Wireless PID:%02x%02x",
++		dj_report->report_params[NOTIF_DEVICE_PAIRED_PARAM_EQUAD_ID_MSB],
++		dj_report->report_params[NOTIF_DEVICE_PAIRED_PARAM_EQUAD_ID_LSB]);
++	strlcat(dj_hiddev->name, tmpstr, sizeof(dj_hiddev->name));
++
++	usb_make_path(usbdev, dj_hiddev->phys, sizeof(dj_hiddev->phys));
++	snprintf(tmpstr, sizeof(tmpstr), ":%d", dj_report->device_index);
++	strlcat(dj_hiddev->phys, tmpstr, sizeof(dj_hiddev->phys));
++
++	dj_dev = kzalloc(sizeof(struct dj_device), GFP_KERNEL);
++
++	if (IS_ERR(dj_dev)) {
++		dev_err(&djrcv_dev->hdev->dev,
++			"logi_dj_recv_add_djhid_device:failed allocating dj_device\n");
++		goto dj_device_allocate_fail;
++	}
++
++	dj_dev->reports_supported = le32_to_cpu(
++			dj_report->
++			report_params[NOTIF_DEVICE_PAIRED_RF_REPORT_TYPE_LSB]);
++	dj_dev->hdev = dj_hiddev;
++	dj_dev->device_index = dj_report->device_index;
++	dj_hiddev->driver_data = dj_dev;
++
++	if (hid_add_device(dj_hiddev)) {
++		dev_err(&djrcv_dev->hdev->dev,
++			"logi_dj_recv_add_djhid_device:failed adding dj_device\n");
++		goto hid_add_device_fail;
++	}
++
++	spin_lock_irqsave(&djrcv_dev->lock, flags);
++	djrcv_dev->paired_dj_devices[dj_report->device_index] = dj_dev;
++	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++
++	return;
++
++hid_add_device_fail:
++	kfree(dj_dev);
++dj_device_allocate_fail:
++	hid_destroy_device(dj_hiddev);
++}
++
++
++static int notif_fifo_push(struct dj_receiver_dev *djrcv_dev,
++			   struct dj_report *dj_report)
++{
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
++
++	if (!djrcv_dev->notif_fifo_full) {
++		memcpy(&djrcv_dev->notif_fifo[djrcv_dev->notif_fifo_end &
++			(DJ_MAX_NUMBER_NOTIFICATIONS - 1)],
++			dj_report,
++			sizeof(struct dj_report));
++		djrcv_dev->notif_fifo_end++;
++
++		if (((djrcv_dev->notif_fifo_end ^ djrcv_dev->notif_fifo_start) &
++			(DJ_MAX_NUMBER_NOTIFICATIONS - 1)) == 0)
++				djrcv_dev->notif_fifo_full = 1;
++		return 0;
++	}
++	return -1;
++}
++
++static int notif_fifo_pop(struct dj_receiver_dev *djrcv_dev,
++			  struct dj_report *dj_report)
++{
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
++
++	if ((djrcv_dev->notif_fifo_start != djrcv_dev->notif_fifo_end) ||
++	    (djrcv_dev->notif_fifo_full == 1)) {
++		memcpy(dj_report,
++		       &djrcv_dev->notif_fifo[djrcv_dev->notif_fifo_start &
++			   (DJ_MAX_NUMBER_NOTIFICATIONS - 1)],
++		       sizeof(struct dj_report));
++		djrcv_dev->notif_fifo_start++;
++		djrcv_dev->notif_fifo_full = 0;
++		return (djrcv_dev->notif_fifo_start !=
++			djrcv_dev->notif_fifo_end) ? 1 : 0;
++	}
++	return -1;
++}
++
++static void delayedwork_callback(struct work_struct *work)
++{
++	struct dj_receiver_dev *djrcv_dev =
++	    container_of(work, struct dj_receiver_dev, delayed_work);
++
++	struct dj_report dj_report;
++	unsigned long flags;
++	int process_more;
++
++	dbg_hid("delayedwork_callback\n");
++
++	spin_lock_irqsave(&djrcv_dev->lock, flags);
++	process_more = notif_fifo_pop(djrcv_dev, &dj_report);
++	if (process_more < 0) {
++		dev_err(&djrcv_dev->hdev->dev, "delayedwork_callback:"
++			"workitem triggered without notifications available\n");
++	} else if (process_more > 0) {
++		if (schedule_work(&djrcv_dev->delayed_work) == 0) {
++			dbg_hid("delayedwork_callback:"
++				" did not schedule the work item, was already queued\n");
++		}
++	}
++	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++
++	if (dj_report.report_type == REPORT_TYPE_NOTIF_DEVICE_PAIRED)
++		logi_dj_recv_add_djhid_device(djrcv_dev, &dj_report);
++	else if (dj_report.report_type == REPORT_TYPE_NOTIF_DEVICE_UNPAIRED)
++		logi_dj_recv_destroy_djhid_device(djrcv_dev, &dj_report);
++	else
++		dbg_hid("delayedwork_callback: unexpected report type\n");
++}
++
++static int logi_dj_recv_queue_notification(struct dj_receiver_dev *djrcv_dev,
++					   struct dj_report *dj_report)
++{
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
++
++	if (notif_fifo_push(djrcv_dev, dj_report)) {
++		dev_err(&djrcv_dev->hdev->dev,
++			"logi_dj_recv_queue_notification:"
++			"unexpected number of notifications arrived\n");
++		return 0;
++	}
++
++	if (schedule_work(&djrcv_dev->delayed_work) == 0) {
++		dbg_hid("logi_dj_recv_queue_notification:"
++			" did not schedule the work item, was already queued\n");
++	}
++	return 0;
++}
++
++static void logi_dj_recv_forward_null_report(struct dj_receiver_dev *djrcv_dev,
++					     struct dj_report *dj_report)
++{
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
++	unsigned int i;
++	u8 reportbuffer[MAX_REPORT_SIZE];
++	struct dj_device *djdev;
++
++	memset(reportbuffer, 0, sizeof(reportbuffer));
++
++	if (djrcv_dev->paired_dj_devices[dj_report->device_index] == NULL) {
++		dbg_hid("djrcv_dev->paired_dj_devices[dj_report->device_index]"
++			" is NULL, index %d\n", dj_report->device_index);
++		return;
++	}
++
++	djdev = djrcv_dev->paired_dj_devices[dj_report->device_index];
++
++	for (i = 0; i < NUMBER_OF_HID_REPORTS; i++) {
++		if (djdev->reports_supported & (1 << i)) {
++			reportbuffer[0] = i;
++			if (hid_input_report(djdev->hdev,
++					     HID_INPUT_REPORT,
++					     reportbuffer,
++					     hid_reportid_size_map[i], 1)) {
++				dbg_hid("hid_input_report error sending null report\n");
++			}
 +		}
 +	}
 +}
 +
-+static int isa1200_setup(struct i2c_client *client)
++static void logi_dj_recv_forward_report(struct dj_receiver_dev *djrcv_dev,
++					struct dj_report *dj_report)
 +{
-+	struct isa1200_chip *haptic = i2c_get_clientdata(client);
-+	int value, temp, rc;
++	/* We are called from atomic context (tasklet && djrcv->lock held) */
 +
-+	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio)
-+		gpio_set_value_cansleep(haptic->pdata->hap_len_gpio, 1);
-+
-+	gpio_set_value_cansleep(haptic->pdata->hap_en_gpio, 0);
-+	udelay(POR_DELAY_USEC);
-+	gpio_set_value_cansleep(haptic->pdata->hap_en_gpio, 1);
-+
-+	value =	(haptic->pdata->smart_en << HCTRL1_SMART_ENABLE_BIT) |
-+		(haptic->pdata->is_erm << HCTRL1_ERM_BIT) |
-+		(haptic->pdata->ext_clk_en << HCTRL1_EXT_CLK_ENABLE_BIT);
-+
-+	rc = i2c_smbus_write_byte_data(client, ISA1200_HCTRL1, value);
-+	if (rc < 0) {
-+		pr_err("i2c write failure\n");
-+		return rc;
++	if (djrcv_dev->paired_dj_devices[dj_report->device_index] == NULL) {
++		dbg_hid("djrcv_dev->paired_dj_devices[dj_report->device_index]"
++			" is NULL, index %d\n", dj_report->device_index);
++		return;
 +	}
 +
-+	if (haptic->pdata->mode_ctrl == PWM_GEN_MODE) {
-+		temp = haptic->pdata->pwm_fd.pwm_div;
-+		if (temp < DIVIDER_128 || temp > DIVIDER_1024 ||
-+					temp % DIVIDER_128) {
-+			pr_err("Invalid divisor\n");
-+			rc = -EINVAL;
-+			goto reset_hctrl1;
++	if ((dj_report->report_type > (ARRAY_SIZE(hid_reportid_size_map) - 1)) ||
++	    (hid_reportid_size_map[dj_report->report_type] == 0)) {
++		dbg_hid("invalid report type:%x\n", dj_report->report_type);
++		return;
++	}
++
++	if (hid_input_report(djrcv_dev->paired_dj_devices[dj_report->device_index]->hdev,
++			     HID_INPUT_REPORT, &dj_report->report_type,
++			     hid_reportid_size_map[dj_report->report_type], 1)) {
++		dbg_hid("hid_input_report error\n");
++	}
++
++	return;
++
++}
++
++
++static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
++				    struct dj_report *dj_report)
++{
++	struct hid_device *hdev = djrcv_dev->hdev;
++	int sent_bytes;
++
++	if (!hdev->hid_output_raw_report) {
++		dev_err(&hdev->dev, "logi_dj_recv_send_report:"
++			"hid_output_raw_report is null\n");
++		return -ENODEV;
++	}
++
++	sent_bytes = hdev->hid_output_raw_report(hdev, (u8 *) dj_report,
++						 sizeof(struct dj_report),
++						 HID_OUTPUT_REPORT);
++
++	return (sent_bytes < 0) ? sent_bytes : 0;
++}
++
++static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev
++					     *djrcv_dev)
++{
++	struct dj_report dj_report;
++
++	memset(&dj_report, 0, sizeof(dj_report));
++	dj_report.report_id = REPORT_ID_DJ_SHORT;
++	dj_report.device_index = 0xFF;
++	dj_report.report_type = REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
++	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
++}
++
++static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev
++					  *djrcv_dev, unsigned timeout)
++{
++	struct dj_report dj_report;
++
++	memset(&dj_report, 0, sizeof(dj_report));
++	dj_report.report_id = REPORT_ID_DJ_SHORT;
++	dj_report.device_index = 0xFF;
++	dj_report.report_type = REPORT_TYPE_CMD_SWITCH;
++	dj_report.report_params[CMD_SWITCH_PARAM_DEVBITFIELD] = 0x1F;
++	dj_report.report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8) timeout;
++	return logi_dj_recv_send_report(djrcv_dev, &dj_report);
++}
++
++
++static int logi_dj_ll_open(struct hid_device *hid)
++{
++	dbg_hid("logi_dj_ll_open:%s\n", hid->phys);
++	return 0;
++
++}
++
++static void logi_dj_ll_close(struct hid_device *hid)
++{
++	dbg_hid("logi_dj_ll_close:%s\n", hid->phys);
++}
++
++
++
++static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
++					size_t count,
++					unsigned char report_type)
++{
++	/* Called by hid raw to send data */
++	dbg_hid("logi_dj_output_hidraw_report\n");
++
++	return 0;
++}
++
++static int logi_dj_ll_parse(struct hid_device *hid)
++{
++	struct dj_device *djdev = hid->driver_data;
++	int retval = 0;
++
++	dbg_hid("logi_dj_ll_parse\n");
++
++	djdev->hdev->version = le16_to_cpu(0x0111);
++	djdev->hdev->country = 0x00;
++
++	if (djdev->reports_supported & STD_KEYBOARD) {
++		dbg_hid("logi_dj_ll_parse: "
++			"sending a kbd descriptor, reports_supported: %x\n",
++			djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) kbd_descriptor,
++					  sizeof(kbd_descriptor));
++		if (retval) {
++			dbg_hid("logi_dj_ll_parse:"
++				" sending a kbd descriptor, hid_parse failed error: %d\n",
++				retval);
++			return retval;
 +		}
-+		value = ((temp >> DIVIDE_SHIFTER_128) - 1);
-+	} else if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE) {
-+		temp = haptic->pdata->pwm_fd.pwm_freq;
-+		if (temp < FREQ_22400 || temp > FREQ_172600 ||
-+					temp % FREQ_22400) {
-+			pr_err("Invalid frequency\n");
-+			rc = -EINVAL;
-+			goto reset_hctrl1;
-+		}
-+		value = ((temp / FREQ_22400) - 1);
-+		haptic->period_ns = NSEC_PER_SEC / temp;
 +	}
-+	value |= (haptic->pdata->mode_ctrl << HCTRL0_MODE_CTRL_BIT) |
-+		(haptic->pdata->overdrive_high << HCTRL0_OVERDRIVE_HIGH_BIT) |
-+		(haptic->pdata->overdrive_en << HCTRL0_OVERDRIVE_EN_BIT) |
-+		(haptic->pdata->chip_en << HCTRL0_HAP_EN);
 +
-+	rc = i2c_smbus_write_byte_data(client, ISA1200_HCTRL0, value);
-+	if (rc < 0) {
-+		pr_err("i2c write failure\n");
-+		goto reset_hctrl1;
++	if (djdev->reports_supported & STD_MOUSE) {
++		dbg_hid("logi_dj_ll_parse:"
++			"sending a mouse descriptor, reports_supported: %x\n",
++			djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) mse_descriptor,
++					  sizeof(mse_descriptor));
++		if (retval) {
++			dbg_hid("logi_dj_ll_parse:"
++				" sending a mouse descriptor, hid_parse failed error: %d\n",
++				retval);
++			return retval;
++		}
 +	}
++
++	if (djdev->reports_supported & MULTIMEDIA) {
++		dbg_hid("logi_dj_ll_parse:"
++			" sending a multimedia report descriptor: %x\n",
++			djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) consumer_descriptor,
++					  sizeof(consumer_descriptor));
++		if (retval) {
++			dbg_hid("logi_dj_ll_parse:"
++				" sending a consumer_descriptor, hid_parse failed error: %d\n",
++				retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & POWER_KEYS) {
++		dbg_hid("logi_dj_ll_parse:"
++			" sending a power keys report descriptor: %x\n",
++			djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) syscontrol_descriptor,
++					  sizeof(syscontrol_descriptor));
++		if (retval) {
++			dbg_hid("logi_dj_ll_parse:"
++				" sending a syscontrol_descriptor, hid_parse failed error: %d\n",
++				retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & MEDIA_CENTER) {
++		dbg_hid("logi_dj_ll_parse:"
++			" sending a media center report descriptor: %x\n",
++			djdev->reports_supported);
++		retval = hid_parse_report(hid,
++					  (u8 *) media_descriptor,
++					  sizeof(media_descriptor));
++		if (retval) {
++			dbg_hid("logi_dj_ll_parse:"
++				" sending a media_descriptor, hid_parse failed error: %d\n",
++				retval);
++			return retval;
++		}
++	}
++
++	if (djdev->reports_supported & KBD_LEDS) {
++		dbg_hid("logi_dj_ll_parse:"
++			" need to send kbd leds report descriptor: %x\n",
++			djdev->reports_supported);
++	}
++	return 0;
++
++}
++
++static int logi_dj_ll_input_event(struct input_dev *dev, unsigned int type,
++				  unsigned int code, int value)
++{
++	/* Sent by the input layer to handle leds and Force Feedback */
++	struct hid_device *dj_hiddev = input_get_drvdata(dev);
++	struct dj_device *dj_dev = dj_hiddev->driver_data;
++
++	struct dj_receiver_dev *djrcv_dev =
++	    dev_get_drvdata(dj_hiddev->dev.parent);
++	struct hid_device *dj_rcv_hiddev = djrcv_dev->hdev;
++
++	struct hid_field *field;
++	struct hid_report *report;
++	unsigned char data[8];
++	int offset;
++
++	dbg_hid("logi_dj_ll_input_event: %s, type:%d | code:%d | value:%d\n",
++		dev->phys, type, code, value);
++
++	if (type != EV_LED)
++		return -1;
++
++	offset = hidinput_find_field(dj_hiddev, type, code, &field);
++
++	if (offset == -1) {
++		dev_warn(&dev->dev, "event field not found\n");
++		return -1;
++	}
++	hid_set_field(field, offset, value);
++	hid_output_report(field->report, &data[0]);
++
++	report = dj_rcv_hiddev->
++		report_enum[HID_OUTPUT_REPORT].report_id_hash[REPORT_ID_DJ_SHORT];
++	hid_set_field(report->field[0], 0, dj_dev->device_index);
++	hid_set_field(report->field[0], 1, REPORT_TYPE_LEDS);
++	hid_set_field(report->field[0], 2, data[1]);
++
++	usbhid_submit_report(dj_rcv_hiddev, report, USB_DIR_OUT);
 +
 +	return 0;
 +
-+reset_hctrl1:
-+	i2c_smbus_write_byte_data(client, ISA1200_HCTRL1,
-+				HCTRL1_RESET);
-+	return rc;
 +}
 +
-+static void isa1200_worker(struct work_struct *work)
++static int logi_dj_ll_start(struct hid_device *hid)
 +{
-+	struct isa1200_chip *haptic;
-+
-+	haptic = container_of(work, struct isa1200_chip, work);
-+	isa1200_vib_set(haptic, !!haptic->state);
-+}
-+
-+static int isa1200_play_effect(struct input_dev *dev, void *data,
-+				struct ff_effect *effect)
-+{
-+	struct isa1200_chip *haptic = input_get_drvdata(dev);
-+
-+	/* support basic vibration */
-+	haptic->state = effect->u.rumble.strong_magnitude >> 8;
-+	if (!haptic->state)
-+		haptic->state = effect->u.rumble.weak_magnitude >> 9;
-+
-+	schedule_work(&haptic->work);
++	dbg_hid("logi_dj_ll_start\n");
 +	return 0;
 +}
 +
-+#ifdef CONFIG_PM_SLEEP
-+static int isa1200_suspend(struct device *dev)
++static void logi_dj_ll_stop(struct hid_device *hid)
 +{
-+	struct isa1200_chip *haptic = dev_get_drvdata(dev);
-+	int rc;
++	dbg_hid("logi_dj_ll_stop\n");
++}
 +
-+	cancel_work_sync(&haptic->work);
-+	/* turn-off current vibration */
-+	isa1200_vib_set(haptic, false);
++static int logi_dj_ll_power(struct hid_device *hid, int lvl)
++{
 +
-+	if (haptic->pdata->power_on) {
-+		rc = haptic->pdata->power_on(false);
-+		if (rc) {
-+			pr_err("power-down failed\n");
-+			return rc;
++	dbg_hid("logi_dj_ll_power\n");
++	return 0;
++}
++
++
++static struct hid_ll_driver logi_dj_ll_driver = {
++	.parse = logi_dj_ll_parse,
++	.start = logi_dj_ll_start,
++	.stop = logi_dj_ll_stop,
++	.open = logi_dj_ll_open,
++	.close = logi_dj_ll_close,
++	.power = logi_dj_ll_power,
++	.hidinput_input_event = logi_dj_ll_input_event,
++};
++
++
++static int logi_dj_raw_event(struct hid_device *hdev,
++			     struct hid_report *report, u8 * data,
++			     int size)
++{
++	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
++	struct dj_report *dj_report = (struct dj_report *) data;
++	unsigned long flags;
++	int report_processed = 0;
++
++	dbg_hid("logi_dj_raw_event, size:%d\n", size);
++
++	/* Here we receive all data coming from iface 2, there are 4 cases:
++	 *
++	 * 1) Data should continue its normal processing i.e. data does not
++	 * come from the DJ collection, in which case we do nothing and
++	 * return 0, so hid-core can continue normal processing (will forward
++	 * to associated hidraw device)
++	 *
++	 * 2) Data is from DJ collection, and is intended for this driver i. e.
++	 * data contains arrival, departure, etc notifications, in which case
++	 * we queue them for delayed processing by the work queue. We return 1
++	 * to hid-core as no further processing is required from it.
++	 *
++	 * 3) Data is from DJ collection, and informs a connection change,
++	 * if the change means rf link loss, then we must send a null report
++	 * to the upper layer to discard potentially pressed keys that may be
++	 * repeated forever by the input layer. Return 1 to hid-core as no further
++	 * processing is required.
++	 *
++	 * 4) Data is from DJ collection and is an actual input event from
++	 * a paired DJ device in which case we forward it to the correct hid
++	 * device (via hid_input_report() ) and return 1 so hid-core does not do
++	 * anything else with it.
++	 */
++
++	spin_lock_irqsave(&djrcv_dev->lock, flags);
++	if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
++		if ((dj_report->report_type == REPORT_TYPE_NOTIF_DEVICE_PAIRED) ||
++		    (dj_report->report_type == REPORT_TYPE_NOTIF_DEVICE_UNPAIRED)) {
++			logi_dj_recv_queue_notification(djrcv_dev, dj_report);
++		} else if (dj_report->report_type == REPORT_TYPE_NOTIF_CONNECTION_STATUS) {
++			if (dj_report->report_params[NOTIF_CONNECTION_STATUS_PARAM_STATUS] ==
++			    STATUS_LINKLOSS) {
++				logi_dj_recv_forward_null_report(djrcv_dev, dj_report);
++			}
++		} else {
++			logi_dj_recv_forward_report(djrcv_dev, dj_report);
 +		}
++		report_processed = 1;
 +	}
-+	return 0;
++	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
++
++
++	return report_processed;
 +}
 +
-+static int isa1200_resume(struct device *dev)
++static int logi_dj_probe(struct hid_device *hdev,
++			 const struct hid_device_id *id)
 +{
-+	struct isa1200_chip *haptic = dev_get_drvdata(dev);
-+	int rc;
++	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++	struct dj_receiver_dev *djrcv_dev;
++	int retval = 0;
 +
-+	if (haptic->pdata->power_on) {
-+		rc = haptic->pdata->power_on(true);
-+		if (rc) {
-+			pr_err("power-up failed\n");
-+			return rc;
-+		}
++	dbg_hid("logi_dj_probe called for ifnum %d\n",
++		intf->cur_altsetting->desc.bInterfaceNumber);
++
++	/* Ignore interfaces 0 and 1, they will not carry any data, dont create
++	 * any hid_device for them */
++	if (intf->cur_altsetting->desc.bInterfaceNumber !=
++	    LOGITECH_DJ_INTERFACE_NUMBER) {
++		dbg_hid("logi_dj_probe: ignoring ifnum %d\n",
++			intf->cur_altsetting->desc.bInterfaceNumber);
++		return -ENODEV;
 +	}
 +
-+	isa1200_setup(haptic->client);
-+	return 0;
-+}
-+#else
-+#define isa1200_suspend		NULL
-+#define isa1200_resume		NULL
-+#endif
++	/* Treat interface 2 */
 +
-+static int __devinit isa1200_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct isa1200_chip *haptic;
-+	int rc;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+			I2C_FUNC_SMBUS_BYTE_DATA)) {
-+		pr_err("i2c is not supported\n");
-+		return -EIO;
-+	}
-+
-+	if (!client->dev.platform_data) {
-+		pr_err("pdata is not avaiable\n");
-+		return -EINVAL;
-+	}
-+
-+	haptic = kzalloc(sizeof(struct isa1200_chip), GFP_KERNEL);
-+	if (!haptic) {
-+		pr_err("no memory\n");
++	djrcv_dev = kzalloc(sizeof(struct dj_receiver_dev), GFP_KERNEL);
++	if (IS_ERR(djrcv_dev)) {
++		dev_err(&hdev->dev,
++			"logi_dj_probe:failed allocating dj_receiver_dev\n");
 +		return -ENOMEM;
 +	}
++	djrcv_dev->hdev = hdev;
++	INIT_WORK(&djrcv_dev->delayed_work, delayedwork_callback);
++	spin_lock_init(&djrcv_dev->lock);
++	hid_set_drvdata(hdev, djrcv_dev);
 +
-+	haptic->pdata = client->dev.platform_data;
-+	haptic->client = client;
-+
-+	i2c_set_clientdata(client, haptic);
-+
-+	/* device setup */
-+	if (haptic->pdata->dev_setup) {
-+		rc = haptic->pdata->dev_setup(true);
-+		if (rc < 0) {
-+			pr_err("setup failed!\n");
-+			goto err_mem_alloc;
-+		}
++	/* Call  to usbhid to fetch the HID descriptors of interface 2 and subsequently
++	 * call to the hid/hid-core to parse the fetched descriptors, this will in turn
++	 * create the hidraw and hiddev nodes for interface 2 of the receiver */
++	retval = hid_parse(hdev);
++	if (retval) {
++		dev_err(&hdev->dev,
++			"logi_dj_probe:parse of interface 2 failed\n");
++		goto hid_parse_fail;
 +	}
 +
-+	/* power on */
-+	if (haptic->pdata->power_on) {
-+		rc = haptic->pdata->power_on(true);
-+		if (rc < 0) {
-+			pr_err("power failed\n");
-+			goto err_setup;
-+		}
++	/* Starts the usb device and connects to upper interfaces hiddev and hidraw */
++	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (retval) {
++		dev_err(&hdev->dev,
++			"logi_dj_probe:hid_hw_start returned error\n");
++		goto hid_hw_start_fail;
 +	}
 +
-+	/* request gpio */
-+	rc = gpio_is_valid(haptic->pdata->hap_en_gpio);
-+	if (rc) {
-+		rc = gpio_request(haptic->pdata->hap_en_gpio, "haptic_gpio");
-+		if (rc) {
-+			pr_err("gpio %d request failed\n",
-+					haptic->pdata->hap_en_gpio);
-+			goto err_power_on;
-+		}
-+	} else {
-+		pr_err("Invalid gpio %d\n",
-+					haptic->pdata->hap_en_gpio);
-+		goto err_power_on;
++	retval = logi_dj_recv_switch_to_dj_mode(djrcv_dev, 0);
++	if (retval < 0) {
++		dev_err(&hdev->dev,
++			"logi_dj_probe:logi_dj_recv_switch_to_dj_mode returned error:%d\n",
++			retval);
++		goto switch_to_dj_mode_fail;
 +	}
 +
-+	rc = gpio_direction_output(haptic->pdata->hap_en_gpio, 0);
-+	if (rc) {
-+		pr_err("gpio %d set direction failed\n",
-+					haptic->pdata->hap_en_gpio);
-+		goto err_hap_en_gpio_free;
++	/* This is enabling the polling urb on the IN endpoint */
++	retval = hdev->ll_driver->open(hdev);
++	if (retval < 0) {
++		dev_err(&hdev->dev,
++			"logi_dj_probe:hdev->ll_driver->open returned error:%d\n",
++			retval);
++		goto llopen_failed;
 +	}
 +
-+	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio) {
-+		rc = gpio_request(haptic->pdata->hap_len_gpio,
-+					"haptic_len_gpio");
-+		if (rc) {
-+			pr_err("gpio %d request failed\n",
-+					haptic->pdata->hap_len_gpio);
-+			goto err_hap_en_gpio_free;
-+		}
++	retval = logi_dj_recv_query_paired_devices(djrcv_dev);
++	if (retval < 0) {
++		dev_err(&hdev->dev,
++			"logi_dj_probe:logi_dj_recv_query_paired_devices error:%d\n",
++			retval);
++		goto logi_dj_recv_query_paired_devices_failed;
 +	}
 +
-+	/* setup registers */
-+	rc = isa1200_setup(haptic->client);
-+	if (rc < 0) {
-+		pr_err("setup fail %d\n", rc);
-+		goto err_ldo_en_gpio_free;
-+	}
++	return retval;
 +
-+	if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE) {
-+		haptic->pwm = pwm_request(haptic->pdata->pwm_ch_id,
-+				haptic->client->driver->id_table->name);
-+		if (IS_ERR(haptic->pwm)) {
-+			pr_err("pwm request failed\n");
-+			rc = PTR_ERR(haptic->pwm);
-+			goto err_reset_hctrl0;
-+		}
-+	}
++logi_dj_recv_query_paired_devices_failed:
++	hdev->ll_driver->close(hdev);
 +
-+	/* init workqeueue */
-+	INIT_WORK(&haptic->work, isa1200_worker);
++llopen_failed:
++switch_to_dj_mode_fail:
++	hid_hw_stop(hdev);
 +
-+	haptic->input_device = input_allocate_device();
-+	if (!haptic->input_device) {
-+		pr_err("input device alloc failed\n");
-+		rc = -ENOMEM;
-+		goto err_pwm_free ;
-+	}
++hid_hw_start_fail:
++hid_parse_fail:
++	kfree(djrcv_dev);
++	hid_set_drvdata(hdev, NULL);
++	return retval;
 +
-+	input_set_drvdata(haptic->input_device, haptic);
-+	haptic->input_device->name = haptic->pdata->name ? :
-+					"isa1200-haptic-device";
-+
-+	haptic->input_device->dev.parent = &client->dev;
-+	haptic->input_device->id.bustype = BUS_I2C;
-+
-+	input_set_capability(haptic->input_device, EV_FF, FF_RUMBLE);
-+
-+	rc = input_ff_create_memless(haptic->input_device, NULL,
-+					isa1200_play_effect);
-+	if (rc < 0) {
-+		pr_err("unable to register with ff\n");
-+		goto err_free_dev;
-+	}
-+
-+	rc = input_register_device(haptic->input_device);
-+	if (rc < 0) {
-+		pr_err("unable to register input device\n");
-+		goto err_ff_destroy;
-+	}
-+	return 0;
-+
-+err_ff_destroy:
-+	input_ff_destroy(haptic->input_device);
-+err_free_dev:
-+	input_free_device(haptic->input_device);
-+err_pwm_free:
-+	if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE)
-+		pwm_free(haptic->pwm);
-+err_reset_hctrl0:
-+	i2c_smbus_write_byte_data(haptic->client, ISA1200_HCTRL0,
-+					HCTRL0_RESET);
-+err_ldo_en_gpio_free:
-+	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio)
-+		gpio_free(haptic->pdata->hap_len_gpio);
-+err_hap_en_gpio_free:
-+	gpio_free(haptic->pdata->hap_en_gpio);
-+err_power_on:
-+	if (haptic->pdata->power_on)
-+		haptic->pdata->power_on(false);
-+err_setup:
-+	if (haptic->pdata->dev_setup)
-+		haptic->pdata->dev_setup(false);
-+err_mem_alloc:
-+	kfree(haptic);
-+	return rc;
 +}
 +
-+static int __devexit isa1200_remove(struct i2c_client *client)
++static void logi_dj_remove(struct hid_device *hdev)
 +{
-+	struct isa1200_chip *haptic = i2c_get_clientdata(client);
++	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
++	struct dj_device *dj_dev;
++	int i;
 +
-+	cancel_work_sync(&haptic->work);
-+	/* turn-off current vibration */
-+	isa1200_vib_set(haptic, false);
++	dbg_hid("logi_dj_remove\n");
 +
-+	if (haptic->pdata->mode_ctrl == PWM_INPUT_MODE)
-+		pwm_free(haptic->pwm);
++	cancel_work_sync(&djrcv_dev->delayed_work);
 +
-+	if (haptic->pdata->hap_en_gpio != haptic->pdata->hap_len_gpio)
-+		gpio_free(haptic->pdata->hap_len_gpio);
-+	gpio_free(haptic->pdata->hap_en_gpio);
++	/* I suppose that at this point the only context that can access
++	 * the djrecv_data is this thread as the work item is guaranteed to
++	 * have finished and no more raw_event callbacks should arrive after
++	 * the remove callback was triggered so no locks are put around the
++	 * code below */
++	for (i = 0; i < DJ_MAX_PAIRED_DEVICES; i++) {
++		dj_dev = djrcv_dev->paired_dj_devices[i];
++		if (dj_dev != NULL) {
++			hid_destroy_device(dj_dev->hdev);
++			kfree(dj_dev);
++			djrcv_dev->paired_dj_devices[i] = NULL;
++		}
++	}
 +
-+	/* reset hardware registers */
-+	i2c_smbus_write_byte_data(haptic->client, ISA1200_HCTRL0,
-+				HCTRL0_RESET);
-+	i2c_smbus_write_byte_data(haptic->client, ISA1200_HCTRL1,
-+				HCTRL1_RESET);
-+
-+	if (haptic->pdata->dev_setup)
-+		haptic->pdata->dev_setup(false);
-+
-+	/* power-off the chip */
-+	if (haptic->pdata->power_on)
-+		haptic->pdata->power_on(false);
-+
-+	input_unregister_device(haptic->input_device);
-+	kfree(haptic);
-+
-+	return 0;
++	hdev->ll_driver->close(hdev);
++	hid_hw_stop(hdev);
++	/* Free the dj_recv_dev struct */
++	kfree(hid_get_drvdata(hdev));
++	hid_set_drvdata(hdev, NULL);
 +}
 +
-+static const struct i2c_device_id isa1200_id_table[] = {
-+	{"isa1200", 0},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, isa1200_id_table);
-+
-+static SIMPLE_DEV_PM_OPS(isa1200_pm_ops, isa1200_suspend, isa1200_resume);
-+
-+static struct i2c_driver isa1200_driver = {
-+	.driver = {
-+		.name = "isa1200",
-+		.owner = THIS_MODULE,
-+		.pm = &isa1200_pm_ops,
-+	},
-+	.probe = isa1200_probe,
-+	.remove = __devexit_p(isa1200_remove),
-+	.id_table = isa1200_id_table,
++static const struct hid_device_id logi_dj_receivers[] = {
++	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xc52b)},
++	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xc532)},
++	{}
 +};
 +
-+static int __init isa1200_init(void)
-+{
-+	return i2c_add_driver(&isa1200_driver);
-+}
-+module_init(isa1200_init);
++MODULE_DEVICE_TABLE(hid, logi_dj_receivers);
 +
-+static void __exit isa1200_exit(void)
-+{
-+	i2c_del_driver(&isa1200_driver);
-+}
-+module_exit(isa1200_exit);
++static struct hid_driver logi_djreceiver_driver = {
++	.name = "logitech-djreceiver",
++	.id_table = logi_dj_receivers,
++	.probe = logi_dj_probe,
++	.remove = logi_dj_remove,
++	.raw_event = logi_dj_raw_event
++};
 +
-+MODULE_DESCRIPTION("isa1200 based vibrator chip driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>");
-+MODULE_AUTHOR("Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>");
-diff --git a/include/linux/input/isa1200.h b/include/linux/input/isa1200.h
++static const struct hid_device_id logi_dj_devices[] = {
++	{HID_DJ_DEVICE(HID_ANY_ID, HID_ANY_ID)},
++	{}
++};
++
++static struct hid_driver logi_djdevice_driver = {
++	.name = "generic-dj",
++	.id_table = logi_dj_devices,
++};
++
++
++static int __init logi_dj_init(void)
++{
++	int retval = 0;
++
++	dbg_hid("Logitech-DJ:logi_dj_init\n");
++
++	retval = hid_register_driver(&logi_djreceiver_driver);
++	if (retval)
++		return retval;
++
++	retval = hid_register_driver(&logi_djdevice_driver);
++	if (retval)
++		hid_unregister_driver(&logi_djreceiver_driver);
++
++	return retval;
++
++}
++
++static void __exit logi_dj_exit(void)
++{
++	dbg_hid("Logitech-DJ:logi_dj_exit\n");
++
++	hid_unregister_driver(&logi_djdevice_driver);
++	hid_unregister_driver(&logi_djreceiver_driver);
++
++}
++
++module_init(logi_dj_init);
++module_exit(logi_dj_exit);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Logitech");
++MODULE_AUTHOR("Nestor Lopez Casado");
+diff --git a/drivers/hid/hid-logitech-dj.h b/drivers/hid/hid-logitech-dj.h
 new file mode 100644
-index 0000000..a1b43d5
+index 0000000..a95b9cf
 --- /dev/null
-+++ b/include/linux/input/isa1200.h
-@@ -0,0 +1,46 @@
++++ b/drivers/hid/hid-logitech-dj.h
+@@ -0,0 +1,117 @@
++#ifndef __HID_LOGITECH_DJ_H
++#define __HID_LOGITECH_DJ_H
++
 +/*
-+ *  Copyright (C) 2009 Samsung Electronics
-+ *  Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
++ *  HID driver for Logitech Unifying receivers
 + *
-+ *  Copyright (c) 2011, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ *  Copyright (c) 2011 Logitech (c)
 + */
 +
-+#ifndef __LINUX_ISA1200_H
-+#define __LINUX_ISA1200_H
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Should you need to contact me, the author, you can do so by e-mail send
++ * your message to Nestor Lopez Casado <xnlopez at gmail com>
++ *
++ */
 +
-+enum mode_control {
-+	POWER_DOWN_MODE = 0,
-+	PWM_INPUT_MODE,
-+	PWM_GEN_MODE,
-+	WAVE_GEN_MODE
++#define DJ_MAX_PAIRED_DEVICES   6
++#define DJ_MAX_NUMBER_NOTIFICATIONS   8
++
++#define DJREPORT_SHORT_LENGTH  15
++#define DJREPORT_LONG_LENGTH   32
++
++#define REPORT_ID_HIDPP_SHORT  0x10
++#define REPORT_ID_HIDPP_LONG   0x11
++#define REPORT_ID_DJ_SHORT     0x20
++#define REPORT_ID_DJ_LONG      0x21
++
++#define REPORT_TYPE_RFREPORT_FIRST            0x01
++#define REPORT_TYPE_RFREPORT_LAST             0x1F
++
++/* Command Switch to DJ mode */
++#define REPORT_TYPE_CMD_SWITCH              0x80
++#define CMD_SWITCH_PARAM_DEVBITFIELD        0x00
++#define CMD_SWITCH_PARAM_TIMEOUT_SECONDS    0x01
++#define TIMEOUT_NO_KEEPALIVE                0x00
++
++/* Command to Get the list of Paired devices */
++#define REPORT_TYPE_CMD_GET_PAIRED_DEVICES  0x81
++
++/* Device Paired Notification */
++#define REPORT_TYPE_NOTIF_DEVICE_PAIRED             0x41
++#define NOTIF_DEVICE_PAIRED_PARAM_SPFUNCTION        0x00
++#define SPFUNCTION_MORE_NOTIF_EXPECTED              0x01
++#define SPFUNCTION_DEVICE_LIST_EMPTY                0x02
++#define NOTIF_DEVICE_PAIRED_PARAM_EQUAD_ID_LSB      0x01
++#define NOTIF_DEVICE_PAIRED_PARAM_EQUAD_ID_MSB      0x02
++#define NOTIF_DEVICE_PAIRED_RF_REPORT_TYPE_LSB      0x03
++#define NOTIF_DEVICE_PAIRED_RF_REPORT_TYPE_MSB      0x06
++
++/* Device Un-Paired Notification */
++#define REPORT_TYPE_NOTIF_DEVICE_UNPAIRED           0x40
++
++
++/* Connection Status Notification */
++#define REPORT_TYPE_NOTIF_CONNECTION_STATUS         0x42
++#define NOTIF_CONNECTION_STATUS_PARAM_STATUS        0x00
++#define STATUS_LINKLOSS                             0x01
++
++/* Error Notification */
++#define REPORT_TYPE_NOTIF_ERROR     0x7F
++#define NOTIF_ERROR_PARAM_ETYPE     0x00
++#define ETYPE_KEEPALIVE_TIMEOUT     0x01
++
++/* supported DJ HID && RF report types */
++#define REPORT_TYPE_KEYBOARD            0x01
++#define REPORT_TYPE_MOUSE               0x02
++#define REPORT_TYPE_CONSUMER_CONTROL    0x03
++#define REPORT_TYPE_SYSTEM_CONTROL      0x04
++#define REPORT_TYPE_MEDIA_CENTER        0x08
++#define REPORT_TYPE_LEDS                0x0E
++
++/* RF Report types bitfield */
++#define STD_KEYBOARD    0x00000002
++#define STD_MOUSE       0x00000004
++#define MULTIMEDIA      0x00000008
++#define POWER_KEYS      0x00000010
++#define MEDIA_CENTER    0x00000100
++#define KBD_LEDS        0x00004000
++
++struct dj_report {
++	u8 report_id;
++	u8 device_index;
++	u8 report_type;
++	u8 report_params[DJREPORT_SHORT_LENGTH - 3];
 +};
 +
-+union pwm_div_freq {
-+	unsigned int pwm_div; /* PWM gen mode */
-+	unsigned int pwm_freq; /* PWM input mode */
++struct dj_receiver_dev {
++	struct hid_device *hdev;
++	struct dj_device *paired_dj_devices[DJ_MAX_PAIRED_DEVICES];
++	struct work_struct delayed_work;
++	struct dj_report notif_fifo[DJ_MAX_NUMBER_NOTIFICATIONS];
++	u32 notif_fifo_start;
++	u32 notif_fifo_end;
++	u32 notif_fifo_full;
++	spinlock_t lock;
 +};
 +
-+struct isa1200_platform_data {
-+	const char *name;
-+	unsigned int pwm_ch_id; /* pwm channel id */
-+	unsigned int max_timeout;
-+	unsigned int hap_en_gpio;
-+	unsigned int hap_len_gpio; /* GPIO to enable the internal LDO */
-+	bool overdrive_high; /* high/low overdrive */
-+	bool overdrive_en; /* enable/disable overdrive */
-+	enum mode_control mode_ctrl; /* input/generation/wave */
-+	union pwm_div_freq pwm_fd;
-+	bool smart_en; /* smart mode enable/disable */
-+	bool is_erm;
-+	bool ext_clk_en;
-+	unsigned int chip_en;
-+	unsigned int duty;
-+	int (*power_on)(bool on);
-+	int (*dev_setup)(bool on);
++struct dj_device {
++	struct hid_device *hdev;
++	u32 reports_supported;
++	u32 device_index;
 +};
 +
-+#endif /* __LINUX_ISA1200_H */
-
++#endif
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 42f7e2f..cfd1ea2 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -563,6 +563,7 @@ struct hid_descriptor {
+ 
+ #define HID_USB_DEVICE(ven, prod)	HID_DEVICE(BUS_USB, ven, prod)
+ #define HID_BLUETOOTH_DEVICE(ven, prod)	HID_DEVICE(BUS_BLUETOOTH, ven, prod)
++#define HID_DJ_DEVICE(ven, prod)    HID_DEVICE(BUS_DJ, ven, prod)
+ 
+ #define HID_REPORT_ID(rep) \
+ 	.report_type = (rep)
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 771d6d8..890eb06 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -893,6 +893,8 @@ struct input_keymap_entry {
+ #define BUS_GSC			0x1A
+ #define BUS_ATARI		0x1B
+ #define BUS_SPI			0x1C
++#define BUS_DJ          0x1D
++
+ 
+ /*
+  * MT_TOOL types
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+1.7.0.4
+

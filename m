@@ -1,135 +1,339 @@
 From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: [PATCH V3 1/2] input: pmic8xxx-keypad: Add row and column gpio configuration
-Date: Fri, 13 May 2011 15:17:50 +0530
-Message-ID: <1305280071-1652-1-git-send-email-aghayal@codeaurora.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine01.qualcomm.com ([199.106.114.254]:45499 "EHLO
-	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758552Ab1EMJsL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 May 2011 05:48:11 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH V3 2/2] input: pmic8xxx_pwrkey: Add support for power key
+Date: Fri, 13 May 2011 15:17:51 +0530
+Message-ID: <1305280071-1652-2-git-send-email-aghayal@codeaurora.org>
+References: <1305280071-1652-1-git-send-email-aghayal@codeaurora.org>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <1305280071-1652-1-git-send-email-aghayal@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-arm-msm@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Anirudh Ghayal <aghayal@codeaurora.org>
+List-Id: linux-input@vger.kernel.org
+
+From: Trilok Soni <tsoni@codeaurora.org>
+
+Add support for PMIC8XXX power key driven over dedicated
+KYPD_PWR_N pin.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
 Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
 ---
- drivers/input/keyboard/pmic8xxx-keypad.c |   58 ++++++++++++++++++++++++++++++
- include/linux/input/pmic8xxx-keypad.h    |    2 +
- 2 files changed, 60 insertions(+), 0 deletions(-)
+ drivers/input/misc/Kconfig            |   11 ++
+ drivers/input/misc/Makefile           |    1 +
+ drivers/input/misc/pmic8xxx-pwrkey.c  |  231 +++++++++++++++++++++++++++++++++
+ include/linux/input/pmic8xxx-pwrkey.h |   31 +++++
+ 4 files changed, 274 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/pmic8xxx-pwrkey.c
+ create mode 100644 include/linux/input/pmic8xxx-pwrkey.h
 
-diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
-index 0229325..40b02ae 100644
---- a/drivers/input/keyboard/pmic8xxx-keypad.c
-+++ b/drivers/input/keyboard/pmic8xxx-keypad.c
-@@ -21,6 +21,7 @@
- #include <linux/mutex.h>
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index f9cf088..45dc6aa 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -330,6 +330,17 @@ config INPUT_PWM_BEEPER
+ 	  To compile this driver as a module, choose M here: the module will be
+ 	  called pwm-beeper.
  
- #include <linux/mfd/pm8xxx/core.h>
-+#include <linux/mfd/pm8xxx/gpio.h>
- #include <linux/input/pmic8xxx-keypad.h>
- 
- #define PM8XXX_MAX_ROWS		18
-@@ -446,6 +447,27 @@ static int __devinit pmic8xxx_kpd_init(struct pmic8xxx_kp *kp)
- 
- }
- 
-+static int  __devinit pmic8xxx_kp_config_gpio(int gpio_start, int num_gpios,
-+			struct pmic8xxx_kp *kp, struct pm_gpio *gpio_config)
++config INPUT_PMIC8XXX_PWRKEY
++	tristate "PMIC8XXX power key support"
++	depends on MFD_PM8XXX
++	help
++	  Say Y here if you want support for the PMIC8XXX power key.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called pmic8xxx-pwrkey.
++
+ config INPUT_GPIO_ROTARY_ENCODER
+ 	tristate "Rotary encoders connected to GPIO pins"
+ 	depends on GPIOLIB && GENERIC_GPIO
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index e3f7984..38efb2c 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -33,6 +33,7 @@ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
+ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
++obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+new file mode 100644
+index 0000000..97e07e7
+--- /dev/null
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -0,0 +1,231 @@
++/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/log2.h>
++
++#include <linux/mfd/pm8xxx/core.h>
++#include <linux/input/pmic8xxx-pwrkey.h>
++
++#define PON_CNTL_1 0x1C
++#define PON_CNTL_PULL_UP BIT(7)
++#define PON_CNTL_TRIG_DELAY_MASK (0x7)
++
++/**
++ * struct pmic8xxx_pwrkey - pmic8xxx pwrkey information
++ * @key_press_irq: key press irq number
++ */
++struct pmic8xxx_pwrkey {
++	struct input_dev *pwr;
++	int key_press_irq;
++};
++
++static irqreturn_t pwrkey_press_irq(int irq, void *_pwrkey)
 +{
-+	int	rc, i;
++	struct pmic8xxx_pwrkey *pwrkey = _pwrkey;
 +
-+	if (gpio_start < 0 || num_gpios < 0)
-+		return -EINVAL;
++	input_report_key(pwrkey->pwr, KEY_POWER, 1);
++	input_sync(pwrkey->pwr);
 +
-+	for (i = 0; i < num_gpios; i++) {
-+		rc = pm8xxx_gpio_config(gpio_start + i, gpio_config);
-+		if (rc) {
-+			dev_err(kp->dev, "%s: FAIL pm8xxx_gpio_config():"
-+					"for PM GPIO [%d] rc=%d.\n",
-+					__func__, gpio_start + i, rc);
-+			return rc;
-+		}
-+	 }
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t pwrkey_release_irq(int irq, void *_pwrkey)
++{
++	struct pmic8xxx_pwrkey *pwrkey = _pwrkey;
++
++	input_report_key(pwrkey->pwr, KEY_POWER, 0);
++	input_sync(pwrkey->pwr);
++
++	return IRQ_HANDLED;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int pmic8xxx_pwrkey_suspend(struct device *dev)
++{
++	struct pmic8xxx_pwrkey *pwrkey = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(pwrkey->key_press_irq);
 +
 +	return 0;
 +}
 +
- static int pmic8xxx_kp_enable(struct pmic8xxx_kp *kp)
- {
- 	int rc;
-@@ -504,6 +526,27 @@ static int __devinit pmic8xxx_kp_probe(struct platform_device *pdev)
- 	int rc;
- 	u8 ctrl_val;
- 
-+	struct pm_gpio kypd_drv = {
-+		.direction	= PM_GPIO_DIR_OUT,
-+		.output_buffer	= PM_GPIO_OUT_BUF_OPEN_DRAIN,
-+		.output_value	= 0,
-+		.pull		= PM_GPIO_PULL_NO,
-+		.vin_sel	= PM_GPIO_VIN_S3,
-+		.out_strength	= PM_GPIO_STRENGTH_LOW,
-+		.function	= PM_GPIO_FUNC_1,
-+		.inv_int_pol	= 1,
-+	};
++static int pmic8xxx_pwrkey_resume(struct device *dev)
++{
++	struct pmic8xxx_pwrkey *pwrkey = dev_get_drvdata(dev);
 +
-+	struct pm_gpio kypd_sns = {
-+		.direction	= PM_GPIO_DIR_IN,
-+		.pull		= PM_GPIO_PULL_UP_31P5,
-+		.vin_sel	= PM_GPIO_VIN_S3,
-+		.out_strength	= PM_GPIO_STRENGTH_NO,
-+		.function	= PM_GPIO_FUNC_NORMAL,
-+		.inv_int_pol	= 1,
-+	};
++	if (device_may_wakeup(dev))
++		disable_irq_wake(pwrkey->key_press_irq);
 +
++	return 0;
++}
++#endif
 +
- 	if (!pdata || !pdata->num_cols || !pdata->num_rows ||
- 		pdata->num_cols > PM8XXX_MAX_COLS ||
- 		pdata->num_rows > PM8XXX_MAX_ROWS ||
-@@ -609,6 +652,20 @@ static int __devinit pmic8xxx_kp_probe(struct platform_device *pdev)
- 		goto err_get_irq;
- 	}
- 
-+	rc = pmic8xxx_kp_config_gpio(pdata->cols_gpio_start,
-+					pdata->num_cols, kp, &kypd_sns);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "unable to configure keypad sense lines\n");
-+		goto err_gpio_config;
++static SIMPLE_DEV_PM_OPS(pm8xxx_pwr_key_pm_ops,
++		pmic8xxx_pwrkey_suspend, pmic8xxx_pwrkey_resume);
++
++static int __devinit pmic8xxx_pwrkey_probe(struct platform_device *pdev)
++{
++	struct input_dev *pwr;
++	int key_release_irq = platform_get_irq(pdev, 0);
++	int key_press_irq = platform_get_irq(pdev, 1);
++	int err;
++	unsigned int delay;
++	u8 pon_cntl;
++	struct pmic8xxx_pwrkey *pwrkey;
++	const struct pm8xxx_pwrkey_platform_data *pdata = mfd_get_data(pdev);
++
++	if (!pdata) {
++		dev_err(&pdev->dev, "power key platform data not supplied\n");
++		return -EINVAL;
 +	}
 +
-+	rc = pmic8xxx_kp_config_gpio(pdata->rows_gpio_start,
-+					pdata->num_rows, kp, &kypd_drv);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "unable to configure keypad drive lines\n");
-+		goto err_gpio_config;
++	if (pdata->kpd_trigger_delay_us > 62500) {
++		dev_err(&pdev->dev, "invalid power key trigger delay\n");
++		return -EINVAL;
 +	}
 +
- 	rc = request_any_context_irq(kp->key_sense_irq, pmic8xxx_kp_irq,
- 				 IRQF_TRIGGER_RISING, "pmic-keypad", kp);
- 	if (rc < 0) {
-@@ -645,6 +702,7 @@ err_pmic_reg_read:
- 	free_irq(kp->key_stuck_irq, NULL);
- err_req_stuck_irq:
- 	free_irq(kp->key_sense_irq, NULL);
-+err_gpio_config:
- err_get_irq:
- 	input_free_device(kp->input);
- err_alloc_device:
-diff --git a/include/linux/input/pmic8xxx-keypad.h b/include/linux/input/pmic8xxx-keypad.h
-index fc2ac4c..5f1e2f9 100644
---- a/include/linux/input/pmic8xxx-keypad.h
-+++ b/include/linux/input/pmic8xxx-keypad.h
-@@ -38,6 +38,8 @@ struct pm8xxx_keypad_platform_data {
- 
- 	unsigned int num_cols;
- 	unsigned int num_rows;
-+	unsigned int rows_gpio_start;
-+	unsigned int cols_gpio_start;
- 
- 	unsigned int debounce_ms;
- 	unsigned int scan_delay_ms;
++	pwrkey = kzalloc(sizeof(*pwrkey), GFP_KERNEL);
++	if (!pwrkey)
++		return -ENOMEM;
++
++	pwr = input_allocate_device();
++	if (!pwr) {
++		dev_dbg(&pdev->dev, "Can't allocate power button\n");
++		err = -ENOMEM;
++		goto free_pwrkey;
++	}
++
++	input_set_capability(pwr, EV_KEY, KEY_POWER);
++
++	pwr->name = "pmic8xxx_pwrkey";
++	pwr->phys = "pmic8xxx_pwrkey/input0";
++	pwr->dev.parent = &pdev->dev;
++
++	delay = (pdata->kpd_trigger_delay_us << 10) / USEC_PER_SEC;
++	delay = 1 + ilog2(delay);
++
++	err = pm8xxx_readb(pdev->dev.parent, PON_CNTL_1, &pon_cntl);
++	if (err < 0) {
++		dev_err(&pdev->dev, "failed reading PON_CNTL_1 err=%d\n", err);
++		goto free_input_dev;
++	}
++
++	pon_cntl &= ~PON_CNTL_TRIG_DELAY_MASK;
++	pon_cntl |= (delay & PON_CNTL_TRIG_DELAY_MASK);
++	if (pdata->pull_up)
++		pon_cntl |= PON_CNTL_PULL_UP;
++	else
++		pon_cntl &= ~PON_CNTL_PULL_UP;
++
++	err = pm8xxx_writeb(pdev->dev.parent, PON_CNTL_1, pon_cntl);
++	if (err < 0) {
++		dev_err(&pdev->dev, "failed writing PON_CNTL_1 err=%d\n", err);
++		goto free_input_dev;
++	}
++
++	err = input_register_device(pwr);
++	if (err) {
++		dev_dbg(&pdev->dev, "Can't register power key: %d\n", err);
++		goto free_input_dev;
++	}
++
++	pwrkey->key_press_irq = key_press_irq;
++	pwrkey->pwr = pwr;
++
++	platform_set_drvdata(pdev, pwrkey);
++
++	err = request_irq(key_press_irq, pwrkey_press_irq,
++		IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_press", pwrkey);
++	if (err < 0) {
++		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
++				 key_press_irq, err);
++		goto unreg_input_dev;
++	}
++
++	err = request_irq(key_release_irq, pwrkey_release_irq,
++		 IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_release", pwrkey);
++	if (err < 0) {
++		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
++				 key_release_irq, err);
++
++		goto free_press_irq;
++	}
++
++	device_init_wakeup(&pdev->dev, pdata->wakeup);
++
++	return 0;
++
++free_press_irq:
++	free_irq(key_press_irq, NULL);
++unreg_input_dev:
++	platform_set_drvdata(pdev, NULL);
++	input_unregister_device(pwr);
++	pwr = NULL;
++free_input_dev:
++	input_free_device(pwr);
++free_pwrkey:
++	kfree(pwrkey);
++	return err;
++}
++
++static int __devexit pmic8xxx_pwrkey_remove(struct platform_device *pdev)
++{
++	struct pmic8xxx_pwrkey *pwrkey = platform_get_drvdata(pdev);
++	int key_release_irq = platform_get_irq(pdev, 0);
++	int key_press_irq = platform_get_irq(pdev, 1);
++
++	device_init_wakeup(&pdev->dev, 0);
++
++	free_irq(key_press_irq, pwrkey);
++	free_irq(key_release_irq, pwrkey);
++	input_unregister_device(pwrkey->pwr);
++	platform_set_drvdata(pdev, NULL);
++	kfree(pwrkey);
++
++	return 0;
++}
++
++static struct platform_driver pmic8xxx_pwrkey_driver = {
++	.probe		= pmic8xxx_pwrkey_probe,
++	.remove		= __devexit_p(pmic8xxx_pwrkey_remove),
++	.driver		= {
++		.name	= PM8XXX_PWRKEY_DEV_NAME,
++		.owner	= THIS_MODULE,
++		.pm	= &pm8xxx_pwr_key_pm_ops,
++	},
++};
++
++static int __init pmic8xxx_pwrkey_init(void)
++{
++	return platform_driver_register(&pmic8xxx_pwrkey_driver);
++}
++module_init(pmic8xxx_pwrkey_init);
++
++static void __exit pmic8xxx_pwrkey_exit(void)
++{
++	platform_driver_unregister(&pmic8xxx_pwrkey_driver);
++}
++module_exit(pmic8xxx_pwrkey_exit);
++
++MODULE_ALIAS("platform:pmic8xxx_pwrkey");
++MODULE_DESCRIPTION("PMIC8XXX Power Key driver");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Trilok Soni <tsoni@codeaurora.org>");
+diff --git a/include/linux/input/pmic8xxx-pwrkey.h b/include/linux/input/pmic8xxx-pwrkey.h
+new file mode 100644
+index 0000000..6d2974e
+--- /dev/null
++++ b/include/linux/input/pmic8xxx-pwrkey.h
+@@ -0,0 +1,31 @@
++/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 and
++ * only version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef __PMIC8XXX_PWRKEY_H__
++#define __PMIC8XXX_PWRKEY_H__
++
++#define PM8XXX_PWRKEY_DEV_NAME "pm8xxx-pwrkey"
++
++/**
++ * struct pm8xxx_pwrkey_platform_data - platform data for pwrkey driver
++ * @pull up:  power on register control for pull up/down configuration
++ * @kpd_trigger_delay_us: time delay for power key state change interrupt
++ *                  trigger.
++ * @wakeup: configure power key as wakeup source
++ */
++struct pm8xxx_pwrkey_platform_data  {
++	bool pull_up;
++	u32  kpd_trigger_delay_us;
++	u32  wakeup;
++};
++
++#endif /* __PMIC8XXX_PWRKEY_H__ */
 -- 
 Sent by a consultant of the Qualcomm Innovation Center, Inc.\nThe Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
-

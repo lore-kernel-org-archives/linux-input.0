@@ -1,62 +1,38 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 1/2] drivers/input/touchscreen/atmel_tsadcc.c: Correct call to input_free_device
-Date: Sat, 14 May 2011 16:18:54 +0200
-Message-ID: <1305382735-11474-1-git-send-email-julia@diku.dk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [RFC PATCH] input: Add wiichuck driver
+Date: Sat, 14 May 2011 21:17:50 +0200
+Message-ID: <201105142117.50529.oliver@neukum.org>
+References: <20110512042218.12859.66600.stgit@localhost6.localdomain6>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:43554 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753867Ab1ENTP7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 May 2011 15:15:59 -0400
+In-Reply-To: <20110512042218.12859.66600.stgit@localhost6.localdomain6>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-From: Julia Lawall <julia@diku.dk>
+Am Donnerstag, 12. Mai 2011, 06:29:44 schrieb Grant Likely:
+> +static void wiichuck_poll(struct input_polled_dev *poll_dev)
+> +{
+> +       struct wiichuck_device *wiichuck = poll_dev->private;
+> +       struct i2c_client *i2c = wiichuck->i2c_client;
+> +       static uint8_t cmd_byte = 0;
+> +       struct i2c_msg cmd_msg =
+> +               { .addr = i2c->addr, .len = 1, .buf = &cmd_byte };
+> +       uint8_t b[6];
+> +       struct i2c_msg data_msg =
+> +               { .addr = i2c->addr, .flags = I2C_M_RD, .len = 6, .buf = b };
 
-This error handling code can be reached before ts_dev->input is
-initialized, so it is safer to always use the original name, input_dev.
 
-A simplified version of the semantic match that finds this problem is:
-(http://coccinelle.lip6.fr/)
+Do you need these buffers to be capable of DMA?
 
-// <smpl>
-@r exists@
-local idexpression struct input_dev * x;
-expression ra,rr;
-position p1,p2;
-@@
-
-x = input_allocate_device@p1(...)
-...  when != x = rr
-     when != input_free_device(x,...)
-     when != if (...) { ... input_free_device(x,...) ...}
-if(...) { ... when != x = ra
-     when forall
-     when != input_free_device(x,...)
- \(return <+...x...+>; \| return@p2...; \) }
-
-@script:python@
-p1 << r.p1;
-p2 << r.p2;
-@@
-
-cocci.print_main("input_allocate_device",p1)
-cocci.print_secs("input_free_device",p2)
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
----
- drivers/input/touchscreen/atmel_tsadcc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
-index 3d9b516..432c69b 100644
---- a/drivers/input/touchscreen/atmel_tsadcc.c
-+++ b/drivers/input/touchscreen/atmel_tsadcc.c
-@@ -317,7 +317,7 @@ err_unmap_regs:
- err_release_mem:
- 	release_mem_region(res->start, resource_size(res));
- err_free_dev:
--	input_free_device(ts_dev->input);
-+	input_free_device(input_dev);
- err_free_mem:
- 	kfree(ts_dev);
- 	return err;
+	Regards
+		Oliver

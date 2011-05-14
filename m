@@ -1,49 +1,35 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [RFC PATCH] input: Add wiichuck driver
-Date: Sat, 14 May 2011 21:20:04 +0200
-Message-ID: <BANLkTi=4oCehWLXrKbd6bj2CuoxDXdBHAg@mail.gmail.com>
-References: <20110512042218.12859.66600.stgit@localhost6.localdomain6> <201105142117.50529.oliver@neukum.org>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH 1/1] HID: Add full support for logitech Unifying
+ receivers
+Date: Sat, 14 May 2011 21:10:46 +0100
+Message-ID: <1305403852.2427.240.camel@novo.hadess.net>
+References: <1305297084-10224-1-git-send-email-nlopezcasad@logitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:35309 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753867Ab1ENTUY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 May 2011 15:20:24 -0400
-In-Reply-To: <201105142117.50529.oliver@neukum.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1305297084-10224-1-git-send-email-nlopezcasad-VLMvL59Kb9lWk0Htik3J/w@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nestor Lopez Casado <nlopezcasad-VLMvL59Kb9lWk0Htik3J/w@public.gmane.org>
+Cc: jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, xnlopez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rtitmuss-VLMvL59Kb9lWk0Htik3J/w@public.gmane.org, ogay-VLMvL59Kb9lWk0Htik3J/w@public.gmane.org, BlueZ development <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, May 14, 2011 at 9:17 PM, Oliver Neukum <oliver@neukum.org> wrot=
-e:
-> Am Donnerstag, 12. Mai 2011, 06:29:44 schrieb Grant Likely:
->> +static void wiichuck_poll(struct input_polled_dev *poll_dev)
->> +{
->> + =A0 =A0 =A0 struct wiichuck_device *wiichuck =3D poll_dev->private=
-;
->> + =A0 =A0 =A0 struct i2c_client *i2c =3D wiichuck->i2c_client;
->> + =A0 =A0 =A0 static uint8_t cmd_byte =3D 0;
->> + =A0 =A0 =A0 struct i2c_msg cmd_msg =3D
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 { .addr =3D i2c->addr, .len =3D 1, .bu=
-f =3D &cmd_byte };
->> + =A0 =A0 =A0 uint8_t b[6];
->> + =A0 =A0 =A0 struct i2c_msg data_msg =3D
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 { .addr =3D i2c->addr, .flags =3D I2C_=
-M_RD, .len =3D 6, .buf =3D b };
->
->
-> Do you need these buffers to be capable of DMA?
+Hey Nestor,
 
-Good point.  Yes, these buffers should be DMA capable.  I'll pull them
-off the stack.
+On Fri, 2011-05-13 at 16:31 +0200, Nestor Lopez Casado wrote:
+> With this driver, all the devices paired to a single Unifying receiver are exposed to user processes in separated /input/dev nodes.
+> Keyboards with different layouts can be treated differently
+> Multiplayer games on single PC (like home theater PC) can differentiate input coming from different kbds paired to the same receiver
+> 
+> Up to now, when Logitech Unifying receivers are connected to a Linux based system, a single keyboard and a single mouse are presented to
+> the HID Layer, even if the Unifying receiver can pair up to six compatible devices. The Unifying receiver by default multiplexes all
+> incoming events (from multiple keyboards/mice) into these two.
 
-g.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I'm very happy to see Logitech taking notice of Linux and helping out
+support their devices better. I wanted to know whether you had any
+information about switching those devices into HCI mode (Bluetooth), and
+details for how one would read and write Bluetooth link keys, to make
+sure that devices that worked through the "Unifying receiver" carry on
+working in Bluetooth mode.
+
+Cheers

@@ -1,97 +1,130 @@
-From: Anssi Hannula <anssi.hannula@iki.fi>
-Subject: Re: IR remote control autorepeat / evdev
-Date: Sat, 14 May 2011 02:07:55 +0300
-Message-ID: <4DCDB9CB.7030306@iki.fi>
-References: <4DC61E28.4090301@iki.fi> <20110510041107.GA32552@barra.redhat.com> <4DC8C9B6.5000501@iki.fi> <20110510053038.GA5808@barra.redhat.com> <4DC940E5.2070902@iki.fi> <4DCA1496.20304@redhat.com> <4DCABA42.30505@iki.fi> <4DCABEAE.4080607@redhat.com> <4DCACE74.6050601@iki.fi> <4DCB213A.8040306@redhat.com> <4DCB2BD9.6090105@iki.fi> <4DCB336B.2090303@redhat.com> <4DCB39AF.2000807@redhat.com> <4DCC71B5.8080306@iki.fi> <4DCDB333.8000801@redhat.com>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Subject: [PATCH 2/6] elantech: distinguish various hardware/firmware versions
+Date: Sat, 14 May 2011 08:46:06 +0200
+Message-ID: <4DCE252E.2040403@tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tulikuusama.dnainternet.net ([83.102.40.132]:56278 "EHLO
-	tulikuusama.dnainternet.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758159Ab1EMXIF (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:55141 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755951Ab1ENLIM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 May 2011 19:08:05 -0400
-In-Reply-To: <4DCDB333.8000801@redhat.com>
+	Sat, 14 May 2011 07:08:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, Florian Ragwitz <rafl@debian.org>
 
-On 14.05.2011 01:39, Mauro Carvalho Chehab wrote:
-> Em 13-05-2011 01:48, Anssi Hannula escreveu:
->> On 12.05.2011 04:36, Mauro Carvalho Chehab wrote:
->>> Em 12-05-2011 03:10, Mauro Carvalho Chehab escreveu:
->>>> Em 12-05-2011 02:37, Anssi Hannula escreveu:
->>>
->>>>> I don't see any other places:
->>>>> $ git grep 'REP_PERIOD' .
->>>>> dvb/dvb-usb/dvb-usb-remote.c:   input_dev->rep[REP_PERIOD] =
->>>>> d->props.rc.legacy.rc_interval;
->>>>
->>>> Indeed, the REP_PERIOD is not adjusted on other drivers. I agree that we
->>>> should change it to something like 125ms, for example, as 33ms is too 
->>>> short, as it takes up to 114ms for a repeat event to arrive.
->>>>
->>> IMO, the enclosed patch should do a better job with repeat events, without
->>> needing to change rc-core/input/event logic.
->>
->> It will indeed reduce the amount of ghost events so it brings us in the
->> right direction.
->>
->> I'd still like to get rid of the ghost repeats entirely, or at least
->> some way for users to do it if we don't do it by default.
-> 
->> Maybe we could replace the kernel softrepeat with native repeats (for
->> those protocols/drivers that have them), while making sure that repeat
->> events before REP_DELAY are ignored and repeat events less than
->> REP_PERIOD since the previous event are ignored, so the users can still
->> configure them as they like? 
->>
-> 
-> This doesn't seem to be the right thing to do. If the kernel will
-> accept 33 ms as the value or REP_PERIOD, but it will internally 
-> set the maximum repeat rate is 115 ms (no matter what logic it would
-> use for that), Kernel (or X) shouldn't allow the user to set a smaller value. 
-> 
-> The thing is that writing a logic to block a small value is not easy, since 
-> the max value is protocol-dependent (worse than that, on some cases, it is 
-> device-specific). It seems better to add a warning at the userspace tools 
-> that delays lower than 115 ms can produce ghost events on IR's.
+According to the protocol document, there are a couple of different
+versions of the hardware and firmware. Using the version number, it
+should be possible to distinguish between them, at least for the
+properties we care about.
 
->From what I see, even periods longer than 115 ms can produce ghost events.
+Signed-off-by: =C9ric Piel <eric.piel@tremplin-utc.net>
+---
+ drivers/input/mouse/elantech.c |   34 +++++++++++++++++++++-----------=
+--
+ drivers/input/mouse/elantech.h |   10 +++++++++-
+ 2 files changed, 30 insertions(+), 14 deletions(-)
 
-For example with your patch softrepeat period is 125ms, release timeout
-250ms, and a native rate of 110ms:
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elant=
+ech.c
+index 04d9bf3..badb2ea 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -719,15 +719,32 @@ int elantech_init(struct psmouse *psmouse)
+ 	 * Assume every version greater than this is new EeePC style
+ 	 * hardware with 6 byte packets
+ 	 */
+-	if (etd->fw_version >=3D 0x020030) {
++	if (etd->fw_version >=3D 0x020800) {
+ 		etd->hw_version =3D 2;
+ 		/* For now show extra debug information */
+ 		etd->debug =3D 1;
+-		/* Don't know how to do parity checking for version 2 */
+-		etd->paritycheck =3D 0;
++		etd->paritycheck =3D ETP_CONST_CHECK;
++		etd->reports_pres =3D 1;
++	} else if (etd->fw_version =3D=3D 0x020030) {
++		etd->hw_version =3D 2;
++		/* For now show extra debug information */
++		etd->debug =3D 1;
++		etd->paritycheck =3D ETP_EF113_CHECK;
++		etd->reports_pres =3D 0;
++	} else if ((etd->fw_version =3D=3D 0x020022) || (etd->fw_version =3D=3D=
+ 0x020600)) {
++		/*
++		 * This firmware suffers from misreporting coordinates when
++		 * a touch action starts causing the mouse cursor or scrolled page
++		 * to jump. Enable a workaround.
++		 */
++		pr_info("firmware version 2.0.34/2.6.0 detected, enabling jumpy curs=
+or workaround\n");
++		etd->jumpy_cursor =3D 1;
++		etd->debug =3D 1;
++		etd->hw_version =3D 1;
++		etd->paritycheck =3D ETP_FULL_PC;
+ 	} else {
+ 		etd->hw_version =3D 1;
+-		etd->paritycheck =3D 1;
++		etd->paritycheck =3D ETP_FULL_PC;
+ 	}
+=20
+ 	pr_info("assuming hardware version %d, firmware version %d.%d.%d\n",
+@@ -741,15 +758,6 @@ int elantech_init(struct psmouse *psmouse)
+ 		param[0], param[1], param[2]);
+ 	etd->capabilities =3D param[0];
+=20
+-	/*
+-	 * This firmware suffers from misreporting coordinates when
+-	 * a touch action starts causing the mouse cursor or scrolled page
+-	 * to jump. Enable a workaround.
+-	 */
+-	if (etd->fw_version =3D=3D 0x020022 || etd->fw_version =3D=3D 0x02060=
+0) {
+-		pr_info("firmware version 2.0.34/2.6.0 detected, enabling jumpy curs=
+or workaround\n");
+-		etd->jumpy_cursor =3D true;
+-	}
+=20
+ 	if (elantech_set_absolute_mode(psmouse)) {
+ 		pr_err("failed to put touchpad into absolute mode.\n");
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elant=
+ech.h
+index aa4aac5..257d419 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -100,14 +100,22 @@ struct elantech_data {
+ 	unsigned char reg_26;
+ 	unsigned char debug;
+ 	unsigned char capabilities;
+-	bool paritycheck;
++	unsigned char paritycheck;
+ 	bool jumpy_cursor;
++	unsigned char reports_pres :1;
+ 	unsigned char hw_version;
+ 	unsigned int fw_version;
+ 	unsigned int single_finger_reports;
+ 	unsigned char parity[256];
+ };
+=20
++enum paritycheck_types {
++	ETP_NOT_CHECK =3D 0,
++	ETP_FULL_PC,	 /* used in 4-byte protocol */
++	ETP_EF113_CHECK, /* check used only on the EF113 */
++	ETP_CONST_CHECK, /* used in 6-byte protocol, only checking constant b=
+its */
++};
++
+ #ifdef CONFIG_MOUSE_PS2_ELANTECH
+ int elantech_detect(struct psmouse *psmouse, bool set_properties);
+ int elantech_init(struct psmouse *psmouse);
+--=20
+1.7.5.1
 
-There are 4 native events transmitted at
-000 ms
-110 ms
-220 ms
-330 ms
-(user stops between 330ms and 440ms)
-
-This causes these events in the evdev interface:
-000: 1
-125: 2
-250: 2
-375: 2
-500: 2
-550: 0
-
-So we got 1-2 ghost repeat events.
-
->> Or maybe just a module option that causes rc-core to use native repeat
->> events, for those of us that want accurate repeat events without ghosting?
-> 
-> If the user already knows about the possibility to generate ghost effects,
-> with low delays, he can simply not pass a bad value to the kernel, instead 
-> of forcing a modprobe parameter that will limit the minimal value.
-
-There is no "good value" for REP_PERIOD (as in ghost repeats guaranteed
-gone like with native repeats). Sufficiently large values will make
-ghost repeats increasingly rare, but the period becomes so long the
-autorepeat becomes frustratingly slow to use.
-
--- 
-Anssi Hannula
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

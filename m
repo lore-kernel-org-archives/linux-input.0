@@ -1,39 +1,96 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH 1/2] pwm: Add __weak attributed functions for pwm
-	operations
-Date: Sun, 15 May 2011 11:58:50 +0100
-Message-ID: <20110515105850.GH30539@n2100.arm.linux.org.uk>
-References: <1305290602-29859-1-git-send-email-mpallaka@codeaurora.org> <1305290602-29859-2-git-send-email-mpallaka@codeaurora.org> <20110515080031.GA12911@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Daniel Mack <zonque@gmail.com>
+Subject: [PATCH] input: members 'name' and 'phys' of 'struct hid_device' can never be NULL
+Date: Sun, 15 May 2011 18:07:42 +0200
+Message-ID: <1305475662-4478-1-git-send-email-zonque@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:36925 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756610Ab1EOK7L (ORCPT
+Received: from mail.bugwerft.de ([212.112.241.193]:40621 "EHLO
+	mail.bugwerft.de" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1760066Ab1EOQOO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 May 2011 06:59:11 -0400
-Content-Disposition: inline
-In-Reply-To: <20110515080031.GA12911@core.coreip.homeip.net>
+	Sun, 15 May 2011 12:14:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mohan Pallaka <mpallaka@codeaurora.org>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.intradead.org, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Daniel Mack <zonque@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jiri Kosina <jkosina@suse.cz>
 
-On Sun, May 15, 2011 at 01:00:31AM -0700, Dmitry Torokhov wrote:
-> On Fri, May 13, 2011 at 06:13:21PM +0530, Mohan Pallaka wrote:
-> > For chip drivers that support both pwm and non-pwm modes
-> > would encounter compilation errors if the platform doesn't
-> > have support for pwm though the chip is programmed to work
-> > in non-pwm mode. Add __weak attributed pwm functions to avoid
-> > compilation issues in these scenarios.
-> > 
-> 
-> Russell,
-> 
-> You seem to have authored pwm.h, do you have any objections to this
-> change?
+As they are static members of fix size, there is no need to them.
 
-This seems to be a recipe for an oops.  Have a look at how
-linux/regulator/consumer.h deals with this kind of problem, and notice
-that we have CONFIG_HAVE_PWM to indicate whether this interface is
-supported or not.
+Signed-off-by: Daniel Mack <zonque@gmail.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Cc: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hidraw.c        |   14 ++------------
+ drivers/hid/usbhid/hiddev.c |   18 ++----------------
+ 2 files changed, 4 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 54409cb..3dd1877 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -395,12 +395,7 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
+ 				}
+ 
+ 				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWNAME(0))) {
+-					int len;
+-					if (!hid->name) {
+-						ret = 0;
+-						break;
+-					}
+-					len = strlen(hid->name) + 1;
++					int len = strlen(hid->name) + 1;
+ 					if (len > _IOC_SIZE(cmd))
+ 						len = _IOC_SIZE(cmd);
+ 					ret = copy_to_user(user_arg, hid->name, len) ?
+@@ -409,12 +404,7 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
+ 				}
+ 
+ 				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWPHYS(0))) {
+-					int len;
+-					if (!hid->phys) {
+-						ret = 0;
+-						break;
+-					}
+-					len = strlen(hid->phys) + 1;
++					int len = strlen(hid->phys) + 1;
+ 					if (len > _IOC_SIZE(cmd))
+ 						len = _IOC_SIZE(cmd);
+ 					ret = copy_to_user(user_arg, hid->phys, len) ?
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index af0a7c1..5ca9c35 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -801,14 +801,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 			break;
+ 
+ 		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGNAME(0))) {
+-			int len;
+-
+-			if (!hid->name) {
+-				r = 0;
+-				break;
+-			}
+-
+-			len = strlen(hid->name) + 1;
++			int len = strlen(hid->name) + 1;
+ 			if (len > _IOC_SIZE(cmd))
+ 				 len = _IOC_SIZE(cmd);
+ 			r = copy_to_user(user_arg, hid->name, len) ?
+@@ -817,14 +810,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		}
+ 
+ 		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGPHYS(0))) {
+-			int len;
+-
+-			if (!hid->phys) {
+-				r = 0;
+-				break;
+-			}
+-
+-			len = strlen(hid->phys) + 1;
++			int len = strlen(hid->phys) + 1;
+ 			if (len > _IOC_SIZE(cmd))
+ 				len = _IOC_SIZE(cmd);
+ 			r = copy_to_user(user_arg, hid->phys, len) ?
+-- 
+1.7.1
+

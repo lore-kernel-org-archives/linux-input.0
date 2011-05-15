@@ -1,124 +1,46 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: IR remote control autorepeat / evdev
-Date: Mon, 16 May 2011 11:35:44 +1000
-Message-ID: <20110516013544.GC11578@barra.bne.redhat.com>
-References: <4DCA1496.20304@redhat.com>
- <4DCABA42.30505@iki.fi>
- <4DCABEAE.4080607@redhat.com>
- <4DCACE74.6050601@iki.fi>
- <4DCB213A.8040306@redhat.com>
- <4DCB2BD9.6090105@iki.fi>
- <4DCB336B.2090303@redhat.com>
- <4DCB39AF.2000807@redhat.com>
- <20110512060529.GA14710@barra.bne.redhat.com>
- <4DCCE2E6.3070703@redhat.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [RFC PATCH] input: Add wiichuck driver
+Date: Sun, 15 May 2011 15:17:39 -0600
+Message-ID: <20110515211739.GA30725@angua.secretlab.ca>
+References: <20110512042218.12859.66600.stgit@localhost6.localdomain6>
+ <0bcda95e38da7ce6fd696075f6d61baf.squirrel@host171.canaca.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4DCCE2E6.3070703@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Anssi Hannula <anssi.hannula@iki.fi>, linux-media@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, xorg-devel@lists.freedesktop.org
+In-Reply-To: <0bcda95e38da7ce6fd696075f6d61baf.squirrel@host171.canaca.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: simon@mungewell.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, May 13, 2011 at 09:51:02AM +0200, Mauro Carvalho Chehab wrote:
-> Em 12-05-2011 08:05, Peter Hutterer escreveu:
-> > On Thu, May 12, 2011 at 03:36:47AM +0200, Mauro Carvalho Chehab wrote:
-> >> Em 12-05-2011 03:10, Mauro Carvalho Chehab escreveu:
-> >>> Em 12-05-2011 02:37, Anssi Hannula escreveu:
-> >>
-> >>>> I don't see any other places:
-> >>>> $ git grep 'REP_PERIOD' .
-> >>>> dvb/dvb-usb/dvb-usb-remote.c:   input_dev->rep[REP_PERIOD] =
-> >>>> d->props.rc.legacy.rc_interval;
-> >>>
-> >>> Indeed, the REP_PERIOD is not adjusted on other drivers. I agree that we
-> >>> should change it to something like 125ms, for example, as 33ms is too 
-> >>> short, as it takes up to 114ms for a repeat event to arrive.
-> >>>
-> >> IMO, the enclosed patch should do a better job with repeat events, without
-> >> needing to change rc-core/input/event logic.
-> >>
-> >> -
-> >>
-> >> Subject: Use a more consistent value for RC repeat period
-> >> From: Mauro Carvalho Chehab <mchehab@redhat.com>
-> >>
-> >> The default REP_PERIOD is 33 ms. This doesn't make sense for IR's,
-> >> as, in general, an IR repeat scancode is provided at every 110/115ms,
-> >> depending on the RC protocol. So, increase its default, to do a
-> >> better job avoiding ghost repeat events.
-> >>
-> >> Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
-> >>
-> >> diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
-> >> index f53f9c6..ee67169 100644
-> >> --- a/drivers/media/rc/rc-main.c
-> >> +++ b/drivers/media/rc/rc-main.c
-> >> @@ -1044,6 +1044,13 @@ int rc_register_device(struct rc_dev *dev)
-> >>  	 */
-> >>  	dev->input_dev->rep[REP_DELAY] = 500;
-> >>  
-> >> +	/*
-> >> +	 * As a repeat event on protocols like RC-5 and NEC take as long as
-> >> +	 * 110/114ms, using 33ms as a repeat period is not the right thing
-> >> +	 * to do.
-> >> +	 */
-> >> +	dev->input_dev->rep[REP_PERIOD] = 125;
-> >> +
-> >>  	path = kobject_get_path(&dev->dev.kobj, GFP_KERNEL);
-> >>  	printk(KERN_INFO "%s: %s as %s\n",
-> >>  		dev_name(&dev->dev),
-> > 
-> > so if I get this right, a XkbSetControls(.. XkbRepeatKeysMask ...) by a
-> > client to set the repeat rate would provide the same solution - for those
-> > clients/devices affected. 
+On Thu, May 12, 2011 at 02:24:59AM -0400, simon@mungewell.org wrote:
+> > This patch adds a driver for the Nintendo Nunchuck (wiimote accessory)
+> > attached to an i2c bus via something like a wiichuck adapter board
+> > from Sparkfun.
+> >
 > 
-> Yes, if we preserve the same logic. The above will probably still generate
-> ghost repeats if the user keeps the IR pressed for a long time, as we're using
-> a separate timer at the rc-core logic than the one used inside evdev.
+> I have not tested your driver, will try to find some time next week.
 > 
-> > The interesting question is how clients would identify the devices that are
-> > affected by this (other than trial and error).
+> There are also a handful of devices which can be connected as such:
+> http://www.wiibrew.org/wiki/Wiimote/Extension_Controllers
 > 
-> That is easy. I've added a logic that detects it on Xorg evdev on some RFC patches
-> I've prepared in the past to allow using a keycode with more than 247 for IR's.
-> I'll work on a new version for it and submit again when I have some time.
-> Anyway, I'm enclosing a patch with the old version. 
+> You might want to consider the possibility that the Nunchuck/Others are
+> connected via a MotionPlus, in which case the data is interleaved with
+> Gyro data.
+> 
+> Simon.
+> 
+> PS. If you're really cheap you can (ab)use the I2C DDC link of the VGA
+> port to connect devices.... it's what I do :-)
 
-Note that "clients" refers to X clients, i.e. applications. While it's
-usually trivial to add new functionality to evdev or other drivers, exposing
-information to the actual client requires some protocol extension or
-additions to existing extensions. While we have mechanisms in place for
-devices to be labelled, we don't have anyone to actually read this
-information (or even some standard on how to apply the labels).
+Heh.  I've actually got it wired up to the i2c bus on a BeagleBoard from TI.
 
->From the implementation-side, we not only need to flag the devices in the
-driver (like you've outlined in the patch below), we then need to get this
-information into the X server so that the server doesn't repeat. XKB has a
-per-key-repeat flag which we may be able to use but we need to also override
-client-side key repeat setting (for this device only). XKB doesn't allow for
-a repeat rate change request to fail, so we have to essentially tell client
-they have succeeded in setting their repeat rate while using a completely
-different one.
-Technically, you can override the repeat setting requested by the client
-if you simply send out an event when you change it back to the hardware
-setting. This then looks like some other client has changed it but the
-danger is that it may send stubborn clients into an infinite loop.
+I've got a new version of the driver which I'll post when I get back
+home and have a chance to properly test it.  I've implemented Nunchuck
+and Classic Controller support so I could play with implementing
+multiple protocols in a clean way (even though I don't actually have a
+classic controller yet).  Motion Plus should be straight forward to
+add, but I'll probably leave that as an exercise for somebody else.
 
-How much that really matters I don't know.
-
-Letting clients know which device is an RC control at least means that the
-overriding should be expected, but that brings us back to the labelling
-issue.
-
-But either way, to even get this to the "override" stage you need three
-patches:
-- evdev: recognise and flag the devices
-- X server: introduce an API to pass this information on to the server
-- X server: fixes to the XKB system to disable autorepeat for devices
-  flagged accordingly and override requests to change the repeat rate.
-
-Cheers,
-  Peter
+g.

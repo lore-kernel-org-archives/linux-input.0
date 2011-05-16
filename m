@@ -1,55 +1,82 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [PATCH 1/1] input: Add support for Kionix KXTJ9 accelerometer
-Date: Mon, 16 May 2011 09:40:14 +0100
-Message-ID: <4DD0E2EE.7010107@cam.ac.uk>
-References: <1305310406-9870-1-git-send-email-chudson@kionix.com>	<1305310406-9870-2-git-send-email-chudson@kionix.com> <20110513192710.5b4791ca@lxorguk.ukuu.org.uk>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 0/6] elantech extend version support and add semi-mt
+Date: Mon, 16 May 2011 13:15:52 +0200
+Message-ID: <20110516111552.GA10453@polaris.bitmath.org>
+References: <4DCE24BE.70908@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20110513192710.5b4791ca@lxorguk.ukuu.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Hudson <chudson@kionix.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:51434 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754912Ab1EPLLZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 May 2011 07:11:25 -0400
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-b12.telenor.se (Postfix) with ESMTP id 61AA1EA675
+	for <linux-input@vger.kernel.org>; Mon, 16 May 2011 13:11:23 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <4DCE24BE.70908@tudelft.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Chris Bagwell <chris@cnpbagwell.com>, Florian Ragwitz <rafl@debian.org>
 
-I'll leave taking a proper look until you have cleared up the issues Alan pointed out.
-But as I was taking a quick look...
+Hi =C9ric,
 
-Firstly I concur entirely with Alan in that most of the sysfs stuff should be
-platform data for an input driver.
-...
-> 
->> +	memcpy(tj9->pdata, client->dev.platform_data, sizeof(*tj9->pdata));
->> +	if (tj9->pdata->init) {
->> +		err = tj9->pdata->init();
->> +		if (err < 0)
->> +			goto err2;
->> +	}
->> +
->> +	tj9->irq = gpio_to_irq(tj9->pdata->gpio);
-> 
-> What if it's not on a gpio. Probably better any gpio and irq conversion is
-> done by the platform callback/init code
-Perfectly good irq element in i2c_board_info structure.  This is exactly what
-it is normally used for.
-> 
-> 
-> And the sysfs nodes need documentation.
-Would be nice to have some docs on that platform data struct as well.
-Most of it is fairly obvious, but data_odr_init etc aren't!
-> 
-> 
-> Overall it looks like a lot of input drivers that get posted here
-> 
-> - Nobody has considered locking between actions and sysfs (or multiple
->   sysfs actions in parallel)
-> - Enable/disable is implemented in blissful ignorance of what happens if
->   a disable occurs during a sysfs or other action
-> 
-> Most of the rest looks like it just needs a good polish.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> Here is an update of patches which I had sent quite a few monthes
+> ago. At this time they were a bit controversial because the hardware
+> reports only the minimum/maximum positions when two fingers are
+> pressed. With the "semi-mt" property from Henrik that should now be
+> well handled.
+>=20
+> The first few patches of this set should also add support for a few
+> more hardware versions. I could not test all the hardware versions
+> but it's based on the old Dell/Ubuntu driver and if it goes into
+> Linus's tree during the merge window I'm confident we can catch and
+> easily fix regressions :-)
+
+Excellent work, thank you so much. A couple of tiny tiny details:
+
+[patch 1]
+
++In the wild, there appear to be more versions, such as 04.03.01, 04.04=
+=2E11. There
++appear to be almost no difference excepted the EF113 which do not repo=
+rt
+
+no difference, except
+
+[patch 3]
+
+@@ -100,14 +100,22 @@ struct elantech_data {
+        unsigned char reg_26;
+        unsigned char debug;
+        unsigned char capabilities;
+-       bool paritycheck;
++       unsigned char paritycheck;
+        bool jumpy_cursor;
++       unsigned char reports_pres :1;
+        unsigned char hw_version;
+        unsigned int fw_version;
+        unsigned int single_finger_reports;
+        unsigned char parity[256];
+ };
+
+Any particular reason to use unsigned char instead of bool here, and to
+restrict report_pres to a single bit? Bool for both seems apt.
+
+Other than the above, which do not really need a resend, feel free to a=
+dd
+
+    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+
+on all six patches. Thank you, =C9ric.
+
+Cheers,
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

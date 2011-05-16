@@ -1,900 +1,224 @@
-From: chudson@kionix.com
-Subject: [PATCH v2] input: Add support for Kionix KXTJ9 accelerometer
-Date: Mon, 16 May 2011 14:39:08 -0400
-Message-ID: <1305571148-12541-1-git-send-email-chudson@kionix.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2.6.38] xpad: fix for player indicator and rumble support
+Date: Mon, 16 May 2011 12:37:57 -0700
+Message-ID: <20110516193757.GA18110@core.coreip.homeip.net>
+References: <201105141929.00404.kode54@morbo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kionix.com ([66.152.113.154]:48069 "EHLO mail.kionix.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750787Ab1EPSi6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 May 2011 14:38:58 -0400
-Received: from mail1.kionix.com (localhost [127.0.0.1])
-	by mail.kionix.com (Spam Firewall) with ESMTP id 4AE261F5902
-	for <linux-input@vger.kernel.org>; Mon, 16 May 2011 14:38:54 -0400 (EDT)
-Received: from mail1.kionix.com ([10.0.0.125]) by mail.kionix.com with ESMTP id f6mW3sQF1zL41qI9 for <linux-input@vger.kernel.org>; Mon, 16 May 2011 14:38:54 -0400 (EDT)
-In-Reply-To: <>
-References: <>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:53749 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751242Ab1EPTiD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 May 2011 15:38:03 -0400
+Received: by pvg12 with SMTP id 12so2244922pvg.19
+        for <linux-input@vger.kernel.org>; Mon, 16 May 2011 12:38:02 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <201105141929.00404.kode54@morbo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, alan@lxorguk.ukuu.org.uk, jic23@cam.ac.uk, chudson@kionix.com
+To: Chris Moeller <kode54@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-From: <chudson@kionix.com>
+Hi Chris,
 
-Changes from v1:
-- odr_table changed to static const
-- i2c function returns simplified
-- memcpy used for filling write buffer in i2c_write function
-- dev_err call removed from update_g_range function
-- locks added to sysfs functions
-- 3/5 sysfs nodes removed; we need to keep enable and delay
-- switched to using i2c_board_info->irq instead of passing in the raw GPIO
-- added some comments documenting sysfs nodes and platform data structure
-- removed disable_irq calls in case the irq is shared
-- fixed memory leaks in probe function
-- changed to threaded irq format
+On Sat, May 14, 2011 at 07:29:00PM -0700, Chris Moeller wrote:
+> 1) It removes the bulk send interface and replaces it with a permanent instance of the send interface, which fixes sending LED commands to XBox360 Wireless Controllers, including the initial player number indicator so the light ring will stop flashing endlessly.
+> 2) It implements rumble support for XBox360 Wireless Controllers.
+> 
 
-Please let me know if I missed anything or what else should be changed.
+Thank you for the patch, please find some comments below.
 
-Signed-off-by: Chris Hudson <chudson@kionix.com>
----
- drivers/input/misc/Kconfig  |   10 +
- drivers/input/misc/Makefile |    1 +
- drivers/input/misc/kxtj9.c  |  721 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/input/kxtj9.h |   86 +++++
- 4 files changed, 818 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/kxtj9.c
- create mode 100644 include/linux/input/kxtj9.h
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index f9cf088..567f3d2 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -467,4 +467,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called xen-kbdfront.
- 
-+config INPUT_KXTJ9
-+	tristate "Kionix KXTJ9 tri-axis digital accelerometer"
-+	depends on I2C && SYSFS
-+	help
-+	  If you say yes here you get support for the Kionix KXTJ9 digital
-+	  tri-axis accelerometer.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called kxtj9.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index e3f7984..f2477ef 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
- obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
- obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
-+obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
- obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
- obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
-diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
-new file mode 100644
-index 0000000..a757c3e
---- /dev/null
-+++ b/drivers/input/misc/kxtj9.c
-@@ -0,0 +1,721 @@
-+/*
-+ * Copyright (C) 2011 Kionix, Inc.
-+ * Written by Chris Hudson <chudson@kionix.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-+ * 02111-1307, USA
-+ */
-+
-+#include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/delay.h>
-+#include <linux/fs.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/uaccess.h>
-+#include <linux/workqueue.h>
-+#include <linux/irq.h>
-+#include <linux/kthread.h>
-+#include <linux/interrupt.h>
-+#include <linux/slab.h>
-+#include <linux/input/kxtj9.h>
-+
-+#define NAME			"kxtj9"
-+#define G_MAX			8000
-+/* OUTPUT REGISTERS */
-+#define XOUT_L			0x06
-+#define WHO_AM_I		0x0F
-+/* CONTROL REGISTERS */
-+#define INT_REL			0x1A
-+#define CTRL_REG1		0x1B
-+#define INT_CTRL1		0x1E
-+#define DATA_CTRL		0x21
-+/* CONTROL REGISTER 1 BITS */
-+#define PC1_OFF			0x7F
-+#define PC1_ON			0x80
-+/* INPUT_ABS CONSTANTS */
-+#define FUZZ			3
-+#define FLAT			3
-+/* RESUME STATE INDICES */
-+#define RES_DATA_CTRL		0
-+#define RES_CTRL_REG1		1
-+#define RES_INT_CTRL1		2
-+#define RESUME_ENTRIES		3
-+
-+/*
-+ * The following table lists the maximum appropriate poll interval for each
-+ * available output data rate.
-+ */
-+static const struct {
-+	unsigned int cutoff;
-+	u8 mask;
-+} kxtj9_odr_table[] = {
-+	{
-+	3,	ODR800F}, {
-+	5,	ODR400F}, {
-+	10,	ODR200F}, {
-+	20,	ODR100F}, {
-+	40,	ODR50F}, {
-+	80,	ODR25F}, {
-+	0,	ODR12_5F},
-+};
-+
-+struct kxtj9_data {
-+	struct i2c_client *client;
-+	struct kxtj9_platform_data *pdata;
-+	struct mutex lock;
-+	struct delayed_work input_work;
-+	struct input_dev *input_dev;
-+
-+	int hw_initialized;
-+	atomic_t enabled;
-+	u8 resume[RESUME_ENTRIES];
-+	int res_interval;
-+	int drdy_enabled;
-+	int irq;
-+};
-+
-+static int kxtj9_i2c_read(struct kxtj9_data *tj9, u8 addr, u8 *data, int len)
-+{
-+	int err;
-+
-+	struct i2c_msg msgs[] = {
-+		{
-+		 .addr = tj9->client->addr,
-+		 .flags = tj9->client->flags,
-+		 .len = 1,
-+		 .buf = &addr,
-+		 },
-+		{
-+		 .addr = tj9->client->addr,
-+		 .flags = tj9->client->flags | I2C_M_RD,
-+		 .len = len,
-+		 .buf = data,
-+		 },
-+	};
-+	err = i2c_transfer(tj9->client->adapter, msgs, 2);
-+
-+	return err;
-+}
-+
-+static int kxtj9_i2c_write(struct kxtj9_data *tj9, u8 addr, u8 *data, int len)
-+{
-+	int err;
-+	u8 buf[len + 1];
-+
-+	struct i2c_msg msgs[] = {
-+		{
-+		 .addr = tj9->client->addr,
-+		 .flags = tj9->client->flags,
-+		 .len = len + 1,
-+		 .buf = buf,
-+		 },
-+	};
-+
-+	buf[0] = addr;
-+	memcpy(buf + 1, data, len);
-+
-+	err = i2c_transfer(tj9->client->adapter, msgs, 1);
-+
-+	return err;
-+}
-+
-+static int kxtj9_verify(struct kxtj9_data *tj9)
-+{
-+	int err;
-+	u8 buf;
-+
-+	err = kxtj9_i2c_read(tj9, WHO_AM_I, &buf, 1);
-+	if (err < 0)
-+		dev_err(&tj9->client->dev, "read err int source\n");
-+	if (buf != 0x06)
-+		err = -1;
-+
-+	return err;
-+}
-+
-+int kxtj9_update_g_range(struct kxtj9_data *tj9, u8 new_g_range)
-+{
-+	int err;
-+	u8 shift;
-+	u8 buf;
-+	u8 out;
-+
-+	switch (new_g_range) {
-+	case KXTJ9_G_2G:
-+		shift = SHIFT_ADJ_2G;
-+		break;
-+	case KXTJ9_G_4G:
-+		shift = SHIFT_ADJ_4G;
-+		break;
-+	case KXTJ9_G_8G:
-+		shift = SHIFT_ADJ_8G;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	out = (tj9->resume[RES_CTRL_REG1] & 0xE7) | new_g_range;
-+	if (shift != tj9->pdata->shift_adj) {
-+		if (atomic_read(&tj9->enabled)) {
-+			buf = 0;
-+			err = kxtj9_i2c_write(tj9, CTRL_REG1, &buf, 1);
-+			if (err < 0)
-+				return err;
-+			err = kxtj9_i2c_write(tj9, CTRL_REG1, &out, 1);
-+			if (err < 0)
-+				return err;
-+		}
-+	}
-+
-+	tj9->resume[RES_CTRL_REG1] = out;
-+	tj9->pdata->shift_adj = shift;
-+
-+	return 0;
-+}
-+
-+int kxtj9_update_odr(struct kxtj9_data *tj9, int poll_interval)
-+{
-+	int err = -1;
-+	int i;
-+	u8 config;
-+	u8 temp = 0;
-+
-+	/* Use the lowest ODR that can support the requested poll interval */
-+	for (i = 0; i < ARRAY_SIZE(kxtj9_odr_table); i++) {
-+		config = kxtj9_odr_table[i].mask;
-+		if (poll_interval < kxtj9_odr_table[i].cutoff)
-+			break;
-+	}
-+
-+	if (atomic_read(&tj9->enabled)) {
-+		err = kxtj9_i2c_write(tj9, CTRL_REG1, &temp, 1);
-+		if (err < 0)
-+			return err;
-+		err = kxtj9_i2c_write(tj9, DATA_CTRL, &config, 1);
-+		if (err < 0)
-+			return err;
-+		temp = tj9->resume[RES_CTRL_REG1];
-+		err = kxtj9_i2c_write(tj9, CTRL_REG1, &temp, 1);
-+		if (err < 0)
-+			return err;
-+		/* Valid input_dev indicates that input_init passed and this
-+		 * workqueue is available */
-+		if (tj9->input_dev) {
-+			cancel_delayed_work_sync(&tj9->input_work);
-+			schedule_delayed_work(&tj9->input_work,
-+				       msecs_to_jiffies(poll_interval));
-+		}
-+	}
-+	tj9->resume[RES_DATA_CTRL] = config;
-+
-+	return 0;
-+}
-+
-+static int kxtj9_hw_init(struct kxtj9_data *tj9)
-+{
-+	int err;
-+	u8 buf = 0;
-+
-+	err = kxtj9_i2c_write(tj9, CTRL_REG1, &buf, 1);
-+	if (err < 0)
-+		return err;
-+	err = kxtj9_i2c_write(tj9, DATA_CTRL, &tj9->resume[RES_DATA_CTRL], 1);
-+	if (err < 0)
-+		return err;
-+	err = kxtj9_i2c_write(tj9, INT_CTRL1, &tj9->resume[RES_INT_CTRL1], 1);
-+	if (err < 0)
-+		return err;
-+
-+	err = kxtj9_update_g_range(tj9, tj9->pdata->g_range);
-+	if (err < 0)
-+		return err;
-+
-+	buf = (tj9->resume[RES_CTRL_REG1] | PC1_ON);
-+	err = kxtj9_i2c_write(tj9, CTRL_REG1, &buf, 1);
-+	if (err < 0)
-+		return err;
-+	tj9->resume[RES_CTRL_REG1] = buf;
-+
-+	if ((buf & DRDYE) > 0)
-+		tj9->drdy_enabled = 1;
-+	else
-+		tj9->drdy_enabled = 0;
-+
-+	err = kxtj9_update_odr(tj9, tj9->res_interval);
-+	if (err < 0)
-+		return err;
-+
-+	tj9->hw_initialized = 1;
-+
-+	return 0;
-+}
-+
-+static void kxtj9_device_power_off(struct kxtj9_data *tj9)
-+{
-+	int err;
-+	u8 buf;
-+
-+	buf = tj9->resume[RES_CTRL_REG1] & PC1_OFF;
-+	err = kxtj9_i2c_write(tj9, CTRL_REG1, &buf, 1);
-+	if (err < 0)
-+		dev_err(&tj9->client->dev, "soft power off failed\n");
-+	if (tj9->pdata->power_off)
-+		tj9->pdata->power_off();
-+	tj9->resume[RES_CTRL_REG1] = buf;
-+	tj9->hw_initialized = 0;
-+}
-+
-+static int kxtj9_device_power_on(struct kxtj9_data *tj9)
-+{
-+	int err;
-+
-+	if (tj9->pdata->power_on) {
-+		err = tj9->pdata->power_on();
-+		if (err < 0)
-+			return err;
-+	}
-+	if (!tj9->hw_initialized) {
-+		mdelay(40);
-+		err = kxtj9_hw_init(tj9);
-+		if (err < 0) {
-+			kxtj9_device_power_off(tj9);
-+			return err;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void kxtj9_report_values(struct kxtj9_data *tj9, int *xyz)
-+{
-+	input_report_abs(tj9->input_dev, ABS_X, xyz[0]);
-+	input_report_abs(tj9->input_dev, ABS_Y, xyz[1]);
-+	input_report_abs(tj9->input_dev, ABS_Z, xyz[2]);
-+}
-+
-+static int kxtj9_get_acceleration_data(struct kxtj9_data *tj9, int *xyz)
-+{
-+	int err;
-+	/* Data bytes from hardware xL, xH, yL, yH, zL, zH */
-+	u8 acc_data[6];
-+	/* x,y,z hardware values */
-+	int hw_d[3];
-+
-+	err = kxtj9_i2c_read(tj9, XOUT_L, acc_data, 6);
-+	if (err < 0)
-+		return err;
-+
-+
-+	hw_d[0] = (int) (((acc_data[1]) << 8) | acc_data[0]);
-+	hw_d[1] = (int) (((acc_data[3]) << 8) | acc_data[2]);
-+	hw_d[2] = (int) (((acc_data[5]) << 8) | acc_data[4]);
-+
-+	if (hw_d[0] & 0x8000)
-+		hw_d[0] |= 0xFFFF0000;
-+	if (hw_d[1] & 0x8000)
-+		hw_d[1] |= 0xFFFF0000;
-+	if (hw_d[2] & 0x8000)
-+		hw_d[2] |= 0xFFFF0000;
-+
-+	hw_d[0] >>= tj9->pdata->shift_adj;
-+	hw_d[1] >>= tj9->pdata->shift_adj;
-+	hw_d[2] >>= tj9->pdata->shift_adj;
-+
-+	xyz[0] = ((tj9->pdata->negate_x) ? (-hw_d[tj9->pdata->axis_map_x])
-+		  : (hw_d[tj9->pdata->axis_map_x]));
-+	xyz[1] = ((tj9->pdata->negate_y) ? (-hw_d[tj9->pdata->axis_map_y])
-+		  : (hw_d[tj9->pdata->axis_map_y]));
-+	xyz[2] = ((tj9->pdata->negate_z) ? (-hw_d[tj9->pdata->axis_map_z])
-+		  : (hw_d[tj9->pdata->axis_map_z]));
-+
-+	return err;
-+}
-+
-+static irqreturn_t kxtj9_isr(int irq, void *dev)
-+{
-+	struct kxtj9_data *tj9 = dev;
-+	int err;
-+	u8 buf;
-+	int xyz[3];
-+
-+	/* data ready is the only possible interrupt type */
-+	if (kxtj9_get_acceleration_data(tj9, xyz) == 0)
-+		kxtj9_report_values(tj9, xyz);
-+
-+	err = kxtj9_i2c_read(tj9, INT_REL, &buf, 1);
-+	if (err < 0)
-+		dev_err(&tj9->client->dev,
-+				"error clearing interrupt status: %d\n", err);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int kxtj9_enable(struct kxtj9_data *tj9)
-+{
-+	int err;
-+	u8 buf;
-+
-+	if (!atomic_cmpxchg(&tj9->enabled, 0, 1)) {
-+		err = kxtj9_device_power_on(tj9);
-+		err = kxtj9_i2c_read(tj9, INT_REL, &buf, 1);
-+		if (err < 0) {
-+			dev_err(&tj9->client->dev,
-+					"error clearing interrupt: %d\n", err);
-+			atomic_set(&tj9->enabled, 0);
-+			return err;
-+		}
-+		schedule_delayed_work(&tj9->input_work,
-+			msecs_to_jiffies(tj9->res_interval));
-+	}
-+
-+	return 0;
-+}
-+
-+static int kxtj9_disable(struct kxtj9_data *tj9)
-+{
-+	if (atomic_cmpxchg(&tj9->enabled, 1, 0)) {
-+		cancel_delayed_work_sync(&tj9->input_work);
-+		kxtj9_device_power_off(tj9);
-+	}
-+
-+	return 0;
-+}
-+
-+static void kxtj9_input_work_func(struct work_struct *work)
-+{
-+	struct kxtj9_data *tj9 = container_of((struct delayed_work *)work,
-+						struct kxtj9_data, input_work);
-+	int xyz[3] = { 0 };
-+
-+	if (tj9->drdy_enabled == 0) {
-+		mutex_lock(&tj9->lock);
-+
-+		if (kxtj9_get_acceleration_data(tj9, xyz) == 0)
-+			kxtj9_report_values(tj9, xyz);
-+
-+		schedule_delayed_work(&tj9->input_work,
-+				msecs_to_jiffies(tj9->res_interval));
-+		mutex_unlock(&tj9->lock);
-+	}
-+}
-+
-+int kxtj9_input_open(struct input_dev *input)
-+{
-+	struct kxtj9_data *tj9 = input_get_drvdata(input);
-+
-+	return kxtj9_enable(tj9);
-+}
-+
-+void kxtj9_input_close(struct input_dev *dev)
-+{
-+	struct kxtj9_data *tj9 = input_get_drvdata(dev);
-+
-+	kxtj9_disable(tj9);
-+}
-+
-+static int kxtj9_input_init(struct kxtj9_data *tj9)
-+{
-+	int err;
-+
-+	INIT_DELAYED_WORK(&tj9->input_work, kxtj9_input_work_func);
-+	tj9->input_dev = input_allocate_device();
-+	if (!tj9->input_dev) {
-+		err = -ENOMEM;
-+		dev_err(&tj9->client->dev, "input device allocate failed\n");
-+		goto err0;
-+	}
-+	tj9->input_dev->open = kxtj9_input_open;
-+	tj9->input_dev->close = kxtj9_input_close;
-+
-+	input_set_drvdata(tj9->input_dev, tj9);
-+
-+	set_bit(EV_ABS, tj9->input_dev->evbit);
-+	set_bit(EV_REL, tj9->input_dev->evbit);
-+
-+	input_set_abs_params(tj9->input_dev, ABS_X, -G_MAX, G_MAX, FUZZ, FLAT);
-+	input_set_abs_params(tj9->input_dev, ABS_Y, -G_MAX, G_MAX, FUZZ, FLAT);
-+	input_set_abs_params(tj9->input_dev, ABS_Z, -G_MAX, G_MAX, FUZZ, FLAT);
-+
-+	tj9->input_dev->name = "kxtj9_accel";
-+
-+	err = input_register_device(tj9->input_dev);
-+	if (err) {
-+		dev_err(&tj9->client->dev,
-+			"unable to register input polled device %s: %d\n",
-+			tj9->input_dev->name, err);
-+		goto err1;
-+	}
-+
-+	return 0;
-+err1:
-+	input_free_device(tj9->input_dev);
-+err0:
-+	return err;
-+}
-+
-+static void kxtj9_input_cleanup(struct kxtj9_data *tj9)
-+{
-+	input_unregister_device(tj9->input_dev);
-+}
-+
-+/* sysfs */
-+
-+/* kxtj9_delay_show: returns the currently selected poll interval */
-+static ssize_t kxtj9_delay_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
-+	return sprintf(buf, "%d\n", tj9->res_interval);
-+}
-+
-+/* kxtj9_delay_store: allows the user to select a new poll interval */
-+static ssize_t kxtj9_delay_store(struct device *dev,
-+					struct device_attribute *attr,
-+						const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
-+	unsigned long val;
-+	int ret = kstrtoul(buf, 10, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	mutex_lock(&tj9->lock);
-+	/* the selected interval is the greater of the minimum interval or
-+	the requested interval */
-+	tj9->res_interval = max((int)val, tj9->pdata->min_interval);
-+	kxtj9_update_odr(tj9, tj9->res_interval);
-+	mutex_unlock(&tj9->lock);
-+
-+	return count;
-+}
-+
-+/* kxtj9_enable_show: returns the enable status of the part */
-+static ssize_t kxtj9_enable_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
-+	return sprintf(buf, "%d\n", atomic_read(&tj9->enabled));
-+}
-+
-+/* kxtj9_enable_store: allows the user to enable or disable the part */
-+static ssize_t kxtj9_enable_store(struct device *dev,
-+					struct device_attribute *attr,
-+						const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
-+	unsigned long val;
-+	int ret = kstrtoul(buf, 10, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	mutex_lock(&tj9->lock);
-+	if (val)	/* non-zero argument enables the part */
-+		kxtj9_enable(tj9);
-+	else		/* zero argument disables the part */
-+		kxtj9_disable(tj9);
-+	mutex_unlock(&tj9->lock);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(delay, S_IRUGO|S_IWUSR, kxtj9_delay_show, kxtj9_delay_store);
-+static DEVICE_ATTR(enable, S_IRUGO|S_IWUSR, kxtj9_enable_show,
-+							kxtj9_enable_store);
-+
-+static struct attribute *kxtj9_attributes[] = {
-+	&dev_attr_delay.attr,
-+	&dev_attr_enable.attr,
-+	NULL
-+};
-+
-+static struct attribute_group kxtj9_attribute_group = {
-+	.attrs = kxtj9_attributes
-+};
-+/* /sysfs */
-+
-+static int __devinit kxtj9_probe(struct i2c_client *client,
-+						const struct i2c_device_id *id)
-+{
-+	int err = -1;
-+	struct kxtj9_data *tj9 = kzalloc(sizeof(*tj9), GFP_KERNEL);
-+	if (tj9 == NULL) {
-+		dev_err(&client->dev,
-+			"failed to allocate memory for module data\n");
-+		err = -ENOMEM;
-+		goto err0;
-+	}
-+	if (client->dev.platform_data == NULL) {
-+		dev_err(&client->dev, "platform data is NULL; exiting\n");
-+		err = -ENODEV;
-+		goto err0;
-+	}
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(&client->dev, "client not i2c capable\n");
-+		err = -ENODEV;
-+		goto err0;
-+	}
-+	mutex_init(&tj9->lock);
-+	mutex_lock(&tj9->lock);
-+	tj9->client = client;
-+	i2c_set_clientdata(client, tj9);
-+
-+	tj9->pdata = kmalloc(sizeof(*tj9->pdata), GFP_KERNEL);
-+	if (tj9->pdata == NULL)
-+		goto err1;
-+
-+	err = sysfs_create_group(&client->dev.kobj, &kxtj9_attribute_group);
-+	if (err)
-+		goto err1;
-+
-+	memcpy(tj9->pdata, client->dev.platform_data, sizeof(*tj9->pdata));
-+	if (tj9->pdata->init) {
-+		err = tj9->pdata->init();
-+		if (err < 0)
-+			goto err2;
-+	}
-+
-+	memset(tj9->resume, 0, ARRAY_SIZE(tj9->resume));
-+	tj9->resume[RES_DATA_CTRL] = tj9->pdata->data_odr_init;
-+	tj9->resume[RES_CTRL_REG1] = tj9->pdata->ctrl_reg1_init;
-+	tj9->resume[RES_INT_CTRL1] = tj9->pdata->int_ctrl_init;
-+	tj9->res_interval = tj9->pdata->poll_interval;
-+
-+	err = kxtj9_device_power_on(tj9);
-+	if (err < 0)
-+		goto err3;
-+	atomic_set(&tj9->enabled, 1);
-+
-+	err = kxtj9_verify(tj9);
-+	if (err < 0) {
-+		dev_err(&client->dev, "unresolved i2c client\n");
-+		goto err4;
-+	}
-+
-+	err = kxtj9_update_g_range(tj9, tj9->pdata->g_range);
-+	if (err < 0)
-+		goto err4;
-+
-+	err = kxtj9_update_odr(tj9, tj9->res_interval);
-+	if (err < 0)
-+		goto err4;
-+
-+	err = kxtj9_input_init(tj9);
-+	if (err < 0)
-+		goto err4;
-+
-+	kxtj9_device_power_off(tj9);
-+	atomic_set(&tj9->enabled, 0);
-+
-+	if (client->irq) {
-+		tj9->irq = client->irq;
-+		err = request_threaded_irq(tj9->irq, NULL, kxtj9_isr,
-+				   IRQF_TRIGGER_RISING, "kxtj9-irq", tj9);
-+		if (err < 0) {
-+			pr_err("%s: request irq failed: %d\n", __func__, err);
-+			goto err5;
-+		}
-+	}
-+
-+	mutex_unlock(&tj9->lock);
-+
-+	return 0;
-+
-+err5:
-+	kxtj9_input_cleanup(tj9);
-+err4:
-+	kxtj9_device_power_off(tj9);
-+err3:
-+	if (tj9->pdata->exit)
-+		tj9->pdata->exit();
-+err2:
-+	kfree(tj9->pdata);
-+	sysfs_remove_group(&client->dev.kobj, &kxtj9_attribute_group);
-+err1:
-+	mutex_unlock(&tj9->lock);
-+err0:
-+	kfree(tj9);
-+	return err;
-+}
-+
-+static int __devexit kxtj9_remove(struct i2c_client *client)
-+{
-+	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
-+
-+	free_irq(tj9->irq, tj9);
-+	kxtj9_input_cleanup(tj9);
-+	kxtj9_device_power_off(tj9);
-+	if (tj9->pdata->exit)
-+		tj9->pdata->exit();
-+	kfree(tj9->pdata);
-+	sysfs_remove_group(&client->dev.kobj, &kxtj9_attribute_group);
-+	kfree(tj9);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int kxtj9_resume(struct i2c_client *client)
-+{
-+	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
-+
-+	return kxtj9_enable(tj9);
-+}
-+
-+static int kxtj9_suspend(struct i2c_client *client, pm_message_t mesg)
-+{
-+	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
-+
-+	return kxtj9_disable(tj9);
-+}
-+#endif
-+
-+static const struct i2c_device_id kxtj9_id[] = {
-+	{NAME, 0},
-+	{},
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, kxtj9_id);
-+
-+static struct i2c_driver kxtj9_driver = {
-+	.driver = {
-+		   .name = NAME,
-+		   },
-+	.probe = kxtj9_probe,
-+	.remove = __devexit_p(kxtj9_remove),
-+	.resume = kxtj9_resume,
-+	.suspend = kxtj9_suspend,
-+	.id_table = kxtj9_id,
-+};
-+
-+static int __init kxtj9_init(void)
-+{
-+	return i2c_add_driver(&kxtj9_driver);
-+}
-+
-+static void __exit kxtj9_exit(void)
-+{
-+	i2c_del_driver(&kxtj9_driver);
-+}
-+
-+module_init(kxtj9_init);
-+module_exit(kxtj9_exit);
-+
-+MODULE_DESCRIPTION("KXTJ9 accelerometer driver");
-+MODULE_AUTHOR("Chris Hudson <chudson@kionix.com>");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/input/kxtj9.h b/include/linux/input/kxtj9.h
-new file mode 100644
-index 0000000..0064731
---- /dev/null
-+++ b/include/linux/input/kxtj9.h
-@@ -0,0 +1,86 @@
-+/*
-+ * Copyright (C) 2011 Kionix, Inc.
-+ * Written by Chris Hudson <chudson@kionix.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-+ * 02111-1307, USA
-+ */
-+
-+#ifndef __KXTJ9_H__
-+#define __KXTJ9_H__
-+
-+#define KXTJ9_I2C_ADDR		0x0F
-+/* CONTROL REGISTER 1 BITS */
-+#define RES_12BIT		0x40
-+#define KXTJ9_G_2G		0x00
-+#define KXTJ9_G_4G		0x08
-+#define KXTJ9_G_8G		0x10
-+#define SHIFT_ADJ_2G		4
-+#define SHIFT_ADJ_4G		3
-+#define SHIFT_ADJ_8G		2
-+#define DRDYE			0x20	/* data ready function enable bit */
-+/* INTERRUPT CONTROL REGISTER 1 BITS */
-+#define KXTJ9_IEN		0x20	/* interrupt enable */
-+#define KXTJ9_IEA		0x10	/* interrupt polarity */
-+#define KXTJ9_IEL		0x08	/* interrupt response */
-+/* DATA CONTROL REGISTER BITS */
-+#define ODR800F			0x06	/* lpf output ODR masks */
-+#define ODR400F			0x05
-+#define ODR200F			0x04
-+#define ODR100F			0x03
-+#define ODR50F			0x02
-+#define ODR25F			0x01
-+#define ODR12_5F		0x00
-+
-+#ifdef __KERNEL__
-+struct kxtj9_platform_data {
-+	int poll_interval;	/* current poll interval */
-+	int min_interval;	/* minimum poll interval */
-+
-+	u8 g_range;		/* selected g-range */
-+	u8 shift_adj;		/* data shift for selected g-range */
-+
-+	/* by default, x is axis 0, y is axis 1, z is axis 2; these can be
-+	changed to account for sensor orientation within the host device */
-+	u8 axis_map_x;
-+	u8 axis_map_y;
-+	u8 axis_map_z;
-+
-+	/* each axis can be negated to account for sensor orientation within
-+	the host device; 1 = negate this axis; 0 = do not negate this axis */
-+	u8 negate_x;
-+	u8 negate_y;
-+	u8 negate_z;
-+
-+	/* data_odr_init is the initial setting for DATA_CTRL_REG, which
-+	controls the output data rate of the part */
-+	u8 data_odr_init;
-+
-+	/* ctrl_reg1_init is the initial setting for CTRL_REG1, which controls
-+	part resolution, g-range, data ready enable, and part enable */
-+	u8 ctrl_reg1_init;
-+
-+	/* int_ctrl_init is the initial setting for INT_CTRL_REG1, which
-+	controls physical interrupt pin enable, polarity, and response */
-+	u8 int_ctrl_init;
-+
-+	int (*init)(void);
-+	void (*exit)(void);
-+	int (*power_on)(void);
-+	int (*power_off)(void);
-+};
-+#endif /* __KERNEL__ */
-+
-+#endif  /* __KXTJ9_H__ */
-+
+> Signed-off-by: Chris Moeller <kode54@gmail.com>
+> 
+> ---
+> 
+> I could not separate the two features into different patches because the rumble support change depends on initialization and shutdown changes that are necessary for both features.
+> 
+
+It is OK if patches are dependent upon each other. In this case I'd
+recommend adding XBox360 Wireless rumble first, keeping the rest of the
+driver structure, and then reworking LED support, which requires more
+changes.
+
+> Resending this patch which KMail managed to munge because I did not know that it line wraps to fit the composer window regardless of the line wrapping setting. Let's see if a maximized window on 1920x1080 is big enough to get this out without wrapping anything, shall we?
+> 
+> I'm not sure if it matters, but I found the documentation necessary to implement the packet for XBox360 Wireless Controller rumble support in the source code to the drivers here:
+> 
+> http://www.katch.ne.jp/~morii/driver/x360wc/index.html
+> 
+> Neither the page nor the documentation included with the driver or source code, nor the source code itself, make any mention of a license. Does this matter much in the case of deriving knowledge of a single 12 byte data structure?
+> 
+
+As long as the code was not used I think this should be OK.
+
+> --- linux/drivers/input/joystick/xpad.c.orig	2011-03-14 18:20:32.000000000 -0700
+> +++ linux/drivers/input/joystick/xpad.c	2011-05-14 18:41:08.000000000 -0700
+> @@ -250,20 +250,17 @@ struct usb_xpad {
+>  	struct usb_device *udev;	/* usb device */
+>  
+>  	int pad_present;
+> +	
+> +	int interface_number;
+>  
+>  	struct urb *irq_in;		/* urb for interrupt in report */
+>  	unsigned char *idata;		/* input data */
+>  	dma_addr_t idata_dma;
+>  
+> -	struct urb *bulk_out;
+> -	unsigned char *bdata;
+> -
+> -#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+>  	struct urb *irq_out;		/* urb for interrupt out report */
+>  	unsigned char *odata;		/* output data */
+>  	dma_addr_t odata_dma;
+>  	struct mutex odata_mutex;
+> -#endif
+>  
+>  #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+>  	struct xpad_led *led;
+> @@ -432,13 +429,15 @@ static void xpad360_process_packet(struc
+>   *
+>   */
+>  
+> +static void xpad_send_led_command(struct usb_xpad *xpad, int command, int mutex);
+> +
+>  static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
+>  {
+>  	/* Presence change */
+>  	if (data[0] & 0x08) {
+>  		if (data[1] & 0x80) {
+>  			xpad->pad_present = 1;
+> -			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
+> +			xpad_send_led_command(xpad, 0x42 + ((xpad->interface_number / 2) & 3), 0);
+
+I'd prefer the "command" calculation be hidden in
+xpad_send_led_command(), i.e. it should accept led number and figure out
+the proper command byte based on device type.
+
+>  		} else
+>  			xpad->pad_present = 0;
+>  	}
+> @@ -492,24 +491,6 @@ exit:
+>  		     __func__, retval);
+>  }
+>  
+> -static void xpad_bulk_out(struct urb *urb)
+> -{
+> -	switch (urb->status) {
+> -	case 0:
+> -		/* success */
+> -		break;
+> -	case -ECONNRESET:
+> -	case -ENOENT:
+> -	case -ESHUTDOWN:
+> -		/* this urb is terminated, clean up */
+> -		dbg("%s - urb shutting down with status: %d", __func__, urb->status);
+> -		break;
+> -	default:
+> -		dbg("%s - nonzero urb status received: %d", __func__, urb->status);
+> -	}
+> -}
+> -
+> -#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+>  static void xpad_irq_out(struct urb *urb)
+>  {
+>  	int retval, status;
+> @@ -545,9 +526,6 @@ static int xpad_init_output(struct usb_i
+>  	struct usb_endpoint_descriptor *ep_irq_out;
+>  	int error;
+>  
+> -	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX)
+> -		return 0;
+> -
+>  	xpad->odata = usb_alloc_coherent(xpad->udev, XPAD_PKT_LEN,
+>  					 GFP_KERNEL, &xpad->odata_dma);
+>  	if (!xpad->odata) {
+> @@ -579,23 +557,15 @@ static int xpad_init_output(struct usb_i
+>  
+>  static void xpad_stop_output(struct usb_xpad *xpad)
+>  {
+> -	if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype == XTYPE_XBOX)
+> -		usb_kill_urb(xpad->irq_out);
+> +	usb_kill_urb(xpad->irq_out);
+>  }
+>  
+>  static void xpad_deinit_output(struct usb_xpad *xpad)
+>  {
+> -	if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype == XTYPE_XBOX) {
+> -		usb_free_urb(xpad->irq_out);
+> -		usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
+> -				xpad->odata, xpad->odata_dma);
+> -	}
+> +	usb_free_urb(xpad->irq_out);
+> +	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
+> +			xpad->odata, xpad->odata_dma);
+>  }
+> -#else
+> -static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
+> -static void xpad_deinit_output(struct usb_xpad *xpad) {}
+> -static void xpad_stop_output(struct usb_xpad *xpad) {}
+> -#endif
+>  
+>  #ifdef CONFIG_JOYSTICK_XPAD_FF
+>  static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
+> @@ -632,6 +602,23 @@ static int xpad_play_effect(struct input
+>  
+>  			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+>  
+> +		case XTYPE_XBOX360W:
+> +			xpad->odata[0] = 0x00;
+> +			xpad->odata[1] = 0x01;
+> +			xpad->odata[2] = 0x0F;
+> +			xpad->odata[3] = 0xC0;
+> +			xpad->odata[4] = 0x00;
+> +			xpad->odata[5] = strong / 256;
+> +			xpad->odata[6] = weak / 256;
+> +			xpad->odata[7] = 0x00;
+> +			xpad->odata[8] = 0x00;
+> +			xpad->odata[9] = 0x00;
+> +			xpad->odata[10] = 0x00;
+> +			xpad->odata[11] = 0x00;
+> +			xpad->irq_out->transfer_buffer_length = 12;
+> +
+> +			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+> +
+>  		default:
+>  			dbg("%s - rumble command sent to unsupported xpad type: %d",
+>  				__func__, xpad->xtype);
+> @@ -644,7 +631,7 @@ static int xpad_play_effect(struct input
+>  
+>  static int xpad_init_ff(struct usb_xpad *xpad)
+>  {
+> -	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX)
+> +	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX && xpad->xtype != XTYPE_XBOX360W)
+
+This should probably be:
+
+	if (xpad->xtype == XTYPE_UNKNOWN)
+
+>  		return 0;
+>  
+>  	input_set_capability(xpad->dev, EV_FF, FF_RUMBLE);
+> @@ -665,16 +652,33 @@ struct xpad_led {
+>  	struct usb_xpad *xpad;
+>  };
+>  
+> -static void xpad_send_led_command(struct usb_xpad *xpad, int command)
+> +static void xpad_send_led_command(struct usb_xpad *xpad, int command, int mutex)
+>  {
+>  	if (command >= 0 && command < 14) {
+> -		mutex_lock(&xpad->odata_mutex);
+> +		if (mutex) mutex_lock(&xpad->odata_mutex);
+
+No, this conditional locking will not do. What happens if
+xpad_send_led_command() gets called from both xpad360w_process_packet()
+and xpad_led_set()? There is also bigger problem - we are using the same
+URB/buffers as FF playback so we need to make sure we do not stomp on
+each other toes.
+
+Thanks.
+
 -- 
-1.5.4.3
-
+Dmitry

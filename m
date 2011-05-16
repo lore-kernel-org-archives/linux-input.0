@@ -1,82 +1,329 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 0/6] elantech extend version support and add semi-mt
-Date: Mon, 16 May 2011 13:15:52 +0200
-Message-ID: <20110516111552.GA10453@polaris.bitmath.org>
-References: <4DCE24BE.70908@tudelft.nl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC PATCH] input: Add wiichuck driver
+Date: Mon, 16 May 2011 09:44:27 -0700
+Message-ID: <20110516164427.GA21232@core.coreip.homeip.net>
+References: <20110512042218.12859.66600.stgit@localhost6.localdomain6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:51434 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754912Ab1EPLLZ (ORCPT
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:48392 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751052Ab1EPQog (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 May 2011 07:11:25 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-b12.telenor.se (Postfix) with ESMTP id 61AA1EA675
-	for <linux-input@vger.kernel.org>; Mon, 16 May 2011 13:11:23 +0200 (CEST)
+	Mon, 16 May 2011 12:44:36 -0400
 Content-Disposition: inline
-In-Reply-To: <4DCE24BE.70908@tudelft.nl>
+In-Reply-To: <20110512042218.12859.66600.stgit@localhost6.localdomain6>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Chris Bagwell <chris@cnpbagwell.com>, Florian Ragwitz <rafl@debian.org>
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi =C9ric,
+Hi Grant,
 
-> Here is an update of patches which I had sent quite a few monthes
-> ago. At this time they were a bit controversial because the hardware
-> reports only the minimum/maximum positions when two fingers are
-> pressed. With the "semi-mt" property from Henrik that should now be
-> well handled.
->=20
-> The first few patches of this set should also add support for a few
-> more hardware versions. I could not test all the hardware versions
-> but it's based on the old Dell/Ubuntu driver and if it goes into
-> Linus's tree during the merge window I'm confident we can catch and
-> easily fix regressions :-)
+On Thu, May 12, 2011 at 06:29:44AM +0200, Grant Likely wrote:
+> This patch adds a driver for the Nintendo Nunchuck (wiimote accessory)
+> attached to an i2c bus via something like a wiichuck adapter board
+> from Sparkfun.
+> 
+> Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+> ---
+> 
+> This is RFC because the driver doesn't completely work yet.  The
+> joystick and buttons work fine.  There is a bug with the accelerometer
+> reporting though (nothing gets reported), and I'm not even sure I'm
+> using the right input type for reporting accelerometer values.
 
-Excellent work, thank you so much. A couple of tiny tiny details:
+Looks quite reasonable and I think that ABS_Rx is reasonable events for
+accelerometer in this particular case.
 
-[patch 1]
+A few more comments below.
 
-+In the wild, there appear to be more versions, such as 04.03.01, 04.04=
-=2E11. There
-+appear to be almost no difference excepted the EF113 which do not repo=
-rt
+> Comments welcome.
+> 
+>  drivers/input/joystick/Kconfig    |    8 +
+>  drivers/input/joystick/Makefile   |    1 
+>  drivers/input/joystick/wiichuck.c |  225 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 234 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/joystick/wiichuck.c
+> 
+> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+> index 56eb471..79f18db 100644
+> --- a/drivers/input/joystick/Kconfig
+> +++ b/drivers/input/joystick/Kconfig
+> @@ -193,6 +193,14 @@ config JOYSTICK_TWIDJOY
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called twidjoy.
+>  
+> +config JOYSTICK_WIICHUCK
+> +	tristate "Nintendo Nunchuck on i2c bus"
+> +	depends on I2C
+> +	select INPUT_POLLDEV
+> +	help
+> +	  Say Y here if you have a Nintendo Nunchuck directly attached to
+> +	  the machine's i2c bus.
+> +
 
-no difference, except
+	To compile this driver as a module, ...
 
-[patch 3]
+>  config JOYSTICK_ZHENHUA
+>  	tristate "5-byte Zhenhua RC transmitter"
+>  	select SERIO
+> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+> index 92dc0de..78466d6 100644
+> --- a/drivers/input/joystick/Makefile
+> +++ b/drivers/input/joystick/Makefile
+> @@ -29,6 +29,7 @@ obj-$(CONFIG_JOYSTICK_TMDC)		+= tmdc.o
+>  obj-$(CONFIG_JOYSTICK_TURBOGRAFX)	+= turbografx.o
+>  obj-$(CONFIG_JOYSTICK_TWIDJOY)		+= twidjoy.o
+>  obj-$(CONFIG_JOYSTICK_WARRIOR)		+= warrior.o
+> +obj-$(CONFIG_JOYSTICK_WIICHUCK)		+= wiichuck.o
+>  obj-$(CONFIG_JOYSTICK_XPAD)		+= xpad.o
+>  obj-$(CONFIG_JOYSTICK_ZHENHUA)		+= zhenhua.o
+>  obj-$(CONFIG_JOYSTICK_WALKERA0701)	+= walkera0701.o
+> diff --git a/drivers/input/joystick/wiichuck.c b/drivers/input/joystick/wiichuck.c
+> new file mode 100644
+> index 0000000..2afc274
+> --- /dev/null
+> +++ b/drivers/input/joystick/wiichuck.c
+> @@ -0,0 +1,225 @@
+> +/*
+> + * Nintendo Nunchuck driver for i2c connection.
+> + *
+> + * Copyright (c) 2011 Secret Lab Technologies Ltd.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + *
+> + */
+> +
+> +#include <linux/delay.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/input.h>
+> +#include <linux/input-polldev.h>
+> +#include <linux/mod_devicetable.h>
+> +#include <linux/slab.h>
+> +
+> +MODULE_AUTHOR("Grant Likely <grant.likely@secretlab.ca>");
+> +MODULE_DESCRIPTION("Nintendo Nunchuck driver");
+> +MODULE_LICENSE("GPL");
+> +
+> +#define WIICHUCK_JOY_MAX_AXIS	220
+> +#define WIICHUCK_JOY_MIN_AXIS	30
+> +#define WIICHUCK_JOY_FUZZ	4
+> +#define WIICHUCK_JOY_FLAT	8
+> +
+> +struct wiichuck_device {
+> +	struct input_polled_dev *poll_dev;
+> +	struct i2c_client *i2c_client;
+> +	int state;
+> +};
+> +
+> +static void wiichuck_poll(struct input_polled_dev *poll_dev)
+> +{
+> +	struct wiichuck_device *wiichuck = poll_dev->private;
+> +	struct i2c_client *i2c = wiichuck->i2c_client;
+> +	static uint8_t cmd_byte = 0;
+> +	struct i2c_msg cmd_msg =
+> +		{ .addr = i2c->addr, .len = 1, .buf = &cmd_byte };
+> +	uint8_t b[6];
 
-@@ -100,14 +100,22 @@ struct elantech_data {
-        unsigned char reg_26;
-        unsigned char debug;
-        unsigned char capabilities;
--       bool paritycheck;
-+       unsigned char paritycheck;
-        bool jumpy_cursor;
-+       unsigned char reports_pres :1;
-        unsigned char hw_version;
-        unsigned int fw_version;
-        unsigned int single_finger_reports;
-        unsigned char parity[256];
- };
+As mentioned by others these buffers should not be on stack.
 
-Any particular reason to use unsigned char instead of bool here, and to
-restrict report_pres to a single bit? Bool for both seems apt.
+> +	struct i2c_msg data_msg =
+> +		{ .addr = i2c->addr, .flags = I2C_M_RD, .len = 6, .buf = b };
+> +	int jx, jy, ax, ay, az;
+> +	bool c, z;
+> +
+> +	switch (wiichuck->state) {
+> +	case 0:
+> +		i2c_transfer(i2c->adapter, &cmd_msg, 1);
+> +		wiichuck->state = 1;
 
-Other than the above, which do not really need a resend, feel free to a=
-dd
+Do you really need to have a state machine here? Why not do both
+transfers in one poll invocation?
 
-    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+> +		break;
+> +
+> +	case 1:
+> +		i2c_transfer(i2c->adapter, &data_msg, 1);
+> +
+> +		jx = b[0];
+> +		jy = b[1];
+> +		ax = (b[2] << 2) & ((b[5] >> 2) & 0x3);
+> +		ay = (b[3] << 2) & ((b[5] >> 4) & 0x3);
+> +		az = (b[4] << 2) & ((b[5] >> 6) & 0x3);
+> +		z = !(b[5] & 1);
+> +		c = !(b[5] & 2);
+> +
+> +		input_report_abs(poll_dev->input, ABS_X, jx);
+> +		input_report_abs(poll_dev->input, ABS_Y, jy);
+> +		input_report_abs(poll_dev->input, ABS_RX, ax);
+> +		input_report_abs(poll_dev->input, ABS_RY, ax);
+> +		input_report_abs(poll_dev->input, ABS_RZ, ay);
+> +		input_report_key(poll_dev->input, BTN_C, c);
+> +		input_report_key(poll_dev->input, BTN_Z, z);
+> +		input_sync(poll_dev->input);
+> +
+> +		wiichuck->state = 0;
+> +		dev_dbg(&i2c->dev, "wiichuck: j=%.3i,%.3i a=%.3x,%.3x,%.3x %c%c\n",
+> +			jx,jy, ax,ay,az, c ? 'C' : 'c', z ? 'Z' : 'z');
+> +		break;
+> +
+> +	default:
+> +		wiichuck->state = 0;
+> +	}
+> +}
+> +
+> +static void wiichuck_open(struct input_polled_dev *poll_dev)
+> +{
+> +	struct wiichuck_device *wiichuck = poll_dev->private;
+> +	struct i2c_client *i2c = wiichuck->i2c_client;
+> +	static uint8_t data1[2] = { 0xf0, 0x55 };
+> +	static uint8_t data2[2] = { 0xfb, 0x00 };
+> +	struct i2c_msg msg1 = { .addr = i2c->addr, .len = 2, .buf = data1 };
+> +	struct i2c_msg msg2 = { .addr = i2c->addr, .len = 2, .buf = data2 };
+> +
+> +	i2c_transfer(i2c->adapter, &msg1, 1);
+> +	i2c_transfer(i2c->adapter, &msg2, 1);
+> +	wiichuck->state = 0;
+> +
+> +	dev_dbg(&i2c->dev, "wiichuck open()\n");
+> +}
+> +
+> +static int __devinit wiichuck_probe(struct i2c_client *client,
+> +				const struct i2c_device_id *id)
+> +{
+> +	struct wiichuck_device *wiichuck;
+> +	struct input_polled_dev *poll_dev;
+> +	struct input_dev *input_dev;
+> +	int rc;
+> +
+> +	wiichuck = kzalloc(sizeof(*wiichuck), GFP_KERNEL);
+> +	if (!wiichuck)
+> +		return -ENOMEM;
+> +
+> +	poll_dev = input_allocate_polled_device();
+> +	if (!poll_dev) {
+> +		rc = -ENOMEM;
+> +		goto err_alloc;
+> +	}
+> +
+> +	wiichuck->i2c_client = client;
+> +	wiichuck->poll_dev = poll_dev;
+> +
+> +	poll_dev->private = wiichuck;
+> +	poll_dev->poll = wiichuck_poll;
+> +	poll_dev->poll_interval = 50; /* Poll every 50ms */
+> +	poll_dev->open = wiichuck_open;
+> +
+> +	input_dev = poll_dev->input;
+> +	input_dev->name = "Nintendo Nunchuck";
+> +	input_dev->id.bustype = BUS_I2C;
+> +	input_dev->dev.parent = &client->dev;
+> +
+> +	/* Declare the events generated by this driver */
+> +	set_bit(EV_ABS, input_dev->evbit);
+> +	set_bit(ABS_X, input_dev->absbit); /* joystick */
+> +	set_bit(ABS_Y, input_dev->absbit);
+> +	set_bit(ABS_RX, input_dev->absbit); /* accelerometer */
+> +	set_bit(ABS_RY, input_dev->absbit);
+> +	set_bit(ABS_RZ, input_dev->absbit);
+> +
+> +	set_bit(EV_KEY, input_dev->evbit);
+> +	set_bit(BTN_C, input_dev->keybit); /* buttons */
+> +	set_bit(BTN_Z, input_dev->keybit);
 
-on all six patches. Thank you, =C9ric.
+I prefer __set_bit() here since there is no concurrency.
 
-Cheers,
-Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +
+> +	input_set_abs_params(input_dev, ABS_X, 30, 220, 4, 8);
+> +	input_set_abs_params(input_dev, ABS_Y, 40, 200, 4, 8);
+> +	input_set_abs_params(input_dev, ABS_RX, 0, 0x3ff, 4, 8);
+> +	input_set_abs_params(input_dev, ABS_RY, 0, 0x3ff, 4, 8);
+> +	input_set_abs_params(input_dev, ABS_RZ, 0, 0x3ff, 4, 8);
+> +
+> +	rc = input_register_polled_device(wiichuck->poll_dev);
+> +	if (rc) {
+> +		dev_err(&client->dev, "Failed to register input device\n");
+> +		goto err_register;
+> +	}
+> +
+> +	i2c_set_clientdata(client, wiichuck);
+> +
+> +	return 0;
+> +
+> + err_register:
+> +	input_free_polled_device(poll_dev);
+> + err_alloc:
+> +	kfree(wiichuck);
+> +
+> +	return rc;
+> +}
+> +
+> +static int __devexit wiichuck_remove(struct i2c_client *client)
+> +{
+> +	struct wiichuck_device *wiichuck = i2c_get_clientdata(client);
+> +
+> +	i2c_set_clientdata(client, NULL);
+> +	input_unregister_polled_device(wiichuck->poll_dev);
+> +	input_free_polled_device(wiichuck->poll_dev);
+> +	kfree(wiichuck);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct i2c_device_id wiichuck_id[] = {
+> +	{ "nunchuck", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, wiichuck_id);
+> +
+> +#ifdef CONFIG_OF
+> +static struct of_device_id wiichuck_match_table[] __devinitdata = {
+> +	{ .compatible = "nintendo,nunchuck", },
+> +	{ }
+> +};
+> +#else
+> +#define wiichuck_match_table NULL
+> +#endif
+> +
+> +static struct i2c_driver wiichuck_driver = {
+> +	.driver = {
+> +		.name = "nunchuck",
+> +		.owner = THIS_MODULE,
+> +		.of_match_table = wiichuck_match_table,
+> +	},
+> +	.probe		= wiichuck_probe,
+> +	.remove		= __devexit_p(wiichuck_remove),
+> +	.id_table	= wiichuck_id,
+> +};
+> +
+> +static int __init wiichuck_init(void)
+> +{
+> +	return i2c_add_driver(&wiichuck_driver);
+> +}
+> +module_init(wiichuck_init);
+> +
+> +static void __exit wiichuck_exit(void)
+> +{
+> +	i2c_del_driver(&wiichuck_driver);
+> +}
+> +module_exit(wiichuck_exit);
+> 
+
+Thanks.
+
+-- 
+Dmitry

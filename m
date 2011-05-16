@@ -1,34 +1,61 @@
-From: "David Christen" <davidchristen@gmail.com>
-Subject: Enable addition function keys
-Date: Mon, 16 May 2011 21:54:49 +0200
-Message-ID: <000001cc1403$1e0ede10$5a2c9a30$@com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [RFC PATCH] input: Add wiichuck driver
+Date: Mon, 16 May 2011 15:01:49 -0600
+Message-ID: <BANLkTikKPZwYWeMGsU+F0TJGa+1TCbp84g@mail.gmail.com>
+References: <20110512042218.12859.66600.stgit@localhost6.localdomain6>
+ <20110516164427.GA21232@core.coreip.homeip.net> <20110516183124.GA4875@ponder.secretlab.ca>
+ <20110516194401.GB18110@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:35637 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753607Ab1EPTyx (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:42795 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751179Ab1EPVCJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 May 2011 15:54:53 -0400
-Received: by wwa36 with SMTP id 36so5513109wwa.1
-        for <linux-input@vger.kernel.org>; Mon, 16 May 2011 12:54:52 -0700 (PDT)
-Content-Language: de-ch
+	Mon, 16 May 2011 17:02:09 -0400
+In-Reply-To: <20110516194401.GB18110@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-I have a custom made keyboard with 48 Function keys attached to an embedded
-PC running on a RISC CPU. With hid module in the kernel the regular part of
-the keyboard (i.e. all letters, num pad and Fxx keys up to F12) are working
-perfectly fine. However with the additional keys I don't get any events in
-/dev/input/event0. This is the same behavior as found on a regular Linux PC
-and also under Windows. Although the manufacturer of the keyboard confirmed
-that those keys do send proper HID codes (0x68 to 0x8b for F13 to F48).
-I don't have any experience in programming on the Kernel level. Could you
-maybe direct me in how to get the input events of those keys running?
+On Mon, May 16, 2011 at 1:44 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, May 16, 2011 at 12:31:24PM -0600, Grant Likely wrote:
+>> > > + struct i2c_msg data_msg =3D
+>> > > + =A0 =A0 =A0 =A0 { .addr =3D i2c->addr, .flags =3D I2C_M_RD, .l=
+en =3D 6, .buf =3D b };
+>> > > + int jx, jy, ax, ay, az;
+>> > > + bool c, z;
+>> > > +
+>> > > + switch (wiichuck->state) {
+>> > > + case 0:
+>> > > + =A0 =A0 =A0 =A0 i2c_transfer(i2c->adapter, &cmd_msg, 1);
+>> > > + =A0 =A0 =A0 =A0 wiichuck->state =3D 1;
+>> >
+>> > Do you really need to have a state machine here? Why not do both
+>> > transfers in one poll invocation?
+>>
+>> Mostly because there needs to a gap between setting up the data
+>> capture and reading the data back.
+>
+> How long is the gap? You should be able simply sleep in the poll().
 
-Thank you in advance,
-David
+50ms (from what information I've been able to gleen; it might be
+faster).  Since I'm already polling the controller at 100ms, a 50ms
+sleep in the poll routine would pretty much completely consume the
+workqueue if 2 or more wii extension devices were attached to the
+system.  Voluntarily giving it up is the right thing to do.
 
+That said, the problem is moot since I've modified the read state to
+setup the next transfer immediately after reading the data.  :-)
+
+Revised patch posted shortly...
+
+g.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

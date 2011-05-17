@@ -1,148 +1,98 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3 1/2] input: pmic8xxx-keypad: Add row and column gpio
- configuration
-Date: Mon, 16 May 2011 23:37:23 -0700
-Message-ID: <20110517063723.GF20428@core.coreip.homeip.net>
-References: <1305280071-1652-1-git-send-email-aghayal@codeaurora.org>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [PATCH 1/5] tsc2007: Debounce pressure measurement.
+Date: Tue, 17 May 2011 08:45:11 +0200
+Message-ID: <20110517064511.GB16262@avionic-0098.mockup.avionic-design.de>
+References: <1305534783-4917-1-git-send-email-thierry.reding@avionic-design.de>
+ <20110517060241.GC20428@core.coreip.homeip.net>
+ <20110517062715.GA16262@avionic-0098.mockup.avionic-design.de>
+ <20110517063247.GD20428@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f173.google.com ([209.85.212.173]:63698 "EHLO
-	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751926Ab1EQGh3 (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:63495 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752493Ab1EQGpX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 May 2011 02:37:29 -0400
+	Tue, 17 May 2011 02:45:23 -0400
 Content-Disposition: inline
-In-Reply-To: <1305280071-1652-1-git-send-email-aghayal@codeaurora.org>
+In-Reply-To: <20110517063247.GD20428@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anirudh Ghayal <aghayal@codeaurora.org>
-Cc: linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Kwangwoo Lee <kwangwoo.lee@gmail.com>
 
-On Fri, May 13, 2011 at 03:17:50PM +0530, Anirudh Ghayal wrote:
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
 
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
+--BwCQnh7xodEAoBMC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->  drivers/input/keyboard/pmic8xxx-keypad.c |   58 ++++++++++++++++++++++++++++++
->  include/linux/input/pmic8xxx-keypad.h    |    2 +
->  2 files changed, 60 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
-> index 0229325..40b02ae 100644
-> --- a/drivers/input/keyboard/pmic8xxx-keypad.c
-> +++ b/drivers/input/keyboard/pmic8xxx-keypad.c
-> @@ -21,6 +21,7 @@
->  #include <linux/mutex.h>
->  
->  #include <linux/mfd/pm8xxx/core.h>
-> +#include <linux/mfd/pm8xxx/gpio.h>
->  #include <linux/input/pmic8xxx-keypad.h>
->  
->  #define PM8XXX_MAX_ROWS		18
-> @@ -446,6 +447,27 @@ static int __devinit pmic8xxx_kpd_init(struct pmic8xxx_kp *kp)
->  
->  }
->  
-> +static int  __devinit pmic8xxx_kp_config_gpio(int gpio_start, int num_gpios,
-> +			struct pmic8xxx_kp *kp, struct pm_gpio *gpio_config)
-> +{
-> +	int	rc, i;
-> +
-> +	if (gpio_start < 0 || num_gpios < 0)
-> +		return -EINVAL;
-> +
-> +	for (i = 0; i < num_gpios; i++) {
-> +		rc = pm8xxx_gpio_config(gpio_start + i, gpio_config);
-> +		if (rc) {
-> +			dev_err(kp->dev, "%s: FAIL pm8xxx_gpio_config():"
-> +					"for PM GPIO [%d] rc=%d.\n",
-> +					__func__, gpio_start + i, rc);
-> +			return rc;
-> +		}
-> +	 }
-> +
-> +	return 0;
-> +}
-> +
->  static int pmic8xxx_kp_enable(struct pmic8xxx_kp *kp)
->  {
->  	int rc;
-> @@ -504,6 +526,27 @@ static int __devinit pmic8xxx_kp_probe(struct platform_device *pdev)
->  	int rc;
->  	u8 ctrl_val;
->  
-> +	struct pm_gpio kypd_drv = {
-> +		.direction	= PM_GPIO_DIR_OUT,
-> +		.output_buffer	= PM_GPIO_OUT_BUF_OPEN_DRAIN,
-> +		.output_value	= 0,
-> +		.pull		= PM_GPIO_PULL_NO,
-> +		.vin_sel	= PM_GPIO_VIN_S3,
-> +		.out_strength	= PM_GPIO_STRENGTH_LOW,
-> +		.function	= PM_GPIO_FUNC_1,
-> +		.inv_int_pol	= 1,
-> +	};
-> +
-> +	struct pm_gpio kypd_sns = {
-> +		.direction	= PM_GPIO_DIR_IN,
-> +		.pull		= PM_GPIO_PULL_UP_31P5,
-> +		.vin_sel	= PM_GPIO_VIN_S3,
-> +		.out_strength	= PM_GPIO_STRENGTH_NO,
-> +		.function	= PM_GPIO_FUNC_NORMAL,
-> +		.inv_int_pol	= 1,
-> +	};
-> +
-> +
->  	if (!pdata || !pdata->num_cols || !pdata->num_rows ||
->  		pdata->num_cols > PM8XXX_MAX_COLS ||
->  		pdata->num_rows > PM8XXX_MAX_ROWS ||
-> @@ -609,6 +652,20 @@ static int __devinit pmic8xxx_kp_probe(struct platform_device *pdev)
->  		goto err_get_irq;
->  	}
->  
-> +	rc = pmic8xxx_kp_config_gpio(pdata->cols_gpio_start,
-> +					pdata->num_cols, kp, &kypd_sns);
-> +	if (rc < 0) {
-> +		dev_err(&pdev->dev, "unable to configure keypad sense lines\n");
-> +		goto err_gpio_config;
-> +	}
-> +
-> +	rc = pmic8xxx_kp_config_gpio(pdata->rows_gpio_start,
-> +					pdata->num_rows, kp, &kypd_drv);
-> +	if (rc < 0) {
-> +		dev_err(&pdev->dev, "unable to configure keypad drive lines\n");
-> +		goto err_gpio_config;
-> +	}
-> +
->  	rc = request_any_context_irq(kp->key_sense_irq, pmic8xxx_kp_irq,
->  				 IRQF_TRIGGER_RISING, "pmic-keypad", kp);
->  	if (rc < 0) {
-> @@ -645,6 +702,7 @@ err_pmic_reg_read:
->  	free_irq(kp->key_stuck_irq, NULL);
->  err_req_stuck_irq:
->  	free_irq(kp->key_sense_irq, NULL);
-> +err_gpio_config:
->  err_get_irq:
->  	input_free_device(kp->input);
->  err_alloc_device:
-> diff --git a/include/linux/input/pmic8xxx-keypad.h b/include/linux/input/pmic8xxx-keypad.h
-> index fc2ac4c..5f1e2f9 100644
-> --- a/include/linux/input/pmic8xxx-keypad.h
-> +++ b/include/linux/input/pmic8xxx-keypad.h
-> @@ -38,6 +38,8 @@ struct pm8xxx_keypad_platform_data {
->  
->  	unsigned int num_cols;
->  	unsigned int num_rows;
-> +	unsigned int rows_gpio_start;
-> +	unsigned int cols_gpio_start;
->  
->  	unsigned int debounce_ms;
->  	unsigned int scan_delay_ms;
-> -- 
-> Sent by a consultant of the Qualcomm Innovation Center, Inc.\nThe Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
-> 
+* Dmitry Torokhov wrote:
+> On Tue, May 17, 2011 at 08:27:16AM +0200, Thierry Reding wrote:
+> > [Cc'ing Kwangwoo via the alternate email address]
+> >=20
+> > * Dmitry Torokhov wrote:
+> > > On Mon, May 16, 2011 at 10:32:59AM +0200, Thierry Reding wrote:
+> > > > When the controller signals a pen-down event via the platform-speci=
+fic
+> > > > GPIO, while the sample values indicate an invalid measurement, the
+> > > > measurement needs to be repeated.
+> > > >=20
+> > >=20
+> > > Would not we be interrupted again and take another sample then?
+> >=20
+> > Not necessarily. The problem is that if the pendown GPIO reports pendow=
+n, it
+> > doesn't necessarily mean that the pressure measurement will be valid. T=
+his is
+> > especially true if max_rt is configurable (as introduced by one of the
+> > follow-up patchs).
+> >=20
+> > What happens is that we are interrupted, check the GPIO to see that the=
+ pen
+> > is indeed down and then read the values and compute the pressure to see=
+ that
+> > it is invalid and we stop sampling. The TSC2007's nPEN_IRQ line never g=
+oes
+> > high again after that because the pen is still down (according to the G=
+PIO).
+> >=20
+> > The comment in the old code of the (rt > max_rt) even says "[...] repea=
+t at
+> > least once more the measurement", which the old code actually doesn't.
+> >=20
+>=20
+> I see. I am concerned with resubmitting work over and over when we do
+> not have ts->get_pendown_state method.
 
--- 
-Dmitry
+I hadn't thought about that case. But it seems as if that case should behave
+the same and stop rescheduling work as soon as no pressure is applied and rt
+becomes 0.
+
+Perhaps if I change this:
+
+	debounced =3D true;
+
+into
+
+	if (ts->get_pendown_state)
+		debounced =3D true;
+
+it becomes more obvious that this "fix" only applies to the case where the
+GPIO and pressure measurement contradict each other.
+
+Thierry
+
+--BwCQnh7xodEAoBMC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk3SGXcACgkQZ+BJyKLjJp80WQCgpcl5ICekSldE+t4CwNJi4aus
+8lUAoItWFrXf78+EDi6QWUYiThdL8jOf
+=d7ut
+-----END PGP SIGNATURE-----
+
+--BwCQnh7xodEAoBMC--

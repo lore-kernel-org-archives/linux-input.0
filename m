@@ -1,101 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/6] elantech extend version support and add semi-mt
-Date: Mon, 16 May 2011 22:44:32 -0700
-Message-ID: <20110517054432.GA20428@core.coreip.homeip.net>
-References: <4DCE24BE.70908@tudelft.nl>
- <20110516111552.GA10453@polaris.bitmath.org>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [PATCH 2/5] tsc2007: Add max_rt module parameter.
+Date: Tue, 17 May 2011 07:46:20 +0200
+Message-ID: <20110517054620.GB9943@avionic-0098.mockup.avionic-design.de>
+References: <1305534783-4917-1-git-send-email-thierry.reding@avionic-design.de>
+ <1305534783-4917-2-git-send-email-thierry.reding@avionic-design.de>
+ <20110516165300.GB21232@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:42000 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751736Ab1EQFoj (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:53900 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751625Ab1EQFq2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 May 2011 01:44:39 -0400
-Received: by pwi15 with SMTP id 15so128725pwi.19
-        for <linux-input@vger.kernel.org>; Mon, 16 May 2011 22:44:39 -0700 (PDT)
+	Tue, 17 May 2011 01:46:28 -0400
 Content-Disposition: inline
-In-Reply-To: <20110516111552.GA10453@polaris.bitmath.org>
+In-Reply-To: <20110516165300.GB21232@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Chris Bagwell <chris@cnpbagwell.com>, Florian Ragwitz <rafl@debian.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Kwangwoo Lee <kwlee@mtekvision.com>
 
-On Mon, May 16, 2011 at 01:15:52PM +0200, Henrik Rydberg wrote:
-> Hi =C9ric,
+
+--GRPZ8SYKNexpdSJ7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+* Dmitry Torokhov wrote:
+> Hi Thierry,
 >=20
-> > Here is an update of patches which I had sent quite a few monthes
-> > ago. At this time they were a bit controversial because the hardwar=
-e
-> > reports only the minimum/maximum positions when two fingers are
-> > pressed. With the "semi-mt" property from Henrik that should now be
-> > well handled.
+> On Mon, May 16, 2011 at 10:33:00AM +0200, Thierry Reding wrote:
+> > Finger touch events or very quick stylus events on low-quality panels
+> > can cause the tsc2007 to read bogus values. Looking at oscilloscope
+> > snapshots, this seems to be caused by the touch event disappearing
+> > during the measurements. These bogus values result in misclicks, where
+> > the X and Y values deviate from the real position.
 > >=20
-> > The first few patches of this set should also add support for a few
-> > more hardware versions. I could not test all the hardware versions
-> > but it's based on the old Dell/Ubuntu driver and if it goes into
-> > Linus's tree during the merge window I'm confident we can catch and
-> > easily fix regressions :-)
+> > Most of these misclicks can be filtered out by setting a low enough
+> > threshold for the maximum resistance (which is loosely the inverse of
+> > the pressure) allowed to consider a set of values valid. Since this
+> > behaviour is largely dependent on the type and quality of the panel,
+> > this commit introduces the max_rt parameter. The default value is kept
+> > at MAX_12BIT.
 >=20
-> Excellent work, thank you so much. A couple of tiny tiny details:
->=20
-> [patch 1]
->=20
-> +In the wild, there appear to be more versions, such as 04.03.01, 04.=
-04.11. There
-> +appear to be almost no difference excepted the EF113 which do not re=
-port
->=20
-> no difference, except
->=20
-> [patch 3]
->=20
-> @@ -100,14 +100,22 @@ struct elantech_data {
->         unsigned char reg_26;
->         unsigned char debug;
->         unsigned char capabilities;
-> -       bool paritycheck;
-> +       unsigned char paritycheck;
->         bool jumpy_cursor;
-> +       unsigned char reports_pres :1;
->         unsigned char hw_version;
->         unsigned int fw_version;
->         unsigned int single_finger_reports;
->         unsigned char parity[256];
->  };
->=20
-> Any particular reason to use unsigned char instead of bool here, and =
-to
-> restrict report_pres to a single bit? Bool for both seems apt.
->=20
-> Other than the above, which do not really need a resend, feel free to=
- add
->=20
->     Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
->=20
-> on all six patches. Thank you, =C9ric.
->=20
+> I expect that the values, once selected, will not be changed for a given
+> panel, so why don't we pass max_rt (and poll_delay and poll_interval) vi
+> platform (board) data instead of being module parameters?
 
-Eric,
+I was using module parameters because it allows the parameters to be tuned =
+at
+runtime. You are correct however in that they don't vary after being select=
+ed
+once. I can resend an updated patch series with those parameters added to t=
+he
+platform data if you prefer.
 
-Thank you for working on this. I applied patches 1 and 4-6; 3rd require=
-d
-some changes but since they were minor I retained Henrik's reviewed-by.
+By the way, Kwangwoo's email address no longer seems to be valid. Searching
+the kernel tree, there also seems to be kwangwoo.lee@gmail.com. Do you know
+if it is current?
 
-I am not happy with the protocol checks from Dell, I am not sure they
-make much sense; so I dropped patch 3 for now and because of that patch
-2 did not make much sense either. Actually patch 2 did not make sense o=
-n
-its own in any case as it should have been partially rolled into 3 and
-partially into 4.
+Thierry
 
-Thanks.
+--GRPZ8SYKNexpdSJ7
+Content-Type: application/pgp-signature
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk3SC6wACgkQZ+BJyKLjJp+07gCfTluFYJy5X/5XYYVadPU7vAX+
+ez0An3i0ppuPNAV3ce0rR1xpBFiyLTpa
+=6BMZ
+-----END PGP SIGNATURE-----
+
+--GRPZ8SYKNexpdSJ7--

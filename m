@@ -1,46 +1,39 @@
-From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: Re: [PATCH V3 2/2] input: pmic8xxx_pwrkey: Add support for power
- key
-Date: Tue, 17 May 2011 16:26:27 +0530
-Message-ID: <4DD2545B.9090005@codeaurora.org>
-References: <1305280071-1652-1-git-send-email-aghayal@codeaurora.org> <1305280071-1652-2-git-send-email-aghayal@codeaurora.org> <20110517063651.GE20428@core.coreip.homeip.net>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH v2 1/6] input: misc: AD714x: The interrupt status
+ registers should be read in row.
+Date: Tue, 17 May 2011 12:01:27 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917713AAF21C14E@LIMKCMBX1.ad.analog.com>
+References: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20110517063651.GE20428@core.coreip.homeip.net>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>, adharmap@codeaurora.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from va3ehsobe005.messaging.microsoft.com ([216.32.180.31]:31002
+	"EHLO VA3EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753432Ab1EQLBe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 May 2011 07:01:34 -0400
+In-Reply-To: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jeff.dagenais@gmail.com" <jeff.dagenais@gmail.com>, Drivers <Drivers@analog.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
 
-Hi Samuel,
+Hi Dmitry,
 
-Can you please pull this patch in your MFD tree. 
-https://patchwork.kernel.org/patch/782212/.
-This patch depends on the pm8xxx MFD core.
+I noticed you added patches 2/6, 3/6, 4/6 and 5/6 to your next tree.
+But how about these ones?
 
-Thank you,
-~Anirudh
+[PATCH v2 1/6] input: misc: AD714x: The interrupt status registers should be read in row.
+[PATCH v2 6/6] input: misc: AD714x: Fix endianness issues.
 
-On 5/17/2011 12:06 PM, Dmitry Torokhov wrote:
-> On Fri, May 13, 2011 at 03:17:51PM +0530, Anirudh Ghayal wrote:
->> From: Trilok Soni<tsoni@codeaurora.org>
->>
->> Add support for PMIC8XXX power key driven over dedicated
->> KYPD_PWR_N pin.
->>
->> Cc: Dmitry Torokhov<dmitry.torokhov@gmail.com>
->> Signed-off-by: Trilok Soni<tsoni@codeaurora.org>
->> Signed-off-by: Anirudh Ghayal<aghayal@codeaurora.org>
->
-> Acked-by: Dmitry Torokhov<dtor@mail.ru>
->
-> Anirudh,
->
-> Looks great, thank you for making changes. Please feel free to merge
-> with the rest of the pmic8xxx MFD patches. I assume they will go through
-> MFD tree, right?
->
-> Thanks.
->
+Greetings,
+Michael
+
+--
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368; Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
+
+
+

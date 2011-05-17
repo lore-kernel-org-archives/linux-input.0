@@ -1,58 +1,19 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: [PATCH v2 1/5] tsc2007: Debounce pressure measurement.
-Date: Tue, 17 May 2011 10:56:08 +0200
-Message-ID: <1305622572-3154-1-git-send-email-thierry.reding@avionic-design.de>
+From: "Western Union Money Transfer" <wudept9@w.cn>
+Subject: Confirm Receipt
+Date: Tue, 17 May 2011 05:28:19 -0300 (BRT)
+Message-ID: <59481.187.16.249.134.1305620899.squirrel@webmail.usb.org.br>
+Reply-To: wudept9@w.cn
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.10]:60336 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752235Ab1EQI4c (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 May 2011 04:56:32 -0400
+Received: from usb.org.br ([200.178.205.154]:58254 "EHLO usb.org.br"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752303Ab1EQJOB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 May 2011 05:14:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kwangwoo Lee <kwangwoo.lee@gmail.com>
 
-When the controller signals a pen-down event via the platform-specific
-GPIO, while the sample values indicate an invalid measurement, the
-measurement needs to be repeated.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Kwangwoo Lee <kwangwoo.lee@gmail.com>
-Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
----
- drivers/input/touchscreen/tsc2007.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-index 80467f2..df4ae35 100644
---- a/drivers/input/touchscreen/tsc2007.c
-+++ b/drivers/input/touchscreen/tsc2007.c
-@@ -156,6 +156,7 @@ static void tsc2007_work(struct work_struct *work)
- {
- 	struct tsc2007 *ts =
- 		container_of(to_delayed_work(work), struct tsc2007, work);
-+	bool debounced = false;
- 	struct ts_event tc;
- 	u32 rt;
- 
-@@ -191,6 +192,7 @@ static void tsc2007_work(struct work_struct *work)
- 		 * repeat at least once more the measurement.
- 		 */
- 		dev_dbg(&ts->client->dev, "ignored pressure %d\n", rt);
-+		debounced = true;
- 		goto out;
- 
- 	}
-@@ -225,7 +227,7 @@ static void tsc2007_work(struct work_struct *work)
- 	}
- 
-  out:
--	if (ts->pendown)
-+	if (ts->pendown || debounced)
- 		schedule_delayed_work(&ts->work,
- 				      msecs_to_jiffies(TS_POLL_PERIOD));
- 	else
--- 
-1.7.5.1
+You have a money transfer of 85,000 USD. Confirm receipt with your name and
+country via email: engwutf@live.co.uk
 

@@ -1,26 +1,27 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid-multitouch: Add support for Lumio panels
-Date: Wed, 18 May 2011 15:36:28 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105181536150.28291@pobox.suse.cz>
-References: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH v2] HID: roccat: fixing actual/startup profile sysfs
+ attribute in koneplus
+Date: Wed, 18 May 2011 16:34:46 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105181634360.28291@pobox.suse.cz>
+References: <1302444165.12514.2.camel@neuromancer> <1302707872.2252.3.camel@neuromancer>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57641 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932880Ab1ERNgc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 May 2011 09:36:32 -0400
-In-Reply-To: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1302707872.2252.3.camel@neuromancer>
+Sender: linux-doc-owner@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 18 May 2011, Benjamin Tissoires wrote:
+On Wed, 13 Apr 2011, Stefan Achatz wrote:
 
-> This patch enables support for Lumio optical devices.
+> startup_profile and actual_profile didn't work as expected. Also
+> as the actual profile is persistent, the distinction between the
+> two was ambiguous, so both use the same code now and startup_profile
+> has been deprecated. Also the event is now propagated through
+> chardev. 
 
-Applied, thanks Benjamin.
+Applied.
 
 -- 
 Jiri Kosina

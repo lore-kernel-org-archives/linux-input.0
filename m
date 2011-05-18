@@ -1,105 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] input: members 'name' and 'phys' of 'struct hid_device'
- can never be NULL
-Date: Wed, 18 May 2011 13:24:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105181323360.28291@pobox.suse.cz>
-References: <1305475662-4478-1-git-send-email-zonque@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:46888 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932168Ab1ERLYJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 May 2011 07:24:09 -0400
-In-Reply-To: <1305475662-4478-1-git-send-email-zonque@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: [PATCH 1/2] pwm: Add stubs for pwm operations
+Date: Wed, 18 May 2011 18:30:52 +0530
+Message-ID: <1305723652-22737-1-git-send-email-mpallaka@codeaurora.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rmk-MIedHU+rSCMANfyc6IWni62ZND6+EDdj@public.gmane.org, Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <zonque@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
 
-On Sun, 15 May 2011, Daniel Mack wrote:
+Chip drivers that support both pwm and non-pwm modes
+would encounter compilation errors if the platform doesn't
+have support for pwm, even though the chip is programmed
+to work in non-pwm mode. Add stubs for pwm functions to
+avoid compilation errors in these scenarios.
 
-> As they are static members of fix size, there is no need to them.
-> 
-> Signed-off-by: Daniel Mack <zonque@gmail.com>
-> Cc: Dmitry Torokhov <dtor@mail.ru>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> ---
->  drivers/hid/hidraw.c        |   14 ++------------
->  drivers/hid/usbhid/hiddev.c |   18 ++----------------
->  2 files changed, 4 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index 54409cb..3dd1877 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -395,12 +395,7 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
->  				}
->  
->  				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWNAME(0))) {
-> -					int len;
-> -					if (!hid->name) {
-> -						ret = 0;
-> -						break;
-> -					}
-> -					len = strlen(hid->name) + 1;
-> +					int len = strlen(hid->name) + 1;
->  					if (len > _IOC_SIZE(cmd))
->  						len = _IOC_SIZE(cmd);
->  					ret = copy_to_user(user_arg, hid->name, len) ?
-> @@ -409,12 +404,7 @@ static long hidraw_ioctl(struct file *file, unsigned int cmd,
->  				}
->  
->  				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWPHYS(0))) {
-> -					int len;
-> -					if (!hid->phys) {
-> -						ret = 0;
-> -						break;
-> -					}
-> -					len = strlen(hid->phys) + 1;
-> +					int len = strlen(hid->phys) + 1;
->  					if (len > _IOC_SIZE(cmd))
->  						len = _IOC_SIZE(cmd);
->  					ret = copy_to_user(user_arg, hid->phys, len) ?
-> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-> index af0a7c1..5ca9c35 100644
-> --- a/drivers/hid/usbhid/hiddev.c
-> +++ b/drivers/hid/usbhid/hiddev.c
-> @@ -801,14 +801,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->  			break;
->  
->  		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGNAME(0))) {
-> -			int len;
-> -
-> -			if (!hid->name) {
-> -				r = 0;
-> -				break;
-> -			}
-> -
-> -			len = strlen(hid->name) + 1;
-> +			int len = strlen(hid->name) + 1;
->  			if (len > _IOC_SIZE(cmd))
->  				 len = _IOC_SIZE(cmd);
->  			r = copy_to_user(user_arg, hid->name, len) ?
-> @@ -817,14 +810,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->  		}
->  
->  		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGPHYS(0))) {
-> -			int len;
-> -
-> -			if (!hid->phys) {
-> -				r = 0;
-> -				break;
-> -			}
-> -
-> -			len = strlen(hid->phys) + 1;
-> +			int len = strlen(hid->phys) + 1;
->  			if (len > _IOC_SIZE(cmd))
->  				len = _IOC_SIZE(cmd);
->  			r = copy_to_user(user_arg, hid->phys, len) ?
+Change-Id: Iec4c55fce253bda809947672be82a7bd14bcd663
+Signed-off-by: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+---
+ include/linux/pwm.h |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
 
-Applied, thanks.
-
+diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+index 7c77575..a3cb33f 100644
+--- a/include/linux/pwm.h
++++ b/include/linux/pwm.h
+@@ -3,6 +3,7 @@
+ 
+ struct pwm_device;
+ 
++#if defined(CONFIG_HAVE_PWM)
+ /*
+  * pwm_request - request a PWM device
+  */
+@@ -28,4 +29,27 @@ int pwm_enable(struct pwm_device *pwm);
+  */
+ void pwm_disable(struct pwm_device *pwm);
+ 
++#else
++
++struct pwm_device *pwm_request(int pwm_id, const char *label)
++{
++	return NULL;
++}
++
++void pwm_free(struct pwm_device *pwm) { }
++
++int pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns)
++{
++	return -EINVAL;
++}
++
++int pwm_enable(struct pwm_device *pwm)
++{
++	return -EINVAL;
++}
++
++void pwm_disable(struct pwm_device *pwm) { }
++
++
++#endif /* CONFIG_PWM */
+ #endif /* __LINUX_PWM_H */
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.1.1

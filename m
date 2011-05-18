@@ -1,64 +1,81 @@
-From: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: [PATCH 1/2] pwm: Add stubs for pwm operations
-Date: Wed, 18 May 2011 18:30:52 +0530
-Message-ID: <1305723652-22737-1-git-send-email-mpallaka@codeaurora.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rmk-MIedHU+rSCMANfyc6IWni62ZND6+EDdj@public.gmane.org, Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: [PATCH] hid-multitouch: Add support for Lumio panels
+Date: Wed, 18 May 2011 15:27:24 +0200
+Message-ID: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:40864 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757244Ab1ERN1g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 May 2011 09:27:36 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-Chip drivers that support both pwm and non-pwm modes
-would encounter compilation errors if the platform doesn't
-have support for pwm, even though the chip is programmed
-to work in non-pwm mode. Add stubs for pwm functions to
-avoid compilation errors in these scenarios.
+This patch enables support for Lumio optical devices.
 
-Change-Id: Iec4c55fce253bda809947672be82a7bd14bcd663
-Signed-off-by: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- include/linux/pwm.h |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
+ drivers/hid/Kconfig          |    1 +
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    3 +++
+ drivers/hid/hid-multitouch.c |    5 +++++
+ 4 files changed, 10 insertions(+), 0 deletions(-)
 
-diff --git a/include/linux/pwm.h b/include/linux/pwm.h
-index 7c77575..a3cb33f 100644
---- a/include/linux/pwm.h
-+++ b/include/linux/pwm.h
-@@ -3,6 +3,7 @@
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index d9635d6..5a54b13 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -308,6 +308,7 @@ config HID_MULTITOUCH
+ 	  - Hanvon dual touch panels
+ 	  - Ilitek dual touch panel
+ 	  - IrTouch Infrared USB panels
++	  - Lumio CrystalTouch panels
+ 	  - MosArt dual-touch panels
+ 	  - PenMount dual touch panels
+ 	  - Pixcir dual touch panels
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 77f27ed..8a3ae13 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1411,6 +1411,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LUMIO, USB_DEVICE_ID_CRYSTALTOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTLOADER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 2e46eb2..a8c46b0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -411,6 +411,9 @@
+ #define USB_DEVICE_ID_DINOVO_MINI	0xc71f
+ #define USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2	0xca03
  
- struct pwm_device;
++#define USB_VENDOR_ID_LUMIO		0x202e
++#define USB_DEVICE_ID_CRYSTALTOUCH	0x0006
++
+ #define USB_VENDOR_ID_MCC		0x09db
+ #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
+ #define USB_DEVICE_ID_MCC_PMD1208LS	0x007a
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index b21251b..ef33e2d 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -599,6 +599,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_IRTOUCHSYSTEMS,
+ 			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
  
-+#if defined(CONFIG_HAVE_PWM)
- /*
-  * pwm_request - request a PWM device
-  */
-@@ -28,4 +29,27 @@ int pwm_enable(struct pwm_device *pwm);
-  */
- void pwm_disable(struct pwm_device *pwm);
- 
-+#else
++	/* Lumio panels */
++	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
++		HID_USB_DEVICE(USB_VENDOR_ID_LUMIO,
++			USB_DEVICE_ID_CRYSTALTOUCH) },
 +
-+struct pwm_device *pwm_request(int pwm_id, const char *label)
-+{
-+	return NULL;
-+}
-+
-+void pwm_free(struct pwm_device *pwm) { }
-+
-+int pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns)
-+{
-+	return -EINVAL;
-+}
-+
-+int pwm_enable(struct pwm_device *pwm)
-+{
-+	return -EINVAL;
-+}
-+
-+void pwm_disable(struct pwm_device *pwm) { }
-+
-+
-+#endif /* CONFIG_PWM */
- #endif /* __LINUX_PWM_H */
+ 	/* MosArt panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_ASUS,
 -- 
-1.7.1.1
+1.7.4.4
+

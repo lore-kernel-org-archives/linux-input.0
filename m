@@ -1,20 +1,20 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 3/6] hid-multitouch: add support for GoodTouch panels
-Date: Thu, 19 May 2011 14:18:15 +0200
-Message-ID: <1305807498-8785-4-git-send-email-benjamin.tissoires__567.348188678984$1305807624$gmane$org@enac.fr>
+Subject: [PATCH 2/6] hid-multitouch: add support for CVTouch panels
+Date: Thu, 19 May 2011 14:18:14 +0200
+Message-ID: <1305807498-8785-3-git-send-email-benjamin.tissoires__12805.5223184221$1305807624$gmane$org@enac.fr>
 References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:57172 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:57167 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756931Ab1ESMSs (ORCPT
+	with ESMTP id S1755929Ab1ESMSo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2011 08:18:48 -0400
+	Thu, 19 May 2011 08:18:44 -0400
 In-Reply-To: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-This patch introduce support for GoodTouch panels.
+This patch introduce support for CVTouch panels.
 This device has not been optimized in term of kernel processing
 operations (default class), but it will work.
 
@@ -27,59 +27,59 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
  4 files changed, 10 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 69a2cc9..10b8f90 100644
+index e240f8f..69a2cc9 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -308,6 +308,7 @@ config HID_MULTITOUCH
- 	  - CVTouch panels
+@@ -305,6 +305,7 @@ config HID_MULTITOUCH
+ 	  - 3M PCT touch screens
+ 	  - ActionStar dual touch panels
+ 	  - Cando dual touch panel
++	  - CVTouch panels
  	  - Cypress TrueTouch panels
  	  - Elo TouchSystems IntelliTouch Plus panels
-+	  - GoodTouch panels
  	  - Hanvon dual touch panels
- 	  - Ilitek dual touch panel
- 	  - IrTouch Infrared USB panels
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index dbe949a..02c6c93 100644
+index 1e7889b..dbe949a 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1377,6 +1377,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GOODTOUCH, USB_DEVICE_ID_GOODTOUCH_000f) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
+@@ -1357,6 +1357,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CVTOUCH, USB_DEVICE_ID_CVTOUCH_SCREEN) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_3) },
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f617acb..7db188f 100644
+index 8ab0fc0..f617acb 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -262,6 +262,9 @@
- #define USB_DEVICE_ID_0_8_8_IF_KIT	0x0053
- #define USB_DEVICE_ID_PHIDGET_MOTORCONTROL	0x0058
+@@ -185,6 +185,9 @@
+ #define USB_VENDOR_ID_CREATIVELABS	0x041e
+ #define USB_DEVICE_ID_PRODIKEYS_PCMIDI	0x2801
  
-+#define USB_VENDOR_ID_GOODTOUCH		0x1aad
-+#define USB_DEVICE_ID_GOODTOUCH_000f	0x000f
++#define USB_VENDOR_ID_CVTOUCH		0x1ff7
++#define USB_DEVICE_ID_CVTOUCH_SCREEN	0x0013
 +
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
- #define USB_DEVICE_ID_GOGOPEN		0x00ce
+ #define USB_VENDOR_ID_CYGNAL		0x10c4
+ #define USB_DEVICE_ID_CYGNAL_RADIO_SI470X	0x818a
+ 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index af8789a..76ef60d 100644
+index 10a8c76..af8789a 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -609,6 +609,11 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
- 			USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS) },
+@@ -589,6 +589,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 			USB_DEVICE_ID_CANDO_MULTI_TOUCH_15_6) },
  
-+	/* GoodTouch panels */
++	/* CVTouch panels */
 +	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_GOODTOUCH,
-+			USB_DEVICE_ID_GOODTOUCH_000f) },
++		HID_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
++			USB_DEVICE_ID_CVTOUCH_SCREEN) },
 +
- 	/* Ilitek dual touch panel */
- 	{  .driver_data = MT_CLS_DEFAULT,
- 		HID_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+ 	/* Cypress panel */
+ 	{ .driver_data = MT_CLS_CYPRESS,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
 -- 
 1.7.4.4
 

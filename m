@@ -1,90 +1,92 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 5/6] hid-multitouch: add support for Unitec panels
-Date: Thu, 19 May 2011 14:18:17 +0200
-Message-ID: <1305807498-8785-6-git-send-email-benjamin.tissoires__13813.7240116068$1305807630$gmane$org@enac.fr>
-References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: 35022: hid-magicmouse broken
+Date: Thu, 19 May 2011 09:13:07 -0400
+Message-ID: <4DD51763.1020209@canonical.com>
+References: <4DD26CB8.7070409@canonical.com> <alpine.LNX.2.00.1105171448230.28291@pobox.suse.cz> <4DD2C913.4000403@canonical.com> <alpine.LNX.2.00.1105191357350.28291@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:35228 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932507Ab1ESMTB (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:48710 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932671Ab1ESNNL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2011 08:19:01 -0400
-In-Reply-To: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
+	Thu, 19 May 2011 09:13:11 -0400
+In-Reply-To: <alpine.LNX.2.00.1105191357350.28291@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Ott <alan@signal11.us>
 
-This patch introduce support for Unitec panels.
-This device has not been optimized in term of kernel processing
-operations (default class), but it will work.
+On 05/19/2011 07:59 AM, Jiri Kosina wrote:
+> On Tue, 17 May 2011, Chase Douglas wrote:
+>=20
+>>>> It seems hid_output_raw_report() is returning a different (incorre=
+ct?)
+>>>> value than in the past. Do you know what might be going on?
+>>>
+>>> So we are getting EIO from the transport-level _raw callback.
+>>>
+>>> Hmm, commit 0825411ade seems like a suspect here. Might be possible=
+ that=20
+>>> magicmouse doesn't send ACK back, right?
+>>>
+>>> Could you please try reverting that commit and re-test?
+>>
+>> Yes, reverting that commit makes it work.
+>>
+>> I'm just speculating here, based on commit message names and what yo=
+u've
+>> said, that the magicmouse is not protocol compliant because it is no=
+t
+>> sending an ACK back?=20
+>=20
+> Yes, I believe that's what is happening. Could you please report what=
+ is=20
+> the dmesg output with the patch below, just to make sure that we=20
+> understand the situation precisely?
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
----
- drivers/hid/Kconfig          |    1 +
- drivers/hid/hid-core.c       |    2 ++
- drivers/hid/hid-ids.h        |    4 ++++
- drivers/hid/hid-multitouch.c |    8 ++++++++
- 4 files changed, 15 insertions(+), 0 deletions(-)
+Here's the output in dmesg:
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 7a53d8e..6145f2e 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -321,6 +321,7 @@ config HID_MULTITOUCH
- 	    Joojoo and Wetab tablets
- 	  - Stantum multitouch panels
- 	  - Touch International Panels
-+	  - Unitec Panels
- 
- 	  If unsure, say N.
- 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 4539aa1..e811b81 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1486,6 +1486,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0709) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 0f6aa2f..e715c43 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -607,6 +607,10 @@
- #define USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U	0x0004
- #define USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U	0x0005
- 
-+#define USB_VENDOR_ID_UNITEC	0x227d
-+#define USB_DEVICE_ID_UNITEC_USB_TOUCH_0709	0x0709
-+#define USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19	0x0a19
-+
- #define USB_VENDOR_ID_VERNIER		0x08f7
- #define USB_DEVICE_ID_VERNIER_LABPRO	0x0001
- #define USB_DEVICE_ID_VERNIER_GOTEMP	0x0002
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index bc57615..feeb0b7 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -688,6 +688,14 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_TOUCH_INTL,
- 			USB_DEVICE_ID_TOUCH_INTL_MULTI_TOUCH) },
- 
-+	/* Unitec panels */
-+	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_UNITEC,
-+			USB_DEVICE_ID_UNITEC_USB_TOUCH_0709) },
-+	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_UNITEC,
-+			USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
-+
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mt_devices);
--- 
-1.7.4.4
+[  195.491735] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
+[  222.693947] input: cndougla=92s trackpad as
+/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.3/1-1.3.3/1-1.3.3:1.0/blu=
+etooth/hci0/hci0:12/input16
+[  222.694119] magicmouse 0005:05AC:030E.0005: input,hidraw3: BLUETOOTH
+HID v1.60 Mouse [cndougla=92s trackpad] on 50:63:13:90:AF:A4
+[  222.694128] hidp_output_raw_report, report_type: 2
+[  222.808111] session ffff88012d9b1200 param 0x02
+[  222.808198] hidp: returnign -EIO because of !output_report_success
+[  222.808209] magicmouse 0005:05AC:030E.0005: unable to request touch
+data (-5)
+[  222.809358] session ffff88012d9b1200 param 0x02
+[  222.810606] session ffff88012d9b1200 param 0x02
+[  222.813113] session ffff88012d9b1200 param 0x00
+[  223.045363] magicmouse: probe of 0005:05AC:030E.0005 failed with err=
+or -5
 
+>> What do you think we should do in the driver? Should we ignore the=20
+>> return, or should we look specifically for EIO? (neither sounds very=
+=20
+>> good to me, so I'm hoping you have a better solution :).
+>=20
+> Well if the device indeed doesn't send the ACK and it should (I will =
+have=20
+> to check the specs first), we'll have to put a quirk into the driver.=
+=20
+> Otherwise if the ACK is not mandatory, we'll have to revert that comm=
+it=20
+> (or at least make it non-fatal failure).
+>=20
+> But I'll have to check the specs first.
+
+Sounds good to me :).
+
+Thanks!
+
+-- Chase
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

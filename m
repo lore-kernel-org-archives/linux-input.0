@@ -1,59 +1,49 @@
-From: Anirudh Ghayal <aghayal@codeaurora.org>
-Subject: Re: [PATCH V4] input: pm8xxx_keypad: Qualcomm pm8xxx keypad controller
- driver
-Date: Thu, 19 May 2011 11:13:49 +0530
-Message-ID: <4DD4AE15.4050302@codeaurora.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH V4] input: pm8xxx_keypad: Qualcomm pm8xxx keypad
+ controller driver
+Date: Thu, 19 May 2011 00:33:08 -0700
+Message-ID: <20110519073308.GA6517@core.coreip.homeip.net>
 References: <1305782644-21987-1-git-send-email-aghayal@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1305782644-21987-1-git-send-email-aghayal@codeaurora.org>
 Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: Anirudh Ghayal <aghayal@codeaurora.org>, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, adharmap@codeaurora.org, Trilok Soni <tsoni@codeaurora.org>
+To: Anirudh Ghayal <aghayal@codeaurora.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, adharmap@codeaurora.org, Trilok Soni <tsoni@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-I have merged all the changes from the below patches into this single 
-driver.
-
-http://patchwork.ozlabs.org/patch/90097/
-https://patchwork.kernel.org/patch/782222/
-
-As you have already Acked these patches individually can you please Ack 
-this, so that I can request Samuel add them to the MFD tree.
-
-Thank you,
-~Anirudh
-
-
-On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
-> From: Trilok Soni<tsoni@codeaurora.org>
->
+On Thu, May 19, 2011 at 10:54:04AM +0530, Anirudh Ghayal wrote:
+> From: Trilok Soni <tsoni@codeaurora.org>
+> 
 > Add Qualcomm PMIC8XXX based keypad controller driver
 > supporting upto 18x8 matrix configuration.
->
-> Signed-off-by: Trilok Soni<tsoni@codeaurora.org>
-> Signed-off-by: Anirudh Ghayal<aghayal@codeaurora.org>
+> 
+> Signed-off-by: Trilok Soni <tsoni@codeaurora.org>
+> Signed-off-by: Anirudh Ghayal <aghayal@codeaurora.org>
+
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
+
+Thanks Anirudh, please feel free to merge through Samuel's tree.
+
 > ---
->   drivers/input/keyboard/Kconfig           |   11 +
->   drivers/input/keyboard/Makefile          |    1 +
->   drivers/input/keyboard/pmic8xxx-keypad.c |  799 ++++++++++++++++++++++++++++++
->   include/linux/input/pmic8xxx-keypad.h    |   52 ++
->   4 files changed, 863 insertions(+), 0 deletions(-)
->   create mode 100644 drivers/input/keyboard/pmic8xxx-keypad.c
->   create mode 100644 include/linux/input/pmic8xxx-keypad.h
->
+>  drivers/input/keyboard/Kconfig           |   11 +
+>  drivers/input/keyboard/Makefile          |    1 +
+>  drivers/input/keyboard/pmic8xxx-keypad.c |  799 ++++++++++++++++++++++++++++++
+>  include/linux/input/pmic8xxx-keypad.h    |   52 ++
+>  4 files changed, 863 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/keyboard/pmic8xxx-keypad.c
+>  create mode 100644 include/linux/input/pmic8xxx-keypad.h
+> 
 > diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
 > index b16bed0..42fe6f1 100644
 > --- a/drivers/input/keyboard/Kconfig
 > +++ b/drivers/input/keyboard/Kconfig
 > @@ -390,6 +390,17 @@ config KEYBOARD_PXA930_ROTARY
->   	  To compile this driver as a module, choose M here: the
->   	  module will be called pxa930_rotary.
->
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called pxa930_rotary.
+>  
 > +config KEYBOARD_PMIC8XXX
 > +	tristate "Qualcomm PMIC8XXX keypad support"
 > +	depends on MFD_PM8XXX
@@ -65,21 +55,21 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	  To compile this driver as a module, choose M here: the module will
 > +	  be called pmic8xxx-keypad.
 > +
->   config KEYBOARD_SAMSUNG
->   	tristate "Samsung keypad support"
->   	depends on SAMSUNG_DEV_KEYPAD
+>  config KEYBOARD_SAMSUNG
+>  	tristate "Samsung keypad support"
+>  	depends on SAMSUNG_DEV_KEYPAD
 > diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
 > index 878e6c2..ff996c8 100644
 > --- a/drivers/input/keyboard/Makefile
 > +++ b/drivers/input/keyboard/Makefile
 > @@ -32,6 +32,7 @@ obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
->   obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
->   obj-$(CONFIG_KEYBOARD_OMAP4)		+= omap4-keypad.o
->   obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+>  obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+>  obj-$(CONFIG_KEYBOARD_OMAP4)		+= omap4-keypad.o
+>  obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
 > +obj-$(CONFIG_KEYBOARD_PMIC8XXX)		+= pmic8xxx-keypad.o
->   obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
->   obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
->   obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
+>  obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
+>  obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
+>  obj-$(CONFIG_KEYBOARD_QT1070)           += qt1070.o
 > diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
 > new file mode 100644
 > index 0000000..40b02ae
@@ -98,19 +88,19 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > + * GNU General Public License for more details.
 > + */
 > +
-> +#include<linux/module.h>
-> +#include<linux/platform_device.h>
-> +#include<linux/kernel.h>
-> +#include<linux/interrupt.h>
-> +#include<linux/slab.h>
-> +#include<linux/input.h>
-> +#include<linux/bitops.h>
-> +#include<linux/delay.h>
-> +#include<linux/mutex.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/kernel.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/slab.h>
+> +#include <linux/input.h>
+> +#include <linux/bitops.h>
+> +#include <linux/delay.h>
+> +#include <linux/mutex.h>
 > +
-> +#include<linux/mfd/pm8xxx/core.h>
-> +#include<linux/mfd/pm8xxx/gpio.h>
-> +#include<linux/input/pmic8xxx-keypad.h>
+> +#include <linux/mfd/pm8xxx/core.h>
+> +#include <linux/mfd/pm8xxx/gpio.h>
+> +#include <linux/input/pmic8xxx-keypad.h>
 > +
 > +#define PM8XXX_MAX_ROWS		18
 > +#define PM8XXX_MAX_COLS		8
@@ -229,9 +219,9 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +{
 > +	/* all keys pressed on that particular row? */
 > +	if (col == 0x00)
-> +		return 1<<  kp->pdata->num_cols;
+> +		return 1 << kp->pdata->num_cols;
 > +	else
-> +		return col&  ((1<<  kp->pdata->num_cols) - 1);
+> +		return col & ((1 << kp->pdata->num_cols) - 1);
 > +}
 > +
 > +/*
@@ -251,8 +241,8 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	int rc;
 > +	u8 scan_val;
 > +
-> +	rc = pmic8xxx_kp_read_u8(kp,&scan_val, KEYP_SCAN);
-> +	if (rc<  0) {
+> +	rc = pmic8xxx_kp_read_u8(kp, &scan_val, KEYP_SCAN);
+> +	if (rc < 0) {
 > +		dev_err(kp->dev, "Error reading KEYP_SCAN reg, rc=%d\n", rc);
 > +		return rc;
 > +	}
@@ -260,7 +250,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	scan_val |= 0x1;
 > +
 > +	rc = pmic8xxx_kp_write_u8(kp, scan_val, KEYP_SCAN);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(kp->dev, "Error writing KEYP_SCAN reg, rc=%d\n", rc);
 > +		return rc;
 > +	}
@@ -281,7 +271,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	if (rc)
 > +		return rc;
 > +
-> +	for (row = 0; row<  kp->pdata->num_rows; row++) {
+> +	for (row = 0; row < kp->pdata->num_rows; row++) {
 > +		dev_dbg(kp->dev, "new_data[%d] = %d\n", row,
 > +					new_data[row]);
 > +		state[row] = pmic8xxx_col_state(kp, new_data[row]);
@@ -296,7 +286,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	int rc, read_rows;
 > +	u8 scan_val;
 > +
-> +	if (kp->pdata->num_rows<  PM8XXX_MIN_ROWS)
+> +	if (kp->pdata->num_rows < PM8XXX_MIN_ROWS)
 > +		read_rows = PM8XXX_MIN_ROWS;
 > +	else
 > +		read_rows = kp->pdata->num_rows;
@@ -306,7 +296,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	if (old_state) {
 > +		rc = pmic8xxx_kp_read_data(kp, old_state, KEYP_OLD_DATA,
 > +						read_rows);
-> +		if (rc<  0) {
+> +		if (rc < 0) {
 > +			dev_err(kp->dev,
 > +				"Error reading KEYP_OLD_DATA, rc=%d\n", rc);
 > +			return rc;
@@ -315,7 +305,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +
 > +	rc = pmic8xxx_kp_read_data(kp, new_state, KEYP_RECENT_DATA,
 > +					 read_rows);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(kp->dev,
 > +			"Error reading KEYP_RECENT_DATA, rc=%d\n", rc);
 > +		return rc;
@@ -324,15 +314,15 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	/* 4 * 32KHz clocks */
 > +	udelay((4 * DIV_ROUND_UP(USEC_PER_SEC, KEYP_CLOCK_FREQ)) + 1);
 > +
-> +	rc = pmic8xxx_kp_read_u8(kp,&scan_val, KEYP_SCAN);
-> +	if (rc<  0) {
+> +	rc = pmic8xxx_kp_read_u8(kp, &scan_val, KEYP_SCAN);
+> +	if (rc < 0) {
 > +		dev_err(kp->dev, "Error reading KEYP_SCAN reg, rc=%d\n", rc);
 > +		return rc;
 > +	}
 > +
-> +	scan_val&= 0xFE;
+> +	scan_val &= 0xFE;
 > +	rc = pmic8xxx_kp_write_u8(kp, scan_val, KEYP_SCAN);
-> +	if (rc<  0)
+> +	if (rc < 0)
 > +		dev_err(kp->dev, "Error writing KEYP_SCAN reg, rc=%d\n", rc);
 > +
 > +	return rc;
@@ -343,18 +333,18 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +{
 > +	int row, col, code;
 > +
-> +	for (row = 0; row<  kp->pdata->num_rows; row++) {
+> +	for (row = 0; row < kp->pdata->num_rows; row++) {
 > +		int bits_changed = new_state[row] ^ old_state[row];
 > +
 > +		if (!bits_changed)
 > +			continue;
 > +
-> +		for (col = 0; col<  kp->pdata->num_cols; col++) {
-> +			if (!(bits_changed&  (1<<  col)))
+> +		for (col = 0; col < kp->pdata->num_cols; col++) {
+> +			if (!(bits_changed & (1 << col)))
 > +				continue;
 > +
 > +			dev_dbg(kp->dev, "key [%d:%d] %s\n", row, col,
-> +					!(new_state[row]&  (1<<  col)) ?
+> +					!(new_state[row] & (1 << col)) ?
 > +					"pressed" : "released");
 > +
 > +			code = MATRIX_SCAN_CODE(row, col, PM8XXX_ROW_SHIFT);
@@ -362,7 +352,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +			input_event(kp->input, EV_MSC, MSC_SCAN, code);
 > +			input_report_key(kp->input,
 > +					kp->keycodes[code],
-> +					!(new_state[row]&  (1<<  col)));
+> +					!(new_state[row] & (1 << col)));
 > +
 > +			input_sync(kp->input);
 > +		}
@@ -375,14 +365,14 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	u16 check, row_state;
 > +
 > +	check = 0;
-> +	for (row = 0; row<  kp->pdata->num_rows; row++) {
-> +		row_state = (~new_state[row])&
-> +				 ((1<<  kp->pdata->num_cols) - 1);
+> +	for (row = 0; row < kp->pdata->num_rows; row++) {
+> +		row_state = (~new_state[row]) &
+> +				 ((1 << kp->pdata->num_cols) - 1);
 > +
-> +		if (hweight16(row_state)>  1) {
+> +		if (hweight16(row_state) > 1) {
 > +			if (found_first == -1)
 > +				found_first = row;
-> +			if (check&  row_state) {
+> +			if (check & row_state) {
 > +				dev_dbg(kp->dev, "detected ghost key on row[%d]"
 > +					 " and row[%d]\n", found_first, row);
 > +				return true;
@@ -402,7 +392,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	switch (events) {
 > +	case 0x1:
 > +		rc = pmic8xxx_kp_read_matrix(kp, new_state, NULL);
-> +		if (rc<  0)
+> +		if (rc < 0)
 > +			return rc;
 > +
 > +		/* detecting ghost key is not an error */
@@ -413,7 +403,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	break;
 > +	case 0x3: /* two events - eventcounter is gray-coded */
 > +		rc = pmic8xxx_kp_read_matrix(kp, new_state, old_state);
-> +		if (rc<  0)
+> +		if (rc < 0)
 > +			return rc;
 > +
 > +		__pmic8xxx_kp_scan_matrix(kp, old_state, kp->keystate);
@@ -423,7 +413,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	case 0x2:
 > +		dev_dbg(kp->dev, "Some key events were lost\n");
 > +		rc = pmic8xxx_kp_read_matrix(kp, new_state, old_state);
-> +		if (rc<  0)
+> +		if (rc < 0)
 > +			return rc;
 > +		__pmic8xxx_kp_scan_matrix(kp, old_state, kp->keystate);
 > +		__pmic8xxx_kp_scan_matrix(kp, new_state, old_state);
@@ -454,7 +444,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	struct pmic8xxx_kp *kp = data;
 > +
 > +	rc = pmic8xxx_kp_read_matrix(kp, new_state, old_state);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(kp->dev, "failed to read keypad matrix\n");
 > +		return IRQ_HANDLED;
 > +	}
@@ -470,16 +460,16 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	u8 ctrl_val, events;
 > +	int rc;
 > +
-> +	rc = pmic8xxx_kp_read(kp,&ctrl_val, KEYP_CTRL, 1);
-> +	if (rc<  0) {
+> +	rc = pmic8xxx_kp_read(kp, &ctrl_val, KEYP_CTRL, 1);
+> +	if (rc < 0) {
 > +		dev_err(kp->dev, "failed to read keyp_ctrl register\n");
 > +		return IRQ_HANDLED;
 > +	}
 > +
-> +	events = ctrl_val&  KEYP_CTRL_EVNTS_MASK;
+> +	events = ctrl_val & KEYP_CTRL_EVNTS_MASK;
 > +
 > +	rc = pmic8xxx_kp_scan_matrix(kp, events);
-> +	if (rc<  0)
+> +	if (rc < 0)
 > +		dev_err(kp->dev, "failed to scan matrix\n");
 > +
 > +	return IRQ_HANDLED;
@@ -494,38 +484,38 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	};
 > +
 > +	/* Find column bits */
-> +	if (kp->pdata->num_cols<  KEYP_CTRL_SCAN_COLS_MIN)
+> +	if (kp->pdata->num_cols < KEYP_CTRL_SCAN_COLS_MIN)
 > +		bits = 0;
 > +	else
 > +		bits = kp->pdata->num_cols - KEYP_CTRL_SCAN_COLS_MIN;
-> +	ctrl_val = (bits&  KEYP_CTRL_SCAN_COLS_BITS)<<
+> +	ctrl_val = (bits & KEYP_CTRL_SCAN_COLS_BITS) <<
 > +		KEYP_CTRL_SCAN_COLS_SHIFT;
 > +
 > +	/* Find row bits */
-> +	if (kp->pdata->num_rows<  KEYP_CTRL_SCAN_ROWS_MIN)
+> +	if (kp->pdata->num_rows < KEYP_CTRL_SCAN_ROWS_MIN)
 > +		bits = 0;
 > +	else
 > +		bits = row_bits[kp->pdata->num_rows - KEYP_CTRL_SCAN_ROWS_MIN];
 > +
-> +	ctrl_val |= (bits<<  KEYP_CTRL_SCAN_ROWS_SHIFT);
+> +	ctrl_val |= (bits << KEYP_CTRL_SCAN_ROWS_SHIFT);
 > +
 > +	rc = pmic8xxx_kp_write_u8(kp, ctrl_val, KEYP_CTRL);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(kp->dev, "Error writing KEYP_CTRL reg, rc=%d\n", rc);
 > +		return rc;
 > +	}
 > +
 > +	bits = (kp->pdata->debounce_ms / 5) - 1;
 > +
-> +	scan_val |= (bits<<  KEYP_SCAN_DBOUNCE_SHIFT);
+> +	scan_val |= (bits << KEYP_SCAN_DBOUNCE_SHIFT);
 > +
 > +	bits = fls(kp->pdata->scan_delay_ms) - 1;
-> +	scan_val |= (bits<<  KEYP_SCAN_PAUSE_SHIFT);
+> +	scan_val |= (bits << KEYP_SCAN_PAUSE_SHIFT);
 > +
 > +	/* Row hold time is a multiple of 32KHz cycles. */
 > +	cycles = (kp->pdata->row_hold_ns * KEYP_CLOCK_FREQ) / NSEC_PER_SEC;
 > +
-> +	scan_val |= (cycles<<  KEYP_SCAN_ROW_HOLD_SHIFT);
+> +	scan_val |= (cycles << KEYP_SCAN_ROW_HOLD_SHIFT);
 > +
 > +	rc = pmic8xxx_kp_write_u8(kp, scan_val, KEYP_SCAN);
 > +	if (rc)
@@ -540,10 +530,10 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +{
 > +	int	rc, i;
 > +
-> +	if (gpio_start<  0 || num_gpios<  0)
+> +	if (gpio_start < 0 || num_gpios < 0)
 > +		return -EINVAL;
 > +
-> +	for (i = 0; i<  num_gpios; i++) {
+> +	for (i = 0; i < num_gpios; i++) {
 > +		rc = pm8xxx_gpio_config(gpio_start + i, gpio_config);
 > +		if (rc) {
 > +			dev_err(kp->dev, "%s: FAIL pm8xxx_gpio_config():"
@@ -563,7 +553,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	kp->ctrl_reg |= KEYP_CTRL_KEYP_EN;
 > +
 > +	rc = pmic8xxx_kp_write_u8(kp, kp->ctrl_reg, KEYP_CTRL);
-> +	if (rc<  0)
+> +	if (rc < 0)
 > +		dev_err(kp->dev, "Error writing KEYP_CTRL reg, rc=%d\n", rc);
 > +
 > +	return rc;
@@ -573,10 +563,10 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +{
 > +	int rc;
 > +
-> +	kp->ctrl_reg&= ~KEYP_CTRL_KEYP_EN;
+> +	kp->ctrl_reg &= ~KEYP_CTRL_KEYP_EN;
 > +
 > +	rc = pmic8xxx_kp_write_u8(kp, kp->ctrl_reg, KEYP_CTRL);
-> +	if (rc<  0)
+> +	if (rc < 0)
 > +		return rc;
 > +
 > +	return rc;
@@ -636,24 +626,24 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +
 > +
 > +	if (!pdata || !pdata->num_cols || !pdata->num_rows ||
-> +		pdata->num_cols>  PM8XXX_MAX_COLS ||
-> +		pdata->num_rows>  PM8XXX_MAX_ROWS ||
-> +		pdata->num_cols<  PM8XXX_MIN_COLS) {
+> +		pdata->num_cols > PM8XXX_MAX_COLS ||
+> +		pdata->num_rows > PM8XXX_MAX_ROWS ||
+> +		pdata->num_cols < PM8XXX_MIN_COLS) {
 > +		dev_err(&pdev->dev, "invalid platform data\n");
 > +		return -EINVAL;
 > +	}
 > +
 > +	if (!pdata->scan_delay_ms ||
-> +		pdata->scan_delay_ms>  MAX_SCAN_DELAY ||
-> +		pdata->scan_delay_ms<  MIN_SCAN_DELAY ||
+> +		pdata->scan_delay_ms > MAX_SCAN_DELAY ||
+> +		pdata->scan_delay_ms < MIN_SCAN_DELAY ||
 > +		!is_power_of_2(pdata->scan_delay_ms)) {
 > +		dev_err(&pdev->dev, "invalid keypad scan time supplied\n");
 > +		return -EINVAL;
 > +	}
 > +
 > +	if (!pdata->row_hold_ns ||
-> +		pdata->row_hold_ns>  MAX_ROW_HOLD_DELAY ||
-> +		pdata->row_hold_ns<  MIN_ROW_HOLD_DELAY ||
+> +		pdata->row_hold_ns > MAX_ROW_HOLD_DELAY ||
+> +		pdata->row_hold_ns < MIN_ROW_HOLD_DELAY ||
 > +		((pdata->row_hold_ns % MIN_ROW_HOLD_DELAY) != 0)) {
 > +		dev_err(&pdev->dev, "invalid keypad row hold time supplied\n");
 > +		return -EINVAL;
@@ -661,8 +651,8 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +
 > +	if (!pdata->debounce_ms ||
 > +		((pdata->debounce_ms % 5) != 0) ||
-> +		pdata->debounce_ms>  MAX_DEBOUNCE_TIME ||
-> +		pdata->debounce_ms<  MIN_DEBOUNCE_TIME) {
+> +		pdata->debounce_ms > MAX_DEBOUNCE_TIME ||
+> +		pdata->debounce_ms < MIN_DEBOUNCE_TIME) {
 > +		dev_err(&pdev->dev, "invalid debounce time supplied\n");
 > +		return -EINVAL;
 > +	}
@@ -680,7 +670,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	platform_set_drvdata(pdev, kp);
 > +
 > +	kp->pdata	= pdata;
-> +	kp->dev		=&pdev->dev;
+> +	kp->dev		= &pdev->dev;
 > +
 > +	kp->input = input_allocate_device();
 > +	if (!kp->input) {
@@ -690,14 +680,14 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	}
 > +
 > +	kp->key_sense_irq = platform_get_irq(pdev, 0);
-> +	if (kp->key_sense_irq<  0) {
+> +	if (kp->key_sense_irq < 0) {
 > +		dev_err(&pdev->dev, "unable to get keypad sense irq\n");
 > +		rc = -ENXIO;
 > +		goto err_get_irq;
 > +	}
 > +
 > +	kp->key_stuck_irq = platform_get_irq(pdev, 1);
-> +	if (kp->key_stuck_irq<  0) {
+> +	if (kp->key_stuck_irq < 0) {
 > +		dev_err(&pdev->dev, "unable to get keypad stuck irq\n");
 > +		rc = -ENXIO;
 > +		goto err_get_irq;
@@ -706,7 +696,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	kp->input->name = pdata->input_name ? : "PMIC8XXX keypad";
 > +	kp->input->phys = pdata->input_phys_device ? : "pmic8xxx_keypad/input0";
 > +
-> +	kp->input->dev.parent	=&pdev->dev;
+> +	kp->input->dev.parent	= &pdev->dev;
 > +
 > +	kp->input->id.bustype	= BUS_I2C;
 > +	kp->input->id.version	= 0x0001;
@@ -735,41 +725,41 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	memset(kp->stuckstate, 0xff, sizeof(kp->stuckstate));
 > +
 > +	rc = pmic8xxx_kpd_init(kp);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(&pdev->dev, "unable to initialize keypad controller\n");
 > +		goto err_get_irq;
 > +	}
 > +
 > +	rc = pmic8xxx_kp_config_gpio(pdata->cols_gpio_start,
-> +					pdata->num_cols, kp,&kypd_sns);
-> +	if (rc<  0) {
+> +					pdata->num_cols, kp, &kypd_sns);
+> +	if (rc < 0) {
 > +		dev_err(&pdev->dev, "unable to configure keypad sense lines\n");
 > +		goto err_gpio_config;
 > +	}
 > +
 > +	rc = pmic8xxx_kp_config_gpio(pdata->rows_gpio_start,
-> +					pdata->num_rows, kp,&kypd_drv);
-> +	if (rc<  0) {
+> +					pdata->num_rows, kp, &kypd_drv);
+> +	if (rc < 0) {
 > +		dev_err(&pdev->dev, "unable to configure keypad drive lines\n");
 > +		goto err_gpio_config;
 > +	}
 > +
 > +	rc = request_any_context_irq(kp->key_sense_irq, pmic8xxx_kp_irq,
 > +				 IRQF_TRIGGER_RISING, "pmic-keypad", kp);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(&pdev->dev, "failed to request keypad sense irq\n");
 > +		goto err_get_irq;
 > +	}
 > +
 > +	rc = request_any_context_irq(kp->key_stuck_irq, pmic8xxx_kp_stuck_irq,
 > +				 IRQF_TRIGGER_RISING, "pmic-keypad-stuck", kp);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(&pdev->dev, "failed to request keypad stuck irq\n");
 > +		goto err_req_stuck_irq;
 > +	}
 > +
-> +	rc = pmic8xxx_kp_read_u8(kp,&ctrl_val, KEYP_CTRL);
-> +	if (rc<  0) {
+> +	rc = pmic8xxx_kp_read_u8(kp, &ctrl_val, KEYP_CTRL);
+> +	if (rc < 0) {
 > +		dev_err(&pdev->dev, "failed to read KEYP_CTRL register\n");
 > +		goto err_pmic_reg_read;
 > +	}
@@ -777,7 +767,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	kp->ctrl_reg = ctrl_val;
 > +
 > +	rc = input_register_device(kp->input);
-> +	if (rc<  0) {
+> +	if (rc < 0) {
 > +		dev_err(&pdev->dev, "unable to register keypad input device\n");
 > +		goto err_pmic_reg_read;
 > +	}
@@ -864,7 +854,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +	.driver		= {
 > +		.name = PM8XXX_KEYPAD_DEV_NAME,
 > +		.owner = THIS_MODULE,
-> +		.pm =&pm8xxx_kp_pm_ops,
+> +		.pm = &pm8xxx_kp_pm_ops,
 > +	},
 > +};
 > +
@@ -884,7 +874,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +MODULE_DESCRIPTION("PMIC8XXX keypad driver");
 > +MODULE_VERSION("1.0");
 > +MODULE_ALIAS("platform:pmic8xxx_keypad");
-> +MODULE_AUTHOR("Trilok Soni<tsoni@codeaurora.org>");
+> +MODULE_AUTHOR("Trilok Soni <tsoni@codeaurora.org>");
 > diff --git a/include/linux/input/pmic8xxx-keypad.h b/include/linux/input/pmic8xxx-keypad.h
 > new file mode 100644
 > index 0000000..5f1e2f9
@@ -906,7 +896,7 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +#ifndef __PMIC8XXX_KEYPAD_H__
 > +#define __PMIC8XXX_KEYPAD_H__
 > +
-> +#include<linux/input/matrix_keypad.h>
+> +#include <linux/input/matrix_keypad.h>
 > +
 > +#define PM8XXX_KEYPAD_DEV_NAME     "pm8xxx-keypad"
 > +
@@ -943,3 +933,10 @@ On 5/19/2011 10:54 AM, Anirudh Ghayal wrote:
 > +};
 > +
 > +#endif /*__PMIC8XXX_KEYPAD_H__ */
+> -- 
+> Sent by a consultant of the Qualcomm Innovation Center, Inc.
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+> 
+
+-- 
+Dmitry

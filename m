@@ -1,86 +1,100 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
-Date: Thu, 19 May 2011 11:31:54 +0200
-Message-ID: <BANLkTinA7tfdjACLZDuRuHbBsRWZyzWD+Q@mail.gmail.com>
-References: <1296485689.7756.9.camel@novo.hadess.net>
-	<20110131212842.GB1603@polaris.bitmath.org>
-	<AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
-	<1296561717.15349.5.camel@novo.hadess.net>
-	<AANLkTim=RV1Cd0k08gv-DDho-Mim64bR7RRJ+c7D1RZf@mail.gmail.com>
-	<1296650569.2123.2.camel@novo.hadess.net>
-	<AANLkTinOK+=J64NRWZjit3S7hAdGVXxRE9HYkxTxrxON@mail.gmail.com>
-	<AANLkTi=MGNLfLHQpVEyJGtE-j-D0dj-RWXAihW1xMKDe@mail.gmail.com>
-	<1296922260.4223.4.camel@novo.hadess.net>
-	<AANLkTi=yTh4YSPSQBnPFPyen9vfyfYGiT6GJVEKwGHjh@mail.gmail.com>
-	<1297098262.29885.14.camel@novo.hadess.net>
-	<AANLkTikxyJWxGH2P4WXMHqCbyOuKJaGgMBjxAWRsAREw@mail.gmail.com>
-	<AANLkTinfLunV5viac9vrvGfOwd-Z17ryJdfro9gtp+yB@mail.gmail.com>
-	<1298045713.2049.54.camel@novo.hadess.net>
-	<AANLkTik+xiJZNo8wcg=BpuwJnRA-0grgiW6P0VaKfGjH@mail.gmail.com>
-	<1305756860.2010.2.camel@novo.hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: [PATCH] hid-multitouch: Introduce Elo TouchSystems 2515 IntelliTouch Plus
+Date: Thu, 19 May 2011 11:37:29 +0200
+Message-ID: <1305797849-5181-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:59023 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932629Ab1ESJbz (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:39587 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932844Ab1ESJhj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2011 05:31:55 -0400
-Received: by wwa36 with SMTP id 36so2666018wwa.1
-        for <linux-input@vger.kernel.org>; Thu, 19 May 2011 02:31:54 -0700 (PDT)
-In-Reply-To: <1305756860.2010.2.camel@novo.hadess.net>
+	Thu, 19 May 2011 05:37:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-Hello Bastien,
+This patch adds support for Elo TouchSystems 2515 IntelliTouch Plus
+that can be found in Lenovo A700 all-in-one.
 
-On Thu, May 19, 2011 at 00:14, Bastien Nocera <hadess@hadess.net> wrote:
-> Hello Benjamin,
->
-> On Fri, 2011-02-18 at 21:03 +0100, Benjamin Tissoires wrote:
->> On Fri, Feb 18, 2011 at 17:15, Bastien Nocera <hadess@hadess.net> wrote:
->> > On Tue, 2011-02-08 at 15:47 +0100, Benjamin Tissoires wrote:
->> >> Hi Bastien,
->> >>
->> >> Can you give a try to the attached patch (it goes on top of the previous patch).
->> >> It would be great if you could play a little with mtdiag (or any other
->> >> multitouch application) and tell me if there is any problem.
->> >
->> > The patch to work well, at least for touches with a single finger. I
->> > launched mtdiag, but I have absolutely no idea what to test with it.
->> >
->> > Hints?
->> >
->> >
->>
->> Hi,
->>
->> If you run mtdiag as root, your multitouch panel should appear with a
->> button "activate".
->> Click on activate, and it will show up a canvas in which the different
->> touch you made on the panel will be represented by a circle. The
->> bigger circle represents the mouse emulation of the device.
->
-> I finally took the time to build and test those patches you sent me, on
-> top of the Fedora 15 kernel, and they work great. When in fullscreen,
-> mtdiag works as expected though the roughness of touch is probably
-> because my screen is dirty as hell :)
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Tested-by: Bastien Nocera <hadess@hadess.net>
+---
+ drivers/hid/Kconfig          |    1 +
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-multitouch.c |   10 ++++++++++
+ 4 files changed, 13 insertions(+), 0 deletions(-)
 
-Great. (not your dirty screen of course ;-D )
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index edc43ed..d83c23b 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -305,6 +305,7 @@ config HID_MULTITOUCH
+ 	  - 3M PCT touch screens
+ 	  - Cando dual touch panel
+ 	  - Cypress TrueTouch panels
++	  - Elo TouchSystems IntelliTouch Plus panels
+ 	  - Hanvon dual touch panels
+ 	  - Ilitek dual touch panel
+ 	  - IrTouch Infrared USB panels
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 715fa0a..72f5a4f 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1369,6 +1369,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2515) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 851c71d..dd0805a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -220,6 +220,7 @@
+ #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
+ 
+ #define USB_VENDOR_ID_ELO		0x04E7
++#define USB_DEVICE_ID_ELO_TS2515	0x0022
+ #define USB_DEVICE_ID_ELO_TS2700	0x0020
+ 
+ #define USB_VENDOR_ID_EMS		0x2006
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index ef33e2d..3bc8de6 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -92,6 +92,7 @@ struct mt_class {
+ #define MT_CLS_3M				7
+ #define MT_CLS_CONFIDENCE			8
+ #define MT_CLS_CONFIDENCE_MINUS_ONE		9
++#define MT_CLS_DUAL_NSMU_CONTACTID		10
+ 
+ #define MT_DEFAULT_MAXCONTACT	10
+ 
+@@ -163,6 +164,10 @@ struct mt_class mt_classes[] = {
+ 		.sn_height = 128 },
+ 	{ .name = MT_CLS_CONFIDENCE,
+ 		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE },
++	{ .name = MT_CLS_DUAL_NSMU_CONTACTID,
++		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
++			MT_QUIRK_SLOT_IS_CONTACTID,
++		.maxcontacts = 2 },
+ 
+ 	{ }
+ };
+@@ -584,6 +589,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
+ 			USB_DEVICE_ID_CYPRESS_TRUETOUCH) },
+ 
++	/* Elo TouchSystems IntelliTouch Plus panel */
++	{ .driver_data = MT_CLS_DUAL_NSMU_CONTACTID,
++		HID_USB_DEVICE(USB_VENDOR_ID_ELO,
++			USB_DEVICE_ID_ELO_TS2515) },
++
+ 	/* GeneralTouch panel */
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+-- 
+1.7.4.4
 
->
-> Could you please get those pushed upstream?
-
-Will do it right now.
-
-Cheers,
-Benjamin
-
->
-> Thanks for the work.
->
-> Cheers
->
->

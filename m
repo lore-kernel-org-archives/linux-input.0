@@ -1,48 +1,86 @@
-From: Jan Losinski <losinski@wh2.tu-dresden.de>
-Subject: Re: [PATCH 1/1] Input: ati_remote - extend keytable for medion
- remotes
-Date: Thu, 19 May 2011 10:54:17 +0200
-Message-ID: <20110519085417.GA17889@atlantis.wh2.tu-dresden.de.de>
-References: <20110418104108.GA4876@atlantis.wh2.tu-dresden.de.de>
- <20110418104547.GB4876@atlantis.wh2.tu-dresden.de.de>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Elo TouchSystems touchscreen support? (04e7:0022)
+Date: Thu, 19 May 2011 11:31:54 +0200
+Message-ID: <BANLkTinA7tfdjACLZDuRuHbBsRWZyzWD+Q@mail.gmail.com>
+References: <1296485689.7756.9.camel@novo.hadess.net>
+	<20110131212842.GB1603@polaris.bitmath.org>
+	<AANLkTi=8O=p6-zTdMete7uhrT5OKODZXROKyoGPURJ3h@mail.gmail.com>
+	<1296561717.15349.5.camel@novo.hadess.net>
+	<AANLkTim=RV1Cd0k08gv-DDho-Mim64bR7RRJ+c7D1RZf@mail.gmail.com>
+	<1296650569.2123.2.camel@novo.hadess.net>
+	<AANLkTinOK+=J64NRWZjit3S7hAdGVXxRE9HYkxTxrxON@mail.gmail.com>
+	<AANLkTi=MGNLfLHQpVEyJGtE-j-D0dj-RWXAihW1xMKDe@mail.gmail.com>
+	<1296922260.4223.4.camel@novo.hadess.net>
+	<AANLkTi=yTh4YSPSQBnPFPyen9vfyfYGiT6GJVEKwGHjh@mail.gmail.com>
+	<1297098262.29885.14.camel@novo.hadess.net>
+	<AANLkTikxyJWxGH2P4WXMHqCbyOuKJaGgMBjxAWRsAREw@mail.gmail.com>
+	<AANLkTinfLunV5viac9vrvGfOwd-Z17ryJdfro9gtp+yB@mail.gmail.com>
+	<1298045713.2049.54.camel@novo.hadess.net>
+	<AANLkTik+xiJZNo8wcg=BpuwJnRA-0grgiW6P0VaKfGjH@mail.gmail.com>
+	<1305756860.2010.2.camel@novo.hadess.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atlantis.wh2.tu-dresden.de ([141.30.228.39]:56604 "EHLO
-	atlantis.wh2.tu-dresden.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932424Ab1ESIyN (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:59023 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932629Ab1ESJbz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2011 04:54:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20110418104547.GB4876@atlantis.wh2.tu-dresden.de.de>
+	Thu, 19 May 2011 05:31:55 -0400
+Received: by wwa36 with SMTP id 36so2666018wwa.1
+        for <linux-input@vger.kernel.org>; Thu, 19 May 2011 02:31:54 -0700 (PDT)
+In-Reply-To: <1305756860.2010.2.camel@novo.hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: losinski@wh2.tu-dresden.de
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
+Hello Bastien,
 
---VS++wcV0S1rZb1Fb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, May 19, 2011 at 00:14, Bastien Nocera <hadess@hadess.net> wrote:
+> Hello Benjamin,
+>
+> On Fri, 2011-02-18 at 21:03 +0100, Benjamin Tissoires wrote:
+>> On Fri, Feb 18, 2011 at 17:15, Bastien Nocera <hadess@hadess.net> wrote:
+>> > On Tue, 2011-02-08 at 15:47 +0100, Benjamin Tissoires wrote:
+>> >> Hi Bastien,
+>> >>
+>> >> Can you give a try to the attached patch (it goes on top of the previous patch).
+>> >> It would be great if you could play a little with mtdiag (or any other
+>> >> multitouch application) and tell me if there is any problem.
+>> >
+>> > The patch to work well, at least for touches with a single finger. I
+>> > launched mtdiag, but I have absolutely no idea what to test with it.
+>> >
+>> > Hints?
+>> >
+>> >
+>>
+>> Hi,
+>>
+>> If you run mtdiag as root, your multitouch panel should appear with a
+>> button "activate".
+>> Click on activate, and it will show up a canvas in which the different
+>> touch you made on the panel will be represented by a circle. The
+>> bigger circle represents the mouse emulation of the device.
+>
+> I finally took the time to build and test those patches you sent me, on
+> top of the Fedora 15 kernel, and they work great. When in fullscreen,
+> mtdiag works as expected though the roughness of touch is probably
+> because my screen is dirty as hell :)
 
-Hello,
+Great. (not your dirty screen of course ;-D )
 
-can please give me some reply if my patch is ok or not. It was a lot of
-work for me and I wont that it was for nothing.
+>
+> Could you please get those pushed upstream?
 
-Thanks, Jan Losinski
+Will do it right now.
 
---VS++wcV0S1rZb1Fb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Cheers,
+Benjamin
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk3U2rkACgkQ1Hv7AMjH+2H1nwCdHt0x8da8oBrwU15lH9Ly6TqA
-HMgAoL0qCT18t0gIq5oeudJqvwtN9vv6
-=3lzN
------END PGP SIGNATURE-----
-
---VS++wcV0S1rZb1Fb--
+>
+> Thanks for the work.
+>
+> Cheers
+>
+>

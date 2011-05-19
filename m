@@ -1,85 +1,66 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 1/6] hid-multitouch: add support for ActionStar panels
-Date: Thu, 19 May 2011 14:18:13 +0200
-Message-ID: <1305807498-8785-2-git-send-email-benjamin.tissoires__18715.5068190352$1305807626$gmane$org@enac.fr>
+Subject: [PATCH 6/6] hid-multitouch: class MT_CLS_STANTUM is redundant with MT_CLS_CONFIDENCE
+Date: Thu, 19 May 2011 14:18:18 +0200
+Message-ID: <1305807498-8785-7-git-send-email-benjamin.tissoires__23677.7225895368$1305807626$gmane$org@enac.fr>
 References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:57160 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:35226 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755929Ab1ESMSk (ORCPT
+	with ESMTP id S932510Ab1ESMTA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2011 08:18:40 -0400
+	Thu, 19 May 2011 08:19:00 -0400
 In-Reply-To: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-This patch introduce support for ActionStar panels.
-This device has not been optimized in term of kernel processing
-operations (default class), but it will work.
+Stantum devices used to work with MT_CLS_STANTUM but MT_CLS_CONFIDENCE
+is exactly the same. This patch switches them to this generic class,
+and remove the unused MT_CLS_STANTUM.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
 ---
- drivers/hid/Kconfig          |    1 +
- drivers/hid/hid-core.c       |    1 +
- drivers/hid/hid-ids.h        |    3 +++
- drivers/hid/hid-multitouch.c |    5 +++++
- 4 files changed, 10 insertions(+), 0 deletions(-)
+ drivers/hid/hid-multitouch.c |    9 +++------
+ 1 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index d83c23b..e240f8f 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -303,6 +303,7 @@ config HID_MULTITOUCH
- 
- 	  Say Y here if you have one of the following devices:
- 	  - 3M PCT touch screens
-+	  - ActionStar dual touch panels
- 	  - Cando dual touch panel
- 	  - Cypress TrueTouch panels
- 	  - Elo TouchSystems IntelliTouch Plus panels
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 72f5a4f..1e7889b 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1290,6 +1290,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR, USB_DEVICE_ID_ACTIONSTAR_1011) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index dd0805a..8ab0fc0 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -37,6 +37,9 @@
- 
- #define USB_VENDOR_ID_ACRUX		0x1a34
- 
-+#define USB_VENDOR_ID_ACTIONSTAR	0x2101
-+#define USB_DEVICE_ID_ACTIONSTAR_1011	0x1011
-+
- #define USB_VENDOR_ID_ADS_TECH 		0x06e1
- #define USB_DEVICE_ID_ADS_TECH_RADIO_SI470X	0xa155
- 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3bc8de6..10a8c76 100644
+index feeb0b7..65b92d2 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -570,6 +570,11 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_3M,
- 			USB_DEVICE_ID_3M2256) },
+@@ -88,7 +88,6 @@ struct mt_class {
+ #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	3
+ #define MT_CLS_CYPRESS				4
+ #define MT_CLS_EGALAX				5
+-#define MT_CLS_STANTUM				6
+ #define MT_CLS_3M				7
+ #define MT_CLS_CONFIDENCE			8
+ #define MT_CLS_CONFIDENCE_MINUS_ONE		9
+@@ -154,8 +153,6 @@ struct mt_class mt_classes[] = {
+ 		.sn_move = 4096,
+ 		.sn_pressure = 32,
+ 	},
+-	{ .name = MT_CLS_STANTUM,
+-		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE },
+ 	{ .name = MT_CLS_3M,
+ 		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE |
+ 			MT_QUIRK_SLOT_IS_CONTACTID,
+@@ -673,13 +670,13 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH4) },
  
-+	/* ActionStar panels */
-+	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR,
-+			USB_DEVICE_ID_ACTIONSTAR_1011) },
-+
- 	/* Cando panels */
- 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
- 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 	/* Stantum panels */
+-	{ .driver_data = MT_CLS_STANTUM,
++	{ .driver_data = MT_CLS_CONFIDENCE,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM,
+ 			USB_DEVICE_ID_MTP)},
+-	{ .driver_data = MT_CLS_STANTUM,
++	{ .driver_data = MT_CLS_CONFIDENCE,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM,
+ 			USB_DEVICE_ID_MTP_STM)},
+-	{ .driver_data = MT_CLS_STANTUM,
++	{ .driver_data = MT_CLS_CONFIDENCE,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM,
+ 			USB_DEVICE_ID_MTP_SITRONIX)},
+ 
 -- 
 1.7.4.4
 

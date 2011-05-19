@@ -1,20 +1,20 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 4/6] hid-multitouch: add support for Touch International panels
-Date: Thu, 19 May 2011 14:18:16 +0200
-Message-ID: <1305807498-8785-5-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [PATCH 1/6] hid-multitouch: add support for ActionStar panels
+Date: Thu, 19 May 2011 14:18:13 +0200
+Message-ID: <1305807498-8785-2-git-send-email-benjamin.tissoires__18715.5068190352$1305807626$gmane$org@enac.fr>
 References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:35216 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:57160 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756945Ab1ESMSw (ORCPT
+	with ESMTP id S1755929Ab1ESMSk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 May 2011 08:18:52 -0400
+	Thu, 19 May 2011 08:18:40 -0400
 In-Reply-To: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-This patch introduce support for Touch International panels.
+This patch introduce support for ActionStar panels.
 This device has not been optimized in term of kernel processing
 operations (default class), but it will work.
 
@@ -27,59 +27,59 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
  4 files changed, 10 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 10b8f90..7a53d8e 100644
+index d83c23b..e240f8f 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -320,6 +320,7 @@ config HID_MULTITOUCH
-           - eGalax dual-touch panels, including the
- 	    Joojoo and Wetab tablets
- 	  - Stantum multitouch panels
-+	  - Touch International Panels
+@@ -303,6 +303,7 @@ config HID_MULTITOUCH
  
- 	  If unsure, say N.
- 
+ 	  Say Y here if you have one of the following devices:
+ 	  - 3M PCT touch screens
++	  - ActionStar dual touch panels
+ 	  - Cando dual touch panel
+ 	  - Cypress TrueTouch panels
+ 	  - Elo TouchSystems IntelliTouch Plus panels
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 02c6c93..4539aa1 100644
+index 72f5a4f..1e7889b 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1479,6 +1479,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED, USB_DEVICE_ID_TOPSEED_CYBERLINK) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED2, USB_DEVICE_ID_TOPSEED2_RF_COMBO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCH_INTL, USB_DEVICE_ID_TOUCH_INTL_MULTI_TOUCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TWINHAN, USB_DEVICE_ID_TWINHAN_IR_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209) },
+@@ -1290,6 +1290,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR, USB_DEVICE_ID_ACTIONSTAR_1011) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7db188f..0f6aa2f 100644
+index dd0805a..8ab0fc0 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -587,6 +587,9 @@
- #define USB_VENDOR_ID_TOPMAX		0x0663
- #define USB_DEVICE_ID_TOPMAX_COBRAPAD	0x0103
+@@ -37,6 +37,9 @@
  
-+#define USB_VENDOR_ID_TOUCH_INTL	0x1e5e
-+#define USB_DEVICE_ID_TOUCH_INTL_MULTI_TOUCH	0x0313
+ #define USB_VENDOR_ID_ACRUX		0x1a34
+ 
++#define USB_VENDOR_ID_ACTIONSTAR	0x2101
++#define USB_DEVICE_ID_ACTIONSTAR_1011	0x1011
 +
- #define USB_VENDOR_ID_TOUCHPACK		0x1bfd
- #define USB_DEVICE_ID_TOUCHPACK_RTS	0x1688
+ #define USB_VENDOR_ID_ADS_TECH 		0x06e1
+ #define USB_DEVICE_ID_ADS_TECH_RADIO_SI470X	0xa155
  
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 76ef60d..bc57615 100644
+index 3bc8de6..10a8c76 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -683,6 +683,11 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_USB_DEVICE(USB_VENDOR_ID_STANTUM,
- 			USB_DEVICE_ID_MTP_SITRONIX)},
+@@ -570,6 +570,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_USB_DEVICE(USB_VENDOR_ID_3M,
+ 			USB_DEVICE_ID_3M2256) },
  
-+	/* Touch International panels */
++	/* ActionStar panels */
 +	{ .driver_data = MT_CLS_DEFAULT,
-+		HID_USB_DEVICE(USB_VENDOR_ID_TOUCH_INTL,
-+			USB_DEVICE_ID_TOUCH_INTL_MULTI_TOUCH) },
++		HID_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR,
++			USB_DEVICE_ID_ACTIONSTAR_1011) },
 +
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mt_devices);
+ 	/* Cando panels */
+ 	{ .driver_data = MT_CLS_DUAL_INRANGE_CONTACTNUMBER,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
 -- 
 1.7.4.4
 

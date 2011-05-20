@@ -1,33 +1,81 @@
-From: "PROF.MAURICE IWU" <augustine_osakwe@yahoo.co.in>
-Subject: Equity Business Investment
-Date: Fri, 20 May 2011 20:13:07 +0530 (IST)
-Message-ID: <469951.68127.qm@web95514.mail.in.yahoo.com>
-Reply-To: profmauriceiwu2221@yahoo.co.jp
+From: Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH] HID: Fixed a crash in hid_report_raw_event() function.
+Date: Fri, 20 May 2011 12:02:04 -0400
+Message-ID: <11173.1305907324@localhost>
+References: <1305834082-14888-1-git-send-email-armando.visconti@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from web95514.mail.in.yahoo.com ([121.101.151.14]:24358 "HELO
-	web95514.mail.in.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1756928Ab1ETOtu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 May 2011 10:49:50 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="==_Exmh_1305907324_2669P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: Your message of "Thu, 19 May 2011 21:41:22 +0200."
+             <1305834082-14888-1-git-send-email-armando.visconti@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Armando Visconti <armando.visconti@st.com>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+--==_Exmh_1305907324_2669P
+Content-Type: text/plain; charset=us-ascii
 
-Equity Business Investment
->From Prof. Maurice Iwu 
+On Thu, 19 May 2011 21:41:22 +0200, Armando Visconti said:
+> I'm using a Data Modul EasyTouch USB multitouch controller,
+> which is issuing a hid report with a size equals to 0. The rsize
+> value gets set to 536870912 and Linux is crashing in the memset
+> because the value is too big.
+>
+> Signed-off-by: Armando Visconti <armando.visconti@st.com>
+> ---
+>  drivers/hid/hid-core.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index c3d6626..3e972e3 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1045,6 +1045,9 @@ void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+>
+>  	rsize = ((report->size - 1) >> 3) + 1;
+>
+> +	if (rsize > HID_MAX_BUFFER_SIZE)
+> +		rsize = HID_MAX_BUFFER_SIZE;
+> +
+>  	if (csize < rsize) {
+>  		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
+>  				csize, rsize);
 
-Dear Friend,
+I'm thinking this is papering over the bug, and causing us to process a max-sized
+buffer when the other end gave *zero* bytes back - this can't be good.
 
-I am Prof. Maurice M. Iwu, Former Chairman Independent Electoral Commission 
-(INEC).Currently, I am on compulsory terminal leave presently in UK , 
-leading up to my final retirement from public service.
+Probably should be more like this:
 
-I am seeking your partnership in a mutual benefit project involving 
-investing into your company and secondly on properties and to be precise Estate Development or any other profitable venture of your great idea for our mutual benefit of Equity Market Investment.,
+	if (!report->size) then	/* 
+		rsize = MIN_VALID_SIZE; /* whatever it should be here */
+	else {
+		rsize = ((report->size - 1) >> 3) + 1;
+		if (rsize > HID_MAX_BUFFER_SIZE)
+			rsize = HID_MAX_BUFFER_SIZE;
+	}
 
-Sincerely,
-Prof. Maurice M.Iwu.
-{INEC.}
+	if (csize < rsize) {
+
+
+That last if() still looks squirrely - if we have an effectively zero rsize,
+the report is short and the dbg_hid should fire.  Did we want "csize > rsize"
+instead?
+
+
+
+--==_Exmh_1305907324_2669P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFN1pB8cC3lWbTT17ARArqCAKCQWd9lr6+pYPGwFS/gBUyvELvLPgCfRoi3
+iB+t44ebO5hAkXs65hSK+Gs=
+=drIg
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1305907324_2669P--

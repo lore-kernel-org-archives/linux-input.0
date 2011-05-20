@@ -1,86 +1,58 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH 6/6] hid-multitouch: class MT_CLS_STANTUM is redundant
- with MT_CLS_CONFIDENCE
-Date: Fri, 20 May 2011 12:32:23 +0200
-Message-ID: <BANLkTim1nGEbBo2Zf6gfTzAAZJK5vmpy6A@mail.gmail.com>
-References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
-	<1305807498-8785-7-git-send-email-benjamin.tissoires@enac.fr>
-	<alpine.LNX.2.00.1105201031560.28291@pobox.suse.cz>
+From: Jimmy Hon <honyuenkwun@gmail.com>
+Subject: [PATCH 2.6.38.6 1/1] usbhid: add quirks for HyperPen 10000U
+Date: Fri, 20 May 2011 06:58:18 -0400
+Message-ID: <4DD6494A.6010102@gmail.com>
+Reply-To: honj@alum.rpi.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:53240 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935523Ab1ETKcY convert rfc822-to-8bit (ORCPT
+Received: from mail-qy0-f181.google.com ([209.85.216.181]:33505 "EHLO
+	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752839Ab1ETK53 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 May 2011 06:32:24 -0400
-In-Reply-To: <alpine.LNX.2.00.1105201031560.28291@pobox.suse.cz>
+	Fri, 20 May 2011 06:57:29 -0400
+Received: by qyg14 with SMTP id 14so2050032qyg.19
+        for <linux-input@vger.kernel.org>; Fri, 20 May 2011 03:57:28 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-On Fri, May 20, 2011 at 10:35, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Thu, 19 May 2011, Benjamin Tissoires wrote:
->
->> Stantum devices used to work with MT_CLS_STANTUM but MT_CLS_CONFIDEN=
-CE
->> is exactly the same. This patch switches them to this generic class,
->> and remove the unused MT_CLS_STANTUM.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
->> ---
->> =A0drivers/hid/hid-multitouch.c | =A0 =A09 +++------
->> =A01 files changed, 3 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitou=
-ch.c
->> index feeb0b7..65b92d2 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -88,7 +88,6 @@ struct mt_class {
->> =A0#define MT_CLS_DUAL_INRANGE_CONTACTNUMBER =A0 =A03
->> =A0#define MT_CLS_CYPRESS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 4
->> =A0#define MT_CLS_EGALAX =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A05
->> -#define MT_CLS_STANTUM =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 6
->> =A0#define MT_CLS_3M =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A07
->> =A0#define MT_CLS_CONFIDENCE =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
-8
->> =A0#define MT_CLS_CONFIDENCE_MINUS_ONE =A0 =A0 =A0 =A0 =A09
->
-> Benjamin,
->
-> is it intentional that you are leaving the hole in the numbering here=
-?
->
-> I don't think there would be any issue with re-numbering 7-10, would =
-it?
+Add 5543:0064 UC-Logic Technology Corp. Aiptek HyperPen 10000U to quirks 
+with HID_QUIRK_MULTI_INPUT.
 
-Well, the first time I tried to renumber those classes (to keep them
-alphabetically sorted), I've been told not to do it. That's why I let
-the hole in this case.
-There won't be any issue in renumbering those classes (and we could sor=
-t them).
-Maybe I can just send a new patch on top of this to sort them.
+Originally the device is reporting the x,y coordinates on Z and RX. By 
+adding this quirk, there will be two kernel devices. The first one is 
+muted and the second device will report coordinates on X and Y.
 
-Cheers,
-Benjamin
-
-PS: and thank you very much for applying so quickly the last patches I =
-sent.
-
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+---
+diff -ur a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h    2011-05-20 06:31:15.471495292 -0400
++++ b/drivers/hid/hid-ids.h    2011-05-20 05:51:38.598147606 -0400
+@@ -559,6 +559,7 @@
+  #define USB_VENDOR_ID_UCLOGIC        0x5543
+  #define USB_DEVICE_ID_UCLOGIC_TABLET_PF1209    0x0042
+  #define USB_DEVICE_ID_UCLOGIC_TABLET_KNA5    0x6001
++#define USB_DEVICE_ID_UCLOGIC_TABLET_TWA60    0x0064
+  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U    0x0003
+  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U    0x0004
+  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U    0x0005
+diff -ur a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+--- a/drivers/hid/usbhid/hid-quirks.c    2011-05-20 04:01:28.541441025 -0400
++++ b/drivers/hid/usbhid/hid-quirks.c    2011-05-20 04:10:21.881444247 -0400
+@@ -71,6 +71,7 @@
+      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209, 
+HID_QUIRK_MULTI_INPUT },
+      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U, 
+HID_QUIRK_MULTI_INPUT },
+      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5, 
+HID_QUIRK_MULTI_INPUT },
++    { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60, 
+HID_QUIRK_MULTI_INPUT },
+      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U, 
+HID_QUIRK_MULTI_INPUT },
+      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U, 
+HID_QUIRK_MULTI_INPUT },
+      { USB_VENDOR_ID_WALTOP, 
+USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH, HID_QUIRK_MULTI_INPUT },

@@ -1,206 +1,86 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH] hid-multitouch: Add support for Lumio panels
-Date: Fri, 20 May 2011 12:12:14 +0200
-Message-ID: <87mxihd6kh.fsf@macbook.be.48ers.dk>
-References: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr>
-	<87boyyo0gr.fsf@macbook.be.48ers.dk>
-	<BANLkTikPXHswWQqQHqd8fegotqoZPLErsQ@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Subject: Re: [PATCH 6/6] hid-multitouch: class MT_CLS_STANTUM is redundant
+ with MT_CLS_CONFIDENCE
+Date: Fri, 20 May 2011 12:32:23 +0200
+Message-ID: <BANLkTim1nGEbBo2Zf6gfTzAAZJK5vmpy6A@mail.gmail.com>
+References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
+	<1305807498-8785-7-git-send-email-benjamin.tissoires@enac.fr>
+	<alpine.LNX.2.00.1105201031560.28291@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:63830 "EHLO
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:53240 "EHLO
 	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935523Ab1ETKMU (ORCPT
+	with ESMTP id S935523Ab1ETKcY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 May 2011 06:12:20 -0400
-In-Reply-To: <BANLkTikPXHswWQqQHqd8fegotqoZPLErsQ@mail.gmail.com> (Benjamin
-	Tissoires's message of "Fri, 20 May 2011 00:37:05 +0200")
+	Fri, 20 May 2011 06:32:24 -0400
+In-Reply-To: <alpine.LNX.2.00.1105201031560.28291@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->>>>> "Benjamin" == Benjamin Tissoires <benjamin.tissoires@enac.fr> writes:
+On Fri, May 20, 2011 at 10:35, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Thu, 19 May 2011, Benjamin Tissoires wrote:
+>
+>> Stantum devices used to work with MT_CLS_STANTUM but MT_CLS_CONFIDEN=
+CE
+>> is exactly the same. This patch switches them to this generic class,
+>> and remove the unused MT_CLS_STANTUM.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+>> ---
+>> =A0drivers/hid/hid-multitouch.c | =A0 =A09 +++------
+>> =A01 files changed, 3 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitou=
+ch.c
+>> index feeb0b7..65b92d2 100644
+>> --- a/drivers/hid/hid-multitouch.c
+>> +++ b/drivers/hid/hid-multitouch.c
+>> @@ -88,7 +88,6 @@ struct mt_class {
+>> =A0#define MT_CLS_DUAL_INRANGE_CONTACTNUMBER =A0 =A03
+>> =A0#define MT_CLS_CYPRESS =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 4
+>> =A0#define MT_CLS_EGALAX =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A05
+>> -#define MT_CLS_STANTUM =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 6
+>> =A0#define MT_CLS_3M =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A07
+>> =A0#define MT_CLS_CONFIDENCE =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+8
+>> =A0#define MT_CLS_CONFIDENCE_MINUS_ONE =A0 =A0 =A0 =A0 =A09
+>
+> Benjamin,
+>
+> is it intentional that you are leaving the hole in the numbering here=
+?
+>
+> I don't think there would be any issue with re-numbering 7-10, would =
+it?
 
-Hi,
+Well, the first time I tried to renumber those classes (to keep them
+alphabetically sorted), I've been told not to do it. That's why I let
+the hole in this case.
+There won't be any issue in renumbering those classes (and we could sor=
+t them).
+Maybe I can just send a new patch on top of this to sort them.
 
- Benjamin> your device presents Contact ID, Tip Switch, In Range and
- Benjamin> Confidence.  I would say that Win 7 would treat it as a
- Benjamin> multitouch screen, so this might work with
- Benjamin> hid-multitouch. Please note that's the first time I see a
- Benjamin> report descriptor with only one touch reported for a
- Benjamin> multitouch screen.
+Cheers,
+Benjamin
 
- Benjamin> For the configuration, the device may emulate a mouse by
- Benjamin> default, and hid-multitouch is able to switch to the
- Benjamin> multitouch mode. You will loose the right click, but it can
- Benjamin> be enabled in gnome at least (accessibility settings).
+PS: and thank you very much for applying so quickly the last patches I =
+sent.
 
- Benjamin> Can you just replace in hid-ids.h:
- Benjamin> - #define USB_DEVICE_ID_CRYSTALTOUCH  0x0006
- Benjamin> + #define USB_DEVICE_ID_CRYSTALTOUCH  0x0005
-
- Benjamin> and see if it's working?  If you prefer, I can make a new
- Benjamin> patch, but I'll need to know which kernel you are running
- Benjamin> (tree and branch). A 2.6.39 and above would be great.
-
-I'm on 2.6.39. The patch doesn't apply cleanly, but I've fixed it up
-manually (http://peter.korsgaard.com/lumio-2.6.29.patch).
-
-hid-multitouch does get loaded, and everything looks OK:
-
-usb 2-1.1: new full speed USB device number 4 using uhci_hcd
-hid-multitouch 0003:202E:0005.0008: hiddev0: USB HID v1.10 Device [LUMIO Inc LUMIO CrystalTouch ver 1.1C] on usb-0000:00:1d.0-1.1/input0
-input: LUMIO Inc LUMIO CrystalTouch ver 1.1C as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.1/input/input18
-hid-multitouch 0003:202E:0005.0009: input: USB HID v1.11 Keyboard [LUMIO Inc LUMIO CrystalTouch ver 1.1C] on usb-0000:00:1d.0-1.1/input1
-input: LUMIO Inc LUMIO CrystalTouch ver 1.1C as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.2/input/input19
-hid-multitouch 0003:202E:0005.000A: input: USB HID v1.11 Mouse [LUMIO Inc LUMIO CrystalTouch ver 1.1C] on usb-0000:00:1d.0-1.1/input2
-input: LUMIO Inc LUMIO CrystalTouch ver 1.1C as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.3/input/input20
-hid-multitouch 0003:202E:0005.000B: input: USB HID v1.11 Device [LUMIO Inc LUMIO CrystalTouch ver 1.1C] on usb-0000:00:1d.0-1.1/input3
-
-Evdev output is also different, but it doesn't seem to ever generate any
-events when I touch the screen.
-
-Before I had:
-
-I: Bus=0003 Vendor=202e Product=0005 Version=0111
-N: Name="LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-P: Phys=usb-0000:00:1d.0-1.1/input1
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.1/input/input28
-U: Uniq=
-H: Handlers=mac-button-emul sysrq kbd event16 
-B: PROP=0
-B: EV=100013
-B: KEY=e080ffdf01cfffff fffffffffffffffe
-B: MSC=10
-
-I: Bus=0003 Vendor=202e Product=0005 Version=0111
-N: Name="LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-P: Phys=usb-0000:00:1d.0-1.1/input2
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.2/input/input29
-U: Uniq=
-H: Handlers=mac-button-emul event17 
-B: PROP=0
-B: EV=1f
-B: KEY=70000 0 0 0 0
-B: REL=200
-B: ABS=3
-B: MSC=10
-
-I: Bus=0003 Vendor=202e Product=0005 Version=0111
-N: Name="LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-P: Phys=usb-0000:00:1d.0-1.1/input3
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.3/input/input30
-U: Uniq=
-H: Handlers=mac-button-emul event18 
-B: PROP=0
-B: EV=1b
-B: KEY=420 1 0 0 0 0
-B: ABS=10000000003
-B: MSC=10
-
-With event16 + event18 never generating any events, and event17 giving:
-
-Input driver version is 1.0.1
-Input device ID: bus 0x3 vendor 0x202e product 0x5 version 0x111
-Input device name: "LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-Supported events:
-  Event type 0 (Sync)
-  Event type 1 (Key)
-    Event code 272 (LeftBtn)
-    Event code 273 (RightBtn)
-    Event code 274 (MiddleBtn)
-  Event type 2 (Relative)
-    Event code 9 (Misc)
-  Event type 3 (Absolute)
-    Event code 0 (X)
-      Value    650
-      Min        0
-      Max     4095
-    Event code 1 (Y)
-      Value   3221
-      Min        0
-      Max     4095
-  Event type 4 (Misc)
-    Event code 4 (ScanCode)
-Testing ... (interrupt to exit)
-Event: time 1305882024.934011, type 4 (Misc), code 4 (ScanCode), value 90001
-Event: time 1305882024.934017, type 1 (Key), code 272 (LeftBtn), value 1
-Event: time 1305882024.934029, type 3 (Absolute), code 0 (X), value 270
-Event: time 1305882024.934034, type 3 (Absolute), code 1 (Y), value 1513
-Event: time 1305882024.934039, type 2 (Relative), code 9 (Misc), value 1
-Event: time 1305882024.934043, -------------- Report Sync ------------
-Event: time 1305882024.943019, type 2 (Relative), code 9 (Misc), value 1
-Event: time 1305882024.943025, -------------- Report Sync ------------
-Event: time 1305882024.951998, type 3 (Absolute), code 0 (X), value 275
-Event: time 1305882024.952006, type 3 (Absolute), code 1 (Y), value 1519
-Event: time 1305882024.952010, type 2 (Relative), code 9 (Misc), value 1
-Event: time 1305882024.952014, -------------- Report Sync ------------
-
-
-Now with hid-multitouch I have:
-
-I: Bus=0003 Vendor=202e Product=0005 Version=0111
-N: Name="LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-P: Phys=usb-0000:00:1d.0-1.1/input1
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.1/input/input18
-U: Uniq=
-H: Handlers=mac-button-emul event16 
-B: PROP=0
-B: EV=100003
-B: KEY=0
-
-I: Bus=0003 Vendor=202e Product=0005 Version=0111
-N: Name="LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-P: Phys=usb-0000:00:1d.0-1.1/input2
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.2/input/input19
-U: Uniq=
-H: Handlers=mac-button-emul event17 
-B: PROP=0
-B: EV=b
-B: KEY=0
-B: ABS=60000000000003
-
-I: Bus=0003 Vendor=202e Product=0005 Version=0111
-N: Name="LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-P: Phys=usb-0000:00:1d.0-1.1/input3
-S: Sysfs=/devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.1/2-1.1:1.3/input/input20
-U: Uniq=
-H: Handlers=mac-button-emul event18 
-B: PROP=0
-B: EV=b
-B: KEY=400 0 0 0 0 0
-B: ABS=60000000000003
-
-And event17:
-
-Input driver version is 1.0.1
-Input device ID: bus 0x3 vendor 0x202e product 0x5 version 0x111
-Input device name: "LUMIO Inc LUMIO CrystalTouch ver 1.1C"
-Supported events:
-  Event type 0 (Sync)
-  Event type 1 (Key)
-  Event type 3 (Absolute)
-    Event code 0 (X)
-      Value      0
-      Min        0
-      Max     4095
-    Event code 1 (Y)
-      Value      0
-      Min        0
-      Max     4095
-    Event code 53 (?)
-      Value      0
-      Min        0
-      Max     4095
-    Event code 54 (?)
-      Value      0
-      Min        0
-      Max     4095
-Testing ... (interrupt to exit)
-Event: time 1305886175.641112, -------------- Report Sync ------------
-
-And then nothing. Any idea about how to progress?
-
--- 
-Bye, Peter Korsgaard
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,29 +1,46 @@
-From: =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] hid-multitouch: Add support for Lumio panels
-Date: Fri, 20 May 2011 09:22:35 +0200
-Message-ID: <7B870F7B-46C4-4F22-A28A-05CF9F409889@enac.fr>
-References: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr> <87boyyo0gr.fsf@macbook.be.48ers.dk> <BANLkTikPXHswWQqQHqd8fegotqoZPLErsQ@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v1084)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Fixed a crash in hid_report_raw_event() function.
+Date: Fri, 20 May 2011 10:26:36 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105201026300.28291@pobox.suse.cz>
+References: <1305834082-14888-1-git-send-email-armando.visconti@st.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BANLkTikPXHswWQqQHqd8fegotqoZPLErsQ@mail.gmail.com>
+In-Reply-To: <1305834082-14888-1-git-send-email-armando.visconti@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: Armando Visconti <armando.visconti@st.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Thu, 19 May 2011, Armando Visconti wrote:
 
-Le 20 mai 2011 =E0 00:37, Benjamin Tissoires a =E9crit :
+> I'm using a Data Modul EasyTouch USB multitouch controller,
+> which is issuing a hid report with a size equals to 0. The rsize
+> value gets set to 536870912 and Linux is crashing in the memset
+> because the value is too big.
+> 
+> Signed-off-by: Armando Visconti <armando.visconti@st.com>
+> ---
+>  drivers/hid/hid-core.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index c3d6626..3e972e3 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1045,6 +1045,9 @@ void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+>  
+>  	rsize = ((report->size - 1) >> 3) + 1;
+>  
+> +	if (rsize > HID_MAX_BUFFER_SIZE)
+> +		rsize = HID_MAX_BUFFER_SIZE;
+> +
+>  	if (csize < rsize) {
+>  		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
+>  				csize, rsize);
 
-> Hi Peter,
->=20
-> your device presents Contact ID, Tip Switch, In Range and Confidence.
-> I would say that Win 7 would treat it as a multitouch screen, so this
-> might work with hid-multitouch. Please note that's the first time I
-> see a report descriptor with only one touch reported for a multitouch
-> screen.
+Applied, thank you.
 
-Might be the same serial protocol as in capacitive eGalax panels.
-
-St.
+-- 
+Jiri Kosina
+SUSE Labs

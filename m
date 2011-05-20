@@ -1,58 +1,47 @@
-From: Jimmy Hon <honyuenkwun@gmail.com>
-Subject: [PATCH 2.6.38.6 1/1] usbhid: add quirks for HyperPen 10000U
-Date: Fri, 20 May 2011 06:58:18 -0400
-Message-ID: <4DD6494A.6010102@gmail.com>
-Reply-To: honj@alum.rpi.edu
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 6/6] hid-multitouch: class MT_CLS_STANTUM is redundant
+ with MT_CLS_CONFIDENCE
+Date: Fri, 20 May 2011 13:37:45 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105201336280.28291@pobox.suse.cz>
+References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr> <1305807498-8785-7-git-send-email-benjamin.tissoires@enac.fr> <alpine.LNX.2.00.1105201031560.28291@pobox.suse.cz> <BANLkTim1nGEbBo2Zf6gfTzAAZJK5vmpy6A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:33505 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752839Ab1ETK53 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 May 2011 06:57:29 -0400
-Received: by qyg14 with SMTP id 14so2050032qyg.19
-        for <linux-input@vger.kernel.org>; Fri, 20 May 2011 03:57:28 -0700 (PDT)
+Received: from cantor.suse.de ([195.135.220.2]:44324 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754572Ab1ETLhs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 May 2011 07:37:48 -0400
+In-Reply-To: <BANLkTim1nGEbBo2Zf6gfTzAAZJK5vmpy6A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add 5543:0064 UC-Logic Technology Corp. Aiptek HyperPen 10000U to quirks 
-with HID_QUIRK_MULTI_INPUT.
+On Fri, 20 May 2011, Benjamin Tissoires wrote:
 
-Originally the device is reporting the x,y coordinates on Z and RX. By 
-adding this quirk, there will be two kernel devices. The first one is 
-muted and the second device will report coordinates on X and Y.
+> > is it intentional that you are leaving the hole in the numbering here?
+> >
+> > I don't think there would be any issue with re-numbering 7-10, would it?
+> 
+> Well, the first time I tried to renumber those classes (to keep them
+> alphabetically sorted), I've been told not to do it. That's why I let
+> the hole in this case.
+> There won't be any issue in renumbering those classes (and we could sort them).
+> Maybe I can just send a new patch on top of this to sort them.
 
----
-diff -ur a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
---- a/drivers/hid/hid-ids.h    2011-05-20 06:31:15.471495292 -0400
-+++ b/drivers/hid/hid-ids.h    2011-05-20 05:51:38.598147606 -0400
-@@ -559,6 +559,7 @@
-  #define USB_VENDOR_ID_UCLOGIC        0x5543
-  #define USB_DEVICE_ID_UCLOGIC_TABLET_PF1209    0x0042
-  #define USB_DEVICE_ID_UCLOGIC_TABLET_KNA5    0x6001
-+#define USB_DEVICE_ID_UCLOGIC_TABLET_TWA60    0x0064
-  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U    0x0003
-  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U    0x0004
-  #define USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U    0x0005
-diff -ur a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
---- a/drivers/hid/usbhid/hid-quirks.c    2011-05-20 04:01:28.541441025 -0400
-+++ b/drivers/hid/usbhid/hid-quirks.c    2011-05-20 04:10:21.881444247 -0400
-@@ -71,6 +71,7 @@
-      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209, 
-HID_QUIRK_MULTI_INPUT },
-      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U, 
-HID_QUIRK_MULTI_INPUT },
-      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5, 
-HID_QUIRK_MULTI_INPUT },
-+    { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60, 
-HID_QUIRK_MULTI_INPUT },
-      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U, 
-HID_QUIRK_MULTI_INPUT },
-      { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U, 
-HID_QUIRK_MULTI_INPUT },
-      { USB_VENDOR_ID_WALTOP, 
-USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH, HID_QUIRK_MULTI_INPUT },
+OK. Well, I don't really care personally much, I was just wondering why 
+leaving it unnecessarily sparse.
+
+I have applied the whole series now, thanks.
+
+> PS: and thank you very much for applying so quickly the last patches I 
+> sent.
+
+I am preparing the tree for merge window push, so I rather have everything 
+sorted out in the upcoming day or two.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

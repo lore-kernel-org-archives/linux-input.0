@@ -1,45 +1,27 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Fixed a crash in hid_report_raw_event() function.
-Date: Fri, 20 May 2011 10:26:36 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105201026300.28291@pobox.suse.cz>
-References: <1305834082-14888-1-git-send-email-armando.visconti@st.com>
+Subject: Re: 35022: hid-magicmouse broken
+Date: Fri, 20 May 2011 10:28:58 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105201028400.28291@pobox.suse.cz>
+References: <4DD26CB8.7070409@canonical.com> <alpine.LNX.2.00.1105171448230.28291@pobox.suse.cz> <4DD2C913.4000403@canonical.com> <alpine.LNX.2.00.1105191357350.28291@pobox.suse.cz> <4DD51763.1020209@canonical.com> <alpine.LNX.2.00.1105191648480.28291@pobox.suse.cz>
+ <4DD539E8.8090301@canonical.com> <alpine.LNX.2.00.1105191801540.28291@pobox.suse.cz> <4DD55B55.3020306@canonical.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1305834082-14888-1-git-send-email-armando.visconti@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Armando Visconti <armando.visconti@st.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:44455 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934634Ab1ETI3A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 May 2011 04:29:00 -0400
+In-Reply-To: <4DD55B55.3020306@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Ott <alan@signal11.us>
 
-On Thu, 19 May 2011, Armando Visconti wrote:
+On Thu, 19 May 2011, Chase Douglas wrote:
 
-> I'm using a Data Modul EasyTouch USB multitouch controller,
-> which is issuing a hid report with a size equals to 0. The rsize
-> value gets set to 536870912 and Linux is crashing in the memset
-> because the value is too big.
-> 
-> Signed-off-by: Armando Visconti <armando.visconti@st.com>
-> ---
->  drivers/hid/hid-core.c |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index c3d6626..3e972e3 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1045,6 +1045,9 @@ void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
->  
->  	rsize = ((report->size - 1) >> 3) + 1;
->  
-> +	if (rsize > HID_MAX_BUFFER_SIZE)
-> +		rsize = HID_MAX_BUFFER_SIZE;
-> +
->  	if (csize < rsize) {
->  		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
->  				csize, rsize);
+> Seems to work for me :).
 
-Applied, thank you.
+I have applied the patch with your Tested-by. Thanks,
 
 -- 
 Jiri Kosina

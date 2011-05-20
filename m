@@ -1,27 +1,47 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 35022: hid-magicmouse broken
-Date: Fri, 20 May 2011 10:28:58 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105201028400.28291@pobox.suse.cz>
-References: <4DD26CB8.7070409@canonical.com> <alpine.LNX.2.00.1105171448230.28291@pobox.suse.cz> <4DD2C913.4000403@canonical.com> <alpine.LNX.2.00.1105191357350.28291@pobox.suse.cz> <4DD51763.1020209@canonical.com> <alpine.LNX.2.00.1105191648480.28291@pobox.suse.cz>
- <4DD539E8.8090301@canonical.com> <alpine.LNX.2.00.1105191801540.28291@pobox.suse.cz> <4DD55B55.3020306@canonical.com>
+Subject: Re: [PATCH 6/6] hid-multitouch: class MT_CLS_STANTUM is redundant
+ with MT_CLS_CONFIDENCE
+Date: Fri, 20 May 2011 10:35:00 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105201031560.28291@pobox.suse.cz>
+References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr> <1305807498-8785-7-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44455 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934634Ab1ETI3A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 May 2011 04:29:00 -0400
-In-Reply-To: <4DD55B55.3020306@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1305807498-8785-7-git-send-email-benjamin.tissoires@enac.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Ott <alan@signal11.us>
 
-On Thu, 19 May 2011, Chase Douglas wrote:
+On Thu, 19 May 2011, Benjamin Tissoires wrote:
 
-> Seems to work for me :).
+> Stantum devices used to work with MT_CLS_STANTUM but MT_CLS_CONFIDENCE
+> is exactly the same. This patch switches them to this generic class,
+> and remove the unused MT_CLS_STANTUM.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+>  drivers/hid/hid-multitouch.c |    9 +++------
+>  1 files changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index feeb0b7..65b92d2 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -88,7 +88,6 @@ struct mt_class {
+>  #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	3
+>  #define MT_CLS_CYPRESS				4
+>  #define MT_CLS_EGALAX				5
+> -#define MT_CLS_STANTUM				6
+>  #define MT_CLS_3M				7
+>  #define MT_CLS_CONFIDENCE			8
+>  #define MT_CLS_CONFIDENCE_MINUS_ONE		9
 
-I have applied the patch with your Tested-by. Thanks,
+Benjamin,
+
+is it intentional that you are leaving the hole in the numbering here?
+
+I don't think there would be any issue with re-numbering 7-10, would it?
 
 -- 
 Jiri Kosina

@@ -1,47 +1,32 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 6/6] hid-multitouch: class MT_CLS_STANTUM is redundant
- with MT_CLS_CONFIDENCE
-Date: Fri, 20 May 2011 13:37:45 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105201336280.28291@pobox.suse.cz>
-References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr> <1305807498-8785-7-git-send-email-benjamin.tissoires@enac.fr> <alpine.LNX.2.00.1105201031560.28291@pobox.suse.cz> <BANLkTim1nGEbBo2Zf6gfTzAAZJK5vmpy6A@mail.gmail.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: 35022: hid-magicmouse broken
+Date: Fri, 20 May 2011 09:04:20 -0400
+Message-ID: <4DD666D4.8030802@canonical.com>
+References: <4DD26CB8.7070409@canonical.com> <alpine.LNX.2.00.1105171448230.28291@pobox.suse.cz> <4DD2C913.4000403@canonical.com> <alpine.LNX.2.00.1105191357350.28291@pobox.suse.cz> <4DD51763.1020209@canonical.com> <alpine.LNX.2.00.1105191648480.28291@pobox.suse.cz> <4DD539E8.8090301@canonical.com> <alpine.LNX.2.00.1105191801540.28291@pobox.suse.cz> <4DD55B55.3020306@canonical.com> <alpine.LNX.2.00.1105201028400.28291@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:44324 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754572Ab1ETLhs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 May 2011 07:37:48 -0400
-In-Reply-To: <BANLkTim1nGEbBo2Zf6gfTzAAZJK5vmpy6A@mail.gmail.com>
+Received: from adelie.canonical.com ([91.189.90.139]:34072 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932176Ab1ETNEY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 May 2011 09:04:24 -0400
+In-Reply-To: <alpine.LNX.2.00.1105201028400.28291@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Ott <alan@signal11.us>
 
-On Fri, 20 May 2011, Benjamin Tissoires wrote:
-
-> > is it intentional that you are leaving the hole in the numbering here?
-> >
-> > I don't think there would be any issue with re-numbering 7-10, would it?
+On 05/20/2011 04:28 AM, Jiri Kosina wrote:
+> On Thu, 19 May 2011, Chase Douglas wrote:
 > 
-> Well, the first time I tried to renumber those classes (to keep them
-> alphabetically sorted), I've been told not to do it. That's why I let
-> the hole in this case.
-> There won't be any issue in renumbering those classes (and we could sort them).
-> Maybe I can just send a new patch on top of this to sort them.
+>> Seems to work for me :).
+> 
+> I have applied the patch with your Tested-by. Thanks,
 
-OK. Well, I don't really care personally much, I was just wondering why 
-leaving it unnecessarily sparse.
+Thanks Jiri!
 
-I have applied the whole series now, thanks.
+Could you add 'Cc: stable@kernel.org' if it hasn't been merged yet? It
+looks like .39 was just released without this patch...
 
-> PS: and thank you very much for applying so quickly the last patches I 
-> sent.
-
-I am preparing the tree for merge window push, so I rather have everything 
-sorted out in the upcoming day or two.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs

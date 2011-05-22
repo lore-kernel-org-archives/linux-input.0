@@ -1,32 +1,49 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH V3 2/2] input: pmic8xxx_pwrkey: Add support for power
- key
-Date: Sun, 22 May 2011 23:38:31 +0200
-Message-ID: <20110522213829.GN18610@sortiz-mobl>
-References: <1305280071-1652-1-git-send-email-aghayal@codeaurora.org>
- <1305280071-1652-2-git-send-email-aghayal@codeaurora.org>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH 0/2] input: rotary-encoder: add support for half-period encoders
+Date: Mon, 23 May 2011 00:42:31 +0200
+Message-ID: <BANLkTimCdrYf6Fee44hDN2vykwVrAroVJQ@mail.gmail.com>
+References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
+	<20110510190516.GB436@localhost>
+	<BANLkTikgRm7hBZJYXQWSOdQwYyi4=aNDcg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1305280071-1652-2-git-send-email-aghayal@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Anirudh Ghayal <aghayal@codeaurora.org>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-msm@vger.kernel.org, Trilok Soni <tsoni@codeaurora.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:33951 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754912Ab1EVWmc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 May 2011 18:42:32 -0400
+Received: by pzk9 with SMTP id 9so2354855pzk.19
+        for <linux-input@vger.kernel.org>; Sun, 22 May 2011 15:42:32 -0700 (PDT)
+In-Reply-To: <BANLkTikgRm7hBZJYXQWSOdQwYyi4=aNDcg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Johan Hovold <jhovold@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hi Anirudh,
+On Sun, May 22, 2011 at 11:29 PM, Daniel Mack <zonque@gmail.com> wrote:
+> Hi Johan,
+>
+> On Tue, May 10, 2011 at 9:05 PM, Johan Hovold <jhovold@gmail.com> wrote:
+>> Hi Dmitry,
+>>
+>> On Tue, Apr 05, 2011 at 08:15:11PM +0200, Johan Hovold wrote:
+>>> These patches add support for rotary-encoders which have two stable
+>>> states per input signal period.
+>>
+>> Is there any chance to get these into 2.6.40? I haven't received any
+>> feedback from you so I thought I'd send a reminder.
+>
+> Very sorry for the long delay.
+>
+> I was finally able to test your patches with real hardware, and they
+> seem to work alright. So I have no problem with them being accepted
+> any time soon, but I don't know if they will still make it to 2.6.40.
 
-On Fri, May 13, 2011 at 03:17:51PM +0530, Anirudh Ghayal wrote:
-> From: Trilok Soni <tsoni@codeaurora.org>
-> 
-> Add support for PMIC8XXX power key driven over dedicated
-> KYPD_PWR_N pin.
-Patch applied. Thanks for the patch, and thanks Dmitry for the review.
+Btw, that also means you can have my
 
-Cheers,
-Samuel.
+Acked-by: Daniel Mack <zonque@gmail.com>
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+for both patches.
+
+Daniel

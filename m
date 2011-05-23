@@ -1,36 +1,43 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 35022: hid-magicmouse broken
-Date: Mon, 23 May 2011 11:04:06 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1105231103460.28291@pobox.suse.cz>
-References: <4DD26CB8.7070409@canonical.com> <alpine.LNX.2.00.1105171448230.28291@pobox.suse.cz> <4DD2C913.4000403@canonical.com> <alpine.LNX.2.00.1105191357350.28291@pobox.suse.cz> <4DD51763.1020209@canonical.com> <alpine.LNX.2.00.1105191648480.28291@pobox.suse.cz>
- <4DD539E8.8090301@canonical.com> <alpine.LNX.2.00.1105191801540.28291@pobox.suse.cz> <4DD55B55.3020306@canonical.com> <alpine.LNX.2.00.1105201028400.28291@pobox.suse.cz> <4DD666D4.8030802@canonical.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 0/6] Support for multiple devices
+Date: Mon, 23 May 2011 11:22:07 +0200
+Message-ID: <20110523092207.GA13665@polaris.bitmath.org>
+References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:48352 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752289Ab1EWJEK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 May 2011 05:04:10 -0400
-In-Reply-To: <4DD666D4.8030802@canonical.com>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:46072 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751458Ab1EWJRG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 May 2011 05:17:06 -0400
+Content-Disposition: inline
+In-Reply-To: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Ott <alan@signal11.us>
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2011, Chase Douglas wrote:
+Hi Benjamin,
 
-> >> Seems to work for me :).
-> > 
-> > I have applied the patch with your Tested-by. Thanks,
+> I am still getting some reports for new multitouch devices.
+> Usually, I ask people to send the logs of the device to be able
+> to finely tune the kernel processing of the events.
+> As of today, I've got 5 devices that needs to be tested with
+> the fine tuning or that I missed the logs (ActionStar, CVTouch,
+> GoodTouch, Touch International and Unitec panels).
+> Instead of waiting eternally for the feedback, I thought I
+> should send them for inclusion now, and we will eventually
+> reduce the kernel processing for those devices later.
+> All these devices show that they are Win7 compliant from
+> their report descriptors (and logs for some of them), so it
+> should be safe.
 > 
-> Thanks Jiri!
-> 
-> Could you add 'Cc: stable@kernel.org' if it hasn't been merged yet? It
-> looks like .39 was just released without this patch...
+> Finally, I saw that the class for Stantum devices was redundant
+> with the one included by Ilitek, so I moved Stantum
+> devices to the generic one.
 
-I will be sending this patch to stable once it's in Linus tree (I will be 
-sending pull request likely today).
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
--- 
-Jiri Kosina
-SUSE Labs
+Thanks,
+Henrik

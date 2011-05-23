@@ -1,124 +1,54 @@
-From: simon@mungewell.org
-Subject: HID joystick - Axis 11 non operational.
-Date: Wed, 1 Jun 2011 15:25:02 -0400
-Message-ID: <9c3f08ce41f278fc835bf09e489eef0f.squirrel@host171.canaca.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20110601152502_45554"
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH 1/2] sony_ff_hid_descriptor
+Date: Mon, 23 May 2011 03:19:58 -0700
+Message-ID: <1306145999-15643-1-git-send-email-simon@mungewell.org>
+References: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:40651 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759165Ab1FATZD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 15:25:03 -0400
-Received: from localhost ([127.0.0.1] helo=host171.canaca.com)
-	by host171.canaca.com with esmtpa (Exim 4.69)
-	(envelope-from <simon@mungewell.org>)
-	id 1QRr2M-0005iY-GL
-	for linux-input@vger.kernel.org; Wed, 01 Jun 2011 15:25:02 -0400
+Received: from idcmail-mo1so.shaw.ca ([24.71.223.10]:18625 "EHLO
+	idcmail-mo1so.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756771Ab1FATmm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 15:42:42 -0400
+In-Reply-To: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>, Marcin Tolysz <tolysz@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
 
-------=_20110601152502_45554
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+This patch modifies the HID descriptor to allow the reporting of
+the accelerometers and gyro via a joystick axis.
+---
+ drivers/hid/hid-sony.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
 
-I have a strange bug, axis 11 does not appear to be working at all,
-remains at -32768 all the time.
-
-On the Sixaxis controller almost all the buttons are pressure sensitive,
-and thus reported as axis as well as buttons. The 'faulty' axis is in the
-middle of a descriptor group so I don't think the problem is with the
-descriptor.
-
-Hidraw0 logging shows that the gamepad is sending the correct data. Logs
-from hidraw and jstest attached.
-
-Axis 10 - Dpad-down
-Axis 11 - Dpad-left
-Axis 12 - L2 trigger
-
-This fault is seen with Sixaxis and 3rd party wired controller. Tested
-with 3.0rc1 kernel.
-
-Is there any chance/place where userland could be misconfigured? Or where
-should I look in the kernel?
-
-Simon.
-------=_20110601152502_45554
-Content-Type: application/gzip; name="axis_11_fail_hidraw0.txt.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="axis_11_fail_hidraw0.txt.gz"
-
-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
-------=_20110601152502_45554
-Content-Type: application/gzip; name="axis_11_fail_jstest.txt.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="axis_11_fail_jstest.txt.gz"
-
-H4sICNaO5k0CAGF4aXNfMTFfZmFpbF9qc3Rlc3QudHh0AO3dX6/SMBjH8XteRS8lAbJ23bp5558b
-jVGjXKh3qFMXdTMwjfrqnTxa44WocchT+JKw5xdyzuHAJ21HW+Dmtv3QbM143bV9Z9qdcSu7ylaz
-2/2n3dA+e22uPOy7T+b+nWuPH66vrW/du3vlwTw3N/pu2PZv3jTbuXm1GX8rmM3HZmeuPFqYxwvz
-ZGEefF6YK937N2/mqdX5bNM9N7Y2T98PQ9+ND2q9bV++bLYLs371/u3T60P3I7kx9u/GsK9yw/22
-e902+9uub3Y/BRdTHpOPqYipXJjxeLPZPN+Ha/vj9f3xxi//79Vs3Yxo3UuzWq3MlbYbmu32/bvB
-DL1pPrbDfDabXRuVrhqTjdfxkhljY3Ix5TH5mIqYyphCTFVM9fdks5hsTC6mPCYfUxFTGVOIqYop
-3ofLYrIxuZjymHxMRUzxPq7vneVp6V+8GJ8TKU5KLsVLKaSUUoKUSkr9tYwPXIqV4qTkUryUQkop
-JUiRvwIRRBBBBBFEEEEEEUQQQQQRRBBBBBFEEEEEEUQQQQQRRBBBBBFEEEEEEUQQXRbRMnehDBAl
-QSQJoiSIJEGUBJEkiJIgkgRREkSSIEqCSBJESRBJgigJIkkQJUEkCaIkiCRBlASRJIiSIJIEURJE
-kiBKgkgSREkQSYIoCSJJECVBJAmiJIgkQQQRRBBdLtHS595ClASR/BxEZ0vUmXMgsnVRe4gg+nsi
-V5QQfSMKhcqODqIfRK7IMogUE5llZbMKItVELnN0dKqJvl7o6HQTja2ohEg1kQ+uhkg1URkKWpFu
-oto6xiLVRNZWLodINZGvSoh0E9WuKCDSTORcHSxEqolCXjqINBPlWVbS0ekmst7yukg3kdKFcYh+
-jEVVsKy66iYaZ1FZL1JNZDMfOKNTTTQeLLMLqolYddVOtLTWesYi3UTso4PohETs6Yboookm2dMN
-0TGJaEUXRdQZiI5ANGVHB5F6Ijq6oxB5N11HB9FRiGhF6ommPF2AKBWizpwPkcvKDCKI/v9YdE5E
-Nh/fpAwRRIeJCgvRoU+7X5ahhAii3xDVAaI/+M4IiLQS2cJlFiKI/vsc3TkR7TcRQwQRswv/QMQc
-HUR/QMTsgnoixiL1RLQi9USMRb8hymoHkWYiU3l/6pluiA4SLW1Zn3qODiL1RDZwunBoSc8X7tSn
-CxCpJ8oqOrpD20vy3J66o4PoEonY6gjRhRGVlYNIN1FVQKSciFaknugI20sgmpho+q2OEE1LdIQl
-PYimJTrCkt50RF8AcBO8AM2/AAA=
-------=_20110601152502_45554--
-
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 936c911..5c930dc 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -28,6 +28,12 @@
+ #define SIXAXIS_CONTROLLER_USB  (1 << 1)
+ #define SIXAXIS_CONTROLLER_BT   (1 << 2)
+ 
++static const u8 sixaxis_rdesc_fixup[] = {
++	0x95, 0x13, 0x09, 0x01, 0x81, 0x02, 0x95, 0x0C,
++	0x81, 0x01, 0x75, 0x10, 0x95, 0x04, 0x26, 0xFF, 
++	0x03, 0x46, 0xFF, 0x03, 0x09, 0x01, 0x81, 0x02
++	};
++
+ struct sony_sc {
+ 	unsigned long quirks;
+ };
+@@ -43,6 +49,11 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		hid_info(hdev, "Fixing up Sony Vaio VGX report descriptor\n");
+ 		rdesc[55] = 0x06;
+ 	}
++	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
++			*rsize == 148 && rdesc[83] == 0x75) {
++		hid_info(hdev, "Fixing up Sony Sixaxis report descriptor\n");
++		memcpy((void *)&rdesc[83], (void *) &sixaxis_rdesc_fixup, sizeof(sixaxis_rdesc_fixup));
++	}
+ 	return rdesc;
+ }
+ 
+-- 
+1.7.4.1
 

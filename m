@@ -1,39 +1,48 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH] input: Add Nintendo extension controller driver
-Date: Mon, 23 May 2011 22:50:34 +0200
-Message-ID: <87fwo5ywdh.fsf@macbook.be.48ers.dk>
-References: <20110516214608.17011.3075.stgit@ponder>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH v2] hid: assorted usage updates from hut 1.12
+Date: Mon, 23 May 2011 17:07:31 -0400
+Message-ID: <4DDACC93.5020105@redhat.com>
+References: <4DADDEBF.3050407@redhat.com> <1303241310-21354-1-git-send-email-jarod@redhat.com> <alpine.LNX.2.00.1105181708210.28291@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:52647 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753283Ab1EWUuk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 May 2011 16:50:40 -0400
-In-Reply-To: <20110516214608.17011.3075.stgit@ponder> (Grant Likely's message
-	of "Mon, 16 May 2011 15:46:08 -0600")
+Received: from mx1.redhat.com ([209.132.183.28]:42415 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030815Ab1EWVH1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 May 2011 17:07:27 -0400
+In-Reply-To: <alpine.LNX.2.00.1105181708210.28291@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: simon@mungewell.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, OliverNeukumoliver@neukum.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
->>>>> "Grant" == Grant Likely <grant.likely@secretlab.ca> writes:
+Jiri Kosina wrote:
+> On Tue, 19 Apr 2011, Jarod Wilson wrote:
+>
+>> I've got a Tivo Slide bluetooth remote/dongle, which uses a fair number
+>> of hid usages that aren't currently mapped in hid-input.c. I'd initially
+>> written additions to hid-input.c with just this device in mind,
+>> including some bits that were specific to the device. This go around,
+>> I'm looking at adding/correcting as many generic HID usages from the HID
+>> Usage Tables, version 1.12, as I can -- which also serves to enable all
+>> but four of the buttons on the Tivo Slide remote[*].
+>>
+>> Outside of fixing the obviously incorrect mapping of 0xc 0x45 from
+>> KEY_RADIO to KEY_RIGHT, and making use of the new KEY_IMAGES (just added
+>> in 2.6.39-rc4) for AL Image Browser instead of KEY_MEDIA, these are
+>> purely additions, and thus should have no negative impact on any already
+>> functional HID devices. Most of the added mappings seemed to be
+>> perfectly logical to me, but there were a few that were mapped on more
+>> of an "I think this makes the most sense" basis.
+>
+> It took me quite some time to go over the individual changes, sorry for
+> the delay. I have applied the patch.
 
- Grant> This driver adds support for Nintendo Wiimote extension controllers
- Grant> directly attached to an i2c bus, such as when using an adaptor like
- Grant> the Wiichuck.
-
-
- Grant> + * If the device is recognized, then the polling period is bumped up
- Grant> + * to 50ms, and the state machine enters into a loop alternating
-
-<snip>
-
- Grant> +#else
- Grant> +#define WIICHUCK_CAPTURE_PERIOD (100)	/* 100 milliseconds */
-
-50 or 100ms?
+Cool, thanks much. Any word on the follow-on TiVo Slide patch?
 
 -- 
-Bye, Peter Korsgaard
+Jarod Wilson
+jarod@redhat.com
+
+

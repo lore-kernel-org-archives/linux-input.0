@@ -1,42 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: select() on /dev/input/eventX not level-triggered?
-Date: Mon, 23 May 2011 11:13:12 -0700
-Message-ID: <20110523181312.GA20438@core.coreip.homeip.net>
-References: <20110519235051.GA9782@elf.ucw.cz>
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: Losing events from USB barcode reader
+Date: Mon, 23 May 2011 21:02:28 +0200
+Message-ID: <20110523210228.7738801f@surf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:56479 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756215Ab1EWSNR (ORCPT
+Received: from mail.free-electrons.com ([88.190.12.23]:53698 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756215Ab1EWTJs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 May 2011 14:13:17 -0400
-Content-Disposition: inline
-In-Reply-To: <20110519235051.GA9782@elf.ucw.cz>
+	Mon, 23 May 2011 15:09:48 -0400
+Received: from surf (humanoidz.org [82.247.183.72])
+	by mail.free-electrons.com (Postfix) with ESMTPA id 511D8135
+	for <linux-input@vger.kernel.org>; Mon, 23 May 2011 21:02:29 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Fri, May 20, 2011 at 01:50:51AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> I'm debugging strange behaviour on /dev/input/eventX ... it seems that
-> select is not behaving level-triggered as it apparently should. I can
-> reproduce it when hitting windows & alt keys.
-> 
-> Now, I really should rewrite it into C, first, but perhaps someone has
-> an idea?
+Hello,
 
-Is this with next or with mainline? In next we try not to signal that FD
-is ready unless we have full packet in the buffer...
+I have a Qt-based application which reads events from a Linux input
+device through /dev/input/eventX. The device I have is an USB barcode
+scanner, which works just like a keyboard.
 
-FWIW I see python indeed not reading the tail of events (btw the format
-should be 'llhhi' and the size on 64 bit arches is 24, not 16) but when
-I hacked evtest to use select and non-blockign read it all worked
-properly.
+Unfortunately, I sometimes lose events coming from this USB barcode
+scanner, and I'm worried about the size of the in-kernel buffer for
+events. The USB barcode scanner acts like a keyboard, but sends events
+much, much faster. For example, when it scans a barcode such as
+"AZERTYUIOP1234", it generates the Shift press, key press, key release,
+Shift release for every character, generating at least 56 events in a
+row, very quickly (and the kernel only buffers 64 events if I'm
+correct).
 
-Thanks.
+There are even worse cases: I have an USB barcode reader which is
+connected by Bluetooth with the barcode reader itself. When the barcode
+reader is far away from the base station, it just buffers the scanned
+barcodes, and when the barcode reader is again within the Bluetooth
+range from the base station, it sends all the buffered scanned barcode
+in a row. Potentially hundreds and hundreds of Linux input events
+coming in.
 
+Shouldn't the in-kernel buffer be larger for such devices, in order to
+leave more time for the applications to come and fetch the events ?
+
+As far as I could see, it doesn't seem to be possible to adjust the
+size of the in-kernel buffer from userspace (through some ioctl() call,
+for example). Did I miss something ?
+
+Thanks,
+
+Thomas
 -- 
-Dmitry
+Thomas Petazzoni, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com

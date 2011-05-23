@@ -1,49 +1,36 @@
-From: Daniel Mack <zonque@gmail.com>
-Subject: Re: [PATCH 0/2] input: rotary-encoder: add support for half-period encoders
-Date: Mon, 23 May 2011 00:42:31 +0200
-Message-ID: <BANLkTimCdrYf6Fee44hDN2vykwVrAroVJQ@mail.gmail.com>
-References: <1302027313-27130-1-git-send-email-jhovold@gmail.com>
-	<20110510190516.GB436@localhost>
-	<BANLkTikgRm7hBZJYXQWSOdQwYyi4=aNDcg@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: 35022: hid-magicmouse broken
+Date: Mon, 23 May 2011 11:04:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105231103460.28291@pobox.suse.cz>
+References: <4DD26CB8.7070409@canonical.com> <alpine.LNX.2.00.1105171448230.28291@pobox.suse.cz> <4DD2C913.4000403@canonical.com> <alpine.LNX.2.00.1105191357350.28291@pobox.suse.cz> <4DD51763.1020209@canonical.com> <alpine.LNX.2.00.1105191648480.28291@pobox.suse.cz>
+ <4DD539E8.8090301@canonical.com> <alpine.LNX.2.00.1105191801540.28291@pobox.suse.cz> <4DD55B55.3020306@canonical.com> <alpine.LNX.2.00.1105201028400.28291@pobox.suse.cz> <4DD666D4.8030802@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:33951 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754912Ab1EVWmc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 May 2011 18:42:32 -0400
-Received: by pzk9 with SMTP id 9so2354855pzk.19
-        for <linux-input@vger.kernel.org>; Sun, 22 May 2011 15:42:32 -0700 (PDT)
-In-Reply-To: <BANLkTikgRm7hBZJYXQWSOdQwYyi4=aNDcg@mail.gmail.com>
+Received: from cantor.suse.de ([195.135.220.2]:48352 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752289Ab1EWJEK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 May 2011 05:04:10 -0400
+In-Reply-To: <4DD666D4.8030802@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <jhovold@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Ott <alan@signal11.us>
 
-On Sun, May 22, 2011 at 11:29 PM, Daniel Mack <zonque@gmail.com> wrote:
-> Hi Johan,
->
-> On Tue, May 10, 2011 at 9:05 PM, Johan Hovold <jhovold@gmail.com> wrote:
->> Hi Dmitry,
->>
->> On Tue, Apr 05, 2011 at 08:15:11PM +0200, Johan Hovold wrote:
->>> These patches add support for rotary-encoders which have two stable
->>> states per input signal period.
->>
->> Is there any chance to get these into 2.6.40? I haven't received any
->> feedback from you so I thought I'd send a reminder.
->
-> Very sorry for the long delay.
->
-> I was finally able to test your patches with real hardware, and they
-> seem to work alright. So I have no problem with them being accepted
-> any time soon, but I don't know if they will still make it to 2.6.40.
+On Fri, 20 May 2011, Chase Douglas wrote:
 
-Btw, that also means you can have my
+> >> Seems to work for me :).
+> > 
+> > I have applied the patch with your Tested-by. Thanks,
+> 
+> Thanks Jiri!
+> 
+> Could you add 'Cc: stable@kernel.org' if it hasn't been merged yet? It
+> looks like .39 was just released without this patch...
 
-Acked-by: Daniel Mack <zonque@gmail.com>
+I will be sending this patch to stable once it's in Linus tree (I will be 
+sending pull request likely today).
 
-for both patches.
-
-Daniel
+-- 
+Jiri Kosina
+SUSE Labs

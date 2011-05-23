@@ -1,43 +1,41 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 0/6] Support for multiple devices
-Date: Mon, 23 May 2011 11:22:07 +0200
-Message-ID: <20110523092207.GA13665@polaris.bitmath.org>
-References: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid-multitouch: cosmetic changes, sort classes and
+ devices
+Date: Mon, 23 May 2011 11:18:57 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105231118390.28291@pobox.suse.cz>
+References: <1305899974-5641-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:46072 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751458Ab1EWJRG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 May 2011 05:17:06 -0400
-Content-Disposition: inline
-In-Reply-To: <1305807498-8785-1-git-send-email-benjamin.tissoires@enac.fr>
+Received: from cantor.suse.de ([195.135.220.2]:48757 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750771Ab1EWJS7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 May 2011 05:18:59 -0400
+In-Reply-To: <1305899974-5641-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+On Fri, 20 May 2011, Benjamin Tissoires wrote:
 
-> I am still getting some reports for new multitouch devices.
-> Usually, I ask people to send the logs of the device to be able
-> to finely tune the kernel processing of the events.
-> As of today, I've got 5 devices that needs to be tested with
-> the fine tuning or that I missed the logs (ActionStar, CVTouch,
-> GoodTouch, Touch International and Unitec panels).
-> Instead of waiting eternally for the feedback, I thought I
-> should send them for inclusion now, and we will eventually
-> reduce the kernel processing for those devices later.
-> All these devices show that they are Win7 compliant from
-> their report descriptors (and logs for some of them), so it
-> should be safe.
+> This patch sorts the defs for the MT_CLS. I choose to split
+> generic classes and device specific ones to be able to add
+> more generic classes in the future.
 > 
-> Finally, I saw that the class for Stantum devices was redundant
-> with the one included by Ilitek, so I moved Stantum
-> devices to the generic one.
+> It also put eGalax devices at their right place (alphabetically)
+> in mt_devices.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+> ---
+> 
+> Hi Jiri,
+> 
+> If you want, you can apply this one too. No semantic changes,
+> just some sorting and corrections in KConfig.
 
-    Acked-by: Henrik Rydberg <rydberg@euromail.se>
+OK, I like this fixup. Thanks Benjamin, applied.
 
-Thanks,
-Henrik
+-- 
+Jiri Kosina
+SUSE Labs

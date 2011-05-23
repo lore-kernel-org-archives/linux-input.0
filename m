@@ -1,48 +1,48 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH v2] hid: assorted usage updates from hut 1.12
-Date: Mon, 23 May 2011 17:07:31 -0400
-Message-ID: <4DDACC93.5020105@redhat.com>
-References: <4DADDEBF.3050407@redhat.com> <1303241310-21354-1-git-send-email-jarod@redhat.com> <alpine.LNX.2.00.1105181708210.28291@pobox.suse.cz>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: select() on /dev/input/eventX not level-triggered?
+Date: Mon, 23 May 2011 23:20:16 +0200
+Message-ID: <20110523212016.GA24969@elf.ucw.cz>
+References: <20110519235051.GA9782@elf.ucw.cz>
+ <20110523181312.GA20438@core.coreip.homeip.net>
+ <20110523200622.GA1590@ucw.cz>
+ <20110523204910.GA20525@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42415 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030815Ab1EWVH1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 May 2011 17:07:27 -0400
-In-Reply-To: <alpine.LNX.2.00.1105181708210.28291@pobox.suse.cz>
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:58683 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1757369Ab1EWVUU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 May 2011 17:20:20 -0400
+Content-Disposition: inline
+In-Reply-To: <20110523204910.GA20525@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Tue, 19 Apr 2011, Jarod Wilson wrote:
->
->> I've got a Tivo Slide bluetooth remote/dongle, which uses a fair number
->> of hid usages that aren't currently mapped in hid-input.c. I'd initially
->> written additions to hid-input.c with just this device in mind,
->> including some bits that were specific to the device. This go around,
->> I'm looking at adding/correcting as many generic HID usages from the HID
->> Usage Tables, version 1.12, as I can -- which also serves to enable all
->> but four of the buttons on the Tivo Slide remote[*].
->>
->> Outside of fixing the obviously incorrect mapping of 0xc 0x45 from
->> KEY_RADIO to KEY_RIGHT, and making use of the new KEY_IMAGES (just added
->> in 2.6.39-rc4) for AL Image Browser instead of KEY_MEDIA, these are
->> purely additions, and thus should have no negative impact on any already
->> functional HID devices. Most of the added mappings seemed to be
->> perfectly logical to me, but there were a few that were mapped on more
->> of an "I think this makes the most sense" basis.
->
-> It took me quite some time to go over the individual changes, sorry for
-> the delay. I have applied the patch.
+On Mon 2011-05-23 13:49:10, Dmitry Torokhov wrote:
+> On Mon, May 23, 2011 at 10:06:22PM +0200, Pavel Machek wrote:
+> > On Mon 2011-05-23 11:13:12, Dmitry Torokhov wrote:
+> > > On Fri, May 20, 2011 at 01:50:51AM +0200, Pavel Machek wrote:
+> > Difference was I'm not using non-blocking read().
+> 
+> Does not matter.
+> 
+> > It is unusual but
+> > should work AFAICT. Just read one packet when select shows its ready;
+> > if there's more than one, don't loop around read, but rely on select
+> > returning immediately.
+> > 
+> > I did verify it on strace, so it should not  be python artefact.
+> 
+> It is artefact of your program, you buffering your input. Use:
+> 
+> 	file = open("/dev/input/event3", "rb", 0)
 
-Cool, thanks much. Any word on the follow-on TiVo Slide patch?
-
+Oops, yes, you are right, that solves it. Thanks... and sorry for the
+noise.
+									Pavel
 -- 
-Jarod Wilson
-jarod@redhat.com
-
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

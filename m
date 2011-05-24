@@ -1,169 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.40-rc0
-Date: Tue, 24 May 2011 00:16:50 -0700
-Message-ID: <20110524071650.GB20870@core.coreip.homeip.net>
-Mime-Version: 1.0
+From: =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH] hid-multitouch: Add support for Lumio panels
+Date: Tue, 24 May 2011 11:05:24 +0200
+Message-ID: <17A85239-A316-43B7-B46C-0AD33B0D92C1@enac.fr>
+References: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr> <87boyyo0gr.fsf@macbook.be.48ers.dk> <BANLkTikPXHswWQqQHqd8fegotqoZPLErsQ@mail.gmail.com> <87mxihd6kh.fsf@macbook.be.48ers.dk> <BANLkTi=nyaVBhKB6bKLCqtykjMAaKfEt9A@mail.gmail.com> <87ipt533cw.fsf@macbook.be.48ers.dk>
+Mime-Version: 1.0 (Apple Message framework v1084)
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:46414 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752375Ab1EXHQ4 (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:58679 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755032Ab1EXJF0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 May 2011 03:16:56 -0400
-Content-Disposition: inline
+	Tue, 24 May 2011 05:05:26 -0400
+In-Reply-To: <87ipt533cw.fsf@macbook.be.48ers.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Drivers, drivers, drivers..=
-=2E
-The only noteworthy change is that we won't wake up userspace evdev
-readers until we accumulate full packet (i.e. get EV_SYN marker) to
-limit bouncing between kernel and userspace.
-
-Changelog:
----------
-
-Alexander Stein (3):
-      Input: gpio_keys - add support for EV_ABS
-      Input: gpio-keys - add support for setting device name
-      Input: ads7846 - add possibility to use external vref on ads7846
-
-Axel Lin (4):
-      Input: qt1070 - add MODULE_DEVICE_TABLE
-      Input: omap-keypad - fix a wrong free_irq() parameter
-      Input: twl4030-pwrbutton - fix a leak of the IRQ during init fail=
-ure
-      Input: h3600_ts_input - fix a leak of the IRQ during init failure
-
-Dmitry Torokhov (3):
-      Input: input-polldev - use system-wide freezable workqueue
-      Input: sh_keysc - make sh_keysc_device_driver static
-      Input: sh_keysc - only compile PM code if PM is enabled
-
-Eric Dumazet (1):
-      Input: remove useless synchronize_rcu() calls
-
-Igor Grinberg (1):
-      Input: ads7846 - fix gpio_pendown configuration
-
-Iiro Valkonen (1):
-      Input: atmel_mxt_ts - make CHG line high after enabling interrupt=
-s
-
-Jeff Brown (1):
-      Input: evdev - only signal polls on full packets
-
-Johan Hovold (2):
-      Input: rotary-encoder - refactor and clean up
-      Input: rotary-encoder - add support for half-period encoders
-
-Joonyoung Shim (2):
-      Input: atmel_mxt_ts - support 12bit resolution
-      Input: atmel_mxt_ts - convert to MT protocol B
-
-Julia Lawall (1):
-      Input: atmel_tsadcc - correct call to input_free_device
-
-Magnus Damm (2):
-      Input: sh_keysc - implement runtime PM support
-      Input: sh_keysc - switch to threaded IRQ handler
-
-Michael Hennerich (5):
-      Input: ad714x - fix up input configuration
-      Input: ad714x - fix threshold and completion interrupt masks
-      Input: ad714x - allow platform code to specify irqflags
-      Input: ad714x - fix captouch wheel option algorithm
-      Input: ADP5589 - new driver for I2C Keypad Decoder and I/O Expand=
-er
-
-Rakesh Iyer (2):
-      Input: tegra-kbc - add ghost key filter
-      Input: tegra-kbc - change wakeup logic to be all or nothing
-
-Thierry Reding (5):
-      Input: tsc2007 - debounce pressure measurement
-      Input: tsc2007 - add max_rt parameter to platform data
-      Input: tsc2007 - add poll_delay parameter to platform data
-      Input: tsc2007 - add poll_period parameter to platform data
-      Input: tsc2007 - add X, Y and Z fuzz factors to platform data
-
-Ville Syrjala (1):
-      Input: ati_remote2 - return the error code from sysfs channel_mas=
-k store
-
-Zhang Jiejing (2):
-      Input: add driver for Maxim max11801 touchscreen controller
-      Input: add driver FSL MPR121 capacitive touch sensor
-
-=C9ric Piel (4):
-      Input: elantech - describe further the protocol
-      Input: elantech - export pressure and width when supported
-      Input: elantech - report multitouch with proper ABS_MT messages
-      Input: elantech - remove support for proprietary X driver
+To: Peter Korsgaard <jacmet@sunsite.dk>
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 
 
-Diffstat:
---------
+Le 20 mai 2011 =E0 15:31, Peter Korsgaard a =E9crit :
 
- Documentation/input/elantech.txt           |  123 ++++-
- Documentation/input/rotary-encoder.txt     |   13 +
- arch/arm/mach-tegra/include/mach/kbc.h     |    4 +-
- drivers/input/evdev.c                      |   19 +-
- drivers/input/input-polldev.c              |   56 +--
- drivers/input/input.c                      |    1 -
- drivers/input/joydev.c                     |    1 -
- drivers/input/keyboard/Kconfig             |   22 +
- drivers/input/keyboard/Makefile            |    2 +
- drivers/input/keyboard/adp5589-keys.c      |  771 ++++++++++++++++++++=
-++++++++
- drivers/input/keyboard/gpio_keys.c         |   11 +-
- drivers/input/keyboard/mpr121_touchkey.c   |  339 ++++++++++++
- drivers/input/keyboard/omap-keypad.c       |    6 +-
- drivers/input/keyboard/qt1070.c            |    1 +
- drivers/input/keyboard/sh_keysc.c          |   53 +--
- drivers/input/keyboard/tegra-kbc.c         |   60 ++-
- drivers/input/misc/ad714x.c                |  129 ++----
- drivers/input/misc/ati_remote2.c           |    9 +-
- drivers/input/misc/rotary_encoder.c        |  119 +++--
- drivers/input/misc/twl4030-pwrbutton.c     |    2 +-
- drivers/input/mouse/elantech.c             |   72 ++-
- drivers/input/mouse/elantech.h             |    6 +
- drivers/input/mousedev.c                   |    1 -
- drivers/input/touchscreen/Kconfig          |   12 +
- drivers/input/touchscreen/Makefile         |    1 +
- drivers/input/touchscreen/ads7846.c        |   26 +-
- drivers/input/touchscreen/atmel_mxt_ts.c   |   92 +++--
- drivers/input/touchscreen/atmel_tsadcc.c   |    2 +-
- drivers/input/touchscreen/h3600_ts_input.c |    8 +-
- drivers/input/touchscreen/max11801_ts.c    |  272 ++++++++++
- drivers/input/touchscreen/tsc2007.c        |   26 +-
- include/linux/gpio_keys.h                  |    8 +-
- include/linux/i2c/mpr121_touchkey.h        |   20 +
- include/linux/i2c/tsc2007.h                |    7 +
- include/linux/input/ad714x.h               |    3 +-
- include/linux/input/adp5589.h              |  213 ++++++++
- include/linux/rotary_encoder.h             |    1 +
- include/linux/spi/ads7846.h                |    3 +-
- 38 files changed, 2155 insertions(+), 359 deletions(-)
- create mode 100644 drivers/input/keyboard/adp5589-keys.c
- create mode 100644 drivers/input/keyboard/mpr121_touchkey.c
- create mode 100644 drivers/input/touchscreen/max11801_ts.c
- create mode 100644 include/linux/i2c/mpr121_touchkey.h
- create mode 100644 include/linux/input/adp5589.h
+>>>>>> "Benjamin" =3D=3D Benjamin Tissoires <benjamin.tissoires@enac.fr=
+> writes:
+>=20
+> Benjamin> Hi Peter,
+>=20
+> Benjamin> I'll see with the device maker if your device should work i=
+n
+> Benjamin> multitouch. Your new evtest does not report enough multitou=
+ch
+> Benjamin> things, which is weird.
+>=20
+> Thanks. I haven't tried myself, but I believe it works with multitouc=
+h
+> in Win7.
 
---=20
-Dmitry
+Benjamin and I have been in touch with the Lumio people about this devi=
+ce and their reply is "old firmware, not supported anymore". Peter, is =
+there a way to upgrade your firmware?=20
+
+Cheers,
+
+St.
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

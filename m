@@ -1,56 +1,41 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH] hid-multitouch: Add support for Lumio panels
-Date: Tue, 24 May 2011 13:38:44 +0200
-Message-ID: <874o4k9vln.fsf@macbook.be.48ers.dk>
-References: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr>
-	<87boyyo0gr.fsf@macbook.be.48ers.dk>
-	<BANLkTikPXHswWQqQHqd8fegotqoZPLErsQ@mail.gmail.com>
-	<87mxihd6kh.fsf@macbook.be.48ers.dk>
-	<BANLkTi=nyaVBhKB6bKLCqtykjMAaKfEt9A@mail.gmail.com>
-	<87ipt533cw.fsf@macbook.be.48ers.dk>
-	<17A85239-A316-43B7-B46C-0AD33B0D92C1@enac.fr>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2] hid: assorted usage updates from hut 1.12
+Date: Tue, 24 May 2011 13:57:59 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1105241357340.28291@pobox.suse.cz>
+References: <4DADDEBF.3050407@redhat.com> <1303241310-21354-1-git-send-email-jarod@redhat.com> <alpine.LNX.2.00.1105181708210.28291@pobox.suse.cz> <4DDACC93.5020105@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:46487 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752546Ab1EXLiu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 May 2011 07:38:50 -0400
-In-Reply-To: <17A85239-A316-43B7-B46C-0AD33B0D92C1@enac.fr> (=?utf-8?Q?=22?=
- =?utf-8?Q?St=C3=A9phane?=
-	Chatty"'s message of "Tue, 24 May 2011 11:05:24 +0200")
+Received: from cantor.suse.de ([195.135.220.2]:42717 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755284Ab1EXL6B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 May 2011 07:58:01 -0400
+In-Reply-To: <4DDACC93.5020105@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?Q?St=C3=A9phane?= Chatty <chatty@enac.fr>
-Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
->>>>> "St=C3=A9phane" =3D=3D St=C3=A9phane Chatty <chatty@enac.fr> writ=
-es:
+On Mon, 23 May 2011, Jarod Wilson wrote:
 
-Hi,
+> > > Outside of fixing the obviously incorrect mapping of 0xc 0x45 from
+> > > KEY_RADIO to KEY_RIGHT, and making use of the new KEY_IMAGES (just added
+> > > in 2.6.39-rc4) for AL Image Browser instead of KEY_MEDIA, these are
+> > > purely additions, and thus should have no negative impact on any already
+> > > functional HID devices. Most of the added mappings seemed to be
+> > > perfectly logical to me, but there were a few that were mapped on more
+> > > of an "I think this makes the most sense" basis.
+> > 
+> > It took me quite some time to go over the individual changes, sorry for
+> > the delay. I have applied the patch.
+> 
+> Cool, thanks much. Any word on the follow-on TiVo Slide patch?
 
- St=C3=A9phane> Benjamin and I have been in touch with the Lumio people=
- about
- St=C3=A9phane> this device and their reply is "old firmware, not suppo=
-rted
- St=C3=A9phane> anymore". Peter, is there a way to upgrade your firmwar=
-e?
+Hmm, it might have escaped my attention, I don't seem to have it in my 
+queue. Could you please resend it?
 
-Thanks. I've not been directly involved with this project earlier or in
-communication with Lumio, so I'm not 100% sure if this controller board
-is able to handle new firmware. This configuration uses 2 cameras, but
-we also have another setup with 4 cameras (where multitouch has been
-verified under Win7). That one uses a different controller board, and
-its firmware uses product ID 6 like on your setup.
+Thanks,
 
-I'll try to contact Lumio to verify.
-
---=20
-Bye, Peter Korsgaard
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

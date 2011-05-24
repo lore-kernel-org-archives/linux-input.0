@@ -1,210 +1,47 @@
-From: David Christen <davidchristen@gmail.com>
-Subject: Re: Enable addition function keys
-Date: Tue, 24 May 2011 19:39:22 +0200
-Message-ID: <BANLkTikH1kzGVqnqF=9uyZHRkWEK3ErURA@mail.gmail.com>
-References: <000001cc1403$1e0ede10$5a2c9a30$@com>
-	<20110524062256.GA20829@core.coreip.homeip.net>
-	<BANLkTinh4Ssnv16t9wp79D82XekiQMZguQ@mail.gmail.com>
-	<BANLkTikFxR_xzZV6WNce+HBDVwc5QZc9yQ@mail.gmail.com>
-	<20110524164931.GA16841@core.coreip.homeip.net>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH v2] hid: assorted usage updates from hut 1.12
+Date: Tue, 24 May 2011 13:49:01 -0400
+Message-ID: <4DDBEF8D.2090600@redhat.com>
+References: <4DADDEBF.3050407@redhat.com> <1303241310-21354-1-git-send-email-jarod@redhat.com> <alpine.LNX.2.00.1105181708210.28291@pobox.suse.cz> <4DDACC93.5020105@redhat.com> <alpine.LNX.2.00.1105241357340.28291@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=20cf3001b83d8215a004a409115a
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:60253 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753777Ab1EXRjX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 May 2011 13:39:23 -0400
-Received: by wya21 with SMTP id 21so5178775wya.19
-        for <linux-input@vger.kernel.org>; Tue, 24 May 2011 10:39:22 -0700 (PDT)
-In-Reply-To: <20110524164931.GA16841@core.coreip.homeip.net>
+Received: from mx1.redhat.com ([209.132.183.28]:7059 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932362Ab1EXRs4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 May 2011 13:48:56 -0400
+In-Reply-To: <alpine.LNX.2.00.1105241357340.28291@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
---20cf3001b83d8215a004a409115a
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
->>
->> Dear Dmitry,
->>
->> I'm starting to feel stupid. I tried a simple code doing some ioctl
->> calls using EVIOCSKEYCODE =A0and EVIOCGKEYCODE. But it does not appear
->> to work. If I run it using ./ioctl-test /dev/input/event0 I get lots
->> of complains about wrong arguments:
->>
->> =3D=3D=3D=3D
->> evdev ioctl: Invalid argument
->> [0]=3D 125, [1] =3D 0
->> evdev ioctl: Invalid argument
->> [0]=3D 126, [1] =3D 0
->> evdev ioctl: Invalid argument
->> [0]=3D 127, [1] =3D 0
->> evdev ioctl: Invalid argument
->> [0]=3D 128, [1] =3D 0
->> evdev ioctl: Invalid argument
->> [0]=3D 129, [1] =3D 0
->> evdev ioctl: Invalid argument
->> Testing changes
->> evdev ioctl: Invalid argument
->> [0]=3D 49, [1] =3D 49
->> evdev ioctl: Invalid argument
->> [0]=3D 50, [1] =3D 49
+Jiri Kosina wrote:
+> On Mon, 23 May 2011, Jarod Wilson wrote:
 >
-> The "scancode" for USB HID devices is full usage code (32 bit), so to
-> remap 'M' to 'N' I think you need to issue EVIOCSKEYCODE for
-> usage 0x00070010 (I think) and keycode 49 (KEY_N).
+>>>> Outside of fixing the obviously incorrect mapping of 0xc 0x45 from
+>>>> KEY_RADIO to KEY_RIGHT, and making use of the new KEY_IMAGES (just added
+>>>> in 2.6.39-rc4) for AL Image Browser instead of KEY_MEDIA, these are
+>>>> purely additions, and thus should have no negative impact on any already
+>>>> functional HID devices. Most of the added mappings seemed to be
+>>>> perfectly logical to me, but there were a few that were mapped on more
+>>>> of an "I think this makes the most sense" basis.
+>>> It took me quite some time to go over the individual changes, sorry for
+>>> the delay. I have applied the patch.
+>> Cool, thanks much. Any word on the follow-on TiVo Slide patch?
 >
-> BTW, this requires somewhat recent kernel. What kernel are you using?
->
-Dear Dmitry,
+> Hmm, it might have escaped my attention, I don't seem to have it in my
+> queue. Could you please resend it?
 
-So you mean it should say:
+Gah. Seems I should send it, period. I now have vague recollections that 
+I decided to refrain from sending the follow-on patch until this patch 
+was accepted. I'll get the TiVo Slide one sent along shortly.
 
-	codes[0] =3D 0x00070010 ; /* M keycap */
-	codes[1] =3D 49; /* assign to N */
+Sorry for the confusion,
 
-	if(ioctl(fd, EVIOCSKEYCODE, codes)) {
-		perror("evdev ioctl");
-	}
+-- 
+Jarod Wilson
+jarod@redhat.com
 
 
-> P.S. In your program you call EVIOCSKEYCODE twice. I believe the 2nd
-> time, when you test, you want to call EVIOCGKEYCODE.
->
->
-
-Yes, you were right. Please find the corrected file attached.
-
-But it seems that the behavior is exactly the same.
-
-The kernel I use is 2.6.33 . It's a debian distro running on a risc process=
-or.
-
-Do you have any idea where that issue could come from?
-
-Thank you for the help,
-David
-
---20cf3001b83d8215a004a409115a
-Content-Type: text/x-csrc; charset=US-ASCII; name="keytable.c"
-Content-Disposition: attachment; filename="keytable.c"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_go34dr760
-
-LyoNCiAqIEJhc2VkIG9uIGtleXRhYmxlLmMgYnkgTWF1cm8gQ2FydmFsaG8gQ2hlaGFiDQogKg0K
-ICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0
-IGFuZC9vciBtb2RpZnkNCiAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwg
-UHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5DQogKiB0aGUgRnJlZSBTb2Z0d2FyZSBGb3Vu
-ZGF0aW9uLCB2ZXJzaW9uIDIgb2YgdGhlIExpY2Vuc2UuDQogKg0KICogVGhpcyBwcm9ncmFtIGlz
-IGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2VmdWwsDQogKiBidXQg
-V0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBv
-Zg0KICogTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NF
-LiAgU2VlIHRoZQ0KICogR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWls
-cy4NCiAqDQogKiBBdXRob3I6IERhdmlkIENocmlzdGVuLCBCZWF0IENocmlzdGVuIEFHLCBaZWxs
-IExVLCBTd2l0emVybGFuZA0KICogRGF0ZSAgOg0KICoNCiAqLw0KDQojaW5jbHVkZSA8c3RkbGli
-Lmg+DQojaW5jbHVkZSA8c3RkaW8uaD4NCiNpbmNsdWRlIDxjdHlwZS5oPg0KI2luY2x1ZGUgPGZj
-bnRsLmg+DQoNCiNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPg0KI2luY2x1ZGUgPGxpbnV4L3Nlcmlh
-bC5oPg0KI2luY2x1ZGUgPGVycm5vLmg+DQojaW5jbHVkZSA8dW5pc3RkLmg+DQojaW5jbHVkZSA8
-dGVybWlvcy5oPg0KDQojaW5jbHVkZSA8c3RyaW5nLmg+DQojaW5jbHVkZSA8bGludXgvaW5wdXQu
-aD4NCiNpbmNsdWRlIDxzeXMvaW9jdGwuaD4NCiNpbmNsdWRlIDxzeXMvdHlwZXMuaD4NCiNpbmNs
-dWRlIDxzeXMvdGltZS5oPg0KI2luY2x1ZGUgPHN5cy9zdGF0Lmg+DQoNCiNpbmNsdWRlICJwYXJz
-ZS5oIg0KI2luY2x1ZGUgInZzb3BlbnJpc2MuaCINCg0KI2RlZmluZSBLRVlfUkVMRUFTRSAwDQoj
-ZGVmaW5lIEtFWV9QUkVTUyAxDQojZGVmaW5lIEtFWV9LRUVQSU5HX1BSRVNTRUQgMg0KDQojZGVm
-aW5lIEdPVE9fRVJST1Ioc3RyKQlcDQoJZG8geyBcDQoJCXByaW50ZigiJXMoJWQpIC8gJXM6ICVz
-ICglZClcbiIsIF9fRklMRV9fLCBfX0xJTkVfXywgc3RyLCBzdHJlcnJvcihlcnJubyksIGVycm5v
-KTsgXA0KCQlnb3RvIGVycm9yOyBcDQoJfSB3aGlsZSgwKQ0KDQpzdGF0aWMgc3RydWN0DQp7DQoJ
-dW5zaWduZWQgY2hhciB2YWx1ZTsNCgljaGFyIG5hbWVbMzJdOw0KfSANCg0KZXBsZF9zdHJfdGFi
-W10gPQ0Kew0KCSB7IEVQTERfUlMyMzIsICJyczIzMiIgfQ0KCSx7IEVQTERfUlM0MjIsICJyczQy
-MiIgfQ0KCSx7IEVQTERfUlM0ODVfQVJUXzRXLCAicnM0ODVieWFydC00LXdpcmUiIH0NCgkseyBF
-UExEX1JTNDg1X0FSVF8yVywgInJzNDg1YnlhcnQtMi13aXJlLW5vZWNobyIgfQ0KCSx7IEVQTERf
-UlM0ODVfQVJUX0VDSE8sICJyczQ4NWJ5YXJ0LTItd2lyZS1lY2hvIiB9DQoJLHsgRVBMRF9SUzQ4
-NV9SVFNfNFcsICJyczQ4NWJ5cnRzLTQtd2lyZSIgfQ0KCSx7IEVQTERfUlM0ODVfUlRTXzJXLCAi
-cnM0ODVieXJ0cy0yLXdpcmUtbm9lY2hvIiB9DQoJLHsgRVBMRF9SUzQ4NV9SVFNfRUNITywgInJz
-NDg1YnlydHMtMi13aXJlLWVjaG8iIH0NCgkseyBFUExEX1BPUlRPRkYsICJpbmFjdGl2ZSIgfQ0K
-fTsNCg0Kc3RhdGljIGludCBlcGxkX3N0cl90YWJfc2l6ZSA9IHNpemVvZihlcGxkX3N0cl90YWIp
-IC8gc2l6ZW9mKGVwbGRfc3RyX3RhYlswXSk7DQoNCnN0cnVjdCB0cmFuc2xhdGVFbnRyeSB7DQoJ
-Y2hhciBLZXlOYW1lWzMyXTsNCglpbnQgQ3RybE9uOw0KCWludCBUcmFuc2xhdGVkQ2hhcjsNCn07
-CQ0KDQpjaGFyICogcHJ0Y29kZShpbnQgY29kZXMpIHsNCiAgICBzdHJ1Y3QgcGFyc2Vfa2V5ICpw
-Ow0KICAgIGZvciAocCA9IGtleW5hbWVzOyBwLT5uYW1lICE9IE5VTEw7IHArKykgew0KICAgICAg
-ICBpZiAocC0+dmFsdWUgPT0gKHVuc2lnbmVkKSBjb2Rlcykgew0KICAgICAgICAgICAgcHJpbnRm
-KCJzY2FuY29kZSAlcyAoMHglMDJ4KVxuIiwgcC0+bmFtZSwgY29kZXMpOw0KICAgICAgICAgICAg
-cmV0dXJuIHAtPm5hbWU7DQogICAgICAgIH0NCiAgICB9DQoJDQogICAgaWYgKGlzcHJpbnQoY29k
-ZXMpKSB7DQogICAgICAgIHByaW50Zigic2NhbmNvZGUgJyVjJyAoMHglMDJ4KVxuIiwgY29kZXMs
-IGNvZGVzKTsNCiAgICB9IGVsc2Ugew0KICAgICAgICBwcmludGYoInNjYW5jb2RlIDB4JTAyeFxu
-IiwgY29kZXMpOw0KICAgIH0NCg0KCXJldHVybiBOVUxMOw0KfQ0KDQppbnQgbWFpbiAoaW50IGFy
-Z2MsIGNoYXIgKmFyZ3ZbXSkgew0KICAgIGludCBpLCBmZCwgcmV0Ow0KICAgIHN0cnVjdCBpbnB1
-dF9ldmVudCBldls2NF07DQoNCiAgICBpZiAoYXJnYyAhPSA0KSB7DQogICAgICAgIGZwcmludGYo
-c3RkZXJyLCAidXNhZ2U6ICVzIGV2ZW50LWRldmljZSAoL2Rldi9pbnB1dC9ldmVudFgpIFxuICAg
-ICAgICAgICBvdXRwdXQtZGV2aWNlKC9kZXYvdHR5UzEpXG4gICAgICAgICAgIGNvbmZpZy1maWxl
-ICh0YXN0YXR1ci5jb25maWcpXG4iLCBhcmd2WzBdKTsNCiAgICAgICAgcmV0dXJuIDE7DQogICAg
-fQ0KDQogICAgaWYgKChmZCA9IG9wZW4oYXJndlsxXSwgT19SRE9OTFkpKSA8IDApIHsNCiAgICAg
-ICAgcGVycm9yKCJDb3VsZG4ndCBvcGVuIGlucHV0IGRldmljZSIpOw0KICAgICAgICByZXR1cm4g
-MTsNCiAgICB9DQoNCglzdHJ1Y3QgdHJhbnNsYXRlRW50cnkgdHJhbnNsYXRlVGFibGVbMTAyNF07
-DQoJaW50IG51bVRyYW5zbGF0ZUVudHJpZXMgPSAwOw0KCQ0KIAlGSUxFICpmaWxlID0gZm9wZW4g
-KCBhcmd2WzNdLCAiciIgKTsNCgkNCgljaGFyIGxhcmdlQnVmWzEwMjRdOw0KCWlmICggZmlsZSAh
-PSBOVUxMICkgew0KCQlwcmludGYoIlN0YXJ0IHJlYWRpbmcgY29uZmlnIGZpbGVcbiIpOw0KCQl3
-aGlsZSAoMSkgew0KCQkJcmV0ID0gZnNjYW5mKGZpbGUsICIlcyAlZCAlZCIsIGxhcmdlQnVmLCAN
-CgkJCQkJJih0cmFuc2xhdGVUYWJsZVtudW1UcmFuc2xhdGVFbnRyaWVzXS5DdHJsT24pLCANCgkJ
-CQkJJih0cmFuc2xhdGVUYWJsZVtudW1UcmFuc2xhdGVFbnRyaWVzXS5UcmFuc2xhdGVkQ2hhcikp
-Ow0KCQkJaWYgKCByZXQgPT0gMykgew0KCQkJCWNoYXIgKiBjb21tZW50ID0gc3RyY2hyKGxhcmdl
-QnVmLCAnIycpOw0KCQkJCWlmICggY29tbWVudCA9PSBOVUxMICkgew0KCQkJCQlpZiAoc3RybGVu
-KGxhcmdlQnVmKSA8IDMyKSB7DQoJCQkJCQlzdHJjcHkodHJhbnNsYXRlVGFibGVbbnVtVHJhbnNs
-YXRlRW50cmllc10uS2V5TmFtZSwgbGFyZ2VCdWYpOw0KCQkJCQkJcHJpbnRmKCJGb3VuZCBrZXkg
-ZGVmaW5pdGlvbjogJXMgJWQgJWRcbiIsIHRyYW5zbGF0ZVRhYmxlW251bVRyYW5zbGF0ZUVudHJp
-ZXNdLktleU5hbWUsIA0KCQkJCQkJCQl0cmFuc2xhdGVUYWJsZVtudW1UcmFuc2xhdGVFbnRyaWVz
-XS5DdHJsT24sIA0KCQkJCQkJCQl0cmFuc2xhdGVUYWJsZVtudW1UcmFuc2xhdGVFbnRyaWVzXS5U
-cmFuc2xhdGVkQ2hhcik7DQoJCQkJCQludW1UcmFuc2xhdGVFbnRyaWVzKys7DQoJCQkJCX0gZWxz
-ZSB7DQoJCQkJCQlwZXJyb3IoIktleUNvZGUgZXhjZWVkcyBtYXhpbXVtIGxlbmd0aCBvZiAzMiBj
-aGFyYWN0ZXJzIik7DQoJCQkJCX0NCgkJCQl9DQoJCQl9IGVsc2UgaWYgKHJldCA9PSBFT0YpIHsN
-CgkJCQlicmVhazsNCgkJCX0gZWxzZSB7DQoJCQkJLypwcmludGYoInJldCA9ICVkLCBsYXJnZUJ1
-ZiA9ICVzXG4iLCByZXQsIGxhcmdlQnVmKTsqLw0KCQkJfQ0KCQl9DQoNCgkJZmNsb3NlICggZmls
-ZSApOw0KCX0NCgllbHNlIHsNCgkJcGVycm9yICggYXJndlszXSApOyAvKiB3aHkgZGlkbid0IHRo
-ZSBmaWxlIG9wZW4/ICovDQoJfQ0KCQ0KCQ0KICAgIGludCBzID0gLTE7DQoJc3RydWN0IGVwbGRf
-c3RydWN0IGVwbGQ7DQoJc3RydWN0IHNvY2thZGRyX2luICphZGRycDsNCg0KCXByaW50ZigicmVh
-ZGluZyB0aGUgbW9kZSBvZiBwb3J0ICVzXG4iLCBhcmd2WzJdKTsNCg0KCS8vLy8vLy8vLy8vLy8v
-Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLw0KCS8vIHNldCB0aGUgZXh0ZXJuYWwgc2Vy
-aWFsIHBvcnQgMiB0byByczIzMiAvLw0KCS8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
-Ly8vLy8vLy8vLy8vLw0KCXByaW50Zigic2V0dGluZyAlcyB0byByczIzMiBtb2RlXG4iLCBhcmd2
-WzJdKTsNCgkNCglpbnQgZmRzOw0KCXN0cnVjdCB0ZXJtaW9zIHNlcl90ZXJtaW9zOw0KCXN0cnVj
-dCBzZXJpYWxfc3RydWN0IHNzX3N0Ow0KCQ0KCWZkcyA9IG9wZW4gKCBhcmd2WzJdICwgKE9fUkRX
-UiB8IE9fTk9DVFRZKSApIDsNCglpZiAoIGZkcyA8IDApDQoJew0KCQlwZXJyb3IoIm9wZW4iKTsN
-CgkJcmV0dXJuIC0xOw0KCX0NCg0KCS8vc2V0IGJhdWRyYXRlIHRvIDM4NDAwIGJpdC9zIHRvIGFj
-dGl2YXRlIGN1c3RvbSBkaXZpc29yDQoJcmV0PXRjZ2V0YXR0cihmZHMgLCAmc2VyX3Rlcm1pb3Mp
-Ow0KCWlmKHJldDwwKQ0KCXsNCgkJcGVycm9yKCJnZXRhdHRyIik7DQoJCXJldHVybiAtMTsNCgl9
-DQoJcmV0ID0gY2ZzZXRpc3BlZWQoJnNlcl90ZXJtaW9zLCBCMTIwMCk7DQoJaWYgKHJldDwwKQ0K
-CXsNCgkJcGVycm9yKCJpc3BlZWQiKTsNCgkJcmV0dXJuIC0xOw0KCX0NCglyZXQ9Y2ZzZXRvc3Bl
-ZWQoJnNlcl90ZXJtaW9zLEIxMjAwKTsNCglpZihyZXQ8MCkNCgl7DQoJCXBlcnJvcigib3NwZWVk
-Iik7DQoJCXJldHVybiAtMTsNCgl9DQoJcmV0PXRjc2V0YXR0cihmZHMsVENTQU5PVywmc2VyX3Rl
-cm1pb3MpOw0KCWlmKHJldDwwKQ0KCXsNCgkJcGVycm9yKCJnZXRhdHRyIik7DQoJCXJldHVybiAt
-MTsNCgl9DQoNCglpZiAoaW9jdGwoZmRzLCBUSU9DR0VQTEQsICZlcGxkKSA8IDApDQoJCXBlcnJv
-cigiaW9jdGw6IFRJT0NHRVBMRCIpOw0KDQoJZm9yIChpID0gMDsgaSA8IGVwbGRfc3RyX3RhYl9z
-aXplOyBpKyspDQoJew0KCQlpZiAoZXBsZF9zdHJfdGFiW2ldLnZhbHVlID09IGVwbGQudmFsdWUp
-DQoJCQlwcmludGYoInBvcnQgJXMgaXMgY29uZmlndXJlZCB0byAlc1xuIiwgYXJndlsyXSwgZXBs
-ZF9zdHJfdGFiW2ldLm5hbWUpOw0KCX0NCg0KCXNsZWVwKDIpOwkNCgkNCgllcGxkLnZhbHVlID0g
-RVBMRF9SUzIzMjsNCgkNCglwcmludGYoIlN0YXJ0IGxpc3RlbmluZy4uLlxuIik7DQoJCQ0KCWlu
-dCBDdHJsUHJlc3NlZCA9IDA7DQoNCiAgICB3aGlsZSAoMSkgew0KICAgICAgICBzaXplX3QgcmIg
-PSByZWFkKGZkLCBldiwgc2l6ZW9mKGV2KSk7DQoNCiAgICAgICAgaWYgKHJiIDwgKGludCkgc2l6
-ZW9mKHN0cnVjdCBpbnB1dF9ldmVudCkpIHsNCiAgICAgICAgICAgIHBlcnJvcigic2hvcnQgcmVh
-ZCIpOw0KICAgICAgICAgICAgcmV0dXJuIDE7DQogICAgICAgIH0NCg0KCQlpbnQgajsNCiAgICAg
-ICAgZm9yIChpID0gMDsgaSA8IChpbnQpIChyYiAvIHNpemVvZihzdHJ1Y3QgaW5wdXRfZXZlbnQp
-KTsgaSsrKSB7DQogICAgICAgICAgICBpZiAoRVZfS0VZID09IGV2W2ldLnR5cGUpIHsNCiAgICAg
-ICAgICAgICAgICBjaGFyICoga2V5Y29kZSA9IHBydGNvZGUoZXZbaV0uY29kZSk7DQogICAgICAg
-ICAgICAgICAgcHJpbnRmKCJ0eXBlICVkIGNvZGUgJWQgdmFsdWUgJWRcbiIsIGV2W2ldLnR5cGUs
-IGV2W2ldLmNvZGUsIGV2W2ldLnZhbHVlKTsNCgkJCQkJDQoJCQkJaWYgKCghc3RyY21wKCJLRVlf
-TEVGVENUUkwiLCBrZXljb2RlKSkgfHwgKCFzdHJjbXAoIktFWV9MRUZUQ1RSTCIsIGtleWNvZGUp
-KSkgew0KCQkJCQlpZiAoZXZbaV0udmFsdWUgPiAwKSB7DQoJCQkJCQlDdHJsUHJlc3NlZCA9IDE7
-DQoJCQkJCX0gZWxzZSB7DQoJCQkJCQlDdHJsUHJlc3NlZCA9IDA7DQoJCQkJCX0NCgkJCQl9DQoJ
-DQoJCQkJaWYgKGV2W2ldLnZhbHVlID4gMCkgew0KCQkJCQlmb3Ioaj0wOyBqPG51bVRyYW5zbGF0
-ZUVudHJpZXM7IGorKyl7DQoJCQkJCQlpZiAoKCFzdHJjbXAodHJhbnNsYXRlVGFibGVbal0uS2V5
-TmFtZSwga2V5Y29kZSkpICYmIChDdHJsUHJlc3NlZCA9PSB0cmFuc2xhdGVUYWJsZVtqXS5DdHJs
-T24pKSB7DQoJCQkJCQkJLy9Gb3VuZCBhIG1hdGNoDQoJCQkJCQkJcHJpbnRmKCJXaWxsIGJlIHRy
-YW5zbGF0ZWQgdG8gJWRcbiIsIHRyYW5zbGF0ZVRhYmxlW2pdLlRyYW5zbGF0ZWRDaGFyKTsNCgkJ
-CQkJCQlmcHJpbnRmKGZkcywgIiVjIiwgY2hhcih0cmFuc2xhdGVUYWJsZVtqXS5UcmFuc2xhdGVk
-Q2hhcikpOw0KCQkJCQkJfQ0KCQkJCQl9DQoJCQkJfQ0KCQkJCQ0KCQkJCXByaW50ZigiXG4iKTsJ
-CQkJCQ0KICAgICAgICAgICAgfSBlbHNlIHsNCgkJCQlwcmludGYoInR5cGUgJWQgY29kZSAlZCB2
-YWx1ZSAlZFxuIiwgZXZbaV0udHlwZSwgZXZbaV0uY29kZSwgZXZbaV0udmFsdWUpOw0KCQkJfQ0K
-ICAgICAgICB9DQogICAgfQ0KDQogICAgcmV0dXJuIDA7DQp9DQoNCg==
---20cf3001b83d8215a004a409115a--

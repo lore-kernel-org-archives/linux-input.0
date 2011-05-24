@@ -1,73 +1,85 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: Losing events from USB barcode reader
-Date: Tue, 24 May 2011 11:55:56 +0200
-Message-ID: <20110524095556.GA6805@polaris.bitmath.org>
-References: <20110523210228.7738801f@surf>
+From: Mohan Pallaka <mpallaka@codeaurora.org>
+Subject: Re: [PATCH 1/2] pwm: Add stubs for pwm operations
+Date: Tue, 24 May 2011 16:34:57 +0530
+Message-ID: <4DDB90D9.1020902@codeaurora.org>
+References: <1305867584-31929-1-git-send-email-mpallaka@codeaurora.org> <4DD7CC83.1020700@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b11.telenor.se ([62.127.194.20]:47975 "EHLO
-	smtprelay-b11.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753445Ab1EXJut (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 May 2011 05:50:49 -0400
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-b11.telenor.se (Postfix) with ESMTP id CBD53EA886
-	for <linux-input@vger.kernel.org>; Tue, 24 May 2011 11:50:47 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <20110523210228.7738801f@surf>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <4DD7CC83.1020700@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Mohan Pallaka <mpallaka@codeaurora.org>
+Cc: dmitry.torokhov@gmail.com, linux@arm.linux.org.uk, rmk+kernel@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, rmk@dyn-67.arm.linux.org.uk
 List-Id: linux-input@vger.kernel.org
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Thomas,
+  Ping.
 
-> I have a Qt-based application which reads events from a Linux input
-> device through /dev/input/eventX. The device I have is an USB barcode
-> scanner, which works just like a keyboard.
-> 
-> Unfortunately, I sometimes lose events coming from this USB barcode
-> scanner, and I'm worried about the size of the in-kernel buffer for
-> events. The USB barcode scanner acts like a keyboard, but sends events
-> much, much faster. For example, when it scans a barcode such as
-> "AZERTYUIOP1234", it generates the Shift press, key press, key release,
-> Shift release for every character, generating at least 56 events in a
-> row, very quickly (and the kernel only buffers 64 events if I'm
-> correct).
+Hi Russell, please take sometime to review this patch.
 
-With 2.6.39, it is possible to tell if events are dropped by looking
-for the (EV_SYN, SYN_DROPPED) event in the stream, for instance using
-evtest.
+Thanks, Mohan.
 
-The buffer size can be set by the driver in question, which may
-utilize information about the device. Is your device exactly a
-keyboard, except it has a higher event rate, or are there perhaps
-other ques?
-
-> There are even worse cases: I have an USB barcode reader which is
-> connected by Bluetooth with the barcode reader itself. When the barcode
-> reader is far away from the base station, it just buffers the scanned
-> barcodes, and when the barcode reader is again within the Bluetooth
-> range from the base station, it sends all the buffered scanned barcode
-> in a row. Potentially hundreds and hundreds of Linux input events
-> coming in.
-
-Assuming we talk about a hid device, knowing the specification would help.
-
-> Shouldn't the in-kernel buffer be larger for such devices, in order to
-> leave more time for the applications to come and fetch the events ?
-
-That seems reasonable, yes.
-
-> As far as I could see, it doesn't seem to be possible to adjust the
-> size of the in-kernel buffer from userspace (through some ioctl() call,
-> for example). Did I miss something ?
-
-Adjusting internal kernel buffers from userspace seems like the wrong
-level of interaction. The kernel should be able to resolve this
-internally, either dynamically or using information such as production
-rate and consumption rate.
-
-Thanks,
-Henrik
+On 5/21/2011 8:00 PM, Mohan Pallaka wrote:
+>  On 5/20/2011 10:29 AM, Mohan Pallaka wrote:
+>> Chip drivers that support both pwm and non-pwm modes
+>> would encounter compilation errors if the platform doesn't
+>> have support for pwm, even though the chip is programmed
+>> to work in non-pwm mode. Add stubs for pwm functions to
+>> avoid compilation errors in these scenarios.
+>>
+>> Signed-off-by: Mohan Pallaka<mpallaka@codeaurora.org>
+>> ---
+>>   include/linux/pwm.h |   23 +++++++++++++++++++++++
+>>   1 files changed, 23 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+>> index 7c77575..54877f6 100644
+>> --- a/include/linux/pwm.h
+>> +++ b/include/linux/pwm.h
+>> @@ -3,6 +3,7 @@
+>>
+>>   struct pwm_device;
+>>
+>> +#if defined(CONFIG_HAVE_PWM)
+>>   /*
+>>    * pwm_request - request a PWM device
+>>    */
+>> @@ -28,4 +29,26 @@ int pwm_enable(struct pwm_device *pwm);
+>>    */
+>>   void pwm_disable(struct pwm_device *pwm);
+>>
+>> +#else
+>> +
+>> +struct pwm_device *pwm_request(int pwm_id, const char *label)
+>> +{
+>> +    return NULL;
+>> +}
+>> +
+>> +void pwm_free(struct pwm_device *pwm) { }
+>> +
+>> +int pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns)
+>> +{
+>> +    return -EINVAL;
+>> +}
+>> +
+>> +int pwm_enable(struct pwm_device *pwm)
+>> +{
+>> +    return -EINVAL;
+>> +}
+>> +
+>> +void pwm_disable(struct pwm_device *pwm) { }
+>> +
+>> +#endif /* CONFIG_HAVE_PWM */
+>>   #endif /* __LINUX_PWM_H */
+>> -- 
+>> Sent by a consultant of the Qualcomm Innovation Center, Inc.
+>> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
+>> Forum.
+> Hi Russell, please review this patch.
+>
+> --Mohan
+> -- 
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-arm-msm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

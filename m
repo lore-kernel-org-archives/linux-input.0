@@ -1,131 +1,56 @@
-From: David Christen <davidchristen@gmail.com>
-Subject: Re: Enable addition function keys
-Date: Tue, 24 May 2011 13:30:43 +0200
-Message-ID: <BANLkTinh4Ssnv16t9wp79D82XekiQMZguQ@mail.gmail.com>
-References: <000001cc1403$1e0ede10$5a2c9a30$@com>
-	<20110524062256.GA20829@core.coreip.homeip.net>
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Subject: Re: [PATCH] hid-multitouch: Add support for Lumio panels
+Date: Tue, 24 May 2011 13:38:44 +0200
+Message-ID: <874o4k9vln.fsf@macbook.be.48ers.dk>
+References: <1305725244-5327-1-git-send-email-benjamin.tissoires@enac.fr>
+	<87boyyo0gr.fsf@macbook.be.48ers.dk>
+	<BANLkTikPXHswWQqQHqd8fegotqoZPLErsQ@mail.gmail.com>
+	<87mxihd6kh.fsf@macbook.be.48ers.dk>
+	<BANLkTi=nyaVBhKB6bKLCqtykjMAaKfEt9A@mail.gmail.com>
+	<87ipt533cw.fsf@macbook.be.48ers.dk>
+	<17A85239-A316-43B7-B46C-0AD33B0D92C1@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:50278 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755306Ab1EXLao (ORCPT
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:46487 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752546Ab1EXLiu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 May 2011 07:30:44 -0400
-Received: by mail-wy0-f174.google.com with SMTP id 21so4889123wya.19
-        for <linux-input@vger.kernel.org>; Tue, 24 May 2011 04:30:43 -0700 (PDT)
-In-Reply-To: <20110524062256.GA20829@core.coreip.homeip.net>
+	Tue, 24 May 2011 07:38:50 -0400
+In-Reply-To: <17A85239-A316-43B7-B46C-0AD33B0D92C1@enac.fr> (=?utf-8?Q?=22?=
+ =?utf-8?Q?St=C3=A9phane?=
+	Chatty"'s message of "Tue, 24 May 2011 11:05:24 +0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: =?utf-8?Q?St=C3=A9phane?= Chatty <chatty@enac.fr>
+Cc: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, USB list <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 
-On Tue, May 24, 2011 at 8:22 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi David,
->
-> On Mon, May 16, 2011 at 09:54:49PM +0200, David Christen wrote:
->> I have a custom made keyboard with 48 Function keys attached to an embedded
->> PC running on a RISC CPU. With hid module in the kernel the regular part of
->> the keyboard (i.e. all letters, num pad and Fxx keys up to F12) are working
->> perfectly fine. However with the additional keys I don't get any events in
->> /dev/input/event0. This is the same behavior as found on a regular Linux PC
->> and also under Windows. Although the manufacturer of the keyboard confirmed
->> that those keys do send proper HID codes (0x68 to 0x8b for F13 to F48).
->> I don't have any experience in programming on the Kernel level. Could you
->> maybe direct me in how to get the input events of those keys running?
->>
->
-> Even though the usage codes are not mapped you should be able to map
-> them yourself using EVIOCSKEYCODE ioctl. See udev sources for how to
-> adjust keymaps on input devices.
->
-> We have F1 through F24 keycode defines, but no F25-F48 (nor do I want to
-> add these since userspace would not really know what to do with these,
-> they are device-specific); you'll have to pick some standard ones that
-> match the functions you want to assign to your extended keys.
->
+>>>>> "St=C3=A9phane" =3D=3D St=C3=A9phane Chatty <chatty@enac.fr> writ=
+es:
 
-Dear Dmitry,
+Hi,
 
-Thank you for looking into this.
+ St=C3=A9phane> Benjamin and I have been in touch with the Lumio people=
+ about
+ St=C3=A9phane> this device and their reply is "old firmware, not suppo=
+rted
+ St=C3=A9phane> anymore". Peter, is there a way to upgrade your firmwar=
+e?
 
-I'm trying to figure out how to use udev for this. Just to make sure
-that my problem was described correctly. My issue is not the mapping
-from the scancode to the keycode, but that I don't get any scancode at
-all. If I look at the output of usbmon, in particular the rdesc file,
-I get
+Thanks. I've not been directly involved with this project earlier or in
+communication with Lumio, so I'm not 100% sure if this controller board
+is able to handle new firmware. This configuration uses 2 cameras, but
+we also have another setup with 4 cameras (where multitouch has been
+verified under Win7). That one uses a different controller board, and
+its firmware uses product ID 6 like on your setup.
 
-====
-Keyboard.0063 ---> Key.KPDot
-Keyboard.0064 ---> Key.102nd
-Keyboard.0065 ---> Key.Compose
-LED.NumLock ---> LED.NumLock
-LED.CapsLock ---> LED.CapsLock
-LED.ScrollLock ---> LED.ScrollLock
-(eof)
-====
+I'll try to contact Lumio to verify.
 
-Looking at the output of my standard Logitech keyboard, this would be
-exactly what I would need:
-
-====
-Keyboard.0080 ---> Key.VolumeUp
-Keyboard.0081 ---> Key.VolumeDown
-Keyboard.0082 ---> Key.Unknown
-Keyboard.0083 ---> Key.Unknown
-Keyboard.0084 ---> Key.Unknown
-Keyboard.0085 ---> Key.KPComma
-Keyboard.0086 ---> Key.Unknown
-Keyboard.0087 ---> Key.RO
-Keyboard.0088 ---> Key.Katakana/Hiragana
-Keyboard.0089 ---> Key.Yen
-Keyboard.008a ---> Key.Henkan
-Keyboard.008b ---> Key.Muhenkan
-Keyboard.008c ---> Key.KPJpComma
-Keyboard.008d ---> Key.Unknown
-Keyboard.008e ---> Key.Unknown
-Keyboard.008f ---> Key.Unknown
-Keyboard.0090 ---> Key.Hangeul
-Keyboard.0091 ---> Key.Hanja
-(eof)
-====
-
-Even better would be to use a keymap without any Key.Unknown in the
-range 0x6b - 0x8b. The exact keycode is not relevant to me as long as
-they are unique. I translate them immediately to some other codes and
-send them to the serial port.
-
-So is there an easy way to select which keymap should be loaded? Below
-is the output when the keyboard is being attached:
-
-====
-usb 2-1: new full speed USB device using uhci_hcd and address 9
-usb 2-1: New USB device found, idVendor=03eb, idProduct=2003
-usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-usb 2-1: Product: USB Foil Keyboard Controller 32 12 885
-usb 2-1: Manufacturer: GESYS
-input: GESYS USB Foil Keyboard Controller 32 12 885 as /class/input/input11
-generic-usb 0003:03EB:2003.000C: input,hidraw0: USB HID v1.11 Keyboard
-[GESYS USB Foil Keyboard Controller 32 12 885] on
-usb-0000:00:06.0-1/input0
-====
-
-as opposed to the logitech keyboard:
-
-====
-usb 2-1: new low speed USB device using uhci_hcd and address 10
-usb 2-1: New USB device found, idVendor=046d, idProduct=c30e
-usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-usb 2-1: Product: HID compliant keyboard
-usb 2-1: Manufacturer: Logitech
-input: Logitech HID compliant keyboard as /class/input/input12
-generic-usb 0003:046D:C30E.000D: input,hidraw0: USB HID v1.10 Keyboard
-[Logitech HID compliant keyboard] on usb-0000:00:06.0-1/input0
-input: Logitech HID compliant keyboard as /class/input/input13
-generic-usb 0003:046D:C30E.000E: input,hidraw1: USB HID v1.10 Device
-[Logitech HID compliant keyboard] on usb-0000:00:06.0-1/input1
-====
-
-Thank you,
-David
+--=20
+Bye, Peter Korsgaard
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

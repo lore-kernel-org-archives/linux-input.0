@@ -1,193 +1,88 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH] hid: flesh out support for tivo slide remote
-Date: Tue, 24 May 2011 13:54:16 -0400
-Message-ID: <1306259656-11391-1-git-send-email-jarod@redhat.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: Re: Enable addition function keys
+Date: Tue, 24 May 2011 15:03:00 -0300
+Message-ID: <20110524180259.GG2622@nautilus.holoscopio.com>
+References: <000001cc1403$1e0ede10$5a2c9a30$@com>
+ <20110524062256.GA20829@core.coreip.homeip.net>
+ <BANLkTinh4Ssnv16t9wp79D82XekiQMZguQ@mail.gmail.com>
+ <BANLkTikFxR_xzZV6WNce+HBDVwc5QZc9yQ@mail.gmail.com>
+ <20110524164931.GA16841@core.coreip.homeip.net>
+ <BANLkTikH1kzGVqnqF=9uyZHRkWEK3ErURA@mail.gmail.com>
+ <20110524175238.GA16908@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QXO0/MSS4VvK6f+D"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:1087 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751229Ab1EXRyb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 May 2011 13:54:31 -0400
+Received: from liberdade2.minaslivre.org ([74.50.53.203]:46800 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755496Ab1EXSJl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 May 2011 14:09:41 -0400
+Content-Disposition: inline
+In-Reply-To: <20110524175238.GA16908@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jarod Wilson <jarod@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Christen <davidchristen@gmail.com>, linux-input@vger.kernel.org
 
-This patch finishes off adding full support for the TiVo Slide remote,
-which is a mostly pure HID device from the perspective of the kernel.
-There are a few mappings that use a vendor-specific usage page, and a
-few keys in the consumer usage page that I think make sense to remap
-slightly, to better fit their key labels' intended use. Doing this in a
-stand-alone hid-tivo.c makes the modifications only matter for this
-specific device.
 
-What's actually connected to the computer is a Broadcom-made usb dongle,
-which has an embedded hub, bluetooth adapter, mouse and keyboard
-devices. You pair with the dongle, then the remote sends data that its
-converted into HID on the keyboard interface (the mouse interface
-doesn't do anything interesting, so far as I can tell).
+--QXO0/MSS4VvK6f+D
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-lsusb for this device:
-Bus 004 Device 005: ID 0a5c:2190 Broadcom Corp.
-Bus 004 Device 004: ID 0a5c:4503 Broadcom Corp.
-Bus 004 Device 003: ID 150a:1201
-Bus 004 Device 002: ID 0a5c:4500 Broadcom Corp. BCM2046B1 USB 2.0 Hub (part of BCM2046 Bluetooth)
+On Tue, May 24, 2011 at 10:52:38AM -0700, Dmitry Torokhov wrote:
+> On Tue, May 24, 2011 at 07:39:22PM +0200, David Christen wrote:
+> >=20
+> > Yes, you were right. Please find the corrected file attached.
+> >=20
+> > But it seems that the behavior is exactly the same.
+> >=20
+> > The kernel I use is 2.6.33 . It's a debian distro running on a risc pro=
+cessor.
+>=20
+> I am afraid you need 2.6.38. Or you'll have to backport the following
+> commits:
+>=20
+> 8613e4c Input: add support for large scancodes
+> ab4e019 Input: define separate EVIOCGKEYCODE_V2/EVIOCSKEYCODE_V2
+> de391d1 Input: fix typo in keycode validation supporting large scancodes
+> a0bf0ea Input: hid-input - switch to using new keycode interface
+> f5854fa Input: hid-input - allow mapping unknown usages
+>=20
+> --=20
+> Dmitry
 
-Speaking of the keyboard interface, the remote actually does contain a
-keyboard as well. The top slides away, revealing a reasonably functional
-qwerty keyboard (not unlike many slide cell phones), thus the product
-name.
+Perhaps, he could try using hidraw interface. Would it be OK for you,
+David? Since you said you are only getting these key events and sending
+them through a serial interface, and I'd say your device portability
+does not include non-HID devices right now, this should solve the
+problem without the need for a kernel upgrade.
 
-Applies cleanly to hid master, tested w/a 2.6.38.3-based Fedora kernel
-and a 2.6.32-based Red Hat Enterprise Linux 6 kernel.
+Regards,
+Cascardo.
 
-CC: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
----
- drivers/hid/Kconfig    |    6 +++
- drivers/hid/Makefile   |    1 +
- drivers/hid/hid-ids.h  |    3 ++
- drivers/hid/hid-tivo.c |   89 ++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 99 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-tivo.c
+--QXO0/MSS4VvK6f+D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 2560f01..30a8cfd 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -492,6 +492,12 @@ config SMARTJOYPLUS_FF
- 	Say Y here if you have a SmartJoy PLUS PS2/USB adapter and want to
- 	enable force feedback support for it.
- 
-+config HID_TIVO_SLIDE
-+	tristate "TiVo Slide Bluetooth remote control support"
-+	depends on USB_HID
-+	---help---
-+	Say Y if you have a TiVo Slide Bluetooth remote control.
-+
- config HID_TOPSEED
- 	tristate "TopSeed Cyberlink, BTC Emprex, Conceptronic remote control support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 6efc2a0..7c1efa3 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -66,6 +66,7 @@ obj-$(CONFIG_HID_STANTUM)	+= hid-stantum.o
- obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
- obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
- obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
-+obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
- obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
- obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
- obj-$(CONFIG_HID_UCLOGIC)	+= hid-uclogic.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ca32ecb..9316df0 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -536,6 +536,9 @@
- 
- #define USB_VENDOR_ID_THRUSTMASTER	0x044f
- 
-+#define USB_VENDOR_ID_TIVO		0x150a
-+#define USB_DEVICE_ID_TIVO_SLIDE	0x1201
-+
- #define USB_VENDOR_ID_TOPSEED		0x0766
- #define USB_DEVICE_ID_TOPSEED_CYBERLINK	0x0204
- 
-diff --git a/drivers/hid/hid-tivo.c b/drivers/hid/hid-tivo.c
-new file mode 100644
-index 0000000..3d43c06
---- /dev/null
-+++ b/drivers/hid/hid-tivo.c
-@@ -0,0 +1,89 @@
-+/*
-+ *  HID driver for TiVo Slide Bluetooth remote
-+ *
-+ *  Copyright (c) 2011 Jarod Wilson <jarod@redhat.com>
-+ *  based on the hid-topseed driver, which is in turn, based on hid-cherry...
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+#define HID_UP_TIVOVENDOR	0xffff0000
-+#define tivo_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, max, \
-+					EV_KEY, (c))
-+
-+static int tivo_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	switch (usage->hid & HID_USAGE_PAGE) {
-+	case HID_UP_TIVOVENDOR:
-+		switch (usage->hid & HID_USAGE) {
-+		/* TiVo button */
-+		case 0x3d: tivo_map_key_clear(KEY_MEDIA);	break;
-+		/* Live TV */
-+		case 0x3e: tivo_map_key_clear(KEY_TV);		break;
-+		/* Red thumbs down */
-+		case 0x41: tivo_map_key_clear(KEY_KPMINUS);	break;
-+		/* Green thumbs up */
-+		case 0x42: tivo_map_key_clear(KEY_KPPLUS);	break;
-+		default:
-+			return 0;
-+		}
-+		break;
-+	case HID_UP_CONSUMER:
-+		switch (usage->hid & HID_USAGE) {
-+		/* Enter/Last (default mapping: KEY_LAST) */
-+		case 0x083: tivo_map_key_clear(KEY_ENTER);	break;
-+		/* Info (default mapping: KEY_PROPS) */
-+		case 0x209: tivo_map_key_clear(KEY_INFO);	break;
-+		default:
-+			return 0;
-+		}
-+		break;
-+	default:
-+		return 0;
-+	}
-+
-+	/* This means we found a matching mapping here, else, look in the
-+	 * standard hid mappings in hid-input.c */
-+	return 1;
-+}
-+
-+static const struct hid_device_id tivo_devices[] = {
-+	/* TiVo Slide Bluetooth remote, pairs with a Broadcom dongle */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, tivo_devices);
-+
-+static struct hid_driver tivo_driver = {
-+	.name = "tivo_slide",
-+	.id_table = tivo_devices,
-+	.input_mapping = tivo_input_mapping,
-+};
-+
-+static int __init tivo_init(void)
-+{
-+	return hid_register_driver(&tivo_driver);
-+}
-+
-+static void __exit tivo_exit(void)
-+{
-+	hid_unregister_driver(&tivo_driver);
-+}
-+
-+module_init(tivo_init);
-+module_exit(tivo_exit);
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Jarod Wilson <jarod@redhat.com>");
--- 
-1.7.1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
+iQIcBAEBAgAGBQJN2/LTAAoJEEWxSg7udFZI1TYQAOqk6Q/TZ/l86m4pPN8VKwpo
+MPwC1nU3T3sBnAwsirJt029mKcQ0j7ZUp0KpnwNmKxWRCyFDmbr74y7MplMARbpU
+jKNGMeIObLLed/xOhgSTD8qXE0m399Tlp4J90aMordhvZ/UhmJlFhdY0JP5EpcWG
+2NhkyytuWBfLryBhTvq/6MzLmv8ATlz2D2VNKn3QF9E9QAFNg0W1DyOFIzmhJgMR
+m0BjJkFR/i5eenZjAtZpH1hUGdWTl3Xu7C7ChFdo28/LsgFKUC0yAFrVtcP2DaHG
+YIbi8Hv0GG+ouivCX+yCqNmugbBepscOx5HtEcjTm09R5actKXzBXd0sNxlB+3cx
+invREZn/eLP7YWYXQUXzRPAM54032rClSkXunCPwIQvwF3zwtuZoFwCE6tDu5Veu
+c5Wfki1igC0duvUlDoUFAEm0Q7EERHPrK/KKUy5XaUQvz56YhI6sE4ZHpVv1B4YZ
+wfqWF6zl1N7Dzvt+niNE27qLXyHZBWM6JqH1FJ8TCKr5B2epIKo0XiCTUsnf1+g4
+RdcQt1Hmb/zSR5/X42Kr0Gt3+7Y5Br29s8F0/FmecAZxhVPc2+Zze8QxCYSsCtLs
+G6F0qs+UoVZUKBnhimRIrTU2YUcpONiWUECrSDYgpwlgMhc8njOBc2apDd8O4edS
+zxRyEyj7D5ZGeEt5J/Zq
+=GW4X
+-----END PGP SIGNATURE-----
+
+--QXO0/MSS4VvK6f+D--

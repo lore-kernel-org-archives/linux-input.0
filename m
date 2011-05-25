@@ -1,78 +1,134 @@
-From: David Christen <davidchristen@gmail.com>
-Subject: Re: Enable addition function keys
-Date: Wed, 25 May 2011 11:48:39 +0200
-Message-ID: <BANLkTikHKZSqxTu3psHWwaBwiAkWKLhY-Q@mail.gmail.com>
-References: <000001cc1403$1e0ede10$5a2c9a30$@com>
-	<20110524062256.GA20829@core.coreip.homeip.net>
-	<BANLkTinh4Ssnv16t9wp79D82XekiQMZguQ@mail.gmail.com>
-	<BANLkTikFxR_xzZV6WNce+HBDVwc5QZc9yQ@mail.gmail.com>
-	<20110524164931.GA16841@core.coreip.homeip.net>
-	<BANLkTikH1kzGVqnqF=9uyZHRkWEK3ErURA@mail.gmail.com>
-	<20110524175238.GA16908@core.coreip.homeip.net>
-	<20110524180259.GG2622@nautilus.holoscopio.com>
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: Re: Losing events from USB barcode reader
+Date: Wed, 25 May 2011 17:38:32 +0200
+Message-ID: <20110525173832.237e7ac7@surf>
+References: <20110523210228.7738801f@surf>
+	<20110524095556.GA6805@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:53843 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753315Ab1EYJsk (ORCPT
+Received: from mail.free-electrons.com ([88.190.12.23]:44745 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753119Ab1EYPin convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 May 2011 05:48:40 -0400
-Received: by mail-wy0-f174.google.com with SMTP id 21so5625671wya.19
-        for <linux-input@vger.kernel.org>; Wed, 25 May 2011 02:48:39 -0700 (PDT)
-In-Reply-To: <20110524180259.GG2622@nautilus.holoscopio.com>
+	Wed, 25 May 2011 11:38:43 -0400
+In-Reply-To: <20110524095556.GA6805@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org
 
-On Tue, May 24, 2011 at 8:03 PM, Thadeu Lima de Souza Cascardo
-<cascardo@holoscopio.com> wrote:
-> On Tue, May 24, 2011 at 10:52:38AM -0700, Dmitry Torokhov wrote:
->> On Tue, May 24, 2011 at 07:39:22PM +0200, David Christen wrote:
->> >
->> > Yes, you were right. Please find the corrected file attached.
->> >
->> > But it seems that the behavior is exactly the same.
->> >
->> > The kernel I use is 2.6.33 . It's a debian distro running on a risc processor.
->>
->> I am afraid you need 2.6.38. Or you'll have to backport the following
->> commits:
->>
->> 8613e4c Input: add support for large scancodes
->> ab4e019 Input: define separate EVIOCGKEYCODE_V2/EVIOCSKEYCODE_V2
->> de391d1 Input: fix typo in keycode validation supporting large scancodes
->> a0bf0ea Input: hid-input - switch to using new keycode interface
->> f5854fa Input: hid-input - allow mapping unknown usages
->>
->> --
->> Dmitry
->
-> Perhaps, he could try using hidraw interface. Would it be OK for you,
-> David? Since you said you are only getting these key events and sending
-> them through a serial interface, and I'd say your device portability
-> does not include non-HID devices right now, this should solve the
-> problem without the need for a kernel upgrade.
->
-> Regards,
-> Cascardo.
->
+Hello Henrik,
 
-Dear Cascardo and Dmitry,
+Thanks for your feedback.
 
-Thank you for the hint with the hidraw. I was briefly looking at this
-in the beginning of the project, but I found it was a bit too raw for
-my purpose. Well, I was wrong...
+On Tue, 24 May 2011 11:55:56 +0200
+"Henrik Rydberg" <rydberg@euromail.se> wrote:
 
-Based on the example in the Documentation
-(http://ns3.spinics.net/lists/linux-input/msg14216.html), together
-with the patch for HIDIOCSFEATURE
-(http://choon.net/forum/read.php?21,19545) and the same for
-HIDIOCGRAWNAME I was able to first write a small test program and
-later last night to actually build it into my software project.
+> With 2.6.39, it is possible to tell if events are dropped by looking
+> for the (EV_SYN, SYN_DROPPED) event in the stream, for instance using
+> evtest.
 
-Thank you very much the effort in helping me with this.
+Yes, I've seen that. Unfortunately, I can hardly recover even if I'm
+notified of lost events: a barcode is scanned as a series of
+characters, which ends by a newline. If some are lost in the middle,
+there's no way to detect them, so I'd prefer not to loose events.
 
-Take care,
-David
+However, I'll upgrade my kernel to 2.6.39 and use the new SYN_DROPPED
+feature at least to be able to log the fact that events were lost.
+
+> The buffer size can be set by the driver in question, which may
+> utilize information about the device. Is your device exactly a
+> keyboard, except it has a higher event rate, or are there perhaps
+> other ques?
+
+My device acts just like a keyboard, and appears to be recognized as
+such (see logs below).
+
+> > There are even worse cases: I have an USB barcode reader which is
+> > connected by Bluetooth with the barcode reader itself. When the
+> > barcode reader is far away from the base station, it just buffers
+> > the scanned barcodes, and when the barcode reader is again within
+> > the Bluetooth range from the base station, it sends all the
+> > buffered scanned barcode in a row. Potentially hundreds and
+> > hundreds of Linux input events coming in.
+>=20
+> Assuming we talk about a hid device, knowing the specification would
+> help.
+
+What kind of specification are you interested in ?
+
+Here is what I have in dmesg when the device is plugged in:
+
+[31786.703736] usb 2-1.4: new full speed USB device using ehci_hcd and =
+address 13
+[31786.804559] input: Symbol Technologies, Inc, 2002 Symbol Bar Code Sc=
+anner as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.4/2-1.4:1.0/inpu=
+t/input19
+[31786.804699] generic-usb 0003:05E0:1200.000B: input,hidraw2: USB HID =
+v1.10 Keyboard [Symbol Technologies, Inc, 2002 Symbol Bar Code Scanner]=
+ on usb-0000:00:1d.0-1.4/input0
+
+Here is what I have in sysfs :
+
+thomas@surf:/sys/class/input/input19$ ls
+capabilities  device  event13  id  modalias  name  phys  power  subsyst=
+em  uevent  uniq
+thomas@surf:/sys/class/input/input19$ cat phys=20
+usb-0000:00:1d.0-1.4/input0
+thomas@surf:/sys/class/input/input19$ cat name=20
+=EF=BE=A9Symbol Technologies, Inc, 2002 Symbol Bar Code Scanner
+thomas@surf:/sys/class/input/input19$ cat uniq=20
+S/N:A1B8593E4C748F4C8BD5052D9E29AE11 Rev:NBRMSAAEDM:12JAN113
+thomas@surf:/sys/class/input/input19$ cat capabilities/
+abs  ev   ff   key  led  msc  rel  snd  sw  =20
+thomas@surf:/sys/class/input/input19$ cat capabilities/abs=20
+0
+thomas@surf:/sys/class/input/input19$ cat capabilities/ev=20
+120013
+thomas@surf:/sys/class/input/input19$ cat capabilities/ff=20
+0
+thomas@surf:/sys/class/input/input19$ cat capabilities/key=20
+10000 7 ff9f207a c14057ff febeffdf ffefffff ffffffff fffffffe
+thomas@surf:/sys/class/input/input19$ cat capabilities/led=20
+1f
+thomas@surf:/sys/class/input/input19$ cat capabilities/msc=20
+10
+thomas@surf:/sys/class/input/input19$ cat capabilities/rel=20
+0
+thomas@surf:/sys/class/input/input19$ cat capabilities/snd=20
+0
+thomas@surf:/sys/class/input/input19$ cat capabilities/sw=20
+0
+
+What other informations would be needed to better understand what the
+device is ?
+
+> > As far as I could see, it doesn't seem to be possible to adjust the
+> > size of the in-kernel buffer from userspace (through some ioctl()
+> > call, for example). Did I miss something ?
+>=20
+> Adjusting internal kernel buffers from userspace seems like the wrong
+> level of interaction. The kernel should be able to resolve this
+> internally, either dynamically or using information such as productio=
+n
+> rate and consumption rate.
+
+Agreed. However, I don't know on which criteria should the kernel
+decide what the size of the internal buffer should be, in this
+particular case.
+
+Regards,
+
+Thomas
+--=20
+Thomas Petazzoni, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,124 +1,107 @@
-From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: Re: [PATCH]HID: hid-multitouch: add support for Chunghwa multi-touch panel
-Date: Fri, 27 May 2011 10:48:25 +0200
-Message-ID: <BANLkTin3jqYUASnW+wExAHd2YCBqB2j9Uw@mail.gmail.com>
-References: <BANLkTi=52uMg4Ut2Bs5VbgSeRO4wJeLgHw@mail.gmail.com>
+From: Pablo Cases <pablo.cases@flatfrog.com>
+Subject: g_hid and hid-multitouch compatibility?
+Date: Fri, 27 May 2011 17:33:26 +0200
+Message-ID: <8B252890F5150E47AD8B8AEC92FDBA2201118CAC80@fg-dc1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:44815 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758776Ab1E0Is0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 May 2011 04:48:26 -0400
-Received: by wya21 with SMTP id 21so1075845wya.19
-        for <linux-input@vger.kernel.org>; Fri, 27 May 2011 01:48:25 -0700 (PDT)
-In-Reply-To: <BANLkTi=52uMg4Ut2Bs5VbgSeRO4wJeLgHw@mail.gmail.com>
+Received: from hd5b91d02.k46641.sta.perspektivbredband.net ([213.185.29.2]:46822
+	"EHLO fg-dc1.flatfrog.local" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753965Ab1E0Pda convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 May 2011 11:33:30 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Austin Zhang <zhang.austin@gmail.com>
-Cc: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi,
 
-The patch has been corrupted by your mail client.
-Please use git send-email to resend it.
-Please also add the authors of the driver (me and St=E9phane Chatty) an=
-d
-the MT maintainer (Henrik Rydberg).
+Hi all,
 
-If the patch does not mismatch tabs and spaces, you can have my Reviewe=
-d-by.
+I have searched the net and the archives of linux-input for information=
+ on how to use the Linux g_hid kernel module on a device and the hid-mu=
+ltitouch kernel module on a host to communicate multitouch events. But =
+unfortunately I can only get single touch working.=20
 
-Cheers,
-Benjamin
+Q: Has anyone successfully completed a g_hid <-> hid-multitouch setup? =
+And is there a description somewhere of such setup?
+Q: Is the Windows 7 multitouch USB HID descriptor the correct one to us=
+e also for Linux hid-multitouch? Or is some tweaking necessary?
 
-On Fri, May 27, 2011 at 10:20, Austin Zhang <zhang.austin@gmail.com> wr=
-ote:
-> Added Chunghwa hid multitouch panel support into hid-multitouch.
->
-> Signed-off-by: Austin Zhang <zhang.austin@gmail.com>
-> ---
-> =A0Kconfig =A0 =A0 =A0 =A0 =A0| =A0 =A01 +
-> =A0hid-core.c =A0 =A0 =A0 | =A0 =A01 +
-> =A0hid-ids.h =A0 =A0 =A0 =A0| =A0 =A03 +++
-> =A0hid-multitouch.c | =A0 =A05 +++++
-> =A04 files changed, 10 insertions(+)
->
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 67d2a75..36ca465 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -305,6 +305,7 @@ config HID_MULTITOUCH
-> =A0 =A0 =A0 =A0 =A0- 3M PCT touch screens
-> =A0 =A0 =A0 =A0 =A0- ActionStar dual touch panels
-> =A0 =A0 =A0 =A0 =A0- Cando dual touch panels
-> + =A0 =A0 =A0 =A0 - Chunghwa panels
-> =A0 =A0 =A0 =A0 =A0- CVTouch panels
-> =A0 =A0 =A0 =A0 =A0- Cypress TrueTouch panels
-> =A0 =A0 =A0 =A0 =A0- Elo TouchSystems IntelliTouch Plus panels
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index c957c4b..f7440e8 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1359,6 +1359,7 @@ static const struct hid_device_id
-> hid_have_special_driver[] =3D {
-> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY,
-> USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR) },
-> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY,
-> USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
-> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY,
-> USB_DEVICE_ID_CHICONY_WIRELESS) },
-> + =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
-> USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
-> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS,
-> USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
-> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CVTOUCH, USB_DEVICE_ID_=
-CVTOUCH_SCREEN) },
-> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS,
-> USB_DEVICE_ID_CYPRESS_BARCODE_1) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 0b374a6..82be975 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -173,6 +173,9 @@
-> =A0#define USB_DEVICE_ID_CHICONY_MULTI_TOUCH =A0 =A0 =A00xb19d
-> =A0#define USB_DEVICE_ID_CHICONY_WIRELESS 0x0618
->
-> +#define USB_VENDOR_ID_CHUNGHWAT =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00x224=
-7
-> +#define USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH =A0 =A0 0x0001
-> +
-> =A0#define USB_VENDOR_ID_CIDC =A0 =A0 =A0 =A0 =A0 =A0 0x1677
->
-> =A0#define USB_VENDOR_ID_CMEDIA =A0 =A0 =A0 =A0 =A0 0x0d8c
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouc=
-h.c
-> index ecd4d2d..8bc32a0 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -593,6 +593,11 @@ static const struct hid_device_id mt_devices[] =3D=
- {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0USB_DEVICE_ID_CANDO_MU=
-LTI_TOUCH_15_6) },
->
-> + =A0 =A0 =A0 /* Chunghwa Telecom touch panels */
-> + =A0 =A0 =A0 { =A0.driver_data =3D MT_CLS_DEFAULT,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 HID_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 USB_DEVICE_ID_CHUNGHWAT=
-_MULTITOUCH) },
-> +
-> =A0 =A0 =A0 =A0/* CVTouch panels */
-> =A0 =A0 =A0 =A0{ .driver_data =3D MT_CLS_DEFAULT,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0HID_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+DETAILED DESCRIPTION BELOW
+The device is a Linux device that uses g_hid (currently 2.6.37 kernel) =
+and a USB HID Report Descriptor for multitouch using two-touch parallel=
+ mode according to Microsoft document http://msdn.microsoft.com/en-us/w=
+indows/hardware/gg487437.=20
+
+On the host (ubuntu 11.04, 2.6.38 kernel) I register dynamically accord=
+ing to the description at http://lii-enac.fr/en/architecture/linux-inpu=
+t/multitouch-ubuntu-howto.html. Using the events/rdesc files in debugfs=
+ on Ubuntu 11.04 I have validated the parsing of the report descriptor =
+and the input reports.
+
+Example multitouch input report from /sys/kernel/debug/hid/0003:xxxx:yy=
+yy.0002/events looks correct:
+report (size 14) (numbered) =3D  05 03 00 a5 12 32 0e 03 01 99 14 32 0e=
+ 02=20
+Digitizers.TipSwitch =3D 1=20
+Digitizers.InRange =3D 1=20
+Digitizers.ContactID =3D 0=20
+GenericDesktop.X =3D 4773=20
+GenericDesktop.Y =3D 3634=20
+Digitizers.TipSwitch =3D 1=20
+Digitizers.InRange =3D 1=20
+Digitizers.ContactID =3D 1=20
+GenericDesktop.X =3D 5273=20
+GenericDesktop.Y =3D 3634=20
+Digitizers.ContactCount =3D 2
+
+The first touch in the report is correctly presented both on Windows an=
+d on Ubuntu 11.04 (using ENAC's mtdiag tool with a minor tweak to displ=
+ay data from all devices not just multitouch ones). I can see in the de=
+bugfs files that the data for the second touch data is correctly transf=
+erred and interpreted (see above), but the mapping to the linux input s=
+ystem seems a bit strange though (see below). My guess is that I have n=
+ot been correctly registered as a multitouch device. I'm assuming this =
+also because I cannot see any activity from the hid-multitouch module o=
+ther than it being initialized when I connect my device (probably anoth=
+er reason for the needed tweak in mtdiag above).
+
+Example mapping from /sys/kernel/debug/hid/0003:xxxx:yyyy.0002/rdesc th=
+at does not look entirely correct for the second touch:
+Digitizers.TipSwitch ---> Key.Touch
+Digitizers.InRange ---> Key.ToolPen
+Digitizers.ContactID ---> Absolute.Misc
+GenericDesktop.X ---> Absolute.X
+GenericDesktop.Y ---> Absolute.Y
+Digitizers.TipSwitch ---> Key.Touch
+Digitizers.InRange ---> Key.ToolRubber
+Digitizers.ContactID ---> Absolute.?
+GenericDesktop.X ---> Absolute.Z
+GenericDesktop.Y ---> Absolute.Rx
+Digitizers.ContactCount ---> Absolute.?
+Button.0001 ---> Key.LeftBtn
+Button.0002 ---> Key.RightBtn
+Button.0003 ---> Key.MiddleBtn
+GenericDesktop.X ---> Relative.X
+GenericDesktop.Y ---> Relative.Y
+GenericDesktop.Wheel ---> Relative.Wheel
+
+
+Regards,
+Pablo Cases
+
+-------------------------
+Pablo Cases, M.Sc.
+Development Engineer Software
+=46latFrog Laboratories AB
+Magistratsv=E4gen 10
+22643 Lund
+Sweden
+Tel: +46 708 393816
+Mail: pc@flatfrog.com
+Web: www.flatfrog.com
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

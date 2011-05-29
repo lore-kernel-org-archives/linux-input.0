@@ -1,59 +1,37 @@
-From: Michael Bauer <michael@m-bauer.org>
-Subject: Re: [PATCH] hid: Fix Logitech Driving Force Pro wheel
-Date: Sun, 29 May 2011 08:46:59 +0200
-Message-ID: <201105290846.59531.michael@m-bauer.org>
-References: <201105282037.22888.michael@m-bauer.org> <fd06492f61f15697eb1c8400e29ec7bd.squirrel@host171.canaca.com> <8942e3cdf4941912b0855e64939e5939.squirrel@host171.canaca.com>
+From: Alberto Mardegan <mardy@users.sourceforge.net>
+Subject: Reporting screen/laptop orientation data to userspace
+Date: Sun, 29 May 2011 10:49:19 +0300
+Message-ID: <4DE1FA7F.3050308@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay05.ispgateway.de ([80.67.31.98]:58464 "EHLO
-	smtprelay05.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751348Ab1E2Gqv (ORCPT
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:50842 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751970Ab1E2HtZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 May 2011 02:46:51 -0400
-In-Reply-To: <8942e3cdf4941912b0855e64939e5939.squirrel@host171.canaca.com>
+	Sun, 29 May 2011 03:49:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: simon@mungewell.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: "Javier S. Pedro" <maemo@javispedro.com>, linux-input@vger.kernel.org
 
-Hi Simon,
+Hi all,
+  the WMI interfaces in some Lenovo Ideapad laptops provide notification
+callbacks when the laptop orientation changes, reporting 4 different
+values defining the new orientation.
 
-> > 2). The original does Y then 3 others, the replacement does Y + RZ then 1
-> > other.
-> 
-> OK I missed that you had 'disabled' the first byte value after the hat
-> switch (which is presumably the combined acc-brake), in preference for the
-> seperate ACC and Brake.
-> 
-> Is there a reason to prevent the combined acc-brake being reported to the
-> system?
-> 
-> Surely it would be best to report all options so that the app can decide
-> which one to use.... I can see that you might want to relabel them for
-> consistance with Windows.
+I'd like to extend the ideapad-laptop driver with this information; but
+how should it be reported to userspace? I initially thought of the input
+subsystem, but I cannot find any suitable event codes; then I would
+probably export it as a device under /sys, or are there better options?
 
-Well, i thought about this also and normally i would agree with your 
-statement. But my conclusion was to remove the combined axis. Looking at 
-Windows all wheel controllers i saw so far have a setting in their driver to 
-enable or disable the separate axis. But i never saw a controller which 
-provided both separate and combined at the same time. 
-I am pretty sure there will be trouble when assigning these controls within an 
-application. 
-Often the control assignement works like this: User clicks "set axis for 
-acceleration", application asks "please move the desired axis" and then 
-automatically choses the "moving" axis.
-If we report both combined and separate at the same time, the application will 
-have a hard time deciding which one to use, as they both will change their 
-values.
- 
-> Do you know what the 4th (and last) byte value is?
-> Simon
+Are there other devices which provide coarse orientation data to
+userspace, which I might want to use as a reference?
+I guess that at least some display screens have this feature.
 
-No idea - But I never observed any change being reported on this byte, so at 
-the moment i assume it is completely unused.
- 
-Best regards
-Michael
+TIA,
+  Alberto
+
+-- 
+http://blog.mardy.it <- geek in un lingua international!

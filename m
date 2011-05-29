@@ -1,37 +1,69 @@
-From: Alberto Mardegan <mardy@users.sourceforge.net>
-Subject: Reporting screen/laptop orientation data to userspace
-Date: Sun, 29 May 2011 10:49:19 +0300
-Message-ID: <4DE1FA7F.3050308@users.sourceforge.net>
+From: simon@mungewell.org
+Subject: Re: [PATCH] hid: Fix Logitech Driving Force Pro wheel
+Date: Sun, 29 May 2011 10:50:35 -0400
+Message-ID: <a49670b80c887da1f9224080e9e62f32.squirrel@host171.canaca.com>
+References: <201105282037.22888.michael@m-bauer.org>
+    <fd06492f61f15697eb1c8400e29ec7bd.squirrel@host171.canaca.com>
+    <8942e3cdf4941912b0855e64939e5939.squirrel@host171.canaca.com>
+    <201105290846.59531.michael@m-bauer.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f46.google.com ([209.85.215.46]:50842 "EHLO
-	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751970Ab1E2HtZ (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:40771 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750992Ab1E2Ouh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 May 2011 03:49:25 -0400
+	Sun, 29 May 2011 10:50:37 -0400
+In-Reply-To: <201105290846.59531.michael@m-bauer.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: "Javier S. Pedro" <maemo@javispedro.com>, linux-input@vger.kernel.org
+To: Michael Bauer <michael@m-bauer.org>
+Cc: linux-input@vger.kernel.org, simon@mungewell.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi all,
-  the WMI interfaces in some Lenovo Ideapad laptops provide notification
-callbacks when the laptop orientation changes, reporting 4 different
-values defining the new orientation.
 
-I'd like to extend the ideapad-laptop driver with this information; but
-how should it be reported to userspace? I initially thought of the input
-subsystem, but I cannot find any suitable event codes; then I would
-probably export it as a device under /sys, or are there better options?
+> Often the control assignement works like this: User clicks "set axis for
+> acceleration", application asks "please move the desired axis" and then
+> automatically choses the "moving" axis.
+> If we report both combined and separate at the same time, the application
+> will
+> have a hard time deciding which one to use, as they both will change their
+> values.
+>
 
-Are there other devices which provide coarse orientation data to
-userspace, which I might want to use as a reference?
-I guess that at least some display screens have this feature.
+Fair enough, I played a little trying to massage the original descriptor
+but could not find a sensible solution - so I guess we'll have to provide
+a full replacement.
 
-TIA,
-  Alberto
+I don't see the need to comment the original/replacement blocks, so
+probably a simple 'hex block' would be good.
 
--- 
-http://blog.mardy.it <- geek in un lingua international!
+Regarding the replacement, you appear to have a lot of unnecessary code
+there. You could try with something like:
+--
+...
++0x09, 0x39,         /*          Usage (Hat Switch),             */
++0x81, 0x42,         /*          Input (Variable),               */
++0x75, 0x08,         /*          Report Size (8),                */
++0x95, 0x08,         /*          Report Count (1),               */
++0x65, 0x00,         /*          Unit,                           */
++0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),             */
++0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
++0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
++0x09, 0x01,         /*          Usage (01h),                    */
++0x81, 0x02,         /*          Input (Variable),               */
++0xA4,               /*          Push,                           */
++0x05, 0x01,         /*          Usage Page (Desktop),           */
++0x95, 0x01,         /*          Report Count (2),               */
++0x09, 0x31,         /*          Usage (Y),                      */
++0x09, 0x35,         /*          Usage (Rz),                     */
++0x81, 0x02,         /*          Input (Variable),               */
++0xB4,               /*          Pop,                            */
++0x81, 0x02,         /*          Input (Variable),               */
++0xC0,               /*      End Collection,                     */
+...
+--
+
+Cheers,
+Simon.
+

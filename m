@@ -1,124 +1,65 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: roccat: Add "Roccat Talk" support for koneplus
-Date: Sun, 29 May 2011 19:32:57 +0200
-Message-ID: <1306690377.2266.11.camel__3458.83138147673$1306690420$gmane$org@neuromancer>
-Reply-To: erazor_de@users.sourceforge.net
+From: Michael Bauer <michael@m-bauer.org>
+Subject: Re: [PATCH] hid: Fix Logitech Driving Force Pro wheel
+Date: Mon, 30 May 2011 08:17:15 +0200
+Message-ID: <201105300817.15986.michael@m-bauer.org>
+References: <201105282037.22888.michael@m-bauer.org> <201105290846.59531.michael@m-bauer.org> <a49670b80c887da1f9224080e9e62f32.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-13.arcor-online.net ([151.189.21.53]:40113 "EHLO
-	mail-in-13.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754844Ab1E2RdF (ORCPT
+Received: from smtprelay05.ispgateway.de ([80.67.31.98]:40339 "EHLO
+	smtprelay05.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751395Ab1E3GRG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 May 2011 13:33:05 -0400
+	Mon, 30 May 2011 02:17:06 -0400
+In-Reply-To: <a49670b80c887da1f9224080e9e62f32.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, Sylvestre Ledru <sylvestre.ledru@scilab.org>, linux-doc@vger.kerne
+To: linux-input@vger.kernel.org
+Cc: simon@mungewell.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Added binary sysfs attribute to support new functionality the manufacturer
-added to koneplus.
+Hi all,
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- .../ABI/testing/sysfs-driver-hid-roccat-koneplus   |    8 ++++++++
- drivers/hid/hid-roccat-koneplus.c                  |   13 +++++++++++++
- drivers/hid/hid-roccat-koneplus.h                  |    9 +++++++++
- 3 files changed, 30 insertions(+), 0 deletions(-)
+> Fair enough, I played a little trying to massage the original descriptor
+> but could not find a sensible solution - so I guess we'll have to provide
+> a full replacement.
+Yes, i also spent some time but it does not seem to be possible in a sensible 
+way.
+ 
+> I don't see the need to comment the original/replacement blocks, so
+> probably a simple 'hex block' would be good.
+Fine for me, i will remove it in the next patch.
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus b/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
-index c1b53b8..65e6e5d 100644
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-koneplus
-@@ -92,6 +92,14 @@ Description:	The mouse has a tracking- and a distance-control-unit. These
- 		This file is writeonly.
- Users:		http://roccat.sourceforge.net
- 
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/talk
-+Date:		May 2011
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	Used to active some easy* functions of the mouse from outside.
-+		The data has to be 16 bytes long.
-+		This file is writeonly.
-+Users:		http://roccat.sourceforge.net
-+
- What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/koneplus/roccatkoneplus<minor>/tcu
- Date:		October 2010
- Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
-index 5b640a7..23cdb44 100644
---- a/drivers/hid/hid-roccat-koneplus.c
-+++ b/drivers/hid/hid-roccat-koneplus.c
-@@ -240,6 +240,14 @@ static ssize_t koneplus_sysfs_write(struct file *fp, struct kobject *kobj,
- 	return real_size;
- }
- 
-+static ssize_t koneplus_sysfs_write_talk(struct file *fp,
-+		struct kobject *kobj, struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count)
-+{
-+	return koneplus_sysfs_write(fp, kobj, buf, off, count,
-+			sizeof(struct koneplus_talk), KONEPLUS_USB_COMMAND_TALK);
-+}
-+
- static ssize_t koneplus_sysfs_write_macro(struct file *fp,
- 		struct kobject *kobj, struct bin_attribute *attr, char *buf,
- 		loff_t off, size_t count)
-@@ -557,6 +565,11 @@ static struct bin_attribute koneplus_bin_attributes[] = {
- 		.size = sizeof(struct koneplus_macro),
- 		.write = koneplus_sysfs_write_macro
- 	},
-+	{
-+		.attr = { .name = "talk", .mode = 0220 },
-+		.size = sizeof(struct koneplus_talk),
-+		.write = koneplus_sysfs_write_talk
-+	},
- 	__ATTR_NULL
- };
- 
-diff --git a/drivers/hid/hid-roccat-koneplus.h b/drivers/hid/hid-roccat-koneplus.h
-index c57a376..0bf2520 100644
---- a/drivers/hid/hid-roccat-koneplus.h
-+++ b/drivers/hid/hid-roccat-koneplus.h
-@@ -14,6 +14,12 @@
- 
- #include <linux/types.h>
- 
-+struct koneplus_talk {
-+	uint8_t command; /* KONEPLUS_COMMAND_TALK */
-+	uint8_t size; /* always 0x10 */
-+	uint8_t data[14];
-+} __packed;
-+
- /*
-  * case 1: writes request 80 and reads value 1
-  *
-@@ -139,6 +145,7 @@ enum koneplus_commands {
- 	KONEPLUS_COMMAND_INFO = 0x9,
- 	KONEPLUS_COMMAND_E = 0xe,
- 	KONEPLUS_COMMAND_SENSOR = 0xf,
-+	KONEPLUS_COMMAND_TALK = 0x10,
- 	KONEPLUS_COMMAND_FIRMWARE_WRITE = 0x1b,
- 	KONEPLUS_COMMAND_FIRMWARE_WRITE_CONTROL = 0x1c,
- };
-@@ -153,6 +160,7 @@ enum koneplus_usb_commands {
- 	KONEPLUS_USB_COMMAND_TCU = 0x30c,
- 	KONEPLUS_USB_COMMAND_E = 0x30e,
- 	KONEPLUS_USB_COMMAND_SENSOR = 0x30f,
-+	KONEPLUS_USB_COMMAND_TALK = 0x310,
- 	KONEPLUS_USB_COMMAND_FIRMWARE_WRITE = 0x31b,
- 	KONEPLUS_USB_COMMAND_FIRMWARE_WRITE_CONTROL = 0x31c,
- };
-@@ -193,6 +201,7 @@ enum koneplus_mouse_report_button_types {
- 	 * data2 = action
- 	 */
- 	KONEPLUS_MOUSE_REPORT_BUTTON_TYPE_MULTIMEDIA = 0xf0,
-+	KONEPLUS_MOUSE_REPORT_TALK = 0xff,
- };
- 
- enum koneplus_mouse_report_button_action {
--- 
-1.7.3.4
+> Regarding the replacement, you appear to have a lot of unnecessary code
+> there. You could try with something like:
+> --
+> ...
+> +0x09, 0x39,         /*          Usage (Hat Switch),             */
+> +0x81, 0x42,         /*          Input (Variable),               */
+> +0x75, 0x08,         /*          Report Size (8),                */
+> +0x95, 0x08,         /*          Report Count (1),               */
+> +0x65, 0x00,         /*          Unit,                           */
+> +0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),             */
+> +0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
+> +0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
+> +0x09, 0x01,         /*          Usage (01h),                    */
+> +0x81, 0x02,         /*          Input (Variable),               */
+> +0xA4,               /*          Push,                           */
+> +0x05, 0x01,         /*          Usage Page (Desktop),           */
+> +0x95, 0x01,         /*          Report Count (2),               */
+> +0x09, 0x31,         /*          Usage (Y),                      */
+> +0x09, 0x35,         /*          Usage (Rz),                     */
+> +0x81, 0x02,         /*          Input (Variable),               */
+> +0xB4,               /*          Pop,                            */
+> +0x81, 0x02,         /*          Input (Variable),               */
+> +0xC0,               /*      End Collection,                     */
+> ...
+> --
 
+Good point - didn't think of the Push/Pop commands... 
 
+I will create an updated patch and submit it here again.
 
+Thanks and regards
+Michael

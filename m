@@ -1,1479 +1,598 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] bma023: Support for Bosch BMA023,
- BMA150 and SMB380 accelerometers
-Date: Tue, 31 May 2011 17:11:30 +0100
-Message-ID: <20110531161129.23115.38014.stgit@bob.linux.org.uk>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: g_hid and hid-multitouch compatibility?
+Date: Tue, 31 May 2011 18:55:17 +0200
+Message-ID: <BANLkTi=BRTw=JVeUHa4OQ+egZVxOJerTog@mail.gmail.com>
+References: <8B252890F5150E47AD8B8AEC92FDBA2201118CAC80@fg-dc1>
+	<BANLkTin=OOGVbomx81SqHiSX4nmg5huhXA@mail.gmail.com>
+	<8B252890F5150E47AD8B8AEC92FDBA2201118CAC8D@fg-dc1>
+	<BANLkTikXgtpuuScarsSaT_1FvPKaqvfKMA@mail.gmail.com>
+	<8B252890F5150E47AD8B8AEC92FDBA2201118CAD79@fg-dc1>
+	<BANLkTikWiTXmymEmPhBp-bdCc10CDtTfzw@mail.gmail.com>
+	<8B252890F5150E47AD8B8AEC92FDBA2201118CAE62@fg-dc1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:56442 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752037Ab1EaQYa (ORCPT
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:39929 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752827Ab1EaQzT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 May 2011 12:24:30 -0400
+	Tue, 31 May 2011 12:55:19 -0400
+Received: by wwk4 with SMTP id 4so2631025wwk.1
+        for <linux-input@vger.kernel.org>; Tue, 31 May 2011 09:55:17 -0700 (PDT)
+In-Reply-To: <8B252890F5150E47AD8B8AEC92FDBA2201118CAE62@fg-dc1>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, eric.andersson@unixphere.com
+To: Pablo Cases <pablo.cases@flatfrog.com>
+Cc: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-=46rom: Joseph Lai <joseph_lai@wistron.com>
+On Tue, May 31, 2011 at 18:03, Pablo Cases <pablo.cases@flatfrog.com> w=
+rote:
+>
+> Hi Benjamin,
+>
+> I've attached some logs (rdesc.txt, events.txt and evtest.txt) showin=
+g a simulated 2-touch sequence spanning over four frames (last frame is=
+ a "untouch" event). Looking at the logs I'd say that I have a problem =
+with the MIN/MAX limit decoding as evtest says limits are -127/127 but =
+that is not what we're reporting according to rdesc.
 
-This patch supports driver for BOSCH BMA023 and SMB380 which are accele=
-rometers.
+Indeed, there are troubles with ranges of X and Y. The good point is
+that besides that, hid-multitouch seems to work well.
+However, what strikes me is that the values are not clamped by the inpu=
+t layer.
 
-We expose the data from this device to users through sysfs interface in
-baically the same manner as the lis drivers so that the data can be use=
-d for
-one off uses, and also as as an input device for joystick type uses.
+The problems comes from your mouse emulation, here:
 
-The driver allows the setting and reading of the device's properties vi=
-a
-sysfs attributes.
+  INPUT(4)[INPUT]
+    Field(0)
+      ....
+    Field(1)
+      Physical(GenericDesktop.Pointer)
+      Usage(3)
+        GenericDesktop.X
+        GenericDesktop.Y
+        GenericDesktop.Wheel
+      Logical Minimum(-127)            <---------
+      Logical Maximum(127)            <---------
+      Report Size(8)
+      Report Count(3)
+      Report Offset(8)
+      Flags( Variable Relative )
 
-Now with documentation for the sysfs interface and pointer to BMA150 da=
-ta
-sheet.
+the values are not coherent with the one reported above. Maybe we
+should patch hid-multitouch to ignore non mt inputs... ;-) but I
+really don"t have the time to do it right now.
+Maybe you don't need to introduce this mouse emulation at all in your
+device (it depends if your "firmware" will support it or not).
 
-Based on an original driver
-Signed-off-by: Donggeun Kim <dg77.kim@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-
-[Extensively rewritten]
-Signed-off-by: Joseph Lai <joseph_lai@wistron.com>
-
-[Added the bma150 to the device table]
-Signed-off-by: Yin Kangkai <kangkai.yin@intel.com>
-
-[Further rewriting, cleanup for upstream]
-Signed-off-by: Alan Cox <alan@linux.intel.com>
----
-
- drivers/input/misc/Kconfig  |   10=20
- drivers/input/misc/Makefile |    1=20
- drivers/input/misc/bma023.c | 1313 +++++++++++++++++++++++++++++++++++=
-++++++++
- include/linux/i2c/bma023.h  |   44 +
- 4 files changed, 1368 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/bma023.c
- create mode 100644 include/linux/i2c/bma023.h
+There is also a problem with the feature
+Digitizers.ContactMaximumNumber. Apparently, I would say that you put
+the initial value is at 2 instead of 10 as your maximum value
+suggests. If it's intentional, it's fine, but you won't be able to
+send more than two touches, even by changing this number later...
+(just saw the question after)
 
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index f9cf088..406a730 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -467,4 +467,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called xen-kbdfront.
-=20
-+config INPUT_BMA023
-+	tristate "BMA023/SMB380 Triaxial acceleration sensor"
-+	depends on I2C
-+	help
-+	  Say Y here if you want to support Bosch BMA023/SMB380
-+	  connected via an I2C bus.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called bma023.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index e3f7984..b7100c2 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -17,6 +17,7 @@ obj-$(CONFIG_INPUT_ATI_REMOTE)		+=3D ati_remote.o
- obj-$(CONFIG_INPUT_ATI_REMOTE2)		+=3D ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+=3D atlas_btns.o
- obj-$(CONFIG_INPUT_BFIN_ROTARY)		+=3D bfin_rotary.o
-+obj-$(CONFIG_INPUT_BMA023)		+=3D bma023.o
- obj-$(CONFIG_INPUT_CM109)		+=3D cm109.o
- obj-$(CONFIG_INPUT_CMA3000)		+=3D cma3000_d0x.o
- obj-$(CONFIG_INPUT_CMA3000_I2C)		+=3D cma3000_d0x_i2c.o
-diff --git a/drivers/input/misc/bma023.c b/drivers/input/misc/bma023.c
-new file mode 100644
-index 0000000..1466844
---- /dev/null
-+++ b/drivers/input/misc/bma023.c
-@@ -0,0 +1,1313 @@
-+/*
-+ * bma023.c - BMA023/150/SMB380 Tri-axis accelerometer driver
-+ *
-+ * Copyright (C) 2010 Samsung Eletronics Co.Ltd
-+ * Kim Kyuwon <q1.kim@samsung.com>
-+ * Kyungmin Park <kyungmin.park@samsung.com>
-+ * Donggeun Kim <dg77.kim@samsung.com>
-+ *
-+ * Copyright (C) 2011 Wistron Co.Ltd
-+ * Joseph Lai <joseph_lai@wistron.com>
-+ *
-+ * Copyright (c) 2011 Intel Corporation
-+ * Alan Cox <alan@linux.intel.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modif=
-y
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * TODO (After)
-+ *	Investigate if the IRQ disable is really needed (needs that data
-+ *		sheet reviewing in more detail)
-+ *
-+ * Data sheet:
-+ * http://www.bosch-sensortec.com/content/language4/downloads/BST-BMA1=
-50-DS000-06.pdf
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/mutex.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/i2c/bma023.h>
-+#include <linux/delay.h>
-+#include <linux/slab.h>
-+#include <linux/pm_runtime.h>
-+
-+#define BMA023_DEFAULT_AUTO_DELAY	250	/* mS */
-+
-+#define BMA023_CHIP_ID_REG	0x00
-+#define BMA023_X_LSB_REG	0x02
-+#define BMA023_X_MSB_REG	0x03
-+#define BMA023_Y_LSB_REG	0x04
-+#define BMA023_Y_MSB_REG	0x05
-+#define BMA023_Z_LSB_REG	0x06
-+#define BMA023_Z_MSB_REG	0x07
-+#define BMA023_TEMP_REG		0x08 /*  An output of 0 equals -30C,
-+					 1 LSB equals 0.5C */
-+#define BMA023_CTRL1_REG	0x0a
-+#define BMA023_CTRL2_REG	0x0b
-+#define BMA023_SETTINGS1_REG	0x0c
-+#define BMA023_SETTINGS2_REG	0x0d
-+#define BMA023_SETTINGS3_REG	0x0e
-+#define BMA023_SETTINGS4_REG	0x0f
-+#define BMA023_SETTINGS5_REG	0x10
-+#define BMA023_SETTINGS6_REG	0x11
-+#define BMA023_RANGE_BW_REG	0x14
-+#define BMA023_CONF2_REG	0x15
-+
-+#define BMA023_CHIP_ID		0x02
-+
-+#define BMA023_NEW_DATA_INT_SHIFT	5
-+#define BMA023_NEW_DATA_INT_MASK	(0x1 << 5)
-+
-+#define BMA023_RANGE_SHIFT		3
-+#define BMA023_RANGE_MASK		(0x3 << 3)
-+#define BMA023_BANDWIDTH_SHIFT		0
-+#define BMA023_BANDWIDTH_MASK		(0x7)
-+
-+#define BMA023_HG_HYST_SHIFT		3
-+#define BMA023_HG_HYST_MASK		(0x7 << 3)
-+#define BMA023_LG_HYST_SHIFT		0
-+#define BMA023_LG_HYST_MASK		(0x7)
-+
-+#define BMA023_HG_DUR_SHIFT		(0x0)
-+#define BMA023_HG_DUR_MASK		(0xff)
-+#define BMA023_HG_THRES_SHIFT		(0x0)
-+#define BMA023_HG_THRES_MASK		(0xff)
-+#define BMA023_LG_DUR_SHIFT		(0x0)
-+#define BMA023_LG_DUR_MASK		(0xff)
-+#define BMA023_LG_THRES_SHIFT		(0x0)
-+#define BMA023_LG_THRES_MASK		(0xff)
-+
-+#define BMA023_ENABLE_HG_SHIFT		1
-+#define BMA023_ENABLE_HG_MASK		(0x1 << 1)
-+#define BMA023_ENABLE_LG_SHIFT		0
-+#define BMA023_ENABLE_LG_MASK		(0x1)
-+
-+#define BMA023_SLEEP_SHIFT		0
-+#define BMA023_SLEEP_MASK		(0x1)
-+
-+#define BMA023_ACCEL_BITS		10
-+#define BMA023_MAX_VALUE		((1 << ((BMA023_ACCEL_BITS) - 1)) - 1)
-+#define BMA023_MIN_VALUE		(-(1 << ((BMA023_ACCEL_BITS) - 1)))
-+
-+#define BMA023_DEFAULT_RANGE		BMA023_RANGE_2G
-+#define BMA023_DEFAULT_BANDWIDTH	BMA023_BW_190HZ
-+#define BMA023_DEFAULT_NEW_DATA_INT	0
-+#define BMA023_DEFAULT_HG_INT		0
-+#define BMA023_DEFAULT_LG_INT		0
-+#define BMA023_DEFAULT_HG_DURATION	0x05
-+#define BMA023_DEFAULT_HG_THRESHOLD	0xa0
-+#define BMA023_DEFAULT_HG_HYST		0
-+#define BMA023_DEFAULT_LG_DURATION	0x05
-+#define BMA023_DEFAULT_LG_THRESHOLD	0x14
-+#define BMA023_DEFAULT_LG_HYST		0
-+
-+#define BMA023_SUSPEND	0
-+#define BMA023_RESUME	1
-+
-+#define BMA023_CUSTOMER_REG	0x12
-+#define BMA023_INSPECT_VAL	0xBB
-+#define BMA023_CHECK_SHIFT	0
-+#define BMA023_CHECK_MASK	0xff
-+
-+struct bma023_data {
-+	s16 x;
-+	s16 y;
-+	s16 z;
-+};
-+
-+struct bma023_sensor {
-+	struct i2c_client *client;
-+	struct device *dev;
-+	struct input_dev *idev;
-+	struct mutex lock;
-+	struct bma023_data data;
-+	int soft_power;		/* Our sysfs requested power status as
-+				   opposed to the actual one which is
-+				   a combination of this and pm runtime */
-+	u8 range;
-+	u8 bandwidth;
-+	u8 new_data_int;
-+	u8 hg_int;
-+	u8 lg_int;
-+	u8 lg_dur;
-+	u8 lg_thres;
-+	u8 lg_hyst;
-+	u8 hg_dur;
-+	u8 hg_thres;
-+	u8 hg_hyst;
-+	u8 power_mode;
-+};
-+
-+/**
-+ *	bma023_write_reg	-	write a BMA023 register via I2C
-+ *	@client: our i2c client
-+ *	@reg: register being updated
-+ *	@val: value to write
-+ *
-+ *	Updates the register or returns an error if the write fails.
-+ */
-+static int bma023_write_reg(struct i2c_client *client, u8 reg, u8 val)
-+{
-+	int ret;
-+	/*
-+	 * According to the datasheet, the interrupt should be deactivated
-+	 * on the host side when write sequences operate.
-+	 */
-+	disable_irq_nosync(client->irq);
-+	ret =3D i2c_smbus_write_byte_data(client, reg, val);
-+	enable_irq(client->irq);
-+	if (ret < 0)
-+		dev_err(&client->dev, "%s: reg 0x%x, val 0x%x, err %d\n",
-+			__func__, reg, val, ret);
-+	return ret;
-+}
-+
-+/**
-+ *	bma023_read_reg	-	read a BMA023 register via I2C
-+ *	@client: our i2c client
-+ *	@reg: register being read
-+ *
-+ *	Reads the register or returns a negative error code on failure.
-+ */
-+static int bma023_read_reg(struct i2c_client *client, u8 reg)
-+{
-+	int ret =3D i2c_smbus_read_byte_data(client, reg);
-+	if (ret < 0)
-+		dev_err(&client->dev, "%s: reg 0x%x, err %d\n",
-+			__func__, reg, ret);
-+	return ret;
-+}
-+
-+/**
-+ *	bma023_xyz_read_reg	-	read the axes values
-+ *	@client: our i2c client
-+ *	@buffer: used to return the co-ordinate data
-+ *	@length: buffer length
-+ *
-+ *	Reads the co-ordinate register values in one transaction or returns=
- a
-+ *	negative error code on failure.
-+ */
-+static int bma023_xyz_read_reg(struct i2c_client *client,
-+			       u8 *buffer, int length)
-+{
-+	struct i2c_msg msg[] =3D {
-+		{
-+			.addr =3D client->addr,
-+			.flags =3D 0,
-+			.len =3D 1,
-+			.buf =3D buffer,
-+		}, {
-+			.addr =3D client->addr,
-+			.flags =3D I2C_M_RD,
-+			.len =3D length,
-+			.buf =3D buffer,
-+		},
-+	};
-+	return i2c_transfer(client->adapter, msg, 2);
-+}
-+
-+/**
-+ *	bma023_set_reg_bits	-	update a subset of register bits
-+ *	@client: i2c client for the sensor
-+ *	@val: value to write
-+ *	@shift: bit offset of field
-+ *	@mask: bit mask of field to update
-+ *	@reg: register number
-+ *
-+ *	Update one of the many bitfield registers on the BMA023 by reading
-+ *	and writing back bits. The caller *MUST* hold the sensor lock when
-+ *	using this function in order to prevent overlapping updates corrupt=
-ing
-+ *	the register.
-+ *
-+ *	Returns success or an error code
-+ */
-+static int bma023_set_reg_bits(struct i2c_client *client,
-+					int val, int shift, u8 mask, u8 reg)
-+{
-+	int data =3D bma023_read_reg(client, reg);
-+
-+	if (data < 0)
-+		return data;
-+
-+	data =3D (data & ~mask) | ((val << shift) & mask);
-+	return bma023_write_reg(client, reg, data);
-+}
-+
-+/**
-+ *	bma023_get_reg_bits	-	read register bitfield
-+ *	@client: i2c client for the sensor
-+ *	@shift: bit offset of field
-+ *	@mask: bit mask of field to update
-+ *	@reg: register number
-+ *
-+ *	Read a bit field from the sensor and return the value of the field.=
- The
-+ *	lock is not needed in this case
-+ */
-+static int bma023_get_reg_bits(struct i2c_client *client, int shift,
-+					u8 mask, u8 reg)
-+{
-+	int data =3D bma023_read_reg(client, reg);
-+	if (data < 0)
-+		return data;
-+	data =3D (data & mask) >> shift;
-+	return data;
-+}
-+
-+/*
-+ *	Functions for handling all the configurable fields
-+ */
-+
-+/**
-+ *	bma023_set_check_reg	-	set an inspective value
-+ *	@client: i2c client for the sensor
-+ *	@check: update the inspective value
-+ *
-+ *	Set an inspective value to customer's register, which can record
-+ *	any value from user. The inspective value will keep until the chip
-+ *	off or shutdown. User can recognize the chip needs re-initialize
-+ *	or not by this register.
-+ */
-+static int bma023_set_check_reg(struct i2c_client *client, u8 check)
-+{
-+	return bma023_set_reg_bits(client, check, BMA023_CHECK_SHIFT,
-+				   BMA023_CHECK_MASK, BMA023_CUSTOMER_REG);
-+}
-+
-+static int bma023_get_check_reg(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_CHECK_SHIFT,
-+				   BMA023_CHECK_MASK, BMA023_CUSTOMER_REG);
-+}
-+
-+/**
-+ *	bma023_set_range	-	set the full scale acceleration range
-+ *	@client: i2c client for the sensor
-+ *	@range: new range setting
-+ *
-+ *	The range of bma023 will affect the chip to change the sensitivity=20
-+ *	of gravitation. The value of range includes +/- 2g, 4g and 8g.
-+ *
-+ *	The change of range will respond to 3 axes directly.
-+ */
-+static int bma023_set_range(struct i2c_client *client, u8 range)
-+{
-+	return bma023_set_reg_bits(client, range, BMA023_RANGE_SHIFT,
-+				   BMA023_RANGE_MASK, BMA023_RANGE_BW_REG);
-+}
-+
-+static int bma023_get_range(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_RANGE_SHIFT,
-+				   BMA023_RANGE_MASK, BMA023_RANGE_BW_REG);
-+}
-+
-+/**
-+ *	bma023_set_bandwidth	-	set the digital filtering of ADC output data
-+ *	@client: i2c client for the sensor
-+ *	@bw: new bandwidth setting
-+ *
-+ *	The bandwidth affect the ability of noise filter. The value of band=
-width
-+ *	includes 25Hz, 50Hz, 100Hz, 190Hz, 375Hz, 750Hz and 1500Hz.
-+ *
-+ *	The change of bandwidth will respond to 3 axes directly.
-+ */
-+static int bma023_set_bandwidth(struct i2c_client *client, u8 bw)
-+{
-+	return bma023_set_reg_bits(client, bw, BMA023_BANDWIDTH_SHIFT,
-+				   BMA023_BANDWIDTH_MASK, BMA023_RANGE_BW_REG);
-+}
-+
-+static int bma023_get_bandwidth(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_BANDWIDTH_SHIFT,
-+				   BMA023_BANDWIDTH_MASK, BMA023_RANGE_BW_REG);
-+}
-+
-+/**
-+ *	bma023_set_new_data_int	-	switch on/off of new data interrupt
-+ *	@client: i2c client for the sensor
-+ *	@val: value to switch on/off, 1: on, 0: off
-+ *
-+ *	To turn on this interrupt will generate an interrupt when all three
-+ *	axes acceleration values are new.
-+ */
-+static int bma023_set_new_data_int(struct i2c_client *client, u8 val)
-+{
-+	return bma023_set_reg_bits(client, val, BMA023_NEW_DATA_INT_SHIFT,
-+				   BMA023_NEW_DATA_INT_MASK, BMA023_CONF2_REG);
-+}
-+
-+static int bma023_get_new_data_int(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_NEW_DATA_INT_SHIFT,
-+				   BMA023_NEW_DATA_INT_MASK, BMA023_CONF2_REG);
-+}
-+
-+/**
-+ *	bma023_set_hg_int	-	switch on/off of high-g interrupt
-+ *	@client: i2c client for the sensor
-+ *	@val: value to switch on/off, 1: on, 0: off
-+ *
-+ *	To turn on this interrupt will generate an interrupt when the
-+ *	oscillatory criteria is satisfied by hg_dur and hg_thres.
-+ *
-+ *	Usually, it is used to debounce the high-g criteria.
-+ */
-+static int bma023_set_hg_int(struct i2c_client *client, u8 val)
-+{
-+	return bma023_set_reg_bits(client, val, BMA023_ENABLE_HG_SHIFT,
-+				   BMA023_ENABLE_HG_MASK, BMA023_CTRL2_REG);
-+}
-+
-+static int bma023_get_hg_int(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_ENABLE_HG_SHIFT,
-+				   BMA023_ENABLE_HG_MASK, BMA023_CTRL2_REG);
-+}
-+
-+/**
-+ *	bma023_set_lg_int	-	switch on/off of low-g interrupt
-+ *	@client: i2c client for the sensor
-+ *	@val: value to switch on/off, 1: on, 0: off
-+ *
-+ *	To turn on this setting will generate an interrupt when the
-+ *	oscillatory criteria is satisfied by lg_dur and lg_thres.
-+ *
-+ *	Usually, it is used to detect a free fall.
-+ */
-+static int bma023_set_lg_int(struct i2c_client *client, u8 val)
-+{
-+	return bma023_set_reg_bits(client, val,	BMA023_ENABLE_LG_SHIFT,
-+				   BMA023_ENABLE_LG_MASK, BMA023_CTRL2_REG);
-+}
-+
-+static int bma023_get_lg_int(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_ENABLE_LG_SHIFT,
-+				   BMA023_ENABLE_LG_MASK, BMA023_CTRL2_REG);
-+}
-+
-+/**
-+ *	bma023_set_lg_dur	-	set low-g duration
-+ *	@client: i2c client for the sensor
-+ *	@dur: duration value, 0-255
-+ *=09
-+ *	Generate an interrupt when the gravitation is detected in low-g
-+ *	criterion for long enough duration.
-+ *
-+ *	This setting is used to interrupt detection.
-+ */
-+static int bma023_set_lg_dur(struct i2c_client *client, u8 dur)
-+{
-+	return bma023_set_reg_bits(client, dur,	BMA023_LG_DUR_SHIFT,
-+				   BMA023_LG_DUR_MASK, BMA023_SETTINGS2_REG);
-+}
-+
-+static int bma023_get_lg_dur(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_LG_DUR_SHIFT,
-+				   BMA023_LG_DUR_MASK, BMA023_SETTINGS2_REG);
-+}
-+
-+/**
-+ *	bma023_set_lg_thres	-	set low-g threshold
-+ *	@client: i2c client for the sensor
-+ *	@thres: threshold value, 0-255
-+ *=09
-+ *	Filter 3 axes detection and limit to trigger an interrupt signal
-+ *	when the gravitation is detected in low-g threshold.
-+ *
-+ *	This setting is used to interrupt detection.
-+ */
-+static int bma023_set_lg_thres(struct i2c_client *client, u8 thres)
-+{
-+	return bma023_set_reg_bits(client, thres, BMA023_LG_THRES_SHIFT,
-+				   BMA023_LG_THRES_MASK, BMA023_SETTINGS1_REG);
-+}
-+
-+static int bma023_get_lg_thres(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_LG_THRES_SHIFT,
-+				   BMA023_LG_THRES_MASK, BMA023_SETTINGS1_REG);
-+}
-+
-+/**
-+ *	bma023_set_lg_hyst	-	set low-g hysteresis
-+ *	@client: i2c client for the sensor
-+ *	@hyst: hysteresis value, 0-7
-+ *=09
-+ *	Expand the range of detectable gravitation to reset an interrupt.
-+ *	An interrupt will be latched until outside of low-g criterion with=20
-+ *	hysteresis.
-+ *
-+ *	This setting is used to interrupt detection.
-+ */
-+static int bma023_set_lg_hyst(struct i2c_client *client, u8 hyst)
-+{
-+	return bma023_set_reg_bits(client, hyst, BMA023_LG_HYST_SHIFT,
-+				   BMA023_LG_HYST_MASK, BMA023_SETTINGS6_REG);
-+}
-+
-+static int bma023_get_lg_hyst(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_LG_HYST_SHIFT,
-+				   BMA023_LG_HYST_MASK,	BMA023_SETTINGS6_REG);
-+}
-+
-+/**
-+ *	bma023_set_hg_dur	-	set high-g duration
-+ *	@client: i2c client for the sensor
-+ *	@dur: duration value, 0-255
-+ *=09
-+ *	Generate an interrupt when the gravitation is detected in high-g
-+ *	criterion for long enough duration.
-+ *
-+ *	This setting is used to interrupt detection.
-+ */
-+static int bma023_set_hg_dur(struct i2c_client *client, u8 dur)
-+{
-+	return bma023_set_reg_bits(client, dur,	BMA023_HG_DUR_SHIFT,
-+				   BMA023_HG_DUR_MASK, BMA023_SETTINGS4_REG);
-+}
-+
-+static int bma023_get_hg_dur(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_HG_DUR_SHIFT,
-+				   BMA023_HG_DUR_MASK, BMA023_SETTINGS4_REG);
-+}
-+
-+/**
-+ *	bma023_set_hg_thres	-	set high-g threshold
-+ *	@client: i2c client for the sensor
-+ *	@thres: threshold value, 0-255
-+ *=09
-+ *	Filter 3 axes detection and limit to trigger an interrupt signal
-+ *	when the gravitation is detected in high-g threshold.
-+ *
-+ *	This setting is used to interrupt detection.
-+ */
-+static int bma023_set_hg_thres(struct i2c_client *client, u8 thres)
-+{
-+	return bma023_set_reg_bits(client, thres, BMA023_HG_THRES_SHIFT,
-+				   BMA023_HG_THRES_MASK, BMA023_SETTINGS3_REG);
-+}
-+
-+static int bma023_get_hg_thres(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_HG_THRES_SHIFT,
-+				   BMA023_HG_THRES_MASK, BMA023_SETTINGS3_REG);
-+}
-+
-+/**
-+ *	bma023_set_hg_hyst	-	set low-g hysteresis
-+ *	@client: i2c client for the sensor
-+ *	@hyst: hysteresis value, 0-7
-+ *=09
-+ *	Expand the range of detectable gravitation to reset an interrupt.
-+ *	An interrupt will be latched until outside of high-g criterion with=
-=20
-+ *	hysteresis.
-+ *
-+ *	This setting is used to interrupt detection.
-+ */
-+static int bma023_set_hg_hyst(struct i2c_client *client, u8 hyst)
-+{
-+	return bma023_set_reg_bits(client, hyst, BMA023_HG_HYST_SHIFT,
-+				   BMA023_HG_HYST_MASK,	BMA023_SETTINGS6_REG);
-+}
-+
-+static int bma023_get_hg_hyst(struct i2c_client *client)
-+{
-+	return bma023_get_reg_bits(client, BMA023_HG_HYST_SHIFT,
-+				   BMA023_HG_HYST_MASK,	BMA023_SETTINGS6_REG);
-+}
-+
-+/**
-+ *	bma023_power_mode	-	set the power mode
-+ *	@client: i2c client for the sensor
-+ *	@val: value to switch on/off of power, 1: normal power, 0: low powe=
-r
-+ *
-+ *	Put device to normal-power mode or low-power mode.
-+ */
-+static int bma023_set_power_mode(struct i2c_client *client, u8 val)
-+{
-+	return bma023_set_reg_bits(client, ~val, BMA023_SLEEP_SHIFT,
-+				   BMA023_SLEEP_MASK, BMA023_CTRL1_REG);
-+}
-+
-+static int bma023_get_power_mode(struct i2c_client *client)
-+{
-+	return !bma023_get_reg_bits(client, BMA023_SLEEP_SHIFT,
-+				   BMA023_SLEEP_MASK, BMA023_CTRL1_REG);
-+}
-+
-+/**
-+ *	bma023_correct_accel_sign	-	convert to expected format
-+ *	@val: twos complement value
-+ *
-+ *	The description of the digital signals x, y and z is "2' complement=
-".
-+ *	So we need to correct the sign of data read by i2c.
-+ */
-+static s16 bma023_correct_accel_sign(s16 val)
-+{
-+	val <<=3D (sizeof(s16) * BITS_PER_BYTE - BMA023_ACCEL_BITS);
-+	val >>=3D (sizeof(s16) * BITS_PER_BYTE - BMA023_ACCEL_BITS);
-+	return val;
-+}
-+
-+/**
-+ *	bma023_merge_register_values	-	turn into co-ordinate
-+ *	@lsb: low bits from sensor
-+ *	@msb: high bits from sensor
-+ *
-+ *	Turns a sensor register reading into a Linux input layer
-+ *	value and returns it.
-+ */
-+static s16 bma023_merge_register_values(u8 lsb, u8 msb)
-+{
-+	s16 val =3D (msb << 2) | (lsb >> 6);
-+	return bma023_correct_accel_sign(val);
-+}
-+
-+/**
-+ *	bma023_read_xyz		-	get co-ordinates from device
-+ *	@client: i2c address of sensor
-+ *	@coords: co-ordinates to update
-+ *
-+ *	Return the converted X Y and Z co-ordinates from the sensor device
-+ */
-+static void bma023_read_xyz(struct i2c_client *client,
-+				struct bma023_data *coords)
-+{
-+	u8 buffer[6];
-+	buffer[0] =3D BMA023_X_LSB_REG;
-+	bma023_xyz_read_reg(client, buffer, 6);
-+	coords->x =3D bma023_merge_register_values(buffer[0], buffer[1]);
-+	coords->y =3D bma023_merge_register_values(buffer[2], buffer[3]);
-+	coords->z =3D bma023_merge_register_values(buffer[4], buffer[5]);
-+	dev_dbg(&client->dev, "%s: x %d, y %d, z %d\n", __func__,
-+					coords->x, coords->y, coords->z);
-+}
-+
-+/**
-+ *	bma023_show_xyz		-	show co-ordinate readings
-+ *	@dev: device of sensor
-+ *	@attr: device attributes of sysfs node
-+ *	@buf: buffer for output
-+ *
-+ *	Perform a one off read of the sensor data. In non-interrupt mode
-+ *	the sensor can be used for one off reads of the axes rather than
-+ *	as an input device.
-+ */
-+static ssize_t bma023_show_xyz(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+
-+	pm_runtime_get_sync(dev);
-+
-+	mutex_lock(&sensor->lock);
-+	bma023_read_xyz(sensor->client, &sensor->data);
-+	mutex_unlock(&sensor->lock);
-+
-+	pm_runtime_put(dev);
-+
-+	return sprintf(buf, "(%d,%d,%d)\n",
-+		sensor->data.x, sensor->data.y, sensor->data.z);
-+}
-+static DEVICE_ATTR(accel_data, S_IRUGO, bma023_show_xyz, NULL);
-+
-+/**
-+ *	bma023_set_attr	-	set an attribute on the sensor
-+ *	@sensor sensor to update
-+ *	@buf: buffer to parse
-+ *	@count: length of buffer written
-+ *	@get: read function to use
-+ *	@set: write function to use
-+ *	@data: where to store cached result
-+ *
-+ *	Helper function for setting attributes of the sensor. This does
-+ *	all the parsing and locking in one place calling out to the helper
-+ *	functions provided.
-+ */
-+static ssize_t bma023_set_attr(struct bma023_sensor *sensor,
-+				const char *buf, size_t count,
-+				int (*get)(struct i2c_client *),
-+				int (*set)(struct i2c_client *, u8 val),
-+				u8 *data)
-+{
-+	unsigned long val;
-+	int ret;
-+
-+	if (!count)
-+		return count;
-+
-+	ret =3D strict_strtoul(buf, 10, &val);
-+	if (!ret) {
-+		/* We don't need the device to be fully powered up for this
-+		   but we do need to be sure that we force the i=C2=B2c controller
-+		   to be awake */
-+		pm_runtime_get_sync(sensor->dev);
-+		mutex_lock(&sensor->lock);
-+		ret =3D set(sensor->client, val);
-+		if (ret >=3D 0) {
-+			ret =3D get(sensor->client);
-+			if (ret >=3D 0)
-+				*data =3D ret;
-+		}
-+		mutex_unlock(&sensor->lock);
-+		pm_runtime_put(sensor->dev);
-+		if (ret >=3D 0)
-+			return count;
-+	}
-+	return ret;
-+}
-+
-+/* Methods for the sysfs attributes */
-+static ssize_t bma023_show_power_mode(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", bma023_get_power_mode(sensor->client));
-+}
-+
-+static ssize_t bma023_store_power_mode(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	unsigned long val;
-+	int ret =3D strict_strtoul(buf, 10, &val);
-+	if (ret)
-+		return ret;
-+
-+	mutex_lock(&sensor->lock);
-+	if (val & !sensor->soft_power)
-+		pm_runtime_get(dev);
-+	else if (!val && sensor->soft_power)
-+		pm_runtime_put(dev);
-+	sensor->soft_power =3D val;
-+	mutex_unlock(&sensor->lock);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(power_mode, S_IRUGO | S_IWUSR,
-+		bma023_show_power_mode, bma023_store_power_mode);
-+
-+static ssize_t bma023_show_range(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->range);
-+}
-+
-+static ssize_t bma023_store_range(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_range,
-+			bma023_set_range,
-+			&sensor->range);
-+}
-+
-+static DEVICE_ATTR(range, S_IRUGO | S_IWUSR,
-+		bma023_show_range, bma023_store_range);
-+
-+static ssize_t bma023_show_bandwidth(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->bandwidth);
-+}
-+
-+static ssize_t bma023_store_bandwidth(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_bandwidth,
-+			bma023_set_bandwidth,
-+			&sensor->bandwidth);
-+}
-+
-+static DEVICE_ATTR(bandwidth, S_IRUGO | S_IWUSR,
-+		bma023_show_bandwidth, bma023_store_bandwidth);
-+
-+static ssize_t bma023_show_new_data_int(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->new_data_int);
-+}
-+
-+static ssize_t bma023_store_new_data_int(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_new_data_int,
-+			bma023_set_new_data_int,
-+			&sensor->new_data_int);
-+}
-+
-+static DEVICE_ATTR(new_data_int, S_IRUGO | S_IWUSR,
-+		bma023_show_new_data_int, bma023_store_new_data_int);
-+
-+static ssize_t bma023_show_hg_int(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->hg_int);
-+}
-+
-+static ssize_t bma023_store_hg_int(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_hg_int,
-+			bma023_set_hg_int,
-+			&sensor->hg_int);
-+}
-+
-+static DEVICE_ATTR(hg_int, S_IRUGO | S_IWUSR,
-+		bma023_show_hg_int, bma023_store_hg_int);
-+
-+static ssize_t bma023_show_lg_int(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->lg_int);
-+}
-+
-+static ssize_t bma023_store_lg_int(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_lg_int,
-+			bma023_set_lg_int,
-+			&sensor->lg_int);
-+}
-+
-+static DEVICE_ATTR(lg_int, S_IRUGO | S_IWUSR,
-+		bma023_show_lg_int, bma023_store_lg_int);
-+
-+static ssize_t bma023_show_lg_dur(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->lg_dur);
-+}
-+
-+static ssize_t bma023_store_lg_dur(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_lg_dur,
-+			bma023_set_lg_dur,
-+			&sensor->lg_dur);
-+}
-+
-+static DEVICE_ATTR(lg_dur, S_IRUGO | S_IWUSR,
-+		bma023_show_lg_dur, bma023_store_lg_dur);
-+
-+static ssize_t bma023_show_lg_thres(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->lg_thres);
-+}
-+
-+static ssize_t bma023_store_lg_thres(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_lg_thres,
-+			bma023_set_lg_thres,
-+			&sensor->lg_thres);
-+}
-+
-+static DEVICE_ATTR(lg_thres, S_IRUGO | S_IWUSR,
-+		bma023_show_lg_thres, bma023_store_lg_thres);
-+
-+static ssize_t bma023_show_lg_hyst(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->lg_hyst);
-+}
-+
-+static ssize_t bma023_store_lg_hyst(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_lg_hyst,
-+			bma023_set_lg_hyst,
-+			&sensor->lg_hyst);
-+}
-+
-+static DEVICE_ATTR(lg_hyst, S_IRUGO | S_IWUSR,
-+		bma023_show_lg_hyst, bma023_store_lg_hyst);
-+
-+static ssize_t bma023_show_hg_dur(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->hg_dur);
-+}
-+
-+static ssize_t bma023_store_hg_dur(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_hg_dur,
-+			bma023_set_hg_dur,
-+			&sensor->hg_dur);
-+}
-+
-+static DEVICE_ATTR(hg_dur, S_IRUGO | S_IWUSR,
-+		bma023_show_hg_dur, bma023_store_hg_dur);
-+
-+static ssize_t bma023_show_hg_thres(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->hg_thres);
-+}
-+
-+static ssize_t bma023_store_hg_thres(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_hg_thres,
-+			bma023_set_hg_thres,
-+			&sensor->hg_thres);
-+}
-+
-+static DEVICE_ATTR(hg_thres, S_IRUGO | S_IWUSR,
-+		bma023_show_hg_thres, bma023_store_hg_thres);
-+
-+static ssize_t bma023_show_hg_hyst(struct device *dev,
-+		struct device_attribute *att, char *buf)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return sprintf(buf, "%d\n", sensor->hg_hyst);
-+}
-+
-+static ssize_t bma023_store_hg_hyst(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	return bma023_set_attr(sensor, buf, count,
-+			bma023_get_hg_hyst,
-+			bma023_set_hg_hyst,
-+			&sensor->hg_hyst);
-+}
-+
-+static DEVICE_ATTR(hg_hyst, S_IRUGO | S_IWUSR,
-+		bma023_show_hg_hyst, bma023_store_hg_hyst);
-+
-+static struct attribute *bma023_attributes[] =3D {
-+	&dev_attr_accel_data.attr,
-+	&dev_attr_power_mode.attr,
-+	&dev_attr_range.attr,
-+	&dev_attr_bandwidth.attr,
-+	&dev_attr_new_data_int.attr,
-+	&dev_attr_hg_int.attr,
-+	&dev_attr_lg_int.attr,
-+	&dev_attr_lg_dur.attr,
-+	&dev_attr_lg_thres.attr,
-+	&dev_attr_lg_hyst.attr,
-+	&dev_attr_hg_dur.attr,
-+	&dev_attr_hg_thres.attr,
-+	&dev_attr_hg_hyst.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group bma023_group =3D {
-+	.attrs	=3D bma023_attributes,
-+};
-+
-+/**
-+ *	bma023_interrupt_thread	-	handle an IRQ
-+ *	@irq: interrupt numner
-+ *	@data: the sensor
-+ *
-+ *	Called by the kernel single threaded after an interrupt occurs. Rea=
-d
-+ *	the sensor data and generate an input event for it.
-+ */
-+static irqreturn_t bma023_interrupt_thread(int irq, void *data)
-+{
-+	struct bma023_sensor *sensor =3D data;
-+
-+	mutex_lock(&sensor->lock);
-+	bma023_read_xyz(sensor->client, &sensor->data);
-+	mutex_unlock(&sensor->lock);
-+
-+	input_report_abs(sensor->idev, ABS_X, sensor->data.x);
-+	input_report_abs(sensor->idev, ABS_Y, sensor->data.y);
-+	input_report_abs(sensor->idev, ABS_Z, sensor->data.z);
-+	input_sync(sensor->idev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/**
-+ *	bma023_initialize	-	set sensor parameters
-+ *	@sensor: sensor to configure
-+ *
-+ *	Load the actual hardware with the sensor values that were provided
-+ */
-+static void bma023_initialize(struct bma023_sensor *sensor)
-+{
-+	bma023_set_range(sensor->client, sensor->range);
-+	bma023_set_bandwidth(sensor->client, sensor->bandwidth);
-+	bma023_set_new_data_int(sensor->client, sensor->new_data_int);
-+	bma023_set_hg_dur(sensor->client, sensor->hg_dur);
-+	bma023_set_hg_thres(sensor->client, sensor->hg_thres);
-+	bma023_set_hg_hyst(sensor->client, sensor->hg_hyst);
-+	bma023_set_lg_dur(sensor->client, sensor->lg_dur);
-+	bma023_set_lg_thres(sensor->client, sensor->lg_thres);
-+	bma023_set_lg_hyst(sensor->client, sensor->lg_hyst);
-+	bma023_set_hg_int(sensor->client, sensor->hg_int);
-+	bma023_set_lg_int(sensor->client, sensor->lg_int);
-+	bma023_set_power_mode(sensor->client, sensor->power_mode);
-+	bma023_set_check_reg(sensor->client, BMA023_INSPECT_VAL);
-+}
-+
-+/**
-+ *	bma023_input_open	-	called on input event open
-+ *	@input: input dev of opened device
-+ *
-+ *	The input layer calls this function when input event is opened. The
-+ *	function will push the device to resume. Then, the device is ready
-+ *	to provide data.
-+ */
-+static int bma023_input_open(struct input_dev *input)
-+{
-+	struct bma023_sensor *sensor =3D input_get_drvdata(input);
-+	pm_runtime_get(sensor->dev);
-+	return 0;
-+}
-+
-+/**
-+ *	bma023_input_close	-	called on input event close
-+ *	@input: input dev of closed device
-+ *
-+ *	The input layer calls this function when input event is closed. The
-+ *	function will push the device to suspend.
-+ */
-+static void bma023_input_close(struct input_dev *input)
-+{
-+	struct bma023_sensor *sensor =3D input_get_drvdata(input);
-+	pm_runtime_put(sensor->dev);
-+}
-+
-+/**
-+ *	bma023_unregister_input_device	-	remove input dev
-+ *	@sensor: sensor to remove from input
-+ *
-+ *	Free the interrupt and input device for the sensor. We must free
-+ *	the interrupt first
-+ */
-+static void bma023_unregister_input_device(struct bma023_sensor *senso=
-r)
-+{
-+	struct i2c_client *client =3D sensor->client;
-+	if (client->irq > 0)
-+		free_irq(client->irq, sensor);
-+	input_unregister_device(sensor->idev);
-+	sensor->idev =3D NULL;
-+}
-+
-+/**
-+ *	bma023_register_input_device	-	remove input dev
-+ *	@sensor: sensor to remove from input
-+ *
-+ *	Add an input device to the sensor. This will be used to report
-+ *	events from the sensor itself.
-+ */
-+static int __devinit bma023_register_input_device(struct bma023_sensor=
- *sensor)
-+{
-+	struct i2c_client *client =3D sensor->client;
-+	struct input_dev *idev;
-+	int ret;
-+	sensor->idev =3D input_allocate_device();
-+	idev =3D sensor->idev;
-+	if (!idev) {
-+		dev_err(&client->dev, "failed to allocate input device\n");
-+		ret =3D -ENOMEM;
-+		goto failed_alloc;
-+	}
-+	idev->name =3D "BMA023 Sensor";
-+	idev->open =3D bma023_input_open;
-+	idev->close =3D bma023_input_close;
-+	idev->id.bustype =3D BUS_I2C;
-+	idev->dev.parent =3D &client->dev;
-+	idev->evbit[0] =3D BIT_MASK(EV_ABS);
-+	input_set_abs_params(idev, ABS_X, BMA023_MIN_VALUE,
-+			BMA023_MAX_VALUE, 0, 0);
-+	input_set_abs_params(idev, ABS_Y, BMA023_MIN_VALUE,
-+			BMA023_MAX_VALUE, 0, 0);
-+	input_set_abs_params(idev, ABS_Z, BMA023_MIN_VALUE,
-+			BMA023_MAX_VALUE, 0, 0);
-+	input_set_drvdata(idev, sensor);
-+	ret =3D input_register_device(idev);
-+	if (ret) {
-+		dev_err(&client->dev, "failed to register input device\n");
-+		goto failed_reg;
-+	}
-+	if (client->irq > 0) {
-+		ret =3D request_threaded_irq(client->irq, NULL,
-+				bma023_interrupt_thread, IRQF_TRIGGER_RISING,
-+					"bma023", sensor);
-+		if (ret) {
-+			dev_err(&client->dev, "can't get IRQ %d, ret %d\n",
-+					client->irq, ret);
-+			goto failed_irq;
-+		}
-+	}
-+	return 0;
-+failed_irq:
-+	input_unregister_device(idev);
-+	return ret;
-+
-+failed_reg:
-+	input_free_device(idev);
-+failed_alloc:
-+	return ret;
-+}
-+
-+/**
-+ *	bma023_probe	-	device detection callback
-+ *	@client: i2c client of found device
-+ *	@id: id match information
-+ *
-+ *	The I2C layer calls us when it believes a sensor is present at this
-+ *	address. Probe to see if this is correct and to validate the device=
+>
+> While we're at it I have some more questions:
+> Q: Do we need to acknowledge the Device Configuration Feature Report =
+sent from the host to the device (instructing the device to report "mul=
+ti-touch" events)?
+
+If you are talking about the "Digitizers.InputMode" setting, then, we
+just send the signal and we don't wait for an answer. My memory is
+quite confusing here, but again, if you don't intend to support mouse
+emulation, dropping this input in the reports will ease things.
+
+> Q: Do we need to send the ContactCountMaximum Feature Report as descr=
+ibed in the Windows 7 specification? Because I can see that these value=
+s are hardcoded (or just initialized?) in hid-multitouch for each suppo=
+rted device.
+
+So, the first implementation of hid-multitouch did not care about this
+feature. Now, I tried to use it for devices that send it correctly. As
+I did not asked all the owners of the devices to redo the tests, some
+device still got .maxcontact
+I'd rather not have this thing hardcoded in order to be able to reuse
+the different classes with a lot of devices.
+
+Cheers,
+Benjamin
+
+>
+> Regards,
+> Pablo
+>
+>
+>> -----Original Message-----
+>> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
+>> Sent: den 31 maj 2011 13:19
+>> To: Pablo Cases
+>> Cc: St=E9phane Chatty; Henrik Rydberg; Jiri Kosina; linux-
+>> input@vger.kernel.org
+>> Subject: Re: g_hid and hid-multitouch compatibility?
+>>
+>> Hi Pablo,
+>>
+>> On Mon, May 30, 2011 at 18:11, Pablo Cases <pablo.cases@flatfrog.com=
+>
+>> wrote:
+>> > Hi Benjamin,
+>> >
+>> > Now things seem to work a lot better thanks to your input :) I'm
+>> still on the 2.6.38 version of the multitouch code, but static
+>> registering works after adding our faked USB VIP/PID to hid.ids.c, h=
+id-
+>> core.c and hid-multitouch.c:
+>> >
+>> > Digitizers.TipSwitch ---> Key.Touch
+>> > Digitizers.InRange ---> Sync.Report
+>> > Digitizers.ContactID ---> Sync.Report
+>> > GenericDesktop.X ---> Absolute.MTPositionX
+>> > GenericDesktop.Y ---> Absolute.MTPositionY
+>> > Digitizers.TipSwitch ---> Key.Touch
+>> > Digitizers.InRange ---> Sync.Report
+>> > Digitizers.ContactID ---> Sync.Report
+>> > GenericDesktop.X ---> Absolute.MTPositionX
+>> > GenericDesktop.Y ---> Absolute.MTPositionY
+>> > Digitizers.ContactCount ---> Sync.Report
+>> > Button.0001 ---> Key.LeftBtn
+>> > Button.0002 ---> Key.RightBtn
+>> > Button.0003 ---> Key.MiddleBtn
+>> > GenericDesktop.X ---> Absolute.MTPositionX
+>> > GenericDesktop.Y ---> Absolute.MTPositionY
+>> > GenericDesktop.Wheel ---> Relative.Wheel
+>> >
+>> > Running some diagnostics:
+>> > workstation$ sudo python eviocg.py /dev/input/event3
+>> > the device '/dev/input/event3' is multitouch enabled with the
+>> protocol B.
+>>
+>> Can you send me the output of the command "evtest /dev/input/event3"
+>> while moving/releasing fingers? I'm particularly interested in the
+>> headers of this output (with the maximum of the ABS_MT_SLOTS).
+>>
+>> Can you also send the full reports descriptor from
+>> /sys/kernel/debug/hid/0003:xxxx:yyyy.0002/rdesc
+>>
+>> >
+>> > An unmodified version of mtdiag now discovers our multitouch devic=
+e,
+>> but I cannot get any valid touch output in the "drawing surface" of =
+the
+>> application. You mentioned that I could optimize things by using som=
+e
+>> of the quirk defined, but is this necessary or optional?
+>>
+>> purely optional. (normally)
+>>
+>> > If I'm reporting as the Windows 7 specification describes do I sti=
+ll
+>> need to use any of the quirks?
+>>
+>> the point is that many hardware makers interpreted differently this
+>> documentation (that's why we have those quirks). I'm not sure how
+>> Microsoft handles this mess, but it may be even more complicated tha=
+n
+>> our hid-multitouch... So I can not guarantee that it will work out o=
+f
+>> the box.
+>> The big point lies in the understanding of the different
+>> significations of the fields during a touch life time.
+>>
+>> > Specially I'm wondering about the quirks that relate to contact
+>> id/contact number and slots. Do I really need to think about slots a=
+t
+>> all if I have valid ContactIDs in my reports?
+>>
+>> Well it's optimization, so it's optional (though I prefer, because i=
+t
+>> avoids finding elements in lists).
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> >
+>> > Regards,
+>> > Pablo
+>> >
+>> >
+>> >> -----Original Message-----
+>> >> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
+>> >> Sent: den 28 maj 2011 00:42
+>> >> To: Pablo Cases
+>> >> Cc: St=E9phane Chatty; Henrik Rydberg; Jiri Kosina; linux-
+>> >> input@vger.kernel.org
+>> >> Subject: Re: g_hid and hid-multitouch compatibility?
+>> >>
+>> >> Hi Pablo
+>> >>
+>> >> On Sat, May 28, 2011 at 00:08, Pablo Cases
+>> <pablo.cases@flatfrog.com>
+>> >> wrote:
+>> >> > Hi Benjamin,
+>> >> >
+>> >> > Thanks for the response. It is my ignorance that should be excu=
+sed
+>> as
+>> >> I have shown/will show that I am the novice with regards to USB H=
+ID
+>> and
+>> >> multitouch in this forum :)
+>> >> > I=B4ll continue interleaving additional comments below.
+>> >> >
+>> >> > -Pablo
+>> >> >
+>> >> >> -----Original Message-----
+>> >> >> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
+>> >> >> Sent: den 27 maj 2011 18:10
+>> >> >> To: Pablo Cases
+>> >> >> Cc: St=E9phane Chatty; Henrik Rydberg; Jiri Kosina; linux-
+>> >> >> input@vger.kernel.org
+>> >> >> Subject: Re: g_hid and hid-multitouch compatibility?
+>> >> >>
+>> >> >> Hi Pablo,
+>> >> >>
+>> >> >> Adding St=E9phane, Henrik and Jiri in CC.
+>> >> >>
+>> >> >> On Fri, May 27, 2011 at 17:33, Pablo Cases
+>> >> <pablo.cases@flatfrog.com>
+>> >> >> wrote:
+>> >> >> >
+>> >> >> > Hi all,
+>> >> >> >
+>> >> >> > I have searched the net and the archives of linux-input for
+>> >> >> information on how to use the Linux g_hid kernel module on a
+>> device
+>> >> and
+>> >> >> the hid-multitouch kernel module on a host to communicate
+>> multitouch
+>> >> >> events. But unfortunately I can only get single touch working.
+>> >> >>
+>> >> >> Excuse my ignorance, I didn't know g_hid existed before your
+>> mail.
+>> >> If
+>> >> >> I understand it well enough, it's an hid emulation from user-
+>> space.
+>> >> >> Are you trying to inject events from a device in user-space to
+>> the
+>> >> >> kernel? If so, I think it would be easier to use uinput. And t=
+he
+>> >> funny
+>> >> >> think was that I'm currently writing a small lib to inject
+>> mulitouch
+>> >> >> events in a uinput device in an easier way.
+>> >> >>
+>> >> >
+>> >> > Maybe I misunderstand your explanation above but we=B4re not ru=
+nning
+>> >> g_hid and hid-multitouch on the same system. We have a separate
+>> >> hardware USB device running Linux with the g_hid kernel module
+>> loaded.
+>> >> On this device we then have (thanks to g_hid) a userspace file
+>> called
+>> >> /dev/hidg0 that we can write USB HID input reports to, which then
+>> will
+>> >> be sent through the device's gadget usb framework, through an
+>> physical
+>> >> USB cable, to a separate PC host running hid-multitouch.
+>> >>
+>> >> Thanks for the explaination. I didn't knew that it was possible t=
+o
+>> do
+>> >> such things. Linux is really a wonderful world ;-)
+>> >>
+>> >> >
+>> >> >> >
+>> >> >> > Q: Has anyone successfully completed a g_hid <-> hid-multito=
+uch
+>> >> >> setup? And is there a description somewhere of such setup?
+>> >> >>
+>> >> >> I don't think so, hid-multitouch is really new (since 2.6.38, =
+and
+>> >> was
+>> >> >> not very generic at this time).
+>> >> >>
+>> >> >> > Q: Is the Windows 7 multitouch USB HID descriptor the correc=
+t
+>> one
+>> >> to
+>> >> >> use also for Linux hid-multitouch? Or is some tweaking necessa=
+ry?
+>> >> >>
+>> >> >> Normally, any valid Windows 7 multitouch USB HID descriptor ca=
+n
+>> be
+>> >> >> handled by hid-multitouch.
+>> >> >> But it's more the events that are sent to hid-multitouch that
+>> will
+>> >> >> tell if your device is compatible or not.
+>> >> >>
+>> >> >> >
+>> >> >> > DETAILED DESCRIPTION BELOW
+>> >> >> > The device is a Linux device that uses g_hid (currently 2.6.=
+37
+>> >> >> kernel) and a USB HID Report Descriptor for multitouch using t=
+wo-
+>> >> touch
+>> >> >> parallel mode according to Microsoft document
+>> >> >> http://msdn.microsoft.com/en-us/windows/hardware/gg487437.
+>> >> >> >
+>> >> >> > On the host (ubuntu 11.04, 2.6.38 kernel) I register
+>> dynamically
+>> >> >> according to the description at http://lii-
+>> >> >> enac.fr/en/architecture/linux-input/multitouch-ubuntu-howto.ht=
+ml.
+>> >> Using
+>> >> >> the events/rdesc files in debugfs on Ubuntu 11.04 I have
+>> validated
+>> >> the
+>> >> >> parsing of the report descriptor and the input reports.
+>> >> >>
+>> >> >> This is really a bad idea to use these howto with ubuntu 11.04
+>> ATM.
+>> >> I
+>> >> >> didn't found the time to update this stuff, and this branch ca=
+n
+>> not
+>> >> be
+>> >> >> used in ubuntu 11.04 (it contains code for 2.6.35 only, and th=
+ere
+>> >> were
+>> >> >> changes in the hid layer after). If you only used the part "Ho=
+w
+>> to
+>> >> add
+>> >> >> your device to hid-multitouch from the user space" without
+>> updating
+>> >> >> your hid module, then it's as if you have'nt done anything (th=
+e
+>> >> >> generic hid module can not autodetect multitouch devices).
+>> >> >
+>> >> > Currently I am using the hid-multitouch code as existing in the
+>> >> source distribution of a 2.6.38 Ubuntu 11.04 fetched through apt-
+>> get.
+>> >> In the page referred to above I have only used the "How to add yo=
+ur
+>> >> device to hid-multitouch from the user space", and not the 2.6.35
+>> >> related parts.
+>> >>
+>> >> So there are no autodetection in your kernel.
+>> >>
+>> >> >
+>> >> > Ok, so for autodetection of multitouch devices to work I need t=
+o
+>> >> update the hid-multitouch module to a newer version (than was
+>> available
+>> >> in 2.6.38), preferably head on a git master branch somewhere?
+>> Another
+>> >> option is to add a static configuration field in hid-multitouch a=
+nd
+>> >> hid-ids.h for my USB device's VID/PID. But then again, maybe it's
+>> >> better to do that on the latest available code as well?
+>> >>
+>> >> Autodetection is not available upstream too, sorry. The latest
+>> >> available code is on Jiri's tree. I'll try to maintain a bunch of
+>> >> patches to backport the work done on hid-multitouch since 2.6.35 =
+on
+>> >> http://lii-enac.fr/en/architecture/linux-input/multitouch-
+>> >> howto.html#hid-multitouch
+>> >> but I'm a little late for the backports right now.
+>> >>
+>> >> Jiri's tree is at
+>> >> http://git.kernel.org/?p=3Dlinux/kernel/git/jikos/hid.git;a=3Dsum=
+mary
+>> >>
+>> >> >
+>> >> >> >
+>> >> >> > Example multitouch input report from
+>> >> >> /sys/kernel/debug/hid/0003:xxxx:yyyy.0002/events looks correct=
+:
+>> >> >> > report (size 14) (numbered) =3D =A005 03 00 a5 12 32 0e 03 0=
+1 99 14
+>> 32
+>> >> 0e
+>> >> >> 02
+>> >> >> > Digitizers.TipSwitch =3D 1
+>> >> >> > Digitizers.InRange =3D 1
+>> >> >> > Digitizers.ContactID =3D 0
+>> >> >> > GenericDesktop.X =3D 4773
+>> >> >> > GenericDesktop.Y =3D 3634
+>> >> >> > Digitizers.TipSwitch =3D 1
+>> >> >> > Digitizers.InRange =3D 1
+>> >> >> > Digitizers.ContactID =3D 1
+>> >> >> > GenericDesktop.X =3D 5273
+>> >> >> > GenericDesktop.Y =3D 3634
+>> >> >> > Digitizers.ContactCount =3D 2
+>> >> >> >
+>> >> >>
+>> >> >> Most of the time, the problematic part comes from the releases=
 =2E
-+ *
-+ *	If present install the relevant sysfs interfaces and input device.
-+ */
-+static int __devinit bma023_probe(struct i2c_client *client,
-+			const struct i2c_device_id *id)
-+{
-+	struct bma023_sensor *sensor;
-+	struct bma023_platform_data *pdata;
-+	int ret;
-+	int auto_delay;		/* PM timeout */
-+
-+	sensor =3D kzalloc(sizeof(struct bma023_sensor), GFP_KERNEL);
-+	if (!sensor) {
-+		dev_err(&client->dev, "failed to allocate driver data\n");
-+		return -ENOMEM;
-+	}
-+	pdata =3D client->dev.platform_data;
-+	sensor->dev =3D &client->dev;
-+
-+	sensor->client =3D client;
-+	i2c_set_clientdata(client, sensor);
-+
-+	ret =3D bma023_read_reg(client, BMA023_CHIP_ID_REG);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "failed to detect device\n");
-+		goto failed_free;
-+	}
-+	if (ret !=3D BMA023_CHIP_ID) {
-+		dev_err(&client->dev, "unsupported chip id\n");
-+		goto failed_free;
-+	}
-+
-+	mutex_init(&sensor->lock);
-+
-+	ret =3D sysfs_create_group(&client->dev.kobj, &bma023_group);
-+	if (ret) {
-+		dev_err(&client->dev, "failed to create attribute group\n");
-+		goto failed_free;
-+	}
-+
-+	pm_runtime_set_active(&client->dev);
-+
-+	ret =3D bma023_register_input_device(sensor);
-+	if (ret)
-+		dev_err(&client->dev, "only provide sysfs\n");
-+
-+	if (pdata) {
-+		sensor->range =3D pdata->range;
-+		sensor->bandwidth =3D pdata->bandwidth;
-+		sensor->new_data_int =3D pdata->new_data_int;
-+		sensor->hg_int =3D pdata->hg_int;
-+		sensor->lg_int =3D pdata->lg_int;
-+		sensor->hg_dur =3D pdata->hg_dur;
-+		sensor->hg_thres =3D pdata->hg_thres;
-+		sensor->hg_hyst =3D pdata->hg_hyst;
-+		sensor->lg_dur =3D pdata->lg_dur;
-+		sensor->lg_thres =3D pdata->lg_thres;
-+		sensor->lg_hyst =3D pdata->lg_hyst;
-+		auto_delay =3D pdata->auto_delay;
-+	} else {
-+		sensor->range =3D BMA023_DEFAULT_RANGE;
-+		sensor->bandwidth =3D BMA023_DEFAULT_BANDWIDTH;
-+		sensor->new_data_int =3D BMA023_DEFAULT_NEW_DATA_INT;
-+		sensor->hg_int =3D BMA023_DEFAULT_HG_INT;
-+		sensor->lg_int =3D BMA023_DEFAULT_LG_INT;
-+		sensor->hg_dur =3D BMA023_DEFAULT_HG_DURATION;
-+		sensor->hg_thres =3D BMA023_DEFAULT_HG_THRESHOLD;
-+		sensor->hg_hyst =3D BMA023_DEFAULT_HG_HYST;
-+		sensor->lg_dur =3D BMA023_DEFAULT_LG_DURATION;
-+		sensor->lg_thres =3D BMA023_DEFAULT_LG_THRESHOLD;
-+		sensor->lg_hyst =3D BMA023_DEFAULT_LG_HYST;
-+		auto_delay =3D BMA023_DEFAULT_AUTO_DELAY;
-+	}
-+	sensor->power_mode =3D BMA023_SUSPEND;
-+
-+	bma023_initialize(sensor);
-+
-+	pm_runtime_enable(&client->dev);
-+	pm_runtime_set_autosuspend_delay(&client->dev, auto_delay);
-+
-+	dev_info(&client->dev, "%s registered\n", id->name);
-+	return 0;
-+
-+failed_free:
-+	kfree(sensor);
-+	return ret;
-+}
-+
-+/**
-+ *	bam023_remove	-	remove a sensor
-+ *	@client: i2c client of sensor being removed
-+ *
-+ *	Our sensor is going away, clean up the resources.
-+ */
-+static int __devexit bma023_remove(struct i2c_client *client)
-+{
-+	struct bma023_sensor *sensor =3D i2c_get_clientdata(client);
-+
-+	pm_runtime_disable(&client->dev);
-+	pm_runtime_set_suspended(&client->dev);
-+
-+	if (sensor->idev)
-+		bma023_unregister_input_device(sensor);
-+	sysfs_remove_group(&client->dev.kobj, &bma023_group);
-+	kfree(sensor);
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+
-+/**
-+ *	bma023_suspend		-	called on device suspend
-+ *	@client: i2c client of sensor
-+ *	@mesg: actual suspend type
-+ *
-+ *	Put the device into sleep mode before we suspend the machine.
-+ */
-+static int bma023_suspend(struct i2c_client *client, pm_message_t mesg=
-)
-+{
-+	bma023_set_power_mode(client, BMA023_SUSPEND);
-+	return 0;
-+}
-+
-+/**
-+ *	bma023_resume		-	called on device resume
-+ *	@client: i2c client of sensor
-+ *
-+ *	Put the device into powered mode on resume.
-+ */
-+static int bma023_resume(struct i2c_client *client)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(&client->dev);
-+	if (bma023_get_check_reg(client) !=3D BMA023_INSPECT_VAL)
-+		bma023_initialize(sensor);
-+	bma023_set_power_mode(client, sensor->power_mode);
-+	msleep(4);  /* wait for accel chip resume */
-+	return 0;
-+}
-+
-+#else
-+#define bma023_suspend NULL
-+#define bma023_resume NULL
-+#endif
-+
-+#ifdef CONFIG_PM_RUNTIME
-+
-+static int bma023_runtime_suspend(struct device *dev)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	bma023_set_power_mode(sensor->client, BMA023_SUSPEND);
-+	return 0;
-+}
-+
-+static int bma023_runtime_resume(struct device *dev)
-+{
-+	struct bma023_sensor *sensor =3D dev_get_drvdata(dev);
-+	int ret =3D bma023_set_power_mode(sensor->client, BMA023_RESUME);
-+	if (ret =3D=3D 0)
-+		msleep(4);  /* wait for accel chip resume */
-+	return ret;
-+}
-+
-+static const struct dev_pm_ops bma023_pm =3D {
-+	.runtime_suspend =3D bma023_runtime_suspend,
-+	.runtime_resume  =3D bma023_runtime_resume,
-+};
-+#endif
-+
-+static const struct i2c_device_id bma023_ids[] =3D {
-+	{ "bma023", 0 },
-+	{ "smb380", 1 },
-+	{ "bma150", 2 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, bma023_ids);
-+
-+static struct i2c_driver bma023_i2c_driver =3D {
-+	.driver	=3D {
-+		.name	=3D "bma023",
-+#ifdef CONFIG_PM_RUNTIME
-+		.pm		=3D &bma023_pm,
-+#endif	=09
-+	},
-+	.probe		=3D bma023_probe,
-+	.remove		=3D __devexit_p(bma023_remove),
-+	.suspend	=3D bma023_suspend,
-+	.resume		=3D bma023_resume,
-+	.id_table	=3D bma023_ids,
-+};
-+
-+static int __init bma023_init(void)
-+{
-+	return i2c_add_driver(&bma023_i2c_driver);
-+}
-+module_init(bma023_init);
-+
-+static void __exit bma023_exit(void)
-+{
-+	i2c_del_driver(&bma023_i2c_driver);
-+}
-+module_exit(bma023_exit);
-+
-+MODULE_AUTHOR("Kim Kyuwon <q1.kim@samsung.com>, Wistron Corp.");
-+MODULE_DESCRIPTION("BMA023/SMB380 Tri-axis accelerometer driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c/bma023.h b/include/linux/i2c/bma023.h
-new file mode 100644
-index 0000000..7c6e890
---- /dev/null
-+++ b/include/linux/i2c/bma023.h
-@@ -0,0 +1,44 @@
-+/*
-+ * bma023.h - BMA023 Tri-axis accelerometer driver
-+ *
-+ * Copyright (c) 2010 Samsung Eletronics
-+ * Kyungmin Park <kyungmin.park@samsung.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modif=
-y
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#ifndef _BMA023_H_
-+#define _BMA023_H_
-+
-+#define	BMA023_RANGE_2G		0
-+#define	BMA023_RANGE_4G		1
-+#define	BMA023_RANGE_8G		2
-+
-+/* Used to setup the digital filtering bandwidth of ADC output */
-+#define	BMA023_BW_25HZ		0
-+#define	BMA023_BW_50HZ		1
-+#define	BMA023_BW_100HZ		2
-+#define	BMA023_BW_190HZ		3
-+#define	BMA023_BW_375HZ		4
-+#define	BMA023_BW_750HZ		5
-+#define BMA023_BW_1500HZ	6
-+
-+struct bma023_platform_data {
-+	u8 range;		/* BMA023_RANGE_xxx */
-+	u8 bandwidth;		/* BMA023_BW_xxx */
-+	u8 new_data_int;	/* Set to enable new data interrupt */
-+	u8 hg_int;		/* Set to enable high G interrupt */
-+	u8 lg_int;		/* Set to enable low G interrupt */
-+	u8 lg_dur;		/* Low G duration */
-+	u8 lg_thres;		/* Low G threshold */
-+	u8 lg_hyst;		/* Low G Hysterisis */
-+	u8 hg_dur;		/* Ditto for High G */
-+	u8 hg_thres;
-+	u8 hg_hyst;
-+	int auto_delay;		/* Runtime PM keeps active on use for mS */
-+};
-+
-+#endif /* _BMA023_H_ */
-
+>> But
+>> >> >> it's a good start.
+>> >> >
+>> >> > With "releases" I assume you mean the finger removal from the
+>> touch
+>> >> surface, like a "touch-up" event? I have not implemented that par=
+t
+>> yet,
+>> >> but our Microsoft contact informed us that for Windows 7
+>> compatibility
+>> >> it should be reported as a final touch report with
+>> >> > TipSwitch =3D 0
+>> >> > InRange =3D 1
+>> >> > Is this applicable to hid-multitouch too?
+>> >>
+>> >> Exactly, I meant touch-up. Your behavior is applicable to hid-
+>> >> multitouch.
+>> >>
+>> >> Once registering your device with hid-multitouch, you can choose =
+a
+>> >> class that controls how optimized your driver will be. Normally, =
+the
+>> >> MT_CLS_DEFAULT class will work with any Win 7 compliant device
+>> >> (crossing fingers).
+>> >>
+>> >> Then, you can optimize it by looking for the classes that have
+>> >> MT_QUIRK_VALID_IS_INRANGE (or adding a new one). In the same time=
+,
+>> you
+>> >> can also optimize the way your device actually does the match
+>> between
+>> >> slots (from 0 to N-1 with N the maximum contact count of your
+>> device)
+>> >> and the tracking_id reported by the device (or the position in th=
+e
+>> hid
+>> >> report).
+>> >> For dual touches only devices, the differences are not big, but w=
+e
+>> >> prefer to optimize things all the time ;-)
+>> >>
+>> >> >
+>> >> >> > The first touch in the report is correctly presented both on
+>> >> Windows
+>> >> >> and on Ubuntu 11.04 (using ENAC's mtdiag tool with a minor twe=
+ak
+>> to
+>> >> >> display data from all devices not just multitouch ones). I can
+>> see
+>> >> in
+>> >> >> the debugfs files that the data for the second touch data is
+>> >> correctly
+>> >> >> transferred and interpreted (see above), but the mapping to th=
+e
+>> >> linux
+>> >> >> input system seems a bit strange though (see below). My guess =
+is
+>> >> that I
+>> >> >> have not been correctly registered as a multitouch device. I'm
+>> >> assuming
+>> >> >> this also because I cannot see any activity from the hid-
+>> multitouch
+>> >> >> module other than it being initialized when I connect my devic=
+e
+>> >> >> (probably another reason for the needed tweak in mtdiag above)=
+=2E
+>> >> >> >
+>> >> >> > Example mapping from
+>> >> /sys/kernel/debug/hid/0003:xxxx:yyyy.0002/rdesc
+>> >> >> that does not look entirely correct for the second touch:
+>> >> >> > Digitizers.TipSwitch ---> Key.Touch
+>> >> >> > Digitizers.InRange ---> Key.ToolPen
+>> >> >> > Digitizers.ContactID ---> Absolute.Misc
+>> >> >> > GenericDesktop.X ---> Absolute.X
+>> >> >> > GenericDesktop.Y ---> Absolute.Y
+>> >> >> > Digitizers.TipSwitch ---> Key.Touch
+>> >> >> > Digitizers.InRange ---> Key.ToolRubber
+>> >> >> > Digitizers.ContactID ---> Absolute.?
+>> >> >> > GenericDesktop.X ---> Absolute.Z
+>> >> >> > GenericDesktop.Y ---> Absolute.Rx
+>> >> >>
+>> >> >> This means that your device is handled by the generic usbhid a=
+nd
+>> not
+>> >> >> hid-multitouch.
+>> >> >
+>> >> > That is what troubles me. I can see in the host's dmesg that
+>> >> "generic-usb" seems to be the driver chosen for my device when it=
+ is
+>> >> connected to the host. And according to your comment above I migh=
+t
+>> not
+>> >> have correctly registered my device in hid-multitouch which would=
+ be
+>> >> the source of the problem...
+>> >> >
+>> >> > As a side note; I have sprinkled printk() here and there hid-
+>> >> multitouch.c and hid-core.c. While running the code I can only se=
+e
+>> that
+>> >> mt_init() and mt_exit() are called during module loading/unloadin=
+g;
+>> >> never do I see any evidence of that the probing or mapping functi=
+ons
+>> in
+>> >> hid-multitouch are used, only the generic usb parts are used for
+>> >> parsing the report descriptors and input reports.
+>> >>
+>> >> Yep, hid-multitouch does not handle your device. There is current=
+ly
+>> no
+>> >> user-space way to tell usbhid (the generic) not to handle a devic=
+e.
+>> >> You'll have to add your VID-PID to the hid_have_special_driver li=
+st
+>> >> (in hid-core.c) to disable generic usb hid handling for your devi=
+ce.
+>> >> You can check the latest patches adding a specific device to
+>> >> hid-multitouch to have some examples.
+>> >>
+>> >> >
+>> >> > Could you point me to the location in the code where the decisi=
+on
+>> is
+>> >> taken to use the hid-multitouch driver for a hid-multitouch
+>> supported
+>> >> device? I'm guessing it is somewhere in hid-core.c but I have not
+>> been
+>> >> able to pinpoint the location exactly. I could use this location =
+as
+>> a
+>> >> start point to backtrace why we're not considered as a hid-
+>> multitouch
+>> >> supported device.
+>> >>
+>> >> it's just above ;-) hid_have_special_driver in hid-core.c
+>> >>
+>> >> Cheers,
+>> >> Benjamin
+>> >>
+>> >> >
+>> >> >> If you are trying to inject events from the user space, I
+>> strongly
+>> >> >> recommend to use uinput instead. Let me know if you want to ha=
+ve
+>> my
+>> >> >> little uinput-multitouch lib.
+>> >> >>
+>> >> >> Cheers,
+>> >> >> Benjamin
+>> >> >>
+>> >> >> > Digitizers.ContactCount ---> Absolute.?
+>> >> >> > Button.0001 ---> Key.LeftBtn
+>> >> >> > Button.0002 ---> Key.RightBtn
+>> >> >> > Button.0003 ---> Key.MiddleBtn
+>> >> >> > GenericDesktop.X ---> Relative.X
+>> >> >> > GenericDesktop.Y ---> Relative.Y
+>> >> >> > GenericDesktop.Wheel ---> Relative.Wheel
+>> >> >> >
+>> >> >> >
+>> >> >> > Regards,
+>> >> >> > Pablo Cases
+>> >> >> >
+>> >> >> > -------------------------
+>> >> >> > Pablo Cases, M.Sc.
+>> >> >> > Development Engineer Software
+>> >> >> > FlatFrog Laboratories AB
+>> >> >> > Magistratsv=E4gen 10
+>> >> >> > 22643 Lund
+>> >> >> > Sweden
+>> >> >> > Tel: +46 708 393816
+>> >> >> > Mail: pc@flatfrog.com
+>> >> >> > Web: www.flatfrog.com
+>> >> >> > --
+>> >> >> > To unsubscribe from this list: send the line "unsubscribe
+>> linux-
+>> >> >> input" in
+>> >> >> > the body of a message to majordomo@vger.kernel.org
+>> >> >> > More majordomo info at =A0http://vger.kernel.org/majordomo-
+>> info.html
+>> >> >> >
+>> >> >
+>> >
+>
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

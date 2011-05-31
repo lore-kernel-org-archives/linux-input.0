@@ -1,1810 +1,616 @@
-From: Prarit Bhargava <prarit@redhat.com>
-Subject: [RFC PATCH 14/35] drivers/input changes for SMBIOS and System Firmware
-Date: Tue, 31 May 2011 11:52:13 -0400
-Message-ID: <20110531155212.3535.99229.sendpatchset@prarit.bos.redhat.com>
-Content-Type: text/x-c; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Prarit Bhargava <prarit@redhat.com>
+From: Eric Andersson <eric.andersson@unixphere.com>
+Subject: [PATCH] input: add driver for Bosch Sensortec's BMA150 accelerometer
+Date: Tue, 31 May 2011 17:55:14 +0200
+Message-ID: <1306857314-655-1-git-send-email-eric.andersson@unixphere.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-gw11.han.skanova.net ([81.236.55.20]:41632 "EHLO
+	smtp-gw11.han.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932330Ab1EaPxl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 31 May 2011 11:53:41 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, Eric Andersson <eric.andersson@unixphere.com>, Albert Zhang <xu.zhang@bosch-sensortec.com>
 
-drivers/input changes for SMBIOS and System Firmware
-
+Signed-off-by: Albert Zhang <xu.zhang@bosch-sensortec.com>
+Signed-off-by: Eric Andersson <eric.andersson@unixphere.com>
 ---
- drivers/input/keyboard/atkbd.c        |   78 ++++----
- drivers/input/misc/wistron_btns.c     |  239 +++++++++++-----------
- drivers/input/mouse/lifebook.c        |   40 ++--
- drivers/input/mouse/synaptics.c       |   40 ++--
- drivers/input/serio/i8042-x86ia64io.h |  353 +++++++++++++++++----------------
- drivers/input/tablet/wacom.h          |    1 -
- drivers/input/touchscreen/htcpen.c    |   13 +-
- 7 files changed, 394 insertions(+), 370 deletions(-)
+ drivers/input/misc/Kconfig  |   10 +
+ drivers/input/misc/Makefile |    1 +
+ drivers/input/misc/bma150.c |  554 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 565 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/bma150.c
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 11478eb..bb1c70a 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -27,7 +27,7 @@
- #include <linux/workqueue.h>
- #include <linux/libps2.h>
- #include <linux/mutex.h>
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 45dc6aa..9da47fd 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -478,4 +478,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called xen-kbdfront.
  
- #define DRIVER_DESC	"AT and PS/2 keyboard driver"
++config INPUT_BMA150
++	tristate "BMA150 acceleration sensor support"
++	depends on I2C
++	help
++	  Say Y here if you have Bosch Sensortec's BMA150 acceleration
++	  sensor hooked to an I2C bus.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called bma150.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 38efb2c..9b13e0e 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -45,4 +45,5 @@ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
++obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
  
-@@ -1573,7 +1573,7 @@ static ssize_t atkbd_show_err_count(struct atkbd *atkbd, char *buf)
- 	return sprintf(buf, "%lu\n", atkbd->err_count);
- }
- 
--static int __init atkbd_setup_forced_release(const struct dmi_system_id *id)
-+static int __init atkbd_setup_forced_release(const struct sysfw_id *id)
- {
- 	atkbd_platform_fixup = atkbd_apply_forced_release_keylist;
- 	atkbd_platform_fixup_data = id->driver_data;
-@@ -1581,66 +1581,67 @@ static int __init atkbd_setup_forced_release(const struct dmi_system_id *id)
- 	return 0;
- }
- 
--static int __init atkbd_setup_scancode_fixup(const struct dmi_system_id *id)
-+static int __init atkbd_setup_scancode_fixup(const struct sysfw_id *id)
- {
- 	atkbd_platform_scancode_fixup = id->driver_data;
- 
- 	return 0;
- }
- 
--static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
-+static const struct sysfw_id atkbd_id_quirk_table[] __initconst = {
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_CHASSIS_TYPE, "8"), /* Portable */
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_CHASSIS_TYPE, "8"), /* Portable */
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_dell_laptop_forced_release_keys,
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
--			DMI_MATCH(DMI_CHASSIS_TYPE, "8"), /* Portable */
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR,
-+				    "Dell Computer Corporation"),
-+			SYSFW_MATCH(SYSFW_CHASSIS_TYPE, "8"), /* Portable */
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_dell_laptop_forced_release_keys,
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP 2133"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "HP 2133"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_hp_forced_release_keys,
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Pavilion ZV6100"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Pavilion ZV6100"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_volume_forced_release_keys,
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Presario R4000"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Presario R4000"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_volume_forced_release_keys,
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Presario R4100"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Presario R4100"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_volume_forced_release_keys,
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Presario R4200"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Presario R4200"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_volume_forced_release_keys,
-@@ -1648,8 +1649,8 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* Inventec Symphony */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "INVENTEC"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "SYMPHONY 6.0/7.0"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "INVENTEC"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "SYMPHONY 6.0/7.0"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_volume_forced_release_keys,
-@@ -1657,8 +1658,9 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* Samsung NC10 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "NC10"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR,
-+				    "SAMSUNG ELECTRONICS CO., LTD."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "NC10"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_samsung_forced_release_keys,
-@@ -1666,8 +1668,9 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* Samsung NC20 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "NC20"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR,
-+				    "SAMSUNG ELECTRONICS CO., LTD."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "NC20"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_samsung_forced_release_keys,
-@@ -1675,8 +1678,9 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* Samsung SQ45S70S */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "SQ45S70S"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR,
-+				    "SAMSUNG ELECTRONICS CO., LTD."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "SQ45S70S"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_samsung_forced_release_keys,
-@@ -1684,8 +1688,8 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* Fujitsu Amilo PA 1510 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pa 1510"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO Pa 1510"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_volume_forced_release_keys,
-@@ -1693,8 +1697,8 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* Fujitsu Amilo Pi 3525 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pi 3525"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO Pi 3525"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_amilo_pi3525_forced_release_keys,
-@@ -1702,16 +1706,16 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* Fujitsu Amilo Xi 3650 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Xi 3650"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO Xi 3650"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkbd_amilo_xi3650_forced_release_keys,
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Soltech Corporation"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TA12"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Soltech Corporation"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TA12"),
- 		},
- 		.callback = atkbd_setup_forced_release,
- 		.driver_data = atkdb_soltech_ta12_forced_release_keys,
-@@ -1719,8 +1723,8 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 	{
- 		/* OQO Model 01+ */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "OQO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ZEPTO"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "OQO"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "ZEPTO"),
- 		},
- 		.callback = atkbd_setup_scancode_fixup,
- 		.driver_data = atkbd_oqo_01plus_scancode_fixup,
-@@ -1730,7 +1734,7 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
- 
- static int __init atkbd_init(void)
- {
--	dmi_check_system(atkbd_dmi_quirk_table);
-+	sysfw_callback(atkbd_id_quirk_table);
- 
- 	return serio_register_driver(&atkbd_drv);
- }
-diff --git a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
-index 52b4193..f4aabda 100644
---- a/drivers/input/misc/wistron_btns.c
-+++ b/drivers/input/misc/wistron_btns.c
-@@ -18,7 +18,7 @@
-  * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
-  */
- #include <linux/io.h>
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
- #include <linux/init.h>
- #include <linux/input-polldev.h>
- #include <linux/input/sparse-keymap.h>
-@@ -238,11 +238,11 @@ static bool have_wifi;
- static bool have_bluetooth;
- static int leds_present;	/* bitmask of leds present */
- 
--static int __init dmi_matched(const struct dmi_system_id *dmi)
-+static int __init sysfw_matched(const struct sysfw_id *id)
- {
- 	const struct key_entry *key;
- 
--	keymap = dmi->driver_data;
-+	keymap = id->driver_data;
- 	for (key = keymap; key->type != KE_END; key++) {
- 		if (key->type == KE_WIFI)
- 			have_wifi = true;
-@@ -635,342 +635,345 @@ static struct key_entry keymap_prestigio[] __initdata = {
-  * a list of buttons and their key codes (reported when loading this module
-  * with force=1) and the output of dmidecode to $MODULE_AUTHOR.
-  */
--static const struct dmi_system_id __initconst dmi_ids[] = {
-+static const struct sysfw_id __initconst sysfw_ids[] = {
- 	{
- 		/* Fujitsu-Siemens Amilo Pro V2000 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pro V2000"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO Pro V2000"),
- 		},
- 		.driver_data = keymap_fs_amilo_pro_v2000
- 	},
- 	{
- 		/* Fujitsu-Siemens Amilo Pro Edition V3505 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pro Edition V3505"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME,
-+				    "AMILO Pro Edition V3505"),
- 		},
- 		.driver_data = keymap_fs_amilo_pro_v3505
- 	},
- 	{
- 		/* Fujitsu-Siemens Amilo M7400 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO M        "),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO M        "),
- 		},
- 		.driver_data = keymap_fs_amilo_pro_v2000
- 	},
- 	{
- 		/* Maxdata Pro 7000 DX */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MAXDATA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Pro 7000"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MAXDATA"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Pro 7000"),
- 		},
- 		.driver_data = keymap_fs_amilo_pro_v2000
- 	},
- 	{
- 		/* Fujitsu N3510 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "N3510"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "N3510"),
- 		},
- 		.driver_data = keymap_fujitsu_n3510
- 	},
- 	{
- 		/* Acer Aspire 1500 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1500"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 1500"),
- 		},
- 		.driver_data = keymap_acer_aspire_1500
- 	},
- 	{
- 		/* Acer Aspire 1600 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1600"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 1600"),
- 		},
- 		.driver_data = keymap_acer_aspire_1600
- 	},
- 	{
- 		/* Acer Aspire 3020 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 3020"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 3020"),
- 		},
- 		.driver_data = keymap_acer_aspire_5020
- 	},
- 	{
- 		/* Acer Aspire 5020 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5020"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5020"),
- 		},
- 		.driver_data = keymap_acer_aspire_5020
- 	},
- 	{
- 		/* Acer TravelMate 2100 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 2100"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 2100"),
- 		},
- 		.driver_data = keymap_acer_aspire_5020
- 	},
- 	{
- 		/* Acer TravelMate 2410 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 2410"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 2410"),
- 		},
- 		.driver_data = keymap_acer_travelmate_2410
- 	},
- 	{
- 		/* Acer TravelMate C300 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate C300"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate C300"),
- 		},
- 		.driver_data = keymap_acer_travelmate_300
- 	},
- 	{
- 		/* Acer TravelMate C100 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate C100"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate C100"),
- 		},
- 		.driver_data = keymap_acer_travelmate_300
- 	},
- 	{
- 		/* Acer TravelMate C110 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate C110"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate C110"),
- 		},
- 		.driver_data = keymap_acer_travelmate_110
- 	},
- 	{
- 		/* Acer TravelMate 380 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 380"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 380"),
- 		},
- 		.driver_data = keymap_acer_travelmate_380
- 	},
- 	{
- 		/* Acer TravelMate 370 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 370"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 370"),
- 		},
--		.driver_data = keymap_acer_travelmate_380 /* keyboard minus 1 key */
-+		/* keyboard minus 1 key */
-+		.driver_data = keymap_acer_travelmate_380
- 	},
- 	{
- 		/* Acer TravelMate 220 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 220"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 220"),
- 		},
- 		.driver_data = keymap_acer_travelmate_220
- 	},
- 	{
- 		/* Acer TravelMate 260 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 260"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 260"),
- 		},
- 		.driver_data = keymap_acer_travelmate_220
- 	},
- 	{
- 		/* Acer TravelMate 230 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 230"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 230"),
- 			/* acerhk looks for "TravelMate F4..." ?! */
- 		},
- 		.driver_data = keymap_acer_travelmate_230
- 	},
- 	{
- 		/* Acer TravelMate 280 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 280"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 280"),
- 		},
- 		.driver_data = keymap_acer_travelmate_230
- 	},
- 	{
- 		/* Acer TravelMate 240 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 240"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 240"),
- 		},
- 		.driver_data = keymap_acer_travelmate_240
- 	},
- 	{
- 		/* Acer TravelMate 250 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 250"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 250"),
- 		},
- 		.driver_data = keymap_acer_travelmate_240
- 	},
- 	{
- 		/* Acer TravelMate 2424NWXCi */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 2420"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 2420"),
- 		},
- 		.driver_data = keymap_acer_travelmate_240
- 	},
- 	{
- 		/* Acer TravelMate 350 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 350"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 350"),
- 		},
- 		.driver_data = keymap_acer_travelmate_350
- 	},
- 	{
- 		/* Acer TravelMate 360 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 360"),
- 		},
- 		.driver_data = keymap_acer_travelmate_360
- 	},
- 	{
- 		/* Acer TravelMate 610 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "ACER"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 610"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "ACER"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 610"),
- 		},
- 		.driver_data = keymap_acer_travelmate_610
- 	},
- 	{
- 		/* Acer TravelMate 620 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 620"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 620"),
- 		},
- 		.driver_data = keymap_acer_travelmate_630
- 	},
- 	{
- 		/* Acer TravelMate 630 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 630"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 630"),
- 		},
- 		.driver_data = keymap_acer_travelmate_630
- 	},
- 	{
- 		/* AOpen 1559AS */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "E2U"),
--			DMI_MATCH(DMI_BOARD_NAME, "E2U"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "E2U"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "E2U"),
- 		},
- 		.driver_data = keymap_aopen_1559as
- 	},
- 	{
- 		/* Medion MD 9783 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MEDIONNB"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "MD 9783"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MEDIONNB"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "MD 9783"),
- 		},
- 		.driver_data = keymap_wistron_ms2111
- 	},
- 	{
- 		/* Medion MD 40100 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MEDIONNB"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "WID2000"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MEDIONNB"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "WID2000"),
- 		},
- 		.driver_data = keymap_wistron_md40100
- 	},
- 	{
- 		/* Medion MD 2900 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MEDIONNB"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2000"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MEDIONNB"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "WIM 2000"),
- 		},
- 		.driver_data = keymap_wistron_md2900
- 	},
- 	{
- 		/* Medion MD 42200 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Medion"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2030"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Medion"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "WIM 2030"),
- 		},
- 		.driver_data = keymap_fs_amilo_pro_v2000
- 	},
- 	{
- 		/* Medion MD 96500 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MEDIONPC"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2040"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MEDIONPC"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "WIM 2040"),
- 		},
- 		.driver_data = keymap_wistron_md96500
- 	},
- 	{
- 		/* Medion MD 95400 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MEDIONPC"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2050"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MEDIONPC"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "WIM 2050"),
- 		},
- 		.driver_data = keymap_wistron_md96500
- 	},
- 	{
- 		/* Fujitsu Siemens Amilo D7820 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"), /* not sure */
--			DMI_MATCH(DMI_PRODUCT_NAME, "Amilo D"),
-+			/* not sure */
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Amilo D"),
- 		},
- 		.driver_data = keymap_fs_amilo_d88x0
- 	},
- 	{
- 		/* Fujitsu Siemens Amilo D88x0 */
--		.callback = dmi_matched,
-+		.callback = sysfw_matched,
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO D"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO D"),
- 		},
- 		.driver_data = keymap_fs_amilo_d88x0
- 	},
--	{ NULL, }
-+	{}
- };
- 
- /* Copy the good keymap, as the original ones are free'd */
-@@ -995,7 +998,7 @@ static int __init copy_keymap(void)
- 
- static int __init select_keymap(void)
- {
--	dmi_check_system(dmi_ids);
-+	sysfw_callback(sysfw_ids);
- 	if (keymap_name != NULL) {
- 		if (strcmp (keymap_name, "1557/MS2141") == 0)
- 			keymap = keymap_wistron_ms2141;
-diff --git a/drivers/input/mouse/lifebook.c b/drivers/input/mouse/lifebook.c
-index c31ad11..009629a 100644
---- a/drivers/input/mouse/lifebook.c
-+++ b/drivers/input/mouse/lifebook.c
-@@ -15,8 +15,8 @@
- #include <linux/input.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
--#include <linux/dmi.h>
- #include <linux/slab.h>
-+#include <linux/sysfw.h>
- 
- #include "psmouse.h"
- #include "lifebook.h"
-@@ -30,7 +30,7 @@ static bool lifebook_present;
- 
- static const char *desired_serio_phys;
- 
--static int lifebook_limit_serio3(const struct dmi_system_id *d)
-+static int lifebook_limit_serio3(const struct sysfw_id *d)
- {
- 	desired_serio_phys = "isa0060/serio3";
- 	return 0;
-@@ -38,89 +38,90 @@ static int lifebook_limit_serio3(const struct dmi_system_id *d)
- 
- static bool lifebook_use_6byte_proto;
- 
--static int lifebook_set_6byte_proto(const struct dmi_system_id *d)
-+static int lifebook_set_6byte_proto(const struct sysfw_id *d)
- {
- 	lifebook_use_6byte_proto = true;
- 	return 0;
- }
- 
--static const struct dmi_system_id __initconst lifebook_dmi_table[] = {
-+static const struct sysfw_id __initconst lifebook_smbios_table[] = {
- 	{
- 		/* FLORA-ie 55mi */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "FLORA-ie 55mi"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "FLORA-ie 55mi"),
- 		},
- 	},
- 	{
- 		/* LifeBook B */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "Lifebook B Series"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Lifebook B Series"),
- 		},
- 	},
- 	{
- 		/* LifeBook B */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B Series"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LifeBook B Series"),
- 		},
- 	},
- 	{
- 		/* Lifebook B */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK B Series"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LIFEBOOK B Series"),
- 		},
- 	},
- 	{
- 		/* Lifebook B-2130 */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_NAME, "ZEPHYR"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "ZEPHYR"),
- 		},
- 	},
- 	{
- 		/* Lifebook B213x/B2150 */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B2131/B2133/B2150"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME,
-+				    "LifeBook B2131/B2133/B2150"),
- 		},
- 	},
- 	{
- 		/* Zephyr */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "ZEPHYR"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "ZEPHYR"),
- 		},
- 	},
- 	{
- 		/* Panasonic CF-18 */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "CF-18"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "CF-18"),
- 		},
- 		.callback = lifebook_limit_serio3,
- 	},
- 	{
- 		/* Panasonic CF-28 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Matsushita"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "CF-28"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Matsushita"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "CF-28"),
- 		},
- 		.callback = lifebook_set_6byte_proto,
- 	},
- 	{
- 		/* Panasonic CF-29 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Matsushita"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "CF-29"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Matsushita"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "CF-29"),
- 		},
- 		.callback = lifebook_set_6byte_proto,
- 	},
- 	{
- 		/* Panasonic CF-72 */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "CF-72"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "CF-72"),
- 		},
- 		.callback = lifebook_set_6byte_proto,
- 	},
- 	{
- 		/* Lifebook B142 */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B142"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LifeBook B142"),
- 		},
- 	},
- 	{ }
-@@ -128,7 +129,8 @@ static const struct dmi_system_id __initconst lifebook_dmi_table[] = {
- 
- void __init lifebook_module_init(void)
- {
--	lifebook_present = dmi_check_system(lifebook_dmi_table);
-+	if (sysfw_callback(lifebook_smbios_table))
-+		lifebook_present = 1;
- }
- 
- static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse)
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e06e045..64d7212 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -24,7 +24,7 @@
-  */
- 
- #include <linux/module.h>
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-@@ -803,36 +803,36 @@ static int synaptics_reconnect(struct psmouse *psmouse)
- 
- static bool impaired_toshiba_kbc;
- 
--static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
--#if defined(CONFIG_DMI) && defined(CONFIG_X86)
-+static const struct sysfw_id __initconst toshiba_smbios_table[] = {
-+#ifdef CONFIG_X86
- 	{
- 		/* Toshiba Satellite */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "TOSHIBA"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Satellite"),
- 		},
- 	},
- 	{
- 		/* Toshiba Dynabook */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "dynabook"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "TOSHIBA"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "dynabook"),
- 		},
- 	},
- 	{
- 		/* Toshiba Portege M300 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE M300"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "TOSHIBA"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "PORTEGE M300"),
- 		},
- 
- 	},
- 	{
- 		/* Toshiba Portege M300 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Portable PC"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "Version 1.0"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "TOSHIBA"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Portable PC"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "Version 1.0"),
- 		},
- 
- 	},
-@@ -842,13 +842,13 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
- 
- static bool broken_olpc_ec;
- 
--static const struct dmi_system_id __initconst olpc_dmi_table[] = {
--#if defined(CONFIG_DMI) && defined(CONFIG_OLPC)
-+static const struct sysfw_id __initconst olpc_smbios_table[] = {
-+#ifdef CONFIG_OLPC
- 	{
- 		/* OLPC XO-1 or XO-1.5 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "OLPC"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "XO"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "OLPC"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "XO"),
- 		},
- 	},
- #endif
-@@ -857,8 +857,10 @@ static const struct dmi_system_id __initconst olpc_dmi_table[] = {
- 
- void __init synaptics_module_init(void)
- {
--	impaired_toshiba_kbc = dmi_check_system(toshiba_dmi_table);
--	broken_olpc_ec = dmi_check_system(olpc_dmi_table);
-+	if (sysfw_callback(toshiba_smbios_table))
-+		impaired_toshiba_kbc = 1;
-+	if (sysfw_callback(olpc_smbios_table))
-+		broken_olpc_ec = 1;
- }
- 
- int synaptics_init(struct psmouse *psmouse)
-@@ -938,7 +940,7 @@ int synaptics_init(struct psmouse *psmouse)
- 	 */
- 	if (psmouse->rate >= 80 && impaired_toshiba_kbc) {
- 		printk(KERN_INFO "synaptics: Toshiba %s detected, limiting rate to 40pps.\n",
--			dmi_get_system_info(DMI_PRODUCT_NAME));
-+			sysfw_lookup(SYSFW_PRODUCT_NAME));
- 		psmouse->rate = 40;
- 	}
- 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index bb9f5d3..9e16b08 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -69,118 +69,122 @@ static inline void i8042_write_command(int val)
- 
- #ifdef CONFIG_X86
- 
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
- 
--static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
-+static const struct sysfw_id __initconst i8042_id_noloop_table[] = {
- 	{
- 		/*
- 		 * Arima-Rioworks HDAMB -
- 		 * AUX LOOP command does not raise AUX IRQ
- 		 */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "RIOWORKS"),
--			DMI_MATCH(DMI_BOARD_NAME, "HDAMB"),
--			DMI_MATCH(DMI_BOARD_VERSION, "Rev E"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "RIOWORKS"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "HDAMB"),
-+			SYSFW_MATCH(SYSFW_BOARD_VERSION, "Rev E"),
- 		},
- 	},
- 	{
- 		/* ASUS G1S */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer Inc."),
--			DMI_MATCH(DMI_BOARD_NAME, "G1S"),
--			DMI_MATCH(DMI_BOARD_VERSION, "1.0"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR,
-+				    "ASUSTeK Computer Inc."),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "G1S"),
-+			SYSFW_MATCH(SYSFW_BOARD_VERSION, "1.0"),
- 		},
- 	},
- 	{
- 		/* ASUS P65UP5 - AUX LOOP command does not raise AUX IRQ */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
--			DMI_MATCH(DMI_BOARD_NAME, "P/I-P65UP5"),
--			DMI_MATCH(DMI_BOARD_VERSION, "REV 2.X"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR,
-+				    "ASUSTeK Computer INC."),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "P/I-P65UP5"),
-+			SYSFW_MATCH(SYSFW_BOARD_VERSION, "REV 2.X"),
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Compaq"),
--			DMI_MATCH(DMI_PRODUCT_NAME , "ProLiant"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "8500"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Compaq"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME , "ProLiant"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "8500"),
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Compaq"),
--			DMI_MATCH(DMI_PRODUCT_NAME , "ProLiant"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "DL760"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Compaq"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME , "ProLiant"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "DL760"),
- 		},
- 	},
- 	{
- 		/* OQO Model 01 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "OQO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ZEPTO"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "00"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "OQO"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "ZEPTO"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "00"),
- 		},
- 	},
- 	{
- 		/* ULI EV4873 - AUX LOOP does not work properly */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "ULI"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "EV4873"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "5a"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "ULI"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "EV4873"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "5a"),
- 		},
- 	},
- 	{
- 		/* Microsoft Virtual Machine */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "VS2005R2"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR,
-+				    "Microsoft Corporation"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Virtual Machine"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "VS2005R2"),
- 		},
- 	},
- 	{
- 		/* Medion MAM 2070 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "MAM 2070"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "5a"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Notebook"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "MAM 2070"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "5a"),
- 		},
- 	},
- 	{
- 		/* Blue FB5601 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "blue"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "FB5601"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "M606"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "blue"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "FB5601"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "M606"),
- 		},
- 	},
- 	{
- 		/* Gigabyte M912 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "M912"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "01"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "GIGABYTE"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "M912"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "01"),
- 		},
- 	},
- 	{
- 		/* Gigabyte M1022M netbook */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "Gigabyte Technology Co.,Ltd."),
--			DMI_MATCH(DMI_BOARD_NAME, "M1022E"),
--			DMI_MATCH(DMI_BOARD_VERSION, "1.02"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR,
-+				    "Gigabyte Technology Co.,Ltd."),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "M1022E"),
-+			SYSFW_MATCH(SYSFW_BOARD_VERSION, "1.02"),
- 		},
- 	},
- 	{
- 		/* Gigabyte Spring Peak - defines wrong chassis type */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Spring Peak"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "GIGABYTE"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Spring Peak"),
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv9700"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "Rev 1"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "HP Pavilion dv9700"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "Rev 1"),
- 		},
- 	},
- 	{ }
-@@ -193,75 +197,75 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
-  * ... apparently some Toshibas don't like MUX mode either and
-  * die horrible death on reboot.
-  */
--static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
-+static const struct sysfw_id __initconst i8042_id_nomux_table[] = {
- 	{
- 		/* Fujitsu Lifebook P7010/P7010D */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "P7010"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "P7010"),
- 		},
- 	},
- 	{
- 		/* Fujitsu Lifebook P7010 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "0000000000"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "0000000000"),
- 		},
- 	},
- 	{
- 		/* Fujitsu Lifebook P5020D */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook P Series"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LifeBook P Series"),
- 		},
- 	},
- 	{
- 		/* Fujitsu Lifebook S2000 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook S Series"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LifeBook S Series"),
- 		},
- 	},
- 	{
- 		/* Fujitsu Lifebook S6230 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook S6230"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LifeBook S6230"),
- 		},
- 	},
- 	{
- 		/* Fujitsu T70H */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "FMVLT70H"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "FMVLT70H"),
- 		},
- 	},
- 	{
- 		/* Fujitsu-Siemens Lifebook T3010 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T3010"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LIFEBOOK T3010"),
- 		},
- 	},
- 	{
- 		/* Fujitsu-Siemens Lifebook E4010 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E4010"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "LIFEBOOK E4010"),
- 		},
- 	},
- 	{
- 		/* Fujitsu-Siemens Amilo Pro 2010 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pro V2010"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO Pro V2010"),
- 		},
- 	},
- 	{
- 		/* Fujitsu-Siemens Amilo Pro 2030 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO PRO V2030"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AMILO PRO V2030"),
- 		},
- 	},
- 	{
-@@ -271,8 +275,8 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 		 */
- 		/* Panasonic CF-29 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Matsushita"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "CF-29"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Matsushita"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "CF-29"),
- 		},
- 	},
- 	{
-@@ -282,8 +286,9 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 		 * causing "spurious NAK" messages.
- 		 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Pavilion dv4000 (EA032EA#ABF)"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME,
-+				    "Pavilion dv4000 (EA032EA#ABF)"),
- 		},
- 	},
- 	{
-@@ -292,9 +297,11 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 		 * like DV4017EA does not raise AUXERR for errors on MUX ports.
- 		 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Notebook PC"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook ZT1000"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME,
-+				    "HP Pavilion Notebook PC"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION,
-+				    "HP Pavilion Notebook ZT1000"),
- 		},
- 	},
- 	{
-@@ -303,40 +310,41 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 		 * like DV4017EA does not raise AUXERR for errors on MUX ports.
- 		 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Pavilion dv4000 (EH476UA#ABL)"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Hewlett-Packard"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME,
-+				    "Pavilion dv4000 (EH476UA#ABL)"),
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite P10"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "TOSHIBA"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Satellite P10"),
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "EQUIUM A110"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "TOSHIBA"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "EQUIUM A110"),
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "ALIENWARE"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Sentia"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "ALIENWARE"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Sentia"),
- 		},
- 	},
- 	{
- 		/* Sharp Actius MM20 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SHARP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "PC-MM20 Series"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "SHARP"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "PC-MM20 Series"),
- 		},
- 	},
- 	{
- 		/* Sony Vaio FS-115b */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-FS115B"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Sony Corporation"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "VGN-FS115B"),
- 		},
- 	},
- 	{
-@@ -346,8 +354,8 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 		 * sometimes being delivered to AUX3.
- 		 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-FZ240E"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Sony Corporation"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "VGN-FZ240E"),
- 		},
- 	},
- 	{
-@@ -357,207 +365,212 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 		 * MUX discovery usually messes up keyboard/touchpad.
- 		 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
--			DMI_MATCH(DMI_BOARD_NAME, "VAIO"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Sony Corporation"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "VAIO"),
- 		},
- 	},
- 	{
- 		/* Amoi M636/A737 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Amoi Electronics CO.,LTD."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "M636/A737 platform"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR,
-+				     "Amoi Electronics CO.,LTD."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "M636/A737 platform"),
- 		},
- 	},
- 	{
- 		/* Lenovo 3000 n100 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "076804U"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "LENOVO"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "076804U"),
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1360"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 1360"),
- 		},
- 	},
- 	{
- 		/* Gericom Bellagio */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Gericom"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "N34AS6"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Gericom"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "N34AS6"),
- 		},
- 	},
- 	{
- 		/* IBM 2656 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "2656"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "IBM"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "2656"),
- 		},
- 	},
- 	{
- 		/* Dell XPS M1530 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "XPS M1530"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "XPS M1530"),
- 		},
- 	},
- 	{
- 		/* Compal HEL80I */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "COMPAL"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HEL80I"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "COMPAL"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "HEL80I"),
- 		},
- 	},
- 	{
- 		/* Dell Vostro 1510 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro1510"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Vostro1510"),
- 		},
- 	},
- 	{
- 		/* Acer Aspire 5536 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5536"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "0100"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5536"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_VERSION, "0100"),
- 		},
- 	},
- 	{
- 		/* Dell Vostro V13 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Vostro V13"),
- 		},
- 	},
- 	{ }
- };
- 
--static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
-+static const struct sysfw_id __initconst i8042_id_reset_table[] = {
- 	{
- 		/* MSI Wind U-100 */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
--			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "U-100"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR,
-+				    "MICRO-STAR INTERNATIONAL CO., LTD"),
- 		},
- 	},
- 	{
- 		/* LG Electronics X110 */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_NAME, "X110"),
--			DMI_MATCH(DMI_BOARD_VENDOR, "LG Electronics Inc."),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "X110"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR,
-+				     "LG Electronics Inc."),
- 		},
- 	},
- 	{
- 		/* Acer Aspire One 150 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "AOA150"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "AOA150"),
- 		},
- 	},
- 	{
- 		/* Advent 4211 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "DIXONSXP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Advent 4211"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "DIXONSXP"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Advent 4211"),
- 		},
- 	},
- 	{
- 		/* Medion Akoya Mini E1210 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "E1210"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MEDION"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "E1210"),
- 		},
- 	},
- 	{
- 		/* Medion Akoya E1222 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "E122X"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "MEDION"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "E122X"),
- 		},
- 	},
- 	{
- 		/* Mivvy M310 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "VIOOO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "N10"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "VIOOO"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "N10"),
- 		},
- 	},
- 	{
- 		/* Dell Vostro 1320 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 1320"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Vostro 1320"),
- 		},
- 	},
- 	{
- 		/* Dell Vostro 1520 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 1520"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Vostro 1520"),
- 		},
- 	},
- 	{
- 		/* Dell Vostro 1720 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 1720"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Vostro 1720"),
- 		},
- 	},
- 	{ }
- };
- 
- #ifdef CONFIG_PNP
--static const struct dmi_system_id __initconst i8042_dmi_nopnp_table[] = {
-+static const struct sysfw_id __initconst i8042_id_nopnp_table[] = {
- 	{
- 		/* Intel MBO Desktop D845PESV */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
--			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "D845PESV"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "Intel Corporation"),
- 		},
- 	},
- 	{
- 		/* MSI Wind U-100 */
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
--			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "U-100"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR,
-+				     "MICRO-STAR INTERNATIONAL CO., LTD"),
- 		},
- 	},
- 	{ }
- };
- 
--static const struct dmi_system_id __initconst i8042_dmi_laptop_table[] = {
-+static const struct sysfw_id __initconst i8042_id_laptop_table[] = {
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_CHASSIS_TYPE, "8"), /* Portable */
-+			SYSFW_MATCH(SYSFW_CHASSIS_TYPE, "8"), /* Portable */
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_CHASSIS_TYPE, "9"), /* Laptop */
-+			SYSFW_MATCH(SYSFW_CHASSIS_TYPE, "9"), /* Laptop */
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
-+			SYSFW_MATCH(SYSFW_CHASSIS_TYPE, "10"), /* Notebook */
- 		},
- 	},
- 	{
- 		.matches = {
--			DMI_MATCH(DMI_CHASSIS_TYPE, "14"), /* Sub-Notebook */
-+			/* Sub-Notebook */
-+			SYSFW_MATCH(SYSFW_CHASSIS_TYPE, "14"),
- 		},
- 	},
- 	{ }
- };
- #endif
- 
--static const struct dmi_system_id __initconst i8042_dmi_notimeout_table[] = {
-+static const struct sysfw_id __initconst i8042_id_notimeout_table[] = {
- 	{
- 		/* Dell Vostro V13 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V13"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Dell Inc."),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Vostro V13"),
- 		},
- 	},
- 	{ }
-@@ -569,75 +582,75 @@ static const struct dmi_system_id __initconst i8042_dmi_notimeout_table[] = {
-  * Originally, this was just confined to older laptops, but a few Acer laptops
-  * have turned up in 2007 that also need this again.
-  */
--static const struct dmi_system_id __initconst i8042_dmi_dritek_table[] = {
-+static const struct sysfw_id __initconst i8042_id_dritek_table[] = {
- 	{
- 		/* Acer Aspire 5100 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5100"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5100"),
- 		},
- 	},
- 	{
- 		/* Acer Aspire 5610 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5610"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5610"),
- 		},
- 	},
- 	{
- 		/* Acer Aspire 5630 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5630"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5630"),
- 		},
- 	},
- 	{
- 		/* Acer Aspire 5650 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5650"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5650"),
- 		},
- 	},
- 	{
- 		/* Acer Aspire 5680 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5680"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5680"),
- 		},
- 	},
- 	{
- 		/* Acer Aspire 5720 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5720"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 5720"),
- 		},
- 	},
- 	{
- 		/* Acer Aspire 9110 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 9110"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Aspire 9110"),
- 		},
- 	},
- 	{
- 		/* Acer TravelMate 660 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 660"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 660"),
- 		},
- 	},
- 	{
- 		/* Acer TravelMate 2490 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 2490"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 2490"),
- 		},
- 	},
- 	{
- 		/* Acer TravelMate 4280 */
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 4280"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR, "Acer"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "TravelMate 4280"),
- 		},
- 	},
- 	{ }
-@@ -772,7 +785,7 @@ static int __init i8042_pnp_init(void)
- 	int err;
- 
- #ifdef CONFIG_X86
--	if (dmi_check_system(i8042_dmi_nopnp_table))
-+	if (sysfw_callback(i8042_id_nopnp_table))
- 		i8042_nopnp = true;
- #endif
- 
-@@ -864,7 +877,7 @@ static int __init i8042_pnp_init(void)
- 
- #ifdef CONFIG_X86
- 	i8042_bypass_aux_irq_test = !pnp_data_busted &&
--				    dmi_check_system(i8042_dmi_laptop_table);
-+				    sysfw_callback(i8042_id_laptop_table);
- #endif
- 
- 	return 0;
-@@ -905,19 +918,19 @@ static int __init i8042_platform_init(void)
- #endif
- 
- #ifdef CONFIG_X86
--	if (dmi_check_system(i8042_dmi_reset_table))
-+	if (sysfw_callback(i8042_id_reset_table))
- 		i8042_reset = true;
- 
--	if (dmi_check_system(i8042_dmi_noloop_table))
-+	if (sysfw_callback(i8042_id_noloop_table))
- 		i8042_noloop = true;
- 
--	if (dmi_check_system(i8042_dmi_nomux_table))
-+	if (sysfw_callback(i8042_id_nomux_table))
- 		i8042_nomux = true;
- 
--	if (dmi_check_system(i8042_dmi_notimeout_table))
-+	if (sysfw_callback(i8042_id_notimeout_table))
- 		i8042_notimeout = true;
- 
--	if (dmi_check_system(i8042_dmi_dritek_table))
-+	if (sysfw_callback(i8042_id_dritek_table))
- 		i8042_dritek = true;
- #endif /* CONFIG_X86 */
- 
-diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
-index 23317bd..1b43e02 100644
---- a/drivers/input/tablet/wacom.h
-+++ b/drivers/input/tablet/wacom.h
-@@ -85,7 +85,6 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/module.h>
--#include <linux/mod_devicetable.h>
- #include <linux/init.h>
- #include <linux/usb/input.h>
- #include <asm/unaligned.h>
-diff --git a/drivers/input/touchscreen/htcpen.c b/drivers/input/touchscreen/htcpen.c
-index 62811de..8375462 100644
---- a/drivers/input/touchscreen/htcpen.c
-+++ b/drivers/input/touchscreen/htcpen.c
-@@ -18,7 +18,7 @@
- #include <linux/irq.h>
- #include <linux/isa.h>
- #include <linux/ioport.h>
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
- 
- MODULE_AUTHOR("Pau Oliva Fora <pau@eslack.org>");
- MODULE_DESCRIPTION("HTC Shift touchscreen driver");
-@@ -227,20 +227,21 @@ static struct isa_driver htcpen_isa_driver = {
- 	}
- };
- 
--static struct dmi_system_id __initdata htcshift_dmi_table[] = {
-+static struct sysfw_id __initdata htcshift_smbios_table[] = {
- 	{
- 		.ident = "Shift",
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "High Tech Computer Corp"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "Shift"),
-+			SYSFW_MATCH(SYSFW_SYS_VENDOR,
-+				    "High Tech Computer Corp"),
-+			SYSFW_MATCH(SYSFW_PRODUCT_NAME, "Shift"),
- 		},
- 	},
--	{ }
-+	{}
- };
- 
- static int __init htcpen_isa_init(void)
- {
--	if (!dmi_check_system(htcshift_dmi_table))
-+	if (!sysfw_callback(htcshift_smbios_table))
- 		return -ENODEV;
- 
- 	return isa_register_driver(&htcpen_isa_driver, 1);
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+new file mode 100644
+index 0000000..1a176b2
+--- /dev/null
++++ b/drivers/input/misc/bma150.c
+@@ -0,0 +1,554 @@
++/*
++ * Copyright (c) 2011 Bosch Sensortec GmbH
++ * Copyright (c) 2011 Unixphere
++ *
++ * This driver adds support for Bosch Sensortec's digital acceleration
++ * sensor BMA150.
++ * The datasheet for the chip can be found here:
++ * http://www.bosch-sensortec.com/content/language1/downloads/BST-BMA150-DS000-07.pdf
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/workqueue.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/pm.h>
++
++#define SENSOR_NAME		"bma150"
++#define ABSMAX_ACC_VAL		0x01FF
++#define ABSMIN_ACC_VAL		-(ABSMAX_ACC_VAL)
++
++#define BMA150_MAX_DELAY	200
++#define BMA150_RANGE_2G		0
++#define BMA150_RANGE_8G		2
++#define BMA150_BW_50HZ		1
++#define BMA150_BW_1500HZ	6
++
++#define BMA150_MODE_NORMAL	0
++#define BMA150_MODE_SLEEP	2
++#define BMA150_MODE_WAKE_UP	3
++
++#define BMA150_CHIP_ID		2
++#define BMA150_CHIP_ID_REG	0x00
++
++#define BMA150_ACC_X_LSB_REG	0x02
++
++#define BMA150_SLEEP_POS	0
++#define BMA150_SLEEP_MSK	0x01
++#define BMA150_SLEEP_REG	0x0a
++
++#define BMA150_BANDWIDTH_POS	0
++#define BMA150_BANDWIDTH_MSK	0x07
++#define BMA150_BANDWIDTH_REG	0x14
++
++#define BMA150_RANGE_POS	3
++#define BMA150_RANGE_MSK	0x18
++#define BMA150_RANGE_REG	0x14
++
++#define BMA150_WAKE_UP_POS	0
++#define BMA150_WAKE_UP_MSK	0x01
++#define BMA150_WAKE_UP_REG	0x15
++
++struct bma150acc {
++	s16	x,
++		y,
++		z;
++};
++
++struct bma150_data {
++	struct i2c_client *bma150_client;
++	atomic_t delay;
++	unsigned char mode;
++	struct input_dev *input;
++	struct bma150acc value;
++	struct mutex mutex;
++	struct delayed_work work;
++};
++
++static int bma150_set_mode(struct i2c_client *client, unsigned char mode)
++{
++	int ret;
++	unsigned char data1, data2;
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	if ((mode != BMA150_MODE_NORMAL) &&
++	    (mode != BMA150_MODE_SLEEP) &&
++	    (mode != BMA150_MODE_WAKE_UP))
++		return -EINVAL;
++
++	data1 = i2c_smbus_read_byte_data(client, BMA150_WAKE_UP_REG);
++	if (data1 < 0)
++		return ret;
++
++	data1 = (data1 & ~BMA150_WAKE_UP_MSK) |
++		((mode << BMA150_WAKE_UP_POS) & BMA150_WAKE_UP_MSK);
++
++	data2 = i2c_smbus_read_byte_data(client, BMA150_SLEEP_REG);
++	if (data2 < 0)
++		return ret;
++
++	data2 = (data2 & ~BMA150_SLEEP_MSK) |
++		(((mode>>1) << BMA150_SLEEP_POS) & BMA150_SLEEP_MSK);
++
++	ret = i2c_smbus_write_byte_data(client, BMA150_WAKE_UP_REG, data1);
++	if (ret < 0)
++		return ret;
++
++	ret = i2c_smbus_write_byte_data(client, BMA150_SLEEP_REG, data2);
++	if (ret < 0)
++		return ret;
++
++	mutex_lock(&bma150->mutex);
++	bma150->mode = (unsigned char) mode;
++	mutex_unlock(&bma150->mutex);
++	return 0;
++}
++
++
++static int bma150_set_range(struct i2c_client *client, unsigned char range)
++{
++	int ret;
++	unsigned char data;
++
++	if (range > BMA150_RANGE_8G)
++		return -EINVAL;
++
++	data = i2c_smbus_read_byte_data(client, BMA150_RANGE_REG);
++	if (data < 0)
++		return ret;
++
++	data = (data & ~BMA150_RANGE_MSK) |
++		((range << BMA150_RANGE_POS) & BMA150_RANGE_MSK);
++
++	ret = i2c_smbus_write_byte_data(client, BMA150_RANGE_REG, data);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++static int bma150_get_range(struct i2c_client *client, unsigned char *range)
++{
++	int ret;
++	unsigned char data;
++
++	data = i2c_smbus_read_byte_data(client, BMA150_RANGE_REG);
++	if (data < 0)
++		return ret;
++
++	*range = (data & BMA150_RANGE_MSK) >> BMA150_RANGE_POS;
++	return 0;
++}
++
++static int bma150_set_bandwidth(struct i2c_client *client, unsigned char bw)
++{
++	int ret;
++	unsigned char data;
++
++	if (bw > BMA150_BW_1500HZ)
++		return -EINVAL;
++
++	data = i2c_smbus_read_byte_data(client, BMA150_BANDWIDTH_REG);
++	if (data < 0)
++		return ret;
++
++	data = (data & ~BMA150_BANDWIDTH_MSK) |
++		((bw << BMA150_BANDWIDTH_POS) & BMA150_BANDWIDTH_MSK);
++
++	ret = i2c_smbus_write_byte_data(client, BMA150_BANDWIDTH_REG, data);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++static int bma150_get_bandwidth(struct i2c_client *client, unsigned char *bw)
++{
++	int ret;
++	unsigned char data;
++
++	data = i2c_smbus_read_byte_data(client, BMA150_BANDWIDTH_REG);
++	if (data < 0)
++		return ret;
++
++	*bw = (data & BMA150_BANDWIDTH_MSK) >> BMA150_BANDWIDTH_POS;
++	return 0;
++}
++
++static int bma150_read_accel_xyz(struct i2c_client *client,
++		struct bma150acc *acc)
++{
++	unsigned char data[6];
++	int ret = i2c_smbus_read_i2c_block_data(client,
++			BMA150_ACC_X_LSB_REG, 6, data);
++	if (ret != 6)
++		return -EIO;
++
++	acc->x = ((0xC0 & data[0]) >> 6) | (data[1] << 2);
++	acc->y = ((0xC0 & data[2]) >> 6) | (data[3] << 2);
++	acc->z = ((0xC0 & data[4]) >> 6) | (data[5] << 2);
++
++	/* sign extension */
++	acc->x = (s16) (acc->x << 6) >> 6;
++	acc->y = (s16) (acc->y << 6) >> 6;
++	acc->z = (s16) (acc->z << 6) >> 6;
++
++	return 0;
++}
++
++static void bma150_work_func(struct work_struct *work)
++{
++	int ret;
++	struct bma150_data *bma150 = container_of((struct delayed_work *)work,
++			struct bma150_data, work);
++	struct bma150acc acc;
++	unsigned long delay = msecs_to_jiffies(atomic_read(&bma150->delay));
++
++	ret = bma150_read_accel_xyz(bma150->bma150_client, &acc);
++	if (ret < 0)
++		return;
++
++	input_report_abs(bma150->input, ABS_X, acc.x);
++	input_report_abs(bma150->input, ABS_Y, acc.y);
++	input_report_abs(bma150->input, ABS_Z, acc.z);
++	input_sync(bma150->input);
++
++	mutex_lock(&bma150->mutex);
++	bma150->value = acc;
++	mutex_unlock(&bma150->mutex);
++
++	schedule_delayed_work(&bma150->work, delay);
++}
++
++static ssize_t bma150_mode_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	return sprintf(buf, "%d\n", bma150->mode);
++}
++
++static ssize_t bma150_mode_store(struct device *dev,
++		struct device_attribute *attr,
++		const char *buf, size_t count)
++{
++	unsigned long data;
++	int error;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	error = strict_strtoul(buf, 10, &data);
++	if (error)
++		return error;
++
++	if (bma150_set_mode(bma150->bma150_client, (unsigned char) data) < 0)
++		return -EINVAL;
++
++	return count;
++}
++static ssize_t bma150_range_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	unsigned char data;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	if (bma150_get_range(bma150->bma150_client, &data) < 0)
++		return sprintf(buf, "Read error\n");
++
++	return sprintf(buf, "%d\n", data);
++}
++
++static ssize_t bma150_range_store(struct device *dev,
++		struct device_attribute *attr,
++		const char *buf, size_t count)
++{
++	unsigned long data;
++	int error;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	error = strict_strtoul(buf, 10, &data);
++	if (error)
++		return error;
++	if (bma150_set_range(bma150->bma150_client, (unsigned char) data) < 0)
++		return -EINVAL;
++
++	return count;
++}
++
++static ssize_t bma150_bandwidth_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	unsigned char data;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	if (bma150_get_bandwidth(bma150->bma150_client, &data) < 0)
++		return sprintf(buf, "Read error\n");
++
++	return sprintf(buf, "%d\n", data);
++
++}
++
++static ssize_t bma150_bandwidth_store(struct device *dev,
++		struct device_attribute *attr,
++		const char *buf, size_t count)
++{
++	unsigned long data;
++	int error;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	error = strict_strtoul(buf, 10, &data);
++	if (error)
++		return error;
++
++	if (bma150_set_bandwidth(bma150->bma150_client,
++				(unsigned char) data) < 0)
++		return -EINVAL;
++
++	return count;
++}
++
++static ssize_t bma150_value_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct input_dev *input = to_input_dev(dev);
++	struct bma150_data *bma150 = input_get_drvdata(input);
++
++	return sprintf(buf, "%d %d %d\n", bma150->value.x, bma150->value.y,
++			bma150->value.z);
++}
++
++static ssize_t bma150_delay_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	return sprintf(buf, "%d\n", atomic_read(&bma150->delay));
++
++}
++
++static ssize_t bma150_delay_store(struct device *dev,
++		struct device_attribute *attr,
++		const char *buf, size_t count)
++{
++	unsigned long data;
++	int error;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct bma150_data *bma150 = i2c_get_clientdata(client);
++
++	error = strict_strtoul(buf, 10, &data);
++	if (error)
++		return error;
++
++	if (data > BMA150_MAX_DELAY)
++		data = BMA150_MAX_DELAY;
++
++	atomic_set(&bma150->delay, (unsigned int) data);
++
++	return count;
++}
++
++static DEVICE_ATTR(range, S_IRUGO|S_IWUSR|S_IWGRP,
++		bma150_range_show, bma150_range_store);
++static DEVICE_ATTR(bandwidth, S_IRUGO|S_IWUSR|S_IWGRP,
++		bma150_bandwidth_show, bma150_bandwidth_store);
++static DEVICE_ATTR(mode, S_IRUGO|S_IWUSR|S_IWGRP,
++		bma150_mode_show, bma150_mode_store);
++static DEVICE_ATTR(value, S_IRUGO, bma150_value_show, NULL);
++static DEVICE_ATTR(delay, S_IRUGO|S_IWUSR|S_IWGRP,
++		bma150_delay_show, bma150_delay_store);
++
++static struct attribute *bma150_attributes[] = {
++	&dev_attr_range.attr,
++	&dev_attr_bandwidth.attr,
++	&dev_attr_mode.attr,
++	&dev_attr_value.attr,
++	&dev_attr_delay.attr,
++	NULL
++};
++
++static struct attribute_group bma150_attribute_group = {
++	.attrs = bma150_attributes
++};
++
++static int bma150_open(struct input_dev *inputdev)
++{
++	struct bma150_data *dev = input_get_drvdata(inputdev);
++	int ret = bma150_set_mode(dev->bma150_client, BMA150_MODE_NORMAL);
++	if (ret < 0)
++		return ret;
++	schedule_delayed_work(&dev->work,
++		msecs_to_jiffies(atomic_read(&dev->delay)));
++	return 0;
++}
++
++static void bma150_close(struct input_dev *inputdev)
++{
++	struct bma150_data *dev = input_get_drvdata(inputdev);
++	cancel_delayed_work_sync(&dev->work);
++	bma150_set_mode(dev->bma150_client, BMA150_MODE_SLEEP);
++}
++
++static int __devinit bma150_probe(struct i2c_client *client,
++				  const struct i2c_device_id *id)
++{
++	struct bma150_data *data;
++	struct input_dev *dev;
++	int tempvalue;
++	int err = 0;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "i2c_check_functionality error\n");
++		return -EIO;
++	}
++
++	data = kzalloc(sizeof(struct bma150_data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	tempvalue = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
++	if (tempvalue != BMA150_CHIP_ID) {
++		dev_err(&client->dev, "BMA150 chip id error: %d\n", tempvalue);
++		err = -EINVAL;
++		goto kfree_exit;
++	}
++	i2c_set_clientdata(client, data);
++	data->bma150_client = client;
++
++	bma150_set_bandwidth(client, BMA150_BW_50HZ);
++	bma150_set_range(client, BMA150_RANGE_2G);
++
++	INIT_DELAYED_WORK(&data->work, bma150_work_func);
++	atomic_set(&data->delay, BMA150_MAX_DELAY);
++
++	dev = input_allocate_device();
++	if (!dev) {
++		err = -ENOMEM;
++		goto kfree_exit;
++	}
++
++	dev->name = SENSOR_NAME;
++	dev->id.bustype = BUS_I2C;
++	dev->open = bma150_open;
++	dev->close = bma150_close;
++
++	input_set_capability(dev, EV_ABS, ABS_MISC);
++	input_set_abs_params(dev, ABS_X, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
++	input_set_abs_params(dev, ABS_Y, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
++	input_set_abs_params(dev, ABS_Z, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
++	input_set_drvdata(dev, data);
++
++	err = input_register_device(dev);
++	if (err < 0) {
++		input_free_device(dev);
++		goto kfree_exit;
++	}
++
++	data->input = dev;
++
++	err = sysfs_create_group(&data->input->dev.kobj,
++			&bma150_attribute_group);
++	if (err < 0)
++		goto error_sysfs;
++
++	mutex_init(&data->mutex);
++
++	schedule_delayed_work(&data->work,
++			msecs_to_jiffies(atomic_read(&data->delay)));
++
++	dev_info(&client->dev, "Registered BMA150 I2C driver\n");
++	return 0;
++
++error_sysfs:
++	input_unregister_device(dev);
++kfree_exit:
++	kfree(data);
++	return err;
++}
++
++#ifdef CONFIG_PM
++static int bma150_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	return bma150_set_mode(client, BMA150_MODE_SLEEP);
++}
++
++static int bma150_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	return bma150_set_mode(client, BMA150_MODE_NORMAL);
++}
++#endif
++
++static int bma150_remove(struct i2c_client *client)
++{
++	struct bma150_data *data = i2c_get_clientdata(client);
++
++	sysfs_remove_group(&data->input->dev.kobj, &bma150_attribute_group);
++	input_unregister_device(data->input);
++	kfree(data);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(bma150_pm, bma150_suspend,
++			 bma150_resume);
++
++static const struct i2c_device_id bma150_id[] = {
++	{ SENSOR_NAME, 0 },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(i2c, bma150_id);
++
++static struct i2c_driver bma150_driver = {
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= SENSOR_NAME,
++		.pm	= &bma150_pm,
++	},
++	.class          = I2C_CLASS_HWMON,
++	.id_table	= bma150_id,
++	.probe		= bma150_probe,
++	.remove		= __devexit_p(bma150_remove),
++};
++
++static int __init BMA150_init(void)
++{
++	return i2c_add_driver(&bma150_driver);
++}
++
++static void __exit BMA150_exit(void)
++{
++	i2c_del_driver(&bma150_driver);
++}
++
++MODULE_AUTHOR("Albert Zhang <xu.zhang@bosch-sensortec.com>");
++MODULE_DESCRIPTION("BMA150 driver");
++MODULE_LICENSE("GPL");
++
++module_init(BMA150_init);
++module_exit(BMA150_exit);
++
 -- 
-1.7.5.1
+1.7.3.4
+

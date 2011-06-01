@@ -1,72 +1,107 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH 2/2] sony_ff_byteswap_accelerometer
-Date: Mon, 23 May 2011 03:23:26 -0700
-Message-ID: <1306146206-15794-2-git-send-email-simon@mungewell.org>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 1/2] sony_ff_hid_descriptor
+Date: Wed, 1 Jun 2011 21:49:24 +0200
+Message-ID: <20110601214924.36ec42ad.ospite@studenti.unina.it>
 References: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com>
- <1306146206-15794-1-git-send-email-simon@mungewell.org>
+	<1306145999-15643-1-git-send-email-simon@mungewell.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from idcmail-mo2no.shaw.ca ([64.59.134.9]:57115 "EHLO
-	idcmail-mo2no.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759561Ab1FATpq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 15:45:46 -0400
-In-Reply-To: <1306146206-15794-1-git-send-email-simon@mungewell.org>
+Received: from smtp205.alice.it ([82.57.200.101]:49817 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759876Ab1FATtd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Jun 2011 15:49:33 -0400
+In-Reply-To: <1306145999-15643-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>, Marcin Tolysz <tolysz@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcin Tolysz <tolysz@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-The accelerometers/gyro on the sixaxis are reported in the wrong
-endianness (ie. not compatible with HID), so this patch intercepts
-the report and swaps the appropriate bytes over.
+--Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Accelerometers are scaled with a nominal value of +/-4000 = 1G,
-maximum value would be around +/-32768 = 8G.
+On Mon, 23 May 2011 03:19:58 -0700
+Simon Wood <simon@mungewell.org> wrote:
 
-Gyro on my device always reports -32768, might need some calibration
-set within the controller.
+> This patch modifies the HID descriptor to allow the reporting of
+> the accelerometers and gyro via a joystick axis.
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-sony.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
+I am going to test it tomorrow, but for now I notice that the
+Signed-off-by is missing. Wait for the test before resending tho.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 5c930dc..f219746 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -57,6 +57,24 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+/* Sixaxis HID report has acclerometers/gyro with MSByte first, this has
-+ * to be BYTE_SWAPPED before passing up to joystick interface
-+ */
-+static int sony_raw_event(struct hid_device *hdev, struct hid_report *report, __u8 *rd, int size)
-+{
-+	struct sony_sc *sc = hid_get_drvdata(hdev);
-+
-+	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
-+			rd[0] == 0x01 && size == 49) {
-+		swap(rd[41], rd[42]);
-+		swap(rd[43], rd[44]);
-+		swap(rd[45], rd[46]);
-+		swap(rd[47], rd[48]);
-+	}
-+
-+	return 0;
-+}
-+
- /*
-  * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
-  * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
-@@ -205,6 +223,7 @@ static struct hid_driver sony_driver = {
- 	.probe = sony_probe,
- 	.remove = sony_remove,
- 	.report_fixup = sony_report_fixup,
-+	.raw_event = sony_raw_event
- };
- 
- static int __init sony_init(void)
--- 
-1.7.4.1
+Plus, the short commit message can be improved a little bit, and the
+long commit message could use the classic imperative form used in kernel
+commit messages: "Modify the HID descriptor to...", but these are just
+suggestions.
 
+Same comments for patch 2/2.
+
+Thanks,
+   Antonio
+
+> ---
+>  drivers/hid/hid-sony.c |   11 +++++++++++
+>  1 files changed, 11 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 936c911..5c930dc 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -28,6 +28,12 @@
+>  #define SIXAXIS_CONTROLLER_USB  (1 << 1)
+>  #define SIXAXIS_CONTROLLER_BT   (1 << 2)
+> =20
+> +static const u8 sixaxis_rdesc_fixup[] =3D {
+> +	0x95, 0x13, 0x09, 0x01, 0x81, 0x02, 0x95, 0x0C,
+> +	0x81, 0x01, 0x75, 0x10, 0x95, 0x04, 0x26, 0xFF,=20
+> +	0x03, 0x46, 0xFF, 0x03, 0x09, 0x01, 0x81, 0x02
+> +	};
+> +
+>  struct sony_sc {
+>  	unsigned long quirks;
+>  };
+> @@ -43,6 +49,11 @@ static __u8 *sony_report_fixup(struct hid_device *hdev=
+, __u8 *rdesc,
+>  		hid_info(hdev, "Fixing up Sony Vaio VGX report descriptor\n");
+>  		rdesc[55] =3D 0x06;
+>  	}
+> +	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
+> +			*rsize =3D=3D 148 && rdesc[83] =3D=3D 0x75) {
+> +		hid_info(hdev, "Fixing up Sony Sixaxis report descriptor\n");
+> +		memcpy((void *)&rdesc[83], (void *) &sixaxis_rdesc_fixup, sizeof(sixax=
+is_rdesc_fixup));
+> +	}
+>  	return rdesc;
+>  }
+> =20
+> --=20
+> 1.7.4.1
+>=20
+>=20
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk3ml8QACgkQ5xr2akVTsAFJEQCffPEyZ2/gaXifW1GEaq9x9ka4
+MlIAnjFO0Os6SF34uK2Ryl1S3T3GHvLT
+=7FoC
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP--

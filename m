@@ -1,107 +1,47 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH 1/2] sony_ff_hid_descriptor
-Date: Wed, 1 Jun 2011 21:49:24 +0200
-Message-ID: <20110601214924.36ec42ad.ospite@studenti.unina.it>
-References: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com>
-	<1306145999-15643-1-git-send-email-simon@mungewell.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:49817 "EHLO smtp205.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759876Ab1FATtd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Jun 2011 15:49:33 -0400
-In-Reply-To: <1306145999-15643-1-git-send-email-simon@mungewell.org>
-Sender: linux-input-owner@vger.kernel.org
+From: ralf@linux-mips.org
+Subject: [patch 06/14] i8253: Make pcspkr input driver use the shared i8253_lock.
+Date: Wed, 01 Jun 2011 19:05:02 +0100
+Message-ID: <20110601180610.453577265@duck.linux-mips.net>
+References: <20110601180456.801265664@duck.linux-mips.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline; filename=i8253-move-pcspkr.c-to-shared-lock.patch
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcin Tolysz <tolysz@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
---Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 23 May 2011 03:19:58 -0700
-Simon Wood <simon@mungewell.org> wrote:
+ drivers/input/misc/pcspkr.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-> This patch modifies the HID descriptor to allow the reporting of
-> the accelerometers and gyro via a joystick axis.
-
-I am going to test it tomorrow, but for now I notice that the
-Signed-off-by is missing. Wait for the test before resending tho.
-
-Plus, the short commit message can be improved a little bit, and the
-long commit message could use the classic imperative form used in kernel
-commit messages: "Modify the HID descriptor to...", but these are just
-suggestions.
-
-Same comments for patch 2/2.
-
-Thanks,
-   Antonio
-
-> ---
->  drivers/hid/hid-sony.c |   11 +++++++++++
->  1 files changed, 11 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 936c911..5c930dc 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -28,6 +28,12 @@
->  #define SIXAXIS_CONTROLLER_USB  (1 << 1)
->  #define SIXAXIS_CONTROLLER_BT   (1 << 2)
-> =20
-> +static const u8 sixaxis_rdesc_fixup[] =3D {
-> +	0x95, 0x13, 0x09, 0x01, 0x81, 0x02, 0x95, 0x0C,
-> +	0x81, 0x01, 0x75, 0x10, 0x95, 0x04, 0x26, 0xFF,=20
-> +	0x03, 0x46, 0xFF, 0x03, 0x09, 0x01, 0x81, 0x02
-> +	};
-> +
->  struct sony_sc {
->  	unsigned long quirks;
->  };
-> @@ -43,6 +49,11 @@ static __u8 *sony_report_fixup(struct hid_device *hdev=
-, __u8 *rdesc,
->  		hid_info(hdev, "Fixing up Sony Vaio VGX report descriptor\n");
->  		rdesc[55] =3D 0x06;
->  	}
-> +	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
-> +			*rsize =3D=3D 148 && rdesc[83] =3D=3D 0x75) {
-> +		hid_info(hdev, "Fixing up Sony Sixaxis report descriptor\n");
-> +		memcpy((void *)&rdesc[83], (void *) &sixaxis_rdesc_fixup, sizeof(sixax=
-is_rdesc_fixup));
-> +	}
->  	return rdesc;
->  }
-> =20
-> --=20
-> 1.7.4.1
->=20
->=20
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk3ml8QACgkQ5xr2akVTsAFJEQCffPEyZ2/gaXifW1GEaq9x9ka4
-MlIAnjFO0Os6SF34uK2Ryl1S3T3GHvLT
-=7FoC
------END PGP SIGNATURE-----
-
---Signature=_Wed__1_Jun_2011_21_49_24_+0200_d4F4Y2iu+vvLfPuP--
+Index: linux-mips/drivers/input/misc/pcspkr.c
+===================================================================
+--- linux-mips.orig/drivers/input/misc/pcspkr.c
++++ linux-mips/drivers/input/misc/pcspkr.c
+@@ -14,6 +14,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/i8253.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/platform_device.h>
+@@ -25,14 +26,6 @@ MODULE_DESCRIPTION("PC Speaker beeper dr
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:pcspkr");
+ 
+-#if defined(CONFIG_MIPS) || defined(CONFIG_X86)
+-/* Use the global PIT lock ! */
+-#include <linux/i8253.h>
+-#else
+-#include <asm/8253pit.h>
+-static DEFINE_RAW_SPINLOCK(i8253_lock);
+-#endif
+-
+ static int pcspkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+ {
+ 	unsigned int count = 0;

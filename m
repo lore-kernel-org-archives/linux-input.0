@@ -1,40 +1,85 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH 6/8] MFD: twl6040: Change platform data for soc codec driver
-Date: Wed, 1 Jun 2011 14:17:29 +0300
-Message-ID: <1306927051-8937-7-git-send-email-peter.ujfalusi@ti.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 3/8] MFD: twl4030-audio: Rename platform data
+Date: Wed, 1 Jun 2011 05:07:54 -0700
+Message-ID: <20110601120754.GC11352@atomide.com>
 References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
+ <1306927051-8937-4-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Peter Ujfalusi <peter.ujfalusi@ti.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:61740 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752696Ab1FAMIB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 08:08:01 -0400
+Content-Disposition: inline
+In-Reply-To: <1306927051-8937-4-git-send-email-peter.ujfalusi@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Liam Girdwood <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
 
-Pass twl4030_codec_data instead of the twl4030_audio_data
-for the ASoC codec driver.
+* Peter Ujfalusi <peter.ujfalusi@ti.com> [110601 04:14]:
+> --- a/arch/arm/mach-omap2/board-3430sdp.c
+> +++ b/arch/arm/mach-omap2/board-3430sdp.c
+> @@ -463,11 +463,11 @@ static struct regulator_init_data sdp3430_vpll2 = {
+>  	.consumer_supplies	= sdp3430_vpll2_supplies,
+>  };
+>  
+> -static struct twl4030_codec_audio_data sdp3430_audio;
+> +static struct twl4030_codec_data sdp3430_codec;
+>  
+> -static struct twl4030_codec_data sdp3430_codec = {
+> +static struct twl4030_audio_data sdp3430_audio = {
+>  	.audio_mclk = 26000000,
+> -	.audio = &sdp3430_audio,
+> +	.codec = &sdp3430_codec,
+>  };
+>  
+>  static struct twl4030_platform_data sdp3430_twldata = {
+> @@ -480,7 +480,7 @@ static struct twl4030_platform_data sdp3430_twldata = {
+>  	.madc		= &sdp3430_madc_data,
+>  	.keypad		= &sdp3430_kp_data,
+>  	.usb		= &sdp3430_usb_data,
+> -	.codec		= &sdp3430_codec,
+> +	.audio		= &sdp3430_audio,
+>  
+>  	.vaux1		= &sdp3430_vaux1,
+>  	.vaux2		= &sdp3430_vaux2,
+> --- a/arch/arm/mach-omap2/board-devkit8000.c
+> +++ b/arch/arm/mach-omap2/board-devkit8000.c
+> @@ -337,11 +337,11 @@ static struct twl4030_usb_data devkit8000_usb_data = {
+>  	.usb_mode	= T2_USB_MODE_ULPI,
+>  };
+>  
+> -static struct twl4030_codec_audio_data devkit8000_audio_data;
+> +static struct twl4030_codec_data devkit8000_codec_data;
+>  
+> -static struct twl4030_codec_data devkit8000_codec_data = {
+> +static struct twl4030_audio_data devkit8000_audio_data = {
+>  	.audio_mclk = 26000000,
+> -	.audio = &devkit8000_audio_data,
+> +	.codec = &devkit8000_codec_data,
+>  };
+>  
+>  static struct twl4030_platform_data devkit8000_twldata = {
+> @@ -351,7 +351,7 @@ static struct twl4030_platform_data devkit8000_twldata = {
+>  	/* platform_data for children goes here */
+>  	.usb		= &devkit8000_usb_data,
+>  	.gpio		= &devkit8000_gpio_data,
+> -	.codec		= &devkit8000_codec_data,
+> +	.audio		= &devkit8000_audio_data,
+>  	.vmmc1		= &devkit8000_vmmc1,
+>  	.vdac		= &devkit8000_vdac,
+>  	.vpll1		= &devkit8000_vpll1,
+...
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
----
- drivers/mfd/twl6040-core.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+Can you please take a look at creating arch/arm/mach-omap2/i2c-twl.c or
+something in common-board-devices.c to get rid of the cut and paste
+duplication in every board-*.c file?
 
-diff --git a/drivers/mfd/twl6040-core.c b/drivers/mfd/twl6040-core.c
-index bb36862..bc0ee41 100644
---- a/drivers/mfd/twl6040-core.c
-+++ b/drivers/mfd/twl6040-core.c
-@@ -494,9 +494,8 @@ static int __devinit twl6040_probe(struct platform_device *pdev)
- 	if (pdata->codec) {
- 		cell = &twl6040->cells[children];
- 		cell->name = "twl6040-codec";
--		/* The codec expects the twl4030_audio_data as platform data */
--		cell->platform_data = pdata;
--		cell->pdata_size = sizeof(*pdata);
-+		cell->platform_data = pdata->codec;
-+		cell->pdata_size = sizeof(*pdata->codec);
- 		children++;
- 	}
- 
--- 
-1.7.5.3
+Maybe you could have a generic twl_init function that allows overriding
+things like keypad with board specific configuration?
+
+Regards,
+
+Tony

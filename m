@@ -1,119 +1,112 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH 2/2] sony_ff_byteswap_accelerometer
-Date: Wed, 1 Jun 2011 21:53:22 +0200
-Message-ID: <20110601215322.2572aecf.ospite@studenti.unina.it>
-References: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com>
-	<1306145999-15643-1-git-send-email-simon@mungewell.org>
-	<1306145999-15643-2-git-send-email-simon@mungewell.org>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Patch to add guarding parentheses to some macros in linux/input.h
+Date: Wed, 01 Jun 2011 23:20:59 +0200
+Message-ID: <4DE6AD3B.4000600@kernelconcepts.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__1_Jun_2011_21_53_22_+0200_3/6yweirqv+SsRu="
+Content-Type: multipart/mixed;
+ boundary="------------060400010409090601040706"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp208.alice.it ([82.57.200.104]:43134 "EHLO smtp208.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751355Ab1FATxb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 Jun 2011 15:53:31 -0400
-In-Reply-To: <1306145999-15643-2-git-send-email-simon@mungewell.org>
+Received: from mail.kernelconcepts.de ([212.60.202.196]:36856 "EHLO
+	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751376Ab1FAWDh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 18:03:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcin Tolysz <tolysz@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
---Signature=_Wed__1_Jun_2011_21_53_22_+0200_3/6yweirqv+SsRu=
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a multi-part message in MIME format.
+--------------060400010409090601040706
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Mon, 23 May 2011 03:19:59 -0700
-Simon Wood <simon@mungewell.org> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> The accelerometers/gyro on the sixaxis are reported in the wrong
-> endianness (ie. not compatible with HID), so this patch intercepts
-> the report and swaps the appropriate bytes over.
->=20
-> Accelerometers are scaled with a nominal value of +/-4000 =3D 1G,
-> maximum value would be around +/-32768 =3D 8G.
->=20
-> Gyro on my device always reports -32768, might need some calibration
-> set within the controller.
-> ---
->  drivers/hid/hid-sony.c |   19 +++++++++++++++++++
->  1 files changed, 19 insertions(+), 0 deletions(-)
->
+Hi all.
 
-Should this one have Marcin as the original author or at least as the
-first Signed-off-by, and an additional Signed-off-by you Simon?
+This is a patch to add guarding parentheses around some macro argument
+uses. This is good practice to avoid pitfalls like this:
+
+ioctl (fd, EVIOCGABS (have_mt ? ABS_MT_POSITION_X : ABS_X), &abs);
+
+Which currently totally does not do what is expected.
+
+The attached patch adds parentheses to ensure correct operator precedence.
+
+Please consider this for inclusion into the Linux Kernel.
 
 Thanks,
-  Antonio
-
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 5c930dc..f219746 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -57,6 +57,24 @@ static __u8 *sony_report_fixup(struct hid_device *hdev=
-, __u8 *rdesc,
->  	return rdesc;
->  }
-> =20
-> +/* Sixaxis HID report has acclerometers/gyro with MSByte first, this has
-> + * to be BYTE_SWAPPED before passing up to joystick interface
-> + */
-> +static int sony_raw_event(struct hid_device *hdev, struct hid_report *re=
-port, __u8 *rd, int size)
-> +{
-> +	struct sony_sc *sc =3D hid_get_drvdata(hdev);
-> +
-> +	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
-> +			rd[0] =3D=3D 0x01 && size =3D=3D 49) {
-> +		swap(rd[41], rd[42]);
-> +		swap(rd[43], rd[44]);
-> +		swap(rd[45], rd[46]);
-> +		swap(rd[47], rd[48]);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  /*
->   * The Sony Sixaxis does not handle HID Output Reports on the Interrupt =
-EP
->   * like it should according to usbhid/hid-core.c::usbhid_output_raw_repo=
-rt()
-> @@ -205,6 +223,7 @@ static struct hid_driver sony_driver =3D {
->  	.probe =3D sony_probe,
->  	.remove =3D sony_remove,
->  	.report_fixup =3D sony_report_fixup,
-> +	.raw_event =3D sony_raw_event
->  };
-> =20
->  static int __init sony_init(void)
-> --=20
-> 1.7.4.1
->=20
->=20
-
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Wed__1_Jun_2011_21_53_22_+0200_3/6yweirqv+SsRu=
-Content-Type: application/pgp-signature
+        Simon
+- -- 
+       Simon Budig                        kernel concepts GbR
+       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
+       +49-271-771091-17                  D-57072 Siegen
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAk3mmLIACgkQ5xr2akVTsAHjbACeJ8f77OTZieYv2B2gPYEpcYHv
-Fo0AniWe3H6CItfp40F1EhkYrK1GfrEQ
-=G5q4
+iEYEARECAAYFAk3mrToACgkQO2O/RXesiHBWcQCfdYFhFgKGaxvE5szwIJe3vfNO
+yy4AoJssXo0zvSYeVJqA/ViOVlq/ITyj
+=jtQG
 -----END PGP SIGNATURE-----
 
---Signature=_Wed__1_Jun_2011_21_53_22_+0200_3/6yweirqv+SsRu=--
+--------------060400010409090601040706
+Content-Type: text/x-patch;
+ name="input-fix-macros.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="input-fix-macros.patch"
+
+commit c88a91cb31a158a5e993484d91a0634a2aab1a43
+Author: Simon Budig <simon@budig.de>
+Date:   Wed Jun 1 23:04:42 2011 +0200
+
+    input: add guarding parentheses to macros
+    
+    Put parentheses around macro argument uses. This avoids pitfalls
+    for the programmer, where the argument expansion does not give the
+    expected result.
+    
+    Signed-off-by: Simon Budig <simon.budig@kernelconcepts.de>
+
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 9e5393d..31dd2b8 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -109,19 +109,19 @@ struct input_keymap_entry {
+ #define EVIOCSKEYCODE		_IOW('E', 0x04, unsigned int[2])        /* set keycode */
+ #define EVIOCSKEYCODE_V2	_IOW('E', 0x04, struct input_keymap_entry)
+ 
+-#define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
+-#define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
+-#define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
+-#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)		/* get device properties */
+-
+-#define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
+-#define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
+-#define EVIOCGSND(len)		_IOC(_IOC_READ, 'E', 0x1a, len)		/* get all sounds status */
+-#define EVIOCGSW(len)		_IOC(_IOC_READ, 'E', 0x1b, len)		/* get all switch states */
+-
+-#define EVIOCGBIT(ev,len)	_IOC(_IOC_READ, 'E', 0x20 + ev, len)	/* get event bits */
+-#define EVIOCGABS(abs)		_IOR('E', 0x40 + abs, struct input_absinfo)	/* get abs value/limits */
+-#define EVIOCSABS(abs)		_IOW('E', 0xc0 + abs, struct input_absinfo)	/* set abs value/limits */
++#define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, (len))	/* get device name */
++#define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, (len))	/* get physical location */
++#define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, (len))	/* get unique identifier */
++#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, (len))	/* get device properties */
++
++#define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, (len))	/* get global key state */
++#define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, (len))	/* get all LEDs */
++#define EVIOCGSND(len)		_IOC(_IOC_READ, 'E', 0x1a, (len))	/* get all sounds status */
++#define EVIOCGSW(len)		_IOC(_IOC_READ, 'E', 0x1b, (len))	/* get all switch states */
++
++#define EVIOCGBIT(ev,len)	_IOC(_IOC_READ, 'E', 0x20 + (ev), (len))	/* get event bits */
++#define EVIOCGABS(abs)		_IOR('E', 0x40 + (abs), struct input_absinfo)	/* get abs value/limits */
++#define EVIOCSABS(abs)		_IOW('E', 0xc0 + (abs), struct input_absinfo)	/* set abs value/limits */
+ 
+ #define EVIOCSFF		_IOC(_IOC_WRITE, 'E', 0x80, sizeof(struct ff_effect))	/* send a force effect to a force feedback device */
+ #define EVIOCRMFF		_IOW('E', 0x81, int)			/* Erase a force effect */
+
+--------------060400010409090601040706--

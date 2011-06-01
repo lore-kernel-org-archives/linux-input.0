@@ -1,44 +1,50 @@
-From: "Eric Andersson" <eric.andersson@unixphere.com>
-Subject: Re: [PATCH] input: add driver for Bosch Sensortec's BMA150
- accelerometer
-Date: Tue, 31 May 2011 22:00:30 +0200
-Message-ID: <20110531200031.01097304A02D@bmail00.one.com>
-References: <1306857314-655-1-git-send-email-eric.andersson@unixphere.com>
- <20110531172320.0fcadfef@lxorguk.ukuu.org.uk>
+From: simon@mungewell.org
+Subject: Byte swapping u16 data in HID report
+Date: Wed, 1 Jun 2011 01:32:15 -0400
+Message-ID: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from webmail-out2.one.com ([91.198.169.17]:14141 "EHLO
-	webmail-out2.b-one.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753484Ab1EaUHr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 May 2011 16:07:47 -0400
-Content-Disposition: inline
-In-Reply-To: <20110531172320.0fcadfef@lxorguk.ukuu.org.uk>
+Received: from host171.canaca.com ([67.55.55.225]:34345 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750859Ab1FAFcQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 01:32:16 -0400
+Received: from localhost ([127.0.0.1] helo=host171.canaca.com)
+	by host171.canaca.com with esmtpa (Exim 4.69)
+	(envelope-from <simon@mungewell.org>)
+	id 1QRe2R-0003Is-BZ
+	for linux-input@vger.kernel.org; Wed, 01 Jun 2011 01:32:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, Albert Zhang <xu.zhang@bosch-sensortec.com>
+To: linux-input@vger.kernel.org
 
-On May 31, 2011 18:23 "Alan Cox" <alan@lxorguk.ukuu.org.uk> wrote:
-> See the driver I posted some time ago. It's in rather better state than
-> this one and as it's been through most of the review process and also
-> handles the BMA023 and SMB380 so I think would be a better place to start
-> from. I'll report that driver in a moment.
-I wasn't aware of that patch! Thanks for pointing it out! Regarding BMA023 and
-SMB380, these are also supported by this driver, which should probably have been
-stated in the Kconfig file.
+Hi,
+I'm looking into fixing the Sixaxis controller (hid-sony.c) so that the
+accelerometers and gyro data are reported via a joystick axis.
 
-> Some of the first immediately obvious questions though - in particular
-> the lack of clear locking ...
-Thanks for reviewing!
+I have patched the HID descriptor so that the values are seen, however
+they are reported high byte first (0x2FF -> 0x02, 0xFF) which appears to
+be contrary to the HID spec.
+--
+5.8 Format of Multibyte Numeric Values
+Multibyte numeric values in reports are represented in little-endian
+format, with the least significant byte at the lowest address.
+--
 
-Dimitry, I guess it's up to you to decide which version of the driver you prefer
-before we go through another round in the review process.
+I'm working on the assumption that the data can be 'fixed' before it is
+parsed. Would intercepting 'hid_get_report()' be a good place and how can
+I locate the actual data bytes to do a 'bswap16()'.
 
-Best regards,
- Eric
+I'm thinking something like:
+--
+	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+		hdev->hid_get_report = sixaxis_hid_get_report;
+	}
+--
 
-http://www.unixphere.com
+Any suggestions/comments?
+Simon.
+
+
 

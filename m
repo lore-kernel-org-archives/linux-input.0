@@ -1,168 +1,124 @@
-From: Michael Bauer <michael@m-bauer.org>
-Subject: [PATCH v2] hid: Fix Logitech Driving Force Pro wheel
-Date: Wed, 1 Jun 2011 20:49:37 +0200
-Message-ID: <201106012049.38041.michael@m-bauer.org>
+From: simon@mungewell.org
+Subject: HID joystick - Axis 11 non operational.
+Date: Wed, 1 Jun 2011 15:25:02 -0400
+Message-ID: <9c3f08ce41f278fc835bf09e489eef0f.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;boundary="----=_20110601152502_45554"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay05.ispgateway.de ([80.67.31.99]:50147 "EHLO
-	smtprelay05.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754124Ab1FASte (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 14:49:34 -0400
+Received: from host171.canaca.com ([67.55.55.225]:40651 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759165Ab1FATZD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 15:25:03 -0400
+Received: from localhost ([127.0.0.1] helo=host171.canaca.com)
+	by host171.canaca.com with esmtpa (Exim 4.69)
+	(envelope-from <simon@mungewell.org>)
+	id 1QRr2M-0005iY-GL
+	for linux-input@vger.kernel.org; Wed, 01 Jun 2011 15:25:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Changes from initial patch:
-- shorten comment (removed original descriptor)
-- optimized new descriptor (simpler and shorter)
+------=_20110601152502_45554
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-This is a patch for hid-lg.c which fixes the Logitech Driving Force Pro driver. 
-It was generated against vanilla 2.6.39.
-It contains two parts:
-- Add the quirk "NOGET" to make the wheel work at all in native mode.
-- Replace the somehow broken report descriptor with a custom one to have 
-separate throttle and brake axes.
+I have a strange bug, axis 11 does not appear to be working at all,
+remains at -32768 all the time.
 
-As there are significant differences in the descriptor (original descriptor 
-"hides" the separate axes in a  24 bit FF00 usagepage, new descripter replaces 
-that with two individual 8 bit desktop.y and desktop.rz usages) I provided a 
-complete replacement descriptor instead trying to patch the original one. 
-Patching the descriptor seems not feasible as the new one is much larger.
+On the Sixaxis controller almost all the buttons are pressure sensitive,
+and thus reported as axis as well as buttons. The 'faulty' axis is in the
+middle of a descriptor group so I don't think the problem is with the
+descriptor.
 
-Note: To actually test this you have to use the tool "ltwheelconf" to put the 
-DFP into it's native mode - See below for more info.
+Hidraw0 logging shows that the gamepad is sending the correct data. Logs
+from hidraw and jstest attached.
 
+Axis 10 - Dpad-down
+Axis 11 - Dpad-left
+Axis 12 - L2 trigger
 
-Background:
-Most Logitech wheels are initially reporting themselves with a "fallback" 
-deviceID (USB_DEVICE_ID_LOGITECH_WHEEL - 0xc294), in order to make sure they 
-are working even without having the proper driver installed.
-If the Logitech driver is installed it sends a special command to the wheel 
-which sets the wheel to "native mode", enabling enhance features like:
-- Clutch pedal
-- extended wheel rotation range (up to 900 degrees)
-- H-gate shifter
-- separate axis for throttle / brake
-- all buttons
-When the wheel is set to native mode it basically disconnects and reconnects 
-with a different deviceID (USB_DEVICE_ID_LOGITECH_DFP_WHEEL - 0xc298 in this 
-case).
+This fault is seen with Sixaxis and 3rd party wired controller. Tested
+with 3.0rc1 kernel.
 
-I am working on a userspace tool [1] which does the switching from fallback to 
-native mode. During development I found out that the Driving Force Pro wheel 
-is not supported in native mode - quierk NOGET is missing and the throttle and 
-brake axes are reported in a combined way only.
+Is there any chance/place where userland could be misconfigured? Or where
+should I look in the kernel?
 
+Simon.
+------=_20110601152502_45554
+Content-Type: application/gzip; name="axis_11_fail_hidraw0.txt.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="axis_11_fail_hidraw0.txt.gz"
 
-Signed-off-by: Michael Bauer <michael@m-bauer.org>
+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
+------=_20110601152502_45554
+Content-Type: application/gzip; name="axis_11_fail_jstest.txt.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="axis_11_fail_jstest.txt.gz"
 
-[1] https://github.com/TripleSpeeder/LTWheelConf
+H4sICNaO5k0CAGF4aXNfMTFfZmFpbF9qc3Rlc3QudHh0AO3dX6/SMBjH8XteRS8lAbJ23bp5558b
+jVGjXKh3qFMXdTMwjfrqnTxa44WocchT+JKw5xdyzuHAJ21HW+Dmtv3QbM143bV9Z9qdcSu7ylaz
+2/2n3dA+e22uPOy7T+b+nWuPH66vrW/du3vlwTw3N/pu2PZv3jTbuXm1GX8rmM3HZmeuPFqYxwvz
+ZGEefF6YK937N2/mqdX5bNM9N7Y2T98PQ9+ND2q9bV++bLYLs371/u3T60P3I7kx9u/GsK9yw/22
+e902+9uub3Y/BRdTHpOPqYipXJjxeLPZPN+Ha/vj9f3xxi//79Vs3Yxo3UuzWq3MlbYbmu32/bvB
+DL1pPrbDfDabXRuVrhqTjdfxkhljY3Ix5TH5mIqYyphCTFVM9fdks5hsTC6mPCYfUxFTGVOIqYop
+3ofLYrIxuZjymHxMRUzxPq7vneVp6V+8GJ8TKU5KLsVLKaSUUoKUSkr9tYwPXIqV4qTkUryUQkop
+JUiRvwIRRBBBBBFEEEEEEUQQQQQRRBBBBBFEEEEEEUQQQQQRRBBBBBFEEEEEEUQQXRbRMnehDBAl
+QSQJoiSIJEGUBJEkiJIgkgRREkSSIEqCSBJESRBJgigJIkkQJUEkCaIkiCRBlASRJIiSIJIEURJE
+kiBKgkgSREkQSYIoCSJJECVBJAmiJIgkQQQRRBBdLtHS595ClASR/BxEZ0vUmXMgsnVRe4gg+nsi
+V5QQfSMKhcqODqIfRK7IMogUE5llZbMKItVELnN0dKqJvl7o6HQTja2ohEg1kQ+uhkg1URkKWpFu
+oto6xiLVRNZWLodINZGvSoh0E9WuKCDSTORcHSxEqolCXjqINBPlWVbS0ekmst7yukg3kdKFcYh+
+jEVVsKy66iYaZ1FZL1JNZDMfOKNTTTQeLLMLqolYddVOtLTWesYi3UTso4PohETs6Yboookm2dMN
+0TGJaEUXRdQZiI5ANGVHB5F6Ijq6oxB5N11HB9FRiGhF6ommPF2AKBWizpwPkcvKDCKI/v9YdE5E
+Nh/fpAwRRIeJCgvRoU+7X5ahhAii3xDVAaI/+M4IiLQS2cJlFiKI/vsc3TkR7TcRQwQRswv/QMQc
+HUR/QMTsgnoixiL1RLQi9USMRb8hymoHkWYiU3l/6pluiA4SLW1Zn3qODiL1RDZwunBoSc8X7tSn
+CxCpJ8oqOrpD20vy3J66o4PoEonY6gjRhRGVlYNIN1FVQKSciFaknugI20sgmpho+q2OEE1LdIQl
+PYimJTrCkt50RF8AcBO8AM2/AAA=
+------=_20110601152502_45554--
 
----
-
---- 2.6.39_vanilla/drivers/hid/hid-lg.c	2011-05-19 06:06:34.000000000 +0200
-+++ 2.6.39/drivers/hid/hid-lg.c	2011-05-30 21:49:51.535184784 +0200
-@@ -41,6 +41,66 @@
- #define LG_FF3			0x1000
- #define LG_FF4			0x2000
- 
-+/* Size of the original descriptor of the Driving Force Pro wheel */
-+#define DFP_RDESC_ORIG_SIZE	97
-+
-+/* Fixed report descriptor for Logitech Driving Force Pro wheel controller 
-+ * 
-+ * The original descriptor hides the separate throttle and brake axes in 
-+ * a custom vendor usage page, providing only a combined value as
-+ * GenericDesktop.Y.
-+ * This descriptor removes the combined Y axis and instead reports 
-+ * separate throttle (Y) and brake (RZ).
-+ */
-+static __u8 dfp_rdesc_fixed[] = {
-+0x05, 0x01,         /*  Usage Page (Desktop),                   */
-+0x09, 0x04,         /*  Usage (Joystik),                        */
-+0xA1, 0x01,         /*  Collection (Application),               */
-+0xA1, 0x02,         /*      Collection (Logical),               */
-+0x95, 0x01,         /*          Report Count (1),               */
-+0x75, 0x0E,         /*          Report Size (14),               */
-+0x14,               /*          Logical Minimum (0),            */
-+0x26, 0xFF, 0x3F,   /*          Logical Maximum (16383),        */
-+0x34,               /*          Physical Minimum (0),           */
-+0x46, 0xFF, 0x3F,   /*          Physical Maximum (16383),       */
-+0x09, 0x30,         /*          Usage (X),                      */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x95, 0x0E,         /*          Report Count (14),              */
-+0x75, 0x01,         /*          Report Size (1),                */
-+0x25, 0x01,         /*          Logical Maximum (1),            */
-+0x45, 0x01,         /*          Physical Maximum (1),           */
-+0x05, 0x09,         /*          Usage Page (Button),            */
-+0x19, 0x01,         /*          Usage Minimum (01h),            */
-+0x29, 0x0E,         /*          Usage Maximum (0Eh),            */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x05, 0x01,         /*          Usage Page (Desktop),           */
-+0x95, 0x01,         /*          Report Count (1),               */
-+0x75, 0x04,         /*          Report Size (4),                */
-+0x25, 0x07,         /*          Logical Maximum (7),            */
-+0x46, 0x3B, 0x01,   /*          Physical Maximum (315),         */
-+0x65, 0x14,         /*          Unit (Degrees),                 */
-+0x09, 0x39,         /*          Usage (Hat Switch),             */
-+0x81, 0x42,         /*          Input (Variable, Nullstate),    */
-+0x65, 0x00,         /*          Unit,                           */
-+0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
-+0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
-+0x75, 0x08,         /*          Report Size (8),                */
-+0x81, 0x01,         /*          Input (Constant),               */
-+0x09, 0x31,         /*          Usage (Y),                      */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x09, 0x35,         /*          Usage (Rz),                     */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x81, 0x01,         /*          Input (Constant),               */
-+0xC0,               /*      End Collection,                     */
-+0xA1, 0x02,         /*      Collection (Logical),               */
-+0x09, 0x02,         /*          Usage (02h),                    */
-+0x95, 0x07,         /*          Report Count (7),               */
-+0x91, 0x02,         /*          Output (Variable),              */
-+0xC0,               /*      End Collection,                     */
-+0xC0                /*  End Collection                          */
-+};
-+
-+
- /*
-  * Certain Logitech keyboards send in report #3 keys which are far
-  * above the logical maximum described in descriptor. This extends
-@@ -74,6 +134,18 @@ static __u8 *lg_report_fixup(struct hid_
- 		rdesc[47] = 0x95;
- 		rdesc[48] = 0x0B;
- 	}
-+	
-+	switch (hdev->product) {
-+	case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
-+		if (*rsize == DFP_RDESC_ORIG_SIZE) {
-+			hid_info(hdev,
-+				"fixing up Logitech Driving Force Pro report descriptor\n");
-+			rdesc = dfp_rdesc_fixed;
-+			*rsize = sizeof(dfp_rdesc_fixed);
-+		}
-+		break;
-+	}
-+	
- 	return rdesc;
- }
- 
-@@ -378,7 +450,7 @@ static const struct hid_device_id lg_dev
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
-USB_DEVICE_ID_LOGITECH_G25_WHEEL),
- 		.driver_data = LG_FF },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
-USB_DEVICE_ID_LOGITECH_DFP_WHEEL),
--		.driver_data = LG_FF },
-+		.driver_data = LG_NOGET | LG_FF },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
-USB_DEVICE_ID_LOGITECH_WII_WHEEL),
- 		.driver_data = LG_FF4 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
-USB_DEVICE_ID_LOGITECH_WINGMAN_FFG ),
 

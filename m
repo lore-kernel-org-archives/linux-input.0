@@ -1,85 +1,47 @@
-From: Tony Lindgren <tony@atomide.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Subject: Re: [PATCH 3/8] MFD: twl4030-audio: Rename platform data
-Date: Wed, 1 Jun 2011 05:07:54 -0700
-Message-ID: <20110601120754.GC11352@atomide.com>
-References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
- <1306927051-8937-4-git-send-email-peter.ujfalusi@ti.com>
+Date: Wed, 1 Jun 2011 15:54:52 +0300
+Message-ID: <201106011554.53090.peter.ujfalusi@ti.com>
+References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com> <1306927051-8937-4-git-send-email-peter.ujfalusi@ti.com> <20110601120754.GC11352@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mho-03-ewr.mailhop.org ([204.13.248.66]:61740 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752696Ab1FAMIB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 08:08:01 -0400
-Content-Disposition: inline
-In-Reply-To: <1306927051-8937-4-git-send-email-peter.ujfalusi@ti.com>
+Received: from devils.ext.ti.com ([198.47.26.153]:48810 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751162Ab1FAMy5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 08:54:57 -0400
+In-Reply-To: <20110601120754.GC11352@atomide.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Liam Girdwood <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: "Girdwood, Liam" <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
 
-* Peter Ujfalusi <peter.ujfalusi@ti.com> [110601 04:14]:
-> --- a/arch/arm/mach-omap2/board-3430sdp.c
-> +++ b/arch/arm/mach-omap2/board-3430sdp.c
-> @@ -463,11 +463,11 @@ static struct regulator_init_data sdp3430_vpll2 = {
->  	.consumer_supplies	= sdp3430_vpll2_supplies,
->  };
->  
-> -static struct twl4030_codec_audio_data sdp3430_audio;
-> +static struct twl4030_codec_data sdp3430_codec;
->  
-> -static struct twl4030_codec_data sdp3430_codec = {
-> +static struct twl4030_audio_data sdp3430_audio = {
->  	.audio_mclk = 26000000,
-> -	.audio = &sdp3430_audio,
-> +	.codec = &sdp3430_codec,
->  };
->  
->  static struct twl4030_platform_data sdp3430_twldata = {
-> @@ -480,7 +480,7 @@ static struct twl4030_platform_data sdp3430_twldata = {
->  	.madc		= &sdp3430_madc_data,
->  	.keypad		= &sdp3430_kp_data,
->  	.usb		= &sdp3430_usb_data,
-> -	.codec		= &sdp3430_codec,
-> +	.audio		= &sdp3430_audio,
->  
->  	.vaux1		= &sdp3430_vaux1,
->  	.vaux2		= &sdp3430_vaux2,
-> --- a/arch/arm/mach-omap2/board-devkit8000.c
-> +++ b/arch/arm/mach-omap2/board-devkit8000.c
-> @@ -337,11 +337,11 @@ static struct twl4030_usb_data devkit8000_usb_data = {
->  	.usb_mode	= T2_USB_MODE_ULPI,
->  };
->  
-> -static struct twl4030_codec_audio_data devkit8000_audio_data;
-> +static struct twl4030_codec_data devkit8000_codec_data;
->  
-> -static struct twl4030_codec_data devkit8000_codec_data = {
-> +static struct twl4030_audio_data devkit8000_audio_data = {
->  	.audio_mclk = 26000000,
-> -	.audio = &devkit8000_audio_data,
-> +	.codec = &devkit8000_codec_data,
->  };
->  
->  static struct twl4030_platform_data devkit8000_twldata = {
-> @@ -351,7 +351,7 @@ static struct twl4030_platform_data devkit8000_twldata = {
->  	/* platform_data for children goes here */
->  	.usb		= &devkit8000_usb_data,
->  	.gpio		= &devkit8000_gpio_data,
-> -	.codec		= &devkit8000_codec_data,
-> +	.audio		= &devkit8000_audio_data,
->  	.vmmc1		= &devkit8000_vmmc1,
->  	.vdac		= &devkit8000_vdac,
->  	.vpll1		= &devkit8000_vpll1,
-...
+On Wednesday 01 June 2011 15:07:54 Tony Lindgren wrote:
+>=20
+> Can you please take a look at creating arch/arm/mach-omap2/i2c-twl.c =
+or
+> something in common-board-devices.c to get rid of the cut and paste
+> duplication in every board-*.c file?
 
-Can you please take a look at creating arch/arm/mach-omap2/i2c-twl.c or
-something in common-board-devices.c to get rid of the cut and paste
-duplication in every board-*.c file?
+Yes, it would make sense, since most of the board has similar configura=
+tion,=20
+and we have lots of duplicated code around.
+=20
+> Maybe you could have a generic twl_init function that allows overridi=
+ng
+> things like keypad with board specific configuration?
 
-Maybe you could have a generic twl_init function that allows overriding
-things like keypad with board specific configuration?
+We might need also support for overriding other configurations=20
+(audio/codec/vibra for sure needs that).
 
-Regards,
+I'll take a look, but I think it is not going to be part of v2 of this =
+series.
 
-Tony
+--=20
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

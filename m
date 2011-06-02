@@ -1,112 +1,55 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Patch to add guarding parentheses to some macros in linux/input.h
-Date: Wed, 01 Jun 2011 23:20:59 +0200
-Message-ID: <4DE6AD3B.4000600@kernelconcepts.de>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH 3/8] MFD: twl4030-audio: Rename platform data
+Date: Thu, 2 Jun 2011 09:15:46 +0300
+Message-ID: <201106020915.46491.peter.ujfalusi@ti.com>
+References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com> <201106011617.14854.peter.ujfalusi@ti.com> <20110601133823.GI11352@atomide.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------060400010409090601040706"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([212.60.202.196]:36856 "EHLO
-	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751376Ab1FAWDh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2011 18:03:37 -0400
+Received: from devils.ext.ti.com ([198.47.26.153]:48379 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750784Ab1FBGPr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Jun 2011 02:15:47 -0400
+In-Reply-To: <20110601133823.GI11352@atomide.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: "Girdwood, Liam" <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
 
-This is a multi-part message in MIME format.
---------------060400010409090601040706
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Wednesday 01 June 2011 16:38:23 Tony Lindgren wrote:
+> But you could easily remove all the board specific struct
+> twl4030_codec_data and struct twl4030_codec_audio_data entries by add=
+ing a
+> default audio init option to omap_pmic_init for the common configurat=
+ion.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Yeah, I can grep in the board files, and see what is the most common=20
+configuration
 
-Hi all.
+> How about something like:
+>=20
+> void omap_pmic_init(int bus, u32 clkrate, const char *pmic_type, int
+> pmic_irq, struct twl4030_platform_data *pmic_data, u32 flags);
 
-This is a patch to add guarding parentheses around some macro argument
-uses. This is good practice to avoid pitfalls like this:
+common-board-devices.c has omap_pmic_init, but without the flags.
 
-ioctl (fd, EVIOCGABS (have_mt ? ABS_MT_POSITION_X : ABS_X), &abs);
+> Where flags would be TWL_BOARD_HAS_DEFAULT_CODEC etc, and if the entr=
+y in
+> pmic_data is NULL, just use the default configuration. I think you al=
+ready
+> have the clkrate there?
 
-Which currently totally does not do what is expected.
+I'll take a look, should we have new file specifically for twl, or shou=
+ld I=20
+extend the common-board-devices.c with the twl related things? IMHO a n=
+ew file=20
+might be better, since the full twl config might be quite big.
 
-The attached patch adds parentheses to ensure correct operator precedence.
-
-Please consider this for inclusion into the Linux Kernel.
-
-Thanks,
-        Simon
-- -- 
-       Simon Budig                        kernel concepts GbR
-       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
-       +49-271-771091-17                  D-57072 Siegen
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk3mrToACgkQO2O/RXesiHBWcQCfdYFhFgKGaxvE5szwIJe3vfNO
-yy4AoJssXo0zvSYeVJqA/ViOVlq/ITyj
-=jtQG
------END PGP SIGNATURE-----
-
---------------060400010409090601040706
-Content-Type: text/x-patch;
- name="input-fix-macros.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="input-fix-macros.patch"
-
-commit c88a91cb31a158a5e993484d91a0634a2aab1a43
-Author: Simon Budig <simon@budig.de>
-Date:   Wed Jun 1 23:04:42 2011 +0200
-
-    input: add guarding parentheses to macros
-    
-    Put parentheses around macro argument uses. This avoids pitfalls
-    for the programmer, where the argument expansion does not give the
-    expected result.
-    
-    Signed-off-by: Simon Budig <simon.budig@kernelconcepts.de>
-
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 9e5393d..31dd2b8 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -109,19 +109,19 @@ struct input_keymap_entry {
- #define EVIOCSKEYCODE		_IOW('E', 0x04, unsigned int[2])        /* set keycode */
- #define EVIOCSKEYCODE_V2	_IOW('E', 0x04, struct input_keymap_entry)
- 
--#define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
--#define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
--#define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, len)		/* get unique identifier */
--#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, len)		/* get device properties */
--
--#define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, len)		/* get global key state */
--#define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, len)		/* get all LEDs */
--#define EVIOCGSND(len)		_IOC(_IOC_READ, 'E', 0x1a, len)		/* get all sounds status */
--#define EVIOCGSW(len)		_IOC(_IOC_READ, 'E', 0x1b, len)		/* get all switch states */
--
--#define EVIOCGBIT(ev,len)	_IOC(_IOC_READ, 'E', 0x20 + ev, len)	/* get event bits */
--#define EVIOCGABS(abs)		_IOR('E', 0x40 + abs, struct input_absinfo)	/* get abs value/limits */
--#define EVIOCSABS(abs)		_IOW('E', 0xc0 + abs, struct input_absinfo)	/* set abs value/limits */
-+#define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, (len))	/* get device name */
-+#define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, (len))	/* get physical location */
-+#define EVIOCGUNIQ(len)		_IOC(_IOC_READ, 'E', 0x08, (len))	/* get unique identifier */
-+#define EVIOCGPROP(len)		_IOC(_IOC_READ, 'E', 0x09, (len))	/* get device properties */
-+
-+#define EVIOCGKEY(len)		_IOC(_IOC_READ, 'E', 0x18, (len))	/* get global key state */
-+#define EVIOCGLED(len)		_IOC(_IOC_READ, 'E', 0x19, (len))	/* get all LEDs */
-+#define EVIOCGSND(len)		_IOC(_IOC_READ, 'E', 0x1a, (len))	/* get all sounds status */
-+#define EVIOCGSW(len)		_IOC(_IOC_READ, 'E', 0x1b, (len))	/* get all switch states */
-+
-+#define EVIOCGBIT(ev,len)	_IOC(_IOC_READ, 'E', 0x20 + (ev), (len))	/* get event bits */
-+#define EVIOCGABS(abs)		_IOR('E', 0x40 + (abs), struct input_absinfo)	/* get abs value/limits */
-+#define EVIOCSABS(abs)		_IOW('E', 0xc0 + (abs), struct input_absinfo)	/* set abs value/limits */
- 
- #define EVIOCSFF		_IOC(_IOC_WRITE, 'E', 0x80, sizeof(struct ff_effect))	/* send a force effect to a force feedback device */
- #define EVIOCRMFF		_IOW('E', 0x81, int)			/* Erase a force effect */
-
---------------060400010409090601040706--
+--=20
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

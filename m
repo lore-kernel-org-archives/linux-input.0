@@ -1,76 +1,42 @@
-From: Baohua Song <Baohua.Song@csr.com>
-Subject: RE: [PATCH v2] input: touchscreen: add OF match table for ads7846
-Date: Tue, 14 Jun 2011 06:38:26 +0000
-Message-ID: <5EB3BFCD089AD643B9BB63439F5FD5E937BB39A1@SHAASIEXM01.ASIA.ROOT.PRI>
-References: <1308015955-8286-1-git-send-email-Baohua.Song@csr.com>
- <4DF6FC70.2050707@wytron.com.tw>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Reporting screen/laptop orientation data to userspace
+Date: Fri, 3 Jun 2011 00:19:25 +0200
+Message-ID: <20110602221925.GC14328@ucw.cz>
+References: <4DE1FA7F.3050308@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cluster-d.mailcontrol.com ([85.115.60.190]:51794 "EHLO
-	cluster-d.mailcontrol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752869Ab1FNGjP (ORCPT
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:34935 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753087Ab1FNGl4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 02:39:15 -0400
-Received: from rly53d.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
-	by rly53d.srv.mailcontrol.com (MailControl) with ESMTP id p5E6d55x031629
-	for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 07:39:13 +0100
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by rly53d.srv.mailcontrol.com (MailControl) id p5E6cZna023745
-	for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 07:38:35 +0100
-In-Reply-To: <4DF6FC70.2050707@wytron.com.tw>
-Content-Language: en-US
+	Tue, 14 Jun 2011 02:41:56 -0400
+Content-Disposition: inline
+In-Reply-To: <4DE1FA7F.3050308@users.sourceforge.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Chou <thomas@wytron.com.tw>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-APBU Linux <DL-SHA-APBULinux@internal.csr.com>, Junyi Zhang <Junyi.Zhang@csr.com>, Grant Likely <grant.likely@secretlab.ca>
+To: Alberto Mardegan <mardy@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, "Javier S. Pedro" <maemo@javispedro.com>, linux-input@vger.kernel.org
 
-SGkgVGhvbWFzLA0KVGhhbmtzLg0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tDQo+IEZyb206IFRob21hcyBDaG91IFttYWlsdG86dGhvbWFzQHd5
-dHJvbi5jb20udHddDQo+IFNlbnQ6IDIwMTHE6jbUwjE0yNUgMTQ6MTUNCj4g
-VG86IEJhb2h1YSBTb25nDQo+IENjOiBkbWl0cnkudG9yb2tob3ZAZ21haWwu
-Y29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IERMLVNIQS1BUEJV
-DQo+IExpbnV4OyBKdW55aSBaaGFuZzsgR3JhbnQgTGlrZWx5DQo+IFN1Ympl
-Y3Q6IFJlOiBbUEFUQ0ggdjJdIGlucHV0OiB0b3VjaHNjcmVlbjogYWRkIE9G
-IG1hdGNoIHRhYmxlIGZvciBhZHM3ODQ2DQo+IA0KPiBPbiAwNi8xNC8yMDEx
-IDA5OjQ1IEFNLCBCYXJyeSBTb25nIHdyb3RlOg0KPiA+IFRoZSBjdXJyZW50
-IGFkczc4NDYgaGFzIG5vIE9GIG1hdGNoIHRhYmxlLiBUaGUgbWV0aG9kIHVz
-ZWQgaXMgYnkgYXBwbHlpbmcgYQ0KPiBoZXVyaXN0aWMgKG9mX21vZGFsaWFz
-X25vZGUpIHdoaWNoIHRyaWVzIHRvIG5hbWUgdGhlIGRldmljZSBpbiBhIHdh
-eSB0aGF0IHdpbGwNCj4gbWF0Y2ggYW4gZXhpc3RpbmcgZGV2aWNlIGRyaXZl
-ci4NCj4gPiBUaGlzIHBhdGNoIGFkZHMgZXhwbGljaXQgT0YgbWF0Y2ggdGFi
-bGUgZm9yIGFkczc4NDYsIHRoZW4gdGhlIG5vcm1hbCBkZXZpY2UNCj4gdHJl
-ZSBtYXRjaCBiZWhhdmlvdXIgd2lsbCBhbHdheXMgd29yay4NCj4gPiBJdCBo
-YXMgYmVlbiB0ZXN0ZWQgb24gUFJJTUEyIEVWQiBib2FyZCBvZiBDU1Igd2l0
-aCBhIFNQSSdzIGNoaWxkIG5vZGUgbGlrZQ0KPiB0aGUgYmVsb3c6DQo+ID4g
-dHNAMCB7DQo+ID4gICAgICAgICAgY29tcGF0aWJsZSA9ICJ0aSxhZHM3ODQ1
-IjsNCj4gPiAgICAgICAgICByZWcgPTwweDA+Ow0KPiA+ICAgICAgICAgIHNw
-aS1tYXgtZnJlcXVlbmN5ID08MzEyNTA+Ow0KPiA+ICAgICAgICAgIGludGVy
-cnVwdHMgPTw5MD47DQo+ID4gfTsNCj4gPg0KPiANCj4gSGkgQmFycnksDQo+
-IA0KPiBUaGFuayB5b3UgdmVyeSBtdWNoIGZvciB5b3VyIGhlbHAuIA0KDQpZ
-b3UgYXJlIHdlbGNvbWUgOi0pDQoNCj5Db3VsZCB3ZSBhZGQgYW4gb3B0aW9u
-IGZvciBncGlvDQo+IHBlbmRvd24sIGxpa2UgdGhpcz8NCj4gDQo+IC0gZ3Bp
-b3MgOiBzaG91bGQgc3BlY2lmeSBHUElPIHVzZWQgZm9yIHBlbmRvd24uDQo+
-IA0KPiBJZiBpbnRlcnJ1cHQgbm9kZSBpcyBub3QgcHJlc2VudCBpbiB0aGlz
-IG5vZGUsIGdwaW9fdG9faXJxIG9mIHRoZSBwZW4NCj4gZG93biBHUElPIHdp
-bGwgYmUgdXNlZC4NCg0KSSBkaXNhZ3JlZS4uLiBBbiBvcHRpb25hbCBncGlv
-IG5vZGUgZG9lc24ndCBtYWtlIHNlbnNlIGhlcmUuIFRoZSByZXN1bHQgb2Yg
-Z3Bpb190b19pcnEgaXMgc3RpbGwgYW4gaW50ZXJydXB0LCB0aGVuIHdlIGNh
-biBwbGFjZSB0aGUgcmVzdWx0IGluIGludGVycnVwdCBub2RlLg0KQW5kIHRo
-ZSBhZHM3ODQ2IGRyaXZlciByZXF1aXJlZCBhbiBpbnRlcnJ1cHQgbm9kZSBi
-dXQgbm90IGEgZ3BpbyBub2RlIHNpbmNlIHdlIGRvbid0IGZpbmQgYW55IG9m
-X2dldF9ncGlvKCkgaW4gdGhpcyBkcml2ZXIuIA0KQlRXLCBpdCBldmVuIGRv
-ZXNuoa90IG1ha2Ugc2Vuc2UgdG8gY2FsbCBmdW5jdGlvbiBncGlvX3RvX2ly
-cSBpbiBhIGRyaXZlciBsaWtlIGFkczc4NDYuIG9uIHRoZSBjb250cmFyeSwg
-ZHJpdmVycy9pbnB1dC9rZXlib2FyZC9ncGlvX2tleXMuYyBpcyByZWFsbHkg
-YW4gZ29vZCB1c2VyIG9mIGdwaW9fdG9faXJxLg0KDQo+IA0KPiBCZXN0IHJl
-Z2FyZHMsDQo+IFRob21hcw0KDQotYmFycnkNCgoKTWVtYmVyIG9mIHRoZSBD
-U1IgcGxjIGdyb3VwIG9mIGNvbXBhbmllcy4gQ1NSIHBsYyByZWdpc3RlcmVk
-IGluIEVuZ2xhbmQgYW5kIFdhbGVzLCByZWdpc3RlcmVkIG51bWJlciA0MTg3
-MzQ2LCByZWdpc3RlcmVkIG9mZmljZSBDaHVyY2hpbGwgSG91c2UsIENhbWJy
-aWRnZSBCdXNpbmVzcyBQYXJrLCBDb3dsZXkgUm9hZCwgQ2FtYnJpZGdlLCBD
-QjQgMFdaLCBVbml0ZWQgS2luZ2RvbQpNb3JlIGluZm9ybWF0aW9uIGNhbiBi
-ZSBmb3VuZCBhdCB3d3cuY3NyLmNvbS4gRm9sbG93IENTUiBvbiBUd2l0dGVy
-IGF0IGh0dHA6Ly90d2l0dGVyLmNvbS9DU1JfUExDIGFuZCByZWFkIG91ciBi
-bG9nIGF0IHd3dy5jc3IuY29tL2Jsb2cK
+Hi!
+
+>   the WMI interfaces in some Lenovo Ideapad laptops provide notification
+> callbacks when the laptop orientation changes, reporting 4 different
+> values defining the new orientation.
+
+Zaurus has two microswitches, indicating one of 3 configurations:
+
+notebook, closed
+
+notebook, open
+
+tablet
+
+They are exported as event/switch in the input. If possible, it would
+be nice to have one interface for that, too. (And it probably should
+be input,  and not fake-accelerator based; after all, there are no
+accelerometers on zaurus-like systems).
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

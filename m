@@ -1,47 +1,48 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH 4/8] mfd: twl6040: Add initial support
-Date: Fri, 3 Jun 2011 19:44:26 +0300
-Message-ID: <201106031944.26251.peter.ujfalusi@ti.com>
-References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
-	<1306927051-8937-5-git-send-email-peter.ujfalusi@ti.com>
-	<BANLkTi=3Xw8Ti80oreBiN4_a-=ekDfFM6A@mail.gmail.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [regression] Apple Magic Mouse stalls
+Date: Fri, 03 Jun 2011 15:48:07 -0400
+Message-ID: <4DE93A77.1070404@canonical.com>
+References: <201105281006.33763.edt@aei.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <BANLkTi=3Xw8Ti80oreBiN4_a-=ekDfFM6A@mail.gmail.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: "Krishnamoorthy, Balaji T" <balajitk@ti.com>
-Cc: Jorge Eduardo Candelaria <jorge.candelaria@ti.com>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Margarita Olaya Cabrera <magi.olaya@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:46210 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751553Ab1FCTsM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 15:48:12 -0400
+In-Reply-To: <201105281006.33763.edt@aei.ca>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ed Tomlinson <edt@aei.ca>
+Cc: linux-kernel@vger.kernel.org, rydberg@euromail.se, jkosina@suse.cz, linux-input@vger.kernel.org
 
-On Wednesday 01 June 2011 16:47:21 Krishnamoorthy, Balaji T wrote:
-> > +int twl6040_reg_read(struct twl6040 *twl6040, unsigned int reg)
-> > +{
-> > +       int ret;
-> > +       u8 val =3D 0;
-> > +
-> > +       mutex_lock(&twl6040->io_mutex);
-> > +       ret =3D twl_i2c_read_u8(TWL_MODULE_AUDIO_VOICE, &val, reg);
-> =
+On 05/28/2011 10:06 AM, Ed Tomlinson wrote:
+> Hi
+> 
+> I've been having fun with bluetooth in .38-rc.  My adapter was old (bt 1.1) and the bluetooth stack was having 'fun' with it.
+> Got tired of that a got asus doggle that supports 2.1+EDR.  Then I tried to use my magic mouse.  It works for a few
+> minutes and then stalls.  The stalls seem to be related to touches.  If I am careful only to touch with one finger it
+> seems to work.  It usually works with two fingers, with three it stalls.   Running hcidump sometimes lists a last 
+> packet with a dlen of 35 when it stalls.  Powering it on an off reset things 
+> 
+>> ACL data: handle 21 flags 0x02 dlen 27
+>     L2CAP(d): cid 0x0041 len 23 [psm 0]
+>> ACL data: handle 21 flags 0x02 dlen 27
+>     L2CAP(d): cid 0x0041 len 23 [psm 0]
+>> ACL data: handle 21 flags 0x02 dlen 27
+>     L2CAP(d): cid 0x0041 len 23 [psm 0]
+>> ACL data: handle 21 flags 0x02 dlen 35
+>     L2CAP(d): cid 0x0041 len 31 [psm 0]
+> 
+> This was not a problem pre .38.  It started happening in .38-rc along with other bluetooth problems.  I figured the bt
+> problem was the root cause - I was wrong.
+> 
+> This ring any bells?
 
-> Can this dependency on twl_i2c_[read/write] be removed,
-> Since TWL6040 is a separate IC which can get its own i2c_client in
-> twl6040-core.c and
-> create its own mfd devices like vibra, audio-codec ... while creating
-> twl6040-core.c
+Not for me... Nothing has changed in the driver that could cause such a
+change, so if there is a regression it exists somewhere else in the stack.
 
-You are right, twl6040 is separate IC.
-I'll take a look how it can be separated from the twl-core (twl6030).
+Jiri, any thoughts?
 
-Thanks for noticing this, =
-
-P=E9ter
+-- Chase

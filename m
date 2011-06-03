@@ -1,169 +1,114 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCHv3] hid: Fix Logitech Driving Force Pro wheel
-Date: Thu,  2 Jun 2011 15:40:14 -0700
-Message-ID: <1307054414-19239-1-git-send-email-simon@mungewell.org>
-References: <20110603112510.18482vx63j4ygmm8@webmail.df.eu>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from idcmail-mo2no.shaw.ca ([64.59.134.9]:30739 "EHLO
-	idcmail-mo2no.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751103Ab1FCPPI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 11:15:08 -0400
-In-Reply-To: <20110603112510.18482vx63j4ygmm8@webmail.df.eu>
-Sender: linux-input-owner@vger.kernel.org
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] Add sixaxis plugin: USB pairing and LEDs settings
+Date: Fri, 03 Jun 2011 16:25:59 +0100
+Message-ID: <1307114762.2669.125.camel@novo.hadess.net>
+References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
+	 <1298628292-8842-4-git-send-email-ospite@studenti.unina.it>
+	 <1304644488.16101.28.camel@novo.hadess.net>
+	 <20110507011412.ba0ad1e9.ospite@studenti.unina.it>
+	 <1304787442.2427.11.camel@novo.hadess.net>
+	 <20110603135904.096660bc.ospite@studenti.unina.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110603135904.096660bc.ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Simon Wood <simon@mungewell.org>
 
-Changes from initial patch:
-- shorten comment (removed original descriptor)
-- optimized new descriptor (simpler and shorter)
-- resent by Simon to fix patch for 3.0rc1
+On Fri, 2011-06-03 at 13:59 +0200, Antonio Ospite wrote:
+> On Sat, 07 May 2011 17:57:07 +0100
+> Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
+> 
+> > On Sat, 2011-05-07 at 01:14 +0200, Antonio Ospite wrote:
+> > > On Fri, 06 May 2011 02:14:38 +0100
+> > > Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
+> > > 
+> > > > On Fri, 2011-02-25 at 11:04 +0100, Antonio Ospite wrote:
+> > > > > +                       [AC_LANG_PROGRAM([[
+> > > > > +                               #include <sys/ioctl.h>
+> > > > > +                               #include <linux/hidraw.h>
+> > > > > +                               #if ! (defined(HIDIOCSFEATURE) &&
+> > > > > defined(HIDIOCGFEATURE))
+> > > > > +                               #error "HIDIOCSFEATURE and
+> > > > > HIDIOCGFEATURE are required (linux-libc-dev >= 2.6.3x)"
+> > > > > +                               #endif
+> > > > > +                               ]], 
+> > > > 
+> > > > The only part of the patch I have a problem with is this one.
+> > > > 
+> > > > I'd rather the code had:
+> > > > #ifndef HIDIOCSFEATURE
+> > > > #define HIDIOCSFEATURE bleh
+> > > > #endif
+> > > > 
+> [...]
+> > Again, it's not compiling against older kernels. but compiling against
+> > older kernel headers, which is a wildly different thing.
+> > 
+> > I'd like the plugin to be enabled, even if building with older kernel
+> > headers, as those have no relation to the capabilities of the running
+> > kernel.
+> > 
+> > It would also make the whole thing easier to test (just install a newer
+> > kernel with the patches merged in, and voila, working sisaxis pairing).
+> > 
+> 
+> Bastien, I'd fulfill your request on the lines of the following
+> WIP patch, the intent is to make the plugin compile unconditionally
+> still mentioning the soft dependency on 2.6.39-rc1.
+> I could have set HAVE_HIDIOCxFEATURE in acinclude.m4 and checked for
+> that in sixaxis.c in place of the explicit ifdefs, what is the common
+> practice about that?
+> 
+> I still have to take care of the runtime check when running on older
+> kernels.
+> 
+> Regards,
+>    Antonio
+> 
+> diff --git a/acinclude.m4 b/acinclude.m4
+> index 901bb4d..e3e0fdd 100644
+> --- a/acinclude.m4
+> +++ b/acinclude.m4
+> @@ -167,12 +167,12 @@ AC_DEFUN([AC_PATH_SIXAXIS], [
+>  			)],[
+>  				ac_cv_have_HIDIOCxFEATURE=yes
+>  			],[
+> -				ac_cv_have_HIDIOCxFEATURE="no, get linux-libc-dev >= 2.6.39-rc1"
+> +				ac_cv_have_HIDIOCxFEATURE="no, emulating linux-libc-dev >= 2.6.39-rc1"
+>  			]
+>  		)]
+>  	)
+>  
+> -	if ( test "${udev_found}" = "yes" && test "${ac_cv_have_HIDIOCxFEATURE}" = "yes" ); then
+> +	if ( test "${udev_found}" = "yes" ); then
+>  		sixaxis_plugin_deps_found=yes
+>  	fi
+>  ])
 
-This is a patch for hid-lg.c which fixes the Logitech Driving Force Pro driver.
-It was generated against vanilla 2.6.39.
-It contains two parts:
-- Add the quirk "NOGET" to make the wheel work at all in native mode.
-- Replace the somehow broken report descriptor with a custom one to have
-separate throttle and brake axes.
+Just remove the macro check from acinclude.m4 altogether. It's not
+needed, you already have the necessary checks in the plugin itself.
 
-As there are significant differences in the descriptor (original descriptor
-"hides" the separate axes in a  24 bit FF00 usagepage, new descripter replaces
-that with two individual 8 bit desktop.y and desktop.rz usages) I provided a
-complete replacement descriptor instead trying to patch the original one.
-Patching the descriptor seems not feasible as the new one is much larger.
+> diff --git a/plugins/sixaxis.c b/plugins/sixaxis.c
+> index 49aad25..fc12878 100644
+> --- a/plugins/sixaxis.c
+> +++ b/plugins/sixaxis.c
+> @@ -58,6 +58,16 @@
+>  #include "storage.h"
+>  #include "sdp_lib.h"
+>  
+> +/* Fallback definitions to compile with older headers */
+> +#ifndef HIDIOCGFEATURE
+> +#define HIDIOCGFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x07, len)
+> +#endif
+> +
+> +#ifndef HIDIOCSFEATURE
+> +#define HIDIOCSFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x06, len)
+> +#endif
 
-Note: To actually test this you have to use the tool "ltwheelconf" to put the
-DFP into it's native mode - See below for more info.
+Looks fine to me.
 
-Background:
-Most Logitech wheels are initially reporting themselves with a "fallback"
-deviceID (USB_DEVICE_ID_LOGITECH_WHEEL - 0xc294), in order to make sure they
-are working even without having the proper driver installed.
-
-If the Logitech driver is installed it sends a special command to the wheel
-which sets the wheel to "native mode", enabling enhance features like:
-- Clutch pedal
-- extended wheel rotation range (up to 900 degrees)
-- H-gate shifter
-- separate axis for throttle / brake
-- all buttons
-
-When the wheel is set to native mode it basically disconnects and reconnects
-with a different deviceID (USB_DEVICE_ID_LOGITECH_DFP_WHEEL - 0xc298 in this
-case).
-
-I am working on a userspace tool [1] which does the switching from fallback to
-native mode. During development I found out that the Driving Force Pro wheel
-is not supported in native mode - quierk NOGET is missing and the throttle and
-brake axes are reported in a combined way only.
-
-Signed-off-by: Michael Bauer <michael@m-bauer.org>
-Signed-off-by: Simon Wood <simon@mungewell.org>
-
-[1] https://github.com/TripleSpeeder/LTWheelConf
----
- drivers/hid/hid-lg.c |   74 +++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 73 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index 21f205f..a7f916e 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -41,6 +41,66 @@
- #define LG_FF3			0x1000
- #define LG_FF4			0x2000
- 
-+/* Size of the original descriptor of the Driving Force Pro wheel */
-+#define DFP_RDESC_ORIG_SIZE	97
-+
-+/* Fixed report descriptor for Logitech Driving Force Pro wheel controller
-+ *
-+ * The original descriptor hides the separate throttle and brake axes in
-+ * a custom vendor usage page, providing only a combined value as
-+ * GenericDesktop.Y.
-+ * This descriptor removes the combined Y axis and instead reports
-+ * separate throttle (Y) and brake (RZ).
-+ */
-+static __u8 dfp_rdesc_fixed[] = {
-+0x05, 0x01,         /*  Usage Page (Desktop),                   */
-+0x09, 0x04,         /*  Usage (Joystik),                        */
-+0xA1, 0x01,         /*  Collection (Application),               */
-+0xA1, 0x02,         /*      Collection (Logical),               */
-+0x95, 0x01,         /*          Report Count (1),               */
-+0x75, 0x0E,         /*          Report Size (14),               */
-+0x14,               /*          Logical Minimum (0),            */
-+0x26, 0xFF, 0x3F,   /*          Logical Maximum (16383),        */
-+0x34,               /*          Physical Minimum (0),           */
-+0x46, 0xFF, 0x3F,   /*          Physical Maximum (16383),       */
-+0x09, 0x30,         /*          Usage (X),                      */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x95, 0x0E,         /*          Report Count (14),              */
-+0x75, 0x01,         /*          Report Size (1),                */
-+0x25, 0x01,         /*          Logical Maximum (1),            */
-+0x45, 0x01,         /*          Physical Maximum (1),           */
-+0x05, 0x09,         /*          Usage Page (Button),            */
-+0x19, 0x01,         /*          Usage Minimum (01h),            */
-+0x29, 0x0E,         /*          Usage Maximum (0Eh),            */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x05, 0x01,         /*          Usage Page (Desktop),           */
-+0x95, 0x01,         /*          Report Count (1),               */
-+0x75, 0x04,         /*          Report Size (4),                */
-+0x25, 0x07,         /*          Logical Maximum (7),            */
-+0x46, 0x3B, 0x01,   /*          Physical Maximum (315),         */
-+0x65, 0x14,         /*          Unit (Degrees),                 */
-+0x09, 0x39,         /*          Usage (Hat Switch),             */
-+0x81, 0x42,         /*          Input (Variable, Nullstate),    */
-+0x65, 0x00,         /*          Unit,                           */
-+0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
-+0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
-+0x75, 0x08,         /*          Report Size (8),                */
-+0x81, 0x01,         /*          Input (Constant),               */
-+0x09, 0x31,         /*          Usage (Y),                      */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x09, 0x35,         /*          Usage (Rz),                     */
-+0x81, 0x02,         /*          Input (Variable),               */
-+0x81, 0x01,         /*          Input (Constant),               */
-+0xC0,               /*      End Collection,                     */
-+0xA1, 0x02,         /*      Collection (Logical),               */
-+0x09, 0x02,         /*          Usage (02h),                    */
-+0x95, 0x07,         /*          Report Count (7),               */
-+0x91, 0x02,         /*          Output (Variable),              */
-+0xC0,               /*      End Collection,                     */
-+0xC0                /*  End Collection                          */
-+};
-+
-+
- /*
-  * Certain Logitech keyboards send in report #3 keys which are far
-  * above the logical maximum described in descriptor. This extends
-@@ -74,6 +134,18 @@ static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		rdesc[47] = 0x95;
- 		rdesc[48] = 0x0B;
- 	}
-+
-+	switch (hdev->product) {
-+	case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
-+		if (*rsize == DFP_RDESC_ORIG_SIZE) {
-+			hid_info(hdev,
-+				"fixing up Logitech Driving Force Pro report descriptor\n");
-+			rdesc = dfp_rdesc_fixed;
-+			*rsize = sizeof(dfp_rdesc_fixed);
-+		}
-+		break;
-+	}
-+
- 	return rdesc;
- }
- 
-@@ -380,7 +452,7 @@ static const struct hid_device_id lg_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G27_WHEEL),
- 		.driver_data = LG_FF },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DFP_WHEEL),
--		.driver_data = LG_FF },
-+		.driver_data = LG_NOGET | LG_FF },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_WHEEL),
- 		.driver_data = LG_FF4 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WINGMAN_FFG ),
--- 
-1.7.4.1
-
+Cheers

@@ -1,65 +1,53 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH v2] hid: Fix Logitech Driving Force Pro wheel
-Date: Thu, 2 Jun 2011 12:35:31 -0400
-Message-ID: <2b85316d7925dad6c55672d7d9738e18.squirrel@host171.canaca.com>
+From: Chih-Wei Huang <cwhuang@android-x86.org>
+Subject: Re: ET1602 Touchscreen doesn't work
+Date: Fri, 3 Jun 2011 12:02:09 +0800
+Message-ID: <BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
+References: <BANLkTikX9njth-jP6PpQuwL9sTUciu1nQA@mail.gmail.com>
+	<20110602144146.GB3508@nautilus.holoscopio.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:36258 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752704Ab1FBQfd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Jun 2011 12:35:33 -0400
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:43390 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750707Ab1FCECL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 00:02:11 -0400
+Received: by wwa36 with SMTP id 36so1268674wwa.1
+        for <linux-input@vger.kernel.org>; Thu, 02 Jun 2011 21:02:09 -0700 (PDT)
+In-Reply-To: <20110602144146.GB3508@nautilus.holoscopio.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Bauer <michael@m-bauer.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-> Changes from initial patch:
-> - shorten comment (removed original descriptor)
-> - optimized new descriptor (simpler and shorter)
+2011/6/2 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
+> It depends on your userspace. It should work properly with X.org drivers
+> evdev and evtouch. Are you trying this with Android?
 
-Concept looks go to me, but I'm getting
---
-simon@ubuntu:~/linux-2.6$ patch -p 1 <
-../Downloads/v2-hid-Fix-Logitech-Driving-Force-Pro-wheel.patch
-patching file drivers/hid/hid-lg.c
-patch: **** malformed patch at line 91: USB_DEVICE_ID_LOGITECH_G25_WHEEL), --
+Yes, exactly.
 
-Looks like word wrap has been applied to the patch.
+Actually the touchscreen is detected, but it appears twice:
 
-It also fails to patch chunk 3 against 3.0rc1 as the G27 wheel has been
-added.
---
---- drivers/hid/hid-lg.c    2011-05-19 06:06:34.000000000 +0200
-+++ drivers/hid/hid-lg.c    2011-05-30 21:49:51.535184784 +0200
-@@ -450,7 +522,7 @@
-    { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-USB_DEVICE_ID_LOGITECH_G25_WHEEL),
-        .driver_data = LG_FF },
-    { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-USB_DEVICE_ID_LOGITECH_DFP_WHEEL),
--       .driver_data = LG_FF },
-+       .driver_data = LG_NOGET | LG_FF },
-    { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+[    3.408922] input: HID TOUCH HID Touch Panel as
+/devices/pci0000:00/0000:00:1d.3/usb5/5-2/5-2:1.0/input/input6
+[    3.412345] input: HID TOUCH HID Touch Panel as
+/devices/pci0000:00/0000:00:1d.3/usb5/5-2/5-2:1.0/input/input7
+[    3.415386] generic-usb 0003:1BFD:1688.0003: input: USB HID v1.01
+Mouse [HID TOUCH HID Touch Panel] on usb-0000:00:1d.3-2/input0
 
---
-    { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-USB_DEVICE_ID_LOGITECH_G25_WHEEL),
-        .driver_data = LG_FF },
-    { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-USB_DEVICE_ID_LOGITECH_G27_WHEEL),
-        .driver_data = LG_FF },
-    { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-USB_DEVICE_ID_LOGITECH_DFP_WHEEL),
-        .driver_data = LG_FF },
---
+I tried to use getevent, a debug tool of android,
+to get the touch events.
+I found touch events appear in /dev/event7,
+not in /dev/event6.
+Is it the desired behavior?
 
-All that said it appears to build (don't have this wheel to test) and have
-it in a git archive if you'd like be to spin a fixed patch for you.
+But the Android framework seems only detect
+/dev/event6 and ignore /dev/event7,
+probably because they have the same name.
 
-Simon
+Any suggestion how to solve the problem?
 
-
-
-
+Regards,
+-- 
+Chih-Wei
+Android-x86 project
+http://www.android-x86.org

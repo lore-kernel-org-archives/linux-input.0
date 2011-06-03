@@ -1,48 +1,52 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [regression] Apple Magic Mouse stalls
-Date: Fri, 03 Jun 2011 15:48:07 -0400
-Message-ID: <4DE93A77.1070404@canonical.com>
-References: <201105281006.33763.edt@aei.ca>
+From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Subject: [PATCH 3.0-rc1] Input: omap-keypad: add missing input_sync()
+Date: Fri, 3 Jun 2011 22:26:40 +0200
+Message-ID: <201106032226.44976.jkrzyszt@tis.icnet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:46210 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751553Ab1FCTsM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 15:48:12 -0400
-In-Reply-To: <201105281006.33763.edt@aei.ca>
+Received: from d1.icnet.pl ([212.160.220.21]:59920 "EHLO d1.icnet.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753087Ab1FCU4G (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Jun 2011 16:56:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ed Tomlinson <edt@aei.ca>
-Cc: linux-kernel@vger.kernel.org, rydberg@euromail.se, jkosina@suse.cz, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 05/28/2011 10:06 AM, Ed Tomlinson wrote:
-> Hi
-> 
-> I've been having fun with bluetooth in .38-rc.  My adapter was old (bt 1.1) and the bluetooth stack was having 'fun' with it.
-> Got tired of that a got asus doggle that supports 2.1+EDR.  Then I tried to use my magic mouse.  It works for a few
-> minutes and then stalls.  The stalls seem to be related to touches.  If I am careful only to touch with one finger it
-> seems to work.  It usually works with two fingers, with three it stalls.   Running hcidump sometimes lists a last 
-> packet with a dlen of 35 when it stalls.  Powering it on an off reset things 
-> 
->> ACL data: handle 21 flags 0x02 dlen 27
->     L2CAP(d): cid 0x0041 len 23 [psm 0]
->> ACL data: handle 21 flags 0x02 dlen 27
->     L2CAP(d): cid 0x0041 len 23 [psm 0]
->> ACL data: handle 21 flags 0x02 dlen 27
->     L2CAP(d): cid 0x0041 len 23 [psm 0]
->> ACL data: handle 21 flags 0x02 dlen 35
->     L2CAP(d): cid 0x0041 len 31 [psm 0]
-> 
-> This was not a problem pre .38.  It started happening in .38-rc along with other bluetooth problems.  I figured the bt
-> problem was the root cause - I was wrong.
-> 
-> This ring any bells?
+Otherwise the updated evdev driver (commit 
+cdda911c34006f1089f3c87b1a1f31ab3a4722f2, "Input: evdev - only signal 
+polls on full packets") no longer works on top of omap-keypad.
 
-Not for me... Nothing has changed in the driver that could cause such a
-change, so if there is a regression it exists somewhere else in the stack.
+Tested on Amstrad Delta.
 
-Jiri, any thoughts?
+Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+---
+ drivers/input/keyboard/omap-keypad.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
--- Chase
+--- git/drivers/input/keyboard/omap-keypad.c.orig	2011-05-30 22:16:50.000000000 +0200
++++ git/drivers/input/keyboard/omap-keypad.c	2011-06-03 22:22:18.000000000 +0200
+@@ -169,6 +169,7 @@ static void omap_kp_tasklet(unsigned lon
+ 	unsigned char new_state[8], changed, key_down = 0;
+ 	int col, row;
+ 	int spurious = 0;
++	bool need_sync = false;
+ 
+ 	/* check for any changes */
+ 	omap_kp_scan_keypad(omap_kp_data, new_state);
+@@ -206,9 +207,12 @@ static void omap_kp_tasklet(unsigned lon
+ 			kp_cur_group = key & GROUP_MASK;
+ 			input_report_key(omap_kp_data->input, key & ~GROUP_MASK,
+ 					 new_state[col] & (1 << row));
++			need_sync = true;
+ #endif
+ 		}
+ 	}
++	if (need_sync)
++		input_sync(omap_kp_data->input);
+ 	memcpy(keypad_state, new_state, sizeof(keypad_state));
+ 
+ 	if (key_down) {

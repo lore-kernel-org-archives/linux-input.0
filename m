@@ -1,63 +1,87 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH 3/8] MFD: twl4030-audio: Rename platform
-	data
-Date: Fri, 3 Jun 2011 16:38:25 +0300
-Message-ID: <201106031638.26094.peter.ujfalusi@ti.com>
-References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
-	<201106020915.46491.peter.ujfalusi@ti.com>
-	<20110603080819.GK8696@atomide.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: Re: Losing events from USB barcode reader
+Date: Fri, 3 Jun 2011 10:54:54 -0300
+Message-ID: <20110603135453.GC2379@nautilus.holoscopio.com>
+References: <20110523210228.7738801f@surf>
+ <20110524095556.GA6805@polaris.bitmath.org>
+ <20110525173832.237e7ac7@surf>
+ <20110603101511.6b841ce4@surf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110603080819.GK8696@atomide.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LwW0XdcUbUexiWVK"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from liberdade2.minaslivre.org ([74.50.53.203]:37154 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751913Ab1FCNzC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 09:55:02 -0400
+Content-Disposition: inline
+In-Reply-To: <20110603101511.6b841ce4@surf>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Friday 03 June 2011 11:08:22 Tony Lindgren wrote:
-> Yeah if it gets big then a separate file is better. Also, if we have
-> a common init function for twl, then it's easy to add the board specific
-> device tree initialization to that too and just leave out the calls to
-> omap_pmic_init from board-*.c files.
 
-I have parsed the board files for a pattern.
-There are some, but I have my doubts as well:
-We have eight platform data members in twl4030_platform_data for child =
+--LwW0XdcUbUexiWVK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-devices.
-USB, and audio/codec configuration might worth to move out (since most of t=
-he =
+On Fri, Jun 03, 2011 at 10:15:11AM +0200, Thomas Petazzoni wrote:
+> Hello,
+>=20
+> On Wed, 25 May 2011 17:38:32 +0200
+> Thomas Petazzoni <thomas.petazzoni@free-electrons.com> wrote:
+>=20
+> > Agreed. However, I don't know on which criteria should the kernel
+> > decide what the size of the internal buffer should be, in this
+> > particular case.
+>=20
+> Any idea on how to adjust the kernel internal events buffer size for
+> this particular device ?
+>=20
 
-board does not have fine tuned parameters for codec).
+Since v2.6.36, the device may hint the size of the buffer through
+input_set_events_per_packet. Perhaps, you could use a QUIRCK or
+something like that to indicate that you need a larger buffer and then
+use that to set the buffer to a size like 60, which is what is used by
+most other uses of this indication. To compare to the minimum default
+value, this is 8 input_event's in evdev per event. That is, a hint of 60
+will allocate a buffer of 480 entries, instead of 64.
 
-The majority of the code related to pmic is coming from regulator setups, I =
+Regards,
+Cascardo.
 
-can see similarities, but there are differences here and there, which makes =
+> Thanks!
+>=20
+> Thomas
+> --=20
+> Thomas Petazzoni, Free Electrons
+> Kernel, drivers, real-time and embedded Linux
+> development, consulting, training and support.
+> http://free-electrons.com
 
-the common configuration mostly useless (different peripherals, boot loader =
+--LwW0XdcUbUexiWVK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-diffs, etc).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-Having said that, I try to create a wrapper for omap_pmic_init, which can =
+iQIcBAEBAgAGBQJN6OetAAoJEEWxSg7udFZI4YkP/iI5sOeXz3ldJ2LZP1p0cPO2
+I2sAIZNmaBx7lrNXyw/kY+kFl9ljTyaX6LAAqvTxMUqz/3p5jPQF8cMLgpueTlX5
+gV0iHFf5WSDsM14bdk7FzhDaMjl/q8AVwsiYJteLcO7Q7VI410M3qDGFD+6nWH/R
+B+mSIqho9ccwRYsQZ6gzF4VOG+kpci/R42m8fwasFdVq3+LMjJs5FCdFTgDklK2E
+rctvNEm/J7pMV+Bj/EPgiVFc9nEQDDcL9XAWyxgZ6H741+deL2RNs4QtLjQoPWZF
+PXmypPBgIAqJsGEqkUzGdYLIidebEDv+g6CJ8ijx2dnVoKpYNk4sgliqa7CqzNSF
+wTkUoYfzVurRoRU/F80ewxpomVHEqKzMMTffkscda0sKOgb83iZ4wBp7xUxo2zSE
+O4r2cgTyZ8Dj9SvqKHS0MclzcahdIG3mgEBmEBEFqTfXSKuSDyvKRYreRp4I15FR
+97e1UlSkLT0pdFz6Hna7EpaIDbwa1HsohM7sWA58o8BrZ9lQLUcFAWtjorUjqHFA
+wNzEqKOHqzwuP8jEQAq3vWQsyJf0HHrcemUWC+nWDoYJivPMWRzqp6toFPkilqjP
+HobDKSxmTzVOmq8afccPYkg4Aa7JPJrwOSZqUU8mXa0FHRXF42hiN2AuLckxHzSl
+HOeArEYBGITXnYjL50tn
+=O1Cb
+-----END PGP SIGNATURE-----
 
-replace the current omap2/3/4_pmic_init, with that we can use common config =
-
-for USB, audio, and some selected few regulators initially.
-Later other parts might be possible to consolidate as well.
-I'm going to call this new wrapper for now omap2/3/4_pmic_config.
-
-Is this a good way to approach this issue?
-
--- =
-
-P=E9ter
+--LwW0XdcUbUexiWVK--

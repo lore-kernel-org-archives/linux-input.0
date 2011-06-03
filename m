@@ -1,38 +1,47 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH v2 3/3] Add sixaxis plugin: USB pairing and LEDs
- settings
-Date: Fri, 3 Jun 2011 11:56:38 -0400
-Message-ID: <d49388493b61c568c5ce7cd2ae9594e0.squirrel@host171.canaca.com>
-References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
-    <1298628292-8842-4-git-send-email-ospite@studenti.unina.it>
-    <1304644488.16101.28.camel@novo.hadess.net>
-    <20110507011412.ba0ad1e9.ospite@studenti.unina.it>
-    <1304787442.2427.11.camel@novo.hadess.net>
-    <20110603135904.096660bc.ospite@studenti.unina.it>
-    <1307114762.2669.125.camel@novo.hadess.net>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH 4/8] mfd: twl6040: Add initial support
+Date: Fri, 3 Jun 2011 19:44:26 +0300
+Message-ID: <201106031944.26251.peter.ujfalusi@ti.com>
+References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
+	<1306927051-8937-5-git-send-email-peter.ujfalusi@ti.com>
+	<BANLkTi=3Xw8Ti80oreBiN4_a-=ekDfFM6A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:40436 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753279Ab1FCP4p (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 11:56:45 -0400
-In-Reply-To: <1307114762.2669.125.camel@novo.hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <BANLkTi=3Xw8Ti80oreBiN4_a-=ekDfFM6A@mail.gmail.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: "Krishnamoorthy, Balaji T" <balajitk@ti.com>
+Cc: Jorge Eduardo Candelaria <jorge.candelaria@ti.com>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Margarita Olaya Cabrera <magi.olaya@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Antonio Ospite <ospite@studenti.unina.it>, linux-bluetooth@vger.kernel.org, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>
 
-Just generally on this subject, should the code which performs the USB
-'write' be in 'hid-sony.c' rather than the BT core.
+On Wednesday 01 June 2011 16:47:21 Krishnamoorthy, Balaji T wrote:
+> > +int twl6040_reg_read(struct twl6040 *twl6040, unsigned int reg)
+> > +{
+> > +       int ret;
+> > +       u8 val =3D 0;
+> > +
+> > +       mutex_lock(&twl6040->io_mutex);
+> > +       ret =3D twl_i2c_read_u8(TWL_MODULE_AUDIO_VOICE, &val, reg);
+> =
 
-It's possible that the Sixaxis or other compatible controllers will be
-only USB connected and BT might not even exist on the system.
+> Can this dependency on twl_i2c_[read/write] be removed,
+> Since TWL6040 is a separate IC which can get its own i2c_client in
+> twl6040-core.c and
+> create its own mfd devices like vibra, audio-codec ... while creating
+> twl6040-core.c
 
-If/When I manage to do some work on rumble support, we will probably need
-to ensure that a 'hid-sonyff.c' is aware of any LED settings otherwise it
-might overwrite them when setting the rumble.
+You are right, twl6040 is separate IC.
+I'll take a look how it can be separated from the twl-core (twl6030).
 
-Simon.
+Thanks for noticing this, =
 
+P=E9ter

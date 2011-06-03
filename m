@@ -1,53 +1,60 @@
-From: Chih-Wei Huang <cwhuang@android-x86.org>
-Subject: Re: ET1602 Touchscreen doesn't work
-Date: Fri, 3 Jun 2011 12:02:09 +0800
-Message-ID: <BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
-References: <BANLkTikX9njth-jP6PpQuwL9sTUciu1nQA@mail.gmail.com>
-	<20110602144146.GB3508@nautilus.holoscopio.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 3/8] MFD: twl4030-audio: Rename platform
+	data
+Date: Fri, 3 Jun 2011 11:08:22 +0300
+Message-ID: <20110603080819.GK8696@atomide.com>
+References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
+	<201106011617.14854.peter.ujfalusi@ti.com>
+	<20110601133823.GI11352@atomide.com>
+	<201106020915.46491.peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:43390 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750707Ab1FCECL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 00:02:11 -0400
-Received: by wwa36 with SMTP id 36so1268674wwa.1
-        for <linux-input@vger.kernel.org>; Thu, 02 Jun 2011 21:02:09 -0700 (PDT)
-In-Reply-To: <20110602144146.GB3508@nautilus.holoscopio.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <201106020915.46491.peter.ujfalusi@ti.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-2011/6/2 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
-> It depends on your userspace. It should work properly with X.org drivers
-> evdev and evtouch. Are you trying this with Android?
+* Peter Ujfalusi <peter.ujfalusi@ti.com> [110602 09:11]:
+> On Wednesday 01 June 2011 16:38:23 Tony Lindgren wrote:
+> > But you could easily remove all the board specific struct
+> > twl4030_codec_data and struct twl4030_codec_audio_data entries by adding a
+> > default audio init option to omap_pmic_init for the common configuration.
+> 
+> Yeah, I can grep in the board files, and see what is the most common 
+> configuration
+> 
+> > How about something like:
+> > 
+> > void omap_pmic_init(int bus, u32 clkrate, const char *pmic_type, int
+> > pmic_irq, struct twl4030_platform_data *pmic_data, u32 flags);
+> 
+> common-board-devices.c has omap_pmic_init, but without the flags.
+> 
+> > Where flags would be TWL_BOARD_HAS_DEFAULT_CODEC etc, and if the entry in
+> > pmic_data is NULL, just use the default configuration. I think you already
+> > have the clkrate there?
+> 
+> I'll take a look, should we have new file specifically for twl, or should I 
+> extend the common-board-devices.c with the twl related things? IMHO a new file 
+> might be better, since the full twl config might be quite big.
 
-Yes, exactly.
-
-Actually the touchscreen is detected, but it appears twice:
-
-[    3.408922] input: HID TOUCH HID Touch Panel as
-/devices/pci0000:00/0000:00:1d.3/usb5/5-2/5-2:1.0/input/input6
-[    3.412345] input: HID TOUCH HID Touch Panel as
-/devices/pci0000:00/0000:00:1d.3/usb5/5-2/5-2:1.0/input/input7
-[    3.415386] generic-usb 0003:1BFD:1688.0003: input: USB HID v1.01
-Mouse [HID TOUCH HID Touch Panel] on usb-0000:00:1d.3-2/input0
-
-I tried to use getevent, a debug tool of android,
-to get the touch events.
-I found touch events appear in /dev/event7,
-not in /dev/event6.
-Is it the desired behavior?
-
-But the Android framework seems only detect
-/dev/event6 and ignore /dev/event7,
-probably because they have the same name.
-
-Any suggestion how to solve the problem?
+Yeah if it gets big then a separate file is better. Also, if we have
+a common init function for twl, then it's easy to add the board specific
+device tree initialization to that too and just leave out the calls to
+omap_pmic_init from board-*.c files.
 
 Regards,
--- 
-Chih-Wei
-Android-x86 project
-http://www.android-x86.org
+
+Tony

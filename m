@@ -1,146 +1,93 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH v2 3/3] Add sixaxis plugin: USB pairing and LEDs
- settings
-Date: Fri, 3 Jun 2011 13:59:04 +0200
-Message-ID: <20110603135904.096660bc.ospite@studenti.unina.it>
-References: <1298628292-8842-1-git-send-email-ospite@studenti.unina.it>
-	<1298628292-8842-4-git-send-email-ospite@studenti.unina.it>
-	<1304644488.16101.28.camel@novo.hadess.net>
-	<20110507011412.ba0ad1e9.ospite@studenti.unina.it>
-	<1304787442.2427.11.camel@novo.hadess.net>
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: Re: ET1602 Touchscreen doesn't work
+Date: Fri, 3 Jun 2011 09:44:29 -0300
+Message-ID: <20110603124428.GA2379@nautilus.holoscopio.com>
+References: <BANLkTikX9njth-jP6PpQuwL9sTUciu1nQA@mail.gmail.com>
+ <20110602144146.GB3508@nautilus.holoscopio.com>
+ <BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__3_Jun_2011_13_59_04_+0200_mVEDVqtRpixb3rl3"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp209.alice.it ([82.57.200.105]:58874 "EHLO smtp209.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754497Ab1FCL7J (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Jun 2011 07:59:09 -0400
-In-Reply-To: <1304787442.2427.11.camel@novo.hadess.net>
+Received: from liberdade2.minaslivre.org ([74.50.53.203]:39622 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751172Ab1FCMoj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jun 2011 08:44:39 -0400
+Content-Disposition: inline
+In-Reply-To: <BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-bluetooth@vger.kernel.org, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>
+To: Chih-Wei Huang <cwhuang@android-x86.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
---Signature=_Fri__3_Jun_2011_13_59_04_+0200_mVEDVqtRpixb3rl3
-Content-Type: text/plain; charset=US-ASCII
+
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, 07 May 2011 17:57:07 +0100
-Bastien Nocera <hadess@hadess.net> wrote:
-
-> On Sat, 2011-05-07 at 01:14 +0200, Antonio Ospite wrote:
-> > On Fri, 06 May 2011 02:14:38 +0100
-> > Bastien Nocera <hadess@hadess.net> wrote:
-> >=20
-> > > On Fri, 2011-02-25 at 11:04 +0100, Antonio Ospite wrote:
-> > > > +                       [AC_LANG_PROGRAM([[
-> > > > +                               #include <sys/ioctl.h>
-> > > > +                               #include <linux/hidraw.h>
-> > > > +                               #if ! (defined(HIDIOCSFEATURE) &&
-> > > > defined(HIDIOCGFEATURE))
-> > > > +                               #error "HIDIOCSFEATURE and
-> > > > HIDIOCGFEATURE are required (linux-libc-dev >=3D 2.6.3x)"
-> > > > +                               #endif
-> > > > +                               ]],=20
-> > >=20
-> > > The only part of the patch I have a problem with is this one.
-> > >=20
-> > > I'd rather the code had:
-> > > #ifndef HIDIOCSFEATURE
-> > > #define HIDIOCSFEATURE bleh
-> > > #endif
-> > >=20
-[...]
-> Again, it's not compiling against older kernels. but compiling against
-> older kernel headers, which is a wildly different thing.
+On Fri, Jun 03, 2011 at 12:02:09PM +0800, Chih-Wei Huang wrote:
+> 2011/6/2 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
+> > It depends on your userspace. It should work properly with X.org drivers
+> > evdev and evtouch. Are you trying this with Android?
 >=20
-> I'd like the plugin to be enabled, even if building with older kernel
-> headers, as those have no relation to the capabilities of the running
-> kernel.
+> Yes, exactly.
 >=20
-> It would also make the whole thing easier to test (just install a newer
-> kernel with the patches merged in, and voila, working sisaxis pairing).
+> Actually the touchscreen is detected, but it appears twice:
 >=20
+> [    3.408922] input: HID TOUCH HID Touch Panel as
+> /devices/pci0000:00/0000:00:1d.3/usb5/5-2/5-2:1.0/input/input6
+> [    3.412345] input: HID TOUCH HID Touch Panel as
+> /devices/pci0000:00/0000:00:1d.3/usb5/5-2/5-2:1.0/input/input7
+> [    3.415386] generic-usb 0003:1BFD:1688.0003: input: USB HID v1.01
+> Mouse [HID TOUCH HID Touch Panel] on usb-0000:00:1d.3-2/input0
+>=20
+> I tried to use getevent, a debug tool of android,
+> to get the touch events.
+> I found touch events appear in /dev/event7,
+> not in /dev/event6.
+> Is it the desired behavior?
+>=20
+> But the Android framework seems only detect
+> /dev/event6 and ignore /dev/event7,
+> probably because they have the same name.
+>=20
+> Any suggestion how to solve the problem?
+>=20
+> Regards,
+> --=20
+> Chih-Wei
+> Android-x86 project
+> http://www.android-x86.org
 
-Bastien, I'd fulfill your request on the lines of the following
-WIP patch, the intent is to make the plugin compile unconditionally
-still mentioning the soft dependency on 2.6.39-rc1.
-I could have set HAVE_HIDIOCxFEATURE in acinclude.m4 and checked for
-that in sixaxis.c in place of the explicit ifdefs, what is the common
-practice about that?
+You should use the device capabilities, like what events it does
+generate. If it does generate X and Y axis events, that's the right
+device.
 
-I still have to take care of the runtime check when running on older
-kernels.
+Best regards,
+Cascardo.
 
-Regards,
-   Antonio
-
-diff --git a/acinclude.m4 b/acinclude.m4
-index 901bb4d..e3e0fdd 100644
---- a/acinclude.m4
-+++ b/acinclude.m4
-@@ -167,12 +167,12 @@ AC_DEFUN([AC_PATH_SIXAXIS], [
- 			)],[
- 				ac_cv_have_HIDIOCxFEATURE=3Dyes
- 			],[
--				ac_cv_have_HIDIOCxFEATURE=3D"no, get linux-libc-dev >=3D 2.6.39-rc1"
-+				ac_cv_have_HIDIOCxFEATURE=3D"no, emulating linux-libc-dev >=3D 2.6.39-=
-rc1"
- 			]
- 		)]
- 	)
-=20
--	if ( test "${udev_found}" =3D "yes" && test "${ac_cv_have_HIDIOCxFEATURE}=
-" =3D "yes" ); then
-+	if ( test "${udev_found}" =3D "yes" ); then
- 		sixaxis_plugin_deps_found=3Dyes
- 	fi
- ])
-diff --git a/plugins/sixaxis.c b/plugins/sixaxis.c
-index 49aad25..fc12878 100644
---- a/plugins/sixaxis.c
-+++ b/plugins/sixaxis.c
-@@ -58,6 +58,16 @@
- #include "storage.h"
- #include "sdp_lib.h"
-=20
-+/* Fallback definitions to compile with older headers */
-+#ifndef HIDIOCGFEATURE
-+#define HIDIOCGFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x07, len)
-+#endif
-+
-+#ifndef HIDIOCSFEATURE
-+#define HIDIOCSFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x06, len)
-+#endif
-+
-+
- #define BDADDR_STR_SIZE 18 /* strlen("00:00:00:00:00:00") + 1 */
-=20
- /* Vendor and product ID for the Sixaxis PS3 controller */
-
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Fri__3_Jun_2011_13_59_04_+0200_mVEDVqtRpixb3rl3
-Content-Type: application/pgp-signature
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAk3ozIgACgkQ5xr2akVTsAE+TgCeO6V5b15L/AA1dSZhK/O1Ubee
-8vsAnjtDY2jApXcjfyupNiBxMwghxBrT
-=DQd9
+iQIcBAEBAgAGBQJN6NcrAAoJEEWxSg7udFZId44QAJLHgQ7BwXnAFqV2wWH5OmUE
+MUoaQpkoEOzb6JYhesew5UaBpvZNrC9nbDdI4TQtDv+55rcynIf2hfz7CutXhReF
+v+uJFAoPonMB++qOgfV249niiwEYreP9h0KVIgs/pCWdAAzufhPj1BjWWEL7/MEs
+aEnw/4BWqjde/mzy9cMDX6xZG0XUnmibM5AF2fl6Yr6dkUwNokE9D0Cq08gOXMX4
+bH/1gLoCM8h4PiHH4Z+28HgEEUgvsaQABY+RLmv0JKfukS9WLKmhp3xZ+e1db5Ws
+qLldJFZ+lEQUnUy3HfvvnDTC7CFUB4grDVZAa6UpoPtGzBMUE6fufpyYhDWSc0LF
+AiT2YH8Ek0BiSQHveir2uzNaVYJfqh8Yh+1aSPzm9WFQ1hphdYqKcXdjGZiVLmJx
+Mg4aznlq1pt8s/kawbFtzn7gEfT5PwCGFOGmSCa5N0F8tOpTHCAiDM66AWLZinPc
+OE+KY04nd2Lq+obbZ7R9cu22t0dIfpidaxxiywMagfxYCkLPuv3xaGcyXohCkek4
+6xDFKngGXegauY9YVetWxhV//yGQe+aRbCujKf28B+ZcIaGUxTudV0wekag565Ez
+L8Xfayulu/sqqekqH67dekfEOqCq5Or0q3IFe1F1UMc5eLHBket1oWSnYlUgCmxH
+KVqZQczkW/RRmw4N180b
+=MDf0
 -----END PGP SIGNATURE-----
 
---Signature=_Fri__3_Jun_2011_13_59_04_+0200_mVEDVqtRpixb3rl3--
+--+QahgC5+KEYLbs62--

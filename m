@@ -1,52 +1,70 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [PATCHv4 3/3] sony_ff_bluetooth
-Date: Sat,  4 Jun 2011 02:32:37 -0700
-Message-ID: <1307179957-24458-3-git-send-email-simon@mungewell.org>
+Subject: [PATCHv4 2/3] sony_ff_byteswap_accelerometer
+Date: Sat,  4 Jun 2011 02:32:36 -0700
+Message-ID: <1307179957-24458-2-git-send-email-simon@mungewell.org>
 References: <1307179957-24458-1-git-send-email-simon@mungewell.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1307179957-24458-1-git-send-email-simon@mungewell.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Marcin Tolysz <tolysz@gmail.com>, Simon Wood <simon@mungewell.org>, Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Marcin Tolysz <tolysz@gmail.com>, Simon Wood <simon@mungewell.org>
 List-Id: linux-input@vger.kernel.org
 
-Add support for patching the HID descriptor when Sixaxis is connect
-via Bluetooth. In this mode the desciptor contains a trailing '0x00'.
+The accelerometers/gyro on the sixaxis are reported in the wrong
+endianness (ie. not compatible with HID), so this patch intercepts
+the report and swaps the appropriate bytes over.
 
-Patch suggested by Antonio
+Accelerometers are scaled with a nominal value of +/-4000 = 1G,
+maximum value would be around +/-32768 = 8G.
 
-Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+Gyro on my device always reports -32768, might need some calibration
+set within the controller.
+
+Fix extracted from previous patch submission:
+https://patchwork.kernel.org/patch/95212/
+
+Signed-off-by: Marcin Tolysz <tolysz@gmail.com>
 Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/hid/hid-sony.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/hid/hid-sony.c |   19 +++++++++++++++++++
+ 1 files changed, 19 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index f219746..5d37f97 100644
+index 5c930dc..f219746 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -49,8 +49,11 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		hid_info(hdev, "Fixing up Sony Vaio VGX report descriptor\n");
- 		rdesc[55] = 0x06;
- 	}
--	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
--			*rsize == 148 && rdesc[83] == 0x75) {
-+
-+	/* The HID descriptor exposed over BT has a trailing zero byte */
-+	if ((((sc->quirks & SIXAXIS_CONTROLLER_USB) && *rsize == 148) ||
-+			((sc->quirks & SIXAXIS_CONTROLLER_BT)  && *rsize == 149 )) &&
-+			rdesc[83] == 0x75) {
- 		hid_info(hdev, "Fixing up Sony Sixaxis report descriptor\n");
- 		memcpy((void *)&rdesc[83], (void *) &sixaxis_rdesc_fixup, sizeof(sixaxis_rdesc_fixup));
- 	}
-@@ -64,7 +67,7 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report, __
- {
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
+@@ -57,6 +57,24 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
+ }
  
--	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
-+	if ((sc->quirks & (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)) &&
- 			rd[0] == 0x01 && size == 49) {
- 		swap(rd[41], rd[42]);
- 		swap(rd[43], rd[44]);
++/* Sixaxis HID report has acclerometers/gyro with MSByte first, this has
++ * to be BYTE_SWAPPED before passing up to joystick interface
++ */
++static int sony_raw_event(struct hid_device *hdev, struct hid_report *report, __u8 *rd, int size)
++{
++	struct sony_sc *sc = hid_get_drvdata(hdev);
++
++	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
++			rd[0] == 0x01 && size == 49) {
++		swap(rd[41], rd[42]);
++		swap(rd[43], rd[44]);
++		swap(rd[45], rd[46]);
++		swap(rd[47], rd[48]);
++	}
++
++	return 0;
++}
++
+ /*
+  * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
+  * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
+@@ -205,6 +223,7 @@ static struct hid_driver sony_driver = {
+ 	.probe = sony_probe,
+ 	.remove = sony_remove,
+ 	.report_fixup = sony_report_fixup,
++	.raw_event = sony_raw_event
+ };
+ 
+ static int __init sony_init(void)
 -- 
 1.7.4.1

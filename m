@@ -1,45 +1,45 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: [PATCH 3.0-rc1 v2] Input: omap-keypad: add missing input_sync()
-Date: Sat, 4 Jun 2011 17:00:41 +0200
-Message-ID: <201106041700.44677.jkrzyszt@tis.icnet.pl>
-References: <201106032226.44976.jkrzyszt@tis.icnet.pl> <20110604123530.GA1530@polaris.bitmath.org>
+From: Corentin Chary <corentin.chary@gmail.com>
+Subject: Re: [PATCH 8/25] sony-laptop: sony_nc_notify rewritten and improved
+Date: Sat, 4 Jun 2011 17:04:48 +0200
+Message-ID: <BANLkTinu=AU4ro6HjF1JZnomsXwNkoz2hg@mail.gmail.com>
+References: <4DE8FC4A.9010401@absence.it>
+	<4DE8FFE0.5070506@absence.it>
+	<20110604084338.GD7194@kamineko.org>
+	<20110604124219.GA14809@srcf.ucam.org>
+	<4DEA3FBD.8020602@absence.it>
+	<20110604143012.GA16615@srcf.ucam.org>
+	<4DEA4283.103@absence.it>
+	<20110604143638.GA16747@srcf.ucam.org>
+	<4DEA4450.80702@absence.it>
+	<20110604144527.GA16911@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:44115 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756706Ab1FDPBV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Jun 2011 11:01:21 -0400
-In-Reply-To: <20110604123530.GA1530@polaris.bitmath.org>
+Received: from mail-ew0-f46.google.com ([209.85.215.46]:60542 "EHLO
+	mail-ew0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756490Ab1FDPEu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jun 2011 11:04:50 -0400
+In-Reply-To: <20110604144527.GA16911@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Marco Chiappero <marco@absence.it>, Mattia Dongili <malattia@linux.it>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Otherwise the updated evdev driver (commit cdda911c34006f1089f3c87b1a1f, 
-"Input: evdev - only signal polls on full packets") no longer works on 
-top of omap-keypad.
+On Sat, Jun 4, 2011 at 4:45 PM, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Sat, Jun 04, 2011 at 04:42:24PM +0200, Marco Chiappero wrote:
+>
+>> More precisely? As far as I know there is no ALS device class; and I
+>> know nothing about the other.
+>
+> Where there's no generic implementation of a hardware class that's
+> present in multiple pieces of hardware, the first step is to define a
+> generic implementation :)
 
-Tested on Amstrad Delta.
+The last ALS device class attempt didn't went so well, what's the
+current status for this one ?
 
-Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
----
-v1 -> v2 change, suggested by Henrik Rydberg (thanks!):
-- no need for a special variable tracing if input_sync is required - 
-  the input core already does the same thing.
 
- drivers/input/keyboard/omap-keypad.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- git/drivers/input/keyboard/omap-keypad.c.orig	2011-06-04 16:18:37.000000000 +0200
-+++ git/drivers/input/keyboard/omap-keypad.c	2011-06-04 16:46:23.000000000 +0200
-@@ -209,6 +209,7 @@ static void omap_kp_tasklet(unsigned lon
- #endif
- 		}
- 	}
-+	input_sync(omap_kp_data->input);
- 	memcpy(keypad_state, new_state, sizeof(keypad_state));
- 
- 	if (key_down) {
+-- 
+Corentin Chary
+http://xf.iksaif.net

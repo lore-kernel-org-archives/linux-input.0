@@ -1,68 +1,37 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 3.0-rc1] Input: omap-keypad: add missing input_sync()
-Date: Sat, 4 Jun 2011 14:35:30 +0200
-Message-ID: <20110604123530.GA1530@polaris.bitmath.org>
-References: <201106032226.44976.jkrzyszt@tis.icnet.pl>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 8/25] sony-laptop: sony_nc_notify rewritten and improved
+Date: Sat, 4 Jun 2011 13:42:19 +0100
+Message-ID: <20110604124219.GA14809@srcf.ucam.org>
+References: <4DE8FC4A.9010401@absence.it>
+ <4DE8FFE0.5070506@absence.it>
+ <20110604084338.GD7194@kamineko.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:46875 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755047Ab1FDM3T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jun 2011 08:29:19 -0400
-Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 1392FE9C19
-	for <linux-input@vger.kernel.org>; Sat,  4 Jun 2011 14:29:17 +0200 (CEST)
+Received: from cavan.codon.org.uk ([93.93.128.6]:55484 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753891Ab1FDMm3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jun 2011 08:42:29 -0400
 Content-Disposition: inline
-In-Reply-To: <201106032226.44976.jkrzyszt@tis.icnet.pl>
+In-Reply-To: <20110604084338.GD7194@kamineko.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Mattia Dongili <malattia@linux.it>
+Cc: Marco Chiappero <marco@absence.it>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hi Janusz,
-
-> Otherwise the updated evdev driver (commit 
-> cdda911c34006f1089f3c87b1a1f31ab3a4722f2, "Input: evdev - only signal 
-> polls on full packets") no longer works on top of omap-keypad.
+On Sat, Jun 04, 2011 at 05:43:39PM +0900, Mattia Dongili wrote:
+> On Fri, Jun 03, 2011 at 05:38:08PM +0200, Marco Chiappero wrote:
+> > sony_nc_notify rewritten (and placed near the other acpi callbacks),
+> > the hotkey decoding code move to a new function
+> > sony_nc_hotkeys_decode. Now generating acpi netlink events too.
 > 
-> Tested on Amstrad Delta.
-> 
-> Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-> ---
->  drivers/input/keyboard/omap-keypad.c |    4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> --- git/drivers/input/keyboard/omap-keypad.c.orig	2011-05-30 22:16:50.000000000 +0200
-> +++ git/drivers/input/keyboard/omap-keypad.c	2011-06-03 22:22:18.000000000 +0200
-> @@ -169,6 +169,7 @@ static void omap_kp_tasklet(unsigned lon
->  	unsigned char new_state[8], changed, key_down = 0;
->  	int col, row;
->  	int spurious = 0;
-> +	bool need_sync = false;
+> one thing I'm wondering is if we shouldn't stop sending input
+> events also via the acpi bus rather than adding new notification
+> methods. The /proc/acpi/event notification will go away on its own one
+> day so maybe letting this habit die with it is a reasonable deprecation
+> plan for /proc/acpi/event users.
 
-No need for a special variable here - the input core already does the same thing.
+Yeah, it's about time for this to die.
 
->  
->  	/* check for any changes */
->  	omap_kp_scan_keypad(omap_kp_data, new_state);
-> @@ -206,9 +207,12 @@ static void omap_kp_tasklet(unsigned lon
->  			kp_cur_group = key & GROUP_MASK;
->  			input_report_key(omap_kp_data->input, key & ~GROUP_MASK,
->  					 new_state[col] & (1 << row));
-> +			need_sync = true;
->  #endif
->  		}
->  	}
-> +	if (need_sync)
-> +		input_sync(omap_kp_data->input);
->  	memcpy(keypad_state, new_state, sizeof(keypad_state));
->  
->  	if (key_down) {
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-Thanks,
-Henrik
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

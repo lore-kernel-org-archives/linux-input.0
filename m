@@ -1,58 +1,106 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 8/25] sony-laptop: sony_nc_notify rewritten and improved
-Date: Sat, 4 Jun 2011 21:22:49 +0100
-Message-ID: <20110604212249.568e76b6@lxorguk.ukuu.org.uk>
-References: <4DE8FC4A.9010401@absence.it>
-	<4DE8FFE0.5070506@absence.it>
-	<20110604084338.GD7194@kamineko.org>
-	<20110604124219.GA14809@srcf.ucam.org>
-	<4DEA3FBD.8020602@absence.it>
-	<20110604143012.GA16615@srcf.ucam.org>
-	<4DEA4283.103@absence.it>
-	<20110604143638.GA16747@srcf.ucam.org>
-	<4DEA4450.80702@absence.it>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: HID joystick - Axis 11 non operational.
+Date: Sat, 4 Jun 2011 22:45:46 +0200
+Message-ID: <20110604224546.7ebb8939.ospite@studenti.unina.it>
+References: <9c3f08ce41f278fc835bf09e489eef0f.squirrel@host171.canaca.com>
+	<20110603161511.af4dd9e0.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <4DEA4450.80702@absence.it>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Marco Chiappero <marco@absence.it>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Mattia Dongili <malattia@linux.it>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Sat__4_Jun_2011_22_45_46_+0200_GvWz+X8=sTgqQDNs"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp205.alice.it ([82.57.200.101]:41263 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752314Ab1FDUpy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 4 Jun 2011 16:45:54 -0400
+In-Reply-To: <20110603161511.af4dd9e0.ospite@studenti.unina.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org
 
-On Sat, 04 Jun 2011 16:42:24 +0200
-Marco Chiappero <marco@absence.it> wrote:
+--Signature=_Sat__4_Jun_2011_22_45_46_+0200_GvWz+X8=sTgqQDNs
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Il 04/06/2011 16:36, Matthew Garrett ha scritto:
-> > On Sat, Jun 04, 2011 at 04:34:43PM +0200, Marco Chiappero wrote:
-> >
-> >> Ok, fine. So, should we forward any event (als events, shock
-> >> protection, hybrid GFX, etc.) to the input core then?
-> >
-> > als events and shock protection probably ought to be uevents on the
-> > appropriate device.
-> 
-> More precisely? As far as I know there is no ALS device class; and I 
-> know nothing about the other.
+On Fri, 3 Jun 2011 16:15:11 +0200
+Antonio Ospite <ospite@studenti.unina.it> wrote:
 
-Start reading around here
+> I confirm that the axis for Dpad-left (usage->code =3D=3D 0x2f IINM) of t=
+he
+> Sixaxis looks like it is not working. I too can see the data on hidraw
+> device but not on the joystick or even the event device, so it may be
+> below the joystick layer.
+>
 
-http://lkml.org/lkml/2010/3/3/334
+OK found something: 0x2f is ABS_MT_SLOT,
+http://lxr.linux.no/linux+*/include/linux/input.h#L773
 
-(and the earlier threads on the ALS class which Linus rejected)
+And in input.c::input_handle_abs_event() this case is handled in a
+special way:
+http://lxr.linux.no/#linux+v2.6.39/drivers/input/input.c#L172
 
-I'd like to see an ALS class but it seems the head penguin won't accept
-one, so we now have a zillion incompatible light sensors mostly out of
-tree because nobody can be bothered to have the argument again.
+This little change improves thins a little bit, but the pressure event is
+now reported twice, once with the actual value and once with 0, you can test
+with:
 
-The longer term plan is to stick all kinds of device sensors (as distinct
-from input devices) into the IIO layer but that is still in staging and
-seems to have no clear plan of date for migration yet. However Jonathan
-(the maintainer) also doesn't seem too keen on owning them either
+ $ evtest /dev/input/eventX | \
+   egrep -v 'code (0|1|2|5|48|49|50|51|52|53|54|55|56|57|58|58|59)|Report S=
+ync'
 
-http://lkml.org/lkml/2010/3/3/378
+Index: linux-2.6/drivers/input/input.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.orig/drivers/input/input.c
++++ linux-2.6/drivers/input/input.c
+@@ -169,7 +169,7 @@
+        bool is_mt_event;
+        int *pold;
+=20
+-       if (code =3D=3D ABS_MT_SLOT) {
++       if (code =3D=3D ABS_MT_SLOT && dev->mtsize > 0) {
+                /*
+                 * "Stage" the event; we'll flush it later, when we
+                 * get actual touch data.
+@@ -210,6 +210,9 @@
+                input_pass_event(dev, EV_ABS, ABS_MT_SLOT, dev->slot);
+        }
+=20
++       if (code =3D=3D 0x2f)
++               printk(KERN_DEBUG "%s: code: %08x handled value: %d\n", __f=
+unc__, code, *pval);
++
+        return INPUT_PASS_TO_HANDLERS;
+ }
 
-All in all ALS is a bit of a disaster area.
 
-Alan
+Otherwise we would need to remap the axis code to something more
+meaningful by patching the HID descriptor, can this be done?
+
+Regards,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Sat__4_Jun_2011_22_45_46_+0200_GvWz+X8=sTgqQDNs
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk3qmXoACgkQ5xr2akVTsAHrZQCeJ9cd+0TcwlikslZFH3dyXuOi
+RKAAnimVk7Ab9Ape36uqQRp1O1XIXw/E
+=Rsdi
+-----END PGP SIGNATURE-----
+
+--Signature=_Sat__4_Jun_2011_22_45_46_+0200_GvWz+X8=sTgqQDNs--

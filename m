@@ -1,31 +1,28 @@
-From: Marco Chiappero <marco@absence.it>
-Subject: Re: [PATCH 8/25] sony-laptop: sony_nc_notify rewritten and improved
-Date: Sun, 05 Jun 2011 22:13:03 +0200
-Message-ID: <4DEBE34F.7030705@absence.it>
-References: <4DE8FC4A.9010401@absence.it>	<4DE8FFE0.5070506@absence.it>	<20110604084338.GD7194@kamineko.org>	<20110604124219.GA14809@srcf.ucam.org>	<4DEA3FBD.8020602@absence.it>	<20110604143012.GA16615@srcf.ucam.org>	<4DEA4283.103@absence.it>	<20110604143638.GA16747@srcf.ucam.org>	<4DEA4450.80702@absence.it>	<20110604212249.568e76b6@lxorguk.ukuu.org.uk>	<4DEBC156.1030503@absence.it> <20110605201417.5acfab3e@lxorguk.ukuu.org.uk>
+From: Irina Galatskaya <igalatskaya@rcc.mass.edu>
+Subject: RE: Please Respond via email:  mrsetters141@rogers.com
+Date: Sun, 5 Jun 2011 17:07:10 -0400
+Message-ID: <050C5E9C0F800649BA086094835CA5511367003ABA@rccex02.rcc.mass.edu>
+References: <050C5E9C0F800649BA086094835CA55113670036F8@rccex02.rcc.mass.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20110605201417.5acfab3e@lxorguk.ukuu.org.uk>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Mattia Dongili <malattia@linux.it>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from exprod6og111.obsmtp.com ([64.18.1.27]:52993 "HELO
+	exprod6og111.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1756086Ab1FEVKW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jun 2011 17:10:22 -0400
+In-Reply-To: <050C5E9C0F800649BA086094835CA55113670036F8@rccex02.rcc.mass.edu>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Irina Galatskaya <igalatskaya@rcc.mass.edu>
 
-Il 05/06/2011 21:14, Alan Cox ha scritto:
->> that many different implementation are present across different models
->> or brands. We need a solution, now,
->
-> We needed a solution last year nothing has changed there other than there
-> are now a bazillion more out of tree drivers.
->
-> I don't have a solution I just wanted to make sure you understood the
-> problem space.
 
-Sure, I was rather expecting a reply from Matthew about what to do now, 
-since there is no "rule" to follow regarding the ALS support and it's a 
-pity not to support hardware we can make 100% working. But at this point 
-perhaps we'd better discuss only on the platform driver mailing list.
 
-Marco
+________________________________
+From: Irina Galatskaya
+Sent: Sunday, June 05, 2011 9:49 AM
+To: info@etters.com
+Subject: Please Respond via email: mrsetters141@rogers.com
+
+Mrs.Elizabeth Etters picked your email for $2Million dollars unfinished project For more details contact her via email:  mrsetters141@rogers.com<mailto:mrsetters141@rogers.com>

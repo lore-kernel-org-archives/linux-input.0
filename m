@@ -1,58 +1,50 @@
-From: David Jander <david.jander@protonic.nl>
-Subject: Re: [PATCH] INPUT: gpio_keys.c: Added OF support and enabled use
- with I2C GPIO expanders
-Date: Mon, 6 Jun 2011 11:12:44 +0200
-Message-ID: <20110606111244.406f0cd3@archvile>
-References: <6613128190865466111@unknownmsgid>
-	<BANLkTinNMeiimJqzFsWSS2zDggZ-o5k=fA@mail.gmail.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 3/8] MFD: twl4030-audio: Rename platform data
+Date: Mon, 6 Jun 2011 12:55:40 +0300
+Message-ID: <20110606095540.GR8696@atomide.com>
+References: <1306927051-8937-1-git-send-email-peter.ujfalusi@ti.com>
+ <201106020915.46491.peter.ujfalusi@ti.com>
+ <20110603080819.GK8696@atomide.com>
+ <201106031638.26094.peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:11121 "EHLO
-	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752371Ab1FFJMk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2011 05:12:40 -0400
-In-Reply-To: <BANLkTinNMeiimJqzFsWSS2zDggZ-o5k=fA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201106031638.26094.peter.ujfalusi@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: "Girdwood, Liam" <lrg@ti.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org
 
-On Thu, 2 Jun 2011 15:18:29 +0530
-Shubhrajyoti Datta <omaplinuxkernel@gmail.com> wrote:
-
-> On Wed, Jun 1, 2011 at 2:37 PM, <y@protonic.xs4all.nl> wrote:
+* Peter Ujfalusi <peter.ujfalusi@ti.com> [110603 16:34]:
+> On Friday 03 June 2011 11:08:22 Tony Lindgren wrote:
+> > Yeah if it gets big then a separate file is better. Also, if we have
+> > a common init function for twl, then it's easy to add the board specific
+> > device tree initialization to that too and just leave out the calls to
+> > omap_pmic_init from board-*.c files.
 > 
-> > From: David Jander <david@protonic.nl>
-> >
-> > You may want to briefly explain the changes.
+> I have parsed the board files for a pattern.
+> There are some, but I have my doubts as well:
+> We have eight platform data members in twl4030_platform_data for child 
+> devices.
+> USB, and audio/codec configuration might worth to move out (since most of the 
+> board does not have fine tuned parameters for codec).
 > 
-> <Snip>
+> The majority of the code related to pmic is coming from regulator setups, I 
+> can see similarities, but there are differences here and there, which makes 
+> the common configuration mostly useless (different peripherals, boot loader 
+> diffs, etc).
+
+Yeah we still need the board specific data passed for sure.
+ 
+> Having said that, I try to create a wrapper for omap_pmic_init, which can 
+> replace the current omap2/3/4_pmic_init, with that we can use common config 
+> for USB, audio, and some selected few regulators initially.
+> Later other parts might be possible to consolidate as well.
+> I'm going to call this new wrapper for now omap2/3/4_pmic_config.
 > 
-> > +
-> >        input = input_allocate_device();
-> >        if (!ddata || !input) {
-> >                dev_err(dev, "failed to allocate state\n");
-> > @@ -465,12 +585,12 @@ static int __devinit gpio_keys_probe(struct
-> > platform_device *pdev)
-> >        ddata->disable = pdata->disable;
-> >        mutex_init(&ddata->disable_lock);
-> >
-> > -       platform_set_drvdata(pdev, ddata);
-> > +       dev_set_drvdata(dev, ddata);
-> >        input_set_drvdata(input, ddata);
-> >
-> > -       input->name = pdev->name;
-> > +       input->name = "GPIO_keyboard";
-> >
-> Why this change?
+> Is this a good way to approach this issue?
 
-Good question.... somehow it isn't necessary anymore, and it was quite wrong
-anyway. Thanks for pointing out, must have slipped over this....
+Sounds good to me!
 
-Best regards,
-
--- 
-David Jander
-Protonic Holland.
+Tony

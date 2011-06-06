@@ -1,68 +1,58 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: Reporting screen/laptop orientation data to userspace
-Date: Mon, 06 Jun 2011 09:42:58 +0100
-Message-ID: <4DEC9312.3080608@cam.ac.uk>
-References: <4DE1FA7F.3050308@users.sourceforge.net> <1307116529.2669.130.camel@novo.hadess.net> <4DEC796E.1050307@users.sourceforge.net>
+From: David Jander <david.jander@protonic.nl>
+Subject: Re: [PATCH] INPUT: gpio_keys.c: Added OF support and enabled use
+ with I2C GPIO expanders
+Date: Mon, 6 Jun 2011 11:12:44 +0200
+Message-ID: <20110606111244.406f0cd3@archvile>
+References: <6613128190865466111@unknownmsgid>
+	<BANLkTinNMeiimJqzFsWSS2zDggZ-o5k=fA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:59519 "EHLO
-	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757085Ab1FFIfD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2011 04:35:03 -0400
-In-Reply-To: <4DEC796E.1050307@users.sourceforge.net>
+Received: from protonic.xs4all.nl ([213.84.116.84]:11121 "EHLO
+	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752371Ab1FFJMk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2011 05:12:40 -0400
+In-Reply-To: <BANLkTinNMeiimJqzFsWSS2zDggZ-o5k=fA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alberto Mardegan <mardy@users.sourceforge.net>
-Cc: Bastien Nocera <hadess@hadess.net>, linux-kernel@vger.kernel.org, "Javier S. Pedro" <maemo@javispedro.com>, linux-input@vger.kernel.org
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org
 
-On 06/06/11 07:53, Alberto Mardegan wrote:
-> On 06/03/2011 06:55 PM, Bastien Nocera wrote:
->> Do you also have a discrete accelerometer with that? Or you only ever
->> get notification through there?
-> 
-> There's a discrete accelerometer, but I suspect that it might be hard for its driver to get accepted into the mainline kernel, since it's directly playing with the EC I/O ports. It's this one:
-> 
-> https://gitorious.org/iaps/iaps/blobs/master/iaps.c
-> 
-> The coarse data OTOH comes via a clean WMI interface.
-> 
->> If there is a discrete accelerometer, I'd drop the extra metadata, and
->> send an event through udev, and expect user-space to read from the
->> accelerometer instead.
-> 
-> You mean, send an event through udev when the WMI interface reports that the orientation has changed, and then expect the userspace to read the values from the accelerometer?
-> IMHO, reporting an event with no context data, it's inefficient and ugly (because it forces the userspace to perform additional acctions in order to get the data).
-> 
->> If there isn't a discrete accelerometer, create a fake one, with some
->> hardcoded data based on the actual orientation of the device.
-> 
-> This could be a solution in both cases (i.e., even if a discrete accelerometer is available). But it would be nice to have some flags on the input device which tell that this accelerometer is not as precise as one could desire. Is there such a thing?
-> 
->> The accelerometer (whether real or fake) should show 3 axis (X/Y/Z).
->>
->> As soon as it's seen some testing, I'll be showing the work I did for
->> GNOME support for automatic rotation based on orientation.
-> 
-> Do you support choosing the accelerometer device to be used?
-> 
-> The device that I wanted to create is actually something much simpler than an accelerometer; it would just report screen orientation. I believe that some computer screens might have something similar, detecting the screen orientation based on the angle formed between the screen base (or wall mount) and the screen panel... I would assume that if such information exists, this Lenovo Ideapad screen orientation should be reported in a similar way.
-Just for reference, there are devices on the market which do just
-orientation detection (using an accelerometer inside).  I think
-the ST FC30 is an example of this. Quoting from data sheet:
+On Thu, 2 Jun 2011 15:18:29 +0530
+Shubhrajyoti Datta <omaplinuxkernel@gmail.com> wrote:
 
-"When in a steady position, it is able to detect 6
-different orientations with respect to the gravity
-field, with notification provided through dedicated
-signal lines."
+> On Wed, Jun 1, 2011 at 2:37 PM, <y@protonic.xs4all.nl> wrote:
+> 
+> > From: David Jander <david@protonic.nl>
+> >
+> > You may want to briefly explain the changes.
+> 
+> <Snip>
+> 
+> > +
+> >        input = input_allocate_device();
+> >        if (!ddata || !input) {
+> >                dev_err(dev, "failed to allocate state\n");
+> > @@ -465,12 +585,12 @@ static int __devinit gpio_keys_probe(struct
+> > platform_device *pdev)
+> >        ddata->disable = pdata->disable;
+> >        mutex_init(&ddata->disable_lock);
+> >
+> > -       platform_set_drvdata(pdev, ddata);
+> > +       dev_set_drvdata(dev, ddata);
+> >        input_set_drvdata(input, ddata);
+> >
+> > -       input->name = pdev->name;
+> > +       input->name = "GPIO_keyboard";
+> >
+> Why this change?
 
-Guess that fits into what you are discussing as well.
+Good question.... somehow it isn't necessary anymore, and it was quite wrong
+anyway. Thanks for pointing out, must have slipped over this....
 
-Personally I like the convenience of a 'fake' accelerometer
-output.  Devices with decent orientation detection support
-are, I think, less common that unprocessed accelerometers so
-best to use an interface that will work with them as well
-(maybe with some smart stuff to change their threshold interrupts
-to provide equivalent functionality.)
+Best regards,
 
+-- 
+David Jander
+Protonic Holland.

@@ -1,40 +1,69 @@
-From: Mattia Dongili <malattia@linux.it>
-Subject: Re: [PATCH 8/25] sony-laptop: sony_nc_notify rewritten and improved
-Date: Mon, 6 Jun 2011 07:38:16 +0900
-Message-ID: <20110605223815.GC26835@kamineko.org>
-References: <4DE8FC4A.9010401@absence.it>
- <4DE8FFE0.5070506@absence.it>
- <20110604084338.GD7194@kamineko.org>
- <4DEA1664.4090409@absence.it>
+From: Alberto Mardegan <mardy@users.sourceforge.net>
+Subject: Re: Reporting screen/laptop orientation data to userspace
+Date: Mon, 06 Jun 2011 09:53:34 +0300
+Message-ID: <4DEC796E.1050307@users.sourceforge.net>
+References: <4DE1FA7F.3050308@users.sourceforge.net> <1307116529.2669.130.camel@novo.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4DEA1664.4090409@absence.it>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Marco Chiappero <marco@absence.it>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:49086 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752108Ab1FFGyf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jun 2011 02:54:35 -0400
+In-Reply-To: <1307116529.2669.130.camel@novo.hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-kernel@vger.kernel.org, "Javier S. Pedro" <maemo@javispedro.com>, linux-input@vger.kernel.org
 
-On Sat, Jun 04, 2011 at 01:26:28PM +0200, Marco Chiappero wrote:
-> Il 04/06/2011 10:43, Mattia Dongili ha scritto:
-> >when sony_call_snc_handle(handle, 0x200,&result) fails above you will
-> >be reporting -1 via the acpi bus. The old code restored the event and
-> >reported the raw number instead.
-> 
-> You are right, does the following sony_nc_notify modification look
-> fine to you?
-> 
-> /* hotkey event, a key has been pressed, retrieve it */
-> value = sony_nc_hotkeys_decode(handle);
-> if (value > 0) /* known event */
-> 	sony_laptop_report_input_event(value);
-> else /* restore the original event */
-> 	value = event;
+On 06/03/2011 06:55 PM, Bastien Nocera wrote:
+> Do you also have a discrete accelerometer with that? Or you only ever
+> get notification through there?
 
-it's a bit out of context but I guess it should work. It would be good
-to have sony_nc_hotkeys_decode also report the "not decoded" case
-consistently back to callers though.
+There's a discrete accelerometer, but I suspect that it might be hard for its 
+driver to get accepted into the mainline kernel, since it's directly playing 
+with the EC I/O ports. It's this one:
+
+https://gitorious.org/iaps/iaps/blobs/master/iaps.c
+
+The coarse data OTOH comes via a clean WMI interface.
+
+> If there is a discrete accelerometer, I'd drop the extra metadata, and
+> send an event through udev, and expect user-space to read from the
+> accelerometer instead.
+
+You mean, send an event through udev when the WMI interface reports that the 
+orientation has changed, and then expect the userspace to read the values from 
+the accelerometer?
+IMHO, reporting an event with no context data, it's inefficient and ugly 
+(because it forces the userspace to perform additional acctions in order to get 
+the data).
+
+> If there isn't a discrete accelerometer, create a fake one, with some
+> hardcoded data based on the actual orientation of the device.
+
+This could be a solution in both cases (i.e., even if a discrete accelerometer 
+is available). But it would be nice to have some flags on the input device which 
+tell that this accelerometer is not as precise as one could desire. Is there 
+such a thing?
+
+> The accelerometer (whether real or fake) should show 3 axis (X/Y/Z).
+>
+> As soon as it's seen some testing, I'll be showing the work I did for
+> GNOME support for automatic rotation based on orientation.
+
+Do you support choosing the accelerometer device to be used?
+
+The device that I wanted to create is actually something much simpler than an 
+accelerometer; it would just report screen orientation. I believe that some 
+computer screens might have something similar, detecting the screen orientation 
+based on the angle formed between the screen base (or wall mount) and the screen 
+panel... I would assume that if such information exists, this Lenovo Ideapad 
+screen orientation should be reported in a similar way.
+
+Ciao,
+   Alberto
+
 -- 
-mattia
-:wq!
+http://blog.mardy.it <-- geek in un lingua international!

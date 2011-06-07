@@ -1,56 +1,36 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v2 03/12] OMAP3: Move common pmic
- configuration to pmic-common
-Date: Tue, 7 Jun 2011 17:45:35 +0300
-Message-ID: <20110607144534.GA27477@atomide.com>
-References: <1307456297-15010-1-git-send-email-peter.ujfalusi@ti.com>
-	<1307456297-15010-4-git-send-email-peter.ujfalusi@ti.com>
+From: simon@mungewell.org
+Subject: Re: [PATCH 1/2] sony_ff_hid_descriptor
+Date: Tue, 7 Jun 2011 11:53:08 -0400
+Message-ID: <640b47eb681602a60873e84547cdb1d8.squirrel@host171.canaca.com>
+References: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com>
+    <1306145999-15643-1-git-send-email-simon@mungewell.org>
+    <20110601214924.36ec42ad.ospite@studenti.unina.it>
+    <alpine.LNX.2.00.1106071531330.22872@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <1307456297-15010-4-git-send-email-peter.ujfalusi@ti.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Liam Girdwood <lrg@ti.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:47490 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754791Ab1FGPxN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2011 11:53:13 -0400
+In-Reply-To: <alpine.LNX.2.00.1106071531330.22872@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcin Tolysz <tolysz@gmail.com>
 
-* Peter Ujfalusi <peter.ujfalusi@ti.com> [110607 17:14]:
-> Reduce the amount of duplicated code by moving the common
-> configuration for twl4030/5030/tpsxx to the pmic-common file.
-> Use the omap3_pmic_config function from board files to
-> properly configure the PMIC with the common fields.
-...
 
-> --- a/arch/arm/mach-omap2/pmic-common.h
-> +++ b/arch/arm/mach-omap2/pmic-common.h
-> @@ -2,6 +2,9 @@
->  #define __OMAP_PMIC_COMMON__
->  
->  #define TWL_COMMON_PDATA_USB		(1 << 0)
-> +#define TWL_COMMON_PDATA_BCI		(1 << 1)
-> +#define TWL_COMMON_PDATA_MADC		(1 << 2)
-> +#define TWL_COMMON_PDATA_CODEC		(1 << 3)
+>
+> What was the result of your testing of the patches, please?
+>
+> Simon, would you please, once Antionio adds his Tested-by:, to resend with
+> proper authorship and Signed-off-by?
 
-This is looking good, thanks for cleaning up the twl bloat in
-board-*.c files :)
+Jiri: I think that we have a plan... I'll resend a patch (V4) in the next
+couple of days.
 
-Maybe already define TWL_COMMON_PDATA_AUDIO here so you can
-drop most of patch 7/12?
+Antionio: Do I just add 'tested-by' on your behalf?
 
-If you need both then you can temporarily have:
+Simon
 
-#define TWL_COMMON_PDATA_CODEC	TWL_COMMON_PDATA_AUDIO
-
-Regards,
-
-Tony

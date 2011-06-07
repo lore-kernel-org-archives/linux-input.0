@@ -1,46 +1,50 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: Patch to add guarding parentheses to some macros in linux/input.h
-Date: Tue, 07 Jun 2011 12:51:12 +0200
-Message-ID: <4DEE02A0.7030702@kernelconcepts.de>
-References: <4DE6AD3B.4000600@kernelconcepts.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] sony_ff_hid_descriptor
+Date: Tue, 7 Jun 2011 15:32:15 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1106071531330.22872@pobox.suse.cz>
+References: <80b32cfd7dc9e8afee2c4d9e21d1a7e3.squirrel@host171.canaca.com> <1306145999-15643-1-git-send-email-simon@mungewell.org> <20110601214924.36ec42ad.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([212.60.202.196]:47814 "EHLO
-	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750881Ab1FGKvP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2011 06:51:15 -0400
-In-Reply-To: <4DE6AD3B.4000600@kernelconcepts.de>
+Received: from cantor.suse.de ([195.135.220.2]:54303 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752048Ab1FGNcS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Jun 2011 09:32:18 -0400
+In-Reply-To: <20110601214924.36ec42ad.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcin Tolysz <tolysz@gmail.com>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 1 Jun 2011, Antonio Ospite wrote:
 
-On 06/01/2011 11:20 PM, Simon Budig wrote:
-> The attached patch adds parentheses to ensure correct operator precedence.
+> On Mon, 23 May 2011 03:19:58 -0700
+> Simon Wood <simon@mungewell.org> wrote:
+> 
+> > This patch modifies the HID descriptor to allow the reporting of
+> > the accelerometers and gyro via a joystick axis.
+> 
+> I am going to test it tomorrow, but for now I notice that the
+> Signed-off-by is missing. Wait for the test before resending tho.
+> 
+> Plus, the short commit message can be improved a little bit, and the
+> long commit message could use the classic imperative form used in kernel
+> commit messages: "Modify the HID descriptor to...", but these are just
+> suggestions.
+> 
+> Same comments for patch 2/2.
 
-Seems this patch did not draw any attention to it. Is this because it is
-somewhat pointless? Or is it too uncontroversial?  :-)
+Antonio,
 
-I'd appreciate any hints on how to proceed from here.
+thanks for the (valid) comments.
+
+What was the result of your testing of the patches, please?
+
+Simon, would you please, once Antionio adds his Tested-by:, to resend with 
+proper authorship and Signed-off-by? 
 
 Thanks,
-        Simon
 
-- -- 
-       Simon Budig                        kernel concepts GbR
-       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
-       +49-271-771091-17                  D-57072 Siegen
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAk3uAqAACgkQO2O/RXesiHD8bwCfZz10ADGqx0yUbPJCSlmvNthL
-JZsAn2Mc+gj1UQ5nSAWGonf46s6Xg/Uq
-=Ug6H
------END PGP SIGNATURE-----
+-- 
+Jiri Kosina
+SUSE Labs

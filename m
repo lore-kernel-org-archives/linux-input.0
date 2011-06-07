@@ -1,186 +1,123 @@
-From: David Jander <david@protonic.nl>
-Subject: [PATCH 1/3] Input: gpio_keys.c: Simplify platform_device -> device casting
-Date: Tue,  7 Jun 2011 11:04:27 +0200
-Message-ID: <1307437469-3791-2-git-send-email-david@protonic.nl>
-References: <1307437469-3791-1-git-send-email-david@protonic.nl>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: HID joystick - Axis 11 non operational.
+Date: Tue, 7 Jun 2011 12:39:31 +0200
+Message-ID: <20110607123931.2267a703.ospite@studenti.unina.it>
+References: <9c3f08ce41f278fc835bf09e489eef0f.squirrel@host171.canaca.com>
+	<20110603161511.af4dd9e0.ospite@studenti.unina.it>
+	<20110604224546.7ebb8939.ospite@studenti.unina.it>
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__7_Jun_2011_12_39_31_+0200_NJ3zDym4UtNRnn5l"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:16131 "EHLO
-	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752180Ab1FGJFR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2011 05:05:17 -0400
-In-Reply-To: <1307437469-3791-1-git-send-email-david@protonic.nl>
+Received: from smtp204.alice.it ([82.57.200.100]:59053 "EHLO smtp204.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751201Ab1FGKjr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Jun 2011 06:39:47 -0400
+In-Reply-To: <20110604224546.7ebb8939.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org
 
-This patch factors out the use of struct platform_device *pdev in most
-places.
+--Signature=_Tue__7_Jun_2011_12_39_31_+0200_NJ3zDym4UtNRnn5l
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: David Jander <david@protonic.nl>
----
- drivers/input/keyboard/gpio_keys.c |   46 ++++++++++++++++-------------------
- 1 files changed, 21 insertions(+), 25 deletions(-)
+On Sat, 4 Jun 2011 22:45:46 +0200
+Antonio Ospite <ospite@studenti.unina.it> wrote:
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 6e6145b..987498e 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -251,8 +251,7 @@ static ssize_t gpio_keys_show_##name(struct device *dev,		\
- 				     struct device_attribute *attr,	\
- 				     char *buf)				\
- {									\
--	struct platform_device *pdev = to_platform_device(dev);		\
--	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);	\
-+	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);		\
- 									\
- 	return gpio_keys_attr_show_helper(ddata, buf,			\
- 					  type, only_disabled);		\
-@@ -278,8 +277,7 @@ static ssize_t gpio_keys_store_##name(struct device *dev,		\
- 				      const char *buf,			\
- 				      size_t count)			\
- {									\
--	struct platform_device *pdev = to_platform_device(dev);		\
--	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);	\
-+	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);		\
- 	ssize_t error;							\
- 									\
- 	error = gpio_keys_attr_store_helper(ddata, buf, type);		\
-@@ -364,12 +362,11 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
-+static int __devinit gpio_keys_setup_key(struct device *dev,
- 					 struct gpio_button_data *bdata,
- 					 struct gpio_keys_button *button)
- {
- 	const char *desc = button->desc ? button->desc : "gpio_keys";
--	struct device *dev = &pdev->dev;
- 	unsigned long irqflags;
- 	int irq, error;
- 
-@@ -447,9 +444,9 @@ static void gpio_keys_close(struct input_dev *input)
- 
- static int __devinit gpio_keys_probe(struct platform_device *pdev)
- {
--	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
- 	struct gpio_keys_drvdata *ddata;
- 	struct device *dev = &pdev->dev;
-+	struct gpio_keys_platform_data *pdata = dev->platform_data;
- 	struct input_dev *input;
- 	int i, error;
- 	int wakeup = 0;
-@@ -470,12 +467,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 	ddata->disable = pdata->disable;
- 	mutex_init(&ddata->disable_lock);
- 
--	platform_set_drvdata(pdev, ddata);
-+	dev_set_drvdata(dev, ddata);
- 	input_set_drvdata(input, ddata);
- 
- 	input->name = pdata->name ? : pdev->name;
- 	input->phys = "gpio-keys/input0";
--	input->dev.parent = &pdev->dev;
-+	input->dev.parent = dev;
- 	input->open = gpio_keys_open;
- 	input->close = gpio_keys_close;
- 
-@@ -496,7 +493,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		bdata->input = input;
- 		bdata->button = button;
- 
--		error = gpio_keys_setup_key(pdev, bdata, button);
-+		error = gpio_keys_setup_key(dev, bdata, button);
- 		if (error)
- 			goto fail2;
- 
-@@ -506,7 +503,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		input_set_capability(input, type, button->code);
- 	}
- 
--	error = sysfs_create_group(&pdev->dev.kobj, &gpio_keys_attr_group);
-+	error = sysfs_create_group(&dev->kobj, &gpio_keys_attr_group);
- 	if (error) {
- 		dev_err(dev, "Unable to export keys/switches, error: %d\n",
- 			error);
-@@ -525,12 +522,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		gpio_keys_report_event(&ddata->data[i]);
- 	input_sync(input);
- 
--	device_init_wakeup(&pdev->dev, wakeup);
-+	device_init_wakeup(dev, wakeup);
- 
- 	return 0;
- 
-  fail3:
--	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
-+	sysfs_remove_group(&dev->kobj, &gpio_keys_attr_group);
-  fail2:
- 	while (--i >= 0) {
- 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
-@@ -540,7 +537,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		gpio_free(pdata->buttons[i].gpio);
- 	}
- 
--	platform_set_drvdata(pdev, NULL);
-+	dev_set_drvdata(dev, NULL);
-  fail1:
- 	input_free_device(input);
- 	kfree(ddata);
-@@ -550,14 +547,15 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 
- static int __devexit gpio_keys_remove(struct platform_device *pdev)
- {
--	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
--	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
-+	struct device *dev = &pdev->dev;
-+	struct gpio_keys_platform_data *pdata = dev->platform_data;
-+	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
- 	struct input_dev *input = ddata->input;
- 	int i;
- 
--	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
-+	sysfs_remove_group(&dev->kobj, &gpio_keys_attr_group);
- 
--	device_init_wakeup(&pdev->dev, 0);
-+	device_init_wakeup(dev, 0);
- 
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
-@@ -577,11 +575,10 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
- #ifdef CONFIG_PM
- static int gpio_keys_suspend(struct device *dev)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct gpio_keys_platform_data *pdata = dev->platform_data;
- 	int i;
- 
--	if (device_may_wakeup(&pdev->dev)) {
-+	if (device_may_wakeup(dev)) {
- 		for (i = 0; i < pdata->nbuttons; i++) {
- 			struct gpio_keys_button *button = &pdata->buttons[i];
- 			if (button->wakeup) {
-@@ -596,15 +593,14 @@ static int gpio_keys_suspend(struct device *dev)
- 
- static int gpio_keys_resume(struct device *dev)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
--	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
-+	struct gpio_keys_platform_data *pdata = dev->platform_data;
- 	int i;
- 
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 
- 		struct gpio_keys_button *button = &pdata->buttons[i];
--		if (button->wakeup && device_may_wakeup(&pdev->dev)) {
-+		if (button->wakeup && device_may_wakeup(dev)) {
- 			int irq = gpio_to_irq(button->gpio);
- 			disable_irq_wake(irq);
- 		}
--- 
-1.7.4.1
+> On Fri, 3 Jun 2011 16:15:11 +0200
+> Antonio Ospite <ospite@studenti.unina.it> wrote:
+>=20
+> > I confirm that the axis for Dpad-left (usage->code =3D=3D 0x2f IINM) of=
+ the
+> > Sixaxis looks like it is not working. I too can see the data on hidraw
+> > device but not on the joystick or even the event device, so it may be
+> > below the joystick layer.
+> >
+>=20
+> OK found something: 0x2f is ABS_MT_SLOT,
+> http://lxr.linux.no/linux+*/include/linux/input.h#L773
+>=20
+> And in input.c::input_handle_abs_event() this case is handled in a
+> special way:
+> http://lxr.linux.no/#linux+v2.6.39/drivers/input/input.c#L172
+>=20
+> This little change improves things a little bit, but the pressure event is
+> now reported twice, once with the actual value and once with 0, you can t=
+est
+> with:
+>=20
+>  $ evtest /dev/input/eventX | \
+>    egrep -v 'code (0|1|2|5|48|49|50|51|52|53|54|55|56|57|58|58|59)|Report=
+ Sync'
+>=20
 
+The second ABS_MT_SLOT event is fired up here:
+http://lxr.linux.no/#linux+v2.6.39/drivers/input/input.c#L210
+
+when I get code =3D=3D 0x30 (ABS_MT_TOUCH_MAJOR, I am still not sure
+where from), with the following hack I can make axis 11 work again but I
+have no idea if I am broking MultiTouch devices, anyone?
+
+Index: linux-2.6/drivers/input/input.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.orig/drivers/input/input.c
++++ linux-2.6/drivers/input/input.c
+@@ -169,7 +169,7 @@
+        bool is_mt_event;
+        int *pold;
+=20
+-       if (code =3D=3D ABS_MT_SLOT) {
++       if (code =3D=3D ABS_MT_SLOT && dev->mtsize > 0) {
+                /*
+                 * "Stage" the event; we'll flush it later, when we
+                 * get actual touch data.
+@@ -205,7 +205,8 @@
+        }
+=20
+        /* Flush pending "slot" event */
+-       if (is_mt_event && dev->slot !=3D input_abs_get_val(dev, ABS_MT_SLO=
+T)) {
++       if (is_mt_event && dev->slot !=3D input_abs_get_val(dev, ABS_MT_SLO=
+T) &&
++           dev->mtsize > 0 ) {
+                input_abs_set_val(dev, ABS_MT_SLOT, dev->slot);
+                input_pass_event(dev, EV_ABS, ABS_MT_SLOT, dev->slot);
+        }
+
+
+Simon, if that works for you too, I can send an RFC patch out, but how shou=
+ld
+we motivate it? The Sixaxis is sending out MT events even if it is not a MT
+device...
+
+Regards,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Tue__7_Jun_2011_12_39_31_+0200_NJ3zDym4UtNRnn5l
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk3t/+MACgkQ5xr2akVTsAGWXACgnoxgpvSiuuIo25F4nHlHjcdq
+gC0AoJwsWGhvMlYLgpqq3sl1GEHwCRhk
+=ybJh
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__7_Jun_2011_12_39_31_+0200_NJ3zDym4UtNRnn5l--

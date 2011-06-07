@@ -1,44 +1,37 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: [PATCH v2 10/12] MFD: twl6040: Change platform data for soc codec driver
-Date: Tue, 7 Jun 2011 17:18:15 +0300
-Message-ID: <1307456297-15010-11-git-send-email-peter.ujfalusi@ti.com>
-References: <1307456297-15010-1-git-send-email-peter.ujfalusi@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: wm831x-ts - Remove unneeded clearing of driver data
+Date: Tue,  7 Jun 2011 15:37:44 +0100
+Message-ID: <1307457464-24747-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:32780 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755374Ab1FGOTV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Jun 2011 10:19:21 -0400
-In-Reply-To: <1307456297-15010-1-git-send-email-peter.ujfalusi@ti.com>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50991 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753517Ab1FGOhr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Jun 2011 10:37:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Peter Ujfalusi <peter.ujfalusi@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Pass twl4030_codec_data instead of the twl4030_audio_data
-for the ASoC codec driver.
+This is unneeded, only a bound driver can use driver data and a driver
+relying on the state prior to probe() is buggy.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 ---
- drivers/mfd/twl6040-core.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/wm831x-ts.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/mfd/twl6040-core.c b/drivers/mfd/twl6040-core.c
-index 5abdcb2..e88fe5c 100644
---- a/drivers/mfd/twl6040-core.c
-+++ b/drivers/mfd/twl6040-core.c
-@@ -494,9 +494,8 @@ static int __devinit twl6040_probe(struct platform_device *pdev)
- 	if (pdata->codec) {
- 		cell = &twl6040->cells[children];
- 		cell->name = "twl6040-codec";
--		/* The codec expects the twl4030_audio_data as platform data */
--		cell->platform_data = pdata;
--		cell->pdata_size = sizeof(*pdata);
-+		cell->platform_data = pdata->codec;
-+		cell->pdata_size = sizeof(*pdata->codec);
- 		children++;
- 	}
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index 9175d49..e5b63b9 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -389,7 +389,6 @@ static __devexit int wm831x_ts_remove(struct platform_device *pdev)
+ 	input_unregister_device(wm831x_ts->input_dev);
+ 	kfree(wm831x_ts);
+ 
+-	platform_set_drvdata(pdev, NULL);
+ 	return 0;
+ }
  
 -- 
 1.7.5.3

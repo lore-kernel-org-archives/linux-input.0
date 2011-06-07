@@ -1,66 +1,186 @@
 From: David Jander <david@protonic.nl>
-Subject: [PATCH 3/3] Input: gpio_keys.c: Enable use with non-local GPIO chips.
-Date: Tue,  7 Jun 2011 11:04:29 +0200
-Message-ID: <1307437469-3791-4-git-send-email-david@protonic.nl>
+Subject: [PATCH 1/3] Input: gpio_keys.c: Simplify platform_device -> device casting
+Date: Tue,  7 Jun 2011 11:04:27 +0200
+Message-ID: <1307437469-3791-2-git-send-email-david@protonic.nl>
 References: <1307437469-3791-1-git-send-email-david@protonic.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:16135 "EHLO
+Received: from protonic.xs4all.nl ([213.84.116.84]:16131 "EHLO
 	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752329Ab1FGJFX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2011 05:05:23 -0400
+	with ESMTP id S1752180Ab1FGJFR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2011 05:05:17 -0400
 In-Reply-To: <1307437469-3791-1-git-send-email-david@protonic.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>
 
-Use a threaded interrupt handler in order to permit the handler to use
-a GPIO driver that causes things like I2C transactions being done inside
-the handler context.
-Also, gpio_keys_init needs to be declared as a late_initcall, to make sure
-all needed GPIO drivers have been loaded if the drivers are built into the
-kernel.
+This patch factors out the use of struct platform_device *pdev in most
+places.
 
 Signed-off-by: David Jander <david@protonic.nl>
 ---
- drivers/input/keyboard/gpio_keys.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/gpio_keys.c |   46 ++++++++++++++++-------------------
+ 1 files changed, 21 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 4539b0b..bbb4e4d 100644
+index 6e6145b..987498e 100644
 --- a/drivers/input/keyboard/gpio_keys.c
 +++ b/drivers/input/keyboard/gpio_keys.c
-@@ -3,7 +3,7 @@
-  *
-  * Copyright 2005 Phil Blundell
-  *
-- * Added OF support:
-+ * Added OF support and enabled use with I2C GPIO expanders:
-  * Copyright 2010 David Jander <david@protonic.nl>
-  *
-  * This program is free software; you can redistribute it and/or modify
-@@ -418,7 +418,7 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
- 	if (!button->can_disable)
- 		irqflags |= IRQF_SHARED;
- 
--	error = request_any_context_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
-+	error = request_threaded_irq(irq, NULL, gpio_keys_isr, irqflags, desc, bdata);
- 	if (error < 0) {
- 		dev_err(dev, "Unable to claim irq %d; error %d\n",
- 			irq, error);
-@@ -770,10 +770,10 @@ static void __exit gpio_keys_exit(void)
- 	platform_driver_unregister(&gpio_keys_device_driver);
+@@ -251,8 +251,7 @@ static ssize_t gpio_keys_show_##name(struct device *dev,		\
+ 				     struct device_attribute *attr,	\
+ 				     char *buf)				\
+ {									\
+-	struct platform_device *pdev = to_platform_device(dev);		\
+-	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);	\
++	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);		\
+ 									\
+ 	return gpio_keys_attr_show_helper(ddata, buf,			\
+ 					  type, only_disabled);		\
+@@ -278,8 +277,7 @@ static ssize_t gpio_keys_store_##name(struct device *dev,		\
+ 				      const char *buf,			\
+ 				      size_t count)			\
+ {									\
+-	struct platform_device *pdev = to_platform_device(dev);		\
+-	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);	\
++	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);		\
+ 	ssize_t error;							\
+ 									\
+ 	error = gpio_keys_attr_store_helper(ddata, buf, type);		\
+@@ -364,12 +362,11 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
  }
  
--module_init(gpio_keys_init);
-+late_initcall(gpio_keys_init);
- module_exit(gpio_keys_exit);
+-static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
++static int __devinit gpio_keys_setup_key(struct device *dev,
+ 					 struct gpio_button_data *bdata,
+ 					 struct gpio_keys_button *button)
+ {
+ 	const char *desc = button->desc ? button->desc : "gpio_keys";
+-	struct device *dev = &pdev->dev;
+ 	unsigned long irqflags;
+ 	int irq, error;
  
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Phil Blundell <pb@handhelds.org>");
--MODULE_DESCRIPTION("Keyboard driver for CPU GPIOs");
-+MODULE_DESCRIPTION("Keyboard driver for GPIOs");
- MODULE_ALIAS("platform:gpio-keys");
+@@ -447,9 +444,9 @@ static void gpio_keys_close(struct input_dev *input)
+ 
+ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ {
+-	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+ 	struct gpio_keys_drvdata *ddata;
+ 	struct device *dev = &pdev->dev;
++	struct gpio_keys_platform_data *pdata = dev->platform_data;
+ 	struct input_dev *input;
+ 	int i, error;
+ 	int wakeup = 0;
+@@ -470,12 +467,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	ddata->disable = pdata->disable;
+ 	mutex_init(&ddata->disable_lock);
+ 
+-	platform_set_drvdata(pdev, ddata);
++	dev_set_drvdata(dev, ddata);
+ 	input_set_drvdata(input, ddata);
+ 
+ 	input->name = pdata->name ? : pdev->name;
+ 	input->phys = "gpio-keys/input0";
+-	input->dev.parent = &pdev->dev;
++	input->dev.parent = dev;
+ 	input->open = gpio_keys_open;
+ 	input->close = gpio_keys_close;
+ 
+@@ -496,7 +493,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		bdata->input = input;
+ 		bdata->button = button;
+ 
+-		error = gpio_keys_setup_key(pdev, bdata, button);
++		error = gpio_keys_setup_key(dev, bdata, button);
+ 		if (error)
+ 			goto fail2;
+ 
+@@ -506,7 +503,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		input_set_capability(input, type, button->code);
+ 	}
+ 
+-	error = sysfs_create_group(&pdev->dev.kobj, &gpio_keys_attr_group);
++	error = sysfs_create_group(&dev->kobj, &gpio_keys_attr_group);
+ 	if (error) {
+ 		dev_err(dev, "Unable to export keys/switches, error: %d\n",
+ 			error);
+@@ -525,12 +522,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		gpio_keys_report_event(&ddata->data[i]);
+ 	input_sync(input);
+ 
+-	device_init_wakeup(&pdev->dev, wakeup);
++	device_init_wakeup(dev, wakeup);
+ 
+ 	return 0;
+ 
+  fail3:
+-	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
++	sysfs_remove_group(&dev->kobj, &gpio_keys_attr_group);
+  fail2:
+ 	while (--i >= 0) {
+ 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
+@@ -540,7 +537,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+-	platform_set_drvdata(pdev, NULL);
++	dev_set_drvdata(dev, NULL);
+  fail1:
+ 	input_free_device(input);
+ 	kfree(ddata);
+@@ -550,14 +547,15 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 
+ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ {
+-	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+-	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
++	struct device *dev = &pdev->dev;
++	struct gpio_keys_platform_data *pdata = dev->platform_data;
++	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
+ 	struct input_dev *input = ddata->input;
+ 	int i;
+ 
+-	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
++	sysfs_remove_group(&dev->kobj, &gpio_keys_attr_group);
+ 
+-	device_init_wakeup(&pdev->dev, 0);
++	device_init_wakeup(dev, 0);
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+@@ -577,11 +575,10 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int gpio_keys_suspend(struct device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
++	struct gpio_keys_platform_data *pdata = dev->platform_data;
+ 	int i;
+ 
+-	if (device_may_wakeup(&pdev->dev)) {
++	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < pdata->nbuttons; i++) {
+ 			struct gpio_keys_button *button = &pdata->buttons[i];
+ 			if (button->wakeup) {
+@@ -596,15 +593,14 @@ static int gpio_keys_suspend(struct device *dev)
+ 
+ static int gpio_keys_resume(struct device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
+-	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
++	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
++	struct gpio_keys_platform_data *pdata = dev->platform_data;
+ 	int i;
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 
+ 		struct gpio_keys_button *button = &pdata->buttons[i];
+-		if (button->wakeup && device_may_wakeup(&pdev->dev)) {
++		if (button->wakeup && device_may_wakeup(dev)) {
+ 			int irq = gpio_to_irq(button->gpio);
+ 			disable_irq_wake(irq);
+ 		}
 -- 
 1.7.4.1
 

@@ -1,54 +1,85 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v2 03/12] OMAP3: Move common pmic
-	configuration to pmic-common
-Date: Wed, 8 Jun 2011 09:51:30 +0300
-Message-ID: <201106080951.31056.peter.ujfalusi@ti.com>
-References: <1307456297-15010-1-git-send-email-peter.ujfalusi@ti.com>
-	<1307456297-15010-4-git-send-email-peter.ujfalusi@ti.com>
-	<20110607144534.GA27477@atomide.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCHv4 1/3] sony_ff_hid_descriptor
+Date: Wed, 8 Jun 2011 09:45:23 +0200
+Message-ID: <20110608094523.c7232556.ospite@studenti.unina.it>
+References: <1307179957-24458-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110607144534.GA27477@atomide.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__8_Jun_2011_09_45_23_+0200_Vpzg/rSywJnD5wiS"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp206.alice.it ([82.57.200.102]:59357 "EHLO smtp206.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754345Ab1FHHpj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Jun 2011 03:45:39 -0400
+In-Reply-To: <1307179957-24458-1-git-send-email-simon@mungewell.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Marcin Tolysz <tolysz@gmail.com>
 
-On Tuesday 07 June 2011 17:45:35 Tony Lindgren wrote:
-> > +#define TWL_COMMON_PDATA_BCI		(1 << 1)
-> > +#define TWL_COMMON_PDATA_MADC		(1 << 2)
-> > +#define TWL_COMMON_PDATA_CODEC		(1 << 3)
-> =
+--Signature=_Wed__8_Jun_2011_09_45_23_+0200_Vpzg/rSywJnD5wiS
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> This is looking good, thanks for cleaning up the twl bloat in
-> board-*.c files :)
+On Sat,  4 Jun 2011 02:32:35 -0700
+Simon Wood <simon@mungewell.org> wrote:
 
-As I recall the first three patch results ~600 less lines of code under mac=
-h-
-omap2.
+> This patch modifies the HID descriptor of the Sixaxis controller
+> to allow the reporting of the accelerometers and gyro via
+> a joystick axis.
+>=20
+> rewrite section from offset 148
 
-> Maybe already define TWL_COMMON_PDATA_AUDIO here so you can
-> drop most of patch 7/12?
-> =
+=46rom offset 83? Below I see rdesc[83] =3D=3D 0x75
 
-> If you need both then you can temporarily have:
-> =
+> --
+> 0x75, 0x08,         /*          Report Size (8),            */
+> 0x95, 0x27,         /*          Report Count (39),          */ /* all the=
+ other data
+> lumped together */
 
-> #define TWL_COMMON_PDATA_CODEC	TWL_COMMON_PDATA_AUDIO
+I'd keep commit messages wrapped to 72/80 chars as well if possible.
 
-I have not thought about this.
-But I think we can live with the TWL_COMMON_PDATA_AUDIO all the way.
-I'll wait for more comments, and I'll do this for the v3.
+[...]
+> @@ -43,6 +49,11 @@ static __u8 *sony_report_fixup(struct hid_device *hdev=
+, __u8 *rdesc,
+>  		hid_info(hdev, "Fixing up Sony Vaio VGX report descriptor\n");
+>  		rdesc[55] =3D 0x06;
+>  	}
+> +	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
+> +			*rsize =3D=3D 148 && rdesc[83] =3D=3D 0x75) {
+> +		hid_info(hdev, "Fixing up Sony Sixaxis report descriptor\n");
+> +		memcpy((void *)&rdesc[83], (void *) &sixaxis_rdesc_fixup, sizeof(sixax=
+is_rdesc_fixup));
+> +	}
+>  	return rdesc;
+>  }
+> =20
 
 Thanks,
-P=E9ter
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Wed__8_Jun_2011_09_45_23_+0200_Vpzg/rSywJnD5wiS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk3vKJQACgkQ5xr2akVTsAE3GACfZ9QAoMgTkLH7kwAy50y7TShl
+xnsAnA/nO45oIhloSaV6SzClycP/I6p/
+=adkr
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__8_Jun_2011_09_45_23_+0200_Vpzg/rSywJnD5wiS--

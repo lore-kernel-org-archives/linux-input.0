@@ -1,74 +1,117 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC] raw output buffering in HID layer
-Date: Wed, 8 Jun 2011 17:28:21 +0200
-Message-ID: <BANLkTim8_mPUWC+oMyAT7b0_zF1C12F6Rg@mail.gmail.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: Re: ET1602 Touchscreen doesn't work
+Date: Wed, 8 Jun 2011 12:31:46 -0300
+Message-ID: <20110608153146.GG2465@nautilus.holoscopio.com>
+References: <BANLkTikX9njth-jP6PpQuwL9sTUciu1nQA@mail.gmail.com>
+ <20110602144146.GB3508@nautilus.holoscopio.com>
+ <BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
+ <20110603124428.GA2379@nautilus.holoscopio.com>
+ <BANLkTimw2pV2Cv6pG2HJiD5AGrqJpOCXjw@mail.gmail.com>
+ <BANLkTikiX4X2OEET5qmejdWhs1XY7e3HWw@mail.gmail.com>
+ <20110608125758.GA2465@nautilus.holoscopio.com>
+ <BANLkTin1YhxCE5J9suR93eWcWEtviFNLtg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VACxsDaSTfeluoxK"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:60483 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754916Ab1FHP2W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2011 11:28:22 -0400
-Received: by vws1 with SMTP id 1so432425vws.19
-        for <linux-input@vger.kernel.org>; Wed, 08 Jun 2011 08:28:22 -0700 (PDT)
+Received: from liberdade2.minaslivre.org ([74.50.53.203]:56915 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754916Ab1FHPbw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2011 11:31:52 -0400
+Content-Disposition: inline
+In-Reply-To: <BANLkTin1YhxCE5J9suR93eWcWEtviFNLtg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, "Gustavo F. Padovan" <padovan@profusion.mobi>, jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
-
-Hi
-
-I currently work on an HID driver for the Nintendo Wii Remote as Bluez GSoC
-project. The Wii Remote (further wiimote) is a small wireless device
-that communicates
-with the host via bluetooth. It uses the HID ports but does not provide any
-proper HID descriptor sets and doesn't really fit into the HID class so a
-special driver is needed to control the device.
-See [1], [2] and [3] for device details if required.
-
-Since the wiimote protocol requires the host to send complex memory
-read/write commands
-to the wiimote, I need to use the raw hid interface. I use the
-.raw_event callback
-to get access to the raw input events, however, I also need to send
-raw events to
-the device.
-The HIDRAW driver does exactly that. It uses:
-  ret = dev->hid_output_raw_report(dev, buf, count, report_type);
-However, this function may block and my HID driver, obviously, needs
-to send commands
-in atomic context. Therefore, I implemented a buffer which is sent to the device
-in a workqueue via hid_output_raw_report.
-
-No driver in the drivers/hid/ directory uses a workqueue, though, I
-can't figure out any
-other way to solve my problems here. I intend to submit the first
-patchset to this list
-to get this driver upstream but I want to go sure that using a
-workqueue here is ok.
-
-See [4] for my hid driver which is located at
-drivers/hid/hid-wiimote.c. The related
-patch that introduces the buffered out-queue is [5].
-
-If there is any other way to send complex HID output reports to a
-device other than the
-hid_output_raw_report() function, I could rewrite this, but the
-wiimote protocol really
-requires this functionality and I couldn't find any other HID driver
-that has similar
-requirements.
-
-Any comments are appreciated.
-Kind regards
-
-David
+To: Chih-Wei Huang <cwhuang@android-x86.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
 
-[1] General Device information: http://en.wikipedia.org/wiki/Wiimote
-[2] Reverse-Engineered Protocol: http://wiibrew.org/wiki/Wiimote
-[3] Bluetooth-Details:
-https://github.com/dvdhrm/xwiimote/blob/master/doc/PROTOCOL
-[4] My tree (based on jikos/master): https://github.com/dvdhrm/xwiimote_kernel
-[5] Workqueue patch:
-https://github.com/dvdhrm/xwiimote_kernel/commit/e8ac07bb2bff7e470a959d44db051d23dc5b0a60
-[6] My userspace tools: https://github.com/dvdhrm/xwiimote
+--VACxsDaSTfeluoxK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jun 08, 2011 at 10:56:29PM +0800, Chih-Wei Huang wrote:
+> Thanks, Benjamin and Cascardo.
+>=20
+> 2011/6/8 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
+> > Thanks, Benjamin. That clarifies a lot and points what the real fix
+> > should be for this device.
+> > Chih-Wei, could you send us the results of your tests? I don't have the
+> > device available right now. I could get it next week, perhaps, if my
+> > client still gets it.
+>=20
+> I'm glad to do so.
+> But what test results did you want me to show exactly?
+>=20
+> Let me clarify my situation:
+> * Device under test: ASUS ET1602, touchscreen id (1bfd:1688).
+> * Kernel: 2.6.38, with android patches (from Google)
+> * Android version: 2.2.2 (froyo)
+>=20
+> By the previous observation from getevent, I added
+> the following patch to android framework:
+>=20
+> diff --git a/libs/ui/EventHub.cpp b/libs/ui/EventHub.cpp
+> index 0e11823..6ef9da1 100755
+> --- a/libs/ui/EventHub.cpp
+> +++ b/libs/ui/EventHub.cpp
+> @@ -670,7 +671,7 @@ int EventHub::open_device(const char *deviceName)
+>          device->classes |=3D CLASS_TOUCHSCREEN | CLASS_TOUCHSCREEN_MT;
+>=20
+>      // Is this an old style single-touch driver?
+> -    } else if (test_bit(BTN_TOUCH, key_bitmask)
+> +    } else if ((test_bit(BTN_TOUCH, key_bitmask) ||
+> test_bit(BTN_MOUSE, key_bitmask))
+>              && test_bit(ABS_X, abs_bitmask) && test_bit(ABS_Y, abs_bitma=
+sk)) {
+>          device->classes |=3D CLASS_TOUCHSCREEN;
+>      }
+>=20
+> Then the touch device (event7) is correctly recognized by
+> the android framework and works fine.
+>=20
+> Without this patch, event7 is ignored and only event6 is detected,
+> but no touch event generated from it.
+>=20
+> Let me know if you need more details.
+>=20
+> I'll try Benjamin's suggestion tomorrow.
+>=20
+> Regards,
+> --=20
+> Chih-Wei
+> Android-x86 project
+> http://www.android-x86.org
+
+I was referring to Benjamin's multi-touch solution, perhaps, reverting
+the multi-device patch already. By the way, did you test it without the
+multi-device patch and did it work, or did you test it only with 2.6.32?
+
+Regards,
+Cascardo.
+
+--VACxsDaSTfeluoxK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iQIcBAEBAgAGBQJN75XhAAoJEEWxSg7udFZItioP/2Vv+ZGTjHWIz5Wyly3ewXPx
+RSd1imIk6YgTwHFcRx5Z3ZodnT44F1+K5vaGv0UF5FRYCM1fsemVZ5ZTxI3xUviq
++vLlg63Clk6UOvLbNbMdPwECPBNSYR2C7fxvD/fIA1K/qejJFK9kPtSYazRcjW8z
++Zo/7m37cwjt555GkWBPT//Up0rKT2S+9kXJBTCCiL5IdLwwSgI3niS1r/8l8qLm
+DnXH9mZTnJjHny6aSqcr96Jh98oHPt805JLLA4wnC1CdFqeK3WQKM3V3CXnJRvth
+EU8x21Fg2L3zipyhJeN1LIckyeLnGYjMWk9o0bnzRyUkq2rCppvbz5YyiUtoTrqu
+THLKH6u0lIIDC0KowWxud/jzyIqazWbrCvahq6lw1kV7prEZO+8YSbqM912MC56b
+ZDVMbq9r+51OHvpxjDzXlai3tZ6uKE+2K+io+V9ahN8f6BE5wRXK8+sMaokZs8dr
+vzh3/XVGhrZs4faFhuE3my+SAVd/XRm9LD6vt32WLJKTaSJLR44H5zifQOH7fhQa
+fke5lhVpHQP9y8oZoMMXWWDPkKWnxVeBQpP+NW7X8id8HK7YngmKpEipu0dzwuf3
+j/NRsT3MdJhsZpjpyWtw5uuHGzi/A/udnUiw6Ys4EV5Tuv4CcmokVbLvGLqZ8ENz
+b02Owo2e7OAgOujgFoI8
+=KxGM
+-----END PGP SIGNATURE-----
+
+--VACxsDaSTfeluoxK--

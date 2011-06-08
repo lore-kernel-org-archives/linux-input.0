@@ -1,70 +1,54 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCHv4 2/3] sony_ff_byteswap_accelerometer
-Date: Sat,  4 Jun 2011 02:32:36 -0700
-Message-ID: <1307179957-24458-2-git-send-email-simon@mungewell.org>
-References: <1307179957-24458-1-git-send-email-simon@mungewell.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1307179957-24458-1-git-send-email-simon@mungewell.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Michael Bauer <michael@m-bauer.org>, Marcin Tolysz <tolysz@gmail.com>, Simon Wood <simon@mungewell.org>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v2 03/12] OMAP3: Move common pmic
+	configuration to pmic-common
+Date: Wed, 8 Jun 2011 09:51:30 +0300
+Message-ID: <201106080951.31056.peter.ujfalusi@ti.com>
+References: <1307456297-15010-1-git-send-email-peter.ujfalusi@ti.com>
+	<1307456297-15010-4-git-send-email-peter.ujfalusi@ti.com>
+	<20110607144534.GA27477@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20110607144534.GA27477@atomide.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-The accelerometers/gyro on the sixaxis are reported in the wrong
-endianness (ie. not compatible with HID), so this patch intercepts
-the report and swaps the appropriate bytes over.
+On Tuesday 07 June 2011 17:45:35 Tony Lindgren wrote:
+> > +#define TWL_COMMON_PDATA_BCI		(1 << 1)
+> > +#define TWL_COMMON_PDATA_MADC		(1 << 2)
+> > +#define TWL_COMMON_PDATA_CODEC		(1 << 3)
+> =
 
-Accelerometers are scaled with a nominal value of +/-4000 = 1G,
-maximum value would be around +/-32768 = 8G.
+> This is looking good, thanks for cleaning up the twl bloat in
+> board-*.c files :)
 
-Gyro on my device always reports -32768, might need some calibration
-set within the controller.
+As I recall the first three patch results ~600 less lines of code under mac=
+h-
+omap2.
 
-Fix extracted from previous patch submission:
-https://patchwork.kernel.org/patch/95212/
+> Maybe already define TWL_COMMON_PDATA_AUDIO here so you can
+> drop most of patch 7/12?
+> =
 
-Signed-off-by: Marcin Tolysz <tolysz@gmail.com>
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-sony.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
+> If you need both then you can temporarily have:
+> =
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 5c930dc..f219746 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -57,6 +57,24 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+/* Sixaxis HID report has acclerometers/gyro with MSByte first, this has
-+ * to be BYTE_SWAPPED before passing up to joystick interface
-+ */
-+static int sony_raw_event(struct hid_device *hdev, struct hid_report *report, __u8 *rd, int size)
-+{
-+	struct sony_sc *sc = hid_get_drvdata(hdev);
-+
-+	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) &&
-+			rd[0] == 0x01 && size == 49) {
-+		swap(rd[41], rd[42]);
-+		swap(rd[43], rd[44]);
-+		swap(rd[45], rd[46]);
-+		swap(rd[47], rd[48]);
-+	}
-+
-+	return 0;
-+}
-+
- /*
-  * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
-  * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
-@@ -205,6 +223,7 @@ static struct hid_driver sony_driver = {
- 	.probe = sony_probe,
- 	.remove = sony_remove,
- 	.report_fixup = sony_report_fixup,
-+	.raw_event = sony_raw_event
- };
- 
- static int __init sony_init(void)
--- 
-1.7.4.1
+> #define TWL_COMMON_PDATA_CODEC	TWL_COMMON_PDATA_AUDIO
+
+I have not thought about this.
+But I think we can live with the TWL_COMMON_PDATA_AUDIO all the way.
+I'll wait for more comments, and I'll do this for the v3.
+
+Thanks,
+P=E9ter

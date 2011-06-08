@@ -1,76 +1,74 @@
-From: Chih-Wei Huang <cwhuang@android-x86.org>
-Subject: Re: ET1602 Touchscreen doesn't work
-Date: Wed, 8 Jun 2011 22:56:29 +0800
-Message-ID: <BANLkTin1YhxCE5J9suR93eWcWEtviFNLtg@mail.gmail.com>
-References: <BANLkTikX9njth-jP6PpQuwL9sTUciu1nQA@mail.gmail.com>
-	<20110602144146.GB3508@nautilus.holoscopio.com>
-	<BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
-	<20110603124428.GA2379@nautilus.holoscopio.com>
-	<BANLkTimw2pV2Cv6pG2HJiD5AGrqJpOCXjw@mail.gmail.com>
-	<BANLkTikiX4X2OEET5qmejdWhs1XY7e3HWw@mail.gmail.com>
-	<20110608125758.GA2465@nautilus.holoscopio.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [RFC] raw output buffering in HID layer
+Date: Wed, 8 Jun 2011 17:28:21 +0200
+Message-ID: <BANLkTim8_mPUWC+oMyAT7b0_zF1C12F6Rg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:38539 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753487Ab1FHO4b (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2011 10:56:31 -0400
-Received: by ywe9 with SMTP id 9so210024ywe.19
-        for <linux-input@vger.kernel.org>; Wed, 08 Jun 2011 07:56:30 -0700 (PDT)
-In-Reply-To: <20110608125758.GA2465@nautilus.holoscopio.com>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:60483 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754916Ab1FHP2W (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2011 11:28:22 -0400
+Received: by vws1 with SMTP id 1so432425vws.19
+        for <linux-input@vger.kernel.org>; Wed, 08 Jun 2011 08:28:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, "Gustavo F. Padovan" <padovan@profusion.mobi>, jkosina@suse.cz, David Herrmann <dh.herrmann@googlemail.com>
 
-Thanks, Benjamin and Cascardo.
+Hi
 
-2011/6/8 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
-> Thanks, Benjamin. That clarifies a lot and points what the real fix
-> should be for this device.
-> Chih-Wei, could you send us the results of your tests? I don't have the
-> device available right now. I could get it next week, perhaps, if my
-> client still gets it.
+I currently work on an HID driver for the Nintendo Wii Remote as Bluez GSoC
+project. The Wii Remote (further wiimote) is a small wireless device
+that communicates
+with the host via bluetooth. It uses the HID ports but does not provide any
+proper HID descriptor sets and doesn't really fit into the HID class so a
+special driver is needed to control the device.
+See [1], [2] and [3] for device details if required.
 
-I'm glad to do so.
-But what test results did you want me to show exactly?
+Since the wiimote protocol requires the host to send complex memory
+read/write commands
+to the wiimote, I need to use the raw hid interface. I use the
+.raw_event callback
+to get access to the raw input events, however, I also need to send
+raw events to
+the device.
+The HIDRAW driver does exactly that. It uses:
+  ret = dev->hid_output_raw_report(dev, buf, count, report_type);
+However, this function may block and my HID driver, obviously, needs
+to send commands
+in atomic context. Therefore, I implemented a buffer which is sent to the device
+in a workqueue via hid_output_raw_report.
 
-Let me clarify my situation:
-* Device under test: ASUS ET1602, touchscreen id (1bfd:1688).
-* Kernel: 2.6.38, with android patches (from Google)
-* Android version: 2.2.2 (froyo)
+No driver in the drivers/hid/ directory uses a workqueue, though, I
+can't figure out any
+other way to solve my problems here. I intend to submit the first
+patchset to this list
+to get this driver upstream but I want to go sure that using a
+workqueue here is ok.
 
-By the previous observation from getevent, I added
-the following patch to android framework:
+See [4] for my hid driver which is located at
+drivers/hid/hid-wiimote.c. The related
+patch that introduces the buffered out-queue is [5].
 
-diff --git a/libs/ui/EventHub.cpp b/libs/ui/EventHub.cpp
-index 0e11823..6ef9da1 100755
---- a/libs/ui/EventHub.cpp
-+++ b/libs/ui/EventHub.cpp
-@@ -670,7 +671,7 @@ int EventHub::open_device(const char *deviceName)
-         device->classes |= CLASS_TOUCHSCREEN | CLASS_TOUCHSCREEN_MT;
+If there is any other way to send complex HID output reports to a
+device other than the
+hid_output_raw_report() function, I could rewrite this, but the
+wiimote protocol really
+requires this functionality and I couldn't find any other HID driver
+that has similar
+requirements.
 
-     // Is this an old style single-touch driver?
--    } else if (test_bit(BTN_TOUCH, key_bitmask)
-+    } else if ((test_bit(BTN_TOUCH, key_bitmask) ||
-test_bit(BTN_MOUSE, key_bitmask))
-             && test_bit(ABS_X, abs_bitmask) && test_bit(ABS_Y, abs_bitmask)) {
-         device->classes |= CLASS_TOUCHSCREEN;
-     }
+Any comments are appreciated.
+Kind regards
 
-Then the touch device (event7) is correctly recognized by
-the android framework and works fine.
+David
 
-Without this patch, event7 is ignored and only event6 is detected,
-but no touch event generated from it.
 
-Let me know if you need more details.
-
-I'll try Benjamin's suggestion tomorrow.
-
-Regards,
--- 
-Chih-Wei
-Android-x86 project
-http://www.android-x86.org
+[1] General Device information: http://en.wikipedia.org/wiki/Wiimote
+[2] Reverse-Engineered Protocol: http://wiibrew.org/wiki/Wiimote
+[3] Bluetooth-Details:
+https://github.com/dvdhrm/xwiimote/blob/master/doc/PROTOCOL
+[4] My tree (based on jikos/master): https://github.com/dvdhrm/xwiimote_kernel
+[5] Workqueue patch:
+https://github.com/dvdhrm/xwiimote_kernel/commit/e8ac07bb2bff7e470a959d44db051d23dc5b0a60
+[6] My userspace tools: https://github.com/dvdhrm/xwiimote

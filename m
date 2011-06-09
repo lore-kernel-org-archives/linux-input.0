@@ -1,62 +1,43 @@
-From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Subject: Re: [PATCHv3 0/3] Sixaxis plugin for Bluez
-Date: Thu, 9 Jun 2011 16:54:49 +0200
-Message-ID: <20110609165449.21966d01.ospite@studenti.unina.it>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCHv3 2/3] Re-add manager_get_default_adapter()
+Date: Thu, 9 Jun 2011 17:00:11 +0200
+Message-ID: <20110609170011.ad822f40.ospite@studenti.unina.it>
 References: <1307538557-9287-1-git-send-email-ospite@studenti.unina.it>
-	<1307543625.2669.180.camel@novo.hadess.net>
+	<1307538557-9287-3-git-send-email-ospite@studenti.unina.it>
+	<1307628154.2669.212.camel@novo.hadess.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
  micalg="PGP-SHA1";
- boundary="Signature=_Thu__9_Jun_2011_16_54_50_+0200_Uz14N7zKr0eeDytr"
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1307543625.2669.180.camel-7u+x0O+HiKDXoxyGr5pmpw@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>, Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>
+ boundary="Signature=_Thu__9_Jun_2011_17_00_11_+0200_zw._b_1tdKTT8e3p"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp209.alice.it ([82.57.200.105]:57291 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751372Ab1FIPAS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jun 2011 11:00:18 -0400
+In-Reply-To: <1307628154.2669.212.camel@novo.hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-bluetooth@vger.kernel.org, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>
 
---Signature=_Thu__9_Jun_2011_16_54_50_+0200_Uz14N7zKr0eeDytr
+--Signature=_Thu__9_Jun_2011_17_00_11_+0200_zw._b_1tdKTT8e3p
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 08 Jun 2011 15:33:42 +0100
-Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
+On Thu, 09 Jun 2011 15:02:32 +0100
+Bastien Nocera <hadess@hadess.net> wrote:
 
 > On Wed, 2011-06-08 at 15:09 +0200, Antonio Ospite wrote:
-> >=20
-> >  - When the controller is connected via USB the led is set, but then=20
-> >  it goes blinking again waiting for the PS button to be pressed,=20
-> >  maybe we should wait for the PS button before setting leds, maybe =20
-> >  with a simple blocking read() on the hidraw device.
+> > From: Bastien Nocera <hadess@hadess.net>
 >=20
-> One hard thing to handle is when the device is already in use via USB,
-> it should automatically connect via Bluetooth when unplugged. I'm not
-> sure this works right now (I'm a bit hazy on the interaction with the=20
-> PS button tbh).
->=20
+> Sent out a new patch for that which allows the same functionality, but
+> returns an ID instead (you can then get the btd_adapter through existing
+> manager functions).
 
-Oh, this works if the user already pressed the PS button when connected=20
-via USB, it is just the LED setting which is still weak on USB
-connection (before and after PS button) because of the PS button
-requirement.
-
-BTW Bastien I'd really appreciate a run-time test by other people
-before this gets is :)
-
-> >  - When the controller is connected via USB after it is working over=20
-> >  BT, it is seen as a second controller and the second led it turned=20
-> >  on, should we force BT disconnection on USB connection?=20
->=20
-> As we can identify the device uniquely through its bdaddr, I'd say=20
-> yes.
->=20
-
-I had done some experiment about that, but I didn't find a good way=20
-using the bluez API, I'll be back on that after the first iteration
-goes in, OK? I guess one problem will be about the numbering of=20
-/dev/input/jsX, can we disconnect the BT device _before_ the kernel=20
-enumerates the USB one?
+OK, so basically I drop 2/3 and do:
+adapter =3D manager_find_adapter_by_id(manager_get_default_adapter_id());
+right?
 
 Thanks,
    Antonio
@@ -71,15 +52,15 @@ A: Because it messes up the order in which people normally read text.
    See http://en.wikipedia.org/wiki/Posting_style
 Q: Why is top-posting such a bad thing?
 
---Signature=_Thu__9_Jun_2011_16_54_50_+0200_Uz14N7zKr0eeDytr
+--Signature=_Thu__9_Jun_2011_17_00_11_+0200_zw._b_1tdKTT8e3p
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEARECAAYFAk3w3roACgkQ5xr2akVTsAHTHgCeMDhu1MfE6yszKv8jVBuAjdG0
-FHgAoJWOGD13SXmlVi4ommVn4LSrZhEl
-=i3d9
+iEYEARECAAYFAk3w3/sACgkQ5xr2akVTsAF3yACeN+KcennyoyzJb+iiG9Ix70Th
+znIAnRMCvO5RYbhXB3ppWDCg02AO5aIe
+=Nv2V
 -----END PGP SIGNATURE-----
 
---Signature=_Thu__9_Jun_2011_16_54_50_+0200_Uz14N7zKr0eeDytr--
+--Signature=_Thu__9_Jun_2011_17_00_11_+0200_zw._b_1tdKTT8e3p--

@@ -1,49 +1,40 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] input: add driver for Bosch Sensortec's BMA150
- accelerometer
-Date: Thu, 9 Jun 2011 17:32:03 +0100
-Message-ID: <20110609173203.020d5017@lxorguk.ukuu.org.uk>
-References: <1306857314-655-1-git-send-email-eric.andersson@unixphere.com>
-	<20110531172320.0fcadfef@lxorguk.ukuu.org.uk>
-	<20110609161224.GA7098@skinner>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3 06/12] MFD: twl4030-codec -> twl4030-audio: Rename the driver
+Date: Thu, 9 Jun 2011 21:37:28 +0200
+Message-ID: <201106092137.28678.arnd@arndb.de>
+References: <1307626230-29660-1-git-send-email-peter.ujfalusi@ti.com> <1307626230-29660-7-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:54386 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751556Ab1FIQaG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jun 2011 12:30:06 -0400
-In-Reply-To: <20110609161224.GA7098@skinner>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1307626230-29660-7-git-send-email-peter.ujfalusi@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Misael Lopez Cruz <misael.lopez@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Eric Andersson <eric.andersson@unixphere.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, Albert Zhang <xu.zhang@bosch-sensortec.com>
 
-> > What locks this SMBUS transaction against others
-> True! I will look over the locking for the next version.
-
-I have a suspicion the two drivers are distant relatives actually - the
-bugs look similar !
+On Thursday 09 June 2011 15:30:24 Peter Ujfalusi wrote:
+> Rename the driver, and header file from twl4030-codec to
+> twl4030-audio.
+> To avoid breakage change depending drivers at the same time.
 > 
-> > > +static int bma150_set_range(struct i2c_client *client, unsigned char range)
-> > > +{
-> > > +	int ret;
-> > > +	unsigned char data;
-> > > +
-> > > +	if (range > BMA150_RANGE_8G)
-> > > +		return -EINVAL;
-> > 
-> > This should be actual values not a register range
-> It is an actual value. See chapter 3.1.2 in the BMA150 datasheet where the
-> acceleration range values are defined.
+> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> CC: Misael Lopez Cruz <misael.lopez@ti.com>
+> ---
+>  drivers/input/misc/Kconfig         |    2 +-
+>  drivers/input/misc/twl4030-vibra.c |   10 +-
+>  drivers/mfd/Kconfig                |    2 +-
+>  drivers/mfd/Makefile               |    2 +-
+>  drivers/mfd/twl4030-audio.c        |  277 +++++++++++++++++++++++++++++++++++
+>  drivers/mfd/twl4030-codec.c        |  278 ------------------------------------
+>  include/linux/mfd/twl4030-audio.h  |  272 +++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/twl4030-codec.h  |  272 -----------------------------------
 
-It should specify the units and be in meaningful ones not register values
-(I got moaned at for that in my submission too!)
+Better use the -M flag to git-format-patch when moving files, to make it
+obvious what has or has not changed, and to reduce the size of the email.
 
-> I will send an updated version of the driver once I've fixed it!
+Also, shouldn't this file go into the sound/soc/ directory? It seems that this
+is really the device driver, not part of the multi-function layer.
 
-Cool - I really don't care btw which driver we end up with a mix of both,
-I just need it to work on our platform too.
-
-Dunno where Dmitry has gone - has he vanished ?
+	Arnd

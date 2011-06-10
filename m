@@ -1,89 +1,138 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: [PATCH v5 2/2] hid-sony: fix endiannes of Sixaxis accel/gyro values
-Date: Fri, 10 Jun 2011 12:00:27 +0200
-Message-ID: <1307700027-10657-2-git-send-email-ospite@studenti.unina.it>
-References: <1b0af21baa09ca623bbe62ee253f5d36.squirrel@host171.canaca.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: [PATCH v4 00/18] MFD/ASoC/Input: TWL4030/TWL60X0 changes
+Date: Fri, 10 Jun 2011 14:54:18 +0300
+Message-ID: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:43612 "EHLO smtp205.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751941Ab1FJKAe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jun 2011 06:00:34 -0400
-In-Reply-To: <1b0af21baa09ca623bbe62ee253f5d36.squirrel@host171.canaca.com>
+Received: from devils.ext.ti.com ([198.47.26.153]:40074 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755663Ab1FJLyu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Jun 2011 07:54:50 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Simon Wood <simon@mungewell.org>, Jiri Kosina <jkosina@suse.cz>, Marcin Tolysz <tolysz@gmail.com>, Michael Bauer <michael@m-bauer.org>, Antonio Ospite <ospite@studenti.unina.it>
+To: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-From: Simon Wood <simon@mungewell.org>
+Hello,
 
-The accelerometers/gyro on the Sixaxis are reported in the wrong
-endianness (ie. not compatible with HID), so this patch intercepts
-the report and swaps the appropriate bytes over.
+Changes since v3:
+- patches generated with git format-patch -M to handle renames better
+- Included depending updates for twl6040 soc codec driver:
+ - HS ramp configuration, new ABE dais, updated sample rate constraints
+- Configure the twl6040 codec on SDP4430 board
 
-Accelerometers are scaled with a nominal value of +/-4000 = 1G,
-maximum value would be around +/-32768 = 8G.
+Updated intro message from the v3 series:
+The series will do five major things, and they are in one series, because they
+pretty much depending on each other, so it is easier to handle them together.
 
-Gyro on my device always reports -32768, might need some calibration
-set within the controller.
+1. Move the common pmic related configurations out from the board files.
+New twl-common.c/h file has been created for this purpose.
+OMAP3 board files received two patches (pdata, and regualtor changes), OMAP4
+board files has been changed with one patch.
 
-Fix extracted from previous patch submission:
-https://patchwork.kernel.org/patch/95212/
+2. Rename the twl4030-codec MFD driver to twl4030-audio
+Since the ASoC multicomponent introduction (2.6.37) the twl4030-codec MFD dirver
+had been using twl4030-audio to register (twl4030-codec is the ASoC codec
+driver). The documentation refers to this part of twl as audio block, so it is
+better to rename the driver as well to avoid confusion.
 
-Signed-off-by: Marcin Tolysz <tolysz@gmail.com>
-Signed-off-by: Simon Wood <simon@mungewell.org>
-Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+3. Introduction of MFD driver for twl6040.
+The TWL6040 audio IC has codec and vibra functionality.
+Convert the existing ASoC codec driver to use the new MFD driver's interface.
+
+4. Vibrator driver for TWL6040 (Input/ForceFeedback driver)
+The driver itself, and support for the vibrators in SDP4430 board.
+
+5. Updates for twl6040 ASoC codec driver
+HS ramp configuration, new ABE dais, updated sample rate constraints, SDP4430
+configuration.
+
+Regards,
+Peter
+
 ---
+Axel Castaneda Gonzalez (1):
+  ASoC: twl6040: Configure ramp step based on platform
 
-Changes since v4:
- - Adjusted the short commit message
- - Wrapped the sony_raw_event() definition to stay in 80 chars
+Liam Girdwood (3):
+  ASoC: twl6040: add all ABE DAIs
+  ASoC: twl6040: Support other sample rates in constraints.
+  ASoC: twl6040: set default constraints.
 
-The patch has been tested and it is checkpatch.pl clean.
+Misael Lopez Cruz (5):
+  mfd: twl6040: Add initial support
+  ASoC: twl6040: Convert into TWL6040 MFD child
+  input: Add initial support for TWL6040 vibrator
+  ASoC: twl6040: Remove pll and headset mode dependency
+  OMAP4: SDP4430: Add twl6040 codec platform support
 
-Thanks,
-   Antonio
+Peter Ujfalusi (9):
+  OMAP: New twl-common for common TWL configuration
+  OMAP4: Move common twl6030 configuration to twl-common
+  OMAP3: Move common twl configuration to twl-common
+  OMAP3: Move common regulator configuration to twl-common
+  MFD: twl4030-codec: Rename internals from codec to audio
+  MFD: twl4030-codec -> twl4030-audio: Rename the driver
+  MFD: twl4030-audio: Rename platform data
+  MFD: twl6040: Change platform data for soc codec driver
+  OMAP4: SDP4430: Add twl6040 vibrator platform support
 
- drivers/hid/hid-sony.c |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
+ arch/arm/mach-omap2/Makefile                       |    2 +-
+ arch/arm/mach-omap2/board-3430sdp.c                |   89 +---
+ arch/arm/mach-omap2/board-4430sdp.c                |  187 ++----
+ arch/arm/mach-omap2/board-cm-t35.c                 |   48 +--
+ arch/arm/mach-omap2/board-devkit8000.c             |   37 +-
+ arch/arm/mach-omap2/board-igep0020.c               |   44 +--
+ arch/arm/mach-omap2/board-ldp.c                    |   15 +-
+ arch/arm/mach-omap2/board-omap3beagle.c            |   60 +--
+ arch/arm/mach-omap2/board-omap3evm.c               |   67 +--
+ arch/arm/mach-omap2/board-omap3pandora.c           |   59 +--
+ arch/arm/mach-omap2/board-omap3stalker.c           |   70 +--
+ arch/arm/mach-omap2/board-omap3touchbook.c         |   57 +--
+ arch/arm/mach-omap2/board-omap4panda.c             |  149 +-----
+ arch/arm/mach-omap2/board-overo.c                  |   59 +--
+ arch/arm/mach-omap2/board-rm680.c                  |    8 +-
+ arch/arm/mach-omap2/board-rx51-peripherals.c       |   44 +--
+ arch/arm/mach-omap2/board-zoom-peripherals.c       |   88 +---
+ arch/arm/mach-omap2/common-board-devices.c         |   21 -
+ arch/arm/mach-omap2/common-board-devices.h         |   26 +-
+ arch/arm/mach-omap2/twl-common.c                   |  304 ++++++++++
+ arch/arm/mach-omap2/twl-common.h                   |   59 ++
+ arch/arm/plat-omap/include/plat/irqs.h             |   12 +-
+ drivers/input/misc/Kconfig                         |   13 +-
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/twl4030-vibra.c                 |   12 +-
+ drivers/input/misc/twl6040-vibra.c                 |  428 +++++++++++++
+ drivers/mfd/Kconfig                                |    8 +-
+ drivers/mfd/Makefile                               |    3 +-
+ drivers/mfd/twl-core.c                             |   13 +-
+ drivers/mfd/twl4030-audio.c                        |  277 +++++++++
+ drivers/mfd/twl4030-codec.c                        |  277 ---------
+ drivers/mfd/twl6040-core.c                         |  601 +++++++++++++++++++
+ drivers/mfd/twl6040-irq.c                          |  205 +++++++
+ include/linux/i2c/twl.h                            |   25 +-
+ .../linux/mfd/{twl4030-codec.h => twl4030-audio.h} |   16 +-
+ include/linux/mfd/twl6040.h                        |  261 ++++++++
+ sound/soc/codecs/Kconfig                           |    3 +-
+ sound/soc/codecs/twl4030.c                         |   22 +-
+ sound/soc/codecs/twl6040.c                         |  630 ++++++++------------
+ sound/soc/codecs/twl6040.h                         |  118 ----
+ sound/soc/omap/sdp3430.c                           |    2 +-
+ sound/soc/omap/sdp4430.c                           |    2 +
+ sound/soc/omap/zoom2.c                             |    2 +-
+ 43 files changed, 2651 insertions(+), 1773 deletions(-)
+ create mode 100644 arch/arm/mach-omap2/twl-common.c
+ create mode 100644 arch/arm/mach-omap2/twl-common.h
+ create mode 100644 drivers/input/misc/twl6040-vibra.c
+ create mode 100644 drivers/mfd/twl4030-audio.c
+ delete mode 100644 drivers/mfd/twl4030-codec.c
+ create mode 100644 drivers/mfd/twl6040-core.c
+ create mode 100644 drivers/mfd/twl6040-irq.c
+ rename include/linux/mfd/{twl4030-codec.h => twl4030-audio.h} (96%)
+ create mode 100644 include/linux/mfd/twl6040.h
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 60b4257..5d8a200 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -61,6 +61,25 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	return rdesc;
- }
- 
-+static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
-+		__u8 *rd, int size)
-+{
-+	struct sony_sc *sc = hid_get_drvdata(hdev);
-+
-+	/* Sixaxis HID report has acclerometers/gyro with MSByte first, this
-+	 * has to be BYTE_SWAPPED before passing up to joystick interface
-+	 */
-+	if ((sc->quirks & (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)) &&
-+			rd[0] == 0x01 && size == 49) {
-+		swap(rd[41], rd[42]);
-+		swap(rd[43], rd[44]);
-+		swap(rd[45], rd[46]);
-+		swap(rd[47], rd[48]);
-+	}
-+
-+	return 0;
-+}
-+
- /*
-  * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
-  * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
-@@ -190,6 +209,7 @@ static struct hid_driver sony_driver = {
- 	.probe = sony_probe,
- 	.remove = sony_remove,
- 	.report_fixup = sony_report_fixup,
-+	.raw_event = sony_raw_event
- };
- 
- static int __init sony_init(void)
 -- 
 1.7.5.3
 

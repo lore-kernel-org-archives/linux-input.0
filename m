@@ -1,40 +1,47 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3 06/12] MFD: twl4030-codec -> twl4030-audio: Rename the driver
-Date: Thu, 9 Jun 2011 21:37:28 +0200
-Message-ID: <201106092137.28678.arnd@arndb.de>
-References: <1307626230-29660-1-git-send-email-peter.ujfalusi@ti.com> <1307626230-29660-7-git-send-email-peter.ujfalusi@ti.com>
+From: Chih-Wei Huang <cwhuang@android-x86.org>
+Subject: Re: ET1602 Touchscreen doesn't work
+Date: Fri, 10 Jun 2011 10:23:06 +0800
+Message-ID: <BANLkTinnGiu_qWnCTq-1peyEw4=xUdnAkw@mail.gmail.com>
+References: <BANLkTikX9njth-jP6PpQuwL9sTUciu1nQA@mail.gmail.com>
+	<20110602144146.GB3508@nautilus.holoscopio.com>
+	<BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
+	<20110603124428.GA2379@nautilus.holoscopio.com>
+	<BANLkTimw2pV2Cv6pG2HJiD5AGrqJpOCXjw@mail.gmail.com>
+	<BANLkTikiX4X2OEET5qmejdWhs1XY7e3HWw@mail.gmail.com>
+	<20110608125758.GA2465@nautilus.holoscopio.com>
+	<BANLkTin1YhxCE5J9suR93eWcWEtviFNLtg@mail.gmail.com>
+	<20110608153146.GG2465@nautilus.holoscopio.com>
+	<BANLkTin3MyXsDHOK+BgdXvKO5YBH=Cv5DA@mail.gmail.com>
+	<20110609133943.GA2439@nautilus.holoscopio.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1307626230-29660-7-git-send-email-peter.ujfalusi@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Misael Lopez Cruz <misael.lopez@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:60995 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756697Ab1FJCXH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jun 2011 22:23:07 -0400
+Received: by vws1 with SMTP id 1so1739705vws.19
+        for <linux-input@vger.kernel.org>; Thu, 09 Jun 2011 19:23:06 -0700 (PDT)
+In-Reply-To: <20110609133943.GA2439@nautilus.holoscopio.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Thursday 09 June 2011 15:30:24 Peter Ujfalusi wrote:
-> Rename the driver, and header file from twl4030-codec to
-> twl4030-audio.
-> To avoid breakage change depending drivers at the same time.
-> 
-> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> CC: Misael Lopez Cruz <misael.lopez@ti.com>
-> ---
->  drivers/input/misc/Kconfig         |    2 +-
->  drivers/input/misc/twl4030-vibra.c |   10 +-
->  drivers/mfd/Kconfig                |    2 +-
->  drivers/mfd/Makefile               |    2 +-
->  drivers/mfd/twl4030-audio.c        |  277 +++++++++++++++++++++++++++++++++++
->  drivers/mfd/twl4030-codec.c        |  278 ------------------------------------
->  include/linux/mfd/twl4030-audio.h  |  272 +++++++++++++++++++++++++++++++++++
->  include/linux/mfd/twl4030-codec.h  |  272 -----------------------------------
+2011/6/9 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
+> Nice. That was one of the tests. But have you tested without the quirck
+> in hid-quirks and without the suggested change by Benjamin? Considering
+> the device would indicate it supports RX and Z axis, but not X and Y
+> axis, it should not work either in Android.
 
-Better use the -M flag to git-format-patch when moving files, to make it
-obvious what has or has not changed, and to reduce the size of the email.
+Did you mean just remove this line in hid-quirks.c?
 
-Also, shouldn't this file go into the sound/soc/ directory? It seems that this
-is really the device driver, not part of the multi-function layer.
+{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
 
-	Arnd
+That's what I've tried (with and without Benjamin's change) .
+Yes, it works in Android 2.2.
+
+-- 
+Chih-Wei
+Android-x86 project
+http://www.android-x86.org

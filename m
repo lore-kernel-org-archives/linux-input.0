@@ -1,47 +1,84 @@
-From: Chih-Wei Huang <cwhuang@android-x86.org>
-Subject: Re: ET1602 Touchscreen doesn't work
-Date: Fri, 10 Jun 2011 10:23:06 +0800
-Message-ID: <BANLkTinnGiu_qWnCTq-1peyEw4=xUdnAkw@mail.gmail.com>
-References: <BANLkTikX9njth-jP6PpQuwL9sTUciu1nQA@mail.gmail.com>
-	<20110602144146.GB3508@nautilus.holoscopio.com>
-	<BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
-	<20110603124428.GA2379@nautilus.holoscopio.com>
-	<BANLkTimw2pV2Cv6pG2HJiD5AGrqJpOCXjw@mail.gmail.com>
-	<BANLkTikiX4X2OEET5qmejdWhs1XY7e3HWw@mail.gmail.com>
-	<20110608125758.GA2465@nautilus.holoscopio.com>
-	<BANLkTin1YhxCE5J9suR93eWcWEtviFNLtg@mail.gmail.com>
-	<20110608153146.GG2465@nautilus.holoscopio.com>
-	<BANLkTin3MyXsDHOK+BgdXvKO5YBH=Cv5DA@mail.gmail.com>
-	<20110609133943.GA2439@nautilus.holoscopio.com>
+From: Barry Song <Baohua.Song@csr.com>
+Subject: [PATCH] input: touchscreen: add OF match table for ads7846
+Date: Thu, 9 Jun 2011 19:28:40 -0700
+Message-ID: <1307672920-6261-1-git-send-email-Baohua.Song@csr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:60995 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756697Ab1FJCXH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jun 2011 22:23:07 -0400
-Received: by vws1 with SMTP id 1so1739705vws.19
-        for <linux-input@vger.kernel.org>; Thu, 09 Jun 2011 19:23:06 -0700 (PDT)
-In-Reply-To: <20110609133943.GA2439@nautilus.holoscopio.com>
+Received: from cluster-g.mailcontrol.com ([208.87.233.190]:42276 "EHLO
+	cluster-g.mailcontrol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755655Ab1FJCaL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jun 2011 22:30:11 -0400
+Received: from rly25g.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
+	by rly25g.srv.mailcontrol.com (MailControl) with ESMTP id p5A2U1mj011068
+	for <linux-input@vger.kernel.org>; Fri, 10 Jun 2011 03:30:10 +0100
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by rly25g.srv.mailcontrol.com (MailControl) id p5A2T9ss005929
+	for <linux-input@vger.kernel.org>; Fri, 10 Jun 2011 03:29:09 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Barry Song <21cnbao@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Thomas Chou <thomas@wytron.com.tw>
 
-2011/6/9 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
-> Nice. That was one of the tests. But have you tested without the quirck
-> in hid-quirks and without the suggested change by Benjamin? Considering
-> the device would indicate it supports RX and Z axis, but not X and Y
-> axis, it should not work either in Android.
+The current ads7846 has no OF match table. The method used is by applying a heuristic (of_modalias_node) which tries to name the device in a way that will match an existing device driver.
+This patch adds explicit OF match table for ads7846, then the normal device tree match behaviour will always work.
+It has been tested on PRIMA2 EVB board of CSR with a SPI's child node like the below:
+ts@0 {
+	compatible = "ti,ads7845";
+	reg = <0x0>;
+	spi-max-frequency = <31250>;
+        interrupts = <90>;
+};
 
-Did you mean just remove this line in hid-quirks.c?
+Signed-off-by: Barry Song <21cnbao@gmail.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+cc: Thomas Chou <thomas@wytron.com.tw>
+---
+ drivers/input/touchscreen/ads7846.c |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
 
-{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
-
-That's what I've tried (with and without Benjamin's change) .
-Yes, it works in Android 2.2.
-
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 5196861..643138b 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -28,6 +28,7 @@
+ #include <linux/slab.h>
+ #include <linux/pm.h>
+ #include <linux/gpio.h>
++#include <linux/of.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/ads7846.h>
+ #include <linux/regulator/consumer.h>
+@@ -1425,12 +1426,25 @@ static int __devexit ads7846_remove(struct spi_device *spi)
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_OF)
++static struct of_device_id ads7846_spi_of_match_table[] __devinitdata = {
++	{ .compatible = "ti,ads7846", },
++	{ .compatible = "ti,ads7845", },
++	{ .compatible = "ti,ads7843", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, ads7846_spi_of_match_table);
++#endif
++
+ static struct spi_driver ads7846_driver = {
+ 	.driver = {
+ 		.name	= "ads7846",
+ 		.bus	= &spi_bus_type,
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &ads7846_pm,
++#if defined(CONFIG_OF)
++		.of_match_table = ads7846_spi_of_match_table,
++#endif
+ 	},
+ 	.probe		= ads7846_probe,
+ 	.remove		= __devexit_p(ads7846_remove),
 -- 
-Chih-Wei
-Android-x86 project
-http://www.android-x86.org
+1.7.1
+
+
+
+Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
+More information can be found at www.csr.com. Follow CSR on Twitter at http://twitter.com/CSR_PLC and read our blog at www.csr.com/blog

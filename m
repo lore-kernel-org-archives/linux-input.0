@@ -1,84 +1,51 @@
-From: Barry Song <Baohua.Song@csr.com>
-Subject: [PATCH] input: touchscreen: add OF match table for ads7846
-Date: Thu, 9 Jun 2011 19:28:40 -0700
-Message-ID: <1307672920-6261-1-git-send-email-Baohua.Song@csr.com>
+From: =?iso-8859-15?q?P=E9ter_Ujfalusi?= <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v3 06/12] MFD: twl4030-codec ->
+	twl4030-audio: Rename the driver
+Date: Fri, 10 Jun 2011 07:52:51 +0300
+Message-ID: <201106100752.51718.peter.ujfalusi@ti.com>
+References: <1307626230-29660-1-git-send-email-peter.ujfalusi@ti.com>
+	<1307626230-29660-7-git-send-email-peter.ujfalusi@ti.com>
+	<201106092137.28678.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cluster-g.mailcontrol.com ([208.87.233.190]:42276 "EHLO
-	cluster-g.mailcontrol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755655Ab1FJCaL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jun 2011 22:30:11 -0400
-Received: from rly25g.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
-	by rly25g.srv.mailcontrol.com (MailControl) with ESMTP id p5A2U1mj011068
-	for <linux-input@vger.kernel.org>; Fri, 10 Jun 2011 03:30:10 +0100
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by rly25g.srv.mailcontrol.com (MailControl) id p5A2T9ss005929
-	for <linux-input@vger.kernel.org>; Fri, 10 Jun 2011 03:29:09 +0100
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <201106092137.28678.arnd@arndb.de>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mark@alsa-project.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz,   Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Barry Song <21cnbao@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, Thomas Chou <thomas@wytron.com.tw>
 
-The current ads7846 has no OF match table. The method used is by applying a heuristic (of_modalias_node) which tries to name the device in a way that will match an existing device driver.
-This patch adds explicit OF match table for ads7846, then the normal device tree match behaviour will always work.
-It has been tested on PRIMA2 EVB board of CSR with a SPI's child node like the below:
-ts@0 {
-	compatible = "ti,ads7845";
-	reg = <0x0>;
-	spi-max-frequency = <31250>;
-        interrupts = <90>;
-};
+On Thursday 09 June 2011 22:37:28 Arnd Bergmann wrote:
+> Better use the -M flag to git-format-patch when moving files, to make it
+> obvious what has or has not changed, and to reduce the size of the email.
 
-Signed-off-by: Barry Song <21cnbao@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>
-cc: Thomas Chou <thomas@wytron.com.tw>
----
- drivers/input/touchscreen/ads7846.c |   14 ++++++++++++++
- 1 files changed, 14 insertions(+), 0 deletions(-)
+I tend to forgot the -M flag, thanks.
+ =
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 5196861..643138b 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -28,6 +28,7 @@
- #include <linux/slab.h>
- #include <linux/pm.h>
- #include <linux/gpio.h>
-+#include <linux/of.h>
- #include <linux/spi/spi.h>
- #include <linux/spi/ads7846.h>
- #include <linux/regulator/consumer.h>
-@@ -1425,12 +1426,25 @@ static int __devexit ads7846_remove(struct spi_device *spi)
- 	return 0;
- }
- 
-+#if defined(CONFIG_OF)
-+static struct of_device_id ads7846_spi_of_match_table[] __devinitdata = {
-+	{ .compatible = "ti,ads7846", },
-+	{ .compatible = "ti,ads7845", },
-+	{ .compatible = "ti,ads7843", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, ads7846_spi_of_match_table);
-+#endif
-+
- static struct spi_driver ads7846_driver = {
- 	.driver = {
- 		.name	= "ads7846",
- 		.bus	= &spi_bus_type,
- 		.owner	= THIS_MODULE,
- 		.pm	= &ads7846_pm,
-+#if defined(CONFIG_OF)
-+		.of_match_table = ads7846_spi_of_match_table,
-+#endif
- 	},
- 	.probe		= ads7846_probe,
- 	.remove		= __devexit_p(ads7846_remove),
--- 
-1.7.1
+> Also, shouldn't this file go into the sound/soc/ directory? It seems that
+> this is really the device driver, not part of the multi-function layer.
 
+This driver is the MFD core part for the audio block within the twl4030 ser=
+ies =
 
+pmic.
+We have the slave drivers under sound/soc/codecs/twl4030.c and =
 
-Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
-More information can be found at www.csr.com. Follow CSR on Twitter at http://twitter.com/CSR_PLC and read our blog at www.csr.com/blog
+drivers/input/misc/twl4030-vibra.c.
+The audio block has codec, and vibra functionality, and we need to have thi=
+s =
+
+driver to properly manage this block within twl.
+
+-- =
+
+P=E9ter

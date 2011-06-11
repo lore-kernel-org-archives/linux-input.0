@@ -1,40 +1,36 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 4/4] Input: Synaptics: Add INPUT_PROP_SYNAPTICS_T3R2
- property
-Date: Fri, 10 Jun 2011 23:13:53 +0200
-Message-ID: <20110610211353.GD5925@polaris.bitmath.org>
-References: <1307735704-30673-1-git-send-email-derek.foreman@collabora.co.uk>
- <1307735704-30673-5-git-send-email-derek.foreman@collabora.co.uk>
+From: Jesper Juhl <jj@chaosbits.net>
+Subject: Re: Reproducible general protection fault: 0000 - hdapsd exited with
+ preempt_count 1 - kernel 2.6.38.8
+Date: Sat, 11 Jun 2011 17:02:30 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1106111701240.23835@swampdragon.chaosbits.net>
+References: <alpine.LNX.2.00.1106101001360.19998@swampdragon.chaosbits.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:45918 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756179Ab1FJVHI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jun 2011 17:07:08 -0400
-Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 4F5CBEA70A
-	for <linux-input@vger.kernel.org>; Fri, 10 Jun 2011 23:07:07 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <1307735704-30673-5-git-send-email-derek.foreman@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1106101001360.19998@swampdragon.chaosbits.net>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: platform-driver-x86@vger.kernel.org, Frank Seidel <frank@f-seidel.de>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Derek Foreman <derek.foreman@collabora.co.uk>
-Cc: linux-input@vger.kernel.org
 
-On Fri, Jun 10, 2011 at 03:55:04PM -0400, Derek Foreman wrote:
-> This new property indicates that the trackpad is able to track more than two contacts, but can only report the positions of two contacts due to bus bandwidth limitations.
+On Fri, 10 Jun 2011, Jesper Juhl wrote:
+
+> Hi
 > 
-> Signed-off-by: Derek Foreman <derek.foreman@collabora.co.uk>
-> ---
->  drivers/input/mouse/synaptics.c |    3 +++
->  include/linux/input.h           |    1 +
->  2 files changed, 4 insertions(+), 0 deletions(-)
+> I just noticed a GPF during bootup of my laptop :
+> 
+> [   18.944171] general protection fault: 0000 [#1] PREEMPT SMP 
+> [   18.944243] last sysfs file: /sys/devices/virtual/input/input13/event13/uevent
+> [   18.944295] CPU 0 
+> [   18.944307] Modules linked in: joydev hdaps uvcvideo btusb bluetooth usbhid hid videodev v4l2_compat_ioctl32 snd_hda_codec_hdmi snd_hda_codec_conexant vboxnetadp vboxnetflt vboxdrv snd_hda_intel snd_hda_codec cpufreq_ondemand snd_hwdep arc4 sg ecb iwlagn msr acpi_cpufreq freq_table mperf i915 tp_smapi thinkpad_ec ehci_hcd thinkpad_acpi drm_kms_helper i2c_i801 snd_pcm iwlcore snd_timer mac80211 e1000e snd_page_alloc drm cfg80211 firewire_ohci i2c_algo_bit snd i2c_core usbcore rfkill pcspkr firewire_core serio_raw sdhci_pci evdev iTCO_wdt sdhci tpm_tis soundcore tpm mmc_core wmi intel_ips intel_agp nvram crc_itu_t iTCO_vendor_support battery intel_gtt tpm_bios ac video psmouse thermal processor button ext4 mbcache jbd2 crc16 sr_mod cdrom sd_mod ahci libahci libata scsi_mod
+> [   18.944928] 
+> [   18.946142] Pid: 978, comm: hdapsd Not tainted 2.6.38-ARCH #1 LENOVO 4384GJG/4384GJG
+<...>
 
-This information is already contained in INPUT_PROP_SEMI_MT, together
-with the use of BTN_TRIPLETAP. Please check
-Documentation/input/event-codes.txt for further details.
+Just tested 2.6.39.1 and I cannot reproduce the GPF with that kernel, so 
+it seems this has been fixed already.
 
-Thanks,
-Henrik
+-- 
+Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
+Don't top-post http://www.catb.org/jargon/html/T/top-post.html
+Plain text mails only, please.

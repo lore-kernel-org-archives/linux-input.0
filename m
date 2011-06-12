@@ -1,23 +1,24 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Chris Bagwell <chris@cnpbagwell.com>
 Subject: Re: [PATCH] hid-multitouch: fix broken eGalax
-Date: Mon, 13 Jun 2011 00:01:35 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1106122359300.22872@pobox.suse.cz>
-References: <1307859728-3446-1-git-send-email-benjamin.tissoires@enac.fr> <20110612152915.GA18794@polaris.bitmath.org> <BANLkTikRPnNNVp=78BxvYZzp5A2HbBYEUg@mail.gmail.com> <20110612211500.GA19269@polaris.bitmath.org>
+Date: Sun, 12 Jun 2011 17:12:45 -0500
+Message-ID: <BANLkTi=878_nkp=BKF0MFKL5RniQCsrGNw@mail.gmail.com>
+References: <1307859728-3446-1-git-send-email-benjamin.tissoires@enac.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:44991 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754233Ab1FLWBh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Jun 2011 18:01:37 -0400
-In-Reply-To: <20110612211500.GA19269@polaris.bitmath.org>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:42608 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753972Ab1FLWMq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 12 Jun 2011 18:12:46 -0400
+In-Reply-To: <1307859728-3446-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@enac.fr>, Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 12 Jun 2011, Benjamin Tissoires wrote:
-
+On Sun, Jun 12, 2011 at 1:22 AM, Benjamin Tissoires
+<benjamin.tissoires@enac.fr> wrote:
 > Since the inclusion of eGalax devices in 2.6.39, I've got some
 > bug reports for 480d and other devices.
 > The problem lies in the reports descriptors: eGalax supports both
@@ -26,40 +27,31 @@ On Sun, 12 Jun 2011, Benjamin Tissoires wrote:
 > field to send the multitouch events. In 480d, the last item is not
 > Y as it should but Pressure. That means that the fields are not
 > aligned and X,Y are at 0,0 (the other touch coordinates of the report).
-> 
+>
 > With this patch, the detection is made only when the field ContactID
 > has been detected inside the collection.
-> 
+>
 > There is still a problem with the detections of the range as stylus
 > and fingers may not have the same min/max, but it's a start.
-> 
+>
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-> ---
-> 
-> Hi guys,
-> 
-> I'd love to see this patch into stable too. The point is that it does
-> not applies out of the box. Should I send it again to stable@kernel.org
-> once the reviews has been made?
 
-The best thing is to wait for the patch to appear in Linus' tree (which is 
-a prerequisity for -stable inclusion anyway), and then send a backported 
-version, with upstream reference commit, to stable@kernel.org.
+This patch was good timing for me.  I was giving the latest
+hid-multitouch a try on my MosArt touchscreen (0486:0186).  hid-mosart
+was basically working but once merged into hid-multitouch,
+hid-multitouch was not.
 
-On Sun, 12 Jun 2011, Henrik Rydberg wrote:
+The symptom was once you touched screen, it acted like user never
+released touch.
 
-> Thanks for the clarification.
-> 
->     Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+I tracked it down today to last_field_index being reset from 14 to 2
+because of an unused extra input in descriptor that looked like a
+mouse (X/Y and 2 buttons).  This to small index caused a delay of
+sending valid data by 1 packet and since no packets sent after touch
+release, you'd not get the release at appropriate time.
 
-Thanks, I have now applied it.
+In my case, only the input with ContactID's are useful (there are 2
+ContactID's spread between 2 collections) so this patch should prevent
+last_field_index from being reset by the unused X/Y's.
 
-I am waiting with pushing my upstream-fixes branch to Linus before the 
-magicmouse issue has been sorted out (waiting for tester Ack). If this 
-doesn't happen in a day or two, I will be pushing it anyway.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Chris

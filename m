@@ -1,45 +1,68 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v5 2/2] hid-sony: fix endiannes of Sixaxis accel/gyro
- values
-Date: Mon, 13 Jun 2011 13:22:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1106131322150.22872@pobox.suse.cz>
-References: <1b0af21baa09ca623bbe62ee253f5d36.squirrel@host171.canaca.com> <1307700027-10657-2-git-send-email-ospite@studenti.unina.it>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH] input: touchscreen: add OF match table for ads7846
+Date: Mon, 13 Jun 2011 07:24:03 -0600
+Message-ID: <BANLkTinAtt2yWc=3VXqdAo4unJbTswKx0g@mail.gmail.com>
+References: <1307672920-6261-1-git-send-email-Baohua.Song@csr.com>
+ <BANLkTinTGHpyzg69OTcvmsGVLGK3qbZM7g@mail.gmail.com> <BANLkTimxhKWg1QwLEFpGKgg01DRkddmmTw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:33638 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750826Ab1FMLWZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jun 2011 07:22:25 -0400
-In-Reply-To: <1307700027-10657-2-git-send-email-ospite@studenti.unina.it>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:37950 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750967Ab1FMNYX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jun 2011 09:24:23 -0400
+Received: by pvg12 with SMTP id 12so2108720pvg.19
+        for <linux-input@vger.kernel.org>; Mon, 13 Jun 2011 06:24:23 -0700 (PDT)
+In-Reply-To: <BANLkTimxhKWg1QwLEFpGKgg01DRkddmmTw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-input@vger.kernel.org, Simon Wood <simon@mungewell.org>, Marcin Tolysz <tolysz@gmail.com>, Michael Bauer <michael@m-bauer.org>
+To: Barry Song <21cnbao@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Thomas Chou <thomas@wytron.com.tw>, devicetree-discuss@lists.ozlabs.org, Zhiwu Song <zhiwu.song@csr.com>, uclinux-dist-devel@blackfin.uclinux.org
 
-On Fri, 10 Jun 2011, Antonio Ospite wrote:
+On Mon, Jun 13, 2011 at 2:15 AM, Barry Song <21cnbao@gmail.com> wrote:
+> Hi Grant,
+> Thanks.
+>
+> 2011/6/13 Grant Likely <grant.likely@secretlab.ca>:
+>> On Thu, Jun 9, 2011 at 8:28 PM, Barry Song <Baohua.Song@csr.com> wro=
+te:
+>>> The current ads7846 has no OF match table. The method used is by ap=
+plying a heuristic (of_modalias_node) which tries to name the device in=
+ a way that will match an existing device driver.
+>>> This patch adds explicit OF match table for ads7846, then the norma=
+l device tree match behaviour will always work.
+>>> It has been tested on PRIMA2 EVB board of CSR with a SPI's child no=
+de like the below:
+>>> ts@0 {
+>>> =A0 =A0 =A0 =A0compatible =3D "ti,ads7845";
+>>> =A0 =A0 =A0 =A0reg =3D <0x0>;
+>>> =A0 =A0 =A0 =A0spi-max-frequency =3D <31250>;
+>>> =A0 =A0 =A0 =A0interrupts =3D <90>;
+>>> };
+>>>
+>>> Signed-off-by: Barry Song <21cnbao@gmail.com>
+>>> Cc: Grant Likely <grant.likely@secretlab.ca>
+>>> cc: Thomas Chou <thomas@wytron.com.tw>
+>>> ---
+>>> =A0drivers/input/touchscreen/ads7846.c | =A0 14 ++++++++++++++
+>>
+>> There should also be documentation for the new binding added to
+>> Documentation/devicetree/bindings for the new compatible strings.
+>
+> Which directory do you think is the best to place this document? or d=
+o
+> we build a new diretory named
+> Documentation/devicetree/bindings/input/touchscreen/ ?
+> The dir Documentation/devicetree/bindings seems to be for spi host,
+> not for spi clients.
 
-> From: Simon Wood <simon@mungewell.org>
-> 
-> The accelerometers/gyro on the Sixaxis are reported in the wrong
-> endianness (ie. not compatible with HID), so this patch intercepts
-> the report and swaps the appropriate bytes over.
-> 
-> Accelerometers are scaled with a nominal value of +/-4000 = 1G,
-> maximum value would be around +/-32768 = 8G.
-> 
-> Gyro on my device always reports -32768, might need some calibration
-> set within the controller.
-> 
-> Fix extracted from previous patch submission:
-> https://patchwork.kernel.org/patch/95212/
-> 
-> Signed-off-by: Marcin Tolysz <tolysz@gmail.com>
-> Signed-off-by: Simon Wood <simon@mungewell.org>
-> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+Documentation/devicetree/bindings/input sounds appropriate.
 
-Applied, thanks guys.
-
--- 
-Jiri Kosina
-SUSE Labs
+g.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

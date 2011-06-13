@@ -1,64 +1,58 @@
 From: Derek Foreman <derek@collabora.co.uk>
-Subject: Re: [PATCH 2/4] Input: Report defuzzed event once before filtering
- for devices with the INCONSISTENT_RATE property
-Date: Mon, 13 Jun 2011 10:19:58 -0400
-Message-ID: <4DF61C8E.3060708@collabora.co.uk>
-References: <1307735704-30673-1-git-send-email-derek.foreman@collabora.co.uk> <1307735704-30673-3-git-send-email-derek.foreman@collabora.co.uk> <20110610205621.GB5925@polaris.bitmath.org>
+Subject: Re: [PATCH 4/4] Input: Synaptics: Add INPUT_PROP_SYNAPTICS_T3R2 property
+Date: Mon, 13 Jun 2011 10:36:54 -0400
+Message-ID: <4DF62086.3040800@collabora.co.uk>
+References: <1307735704-30673-1-git-send-email-derek.foreman@collabora.co.uk> <1307735704-30673-5-git-send-email-derek.foreman@collabora.co.uk> <20110610211353.GD5925@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([93.93.128.226]:51502 "EHLO
+Received: from bhuna.collabora.co.uk ([93.93.128.226]:57353 "EHLO
 	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752719Ab1FMO1k (ORCPT
+	with ESMTP id S1753125Ab1FMOhF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jun 2011 10:27:40 -0400
-In-Reply-To: <20110610205621.GB5925@polaris.bitmath.org>
+	Mon, 13 Jun 2011 10:37:05 -0400
+In-Reply-To: <20110610211353.GD5925@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
 Cc: Derek Foreman <derek.foreman@collabora.co.uk>, linux-input@vger.kernel.org
 
-On 06/10/11 16:56, Henrik Rydberg wrote:
-> On Fri, Jun 10, 2011 at 03:55:02PM -0400, Derek Foreman wrote:
->> Some input devices have a non-uniform report rate, which can make it difficult for a userspace driver to distinguish between a lack of motion or a lack of new input.
+On 06/10/11 17:13, Henrik Rydberg wrote:
+> On Fri, Jun 10, 2011 at 03:55:04PM -0400, Derek Foreman wrote:
+>> This new property indicates that the trackpad is able to track more than two contacts, but can only report the positions of two contacts due to bus bandwidth limitations.
 >>
->> With this patch, if multiple duplicate events (after defuzz) are received in a row, the first duplicate is posted to userspace.
+>> Signed-off-by: Derek Foreman<derek.foreman@collabora.co.uk>
+>> ---
+>>   drivers/input/mouse/synaptics.c |    3 +++
+>>   include/linux/input.h           |    1 +
+>>   2 files changed, 4 insertions(+), 0 deletions(-)
 >
-> Every change is already propagated exactly once, which seems to amount
-> to the same thing your patch is aiming at. The evdev event signifies
-> the change itself (and when it occurs), so there is actually no
-> difference between the lack of motion and the lack of input.
+> This information is already contained in INPUT_PROP_SEMI_MT, together
+> with the use of BTN_TRIPLETAP. Please check
+> Documentation/input/event-codes.txt for further details.
 
-Hi Henrik,
+I really sorry, but I don't understand how this provides the same 
+information.
 
-Thank you for all your input.
+INPUT_PROP_SEMI_MT, at least according to input.h specifies that the 
+device reports a rectangle only, and not accurate touch co-ordinates.
 
-The specific problem that this patch aims to solve is that a certain 
-family of synaptics devices drops from 80Hz to 40Hz reporting when 2 or 
-more fingers are on the pad.  As the screen refresh rate for a modern PC 
-is generally 60Hz, input feels subjectively much less interactive.
+BTN_TOOL_TRIPLETAP indicates that there are 3 fingers on the pad.
 
-It is possible - by maintaining a short history of past events and 
-predicting where the cursor would be in the future - to do a reasonable 
-job of creating 60Hz motion from this lower input rate.  This is where 
-the difference between lack of motion and lack of input is key.
 
-If I receive an event, then 1/80th of a second later I do NOT receive 
-another one, I don't know whether the device has dropped to a lower 
-reporting rate (lack of input), or whether the device reported the same 
-event 2 times in a row, and the kernel "defuzz" code filtered it (lack 
-of motion).
+My intent was to indicate to userspace that the device is reporting 
+co-ordinates like certain synaptics devices do:
 
-In the "lack of input" case, I want to fabricate a synthetic event to 
-keep the pointer motion fluid.  In the "lack of motion" case, I want 
-pointer motion to stop.
+3 fingers are accurately tracked
+2 fingers are accurately (not bounding box) reported
 
-Currently, the kernel knows it has started to filter unchanging input, 
-but userspace has no mechanism to detect that this filtering has begun. 
-  As two identical events in a row is an impossibility in the face of 
-the defuzz code, I had thought this would be a good way to expose this 
-information without confusing any existing applications...
+Further, all the idiosyncrasies of the synaptics method of reporting apply:
+The device has 3 "slots" for tracking data, and once they are all 
+filled, it reports slots 1 and 3.  If the slot 1 contact is lifted, 
+slots 2 and 3 will report.  If a third finger is once again added to the 
+pad, it will become the new slot 1.
 
-Thanks,
-Derek
+INPUT_PROP_SEMI_MT is actually inaccurate for these devices, and in 
+retrospect, the bounding box patch should have removed that bit from the 
+properties of the devices it applies to.

@@ -1,308 +1,134 @@
-From: Eric Miao <eric.miao@linaro.org>
-Subject: Re: [PATCH] input: add support for mma8450 accelerometer
-Date: Tue, 14 Jun 2011 00:11:58 +0800
-Message-ID: <BANLkTimsdMJfU5=GYmEK_k2gFKPV6b+AJA@mail.gmail.com>
-References: <1307873303-27371-1-git-send-email-eric.miao@linaro.org> <BANLkTimPu2K4o5jbe7XjnzKx6tV5AOPX6w@mail.gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: [PATCH v5 00/18] MFD/ASoC/Input: TWL4030/TWL60X0 changes
+Date: Mon, 13 Jun 2011 19:37:32 +0300
+Message-ID: <1307983070-2257-1-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:34210 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752893Ab1FMQMS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jun 2011 12:12:18 -0400
-In-Reply-To: <BANLkTimPu2K4o5jbe7XjnzKx6tV5AOPX6w@mail.gmail.com>
+Received: from bear.ext.ti.com ([192.94.94.41]:42882 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753579Ab1FMQiC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jun 2011 12:38:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sammy He <r62914@freescale.com>
+To: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-On Mon, Jun 13, 2011 at 2:42 PM, Shubhrajyoti Datta
-<omaplinuxkernel@gmail.com> wrote:
-> Hi Eric,
-> Some minor comments.
->
+Hello,
 
-OK, patch updated as below:
+Changes since v4:
+- Comments from Dmitry Torokhov addressed for the twl6030-vibra driver.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 45dc6aa..faf7e0c 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -478,4 +478,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called xen-kbdfront.
+Intro message from the v4 series:
+The series will do five major things, and they are in one series, because they
+pretty much depending on each other, so it is easier to handle them together.
 
-+config INPUT_MMA8450
-+	tristate "MMA8450 - Freescale's 3-Axis, 8/12-bit Digital Accelerometer"
-+	depends on I2C
-+	help
-+	  Say Y here if you want to support Freescale's MMA8450 Accelerometer
-+	  through I2C interface.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called mma8450.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 38efb2c..5239e29 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -45,4 +45,5 @@ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
- obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
-+obj-$(CONFIG_INPUT_MMA8450)		+= mma8450.o
+1. Move the common pmic related configurations out from the board files.
+New twl-common.c/h file has been created for this purpose.
+OMAP3 board files received two patches (pdata, and regualtor changes), OMAP4
+board files has been changed with one patch.
 
-diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma8450.c
-new file mode 100644
-index 0000000..6b9235e3
---- /dev/null
-+++ b/drivers/input/misc/mma8450.c
-@@ -0,0 +1,246 @@
-+/*
-+ *  Driver for Freescale's 3-Axis Accelerometer MMA8450
-+ *
-+ *  Copyright (C) 2011 Freescale Semiconductor, Inc. All Rights Reserved.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/input-polldev.h>
-+
-+#define MMA8450_DRV_NAME	"mma8450"
-+
-+#define MODE_CHANGE_DELAY_MS	100
-+#define POLL_INTERVAL		100
-+#define POLL_INTERVAL_MAX	500
-+
-+/* register definitions */
-+#define MMA8450_STATUS		0x00
-+#define MMA8450_STATUS_ZXYDR	0x08
-+
-+#define MMA8450_OUT_X8		0x01
-+#define MMA8450_OUT_Y8		0x02
-+#define MMA8450_OUT_Z8		0x03
-+
-+#define MMA8450_OUT_X_LSB	0x05
-+#define MMA8450_OUT_X_MSB	0x06
-+#define MMA8450_OUT_Y_LSB	0x07
-+#define MMA8450_OUT_Y_MSB	0x08
-+#define MMA8450_OUT_Z_LSB	0x09
-+#define MMA8450_OUT_Z_MSB	0x0a
-+
-+#define MMA8450_XYZ_DATA_CFG	0x16
-+
-+#define MMA8450_CTRL_REG1	0x38
-+#define MMA8450_CTRL_REG2	0x39
-+
-+/* mma8450 status */
-+struct mma8450 {
-+	struct i2c_client	*client;
-+	struct input_polled_dev	*idev;
-+};
-+
-+static int mma8450_read(struct mma8450 *m, unsigned off, uint8_t *v)
-+{
-+	struct i2c_client *c = m->client;
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(c, off);
-+	if (ret < 0)
-+		dev_err(&c->dev, "failed to read register 0x%02x\n", off);
-+
-+	*v = (uint8_t)ret;
-+	return ret;
-+}
-+
-+static int mma8450_write(struct mma8450 *m, unsigned off, uint8_t v)
-+{
-+	struct i2c_client *c = m->client;
-+	int ret;
-+
-+	ret = i2c_smbus_write_byte_data(c, off, v);
-+	if (ret < 0)
-+		dev_err(&c->dev, "failed to write to register 0x%02x\n", off);
-+
-+	return ret;
-+}
-+
-+static int mma8450_init_client(struct mma8450 *m)
-+{
-+	int err;
-+
-+	/* enable all events from X/Y/Z, no FIFO */
-+	err = mma8450_write(m, MMA8450_XYZ_DATA_CFG, 0x07);
-+	if (err < 0)
-+		return err;
-+
-+	/* Sleep mode poll rate - 50Hz
-+	 * System output data rate - 400Hz
-+	 * Full scale selection - Active, +/- 2G
-+	 */
-+	err = mma8450_write(m, MMA8450_CTRL_REG1, 0x01);
-+	if (err < 0)
-+		return err;
-+
-+	msleep(MODE_CHANGE_DELAY_MS);
-+	return 0;
-+}
-+
-+static int mma8450_read_xyz(struct mma8450 *m, int *x, int *y, int *z)
-+{
-+	struct i2c_client *c = m->client;
-+	uint8_t buff[6];
-+	int ret;
-+
-+	ret = i2c_smbus_read_i2c_block_data(c, MMA8450_OUT_X_LSB, 6, buff);
-+	if (ret < 0) {
-+		dev_err(&c->dev, "failed to read block data at 0x%02x\n",
-+				MMA8450_OUT_X_LSB);
-+		return ret;
-+	}
-+
-+	*x = ((buff[1] << 4) & 0xff0) | (buff[0] & 0xf);
-+	*y = ((buff[3] << 4) & 0xff0) | (buff[2] & 0xf);
-+	*z = ((buff[5] << 4) & 0xff0) | (buff[4] & 0xf);
-+
-+	return 0;
-+}
-+
-+static void mma8450_poll(struct input_polled_dev *dev)
-+{
-+	struct mma8450 *m = dev->private;
-+	uint8_t status;
-+	int x, y, z, err;
-+
-+	err = mma8450_read(m, MMA8450_STATUS, &status);
-+	if (err)
-+		return;
-+
-+	if ((status & MMA8450_STATUS_ZXYDR) == 0)
-+		return;
-+
-+	err = mma8450_read_xyz(m, &x, &y, &z);
-+	if (err)
-+		return;
-+
-+	input_report_abs(dev->input, ABS_X, x);
-+	input_report_abs(dev->input, ABS_Y, y);
-+	input_report_abs(dev->input, ABS_Z, z);
-+	input_sync(dev->input);
-+}
-+
-+/*
-+ * I2C init/probing/exit functions
-+ */
-+static int __devinit mma8450_probe(struct i2c_client *c,
-+				   const struct i2c_device_id *id)
-+{
-+	struct input_polled_dev *idev;
-+	struct mma8450 *m;
-+	int err;
-+
-+	m = kzalloc(sizeof(struct mma8450), GFP_KERNEL);
-+	if (m == NULL)
-+		return -ENOMEM;
-+
-+	m->client = c;
-+
-+	/* Initialize the MMA8450 chip */
-+	err = mma8450_init_client(m);
-+	if (err)
-+		goto exit_free;
-+
-+	/*input poll device register */
-+	idev = input_allocate_polled_device();
-+	if (idev == NULL) {
-+		dev_err(&c->dev, "failed to allocate polled input device\n");
-+		goto exit_free;
-+	}
-+
-+	idev->private		= m;
-+	idev->input->name	= MMA8450_DRV_NAME;
-+	idev->input->id.bustype	= BUS_I2C;
-+	idev->poll		= mma8450_poll;
-+	idev->poll_interval	= POLL_INTERVAL;
-+	idev->poll_interval_max	= POLL_INTERVAL_MAX;
-+	__set_bit(EV_ABS, idev->input->evbit);
-+
-+	input_set_abs_params(idev->input, ABS_X, -2048, 2047, 32, 32);
-+	input_set_abs_params(idev->input, ABS_Y, -2048, 2047, 32, 32);
-+	input_set_abs_params(idev->input, ABS_Z, -2048, 2047, 32, 32);
-+
-+	err = input_register_polled_device(idev);
-+	if (err) {
-+		dev_err(&c->dev, "failed to register polled input device\n");
-+		goto exit_free_input;
-+	}
-+
-+	dev_info(&c->dev, "polled input device registered\n");
-+	return 0;
-+
-+exit_free_input:
-+	input_free_polled_device(idev);
-+exit_free:
-+	kfree(m);
-+	return err;
-+}
-+
-+static int __devexit mma8450_remove(struct i2c_client *c)
-+{
-+	struct mma8450 *m = i2c_get_clientdata(c);
-+
-+	mma8450_write(m, MMA8450_CTRL_REG1, 0x00);
-+	mma8450_write(m, MMA8450_CTRL_REG2, 0x01);
-+
-+	kfree(m);
-+	return 0;
-+}
-+
-+static const struct i2c_device_id mma8450_id[] = {
-+	{ MMA8450_DRV_NAME, 0 },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(i2c, mma8450_id);
-+
-+static struct i2c_driver mma8450_driver = {
-+	.driver = {
-+		.name	= MMA8450_DRV_NAME,
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe		= mma8450_probe,
-+	.remove		= __devexit_p(mma8450_remove),
-+	.id_table	= mma8450_id,
-+};
-+
-+static int __init mma8450_init(void)
-+{
-+	return i2c_add_driver(&mma8450_driver);
-+}
-+module_init(mma8450_init);
-+
-+static void __exit mma8450_exit(void)
-+{
-+	i2c_del_driver(&mma8450_driver);
-+}
-+module_exit(mma8450_exit);
-+
-+MODULE_AUTHOR("Freescale Semiconductor, Inc.");
-+MODULE_DESCRIPTION("MMA8450 3-Axis Accelerometer Driver");
-+MODULE_LICENSE("GPL");
+2. Rename the twl4030-codec MFD driver to twl4030-audio
+Since the ASoC multicomponent introduction (2.6.37) the twl4030-codec MFD dirver
+had been using twl4030-audio to register (twl4030-codec is the ASoC codec
+driver). The documentation refers to this part of twl as audio block, so it is
+better to rename the driver as well to avoid confusion.
+
+3. Introduction of MFD driver for twl6040.
+The TWL6040 audio IC has codec and vibra functionality.
+Convert the existing ASoC codec driver to use the new MFD driver's interface.
+
+4. Vibrator driver for TWL6040 (Input/ForceFeedback driver)
+The driver itself, and support for the vibrators in SDP4430 board.
+
+5. Updates for twl6040 ASoC codec driver
+HS ramp configuration, new ABE dais, updated sample rate constraints, SDP4430
+configuration.
+
+Regards,
+Peter
+
+---
+Axel Castaneda Gonzalez (1):
+  ASoC: twl6040: Configure ramp step based on platform
+
+Liam Girdwood (3):
+  ASoC: twl6040: add all ABE DAIs
+  ASoC: twl6040: Support other sample rates in constraints.
+  ASoC: twl6040: set default constraints.
+
+Misael Lopez Cruz (5):
+  mfd: twl6040: Add initial support
+  ASoC: twl6040: Convert into TWL6040 MFD child
+  input: Add initial support for TWL6040 vibrator
+  ASoC: twl6040: Remove pll and headset mode dependency
+  OMAP4: SDP4430: Add twl6040 codec platform support
+
+Peter Ujfalusi (9):
+  OMAP: New twl-common for common TWL configuration
+  OMAP4: Move common twl6030 configuration to twl-common
+  OMAP3: Move common twl configuration to twl-common
+  OMAP3: Move common regulator configuration to twl-common
+  MFD: twl4030-codec: Rename internals from codec to audio
+  MFD: twl4030-codec -> twl4030-audio: Rename the driver
+  MFD: twl4030-audio: Rename platform data
+  MFD: twl6040: Change platform data for soc codec driver
+  OMAP4: SDP4430: Add twl6040 vibrator platform support
+
+ arch/arm/mach-omap2/Makefile                       |    2 +-
+ arch/arm/mach-omap2/board-3430sdp.c                |   89 +---
+ arch/arm/mach-omap2/board-4430sdp.c                |  187 ++----
+ arch/arm/mach-omap2/board-cm-t35.c                 |   48 +--
+ arch/arm/mach-omap2/board-devkit8000.c             |   37 +-
+ arch/arm/mach-omap2/board-igep0020.c               |   44 +--
+ arch/arm/mach-omap2/board-ldp.c                    |   15 +-
+ arch/arm/mach-omap2/board-omap3beagle.c            |   60 +--
+ arch/arm/mach-omap2/board-omap3evm.c               |   67 +--
+ arch/arm/mach-omap2/board-omap3pandora.c           |   59 +--
+ arch/arm/mach-omap2/board-omap3stalker.c           |   70 +--
+ arch/arm/mach-omap2/board-omap3touchbook.c         |   57 +--
+ arch/arm/mach-omap2/board-omap4panda.c             |  149 +-----
+ arch/arm/mach-omap2/board-overo.c                  |   59 +--
+ arch/arm/mach-omap2/board-rm680.c                  |    8 +-
+ arch/arm/mach-omap2/board-rx51-peripherals.c       |   44 +--
+ arch/arm/mach-omap2/board-zoom-peripherals.c       |   88 +---
+ arch/arm/mach-omap2/common-board-devices.c         |   21 -
+ arch/arm/mach-omap2/common-board-devices.h         |   26 +-
+ arch/arm/mach-omap2/twl-common.c                   |  304 ++++++++++
+ arch/arm/mach-omap2/twl-common.h                   |   59 ++
+ arch/arm/plat-omap/include/plat/irqs.h             |   12 +-
+ drivers/input/misc/Kconfig                         |   13 +-
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/twl4030-vibra.c                 |   12 +-
+ drivers/input/misc/twl6040-vibra.c                 |  425 +++++++++++++
+ drivers/mfd/Kconfig                                |    8 +-
+ drivers/mfd/Makefile                               |    3 +-
+ drivers/mfd/twl-core.c                             |   13 +-
+ drivers/mfd/twl4030-audio.c                        |  277 +++++++++
+ drivers/mfd/twl4030-codec.c                        |  277 ---------
+ drivers/mfd/twl6040-core.c                         |  601 +++++++++++++++++++
+ drivers/mfd/twl6040-irq.c                          |  205 +++++++
+ include/linux/i2c/twl.h                            |   25 +-
+ .../linux/mfd/{twl4030-codec.h => twl4030-audio.h} |   16 +-
+ include/linux/mfd/twl6040.h                        |  261 ++++++++
+ sound/soc/codecs/Kconfig                           |    3 +-
+ sound/soc/codecs/twl4030.c                         |   22 +-
+ sound/soc/codecs/twl6040.c                         |  630 ++++++++------------
+ sound/soc/codecs/twl6040.h                         |  118 ----
+ sound/soc/omap/sdp3430.c                           |    2 +-
+ sound/soc/omap/sdp4430.c                           |    2 +
+ sound/soc/omap/zoom2.c                             |    2 +-
+ 43 files changed, 2648 insertions(+), 1773 deletions(-)
+ create mode 100644 arch/arm/mach-omap2/twl-common.c
+ create mode 100644 arch/arm/mach-omap2/twl-common.h
+ create mode 100644 drivers/input/misc/twl6040-vibra.c
+ create mode 100644 drivers/mfd/twl4030-audio.c
+ delete mode 100644 drivers/mfd/twl4030-codec.c
+ create mode 100644 drivers/mfd/twl6040-core.c
+ create mode 100644 drivers/mfd/twl6040-irq.c
+ rename include/linux/mfd/{twl4030-codec.h => twl4030-audio.h} (96%)
+ create mode 100644 include/linux/mfd/twl6040.h
+
+-- 
+1.7.5.3
+

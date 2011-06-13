@@ -1,92 +1,308 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: Re: ET1602 Touchscreen doesn't work
-Date: Mon, 13 Jun 2011 12:09:44 -0300
-Message-ID: <20110613150943.GE2597@nautilus.holoscopio.com>
-References: <BANLkTimen=6OXOTww48CAn-ULaRVP_7zUw@mail.gmail.com>
- <20110603124428.GA2379@nautilus.holoscopio.com>
- <BANLkTimw2pV2Cv6pG2HJiD5AGrqJpOCXjw@mail.gmail.com>
- <BANLkTikiX4X2OEET5qmejdWhs1XY7e3HWw@mail.gmail.com>
- <20110608125758.GA2465@nautilus.holoscopio.com>
- <BANLkTin1YhxCE5J9suR93eWcWEtviFNLtg@mail.gmail.com>
- <20110608153146.GG2465@nautilus.holoscopio.com>
- <BANLkTin3MyXsDHOK+BgdXvKO5YBH=Cv5DA@mail.gmail.com>
- <20110609133943.GA2439@nautilus.holoscopio.com>
- <BANLkTinnGiu_qWnCTq-1peyEw4=xUdnAkw@mail.gmail.com>
+From: Eric Miao <eric.miao@linaro.org>
+Subject: Re: [PATCH] input: add support for mma8450 accelerometer
+Date: Tue, 14 Jun 2011 00:11:58 +0800
+Message-ID: <BANLkTimsdMJfU5=GYmEK_k2gFKPV6b+AJA@mail.gmail.com>
+References: <1307873303-27371-1-git-send-email-eric.miao@linaro.org> <BANLkTimPu2K4o5jbe7XjnzKx6tV5AOPX6w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qOrJKOH36bD5yhNe"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade2.minaslivre.org ([74.50.53.203]:50946 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752158Ab1FMPJs (ORCPT
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:34210 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752893Ab1FMQMS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jun 2011 11:09:48 -0400
-Content-Disposition: inline
-In-Reply-To: <BANLkTinnGiu_qWnCTq-1peyEw4=xUdnAkw@mail.gmail.com>
+	Mon, 13 Jun 2011 12:12:18 -0400
+In-Reply-To: <BANLkTimPu2K4o5jbe7XjnzKx6tV5AOPX6w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chih-Wei Huang <cwhuang@android-x86.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sammy He <r62914@freescale.com>
 
+On Mon, Jun 13, 2011 at 2:42 PM, Shubhrajyoti Datta
+<omaplinuxkernel@gmail.com> wrote:
+> Hi Eric,
+> Some minor comments.
+>
 
---qOrJKOH36bD5yhNe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+OK, patch updated as below:
 
-On Fri, Jun 10, 2011 at 10:23:06AM +0800, Chih-Wei Huang wrote:
-> 2011/6/9 Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>:
-> > Nice. That was one of the tests. But have you tested without the quirck
-> > in hid-quirks and without the suggested change by Benjamin? Considering
-> > the device would indicate it supports RX and Z axis, but not X and Y
-> > axis, it should not work either in Android.
->=20
-> Did you mean just remove this line in hid-quirks.c?
->=20
-> { USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_I=
-NPUT },
->=20
-> That's what I've tried (with and without Benjamin's change) .
-> Yes, it works in Android 2.2.
->=20
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 45dc6aa..faf7e0c 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -478,4 +478,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called xen-kbdfront.
 
-Yes, that's what I meant. The problem is: without the patch, X.org won't
-work with the drivers I've tested it with; with the patch, Android won't
-work. I am curious, because the code you've sent only checked for X and
-Y axis and without the patch, the single device would not send events in
-these axis, IIRC. I will check if I have this particular device
-available and do some tests with current Linux (2.6.39.1) and more
-recent X.org drivers.
++config INPUT_MMA8450
++	tristate "MMA8450 - Freescale's 3-Axis, 8/12-bit Digital Accelerometer"
++	depends on I2C
++	help
++	  Say Y here if you want to support Freescale's MMA8450 Accelerometer
++	  through I2C interface.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called mma8450.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 38efb2c..5239e29 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -45,4 +45,5 @@ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
++obj-$(CONFIG_INPUT_MMA8450)		+= mma8450.o
 
-Regards,
-Cascardo.
-
-> --=20
-> Chih-Wei
-> Android-x86 project
-> http://www.android-x86.org
-
---qOrJKOH36bD5yhNe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iQIcBAEBAgAGBQJN9ig3AAoJEEWxSg7udFZICZYP/jKCbiuSFUEqy0ejxRI0NSZy
-PbmyplcxLlkTYKxOmMmtPPrjLkR+LbyXpSTwWxlOFOytApFe8Z0EypsjZE5jVNrM
-2Vy05wb27RF5iSZtZXY8wc8PLDW6g1QMpz4ECkrqA1otMTDfMIb4MRefAavNlKxS
-ZQdPM5E+0RLwJHIGyD1I9HjdpjmE1tsz3zz1NZJcf0hHWYXowE+61esZ/1MgP0dM
-E94M0OH0ICqRX7OgQBXqfiPvhTHQsMlc9lL7aZJn44DPQzsik5ctS8ytOqcJ8Ts5
-/autkUHbejE2IyKpUV2ZIxmWACw/6XjtdPAOb2uWTBTNyyRgBiLME59DlJksThWM
-dDqBYQFm3qipq039M5RWmIb5qrl8bacCUhu1zorUL/SrEAvUNNxxL/5DJepNIZCZ
-lutdnUmEcF+DtoMJliBIEmSIwOfk2lT2K5Fa5cC0INt/V0MFY+2dbmCruIxbz/8J
-1WpMAnRqFm5MWPkj3u3QXJYerBHP3xROAW59rd1xrBfePIjR/1hE/Ds4xN0Dll9L
-vNdwapnyqkJzgfH9zwc6STGh6jcLjF1iRvfgi5orWkxBOWcjj3D9OWGVXs3plvIk
-bjvHCwpasU13icENxnqyLQX4y1n6r064e0H5bUm3h0UFjPENk0dLK0kGhsRRMg10
-N8qDnLkp/0QNOjysisYw
-=9Hod
------END PGP SIGNATURE-----
-
---qOrJKOH36bD5yhNe--
+diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma8450.c
+new file mode 100644
+index 0000000..6b9235e3
+--- /dev/null
++++ b/drivers/input/misc/mma8450.c
+@@ -0,0 +1,246 @@
++/*
++ *  Driver for Freescale's 3-Axis Accelerometer MMA8450
++ *
++ *  Copyright (C) 2011 Freescale Semiconductor, Inc. All Rights Reserved.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/input-polldev.h>
++
++#define MMA8450_DRV_NAME	"mma8450"
++
++#define MODE_CHANGE_DELAY_MS	100
++#define POLL_INTERVAL		100
++#define POLL_INTERVAL_MAX	500
++
++/* register definitions */
++#define MMA8450_STATUS		0x00
++#define MMA8450_STATUS_ZXYDR	0x08
++
++#define MMA8450_OUT_X8		0x01
++#define MMA8450_OUT_Y8		0x02
++#define MMA8450_OUT_Z8		0x03
++
++#define MMA8450_OUT_X_LSB	0x05
++#define MMA8450_OUT_X_MSB	0x06
++#define MMA8450_OUT_Y_LSB	0x07
++#define MMA8450_OUT_Y_MSB	0x08
++#define MMA8450_OUT_Z_LSB	0x09
++#define MMA8450_OUT_Z_MSB	0x0a
++
++#define MMA8450_XYZ_DATA_CFG	0x16
++
++#define MMA8450_CTRL_REG1	0x38
++#define MMA8450_CTRL_REG2	0x39
++
++/* mma8450 status */
++struct mma8450 {
++	struct i2c_client	*client;
++	struct input_polled_dev	*idev;
++};
++
++static int mma8450_read(struct mma8450 *m, unsigned off, uint8_t *v)
++{
++	struct i2c_client *c = m->client;
++	int ret;
++
++	ret = i2c_smbus_read_byte_data(c, off);
++	if (ret < 0)
++		dev_err(&c->dev, "failed to read register 0x%02x\n", off);
++
++	*v = (uint8_t)ret;
++	return ret;
++}
++
++static int mma8450_write(struct mma8450 *m, unsigned off, uint8_t v)
++{
++	struct i2c_client *c = m->client;
++	int ret;
++
++	ret = i2c_smbus_write_byte_data(c, off, v);
++	if (ret < 0)
++		dev_err(&c->dev, "failed to write to register 0x%02x\n", off);
++
++	return ret;
++}
++
++static int mma8450_init_client(struct mma8450 *m)
++{
++	int err;
++
++	/* enable all events from X/Y/Z, no FIFO */
++	err = mma8450_write(m, MMA8450_XYZ_DATA_CFG, 0x07);
++	if (err < 0)
++		return err;
++
++	/* Sleep mode poll rate - 50Hz
++	 * System output data rate - 400Hz
++	 * Full scale selection - Active, +/- 2G
++	 */
++	err = mma8450_write(m, MMA8450_CTRL_REG1, 0x01);
++	if (err < 0)
++		return err;
++
++	msleep(MODE_CHANGE_DELAY_MS);
++	return 0;
++}
++
++static int mma8450_read_xyz(struct mma8450 *m, int *x, int *y, int *z)
++{
++	struct i2c_client *c = m->client;
++	uint8_t buff[6];
++	int ret;
++
++	ret = i2c_smbus_read_i2c_block_data(c, MMA8450_OUT_X_LSB, 6, buff);
++	if (ret < 0) {
++		dev_err(&c->dev, "failed to read block data at 0x%02x\n",
++				MMA8450_OUT_X_LSB);
++		return ret;
++	}
++
++	*x = ((buff[1] << 4) & 0xff0) | (buff[0] & 0xf);
++	*y = ((buff[3] << 4) & 0xff0) | (buff[2] & 0xf);
++	*z = ((buff[5] << 4) & 0xff0) | (buff[4] & 0xf);
++
++	return 0;
++}
++
++static void mma8450_poll(struct input_polled_dev *dev)
++{
++	struct mma8450 *m = dev->private;
++	uint8_t status;
++	int x, y, z, err;
++
++	err = mma8450_read(m, MMA8450_STATUS, &status);
++	if (err)
++		return;
++
++	if ((status & MMA8450_STATUS_ZXYDR) == 0)
++		return;
++
++	err = mma8450_read_xyz(m, &x, &y, &z);
++	if (err)
++		return;
++
++	input_report_abs(dev->input, ABS_X, x);
++	input_report_abs(dev->input, ABS_Y, y);
++	input_report_abs(dev->input, ABS_Z, z);
++	input_sync(dev->input);
++}
++
++/*
++ * I2C init/probing/exit functions
++ */
++static int __devinit mma8450_probe(struct i2c_client *c,
++				   const struct i2c_device_id *id)
++{
++	struct input_polled_dev *idev;
++	struct mma8450 *m;
++	int err;
++
++	m = kzalloc(sizeof(struct mma8450), GFP_KERNEL);
++	if (m == NULL)
++		return -ENOMEM;
++
++	m->client = c;
++
++	/* Initialize the MMA8450 chip */
++	err = mma8450_init_client(m);
++	if (err)
++		goto exit_free;
++
++	/*input poll device register */
++	idev = input_allocate_polled_device();
++	if (idev == NULL) {
++		dev_err(&c->dev, "failed to allocate polled input device\n");
++		goto exit_free;
++	}
++
++	idev->private		= m;
++	idev->input->name	= MMA8450_DRV_NAME;
++	idev->input->id.bustype	= BUS_I2C;
++	idev->poll		= mma8450_poll;
++	idev->poll_interval	= POLL_INTERVAL;
++	idev->poll_interval_max	= POLL_INTERVAL_MAX;
++	__set_bit(EV_ABS, idev->input->evbit);
++
++	input_set_abs_params(idev->input, ABS_X, -2048, 2047, 32, 32);
++	input_set_abs_params(idev->input, ABS_Y, -2048, 2047, 32, 32);
++	input_set_abs_params(idev->input, ABS_Z, -2048, 2047, 32, 32);
++
++	err = input_register_polled_device(idev);
++	if (err) {
++		dev_err(&c->dev, "failed to register polled input device\n");
++		goto exit_free_input;
++	}
++
++	dev_info(&c->dev, "polled input device registered\n");
++	return 0;
++
++exit_free_input:
++	input_free_polled_device(idev);
++exit_free:
++	kfree(m);
++	return err;
++}
++
++static int __devexit mma8450_remove(struct i2c_client *c)
++{
++	struct mma8450 *m = i2c_get_clientdata(c);
++
++	mma8450_write(m, MMA8450_CTRL_REG1, 0x00);
++	mma8450_write(m, MMA8450_CTRL_REG2, 0x01);
++
++	kfree(m);
++	return 0;
++}
++
++static const struct i2c_device_id mma8450_id[] = {
++	{ MMA8450_DRV_NAME, 0 },
++	{},
++};
++MODULE_DEVICE_TABLE(i2c, mma8450_id);
++
++static struct i2c_driver mma8450_driver = {
++	.driver = {
++		.name	= MMA8450_DRV_NAME,
++		.owner	= THIS_MODULE,
++	},
++	.probe		= mma8450_probe,
++	.remove		= __devexit_p(mma8450_remove),
++	.id_table	= mma8450_id,
++};
++
++static int __init mma8450_init(void)
++{
++	return i2c_add_driver(&mma8450_driver);
++}
++module_init(mma8450_init);
++
++static void __exit mma8450_exit(void)
++{
++	i2c_del_driver(&mma8450_driver);
++}
++module_exit(mma8450_exit);
++
++MODULE_AUTHOR("Freescale Semiconductor, Inc.");
++MODULE_DESCRIPTION("MMA8450 3-Axis Accelerometer Driver");
++MODULE_LICENSE("GPL");

@@ -1,29 +1,30 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: roccat: Correction and cleanup of hid feature
- reports
-Date: Mon, 13 Jun 2011 12:55:55 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1106131255490.22872@pobox.suse.cz>
-References: <1306936457.2486.7.camel@neuromancer>
+Subject: Re: [PATCH v5 1/2] hid-sony: amend Sixaxis descriptor to enable
+ accelerometers
+Date: Mon, 13 Jun 2011 13:22:12 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1106131322030.22872@pobox.suse.cz>
+References: <1b0af21baa09ca623bbe62ee253f5d36.squirrel@host171.canaca.com> <1307700027-10657-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53455 "EHLO mx2.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:33631 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751446Ab1FMKz4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jun 2011 06:55:56 -0400
-In-Reply-To: <1306936457.2486.7.camel@neuromancer>
+	id S1752093Ab1FMLWO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jun 2011 07:22:14 -0400
+In-Reply-To: <1307700027-10657-1-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-input@vger.kernel.org, Simon Wood <simon@mungewell.org>, Marcin Tolysz <tolysz@gmail.com>, Michael Bauer <michael@m-bauer.org>
 
-On Wed, 1 Jun 2011, Stefan Achatz wrote:
+On Fri, 10 Jun 2011, Antonio Ospite wrote:
 
-> Removed analog feature report enums and modified code in roccat_common
-> to reflect this. Non standard conform Kone got its own copy of the old
-> code. That helps extracting more generalizations for newer devices.
+> From: Simon Wood <simon@mungewell.org>
+> 
+> Modify the HID descriptor of the Sixaxis controller to allow the
+> reporting of the accelerometers and gyro via a joystick axis.
 
-Applied.
+Applied, thanks.
 
 -- 
 Jiri Kosina

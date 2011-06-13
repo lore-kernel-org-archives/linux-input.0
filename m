@@ -1,68 +1,143 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH] input: touchscreen: add OF match table for ads7846
-Date: Mon, 13 Jun 2011 07:24:03 -0600
-Message-ID: <BANLkTinAtt2yWc=3VXqdAo4unJbTswKx0g@mail.gmail.com>
-References: <1307672920-6261-1-git-send-email-Baohua.Song@csr.com>
- <BANLkTinTGHpyzg69OTcvmsGVLGK3qbZM7g@mail.gmail.com> <BANLkTimxhKWg1QwLEFpGKgg01DRkddmmTw@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Driver for Lenovo Keyboard w/ Trackpoint
+Date: Mon, 13 Jun 2011 15:24:58 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1106131521550.22872@pobox.suse.cz>
+References: <1306512263-8796-1-git-send-email-mail@bernhard-seibold.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:37950 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750967Ab1FMNYX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jun 2011 09:24:23 -0400
-Received: by pvg12 with SMTP id 12so2108720pvg.19
-        for <linux-input@vger.kernel.org>; Mon, 13 Jun 2011 06:24:23 -0700 (PDT)
-In-Reply-To: <BANLkTimxhKWg1QwLEFpGKgg01DRkddmmTw@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:57891 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751448Ab1FMNZA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jun 2011 09:25:00 -0400
+In-Reply-To: <1306512263-8796-1-git-send-email-mail@bernhard-seibold.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <21cnbao@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Thomas Chou <thomas@wytron.com.tw>, devicetree-discuss@lists.ozlabs.org, Zhiwu Song <zhiwu.song@csr.com>, uclinux-dist-devel@blackfin.uclinux.org
+To: Bernhard Seibold <mail@bernhard-seibold.de>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Jun 13, 2011 at 2:15 AM, Barry Song <21cnbao@gmail.com> wrote:
-> Hi Grant,
-> Thanks.
->
-> 2011/6/13 Grant Likely <grant.likely@secretlab.ca>:
->> On Thu, Jun 9, 2011 at 8:28 PM, Barry Song <Baohua.Song@csr.com> wro=
-te:
->>> The current ads7846 has no OF match table. The method used is by ap=
-plying a heuristic (of_modalias_node) which tries to name the device in=
- a way that will match an existing device driver.
->>> This patch adds explicit OF match table for ads7846, then the norma=
-l device tree match behaviour will always work.
->>> It has been tested on PRIMA2 EVB board of CSR with a SPI's child no=
-de like the below:
->>> ts@0 {
->>> =A0 =A0 =A0 =A0compatible =3D "ti,ads7845";
->>> =A0 =A0 =A0 =A0reg =3D <0x0>;
->>> =A0 =A0 =A0 =A0spi-max-frequency =3D <31250>;
->>> =A0 =A0 =A0 =A0interrupts =3D <90>;
->>> };
->>>
->>> Signed-off-by: Barry Song <21cnbao@gmail.com>
->>> Cc: Grant Likely <grant.likely@secretlab.ca>
->>> cc: Thomas Chou <thomas@wytron.com.tw>
->>> ---
->>> =A0drivers/input/touchscreen/ads7846.c | =A0 14 ++++++++++++++
->>
->> There should also be documentation for the new binding added to
->> Documentation/devicetree/bindings for the new compatible strings.
->
-> Which directory do you think is the best to place this document? or d=
-o
-> we build a new diretory named
-> Documentation/devicetree/bindings/input/touchscreen/ ?
-> The dir Documentation/devicetree/bindings seems to be for spi host,
-> not for spi clients.
+On Fri, 27 May 2011, Bernhard Seibold wrote:
 
-Documentation/devicetree/bindings/input sounds appropriate.
+> This patch adds support for setting the trackpoint sensitivity
+> of the "Lenovo ThinkPad USB Keyboard with Trackpoint".
 
-g.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi Bernhard,
+
+thanks a lot for the patch.
+
+> ---
+>  drivers/hid/Kconfig            |   10 +++
+>  drivers/hid/Makefile           |    1 +
+>  drivers/hid/hid-core.c         |    1 +
+>  drivers/hid/hid-ids.h          |    3 +
+>  drivers/hid/hid-lenovo-tpkbd.c |  166 ++++++++++++++++++++++++++++++++++++++++
+>  5 files changed, 181 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/hid/hid-lenovo-tpkbd.c
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 67d2a75..85028c4 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -224,6 +224,16 @@ config HID_LCPOWER
+>  	---help---
+>  	Support for LC-Power RC1000MCE RF remote control.
+>  
+> +config HID_LENOVO_TPKBD
+> +	tristate "Lenovo ThinkPad USB Keyboard with TrackPoint"
+> +	depends on USB_HID
+> +	---help---
+> +	Support for the Lenovo ThinkPad USB Keyboard with TrackPoint.
+> +
+> +	Say Y here if you have a Lenovo ThinkPad USB Keyboard with TrackPoint
+> +	and would like to change the sensitivity of the trackpoint using a
+> +	sysfs attribute.
+> +
+
+As you are adding sysfs attribute, we'd like to have it documented as well 
+Documentation/ABI somewhere.
+
+> --- /dev/null
+> +++ b/drivers/hid/hid-lenovo-tpkbd.c
+> @@ -0,0 +1,166 @@
+> +/*
+> + *  HID driver for Lenovo ThinkPad USB Keyboard with TrackPoint
+> + *
+> + *  Copyright (c) 2011 Bernhard Seibold
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/sysfs.h>
+> +#include <linux/device.h>
+> +#include <linux/usb.h>
+> +#include <linux/hid.h>
+> +#include <linux/input.h>
+> +#include "usbhid/usbhid.h"
+> +
+> +#include "hid-ids.h"
+> +
+> +static int lenovo_tpkbd_input_mapping(struct hid_device *hdev,
+> +		struct hid_input *hi, struct hid_field *field,
+> +		struct hid_usage *usage, unsigned long **bit, int *max)
+> +{
+> +	return 0;
+> +}
+> +
+
+Why is this empty stub needed?
+
+> +static ssize_t pointer_sensitivity_show(struct device *dev,
+> +		struct device_attribute *attr,
+> +		char *buf)
+> +{
+> +	struct hid_device *hdev;
+> +	struct hid_report *report;
+> +	hdev = container_of(dev, struct hid_device, dev);
+> +
+> +	if (hdev == NULL)
+> +		return -ENODEV;
+> +
+> +	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[4];
+> +	usbhid_submit_report(hdev, report, USB_DIR_IN);
+> +	usbhid_wait_io(hdev);
+
+usbhid_wait_io() returns -1 in case it times out.
+
+> +
+> +	return snprintf(buf, PAGE_SIZE, "%u\n",
+> +		report->field[2]->value[0]);
+> +}
+> +
+> +static ssize_t pointer_sensitivity_store(struct device *dev,
+> +		struct device_attribute *attr,
+> +		const char *buf,
+> +		size_t count)
+> +{
+> +	struct hid_device *hdev;
+> +	struct hid_report *report;
+> +	int value;
+> +
+> +	if (kstrtoint(buf, 10, &value) || value < 1 || value > 255)
+> +		return -EINVAL;
+> +
+> +	hdev = container_of(dev, struct hid_device, dev);
+> +	if (hdev == NULL)
+> +		return -ENODEV;
+> +
+> +	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[4];
+> +	usbhid_submit_report(hdev, report, USB_DIR_IN);
+> +	usbhid_wait_io(hdev);
+
+The same here.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

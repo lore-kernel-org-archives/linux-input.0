@@ -1,23 +1,24 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: roccat: Add "Roccat Talk" support for koneplus
-Date: Mon, 13 Jun 2011 12:51:11 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1106131251010.22872@pobox.suse.cz>
-References: <1306690377.2266.11.camel@neuromancer>
+Subject: Re: [PATCH] HID: roccat: Changed plain Kconfig menu to submenu for
+ roccat devices.
+Date: Mon, 13 Jun 2011 12:52:16 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1106131252030.22872@pobox.suse.cz>
+References: <1306936450.2486.6.camel@neuromancer>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1306690377.2266.11.camel@neuromancer>
-Sender: linux-doc-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1306936450.2486.6.camel@neuromancer>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Sylvestre Ledru <sylvestre.ledru@scilab.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 29 May 2011, Stefan Achatz wrote:
+On Wed, 1 Jun 2011, Stefan Achatz wrote:
 
-> Added binary sysfs attribute to support new functionality the manufacturer
-> added to koneplus.
+> As module roccat is needed by all devices, it's the toplevel
+> menu entry with all devices dependent.
 
-Applied, thanks.
+I like this cleanup. Applied, thanks Stefan.
 
 -- 
 Jiri Kosina

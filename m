@@ -1,42 +1,82 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Reporting screen/laptop orientation data to userspace
-Date: Fri, 3 Jun 2011 00:19:25 +0200
-Message-ID: <20110602221925.GC14328@ucw.cz>
-References: <4DE1FA7F.3050308@users.sourceforge.net>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v4 11/18] input: Add initial support for
+	TWL6040 vibrator
+Date: Tue, 14 Jun 2011 10:17:10 +0300
+Message-ID: <8556714.NHVg2d8yTv@barack>
+References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
+	<20110613212028.GA13138@core.coreip.homeip.net>
+	<20110614063400.GB8141@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:34935 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753087Ab1FNGl4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 02:41:56 -0400
-Content-Disposition: inline
-In-Reply-To: <4DE1FA7F.3050308@users.sourceforge.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20110614063400.GB8141@htj.dyndns.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Tejun Heo <tj@kernel.org>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Alberto Mardegan <mardy@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org, "Javier S. Pedro" <maemo@javispedro.com>, linux-input@vger.kernel.org
 
-Hi!
+On Tuesday 14 June 2011 08:34:00 Tejun Heo wrote:
+> Yeap, using a separate workqueue doesn't do anything for latency
+> unless WQ_HIGHPRI and/or WQ_CPU_INTENSIVE is used; however, _please_
+> stay away from it unless absolutely sure it's necessary (ie. unless
+> you can pin point to where latency is coming from - even in that case,
+> the thing which induces the latency probably is the one which should
+> be fixed).
 
->   the WMI interfaces in some Lenovo Ideapad laptops provide notification
-> callbacks when the laptop orientation changes, reporting 4 different
-> values defining the new orientation.
+The latency in most cases comes from the fact, that we are running an embed=
+ded =
 
-Zaurus has two microswitches, indicating one of 3 configurations:
+system. Number of peripherals are connected via I2C, these drivers are usin=
+g =
 
-notebook, closed
+workqueues to communicate with the IC.
+Since only one device can communicate through I2C at the time. This is =
 
-notebook, open
+basically the source of the latency. It does not really matter, if the devi=
+ces =
 
-tablet
+are on the same I2C bus or not, it is enough if two work belonging to devic=
+e, =
 
-They are exported as event/switch in the input. If possible, it would
-be nice to have one interface for that, too. (And it probably should
-be input,  and not fake-accelerator based; after all, there are no
-accelerometers on zaurus-like systems).
+which happens to be on the same I2C bus, and the first work in the queue ta=
+kes =
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+long time to complete (reading back bigger chunk of info, configuring, etc).
+Even if we could schedule the second work on the other CPU, it will be put =
+
+waiting till the I2C bus is free, so both CPU core has work assigned, the =
+
+first is keeping the I2C bus, the other waits for the I2C bus, and the thir=
+d =
+
+is waiting to be scheduled (which will be happening, when the first work =
+
+finished).
+IMHO the tactile feedback (vibra) should have an excuse to have separate WQ=
+ to =
+
+avoid latency spikes.
+I agree, that most cases we can use the global wq.
+
+> CMWQ is pretty good at keeping latency low unless something is
+> consuming large amount of CPU cycles and those work items are marked
+> WQ_CPU_INTENSIVE, not the other way around and WQ_HIGHPRI is for
+> things like MCE error reporting.
+
+So this is not really about CPU utilization, it is due to the wide variety =
+of =
+
+peripherals connected to an embedded system.
+
+-- =
+
+P=E9ter

@@ -1,27 +1,34 @@
-From: David Woodhouse <dwmw2@infradead.org>
+From: Bastien Nocera <hadess@hadess.net>
 Subject: Re: [PATCH] ideapad: let Fn+F5 also trigger KEY_BLUETOOTH
-Date: Tue, 14 Jun 2011 10:08:20 +0100
-Message-ID: <1308042502.3450.3.camel@i7.infradead.org>
+Date: Tue, 14 Jun 2011 10:21:59 +0100
+Message-ID: <1308043321.26522.4.camel@air.hadess.net>
 References: <1308040109-12038-1-git-send-email-ike.pan@canonical.com>
-	 <4DF71C01.6080504@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <4DF71C01.6080504@canonical.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:57156 "EHLO
+	relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755298Ab1FNJWE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jun 2011 05:22:04 -0400
+In-Reply-To: <1308040109-12038-1-git-send-email-ike.pan@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Ike Panhc <ike.pan@canonical.com>
 Cc: platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Matthew Garrett <mjg@redhat.com>, Dmitry Torohov <dmitry.torokhov@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-On Tue, 2011-06-14 at 16:29 +0800, Ike Panhc wrote:
-> I think it is better to solve this in driver not in user space application 
-> because on some other platforms, the KEY_WLAN and KEY_BLUETOOTH are separate.
+On Tue, 2011-06-14 at 16:28 +0800, Ike Panhc wrote:
+> The design for ideapad Fn-F5 key is not only for wifi but for all
+> radio device including wifi, bluetooth and wwan. Idealy it shall
+> acts like this:
+> 
+>     wifi on          wifi off         wifi on         wifi off
+>      bt on   ----->   bt on   ----->   bt off  ----->  bt off
+> 
+> This patch will switch wifi mode every key-push and switch
+> bluetooth mode every two key-push.
 
-I think it's better to do it in userspace. It's not as if it's hard to
-define another KEY_ and just tell the truth about what happened. Let
-userspace work out what to do with it.
+If that's what you want to achieve, then the key should be KEY_RFKILL.
+That's what the key is there for.
 
--- 
-David Woodhouse                            Open Source Technology Centre
-David.Woodhouse@intel.com                              Intel Corporation

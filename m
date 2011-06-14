@@ -1,66 +1,66 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH] Fix autocentering command in hid-lgff driver
-Date: Tue, 14 Jun 2011 19:16:37 -0400
-Message-ID: <2756a7d8aa2d4187bb6d39577b69c097.squirrel@host171.canaca.com>
-References: <2502891.N5kVV5at6b@qosmio-x300>
-    <e8b1518b49c3c1dd660270df5e512705.squirrel@host171.canaca.com>
-    <7710689.O2quS97bHe@qosmio-x300>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [RFC 00/12] Nintendo Wii Remote Device Driver
+Date: Wed, 15 Jun 2011 01:45:45 +0200
+Message-ID: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:41691 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752255Ab1FNXQl (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:36667 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751370Ab1FNXqO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 19:16:41 -0400
-In-Reply-To: <7710689.O2quS97bHe@qosmio-x300>
+	Tue, 14 Jun 2011 19:46:14 -0400
+Received: by fxm17 with SMTP id 17so41764fxm.19
+        for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 16:46:13 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>
-Cc: simon@mungewell.org, jkosina@suse.cz, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, padovan@profusion.mobi, dh.herrmann@googlemail.com
+
+Hi
+
+I currently work on an HID driver for the Nintendo Wii Remote as Bluez GSoC
+project. Following, the basic driver implementation with wiimote button-input
+and led support.
+
+The Wii Remote (further wiimote) is a small wireless device that communicates
+with the host via bluetooth. It uses the HID ports but does not provide any
+proper HID descriptor sets and doesn't really fit into the HID class so a
+special driver is needed to control the device.
+
+Wiimote device:
+ http://en.wikipedia.org/wiki/Wiimote
+
+Bluetooth details and reverse-engineered protocol:
+ https://github.com/dvdhrm/xwiimote/blob/master/doc/PROTOCOL
+
+Protocol details (reverse engineered):
+ http://wiibrew.org/wiki/Wiimote
 
 
->> 2. http://wiibrew.org/wiki/Logitech_USB_steering_wheel
->
-> Sure, but please don't take it like I have some inside knowledge of
-> Logitech FF implementation. I've been given few bits of useful
-> information, the rest I figured out from sniffed USB communication.
+Since the protocol used by the wiimote is fairly complex and does not work
+well with HIDINPUT, I tried to copy the hidraw driver. I need to send complex
+initialization sequences and memory writes to the wiimote which do not fit
+into the "struct input_event" and thus cannot be fed to the basic output_report
+function.
+Instead I use the same function that HIDRAW uses to insert raw hid commands.
+However, this function is unbuffered so I added an own buffer to the driver.
 
-Of course, we're all in the same boat of trying to figure it out. Our only
-help is that Engineers are lazy and often reuse stuff they've done before.
+This patchset includes basic input-button parsing and provides the information
+via evdev and also provides LED support which can be set via:
+ echo [1/0] >/sys/bus/hid/devices/<dev>/led1 or led2, led3, led4
 
+My tree is available at (based on jikos/master):
+ https://github.com/dvdhrm/xwiimote_kernel
+It gets rebased on jikos/master regularily.
 
-> It looks like the stiffness coeff actually
-> wraps around, because 0 = no stiffness, 7 = max stiffness, 8 = low
-> stiffness, 15 = max
-> stiffness. It'd be interesting to see if you can observe the same behavior
-> on the Wii wheel.
+Userspace tools/documentation are available at:
+ https://github.com/dvdhrm/xwiimote
 
-Yes the Wii Wheel only does 0-7 and then loops too...
+This is still a work in progress. Any comments are appreciated. My tree already
+includes further peripheral support for the wiimote like IR-cam and accelerometer,
+however, these peripherals get fairly complex in initialization sequences and
+other stuff, so I excluded them from this first patchset.
 
-I actually meant to quantify the force produced and purchased a torque
-meter, but its range wasn't low enough to be useful so I took it back. I
-think I can do something with a 'luggage scale' pulling at a tangent to
-the wheel so will give that a try.
+Any comments are appreciated.
+Kind regards
 
-My reverse engineer technique had a python-hid script so that I could
-throw packets directly at the wheel to produce specific force setups. I
-need to port this to python-libusb (as python-hid is dead), but that
-should be relatively simple and can forward off list to anyone who wants a
-copy.
-
->
-> As for the other FF effects, I guess these are things like "rumble" etc.
-> I'm planning to look into it more when I'll have some extra free time.
-
-If you figure codes out, I'd love to try them against my Wheel. I did have
-a PS3 Driving Force Wireless, but fried it's micro whilst I was hooking
-the BusPirate up to it.
-
-This would work under Windows and playback various effects in test mode as
-you pushed buttons - if anybody can grab some USB logs of this I can
-attempt to parse them for the codes....
-
-Simon
-
+David

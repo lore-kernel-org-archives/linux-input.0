@@ -1,131 +1,99 @@
-From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v4 11/18] input: Add initial support for
-	TWL6040 vibrator
-Date: Tue, 14 Jun 2011 13:22:45 +0300
-Message-ID: <100646074.zaKeYdXKr4@barack>
-References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
-	<4476185.bf2jyafmHt@barack> <20110614081836.GG8141@htj.dyndns.org>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
+Subject: [PATCH] Fix autocentering command in hid-lgff driver
+Date: Tue, 14 Jun 2011 22:42:30 +0200
+Message-ID: <2502891.N5kVV5at6b@qosmio-x300>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110614081836.GG8141@htj.dyndns.org>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Tejun Heo <tj@kernel.org>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:54602 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753840Ab1FNUma convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jun 2011 16:42:30 -0400
+Received: by fxm17 with SMTP id 17so3979624fxm.19
+        for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 13:42:29 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org
 
-On Tuesday 14 June 2011 10:18:36 Tejun Heo wrote:
-> I see, so IIUC,
-> =
+Hello,
 
-> * If it's using mutex and not holding CPU for the whole duration, you
->   shouldn't need to do anything special for latency for other work
->   items.  Workqueue code will start executing other work items as soon
->   as the I2C work item goes to sleep.
+this patch fixes two issues with autocentering in lgff driver. Current =
+implementation incorrectly assumes that the saturation force is always =
+0x80 which is=20
+inconsistent with behavior of the official driver. It also makes it imp=
+ossible to disable autocentering on some wheels - at least Logitech For=
+mula Force RX is=20
+the case. Values of stiffness coefficient were also calculated incorrec=
+tly. Formula used in this patch appears to generate the same commands a=
+s the official=20
+Logitech drivers. The patch also fixes two minor coding style issues.
 
-I see.
- =
+Regards, Michal.
 
-> * If I2C work item is burning CPU cycles for the whole duration which
->   may stretch to tens / few hundreds millsecs, 1. it's doing something
->   quite wrong, 2. should be marked WQ_CPU_INTENSIVE.
-> =
 
-> So, if something needs to be modified, it's the I2C stuff, not the
-> vibrator driver.  If I2C stuff isn't doing something wonky, there
-> shouldn't be a latency problem to begin with.
+Signed-off-by: Michal Mal=FD <madcatxster@gmail.com>
+---
+ drivers/hid/hid-lgff.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
 
-In case of OMAP the former is the case regarding to I2C.
+diff --git a/drivers/hid/hid-lgff.c b/drivers/hid/hid-lgff.c
+index 088f850..3d30a8e 100644
+--- a/drivers/hid/hid-lgff.c
++++ b/drivers/hid/hid-lgff.c
+@@ -129,18 +129,24 @@ static void hid_lgff_set_autocenter(struct input_=
+dev *dev, u16 magnitude)
+ 	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
+].report_list;
+ 	struct hid_report *report =3D list_entry(report_list->next, struct hi=
+d_report, list);
+ 	__s32 *value =3D report->field[0]->value;
+-	magnitude =3D (magnitude >> 12) & 0xf;
++	u8 saturation_force =3D magnitude >> 8;
++	u8 stiffness_coeff;
++	if (magnitude <=3D 32768)
++		stiffness_coeff =3D saturation_force / 10;
++	else
++		stiffness_coeff =3D (saturation_force / 62) + 11;
++
+ 	*value++ =3D 0xfe;
+ 	*value++ =3D 0x0d;
+-	*value++ =3D magnitude;   /* clockwise strength */
+-	*value++ =3D magnitude;   /* counter-clockwise strength */
+-	*value++ =3D 0x80;
++	*value++ =3D stiffness_coeff;   /* clockwise strength */
++	*value++ =3D stiffness_coeff;   /* counter-clockwise strength */
++	*value++ =3D saturation_force;
+ 	*value++ =3D 0x00;
+ 	*value =3D 0x00;
+ 	usbhid_submit_report(hid, report, USB_DIR_OUT);
+ }
+=20
+-int lgff_init(struct hid_device* hid)
++int lgff_init(struct hid_device *hid)
+ {
+ 	struct hid_input *hidinput =3D list_entry(hid->inputs.next, struct hi=
+d_input, list);
+ 	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
+].report_list;
+@@ -180,7 +186,7 @@ int lgff_init(struct hid_device* hid)
+ 	if (error)
+ 		return error;
+=20
+-	if ( test_bit(FF_AUTOCENTER, dev->ffbit) )
++	if (test_bit(FF_AUTOCENTER, dev->ffbit))
+ 		dev->ff->set_autocenter =3D hid_lgff_set_autocenter;
+=20
+ 	pr_info("Force feedback for Logitech force feedback devices by Johann=
+ Deneux <johann.deneux@it.uu.se>\n");
+--=20
+1.7.5.4
 
-However I did run a short experiments regarding to latencies:
-With create_singlethread_workqueue :
-Jun 14 12:54:30 omap-gentoo kernel: [  211.269531] vibra scheduling time: 3=
-0 usec
-Jun 14 12:54:30 omap-gentoo kernel: [  211.300811] vibra scheduling time: 3=
-0 usec
-Jun 14 12:54:33 omap-gentoo kernel: [  214.419006] vibra scheduling time: 3=
-1 usec
-Jun 14 12:54:34 omap-gentoo kernel: [  214.980987] vibra scheduling time: 3=
-0 usec
-Jun 14 12:54:35 omap-gentoo kernel: [  215.762115] vibra scheduling time: 3=
-0 usec
-Jun 14 12:54:35 omap-gentoo kernel: [  215.816650] vibra scheduling time: 3=
-0 usec
-Jun 14 12:54:35 omap-gentoo kernel: [  215.871337] vibra scheduling time: 6=
-1 usec
-Jun 14 12:54:35 omap-gentoo kernel: [  215.926025] vibra scheduling time: 6=
-1 usec
-Jun 14 12:54:35 omap-gentoo kernel: [  215.980743] vibra scheduling time: 6=
-1 usec
-Jun 14 12:54:35 omap-gentoo kernel: [  216.035430] vibra scheduling time: 6=
-1 usec
-Jun 14 12:54:38 omap-gentoo kernel: [  219.425659] vibra scheduling time: 3=
-1 usec
-Jun 14 12:54:40 omap-gentoo kernel: [  220.981658] vibra scheduling time: 3=
-1 usec
-Jun 14 12:54:44 omap-gentoo kernel: [  224.692504] vibra scheduling time: 3=
-0 usec
-Jun 14 12:54:44 omap-gentoo kernel: [  225.067138] vibra scheduling time: 3=
-0 usec
 
-With create_workqueue :
-Jun 14 12:05:00 omap-gentoo kernel: [  304.965393] vibra scheduling time: 1=
-83 usec
-Jun 14 12:05:01 omap-gentoo kernel: [  305.964996] vibra scheduling time: 6=
-1 usec
-Jun 14 12:05:03 omap-gentoo kernel: [  307.684082] vibra scheduling time: 1=
-52 usec
-Jun 14 12:05:06 omap-gentoo kernel: [  310.972778] vibra scheduling time: 3=
-0 usec
-Jun 14 12:05:08 omap-gentoo kernel: [  312.683715] vibra scheduling time: 6=
-1 usec
-Jun 14 12:05:10 omap-gentoo kernel: [  314.785675] vibra scheduling time: 1=
-83 usec
-Jun 14 12:05:15 omap-gentoo kernel: [  319.800903] vibra scheduling time: 6=
-1 usec
-Jun 14 12:05:16 omap-gentoo kernel: [  320.738403] vibra scheduling time: 3=
-0 usec
-Jun 14 12:05:16 omap-gentoo kernel: [  320.793090] vibra scheduling time: 6=
-1 usec
-Jun 14 12:05:16 omap-gentoo kernel: [  320.847778] vibra scheduling time: 6=
-1 usec
-Jun 14 12:05:16 omap-gentoo kernel: [  320.902465] vibra scheduling time: 6=
-1 usec
-Jun 14 12:05:16 omap-gentoo kernel: [  320.957153] vibra scheduling time: 6=
-1 usec
-Jun 14 12:05:16 omap-gentoo kernel: [  320.996185] vibra scheduling time: 3=
-1 usec
-
-This is in a system, where I do not have any other drivers on I2C bus, and =
-I have
-generated some load with this command:
-grep -r generate_load /*
-
-So, I have some CPU, and IO load as well.
-
-At the end the differences are not that big, but with create_singlethread_w=
-orkqueue
-I can see less spikes.
-
-This is with 3.0-rc2 kernel
-
-I still think, that there is a place for the create_singlethread_workqueue,=
- and the
-tactile feedback needs such a thing.
-
-As I recall correctly this was the reason to use create_singlethread_workqu=
-eue
-in the twl4030-vibra driver as well (there were latency issues without it).
-
--- =
-
-P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

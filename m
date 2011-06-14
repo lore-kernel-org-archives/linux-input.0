@@ -1,101 +1,124 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC 01/12] HID: wiimote: Add Nintendo Wii Remote driver stub
-Date: Wed, 15 Jun 2011 01:45:46 +0200
-Message-ID: <1308095157-4699-2-git-send-email-dh.herrmann@googlemail.com>
+Subject: [RFC 11/12] HID: wiimote: Cache wiimote led state
+Date: Wed, 15 Jun 2011 01:45:56 +0200
+Message-ID: <1308095157-4699-12-git-send-email-dh.herrmann@googlemail.com>
 References: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f46.google.com ([209.85.161.46]:40020 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753614Ab1FNXq0 (ORCPT
+	with ESMTP id S1752089Ab1FNXq2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 19:46:26 -0400
-Received: by fxm17 with SMTP id 17so41850fxm.19
-        for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 16:46:25 -0700 (PDT)
+	Tue, 14 Jun 2011 19:46:28 -0400
+Received: by mail-fx0-f46.google.com with SMTP id 17so41850fxm.19
+        for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 16:46:27 -0700 (PDT)
 In-Reply-To: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, dh.herrmann@googlemail.com
 
-Add stub driver for the Nintendo Wii Remote. The wii remote uses
-the HID protocol to communicate with the host over bluetooth. Hence,
-add dependency for HIDP and place driver in hid subsystem.
+Save the current state of the leds in the wiimote data structure. This
+allows us to discard new led requests that wouldn't change anything.
+Protect the whole state structure by a spinlock. Every wiiproto_*
+function expects this spinlock to be held when called.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/Kconfig       |    6 ++++++
- drivers/hid/Makefile      |    1 +
- drivers/hid/hid-wiimote.c |   32 ++++++++++++++++++++++++++++++++
- 3 files changed, 39 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-wiimote.c
+ drivers/hid/hid-wiimote.c |   26 ++++++++++++++++++++++++++
+ 1 files changed, 26 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 67d2a75..e84bdd8 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -567,6 +567,12 @@ config HID_WACOM_POWER_SUPPLY
- 	  Say Y here if you want to enable power supply status monitoring for
- 	  Wacom Bluetooth devices.
- 
-+config HID_WIIMOTE
-+	tristate "Nintendo Wii Remote support"
-+	depends on BT_HIDP
-+	---help---
-+	Support for the Nintendo Wii Remote bluetooth device.
-+
- config HID_ZEROPLUS
- 	tristate "Zeroplus based game controller support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index f8cc4ea..4ed9bed 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -73,6 +73,7 @@ obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
- obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
- obj-$(CONFIG_HID_WACOM)		+= hid-wacom.o
- obj-$(CONFIG_HID_WALTOP)	+= hid-waltop.o
-+obj-$(CONFIG_HID_WIIMOTE)	+= hid-wiimote.o
- 
- obj-$(CONFIG_USB_HID)		+= usbhid/
- obj-$(CONFIG_USB_MOUSE)		+= usbhid/
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-new file mode 100644
-index 0000000..8a770e6
---- /dev/null
+index fbdd7ef..eb86c5d 100644
+--- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -0,0 +1,32 @@
-+/*
-+ * HID driver for Nintendo Wiimote devices
-+ * Copyright (c) 2011 David Herrmann
-+ */
+@@ -27,6 +27,11 @@ struct wiimote_buf {
+ 	size_t size;
+ };
+ 
++struct wiimote_state {
++	spinlock_t lock;
++	__u8 flags;
++};
 +
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
+ struct wiimote_data {
+ 	atomic_t ready;
+ 	struct hid_device *hdev;
+@@ -37,12 +42,16 @@ struct wiimote_data {
+ 	__u8 tail;
+ 	struct wiimote_buf outq[WIIMOTE_BUFSIZE];
+ 	struct work_struct worker;
 +
-+#include <linux/module.h>
++	struct wiimote_state state;
+ };
+ 
+ #define WIIPROTO_FLAG_LED1 0x01
+ #define WIIPROTO_FLAG_LED2 0x02
+ #define WIIPROTO_FLAG_LED3 0x04
+ #define WIIPROTO_FLAG_LED4 0x08
++#define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
++					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
+ 
+ enum wiiproto_reqs {
+ 	WIIPROTO_REQ_LED = 0x11,
+@@ -164,6 +173,11 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
+ {
+ 	__u8 cmd[2];
+ 
++	leds &= WIIPROTO_FLAGS_LEDS;
++	if ((wdata->state.flags & WIIPROTO_FLAGS_LEDS) == leds)
++		return;
++	wdata->state.flags = (wdata->state.flags & ~WIIPROTO_FLAGS_LEDS) | leds;
 +
-+#define WIIMOTE_VERSION "0.1"
-+#define WIIMOTE_NAME "Nintendo Wii Remote"
+ 	cmd[0] = WIIPROTO_REQ_LED;
+ 	cmd[1] = 0;
+ 
+@@ -234,6 +248,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ 	struct wiimote_data *wdata = hid_get_drvdata(hdev);
+ 	struct wiiproto_handler *h;
+ 	int i;
++	unsigned long flags;
+ 
+ 	if (!atomic_read(&wdata->ready))
+ 		return -EBUSY;
+@@ -241,12 +256,16 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ 	if (size < 1)
+ 		return -EINVAL;
+ 
++	spin_lock_irqsave(&wdata->state.lock, flags);
 +
-+static int __init wiimote_init(void)
-+{
-+	return 0;
-+}
+ 	for (i = 0; handlers[i].id; ++i) {
+ 		h = &handlers[i];
+ 		if (h->id == raw_data[0] && h->size < size)
+ 			h->func(wdata, &raw_data[1]);
+ 	}
+ 
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
 +
-+static void __exit wiimote_exit(void)
-+{
-+}
+ 	return 0;
+ }
+ 
+@@ -284,6 +303,8 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	spin_lock_init(&wdata->qlock);
+ 	INIT_WORK(&wdata->worker, wiimote_worker);
+ 
++	spin_lock_init(&wdata->state.lock);
 +
-+module_init(wiimote_init);
-+module_exit(wiimote_exit);
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
-+MODULE_DESCRIPTION(WIIMOTE_NAME " Device Driver");
-+MODULE_VERSION(WIIMOTE_VERSION);
+ 	return wdata;
+ }
+ 
+@@ -319,7 +340,12 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 
+ 	atomic_set(&wdata->ready, 1);
+ 	hid_info(hdev, "New device registered\n");
++
++	/* by default set led1 after device initialization */
++	spin_lock(&wdata->state.lock);
+ 	wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
++	spin_unlock(&wdata->state.lock);
++
+ 	return 0;
+ 
+ err_stop:
 -- 
 1.7.5.2
 

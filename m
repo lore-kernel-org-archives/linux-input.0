@@ -1,84 +1,76 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: Re: [PATCH v4 11/18] input: Add initial support for TWL6040
- vibrator
-Date: Tue, 14 Jun 2011 08:34:00 +0200
-Message-ID: <20110614063400.GB8141@htj.dyndns.org>
-References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
- <1307706876-4768-12-git-send-email-peter.ujfalusi@ti.com>
- <20110611231854.GA3979@core.coreip.homeip.net>
- <1530216.k8lJ4nKZ1s@barack>
- <20110613212028.GA13138@core.coreip.homeip.net>
+From: Baohua Song <Baohua.Song@csr.com>
+Subject: RE: [PATCH v2] input: touchscreen: add OF match table for ads7846
+Date: Tue, 14 Jun 2011 06:38:26 +0000
+Message-ID: <5EB3BFCD089AD643B9BB63439F5FD5E937BB39A1@SHAASIEXM01.ASIA.ROOT.PRI>
+References: <1308015955-8286-1-git-send-email-Baohua.Song@csr.com>
+ <4DF6FC70.2050707@wytron.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:51882 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751210Ab1FNGeF (ORCPT
+Received: from cluster-d.mailcontrol.com ([85.115.60.190]:51794 "EHLO
+	cluster-d.mailcontrol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752869Ab1FNGjP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 02:34:05 -0400
-Content-Disposition: inline
-In-Reply-To: <20110613212028.GA13138@core.coreip.homeip.net>
+	Tue, 14 Jun 2011 02:39:15 -0400
+Received: from rly53d.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
+	by rly53d.srv.mailcontrol.com (MailControl) with ESMTP id p5E6d55x031629
+	for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 07:39:13 +0100
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by rly53d.srv.mailcontrol.com (MailControl) id p5E6cZna023745
+	for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 07:38:35 +0100
+In-Reply-To: <4DF6FC70.2050707@wytron.com.tw>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?iso-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>, "Girdwood, Liam" <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, Jorge Eduardo Candelaria <jorge.candelaria@ti.com>
+To: Thomas Chou <thomas@wytron.com.tw>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-APBU Linux <DL-SHA-APBULinux@internal.csr.com>, Junyi Zhang <Junyi.Zhang@csr.com>, Grant Likely <grant.likely@secretlab.ca>
 
-Hello,
-
-On Mon, Jun 13, 2011 at 02:20:28PM -0700, Dmitry Torokhov wrote:
-> On Mon, Jun 13, 2011 at 12:51:16PM +0300, P=E9ter Ujfalusi wrote:
-> > On Sunday 12 June 2011 01:18:54 Dmitry Torokhov wrote:
-> >=20
-> > > > +static int twl6040_vibra_open(struct input_dev *input)
-> > > > +{
-> > > > +     struct vibra_info *info =3D input_get_drvdata(input);
-> > > > +
-> > > > +     info->workqueue =3D create_singlethread_workqueue("vibra"=
-);
-> > > > +     if (info->workqueue =3D=3D NULL) {
-> > > > +             dev_err(&input->dev, "couldn't create workqueue\n=
-");
-> > > > +             return -ENOMEM;
-> > > > +     }
-> > >=20
-> > > Why do we need to create a separate workqueue? With arrival of CW=
-Q
-> > > it looks like we should be able to use one of the system-wide
-> > > workqueues for this.
-> >=20
-> > The reason for this is to ensure that we have the lowest latency as=
- possible=20
-> > in most case. In the embedded devices we use the vibra for tactile =
-type of=20
-> > feedbacks as well, where few tens of ms delay can be felt.
->=20
-> Even if you create a dedicated workqueue with CWQ it will still be us=
-ing
-> shared pool of threads so I do not think that latency will be affecte=
-d
-> by using system-wide workqueue. I might be mistaken though, Tejun wil=
-l
-> correct me if I am wrong...
-
-Yeap, using a separate workqueue doesn't do anything for latency
-unless WQ_HIGHPRI and/or WQ_CPU_INTENSIVE is used; however, _please_
-stay away from it unless absolutely sure it's necessary (ie. unless
-you can pin point to where latency is coming from - even in that case,
-the thing which induces the latency probably is the one which should
-be fixed).
-
-CMWQ is pretty good at keeping latency low unless something is
-consuming large amount of CPU cycles and those work items are marked
-WQ_CPU_INTENSIVE, not the other way around and WQ_HIGHPRI is for
-things like MCE error reporting.
-
-Thanks.
-
---=20
-tejun
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGkgVGhvbWFzLA0KVGhhbmtzLg0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tDQo+IEZyb206IFRob21hcyBDaG91IFttYWlsdG86dGhvbWFzQHd5
+dHJvbi5jb20udHddDQo+IFNlbnQ6IDIwMTHE6jbUwjE0yNUgMTQ6MTUNCj4g
+VG86IEJhb2h1YSBTb25nDQo+IENjOiBkbWl0cnkudG9yb2tob3ZAZ21haWwu
+Y29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IERMLVNIQS1BUEJV
+DQo+IExpbnV4OyBKdW55aSBaaGFuZzsgR3JhbnQgTGlrZWx5DQo+IFN1Ympl
+Y3Q6IFJlOiBbUEFUQ0ggdjJdIGlucHV0OiB0b3VjaHNjcmVlbjogYWRkIE9G
+IG1hdGNoIHRhYmxlIGZvciBhZHM3ODQ2DQo+IA0KPiBPbiAwNi8xNC8yMDEx
+IDA5OjQ1IEFNLCBCYXJyeSBTb25nIHdyb3RlOg0KPiA+IFRoZSBjdXJyZW50
+IGFkczc4NDYgaGFzIG5vIE9GIG1hdGNoIHRhYmxlLiBUaGUgbWV0aG9kIHVz
+ZWQgaXMgYnkgYXBwbHlpbmcgYQ0KPiBoZXVyaXN0aWMgKG9mX21vZGFsaWFz
+X25vZGUpIHdoaWNoIHRyaWVzIHRvIG5hbWUgdGhlIGRldmljZSBpbiBhIHdh
+eSB0aGF0IHdpbGwNCj4gbWF0Y2ggYW4gZXhpc3RpbmcgZGV2aWNlIGRyaXZl
+ci4NCj4gPiBUaGlzIHBhdGNoIGFkZHMgZXhwbGljaXQgT0YgbWF0Y2ggdGFi
+bGUgZm9yIGFkczc4NDYsIHRoZW4gdGhlIG5vcm1hbCBkZXZpY2UNCj4gdHJl
+ZSBtYXRjaCBiZWhhdmlvdXIgd2lsbCBhbHdheXMgd29yay4NCj4gPiBJdCBo
+YXMgYmVlbiB0ZXN0ZWQgb24gUFJJTUEyIEVWQiBib2FyZCBvZiBDU1Igd2l0
+aCBhIFNQSSdzIGNoaWxkIG5vZGUgbGlrZQ0KPiB0aGUgYmVsb3c6DQo+ID4g
+dHNAMCB7DQo+ID4gICAgICAgICAgY29tcGF0aWJsZSA9ICJ0aSxhZHM3ODQ1
+IjsNCj4gPiAgICAgICAgICByZWcgPTwweDA+Ow0KPiA+ICAgICAgICAgIHNw
+aS1tYXgtZnJlcXVlbmN5ID08MzEyNTA+Ow0KPiA+ICAgICAgICAgIGludGVy
+cnVwdHMgPTw5MD47DQo+ID4gfTsNCj4gPg0KPiANCj4gSGkgQmFycnksDQo+
+IA0KPiBUaGFuayB5b3UgdmVyeSBtdWNoIGZvciB5b3VyIGhlbHAuIA0KDQpZ
+b3UgYXJlIHdlbGNvbWUgOi0pDQoNCj5Db3VsZCB3ZSBhZGQgYW4gb3B0aW9u
+IGZvciBncGlvDQo+IHBlbmRvd24sIGxpa2UgdGhpcz8NCj4gDQo+IC0gZ3Bp
+b3MgOiBzaG91bGQgc3BlY2lmeSBHUElPIHVzZWQgZm9yIHBlbmRvd24uDQo+
+IA0KPiBJZiBpbnRlcnJ1cHQgbm9kZSBpcyBub3QgcHJlc2VudCBpbiB0aGlz
+IG5vZGUsIGdwaW9fdG9faXJxIG9mIHRoZSBwZW4NCj4gZG93biBHUElPIHdp
+bGwgYmUgdXNlZC4NCg0KSSBkaXNhZ3JlZS4uLiBBbiBvcHRpb25hbCBncGlv
+IG5vZGUgZG9lc24ndCBtYWtlIHNlbnNlIGhlcmUuIFRoZSByZXN1bHQgb2Yg
+Z3Bpb190b19pcnEgaXMgc3RpbGwgYW4gaW50ZXJydXB0LCB0aGVuIHdlIGNh
+biBwbGFjZSB0aGUgcmVzdWx0IGluIGludGVycnVwdCBub2RlLg0KQW5kIHRo
+ZSBhZHM3ODQ2IGRyaXZlciByZXF1aXJlZCBhbiBpbnRlcnJ1cHQgbm9kZSBi
+dXQgbm90IGEgZ3BpbyBub2RlIHNpbmNlIHdlIGRvbid0IGZpbmQgYW55IG9m
+X2dldF9ncGlvKCkgaW4gdGhpcyBkcml2ZXIuIA0KQlRXLCBpdCBldmVuIGRv
+ZXNuoa90IG1ha2Ugc2Vuc2UgdG8gY2FsbCBmdW5jdGlvbiBncGlvX3RvX2ly
+cSBpbiBhIGRyaXZlciBsaWtlIGFkczc4NDYuIG9uIHRoZSBjb250cmFyeSwg
+ZHJpdmVycy9pbnB1dC9rZXlib2FyZC9ncGlvX2tleXMuYyBpcyByZWFsbHkg
+YW4gZ29vZCB1c2VyIG9mIGdwaW9fdG9faXJxLg0KDQo+IA0KPiBCZXN0IHJl
+Z2FyZHMsDQo+IFRob21hcw0KDQotYmFycnkNCgoKTWVtYmVyIG9mIHRoZSBD
+U1IgcGxjIGdyb3VwIG9mIGNvbXBhbmllcy4gQ1NSIHBsYyByZWdpc3RlcmVk
+IGluIEVuZ2xhbmQgYW5kIFdhbGVzLCByZWdpc3RlcmVkIG51bWJlciA0MTg3
+MzQ2LCByZWdpc3RlcmVkIG9mZmljZSBDaHVyY2hpbGwgSG91c2UsIENhbWJy
+aWRnZSBCdXNpbmVzcyBQYXJrLCBDb3dsZXkgUm9hZCwgQ2FtYnJpZGdlLCBD
+QjQgMFdaLCBVbml0ZWQgS2luZ2RvbQpNb3JlIGluZm9ybWF0aW9uIGNhbiBi
+ZSBmb3VuZCBhdCB3d3cuY3NyLmNvbS4gRm9sbG93IENTUiBvbiBUd2l0dGVy
+IGF0IGh0dHA6Ly90d2l0dGVyLmNvbS9DU1JfUExDIGFuZCByZWFkIG91ciBi
+bG9nIGF0IHd3dy5jc3IuY29tL2Jsb2cK

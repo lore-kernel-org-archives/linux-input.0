@@ -1,47 +1,37 @@
-From: Ike Panhc <ike.pan@canonical.com>
-Subject: Re: [PATCH] ideapad: let Fn+F5 also trigger KEY_BLUETOOTH
-Date: Tue, 14 Jun 2011 16:29:53 +0800
-Message-ID: <4DF71C01.6080504@canonical.com>
-References: <1308040109-12038-1-git-send-email-ike.pan@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: David Jander <david@protonic.nl>
+Subject: [PATCH v4 0/3] Input: gpio_keys.c: Add support for OF and I2C GPIO chips
+Date: Tue, 14 Jun 2011 11:08:08 +0200
+Message-ID: <1308042491-20203-1-git-send-email-david@protonic.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:59785 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754676Ab1FNIaA (ORCPT
+Received: from protonic.xs4all.nl ([213.84.116.84]:13754 "EHLO
+	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753257Ab1FNJH7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 04:30:00 -0400
-In-Reply-To: <1308040109-12038-1-git-send-email-ike.pan@canonical.com>
+	Tue, 14 Jun 2011 05:07:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Matthew Garrett <mjg@redhat.com>, Dmitry Torohov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>
 
-On 06/14/2011 04:28 PM, Ike Panhc wrote:
-> The design for ideapad Fn-F5 key is not only for wifi but for all
-> radio device including wifi, bluetooth and wwan. Idealy it shall
-> acts like this:
-> 
->     wifi on          wifi off         wifi on         wifi off
->      bt on   ----->   bt on   ----->   bt off  ----->  bt off
-> 
-> This patch will switch wifi mode every key-push and switch
-> bluetooth mode every two key-push.
+This patch series adds support for OF device-tree platform data and non-local
+GPIO chips, such as I2C I/O expanders.
+This is version 4 of the patches.
 
-This maybe is disputed. 
+Changed in this version:
+ - Corrected naming of DT properties.
+ - Fixed a few errors in the way dynamic pdata is handled.
+ - Added support for device-tree gpios specifier.
 
-The problem is that now Fn+F5 only turns on/off wifi and leave bluetooth alone.
-According to the design this hotkey shall change the status of all radio
-devices, including wifi, bluetooth and wwan.
+David Jander (3):
+  Input: gpio_keys.c: Simplify platform_device -> device casting
+  Input: gpio_keys.c: Added support for device-tree platform data
+  Input: gpio_keys.c: Enable use with non-local GPIO chips.
 
-On machine with wifi and bluetooth, it will turn on/off wifi and bluetooth in
-order. On machine with wifi, it will switch wifi mode on every event.
+ .../devicetree/bindings/gpio/gpio_keys.txt         |   49 +++++
+ drivers/input/keyboard/gpio_keys.c                 |  193 ++++++++++++++++----
+ 2 files changed, 207 insertions(+), 35 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio_keys.txt
 
-I think it is better to solve this in driver not in user space application 
-because on some other platforms, the KEY_WLAN and KEY_BLUETOOTH are separate.
+-- 
+1.7.4.1
 
-I do not have a clear idea how to deal with wwan interface such as it shall be
-exclusive or inclusive with wifi.
-
-Please reply for any opinion.

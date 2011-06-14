@@ -1,37 +1,67 @@
 From: David Jander <david@protonic.nl>
-Subject: [PATCH v4 0/3] Input: gpio_keys.c: Add support for OF and I2C GPIO chips
-Date: Tue, 14 Jun 2011 11:08:08 +0200
-Message-ID: <1308042491-20203-1-git-send-email-david@protonic.nl>
+Subject: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local GPIO chips.
+Date: Tue, 14 Jun 2011 11:08:11 +0200
+Message-ID: <1308042491-20203-4-git-send-email-david@protonic.nl>
+References: <1308042491-20203-1-git-send-email-david@protonic.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:13754 "EHLO
+Received: from protonic.xs4all.nl ([213.84.116.84]:13776 "EHLO
 	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753257Ab1FNJH7 (ORCPT
+	with ESMTP id S1754593Ab1FNJH7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Tue, 14 Jun 2011 05:07:59 -0400
+In-Reply-To: <1308042491-20203-1-git-send-email-david@protonic.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>
 
-This patch series adds support for OF device-tree platform data and non-local
-GPIO chips, such as I2C I/O expanders.
-This is version 4 of the patches.
+Use a threaded interrupt handler in order to permit the handler to use
+a GPIO driver that causes things like I2C transactions being done inside
+the handler context.
+Also, gpio_keys_init needs to be declared as a late_initcall, to make sure
+all needed GPIO drivers have been loaded if the drivers are built into the
+kernel.
 
-Changed in this version:
- - Corrected naming of DT properties.
- - Fixed a few errors in the way dynamic pdata is handled.
- - Added support for device-tree gpios specifier.
+Signed-off-by: David Jander <david@protonic.nl>
+---
+ drivers/input/keyboard/gpio_keys.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-David Jander (3):
-  Input: gpio_keys.c: Simplify platform_device -> device casting
-  Input: gpio_keys.c: Added support for device-tree platform data
-  Input: gpio_keys.c: Enable use with non-local GPIO chips.
-
- .../devicetree/bindings/gpio/gpio_keys.txt         |   49 +++++
- drivers/input/keyboard/gpio_keys.c                 |  193 ++++++++++++++++----
- 2 files changed, 207 insertions(+), 35 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio_keys.txt
-
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 78aeeaa..d179861 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -3,7 +3,7 @@
+  *
+  * Copyright 2005 Phil Blundell
+  *
+- * Added OF support:
++ * Added OF support and enabled use with I2C GPIO expanders:
+  * Copyright 2010 David Jander <david@protonic.nl>
+  *
+  * This program is free software; you can redistribute it and/or modify
+@@ -417,7 +417,7 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
+ 	if (!button->can_disable)
+ 		irqflags |= IRQF_SHARED;
+ 
+-	error = request_any_context_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
++	error = request_threaded_irq(irq, NULL, gpio_keys_isr, irqflags, desc, bdata);
+ 	if (error < 0) {
+ 		dev_err(dev, "Unable to claim irq %d; error %d\n",
+ 			irq, error);
+@@ -767,10 +767,10 @@ static void __exit gpio_keys_exit(void)
+ 	platform_driver_unregister(&gpio_keys_device_driver);
+ }
+ 
+-module_init(gpio_keys_init);
++late_initcall(gpio_keys_init);
+ module_exit(gpio_keys_exit);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Phil Blundell <pb@handhelds.org>");
+-MODULE_DESCRIPTION("Keyboard driver for CPU GPIOs");
++MODULE_DESCRIPTION("Keyboard driver for GPIOs");
+ MODULE_ALIAS("platform:gpio-keys");
 -- 
 1.7.4.1
 

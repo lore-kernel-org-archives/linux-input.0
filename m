@@ -1,81 +1,69 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: Re: Re: Re: [PATCH v4 11/18] input: Add initial support for
- TWL6040 vibrator
-Date: Tue, 14 Jun 2011 10:18:36 +0200
-Message-ID: <20110614081836.GG8141@htj.dyndns.org>
-References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
- <8556714.NHVg2d8yTv@barack>
- <20110614073130.GF8141@htj.dyndns.org>
- <4476185.bf2jyafmHt@barack>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4476185.bf2jyafmHt@barack>
-Sender: linux-omap-owner@vger.kernel.org
-To: =?iso-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Girdwood, Liam" <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>
+From: Ike Panhc <ike.pan@canonical.com>
+Subject: [PATCH] ideapad: let Fn+F5 also trigger KEY_BLUETOOTH
+Date: Tue, 14 Jun 2011 16:28:29 +0800
+Message-ID: <1308040109-12038-1-git-send-email-ike.pan@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:59260 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755089Ab1FNI2h (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jun 2011 04:28:37 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Matthew Garrett <mjg@redhat.com>, Dmitry Torohov <dmitry.torokhov@gmail.com>
 
-Hello,
+The design for ideapad Fn-F5 key is not only for wifi but for all
+radio device including wifi, bluetooth and wwan. Idealy it shall
+acts like this:
 
-On Tue, Jun 14, 2011 at 10:51:35AM +0300, P=E9ter Ujfalusi wrote:
-> On Tuesday 14 June 2011 09:31:30 Tejun Heo wrote:
-> > Thanks for the explanation.  I have a couple more questions.
-> >=20
-> > * While transferring data from I2C, I suppose the work item is full=
-y
-> >   occupying the CPU?
->=20
-> Not exactly on OMAP platforms at least. We do not have busy looping i=
-n low=20
-> level driver (we wait with wait_for_completion_timeout for the transf=
-er to be=20
-> done), so scheduling on the same CPU can be possible.
->=20
-> >   If so, how long delay are we talking about?
-> >   Millisecs?
->=20
-> It is hard to predict, but it can be few tens of ms for one device, i=
-f we have=20
-> several devices on the same bus (which we tend to have), and they wan=
-t to=20
-> read/write something at the same time we can see hundred(s) ms in tot=
-al - it=20
-> is rare to happen, and hard to reproduce, but it does happen for sure=
-=2E
-> =20
-> > * You said that the if one task is accessing I2C bus, the other wou=
-ld
-> >   wait even if scheduled on a different CPU.  Is access to I2C bus
-> >   protected with a spinlock?
->=20
-> At the bottom it is using rt_mutex_lock/unlick to protect the bus.
-> And yes, the others need to wait till the ongoing transfer has been f=
-inished.
+    wifi on          wifi off         wifi on         wifi off
+     bt on   ----->   bt on   ----->   bt off  ----->  bt off
 
-I see, so IIUC,
+This patch will switch wifi mode every key-push and switch
+bluetooth mode every two key-push.
 
-* If it's using mutex and not holding CPU for the whole duration, you
-  shouldn't need to do anything special for latency for other work
-  items.  Workqueue code will start executing other work items as soon
-  as the I2C work item goes to sleep.
+Signed-off-by: Ike Panhc <ike.pan@canonical.com>
+---
+ drivers/platform/x86/ideapad-laptop.c |   18 +++++++++++++++++-
+ 1 files changed, 17 insertions(+), 1 deletions(-)
 
-* If I2C work item is burning CPU cycles for the whole duration which
-  may stretch to tens / few hundreds millsecs, 1. it's doing something
-  quite wrong, 2. should be marked WQ_CPU_INTENSIVE.
+diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
+index bfdda33..e92ab14 100644
+--- a/drivers/platform/x86/ideapad-laptop.c
++++ b/drivers/platform/x86/ideapad-laptop.c
+@@ -328,6 +328,7 @@ static void ideapad_platform_exit(struct ideapad_private *priv)
+ static const struct key_entry ideapad_keymap[] = {
+ 	{ KE_KEY, 0x06, { KEY_SWITCHVIDEOMODE } },
+ 	{ KE_KEY, 0x0D, { KEY_WLAN } },
++	{ KE_KEY, 0x0D, { KEY_BLUETOOTH } },
+ 	{ KE_END, 0 },
+ };
+ 
+@@ -379,7 +380,22 @@ static void __devexit ideapad_input_exit(struct ideapad_private *priv)
+ static void ideapad_input_report(struct ideapad_private *priv,
+ 				 unsigned long scancode)
+ {
+-	sparse_keymap_report_event(priv->inputdev, scancode, 1, true);
++	static int bt_event_round;
++
++	if (scancode == 0x0D) {
++		bt_event_round++;
++		if (bt_event_round & 1) {
++			input_report_key(priv->inputdev, KEY_BLUETOOTH, 1);
++			input_sync(priv->inputdev);
++			input_report_key(priv->inputdev, KEY_BLUETOOTH, 0);
++			input_sync(priv->inputdev);
++		}
++		input_report_key(priv->inputdev, KEY_WLAN, 1);
++		input_sync(priv->inputdev);
++		input_report_key(priv->inputdev, KEY_WLAN, 0);
++		input_sync(priv->inputdev);
++	} else
++		sparse_keymap_report_event(priv->inputdev, scancode, 1, true);
+ }
+ 
+ /*
+-- 
+1.7.4.1
 
-So, if something needs to be modified, it's the I2C stuff, not the
-vibrator driver.  If I2C stuff isn't doing something wonky, there
-shouldn't be a latency problem to begin with.
-
-Thank you.
-
---=20
-tejun
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

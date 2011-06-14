@@ -1,44 +1,84 @@
-From: Thomas Chou <thomas@wytron.com.tw>
-Subject: Re: [PATCH v2] input: touchscreen: add OF match table for ads7846
-Date: Tue, 14 Jun 2011 14:15:12 +0800
-Message-ID: <4DF6FC70.2050707@wytron.com.tw>
-References: <1308015955-8286-1-git-send-email-Baohua.Song@csr.com>
+From: Tejun Heo <tj@kernel.org>
+Subject: Re: Re: [PATCH v4 11/18] input: Add initial support for TWL6040
+ vibrator
+Date: Tue, 14 Jun 2011 08:34:00 +0200
+Message-ID: <20110614063400.GB8141@htj.dyndns.org>
+References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
+ <1307706876-4768-12-git-send-email-peter.ujfalusi@ti.com>
+ <20110611231854.GA3979@core.coreip.homeip.net>
+ <1530216.k8lJ4nKZ1s@barack>
+ <20110613212028.GA13138@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.wytron.com.tw ([211.75.82.101]:57260 "EHLO
-	www.wytron.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751342Ab1FNGWO (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:51882 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751210Ab1FNGeF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 02:22:14 -0400
-In-Reply-To: <1308015955-8286-1-git-send-email-Baohua.Song@csr.com>
+	Tue, 14 Jun 2011 02:34:05 -0400
+Content-Disposition: inline
+In-Reply-To: <20110613212028.GA13138@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <Baohua.Song@csr.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, DL-SHA-APBULinux@csr.com, junyi.zhang@csr.com, Grant Likely <grant.likely@secretlab.ca>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?iso-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>, "Girdwood, Liam" <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, Jorge Eduardo Candelaria <jorge.candelaria@ti.com>
 
-On 06/14/2011 09:45 AM, Barry Song wrote:
-> The current ads7846 has no OF match table. The method used is by applying a heuristic (of_modalias_node) which tries to name the device in a way that will match an existing device driver.
-> This patch adds explicit OF match table for ads7846, then the normal device tree match behaviour will always work.
-> It has been tested on PRIMA2 EVB board of CSR with a SPI's child node like the below:
-> ts@0 {
->          compatible = "ti,ads7845";
->          reg =<0x0>;
->          spi-max-frequency =<31250>;
->          interrupts =<90>;
-> };
->
+Hello,
 
-Hi Barry,
+On Mon, Jun 13, 2011 at 02:20:28PM -0700, Dmitry Torokhov wrote:
+> On Mon, Jun 13, 2011 at 12:51:16PM +0300, P=E9ter Ujfalusi wrote:
+> > On Sunday 12 June 2011 01:18:54 Dmitry Torokhov wrote:
+> >=20
+> > > > +static int twl6040_vibra_open(struct input_dev *input)
+> > > > +{
+> > > > +     struct vibra_info *info =3D input_get_drvdata(input);
+> > > > +
+> > > > +     info->workqueue =3D create_singlethread_workqueue("vibra"=
+);
+> > > > +     if (info->workqueue =3D=3D NULL) {
+> > > > +             dev_err(&input->dev, "couldn't create workqueue\n=
+");
+> > > > +             return -ENOMEM;
+> > > > +     }
+> > >=20
+> > > Why do we need to create a separate workqueue? With arrival of CW=
+Q
+> > > it looks like we should be able to use one of the system-wide
+> > > workqueues for this.
+> >=20
+> > The reason for this is to ensure that we have the lowest latency as=
+ possible=20
+> > in most case. In the embedded devices we use the vibra for tactile =
+type of=20
+> > feedbacks as well, where few tens of ms delay can be felt.
+>=20
+> Even if you create a dedicated workqueue with CWQ it will still be us=
+ing
+> shared pool of threads so I do not think that latency will be affecte=
+d
+> by using system-wide workqueue. I might be mistaken though, Tejun wil=
+l
+> correct me if I am wrong...
 
-Thank you very much for your help. Could we add an option for gpio 
-pendown, like this?
+Yeap, using a separate workqueue doesn't do anything for latency
+unless WQ_HIGHPRI and/or WQ_CPU_INTENSIVE is used; however, _please_
+stay away from it unless absolutely sure it's necessary (ie. unless
+you can pin point to where latency is coming from - even in that case,
+the thing which induces the latency probably is the one which should
+be fixed).
 
-- gpios : should specify GPIO used for pendown.
+CMWQ is pretty good at keeping latency low unless something is
+consuming large amount of CPU cycles and those work items are marked
+WQ_CPU_INTENSIVE, not the other way around and WQ_HIGHPRI is for
+things like MCE error reporting.
 
-If interrupt node is not present in this node, gpio_to_irq of the pen
-down GPIO will be used.
+Thanks.
 
-Best regards,
-Thomas
+--=20
+tejun
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

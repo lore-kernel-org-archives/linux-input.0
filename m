@@ -1,38 +1,27 @@
-From: Johan Hedberg <johan.hedberg@gmail.com>
-Subject: Re: [PATCHv3 2/3] Re-add manager_get_default_adapter()
-Date: Wed, 15 Jun 2011 23:53:04 +0300
-Message-ID: <20110615205304.GA9331@dell.Elisa>
-References: <1307538557-9287-1-git-send-email-ospite@studenti.unina.it>
- <1307538557-9287-3-git-send-email-ospite@studenti.unina.it>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
+Subject: Re: [PATCH] Fix autocentering command in hid-lgff driver
+Date: Wed, 15 Jun 2011 23:56:50 +0200
+Message-ID: <4631116.1y4pYIkUQE@qosmio-x300>
+References: <2502891.N5kVV5at6b@qosmio-x300> <2756a7d8aa2d4187bb6d39577b69c097.squirrel@host171.canaca.com> <4429494.nOUqc25rPl@qosmio-x300>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f174.google.com ([209.85.215.174]:33706 "EHLO
-	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753444Ab1FOUxK (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:49119 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752251Ab1FOV4q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jun 2011 16:53:10 -0400
-Content-Disposition: inline
-In-Reply-To: <1307538557-9287-3-git-send-email-ospite@studenti.unina.it>
+	Wed, 15 Jun 2011 17:56:46 -0400
+Received: by fxm17 with SMTP id 17so716883fxm.19
+        for <linux-input@vger.kernel.org>; Wed, 15 Jun 2011 14:56:45 -0700 (PDT)
+In-Reply-To: <4429494.nOUqc25rPl@qosmio-x300>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz
 
-Hi,
+After some followup discussion with Simon we figured that there might be a
+better and more thorough solution. We'll submit the patch again when it's
+ready.
 
-On Wed, Jun 08, 2011, Antonio Ospite wrote:
-> From: Bastien Nocera <hadess@hadess.net>
-> 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
-> ---
->  src/manager.c |    5 +++++
->  src/manager.h |    1 +
->  2 files changed, 6 insertions(+), 0 deletions(-)
-
-I've applied this one (with the signed-off-by lines remove which we
-don't use and a better explanation) so you can continue with each of
-your work in fine-tuning/fixing your patches.
-
-Johan
+Michal.

@@ -1,61 +1,62 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
-Subject: Re: [PATCH] Fix autocentering command in hid-lgff driver
-Date: Wed, 15 Jun 2011 02:03:38 +0200
-Message-ID: <3443374.f0SkEvoJ1j@qosmio-x300>
-References: <2502891.N5kVV5at6b@qosmio-x300> <7710689.O2quS97bHe@qosmio-x300> <2756a7d8aa2d4187bb6d39577b69c097.squirrel@host171.canaca.com>
+From: Thomas Chou <thomas@wytron.com.tw>
+Subject: Re: [PATCH v2] input: touchscreen: add OF match table for ads7846
+Date: Wed, 15 Jun 2011 12:01:35 +0800
+Message-ID: <4DF82E9F.60501@wytron.com.tw>
+References: <1308015955-8286-1-git-send-email-Baohua.Song@csr.com> <4DF6FC70.2050707@wytron.com.tw> <5EB3BFCD089AD643B9BB63439F5FD5E937BB39A1@SHAASIEXM01.ASIA.ROOT.PRI>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:63207 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752094Ab1FOADi (ORCPT
+Received: from www.wytron.com.tw ([211.75.82.101]:36534 "EHLO
+	www.wytron.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750704Ab1FOEBg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 20:03:38 -0400
-Received: by fxm17 with SMTP id 17so49428fxm.19
-        for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 17:03:37 -0700 (PDT)
-In-Reply-To: <2756a7d8aa2d4187bb6d39577b69c097.squirrel@host171.canaca.com>
+	Wed, 15 Jun 2011 00:01:36 -0400
+In-Reply-To: <5EB3BFCD089AD643B9BB63439F5FD5E937BB39A1@SHAASIEXM01.ASIA.ROOT.PRI>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org
+To: Baohua Song <Baohua.Song@csr.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-APBU Linux <DL-SHA-APBULinux@internal.csr.com>, Junyi Zhang <Junyi.Zhang@csr.com>, Grant Likely <grant.likely@secretlab.ca>
 
-On Tuesday 14 of June 2011 19:16:37 simon@mungewell.org wrote:
-> My reverse engineer technique had a python-hid script so that I could
-> throw packets directly at the wheel to produce specific force setups. I
-> need to port this to python-libusb (as python-hid is dead), but that
-> should be relatively simple and can forward off list to anyone who wants a
-> copy.
->
-You might want to check out Michael Bauer's LTWheelConf [1]. It's written in C so it's not the niftiest thing to use for 
-playing around with the wheel, but adding support for the Wii wheel is a matter of 30 seconds. It uses libusb and I'm sure 
-it can be easily modified to send whatever data you want to the wheel.
+On 06/14/2011 02:38 PM, Baohua Song wrote:
+>> Could we add an option for gpio
+>> pendown, like this?
+>>
+>> - gpios : should specify GPIO used for pendown.
+>>
+>> If interrupt node is not present in this node, gpio_to_irq of the pe=
+n
+>> down GPIO will be used.
+>=20
+> I disagree... An optional gpio node doesn't make sense here. The resu=
+lt of gpio_to_irq is still an interrupt, then we can place the result i=
+n interrupt node.
+> And the ads7846 driver required an interrupt node but not a gpio node=
+ since we don't find any of_get_gpio() in this driver.
+> BTW, it even doesn=A1=AFt make sense to call function gpio_to_irq in =
+a driver like ads7846. on the contrary, drivers/input/keyboard/gpio_key=
+s.c is really an good user of gpio_to_irq.
 
-> This would work under Windows and playback various effects in test mode as
-> you pushed buttons - if anybody can grab some USB logs of this I can
-> attempt to parse them for the codes....
-That's kind of my plan. I'll try to write some simple "effect generator" app using DirectInput and sniff the commands. By 
-the way, I've been provided with the anti-center spring command description for my Driving Force Pro which I use to set 
-the wheel's range. Is it accepted by the Wii wheel as well?
+Hi Barry,
 
-As I read the source of all lgff drivers, I wonder if all Logitech wheels shouldn't be handled in the lg4ff driver. I'm worried 
-that further patching of lgff could break functionality with some older joysticks it's been originally meant to work with.
+The classical platform data is seldom used when device tree is passed.
+So it would be better to disable platform data passing to verify device
+tree support.
 
-81 0B 19 E6 FF 4A FF:
- 8* - set effect number 4, *1 - start effect command
- 0B - effect type: spring
- 19 - left hand ramp start (MSB)
- E6 - right hand ramp start (MSB)
- F* - RH stiffness (0xF:max), *F - LH stiffness (0xF:max)
- 4* - RH ramp start (LSB) , LSbit is RH stiffness sign (0:+ 1:-)
- *A - LH ramp start (LSB), LSbit is LH stiffness sign (0:+ 1:-)
- FF - saturation level for spring force (0xFF = max)
+Without platform data passing, we don't have pdata and
+pdata->get_pendown_state func for ads7846_setup_pendown(). The
+ads7846_probe() will need updates on this.
 
-In above example the wheel soft stops are set to
-0x19A and 0xE64 or 410 and -412 where 0x7FF or 2047 corresponds to half a rotation range or 450 degrees. Therefore 
-the wheel soft stops are set to +-360 degrees - the boundaries are calculated from the outsite.(410 / 2047 * 450)
+Passing gpio for pendown might be a possible solution, as device tree
+supports "gpios" node. We could use of_get_gpio_flags() to retrieve it.
 
-(Description provided by lbondar, original can be found here [2])
+I sent an earlier work of mine on this back in Feb. to you.
 
-[1] https://github.com/TripleSpeeder/LTWheelConf
-[2] http://www.lfsforum.net/showthread.php?p=1603971#post1603971
+Best regards,
+Thomas
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

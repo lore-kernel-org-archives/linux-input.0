@@ -1,109 +1,100 @@
-From: Baohua Song <Baohua.Song@csr.com>
-Subject: RE: [PATCH v2] input: touchscreen: add OF match table for ads7846
-Date: Wed, 15 Jun 2011 05:20:47 +0000
-Message-ID: <5EB3BFCD089AD643B9BB63439F5FD5E937BB3F47@SHAASIEXM01.ASIA.ROOT.PRI>
-References: <1308015955-8286-1-git-send-email-Baohua.Song@csr.com>
- <4DF6FC70.2050707@wytron.com.tw>
- <5EB3BFCD089AD643B9BB63439F5FD5E937BB39A1@SHAASIEXM01.ASIA.ROOT.PRI>
- <4DF82E9F.60501@wytron.com.tw>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [RFC 05/12] HID: wiimote: Synchronize wiimote input and hid event handling
+Date: Wed, 15 Jun 2011 08:34:16 +0200
+Message-ID: <201106150834.16081.oliver@neukum.org>
+References: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com> <1308095157-4699-6-git-send-email-dh.herrmann@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cluster-g.mailcontrol.com ([208.87.233.190]:44685 "EHLO
-	cluster-g.mailcontrol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752379Ab1FOFVX (ORCPT
+Received: from smtp-out003.kontent.com ([81.88.40.217]:60342 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751505Ab1FOGmS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jun 2011 01:21:23 -0400
-Received: from rly23g.srv.mailcontrol.com (localhost.localdomain [127.0.0.1])
-	by rly23g.srv.mailcontrol.com (MailControl) with ESMTP id p5F5LFnb022794
-	for <linux-input@vger.kernel.org>; Wed, 15 Jun 2011 06:21:22 +0100
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by rly23g.srv.mailcontrol.com (MailControl) id p5F5KsoH020734
-	for <linux-input@vger.kernel.org>; Wed, 15 Jun 2011 06:20:54 +0100
-In-Reply-To: <4DF82E9F.60501@wytron.com.tw>
-Content-Language: en-US
+	Wed, 15 Jun 2011 02:42:18 -0400
+In-Reply-To: <1308095157-4699-6-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Chou <thomas@wytron.com.tw>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-APBU Linux <DL-SHA-APBULinux@internal.csr.com>, Junyi Zhang <Junyi.Zhang@csr.com>, Grant Likely <grant.likely@secretlab.ca>
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, padovan@profusion.mobi
 
-SGkgVGhvbWFzLA0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+
-IEZyb206IGxpbnV4LWlucHV0LW93bmVyQHZnZXIua2VybmVsLm9yZw0KPiBb
-bWFpbHRvOmxpbnV4LWlucHV0LW93bmVyQHZnZXIua2VybmVsLm9yZ10gT24g
-QmVoYWxmIE9mIFRob21hcyBDaG91DQo+IFNlbnQ6IDIwMTHE6jbUwjE1yNUg
-MTI6MDINCj4gVG86IEJhb2h1YSBTb25nDQo+IENjOiBkbWl0cnkudG9yb2to
-b3ZAZ21haWwuY29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IERM
-LVNIQS1BUEJVDQo+IExpbnV4OyBKdW55aSBaaGFuZzsgR3JhbnQgTGlrZWx5
-DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjJdIGlucHV0OiB0b3VjaHNjcmVl
-bjogYWRkIE9GIG1hdGNoIHRhYmxlIGZvciBhZHM3ODQ2DQo+IA0KPiBPbiAw
-Ni8xNC8yMDExIDAyOjM4IFBNLCBCYW9odWEgU29uZyB3cm90ZToNCj4gPj4g
-Q291bGQgd2UgYWRkIGFuIG9wdGlvbiBmb3IgZ3Bpbw0KPiA+PiBwZW5kb3du
-LCBsaWtlIHRoaXM/DQo+ID4+DQo+ID4+IC0gZ3Bpb3MgOiBzaG91bGQgc3Bl
-Y2lmeSBHUElPIHVzZWQgZm9yIHBlbmRvd24uDQo+ID4+DQo+ID4+IElmIGlu
-dGVycnVwdCBub2RlIGlzIG5vdCBwcmVzZW50IGluIHRoaXMgbm9kZSwgZ3Bp
-b190b19pcnEgb2YgdGhlIHBlbg0KPiA+PiBkb3duIEdQSU8gd2lsbCBiZSB1
-c2VkLg0KPiA+DQo+ID4gSSBkaXNhZ3JlZS4uLiBBbiBvcHRpb25hbCBncGlv
-IG5vZGUgZG9lc24ndCBtYWtlIHNlbnNlIGhlcmUuIFRoZSByZXN1bHQgb2YN
-Cj4gZ3Bpb190b19pcnEgaXMgc3RpbGwgYW4gaW50ZXJydXB0LCB0aGVuIHdl
-IGNhbiBwbGFjZSB0aGUgcmVzdWx0IGluIGludGVycnVwdCBub2RlLg0KPiA+
-IEFuZCB0aGUgYWRzNzg0NiBkcml2ZXIgcmVxdWlyZWQgYW4gaW50ZXJydXB0
-IG5vZGUgYnV0IG5vdCBhIGdwaW8gbm9kZSBzaW5jZQ0KPiB3ZSBkb24ndCBm
-aW5kIGFueSBvZl9nZXRfZ3BpbygpIGluIHRoaXMgZHJpdmVyLg0KPiA+IEJU
-VywgaXQgZXZlbiBkb2VzbqGvdCBtYWtlIHNlbnNlIHRvIGNhbGwgZnVuY3Rp
-b24gZ3Bpb190b19pcnEgaW4gYSBkcml2ZXIgbGlrZQ0KPiBhZHM3ODQ2LiBv
-biB0aGUgY29udHJhcnksIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvZ3Bpb19r
-ZXlzLmMgaXMgcmVhbGx5IGFuIGdvb2QNCj4gdXNlciBvZiBncGlvX3RvX2ly
-cS4NCj4gDQo+IEhpIEJhcnJ5LA0KPiANCj4gVGhlIGNsYXNzaWNhbCBwbGF0
-Zm9ybSBkYXRhIGlzIHNlbGRvbSB1c2VkIHdoZW4gZGV2aWNlIHRyZWUgaXMg
-cGFzc2VkLg0KPiBTbyBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8gZGlzYWJsZSBw
-bGF0Zm9ybSBkYXRhIHBhc3NpbmcgdG8gdmVyaWZ5IGRldmljZQ0KPiB0cmVl
-IHN1cHBvcnQuDQo+IA0KPiBXaXRob3V0IHBsYXRmb3JtIGRhdGEgcGFzc2lu
-Zywgd2UgZG9uJ3QgaGF2ZSBwZGF0YSBhbmQNCj4gcGRhdGEtPmdldF9wZW5k
-b3duX3N0YXRlIGZ1bmMgZm9yIGFkczc4NDZfc2V0dXBfcGVuZG93bigpLiBU
-aGUNCj4gYWRzNzg0Nl9wcm9iZSgpIHdpbGwgbmVlZCB1cGRhdGVzIG9uIHRo
-aXMuDQoNCk5vdyB0aGUgcGRhdGEgaGFzIG1hbnkgZmllbGRzIGFuZCBzZXZl
-cmFsIGhhcmR3YXJlLXNwZWNpYWwgY2FsbGJhY2sgZnVuY3Rpb25zLiBOb24t
-Y2FsbGJhY2sgZmllbGRzIGNhbiBiZSBPRiBwcm9wZXJ0eSBidXQgY2FsbGJh
-Y2tzIGFyZSBkaWZmaWN1bHQgdG8gYmUgaGFuZGxlZCBpbiBEVC4gDQpTbyBm
-b3IgdGhlIG1vbWVudCwgd2UgdXNlIG5vdGlmaWVyX2Jsb2NrIHRvIHNldCBw
-ZGF0YSBpbiBib2FyZCBmaWxlIGFzIGJlbG93DQoNCnN0YXRpYyBpbnQgcHJp
-bWEyX3RvdWNoc2NyZWVuX25vdGlmaWVyX2NhbGwoc3RydWN0IG5vdGlmaWVy
-X2Jsb2NrICpuYiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB1bnNpZ25lZCBsb25nIGV2ZW50LCB2b2lkICpfX2RldikNCnsN
-CiAgICAgICAgc3RydWN0IGRldmljZSAqZGV2ID0gX19kZXY7DQogICAgICAg
-IHN0cnVjdCBzcGlfZGV2aWNlICpzcGkgPSB0b19zcGlfZGV2aWNlKGRldik7
-DQoNCiAgICAgICAgaWYgKChldmVudCA9PSBCVVNfTk9USUZZX0FERF9ERVZJ
-Q0UpICYmDQogICAgICAgICAgICBvZl9kZXZpY2VfaXNfY29tcGF0aWJsZShk
-ZXYtPm9mX25vZGUsICJ0aSxhZHM3ODQ1IikpIHsNCiAgICAgICAgICAgICAg
-ICBzcGktPmNvbnRyb2xsZXJfZGF0YSA9ICZhZHM3ODQ1X2N0cmxkYXRhOw0K
-ICAgICAgICAgICAgICAgIGRldi0+cGxhdGZvcm1fZGF0YSA9ICZwcmltYTJf
-YWRzNzg0NV9wZGF0YTsNCiAgICAgICAgICAgICAgICByZXR1cm4gTk9USUZZ
-X09LOw0KICAgICAgICB9ICAgDQogICAgICAgIHJldHVybiBOT1RJRllfRE9O
-RTsNCn0NCg0Kc3RhdGljIHN0cnVjdCBub3RpZmllcl9ibG9jayBwcmltYTJf
-dG91Y2hzY3JlZW5fbmIgPSB7IA0KICAgICAgICAubm90aWZpZXJfY2FsbCA9
-IHByaW1hMl90b3VjaHNjcmVlbl9ub3RpZmllcl9jYWxsLA0KfTsNCg0Kc3Rh
-dGljIHZvaWQgX19pbml0IHByaW1hMl90b3VjaHNjcmVlbl9pbml0KHZvaWQp
-DQp7DQogICAgICAgIGJ1c19yZWdpc3Rlcl9ub3RpZmllcigmc3BpX2J1c190
-eXBlLCAmcHJpbWEyX3RvdWNoc2NyZWVuX25iKTsNCn0NCg0KPiANCj4gUGFz
-c2luZyBncGlvIGZvciBwZW5kb3duIG1pZ2h0IGJlIGEgcG9zc2libGUgc29s
-dXRpb24sIGFzIGRldmljZSB0cmVlDQo+IHN1cHBvcnRzICJncGlvcyIgbm9k
-ZS4gV2UgY291bGQgdXNlIG9mX2dldF9ncGlvX2ZsYWdzKCkgdG8gcmV0cmll
-dmUgaXQuDQoNClllcy4gU2luY2UgYWRzNzg0NiBtdXN0IHJlYWQgcGVuZG93
-biBncGlvIHRvIGdldCBwZW5kb3duIHN0YXR1cywgZ3BpbyBpcyBuZWNlc3Nh
-cnkgdG8gYWRzNzg0NiBhbmQgaW50ZXJydXB0IGlzIHByb2JhYmx5IHJlcGVh
-dGVkIGNvcHkgb2YgZ3BpbyBzaW5jZSB3ZSBjYW4gZ2V0IGl0IGJ5IGdwaW9f
-dG9faXJxKCkuDQpncGlvIGZpZWxkIGluIHBkYXRhIG1heSBiZSBkZWxldGVk
-IGFuZCBtb3ZlZCB0byBEVC4gdGhhdCBjYW4gYmUgYW5vdGhlciBwYXRjaCBh
-ZnRlciB0aGlzIG9uZSBpcyBtZXJnZWQuIEkgbWF5YmUgc2VuZCBpdCBsYXRl
-cg0KDQo+IA0KPiBJIHNlbnQgYW4gZWFybGllciB3b3JrIG9mIG1pbmUgb24g
-dGhpcyBiYWNrIGluIEZlYi4gdG8geW91Lg0KPiANCj4gQmVzdCByZWdhcmRz
-LA0KPiBUaG9tYXMNCi1iYXJyeQ0KDQoKCk1lbWJlciBvZiB0aGUgQ1NSIHBs
-YyBncm91cCBvZiBjb21wYW5pZXMuIENTUiBwbGMgcmVnaXN0ZXJlZCBpbiBF
-bmdsYW5kIGFuZCBXYWxlcywgcmVnaXN0ZXJlZCBudW1iZXIgNDE4NzM0Niwg
-cmVnaXN0ZXJlZCBvZmZpY2UgQ2h1cmNoaWxsIEhvdXNlLCBDYW1icmlkZ2Ug
-QnVzaW5lc3MgUGFyaywgQ293bGV5IFJvYWQsIENhbWJyaWRnZSwgQ0I0IDBX
-WiwgVW5pdGVkIEtpbmdkb20KTW9yZSBpbmZvcm1hdGlvbiBjYW4gYmUgZm91
-bmQgYXQgd3d3LmNzci5jb20uIEZvbGxvdyBDU1Igb24gVHdpdHRlciBhdCBo
-dHRwOi8vdHdpdHRlci5jb20vQ1NSX1BMQyBhbmQgcmVhZCBvdXIgYmxvZyBh
-dCB3d3cuY3NyLmNvbS9ibG9nCg==
+Am Mittwoch, 15. Juni 2011, 01:45:50 schrieb David Herrmann:
+> The wiimote first starts HID hardware and then registers the input
+> device. We need to synchronize the startup so no event handler will
+> start parsing events when the wiimote device is not ready, yet.
+
+Hi,
+
+here the fun begins. Using atomic ops is not for the faint of heart.
+The problem is that atomic_t guarantees atomicity, not ordering.
+Tasks on on other CPUs reading wdata->ready==1 does not mean
+that they'll read anything else written before that as it was written
+or the old value. You need smp barriers.
+
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+> ---
+>  drivers/hid/hid-wiimote.c |   13 +++++++++++++
+>  1 files changed, 13 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
+> index 9fa4fe1..4dbb2c1 100644
+> --- a/drivers/hid/hid-wiimote.c
+> +++ b/drivers/hid/hid-wiimote.c
+> @@ -10,6 +10,7 @@
+>   * any later version.
+>   */
+>  
+> +#include <linux/atomic.h>
+>  #include <linux/device.h>
+>  #include <linux/hid.h>
+>  #include <linux/input.h>
+> @@ -20,6 +21,7 @@
+>  #define WIIMOTE_NAME "Nintendo Wii Remote"
+>  
+>  struct wiimote_data {
+> +	atomic_t ready;
+>  	struct hid_device *hdev;
+>  	struct input_dev *input;
+>  };
+> @@ -27,12 +29,22 @@ struct wiimote_data {
+>  static int wiimote_input_event(struct input_dev *dev, unsigned int type,
+>  						unsigned int code, int value)
+>  {
+> +	struct wiimote_data *wdata = input_get_drvdata(dev);
+> +
+> +	if (!atomic_read(&wdata->ready))
+> +		return -EBUSY;
+> +
+
+Here an smp_rmb()
+
+>  	return 0;
+>  }
+>  
+>  static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+>  							u8 *raw_data, int size)
+>  {
+> +	struct wiimote_data *wdata = hid_get_drvdata(hdev);
+> +
+> +	if (!atomic_read(&wdata->ready))
+> +		return -EBUSY;
+> +
+>  	if (size < 1)
+>  		return -EINVAL;
+>  
+> @@ -98,6 +110,7 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+>  		goto err_stop;
+>  	}
+>
+
+Here an smp_wmb()
+It is redundant because input_register_device takes a spinlock which
+implies a barrier, but you'll make the automated checking tools happier.  
+> +	atomic_set(&wdata->ready, 1);
+>  	hid_info(hdev, "New device registered\n");
+>  	return 0;
+
+	Regards
+		Oliver

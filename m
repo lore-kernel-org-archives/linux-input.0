@@ -1,45 +1,38 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH] input: sh_keysc: 8x8 MODE_6 fix
-Date: Wed, 15 Jun 2011 23:33:40 +0900
-Message-ID: <20110615143340.21798.61858.sendpatchset@t400s>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: lethal@linux-sh.org, Magnus Damm <magnus.damm@gmail.com>, dmitry.torokhov@gmail.com, simon@horms.net, linux-sh@vger.kernel.org
+From: Johan Hedberg <johan.hedberg@gmail.com>
+Subject: Re: [PATCHv3 2/3] Re-add manager_get_default_adapter()
+Date: Wed, 15 Jun 2011 23:53:04 +0300
+Message-ID: <20110615205304.GA9331@dell.Elisa>
+References: <1307538557-9287-1-git-send-email-ospite@studenti.unina.it>
+ <1307538557-9287-3-git-send-email-ospite@studenti.unina.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:33706 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753444Ab1FOUxK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Jun 2011 16:53:10 -0400
+Content-Disposition: inline
+In-Reply-To: <1307538557-9287-3-git-send-email-ospite@studenti.unina.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>
 
-From: Magnus Damm <damm@opensource.se>
+Hi,
 
-The MODE_6 support in sh_keysc.c is incorrect without
-this patch. According to the data sheet for G4, AP4 and
-AG5 KEYSC MODE_6 is 8x8 keys. Bump up MAXKEYS to 64 too.
+On Wed, Jun 08, 2011, Antonio Ospite wrote:
+> From: Bastien Nocera <hadess@hadess.net>
+> 
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+> ---
+>  src/manager.c |    5 +++++
+>  src/manager.h |    1 +
+>  2 files changed, 6 insertions(+), 0 deletions(-)
 
-Signed-off-by: Magnus Damm <damm@opensource.se>
----
+I've applied this one (with the signed-off-by lines remove which we
+don't use and a better explanation) so you can continue with each of
+your work in fine-tuning/fixing your patches.
 
- drivers/input/keyboard/sh_keysc.c |    2 +-
- include/linux/input/sh_keysc.h    |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
---- 0001/drivers/input/keyboard/sh_keysc.c
-+++ work/drivers/input/keyboard/sh_keysc.c	2011-06-15 17:59:27.000000000 +0900
-@@ -32,7 +32,7 @@ static const struct {
- 	[SH_KEYSC_MODE_3] = { 2, 4, 7 },
- 	[SH_KEYSC_MODE_4] = { 3, 6, 6 },
- 	[SH_KEYSC_MODE_5] = { 4, 6, 7 },
--	[SH_KEYSC_MODE_6] = { 5, 7, 7 },
-+	[SH_KEYSC_MODE_6] = { 5, 8, 8 },
- };
- 
- struct sh_keysc_priv {
---- 0001/include/linux/input/sh_keysc.h
-+++ work/include/linux/input/sh_keysc.h	2011-06-15 17:48:05.000000000 +0900
-@@ -1,7 +1,7 @@
- #ifndef __SH_KEYSC_H__
- #define __SH_KEYSC_H__
- 
--#define SH_KEYSC_MAXKEYS 49
-+#define SH_KEYSC_MAXKEYS 64
- 
- struct sh_keysc_info {
- 	enum { SH_KEYSC_MODE_1, SH_KEYSC_MODE_2, SH_KEYSC_MODE_3,
+Johan

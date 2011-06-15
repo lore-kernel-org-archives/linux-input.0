@@ -1,143 +1,61 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [RFC 12/12] HID: wiimote: Add sysfs support to wiimote driver
-Date: Wed, 15 Jun 2011 01:45:57 +0200
-Message-ID: <1308095157-4699-13-git-send-email-dh.herrmann@googlemail.com>
-References: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
+Subject: Re: [PATCH] Fix autocentering command in hid-lgff driver
+Date: Wed, 15 Jun 2011 02:03:38 +0200
+Message-ID: <3443374.f0SkEvoJ1j@qosmio-x300>
+References: <2502891.N5kVV5at6b@qosmio-x300> <7710689.O2quS97bHe@qosmio-x300> <2756a7d8aa2d4187bb6d39577b69c097.squirrel@host171.canaca.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:36667 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:63207 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753704Ab1FNXq3 (ORCPT
+	with ESMTP id S1752094Ab1FOADi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jun 2011 19:46:29 -0400
-Received: by mail-fx0-f46.google.com with SMTP id 17so41764fxm.19
-        for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 16:46:29 -0700 (PDT)
-In-Reply-To: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com>
+	Tue, 14 Jun 2011 20:03:38 -0400
+Received: by fxm17 with SMTP id 17so49428fxm.19
+        for <linux-input@vger.kernel.org>; Tue, 14 Jun 2011 17:03:37 -0700 (PDT)
+In-Reply-To: <2756a7d8aa2d4187bb6d39577b69c097.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, padovan@profusion.mobi, dh.herrmann@googlemail.com
+To: simon@mungewell.org
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org
 
-Add sysfs files for each led of the wiimote. Writing 1 to the file
-enables the led and 0 disables the led.
+On Tuesday 14 of June 2011 19:16:37 simon@mungewell.org wrote:
+> My reverse engineer technique had a python-hid script so that I could
+> throw packets directly at the wheel to produce specific force setups. I
+> need to port this to python-libusb (as python-hid is dead), but that
+> should be relatively simple and can forward off list to anyone who wants a
+> copy.
+>
+You might want to check out Michael Bauer's LTWheelConf [1]. It's written in C so it's not the niftiest thing to use for 
+playing around with the wheel, but adding support for the Wii wheel is a matter of 30 seconds. It uses libusb and I'm sure 
+it can be easily modified to send whatever data you want to the wheel.
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- drivers/hid/hid-wiimote.c |   74 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 74 insertions(+), 0 deletions(-)
+> This would work under Windows and playback various effects in test mode as
+> you pushed buttons - if anybody can grab some USB logs of this I can
+> attempt to parse them for the codes....
+That's kind of my plan. I'll try to write some simple "effect generator" app using DirectInput and sniff the commands. By 
+the way, I've been provided with the anti-center spring command description for my Driving Force Pro which I use to set 
+the wheel's range. Is it accepted by the Wii wheel as well?
 
-diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index eb86c5d..0d93d93 100644
---- a/drivers/hid/hid-wiimote.c
-+++ b/drivers/hid/hid-wiimote.c
-@@ -87,6 +87,9 @@ static __u16 wiiproto_keymap[] = {
- 	BTN_MODE,	/* WIIPROTO_KEY_HOME */
- };
- 
-+#define dev_to_wii(pdev) hid_get_drvdata(container_of(pdev, struct hid_device, \
-+									dev))
-+
- static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
- 								size_t count)
- {
-@@ -193,6 +196,55 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
- 	wiimote_queue(wdata, cmd, sizeof(cmd));
- }
- 
-+#define wiifs_led_show_set(num)						\
-+static ssize_t wiifs_led_show_##num(struct device *dev,			\
-+			struct device_attribute *attr, char *buf)	\
-+{									\
-+	struct wiimote_data *wdata = dev_to_wii(dev);			\
-+	unsigned long flags;						\
-+	int state;							\
-+									\
-+	if (!atomic_read(&wdata->ready))				\
-+		return -EBUSY;						\
-+									\
-+	spin_lock_irqsave(&wdata->state.lock, flags);			\
-+	state = !!(wdata->state.flags & WIIPROTO_FLAG_LED##num);	\
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);		\
-+									\
-+	return sprintf(buf, "%d\n", state);				\
-+}									\
-+static ssize_t wiifs_led_set_##num(struct device *dev,			\
-+	struct device_attribute *attr, const char *buf, size_t count)	\
-+{									\
-+	struct wiimote_data *wdata = dev_to_wii(dev);			\
-+	int tmp = simple_strtoul(buf, NULL, 10);			\
-+	unsigned long flags;						\
-+	__u8 state;							\
-+									\
-+	if (!atomic_read(&wdata->ready))				\
-+		return -EBUSY;						\
-+									\
-+	spin_lock_irqsave(&wdata->state.lock, flags);			\
-+									\
-+	state = wdata->state.flags;					\
-+									\
-+	if (tmp)							\
-+		wiiproto_req_leds(wdata, state | WIIPROTO_FLAG_LED##num);\
-+	else								\
-+		wiiproto_req_leds(wdata, state & ~WIIPROTO_FLAG_LED##num);\
-+									\
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);		\
-+									\
-+	return count;							\
-+}									\
-+static DEVICE_ATTR(led##num, S_IRUGO | S_IWUSR, wiifs_led_show_##num,	\
-+						wiifs_led_set_##num)
-+
-+wiifs_led_show_set(1);
-+wiifs_led_show_set(2);
-+wiifs_led_show_set(3);
-+wiifs_led_show_set(4);
-+
- static int wiimote_input_event(struct input_dev *dev, unsigned int type,
- 						unsigned int code, int value)
- {
-@@ -320,6 +372,19 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 		return -ENOMEM;
- 	}
- 
-+	ret = device_create_file(&hdev->dev, &dev_attr_led1);
-+	if (ret)
-+		goto err;
-+	ret = device_create_file(&hdev->dev, &dev_attr_led2);
-+	if (ret)
-+		goto err;
-+	ret = device_create_file(&hdev->dev, &dev_attr_led3);
-+	if (ret)
-+		goto err;
-+	ret = device_create_file(&hdev->dev, &dev_attr_led4);
-+	if (ret)
-+		goto err;
-+
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "HID parse failed\n");
-@@ -352,6 +417,10 @@ err_stop:
- 	hid_hw_stop(hdev);
- err:
- 	input_free_device(wdata->input);
-+	device_remove_file(&hdev->dev, &dev_attr_led1);
-+	device_remove_file(&hdev->dev, &dev_attr_led2);
-+	device_remove_file(&hdev->dev, &dev_attr_led3);
-+	device_remove_file(&hdev->dev, &dev_attr_led4);
- 	kfree(wdata);
- 	return ret;
- }
-@@ -370,6 +439,11 @@ static void wiimote_hid_remove(struct hid_device *hdev)
- 	 * the device data.
- 	 */
- 
-+	device_remove_file(&hdev->dev, &dev_attr_led1);
-+	device_remove_file(&hdev->dev, &dev_attr_led2);
-+	device_remove_file(&hdev->dev, &dev_attr_led3);
-+	device_remove_file(&hdev->dev, &dev_attr_led4);
-+
- 	atomic_set(&wdata->ready, 0);
- 	cancel_work_sync(&wdata->worker);
- 
--- 
-1.7.5.2
+As I read the source of all lgff drivers, I wonder if all Logitech wheels shouldn't be handled in the lg4ff driver. I'm worried 
+that further patching of lgff could break functionality with some older joysticks it's been originally meant to work with.
 
+81 0B 19 E6 FF 4A FF:
+ 8* - set effect number 4, *1 - start effect command
+ 0B - effect type: spring
+ 19 - left hand ramp start (MSB)
+ E6 - right hand ramp start (MSB)
+ F* - RH stiffness (0xF:max), *F - LH stiffness (0xF:max)
+ 4* - RH ramp start (LSB) , LSbit is RH stiffness sign (0:+ 1:-)
+ *A - LH ramp start (LSB), LSbit is LH stiffness sign (0:+ 1:-)
+ FF - saturation level for spring force (0xFF = max)
+
+In above example the wheel soft stops are set to
+0x19A and 0xE64 or 410 and -412 where 0x7FF or 2047 corresponds to half a rotation range or 450 degrees. Therefore 
+the wheel soft stops are set to +-360 degrees - the boundaries are calculated from the outsite.(410 / 2047 * 450)
+
+(Description provided by lbondar, original can be found here [2])
+
+[1] https://github.com/TripleSpeeder/LTWheelConf
+[2] http://www.lfsforum.net/showthread.php?p=1603971#post1603971

@@ -1,46 +1,53 @@
-From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v4 11/18] input: Add initial support for
-	TWL6040 vibrator
-Date: Thu, 16 Jun 2011 17:06:00 +0300
-Message-ID: <4306005.scnJ1lQX4P@barack>
-References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
-	<5476342.2jZLF0UGcI@barack> <20110616120244.GA2611@htj.dyndns.org>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: Quick note about the elantech driver
+Date: Thu, 16 Jun 2011 16:43:14 +0200
+Message-ID: <4DFA1682.2090403@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110616120244.GA2611@htj.dyndns.org>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Tejun Heo <tj@kernel.org>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:50357 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754731Ab1FPOnU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jun 2011 10:43:20 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by amavis (Postfix) with ESMTP id ECF997F80A6
+	for <linux-input@vger.kernel.org>; Thu, 16 Jun 2011 16:43:18 +0200 (CEST)
+Received: from mailservice.tudelft.nl ([130.161.131.69])
+	by localhost (tudelft.nl [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id ZDwd5a4BsLNq for <linux-input@vger.kernel.org>;
+	Thu, 16 Jun 2011 16:43:15 +0200 (CEST)
+Received: from smtp-a.tudelft.nl (smtp-a.tudelft.nl [130.161.180.7])
+	by mx1.tudelft.nl (Postfix) with ESMTP id 3874A7F805F
+	for <linux-input@vger.kernel.org>; Thu, 16 Jun 2011 16:43:15 +0200 (CEST)
+Received: from [131.180.44.74] (x044074.tudelft.net [131.180.44.74])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by smtp-a.tudelft.nl (Postfix) with ESMTP id 2ADE9B3A62
+	for <linux-input@vger.kernel.org>; Thu, 16 Jun 2011 16:43:15 +0200 (CEST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
 Hello,
 
-On Thursday 16 June 2011 14:02:44 Tejun Heo wrote:
-> > I'll move to create_workqueue.
-> =
+I've just found out that there is a patch written by Elantech themselves 
+for getting more versions of their touchpads working with the latest 
+kernels:
+https://launchpadlibrarian.net/71387234/01elantech_2.6.38.patch
 
-> I suppose you meant alloc_workqueue()? :)
+So if anyone has problem with a new elantech touchpad she/he can try 
+this patch :-)
 
-Oh, yes. I mean that.
- =
+I'll try to have a look at it and see how to put the same functionality 
+in a more elegant (and acceptable) way. But for now I have only very 
+little free time, so it might take time. If anyone was beating me at it, 
+it would be with pleasure ;-)
 
-> Sorry about the confusing names, I'm still in the (slow) process of
-> deprecating older APIs.
+See you,
+Eric
 
-Will do this soon, and I ping the other maintainers, if they see other issu=
-es =
-
-with the series, so I can make the change at the same time.
-
-Thanks,
-P=E9ter
+PS: In case someone is interested, I've also noticed the source of some 
+kind of X driver there: 
+http://people.freedesktop.org/~whot/patches/etd7-ps2-drv_1.4-1Free1.tar.gz

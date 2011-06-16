@@ -1,76 +1,81 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [RFC 05/12] HID: wiimote: Synchronize wiimote input and hid event handling
-Date: Thu, 16 Jun 2011 12:42:31 +0200
-Message-ID: <201106161242.31354.oneukum@suse.de>
-References: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com> <201106161218.55279.oneukum@suse.de> <BANLkTinwT3CSwkiytCoVbb4Q6UMzDx8tag@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: RFC: IIO: Options for 'event' userspace interface.
+Date: Thu, 16 Jun 2011 13:27:56 +0200
+Message-ID: <201106161327.57015.arnd@arndb.de>
+References: <4DF9DBDE.9060907@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:44522 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753777Ab1FPKkf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jun 2011 06:40:35 -0400
-In-Reply-To: <BANLkTinwT3CSwkiytCoVbb4Q6UMzDx8tag@mail.gmail.com>
+Received: from moutng.kundenserver.de ([212.227.17.10]:50903 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755158Ab1FPL2B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jun 2011 07:28:01 -0400
+In-Reply-To: <4DF9DBDE.9060907@cam.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, padovan@profusion.mobi
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "Hennerich, Michael" <Michael.Hennerich@analog.com>, Manuel Stahl <manuel.stahl@iis.fraunhofer.de>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Am Donnerstag, 16. Juni 2011, 12:29:40 schrieb David Herrmann:
-> On Thu, Jun 16, 2011 at 12:18 PM, Oliver Neukum <oneukum@suse.de> wrote:
-> > Am Donnerstag, 16. Juni 2011, 11:20:18 schrieb Jiri Kosina:
-> >> > Here an smp_wmb()
-> >> > It is redundant because input_register_device takes a spinlock which
-> >> > implies a barrier, but you'll make the automated checking tools happier.
-> >>
-> >> Yeah, spinlock implies SMP barrier implicitly.
-> >>
-> >> I don't think adding barriers just to make some buggy automatic checker
-> >> happy is worth it.
-> >
-> > Fine by me as long as the problem is understood.
+On Thursday 16 June 2011, Jonathan Cameron wrote:
+
+> Obvious options (or ones that have been suggested)
 > 
-> Does that mean that I can omit the smp_rmb(), too? I do not like
-> relying on input_register_device to use a spinlock. It makes reading
-> the code hard, so I added both barriers. Should I remove them again or
-> keep them?
+> * Use out of band signalling on the main data chrdev.  Basically poll with the more
+> unusual types, POLLPRI perhaps.  Then use an IOCTL to read what actually happened.
+> (grep suggests it gets used for something similar in v4l2-subdev.c) (suggested by
+> Arnd Bergmann).
 
-The full explanation is in Documentation/atomic-ops.txt
-Basically, whenever you do
+The important change that I'd really like to see is the use of poll() to wait
+for events. Using POLLPRI/ioctl to get IIO events is particularly nice IMHO because
+it lets you represent every IIO device as a single chardev. However, using a
+separate file descriptor (chardev or something else) with POLLIN/read is also
+totally fine. An interesting twist would be an ioctl on the chardev that returns
+a new file descriptor (from anon_inode_getfd()) on which you then do poll/read
+to get the events, instead of having separate character devices.
 
-if (!descriptor->flag)
-	return -ERR;
+> * Similar system to evdev in input.  This carries a few extra fields, but that probably
+> doesn't matter. We need to know when an event happened reasonably soon after, but not
+> asap.
 
-descriptor->pointer->member = expression; //or anything else with the pointer
+I'd suggest that if you do something similar to evdev, then make it use the *exact*
+same user interface with the ioctl command definitions used in evdev.
 
-you need smp_rmb() in between
+One disadvantage that I see here is that the evdev interface has a number of flaws
+regarding is 32 bit compatibility code that you cannot solve in a backwards-compatible
+way. Another is its use of variable-length ioctl arguments, which I would recommend
+avoiding in general. Also, Adding evdev extensions for iio into linux/input.h might
+be seen as a layer violation by interface purists.
 
-If you do
+> * Separate evdev from input and share it across both subsystems.  This seemed like
+> a good idea, but evdev is pretty tightly tied to the input core. Note we would never
+> be sharing input's event codes.  They are too restrictive (with good reason seeing
+> as they are for 'input' devices!)  Basically I expect this could be done, but would
+> need to be done very carefully so as to not have any impact on input users.  Perhaps
+> it is the right answer, but its not trivial. (I've cc'd linux-input to get comments
+> on this option!)
 
-if (!descriptor->flag)
-	return -ERR;
+This could be a second step if you decide to use the evdev interface. You start
+by duplicating evdev functionality within IIO at first, and then at a convenient
+time you put the common parts into a library module that is used by both input
+and iio for evdev.
 
-// no use of pointer here
+> * Some other event passing methods that I've either forgotten or never knew about
+> in the first place.
 
-spin_lock(&lock);
+For completeness, the list should probably include generic netlink sockets
+(net/netlink/genetlink.c). Some people hate them, others love them. They certainly
+fit the requirements and have some other nice properties, so I'd suggest you read
+some documentation and examples and build your own opinion.
 
-descriptor->pointer->member = expression; //or anything else with the pointer
+> * Leave things be. Its small and simple. Perhaps it's best we don't try to be clever
+> at all.
 
-You are save and can do without the smp_rmb()
+I would really hope for the interface to change to allow poll. The least invasive
+option would be to simply add a poll() function to iio_event_chrdev_fileops, which
+allows you to wait for multiple events in a single thread. Anything beyond that
+is an option IMHO.
 
-But, you still need smp_rmb() if you do:
-
-if (!descriptor->flag)
-	return -ERR;
-
-// no use of pointer here
-
-spin_lock(&descriptor->pointer->lock);
-
-All clear? I must say I stopped listing and checking all the places you use
-the flag, but I think some were buggy.
-
-	Regards
-		Oliver
+	Arnd

@@ -1,91 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [RFC 05/12] HID: wiimote: Synchronize wiimote input and hid
- event handling
-Date: Thu, 16 Jun 2011 11:20:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1106161119280.22872@pobox.suse.cz>
-References: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com> <1308095157-4699-6-git-send-email-dh.herrmann@googlemail.com> <201106150834.16081.oliver@neukum.org>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v4 11/18] input: Add initial support for
+	TWL6040 vibrator
+Date: Thu, 16 Jun 2011 14:13:59 +0300
+Message-ID: <5476342.2jZLF0UGcI@barack>
+References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
+	<20110615081858.GM8141@htj.dyndns.org>
+	<20110615082301.GN8141@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60957 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756726Ab1FPJUV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jun 2011 05:20:21 -0400
-In-Reply-To: <201106150834.16081.oliver@neukum.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20110615082301.GN8141@htj.dyndns.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Tejun Heo <tj@kernel.org>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org, padovan@profusion.mobi
 
-On Wed, 15 Jun 2011, Oliver Neukum wrote:
+On Wednesday 15 June 2011 10:23:01 Tejun Heo wrote:
+> On Wed, Jun 15, 2011 at 10:18:58AM +0200, Tejun Heo wrote:
+> > No human being can feel 120usec difference and I can't see how using
+> > HIGHPRI is justified here (which is what the code is doing
+> > _accidentally_ by using singlethread_workqueue).
+> =
 
-> > Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
-> > ---
-> >  drivers/hid/hid-wiimote.c |   13 +++++++++++++
-> >  1 files changed, 13 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-> > index 9fa4fe1..4dbb2c1 100644
-> > --- a/drivers/hid/hid-wiimote.c
-> > +++ b/drivers/hid/hid-wiimote.c
-> > @@ -10,6 +10,7 @@
-> >   * any later version.
-> >   */
-> >  
-> > +#include <linux/atomic.h>
-> >  #include <linux/device.h>
-> >  #include <linux/hid.h>
-> >  #include <linux/input.h>
-> > @@ -20,6 +21,7 @@
-> >  #define WIIMOTE_NAME "Nintendo Wii Remote"
-> >  
-> >  struct wiimote_data {
-> > +	atomic_t ready;
-> >  	struct hid_device *hdev;
-> >  	struct input_dev *input;
-> >  };
-> > @@ -27,12 +29,22 @@ struct wiimote_data {
-> >  static int wiimote_input_event(struct input_dev *dev, unsigned int type,
-> >  						unsigned int code, int value)
-> >  {
-> > +	struct wiimote_data *wdata = input_get_drvdata(dev);
-> > +
-> > +	if (!atomic_read(&wdata->ready))
-> > +		return -EBUSY;
-> > +
-> 
-> Here an smp_rmb()
-> 
-> >  	return 0;
-> >  }
-> >  
-> >  static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
-> >  							u8 *raw_data, int size)
-> >  {
-> > +	struct wiimote_data *wdata = hid_get_drvdata(hdev);
-> > +
-> > +	if (!atomic_read(&wdata->ready))
-> > +		return -EBUSY;
-> > +
-> >  	if (size < 1)
-> >  		return -EINVAL;
-> >  
-> > @@ -98,6 +110,7 @@ static int wiimote_hid_probe(struct hid_device *hdev,
-> >  		goto err_stop;
-> >  	}
-> >
-> 
-> Here an smp_wmb()
-> It is redundant because input_register_device takes a spinlock which
-> implies a barrier, but you'll make the automated checking tools happier.  
+> Ooh, one more thing, and even if you insist on using HIGHPRI (please
+> don't), you don't need to create workqueue for each device.  You can
+> just create one for the whole driver in init and destroy it from exit.
+> What matters is the HIGHPRI attribute of the workqueue.  The number of
+> workqueues is completely irrelevant.
 
-Yeah, spinlock implies SMP barrier implicitly.
+Fair enough.
+I'll move to create_workqueue.
+If we later find issues with this (in a 'live' system), we can figure out a =
 
-I don't think adding barriers just to make some buggy automatic checker 
-happy is worth it.
+way to fix it.
 
-Thanks for the review, Oliver.
+Thank you for your time on this.
+I'll make the changes accordingly.
 
--- 
-Jiri Kosina
-SUSE Labs
+Regards,
+P=E9ter

@@ -1,47 +1,91 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH] input: sh_keysc: 8x8 MODE_6 fix
-Date: Thu, 16 Jun 2011 09:57:57 +0900
-Message-ID: <BANLkTim+W2zvHY9jTOPM=iFPrB4tB0vmNQ@mail.gmail.com>
-References: <20110615143340.21798.61858.sendpatchset@t400s>
-	<20110615231211.GC28947@verge.net.au>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC 05/12] HID: wiimote: Synchronize wiimote input and hid
+ event handling
+Date: Thu, 16 Jun 2011 11:20:18 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1106161119280.22872@pobox.suse.cz>
+References: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com> <1308095157-4699-6-git-send-email-dh.herrmann@googlemail.com> <201106150834.16081.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:58754 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752590Ab1FPA55 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jun 2011 20:57:57 -0400
-In-Reply-To: <20110615231211.GC28947@verge.net.au>
+Received: from cantor2.suse.de ([195.135.220.15]:60957 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756726Ab1FPJUV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jun 2011 05:20:21 -0400
+In-Reply-To: <201106150834.16081.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: linux-input@vger.kernel.org, lethal@linux-sh.org, dmitry.torokhov@gmail.com, linux-sh@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org, padovan@profusion.mobi
 
-On Thu, Jun 16, 2011 at 8:12 AM, Simon Horman <horms@verge.net.au> wrote:
-> On Wed, Jun 15, 2011 at 11:33:40PM +0900, Magnus Damm wrote:
->> From: Magnus Damm <damm@opensource.se>
->>
->> The MODE_6 support in sh_keysc.c is incorrect without
->> this patch. According to the data sheet for G4, AP4 and
->> AG5 KEYSC MODE_6 is 8x8 keys. Bump up MAXKEYS to 64 too.
->>
->> Signed-off-by: Magnus Damm <damm@opensource.se>
->
-> Reviewed-by: Simon Horman <horms@verge.net.au>
+On Wed, 15 Jun 2011, Oliver Neukum wrote:
 
-Thanks!
+> > Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+> > ---
+> >  drivers/hid/hid-wiimote.c |   13 +++++++++++++
+> >  1 files changed, 13 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
+> > index 9fa4fe1..4dbb2c1 100644
+> > --- a/drivers/hid/hid-wiimote.c
+> > +++ b/drivers/hid/hid-wiimote.c
+> > @@ -10,6 +10,7 @@
+> >   * any later version.
+> >   */
+> >  
+> > +#include <linux/atomic.h>
+> >  #include <linux/device.h>
+> >  #include <linux/hid.h>
+> >  #include <linux/input.h>
+> > @@ -20,6 +21,7 @@
+> >  #define WIIMOTE_NAME "Nintendo Wii Remote"
+> >  
+> >  struct wiimote_data {
+> > +	atomic_t ready;
+> >  	struct hid_device *hdev;
+> >  	struct input_dev *input;
+> >  };
+> > @@ -27,12 +29,22 @@ struct wiimote_data {
+> >  static int wiimote_input_event(struct input_dev *dev, unsigned int type,
+> >  						unsigned int code, int value)
+> >  {
+> > +	struct wiimote_data *wdata = input_get_drvdata(dev);
+> > +
+> > +	if (!atomic_read(&wdata->ready))
+> > +		return -EBUSY;
+> > +
+> 
+> Here an smp_rmb()
+> 
+> >  	return 0;
+> >  }
+> >  
+> >  static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+> >  							u8 *raw_data, int size)
+> >  {
+> > +	struct wiimote_data *wdata = hid_get_drvdata(hdev);
+> > +
+> > +	if (!atomic_read(&wdata->ready))
+> > +		return -EBUSY;
+> > +
+> >  	if (size < 1)
+> >  		return -EINVAL;
+> >  
+> > @@ -98,6 +110,7 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+> >  		goto err_stop;
+> >  	}
+> >
+> 
+> Here an smp_wmb()
+> It is redundant because input_register_device takes a spinlock which
+> implies a barrier, but you'll make the automated checking tools happier.  
 
-> Do we also need to update the platform data for ag5evm
-> which is currently using SH_KEYSC_MODE_6 but with 49
-> entries in its keysc_platdata.keycodes ?
+Yeah, spinlock implies SMP barrier implicitly.
 
-Yes, eventually we need to update the board support code as well.
-Chances are that existing out-of-tree board support code is broken. So
-we need updated platform data together with a pinmux configuration
-that matches the board schematics. Tested on real hardware using
-evtest.
+I don't think adding barriers just to make some buggy automatic checker 
+happy is worth it.
 
-Cheers,
+Thanks for the review, Oliver.
 
-/ magnus
+-- 
+Jiri Kosina
+SUSE Labs

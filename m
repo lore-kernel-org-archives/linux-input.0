@@ -1,62 +1,46 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: Re: Re: Re: Re: Re: [PATCH v4 11/18] input: Add initial support
- for TWL6040 vibrator
-Date: Thu, 16 Jun 2011 14:02:44 +0200
-Message-ID: <20110616120244.GA2611@htj.dyndns.org>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v4 11/18] input: Add initial support for
+	TWL6040 vibrator
+Date: Thu, 16 Jun 2011 17:06:00 +0300
+Message-ID: <4306005.scnJ1lQX4P@barack>
 References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
- <20110615081858.GM8141@htj.dyndns.org>
- <20110615082301.GN8141@htj.dyndns.org>
- <5476342.2jZLF0UGcI@barack>
+	<5476342.2jZLF0UGcI@barack> <20110616120244.GA2611@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:55505 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751958Ab1FPMCt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jun 2011 08:02:49 -0400
-Content-Disposition: inline
-In-Reply-To: <5476342.2jZLF0UGcI@barack>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20110616120244.GA2611@htj.dyndns.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Tejun Heo <tj@kernel.org>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Girdwood, Liam" <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>
 
 Hello,
 
-On Thu, Jun 16, 2011 at 02:13:59PM +0300, P=E9ter Ujfalusi wrote:
-> On Wednesday 15 June 2011 10:23:01 Tejun Heo wrote:
-> > On Wed, Jun 15, 2011 at 10:18:58AM +0200, Tejun Heo wrote:
-> > > No human being can feel 120usec difference and I can't see how us=
-ing
-> > > HIGHPRI is justified here (which is what the code is doing
-> > > _accidentally_ by using singlethread_workqueue).
-> >=20
-> > Ooh, one more thing, and even if you insist on using HIGHPRI (pleas=
-e
-> > don't), you don't need to create workqueue for each device.  You ca=
-n
-> > just create one for the whole driver in init and destroy it from ex=
-it.
-> > What matters is the HIGHPRI attribute of the workqueue.  The number=
- of
-> > workqueues is completely irrelevant.
->=20
-> Fair enough.
-> I'll move to create_workqueue.
+On Thursday 16 June 2011 14:02:44 Tejun Heo wrote:
+> > I'll move to create_workqueue.
+> =
 
-I suppose you meant alloc_workqueue()? :)
+> I suppose you meant alloc_workqueue()? :)
 
-Sorry about the confusing names, I'm still in the (slow) process of
-deprecating older APIs.
+Oh, yes. I mean that.
+ =
 
-Thanks.
+> Sorry about the confusing names, I'm still in the (slow) process of
+> deprecating older APIs.
 
---=20
-tejun
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Will do this soon, and I ping the other maintainers, if they see other issu=
+es =
+
+with the series, so I can make the change at the same time.
+
+Thanks,
+P=E9ter

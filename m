@@ -1,50 +1,51 @@
-From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v4 11/18] input: Add initial support for
-	TWL6040 vibrator
-Date: Thu, 16 Jun 2011 14:13:59 +0300
-Message-ID: <5476342.2jZLF0UGcI@barack>
-References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
-	<20110615081858.GM8141@htj.dyndns.org>
-	<20110615082301.GN8141@htj.dyndns.org>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [RFC 05/12] HID: wiimote: Synchronize wiimote input and hid event handling
+Date: Thu, 16 Jun 2011 12:18:55 +0200
+Message-ID: <201106161218.55279.oneukum@suse.de>
+References: <1308095157-4699-1-git-send-email-dh.herrmann@googlemail.com> <201106150834.16081.oliver@neukum.org> <alpine.LNX.2.00.1106161119280.22872@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110615082301.GN8141@htj.dyndns.org>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Tejun Heo <tj@kernel.org>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:34814 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754006Ab1FPKQk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jun 2011 06:16:40 -0400
+In-Reply-To: <alpine.LNX.2.00.1106161119280.22872@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, linux-input@vger.kernel.org, padovan@profusion.mobi
 
-On Wednesday 15 June 2011 10:23:01 Tejun Heo wrote:
-> On Wed, Jun 15, 2011 at 10:18:58AM +0200, Tejun Heo wrote:
-> > No human being can feel 120usec difference and I can't see how using
-> > HIGHPRI is justified here (which is what the code is doing
-> > _accidentally_ by using singlethread_workqueue).
-> =
+Am Donnerstag, 16. Juni 2011, 11:20:18 schrieb Jiri Kosina:
+> > Here an smp_wmb()
+> > It is redundant because input_register_device takes a spinlock whic=
+h
+> > implies a barrier, but you'll make the automated checking tools hap=
+pier. =20
+>=20
+> Yeah, spinlock implies SMP barrier implicitly.
+>=20
+> I don't think adding barriers just to make some buggy automatic check=
+er=20
+> happy is worth it.
 
-> Ooh, one more thing, and even if you insist on using HIGHPRI (please
-> don't), you don't need to create workqueue for each device.  You can
-> just create one for the whole driver in init and destroy it from exit.
-> What matters is the HIGHPRI attribute of the workqueue.  The number of
-> workqueues is completely irrelevant.
+=46ine by me as long as the problem is understood.
 
-Fair enough.
-I'll move to create_workqueue.
-If we later find issues with this (in a 'live' system), we can figure out a =
+	Regards
+		Oliver
 
-way to fix it.
-
-Thank you for your time on this.
-I'll make the changes accordingly.
-
-Regards,
-P=E9ter
+--=20
+- - -=20
+SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6=
+rffer, HRB 16746 (AG N=FCrnberg)=20
+Maxfeldstra=DFe 5                        =20
+90409 N=FCrnberg=20
+Germany=20
+- - -=20
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

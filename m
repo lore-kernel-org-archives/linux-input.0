@@ -1,126 +1,163 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 11/12 v2] HID: wiimote: Cache wiimote led state
-Date: Fri, 17 Jun 2011 16:49:21 +0200
-Message-ID: <1308322162-13953-11-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 12/12 v2] HID: wiimote: Add sysfs support to wiimote driver
+Date: Fri, 17 Jun 2011 16:49:22 +0200
+Message-ID: <1308322162-13953-12-git-send-email-dh.herrmann@googlemail.com>
 References: <1308322162-13953-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:42426 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:59269 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759258Ab1FQOu3 (ORCPT
+	with ESMTP id S1759263Ab1FQOub (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jun 2011 10:50:29 -0400
-Received: by fxm17 with SMTP id 17so1796243fxm.19
-        for <linux-input@vger.kernel.org>; Fri, 17 Jun 2011 07:50:27 -0700 (PDT)
+	Fri, 17 Jun 2011 10:50:31 -0400
+Received: by fxm17 with SMTP id 17so1796261fxm.19
+        for <linux-input@vger.kernel.org>; Fri, 17 Jun 2011 07:50:29 -0700 (PDT)
 In-Reply-To: <1308322162-13953-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: padovan@profusion.mobi, jkosina@suse.cz, oliver@neukum.org, dh.herrmann@googlemail.com
 
-Save the current state of the leds in the wiimote data structure. This
-allows us to discard new led requests that wouldn't change anything.
-Protect the whole state structure by a spinlock. Every wiiproto_*
-function expects this spinlock to be held when called.
+Add sysfs files for each led of the wiimote. Writing 1 to the file
+enables the led and 0 disables the led.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
-V2: Fix spinlocks, use irqsave version
+V2: Document new ABI
 
- drivers/hid/hid-wiimote.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+ Documentation/ABI/testing/sysfs-driver-hid-wiimote |   10 +++
+ drivers/hid/hid-wiimote.c                          |   74 ++++++++++++++++++++
+ 2 files changed, 84 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-wiimote
 
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-wiimote b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
+new file mode 100644
+index 0000000..5d5a16e
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
+@@ -0,0 +1,10 @@
++What:		/sys/bus/hid/drivers/wiimote/<dev>/led1
++What:		/sys/bus/hid/drivers/wiimote/<dev>/led2
++What:		/sys/bus/hid/drivers/wiimote/<dev>/led3
++What:		/sys/bus/hid/drivers/wiimote/<dev>/led4
++Date:		July 2011
++KernelVersion:	3.1
++Contact:	David Herrmann <dh.herrmann@googlemail.com>
++Description:	Make it possible to set/get current led state. Reading from it
++		returns 0 if led is off and 1 if it is on. Writing 0 to it
++		disables the led, writing 1 enables it.
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index be8d871..7779f41 100644
+index 7779f41..2062ea1 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -27,6 +27,11 @@ struct wiimote_buf {
- 	size_t size;
+@@ -87,6 +87,9 @@ static __u16 wiiproto_keymap[] = {
+ 	BTN_MODE,	/* WIIPROTO_KEY_HOME */
  };
  
-+struct wiimote_state {
-+	spinlock_t lock;
-+	__u8 flags;
-+};
++#define dev_to_wii(pdev) hid_get_drvdata(container_of(pdev, struct hid_device, \
++									dev))
 +
- struct wiimote_data {
- 	atomic_t ready;
- 	struct hid_device *hdev;
-@@ -37,12 +42,16 @@ struct wiimote_data {
- 	__u8 tail;
- 	struct wiimote_buf outq[WIIMOTE_BUFSIZE];
- 	struct work_struct worker;
-+
-+	struct wiimote_state state;
- };
- 
- #define WIIPROTO_FLAG_LED1 0x01
- #define WIIPROTO_FLAG_LED2 0x02
- #define WIIPROTO_FLAG_LED3 0x04
- #define WIIPROTO_FLAG_LED4 0x08
-+#define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
-+					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
- 
- enum wiiproto_reqs {
- 	WIIPROTO_REQ_LED = 0x11,
-@@ -174,6 +183,11 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
+ static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
+ 								size_t count)
  {
- 	__u8 cmd[2];
+@@ -203,6 +206,55 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
+ 	wiimote_queue(wdata, cmd, sizeof(cmd));
+ }
  
-+	leds &= WIIPROTO_FLAGS_LEDS;
-+	if ((wdata->state.flags & WIIPROTO_FLAGS_LEDS) == leds)
-+		return;
-+	wdata->state.flags = (wdata->state.flags & ~WIIPROTO_FLAGS_LEDS) | leds;
++#define wiifs_led_show_set(num)						\
++static ssize_t wiifs_led_show_##num(struct device *dev,			\
++			struct device_attribute *attr, char *buf)	\
++{									\
++	struct wiimote_data *wdata = dev_to_wii(dev);			\
++	unsigned long flags;						\
++	int state;							\
++									\
++	if (!atomic_read(&wdata->ready))				\
++		return -EBUSY;						\
++									\
++	spin_lock_irqsave(&wdata->state.lock, flags);			\
++	state = !!(wdata->state.flags & WIIPROTO_FLAG_LED##num);	\
++	spin_unlock_irqrestore(&wdata->state.lock, flags);		\
++									\
++	return sprintf(buf, "%d\n", state);				\
++}									\
++static ssize_t wiifs_led_set_##num(struct device *dev,			\
++	struct device_attribute *attr, const char *buf, size_t count)	\
++{									\
++	struct wiimote_data *wdata = dev_to_wii(dev);			\
++	int tmp = simple_strtoul(buf, NULL, 10);			\
++	unsigned long flags;						\
++	__u8 state;							\
++									\
++	if (!atomic_read(&wdata->ready))				\
++		return -EBUSY;						\
++									\
++	spin_lock_irqsave(&wdata->state.lock, flags);			\
++									\
++	state = wdata->state.flags;					\
++									\
++	if (tmp)							\
++		wiiproto_req_leds(wdata, state | WIIPROTO_FLAG_LED##num);\
++	else								\
++		wiiproto_req_leds(wdata, state & ~WIIPROTO_FLAG_LED##num);\
++									\
++	spin_unlock_irqrestore(&wdata->state.lock, flags);		\
++									\
++	return count;							\
++}									\
++static DEVICE_ATTR(led##num, S_IRUGO | S_IWUSR, wiifs_led_show_##num,	\
++						wiifs_led_set_##num)
 +
- 	cmd[0] = WIIPROTO_REQ_LED;
- 	cmd[1] = 0;
- 
-@@ -245,6 +259,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	struct wiimote_data *wdata = hid_get_drvdata(hdev);
- 	struct wiiproto_handler *h;
- 	int i;
-+	unsigned long flags;
- 
- 	if (!atomic_read(&wdata->ready))
- 		return -EBUSY;
-@@ -253,12 +268,16 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	if (size < 1)
- 		return -EINVAL;
- 
-+	spin_lock_irqsave(&wdata->state.lock, flags);
++wiifs_led_show_set(1);
++wiifs_led_show_set(2);
++wiifs_led_show_set(3);
++wiifs_led_show_set(4);
 +
- 	for (i = 0; handlers[i].id; ++i) {
- 		h = &handlers[i];
- 		if (h->id == raw_data[0] && h->size < size)
- 			h->func(wdata, &raw_data[1]);
+ static int wiimote_input_event(struct input_dev *dev, unsigned int type,
+ 						unsigned int code, int value)
+ {
+@@ -337,6 +389,19 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 		return -ENOMEM;
  	}
  
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
++	ret = device_create_file(&hdev->dev, &dev_attr_led1);
++	if (ret)
++		goto err;
++	ret = device_create_file(&hdev->dev, &dev_attr_led2);
++	if (ret)
++		goto err;
++	ret = device_create_file(&hdev->dev, &dev_attr_led3);
++	if (ret)
++		goto err;
++	ret = device_create_file(&hdev->dev, &dev_attr_led4);
++	if (ret)
++		goto err;
 +
- 	return 0;
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "HID parse failed\n");
+@@ -370,6 +435,10 @@ err_stop:
+ 	hid_hw_stop(hdev);
+ err:
+ 	input_free_device(wdata->input);
++	device_remove_file(&hdev->dev, &dev_attr_led1);
++	device_remove_file(&hdev->dev, &dev_attr_led2);
++	device_remove_file(&hdev->dev, &dev_attr_led3);
++	device_remove_file(&hdev->dev, &dev_attr_led4);
+ 	wiimote_destroy(wdata);
+ 	return ret;
  }
+@@ -388,6 +457,11 @@ static void wiimote_hid_remove(struct hid_device *hdev)
+ 	 * the device data.
+ 	 */
  
-@@ -296,6 +315,8 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	spin_lock_init(&wdata->qlock);
- 	INIT_WORK(&wdata->worker, wiimote_worker);
- 
-+	spin_lock_init(&wdata->state.lock);
++	device_remove_file(&hdev->dev, &dev_attr_led1);
++	device_remove_file(&hdev->dev, &dev_attr_led2);
++	device_remove_file(&hdev->dev, &dev_attr_led3);
++	device_remove_file(&hdev->dev, &dev_attr_led4);
 +
- 	return wdata;
- }
- 
-@@ -337,7 +358,12 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 	atomic_set(&wdata->ready, 0);
  	smp_wmb();
- 	atomic_set(&wdata->ready, 1);
- 	hid_info(hdev, "New device registered\n");
-+
-+	/* by default set led1 after device initialization */
-+	spin_lock_irq(&wdata->state.lock);
- 	wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
-+	spin_unlock_irq(&wdata->state.lock);
-+
- 	return 0;
- 
- err_stop:
+ 	cancel_work_sync(&wdata->worker);
 -- 
 1.7.5.2
 

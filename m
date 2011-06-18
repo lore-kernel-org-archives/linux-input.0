@@ -1,74 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local
- GPIO chips.
-Date: Sat, 18 Jun 2011 07:51:54 -0700
-Message-ID: <20110618145154.GA18190@core.coreip.homeip.net>
-References: <1308042491-20203-1-git-send-email-david@protonic.nl>
- <1308042491-20203-4-git-send-email-david@protonic.nl>
- <20110616192732.GJ3795@ponder.secretlab.ca>
- <20110618101706.GB2401@core.coreip.homeip.net>
- <BANLkTiky39X3g3g9oy7fAdFhPn4hHOij9w@mail.gmail.com>
+Subject: Re: [PATCH v4 11/18] input: Add initial support for
+ TWL6040 vibrator
+Date: Sat, 18 Jun 2011 07:57:25 -0700
+Message-ID: <20110618145724.GB18190@core.coreip.homeip.net>
+References: <1307706876-4768-1-git-send-email-peter.ujfalusi@ti.com>
+	<5740779.B2nyl9oMW4@barack> <20110617094332.GE2611@htj.dyndns.org>
+	<1541792.uUz2bSMDMl@barack>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f51.google.com ([209.85.210.51]:53510 "EHLO
-	mail-pz0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753416Ab1FROwD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jun 2011 10:52:03 -0400
-Received: by pzk26 with SMTP id 26so2638219pzk.10
-        for <linux-input@vger.kernel.org>; Sat, 18 Jun 2011 07:52:02 -0700 (PDT)
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
 Content-Disposition: inline
-In-Reply-To: <BANLkTiky39X3g3g9oy7fAdFhPn4hHOij9w@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1541792.uUz2bSMDMl@barack>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: =?iso-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Tejun Heo <tj@kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: David Jander <david@protonic.nl>, linux-input@vger.kernel.org
 
-On Sat, Jun 18, 2011 at 07:18:28AM -0600, Grant Likely wrote:
-> On Sat, Jun 18, 2011 at 4:17 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Thu, Jun 16, 2011 at 01:27:32PM -0600, Grant Likely wrote:
-> >> On Tue, Jun 14, 2011 at 11:08:11AM +0200, David Jander wrote:
-> >> > Use a threaded interrupt handler in order to permit the handler to use
-> >> > a GPIO driver that causes things like I2C transactions being done inside
-> >> > the handler context.
-> >> > Also, gpio_keys_init needs to be declared as a late_initcall, to make sure
-> >> > all needed GPIO drivers have been loaded if the drivers are built into the
-> >> > kernel.
-> >>
-> >> ...which is a horrid hack, but until device dependencies can be
-> >> described, it isn't one that can be solved easily.
-> >>
-> >
-> > I really do not want to apply this... Currently the order of
-> > initialization does not matter since nothing actually happens until
-> > corresponding device appears on the bus. Does the OF code creates
-> > devices before all resources are ready?
-> 
-> It's not an OF problem.  The problem is that all the platform_devices
-> typically get registered all at once at machine_init time (on arm),
-> and if the gpio expander isn't a platform_device, (like an i2c gpio
-> expander which would end up being a child of a platform_device), then
-> it won't be ready.
+On Fri, Jun 17, 2011 at 01:59:47PM +0300, P=E9ter Ujfalusi wrote:
+> On Friday 17 June 2011 11:43:32 Tejun Heo wrote:
+> > Just use the default params
+> > =
 
-Ah, I see. But that can be handled in board code that should ensure that
-it registers devices in correct order.
+> > 	alloc_workqueue("twl6040-vibra", 0, 0);
+> > =
 
->  The real problem is that we have no mechanism for
-> holding off or deferring a driver probe if it depends on an
-> asynchronous resource.
+> > Thanks.
+> =
 
-The mechanism we do have - we should not be creating the device for the
-driver to bind to unless all resources that are needed by that device
-are ready.
+> I'll do this for the next posting
+> =
 
-Just shuffling the initcall order is not maintanable. Next there will be
-GPIO expander that is for some reason registered as late_initcall and
-we'll be back to square one. I am going to take the threaded IRQ bit but
-will drop the initcall bit from the patch.
+
+Tejun,
+
+For my education, what is the benefit of creating a dedicated workqueue
+with alloc_workqueue (which, as far as I understand, does not end up
+having dedicated worker threads but will use the common pool) and simply
+queueing the jobs on system-wide workqueue?
 
 Thanks.
 
--- 
+-- =
+
 Dmitry

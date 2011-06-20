@@ -1,86 +1,82 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH] input: keypad: lm8323: convert to threaded IRQ
-Date: Mon, 20 Jun 2011 11:26:07 +0300
-Message-ID: <20110620082605.GE14262@legolas.emea.dhcp.ti.com>
-References: <1307999812-3802-1-git-send-email-balbi@ti.com>
- <a07cbd61db83c3308dd76f7c0f481477@doppler.thel33t.co.uk>
- <20110619195604.GC14262@legolas.emea.dhcp.ti.com>
- <694a51cff83de55276b804b23668447e@doppler.thel33t.co.uk>
-Reply-To: balbi@ti.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 1/3] Input: gpio_keys.c: Simplify platform_device ->
+ device casting
+Date: Mon, 20 Jun 2011 01:32:06 -0700
+Message-ID: <20110620083205.GA23113@core.coreip.homeip.net>
+References: <1308042491-20203-1-git-send-email-david@protonic.nl>
+ <1308042491-20203-2-git-send-email-david@protonic.nl>
+ <20110618101925.GC2401@core.coreip.homeip.net>
+ <20110620085213.1e506cdd@archvile>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EXKGNeO8l0xGFBjy"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aob106.obsmtp.com ([74.125.149.76]:33058 "EHLO
-	na3sys009aog106.obsmtp.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750758Ab1FTI0M (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:35681 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751921Ab1FTIcP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jun 2011 04:26:12 -0400
+	Mon, 20 Jun 2011 04:32:15 -0400
+Received: by iwn6 with SMTP id 6so991315iwn.19
+        for <linux-input@vger.kernel.org>; Mon, 20 Jun 2011 01:32:14 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <694a51cff83de55276b804b23668447e@doppler.thel33t.co.uk>
+In-Reply-To: <20110620085213.1e506cdd@archvile>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Leigh Brown <leigh@solinno.co.uk>
-Cc: balbi@ti.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>
+To: David Jander <david.jander@protonic.nl>
+Cc: David Jander <david@protonic.nl>, Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org
 
+Hi David,
 
---EXKGNeO8l0xGFBjy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Jun 20, 2011 at 08:52:13AM +0200, David Jander wrote:
+> 
+> Hi Dmitry,
+> 
+> On Sat, 18 Jun 2011 03:19:25 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On Tue, Jun 14, 2011 at 11:08:09AM +0200, David Jander wrote:
+> > > This patch factors out the use of struct platform_device *pdev in most
+> > > places.
+> > > 
+> > 
+> > Why? We are dealing with a platform device so why would we switch to
+> > generic device?
+> 
+> Actually, when I wrote this patch there still was a difference between
+> the platform bus and the of_platform bus, and this change was necessary. There
+> also were ifdefs around platform_driver_register and
+> of_platform_driver_register. Now it seems this has been merged, and I am
+> not sure it is necessary anymore, but I still think it simplifies the code
+> quite a bit. Also, why should the driver be bus-dependent, when it doesn't
+> even need a real "bus" (it talks to an abstract device through another driver,
+> potentially connected to any bus), besides due to how linux views devices and
+> drivers.
 
-Hi,
+While there isn't real hardware bus the driver is fitted into platform
+device framework and so we should use platform device API unless there
+is compelling reason for using another API.
 
-On Sun, Jun 19, 2011 at 11:01:43PM +0100, Leigh Brown wrote:
-> On Sun, 19 Jun 2011 22:56:06 +0300, Felipe Balbi wrote:
-> >Hi,
-> >
-> >On Sun, Jun 19, 2011 at 07:00:13PM +0000, Leigh Brown wrote:
-> >>Many thanks for trying to assist me with my problem. To recap,
-> >
-> >yeah, no problem ;-)
-> >
-> >>I'm seeing the keypad lock-up on my N810 using this driver,
-> >>when I type quickly.
-> >>
-> >>I tried your patch, and it doesn't fix the issue.  However, I've
-> >>read the datasheet for the lm8323 and it looks to me like the
-> >>interrupt should be level rather than edge triggered.
-> >>
-> >>The following additional patch makes things work for me.  I
-> >>couldn't tell you if it's the correct thing to do but I can no
-> >>longer cause the keypad to lock-up by typing too fast.
-> >
-> >good good. Looks like IRQF_ONESHOT is what did the trick.
-> >
-> >Did you check if IRQF_ONESHOT alone was enough ?
->=20
-> I tried that first, but it didn't fix it, although it makes it a
-> little bit harder to trigger.  I've just tried again to be sure,
-> but I got a lock-up quite easily.
+> 
+> > I also think that we should not be mixing dev_get/set_drvdata() and
+> > <bus>_get/set_drvdata() calls
+> 
+> AFAICS, we are not mixing.... it is dev_*_drvdata() only.
 
-Ok, cool thanks... Can you send your patch as a proper patch (with your
-Signed-off-by line and everything) saying that it fixes the lock up ?
+"Mixing" was probably not the best word. "Using API from a different
+layer" would probably be better.
 
-My patch converts to threaded IRQ and yours fixes the triggering ;-)
+> 
+> > but rather use appropriate bus-specific version to access data on given
+> > layer.
+> 
+> Doesn't that make the driver much too complex? And why would that be
+> necessary? The driver isn't bus-specific anymore... except for the binding and
+> probing part.
 
---=20
-balbi
+Why would it make the driver more complex? Aside from a couple of
+PM methods coming from the driver core and therefore operating on
+"struct device *" the rest is using platform device directly.
 
---EXKGNeO8l0xGFBjy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAEBAgAGBQJN/wQdAAoJEAv8Txj19kN1MfwIAILFk9BX7hfPeqKNMzrzPUwa
-J7yB/yn6G97ua/dT9oPPfkPELDRKtmrdTatxlecckZ02k4XwpPPKLsLXjn57L8Ii
-O/OzUN1sKpfqe+LQ4G51I8wSEhH6RSN7RVPpobWJ1HyVMYoDNxs/xUlXjpW6wTs3
-s58R3fGfgLc7kqGn1kzrJoakh2kqYD+VAV+tisFU3YnM/5t6+dF7KHt5VVwZ5wx2
-szgLDIZs6mGLeoHW4kVkgBOckhhmyDFE3cK/Db5d6EqU/4G0iZP1ooxX8RV73yGv
-msJq2YAEk9yu2iVoXQ1Q19grBpOKGlug8FY3WBwhP5HovorEyAXDxtCE3N0cMjU=
-=6YMs
------END PGP SIGNATURE-----
-
---EXKGNeO8l0xGFBjy--
+-- 
+Dmitry

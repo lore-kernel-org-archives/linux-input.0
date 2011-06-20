@@ -1,47 +1,40 @@
-From: Leigh Brown <leigh@solinno.co.uk>
-Subject: [PATCH] input: keypad: lm8323: use level triggered interrupts
-Date: Mon, 20 Jun 2011 20:02:27 +0100
-Message-ID: <3f659cd53ac25c98701c2bb3a453ab06@doppler.thel33t.co.uk>
-References: <1307999812-3802-1-git-send-email-balbi@ti.com>
- <a07cbd61db83c3308dd76f7c0f481477@doppler.thel33t.co.uk>
- <20110619195604.GC14262@legolas.emea.dhcp.ti.com>
- <694a51cff83de55276b804b23668447e@doppler.thel33t.co.uk>
- <20110620082605.GE14262@legolas.emea.dhcp.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20110620082605.GE14262@legolas.emea.dhcp.ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: balbi@ti.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] input/keyboard: Remove obsolete cleanup for clientdata
+Date: Mon, 20 Jun 2011 23:01:12 +0200
+Message-ID: <1308603674-19264-1-git-send-email-w.sang@pengutronix.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch, which should be applied on top of Felipe's
-"input: keypad: lm8323: convert to threaded IRQ" patch, fixes the issue
-of the Nokia N810 keypad stopping responding if multiple key events 
-occur
-in quick succession.
+A few new i2c-drivers came into the kernel which clear the clientdata-pointer
+on exit or error. This is obsolete meanwhile, the core will do it.
 
-Signed-off-by: Leigh Brown <leigh@solinno.co.uk>
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
-  drivers/input/keyboard/lm8323.c |    2 +-
-  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/keyboard/lm8323.c 
-b/drivers/input/keyboard/lm8323.c
-index 3b21f42..ab0acaf 100644
---- a/drivers/input/keyboard/lm8323.c
-+++ b/drivers/input/keyboard/lm8323.c
-@@ -734,7 +734,7 @@ static int __devinit lm8323_probe(struct i2c_client 
-*client,
-  	}
+This is more a cleanup than a bugfix. Still, would be happy to have this
+obsolete programming style largely removed in 3.0 if possible.
 
-  	err = request_threaded_irq(client->irq, NULL, lm8323_irq,
--			  IRQF_TRIGGER_FALLING, "lm8323", lm);
-+			  IRQF_TRIGGER_LOW|IRQF_ONESHOT, "lm8323", lm);
-  	if (err) {
-  		dev_err(&client->dev, "could not get IRQ %d\n", client->irq);
-  		goto fail4;
+ drivers/input/keyboard/qt1070.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+index ca7b891..b21bf5b 100644
+--- a/drivers/input/keyboard/qt1070.c
++++ b/drivers/input/keyboard/qt1070.c
+@@ -239,8 +239,6 @@ static int __devexit qt1070_remove(struct i2c_client *client)
+ 	input_unregister_device(data->input);
+ 	kfree(data);
+ 
+-	i2c_set_clientdata(client, NULL);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.7.2.5

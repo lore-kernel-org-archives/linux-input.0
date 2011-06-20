@@ -1,40 +1,46 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] input/keyboard: Remove obsolete cleanup for clientdata
-Date: Mon, 20 Jun 2011 23:01:12 +0200
-Message-ID: <1308603674-19264-1-git-send-email-w.sang@pengutronix.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Marco Chiappero <marco@absence.it>
+Subject: Re: [PATCH 22/25] sony-laptop: forward Hybrid GFX notifications to
+ userspace
+Date: Mon, 20 Jun 2011 23:12:50 +0200
+Message-ID: <4DFFB7D2.3080400@absence.it>
+References: <4DE8FC4A.9010401@absence.it> <4DE93584.3070205@absence.it> <20110604084820.GE7194@kamineko.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20110604084820.GE7194@kamineko.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Mattia Dongili <malattia@linux.it>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-A few new i2c-drivers came into the kernel which clear the clientdata-pointer
-on exit or error. This is obsolete meanwhile, the core will do it.
+Il 04/06/2011 10:48, Mattia Dongili ha scritto:
+> On Fri, Jun 03, 2011 at 09:27:00PM +0200, Marco Chiappero wrote:
+>> Some Vaios come with both integrated and discrete graphics, plus a
+>> switch for choosing one of the two. When the switch position is
+>> changed, a notification is generated, now forwarded to userspace for
+>> example for visual notifications, user scripts, and so on.
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
+[...]
 
-This is more a cleanup than a bugfix. Still, would be happy to have this
-obsolete programming style largely removed in 3.0 if possible.
+>> +		case 0x0128:
+>> +		case 0x0146:
+>> +			/* Hybrid GFX switching, 1 */
+>> +			sony_call_snc_handle(handle, 0x0000,&result);
+>> +			dprintk("sony_nc_notify, Hybrid GFX event received "
+>> +					"(reason: %s)\n", (result&  0x01) ?
+>> +					"switch position change" : "unknown");
+>> +
+>> +			/* verify the switch state
+>> +			   (1: discrete GFX, 0: integrated GFX)*/
+>> +			result = 0;
+>> +			sony_call_snc_handle(handle, 0x0100,&result);
+>> +
+>> +			ev = 5;
+>> +			value = result&  0xff;
+>> +			break;
+>
+> shouldn't this be reported as an input event rather than just an acpi
+> one?
 
- drivers/input/keyboard/qt1070.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-index ca7b891..b21bf5b 100644
---- a/drivers/input/keyboard/qt1070.c
-+++ b/drivers/input/keyboard/qt1070.c
-@@ -239,8 +239,6 @@ static int __devexit qt1070_remove(struct i2c_client *client)
- 	input_unregister_device(data->input);
- 	kfree(data);
- 
--	i2c_set_clientdata(client, NULL);
--
- 	return 0;
- }
- 
--- 
-1.7.2.5
+If so, please someone let me know which keys to use.

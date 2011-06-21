@@ -1,24 +1,64 @@
 From: Benjamin Tissoires <benjamin.tissoires@enac.fr>
-Subject: [PATCH 0/3] hid-multitouch: corrections for 3.0-rc4
-Date: Tue, 21 Jun 2011 15:01:52 +0200
-Message-ID: <1308661315-6240-1-git-send-email-benjamin.tissoires@enac.fr>
+Subject: [PATCH 3/3] hid-multitouch: add support for a new Lumio dual-touch panel
+Date: Tue, 21 Jun 2011 15:01:55 +0200
+Message-ID: <1308661315-6240-4-git-send-email-benjamin.tissoires__37656.5352119089$1308661356$gmane$org@enac.fr>
+References: <1308661315-6240-1-git-send-email-benjamin.tissoires@enac.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:48719 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:48736 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752247Ab1FUNB7 (ORCPT
+	with ESMTP id S1756602Ab1FUNCF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2011 09:01:59 -0400
+	Tue, 21 Jun 2011 09:02:05 -0400
+In-Reply-To: <1308661315-6240-1-git-send-email-benjamin.tissoires@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <ch>
 
-Hi Guys,
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+---
+ drivers/hid/hid-core.c       |    1 +
+ drivers/hid/hid-ids.h        |    1 +
+ drivers/hid/hid-multitouch.c |    3 +++
+ 3 files changed, 5 insertions(+), 0 deletions(-)
 
-This is a set of patches for 3.0:
-- the first (ensure slots are initialized) corrects a bug with some Ilitek panels not working properly
-- the second (correct VID for Stantum) corrects a mistake in the merge of hid-stantum
-- the last one is a new PID for Lumio products (not a bug, but as new PID are accepted in the stable branch, I thought we can make it there)
-
-Cheers,
-Benjamin
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index f7440e8..6f3289a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1423,6 +1423,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LUMIO, USB_DEVICE_ID_CRYSTALTOUCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LUMIO, USB_DEVICE_ID_CRYSTALTOUCH_DUAL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTLOADER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index aecb5a4..a756ee6 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -449,6 +449,7 @@
+ 
+ #define USB_VENDOR_ID_LUMIO		0x202e
+ #define USB_DEVICE_ID_CRYSTALTOUCH	0x0006
++#define USB_DEVICE_ID_CRYSTALTOUCH_DUAL	0x0007
+ 
+ #define USB_VENDOR_ID_MCC		0x09db
+ #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 467b518..62cac4d 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -676,6 +676,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_LUMIO,
+ 			USB_DEVICE_ID_CRYSTALTOUCH) },
++	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
++		HID_USB_DEVICE(USB_VENDOR_ID_LUMIO,
++			USB_DEVICE_ID_CRYSTALTOUCH_DUAL) },
+ 
+ 	/* MosArt panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE_MINUS_ONE,
+-- 
+1.7.4.4
 

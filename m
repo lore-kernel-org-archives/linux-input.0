@@ -1,38 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/keyboard: Remove obsolete cleanup for clientdata
-Date: Tue, 21 Jun 2011 03:40:10 -0700
-Message-ID: <20110621104008.GA8468@core.coreip.homeip.net>
-References: <1308603674-19264-1-git-send-email-w.sang@pengutronix.de>
- <20110621105532.540dbf7b@endymion.delvare>
+Subject: Re: [PATCH] locomo: drop special locomo_{read/write}l in favor of
+ io{read/write}16
+Date: Tue, 21 Jun 2011 03:41:49 -0700
+Message-ID: <20110621104148.GB8468@core.coreip.homeip.net>
+References: <201106201454.18070.hartleys@visionengravers.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:54161 "EHLO
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:63897 "EHLO
 	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755314Ab1FUKkS (ORCPT
+	with ESMTP id S1753270Ab1FUKl5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2011 06:40:18 -0400
+	Tue, 21 Jun 2011 06:41:57 -0400
 Content-Disposition: inline
-In-Reply-To: <20110621105532.540dbf7b@endymion.delvare>
+In-Reply-To: <201106201454.18070.hartleys@visionengravers.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, Bo Shen <voice.shen@atmel.com>, Axel Lin <axel.lin@gmail.com>, linux-input@vger.kernel.org
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, ARM Kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org, rpurdie@rpsys.net, lethal@linux-sh.org, tglx@linutronix.de, buytenh@secretlab.ca, Russell King <linux@arm.linux.org.uk>
 
-On Tue, Jun 21, 2011 at 10:55:32AM +0200, Jean Delvare wrote:
-> On Mon, 20 Jun 2011 23:01:12 +0200, Wolfram Sang wrote:
-> > A few new i2c-drivers came into the kernel which clear the clientdata-pointer
-> > on exit or error. This is obsolete meanwhile, the core will do it.
-> > 
-> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: Bo Shen <voice.shen@atmel.com>
-> > Cc: Axel Lin <axel.lin@gmail.com>
+On Mon, Jun 20, 2011 at 02:54:17PM -0700, H Hartley Sweeten wrote:
+> All the locomo registers are 16-bit ioremap'ed memory addresses.  
 > 
-> Acked-by: Jean Delvare <khali@linux-fr.org>
+> Make the locomo drivers use generic purpose io routines: ioread16
+> and iowrite16 instead of directly accessing memory.
 > 
+> There are still a couple checkpatch warnings about lines exceeding
+> 79 characters.
+> 
+> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
 
-Applied, thanks Wolfram.
+Input parts look good to me.
+
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
 -- 
 Dmitry

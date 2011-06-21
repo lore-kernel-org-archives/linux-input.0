@@ -1,75 +1,88 @@
-From: Chris Wolfe <cwolfe@chromium.org>
-Subject: Generalizing Kionix KXTJ9 driver
-Date: Tue, 21 Jun 2011 11:35:22 -0400
-Message-ID: <4E00BA3A.8030003@chromium.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local
+ GPIO chips.
+Date: Tue, 21 Jun 2011 18:27:45 +0100
+Message-ID: <20110621172744.GB26592@opensource.wolfsonmicro.com>
+References: <1308042491-20203-4-git-send-email-david@protonic.nl>
+ <20110616192732.GJ3795@ponder.secretlab.ca>
+ <20110618101706.GB2401@core.coreip.homeip.net>
+ <BANLkTiky39X3g3g9oy7fAdFhPn4hHOij9w@mail.gmail.com>
+ <20110618145154.GA18190@core.coreip.homeip.net>
+ <20110618151645.GG8195@ponder.secretlab.ca>
+ <20110620094815.341d1cff@archvile>
+ <20110620084511.GB23113@core.coreip.homeip.net>
+ <20110621114631.GC25032@sirena.org.uk>
+ <BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:16129 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752024Ab1FUPgO (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40727 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1756960Ab1FUR1s (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2011 11:36:14 -0400
-Received: from hpaq11.eem.corp.google.com (hpaq11.eem.corp.google.com [172.25.149.11])
-	by smtp-out.google.com with ESMTP id p5LFa83B006050
-	for <linux-input@vger.kernel.org>; Tue, 21 Jun 2011 08:36:08 -0700
-Received: from ywm39 (ywm39.prod.google.com [10.192.13.39])
-	by hpaq11.eem.corp.google.com with ESMTP id p5LFa6P3010917
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 21 Jun 2011 08:36:07 -0700
-Received: by ywm39 with SMTP id 39so3474978ywm.10
-        for <linux-input@vger.kernel.org>; Tue, 21 Jun 2011 08:36:06 -0700 (PDT)
+	Tue, 21 Jun 2011 13:27:48 -0400
+Content-Disposition: inline
+In-Reply-To: <BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Chris Hudson <chudson@kionix.com>
-Cc: Jonathan Cameron <jic23@cam.ac.uk>, linux-iio@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>, David Jander <david.jander@protonic.nl>
 
-Hi folks,
+On Tue, Jun 21, 2011 at 06:34:48AM -0700, Dmitry Torokhov wrote:
+> On Jun 21, 2011 3:46 PM, "Mark Brown" <broonie@opensource.wolfsonmicro.com>
+> > On Mon, Jun 20, 2011 at 01:45:12AM -0700, Dmitry Torokhov wrote:
 
-I am working on a driver for the Kionix KXTF9 accelerometer. This is a 
-fairly close relative of the KXTJ9 that Chris Hudson has been iterating 
-in linux-input. Unfortunately I missed his driver when getting started, 
-so I now have a fairly-complete IIO-based implementation instead.
+> > Like Grant says this really isn't terribly sustainable - it's not just
+> > the device registration you need to sort out, it's also the registration
+> > of the drivers so things actually get bound and handing of any delays in
+> > the process of getting things to appear.
 
-As the KXTJ9 input driver has had more review, it makes sense for me to 
-backtrack and build on that one. My proposal is to work on generalizing 
-the driver enough to also support the KXTF9, and coordinate with Chris 
-Hudson to avoid breaking his improvements.
+> If devices are registered only when they are fully usable then driver
+> registration does not matter.
 
-While the I2C interfaces are fairly similar, the KXTF9 (and newer KXTI9) 
-have more on-chip processing and a variety of added features. These 
-include things like taps and coarse orientation, which I am not sure how 
-to report in an upstream-friendly way. Any advice would be appreciated:
+Right, but this is something that it's not reasonable to implement in
+board code - if nothing else implementing it in board code would mean
+we'd got lots of repitition of common patterns.
 
-Tap: Single and double taps in six directions. The only example I can 
-find is the ADXL34 driver, which seems to just report BTN_TOUCH for any 
-tap (unless changed in platform data).
+> > It's not trivial to get this
+> > right in the general case and it's not reasonable to expect individual
+> > boards to open code things,
 
-Tilt: Coarse orientation in six directions (face up, face down, left up, 
-right up, top up, bottom up). Saw some discussion about this, but wasn't 
-sure if there was agreement on how to report these events in a useful 
-fashion.
+> Board code has the ultimate knowledge about connected devices though.
 
-Motion: Yes/no binary state.
+Absolutely, board code or data should provide the information about how
+things are wired up.  It's the acting on it bit that's the issue.
 
-Sampling Rate: KXTJ9 driver is using delay in ms to drive both 
-interrupt-based and polling-based cases. Since the sysfs interfaces are 
-string-based, am wondering if decimal Hz would be more intuitive. These 
-would be converted to fixed-point in-kernel. Since there are five or six 
-different rates to adjust, they needs to be easy to understand.
+> > > How about we do not register device until all resources are ready? This
+> > > is pretty simple concept - do not create an object until it is usable.
+> Then
+> > > nobody needs to bother with -EAGAIN or -ENOTYET or any other similar
+> > > garbage.
 
-Timing Parameters: The tap/tilt/motion sensing is configured via a large 
-number of user-configurable parameters. My thought for these is to 
-expose them in sysfs as decimal numbers of seconds. I believe the actual 
-values set on the chip need to change with the associated sampling rates.
+> > As soon as you let the user build drivers modular this goes out of the
+> > window.
 
-Axis Parameters: Many of the modes need to be configured with a mask of 
-directions (+x -x +y -y +z -z). Six sysfs attributes for each seems 
-excessive and a bitmask feels error-prone. I wouldn't be averse to using 
-a list of strings if that is acceptable (e.g. "x z" or "up down left 
-forward"). Any other alternatives?
+> Why is that? If device is registered only when it is ready to be bound to
+> then it does not matter when the driver is registered and whether it is
+> built into the kernel or as a module.
 
-Thanks,
-Chris
+Originally you were talking about registration ordering - solving the
+module load issues also requires dynamic delays and rollbacks when
+things get unregisterd, something that goes well beyond simple ordering
+of the registrations. 
 
+> > All the faff with initcall ordering that we do at the minute is
+> > essentially trying to implement this mechanism.
+
+> No, what you are doing is creating devices before they are usable and
+> postponing the driver registration in hopes that devices will be ready by
+> that time.
+
+Right, which is controlling the ordering of registration so that things
+generally work out OK as described above.
+
+Nobody's arguing that we don't want to solve this in a better way, we're
+just saying that actually doing that requires improvements in both core
+infrastructure and the data we've got available to the infrastructure so
+there's no reasonable solutions that we can deploy which are better than
+the initcall ordering stuff we're doing at the minute.

@@ -1,91 +1,144 @@
-From: David Jander <david.jander@protonic.nl>
-Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local
- GPIO chips.
-Date: Tue, 21 Jun 2011 16:36:20 +0200
-Message-ID: <20110621163620.646da4c2@archvile>
-References: <1308042491-20203-1-git-send-email-david@protonic.nl>
-	<1308042491-20203-4-git-send-email-david@protonic.nl>
-	<20110616192732.GJ3795@ponder.secretlab.ca>
-	<20110618101706.GB2401@core.coreip.homeip.net>
-	<BANLkTiky39X3g3g9oy7fAdFhPn4hHOij9w@mail.gmail.com>
-	<20110618145154.GA18190@core.coreip.homeip.net>
-	<20110618151645.GG8195@ponder.secretlab.ca>
-	<20110620094815.341d1cff@archvile>
-	<20110620084511.GB23113@core.coreip.homeip.net>
-	<20110621114631.GC25032@sirena.org.uk>
-	<BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: [PATCH v6 00/18] MFD/ASoC/Input: TWL4030/TWL60X0
+	changes
+Date: Tue, 21 Jun 2011 16:38:58 +0300
+Message-ID: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:20609 "EHLO
-	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756754Ab1FUOgP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2011 10:36:15 -0400
-In-Reply-To: <BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <alsa-devel-bounces@alsa-project.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>, alsa-devel@alsa-project.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>
 
-On Tue, 21 Jun 2011 06:34:48 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hello,
 
-> On Jun 21, 2011 3:46 PM, "Mark Brown" <broonie@opensource.wolfsonmicro.com>
-> wrote:
-> >
-> > On Mon, Jun 20, 2011 at 01:45:12AM -0700, Dmitry Torokhov wrote:
-> >
-> > > This is a laudable goal, but then device-tree needs to be able to
-> > > express device dependencies better. Until then board-specific code is
-> > > needed to register devices in proper order.
-> >
-> > Like Grant says this really isn't terribly sustainable - it's not just
-> > the device registration you need to sort out, it's also the registration
-> > of the drivers so things actually get bound and handing of any delays in
-> > the process of getting things to appear.
-> 
-> If devices are registered only when they are fully usable then driver
-> registration does not matter.
-> 
-> > It's not trivial to get this
-> > right in the general case and it's not reasonable to expect individual
-> > boards to open code things,
-> 
-> Board code has the ultimate knowledge about connected devices though.
+Changes since v5:
+- Use alloc_workqueue in the twl6040-vibra driver (comment from Tejun Heo)
+- Allow user to change the headset power mode, but if the change is not allowed
+  by the use case the change is not written to the HW (comment from Mark Brown)
 
-Ok, let me try this essay:
-Board code, if there is any, or device-tree, or any other source of setup
-information knows best what needs to be initialized or bound when and in which
-order. If there is board code, one could solve this by embedding the logic in
-synchronous (initcall-based) or asynchronous (thread) board setup code. It is
-done on ARM that way, and IMHO it stinks, and AFAICS even Linus would
-probably agree (see
-http://thread.gmane.org/gmane.linux.ports.arm.kernel/113483/focus=113895 ).
-But we already have one example of non-code based setup information sources,
-which is the device-tree. A flexible system should not lock out the
-possibility that there are other such sources which favor generic code and
-dis-favor specific board setup code (reinventing wheels btw).
-So I guess everyone agrees that some core-infrastructure is missing to solve
-this problem "correctly". Since requiring board-specific code is not
-desirable due to the reasons stated above, what should we do in the meantime?
+Mark: I have added your acks for the patches, except for patch 15, where you
+requested a change.
 
-IMHO, the late_initcall thing is both simple and should increase chances of
-success by a reasonable amount, while waiting for the correct solution to be
-implemented: An interface in the device/driver core infrastructure to specify
-device-dependencies in a generic and flexible way, so it can be sourced from a
-device-tree, board setup code (if you must) or any other source for that
-matter. At that moment, it is a matter of grepping for late_initcall and
-reverting these changes, if needed.
+Intro message from the v5 series:
+The series will do five major things, and they are in one series, because they
+pretty much depending on each other, so it is easier to handle them together.
 
-Also, something like a keyboard driver (the part that generates input events,
-gpio_keys.c in this case), hardly could be a prerequisite for anything else,
-since it is clearly at the end of the driver food-chain. So what could possibly
-break by this change?
+1. Move the common pmic related configurations out from the board files.
+New twl-common.c/h file has been created for this purpose.
+OMAP3 board files received two patches (pdata, and regualtor changes), OMAP4
+board files has been changed with one patch.
 
-Best regards,
+2. Rename the twl4030-codec MFD driver to twl4030-audio
+Since the ASoC multicomponent introduction (2.6.37) the twl4030-codec MFD dirver
+had been using twl4030-audio to register (twl4030-codec is the ASoC codec
+driver). The documentation refers to this part of twl as audio block, so it is
+better to rename the driver as well to avoid confusion.
+
+3. Introduction of MFD driver for twl6040.
+The TWL6040 audio IC has codec and vibra functionality.
+Convert the existing ASoC codec driver to use the new MFD driver's interface.
+
+4. Vibrator driver for TWL6040 (Input/ForceFeedback driver)
+The driver itself, and support for the vibrators in SDP4430 board.
+
+5. Updates for twl6040 ASoC codec driver
+HS ramp configuration, new ABE dais, updated sample rate constraints, SDP4430
+configuration.
+
+Regards,
+Peter
+
+---
+Axel Castaneda Gonzalez (1):
+  ASoC: twl6040: Configure ramp step based on platform
+
+Liam Girdwood (3):
+  ASoC: twl6040: add all ABE DAIs
+  ASoC: twl6040: Support other sample rates in constraints.
+  ASoC: twl6040: set default constraints.
+
+Misael Lopez Cruz (5):
+  mfd: twl6040: Add initial support
+  ASoC: twl6040: Convert into TWL6040 MFD child
+  input: Add initial support for TWL6040 vibrator
+  ASoC: twl6040: Remove pll and headset mode dependency
+  OMAP4: SDP4430: Add twl6040 codec platform support
+
+Peter Ujfalusi (9):
+  OMAP: New twl-common for common TWL configuration
+  OMAP4: Move common twl6030 configuration to twl-common
+  OMAP3: Move common twl configuration to twl-common
+  OMAP3: Move common regulator configuration to twl-common
+  MFD: twl4030-codec: Rename internals from codec to audio
+  MFD: twl4030-codec -> twl4030-audio: Rename the driver
+  MFD: twl4030-audio: Rename platform data
+  MFD: twl6040: Change platform data for soc codec driver
+  OMAP4: SDP4430: Add twl6040 vibrator platform support
+
+ arch/arm/mach-omap2/Makefile                       |    2 +-
+ arch/arm/mach-omap2/board-3430sdp.c                |   89 +---
+ arch/arm/mach-omap2/board-4430sdp.c                |  187 ++----
+ arch/arm/mach-omap2/board-cm-t35.c                 |   48 +--
+ arch/arm/mach-omap2/board-devkit8000.c             |   37 +--
+ arch/arm/mach-omap2/board-igep0020.c               |   44 +--
+ arch/arm/mach-omap2/board-ldp.c                    |   15 +-
+ arch/arm/mach-omap2/board-omap3beagle.c            |   60 +--
+ arch/arm/mach-omap2/board-omap3evm.c               |   67 +--
+ arch/arm/mach-omap2/board-omap3pandora.c           |   59 +--
+ arch/arm/mach-omap2/board-omap3stalker.c           |   70 +--
+ arch/arm/mach-omap2/board-omap3touchbook.c         |   57 +--
+ arch/arm/mach-omap2/board-omap4panda.c             |  149 +-----
+ arch/arm/mach-omap2/board-overo.c                  |   59 +--
+ arch/arm/mach-omap2/board-rm680.c                  |    8 +-
+ arch/arm/mach-omap2/board-rx51-peripherals.c       |   44 +--
+ arch/arm/mach-omap2/board-zoom-peripherals.c       |   88 +---
+ arch/arm/mach-omap2/common-board-devices.c         |   21 -
+ arch/arm/mach-omap2/common-board-devices.h         |   26 +-
+ arch/arm/mach-omap2/twl-common.c                   |  304 ++++++++++
+ arch/arm/mach-omap2/twl-common.h                   |   59 ++
+ arch/arm/plat-omap/include/plat/irqs.h             |   12 +-
+ drivers/input/misc/Kconfig                         |   13 +-
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/twl4030-vibra.c                 |   12 +-
+ drivers/input/misc/twl6040-vibra.c                 |  416 +++++++++++++
+ drivers/mfd/Kconfig                                |    8 +-
+ drivers/mfd/Makefile                               |    3 +-
+ drivers/mfd/twl-core.c                             |   13 +-
+ drivers/mfd/twl4030-audio.c                        |  277 +++++++++
+ drivers/mfd/twl4030-codec.c                        |  277 ---------
+ drivers/mfd/twl6040-core.c                         |  601 +++++++++++++++++++
+ drivers/mfd/twl6040-irq.c                          |  205 +++++++
+ include/linux/i2c/twl.h                            |   25 +-
+ .../linux/mfd/{twl4030-codec.h => twl4030-audio.h} |   16 +-
+ include/linux/mfd/twl6040.h                        |  261 ++++++++
+ sound/soc/codecs/Kconfig                           |    3 +-
+ sound/soc/codecs/twl4030.c                         |   22 +-
+ sound/soc/codecs/twl6040.c                         |  628 ++++++++------------
+ sound/soc/codecs/twl6040.h                         |  118 ----
+ sound/soc/omap/sdp3430.c                           |    2 +-
+ sound/soc/omap/sdp4430.c                           |    2 +
+ sound/soc/omap/zoom2.c                             |    2 +-
+ 43 files changed, 2635 insertions(+), 1775 deletions(-)
+ create mode 100644 arch/arm/mach-omap2/twl-common.c
+ create mode 100644 arch/arm/mach-omap2/twl-common.h
+ create mode 100644 drivers/input/misc/twl6040-vibra.c
+ create mode 100644 drivers/mfd/twl4030-audio.c
+ delete mode 100644 drivers/mfd/twl4030-codec.c
+ create mode 100644 drivers/mfd/twl6040-core.c
+ create mode 100644 drivers/mfd/twl6040-irq.c
+ rename include/linux/mfd/{twl4030-codec.h => twl4030-audio.h} (96%)
+ create mode 100644 include/linux/mfd/twl6040.h
 
 -- 
-David Jander
-Protonic Holland.
+1.7.5.3

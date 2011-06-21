@@ -1,38 +1,31 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] locomo: drop special locomo_{read/write}l in favor of
- io{read/write}16
-Date: Tue, 21 Jun 2011 03:41:49 -0700
-Message-ID: <20110621104148.GB8468@core.coreip.homeip.net>
-References: <201106201454.18070.hartleys@visionengravers.com>
+Subject: Re: [PATCH] input: keypad: lm8323: convert to threaded IRQ
+Date: Tue, 21 Jun 2011 04:25:56 -0700
+Message-ID: <20110621112556.GA12114@core.coreip.homeip.net>
+References: <1307999812-3802-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:63897 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753270Ab1FUKl5 (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:50919 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752478Ab1FUL0F (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2011 06:41:57 -0400
+	Tue, 21 Jun 2011 07:26:05 -0400
 Content-Disposition: inline
-In-Reply-To: <201106201454.18070.hartleys@visionengravers.com>
+In-Reply-To: <1307999812-3802-1-git-send-email-balbi@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, ARM Kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org, rpurdie@rpsys.net, lethal@linux-sh.org, tglx@linutronix.de, buytenh@secretlab.ca, Russell King <linux@arm.linux.org.uk>
+To: Felipe Balbi <balbi@ti.com>
+Cc: linux-input@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>
 
-On Mon, Jun 20, 2011 at 02:54:17PM -0700, H Hartley Sweeten wrote:
-> All the locomo registers are 16-bit ioremap'ed memory addresses.  
+On Tue, Jun 14, 2011 at 12:16:52AM +0300, Felipe Balbi wrote:
+> there's no need for that workqueue anymore.
+> Get rid of it and move to threaded IRQs
+> instead.
 > 
-> Make the locomo drivers use generic purpose io routines: ioread16
-> and iowrite16 instead of directly accessing memory.
-> 
-> There are still a couple checkpatch warnings about lines exceeding
-> 79 characters.
-> 
-> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> Signed-off-by: Felipe Balbi <balbi@ti.com>
 
-Input parts look good to me.
-
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
+Applied, thanks Felipe.
 
 -- 
 Dmitry

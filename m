@@ -1,538 +1,117 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 11/18] input: Add initial support for TWL6040 vibrator
-Date: Tue, 21 Jun 2011 13:32:01 -0700
-Message-ID: <20110621203200.GA3731@core.coreip.homeip.net>
-References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
- <1308663556-29120-12-git-send-email-peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local
+ GPIO chips.
+Date: Tue, 21 Jun 2011 13:48:05 -0700
+Message-ID: <20110621204804.GC3731@core.coreip.homeip.net>
+References: <20110616192732.GJ3795@ponder.secretlab.ca>
+ <20110618101706.GB2401@core.coreip.homeip.net>
+ <BANLkTiky39X3g3g9oy7fAdFhPn4hHOij9w@mail.gmail.com>
+ <20110618145154.GA18190@core.coreip.homeip.net>
+ <20110618151645.GG8195@ponder.secretlab.ca>
+ <20110620094815.341d1cff@archvile>
+ <20110620084511.GB23113@core.coreip.homeip.net>
+ <20110621114631.GC25032@sirena.org.uk>
+ <BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com>
+ <20110621172744.GB26592@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:51807 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751588Ab1FUUcM (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:40376 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756751Ab1FUUyI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jun 2011 16:32:12 -0400
+	Tue, 21 Jun 2011 16:54:08 -0400
+Received: by pwj7 with SMTP id 7so194342pwj.19
+        for <linux-input@vger.kernel.org>; Tue, 21 Jun 2011 13:54:08 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1308663556-29120-12-git-send-email-peter.ujfalusi@ti.com>
+In-Reply-To: <20110621172744.GB26592@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Misael Lopez Cruz <misael.lopez@ti.com>, Tejun Heo <tj@kernel.org>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>, David Jander <david.jander@protonic.nl>
 
-On Tue, Jun 21, 2011 at 04:39:09PM +0300, Peter Ujfalusi wrote:
-> From: Misael Lopez Cruz <misael.lopez@ti.com>
+On Tue, Jun 21, 2011 at 06:27:45PM +0100, Mark Brown wrote:
+> On Tue, Jun 21, 2011 at 06:34:48AM -0700, Dmitry Torokhov wrote:
+> > On Jun 21, 2011 3:46 PM, "Mark Brown" <broonie@opensource.wolfsonmicro.com>
+> > > On Mon, Jun 20, 2011 at 01:45:12AM -0700, Dmitry Torokhov wrote:
 > 
-> Add twl6040_vibra as a child of MFD device twl6040_codec. This
-> implementation covers the PCM-to-PWM mode of TWL6040 vibrator
-> module.
+> > > Like Grant says this really isn't terribly sustainable - it's not just
+> > > the device registration you need to sort out, it's also the registration
+> > > of the drivers so things actually get bound and handing of any delays in
+> > > the process of getting things to appear.
 > 
-> Signed-off-by: Misael Lopez Cruz <misael.lopez@ti.com>
-> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> CC: Tejun Heo <tj@kernel.org>
+> > If devices are registered only when they are fully usable then driver
+> > registration does not matter.
+> 
+> Right, but this is something that it's not reasonable to implement in
+> board code - if nothing else implementing it in board code would mean
+> we'd got lots of repitition of common patterns.
 
-Peter,
+I agree here. I just disagree that we should be implementing this in
+driver core by having special -EAGAIN handling. Having a common
+library-like code (probably tied to device-tree) that handles device
+dependencies would be great.
 
-As Tejun mentioned, there is no difference between having a "private"
-workqueue created with alloc_workqueue() with default parameters and
-using system-wide workqueue. Therefore please use system-wide one. If
-your use shows that you indeed need high-priority workqueue it can be
-added later.
+> 
+> > > It's not trivial to get this
+> > > right in the general case and it's not reasonable to expect individual
+> > > boards to open code things,
+> 
+> > Board code has the ultimate knowledge about connected devices though.
+> 
+> Absolutely, board code or data should provide the information about how
+> things are wired up.  It's the acting on it bit that's the issue.
+> 
+> > > > How about we do not register device until all resources are ready? This
+> > > > is pretty simple concept - do not create an object until it is usable.
+> > Then
+> > > > nobody needs to bother with -EAGAIN or -ENOTYET or any other similar
+> > > > garbage.
+> 
+> > > As soon as you let the user build drivers modular this goes out of the
+> > > window.
+> 
+> > Why is that? If device is registered only when it is ready to be bound to
+> > then it does not matter when the driver is registered and whether it is
+> > built into the kernel or as a module.
+> 
+> Originally you were talking about registration ordering - solving the
+> module load issues also requires dynamic delays and rollbacks when
+> things get unregisterd, something that goes well beyond simple ordering
+> of the registrations. 
 
-Otherwise:
+I always was only saying that devices should be registered when they are
+ready. It is my understanding that normally board code tries to register
+all devices; drivers may or may not be compiled as modules. Not that we
+could not have devices created by modules...
 
-	Acked-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+> > > All the faff with initcall ordering that we do at the minute is
+> > > essentially trying to implement this mechanism.
+> 
+> > No, what you are doing is creating devices before they are usable and
+> > postponing the driver registration in hopes that devices will be ready by
+> > that time.
+> 
+> Right, which is controlling the ordering of registration so that things
+> generally work out OK as described above.
+> 
+> Nobody's arguing that we don't want to solve this in a better way, we're
+> just saying that actually doing that requires improvements in both core
+> infrastructure and the data we've got available to the infrastructure so
+> there's no reasonable solutions that we can deploy which are better than
+> the initcall ordering stuff we're doing at the minute.
 
-Please feel free to merge this code with the rest of TWL6040 patches
-(presumably throgh Samuel's MFD tree).
+Ah, OK, so we basically in agreement here with the exception that I do
+not want the band-aid to hit mainline since it takes the heat off people
+who need inter-device dependency to actually work.
+
+Can the initcall stuff be kept out of mainline? I'd expect
+there exist board-specific trees where such patches could be kept? Or
+maybe interested parties could create board-crap tree to store patches
+like this one?
 
 Thanks.
-
-> ---
->  drivers/input/misc/Kconfig         |   11 +
->  drivers/input/misc/Makefile        |    1 +
->  drivers/input/misc/twl6040-vibra.c |  416 ++++++++++++++++++++++++++++++++++++
->  include/linux/i2c/twl.h            |    8 +
->  4 files changed, 436 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/misc/twl6040-vibra.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 077309a..d1bf872 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -275,6 +275,17 @@ config INPUT_TWL4030_VIBRA
->  	  To compile this driver as a module, choose M here. The module will
->  	  be called twl4030_vibra.
->  
-> +config INPUT_TWL6040_VIBRA
-> +	tristate "Support for TWL6040 Vibrator"
-> +	depends on TWL4030_CORE
-> +	select TWL6040_CORE
-> +	select INPUT_FF_MEMLESS
-> +	help
-> +	  This option enables support for TWL6040 Vibrator Driver.
-> +
-> +	  To compile this driver as a module, choose M here. The module will
-> +	  be called twl6040_vibra.
-> +
->  config INPUT_UINPUT
->  	tristate "User level driver support"
->  	help
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 38efb2c..4da7c3a 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -40,6 +40,7 @@ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
->  obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
->  obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
->  obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
-> +obj-$(CONFIG_INPUT_TWL6040_VIBRA)	+= twl6040-vibra.o
->  obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
->  obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
->  obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
-> diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-> new file mode 100644
-> index 0000000..9652ebf
-> --- /dev/null
-> +++ b/drivers/input/misc/twl6040-vibra.c
-> @@ -0,0 +1,416 @@
-> +/*
-> + * twl6040-vibra.c - TWL6040 Vibrator driver
-> + *
-> + * Author:      Jorge Eduardo Candelaria <jorge.candelaria@ti.com>
-> + * Author:      Misael Lopez Cruz <misael.lopez@ti.com>
-> + *
-> + * Copyright:   (C) 2011 Texas Instruments, Inc.
-> + *
-> + * Based on twl4030-vibra.c by Henrik Saari <henrik.saari@nokia.com>
-> + *				Felipe Balbi <felipe.balbi@nokia.com>
-> + *				Jari Vanhala <ext-javi.vanhala@nokia.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> + * General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-> + * 02110-1301 USA
-> + *
-> + */
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/workqueue.h>
-> +#include <linux/i2c/twl.h>
-> +#include <linux/mfd/twl6040.h>
-> +#include <linux/slab.h>
-> +#include <linux/delay.h>
-> +#include <linux/regulator/consumer.h>
-> +
-> +#define EFFECT_DIR_180_DEG	0x8000
-> +
-> +/* Recommended modulation index 85% */
-> +#define TWL6040_VIBRA_MOD	85
-> +
-> +#define TWL6040_NUM_SUPPLIES 2
-> +
-> +struct vibra_info {
-> +	struct device *dev;
-> +	struct input_dev *input_dev;
-> +	struct workqueue_struct *workqueue;
-> +	struct work_struct play_work;
-> +	struct mutex mutex;
-> +
-> +	bool enabled;
-> +	int weak_speed;
-> +	int strong_speed;
-> +	int direction;
-> +
-> +	unsigned int vibldrv_res;
-> +	unsigned int vibrdrv_res;
-> +	unsigned int viblmotor_res;
-> +	unsigned int vibrmotor_res;
-> +
-> +	struct regulator_bulk_data supplies[TWL6040_NUM_SUPPLIES];
-> +
-> +	struct twl6040 *twl6040;
-> +};
-> +
-> +static irqreturn_t twl6040_vib_irq_handler(int irq, void *data)
-> +{
-> +	struct vibra_info *info = data;
-> +	struct twl6040 *twl6040 = info->twl6040;
-> +	u8 status;
-> +
-> +	status = twl6040_reg_read(twl6040, TWL6040_REG_STATUS);
-> +	if (status & TWL6040_VIBLOCDET) {
-> +		dev_warn(info->dev, "Left Vibrator overcurrent detected\n");
-> +		twl6040_clear_bits(twl6040, TWL6040_REG_VIBCTLL,
-> +				   TWL6040_VIBENAL);
-> +	}
-> +	if (status & TWL6040_VIBROCDET) {
-> +		dev_warn(info->dev, "Right Vibrator overcurrent detected\n");
-> +		twl6040_clear_bits(twl6040, TWL6040_REG_VIBCTLR,
-> +				   TWL6040_VIBENAR);
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static void twl6040_vibra_enable(struct vibra_info *info)
-> +{
-> +	struct twl6040 *twl6040 = info->twl6040;
-> +	int ret;
-> +
-> +	ret = regulator_bulk_enable(ARRAY_SIZE(info->supplies), info->supplies);
-> +	if (ret) {
-> +		dev_err(info->dev, "failed to enable regulators %d\n", ret);
-> +		return;
-> +	}
-> +
-> +	twl6040_power(info->twl6040, 1);
-> +	if (twl6040_get_rev(twl6040) <= TWL6040_REV_ES1_1) {
-> +		/*
-> +		 * ERRATA: Disable overcurrent protection for at least
-> +		 * 3ms when enabling vibrator drivers to avoid false
-> +		 * overcurrent detection
-> +		 */
-> +		twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLL,
-> +				  TWL6040_VIBENAL | TWL6040_VIBCTRLL);
-> +		twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLR,
-> +				  TWL6040_VIBENAR | TWL6040_VIBCTRLR);
-> +		usleep_range(3000, 3500);
-> +	}
-> +
-> +	twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLL,
-> +			  TWL6040_VIBENAL);
-> +	twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLR,
-> +			  TWL6040_VIBENAR);
-> +
-> +	info->enabled = true;
-> +}
-> +
-> +static void twl6040_vibra_disable(struct vibra_info *info)
-> +{
-> +	struct twl6040 *twl6040 = info->twl6040;
-> +
-> +	twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLL, 0x00);
-> +	twl6040_reg_write(twl6040, TWL6040_REG_VIBCTLR, 0x00);
-> +	twl6040_power(info->twl6040, 0);
-> +
-> +	regulator_bulk_disable(ARRAY_SIZE(info->supplies), info->supplies);
-> +
-> +	info->enabled = false;
-> +}
-> +
-> +static u8 twl6040_vibra_code(int vddvib, int vibdrv_res, int motor_res,
-> +			     int speed, int direction)
-> +{
-> +	int vpk, max_code;
-> +	u8 vibdat;
-> +
-> +	/* output swing */
-> +	vpk = (vddvib * motor_res * TWL6040_VIBRA_MOD) /
-> +		(100 * (vibdrv_res + motor_res));
-> +
-> +	/* 50mV per VIBDAT code step */
-> +	max_code = vpk / 50;
-> +	if (max_code > TWL6040_VIBDAT_MAX)
-> +		max_code = TWL6040_VIBDAT_MAX;
-> +
-> +	/* scale speed to max allowed code */
-> +	vibdat = (u8)((speed * max_code) / USHRT_MAX);
-> +
-> +	/* 2's complement for direction > 180 degrees */
-> +	vibdat *= direction;
-> +
-> +	return vibdat;
-> +}
-> +
-> +static void twl6040_vibra_set_effect(struct vibra_info *info)
-> +{
-> +	struct twl6040 *twl6040 = info->twl6040;
-> +	u8 vibdatl, vibdatr;
-> +	int volt;
-> +
-> +	/* weak motor */
-> +	volt = regulator_get_voltage(info->supplies[0].consumer) / 1000;
-> +	vibdatl = twl6040_vibra_code(volt, info->vibldrv_res,
-> +				     info->viblmotor_res,
-> +				     info->weak_speed, info->direction);
-> +
-> +	/* strong motor */
-> +	volt = regulator_get_voltage(info->supplies[1].consumer) / 1000;
-> +	vibdatr = twl6040_vibra_code(volt, info->vibrdrv_res,
-> +				     info->vibrmotor_res,
-> +				     info->strong_speed, info->direction);
-> +
-> +	twl6040_reg_write(twl6040, TWL6040_REG_VIBDATL, vibdatl);
-> +	twl6040_reg_write(twl6040, TWL6040_REG_VIBDATR, vibdatr);
-> +}
-> +
-> +static void vibra_play_work(struct work_struct *work)
-> +{
-> +	struct vibra_info *info = container_of(work,
-> +				struct vibra_info, play_work);
-> +
-> +	mutex_lock(&info->mutex);
-> +
-> +	if (info->weak_speed || info->strong_speed) {
-> +		if (!info->enabled)
-> +			twl6040_vibra_enable(info);
-> +
-> +		twl6040_vibra_set_effect(info);
-> +	} else if (info->enabled)
-> +		twl6040_vibra_disable(info);
-> +
-> +	mutex_unlock(&info->mutex);
-> +}
-> +
-> +static int vibra_play(struct input_dev *input, void *data,
-> +		      struct ff_effect *effect)
-> +{
-> +	struct vibra_info *info = input_get_drvdata(input);
-> +	int ret;
-> +
-> +	info->weak_speed = effect->u.rumble.weak_magnitude;
-> +	info->strong_speed = effect->u.rumble.strong_magnitude;
-> +	info->direction = effect->direction < EFFECT_DIR_180_DEG ? 1 : -1;
-> +
-> +	ret = queue_work(info->workqueue, &info->play_work);
-> +	if (!ret) {
-> +		dev_info(&input->dev, "work is already on queue\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void twl6040_vibra_close(struct input_dev *input)
-> +{
-> +	struct vibra_info *info = input_get_drvdata(input);
-> +
-> +	cancel_work_sync(&info->play_work);
-> +
-> +	mutex_lock(&info->mutex);
-> +
-> +	if (info->enabled)
-> +		twl6040_vibra_disable(info);
-> +
-> +	mutex_unlock(&info->mutex);
-> +}
-> +
-> +#if CONFIG_PM_SLEEP
-> +static int twl6040_vibra_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct vibra_info *info = platform_get_drvdata(pdev);
-> +
-> +	mutex_lock(&info->mutex);
-> +
-> +	if (info->enabled)
-> +		twl6040_vibra_disable(info);
-> +
-> +	mutex_unlock(&info->mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(twl6040_vibra_pm_ops, twl6040_vibra_suspend, NULL);
-> +
-> +static int __devinit twl6040_vibra_probe(struct platform_device *pdev)
-> +{
-> +	struct twl4030_vibra_data *pdata = pdev->dev.platform_data;
-> +	struct vibra_info *info;
-> +	int ret;
-> +
-> +	if (!pdata) {
-> +		dev_err(&pdev->dev, "platform_data not available\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	info = kzalloc(sizeof(*info), GFP_KERNEL);
-> +	if (!info) {
-> +		dev_err(&pdev->dev, "couldn't allocate memory\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	info->dev = &pdev->dev;
-> +	info->twl6040 = dev_get_drvdata(pdev->dev.parent);
-> +	info->vibldrv_res = pdata->vibldrv_res;
-> +	info->vibrdrv_res = pdata->vibrdrv_res;
-> +	info->viblmotor_res = pdata->viblmotor_res;
-> +	info->vibrmotor_res = pdata->vibrmotor_res;
-> +	if ((!info->vibldrv_res && !info->viblmotor_res) ||
-> +	    (!info->vibrdrv_res && !info->vibrmotor_res)) {
-> +		dev_err(info->dev, "invalid vibra driver/motor resistance\n");
-> +		ret = -EINVAL;
-> +		goto err_kzalloc;
-> +	}
-> +
-> +	mutex_init(&info->mutex);
-> +
-> +	info->input_dev = input_allocate_device();
-> +	if (info->input_dev == NULL) {
-> +		dev_err(info->dev, "couldn't allocate input device\n");
-> +		ret = -ENOMEM;
-> +		goto err_kzalloc;
-> +	}
-> +
-> +	input_set_drvdata(info->input_dev, info);
-> +
-> +	info->input_dev->name = "twl6040:vibrator";
-> +	info->input_dev->id.version = 1;
-> +	info->input_dev->dev.parent = pdev->dev.parent;
-> +	info->input_dev->close = twl6040_vibra_close;
-> +	__set_bit(FF_RUMBLE, info->input_dev->ffbit);
-> +
-> +	ret = input_ff_create_memless(info->input_dev, NULL, vibra_play);
-> +	if (ret < 0) {
-> +		dev_err(info->dev, "couldn't register vibrator to FF\n");
-> +		goto err_ialloc;
-> +	}
-> +
-> +	ret = input_register_device(info->input_dev);
-> +	if (ret < 0) {
-> +		dev_err(info->dev, "couldn't register input device\n");
-> +		goto err_iff;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, info);
-> +
-> +	ret = twl6040_request_irq(info->twl6040, TWL6040_IRQ_VIB,
-> +				  twl6040_vib_irq_handler, 0,
-> +				  "twl6040_irq_vib", info);
-> +	if (ret) {
-> +		dev_err(info->dev, "VIB IRQ request failed: %d\n", ret);
-> +		goto err_irq;
-> +	}
-> +
-> +	info->supplies[0].supply = "vddvibl";
-> +	info->supplies[1].supply = "vddvibr";
-> +	ret = regulator_bulk_get(info->dev, ARRAY_SIZE(info->supplies),
-> +				 info->supplies);
-> +	if (ret) {
-> +		dev_err(info->dev, "couldn't get regulators %d\n", ret);
-> +		goto err_regulator;
-> +	}
-> +
-> +	if (pdata->vddvibl_uV) {
-> +		ret = regulator_set_voltage(info->supplies[0].consumer,
-> +					    pdata->vddvibl_uV,
-> +					    pdata->vddvibl_uV);
-> +		if (ret) {
-> +			dev_err(info->dev, "failed to set VDDVIBL volt %d\n",
-> +				ret);
-> +			goto err_voltage;
-> +		}
-> +	}
-> +
-> +	if (pdata->vddvibr_uV) {
-> +		ret = regulator_set_voltage(info->supplies[1].consumer,
-> +					    pdata->vddvibr_uV,
-> +					    pdata->vddvibr_uV);
-> +		if (ret) {
-> +			dev_err(info->dev, "failed to set VDDVIBR volt %d\n",
-> +				ret);
-> +			goto err_voltage;
-> +		}
-> +	}
-> +
-> +	info->workqueue = alloc_workqueue("twl6040-vibra", 0, 0);
-> +	if (info->workqueue == NULL) {
-> +		dev_err(info->dev, "couldn't create workqueue\n");
-> +		ret = -ENOMEM;
-> +		goto err_voltage;
-> +	}
-> +	INIT_WORK(&info->play_work, vibra_play_work);
-> +
-> +	return 0;
-> +
-> +err_voltage:
-> +	regulator_bulk_free(ARRAY_SIZE(info->supplies), info->supplies);
-> +err_regulator:
-> +	twl6040_free_irq(info->twl6040, TWL6040_IRQ_VIB, info);
-> +err_irq:
-> +	input_unregister_device(info->input_dev);
-> +	info->input_dev = NULL;
-> +err_iff:
-> +	if (info->input_dev)
-> +		input_ff_destroy(info->input_dev);
-> +err_ialloc:
-> +	input_free_device(info->input_dev);
-> +err_kzalloc:
-> +	kfree(info);
-> +	return ret;
-> +}
-> +
-> +static int __devexit twl6040_vibra_remove(struct platform_device *pdev)
-> +{
-> +	struct vibra_info *info = platform_get_drvdata(pdev);
-> +
-> +	input_unregister_device(info->input_dev);
-> +	twl6040_free_irq(info->twl6040, TWL6040_IRQ_VIB, info);
-> +	regulator_bulk_free(ARRAY_SIZE(info->supplies), info->supplies);
-> +	destroy_workqueue(info->workqueue);
-> +	kfree(info);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver twl6040_vibra_driver = {
-> +	.probe		= twl6040_vibra_probe,
-> +	.remove		= __devexit_p(twl6040_vibra_remove),
-> +	.driver		= {
-> +		.name	= "twl6040-vibra",
-> +		.owner	= THIS_MODULE,
-> +		.pm	= &twl6040_vibra_pm_ops,
-> +	},
-> +};
-> +
-> +static int __init twl6040_vibra_init(void)
-> +{
-> +	return platform_driver_register(&twl6040_vibra_driver);
-> +}
-> +module_init(twl6040_vibra_init);
-> +
-> +static void __exit twl6040_vibra_exit(void)
-> +{
-> +	platform_driver_unregister(&twl6040_vibra_driver);
-> +}
-> +module_exit(twl6040_vibra_exit);
-> +
-> +MODULE_ALIAS("platform:twl6040-vibra");
-> +MODULE_DESCRIPTION("TWL6040 Vibra driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Jorge Eduardo Candelaria <jorge.candelaria@ti.com>");
-> +MODULE_AUTHOR("Misael Lopez Cruz <misael.lopez@ti.com>");
-> diff --git a/include/linux/i2c/twl.h b/include/linux/i2c/twl.h
-> index ea5baa2..685fd76 100644
-> --- a/include/linux/i2c/twl.h
-> +++ b/include/linux/i2c/twl.h
-> @@ -669,6 +669,14 @@ struct twl4030_codec_data {
->  
->  struct twl4030_vibra_data {
->  	unsigned int	coexist;
-> +
-> +	/* twl6040 */
-> +	unsigned int vibldrv_res;	/* left driver resistance */
-> +	unsigned int vibrdrv_res;	/* right driver resistance */
-> +	unsigned int viblmotor_res;	/* left motor resistance */
-> +	unsigned int vibrmotor_res;	/* right motor resistance */
-> +	int vddvibl_uV;			/* VDDVIBL volt, set 0 for fixed reg */
-> +	int vddvibr_uV;			/* VDDVIBR volt, set 0 for fixed reg */
->  };
->  
->  struct twl4030_audio_data {
-> -- 
-> 1.7.5.3
-> 
 
 -- 
 Dmitry

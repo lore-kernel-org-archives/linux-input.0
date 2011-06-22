@@ -1,83 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local
- GPIO chips.
-Date: Wed, 22 Jun 2011 00:00:52 -0700
-Message-ID: <20110622070052.GA16561@core.coreip.homeip.net>
-References: <BANLkTiky39X3g3g9oy7fAdFhPn4hHOij9w@mail.gmail.com>
- <20110618145154.GA18190@core.coreip.homeip.net>
- <20110618151645.GG8195@ponder.secretlab.ca>
- <20110620094815.341d1cff@archvile>
- <20110620084511.GB23113@core.coreip.homeip.net>
- <20110621114631.GC25032@sirena.org.uk>
- <BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com>
- <20110621172744.GB26592@opensource.wolfsonmicro.com>
- <20110621204804.GC3731@core.coreip.homeip.net>
- <20110621230242.GA8791@opensource.wolfsonmicro.com>
+From: Amit Nagal <helloin.amit@gmail.com>
+Subject: list not released in case of -ENODEV in hidraw_release (hidraw.c)
+Date: Wed, 22 Jun 2011 13:28:26 +0530
+Message-ID: <BANLkTi=Teg9iN8osSDY9fqadZ+sA-Ng2Sw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:33414 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750806Ab1FVHBC (ORCPT
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:53334 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750724Ab1FVH65 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jun 2011 03:01:02 -0400
-Received: by pzk9 with SMTP id 9so331870pzk.19
-        for <linux-input@vger.kernel.org>; Wed, 22 Jun 2011 00:01:01 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20110621230242.GA8791@opensource.wolfsonmicro.com>
+	Wed, 22 Jun 2011 03:58:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>, David Jander <david.jander@protonic.nl>
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Jun 22, 2011 at 12:02:42AM +0100, Mark Brown wrote:
-> On Tue, Jun 21, 2011 at 01:48:05PM -0700, Dmitry Torokhov wrote:
-> > On Tue, Jun 21, 2011 at 06:27:45PM +0100, Mark Brown wrote:
-> 
-> > > Right, but this is something that it's not reasonable to implement in
-> > > board code - if nothing else implementing it in board code would mean
-> > > we'd got lots of repitition of common patterns.
-> 
-> > I agree here. I just disagree that we should be implementing this in
-> > driver core by having special -EAGAIN handling. Having a common
-> > library-like code (probably tied to device-tree) that handles device
-> > dependencies would be great.
-> 
-> Ah, that's more OK then.  I'm not entirely sure about the -EAGAIN
-> proposal but it does seem to have some advantages in terms of
-> deployment.
-> 
-> > Ah, OK, so we basically in agreement here with the exception that I do
-> > not want the band-aid to hit mainline since it takes the heat off people
-> > who need inter-device dependency to actually work.
-> 
-> > Can the initcall stuff be kept out of mainline? I'd expect
-> 
-> The init order stuff is in mainline already, you're far too late to the
-> party here.
+Hi ,
 
-For some drivers it might be already in mainline, it does not matter
-that we should continue adding more.
+linux kernel ver 2.6.39.1  ,  hidraw.c  , in  hidraw_release function
+, list pointer ( struct hidraw_list *list ) is not freed
+in case of -ENODEV .
 
-> 
-> > there exist board-specific trees where such patches could be kept? Or
-> > maybe interested parties could create board-crap tree to store patches
-> > like this one?
-> 
-> Keeping things in board trees is exactly the sort of thing we want to
-> avoid people doing.  That just means people do all sorts of stuff that
-> wouldn't be acceptable upstream, either out of ignorance or through
-> knowing that only their systems have to work with what they're doing,
-> and just don't bother working upstream at all half the time making life
-> miserable for pretty much everyone.
+i think the following patch is applicable :
 
-So you are saying that we should accept such crap directly into
-mainline?
+--- a/drivers/hid/hidraw.c	2011-06-22 08:57:55.000000000 -0400
++++ b/drivers/hid/hidraw.c	2011-06-22 08:42:04.000000000 -0400
+@@ -298,6 +298,7 @@ static int hidraw_release(struct inode *
 
-Again, it looks like we agree that shuffling initcalls is not proper
-solution for this problem nor it is maintainable, so it is exactly the
-kind of patches that should be kept in the board trees and out of
-mainline.
+ 	mutex_lock(&minors_lock);
+ 	if (!hidraw_table[minor]) {
++		kfree(list);
+ 		ret = -ENODEV;
+ 		goto unlock;
+ 	}
 
--- 
-Dmitry
+Please correct me if i am mistaken .
+
+Regards
+Amit Nagal

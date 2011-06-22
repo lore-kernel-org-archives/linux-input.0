@@ -1,83 +1,43 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local
- GPIO chips.
-Date: Wed, 22 Jun 2011 14:43:08 -0700
-Message-ID: <20110622214307.GB978@core.coreip.homeip.net>
-References: <20110620094815.341d1cff@archvile>
- <20110620084511.GB23113@core.coreip.homeip.net>
- <20110621114631.GC25032@sirena.org.uk>
- <BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com>
- <20110621172744.GB26592@opensource.wolfsonmicro.com>
- <20110621204804.GC3731@core.coreip.homeip.net>
- <20110621230242.GA8791@opensource.wolfsonmicro.com>
- <20110622070052.GA16561@core.coreip.homeip.net>
- <20110622113835.GC18726@opensource.wolfsonmicro.com>
- <BANLkTinB+utdPeL+mGJQApXAydDyLEK7Kg@mail.gmail.com>
+Subject: Re: [PATCH] xpad: Add support for two more dance pads and one more
+ guitar
+Date: Wed, 22 Jun 2011 14:48:51 -0700
+Message-ID: <20110622214850.GD978@core.coreip.homeip.net>
+References: <1306823799.8840.8.camel@ubuntu>
+ <20110531075348.GA13855@core.coreip.homeip.net>
+ <1306829685.8840.13.camel@ubuntu>
+ <1306841481.16310.5.camel@lovely>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:47434 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758899Ab1FVVnQ (ORCPT
+Received: from mail-pz0-f51.google.com ([209.85.210.51]:33407 "EHLO
+	mail-pz0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758211Ab1FVVs7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jun 2011 17:43:16 -0400
-Received: by pwj7 with SMTP id 7so859966pwj.19
-        for <linux-input@vger.kernel.org>; Wed, 22 Jun 2011 14:43:15 -0700 (PDT)
+	Wed, 22 Jun 2011 17:48:59 -0400
+Received: by pzk26 with SMTP id 26so828259pzk.10
+        for <linux-input@vger.kernel.org>; Wed, 22 Jun 2011 14:48:58 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <BANLkTinB+utdPeL+mGJQApXAydDyLEK7Kg@mail.gmail.com>
+In-Reply-To: <1306841481.16310.5.camel@lovely>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>, David Jander <david.jander@protonic.nl>
+To: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: Magnus =?iso-8859-1?Q?H=F6rlin?= <magnus@alefors.se>, linux-input@vger.kernel.org, oneukum@suse.de
 
-On Wed, Jun 22, 2011 at 08:58:45AM -0600, Grant Likely wrote:
-> On Wed, Jun 22, 2011 at 5:38 AM, Mark Brown
-> <broonie@opensource.wolfsonmicro.com> wrote:
-> > On Wed, Jun 22, 2011 at 12:00:52AM -0700, Dmitry Torokhov wrote:
-> >> On Wed, Jun 22, 2011 at 12:02:42AM +0100, Mark Brown wrote:
-> >> > On Tue, Jun 21, 2011 at 01:48:05PM -0700, Dmitry Torokhov wrote:
-> >
-> >> > > Can the initcall stuff be kept out of mainline? I'd expect
-> >
-> >> > The init order stuff is in mainline already, you're far too late=
- to the
-> >> > party here.
-> >
-> >> For some drivers it might be already in mainline, it does not matt=
-er
-> >> that we should continue adding more.
-> >
-> > It's not just a few drivers, there's entire subsystems that are doi=
-ng
-> > this.
-> >
-> >> > Keeping things in board trees is exactly the sort of thing we wa=
-nt to
-> >> > avoid people doing. =A0That just means people do all sorts of st=
-uff that
-> >> > wouldn't be acceptable upstream, either out of ignorance or thro=
-ugh
-> >> > knowing that only their systems have to work with what they're d=
-oing,
-> >> > and just don't bother working upstream at all half the time maki=
-ng life
-> >> > miserable for pretty much everyone.
-> >
-> >> So you are saying that we should accept such crap directly into
-> >> mainline?
-> >
-> > Pretty much, yes. =A0In code terms it's not really invasive and it =
-doesn't
-> > have any real impact on other systems so it's the sort of thing we =
-can
-> > carry without too much pain. =A0Pragmatically it's not unreasonable=
-=2E
+On Tue, May 31, 2011 at 01:31:21PM +0200, Christoph Fritz wrote:
+> On Tue, 2011-05-31 at 10:14 +0200, Magnus H=F6rlin wrote:
+> > +       { 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO=
+_BUTTONS, XTYPE_XBOX360 },
+> > +       { 0x0e6f, 0x0105, "HSM3 Xbox360 dancepad", MAP_DPAD_TO_BUTT=
+ONS, XTYPE_XBOX360 },
 >=20
-> +1
+> Nice to see that MAP_DPAD_TO_BUTTONS is used.
+>=20
+> Reviewed-by: Christoph Fritz <chf.fritz@googlemail.com>
 >=20
 
-OK, you wore me out. I'll apply the initcall change...
+Applied to 'next', thanks Magnus.
 
 --=20
 Dmitry

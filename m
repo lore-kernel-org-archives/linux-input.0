@@ -1,57 +1,74 @@
-From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v6 15/18] ASoC: twl6040: Remove pll and
-	headset mode dependency
-Date: Wed, 22 Jun 2011 14:39:46 +0300
-Message-ID: <9947082.diNasC8ni8@barack>
-References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
-	<1308663556-29120-16-git-send-email-peter.ujfalusi@ti.com>
-	<20110621173505.GC26592@opensource.wolfsonmicro.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v4 3/3] Input: gpio_keys.c: Enable use with non-local GPIO chips.
+Date: Wed, 22 Jun 2011 08:58:45 -0600
+Message-ID: <BANLkTinB+utdPeL+mGJQApXAydDyLEK7Kg@mail.gmail.com>
+References: <20110618145154.GA18190@core.coreip.homeip.net>
+ <20110618151645.GG8195@ponder.secretlab.ca> <20110620094815.341d1cff@archvile>
+ <20110620084511.GB23113@core.coreip.homeip.net> <20110621114631.GC25032@sirena.org.uk>
+ <BANLkTikjUR_9wq_tGfomLZNdurvmEH1Jxw@mail.gmail.com> <20110621172744.GB26592@opensource.wolfsonmicro.com>
+ <20110621204804.GC3731@core.coreip.homeip.net> <20110621230242.GA8791@opensource.wolfsonmicro.com>
+ <20110622070052.GA16561@core.coreip.homeip.net> <20110622113835.GC18726@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110621173505.GC26592@opensource.wolfsonmicro.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:33697 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757939Ab1FVO7G convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jun 2011 10:59:06 -0400
+Received: by yia27 with SMTP id 27so351682yia.19
+        for <linux-input@vger.kernel.org>; Wed, 22 Jun 2011 07:59:05 -0700 (PDT)
+In-Reply-To: <20110622113835.GC18726@opensource.wolfsonmicro.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>, David Jander <david.jander@protonic.nl>
 
-Hello Mark,
+On Wed, Jun 22, 2011 at 5:38 AM, Mark Brown
+<broonie@opensource.wolfsonmicro.com> wrote:
+> On Wed, Jun 22, 2011 at 12:00:52AM -0700, Dmitry Torokhov wrote:
+>> On Wed, Jun 22, 2011 at 12:02:42AM +0100, Mark Brown wrote:
+>> > On Tue, Jun 21, 2011 at 01:48:05PM -0700, Dmitry Torokhov wrote:
+>
+>> > > Can the initcall stuff be kept out of mainline? I'd expect
+>
+>> > The init order stuff is in mainline already, you're far too late t=
+o the
+>> > party here.
+>
+>> For some drivers it might be already in mainline, it does not matter
+>> that we should continue adding more.
+>
+> It's not just a few drivers, there's entire subsystems that are doing
+> this.
+>
+>> > Keeping things in board trees is exactly the sort of thing we want=
+ to
+>> > avoid people doing. =A0That just means people do all sorts of stuf=
+f that
+>> > wouldn't be acceptable upstream, either out of ignorance or throug=
+h
+>> > knowing that only their systems have to work with what they're doi=
+ng,
+>> > and just don't bother working upstream at all half the time making=
+ life
+>> > miserable for pretty much everyone.
+>
+>> So you are saying that we should accept such crap directly into
+>> mainline?
+>
+> Pretty much, yes. =A0In code terms it's not really invasive and it do=
+esn't
+> have any real impact on other systems so it's the sort of thing we ca=
+n
+> carry without too much pain. =A0Pragmatically it's not unreasonable.
 
-On Tuesday 21 June 2011 19:35:05 Mark Brown wrote:
-> On Tue, Jun 21, 2011 at 04:39:13PM +0300, Peter Ujfalusi wrote:
-> > From: Misael Lopez Cruz <misael.lopez@ti.com>
-> > =
++1
 
-> > Remove dependency between pll (hppll, lppll) and headset power
-> > mode (low-power, high-performance), as headset power mode can
-> > be used with any pll.
-> =
-
-> Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-> =
-
-> but you should note that the code has been modified since Misael's
-> original version.
-
-Oh.
-I did intended to put comments related to the changes has been done to this =
-
-patch. Obviously I forgot to do that.
-I did not added your ack to this patch, since I knew that I have changed a =
-bit =
-
-more.
-Sorry.
-
--- =
-
-P=E9ter
+g.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

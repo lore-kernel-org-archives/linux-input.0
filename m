@@ -1,42 +1,67 @@
 From: David Jander <david@protonic.nl>
-Subject: [PATCH v5 0/2]  Input: gpio_keys.c: Add support for OF and I2C GPIO chips
-Date: Thu, 23 Jun 2011 12:04:13 +0200
-Message-ID: <1308823455-14446-1-git-send-email-david@protonic.nl>
+Subject: [PATCH v5 2/2] Input: gpio_keys.c: Enable use with non-local GPIO chips.
+Date: Thu, 23 Jun 2011 12:04:15 +0200
+Message-ID: <1308823455-14446-3-git-send-email-david@protonic.nl>
+References: <1308823455-14446-1-git-send-email-david@protonic.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:8404 "EHLO
+Received: from protonic.xs4all.nl ([213.84.116.84]:8406 "EHLO
 	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758992Ab1FWKEK (ORCPT
+	with ESMTP id S1759069Ab1FWKEK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Thu, 23 Jun 2011 06:04:10 -0400
+In-Reply-To: <1308823455-14446-1-git-send-email-david@protonic.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, David Jander <david@protonic.nl>
 
-This patch series adds support for OF device-tree platform data and non-local
-GPIO chips, such as I2C I/O expanders.
-This is version 5 of the patches. Feedback from Grant Likely and Dmitry
-Torokhov has been processed.
+Use a threaded interrupt handler in order to permit the handler to use
+a GPIO driver that causes things like I2C transactions being done inside
+the handler context.
+Also, gpio_keys_init needs to be declared as a late_initcall, to make sure
+all needed GPIO drivers have been loaded if the drivers are built into the
+kernel.
 
-Changed in this version:
- - Removed first patch: Simplify platform_device -> device casting.
-   It is not necessary anymore since of_platform bus has been merged into
-   platform_bus.
- - Fixed copyright message.
- - Removed support for numeric GPIO specifiers in "reg" property.
- - Renamed "wakeup" property.
- - Improved error handling of gpio_keys_get_devtree_pdata().
- - Misc cleanups.
+Signed-off-by: David Jander <david@protonic.nl>
+---
+ drivers/input/keyboard/gpio_keys.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-David Jander (2):
-  Input: gpio_keys.c: Added support for device-tree platform data
-  Input: gpio_keys.c: Enable use with non-local GPIO chips.
-
- .../devicetree/bindings/gpio/gpio_keys.txt         |   37 +++++
- drivers/input/keyboard/gpio_keys.c                 |  152 +++++++++++++++++---
- 2 files changed, 171 insertions(+), 18 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio_keys.txt
-
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 2db7db2..689150c 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -3,7 +3,7 @@
+  *
+  * Copyright 2005 Phil Blundell
+  *
+- * Added OF support:
++ * Added OF support and enabled use with I2C GPIO expanders:
+  * Copyright 2010, 2011 David Jander <david@protonic.nl>
+  *
+  * This program is free software; you can redistribute it and/or modify
+@@ -420,7 +420,7 @@ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+ 	if (!button->can_disable)
+ 		irqflags |= IRQF_SHARED;
+ 
+-	error = request_any_context_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
++	error = request_threaded_irq(irq, NULL, gpio_keys_isr, irqflags, desc, bdata);
+ 	if (error < 0) {
+ 		dev_err(dev, "Unable to claim irq %d; error %d\n",
+ 			irq, error);
+@@ -760,10 +760,10 @@ static void __exit gpio_keys_exit(void)
+ 	platform_driver_unregister(&gpio_keys_device_driver);
+ }
+ 
+-module_init(gpio_keys_init);
++late_initcall(gpio_keys_init);
+ module_exit(gpio_keys_exit);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Phil Blundell <pb@handhelds.org>");
+-MODULE_DESCRIPTION("Keyboard driver for CPU GPIOs");
++MODULE_DESCRIPTION("Keyboard driver for GPIOs");
+ MODULE_ALIAS("platform:gpio-keys");
 -- 
 1.7.4.1
 

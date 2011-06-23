@@ -1,43 +1,150 @@
-From: Austin Zhang <zhang.austin@gmail.com>
-Subject: [questions]touch driver.
-Date: Thu, 23 Jun 2011 23:25:57 +0800
-Message-ID: <BANLkTinXNa9Uu+d1=pwH6aDJ-wtOVJ+jiQ@mail.gmail.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH v2 1/1] input: add driver for Bosch Sensortec's BMA150
+ accelerometer
+Date: Thu, 23 Jun 2011 16:36:31 +0100
+Message-ID: <20110623163631.2c43671e@lxorguk.ukuu.org.uk>
+References: <1308840027-10724-1-git-send-email-eric.andersson@unixphere.com>
+	<1308840027-10724-2-git-send-email-eric.andersson@unixphere.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:45539 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757484Ab1FWPZ7 (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:33919 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1759176Ab1FWPeO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jun 2011 11:25:59 -0400
-Received: by iwn6 with SMTP id 6so1639434iwn.19
-        for <linux-input@vger.kernel.org>; Thu, 23 Jun 2011 08:25:58 -0700 (PDT)
+	Thu, 23 Jun 2011 11:34:14 -0400
+In-Reply-To: <1308840027-10724-2-git-send-email-eric.andersson@unixphere.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Chase Douglas <chase.douglas@canonical.com>
+To: Eric Andersson <eric.andersson@unixphere.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, Albert Zhang <xu.zhang@bosch-sensortec.com>
 
-hi, team,
+> +Description:	This is used to select the full scale acceleration range. The
+> +		values represent the range given as +/- G.
+> +		Possible values are: 2, 4, 8.
+> +
+> +		Reading: returns the current acceleration range.
+> +
+> +		Writing: sets a new acceleration range.
 
-I have several questions on touch driver.
+As there is no way to know the valid values I suspect it ought to pick
+nearest inclusive for others <=8 ?
 
-1 For touch panel, if it is HID type panel, then for enabling
-autosuspend for this device, can we only let its parent device enable
-autosuspend as default, don't need do anything within that touch
-driver?
+Similarly for the others
 
-2 When setting fuzz parameter by input_set_abs_params, what is the
-typical rule/scenarios in general? For example, if one device which
-supports logical max sample in X/Y as 4096*3072 and the screen LCD
-resolution as 1024*768, then fuzz=100 is meaning that the driver will
-not report (by input_event) contact point within 50 sample point
-(fuzz/2) to userspace? And if in this case, the high level gesture
-recognizer is setting Manhattan length as 60, does it means it is ok
-if the Manhattan length of contact point coordinator from driver is
-less than 240? (60*4)
+> +			normal - Sets the sensor in full running mode.
+> +			sleep  - Sets the sensor in deep sleep.
+> +			wakeup - Sets the sensor to low-power mode using
+> +				 sequential sleep period.
+> +
+> +		Reading: returns the current operational mode.
+> +
+> +		Writing: sets a new operational mode.
 
-3 Seemed few drivers (only egalax and intel-mid-touch) are using this
-fuzz param, so in most cases, it is one in-case params to leave to
-user for 'tuning' only? Then should it be exported as module
-parameter?
+We have runtime_pm for this (and in fact to switch from the bma023 driver
+I posted to yours we'd need runtime pm)
 
-Thanks for your answer in advance.
+> +
+> +
+> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/value
+> +Date:		May 2011
+> +Contact:	Eric Andersson <eric.andersson@unixphere.com>
+> +Description:	This is used to get the current acceleration values for each
+> +		axis. The values are represented as (x,y,z), where each axis can
+> +		hold a value between -512 and 511.
+> +
+> +		Reading: returns the current acceleration values.
+
+This was nacked in the bma023 driver by the IIO folks - and Dmitry
+pointed out you can do this without a sysfs hack. The trick is to do an
+initial poll in input_open at which point the ioctl query for the
+position will have data that is current and open/ioctl/close works and
+providing we go nail that into other drivers that need that kind of use
+the API is generic and input event based.
+
+> +
+> +
+> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/delay
+> +Date:		May 2011
+> +Contact:	Eric Andersson <eric.andersson@unixphere.com>
+> +Description:	This is used to select the polling rate of the driver. The
+> +		value is represented in ms and can be between 0 and 200. Any
+
+0-200 whats ?
+
+
+> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/enable
+> +Date:		May 2011
+> +Contact:	Eric Andersson <eric.andersson@unixphere.com>
+> +Description:	This is used to enable and disable the chip. The chip will only
+> +		be disabled if there are no input device users.
+
+How does this differ from the power one and why is it needed, why doesn't
+it disable when not in use ? How does this interact with runtime pm
+
+
+>
+> +static int bma150_set_bandwidth(struct i2c_client *client, unsigned char bw)
+> +{
+> +	s32 ret;
+> +	unsigned char data;
+> +	struct bma150_data *bma150 = i2c_get_clientdata(client);
+> +
+> +	mutex_lock(&bma150->mutex);
+> +	ret = i2c_smbus_read_byte_data(client, BMA150_BANDWIDTH_REG);
+> +	if (ret < 0)
+> +		goto error;
+> +
+> +	data = (ret & ~BMA150_BANDWIDTH_MSK) |
+> +		((bw << BMA150_BANDWIDTH_POS) & BMA150_BANDWIDTH_MSK);
+> +
+> +	ret = i2c_smbus_write_byte_data(client, BMA150_BANDWIDTH_REG, data);
+> +error:
+> +	mutex_unlock(&bma150->mutex);
+> +	return ret;
+> +}
+
+A lot of remarkably similar functions
+
+
+> +	mutex_lock(&bma150->mutex);
+> +	bma150->x = x;
+> +	bma150->y = y;
+> +	bma150->z = z;
+> +	mutex_unlock(&bma150->mutex);
+
+This locking would go away if you dropped the un-needed sysfs node
+
+>
+> +static int bma150_open(struct input_dev *inputdev)
+> +{
+> +	struct bma150_data *dev = input_get_drvdata(inputdev);
+> +
+> +	if (!dev->sysfs_enable)
+> +		return bma150_start_polling(inputdev);
+> +
+> +	return 0;
+> +}
+
+Most bma023 users will be IRQ based, so this driver would need chunks
+extracting from the other bma023 driver submission for that to be handled.
+
+> +
+> +static void bma150_close(struct input_dev *inputdev)
+> +{
+> +	struct bma150_data *dev = input_get_drvdata(inputdev);
+> +
+> +	if (!dev->sysfs_enable)
+> +		bma150_stop_polling(inputdev);
+
+What locks sysfs_enable ?
+
+
+>From the Intel side to use your driver instead of bma023 we'd need IRQ
+support and runtime pm but otherwise it looks basically ok. I really
+don't see how to reconcile proper power management with all your sysfs
+enables and power bits though ?
+
+
+

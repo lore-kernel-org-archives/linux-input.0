@@ -1,73 +1,52 @@
-From: David Jander <david.jander@protonic.nl>
-Subject: Re: [PATCH v5 1/2] Input: gpio_keys.c: Added support for
- device-tree platform data
-Date: Thu, 23 Jun 2011 16:09:31 +0200
-Message-ID: <20110623160931.10a59c48@archvile>
-References: <1308823455-14446-1-git-send-email-david@protonic.nl>
-	<1308823455-14446-2-git-send-email-david@protonic.nl>
-	<BANLkTinbnsVc9a=ZTUFutEvZ_vPagTqhOA@mail.gmail.com>
-	<20110623133908.5c85eb3c@lxorguk.ukuu.org.uk>
-	<BANLkTim3S+LP2UfS5Uy4rV6oZcDgom6DPg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Eric Andersson <eric.andersson@unixphere.com>
+Subject: [PATCH v2 0/1] input: add driver for Bosch Sensortec's BMA150 accelerometer
+Date: Thu, 23 Jun 2011 16:40:26 +0200
+Message-ID: <1308840027-10724-1-git-send-email-eric.andersson@unixphere.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:9519 "EHLO
-	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756257Ab1FWOJY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jun 2011 10:09:24 -0400
-In-Reply-To: <BANLkTim3S+LP2UfS5Uy4rV6oZcDgom6DPg@mail.gmail.com>
+Received: from csmtp2.one.com ([91.198.169.22]:44828 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753078Ab1FWOhp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jun 2011 10:37:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Jander <david@protonic.nl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Eric Andersson <eric.andersson@unixphere.com>
 
-On Thu, 23 Jun 2011 07:25:37 -0600
-Grant Likely <grant.likely@secretlab.ca> wrote:
+Hi,
 
-> On Thu, Jun 23, 2011 at 6:39 AM, Alan Cox <alan@lxorguk.ukuu.org.uk> =
-wrote:
-> >> > + =C2=A0 =C2=A0 =C2=A0 - gpios: OF devcie-tree gpio specificatin=
-=2E
-> >> > + =C2=A0 =C2=A0 =C2=A0 - label: Descriptive name of the key.
-> >> > + =C2=A0 =C2=A0 =C2=A0 - linux,code: Keycode to emit.
-> >>
-> >> The fact that this is the Linux internal keycode definitions still
-> >> makes me nervous. =C2=A0Is there no existing standard for keycodes=
- emitted
-> >> by keyboard devices?
-> >
-> > There is but no standard lookup table. For Intel MID we do a transl=
-ation
-> > between Linux key names in the firmware and keycodes but there isn'=
-t a
-> > generic helper for it.
->=20
-> I suppose the Linux keycodes are exported out to userspace, and are
-> therefore an ABI which will not change.  Okay.
+This is v2 of the bma150 driver for Bosch sensortec's digital accelerometers
+BMA150 and SMB380.
 
-Right.
-If I am not mistaken, it started out being AT keyboard scancodes one da=
-y, but
-nowadays it is a huge (and very useful) list of all possible keyboard-l=
-ike
-input events that can exist in linux. We use one such handy niche-code:
-CYCLE_WINDOWS. We couldn't use this code if we were forced to emulate s=
-ome
-existing keyboard which probably wouldn't have this nifty key. It just =
-fits
-perfectly the intended function of the key. I have openbox configured t=
-o
-handle it more or less like ALT+TAB.
+So, what happend since last time:
+* community review: fixed smbus locking.
+* community review: removed pointless ifs.
+* community review: removed struct bma150acc.
+* community review: use human readable values for the sysfs interface.
+* community review: removed atomic_t for delay.
+* Updated header with SMB380 information.
+* Use standard format to print accelerometer data, i.e. (x,y,z).
+* Updated string format of sysfs parameters to: value1 [value2] value3...
+* Add enable/disable as sysfs parameter.
+* Added sysfs-i2c-bma150 ABI documentation.
 
 Best regards,
+ Eric
 
---=20
-David Jander
-Protonic Holland.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ http://www.unixphere.com
+
+---
+
+Eric Andersson (1):
+  input: add driver for Bosch Sensortec's BMA150 accelerometer
+
+ Documentation/ABI/testing/sysfs-i2c-bma150 |   71 +++
+ drivers/input/misc/Kconfig                 |   10 +
+ drivers/input/misc/Makefile                |    1 +
+ drivers/input/misc/bma150.c                |  684 ++++++++++++++++++++++++++++
+ 4 files changed, 766 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-i2c-bma150
+ create mode 100644 drivers/input/misc/bma150.c
+
+-- 
+1.7.3.4
+

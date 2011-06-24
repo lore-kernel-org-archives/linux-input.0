@@ -1,74 +1,33 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: wm97xx_read_aux_adc() for battery & pen down?
-Date: Fri, 24 Jun 2011 15:00:49 +0200
-Message-ID: <20110624130049.GA9374@pengutronix.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 00/35]: System Firmware and SMBIOS Support
+Date: Fri, 24 Jun 2011 15:40:57 +0200
+Message-ID: <201106241540.57952.arnd@arndb.de>
+References: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:42677 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751094Ab1FXNAv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2011 09:00:51 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Prarit Bhargava <prarit@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, x86@kernel.org, linux-acpi@vger.kernel.org, linux-ide@vger.kernel.org, openipmi-developer@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-crypto@vger.kernel.org, dri-devel@lists.freedesktop.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, rtc-linux@googlegroups.com, evel@driverdev.osuosl.org, linux-usb@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, linux-watchdog@vger.kernel.org, grant.likely@secretlab.ca, dz@debian.org, rpurdie@rpsys.net, eric.piel@tremplin-utc.net, abelay@mit.edu, johnpol@2ka.mipt.ru
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
+On Thursday 23 June 2011 19:22:06 Prarit Bhargava wrote:
+> This new patchset reworks the existing DMI code into two separate layers.  It is
+> based off of the feedback I received previously when discussing the SMBIOS
+> version patch on LKML.
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Prarit,
 
-Hi,
+No objections to the patches, but when you send out a series as long as
+this one, please ensure that all patches are sent as replies to the
+introductory mail. Also, do not repeat the one-line patch summary in the
+body of the email.
 
-I have one question I got while hacking on this cheap tablet thingie I don't
-have schematics or documentation for. It uses a WM9715 for (at least) touch=
- and
-battery-status, but I need the following dirty hack for 3.0-rc4 in
-wm97xx_read_aux_adc():
+When using "git send-email --thread --no-chain-reply", this works
+automatically. It will also let you put the Cc list into the
+patch description and work out where to send each patch.
 
-=2E..
--       if (!(*sample & WM97XX_PEN_DOWN)) {
-+       /* HACK! Disable check for battery channel on Jaytech PID7901 */
-+       if ((adcsel !=3D 0x6000) && !(*sample & WM97XX_PEN_DOWN)) {
-                wm->pen_probably_down =3D 0;
-                return RC_PENUP;
-        }
-
-        return RC_VALID;
-}
-
-So, it uses WM97XX_AUX_ID3 as the battery channel which never sets PEN_DOWN=
-=2E As
-a result, I always see timeouts when reading the current voltage (without t=
-he
-patch). My question is: How to avoid this hack? Did I forget to configure
-something somewhere? I read through the wm9715-docs and the driver source, =
-yet
-I think I missed something (or the current implementation cannot work?).
-
-Thanks,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk4EioEACgkQD27XaX1/VRtWrgCZAWo2YqPQ/WIJYKUcVCniTduY
-y68AoILd4+R2dKnVpTd5VI5Hy/l0U5ed
-=/TGf
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
+	Arnd

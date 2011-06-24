@@ -1,66 +1,58 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: wm97xx_read_aux_adc() for battery & pen down?
-Date: Fri, 24 Jun 2011 18:58:02 +0200
-Message-ID: <20110624165802.GB5042@pengutronix.de>
-References: <20110624130049.GA9374@pengutronix.de>
- <20110624165204.GB30047@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NMuMz9nt05w80d4+"
+From: Igor Grinberg <grinberg@compulab.co.il>
+Subject: [PATCH] Input: ads7846 - cleanup GPIO initialization
+Date: Sat, 25 Jun 2011 00:04:53 +0300
+Message-ID: <1308949493-16380-1-git-send-email-grinberg@compulab.co.il>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:36016 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751772Ab1FXQ6E (ORCPT
+Received: from 50.23.254.54-static.reverse.softlayer.com ([50.23.254.54]:56115
+	"EHLO softlayer.compulab.co.il" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752753Ab1FXVFA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2011 12:58:04 -0400
-Content-Disposition: inline
-In-Reply-To: <20110624165204.GB30047@opensource.wolfsonmicro.com>
+	Fri, 24 Jun 2011 17:05:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org, dp@opensource.wolfsonmicro.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Igor Grinberg <grinberg@compulab.co.il>
+
+Use gpio_request_one() instead of multiple gpiolib calls.
+This also simplifies error handling a bit.
+
+Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
+---
+This has became possible thanks to Randy Dunlap
+c001fb72a7b705f902bdfdd05b5d2408efe6f848 (v3.0-rc4)
+(gpio: add GPIOF_ values regardless on kconfig settings)
 
 
---NMuMz9nt05w80d4+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ drivers/input/touchscreen/ads7846.c |   15 +++++----------
+ 1 files changed, 5 insertions(+), 10 deletions(-)
 
-On Fri, Jun 24, 2011 at 05:52:04PM +0100, Mark Brown wrote:
-> On Fri, Jun 24, 2011 at 03:00:49PM +0200, Wolfram Sang wrote:
->=20
-> > battery-status, but I need the following dirty hack for 3.0-rc4 in
-> > wm97xx_read_aux_adc():
->=20
-> > ...
-> > -       if (!(*sample & WM97XX_PEN_DOWN)) {
-> > +       /* HACK! Disable check for battery channel on Jaytech PID7901 */
-> > +       if ((adcsel !=3D 0x6000) && !(*sample & WM97XX_PEN_DOWN)) {
-> >                 wm->pen_probably_down =3D 0;
-> >                 return RC_PENUP;
-> >         }
->=20
-> I don't see this code in that function?
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 5196861..d507b9b 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -967,17 +967,12 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
+ 		ts->get_pendown_state = pdata->get_pendown_state;
+ 	} else if (gpio_is_valid(pdata->gpio_pendown)) {
+ 
+-		err = gpio_request(pdata->gpio_pendown, "ads7846_pendown");
++		err = gpio_request_one(pdata->gpio_pendown, GPIOF_IN,
++				       "ads7846_pendown");
+ 		if (err) {
+-			dev_err(&spi->dev, "failed to request pendown GPIO%d\n",
+-				pdata->gpio_pendown);
+-			return err;
+-		}
+-		err = gpio_direction_input(pdata->gpio_pendown);
+-		if (err) {
+-			dev_err(&spi->dev, "failed to setup pendown GPIO%d\n",
+-				pdata->gpio_pendown);
+-			gpio_free(pdata->gpio_pendown);
++			dev_err(&spi->dev,
++				"failed to request/setup pendown GPIO%d: %d\n",
++				pdata->gpio_pendown, err);
+ 			return err;
+ 		}
+ 
+-- 
+1.7.3.4
 
-Ahem, sorry, I mixed the function names. wm97xx_read_aux_adc() uses the
-poll_sample-pointer which points to wm9712_poll_sample() in my case.
-There I need the above code.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---NMuMz9nt05w80d4+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk4EwhoACgkQD27XaX1/VRuzqQCePYMuf4cYy03bAT1WgM1b6O3d
-Ep8AnRmRlRDX2EyULXztkaZOsYHWcOGB
-=eM73
------END PGP SIGNATURE-----
-
---NMuMz9nt05w80d4+--

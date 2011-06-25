@@ -1,71 +1,93 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/4] input : wacom - Add 3 new models: 6A, 6B, and 97
-Date: Fri, 24 Jun 2011 17:15:21 -0700
-Message-ID: <1308960921-20473-1-git-send-email-pinglinux@gmail.com>
+Subject: [PATCH 3/4] input : wacom - Remove BTN_TOOL_FINGER for pad
+Date: Fri, 24 Jun 2011 17:15:39 -0700
+Message-ID: <1308960939-20510-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:63584 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750773Ab1FYANw (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:50012 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750799Ab1FYAOL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jun 2011 20:13:52 -0400
-Received: by pzk9 with SMTP id 9so2057482pzk.19
-        for <linux-input@vger.kernel.org>; Fri, 24 Jun 2011 17:13:52 -0700 (PDT)
+	Fri, 24 Jun 2011 20:14:11 -0400
+Received: by pwj7 with SMTP id 7so2074697pwj.19
+        for <linux-input@vger.kernel.org>; Fri, 24 Jun 2011 17:14:10 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>, David Foley <favux.is@gmail.com>, Ping Cheng <pingc@wacom.com>
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-Tested-by: Alex Tervoort <alex.tervoort@gmail.com> for 6A
-Signed-off-by: David Foley <favux.is@gmail.com>
+BTN_TOOL_FINGER was designed to indicate a single finger touch.
+Remove the lines that borrowed this type for expresskeys and
+tablet buttons.
+
 Signed-off-by: Ping Cheng <pingc@wacom.com>
 ---
- drivers/input/tablet/wacom_wac.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+ drivers/input/tablet/wacom_wac.c |   11 -----------
+ 1 files changed, 0 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 1cbb9a8..0c302c9 100644
+index 0c302c9..7ce1294 100644
 --- a/drivers/input/tablet/wacom_wac.c
 +++ b/drivers/input/tablet/wacom_wac.c
-@@ -1299,6 +1299,12 @@ static const struct wacom_features wacom_features_0x65 =
- static const struct wacom_features wacom_features_0x69 =
- 	{ "Wacom Bamboo1",        WACOM_PKGLEN_GRAPHIRE,   5104,  3712,  511,
- 	  63, GRAPHIRE, WACOM_PENPRTN_RES, WACOM_PENPRTN_RES };
-+static const struct wacom_features wacom_features_0x6A =
-+	{ "Wacom Bamboo1 4x6",    WACOM_PKGLEN_GRAPHIRE,  14760,  9225, 1023,
-+	  63, GRAPHIRE, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x6B =
-+	{ "Wacom Bamboo1 5x8",    WACOM_PKGLEN_GRAPHIRE,  21648, 13530, 1023,
-+	  63, GRAPHIRE, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x20 =
- 	{ "Wacom Intuos 4x5",     WACOM_PKGLEN_INTUOS,    12700, 10600, 1023,
- 	  31, INTUOS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -1431,6 +1437,9 @@ static const struct wacom_features wacom_features_0x90 =
- static const struct wacom_features wacom_features_0x93 =
- 	{ "Wacom ISDv4 93",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x97 =
-+	{ "Wacom ISDv4 97",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  511,
-+	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x9A =
- 	{ "Wacom ISDv4 9A",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -1515,6 +1524,8 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x64) },
- 	{ USB_DEVICE_WACOM(0x65) },
- 	{ USB_DEVICE_WACOM(0x69) },
-+	{ USB_DEVICE_WACOM(0x6A) },
-+	{ USB_DEVICE_WACOM(0x6B) },
- 	{ USB_DEVICE_WACOM(0x20) },
- 	{ USB_DEVICE_WACOM(0x21) },
- 	{ USB_DEVICE_WACOM(0x22) },
-@@ -1575,6 +1586,7 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0xCC) },
- 	{ USB_DEVICE_WACOM(0x90) },
- 	{ USB_DEVICE_WACOM(0x93) },
-+	{ USB_DEVICE_WACOM(0x97) },
- 	{ USB_DEVICE_WACOM(0x9A) },
- 	{ USB_DEVICE_WACOM(0x9F) },
- 	{ USB_DEVICE_WACOM(0xE2) },
+@@ -278,7 +278,6 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
+ 			input_report_key(input, BTN_4, (data[7] & 0x80));
+ 			rw = ((data[7] & 0x18) >> 3) - ((data[7] & 0x20) >> 3);
+ 			input_report_rel(input, REL_WHEEL, rw);
+-			input_report_key(input, BTN_TOOL_FINGER, 0xf0);
+ 			if (!prox)
+ 				wacom->id[1] = 0;
+ 			input_report_abs(input, ABS_MISC, wacom->id[1]);
+@@ -296,7 +295,6 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
+ 			input_report_key(input, BTN_4, (data[7] & 0x10));
+ 			input_report_key(input, BTN_5, (data[7] & 0x40));
+ 			input_report_abs(input, ABS_WHEEL, (data[8] & 0x7f));
+-			input_report_key(input, BTN_TOOL_FINGER, 0xf0);
+ 			if (!prox)
+ 				wacom->id[1] = 0;
+ 			input_report_abs(input, ABS_MISC, wacom->id[1]);
+@@ -495,10 +493,6 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 
+ 	/* pad packets. Works as a second tool and is always in prox */
+ 	if (data[0] == WACOM_REPORT_INTUOSPAD) {
+-		/* initiate the pad as a device */
+-		if (wacom->tool[1] != BTN_TOOL_FINGER)
+-			wacom->tool[1] = BTN_TOOL_FINGER;
+-
+ 		if (features->type >= INTUOS4S && features->type <= INTUOS4L) {
+ 			input_report_key(input, BTN_0, (data[2] & 0x01));
+ 			input_report_key(input, BTN_1, (data[3] & 0x01));
+@@ -1090,7 +1084,6 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 	case WACOM_G4:
+ 		input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
+ 
+-		__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 		__set_bit(BTN_0, input_dev->keybit);
+ 		__set_bit(BTN_4, input_dev->keybit);
+ 		/* fall through */
+@@ -1128,7 +1121,6 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 	case CINTIQ:
+ 		for (i = 0; i < 8; i++)
+ 			__set_bit(BTN_0 + i, input_dev->keybit);
+-		__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 
+ 		if (wacom_wac->features.type != WACOM_21UX2) {
+ 			input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
+@@ -1155,8 +1147,6 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		__set_bit(BTN_2, input_dev->keybit);
+ 		__set_bit(BTN_3, input_dev->keybit);
+ 
+-		__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+-
+ 		input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		/* fall through */
+@@ -1174,7 +1164,6 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 	case INTUOS4S:
+ 		for (i = 0; i < 7; i++)
+ 			__set_bit(BTN_0 + i, input_dev->keybit);
+-		__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		wacom_setup_intuos(wacom_wac);
 -- 
 1.7.5.4
 

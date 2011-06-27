@@ -1,59 +1,172 @@
-From: simon@mungewell.org
-Subject: Re: Linux joystick driver bugreport
-Date: Mon, 27 Jun 2011 16:01:28 -0400
-Message-ID: <563e944385d52f20d80a72176e57d611.squirrel@host171.canaca.com>
-References: <20110625011015.6f397f6f@Giskard>
-    <20110627193814.GB13829@core.coreip.homeip.net>
+From: Eric Andersson <eric.andersson@unixphere.com>
+Subject: Re: [PATCH v2 1/1] input: add driver for Bosch Sensortec's BMA150
+ accelerometer
+Date: Mon, 27 Jun 2011 22:24:52 +0200
+Message-ID: <20110627202452.GA7201@skinner.xfiles.lan>
+References: <1308840027-10724-1-git-send-email-eric.andersson@unixphere.com>
+ <1308840027-10724-2-git-send-email-eric.andersson@unixphere.com>
+ <20110623163631.2c43671e@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:46950 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753274Ab1F0UBd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jun 2011 16:01:33 -0400
-In-Reply-To: <20110627193814.GB13829@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110623163631.2c43671e@lxorguk.ukuu.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, Albert Zhang <xu.zhang@bosch-sensortec.com>
 List-Id: linux-input@vger.kernel.org
-To: Pablo Cabrera <binchmod777@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Linux Input <linux-input@vger.kernel.org>
 
-Hi Pablo,
+On 16:36 Thu 23 Jun     , Alan Cox wrote:
+> > +Description:	This is used to select the full scale acceleration range. The
+> > +		values represent the range given as +/- G.
+> > +		Possible values are: 2, 4, 8.
+> > +
+> > +		Reading: returns the current acceleration range.
+> > +
+> > +		Writing: sets a new acceleration range.
+> 
+> As there is no way to know the valid values I suspect it ought to pick
+> nearest inclusive for others <=8 ?
 
->> For device 0079:0011 DragonRise Inc. arrows buttons are mapped to axes 3
->> and 4.
->> For device 0e8f: 0002 GreenAsia Motion Inc. arrows buttons are mapped
->> to axes 2 and 3
+Hmm.. I am not sure what you mean. The valid values can be retreived
+with a "cat range". Could you please clarify what you mean?
 
-This sounds like the arrows are on a D-Pad and that the D-Pad is described
-as a 'HAT' in the HID descriptor, which is like a n-position dial with a
-NULL state.
+> > +			normal - Sets the sensor in full running mode.
+> > +			sleep  - Sets the sensor in deep sleep.
+> > +			wakeup - Sets the sensor to low-power mode using
+> > +				 sequential sleep period.
+> > +
+> > +		Reading: returns the current operational mode.
+> > +
+> > +		Writing: sets a new operational mode.
+> 
+> We have runtime_pm for this (and in fact to switch from the bma023 driver
+> I posted to yours we'd need runtime pm)
 
-I have a Logitech game pad which does the same, the HID descriptor contains
---
-Logical Maximum (7),
-Physical Maximum (315),
-Report Size (4),
-Report Count (1),
-Unit (Degrees),
-Usage (Hat Switch), ; Hat switch (39h, dynamic value)
-Input (Variable, Null State),
-Unit,
---
+Sure, that is probably a good idea.
 
-Linux converts these '8 buttons' to a 'vector' to the edge of a circle,
-hence the two extra axis.
+> > +
+> > +
+> > +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/value
+> > +Date:		May 2011
+> > +Contact:	Eric Andersson <eric.andersson@unixphere.com>
+> > +Description:	This is used to get the current acceleration values for each
+> > +		axis. The values are represented as (x,y,z), where each axis can
+> > +		hold a value between -512 and 511.
+> > +
+> > +		Reading: returns the current acceleration values.
+> 
+> This was nacked in the bma023 driver by the IIO folks - and Dmitry
+> pointed out you can do this without a sysfs hack. The trick is to do an
+> initial poll in input_open at which point the ioctl query for the
+> position will have data that is current and open/ioctl/close works and
+> providing we go nail that into other drivers that need that kind of use
+> the API is generic and input event based.
 
-You can use an application from DigiMend
-(http://digimend.sourceforge.net/) to read the HID descriptor for your
-device.
+Ok. Thanks for pointing that out and thanks Dmitry for the patch! I'll look in
+to it!
 
+> > +
+> > +
+> > +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/delay
+> > +Date:		May 2011
+> > +Contact:	Eric Andersson <eric.andersson@unixphere.com>
+> > +Description:	This is used to select the polling rate of the driver. The
+> > +		value is represented in ms and can be between 0 and 200. Any
+> 
+> 0-200 whats ?
 
-A possible work around (if you just want the use the joystick to play) is
-described here:
-http://hans.fugal.net/blog/2007/06/02/joystick-hat-in-x-plane-in-linux/
+The value is in milliseconds which is stated in the text, but I can rephrase
+it to make it more apperent.
 
-Cheers (and good luck),
-Simon.
+> 
+> > +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/enable
+> > +Date:		May 2011
+> > +Contact:	Eric Andersson <eric.andersson@unixphere.com>
+> > +Description:	This is used to enable and disable the chip. The chip will only
+> > +		be disabled if there are no input device users.
+> 
+> How does this differ from the power one and why is it needed, why doesn't
+> it disable when not in use ? How does this interact with runtime pm
 
+This is to be able to put the chip to sleep by using sysfs. As you probably know there
+are applications interfacing this driver only through sysfs by using the
+value-parameter. Without this parameter one needs to open the input device for
+the chip to be enabled. However, if one use the open/ioctl/close-functionality
+you pointed out this is not needed anymore.
+
+> >
+> > +static int bma150_set_bandwidth(struct i2c_client *client, unsigned char bw)
+> > +{
+> > +	s32 ret;
+> > +	unsigned char data;
+> > +	struct bma150_data *bma150 = i2c_get_clientdata(client);
+> > +
+> > +	mutex_lock(&bma150->mutex);
+> > +	ret = i2c_smbus_read_byte_data(client, BMA150_BANDWIDTH_REG);
+> > +	if (ret < 0)
+> > +		goto error;
+> > +
+> > +	data = (ret & ~BMA150_BANDWIDTH_MSK) |
+> > +		((bw << BMA150_BANDWIDTH_POS) & BMA150_BANDWIDTH_MSK);
+> > +
+> > +	ret = i2c_smbus_write_byte_data(client, BMA150_BANDWIDTH_REG, data);
+> > +error:
+> > +	mutex_unlock(&bma150->mutex);
+> > +	return ret;
+> > +}
+> 
+> A lot of remarkably similar functions
+
+I saw that you abstracted these methods in bma023. However, since you have a
+lot more sysfs parameters I would prefer to keep it as is in this
+version due to increased readability (IMHO).
+ 
+> > +	mutex_lock(&bma150->mutex);
+> > +	bma150->x = x;
+> > +	bma150->y = y;
+> > +	bma150->z = z;
+> > +	mutex_unlock(&bma150->mutex);
+> 
+> This locking would go away if you dropped the un-needed sysfs node
+
+I'll fix for v3.
+
+> >
+> > +static int bma150_open(struct input_dev *inputdev)
+> > +{
+> > +	struct bma150_data *dev = input_get_drvdata(inputdev);
+> > +
+> > +	if (!dev->sysfs_enable)
+> > +		return bma150_start_polling(inputdev);
+> > +
+> > +	return 0;
+> > +}
+> 
+> Most bma023 users will be IRQ based, so this driver would need chunks
+> extracting from the other bma023 driver submission for that to be handled.
+
+As mentioned in my previous patch, using IRQ might not be a good idea. The
+reason for this is that the interrupt is triggered every 333 us which would
+create a heavy load on the system.
+
+I have also verified this with Bosch Sensortec who recommends to not use IRQ
+for this chip driver.
+
+> > +
+> > +static void bma150_close(struct input_dev *inputdev)
+> > +{
+> > +	struct bma150_data *dev = input_get_drvdata(inputdev);
+> > +
+> > +	if (!dev->sysfs_enable)
+> > +		bma150_stop_polling(inputdev);
+> 
+> What locks sysfs_enable ?
+
+This will go away when the enable node is removed.
+
+-- 
+Best regards,
+ Eric
+
+http://www.unixphere.com

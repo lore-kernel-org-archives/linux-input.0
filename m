@@ -1,43 +1,49 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH 2/2] Input: tnetv107x-ts - fix MODULE_ALIAS
-Date: Mon, 27 Jun 2011 22:33:57 +0800
-Message-ID: <1309185237.29085.1.camel@phoenix>
-References: <1309185168.29085.0.camel@phoenix>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [PATCH] xen-kbdfront: enable xen-kbdfront for HVM
+ guests
+Date: Mon, 27 Jun 2011 11:52:52 -0400
+Message-ID: <20110627155252.GL6978@dumpdata.com>
+References: <alpine.DEB.2.00.1106241730220.12963@kaball-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:64677 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751096Ab1F0OeC (ORCPT
+Received: from rcsinet10.oracle.com ([148.87.113.121]:35781 "EHLO
+	rcsinet10.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752030Ab1F0PxK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jun 2011 10:34:02 -0400
-In-Reply-To: <1309185168.29085.0.camel@phoenix>
+	Mon, 27 Jun 2011 11:53:10 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.00.1106241730220.12963@kaball-desktop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Cyril Chemparathy <cyril@ti.com>, linux-input@vger.kernel.org
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-input@vger.kernel.org
+Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org
 
-Remove the space between "platform:" prefix and the driver name.
+On Fri, Jun 24, 2011 at 05:33:16PM +0100, Stefano Stabellini wrote:
+> xen-kbdfront: enable xen-kbdfront for HVM guests too
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/touchscreen/tnetv107x-ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 
-diff --git a/drivers/input/touchscreen/tnetv107x-ts.c b/drivers/input/touchscreen/tnetv107x-ts.c
-index 22a3411..089b0a0 100644
---- a/drivers/input/touchscreen/tnetv107x-ts.c
-+++ b/drivers/input/touchscreen/tnetv107x-ts.c
-@@ -393,5 +393,5 @@ module_exit(tsc_exit);
- 
- MODULE_AUTHOR("Cyril Chemparathy");
- MODULE_DESCRIPTION("TNETV107X Touchscreen Driver");
--MODULE_ALIAS("platform: tnetv107x-ts");
-+MODULE_ALIAS("platform:tnetv107x-ts");
- MODULE_LICENSE("GPL");
--- 
-1.7.4.1
+Dmitry, can you pick this up for 3.1 please?
 
-
-
+> 
+> Signed-off-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+> 
+> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+> index 62bae99..ad2e51c 100644
+> --- a/drivers/input/misc/xen-kbdfront.c
+> +++ b/drivers/input/misc/xen-kbdfront.c
+> @@ -373,7 +373,7 @@ static struct xenbus_driver xenkbd_driver = {
+>  
+>  static int __init xenkbd_init(void)
+>  {
+> -	if (!xen_pv_domain())
+> +	if (!xen_domain())
+>  		return -ENODEV;
+>  
+>  	/* Nothing to do if running in dom0. */
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel

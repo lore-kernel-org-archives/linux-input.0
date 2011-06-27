@@ -1,124 +1,137 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 11/12] HID: wiimote: Cache wiimote led state
-Date: Mon, 27 Jun 2011 16:30:12 +0200
-Message-ID: <1309185013-484-11-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 09/12] HID: wiimote: Add wiimote input button parser
+Date: Mon, 27 Jun 2011 16:30:10 +0200
+Message-ID: <1309185013-484-9-git-send-email-dh.herrmann@googlemail.com>
 References: <1309185013-484-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:59763 "EHLO
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:40385 "EHLO
 	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752552Ab1F0ObI (ORCPT
+	with ESMTP id S1752720Ab1F0ObF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jun 2011 10:31:08 -0400
-Received: by mail-fx0-f52.google.com with SMTP id 18so1868751fxd.11
-        for <linux-input@vger.kernel.org>; Mon, 27 Jun 2011 07:31:08 -0700 (PDT)
+	Mon, 27 Jun 2011 10:31:05 -0400
+Received: by mail-fx0-f52.google.com with SMTP id 18so1868769fxd.11
+        for <linux-input@vger.kernel.org>; Mon, 27 Jun 2011 07:31:05 -0700 (PDT)
 In-Reply-To: <1309185013-484-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: padovan@profusion.mobi, jkosina@suse.cz, oliver@neukum.org, David Herrmann <dh.herrmann@googlemail.com>
 
-Save the current state of the leds in the wiimote data structure. This
-allows us to discard new led requests that wouldn't change anything.
-Protect the whole state structure by a spinlock. Every wiiproto_*
-function expects this spinlock to be held when called.
+Parse input report 0x30 from the wiimote as button input. We need to
+send events for all buttons on every input report because the wiimote
+does not send events for single buttons but always for all buttons
+to us. The input layer, however, filters redundant events.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+ drivers/hid/hid-wiimote.c |   66 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 66 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 400a2d9..29a5b97 100644
+index 9ae333d..3049fc8 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -27,6 +27,11 @@ struct wiimote_buf {
- 	size_t size;
+@@ -39,6 +39,39 @@ struct wiimote_data {
+ 	struct work_struct worker;
  };
  
-+struct wiimote_state {
-+	spinlock_t lock;
-+	__u8 flags;
++enum wiiproto_reqs {
++	WIIPROTO_REQ_DRM_K = 0x30,
 +};
 +
- struct wiimote_data {
- 	atomic_t ready;
- 	struct hid_device *hdev;
-@@ -37,12 +42,16 @@ struct wiimote_data {
- 	__u8 tail;
- 	struct wiimote_buf outq[WIIMOTE_BUFSIZE];
- 	struct work_struct worker;
++enum wiiproto_keys {
++	WIIPROTO_KEY_LEFT,
++	WIIPROTO_KEY_RIGHT,
++	WIIPROTO_KEY_UP,
++	WIIPROTO_KEY_DOWN,
++	WIIPROTO_KEY_PLUS,
++	WIIPROTO_KEY_MINUS,
++	WIIPROTO_KEY_ONE,
++	WIIPROTO_KEY_TWO,
++	WIIPROTO_KEY_A,
++	WIIPROTO_KEY_B,
++	WIIPROTO_KEY_HOME,
++	WIIPROTO_KEY_COUNT
++};
 +
-+	struct wiimote_state state;
- };
- 
- #define WIIPROTO_FLAG_LED1 0x01
- #define WIIPROTO_FLAG_LED2 0x02
- #define WIIPROTO_FLAG_LED3 0x04
- #define WIIPROTO_FLAG_LED4 0x08
-+#define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
-+					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
- 
- enum wiiproto_reqs {
- 	WIIPROTO_REQ_LED = 0x11,
-@@ -168,6 +177,11 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
++static __u16 wiiproto_keymap[] = {
++	KEY_LEFT,	/* WIIPROTO_KEY_LEFT */
++	KEY_RIGHT,	/* WIIPROTO_KEY_RIGHT */
++	KEY_UP,		/* WIIPROTO_KEY_UP */
++	KEY_DOWN,	/* WIIPROTO_KEY_DOWN */
++	KEY_NEXT,	/* WIIPROTO_KEY_PLUS */
++	KEY_PREVIOUS,	/* WIIPROTO_KEY_MINUS */
++	BTN_1,		/* WIIPROTO_KEY_ONE */
++	BTN_2,		/* WIIPROTO_KEY_TWO */
++	BTN_A,		/* WIIPROTO_KEY_A */
++	BTN_B,		/* WIIPROTO_KEY_B */
++	BTN_MODE,	/* WIIPROTO_KEY_HOME */
++};
++
+ static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
+ 								size_t count)
  {
- 	__u8 cmd[2];
- 
-+	leds &= WIIPROTO_FLAGS_LEDS;
-+	if ((wdata->state.flags & WIIPROTO_FLAGS_LEDS) == leds)
-+		return;
-+	wdata->state.flags = (wdata->state.flags & ~WIIPROTO_FLAGS_LEDS) | leds;
-+
- 	cmd[0] = WIIPROTO_REQ_LED;
- 	cmd[1] = 0;
- 
-@@ -240,6 +254,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	struct wiimote_data *wdata = hid_get_drvdata(hdev);
- 	struct wiiproto_handler *h;
- 	int i;
-+	unsigned long flags;
- 
- 	if (!atomic_read(&wdata->ready))
- 		return -EBUSY;
-@@ -249,12 +264,16 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	if (size < 1)
- 		return -EINVAL;
- 
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+
- 	for (i = 0; handlers[i].id; ++i) {
- 		h = &handlers[i];
- 		if (h->id == raw_data[0] && h->size < size)
- 			h->func(wdata, &raw_data[1]);
- 	}
- 
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
+@@ -138,6 +171,33 @@ static int wiimote_input_event(struct input_dev *dev, unsigned int type,
  	return 0;
  }
  
-@@ -292,6 +311,8 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
++static void handler_keys(struct wiimote_data *wdata, const __u8 *payload)
++{
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_LEFT],
++							!!(payload[0] & 0x01));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_RIGHT],
++							!!(payload[0] & 0x02));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_DOWN],
++							!!(payload[0] & 0x04));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_UP],
++							!!(payload[0] & 0x08));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_PLUS],
++							!!(payload[0] & 0x10));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_TWO],
++							!!(payload[1] & 0x01));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_ONE],
++							!!(payload[1] & 0x02));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_B],
++							!!(payload[1] & 0x04));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_A],
++							!!(payload[1] & 0x08));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_MINUS],
++							!!(payload[1] & 0x10));
++	input_event(wdata->input, EV_KEY, wiiproto_keymap[WIIPROTO_KEY_HOME],
++							!!(payload[1] & 0x80));
++	input_event(wdata->input, EV_SYN, SYN_REPORT, 0);
++}
++
+ struct wiiproto_handler {
+ 	__u8 id;
+ 	size_t size;
+@@ -145,6 +205,7 @@ struct wiiproto_handler {
+ };
+ 
+ static struct wiiproto_handler handlers[] = {
++	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
+ 	{ .id = 0 }
+ };
+ 
+@@ -175,6 +236,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ {
+ 	struct wiimote_data *wdata;
++	int i;
+ 
+ 	wdata = kzalloc(sizeof(*wdata), GFP_KERNEL);
+ 	if (!wdata)
+@@ -198,6 +260,10 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	wdata->input->id.version = wdata->hdev->version;
+ 	wdata->input->name = WIIMOTE_NAME;
+ 
++	set_bit(EV_KEY, wdata->input->evbit);
++	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
++		set_bit(wiiproto_keymap[i], wdata->input->keybit);
++
  	spin_lock_init(&wdata->qlock);
  	INIT_WORK(&wdata->worker, wiimote_worker);
  
-+	spin_lock_init(&wdata->state.lock);
-+
- 	return wdata;
- }
- 
-@@ -334,7 +355,12 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 	smp_wmb();
- 	atomic_set(&wdata->ready, 1);
- 	hid_info(hdev, "New device registered\n");
-+
-+	/* by default set led1 after device initialization */
-+	spin_lock_irq(&wdata->state.lock);
- 	wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
-+	spin_unlock_irq(&wdata->state.lock);
-+
- 	return 0;
- 
- err_stop:
 -- 
 1.7.5.2
 

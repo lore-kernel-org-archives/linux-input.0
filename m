@@ -1,35 +1,39 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v6 00/18] MFD/ASoC/Input: TWL4030/TWL60X0
-	changes
-Date: Mon, 27 Jun 2011 03:18:35 -0700
-Message-ID: <20110627101835.GI23145@atomide.com>
-References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
-	<1770658.gTOGV79JgY@barack>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH 01/12 v2] HID: wiimote: Add Nintendo Wii Remote driver stub
+Date: Mon, 27 Jun 2011 16:29:00 +0200
+Message-ID: <BANLkTin6BVHDYdYJi4u0pO_b7zu6fSw0jA@mail.gmail.com>
+References: <1308322162-13953-1-git-send-email-dh.herrmann@googlemail.com>
+	<alpine.LNX.2.00.1106241414000.11049@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <1770658.gTOGV79JgY@barack>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: =?utf-8?B?UMOpdGVy?= Ujfalusi <peter.ujfalusi@ti.com>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:36980 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752452Ab1F0O3B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jun 2011 10:29:01 -0400
+Received: by vws1 with SMTP id 1so3335201vws.19
+        for <linux-input@vger.kernel.org>; Mon, 27 Jun 2011 07:29:01 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1106241414000.11049@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, padovan@profusion.mobi, oliver@neukum.org
 
-KiBQw6l0ZXIgVWpmYWx1c2kgPHBldGVyLnVqZmFsdXNpQHRpLmNvbT4gWzExMDYyNyAwMjozOV06
-Cj4gSGkgVG9ueSwgU2FtdWVsLAo+IAo+IFdvdWxkIHlvdSBoYXZlIHRpbWUgdG8gdGFrZSBhIGxv
-b2sgYXQgdGhpcyBzZXJpZXM/CgpMb29rcyBnb29kIHRvIG1lLiBJZiBpdCBjb25mbGljdHMgd2l0
-aCB3aGF0IHdlIGhhdmUgcXVldWVkCmluIHRoZSBkZXZlbC1jbGVhbnVwIGJyYW5jaCwgSSBzaG91
-bGQgcHJvYmFibHkgcXVldWUgaXQuCgpJZiB0aGVyZSBhcmUgbm8gY29uZmxpY3RzLCB0aGVuIFNh
-bXVlbCBjYW4gcXVldWUgaXQuCgpSZWdhcmRzLAoKVG9ueQpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpBbHNhLWRldmVsIG1haWxpbmcgbGlzdApBbHNhLWRl
-dmVsQGFsc2EtcHJvamVjdC5vcmcKaHR0cDovL21haWxtYW4uYWxzYS1wcm9qZWN0Lm9yZy9tYWls
-bWFuL2xpc3RpbmZvL2Fsc2EtZGV2ZWwK
+On Fri, Jun 24, 2011 at 2:14 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> The only thing I'd like to ask you -- could you please put a comment into
+> the code preceeding all the barrier operations, so that it's clear why
+> they have to be there?
+
+I have simplified the locking logic in my new patch series and reduced
+the memory-barriers. I've added some inline comments and extended the
+commit-messages. I hope all locks are fine now.
+
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+
+Thanks for your time
+David

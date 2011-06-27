@@ -1,38 +1,117 @@
-From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v6 00/18] MFD/ASoC/Input: TWL4030/TWL60X0
-	changes
-Date: Mon, 27 Jun 2011 17:30:34 +0300
-Message-ID: <2519112.D3nfO1VTXY@barack>
-References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
-	<1770658.gTOGV79JgY@barack> <20110627101835.GI23145@atomide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20110627101835.GI23145@atomide.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH 04/12] HID: wiimote: Register input device in wiimote hid driver
+Date: Mon, 27 Jun 2011 16:30:05 +0200
+Message-ID: <1309185013-484-4-git-send-email-dh.herrmann@googlemail.com>
+References: <1309185013-484-1-git-send-email-dh.herrmann@googlemail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:59763 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752722Ab1F0Oay (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jun 2011 10:30:54 -0400
+Received: by mail-fx0-f52.google.com with SMTP id 18so1868751fxd.11
+        for <linux-input@vger.kernel.org>; Mon, 27 Jun 2011 07:30:54 -0700 (PDT)
+In-Reply-To: <1309185013-484-1-git-send-email-dh.herrmann@googlemail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: padovan@profusion.mobi, jkosina@suse.cz, oliver@neukum.org, David Herrmann <dh.herrmann@googlemail.com>
 
-SGkgVG9ueSwKCk9uIE1vbmRheSAyNyBKdW5lIDIwMTEgMTI6MTg6MzUgVG9ueSBMaW5kZ3JlbiB3
-cm90ZToKPiAqIFDDqXRlciBVamZhbHVzaSA8cGV0ZXIudWpmYWx1c2lAdGkuY29tPiBbMTEwNjI3
-IDAyOjM5XToKPiAKPiA+IEhpIFRvbnksIFNhbXVlbCwKPiA+IAo+ID4gV291bGQgeW91IGhhdmUg
-dGltZSB0byB0YWtlIGEgbG9vayBhdCB0aGlzIHNlcmllcz8KPiAKPiAKPiBMb29rcyBnb29kIHRv
-IG1lLiBJZiBpdCBjb25mbGljdHMgd2l0aCB3aGF0IHdlIGhhdmUgcXVldWVkCj4gaW4gdGhlIGRl
-dmVsLWNsZWFudXAgYnJhbmNoLCBJIHNob3VsZCBwcm9iYWJseSBxdWV1ZSBpdC4KClRoZXJlIGFy
-ZSBjb25mbGljdHMgaW4gbWFjaC1vbWFwMiAocXVpdGUgYSBsb3QpLCBpZiBJIGFwcGx5IHRoZSBz
-ZXJpZXMgb24gdG9wIApvZiB0aGUgZGV2ZWwtY2xlYW51cCBicmFuY2guCiAKPiBJZiB0aGVyZSBh
-cmUgbm8gY29uZmxpY3RzLCB0aGVuIFNhbXVlbCBjYW4gcXVldWUgaXQuCgpJIHN1cHBvc2UgdGhp
-cyBzaG91bGQgdGhlbiBnbyB0aHJvdWdoIGwtby4uLgoKLS0gClDDqXRlcgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpBbHNhLWRldmVsIG1haWxpbmcgbGlz
-dApBbHNhLWRldmVsQGFsc2EtcHJvamVjdC5vcmcKaHR0cDovL21haWxtYW4uYWxzYS1wcm9qZWN0
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2Fsc2EtZGV2ZWwK
+Register input device so the wiimote can report input events on
+it. We do not use HIDINPUT because the wiimote does not provide any
+descriptor table which might be used by HIDINPUT. So we avoid
+having HIDINPUT parse the wiimote descriptor and create unrelated
+or unknown event flags. Instead we register our own input device
+that we have full control of.
+
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+---
+ drivers/hid/hid-wiimote.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 34 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
+index ff7cf12..deaf232 100644
+--- a/drivers/hid/hid-wiimote.c
++++ b/drivers/hid/hid-wiimote.c
+@@ -10,7 +10,9 @@
+  * any later version.
+  */
+ 
++#include <linux/device.h>
+ #include <linux/hid.h>
++#include <linux/input.h>
+ #include <linux/module.h>
+ #include "hid-ids.h"
+ 
+@@ -19,8 +21,15 @@
+ 
+ struct wiimote_data {
+ 	struct hid_device *hdev;
++	struct input_dev *input;
+ };
+ 
++static int wiimote_input_event(struct input_dev *dev, unsigned int type,
++						unsigned int code, int value)
++{
++	return 0;
++}
++
+ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ 							u8 *raw_data, int size)
+ {
+@@ -38,9 +47,24 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	if (!wdata)
+ 		return NULL;
+ 
++	wdata->input = input_allocate_device();
++	if (!wdata->input) {
++		kfree(wdata);
++		return NULL;
++	}
++
+ 	wdata->hdev = hdev;
+ 	hid_set_drvdata(hdev, wdata);
+ 
++	input_set_drvdata(wdata->input, wdata);
++	wdata->input->event = wiimote_input_event;
++	wdata->input->dev.parent = &wdata->hdev->dev;
++	wdata->input->id.bustype = wdata->hdev->bus;
++	wdata->input->id.vendor = wdata->hdev->vendor;
++	wdata->input->id.product = wdata->hdev->product;
++	wdata->input->id.version = wdata->hdev->version;
++	wdata->input->name = WIIMOTE_NAME;
++
+ 	return wdata;
+ }
+ 
+@@ -73,10 +97,19 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 		goto err;
+ 	}
+ 
++	ret = input_register_device(wdata->input);
++	if (ret) {
++		hid_err(hdev, "Cannot register input device\n");
++		goto err_stop;
++	}
++
+ 	hid_info(hdev, "New device registered\n");
+ 	return 0;
+ 
++err_stop:
++	hid_hw_stop(hdev);
+ err:
++	input_free_device(wdata->input);
+ 	wiimote_destroy(wdata);
+ 	return ret;
+ }
+@@ -87,6 +120,7 @@ static void wiimote_hid_remove(struct hid_device *hdev)
+ 
+ 	hid_info(hdev, "Device removed\n");
+ 	hid_hw_stop(hdev);
++	input_unregister_device(wdata->input);
+ 	wiimote_destroy(wdata);
+ }
+ 
+-- 
+1.7.5.2
+

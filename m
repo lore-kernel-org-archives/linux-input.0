@@ -1,15 +1,17 @@
-From: daoguang wu <wdgvip@gmail.com>
-Subject: Re: [PATCH] INPUT:Add ABS_PRESSURE input event support for
+From: Baohua Song <Baohua.Song@csr.com>
+Subject: RE: [PATCH] INPUT:Add ABS_PRESSURE input event support for
 	touchscreen driver
-Date: Mon, 27 Jun 2011 10:15:05 +0800
-Message-ID: <BANLkTi=O44wyaFB_B83LGiQhAVtFOp64pyhMaCKCf_YZz6b1GA@mail.gmail.com>
+Date: Mon, 27 Jun 2011 03:05:32 +0000
+Message-ID: <5EB3BFCD089AD643B9BB63439F5FD5E937BB882D@SHAASIEXM01.ASIA.ROOT.PRI>
 References: <1308881738-6392-1-git-send-email-wdgvip@gmail.com>
 	<20110624124154.GC19804@sirena.org.uk>
+	<BANLkTi=O44wyaFB_B83LGiQhAVtFOp64pyhMaCKCf_YZz6b1GA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20110624124154.GC19804@sirena.org.uk>
+In-Reply-To: <BANLkTi=O44wyaFB_B83LGiQhAVtFOp64pyhMaCKCf_YZz6b1GA@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,20 +21,44 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: linux-arm-kernel-bounces@lists.infradead.org
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: kgene.kim@samsung.com, ben-linux@fluff.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, wdgvip@gamil.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: daoguang wu <wdgvip@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: "kgene.kim@samsung.com" <kgene.kim@samsung.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "wdgvip@gamil.com" <wdgvip@gamil.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-2011/6/24 Mark Brown <broonie@opensource.wolfsonmicro.com>:
-> On Fri, Jun 24, 2011 at 10:15:38AM +0800, Wu DaoGuang wrote:
->> The touchscreen driver s3c2410_ts.c doesn't work well when using
->> the tslib, an abstraction layer for touchscreen panel events.
->> Tslib needs ABS_X ABS_Y and ABS_PRESSURE events to report, but only
->> the former two the driver can provide.
->
-> It seems much more sane to fix this in tslib, the kernel is not actually
-> reporting pressure meaningfully here and there's already BTN_TOUCH to
-> report if the pen is down.
->
-yeah,I will try to fix it in tslib.
-Thanks a lot.
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogbGludXgtYXJtLWtlcm5l
+bC1ib3VuY2VzQGxpc3RzLmluZnJhZGVhZC5vcmcNCj4gW21haWx0bzpsaW51eC1hcm0ta2VybmVs
+LWJvdW5jZXNAbGlzdHMuaW5mcmFkZWFkLm9yZ10gT24gQmVoYWxmIE9mIGRhb2d1YW5nDQo+IHd1
+DQo+IFNlbnQ6IDIwMTHE6jbUwjI3yNUgMTA6MTUNCj4gVG86IE1hcmsgQnJvd24NCj4gQ2M6IGtn
+ZW5lLmtpbUBzYW1zdW5nLmNvbTsgYmVuLWxpbnV4QGZsdWZmLm9yZzsNCj4gZG1pdHJ5LnRvcm9r
+aG92QGdtYWlsLmNvbTsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsNCj4gd2RndmlwQGdh
+bWlsLmNvbTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOw0KPiBsaW51eC1hcm0ta2VybmVs
+QGxpc3RzLmluZnJhZGVhZC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gSU5QVVQ6QWRkIEFC
+U19QUkVTU1VSRSBpbnB1dCBldmVudCBzdXBwb3J0IGZvcg0KPiB0b3VjaHNjcmVlbiBkcml2ZXIN
+Cj4gDQo+IDIwMTEvNi8yNCBNYXJrIEJyb3duIDxicm9vbmllQG9wZW5zb3VyY2Uud29sZnNvbm1p
+Y3JvLmNvbT46DQo+ID4gT24gRnJpLCBKdW4gMjQsIDIwMTEgYXQgMTA6MTU6MzhBTSArMDgwMCwg
+V3UgRGFvR3Vhbmcgd3JvdGU6DQo+ID4+IFRoZSB0b3VjaHNjcmVlbiBkcml2ZXIgczNjMjQxMF90
+cy5jIGRvZXNuJ3Qgd29yayB3ZWxsIHdoZW4gdXNpbmcNCj4gPj4gdGhlIHRzbGliLCBhbiBhYnN0
+cmFjdGlvbiBsYXllciBmb3IgdG91Y2hzY3JlZW4gcGFuZWwgZXZlbnRzLg0KPiA+PiBUc2xpYiBu
+ZWVkcyBBQlNfWCBBQlNfWSBhbmQgQUJTX1BSRVNTVVJFIGV2ZW50cyB0byByZXBvcnQsIGJ1dCBv
+bmx5DQo+ID4+IHRoZSBmb3JtZXIgdHdvIHRoZSBkcml2ZXIgY2FuIHByb3ZpZGUuDQo+ID4NCj4g
+PiBJdCBzZWVtcyBtdWNoIG1vcmUgc2FuZSB0byBmaXggdGhpcyBpbiB0c2xpYiwgdGhlIGtlcm5l
+bCBpcyBub3QgYWN0dWFsbHkNCj4gPiByZXBvcnRpbmcgcHJlc3N1cmUgbWVhbmluZ2Z1bGx5IGhl
+cmUgYW5kIHRoZXJlJ3MgYWxyZWFkeSBCVE5fVE9VQ0ggdG8NCj4gPiByZXBvcnQgaWYgdGhlIHBl
+biBpcyBkb3duLg0KPiA+DQo+IHllYWgsSSB3aWxsIHRyeSB0byBmaXggaXQgaW4gdHNsaWIuDQoN
+CllvdSBtYXkgc2VuZCBhIHBhdGNoIHRvIHRzbGliLiANCg0KPiBUaGFua3MgYSBsb3QuDQo+IA0K
+PiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KPiBsaW51
+eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdA0KPiBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJh
+ZGVhZC5vcmcNCj4gaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9s
+aW51eC1hcm0ta2VybmVsDQo+IA0KPiANCj4gIFRvIHJlcG9ydCB0aGlzIGVtYWlsIGFzIHNwYW0g
+Y2xpY2sNCj4gaHR0cHM6Ly93d3cubWFpbGNvbnRyb2wuY29tL3NyL3dRdzB6bWpQb0hkSlRaR3lP
+Q3JyaGc9PQ0KPiB0NHpvYyshbiFJTlNWMkM0cWhVSFNyMVlVbFBBTDBDNnlCbWZUSVJNYkJueGF3
+Zz09IC4NCgoKTWVtYmVyIG9mIHRoZSBDU1IgcGxjIGdyb3VwIG9mIGNvbXBhbmllcy4gQ1NSIHBs
+YyByZWdpc3RlcmVkIGluIEVuZ2xhbmQgYW5kIFdhbGVzLCByZWdpc3RlcmVkIG51bWJlciA0MTg3
+MzQ2LCByZWdpc3RlcmVkIG9mZmljZSBDaHVyY2hpbGwgSG91c2UsIENhbWJyaWRnZSBCdXNpbmVz
+cyBQYXJrLCBDb3dsZXkgUm9hZCwgQ2FtYnJpZGdlLCBDQjQgMFdaLCBVbml0ZWQgS2luZ2RvbQpN
+b3JlIGluZm9ybWF0aW9uIGNhbiBiZSBmb3VuZCBhdCB3d3cuY3NyLmNvbS4gRm9sbG93IENTUiBv
+biBUd2l0dGVyIGF0IGh0dHA6Ly90d2l0dGVyLmNvbS9DU1JfUExDIGFuZCByZWFkIG91ciBibG9n
+IGF0IHd3dy5jc3IuY29tL2Jsb2cKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5l
+bEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4v
+bGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=

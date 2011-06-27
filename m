@@ -1,39 +1,38 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 01/12 v2] HID: wiimote: Add Nintendo Wii Remote driver stub
-Date: Mon, 27 Jun 2011 16:29:00 +0200
-Message-ID: <BANLkTin6BVHDYdYJi4u0pO_b7zu6fSw0jA@mail.gmail.com>
-References: <1308322162-13953-1-git-send-email-dh.herrmann@googlemail.com>
-	<alpine.LNX.2.00.1106241414000.11049@pobox.suse.cz>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v6 00/18] MFD/ASoC/Input: TWL4030/TWL60X0
+	changes
+Date: Mon, 27 Jun 2011 17:30:34 +0300
+Message-ID: <2519112.D3nfO1VTXY@barack>
+References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
+	<1770658.gTOGV79JgY@barack> <20110627101835.GI23145@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:36980 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752452Ab1F0O3B (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jun 2011 10:29:01 -0400
-Received: by vws1 with SMTP id 1so3335201vws.19
-        for <linux-input@vger.kernel.org>; Mon, 27 Jun 2011 07:29:01 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1106241414000.11049@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20110627101835.GI23145@atomide.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, padovan@profusion.mobi, oliver@neukum.org
 
-On Fri, Jun 24, 2011 at 2:14 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> The only thing I'd like to ask you -- could you please put a comment into
-> the code preceeding all the barrier operations, so that it's clear why
-> they have to be there?
-
-I have simplified the locking logic in my new patch series and reduced
-the memory-barriers. I've added some inline comments and extended the
-commit-messages. I hope all locks are fine now.
-
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
-
-Thanks for your time
-David
+SGkgVG9ueSwKCk9uIE1vbmRheSAyNyBKdW5lIDIwMTEgMTI6MTg6MzUgVG9ueSBMaW5kZ3JlbiB3
+cm90ZToKPiAqIFDDqXRlciBVamZhbHVzaSA8cGV0ZXIudWpmYWx1c2lAdGkuY29tPiBbMTEwNjI3
+IDAyOjM5XToKPiAKPiA+IEhpIFRvbnksIFNhbXVlbCwKPiA+IAo+ID4gV291bGQgeW91IGhhdmUg
+dGltZSB0byB0YWtlIGEgbG9vayBhdCB0aGlzIHNlcmllcz8KPiAKPiAKPiBMb29rcyBnb29kIHRv
+IG1lLiBJZiBpdCBjb25mbGljdHMgd2l0aCB3aGF0IHdlIGhhdmUgcXVldWVkCj4gaW4gdGhlIGRl
+dmVsLWNsZWFudXAgYnJhbmNoLCBJIHNob3VsZCBwcm9iYWJseSBxdWV1ZSBpdC4KClRoZXJlIGFy
+ZSBjb25mbGljdHMgaW4gbWFjaC1vbWFwMiAocXVpdGUgYSBsb3QpLCBpZiBJIGFwcGx5IHRoZSBz
+ZXJpZXMgb24gdG9wIApvZiB0aGUgZGV2ZWwtY2xlYW51cCBicmFuY2guCiAKPiBJZiB0aGVyZSBh
+cmUgbm8gY29uZmxpY3RzLCB0aGVuIFNhbXVlbCBjYW4gcXVldWUgaXQuCgpJIHN1cHBvc2UgdGhp
+cyBzaG91bGQgdGhlbiBnbyB0aHJvdWdoIGwtby4uLgoKLS0gClDDqXRlcgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpBbHNhLWRldmVsIG1haWxpbmcgbGlz
+dApBbHNhLWRldmVsQGFsc2EtcHJvamVjdC5vcmcKaHR0cDovL21haWxtYW4uYWxzYS1wcm9qZWN0
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2Fsc2EtZGV2ZWwK

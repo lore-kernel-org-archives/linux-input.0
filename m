@@ -1,60 +1,174 @@
-From: daoguang wu <wdgvip@gmail.com>
-Subject: Re: [PATCH] INPUT:Add ABS_PRESSURE input event support for
-	touchscreen driver
-Date: Mon, 27 Jun 2011 16:57:48 +0800
-Message-ID: <BANLkTi=wU04jiOE-5GDDG9Pd4PgVnN61bTkqGfnkShHKo7iVFg@mail.gmail.com>
-References: <1308881738-6392-1-git-send-email-wdgvip@gmail.com>
-	<20110624124154.GC19804@sirena.org.uk>
-	<BANLkTi=O44wyaFB_B83LGiQhAVtFOp64pyhMaCKCf_YZz6b1GA@mail.gmail.com>
-	<5EB3BFCD089AD643B9BB63439F5FD5E937BB882D@SHAASIEXM01.ASIA.ROOT.PRI>
-	<a8885a55-bf77-43d7-8491-045137aa38ee@email.android.com>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v6 00/18] MFD/ASoC/Input: TWL4030/TWL60X0
+	changes
+Date: Mon, 27 Jun 2011 12:43:57 +0300
+Message-ID: <1770658.gTOGV79JgY@barack>
+References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <a8885a55-bf77-43d7-8491-045137aa38ee@email.android.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "kgene.kim@samsung.com" <kgene.kim@samsung.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "wdgvip@gamil.com" <wdgvip@gamil.com>, Baohua Song <Baohua.Song@csr.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: "Girdwood, Liam" <lrg@ti.com>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-MjAxMS82LzI3IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT46Cj4K
-Pgo+IEJhb2h1YSBTb25nIDxCYW9odWEuU29uZ0Bjc3IuY29tPiB3cm90ZToKPgo+Pgo+Pgo+Pj4g
-LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0KPj4+IEZyb206IGxpbnV4LWFybS1rZXJuZWwtYm91
-bmNlc0BsaXN0cy5pbmZyYWRlYWQub3JnCj4+PiBbbWFpbHRvOmxpbnV4LWFybS1rZXJuZWwtYm91
-bmNlc0BsaXN0cy5pbmZyYWRlYWQub3JnXSBPbiBCZWhhbGYgT2YKPj5kYW9ndWFuZwo+Pj4gd3UK
-Pj4+IFNlbnQ6IDIwMTHE6jbUwjI3yNUgMTA6MTUKPj4+IFRvOiBNYXJrIEJyb3duCj4+PiBDYzog
-a2dlbmUua2ltQHNhbXN1bmcuY29tOyBiZW4tbGludXhAZmx1ZmYub3JnOwo+Pj4gZG1pdHJ5LnRv
-cm9raG92QGdtYWlsLmNvbTsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsKPj4+IHdkZ3Zp
-cEBnYW1pbC5jb207IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsKPj4+IGxpbnV4LWFybS1r
-ZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwo+Pj4gU3ViamVjdDogUmU6IFtQQVRDSF0gSU5QVVQ6
-QWRkIEFCU19QUkVTU1VSRSBpbnB1dCBldmVudCBzdXBwb3J0IGZvcgo+Pj4gdG91Y2hzY3JlZW4g
-ZHJpdmVyCj4+Pgo+Pj4gMjAxMS82LzI0IE1hcmsgQnJvd24gPGJyb29uaWVAb3BlbnNvdXJjZS53
-b2xmc29ubWljcm8uY29tPjoKPj4+ID4gT24gRnJpLCBKdW4gMjQsIDIwMTEgYXQgMTA6MTU6MzhB
-TSArMDgwMCwgV3UgRGFvR3Vhbmcgd3JvdGU6Cj4+PiA+PiBUaGUgdG91Y2hzY3JlZW4gZHJpdmVy
-IHMzYzI0MTBfdHMuYyBkb2Vzbid0IHdvcmsgd2VsbCB3aGVuIHVzaW5nCj4+PiA+PiB0aGUgdHNs
-aWIsIGFuIGFic3RyYWN0aW9uIGxheWVyIGZvciB0b3VjaHNjcmVlbiBwYW5lbCBldmVudHMuCj4+
-PiA+PiBUc2xpYiBuZWVkcyBBQlNfWCBBQlNfWSBhbmQgQUJTX1BSRVNTVVJFIGV2ZW50cyB0byBy
-ZXBvcnQsIGJ1dAo+Pm9ubHkKPj4+ID4+IHRoZSBmb3JtZXIgdHdvIHRoZSBkcml2ZXIgY2FuIHBy
-b3ZpZGUuCj4+PiA+Cj4+PiA+IEl0IHNlZW1zIG11Y2ggbW9yZSBzYW5lIHRvIGZpeCB0aGlzIGlu
-IHRzbGliLCB0aGUga2VybmVsIGlzIG5vdAo+PmFjdHVhbGx5Cj4+PiA+IHJlcG9ydGluZyBwcmVz
-c3VyZSBtZWFuaW5nZnVsbHkgaGVyZSBhbmQgdGhlcmUncyBhbHJlYWR5IEJUTl9UT1VDSAo+PnRv
-Cj4+PiA+IHJlcG9ydCBpZiB0aGUgcGVuIGlzIGRvd24uCj4+PiA+Cj4+PiB5ZWFoLEkgd2lsbCB0
-cnkgdG8gZml4IGl0IGluIHRzbGliLgo+Pgo+PllvdSBtYXkgc2VuZCBhIHBhdGNoIHRvIHRzbGli
-Lgo+Pgo+Cj4gVGhpcyBoYXMgYWxyZWFkeSBiZWVuIGZpeGVkIGluIHRzbGliIGEgY291cGxlIHll
-YXJzIGFnby4gSSdtIG5vdCBzdXJlIGlmIGEKPiBuZXcgdmVyc2lvbiB3YXMgY3V0IG9yIG5vdC4K
-PiAtLQo+IERtaXRyeQoKSSB0cnkgdGhlIGxhdGVzdCB0c2xpYiAsYW5kIGZpbmQgdGhlcmUgaXMg
-bm8gc3VjaCBwcm9ibGVtIGFuZCB0aGUKbGF0ZXN0IHZlcnNpb24gb2YgdHNsaWIgIGNhbiBiZSBk
-b3dubG9hZGVkIGZyb20KZ2l0Oi8vZ2l0aHViLmNvbS9rZXJnb3RoL3RzbGliLmdpdC4KClRoYW5r
-cyBhIGxvdC4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-CmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5m
-cmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xp
-bnV4LWFybS1rZXJuZWwK
+Hi Tony, Samuel,
+
+Would you have time to take a look at this series?
+
+Thanks,
+P=E9ter
+
+On Tuesday 21 June 2011 15:38:58 Ujfalusi, Peter wrote:
+> Hello,
+> =
+
+> Changes since v5:
+> - Use alloc_workqueue in the twl6040-vibra driver (comment from Tejun Heo)
+> - Allow user to change the headset power mode, but if the change is not
+> allowed by the use case the change is not written to the HW (comment from
+> Mark Brown)
+> =
+
+> Mark: I have added your acks for the patches, except for patch 15, where =
+you
+> requested a change.
+> =
+
+> Intro message from the v5 series:
+> The series will do five major things, and they are in one series, because
+> they pretty much depending on each other, so it is easier to handle them
+> together.
+> =
+
+> 1. Move the common pmic related configurations out from the board files.
+> New twl-common.c/h file has been created for this purpose.
+> OMAP3 board files received two patches (pdata, and regualtor changes), OM=
+AP4
+> board files has been changed with one patch.
+> =
+
+> 2. Rename the twl4030-codec MFD driver to twl4030-audio
+> Since the ASoC multicomponent introduction (2.6.37) the twl4030-codec MFD
+> dirver had been using twl4030-audio to register (twl4030-codec is the ASoC
+> codec driver). The documentation refers to this part of twl as audio bloc=
+k,
+> so it is better to rename the driver as well to avoid confusion.
+> =
+
+> 3. Introduction of MFD driver for twl6040.
+> The TWL6040 audio IC has codec and vibra functionality.
+> Convert the existing ASoC codec driver to use the new MFD driver's
+> interface.
+> =
+
+> 4. Vibrator driver for TWL6040 (Input/ForceFeedback driver)
+> The driver itself, and support for the vibrators in SDP4430 board.
+> =
+
+> 5. Updates for twl6040 ASoC codec driver
+> HS ramp configuration, new ABE dais, updated sample rate constraints,
+> SDP4430 configuration.
+> =
+
+> Regards,
+> Peter
+> =
+
+> ---
+> Axel Castaneda Gonzalez (1):
+>   ASoC: twl6040: Configure ramp step based on platform
+> =
+
+> Liam Girdwood (3):
+>   ASoC: twl6040: add all ABE DAIs
+>   ASoC: twl6040: Support other sample rates in constraints.
+>   ASoC: twl6040: set default constraints.
+> =
+
+> Misael Lopez Cruz (5):
+>   mfd: twl6040: Add initial support
+>   ASoC: twl6040: Convert into TWL6040 MFD child
+>   input: Add initial support for TWL6040 vibrator
+>   ASoC: twl6040: Remove pll and headset mode dependency
+>   OMAP4: SDP4430: Add twl6040 codec platform support
+> =
+
+> Peter Ujfalusi (9):
+>   OMAP: New twl-common for common TWL configuration
+>   OMAP4: Move common twl6030 configuration to twl-common
+>   OMAP3: Move common twl configuration to twl-common
+>   OMAP3: Move common regulator configuration to twl-common
+>   MFD: twl4030-codec: Rename internals from codec to audio
+>   MFD: twl4030-codec -> twl4030-audio: Rename the driver
+>   MFD: twl4030-audio: Rename platform data
+>   MFD: twl6040: Change platform data for soc codec driver
+>   OMAP4: SDP4430: Add twl6040 vibrator platform support
+> =
+
+>  arch/arm/mach-omap2/Makefile                       |    2 +-
+>  arch/arm/mach-omap2/board-3430sdp.c                |   89 +---
+>  arch/arm/mach-omap2/board-4430sdp.c                |  187 ++----
+>  arch/arm/mach-omap2/board-cm-t35.c                 |   48 +--
+>  arch/arm/mach-omap2/board-devkit8000.c             |   37 +--
+>  arch/arm/mach-omap2/board-igep0020.c               |   44 +--
+>  arch/arm/mach-omap2/board-ldp.c                    |   15 +-
+>  arch/arm/mach-omap2/board-omap3beagle.c            |   60 +--
+>  arch/arm/mach-omap2/board-omap3evm.c               |   67 +--
+>  arch/arm/mach-omap2/board-omap3pandora.c           |   59 +--
+>  arch/arm/mach-omap2/board-omap3stalker.c           |   70 +--
+>  arch/arm/mach-omap2/board-omap3touchbook.c         |   57 +--
+>  arch/arm/mach-omap2/board-omap4panda.c             |  149 +-----
+>  arch/arm/mach-omap2/board-overo.c                  |   59 +--
+>  arch/arm/mach-omap2/board-rm680.c                  |    8 +-
+>  arch/arm/mach-omap2/board-rx51-peripherals.c       |   44 +--
+>  arch/arm/mach-omap2/board-zoom-peripherals.c       |   88 +---
+>  arch/arm/mach-omap2/common-board-devices.c         |   21 -
+>  arch/arm/mach-omap2/common-board-devices.h         |   26 +-
+>  arch/arm/mach-omap2/twl-common.c                   |  304 ++++++++++
+>  arch/arm/mach-omap2/twl-common.h                   |   59 ++
+>  arch/arm/plat-omap/include/plat/irqs.h             |   12 +-
+>  drivers/input/misc/Kconfig                         |   13 +-
+>  drivers/input/misc/Makefile                        |    1 +
+>  drivers/input/misc/twl4030-vibra.c                 |   12 +-
+>  drivers/input/misc/twl6040-vibra.c                 |  416 +++++++++++++
+>  drivers/mfd/Kconfig                                |    8 +-
+>  drivers/mfd/Makefile                               |    3 +-
+>  drivers/mfd/twl-core.c                             |   13 +-
+>  drivers/mfd/twl4030-audio.c                        |  277 +++++++++
+>  drivers/mfd/twl4030-codec.c                        |  277 ---------
+>  drivers/mfd/twl6040-core.c                         |  601
+> +++++++++++++++++++ drivers/mfd/twl6040-irq.c                          | =
+
+> 205 +++++++ include/linux/i2c/twl.h                            |   25 +-
+>  .../linux/mfd/{twl4030-codec.h =3D> twl4030-audio.h} |   16 +-
+>  include/linux/mfd/twl6040.h                        |  261 ++++++++
+>  sound/soc/codecs/Kconfig                           |    3 +-
+>  sound/soc/codecs/twl4030.c                         |   22 +-
+>  sound/soc/codecs/twl6040.c                         |  628
+> ++++++++------------ sound/soc/codecs/twl6040.h                         | =
+
+> 118 ----
+>  sound/soc/omap/sdp3430.c                           |    2 +-
+>  sound/soc/omap/sdp4430.c                           |    2 +
+>  sound/soc/omap/zoom2.c                             |    2 +-
+>  43 files changed, 2635 insertions(+), 1775 deletions(-)
+>  create mode 100644 arch/arm/mach-omap2/twl-common.c
+>  create mode 100644 arch/arm/mach-omap2/twl-common.h
+>  create mode 100644 drivers/input/misc/twl6040-vibra.c
+>  create mode 100644 drivers/mfd/twl4030-audio.c
+>  delete mode 100644 drivers/mfd/twl4030-codec.c
+>  create mode 100644 drivers/mfd/twl6040-core.c
+>  create mode 100644 drivers/mfd/twl6040-irq.c
+>  rename include/linux/mfd/{twl4030-codec.h =3D> twl4030-audio.h} (96%)
+>  create mode 100644 include/linux/mfd/twl6040.h

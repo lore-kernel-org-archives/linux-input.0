@@ -1,62 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Linux joystick driver bugreport
-Date: Tue, 28 Jun 2011 15:25:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1106281524480.11049@pobox.suse.cz>
-References: <20110625011015.6f397f6f@Giskard>    <20110627193814.GB13829@core.coreip.homeip.net> <563e944385d52f20d80a72176e57d611.squirrel@host171.canaca.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+Subject: [PATCH] input: update author email for gpio_mouse, at32psif, and atmel-wm97xx
+Date: Tue, 28 Jun 2011 17:02:25 +0200
+Message-ID: <1309273345-8830-1-git-send-email-hans-christian.egtvedt@atmel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48006 "EHLO mx2.suse.de"
+Received: from forward.atmel.no ([194.19.124.53]:60041 "EHLO forward.atmel.no"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757410Ab1F1N0B (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jun 2011 09:26:01 -0400
-In-Reply-To: <563e944385d52f20d80a72176e57d611.squirrel@host171.canaca.com>
+	id S1758765Ab1F1P1u (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jun 2011 11:27:50 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: Pablo Cabrera <binchmod777@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
 
-On Mon, 27 Jun 2011, simon@mungewell.org wrote:
+This patch updates the email address of the gpio_mouse, at32psif, and
+atmel-wm97xx drivers supported by me to an email account I will use on a more
+regular basis in the future.
 
-> Hi Pablo,
-> 
-> >> For device 0079:0011 DragonRise Inc. arrows buttons are mapped to axes 3
-> >> and 4.
-> >> For device 0e8f: 0002 GreenAsia Motion Inc. arrows buttons are mapped
-> >> to axes 2 and 3
-> 
-> This sounds like the arrows are on a D-Pad and that the D-Pad is described
-> as a 'HAT' in the HID descriptor, which is like a n-position dial with a
-> NULL state.
-> 
-> I have a Logitech game pad which does the same, the HID descriptor contains
-> --
-> Logical Maximum (7),
-> Physical Maximum (315),
-> Report Size (4),
-> Report Count (1),
-> Unit (Degrees),
-> Usage (Hat Switch), ; Hat switch (39h, dynamic value)
-> Input (Variable, Null State),
-> Unit,
-> --
-> 
-> Linux converts these '8 buttons' to a 'vector' to the edge of a circle,
-> hence the two extra axis.
-> 
-> You can use an application from DigiMend
-> (http://digimend.sourceforge.net/) to read the HID descriptor for your
-> device.
+Signed-off-by: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+---
+ drivers/input/mouse/gpio_mouse.c         |    2 +-
+ drivers/input/serio/at32psif.c           |    2 +-
+ drivers/input/touchscreen/atmel-wm97xx.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-Or you can obtain in from debugfs (/sys/kernel/debug/hid/<device>/rdesc on 
-most distributions) in human-readable form as well.
-
-> A possible work around (if you just want the use the joystick to play) 
-> is described here: 
-> http://hans.fugal.net/blog/2007/06/02/joystick-hat-in-x-plane-in-linux/
-
-Or write a kernel patch/driver that will fix up the report descriptor.
-
+diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
+index 7b6ce17..58902fb 100644
+--- a/drivers/input/mouse/gpio_mouse.c
++++ b/drivers/input/mouse/gpio_mouse.c
+@@ -191,7 +191,7 @@ static void __exit gpio_mouse_exit(void)
+ }
+ module_exit(gpio_mouse_exit);
+ 
+-MODULE_AUTHOR("Hans-Christian Egtvedt <hcegtvedt@atmel.com>");
++MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
+ MODULE_DESCRIPTION("GPIO mouse driver");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:gpio_mouse"); /* work with hotplug and coldplug */
+diff --git a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
+index 6ee8f0d..95280f9 100644
+--- a/drivers/input/serio/at32psif.c
++++ b/drivers/input/serio/at32psif.c
+@@ -372,6 +372,6 @@ static void __exit psif_exit(void)
+ module_init(psif_init);
+ module_exit(psif_exit);
+ 
+-MODULE_AUTHOR("Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>");
++MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
+ MODULE_DESCRIPTION("Atmel AVR32 PSIF PS/2 driver");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen/atmel-wm97xx.c b/drivers/input/touchscreen/atmel-wm97xx.c
+index fa8e56b..c804189 100644
+--- a/drivers/input/touchscreen/atmel-wm97xx.c
++++ b/drivers/input/touchscreen/atmel-wm97xx.c
+@@ -442,6 +442,6 @@ static void __exit atmel_wm97xx_exit(void)
+ }
+ module_exit(atmel_wm97xx_exit);
+ 
+-MODULE_AUTHOR("Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>");
++MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
+ MODULE_DESCRIPTION("wm97xx continuous touch driver for Atmel AT91 and AVR32");
+ MODULE_LICENSE("GPL");
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.4.1
+

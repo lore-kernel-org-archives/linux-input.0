@@ -1,41 +1,62 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v6 00/18] MFD/ASoC/Input: TWL4030/TWL60X0
- changes
-Date: Mon, 27 Jun 2011 23:50:10 -0700
-Message-ID: <20110628065010.GZ23145@atomide.com>
-References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
-	<2519112.D3nfO1VTXY@barack> <20110628061721.GY23145@atomide.com>
-	<7290395.1hzL9xckCf@barack>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Linux joystick driver bugreport
+Date: Tue, 28 Jun 2011 15:25:59 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1106281524480.11049@pobox.suse.cz>
+References: <20110625011015.6f397f6f@Giskard>    <20110627193814.GB13829@core.coreip.homeip.net> <563e944385d52f20d80a72176e57d611.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <7290395.1hzL9xckCf@barack>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: =?utf-8?B?UMOpdGVy?= Ujfalusi <peter.ujfalusi@ti.com>
-Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:48006 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757410Ab1F1N0B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jun 2011 09:26:01 -0400
+In-Reply-To: <563e944385d52f20d80a72176e57d611.squirrel@host171.canaca.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: simon@mungewell.org
+Cc: Pablo Cabrera <binchmod777@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-KiBQw6l0ZXIgVWpmYWx1c2kgPHBldGVyLnVqZmFsdXNpQHRpLmNvbT4gWzExMDYyNyAyMzozOV06
-Cj4gSGkgVG9ueSwKPiAKPiBPbiBUdWVzZGF5IDI4IEp1bmUgMjAxMSAwODoxNzoyMSBUb255IExp
-bmRncmVuIHdyb3RlOgo+ID4gT0suIEFzc3VtaW5nIFNhbXVlbCBpcyBmaW5lIHdpdGggdGhlIHBh
-dGNoZXMsIGNhcmUgdG8gcHV0Cj4gPiB0b2dldGhlciBhIGJyYW5jaCBhZ2FpbnN0IGRldmVsLWNs
-ZWFudXAgZm9yIG1lIHRvIHB1bGw/Cj4gCj4gV2hpbGUgd2FpdGluZyBmb3IgU2FtdWVsLCBJIGNh
-biBzdGFydCBwcmVwYXJpbmcgdGhlIGJyYW5jaCBmb3IgeW91LCBzaW5jZSB0aGUgCj4gYnVsayBv
-ZiB0aGUgY29uZmxpY3RzIGFyZSBpbiBtYWNoLW9tYXAyLCBzaG91bGQgbm90IGFmZmVjdCB0aGUg
-TUZEIHBhcnRzLgo+IENhbiBJIGFkZCB5b3VyIGFjayB0byB0aGUgbWFjaC1vbWFwMiBwYXJ0cywg
-b3IgYXJlIHlvdSBwcmVmZXIgdG8gaGFuZGxlIHRoaXMgCj4geW91cnNlbGY/CgpPSyBoZXJlIHlv
-dSBnbyBmb3IgdGhlIG9tYXAgY2hhbmdlczoKCkFja2VkLWJ5OiBUb255IExpbmRncmVuIDx0b255
-QGF0b21pZGUuY29tPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpBbHNhLWRldmVsIG1haWxpbmcgbGlzdApBbHNhLWRldmVsQGFsc2EtcHJvamVjdC5vcmcK
-aHR0cDovL21haWxtYW4uYWxzYS1wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2Fsc2EtZGV2
-ZWwK
+On Mon, 27 Jun 2011, simon@mungewell.org wrote:
+
+> Hi Pablo,
+> 
+> >> For device 0079:0011 DragonRise Inc. arrows buttons are mapped to axes 3
+> >> and 4.
+> >> For device 0e8f: 0002 GreenAsia Motion Inc. arrows buttons are mapped
+> >> to axes 2 and 3
+> 
+> This sounds like the arrows are on a D-Pad and that the D-Pad is described
+> as a 'HAT' in the HID descriptor, which is like a n-position dial with a
+> NULL state.
+> 
+> I have a Logitech game pad which does the same, the HID descriptor contains
+> --
+> Logical Maximum (7),
+> Physical Maximum (315),
+> Report Size (4),
+> Report Count (1),
+> Unit (Degrees),
+> Usage (Hat Switch), ; Hat switch (39h, dynamic value)
+> Input (Variable, Null State),
+> Unit,
+> --
+> 
+> Linux converts these '8 buttons' to a 'vector' to the edge of a circle,
+> hence the two extra axis.
+> 
+> You can use an application from DigiMend
+> (http://digimend.sourceforge.net/) to read the HID descriptor for your
+> device.
+
+Or you can obtain in from debugfs (/sys/kernel/debug/hid/<device>/rdesc on 
+most distributions) in human-readable form as well.
+
+> A possible work around (if you just want the use the joystick to play) 
+> is described here: 
+> http://hans.fugal.net/blog/2007/06/02/joystick-hat-in-x-plane-in-linux/
+
+Or write a kernel patch/driver that will fix up the report descriptor.
+
+-- 
+Jiri Kosina
+SUSE Labs

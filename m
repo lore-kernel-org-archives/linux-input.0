@@ -1,125 +1,853 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 10/12] Input: synaptics - decode AGM packet types
-Date: Wed, 29 Jun 2011 19:26:00 +0800
-Message-ID: <CAGS+omDYShd8iq7=9qbWM__dH7mfVFQFnuJ0k6KNRR_Hg0JP2g@mail.gmail.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
- <1309324042-22943-11-git-send-email-djkurtz@chromium.org> <4E0AF84D.6050702@canonical.com>
- <20110629100759.GE2403@fooishbar.org> <4E0AFF53.5090501@canonical.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [PATCH v5] input: Initial support for Kionix KXTJ9 accelerometer
+Date: Wed, 29 Jun 2011 13:39:41 +0100
+Message-ID: <4E0B1D0D.5000204@cam.ac.uk>
+References: <1309288348-30735-1-git-send-email-chris.hudson.comp.eng@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:9397 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754645Ab1F2L0X convert rfc822-to-8bit (ORCPT
+Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:40073 "EHLO
+	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755521Ab1F2Mbi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2011 07:26:23 -0400
-Received: from hpaq5.eem.corp.google.com (hpaq5.eem.corp.google.com [172.25.149.5])
-	by smtp-out.google.com with ESMTP id p5TBQLeR015307
-	for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 04:26:22 -0700
-Received: from ywn13 (ywn13.prod.google.com [10.192.14.13])
-	by hpaq5.eem.corp.google.com with ESMTP id p5TBPxUm016858
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 04:26:20 -0700
-Received: by ywn13 with SMTP id 13so616310ywn.21
-        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 04:26:20 -0700 (PDT)
-In-Reply-To: <4E0AFF53.5090501@canonical.com>
+	Wed, 29 Jun 2011 08:31:38 -0400
+In-Reply-To: <1309288348-30735-1-git-send-email-chris.hudson.comp.eng@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Daniel Stone <daniel@fooishbar.org>, dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: chris.hudson.comp.eng@gmail.com
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Chris Hudson <chudson@kionix.com>
 
-Hi Daniel, Chase,
+On 06/28/11 20:12, chris.hudson.comp.eng@gmail.com wrote:
+> From: Chris Hudson <chudson@kionix.com>
+> 
+> - Added Dmitry's changes
+> - Now using input_polled_dev interface when in polling mode
+> - IRQ mode provides a separate sysfs node to change the hardware data rate
+Hi Chris,
 
-On Wed, Jun 29, 2011 at 6:32 PM, Chase Douglas
-<chase.douglas@canonical.com> wrote:
-> On 06/29/2011 11:07 AM, Daniel Stone wrote:
->> Hi Chase,
->>
->> On Wed, Jun 29, 2011 at 11:02:53AM +0100, Chase Douglas wrote:
->>> In the older "profile" devices, we got essentially the bounding box=
- of
->>> all touches. This allows us to detect pinch gestures between the tw=
-o
->>> most extreme touches when there are three touches on the touchpad.
->>
->> This isn't necessarily true for all pads. =A0If you look at Derek's
->> patchset from a couple of weeks ago, it was for a profile sensor whi=
-ch
->> had the same reporting behaviour. =A0Internally, the touchpad could =
-track
->> many fingers, but would always report the first (in SGM packet) and =
-most
->> recent (in AGM packet) fingers. =A0You could fake a bounding-box
->> calculation, but it would be the bounding box of fingers 0 and n, ra=
-ther
->> than the bounding box of all fingers.
->
-> Are we really sure that Derek's trackpad was a profile device? I mean
-> *really* sure. Because if Synaptics is putting out two different devi=
-ces
-> that are identical in protocol but behave differently, then that's a
-> *big* problem for us gesture developers :).
->
-> I would be surprised if a profile device were providing the first and
-> third touch locations as opposed to the bounding box because then
-> there's no difference between it and this new "image sensor" device t=
-ype.
+Few minor comments inline.
+> 
+> Signed-off-by: Chris Hudson <chudson@kionix.com>
+> ---
+>  drivers/input/misc/Kconfig  |   17 ++
+>  drivers/input/misc/Makefile |    1 +
+>  drivers/input/misc/kxtj9.c  |  646 +++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/input/kxtj9.h |   76 +++++
+>  4 files changed, 740 insertions(+), 0 deletions(-)
+>  create mode 100755 drivers/input/misc/kxtj9.c
+>  create mode 100755 include/linux/input/kxtj9.h
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 45dc6aa..cd6a806 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -478,4 +478,21 @@ config INPUT_XEN_KBDDEV_FRONTEND
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called xen-kbdfront.
+>  
+> +config INPUT_KXTJ9
+> +       tristate "Kionix KXTJ9 tri-axis digital accelerometer"
+> +       depends on I2C
+> +       help
+> +         If you say yes here you get support for the Kionix KXTJ9 digital
+> +         tri-axis accelerometer.
+> +
+> +         This driver can also be built as a module.  If so, the module
+> +         will be called kxtj9.
+> +
+> +config KXTJ9_POLLED_MODE
+> +       bool "Enable polling mode support"
+> +       depends on INPUT_KXTJ9
+> +       select INPUT_POLLDEV
+> +       help
+> +         Say Y here if you need accelerometer to work in polling mode.
+> +
+>  endif
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index 38efb2c..bfe1057 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+>  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+>  obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
+>  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+> +obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
+>  obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
+>  obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
+>  obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+> diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
+> index 0000000..7faf155
+> --- /dev/null
+> +++ b/drivers/input/misc/kxtj9.c
+> @@ -0,0 +1,646 @@
+> +/*
+> + * Copyright (C) 2011 Kionix, Inc.
+> + * Written by Chris Hudson <chudson@kionix.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+> + * 02111-1307, USA
+> + */
+> +
+> +#include <linux/delay.h>
+> +#include <linux/i2c.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/slab.h>
+> +#include <linux/input/kxtj9.h>
+> +#include <linux/input-polldev.h>
+> +
+> +#define NAME			"kxtj9"
+> +#define G_MAX			8000
+> +/* OUTPUT REGISTERS */
+> +#define XOUT_L			0x06
+> +#define WHO_AM_I		0x0F
+> +/* CONTROL REGISTERS */
+> +#define INT_REL			0x1A
+> +#define CTRL_REG1		0x1B
+> +#define INT_CTRL1		0x1E
+> +#define DATA_CTRL		0x21
+> +/* CONTROL REGISTER 1 BITS */
+> +#define PC1_OFF			0x7F
+> +#define PC1_ON			(1 << 7)
+> +/* Data ready funtion enable bit: set during probe if using irq mode */
+> +#define DRDYE			(1 << 5)
+> +/* INTERRUPT CONTROL REGISTER 1 BITS */
+> +/* Set these during probe if using irq mode */
+> +#define KXTJ9_IEL		(1 << 3)
+> +#define KXTJ9_IEA		(1 << 4)
+> +#define KXTJ9_IEN		(1 << 5)
+> +/* INPUT_ABS CONSTANTS */
+> +#define FUZZ			3
+> +#define FLAT			3
+> +/* RESUME STATE INDICES */
+> +#define RES_DATA_CTRL		0
+> +#define RES_CTRL_REG1		1
+> +#define RES_INT_CTRL1		2
+> +#define RESUME_ENTRIES		3
+> +
+> +/*
+> + * The following table lists the maximum appropriate poll interval for each
+> + * available output data rate.
+> + */
+> +static const struct {
+> +	unsigned int cutoff;
+> +	u8 mask;
+> +} kxtj9_odr_table[] = {
+> +	{ 3,	ODR800F },
+> +	{ 5,	ODR400F },
+> +	{ 10,	ODR200F },
+> +	{ 20,	ODR100F },
+> +	{ 40,	ODR50F  },
+> +	{ 80,	ODR25F  },
+> +	{ 0,	ODR12_5F},
+> +};
+> +
+> +struct kxtj9_data {
+> +	struct i2c_client *client;
+> +	struct kxtj9_platform_data pdata;
+> +	struct input_dev *input_dev;
+> +#ifdef CONFIG_KXTJ9_POLLED_MODE
+> +	struct input_polled_dev *poll_dev;
+> +#else
+> +	struct mutex lock;
+> +#endif
+> +	unsigned int last_poll_interval;
+> +	u8 shift;
+> +	u8 ctrl_reg1;
+> +	u8 data_ctrl;
+> +	u8 int_ctrl;
+> +};
+> +
+> +static int kxtj9_i2c_read(struct kxtj9_data *tj9, u8 addr, u8 *data, int len)
+> +{
+> +	struct i2c_msg msgs[] = {
+> +		{
+> +			.addr = tj9->client->addr,
+> +			.flags = tj9->client->flags,
+> +			.len = 1,
+> +			.buf = &addr,
+> +		},
+> +		{
+> +			.addr = tj9->client->addr,
+> +			.flags = tj9->client->flags | I2C_M_RD,
+> +			.len = len,
+> +			.buf = data,
+> +		},
+> +	};
+> +
+> +	return i2c_transfer(tj9->client->adapter, msgs, 2);
 
-I agree with Chase, the 0:n box behavior sounds more like image sensor
-than profile sensor.
-However, as I just mentioned in the previous email, I have looked at a
-profile sensor that tries to report first and second finger positions,
-not a bounding box.
-In any case, the result is:
-You end up computing (usually) a 0:1 "bounding box", with n >=3D 2
-fingers on the pad.
-I say usually because it is pretty easy to confuse the finger tracking
-of a profile sensor.
+Could just use i2c_smbus_read_i2c_block_data(tj9->client, addr, len, data);
 
->>> The above description makes it sound like we will no longer have a
->>> bounding box of touches. According to the description, if I put fou=
-r
->>> fingers down in a square formation and then touch a fifth finger in=
- the
->>> middle of the square, I will only see the locations of one corner a=
-nd
->>> the middle of the square. This would make meaningful gesture detect=
-ion
->>> beyond two touches nearly impossible. Is this really how the touchp=
-ad
->>> works, or is the above description not quite right?
->>
->> Yes, I believe that's how the touchpad works. =A0It would be nice to=
- get
->> all fingers, but unfortunately PS/2 doesn't give us enough bandwidth=
- to
->> do that.
->
-> If this is true for these new image devices, then we'll need to set a
-> different property bit other than SEMI_MT (maybe FIRST_LAST_MT? I'm n=
-ot
-> good with names :). I'm thinking we should disable gesture support fo=
-r
-> these trackpads in uTouch when there are more than two touches becaus=
-e
-> we can't be sure what is going on in any meaningful way. The bounding
-> box is more useful than this, which is really sad.
->
-> -- Chase
+> +}
+> +
+> +static void kxtj9_report_acceleration_data(struct kxtj9_data *tj9)
+> +{
+> +	s16 acc_data[3]; /* Data bytes from hardware xL, xH, yL, yH, zL, zH */
+> +	s16 x, y, z;
+> +	int err;
+> +
+> +	err = kxtj9_i2c_read(tj9, XOUT_L, (u8 *)acc_data, 6);
+> +	if (err < 0)
+> +		dev_err(&tj9->client->dev, "accelerometer data read failed\n");
+> +
+> +	x = le16_to_cpu(acc_data[0]) >> tj9->shift;
+> +	y = le16_to_cpu(acc_data[1]) >> tj9->shift;
+> +	z = le16_to_cpu(acc_data[2]) >> tj9->shift;
+> +
+> +	input_report_abs(tj9->input_dev, ABS_X, tj9->pdata.negate_x ? -x : x);
+> +	input_report_abs(tj9->input_dev, ABS_Y, tj9->pdata.negate_y ? -y : y);
+> +	input_report_abs(tj9->input_dev, ABS_Z, tj9->pdata.negate_x ? -y : y);
+> +	input_sync(tj9->input_dev);
+> +}
+> +
+This next function does look like it should take an enum instead
+of new_g_range then use a single table to look up both the shift and the
+value for new_g_range.  Something like.
+enum {
+     range_2g, range_4g, range_8g
+} kxtj9_range;
+/* could use a struct for this to make what is what more explicit */
+static const u8 rangevals[3][2] = { {KXTJ9_G_2G, SHIFT_ADJ_2G},
+   		     		  {KXTJ9_G_4G, SHIFT_ADJ_4G},
+		       		  {KXTJ9_G_8G, SHIFT_ADJ_8G}};
+static int kxtj9_update_g_range(struct kxtj9_data *tj9, enum_kxtj9_range r)
+{
+	tj9->shift = rangevals[r][1];
+	tj9->ctrl_reg1 &= 0xe7;	
+	tj9->ctrl_reg1 |= rangevals[r][0];
+}
 
-This is exactly what this patch set does by defining the T5R2 property.
+Actually you could just encode values in the array rather than using defines
+at all.  Also, could make the pdata element the enum value.
 
-It is very challenging to support any 3+ finger gestures with a
-touchpad that only reports two fingers... whether it is semi-mt or
-T5R2.
-You must always make an assumption about where those hidden fingers are=
-=2E
-But, that's a problem for userspace... :)
+> +static int kxtj9_update_g_range(struct kxtj9_data *tj9, u8 new_g_range)
+> +{
+> +	switch (new_g_range) {
+> +	case KXTJ9_G_2G:
+> +		tj9->shift = SHIFT_ADJ_2G;
+> +		break;
+> +
+> +	case KXTJ9_G_4G:
+> +		tj9->shift = SHIFT_ADJ_4G;
+> +		break;
+> +
+> +	case KXTJ9_G_8G:
+> +		tj9->shift = SHIFT_ADJ_8G;
+> +		break;
+> +
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	tj9->ctrl_reg1 &= 0xe7;
+> +	tj9->ctrl_reg1 |= new_g_range;
+> +
+> +	return 0;
+> +}
+> +
+> +static int kxtj9_update_odr(struct kxtj9_data *tj9, int poll_interval)
+> +{
+> +	int err;
+> +	int i;
+> +
+> +	/* Use the lowest ODR that can support the requested poll interval */
+> +	for (i = 0; i < ARRAY_SIZE(kxtj9_odr_table); i++) {
+> +		tj9->data_ctrl = kxtj9_odr_table[i].mask;
+> +		if (poll_interval < kxtj9_odr_table[i].cutoff)
+> +			break;
+> +	}
+> +
+> +	err = i2c_smbus_write_byte_data(tj9->client, CTRL_REG1, 0);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	err = i2c_smbus_write_byte_data(tj9->client, DATA_CTRL, tj9->data_ctrl);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	err = i2c_smbus_write_byte_data(tj9->client, CTRL_REG1, tj9->ctrl_reg1);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	return 0;
+> +}
+> +
+> +static int kxtj9_device_power_on(struct kxtj9_data *tj9)
+> +{
+> +	int err;
+> +
+> +	if (tj9->pdata.power_on) {
+> +		err = tj9->pdata.power_on();
+> +		if (err < 0)
+> +			return err;
+> +	}
+> +
+> +	return 0;
+> +}
+Slight semantics change to pdata.power_on() returning 0 for success and you'll
+have cleaner:
 
--Daniel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+static int kxtj9_device_power_on(struct kxtj9_data *tj9)
+{
+	if (tj9->pdata.power_on)
+		return tj9->pdata.power_on();
+
+	return 0;
+}
+
+> +
+> +static void kxtj9_device_power_off(struct kxtj9_data *tj9)
+> +{
+> +	int err;
+> +
+> +	tj9->ctrl_reg1 &= PC1_OFF;
+> +	err = i2c_smbus_write_byte_data(tj9->client, CTRL_REG1, tj9->ctrl_reg1);
+> +	if (err < 0)
+> +		dev_err(&tj9->client->dev, "soft power off failed\n");
+> +
+> +	if (tj9->pdata.power_off)
+> +		tj9->pdata.power_off();
+> +}
+> +
+> +static int kxtj9_enable(struct kxtj9_data *tj9)
+> +{
+> +	int err;
+> +
+> +	err = kxtj9_device_power_on(tj9);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	/* ensure that PC1 is cleared before updating control registers */
+> +	err = i2c_smbus_write_byte_data(tj9->client, CTRL_REG1, 0);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	/* only write INT_CTRL_REG1 if in irq mode */
+> +	if (tj9->client->irq) {
+> +		err = i2c_smbus_write_byte_data(tj9->client,
+> +						INT_CTRL1, tj9->int_ctrl);
+> +		if (err < 0)
+> +			return err;
+> +	}
+> +
+> +	err = kxtj9_update_g_range(tj9, tj9->pdata.g_range);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	/* turn on outputs */
+> +	tj9->ctrl_reg1 |= PC1_ON;
+> +	err = i2c_smbus_write_byte_data(tj9->client, CTRL_REG1, tj9->ctrl_reg1);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	err = kxtj9_update_odr(tj9, tj9->last_poll_interval);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	/* clear initial interrupt if in irq mode */
+> +	if (tj9->client->irq) {
+> +		err = i2c_smbus_read_byte_data(tj9->client, INT_REL);
+> +		if (err < 0) {
+> +			dev_err(&tj9->client->dev,
+> +					"error clearing interrupt: %d\n", err);
+> +			goto fail;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +
+> +fail:
+> +	kxtj9_device_power_off(tj9);
+> +	return err;
+> +}
+> +
+> +static void __devinit kxtj9_init_input_device(struct kxtj9_data *tj9,
+> +						struct input_dev *input_dev)
+> +{
+> +	__set_bit(EV_ABS, input_dev->evbit);
+> +	input_set_abs_params(input_dev, ABS_X, -G_MAX, G_MAX, FUZZ, FLAT);
+> +	input_set_abs_params(input_dev, ABS_Y, -G_MAX, G_MAX, FUZZ, FLAT);
+> +	input_set_abs_params(input_dev, ABS_Z, -G_MAX, G_MAX, FUZZ, FLAT);
+> +
+> +	input_dev->name = "kxtj9_accel";
+Is the _accel bit a convention? 
+> +	input_dev->id.bustype = BUS_I2C;
+> +	input_dev->dev.parent = &tj9->client->dev;
+> +}
+> +
+> +#ifdef CONFIG_KXTJ9_POLLED_MODE
+> +static void kxtj9_poll(struct input_polled_dev *dev)
+> +{
+> +	struct kxtj9_data *tj9 = dev->private;
+> +	unsigned int poll_interval = dev->poll_interval;
+> +
+> +	kxtj9_report_acceleration_data(tj9);
+> +
+> +	if (poll_interval != tj9->last_poll_interval) {
+> +		kxtj9_update_odr(tj9, poll_interval);
+> +		tj9->last_poll_interval = poll_interval;
+> +	}
+> +}
+> +
+> +static void kxtj9_polled_input_open(struct input_polled_dev *dev)
+> +{
+> +	struct kxtj9_data *tj9 = dev->private;
+> +
+> +	kxtj9_enable(tj9);
+Given ktxj9_enable knows what it's getting, squash into
+
+kxtj9_enable(dev->private);
+> +}
+> +
+> +static void kxtj9_polled_input_close(struct input_polled_dev *dev)
+> +{
+> +	struct kxtj9_data *tj9 = dev->private;
+> +
+> +	kxtj9_device_power_off(tj9);
+same as previous.
+> +}
+> +
+> +static int __devinit kxtj9_setup_polled_device(struct kxtj9_data *tj9)
+> +{
+> +	int err;
+> +	struct input_polled_dev *poll_dev;
+> +	poll_dev = input_allocate_polled_device();
+> +
+> +	if (!poll_dev) {
+> +		dev_err(&tj9->client->dev,
+> +			"Failed to allocate polled device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	tj9->poll_dev = poll_dev;
+> +	tj9->input_dev = poll_dev->input;
+> +
+> +	poll_dev->private = tj9;
+> +	poll_dev->poll = kxtj9_poll;
+> +	poll_dev->open = kxtj9_polled_input_open;
+> +	poll_dev->close = kxtj9_polled_input_close;
+> +
+> +	kxtj9_init_input_device(tj9, poll_dev->input);
+> +
+> +	err = input_register_polled_device(poll_dev);
+> +	if (err) {
+> +		dev_err(&tj9->client->dev,
+> +			"Unable to register polled device, err=%d\n", err);
+> +		input_free_polled_device(poll_dev);
+> +		return 0;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void kxtj9_teardown_polled_device(struct kxtj9_data *tj9)
+> +{
+> +	input_unregister_polled_device(tj9->poll_dev);
+> +	input_free_polled_device(tj9->poll_dev);
+> +}
+> +
+> +#else	/* IRQ Mode is enabled */
+> +static int kxtj9_input_open(struct input_dev *input)
+> +{
+> +	struct kxtj9_data *tj9 = input_get_drvdata(input);
+> +
+> +	return kxtj9_enable(tj9);
+return kxtj9_enable(input_get_drvdata(input));
+> +}
+> +
+> +static void kxtj9_input_close(struct input_dev *dev)
+> +{
+> +	struct kxtj9_data *tj9 = input_get_drvdata(dev);
+> +
+> +	kxtj9_device_power_off(tj9);
+snap
+> +}
+> +
+> +static int __devinit kxtj9_setup_input_device(struct kxtj9_data *tj9)
+> +{
+> +	struct input_dev *input_dev;
+> +	int err;
+> +
+> +	input_dev = input_allocate_device();
+> +	if (!tj9->input_dev) {
+> +		dev_err(&tj9->client->dev, "input device allocate failed\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	tj9->input_dev = input_dev;
+> +
+> +	input_dev->open = kxtj9_input_open;
+> +	input_dev->close = kxtj9_input_close;
+> +	input_set_drvdata(input_dev, tj9);
+> +
+> +	kxtj9_init_input_device(tj9, input_dev);
+> +
+> +	err = input_register_device(tj9->input_dev);
+> +	if (err) {
+> +		dev_err(&tj9->client->dev,
+> +			"unable to register input polled device %s: %d\n",
+> +			tj9->input_dev->name, err);
+> +		input_free_device(tj9->input_dev);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t kxtj9_isr(int irq, void *dev)
+> +{
+> +	struct kxtj9_data *tj9 = dev;
+> +	int err;
+> +
+> +	/* data ready is the only possible interrupt type */
+> +	kxtj9_report_acceleration_data(tj9);
+> +
+> +	err = i2c_smbus_read_byte_data(tj9->client, INT_REL);
+> +	if (err < 0)
+> +		dev_err(&tj9->client->dev,
+> +				"error clearing interrupt status: %d\n", err);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static inline int kxtj9_setup_polled_device(struct kxtj9_data *tj9)
+> +{
+> +	return -ENOSYS;
+> +}
+> +
+> +static inline void kxtj9_teardown_polled_device(struct kxtj9_data *tj9)
+> +{
+> +}
+> +
+> +/* kxtj9_get_poll: returns the currently selected poll interval (in ms) */
+> +static ssize_t kxtj9_get_poll(struct device *dev,
+> +				struct device_attribute *attr, char *buf)
+> +{
+> +	struct kxtj9_data *tj9 = i2c_get_clientdata(to_i2c_client(dev));
+> +	return sprintf(buf, "%d\n", tj9->last_poll_interval);
+> +}
+> +
+> +/* kxtj9_set_poll: allows the user to select a new poll interval (in ms) */
+> +static ssize_t kxtj9_set_poll(struct device *dev, struct device_attribute *attr,
+> +						const char *buf, size_t count)
+> +{
+> +	struct kxtj9_data *tj9 = i2c_get_clientdata(to_i2c_client(dev));
+> +
+> +	unsigned long interval;
+> +	int ret = kstrtoul(buf, 10, &interval);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	mutex_lock(&tj9->lock);
+> +	/* set current interval to the greater of the minimum interval or
+> +	the requested interval */
+> +	tj9->last_poll_interval = max((int)interval, tj9->pdata.min_interval);
+> +	mutex_unlock(&tj9->lock);
+> +
+> +	kxtj9_update_odr(tj9, tj9->last_poll_interval);
+> +
+> +	return count;
+> +}
+New line here please.
+> +/* When IRQ mode is selected, we need to provide an interface to allow the user
+> + * to change the output data rate of the part.  For consistency, we are using
+> + * the set_poll method, which accepts a poll interval in milliseconds, and then
+> + * calls update_odr() while passing this value as an argument.  In IRQ mode, the
+> + * data outputs will not be read AT the requested poll interval, rather, the
+> + * lowest ODR that can support the requested interval.  The client application
+> + * will be responsible for retrieving data from the input node at the desired
+> + * interval.
+> + */
+> +static DEVICE_ATTR(poll, S_IRUGO|S_IWUSR, kxtj9_get_poll, kxtj9_set_poll);
+> +
+> +static struct attribute *kxtj9_attributes[] = {
+> +	&dev_attr_poll.attr,
+> +	NULL
+> +};
+> +
+> +static struct attribute_group kxtj9_attribute_group = {
+> +	.attrs = kxtj9_attributes
+> +};
+> +#endif
+> +
+> +static int __devinit kxtj9_verify(struct kxtj9_data *tj9)
+> +{
+> +	int retval;
+> +	retval = kxtj9_device_power_on(tj9);
+> +	if (retval < 0)
+> +		return retval;
+> +	retval = i2c_smbus_read_byte_data(tj9->client, WHO_AM_I);
+> +	if (retval < 0) {
+> +		dev_err(&tj9->client->dev, "read err int source\n");
+> +		goto out;
+> +	}
+> +	retval = retval != 0x06 ? -EIO : 0;
+> +
+> +out:
+> +	kxtj9_device_power_off(tj9);
+> +	return retval;
+> +}
+> +
+> +static int __devinit kxtj9_probe(struct i2c_client *client,
+> +				const struct i2c_device_id *id)
+> +{
+> +	const struct kxtj9_platform_data *pdata = client->dev.platform_data;
+> +	struct kxtj9_data *tj9;
+> +	int err;
+> +
+> +	if (!i2c_check_functionality(client->adapter,
+> +				I2C_FUNC_I2C | I2C_FUNC_SMBUS_BYTE_DATA)) {
+> +		dev_err(&client->dev, "client is not i2c capable\n");
+> +		return -ENXIO;
+> +	}
+> +	if (!pdata) {
+> +		dev_err(&client->dev, "platform data is NULL; exiting\n");
+> +		return -EINVAL;
+> +	}
+> +	tj9 = kzalloc(sizeof(*tj9), GFP_KERNEL);
+> +	if (!tj9) {
+> +		dev_err(&client->dev,
+> +			"failed to allocate memory for module data\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	tj9->client = client;
+> +	tj9->pdata = *pdata;
+> +
+> +	if (pdata->init) {
+> +		err = pdata->init();
+> +		if (err < 0)
+> +			goto err_free_mem;
+> +	}
+> +
+> +	err = kxtj9_verify(tj9);
+> +	if (err < 0) {
+> +		dev_err(&client->dev, "device not recognized\n");
+> +		goto err_pdata_exit;
+> +	}
+> +
+> +	tj9->ctrl_reg1 = tj9->pdata.res_12bit | tj9->pdata.g_range;
+> +	tj9->data_ctrl = tj9->pdata.data_odr_init;
+> +
+> +#ifdef CONFIG_KXTJ9_POLLED_MODE
+> +	err = kxtj9_setup_polled_device(tj9);
+> +	if (err)
+> +		goto err_pdata_exit;
+> +#else
+> +	/* If in irq mode, populate INT_CTRL_REG1 and enable DRDY. */
+> +	tj9->int_ctrl |= KXTJ9_IEN | KXTJ9_IEA | KXTJ9_IEL;
+> +	tj9->ctrl_reg1 |= DRDYE;
+> +
+> +	err = kxtj9_setup_input_device(tj9);
+> +	if (err)
+> +		goto err_pdata_exit;
+> +
+> +	err = request_threaded_irq(client->irq, NULL, kxtj9_isr,
+> +				IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+> +				"kxtj9-irq", tj9);
+> +	if (err) {
+> +		dev_err(&client->dev, "request irq failed: %d\n", err);
+> +		goto err_destroy_input;
+> +	}
+> +	err = sysfs_create_group(&client->dev.kobj, &kxtj9_attribute_group);
+> +	if (err) {
+> +		dev_err(&client->dev, "sysfs create failed: %d\n", err);
+> +		goto err_destroy_input;
+> +	}
+> +#endif
+> +	i2c_set_clientdata(client, tj9);
+> +	return 0;
+> +
+> +#ifndef CONFIG_KXTJ9_POLLED_MODE
+> +err_destroy_input:
+> +	input_unregister_device(tj9->input_dev);
+> +#endif
+> +err_pdata_exit:
+> +	if (tj9->pdata.exit)
+> +		tj9->pdata.exit();
+> +err_free_mem:
+> +	kfree(tj9);
+> +	return err;
+> +}
+> +
+> +static int __devexit kxtj9_remove(struct i2c_client *client)
+> +{
+> +	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
+> +
+> +#ifdef CONFIG_KXTJ9_POLLED_MODE
+> +	kxtj9_teardown_polled_device(tj9);
+> +#else
+> +	sysfs_remove_group(&client->dev.kobj, &kxtj9_attribute_group);
+> +	free_irq(client->irq, tj9);
+> +	input_unregister_device(tj9->input_dev);
+> +#endif
+> +	if (tj9->pdata.exit)
+> +		tj9->pdata.exit();
+> +
+> +	kfree(tj9);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int kxtj9_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
+> +	struct input_dev *input_dev = tj9->input_dev;
+> +
+> +	mutex_lock(&input_dev->mutex);
+> +
+> +	if (input_dev->users)
+> +		kxtj9_device_power_off(tj9);
+> +
+> +	mutex_unlock(&input_dev->mutex);
+> +	return 0;
+> +}
+> +
+> +static int kxtj9_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct kxtj9_data *tj9 = i2c_get_clientdata(client);
+> +	struct input_dev *input_dev = tj9->input_dev;
+> +	int retval = 0;
+> +
+> +	mutex_lock(&input_dev->mutex);
+> +
+> +	if (input_dev->users)
+> +		kxtj9_enable(tj9);
+> +
+> +	mutex_unlock(&input_dev->mutex);
+> +	return retval;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(kxtj9_pm_ops, kxtj9_suspend, kxtj9_resume);
+> +
+> +static const struct i2c_device_id kxtj9_id[] = {
+> +	{ NAME, 0 },
+> +	{ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(i2c, kxtj9_id);
+> +
+> +static struct i2c_driver kxtj9_driver = {
+> +	.driver = {
+> +		  .name = NAME,
+> +		  .owner = THIS_MODULE,
+> +		  .pm = &kxtj9_pm_ops,
+> +	},
+> +	.probe = kxtj9_probe,
+> +	.remove = __devexit_p(kxtj9_remove),
+> +	.id_table = kxtj9_id,
+> +};
+> +
+> +static int __init kxtj9_init(void)
+> +{
+> +	return i2c_add_driver(&kxtj9_driver);
+> +}
+> +module_init(kxtj9_init);
+> +
+> +static void __exit kxtj9_exit(void)
+> +{
+> +	i2c_del_driver(&kxtj9_driver);
+> +}
+> +module_exit(kxtj9_exit);
+> +
+> +MODULE_DESCRIPTION("KXTJ9 accelerometer driver");
+> +MODULE_AUTHOR("Chris Hudson <chudson@kionix.com>");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/input/kxtj9.h b/include/linux/input/kxtj9.h
+> index 0000000..cc5928b
+> --- /dev/null
+> +++ b/include/linux/input/kxtj9.h
+> @@ -0,0 +1,76 @@
+> +/*
+> + * Copyright (C) 2011 Kionix, Inc.
+> + * Written by Chris Hudson <chudson@kionix.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+> + * 02111-1307, USA
+> + */
+> +
+> +#ifndef __KXTJ9_H__
+> +#define __KXTJ9_H__
+> +
+> +#define KXTJ9_I2C_ADDR		0x0F
+> +
+> +/* These shift values are used to provide consistent output data */
+> +#define SHIFT_ADJ_2G		4
+> +#define SHIFT_ADJ_4G		3
+> +#define SHIFT_ADJ_8G		2
+> +
+> +#ifdef __KERNEL__
+> +struct kxtj9_platform_data {
+> +	int poll_interval;	/* current poll interval (in milli-seconds) */
+> +	int min_interval;	/* minimum poll interval (in milli-seconds) */
+> +
+> +	/* by default, x is axis 0, y is axis 1, z is axis 2; these can be
+> +	changed to account for sensor orientation within the host device */
+> +	u8 axis_map_x;
+> +	u8 axis_map_y;
+> +	u8 axis_map_z;
+> +
+> +	/* each axis can be negated to account for sensor orientation within
+> +	the host device; 1 = negate this axis; 0 = do not negate this axis */
+> +	bool negate_x;
+> +	bool negate_y;
+> +	bool negate_z;
+> +
+> +	/* CTRL_REG1: set resolution, g-range, data ready enable */
+> +	/* Output resolution: 8-bit valid or 12-bit valid */
+> +	#define RES_8BIT		0
+> +	#define RES_12BIT		(1 << 6)
+> +	u8 res_12bit;
+> +	/* Output g-range: +/-2g, 4g, or 8g */
+> +	#define KXTJ9_G_2G		0
+> +	#define KXTJ9_G_4G		(1 << 3)
+> +	#define KXTJ9_G_8G		(1 << 4)
+> +	u8 g_range;
+> +
+> +	/* DATA_CTRL_REG: controls the output data rate of the part */
+> +	#define ODR12_5F		0
+> +	#define ODR25F			1
+> +	#define ODR50F			2
+> +	#define ODR100F			3
+> +	#define ODR200F			4
+> +	#define ODR400F			5
+> +	#define ODR800F			6
+> +	u8 data_odr_init;
+> +
+> +	int (*init)(void);
+> +	void (*exit)(void);
+> +	int (*power_on)(void);
+> +	int (*power_off)(void);
+> +};
+> +#endif /* __KERNEL__ */
+> +
+> +#endif  /* __KXTJ9_H__ */
+> +
+

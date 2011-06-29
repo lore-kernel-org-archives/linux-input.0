@@ -1,65 +1,85 @@
-From: Chase Douglas <chase.douglas@canonical.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
 Subject: Re: [PATCH 10/12] Input: synaptics - decode AGM packet types
-Date: Wed, 29 Jun 2011 11:32:51 +0100
-Message-ID: <4E0AFF53.5090501@canonical.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-11-git-send-email-djkurtz@chromium.org> <4E0AF84D.6050702@canonical.com> <20110629100759.GE2403@fooishbar.org>
+Date: Wed, 29 Jun 2011 19:04:45 +0800
+Message-ID: <CAGS+omCfw3CQ8z6iS3QQx7hZs1e8kOpC1-L1SFsGQv0RdmAMqg@mail.gmail.com>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
+ <1309324042-22943-11-git-send-email-djkurtz@chromium.org> <4E0AF84D.6050702@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:34585 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752672Ab1F2Kcz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2011 06:32:55 -0400
-In-Reply-To: <20110629100759.GE2403@fooishbar.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4E0AF84D.6050702@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Stone <daniel@fooishbar.org>
-Cc: djkurtz@chromium.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On 06/29/2011 11:07 AM, Daniel Stone wrote:
-> Hi Chase,
-> 
-> On Wed, Jun 29, 2011 at 11:02:53AM +0100, Chase Douglas wrote:
->> In the older "profile" devices, we got essentially the bounding box of
->> all touches. This allows us to detect pinch gestures between the two
->> most extreme touches when there are three touches on the touchpad.
-> 
-> This isn't necessarily true for all pads.  If you look at Derek's
-> patchset from a couple of weeks ago, it was for a profile sensor which
-> had the same reporting behaviour.  Internally, the touchpad could track
-> many fingers, but would always report the first (in SGM packet) and most
-> recent (in AGM packet) fingers.  You could fake a bounding-box
-> calculation, but it would be the bounding box of fingers 0 and n, rather
-> than the bounding box of all fingers.
+Hi Chase,
 
-Are we really sure that Derek's trackpad was a profile device? I mean
-*really* sure. Because if Synaptics is putting out two different devices
-that are identical in protocol but behave differently, then that's a
-*big* problem for us gesture developers :).
+Thanks for looking at the patches!
 
-I would be surprised if a profile device were providing the first and
-third touch locations as opposed to the bounding box because then
-there's no difference between it and this new "image sensor" device type.
+On Wed, Jun 29, 2011 at 6:02 PM, Chase Douglas
+<chase.douglas@canonical.com> wrote:
+>
+> On 06/29/2011 06:07 AM, djkurtz@chromium.org wrote:
+> > From: Daniel Kurtz <djkurtz@chromium.org>
+> >
+> > A Synaptics image sensor tracks 5 fingers, but can only report 2.
+> > This behavior is called "T5R2" =3D Track 5 Report 2
+> >
+> > Algorithm for choosing which 2 fingers to report in which packet:
+> > =A0 Touchpad maintains 5 slots, numbered 0 to 4.
+> > =A0 Initially all slots are empty.
+> > =A0 As new fingers are detected, they are assigned the lowest avail=
+able
+> > =A0 slot.
+> > =A0 Touchpad always reports:
+> > =A0 =A0 SGM: lowest numbered non-empty slot
+> > =A0 =A0 AGM: highest numbered non-empty slot, if there is one.
+>
+> Hi Daniel,
+>
+> Thanks for the new patches! I will review them soon in detail, but I
+> would like to first confirm some details about the above.
+>
+> In the older "profile" devices, we got essentially the bounding box o=
+f
+> all touches. This allows us to detect pinch gestures between the two
+> most extreme touches when there are three touches on the touchpad.
+>
+> The above description makes it sound like we will no longer have a
+> bounding box of touches. According to the description, if I put four
+> fingers down in a square formation and then touch a fifth finger in t=
+he
+> middle of the square, I will only see the locations of one corner and
+> the middle of the square. This would make meaningful gesture detectio=
+n
+> beyond two touches nearly impossible. Is this really how the touchpad
+> works, or is the above description not quite right?
 
->> The above description makes it sound like we will no longer have a
->> bounding box of touches. According to the description, if I put four
->> fingers down in a square formation and then touch a fifth finger in the
->> middle of the square, I will only see the locations of one corner and
->> the middle of the square. This would make meaningful gesture detection
->> beyond two touches nearly impossible. Is this really how the touchpad
->> works, or is the above description not quite right?
-> 
-> Yes, I believe that's how the touchpad works.  It would be nice to get
-> all fingers, but unfortunately PS/2 doesn't give us enough bandwidth to
-> do that.
+This is how the image sensor works, from my observations.
 
-If this is true for these new image devices, then we'll need to set a
-different property bit other than SEMI_MT (maybe FIRST_LAST_MT? I'm not
-good with names :). I'm thinking we should disable gesture support for
-these trackpads in uTouch when there are more than two touches because
-we can't be sure what is going on in any meaningful way. The bounding
-box is more useful than this, which is really sad.
+As for profile sensors the kernel driver creates a "best guess
+bounding box" by picking:
+   top_left =3D (min(x1,x2), min(y1,y2))
+   bottom_right =3D (max(x1,x2), max(y1,y2))
 
--- Chase
+However, at least from my experiments with one profile sensor, there
+is no guarantee that this rectangle actually contains all touches on
+the pad.
+In fact, I think it is trying really hard to return the position of
+the first two touches that it is tracking.
+When there are two fingers, it returns the finger with the larger
+y-value (and what the trackpad believes to be its x-), and the SGM
+packet, and the other finger in the AGM.
+When there are three or more fingers, it still reports the first two,
+irregardless of where the new fingers are added.
+
+It would be very curious if different profile sensors behaved different=
+ly.
+
+In any case, this patch should not change the behavior of profile
+sensors, since it only applies to image sensors.
+
+Thanks,
+-Daniel

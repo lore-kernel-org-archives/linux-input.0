@@ -1,51 +1,57 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 07/12] HID: wiimote: Add output queue for wiimote driver
-Date: Wed, 29 Jun 2011 14:53:49 +0200
-Message-ID: <BANLkTi=U4HPStOFYbZs7Z1gVgapjer33Nw@mail.gmail.com>
-References: <1309185013-484-1-git-send-email-dh.herrmann@googlemail.com>
-	<1309185013-484-7-git-send-email-dh.herrmann@googlemail.com>
-	<6467e906-9828-44e1-a903-1ceda41112fd@email.android.com>
+Subject: [RFC] Synchronization Issue in hid_hw_start()
+Date: Wed, 29 Jun 2011 15:20:30 +0200
+Message-ID: <BANLkTinz5iSCCGNC-U8TVrZ7xbc4biF_jA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:48338 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755735Ab1F2Mxu (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:58997 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752043Ab1F2NUb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2011 08:53:50 -0400
-Received: by vxb39 with SMTP id 39so842592vxb.19
-        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 05:53:49 -0700 (PDT)
-In-Reply-To: <6467e906-9828-44e1-a903-1ceda41112fd@email.android.com>
+	Wed, 29 Jun 2011 09:20:31 -0400
+Received: by vws1 with SMTP id 1so865820vws.19
+        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 06:20:30 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, padovan@profusion.mobi, jkosina@suse.cz, oliver@neukum.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Tue, Jun 28, 2011 at 6:51 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
->
-> avid Herrmann <dh.herrmann@googlemail.com> wrote:
->
->>The raw hid output function that is supported by bluetooth low-level
->>hid driver does not provide an output queue and also may sleep. The
->>wiimote driver, though, may need to send data in atomic context so
->>this patch adds a buffered output queue for the wiimote driver.
->>
->>We use the shared workqueue to send our buffer to the hid device.
->>There is always only one active worker which reschedules itself until
->>the wiimote queue is empty. This prevents the worker from occupying
->>the shared workqueue for too long.
->
-> With CWQ this is not a concern anymore, you should be able to flush your buffer at once.
+Hi
 
-Thanks, I wasn't sure about this. I've now changed:
--       if (wdata->head != wdata->tail) {
-+       while (wdata->head != wdata->tail) {
-and removed the if(...) schedule_work(...);
+The comment of hid_hw_start() (hid.h) mentions:
+ * Call this in probe function *after* hid_parse. This will setup HW buffers
+ * and start the device (if not deffered to device open). hid_hw_stop must be
+ * called if this was successful.
+Especially the part in brackets allows the low-level driver to start
+the device without waiting for hid_hw_open() (bluetooth hid does
+this). However, hid_hw_start() does not synchronize hid and input
+startup, but instead first starts the hid layer followed by input. If
+the HID layer reports an event before the input layer is started,
+HIDINPUT will send the event to a nonexisting input device or may even
+dereference an invalid address.
+Same thing in hid_hw_stop().
 
-> --
-> Dmitry
+An easy fix would be adding an atomic_t "ready" variable to the
+hid_device that is set to 1 after successful setup and
+hid_input_report must ignore every input until ready is 1. However,
+this does not work for hid_hw_stop() because we can't determine
+whether there is already a thread running inside hid_input_report() or
+similar.
 
+A more complex fix is a rwlock. hid_hw_start() locks it as writer and
+hid_input_report() and all other depending functions lock it as
+reader. We would still need something like a "ready" variable, but
+synchronization is also possible on hid_hw_stop() this way.
+
+Another more complex fix would be an input function like
+input_stop_reports() which will prevent the input instance from
+reporting any more events but still allow us to send events to it.
+Similar input_start_reports() for startup-synchronization. So we could
+register the input layer but prevent it from sending reports. Then we
+would start up the hid layer and after that we would start input
+reports. Same thing on shutdown...
+
+Any ideas?
 Regards
 David

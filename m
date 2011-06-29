@@ -1,59 +1,134 @@
-From: djkurtz@chromium.org
-Subject: [PATCH 01/12] Input: synaptics - cleanup 0x0c query documentation
-Date: Wed, 29 Jun 2011 13:07:11 +0800
-Message-ID: <1309324042-22943-2-git-send-email-djkurtz@chromium.org>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@euromail.se, chase.douglas@canonical.com, rubini@cvml.unipv.it
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org, Daniel Kurtz <djkurtz@chromium.org>
+From: Yanmin Zhang <yanmin_zhang@linux.intel.com>
+Subject: [PATCH] input: add a input_dev_reset callback
+Date: Wed, 29 Jun 2011 13:25:22 +0800
+Message-ID: <1309325122.2601.3.camel@ymzhang>
+Reply-To: yanmin_zhang@linux.intel.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:8105 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750955Ab1F2FZx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Jun 2011 01:25:53 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.orglinux-input@vger.kernel.org
 
-From: Daniel Kurtz <djkurtz@chromium.org>
+From: Yanmin Zhang <yanmin_zhang@linux.intel.com>
+Date: Tue, 28 Jun 2011 10:48:03 +0800
+Subject: [PATCH] input: add a input_dev_reset callback
 
-Convert some spaces to tabs.
-Reorder defines to match bit ordering.
-Add defines for all bits.
+input_polled_dev starts a worker if it's opened. During
+suspend-2-ram, kernel need cancel the worker and restart it
+after resuming.
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+We add a new callback, input_dev_reset, into input_dev.
+input_dev's suspend/resume callbacks would call it to notify
+input_polled_dev.
+
+Patch is against 3.0-rc3.
+
+Signed-off-by: Yanmin Zhang <yanmin_zhang@linux.intel.com>
+
 ---
- drivers/input/mouse/synaptics.h |   16 +++++++++++-----
- 1 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 7453938..34bedde 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -66,18 +66,24 @@
-  * 1	0x60	multifinger mode	identifies firmware finger counting
-  *					(not reporting!) algorithm.
-  *					Not particularly meaningful
-- * 1	0x80    covered pad		W clipped to 14, 15 == pad mostly covered
-- * 2	0x01    clickpad bit 1		2-button ClickPad
-- * 2	0x02    deluxe LED controls	touchpad support LED commands
-+ * 1	0x80	covered pad		W clipped to 14, 15 == pad mostly covered
-+ * 2	0x01	clickpad bit 1		2-button ClickPad
-+ * 2	0x02	deluxe LED controls	touchpad support LED commands
-  *					ala multimedia control bar
-  * 2	0x04	reduced filtering	firmware does less filtering on
-  *					position data, driver should watch
-  *					for noise.
-  */
--#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
--#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
-+#define SYN_CAP_ADJ_THRESHOLD(ex0c)	((ex0c) & 0x010000)
- #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
-+#define SYN_CAP_CLEARPAD(ex0c)		((ex0c) & 0x040000)
- #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
-+#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
-+#define SYN_CAP_MULTIFINGER_MODE(ex0c)	((ex0c) & 0x600000)
-+#define SYN_CAP_COVERED_PAD(ex0c)	((ex0c) & 0x800000)
-+#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
-+#define SYN_CAP_DELUXE_LED(ex0c)	((ex0c) & 0x000200)
-+#define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+--- linux-3.0-rc3/drivers/input/input.c	2011-06-14 06:29:59.000000000 +0800
++++ linux-3.0-rc3_new/drivers/input/input.c	2011-06-28 13:12:35.000000000 +0800
+@@ -1587,6 +1587,13 @@ EXPORT_SYMBOL(input_reset_device);
+ static int input_dev_suspend(struct device *dev)
+ {
+ 	struct input_dev *input_dev = to_input_dev(dev);
++	int ret;
++
++	if (input_dev->input_dev_reset) {
++		ret = input_dev->input_dev_reset(input_dev, false);
++		if (ret)
++			return ret;
++	}
  
- /* synaptics modes query bits */
- #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
--- 
-1.7.3.1
+ 	mutex_lock(&input_dev->mutex);
+ 
+@@ -1601,10 +1608,14 @@ static int input_dev_suspend(struct devi
+ static int input_dev_resume(struct device *dev)
+ {
+ 	struct input_dev *input_dev = to_input_dev(dev);
++	int ret = 0;
+ 
+ 	input_reset_device(input_dev);
+ 
+-	return 0;
++	if (input_dev->input_dev_reset)
++		ret = input_dev->input_dev_reset(input_dev, true);
++
++	return ret;
+ }
+ 
+ static const struct dev_pm_ops input_dev_pm_ops = {
+--- linux-3.0-rc3/drivers/input/input-polldev.c	2011-06-14 06:29:59.000000000 +0800
++++ linux-3.0-rc3_new/drivers/input/input-polldev.c	2011-06-28 13:14:54.000000000 +0800
+@@ -52,6 +52,7 @@ static int input_open_polled_device(stru
+ 	if (dev->poll_interval > 0)
+ 		queue_delayed_work(system_freezable_wq, &dev->work, 0);
+ 
++	dev->opened = 1;
+ 	return 0;
+ }
+ 
+@@ -63,6 +64,24 @@ static void input_close_polled_device(st
+ 
+ 	if (dev->close)
+ 		dev->close(dev);
++
++	dev->opened = 0;
++}
++
++static int input_polled_dev_reset(struct input_dev *input, bool activate)
++{
++	struct input_polled_dev *dev = input_get_drvdata(input);
++
++	if (!dev->opened)
++		return 0;
++
++	if (activate) {
++		/* Only start polling if polling is enabled */
++		if (dev->poll_interval > 0)
++			queue_delayed_work(system_freezable_wq, &dev->work, 0);
++	} else
++		cancel_delayed_work_sync(&dev->work);
++	return 0;
+ }
+ 
+ /* SYSFS interface */
+@@ -205,6 +224,7 @@ int input_register_polled_device(struct
+ 		dev->poll_interval_max = dev->poll_interval;
+ 	input->open = input_open_polled_device;
+ 	input->close = input_close_polled_device;
++	input->input_dev_reset = input_polled_dev_reset;
+ 
+ 	error = input_register_device(input);
+ 	if (error)
+--- linux-3.0-rc3/include/linux/input.h	2011-06-14 06:29:59.000000000 +0800
++++ linux-3.0-rc3_new/include/linux/input.h	2011-06-28 11:12:10.000000000 +0800
+@@ -1269,6 +1269,7 @@ struct input_dev {
+ 	void (*close)(struct input_dev *dev);
+ 	int (*flush)(struct input_dev *dev, struct file *file);
+ 	int (*event)(struct input_dev *dev, unsigned int type, unsigned int code, int value);
++	int (*input_dev_reset)(struct input_dev *dev, bool activate);
+ 
+ 	struct input_handle __rcu *grab;
+ 
+--- linux-3.0-rc3/include/linux/input-polldev.h	2011-06-14 06:29:59.000000000 +0800
++++ linux-3.0-rc3_new/include/linux/input-polldev.h	2011-06-28 11:12:10.000000000 +0800
+@@ -44,6 +44,8 @@ struct input_polled_dev {
+ 	unsigned int poll_interval_max; /* msec */
+ 	unsigned int poll_interval_min; /* msec */
+ 
++	int opened;
++
+ 	struct input_dev *input;
+ 
+ /* private: */
+
+

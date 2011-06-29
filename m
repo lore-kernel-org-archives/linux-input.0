@@ -1,7 +1,7 @@
 From: djkurtz@chromium.org
-Subject: [PATCH 06/12] Input: synaptics - fuzz position if touchpad reports reduced filtering
-Date: Wed, 29 Jun 2011 13:07:16 +0800
-Message-ID: <1309324042-22943-7-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 01/12] Input: synaptics - cleanup 0x0c query documentation
+Date: Wed, 29 Jun 2011 13:07:11 +0800
+Message-ID: <1309324042-22943-2-git-send-email-djkurtz@chromium.org>
 References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
@@ -12,74 +12,48 @@ List-Id: linux-input@vger.kernel.org
 
 From: Daniel Kurtz <djkurtz@chromium.org>
 
-Synaptics touchpads indicate via a capability bit when they perform
-reduced filtering on position data.
-In such a case, use a non-zero fuzz value.
-Fuzz = 8 was chosen empirically by observing the raw position data
-reported by a clickpad indicating it had reduced filtering.
+Convert some spaces to tabs.
+Reorder defines to match bit ordering.
+Add defines for all bits.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/mouse/synaptics.c |   17 ++++++++++-------
- drivers/input/mouse/synaptics.h |    3 +++
- 2 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/input/mouse/synaptics.h |   16 +++++++++++-----
+ 1 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 74b1222..dc54675 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -687,23 +687,27 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
- static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
- {
- 	int i;
-+	int fuzz = 0;
- 
- 	__set_bit(INPUT_PROP_POINTER, dev->propbit);
- 
-+	if (SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c))
-+		fuzz = SYN_REDUCED_FILTER_FUZZ;
-+
- 	__set_bit(EV_ABS, dev->evbit);
--	input_set_abs_params(dev, ABS_X,
--			     XMIN_NOMINAL, priv->x_max ?: XMAX_NOMINAL, 0, 0);
--	input_set_abs_params(dev, ABS_Y,
--			     YMIN_NOMINAL, priv->y_max ?: YMAX_NOMINAL, 0, 0);
-+	input_set_abs_params(dev, ABS_X, XMIN_NOMINAL,
-+			     priv->x_max ?: XMAX_NOMINAL, fuzz, 0);
-+	input_set_abs_params(dev, ABS_Y, YMIN_NOMINAL,
-+			     priv->y_max ?: YMAX_NOMINAL, fuzz, 0);
- 	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
- 
- 	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
- 		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
- 		input_mt_init_slots(dev, 2);
- 		input_set_abs_params(dev, ABS_MT_POSITION_X, XMIN_NOMINAL,
--				     priv->x_max ?: XMAX_NOMINAL, 0, 0);
-+				     priv->x_max ?: XMAX_NOMINAL, fuzz, 0);
- 		input_set_abs_params(dev, ABS_MT_POSITION_Y, YMIN_NOMINAL,
--				     priv->y_max ?: YMAX_NOMINAL, 0, 0);
-+				     priv->y_max ?: YMAX_NOMINAL, fuzz, 0);
- 
- 		input_abs_set_res(dev, ABS_MT_POSITION_X, priv->x_res);
- 		input_abs_set_res(dev, ABS_MT_POSITION_Y, priv->y_res);
-@@ -977,4 +981,3 @@ bool synaptics_supported(void)
- }
- 
- #endif /* CONFIG_MOUSE_PS2_SYNAPTICS */
--
 diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 34bedde..8a68e66 100644
+index 7453938..34bedde 100644
 --- a/drivers/input/mouse/synaptics.h
 +++ b/drivers/input/mouse/synaptics.h
-@@ -110,6 +110,9 @@
- #define SYN_NEWABS_RELAXED		2
- #define SYN_OLDABS			3
- 
-+/* amount to fuzz position data when touchpad reports reduced filtering */
-+#define SYN_REDUCED_FILTER_FUZZ		8
-+
- /*
-  * A structure to describe the state of the touchpad hardware (buttons and pad)
+@@ -66,18 +66,24 @@
+  * 1	0x60	multifinger mode	identifies firmware finger counting
+  *					(not reporting!) algorithm.
+  *					Not particularly meaningful
+- * 1	0x80    covered pad		W clipped to 14, 15 == pad mostly covered
+- * 2	0x01    clickpad bit 1		2-button ClickPad
+- * 2	0x02    deluxe LED controls	touchpad support LED commands
++ * 1	0x80	covered pad		W clipped to 14, 15 == pad mostly covered
++ * 2	0x01	clickpad bit 1		2-button ClickPad
++ * 2	0x02	deluxe LED controls	touchpad support LED commands
+  *					ala multimedia control bar
+  * 2	0x04	reduced filtering	firmware does less filtering on
+  *					position data, driver should watch
+  *					for noise.
   */
+-#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
+-#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
++#define SYN_CAP_ADJ_THRESHOLD(ex0c)	((ex0c) & 0x010000)
+ #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
++#define SYN_CAP_CLEARPAD(ex0c)		((ex0c) & 0x040000)
+ #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
++#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
++#define SYN_CAP_MULTIFINGER_MODE(ex0c)	((ex0c) & 0x600000)
++#define SYN_CAP_COVERED_PAD(ex0c)	((ex0c) & 0x800000)
++#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
++#define SYN_CAP_DELUXE_LED(ex0c)	((ex0c) & 0x000200)
++#define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+ 
+ /* synaptics modes query bits */
+ #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
 -- 
 1.7.3.1

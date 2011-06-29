@@ -1,76 +1,111 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH] Fix autocentering command in hid-lgff driver
-Date: Wed, 29 Jun 2011 11:50:32 -0400
-Message-ID: <b4f74749ffdf35c88a0523a6a5f1a31b.squirrel@host171.canaca.com>
-References: <2502891.N5kVV5at6b@qosmio-x300>
-    <201106262207.23918.michael@m-bauer.org>
-    <86e0976ce588159c5b8edf14f914bf0c.squirrel@host171.canaca.com>
-    <4765696.45GeP0TYaU@qosmio-x300> <4E0AF022.8020609@m-bauer.org>
+From: Austin Zhang <zhang.austin@gmail.com>
+Subject: Re: [questions]touch driver.
+Date: Thu, 30 Jun 2011 00:28:40 +0800
+Message-ID: <BANLkTinLtAAZJxvPk+wiZQ=-E14v6o=7tQ@mail.gmail.com>
+References: <BANLkTinXNa9Uu+d1=pwH6aDJ-wtOVJ+jiQ@mail.gmail.com>
+	<BANLkTinAHXnz98dJNQFeDSVRMR5U7WdKbA@mail.gmail.com>
+	<BANLkTin+BwR7XBO3swqnsuxw_V2Nkz4GdA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:33424 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753919Ab1F2Puf (ORCPT
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:38954 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756143Ab1F2Q2l (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2011 11:50:35 -0400
-In-Reply-To: <4E0AF022.8020609@m-bauer.org>
+	Wed, 29 Jun 2011 12:28:41 -0400
+Received: by iyb12 with SMTP id 12so1162602iyb.19
+        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 09:28:41 -0700 (PDT)
+In-Reply-To: <BANLkTin+BwR7XBO3swqnsuxw_V2Nkz4GdA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Bauer <michael@m-bauer.org>
-Cc: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>, simon@mungewell.org, linux-input@vger.kernel.org, peter@slim-one.de
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, rydberg@euromail.se
+
+Thanks for your reply.
+
+>> 1 For touch panel, if it is HID type panel, then for enabling
+>> autosuspend for this device, can we only let its parent device enable
+>> autosuspend as default, don't need do anything within that touch
+>> driver?
+>
+> I don't really understand this point.
+> The hid multitouch panel sleep issue has been solved in
+> hid-multitouch. Normally there are no problems with suspend to ram (if
+> you mean that by autosuspend) except if the device need to be in a
+> special mode (as for most multitouch devices).
+> See the function mt_reset_resume in hid-multitouch.c
+Here, for autosuspend, what I am pointing to is USB autosuspend (say,
+supports_autosuspend = 1). For the current hid touch panel, seemed no
+one declare it explicitly, so I want to know if hid touch panel
+implement autosuspend from his up-level class.
+
+>
+>>
+>> 2 When setting fuzz parameter by input_set_abs_params, what is the
+>> typical rule/scenarios in general? For example, if one device which
+>> supports logical max sample in X/Y as 4096*3072 and the screen LCD
+>> resolution as 1024*768, then fuzz=100 is meaning that the driver will
+>> not report (by input_event) contact point within 50 sample point
+>> (fuzz/2) to userspace? And if in this case, the high level gesture
+>> recognizer is setting Manhattan length as 60, does it means it is ok
+>> if the Manhattan length of contact point coordinator from driver is
+>> less than 240? (60*4)
+>
+> Personally, I don't care with fuzz. My idea of the kernel is that it
+> needs to send data from the device with less transformations (or we
+> won't be able to use it in user space).
+> You should ask Henrik Rydberg on fuzz as he is the one to introduce it
+> in hid-multitouch.
+Thanks.
+
+> There is also a problem with your explanation: fuzz should not be
+> related to screen resolution as in the kernel we are not aware of the
+> screen resolution and the mapping.
+Yes, we don't know the resolution in userspace. But as above my
+description, our touch panel has resolution as Xtouch*Ytouch, if I set
+fuzz=<fuzz_value>, then from the current code, contact point within
+fuzz_value/2 will be treated as same contact point, that filtered some
+noise. And the high level touch/gesture recognizer also has rule to
+filter noise (by Manhattan length).
+So can I assume:
+If the high level gesture recognizer set Manhattan length as 60 and
+Xorg sets screen resolution as Xlcd*Ylcd, then almost X-direction
+changes of contact point within 60*(Xtouch/Xlcd) will be treated as
+same X-direction coordinate by userspace gesture recognizer?
+And if it is ture, then fuzz parameter seemed not so useful.
 
 
->>> Q. Do we need the ability to switch between split/combined pedals?
-
-> I am not sure on this - on the one hand i would love to provide all
-> options to the user.
-
-> On the other hand i am not sure how this could be done. I do not think
-> it is possible to change the report descriptor of a connected device on
-> the fly without (not necessarily physically) reconnecting it?
-
-> And from my understanding the combined axes are just some kind of legacy
-> stuff to support really old games which can not handle the separate axes.
-
-Can you (someone?) clarify which wheels do not have a command to switch
-into 'native mode' (which causes a USB ID change) and do these wheels use
-a unified brake/acc.?
-
-Do any wheels have a 'native mode' which stay with the generic USB ID?
-
-Wouldn't the device descriptor only be re-written for the new USB ID's in
-'native' mode.
-
-Note: The Wii wheel does not have a 'native' command/mode, but has a
-unique ID which is always used.
+> I think, and it's my own opinion that fuzz should be used when the
+> device is not stable, i.e. when it has a range of 4096 for instance
+> and the values are floating in a range of 10 for instance.
+In above case, if Xtouch*Ytouch= 4096*3072, Xlcd*Ylcd = 1024*768, then
+the floating of 10 in panel is meaning 2.5 in logical resolution,
+which << the Manhattan length in gesture recognizer. So even thought I
+don't set it in driver, the floating also was filtered from userspace.
+And also 60 Manhattan length in userspace would be 240 Manhattan
+length in driver, seemed no device will have such big floating in
+practice. So fuzz is useless in this situation.
 
 
-> Is there any reason the switch to native mode should not be done
-> automatically by the driver? I would prefer to have it working
-> out-of-the-box instead of having to wait for userspace interaction.
-> (This could be done by some udev rule(s), but then this would need to be
-> adopted by all distributions...)
-
-> I do not see any point in using the wheel in restricted mode when native
-> mode is possible...
-
-If we force the 'native command' to be issued then we might affect/prevent
-any 'old game' play.
-
-Note 2: At present the re-writing of descriptor is done in 'hid-lg.c'
-(based on USB ID), whereas we are proposing the 'native' command to be
-issued by 'hid-lg4ff.c' which might not be complied/enabled.
-
-Perhaps disabling/blacklisting 'hid-lg4ff' is a sufficient workaround to
-get older games working... or a module option of 'no-native' could prevent
-the command being sent.
-
-
-
-Also I noticed that the second part of the 'DFP native command', is very
-similar to a strong spring set to slot 4....
-
-Simon
-
+> Then, on some integrated platforms (tablets, and others) fuzz can be
+> used to not awake too much the different processes that rely on input.
+> But I would say this is a side effect of the original goal (again,
+> it's my only guess).
+>
+>>
+>> 3 Seemed few drivers (only egalax and intel-mid-touch) are using this
+>> fuzz param, so in most cases, it is one in-case params to leave to
+>> user for 'tuning' only? Then should it be exported as module
+>> parameter?
+>
+> With the current implementation, I don't think so. If you want to
+> submit a patch, I won't vote against. Dimitry and Jiri may have a
+> different view on this.
+>
+> Cheers,
+> Benjamin
+>
+>>
+>> Thanks for your answer in advance.
+>>
+>

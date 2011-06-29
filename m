@@ -1,103 +1,44 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [questions]touch driver.
-Date: Wed, 29 Jun 2011 09:40:35 +0200
-Message-ID: <BANLkTin+BwR7XBO3swqnsuxw_V2Nkz4GdA@mail.gmail.com>
-References: <BANLkTinXNa9Uu+d1=pwH6aDJ-wtOVJ+jiQ@mail.gmail.com>
-	<BANLkTinAHXnz98dJNQFeDSVRMR5U7WdKbA@mail.gmail.com>
+From: Yanmin Zhang <yanmin_zhang@linux.intel.com>
+Subject: Re: [PATCH] input: add a input_dev_reset callback
+Date: Wed, 29 Jun 2011 15:48:54 +0800
+Message-ID: <1309333734.2601.11.camel@ymzhang>
+References: <1309325122.2601.3.camel@ymzhang>
+	 <20110629070927.GA10299@core.coreip.homeip.net>
+Reply-To: yanmin_zhang@linux.intel.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:48511 "EHLO
-	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752467Ab1F2Hkg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2011 03:40:36 -0400
-Received: by wwe5 with SMTP id 5so951414wwe.1
-        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 00:40:35 -0700 (PDT)
-In-Reply-To: <BANLkTinAHXnz98dJNQFeDSVRMR5U7WdKbA@mail.gmail.com>
+Received: from mga02.intel.com ([134.134.136.20]:61182 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751178Ab1F2HtZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Jun 2011 03:49:25 -0400
+In-Reply-To: <20110629070927.GA10299@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Austin Zhang <zhang.austin@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Austin,
+On Wed, 2011-06-29 at 00:09 -0700, Dmitry Torokhov wrote:
+> Hi Yanmin,
+> 
+> On Wed, Jun 29, 2011 at 01:25:22PM +0800, Yanmin Zhang wrote:
+> > From: Yanmin Zhang <yanmin_zhang@linux.intel.com>
+> > Date: Tue, 28 Jun 2011 10:48:03 +0800
+> > Subject: [PATCH] input: add a input_dev_reset callback
+> > 
+> > input_polled_dev starts a worker if it's opened. During
+> > suspend-2-ram, kernel need cancel the worker and restart it
+> > after resuming.
+> 
+> I do not believe that there is an issue. Polled device implementation
+> uses freezable workqueue to ensure that work is not being executed
+> during system sleep transition. The work should restart automatically
+> when workqueue it thawed.
+Nice! I forgot it. I hit it with kernel 2.6.35 and ported my patch to
+the latest kernel.
 
-On Wed, Jun 29, 2011 at 05:08, Austin Zhang <zhang.austin@gmail.com> wrote:
-> Ben, sorry if disturbing you, seemed people pay most
-> efforts/attentions on patch rather than below simple question in ML,
-> can you please shed some light on this. Thanks.
+Thanks,
+Yanmin
 
-Sorry, I'm on holidays, and sometimes, I don't take the time to answer
-to many messages....
 
->
->
-> ---------- Forwarded message ----------
-> From: Austin Zhang <zhang.austin@gmail.com>
-> Date: 2011/6/23
-> Subject: [questions]touch driver.
-> To: linux-input@vger.kernel.org, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com>, Chase Douglas
-> <chase.douglas@canonical.com>
->
->
-> hi, team,
->
-> I have several questions on touch driver.
->
-> 1 For touch panel, if it is HID type panel, then for enabling
-> autosuspend for this device, can we only let its parent device enable
-> autosuspend as default, don't need do anything within that touch
-> driver?
-
-I don't really understand this point.
-The hid multitouch panel sleep issue has been solved in
-hid-multitouch. Normally there are no problems with suspend to ram (if
-you mean that by autosuspend) except if the device need to be in a
-special mode (as for most multitouch devices).
-See the function mt_reset_resume in hid-multitouch.c
-
->
-> 2 When setting fuzz parameter by input_set_abs_params, what is the
-> typical rule/scenarios in general? For example, if one device which
-> supports logical max sample in X/Y as 4096*3072 and the screen LCD
-> resolution as 1024*768, then fuzz=100 is meaning that the driver will
-> not report (by input_event) contact point within 50 sample point
-> (fuzz/2) to userspace? And if in this case, the high level gesture
-> recognizer is setting Manhattan length as 60, does it means it is ok
-> if the Manhattan length of contact point coordinator from driver is
-> less than 240? (60*4)
-
-Personally, I don't care with fuzz. My idea of the kernel is that it
-needs to send data from the device with less transformations (or we
-won't be able to use it in user space).
-You should ask Henrik Rydberg on fuzz as he is the one to introduce it
-in hid-multitouch.
-
-There is also a problem with your explanation: fuzz should not be
-related to screen resolution as in the kernel we are not aware of the
-screen resolution and the mapping.
-I think, and it's my own opinion that fuzz should be used when the
-device is not stable, i.e. when it has a range of 4096 for instance
-and the values are floating in a range of 10 for instance.
-
-Then, on some integrated platforms (tablets, and others) fuzz can be
-used to not awake too much the different processes that rely on input.
-But I would say this is a side effect of the original goal (again,
-it's my only guess).
-
->
-> 3 Seemed few drivers (only egalax and intel-mid-touch) are using this
-> fuzz param, so in most cases, it is one in-case params to leave to
-> user for 'tuning' only? Then should it be exported as module
-> parameter?
-
-With the current implementation, I don't think so. If you want to
-submit a patch, I won't vote against. Dimitry and Jiri may have a
-different view on this.
-
-Cheers,
-Benjamin
-
->
-> Thanks for your answer in advance.
->

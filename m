@@ -1,13 +1,15 @@
 From: djkurtz@chromium.org
-Subject: [PATCH 00/12] Synaptics image sensor support
-Date: Wed, 29 Jun 2011 13:07:10 +0800
-Message-ID: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 02/12] Input: synaptics - do not invert y if 0
+Date: Wed, 29 Jun 2011 13:07:12 +0800
+Message-ID: <1309324042-22943-3-git-send-email-djkurtz@chromium.org>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:32745 "EHLO
+Received: from smtp-out.google.com ([74.125.121.67]:60240 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750892Ab1F2FH6 (ORCPT
+	with ESMTP id S1750942Ab1F2FH6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Wed, 29 Jun 2011 01:07:58 -0400
+In-Reply-To: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, rydberg@euromail.se, chase.douglas@canonical.com, rubini@cvml.unipv.it
@@ -15,55 +17,84 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@col
 
 From: Daniel Kurtz <djkurtz@chromium.org>
 
-Hello,
+Synaptics touchpads report increasing y from bottom to top.
+This is inverted from normal userspace "top of screen is 0" coordinates.
+Thus, the kernel driver reports inverted y coordinates to userspace.
 
-This patch set (against next) is intended to add support for synaptics
-"image sensor" touchpads.
+In some cases, however, y = 0 is sent by the touchpad.
+In these cases, the kernel driver should not invert, and just report 0.
 
-Patches 1-8 clean up the current driver slightly and prepare for the image
-sensor patches which follow.
+This patch also refactors the inversion into a macro, and moves it
+into packet processing instead of during position reporting.
 
-Patches 9-11 add up to 3 finger support for image sensor touchpads.
-Image sensors do not suffer from the finger tracking issues that plagued
-the earlier "profile sensors", and which required the invention of "semi-mt"
-(which reports a bounding box around two fingers instead of the fingers
-themselves).  Instead, the image sensors report the actual positions of two
-fingers using the same "Advanced Gesture Mode". Unfortunately, the limitations
-of the Synaptics PS/2 protocol make it difficult to keep track of which two
-fingers are being reported at any given time.
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/mouse/synaptics.c |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
 
-Patch 12 adds up to 5 finger support.
-In fact, the image sensor touchpads actually track 5 fingers while reporting
-just 2 finger positions.  This patch tracks which fingers are being reported,
-and passes them up to userspace using 5 MT-B slots.
-
-These patches are similar to, and inspired by, a similar patchset recently
-submitted by Derek Foreman and Daniel Stone.  However, it is not directly built
-upon, nor is it compatible with, those patches.
-
-Thanks,
-Daniel
-
-Daniel Kurtz (12):
-  Input: synaptics - cleanup 0x0c query documentation
-  Input: synaptics - do not invert y if 0
-  Input: synaptics - fix minimum reported ABS_TOOL_WIDTH
-  Input: synaptics - set resolution for MT_POSITION_X/Y axes
-  Input: synaptics - process button bits in AGM packets
-  Input: synaptics - fuzz position if touchpad reports reduced
-    filtering
-  Input: synaptics - rename synaptics_data.mt to agm
-  Input: synaptics - rename set_slot to be more descriptive
-  Input: synaptics - add image sensor support
-  Input: synaptics - decode AGM packet types
-  Input: synaptics - process finger (<=3) transitions
-  Input: synaptics - process finger (<=5) transitions
-
- drivers/input/mouse/synaptics.c |  442 +++++++++++++++++++++++++++++++++++----
- drivers/input/mouse/synaptics.h |   41 +++-
- include/linux/input.h           |    1 +
- 3 files changed, 440 insertions(+), 44 deletions(-)
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index e06e045..f6d0c04 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -44,6 +44,8 @@
+ #define YMIN_NOMINAL 1408
+ #define YMAX_NOMINAL 4448
+ 
++#define INVERT_Y(y) (((y) != 0) ? (YMAX_NOMINAL + YMIN_NOMINAL - (y)) : 0)
++
+ 
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+@@ -409,9 +411,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		hw->x = (((buf[3] & 0x10) << 8) |
+ 			 ((buf[1] & 0x0f) << 8) |
+ 			 buf[4]);
+-		hw->y = (((buf[3] & 0x20) << 7) |
++		hw->y = INVERT_Y((((buf[3] & 0x20) << 7) |
+ 			 ((buf[1] & 0xf0) << 4) |
+-			 buf[5]);
++			 buf[5]));
+ 
+ 		hw->z = buf[2];
+ 		hw->w = (((buf[0] & 0x30) >> 2) |
+@@ -421,7 +423,8 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
+ 			/* Gesture packet: (x, y, z) at half resolution */
+ 			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
+-			priv->mt.y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
++			priv->mt.y = INVERT_Y((((buf[4] & 0xf0) << 4)
++					      | buf[2]) << 1);
+ 			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
+ 			return 1;
+ 		}
+@@ -473,7 +476,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		}
+ 	} else {
+ 		hw->x = (((buf[1] & 0x1f) << 8) | buf[2]);
+-		hw->y = (((buf[4] & 0x1f) << 8) | buf[5]);
++		hw->y = INVERT_Y(((buf[4] & 0x1f) << 8) | buf[5]);
+ 
+ 		hw->z = (((buf[0] & 0x30) << 2) | (buf[3] & 0x3F));
+ 		hw->w = (((buf[1] & 0x80) >> 4) | ((buf[0] & 0x04) >> 1));
+@@ -491,8 +494,7 @@ static void set_slot(struct input_dev *dev, int slot, bool active, int x, int y)
+ 	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+ 	if (active) {
+ 		input_report_abs(dev, ABS_MT_POSITION_X, x);
+-		input_report_abs(dev, ABS_MT_POSITION_Y,
+-				 YMAX_NOMINAL + YMIN_NOMINAL - y);
++		input_report_abs(dev, ABS_MT_POSITION_Y, y);
+ 	}
+ }
+ 
+@@ -584,7 +586,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 
+ 	if (num_fingers > 0) {
+ 		input_report_abs(dev, ABS_X, hw.x);
+-		input_report_abs(dev, ABS_Y, YMAX_NOMINAL + YMIN_NOMINAL - hw.y);
++		input_report_abs(dev, ABS_Y, hw.y);
+ 	}
+ 	input_report_abs(dev, ABS_PRESSURE, hw.z);
+ 
 -- 
 1.7.3.1
 

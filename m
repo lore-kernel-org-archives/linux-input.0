@@ -1,44 +1,83 @@
-From: Yanmin Zhang <yanmin_zhang@linux.intel.com>
-Subject: Re: [PATCH] input: add a input_dev_reset callback
-Date: Wed, 29 Jun 2011 15:48:54 +0800
-Message-ID: <1309333734.2601.11.camel@ymzhang>
-References: <1309325122.2601.3.camel@ymzhang>
-	 <20110629070927.GA10299@core.coreip.homeip.net>
-Reply-To: yanmin_zhang@linux.intel.com
+From: Zhang Jiejing <jiejing.zhang@freescale.com>
+Subject: [PATCH] input: mpr121: improve sensibility of touch key.
+Date: Thu, 30 Jun 2011 00:34:41 +0800
+Message-ID: <1309365281-3444-1-git-send-email-jiejing.zhang@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:61182 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751178Ab1F2HtZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2011 03:49:25 -0400
-In-Reply-To: <20110629070927.GA10299@core.coreip.homeip.net>
+Received: from db3ehsobe006.messaging.microsoft.com ([213.199.154.144]:29587
+	"EHLO DB3EHSOBE006.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752467Ab1F2IRx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Jun 2011 04:17:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-On Wed, 2011-06-29 at 00:09 -0700, Dmitry Torokhov wrote:
-> Hi Yanmin,
-> 
-> On Wed, Jun 29, 2011 at 01:25:22PM +0800, Yanmin Zhang wrote:
-> > From: Yanmin Zhang <yanmin_zhang@linux.intel.com>
-> > Date: Tue, 28 Jun 2011 10:48:03 +0800
-> > Subject: [PATCH] input: add a input_dev_reset callback
-> > 
-> > input_polled_dev starts a worker if it's opened. During
-> > suspend-2-ram, kernel need cancel the worker and restart it
-> > after resuming.
-> 
-> I do not believe that there is an issue. Polled device implementation
-> uses freezable workqueue to ensure that work is not being executed
-> during system sleep transition. The work should restart automatically
-> when workqueue it thawed.
-Nice! I forgot it. I hit it with kernel 2.6.35 and ported my patch to
-the latest kernel.
+From: Jiejing Zhang <jiejing.zhang@freescale.com>
 
-Thanks,
-Yanmin
+There was an Quick Charge bit in Electrode conf register
+should be set in init function, this bit was missed in
+chip's document, which may cause touch controller charge
+too slow to generate an interrupt.
+
+Also, adjust the default vlaue of touch and release threshold
+to make touch key more sensitive, this fix touch may not sensitive
+after setup with plastic case.
+
+Signed-off-by: Jiejing Zhang <jiejing.zhang@freescale.com>
+---
+ drivers/input/keyboard/mpr121_touchkey.c |   14 ++++++++++----
+ 1 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index 0a9e811..0607699 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -43,14 +43,15 @@
+  * enabled capacitance sensing inputs and its run/suspend mode.
+  */
+ #define ELECTRODE_CONF_ADDR		0x5e
++#define ELECTRODE_CONF_QUICK_CHARGE	0x80
+ #define AUTO_CONFIG_CTRL_ADDR		0x7b
+ #define AUTO_CONFIG_USL_ADDR		0x7d
+ #define AUTO_CONFIG_LSL_ADDR		0x7e
+ #define AUTO_CONFIG_TL_ADDR		0x7f
+ 
+ /* Threshold of touch/release trigger */
+-#define TOUCH_THRESHOLD			0x0f
+-#define RELEASE_THRESHOLD		0x0a
++#define TOUCH_THRESHOLD			0x08
++#define RELEASE_THRESHOLD		0x05
+ /* Masks for touch and release triggers */
+ #define TOUCH_STATUS_MASK		0xfff
+ /* MPR121 has 12 keys */
+@@ -127,7 +128,7 @@ static int __devinit mpr121_phys_init(const struct mpr121_platform_data *pdata,
+ 				      struct i2c_client *client)
+ {
+ 	const struct mpr121_init_register *reg;
+-	unsigned char usl, lsl, tl;
++	unsigned char usl, lsl, tl, eleconf;
+ 	int i, t, vdd, ret;
+ 
+ 	/* Set up touch/release threshold for ele0-ele11 */
+@@ -163,8 +164,13 @@ static int __devinit mpr121_phys_init(const struct mpr121_platform_data *pdata,
+ 	ret = i2c_smbus_write_byte_data(client, AUTO_CONFIG_USL_ADDR, usl);
+ 	ret |= i2c_smbus_write_byte_data(client, AUTO_CONFIG_LSL_ADDR, lsl);
+ 	ret |= i2c_smbus_write_byte_data(client, AUTO_CONFIG_TL_ADDR, tl);
++
++	/* Quick charge bit will let the capacitive charge to ready
++	   state quickly, or the button may not function after system
++	   boot */
++	eleconf = mpr121->keycount | ELECTRODE_CONF_QUICK_CHARGE;
+ 	ret |= i2c_smbus_write_byte_data(client, ELECTRODE_CONF_ADDR,
+-					 mpr121->keycount);
++					 eleconf);
+ 	if (ret != 0)
+ 		goto err_i2c_write;
+ 
+-- 
+1.7.4.1
 
 

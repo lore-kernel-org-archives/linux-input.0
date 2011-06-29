@@ -1,125 +1,58 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 03/12] Input: synaptics - fix minimum reported ABS_TOOL_WIDTH
-Date: Wed, 29 Jun 2011 14:46:55 -0500
-Message-ID: <BANLkTimuYi0UNjJG_mrHE+fF7UDgPSVwbQ@mail.gmail.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
-	<1309324042-22943-4-git-send-email-djkurtz@chromium.org>
-	<BANLkTinX-mkjQ=qMXra5GLeMK+cb9w+9_Q@mail.gmail.com>
-	<CAGS+omCXmc-4WXJDeQKY3uo8h7xBgqfZi=rmDHg2xwWK2OQxMg@mail.gmail.com>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@gmail.com>
+Subject: Re: [PATCH] Fix autocentering command in hid-lgff driver
+Date: Wed, 29 Jun 2011 23:37:06 +0200
+Message-ID: <10412007.kslt1z6EXa@qosmio-x300>
+References: <2502891.N5kVV5at6b@qosmio-x300> <4E0AF022.8020609@m-bauer.org> <b4f74749ffdf35c88a0523a6a5f1a31b.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:49076 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932112Ab1F2Tq4 convert rfc822-to-8bit (ORCPT
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:41816 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757986Ab1F2VhL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jun 2011 15:46:56 -0400
-In-Reply-To: <CAGS+omCXmc-4WXJDeQKY3uo8h7xBgqfZi=rmDHg2xwWK2OQxMg@mail.gmail.com>
+	Wed, 29 Jun 2011 17:37:11 -0400
+Received: by fxd18 with SMTP id 18so1595425fxd.11
+        for <linux-input@vger.kernel.org>; Wed, 29 Jun 2011 14:37:10 -0700 (PDT)
+In-Reply-To: <b4f74749ffdf35c88a0523a6a5f1a31b.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: simon@mungewell.org
+Cc: Michael Bauer <michael@m-bauer.org>, linux-input@vger.kernel.org, peter@slim-one.de
 
-On Wed, Jun 29, 2011 at 11:48 AM, Daniel Kurtz <djkurtz@chromium.org> w=
-rote:
-> Hi Chris,
->
-> Thanks for taking a look!
->
-> On Wed, Jun 29, 2011 at 9:28 PM, Chris Bagwell <chris@cnpbagwell.com>=
- wrote:
->> On Wed, Jun 29, 2011 at 12:07 AM, =A0<djkurtz@chromium.org> wrote:
->>> From: Daniel Kurtz <djkurtz@chromium.org>
->>>
->>> Synaptics touchpads report a 'w' value in each data report.
->>> For touchpads that support palm detection, when there is a single f=
-inger
->>> on the pad, the 'w' value reports its width in the range 4 to 15.
->>> Thus, the minimum valid width is 4.
->>
->> FYI: I had debated on this as well. =A0When driver was first modifie=
-d to
->> report min/max width, the min width of zero was chosen because when
->> not touching the pad a value of zero is forced by driver to user. =A0=
-So
->> the range is 0, 4-15.
->
-> Yup, good catch. =A0I now see that this is true for the legacy single=
--touch case.
-> For consistency with the existing implementation, I'm ok to drop this=
- patch.
->
-> I think we can still keep the range 4-15 for the ABS_MT_TOUCH_MAJOR
-> axis, though, right?
-> A pure-mt userspace app can get the correct width range, and deduce 0
-> fingers from the fact that all MT-B slots have tracking_id =3D=3D -1.
+> Can you (someone?) clarify which wheels do not have a command to switch
+> into 'native mode' (which causes a USB ID change) and do these wheels use
+> a unified brake/acc.?
+> Do any wheels have a 'native mode' which stay with the generic USB ID?
+To my knowledge all wheels except original Driving Force and Formula Force 
+have the fallback and native mode. Every Logitech wheel in fallback mode 
+reports PID 0x294 which is the PID of the original Driving Force wheel. If 
+DFP/G25/G27/DFGT receives specific command, it simulates reconnect and reports 
+its "real" PID upon reconnection. 
 
-Yeah, at least I'd consider it an app bug.
+> Wouldn't the device descriptor only be re-written for the new USB ID's in
+> 'native' mode.
+DF/DFP/FEX hides the separate throttle and brake axes in the original 
+descriptor so we definitely need to replace it. G25/27 don't need such a hack, 
+I don't know how about DFGT or Momo, I'll try to find that out.
+IMHO we need to replace the descriptor only if the wheel has PID 0x294 and is 
+either DF or FEX. DFP has PID 0x298 and needs a fixed descriptor too.
 
-=46or that matter, it should be true of ABS_TOOL_WIDTH as well (we coul=
-d
-change to always send minimum 4 as apart of this patch).
+> If we force the 'native command' to be issued then we might affect/prevent
+> any 'old game' play.
+Problem is that not all wheels actually have the native mode as I mentioned 
+above, but all support separate pedal axes. Unless we somehow read the 
+anonymous fields reported by the original descriptor, I guess we'll have to 
+decide whether to have separate or combined pedal axes.
+Another (rather hackish) way around this would be a "combined" value in /sys 
+interface. When set to 1, we'd trigger reconnection (can we do that?) and not 
+replace the descriptor (or replace it in case of G25/27).
 
-Since we are on it, maybe a year ago I tested a version of this patch
-and notice xf86-input-synaptics defaulted to non-useful value for
-EmulateTwoFingerMinW because of the scale change.  The
-xf86-input-synaptics logic in question has since be modified/reverted
-so I think thats not an issue anymore.
 
-I found no issues with apps see'ing ABS_TOOL_WIDTH >=3D 4 always.
+I've given some thought bypassing the ff-memless driver and I don't think it's 
+necessary. We can patch ff-memless and add support for the missing effects. I 
+guess that passing the device-specific commands like effect reset, G27 leds and 
+range setting could be done via /sys interface too.
+However that's just a thought...
 
-Chris
->
-> -Dan
->
->>>
->>> Note: Other values of 'w' are used to report special conditions:
->>> =A0w=3D0: 2 fingers are on the pad
->>> =A0w=3D1: 3 or more fingers are on the pad
->>> =A0w=3D2: the packet contains "Advanced Gesture Mode" data.
->>>
->>> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
->>> ---
->>> =A0drivers/input/mouse/synaptics.c | =A0 =A02 +-
->>> =A01 files changed, 1 insertions(+), 1 deletions(-)
->>>
->>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/=
-synaptics.c
->>> index f6d0c04..a4b7801 100644
->>> --- a/drivers/input/mouse/synaptics.c
->>> +++ b/drivers/input/mouse/synaptics.c
->>> @@ -706,7 +706,7 @@ static void set_input_params(struct input_dev *=
-dev, struct synaptics_data *priv)
->>> =A0 =A0 =A0 =A0}
->>>
->>> =A0 =A0 =A0 =A0if (SYN_CAP_PALMDETECT(priv->capabilities))
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_TOOL_WI=
-DTH, 0, 15, 0, 0);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_set_abs_params(dev, ABS_TOOL_WI=
-DTH, 4, 15, 0, 0);
->>>
->>> =A0 =A0 =A0 =A0__set_bit(EV_KEY, dev->evbit);
->>> =A0 =A0 =A0 =A0__set_bit(BTN_TOUCH, dev->keybit);
->>> --
->>> 1.7.3.1
->>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-inp=
-ut" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.htm=
-l
->>>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
-t" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->>
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Michal

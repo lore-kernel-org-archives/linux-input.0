@@ -1,102 +1,79 @@
-From: Igor Grinberg <grinberg@compulab.co.il>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: kernel panic in spi_complete() on spitz (PXA270)
-Date: Thu, 30 Jun 2011 20:40:40 +0300
-Message-ID: <4E0CB518.2080703@compulab.co.il>
-References: <1308845380.4533.54.camel@oct.suse.cz>	 <201106301352.21684.marek.vasut@gmail.com>	 <1309445118.4406.47.camel@oct.suse.cz>  <4E0C957F.8080807@compulab.co.il> <1309450406.4406.59.camel@oct.suse.cz>
+Date: Thu, 30 Jun 2011 11:01:10 -0700
+Message-ID: <20110630180105.GA5064@opensource.wolfsonmicro.com>
+References: <1308845380.4533.54.camel@oct.suse.cz>
+ <201106301352.21684.marek.vasut@gmail.com>
+ <1309445118.4406.47.camel@oct.suse.cz>
+ <4E0C957F.8080807@compulab.co.il>
+ <1309450406.4406.59.camel@oct.suse.cz>
+ <4E0CB518.2080703@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 50.23.254.54-static.reverse.softlayer.com ([50.23.254.54]:36208
-	"EHLO softlayer.compulab.co.il" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751977Ab1F3RlA (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58967 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752181Ab1F3SBn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jun 2011 13:41:00 -0400
-In-Reply-To: <1309450406.4406.59.camel@oct.suse.cz>
+	Thu, 30 Jun 2011 14:01:43 -0400
+Content-Disposition: inline
+In-Reply-To: <4E0CB518.2080703@compulab.co.il>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stanislav Brabec <utx@penguin.cz>
-Cc: Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, zaurus-devel@lists.linuxtogo.org, spi-devel-general@lists.sourceforge.net, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org, broonie@opensource.wolfsonmicro.com
+To: Igor Grinberg <grinberg@compulab.co.il>
+Cc: Stanislav Brabec <utx@penguin.cz>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, zaurus-devel@lists.linuxtogo.org, spi-devel-general@lists.sourceforge.net, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
 
-On 06/30/11 19:13, Stanislav Brabec wrote:
+On Thu, Jun 30, 2011 at 08:40:40PM +0300, Igor Grinberg wrote:
+> On 06/30/11 19:13, Stanislav Brabec wrote:
+> > Igor Grinberg wrote:
 
-> Igor Grinberg wrote:
->> On 06/30/11 17:45, Stanislav Brabec wrote:
->> I want to
->>> add .needs_regulator bool to ads7846.c and send the patch again to the
->>> list.
->> Please, don't...
->> I thought we've finished discussing the regulator issue...
-> The discussion ended without a fix (at least for spitz).
+> >> I thought we've finished discussing the regulator issue...
 
-Well, the discussion was mainly about how the regulator API should be used.
-The proposed patch, used the regulator API incorrectly.
-If I recall correctly, in the end of the discussion,
-Mark provided another option for configuring the regulator API,
-which is number 3 below.
+> > The discussion ended without a fix (at least for spitz).
 
->  I seen two
-> proposals:
-> - As ADS7846 hardware does not require dedicated regulator, don't
->   require it in driver and fail only on platforms that have a dedicated
->   regulator.
+> Well, the discussion was mainly about how the regulator API should be used.
+> The proposed patch, used the regulator API incorrectly.
+> If I recall correctly, in the end of the discussion,
+> Mark provided another option for configuring the regulator API,
+> which is number 3 below.
 
-The thing is that ads7846 chip itself just requires power supply
-(as most of the peripheral chips), the one who decides if it will be switchable
-is the board vendor and the vendor may use any source for the power supply.
-It can be fixed, it can be some kind of discrete LDO or one of the power
-supplies coming from the system PMIC.
-The ads7846 driver provides the regulator functionality via the regulator API
-and it is up to board code to provide the appropriate regulator definitions or
-configure the regulator API so the ads7846 will function correctly.
+The discussion ended with you guys having the three different options
+that would work, you just need to use one of them.
 
-> - Use dummy regulators for all platforms without dedicated ADS7846
->   regulator.
+> >  I seen two
+> > proposals:
+> > - As ADS7846 hardware does not require dedicated regulator, don't
+> >   require it in driver and fail only on platforms that have a dedicated
+> >   regulator.
 
-IMO, this is the right way.
+> The thing is that ads7846 chip itself just requires power supply
 
->> 1) add regulator definition for ads7846 into the board file
-> There is no dedicated regulator on spitz, ADS7846 uses common always-on
-> power supply.
+Right, and the regulator API hides the non-switchability of the supply
+from the driver so there's no need for the driver to worry about how the
+supplies are wired up.  It just turns the regulator on when it needs it
+and turns it off when it doesn't.
 
-Mark,
+> >> 1) add regulator definition for ads7846 into the board file
+> > There is no dedicated regulator on spitz, ADS7846 uses common always-on
+> > power supply.
 
-Is there a kind of regulator for this case (except dummy)?
-Some kind of fixed regulator which is not binded to any supply?
+> Is there a kind of regulator for this case (except dummy)?
+> Some kind of fixed regulator which is not binded to any supply?
 
->> 2) enable the CONFIG_REGULATOR_DUMMY in your kernel configuration
->> 3) use regulator_use_dummy_regulator() call in the board file.
-> OK, I will do 2 or 3. In the new kernel spitz has a regulator, but it is
-> not related to ADS7846. And it is actually broken:
->
-> I2C: i2c-0: PXA I2C adapter
-> Resetting I2C Controller Unit
->  (null): i2c_pxa_abort: called in slave mode
-> i2c i2c-1: adapter [pxa_i2c-i2c.1] registered
-> i2c 1-000c: uevent
-> isl6271a 1-000c: probe
-> i2c i2c-1: master_xfer[0] R, addr=0x0c, len=1
-> i2c i2c-1: setting to bus master
-> i2c i2c-1: state:i2c_pxa_handler:981: ISR=00000442, ICR=000007e0, IBMR=03
-> i2c i2c-1: state:i2c_pxa_irq_txempty:932: ISR=00000002, ICR=000007e0, IBMR=03
-> i2c i2c-1: Retrying transmission
-> i2c i2c-1: setting to bus master
-> i2c i2c-1: state:i2c_pxa_handler:981: ISR=00000045, ICR=000007e1, IBMR=00
-> i2c i2c-1: state:i2c_pxa_irq_txempty:932: ISR=00000005, ICR=000017ee, IBMR=00
-> i2c i2c-1: state:i2c_pxa_handler:981: ISR=00000087, ICR=000017e6, IBMR=00
-> print_constraints: vcc_core range: 850 <--> 1600 mV at 1350 mV 
-> print_constraints: vcc_core range: 1100 mV 
-> isl6271a 1-000c: Failed to set supply vcc_core
-> isl6271a 1-000c: failed to register isl6271a
-> isl6271a: probe of 1-000c failed with error -16
-> i2c i2c-1: client [isl6271a] registered with bus id 1-000c
-> I2C: i2c-1: PXA I2C adapter
-> ...
-> cpufreq: Didn't find vcc_core regulator
+This is just a fixed voltage regulator, support for that has been in the
+kernel since the regulator API was merged.  This is the best solution,
+it ensures that you don't mistakenly activate dummy reglators for
+supplies that really need software control.
 
-This looks like the regulator definitions for spitz are broken and need to be fixed.
+> > i2c i2c-1: Retrying transmission
+> > i2c i2c-1: setting to bus master
+> > i2c i2c-1: state:i2c_pxa_handler:981: ISR=00000045, ICR=000007e1, IBMR=00
+> > i2c i2c-1: state:i2c_pxa_irq_txempty:932: ISR=00000005, ICR=000017ee, IBMR=00
+> > i2c i2c-1: state:i2c_pxa_handler:981: ISR=00000087, ICR=000017e6, IBMR=00
 
--- 
-Regards,
-Igor.
+This looks like you've got I2C I/O issues talking to something.
 
+> > print_constraints: vcc_core range: 850 <--> 1600 mV at 1350 mV 
+> > print_constraints: vcc_core range: 1100 mV 
+
+This looks like there's two definitions for vcc_core.

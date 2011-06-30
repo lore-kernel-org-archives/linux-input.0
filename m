@@ -1,42 +1,33 @@
-From: Pavel Herrmann <morpheus.ibis@gmail.com>
-Subject: Re: kernel panic in spi_complete() on spitz (PXA270)
-Date: Thu, 30 Jun 2011 17:36:57 +0200
-Message-ID: <22208110.jIqhYvKY9h@bloomfield>
-References: <1308845380.4533.54.camel@oct.suse.cz> <1309445118.4406.47.camel@oct.suse.cz> <201106301709.48818.marek.vasut@gmail.com>
+From: "PROF.MAURICE IWU" <iwumaurice900@sify.com>
+Subject: Equity Business Investment
+Date: Thu, 30 Jun 2011 17:44:46 +0200
+Message-ID: <EXCHANGE03YW8BYXifW0000054a__30558.0578199171$1309448710$gmane$org@exchange03.2besource.com>
+Reply-To: <profmauriceiwu2221@yahoo.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain;
+	charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:38070 "EHLO
-	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751146Ab1F3PhT (ORCPT
+Received: from exchange.2besource.com ([203.126.216.22]:14307 "EHLO
+	exchange03.2besource.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750988Ab1F3Poy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jun 2011 11:37:19 -0400
-In-Reply-To: <201106301709.48818.marek.vasut@gmail.com>
+	Thu, 30 Jun 2011 11:44:54 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stanislav Brabec <utx@penguin.cz>
-Cc: Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, zaurus-devel@lists.linuxtogo.org, spi-devel-general@lists.sourceforge.net, Igor Grinberg <grinberg@compulab.co.il>, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org, broonie@opensource.wolfsonmicro.com
 
-On Thursday, June 30, 2011 04:45:18 PM Stanislav Brabec wrote:
-> Then I tried to apply "[PATCH] MAX1111: Fix race condition causing NULL
-> pointer exception", connected charger that periodically disconnects and
-> not seen the crash again. No OOPS was seen after ~100 reconnects.
-> 
-> So I guess that MAX1111 AC voltage reading (via SPI) was involved in an
-> incorrect moment and race happened there and your MAX1111 race condition
-> fix fixes it.
+Equity Business Investment
+>From Prof. Maurice Iwu 
 
-Hi,
+Dear Friend,
 
-Are you using the first or second version of the patch? if the former, please 
-use v2 (sent a few days later), which has solved the same problem by using a 
-mutex instead of allocating message data on stack (which is not good for DMA)
+I am Prof. Maurice M. Iwu, Former Chairman Independent Electoral Commission 
+(INEC).Currently, I am on compulsory terminal leave presently in UK , 
+leading up to my final retirement from public service.
 
-as for the backstory, this crash ocurrs when a short (measured in time spent) 
-message was enqueued after a long message, so that the short one finished first 
-(the actual bug was present even if the long one finished first, but in that 
-case there was double complete() on the one completion instead of a NULL 
-dereference)
+I am seeking your partnership in a mutual benefit project involving 
+investing into your company and secondly on properties and to be precise Estate Development or any other profitable venture of your great idea for our mutual benefit of Equity Market Investment.,
 
-Pavel
+Sincerely,
+Prof. Maurice M.Iwu.
+{INEC.}

@@ -1,55 +1,42 @@
-From: Igor Grinberg <grinberg@compulab.co.il>
+From: Pavel Herrmann <morpheus.ibis@gmail.com>
 Subject: Re: kernel panic in spi_complete() on spitz (PXA270)
-Date: Thu, 30 Jun 2011 18:25:51 +0300
-Message-ID: <4E0C957F.8080807@compulab.co.il>
-References: <1308845380.4533.54.camel@oct.suse.cz>	
-	<201106301352.21684.marek.vasut@gmail.com>
-	<1309445118.4406.47.camel@oct.suse.cz>
+Date: Thu, 30 Jun 2011 17:36:57 +0200
+Message-ID: <22208110.jIqhYvKY9h@bloomfield>
+References: <1308845380.4533.54.camel@oct.suse.cz> <1309445118.4406.47.camel@oct.suse.cz> <201106301709.48818.marek.vasut@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1309445118.4406.47.camel@oct.suse.cz>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stanislav Brabec <utx@penguin.cz>
-Cc: broonie@opensource.wolfsonmicro.com, vapier@gentoo.org, eric.y.miao@gmail.com, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, Marek Vasut <marek.vasut@gmail.com>, pavel@ucw.cz, linux-input@vger.kernel.org, spi-devel-general@lists.sourceforge.net, akpm@linux-foundation.org, zaurus-devel@lists.linuxtogo.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:38070 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751146Ab1F3PhT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Jun 2011 11:37:19 -0400
+In-Reply-To: <201106301709.48818.marek.vasut@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stanislav Brabec <utx@penguin.cz>
+Cc: Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, zaurus-devel@lists.linuxtogo.org, spi-devel-general@lists.sourceforge.net, Igor Grinberg <grinberg@compulab.co.il>, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org, broonie@opensource.wolfsonmicro.com
 
-On 06/30/11 17:45, Stanislav Brabec wrote:
+On Thursday, June 30, 2011 04:45:18 PM Stanislav Brabec wrote:
+> Then I tried to apply "[PATCH] MAX1111: Fix race condition causing NULL
+> pointer exception", connected charger that periodically disconnects and
+> not seen the crash again. No OOPS was seen after ~100 reconnects.
+> 
+> So I guess that MAX1111 AC voltage reading (via SPI) was involved in an
+> incorrect moment and race happened there and your MAX1111 race condition
+> fix fixes it.
 
-> Marek Vasut wrote:
->> On Thursday, June 23, 2011 06:09:40 PM Stanislav Brabec wrote:
->>> Hallo.
->>>
->>> These Oops and kernel panic were observed on a Zaurus (spitz) machine
->>> (ARMv5, PXA270).
->> Looks similar to "Re: [PATCH v2] Input: Make ADS7846 independent on regulator"
-> I don't see any trace in that thread. But yes, I was testing your patch
-> from this thread. Without it, ADS7846 does not work on spitz (ADS7846
-> does not have any dedicated regulator there). I want to
-> add .needs_regulator bool to ads7846.c and send the patch again to the
-> list.
+Hi,
 
-Please, don't...
-I thought we've finished discussing the regulator issue...
+Are you using the first or second version of the patch? if the former, please 
+use v2 (sent a few days later), which has solved the same problem by using a 
+mutex instead of allocating message data on stack (which is not good for DMA)
 
-Instead of patching the driver and the platform data and the board file,
-you should do _either_ of the following:
-1) add regulator definition for ads7846 into the board file
-2) enable the CONFIG_REGULATOR_DUMMY in your kernel configuration
-3) use regulator_use_dummy_regulator() call in the board file.
+as for the backstory, this crash ocurrs when a short (measured in time spent) 
+message was enqueued after a long message, so that the short one finished first 
+(the actual bug was present even if the long one finished first, but in that 
+case there was double complete() on the one completion instead of a NULL 
+dereference)
 
-Using either of the above, you will not need the patch for ads7846, only for the board file.
-
-
--- 
-Regards,
-Igor.
+Pavel

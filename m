@@ -1,33 +1,45 @@
-From: "PROF.MAURICE IWU" <iwumaurice900@sify.com>
-Subject: Equity Business Investment
-Date: Thu, 30 Jun 2011 17:44:46 +0200
-Message-ID: <EXCHANGE03YW8BYXifW0000054a__30558.0578199171$1309448710$gmane$org@exchange03.2besource.com>
-Reply-To: <profmauriceiwu2221@yahoo.co.jp>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: kernel panic in spi_complete() on spitz (PXA270)
+Date: Thu, 30 Jun 2011 08:59:58 -0700
+Message-ID: <20110630155957.GF3249@opensource.wolfsonmicro.com>
+References: <1308845380.4533.54.camel@oct.suse.cz>
+ <201106301352.21684.marek.vasut@gmail.com>
+ <1309445118.4406.47.camel@oct.suse.cz>
+ <4E0C957F.8080807@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exchange.2besource.com ([203.126.216.22]:14307 "EHLO
-	exchange03.2besource.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750988Ab1F3Poy (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:54791 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750999Ab1F3QAE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jun 2011 11:44:54 -0400
+	Thu, 30 Jun 2011 12:00:04 -0400
+Content-Disposition: inline
+In-Reply-To: <4E0C957F.8080807@compulab.co.il>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Igor Grinberg <grinberg@compulab.co.il>
+Cc: Stanislav Brabec <utx@penguin.cz>, Marek Vasut <marek.vasut@gmail.com>, linux-arm-kernel@lists.infradead.org, zaurus-devel@lists.linuxtogo.org, spi-devel-general@lists.sourceforge.net, vapier@gentoo.org, khilman@deeprootsystems.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, pavel@ucw.cz, linux-input@vger.kernel.org, eric.y.miao@gmail.com, akpm@linux-foundation.org
 
-Equity Business Investment
->From Prof. Maurice Iwu 
+On Thu, Jun 30, 2011 at 06:25:51PM +0300, Igor Grinberg wrote:
+> On 06/30/11 17:45, Stanislav Brabec wrote:
 
-Dear Friend,
+> > from this thread. Without it, ADS7846 does not work on spitz (ADS7846
+> > does not have any dedicated regulator there). I want to
+> > add .needs_regulator bool to ads7846.c and send the patch again to the
+> > list.
 
-I am Prof. Maurice M. Iwu, Former Chairman Independent Electoral Commission 
-(INEC).Currently, I am on compulsory terminal leave presently in UK , 
-leading up to my final retirement from public service.
+> Please, don't...
+> I thought we've finished discussing the regulator issue...
 
-I am seeking your partnership in a mutual benefit project involving 
-investing into your company and secondly on properties and to be precise Estate Development or any other profitable venture of your great idea for our mutual benefit of Equity Market Investment.,
+> Instead of patching the driver and the platform data and the board file,
+> you should do _either_ of the following:
+> 1) add regulator definition for ads7846 into the board file
+> 2) enable the CONFIG_REGULATOR_DUMMY in your kernel configuration
+> 3) use regulator_use_dummy_regulator() call in the board file.
 
-Sincerely,
-Prof. Maurice M.Iwu.
-{INEC.}
+> Using either of the above, you will not need the patch for ads7846, only for the board file.
+
+Yes, we've been through this repeatedly.  None of these options take any
+appreciable time to implement, it'd be much more productive to just do
+so.

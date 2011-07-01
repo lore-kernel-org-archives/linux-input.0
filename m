@@ -1,110 +1,174 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH 08/11] misc: Kconfig and Makefile changes for inv_mpu
- driver
-Date: Fri, 1 Jul 2011 10:10:18 -0700
-Message-ID: <20110701101018.0f02d2f3.rdunlap@xenotime.net>
-References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-	<1309486707-1658-8-git-send-email-nroyer@invensense.com>
+From: Nathan Royer <nroyer@invensense.com>
+Subject: RE: [PATCH 05/11] misc: MPU3050 and slave device configuration.
+Date: Fri, 1 Jul 2011 10:55:56 -0700
+Message-ID: <ccc4b7a8a3186c130a97bcf5f11ee9ff@mail.gmail.com>
+References: <1309486707-1658-1-git-send-email-nroyer@invensense.com> <1309486707-1658-5-git-send-email-nroyer@invensense.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from oproxy8-pub.bluehost.com ([69.89.22.20]:41009 "HELO
-	oproxy8-pub.bluehost.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1756650Ab1GARKV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 13:10:21 -0400
-In-Reply-To: <1309486707-1658-8-git-send-email-nroyer@invensense.com>
+Received: from na3sys009aog116.obsmtp.com ([74.125.149.240]:50793 "HELO
+	na3sys009aog116.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756486Ab1GARz7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Jul 2011 13:55:59 -0400
+In-Reply-To: <1309486707-1658-5-git-send-email-nroyer@invensense.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Nathan Royer <nroyer@invensense.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Wolfe <cwolfe@chromium.org>
 
-On Thu, 30 Jun 2011 19:18:24 -0700 Nathan Royer wrote:
+Regarding the secondary slave, I've decided to explain it in more detail
+in this patch thread since this is where the high level configuration
+happens.  I've clipped a number of the details to highlight just the high
+level activity.  For the 3050 master i2c, configuration only occurs with
+the accelerometer, but with the 6050 (not included in this patch), it can
+support both an accel (external or internal), and compass, and pressure.
 
-> Signed-off-by: Nathan Royer <nroyer@invensense.com>
-> ---
->  drivers/misc/Kconfig          |    1 +
->  drivers/misc/Makefile         |    1 +
->  drivers/misc/inv_mpu/Kconfig  |   58 +++++++++++++++++++++++++++++++++++++++++
->  drivers/misc/inv_mpu/Makefile |   17 ++++++++++++
->  4 files changed, 77 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/misc/inv_mpu/Kconfig
->  create mode 100644 drivers/misc/inv_mpu/Makefile
-> 
-> diff --git a/drivers/misc/inv_mpu/Kconfig b/drivers/misc/inv_mpu/Kconfig
-> new file mode 100644
-> index 0000000..fdfa7a6
-> --- /dev/null
-> +++ b/drivers/misc/inv_mpu/Kconfig
-> @@ -0,0 +1,58 @@
-> +
-> +menuconfig: INV_SENSORS
+The first function here sets the bypass mode.  When in bypass mode, the
+device master I2C of the mpu3050 is off and the slave chip (accelerometer
+for the 3050) can be accessed directly on the same bus as the mpu3050.
+When enable is set to false, the slave is disconnected from the bus, and
+at that point the only operation that can occur is for the mpu3050 master
+i2c to do a block read into the memory of the DMP.  The DMP then makes
+this data available through its FIFO after some processing with the gyro
+data.
 
-hm, that ':' there happens to work, but the syntax description for
-"menuconfig" does not show it as allowed, and no other Kconfig files use
-a colon there, so please drop it.
+Because of the bypass functionality, we designed all acces to the slave to
+be through the MPU driver instead of stand alone.  That way we can first
+put the mpu3050 into bypass before calling any of the slave functions that
+will communicate directly with the chip.  For example the config functions
+with apply == false do not enable bypass mode.
+> +/**
+> + *  @brief  enables/disables the I2C bypass to an external device
+> + *          connected to MPU's secondary I2C bus.
+> + *  @param  enable
+> + *              Non-zero to enable pass through.
+> + *  @return INV_SUCCESS if successful, a non-zero error code
+> otherwise.
+> + */
+> +static int mpu_set_i2c_bypass(struct mldl_cfg *mldl_cfg,
+> +			      void *mlsl_handle, unsigned char enable)
+> +{
+> +	return mpu3050_set_i2c_bypass(mldl_cfg, mlsl_handle, enable);
+> +}
+> +
 
-Oh, also not "default y", please.
+This next function sets up the before mentioned block read, by setting the
+slave I2C address, the slave I2C starting register, and the size of the
+read.
 
-> +	tristate "Motion Processing Unit"
-> +	depends on I2C
-> +	default y
 > +
-> +if INV_SENSORS
-> +
-> +choice
-> +	prompt "MPU Master"
-> +	depends on I2C && INV_SENSORS
-> +	default MPU_SENSORS_MPU3050
-> +
-> +config MPU_SENSORS_MPU3050
-> +	bool "MPU3050"
-> +	depends on I2C
-> +	select MPU_SENSORS_MPU3050_GYRO
-> +	help
-> +	  If you say yes here you get support for the MPU3050 Gyroscope driver
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called mpu3050.
-> +
-> +config MPU_SENSORS_MPU6050A2
-> +	bool "MPU6050A2"
-> +	depends on I2C
-> +	select MPU_SENSORS_MPU6050_GYRO
-> +	help
-> +	  If you say yes here you get support for the MPU6050A2 Gyroscope driver
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called mpu6050a2.
-> +
-> +config MPU_SENSORS_MPU6050B1
-> +	bool "MPU6050B1"
-> +	select MPU_SENSORS_MPU6050_GYRO
-> +	depends on I2C
-> +	help
-> +	  If you say yes here you get support for the MPU6050 Gyroscope driver
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called mpu6050b1.
-> +
-> +endchoice
-> +
-> +choice
-> +	prompt "Gyroscope Type"
-> +	depends on I2C && INV_SENSORS
-> +	default MPU_SENSORS_MPU3050_GYRO
-> +
-> +config MPU_SENSORS_MPU3050_GYRO
-> +	bool "MPU3050 built in gyroscope"
-> +	depends on MPU_SENSORS_MPU3050
-> +
-> +config MPU_SENSORS_MPU6050_GYRO
-> +	bool "MPU6050 built in gyroscope"
-> +	depends on MPU_SENSORS_MPU6050B1 || MPU_SENSORS_MPU6050A2
-> +
-> +endchoice
-> +
-> +endif #INV_SENSORS
+> +static int mpu_set_slave(struct mldl_cfg *mldl_cfg,
+> +			 void *gyro_handle,
+> +			 struct ext_slave_descr *slave,
+> +			 struct ext_slave_platform_data *slave_pdata,
+> +			 int slave_id)
+> +{
+> +	return mpu_set_slave_mpu3050(mldl_cfg, gyro_handle, slave,
+> +				     slave_pdata, slave_id);
+> +}
 
+The rest of the work happens in the suspend and resume functions:
 
+> +int inv_mpu_resume(struct mldl_cfg *mldl_cfg,
+> +		   void *gyro_handle,
+> +		   void *accel_handle,
+> +		   void *compass_handle,
+> +		   void *pressure_handle,
+> +		   unsigned long sensors)
+> +{
 
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+...
+
+> +	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
+> +		if (!mldl_cfg->slave[ii] ||
+> +		    !mldl_cfg->pdata_slave[ii] ||
+> +		    !resume_slave[ii] ||
+> +		    !(mldl_cfg->inv_mpu_state->status & (1 << ii)))
+> +			continue;
+> +
+
+This loop is intended to also support the mpu6050 where multiple slaves
+can be on the secondary bus, so each slave is checked to see if it is on
+the secondary bus.  If it is, switch to bypass mode and resume the device.
+
+> +		if (EXT_SLAVE_BUS_SECONDARY ==
+> +		    mldl_cfg->pdata_slave[ii]->bus) {
+> +			result = mpu_set_i2c_bypass(mldl_cfg, gyro_handle,
+> +						    true);
+> +			if (result) {
+> +				LOG_RESULT_LOCATION(result);
+> +				return result;
+> +			}
+> +		}
+> +		result = mldl_cfg->slave[ii]->resume(slave_handle[ii],
+> +						mldl_cfg->slave[ii],
+> +
+mldl_cfg->pdata_slave[ii]);
+> +		if (result) {
+> +			LOG_RESULT_LOCATION(result);
+> +			return result;
+> +		}
+> +		mldl_cfg->inv_mpu_state->status &= ~(1 << ii);
+> +	}
+
+Here is where the slave is set up.
+
+> +	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
+> +		if (resume_dmp &&
+> +		    !(mldl_cfg->inv_mpu_state->status & (1 << ii)) &&
+> +		    mldl_cfg->pdata_slave[ii] &&
+> +		    EXT_SLAVE_BUS_SECONDARY == mldl_cfg->pdata_slave[ii]-
+> >bus) {
+> +			result = mpu_set_slave(mldl_cfg,
+> +					gyro_handle,
+> +					mldl_cfg->slave[ii],
+> +					mldl_cfg->pdata_slave[ii],
+> +					mldl_cfg->slave[ii]->type);
+> +			if (result) {
+> +				LOG_RESULT_LOCATION(result);
+> +				return result;
+> +			}
+> +		}
+> +	}
+> +
+> +	/* Turn on the master i2c iterface if necessary */
+> +	if (resume_dmp) {
+
+Here is where the bypass mode removed if the DMP needs the data.  If this
+is done access to the slave cannot occur unless the mpu3050 is first
+bypassed.
+
+> +		result = mpu_set_i2c_bypass(
+> +			mldl_cfg, gyro_handle,
+> +			!(mldl_cfg->inv_mpu_state->i2c_slaves_enabled));
+> +		if (result) {
+> +			LOG_RESULT_LOCATION(result);
+> +			return result;
+> +		}
+> +
+> +		/* Now start */
+> +		result = dmp_start(mldl_cfg, gyro_handle);
+> +		if (result) {
+> +			LOG_RESULT_LOCATION(result);
+> +			return result;
+> +		}
+> +	}
+> +	mldl_cfg->inv_mpu_cfg->requested_sensors = sensors;
+> +
+> +	return result;
+> +}
+
+We weren't interested in standalone drivers at the time we started writing
+the driver, but I think now is the time to start thinking about how to
+merge the two sets of requirements.  We currently support each sensor in a
+standalone fashion, but in our own unique way, I just need to figure out
+the right way.
+
+The feedback I've seen so far suggest that the iio layer is where this
+driver belongs and how the standalone interface should look.  Today was
+the first I heard of the iio layer, so I have some significant research to
+do on how to do this.  From my brief look this morning, it looks like
+there is a lot of stuff already in place that we can make use of.
+
+Again, everybody thank you for the feedback.  Very helpful!

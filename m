@@ -1,14 +1,14 @@
 From: Nathan Royer <nroyer@invensense.com>
-Subject: [PATCH 04/11] misc: IRQ handling for MPU3050 and slave devices
-Date: Thu, 30 Jun 2011 19:18:20 -0700
-Message-ID: <1309486707-1658-4-git-send-email-nroyer@invensense.com>
+Subject: [PATCH 10/11] misc: Add slave driver for ak8975 compass driver
+Date: Thu, 30 Jun 2011 19:18:26 -0700
+Message-ID: <1309486707-1658-10-git-send-email-nroyer@invensense.com>
 References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog117.obsmtp.com ([74.125.149.242]:60161 "HELO
-	na3sys009aog117.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754517Ab1GACTU (ORCPT
+Received: from na3sys009aog104.obsmtp.com ([74.125.149.73]:54312 "HELO
+	na3sys009aog104.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754479Ab1GACZO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jun 2011 22:19:20 -0400
+	Thu, 30 Jun 2011 22:25:14 -0400
 In-Reply-To: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -17,22 +17,82 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.d
 
 Signed-off-by: Nathan Royer <nroyer@invensense.com>
 ---
- drivers/misc/inv_mpu/mpuirq.c   |  256 +++++++++++++++++++++++++++++++++++++
- drivers/misc/inv_mpu/mpuirq.h   |   36 ++++++
- drivers/misc/inv_mpu/slaveirq.c |  265 +++++++++++++++++++++++++++++++++++++++
- drivers/misc/inv_mpu/slaveirq.h |   38 ++++++
- 4 files changed, 595 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/inv_mpu/mpuirq.c
- create mode 100644 drivers/misc/inv_mpu/mpuirq.h
- create mode 100644 drivers/misc/inv_mpu/slaveirq.c
- create mode 100644 drivers/misc/inv_mpu/slaveirq.h
+ drivers/misc/inv_mpu/Kconfig          |    1 +
+ drivers/misc/inv_mpu/Makefile         |    1 +
+ drivers/misc/inv_mpu/compass/Kconfig  |   21 ++
+ drivers/misc/inv_mpu/compass/Makefile |    7 +
+ drivers/misc/inv_mpu/compass/ak8975.c |  500 +++++++++++++++++++++++++++++++++
+ 5 files changed, 530 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/inv_mpu/compass/Kconfig
+ create mode 100644 drivers/misc/inv_mpu/compass/Makefile
+ create mode 100644 drivers/misc/inv_mpu/compass/ak8975.c
 
-diff --git a/drivers/misc/inv_mpu/mpuirq.c b/drivers/misc/inv_mpu/mpuirq.c
+diff --git a/drivers/misc/inv_mpu/Kconfig b/drivers/misc/inv_mpu/Kconfig
+index 6116010..7d9f2c3 100644
+--- a/drivers/misc/inv_mpu/Kconfig
++++ b/drivers/misc/inv_mpu/Kconfig
+@@ -56,5 +56,6 @@ config MPU_SENSORS_MPU6050_GYRO
+ endchoice
+ 
+ source "drivers/misc/inv_mpu/accel/Kconfig"
++source "drivers/misc/inv_mpu/compass/Kconfig"
+ 
+ endif #INV_SENSORS
+diff --git a/drivers/misc/inv_mpu/Makefile b/drivers/misc/inv_mpu/Makefile
+index d2c2c9a..dc77a1b 100644
+--- a/drivers/misc/inv_mpu/Makefile
++++ b/drivers/misc/inv_mpu/Makefile
+@@ -17,3 +17,4 @@ mpu3050-objs += mldl_print_cfg.o
+ EXTRA_CFLAGS += -Idrivers/misc/inv_mpu
+ 
+ obj-y			+= accel/
++obj-y			+= compass/
+diff --git a/drivers/misc/inv_mpu/compass/Kconfig b/drivers/misc/inv_mpu/compass/Kconfig
 new file mode 100644
-index 0000000..ffe0e05
+index 0000000..f4106d8
 --- /dev/null
-+++ b/drivers/misc/inv_mpu/mpuirq.c
-@@ -0,0 +1,256 @@
++++ b/drivers/misc/inv_mpu/compass/Kconfig
+@@ -0,0 +1,21 @@
++menuconfig INV_SENSORS_COMPASS
++	bool "Compass Slave Sensors"
++	default y
++	---help---
++	  Say Y here to get to see options for device drivers for various
++	  compasses. This option alone does not add any kernel code.
++
++	  If you say N, all options in this submenu will be skipped and disabled.
++
++if INV_SENSORS_COMPASS
++
++config MPU_SENSORS_AK8975
++	tristate "AKM ak8975"
++	help
++	  This enables support for the AKM ak8975 compass
++	  This support is for integration with the MPU3050 or MPU6050 gyroscope
++	  device driver.  Only one compass can be registered at a time.
++	  Specifying more that one compass in the board file will result
++	  in runtime errors.
++
++endif
+diff --git a/drivers/misc/inv_mpu/compass/Makefile b/drivers/misc/inv_mpu/compass/Makefile
+new file mode 100644
+index 0000000..a529476
+--- /dev/null
++++ b/drivers/misc/inv_mpu/compass/Makefile
+@@ -0,0 +1,7 @@
++#
++# Compass Slaves MPUxxxx
++#
++obj-$(CONFIG_MPU_SENSORS_AK8975) += inv_mpu_ak8975.o
++inv_mpu_ak8975-objs +=	ak8975.o
++
++EXTRA_CFLAGS += -Idrivers/misc/inv_mpu
+diff --git a/drivers/misc/inv_mpu/compass/ak8975.c b/drivers/misc/inv_mpu/compass/ak8975.c
+new file mode 100644
+index 0000000..1d43d5a
+--- /dev/null
++++ b/drivers/misc/inv_mpu/compass/ak8975.c
+@@ -0,0 +1,500 @@
 +/*
 +	$License:
 +	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
@@ -51,601 +111,488 @@ index 0000000..ffe0e05
 +	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 +	$
 + */
-+#include <linux/interrupt.h>
++
++/**
++ *  @addtogroup COMPASSDL
++ *
++ *  @{
++ *      @file   ak8975.c
++ *      @brief  Magnetometer setup and handling methods for the AKM AK8975,
++ *              AKM AK8975B, and AKM AK8975C compass devices.
++ */
++
++/* -------------------------------------------------------------------------- */
++
++#include <linux/i2c.h>
 +#include <linux/module.h>
 +#include <linux/moduleparam.h>
 +#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/stat.h>
-+#include <linux/irq.h>
-+#include <linux/signal.h>
-+#include <linux/miscdevice.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-dev.h>
-+#include <linux/poll.h>
-+
 +#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/mm.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/uaccess.h>
-+#include <linux/io.h>
-+
-+#include <linux/mpu.h>
-+#include "mpuirq.h"
-+#include "mldl_cfg.h"
-+
-+#define MPUIRQ_NAME "mpuirq"
-+
-+/* function which gets accel data and sends it to MPU */
-+
-+DECLARE_WAIT_QUEUE_HEAD(mpuirq_wait);
-+
-+struct mpuirq_dev_data {
-+	struct i2c_client *mpu_client;
-+	struct miscdevice *dev;
-+	int irq;
-+	int pid;
-+	int accel_divider;
-+	int data_ready;
-+	int timeout;
-+};
-+
-+static struct mpuirq_dev_data mpuirq_dev_data;
-+static struct mpuirq_data mpuirq_data;
-+static char *interface = MPUIRQ_NAME;
-+
-+static int mpuirq_open(struct inode *inode, struct file *file)
-+{
-+	dev_dbg(mpuirq_dev_data.dev->this_device,
-+		"%s current->pid %d\n", __func__, current->pid);
-+	mpuirq_dev_data.pid = current->pid;
-+	file->private_data = &mpuirq_dev_data;
-+	return 0;
-+}
-+
-+/* close function - called when the "file" /dev/mpuirq is closed in userspace */
-+static int mpuirq_release(struct inode *inode, struct file *file)
-+{
-+	dev_dbg(mpuirq_dev_data.dev->this_device, "mpuirq_release\n");
-+	return 0;
-+}
-+
-+/* read function called when from /dev/mpuirq is read */
-+static ssize_t mpuirq_read(struct file *file,
-+			   char *buf, size_t count, loff_t *ppos)
-+{
-+	int len, err;
-+	struct mpuirq_dev_data *p_mpuirq_dev_data = file->private_data;
-+
-+	if (!mpuirq_dev_data.data_ready &&
-+	    mpuirq_dev_data.timeout && (!(file->f_flags & O_NONBLOCK))) {
-+		wait_event_interruptible_timeout(mpuirq_wait,
-+						 mpuirq_dev_data.data_ready,
-+						 mpuirq_dev_data.timeout);
-+	}
-+
-+	if (mpuirq_dev_data.data_ready && NULL != buf
-+	    && count >= sizeof(mpuirq_data)) {
-+		err = copy_to_user(buf, &mpuirq_data, sizeof(mpuirq_data));
-+		mpuirq_data.data_type = 0;
-+	} else {
-+		return 0;
-+	}
-+	if (err != 0) {
-+		dev_err(p_mpuirq_dev_data->dev->this_device,
-+			"Copy to user returned %d\n", err);
-+		return -EFAULT;
-+	}
-+	mpuirq_dev_data.data_ready = 0;
-+	len = sizeof(mpuirq_data);
-+	return len;
-+}
-+
-+unsigned int mpuirq_poll(struct file *file, struct poll_table_struct *poll)
-+{
-+	int mask = 0;
-+
-+	poll_wait(file, &mpuirq_wait, poll);
-+	if (mpuirq_dev_data.data_ready)
-+		mask |= POLLIN | POLLRDNORM;
-+	return mask;
-+}
-+
-+/* ioctl - I/O control */
-+static long mpuirq_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	int retval = 0;
-+	int data;
-+
-+	switch (cmd) {
-+	case MPUIRQ_SET_TIMEOUT:
-+		mpuirq_dev_data.timeout = arg;
-+		break;
-+
-+	case MPUIRQ_GET_INTERRUPT_CNT:
-+		data = mpuirq_data.interruptcount - 1;
-+		if (mpuirq_data.interruptcount > 1)
-+			mpuirq_data.interruptcount = 1;
-+
-+		if (copy_to_user((int *)arg, &data, sizeof(int)))
-+			return -EFAULT;
-+		break;
-+	case MPUIRQ_GET_IRQ_TIME:
-+		if (copy_to_user((int *)arg, &mpuirq_data.irqtime,
-+				 sizeof(mpuirq_data.irqtime)))
-+			return -EFAULT;
-+		mpuirq_data.irqtime = 0;
-+		break;
-+	case MPUIRQ_SET_FREQUENCY_DIVIDER:
-+		mpuirq_dev_data.accel_divider = arg;
-+		break;
-+	default:
-+		retval = -EINVAL;
-+	}
-+	return retval;
-+}
-+
-+static irqreturn_t mpuirq_handler(int irq, void *dev_id)
-+{
-+	static int mycount;
-+	struct timeval irqtime;
-+	mycount++;
-+
-+	mpuirq_data.interruptcount++;
-+
-+	/* wake up (unblock) for reading data from userspace */
-+	/* and ignore first interrupt generated in module init */
-+	mpuirq_dev_data.data_ready = 1;
-+
-+	do_gettimeofday(&irqtime);
-+	mpuirq_data.irqtime = (((long long)irqtime.tv_sec) << 32);
-+	mpuirq_data.irqtime += irqtime.tv_usec;
-+	mpuirq_data.data_type = MPUIRQ_DATA_TYPE_MPU_IRQ;
-+	mpuirq_data.data = 0;
-+
-+	wake_up_interruptible(&mpuirq_wait);
-+
-+	return IRQ_HANDLED;
-+
-+}
-+
-+/* define which file operations are supported */
-+const struct file_operations mpuirq_fops = {
-+	.owner = THIS_MODULE,
-+	.read = mpuirq_read,
-+	.poll = mpuirq_poll,
-+
-+	.unlocked_ioctl = mpuirq_ioctl,
-+	.open = mpuirq_open,
-+	.release = mpuirq_release,
-+};
-+
-+static struct miscdevice mpuirq_device = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = MPUIRQ_NAME,
-+	.fops = &mpuirq_fops,
-+};
-+
-+int mpuirq_init(struct i2c_client *mpu_client, struct mldl_cfg *mldl_cfg)
-+{
-+
-+	int res;
-+
-+	mpuirq_dev_data.mpu_client = mpu_client;
-+
-+	dev_info(&mpu_client->adapter->dev,
-+		 "Module Param interface = %s\n", interface);
-+
-+	mpuirq_dev_data.irq = mpu_client->irq;
-+	mpuirq_dev_data.pid = 0;
-+	mpuirq_dev_data.accel_divider = -1;
-+	mpuirq_dev_data.data_ready = 0;
-+	mpuirq_dev_data.timeout = 0;
-+	mpuirq_dev_data.dev = &mpuirq_device;
-+
-+	if (mpuirq_dev_data.irq) {
-+		unsigned long flags;
-+		if (BIT_ACTL_LOW == ((mldl_cfg->pdata->int_config) & BIT_ACTL))
-+			flags = IRQF_TRIGGER_FALLING;
-+		else
-+			flags = IRQF_TRIGGER_RISING;
-+
-+		res =
-+		    request_irq(mpuirq_dev_data.irq, mpuirq_handler, flags,
-+				interface, &mpuirq_dev_data.irq);
-+		if (res) {
-+			dev_err(&mpu_client->adapter->dev,
-+				"myirqtest: cannot register IRQ %d\n",
-+				mpuirq_dev_data.irq);
-+		} else {
-+			res = misc_register(&mpuirq_device);
-+			if (res < 0) {
-+				dev_err(&mpu_client->adapter->dev,
-+					"misc_register returned %d\n", res);
-+				free_irq(mpuirq_dev_data.irq,
-+					 &mpuirq_dev_data.irq);
-+			}
-+		}
-+
-+	} else {
-+		res = 0;
-+	}
-+
-+	return res;
-+}
-+
-+void mpuirq_exit(void)
-+{
-+	if (mpuirq_dev_data.irq > 0)
-+		free_irq(mpuirq_dev_data.irq, &mpuirq_dev_data.irq);
-+
-+	dev_info(mpuirq_device.this_device, "Unregistering %s\n", MPUIRQ_NAME);
-+	misc_deregister(&mpuirq_device);
-+
-+	return;
-+}
-+
-+module_param(interface, charp, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(interface, "The Interface name");
-diff --git a/drivers/misc/inv_mpu/mpuirq.h b/drivers/misc/inv_mpu/mpuirq.h
-new file mode 100644
-index 0000000..3348071
---- /dev/null
-+++ b/drivers/misc/inv_mpu/mpuirq.h
-@@ -0,0 +1,36 @@
-+/*
-+	$License:
-+	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
-+
-+	This program is free software; you can redistribute it and/or modify
-+	it under the terms of the GNU General Public License as published by
-+	the Free Software Foundation; either version 2 of the License, or
-+	(at your option) any later version.
-+
-+	This program is distributed in the hope that it will be useful,
-+	but WITHOUT ANY WARRANTY; without even the implied warranty of
-+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+	GNU General Public License for more details.
-+
-+	You should have received a copy of the GNU General Public License
-+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+	$
-+ */
-+
-+#ifndef __MPUIRQ__
-+#define __MPUIRQ__
-+
-+#include <linux/i2c-dev.h>
-+#include <linux/time.h>
-+#include <linux/ioctl.h>
-+#include "mldl_cfg.h"
-+
-+#define MPUIRQ_SET_TIMEOUT           _IOW(MPU_IOCTL, 0x40, unsigned long)
-+#define MPUIRQ_GET_INTERRUPT_CNT     _IOR(MPU_IOCTL, 0x41, unsigned long)
-+#define MPUIRQ_GET_IRQ_TIME          _IOR(MPU_IOCTL, 0x42, struct timeval)
-+#define MPUIRQ_SET_FREQUENCY_DIVIDER _IOW(MPU_IOCTL, 0x43, unsigned long)
-+
-+void mpuirq_exit(void);
-+int mpuirq_init(struct i2c_client *mpu_client, struct mldl_cfg *mldl_cfg);
-+
-+#endif
-diff --git a/drivers/misc/inv_mpu/slaveirq.c b/drivers/misc/inv_mpu/slaveirq.c
-new file mode 100644
-index 0000000..9044d06
---- /dev/null
-+++ b/drivers/misc/inv_mpu/slaveirq.c
-@@ -0,0 +1,265 @@
-+/*
-+	$License:
-+	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
-+
-+	This program is free software; you can redistribute it and/or modify
-+	it under the terms of the GNU General Public License as published by
-+	the Free Software Foundation; either version 2 of the License, or
-+	(at your option) any later version.
-+
-+	This program is distributed in the hope that it will be useful,
-+	but WITHOUT ANY WARRANTY; without even the implied warranty of
-+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+	GNU General Public License for more details.
-+
-+	You should have received a copy of the GNU General Public License
-+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+	$
-+ */
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/stat.h>
-+#include <linux/irq.h>
-+#include <linux/signal.h>
-+#include <linux/miscdevice.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-dev.h>
-+#include <linux/poll.h>
-+
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/mm.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/uaccess.h>
-+#include <linux/io.h>
-+#include <linux/wait.h>
 +#include <linux/slab.h>
++#include <linux/delay.h>
++#include "mpu-dev.h"
 +
++#include <log.h>
 +#include <linux/mpu.h>
-+#include "slaveirq.h"
++#include "mlsl.h"
 +#include "mldl_cfg.h"
++#undef MPL_LOG_TAG
++#define MPL_LOG_TAG "MPL-compass"
 +
-+/* function which gets slave data and sends it to SLAVE */
++/* -------------------------------------------------------------------------- */
++#define AK8975_REG_ST1  (0x02)
++#define AK8975_REG_HXL  (0x03)
++#define AK8975_REG_ST2  (0x09)
 +
-+struct slaveirq_dev_data {
-+	struct miscdevice dev;
-+	struct i2c_client *slave_client;
-+	struct mpuirq_data data;
-+	wait_queue_head_t slaveirq_wait;
-+	int irq;
-+	int pid;
-+	int data_ready;
-+	int timeout;
++#define AK8975_REG_CNTL (0x0A)
++#define AK8975_REG_ASAX (0x10)
++#define AK8975_REG_ASAY (0x11)
++#define AK8975_REG_ASAZ (0x12)
++
++#define AK8975_CNTL_MODE_POWER_DOWN         (0x00)
++#define AK8975_CNTL_MODE_SINGLE_MEASUREMENT (0x01)
++#define AK8975_CNTL_MODE_FUSE_ROM_ACCESS    (0x0f)
++
++/* -------------------------------------------------------------------------- */
++struct ak8975_config {
++	char asa[COMPASS_NUM_AXES];	/* axis sensitivity adjustment */
 +};
 +
-+/* The following depends on patch fa1f68db6ca7ebb6fc4487ac215bffba06c01c28
-+ * drivers: misc: pass miscdevice pointer via file private data
-+ */
-+static int slaveirq_open(struct inode *inode, struct file *file)
++struct ak8975_private_data {
++	struct ak8975_config init;
++};
++
++/* -------------------------------------------------------------------------- */
++static int ak8975_init(void *mlsl_handle,
++		       struct ext_slave_descr *slave,
++		       struct ext_slave_platform_data *pdata)
 +{
-+	/* Device node is availabe in the file->private_data, this is
-+	 * exactly what we want so we leave it there */
-+	struct slaveirq_dev_data *data =
-+	    container_of(file->private_data, struct slaveirq_dev_data, dev);
++	int result;
++	unsigned char serial_data[COMPASS_NUM_AXES];
 +
-+	dev_dbg(data->dev.this_device,
-+		"%s current->pid %d\n", __func__, current->pid);
-+	data->pid = current->pid;
-+	return 0;
-+}
++	struct ak8975_private_data *private_data;
++	private_data = (struct ak8975_private_data *)
++	    kzalloc(sizeof(struct ak8975_private_data), GFP_KERNEL);
 +
-+static int slaveirq_release(struct inode *inode, struct file *file)
-+{
-+	struct slaveirq_dev_data *data =
-+	    container_of(file->private_data, struct slaveirq_dev_data, dev);
-+	dev_dbg(data->dev.this_device, "slaveirq_release\n");
-+	return 0;
-+}
++	if (!private_data)
++		return INV_ERROR_MEMORY_EXAUSTED;
 +
-+/* read function called when from /dev/slaveirq is read */
-+static ssize_t slaveirq_read(struct file *file,
-+			     char *buf, size_t count, loff_t *ppos)
-+{
-+	int len, err;
-+	struct slaveirq_dev_data *data =
-+	    container_of(file->private_data, struct slaveirq_dev_data, dev);
++	result = inv_serial_single_write(mlsl_handle, pdata->address,
++					 AK8975_REG_CNTL,
++					 AK8975_CNTL_MODE_POWER_DOWN);
++	if (result) {
++		LOG_RESULT_LOCATION(result);
++		return result;
++	}
++	/* Wait at least 100us */
++	udelay(100);
 +
-+	if (!data->data_ready && data->timeout &&
-+	    !(file->f_flags & O_NONBLOCK)) {
-+		wait_event_interruptible_timeout(data->slaveirq_wait,
-+						 data->data_ready,
-+						 data->timeout);
++	result = inv_serial_single_write(mlsl_handle, pdata->address,
++					 AK8975_REG_CNTL,
++					 AK8975_CNTL_MODE_FUSE_ROM_ACCESS);
++	if (result) {
++		LOG_RESULT_LOCATION(result);
++		return result;
 +	}
 +
-+	if (data->data_ready && NULL != buf && count >= sizeof(data->data)) {
-+		err = copy_to_user(buf, &data->data, sizeof(data->data));
-+		data->data.data_type = 0;
-+	} else {
-+		return 0;
++	/* Wait at least 200us */
++	udelay(200);
++
++	result = inv_serial_read(mlsl_handle, pdata->address,
++				 AK8975_REG_ASAX,
++				 COMPASS_NUM_AXES, serial_data);
++	if (result) {
++		LOG_RESULT_LOCATION(result);
++		return result;
 +	}
-+	if (err != 0) {
-+		dev_err(data->dev.this_device,
-+			"Copy to user returned %d\n", err);
-+		return -EFAULT;
++
++	pdata->private_data = private_data;
++
++	private_data->init.asa[0] = serial_data[0];
++	private_data->init.asa[1] = serial_data[1];
++	private_data->init.asa[2] = serial_data[2];
++
++	result = inv_serial_single_write(mlsl_handle, pdata->address,
++					 AK8975_REG_CNTL,
++					 AK8975_CNTL_MODE_POWER_DOWN);
++	if (result) {
++		LOG_RESULT_LOCATION(result);
++		return result;
 +	}
-+	data->data_ready = 0;
-+	len = sizeof(data->data);
-+	return len;
++
++	udelay(100);
++	return INV_SUCCESS;
 +}
 +
-+static unsigned int slaveirq_poll(struct file *file,
-+				  struct poll_table_struct *poll)
++static int ak8975_exit(void *mlsl_handle,
++		       struct ext_slave_descr *slave,
++		       struct ext_slave_platform_data *pdata)
 +{
-+	int mask = 0;
-+	struct slaveirq_dev_data *data =
-+	    container_of(file->private_data, struct slaveirq_dev_data, dev);
-+
-+	poll_wait(file, &data->slaveirq_wait, poll);
-+	if (data->data_ready)
-+		mask |= POLLIN | POLLRDNORM;
-+	return mask;
++	kfree(pdata->private_data);
++	return INV_SUCCESS;
 +}
 +
-+/* ioctl - I/O control */
-+static long slaveirq_ioctl(struct file *file,
-+			   unsigned int cmd, unsigned long arg)
++static int ak8975_suspend(void *mlsl_handle,
++		   struct ext_slave_descr *slave,
++		   struct ext_slave_platform_data *pdata)
 +{
-+	int retval = 0;
-+	int tmp;
-+	struct slaveirq_dev_data *data =
-+	    container_of(file->private_data, struct slaveirq_dev_data, dev);
++	int result = INV_SUCCESS;
++	result =
++	    inv_serial_single_write(mlsl_handle, pdata->address,
++				    AK8975_REG_CNTL,
++				    AK8975_CNTL_MODE_POWER_DOWN);
++	msleep(1);		/* wait at least 100us */
++	if (result) {
++		LOG_RESULT_LOCATION(result);
++		return result;
++	}
++	return result;
++}
 +
-+	switch (cmd) {
-+	case SLAVEIRQ_SET_TIMEOUT:
-+		data->timeout = arg;
-+		break;
++static int ak8975_resume(void *mlsl_handle,
++		  struct ext_slave_descr *slave,
++		  struct ext_slave_platform_data *pdata)
++{
++	int result = INV_SUCCESS;
++	result =
++	    inv_serial_single_write(mlsl_handle, pdata->address,
++				    AK8975_REG_CNTL,
++				    AK8975_CNTL_MODE_SINGLE_MEASUREMENT);
++	if (result) {
++		LOG_RESULT_LOCATION(result);
++		return result;
++	}
++	return result;
++}
 +
-+	case SLAVEIRQ_GET_INTERRUPT_CNT:
-+		tmp = data->data.interruptcount - 1;
-+		if (data->data.interruptcount > 1)
-+			data->data.interruptcount = 1;
++static int ak8975_read(void *mlsl_handle,
++		struct ext_slave_descr *slave,
++		struct ext_slave_platform_data *pdata, unsigned char *data)
++{
++	unsigned char regs[8];
++	unsigned char *stat = &regs[0];
++	unsigned char *stat2 = &regs[7];
++	int result = INV_SUCCESS;
++	int status = INV_SUCCESS;
 +
-+		if (copy_to_user((int *)arg, &tmp, sizeof(int)))
-+			return -EFAULT;
++	result =
++	    inv_serial_read(mlsl_handle, pdata->address, AK8975_REG_ST1,
++			    8, regs);
++	if (result) {
++		LOG_RESULT_LOCATION(result);
++		return result;
++	}
++
++	/* Always return the data and the status registers */
++	memcpy(data, &regs[1], 6);
++	data[6] = regs[0];
++	data[7] = regs[7];
++
++	/*
++	 * ST : data ready -
++	 * Measurement has been completed and data is ready to be read.
++	 */
++	if (*stat & 0x01)
++		status = INV_SUCCESS;
++
++	/*
++	 * ST2 : data error -
++	 * occurs when data read is started outside of a readable period;
++	 * data read would not be correct.
++	 * Valid in continuous measurement mode only.
++	 * In single measurement mode this error should not occour but we
++	 * stil account for it and return an error, since the data would be
++	 * corrupted.
++	 * DERR bit is self-clearing when ST2 register is read.
++	 */
++	if (*stat2 & 0x04)
++		status = INV_ERROR_COMPASS_DATA_ERROR;
++	/*
++	 * ST2 : overflow -
++	 * the sum of the absolute values of all axis |X|+|Y|+|Z| < 2400uT.
++	 * This is likely to happen in presence of an external magnetic
++	 * disturbance; it indicates, the sensor data is incorrect and should
++	 * be ignored.
++	 * An error is returned.
++	 * HOFL bit clears when a new measurement starts.
++	 */
++	if (*stat2 & 0x08)
++		status = INV_ERROR_COMPASS_DATA_OVERFLOW;
++	/*
++	 * ST : overrun -
++	 * the previous sample was not fetched and lost.
++	 * Valid in continuous measurement mode only.
++	 * In single measurement mode this error should not occour and we
++	 * don't consider this condition an error.
++	 * DOR bit is self-clearing when ST2 or any meas. data register is
++	 * read.
++	 */
++	if (*stat & 0x02) {
++		/* status = INV_ERROR_COMPASS_DATA_UNDERFLOW; */
++		status = INV_SUCCESS;
++	}
++
++	/*
++	 * trigger next measurement if:
++	 *    - stat is non zero;
++	 *    - if stat is zero and stat2 is non zero.
++	 * Won't trigger if data is not ready and there was no error.
++	 */
++	if (*stat != 0x00 || *stat2 != 0x00) {
++		result = inv_serial_single_write(
++		    mlsl_handle, pdata->address,
++		    AK8975_REG_CNTL, AK8975_CNTL_MODE_SINGLE_MEASUREMENT);
++		if (result) {
++			LOG_RESULT_LOCATION(result);
++			return result;
++		}
++	}
++
++	return status;
++}
++
++static int ak8975_config(void *mlsl_handle,
++			 struct ext_slave_descr *slave,
++			 struct ext_slave_platform_data *pdata,
++			 struct ext_slave_config *data)
++{
++	int result;
++	if (!data->data)
++		return INV_ERROR_INVALID_PARAMETER;
++
++	switch (data->key) {
++	case MPU_SLAVE_WRITE_REGISTERS:
++		result = inv_serial_write(mlsl_handle, pdata->address,
++					  data->len,
++					  (unsigned char *)data->data);
++		if (result) {
++			LOG_RESULT_LOCATION(result);
++			return result;
++		}
 +		break;
-+	case SLAVEIRQ_GET_IRQ_TIME:
-+		if (copy_to_user((int *)arg, &data->data.irqtime,
-+				 sizeof(data->data.irqtime)))
-+			return -EFAULT;
-+		data->data.irqtime = 0;
-+		break;
++	case MPU_SLAVE_CONFIG_ODR_SUSPEND:
++	case MPU_SLAVE_CONFIG_ODR_RESUME:
++	case MPU_SLAVE_CONFIG_FSR_SUSPEND:
++	case MPU_SLAVE_CONFIG_FSR_RESUME:
++	case MPU_SLAVE_CONFIG_MOT_THS:
++	case MPU_SLAVE_CONFIG_NMOT_THS:
++	case MPU_SLAVE_CONFIG_MOT_DUR:
++	case MPU_SLAVE_CONFIG_NMOT_DUR:
++	case MPU_SLAVE_CONFIG_IRQ_SUSPEND:
++	case MPU_SLAVE_CONFIG_IRQ_RESUME:
 +	default:
-+		retval = -EINVAL;
-+	}
-+	return retval;
++		return INV_ERROR_FEATURE_NOT_IMPLEMENTED;
++	};
++
++	return INV_SUCCESS;
 +}
 +
-+static irqreturn_t slaveirq_handler(int irq, void *dev_id)
++static int ak8975_get_config(void *mlsl_handle,
++			     struct ext_slave_descr *slave,
++			     struct ext_slave_platform_data *pdata,
++			     struct ext_slave_config *data)
 +{
-+	struct slaveirq_dev_data *data = (struct slaveirq_dev_data *)dev_id;
-+	static int mycount;
-+	struct timeval irqtime;
-+	mycount++;
++	struct ak8975_private_data *private_data = pdata->private_data;
++	int result;
++	if (!data->data)
++		return INV_ERROR_INVALID_PARAMETER;
 +
-+	data->data.interruptcount++;
++	switch (data->key) {
++	case MPU_SLAVE_READ_REGISTERS:
++		{
++			unsigned char *serial_data =
++			    (unsigned char *)data->data;
++			result =
++			    inv_serial_read(mlsl_handle, pdata->address,
++					    serial_data[0], data->len - 1,
++					    &serial_data[1]);
++			if (result) {
++				LOG_RESULT_LOCATION(result);
++				return result;
++			}
++			break;
++		}
++	case MPU_SLAVE_READ_SCALE:
++		{
++			unsigned char *serial_data =
++			    (unsigned char *)data->data;
++			serial_data[0] = private_data->init.asa[0];
++			serial_data[1] = private_data->init.asa[1];
++			serial_data[2] = private_data->init.asa[2];
++			result = INV_SUCCESS;
++			if (result) {
++				LOG_RESULT_LOCATION(result);
++				return result;
++			}
++			break;
++		}
++	case MPU_SLAVE_CONFIG_ODR_SUSPEND:
++		(*(unsigned long *)data->data) = 0;
++		break;
++	case MPU_SLAVE_CONFIG_ODR_RESUME:
++		(*(unsigned long *)data->data) = 8000;
++		break;
++	case MPU_SLAVE_CONFIG_FSR_SUSPEND:
++	case MPU_SLAVE_CONFIG_FSR_RESUME:
++	case MPU_SLAVE_CONFIG_MOT_THS:
++	case MPU_SLAVE_CONFIG_NMOT_THS:
++	case MPU_SLAVE_CONFIG_MOT_DUR:
++	case MPU_SLAVE_CONFIG_NMOT_DUR:
++	case MPU_SLAVE_CONFIG_IRQ_SUSPEND:
++	case MPU_SLAVE_CONFIG_IRQ_RESUME:
++	default:
++		return INV_ERROR_FEATURE_NOT_IMPLEMENTED;
++	};
 +
-+	/* wake up (unblock) for reading data from userspace */
-+	data->data_ready = 1;
-+
-+	do_gettimeofday(&irqtime);
-+	data->data.irqtime = (((long long)irqtime.tv_sec) << 32);
-+	data->data.irqtime += irqtime.tv_usec;
-+	data->data.data_type |= 1;
-+
-+	wake_up_interruptible(&data->slaveirq_wait);
-+
-+	return IRQ_HANDLED;
-+
++	return INV_SUCCESS;
 +}
 +
-+/* define which file operations are supported */
-+static const struct file_operations slaveirq_fops = {
-+	.owner = THIS_MODULE,
-+	.read = slaveirq_read,
-+	.poll = slaveirq_poll,
-+
-+#if HAVE_COMPAT_IOCTL
-+	.compat_ioctl = slaveirq_ioctl,
-+#endif
-+#if HAVE_UNLOCKED_IOCTL
-+	.unlocked_ioctl = slaveirq_ioctl,
-+#endif
-+	.open = slaveirq_open,
-+	.release = slaveirq_release,
++static struct ext_slave_read_trigger ak8975_read_trigger = {
++	/*.reg              = */ 0x0A,
++	/*.value            = */ 0x01
 +};
 +
-+int slaveirq_init(struct i2c_adapter *slave_adapter,
-+		  struct ext_slave_platform_data *pdata, char *name)
++static struct ext_slave_descr ak8975_descr = {
++	.init             = ak8975_init,
++	.exit             = ak8975_exit,
++	.suspend          = ak8975_suspend,
++	.resume           = ak8975_resume,
++	.read             = ak8975_read,
++	.config           = ak8975_config,
++	.get_config       = ak8975_get_config,
++	.name             = "ak8975",
++	.type             = EXT_SLAVE_TYPE_COMPASS,
++	.id               = COMPASS_ID_AK8975,
++	.read_reg         = 0x01,
++	.read_len         = 9,
++	.endian           = EXT_SLAVE_LITTLE_ENDIAN,
++	.range            = {9830, 4000},
++	.trigger          = &ak8975_read_trigger,
++};
++
++static
++struct ext_slave_descr *ak8975_get_slave_descr(void)
 +{
++	return &ak8975_descr;
++}
 +
-+	int res;
-+	struct slaveirq_dev_data *data;
++/* -------------------------------------------------------------------------- */
++struct ak8975_mod_private_data {
++	struct i2c_client *client;
++	struct ext_slave_platform_data *pdata;
++};
 +
-+	if (!pdata->irq)
-+		return -EINVAL;
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
 +
-+	pdata->irq_data = kzalloc(sizeof(*data), GFP_KERNEL);
-+	data = (struct slaveirq_dev_data *)pdata->irq_data;
-+	if (!data)
-+		return -ENOMEM;
++static int ak8975_mod_probe(struct i2c_client *client,
++			   const struct i2c_device_id *devid)
++{
++	struct ext_slave_platform_data *pdata;
++	struct ak8975_mod_private_data *private_data;
++	int result = 0;
 +
-+	data->dev.minor = MISC_DYNAMIC_MINOR;
-+	data->dev.name = name;
-+	data->dev.fops = &slaveirq_fops;
-+	data->irq = pdata->irq;
-+	data->pid = 0;
-+	data->data_ready = 0;
-+	data->timeout = 0;
++	dev_info(&client->adapter->dev, "%s: %s\n", __func__, devid->name);
 +
-+	init_waitqueue_head(&data->slaveirq_wait);
-+
-+	res = request_irq(data->irq, slaveirq_handler, IRQF_TRIGGER_RISING,
-+			  data->dev.name, data);
-+
-+	if (res) {
-+		dev_err(&slave_adapter->dev,
-+			"myirqtest: cannot register IRQ %d\n", data->irq);
-+		goto out_request_irq;
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		result = -ENODEV;
++		goto out_no_free;
 +	}
 +
-+	res = misc_register(&data->dev);
-+	if (res < 0) {
-+		dev_err(&slave_adapter->dev,
-+			"misc_register returned %d\n", res);
-+		goto out_misc_register;
++	pdata = client->dev.platform_data;
++	if (!pdata) {
++		dev_err(&client->adapter->dev,
++			"Missing platform data for slave %s\n", devid->name);
++		result = -EFAULT;
++		goto out_no_free;
 +	}
 +
-+	return res;
++	private_data = kzalloc(sizeof(*private_data), GFP_KERNEL);
++	if (!private_data) {
++		result = -ENOMEM;
++		goto out_no_free;
++	}
 +
-+out_misc_register:
-+	free_irq(data->irq, data);
-+out_request_irq:
-+	kfree(pdata->irq_data);
-+	pdata->irq_data = NULL;
++	i2c_set_clientdata(client, private_data);
++	private_data->client = client;
++	private_data->pdata = pdata;
 +
++	result = inv_mpu_register_slave(THIS_MODULE, client, pdata,
++					ak8975_get_slave_descr);
++	if (result) {
++		dev_err(&client->adapter->dev,
++			"Slave registration failed: %s, %d\n",
++			devid->name, result);
++		goto out_free_memory;
++	}
++
++	return result;
++
++out_free_memory:
++	kfree(private_data);
++out_no_free:
++	dev_err(&client->adapter->dev, "%s failed %d\n", __func__, result);
++	return result;
++
++}
++
++static int ak8975_mod_remove(struct i2c_client *client)
++{
++	struct ak8975_mod_private_data *private_data =
++		i2c_get_clientdata(client);
++
++	dev_dbg(&client->adapter->dev, "%s\n", __func__);
++	inv_mpu_unregister_slave(client, private_data->pdata,
++				ak8975_get_slave_descr);
++
++	kfree(private_data);
++	return 0;
++}
++
++static const struct i2c_device_id ak8975_mod_id[] = {
++	{ "ak8975", COMPASS_ID_AK8975 },
++	{}
++};
++
++MODULE_DEVICE_TABLE(i2c, ak8975_mod_id);
++
++static struct i2c_driver ak8975_mod_driver = {
++	.class = I2C_CLASS_HWMON,
++	.probe = ak8975_mod_probe,
++	.remove = ak8975_mod_remove,
++	.id_table = ak8975_mod_id,
++	.driver = {
++		   .owner = THIS_MODULE,
++		   .name = "ak8975_mod",
++		   },
++	.address_list = normal_i2c,
++};
++
++static int __init ak8975_mod_init(void)
++{
++	int res = i2c_add_driver(&ak8975_mod_driver);
++	pr_info("%s: Probe name %s\n", __func__, "ak8975_mod");
++	if (res)
++		pr_err("%s failed\n", __func__);
 +	return res;
 +}
 +
-+void slaveirq_exit(struct ext_slave_platform_data *pdata)
++static void __exit ak8975_mod_exit(void)
 +{
-+	struct slaveirq_dev_data *data = pdata->irq_data;
-+
-+	if (!pdata->irq_data || data->irq <= 0)
-+		return;
-+
-+	dev_info(data->dev.this_device, "Unregistering %s\n", data->dev.name);
-+
-+	free_irq(data->irq, data);
-+	misc_deregister(&data->dev);
-+	kfree(pdata->irq_data);
-+	pdata->irq_data = NULL;
++	pr_info("%s\n", __func__);
++	i2c_del_driver(&ak8975_mod_driver);
 +}
-diff --git a/drivers/misc/inv_mpu/slaveirq.h b/drivers/misc/inv_mpu/slaveirq.h
-new file mode 100644
-index 0000000..fe05b6f
---- /dev/null
-+++ b/drivers/misc/inv_mpu/slaveirq.h
-@@ -0,0 +1,38 @@
-+/*
-+	$License:
-+	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
 +
-+	This program is free software; you can redistribute it and/or modify
-+	it under the terms of the GNU General Public License as published by
-+	the Free Software Foundation; either version 2 of the License, or
-+	(at your option) any later version.
++module_init(ak8975_mod_init);
++module_exit(ak8975_mod_exit);
 +
-+	This program is distributed in the hope that it will be useful,
-+	but WITHOUT ANY WARRANTY; without even the implied warranty of
-+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+	GNU General Public License for more details.
++MODULE_AUTHOR("Invensense Corporation");
++MODULE_DESCRIPTION("Driver to integrate AK8975 sensor with the MPU");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("ak8975_mod");
 +
-+	You should have received a copy of the GNU General Public License
-+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-+	$
++/**
++ *  @}
 + */
-+
-+#ifndef __SLAVEIRQ__
-+#define __SLAVEIRQ__
-+
-+#include <linux/i2c-dev.h>
-+
-+#include <linux/mpu.h>
-+#include "mpuirq.h"
-+
-+#define SLAVEIRQ_SET_TIMEOUT           _IOW(MPU_IOCTL, 0x50, unsigned long)
-+#define SLAVEIRQ_GET_INTERRUPT_CNT     _IOR(MPU_IOCTL, 0x51, unsigned long)
-+#define SLAVEIRQ_GET_IRQ_TIME          _IOR(MPU_IOCTL, 0x52, unsigned long)
-+
-+
-+void slaveirq_exit(struct ext_slave_platform_data *pdata);
-+int slaveirq_init(struct i2c_adapter *slave_adapter,
-+		  struct ext_slave_platform_data *pdata, char *name);
-+
-+
-+#endif
 -- 
 1.7.4.1
 

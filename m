@@ -1,111 +1,52 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 4/4] input : wacom - Update Graphire and old Bamboo tablet buttons
-Date: Fri,  1 Jul 2011 09:00:11 -0700
-Message-ID: <1309536011-1996-1-git-send-email-pinglinux@gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 11/11] misc: Add slave driver for bma085 pressure sensor
+Date: Fri, 1 Jul 2011 18:09:03 +0200
+Message-ID: <20110701180903.0fa2cbc9@endymion.delvare>
+References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
+	<1309486707-1658-11-git-send-email-nroyer@invensense.com>
+	<20110701085604.0aabd6f1@bob.linux.org.uk>
+	<CAN_12A8Za7r92=r3JHx3R=AwAA7xk6=NVVMiSp68HPatb1G3hg@mail.gmail.com>
+	<20110701154150.0ac303a3@lxorguk.ukuu.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:43871 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752863Ab1GAP6k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 11:58:40 -0400
-Received: by iyb12 with SMTP id 12so2896546iyb.19
-        for <linux-input@vger.kernel.org>; Fri, 01 Jul 2011 08:58:39 -0700 (PDT)
+Received: from zone0.gcu-squad.org ([212.85.147.21]:6191 "EHLO
+	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751788Ab1GAQJ2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 12:09:28 -0400
+In-Reply-To: <20110701154150.0ac303a3@lxorguk.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: rydberg@euromail.se
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wolfe <cwolfe@chromium.org>
+Cc: Alan Cox <alan@linux.intel.com>, Nathan Royer <nroyer@invensense.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Jun 30, 2011 at 10:27 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+On Fri, 1 Jul 2011 15:41:50 +0100, Alan Cox wrote:
+> > Just to field this quickly, since I've been playing with the hardware
+> 
+> (Ditto)
+> 
+> > Part of the reason I got started on the KXTF9 driver was to try and
+> > understand how a normal kernel driver could cope with the "here and
+> > gone again" behavior of being on the MPU's secondary bus.
+> 
+> It's a hot pluggable bus - no different to an i2c bus on a hot pluggable
+> device. 
+> 
+> I would guess however that if you knew the device was going to be used for
+> the mpu3050 only you'd not add the "slave" devices in your platform data
+> in the first place as well so they didn't bounce in and out and you'd
+> probably teach the mpu3050 code to not create the bus if it was then
+> going to destroy it again a moment later.
 
-    >> On Fri, Jun 24, 2011 at 05:16:02PM -0700, Ping Cheng wrote:
-    >> With the removal of BTN_TOOL_FINGER for tablet buttons and
-    >> expresskeys, serial number is needed to distingush if the
-    >> events were from a regular tool (stylus, eraser, or mouse)
-    >> or the attribures (buttons, strips, or wheels) on the tablet
-    >> since there are overlapped events between the tools and the
-    >> tablet attributes.
-    >>
-    >> Signed-off-by: Ping Cheng <pingc@wacom.com>
-    >> ---
-    >
-    > This patch seems to do three things; 1) the change described in the
-    > text, 2) changing button events, and 3) fix a problem with return
-    > value in the WACOM_MO case. Perhaps a more suitable patch split can be
-    > arranged?
+I didn't look in the code in details, but I see no reason to destroy
+buses. This is a standard multi-master case, where a given I2C bus
+segment can be driven by two masters. If both the host I2C controller
+and the MPU3050 master are fully I2C compliant, it should be no problem
+to let both coexist. If you really need to handle mutual exclusion
+(e.g. the MPU3050 implementation forces you to do so), you can leverage
+the i2c multiplexing support for this, which is available since kernel
+2.6.36. See drivers/i2c/muxes/pca9541.c for an example implementation.
 
-Sure. Will do. Thank you for reviewing the patchset.
-
-Ping
-
-    >>  drivers/input/tablet/wacom_wac.c |   22 ++++++++++------------
-    >>  1 files changed, 10 insertions(+), 12 deletions(-)
-    >>
-    >> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-    >> index 7ce1294..03ebcc8 100644
-    >> --- a/drivers/input/tablet/wacom_wac.c
-    >> +++ b/drivers/input/tablet/wacom_wac.c
-    >> @@ -265,6 +265,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
-    >>                       wacom->id[0] = 0;
-    >>               input_report_abs(input, ABS_MISC, wacom->id[0]); /* report tool id */
-    >>               input_report_key(input, wacom->tool[0], prox);
-    >> +             input_event(input, EV_MSC, MSC_SERIAL, 1);
-    >>               input_sync(input); /* sync last event */
-    >>       }
-    >>
-    >> @@ -274,8 +275,8 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
-    >>               prox = data[7] & 0xf8;
-    >>               if (prox || wacom->id[1]) {
-    >>                       wacom->id[1] = PAD_DEVICE_ID;
-    >> -                     input_report_key(input, BTN_0, (data[7] & 0x40));
-    >> -                     input_report_key(input, BTN_4, (data[7] & 0x80));
-    >> +                     input_report_key(input, BTN_BACK, (data[7] & 0x40));
-    >> +                     input_report_key(input, BTN_FORWARD, (data[7] & 0x80));
-    >>                       rw = ((data[7] & 0x18) >> 3) - ((data[7] & 0x20) >> 3);
-    >>                       input_report_rel(input, REL_WHEEL, rw);
-    >>                       if (!prox)
-    >> @@ -290,17 +291,17 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
-    >>               prox = (data[7] & 0xf8) || data[8];
-    >>               if (prox || wacom->id[1]) {
-    >>                       wacom->id[1] = PAD_DEVICE_ID;
-    >> -                     input_report_key(input, BTN_0, (data[7] & 0x08));
-    >> -                     input_report_key(input, BTN_1, (data[7] & 0x20));
-    >> -                     input_report_key(input, BTN_4, (data[7] & 0x10));
-    >> -                     input_report_key(input, BTN_5, (data[7] & 0x40));
-    >> +                     input_report_key(input, BTN_BACK, (data[7] & 0x08));
-    >> +                     input_report_key(input, BTN_LEFT, (data[7] & 0x20));
-    >> +                     input_report_key(input, BTN_FORWARD, (data[7] & 0x10));
-    >> +                     input_report_key(input, BTN_RIGHT, (data[7] & 0x40));
-    >>                       input_report_abs(input, ABS_WHEEL, (data[8] & 0x7f));
-    >>                       if (!prox)
-    >>                               wacom->id[1] = 0;
-    >>                       input_report_abs(input, ABS_MISC, wacom->id[1]);
-    >>                       input_event(input, EV_MSC, MSC_SERIAL, 0xf0);
-    >> +                     retval = 1;
-    >>               }
-    >> -             retval = 1;
-    >>               break;
-    >>       }
-    >>  exit:
-    >> @@ -1075,17 +1076,14 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
-    >>
-    >>       switch (wacom_wac->features.type) {
-    >>       case WACOM_MO:
-    >> -             __set_bit(BTN_1, input_dev->keybit);
-    >> -             __set_bit(BTN_5, input_dev->keybit);
-    >> -
-    >>               input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-    >>               /* fall through */
-    >>
-    >>       case WACOM_G4:
-    >>               input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
-    >>
-    >> -             __set_bit(BTN_0, input_dev->keybit);
-    >> -             __set_bit(BTN_4, input_dev->keybit);
-    >> +             __set_bit(BTN_BACK, input_dev->keybit);
-    >> +             __set_bit(BTN_FORWARD, input_dev->keybit);
-    >>               /* fall through */
-    >>
-    >>       case GRAPHIRE:
-    >> --
-    >
-    > Thanks,
-    > Henrik 
+-- 
+Jean Delvare

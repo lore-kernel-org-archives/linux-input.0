@@ -1,32 +1,38 @@
 From: Nathan Royer <nroyer@invensense.com>
-Subject: [PATCH 03/11] misc: mpu3050 /dev/mpu implementation.
-Date: Thu, 30 Jun 2011 19:18:19 -0700
-Message-ID: <1309486707-1658-3-git-send-email-nroyer@invensense.com>
+Subject: [PATCH 06/11] misc: inv_mpu logging and debugging support
+Date: Thu, 30 Jun 2011 19:18:22 -0700
+Message-ID: <1309486707-1658-6-git-send-email-nroyer@invensense.com>
 References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:49186 "HELO
+	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754626Ab1GACTZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Jun 2011 22:19:25 -0400
 In-Reply-To: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Nathan Royer <nroyer@invensense.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-
-Implements i2c probing, receives registration of slaves, handles file
-operations, and power management.
 
 Signed-off-by: Nathan Royer <nroyer@invensense.com>
 ---
- drivers/misc/inv_mpu/mpu-dev.c | 1247 ++++++++++++++++++++++++++++++++++++++++
- drivers/misc/inv_mpu/mpu-dev.h |   36 ++
- 2 files changed, 1283 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/inv_mpu/mpu-dev.c
- create mode 100644 drivers/misc/inv_mpu/mpu-dev.h
+ drivers/misc/inv_mpu/log.h            |  287 +++++++++++++++++++++++++++++++++
+ drivers/misc/inv_mpu/mldl_print_cfg.c |  131 +++++++++++++++
+ drivers/misc/inv_mpu/mldl_print_cfg.h |   38 +++++
+ drivers/misc/inv_mpu/mltypes.h        |  226 ++++++++++++++++++++++++++
+ 4 files changed, 682 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/inv_mpu/log.h
+ create mode 100644 drivers/misc/inv_mpu/mldl_print_cfg.c
+ create mode 100644 drivers/misc/inv_mpu/mldl_print_cfg.h
+ create mode 100644 drivers/misc/inv_mpu/mltypes.h
 
-diff --git a/drivers/misc/inv_mpu/mpu-dev.c b/drivers/misc/inv_mpu/mpu-dev.c
+diff --git a/drivers/misc/inv_mpu/log.h b/drivers/misc/inv_mpu/log.h
 new file mode 100644
-index 0000000..977631d
+index 0000000..a8db425
 --- /dev/null
-+++ b/drivers/misc/inv_mpu/mpu-dev.c
-@@ -0,0 +1,1247 @@
++++ b/drivers/misc/inv_mpu/log.h
+@@ -0,0 +1,287 @@
 +/*
 +	$License:
 +	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
@@ -45,1241 +51,418 @@ index 0000000..977631d
 +	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 +	$
 + */
-+#include <linux/i2c.h>
-+#include <linux/i2c-dev.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
++
++/*
++ * This file incorporates work covered by the following copyright and
++ * permission notice:
++ *
++ * Copyright (C) 2005 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++/*
++ * C/C++ logging functions.  See the logging documentation for API details.
++ *
++ * We'd like these to be available from C code (in case we import some from
++ * somewhere), so this has a C interface.
++ *
++ * The output will be correct when the log file is shared between multiple
++ * threads and/or multiple processes so long as the operating system
++ * supports O_APPEND.  These calls have mutex-protected data structures
++ * and so are NOT reentrant.  Do not use MPL_LOG in a signal handler.
++ */
++#ifndef _LIBS_CUTILS_MPL_LOG_H
++#define _LIBS_CUTILS_MPL_LOG_H
++
++#include "mltypes.h"
++#include <stdarg.h>
++
++
 +#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/stat.h>
-+#include <linux/irq.h>
-+#include <linux/gpio.h>
-+#include <linux/signal.h>
-+#include <linux/miscdevice.h>
-+#include <linux/slab.h>
-+#include <linux/version.h>
-+#include <linux/pm.h>
-+#include <linux/mutex.h>
-+#include <linux/suspend.h>
-+#include <linux/poll.h>
-+
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/mm.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/uaccess.h>
-+#include <linux/io.h>
-+
-+#include "mpuirq.h"
-+#include "slaveirq.h"
-+#include "mlsl.h"
-+#include "mldl_cfg.h"
-+#include <linux/mpu.h>
 +
 +
-+/* Platform data for the MPU */
-+struct mpu_private_data {
-+	struct miscdevice dev;
-+	struct i2c_client *client;
++/* --------------------------------------------------------------------- */
 +
-+	/* mldl_cfg data */
-+	struct mldl_cfg mldl_cfg;
-+	struct mpu_ram		mpu_ram;
-+	struct mpu_gyro_cfg	mpu_gyro_cfg;
-+	struct mpu_offsets	mpu_offsets;
-+	struct mpu_chip_info	mpu_chip_info;
-+	struct inv_mpu_cfg	inv_mpu_cfg;
-+	struct inv_mpu_state	inv_mpu_state;
++/*
++ * Normally we strip MPL_LOGV (VERBOSE messages) from release builds.
++ * You can modify this (for example with "#define MPL_LOG_NDEBUG 0"
++ * at the top of your source file) to change that behavior.
++ */
++#ifndef MPL_LOG_NDEBUG
++#ifdef NDEBUG
++#define MPL_LOG_NDEBUG 1
++#else
++#define MPL_LOG_NDEBUG 0
++#endif
++#endif
 +
-+	struct mutex mutex;
-+	wait_queue_head_t mpu_event_wait;
-+	struct completion completion;
-+	struct timer_list timeout;
-+	struct notifier_block nb;
-+	struct mpuirq_data mpu_pm_event;
-+	int response_timeout;	/* In seconds */
-+	unsigned long event;
-+	int pid;
-+	struct module *slave_modules[EXT_SLAVE_NUM_TYPES];
-+};
++#define MPL_LOG_UNKNOWN MPL_LOG_VERBOSE
++#define MPL_LOG_DEFAULT KERN_DEFAULT
++#define MPL_LOG_VERBOSE KERN_CONT
++#define MPL_LOG_DEBUG   KERN_NOTICE
++#define MPL_LOG_INFO    KERN_INFO
++#define MPL_LOG_WARN    KERN_WARNING
++#define MPL_LOG_ERROR   KERN_ERR
++#define MPL_LOG_SILENT  MPL_LOG_VERBOSE
 +
-+struct mpu_private_data *mpu_private_data;
 +
-+static void mpu_pm_timeout(u_long data)
++
++/*
++ * This is the local tag used for the following simplified
++ * logging macros.  You can change this preprocessor definition
++ * before using the other macros to change the tag.
++ */
++#ifndef MPL_LOG_TAG
++#define MPL_LOG_TAG
++#endif
++
++/* --------------------------------------------------------------------- */
++
++/*
++ * Simplified macro to send a verbose log message using the current MPL_LOG_TAG.
++ */
++#ifndef MPL_LOGV
++#if MPL_LOG_NDEBUG
++#define MPL_LOGV(fmt, ...)						\
++	do {								\
++		if (0)							\
++			MPL_LOG(LOG_VERBOSE, MPL_LOG_TAG, fmt, ##__VA_ARGS__);\
++	} while (0)
++#else
++#define MPL_LOGV(fmt, ...) MPL_LOG(LOG_VERBOSE, MPL_LOG_TAG, fmt, ##__VA_ARGS__)
++#endif
++#endif
++
++#ifndef CONDITION
++#define CONDITION(cond)     ((cond) != 0)
++#endif
++
++#ifndef MPL_LOGV_IF
++#if MPL_LOG_NDEBUG
++#define MPL_LOGV_IF(cond, fmt, ...)  \
++	do { if (0) MPL_LOG(fmt, ##__VA_ARGS__); } while (0)
++#else
++#define MPL_LOGV_IF(cond, fmt, ...) \
++	((CONDITION(cond))						\
++		? MPL_LOG(LOG_VERBOSE, MPL_LOG_TAG, fmt, ##__VA_ARGS__) \
++		: (void)0)
++#endif
++#endif
++
++/*
++ * Simplified macro to send a debug log message using the current MPL_LOG_TAG.
++ */
++#ifndef MPL_LOGD
++#define MPL_LOGD(fmt, ...) MPL_LOG(LOG_DEBUG, MPL_LOG_TAG, fmt, ##__VA_ARGS__)
++#endif
++
++#ifndef MPL_LOGD_IF
++#define MPL_LOGD_IF(cond, fmt, ...) \
++	((CONDITION(cond))					       \
++		? MPL_LOG(LOG_DEBUG, MPL_LOG_TAG, fmt, ##__VA_ARGS__)  \
++		: (void)0)
++#endif
++
++/*
++ * Simplified macro to send an info log message using the current MPL_LOG_TAG.
++ */
++#ifndef MPL_LOGI
++#define MPL_LOGI(fmt, ...) MPL_LOG(LOG_INFO, MPL_LOG_TAG, fmt, ##__VA_ARGS__)
++#endif
++
++#ifndef MPL_LOGI_IF
++#define MPL_LOGI_IF(cond, fmt, ...) \
++	((CONDITION(cond))                                              \
++		? MPL_LOG(LOG_INFO, MPL_LOG_TAG, fmt, ##__VA_ARGS__)   \
++		: (void)0)
++#endif
++
++/*
++ * Simplified macro to send a warning log message using the current MPL_LOG_TAG.
++ */
++#ifndef MPL_LOGW
++#define MPL_LOGW(fmt, ...) printk(KERN_WARNING MPL_LOG_TAG fmt, ##__VA_ARGS__)
++#endif
++
++#ifndef MPL_LOGW_IF
++#define MPL_LOGW_IF(cond, fmt, ...) \
++	((CONDITION(cond))					       \
++		? MPL_LOG(LOG_WARN, MPL_LOG_TAG, fmt, ##__VA_ARGS__)   \
++		: (void)0)
++#endif
++
++/*
++ * Simplified macro to send an error log message using the current MPL_LOG_TAG.
++ */
++#ifndef MPL_LOGE
++#define MPL_LOGE(fmt, ...) printk(KERN_ERR MPL_LOG_TAG fmt, ##__VA_ARGS__)
++#endif
++
++#ifndef MPL_LOGE_IF
++#define MPL_LOGE_IF(cond, fmt, ...) \
++	((CONDITION(cond))					       \
++		? MPL_LOG(LOG_ERROR, MPL_LOG_TAG, fmt, ##__VA_ARGS__)  \
++		: (void)0)
++#endif
++
++/* --------------------------------------------------------------------- */
++
++/*
++ * Log a fatal error.  If the given condition fails, this stops program
++ * execution like a normal assertion, but also generating the given message.
++ * It is NOT stripped from release builds.  Note that the condition test
++ * is -inverted- from the normal assert() semantics.
++ */
++#define MPL_LOG_ALWAYS_FATAL_IF(cond, fmt, ...) \
++	((CONDITION(cond))					   \
++		? ((void)android_printAssert(#cond, MPL_LOG_TAG,   \
++						fmt, ##__VA_ARGS__))	\
++		: (void)0)
++
++#define MPL_LOG_ALWAYS_FATAL(fmt, ...) \
++	(((void)android_printAssert(NULL, MPL_LOG_TAG, fmt, ##__VA_ARGS__)))
++
++/*
++ * Versions of MPL_LOG_ALWAYS_FATAL_IF and MPL_LOG_ALWAYS_FATAL that
++ * are stripped out of release builds.
++ */
++#if MPL_LOG_NDEBUG
++#define MPL_LOG_FATAL_IF(cond, fmt, ...)				\
++	do {								\
++		if (0)							\
++			MPL_LOG_ALWAYS_FATAL_IF(cond, fmt, ##__VA_ARGS__); \
++	} while (0)
++#define MPL_LOG_FATAL(fmt, ...)						\
++	do {								\
++		if (0)							\
++			MPL_LOG_ALWAYS_FATAL(fmt, ##__VA_ARGS__)	\
++	} while (0)
++#else
++#define MPL_LOG_FATAL_IF(cond, fmt, ...) \
++	MPL_LOG_ALWAYS_FATAL_IF(cond, fmt, ##__VA_ARGS__)
++#define MPL_LOG_FATAL(fmt, ...) \
++	MPL_LOG_ALWAYS_FATAL(fmt, ##__VA_ARGS__)
++#endif
++
++/*
++ * Assertion that generates a log message when the assertion fails.
++ * Stripped out of release builds.  Uses the current MPL_LOG_TAG.
++ */
++#define MPL_LOG_ASSERT(cond, fmt, ...)			\
++	MPL_LOG_FATAL_IF(!(cond), fmt, ##__VA_ARGS__)
++
++/* --------------------------------------------------------------------- */
++
++/*
++ * Basic log message macro.
++ *
++ * Example:
++ *  MPL_LOG(MPL_LOG_WARN, NULL, "Failed with error %d", errno);
++ *
++ * The second argument may be NULL or "" to indicate the "global" tag.
++ */
++#ifndef MPL_LOG
++#define MPL_LOG(priority, tag, fmt, ...)		\
++	MPL_LOG_PRI(priority, tag, fmt, ##__VA_ARGS__)
++#endif
++
++/*
++ * Log macro that allows you to specify a number for the priority.
++ */
++#ifndef MPL_LOG_PRI
++#define MPL_LOG_PRI(priority, tag, fmt, ...) \
++	pr_debug(MPL_##priority tag fmt, ##__VA_ARGS__)
++#endif
++
++/*
++ * Log macro that allows you to pass in a varargs ("args" is a va_list).
++ */
++#ifndef MPL_LOG_PRI_VA
++/* not allowed in the Kernel because there is no dev_dbg that takes a va_list */
++#endif
++
++/* --------------------------------------------------------------------- */
++
++/*
++ * ===========================================================================
++ *
++ * The stuff in the rest of this file should not be used directly.
++ */
++
++int _MLPrintLog(int priority, const char *tag, const char *fmt,	...);
++int _MLPrintVaLog(int priority, const char *tag, const char *fmt, va_list args);
++/* Final implementation of actual writing to a character device */
++int _MLWriteLog(const char *buf, int buflen);
++
++static inline void __print_result_location(int result,
++					   const char *file,
++					   const char *func, int line)
 +{
-+	struct mpu_private_data *mpu = (struct mpu_private_data *)data;
-+	struct i2c_client *client = mpu->client;
-+	dev_dbg(&client->adapter->dev, "%s\n", __func__);
-+	complete(&mpu->completion);
++	MPL_LOGE("%s|%s|%d returning %d\n", file, func, line, result);
 +}
 +
-+static int mpu_pm_notifier_callback(struct notifier_block *nb,
-+				    unsigned long event, void *unused)
-+{
-+	struct mpu_private_data *mpu =
-+	    container_of(nb, struct mpu_private_data, nb);
-+	struct i2c_client *client = mpu->client;
-+	struct timeval event_time;
-+	dev_dbg(&client->adapter->dev, "%s: %ld\n", __func__, event);
++#define LOG_RESULT_LOCATION(condition) \
++	do {								\
++		__print_result_location((int)(condition), __FILE__,	\
++					__func__, __LINE__);		\
++	} while (0)
 +
-+	/* Prevent the file handle from being closed before we initialize
-+	   the completion event */
-+	mutex_lock(&mpu->mutex);
-+	if (!(mpu->pid) ||
-+	    (event != PM_SUSPEND_PREPARE && event != PM_POST_SUSPEND)) {
-+		mutex_unlock(&mpu->mutex);
-+		return NOTIFY_OK;
-+	}
 +
-+	do_gettimeofday(&event_time);
-+	mpu->mpu_pm_event.interruptcount++;
-+	mpu->mpu_pm_event.irqtime =
-+	    (((long long)event_time.tv_sec) << 32) + event_time.tv_usec;
-+	mpu->mpu_pm_event.data_type = MPUIRQ_DATA_TYPE_PM_EVENT;
-+	mpu->mpu_pm_event.data = mpu->event;
++#endif				/* _LIBS_CUTILS_MPL_LOG_H */
+diff --git a/drivers/misc/inv_mpu/mldl_print_cfg.c b/drivers/misc/inv_mpu/mldl_print_cfg.c
+new file mode 100644
+index 0000000..8218824
+--- /dev/null
++++ b/drivers/misc/inv_mpu/mldl_print_cfg.c
+@@ -0,0 +1,131 @@
++/*
++	$License:
++	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
 +
-+	if (event == PM_SUSPEND_PREPARE)
-+		mpu->event = MPU_PM_EVENT_SUSPEND_PREPARE;
-+	if (event == PM_POST_SUSPEND)
-+		mpu->event = MPU_PM_EVENT_POST_SUSPEND;
++	This program is free software; you can redistribute it and/or modify
++	it under the terms of the GNU General Public License as published by
++	the Free Software Foundation; either version 2 of the License, or
++	(at your option) any later version.
 +
-+	if (mpu->response_timeout > 0) {
-+		mpu->timeout.expires = jiffies + mpu->response_timeout * HZ;
-+		add_timer(&mpu->timeout);
-+	}
-+	INIT_COMPLETION(mpu->completion);
-+	mutex_unlock(&mpu->mutex);
++	This program is distributed in the hope that it will be useful,
++	but WITHOUT ANY WARRANTY; without even the implied warranty of
++	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++	GNU General Public License for more details.
 +
-+	wake_up_interruptible(&mpu->mpu_event_wait);
-+	wait_for_completion(&mpu->completion);
-+	del_timer_sync(&mpu->timeout);
-+	dev_dbg(&client->adapter->dev, "%s: %ld DONE\n", __func__, event);
-+	return NOTIFY_OK;
-+}
-+
-+static int mpu_dev_open(struct inode *inode, struct file *file)
-+{
-+	struct mpu_private_data *mpu =
-+	    container_of(file->private_data, struct mpu_private_data, dev);
-+	struct i2c_client *client = mpu->client;
-+	int result;
-+	int ii;
-+	dev_dbg(&client->adapter->dev, "%s\n", __func__);
-+	dev_dbg(&client->adapter->dev, "current->pid %d\n", current->pid);
-+
-+	result = mutex_lock_interruptible(&mpu->mutex);
-+	if (mpu->pid) {
-+		mutex_unlock(&mpu->mutex);
-+		return -EBUSY;
-+	}
-+	mpu->pid = current->pid;
-+
-+	/* Reset the sensors to the default */
-+	if (result) {
-+		dev_err(&client->adapter->dev,
-+			"%s: mutex_lock_interruptible returned %d\n",
-+			__func__, result);
-+		return result;
-+	}
-+
-+	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++)
-+		__module_get(mpu->slave_modules[ii]);
-+
-+	mutex_unlock(&mpu->mutex);
-+	return 0;
-+}
-+
-+/* close function - called when the "file" /dev/mpu is closed in userspace   */
-+static int mpu_release(struct inode *inode, struct file *file)
-+{
-+	struct mpu_private_data *mpu =
-+	    container_of(file->private_data, struct mpu_private_data, dev);
-+	struct i2c_client *client = mpu->client;
-+	struct mldl_cfg *mldl_cfg = &mpu->mldl_cfg;
-+	int result = 0;
-+	int ii;
-+	struct i2c_adapter *slave_adapter[EXT_SLAVE_NUM_TYPES];
-+	struct ext_slave_platform_data **pdata_slave = mldl_cfg->pdata_slave;
-+
-+	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
-+		if (!pdata_slave[ii])
-+			slave_adapter[ii] = NULL;
-+		else
-+			slave_adapter[ii] =
-+				i2c_get_adapter(pdata_slave[ii]->adapt_num);
-+	}
-+	slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE] = client->adapter;
-+
-+	mutex_lock(&mpu->mutex);
-+	mldl_cfg->inv_mpu_cfg->requested_sensors = 0;
-+	result = inv_mpu_suspend(mldl_cfg,
-+				slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+				slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+				slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+				slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+				INV_ALL_SENSORS);
-+	mpu->pid = 0;
-+	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++)
-+		module_put(mpu->slave_modules[ii]);
-+
-+	mutex_unlock(&mpu->mutex);
-+	complete(&mpu->completion);
-+	dev_dbg(&client->adapter->dev, "mpu_release\n");
-+
-+	return result;
-+}
-+
-+/* read function called when from /dev/mpu is read.  Read from the FIFO */
-+static ssize_t mpu_read(struct file *file,
-+			char __user *buf, size_t count, loff_t *offset)
-+{
-+	struct mpu_private_data *mpu =
-+	    container_of(file->private_data, struct mpu_private_data, dev);
-+	struct i2c_client *client = mpu->client;
-+	size_t len = sizeof(mpu->mpu_pm_event) + sizeof(unsigned long);
-+	int err;
-+
-+	if (!mpu->event && (!(file->f_flags & O_NONBLOCK)))
-+		wait_event_interruptible(mpu->mpu_event_wait, mpu->event);
-+
-+	if (!mpu->event || !buf
-+	    || count < sizeof(mpu->mpu_pm_event) + sizeof(unsigned long))
-+		return 0;
-+
-+	err = copy_to_user(buf, &mpu->mpu_pm_event, sizeof(mpu->mpu_pm_event));
-+	if (err) {
-+		dev_err(&client->adapter->dev,
-+			"Copy to user returned %d\n", err);
-+		return -EFAULT;
-+	}
-+	mpu->event = 0;
-+	return len;
-+}
-+
-+static unsigned int mpu_poll(struct file *file, struct poll_table_struct *poll)
-+{
-+	struct mpu_private_data *mpu =
-+	    container_of(file->private_data, struct mpu_private_data, dev);
-+	int mask = 0;
-+
-+	poll_wait(file, &mpu->mpu_event_wait, poll);
-+	if (mpu->event)
-+		mask |= POLLIN | POLLRDNORM;
-+	return mask;
-+}
-+
-+static int mpu_dev_ioctl_get_ext_slave_platform_data(
-+	struct i2c_client *client,
-+	struct ext_slave_platform_data __user *arg)
-+{
-+	struct mpu_private_data *mpu =
-+	    (struct mpu_private_data *)i2c_get_clientdata(client);
-+	struct ext_slave_platform_data *pdata_slave;
-+	struct ext_slave_platform_data local_pdata_slave;
-+
-+	if (copy_from_user(&local_pdata_slave, arg, sizeof(local_pdata_slave)))
-+		return -EFAULT;
-+
-+	if (local_pdata_slave.type >= EXT_SLAVE_NUM_TYPES)
-+		return -EINVAL;
-+
-+	pdata_slave = mpu->mldl_cfg.pdata_slave[local_pdata_slave.type];
-+	/* All but private data and irq_data */
-+	if (!pdata_slave)
-+		return -ENODEV;
-+	if (copy_to_user(arg, pdata_slave, sizeof(*pdata_slave)))
-+		return -EFAULT;
-+	return 0;
-+}
-+
-+static int mpu_dev_ioctl_get_mpu_platform_data(
-+	struct i2c_client *client,
-+	struct mpu_platform_data __user *arg)
-+{
-+	struct mpu_private_data *mpu =
-+	    (struct mpu_private_data *)i2c_get_clientdata(client);
-+	struct mpu_platform_data *pdata = mpu->mldl_cfg.pdata;
-+
-+	if (copy_to_user(arg, pdata, sizeof(pdata)))
-+		return -EFAULT;
-+	return 0;
-+}
-+
-+static int mpu_dev_ioctl_get_ext_slave_descr(
-+	struct i2c_client *client,
-+	struct ext_slave_descr __user *arg)
-+{
-+	struct mpu_private_data *mpu =
-+	    (struct mpu_private_data *)i2c_get_clientdata(client);
-+	struct ext_slave_descr *slave;
-+	struct ext_slave_descr local_slave;
-+
-+	if (copy_from_user(&local_slave, arg, sizeof(local_slave)))
-+		return -EFAULT;
-+
-+	if (local_slave.type >= EXT_SLAVE_NUM_TYPES)
-+		return -EINVAL;
-+
-+	slave = mpu->mldl_cfg.slave[local_slave.type];
-+	/* All but private data and irq_data */
-+	if (!slave)
-+		return -ENODEV;
-+	if (copy_to_user(arg, slave, sizeof(*slave)))
-+		return -EFAULT;
-+	return 0;
-+}
-+
++	You should have received a copy of the GNU General Public License
++	along with this program.  If not, see <http://www.gnu.org/licenses/>.
++	$
++ */
 +
 +/**
-+ * slave_config() - Pass a requested slave configuration to the slave sensor
++ *  @addtogroup MLDL
 + *
-+ * @adapter the adaptor to use to communicate with the slave
-+ * @mldl_cfg the mldl configuration structuer
-+ * @slave pointer to the slave descriptor
-+ * @usr_config The configuration to pass to the slave sensor
-+ *
-+ * returns 0 or non-zero error code
++ *  @{
++ *      @file   mldl_print_cfg.c
++ *      @brief  The Motion Library Driver Layer.
 + */
-+static int inv_mpu_config(struct mldl_cfg *mldl_cfg,
-+			void *gyro_adapter,
-+			struct ext_slave_config __user *usr_config)
++
++#include <stddef.h>
++#include "mldl_cfg.h"
++#include "mlsl.h"
++#include "linux/mpu.h"
++
++
++void mldl_print_cfg(struct mldl_cfg *mldl_cfg)
 +{
-+	int retval = 0;
-+	struct ext_slave_config config;
-+
-+	retval = copy_from_user(&config, usr_config, sizeof(config));
-+	if (retval)
-+		return -EFAULT;
-+
-+	if (config.len && config.data) {
-+		void *data;
-+		data = kmalloc(config.len, GFP_KERNEL);
-+		if (!data)
-+			return -ENOMEM;
-+
-+		retval = copy_from_user(data,
-+					(void __user *)config.data, config.len);
-+		if (retval) {
-+			retval = -EFAULT;
-+			kfree(data);
-+			return retval;
-+		}
-+		config.data = data;
-+	}
-+	retval = gyro_config(gyro_adapter, mldl_cfg, &config);
-+	kfree(config.data);
-+	return retval;
-+}
-+
-+static int inv_mpu_get_config(struct mldl_cfg *mldl_cfg,
-+			    void *gyro_adapter,
-+			    struct ext_slave_config __user *usr_config)
-+{
-+	int retval = 0;
-+	struct ext_slave_config config;
-+	void *user_data;
-+
-+	retval = copy_from_user(&config, usr_config, sizeof(config));
-+	if (retval)
-+		return -EFAULT;
-+
-+	user_data = config.data;
-+	if (config.len && config.data) {
-+		void *data;
-+		data = kmalloc(config.len, GFP_KERNEL);
-+		if (!data)
-+			return -ENOMEM;
-+
-+		retval = copy_from_user(data,
-+					(void __user *)config.data, config.len);
-+		if (retval) {
-+			retval = -EFAULT;
-+			kfree(data);
-+			return retval;
-+		}
-+		config.data = data;
-+	}
-+	retval = gyro_get_config(gyro_adapter, mldl_cfg, &config);
-+	if (!retval)
-+		retval = copy_to_user((unsigned char __user *)user_data,
-+				config.data, config.len);
-+	kfree(config.data);
-+	return retval;
-+}
-+
-+static int slave_config(struct mldl_cfg *mldl_cfg,
-+			void *gyro_adapter,
-+			void *slave_adapter,
-+			struct ext_slave_descr *slave,
-+			struct ext_slave_platform_data *pdata,
-+			struct ext_slave_config __user *usr_config)
-+{
-+	int retval = 0;
-+	struct ext_slave_config config;
-+	if ((!slave) || (!slave->config))
-+		return -ENODEV;
-+
-+	retval = copy_from_user(&config, usr_config, sizeof(config));
-+	if (retval)
-+		return -EFAULT;
-+
-+	if (config.len && config.data) {
-+		void *data;
-+		data = kmalloc(config.len, GFP_KERNEL);
-+		if (!data)
-+			return -ENOMEM;
-+
-+		retval = copy_from_user(data,
-+					(void __user *)config.data, config.len);
-+		if (retval) {
-+			retval = -EFAULT;
-+			kfree(data);
-+			return retval;
-+		}
-+		config.data = data;
-+	}
-+	retval = inv_mpu_slave_config(mldl_cfg, gyro_adapter, slave_adapter,
-+				      &config, slave, pdata);
-+	kfree(config.data);
-+	return retval;
-+}
-+
-+static int slave_get_config(struct mldl_cfg *mldl_cfg,
-+			    void *gyro_adapter,
-+			    void *slave_adapter,
-+			    struct ext_slave_descr *slave,
-+			    struct ext_slave_platform_data *pdata,
-+			    struct ext_slave_config __user *usr_config)
-+{
-+	int retval = 0;
-+	struct ext_slave_config config;
-+	void *user_data;
-+	if (!(slave) || !(slave->get_config))
-+		return -ENODEV;
-+
-+	retval = copy_from_user(&config, usr_config, sizeof(config));
-+	if (retval)
-+		return -EFAULT;
-+
-+	user_data = config.data;
-+	if (config.len && config.data) {
-+		void *data;
-+		data = kmalloc(config.len, GFP_KERNEL);
-+		if (!data)
-+			return -ENOMEM;
-+
-+		retval = copy_from_user(data,
-+					(void __user *)config.data, config.len);
-+		if (retval) {
-+			retval = -EFAULT;
-+			kfree(data);
-+			return retval;
-+		}
-+		config.data = data;
-+	}
-+	retval = inv_mpu_get_slave_config(mldl_cfg, gyro_adapter,
-+					  slave_adapter, &config, slave, pdata);
-+	if (retval) {
-+		kfree(config.data);
-+		return retval;
-+	}
-+	retval = copy_to_user((unsigned char __user *)user_data,
-+			      config.data, config.len);
-+	kfree(config.data);
-+	return retval;
-+}
-+
-+static int inv_slave_read(struct mldl_cfg *mldl_cfg,
-+			  void *gyro_adapter,
-+			  void *slave_adapter,
-+			  struct ext_slave_descr *slave,
-+			  struct ext_slave_platform_data *pdata,
-+			  void __user *usr_data)
-+{
-+	int retval;
-+	unsigned char *data;
-+	data = kzalloc(slave->read_len, GFP_KERNEL);
-+	if (!data)
-+		return -EFAULT;
-+
-+	retval = inv_mpu_slave_read(mldl_cfg, gyro_adapter, slave_adapter,
-+				    slave, pdata, data);
-+
-+	if ((!retval) &&
-+	    (copy_to_user((unsigned char __user *)usr_data,
-+			  data, slave->read_len)))
-+		retval = -EFAULT;
-+
-+	kfree(data);
-+	return retval;
-+}
-+
-+static int mpu_handle_mlsl(void *sl_handle,
-+			   unsigned char addr,
-+			   unsigned int cmd,
-+			   struct mpu_read_write __user *usr_msg)
-+{
-+	int retval = 0;
-+	struct mpu_read_write msg;
-+	unsigned char *user_data;
-+	retval = copy_from_user(&msg, usr_msg, sizeof(msg));
-+	if (retval)
-+		return -EFAULT;
-+
-+	user_data = msg.data;
-+	if (msg.length && msg.data) {
-+		unsigned char *data;
-+		data = kmalloc(msg.length, GFP_KERNEL);
-+		if (!data)
-+			return -ENOMEM;
-+
-+		retval = copy_from_user(data,
-+					(void __user *)msg.data, msg.length);
-+		if (retval) {
-+			retval = -EFAULT;
-+			kfree(data);
-+			return retval;
-+		}
-+		msg.data = data;
-+	} else {
-+		return -EPERM;
-+	}
-+
-+	switch (cmd) {
-+	case MPU_READ:
-+		retval = inv_serial_read(sl_handle, addr,
-+					 msg.address, msg.length, msg.data);
-+		break;
-+	case MPU_WRITE:
-+		retval = inv_serial_write(sl_handle, addr,
-+					  msg.length, msg.data);
-+		break;
-+	case MPU_READ_MEM:
-+		retval = inv_serial_read_mem(sl_handle, addr,
-+					     msg.address, msg.length, msg.data);
-+		break;
-+	case MPU_WRITE_MEM:
-+		retval = inv_serial_write_mem(sl_handle, addr,
-+					      msg.address, msg.length,
-+					      msg.data);
-+		break;
-+	case MPU_READ_FIFO:
-+		retval = inv_serial_read_fifo(sl_handle, addr,
-+					      msg.length, msg.data);
-+		break;
-+	case MPU_WRITE_FIFO:
-+		retval = inv_serial_write_fifo(sl_handle, addr,
-+					       msg.length, msg.data);
-+		break;
-+
-+	};
-+	if (retval) {
-+		dev_err(&((struct i2c_adapter *)sl_handle)->dev,
-+			"%s: i2c %d error %d\n",
-+			__func__, cmd, retval);
-+		kfree(msg.data);
-+		return retval;
-+	}
-+	retval = copy_to_user((unsigned char __user *)user_data,
-+			      msg.data, msg.length);
-+	kfree(msg.data);
-+	return retval;
-+}
-+
-+/* ioctl - I/O control */
-+static long mpu_dev_ioctl(struct file *file,
-+			  unsigned int cmd, unsigned long arg)
-+{
-+	struct mpu_private_data *mpu =
-+	    container_of(file->private_data, struct mpu_private_data, dev);
-+	struct i2c_client *client = mpu->client;
-+	struct mldl_cfg *mldl_cfg = &mpu->mldl_cfg;
-+	int retval = 0;
-+	struct i2c_adapter *slave_adapter[EXT_SLAVE_NUM_TYPES];
-+	struct ext_slave_descr **slave = mldl_cfg->slave;
++	struct mpu_gyro_cfg	*mpu_gyro_cfg	= mldl_cfg->mpu_gyro_cfg;
++	struct mpu_offsets	*mpu_offsets	= mldl_cfg->mpu_offsets;
++	struct mpu_chip_info	*mpu_chip_info	= mldl_cfg->mpu_chip_info;
++	struct inv_mpu_cfg	*inv_mpu_cfg	= mldl_cfg->inv_mpu_cfg;
++	struct inv_mpu_state	*inv_mpu_state	= mldl_cfg->inv_mpu_state;
++	struct ext_slave_descr	**slave		= mldl_cfg->slave;
++	struct mpu_platform_data *pdata		= mldl_cfg->pdata;
 +	struct ext_slave_platform_data **pdata_slave = mldl_cfg->pdata_slave;
 +	int ii;
 +
++	/* mpu_gyro_cfg */
++	MPL_LOGD("int_config     = %02x\n", mpu_gyro_cfg->int_config);
++	MPL_LOGD("ext_sync       = %02x\n", mpu_gyro_cfg->ext_sync);
++	MPL_LOGD("full_scale     = %02x\n", mpu_gyro_cfg->full_scale);
++	MPL_LOGD("lpf            = %02x\n", mpu_gyro_cfg->lpf);
++	MPL_LOGD("clk_src        = %02x\n", mpu_gyro_cfg->clk_src);
++	MPL_LOGD("divider        = %02x\n", mpu_gyro_cfg->divider);
++	MPL_LOGD("dmp_enable     = %02x\n", mpu_gyro_cfg->dmp_enable);
++	MPL_LOGD("fifo_enable    = %02x\n", mpu_gyro_cfg->fifo_enable);
++	MPL_LOGD("dmp_cfg1       = %02x\n", mpu_gyro_cfg->dmp_cfg1);
++	MPL_LOGD("dmp_cfg2       = %02x\n", mpu_gyro_cfg->dmp_cfg2);
++	/* mpu_offsets */
++	MPL_LOGD("tc[0]      = %02x\n", mpu_offsets->tc[0]);
++	MPL_LOGD("tc[1]      = %02x\n", mpu_offsets->tc[1]);
++	MPL_LOGD("tc[2]      = %02x\n", mpu_offsets->tc[2]);
++	MPL_LOGD("gyro[0]    = %04x\n", mpu_offsets->gyro[0]);
++	MPL_LOGD("gyro[1]    = %04x\n", mpu_offsets->gyro[1]);
++	MPL_LOGD("gyro[2]    = %04x\n", mpu_offsets->gyro[2]);
++
++	/* mpu_chip_info */
++	MPL_LOGD("addr            = %02x\n", mldl_cfg->mpu_chip_info->addr);
++
++	MPL_LOGD("silicon_revision = %02x\n", mpu_chip_info->silicon_revision);
++	MPL_LOGD("product_revision = %02x\n", mpu_chip_info->product_revision);
++	MPL_LOGD("product_id       = %02x\n", mpu_chip_info->product_id);
++	MPL_LOGD("gyro_sens_trim   = %02x\n", mpu_chip_info->gyro_sens_trim);
++
++	MPL_LOGD("requested_sensors = %04x\n", inv_mpu_cfg->requested_sensors);
++	MPL_LOGD("ignore_system_suspend= %04x\n",
++		inv_mpu_cfg->ignore_system_suspend);
++	MPL_LOGD("status = %04x\n", inv_mpu_state->status);
++	MPL_LOGD("i2c_slaves_enabled= %04x\n",
++		inv_mpu_state->i2c_slaves_enabled);
++
 +	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
-+		if (!pdata_slave[ii])
-+			slave_adapter[ii] = NULL;
-+		else
-+			slave_adapter[ii] =
-+				i2c_get_adapter(pdata_slave[ii]->adapt_num);
++		if (!slave[ii])
++			continue;
++		MPL_LOGD("SLAVE %d:\n", ii);
++		MPL_LOGD("    suspend  = %02x\n", (int)slave[ii]->suspend);
++		MPL_LOGD("    resume   = %02x\n", (int)slave[ii]->resume);
++		MPL_LOGD("    read     = %02x\n", (int)slave[ii]->read);
++		MPL_LOGD("    type     = %02x\n", slave[ii]->type);
++		MPL_LOGD("    reg      = %02x\n", slave[ii]->read_reg);
++		MPL_LOGD("    len      = %02x\n", slave[ii]->read_len);
++		MPL_LOGD("    endian   = %02x\n", slave[ii]->endian);
++		MPL_LOGD("    range.mantissa= %02x\n",
++			slave[ii]->range.mantissa);
++		MPL_LOGD("    range.fraction= %02x\n",
++			slave[ii]->range.fraction);
 +	}
-+	slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE] = client->adapter;
-+
-+	retval = mutex_lock_interruptible(&mpu->mutex);
-+	if (retval) {
-+		dev_err(&client->adapter->dev,
-+			"%s: mutex_lock_interruptible returned %d\n",
-+			__func__, retval);
-+		return retval;
-+	}
-+
-+	switch (cmd) {
-+	case MPU_GET_EXT_SLAVE_PLATFORM_DATA:
-+		retval = mpu_dev_ioctl_get_ext_slave_platform_data(
-+			client,
-+			(struct ext_slave_platform_data __user *)arg);
-+		break;
-+	case MPU_GET_MPU_PLATFORM_DATA:
-+		retval = mpu_dev_ioctl_get_mpu_platform_data(
-+			client,
-+			(struct mpu_platform_data __user *)arg);
-+		break;
-+	case MPU_GET_EXT_SLAVE_DESCR:
-+		retval = mpu_dev_ioctl_get_ext_slave_descr(
-+			client,
-+			(struct ext_slave_descr __user *)arg);
-+		break;
-+	case MPU_READ:
-+	case MPU_WRITE:
-+	case MPU_READ_MEM:
-+	case MPU_WRITE_MEM:
-+	case MPU_READ_FIFO:
-+	case MPU_WRITE_FIFO:
-+		retval = mpu_handle_mlsl(
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			mldl_cfg->mpu_chip_info->addr, cmd,
-+			(struct mpu_read_write __user *)arg);
-+		break;
-+	case MPU_CONFIG_GYRO:
-+		retval = inv_mpu_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_CONFIG_ACCEL:
-+		retval = slave_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+			slave[EXT_SLAVE_TYPE_ACCEL],
-+			pdata_slave[EXT_SLAVE_TYPE_ACCEL],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_CONFIG_COMPASS:
-+		retval = slave_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+			slave[EXT_SLAVE_TYPE_COMPASS],
-+			pdata_slave[EXT_SLAVE_TYPE_COMPASS],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_CONFIG_PRESSURE:
-+		retval = slave_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+			slave[EXT_SLAVE_TYPE_PRESSURE],
-+			pdata_slave[EXT_SLAVE_TYPE_PRESSURE],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_GET_CONFIG_GYRO:
-+		retval = inv_mpu_get_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_GET_CONFIG_ACCEL:
-+		retval = slave_get_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+			slave[EXT_SLAVE_TYPE_ACCEL],
-+			pdata_slave[EXT_SLAVE_TYPE_ACCEL],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_GET_CONFIG_COMPASS:
-+		retval = slave_get_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+			slave[EXT_SLAVE_TYPE_COMPASS],
-+			pdata_slave[EXT_SLAVE_TYPE_COMPASS],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_GET_CONFIG_PRESSURE:
-+		retval = slave_get_config(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+			slave[EXT_SLAVE_TYPE_PRESSURE],
-+			pdata_slave[EXT_SLAVE_TYPE_PRESSURE],
-+			(struct ext_slave_config __user *)arg);
-+		break;
-+	case MPU_SUSPEND:
-+		retval = inv_mpu_suspend(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+			slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+			slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+			arg);
-+		break;
-+	case MPU_RESUME:
-+		retval = inv_mpu_resume(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+			slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+			slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+			arg);
-+		break;
-+	case MPU_PM_EVENT_HANDLED:
-+		dev_dbg(&client->adapter->dev, "%s: %d\n", __func__, cmd);
-+		complete(&mpu->completion);
-+		break;
-+	case MPU_READ_ACCEL:
-+		retval = inv_slave_read(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+			slave[EXT_SLAVE_TYPE_ACCEL],
-+			pdata_slave[EXT_SLAVE_TYPE_ACCEL],
-+			(unsigned char __user *)arg);
-+		break;
-+	case MPU_READ_COMPASS:
-+		retval = inv_slave_read(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+			slave[EXT_SLAVE_TYPE_COMPASS],
-+			pdata_slave[EXT_SLAVE_TYPE_COMPASS],
-+			(unsigned char __user *)arg);
-+		break;
-+	case MPU_READ_PRESSURE:
-+		retval = inv_slave_read(
-+			mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+			slave[EXT_SLAVE_TYPE_PRESSURE],
-+			pdata_slave[EXT_SLAVE_TYPE_PRESSURE],
-+			(unsigned char __user *)arg);
-+		break;
-+	case MPU_GET_REQUESTED_SENSORS:
-+		if (copy_to_user(
-+			   (__u32 __user *)arg,
-+			   &mldl_cfg->inv_mpu_cfg->requested_sensors,
-+			   sizeof(mldl_cfg->inv_mpu_cfg->requested_sensors)))
-+			retval = -EFAULT;
-+		break;
-+	case MPU_SET_REQUESTED_SENSORS:
-+		mldl_cfg->inv_mpu_cfg->requested_sensors = arg;
-+		break;
-+	case MPU_GET_IGNORE_SYSTEM_SUSPEND:
-+		if (copy_to_user(
-+			(unsigned char __user *)arg,
-+			&mldl_cfg->inv_mpu_cfg->ignore_system_suspend,
-+			sizeof(mldl_cfg->inv_mpu_cfg->ignore_system_suspend)))
-+			retval = -EFAULT;
-+		break;
-+	case MPU_SET_IGNORE_SYSTEM_SUSPEND:
-+		mldl_cfg->inv_mpu_cfg->ignore_system_suspend = arg;
-+		break;
-+	case MPU_GET_MLDL_STATUS:
-+		if (copy_to_user(
-+			(unsigned char __user *)arg,
-+			&mldl_cfg->inv_mpu_state->status,
-+			sizeof(mldl_cfg->inv_mpu_state->status)))
-+			retval = -EFAULT;
-+		break;
-+	case MPU_GET_I2C_SLAVES_ENABLED:
-+		if (copy_to_user(
-+			(unsigned char __user *)arg,
-+			&mldl_cfg->inv_mpu_state->i2c_slaves_enabled,
-+			sizeof(mldl_cfg->inv_mpu_state->i2c_slaves_enabled)))
-+			retval = -EFAULT;
-+		break;
-+	default:
-+		dev_err(&client->adapter->dev,
-+			"%s: Unknown cmd %x, arg %lu\n",
-+			__func__, cmd, arg);
-+		retval = -EINVAL;
-+	};
-+
-+	mutex_unlock(&mpu->mutex);
-+	dev_dbg(&client->adapter->dev, "%s: %08x, %08lx, %d\n",
-+		__func__, cmd, arg, retval);
-+
-+	if (retval > 0)
-+		retval = -retval;
-+
-+	return retval;
-+}
-+
-+void mpu_shutdown(struct i2c_client *client)
-+{
-+	struct mpu_private_data *mpu =
-+	    (struct mpu_private_data *)i2c_get_clientdata(client);
-+	struct mldl_cfg *mldl_cfg = &mpu->mldl_cfg;
-+	struct i2c_adapter *slave_adapter[EXT_SLAVE_NUM_TYPES];
-+	struct ext_slave_platform_data **pdata_slave = mldl_cfg->pdata_slave;
-+	int ii;
 +
 +	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
 +		if (!pdata_slave[ii])
-+			slave_adapter[ii] = NULL;
-+		else
-+			slave_adapter[ii] =
-+				i2c_get_adapter(pdata_slave[ii]->adapt_num);
++			continue;
++		MPL_LOGD("PDATA_SLAVE[%d]\n", ii);
++		MPL_LOGD("    irq        = %02x\n", pdata_slave[ii]->irq);
++		MPL_LOGD("    adapt_num  = %02x\n", pdata_slave[ii]->adapt_num);
++		MPL_LOGD("    bus        = %02x\n", pdata_slave[ii]->bus);
++		MPL_LOGD("    address    = %02x\n", pdata_slave[ii]->address);
++		MPL_LOGD("    orientation=\n"
++			"                            %2d %2d %2d\n"
++			"                            %2d %2d %2d\n"
++			"                            %2d %2d %2d\n",
++			pdata_slave[ii]->orientation[0],
++			pdata_slave[ii]->orientation[1],
++			pdata_slave[ii]->orientation[2],
++			pdata_slave[ii]->orientation[3],
++			pdata_slave[ii]->orientation[4],
++			pdata_slave[ii]->orientation[5],
++			pdata_slave[ii]->orientation[6],
++			pdata_slave[ii]->orientation[7],
++			pdata_slave[ii]->orientation[8]);
 +	}
-+	slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE] = client->adapter;
 +
-+	mutex_lock(&mpu->mutex);
-+	(void)inv_mpu_suspend(mldl_cfg,
-+			slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+			slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+			slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+			slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+			INV_ALL_SENSORS);
-+	mutex_unlock(&mpu->mutex);
-+	dev_dbg(&client->adapter->dev, "%s\n", __func__);
++	MPL_LOGD("pdata->int_config         = %02x\n", pdata->int_config);
++	MPL_LOGD("pdata->level_shifter      = %02x\n", pdata->level_shifter);
++	MPL_LOGD("pdata->orientation        =\n"
++		 "                            %2d %2d %2d\n"
++		 "                            %2d %2d %2d\n"
++		 "                            %2d %2d %2d\n",
++		 pdata->orientation[0], pdata->orientation[1],
++		 pdata->orientation[2], pdata->orientation[3],
++		 pdata->orientation[4], pdata->orientation[5],
++		 pdata->orientation[6], pdata->orientation[7],
++		 pdata->orientation[8]);
 +}
-+
-+int mpu_dev_suspend(struct i2c_client *client, pm_message_t mesg)
-+{
-+	struct mpu_private_data *mpu =
-+	    (struct mpu_private_data *)i2c_get_clientdata(client);
-+	struct mldl_cfg *mldl_cfg = &mpu->mldl_cfg;
-+	struct i2c_adapter *slave_adapter[EXT_SLAVE_NUM_TYPES];
-+	struct ext_slave_platform_data **pdata_slave = mldl_cfg->pdata_slave;
-+	int ii;
-+
-+	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
-+		if (!pdata_slave[ii])
-+			slave_adapter[ii] = NULL;
-+		else
-+			slave_adapter[ii] =
-+				i2c_get_adapter(pdata_slave[ii]->adapt_num);
-+	}
-+	slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE] = client->adapter;
-+
-+	mutex_lock(&mpu->mutex);
-+	if (!mldl_cfg->inv_mpu_cfg->ignore_system_suspend) {
-+		dev_dbg(&client->adapter->dev,
-+			"%s: suspending on event %d\n", __func__, mesg.event);
-+		(void)inv_mpu_suspend(mldl_cfg,
-+				slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+				slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+				slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+				slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+				INV_ALL_SENSORS);
-+	} else {
-+		dev_dbg(&client->adapter->dev,
-+			"%s: Already suspended %d\n", __func__, mesg.event);
-+	}
-+	mutex_unlock(&mpu->mutex);
-+	return 0;
-+}
-+
-+int mpu_dev_resume(struct i2c_client *client)
-+{
-+	struct mpu_private_data *mpu =
-+	    (struct mpu_private_data *)i2c_get_clientdata(client);
-+	struct mldl_cfg *mldl_cfg = &mpu->mldl_cfg;
-+	struct i2c_adapter *slave_adapter[EXT_SLAVE_NUM_TYPES];
-+	struct ext_slave_platform_data **pdata_slave = mldl_cfg->pdata_slave;
-+	int ii;
-+
-+	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
-+		if (!pdata_slave[ii])
-+			slave_adapter[ii] = NULL;
-+		else
-+			slave_adapter[ii] =
-+				i2c_get_adapter(pdata_slave[ii]->adapt_num);
-+	}
-+	slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE] = client->adapter;
-+
-+	mutex_lock(&mpu->mutex);
-+	if (mpu->pid && !mldl_cfg->inv_mpu_cfg->ignore_system_suspend) {
-+		(void)inv_mpu_resume(mldl_cfg,
-+				slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+				slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+				slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+				slave_adapter[EXT_SLAVE_TYPE_PRESSURE],
-+				mldl_cfg->inv_mpu_cfg->requested_sensors);
-+		dev_dbg(&client->adapter->dev,
-+			"%s for pid %d\n", __func__, mpu->pid);
-+	}
-+	mutex_unlock(&mpu->mutex);
-+	return 0;
-+}
-+
-+/* define which file operations are supported */
-+static const struct file_operations mpu_fops = {
-+	.owner = THIS_MODULE,
-+	.read = mpu_read,
-+	.poll = mpu_poll,
-+	.unlocked_ioctl = mpu_dev_ioctl,
-+	.open = mpu_dev_open,
-+	.release = mpu_release,
-+};
-+
-+int inv_mpu_register_slave(struct module *slave_module,
-+			struct i2c_client *slave_client,
-+			struct ext_slave_platform_data *slave_pdata,
-+			struct ext_slave_descr *(*get_slave_descr)(void))
-+{
-+	struct mpu_private_data *mpu = mpu_private_data;
-+	struct mldl_cfg *mldl_cfg;
-+	struct ext_slave_descr *slave_descr;
-+	struct ext_slave_platform_data **pdata_slave;
-+	char *irq_name;
-+	int result = 0;
-+
-+	if (!slave_client || !slave_pdata || !get_slave_descr)
-+		return -EINVAL;
-+
-+	if (!mpu) {
-+		dev_err(&slave_client->adapter->dev,
-+			"%s: Null mpu_private_data\n", __func__);
-+		return -EINVAL;
-+	}
-+	mldl_cfg = &mpu->mldl_cfg;
-+	pdata_slave = mldl_cfg->pdata_slave;
-+
-+	slave_descr = get_slave_descr();
-+	if (!slave_descr) {
-+		dev_err(&slave_client->adapter->dev,
-+			"%s: Null ext_slave_descr\n", __func__);
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&mpu->mutex);
-+	if (mpu->pid) {
-+		mutex_unlock(&mpu->mutex);
-+		return -EBUSY;
-+	}
-+
-+	mpu->slave_modules[slave_descr->type] = slave_module;
-+
-+	if (pdata_slave[slave_descr->type]) {
-+		result = -EBUSY;
-+		goto out_unlock_mutex;
-+	}
-+
-+	pdata_slave[slave_descr->type] = slave_pdata;
-+	pdata_slave[slave_descr->type]->address		= slave_client->addr;
-+	pdata_slave[slave_descr->type]->irq		= slave_client->irq;
-+	pdata_slave[slave_descr->type]->adapt_num	=
-+		i2c_adapter_id(slave_client->adapter);
-+
-+	switch (slave_descr->type) {
-+	case EXT_SLAVE_TYPE_ACCEL:
-+		irq_name = "accelirq";
-+		break;
-+	case EXT_SLAVE_TYPE_COMPASS:
-+		irq_name = "compassirq";
-+		break;
-+	case EXT_SLAVE_TYPE_PRESSURE:
-+		irq_name = "pressureirq";
-+		break;
-+	default:
-+		irq_name = "none";
-+	};
-+
-+	if (pdata_slave[slave_descr->type]->irq > 0) {
-+		dev_info(&slave_client->adapter->dev,
-+			"Installing %s irq using %d\n",
-+			irq_name,
-+			pdata_slave[slave_descr->type]->irq);
-+		result = slaveirq_init(slave_client->adapter,
-+				pdata_slave[slave_descr->type], irq_name);
-+		if (result)
-+			goto out_unlock_mutex;
-+	} else {
-+		dev_WARN(&slave_client->adapter->dev,
-+			"Accel irq not assigned\n");
-+	}
-+
-+	if (slave_descr->init) {
-+		result = slave_descr->init(slave_client->adapter,
-+					slave_descr,
-+					pdata_slave[slave_descr->type]);
-+		if (result) {
-+			dev_err(&slave_client->adapter->dev,
-+				"Accel init failed %d\n", result);
-+			goto out_slaveirq_exit;
-+		}
-+	}
-+
-+	mldl_cfg->slave[slave_descr->type] = slave_descr;
-+
-+	dev_info(&slave_client->adapter->dev,
-+		"%s: +%s Type %d: Addr: %2x IRQ: %2d, Adapt: %2d\n",
-+		__func__,
-+		mldl_cfg->slave[slave_descr->type]->name,
-+		slave_descr->type,
-+		pdata_slave[slave_descr->type]->address,
-+		pdata_slave[slave_descr->type]->irq,
-+		pdata_slave[slave_descr->type]->adapt_num);
-+	goto out_unlock_mutex;
-+
-+out_slaveirq_exit:
-+	if (pdata_slave[slave_descr->type]->irq > 0)
-+		slaveirq_exit(pdata_slave[slave_descr->type]);
-+out_unlock_mutex:
-+	mutex_unlock(&mpu->mutex);
-+	return result;
-+}
-+EXPORT_SYMBOL(inv_mpu_register_slave);
-+
-+void inv_mpu_unregister_slave(struct i2c_client *slave_client,
-+			struct ext_slave_platform_data *slave_pdata,
-+			struct ext_slave_descr *(*get_slave_descr)(void))
-+{
-+	struct mpu_private_data *mpu = mpu_private_data;
-+	struct mldl_cfg *mldl_cfg = &mpu->mldl_cfg;
-+	struct ext_slave_descr *slave_descr;
-+	int result;
-+
-+	dev_info(&slave_client->adapter->dev, "%s\n", __func__);
-+
-+	if (!slave_client || !slave_pdata || !get_slave_descr)
-+		return;
-+
-+	slave_descr = get_slave_descr();
-+	if (!slave_descr)
-+		return;
-+
-+	mutex_lock(&mpu->mutex);
-+
-+	if (slave_descr->exit) {
-+		result = slave_descr->exit(slave_client->adapter,
-+					slave_descr,
-+					slave_pdata);
-+		if (result)
-+			dev_err(&slave_client->adapter->dev,
-+				"Accel exit failed %d\n", result);
-+	}
-+
-+	if (slave_pdata->irq)
-+		slaveirq_exit(slave_pdata);
-+
-+	mldl_cfg->slave[slave_descr->type] = NULL;
-+	mldl_cfg->pdata_slave[slave_descr->type] = NULL;
-+	mpu->slave_modules[slave_descr->type] = NULL;
-+
-+	mutex_unlock(&mpu->mutex);
-+}
-+EXPORT_SYMBOL(inv_mpu_unregister_slave);
-+
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
-+
-+static const struct i2c_device_id mpu_id[] = {
-+	{"mpu3050", 0},
-+	{"mpu6050", 0},
-+	{"mpu6050_no_accel", 0},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, mpu_id);
-+
-+int mpu_probe(struct i2c_client *client, const struct i2c_device_id *devid)
-+{
-+	struct mpu_platform_data *pdata;
-+	struct mpu_private_data *mpu;
-+	struct mldl_cfg *mldl_cfg;
-+	int res = 0;
-+	int ii = 0;
-+
-+	dev_info(&client->adapter->dev, "%s: %d\n", __func__, ii++);
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		res = -ENODEV;
-+		goto out_check_functionality_failed;
-+	}
-+
-+	mpu = kzalloc(sizeof(struct mpu_private_data), GFP_KERNEL);
-+	if (!mpu) {
-+		res = -ENOMEM;
-+		goto out_alloc_data_failed;
-+	}
-+	mldl_cfg = &mpu->mldl_cfg;
-+	mldl_cfg->mpu_ram	= &mpu->mpu_ram;
-+	mldl_cfg->mpu_gyro_cfg	= &mpu->mpu_gyro_cfg;
-+	mldl_cfg->mpu_offsets	= &mpu->mpu_offsets;
-+	mldl_cfg->mpu_chip_info	= &mpu->mpu_chip_info;
-+	mldl_cfg->inv_mpu_cfg	= &mpu->inv_mpu_cfg;
-+	mldl_cfg->inv_mpu_state	= &mpu->inv_mpu_state;
-+
-+	mldl_cfg->mpu_ram->length = MPU_MEM_NUM_RAM_BANKS * MPU_MEM_BANK_SIZE;
-+	mldl_cfg->mpu_ram->ram = kzalloc(mldl_cfg->mpu_ram->length, GFP_KERNEL);
-+	if (!mldl_cfg->mpu_ram->ram) {
-+		res = -ENOMEM;
-+		goto out_alloc_ram_failed;
-+	}
-+	mpu_private_data = mpu;
-+	i2c_set_clientdata(client, mpu);
-+	mpu->client = client;
-+
-+	init_waitqueue_head(&mpu->mpu_event_wait);
-+	mutex_init(&mpu->mutex);
-+	init_completion(&mpu->completion);
-+
-+	mpu->response_timeout = 60;	/* Seconds */
-+	mpu->timeout.function = mpu_pm_timeout;
-+	mpu->timeout.data = (u_long) mpu;
-+	init_timer(&mpu->timeout);
-+
-+	mpu->nb.notifier_call = mpu_pm_notifier_callback;
-+	mpu->nb.priority = 0;
-+	res = register_pm_notifier(&mpu->nb);
-+	if (res) {
-+		dev_err(&client->adapter->dev,
-+			"Unable to register pm_notifier %d\n", res);
-+		goto out_register_pm_notifier_failed;
-+	}
-+
-+	pdata = (struct mpu_platform_data *)client->dev.platform_data;
-+	if (!pdata) {
-+		dev_WARN(&client->adapter->dev,
-+			 "Missing platform data for mpu\n");
-+	}
-+	mldl_cfg->pdata = pdata;
-+
-+	mldl_cfg->mpu_chip_info->addr = client->addr;
-+	res = inv_mpu_open(&mpu->mldl_cfg, client->adapter, NULL, NULL, NULL);
-+
-+	if (res) {
-+		dev_err(&client->adapter->dev,
-+			"Unable to open %s %d\n", MPU_NAME, res);
-+		res = -ENODEV;
-+		goto out_whoami_failed;
-+	}
-+
-+	mpu->dev.minor = MISC_DYNAMIC_MINOR;
-+	mpu->dev.name = "mpu";
-+	mpu->dev.fops = &mpu_fops;
-+	res = misc_register(&mpu->dev);
-+	if (res < 0) {
-+		dev_err(&client->adapter->dev,
-+			"ERROR: misc_register returned %d\n", res);
-+		goto out_misc_register_failed;
-+	}
-+
-+	if (client->irq) {
-+		dev_info(&client->adapter->dev,
-+			 "Installing irq using %d\n", client->irq);
-+		res = mpuirq_init(client, mldl_cfg);
-+		if (res)
-+			goto out_mpuirq_failed;
-+	} else {
-+		dev_WARN(&client->adapter->dev,
-+			 "Missing %s IRQ\n", MPU_NAME);
-+	}
-+
-+	return res;
-+
-+out_mpuirq_failed:
-+	misc_deregister(&mpu->dev);
-+out_misc_register_failed:
-+	inv_mpu_close(&mpu->mldl_cfg, client->adapter, NULL, NULL, NULL);
-+out_whoami_failed:
-+	unregister_pm_notifier(&mpu->nb);
-+out_register_pm_notifier_failed:
-+	kfree(mldl_cfg->mpu_ram->ram);
-+	mpu_private_data = NULL;
-+out_alloc_ram_failed:
-+	kfree(mpu);
-+out_alloc_data_failed:
-+out_check_functionality_failed:
-+	dev_err(&client->adapter->dev, "%s failed %d\n", __func__, res);
-+	return res;
-+
-+}
-+
-+static int mpu_remove(struct i2c_client *client)
-+{
-+	struct mpu_private_data *mpu = i2c_get_clientdata(client);
-+	struct i2c_adapter *slave_adapter[EXT_SLAVE_NUM_TYPES];
-+	struct mldl_cfg *mldl_cfg = &mpu->mldl_cfg;
-+	struct ext_slave_platform_data **pdata_slave = mldl_cfg->pdata_slave;
-+	int ii;
-+
-+	for (ii = 0; ii < EXT_SLAVE_NUM_TYPES; ii++) {
-+		if (!pdata_slave[ii])
-+			slave_adapter[ii] = NULL;
-+		else
-+			slave_adapter[ii] =
-+				i2c_get_adapter(pdata_slave[ii]->adapt_num);
-+	}
-+
-+	slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE] = client->adapter;
-+	dev_dbg(&client->adapter->dev, "%s\n", __func__);
-+
-+	inv_mpu_close(mldl_cfg,
-+		slave_adapter[EXT_SLAVE_TYPE_GYROSCOPE],
-+		slave_adapter[EXT_SLAVE_TYPE_ACCEL],
-+		slave_adapter[EXT_SLAVE_TYPE_COMPASS],
-+		slave_adapter[EXT_SLAVE_TYPE_PRESSURE]);
-+
-+	if (client->irq)
-+		mpuirq_exit();
-+
-+	for (ii = EXT_SLAVE_TYPE_ACCEL - 1; ii >= 0; ii--) {
-+		if (pdata_slave[ii] &&
-+		    pdata_slave[ii]->irq) {
-+			slaveirq_exit(pdata_slave[ii]);
-+		}
-+	}
-+
-+	unregister_pm_notifier(&mpu->nb);
-+
-+	misc_deregister(&mpu->dev);
-+	kfree(mpu);
-+
-+	return 0;
-+}
-+
-+static struct i2c_driver mpu_driver = {
-+	.class = I2C_CLASS_HWMON,
-+	.probe = mpu_probe,
-+	.remove = mpu_remove,
-+	.id_table = mpu_id,
-+	.driver = {
-+		   .owner = THIS_MODULE,
-+		   .name = MPU_NAME,
-+		   },
-+	.address_list = normal_i2c,
-+	.shutdown = mpu_shutdown,	/* optional */
-+	.suspend = mpu_dev_suspend,	/* optional */
-+	.resume = mpu_dev_resume,	/* optional */
-+
-+};
-+
-+static int __init mpu_init(void)
-+{
-+	int res = i2c_add_driver(&mpu_driver);
-+	pr_info("%s: Probe name %s\n", __func__, MPU_NAME);
-+	if (res)
-+		pr_err("%s failed\n", __func__);
-+	return res;
-+}
-+
-+static void __exit mpu_exit(void)
-+{
-+	pr_info("%s\n", __func__);
-+	i2c_del_driver(&mpu_driver);
-+}
-+
-+module_init(mpu_init);
-+module_exit(mpu_exit);
-+
-+MODULE_AUTHOR("Invensense Corporation");
-+MODULE_DESCRIPTION("User space character device interface for MPU");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS(MPU_NAME);
-diff --git a/drivers/misc/inv_mpu/mpu-dev.h b/drivers/misc/inv_mpu/mpu-dev.h
+diff --git a/drivers/misc/inv_mpu/mldl_print_cfg.h b/drivers/misc/inv_mpu/mldl_print_cfg.h
 new file mode 100644
-index 0000000..b6a4fcf
+index 0000000..2e19114
 --- /dev/null
-+++ b/drivers/misc/inv_mpu/mpu-dev.h
-@@ -0,0 +1,36 @@
++++ b/drivers/misc/inv_mpu/mldl_print_cfg.h
+@@ -0,0 +1,38 @@
 +/*
 +	$License:
 +	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
@@ -1299,22 +482,257 @@ index 0000000..b6a4fcf
 +	$
 + */
 +
++/**
++ * @defgroup
++ * @brief
++ *
++ * @{
++ * @file     mldl_print_cfg.h
++ * @brief
++ *
++ *
++ */
++#ifndef __MLDL_PRINT_CFG__
++#define __MLDL_PRINT_CFG__
 +
-+#ifndef __MPU_DEV_H__
-+#define __MPU_DEV_H__
++#include "mldl_cfg.h"
 +
-+#include <linux/i2c.h>
-+#include <linux/module.h>
-+#include <linux/mpu.h>
 +
-+int inv_mpu_register_slave(struct module *slave_module,
-+			struct i2c_client *client,
-+			struct ext_slave_platform_data *pdata,
-+			struct ext_slave_descr *(*slave_descr)(void));
++void mldl_print_cfg(struct mldl_cfg *mldl_cfg);
 +
-+void inv_mpu_unregister_slave(struct i2c_client *client,
-+			struct ext_slave_platform_data *pdata,
-+			struct ext_slave_descr *(*slave_descr)(void));
++#endif /* __MLDL_PRINT_CFG__ */
+diff --git a/drivers/misc/inv_mpu/mltypes.h b/drivers/misc/inv_mpu/mltypes.h
+new file mode 100644
+index 0000000..2abb215
+--- /dev/null
++++ b/drivers/misc/inv_mpu/mltypes.h
+@@ -0,0 +1,226 @@
++/*
++	$License:
++	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
++
++	This program is free software; you can redistribute it and/or modify
++	it under the terms of the GNU General Public License as published by
++	the Free Software Foundation; either version 2 of the License, or
++	(at your option) any later version.
++
++	This program is distributed in the hope that it will be useful,
++	but WITHOUT ANY WARRANTY; without even the implied warranty of
++	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++	GNU General Public License for more details.
++
++	You should have received a copy of the GNU General Public License
++	along with this program.  If not, see <http://www.gnu.org/licenses/>.
++	$
++ */
++
++/**
++ *  @defgroup MLERROR
++ *  @brief  Motion Library - Error definitions.
++ *          Definition of the error codes used within the MPL and
++ *          returned to the user.
++ *          Every function tries to return a meaningful error code basing
++ *          on the occuring error condition. The error code is numeric.
++ *
++ *          The available error codes and their associated values are:
++ *          - (0)       INV_SUCCESS
++ *          - (1)       INV_ERROR
++ *          - (2)       INV_ERROR_INVALID_PARAMETER
++ *          - (3)       INV_ERROR_FEATURE_NOT_ENABLED
++ *          - (4)       INV_ERROR_FEATURE_NOT_IMPLEMENTED
++ *          - (6)       INV_ERROR_DMP_NOT_STARTED
++ *          - (7)       INV_ERROR_DMP_STARTED
++ *          - (8)       INV_ERROR_NOT_OPENED
++ *          - (9)       INV_ERROR_OPENED
++ *          - (10)      INV_ERROR_INVALID_MODULE
++ *          - (11)      INV_ERROR_MEMORY_EXAUSTED
++ *          - (12)      INV_ERROR_DIVIDE_BY_ZERO
++ *          - (13)      INV_ERROR_ASSERTION_FAILURE
++ *          - (14)      INV_ERROR_FILE_OPEN
++ *          - (15)      INV_ERROR_FILE_READ
++ *          - (16)      INV_ERROR_FILE_WRITE
++ *          - (17)      INV_ERROR_INVALID_CONFIGURATION
++ *          - (20)      INV_ERROR_SERIAL_CLOSED
++ *          - (21)      INV_ERROR_SERIAL_OPEN_ERROR
++ *          - (22)      INV_ERROR_SERIAL_READ
++ *          - (23)      INV_ERROR_SERIAL_WRITE
++ *          - (24)      INV_ERROR_SERIAL_DEVICE_NOT_RECOGNIZED
++ *          - (25)      INV_ERROR_SM_TRANSITION
++ *          - (26)      INV_ERROR_SM_IMPROPER_STATE
++ *          - (30)      INV_ERROR_FIFO_OVERFLOW
++ *          - (31)      INV_ERROR_FIFO_FOOTER
++ *          - (32)      INV_ERROR_FIFO_READ_COUNT
++ *          - (33)      INV_ERROR_FIFO_READ_DATA
++ *          - (40)      INV_ERROR_MEMORY_SET
++ *          - (50)      INV_ERROR_LOG_MEMORY_ERROR
++ *          - (51)      INV_ERROR_LOG_OUTPUT_ERROR
++ *          - (60)      INV_ERROR_OS_BAD_PTR
++ *          - (61)      INV_ERROR_OS_BAD_HANDLE
++ *          - (62)      INV_ERROR_OS_CREATE_FAILED
++ *          - (63)      INV_ERROR_OS_LOCK_FAILED
++ *          - (70)      INV_ERROR_COMPASS_DATA_OVERFLOW
++ *          - (71)      INV_ERROR_COMPASS_DATA_UNDERFLOW
++ *          - (72)      INV_ERROR_COMPASS_DATA_NOT_READY
++ *          - (73)      INV_ERROR_COMPASS_DATA_ERROR
++ *          - (75)      INV_ERROR_CALIBRATION_LOAD
++ *          - (76)      INV_ERROR_CALIBRATION_STORE
++ *          - (77)      INV_ERROR_CALIBRATION_LEN
++ *          - (78)      INV_ERROR_CALIBRATION_CHECKSUM
++ *          - (79)      INV_ERROR_ACCEL_DATA_OVERFLOW
++ *          - (80)      INV_ERROR_ACCEL_DATA_UNDERFLOW
++ *          - (81)      INV_ERROR_ACCEL_DATA_NOT_READY
++ *          - (82)      INV_ERROR_ACCEL_DATA_ERROR
++ *
++ *  @{
++ *      @file mltypes.h
++ *  @}
++ */
++
++#ifndef MLTYPES_H
++#define MLTYPES_H
++
++#include <linux/types.h>
++#include <asm-generic/errno-base.h>
++
++
++
++
++/*---------------------------
++ *    ML Defines
++ *--------------------------*/
++
++#ifndef NULL
++#define NULL 0
 +#endif
++
++/* - ML Errors. - */
++#define ERROR_NAME(x)   (#x)
++#define ERROR_CHECK_FIRST(first, x)                                     \
++	{ if (INV_SUCCESS == first) first = x; }
++
++#define INV_SUCCESS                       (0)
++/* Generic Error code.  Proprietary Error Codes only */
++#define INV_ERROR_BASE                    (0x20)
++#define INV_ERROR                         (INV_ERROR_BASE)
++
++/* Compatibility and other generic error codes */
++#define INV_ERROR_INVALID_PARAMETER       (EINVAL)
++#define INV_ERROR_FEATURE_NOT_ENABLED     (EPERM)
++#define INV_ERROR_FEATURE_NOT_IMPLEMENTED (INV_ERROR_BASE + 4)
++#define INV_ERROR_DMP_NOT_STARTED         (INV_ERROR_BASE + 6)
++#define INV_ERROR_DMP_STARTED             (INV_ERROR_BASE + 7)
++#define INV_ERROR_NOT_OPENED              (INV_ERROR_BASE + 8)
++#define INV_ERROR_OPENED                  (INV_ERROR_BASE + 9)
++#define INV_ERROR_INVALID_MODULE         (ENODEV)
++#define INV_ERROR_MEMORY_EXAUSTED        (ENOMEM)
++#define INV_ERROR_DIVIDE_BY_ZERO         (INV_ERROR_BASE + 12)
++#define INV_ERROR_ASSERTION_FAILURE      (INV_ERROR_BASE + 13)
++#define INV_ERROR_FILE_OPEN              (INV_ERROR_BASE + 14)
++#define INV_ERROR_FILE_READ              (INV_ERROR_BASE + 15)
++#define INV_ERROR_FILE_WRITE             (INV_ERROR_BASE + 16)
++#define INV_ERROR_INVALID_CONFIGURATION  (INV_ERROR_BASE + 17)
++
++/* Serial Communication */
++#define INV_ERROR_SERIAL_CLOSED          (INV_ERROR_BASE + 20)
++#define INV_ERROR_SERIAL_OPEN_ERROR      (INV_ERROR_BASE + 21)
++#define INV_ERROR_SERIAL_READ            (INV_ERROR_BASE + 22)
++#define INV_ERROR_SERIAL_WRITE           (INV_ERROR_BASE + 23)
++#define INV_ERROR_SERIAL_DEVICE_NOT_RECOGNIZED  (INV_ERROR_BASE + 24)
++
++/* SM = State Machine */
++#define INV_ERROR_SM_TRANSITION          (INV_ERROR_BASE + 25)
++#define INV_ERROR_SM_IMPROPER_STATE      (INV_ERROR_BASE + 26)
++
++/* Fifo */
++#define INV_ERROR_FIFO_OVERFLOW          (INV_ERROR_BASE + 30)
++#define INV_ERROR_FIFO_FOOTER            (INV_ERROR_BASE + 31)
++#define INV_ERROR_FIFO_READ_COUNT        (INV_ERROR_BASE + 32)
++#define INV_ERROR_FIFO_READ_DATA         (INV_ERROR_BASE + 33)
++
++/* Memory & Registers, Set & Get */
++#define INV_ERROR_MEMORY_SET             (INV_ERROR_BASE + 40)
++
++#define INV_ERROR_LOG_MEMORY_ERROR       (INV_ERROR_BASE + 50)
++#define INV_ERROR_LOG_OUTPUT_ERROR       (INV_ERROR_BASE + 51)
++
++/* OS interface errors */
++#define INV_ERROR_OS_BAD_PTR             (INV_ERROR_BASE + 60)
++#define INV_ERROR_OS_BAD_HANDLE          (INV_ERROR_BASE + 61)
++#define INV_ERROR_OS_CREATE_FAILED       (INV_ERROR_BASE + 62)
++#define INV_ERROR_OS_LOCK_FAILED         (INV_ERROR_BASE + 63)
++
++/* Compass errors */
++#define INV_ERROR_COMPASS_DATA_OVERFLOW  (INV_ERROR_BASE + 70)
++#define INV_ERROR_COMPASS_DATA_UNDERFLOW (INV_ERROR_BASE + 71)
++#define INV_ERROR_COMPASS_DATA_NOT_READY (INV_ERROR_BASE + 72)
++#define INV_ERROR_COMPASS_DATA_ERROR     (INV_ERROR_BASE + 73)
++
++/* Load/Store calibration */
++#define INV_ERROR_CALIBRATION_LOAD       (INV_ERROR_BASE + 75)
++#define INV_ERROR_CALIBRATION_STORE      (INV_ERROR_BASE + 76)
++#define INV_ERROR_CALIBRATION_LEN        (INV_ERROR_BASE + 77)
++#define INV_ERROR_CALIBRATION_CHECKSUM   (INV_ERROR_BASE + 78)
++
++/* Accel errors */
++#define INV_ERROR_ACCEL_DATA_OVERFLOW    (INV_ERROR_BASE + 79)
++#define INV_ERROR_ACCEL_DATA_UNDERFLOW   (INV_ERROR_BASE + 80)
++#define INV_ERROR_ACCEL_DATA_NOT_READY   (INV_ERROR_BASE + 81)
++#define INV_ERROR_ACCEL_DATA_ERROR       (INV_ERROR_BASE + 82)
++
++#ifdef INV_USE_LEGACY_NAMES
++#define ML_SUCCESS                       INV_SUCCESS
++#define ML_ERROR                         INV_ERROR
++#define ML_ERROR_INVALID_PARAMETER       INV_ERROR_INVALID_PARAMETER
++#define ML_ERROR_FEATURE_NOT_ENABLED     INV_ERROR_FEATURE_NOT_ENABLED
++#define ML_ERROR_FEATURE_NOT_IMPLEMENTED INV_ERROR_FEATURE_NOT_IMPLEMENTED
++#define ML_ERROR_DMP_NOT_STARTED         INV_ERROR_DMP_NOT_STARTED
++#define ML_ERROR_DMP_STARTED             INV_ERROR_DMP_STARTED
++#define ML_ERROR_NOT_OPENED              INV_ERROR_NOT_OPENED
++#define ML_ERROR_OPENED                  INV_ERROR_OPENED
++#define ML_ERROR_INVALID_MODULE          INV_ERROR_INVALID_MODULE
++#define ML_ERROR_MEMORY_EXAUSTED         INV_ERROR_MEMORY_EXAUSTED
++#define ML_ERROR_DIVIDE_BY_ZERO          INV_ERROR_DIVIDE_BY_ZERO
++#define ML_ERROR_ASSERTION_FAILURE       INV_ERROR_ASSERTION_FAILURE
++#define ML_ERROR_FILE_OPEN               INV_ERROR_FILE_OPEN
++#define ML_ERROR_FILE_READ               INV_ERROR_FILE_READ
++#define ML_ERROR_FILE_WRITE              INV_ERROR_FILE_WRITE
++#define ML_ERROR_INVALID_CONFIGURATION   INV_ERROR_INVALID_CONFIGURATION
++#define ML_ERROR_SERIAL_CLOSED           INV_ERROR_SERIAL_CLOSED
++#define ML_ERROR_SERIAL_OPEN_ERROR       INV_ERROR_SERIAL_OPEN_ERROR
++#define ML_ERROR_SERIAL_READ             INV_ERROR_SERIAL_READ
++#define ML_ERROR_SERIAL_WRITE            INV_ERROR_SERIAL_WRITE
++#define ML_ERROR_SERIAL_DEVICE_NOT_RECOGNIZED  \
++	INV_ERROR_SERIAL_DEVICE_NOT_RECOGNIZED
++#define ML_ERROR_SM_TRANSITION          INV_ERROR_SM_TRANSITION
++#define ML_ERROR_SM_IMPROPER_STATE      INV_ERROR_SM_IMPROPER_STATE
++#define ML_ERROR_FIFO_OVERFLOW          INV_ERROR_FIFO_OVERFLOW
++#define ML_ERROR_FIFO_FOOTER            INV_ERROR_FIFO_FOOTER
++#define ML_ERROR_FIFO_READ_COUNT        INV_ERROR_FIFO_READ_COUNT
++#define ML_ERROR_FIFO_READ_DATA         INV_ERROR_FIFO_READ_DATA
++#define ML_ERROR_MEMORY_SET             INV_ERROR_MEMORY_SET
++#define ML_ERROR_LOG_MEMORY_ERROR       INV_ERROR_LOG_MEMORY_ERROR
++#define ML_ERROR_LOG_OUTPUT_ERROR       INV_ERROR_LOG_OUTPUT_ERROR
++#define ML_ERROR_OS_BAD_PTR             INV_ERROR_OS_BAD_PTR
++#define ML_ERROR_OS_BAD_HANDLE          INV_ERROR_OS_BAD_HANDLE
++#define ML_ERROR_OS_CREATE_FAILED       INV_ERROR_OS_CREATE_FAILED
++#define ML_ERROR_OS_LOCK_FAILED         INV_ERROR_OS_LOCK_FAILED
++#define ML_ERROR_COMPASS_DATA_OVERFLOW  INV_ERROR_COMPASS_DATA_OVERFLOW
++#define ML_ERROR_COMPASS_DATA_UNDERFLOW INV_ERROR_COMPASS_DATA_UNDERFLOW
++#define ML_ERROR_COMPASS_DATA_NOT_READY INV_ERROR_COMPASS_DATA_NOT_READY
++#define ML_ERROR_COMPASS_DATA_ERROR     INV_ERROR_COMPASS_DATA_ERROR
++#define ML_ERROR_CALIBRATION_LOAD       INV_ERROR_CALIBRATION_LOAD
++#define ML_ERROR_CALIBRATION_STORE      INV_ERROR_CALIBRATION_STORE
++#define ML_ERROR_CALIBRATION_LEN        INV_ERROR_CALIBRATION_LEN
++#define ML_ERROR_CALIBRATION_CHECKSUM   INV_ERROR_CALIBRATION_CHECKSUM
++#define ML_ERROR_ACCEL_DATA_OVERFLOW    INV_ERROR_ACCEL_DATA_OVERFLOW
++#define ML_ERROR_ACCEL_DATA_UNDERFLOW   INV_ERROR_ACCEL_DATA_UNDERFLOW
++#define ML_ERROR_ACCEL_DATA_NOT_READY   INV_ERROR_ACCEL_DATA_NOT_READY
++#define ML_ERROR_ACCEL_DATA_ERROR       INV_ERROR_ACCEL_DATA_ERROR
++#endif
++
++/* For Linux coding compliance */
++
++#endif				/* MLTYPES_H */
 -- 
 1.7.4.1
+

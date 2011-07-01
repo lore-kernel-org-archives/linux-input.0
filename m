@@ -1,52 +1,59 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 11/11] misc: Add slave driver for bma085 pressure sensor
-Date: Fri, 1 Jul 2011 18:09:03 +0200
-Message-ID: <20110701180903.0fa2cbc9@endymion.delvare>
-References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-	<1309486707-1658-11-git-send-email-nroyer@invensense.com>
-	<20110701085604.0aabd6f1@bob.linux.org.uk>
-	<CAN_12A8Za7r92=r3JHx3R=AwAA7xk6=NVVMiSp68HPatb1G3hg@mail.gmail.com>
-	<20110701154150.0ac303a3@lxorguk.ukuu.org.uk>
+From: Nathan Royer <nroyer@invensense.com>
+Subject: RE: [PATCH 01/11] misc: inv_mpu primary header file and README file.
+Date: Fri, 1 Jul 2011 09:39:30 -0700
+Message-ID: <4d61a92a11e5d83a1cb0094441ae5f5e@mail.gmail.com>
+References: <1309486707-1658-1-git-send-email-nroyer@invensense.com> <4E0D8E94.5030604@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zone0.gcu-squad.org ([212.85.147.21]:6191 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751788Ab1GAQJ2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 12:09:28 -0400
-In-Reply-To: <20110701154150.0ac303a3@lxorguk.ukuu.org.uk>
+Received: from na3sys009aog116.obsmtp.com ([74.125.149.240]:57446 "HELO
+	na3sys009aog116.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1757139Ab1GAQjc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 Jul 2011 12:39:32 -0400
+In-Reply-To: <4E0D8E94.5030604@cam.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wolfe <cwolfe@chromium.org>
-Cc: Alan Cox <alan@linux.intel.com>, Nathan Royer <nroyer@invensense.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, 1 Jul 2011 15:41:50 +0100, Alan Cox wrote:
-> > Just to field this quickly, since I've been playing with the hardware
-> 
-> (Ditto)
-> 
-> > Part of the reason I got started on the KXTF9 driver was to try and
-> > understand how a normal kernel driver could cope with the "here and
-> > gone again" behavior of being on the MPU's secondary bus.
-> 
-> It's a hot pluggable bus - no different to an i2c bus on a hot pluggable
-> device. 
-> 
-> I would guess however that if you knew the device was going to be used for
-> the mpu3050 only you'd not add the "slave" devices in your platform data
-> in the first place as well so they didn't bounce in and out and you'd
-> probably teach the mpu3050 code to not create the bus if it was then
-> going to destroy it again a moment later.
+> Just out of interest, can you give details of what other patches are to
+> come?
+> I'm guessing more sensor drivers and I hate discovering I'm
+> implementing drivers
+> for devices that someone already has working code for!
 
-I didn't look in the code in details, but I see no reason to destroy
-buses. This is a standard multi-master case, where a given I2C bus
-segment can be driven by two masters. If both the host I2C controller
-and the MPU3050 master are fully I2C compliant, it should be no problem
-to let both coexist. If you really need to handle mutual exclusion
-(e.g. the MPU3050 implementation forces you to do so), you can leverage
-the i2c multiplexing support for this, which is available since kernel
-2.6.36. See drivers/i2c/muxes/pca9541.c for an example implementation.
+I wanted to start off with only 1 driver for each type of slave and with
+only the MPU3050 and exclude the MPU6050 until we figure out exactly the
+best way to fit this into the kernel.
 
--- 
-Jean Delvare
+The current full list of drivers we have developed in this architecture
+are as follows:
+MPU3050 and MPU6050 support in mldl_cfg.c
+# sesnors - accel
+accel/mpu6050.c
+accel/kxsd9.c
+accel/kxtf9.c
+accel/bma150.c
+accel/bma222.c
+accel/bma250.c
+accel/mma8450.c
+accel/mma845x.c
+accel/lis331.c
+accel/lsm303a.c
+accel/adxl34x.c
+accel/lis3dh.c
+# sensors - compass
+compass/ak8975.c
+compass/ak8972.c
+compass/ami30x.c
+compass/ami306.c
+compass/hmc5883.c
+compass/lsm303m.c
+compass/yas529.c
+compass/yas530.c
+compass/mmc314x.c
+compass/hscdtd002b.c
+compass/hscdtd004a.c
+# sensors - pressure
+pressure/bma085.c

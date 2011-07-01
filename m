@@ -1,27 +1,75 @@
-From: Nathan Royer <nroyer@invensense.com>
-Subject: RE: [PATCH 11/11] misc: Add slave driver for bma085 pressure sensor
-Date: Fri, 1 Jul 2011 10:56:01 -0700
-Message-ID: <a7e9c284c685826bdb9853cae289c499@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 01/11] misc: inv_mpu primary header file and README file.
+Date: Fri, 1 Jul 2011 23:04:18 +0200
+Message-ID: <201107012304.19073.arnd@arndb.de>
 References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-	<1309486707-1658-11-git-send-email-nroyer@invensense.com>	<20110701085604.0aabd6f1@bob.linux.org.uk>
-	<CAN_12A8Za7r92=r3JHx3R=AwAA7xk6=NVVMiSp68HPatb1G3hg@mail.gmail.com>
-	<20110701154150.0ac303a3@lxorguk.ukuu.org.uk>	<CAN_12A9jvid+7u5mOHbFBqE+Xtb6kbo_endwRk98JLrGK2E2TA@mail.gmail.com>
- <20110701180046.20efb83e@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog108.obsmtp.com ([74.125.149.199]:47097 "HELO
-	na3sys009aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1756486Ab1GAR4F (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 Jul 2011 13:56:05 -0400
-In-Reply-To: <20110701180046.20efb83e@lxorguk.ukuu.org.uk>
+Received: from moutng.kundenserver.de ([212.227.126.171]:63341 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751929Ab1GAVFi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 17:05:38 -0400
+In-Reply-To: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wolfe <cwolfe@chromium.org>
-Cc: Alan Cox <alan@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Nathan Royer <nroyer@invensense.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-I've added an explanation of some of the high level bypass mode work which
-is done in mldl_cfg.c in response that patch
+On Friday 01 July 2011 04:18:17 Nathan Royer wrote:
+> +/* Structure for the following IOCTS's
+> + * MPU_CONFIG_GYRO
+> + * MPU_CONFIG_ACCEL
+> + * MPU_CONFIG_COMPASS
+> + * MPU_CONFIG_PRESSURE
+> + * MPU_GET_CONFIG_GYRO
+> + * MPU_GET_CONFIG_ACCEL
+> + * MPU_GET_CONFIG_COMPASS
+> + * MPU_GET_CONFIG_PRESSURE
+> + *
+> + * @key one of enum ext_slave_config_key
+> + * @len length of data pointed to by data
+> + * @apply zero if communication with the chip is not necessary, false otherwise
+> + *        This flag can be used to select cached data or to refresh cashed data
+> + *        cache data to be pushed later or push immediately.  If true and the
+> + *        slave is on the secondary bus the MPU will first enger bypass mode
+> + *        before calling the slaves .config or .get_config funcion
+> + * @data pointer to the data to confgure or get
+> + */
+> +struct ext_slave_config {
+> +       __u8 key;
+> +       __u16 len;
+> +       __u8 apply;
+> +       void *data;
+> +};
 
-[PATCH 05/11] misc: MPU3050 and slave device configuration.
+I'm a bit worried about the ioctl interface, it seems overloaded and has
+problems with 32/64 bit compatibility. In general, having void pointers
+in an structure that is used as an ioctl argument is a sign that the
+interface is too complex. In fact, there are a number of reasons why you
+should try to avoid pointers in there completely.
+
+You should also try to avoid padding in structures. The definition you
+have could be any of 64/96/128 bytes long depending on the architecture,
+and leak kernel stack data.
+
+Having separate commands on a single device file in order to do the
+same operation on distinct pieces of hardware sounds like a wrong
+abstraction of your devices. Instead, it would seem more appropriate
+to represent each hardware endpoint (gyro/accel/compass/...) as one
+character device, and let each of them export the same minimum set of
+commands. However, the suggestion to use an existing subsystem (iio,
+input, hwmon, ...) for each of the endpoints as appropriate would fit
+better into the existing use cases.
+
+I haven't been able to figure out if all those endpoints are just
+I2C devices and could be handled by i2c drivers for those subsystems,
+or if you have another hardware interface that groups of them. In the
+latter case, would an MFD driver work for this? The idea of that is
+essentially to prove a new bus_type without having to do all the
+abstraction work when you already know all the devices behind it.
+
+
+	Arnd

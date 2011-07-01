@@ -1,58 +1,111 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 1/4] input: wacom - Wacom Bamboo Pen D4 has 1024 pressure level
-Date: Fri,  1 Jul 2011 08:59:51 -0700
-Message-ID: <1309535991-1960-1-git-send-email-pinglinux@gmail.com>
+Subject: [PATCH 4/4] input : wacom - Update Graphire and old Bamboo tablet buttons
+Date: Fri,  1 Jul 2011 09:00:11 -0700
+Message-ID: <1309536011-1996-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:58851 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752863Ab1GAP6X (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 11:58:23 -0400
-Received: by iwn6 with SMTP id 6so2899617iwn.19
-        for <linux-input@vger.kernel.org>; Fri, 01 Jul 2011 08:58:23 -0700 (PDT)
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:43871 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752863Ab1GAP6k (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 11:58:40 -0400
+Received: by iyb12 with SMTP id 12so2896546iyb.19
+        for <linux-input@vger.kernel.org>; Fri, 01 Jul 2011 08:58:39 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: rydberg@euromail.se
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-On Thu, Jun 30, 2011 at 10:18 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+On Thu, Jun 30, 2011 at 10:27 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
 
-    > Hi Ping,
-
-    > On Fri, Jun 24, 2011 at 05:14:58PM -0700, Ping Cheng wrote:
-    >> Instead of 512.
+    >> On Fri, Jun 24, 2011 at 05:16:02PM -0700, Ping Cheng wrote:
+    >> With the removal of BTN_TOOL_FINGER for tablet buttons and
+    >> expresskeys, serial number is needed to distingush if the
+    >> events were from a regular tool (stylus, eraser, or mouse)
+    >> or the attribures (buttons, strips, or wheels) on the tablet
+    >> since there are overlapped events between the tools and the
+    >> tablet attributes.
     >>
-    >> Reported-by: David Foley <favux.is@gmail.com>
     >> Signed-off-by: Ping Cheng <pingc@wacom.com>
     >> ---
+    >
+    > This patch seems to do three things; 1) the change described in the
+    > text, 2) changing button events, and 3) fix a problem with return
+    > value in the WACOM_MO case. Perhaps a more suitable patch split can be
+    > arranged?
 
-    > Perhaps one could elaborate the commit message a bit - in particular
-    > since the text mentions 512, whereas the patch seems to change from
-    > 256?
-
-Nice catch, Henrik. 512 was a typo. Does this commit message work:
-
-It is reported by Ubuntu users that Wacom Bamboo Pen D4 has 1024
-pressure level instead of 256.
+Sure. Will do. Thank you for reviewing the patchset.
 
 Ping
 
-    >>  drivers/input/tablet/wacom_wac.c |    2 +-
-    >>  1 files changed, 1 insertions(+), 1 deletions(-)
+    >>  drivers/input/tablet/wacom_wac.c |   22 ++++++++++------------
+    >>  1 files changed, 10 insertions(+), 12 deletions(-)
     >>
     >> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-    >> index 2ea0d2e..1cbb9a8 100644
+    >> index 7ce1294..03ebcc8 100644
     >> --- a/drivers/input/tablet/wacom_wac.c
     >> +++ b/drivers/input/tablet/wacom_wac.c
-    >> @@ -1462,7 +1462,7 @@ static const struct wacom_features wacom_features_0xD3 =
-    >>       { "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648, 13530, 1023,
-    >>         63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-    >>  static const struct wacom_features wacom_features_0xD4 =
-    >> -     { "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200,  255,
-    >> +     { "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
-    >>         63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-    >>  static const struct wacom_features wacom_features_0xD6 =
-    >>       { "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023,
+    >> @@ -265,6 +265,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
+    >>                       wacom->id[0] = 0;
+    >>               input_report_abs(input, ABS_MISC, wacom->id[0]); /* report tool id */
+    >>               input_report_key(input, wacom->tool[0], prox);
+    >> +             input_event(input, EV_MSC, MSC_SERIAL, 1);
+    >>               input_sync(input); /* sync last event */
+    >>       }
+    >>
+    >> @@ -274,8 +275,8 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
+    >>               prox = data[7] & 0xf8;
+    >>               if (prox || wacom->id[1]) {
+    >>                       wacom->id[1] = PAD_DEVICE_ID;
+    >> -                     input_report_key(input, BTN_0, (data[7] & 0x40));
+    >> -                     input_report_key(input, BTN_4, (data[7] & 0x80));
+    >> +                     input_report_key(input, BTN_BACK, (data[7] & 0x40));
+    >> +                     input_report_key(input, BTN_FORWARD, (data[7] & 0x80));
+    >>                       rw = ((data[7] & 0x18) >> 3) - ((data[7] & 0x20) >> 3);
+    >>                       input_report_rel(input, REL_WHEEL, rw);
+    >>                       if (!prox)
+    >> @@ -290,17 +291,17 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
+    >>               prox = (data[7] & 0xf8) || data[8];
+    >>               if (prox || wacom->id[1]) {
+    >>                       wacom->id[1] = PAD_DEVICE_ID;
+    >> -                     input_report_key(input, BTN_0, (data[7] & 0x08));
+    >> -                     input_report_key(input, BTN_1, (data[7] & 0x20));
+    >> -                     input_report_key(input, BTN_4, (data[7] & 0x10));
+    >> -                     input_report_key(input, BTN_5, (data[7] & 0x40));
+    >> +                     input_report_key(input, BTN_BACK, (data[7] & 0x08));
+    >> +                     input_report_key(input, BTN_LEFT, (data[7] & 0x20));
+    >> +                     input_report_key(input, BTN_FORWARD, (data[7] & 0x10));
+    >> +                     input_report_key(input, BTN_RIGHT, (data[7] & 0x40));
+    >>                       input_report_abs(input, ABS_WHEEL, (data[8] & 0x7f));
+    >>                       if (!prox)
+    >>                               wacom->id[1] = 0;
+    >>                       input_report_abs(input, ABS_MISC, wacom->id[1]);
+    >>                       input_event(input, EV_MSC, MSC_SERIAL, 0xf0);
+    >> +                     retval = 1;
+    >>               }
+    >> -             retval = 1;
+    >>               break;
+    >>       }
+    >>  exit:
+    >> @@ -1075,17 +1076,14 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+    >>
+    >>       switch (wacom_wac->features.type) {
+    >>       case WACOM_MO:
+    >> -             __set_bit(BTN_1, input_dev->keybit);
+    >> -             __set_bit(BTN_5, input_dev->keybit);
+    >> -
+    >>               input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
+    >>               /* fall through */
+    >>
+    >>       case WACOM_G4:
+    >>               input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
+    >>
+    >> -             __set_bit(BTN_0, input_dev->keybit);
+    >> -             __set_bit(BTN_4, input_dev->keybit);
+    >> +             __set_bit(BTN_BACK, input_dev->keybit);
+    >> +             __set_bit(BTN_FORWARD, input_dev->keybit);
+    >>               /* fall through */
+    >>
+    >>       case GRAPHIRE:
     >> --
-    > 
+    >
     > Thanks,
     > Henrik 

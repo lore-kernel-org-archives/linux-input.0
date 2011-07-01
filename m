@@ -1,45 +1,51 @@
-From: Steffen Barszus <steffenbpunkt@googlemail.com>
-Subject: Re: [PATCH 1/1] Input: ati_remote - extend keytable for medion remotes
-Date: Fri, 1 Jul 2011 16:01:46 +0200
-Message-ID: <BANLkTikTwgTZ1X-m1q+zBESk4zUo39Osxg@mail.gmail.com>
-References: <20110418104108.GA4876@atlantis.wh2.tu-dresden.de.de>
-	<20110418104547.GB4876@atlantis.wh2.tu-dresden.de.de>
-	<20110525163204.GD22517@core.coreip.homeip.net>
+From: Chris Wolfe <cwolfe@chromium.org>
+Subject: Re: [PATCH 11/11] misc: Add slave driver for bma085 pressure sensor
+Date: Fri, 1 Jul 2011 07:28:53 -0700
+Message-ID: <CAN_12A8Za7r92=r3JHx3R=AwAA7xk6=NVVMiSp68HPatb1G3hg@mail.gmail.com>
+References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
+	<1309486707-1658-11-git-send-email-nroyer@invensense.com>
+	<20110701085604.0aabd6f1@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:62784 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756606Ab1GAOBr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 10:01:47 -0400
-In-Reply-To: <20110525163204.GD22517@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110701085604.0aabd6f1@bob.linux.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Cox <alan@linux.intel.com>
+Cc: Nathan Royer <nroyer@invensense.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Anssi Hannula <anssi.hannula@iki.fi>
 
-2011/5/25 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> Hi Jan,
->
-> On Mon, Apr 18, 2011 at 12:45:47PM +0200, Jan Losinski wrote:
->> This extends the ati_remote to support multiple keytables. The table
->> will be selected with the productId of the device.
->>
->> It also provides a table for the medion rf remote control that enables
->> all buttons on it.
->>
->
-> I am not a big fan of static keymaps in kernel drivers and would much
-> more prefer driver supporting adjusting keymaps via EVIOCSKEYCODE
-> ioctls. Unfortunately ati_remote key handling code is kind of involved
-> and I am not sure what is the best way of wiring it up.
->
-> I believe Anssi Hannula (CCed) mentioned that he has a version of
-> ati_remove ported to rc-core infrastructure that supports such
-> remapping. Anssi, could you tell me what is the status of that driver?
-> Is it usable with rc-core?
->
+On Fri, Jul 1, 2011 at 12:56 AM, Alan Cox <alan@linux.intel.com> wrote:
+> The slave devices all appear to be generic i2c interface hardware. I
+> don't see why they are separate special slave devices to your driver,
+> they should simply be i=C2=B2c drivers so they can be used when those
+> devices are found without the mpu3050.
 
-That would be cool - being a remote it might be the right framework.
+Just to field this quickly, since I've been playing with the hardware
+involved. There are actually two different things handled by the
+"slave devices".
 
-Until then this patch might improve the situation.
+The MPU-3050 (and some similar InvenSense parts) provide a secondary
+I2C bus. By default this is passed through to the I2C bus on which the
+3050 is installed, but the MPU can also detach the extra bus and act
+as an I2C master on it. A slave device is connected on this extra bus,
+configured normally by the kernel, and then taken over by the MPU
+(which will periodically do a block read of a configured address).
+
+The second case of a slave device is simply some other device that the
+driver reads from, and passes the data to the MPU for processing.
+
+Part of the reason I got started on the KXTF9 driver was to try and
+understand how a normal kernel driver could cope with the "here and
+gone again" behavior of being on the MPU's secondary bus.
+
+The other note that may not have been made explicit yet is that the
+3050 will happily provide unprocessed gyro and slave data without
+firmware loaded. The firmware sets up some additional processing
+capabilities of the chip, which are used by InvenSense's user-space
+products.
+
+Chris
+
+[Sorry about gmail. I'm on the road and hope it doesn't mangle things
+too badly.]

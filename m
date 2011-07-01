@@ -1,44 +1,56 @@
-From: Chris Wolfe <cwolfe@chromium.org>
-Subject: Re: [PATCH 01/11] misc: inv_mpu primary header file and README file.
-Date: Thu, 30 Jun 2011 20:59:46 -0700
-Message-ID: <CAN_12A9pWNTjetV2wDzhO8OTopECC78b38zBxjku+gpR4QwFoA@mail.gmail.com>
-References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/4] input: wacom - Wacom Bamboo Pen D4 has 1024 pressure
+ level
+Date: Fri, 1 Jul 2011 07:18:21 +0200
+Message-ID: <20110701051821.GA5071@polaris.bitmath.org>
+References: <1308960898-20435-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nathan Royer <nroyer@invensense.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:56017 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750835Ab1GAFQz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Jul 2011 01:16:55 -0400
+Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 089EEEAE32
+	for <linux-input@vger.kernel.org>; Fri,  1 Jul 2011 07:16:53 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <1308960898-20435-1-git-send-email-pinglinux@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Thu, Jun 30, 2011 at 7:18 PM, Nathan Royer <nroyer@invensense.com> w=
-rote:
-> The mpu3050 has an i2c master interface designed to control an accele=
-rometer
-> and a Digital Motion Processor (DMP) used to perform sensor fusion on=
- the
-> gyroscope and accelerometer. =C2=A0This data is then read out of the =
-mpu3050 fifo
-> and sent to userspace for distribution and optional propritary proces=
-sing, such
-> as fusion with a compass to produce a 9 axis quaternion.
+Hi Ping,
 
-Sorry, just took a quick pass so I may be missing changes. Is this
-driver to the stage where someone can practically initialize the 3050
-and read low-level data without having the InvenSense MPL already
-installed? (and without basically doing I2C reads and writes from
-userspace)
+On Fri, Jun 24, 2011 at 05:14:58PM -0700, Ping Cheng wrote:
+> Instead of 512.
+> 
+> Reported-by: David Foley <favux.is@gmail.com>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
 
-As Greg K-H pointed out, IIO provides a lot of the support code for
-this kind of driver. Have a look at drivers/staging/iio/imu and the
-sibling directories. They provide a framework for reporting the
-low-level data in a standard fashion, and some extra attributes to
-load the DMP firmware would be easy to add.
+Perhaps one could elaborate the commit message a bit - in particular
+since the text mentions 512, whereas the patch seems to change from
+256?
 
-I'm disconnected over the weekend, but will touch base with you and
-Mike Housholder on Tuesday. Getting this upstream would be great, so
-we ought to share notes.
+>  drivers/input/tablet/wacom_wac.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index 2ea0d2e..1cbb9a8 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -1462,7 +1462,7 @@ static const struct wacom_features wacom_features_0xD3 =
+>  	{ "Wacom Bamboo 2FG 6x8", WACOM_PKGLEN_BBFUN,     21648, 13530, 1023,
+>  	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+>  static const struct wacom_features wacom_features_0xD4 =
+> -	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200,  255,
+> +	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
+>  	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+>  static const struct wacom_features wacom_features_0xD6 =
+>  	{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023,
+> -- 
 
-Chris
+Thanks,
+Henrik

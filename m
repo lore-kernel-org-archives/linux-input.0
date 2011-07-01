@@ -1,7 +1,7 @@
 From: Nathan Royer <nroyer@invensense.com>
-Subject: [PATCH 11/11] misc: Add slave driver for bma085 pressure sensor
-Date: Thu, 30 Jun 2011 19:18:27 -0700
-Message-ID: <1309486707-1658-11-git-send-email-nroyer@invensense.com>
+Subject: [PATCH 07/11] misc: I2C communication with the MPU3050 and slave devices
+Date: Thu, 30 Jun 2011 19:18:23 -0700
+Message-ID: <1309486707-1658-7-git-send-email-nroyer@invensense.com>
 References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
@@ -12,82 +12,18 @@ List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Nathan Royer <nroyer@invensense.com>
 ---
- drivers/misc/inv_mpu/Kconfig           |    1 +
- drivers/misc/inv_mpu/Makefile          |    1 +
- drivers/misc/inv_mpu/pressure/Kconfig  |   20 ++
- drivers/misc/inv_mpu/pressure/Makefile |    8 +
- drivers/misc/inv_mpu/pressure/bma085.c |  367 ++++++++++++++++++++++++++++++++
- 5 files changed, 397 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/inv_mpu/pressure/Kconfig
- create mode 100644 drivers/misc/inv_mpu/pressure/Makefile
- create mode 100644 drivers/misc/inv_mpu/pressure/bma085.c
+ drivers/misc/inv_mpu/mlsl.c |  389 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/misc/inv_mpu/mlsl.h |  186 +++++++++++++++++++++
+ 2 files changed, 575 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/inv_mpu/mlsl.c
+ create mode 100644 drivers/misc/inv_mpu/mlsl.h
 
-diff --git a/drivers/misc/inv_mpu/Kconfig b/drivers/misc/inv_mpu/Kconfig
-index 7d9f2c3..ea7d754 100644
---- a/drivers/misc/inv_mpu/Kconfig
-+++ b/drivers/misc/inv_mpu/Kconfig
-@@ -57,5 +57,6 @@ endchoice
- 
- source "drivers/misc/inv_mpu/accel/Kconfig"
- source "drivers/misc/inv_mpu/compass/Kconfig"
-+source "drivers/misc/inv_mpu/pressure/Kconfig"
- 
- endif #INV_SENSORS
-diff --git a/drivers/misc/inv_mpu/Makefile b/drivers/misc/inv_mpu/Makefile
-index dc77a1b..506b8f5 100644
---- a/drivers/misc/inv_mpu/Makefile
-+++ b/drivers/misc/inv_mpu/Makefile
-@@ -18,3 +18,4 @@ EXTRA_CFLAGS += -Idrivers/misc/inv_mpu
- 
- obj-y			+= accel/
- obj-y			+= compass/
-+obj-y			+= pressure/
-diff --git a/drivers/misc/inv_mpu/pressure/Kconfig b/drivers/misc/inv_mpu/pressure/Kconfig
+diff --git a/drivers/misc/inv_mpu/mlsl.c b/drivers/misc/inv_mpu/mlsl.c
 new file mode 100644
-index 0000000..f1c021e
+index 0000000..0d15559
 --- /dev/null
-+++ b/drivers/misc/inv_mpu/pressure/Kconfig
-@@ -0,0 +1,20 @@
-+menuconfig: INV_SENSORS_PRESSURE
-+	bool "Pressure Sensor Slaves"
-+	depends on INV_SENSORS
-+	default y
-+	help
-+	  Select y to see a list of supported pressure sensors that can be
-+	  integrated with the MPUxxxx set of motion processors.
-+
-+if INV_SENSORS_PRESSURE
-+
-+config MPU_SENSORS_BMA085
-+	tristate "Bosch BMA085"
-+	help
-+	  This enables support for the Bosch bma085 pressure sensor
-+	  This support is for integration with the MPU3050 or MPU6050 gyroscope
-+          device driver.  Only one accelerometer can be registered at a time.
-+	  Specifying more that one accelerometer in the board file will result
-+	  in runtime errors.
-+
-+endif
-diff --git a/drivers/misc/inv_mpu/pressure/Makefile b/drivers/misc/inv_mpu/pressure/Makefile
-new file mode 100644
-index 0000000..595923d
---- /dev/null
-+++ b/drivers/misc/inv_mpu/pressure/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# Pressure Slaves to MPUxxxx
-+#
-+obj-$(CONFIG_MPU_SENSORS_BMA085) += inv_mpu_bma085.o
-+inv_mpu_bma085-objs +=	bma085.o
-+
-+EXTRA_CFLAGS += -Idrivers/misc/inv_mpu
-+EXTRA_CFLAGS += -D__C99_DESIGNATED_INITIALIZER
-diff --git a/drivers/misc/inv_mpu/pressure/bma085.c b/drivers/misc/inv_mpu/pressure/bma085.c
-new file mode 100644
-index 0000000..696d2b6
---- /dev/null
-+++ b/drivers/misc/inv_mpu/pressure/bma085.c
-@@ -0,0 +1,367 @@
++++ b/drivers/misc/inv_mpu/mlsl.c
+@@ -0,0 +1,389 @@
 +/*
 +	$License:
 +	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
@@ -107,353 +43,567 @@ index 0000000..696d2b6
 +	$
 + */
 +
-+/**
-+ *  @defgroup   ACCELDL (Motion Library - Pressure Driver Layer)
-+ *  @brief      Provides the interface to setup and handle a pressure
-+ *              connected to the secondary I2C interface of the gyroscope.
-+ *
-+ *  @{
-+ *      @file   bma085.c
-+ *      @brief  Pressure setup and handling methods.
-+ */
-+
-+/* ------------------ */
-+/* - Include Files. - */
-+/* ------------------ */
-+
-+#include <linux/i2c.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include "mpu-dev.h"
-+
-+#include <linux/mpu.h>
 +#include "mlsl.h"
-+#include "log.h"
++#include <linux/i2c.h>
++#  include "mpu3050.h"
 +
-+/*
-+ * this structure holds all device specific calibration parameters
-+ */
-+struct bmp085_calibration_param_t {
-+	short ac1;
-+	short ac2;
-+	short ac3;
-+	unsigned short ac4;
-+	unsigned short ac5;
-+	unsigned short ac6;
-+	short b1;
-+	short b2;
-+	short mb;
-+	short mc;
-+	short md;
-+	long param_b5;
-+};
-+
-+struct bmp085_calibration_param_t cal_param;
-+
-+#define PRESSURE_BMA085_PARAM_MG      3038        /* calibration parameter */
-+#define PRESSURE_BMA085_PARAM_MH     -7357        /* calibration parameter */
-+#define PRESSURE_BMA085_PARAM_MI      3791        /* calibration parameter */
-+
-+/*********************************************
-+ *    Pressure Initialization Functions
-+ *********************************************/
-+
-+static int bma085_suspend(void *mlsl_handle,
-+			  struct ext_slave_descr *slave,
-+			  struct ext_slave_platform_data *pdata)
++static int inv_i2c_write(struct i2c_adapter *i2c_adap,
++			    unsigned char address,
++			    unsigned int len, unsigned char const *data)
 +{
-+	int result = INV_SUCCESS;
-+	return result;
++	struct i2c_msg msgs[1];
++	int res;
++
++	if (!data || !i2c_adap)
++		return -EINVAL;
++
++	msgs[0].addr = address;
++	msgs[0].flags = 0;	/* write */
++	msgs[0].buf = (unsigned char *)data;
++	msgs[0].len = len;
++
++	res = i2c_transfer(i2c_adap, msgs, 1);
++	if (res < 1) {
++		if (res == 0)
++			res = -EIO;
++		return res;
++	} else
++		return 0;
 +}
 +
-+#define PRESSURE_BMA085_PROM_START_ADDR  (0xAA)
-+#define PRESSURE_BMA085_PROM_DATA_LEN    (22)
-+#define PRESSURE_BMP085_CTRL_MEAS_REG    (0xF4)
-+/* temperature measurent */
-+#define PRESSURE_BMP085_T_MEAS           (0x2E)
-+/* pressure measurement; oversampling_setting */
-+#define PRESSURE_BMP085_P_MEAS_OSS_0     (0x34)
-+#define PRESSURE_BMP085_P_MEAS_OSS_1     (0x74)
-+#define PRESSURE_BMP085_P_MEAS_OSS_2     (0xB4)
-+#define PRESSURE_BMP085_P_MEAS_OSS_3     (0xF4)
-+#define PRESSURE_BMP085_ADC_OUT_MSB_REG  (0xF6)
-+#define PRESSURE_BMP085_ADC_OUT_LSB_REG  (0xF7)
++static int inv_i2c_write_register(struct i2c_adapter *i2c_adap,
++				     unsigned char address,
++				     unsigned char reg, unsigned char value)
++{
++	unsigned char data[2];
 +
-+static int bma085_resume(void *mlsl_handle,
-+			 struct ext_slave_descr *slave,
-+			 struct ext_slave_platform_data *pdata)
++	data[0] = reg;
++	data[1] = value;
++	return inv_i2c_write(i2c_adap, address, 2, data);
++}
++
++static int inv_i2c_read(struct i2c_adapter *i2c_adap,
++			   unsigned char address, unsigned char reg,
++			   unsigned int len, unsigned char *data)
++{
++	struct i2c_msg msgs[2];
++	int res;
++
++	if (!data || !i2c_adap)
++		return -EINVAL;
++
++	msgs[0].addr = address;
++	msgs[0].flags = 0;	/* write */
++	msgs[0].buf = &reg;
++	msgs[0].len = 1;
++
++	msgs[1].addr = address;
++	msgs[1].flags = I2C_M_RD;
++	msgs[1].buf = data;
++	msgs[1].len = len;
++
++	res = i2c_transfer(i2c_adap, msgs, 2);
++	if (res < 2) {
++		if (res >= 0)
++			res = -EIO;
++		return res;
++	} else
++		return 0;
++}
++
++static int mpu_memory_read(struct i2c_adapter *i2c_adap,
++			   unsigned char mpu_addr,
++			   unsigned short mem_addr,
++			   unsigned int len, unsigned char *data)
++{
++	unsigned char bank[2];
++	unsigned char addr[2];
++	unsigned char buf;
++
++	struct i2c_msg msgs[4];
++	int res;
++
++	if (!data || !i2c_adap)
++		return -EINVAL;
++
++	bank[0] = MPUREG_BANK_SEL;
++	bank[1] = mem_addr >> 8;
++
++	addr[0] = MPUREG_MEM_START_ADDR;
++	addr[1] = mem_addr & 0xFF;
++
++	buf = MPUREG_MEM_R_W;
++
++	/* write message */
++	msgs[0].addr = mpu_addr;
++	msgs[0].flags = 0;
++	msgs[0].buf = bank;
++	msgs[0].len = sizeof(bank);
++
++	msgs[1].addr = mpu_addr;
++	msgs[1].flags = 0;
++	msgs[1].buf = addr;
++	msgs[1].len = sizeof(addr);
++
++	msgs[2].addr = mpu_addr;
++	msgs[2].flags = 0;
++	msgs[2].buf = &buf;
++	msgs[2].len = 1;
++
++	msgs[3].addr = mpu_addr;
++	msgs[3].flags = I2C_M_RD;
++	msgs[3].buf = data;
++	msgs[3].len = len;
++
++	res = i2c_transfer(i2c_adap, msgs, 4);
++	if (res != 4) {
++		if (res >= 0)
++			res = -EIO;
++		return res;
++	} else
++		return 0;
++}
++
++static int mpu_memory_write(struct i2c_adapter *i2c_adap,
++			    unsigned char mpu_addr,
++			    unsigned short mem_addr,
++			    unsigned int len, unsigned char const *data)
++{
++	unsigned char bank[2];
++	unsigned char addr[2];
++	unsigned char buf[513];
++
++	struct i2c_msg msgs[3];
++	int res;
++
++	if (!data || !i2c_adap)
++		return -EINVAL;
++	if (len >= (sizeof(buf) - 1))
++		return -ENOMEM;
++
++	bank[0] = MPUREG_BANK_SEL;
++	bank[1] = mem_addr >> 8;
++
++	addr[0] = MPUREG_MEM_START_ADDR;
++	addr[1] = mem_addr & 0xFF;
++
++	buf[0] = MPUREG_MEM_R_W;
++	memcpy(buf + 1, data, len);
++
++	/* write message */
++	msgs[0].addr = mpu_addr;
++	msgs[0].flags = 0;
++	msgs[0].buf = bank;
++	msgs[0].len = sizeof(bank);
++
++	msgs[1].addr = mpu_addr;
++	msgs[1].flags = 0;
++	msgs[1].buf = addr;
++	msgs[1].len = sizeof(addr);
++
++	msgs[2].addr = mpu_addr;
++	msgs[2].flags = 0;
++	msgs[2].buf = (unsigned char *)buf;
++	msgs[2].len = len + 1;
++
++	res = i2c_transfer(i2c_adap, msgs, 3);
++	if (res != 3) {
++		if (res >= 0)
++			res = -EIO;
++		return res;
++	} else
++		return 0;
++}
++
++int inv_serial_single_write(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned char register_addr,
++	unsigned char data)
++{
++	return inv_i2c_write_register((struct i2c_adapter *)sl_handle,
++				      slave_addr, register_addr, data);
++}
++EXPORT_SYMBOL(inv_serial_single_write);
++
++int inv_serial_write(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short length,
++	unsigned char const *data)
 +{
 +	int result;
-+	unsigned char data[PRESSURE_BMA085_PROM_DATA_LEN];
++	const unsigned short data_length = length - 1;
++	const unsigned char start_reg_addr = data[0];
++	unsigned char i2c_write[SERIAL_MAX_TRANSFER_SIZE + 1];
++	unsigned short bytes_written = 0;
 +
-+	result =
-+	    inv_serial_read(mlsl_handle, pdata->address,
-+			   PRESSURE_BMA085_PROM_START_ADDR,
-+			   PRESSURE_BMA085_PROM_DATA_LEN, data);
-+	if (result) {
-+		LOG_RESULT_LOCATION(result);
-+		return result;
++	while (bytes_written < data_length) {
++		unsigned short this_len = min(SERIAL_MAX_TRANSFER_SIZE,
++					     data_length - bytes_written);
++		if (bytes_written == 0) {
++			result = inv_i2c_write((struct i2c_adapter *)
++					       sl_handle, slave_addr,
++					       1 + this_len, data);
++		} else {
++			/* manually increment register addr between chunks */
++			i2c_write[0] = start_reg_addr + bytes_written;
++			memcpy(&i2c_write[1], &data[1 + bytes_written],
++				this_len);
++			result = inv_i2c_write((struct i2c_adapter *)
++					       sl_handle, slave_addr,
++					       1 + this_len, i2c_write);
++		}
++		if (result)
++			return result;
++		bytes_written += this_len;
 +	}
-+
-+	/* parameters AC1-AC6 */
-+	cal_param.ac1 = (data[0] << 8) | data[1];
-+	cal_param.ac2 = (data[2] << 8) | data[3];
-+	cal_param.ac3 = (data[4] << 8) | data[5];
-+	cal_param.ac4 = (data[6] << 8) | data[7];
-+	cal_param.ac5 = (data[8] << 8) | data[9];
-+	cal_param.ac6 = (data[10] << 8) | data[11];
-+
-+	/* parameters B1,B2 */
-+	cal_param.b1 = (data[12] << 8) | data[13];
-+	cal_param.b2 = (data[14] << 8) | data[15];
-+
-+	/* parameters MB,MC,MD */
-+	cal_param.mb = (data[16] << 8) | data[17];
-+	cal_param.mc = (data[18] << 8) | data[19];
-+	cal_param.md = (data[20] << 8) | data[21];
-+
-+	return result;
-+}
-+
-+static int bma085_read(void *mlsl_handle,
-+		       struct ext_slave_descr *slave,
-+		       struct ext_slave_platform_data *pdata,
-+		       unsigned char *data)
-+{
-+	int result;
-+	long pressure, x1, x2, x3, b3, b6;
-+	unsigned long b4, b7;
-+	unsigned long up;
-+	unsigned short ut;
-+	short oversampling_setting = 0;
-+	short temperature;
-+	long divisor;
-+
-+	/* get temprature */
-+	result = inv_serial_single_write(mlsl_handle, pdata->address,
-+				       PRESSURE_BMP085_CTRL_MEAS_REG,
-+				       PRESSURE_BMP085_T_MEAS);
-+	msleep(5);
-+	result =
-+	    inv_serial_read(mlsl_handle, pdata->address,
-+			   PRESSURE_BMP085_ADC_OUT_MSB_REG, 2,
-+			   (unsigned char *)data);
-+	if (result) {
-+		LOG_RESULT_LOCATION(result);
-+		return result;
-+	}
-+	ut = (data[0] << 8) | data[1];
-+
-+	x1 = (((long) ut - (long)cal_param.ac6) * (long)cal_param.ac5) >> 15;
-+	divisor = x1 + cal_param.md;
-+	if (!divisor)
-+		return INV_ERROR_DIVIDE_BY_ZERO;
-+
-+	x2 = ((long)cal_param.mc << 11) / (x1 + cal_param.md);
-+	cal_param.param_b5 = x1 + x2;
-+	/* temperature in 0.1 degree C */
-+	temperature = (short)((cal_param.param_b5 + 8) >> 4);
-+
-+	/* get pressure */
-+	result = inv_serial_single_write(mlsl_handle, pdata->address,
-+				       PRESSURE_BMP085_CTRL_MEAS_REG,
-+				       PRESSURE_BMP085_P_MEAS_OSS_0);
-+	msleep(5);
-+	result =
-+	    inv_serial_read(mlsl_handle, pdata->address,
-+			   PRESSURE_BMP085_ADC_OUT_MSB_REG, 2,
-+			   (unsigned char *)data);
-+	if (result) {
-+		LOG_RESULT_LOCATION(result);
-+		return result;
-+	}
-+	up = (((unsigned long) data[0] << 8) | ((unsigned long) data[1]));
-+
-+	b6 = cal_param.param_b5 - 4000;
-+	/* calculate B3 */
-+	x1 = (b6*b6) >> 12;
-+	x1 *= cal_param.b2;
-+	x1 >>= 11;
-+
-+	x2 = (cal_param.ac2*b6);
-+	x2 >>= 11;
-+
-+	x3 = x1 + x2;
-+
-+	b3 = (((((long)cal_param.ac1) * 4 + x3)
-+	    << oversampling_setting) + 2) >> 2;
-+
-+	/* calculate B4 */
-+	x1 = (cal_param.ac3 * b6) >> 13;
-+	x2 = (cal_param.b1 * ((b6*b6) >> 12)) >> 16;
-+	x3 = ((x1 + x2) + 2) >> 2;
-+	b4 = (cal_param.ac4 * (unsigned long) (x3 + 32768)) >> 15;
-+	if (!b4)
-+		return INV_ERROR;
-+
-+	b7 = ((unsigned long)(up - b3) * (50000>>oversampling_setting));
-+	if (b7 < 0x80000000)
-+		pressure = (b7 << 1) / b4;
-+	else
-+		pressure = (b7 / b4) << 1;
-+
-+	x1 = pressure >> 8;
-+	x1 *= x1;
-+	x1 = (x1 * PRESSURE_BMA085_PARAM_MG) >> 16;
-+	x2 = (pressure * PRESSURE_BMA085_PARAM_MH) >> 16;
-+	/* pressure in Pa */
-+	pressure += (x1 + x2 + PRESSURE_BMA085_PARAM_MI) >> 4;
-+
-+	data[0] = (unsigned char)(pressure >> 16);
-+	data[1] = (unsigned char)(pressure >> 8);
-+	data[2] = (unsigned char)(pressure & 0xFF);
-+
-+	return result;
-+}
-+
-+static struct ext_slave_descr bma085_descr = {
-+	.init             = NULL,
-+	.exit             = NULL,
-+	.suspend          = bma085_suspend,
-+	.resume           = bma085_resume,
-+	.read             = bma085_read,
-+	.config           = NULL,
-+	.get_config       = NULL,
-+	.name             = "bma085",
-+	.type             = EXT_SLAVE_TYPE_PRESSURE,
-+	.id               = PRESSURE_ID_BMA085,
-+	.read_reg         = 0xF6,
-+	.read_len         = 3,
-+	.endian           = EXT_SLAVE_BIG_ENDIAN,
-+	.range            = {0, 0},
-+};
-+
-+static
-+struct ext_slave_descr *bma085_get_slave_descr(void)
-+{
-+	return &bma085_descr;
-+}
-+
-+/* Platform data for the MPU */
-+struct bma085_mod_private_data {
-+	struct i2c_client *client;
-+	struct ext_slave_platform_data *pdata;
-+};
-+
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
-+
-+static int bma085_mod_probe(struct i2c_client *client,
-+			   const struct i2c_device_id *devid)
-+{
-+	struct ext_slave_platform_data *pdata;
-+	struct bma085_mod_private_data *private_data;
-+	int result = 0;
-+
-+	dev_info(&client->adapter->dev, "%s: %s\n", __func__, devid->name);
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		result = -ENODEV;
-+		goto out_no_free;
-+	}
-+
-+	pdata = client->dev.platform_data;
-+	if (!pdata) {
-+		dev_err(&client->adapter->dev,
-+			"Missing platform data for slave %s\n", devid->name);
-+		result = -EFAULT;
-+		goto out_no_free;
-+	}
-+
-+	private_data = kzalloc(sizeof(*private_data), GFP_KERNEL);
-+	if (!private_data) {
-+		result = -ENOMEM;
-+		goto out_no_free;
-+	}
-+
-+	i2c_set_clientdata(client, private_data);
-+	private_data->client = client;
-+	private_data->pdata = pdata;
-+
-+	result = inv_mpu_register_slave(THIS_MODULE, client, pdata,
-+					bma085_get_slave_descr);
-+	if (result) {
-+		dev_err(&client->adapter->dev,
-+			"Slave registration failed: %s, %d\n",
-+			devid->name, result);
-+		goto out_free_memory;
-+	}
-+
-+	return result;
-+
-+out_free_memory:
-+	kfree(private_data);
-+out_no_free:
-+	dev_err(&client->adapter->dev, "%s failed %d\n", __func__, result);
-+	return result;
-+
-+}
-+
-+static int bma085_mod_remove(struct i2c_client *client)
-+{
-+	struct bma085_mod_private_data *private_data =
-+		i2c_get_clientdata(client);
-+
-+	dev_dbg(&client->adapter->dev, "%s\n", __func__);
-+
-+	inv_mpu_unregister_slave(client, private_data->pdata,
-+				bma085_get_slave_descr);
-+
-+	kfree(private_data);
 +	return 0;
 +}
++EXPORT_SYMBOL(inv_serial_write);
 +
-+static const struct i2c_device_id bma085_mod_id[] = {
-+	{ "bma085", PRESSURE_ID_BMA085 },
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, bma085_mod_id);
-+
-+static struct i2c_driver bma085_mod_driver = {
-+	.class = I2C_CLASS_HWMON,
-+	.probe = bma085_mod_probe,
-+	.remove = bma085_mod_remove,
-+	.id_table = bma085_mod_id,
-+	.driver = {
-+		   .owner = THIS_MODULE,
-+		   .name = "bma085_mod",
-+		   },
-+	.address_list = normal_i2c,
-+};
-+
-+static int __init bma085_mod_init(void)
++int inv_serial_read(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned char register_addr,
++	unsigned short length,
++	unsigned char *data)
 +{
-+	int res = i2c_add_driver(&bma085_mod_driver);
-+	pr_info("%s: Probe name %s\n", __func__, "bma085_mod");
-+	if (res)
-+		pr_err("%s failed\n", __func__);
-+	return res;
-+}
++	int result;
++	unsigned short bytes_read = 0;
 +
-+static void __exit bma085_mod_exit(void)
++	if (register_addr == MPUREG_FIFO_R_W || register_addr == MPUREG_MEM_R_W)
++		return INV_ERROR_INVALID_PARAMETER;
++
++	while (bytes_read < length) {
++		unsigned short this_len =
++		    min(SERIAL_MAX_TRANSFER_SIZE, length - bytes_read);
++		result = inv_i2c_read((struct i2c_adapter *)sl_handle,
++				      slave_addr, register_addr + bytes_read,
++				      this_len, &data[bytes_read]);
++		if (result)
++			return result;
++		bytes_read += this_len;
++	}
++	return 0;
++}
++EXPORT_SYMBOL(inv_serial_read);
++
++int inv_serial_write_mem(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short mem_addr,
++	unsigned short length,
++	unsigned char const *data)
 +{
-+	pr_info("%s\n", __func__);
-+	i2c_del_driver(&bma085_mod_driver);
++	int result;
++	unsigned short bytes_written = 0;
++
++	if ((mem_addr & 0xFF) + length > MPU_MEM_BANK_SIZE) {
++		pr_err("memory read length (%d B) extends beyond its"
++		       " limits (%d) if started at location %d\n", length,
++		       MPU_MEM_BANK_SIZE, mem_addr & 0xFF);
++		return INV_ERROR_INVALID_PARAMETER;
++	}
++	while (bytes_written < length) {
++		unsigned short this_len =
++		    min(SERIAL_MAX_TRANSFER_SIZE, length - bytes_written);
++		result = mpu_memory_write((struct i2c_adapter *)sl_handle,
++					  slave_addr, mem_addr + bytes_written,
++					  this_len, &data[bytes_written]);
++		if (result)
++			return result;
++		bytes_written += this_len;
++	}
++	return 0;
 +}
++EXPORT_SYMBOL(inv_serial_write_mem);
 +
-+module_init(bma085_mod_init);
-+module_exit(bma085_mod_exit);
++int inv_serial_read_mem(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short mem_addr,
++	unsigned short length,
++	unsigned char *data)
++{
++	int result;
++	unsigned short bytes_read = 0;
 +
-+MODULE_AUTHOR("Invensense Corporation");
-+MODULE_DESCRIPTION("Driver to integrate BMA085 sensor with the MPU");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("bma085_mod");
++	if ((mem_addr & 0xFF) + length > MPU_MEM_BANK_SIZE) {
++		printk
++		    ("memory read length (%d B) extends beyond its limits (%d) "
++		     "if started at location %d\n", length,
++		     MPU_MEM_BANK_SIZE, mem_addr & 0xFF);
++		return INV_ERROR_INVALID_PARAMETER;
++	}
++	while (bytes_read < length) {
++		unsigned short this_len =
++		    min(SERIAL_MAX_TRANSFER_SIZE, length - bytes_read);
++		result =
++		    mpu_memory_read((struct i2c_adapter *)sl_handle,
++				    slave_addr, mem_addr + bytes_read,
++				    this_len, &data[bytes_read]);
++		if (result)
++			return result;
++		bytes_read += this_len;
++	}
++	return 0;
++}
++EXPORT_SYMBOL(inv_serial_read_mem);
++
++int inv_serial_write_fifo(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short length,
++	unsigned char const *data)
++{
++	int result;
++	unsigned char i2c_write[SERIAL_MAX_TRANSFER_SIZE + 1];
++	unsigned short bytes_written = 0;
++
++	if (length > FIFO_HW_SIZE) {
++		printk(KERN_ERR
++		       "maximum fifo write length is %d\n", FIFO_HW_SIZE);
++		return INV_ERROR_INVALID_PARAMETER;
++	}
++	while (bytes_written < length) {
++		unsigned short this_len =
++		    min(SERIAL_MAX_TRANSFER_SIZE, length - bytes_written);
++		i2c_write[0] = MPUREG_FIFO_R_W;
++		memcpy(&i2c_write[1], &data[bytes_written], this_len);
++		result = inv_i2c_write((struct i2c_adapter *)sl_handle,
++				       slave_addr, this_len + 1, i2c_write);
++		if (result)
++			return result;
++		bytes_written += this_len;
++	}
++	return 0;
++}
++EXPORT_SYMBOL(inv_serial_write_fifo);
++
++int inv_serial_read_fifo(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short length,
++	unsigned char *data)
++{
++	int result;
++	unsigned short bytes_read = 0;
++
++	if (length > FIFO_HW_SIZE) {
++		printk(KERN_ERR
++		       "maximum fifo read length is %d\n", FIFO_HW_SIZE);
++		return INV_ERROR_INVALID_PARAMETER;
++	}
++	while (bytes_read < length) {
++		unsigned short this_len =
++		    min(SERIAL_MAX_TRANSFER_SIZE, length - bytes_read);
++		result = inv_i2c_read((struct i2c_adapter *)sl_handle,
++				      slave_addr, MPUREG_FIFO_R_W, this_len,
++				      &data[bytes_read]);
++		if (result)
++			return result;
++		bytes_read += this_len;
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL(inv_serial_read_fifo);
++
 +/**
 + *  @}
-+**/
++ */
+diff --git a/drivers/misc/inv_mpu/mlsl.h b/drivers/misc/inv_mpu/mlsl.h
+new file mode 100644
+index 0000000..204baed
+--- /dev/null
++++ b/drivers/misc/inv_mpu/mlsl.h
+@@ -0,0 +1,186 @@
++/*
++	$License:
++	Copyright (C) 2011 InvenSense Corporation, All Rights Reserved.
++
++	This program is free software; you can redistribute it and/or modify
++	it under the terms of the GNU General Public License as published by
++	the Free Software Foundation; either version 2 of the License, or
++	(at your option) any later version.
++
++	This program is distributed in the hope that it will be useful,
++	but WITHOUT ANY WARRANTY; without even the implied warranty of
++	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++	GNU General Public License for more details.
++
++	You should have received a copy of the GNU General Public License
++	along with this program.  If not, see <http://www.gnu.org/licenses/>.
++	$
++ */
++
++#ifndef __MLSL_H__
++#define __MLSL_H__
++
++/**
++ *  @defgroup   MLSL
++ *  @brief      Motion Library - Serial Layer.
++ *              The Motion Library System Layer provides the Motion Library
++ *              with the communication interface to the hardware.
++ *
++ *              The communication interface is assumed to support serial
++ *              transfers in burst of variable length up to
++ *              SERIAL_MAX_TRANSFER_SIZE.
++ *              The default value for SERIAL_MAX_TRANSFER_SIZE is 128 bytes.
++ *              Transfers of length greater than SERIAL_MAX_TRANSFER_SIZE, will
++ *              be subdivided in smaller transfers of length <=
++ *              SERIAL_MAX_TRANSFER_SIZE.
++ *              The SERIAL_MAX_TRANSFER_SIZE definition can be modified to
++ *              overcome any host processor transfer size limitation down to
++ *              1 B, the minimum.
++ *              An higher value for SERIAL_MAX_TRANSFER_SIZE will favor
++ *              performance and efficiency while requiring higher resource usage
++ *              (mostly buffering). A smaller value will increase overhead and
++ *              decrease efficiency but allows to operate with more resource
++ *              constrained processor and master serial controllers.
++ *              The SERIAL_MAX_TRANSFER_SIZE definition can be found in the
++ *              mlsl.h header file and master serial controllers.
++ *              The SERIAL_MAX_TRANSFER_SIZE definition can be found in the
++ *              mlsl.h header file.
++ *
++ *  @{
++ *      @file   mlsl.h
++ *      @brief  The Motion Library System Layer.
++ *
++ */
++
++#include "mltypes.h"
++#include <linux/mpu.h>
++
++
++/*
++ * NOTE : to properly support Yamaha compass reads,
++ *	  the max transfer size should be at least 9 B.
++ *	  Length in bytes, typically a power of 2 >= 2
++ */
++#define SERIAL_MAX_TRANSFER_SIZE 128
++
++
++/**
++ *  inv_serial_single_write() - used to write a single byte of data.
++ *  @sl_handle		pointer to the serial device used for the communication.
++ *  @slave_addr		I2C slave address of device.
++ *  @register_addr	Register address to write.
++ *  @data		Single byte of data to write.
++ *
++ *	It is called by the MPL to write a single byte of data to the MPU.
++ *
++ *  returns INV_SUCCESS if successful, a non-zero error code otherwise.
++ */
++int inv_serial_single_write(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned char register_addr,
++	unsigned char data);
++
++/**
++ *  inv_serial_write() - used to write multiple bytes of data to registers.
++ *  @sl_handle	a file handle to the serial device used for the communication.
++ *  @slave_addr	I2C slave address of device.
++ *  @register_addr	Register address to write.
++ *  @length	Length of burst of data.
++ *  @data	Pointer to block of data.
++ *
++ *  returns INV_SUCCESS if successful, a non-zero error code otherwise.
++ */
++int inv_serial_write(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short length,
++	unsigned char const *data);
++
++/**
++ *  inv_serial_read() - used to read multiple bytes of data from registers.
++ *  @sl_handle	a file handle to the serial device used for the communication.
++ *  @slave_addr	I2C slave address of device.
++ *  @register_addr	Register address to read.
++ *  @length	Length of burst of data.
++ *  @data	Pointer to block of data.
++ *
++ *  returns INV_SUCCESS == 0 if successful; a non-zero error code otherwise.
++ */
++int inv_serial_read(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned char register_addr,
++	unsigned short length,
++	unsigned char *data);
++
++/**
++ *  inv_serial_read_mem() - used to read multiple bytes of data from the memory.
++ *	    This should be sent by I2C or SPI.
++ *
++ *  @sl_handle	a file handle to the serial device used for the communication.
++ *  @slave_addr	I2C slave address of device.
++ *  @mem_addr	The location in the memory to read from.
++ *  @length	Length of burst data.
++ *  @data	Pointer to block of data.
++ *
++ *  returns INV_SUCCESS == 0 if successful; a non-zero error code otherwise.
++ */
++int inv_serial_read_mem(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short mem_addr,
++	unsigned short length,
++	unsigned char *data);
++
++/**
++ *  inv_serial_write_mem() - used to write multiple bytes of data to the memory.
++ *  @sl_handle	a file handle to the serial device used for the communication.
++ *  @slave_addr	I2C slave address of device.
++ *  @mem_addr	The location in the memory to write to.
++ *  @length	Length of burst data.
++ *  @data	Pointer to block of data.
++ *
++ *  returns INV_SUCCESS == 0 if successful; a non-zero error code otherwise.
++ */
++int inv_serial_write_mem(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short mem_addr,
++	unsigned short length,
++	unsigned char const *data);
++
++/**
++ *  inv_serial_read_fifo() - used to read multiple bytes of data from the fifo.
++ *  @sl_handle	a file handle to the serial device used for the communication.
++ *  @slave_addr	I2C slave address of device.
++ *  @length	Length of burst of data.
++ *  @data	Pointer to block of data.
++ *
++ *  returns INV_SUCCESS == 0 if successful; a non-zero error code otherwise.
++ */
++int inv_serial_read_fifo(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short length,
++	unsigned char *data);
++
++/**
++ *  inv_serial_write_fifo() - used to write multiple bytes of data to the fifo.
++ *  @sl_handle	a file handle to the serial device used for the communication.
++ *  @slave_addr	I2C slave address of device.
++ *  @length	Length of burst of data.
++ *  @data	Pointer to block of data.
++ *
++ *  returns INV_SUCCESS == 0 if successful; a non-zero error code otherwise.
++ */
++int inv_serial_write_fifo(
++	void *sl_handle,
++	unsigned char slave_addr,
++	unsigned short length,
++	unsigned char const *data);
++
++/**
++ * @}
++ */
++#endif				/* __MLSL_H__ */
 -- 
 1.7.4.1

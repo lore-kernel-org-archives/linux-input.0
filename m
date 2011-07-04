@@ -1,109 +1,79 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH v6 08/18] mfd: twl6040: Add initial support
-Date: Mon, 4 Jul 2011 15:53:30 +0300
-Message-ID: <20110704125330.GI2820@legolas.emea.dhcp.ti.com>
-References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
- <1308663556-29120-9-git-send-email-peter.ujfalusi@ti.com>
-Reply-To: balbi@ti.com
+From: Iiro Valkonen <iiro.valkonen@atmel.com>
+Subject: [PATCH 1/3 v2] Input: atmel_mxt_ts - Make wait-after-reset period
+ compatible with all chips
+Date: Mon, 04 Jul 2011 15:57:39 +0300
+Message-ID: <4E11B8C3.8010608@atmel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mFHiwr52TKrxpkjc"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog113.obsmtp.com ([74.125.149.209]:53124 "EHLO
-	na3sys009aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753459Ab1GDMxk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Jul 2011 08:53:40 -0400
-Content-Disposition: inline
-In-Reply-To: <1308663556-29120-9-git-send-email-peter.ujfalusi@ti.com>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:32042 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756302Ab1GDM6G (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2011 08:58:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Liam Girdwood <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Misael Lopez Cruz <misael.lopez@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org
 
+The delay before the chip can be accessed after reset varies between different
+chips in maXTouch family. Waiting for 200ms and then monitoring the CHG (chip
+is ready when the line is low) is guaranteed to work with all chips.
 
---mFHiwr52TKrxpkjc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+v2: At Dmitry's suggestion, add a timeout so we are not stuck looping
+endlessly in case the CHG is not going low. 
 
-hi,
+Signed-off-by: Iiro Valkonen <iiro.valkonen@atmel.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |    9 ++++++++-
+ include/linux/i2c/atmel_mxt_ts.h         |    1 +
+ 2 files changed, 9 insertions(+), 1 deletions(-)
 
-On Tue, Jun 21, 2011 at 04:39:06PM +0300, Peter Ujfalusi wrote:
-> +static int __devinit twl6040_probe(struct platform_device *pdev)
-> +{
-> +	struct twl4030_audio_data *pdata =3D pdev->dev.platform_data;
-> +	struct twl6040 *twl6040;
-> +	struct mfd_cell *cell =3D NULL;
-> +	int ret, children =3D 0;
-> +
-> +	if (!pdata) {
-> +		dev_err(&pdev->dev, "Platform data is missing\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	twl6040 =3D kzalloc(sizeof(struct twl6040), GFP_KERNEL);
-> +	if (!twl6040)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, twl6040);
-> +
-> +	twl6040_dev =3D pdev;
-> +	twl6040->dev =3D &pdev->dev;
-> +	twl6040->audpwron =3D pdata->audpwron_gpio;
-> +	twl6040->irq =3D pdata->naudint_irq;
-> +	twl6040->irq_base =3D pdata->irq_base;
-> +
-> +	mutex_init(&twl6040->mutex);
-> +	mutex_init(&twl6040->io_mutex);
-> +	init_completion(&twl6040->ready);
-> +
-> +	twl6040->rev =3D twl6040_reg_read(twl6040, TWL6040_REG_ASICREV);
-> +
-> +	if (gpio_is_valid(twl6040->audpwron)) {
-> +		ret =3D gpio_request(twl6040->audpwron, "audpwron");
-> +		if (ret)
-> +			goto gpio1_err;
-> +
-> +		ret =3D gpio_direction_output(twl6040->audpwron, 0);
-> +		if (ret)
-> +			goto gpio2_err;
-> +	}
-> +
-> +	/* ERRATA: Automatic power-up is not possible in ES1.0 */
-> +	if (twl6040_get_rev(twl6040) =3D=3D TWL6040_REV_ES1_0)
-> +		twl6040->audpwron =3D -EINVAL;
-> +
-> +	if (twl6040->irq) {
-> +		/* codec interrupt */
-> +		ret =3D twl6040_irq_init(twl6040);
-> +		if (ret)
-> +			goto gpio2_err;
-> +
-> +		ret =3D twl6040_request_irq(twl6040, TWL6040_IRQ_READY,
-> +					  twl6040_naudint_handler, 0,
-> +					  "twl6040_irq_ready", twl6040);
-
-why don't you use the normal request_threaded_irq() ?? This is a bit of
-obfuscation IMO.
-
---=20
-balbi
-
---mFHiwr52TKrxpkjc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAEBAgAGBQJOEbfKAAoJEAv8Txj19kN1tKwH/1hm5004W22i0x9tu4URmbI0
-oYSfNTUPnJVT0JH+FomxuB6gD15G+Ve115x7yAy2lZIah3nX02jmiIzryou698p5
-4HkKbcypkmOr82QIdwB0wteOAG+Gtzq5ixfC426g5Mz93mnr/hnyfOd/wRDby0ZJ
-tNzjZWzk/LaxfDjtKHYxBkUvTJU4y880kqtS99DVzpJmBaLmQytPYhRsuMxqtVIE
-sSdKZNFXtgzrVqeIHvWrri0LJ3CUmtKYMMXJzUomp8YRDTVuJEaGlenbr0svbpQS
-x1refWkBPV2Xm0/61wNjxXm3glaT68PB+weEx6rLrnPuB/XQsasWbVCv9D9oww0=
-=K/PW
------END PGP SIGNATURE-----
-
---mFHiwr52TKrxpkjc--
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 1e61387..5469a29 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -170,7 +170,7 @@
+ #define MXT_BOOT_VALUE		0xa5
+ #define MXT_BACKUP_VALUE	0x55
+ #define MXT_BACKUP_TIME		25	/* msec */
+-#define MXT_RESET_TIME		65	/* msec */
++#define MXT_RESET_TIME		200	/* msec */
+ 
+ #define MXT_FWRESET_TIME	175	/* msec */
+ 
+@@ -792,6 +792,7 @@ static int mxt_initialize(struct mxt_data *data)
+ 	struct i2c_client *client = data->client;
+ 	struct mxt_info *info = &data->info;
+ 	int error;
++	int reset_timeout = 0;
+ 	u8 val;
+ 
+ 	error = mxt_get_info(data);
+@@ -828,6 +829,12 @@ static int mxt_initialize(struct mxt_data *data)
+ 	mxt_write_object(data, MXT_GEN_COMMAND,
+ 			MXT_COMMAND_RESET, 1);
+ 	msleep(MXT_RESET_TIME);
++	while ((reset_timeout++ <= 100) && data->pdata->read_chg())
++		msleep(2);
++	if (reset_timeout >= 100) {
++		dev_err(&client->dev, "No response after reset!\n");
++		return -EIO;
++	}
+ 
+ 	/* Update matrix size at info struct */
+ 	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
+diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+index f027f7a..ef59c22 100644
+--- a/include/linux/i2c/atmel_mxt_ts.h
++++ b/include/linux/i2c/atmel_mxt_ts.h
+@@ -39,6 +39,7 @@ struct mxt_platform_data {
+ 	unsigned int voltage;
+ 	unsigned char orient;
+ 	unsigned long irqflags;
++	u8(*read_chg) (void);
+ };
+ 
+ #endif /* __LINUX_ATMEL_MXT_TS_H */
+-- 
+1.7.0.4

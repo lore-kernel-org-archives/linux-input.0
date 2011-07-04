@@ -1,185 +1,109 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3] input: add driver for pixcir i2c touchscreens
-Date: Mon, 4 Jul 2011 22:49:35 +0200
-Message-ID: <20110704204935.GB22437@polaris.bitmath.org>
-References: <4DDB2516.6050302@pixcir.com.cn>
+Subject: Re: [PATCH 02/12] Input: synaptics - do not invert y if 0
+Date: Mon, 4 Jul 2011 23:08:38 +0200
+Message-ID: <20110704210838.GA23915@polaris.bitmath.org>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
+ <1309324042-22943-3-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:50251 "EHLO
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:47745 "EHLO
 	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751792Ab1GDUrs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2011 16:47:48 -0400
-Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 0456AEA3B0
-	for <linux-input@vger.kernel.org>; Mon,  4 Jul 2011 22:47:46 +0200 (CEST)
+	with ESMTP id S1751771Ab1GDVGv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2011 17:06:51 -0400
 Content-Disposition: inline
-In-Reply-To: <4DDB2516.6050302@pixcir.com.cn>
+In-Reply-To: <1309324042-22943-3-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jcbian <jcbian@pixcir.com.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, dqmeng <dqmeng@pixcir.com.cn>, zlchen <zlchen@pixcir.com.cn>
+To: djkurtz@chromium.org
+Cc: dmitry.torokhov@gmail.com, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-Hi jcbian,
+Hi Daniel,
 
-> This patch adds a driver for PIXCIR's I2C connected touchscreens.
-> Request the IRQ by doing request_threaded_irq() as v3.
+> Synaptics touchpads report increasing y from bottom to top.
+> This is inverted from normal userspace "top of screen is 0" coordinates.
+> Thus, the kernel driver reports inverted y coordinates to userspace.
+> 
+> In some cases, however, y = 0 is sent by the touchpad.
+> In these cases, the kernel driver should not invert, and just report 0.
+> 
+> This patch also refactors the inversion into a macro, and moves it
+> into packet processing instead of during position reporting.
 
-Some MT comments below.
+The patch seems to invert the current output?
 
-> +static int pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
-
-Perhaps it is possible to find a more descriptive name?
-
-> +{
-> +	struct pixcir_i2c_ts_data *tsdata = data;
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  drivers/input/mouse/synaptics.c |   16 +++++++++-------
+>  1 files changed, 9 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index e06e045..f6d0c04 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -44,6 +44,8 @@
+>  #define YMIN_NOMINAL 1408
+>  #define YMAX_NOMINAL 4448
+>  
+> +#define INVERT_Y(y) (((y) != 0) ? (YMAX_NOMINAL + YMIN_NOMINAL - (y)) : 0)
 > +
-> +	u8 touching, oldtouching;
-> +	u16 posx1, posy1, posx2, posy2;
-> +	u8 rdbuf[10], wrbuf[1];
-> +	int ret;
-> +
-> +	memset(wrbuf, 0, sizeof(wrbuf));
-> +	memset(rdbuf, 0, sizeof(rdbuf));
-> +
-> +	wrbuf[0] = 0;
-> +	ret = i2c_master_send(tsdata->client, wrbuf, 1);
-> +	if (ret != 1) {
-> +		dev_err(&tsdata->client->dev, "Unable to write to i2c touchscreen!\n");
-> +		goto out;
-> +	}
-
-How about returning the error code here directly instead?
-
-> +
-> +	ret = i2c_master_recv(tsdata->client, rdbuf, sizeof(rdbuf));
-> +	if (ret != sizeof(rdbuf)) {
-> +		dev_err(&tsdata->client->dev, "Unable to read i2c page!\n");
-> +		goto out;
-> +	}
-
-Ditto.
-
-> +
-> +	touching = rdbuf[0];
-> +	oldtouching = rdbuf[1];
-
-Is oldtouching ever used?
-
-> +	posx1 = ((rdbuf[3] << 8) | rdbuf[2]);
-> +	posy1 = ((rdbuf[5] << 8) | rdbuf[4]);
-> +	posx2 = ((rdbuf[7] << 8) | rdbuf[6]);
-> +	posy2 = ((rdbuf[9] << 8) | rdbuf[8]);
-> +
-> +	input_report_key(tsdata->input, BTN_TOUCH, touching);
-> +
-> +	if (touching == 1) {
-> +		input_report_abs(tsdata->input, ABS_X, posx1);
-> +		input_report_abs(tsdata->input, ABS_Y, posy1);
-> +	}
-
-No MT data for one finger?
-
-> +
-> +	if (touching == 2) {
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
-> +		input_mt_sync(tsdata->input);
-> +
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx2);
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy2);
-> +		input_mt_sync(tsdata->input);
-> +	} else
-> +		input_mt_sync(tsdata->input);
-
-input_mt_sync() is always called, please simplify.
-
-> +	input_sync(tsdata->input);
-> +
-> +	return 0;
-> +
-> +out:
-> +	return -EINVAL;
-> +}
-> +
-[...]
-> +static int pixcir_i2c_ts_probe(struct i2c_client *client,
-> +			  const struct i2c_device_id *id)
-> +{
-> +	struct pixcir_i2c_ts_data *tsdata;
-> +	struct input_dev *input;
-> +	const struct pixcir_i2c_ts_platform *pdata =
-> +					client->dev.platform_data;
-> +	int error;
-> +
-> +	if (!pdata) {
-> +		dev_err(&client->dev, "platform data not defined\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
-> +	if (!tsdata) {
-> +		dev_err(&client->dev, "Failed to allocate driver data!\n");
-> +		error = -ENOMEM;
-> +		dev_set_drvdata(&client->dev, NULL);
-> +		return error;
-> +	}
-> +
-> +	dev_set_drvdata(&client->dev, tsdata);
-> +
-> +	input = input_allocate_device();
-> +	if (!input) {
-> +		dev_err(&client->dev, "Failed to allocate input device!\n");
-> +		error = -ENOMEM;
-> +		input_free_device(input);
-> +		kfree(tsdata);
-> +	}
-> +
-> +	init_waitqueue_head(&tsdata->wait);
-> +
-> +	input->name = client->name;
-> +	input->id.bustype = BUS_I2C;
-> +	input->dev.parent = &client->dev;
-> +
-> +	input->close = pixcir_ts_close;
-> +
-> +	input_set_drvdata(input, tsdata);
-> +
-> +	tsdata->client = client;
-> +	tsdata->input = input;
-> +	tsdata->chip = pdata;
-> +	tsdata->irq = client->irq;
-> +
-> +	set_bit(EV_SYN, input->evbit);
-> +	set_bit(EV_KEY, input->evbit);
-> +	set_bit(EV_ABS, input->evbit);
-> +	set_bit(BTN_TOUCH, input->keybit);
-> +	input_set_abs_params(input, ABS_X, 0, pdata->ts_x_max, 0, 0);
-> +	input_set_abs_params(input, ABS_Y, 0, pdata->ts_y_max, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->ts_x_max, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->ts_y_max, 0, 0);
-
-Is the device not capable of finger tracking? If not, it might be time
-to turn finger tracking on in the input core. It is preferrable to use
-protocol B these days.
-
-> +
-> +	if (input_register_device(input)) {
-> +		input_free_device(input);
-> +		kfree(tsdata);
-> +	}
-> +
-> +	if (request_threaded_irq(tsdata->irq, NULL, pixcir_ts_isr,
-> +			IRQF_TRIGGER_FALLING, client->name, tsdata)) {
-> +		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
-> +		input_unregister_device(input);
-> +		input = NULL;
-> +	}
-> +
-> +	device_init_wakeup(&client->dev, 1);
-> +
-> +	return 0;
-> +}
+>  
+>  /*****************************************************************************
+>   *	Stuff we need even when we do not want native Synaptics support
+> @@ -409,9 +411,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		hw->x = (((buf[3] & 0x10) << 8) |
+>  			 ((buf[1] & 0x0f) << 8) |
+>  			 buf[4]);
+> -		hw->y = (((buf[3] & 0x20) << 7) |
+> +		hw->y = INVERT_Y((((buf[3] & 0x20) << 7) |
+>  			 ((buf[1] & 0xf0) << 4) |
+> -			 buf[5]);
+> +			 buf[5]));
+>  
+>  		hw->z = buf[2];
+>  		hw->w = (((buf[0] & 0x30) >> 2) |
+> @@ -421,7 +423,8 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
+>  			/* Gesture packet: (x, y, z) at half resolution */
+>  			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
+> -			priv->mt.y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
+> +			priv->mt.y = INVERT_Y((((buf[4] & 0xf0) << 4)
+> +					      | buf[2]) << 1);
+>  			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
+>  			return 1;
+>  		}
+> @@ -473,7 +476,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		}
+>  	} else {
+>  		hw->x = (((buf[1] & 0x1f) << 8) | buf[2]);
+> -		hw->y = (((buf[4] & 0x1f) << 8) | buf[5]);
+> +		hw->y = INVERT_Y(((buf[4] & 0x1f) << 8) | buf[5]);
+>  
+>  		hw->z = (((buf[0] & 0x30) << 2) | (buf[3] & 0x3F));
+>  		hw->w = (((buf[1] & 0x80) >> 4) | ((buf[0] & 0x04) >> 1));
+> @@ -491,8 +494,7 @@ static void set_slot(struct input_dev *dev, int slot, bool active, int x, int y)
+>  	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+>  	if (active) {
+>  		input_report_abs(dev, ABS_MT_POSITION_X, x);
+> -		input_report_abs(dev, ABS_MT_POSITION_Y,
+> -				 YMAX_NOMINAL + YMIN_NOMINAL - y);
+> +		input_report_abs(dev, ABS_MT_POSITION_Y, y);
+>  	}
+>  }
+>  
+> @@ -584,7 +586,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+>  
+>  	if (num_fingers > 0) {
+>  		input_report_abs(dev, ABS_X, hw.x);
+> -		input_report_abs(dev, ABS_Y, YMAX_NOMINAL + YMIN_NOMINAL - hw.y);
+> +		input_report_abs(dev, ABS_Y, hw.y);
+>  	}
+>  	input_report_abs(dev, ABS_PRESSURE, hw.z);
+>  
+> -- 
+> 1.7.3.1
+> 
 
 Thanks,
 Henrik

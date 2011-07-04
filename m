@@ -1,52 +1,35 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: Re: [PATCH v6 08/18] mfd: twl6040: Add initial support
-Date: Mon, 4 Jul 2011 19:39:35 +0200
-Message-ID: <20110704173935.GT3021@sortiz-mobl>
-References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
- <1308663556-29120-9-git-send-email-peter.ujfalusi@ti.com>
- <20110704114844.GA3021@sortiz-mobl>
- <1650114.SY7VdjHPHs@barack>
+From: Eric Andersson <eric.andersson@unixphere.com>
+Subject: Re: [PATCH 01/11] misc: inv_mpu primary header file and README file.
+Date: Mon, 4 Jul 2011 22:06:18 +0200
+Message-ID: <20110704200618.GA7917@skinner.xfiles.lan>
+References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
+ <4E0D8E94.5030604@cam.ac.uk>
+ <4d61a92a11e5d83a1cb0094441ae5f5e@mail.gmail.com>
+ <4E105284.7030209@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:62315 "EHLO mga01.intel.com"
+Received: from csmtp2.one.com ([91.198.169.22]:59420 "EHLO csmtp2.one.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755907Ab1GDRjI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Jul 2011 13:39:08 -0400
+	id S1751834Ab1GDUDE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Jul 2011 16:03:04 -0400
 Content-Disposition: inline
-In-Reply-To: <1650114.SY7VdjHPHs@barack>
+In-Reply-To: <4E105284.7030209@cam.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
-Cc: "Girdwood, Liam" <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: Nathan Royer <nroyer@invensense.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Hudson <chudson@kionix.com>, eric.miao@linaro.org
 
-Hi Peter,
+> > # sensors - pressure
+> > pressure/bma085.c
+> As Manuel Stahl confirmed he also has a driver for this.
 
-On Mon, Jul 04, 2011 at 05:08:17PM +0300, P=E9ter Ujfalusi wrote:
-> Hi Samuel,
->=20
-> On Monday 04 July 2011 13:48:44 Samuel Ortiz wrote:
-> > I don't see the value of those 3 inline functions. Removing them wo=
-uld make
-> > the code actually more understandable (especially for the 2nd one).
->=20
-> Is it OK for you if I fix these as a follow-up series, so I do not ne=
-ed to=20
-> rewrite this series, and resend it?
-That is fine with me, yes. That's why I ACK the MFD patches for Tony to=
- take
-them.
-Thanks in advance for the follow up patches.
+FYI - We are working on a new version of the bmp085 driver with support for
+some new pressure sensors from Bosch Sensortec. The plan is to
+contribute that code in a near future.
 
-Cheers,
-Samuel.
+-- 
+Best regards,
+ Eric
 
---=20
-Intel Open Source Technology Centre
-http://oss.intel.com/
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+http://www.unixphere.com

@@ -1,90 +1,40 @@
-From: David Jander <david.jander@protonic.nl>
-Subject: Re: [PATCH v5 1/2] Input: gpio_keys.c: Added support for
- device-tree platform data
-Date: Mon, 4 Jul 2011 08:56:51 +0200
-Message-ID: <20110704085651.6408dcbc@archvile>
-References: <1308823455-14446-1-git-send-email-david@protonic.nl>
-	<1308823455-14446-2-git-send-email-david@protonic.nl>
-	<BANLkTinbnsVc9a=ZTUFutEvZ_vPagTqhOA@mail.gmail.com>
-	<20110623133908.5c85eb3c@lxorguk.ukuu.org.uk>
-	<BANLkTim3S+LP2UfS5Uy4rV6oZcDgom6DPg@mail.gmail.com>
-	<20110623180121.GA14950@core.coreip.homeip.net>
-	<20110704082939.6da4aaeb@archvile>
-	<94bc67c6-6a34-43f0-b88f-8a4278115730@email.android.com>
+From: Alan Cox <alan@linux.intel.com>
+Subject: Re: [PATCH 01/11] misc: inv_mpu primary header file and README
+ file.
+Date: Mon, 4 Jul 2011 09:16:58 +0100
+Message-ID: <20110704091658.0d4c8e3f@bob.linux.org.uk>
+References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
+	<4E0D8E94.5030604@cam.ac.uk>
+	<4d61a92a11e5d83a1cb0094441ae5f5e@mail.gmail.com>
+	<4E105284.7030209@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:21090 "EHLO
-	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751380Ab1GDG4c convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2011 02:56:32 -0400
-In-Reply-To: <94bc67c6-6a34-43f0-b88f-8a4278115730@email.android.com>
+Received: from mga02.intel.com ([134.134.136.20]:57461 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755436Ab1GDIQt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Jul 2011 04:16:49 -0400
+In-Reply-To: <4E105284.7030209@cam.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, Alan Cox <alan@lxorguk.ukuu.org.uk>, David Jander <david@protonic.nl>, linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: Nathan Royer <nroyer@invensense.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Hudson <chudson@kionix.com>, eric.andersson@unixphere.com, eric.miao@linaro.org
 
-On Mon, 04 Jul 2011 10:52:55 +0400
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > accel/bma150.c
+> An input driver exists for that one. (cc'd Eric)
 
-> David Jander <david.jander@protonic.nl> wrote:
->=20
-> >On Thu, 23 Jun 2011 11:01:22 -0700
-> >Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >
-> >> On Thu, Jun 23, 2011 at 07:25:37AM -0600, Grant Likely wrote:
-> >> > On Thu, Jun 23, 2011 at 6:39 AM, Alan Cox
-> ><alan@lxorguk.ukuu.org.uk> wrote:
-> >> > >> > + =C2=A0 =C2=A0 =C2=A0 - gpios: OF devcie-tree gpio specifi=
-catin.
-> >> > >> > + =C2=A0 =C2=A0 =C2=A0 - label: Descriptive name of the key=
-=2E
-> >> > >> > + =C2=A0 =C2=A0 =C2=A0 - linux,code: Keycode to emit.
-> >> > >>
-> >> > >> The fact that this is the Linux internal keycode definitions
-> >still
-> >> > >> makes me nervous. =C2=A0Is there no existing standard for key=
-codes
-> >emitted
-> >> > >> by keyboard devices?
-> >> > >
-> >> > > There is but no standard lookup table. For Intel MID we do a
-> >translation
-> >> > > between Linux key names in the firmware and keycodes but there
-> >isn't a
-> >> > > generic helper for it.
-> >> >=20
-> >> > I suppose the Linux keycodes are exported out to userspace, and =
-are
-> >> > therefore an ABI which will not change.  Okay.
-> >>=20
-> >> Right, keycodes form ABI that will not change.
-> >>=20
-> >> Another option would be to use codes from HID usage tables but the=
-n
-> >> they would have to be translated to Linux ones.
-> >
-> >Dmitry, will you accept this patch also?
-> >Until now, part 2/2 is in your tree, thanks for that, but I'd like t=
-o
-> >know if
-> >this part (1/2) will also be accepted?
-> >
->=20
-> Yes, I will since there was no more discussion about hid codes and I =
-do
-> believe that using linux definitions is fine.
+[Two input drivers - bma023 which I posted covers it too ;)]
 
-Ok, thanks.
+> > # sensors - compass
+> > compass/ak8975.c
 
-Best regards,
+We have a driver for this (I posted a while back)
 
---=20
-David Jander
-Protonic Holland.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > compass/ak8972.c
+
+> > compass/ami30x.c
+
+AMI304 is identical to the AK8974 which we already have - Gram Hsieh
+posted patches for this a while ago
+

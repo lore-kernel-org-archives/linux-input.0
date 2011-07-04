@@ -1,419 +1,361 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 1/2] Input: gpio_keys.c: Added support for device-tree
- platform data
-Date: Mon, 4 Jul 2011 10:28:06 -0700
-Message-ID: <20110704172806.GE8144@core.coreip.homeip.net>
-References: <1308823455-14446-1-git-send-email-david@protonic.nl>
- <1308823455-14446-2-git-send-email-david@protonic.nl>
- <BANLkTinbnsVc9a=ZTUFutEvZ_vPagTqhOA@mail.gmail.com>
- <20110623133908.5c85eb3c@lxorguk.ukuu.org.uk>
- <BANLkTim3S+LP2UfS5Uy4rV6oZcDgom6DPg@mail.gmail.com>
- <20110623180121.GA14950@core.coreip.homeip.net>
- <20110704082939.6da4aaeb@archvile>
- <94bc67c6-6a34-43f0-b88f-8a4278115730@email.android.com>
- <20110704085651.6408dcbc@archvile>
+Subject: Re: [PATCH v3] input: add driver for pixcir i2c touchscreens
+Date: Mon, 4 Jul 2011 09:50:00 -0700
+Message-ID: <20110704165000.GD8144@core.coreip.homeip.net>
+References: <4DDB2516.6050302@pixcir.com.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-iw0-f174.google.com ([209.85.214.174]:49040 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751849Ab1GEEgk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 00:36:40 -0400
+	with ESMTP id S1751849Ab1GEEgh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 00:36:37 -0400
 Received: by mail-iw0-f174.google.com with SMTP id 6so4900484iwn.19
-        for <linux-input@vger.kernel.org>; Mon, 04 Jul 2011 21:36:40 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Mon, 04 Jul 2011 21:36:37 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20110704085651.6408dcbc@archvile>
+In-Reply-To: <4DDB2516.6050302@pixcir.com.cn>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Jander <david.jander@protonic.nl>
-Cc: Grant Likely <grant.likely@secretlab.ca>, Alan Cox <alan@lxorguk.ukuu.org.uk>, David Jander <david@protonic.nl>, linux-input@vger.kernel.org
+To: jcbian <jcbian@pixcir.com.cn>
+Cc: linux-input@vger.kernel.org, dqmeng <dqmeng@pixcir.com.cn>, zlchen <zlchen@pixcir.com.cn>
 
-On Mon, Jul 04, 2011 at 08:56:51AM +0200, David Jander wrote:
-> On Mon, 04 Jul 2011 10:52:55 +0400
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->=20
-> > David Jander <david.jander@protonic.nl> wrote:
-> >=20
-> > >On Thu, 23 Jun 2011 11:01:22 -0700
-> > >Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > >
-> > >> On Thu, Jun 23, 2011 at 07:25:37AM -0600, Grant Likely wrote:
-> > >> > On Thu, Jun 23, 2011 at 6:39 AM, Alan Cox
-> > ><alan@lxorguk.ukuu.org.uk> wrote:
-> > >> > >> > + =A0 =A0 =A0 - gpios: OF devcie-tree gpio specificatin.
-> > >> > >> > + =A0 =A0 =A0 - label: Descriptive name of the key.
-> > >> > >> > + =A0 =A0 =A0 - linux,code: Keycode to emit.
-> > >> > >>
-> > >> > >> The fact that this is the Linux internal keycode definition=
-s
-> > >still
-> > >> > >> makes me nervous. =A0Is there no existing standard for keyc=
-odes
-> > >emitted
-> > >> > >> by keyboard devices?
-> > >> > >
-> > >> > > There is but no standard lookup table. For Intel MID we do a
-> > >translation
-> > >> > > between Linux key names in the firmware and keycodes but the=
-re
-> > >isn't a
-> > >> > > generic helper for it.
-> > >> >=20
-> > >> > I suppose the Linux keycodes are exported out to userspace, an=
-d are
-> > >> > therefore an ABI which will not change.  Okay.
-> > >>=20
-> > >> Right, keycodes form ABI that will not change.
-> > >>=20
-> > >> Another option would be to use codes from HID usage tables but t=
-hen
-> > >> they would have to be translated to Linux ones.
-> > >
-> > >Dmitry, will you accept this patch also?
-> > >Until now, part 2/2 is in your tree, thanks for that, but I'd like=
- to
-> > >know if
-> > >this part (1/2) will also be accepted?
-> > >
-> >=20
-> > Yes, I will since there was no more discussion about hid codes and =
-I do
-> > believe that using linux definitions is fine.
->=20
-> Ok, thanks.
->=20
+Hi Jianchun,
 
-Noticed that we leaked dynamically allocated button data in case when
-gpio_keys_probe() fails. Also removed changelog from copyright notice
-(we have SCM for it) and got rid of a warning in case of !CONFIG_OF.
+On Tue, May 24, 2011 at 11:25:10AM +0800, jcbian wrote:
+> +
+> +static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
+> +{
+> +	struct pixcir_i2c_ts_data *tsdata = dev_id;
+> +
+> +	do {
+> +		pixcir_ts_poscheck(tsdata);
+> +		tsdata->attb_pin = tsdata->chip->attb_read_val();
+> +		if (tsdata->attb_pin == ATTB_PIN_LOW)
+> +			wait_event_timeout(tsdata->wait, TRUE,
+> +					msecs_to_jiffies(20));
 
-Could you please tell me if the patch below still work for you?
+This doews not mak sense, you do not do any waiting here since your
+condition is 'TRUE' and this the thread never sleeps but spins
+constantly.
 
-Grant, can I get your formal Ack for OF bindings?
+You also ignored my other comments...
+
+Does the patch below still work for you?
 
 Thanks.
 
---=20
+-- 
 Dmitry
 
 
-Input: gpio_keys - add support for device-tree platform data
+Input: add driver for pixcir i2c touchscreens
 
-=46rom: David Jander <david@protonic.nl>
+From: Jianchun Bian <jcbian@pixcir.com.cn>
 
-This patch enables fetching configuration data, which is normally provi=
-ded
-via platform_data, from the device-tree instead.
+This patch adds a driver for PIXCIR's I2C connected touchscreens.
 
-If the device is configured from device-tree data, the platform_data st=
-ruct
-is not used, and button data needs to be allocated dynamically. Big par=
-t of
-this patch deals with confining pdata usage to the probe function, to m=
-ake
-this possible.
-
-Signed-off-by: David Jander <david@protonic.nl>
+Signed-off-by: Jianchun <jcbian@pixcir.com.cn>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- .../devicetree/bindings/gpio/gpio_keys.txt         |   36 +++++
- drivers/input/keyboard/gpio_keys.c                 |  148 ++++++++++++=
-++++++--
- 2 files changed, 168 insertions(+), 16 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio_keys.tx=
-t
+ drivers/input/touchscreen/Kconfig         |   12 +
+ drivers/input/touchscreen/Makefile        |    1 
+ drivers/input/touchscreen/pixcir_i2c_ts.c |  235 +++++++++++++++++++++++++++++
+ include/linux/input/pixcir_ts.h           |   10 +
+ 4 files changed, 258 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/pixcir_i2c_ts.c
+ create mode 100644 include/linux/input/pixcir_ts.h
 
 
-diff --git a/Documentation/devicetree/bindings/gpio/gpio_keys.txt b/Doc=
-umentation/devicetree/bindings/gpio/gpio_keys.txt
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index a369c94..358be1f 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -464,6 +464,18 @@ config TOUCHSCREEN_UCB1400
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ucb1400_ts.
+ 
++config TOUCHSCREEN_PIXCIR
++	tristate "PIXCIR I2C touchscreens"
++	depends on I2C
++	help
++	  Say Y here if you have a pixcir i2c touchscreen
++	  controller.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called pixcir_i2c_ts.
++
+ config TOUCHSCREEN_WM831X
+ 	tristate "Support for WM831x touchscreen controllers"
+ 	depends on MFD_WM831X
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 141ee3e..c0727a4 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -42,6 +42,7 @@ obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
+ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
++obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
 new file mode 100644
-index 0000000..7190c99
+index 0000000..0c1ae91
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/gpio_keys.txt
-@@ -0,0 +1,36 @@
-+Device-Tree bindings for input/gpio_keys.c keyboard driver
-+
-+Required properties:
-+	- compatible =3D "gpio-keys";
-+
-+Optional properties:
-+	- autorepeat: Boolean, Enable auto repeat feature of Linux input
-+	  subsystem.
-+
-+Each button (key) is represented as a sub-node of "gpio-keys":
-+Subnode properties:
-+
-+	- gpios: OF devcie-tree gpio specificatin.
-+	- label: Descriptive name of the key.
-+	- linux,code: Keycode to emit.
-+
-+Optional subnode-properties:
-+	- linux,input-type: Specify event type this button/key generates.
-+	  If not specified defaults to <1> =3D=3D EV_KEY.
-+	- debounce-interval: Debouncing interval time in milliseconds.
-+	  If not specified defaults to 5.
-+	- gpio-key,wakeup: Boolean, button can wake-up the system.
-+
-+Example nodes:
-+
-+	gpio_keys {
-+			compatible =3D "gpio-keys";
-+			#address-cells =3D <1>;
-+			#size-cells =3D <0>;
-+			autorepeat;
-+			button@21 {
-+				label =3D "GPIO Key UP";
-+				linux,code =3D <103>;
-+				gpios =3D <&gpio1 0 1>;
-+			};
-+			...
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboar=
-d/gpio_keys.c
-index 97bada4..ad11e86 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -2,6 +2,7 @@
-  * Driver for keys on GPIO lines capable of generating interrupts.
-  *
-  * Copyright 2005 Phil Blundell
-+ * Copyright 2010, 2011 David Jander <david@protonic.nl>
-  *
-  * This program is free software; you can redistribute it and/or modif=
-y
-  * it under the terms of the GNU General Public License version 2 as
-@@ -25,6 +26,8 @@
- #include <linux/gpio_keys.h>
- #include <linux/workqueue.h>
- #include <linux/gpio.h>
-+#include <linux/of_platform.h>
-+#include <linux/of_gpio.h>
-=20
- struct gpio_button_data {
- 	struct gpio_keys_button *button;
-@@ -445,15 +448,120 @@ static void gpio_keys_close(struct input_dev *in=
-put)
- 		ddata->disable(input->dev.parent);
- }
-=20
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -0,0 +1,235 @@
 +/*
-+ * Handlers for alternative sources of platform_data
++ * Driver for Pixcir I2C touchscreen controllers.
++ *
++ * Copyright (C) 2010-2011 Pixcir, Inc.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 + */
-+#ifdef CONFIG_OF
-+/*
-+ * Translate OpenFirmware node properties into platform_data
-+ */
-+static int gpio_keys_get_devtree_pdata(struct device *dev,
-+			    struct gpio_keys_platform_data *pdata)
++
++#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/input/pixcir_ts.h>
++
++struct pixcir_i2c_ts_data {
++	struct i2c_client *client;
++	struct input_dev *input;
++	const struct pixcir_ts_platform_data *chip;
++	bool exiting;
++};
++
++static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
 +{
-+	struct device_node *node, *pp;
-+	int i;
-+	struct gpio_keys_button *buttons;
-+	const u32 *reg;
-+	int len;
++	struct pixcir_i2c_ts_data *tsdata = data;
 +
-+	node =3D dev->of_node;
-+	if (node =3D=3D NULL)
-+		return -ENODEV;
++	u8 touching;
++	u16 posx1, posy1, posx2, posy2;
++	u8 rdbuf[10], wrbuf[1] = { 0 };
++	int ret;
 +
-+	memset(pdata, 0, sizeof *pdata);
-+
-+	pdata->rep =3D !!of_get_property(node, "autorepeat", &len);
-+
-+	/* First count the subnodes */
-+	pdata->nbuttons =3D 0;
-+	pp =3D NULL;
-+	while ((pp =3D of_get_next_child(node, pp)))
-+		pdata->nbuttons++;
-+
-+	if (pdata->nbuttons =3D=3D 0)
-+		return -ENODEV;
-+
-+	buttons =3D kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
-+	if (!buttons)
-+		return -ENODEV;
-+
-+	pp =3D NULL;
-+	i =3D 0;
-+	while ((pp =3D of_get_next_child(node, pp))) {
-+		enum of_gpio_flags flags;
-+
-+		if (!of_find_property(pp, "gpios", NULL)) {
-+			pdata->nbuttons--;
-+			dev_warn(dev, "Found button without gpios\n");
-+			continue;
-+		}
-+		buttons[i].gpio =3D of_get_gpio_flags(pp, 0, &flags);
-+		buttons[i].active_low =3D flags & OF_GPIO_ACTIVE_LOW;
-+
-+		reg =3D of_get_property(pp, "linux,code", &len);
-+		if (!reg) {
-+			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
-+			goto out_fail;
-+		}
-+		buttons[i].code =3D be32_to_cpup(reg);
-+
-+		buttons[i].desc =3D of_get_property(pp, "label", &len);
-+
-+		reg =3D of_get_property(pp, "linux,input-type", &len);
-+		buttons[i].type =3D reg ? be32_to_cpup(reg) : EV_KEY;
-+
-+		buttons[i].wakeup =3D !!of_get_property(pp, "gpio-key,wakeup", NULL)=
-;
-+
-+		reg =3D of_get_property(pp, "debounce-interval", &len);
-+		buttons[i].debounce_interval =3D reg ? be32_to_cpup(reg) : 5;
-+
-+		i++;
++	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
++	if (ret != sizeof(wrbuf)) {
++		dev_err(&tsdata->client->dev,
++			"%s: i2c_master_send failed(), ret=%d\n",
++			__func__, ret);
++		return;
 +	}
 +
-+	pdata->buttons =3D buttons;
++	ret = i2c_master_recv(tsdata->client, rdbuf, sizeof(rdbuf));
++	if (ret != sizeof(rdbuf)) {
++		dev_err(&tsdata->client->dev,
++			"%s: i2c_master_recv failed(), ret=%d\n",
++			__func__, ret);
++		return;
++	}
++
++	touching = rdbuf[0];
++	posx1 = (rdbuf[3] << 8) | rdbuf[2];
++	posy1 = (rdbuf[5] << 8) | rdbuf[4];
++	posx2 = (rdbuf[7] << 8) | rdbuf[6];
++	posy2 = (rdbuf[9] << 8) | rdbuf[8];
++
++	input_report_key(tsdata->input, BTN_TOUCH, touching);
++	input_report_abs(tsdata->input, ABS_X, posx1);
++	input_report_abs(tsdata->input, ABS_Y, posy1);
++
++	input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
++	input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
++	input_mt_sync(tsdata->input);
++
++	if (touching == 2) {
++		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx2);
++		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy2);
++		input_mt_sync(tsdata->input);
++	}
++
++	input_sync(tsdata->input);
++}
++
++static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
++{
++	struct pixcir_i2c_ts_data *tsdata = dev_id;
++
++	while (!tsdata->exiting) {
++		pixcir_ts_poscheck(tsdata);
++
++		if (tsdata->chip->attb_read_val())
++			break;
++
++		msleep(20);
++	}
++
++	return IRQ_HANDLED;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int pixcir_i2c_ts_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (device_may_wakeup(&client->dev))
++		enable_irq_wake(client->irq);
++
++	return 0;
++}
++
++static int pixcir_i2c_ts_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	if (device_may_wakeup(&client->dev))
++		disable_irq_wake(client->irq);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
++			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
++
++static int __devinit pixcir_i2c_ts_probe(struct i2c_client *client,
++					 const struct i2c_device_id *id)
++{
++	const struct pixcir_ts_platform_data *pdata = client->dev.platform_data;
++	struct pixcir_i2c_ts_data *tsdata;
++	struct input_dev *input;
++	int error;
++
++	if (!pdata) {
++		dev_err(&client->dev, "platform data not defined\n");
++		return -EINVAL;
++	}
++
++	tsdata = kzalloc(sizeof(*tsdata), GFP_KERNEL);
++	input = input_allocate_device();
++	if (!tsdata || !input) {
++		dev_err(&client->dev, "Failed to allocate driver data!\n");
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	tsdata->client = client;
++	tsdata->input = input;
++	tsdata->chip = pdata;
++
++	input->name = client->name;
++	input->id.bustype = BUS_I2C;
++	input->dev.parent = &client->dev;
++
++	__set_bit(EV_KEY, input->evbit);
++	__set_bit(EV_ABS, input->evbit);
++	__set_bit(BTN_TOUCH, input->keybit);
++	input_set_abs_params(input, ABS_X, 0, pdata->x_max, 0, 0);
++	input_set_abs_params(input, ABS_Y, 0, pdata->y_max, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
++
++	input_set_drvdata(input, tsdata);
++
++	error = request_threaded_irq(client->irq, NULL, pixcir_ts_isr,
++				     IRQF_TRIGGER_FALLING,
++				     client->name, tsdata);
++	if (error) {
++		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
++		goto err_free_mem;
++	}
++
++	error = input_register_device(input);
++	if (error)
++		goto err_free_irq;
++
++	i2c_set_clientdata(client, tsdata);
++	device_init_wakeup(&client->dev, 1);
 +
 +	return 0;
 +
-+out_fail:
-+	kfree(buttons);
-+	return -ENODEV;
++err_free_irq:
++	free_irq(client->irq, tsdata);
++err_free_mem:
++	input_free_device(input);
++	kfree(tsdata);
++	return error;
 +}
 +
-+static struct of_device_id gpio_keys_of_match[] =3D {
-+	{ .compatible =3D "gpio-keys", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, gpio_keys_of_match);
-+
-+#else
-+
-+static int gpio_keys_get_devtree_pdata(struct device *dev,
-+			    struct gpio_keys_platform_data *altp)
++static int __devexit pixcir_i2c_ts_remove(struct i2c_client *client)
 +{
-+	return -ENODEV;
++	struct pixcir_i2c_ts_data *tsdata = i2c_get_clientdata(client);
++
++	device_init_wakeup(&client->dev, 0);
++
++	tsdata->exiting = true;
++	mb();
++	free_irq(client->irq, tsdata);
++
++	input_unregister_device(tsdata->input);
++	kfree(tsdata);
++
++	return 0;
 +}
 +
-+#define gpio_keys_of_match NULL
++static const struct i2c_device_id pixcir_i2c_ts_id[] = {
++	{ "pixcir_ts", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, pixcir_i2c_ts_id);
++
++static struct i2c_driver pixcir_i2c_ts_driver = {
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "pixcir_ts",
++		.pm	= &pixcir_dev_pm_ops,
++	},
++	.probe		= pixcir_i2c_ts_probe,
++	.remove		= __devexit_p(pixcir_i2c_ts_remove),
++	.id_table	= pixcir_i2c_ts_id,
++};
++
++static int __init pixcir_i2c_ts_init(void)
++{
++	return i2c_add_driver(&pixcir_i2c_ts_driver);
++}
++module_init(pixcir_i2c_ts_init);
++
++static void __exit pixcir_i2c_ts_exit(void)
++{
++	i2c_del_driver(&pixcir_i2c_ts_driver);
++}
++module_exit(pixcir_i2c_ts_exit);
++
++MODULE_AUTHOR("Jianchun Bian <jcbian@pixcir.com.cn>, Dequan Meng <dqmeng@pixcir.com.cn>");
++MODULE_DESCRIPTION("Pixcir I2C Touchscreen Driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
+new file mode 100644
+index 0000000..7163d91
+--- /dev/null
++++ b/include/linux/input/pixcir_ts.h
+@@ -0,0 +1,10 @@
++#ifndef	_PIXCIR_I2C_TS_H
++#define	_PIXCIR_I2C_TS_H
++
++struct pixcir_ts_platform_data {
++	int (*attb_read_val)(void);
++	int x_max;
++	int y_max;
++};
 +
 +#endif
-+
- static int __devinit gpio_keys_probe(struct platform_device *pdev)
- {
- 	struct gpio_keys_platform_data *pdata =3D pdev->dev.platform_data;
- 	struct gpio_keys_drvdata *ddata;
- 	struct device *dev =3D &pdev->dev;
-+	struct gpio_keys_platform_data alt_pdata;
- 	struct input_dev *input;
- 	int i, error;
- 	int wakeup =3D 0;
-=20
-+	if (!pdata) {
-+		error =3D gpio_keys_get_devtree_pdata(dev, &alt_pdata);
-+		if (error)
-+			return error;
-+		pdata =3D &alt_pdata;
-+	}
-+
- 	ddata =3D kzalloc(sizeof(struct gpio_keys_drvdata) +
- 			pdata->nbuttons * sizeof(struct gpio_button_data),
- 			GFP_KERNEL);
-@@ -544,13 +652,15 @@ static int __devinit gpio_keys_probe(struct platf=
-orm_device *pdev)
-  fail1:
- 	input_free_device(input);
- 	kfree(ddata);
-+	/* If we have no platform_data, we allocated buttons dynamically. */
-+	if (!pdev->dev.platform_data)
-+		kfree(pdata->buttons);
-=20
- 	return error;
- }
-=20
- static int __devexit gpio_keys_remove(struct platform_device *pdev)
- {
--	struct gpio_keys_platform_data *pdata =3D pdev->dev.platform_data;
- 	struct gpio_keys_drvdata *ddata =3D platform_get_drvdata(pdev);
- 	struct input_dev *input =3D ddata->input;
- 	int i;
-@@ -559,32 +669,39 @@ static int __devexit gpio_keys_remove(struct plat=
-form_device *pdev)
-=20
- 	device_init_wakeup(&pdev->dev, 0);
-=20
--	for (i =3D 0; i < pdata->nbuttons; i++) {
--		int irq =3D gpio_to_irq(pdata->buttons[i].gpio);
-+	for (i =3D 0; i < ddata->n_buttons; i++) {
-+		int irq =3D gpio_to_irq(ddata->data[i].button->gpio);
- 		free_irq(irq, &ddata->data[i]);
- 		if (ddata->data[i].timer_debounce)
- 			del_timer_sync(&ddata->data[i].timer);
- 		cancel_work_sync(&ddata->data[i].work);
--		gpio_free(pdata->buttons[i].gpio);
-+		gpio_free(ddata->data[i].button->gpio);
- 	}
-=20
- 	input_unregister_device(input);
-+
-+	/*
-+	 * If we had no platform_data, we allocated buttons dynamically, and
-+	 * must free them here. ddata->data[0].button is the pointer to the
-+	 * beginning of the allocated array.
-+	 */
-+	if (!pdev->dev.platform_data)
-+		kfree(ddata->data[0].button);
-+
- 	kfree(ddata);
-=20
- 	return 0;
- }
-=20
--
- #ifdef CONFIG_PM
- static int gpio_keys_suspend(struct device *dev)
- {
--	struct platform_device *pdev =3D to_platform_device(dev);
--	struct gpio_keys_platform_data *pdata =3D pdev->dev.platform_data;
-+	struct gpio_keys_drvdata *ddata =3D dev_get_drvdata(dev);
- 	int i;
-=20
--	if (device_may_wakeup(&pdev->dev)) {
--		for (i =3D 0; i < pdata->nbuttons; i++) {
--			struct gpio_keys_button *button =3D &pdata->buttons[i];
-+	if (device_may_wakeup(dev)) {
-+		for (i =3D 0; i < ddata->n_buttons; i++) {
-+			struct gpio_keys_button *button =3D ddata->data[i].button;
- 			if (button->wakeup) {
- 				int irq =3D gpio_to_irq(button->gpio);
- 				enable_irq_wake(irq);
-@@ -597,15 +714,13 @@ static int gpio_keys_suspend(struct device *dev)
-=20
- static int gpio_keys_resume(struct device *dev)
- {
--	struct platform_device *pdev =3D to_platform_device(dev);
--	struct gpio_keys_drvdata *ddata =3D platform_get_drvdata(pdev);
--	struct gpio_keys_platform_data *pdata =3D pdev->dev.platform_data;
-+	struct gpio_keys_drvdata *ddata =3D dev_get_drvdata(dev);
- 	int i;
-=20
--	for (i =3D 0; i < pdata->nbuttons; i++) {
-+	for (i =3D 0; i < ddata->n_buttons; i++) {
-=20
--		struct gpio_keys_button *button =3D &pdata->buttons[i];
--		if (button->wakeup && device_may_wakeup(&pdev->dev)) {
-+		struct gpio_keys_button *button =3D ddata->data[i].button;
-+		if (button->wakeup && device_may_wakeup(dev)) {
- 			int irq =3D gpio_to_irq(button->gpio);
- 			disable_irq_wake(irq);
- 		}
-@@ -632,6 +747,7 @@ static struct platform_driver gpio_keys_device_driv=
-er =3D {
- #ifdef CONFIG_PM
- 		.pm	=3D &gpio_keys_pm_ops,
- #endif
-+		.of_match_table =3D gpio_keys_of_match,
- 	}
- };
-=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

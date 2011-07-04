@@ -1,40 +1,44 @@
-From: Iiro Valkonen <iiro.valkonen@atmel.com>
-Subject: Re: [PATCH 1/3] Input: atmel_mxt_ts - Make wait-after-reset period
- compatible with all chips
-Date: Mon, 04 Jul 2011 15:42:55 +0300
-Message-ID: <4E11B54F.3010702@atmel.com>
-References: <4E11825B.3000409@atmel.com> <20110704100435.GA3723@core.coreip.homeip.net>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: Re: [PATCH v6 08/18] mfd: twl6040: Add initial support
+Date: Mon, 4 Jul 2011 16:09:30 +0300
+Message-ID: <4014234.U3Af1Vqyz9@barack>
+References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com> <1308663556-29120-9-git-send-email-peter.ujfalusi@ti.com> <20110704125330.GI2820@legolas.emea.dhcp.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:50851 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755797Ab1GDM6N (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2011 08:58:13 -0400
-In-Reply-To: <20110704100435.GA3723@core.coreip.homeip.net>
+Received: from bear.ext.ti.com ([192.94.94.41]:37726 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756009Ab1GDNJc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2011 09:09:32 -0400
+In-Reply-To: <20110704125330.GI2820@legolas.emea.dhcp.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org
+To: "Balbi, Felipe" <balbi@ti.com>
+Cc: "Girdwood, Liam" <lrg@ti.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>
 
-On 07/04/2011 01:04 PM, Dmitry Torokhov wrote:
->>  
->> @@ -828,6 +828,8 @@ static int mxt_initialize(struct mxt_data *data)
->>  	mxt_write_object(data, MXT_GEN_COMMAND,
->>  			MXT_COMMAND_RESET, 1);
->>  	msleep(MXT_RESET_TIME);
->> +	while (data->pdata->read_chg())
->> +		msleep(2);
-> 
-> I would prefer if we did not wait indefinitely but timed out after
-> certain number of retries.
-> 
+Hi Felipe, Samuel,
 
-Thanks, that does make sense. I'll send a new version.
+On Monday 04 July 2011 14:53:30 Balbi, Felipe wrote:
+> > +		ret =3D twl6040_request_irq(twl6040, TWL6040_IRQ_READY,
+> > +					  twl6040_naudint_handler, 0,
+> > +					  "twl6040_irq_ready", twl6040);
+>=20
+> why don't you use the normal request_threaded_irq() ?? This is a bit =
+of
+> obfuscation IMO.
 
+I have left this 'macro' in since it is also used within the twl6040-vi=
+bra,=20
+and twl6040 ASoC codec driver to request the irq for them.
+But if you think it is better to replace the twl6040_request_irq with d=
+irect=20
+request_threaded_irq in those drivers as well, I'll do that.
 
-BR,
-
--- 
-Iiro
+--=20
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

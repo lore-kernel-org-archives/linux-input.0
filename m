@@ -1,93 +1,88 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 06/12] Input: synaptics - fuzz position if touchpad reports
- reduced filtering
-Date: Tue, 05 Jul 2011 10:49:59 -0700
-Message-ID: <4E134EC7.7050001@canonical.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-7-git-send-email-djkurtz@chromium.org>
+Subject: Re: [PATCH 07/12] Input: synaptics - rename synaptics_data.mt to
+ agm
+Date: Tue, 05 Jul 2011 10:53:11 -0700
+Message-ID: <4E134F87.6080504@canonical.com>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-8-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1309324042-22943-7-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:40975 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751202Ab1GERxR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 13:53:17 -0400
+In-Reply-To: <1309324042-22943-8-git-send-email-djkurtz@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: djkurtz@chromium.org
 Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
-List-Id: linux-input@vger.kernel.org
 
 On 06/28/2011 10:07 PM, djkurtz@chromium.org wrote:
 > From: Daniel Kurtz <djkurtz@chromium.org>
 > 
-> Synaptics touchpads indicate via a capability bit when they perform
-> reduced filtering on position data.
-> In such a case, use a non-zero fuzz value.
-> Fuzz = 8 was chosen empirically by observing the raw position data
-> reported by a clickpad indicating it had reduced filtering.
+> Rename the synaptics_data.mt field to priv->agm to indicate it is the
+> hardware state reported in a synaptics AGM packet.
+> 
+> When a Synaptics touchpad is in "AGM" mode, and multiple fingers are
+> detected, the touchpad sends alternating "Advanced Gesture Mode" (AGM) and
+> "Simple Gesture Mode" (SGM) packets.
+>   The AGM packets have w=2, and contain reduced resolution finger data.
+>   The SGM packets have w={0,1} and contain full resolution finger data.
 > 
 > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-
-Seems reasonable to me.
-
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
-
 > ---
->  drivers/input/mouse/synaptics.c |   17 ++++++++++-------
->  drivers/input/mouse/synaptics.h |    3 +++
->  2 files changed, 13 insertions(+), 7 deletions(-)
+>  drivers/input/mouse/synaptics.c |    9 +++++----
+>  drivers/input/mouse/synaptics.h |    2 +-
+>  2 files changed, 6 insertions(+), 5 deletions(-)
 > 
 > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 74b1222..dc54675 100644
+> index dc54675..4e5e454 100644
 > --- a/drivers/input/mouse/synaptics.c
 > +++ b/drivers/input/mouse/synaptics.c
-> @@ -687,23 +687,27 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
->  static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
->  {
->  	int i;
-> +	int fuzz = 0;
+> @@ -436,10 +436,10 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
 >  
->  	__set_bit(INPUT_PROP_POINTER, dev->propbit);
+>  		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
+>  			/* Gesture packet: (x, y, z) at half resolution */
+> -			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
+> -			priv->mt.y = INVERT_Y((((buf[4] & 0xf0) << 4)
+> +			priv->agm.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
+> +			priv->agm.y = INVERT_Y((((buf[4] & 0xf0) << 4)
+>  					      | buf[2]) << 1);
+> -			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
+> +			priv->agm.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
+>  			return 1;
+>  		} else {
+>  			hw->x = (((buf[3] & 0x10) << 8) |
+> @@ -576,7 +576,8 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+>  	}
 >  
-> +	if (SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c))
-> +		fuzz = SYN_REDUCED_FILTER_FUZZ;
-> +
->  	__set_bit(EV_ABS, dev->evbit);
-> -	input_set_abs_params(dev, ABS_X,
-> -			     XMIN_NOMINAL, priv->x_max ?: XMAX_NOMINAL, 0, 0);
-> -	input_set_abs_params(dev, ABS_Y,
-> -			     YMIN_NOMINAL, priv->y_max ?: YMAX_NOMINAL, 0, 0);
-> +	input_set_abs_params(dev, ABS_X, XMIN_NOMINAL,
-> +			     priv->x_max ?: XMAX_NOMINAL, fuzz, 0);
-> +	input_set_abs_params(dev, ABS_Y, YMIN_NOMINAL,
-> +			     priv->y_max ?: YMAX_NOMINAL, fuzz, 0);
->  	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
+>  	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
+> -		synaptics_report_semi_mt_data(dev, &hw, &priv->mt, num_fingers);
+> +		synaptics_report_semi_mt_data(dev, &hw, &priv->agm,
+> +					      num_fingers);
 >  
->  	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
->  		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
->  		input_mt_init_slots(dev, 2);
->  		input_set_abs_params(dev, ABS_MT_POSITION_X, XMIN_NOMINAL,
-> -				     priv->x_max ?: XMAX_NOMINAL, 0, 0);
-> +				     priv->x_max ?: XMAX_NOMINAL, fuzz, 0);
->  		input_set_abs_params(dev, ABS_MT_POSITION_Y, YMIN_NOMINAL,
-> -				     priv->y_max ?: YMAX_NOMINAL, 0, 0);
-> +				     priv->y_max ?: YMAX_NOMINAL, fuzz, 0);
->  
->  		input_abs_set_res(dev, ABS_MT_POSITION_X, priv->x_res);
->  		input_abs_set_res(dev, ABS_MT_POSITION_Y, priv->y_res);
-> @@ -977,4 +981,3 @@ bool synaptics_supported(void)
->  }
->  
->  #endif /* CONFIG_MOUSE_PS2_SYNAPTICS */
-> -
+>  	/* Post events
+>  	 * BTN_TOUCH has to be first as mousedev relies on it when doing
 > diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index 34bedde..8a68e66 100644
+> index 8a68e66..e367239 100644
 > --- a/drivers/input/mouse/synaptics.h
 > +++ b/drivers/input/mouse/synaptics.h
-> @@ -110,6 +110,9 @@
->  #define SYN_NEWABS_RELAXED		2
->  #define SYN_OLDABS			3
+> @@ -147,7 +147,7 @@ struct synaptics_data {
 >  
-> +/* amount to fuzz position data when touchpad reports reduced filtering */
-> +#define SYN_REDUCED_FILTER_FUZZ		8
-> +
->  /*
->   * A structure to describe the state of the touchpad hardware (buttons and pad)
->   */
+>  	struct serio *pt_port;			/* Pass-through serio port */
+>  
+> -	struct synaptics_hw_state mt;		/* current gesture packet */
+> +	struct synaptics_hw_state agm;		/* last AGM packet */
+>  };
+>  
+>  void synaptics_module_init(void);
+
+I'm fine with changing the name of the element, especially if it
+conforms to some protocol documentation. I'd like to ask that AGM be
+spelled out in the comment, with a note that it contains half-resolution
+second-touch data.
+
+Otherwise:
+
+Acked-by: Chase Douglas <chase.douglas@canonical.com>

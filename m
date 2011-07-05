@@ -1,44 +1,55 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 05/12] Input: synaptics - process button bits in AGM packets
-Date: Tue, 05 Jul 2011 11:19:55 -0700
-Message-ID: <4E1355CB.9070504@canonical.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-6-git-send-email-djkurtz@chromium.org> <20110704212404.GC23915@polaris.bitmath.org> <CAGS+omALkYhzS+rvWhsXCwuWMHWpJJJ7j9Z9cBQ1Gem5HnH_fg@mail.gmail.com> <20110705181843.GA29296@polaris.bitmath.org>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 02/12] Input: synaptics - do not invert y if 0
+Date: Tue, 5 Jul 2011 13:39:13 -0500
+Message-ID: <CAGzDe_b52m1Fn0o8d17Aqwwif2k2i5PpqtbNqsOQ2ujf_6-Lsw@mail.gmail.com>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
+	<1309324042-22943-3-git-send-email-djkurtz@chromium.org>
+	<20110704210838.GA23915@polaris.bitmath.org>
+	<CAGS+omDXhiZz2i5eniu_eOCES1Eq_fKs4JVWU-+wz6ot7kyhSA@mail.gmail.com>
+	<20110705180712.GA29224@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:58889 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751847Ab1GESUB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 14:20:01 -0400
-In-Reply-To: <20110705181843.GA29296@polaris.bitmath.org>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:38456 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751347Ab1GESjO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 14:39:14 -0400
+In-Reply-To: <20110705180712.GA29224@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, dmitry.torokhov@gmail.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+Cc: Daniel Kurtz <djkurtz@chromium.org>, dmitry.torokhov@gmail.com, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On 07/05/2011 11:18 AM, Henrik Rydberg wrote:
->>> Any particular reason to move these and leave them unassigned for clickpads?
+On Tue, Jul 5, 2011 at 1:07 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> > > In some cases, however, y = 0 is sent by the touchpad.
+>> > > In these cases, the kernel driver should not invert, and just report 0.
+>> > >
+>> > > This patch also refactors the inversion into a macro, and moves it
+>> > > into packet processing instead of during position reporting.
+>> >
+>> > The patch seems to invert the current output?
 >>
->> Yes.  The current implementation incorrectly parses the x, y, z of AGM
->> packets and assigns junk values to the corresponding fields of the
->> temporary hw struct.  Luckily, this struct is then just discarded upon
->> return (synaptics_parse_hw_state returns 1 causing
->> synaptics_process_packet() to exit immediately).
->>
->> Instead, this patch parses the w value first to determine the packet
->> type, and then use this packet type information to parse the remaining
->> position and pressure fields correctly...
->>
->> Notice that the "else" clause is taken for SGM packets (w != 2), even
->> for clickpads.
-> 
-> Functionally, there is no difference between assigning new junk or
-> reusing old junk, hence that part of the patch is not strictly needed.
+>> By 'current' do you mean referenced from the previous implementation?
+>> Or referenced from the raw input.
+>> It does indeed invert the raw input.
+>> This is the same as the previous implementation did.
+>> The difference is that it does not also invert the special 'y=0' into
+>> an arbitrarily large value.
+>> Is this your concern?
+>
+> It would be clearer to just change the argument of the
+> input_report_abs() instances, would it not? An explanation why zero,
+> outside the value range, should be output also needs a rationale. It
+> would seem such packets should be masked somehow.
+>
 
-True, it's not necessary, but I do like the new flow better. I was
-reviewing the patch myself when I started wondering why we ever assigned
-junk that was incorrect. I think this will help clean up the code and
-make it more readable.
+When I saw this, thats what it looked like to me.  We already know
+that hw.x == 1 is invalid and added to a list to filter out but maybe
+hw.y == 0 is invalid as well and it wasn't as obvious because of the
+inversion.
 
--- Chase
+Sound the following pre-existing line be expanded to its filtered?
+
+       if (hw.z > 0 && hw.x > 1) {
+
+Chris

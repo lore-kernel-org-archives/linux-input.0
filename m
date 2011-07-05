@@ -1,32 +1,43 @@
-From: Nathan Royer <nroyer@invensense.com>
-Subject: RE: [PATCH 01/11] misc: inv_mpu primary header file and README file.
-Date: Tue, 5 Jul 2011 11:08:33 -0700
-Message-ID: <07b17ccddfb568316d0628298d076211@mail.gmail.com>
-References: <1309486707-1658-1-git-send-email-nroyer@invensense.com> <CAN_12A9pWNTjetV2wDzhO8OTopECC78b38zBxjku+gpR4QwFoA@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 05/12] Input: synaptics - process button bits in AGM
+ packets
+Date: Tue, 5 Jul 2011 20:18:43 +0200
+Message-ID: <20110705181843.GA29296@polaris.bitmath.org>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
+ <1309324042-22943-6-git-send-email-djkurtz@chromium.org>
+ <20110704212404.GC23915@polaris.bitmath.org>
+ <CAGS+omALkYhzS+rvWhsXCwuWMHWpJJJ7j9Z9cBQ1Gem5HnH_fg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:40229 "HELO
-	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752610Ab1GESIf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Jul 2011 14:08:35 -0400
-In-Reply-To: <CAN_12A9pWNTjetV2wDzhO8OTopECC78b38zBxjku+gpR4QwFoA@mail.gmail.com>
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:47558 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751252Ab1GESQu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 14:16:50 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGS+omALkYhzS+rvWhsXCwuWMHWpJJJ7j9Z9cBQ1Gem5HnH_fg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Wolfe <cwolfe@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jonathan Cameron <jic23@cam.ac.uk>, Jiri Kosina <jkosina@suse.cz>, Alan Cox <alan@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: dmitry.torokhov@gmail.com, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-> Is this
-> driver to the stage where someone can practically initialize the 3050
-> and read low-level data without having the InvenSense MPL already
-> installed? (and without basically doing I2C reads and writes from
-> userspace)
+> > Any particular reason to move these and leave them unassigned for clickpads?
+> 
+> Yes.  The current implementation incorrectly parses the x, y, z of AGM
+> packets and assigns junk values to the corresponding fields of the
+> temporary hw struct.  Luckily, this struct is then just discarded upon
+> return (synaptics_parse_hw_state returns 1 causing
+> synaptics_process_packet() to exit immediately).
+>
+> Instead, this patch parses the w value first to determine the packet
+> type, and then use this packet type information to parse the remaining
+> position and pressure fields correctly...
+> 
+> Notice that the "else" clause is taken for SGM packets (w != 2), even
+> for clickpads.
 
-Yes, this driver could be used to initialize the 3050 and do raw data reads
-without the MPL library.  I haven't actually tried it, but you would set the
-dmp_enable = 0, fifo_enable = 0 and on each IRQ do a read of
-MPUREG_GYRO_XOUT_H..MPUREG_GYRO_ZOUT_L using the IOCTL MPU_READ.
+Functionally, there is no difference between assigning new junk or
+reusing old junk, hence that part of the patch is not strictly needed.
 
-To take advantage of the DMP, and the Master I2C bus you will need the MPL
-library in user space.
+Thanks,
+Henrik

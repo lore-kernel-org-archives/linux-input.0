@@ -1,136 +1,98 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 09/12] HID: wiimote: Add wiimote input button parser
-Date: Tue,  5 Jul 2011 13:45:16 +0200
-Message-ID: <1309866319-12899-9-git-send-email-dh.herrmann@googlemail.com>
-References: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 01/12] HID: wiimote: Add Nintendo Wii Remote driver stub
+Date: Tue,  5 Jul 2011 13:45:08 +0200
+Message-ID: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f52.google.com ([209.85.161.52]:59515 "EHLO
 	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756100Ab1GELpm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 07:45:42 -0400
-Received: by mail-fx0-f52.google.com with SMTP id 18so6110854fxd.11
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 04:45:41 -0700 (PDT)
-In-Reply-To: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
+	with ESMTP id S1755657Ab1GELpd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 07:45:33 -0400
+Received: by fxd18 with SMTP id 18so6110854fxd.11
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 04:45:32 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
 
-Parse input report 0x30 from the wiimote as button input. We need to
-send events for all buttons on every input report because the wiimote
-does not send events for single buttons but always for all buttons
-to us. The input layer, however, filters redundant events.
+Add stub driver for the Nintendo Wii Remote. The wii remote uses
+the HID protocol to communicate with the host over bluetooth. Hence,
+add dependency for HIDP and place driver in hid subsystem.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   66 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 66 insertions(+), 0 deletions(-)
+ drivers/hid/Kconfig       |    6 ++++++
+ drivers/hid/Makefile      |    1 +
+ drivers/hid/hid-wiimote.c |   32 ++++++++++++++++++++++++++++++++
+ 3 files changed, 39 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hid/hid-wiimote.c
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 67d2a75..e84bdd8 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -567,6 +567,12 @@ config HID_WACOM_POWER_SUPPLY
+ 	  Say Y here if you want to enable power supply status monitoring for
+ 	  Wacom Bluetooth devices.
+ 
++config HID_WIIMOTE
++	tristate "Nintendo Wii Remote support"
++	depends on BT_HIDP
++	---help---
++	Support for the Nintendo Wii Remote bluetooth device.
++
+ config HID_ZEROPLUS
+ 	tristate "Zeroplus based game controller support"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index f8cc4ea..4ed9bed 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -73,6 +73,7 @@ obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
+ obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
+ obj-$(CONFIG_HID_WACOM)		+= hid-wacom.o
+ obj-$(CONFIG_HID_WALTOP)	+= hid-waltop.o
++obj-$(CONFIG_HID_WIIMOTE)	+= hid-wiimote.o
+ 
+ obj-$(CONFIG_USB_HID)		+= usbhid/
+ obj-$(CONFIG_USB_MOUSE)		+= usbhid/
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index c86ae92..efdf62b 100644
---- a/drivers/hid/hid-wiimote.c
+new file mode 100644
+index 0000000..8a770e6
+--- /dev/null
 +++ b/drivers/hid/hid-wiimote.c
-@@ -39,6 +39,39 @@ struct wiimote_data {
- 	struct work_struct worker;
- };
- 
-+enum wiiproto_reqs {
-+	WIIPROTO_REQ_DRM_K = 0x30,
-+};
+@@ -0,0 +1,32 @@
++/*
++ * HID driver for Nintendo Wiimote devices
++ * Copyright (c) 2011 David Herrmann
++ */
 +
-+enum wiiproto_keys {
-+	WIIPROTO_KEY_LEFT,
-+	WIIPROTO_KEY_RIGHT,
-+	WIIPROTO_KEY_UP,
-+	WIIPROTO_KEY_DOWN,
-+	WIIPROTO_KEY_PLUS,
-+	WIIPROTO_KEY_MINUS,
-+	WIIPROTO_KEY_ONE,
-+	WIIPROTO_KEY_TWO,
-+	WIIPROTO_KEY_A,
-+	WIIPROTO_KEY_B,
-+	WIIPROTO_KEY_HOME,
-+	WIIPROTO_KEY_COUNT
-+};
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
 +
-+static __u16 wiiproto_keymap[] = {
-+	KEY_LEFT,	/* WIIPROTO_KEY_LEFT */
-+	KEY_RIGHT,	/* WIIPROTO_KEY_RIGHT */
-+	KEY_UP,		/* WIIPROTO_KEY_UP */
-+	KEY_DOWN,	/* WIIPROTO_KEY_DOWN */
-+	KEY_NEXT,	/* WIIPROTO_KEY_PLUS */
-+	KEY_PREVIOUS,	/* WIIPROTO_KEY_MINUS */
-+	BTN_1,		/* WIIPROTO_KEY_ONE */
-+	BTN_2,		/* WIIPROTO_KEY_TWO */
-+	BTN_A,		/* WIIPROTO_KEY_A */
-+	BTN_B,		/* WIIPROTO_KEY_B */
-+	BTN_MODE,	/* WIIPROTO_KEY_HOME */
-+};
++#include <linux/module.h>
 +
- static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
- 								size_t count)
- {
-@@ -130,6 +163,33 @@ static int wiimote_input_event(struct input_dev *dev, unsigned int type,
- 	return 0;
- }
- 
-+static void handler_keys(struct wiimote_data *wdata, const __u8 *payload)
++#define WIIMOTE_VERSION "0.1"
++#define WIIMOTE_NAME "Nintendo Wii Remote"
++
++static int __init wiimote_init(void)
 +{
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_LEFT],
-+							!!(payload[0] & 0x01));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_RIGHT],
-+							!!(payload[0] & 0x02));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_DOWN],
-+							!!(payload[0] & 0x04));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_UP],
-+							!!(payload[0] & 0x08));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_PLUS],
-+							!!(payload[0] & 0x10));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_TWO],
-+							!!(payload[1] & 0x01));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_ONE],
-+							!!(payload[1] & 0x02));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_B],
-+							!!(payload[1] & 0x04));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_A],
-+							!!(payload[1] & 0x08));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_MINUS],
-+							!!(payload[1] & 0x10));
-+	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_HOME],
-+							!!(payload[1] & 0x80));
-+	input_sync(wdata->input);
++	return 0;
 +}
 +
- struct wiiproto_handler {
- 	__u8 id;
- 	size_t size;
-@@ -137,6 +197,7 @@ struct wiiproto_handler {
- };
- 
- static struct wiiproto_handler handlers[] = {
-+	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
- 	{ .id = 0 }
- };
- 
-@@ -167,6 +228,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- {
- 	struct wiimote_data *wdata;
-+	int i;
- 
- 	wdata = kzalloc(sizeof(*wdata), GFP_KERNEL);
- 	if (!wdata)
-@@ -190,6 +252,10 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	wdata->input->id.version = wdata->hdev->version;
- 	wdata->input->name = WIIMOTE_NAME;
- 
-+	set_bit(EV_KEY, wdata->input->evbit);
-+	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
-+		set_bit(wiiproto_keymap[i], wdata->input->keybit);
++static void __exit wiimote_exit(void)
++{
++}
 +
- 	spin_lock_init(&wdata->qlock);
- 	INIT_WORK(&wdata->worker, wiimote_worker);
- 
++module_init(wiimote_init);
++module_exit(wiimote_exit);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
++MODULE_DESCRIPTION(WIIMOTE_NAME " Device Driver");
++MODULE_VERSION(WIIMOTE_VERSION);
 -- 
 1.7.6
 

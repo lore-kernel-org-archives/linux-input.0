@@ -1,33 +1,43 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 0/3 v2] input : wacom - Split the 4/4 of a previous set
-Date: Tue,  5 Jul 2011 16:24:28 -0700
-Message-ID: <1309908268-18755-1-git-send-email-pinglinux@gmail.com>
+Subject: [PATCH 1/3 v2] input : wacom - Add serial number for Graphire4 and old Bamboo
+Date: Tue,  5 Jul 2011 16:25:04 -0700
+Message-ID: <1309908304-18792-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:33104 "EHLO
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:65079 "EHLO
 	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753006Ab1GEXW6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 19:22:58 -0400
-Received: by iyb12 with SMTP id 12so5628705iyb.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 16:22:57 -0700 (PDT)
+	with ESMTP id S1751567Ab1GEXXf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 19:23:35 -0400
+Received: by iyb12 with SMTP id 12so5629017iyb.19
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 16:23:34 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, Ping Cheng <pinglinux@gmail.com>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, Ping Cheng <pinglinux@gmail.com>, Ping Cheng <pingc@wacom.com>
 
-Split the "Update Graphire and old Bamboo tablet buttons" into a set of
-3 patches as suggested by Henrik.
+With the removal of BTN_TOOL_FINGER for tablet buttons and
+expresskeys, serial number is needed to distingush if the
+events were from a regular tool (stylus, eraser, or mouse)
+or the attribures (buttons, strips, or wheels) on the tablet
+since there are overlapped events between the tools and the
+tablet attributes.
 
-Dmitry, please apply the 3/4, "Remove BTN_TOOL_FINGER for pad", patch
-before this set since they depend on that patch.
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-Ping Cheng (3):
-  input : wacom - Add serial number for Graphire4 and old Bamboo
-  input : wacom - Update Graphire4 and old Bamboo tablet buttons
-  input : wacom - Cleanup a return value for the old Bamboo
-
- drivers/input/tablet/wacom_wac.c |   22 ++++++++++------------
- 1 files changed, 10 insertions(+), 12 deletions(-)
-
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 7ce1294..b93501a 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -265,6 +265,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
+ 			wacom->id[0] = 0;
+ 		input_report_abs(input, ABS_MISC, wacom->id[0]); /* report tool id */
+ 		input_report_key(input, wacom->tool[0], prox);
++		input_event(input, EV_MSC, MSC_SERIAL, 1);
+ 		input_sync(input); /* sync last event */
+ 	}
+ 
 -- 
 1.7.5.4
 

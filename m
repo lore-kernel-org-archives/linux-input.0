@@ -1,81 +1,82 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 10/12] HID: wiimote: Add wiimote led request
-Date: Tue,  5 Jul 2011 13:45:17 +0200
-Message-ID: <1309866319-12899-10-git-send-email-dh.herrmann@googlemail.com>
-References: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 01/12] Input: synaptics - cleanup 0x0c query documentation
+Date: Tue, 05 Jul 2011 10:33:36 -0700
+Message-ID: <4E134AF0.1090209@canonical.com>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-2-git-send-email-djkurtz@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:37593 "EHLO
-	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755888Ab1GELpn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 07:45:43 -0400
-Received: by mail-fx0-f52.google.com with SMTP id 18so6110868fxd.11
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 04:45:43 -0700 (PDT)
-In-Reply-To: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
+Received: from adelie.canonical.com ([91.189.90.139]:34705 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750823Ab1GERdn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 13:33:43 -0400
+In-Reply-To: <1309324042-22943-2-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
+To: djkurtz@chromium.org
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-Add new request that sets the leds on the target device. Also, per
-default, set led1 after initializing a device.
+On 06/28/2011 10:07 PM, djkurtz@chromium.org wrote:
+> From: Daniel Kurtz <djkurtz@chromium.org>
+> 
+> Convert some spaces to tabs.
+> Reorder defines to match bit ordering.
+> Add defines for all bits.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  drivers/input/mouse/synaptics.h |   16 +++++++++++-----
+>  1 files changed, 11 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+> index 7453938..34bedde 100644
+> --- a/drivers/input/mouse/synaptics.h
+> +++ b/drivers/input/mouse/synaptics.h
+> @@ -66,18 +66,24 @@
+>   * 1	0x60	multifinger mode	identifies firmware finger counting
+>   *					(not reporting!) algorithm.
+>   *					Not particularly meaningful
+> - * 1	0x80    covered pad		W clipped to 14, 15 == pad mostly covered
+> - * 2	0x01    clickpad bit 1		2-button ClickPad
+> - * 2	0x02    deluxe LED controls	touchpad support LED commands
+> + * 1	0x80	covered pad		W clipped to 14, 15 == pad mostly covered
+> + * 2	0x01	clickpad bit 1		2-button ClickPad
+> + * 2	0x02	deluxe LED controls	touchpad support LED commands
+>   *					ala multimedia control bar
+>   * 2	0x04	reduced filtering	firmware does less filtering on
+>   *					position data, driver should watch
+>   *					for noise.
+>   */
+> -#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
+> -#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
+> +#define SYN_CAP_ADJ_THRESHOLD(ex0c)	((ex0c) & 0x010000)
+>  #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
+> +#define SYN_CAP_CLEARPAD(ex0c)		((ex0c) & 0x040000)
+>  #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+> +#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
+> +#define SYN_CAP_MULTIFINGER_MODE(ex0c)	((ex0c) & 0x600000)
+> +#define SYN_CAP_COVERED_PAD(ex0c)	((ex0c) & 0x800000)
+> +#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
+> +#define SYN_CAP_DELUXE_LED(ex0c)	((ex0c) & 0x000200)
+> +#define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+>  
+>  /* synaptics modes query bits */
+>  #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- drivers/hid/hid-wiimote.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+I may not be the most knowledgeable developer on Synaptics, but I think
+I'm somewhat knowledgeable and I can't figure out what each of the
+bitmasks does now. Since we now have many of them defined, could you add
+documentation about what each means? For example, I don't know if
+SYN_CAP_CLICKPAD is set in conjunction with SYN_CAP_CLICKPAD2BTN, or if
+they are mutually exclusive. I also don't know what SYN_CAP_CLICKPAD2BTN
+means anyways :).
 
-diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index efdf62b..3fb18fb 100644
---- a/drivers/hid/hid-wiimote.c
-+++ b/drivers/hid/hid-wiimote.c
-@@ -39,7 +39,13 @@ struct wiimote_data {
- 	struct work_struct worker;
- };
- 
-+#define WIIPROTO_FLAG_LED1 0x01
-+#define WIIPROTO_FLAG_LED2 0x02
-+#define WIIPROTO_FLAG_LED3 0x04
-+#define WIIPROTO_FLAG_LED4 0x08
-+
- enum wiiproto_reqs {
-+	WIIPROTO_REQ_LED = 0x11,
- 	WIIPROTO_REQ_DRM_K = 0x30,
- };
- 
-@@ -150,6 +156,25 @@ static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
- 	spin_unlock_irqrestore(&wdata->qlock, flags);
- }
- 
-+static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
-+{
-+	__u8 cmd[2];
-+
-+	cmd[0] = WIIPROTO_REQ_LED;
-+	cmd[1] = 0;
-+
-+	if (leds & WIIPROTO_FLAG_LED1)
-+		cmd[1] |= 0x10;
-+	if (leds & WIIPROTO_FLAG_LED2)
-+		cmd[1] |= 0x20;
-+	if (leds & WIIPROTO_FLAG_LED3)
-+		cmd[1] |= 0x40;
-+	if (leds & WIIPROTO_FLAG_LED4)
-+		cmd[1] |= 0x80;
-+
-+	wiimote_queue(wdata, cmd, sizeof(cmd));
-+}
-+
- static int wiimote_input_event(struct input_dev *dev, unsigned int type,
- 						unsigned int code, int value)
- {
-@@ -301,6 +326,7 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 	smp_wmb();
- 	atomic_set(&wdata->ready, 1);
- 	hid_info(hdev, "New device registered\n");
-+	wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
- 	return 0;
- 
- err_stop:
--- 
-1.7.6
+I'm curious, are you basing this work on documentation or
+reverse-engineering? Maybe you can't say :). It would be awesome if
+someone at Synaptics would just release the documentation for these
+advanced features already...
 
+Thanks!
+
+-- Chase

@@ -1,75 +1,112 @@
-From: Iiro Valkonen <iiro.valkonen@atmel.com>
-Subject: Re: [PATCH 1/3 v2] Input: atmel_mxt_ts - Make wait-after-reset period
- compatible with all chips
-Date: Tue, 05 Jul 2011 10:12:43 +0300
-Message-ID: <4E12B96B.2050601@atmel.com>
-References: <4E11B8C3.8010608@atmel.com> <4E1263C9.3010704@samsung.com>
+From: David Jander <david.jander@protonic.nl>
+Subject: Re: [PATCH v5 1/2] Input: gpio_keys.c: Added support for
+ device-tree platform data
+Date: Tue, 5 Jul 2011 10:16:08 +0200
+Message-ID: <20110705101608.7bf49e8c@archvile>
+References: <1308823455-14446-1-git-send-email-david@protonic.nl>
+	<1308823455-14446-2-git-send-email-david@protonic.nl>
+	<BANLkTinbnsVc9a=ZTUFutEvZ_vPagTqhOA@mail.gmail.com>
+	<20110623133908.5c85eb3c@lxorguk.ukuu.org.uk>
+	<BANLkTim3S+LP2UfS5Uy4rV6oZcDgom6DPg@mail.gmail.com>
+	<20110623180121.GA14950@core.coreip.homeip.net>
+	<20110704082939.6da4aaeb@archvile>
+	<94bc67c6-6a34-43f0-b88f-8a4278115730@email.android.com>
+	<20110704085651.6408dcbc@archvile>
+	<20110704172806.GE8144@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:43395 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753664Ab1GEHNE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 03:13:04 -0400
-In-Reply-To: <4E1263C9.3010704@samsung.com>
+Received: from protonic.xs4all.nl ([213.84.116.84]:28018 "EHLO
+	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754641Ab1GEIQL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 04:16:11 -0400
+In-Reply-To: <20110704172806.GE8144@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>, Alan Cox <alan@lxorguk.ukuu.org.uk>, David Jander <david@protonic.nl>, linux-input@vger.kernel.org
 
-Hello,
+On Mon, 4 Jul 2011 10:28:06 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-On 07/05/2011 04:07 AM, Joonyoung Shim wrote:
-> Hi,
+> On Mon, Jul 04, 2011 at 08:56:51AM +0200, David Jander wrote:
+> > On Mon, 04 Jul 2011 10:52:55 +0400
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> >=20
+> > > David Jander <david.jander@protonic.nl> wrote:
+> > >=20
+> > > >On Thu, 23 Jun 2011 11:01:22 -0700
+> > > >Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > >
+> > > >> On Thu, Jun 23, 2011 at 07:25:37AM -0600, Grant Likely wrote:
+> > > >> > On Thu, Jun 23, 2011 at 6:39 AM, Alan Cox
+> > > ><alan@lxorguk.ukuu.org.uk> wrote:
+> > > >> > >> > + =C2=A0 =C2=A0 =C2=A0 - gpios: OF devcie-tree gpio spe=
+cificatin.
+> > > >> > >> > + =C2=A0 =C2=A0 =C2=A0 - label: Descriptive name of the=
+ key.
+> > > >> > >> > + =C2=A0 =C2=A0 =C2=A0 - linux,code: Keycode to emit.
+> > > >> > >>
+> > > >> > >> The fact that this is the Linux internal keycode definiti=
+ons
+> > > >still
+> > > >> > >> makes me nervous. =C2=A0Is there no existing standard for=
+ keycodes
+> > > >emitted
+> > > >> > >> by keyboard devices?
+> > > >> > >
+> > > >> > > There is but no standard lookup table. For Intel MID we do=
+ a
+> > > >translation
+> > > >> > > between Linux key names in the firmware and keycodes but t=
+here
+> > > >isn't a
+> > > >> > > generic helper for it.
+> > > >> >=20
+> > > >> > I suppose the Linux keycodes are exported out to userspace, =
+and are
+> > > >> > therefore an ABI which will not change.  Okay.
+> > > >>=20
+> > > >> Right, keycodes form ABI that will not change.
+> > > >>=20
+> > > >> Another option would be to use codes from HID usage tables but=
+ then
+> > > >> they would have to be translated to Linux ones.
+> > > >
+> > > >Dmitry, will you accept this patch also?
+> > > >Until now, part 2/2 is in your tree, thanks for that, but I'd li=
+ke to
+> > > >know if
+> > > >this part (1/2) will also be accepted?
+> > > >
+> > >=20
+> > > Yes, I will since there was no more discussion about hid codes an=
+d I do
+> > > believe that using linux definitions is fine.
+> >=20
+> > Ok, thanks.
+> >=20
 >=20
-> On 2011-07-04 =EC=98=A4=ED=9B=84 9:57, Iiro Valkonen wrote:
->> The delay before the chip can be accessed after reset varies between=
- different
->> chips in maXTouch family. Waiting for 200ms and then monitoring the =
-CHG (chip
->> is ready when the line is low) is guaranteed to work with all chips.
->=20
-> I wonder 200ms waiting needs indeed, it is very long time.
-> If monitoring the CHG line can detect the completion of reset,
-> 200ms waiting can be removed?
->=20
+> Noticed that we leaked dynamically allocated button data in case when
+> gpio_keys_probe() fails.
 
-Yes, 200ms is a bit longish. But it is what we need to guarantee correc=
-t
-functionality with all chips in all situations. I would prefer to see t=
-hat
-in the mainline version. Anyone worried about the delay could maybe adj=
-ust
-the value to suit his/her needs, for example with mXT224 you could get =
-away with
-using just 65ms, like in the original version. Another option would be =
-to
-check the family ID in the driver, and wait just long enough. Drawback =
-with
-that is that the driver (possibly) needs updating with every new chip. =
-I'd
-like to keep this simple & robust, wait 200ms which works for every cur=
-rent
-(and most likely with every upcoming) chip, and take the small delay pe=
-nalty.
+Eeek. Sorry. Thanks for pointing out.
 
->> @@ -828,6 +829,12 @@ static int mxt_initialize(struct mxt_data *data=
-)
->>       mxt_write_object(data, MXT_GEN_COMMAND,
->>               MXT_COMMAND_RESET, 1);
->>       msleep(MXT_RESET_TIME);
->> +    while ((reset_timeout++<=3D 100)&&  data->pdata->read_chg())
->=20
-> If pdata->read_chg is NULL?
->=20
+> Also removed changelog from copyright notice
+> (we have SCM for it) and got rid of a warning in case of !CONFIG_OF.
 
-Hopefully it'll never be, but I'll add a check.
+Ah, ok. I was just imitating others here, but this is a good point ;-)
 
-Thank you for the comments.
+> Could you please tell me if the patch below still work for you?
+
+Yes, it seems to work fine.
+
+Best regards,
 
 --=20
-Iiro
+David Jander
+Protonic Holland.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

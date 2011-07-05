@@ -1,114 +1,48 @@
-From: David Jander <david.jander@protonic.nl>
-Subject: Re: [PATCH v5 1/2] Input: gpio_keys.c: Added support for
- device-tree platform data
-Date: Tue, 5 Jul 2011 10:16:08 +0200
-Message-ID: <20110705101608.7bf49e8c@archvile>
-References: <1308823455-14446-1-git-send-email-david@protonic.nl>
-	<1308823455-14446-2-git-send-email-david@protonic.nl>
-	<BANLkTinbnsVc9a=ZTUFutEvZ_vPagTqhOA@mail.gmail.com>
-	<20110623133908.5c85eb3c@lxorguk.ukuu.org.uk>
-	<BANLkTim3S+LP2UfS5Uy4rV6oZcDgom6DPg@mail.gmail.com>
-	<20110623180121.GA14950@core.coreip.homeip.net>
-	<20110704082939.6da4aaeb@archvile>
-	<94bc67c6-6a34-43f0-b88f-8a4278115730@email.android.com>
-	<20110704085651.6408dcbc@archvile>
-	<20110704172806.GE8144@core.coreip.homeip.net>
+From: =?ISO-8859-1?Q?P=E9ter?= Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v6 08/18] mfd: twl6040: Add initial support
+Date: Tue, 5 Jul 2011 12:28:17 +0300
+Message-ID: <2205166.k2KJlqZUA7@barack>
+References: <1308663556-29120-1-git-send-email-peter.ujfalusi@ti.com>
+	<1650114.SY7VdjHPHs@barack> <20110704173935.GT3021@sortiz-mobl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([213.84.116.84]:28018 "EHLO
-	protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754641Ab1GEIQL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 04:16:11 -0400
-In-Reply-To: <20110704172806.GE8144@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20110704173935.GT3021@sortiz-mobl>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Lopez Cruz, Misael" <misael.lopez@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Girdwood, Liam" <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, Alan Cox <alan@lxorguk.ukuu.org.uk>, David Jander <david@protonic.nl>, linux-input@vger.kernel.org
 
-On Mon, 4 Jul 2011 10:28:06 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hi Samuel,
 
-> On Mon, Jul 04, 2011 at 08:56:51AM +0200, David Jander wrote:
-> > On Mon, 04 Jul 2011 10:52:55 +0400
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >=20
-> > > David Jander <david.jander@protonic.nl> wrote:
-> > >=20
-> > > >On Thu, 23 Jun 2011 11:01:22 -0700
-> > > >Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > >
-> > > >> On Thu, Jun 23, 2011 at 07:25:37AM -0600, Grant Likely wrote:
-> > > >> > On Thu, Jun 23, 2011 at 6:39 AM, Alan Cox
-> > > ><alan@lxorguk.ukuu.org.uk> wrote:
-> > > >> > >> > + =C2=A0 =C2=A0 =C2=A0 - gpios: OF devcie-tree gpio spe=
-cificatin.
-> > > >> > >> > + =C2=A0 =C2=A0 =C2=A0 - label: Descriptive name of the=
- key.
-> > > >> > >> > + =C2=A0 =C2=A0 =C2=A0 - linux,code: Keycode to emit.
-> > > >> > >>
-> > > >> > >> The fact that this is the Linux internal keycode definiti=
-ons
-> > > >still
-> > > >> > >> makes me nervous. =C2=A0Is there no existing standard for=
- keycodes
-> > > >emitted
-> > > >> > >> by keyboard devices?
-> > > >> > >
-> > > >> > > There is but no standard lookup table. For Intel MID we do=
- a
-> > > >translation
-> > > >> > > between Linux key names in the firmware and keycodes but t=
-here
-> > > >isn't a
-> > > >> > > generic helper for it.
-> > > >> >=20
-> > > >> > I suppose the Linux keycodes are exported out to userspace, =
-and are
-> > > >> > therefore an ABI which will not change.  Okay.
-> > > >>=20
-> > > >> Right, keycodes form ABI that will not change.
-> > > >>=20
-> > > >> Another option would be to use codes from HID usage tables but=
- then
-> > > >> they would have to be translated to Linux ones.
-> > > >
-> > > >Dmitry, will you accept this patch also?
-> > > >Until now, part 2/2 is in your tree, thanks for that, but I'd li=
-ke to
-> > > >know if
-> > > >this part (1/2) will also be accepted?
-> > > >
-> > >=20
-> > > Yes, I will since there was no more discussion about hid codes an=
-d I do
-> > > believe that using linux definitions is fine.
-> >=20
-> > Ok, thanks.
-> >=20
->=20
-> Noticed that we leaked dynamically allocated button data in case when
-> gpio_keys_probe() fails.
+On Monday 04 July 2011 19:39:35 Samuel Ortiz wrote:
+> That is fine with me, yes. That's why I ACK the MFD patches for Tony to t=
+ake
+> them.
 
-Eeek. Sorry. Thanks for pointing out.
+I have changed the series for Tony in my branch for the following comments:
+wl6040_is_powered, twl6040_get_rev removal, since these are really small =
 
-> Also removed changelog from copyright notice
-> (we have SCM for it) and got rid of a warning in case of !CONFIG_OF.
+changes, if you want to see it before Tony pulls it, I can send the selecte=
+d =
 
-Ah, ok. I was just imitating others here, but this is a good point ;-)
+patches (few lines has been changed).
 
-> Could you please tell me if the patch below still work for you?
+> Thanks in advance for the follow up patches.
 
-Yes, it seems to work fine.
+For the twl6040_*_irq changes, I sent the series, since I ended up with a =
 
-Best regards,
+bigger change than I would have expected.
 
---=20
-David Jander
-Protonic Holland.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards, =
+
+P=E9ter

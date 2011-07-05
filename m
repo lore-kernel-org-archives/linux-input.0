@@ -1,17 +1,17 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 01/12] Input: synaptics - cleanup 0x0c query documentation
-Date: Tue, 05 Jul 2011 10:33:36 -0700
-Message-ID: <4E134AF0.1090209@canonical.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-2-git-send-email-djkurtz@chromium.org>
+Subject: Re: [PATCH 02/12] Input: synaptics - do not invert y if 0
+Date: Tue, 05 Jul 2011 10:42:36 -0700
+Message-ID: <4E134D0C.7060500@canonical.com>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-3-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:34705 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:48852 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750823Ab1GERdn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 13:33:43 -0400
-In-Reply-To: <1309324042-22943-2-git-send-email-djkurtz@chromium.org>
+	with ESMTP id S1750749Ab1GERmm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 13:42:42 -0400
+In-Reply-To: <1309324042-22943-3-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: djkurtz@chromium.org
@@ -20,63 +20,110 @@ Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-
 On 06/28/2011 10:07 PM, djkurtz@chromium.org wrote:
 > From: Daniel Kurtz <djkurtz@chromium.org>
 > 
-> Convert some spaces to tabs.
-> Reorder defines to match bit ordering.
-> Add defines for all bits.
+> Synaptics touchpads report increasing y from bottom to top.
+> This is inverted from normal userspace "top of screen is 0" coordinates.
+> Thus, the kernel driver reports inverted y coordinates to userspace.
 > 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> ---
->  drivers/input/mouse/synaptics.h |   16 +++++++++++-----
->  1 files changed, 11 insertions(+), 5 deletions(-)
+> In some cases, however, y = 0 is sent by the touchpad.
+> In these cases, the kernel driver should not invert, and just report 0.
+
+Under what cases is y sent as 0, and why do we want to report it as 0 to
+userspace?
+
 > 
-> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-> index 7453938..34bedde 100644
-> --- a/drivers/input/mouse/synaptics.h
-> +++ b/drivers/input/mouse/synaptics.h
-> @@ -66,18 +66,24 @@
->   * 1	0x60	multifinger mode	identifies firmware finger counting
->   *					(not reporting!) algorithm.
->   *					Not particularly meaningful
-> - * 1	0x80    covered pad		W clipped to 14, 15 == pad mostly covered
-> - * 2	0x01    clickpad bit 1		2-button ClickPad
-> - * 2	0x02    deluxe LED controls	touchpad support LED commands
-> + * 1	0x80	covered pad		W clipped to 14, 15 == pad mostly covered
-> + * 2	0x01	clickpad bit 1		2-button ClickPad
-> + * 2	0x02	deluxe LED controls	touchpad support LED commands
->   *					ala multimedia control bar
->   * 2	0x04	reduced filtering	firmware does less filtering on
->   *					position data, driver should watch
->   *					for noise.
->   */
-> -#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
-> -#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
-> +#define SYN_CAP_ADJ_THRESHOLD(ex0c)	((ex0c) & 0x010000)
->  #define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
-> +#define SYN_CAP_CLEARPAD(ex0c)		((ex0c) & 0x040000)
->  #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
-> +#define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
-> +#define SYN_CAP_MULTIFINGER_MODE(ex0c)	((ex0c) & 0x600000)
-> +#define SYN_CAP_COVERED_PAD(ex0c)	((ex0c) & 0x800000)
-> +#define SYN_CAP_CLICKPAD2BTN(ex0c)	((ex0c) & 0x000100) /* 2-button ClickPad */
-> +#define SYN_CAP_DELUXE_LED(ex0c)	((ex0c) & 0x000200)
-> +#define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
->  
->  /* synaptics modes query bits */
->  #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
+> This patch also refactors the inversion into a macro, and moves it
+> into packet processing instead of during position reporting.
 
-I may not be the most knowledgeable developer on Synaptics, but I think
-I'm somewhat knowledgeable and I can't figure out what each of the
-bitmasks does now. Since we now have many of them defined, could you add
-documentation about what each means? For example, I don't know if
-SYN_CAP_CLICKPAD is set in conjunction with SYN_CAP_CLICKPAD2BTN, or if
-they are mutually exclusive. I also don't know what SYN_CAP_CLICKPAD2BTN
-means anyways :).
+It's getting really hard to read the bit transformations with a macro.
+I'd prefer an approach that splits the computation. Maybe:
 
-I'm curious, are you basing this work on documentation or
-reverse-engineering? Maybe you can't say :). It would be awesome if
-someone at Synaptics would just release the documentation for these
-advanced features already...
+hw->y = bit_manipulations;
+hw->y = INVERT_Y(hw->y);
+
+(could use a temporary variable too)
+
+Or maybe define a static inline function that takes the hw state as an arg:
+
+hw->y = bit_manipulations;
+fix_y(hw);
+
+I'd prefer this implementation if every scenario involved manipulating
+the y value of the hw state struct.
+
+Also, it would be great if you could add your explanation of why Y is
+inverted as a comment above INVERT_Y (or whatever function/macro it
+eventually becomes).
 
 Thanks!
 
 -- Chase
+
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  drivers/input/mouse/synaptics.c |   16 +++++++++-------
+>  1 files changed, 9 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index e06e045..f6d0c04 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -44,6 +44,8 @@
+>  #define YMIN_NOMINAL 1408
+>  #define YMAX_NOMINAL 4448
+>  
+> +#define INVERT_Y(y) (((y) != 0) ? (YMAX_NOMINAL + YMIN_NOMINAL - (y)) : 0)
+> +
+>  
+>  /*****************************************************************************
+>   *	Stuff we need even when we do not want native Synaptics support
+> @@ -409,9 +411,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		hw->x = (((buf[3] & 0x10) << 8) |
+>  			 ((buf[1] & 0x0f) << 8) |
+>  			 buf[4]);
+> -		hw->y = (((buf[3] & 0x20) << 7) |
+> +		hw->y = INVERT_Y((((buf[3] & 0x20) << 7) |
+>  			 ((buf[1] & 0xf0) << 4) |
+> -			 buf[5]);
+> +			 buf[5]));
+>  
+>  		hw->z = buf[2];
+>  		hw->w = (((buf[0] & 0x30) >> 2) |
+> @@ -421,7 +423,8 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
+>  			/* Gesture packet: (x, y, z) at half resolution */
+>  			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
+> -			priv->mt.y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
+> +			priv->mt.y = INVERT_Y((((buf[4] & 0xf0) << 4)
+> +					      | buf[2]) << 1);
+>  			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
+>  			return 1;
+>  		}
+> @@ -473,7 +476,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+>  		}
+>  	} else {
+>  		hw->x = (((buf[1] & 0x1f) << 8) | buf[2]);
+> -		hw->y = (((buf[4] & 0x1f) << 8) | buf[5]);
+> +		hw->y = INVERT_Y(((buf[4] & 0x1f) << 8) | buf[5]);
+>  
+>  		hw->z = (((buf[0] & 0x30) << 2) | (buf[3] & 0x3F));
+>  		hw->w = (((buf[1] & 0x80) >> 4) | ((buf[0] & 0x04) >> 1));
+> @@ -491,8 +494,7 @@ static void set_slot(struct input_dev *dev, int slot, bool active, int x, int y)
+>  	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+>  	if (active) {
+>  		input_report_abs(dev, ABS_MT_POSITION_X, x);
+> -		input_report_abs(dev, ABS_MT_POSITION_Y,
+> -				 YMAX_NOMINAL + YMIN_NOMINAL - y);
+> +		input_report_abs(dev, ABS_MT_POSITION_Y, y);
+>  	}
+>  }
+>  
+> @@ -584,7 +586,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+>  
+>  	if (num_fingers > 0) {
+>  		input_report_abs(dev, ABS_X, hw.x);
+> -		input_report_abs(dev, ABS_Y, YMAX_NOMINAL + YMIN_NOMINAL - hw.y);
+> +		input_report_abs(dev, ABS_Y, hw.y);
+>  	}
+>  	input_report_abs(dev, ABS_PRESSURE, hw.z);
+>  
+

@@ -1,70 +1,45 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 08/12] Input: synaptics - rename set_slot to be more descriptive
-Date: Tue, 05 Jul 2011 10:54:07 -0700
-Message-ID: <4E134FBF.7050002@canonical.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-9-git-send-email-djkurtz@chromium.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 02/12] Input: synaptics - do not invert y if 0
+Date: Tue, 5 Jul 2011 20:07:13 +0200
+Message-ID: <20110705180712.GA29224@polaris.bitmath.org>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
+ <1309324042-22943-3-git-send-email-djkurtz@chromium.org>
+ <20110704210838.GA23915@polaris.bitmath.org>
+ <CAGS+omDXhiZz2i5eniu_eOCES1Eq_fKs4JVWU-+wz6ot7kyhSA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:40299 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750749Ab1GERyM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 13:54:12 -0400
-In-Reply-To: <1309324042-22943-9-git-send-email-djkurtz@chromium.org>
+Received: from smtprelay-b12.telenor.se ([62.127.194.21]:54890 "EHLO
+	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752244Ab1GESFV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 14:05:21 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGS+omDXhiZz2i5eniu_eOCES1Eq_fKs4JVWU-+wz6ot7kyhSA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: djkurtz@chromium.org
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: dmitry.torokhov@gmail.com, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On 06/28/2011 10:07 PM, djkurtz@chromium.org wrote:
-> From: Daniel Kurtz <djkurtz@chromium.org>
+> > > In some cases, however, y = 0 is sent by the touchpad.
+> > > In these cases, the kernel driver should not invert, and just report 0.
+> > >
+> > > This patch also refactors the inversion into a macro, and moves it
+> > > into packet processing instead of during position reporting.
+> >
+> > The patch seems to invert the current output?
 > 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> By 'current' do you mean referenced from the previous implementation?
+> Or referenced from the raw input.
+> It does indeed invert the raw input.
+> This is the same as the previous implementation did.
+> The difference is that it does not also invert the special 'y=0' into
+> an arbitrarily large value.
+> Is this your concern?
 
-I like the new name much better :).
+It would be clearer to just change the argument of the
+input_report_abs() instances, would it not? An explanation why zero,
+outside the value range, should be output also needs a rationale. It
+would seem such packets should be masked somehow.
 
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
-
-> ---
->  drivers/input/mouse/synaptics.c |   17 ++++++++++-------
->  1 files changed, 10 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 4e5e454..0a51b0ba 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -489,7 +489,8 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
->  	return 0;
->  }
->  
-> -static void set_slot(struct input_dev *dev, int slot, bool active, int x, int y)
-> +static void synaptics_report_semi_mt_slot(struct input_dev *dev, int slot,
-> +					  bool active, int x, int y)
->  {
->  	input_mt_slot(dev, slot);
->  	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
-> @@ -505,14 +506,16 @@ static void synaptics_report_semi_mt_data(struct input_dev *dev,
->  					  int num_fingers)
->  {
->  	if (num_fingers >= 2) {
-> -		set_slot(dev, 0, true, min(a->x, b->x), min(a->y, b->y));
-> -		set_slot(dev, 1, true, max(a->x, b->x), max(a->y, b->y));
-> +		synaptics_report_semi_mt_slot(dev, 0, true, min(a->x, b->x),
-> +					      min(a->y, b->y));
-> +		synaptics_report_semi_mt_slot(dev, 1, true, max(a->x, b->x),
-> +					      max(a->y, b->y));
->  	} else if (num_fingers == 1) {
-> -		set_slot(dev, 0, true, a->x, a->y);
-> -		set_slot(dev, 1, false, 0, 0);
-> +		synaptics_report_semi_mt_slot(dev, 0, true, a->x, a->y);
-> +		synaptics_report_semi_mt_slot(dev, 1, false, 0, 0);
->  	} else {
-> -		set_slot(dev, 0, false, 0, 0);
-> -		set_slot(dev, 1, false, 0, 0);
-> +		synaptics_report_semi_mt_slot(dev, 0, false, 0, 0);
-> +		synaptics_report_semi_mt_slot(dev, 1, false, 0, 0);
->  	}
->  }
->  
-
+Thanks,
+Henrik

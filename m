@@ -1,166 +1,81 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 07/12] HID: wiimote: Add output queue for wiimote driver
-Date: Tue,  5 Jul 2011 13:45:14 +0200
-Message-ID: <1309866319-12899-7-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 10/12] HID: wiimote: Add wiimote led request
+Date: Tue,  5 Jul 2011 13:45:17 +0200
+Message-ID: <1309866319-12899-10-git-send-email-dh.herrmann@googlemail.com>
 References: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:59515 "EHLO
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:37593 "EHLO
 	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755964Ab1GELpk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 07:45:40 -0400
-Received: by mail-fx0-f52.google.com with SMTP id 18so6110854fxd.11
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 04:45:39 -0700 (PDT)
+	with ESMTP id S1755888Ab1GELpn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 07:45:43 -0400
+Received: by mail-fx0-f52.google.com with SMTP id 18so6110868fxd.11
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 04:45:43 -0700 (PDT)
 In-Reply-To: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
 
-The raw hid output function that is supported by bluetooth low-level
-hid driver does not provide an output queue and also may sleep. The
-wiimote driver, though, may need to send data in atomic context so
-this patch adds a buffered output queue for the wiimote driver.
-
-We use the shared workqueue to send our buffer to the hid device.
-There is always only one active worker which flushes the whole output
-queue to the device. If our queue is full, every further
-output is discarded.
-
-Special care is needed in the deinitialization routine. When
-wiimote_hid_remove is called, HID input is already disabled, but HID
-output may still be used from our worker and is then discarded by the
-lower HID layers. Therefore, we can safely disable the input layer since it
-is the only layer that still sends input events.
-Future sysfs attributes must be freed before unregistering input to
-avoid the sysfs handlers to send input events to a non-existing input
-layer.
+Add new request that sets the leds on the target device. Also, per
+default, set led1 after initializing a device.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   78 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 78 insertions(+), 0 deletions(-)
+ drivers/hid/hid-wiimote.c |   26 ++++++++++++++++++++++++++
+ 1 files changed, 26 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 811ed89..bfc5049 100644
+index efdf62b..3fb18fb 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -15,15 +15,28 @@
- #include <linux/hid.h>
- #include <linux/input.h>
- #include <linux/module.h>
-+#include <linux/spinlock.h>
- #include "hid-ids.h"
- 
- #define WIIMOTE_VERSION "0.1"
- #define WIIMOTE_NAME "Nintendo Wii Remote"
-+#define WIIMOTE_BUFSIZE 32
-+
-+struct wiimote_buf {
-+	__u8 data[HID_MAX_BUFFER_SIZE];
-+	size_t size;
-+};
- 
- struct wiimote_data {
- 	atomic_t ready;
- 	struct hid_device *hdev;
- 	struct input_dev *input;
-+
-+	spinlock_t qlock;
-+	__u8 head;
-+	__u8 tail;
-+	struct wiimote_buf outq[WIIMOTE_BUFSIZE];
-+	struct work_struct worker;
+@@ -39,7 +39,13 @@ struct wiimote_data {
+ 	struct work_struct worker;
  };
  
- static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
-@@ -45,6 +58,65 @@ static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
- 	return ret;
++#define WIIPROTO_FLAG_LED1 0x01
++#define WIIPROTO_FLAG_LED2 0x02
++#define WIIPROTO_FLAG_LED3 0x04
++#define WIIPROTO_FLAG_LED4 0x08
++
+ enum wiiproto_reqs {
++	WIIPROTO_REQ_LED = 0x11,
+ 	WIIPROTO_REQ_DRM_K = 0x30,
+ };
+ 
+@@ -150,6 +156,25 @@ static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
+ 	spin_unlock_irqrestore(&wdata->qlock, flags);
  }
  
-+static void wiimote_worker(struct work_struct *work)
++static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
 +{
-+	struct wiimote_data *wdata = container_of(work, struct wiimote_data,
-+									worker);
-+	unsigned long flags;
++	__u8 cmd[2];
 +
-+	spin_lock_irqsave(&wdata->qlock, flags);
++	cmd[0] = WIIPROTO_REQ_LED;
++	cmd[1] = 0;
 +
-+	while (wdata->head != wdata->tail) {
-+		spin_unlock_irqrestore(&wdata->qlock, flags);
-+		wiimote_hid_send(wdata->hdev, wdata->outq[wdata->tail].data,
-+						wdata->outq[wdata->tail].size);
-+		spin_lock_irqsave(&wdata->qlock, flags);
++	if (leds & WIIPROTO_FLAG_LED1)
++		cmd[1] |= 0x10;
++	if (leds & WIIPROTO_FLAG_LED2)
++		cmd[1] |= 0x20;
++	if (leds & WIIPROTO_FLAG_LED3)
++		cmd[1] |= 0x40;
++	if (leds & WIIPROTO_FLAG_LED4)
++		cmd[1] |= 0x80;
 +
-+		wdata->tail = (wdata->tail + 1) % WIIMOTE_BUFSIZE;
-+	}
-+
-+	spin_unlock_irqrestore(&wdata->qlock, flags);
-+}
-+
-+static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
-+								size_t count)
-+{
-+	unsigned long flags;
-+	__u8 newhead;
-+
-+	if (count > HID_MAX_BUFFER_SIZE) {
-+		hid_warn(wdata->hdev, "Sending too large output report\n");
-+		return;
-+	}
-+
-+	/*
-+	 * Copy new request into our output queue and check whether the
-+	 * queue is full. If it is full, discard this request.
-+	 * If it is empty we need to start a new worker that will
-+	 * send out the buffer to the hid device.
-+	 * If the queue is not empty, then there must be a worker
-+	 * that is currently sending out our buffer and this worker
-+	 * will reschedule itself until the queue is empty.
-+	 */
-+
-+	spin_lock_irqsave(&wdata->qlock, flags);
-+
-+	memcpy(wdata->outq[wdata->head].data, buffer, count);
-+	wdata->outq[wdata->head].size = count;
-+	newhead = (wdata->head + 1) % WIIMOTE_BUFSIZE;
-+
-+	if (wdata->head == wdata->tail) {
-+		wdata->head = newhead;
-+		schedule_work(&wdata->worker);
-+	} else if (newhead != wdata->tail) {
-+		wdata->head = newhead;
-+	} else {
-+		hid_warn(wdata->hdev, "Output queue is full");
-+	}
-+
-+	spin_unlock_irqrestore(&wdata->qlock, flags);
++	wiimote_queue(wdata, cmd, sizeof(cmd));
 +}
 +
  static int wiimote_input_event(struct input_dev *dev, unsigned int type,
  						unsigned int code, int value)
  {
-@@ -100,6 +172,9 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	wdata->input->id.version = wdata->hdev->version;
- 	wdata->input->name = WIIMOTE_NAME;
+@@ -301,6 +326,7 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 	smp_wmb();
+ 	atomic_set(&wdata->ready, 1);
+ 	hid_info(hdev, "New device registered\n");
++	wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
+ 	return 0;
  
-+	spin_lock_init(&wdata->qlock);
-+	INIT_WORK(&wdata->worker, wiimote_worker);
-+
- 	return wdata;
- }
- 
-@@ -157,8 +232,11 @@ static void wiimote_hid_remove(struct hid_device *hdev)
- 	struct wiimote_data *wdata = hid_get_drvdata(hdev);
- 
- 	hid_info(hdev, "Device removed\n");
-+
- 	hid_hw_stop(hdev);
- 	input_unregister_device(wdata->input);
-+
-+	cancel_work_sync(&wdata->worker);
- 	wiimote_destroy(wdata);
- }
- 
+ err_stop:
 -- 
 1.7.6
 

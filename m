@@ -1,123 +1,116 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 11/12] HID: wiimote: Cache wiimote led state
-Date: Tue,  5 Jul 2011 13:45:18 +0200
-Message-ID: <1309866319-12899-11-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 04/12] HID: wiimote: Register input device in wiimote hid driver
+Date: Tue,  5 Jul 2011 13:45:11 +0200
+Message-ID: <1309866319-12899-4-git-send-email-dh.herrmann@googlemail.com>
 References: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:59515 "EHLO
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:37593 "EHLO
 	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755939Ab1GELpo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 07:45:44 -0400
-Received: by mail-fx0-f52.google.com with SMTP id 18so6110854fxd.11
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 04:45:44 -0700 (PDT)
+	with ESMTP id S1755657Ab1GELpg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 07:45:36 -0400
+Received: by mail-fx0-f52.google.com with SMTP id 18so6110868fxd.11
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 04:45:35 -0700 (PDT)
 In-Reply-To: <1309866319-12899-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, David Herrmann <dh.herrmann@googlemail.com>
 
-Save the current state of the leds in the wiimote data structure. This
-allows us to discard new led requests that wouldn't change anything.
-Protect the whole state structure by a spinlock. Every wiiproto_*
-function expects this spinlock to be held when called.
+Register input device so the wiimote can report input events on
+it. We do not use HIDINPUT because the wiimote does not provide any
+descriptor table which might be used by HIDINPUT. So we avoid
+having HIDINPUT parse the wiimote descriptor and create unrelated
+or unknown event flags. Instead we register our own input device
+that we have full control of.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+ drivers/hid/hid-wiimote.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 34 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 3fb18fb..f9a3bcb 100644
+index ff7cf12..deaf232 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -27,6 +27,11 @@ struct wiimote_buf {
- 	size_t size;
- };
+@@ -10,7 +10,9 @@
+  * any later version.
+  */
  
-+struct wiimote_state {
-+	spinlock_t lock;
-+	__u8 flags;
-+};
-+
++#include <linux/device.h>
+ #include <linux/hid.h>
++#include <linux/input.h>
+ #include <linux/module.h>
+ #include "hid-ids.h"
+ 
+@@ -19,8 +21,15 @@
+ 
  struct wiimote_data {
- 	atomic_t ready;
  	struct hid_device *hdev;
-@@ -37,12 +42,16 @@ struct wiimote_data {
- 	__u8 tail;
- 	struct wiimote_buf outq[WIIMOTE_BUFSIZE];
- 	struct work_struct worker;
-+
-+	struct wiimote_state state;
++	struct input_dev *input;
  };
  
- #define WIIPROTO_FLAG_LED1 0x01
- #define WIIPROTO_FLAG_LED2 0x02
- #define WIIPROTO_FLAG_LED3 0x04
- #define WIIPROTO_FLAG_LED4 0x08
-+#define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
-+					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
- 
- enum wiiproto_reqs {
- 	WIIPROTO_REQ_LED = 0x11,
-@@ -160,6 +169,11 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
++static int wiimote_input_event(struct input_dev *dev, unsigned int type,
++						unsigned int code, int value)
++{
++	return 0;
++}
++
+ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ 							u8 *raw_data, int size)
  {
- 	__u8 cmd[2];
+@@ -38,9 +47,24 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	if (!wdata)
+ 		return NULL;
  
-+	leds &= WIIPROTO_FLAGS_LEDS;
-+	if ((wdata->state.flags & WIIPROTO_FLAGS_LEDS) == leds)
-+		return;
-+	wdata->state.flags = (wdata->state.flags & ~WIIPROTO_FLAGS_LEDS) | leds;
++	wdata->input = input_allocate_device();
++	if (!wdata->input) {
++		kfree(wdata);
++		return NULL;
++	}
 +
- 	cmd[0] = WIIPROTO_REQ_LED;
- 	cmd[1] = 0;
+ 	wdata->hdev = hdev;
+ 	hid_set_drvdata(hdev, wdata);
  
-@@ -232,6 +246,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	struct wiimote_data *wdata = hid_get_drvdata(hdev);
- 	struct wiiproto_handler *h;
- 	int i;
-+	unsigned long flags;
- 
- 	if (!atomic_read(&wdata->ready))
- 		return -EBUSY;
-@@ -241,12 +256,16 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	if (size < 1)
- 		return -EINVAL;
- 
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+
- 	for (i = 0; handlers[i].id; ++i) {
- 		h = &handlers[i];
- 		if (h->id == raw_data[0] && h->size < size)
- 			h->func(wdata, &raw_data[1]);
- 	}
- 
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
- 	return 0;
- }
- 
-@@ -284,6 +303,8 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	spin_lock_init(&wdata->qlock);
- 	INIT_WORK(&wdata->worker, wiimote_worker);
- 
-+	spin_lock_init(&wdata->state.lock);
++	input_set_drvdata(wdata->input, wdata);
++	wdata->input->event = wiimote_input_event;
++	wdata->input->dev.parent = &wdata->hdev->dev;
++	wdata->input->id.bustype = wdata->hdev->bus;
++	wdata->input->id.vendor = wdata->hdev->vendor;
++	wdata->input->id.product = wdata->hdev->product;
++	wdata->input->id.version = wdata->hdev->version;
++	wdata->input->name = WIIMOTE_NAME;
 +
  	return wdata;
  }
  
-@@ -326,7 +347,12 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 	smp_wmb();
- 	atomic_set(&wdata->ready, 1);
+@@ -73,10 +97,19 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 		goto err;
+ 	}
+ 
++	ret = input_register_device(wdata->input);
++	if (ret) {
++		hid_err(hdev, "Cannot register input device\n");
++		goto err_stop;
++	}
++
  	hid_info(hdev, "New device registered\n");
-+
-+	/* by default set led1 after device initialization */
-+	spin_lock_irq(&wdata->state.lock);
- 	wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
-+	spin_unlock_irq(&wdata->state.lock);
-+
  	return 0;
  
- err_stop:
++err_stop:
++	hid_hw_stop(hdev);
+ err:
++	input_free_device(wdata->input);
+ 	wiimote_destroy(wdata);
+ 	return ret;
+ }
+@@ -87,6 +120,7 @@ static void wiimote_hid_remove(struct hid_device *hdev)
+ 
+ 	hid_info(hdev, "Device removed\n");
+ 	hid_hw_stop(hdev);
++	input_unregister_device(wdata->input);
+ 	wiimote_destroy(wdata);
+ }
+ 
 -- 
 1.7.6
 

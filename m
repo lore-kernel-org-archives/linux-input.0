@@ -1,55 +1,105 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 02/12] Input: synaptics - do not invert y if 0
-Date: Tue, 5 Jul 2011 13:39:13 -0500
-Message-ID: <CAGzDe_b52m1Fn0o8d17Aqwwif2k2i5PpqtbNqsOQ2ujf_6-Lsw@mail.gmail.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
-	<1309324042-22943-3-git-send-email-djkurtz@chromium.org>
-	<20110704210838.GA23915@polaris.bitmath.org>
-	<CAGS+omDXhiZz2i5eniu_eOCES1Eq_fKs4JVWU-+wz6ot7kyhSA@mail.gmail.com>
-	<20110705180712.GA29224@polaris.bitmath.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5] input: Initial support for Kionix KXTJ9 accelerometer
+Date: Tue, 5 Jul 2011 11:39:17 -0700
+Message-ID: <20110705183917.GA15876@core.coreip.homeip.net>
+References: <1309288348-30735-1-git-send-email-chris.hudson.comp.eng@gmail.com>
+ <20110704162628.GC8144@core.coreip.homeip.net>
+ <CAB7Re7X=N8yCCOXvxMAgf8k0y+Mz_+YbJw58tjj69CP24YDhyw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-iw0-f174.google.com ([209.85.214.174]:38456 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751347Ab1GESjO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 14:39:14 -0400
-In-Reply-To: <20110705180712.GA29224@polaris.bitmath.org>
+	with ESMTP id S1753251Ab1GESjX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 14:39:23 -0400
+Received: by mail-iw0-f174.google.com with SMTP id 6so5430725iwn.19
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 11:39:23 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAB7Re7X=N8yCCOXvxMAgf8k0y+Mz_+YbJw58tjj69CP24YDhyw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, dmitry.torokhov@gmail.com, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Christopher Hudson <chris.hudson.comp.eng@gmail.com>
+Cc: linux-input@vger.kernel.org, jic23@cam.ac.uk, Chris Hudson <chudson@kionix.com>
 
-On Tue, Jul 5, 2011 at 1:07 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
->> > > In some cases, however, y = 0 is sent by the touchpad.
->> > > In these cases, the kernel driver should not invert, and just report 0.
->> > >
->> > > This patch also refactors the inversion into a macro, and moves it
->> > > into packet processing instead of during position reporting.
->> >
->> > The patch seems to invert the current output?
->>
->> By 'current' do you mean referenced from the previous implementation?
->> Or referenced from the raw input.
->> It does indeed invert the raw input.
->> This is the same as the previous implementation did.
->> The difference is that it does not also invert the special 'y=0' into
->> an arbitrarily large value.
->> Is this your concern?
->
-> It would be clearer to just change the argument of the
-> input_report_abs() instances, would it not? An explanation why zero,
-> outside the value range, should be output also needs a rationale. It
-> would seem such packets should be masked somehow.
->
+On Tue, Jul 05, 2011 at 02:08:01PM -0400, Christopher Hudson wrote:
+> On Mon, Jul 4, 2011 at 12:26 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Chris,
+> >
+> > On Tue, Jun 28, 2011 at 03:12:28PM -0400, chris.hudson.comp.eng@gma=
+il.com wrote:
+> >> From: Chris Hudson <chudson@kionix.com>
+> >>
+> >> - Added Dmitry's changes
+> >> - Now using input_polled_dev interface when in polling mode
+> >> - IRQ mode provides a separate sysfs node to change the hardware d=
+ata rate
+> >>
+> >
+> > I am not happy with the fact that this implementation forces users =
+to
+> > select polled or interrupt-driven mode at compile time. The patch I
+> > proposed had polled mode support optional and would automatically s=
+elect
+> > IRQ mode for clients that have interrupt assigned and try to activa=
+te
+> > polled mode if interrupt is not available.
+> >
+> >> +
+> >> +/* kxtj9_set_poll: allows the user to select a new poll interval =
+(in ms) */
+> >> +static ssize_t kxtj9_set_poll(struct device *dev, struct device_a=
+ttribute *attr,
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 const char *buf, size_t count)
+> >> +{
+> >> + =A0 =A0 struct kxtj9_data *tj9 =3D i2c_get_clientdata(to_i2c_cli=
+ent(dev));
+> >> +
+> >> + =A0 =A0 unsigned long interval;
+> >> + =A0 =A0 int ret =3D kstrtoul(buf, 10, &interval);
+> >> + =A0 =A0 if (ret < 0)
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 return ret;
+> >> +
+> >> + =A0 =A0 mutex_lock(&tj9->lock);
+> >> + =A0 =A0 /* set current interval to the greater of the minimum in=
+terval or
+> >> + =A0 =A0 the requested interval */
+> >> + =A0 =A0 tj9->last_poll_interval =3D max((int)interval, tj9->pdat=
+a.min_interval);
+> >> + =A0 =A0 mutex_unlock(&tj9->lock);
+> >
+> > This lock does not make sense. You are protecting update of last_po=
+ll_interval
+> > field and this update can not be partial (i.e. only LSB or MSB is
+> > written) on all our arches, but you do not protect kxtj9_update_odr=
+()
+> > which alters chip state and does need protection.
+> >
+> > I tried bringing forward my changes from the older patch into yours=
+,
+> > please let me know if the patch below works on top of yours.
+>=20
+> Hi Dmitry,
+> Thanks for all your hard work, and yes it works fine.  There were a
+> couple of changes proposed by Jonathan that I had already merged into
+> my version though; should I submit these in a separate patch or resen=
+d
+> the merged version?
 
-When I saw this, thats what it looked like to me.  We already know
-that hw.x == 1 is invalid and added to a list to filter out but maybe
-hw.y == 0 is invalid as well and it wasn't as obvious because of the
-inversion.
+Cris,
 
-Sound the following pre-existing line be expanded to its filtered?
+Could you please send the changes proposed by Jonathan as a separate
+patch relative to the v5 you posted earlier? Then I can fold v5, mine
+and your new patch together and queue the driver for 3.1.
 
-       if (hw.z > 0 && hw.x > 1) {
+Thanks.
 
-Chris
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

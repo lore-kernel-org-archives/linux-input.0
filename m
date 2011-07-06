@@ -1,274 +1,101 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH] HID: uclogic: Add support for UC-Logic WP1062
-Date: Wed,  6 Jul 2011 09:23:41 +0300
-Message-ID: <1309933421-935-1-git-send-email-spbnick@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:40131 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750744Ab1GFGZO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 02:25:14 -0400
-Received: by bwd5 with SMTP id 5so5319245bwd.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 23:25:12 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: [PATCH 01/11] misc: inv_mpu primary header file and README file.
+Date: Wed, 06 Jul 2011 10:07:44 +0100
+Message-ID: <4E1425E0.2070408@cam.ac.uk>
+References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>	<4E0D8E94.5030604@cam.ac.uk>	<4d61a92a11e5d83a1cb0094441ae5f5e@mail.gmail.com>	<4E105284.7030209@cam.ac.uk> <20110704091658.0d4c8e3f@bob.linux.org.uk> <c2189246a279a0e5a1b8599edc94a79a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <c2189246a279a0e5a1b8599edc94a79a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nathan Royer <nroyer-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>
+Cc: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chris Hudson <chudson-F13P06p9YvzQT0dZR+AlfA@public.gmane.org>, eric.andersson-TStm8jYLEPpl57MIdRCFDg@public.gmane.org, eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Manuel Stahl <manuel.stahl-GeUHRtUQU7nSyEMIgutvibNAH6kLmebB@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Nikolai Kondrashov <spbnick@gmail.com>
 
-Add support for UC-Logic Tablet WP1062 by fixing its report descriptor.
+On 07/06/11 02:49, Nathan Royer wrote:
+>>>> accel/bma150.c
+>>> An input driver exists for that one. (cc'd Eric)
+>>
+>> [Two input drivers - bma023 which I posted covers it too ;)]
+>>
+>>>> # sensors - compass
+>>>> compass/ak8975.c
+>>
+>> We have a driver for this (I posted a while back)
+>>
+>>>> compass/ak8972.c
+>>
+>>>> compass/ami30x.c
+>>
+>> AMI304 is identical to the AK8974 which we already have - Gram Hsieh
+>> posted patches for this a while ago
+> 
+> It seems that some sensors are in input and but that most are in iio.
+> Obviously I don't want to dissent with both and put ours in misc, so how
+> do we make this better? 
+Definitely not misc - we don't want to end up with drivers in there purely
+because they might fit in two other places!
+> Should we work on cleaning this up.  If so should
+> we start moving the drivers that are in input to iio.
+Will cause all sorts of userspace issues.  a) iio is still in staging
+and for good reason.  I really ought to update our todo list!
+b) We don't have a transparent way to provide input interfaces for iio
+devices - so that will mean mass abi breakge.  There have been some
+discussions about how to do this (see Mark Brown's suggestions a month
+or so ago), be it for very different reason.
 
-This tablet is sold as Monoprice 10X6.25 Inches Graphic Drawing Tablet.
+Anyhow, I'm personally in favour of the current divide:
+Basically if it's for human input (primarily) it goes in input (decision
+on that is Dmitry's). Otherwise, IIO is happy to take drivers that don't
+fit elsewhere (we deliberately have very wide scope).
+> 
+> If this is the right thing to do, I could start working on merging the
+> current mpu3050 input interface and our misc interface to the iio
+> interface.  I'm still trying to wrap my head around the iio framework, but
+> I think one of the things I need is a uinput like interface for iio
+> (perhaps it exists, I just haven't figured it out yet).
+Nope. Not previously had a use case.
+Unlike input we don't have a whole host of userspace code that is expecting to
+receive data in a particular format so we don't have the standard use
+case for uinput  (cc'd Manuel and Michael who have done a lot more on the userspace
+end of IIO than I have + linux-iio for everyone else).  We do have a prototype
+uinput based bridge to push event into input.  It is only intended for those rare
+cases where someone really wants to use a 1000 dolar IMU as a mouse. Not relevant
+here though.
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
----
- drivers/hid/hid-core.c    |    1 +
- drivers/hid/hid-ids.h     |    1 +
- drivers/hid/hid-uclogic.c |  195 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 197 insertions(+), 0 deletions(-)
+> If the DMP is
+err, DMP?
+> used, a buffer for the FIFO data would be created, and user space would be
+> responsible to push the sensor data back to iio after sensor fusion and
+> calibration.  Without the DMP, each sensor driver would act independently
+> providing their own raw data.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 6f3289a..5da9e3d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1491,6 +1491,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0709) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a756ee6..b156eee 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -630,6 +630,7 @@
- #define USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U	0x0003
- #define USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U	0x0004
- #define USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U	0x0005
-+#define USB_DEVICE_ID_UCLOGIC_TABLET_WP1062	0x0064
- 
- #define USB_VENDOR_ID_UNITEC	0x227d
- #define USB_DEVICE_ID_UNITEC_USB_TOUCH_0709	0x0709
-diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
-index 05fdc85a..e15732f 100644
---- a/drivers/hid/hid-uclogic.c
-+++ b/drivers/hid/hid-uclogic.c
-@@ -343,6 +343,193 @@ static __u8 wp8060u_rdesc_fixed[] = {
- };
- 
- /*
-+ * Original WP1062 report descriptor.
-+ *
-+ * Only report ID 9 is actually used.
-+ *
-+ *  Usage Page (Digitizer),         ; Digitizer (0Dh)
-+ *  Usage (Pen),                    ; Pen (02h, application collection)
-+ *  Collection (Application),
-+ *    Report ID (7),
-+ *    Usage (Stylus),               ; Stylus (20h, logical collection)
-+ *    Collection (Physical),
-+ *      Usage (Tip Switch),         ; Tip switch (42h, momentary control)
-+ *      Usage (Barrel Switch),      ; Barrel switch (44h, momentary control)
-+ *      Usage (Eraser),             ; Eraser (45h, momentary control)
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (1),
-+ *      Report Size (1),
-+ *      Report Count (3),
-+ *      Input (Variable),
-+ *      Report Count (3),
-+ *      Input (Constant, Variable),
-+ *      Usage (In Range),           ; In range (32h, momentary control)
-+ *      Report Count (1),
-+ *      Input (Variable),
-+ *      Report Count (1),
-+ *      Input (Constant, Variable),
-+ *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-+ *      Usage (X),                  ; X (30h, dynamic value)
-+ *      Report Size (16),
-+ *      Report Count (1),
-+ *      Push,
-+ *      Unit Exponent (13),
-+ *      Unit (Inch),
-+ *      Physical Minimum (0),
-+ *      Physical Maximum (10000),
-+ *      Logical Maximum (20000),
-+ *      Input (Variable),
-+ *      Usage (Y),                  ; Y (31h, dynamic value)
-+ *      Physical Maximum (6583),
-+ *      Logical Maximum (13166),
-+ *      Input (Variable),
-+ *      Pop,
-+ *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-+ *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-+ *      Logical Maximum (1023),
-+ *      Input (Variable),
-+ *      Report Size (16),
-+ *    End Collection,
-+ *  End Collection,
-+ *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-+ *  Usage (Mouse),                  ; Mouse (02h, application collection)
-+ *  Collection (Application),
-+ *    Report ID (8),
-+ *    Usage (Pointer),              ; Pointer (01h, physical collection)
-+ *    Collection (Physical),
-+ *      Usage Page (Button),        ; Button (09h)
-+ *      Usage Minimum (01h),
-+ *      Usage Maximum (03h),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (1),
-+ *      Report Count (3),
-+ *      Report Size (1),
-+ *      Input (Variable),
-+ *      Report Count (5),
-+ *      Input (Constant),
-+ *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-+ *      Usage (X),                  ; X (30h, dynamic value)
-+ *      Usage (Y),                  ; Y (31h, dynamic value)
-+ *      Usage (Wheel),              ; Wheel (38h, dynamic value)
-+ *      Usage (00h),
-+ *      Logical Minimum (-127),
-+ *      Logical Maximum (127),
-+ *      Report Size (8),
-+ *      Report Count (4),
-+ *      Input (Variable, Relative),
-+ *    End Collection,
-+ *  End Collection,
-+ *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-+ *  Usage (Mouse),                  ; Mouse (02h, application collection)
-+ *  Collection (Application),
-+ *    Report ID (9),
-+ *    Usage (Pointer),              ; Pointer (01h, physical collection)
-+ *    Collection (Physical),
-+ *      Usage Page (Button),        ; Button (09h)
-+ *      Usage Minimum (01h),
-+ *      Usage Maximum (03h),
-+ *      Logical Minimum (0),
-+ *      Logical Maximum (1),
-+ *      Report Count (3),
-+ *      Report Size (1),
-+ *      Input (Variable),
-+ *      Report Count (4),
-+ *      Input (Constant),
-+ *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-+ *      Usage (In Range),           ; In range (32h, momentary control)
-+ *      Report Count (1),
-+ *      Input (Variable),
-+ *      Usage Page (Desktop),       ; Generic desktop controls (01h)
-+ *      Usage (X),                  ; X (30h, dynamic value)
-+ *      Report Size (16),
-+ *      Report Count (1),
-+ *      Push,
-+ *      Unit Exponent (13),
-+ *      Unit (Inch),
-+ *      Physical Minimum (0),
-+ *      Physical Maximum (10000),
-+ *      Logical Maximum (20000),
-+ *      Input (Variable),
-+ *      Usage (Y),                  ; Y (31h, dynamic value)
-+ *      Physical Maximum (6583),
-+ *      Logical Maximum (13166),
-+ *      Input (Variable),
-+ *      Pop,
-+ *      Usage Page (Digitizer),     ; Digitizer (0Dh)
-+ *      Usage (Tip Pressure),       ; Tip pressure (30h, dynamic value)
-+ *      Logical Maximum (1023),
-+ *      Report Count (1),
-+ *      Report Size (16),
-+ *      Input (Variable),
-+ *    End Collection,
-+ *  End Collection,
-+ *  Usage Page (Desktop),           ; Generic desktop controls (01h)
-+ *  Usage (00h),
-+ *  Collection (Application),
-+ *    Report ID (4),
-+ *    Logical Minimum (0),
-+ *    Logical Maximum (255),
-+ *    Usage (00h),
-+ *    Report Size (8),
-+ *    Report Count (3),
-+ *    Feature (Variable),
-+ *  End Collection
-+ */
-+
-+/* Size of the original descriptor of WP1062 tablet */
-+#define WP1062_RDESC_ORIG_SIZE	254
-+
-+/*
-+ * Fixed WP1062 report descriptor.
-+ *
-+ * Removed unused reports, corrected second barrel button usage code, physical
-+ * units.
-+ */
-+static __u8 wp1062_rdesc_fixed[] = {
-+	0x05, 0x0D,         /*  Usage Page (Digitizer),             */
-+	0x09, 0x02,         /*  Usage (Pen),                        */
-+	0xA1, 0x01,         /*  Collection (Application),           */
-+	0x85, 0x09,         /*      Report ID (9),                  */
-+	0x09, 0x20,         /*      Usage (Stylus),                 */
-+	0xA0,               /*      Collection (Physical),          */
-+	0x75, 0x01,         /*          Report Size (1),            */
-+	0x09, 0x42,         /*          Usage (Tip Switch),         */
-+	0x09, 0x44,         /*          Usage (Barrel Switch),      */
-+	0x09, 0x46,         /*          Usage (Tablet Pick),        */
-+	0x14,               /*          Logical Minimum (0),        */
-+	0x25, 0x01,         /*          Logical Maximum (1),        */
-+	0x95, 0x03,         /*          Report Count (3),           */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0x95, 0x04,         /*          Report Count (4),           */
-+	0x81, 0x01,         /*          Input (Constant),           */
-+	0x09, 0x32,         /*          Usage (In Range),           */
-+	0x95, 0x01,         /*          Report Count (1),           */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0x75, 0x10,         /*          Report Size (16),           */
-+	0x95, 0x01,         /*          Report Count (1),           */
-+	0x14,               /*          Logical Minimum (0),        */
-+	0xA4,               /*          Push,                       */
-+	0x05, 0x01,         /*          Usage Page (Desktop),       */
-+	0x55, 0xFD,         /*          Unit Exponent (-3),         */
-+	0x65, 0x13,         /*          Unit (Inch),                */
-+	0x34,               /*          Physical Minimum (0),       */
-+	0x09, 0x30,         /*          Usage (X),                  */
-+	0x46, 0x10, 0x27,   /*          Physical Maximum (10000),   */
-+	0x26, 0x20, 0x4E,   /*          Logical Maximum (20000),    */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0x09, 0x31,         /*          Usage (Y),                  */
-+	0x46, 0xB7, 0x19,   /*          Physical Maximum (6583),    */
-+	0x26, 0x6E, 0x33,   /*          Logical Maximum (13166),    */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0xB4,               /*          Pop,                        */
-+	0x09, 0x30,         /*          Usage (Tip Pressure),       */
-+	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-+	0x81, 0x02,         /*          Input (Variable),           */
-+	0xC0,               /*      End Collection,                 */
-+	0xC0                /*  End Collection                      */
-+};
-+
-+/*
-  * Original PF1209 report descriptor.
-  *
-  * The descriptor is similar to WPXXXXU descriptors, with an addition of a
-@@ -584,6 +771,12 @@ static __u8 *uclogic_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			*rsize = sizeof(wp8060u_rdesc_fixed);
- 		}
- 		break;
-+	case USB_DEVICE_ID_UCLOGIC_TABLET_WP1062:
-+		if (*rsize == WP1062_RDESC_ORIG_SIZE) {
-+			rdesc = wp1062_rdesc_fixed;
-+			*rsize = sizeof(wp1062_rdesc_fixed);
-+		}
-+		break;
- 	}
- 
- 	return rdesc;
-@@ -598,6 +791,8 @@ static const struct hid_device_id uclogic_devices[] = {
- 				USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
- 				USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
-+				USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, uclogic_devices);
--- 
-1.7.5.4
+Strangely enough, your need to push data back is not dissimilar to what we have
+discussed in the past for DACs. Right now we only have a slow and simple interface
+for DACs, mainly because doing anything clever requires some fairly nasty additions
+to the host bus drivers and no one has had the time.  Michael has almost
+certainly thought more on this than I ever have!
+> 
+> We still need a way to read and write registers and DMP memory during
+> runtime from user space.
+I guess the DMP is the on device processor? So what you write varies a lot
+with what firmware is loaded?
 
+So let me just check I understand the data flow here.
+
+Example
+
+Magnetometer -> kernel -> userspace interface -> hideously complex algorithm ->
+kernel -> mpu -> mpu fusion algorithm in relevant firmware -> userspace ?
+
+So how do we know the mpu wants data?  Obvious options that might be the case
+a) on chip fifo with flow control.
+b) interrupt to request data?
+c) Always feed latest value and it runs unsynchronised.
+
+Do we actually have that hideously complex algorithm in userspace element
+or did I invent that part?  If not, we might want to use some in kernel
+hooks to pass the data back bypassing userspace entirely.
+
+Jonathan 

@@ -1,194 +1,151 @@
-From: Christopher Hudson <chris.hudson.comp.eng@gmail.com>
-Subject: Re: [PATCH] input:Misc changes against kxtj9 v5 patch
-Date: Wed, 6 Jul 2011 11:58:41 -0400
-Message-ID: <CAB7Re7Vfu4dk+mizH=fzTsYW69MpFi-WeKFocH8t8AuFR7vW3w@mail.gmail.com>
-References: <1309895754-5441-1-git-send-email-chris.hudson.comp.eng@gmail.com>
-	<20110705200548.GB15876@core.coreip.homeip.net>
-	<CAB7Re7XDB6Rmckxidgr+90Br5LhYk_5Pi_JQXTLd9QS2V+Vm0A@mail.gmail.com>
-	<20110705203502.GC15876@core.coreip.homeip.net>
-	<CAB7Re7VPsfTebXj1xFNR3YpSpGGVn82OHjusGPTxMo-r23z6vA@mail.gmail.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 09/12] Input: synaptics - add image sensor support
+Date: Thu, 7 Jul 2011 00:41:26 +0800
+Message-ID: <CAGS+omDzg-xADYxKQmWy1KRhJ=n9pn9XR_HMc01xqCSDSLa5UA@mail.gmail.com>
+References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
+ <1309324042-22943-10-git-send-email-djkurtz@chromium.org> <20110704214220.GE23915@polaris.bitmath.org>
+ <CAGS+omAzKe5frVYuV2MPXBTugKD1xNZCHsaz53H+tDO7EWw8xQ@mail.gmail.com> <20110705192759.GA29549@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:45563 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753754Ab1GFP6m convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 11:58:42 -0400
-Received: by pzk9 with SMTP id 9so53448pzk.19
-        for <linux-input@vger.kernel.org>; Wed, 06 Jul 2011 08:58:41 -0700 (PDT)
-In-Reply-To: <CAB7Re7VPsfTebXj1xFNR3YpSpGGVn82OHjusGPTxMo-r23z6vA@mail.gmail.com>
+Received: from smtp-out.google.com ([216.239.44.51]:52427 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754714Ab1GFQlx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 12:41:53 -0400
+Received: from kpbe12.cbf.corp.google.com (kpbe12.cbf.corp.google.com [172.25.105.76])
+	by smtp-out.google.com with ESMTP id p66Gflw9005863
+	for <linux-input@vger.kernel.org>; Wed, 6 Jul 2011 09:41:47 -0700
+Received: from gwb20 (gwb20.prod.google.com [10.200.2.20])
+	by kpbe12.cbf.corp.google.com with ESMTP id p66Geoce025414
+	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Wed, 6 Jul 2011 09:41:46 -0700
+Received: by gwb20 with SMTP id 20so58037gwb.3
+        for <linux-input@vger.kernel.org>; Wed, 06 Jul 2011 09:41:46 -0700 (PDT)
+In-Reply-To: <20110705192759.GA29549@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: dmitry.torokhov@gmail.com, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On Wed, Jul 6, 2011 at 11:42 AM, Christopher Hudson
-<chris.hudson.comp.eng@gmail.com> wrote:
-> On Tue, Jul 5, 2011 at 4:35 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Tue, Jul 05, 2011 at 04:19:32PM -0400, Christopher Hudson wrote:
->>> On Tue, Jul 5, 2011 at 4:05 PM, Dmitry Torokhov
->>> <dmitry.torokhov@gmail.com> wrote:
->>> > On Tue, Jul 05, 2011 at 03:55:54PM -0400, chris.hudson.comp.eng@g=
-mail.com wrote:
->>> >> From: Chris Hudson <chudson@kionix.com>
->>> >>
->>> >> As requested, miscellaneous changes originally suggested by Jona=
-than Cameron,
->>> >> patched against the original kxtj9 v5 patch.
->>> >>
->>> >> Signed-off-by: Chris Hudson <chudson@kionix.com>
->>> >> ---
->>> >> =A0drivers/input/misc/kxtj9.c =A0| =A0 38 +++++++++++++---------=
-----------------
->>> >> =A0include/linux/input/kxtj9.h | =A0 10 +---------
->>> >> =A02 files changed, 14 insertions(+), 34 deletions(-)
->>> >>
->>> >> diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxt=
-j9.c
->>> >> index 7faf155..b2da841 100644
->>> >> --- a/drivers/input/misc/kxtj9.c
->>> >> +++ b/drivers/input/misc/kxtj9.c
->>> >> @@ -71,6 +71,15 @@ static const struct {
->>> >> =A0 =A0 =A0 { 0, =A0 =A0ODR12_5F},
->>> >> =A0};
->>> >>
->>> >> +static const struct {
->>> >> + =A0 =A0 u8 g_range;
->>> >> + =A0 =A0 u8 shift;
->>> >> +} kxtj9_range[] =3D {
->>> >> + =A0 =A0 { 0, =A0 =A0 =A0 =A0 =A0 =A04 }, =A0 =A0/* +/-2g */
->>> >> + =A0 =A0 { (1 << 3), =A0 =A0 3 }, =A0 =A0/* +/-4g */
->>> >> + =A0 =A0 { (1 << 4), =A0 =A0 2 }, =A0 =A0/* +/-8g */
->>> >> +};
->>> >> +
->>> >> =A0struct kxtj9_data {
->>> >> =A0 =A0 =A0 struct i2c_client *client;
->>> >> =A0 =A0 =A0 struct kxtj9_platform_data pdata;
->>> >> @@ -129,25 +138,9 @@ static void kxtj9_report_acceleration_data(=
-struct kxtj9_data *tj9)
->>> >>
->>> >> =A0static int kxtj9_update_g_range(struct kxtj9_data *tj9, u8 ne=
-w_g_range)
->>> >> =A0{
->>> >> - =A0 =A0 switch (new_g_range) {
->>> >> - =A0 =A0 case KXTJ9_G_2G:
->>> >> - =A0 =A0 =A0 =A0 =A0 =A0 tj9->shift =3D SHIFT_ADJ_2G;
->>> >> - =A0 =A0 =A0 =A0 =A0 =A0 break;
->>> >> -
->>> >> - =A0 =A0 case KXTJ9_G_4G:
->>> >> - =A0 =A0 =A0 =A0 =A0 =A0 tj9->shift =3D SHIFT_ADJ_4G;
->>> >> - =A0 =A0 =A0 =A0 =A0 =A0 break;
->>> >> -
->>> >> - =A0 =A0 case KXTJ9_G_8G:
->>> >> - =A0 =A0 =A0 =A0 =A0 =A0 tj9->shift =3D SHIFT_ADJ_8G;
->>> >> - =A0 =A0 =A0 =A0 =A0 =A0 break;
->>> >> -
->>> >> - =A0 =A0 default:
->>> >> - =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
->>> >> - =A0 =A0 }
->>> >> -
->>> >> + =A0 =A0 tj9->shift =3D kxtj9_range[new_g_range].shift;
->>> >
->>> > This is not safe, you still need to sanitize input to make sure y=
-ou do
->>> > not go beyond array boundaries.
->>>
->>> Oops...would a simple
->>> if (new_g_range > 2)
->>> =A0 =A0 =A0 =A0 return -EINVAL;
->>> do the trick?
+On Wed, Jul 6, 2011 at 3:27 AM, Henrik Rydberg <rydberg@euromail.se> wr=
+ote:
+>> ...
+>> This implementation addresses the following issues:
 >>
->> Or "if (new_g_range >=3D ARRAY_SIZE(kxtj9_range)) ..."
->>
->> However, why do we use indices instead of values? I.e. why don't we
->> allow users to specify 2, 4 and 8 in platform data and use array to
->> validate the supplied value and return -EINVAL if this value is not
->> found?
+>> =A0 (1) Improves handling of the 2-finger case. =A0Image sensors due=
+ allow
+>> true MT-B for two finger case. =A0This, for example, allows detectin=
+g
+>> whether the click in a click+drag is happening in bottom right or
+>> bottom left quadrant of the pad.
 >
-> Before we were allowing the user to specify KXTJ9_G_2G, etc, which
-> were bitmasks that represented each available g-range. =A0I think
-> Jonathan's intent was to optimize/clean up the update_g_range
-> function, but I just couldn't figure out the most efficient way to do
-> this. =A0It seems that just replacing the globally defined shift
-> variables with their numerical counterparts within the update_g_range
-> function probably gives us the best combination of efficiency and
-> ease-of-use.
+> In principle, this could be done within the semi-mt realm by adding a
+> binary value to the protocol, distinguishing the diagonals of the
+> bounding box. It would be ugly too, but at least it would be
+> compatible with the current semi-mt effort in userspace.
 
-My apologies I meant to include the following revised version:
+(A) I think the "semi-mt" protocol works like this:
+  (1) When two or more fingers are on the pad, report two MT-B slots, w=
+here:
+    (a) slot[0] contains (x_min, y_min) of the two fingers
+    (b) slot[1] contains (x_max, y_max) of the two fingers
+    (c) Total number of fingers on pad is indicated by EV_KEY/BTN_TOOL_=
+* is set.
+  (2) If one of the two fingers is removed, then the first slot is
+used to report
+      the remaining finger, whichever it is, without changing the
+slot's tracking_id.
+  (3) Advertise this behavior with the SEMI_MT device property
 
-Signed-off-by: Chris Hudson <chudson@kionix.com>
----
- drivers/input/misc/kxtj9.c  |   18 +++++-------------
- include/linux/input/kxtj9.h |    5 -----
- 2 files changed, 5 insertions(+), 18 deletions(-)
+(B) This is what the proposed T5R2 driver does:
+  (1) When N fingers are on the pad, report N MT-B slots, where:
+    (a) The lowest indexed active slot (tracking_id !=3D -1) contains
+valid finger position data.
+    (b) The highest indexed active slot (tracking_id !=3D -1) contains
+valid finger position data.
+    (c) Any active slots (tracking_id !=3D -1) between these does not
+contain valid finger position data, these 'hidden' slots are just
+active to indicate that there are that many fingers on the pad.
+    (d) Total number of fingers on the pad is always the number of acti=
+ve slots.
+  (2) When fingers are removed from the pad:
+    (a) keep reporting the fingers that are left in the same slots,
+with the same tracking_ids, if possible.
+    (b) If the identities of the fingers that remain is ambiguous,
+invalidate all slots,then re-assign the fingers that remain to new
+slots, with new tracking ids.
+  (3) Advertise this behavior with the T5R2 device property
 
-diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
-index 7faf155..4cfce82 100644
---- a/drivers/input/misc/kxtj9.c
-+++ b/drivers/input/misc/kxtj9.c
-@@ -131,17 +131,14 @@ static int kxtj9_update_g_range(struct
-kxtj9_data *tj9, u8 new_g_range)
- {
- 	switch (new_g_range) {
- 	case KXTJ9_G_2G:
--		tj9->shift =3D SHIFT_ADJ_2G;
-+		tj9->shift =3D 4;
- 		break;
--
- 	case KXTJ9_G_4G:
--		tj9->shift =3D SHIFT_ADJ_4G;
-+		tj9->shift =3D 3;
- 		break;
--
- 	case KXTJ9_G_8G:
--		tj9->shift =3D SHIFT_ADJ_8G;
-+		tj9->shift =3D 2;
- 		break;
--
- 	default:
- 		return -EINVAL;
- 	}
-@@ -181,13 +178,8 @@ static int kxtj9_update_odr(struct kxtj9_data
-*tj9, int poll_interval)
+(C) A third, compromise implementation might be to do something like th=
+is:
+  (1) When >=3D2 fingers are on the pad, report 2 MT-B slots, where:
+    (a) slot[0] reports finger 1
+    (b) slot[1] reports finger 2
+    (c) Total number of fingers on pad is indicated by EV_KEY/BTN_TOOL_=
+* is set.
+  (2) If 1 finger is removed, the tracking_id for its slot is invalidat=
+ed;
+      but, the finger that remains stays in its same slot with the
+same tracking_id.
+  (3) Whenever the number of fingers changes from/to 3 or more
+fingers, both slots are always invalidated.
+      New tracking_ids are assigned to both slots which contain the
+two fingers now being reported.
+  (4) No special driver property is required for this, not even "semi-m=
+t".
+      It should be as pure MT-B as we can get (plus BTN_TOOL_* hack).
 
- static int kxtj9_device_power_on(struct kxtj9_data *tj9)
- {
--	int err;
--
--	if (tj9->pdata.power_on) {
--		err =3D tj9->pdata.power_on();
--		if (err < 0)
--			return err;
--	}
-+	if (tj9->pdata.power_on)
-+		return tj9->pdata.power_on();
 
- 	return 0;
- }
-diff --git a/include/linux/input/kxtj9.h b/include/linux/input/kxtj9.h
-index cc5928b..2575205 100644
---- a/include/linux/input/kxtj9.h
-+++ b/include/linux/input/kxtj9.h
-@@ -22,11 +22,6 @@
+IMHO, (C) is an improvement over (A) for two major reasons:
+  (1) tracking the individual touches allows distinguishing a clicking
+finger in bottom right versus bottom left, for example.
+  (2) It makes it possible to track the touch that remains when one of
+the two touches is released.
+      The touch that remains will stay in the same slot, with the same
+tracking id.
+      The tracking id of the touch that is removed will be set to -1.
+        =3D> This eliminates unnecessary gaps in the event stream,
+without introducing position jumps.
+      This behavior occurs often when switching between 1-finger
+motion and 2f-scroll, or when performing 2f-click+drag gestures.
 
- #define KXTJ9_I2C_ADDR		0x0F
+Note: Tracking which fingers are left on the pad gets much more
+complicated with 3, 4, or 5 fingers.
+This is addressed more fully by the T5R2 solution, but (C), while
+slightly less optimal, should at least not do the wrong thing.
 
--/* These shift values are used to provide consistent output data */
--#define SHIFT_ADJ_2G		4
--#define SHIFT_ADJ_4G		3
--#define SHIFT_ADJ_8G		2
--
- #ifdef __KERNEL__
- struct kxtj9_platform_data {
- 	int poll_interval;	/* current poll interval (in milli-seconds) */
---=20
-1.5.4.3
+Sorry, I find it a bit difficult to explain this clearly in writing.
+I guess I'll just have to submit a new patchset that shows what I mean.
+
+
+>> A bare minimum patchset might do:
+>> =A0 =A0(1) Do true MT-B for two fingers
+>> =A0 =A0(2) Improved number-of-finger tracking for just the 2-finger =
+case.
+>> (Keep tracking finger 1 when finger 2 is removed, and vice versa)
 >
->>
->> --
->> Dmitry
->>
+> In what way is this different from 1)?
+>
+>> =A0 =A0(3) Properly parse, but don't use, AGM_CONTACT packets
+
+The image sensor AGM mode acts different than the profile sensor.  For
+the profile sensor, there is always one AGM for every SGM when 2 or
+more fingers are present.  With the image sensor, there may be more 1
+AGM per SGM if the number of fingers is changing - especially when
+there are more than 3 fingers present.  This is what I meant by
+properly parse these packets.  At least it is a form of documentation
+for the next poor guy who comes along and tries to figure out what in
+the world his trackpad is sending him.
+
+Thanks,
+-Daniel
+
+>
+> I am tempted to write something about Schr=F6dinger's cat here... ;-)
+>
+> Thanks,
+> Henrik
 >
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

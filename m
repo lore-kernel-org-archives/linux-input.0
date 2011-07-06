@@ -1,9 +1,8 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH 09/12] Input: synaptics - add image sensor support
-Date: Wed, 6 Jul 2011 13:00:57 -0700
-Message-ID: <20110706200056.GB6086@core.coreip.homeip.net>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
- <1309324042-22943-10-git-send-email-djkurtz@chromium.org>
+Date: Wed, 6 Jul 2011 22:20:49 +0200
+Message-ID: <20110706202049.GA4077@polaris.bitmath.org>
+References: <1309324042-22943-10-git-send-email-djkurtz@chromium.org>
  <20110704214220.GE23915@polaris.bitmath.org>
  <CAGS+omAzKe5frVYuV2MPXBTugKD1xNZCHsaz53H+tDO7EWw8xQ@mail.gmail.com>
  <20110705192759.GA29549@polaris.bitmath.org>
@@ -12,101 +11,60 @@ References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
  <20110706184759.GA3389@polaris.bitmath.org>
  <20110706185832.GA6086@core.coreip.homeip.net>
  <20110706193120.GA3884@polaris.bitmath.org>
+ <20110706200056.GB6086@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:41579 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755800Ab1GFUBD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 16:01:03 -0400
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:44850 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755529Ab1GFUSu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 16:18:50 -0400
 Content-Disposition: inline
-In-Reply-To: <20110706193120.GA3884@polaris.bitmath.org>
+In-Reply-To: <20110706200056.GB6086@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Daniel Kurtz <djkurtz@chromium.org>, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On Wed, Jul 06, 2011 at 09:31:20PM +0200, Henrik Rydberg wrote:
-> > > I believe there is a strong userspace assumption that BTN_TOOL_* has
-> > > no meaning for real MT devices. Rightfully so, IMO. Hence, I think
-> > > semi-mt needs to be used here as well.
+> This should be pretty straightforward:
+> 
+> 	num_fingers = calc_fingers_from_btn_tool(device); // via EVIOCGKEY
+> 	num_slots = get_number_of_slots(device); // EVIOCGABS
+> 	num_untracked_contacts = max(num_fingers - num_slots, 0);
+
+Heh, I forgot we _do_ know in advance how many fingers are supported
+via BTN_TOOL_*. Ok, no more issues.
+
+> > > Maybe we have different notions of what semi-MT property conveys? For me
+> > > semi-MT indicates that the device provides 2 coordinates for bounding
+> > > box.  However if semi-MT is not set does not mean that the device
+> > > provides true tracking for all contacts, but only for advertised slots.
+> > > There still may be additional data transmitted.
 > > 
-> > I think we need to adjust userspace to pay attention to BTN_TOOL_* for
-> > MT-B too so that if number of slots advertised does not match
-> > BTN_TOOL_* capabilities that means that the device does not privide
-> > tracking data for all contacts.
+> > Yes, it seems we do have different assumptions here. The more reason
+> > to document it further. :-)
 > 
-> Well, it is possible, but it is a great deal more complex than just
-> looking at what the slots contain. At least we should all be able to
-> agree that MT-B is sufficient for any "proper" MT device.
+> I'll take patches ;)
+
+And thou shalt receive them - some day ;-)
+
+> > To me, it seems we do need a little bit of extra information to
+> > determine this new type of device.
 > 
-> > Luckily this should be backward-compatible (i.e. older userspace will
-> > ignore "extended" fingercounts, newer will pay attention to it).
-> 
-> OTOH, letting semi-mt engulf all devices which requires the use of
-> BTN_TOOL_* for finger count makes it easier to differentiate between
-> various userspace support levels. "This app supports pure MT-B only",
-> etc.
+> I think we already have all we need (see above).
 
-Do app writers really want to exclude semi-MT devices even though they
-might be usable? I can see wanting to support only MT-B protocol (as opposed
-to chatty MT-A) but if semi-MT stream is usable why not use it?
+I concur. So, to conclude:
 
-> 
-> > > > This is the best option in my opinion. We will present 2 finger position
-> > > > data plus extended finger count.
-> > > 
-> > > We never did put all the details of the bounding box coordinates in
-> > > writing, so perhaps this is an opportunity to both fix that and extend
-> > > usability to the case so described. The only question is whether there
-> > > are applications out there which now assume min/max instead of contact
-> > > positions. If anyone knows, please speak up. :-) Otherwise, I am very
-> > > much for Daniel's case C, with Dmitry's modification.
-> > > 
-> > > In short: Use the semi-MT property, and send two suitable fingers
-> > > along with it.
-> > 
-> > Umm... but it is my understanding that 2 fingers will provide real
-> > tracking data, not bounding box, so why would we set semi-MT?
-> 
-> To indicate that a) the two positions may not represent true fingers
-> but a bounding box, and b) the contact count is determined by
-> BTN_TOOL_*.
-> 
-> True, there is no way to distinguish between the real-fingers and
-> bounding-box cases here
+a) The improved synaptics behavior can be achieved by simply using
+MT-B plus BTN_TOOL_*.
 
-And that is the problem.
+b) Userspace should check BTN_TOOL_* for any discrepancies between the
+maximum number of available slots (always two in this case) and the
+maximum number of fingers reported (BTN_TOOL_TRIPLETAP etc). Extra
+actions may then be taken to support more fingers than slots.
 
-> (that is why I suggested another binary value
-> in a previous mail), but without semi-mt, there is no way to know a
-> priori if special logic is needed for the number of fingers.
+c) The semi-mt flag is only used to signal that the two points sent
+via MT-B are the corners of a bounding box.
 
-This should be pretty straightforward:
-
-	num_fingers = calc_fingers_from_btn_tool(device); // via EVIOCGKEY
-	num_slots = get_number_of_slots(device); // EVIOCGABS
-	num_untracked_contacts = max(num_fingers - num_slots, 0);
-
-> 
-> > Maybe we have different notions of what semi-MT property conveys? For me
-> > semi-MT indicates that the device provides 2 coordinates for bounding
-> > box.  However if semi-MT is not set does not mean that the device
-> > provides true tracking for all contacts, but only for advertised slots.
-> > There still may be additional data transmitted.
-> 
-> Yes, it seems we do have different assumptions here. The more reason
-> to document it further. :-)
-
-I'll take patches ;)
-
-> 
-> To me, it seems we do need a little bit of extra information to
-> determine this new type of device.
-
-I think we already have all we need (see above).
-
-Thanks.
-
--- 
-Dmitry
+Cheers,
+Henrik

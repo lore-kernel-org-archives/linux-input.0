@@ -1,116 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 Subject: Re: [PATCH 09/12] Input: synaptics - add image sensor support
-Date: Wed, 6 Jul 2011 10:45:03 -0700
-Message-ID: <20110706174503.GA5695@core.coreip.homeip.net>
+Date: Wed, 6 Jul 2011 20:47:59 +0200
+Message-ID: <20110706184759.GA3389@polaris.bitmath.org>
 References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
  <1309324042-22943-10-git-send-email-djkurtz@chromium.org>
  <20110704214220.GE23915@polaris.bitmath.org>
  <CAGS+omAzKe5frVYuV2MPXBTugKD1xNZCHsaz53H+tDO7EWw8xQ@mail.gmail.com>
  <20110705192759.GA29549@polaris.bitmath.org>
  <CAGS+omDzg-xADYxKQmWy1KRhJ=n9pn9XR_HMc01xqCSDSLa5UA@mail.gmail.com>
+ <20110706174503.GA5695@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:35426 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753357Ab1GFRpM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 13:45:12 -0400
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:35238 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753770Ab1GFSqE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 14:46:04 -0400
 Content-Disposition: inline
-In-Reply-To: <CAGS+omDzg-xADYxKQmWy1KRhJ=n9pn9XR_HMc01xqCSDSLa5UA@mail.gmail.com>
+In-Reply-To: <20110706174503.GA5695@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On Thu, Jul 07, 2011 at 12:41:26AM +0800, Daniel Kurtz wrote:
-> On Wed, Jul 6, 2011 at 3:27 AM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
-> >> ...
-> >> This implementation addresses the following issues:
-> >>
-> >> =A0 (1) Improves handling of the 2-finger case. =A0Image sensors d=
-ue allow
-> >> true MT-B for two finger case. =A0This, for example, allows detect=
-ing
-> >> whether the click in a click+drag is happening in bottom right or
-> >> bottom left quadrant of the pad.
-> >
-> > In principle, this could be done within the semi-mt realm by adding=
- a
-> > binary value to the protocol, distinguishing the diagonals of the
-> > bounding box. It would be ugly too, but at least it would be
-> > compatible with the current semi-mt effort in userspace.
->=20
-> (A) I think the "semi-mt" protocol works like this:
->   (1) When two or more fingers are on the pad, report two MT-B slots,=
- where:
->     (a) slot[0] contains (x_min, y_min) of the two fingers
->     (b) slot[1] contains (x_max, y_max) of the two fingers
->     (c) Total number of fingers on pad is indicated by EV_KEY/BTN_TOO=
-L_* is set.
->   (2) If one of the two fingers is removed, then the first slot is
-> used to report
->       the remaining finger, whichever it is, without changing the
-> slot's tracking_id.
->   (3) Advertise this behavior with the SEMI_MT device property
->=20
-> (B) This is what the proposed T5R2 driver does:
->   (1) When N fingers are on the pad, report N MT-B slots, where:
->     (a) The lowest indexed active slot (tracking_id !=3D -1) contains
-> valid finger position data.
->     (b) The highest indexed active slot (tracking_id !=3D -1) contain=
-s
-> valid finger position data.
->     (c) Any active slots (tracking_id !=3D -1) between these does not
-> contain valid finger position data, these 'hidden' slots are just
-> active to indicate that there are that many fingers on the pad.
->     (d) Total number of fingers on the pad is always the number of ac=
-tive slots.
->   (2) When fingers are removed from the pad:
->     (a) keep reporting the fingers that are left in the same slots,
-> with the same tracking_ids, if possible.
->     (b) If the identities of the fingers that remain is ambiguous,
-> invalidate all slots,then re-assign the fingers that remain to new
-> slots, with new tracking ids.
->   (3) Advertise this behavior with the T5R2 device property
->=20
+> > (C) A third, compromise implementation might be to do something like this:
+> >   (1) When >=2 fingers are on the pad, report 2 MT-B slots, where:
+> >     (a) slot[0] reports finger 1
+> >     (b) slot[1] reports finger 2
+> >     (c) Total number of fingers on pad is indicated by EV_KEY/BTN_TOOL_* is set.
+> >   (2) If 1 finger is removed, the tracking_id for its slot is invalidated;
+> >       but, the finger that remains stays in its same slot with the
+> > same tracking_id.
+> >   (3) Whenever the number of fingers changes from/to 3 or more
+> > fingers, both slots are always invalidated.
+> >       New tracking_ids are assigned to both slots which contain the
+> > two fingers now being reported.
+> >   (4) No special driver property is required for this, not even "semi-mt".
+> >       It should be as pure MT-B as we can get (plus BTN_TOOL_* hack).
 
-This is a no-go. I do not want to add TxRy or similar "properties". We
-have a workable semi-mt (counding box) and full mt concepts and we
-should present userspace with data stream that conforms either one or
-another.
+I believe there is a strong userspace assumption that BTN_TOOL_* has
+no meaning for real MT devices. Rightfully so, IMO. Hence, I think
+semi-mt needs to be used here as well.
 
-> (C) A third, compromise implementation might be to do something like =
-this:
->   (1) When >=3D2 fingers are on the pad, report 2 MT-B slots, where:
->     (a) slot[0] reports finger 1
->     (b) slot[1] reports finger 2
->     (c) Total number of fingers on pad is indicated by EV_KEY/BTN_TOO=
-L_* is set.
->   (2) If 1 finger is removed, the tracking_id for its slot is invalid=
-ated;
->       but, the finger that remains stays in its same slot with the
-> same tracking_id.
->   (3) Whenever the number of fingers changes from/to 3 or more
-> fingers, both slots are always invalidated.
->       New tracking_ids are assigned to both slots which contain the
-> two fingers now being reported.
->   (4) No special driver property is required for this, not even "semi=
--mt".
->       It should be as pure MT-B as we can get (plus BTN_TOOL_* hack).
->=20
+> > 
+> 
+> This is the best option in my opinion. We will present 2 finger position
+> data plus extended finger count.
 
-This is the best option in my opinion. We will present 2 finger positio=
-n
-data plus extended finger count.
+We never did put all the details of the bounding box coordinates in
+writing, so perhaps this is an opportunity to both fix that and extend
+usability to the case so described. The only question is whether there
+are applications out there which now assume min/max instead of contact
+positions. If anyone knows, please speak up. :-) Otherwise, I am very
+much for Daniel's case C, with Dmitry's modification.
 
-Thanks.
+In short: Use the semi-MT property, and send two suitable fingers
+along with it.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Henrik

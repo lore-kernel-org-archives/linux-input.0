@@ -1,58 +1,44 @@
 From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH 3/3 v2] input : wacom - Cleanup a return value for the old Bamboo
-Date: Tue, 5 Jul 2011 21:34:08 -0500
-Message-ID: <CAGzDe_Ya8sFhr=h04vhtGqisbHKf7OFA+n=XVGuFo_tf2NVkWA@mail.gmail.com>
-References: <1309908360-18866-1-git-send-email-pinglinux@gmail.com>
+Subject: Re: [PATCH 0/3 v2] input : wacom - Split the 4/4 of a previous set
+Date: Tue, 5 Jul 2011 21:37:50 -0500
+Message-ID: <CAGzDe_YBzQQXCq=eiLtiP_SB2H0zEpnu7CaH_6QLJRbSBi=odg@mail.gmail.com>
+References: <1309908268-18755-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:33036 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:63756 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755655Ab1GFCeJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 22:34:09 -0400
-Received: by iwn6 with SMTP id 6so5714883iwn.19
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 19:34:09 -0700 (PDT)
-In-Reply-To: <1309908360-18866-1-git-send-email-pinglinux@gmail.com>
+	with ESMTP id S1751301Ab1GFChv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 22:37:51 -0400
+Received: by iwn6 with SMTP id 6so5716819iwn.19
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 19:37:51 -0700 (PDT)
+In-Reply-To: <1309908268-18755-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, Ping Cheng <pingc@wacom.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se
 
-On Tue, Jul 5, 2011 at 6:26 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> The old code may call input_sync without sending any other events.
-> Although the sync event will be ignored in the userland, eliminating
-> unnecessary kernel events is the right way to go.
+On Tue, Jul 5, 2011 at 6:24 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> Split the "Update Graphire and old Bamboo tablet buttons" into a set =
+of
+> 3 patches as suggested by Henrik.
+>
+> Dmitry, please apply the 3/4, "Remove BTN_TOOL_FINGER for pad", patch
+> before this set since they depend on that patch.
 
-Aligns the code block with previous case statement as well.
-
-Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+=46YI: After reviewing, these 3 patches appear to be bisectable... So
+its a merge issue only that it needs older 3/4.
 
 >
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
-> =A0drivers/input/tablet/wacom_wac.c | =A0 =A02 +-
-> =A01 files changed, 1 insertions(+), 1 deletions(-)
+> Ping Cheng (3):
+> =A0input : wacom - Add serial number for Graphire4 and old Bamboo
+> =A0input : wacom - Update Graphire4 and old Bamboo tablet buttons
+> =A0input : wacom - Cleanup a return value for the old Bamboo
 >
-> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
-wacom_wac.c
-> index 19554a4..03ebcc8 100644
-> --- a/drivers/input/tablet/wacom_wac.c
-> +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -300,8 +300,8 @@ static int wacom_graphire_irq(struct wacom_wac *w=
-acom)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0wacom-=
->id[1] =3D 0;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input=
-, ABS_MISC, wacom->id[1]);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_event(input, EV_=
-MSC, MSC_SERIAL, 0xf0);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D 1;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 retval =3D 1;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
-> =A0 =A0 =A0 =A0}
-> =A0exit:
+> =A0drivers/input/tablet/wacom_wac.c | =A0 22 ++++++++++------------
+> =A01 files changed, 10 insertions(+), 12 deletions(-)
+>
 > --
 > 1.7.5.4
 >

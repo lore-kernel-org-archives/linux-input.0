@@ -1,130 +1,120 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 01/12] Input: synaptics - cleanup 0x0c query documentation
-Date: Wed, 6 Jul 2011 21:50:34 +0800
-Message-ID: <CAGS+omBVKV0EvU2owK4rzxwJ25wEnnnAoJeA5do1V2rPr7wg-Q@mail.gmail.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org>
- <1309324042-22943-2-git-send-email-djkurtz@chromium.org> <4E134AF0.1090209@canonical.com>
+From: Christopher Hudson <chris.hudson.comp.eng@gmail.com>
+Subject: Re: [PATCH] input:Misc changes against kxtj9 v5 patch
+Date: Wed, 6 Jul 2011 11:42:57 -0400
+Message-ID: <CAB7Re7VPsfTebXj1xFNR3YpSpGGVn82OHjusGPTxMo-r23z6vA@mail.gmail.com>
+References: <1309895754-5441-1-git-send-email-chris.hudson.comp.eng@gmail.com>
+	<20110705200548.GB15876@core.coreip.homeip.net>
+	<CAB7Re7XDB6Rmckxidgr+90Br5LhYk_5Pi_JQXTLd9QS2V+Vm0A@mail.gmail.com>
+	<20110705203502.GC15876@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:31126 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751176Ab1GFNvB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 09:51:01 -0400
-Received: from wpaz24.hot.corp.google.com (wpaz24.hot.corp.google.com [172.24.198.88])
-	by smtp-out.google.com with ESMTP id p66Dp0uL010042
-	for <linux-input@vger.kernel.org>; Wed, 6 Jul 2011 06:51:00 -0700
-Received: from yie19 (yie19.prod.google.com [10.243.66.19])
-	by wpaz24.hot.corp.google.com with ESMTP id p66DoWrk016331
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Wed, 6 Jul 2011 06:50:59 -0700
-Received: by yie19 with SMTP id 19so3947339yie.39
-        for <linux-input@vger.kernel.org>; Wed, 06 Jul 2011 06:50:54 -0700 (PDT)
-In-Reply-To: <4E134AF0.1090209@canonical.com>
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:49266 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754345Ab1GFPm7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 11:42:59 -0400
+Received: by yia27 with SMTP id 27so27280yia.19
+        for <linux-input@vger.kernel.org>; Wed, 06 Jul 2011 08:42:59 -0700 (PDT)
+In-Reply-To: <20110705203502.GC15876@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, linux-input@vger.kernel.org
 
-Hi Chase,
+On Tue, Jul 5, 2011 at 4:35 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Jul 05, 2011 at 04:19:32PM -0400, Christopher Hudson wrote:
+>> On Tue, Jul 5, 2011 at 4:05 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Tue, Jul 05, 2011 at 03:55:54PM -0400, chris.hudson.comp.eng@gm=
+ail.com wrote:
+>> >> From: Chris Hudson <chudson@kionix.com>
+>> >>
+>> >> As requested, miscellaneous changes originally suggested by Jonat=
+han Cameron,
+>> >> patched against the original kxtj9 v5 patch.
+>> >>
+>> >> Signed-off-by: Chris Hudson <chudson@kionix.com>
+>> >> ---
+>> >> =A0drivers/input/misc/kxtj9.c =A0| =A0 38 +++++++++++++----------=
+---------------
+>> >> =A0include/linux/input/kxtj9.h | =A0 10 +---------
+>> >> =A02 files changed, 14 insertions(+), 34 deletions(-)
+>> >>
+>> >> diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj=
+9.c
+>> >> index 7faf155..b2da841 100644
+>> >> --- a/drivers/input/misc/kxtj9.c
+>> >> +++ b/drivers/input/misc/kxtj9.c
+>> >> @@ -71,6 +71,15 @@ static const struct {
+>> >> =A0 =A0 =A0 { 0, =A0 =A0ODR12_5F},
+>> >> =A0};
+>> >>
+>> >> +static const struct {
+>> >> + =A0 =A0 u8 g_range;
+>> >> + =A0 =A0 u8 shift;
+>> >> +} kxtj9_range[] =3D {
+>> >> + =A0 =A0 { 0, =A0 =A0 =A0 =A0 =A0 =A04 }, =A0 =A0/* +/-2g */
+>> >> + =A0 =A0 { (1 << 3), =A0 =A0 3 }, =A0 =A0/* +/-4g */
+>> >> + =A0 =A0 { (1 << 4), =A0 =A0 2 }, =A0 =A0/* +/-8g */
+>> >> +};
+>> >> +
+>> >> =A0struct kxtj9_data {
+>> >> =A0 =A0 =A0 struct i2c_client *client;
+>> >> =A0 =A0 =A0 struct kxtj9_platform_data pdata;
+>> >> @@ -129,25 +138,9 @@ static void kxtj9_report_acceleration_data(s=
+truct kxtj9_data *tj9)
+>> >>
+>> >> =A0static int kxtj9_update_g_range(struct kxtj9_data *tj9, u8 new=
+_g_range)
+>> >> =A0{
+>> >> - =A0 =A0 switch (new_g_range) {
+>> >> - =A0 =A0 case KXTJ9_G_2G:
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 tj9->shift =3D SHIFT_ADJ_2G;
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 break;
+>> >> -
+>> >> - =A0 =A0 case KXTJ9_G_4G:
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 tj9->shift =3D SHIFT_ADJ_4G;
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 break;
+>> >> -
+>> >> - =A0 =A0 case KXTJ9_G_8G:
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 tj9->shift =3D SHIFT_ADJ_8G;
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 break;
+>> >> -
+>> >> - =A0 =A0 default:
+>> >> - =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+>> >> - =A0 =A0 }
+>> >> -
+>> >> + =A0 =A0 tj9->shift =3D kxtj9_range[new_g_range].shift;
+>> >
+>> > This is not safe, you still need to sanitize input to make sure yo=
+u do
+>> > not go beyond array boundaries.
+>>
+>> Oops...would a simple
+>> if (new_g_range > 2)
+>> =A0 =A0 =A0 =A0 return -EINVAL;
+>> do the trick?
+>
+> Or "if (new_g_range >=3D ARRAY_SIZE(kxtj9_range)) ..."
+>
+> However, why do we use indices instead of values? I.e. why don't we
+> allow users to specify 2, 4 and 8 in platform data and use array to
+> validate the supplied value and return -EINVAL if this value is not
+> found?
 
-On Wed, Jul 6, 2011 at 1:33 AM, Chase Douglas
-<chase.douglas@canonical.com> wrote:
-> On 06/28/2011 10:07 PM, djkurtz@chromium.org wrote:
->> From: Daniel Kurtz <djkurtz@chromium.org>
->>
->> Convert some spaces to tabs.
->> Reorder defines to match bit ordering.
->> Add defines for all bits.
->>
->> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
->> ---
->> =A0drivers/input/mouse/synaptics.h | =A0 16 +++++++++++-----
->> =A01 files changed, 11 insertions(+), 5 deletions(-)
->>
->> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/s=
-ynaptics.h
->> index 7453938..34bedde 100644
->> --- a/drivers/input/mouse/synaptics.h
->> +++ b/drivers/input/mouse/synaptics.h
->> @@ -66,18 +66,24 @@
->> =A0 * 1 0x60 =A0 =A0multifinger mode =A0 =A0 =A0 =A0identifies firmw=
-are finger counting
->> =A0 * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 (not reporting!) algorithm.
->> =A0 * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 Not particularly meaningful
->> - * 1 0x80 =A0 =A0covered pad =A0 =A0 =A0 =A0 =A0 =A0 W clipped to 1=
-4, 15 =3D=3D pad mostly covered
->> - * 2 0x01 =A0 =A0clickpad bit 1 =A0 =A0 =A0 =A0 =A02-button ClickPa=
-d
->> - * 2 0x02 =A0 =A0deluxe LED controls =A0 =A0 touchpad support LED c=
-ommands
->> + * 1 0x80 =A0 =A0covered pad =A0 =A0 =A0 =A0 =A0 =A0 W clipped to 1=
-4, 15 =3D=3D pad mostly covered
->> + * 2 0x01 =A0 =A0clickpad bit 1 =A0 =A0 =A0 =A0 =A02-button ClickPa=
-d
->> + * 2 0x02 =A0 =A0deluxe LED controls =A0 =A0 touchpad support LED c=
-ommands
->> =A0 * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 ala multimedia control bar
->> =A0 * 2 0x04 =A0 =A0reduced filtering =A0 =A0 =A0 firmware does less=
- filtering on
->> =A0 * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 position data, driver should watch
->> =A0 * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 for noise.
->> =A0 */
->> -#define SYN_CAP_CLICKPAD(ex0c) =A0 =A0 =A0 =A0 =A0 =A0 =A0 ((ex0c) =
-& 0x100000) /* 1-button ClickPad */
->> -#define SYN_CAP_CLICKPAD2BTN(ex0c) =A0 ((ex0c) & 0x000100) /* 2-but=
-ton ClickPad */
->> +#define SYN_CAP_ADJ_THRESHOLD(ex0c) =A0((ex0c) & 0x010000)
->> =A0#define SYN_CAP_MAX_DIMENSIONS(ex0c) ((ex0c) & 0x020000)
->> +#define SYN_CAP_CLEARPAD(ex0c) =A0 =A0 =A0 =A0 =A0 =A0 =A0 ((ex0c) =
-& 0x040000)
->> =A0#define SYN_CAP_ADV_GESTURE(ex0c) =A0 =A0((ex0c) & 0x080000)
->> +#define SYN_CAP_CLICKPAD(ex0c) =A0 =A0 =A0 =A0 =A0 =A0 =A0 ((ex0c) =
-& 0x100000) /* 1-button ClickPad */
->> +#define SYN_CAP_MULTIFINGER_MODE(ex0c) =A0 =A0 =A0 ((ex0c) & 0x6000=
-00)
->> +#define SYN_CAP_COVERED_PAD(ex0c) =A0 =A0((ex0c) & 0x800000)
->> +#define SYN_CAP_CLICKPAD2BTN(ex0c) =A0 ((ex0c) & 0x000100) /* 2-but=
-ton ClickPad */
->> +#define SYN_CAP_DELUXE_LED(ex0c) =A0 =A0 ((ex0c) & 0x000200)
->> +#define SYN_CAP_REDUCED_FILTERING(ex0c) =A0 =A0 =A0((ex0c) & 0x0004=
-00)
->>
->> =A0/* synaptics modes query bits */
->> =A0#define SYN_MODE_ABSOLUTE(m) =A0 =A0 =A0 =A0 ((m) & (1 << 7))
->
-> I may not be the most knowledgeable developer on Synaptics, but I thi=
-nk
-> I'm somewhat knowledgeable and I can't figure out what each of the
-> bitmasks does now. Since we now have many of them defined, could you =
-add
-> documentation about what each means? For example, I don't know if
-> SYN_CAP_CLICKPAD is set in conjunction with SYN_CAP_CLICKPAD2BTN, or =
-if
-> they are mutually exclusive. I also don't know what SYN_CAP_CLICKPAD2=
-BTN
-> means anyways :).
-
-Me neither.  All this patch does is convert some spaces to tabs, and
-reorder the defines so that their order matches that of the
-descriptions.  The descriptions are what Dmitry added in a previous
-commit.
+Before we were allowing the user to specify KXTJ9_G_2G, etc, which
+were bitmasks that represented each available g-range.  I think
+Jonathan's intent was to optimize/clean up the update_g_range
+function, but I just couldn't figure out the most efficient way to do
+this.  It seems that just replacing the globally defined shift
+variables with their numerical counterparts within the update_g_range
+function probably gives us the best combination of efficiency and
+ease-of-use.
 
 >
-> I'm curious, are you basing this work on documentation or
-> reverse-engineering? Maybe you can't say :). It would be awesome if
-> someone at Synaptics would just release the documentation for these
-> advanced features already...
->
-> Thanks!
->
-> -- Chase
+> --
+> Dmitry
 >
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

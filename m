@@ -1,55 +1,74 @@
-From: Nathan Royer <nroyer@invensense.com>
-Subject: RE: [PATCH 01/11] misc: inv_mpu primary header file and README file.
-Date: Tue, 5 Jul 2011 18:49:47 -0700
-Message-ID: <c2189246a279a0e5a1b8599edc94a79a@mail.gmail.com>
-References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-	<4E0D8E94.5030604@cam.ac.uk>	<4d61a92a11e5d83a1cb0094441ae5f5e@mail.gmail.com>
-	<4E105284.7030209@cam.ac.uk> <20110704091658.0d4c8e3f@bob.linux.org.uk>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 1/3 v2] input : wacom - Add serial number for Graphire4
+ and old Bamboo
+Date: Tue, 5 Jul 2011 21:15:41 -0500
+Message-ID: <CAGzDe_ZoXYkRzLPwzeMd4Vkt4H7tbzS=ga7yerxCH3nU27ouNA@mail.gmail.com>
+References: <1309908304-18792-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog126.obsmtp.com ([74.125.149.155]:46439 "HELO
-	na3sys009aog126.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753326Ab1GFBtt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Jul 2011 21:49:49 -0400
-In-Reply-To: <20110704091658.0d4c8e3f@bob.linux.org.uk>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:60893 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755620Ab1GFCPl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2011 22:15:41 -0400
+Received: by iyb12 with SMTP id 12so5715922iyb.19
+        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2011 19:15:41 -0700 (PDT)
+In-Reply-To: <1309908304-18792-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Hudson <chudson@kionix.com>, eric.andersson@unixphere.com, eric.miao@linaro.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, Ping Cheng <pingc@wacom.com>
 
-> > > accel/bma150.c
-> > An input driver exists for that one. (cc'd Eric)
+On Tue, Jul 5, 2011 at 6:25 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> With the removal of BTN_TOOL_FINGER for tablet buttons and
+> expresskeys, serial number is needed to distingush if the
+> events were from a regular tool (stylus, eraser, or mouse)
+> or the attribures (buttons, strips, or wheels) on the tablet
+> since there are overlapped events between the tools and the
+> tablet attributes.
 >
-> [Two input drivers - bma023 which I posted covers it too ;)]
->
-> > > # sensors - compass
-> > > compass/ak8975.c
->
-> We have a driver for this (I posted a while back)
->
-> > > compass/ak8972.c
->
-> > > compass/ami30x.c
->
-> AMI304 is identical to the AK8974 which we already have - Gram Hsieh
-> posted patches for this a while ago
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-It seems that some sensors are in input and but that most are in iio.
-Obviously I don't want to dissent with both and put ours in misc, so how
-do we make this better?  Should we work on cleaning this up.  If so should
-we start moving the drivers that are in input to iio.
+This patch I believe will even work in isolation of others in series
+and will fix some pad button issues reported by various graphire
+users.
 
-If this is the right thing to do, I could start working on merging the
-current mpu3050 input interface and our misc interface to the iio
-interface.  I'm still trying to wrap my head around the iio framework, but
-I think one of the things I need is a uinput like interface for iio
-(perhaps it exists, I just haven't figured it out yet).  If the DMP is
-used, a buffer for the FIFO data would be created, and user space would be
-responsible to push the sensor data back to iio after sensor fusion and
-calibration.  Without the DMP, each sensor driver would act independently
-providing their own raw data.
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
 
-We still need a way to read and write registers and DMP memory during
-runtime from user space.
+> ---
+> =A0drivers/input/tablet/wacom_wac.c | =A0 =A01 +
+> =A01 files changed, 1 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/=
+wacom_wac.c
+> index 7ce1294..b93501a 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -265,6 +265,7 @@ static int wacom_graphire_irq(struct wacom_wac *w=
+acom)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0wacom->id[0] =3D 0;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_MISC, waco=
+m->id[0]); /* report tool id */
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input, wacom->tool[0]=
+, prox);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_event(input, EV_MSC, MSC_SERIAL, =
+1);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_sync(input); /* sync last event =
+*/
+> =A0 =A0 =A0 =A0}
+>
+> --
+> 1.7.5.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

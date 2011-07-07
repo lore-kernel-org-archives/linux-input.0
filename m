@@ -1,68 +1,589 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 01/11] misc: inv_mpu primary header file and README
- file.
-Date: Thu, 7 Jul 2011 08:40:26 +0100
-Message-ID: <20110707084026.4562ab94@lxorguk.ukuu.org.uk>
-References: <1309486707-1658-1-git-send-email-nroyer@invensense.com>
-	<4E0D8E94.5030604@cam.ac.uk>
-	<4d61a92a11e5d83a1cb0094441ae5f5e@mail.gmail.com>
-	<4E105284.7030209@cam.ac.uk>
-	<20110704091658.0d4c8e3f@bob.linux.org.uk>
-	<c2189246a279a0e5a1b8599edc94a79a@mail.gmail.com>
-	<20110706115430.3745592c@bob.linux.org.uk>
-	<592dafb95382604bd514687f7600cebd@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: add support for TI Touchscreen controller.
+Date: Thu, 7 Jul 2011 07:37:03 -0700
+Message-ID: <20110707143703.GI7658@core.coreip.homeip.net>
+References: <1309956213-27477-1-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:49988 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751284Ab1GGHir convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2011 03:38:47 -0400
-In-Reply-To: <592dafb95382604bd514687f7600cebd@mail.gmail.com>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:43942 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756515Ab1GGOhK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2011 10:37:10 -0400
+Received: by iyb12 with SMTP id 12so914483iyb.19
+        for <linux-input@vger.kernel.org>; Thu, 07 Jul 2011 07:37:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1309956213-27477-1-git-send-email-rachna@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nathan Royer <nroyer@invensense.com>
-Cc: Alan Cox <alan@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Hudson <chudson@kionix.com>, eric.andersson@unixphere.com
+To: "Patil, Rachna" <rachna@ti.com>
+Cc: linux-input@vger.kernel.org
 
-> If I understand you correctly, you are suggesting that we create two
-> drivers for the mpu3050 part.  An MPU (Motion Processing Unit) driver=
- and
-> a standalone Gyroscope driver.  The MPU if present would turn each se=
-nsor
-> (accel, compass, gyro, pressure) into an MPU slave, load and configur=
-e the
-> firmware, and provide a user space interface for customization and ru=
-ntime
-> communication with the Hideously Complicated Algorithms (HCA's).
+Hi Patil,
 
-Its hard to judge with what has been explained so far but the device
-appears to be very different in the two operating modes so it might mak=
-e
-sense to have it as two drivers (or one driver with two very distinct
-modes)
+On Wed, Jul 06, 2011 at 06:13:33PM +0530, Patil, Rachna wrote:
+> This patch adds support for TI's touchscreen
+> controller for a 4/5/8 wire resistive panel
+> that is directly fed to the ADC.
+> 
+> This touchscreen controller will be part of
+> an upcoming TI SoC and has been tested on
+> an emulation platform.
+> 
+> Signed-off-by: Patil, Rachna <rachna@ti.com>
 
-> Each sensor driver would have two operating modes, standalone, and sl=
-ave
-> to the MPU trying to re-use as much code as possible.  Current driver=
-s
-> that have a standalone interface would need the slave interface added=
-, and
-> those that we've written would need the stand alone interface added.
+Looks mostly good, please find a few comments below.
 
-Can the slave interface appears to be an i=B2c bus too or is the interf=
-ace
-too different (ie could the smart mode create an i=B2c bus that it uses=
- to
-talk to the drivers to configure them for 'smart' mode)
+> ---
+>  drivers/input/touchscreen/Kconfig     |   11 +
+>  drivers/input/touchscreen/Makefile    |    1 +
+>  drivers/input/touchscreen/ti_tscadc.c |  417 +++++++++++++++++++++++++++++++++
+>  include/linux/input/ti_tsc.h          |    7 +
 
-I'm not entirely sure at this point I understand quite how all the piec=
-es
-fit together.
+Maybe we should call it ti_tscadc.h to match the .c file?
 
-Alan
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  4 files changed, 436 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/ti_tscadc.c
+>  create mode 100644 include/linux/input/ti_tsc.h
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 44589f5..9d5d3ba 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -704,4 +704,15 @@ config TOUCHSCREEN_TPS6507X
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called tps6507x_ts.
+>  
+> +config TOUCHSCREEN_TI_TSCADC
+> +	tristate "TI Touchscreen Interface"
+> +	help
+> +	  Say Y here if you have 4/5/8 wire touchscreen controller
+> +	  to be connected to the ADC controller on your TI SoC.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called ti_tscadc.
+> +
+>  endif
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 51b08b0..82d3098 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -58,3 +58,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
+>  obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
+>  obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_TI_TSCADC)	+= ti_tscadc.o
+
+Please try keeping Kconfig and Makefile sorted alphabetically.
+
+> diff --git a/drivers/input/touchscreen/ti_tscadc.c b/drivers/input/touchscreen/ti_tscadc.c
+> new file mode 100644
+> index 0000000..0308f71
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/ti_tscadc.c
+> @@ -0,0 +1,417 @@
+> +/*
+> + * TI Touch Screen driver
+> + *
+> + * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation version 2.
+> + *
+> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+> + * kind, whether express or implied; without even the implied warranty
+> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/err.h>
+> +#include <linux/module.h>
+> +#include <linux/input.h>
+> +#include <linux/slab.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/clk.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/io.h>
+> +#include <linux/input/ti_tsc.h>
+> +
+> +#define TSCADC_REG_IRQEOI		0x020
+> +#define TSCADC_REG_IRQSTATUS		0x028
+> +#define TSCADC_REG_IRQENABLE		0x02C
+> +#define TSCADC_REG_IRQWAKEUP		0x034
+> +#define TSCADC_REG_CTRL			0x040
+> +#define TSCADC_REG_ADCFSM		0x044
+> +#define TSCADC_REG_CLKDIV		0x04C
+> +#define TSCADC_REG_SE			0x054
+> +#define TSCADC_REG_IDLECONFIG		0x058
+> +#define TSCADC_REG_CHARGECONFIG		0x05C
+> +#define TSCADC_REG_STEPCONFIG1		0x064
+> +#define TSCADC_REG_STEPDELAY1		0x068
+> +#define TSCADC_REG_STEPCONFIG2		0x06C
+> +#define TSCADC_REG_STEPDELAY2		0x070
+> +#define TSCADC_REG_FIFO0		0x100
+> +
+> +/*	Register Bitfields	*/
+> +#define TSCADC_IRQWKUP_ENB		BIT(0)
+> +#define TSCADC_STPENB_STEPENB		(7 << 0)
+> +#define TSCADC_IRQENB_IRQHWPEN		BIT(10)
+> +#define TSCADC_IRQENB_IRQEOS		BIT(1)
+> +#define TSCADC_IRQENB_FIFO_OVERFLOW	BIT(3)
+> +#define TSCADC_IRQENB_PENUP		BIT(9)
+> +#define TSCADC_STEPCONFIG_MODE_HWSYNC	0x3
+> +#define TSCADC_STEPCONFIG_2SAMPLES_AVG	BIT(2)
+> +#define TSCADC_STEPCONFIG_XPP		BIT(5)
+> +#define TSCADC_STEPCONFIG_XNN		BIT(6)
+> +#define TSCADC_STEPCONFIG_YPP		BIT(7)
+> +#define TSCADC_STEPCONFIG_YNN		BIT(8)
+> +#define TSCADC_STEPCONFIG_XNP		BIT(9)
+> +#define TSCADC_STEPCONFIG_YPN		BIT(10)
+> +#define TSCADC_STEPCONFIG_RFP_X		(1 << 12)
+> +#define TSCADC_STEPCONFIG_RFP_4_Y	(1 << 13)
+> +#define TSCADC_STEPCONFIG_RFP_5_Y	(1 << 12)
+> +#define TSCADC_STEPCONFIG_RFP_8_Y	(1 << 13)
+> +#define TSCADC_STEPCONFIG_INM		(1 << 18)
+> +#define TSCADC_STEPCONFIG_INP_4		(1 << 20)
+> +#define TSCADC_STEPCONFIG_INP_5		(1 << 21)
+> +#define TSCADC_STEPCONFIG_INP_8_X	(3 << 20)
+> +#define TSCADC_STEPCONFIG_INP_8_Y	(1 << 21)
+> +#define TSCADC_STEPCONFIG_RFM_4_X	(1 << 23)
+> +#define TSCADC_STEPCONFIG_RFM_5_X	(1 << 24)
+> +#define TSCADC_STEPCONFIG_RFM_8_X	(1 << 23)
+> +#define TSCADC_STEPCONFIG_RFM_Y		(1 << 24)
+> +#define TSCADC_STEPCONFIG_OPENDLY	(0xf << 0)
+> +#define TSCADC_STEPCONFIG_SAMPLEDLY	BIT(25)
+> +#define TSCADC_STEPCHARGE_INM		BIT(18)
+> +#define TSCADC_STEPCHARGE_RFM		(3 << 23)
+> +#define TSCADC_CNTRLREG_TSCSSENB	BIT(0)
+> +#define TSCADC_CNTRLREG_STEPID		BIT(1)
+> +#define TSCADC_CNTRLREG_STEPCONFIGWRT	BIT(2)
+> +#define TSCADC_CNTRLREG_TSCENB		BIT(7)
+> +#define TSCADC_CNTRLREG_4WIRE		(0x1 << 5)
+> +#define TSCADC_CNTRLREG_5WIRE		(0x1 << 6)
+> +#define TSCADC_CNTRLREG_8WIRE		(0x3 << 5)
+> +#define TSCADC_ADCFSM_STEPID		0x10
+> +#define TSCADC_ADCFSM_FSM		BIT(5)
+> +
+> +#define ADC_CLK				3000000
+> +
+> +#define MAX_12BIT                       ((1 << 12) - 1)
+> +
+> +struct tscadc {
+> +	struct input_dev	*input;
+> +	int			wires;
+> +	struct clk		*clk;
+> +	int			irq;
+> +	void __iomem		*tsc_base;
+> +};
+> +
+> +static inline unsigned int tscadc_readl(struct tscadc *ts, unsigned int reg)
+
+Drop the 'inline', let compiler figure out what needs to be inlined.
+
+> +{
+> +	return readl(ts->tsc_base + reg);
+> +}
+> +
+> +static inline void tscadc_writel(struct tscadc *tsc, unsigned int reg,
+> +					unsigned int val)
+> +{
+> +	writel(val, tsc->tsc_base + reg);
+> +}
+> +
+> +void tsc_idle_config(struct tscadc *ts_config)
+
+Should be static.
+
+> +{
+> +	/* Idle mode touch screen config */
+> +	unsigned int	 idleconfig;
+> +
+> +	idleconfig = TSCADC_STEPCONFIG_YNN |
+> +				TSCADC_STEPCONFIG_RFP_X |
+> +				TSCADC_STEPCONFIG_INM ;
+> +
+> +	if (ts_config->wires == 4) {
+
+	switch (ts_config->wires) {
+	case 4:
+		...
+	}
+
+> +		idleconfig |= TSCADC_STEPCONFIG_INP_4 |
+> +				TSCADC_STEPCONFIG_RFM_4_X;
+> +
+> +	} else if (ts_config->wires == 5) {
+> +		idleconfig |= TSCADC_STEPCONFIG_INP_5 |
+> +				TSCADC_STEPCONFIG_RFM_5_X;
+> +
+> +	} else {
+> +		idleconfig |= TSCADC_STEPCONFIG_INP_4 |
+> +				TSCADC_STEPCONFIG_RFM_8_X;
+> +	}
+> +	tscadc_writel(ts_config, TSCADC_REG_IDLECONFIG, idleconfig);
+> +}
+> +
+> +static irqreturn_t tscadc_interrupt(int irq, void *dev)
+> +{
+> +	struct tscadc		*ts_dev = (struct tscadc *)dev;
+> +	struct input_dev	*input_dev = ts_dev->input;
+> +	unsigned int		status, store, cntrlreg, irqclr = 0;
+> +	int			absx, absy;
+> +	int			charge, fsm;
+> +
+> +	status = tscadc_readl(ts_dev, TSCADC_REG_IRQSTATUS);
+> +	tscadc_writel(ts_dev, TSCADC_REG_SE, 0x0);
+> +
+> +	/* Pen touch event */
+> +	if (status & TSCADC_IRQENB_IRQHWPEN)
+> +		irqclr = status & TSCADC_IRQENB_IRQHWPEN;
+> +
+> +	if (status & TSCADC_IRQENB_PENUP) {
+> +		/* Pen up event */
+> +		charge = TSCADC_STEPCHARGE_INM | TSCADC_STEPCHARGE_RFM;
+> +		tscadc_writel(ts_dev, TSCADC_REG_CHARGECONFIG, charge);
+> +		input_report_key(input_dev, BTN_TOUCH, 0);
+
+		input_sync(input_dev);
+
+> +		tsc_idle_config(ts_dev);
+> +		irqclr |= status & TSCADC_IRQENB_PENUP;
+
+You already know that TSCADC_IRQENB_PENUP in status is set, so can do
+
+	irqclr |= TSCADC_IRQENB_PENUP;
+
+But you do it several times. If you define a bitmask mask you can do
+
+	irqclr = status & TSCADC_IRQENB_MASK;
+
+once before writing it back to the device.
+
+> +
+> +	}
+> +	if (status & TSCADC_IRQENB_IRQEOS) {
+> +		/* ADC is done with sampling, ready to read the data */
+> +		absx = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
+> +		absy = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
+> +
+> +		input_report_abs(input_dev, ABS_X, absx);
+> +		input_report_abs(input_dev, ABS_Y, absy);
+> +		input_report_key(input_dev, BTN_TOUCH, 1);
+
+		input_sync(input_dev);
+
+> +
+> +		irqclr |= status & TSCADC_IRQENB_IRQEOS;
+> +
+> +	}
+> +	if (status & TSCADC_IRQENB_FIFO_OVERFLOW) {
+> +		/* FIFO overflow condition */
+> +		cntrlreg = tscadc_readl(ts_dev, TSCADC_REG_CTRL);
+> +		cntrlreg &= ~TSCADC_CNTRLREG_TSCSSENB;
+> +		tscadc_writel(ts_dev, TSCADC_REG_CTRL, cntrlreg);
+> +
+> +		irqclr |= status & TSCADC_IRQENB_FIFO_OVERFLOW;
+> +	}
+> +
+> +	tscadc_writel(ts_dev, TSCADC_REG_IRQSTATUS, irqclr);
+> +	fsm = tscadc_readl(ts_dev, TSCADC_REG_ADCFSM);
+> +	if ((fsm & TSCADC_ADCFSM_FSM) &&
+> +			(fsm & TSCADC_ADCFSM_STEPID)) {
+> +		store = tscadc_readl(ts_dev, TSCADC_REG_CTRL);
+> +		store |= TSCADC_CNTRLREG_TSCSSENB;
+> +		tscadc_writel(ts_dev, TSCADC_REG_CTRL, store);
+> +	}
+> +
+> +	 /* check pending interrupts */
+> +	tscadc_writel(ts_dev, TSCADC_REG_IRQEOI, 0x0);
+> +
+> +	tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +/*
+> +* The functions for inserting/removing driver as a module.
+> +*/
+> +
+> +static	int __devinit tscadc_probe(struct platform_device *pdev)
+> +{
+> +	struct tscadc			*ts_dev;
+> +	struct input_dev		*input_dev;
+> +	int				err;
+> +	int				clk_value;
+> +	int				clock_rate, ctrl, irqenable;
+> +	struct	tsc_data		*pdata = pdev->dev.platform_data;
+> +	struct resource			*res;
+> +	int				stepconfig1, stepconfig2, delay;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "no memory resource defined.\n");
+> +		return -ENXIO;
+
+-EINVAL? We do expect the device to be set up properly.
+
+> +	}
+> +
+> +	/* Allocate memory for device */
+> +	ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
+> +	if (!ts_dev) {
+> +		dev_err(&pdev->dev, "failed to allocate memory.\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	input_dev = input_allocate_device();
+> +	if (!input_dev) {
+> +		dev_err(&pdev->dev, "failed to allocate input device.\n");
+> +		err = -EBUSY;
+
+-ENOMEM instead of -EBUSY.
+
+> +		goto err_free_mem;
+> +	}
+> +	ts_dev->input = input_dev;
+> +
+> +	ts_dev->irq = platform_get_irq(pdev, 0);
+> +	if (ts_dev->irq < 0) {
+> +		dev_err(&pdev->dev, "no irq ID is specified.\n");
+
+Why don't you check if you have IRQ before allocating memory, like you
+did with the IO?
+
+> +		err = -ENODEV;
+
+Probably should be -EINVAL.
+
+> +		goto err_free_dev;
+> +	}
+> +
+> +	ts_dev->tsc_base = ioremap(res->start, resource_size(res));
+> +	if (!(ts_dev->tsc_base)) {
+
+Drop extra parens.
+
+> +		dev_err(&pdev->dev, "failed to map registers.\n");
+> +		err = -ENOMEM;
+> +		goto err_release_mem;
+> +	}
+> +
+> +	err = request_irq(ts_dev->irq, tscadc_interrupt, IRQF_DISABLED,
+> +	pdev->dev.driver->name, ts_dev);
+
+Please indent this line more.
+
+> +	if (err) {
+> +		dev_err(&pdev->dev, "failed to allocate irq.\n");
+> +		goto err_unmap_regs;
+> +	}
+> +
+> +	ts_dev->clk = clk_get(&pdev->dev, "tsc_clk");
+> +	if (IS_ERR(ts_dev->clk)) {
+> +		dev_err(&pdev->dev, "failed to get ts_clk\n");
+> +		err = PTR_ERR(ts_dev->clk);
+> +		goto err_free_irq;
+> +	}
+> +	clk_enable(ts_dev->clk);
+> +
+> +	clock_rate = clk_get_rate(ts_dev->clk);
+> +	clk_value = clock_rate / ADC_CLK;
+> +	if (clk_value < 7) {
+> +		dev_err(&pdev->dev, "clock input less than min clock requirement\n");
+> +		goto err_fail;
+> +	}
+> +	/* TSCADC_CLKDIV needs to be configured to the value minus 1 */
+> +	clk_value = clk_value - 1;
+> +	tscadc_writel(ts_dev, TSCADC_REG_CLKDIV, clk_value);
+> +
+> +	 /* Enable wake-up of the SoC using touchscreen */
+> +	tscadc_writel(ts_dev, TSCADC_REG_IRQWAKEUP, TSCADC_IRQWKUP_ENB);
+> +
+> +	ts_dev->wires = pdata->wires;
+> +
+> +	/* Set the control register bits */
+> +	ctrl = TSCADC_CNTRLREG_STEPCONFIGWRT |
+> +			TSCADC_CNTRLREG_TSCENB |
+> +			TSCADC_CNTRLREG_STEPID;
+> +	if (ts_dev->wires == 4)
+
+	switch()
+
+> +		ctrl |= TSCADC_CNTRLREG_4WIRE;
+> +	else if (ts_dev->wires == 5)
+> +		ctrl |= TSCADC_CNTRLREG_5WIRE;
+> +	else
+> +		ctrl |= TSCADC_CNTRLREG_8WIRE;
+> +	tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
+> +	tscadc_readl(ts_dev, TSCADC_REG_CTRL);
+> +
+> +	/* Set register bits for Idel Config Mode */
+> +	tsc_idle_config(ts_dev);
+> +
+> +	/* IRQ Enable */
+> +	irqenable = TSCADC_IRQENB_IRQHWPEN |
+> +			TSCADC_IRQENB_IRQEOS |
+> +			TSCADC_IRQENB_PENUP | TSCADC_IRQENB_FIFO_OVERFLOW;
+> +	tscadc_writel(ts_dev, TSCADC_REG_IRQENABLE, irqenable);
+> +	tscadc_readl(ts_dev, TSCADC_REG_IRQENABLE);
+> +
+> +	/* Configure the Step registers */
+> +	stepconfig1 = TSCADC_STEPCONFIG_MODE_HWSYNC |
+> +			TSCADC_STEPCONFIG_2SAMPLES_AVG | TSCADC_STEPCONFIG_XPP |
+> +			TSCADC_STEPCONFIG_XNN | TSCADC_STEPCONFIG_INM |
+> +			TSCADC_STEPCONFIG_RFP_X;
+> +
+> +	stepconfig2 = TSCADC_STEPCONFIG_MODE_HWSYNC |
+> +			TSCADC_STEPCONFIG_2SAMPLES_AVG | TSCADC_STEPCONFIG_YNN |
+> +			TSCADC_STEPCONFIG_INM | TSCADC_STEPCONFIG_RFM_Y;
+> +	if (ts_dev->wires == 4) {
+
+	switch().
+
+> +		stepconfig1 |= TSCADC_STEPCONFIG_INP_4 |
+> +					TSCADC_STEPCONFIG_RFM_4_X;
+> +
+> +		stepconfig2 |= TSCADC_STEPCONFIG_YPP |
+> +					TSCADC_STEPCONFIG_RFP_4_Y;
+> +
+> +	} else if (ts_dev->wires == 5) {
+> +		stepconfig1 |= TSCADC_STEPCONFIG_YPP |
+> +				TSCADC_STEPCONFIG_YNN |
+> +				TSCADC_STEPCONFIG_INP_5 |
+> +				TSCADC_STEPCONFIG_RFM_5_X;
+> +
+> +		stepconfig2 |= TSCADC_STEPCONFIG_XPP |
+> +				TSCADC_STEPCONFIG_XNP |
+> +				TSCADC_STEPCONFIG_YPN |
+> +				TSCADC_STEPCONFIG_RFP_5_Y |
+> +				TSCADC_STEPCONFIG_INP_5;
+> +	} else{
+> +		stepconfig1 |= TSCADC_STEPCONFIG_INP_8_X |
+> +				TSCADC_STEPCONFIG_RFM_8_X;
+> +
+> +		stepconfig2 |= TSCADC_STEPCONFIG_YPP |
+> +				TSCADC_STEPCONFIG_RFP_8_Y |
+> +				TSCADC_STEPCONFIG_INP_8_Y;
+> +	}
+> +	delay = TSCADC_STEPCONFIG_OPENDLY | TSCADC_STEPCONFIG_SAMPLEDLY;
+> +
+> +	tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG1, stepconfig1);
+> +	tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY1, delay);
+> +	tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG2, stepconfig2);
+> +	tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY2, delay);
+> +
+> +	tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB);
+> +
+> +	ctrl |= TSCADC_CNTRLREG_TSCSSENB;
+> +	tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
+> +
+
+This chip programming could be split into a separate function.
+
+> +	input_dev->name = "ti-tsc-adcc";
+> +	input_dev->dev.parent = &pdev->dev;
+
+	input_dev->id.bustype = BUS_HOST?
+
+> +
+> +	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +
+> +	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+> +
+> +	/* register to the input system */
+> +	err = input_register_device(input_dev);
+> +	if (err)
+> +		goto err_fail;
+> +
+> +	return 0;
+> +
+> +err_fail:
+> +	clk_disable(ts_dev->clk);
+> +	clk_put(ts_dev->clk);
+> +err_free_irq:
+> +	free_irq(ts_dev->irq, ts_dev);
+> +err_unmap_regs:
+> +	iounmap(ts_dev->tsc_base);
+> +err_release_mem:
+> +	release_mem_region(res->start, resource_size(res));
+> +err_free_dev:
+> +	input_free_device(ts_dev->input);
+> +err_free_mem:
+> +	kfree(ts_dev);
+> +	return err;
+> +}
+> +
+> +static int __devexit tscadc_remove(struct platform_device *pdev)
+> +{
+> +	struct tscadc		*ts_dev = dev_get_drvdata(&pdev->dev);
+> +	struct resource		*res;
+> +
+> +	free_irq(ts_dev->irq, ts_dev);
+> +
+> +	input_unregister_device(ts_dev->input);
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	iounmap(ts_dev->tsc_base);
+> +	release_mem_region(res->start, resource_size(res));
+> +
+> +	clk_disable(ts_dev->clk);
+> +	clk_put(ts_dev->clk);
+> +
+> +	kfree(ts_dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver ti_tsc_driver = {
+> +	.probe	  = tscadc_probe,
+> +	.remove	 = __devexit_p(tscadc_remove),
+> +	.driver	 = {
+> +		.name   = "tsc",
+
+		.owner = THIS_MODULE;
+
+No power management needed?
+
+> +	},
+> +};
+> +
+> +static int __init ti_tsc_init(void)
+> +{
+> +	return platform_driver_register(&ti_tsc_driver);
+> +}
+> +
+> +static void __exit ti_tsc_exit(void)
+> +{
+> +	platform_driver_unregister(&ti_tsc_driver);
+> +}
+> +
+> +module_init(ti_tsc_init);
+> +module_exit(ti_tsc_exit);
+> diff --git a/include/linux/input/ti_tsc.h b/include/linux/input/ti_tsc.h
+> new file mode 100644
+> index 0000000..f499773
+> --- /dev/null
+> +++ b/include/linux/input/ti_tsc.h
+> @@ -0,0 +1,7 @@
+> +/* touch screen wire configuration */
+> +
+> +struct tsc_data {
+> +	int wires;	/* Wires refer to application modes
+> +			i.e. 4/5/8 wire touchscreen support
+> +			on the platform */
+> +};
+> -- 
+> 1.6.2.4
+> 
+
+Thanks.
+
+-- 
+Dmitry

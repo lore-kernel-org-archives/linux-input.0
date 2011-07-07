@@ -1,101 +1,84 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 09/12] Input: synaptics - add image sensor support
-Date: Wed, 06 Jul 2011 16:30:12 -0700
-Message-ID: <4E14F004.5010408@canonical.com>
-References: <CAGS+omDzg-xADYxKQmWy1KRhJ=n9pn9XR_HMc01xqCSDSLa5UA@mail.gmail.com> <20110706174503.GA5695@core.coreip.homeip.net> <20110706184759.GA3389@polaris.bitmath.org> <20110706185832.GA6086@core.coreip.homeip.net> <20110706193120.GA3884@polaris.bitmath.org> <20110706200056.GB6086@core.coreip.homeip.net> <20110706202049.GA4077@polaris.bitmath.org> <4E14D22D.8050108@canonical.com> <20110706213658.GA9409@core.coreip.homeip.net> <4E14DEA9.1060908@canonical.com> <20110706223521.GA4335@polaris.bitmath.org>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH 1/3 v2] Input: atmel_mxt_ts - Make wait-after-reset period
+ compatible with all chips
+Date: Thu, 07 Jul 2011 09:04:49 +0900
+Message-ID: <4E14F821.1000504@samsung.com>
+References: <4E11B8C3.8010608@atmel.com> <4E1263C9.3010704@samsung.com>
+ <4E12B96B.2050601@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:55665 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753887Ab1GFXaU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 19:30:20 -0400
-In-Reply-To: <20110706223521.GA4335@polaris.bitmath.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:62817 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754017Ab1GGAEe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jul 2011 20:04:34 -0400
+Received: from epcpsbgm1.samsung.com (mailout3.samsung.com [203.254.224.33])
+ by mailout3.samsung.com
+ (Oracle Communications Messaging Exchange Server 7u4-19.01 64bit (built Sep  7
+ 2010)) with ESMTP id <0LNX009WWS7ECMH0@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 07 Jul 2011 09:04:32 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0LNX0098US7KX3@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 07 Jul 2011 09:04:32 +0900 (KST)
+In-reply-to: <4E12B96B.2050601@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Iiro Valkonen <iiro.valkonen@atmel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 07/06/2011 03:35 PM, Henrik Rydberg wrote:
->> The evdev protocol is discrete, not continuous, so it's theoretically
->> possible that one touch could end at the same time that another begins.
->> IIRC, the time resolution of some MT devices makes this completely
->> possible, perhaps to the point that it would be trival to make this
->> happen in a few seconds of trying.
+On 2011-07-05 =EC=98=A4=ED=9B=84 4:12, Iiro Valkonen wrote:
+> Hello,
+>
+> On 07/05/2011 04:07 AM, Joonyoung Shim wrote:
+>> Hi,
 >>
->> I think the MT-B protocol has only ever used tracking_id for signalling
->> touch begin and touch end, where the id goes from -1 to something else
->> and vice versa. Maybe the protocol could be "extended" by saying that a
->> transition from one valid id to another means there is inconsistent
->> touch state, but the old touch hasn't necessarily ended and the new
->> touch hasn't necessarily started at this point in time.
-> 
-> The in-flight change of tracking id is actually part of the design; it
-> makes the protocol independent of sample rate. If a particular
-> tracking id is no longer found in any slot, that touch has ended.
-
-Ok. I agree that this is the best way to handle things.
-
-It does mean that we can't just change tracking_ids when the number of
-touches changes, so that option is out.
-
->> I'm not sure this is any easier than flagging these as bad devices
->> because now we need to watch tracking ID changes on top of touch count
->> changes. From someone who has attempted to implement semi-mt in X
->> synaptics, adding more complexity here should be avoided at all cost :).
-> 
-> The information available in the proposition suffices to determine
-> what the device is. Surely the method of transferring that information
-> will not have any impact on the extra code required.
-
-My (unstated) question was: is watching tracking_id transitions
-reasonable for noting inconsistent touch changes when the number of
-touches changes, or should we have a way to tell if a device is broken
-and we must assume touch state inconsistency when the finger count
-changes. Given your reply above that we cannot repurpose valid
-tracking_id -> valid tracking_id transitions as a means of denoting
-touch state inconsistency, that leaves us with the latter option.
-
-You're right that the information available from the axes is enough to
-tell if the device is broken (i.e. if max finger count > max slot count).
-
-Ancillary to this is the question of whether we should depend on the
-userspace side knowing this hidden meaning, or if we should state it up
-front by setting a separate flag in the properties bits. I really don't
-want to leave this up to userspace developers having to figure out or
-dive into kernel code to determine what is going on, so I'm in favor of
-having an explicit (documented!) property flag for these devices. Why
-have property bits if you aren't going to use them :).
-
->>> I'll ask this - how much realistically do we care about 3+ finger
->>> transitions in context of these particular devices? This is a touchpad
->>> so as long as basic 2 finger gestures work (zoom, pinch, 2-finger
->>> scroll) with Synaptics X driver we should be fine. I do not want to add
->>> all kinds of custom flags to the protocol to deal with this generation
->>> of touchpads.
+>> On 2011-07-04 =EC=98=A4=ED=9B=84 9:57, Iiro Valkonen wrote:
+>>> The delay before the chip can be accessed after reset varies betwee=
+n different
+>>> chips in maXTouch family. Waiting for 200ms and then monitoring the=
+ CHG (chip
+>>> is ready when the line is low) is guaranteed to work with all chips=
+=2E
 >>
->> I've given up on trying to send semi-mt data through the proposed XInput
->> 2.1 multitouch protocol. I think the best option is to send all this
->> data as valuators of a single touch (a touch and not a traditional
->> pointer event due to the multitouch/gesture semantics). Thus, we should
->> be focusing on what is possible in the gesture realm since we have
->> thrown full multiouch out the window for these devices.
+>> I wonder 200ms waiting needs indeed, it is very long time.
+>> If monitoring the CHG line can detect the completion of reset,
+>> 200ms waiting can be removed?
 >>
->> With these devices we can support one touch drag, two touch pinch,
->> rotate, and zoom, and 1-5 touch tap. For these to work, we need to know
->> the number of touches at any given time, the locations of the two
->> touches when only two touches are active, and some representative
->> location for the 1 and 3-5 touch cases.
-> 
-> Right, and we do, so there is no problem there, is there?
 
-Agreed, there is no problem if we go with the assumption that for these
-devices the touch slot data is inconsistent on touch count changes.
+My question is monitoring the CHG line can substitute=20
+"msleep(MXT_RESET_TIME)"? In other words, i want to remove
+msleep(MXT_RESET_TIME) and add only waiting until CHG line is low.
 
-I am satisfied with the approach that's been laid out, the only point of
-contention is whether userspace must infer touch state inconsistency on
-touch count changes by looking at max fingers and max slots, or if we
-provide this detail as a device property.
+>
+> Yes, 200ms is a bit longish. But it is what we need to guarantee corr=
+ect
+> functionality with all chips in all situations. I would prefer to see=
+ that
+> in the mainline version. Anyone worried about the delay could maybe a=
+djust
+> the value to suit his/her needs, for example with mXT224 you could ge=
+t away with
+> using just 65ms, like in the original version. Another option would b=
+e to
+> check the family ID in the driver, and wait just long enough. Drawbac=
+k with
+> that is that the driver (possibly) needs updating with every new chip=
+=2E I'd
+> like to keep this simple&  robust, wait 200ms which works for every c=
+urrent
+> (and most likely with every upcoming) chip, and take the small delay =
+penalty.
+>
 
--- Chase
+The 200ms delay is sometimes a problem for fastbooting, and if each
+chip has different delay value, i think it's better that driver support=
+s
+suitable delay value of the chip because it isn't difficult stuff.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

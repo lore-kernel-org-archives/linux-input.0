@@ -1,44 +1,33 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: HUGE CASH FLOW! Not an MLM! Cash Flow Made EASY!
-Date: Thu, 7 Jul 2011 14:08:01 -0700 (PDT)
-Message-ID: <201107072108.p67L81ZI068702@mail4.spagack2.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/4] Revert to anonymous 'type A' MT protocol for touch
+Date: Thu, 7 Jul 2011 14:35:06 -0700
+Message-ID: <20110707213506.GA20310@core.coreip.homeip.net>
+References: <1310072700-2829-1-git-send-email-killertofu@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:54110 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750932Ab1GGVIc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2011 17:08:32 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p67L81qY068729
-	for <linux-input@vger.kernel.org>; Thu, 7 Jul 2011 14:08:01 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:39467 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750805Ab1GGVfO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2011 17:35:14 -0400
+Received: by pwj7 with SMTP id 7so737392pwj.19
+        for <linux-input@vger.kernel.org>; Thu, 07 Jul 2011 14:35:12 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1310072700-2829-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jgerecke@wacom.com>, Dima Zavin <dima@android.com>
 
+On Thu, Jul 07, 2011 at 02:04:57PM -0700, Jason Gerecke wrote:
+> Android (at least up to Gingerbread) does not understand the 'B' protocol
+> first made available in 2.6.36. As a workaround until this is fixed, we
+> drop back to using the 'A' protocol.
+> 
 
+Well, fix Android then. Same goes for patches 2 & 3.
 
+Thanks.
 
-Hi Everyone,
-
-The TOP Ranked turn-key cash flow system on the internet today... 
-Start a new life NOW.
- 
-See how:  http://trckrs.com/48184/
-
-
-
-
-
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, Turlock, CA 95380
-In compliance with Federal law, should you choose to Un.Subscribe from our network, you may do so using theUn.Subscribe instruction found below.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link below  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?function=manualdelete3&email=linux-input*vger.kernel.org&un=richardpereira
+-- 
+Dmitry

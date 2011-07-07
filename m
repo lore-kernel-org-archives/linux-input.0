@@ -1,128 +1,116 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3 v3] Input: atmel_mxt_ts - Make wait-after-reset
- period compatible with all chips
-Date: Thu, 7 Jul 2011 07:43:35 -0700
-Message-ID: <20110707144335.GJ7658@core.coreip.homeip.net>
-References: <4E145128.9060404@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/4] Revert to anonymous 'type A' MT protocol for touch
+Date: Thu,  7 Jul 2011 14:04:57 -0700
+Message-ID: <1310072700-2829-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:63250 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755742Ab1GGOnm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2011 10:43:42 -0400
-Received: by iyb12 with SMTP id 12so919922iyb.19
-        for <linux-input@vger.kernel.org>; Thu, 07 Jul 2011 07:43:42 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4E145128.9060404@atmel.com>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:65059 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751916Ab1GGVFc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2011 17:05:32 -0400
+Received: by pvg12 with SMTP id 12so722510pvg.19
+        for <linux-input@vger.kernel.org>; Thu, 07 Jul 2011 14:05:31 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Iiro Valkonen <iiro.valkonen@atmel.com>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jgerecke@wacom.com>, Dima Zavin <dima@android.com>, Jason Gerecke <killertofu@gmail.com>
 
-On Wed, Jul 06, 2011 at 03:12:24PM +0300, Iiro Valkonen wrote:
-> The delay before the chip can be accessed after reset varies between different
-> chips in maXTouch family. Waiting for 200ms and then monitoring the CHG (chip
-> is ready when the line is low) is guaranteed to work with all chips.
-> 
-> v3: Add a check for NULL read_chg() function, and add the read_chg() to platform
->     files using this driver (currently only mach-goni.c)
-> v2: At Dmitry's suggestion, add a timeout so we are not stuck looping
->     endlessly in case the CHG is not going low. 
-> 
-> Signed-off-by: Iiro Valkonen <iiro.valkonen@atmel.com>
-> ---
->  arch/arm/mach-s5pv210/mach-goni.c        |    6 ++++++
->  drivers/input/touchscreen/atmel_mxt_ts.c |   14 +++++++++++++-
->  include/linux/i2c/atmel_mxt_ts.h         |    1 +
->  3 files changed, 20 insertions(+), 1 deletions(-)
-> 
-> diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
-> index 31d5aa7..196e92c 100644
-> --- a/arch/arm/mach-s5pv210/mach-goni.c
-> +++ b/arch/arm/mach-s5pv210/mach-goni.c
-> @@ -225,6 +225,11 @@ static void __init goni_radio_init(void)
->  	gpio_direction_output(gpio, 1);
->  }
->  
-> +static u8 read_chg(void)
-> +{
-> +	return gpio_get_value(S5PV210_GPJ0(5));
-> +}
-> +
->  /* TSP */
->  static struct mxt_platform_data qt602240_platform_data = {
->  	.x_line		= 17,
-> @@ -236,6 +241,7 @@ static struct mxt_platform_data qt602240_platform_data = {
->  	.voltage	= 2800000,              /* 2.8V */
->  	.orient		= MXT_DIAGONAL,
->  	.irqflags	= IRQF_TRIGGER_FALLING,
-> +	.read_chg	= &read_chg,
->  };
->  
->  static struct s3c2410_platform_i2c i2c2_data __initdata = {
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 1e61387..99df3b7 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -170,7 +170,8 @@
->  #define MXT_BOOT_VALUE		0xa5
->  #define MXT_BACKUP_VALUE	0x55
->  #define MXT_BACKUP_TIME		25	/* msec */
-> -#define MXT_RESET_TIME		65	/* msec */
-> +#define MXT_RESET_TIME		200	/* msec */
+Android (at least up to Gingerbread) does not understand the 'B' protocol
+first made available in 2.6.36. As a workaround until this is fixed, we
+drop back to using the 'A' protocol.
 
-Can't we really start polling before 200msecs are up? Woudl it be
-possible to leave the initial wait at 65 (or maybe increase it to 100
-msecs)?
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+ Now being sent upstream to LKML at the behest of Google.
 
-> +#define MXT_RESET_NOCHGREAD     400     /* msec */
->  
->  #define MXT_FWRESET_TIME	175	/* msec */
->  
-> @@ -792,6 +793,7 @@ static int mxt_initialize(struct mxt_data *data)
->  	struct i2c_client *client = data->client;
->  	struct mxt_info *info = &data->info;
->  	int error;
-> +	int reset_timeout = 0;
->  	u8 val;
->  
->  	error = mxt_get_info(data);
-> @@ -828,6 +830,16 @@ static int mxt_initialize(struct mxt_data *data)
->  	mxt_write_object(data, MXT_GEN_COMMAND,
->  			MXT_COMMAND_RESET, 1);
->  	msleep(MXT_RESET_TIME);
-> +	if (data->pdata->read_chg == NULL) {
-> +		msleep(MXT_RESET_NOCHGREAD);
+ drivers/input/touchscreen/wacom_w8001.c |   33 ++++++++++++++++++++++++++----
+ 1 files changed, 28 insertions(+), 5 deletions(-)
 
-This means that without read_chg we are waiting for 600ms now... It is
-eternity. Can we wait for MXT_RESET_NOCHGREAD total?
-
-> +	} else {
-> +		while ((reset_timeout++ <= 100) && data->pdata->read_chg())
-> +			msleep(2);
-> +		if (reset_timeout >= 100) {
-> +			dev_err(&client->dev, "No response after reset!\n");
-> +			return -EIO;
-> +		}
-> +	}
->  
->  	/* Update matrix size at info struct */
->  	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
-> diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
-> index f027f7a..ef59c22 100644
-> --- a/include/linux/i2c/atmel_mxt_ts.h
-> +++ b/include/linux/i2c/atmel_mxt_ts.h
-> @@ -39,6 +39,7 @@ struct mxt_platform_data {
->  	unsigned int voltage;
->  	unsigned char orient;
->  	unsigned long irqflags;
-> +	u8(*read_chg) (void);
->  };
->  
->  #endif /* __LINUX_ATMEL_MXT_TS_H */
-> -- 
-> 1.7.0.4
-
+diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+index c14412e..7630806 100644
+--- a/drivers/input/touchscreen/wacom_w8001.c
++++ b/drivers/input/touchscreen/wacom_w8001.c
+@@ -151,8 +151,6 @@ static void parse_multi_touch(struct w8001 *w8001)
+ 	for (i = 0; i < 2; i++) {
+ 		bool touch = data[0] & (1 << i);
+ 
+-		input_mt_slot(dev, i);
+-		input_mt_report_slot_state(dev, MT_TOOL_FINGER, touch);
+ 		if (touch) {
+ 			x = (data[6 * i + 1] << 7) | data[6 * i + 2];
+ 			y = (data[6 * i + 3] << 7) | data[6 * i + 4];
+@@ -163,9 +161,14 @@ static void parse_multi_touch(struct w8001 *w8001)
+ 
+ 			input_report_abs(dev, ABS_MT_POSITION_X, x);
+ 			input_report_abs(dev, ABS_MT_POSITION_Y, y);
++			input_report_abs(dev, ABS_MT_TOOL_TYPE, MT_TOOL_FINGER);
+ 			count++;
++
++			input_mt_sync(dev);
+ 		}
+ 	}
++	if (count == 0)
++		input_mt_sync(dev);
+ 
+ 	/* emulate single touch events when stylus is out of proximity.
+ 	 * This is to make single touch backward support consistent
+@@ -173,8 +176,20 @@ static void parse_multi_touch(struct w8001 *w8001)
+ 	 */
+ 	if (w8001->type != BTN_TOOL_PEN &&
+ 			    w8001->type != BTN_TOOL_RUBBER) {
++		struct w8001_coord coord;
++
+ 		w8001->type = count == 1 ? BTN_TOOL_FINGER : KEY_RESERVED;
+-		input_mt_report_pointer_emulation(dev, true);
++
++		parse_single_touch(data, &coord);
++		x = coord.x;
++		y = coord.y;
++		scale_touch_coordinates(w8001, &x, &y);
++
++		input_report_abs(dev, ABS_X, x);
++		input_report_abs(dev, ABS_Y, y);
++		input_report_key(dev, BTN_TOUCH, count > 0);
++		input_report_key(dev, BTN_TOOL_FINGER, count == 1);
++		input_report_key(dev, BTN_TOOL_DOUBLETAP, count == 2);
+ 	}
+ 
+ 	input_sync(dev);
+@@ -228,6 +243,10 @@ static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
+ 			input_report_key(dev, BTN_STYLUS, 0);
+ 			input_report_key(dev, BTN_STYLUS2, 0);
+ 			input_report_key(dev, BTN_TOOL_RUBBER, 0);
++
++			/* No multi-touchpoints -> SYN_MT_REPORT; SYN_REPORT */
++			input_mt_sync(dev);
++
+ 			input_sync(dev);
+ 			w8001->type = BTN_TOOL_PEN;
+ 		}
+@@ -236,10 +255,15 @@ static void report_pen_events(struct w8001 *w8001, struct w8001_coord *coord)
+ 	case BTN_TOOL_FINGER:
+ 		input_report_key(dev, BTN_TOUCH, 0);
+ 		input_report_key(dev, BTN_TOOL_FINGER, 0);
+-		input_sync(dev);
++
+ 		/* fall through */
+ 
+ 	case KEY_RESERVED:
++		/* No multi-touchpoints -> SYN_MT_REPORT; SYN_REPORT */
++		input_mt_sync(dev);
++
++		input_sync(dev);
++
+ 		w8001->type = coord->f2 ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
+ 		break;
+ 
+@@ -455,7 +479,6 @@ static int w8001_setup(struct w8001 *w8001)
+ 		case 5:
+ 			w8001->pktlen = W8001_PKTLEN_TOUCH2FG;
+ 
+-			input_mt_init_slots(dev, 2);
+ 			input_set_abs_params(dev, ABS_MT_POSITION_X,
+ 						0, touch.x, 0, 0);
+ 			input_set_abs_params(dev, ABS_MT_POSITION_Y,
 -- 
-Dmitry
+1.7.5.2
+

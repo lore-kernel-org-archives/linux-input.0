@@ -1,659 +1,481 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH] input: add support for TI Touchscreen controller.
-Date: Fri, 8 Jul 2011 19:30:44 +0530
-Message-ID: <B85A65D85D7EB246BE421B3FB0FBB593024D9B58D3@dbde02.ent.ti.com>
-References: <1309956213-27477-1-git-send-email-rachna@ti.com>
- <20110707143703.GI7658@core.coreip.homeip.net>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 1/2] mc13783: add power button support
+Date: Fri, 8 Jul 2011 16:30:32 +0200
+Message-ID: <20110708143032.GT29624@pengutronix.de>
+References: <1310135037-24289-1-git-send-email-philippe.retornaz@epfl.ch>
+ <1310135037-24289-2-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:37413 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750750Ab1GHOAv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2011 10:00:51 -0400
-In-Reply-To: <20110707143703.GI7658@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:42015 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751818Ab1GHOam (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2011 10:30:42 -0400
+Content-Disposition: inline
+In-Reply-To: <1310135037-24289-2-git-send-email-philippe.retornaz@epfl.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
+Cc: s.hauer@pengutronix.de, linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com
 
-Hi Dmitry,
+Hello Philippe,
 
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-Sent: Thursday, July 07, 2011 8:07 PM
+On Fri, Jul 08, 2011 at 04:23:56PM +0200, Philippe R=E9tornaz wrote:
+> This adds support for the power-on buttons of MC13783 PMIC.
+> This is done using a misc input device.
+>=20
+> Signed-off-by: Philippe R=E9tornaz <philippe.retornaz@epfl.ch>
+> ---
+>  drivers/input/misc/Kconfig             |   11 ++
+>  drivers/input/misc/Makefile            |    1 +
+>  drivers/input/misc/mc13783-pwrbutton.c |  288 ++++++++++++++++++++++=
+++++++++++
+>  drivers/mfd/mc13xxx-core.c             |    4 +
+>  include/linux/mfd/mc13783.h            |    1 +
+>  include/linux/mfd/mc13xxx.h            |   18 ++
+>  6 files changed, 323 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/misc/mc13783-pwrbutton.c
+>=20
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 45dc6aa..87d595c 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -100,6 +100,17 @@ config INPUT_MAX8925_ONKEY
+>  	  To compile this driver as a module, choose M here: the module
+>  	  will be called max8925_onkey.
+> =20
+> +config INPUT_MC13783_ON
+> +	tristate "MC13783 ON buttons"
+> +	depends on MFD_MC13783
+> +	help
+> +	  Support the ON buttons of MC13783 PMIC as an input device
+> +	  reporting power button status.
+> +
+> +	  To compile this driver as a module, choose M here: the module
+> +	  will be called mc13783-pwrbutton.
+Why not use INPUT_MC13783_PWRBUTTON to match the source file (and so
+module) name.
+> +
+> +
+one empty line should be enough
+>  config INPUT_APANEL
+>  	tristate "Fujitsu Lifebook Application Panel buttons"
+>  	depends on X86 && I2C && LEDS_CLASS
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefil=
+e
+> index 38efb2c..fdc6ab9 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -27,6 +27,7 @@ obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+=3D ixp4xx-beepe=
+r.o
+>  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+=3D keyspan_remote.o
+>  obj-$(CONFIG_INPUT_M68K_BEEP)		+=3D m68kspkr.o
+>  obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+=3D max8925_onkey.o
+> +obj-$(CONFIG_INPUT_MC13783_ON)		+=3D mc13783-pwrbutton.o
+>  obj-$(CONFIG_INPUT_PCAP)		+=3D pcap_keys.o
+>  obj-$(CONFIG_INPUT_PCF50633_PMU)	+=3D pcf50633-input.o
+>  obj-$(CONFIG_INPUT_PCF8574)		+=3D pcf8574_keypad.o
+> diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/m=
+isc/mc13783-pwrbutton.c
+> new file mode 100644
+> index 0000000..6aee01c
+> --- /dev/null
+> +++ b/drivers/input/misc/mc13783-pwrbutton.c
+> @@ -0,0 +1,288 @@
+> +/**
+> + * mc13783-pwrbutton.c - MC13783 Power Button Input Driver
+> + *
+> + * Copyright (C) 2011 Philippe R=E9tornaz
+> + *
+> + * Based on twl4030-pwrbutton driver by:
+> + *     Peter De Schrijver <peter.de-schrijver@nokia.com>
+> + *     Felipe Balbi <felipe.balbi@nokia.com>
+> + *
+> + * This file is subject to the terms and conditions of the GNU Gener=
+al
+> + * Public License. See the file "COPYING" in the main directory of t=
+his
+> + * archive for more details.
+This implies GPL v2 only? So you either need to clearify here or you
+need to adapt the MODULE_LICENSE line below to read
 
-> On Wed, Jul 06, 2011 at 06:13:33PM +0530, Patil, Rachna wrote:
-> > This patch adds support for TI's touchscreen
-> > controller for a 4/5/8 wire resistive panel
-> > that is directly fed to the ADC.
-> >
-> > This touchscreen controller will be part of
-> > an upcoming TI SoC and has been tested on
-> > an emulation platform.
-> >
-> > Signed-off-by: Patil, Rachna <rachna@ti.com>
->
-> Looks mostly good, please find a few comments below.
->
-> > ---
-> >  drivers/input/touchscreen/Kconfig     |   11 +
-> >  drivers/input/touchscreen/Makefile    |    1 +
-> >  drivers/input/touchscreen/ti_tscadc.c |  417
-> +++++++++++++++++++++++++++++++++
-> >  include/linux/input/ti_tsc.h          |    7 +
->
-> Maybe we should call it ti_tscadc.h to match the .c file?
+	MODULE_LICENSE("GPL v2");
 
-Ok. I will change this to ti_tscadc.h.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1=
+307  USA
+This is not the recent address of the FSF.
 
->
-> >  4 files changed, 436 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/input/touchscreen/ti_tscadc.c
-> >  create mode 100644 include/linux/input/ti_tsc.h
-> >
-> > diff --git a/drivers/input/touchscreen/Kconfig
-> b/drivers/input/touchscreen/Kconfig
-> > index 44589f5..9d5d3ba 100644
-> > --- a/drivers/input/touchscreen/Kconfig
-> > +++ b/drivers/input/touchscreen/Kconfig
-> > @@ -704,4 +704,15 @@ config TOUCHSCREEN_TPS6507X
-> >       To compile this driver as a module, choose M here: the
-> >       module will be called tps6507x_ts.
-> >
-> > +config TOUCHSCREEN_TI_TSCADC
-> > +   tristate "TI Touchscreen Interface"
-> > +   help
-> > +     Say Y here if you have 4/5/8 wire touchscreen controller
-> > +     to be connected to the ADC controller on your TI SoC.
-> > +
-> > +     If unsure, say N.
-> > +
-> > +     To compile this driver as a module, choose M here: the
-> > +     module will be called ti_tscadc.
-> > +
-> >  endif
-> > diff --git a/drivers/input/touchscreen/Makefile
-> b/drivers/input/touchscreen/Makefile
-> > index 51b08b0..82d3098 100644
-> > --- a/drivers/input/touchscreen/Makefile
-> > +++ b/drivers/input/touchscreen/Makefile
-> > @@ -58,3 +58,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)        +=
-> mainstone-wm97xx.o
-> >  obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)  += zylonite-wm97xx.o
-> >  obj-$(CONFIG_TOUCHSCREEN_W90X900)  += w90p910_ts.o
-> >  obj-$(CONFIG_TOUCHSCREEN_TPS6507X) += tps6507x-ts.o
-> > +obj-$(CONFIG_TOUCHSCREEN_TI_TSCADC)        += ti_tscadc.o
->
-> Please try keeping Kconfig and Makefile sorted alphabetically.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/errno.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/mfd/mc13783.h>
+> +#include <linux/sched.h>
+> +#include <linux/slab.h>
+> +
+> +struct mc13783_pwrb {
+> +	struct input_dev *pwr;
+> +	struct mc13xxx *mc13783;
+> +#define MC13783_PWRB_B1_POL_INVERT	(1 << 0)
+> +#define MC13783_PWRB_B2_POL_INVERT	(1 << 1)
+> +#define MC13783_PWRB_B3_POL_INVERT	(1 << 2)
+> +	int flags;
+> +	unsigned short keymap[3];
+> +};
+> +
+> +#define MC13783_REG_INTERRUPT_SENSE_1		5
+> +#define MC13783_IRQSENSE1_ONOFD1S		(1 << 3)
+> +#define MC13783_IRQSENSE1_ONOFD2S		(1 << 4)
+> +#define MC13783_IRQSENSE1_ONOFD3S		(1 << 5)
+> +
+> +#define MC13783_REG_POWER_CONTROL_2		15
+> +#define MC13783_POWER_CONTROL_2_ON1BDBNC	4
+> +#define MC13783_POWER_CONTROL_2_ON2BDBNC	6
+> +#define MC13783_POWER_CONTROL_2_ON3BDBNC	8
+> +#define MC13783_POWER_CONTROL_2_ON1BRSTEN	(1 << 1)
+> +#define MC13783_POWER_CONTROL_2_ON2BRSTEN	(1 << 2)
+> +#define MC13783_POWER_CONTROL_2_ON3BRSTEN	(1 << 3)
+> +
+> +static irqreturn_t button_irq(int irq, void *_priv)
+> +{
+> +	struct mc13783_pwrb *priv =3D _priv;
+> +	int val;
+> +	mc13xxx_irq_ack(priv->mc13783, irq);
+> +	mc13xxx_reg_read(priv->mc13783, MC13783_REG_INTERRUPT_SENSE_1, &val=
+);
+> +
+> +	switch (irq) {
+> +	case MC13783_IRQ_ONOFD1:
+> +		val =3D val & MC13783_IRQSENSE1_ONOFD1S ? 1 : 0;
+> +		if (priv->flags & MC13783_PWRB_B1_POL_INVERT)
+> +			val ^=3D 1;
+> +		input_report_key(priv->pwr, priv->keymap[0], val);
+> +		break;
+> +
+> +	case MC13783_IRQ_ONOFD2:
+> +		val =3D val & MC13783_IRQSENSE1_ONOFD2S ? 1 : 0;
+> +		if (priv->flags & MC13783_PWRB_B2_POL_INVERT)
+> +			val ^=3D 1;
+> +		input_report_key(priv->pwr, priv->keymap[1], val);
+> +		break;
+> +
+> +	case MC13783_IRQ_ONOFD3:
+> +		val =3D val & MC13783_IRQSENSE1_ONOFD3S ? 1 : 0;
+> +		if (priv->flags & MC13783_PWRB_B3_POL_INVERT)
+> +			val ^=3D 1;
+> +		input_report_key(priv->pwr, priv->keymap[2], val);
+> +		break;
+> +	}
+> +
+> +	input_sync(priv->pwr);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int __devinit mc13783_pwrbutton_probe(struct platform_device =
+*pdev)
+> +{
+> +	struct mc13xxx_buttons_platform_data *pdata;
+> +	struct mc13xxx *mc13783 =3D dev_get_drvdata(pdev->dev.parent);
+> +	struct input_dev *pwr;
+> +	struct mc13783_pwrb *priv;
+> +	int err =3D 0;
+> +	int reg =3D 0;
+> +
+> +	pdata =3D dev_get_platdata(&pdev->dev);
+> +	if (pdata =3D=3D NULL) {
+> +		dev_err(&pdev->dev, "missing platform data\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	pwr =3D input_allocate_device();
+> +	if (!pwr) {
+> +		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	priv =3D kzalloc(sizeof(*priv), GFP_KERNEL);
+> +
+> +	if (!priv) {
+> +		err =3D -ENOMEM;
+> +		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+> +		goto free_input_dev;
+> +	}
+> +
+> +	pwr->evbit[0] =3D BIT_MASK(EV_KEY);
+> +
+> +	reg |=3D (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BD=
+BNC;
+> +	reg |=3D (pdata->b2on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON2BD=
+BNC;
+> +	reg |=3D (pdata->b3on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON3BD=
+BNC;
+> +
+> +	priv->pwr =3D pwr;
+> +	priv->mc13783 =3D mc13783;
+> +
+> +	mc13xxx_lock(mc13783);
+> +
+> +	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE) {
+> +		priv->keymap[0] =3D pdata->b1on_key;
+> +		if (pdata->b1on_key !=3D KEY_RESERVED)
+> +			__set_bit(pdata->b1on_key, pwr->keybit);
+> +
+> +		if (pdata->b1on_flags & MC13783_BUTTON_POL_INVERT)
+> +			priv->flags |=3D MC13783_PWRB_B1_POL_INVERT;
+> +
+> +		if (pdata->b1on_flags & MC13783_BUTTON_RESET_EN)
+> +			reg |=3D MC13783_POWER_CONTROL_2_ON1BRSTEN;
+> +
+> +		err =3D mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD1,
+> +					  button_irq, "b1on", priv);
+> +
+> +		if (err) {
+> +			mc13xxx_unlock(mc13783);
+> +
+> +			dev_dbg(&pdev->dev, "Can't request irq\n");
+> +			goto free_priv;
+> +		}
+> +	}
+> +
+> +	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE) {
+> +		priv->keymap[0] =3D pdata->b2on_key;
+> +		if (pdata->b2on_key !=3D KEY_RESERVED)
+> +			__set_bit(pdata->b2on_key, pwr->keybit);
+> +
+> +		if (pdata->b2on_flags & MC13783_BUTTON_POL_INVERT)
+> +			priv->flags |=3D MC13783_PWRB_B2_POL_INVERT;
+> +
+> +		if (pdata->b2on_flags & MC13783_BUTTON_RESET_EN)
+> +			reg |=3D MC13783_POWER_CONTROL_2_ON2BRSTEN;
+> +
+> +		err =3D mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD2,
+> +					  button_irq, "b2on", priv);
+> +
+> +		if (err) {
+> +			dev_dbg(&pdev->dev, "Can't request irq\n");
+> +			goto free_irq_b1;
+> +		}
+> +	}
+> +
+> +	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE) {
+> +		priv->keymap[0] =3D pdata->b3on_key;
+> +		if (pdata->b3on_key !=3D KEY_RESERVED)
+> +			__set_bit(pdata->b3on_key, pwr->keybit);
+> +
+> +		if (pdata->b3on_flags & MC13783_BUTTON_POL_INVERT)
+> +			priv->flags |=3D MC13783_PWRB_B3_POL_INVERT;
+> +
+> +		if (pdata->b3on_flags & MC13783_BUTTON_RESET_EN)
+> +			reg |=3D MC13783_POWER_CONTROL_2_ON3BRSTEN;
+> +
+> +		err =3D mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD3,
+> +					  button_irq, "b3on", priv);
+> +
+> +		if (err) {
+> +			dev_dbg(&pdev->dev, "Can't request irq: %d\n", err);
+> +			goto free_irq_b2;
+> +		}
+> +	}
+> +
+> +	mc13xxx_reg_rmw(mc13783, MC13783_REG_POWER_CONTROL_2, 0x3FE, reg);
+> +
+> +	mc13xxx_unlock(mc13783);
+> +
+> +	pwr->name =3D "mc13783_pwrbutton";
+> +	pwr->phys =3D "mc13783_pwrbutton/input0";
+> +	pwr->dev.parent =3D &pdev->dev;
+> +
+> +	pwr->keycode =3D priv->keymap;
+> +	pwr->keycodemax =3D ARRAY_SIZE(priv->keymap);
+> +	pwr->keycodesize =3D sizeof(priv->keymap[0]);
+> +
+> +	err =3D input_register_device(pwr);
+> +	if (err) {
+> +		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
+> +		goto free_irq;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	return 0;
+> +
+> +free_irq:
+> +	mc13xxx_lock(mc13783);
+> +
+> +	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
+> +		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD3, priv);
+> +free_irq_b2:
+> +	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
+> +		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD2, priv);
+> +
+> +free_irq_b1:
+> +	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
+> +		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
+> +
+> +	mc13xxx_unlock(mc13783);
+> +
+> +free_priv:
+> +	kfree(priv);
+> +
+> +free_input_dev:
+> +	input_free_device(pwr);
+> +
+> +	return err;
+> +}
+> +
+> +static int __devexit mc13783_pwrbutton_remove(struct platform_device=
+ *pdev)
+> +{
+> +	struct mc13783_pwrb *priv =3D platform_get_drvdata(pdev);
+> +	struct mc13xxx_buttons_platform_data *pdata;
+> +	pdata =3D dev_get_platdata(&pdev->dev);
+> +
+> +	mc13xxx_lock(priv->mc13783);
+> +
+> +	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
+> +		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD3, priv);
+> +	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
+> +		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD2, priv);
+> +	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
+> +		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD1, priv);
+> +
+> +	mc13xxx_unlock(priv->mc13783);
+> +
+> +	input_unregister_device(priv->pwr);
+> +	kfree(priv);
+> +
+> +	return 0;
+> +}
+> +
+> +struct platform_driver mc13783_pwrbutton_driver =3D {
+> +	.probe		=3D mc13783_pwrbutton_probe,
+> +	.remove		=3D __devexit_p(mc13783_pwrbutton_remove),
+> +	.driver		=3D {
+> +		.name	=3D "mc13783-pwrbutton",
+> +		.owner	=3D THIS_MODULE,
+> +	},
+> +};
+> +
+> +static int __init mc13783_pwrbutton_init(void)
+> +{
+> +	return platform_driver_register(&mc13783_pwrbutton_driver);
+> +}
+> +module_init(mc13783_pwrbutton_init);
+> +
+> +static void __exit mc13783_pwrbutton_exit(void)
+> +{
+> +	platform_driver_unregister(&mc13783_pwrbutton_driver);
+> +}
+> +module_exit(mc13783_pwrbutton_exit);
+> +
+> +MODULE_ALIAS("platform:mc13783-pwrbutton");
+> +MODULE_DESCRIPTION("MC13783 Power Button");
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Philippe Retornaz");
+> diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+> index 7e4d44b..44edf78 100644
+> --- a/drivers/mfd/mc13xxx-core.c
+> +++ b/drivers/mfd/mc13xxx-core.c
+> @@ -778,6 +778,10 @@ err_revision:
+>  		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-led",
+>  				pdata->leds, sizeof(*pdata->leds));
+> =20
+> +	if (pdata->flags & MC13XXX_USE_BUTTON)
+Why not use
 
-I will rearrange this.
+	if (pdata->buttons)
 
->
-> > diff --git a/drivers/input/touchscreen/ti_tscadc.c
-> b/drivers/input/touchscreen/ti_tscadc.c
-> > new file mode 100644
-> > index 0000000..0308f71
-> > --- /dev/null
-> > +++ b/drivers/input/touchscreen/ti_tscadc.c
-> > @@ -0,0 +1,417 @@
-> > +/*
-> > + * TI Touch Screen driver
-> > + *
-> > + * Copyright (C) 2011 Texas Instruments Incorporated -
-> http://www.ti.com/
-> > + *
-> > + * This program is free software; you can redistribute it and/or
-> > + * modify it under the terms of the GNU General Public License as
-> > + * published by the Free Software Foundation version 2.
-> > + *
-> > + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-> > + * kind, whether express or implied; without even the implied warranty
-> > + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> > + * GNU General Public License for more details.
-> > + */
-> > +
-> > +
-> > +#include <linux/init.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/err.h>
-> > +#include <linux/module.h>
-> > +#include <linux/input.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/clk.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/io.h>
-> > +#include <linux/input/ti_tsc.h>
-> > +
-> > +#define TSCADC_REG_IRQEOI          0x020
-> > +#define TSCADC_REG_IRQSTATUS               0x028
-> > +#define TSCADC_REG_IRQENABLE               0x02C
-> > +#define TSCADC_REG_IRQWAKEUP               0x034
-> > +#define TSCADC_REG_CTRL                    0x040
-> > +#define TSCADC_REG_ADCFSM          0x044
-> > +#define TSCADC_REG_CLKDIV          0x04C
-> > +#define TSCADC_REG_SE                      0x054
-> > +#define TSCADC_REG_IDLECONFIG              0x058
-> > +#define TSCADC_REG_CHARGECONFIG            0x05C
-> > +#define TSCADC_REG_STEPCONFIG1             0x064
-> > +#define TSCADC_REG_STEPDELAY1              0x068
-> > +#define TSCADC_REG_STEPCONFIG2             0x06C
-> > +#define TSCADC_REG_STEPDELAY2              0x070
-> > +#define TSCADC_REG_FIFO0           0x100
-> > +
-> > +/* Register Bitfields      */
-> > +#define TSCADC_IRQWKUP_ENB         BIT(0)
-> > +#define TSCADC_STPENB_STEPENB              (7 << 0)
-> > +#define TSCADC_IRQENB_IRQHWPEN             BIT(10)
-> > +#define TSCADC_IRQENB_IRQEOS               BIT(1)
-> > +#define TSCADC_IRQENB_FIFO_OVERFLOW        BIT(3)
-> > +#define TSCADC_IRQENB_PENUP                BIT(9)
-> > +#define TSCADC_STEPCONFIG_MODE_HWSYNC      0x3
-> > +#define TSCADC_STEPCONFIG_2SAMPLES_AVG     BIT(2)
-> > +#define TSCADC_STEPCONFIG_XPP              BIT(5)
-> > +#define TSCADC_STEPCONFIG_XNN              BIT(6)
-> > +#define TSCADC_STEPCONFIG_YPP              BIT(7)
-> > +#define TSCADC_STEPCONFIG_YNN              BIT(8)
-> > +#define TSCADC_STEPCONFIG_XNP              BIT(9)
-> > +#define TSCADC_STEPCONFIG_YPN              BIT(10)
-> > +#define TSCADC_STEPCONFIG_RFP_X            (1 << 12)
-> > +#define TSCADC_STEPCONFIG_RFP_4_Y  (1 << 13)
-> > +#define TSCADC_STEPCONFIG_RFP_5_Y  (1 << 12)
-> > +#define TSCADC_STEPCONFIG_RFP_8_Y  (1 << 13)
-> > +#define TSCADC_STEPCONFIG_INM              (1 << 18)
-> > +#define TSCADC_STEPCONFIG_INP_4            (1 << 20)
-> > +#define TSCADC_STEPCONFIG_INP_5            (1 << 21)
-> > +#define TSCADC_STEPCONFIG_INP_8_X  (3 << 20)
-> > +#define TSCADC_STEPCONFIG_INP_8_Y  (1 << 21)
-> > +#define TSCADC_STEPCONFIG_RFM_4_X  (1 << 23)
-> > +#define TSCADC_STEPCONFIG_RFM_5_X  (1 << 24)
-> > +#define TSCADC_STEPCONFIG_RFM_8_X  (1 << 23)
-> > +#define TSCADC_STEPCONFIG_RFM_Y            (1 << 24)
-> > +#define TSCADC_STEPCONFIG_OPENDLY  (0xf << 0)
-> > +#define TSCADC_STEPCONFIG_SAMPLEDLY        BIT(25)
-> > +#define TSCADC_STEPCHARGE_INM              BIT(18)
-> > +#define TSCADC_STEPCHARGE_RFM              (3 << 23)
-> > +#define TSCADC_CNTRLREG_TSCSSENB   BIT(0)
-> > +#define TSCADC_CNTRLREG_STEPID             BIT(1)
-> > +#define TSCADC_CNTRLREG_STEPCONFIGWRT      BIT(2)
-> > +#define TSCADC_CNTRLREG_TSCENB             BIT(7)
-> > +#define TSCADC_CNTRLREG_4WIRE              (0x1 << 5)
-> > +#define TSCADC_CNTRLREG_5WIRE              (0x1 << 6)
-> > +#define TSCADC_CNTRLREG_8WIRE              (0x3 << 5)
-> > +#define TSCADC_ADCFSM_STEPID               0x10
-> > +#define TSCADC_ADCFSM_FSM          BIT(5)
-> > +
-> > +#define ADC_CLK                            3000000
-> > +
-> > +#define MAX_12BIT                       ((1 << 12) - 1)
-> > +
-> > +struct tscadc {
-> > +   struct input_dev        *input;
-> > +   int                     wires;
-> > +   struct clk              *clk;
-> > +   int                     irq;
-> > +   void __iomem            *tsc_base;
-> > +};
-> > +
-> > +static inline unsigned int tscadc_readl(struct tscadc *ts, unsigned int
-> reg)
->
-> Drop the 'inline', let compiler figure out what needs to be inlined.
+to detect if the pwrbutton device should be registered?
 
-Ok.
+> +		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-pwrbutton",
+> +				pdata->buttons, sizeof(*pdata->buttons));
+> +
+>  	return 0;
+>  }
+> =20
+> diff --git a/include/linux/mfd/mc13783.h b/include/linux/mfd/mc13783.=
+h
+> index 7d0f3d6..bd4fbac 100644
+> --- a/include/linux/mfd/mc13783.h
+> +++ b/include/linux/mfd/mc13783.h
+> @@ -106,6 +106,7 @@ static inline int mc13783_irq_ack(struct mc13783 =
+*mc13783, int irq)
+>  #define mc13783_regulator_platform_data mc13xxx_regulator_platform_d=
+ata
+>  #define mc13783_led_platform_data mc13xxx_led_platform_data
+>  #define mc13783_leds_platform_data mc13xxx_leds_platform_data
+> +#define mc13783_buttons_platform_data mc13xxx_buttons_platform_data
+> =20
+>  #define mc13783_platform_data mc13xxx_platform_data
+>  #define MC13783_USE_TOUCHSCREEN	MC13XXX_USE_TOUCHSCREEN
+> diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.=
+h
+> index c064bea..22d8930 100644
+> --- a/include/linux/mfd/mc13xxx.h
+> +++ b/include/linux/mfd/mc13xxx.h
+> @@ -137,6 +137,22 @@ struct mc13xxx_leds_platform_data {
+>  	char tc3_period;
+>  };
+> =20
+> +struct mc13xxx_buttons_platform_data {
+> +#define MC13783_BUTTON_DBNC_0MS		0
+> +#define MC13783_BUTTON_DBNC_30MS	1
+> +#define MC13783_BUTTON_DBNC_150MS	2
+> +#define MC13783_BUTTON_DBNC_750MS	3
+> +#define MC13783_BUTTON_ENABLE		(1 << 2)
+> +#define MC13783_BUTTON_POL_INVERT	(1 << 3)
+> +#define MC13783_BUTTON_RESET_EN		(1 << 4)
+> +	int b1on_flags;
+> +	unsigned short b1on_key;
+> +	int b2on_flags;
+> +	unsigned short b2on_key;
+> +	int b3on_flags;
+> +	unsigned short b3on_key;
+> +};
+> +
+>  struct mc13xxx_platform_data {
+>  #define MC13XXX_USE_TOUCHSCREEN (1 << 0)
+>  #define MC13XXX_USE_CODEC	(1 << 1)
+> @@ -144,10 +160,12 @@ struct mc13xxx_platform_data {
+>  #define MC13XXX_USE_RTC		(1 << 3)
+>  #define MC13XXX_USE_REGULATOR	(1 << 4)
+>  #define MC13XXX_USE_LED		(1 << 5)
+> +#define MC13XXX_USE_BUTTON	(1 << 6)
+>  	unsigned int flags;
+> =20
+>  	struct mc13xxx_regulator_platform_data regulators;
+>  	struct mc13xxx_leds_platform_data *leds;
+> +	struct mc13xxx_buttons_platform_data *buttons;
+>  };
+> =20
+>  #endif /* ifndef __LINUX_MFD_MC13XXX_H */
 
->
-> > +{
-> > +   return readl(ts->tsc_base + reg);
-> > +}
-> > +
-> > +static inline void tscadc_writel(struct tscadc *tsc, unsigned int reg,
-> > +                                   unsigned int val)
-> > +{
-> > +   writel(val, tsc->tsc_base + reg);
-> > +}
-> > +
-> > +void tsc_idle_config(struct tscadc *ts_config)
->
-> Should be static.
+Best regards
+Uwe
 
-Ok.
-
->
-> > +{
-> > +   /* Idle mode touch screen config */
-> > +   unsigned int     idleconfig;
-> > +
-> > +   idleconfig = TSCADC_STEPCONFIG_YNN |
-> > +                           TSCADC_STEPCONFIG_RFP_X |
-> > +                           TSCADC_STEPCONFIG_INM ;
-> > +
-> > +   if (ts_config->wires == 4) {
->
->       switch (ts_config->wires) {
->       case 4:
->               ...
->       }
-
-Will add switch cases accordingly through out
-the code.
-
->
-> > +           idleconfig |= TSCADC_STEPCONFIG_INP_4 |
-> > +                           TSCADC_STEPCONFIG_RFM_4_X;
-> > +
-> > +   } else if (ts_config->wires == 5) {
-> > +           idleconfig |= TSCADC_STEPCONFIG_INP_5 |
-> > +                           TSCADC_STEPCONFIG_RFM_5_X;
-> > +
-> > +   } else {
-> > +           idleconfig |= TSCADC_STEPCONFIG_INP_4 |
-> > +                           TSCADC_STEPCONFIG_RFM_8_X;
-> > +   }
-> > +   tscadc_writel(ts_config, TSCADC_REG_IDLECONFIG, idleconfig);
-> > +}
-> > +
-> > +static irqreturn_t tscadc_interrupt(int irq, void *dev)
-> > +{
-> > +   struct tscadc           *ts_dev = (struct tscadc *)dev;
-> > +   struct input_dev        *input_dev = ts_dev->input;
-> > +   unsigned int            status, store, cntrlreg, irqclr = 0;
-> > +   int                     absx, absy;
-> > +   int                     charge, fsm;
-> > +
-> > +   status = tscadc_readl(ts_dev, TSCADC_REG_IRQSTATUS);
-> > +   tscadc_writel(ts_dev, TSCADC_REG_SE, 0x0);
-> > +
-> > +   /* Pen touch event */
-> > +   if (status & TSCADC_IRQENB_IRQHWPEN)
-> > +           irqclr = status & TSCADC_IRQENB_IRQHWPEN;
-> > +
-> > +   if (status & TSCADC_IRQENB_PENUP) {
-> > +           /* Pen up event */
-> > +           charge = TSCADC_STEPCHARGE_INM | TSCADC_STEPCHARGE_RFM;
-> > +           tscadc_writel(ts_dev, TSCADC_REG_CHARGECONFIG, charge);
-> > +           input_report_key(input_dev, BTN_TOUCH, 0);
->
->               input_sync(input_dev);
-
-Will add this.
-
->
-> > +           tsc_idle_config(ts_dev);
-> > +           irqclr |= status & TSCADC_IRQENB_PENUP;
->
-> You already know that TSCADC_IRQENB_PENUP in status is set, so can do
->
->       irqclr |= TSCADC_IRQENB_PENUP;
->
-> But you do it several times. If you define a bitmask mask you can do
->
->       irqclr = status & TSCADC_IRQENB_MASK;
->
-> once before writing it back to the device.
-
-Will change it to irqclr |= TSCADC_IRQENB_PENUP;
-
->
-> > +
-> > +   }
-> > +   if (status & TSCADC_IRQENB_IRQEOS) {
-> > +           /* ADC is done with sampling, ready to read the data */
-> > +           absx = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
-> > +           absy = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
-> > +
-> > +           input_report_abs(input_dev, ABS_X, absx);
-> > +           input_report_abs(input_dev, ABS_Y, absy);
-> > +           input_report_key(input_dev, BTN_TOUCH, 1);
->
->               input_sync(input_dev);
-
-I will add this.
-
->
-> > +
-> > +           irqclr |= status & TSCADC_IRQENB_IRQEOS;
-> > +
-> > +   }
-> > +   if (status & TSCADC_IRQENB_FIFO_OVERFLOW) {
-> > +           /* FIFO overflow condition */
-> > +           cntrlreg = tscadc_readl(ts_dev, TSCADC_REG_CTRL);
-> > +           cntrlreg &= ~TSCADC_CNTRLREG_TSCSSENB;
-> > +           tscadc_writel(ts_dev, TSCADC_REG_CTRL, cntrlreg);
-> > +
-> > +           irqclr |= status & TSCADC_IRQENB_FIFO_OVERFLOW;
-> > +   }
-> > +
-> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQSTATUS, irqclr);
-> > +   fsm = tscadc_readl(ts_dev, TSCADC_REG_ADCFSM);
-> > +   if ((fsm & TSCADC_ADCFSM_FSM) &&
-> > +                   (fsm & TSCADC_ADCFSM_STEPID)) {
-> > +           store = tscadc_readl(ts_dev, TSCADC_REG_CTRL);
-> > +           store |= TSCADC_CNTRLREG_TSCSSENB;
-> > +           tscadc_writel(ts_dev, TSCADC_REG_CTRL, store);
-> > +   }
-> > +
-> > +    /* check pending interrupts */
-> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQEOI, 0x0);
-> > +
-> > +   tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB);
-> > +   return IRQ_HANDLED;
-> > +}
-> > +
-> > +/*
-> > +* The functions for inserting/removing driver as a module.
-> > +*/
-> > +
-> > +static     int __devinit tscadc_probe(struct platform_device *pdev)
-> > +{
-> > +   struct tscadc                   *ts_dev;
-> > +   struct input_dev                *input_dev;
-> > +   int                             err;
-> > +   int                             clk_value;
-> > +   int                             clock_rate, ctrl, irqenable;
-> > +   struct  tsc_data                *pdata = pdev->dev.platform_data;
-> > +   struct resource                 *res;
-> > +   int                             stepconfig1, stepconfig2, delay;
-> > +
-> > +   res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > +   if (!res) {
-> > +           dev_err(&pdev->dev, "no memory resource defined.\n");
-> > +           return -ENXIO;
->
-> -EINVAL? We do expect the device to be set up properly.
-
-Agree.
-
->
-> > +   }
-> > +
-> > +   /* Allocate memory for device */
-> > +   ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
-> > +   if (!ts_dev) {
-> > +           dev_err(&pdev->dev, "failed to allocate memory.\n");
-> > +           return -ENOMEM;
-> > +   }
-> > +
-> > +   input_dev = input_allocate_device();
-> > +   if (!input_dev) {
-> > +           dev_err(&pdev->dev, "failed to allocate input device.\n");
-> > +           err = -EBUSY;
->
-> -ENOMEM instead of -EBUSY.
-
-Ok.
-
->
-> > +           goto err_free_mem;
-> > +   }
-> > +   ts_dev->input = input_dev;
-> > +
-> > +   ts_dev->irq = platform_get_irq(pdev, 0);
-> > +   if (ts_dev->irq < 0) {
-> > +           dev_err(&pdev->dev, "no irq ID is specified.\n");
->
-> Why don't you check if you have IRQ before allocating memory, like you
-> did with the IO?
-
-Will rearrange.
-
->
-> > +           err = -ENODEV;
->
-> Probably should be -EINVAL.
-
-Ok.
-
->
-> > +           goto err_free_dev;
-> > +   }
-> > +
-> > +   ts_dev->tsc_base = ioremap(res->start, resource_size(res));
-> > +   if (!(ts_dev->tsc_base)) {
->
-> Drop extra parens.
->
-
-Ok
-
-> > +           dev_err(&pdev->dev, "failed to map registers.\n");
-> > +           err = -ENOMEM;
-> > +           goto err_release_mem;
-> > +   }
-> > +
-> > +   err = request_irq(ts_dev->irq, tscadc_interrupt, IRQF_DISABLED,
-> > +   pdev->dev.driver->name, ts_dev);
->
-> Please indent this line more.
->
-
-Ok.
-
-> > +   if (err) {
-> > +           dev_err(&pdev->dev, "failed to allocate irq.\n");
-> > +           goto err_unmap_regs;
-> > +   }
-> > +
-> > +   ts_dev->clk = clk_get(&pdev->dev, "tsc_clk");
-> > +   if (IS_ERR(ts_dev->clk)) {
-> > +           dev_err(&pdev->dev, "failed to get ts_clk\n");
-> > +           err = PTR_ERR(ts_dev->clk);
-> > +           goto err_free_irq;
-> > +   }
-> > +   clk_enable(ts_dev->clk);
-> > +
-> > +   clock_rate = clk_get_rate(ts_dev->clk);
-> > +   clk_value = clock_rate / ADC_CLK;
-> > +   if (clk_value < 7) {
-> > +           dev_err(&pdev->dev, "clock input less than min clock
-> requirement\n");
-> > +           goto err_fail;
-> > +   }
-> > +   /* TSCADC_CLKDIV needs to be configured to the value minus 1 */
-> > +   clk_value = clk_value - 1;
-> > +   tscadc_writel(ts_dev, TSCADC_REG_CLKDIV, clk_value);
-> > +
-> > +    /* Enable wake-up of the SoC using touchscreen */
-> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQWAKEUP, TSCADC_IRQWKUP_ENB);
-> > +
-> > +   ts_dev->wires = pdata->wires;
-> > +
-> > +   /* Set the control register bits */
-> > +   ctrl = TSCADC_CNTRLREG_STEPCONFIGWRT |
-> > +                   TSCADC_CNTRLREG_TSCENB |
-> > +                   TSCADC_CNTRLREG_STEPID;
-> > +   if (ts_dev->wires == 4)
->
->       switch()
->
-> > +           ctrl |= TSCADC_CNTRLREG_4WIRE;
-> > +   else if (ts_dev->wires == 5)
-> > +           ctrl |= TSCADC_CNTRLREG_5WIRE;
-> > +   else
-> > +           ctrl |= TSCADC_CNTRLREG_8WIRE;
-> > +   tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
-> > +   tscadc_readl(ts_dev, TSCADC_REG_CTRL);
-> > +
-> > +   /* Set register bits for Idel Config Mode */
-> > +   tsc_idle_config(ts_dev);
-> > +
-> > +   /* IRQ Enable */
-> > +   irqenable = TSCADC_IRQENB_IRQHWPEN |
-> > +                   TSCADC_IRQENB_IRQEOS |
-> > +                   TSCADC_IRQENB_PENUP | TSCADC_IRQENB_FIFO_OVERFLOW;
-> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQENABLE, irqenable);
-> > +   tscadc_readl(ts_dev, TSCADC_REG_IRQENABLE);
-> > +
-> > +   /* Configure the Step registers */
-> > +   stepconfig1 = TSCADC_STEPCONFIG_MODE_HWSYNC |
-> > +                   TSCADC_STEPCONFIG_2SAMPLES_AVG | TSCADC_STEPCONFIG_XPP |
-> > +                   TSCADC_STEPCONFIG_XNN | TSCADC_STEPCONFIG_INM |
-> > +                   TSCADC_STEPCONFIG_RFP_X;
-> > +
-> > +   stepconfig2 = TSCADC_STEPCONFIG_MODE_HWSYNC |
-> > +                   TSCADC_STEPCONFIG_2SAMPLES_AVG | TSCADC_STEPCONFIG_YNN |
-> > +                   TSCADC_STEPCONFIG_INM | TSCADC_STEPCONFIG_RFM_Y;
-> > +   if (ts_dev->wires == 4) {
->
->       switch().
->
-> > +           stepconfig1 |= TSCADC_STEPCONFIG_INP_4 |
-> > +                                   TSCADC_STEPCONFIG_RFM_4_X;
-> > +
-> > +           stepconfig2 |= TSCADC_STEPCONFIG_YPP |
-> > +                                   TSCADC_STEPCONFIG_RFP_4_Y;
-> > +
-> > +   } else if (ts_dev->wires == 5) {
-> > +           stepconfig1 |= TSCADC_STEPCONFIG_YPP |
-> > +                           TSCADC_STEPCONFIG_YNN |
-> > +                           TSCADC_STEPCONFIG_INP_5 |
-> > +                           TSCADC_STEPCONFIG_RFM_5_X;
-> > +
-> > +           stepconfig2 |= TSCADC_STEPCONFIG_XPP |
-> > +                           TSCADC_STEPCONFIG_XNP |
-> > +                           TSCADC_STEPCONFIG_YPN |
-> > +                           TSCADC_STEPCONFIG_RFP_5_Y |
-> > +                           TSCADC_STEPCONFIG_INP_5;
-> > +   } else{
-> > +           stepconfig1 |= TSCADC_STEPCONFIG_INP_8_X |
-> > +                           TSCADC_STEPCONFIG_RFM_8_X;
-> > +
-> > +           stepconfig2 |= TSCADC_STEPCONFIG_YPP |
-> > +                           TSCADC_STEPCONFIG_RFP_8_Y |
-> > +                           TSCADC_STEPCONFIG_INP_8_Y;
-> > +   }
-> > +   delay = TSCADC_STEPCONFIG_OPENDLY | TSCADC_STEPCONFIG_SAMPLEDLY;
-> > +
-> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG1, stepconfig1);
-> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY1, delay);
-> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG2, stepconfig2);
-> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY2, delay);
-> > +
-> > +   tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB);
-> > +
-> > +   ctrl |= TSCADC_CNTRLREG_TSCSSENB;
-> > +   tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
-> > +
->
-> This chip programming could be split into a separate function.
->
-
-Agree. I will add a function to do the chip programming.
-
-> > +   input_dev->name = "ti-tsc-adcc";
-> > +   input_dev->dev.parent = &pdev->dev;
->
->       input_dev->id.bustype = BUS_HOST?
-
-Since this touchscreen is on the SoC, I omitted this.
-
->
-> > +
-> > +   input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> > +   input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> > +
-> > +   input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
-> > +   input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
-> > +
-> > +   /* register to the input system */
-> > +   err = input_register_device(input_dev);
-> > +   if (err)
-> > +           goto err_fail;
-> > +
-> > +   return 0;
-> > +
-> > +err_fail:
-> > +   clk_disable(ts_dev->clk);
-> > +   clk_put(ts_dev->clk);
-> > +err_free_irq:
-> > +   free_irq(ts_dev->irq, ts_dev);
-> > +err_unmap_regs:
-> > +   iounmap(ts_dev->tsc_base);
-> > +err_release_mem:
-> > +   release_mem_region(res->start, resource_size(res));
-> > +err_free_dev:
-> > +   input_free_device(ts_dev->input);
-> > +err_free_mem:
-> > +   kfree(ts_dev);
-> > +   return err;
-> > +}
-> > +
-> > +static int __devexit tscadc_remove(struct platform_device *pdev)
-> > +{
-> > +   struct tscadc           *ts_dev = dev_get_drvdata(&pdev->dev);
-> > +   struct resource         *res;
-> > +
-> > +   free_irq(ts_dev->irq, ts_dev);
-> > +
-> > +   input_unregister_device(ts_dev->input);
-> > +
-> > +   res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > +   iounmap(ts_dev->tsc_base);
-> > +   release_mem_region(res->start, resource_size(res));
-> > +
-> > +   clk_disable(ts_dev->clk);
-> > +   clk_put(ts_dev->clk);
-> > +
-> > +   kfree(ts_dev);
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +static struct platform_driver ti_tsc_driver = {
-> > +   .probe    = tscadc_probe,
-> > +   .remove  = __devexit_p(tscadc_remove),
-> > +   .driver  = {
-> > +           .name   = "tsc",
->
->               .owner = THIS_MODULE;
->
-> No power management needed?
->
-
-For now this is not handling.
-I will add this in patches that will be
-submitted in days to come.
-
-> > +   },
-> > +};
-> > +
-> > +static int __init ti_tsc_init(void)
-> > +{
-> > +   return platform_driver_register(&ti_tsc_driver);
-> > +}
-> > +
-> > +static void __exit ti_tsc_exit(void)
-> > +{
-> > +   platform_driver_unregister(&ti_tsc_driver);
-> > +}
-> > +
-> > +module_init(ti_tsc_init);
-> > +module_exit(ti_tsc_exit);
-> > diff --git a/include/linux/input/ti_tsc.h b/include/linux/input/ti_tsc.h
-> > new file mode 100644
-> > index 0000000..f499773
-> > --- /dev/null
-> > +++ b/include/linux/input/ti_tsc.h
-> > @@ -0,0 +1,7 @@
-> > +/* touch screen wire configuration */
-> > +
-> > +struct tsc_data {
-> > +   int wires;      /* Wires refer to application modes
-> > +                   i.e. 4/5/8 wire touchscreen support
-> > +                   on the platform */
-> > +};
-> > --
-> > 1.6.2.4
-> >
->
-> Thanks.
->
-> --
-> Dmitry
-
-
-Thanks & Regards,
-Rachna.
-
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

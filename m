@@ -1,247 +1,659 @@
-From: =?utf-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>
-Subject: [PATCH 1/2] mc13783: add power button support
-Date: Fri,  8 Jul 2011 16:23:56 +0200
-Message-ID: <1310135037-24289-2-git-send-email-philippe.retornaz@epfl.ch>
-References: <1310135037-24289-1-git-send-email-philippe.retornaz@epfl.ch>
+From: "Patil, Rachna" <rachna@ti.com>
+Subject: RE: [PATCH] input: add support for TI Touchscreen controller.
+Date: Fri, 8 Jul 2011 19:30:44 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB593024D9B58D3@dbde02.ent.ti.com>
+References: <1309956213-27477-1-git-send-email-rachna@ti.com>
+ <20110707143703.GI7658@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1310135037-24289-1-git-send-email-philippe.retornaz@epfl.ch>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: s.hauer@pengutronix.de
-Cc: linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, sameo@linux.intel.com, dmitry.torokhov@gmail.com, u.kleine-koenig@pengutronix.de, philippe.retornaz@epfl.ch, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bear.ext.ti.com ([192.94.94.41]:37413 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750750Ab1GHOAv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2011 10:00:51 -0400
+In-Reply-To: <20110707143703.GI7658@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-VGhpcyBhZGRzIHN1cHBvcnQgZm9yIHRoZSBwb3dlci1vbiBidXR0b25zIG9mIE1DMTM3ODMgUE1J
-Qy4KVGhpcyBpcyBkb25lIHVzaW5nIGEgbWlzYyBpbnB1dCBkZXZpY2UuCgpTaWduZWQtb2ZmLWJ5
-OiBQaGlsaXBwZSBSw6l0b3JuYXogPHBoaWxpcHBlLnJldG9ybmF6QGVwZmwuY2g+Ci0tLQogZHJp
-dmVycy9pbnB1dC9taXNjL0tjb25maWcgICAgICAgICAgICAgfCAgIDExICsrCiBkcml2ZXJzL2lu
-cHV0L21pc2MvTWFrZWZpbGUgICAgICAgICAgICB8ICAgIDEgKwogZHJpdmVycy9pbnB1dC9taXNj
-L21jMTM3ODMtcHdyYnV0dG9uLmMgfCAgMjg4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrCiBkcml2ZXJzL21mZC9tYzEzeHh4LWNvcmUuYyAgICAgICAgICAgICB8ICAgIDQgKwogaW5j
-bHVkZS9saW51eC9tZmQvbWMxMzc4My5oICAgICAgICAgICAgfCAgICAxICsKIGluY2x1ZGUvbGlu
-dXgvbWZkL21jMTN4eHguaCAgICAgICAgICAgIHwgICAxOCArKwogNiBmaWxlcyBjaGFuZ2VkLCAz
-MjMgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2
-ZXJzL2lucHV0L21pc2MvbWMxMzc4My1wd3JidXR0b24uYwoKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-aW5wdXQvbWlzYy9LY29uZmlnIGIvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcKaW5kZXggNDVk
-YzZhYS4uODdkNTk1YyAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcKKysr
-IGIvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcKQEAgLTEwMCw2ICsxMDAsMTcgQEAgY29uZmln
-IElOUFVUX01BWDg5MjVfT05LRVkKIAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1
-bGUsIGNob29zZSBNIGhlcmU6IHRoZSBtb2R1bGUKIAkgIHdpbGwgYmUgY2FsbGVkIG1heDg5MjVf
-b25rZXkuCiAKK2NvbmZpZyBJTlBVVF9NQzEzNzgzX09OCisJdHJpc3RhdGUgIk1DMTM3ODMgT04g
-YnV0dG9ucyIKKwlkZXBlbmRzIG9uIE1GRF9NQzEzNzgzCisJaGVscAorCSAgU3VwcG9ydCB0aGUg
-T04gYnV0dG9ucyBvZiBNQzEzNzgzIFBNSUMgYXMgYW4gaW5wdXQgZGV2aWNlCisJICByZXBvcnRp
-bmcgcG93ZXIgYnV0dG9uIHN0YXR1cy4KKworCSAgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBh
-IG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlIG1vZHVsZQorCSAgd2lsbCBiZSBjYWxsZWQgbWMx
-Mzc4My1wd3JidXR0b24uCisKKwogY29uZmlnIElOUFVUX0FQQU5FTAogCXRyaXN0YXRlICJGdWpp
-dHN1IExpZmVib29rIEFwcGxpY2F0aW9uIFBhbmVsIGJ1dHRvbnMiCiAJZGVwZW5kcyBvbiBYODYg
-JiYgSTJDICYmIExFRFNfQ0xBU1MKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbWlzYy9NYWtl
-ZmlsZSBiL2RyaXZlcnMvaW5wdXQvbWlzYy9NYWtlZmlsZQppbmRleCAzOGVmYjJjLi5mZGM2YWI5
-IDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L21pc2MvTWFrZWZpbGUKKysrIGIvZHJpdmVycy9p
-bnB1dC9taXNjL01ha2VmaWxlCkBAIC0yNyw2ICsyNyw3IEBAIG9iai0kKENPTkZJR19JTlBVVF9J
-WFA0WFhfQkVFUEVSKQkrPSBpeHA0eHgtYmVlcGVyLm8KIG9iai0kKENPTkZJR19JTlBVVF9LRVlT
-UEFOX1JFTU9URSkJKz0ga2V5c3Bhbl9yZW1vdGUubwogb2JqLSQoQ09ORklHX0lOUFVUX002OEtf
-QkVFUCkJCSs9IG02OGtzcGtyLm8KIG9iai0kKENPTkZJR19JTlBVVF9NQVg4OTI1X09OS0VZKQkr
-PSBtYXg4OTI1X29ua2V5Lm8KK29iai0kKENPTkZJR19JTlBVVF9NQzEzNzgzX09OKQkJKz0gbWMx
-Mzc4My1wd3JidXR0b24ubwogb2JqLSQoQ09ORklHX0lOUFVUX1BDQVApCQkrPSBwY2FwX2tleXMu
-bwogb2JqLSQoQ09ORklHX0lOUFVUX1BDRjUwNjMzX1BNVSkJKz0gcGNmNTA2MzMtaW5wdXQubwog
-b2JqLSQoQ09ORklHX0lOUFVUX1BDRjg1NzQpCQkrPSBwY2Y4NTc0X2tleXBhZC5vCmRpZmYgLS1n
-aXQgYS9kcml2ZXJzL2lucHV0L21pc2MvbWMxMzc4My1wd3JidXR0b24uYyBiL2RyaXZlcnMvaW5w
-dXQvbWlzYy9tYzEzNzgzLXB3cmJ1dHRvbi5jCm5ldyBmaWxlIG1vZGUgMTAwNjQ0CmluZGV4IDAw
-MDAwMDAuLjZhZWUwMWMKLS0tIC9kZXYvbnVsbAorKysgYi9kcml2ZXJzL2lucHV0L21pc2MvbWMx
-Mzc4My1wd3JidXR0b24uYwpAQCAtMCwwICsxLDI4OCBAQAorLyoqCisgKiBtYzEzNzgzLXB3cmJ1
-dHRvbi5jIC0gTUMxMzc4MyBQb3dlciBCdXR0b24gSW5wdXQgRHJpdmVyCisgKgorICogQ29weXJp
-Z2h0IChDKSAyMDExIFBoaWxpcHBlIFLDqXRvcm5hegorICoKKyAqIEJhc2VkIG9uIHR3bDQwMzAt
-cHdyYnV0dG9uIGRyaXZlciBieToKKyAqICAgICBQZXRlciBEZSBTY2hyaWp2ZXIgPHBldGVyLmRl
-LXNjaHJpanZlckBub2tpYS5jb20+CisgKiAgICAgRmVsaXBlIEJhbGJpIDxmZWxpcGUuYmFsYmlA
-bm9raWEuY29tPgorICoKKyAqIFRoaXMgZmlsZSBpcyBzdWJqZWN0IHRvIHRoZSB0ZXJtcyBhbmQg
-Y29uZGl0aW9ucyBvZiB0aGUgR05VIEdlbmVyYWwKKyAqIFB1YmxpYyBMaWNlbnNlLiBTZWUgdGhl
-IGZpbGUgIkNPUFlJTkciIGluIHRoZSBtYWluIGRpcmVjdG9yeSBvZiB0aGlzCisgKiBhcmNoaXZl
-IGZvciBtb3JlIGRldGFpbHMuCisgKgorICogVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGlu
-IHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2VmdWwsCisgKiBidXQgV0lUSE9VVCBBTlkgV0FS
-UkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZgorICogTUVSQ0hBTlRB
-QklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZQorICog
-R05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4KKyAqCisgKiBZb3Ug
-c2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGlj
-ZW5zZQorICogYWxvbmcgd2l0aCB0aGlzIHByb2dyYW07IGlmIG5vdCwgd3JpdGUgdG8gdGhlIEZy
-ZWUgU29mdHdhcmUKKyAqIEZvdW5kYXRpb24sIEluYy4sIDU5IFRlbXBsZSBQbGFjZSwgU3VpdGUg
-MzMwLCBCb3N0b24sIE1BICAwMjExMS0xMzA3ICBVU0EKKyAqLworCisjaW5jbHVkZSA8bGludXgv
-bW9kdWxlLmg+CisjaW5jbHVkZSA8bGludXgvaW5pdC5oPgorI2luY2x1ZGUgPGxpbnV4L2tlcm5l
-bC5oPgorI2luY2x1ZGUgPGxpbnV4L2Vycm5vLmg+CisjaW5jbHVkZSA8bGludXgvaW5wdXQuaD4K
-KyNpbmNsdWRlIDxsaW51eC9pbnRlcnJ1cHQuaD4KKyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybV9k
-ZXZpY2UuaD4KKyNpbmNsdWRlIDxsaW51eC9tZmQvbWMxMzc4My5oPgorI2luY2x1ZGUgPGxpbnV4
-L3NjaGVkLmg+CisjaW5jbHVkZSA8bGludXgvc2xhYi5oPgorCitzdHJ1Y3QgbWMxMzc4M19wd3Ji
-IHsKKwlzdHJ1Y3QgaW5wdXRfZGV2ICpwd3I7CisJc3RydWN0IG1jMTN4eHggKm1jMTM3ODM7Cisj
-ZGVmaW5lIE1DMTM3ODNfUFdSQl9CMV9QT0xfSU5WRVJUCSgxIDw8IDApCisjZGVmaW5lIE1DMTM3
-ODNfUFdSQl9CMl9QT0xfSU5WRVJUCSgxIDw8IDEpCisjZGVmaW5lIE1DMTM3ODNfUFdSQl9CM19Q
-T0xfSU5WRVJUCSgxIDw8IDIpCisJaW50IGZsYWdzOworCXVuc2lnbmVkIHNob3J0IGtleW1hcFsz
-XTsKK307CisKKyNkZWZpbmUgTUMxMzc4M19SRUdfSU5URVJSVVBUX1NFTlNFXzEJCTUKKyNkZWZp
-bmUgTUMxMzc4M19JUlFTRU5TRTFfT05PRkQxUwkJKDEgPDwgMykKKyNkZWZpbmUgTUMxMzc4M19J
-UlFTRU5TRTFfT05PRkQyUwkJKDEgPDwgNCkKKyNkZWZpbmUgTUMxMzc4M19JUlFTRU5TRTFfT05P
-RkQzUwkJKDEgPDwgNSkKKworI2RlZmluZSBNQzEzNzgzX1JFR19QT1dFUl9DT05UUk9MXzIJCTE1
-CisjZGVmaW5lIE1DMTM3ODNfUE9XRVJfQ09OVFJPTF8yX09OMUJEQk5DCTQKKyNkZWZpbmUgTUMx
-Mzc4M19QT1dFUl9DT05UUk9MXzJfT04yQkRCTkMJNgorI2RlZmluZSBNQzEzNzgzX1BPV0VSX0NP
-TlRST0xfMl9PTjNCREJOQwk4CisjZGVmaW5lIE1DMTM3ODNfUE9XRVJfQ09OVFJPTF8yX09OMUJS
-U1RFTgkoMSA8PCAxKQorI2RlZmluZSBNQzEzNzgzX1BPV0VSX0NPTlRST0xfMl9PTjJCUlNURU4J
-KDEgPDwgMikKKyNkZWZpbmUgTUMxMzc4M19QT1dFUl9DT05UUk9MXzJfT04zQlJTVEVOCSgxIDw8
-IDMpCisKK3N0YXRpYyBpcnFyZXR1cm5fdCBidXR0b25faXJxKGludCBpcnEsIHZvaWQgKl9wcml2
-KQoreworCXN0cnVjdCBtYzEzNzgzX3B3cmIgKnByaXYgPSBfcHJpdjsKKwlpbnQgdmFsOworCW1j
-MTN4eHhfaXJxX2Fjayhwcml2LT5tYzEzNzgzLCBpcnEpOworCW1jMTN4eHhfcmVnX3JlYWQocHJp
-di0+bWMxMzc4MywgTUMxMzc4M19SRUdfSU5URVJSVVBUX1NFTlNFXzEsICZ2YWwpOworCisJc3dp
-dGNoIChpcnEpIHsKKwljYXNlIE1DMTM3ODNfSVJRX09OT0ZEMToKKwkJdmFsID0gdmFsICYgTUMx
-Mzc4M19JUlFTRU5TRTFfT05PRkQxUyA/IDEgOiAwOworCQlpZiAocHJpdi0+ZmxhZ3MgJiBNQzEz
-NzgzX1BXUkJfQjFfUE9MX0lOVkVSVCkKKwkJCXZhbCBePSAxOworCQlpbnB1dF9yZXBvcnRfa2V5
-KHByaXYtPnB3ciwgcHJpdi0+a2V5bWFwWzBdLCB2YWwpOworCQlicmVhazsKKworCWNhc2UgTUMx
-Mzc4M19JUlFfT05PRkQyOgorCQl2YWwgPSB2YWwgJiBNQzEzNzgzX0lSUVNFTlNFMV9PTk9GRDJT
-ID8gMSA6IDA7CisJCWlmIChwcml2LT5mbGFncyAmIE1DMTM3ODNfUFdSQl9CMl9QT0xfSU5WRVJU
-KQorCQkJdmFsIF49IDE7CisJCWlucHV0X3JlcG9ydF9rZXkocHJpdi0+cHdyLCBwcml2LT5rZXlt
-YXBbMV0sIHZhbCk7CisJCWJyZWFrOworCisJY2FzZSBNQzEzNzgzX0lSUV9PTk9GRDM6CisJCXZh
-bCA9IHZhbCAmIE1DMTM3ODNfSVJRU0VOU0UxX09OT0ZEM1MgPyAxIDogMDsKKwkJaWYgKHByaXYt
-PmZsYWdzICYgTUMxMzc4M19QV1JCX0IzX1BPTF9JTlZFUlQpCisJCQl2YWwgXj0gMTsKKwkJaW5w
-dXRfcmVwb3J0X2tleShwcml2LT5wd3IsIHByaXYtPmtleW1hcFsyXSwgdmFsKTsKKwkJYnJlYWs7
-CisJfQorCisJaW5wdXRfc3luYyhwcml2LT5wd3IpOworCisJcmV0dXJuIElSUV9IQU5ETEVEOwor
-fQorCitzdGF0aWMgaW50IF9fZGV2aW5pdCBtYzEzNzgzX3B3cmJ1dHRvbl9wcm9iZShzdHJ1Y3Qg
-cGxhdGZvcm1fZGV2aWNlICpwZGV2KQoreworCXN0cnVjdCBtYzEzeHh4X2J1dHRvbnNfcGxhdGZv
-cm1fZGF0YSAqcGRhdGE7CisJc3RydWN0IG1jMTN4eHggKm1jMTM3ODMgPSBkZXZfZ2V0X2RydmRh
-dGEocGRldi0+ZGV2LnBhcmVudCk7CisJc3RydWN0IGlucHV0X2RldiAqcHdyOworCXN0cnVjdCBt
-YzEzNzgzX3B3cmIgKnByaXY7CisJaW50IGVyciA9IDA7CisJaW50IHJlZyA9IDA7CisKKwlwZGF0
-YSA9IGRldl9nZXRfcGxhdGRhdGEoJnBkZXYtPmRldik7CisJaWYgKHBkYXRhID09IE5VTEwpIHsK
-KwkJZGV2X2VycigmcGRldi0+ZGV2LCAibWlzc2luZyBwbGF0Zm9ybSBkYXRhXG4iKTsKKwkJcmV0
-dXJuIC1FTk9ERVY7CisJfQorCisJcHdyID0gaW5wdXRfYWxsb2NhdGVfZGV2aWNlKCk7CisJaWYg
-KCFwd3IpIHsKKwkJZGV2X2RiZygmcGRldi0+ZGV2LCAiQ2FuJ3QgYWxsb2NhdGUgcG93ZXIgYnV0
-dG9uXG4iKTsKKwkJcmV0dXJuIC1FTk9NRU07CisJfQorCisJcHJpdiA9IGt6YWxsb2Moc2l6ZW9m
-KCpwcml2KSwgR0ZQX0tFUk5FTCk7CisKKwlpZiAoIXByaXYpIHsKKwkJZXJyID0gLUVOT01FTTsK
-KwkJZGV2X2RiZygmcGRldi0+ZGV2LCAiQ2FuJ3QgYWxsb2NhdGUgcG93ZXIgYnV0dG9uXG4iKTsK
-KwkJZ290byBmcmVlX2lucHV0X2RldjsKKwl9CisKKwlwd3ItPmV2Yml0WzBdID0gQklUX01BU0so
-RVZfS0VZKTsKKworCXJlZyB8PSAocGRhdGEtPmIxb25fZmxhZ3MgJiAweDMpIDw8IE1DMTM3ODNf
-UE9XRVJfQ09OVFJPTF8yX09OMUJEQk5DOworCXJlZyB8PSAocGRhdGEtPmIyb25fZmxhZ3MgJiAw
-eDMpIDw8IE1DMTM3ODNfUE9XRVJfQ09OVFJPTF8yX09OMkJEQk5DOworCXJlZyB8PSAocGRhdGEt
-PmIzb25fZmxhZ3MgJiAweDMpIDw8IE1DMTM3ODNfUE9XRVJfQ09OVFJPTF8yX09OM0JEQk5DOwor
-CisJcHJpdi0+cHdyID0gcHdyOworCXByaXYtPm1jMTM3ODMgPSBtYzEzNzgzOworCisJbWMxM3h4
-eF9sb2NrKG1jMTM3ODMpOworCisJaWYgKHBkYXRhLT5iMW9uX2ZsYWdzICYgTUMxMzc4M19CVVRU
-T05fRU5BQkxFKSB7CisJCXByaXYtPmtleW1hcFswXSA9IHBkYXRhLT5iMW9uX2tleTsKKwkJaWYg
-KHBkYXRhLT5iMW9uX2tleSAhPSBLRVlfUkVTRVJWRUQpCisJCQlfX3NldF9iaXQocGRhdGEtPmIx
-b25fa2V5LCBwd3ItPmtleWJpdCk7CisKKwkJaWYgKHBkYXRhLT5iMW9uX2ZsYWdzICYgTUMxMzc4
-M19CVVRUT05fUE9MX0lOVkVSVCkKKwkJCXByaXYtPmZsYWdzIHw9IE1DMTM3ODNfUFdSQl9CMV9Q
-T0xfSU5WRVJUOworCisJCWlmIChwZGF0YS0+YjFvbl9mbGFncyAmIE1DMTM3ODNfQlVUVE9OX1JF
-U0VUX0VOKQorCQkJcmVnIHw9IE1DMTM3ODNfUE9XRVJfQ09OVFJPTF8yX09OMUJSU1RFTjsKKwor
-CQllcnIgPSBtYzEzeHh4X2lycV9yZXF1ZXN0KG1jMTM3ODMsIE1DMTM3ODNfSVJRX09OT0ZEMSwK
-KwkJCQkJICBidXR0b25faXJxLCAiYjFvbiIsIHByaXYpOworCisJCWlmIChlcnIpIHsKKwkJCW1j
-MTN4eHhfdW5sb2NrKG1jMTM3ODMpOworCisJCQlkZXZfZGJnKCZwZGV2LT5kZXYsICJDYW4ndCBy
-ZXF1ZXN0IGlycVxuIik7CisJCQlnb3RvIGZyZWVfcHJpdjsKKwkJfQorCX0KKworCWlmIChwZGF0
-YS0+YjJvbl9mbGFncyAmIE1DMTM3ODNfQlVUVE9OX0VOQUJMRSkgeworCQlwcml2LT5rZXltYXBb
-MF0gPSBwZGF0YS0+YjJvbl9rZXk7CisJCWlmIChwZGF0YS0+YjJvbl9rZXkgIT0gS0VZX1JFU0VS
-VkVEKQorCQkJX19zZXRfYml0KHBkYXRhLT5iMm9uX2tleSwgcHdyLT5rZXliaXQpOworCisJCWlm
-IChwZGF0YS0+YjJvbl9mbGFncyAmIE1DMTM3ODNfQlVUVE9OX1BPTF9JTlZFUlQpCisJCQlwcml2
-LT5mbGFncyB8PSBNQzEzNzgzX1BXUkJfQjJfUE9MX0lOVkVSVDsKKworCQlpZiAocGRhdGEtPmIy
-b25fZmxhZ3MgJiBNQzEzNzgzX0JVVFRPTl9SRVNFVF9FTikKKwkJCXJlZyB8PSBNQzEzNzgzX1BP
-V0VSX0NPTlRST0xfMl9PTjJCUlNURU47CisKKwkJZXJyID0gbWMxM3h4eF9pcnFfcmVxdWVzdCht
-YzEzNzgzLCBNQzEzNzgzX0lSUV9PTk9GRDIsCisJCQkJCSAgYnV0dG9uX2lycSwgImIyb24iLCBw
-cml2KTsKKworCQlpZiAoZXJyKSB7CisJCQlkZXZfZGJnKCZwZGV2LT5kZXYsICJDYW4ndCByZXF1
-ZXN0IGlycVxuIik7CisJCQlnb3RvIGZyZWVfaXJxX2IxOworCQl9CisJfQorCisJaWYgKHBkYXRh
-LT5iM29uX2ZsYWdzICYgTUMxMzc4M19CVVRUT05fRU5BQkxFKSB7CisJCXByaXYtPmtleW1hcFsw
-XSA9IHBkYXRhLT5iM29uX2tleTsKKwkJaWYgKHBkYXRhLT5iM29uX2tleSAhPSBLRVlfUkVTRVJW
-RUQpCisJCQlfX3NldF9iaXQocGRhdGEtPmIzb25fa2V5LCBwd3ItPmtleWJpdCk7CisKKwkJaWYg
-KHBkYXRhLT5iM29uX2ZsYWdzICYgTUMxMzc4M19CVVRUT05fUE9MX0lOVkVSVCkKKwkJCXByaXYt
-PmZsYWdzIHw9IE1DMTM3ODNfUFdSQl9CM19QT0xfSU5WRVJUOworCisJCWlmIChwZGF0YS0+YjNv
-bl9mbGFncyAmIE1DMTM3ODNfQlVUVE9OX1JFU0VUX0VOKQorCQkJcmVnIHw9IE1DMTM3ODNfUE9X
-RVJfQ09OVFJPTF8yX09OM0JSU1RFTjsKKworCQllcnIgPSBtYzEzeHh4X2lycV9yZXF1ZXN0KG1j
-MTM3ODMsIE1DMTM3ODNfSVJRX09OT0ZEMywKKwkJCQkJICBidXR0b25faXJxLCAiYjNvbiIsIHBy
-aXYpOworCisJCWlmIChlcnIpIHsKKwkJCWRldl9kYmcoJnBkZXYtPmRldiwgIkNhbid0IHJlcXVl
-c3QgaXJxOiAlZFxuIiwgZXJyKTsKKwkJCWdvdG8gZnJlZV9pcnFfYjI7CisJCX0KKwl9CisKKwlt
-YzEzeHh4X3JlZ19ybXcobWMxMzc4MywgTUMxMzc4M19SRUdfUE9XRVJfQ09OVFJPTF8yLCAweDNG
-RSwgcmVnKTsKKworCW1jMTN4eHhfdW5sb2NrKG1jMTM3ODMpOworCisJcHdyLT5uYW1lID0gIm1j
-MTM3ODNfcHdyYnV0dG9uIjsKKwlwd3ItPnBoeXMgPSAibWMxMzc4M19wd3JidXR0b24vaW5wdXQw
-IjsKKwlwd3ItPmRldi5wYXJlbnQgPSAmcGRldi0+ZGV2OworCisJcHdyLT5rZXljb2RlID0gcHJp
-di0+a2V5bWFwOworCXB3ci0+a2V5Y29kZW1heCA9IEFSUkFZX1NJWkUocHJpdi0+a2V5bWFwKTsK
-Kwlwd3ItPmtleWNvZGVzaXplID0gc2l6ZW9mKHByaXYtPmtleW1hcFswXSk7CisKKwllcnIgPSBp
-bnB1dF9yZWdpc3Rlcl9kZXZpY2UocHdyKTsKKwlpZiAoZXJyKSB7CisJCWRldl9kYmcoJnBkZXYt
-PmRldiwgIkNhbid0IHJlZ2lzdGVyIHBvd2VyIGJ1dHRvbjogJWRcbiIsIGVycik7CisJCWdvdG8g
-ZnJlZV9pcnE7CisJfQorCisJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgcHJpdik7CisKKwly
-ZXR1cm4gMDsKKworZnJlZV9pcnE6CisJbWMxM3h4eF9sb2NrKG1jMTM3ODMpOworCisJaWYgKHBk
-YXRhLT5iM29uX2ZsYWdzICYgTUMxMzc4M19CVVRUT05fRU5BQkxFKQorCQltYzEzeHh4X2lycV9m
-cmVlKG1jMTM3ODMsIE1DMTM3ODNfSVJRX09OT0ZEMywgcHJpdik7CitmcmVlX2lycV9iMjoKKwlp
-ZiAocGRhdGEtPmIyb25fZmxhZ3MgJiBNQzEzNzgzX0JVVFRPTl9FTkFCTEUpCisJCW1jMTN4eHhf
-aXJxX2ZyZWUobWMxMzc4MywgTUMxMzc4M19JUlFfT05PRkQyLCBwcml2KTsKKworZnJlZV9pcnFf
-YjE6CisJaWYgKHBkYXRhLT5iMW9uX2ZsYWdzICYgTUMxMzc4M19CVVRUT05fRU5BQkxFKQorCQlt
-YzEzeHh4X2lycV9mcmVlKG1jMTM3ODMsIE1DMTM3ODNfSVJRX09OT0ZEMSwgcHJpdik7CisKKwlt
-YzEzeHh4X3VubG9jayhtYzEzNzgzKTsKKworZnJlZV9wcml2OgorCWtmcmVlKHByaXYpOworCitm
-cmVlX2lucHV0X2RldjoKKwlpbnB1dF9mcmVlX2RldmljZShwd3IpOworCisJcmV0dXJuIGVycjsK
-K30KKworc3RhdGljIGludCBfX2RldmV4aXQgbWMxMzc4M19wd3JidXR0b25fcmVtb3ZlKHN0cnVj
-dCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCit7CisJc3RydWN0IG1jMTM3ODNfcHdyYiAqcHJpdiA9
-IHBsYXRmb3JtX2dldF9kcnZkYXRhKHBkZXYpOworCXN0cnVjdCBtYzEzeHh4X2J1dHRvbnNfcGxh
-dGZvcm1fZGF0YSAqcGRhdGE7CisJcGRhdGEgPSBkZXZfZ2V0X3BsYXRkYXRhKCZwZGV2LT5kZXYp
-OworCisJbWMxM3h4eF9sb2NrKHByaXYtPm1jMTM3ODMpOworCisJaWYgKHBkYXRhLT5iM29uX2Zs
-YWdzICYgTUMxMzc4M19CVVRUT05fRU5BQkxFKQorCQltYzEzeHh4X2lycV9mcmVlKHByaXYtPm1j
-MTM3ODMsIE1DMTM3ODNfSVJRX09OT0ZEMywgcHJpdik7CisJaWYgKHBkYXRhLT5iMm9uX2ZsYWdz
-ICYgTUMxMzc4M19CVVRUT05fRU5BQkxFKQorCQltYzEzeHh4X2lycV9mcmVlKHByaXYtPm1jMTM3
-ODMsIE1DMTM3ODNfSVJRX09OT0ZEMiwgcHJpdik7CisJaWYgKHBkYXRhLT5iMW9uX2ZsYWdzICYg
-TUMxMzc4M19CVVRUT05fRU5BQkxFKQorCQltYzEzeHh4X2lycV9mcmVlKHByaXYtPm1jMTM3ODMs
-IE1DMTM3ODNfSVJRX09OT0ZEMSwgcHJpdik7CisKKwltYzEzeHh4X3VubG9jayhwcml2LT5tYzEz
-NzgzKTsKKworCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKHByaXYtPnB3cik7CisJa2ZyZWUocHJp
-dik7CisKKwlyZXR1cm4gMDsKK30KKworc3RydWN0IHBsYXRmb3JtX2RyaXZlciBtYzEzNzgzX3B3
-cmJ1dHRvbl9kcml2ZXIgPSB7CisJLnByb2JlCQk9IG1jMTM3ODNfcHdyYnV0dG9uX3Byb2JlLAor
-CS5yZW1vdmUJCT0gX19kZXZleGl0X3AobWMxMzc4M19wd3JidXR0b25fcmVtb3ZlKSwKKwkuZHJp
-dmVyCQk9IHsKKwkJLm5hbWUJPSAibWMxMzc4My1wd3JidXR0b24iLAorCQkub3duZXIJPSBUSElT
-X01PRFVMRSwKKwl9LAorfTsKKworc3RhdGljIGludCBfX2luaXQgbWMxMzc4M19wd3JidXR0b25f
-aW5pdCh2b2lkKQoreworCXJldHVybiBwbGF0Zm9ybV9kcml2ZXJfcmVnaXN0ZXIoJm1jMTM3ODNf
-cHdyYnV0dG9uX2RyaXZlcik7Cit9Cittb2R1bGVfaW5pdChtYzEzNzgzX3B3cmJ1dHRvbl9pbml0
-KTsKKworc3RhdGljIHZvaWQgX19leGl0IG1jMTM3ODNfcHdyYnV0dG9uX2V4aXQodm9pZCkKK3sK
-KwlwbGF0Zm9ybV9kcml2ZXJfdW5yZWdpc3RlcigmbWMxMzc4M19wd3JidXR0b25fZHJpdmVyKTsK
-K30KK21vZHVsZV9leGl0KG1jMTM3ODNfcHdyYnV0dG9uX2V4aXQpOworCitNT0RVTEVfQUxJQVMo
-InBsYXRmb3JtOm1jMTM3ODMtcHdyYnV0dG9uIik7CitNT0RVTEVfREVTQ1JJUFRJT04oIk1DMTM3
-ODMgUG93ZXIgQnV0dG9uIik7CitNT0RVTEVfTElDRU5TRSgiR1BMIik7CitNT0RVTEVfQVVUSE9S
-KCJQaGlsaXBwZSBSZXRvcm5heiIpOwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9tZmQvbWMxM3h4eC1j
-b3JlLmMgYi9kcml2ZXJzL21mZC9tYzEzeHh4LWNvcmUuYwppbmRleCA3ZTRkNDRiLi40NGVkZjc4
-IDEwMDY0NAotLS0gYS9kcml2ZXJzL21mZC9tYzEzeHh4LWNvcmUuYworKysgYi9kcml2ZXJzL21m
-ZC9tYzEzeHh4LWNvcmUuYwpAQCAtNzc4LDYgKzc3OCwxMCBAQCBlcnJfcmV2aXNpb246CiAJCW1j
-MTN4eHhfYWRkX3N1YmRldmljZV9wZGF0YShtYzEzeHh4LCAiJXMtbGVkIiwKIAkJCQlwZGF0YS0+
-bGVkcywgc2l6ZW9mKCpwZGF0YS0+bGVkcykpOwogCisJaWYgKHBkYXRhLT5mbGFncyAmIE1DMTNY
-WFhfVVNFX0JVVFRPTikKKwkJbWMxM3h4eF9hZGRfc3ViZGV2aWNlX3BkYXRhKG1jMTN4eHgsICIl
-cy1wd3JidXR0b24iLAorCQkJCXBkYXRhLT5idXR0b25zLCBzaXplb2YoKnBkYXRhLT5idXR0b25z
-KSk7CisKIAlyZXR1cm4gMDsKIH0KIApkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9tZmQvbWMx
-Mzc4My5oIGIvaW5jbHVkZS9saW51eC9tZmQvbWMxMzc4My5oCmluZGV4IDdkMGYzZDYuLmJkNGZi
-YWMgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvbWZkL21jMTM3ODMuaAorKysgYi9pbmNsdWRl
-L2xpbnV4L21mZC9tYzEzNzgzLmgKQEAgLTEwNiw2ICsxMDYsNyBAQCBzdGF0aWMgaW5saW5lIGlu
-dCBtYzEzNzgzX2lycV9hY2soc3RydWN0IG1jMTM3ODMgKm1jMTM3ODMsIGludCBpcnEpCiAjZGVm
-aW5lIG1jMTM3ODNfcmVndWxhdG9yX3BsYXRmb3JtX2RhdGEgbWMxM3h4eF9yZWd1bGF0b3JfcGxh
-dGZvcm1fZGF0YQogI2RlZmluZSBtYzEzNzgzX2xlZF9wbGF0Zm9ybV9kYXRhIG1jMTN4eHhfbGVk
-X3BsYXRmb3JtX2RhdGEKICNkZWZpbmUgbWMxMzc4M19sZWRzX3BsYXRmb3JtX2RhdGEgbWMxM3h4
-eF9sZWRzX3BsYXRmb3JtX2RhdGEKKyNkZWZpbmUgbWMxMzc4M19idXR0b25zX3BsYXRmb3JtX2Rh
-dGEgbWMxM3h4eF9idXR0b25zX3BsYXRmb3JtX2RhdGEKIAogI2RlZmluZSBtYzEzNzgzX3BsYXRm
-b3JtX2RhdGEgbWMxM3h4eF9wbGF0Zm9ybV9kYXRhCiAjZGVmaW5lIE1DMTM3ODNfVVNFX1RPVUNI
-U0NSRUVOCU1DMTNYWFhfVVNFX1RPVUNIU0NSRUVOCmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4
-L21mZC9tYzEzeHh4LmggYi9pbmNsdWRlL2xpbnV4L21mZC9tYzEzeHh4LmgKaW5kZXggYzA2NGJl
-YS4uMjJkODkzMCAxMDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9tZmQvbWMxM3h4eC5oCisrKyBi
-L2luY2x1ZGUvbGludXgvbWZkL21jMTN4eHguaApAQCAtMTM3LDYgKzEzNywyMiBAQCBzdHJ1Y3Qg
-bWMxM3h4eF9sZWRzX3BsYXRmb3JtX2RhdGEgewogCWNoYXIgdGMzX3BlcmlvZDsKIH07CiAKK3N0
-cnVjdCBtYzEzeHh4X2J1dHRvbnNfcGxhdGZvcm1fZGF0YSB7CisjZGVmaW5lIE1DMTM3ODNfQlVU
-VE9OX0RCTkNfME1TCQkwCisjZGVmaW5lIE1DMTM3ODNfQlVUVE9OX0RCTkNfMzBNUwkxCisjZGVm
-aW5lIE1DMTM3ODNfQlVUVE9OX0RCTkNfMTUwTVMJMgorI2RlZmluZSBNQzEzNzgzX0JVVFRPTl9E
-Qk5DXzc1ME1TCTMKKyNkZWZpbmUgTUMxMzc4M19CVVRUT05fRU5BQkxFCQkoMSA8PCAyKQorI2Rl
-ZmluZSBNQzEzNzgzX0JVVFRPTl9QT0xfSU5WRVJUCSgxIDw8IDMpCisjZGVmaW5lIE1DMTM3ODNf
-QlVUVE9OX1JFU0VUX0VOCQkoMSA8PCA0KQorCWludCBiMW9uX2ZsYWdzOworCXVuc2lnbmVkIHNo
-b3J0IGIxb25fa2V5OworCWludCBiMm9uX2ZsYWdzOworCXVuc2lnbmVkIHNob3J0IGIyb25fa2V5
-OworCWludCBiM29uX2ZsYWdzOworCXVuc2lnbmVkIHNob3J0IGIzb25fa2V5OworfTsKKwogc3Ry
-dWN0IG1jMTN4eHhfcGxhdGZvcm1fZGF0YSB7CiAjZGVmaW5lIE1DMTNYWFhfVVNFX1RPVUNIU0NS
-RUVOICgxIDw8IDApCiAjZGVmaW5lIE1DMTNYWFhfVVNFX0NPREVDCSgxIDw8IDEpCkBAIC0xNDQs
-MTAgKzE2MCwxMiBAQCBzdHJ1Y3QgbWMxM3h4eF9wbGF0Zm9ybV9kYXRhIHsKICNkZWZpbmUgTUMx
-M1hYWF9VU0VfUlRDCQkoMSA8PCAzKQogI2RlZmluZSBNQzEzWFhYX1VTRV9SRUdVTEFUT1IJKDEg
-PDwgNCkKICNkZWZpbmUgTUMxM1hYWF9VU0VfTEVECQkoMSA8PCA1KQorI2RlZmluZSBNQzEzWFhY
-X1VTRV9CVVRUT04JKDEgPDwgNikKIAl1bnNpZ25lZCBpbnQgZmxhZ3M7CiAKIAlzdHJ1Y3QgbWMx
-M3h4eF9yZWd1bGF0b3JfcGxhdGZvcm1fZGF0YSByZWd1bGF0b3JzOwogCXN0cnVjdCBtYzEzeHh4
-X2xlZHNfcGxhdGZvcm1fZGF0YSAqbGVkczsKKwlzdHJ1Y3QgbWMxM3h4eF9idXR0b25zX3BsYXRm
-b3JtX2RhdGEgKmJ1dHRvbnM7CiB9OwogCiAjZW5kaWYgLyogaWZuZGVmIF9fTElOVVhfTUZEX01D
-MTNYWFhfSCAqLwotLSAKMS42LjMuMwoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1r
-ZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+Hi Dmitry,
+
+From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+Sent: Thursday, July 07, 2011 8:07 PM
+
+> On Wed, Jul 06, 2011 at 06:13:33PM +0530, Patil, Rachna wrote:
+> > This patch adds support for TI's touchscreen
+> > controller for a 4/5/8 wire resistive panel
+> > that is directly fed to the ADC.
+> >
+> > This touchscreen controller will be part of
+> > an upcoming TI SoC and has been tested on
+> > an emulation platform.
+> >
+> > Signed-off-by: Patil, Rachna <rachna@ti.com>
+>
+> Looks mostly good, please find a few comments below.
+>
+> > ---
+> >  drivers/input/touchscreen/Kconfig     |   11 +
+> >  drivers/input/touchscreen/Makefile    |    1 +
+> >  drivers/input/touchscreen/ti_tscadc.c |  417
+> +++++++++++++++++++++++++++++++++
+> >  include/linux/input/ti_tsc.h          |    7 +
+>
+> Maybe we should call it ti_tscadc.h to match the .c file?
+
+Ok. I will change this to ti_tscadc.h.
+
+>
+> >  4 files changed, 436 insertions(+), 0 deletions(-)
+> >  create mode 100644 drivers/input/touchscreen/ti_tscadc.c
+> >  create mode 100644 include/linux/input/ti_tsc.h
+> >
+> > diff --git a/drivers/input/touchscreen/Kconfig
+> b/drivers/input/touchscreen/Kconfig
+> > index 44589f5..9d5d3ba 100644
+> > --- a/drivers/input/touchscreen/Kconfig
+> > +++ b/drivers/input/touchscreen/Kconfig
+> > @@ -704,4 +704,15 @@ config TOUCHSCREEN_TPS6507X
+> >       To compile this driver as a module, choose M here: the
+> >       module will be called tps6507x_ts.
+> >
+> > +config TOUCHSCREEN_TI_TSCADC
+> > +   tristate "TI Touchscreen Interface"
+> > +   help
+> > +     Say Y here if you have 4/5/8 wire touchscreen controller
+> > +     to be connected to the ADC controller on your TI SoC.
+> > +
+> > +     If unsure, say N.
+> > +
+> > +     To compile this driver as a module, choose M here: the
+> > +     module will be called ti_tscadc.
+> > +
+> >  endif
+> > diff --git a/drivers/input/touchscreen/Makefile
+> b/drivers/input/touchscreen/Makefile
+> > index 51b08b0..82d3098 100644
+> > --- a/drivers/input/touchscreen/Makefile
+> > +++ b/drivers/input/touchscreen/Makefile
+> > @@ -58,3 +58,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)        +=
+> mainstone-wm97xx.o
+> >  obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)  += zylonite-wm97xx.o
+> >  obj-$(CONFIG_TOUCHSCREEN_W90X900)  += w90p910_ts.o
+> >  obj-$(CONFIG_TOUCHSCREEN_TPS6507X) += tps6507x-ts.o
+> > +obj-$(CONFIG_TOUCHSCREEN_TI_TSCADC)        += ti_tscadc.o
+>
+> Please try keeping Kconfig and Makefile sorted alphabetically.
+
+I will rearrange this.
+
+>
+> > diff --git a/drivers/input/touchscreen/ti_tscadc.c
+> b/drivers/input/touchscreen/ti_tscadc.c
+> > new file mode 100644
+> > index 0000000..0308f71
+> > --- /dev/null
+> > +++ b/drivers/input/touchscreen/ti_tscadc.c
+> > @@ -0,0 +1,417 @@
+> > +/*
+> > + * TI Touch Screen driver
+> > + *
+> > + * Copyright (C) 2011 Texas Instruments Incorporated -
+> http://www.ti.com/
+> > + *
+> > + * This program is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU General Public License as
+> > + * published by the Free Software Foundation version 2.
+> > + *
+> > + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+> > + * kind, whether express or implied; without even the implied warranty
+> > + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> > + * GNU General Public License for more details.
+> > + */
+> > +
+> > +
+> > +#include <linux/init.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/err.h>
+> > +#include <linux/module.h>
+> > +#include <linux/input.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/clk.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/io.h>
+> > +#include <linux/input/ti_tsc.h>
+> > +
+> > +#define TSCADC_REG_IRQEOI          0x020
+> > +#define TSCADC_REG_IRQSTATUS               0x028
+> > +#define TSCADC_REG_IRQENABLE               0x02C
+> > +#define TSCADC_REG_IRQWAKEUP               0x034
+> > +#define TSCADC_REG_CTRL                    0x040
+> > +#define TSCADC_REG_ADCFSM          0x044
+> > +#define TSCADC_REG_CLKDIV          0x04C
+> > +#define TSCADC_REG_SE                      0x054
+> > +#define TSCADC_REG_IDLECONFIG              0x058
+> > +#define TSCADC_REG_CHARGECONFIG            0x05C
+> > +#define TSCADC_REG_STEPCONFIG1             0x064
+> > +#define TSCADC_REG_STEPDELAY1              0x068
+> > +#define TSCADC_REG_STEPCONFIG2             0x06C
+> > +#define TSCADC_REG_STEPDELAY2              0x070
+> > +#define TSCADC_REG_FIFO0           0x100
+> > +
+> > +/* Register Bitfields      */
+> > +#define TSCADC_IRQWKUP_ENB         BIT(0)
+> > +#define TSCADC_STPENB_STEPENB              (7 << 0)
+> > +#define TSCADC_IRQENB_IRQHWPEN             BIT(10)
+> > +#define TSCADC_IRQENB_IRQEOS               BIT(1)
+> > +#define TSCADC_IRQENB_FIFO_OVERFLOW        BIT(3)
+> > +#define TSCADC_IRQENB_PENUP                BIT(9)
+> > +#define TSCADC_STEPCONFIG_MODE_HWSYNC      0x3
+> > +#define TSCADC_STEPCONFIG_2SAMPLES_AVG     BIT(2)
+> > +#define TSCADC_STEPCONFIG_XPP              BIT(5)
+> > +#define TSCADC_STEPCONFIG_XNN              BIT(6)
+> > +#define TSCADC_STEPCONFIG_YPP              BIT(7)
+> > +#define TSCADC_STEPCONFIG_YNN              BIT(8)
+> > +#define TSCADC_STEPCONFIG_XNP              BIT(9)
+> > +#define TSCADC_STEPCONFIG_YPN              BIT(10)
+> > +#define TSCADC_STEPCONFIG_RFP_X            (1 << 12)
+> > +#define TSCADC_STEPCONFIG_RFP_4_Y  (1 << 13)
+> > +#define TSCADC_STEPCONFIG_RFP_5_Y  (1 << 12)
+> > +#define TSCADC_STEPCONFIG_RFP_8_Y  (1 << 13)
+> > +#define TSCADC_STEPCONFIG_INM              (1 << 18)
+> > +#define TSCADC_STEPCONFIG_INP_4            (1 << 20)
+> > +#define TSCADC_STEPCONFIG_INP_5            (1 << 21)
+> > +#define TSCADC_STEPCONFIG_INP_8_X  (3 << 20)
+> > +#define TSCADC_STEPCONFIG_INP_8_Y  (1 << 21)
+> > +#define TSCADC_STEPCONFIG_RFM_4_X  (1 << 23)
+> > +#define TSCADC_STEPCONFIG_RFM_5_X  (1 << 24)
+> > +#define TSCADC_STEPCONFIG_RFM_8_X  (1 << 23)
+> > +#define TSCADC_STEPCONFIG_RFM_Y            (1 << 24)
+> > +#define TSCADC_STEPCONFIG_OPENDLY  (0xf << 0)
+> > +#define TSCADC_STEPCONFIG_SAMPLEDLY        BIT(25)
+> > +#define TSCADC_STEPCHARGE_INM              BIT(18)
+> > +#define TSCADC_STEPCHARGE_RFM              (3 << 23)
+> > +#define TSCADC_CNTRLREG_TSCSSENB   BIT(0)
+> > +#define TSCADC_CNTRLREG_STEPID             BIT(1)
+> > +#define TSCADC_CNTRLREG_STEPCONFIGWRT      BIT(2)
+> > +#define TSCADC_CNTRLREG_TSCENB             BIT(7)
+> > +#define TSCADC_CNTRLREG_4WIRE              (0x1 << 5)
+> > +#define TSCADC_CNTRLREG_5WIRE              (0x1 << 6)
+> > +#define TSCADC_CNTRLREG_8WIRE              (0x3 << 5)
+> > +#define TSCADC_ADCFSM_STEPID               0x10
+> > +#define TSCADC_ADCFSM_FSM          BIT(5)
+> > +
+> > +#define ADC_CLK                            3000000
+> > +
+> > +#define MAX_12BIT                       ((1 << 12) - 1)
+> > +
+> > +struct tscadc {
+> > +   struct input_dev        *input;
+> > +   int                     wires;
+> > +   struct clk              *clk;
+> > +   int                     irq;
+> > +   void __iomem            *tsc_base;
+> > +};
+> > +
+> > +static inline unsigned int tscadc_readl(struct tscadc *ts, unsigned int
+> reg)
+>
+> Drop the 'inline', let compiler figure out what needs to be inlined.
+
+Ok.
+
+>
+> > +{
+> > +   return readl(ts->tsc_base + reg);
+> > +}
+> > +
+> > +static inline void tscadc_writel(struct tscadc *tsc, unsigned int reg,
+> > +                                   unsigned int val)
+> > +{
+> > +   writel(val, tsc->tsc_base + reg);
+> > +}
+> > +
+> > +void tsc_idle_config(struct tscadc *ts_config)
+>
+> Should be static.
+
+Ok.
+
+>
+> > +{
+> > +   /* Idle mode touch screen config */
+> > +   unsigned int     idleconfig;
+> > +
+> > +   idleconfig = TSCADC_STEPCONFIG_YNN |
+> > +                           TSCADC_STEPCONFIG_RFP_X |
+> > +                           TSCADC_STEPCONFIG_INM ;
+> > +
+> > +   if (ts_config->wires == 4) {
+>
+>       switch (ts_config->wires) {
+>       case 4:
+>               ...
+>       }
+
+Will add switch cases accordingly through out
+the code.
+
+>
+> > +           idleconfig |= TSCADC_STEPCONFIG_INP_4 |
+> > +                           TSCADC_STEPCONFIG_RFM_4_X;
+> > +
+> > +   } else if (ts_config->wires == 5) {
+> > +           idleconfig |= TSCADC_STEPCONFIG_INP_5 |
+> > +                           TSCADC_STEPCONFIG_RFM_5_X;
+> > +
+> > +   } else {
+> > +           idleconfig |= TSCADC_STEPCONFIG_INP_4 |
+> > +                           TSCADC_STEPCONFIG_RFM_8_X;
+> > +   }
+> > +   tscadc_writel(ts_config, TSCADC_REG_IDLECONFIG, idleconfig);
+> > +}
+> > +
+> > +static irqreturn_t tscadc_interrupt(int irq, void *dev)
+> > +{
+> > +   struct tscadc           *ts_dev = (struct tscadc *)dev;
+> > +   struct input_dev        *input_dev = ts_dev->input;
+> > +   unsigned int            status, store, cntrlreg, irqclr = 0;
+> > +   int                     absx, absy;
+> > +   int                     charge, fsm;
+> > +
+> > +   status = tscadc_readl(ts_dev, TSCADC_REG_IRQSTATUS);
+> > +   tscadc_writel(ts_dev, TSCADC_REG_SE, 0x0);
+> > +
+> > +   /* Pen touch event */
+> > +   if (status & TSCADC_IRQENB_IRQHWPEN)
+> > +           irqclr = status & TSCADC_IRQENB_IRQHWPEN;
+> > +
+> > +   if (status & TSCADC_IRQENB_PENUP) {
+> > +           /* Pen up event */
+> > +           charge = TSCADC_STEPCHARGE_INM | TSCADC_STEPCHARGE_RFM;
+> > +           tscadc_writel(ts_dev, TSCADC_REG_CHARGECONFIG, charge);
+> > +           input_report_key(input_dev, BTN_TOUCH, 0);
+>
+>               input_sync(input_dev);
+
+Will add this.
+
+>
+> > +           tsc_idle_config(ts_dev);
+> > +           irqclr |= status & TSCADC_IRQENB_PENUP;
+>
+> You already know that TSCADC_IRQENB_PENUP in status is set, so can do
+>
+>       irqclr |= TSCADC_IRQENB_PENUP;
+>
+> But you do it several times. If you define a bitmask mask you can do
+>
+>       irqclr = status & TSCADC_IRQENB_MASK;
+>
+> once before writing it back to the device.
+
+Will change it to irqclr |= TSCADC_IRQENB_PENUP;
+
+>
+> > +
+> > +   }
+> > +   if (status & TSCADC_IRQENB_IRQEOS) {
+> > +           /* ADC is done with sampling, ready to read the data */
+> > +           absx = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
+> > +           absy = tscadc_readl(ts_dev, TSCADC_REG_FIFO0);
+> > +
+> > +           input_report_abs(input_dev, ABS_X, absx);
+> > +           input_report_abs(input_dev, ABS_Y, absy);
+> > +           input_report_key(input_dev, BTN_TOUCH, 1);
+>
+>               input_sync(input_dev);
+
+I will add this.
+
+>
+> > +
+> > +           irqclr |= status & TSCADC_IRQENB_IRQEOS;
+> > +
+> > +   }
+> > +   if (status & TSCADC_IRQENB_FIFO_OVERFLOW) {
+> > +           /* FIFO overflow condition */
+> > +           cntrlreg = tscadc_readl(ts_dev, TSCADC_REG_CTRL);
+> > +           cntrlreg &= ~TSCADC_CNTRLREG_TSCSSENB;
+> > +           tscadc_writel(ts_dev, TSCADC_REG_CTRL, cntrlreg);
+> > +
+> > +           irqclr |= status & TSCADC_IRQENB_FIFO_OVERFLOW;
+> > +   }
+> > +
+> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQSTATUS, irqclr);
+> > +   fsm = tscadc_readl(ts_dev, TSCADC_REG_ADCFSM);
+> > +   if ((fsm & TSCADC_ADCFSM_FSM) &&
+> > +                   (fsm & TSCADC_ADCFSM_STEPID)) {
+> > +           store = tscadc_readl(ts_dev, TSCADC_REG_CTRL);
+> > +           store |= TSCADC_CNTRLREG_TSCSSENB;
+> > +           tscadc_writel(ts_dev, TSCADC_REG_CTRL, store);
+> > +   }
+> > +
+> > +    /* check pending interrupts */
+> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQEOI, 0x0);
+> > +
+> > +   tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB);
+> > +   return IRQ_HANDLED;
+> > +}
+> > +
+> > +/*
+> > +* The functions for inserting/removing driver as a module.
+> > +*/
+> > +
+> > +static     int __devinit tscadc_probe(struct platform_device *pdev)
+> > +{
+> > +   struct tscadc                   *ts_dev;
+> > +   struct input_dev                *input_dev;
+> > +   int                             err;
+> > +   int                             clk_value;
+> > +   int                             clock_rate, ctrl, irqenable;
+> > +   struct  tsc_data                *pdata = pdev->dev.platform_data;
+> > +   struct resource                 *res;
+> > +   int                             stepconfig1, stepconfig2, delay;
+> > +
+> > +   res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +   if (!res) {
+> > +           dev_err(&pdev->dev, "no memory resource defined.\n");
+> > +           return -ENXIO;
+>
+> -EINVAL? We do expect the device to be set up properly.
+
+Agree.
+
+>
+> > +   }
+> > +
+> > +   /* Allocate memory for device */
+> > +   ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
+> > +   if (!ts_dev) {
+> > +           dev_err(&pdev->dev, "failed to allocate memory.\n");
+> > +           return -ENOMEM;
+> > +   }
+> > +
+> > +   input_dev = input_allocate_device();
+> > +   if (!input_dev) {
+> > +           dev_err(&pdev->dev, "failed to allocate input device.\n");
+> > +           err = -EBUSY;
+>
+> -ENOMEM instead of -EBUSY.
+
+Ok.
+
+>
+> > +           goto err_free_mem;
+> > +   }
+> > +   ts_dev->input = input_dev;
+> > +
+> > +   ts_dev->irq = platform_get_irq(pdev, 0);
+> > +   if (ts_dev->irq < 0) {
+> > +           dev_err(&pdev->dev, "no irq ID is specified.\n");
+>
+> Why don't you check if you have IRQ before allocating memory, like you
+> did with the IO?
+
+Will rearrange.
+
+>
+> > +           err = -ENODEV;
+>
+> Probably should be -EINVAL.
+
+Ok.
+
+>
+> > +           goto err_free_dev;
+> > +   }
+> > +
+> > +   ts_dev->tsc_base = ioremap(res->start, resource_size(res));
+> > +   if (!(ts_dev->tsc_base)) {
+>
+> Drop extra parens.
+>
+
+Ok
+
+> > +           dev_err(&pdev->dev, "failed to map registers.\n");
+> > +           err = -ENOMEM;
+> > +           goto err_release_mem;
+> > +   }
+> > +
+> > +   err = request_irq(ts_dev->irq, tscadc_interrupt, IRQF_DISABLED,
+> > +   pdev->dev.driver->name, ts_dev);
+>
+> Please indent this line more.
+>
+
+Ok.
+
+> > +   if (err) {
+> > +           dev_err(&pdev->dev, "failed to allocate irq.\n");
+> > +           goto err_unmap_regs;
+> > +   }
+> > +
+> > +   ts_dev->clk = clk_get(&pdev->dev, "tsc_clk");
+> > +   if (IS_ERR(ts_dev->clk)) {
+> > +           dev_err(&pdev->dev, "failed to get ts_clk\n");
+> > +           err = PTR_ERR(ts_dev->clk);
+> > +           goto err_free_irq;
+> > +   }
+> > +   clk_enable(ts_dev->clk);
+> > +
+> > +   clock_rate = clk_get_rate(ts_dev->clk);
+> > +   clk_value = clock_rate / ADC_CLK;
+> > +   if (clk_value < 7) {
+> > +           dev_err(&pdev->dev, "clock input less than min clock
+> requirement\n");
+> > +           goto err_fail;
+> > +   }
+> > +   /* TSCADC_CLKDIV needs to be configured to the value minus 1 */
+> > +   clk_value = clk_value - 1;
+> > +   tscadc_writel(ts_dev, TSCADC_REG_CLKDIV, clk_value);
+> > +
+> > +    /* Enable wake-up of the SoC using touchscreen */
+> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQWAKEUP, TSCADC_IRQWKUP_ENB);
+> > +
+> > +   ts_dev->wires = pdata->wires;
+> > +
+> > +   /* Set the control register bits */
+> > +   ctrl = TSCADC_CNTRLREG_STEPCONFIGWRT |
+> > +                   TSCADC_CNTRLREG_TSCENB |
+> > +                   TSCADC_CNTRLREG_STEPID;
+> > +   if (ts_dev->wires == 4)
+>
+>       switch()
+>
+> > +           ctrl |= TSCADC_CNTRLREG_4WIRE;
+> > +   else if (ts_dev->wires == 5)
+> > +           ctrl |= TSCADC_CNTRLREG_5WIRE;
+> > +   else
+> > +           ctrl |= TSCADC_CNTRLREG_8WIRE;
+> > +   tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
+> > +   tscadc_readl(ts_dev, TSCADC_REG_CTRL);
+> > +
+> > +   /* Set register bits for Idel Config Mode */
+> > +   tsc_idle_config(ts_dev);
+> > +
+> > +   /* IRQ Enable */
+> > +   irqenable = TSCADC_IRQENB_IRQHWPEN |
+> > +                   TSCADC_IRQENB_IRQEOS |
+> > +                   TSCADC_IRQENB_PENUP | TSCADC_IRQENB_FIFO_OVERFLOW;
+> > +   tscadc_writel(ts_dev, TSCADC_REG_IRQENABLE, irqenable);
+> > +   tscadc_readl(ts_dev, TSCADC_REG_IRQENABLE);
+> > +
+> > +   /* Configure the Step registers */
+> > +   stepconfig1 = TSCADC_STEPCONFIG_MODE_HWSYNC |
+> > +                   TSCADC_STEPCONFIG_2SAMPLES_AVG | TSCADC_STEPCONFIG_XPP |
+> > +                   TSCADC_STEPCONFIG_XNN | TSCADC_STEPCONFIG_INM |
+> > +                   TSCADC_STEPCONFIG_RFP_X;
+> > +
+> > +   stepconfig2 = TSCADC_STEPCONFIG_MODE_HWSYNC |
+> > +                   TSCADC_STEPCONFIG_2SAMPLES_AVG | TSCADC_STEPCONFIG_YNN |
+> > +                   TSCADC_STEPCONFIG_INM | TSCADC_STEPCONFIG_RFM_Y;
+> > +   if (ts_dev->wires == 4) {
+>
+>       switch().
+>
+> > +           stepconfig1 |= TSCADC_STEPCONFIG_INP_4 |
+> > +                                   TSCADC_STEPCONFIG_RFM_4_X;
+> > +
+> > +           stepconfig2 |= TSCADC_STEPCONFIG_YPP |
+> > +                                   TSCADC_STEPCONFIG_RFP_4_Y;
+> > +
+> > +   } else if (ts_dev->wires == 5) {
+> > +           stepconfig1 |= TSCADC_STEPCONFIG_YPP |
+> > +                           TSCADC_STEPCONFIG_YNN |
+> > +                           TSCADC_STEPCONFIG_INP_5 |
+> > +                           TSCADC_STEPCONFIG_RFM_5_X;
+> > +
+> > +           stepconfig2 |= TSCADC_STEPCONFIG_XPP |
+> > +                           TSCADC_STEPCONFIG_XNP |
+> > +                           TSCADC_STEPCONFIG_YPN |
+> > +                           TSCADC_STEPCONFIG_RFP_5_Y |
+> > +                           TSCADC_STEPCONFIG_INP_5;
+> > +   } else{
+> > +           stepconfig1 |= TSCADC_STEPCONFIG_INP_8_X |
+> > +                           TSCADC_STEPCONFIG_RFM_8_X;
+> > +
+> > +           stepconfig2 |= TSCADC_STEPCONFIG_YPP |
+> > +                           TSCADC_STEPCONFIG_RFP_8_Y |
+> > +                           TSCADC_STEPCONFIG_INP_8_Y;
+> > +   }
+> > +   delay = TSCADC_STEPCONFIG_OPENDLY | TSCADC_STEPCONFIG_SAMPLEDLY;
+> > +
+> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG1, stepconfig1);
+> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY1, delay);
+> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPCONFIG2, stepconfig2);
+> > +   tscadc_writel(ts_dev, TSCADC_REG_STEPDELAY2, delay);
+> > +
+> > +   tscadc_writel(ts_dev, TSCADC_REG_SE, TSCADC_STPENB_STEPENB);
+> > +
+> > +   ctrl |= TSCADC_CNTRLREG_TSCSSENB;
+> > +   tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
+> > +
+>
+> This chip programming could be split into a separate function.
+>
+
+Agree. I will add a function to do the chip programming.
+
+> > +   input_dev->name = "ti-tsc-adcc";
+> > +   input_dev->dev.parent = &pdev->dev;
+>
+>       input_dev->id.bustype = BUS_HOST?
+
+Since this touchscreen is on the SoC, I omitted this.
+
+>
+> > +
+> > +   input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> > +   input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> > +
+> > +   input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+> > +   input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+> > +
+> > +   /* register to the input system */
+> > +   err = input_register_device(input_dev);
+> > +   if (err)
+> > +           goto err_fail;
+> > +
+> > +   return 0;
+> > +
+> > +err_fail:
+> > +   clk_disable(ts_dev->clk);
+> > +   clk_put(ts_dev->clk);
+> > +err_free_irq:
+> > +   free_irq(ts_dev->irq, ts_dev);
+> > +err_unmap_regs:
+> > +   iounmap(ts_dev->tsc_base);
+> > +err_release_mem:
+> > +   release_mem_region(res->start, resource_size(res));
+> > +err_free_dev:
+> > +   input_free_device(ts_dev->input);
+> > +err_free_mem:
+> > +   kfree(ts_dev);
+> > +   return err;
+> > +}
+> > +
+> > +static int __devexit tscadc_remove(struct platform_device *pdev)
+> > +{
+> > +   struct tscadc           *ts_dev = dev_get_drvdata(&pdev->dev);
+> > +   struct resource         *res;
+> > +
+> > +   free_irq(ts_dev->irq, ts_dev);
+> > +
+> > +   input_unregister_device(ts_dev->input);
+> > +
+> > +   res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +   iounmap(ts_dev->tsc_base);
+> > +   release_mem_region(res->start, resource_size(res));
+> > +
+> > +   clk_disable(ts_dev->clk);
+> > +   clk_put(ts_dev->clk);
+> > +
+> > +   kfree(ts_dev);
+> > +
+> > +   return 0;
+> > +}
+> > +
+> > +static struct platform_driver ti_tsc_driver = {
+> > +   .probe    = tscadc_probe,
+> > +   .remove  = __devexit_p(tscadc_remove),
+> > +   .driver  = {
+> > +           .name   = "tsc",
+>
+>               .owner = THIS_MODULE;
+>
+> No power management needed?
+>
+
+For now this is not handling.
+I will add this in patches that will be
+submitted in days to come.
+
+> > +   },
+> > +};
+> > +
+> > +static int __init ti_tsc_init(void)
+> > +{
+> > +   return platform_driver_register(&ti_tsc_driver);
+> > +}
+> > +
+> > +static void __exit ti_tsc_exit(void)
+> > +{
+> > +   platform_driver_unregister(&ti_tsc_driver);
+> > +}
+> > +
+> > +module_init(ti_tsc_init);
+> > +module_exit(ti_tsc_exit);
+> > diff --git a/include/linux/input/ti_tsc.h b/include/linux/input/ti_tsc.h
+> > new file mode 100644
+> > index 0000000..f499773
+> > --- /dev/null
+> > +++ b/include/linux/input/ti_tsc.h
+> > @@ -0,0 +1,7 @@
+> > +/* touch screen wire configuration */
+> > +
+> > +struct tsc_data {
+> > +   int wires;      /* Wires refer to application modes
+> > +                   i.e. 4/5/8 wire touchscreen support
+> > +                   on the platform */
+> > +};
+> > --
+> > 1.6.2.4
+> >
+>
+> Thanks.
+>
+> --
+> Dmitry
+
+
+Thanks & Regards,
+Rachna.
+

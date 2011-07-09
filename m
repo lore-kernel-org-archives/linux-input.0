@@ -1,23 +1,17 @@
 From: Daniel Drake <dsd@laptop.org>
 Subject: [PATCH v2] Input: enable i8042-level wakeup control
 Date: Sat,  9 Jul 2011 22:13:21 +0100 (BST)
-Message-ID: <20110709211321.5FE139D401C@zog.reactivated.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru
-Cc: linux-pm@lists.linux-foundation.org, dilinger@queued.net, linux-input@vger.kernel.org
+Message-ID: <20110709211321.5FE139D401C__38531.9966976114$1310247660$gmane$org@zog.reactivated.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from queueout02-winn.ispmail.ntl.com ([81.103.221.56]:42829 "EHLO
+	queueout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754874Ab1GIVku (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 9 Jul 2011 17:40:50 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru
+Cc: linux-input@vger.kernel.org, dilinger@queued.net, rjw@sisk.pl, linux-pm@lists.linux-foundation.org
 
 The OLPC XO laptop is able to use the PS/2 controller as a wakeup source.
 When used as a wakeup source, the key press/mouse motion must not be lost.
@@ -359,3 +353,4 @@ index ba70058..3d5793a 100644
  
 -- 
 1.7.5.4
+

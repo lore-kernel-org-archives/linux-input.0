@@ -1,48 +1,45 @@
-From: Jeffrey Brown <jeffbrown@android.com>
-Subject: Re: [PATCH 03/12] Input: synaptics - fix minimum reported ABS_TOOL_WIDTH
-Date: Fri, 8 Jul 2011 23:24:09 -0700
-Message-ID: <CAMu+ixjT7dXBx-vtuL6BOBdiLZkRy-ZeaxZc37um3T=wqxO-pQ@mail.gmail.com>
-References: <1309324042-22943-1-git-send-email-djkurtz@chromium.org> <1309324042-22943-4-git-send-email-djkurtz@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Gerard Braad <me@gbraad.nl>
+Subject: [PATCH] Added support for the Wacom Bamboo Pen (CTL-660/K)
+Date: Sat,  9 Jul 2011 15:14:38 +0800
+Message-ID: <1310195678-22685-1-git-send-email-me@gbraad.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:52827 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751493Ab1GIGYu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jul 2011 02:24:50 -0400
-In-Reply-To: <1309324042-22943-4-git-send-email-djkurtz@chromium.org>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:43738 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751880Ab1GIHPF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jul 2011 03:15:05 -0400
+Received: by iwn6 with SMTP id 6so2330633iwn.19
+        for <linux-input@vger.kernel.org>; Sat, 09 Jul 2011 00:15:03 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: djkurtz@chromium.org
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Chris Bagwell <chris@cnpbagwell.com>
+Cc: linux-input@vger.kernel.org, Gerard Braad <me@gbraad.nl>
 
-On Tue, Jun 28, 2011 at 10:07 PM,  <djkurtz@chromium.org> wrote:
-> From: Daniel Kurtz <djkurtz@chromium.org>
->
-> Synaptics touchpads report a 'w' value in each data report.
-> For touchpads that support palm detection, when there is a single fin=
-ger
-> on the pad, the 'w' value reports its width in the range 4 to 15.
-> Thus, the minimum valid width is 4.
->
-> Note: Other values of 'w' are used to report special conditions:
-> =A0w=3D0: 2 fingers are on the pad
-> =A0w=3D1: 3 or more fingers are on the pad
-> =A0w=3D2: the packet contains "Advanced Gesture Mode" data.
+---
+ drivers/input/tablet/wacom_wac.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-Ideally we should scale this to a physically meaningful quantity
-instead, such as surface units.  That would require knowing the
-distance between each capacitive touch channel and then scaling W - 4
-by that amount before reporting it.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 08ba5ad..23c9a40 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1460,6 +1460,9 @@ static const struct wacom_features wacom_features_0xD3 =
+ static const struct wacom_features wacom_features_0xD4 =
+ 	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200,  255,
+ 	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0xD5 =
++	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     21648, 13530, 1023,
++	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xD6 =
+ 	{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023,
+ 	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+@@ -1551,6 +1554,7 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xD2) },
+ 	{ USB_DEVICE_WACOM(0xD3) },
+ 	{ USB_DEVICE_WACOM(0xD4) },
++	{ USB_DEVICE_WACOM(0xD5) },
+ 	{ USB_DEVICE_WACOM(0xD6) },
+ 	{ USB_DEVICE_WACOM(0xD7) },
+ 	{ USB_DEVICE_WACOM(0xD8) },
+-- 
+1.7.5.2
 
-These values are all kind of mysterious to user-space anyways unless
-the physical nature of the device is known by other means (such as
-configuration files).
-
-Jeff.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,89 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: INPUT_COMPAT_TEST
-Date: Fri, 8 Jul 2011 17:35:08 -0700
-Message-ID: <20110709003508.GC28623@core.coreip.homeip.net>
-References: <4E17504F.5070806@zytor.com>
- <20110708204630.GA28623@core.coreip.homeip.net>
- <4E178320.7050401@zytor.com>
- <20110708223709.GB28623@core.coreip.homeip.net>
- <4E179033.9050806@zytor.com>
+From: Jeffrey Brown <jeffbrown@android.com>
+Subject: Re: [PATCH 3/4] Fix hover in Android (Gingerbread)
+Date: Fri, 8 Jul 2011 23:15:08 -0700
+Message-ID: <CAMu+ixhnAXoSEvjt+aC=imnXx-b8uM8TYWWWoV2U99WMJJU-kQ@mail.gmail.com>
+References: <1310072700-2829-1-git-send-email-killertofu@gmail.com> <1310072700-2829-3-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:61797 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750931Ab1GIAfP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2011 20:35:15 -0400
-Received: by pvg12 with SMTP id 12so1447731pvg.19
-        for <linux-input@vger.kernel.org>; Fri, 08 Jul 2011 17:35:14 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4E179033.9050806@zytor.com>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:60527 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751955Ab1GIGPu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Jul 2011 02:15:50 -0400
+Received: by bwd5 with SMTP id 5so2193819bwd.19
+        for <linux-input@vger.kernel.org>; Fri, 08 Jul 2011 23:15:48 -0700 (PDT)
+In-Reply-To: <1310072700-2829-3-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Philip Langdale <philipl@overt.org>, linux-input@vger.kernel.org, "H.J. Lu" <hjl.tools@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jgerecke@wacom.com>, Dima Zavin <dima@android.com>
 
-On Fri, Jul 08, 2011 at 04:18:11PM -0700, H. Peter Anvin wrote:
-> On 07/08/2011 03:37 PM, Dmitry Torokhov wrote:
-> >>
-> >>> We also have similar issues with uinput API and uploading force-freedack
-> >>> effects.
-> >>
-> >> Those are ioctl, though, if I read the code right, or did I miss
-> >> something obvious?
-> > 
-> > Ah, yes, indeed.
-> > 
-> 
-> So the point still holds... you're right now using INPUT_COMPAT_TEST for
-> those, but what you *should* use is whether or not you were entered via
-> the compat ioctl entry point.
+On Thu, Jul 7, 2011 at 2:04 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+> As of Gingerbread, Android does not pay attention to if the pen
+> is in contact with the screen, or merely in proximity. Since the
+> Xorg Wacom driver does not make use of MT pen events, we simply
+> do not emit MT data while hovering.
 
-Since we still do need (at least for now) INPUT_COMPAT_TEST in non-ioctl
-paths it does not matter much.
+I'd rather not change the behavior of the upstream driver because that
+would break other things.  It would be better to just fix the Android
+framework code for the device you are shipping.
 
-> 
-> >>
-> >>>> but it looks like input also
-> >>>> does things like change the format(?!) of sysfs entries, all of which
-> >>>> makes me very concerned.
-> >>>
-> >>> Another historical unfortunate decision. /proc/bus/input (and later
-> >>> added sysfs entries) export bitmaps in "compressed" form so that
-> >>> userspace can not figure out the size of the segment (32 or 64 bit) on
-> >>> its own so we have to convert to userspace size for longs.
-> >>
-> >> "Compressed form"?  Could you give a concrete example?  They look like
-> >> they are emitted in text form.
-> > 
-> > We drop leading zeroes so if you get "1 0 0 1ffff" you do not know
-> > the bit position of the most significant '1' unless we keep segments of
-> > known size. Unfortunately we started with 32 bit segments on 32 bit
-> > kernels and 64 bit segments on 64 bit kernels so we coudl not simply say
-> > that we always split on 32 bit boundary when we discovered compat
-> > problem a few years later.
-> 
-> Ah yes, it is the "binary output masquerading as text, so we end up with
-> something that is worse a mess than either" problem.
-> 
-> >>
-> >> Do you have a program that someone could run to see the differences
-> >> between compat and non-compat paths?
-> > 
-> > Hmm, cat for /proc/bus/input/devices and sysfs nodes and evtest would
-> > either work or give garbage if compat code woudl not work.
-> > 
-> 
-> I'm desperately trying to come up with a solution which doesn't require
-> us to replicate every single system call (which is what relying on
-> is_compat_task() does -- it remembers the entry point used) in order
-> support one single misdesigned subsystem.  Do you have any kind of ideas
-> for what we might be able to do?
+What is it about Gingerbread that causes problems with hover?  Is it
+the fact it isn't checking BTN_TOUCH or the fact that it doesn't care
+when ABS_MT_PRESSURE == 0?  (Is BTN_TOUCH still relevant to the MT
+protocol or only in single-touch?)
 
-Input only need to do this compat stuff on read/write paths so maybe if
-you add plumbing similar to compat_ioctl we could switch owver to it.
+I have already added hover support to Android.  It will appear in an
+upcoming release, along with support for the MT slots protocol "B".
 
-Thanks.
+Sending a non-zero ABS_MT_DISTANCE is also a good robust hint for
+hover.  Zero pressure can be ambiguous sometimes.
 
--- 
-Dmitry
+Who did you talk to at Google about this?
+
+Jeff.

@@ -1,51 +1,84 @@
-From: Stefan Richter <stefanr-MtYdepGKPcBMYopoZt5u/LNAH6kLmebB@public.gmane.org>
-Subject: 3.0-rc6+: hid_report_raw_event -- unable to handle kernel paging
- request (during boot)
-Date: Sun, 10 Jul 2011 14:47:36 +0200
-Message-ID: <20110710144736.78e4abb6@stein>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 3/3] mc13xxx: implicitly enable leds and buttons
+Date: Sun, 10 Jul 2011 16:15:00 +0200
+Message-ID: <20110710141500.GX29624@pengutronix.de>
+References: <1310252796-10596-1-git-send-email-philippe.retornaz@epfl.ch>
+ <1310252796-10596-4-git-send-email-philippe.retornaz@epfl.ch>
+ <20110710080450.GW29624@pengutronix.de>
+ <201107101333.10309.philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:46513 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750817Ab1GJOPH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 10 Jul 2011 10:15:07 -0400
+Content-Disposition: inline
+In-Reply-To: <201107101333.10309.philippe.retornaz@epfl.ch>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
+Cc: s.hauer@pengutronix.de, linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com
 
-Hi,
+Hello Philippe,
 
-I got the following once during a series of several boot-ups.
-This is 3.0-rc6-71-g4dd1b49 x86-64 plus Alan Stern's
-"USB: additional regression fix for device removal".
+On Sun, Jul 10, 2011 at 01:33:09PM +0200, Philippe R=E9tornaz wrote:
+> Le dimanche 10 juillet 2011 10:04:50, Uwe Kleine-K=F6nig a =E9crit :
+> > Hello,
+> >=20
+> > On Sun, Jul 10, 2011 at 01:06:36AM +0200, Philippe R=E9tornaz wrote=
+:
+> > > The leds and buttons subdevices cannot be used without additional
+> > > platform data.
+> > >=20
+> > > Use the presence of the platform data to enable the device instea=
+d
+> > > of an additional flag.
+> >=20
+> > I guess you could make some people happy by splitting this patch in=
+to:
+> >=20
+> > 	- mfd/mc13xxx: implicitly enable leds and buttons (and
+> > 	  regulators?)
+> > 	- drop MC13XXX_USE_... in arch code
+>=20
+> But this mean that between the two commit the build will be broken or=
+ the=20
+> behavior will change.  Which will break bissections.
+If you don't remove the MC13XXX_USE_... constants the unconverted board=
+s
+should still compile.
+>=20
+> For the regulator stuff, I don't want to change the behavior of other=
+s
+> board as some (mx31lite) enable the regualtor without platform data.
+> That's why I did not changed it.=20
+If having pdata=3DNULL is a valid config then either we need to keep th=
+e
+constant for regulators or (as Mark suggested) register unconditionally=
+=2E
 
-input: Logitech USB Receiver as /devices/pci0000:00/0000:0012.0/usb3/3-1/3-1:1.0/input/input0
-generic-usb 0003:046D:C518.0001: input: USB HID v1.11 Mouse [Logitech USB Receiver] on usb-0000:00:12.0-1/input0
-BUG: unable to handle kernel paging request at ffff880215514048
-IP: [<ffffffff812c5b86>] hid_report_raw_event+0x292/0x405
-PGD 1622063 PUD 21f6fa067 PMD 21f7a5067 PIE 8000000215514160
-Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC
-CPU 3
-Modules linked in:
+> Moreover for the mc13892 chip (which share the same flag), the probe(=
+) does=20
+> modify some registers, so it's not just some cosmetic change, it will=
+ change=20
+> the behavior on some boards.
+no fear, that's what the -rc phase is there for. When improving
+something you often have to change behaviour.
 
-Pid: 0, comm: kworker/0:1 Not tainted 3.0.0-rc6 #14 System manufacturer System Product Name/M3A78-EM
-RIP: 0010:[<ffffffff812c5b86>] [<ffffffff812c5b86>] hid_report_raw_event+0x292/0x405
-RSP: 0018:ffff88021fd83c58 EFLAGS: 00010016
-[...etc, screenshot available if necessary...]
-Call Trace:
- <IRQ>
- [...] hid_input_report+0x1bb/0x1d8
- [...] hid_ctrl+0x99/0x146
- [...] usb_hcd_giveback_urb+0x5d/0x8d
- [...] finish_urb+0x9d+0xd6
- [...] takeback_td+0x45/0xff
- [...] ohci_irq+0x26f/0x3cf
- [...] usb_hci_irq+0x2f/0x7a
-[...]
--- 
-Stefan Richter
--=====-==-== -=== -=-=-
-http://arcgraph.de/sr/
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

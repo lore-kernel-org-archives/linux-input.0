@@ -1,53 +1,30 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: TPS6507X - define MFD dependencies for touch and
- regulator unit
-Date: Mon, 11 Jul 2011 09:41:24 -0700
-Message-ID: <20110711164124.GB1648@core.coreip.homeip.net>
-References: <4E1AD56B.6080306@visionsystems.de>
- <20110711122004.GA9478@sirena.org.uk>
+Subject: Re: [PATCH] Input: synaptics - make dmi_check_system return
+ immediately when a match is found
+Date: Mon, 11 Jul 2011 09:44:26 -0700
+Message-ID: <20110711164426.GA1893@core.coreip.homeip.net>
+References: <1310395296.2415.7.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:43030 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758152Ab1GKQla (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 12:41:30 -0400
-Received: by iwn6 with SMTP id 6so3812921iwn.19
-        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2011 09:41:29 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110711122004.GA9478@sirena.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1310395296.2415.7.camel@phoenix>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: yegor_sub1@visionsystems.de, linux-input@vger.kernel.org
 
-On Mon, Jul 11, 2011 at 01:20:04PM +0100, Mark Brown wrote:
-> On Mon, Jul 11, 2011 at 12:50:19PM +0200, Yegor Yefremov wrote:
-> > both touchscreen and regulator units are only working if
-> > mfd device is activated. So if mfd support is enabled,
-> > select TPS6507X mfd support automatically.
-> > 
-> > Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+On Mon, Jul 11, 2011 at 10:41:36PM +0800, Axel Lin wrote:
+> We only care about if there is any successful match from the table
+> or no match at all, make the dmi_matched callback return 1 then
+> dmi_check_system will return immediately if we have a successful match.
 > 
-> This should be split into separate patches and sent to *all* the
-> relevant maintainers.
-> 
-> >  config TOUCHSCREEN_TPS6507X
-> >  	tristate "TPS6507x based touchscreens"
-> > -	depends on I2C
-> > +	depends on I2C && MFD_SUPPORT
-> > +	select TPS6507X
-> 
-> This isn't a good fix, the driver should depend on the MFD core not
-> select it.
 
-The problem with such dependencies is that user has to first enable MFD
-core and then hunt through all other menus in search of the function
-drivers for that chip...
+This adds too much noise for little gain... With other patches we
+already have callbacks defined, so it makes sense it apply them, this one
+I think I'll drop.
 
-Depending on what other things TPS6507X depends on it might be good idea
-to go ahead and select it.
+Thanks.
 
 -- 
 Dmitry

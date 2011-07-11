@@ -1,91 +1,64 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: synaptics - make dmi_check_system return
- immediately when a match is found
-Date: Mon, 11 Jul 2011 22:41:36 +0800
-Message-ID: <1310395296.2415.7.camel@phoenix>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC] Synchronization Issue in hid_hw_start()
+Date: Mon, 11 Jul 2011 17:38:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1107111737580.5754@pobox.suse.cz>
+References: <BANLkTinz5iSCCGNC-U8TVrZ7xbc4biF_jA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:39235 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752051Ab1GKOlm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 10:41:42 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:48888 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757753Ab1GKPip (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Jul 2011 11:38:45 -0400
+In-Reply-To: <BANLkTinz5iSCCGNC-U8TVrZ7xbc4biF_jA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-We only care about if there is any successful match from the table
-or no match at all, make the dmi_matched callback return 1 then
-dmi_check_system will return immediately if we have a successful match.
+On Wed, 29 Jun 2011, David Herrmann wrote:
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/mouse/synaptics.c |   12 ++++++++++--
- 1 files changed, 10 insertions(+), 2 deletions(-)
+> The comment of hid_hw_start() (hid.h) mentions:
+>  * Call this in probe function *after* hid_parse. This will setup HW buffers
+>  * and start the device (if not deffered to device open). hid_hw_stop must be
+>  * called if this was successful.
+> Especially the part in brackets allows the low-level driver to start
+> the device without waiting for hid_hw_open() (bluetooth hid does
+> this). However, hid_hw_start() does not synchronize hid and input
+> startup, but instead first starts the hid layer followed by input. If
+> the HID layer reports an event before the input layer is started,
+> HIDINPUT will send the event to a nonexisting input device or may even
+> dereference an invalid address.
+> Same thing in hid_hw_stop().
+> 
+> An easy fix would be adding an atomic_t "ready" variable to the
+> hid_device that is set to 1 after successful setup and
+> hid_input_report must ignore every input until ready is 1. However,
+> this does not work for hid_hw_stop() because we can't determine
+> whether there is already a thread running inside hid_input_report() or
+> similar.
+> 
+> A more complex fix is a rwlock. hid_hw_start() locks it as writer and
+> hid_input_report() and all other depending functions lock it as
+> reader. We would still need something like a "ready" variable, but
+> synchronization is also possible on hid_hw_stop() this way.
+> 
+> Another more complex fix would be an input function like
+> input_stop_reports() which will prevent the input instance from
+> reporting any more events but still allow us to send events to it.
+> Similar input_start_reports() for startup-synchronization. So we could
+> register the input layer but prevent it from sending reports. Then we
+> would start up the hid layer and after that we would start input
+> reports. Same thing on shutdown...
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e06e045..09e7e0e 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -801,6 +801,11 @@ static int synaptics_reconnect(struct psmouse *psmouse)
- 	return 0;
- }
- 
-+static int __init dmi_matched(const struct dmi_system_id *dmi)
-+{
-+	return 1;
-+}
-+
- static bool impaired_toshiba_kbc;
- 
- static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
-@@ -811,6 +816,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite"),
- 		},
-+		.callback = dmi_matched,
- 	},
- 	{
- 		/* Toshiba Dynabook */
-@@ -818,6 +824,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "dynabook"),
- 		},
-+		.callback = dmi_matched,
- 	},
- 	{
- 		/* Toshiba Portege M300 */
-@@ -825,7 +832,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE M300"),
- 		},
--
-+		.callback = dmi_matched,
- 	},
- 	{
- 		/* Toshiba Portege M300 */
-@@ -834,7 +841,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Portable PC"),
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "Version 1.0"),
- 		},
--
-+		.callback = dmi_matched,
- 	},
- #endif
- 	{ }
-@@ -850,6 +857,7 @@ static const struct dmi_system_id __initconst olpc_dmi_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "OLPC"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "XO"),
- 		},
-+		.callback = dmi_matched,
- 	},
- #endif
- 	{ }
+[ sorry for the delay ]
+
+I like the rwlock idea, it seems to be the most straightforward. Have you 
+already played with it and have patch(es)? Otherwise I'll start looking 
+into it.
+
+Thanks,
+
 -- 
-1.7.4.1
-
-
-
+Jiri Kosina
+SUSE Labs

@@ -1,64 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [RFC] Synchronization Issue in hid_hw_start()
-Date: Mon, 11 Jul 2011 17:38:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1107111737580.5754@pobox.suse.cz>
-References: <BANLkTinz5iSCCGNC-U8TVrZ7xbc4biF_jA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: TPS6507X - define MFD dependencies for touch and
+ regulator unit
+Date: Mon, 11 Jul 2011 09:41:24 -0700
+Message-ID: <20110711164124.GB1648@core.coreip.homeip.net>
+References: <4E1AD56B.6080306@visionsystems.de>
+ <20110711122004.GA9478@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48888 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757753Ab1GKPip (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 11:38:45 -0400
-In-Reply-To: <BANLkTinz5iSCCGNC-U8TVrZ7xbc4biF_jA@mail.gmail.com>
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:43030 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758152Ab1GKQla (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Jul 2011 12:41:30 -0400
+Received: by iwn6 with SMTP id 6so3812921iwn.19
+        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2011 09:41:29 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20110711122004.GA9478@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: yegor_sub1@visionsystems.de, linux-input@vger.kernel.org
 
-On Wed, 29 Jun 2011, David Herrmann wrote:
-
-> The comment of hid_hw_start() (hid.h) mentions:
->  * Call this in probe function *after* hid_parse. This will setup HW buffers
->  * and start the device (if not deffered to device open). hid_hw_stop must be
->  * called if this was successful.
-> Especially the part in brackets allows the low-level driver to start
-> the device without waiting for hid_hw_open() (bluetooth hid does
-> this). However, hid_hw_start() does not synchronize hid and input
-> startup, but instead first starts the hid layer followed by input. If
-> the HID layer reports an event before the input layer is started,
-> HIDINPUT will send the event to a nonexisting input device or may even
-> dereference an invalid address.
-> Same thing in hid_hw_stop().
+On Mon, Jul 11, 2011 at 01:20:04PM +0100, Mark Brown wrote:
+> On Mon, Jul 11, 2011 at 12:50:19PM +0200, Yegor Yefremov wrote:
+> > both touchscreen and regulator units are only working if
+> > mfd device is activated. So if mfd support is enabled,
+> > select TPS6507X mfd support automatically.
+> > 
+> > Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
 > 
-> An easy fix would be adding an atomic_t "ready" variable to the
-> hid_device that is set to 1 after successful setup and
-> hid_input_report must ignore every input until ready is 1. However,
-> this does not work for hid_hw_stop() because we can't determine
-> whether there is already a thread running inside hid_input_report() or
-> similar.
+> This should be split into separate patches and sent to *all* the
+> relevant maintainers.
 > 
-> A more complex fix is a rwlock. hid_hw_start() locks it as writer and
-> hid_input_report() and all other depending functions lock it as
-> reader. We would still need something like a "ready" variable, but
-> synchronization is also possible on hid_hw_stop() this way.
+> >  config TOUCHSCREEN_TPS6507X
+> >  	tristate "TPS6507x based touchscreens"
+> > -	depends on I2C
+> > +	depends on I2C && MFD_SUPPORT
+> > +	select TPS6507X
 > 
-> Another more complex fix would be an input function like
-> input_stop_reports() which will prevent the input instance from
-> reporting any more events but still allow us to send events to it.
-> Similar input_start_reports() for startup-synchronization. So we could
-> register the input layer but prevent it from sending reports. Then we
-> would start up the hid layer and after that we would start input
-> reports. Same thing on shutdown...
+> This isn't a good fix, the driver should depend on the MFD core not
+> select it.
 
-[ sorry for the delay ]
+The problem with such dependencies is that user has to first enable MFD
+core and then hunt through all other menus in search of the function
+drivers for that chip...
 
-I like the rwlock idea, it seems to be the most straightforward. Have you 
-already played with it and have patch(es)? Otherwise I'll start looking 
-into it.
-
-Thanks,
+Depending on what other things TPS6507X depends on it might be good idea
+to go ahead and select it.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

@@ -1,43 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 05/12] HID: wiimote: Synchronize wiimote input and hid
- event handling
-Date: Mon, 11 Jul 2011 14:29:25 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1107111428330.11049@pobox.suse.cz>
-References: <1309185013-484-1-git-send-email-dh.herrmann@googlemail.com> <1309185013-484-5-git-send-email-dh.herrmann@googlemail.com> <ca4e286b-420b-4d36-bb97-243dcdc9a527@email.android.com> <BANLkTimbhk9y8V6ff0FiTsjNQWw6wBXjNA@mail.gmail.com>
+From: Yegor Yefremov <yegor_sub1@visionsystems.de>
+Subject: Re: [PATCH] Input: TPS6507X - define MFD dependencies for touch	and
+ regulator unit
+Date: Mon, 11 Jul 2011 14:29:39 +0200
+Message-ID: <4E1AECB3.3080607@visionsystems.de>
+References: <4E1AD56B.6080306@visionsystems.de> <20110711122004.GA9478@sirena.org.uk>
+Reply-To: yegor_sub1@visionsystems.de
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34205 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753467Ab1GKM30 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 08:29:26 -0400
-In-Reply-To: <BANLkTimbhk9y8V6ff0FiTsjNQWw6wBXjNA@mail.gmail.com>
+Received: from hhlx01.vscom.de ([62.145.30.242]:34911 "EHLO
+	mail.visionsystems.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756454Ab1GKM3t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Jul 2011 08:29:49 -0400
+In-Reply-To: <20110711122004.GA9478@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, padovan@profusion.mobi, oliver@neukum.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Wed, 29 Jun 2011, David Herrmann wrote:
+Am 11.07.2011 14:20, schrieb Mark Brown:
+> On Mon, Jul 11, 2011 at 12:50:19PM +0200, Yegor Yefremov wrote:
+>> both touchscreen and regulator units are only working if
+>> mfd device is activated. So if mfd support is enabled,
+>> select TPS6507X mfd support automatically.
+>>
+>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+> This should be split into separate patches and sent to *all* the
+> relevant maintainers.
+>
+>>  config TOUCHSCREEN_TPS6507X
+>>  	tristate "TPS6507x based touchscreens"
+>> -	depends on I2C
+>> +	depends on I2C && MFD_SUPPORT
+>> +	select TPS6507X
+> This isn't a good fix, the driver should depend on the MFD core not
+> select it.
 
-> But, thanks to your hint, I looked at hid_hw_start() again and as far
-> as I can see the synchronization issue exists there, too.
-> The ll_driver->start() function is called first and after that, the
-> input instance is registered.
-> If the ll_driver reports an event before the input instance is
-> registered, the hidinput/other-driver will call input_event() on an
-> invalid input instance (probably even a NULL dereference).
-> This may not be a problem for usbhid, because usbhid_open() has to be
-> called first, however, hidp (bluetooth hid) ignores the *_open()
-> callback and therefore may fail.
+Thanks for reviewing. Should I change the patch like this:
 
-Indeed, this looks like a proper analysis. Thanks a lot for looking into 
-it.
+touchscreen unit is only working if mfd device is activated.
+So if mfd support is enabled, select TPS6507X mfd support
+automatically.
 
-Are you planning on submitting the fix for that? Otherwise I'll add it to 
-my TODO list, independently on the wiimote driver.
+Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+---
+ drivers/input/touchscreen/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
+Index: b/drivers/input/touchscreen/Kconfig
+===================================================================
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -716,7 +716,7 @@
 
--- 
-Jiri Kosina
-SUSE Labs
+ config TOUCHSCREEN_TPS6507X
+        tristate "TPS6507x based touchscreens"
+-       depends on I2C
++       depends on I2C && TPS6507X
+        help
+          Say Y here if you have a TPS6507x based touchscreen
+          controller.
+

@@ -1,107 +1,46 @@
-From: Ari Savolainen <ari.m.savolainen@gmail.com>
-Subject: [PATCH] HID: fix horizontal wheel for ms comfort mouse 4500
-Date: Mon, 11 Jul 2011 21:42:52 +0300
-Message-ID: <1310409772-6289-1-git-send-email-ari.m.savolainen@gmail.com>
-References: <alpine.LNX.2.00.1107111445360.11049@pobox.suse.cz>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] Input: TPS6507X - define MFD dependencies for touch and
+ regulator unit
+Date: Tue, 12 Jul 2011 07:33:14 +0900
+Message-ID: <20110711223312.GA32033@opensource.wolfsonmicro.com>
+References: <4E1AD56B.6080306@visionsystems.de>
+ <20110711122004.GA9478@sirena.org.uk>
+ <20110711164124.GB1648@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f52.google.com ([209.85.161.52]:42848 "EHLO
-	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758047Ab1GKSm6 (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50768 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1758136Ab1GKWdX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 14:42:58 -0400
-Received: by fxd18 with SMTP id 18so4246793fxd.11
-        for <linux-input@vger.kernel.org>; Mon, 11 Jul 2011 11:42:57 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1107111445360.11049@pobox.suse.cz>
+	Mon, 11 Jul 2011 18:33:23 -0400
+Content-Disposition: inline
+In-Reply-To: <20110711164124.GB1648@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: yegor_sub1@visionsystems.de, linux-input@vger.kernel.org
 
-Microsoft comfort mouse 4500 report descriptor contains duplicate
-usages for horizontal wheel. This patch fixes the wrong mapping
-caused by that.
+On Mon, Jul 11, 2011 at 09:41:24AM -0700, Dmitry Torokhov wrote:
+> On Mon, Jul 11, 2011 at 01:20:04PM +0100, Mark Brown wrote:
 
-Signed-off-by: Ari Savolainen <ari.m.savolainen@gmail.com>
+> > This isn't a good fix, the driver should depend on the MFD core not
+> > select it.
 
----
- drivers/hid/hid-ids.h       |    1 +
- drivers/hid/hid-microsoft.c |   26 +++++++++++++++++++++-----
- 2 files changed, 22 insertions(+), 5 deletions(-)
+> The problem with such dependencies is that user has to first enable MFD
+> core and then hunt through all other menus in search of the function
+> drivers for that chip...
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a756ee6..92de0d5 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -472,6 +472,7 @@
- #define USB_DEVICE_ID_MS_LK6K		0x00f9
- #define USB_DEVICE_ID_MS_PRESENTER_8K_BT	0x0701
- #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
-+#define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
- 
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 0f6fc54..8f31362 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -23,11 +23,12 @@
- 
- #include "hid-ids.h"
- 
--#define MS_HIDINPUT	0x01
--#define MS_ERGONOMY	0x02
--#define MS_PRESENTER	0x04
--#define MS_RDESC	0x08
--#define MS_NOGET	0x10
-+#define MS_HIDINPUT		0x01
-+#define MS_ERGONOMY		0x02
-+#define MS_PRESENTER		0x04
-+#define MS_RDESC		0x08
-+#define MS_NOGET		0x10
-+#define MS_DUPLICATE_USAGES	0x20
- 
- /*
-  * Microsoft Wireless Desktop Receiver (Model 1028) has
-@@ -109,6 +110,18 @@ static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return 0;
- }
- 
-+static int ms_input_mapped(struct hid_device *hdev, struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
-+
-+	if (quirks & MS_DUPLICATE_USAGES)
-+		clear_bit(usage->code, *bit);
-+
-+	return 0;
-+}
-+
- static int ms_event(struct hid_device *hdev, struct hid_field *field,
- 		struct hid_usage *usage, __s32 value)
- {
-@@ -181,6 +194,8 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_PRESENTER },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0),
- 		.driver_data = MS_NOGET },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
-+		.driver_data = MS_DUPLICATE_USAGES },
- 
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
- 		.driver_data = MS_PRESENTER },
-@@ -193,6 +208,7 @@ static struct hid_driver ms_driver = {
- 	.id_table = ms_devices,
- 	.report_fixup = ms_report_fixup,
- 	.input_mapping = ms_input_mapping,
-+	.input_mapped = ms_input_mapped,
- 	.event = ms_event,
- 	.probe = ms_probe,
- };
--- 
-1.7.4.1
+> Depending on what other things TPS6507X depends on it might be good idea
+> to go ahead and select it.
 
-The previous mail contained extra newlines inserted by gmail web
-client. I'm resending the patch with "git send-email".
+If this is an issue it's going to be much more useful to have the boards
+select their MFD cores than have random function drivers do that, in
+most situations it's not actually going to be useful to select the core
+driver as the core driver itself needs something to select either the
+I2C or SPI bus interface for the device in order to actually communicate
+with it.
 
-Ari
+Remember that this is for embedded systems where the user will normally
+have a pretty good idea what's on their system, someone will have had to
+explicitly plumb the device into the board anyway.

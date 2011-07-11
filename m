@@ -1,28 +1,91 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: TPS6507X - add MFD dependency
-Date: Mon, 11 Jul 2011 23:40:23 +0900
-Message-ID: <20110711144020.GC31424@opensource.wolfsonmicro.com>
-References: <4E1B05B8.1020006@visionsystems.de>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: synaptics - make dmi_check_system return
+ immediately when a match is found
+Date: Mon, 11 Jul 2011 22:41:36 +0800
+Message-ID: <1310395296.2415.7.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:33974 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752653Ab1GKOkc (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:39235 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752051Ab1GKOlm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 10:40:32 -0400
-Content-Disposition: inline
-In-Reply-To: <4E1B05B8.1020006@visionsystems.de>
+	Mon, 11 Jul 2011 10:41:42 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yegor Yefremov <yegor_sub1@visionsystems.de>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: linux-kernel@vger.kernel.org
+Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Jul 11, 2011 at 04:16:24PM +0200, Yegor Yefremov wrote:
-> touchscreen unit is only working if mfd device is activated, so
-> define it as dependency. I2C dependency is obsolete, cause
-> TPS6507X itself depends on it.
-> 
-> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+We only care about if there is any successful match from the table
+or no match at all, make the dmi_matched callback return 1 then
+dmi_check_system will return immediately if we have a successful match.
 
-Reviewed-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/mouse/synaptics.c |   12 ++++++++++--
+ 1 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index e06e045..09e7e0e 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -801,6 +801,11 @@ static int synaptics_reconnect(struct psmouse *psmouse)
+ 	return 0;
+ }
+ 
++static int __init dmi_matched(const struct dmi_system_id *dmi)
++{
++	return 1;
++}
++
+ static bool impaired_toshiba_kbc;
+ 
+ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
+@@ -811,6 +816,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite"),
+ 		},
++		.callback = dmi_matched,
+ 	},
+ 	{
+ 		/* Toshiba Dynabook */
+@@ -818,6 +824,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "dynabook"),
+ 		},
++		.callback = dmi_matched,
+ 	},
+ 	{
+ 		/* Toshiba Portege M300 */
+@@ -825,7 +832,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "PORTEGE M300"),
+ 		},
+-
++		.callback = dmi_matched,
+ 	},
+ 	{
+ 		/* Toshiba Portege M300 */
+@@ -834,7 +841,7 @@ static const struct dmi_system_id __initconst toshiba_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Portable PC"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "Version 1.0"),
+ 		},
+-
++		.callback = dmi_matched,
+ 	},
+ #endif
+ 	{ }
+@@ -850,6 +857,7 @@ static const struct dmi_system_id __initconst olpc_dmi_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "OLPC"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "XO"),
+ 		},
++		.callback = dmi_matched,
+ 	},
+ #endif
+ 	{ }
+-- 
+1.7.4.1
+
+
+

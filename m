@@ -1,32 +1,130 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: TPS6507X - define MFD dependencies for touch and
- regulator unit
-Date: Mon, 11 Jul 2011 23:08:23 +0900
-Message-ID: <20110711140820.GA31424@opensource.wolfsonmicro.com>
-References: <4E1AD56B.6080306@visionsystems.de>
- <20110711122004.GA9478@sirena.org.uk>
- <4E1AECB3.3080607@visionsystems.de>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH 2/2] Input: lifebook - make dmi callback functions return 1
+Date: Mon, 11 Jul 2011 22:10:48 +0800
+Message-ID: <1310393448.2415.5.camel@phoenix>
+References: <1310393256.2415.2.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:44955 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757595Ab1GKOIe (ORCPT
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:35619 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757512Ab1GKOK4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 10:08:34 -0400
-Content-Disposition: inline
-In-Reply-To: <4E1AECB3.3080607@visionsystems.de>
+	Mon, 11 Jul 2011 10:10:56 -0400
+In-Reply-To: <1310393256.2415.2.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yegor Yefremov <yegor_sub1@visionsystems.de>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: linux-kernel@vger.kernel.org
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Alessandro Rubini <rubini@ipvvis.unipv.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Jul 11, 2011 at 02:29:39PM +0200, Yegor Yefremov wrote:
-> Am 11.07.2011 14:20, schrieb Mark Brown:
+We only care about if there is any successful match from the table (or no match at all),
+we can make dmi_check_system return immediately if we have a successful match
+instead of iterate thorough the whole table.
 
->         tristate "TPS6507x based touchscreens"
-> -       depends on I2C
-> +       depends on I2C && TPS6507X
+Make the dmi callback function return 1 then dmi_check_system
+will return immediately if we have a successful match.
 
-You can just remove the I2C dependency, the core won't be enabled if teh
-control bus isn't there.
+I think current implementation already assumes there is exactly one match
+or no match at all. If there are multiple successful matches then it is a bug,
+because new matches will override some variables such as lifebook_use_6byte_proto
+and desired_serio_phys.
+
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/mouse/lifebook.c |   17 +++++++++++++++--
+ 1 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/mouse/lifebook.c b/drivers/input/mouse/lifebook.c
+index c31ad11..d21becb 100644
+--- a/drivers/input/mouse/lifebook.c
++++ b/drivers/input/mouse/lifebook.c
+@@ -30,10 +30,15 @@ static bool lifebook_present;
+ 
+ static const char *desired_serio_phys;
+ 
++static int lifebook_found(const struct dmi_system_id *d)
++{
++	return 1;
++}
++
+ static int lifebook_limit_serio3(const struct dmi_system_id *d)
+ {
+ 	desired_serio_phys = "isa0060/serio3";
+-	return 0;
++	return 1;
+ }
+ 
+ static bool lifebook_use_6byte_proto;
+@@ -41,7 +46,7 @@ static bool lifebook_use_6byte_proto;
+ static int lifebook_set_6byte_proto(const struct dmi_system_id *d)
+ {
+ 	lifebook_use_6byte_proto = true;
+-	return 0;
++	return 1;
+ }
+ 
+ static const struct dmi_system_id __initconst lifebook_dmi_table[] = {
+@@ -50,42 +55,49 @@ static const struct dmi_system_id __initconst lifebook_dmi_table[] = {
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "FLORA-ie 55mi"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{
+ 		/* LifeBook B */
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Lifebook B Series"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{
+ 		/* LifeBook B */
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B Series"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{
+ 		/* Lifebook B */
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK B Series"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{
+ 		/* Lifebook B-2130 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "ZEPHYR"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{
+ 		/* Lifebook B213x/B2150 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B2131/B2133/B2150"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{
+ 		/* Zephyr */
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "ZEPHYR"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{
+ 		/* Panasonic CF-18 */
+@@ -122,6 +134,7 @@ static const struct dmi_system_id __initconst lifebook_dmi_table[] = {
+ 		.matches = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B142"),
+ 		},
++		.callback = lifebook_found,
+ 	},
+ 	{ }
+ };
+-- 
+1.7.4.1
+
+
+

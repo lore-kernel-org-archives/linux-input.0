@@ -1,47 +1,70 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH v2] Input: cy8ctmg110_ts - fix checking return value of
- i2c_master_send
-Date: Tue, 12 Jul 2011 16:43:13 +0800
-Message-ID: <1310460193.2028.1.camel@phoenix>
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Learn to receive $500 to $3,500 a day in cash....
+Date: Tue, 12 Jul 2011 09:26:38 -0700 (PDT)
+Message-ID: <201107121626.p6CGQcQY085420@mail3.spagack2.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:56031 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751637Ab1GLInV (ORCPT
+Received: from mail3.spagack2.com ([74.122.159.222]:60597 "EHLO
+	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753808Ab1GLQ1R (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jul 2011 04:43:21 -0400
+	Tue, 12 Jul 2011 12:27:17 -0400
+Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
+	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p6CGQdNS085433
+	for <linux-input@vger.kernel.org>; Tue, 12 Jul 2011 09:26:39 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuli Konttila <samuli.konttila@aavamobile.com>, linux-input@vger.kernel.org
-
-i2c_master_send returns negative errno, or else the number of bytes written.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/touchscreen/cy8ctmg110_ts.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index 4481cc5..d7afa20 100644
---- a/drivers/input/touchscreen/cy8ctmg110_ts.c
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -84,9 +84,9 @@ static int cy8ctmg110_write_regs(struct cy8ctmg110 *tsc, unsigned char reg,
- 	memcpy(i2c_data + 1, value, len);
- 
- 	ret = i2c_master_send(client, i2c_data, len + 1);
--	if (ret != 1) {
-+	if (ret != (len + 1)) {
- 		dev_err(&client->dev, "i2c write data cmd failed\n");
--		return ret ? ret : -EIO;
-+		return ret < 0 ? ret : -EIO;
- 	}
- 
- 	return 0;
--- 
-1.7.4.1
+To: linux-input@vger.kernel.org
 
 
 
+
+Hi Everyone,
+
+Just "Plug In".. to Your
+
+Own Fully Automated=20
+
+  Turn Key..Global Marketing $ystem
+
+Receive $3,000-$7,000 Weekly or MORE Not MLM...and No Selling.=20
+
+http://trckrs.com/48184/
+
+
+It=92s surprisingly cool
+
+Dan
+
+
+
+
+
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

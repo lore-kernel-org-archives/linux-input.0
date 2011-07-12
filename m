@@ -1,46 +1,174 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: TPS6507X - define MFD dependencies for touch and
- regulator unit
-Date: Tue, 12 Jul 2011 07:33:14 +0900
-Message-ID: <20110711223312.GA32033@opensource.wolfsonmicro.com>
-References: <4E1AD56B.6080306@visionsystems.de>
- <20110711122004.GA9478@sirena.org.uk>
- <20110711164124.GB1648@core.coreip.homeip.net>
+From: "Ice.Chien" <ice.chien@accupoint.com.tw>
+Subject: RE: [PATCH] hid-multitouch driver: add one new hid multitouch device's VID/PID
+Date: Tue, 12 Jul 2011 10:46:14 +0800
+Message-ID: <C3F4720C7083254FAB01F1C177F02212098A3A@exsvr1.accupoint.com.tw>
+References: <1310362809-15273-1-git-send-email-ravishankarkm32@gmail.com><C3F4720C7083254FAB01F1C177F02212098A1B@exsvr1.accupoint.com.tw> <CAN+gG=EUD+y1sUSvKT45zqQWXSUiEtxfMc21ip5um=D=psA9-w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50768 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1758136Ab1GKWdX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jul 2011 18:33:23 -0400
-Content-Disposition: inline
-In-Reply-To: <20110711164124.GB1648@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-class: urn:content-classes:message
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@enac.fr>
+Cc: linux-kernel@vger.kernel.org, Jonson Wu <jonson.wu@accupoint.com.tw>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: yegor_sub1@visionsystems.de, linux-input@vger.kernel.org
 
-On Mon, Jul 11, 2011 at 09:41:24AM -0700, Dmitry Torokhov wrote:
-> On Mon, Jul 11, 2011 at 01:20:04PM +0100, Mark Brown wrote:
+Hi Benjamin,
 
-> > This isn't a good fix, the driver should depend on the MFD core not
-> > select it.
+This is a patch to add one hid multitouch device's VID/PID in hid-core.=
+c, hid-ids.h, hid-multitouch.c and Kconfig.
+Please review if I make the correct change
+Thanks.
 
-> The problem with such dependencies is that user has to first enable MFD
-> core and then hunt through all other menus in search of the function
-> drivers for that chip...
+Signed-off-by: Ice Chien <ice.chien@accupoint.com.tw>
+---
+diff	-u	./linux-2.6.39.3/drivers/hid//hid-core.c	./modified/drivers/hid=
+//hid-core.c
+---	./linux-2.6.39.3/drivers/hid//hid-core.c	2011-07-09 14:16:06.000000=
+000	+0800
++++	./modified/drivers/hid//hid-core.c	2011-07-11 13:36:07.784957908	+0=
+800
+@@	-1482,6	+1482,7	@@
+ 	{	HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,	USB_DEVICE_ID_WALTOP_SLIM_TABL=
+ET_12_1_INCH)	},
+ 	{	HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,	USB_DEVICE_ID_WALTOP_MEDIA_TAB=
+LET_10_6_INCH)	},
+ 	{	HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,	USB_DEVICE_ID_WALTOP_MEDIA_TAB=
+LET_14_1_INCH)	},
++	{	HID_USB_DEVICE(USB_VENDOR_ID_XAT,	USB_DEVICE_ID_XAT_CSR)	},
+ 	{	HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS,	0x0005)	},
+ 	{	HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS,	0x0030)	},
+ 	{	HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON,	USB_DEVICE_ID_ZYDACRON_REMOT=
+E_CONTROL)	},
+Diff	-u	./linux-2.6.39.3/drivers/hid//hid-ids.h	./modified/drivers/hid/=
+/hid-ids.h
+---	./linux-2.6.39.3/drivers/hid//hid-ids.h	2011-07-09 14:16:06.0000000=
+00	+0800
++++	./modified/drivers/hid//hid-ids.h	2011-07-11 13:36:05.969865971	+08=
+00
+@@	-607,6	+607,9	@@
+ #define	USB_VENDOR_ID_WISEGROUP_LTD2	0x6677
+ #define	USB_DEVICE_ID_SMARTJOY_DUAL_PLUS	0x8802
+=20
++#define	USB_VENDOR_ID_XAT	0x2505
++#define	USB_DEVICE_ID_XAT_CSR	0x0220
++
+ #define	USB_VENDOR_ID_YEALINK	0x6993
+ #define	USB_DEVICE_ID_YEALINK_P1K_P4K_B2K	0xb001
+=20
+Diff	-u	./linux-2.6.39.3/drivers/hid//hid-multitouch.c	./modified/drive=
+rs/hid//hid-multitouch.c
+---	./linux-2.6.39.3/drivers/hid//hid-multitouch.c	2011-07-09 14:16:06.=
+000000000	+0800
++++	./modified/drivers/hid//hid-multitouch.c	2011-07-12 10:07:46.505165=
+622	+0800
+@@	-487,6	+487,10	@@
+ }
+=20
+ Static	const	struct	hid_device_id mt_devices[]	=3D	{
++	/* XAT */
++	{	.driver_data	=3D	MT_CLS_DEFAULT,
++	HID_USB_DEVICE(USB_VENDOR_ID_XAT,
++	USB_DEVICE_ID_XAT_CSR) },
+=20
+ 	/* Cypress panel */
+ 	{	.driver_data	=3D	MT_CLS_CYPRESS,
+Diff	-u	./linux-2.6.39.3/drivers/hid//Kconfig	./modified/drivers/hid//K=
+config
+---	./linux-2.6.39.3/drivers/hid//Kconfig	2011-07-09	14:16:06.000000000=
+	+0800
++++	./modified/drivers/hid//Kconfig	2011-07-12	10:08:33.617597671	+0800
+@@	-327,6 +327,7	@@
+	- 'Sensing Win7-TwoFinger' panel by GeneralTouch
+	- eGalax dual-touch panels, including the
+	Joojoo and Wetab tablets
++	- XAT optical touch panels
+=20
+	If unsure, say N.
+=20
+Common subdirectories: ./linux-2.6.39.3/drivers/hid//usbhid and ./modif=
+ied/drivers/hid//usbhid
 
-> Depending on what other things TPS6507X depends on it might be good idea
-> to go ahead and select it.
+-----Original Message-----
+=46rom: benjamin.tissoires@gmail.com [mailto:benjamin.tissoires@gmail.c=
+om] On Behalf Of Benjamin Tissoires
+Sent: Monday, July 11, 2011 2:52 PM
+To: Ice.Chien
+Cc: linux-kernel@vger.kernel.org; Jonson Wu; linux-input; Jiri Kosina; =
+Dmitry Torokhov; Henrik Rydberg; St=E9phane Chatty
+Subject: Re: [PATCH] hid-multitouch driver: add one new hid multitouch =
+device's VID/PID
 
-If this is an issue it's going to be much more useful to have the boards
-select their MFD cores than have random function drivers do that, in
-most situations it's not actually going to be useful to select the core
-driver as the core driver itself needs something to select either the
-I2C or SPI bus interface for the device in order to actually communicate
-with it.
+Hi,
 
-Remember that this is for embedded systems where the user will normally
-have a pretty good idea what's on their system, someone will have had to
-explicitly plumb the device into the board anyway.
+adding in CC the input list and the maintainers ;-)
+
+Though the patch is clean (except that you should replace spaces by
+tabs of 8 chars, I will mention it inlined in the patch), don't you
+want to also add your device to the hid-multitouch driver?
+If it's the case (we can still add it from the user space, but it will
+not work out of the box for everybody), please also add it to
+hid-multitouch and to the HID_MULTITOUCH section in the Kconfig  file.
+
+Thanks for the work.
+
+On Mon, Jul 11, 2011 at 07:59, Ice.Chien <ice.chien@accupoint.com.tw> w=
+rote:
+> This is a patch to add one hid multitouch device's VID/PID in hid-ids=
+=2Eh
+> and hid-core.c
+>
+> Signed-off-by: Ice Chien <ice.chien@accupoint.com.tw>
+> ---
+> diff -u ./linux-2.6.39.3/drivers/hid//hid-core.c
+> ./modified/drivers/hid//hid-core.c
+> --- ./linux-2.6.39.3/drivers/hid//hid-core.c =A0 =A02011-07-09
+> 14:16:06.000000000 +0800
+> +++ ./modified/drivers/hid//hid-core.c =A02011-07-11 13:36:07.7849579=
+08
+> +0800
+> @@ -1482,6 +1482,7 @@
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+> USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+> USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP,
+> USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
+> + =A0 =A0 =A0 { HID_USB_DEVICE(USB_VENDOR_ID_XAT, USB_DEVICE_ID_XAT_C=
+SR) },
+
+replace leading spaces by tabs here
+
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+> =A0 =A0 =A0 =A0{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON,
+> USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+> diff -u ./linux-2.6.39.3/drivers/hid//hid-ids.h
+> ./modified/drivers/hid//hid-ids.h
+> --- ./linux-2.6.39.3/drivers/hid//hid-ids.h =A0 =A0 2011-07-09
+> 14:16:06.000000000 +0800
+> +++ ./modified/drivers/hid//hid-ids.h =A0 2011-07-11 13:36:05.9698659=
+71
+> +0800
+> @@ -607,6 +607,9 @@
+> =A0#define USB_VENDOR_ID_WISEGROUP_LTD2 =A0 0x6677
+> =A0#define USB_DEVICE_ID_SMARTJOY_DUAL_PLUS 0x8802
+>
+> +#define USB_VENDOR_ID_XAT =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x2505
+
+replace spaces by tabs
+
+> +#define USB_DEVICE_ID_XAT_CSR =A0 =A0 =A0 =A0 =A0 0x0220
+
+again ;-)
+
+Cheers,
+Benjamin
+
+> +
+> =A0#define USB_VENDOR_ID_YEALINK =A0 =A0 =A0 =A0 =A00x6993
+> =A0#define USB_DEVICE_ID_YEALINK_P1K_P4K_B2K =A0 =A0 =A00xb001
+>
+> Common subdirectories: ./linux-2.6.39.3/drivers/hid//usbhid and
+> ./modified/drivers/hid//usbhid
+>

@@ -1,39 +1,45 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH 1/2] Input: cy8ctmg110_ts - constify i2c_device_id table
-Date: Tue, 12 Jul 2011 14:00:41 +0800
-Message-ID: <1310450441.13592.1.camel@phoenix>
+Subject: [PATCH] Input: cy8ctmg110_ts - fix checking return value of
+ i2c_master_send
+Date: Tue, 12 Jul 2011 14:14:21 +0800
+Message-ID: <1310451261.13592.4.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:61688 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753973Ab1GLGAu (ORCPT
+Received: from mail-yw0-f46.google.com ([209.85.213.46]:52019 "EHLO
+	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751502Ab1GLGO1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jul 2011 02:00:50 -0400
+	Tue, 12 Jul 2011 02:14:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuli Konttila <samuli.konttila@aavamobile.com>, linux-input@vger.kernel.org
 
+i2c_master_send() returns negative errno, or else the number of bytes written.
+
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/input/touchscreen/cy8ctmg110_ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/cy8ctmg110_ts.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index a93c5c2..4481cc5 100644
+index 4481cc5..c458da0 100644
 --- a/drivers/input/touchscreen/cy8ctmg110_ts.c
 +++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -328,7 +328,7 @@ static int __devexit cy8ctmg110_remove(struct i2c_client *client)
- 	return 0;
- }
+@@ -84,9 +84,9 @@ static int cy8ctmg110_write_regs(struct cy8ctmg110 *tsc, unsigned char reg,
+ 	memcpy(i2c_data + 1, value, len);
  
--static struct i2c_device_id cy8ctmg110_idtable[] = {
-+static const struct i2c_device_id cy8ctmg110_idtable[] = {
- 	{ CY8CTMG110_DRIVER_NAME, 1 },
- 	{ }
- };
+ 	ret = i2c_master_send(client, i2c_data, len + 1);
+-	if (ret != 1) {
++	if (ret != (len + 1)) {
+ 		dev_err(&client->dev, "i2c write data cmd failed\n");
+-		return ret ? ret : -EIO;
++		return -EIO;
+ 	}
+ 
+ 	return 0;
 -- 
 1.7.4.1
 

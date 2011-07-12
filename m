@@ -1,31 +1,47 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: fix horizontal wheel for ms comfort mouse 4500
-Date: Tue, 12 Jul 2011 10:33:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1107121033070.5754@pobox.suse.cz>
-References: <alpine.LNX.2.00.1107111445360.11049@pobox.suse.cz> <1310409772-6289-1-git-send-email-ari.m.savolainen@gmail.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH v2] Input: cy8ctmg110_ts - fix checking return value of
+ i2c_master_send
+Date: Tue, 12 Jul 2011 16:43:13 +0800
+Message-ID: <1310460193.2028.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57331 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751928Ab1GLIdT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jul 2011 04:33:19 -0400
-In-Reply-To: <1310409772-6289-1-git-send-email-ari.m.savolainen@gmail.com>
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:56031 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751637Ab1GLInV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Jul 2011 04:43:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ari Savolainen <ari.m.savolainen@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuli Konttila <samuli.konttila@aavamobile.com>, linux-input@vger.kernel.org
 
-On Mon, 11 Jul 2011, Ari Savolainen wrote:
+i2c_master_send returns negative errno, or else the number of bytes written.
 
-> Microsoft comfort mouse 4500 report descriptor contains duplicate
-> usages for horizontal wheel. This patch fixes the wrong mapping
-> caused by that.
-> 
-> Signed-off-by: Ari Savolainen <ari.m.savolainen@gmail.com>
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/touchscreen/cy8ctmg110_ts.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Applied, thanks Ari.
-
+diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
+index 4481cc5..d7afa20 100644
+--- a/drivers/input/touchscreen/cy8ctmg110_ts.c
++++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
+@@ -84,9 +84,9 @@ static int cy8ctmg110_write_regs(struct cy8ctmg110 *tsc, unsigned char reg,
+ 	memcpy(i2c_data + 1, value, len);
+ 
+ 	ret = i2c_master_send(client, i2c_data, len + 1);
+-	if (ret != 1) {
++	if (ret != (len + 1)) {
+ 		dev_err(&client->dev, "i2c write data cmd failed\n");
+-		return ret ? ret : -EIO;
++		return ret < 0 ? ret : -EIO;
+ 	}
+ 
+ 	return 0;
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.4.1
+
+
+

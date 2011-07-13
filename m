@@ -1,91 +1,79 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: intel-mid-touch - remove pointless checking for
- variable 'found'
-Date: Tue, 12 Jul 2011 23:57:37 -0700
-Message-ID: <20110713065737.GA4201@core.coreip.homeip.net>
-References: <1310454831.16511.1.camel@phoenix>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH v2 1/6] input: misc: AD714x: The interrupt status
+ registers should be read in row.
+Date: Wed, 13 Jul 2011 12:10:45 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917713EA0CD0E6B@LIMKCMBX1.ad.analog.com>
+References: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
+ <544AC56F16B56944AEC3BD4E3D5917713AAF21C14E@LIMKCMBX1.ad.analog.com>
+ <20110518071428.GA32284@core.coreip.homeip.net>
+ <544AC56F16B56944AEC3BD4E3D5917713AAF21C871@LIMKCMBX1.ad.analog.com>
+ <20110519080042.GA19405@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:37945 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750849Ab1GMG5p (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2011 02:57:45 -0400
-Content-Disposition: inline
-In-Reply-To: <1310454831.16511.1.camel@phoenix>
+Received: from am1ehsobe006.messaging.microsoft.com ([213.199.154.209]:5643
+	"EHLO AM1EHSOBE006.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965255Ab1GMLLo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2011 07:11:44 -0400
+In-Reply-To: <20110519080042.GA19405@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Sreedhara Murthy. D.S" <sreedhara.ds@intel.com>, linux-input@vger.kernel.org, Alan Cox <alan@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jeff.dagenais@gmail.com" <jeff.dagenais@gmail.com>, Drivers <Drivers@analog.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
 
-On Tue, Jul 12, 2011 at 03:13:51PM +0800, Axel Lin wrote:
-> The implementation does break from the for loop after we assign i to variable
-> 'found'.
-> 
+Dmitry Torokhov wrote on 2011-05-19:
+> On Wed, May 18, 2011 at 08:10:09PM +0100, Hennerich, Michael wrote:
+>> Dmitry Torokhov wrote on 2011-05-18:
+>>> On Tue, May 17, 2011 at 12:01:27PM +0100, Hennerich, Michael wrote:
+>>>> Hi Dmitry,
+>>>>
+>>>> I noticed you added patches 2/6, 3/6, 4/6 and 5/6 to your next tree.
+>>>> But how about these ones?
+>>>>
+>>>> [PATCH v2 1/6] input: misc: AD714x: The interrupt status
+>>>> registers should be read in row. [PATCH v2 6/6] input: misc:
+>>>> AD714x: Fix endianness issues.
+>>>>
+>>>
+>>> Hi Michael,
+>>>
+>>> Still pondering these two, give me a couple of days please...
+>>>
+>>> Thanks.
+>>>
+>>
+>> Hi Dmitry,
+>>
+>> No Problem - let me know in case you need some further clarification.
+>> Both patches are tested on several platforms and addresses real issues.
+>>
+>> BTW - are you going to merge the adp5589 driver anytime soon?
+>> Are there open issues you like to get addressed first?
+>>
+>
+> Oh, thanks for reminding me of it, I queued it for .40.
+>
+> Thanks.
+>
 
-Hmm, if we are cleaning this up what about the following?
+Hi Dmitry,
 
-Thanks.
+Still pondering these two?
 
--- 
-Dmitry
+[PATCH v2 1/6] input: misc: AD714x:
+        The interrupt status registers should be read in row.
+[PATCH v2 6/6] input: misc: AD714x: Fix endianness issues.
 
+Greetings,
+Michael
 
-Input: intel-mid-touch - remove pointless checking for variable 'found'
-
-From: Axel Lin <axel.lin@gmail.com>
-
-The implementation does break from the for loop after we assign i to variable
-'found'.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/touchscreen/intel-mid-touch.c |   15 +++++----------
- 1 files changed, 5 insertions(+), 10 deletions(-)
+--
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
 
 
-diff --git a/drivers/input/touchscreen/intel-mid-touch.c b/drivers/input/touchscreen/intel-mid-touch.c
-index 66c96bf..3276952 100644
---- a/drivers/input/touchscreen/intel-mid-touch.c
-+++ b/drivers/input/touchscreen/intel-mid-touch.c
-@@ -448,15 +448,11 @@ static int __devinit mrstouch_read_pmic_id(uint *vendor, uint *rev)
-  */
- static int __devinit mrstouch_chan_parse(struct mrstouch_dev *tsdev)
- {
--	int err, i, found;
-+	int found = 0;
-+	int err, i;
- 	u8 r8;
- 
--	found = -1;
--
- 	for (i = 0; i < MRSTOUCH_MAX_CHANNELS; i++) {
--		if (found >= 0)
--			break;
--
- 		err = intel_scu_ipc_ioread8(PMICADDR0 + i, &r8);
- 		if (err)
- 			return err;
-@@ -466,16 +462,15 @@ static int __devinit mrstouch_chan_parse(struct mrstouch_dev *tsdev)
- 			break;
- 		}
- 	}
--	if (found < 0)
--		return 0;
- 
- 	if (tsdev->vendor == PMIC_VENDOR_FS) {
--		if (found && found > (MRSTOUCH_MAX_CHANNELS - 18))
-+		if (found > MRSTOUCH_MAX_CHANNELS - 18)
- 			return -ENOSPC;
- 	} else {
--		if (found && found > (MRSTOUCH_MAX_CHANNELS - 4))
-+		if (found > MRSTOUCH_MAX_CHANNELS - 4)
- 			return -ENOSPC;
- 	}
-+
- 	return found;
- }
- 
+

@@ -1,34 +1,91 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5] input: Initial support for Kionix KXTJ9 accelerometer
-Date: Tue, 12 Jul 2011 15:08:09 -0700
-Message-ID: <201107121508.10290.dmitry.torokhov@gmail.com>
-References: <1309288348-30735-1-git-send-email-chris.hudson.comp.eng@gmail.com> <20110705183917.GA15876@core.coreip.homeip.net> <CAB7Re7V6xru5ASUJp2ymo93Lbmtng6prUmdo9-r-wNBSokkhSQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: intel-mid-touch - remove pointless checking for
+ variable 'found'
+Date: Tue, 12 Jul 2011 23:57:37 -0700
+Message-ID: <20110713065737.GA4201@core.coreip.homeip.net>
+References: <1310454831.16511.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:43582 "EHLO
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:37945 "EHLO
 	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751488Ab1GLWIQ (ORCPT
+	with ESMTP id S1750849Ab1GMG5p (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jul 2011 18:08:16 -0400
-Received: by iwn6 with SMTP id 6so5025065iwn.19
-        for <linux-input@vger.kernel.org>; Tue, 12 Jul 2011 15:08:16 -0700 (PDT)
-In-Reply-To: <CAB7Re7V6xru5ASUJp2ymo93Lbmtng6prUmdo9-r-wNBSokkhSQ@mail.gmail.com>
+	Wed, 13 Jul 2011 02:57:45 -0400
+Content-Disposition: inline
+In-Reply-To: <1310454831.16511.1.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Hudson <chris.hudson.comp.eng@gmail.com>
-Cc: Jonathan Cameron <jic23@cam.ac.uk>, linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Sreedhara Murthy. D.S" <sreedhara.ds@intel.com>, linux-input@vger.kernel.org, Alan Cox <alan@linux.intel.com>
 
-On Tuesday, July 12, 2011 02:52:20 PM Christopher Hudson wrote:
-> Should I submit a small patch against your queued version to get this
-> fixed?
+On Tue, Jul 12, 2011 at 03:13:51PM +0800, Axel Lin wrote:
+> The implementation does break from the for loop after we assign i to variable
+> 'found'.
+> 
 
-That'd be great since you could verify that it actually runs
-on the hardware.
+Hmm, if we are cleaning this up what about the following?
 
 Thanks.
 
 -- 
 Dmitry
+
+
+Input: intel-mid-touch - remove pointless checking for variable 'found'
+
+From: Axel Lin <axel.lin@gmail.com>
+
+The implementation does break from the for loop after we assign i to variable
+'found'.
+
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/touchscreen/intel-mid-touch.c |   15 +++++----------
+ 1 files changed, 5 insertions(+), 10 deletions(-)
+
+
+diff --git a/drivers/input/touchscreen/intel-mid-touch.c b/drivers/input/touchscreen/intel-mid-touch.c
+index 66c96bf..3276952 100644
+--- a/drivers/input/touchscreen/intel-mid-touch.c
++++ b/drivers/input/touchscreen/intel-mid-touch.c
+@@ -448,15 +448,11 @@ static int __devinit mrstouch_read_pmic_id(uint *vendor, uint *rev)
+  */
+ static int __devinit mrstouch_chan_parse(struct mrstouch_dev *tsdev)
+ {
+-	int err, i, found;
++	int found = 0;
++	int err, i;
+ 	u8 r8;
+ 
+-	found = -1;
+-
+ 	for (i = 0; i < MRSTOUCH_MAX_CHANNELS; i++) {
+-		if (found >= 0)
+-			break;
+-
+ 		err = intel_scu_ipc_ioread8(PMICADDR0 + i, &r8);
+ 		if (err)
+ 			return err;
+@@ -466,16 +462,15 @@ static int __devinit mrstouch_chan_parse(struct mrstouch_dev *tsdev)
+ 			break;
+ 		}
+ 	}
+-	if (found < 0)
+-		return 0;
+ 
+ 	if (tsdev->vendor == PMIC_VENDOR_FS) {
+-		if (found && found > (MRSTOUCH_MAX_CHANNELS - 18))
++		if (found > MRSTOUCH_MAX_CHANNELS - 18)
+ 			return -ENOSPC;
+ 	} else {
+-		if (found && found > (MRSTOUCH_MAX_CHANNELS - 4))
++		if (found > MRSTOUCH_MAX_CHANNELS - 4)
+ 			return -ENOSPC;
+ 	}
++
+ 	return found;
+ }
+ 

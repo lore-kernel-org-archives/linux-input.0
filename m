@@ -1,79 +1,34 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH v2 1/6] input: misc: AD714x: The interrupt status
- registers should be read in row.
-Date: Wed, 13 Jul 2011 12:10:45 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917713EA0CD0E6B@LIMKCMBX1.ad.analog.com>
-References: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
- <544AC56F16B56944AEC3BD4E3D5917713AAF21C14E@LIMKCMBX1.ad.analog.com>
- <20110518071428.GA32284@core.coreip.homeip.net>
- <544AC56F16B56944AEC3BD4E3D5917713AAF21C871@LIMKCMBX1.ad.analog.com>
- <20110519080042.GA19405@core.coreip.homeip.net>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: Re: [PATCH] Input: intel-mid-touch - remove pointless checking for
+ variable 'found'
+Date: Wed, 13 Jul 2011 21:06:02 +0800
+Message-ID: <CAF+7xW=GfZsgH8JSzCt0pbtV7Wmfe4pDKJiO=Nx-Z2S0XDdZ3Q@mail.gmail.com>
+References: <1310454831.16511.1.camel@phoenix> <20110713065737.GA4201@core.coreip.homeip.net>
+Reply-To: axel.lin@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from am1ehsobe006.messaging.microsoft.com ([213.199.154.209]:5643
-	"EHLO AM1EHSOBE006.bigfish.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S965255Ab1GMLLo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2011 07:11:44 -0400
-In-Reply-To: <20110519080042.GA19405@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:52221 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752002Ab1GMNGW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jul 2011 09:06:22 -0400
+In-Reply-To: <20110713065737.GA4201@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jeff.dagenais@gmail.com" <jeff.dagenais@gmail.com>, Drivers <Drivers@analog.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
+Cc: linux-kernel@vger.kernel.org, "Sreedhara Murthy. D.S" <sreedhara.ds@intel.com>, linux-input@vger.kernel.org, Alan Cox <alan@linux.intel.com>
 
-Dmitry Torokhov wrote on 2011-05-19:
-> On Wed, May 18, 2011 at 08:10:09PM +0100, Hennerich, Michael wrote:
->> Dmitry Torokhov wrote on 2011-05-18:
->>> On Tue, May 17, 2011 at 12:01:27PM +0100, Hennerich, Michael wrote:
->>>> Hi Dmitry,
->>>>
->>>> I noticed you added patches 2/6, 3/6, 4/6 and 5/6 to your next tree.
->>>> But how about these ones?
->>>>
->>>> [PATCH v2 1/6] input: misc: AD714x: The interrupt status
->>>> registers should be read in row. [PATCH v2 6/6] input: misc:
->>>> AD714x: Fix endianness issues.
->>>>
->>>
->>> Hi Michael,
->>>
->>> Still pondering these two, give me a couple of days please...
->>>
->>> Thanks.
->>>
->>
->> Hi Dmitry,
->>
->> No Problem - let me know in case you need some further clarification.
->> Both patches are tested on several platforms and addresses real issues.
->>
->> BTW - are you going to merge the adp5589 driver anytime soon?
->> Are there open issues you like to get addressed first?
+2011/7/13 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Tue, Jul 12, 2011 at 03:13:51PM +0800, Axel Lin wrote:
+>> The implementation does break from the for loop after we assign i to variable
+>> 'found'.
 >>
 >
-> Oh, thanks for reminding me of it, I queued it for .40.
+> Hmm, if we are cleaning this up what about the following?
 >
-> Thanks.
->
+hi Dmitry,
+It looks good and better.
 
-Hi Dmitry,
-
-Still pondering these two?
-
-[PATCH v2 1/6] input: misc: AD714x:
-        The interrupt status registers should be read in row.
-[PATCH v2 6/6] input: misc: AD714x: Fix endianness issues.
-
-Greetings,
-Michael
-
---
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
-
-
-
+Thanks,
+Axel

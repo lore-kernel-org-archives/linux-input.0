@@ -1,72 +1,59 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Learn to receive $500 to $3,500 a day in cash.
-Date: Wed, 13 Jul 2011 16:14:40 -0700 (PDT)
-Message-ID: <201107132314.p6DNEeLo070934@mail4.spagack2.com>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: pmic8xxx-keypad - fix a leak of the IRQ during init
+ failure
+Date: Thu, 14 Jul 2011 10:09:51 +0800
+Message-ID: <1310609391.14393.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:49557 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752530Ab1GMXPQ (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:53413 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752092Ab1GNCKA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jul 2011 19:15:16 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6DNEfWQ070954
-	for <linux-input@vger.kernel.org>; Wed, 13 Jul 2011 16:14:41 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+	Wed, 13 Jul 2011 22:10:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Trilok Soni <tsoni@codeaurora.org>, Anirudh Ghayal <aghayal@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org
+
+Make sure we are passing the same cookie in all calls to
+request_any_context_irq() and free_irq().
+
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/keyboard/pmic8xxx-keypad.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
+index 6229c3e..e7cc51d 100644
+--- a/drivers/input/keyboard/pmic8xxx-keypad.c
++++ b/drivers/input/keyboard/pmic8xxx-keypad.c
+@@ -700,9 +700,9 @@ static int __devinit pmic8xxx_kp_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err_pmic_reg_read:
+-	free_irq(kp->key_stuck_irq, NULL);
++	free_irq(kp->key_stuck_irq, kp);
+ err_req_stuck_irq:
+-	free_irq(kp->key_sense_irq, NULL);
++	free_irq(kp->key_sense_irq, kp);
+ err_gpio_config:
+ err_get_irq:
+ 	input_free_device(kp->input);
+@@ -717,8 +717,8 @@ static int __devexit pmic8xxx_kp_remove(struct platform_device *pdev)
+ 	struct pmic8xxx_kp *kp = platform_get_drvdata(pdev);
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+-	free_irq(kp->key_stuck_irq, NULL);
+-	free_irq(kp->key_sense_irq, NULL);
++	free_irq(kp->key_stuck_irq, kp);
++	free_irq(kp->key_sense_irq, kp);
+ 	input_unregister_device(kp->input);
+ 	kfree(kp);
+ 
+-- 
+1.7.4.1
 
 
 
-
-Hi Everyone,
-
-Just =93Plug In=94.. to Your
-
-Own Fully Automated
-
-Turn Key..Global Marketing $ystem
-
-Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
-
-http://trckrs.com/48184/
-
-
-It=92s surprisingly cool!
-
-Dan
-
-
-
-
-
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380
-In compliance with Federal law, should you choose to Un.Subscribe from =
-our network, you may do so using theUn.Subscribe instruction found belo=
-w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
-Subscribe link provided:
-
-
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

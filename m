@@ -1,46 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: ACRUX - add missing hid_hw_stop() in ax_probe()
- error path
-Date: Thu, 14 Jul 2011 11:43:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1107141143230.7300@pobox.suse.cz>
-References: <1310620071.2721.3.camel@phoenix>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Eric Andersson <eric.andersson@unixphere.com>
+Subject: [PATCH v3 0/1] input: add driver for Bosch Sensortec's BMA150 accelerometer
+Date: Thu, 14 Jul 2011 23:56:11 +0200
+Message-ID: <1310680572-27410-1-git-send-email-eric.andersson@unixphere.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40101 "EHLO mx2.suse.de"
+Received: from csmtp2.one.com ([91.198.169.22]:21405 "EHLO csmtp2.one.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754034Ab1GNJnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jul 2011 05:43:32 -0400
-In-Reply-To: <1310620071.2721.3.camel@phoenix>
+	id S1754613Ab1GNVwp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Jul 2011 17:52:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Sergei Kolzun <x0r@dv-life.ru>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Eric Andersson <eric.andersson@unixphere.com>
 
-On Thu, 14 Jul 2011, Axel Lin wrote:
+This is version 3 of the driver for Bosch Sensortec's accelerometers BMA150
+and SMB380.
 
-> hid_hw_stop() must be called in ax_probe() error path if hid_hw_start()
-> was successful.
-> 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
->  drivers/hid/hid-axff.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-axff.c b/drivers/hid/hid-axff.c
-> index b455428..1215141 100644
-> --- a/drivers/hid/hid-axff.c
-> +++ b/drivers/hid/hid-axff.c
-> @@ -154,6 +154,7 @@ static int ax_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	error = hid_hw_open(hdev);
->  	if (error) {
->  		dev_err(&hdev->dev, "hw open failed\n");
-> +		hid_hw_stop(hdev);
->  		return error;
->  	}
-
-Good catch, applied. Thanks,
+Since last time around, the following has happened:
+* community review: Register the driver as a input_polled_device.
+* community review: added runtime_pm support.
+* community review: removed sysfs enable node
+* community review: removed the value sysfs node
+* community review: rephrased delay sysfs description
+* Removed mode sysfs node
+* Removed delay sysfs node
+* Listed both bma150 & smb380 as supported i2c device id's.
+* Added hw initialization function which will be called upon probing.
+* Added soft reset function to be called from the probe.
+* Minor consistency changes.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Best regards,
+ Eric
+
+ http://www.unixphere.com
+
+
+Eric Andersson (1):
+  input: add driver for Bosch Sensortec's BMA150 accelerometer
+
+ Documentation/ABI/testing/sysfs-i2c-bma150 |   22 +
+ drivers/input/misc/Kconfig                 |   11 +
+ drivers/input/misc/Makefile                |    1 +
+ drivers/input/misc/bma150.c                |  577 ++++++++++++++++++++++++++++
+ 4 files changed, 611 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-i2c-bma150
+ create mode 100644 drivers/input/misc/bma150.c
+
+-- 
+1.7.3.4
+

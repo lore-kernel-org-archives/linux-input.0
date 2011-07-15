@@ -1,73 +1,86 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: "Eric Andersson" <eric.andersson@unixphere.com>
 Subject: Re: [PATCH v3 1/1] input: add driver for Bosch Sensortec's BMA150
  accelerometer
-Date: Thu, 14 Jul 2011 23:40:30 +0100
-Message-ID: <20110714234030.30d6b455@lxorguk.ukuu.org.uk>
-References: <1310680572-27410-1-git-send-email-eric.andersson@unixphere.com>
-	<1310680572-27410-2-git-send-email-eric.andersson@unixphere.com>
+Date: Fri, 15 Jul 2011 10:23:16 +0200
+Message-ID: <20110715082316.5A4792C03C24@bmail01.one.com>
+References: <1310680572-27410-2-git-send-email-eric.andersson@unixphere.com>
+ <20110714234030.30d6b455@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:41693 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932371Ab1GNWho (ORCPT
+Received: from webmail-out1.one.com ([91.198.169.16]:27720 "EHLO
+	webmail-out1.b-one.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965123Ab1GOIXS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jul 2011 18:37:44 -0400
-In-Reply-To: <1310680572-27410-2-git-send-email-eric.andersson@unixphere.com>
+	Fri, 15 Jul 2011 04:23:18 -0400
+Content-Disposition: inline
+In-Reply-To: <20110714234030.30d6b455@lxorguk.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Andersson <eric.andersson@unixphere.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, Albert Zhang <xu.zhang@bosch-sensortec.com>
 
-> +		values represent the range given as +/- G.
-> +		Possible values are: 2, 4, 8.
-> +
-> +		Reading: returns the current acceleration range.
-> +
-> +		Writing: sets a new acceleration range.
+> > +		values represent the range given as +/- G.
+> > +		Possible values are: 2, 4, 8.
+> > +
+> > +		Reading: returns the current acceleration range.
+> > +
+> > +		Writing: sets a new acceleration range.
+> 
+> Same comment as last time - these values are not discoverable so it
+> should set the nearest bigger range.
 
-Same comment as last time - these values are not discoverable so it
-should set the nearest bigger range.
+And same answer as last time - The values can be retreived by doing a:
+cat range. This whole idea comes from a review comment that Jonathan Cameron
+gave on your bma023 driver [1].
+If we could agree on how these values should be represented I will be glad
+to fix it! Dmitry, any preferences?
 
-> +
-> +
-> +What:		/sys/bus/i2c/devices/<busnum>-<devaddr>/bandwidth
-> +Date:		May 2011
-> +Contact:	Eric Andersson <eric.andersson@unixphere.com>
-> +Description:	This is used to setup the digital filtering on ADC output data.
-> +		The values represent the bandwidth given in Hz.
-> +		Possible values are: 25, 50, 100, 190, 375, 750, 1500
-> +
-> +		Reading: returns the current bandwidth.
-> +
-> +		Writing: sets a new bandwidth.
+[1] http://www.spinics.net/lists/linux-input/msg14271.html
 
-Ditto
+> > +	for (i = 0, ret = 0; i < ARRAY_SIZE(bw_val); i++)
+> > +		ret += sprintf(buf + ret,
+> > +			(bw_val[i].reg == bw) ? "[%d] " : "%d ",
+> > +			bw_val[i].value);
+> 
+> sysfs nodes should really be single values
 
+Once again it's a previous comment from Jonathan [1]. Please specify how
+you want this and I'll fix it.
 
-> +	for (i = 0, ret = 0; i < ARRAY_SIZE(bw_val); i++)
-> +		ret += sprintf(buf + ret,
-> +			(bw_val[i].reg == bw) ? "[%d] " : "%d ",
-> +			bw_val[i].value);
+> > +static const struct i2c_device_id bma150_id[] = {
+> > +	{ "bma150", 0 },
+> > +	{ "smb380", 0 },
+> 
+> bma023 ?
 
-sysfs nodes should really be single values
+As mentioned earlier bma023 is not an official product name from Bosch Sensortec. Hence,
+there will be no datasheet available or references from Bosch Sensortec. IMHO it would be
+confusing to add it.
+ 
+> It also doesn't expose the thresholds or support interrupts which the
+> one I posted did.
 
-> +static const struct i2c_device_id bma150_id[] = {
-> +	{ "bma150", 0 },
-> +	{ "smb380", 0 },
+We were told by Bosch S that the interrupt is triggered every 333 us (data ready) which would
+pretty much flood the irq handler.
+However, if this is stopping the patch we can add it. Would it be acceptable to have a driver
+that supports both a polling and irq driven setup, e.g. by checking if the .irq is non zero?
 
-bma023 ?
+> So while its better it still seems incomplete - its certainly nowhere
+> near where it can replace the one I posted months ago and doesn't seem
+> to
+> be making any headway.
+> 
+> Dmitry shall I repost the intel one - at this point I think it would
+> be a
+> better starting point as it supports more features, interrupts and the
+> like although it's not perfect either.
 
-It also doesn't expose the thresholds or support interrupts which the
-one I posted did.
+My hope is that we can sort out the differences before I post v4. Dmitry, if you have time
+could you please give an objective review of the patch?
 
-So while its better it still seems incomplete - its certainly nowhere
-near where it can replace the one I posted months ago and doesn't seem to
-be making any headway.
+Best regards,
+ Eric
 
-Dmitry shall I repost the intel one - at this point I think it would be a
-better starting point as it supports more features, interrupts and the
-like although it's not perfect either.
-
-Alan
+http://www.unixphere.com

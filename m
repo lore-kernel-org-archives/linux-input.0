@@ -1,44 +1,67 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: hp_sdc - staticize hp_sdc_kicker()
-Date: Sat, 16 Jul 2011 10:33:08 +0800
-Message-ID: <1310783588.2658.1.camel@phoenix>
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Learn to receive $500 to $3,500 a day in cash.
+Date: Sat, 16 Jul 2011 22:36:58 -0700 (PDT)
+Message-ID: <201107170536.p6H5awSx038291@mail3.spagack2.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:63116 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750968Ab1GPCdQ (ORCPT
+Received: from mail3.spagack2.com ([74.122.159.222]:62773 "EHLO
+	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750984Ab1GQFhg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Jul 2011 22:33:16 -0400
+	Sun, 17 Jul 2011 01:37:36 -0400
+Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
+	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p6H5axlM038307
+	for <linux-input@vger.kernel.org>; Sat, 16 Jul 2011 22:36:59 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: "Brian S. Julin" <bri@calyx.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-
-It's not referenced outside this file so there's no need for it to be in
-the global name space.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/serio/hp_sdc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index 4220620..979c443 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -795,7 +795,7 @@ int hp_sdc_release_cooked_irq(hp_sdc_irqhook *callback)
- 
- /************************* Keepalive timer task *********************/
- 
--void hp_sdc_kicker (unsigned long data)
-+static void hp_sdc_kicker(unsigned long data)
- {
- 	tasklet_schedule(&hp_sdc.task);
- 	/* Re-insert the periodic task. */
--- 
-1.7.4.1
+To: linux-input@vger.kernel.org
 
 
 
+
+Hi Everyone,
+
+Just =93Plug In=94.. to Your
+Own Fully Automated
+Turn Key..Global Marketing $ystem
+Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
+
+http://trckrs.com/48184/
+
+
+It=92s surprisingly cool!
+
+Dan
+
+
+
+
+
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

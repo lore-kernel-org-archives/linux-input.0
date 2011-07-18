@@ -1,67 +1,28 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Learn to receive $500 to $3,500 a day in cash.
-Date: Mon, 18 Jul 2011 08:41:31 -0700 (PDT)
-Message-ID: <201107181541.p6IFfVRb060871@mail4.spagack2.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: [PATCH 0/2] add device tree probe support for gpio_keys
+Date: Tue, 19 Jul 2011 00:45:06 +0800
+Message-ID: <1311007508-8096-1-git-send-email-shawn.guo@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:58050 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751115Ab1GRPmV (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:47782 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752446Ab1GRQds (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jul 2011 11:42:21 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6IFfW41060899
-	for <linux-input@vger.kernel.org>; Mon, 18 Jul 2011 08:41:32 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+	Mon, 18 Jul 2011 12:33:48 -0400
+Received: by iwn6 with SMTP id 6so3239885iwn.19
+        for <linux-input@vger.kernel.org>; Mon, 18 Jul 2011 09:33:47 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, patches@linaro.org
 
+The first patch gets the driver stop referencing platform_data after
+.probe exits.  And the second patch adds the actual device tree probe
+support for the driver.
 
+Shawn Guo (2):
+      Input: gpio-keys: do not reference platform_data after .probe exits
+      Input: gpio-keys: add device tree probe support
 
-
-Hi Everyone,
-
-Just =93Plug In=94.. to Your
-Own Fully Automated
-Turn Key..Global Marketing $ystem
-Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
-
-http://trckrs.com/48184/
-
-
-It=92s surprisingly cool!
-
-Dan
-
-
-
-
-
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380
-In compliance with Federal law, should you choose to Un.Subscribe from =
-our network, you may do so using theUn.Subscribe instruction found belo=
-w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
-Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ Documentation/devicetree/bindings/gpio/key.txt |   57 +++++++++++
+ drivers/input/keyboard/gpio_keys.c             |  128 +++++++++++++++++++-----
+ 2 files changed, 161 insertions(+), 24 deletions(-)

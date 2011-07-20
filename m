@@ -1,45 +1,51 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: tegra-kbc - correct call to input_free_device
-Date: Wed, 20 Jul 2011 15:52:52 +0800
-Message-ID: <1311148372.10091.3.camel@phoenix>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: emsff: properly handle emsff_init failure
+Date: Wed, 20 Jul 2011 11:56:22 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1107201156130.7300@pobox.suse.cz>
+References: <1311063244.7304.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:34046 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751115Ab1GTHw5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 03:52:57 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:43692 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750745Ab1GTJ4X (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jul 2011 05:56:23 -0400
+In-Reply-To: <1311063244.7304.1.camel@phoenix>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rakesh Iyer <riyer@nvidia.com>, linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Ignaz Forster <ignaz.forster@gmx.de>, linux-input@vger.kernel.org
 
-This error handling code can be reached before kbc->idev is
-initialized, so it is safer to always use the original name,
-input_dev.
+On Tue, 19 Jul 2011, Axel Lin wrote:
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/keyboard/tegra-kbc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> emsff_init() may fail, let's properly handle the failure.
+> 
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
+> ---
+>  drivers/hid/hid-emsff.c |    7 ++++++-
+>  1 files changed, 6 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-emsff.c b/drivers/hid/hid-emsff.c
+> index 81877c6..a5dc13f 100644
+> --- a/drivers/hid/hid-emsff.c
+> +++ b/drivers/hid/hid-emsff.c
+> @@ -126,7 +126,12 @@ static int ems_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		goto err;
+>  	}
+>  
+> -	emsff_init(hdev);
+> +	ret = emsff_init(hdev);
+> +	if (ret) {
+> +		dev_err(&hdev->dev, "force feedback init failed\n");
+> +		hid_hw_stop(hdev);
+> +		goto err;
+> +	}
+>  
+>  	return 0;
+>  err:
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 2b3b73e..8e40f2b 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -701,7 +701,7 @@ err_iounmap:
- err_free_mem_region:
- 	release_mem_region(res->start, resource_size(res));
- err_free_mem:
--	input_free_device(kbc->idev);
-+	input_free_device(input_dev);
- 	kfree(kbc);
- 
- 	return err;
+Good catch, applied, thanks.
+
 -- 
-1.7.4.1
-
-
-
+Jiri Kosina
+SUSE Labs

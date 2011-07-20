@@ -1,7 +1,7 @@
 From: Wanlong Gao <wanlong.gao@gmail.com>
 Subject: Re: [PATCH] drivers:input:free the memory before set it to NULL
-Date: Thu, 21 Jul 2011 00:08:21 +0800
-Message-ID: <1311178101.10111.1.camel@Tux>
+Date: Thu, 21 Jul 2011 00:11:02 +0800
+Message-ID: <1311178262.10111.2.camel@Tux>
 References: <1311176496-10026-1-git-send-email-wanlong.gao@gmail.com>
 	 <20110720165454.1e67a91f@lxorguk.ukuu.org.uk>
 Reply-To: wanlong.gao@gmail.com
@@ -9,13 +9,13 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:43477 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751302Ab1GTQI1 (ORCPT
+Received: from mail-iw0-f174.google.com ([209.85.214.174]:64710 "EHLO
+	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752173Ab1GTQLH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 12:08:27 -0400
-Received: by iyb12 with SMTP id 12so313370iyb.19
-        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2011 09:08:27 -0700 (PDT)
+	Wed, 20 Jul 2011 12:11:07 -0400
+Received: by iwn6 with SMTP id 6so310142iwn.19
+        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2011 09:11:07 -0700 (PDT)
 In-Reply-To: <20110720165454.1e67a91f@lxorguk.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -34,10 +34,9 @@ fore
 > the object, which seems to make more sense.
 >=20
 > As there is no locking here it really makes no difference anyway
-Hmm...
-=46YI, I see it. Thanks Alan.
-And sorry for making noise.
+BTW, your email head icon is so cool.
 
+Thanks
 Wanlong Gao
 >=20
 > >=20

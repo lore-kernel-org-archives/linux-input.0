@@ -1,31 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2/2] Input: kxtj9: fix locking typo in kxtj9_set_poll()
-Date: Tue, 19 Jul 2011 23:19:08 -0700
-Message-ID: <20110720061908.GB28816@core.coreip.homeip.net>
-References: <20110720053108.GE6445@shale.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: [PATCH] input:kxtj9:check the return value of kxtj9_enable()
+Date: Wed, 20 Jul 2011 14:48:22 +0800
+Message-ID: <1311144502-16932-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:51656 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751326Ab1GTGTN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 02:19:13 -0400
-Received: by iwn6 with SMTP id 6so4692675iwn.19
-        for <linux-input@vger.kernel.org>; Tue, 19 Jul 2011 23:19:13 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20110720053108.GE6445@shale.localdomain>
+Received: from cn.fujitsu.com ([222.73.24.84]:49398 "EHLO song.cn.fujitsu.com"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1751037Ab1GTGt2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jul 2011 02:49:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: Chris Hudson <chudson@kionix.com>, linux-input@vger.kernel.org
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, chudson@kionix.com, Wanlong Gao <gaowanlong@cn.fujitsu.com>
 
-On Wed, Jul 20, 2011 at 08:31:08AM +0300, Dan Carpenter wrote:
-> According to the comments we want to call mutex_lock() here instead
-> of mutex_unlock().  That makes more sense.
-> 
+If don't check the return value of kxtj9_enable(), the kxtj9_resume()
+will always return 0 instead.
 
-Applied both, thanks Dan.
+Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+---
+ drivers/input/misc/kxtj9.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
+index a416f7f..b835c29 100644
+--- a/drivers/input/misc/kxtj9.c
++++ b/drivers/input/misc/kxtj9.c
+@@ -627,7 +627,7 @@ static int kxtj9_resume(struct device *dev)
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
+-		kxtj9_enable(tj9);
++		retval = kxtj9_enable(tj9);
+ 
+ 	mutex_unlock(&input_dev->mutex);
+ 	return retval;
 -- 
-Dmitry
+1.7.6
+

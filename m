@@ -1,51 +1,70 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: emsff: properly handle emsff_init failure
-Date: Wed, 20 Jul 2011 11:56:22 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1107201156130.7300@pobox.suse.cz>
-References: <1311063244.7304.1.camel@phoenix>
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Build-a-home-based-business-on-Auto-Pilot
+Date: Wed, 20 Jul 2011 04:06:58 -0700 (PDT)
+Message-ID: <201107201106.p6KB6wfd066843@mail4.spagack2.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43692 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750745Ab1GTJ4X (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 05:56:23 -0400
-In-Reply-To: <1311063244.7304.1.camel@phoenix>
+Received: from mail4.spagack2.com ([74.122.159.223]:62145 "EHLO
+	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751151Ab1GTLKY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jul 2011 07:10:24 -0400
+Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
+	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6KB6xfo066860
+	for <linux-input@vger.kernel.org>; Wed, 20 Jul 2011 04:06:59 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ignaz Forster <ignaz.forster@gmx.de>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tue, 19 Jul 2011, Axel Lin wrote:
 
-> emsff_init() may fail, let's properly handle the failure.
-> 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
->  drivers/hid/hid-emsff.c |    7 ++++++-
->  1 files changed, 6 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-emsff.c b/drivers/hid/hid-emsff.c
-> index 81877c6..a5dc13f 100644
-> --- a/drivers/hid/hid-emsff.c
-> +++ b/drivers/hid/hid-emsff.c
-> @@ -126,7 +126,12 @@ static int ems_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		goto err;
->  	}
->  
-> -	emsff_init(hdev);
-> +	ret = emsff_init(hdev);
-> +	if (ret) {
-> +		dev_err(&hdev->dev, "force feedback init failed\n");
-> +		hid_hw_stop(hdev);
-> +		goto err;
-> +	}
->  
->  	return 0;
->  err:
 
-Good catch, applied, thanks.
+Hello Everyone,
 
--- 
-Jiri Kosina
-SUSE Labs
+Discover how average people who have never made a cent in the past
+Are now making $1,000+ every month,=20
+With the Potential of making $50,000 a month
+Just "Plug In"... to Your
+Own Fully Automated=20
+  Turn Key...Global Marketing $ystem
+Receive $500-$3,500 Monthly or MORE
+Not MLM...and
+No Selling...
+No Cold Phone Calling.=20
+Complete plug-in-system!
+
+Check-it-Out!
+
+http://trckrs.com/48184/rc1
+
+It=92s surprisingly cool!
+
+Dan and Noel
+
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

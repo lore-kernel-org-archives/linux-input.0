@@ -1,26 +1,50 @@
-From: "Western Union de transferencia de dinero" <wudept17@w.cn>
-Subject: Confirmar
-Date: Wed, 20 Jul 2011 14:42:21 -0300 (BRT)
-Message-ID: <26619.88.255.100.254.1311183741.squirrel@webmail.usb.org.br>
-Reply-To: wudept17@w.cn
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Eric Andersson <eric.andersson@unixphere.com>
+Subject: [PATCH 0/1] input: add driver for Bosch Sensortec's BMA150 accelerometer
+Date: Thu, 21 Jul 2011 00:54:53 +0200
+Message-ID: <1311202494-21940-1-git-send-email-eric.andersson@unixphere.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from usb.org.br ([200.178.205.154]:50490 "EHLO usb.org.br"
+Received: from csmtp3.one.com ([91.198.169.23]:27120 "EHLO csmtp3.one.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752887Ab1GTRnr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 13:43:47 -0400
+	id S1751545Ab1GTWvH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jul 2011 18:51:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Eric Andersson <eric.andersson@unixphere.com>
 
-Usted tiene una transferencia de dinero de $85.000.Por favor confirmar =
-la
-recepci=F3n con su nombre y su pa=EDs. Enviar por correo electr=F3nico:=
- wudept17@w.cn
+This is version 4 of the driver for Bosch Sensortec's accelerometers BMA150
+and SMB380.
+
+I didn't really get an ack on my suggestions in the previous version, but I
+hope that this version covers the comments and suits your needs.
+
+Here is the changelog:
+* community review: added bma023 client id.
+* community review: added irq handling for any-motion and high/low G
+  interrupts.
+* Added platfrom data struct for chip-configuration parameters.
+* Removed the sysfs interfaces. These parameters are set through platform data instead.
+* Removed pm_runtime, not needed if no sysfs interfaces.
+* Populated default interrupt configurations as recommended by Bosch Sensortec.
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best regards,
+ Eric
+
+http://www.unixphere.com
+
+
+Eric Andersson (1):
+  input: add driver for Bosch Sensortec's BMA150 accelerometer
+
+ drivers/input/misc/Kconfig  |   11 +
+ drivers/input/misc/Makefile |    1 +
+ drivers/input/misc/bma150.c |  598 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/bma150.h      |   62 +++++
+ 4 files changed, 672 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/bma150.c
+ create mode 100644 include/linux/bma150.h
+
+-- 
+1.7.3.4
+

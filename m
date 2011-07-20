@@ -1,67 +1,40 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Learn to receive $500 to $3,500 a day in cash.
-Date: Tue, 19 Jul 2011 20:54:29 -0700 (PDT)
-Message-ID: <201107200354.p6K3sTej017615@mail4.spagack2.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: [patch 1/2] input: kxtj9: fix bug in probe()
+Date: Wed, 20 Jul 2011 08:30:41 +0300
+Message-ID: <20110720053041.GD6445@shale.localdomain>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:56499 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752613Ab1GTDzW (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:63970 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750777Ab1GTFcd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Jul 2011 23:55:22 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6K3sTfZ017622
-	for <linux-input@vger.kernel.org>; Tue, 19 Jul 2011 20:54:29 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+	Wed, 20 Jul 2011 01:32:33 -0400
+Received: by wyg8 with SMTP id 8so3233484wyg.19
+        for <linux-input@vger.kernel.org>; Tue, 19 Jul 2011 22:32:32 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Chris Hudson <chudson@kionix.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 
+We are testing the wrong variable here.  I believe tj9->input_dev
+is always NULL at this point, so probe() will fail.
 
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+---
+Compile tested.
 
-
-Hi Everyone,
-
-Just =93Plug In=94.. to Your
-Own Fully Automated
-Turn Key..Global Marketing $ystem
-Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
-
-http://trckrs.com/48184/
-
-
-It=92s surprisingly cool!
-
-Dan
-
-
-
-
-
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380
-In compliance with Federal law, should you choose to Un.Subscribe from =
-our network, you may do so using theUn.Subscribe instruction found belo=
-w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
-Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
+index a416f7f..6c96dc3 100644
+--- a/drivers/input/misc/kxtj9.c
++++ b/drivers/input/misc/kxtj9.c
+@@ -301,7 +301,7 @@ static int __devinit kxtj9_setup_input_device(struct kxtj9_data *tj9)
+ 	int err;
+ 
+ 	input_dev = input_allocate_device();
+-	if (!tj9->input_dev) {
++	if (!input_dev) {
+ 		dev_err(&tj9->client->dev, "input device allocate failed\n");
+ 		return -ENOMEM;
+ 	}

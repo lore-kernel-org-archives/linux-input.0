@@ -1,48 +1,43 @@
 From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: mpu3050 - call  input_free_device() in
- mpu3050_probe() error handling
-Date: Wed, 20 Jul 2011 15:38:10 +0800
-Message-ID: <1311147490.10091.1.camel@phoenix>
+Subject: [PATCH] Input: tegra-kbc - correct call to input_free_device
+Date: Wed, 20 Jul 2011 15:52:52 +0800
+Message-ID: <1311148372.10091.3.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:48920 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751104Ab1GTHiR (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:34046 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751115Ab1GTHw5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 03:38:17 -0400
+	Wed, 20 Jul 2011 03:52:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joseph Lai <joseph_lai@wistron.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rakesh Iyer <riyer@nvidia.com>, linux-input@vger.kernel.org
 
->From 3dcc899388d98a68c22d14b3149d3cc472f8d2fa Mon Sep 17 00:00:00 2001
-From: Axel Lin <axel.lin@gmail.com>
-Date: Wed, 20 Jul 2011 15:34:33 +0800
-Subject: [PATCH] Input: mpu3050 - correct call to input_free_device
-
-input_free_device() should be used if input_register_device() was not called
-yet or if it failed.
+This error handling code can be reached before kbc->idev is
+initialized, so it is safer to always use the original name,
+input_dev.
 
 Signed-off-by: Axel Lin <axel.lin@gmail.com>
 ---
- drivers/input/misc/mpu3050.c |    2 +-
+ drivers/input/keyboard/tegra-kbc.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
-index b95fac1..f71dc72 100644
---- a/drivers/input/misc/mpu3050.c
-+++ b/drivers/input/misc/mpu3050.c
-@@ -282,7 +282,7 @@ err_free_irq:
- err_pm_set_suspended:
- 	pm_runtime_set_suspended(&client->dev);
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 2b3b73e..8e40f2b 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -701,7 +701,7 @@ err_iounmap:
+ err_free_mem_region:
+ 	release_mem_region(res->start, resource_size(res));
  err_free_mem:
--	input_unregister_device(idev);
-+	input_free_device(idev);
- 	kfree(sensor);
- 	return error;
- }
+-	input_free_device(kbc->idev);
++	input_free_device(input_dev);
+ 	kfree(kbc);
+ 
+ 	return err;
 -- 
 1.7.4.1
 

@@ -1,46 +1,23 @@
-From: Wanlong Gao <wanlong.gao@gmail.com>
-Subject: Re: [PATCH] drivers:input:free the memory before set it to NULL
-Date: Thu, 21 Jul 2011 00:11:02 +0800
-Message-ID: <1311178262.10111.2.camel@Tux>
-References: <1311176496-10026-1-git-send-email-wanlong.gao@gmail.com>
-	 <20110720165454.1e67a91f@lxorguk.ukuu.org.uk>
-Reply-To: wanlong.gao@gmail.com
+From: "Western Union de transferencia de dinero" <wudept17@w.cn>
+Subject: Confirmar
+Date: Wed, 20 Jul 2011 14:42:21 -0300 (BRT)
+Message-ID: <26619.88.255.100.254.1311183741.squirrel@webmail.usb.org.br>
+Reply-To: wudept17@w.cn
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:64710 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752173Ab1GTQLH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 12:11:07 -0400
-Received: by iwn6 with SMTP id 6so310142iwn.19
-        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2011 09:11:07 -0700 (PDT)
-In-Reply-To: <20110720165454.1e67a91f@lxorguk.ukuu.org.uk>
+Received: from usb.org.br ([200.178.205.154]:50490 "EHLO usb.org.br"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752887Ab1GTRnr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jul 2011 13:43:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>
 
-On =E4=B8=89, 2011-07-20 at 16:54 +0100, Alan Cox wrote:
-> On Wed, 20 Jul 2011 23:41:36 +0800
-> Wanlong Gao <wanlong.gao@gmail.com> wrote:
->=20
-> > The memory of the platform driver data should be freed
-> > before it was set to NULL.
->=20
-> This seems backwards to me. Currently the reference is invalidated be=
-fore
-> the object, which seems to make more sense.
->=20
-> As there is no locking here it really makes no difference anyway
-BTW, your email head icon is so cool.
-
-Thanks
-Wanlong Gao
->=20
-> >=20
-
+Usted tiene una transferencia de dinero de $85.000.Por favor confirmar =
+la
+recepci=F3n con su nombre y su pa=EDs. Enviar por correo electr=F3nico:=
+ wudept17@w.cn
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

@@ -1,61 +1,36 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Learn to receive $500 to $3,500 a day in cash.
-Date: Wed, 20 Jul 2011 18:32:40 -0700 (PDT)
-Message-ID: <201107210132.p6L1WelU012673@mail4.spagack2.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: prodikeys: make needlessly global symbols static
+Date: Thu, 21 Jul 2011 13:59:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1107211359300.7300@pobox.suse.cz>
+References: <1311232893.10976.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:53716 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751724Ab1GUBde (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jul 2011 21:33:34 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6L1WeEa012689
-	for <linux-input@vger.kernel.org>; Wed, 20 Jul 2011 18:32:40 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1311232893.10976.1.camel@phoenix>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Don Prince <dhprince.devel@yahoo.co.uk>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
+On Thu, 21 Jul 2011, Axel Lin wrote:
 
+> The following symbols are not referenced outside this file so
+> there's no need for it to be in the global name space.
+> 
+>   pcmidi_sustained_note_release
+>   init_sustain_timers
+>   stop_sustain_timers
+>   pcmidi_handle_report
+>   pcmidi_setup_extra_keys
+>   pcmidi_snd_initialise
+>   pcmidi_snd_terminate
+> 
+> Make them static.
+> 
+> Signed-off-by: Axel Lin <axel.lin@gmail.com>
 
+Applied, thanks.
 
-Hi Everyone,
-
-Just =93Plug In=94.. to Your
-Own Fully Automated
-Turn Key..Global Marketing $ystem
-Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
-
-http://trckrs.com/48184/rc2
-
-
-It=92s surprisingly cool!
-
-Dan
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380In compliance with Federal law, should you choose to U=
-n.Subscribe from our network, you may do so using theUn.Subscribe instr=
-uction found below.  We are fully compliant with CAN-SPAM Act of 2005-P=
-lease use the Un.Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

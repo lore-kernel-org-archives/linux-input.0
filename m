@@ -1,83 +1,50 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH] Input: mma8450: add device tree probe support
-Date: Fri, 22 Jul 2011 00:25:51 +0800
-Message-ID: <1311265551-23233-1-git-send-email-shawn.guo@linaro.org>
+From: =?utf-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>
+Subject: [PATCH 2/6] mx31moboard: Add MC13783 power button support
+Date: Thu, 21 Jul 2011 17:10:02 +0200
+Message-ID: <1311261006-28048-3-git-send-email-philippe.retornaz@epfl.ch>
+References: <1311261006-28048-1-git-send-email-philippe.retornaz@epfl.ch>
+	<1311261006-28048-2-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sammy He <r62914-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1311261006-28048-2-git-send-email-philippe.retornaz@epfl.ch>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: s.hauer@pengutronix.de
+Cc: amit.kucheria@canonical.com, sameo@linux.intel.com, broonie@opensource.wolfsonmicro.com, philippe.retornaz@epfl.ch, linux-input@vger.kernel.org, u.kleine-koenig@pengutronix.de, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-It adds device tree probe support for mma8450 driver.
-
-Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Sammy He <r62914-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
----
- .../devicetree/bindings/input/fsl-mma8450.txt      |   11 +++++++++++
- drivers/input/misc/mma8450.c                       |    8 ++++++++
- 2 files changed, 19 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/fsl-mma8450.txt
-
-diff --git a/Documentation/devicetree/bindings/input/fsl-mma8450.txt b/Documentation/devicetree/bindings/input/fsl-mma8450.txt
-new file mode 100644
-index 0000000..a00c94c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/fsl-mma8450.txt
-@@ -0,0 +1,11 @@
-+* Freescale MMA8450 3-Axis Accelerometer
-+
-+Required properties:
-+- compatible : "fsl,mma8450".
-+
-+Example:
-+
-+accelerometer: mma8450@1c {
-+	compatible = "fsl,mma8450";
-+	reg = <0x1c>;
-+};
-diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma8450.c
-index 20f8f92..6c76cf7 100644
---- a/drivers/input/misc/mma8450.c
-+++ b/drivers/input/misc/mma8450.c
-@@ -24,6 +24,7 @@
- #include <linux/delay.h>
- #include <linux/i2c.h>
- #include <linux/input-polldev.h>
-+#include <linux/of_device.h>
- 
- #define MMA8450_DRV_NAME	"mma8450"
- 
-@@ -229,10 +230,17 @@ static const struct i2c_device_id mma8450_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, mma8450_id);
- 
-+static const struct of_device_id mma8450_dt_ids[] = {
-+	{ .compatible = "fsl,mma8450", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(i2c, mma8450_dt_ids);
-+
- static struct i2c_driver mma8450_driver = {
- 	.driver = {
- 		.name	= MMA8450_DRV_NAME,
- 		.owner	= THIS_MODULE,
-+		.of_match_table = mma8450_dt_ids,
- 	},
- 	.probe		= mma8450_probe,
- 	.remove		= __devexit_p(mma8450_remove),
--- 
-1.7.4.1
+QWRkIHRoZSBwb3dlci1vbiBidXR0b24gb24gbXgzMW1vYm9hcmQgdXNpbmcgTUMxMzc4MyBQTUlD
+LgoKU2lnbmVkLW9mZi1ieTogUGhpbGlwcGUgUsOpdG9ybmF6IDxwaGlsaXBwZS5yZXRvcm5hekBl
+cGZsLmNoPgotLS0KIGFyY2gvYXJtL21hY2gtaW14L21hY2gtbXgzMW1vYm9hcmQuYyB8ICAgIDgg
+KysrKysrKysKIDEgZmlsZXMgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygt
+KQoKZGlmZiAtLWdpdCBhL2FyY2gvYXJtL21hY2gtaW14L21hY2gtbXgzMW1vYm9hcmQuYyBiL2Fy
+Y2gvYXJtL21hY2gtaW14L21hY2gtbXgzMW1vYm9hcmQuYwppbmRleCAxMmVlNzU1Li42ODA1NWRl
+IDEwMDY0NAotLS0gYS9hcmNoL2FybS9tYWNoLWlteC9tYWNoLW14MzFtb2JvYXJkLmMKKysrIGIv
+YXJjaC9hcm0vbWFjaC1pbXgvbWFjaC1teDMxbW9ib2FyZC5jCkBAIC0yOCw2ICsyOCw3IEBACiAj
+aW5jbHVkZSA8bGludXgvc3BpL3NwaS5oPgogI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiAjaW5j
+bHVkZSA8bGludXgvbWVtYmxvY2suaD4KKyNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgogCiAjaW5j
+bHVkZSA8bGludXgvdXNiL290Zy5oPgogI2luY2x1ZGUgPGxpbnV4L3VzYi91bHBpLmg+CkBAIC0y
+NjQsMTIgKzI2NSwxOSBAQCBzdGF0aWMgc3RydWN0IG1jMTM3ODNfbGVkc19wbGF0Zm9ybV9kYXRh
+IG1vYm9hcmRfbGVkcyA9IHsKIAkudGMyX3BlcmlvZCA9IE1DMTM3ODNfTEVEX1BFUklPRF8xME1T
+LAogfTsKIAorc3RhdGljIHN0cnVjdCBtYzEzNzgzX2J1dHRvbnNfcGxhdGZvcm1fZGF0YSBtb2Jv
+YXJkX2J1dHRvbnMgPSB7CisJLmIxb25fZmxhZ3MgPSBNQzEzNzgzX0JVVFRPTl9EQk5DXzc1ME1T
+IHwgTUMxMzc4M19CVVRUT05fRU5BQkxFIHwKKwkJCU1DMTM3ODNfQlVUVE9OX1BPTF9JTlZFUlQs
+CisJLmIxb25fa2V5ID0gS0VZX1BPV0VSLAorfTsKKwogc3RhdGljIHN0cnVjdCBtYzEzeHh4X3Bs
+YXRmb3JtX2RhdGEgbW9ib2FyZF9wbWljID0gewogCS5yZWd1bGF0b3JzID0gewogCQkucmVndWxh
+dG9ycyA9IG1vYm9hcmRfcmVndWxhdG9ycywKIAkJLm51bV9yZWd1bGF0b3JzID0gQVJSQVlfU0la
+RShtb2JvYXJkX3JlZ3VsYXRvcnMpLAogCX0sCiAJLmxlZHMgPSAmbW9ib2FyZF9sZWRzLAorCS5i
+dXR0b25zID0gJm1vYm9hcmRfYnV0dG9ucywKIAkuZmxhZ3MgPSBNQzEzWFhYX1VTRV9SRUdVTEFU
+T1IgfCBNQzEzWFhYX1VTRV9SVEMgfAogCQlNQzEzWFhYX1VTRV9BREMgfCBNQzEzWFhYX1VTRV9M
+RUQsCiB9OwotLSAKMS42LjMuMwoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJu
+ZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK

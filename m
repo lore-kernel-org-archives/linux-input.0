@@ -1,45 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: prodikeys: remove a redundant forward declaration
- of struct pcmidi_snd
-Date: Thu, 21 Jul 2011 14:00:04 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1107211359590.7300@pobox.suse.cz>
-References: <1311234448.16867.0.camel@phoenix>
+From: =?utf-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>
+Subject: [PATCH v4 0/6] mc13783: add pwr button support
+Date: Thu, 21 Jul 2011 17:10:00 +0200
+Message-ID: <1311261006-28048-1-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34671 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751876Ab1GUMAG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Jul 2011 08:00:06 -0400
-In-Reply-To: <1311234448.16867.0.camel@phoenix>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: s.hauer@pengutronix.de
+Cc: amit.kucheria@canonical.com, sameo@linux.intel.com, broonie@opensource.wolfsonmicro.com, philippe.retornaz@epfl.ch, linux-input@vger.kernel.org, u.kleine-koenig@pengutronix.de, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Don Prince <dhprince.devel@yahoo.co.uk>, linux-input@vger.kernel.org
 
-On Thu, 21 Jul 2011, Axel Lin wrote:
-
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
->  drivers/hid/hid-prodikeys.c |    2 --
->  1 files changed, 0 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-> index ab19f29..53c9850 100644
-> --- a/drivers/hid/hid-prodikeys.c
-> +++ b/drivers/hid/hid-prodikeys.c
-> @@ -44,8 +44,6 @@ struct pk_device {
->  	struct pcmidi_snd	*pm; /* pcmidi device context */
->  };
->  
-> -struct pcmidi_snd;
-> -
->  struct pcmidi_sustain {
->  	unsigned long		in_use;
->  	struct pcmidi_snd	*pm;
-
-Applied.
-
--- 
-Jiri Kosina
-SUSE Labs
+SGVsbG8KClRoaXMgYWRkIGJ1dHRvbiBoYW5kbGluZyBmb3IgdGhlIE1DMTM3ODMgUE1JQy4KVGhl
+IGZpcnN0IHBhdGNoIG1vZGlmeSB0aGUgbWMxMzc4MyBNRkQgZHJpdmVyIHRvIGFkZCBhIGJ1dHRv
+bgpzdWJkZXZpY2UgYW5kIGFsc28gYWRkcyB0aGUgbWMxMzc4My1wd3JidXR0b24gZHJpdmVyIHVz
+aW5nIGEgbWlzYwppbnB1dCBkZXZpY2UuCgpUaGUgc2Vjb25kIHBhdGNoIGFkZHMgdGhlIHBvd2Vy
+IG9uIGJ1dHRvbiBzdXBwb3J0IHRvIHRoZSBteDMxbW9ib2FyZCBib2FyZHMuCgpQYXRjaCAzICYg
+NCBtb2RpZnkgdGhlIG1jMTN4eHggTUZEIGRyaXZlciB0byB1c2UgdGhlIHBsYXRmb3JtIGRhdGEg
+dG8gCnJlZ2lzdGVyIHRoZSBsZWQgc3ViZGV2aWNlIGFuZCB1bmNvbmRpdGlvbmFsbHkgcmVnaXN0
+ZXIgdGhlIHJlZ3VsYXRvcgpzdWJkZXZpY2UgKGFzIHN1Z2dlc3RlZCBieSBNYXJrIGFuZCBVd2Up
+LgoKUGF0Y2ggNSByZW1vdmUgdGhlIHVzZSBvZiB0aGUgKl9VU0VfUkVHVUxBVE9SIGFuZCAqX1VT
+RV9MRUQgaW4gdGhlIHBsYXRmb3JtCmZpbGVzLgoKUGF0Y2ggNiBtdXN0IGJlIGFwcGxpZWQgYWZ0
+ZXIgcGF0Y2ggMyw0LDUgdG8gcmVtb3ZlIHRoZSBvYnNvbGV0ZSBkZWZpbmUuCgp2MjogZmlyc3Qg
+cGF0Y2ggbW9kaWZpZWQgYWNjb3JkaW5nIHRvIGNvbW1lbnRzIGJ5IERtaXRyeSBUb3Jva2hvdgp2
+MzogSW1wbGVtZW50IHJldmlldyBieSBVd2UKdjQ6IEltcGxlbWVudCBjb21tZW50cyBieSBVd2Ug
+YW5kIE1hcmsKClBoaWxpcHBlIFLDqXRvcm5heiAoNik6CiAgbWMxMzc4MzogYWRkIHBvd2VyIGJ1
+dHRvbiBzdXBwb3J0CiAgbXgzMW1vYm9hcmQ6IEFkZCBNQzEzNzgzIHBvd2VyIGJ1dHRvbiBzdXBw
+b3J0CiAgbWMxM3h4eDogVW5jb25kaXRpb25hbGx5IHJlZ2lzdGVyIHJlZ3VsYXRvciBzdWJkZXZp
+Y2UKICBtYzEzeHh4OiBpbXBsaWNpdGx5IHJlZ2lzdGVyIGxlZCBzdWJkZXZpY2UKICBtYzEzeHh4
+OiByZW1vdmUgb2Jzb2xldGUgbGVkcyBhbmQgcmVndWFsdG9ycyBmbGFncwogIG1jMTN4eHg6IHJl
+bW92ZSB1bnVzZWQgZGVmaW5lCgogYXJjaC9hcm0vbWFjaC1pbXgvbWFjaC1teDI3XzNkcy5jICAg
+ICAgfCAgICAxIC0KIGFyY2gvYXJtL21hY2gtaW14L21hY2gtbXgzMV8zZHMuYyAgICAgIHwgICAg
+MiArLQogYXJjaC9hcm0vbWFjaC1pbXgvbWFjaC1teDMxbGl0ZS5jICAgICAgfCAgICAzICstCiBh
+cmNoL2FybS9tYWNoLWlteC9tYWNoLW14MzFtb2JvYXJkLmMgICB8ICAgMTEgKy0KIGFyY2gvYXJt
+L21hY2gtaW14L21hY2gtcGNtMDM4LmMgICAgICAgIHwgICAgMyArLQogYXJjaC9hcm0vbWFjaC1t
+eDUvbXg1MV9lZmlrYS5jICAgICAgICAgfCAgICAyICstCiBkcml2ZXJzL2lucHV0L21pc2MvS2Nv
+bmZpZyAgICAgICAgICAgICB8ICAgMTAgKwogZHJpdmVycy9pbnB1dC9taXNjL01ha2VmaWxlICAg
+ICAgICAgICAgfCAgICAxICsKIGRyaXZlcnMvaW5wdXQvbWlzYy9tYzEzNzgzLXB3cmJ1dHRvbi5j
+IHwgIDI4OCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwogZHJpdmVycy9tZmQvbWMx
+M3h4eC1jb3JlLmMgICAgICAgICAgICAgfCAgIDEyICstCiBpbmNsdWRlL2xpbnV4L21mZC9tYzEz
+NzgzLmggICAgICAgICAgICB8ICAgIDMgKy0KIGluY2x1ZGUvbGludXgvbWZkL21jMTN4eHguaCAg
+ICAgICAgICAgIHwgICAxOSArKy0KIDEyIGZpbGVzIGNoYW5nZWQsIDMzNyBpbnNlcnRpb25zKCsp
+LCAxOCBkZWxldGlvbnMoLSkKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0L21pc2Mv
+bWMxMzc4My1wd3JidXR0b24uYwoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJu
+ZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK

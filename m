@@ -1,101 +1,134 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] HID: prodikeys: make needlessly global symbols static
-Date: Thu, 21 Jul 2011 15:21:33 +0800
-Message-ID: <1311232893.10976.1.camel@phoenix>
+From: =?utf-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>
+Subject: [PATCH 5/6] mc13xxx: remove obsolete leds and regualtors flags
+Date: Thu, 21 Jul 2011 17:10:05 +0200
+Message-ID: <1311261006-28048-6-git-send-email-philippe.retornaz@epfl.ch>
+References: <1311261006-28048-1-git-send-email-philippe.retornaz@epfl.ch>
+ <1311261006-28048-2-git-send-email-philippe.retornaz@epfl.ch>
+ <1311261006-28048-3-git-send-email-philippe.retornaz@epfl.ch>
+ <1311261006-28048-4-git-send-email-philippe.retornaz@epfl.ch>
+ <1311261006-28048-5-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Don Prince <dhprince.devel@yahoo.co.uk>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp0.epfl.ch ([128.178.224.219]:55290 "HELO smtp0.epfl.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751736Ab1GUOhn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Jul 2011 10:37:43 -0400
+In-Reply-To: <1311261006-28048-5-git-send-email-philippe.retornaz@epfl.ch>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: s.hauer@pengutronix.de
+Cc: linux-arm-kernel@lists.infradead.org, amit.kucheria@canonical.com, dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, u.kleine-koenig@pengutronix.de, philippe.retornaz@epfl.ch
 
-The following symbols are not referenced outside this file so
-there's no need for it to be in the global name space.
 
-  pcmidi_sustained_note_release
-  init_sustain_timers
-  stop_sustain_timers
-  pcmidi_handle_report
-  pcmidi_setup_extra_keys
-  pcmidi_snd_initialise
-  pcmidi_snd_terminate
-
-Make them static.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
+Signed-off-by: Philippe R=C3=A9tornaz <philippe.retornaz@epfl.ch>
 ---
- drivers/hid/hid-prodikeys.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+ arch/arm/mach-imx/mach-mx27_3ds.c    |    1 -
+ arch/arm/mach-imx/mach-mx31_3ds.c    |    2 +-
+ arch/arm/mach-imx/mach-mx31lite.c    |    3 +--
+ arch/arm/mach-imx/mach-mx31moboard.c |    3 +--
+ arch/arm/mach-imx/mach-pcm038.c      |    3 +--
+ arch/arm/mach-mx5/mx51_efika.c       |    2 +-
+ 6 files changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-index ab19f29..7563229 100644
---- a/drivers/hid/hid-prodikeys.c
-+++ b/drivers/hid/hid-prodikeys.c
-@@ -242,7 +242,7 @@ drop_note:
- 	return;
- }
- 
--void pcmidi_sustained_note_release(unsigned long data)
-+static void pcmidi_sustained_note_release(unsigned long data)
+diff --git a/arch/arm/mach-imx/mach-mx27_3ds.c b/arch/arm/mach-imx/mach=
+-mx27_3ds.c
+index 6e1accf..8cd507d 100644
+--- a/arch/arm/mach-imx/mach-mx27_3ds.c
++++ b/arch/arm/mach-imx/mach-mx27_3ds.c
+@@ -238,7 +238,6 @@ static struct mc13xxx_platform_data mc13783_pdata =3D=
  {
- 	struct pcmidi_sustain *pms = (struct pcmidi_sustain *)data;
- 
-@@ -250,7 +250,7 @@ void pcmidi_sustained_note_release(unsigned long data)
- 	pms->in_use = 0;
- }
- 
--void init_sustain_timers(struct pcmidi_snd *pm)
-+static void init_sustain_timers(struct pcmidi_snd *pm)
- {
- 	struct pcmidi_sustain *pms;
- 	unsigned i;
-@@ -264,7 +264,7 @@ void init_sustain_timers(struct pcmidi_snd *pm)
- 	}
- }
- 
--void stop_sustain_timers(struct pcmidi_snd *pm)
-+static void stop_sustain_timers(struct pcmidi_snd *pm)
- {
- 	struct pcmidi_sustain *pms;
- 	unsigned i;
-@@ -499,7 +499,7 @@ static int pcmidi_handle_report4(struct pcmidi_snd *pm, u8 *data)
- 	return 1;
- }
- 
--int pcmidi_handle_report(
-+static int pcmidi_handle_report(
- 	struct pcmidi_snd *pm, unsigned report_id, u8 *data, int size)
- {
- 	int ret = 0;
-@@ -518,7 +518,8 @@ int pcmidi_handle_report(
- 	return ret;
- }
- 
--void pcmidi_setup_extra_keys(struct pcmidi_snd *pm, struct input_dev *input)
-+static void pcmidi_setup_extra_keys(
-+	struct pcmidi_snd *pm, struct input_dev *input)
- {
- 	/* reassigned functionality for N/A keys
- 		MY PICTURES =>	KEY_WORDPROCESSOR
-@@ -602,7 +603,7 @@ static struct snd_rawmidi_ops pcmidi_in_ops = {
- 	.trigger = pcmidi_in_trigger
+ 		.num_regulators =3D ARRAY_SIZE(mx27_3ds_regulators),
+=20
+ 	},
+-	.flags  =3D MC13783_USE_REGULATOR,
  };
- 
--int pcmidi_snd_initialise(struct pcmidi_snd *pm)
-+static int pcmidi_snd_initialise(struct pcmidi_snd *pm)
+=20
+ /* SPI */
+diff --git a/arch/arm/mach-imx/mach-mx31_3ds.c b/arch/arm/mach-imx/mach=
+-mx31_3ds.c
+index 9b98244..7978f58 100644
+--- a/arch/arm/mach-imx/mach-mx31_3ds.c
++++ b/arch/arm/mach-imx/mach-mx31_3ds.c
+@@ -496,7 +496,7 @@ static struct mc13xxx_platform_data mc13783_pdata =3D=
  {
- 	static int dev;
- 	struct snd_card *card;
-@@ -720,7 +721,7 @@ fail:
- 	return err;
- }
- 
--int pcmidi_snd_terminate(struct pcmidi_snd *pm)
-+static int pcmidi_snd_terminate(struct pcmidi_snd *pm)
+ 		.regulators =3D mx31_3ds_regulators,
+ 		.num_regulators =3D ARRAY_SIZE(mx31_3ds_regulators),
+ 	},
+-	.flags  =3D MC13783_USE_REGULATOR | MC13783_USE_TOUCHSCREEN,
++	.flags  =3D MC13783_USE_TOUCHSCREEN,
+ };
+=20
+ /* SPI */
+diff --git a/arch/arm/mach-imx/mach-mx31lite.c b/arch/arm/mach-imx/mach=
+-mx31lite.c
+index ac9b4ca..ae99cae 100644
+--- a/arch/arm/mach-imx/mach-mx31lite.c
++++ b/arch/arm/mach-imx/mach-mx31lite.c
+@@ -112,8 +112,7 @@ static const struct spi_imx_master spi1_pdata __ini=
+tconst =3D {
+ };
+=20
+ static struct mc13xxx_platform_data mc13783_pdata __initdata =3D {
+-	.flags  =3D MC13XXX_USE_RTC |
+-		  MC13XXX_USE_REGULATOR,
++	.flags  =3D MC13XXX_USE_RTC,
+ };
+=20
+ static struct spi_board_info mc13783_spi_dev __initdata =3D {
+diff --git a/arch/arm/mach-imx/mach-mx31moboard.c b/arch/arm/mach-imx/m=
+ach-mx31moboard.c
+index 68055de..2a43492 100644
+--- a/arch/arm/mach-imx/mach-mx31moboard.c
++++ b/arch/arm/mach-imx/mach-mx31moboard.c
+@@ -278,8 +278,7 @@ static struct mc13xxx_platform_data moboard_pmic =3D=
  {
- 	if (pm->card) {
- 		stop_sustain_timers(pm);
--- 
-1.7.4.1
+ 	},
+ 	.leds =3D &moboard_leds,
+ 	.buttons =3D &moboard_buttons,
+-	.flags =3D MC13XXX_USE_REGULATOR | MC13XXX_USE_RTC |
+-		MC13XXX_USE_ADC | MC13XXX_USE_LED,
++	.flags =3D MC13XXX_USE_RTC | MC13XXX_USE_ADC,
+ };
+=20
+ static struct spi_board_info moboard_spi_board_info[] __initdata =3D {
+diff --git a/arch/arm/mach-imx/mach-pcm038.c b/arch/arm/mach-imx/mach-p=
+cm038.c
+index 853bb87..70aaa7d 100644
+--- a/arch/arm/mach-imx/mach-pcm038.c
++++ b/arch/arm/mach-imx/mach-pcm038.c
+@@ -266,8 +266,7 @@ static struct mc13xxx_platform_data pcm038_pmic =3D=
+ {
+ 		.regulators =3D pcm038_regulators,
+ 		.num_regulators =3D ARRAY_SIZE(pcm038_regulators),
+ 	},
+-	.flags =3D MC13783_USE_ADC | MC13783_USE_REGULATOR |
+-		 MC13783_USE_TOUCHSCREEN,
++	.flags =3D MC13783_USE_ADC | MC13783_USE_TOUCHSCREEN,
+ };
+=20
+ static struct spi_board_info pcm038_spi_board_info[] __initdata =3D {
+diff --git a/arch/arm/mach-mx5/mx51_efika.c b/arch/arm/mach-mx5/mx51_ef=
+ika.c
+index 1105ef3..e2e4096 100644
+--- a/arch/arm/mach-mx5/mx51_efika.c
++++ b/arch/arm/mach-mx5/mx51_efika.c
+@@ -567,7 +567,7 @@ static struct mc13xxx_regulator_init_data mx51_efik=
+a_regulators[] =3D {
+ };
+=20
+ static struct mc13xxx_platform_data mx51_efika_mc13892_data =3D {
+-	.flags =3D MC13XXX_USE_RTC | MC13XXX_USE_REGULATOR,
++	.flags =3D MC13XXX_USE_RTC,
+ 	.regulators =3D {
+ 		.num_regulators =3D ARRAY_SIZE(mx51_efika_regulators),
+ 		.regulators =3D mx51_efika_regulators,
+--=20
+1.6.3.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,17 +1,20 @@
 From: =?utf-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>
-Subject: [PATCH 1/6] mc13xxx: Unconditionally register regulator subdevice
-Date: Fri, 22 Jul 2011 16:17:07 +0200
-Message-ID: <1311344232-29902-2-git-send-email-philippe.retornaz@epfl.ch>
+Subject: [PATCH 4/6] mc13xxx: remove unused define
+Date: Fri, 22 Jul 2011 16:17:10 +0200
+Message-ID: <1311344232-29902-5-git-send-email-philippe.retornaz@epfl.ch>
 References: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
+ <1311344232-29902-2-git-send-email-philippe.retornaz@epfl.ch>
+ <1311344232-29902-3-git-send-email-philippe.retornaz@epfl.ch>
+ <1311344232-29902-4-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp3.epfl.ch ([128.178.224.226]:59291 "HELO smtp3.epfl.ch"
+Received: from smtp3.epfl.ch ([128.178.224.226]:59329 "HELO smtp3.epfl.ch"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1754278Ab1GVORU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jul 2011 10:17:20 -0400
-In-Reply-To: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
+	id S1754463Ab1GVORX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Jul 2011 10:17:23 -0400
+In-Reply-To: <1311344232-29902-4-git-send-email-philippe.retornaz@epfl.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: s.hauer@pengutronix.de
@@ -19,26 +22,37 @@ Cc: linux-arm-kernel@lists.infradead.org, amit.kucheria@canonical.com, dmitry.to
 
 Signed-off-by: Philippe R=C3=A9tornaz <philippe.retornaz@epfl.ch>
 ---
- drivers/mfd/mc13xxx-core.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ include/linux/mfd/mc13783.h |    2 --
+ include/linux/mfd/mc13xxx.h |    2 --
+ 2 files changed, 0 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 7e4d44b..c238f6b 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -763,10 +763,8 @@ err_revision:
- 	if (pdata->flags & MC13XXX_USE_CODEC)
- 		mc13xxx_add_subdevice(mc13xxx, "%s-codec");
+diff --git a/include/linux/mfd/mc13783.h b/include/linux/mfd/mc13783.h
+index 7d0f3d6..3756a30 100644
+--- a/include/linux/mfd/mc13783.h
++++ b/include/linux/mfd/mc13783.h
+@@ -112,8 +112,6 @@ static inline int mc13783_irq_ack(struct mc13783 *m=
+c13783, int irq)
+ #define MC13783_USE_CODEC	MC13XXX_USE_CODEC
+ #define MC13783_USE_ADC		MC13XXX_USE_ADC
+ #define MC13783_USE_RTC		MC13XXX_USE_RTC
+-#define MC13783_USE_REGULATOR	MC13XXX_USE_REGULATOR
+-#define MC13783_USE_LED		MC13XXX_USE_LED
 =20
--	if (pdata->flags & MC13XXX_USE_REGULATOR) {
--		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-regulator",
--				&pdata->regulators, sizeof(pdata->regulators));
--	}
-+	mc13xxx_add_subdevice_pdata(mc13xxx, "%s-regulator",
-+		&pdata->regulators, sizeof(pdata->regulators));
+ #define MC13783_ADC_MODE_TS		1
+ #define MC13783_ADC_MODE_SINGLE_CHAN	2
+diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
+index c064bea..cef1497 100644
+--- a/include/linux/mfd/mc13xxx.h
++++ b/include/linux/mfd/mc13xxx.h
+@@ -142,8 +142,6 @@ struct mc13xxx_platform_data {
+ #define MC13XXX_USE_CODEC	(1 << 1)
+ #define MC13XXX_USE_ADC		(1 << 2)
+ #define MC13XXX_USE_RTC		(1 << 3)
+-#define MC13XXX_USE_REGULATOR	(1 << 4)
+-#define MC13XXX_USE_LED		(1 << 5)
+ 	unsigned int flags;
 =20
- 	if (pdata->flags & MC13XXX_USE_RTC)
- 		mc13xxx_add_subdevice(mc13xxx, "%s-rtc");
+ 	struct mc13xxx_regulator_platform_data regulators;
 --=20
 1.6.3.3
 

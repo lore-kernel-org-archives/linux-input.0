@@ -1,81 +1,119 @@
-From: Eric Andersson <eric.andersson@unixphere.com>
-Subject: Re: [PATCH v4 1/1] input: add driver for Bosch Sensortec's BMA150
- accelerometer
-Date: Fri, 22 Jul 2011 15:24:10 +0200
-Message-ID: <20110722132410.GA958@scully.xfiles.lan>
-References: <1311203359-23779-1-git-send-email-eric.andersson@unixphere.com>
- <1311203359-23779-2-git-send-email-eric.andersson@unixphere.com>
- <4E293621.50306@cam.ac.uk>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH] elantech: clean up hardware/firmware version check
+Date: Fri, 22 Jul 2011 15:38:59 +0200
+Message-ID: <4E297D73.8050404@tudelft.nl>
+References: <4DCE24BE.70908@tudelft.nl> <20110516111552.GA10453@polaris.bitmath.org> <20110517054432.GA20428@core.coreip.homeip.net> <4DD6E8F4.5070101@tudelft.nl> <20110704203052.GA22437@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:51273 "EHLO csmtp2.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754165Ab1GVNYZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jul 2011 09:24:25 -0400
-Content-Disposition: inline
-In-Reply-To: <4E293621.50306@cam.ac.uk>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:37065 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754263Ab1GVNjD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Jul 2011 09:39:03 -0400
+In-Reply-To: <20110704203052.GA22437@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Albert Zhang <xu.zhang@bosch-sensortec.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Chris Bagwell <chris@cnpbagwell.com>, Florian Ragwitz <rafl@debian.org>
 
-> Mostly looks fine.  Couple of nitpicks and one query about the interrupt
-> handling (more general than this driver).
-> 
-> Can I confirm I've understood this correctly. When one receives any of the
-> interrupts, the driver just kicks out a reading?  Given there is a delay
-> before this read, imagine both high and low thresholds are set.  It's entirely
-> possible for both to occur before the thread gets there and the value that is
-> read to be somewhere in between... We'll get one interrupt and have no idea
-> what happened...
-> 
-> Is there any way of working out what has occured and pushing that out?
-In our case we are enabling three conditional interrupts where each
-one of them have the chance of asserting the interrupt pin when
-their particular interrupt criterias are fulfilled. This means that
-one interrupt, for instance any motion, can assert the irq pin and
-then at the same time have a high- and/or low-g interrupt consecutively
-activated as well (but pin asserted by any motion already) where the
-pin will be kept asserted until all the criterias for each asserted
-interrupt are exited (i.e. not fullfilled anymore). So even if there
-is a delay from the pin assertion and the irq thread read-out it
-doesn't really matter if consecutive interrupts are activated in
-between. At least one of the criterias will be met and there will be a motion
-detection to read out. Of course, the interrupt types could be masked
-out from the status register (addr. 0x09 bits 0 & 1 for low-/high-g
-int), but I really don't see the purpose of this.
+Op 04-07-11 22:30, Henrik Rydberg schreef:
+> Hi =C9ric,
+>
+>> Find below patch 2 rebased. Actually, as half of if is not useful
+>> anymore (we gave up on checking the data for version 2) and you had
+>> integrated the other half already, this doesn't contain a lot anymor=
+e.
+>> So it ends up being just a clean up patch, mostly putting all the
+>> version checks in the same place.
+>
+> Did you get any response to this one?
+Not yet.
 
-A comment regarding latched vs. non-latched irqs - we are intentionally not
-using latched interrupts with the current setup since we currently don't
-see the need for it. A latched setup would typically be needed in a high
-inflow interrupt feature, such as new data interrupt, where the interrupt
-buffer can be flooded due to high event frequency.
-An alternative could be to activate the latched interrupt feature and
-explicitly clear the interrupts from the driver, but this would just fire
-off a new event directly until any of the interrupt criterias are fullfilled.
-If you have any preferences or requirements when it comes to this, please share
-your thoughts and we'll act upon this for the next version.
+Dmitry, could you take this patch for elantech?
 
-> > +	if (bma150->client->irq > 0) {
-> > +		ret = input_register_device(idev);
-> > +		if (ret < 0) {
-> > +			input_free_device(idev);
-> > +			return ret;
-> > +		}
-> > +		ret = request_threaded_irq(bma150->client->irq, NULL, bma150_irq_thread,
-> > +			IRQF_TRIGGER_RISING, BMA150_DRIVER, bma150);
-> Does this want to be oneshot? I don't think you have the latch enabled, so strobing
-> across a threshold could result in an interrupt storm.
-Sure, it could be worth having it sequential to the read-outs from the thread
-instead of buffering events while reading. I'll fix.
+Cheers,
+=C9ric
 
-As for your nitpicks, I will fix them for the next version.
+>
+>> According to the protocol document, there are a couple of different
+>> versions of the hardware and firmware. Using the version number, it
+>> should be possible to distinguish between them, at least for the
+>> properties we care about. This moves all the version check together.
+>>
+>> Signed-off-by: =C9ric Piel<eric.piel@tremplin-utc.net>
+>> ---
+>>   drivers/input/mouse/elantech.c |   28 ++++++++++++++--------------
+>>   1 files changed, 14 insertions(+), 14 deletions(-)
+>>
+>> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/el=
+antech.c
+>> index 3250356..0d9c547 100644
+>> --- a/drivers/input/mouse/elantech.c
+>> +++ b/drivers/input/mouse/elantech.c
+>> @@ -757,15 +757,25 @@ int elantech_init(struct psmouse *psmouse)
+>>   		etd->hw_version =3D 2;
+>>   		/* For now show extra debug information */
+>>   		etd->debug =3D 1;
+>> -		/* Don't know how to do parity checking for version 2 */
+>> -		etd->paritycheck =3D 0;
+>> +		/* Version 2 doesn't contain control bits */
+>> +		etd->paritycheck =3D false;
+>>
+>>   		if (etd->fw_version>=3D 0x020800)
+>>   			etd->reports_pressure =3D true;
+>> -
+>> +	} else if ((etd->fw_version =3D=3D 0x020022) || (etd->fw_version =3D=
+=3D 0x020600)) {
+>> +		/*
+>> +		 * This firmware suffers from misreporting coordinates when
+>> +		 * a touch action starts causing the mouse cursor or scrolled pag=
+e
+>> +		 * to jump. Enable a workaround.
+>> +		 */
+>> +		pr_info("firmware version 2.0.34/2.6.0 detected, enabling jumpy c=
+ursor workaround\n");
+>> +		etd->jumpy_cursor =3D 1;
+>> +		etd->debug =3D 1;
+>> +		etd->hw_version =3D 1;
+>> +		etd->paritycheck =3D true;
+>>   	} else {
+>>   		etd->hw_version =3D 1;
+>> -		etd->paritycheck =3D 1;
+>> +		etd->paritycheck =3D true;
+>>   	}
+>>
+>>   	pr_info("assuming hardware version %d, firmware version %d.%d.%d\=
+n",
+>> @@ -779,16 +789,6 @@ int elantech_init(struct psmouse *psmouse)
+>>   		param[0], param[1], param[2]);
+>>   	etd->capabilities =3D param[0];
+>>
+>> -	/*
+>> -	 * This firmware suffers from misreporting coordinates when
+>> -	 * a touch action starts causing the mouse cursor or scrolled page
+>> -	 * to jump. Enable a workaround.
+>> -	 */
+>> -	if (etd->fw_version =3D=3D 0x020022 || etd->fw_version =3D=3D 0x02=
+0600) {
+>> -		pr_info("firmware version 2.0.34/2.6.0 detected, enabling jumpy c=
+ursor workaround\n");
+>> -		etd->jumpy_cursor =3D true;
+>> -	}
+>> -
+>>   	if (elantech_set_absolute_mode(psmouse)) {
+>>   		pr_err("failed to put touchpad into absolute mode.\n");
+>>   		goto init_fail;
+>> --
+>> 1.7.5.1
+>>
+>
+>      Acked-by: Henrik Rydberg<rydberg@euromail.se>
 
-Thanks for reviewing!
-
--- 
-Best regards,
- Eric
-
- http://www.unixphere.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,52 +1,28 @@
-From: Eric Andersson <eric.andersson@unixphere.com>
-Subject: Re: [PATCH v5 1/1] input: add driver for Bosch Sensortec's BMA150
- accelerometer
-Date: Fri, 22 Jul 2011 11:45:21 +0200
-Message-ID: <20110722094521.GB710@scully.xfiles.lan>
-References: <1311281268-9498-1-git-send-email-eric.andersson@unixphere.com>
- <1311281268-9498-2-git-send-email-eric.andersson@unixphere.com>
- <20110722051617.GB16040@core.coreip.homeip.net>
+From: Iiro Valkonen <iiro.valkonen@atmel.com>
+Subject: RFC: User-space interface to read/write touchscreen controller registers
+ (atmel_mxt_ts.c)
+Date: Fri, 22 Jul 2011 15:11:25 +0300
+Message-ID: <4E2968ED.4030708@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:51850 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751843Ab1GVJpg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jul 2011 05:45:36 -0400
-Content-Disposition: inline
-In-Reply-To: <20110722051617.GB16040@core.coreip.homeip.net>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:64429 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753779Ab1GVML1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Jul 2011 08:11:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Albert Zhang <xu.zhang@bosch-sensortec.com>
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Dmitry,
+Hello,
 
-Thanks for reviewing!
+we have a need to access the configuration registers/register blocks of the touchscreen controller from the user space. There are several reasons for this, and while some of them are related to debugging, some can be valuable in normal use cases. For example, a configuration parameter might need to be semi-permanently changed to improve performance, or some parameter could even be updated for different usage modes of the device. This interface would make it very easy. Currently, a change in the board file and kernel recompile is needed to change the settings. 
 
-> > +static int bma150_open(struct bma150_data *bma150)
-> > +{
-> > +#ifdef CONFIG_PM_RUNTIME
-> > +	return pm_runtime_get_sync(&bma150->client->dev);
-> > +#else
-> > +	return bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
-> 
-> Hmm, this is kind of weird. I'd expect you want to try waking up the
-> parent in both cases (if no runtime pm then call to pm_runtime_get_sync
-> is basically a noop) and then wake up your device.
+My question is, what kind of approach would be recommended, and what would be acceptable to include in the mainline version? Currently there exists a patch which adds a character device and few IOCTLs (very similar to maXTouch driver here: http://gitorious.org/maxtouch), but my understanding is that is not the best way to do this. Would a sysfs-based system be better suited? Are there any good examples in the mainline drivers how something like this should be implemented?
 
-I am not sure what you mean? Are you suggesting something like:
-	bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
-	return pm_runtime_get_sync(&bma150->client->dev);
+Best Regards,
 
-That would cause multiple bma150_set_mode() calls since
-pm_runtime_get_sync() will trigger one if needed.
-
-As for the rest of your comments I agree and will make sure to update
-them for next version.
-
---
-Best regards,
- Eric
-
- http://www.unixphere.com
+-- 
+Iiro Valkonen

@@ -1,68 +1,81 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: list not released in case of -ENODEV in hidraw_release
- (hidraw.c)
-Date: Fri, 22 Jul 2011 16:36:26 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1107221635550.7300@pobox.suse.cz>
-References: <BANLkTi=Teg9iN8osSDY9fqadZ+sA-Ng2Sw@mail.gmail.com> <BANLkTikJfc_ZNG6LudKupUULqK+pN93MLg@mail.gmail.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [PATCH v4 1/1] input: add driver for Bosch Sensortec's BMA150
+ accelerometer
+Date: Fri, 22 Jul 2011 16:58:42 +0100
+Message-ID: <4E299E32.10806@cam.ac.uk>
+References: <1311203359-23779-1-git-send-email-eric.andersson@unixphere.com> <1311203359-23779-2-git-send-email-eric.andersson@unixphere.com> <4E293621.50306@cam.ac.uk> <20110722132410.GA958@scully.xfiles.lan>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43316 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754190Ab1GVOg2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jul 2011 10:36:28 -0400
-In-Reply-To: <BANLkTikJfc_ZNG6LudKupUULqK+pN93MLg@mail.gmail.com>
+Received: from ppsw-41.csi.cam.ac.uk ([131.111.8.141]:41942 "EHLO
+	ppsw-41.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751552Ab1GVP6i (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Jul 2011 11:58:38 -0400
+In-Reply-To: <20110722132410.GA958@scully.xfiles.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Amit Nagal <helloin.amit@gmail.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Alan Ott <alan@signal11.us>, Antonio Ospite <ospite@studenti.unina.it>
+To: Eric Andersson <eric.andersson@unixphere.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Albert Zhang <xu.zhang@bosch-sensortec.com>
 
-On Wed, 22 Jun 2011, Amit Nagal wrote:
+On 07/22/11 14:24, Eric Andersson wrote:
+>> Mostly looks fine.  Couple of nitpicks and one query about the interrupt
+>> handling (more general than this driver).
+>>
+>> Can I confirm I've understood this correctly. When one receives any of the
+>> interrupts, the driver just kicks out a reading?  Given there is a delay
+>> before this read, imagine both high and low thresholds are set.  It's entirely
+>> possible for both to occur before the thread gets there and the value that is
+>> read to be somewhere in between... We'll get one interrupt and have no idea
+>> what happened...
+>>
+>> Is there any way of working out what has occured and pushing that out?
+> In our case we are enabling three conditional interrupts where each
+> one of them have the chance of asserting the interrupt pin when
+> their particular interrupt criterias are fulfilled. This means that
+> one interrupt, for instance any motion, can assert the irq pin and
+> then at the same time have a high- and/or low-g interrupt consecutively
+> activated as well (but pin asserted by any motion already) where the
+> pin will be kept asserted until all the criterias for each asserted
+> interrupt are exited (i.e. not fullfilled anymore). So even if there
+> is a delay from the pin assertion and the irq thread read-out it
+> doesn't really matter if consecutive interrupts are activated in
+> between. At least one of the criterias will be met and there will be a motion
+> detection to read out. Of course, the interrupt types could be masked
+> out from the status register (addr. 0x09 bits 0 & 1 for low-/high-g
+> int), but I really don't see the purpose of this.
+Perhaps tap type events?  High acceleration followed by not much. If unlucky
+will register as stationary...  Lots of use cases out of input where you have
+very little idea what is going on, but I guess what you have here might
+work well for input.
+> 
+> A comment regarding latched vs. non-latched irqs - we are intentionally not
+> using latched interrupts with the current setup since we currently don't
+> see the need for it. A latched setup would typically be needed in a high
+> inflow interrupt feature, such as new data interrupt, where the interrupt
+> buffer can be flooded due to high event frequency.
+> An alternative could be to activate the latched interrupt feature and
+> explicitly clear the interrupts from the driver, but this would just fire
+> off a new event directly until any of the interrupt criterias are fullfilled.
+> If you have any preferences or requirements when it comes to this, please share
+> your thoughts and we'll act upon this for the next version.
+> 
+>>> +	if (bma150->client->irq > 0) {
+>>> +		ret = input_register_device(idev);
+>>> +		if (ret < 0) {
+>>> +			input_free_device(idev);
+>>> +			return ret;
+>>> +		}
+>>> +		ret = request_threaded_irq(bma150->client->irq, NULL, bma150_irq_thread,
+>>> +			IRQF_TRIGGER_RISING, BMA150_DRIVER, bma150);
+>> Does this want to be oneshot? I don't think you have the latch enabled, so strobing
+>> across a threshold could result in an interrupt storm.
+> Sure, it could be worth having it sequential to the read-outs from the thread
+> instead of buffering events while reading. I'll fix.
+> 
+> As for your nitpicks, I will fix them for the next version.
+> 
+> Thanks for reviewing!
+> 
 
-> > linux kernel ver 2.6.39.1 =A0, =A0hidraw.c =A0, in =A0hidraw_releas=
-e function
-> > , list pointer ( struct hidraw_list *list ) is not freed
-> > in case of -ENODEV .
-> >
-> > i think the following patch is applicable :
-> >
-> > --- a/drivers/hid/hidraw.c =A0 =A0 =A02011-06-22 08:57:55.000000000=
- -0400
-> > +++ b/drivers/hid/hidraw.c =A0 =A0 =A02011-06-22 08:42:04.000000000=
- -0400
-> > @@ -298,6 +298,7 @@ static int hidraw_release(struct inode *
-> >
-> > =A0 =A0 =A0 =A0mutex_lock(&minors_lock);
-> > =A0 =A0 =A0 =A0if (!hidraw_table[minor]) {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(list);
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ret =3D -ENODEV;
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto unlock;
-> > =A0 =A0 =A0 =A0}
-> >
-> > Please correct me if i am mistaken .
-> >
->=20
-> In continuation of above , in hidraw_release(), for the sequence
-> disconnect  followed by last userspace close(fd) call ,
-> even kfree(list->hidraw) should also be called , as in
-> hidraw_disconnect() function kfree(hidraw) is called only when
-> hidraw->open is 0 .
-> so list->hidraw should also be freed when calling last close() call
-> even after disconnect .
-
-Hi Amit,
-
-your analysis is correct. Could you please re-send the patch with the=20
-other fixes added, and also your Signed-off-by line?
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

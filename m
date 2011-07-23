@@ -1,68 +1,39 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Learn to receive $500 to $3,500 a day in cash.
-Date: Fri, 22 Jul 2011 13:15:25 -0700 (PDT)
-Message-ID: <201107222015.p6MKFPmX059650@mail4.spagack2.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 6/9 v2] Input: synaptics - process finger (<=3) transitions
+Date: Fri, 22 Jul 2011 18:11:33 -0700
+Message-ID: <4E2A1FC5.90607@canonical.com>
+References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org> <1311169146-20066-7-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:62668 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752792Ab1GWBJr (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:56226 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752030Ab1GWBLj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jul 2011 21:09:47 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6MKFPi4059697
-	for <linux-input@vger.kernel.org>; Fri, 22 Jul 2011 13:15:25 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+	Fri, 22 Jul 2011 21:11:39 -0400
+In-Reply-To: <1311169146-20066-7-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: djkurtz@chromium.org
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-
-
-
-Hi Everyone,
-
-Just =93Plug In=94.. to Your
-Own Fully Automated
-Turn Key..Global Marketing $ystem
-Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
-
-http://trckrs.com/48184/rc2
-
-
-It=92s surprisingly cool!
-
-Dan
-
-
-
-
-
-
-
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380In compliance with Federal law, should you choose to U=
-n.Subscribe from our network, you may do so using theUn.Subscribe instr=
-uction found below.  We are fully compliant with CAN-SPAM Act of 2005-P=
-lease use the Un.Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On 07/20/2011 06:39 AM, djkurtz@chromium.org wrote:
+> From: Daniel Kurtz <djkurtz@chromium.org>
+> 
+> Synaptics image sensor touchpads track 5 fingers, but only report 2.
+> 
+> This patch attempts to deal with some idiosyncrasies of these touchpads:
+> 
+>  * When there are 3 or more fingers, only two are reported.
+>  * The number of fingers can change at any time, but is only reported in
+>    SGM packets, thus at a number-of-fingers change, it is not possible
+>    to tell whether the AGM finger is for the original or new number of
+>    fingers.
+>  * When the number of fingers changes from 2->3 it is not
+>    possible to tell which of the 2 fingers are now reported.
+>  * When number of fingers changes from 3->2 it is often not possible to
+>    tell which finger was removed, and which are now being reported.
+> 
+> When 2 or more packets are present on the touchpad, the kernel reports
+                 ^touches or fingers

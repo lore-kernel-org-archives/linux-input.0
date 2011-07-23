@@ -1,40 +1,32 @@
-From: riyer@nvidia.com
-Subject: [PATCH v1] Input: tegra-kbc - Fix support for key repeat.
-Date: Fri, 22 Jul 2011 12:17:51 -0700
-Message-ID: <1311362271-10544-1-git-send-email-riyer@nvidia.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 1/9 v2] Input: synaptics - refactor y inversion
+Date: Fri, 22 Jul 2011 17:30:58 -0700
+Message-ID: <4E2A1642.6000900@canonical.com>
+References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org> <1311169146-20066-2-git-send-email-djkurtz@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:9682 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755062Ab1GVTRQ (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:34833 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751186Ab1GWAbF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Jul 2011 15:17:16 -0400
+	Fri, 22 Jul 2011 20:31:05 -0400
+In-Reply-To: <1311169146-20066-2-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, olof@lixom.net, amartin@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rakesh Iyer <riyer@nvidia.com>
+To: djkurtz@chromium.org
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-From: Rakesh Iyer <riyer@nvidia.com>
+On 07/20/2011 06:38 AM, djkurtz@chromium.org wrote:
+> From: Daniel Kurtz <djkurtz@chromium.org>
+> 
+> Synaptics touchpads report increasing y from bottom to top.
+> This is inverted from normal userspace "top of screen is 0" coordinates.
+> Thus, the kernel driver reports inverted y coordinates to userspace.
+> 
+> This patch refactors this inversion.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 
-To support key repeats, keyboard needs to be setup as an autorepeating device.
-
-Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
----
- drivers/input/keyboard/tegra-kbc.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 2b3b73e..da3828f 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -657,7 +657,7 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 
- 	input_set_drvdata(input_dev, kbc);
- 
--	input_dev->evbit[0] = BIT_MASK(EV_KEY);
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
- 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
- 
- 	input_dev->keycode = kbc->keycode;
--- 
-1.7.1
-
+Acked-by: Chase Douglas <chase.douglas@canonical.com>

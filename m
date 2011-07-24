@@ -1,52 +1,61 @@
-From: jeffbrown@android.com
-Subject: [PATCH 2/3] hid-multitouch: Filter collections by application usage.
-Date: Sun, 24 Jul 2011 15:07:40 -0700
-Message-ID: <1311545261-34067-2-git-send-email-jeffbrown@android.com>
-References: <1311545261-34067-1-git-send-email-jeffbrown@android.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1311545261-34067-1-git-send-email-jeffbrown@android.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, chatty@enac.fr, benjamin.tissoires@enac.fr, Jeff Brown <jeffbrown@google.com>, jeffbrown@android.com
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Learn to receive $500 to $3,500 a day in cash.
+Date: Sun, 24 Jul 2011 15:13:48 -0700 (PDT)
+Message-ID: <201107242213.p6OMDmGx037949@mail4.spagack2.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail4.spagack2.com ([74.122.159.223]:62760 "EHLO
+	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752511Ab1GXWO5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 24 Jul 2011 18:14:57 -0400
+Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
+	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6OMDn1o037988
+	for <linux-input@vger.kernel.org>; Sun, 24 Jul 2011 15:13:49 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-From: Jeff Brown <jeffbrown@google.com>
 
-This change fixes two problems.
 
-First, it ensures that the hid-multitouch driver does not incorrectly
-map GenericDesktop usages that are intended for other applications,
-such as a Mouse.
 
-Second, it sets the appropriate input properties so that user-space
-can distinguish TouchScreen devices (INPUT_PROP_DIRECT) from
-TouchPad devices (INPUT_PROP_POINTER) and configure them accordingly.
+Hi Everyone,
 
-Signed-off-by: jeffbrown@android.com
----
- drivers/hid/hid-multitouch.c |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
+Just =93Plug In=94.. to Your
+Own Fully Automated
+Turn Key..Global Marketing $ystem
+Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 58d0e7a..4ee21ac 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -213,6 +213,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	struct mt_class *cls = td->mtclass;
- 	__s32 quirks = cls->quirks;
- 
-+	/* Only map fields from TouchScreen or TouchPad collections.
-+         * We need to ignore fields that belong to other collections
-+         * such as Mouse that might have the same GenericDesktop usages. */
-+	if (field->application == HID_DG_TOUCHSCREEN)
-+		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
-+	else if (field->application == HID_DG_TOUCHPAD)
-+		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
-+	else
-+		return 0;
-+
- 	switch (usage->hid & HID_USAGE_PAGE) {
- 
- 	case HID_UP_GENDESK:
--- 
-1.7.0.4
+http://trckrs.com/48184/rc2
+
+
+It=92s surprisingly cool!
+
+Dan
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380In compliance with Federal law, should you choose to U=
+n.Subscribe from our network, you may do so using theUn.Subscribe instr=
+uction found below.  We are fully compliant with CAN-SPAM Act of 2005-P=
+lease use the Un.Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

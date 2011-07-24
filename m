@@ -1,61 +1,72 @@
-From: Shawn Guo <shawn.guo@freescale.com>
-Subject: Re: [PATCH v6 0/6] mc13783: add pwr button support
-Date: Sun, 24 Jul 2011 11:44:19 +0800
-Message-ID: <20110724034418.GA28189@S2100-06.ap.freescale.net>
-References: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
+From: Michal Simek <monstr@monstr.eu>
+Subject: Re: [PATCH] input: xilinx_ps2: Add missing of_address.h header
+Date: Sun, 24 Jul 2011 15:51:30 +0200
+Message-ID: <4E2C2362.1080204@monstr.eu>
+References: <1310564781-5979-1-git-send-email-monstr@monstr.eu> <CACxGe6vRZ4tCALpzFng2y9W_9zB3qQEntma+z292FXzDuYBRKQ@mail.gmail.com>
+Reply-To: monstr@monstr.eu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tx2ehsobe004.messaging.microsoft.com ([65.55.88.14]:6838 "EHLO
-	TX2EHSOBE009.bigfish.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752179Ab1GXDig convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 23 Jul 2011 23:38:36 -0400
-Content-Disposition: inline
-In-Reply-To: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
+Received: from mail-fx0-f52.google.com ([209.85.161.52]:59798 "EHLO
+	mail-fx0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752720Ab1GXNvg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 24 Jul 2011 09:51:36 -0400
+In-Reply-To: <CACxGe6vRZ4tCALpzFng2y9W_9zB3qQEntma+z292FXzDuYBRKQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
-Cc: s.hauer@pengutronix.de, linux-arm-kernel@lists.infradead.org, amit.kucheria@canonical.com, dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, u.kleine-koenig@pengutronix.de, gaowanlong@cn.fujitsu.com
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-On Fri, Jul 22, 2011 at 04:17:06PM +0200, Philippe R=E9tornaz wrote:
-> Hello
->=20
-> This add button handling for the MC13783 PMIC.
->=20
-> Patch 1 & 2 modify the mc13xxx MFD driver to use the platform data to
-> resgister the led subdevice and unconditionally register the regulato=
-r
-> subdevice (as suggested by Mark and Uwe).
->=20
-> Patch 3 remove the use of the *_USE_REGULATOR and *_USE_LED macros in
-> the platform files.
->=20
-> Patch 4 must be applied after patch 1,2,3 to remove the obsolete defi=
-ne.
->=20
-> Patch 5 modify the mc13xxx MFD driver to add a button subdevice and
-> also adds the mc13783-pwrbutton driver using a misc input device.
->=20
-> The last patch adds the power on button support to the mx31moboard bo=
-ards.
->=20
-> v2: first patch modified according to comments by Dmitry Torokhov
-> v3: Implement review by Uwe
-> v4: Implement comments by Uwe and Mark
-> v5: Reorder patchset
-> v6: Minor corrections
->=20
-It seems you did not address the comment about possible NULL pdata I
-put on v4?
+Hi Grant,
 
---=20
-Regards,
-Shawn
+can you propose this patch to mainline through your devicetree tree?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Michal
+
+Grant Likely wrote:
+> On Wed, Jul 13, 2011 at 10:46 PM, Michal Simek <monstr@monstr.eu> wrote:
+>> Add missing header.
+>>
+>> Error log:
+>> CC      drivers/input/serio/xilinx_ps2.o
+>> drivers/input/serio/xilinx_ps2.c: In function 'xps2_of_probe':
+>> drivers/input/serio/xilinx_ps2.c:249: error: implicit declaration of function 'of_address_to_resource'
+>>
+>> Signed-off-by: Michal Simek <monstr@monstr.eu>
+> 
+> Acked-by: Grant Likely <grant.likely@secretlab.ca>
+> 
+>> ---
+>>  drivers/input/serio/xilinx_ps2.c |    2 +-
+>>  1 files changed, 1 insertions(+), 1 deletions(-)
+>>
+>> diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
+>> index 80baa53..d64c5a4 100644
+>> --- a/drivers/input/serio/xilinx_ps2.c
+>> +++ b/drivers/input/serio/xilinx_ps2.c
+>> @@ -23,7 +23,7 @@
+>>  #include <linux/init.h>
+>>  #include <linux/list.h>
+>>  #include <linux/io.h>
+>> -
+>> +#include <linux/of_address.h>
+>>  #include <linux/of_device.h>
+>>  #include <linux/of_platform.h>
+>>
+>> --
+>> 1.5.5.6
+>>
+>>
+> 
+> 
+> 
+
+
+-- 
+Michal Simek, Ing. (M.Eng)
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel 2.6 Microblaze Linux - http://www.monstr.eu/fdt/
+Microblaze U-BOOT custodian

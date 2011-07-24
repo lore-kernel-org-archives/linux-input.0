@@ -1,95 +1,61 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3] input: add driver for pixcir i2c touchscreens
-Date: Sat, 23 Jul 2011 20:24:21 +0200
-Message-ID: <20110723182421.GB5270@polaris.bitmath.org>
-References: <20110709201209.GA27874@core.coreip.homeip.net>
- <4DDB2516.6050302@pixcir.com.cn>
- <20110704165000.GD8144@core.coreip.homeip.net>
- <20110705193020.GB29549@polaris.bitmath.org>
- <512aa3.8e15.1312673550c.Coremail.jcbian@pixcir.com.cn>
+From: Shawn Guo <shawn.guo@freescale.com>
+Subject: Re: [PATCH v6 0/6] mc13783: add pwr button support
+Date: Sun, 24 Jul 2011 11:44:19 +0800
+Message-ID: <20110724034418.GA28189@S2100-06.ap.freescale.net>
+References: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:52250 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753210Ab1GWSUu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 23 Jul 2011 14:20:50 -0400
-Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
-	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 2032AEAFF1
-	for <linux-input@vger.kernel.org>; Sat, 23 Jul 2011 20:20:48 +0200 (CEST)
+Received: from tx2ehsobe004.messaging.microsoft.com ([65.55.88.14]:6838 "EHLO
+	TX2EHSOBE009.bigfish.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752179Ab1GXDig convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 23 Jul 2011 23:38:36 -0400
 Content-Disposition: inline
-In-Reply-To: <512aa3.8e15.1312673550c.Coremail.jcbian@pixcir.com.cn>
+In-Reply-To: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jcbian <jcbian@pixcir.com.cn>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, dqmeng <dqmeng@pixcir.com.cn>, zlchen <zlchen@pixcir.com.cn>
+To: Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
+Cc: s.hauer@pengutronix.de, linux-arm-kernel@lists.infradead.org, amit.kucheria@canonical.com, dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, u.kleine-koenig@pengutronix.de, gaowanlong@cn.fujitsu.com
 
-On Thu, Jul 14, 2011 at 10:21:57AM +0800, jcbian wrote:
-> Hi Dmitry & Henrik,
-> 
->         Thanks for your suggestions and modification .I have test it and it works well.
->  Indeed,I think the old_touch is not needed,the follow
-> 
-> +		if (old_touch)
-> +			input_mt_sync(tsdata->input);
-> 
-> could be removed. So,How about below?
+On Fri, Jul 22, 2011 at 04:17:06PM +0200, Philippe R=E9tornaz wrote:
+> Hello
+>=20
+> This add button handling for the MC13783 PMIC.
+>=20
+> Patch 1 & 2 modify the mc13xxx MFD driver to use the platform data to
+> resgister the led subdevice and unconditionally register the regulato=
+r
+> subdevice (as suggested by Mark and Uwe).
+>=20
+> Patch 3 remove the use of the *_USE_REGULATOR and *_USE_LED macros in
+> the platform files.
+>=20
+> Patch 4 must be applied after patch 1,2,3 to remove the obsolete defi=
+ne.
+>=20
+> Patch 5 modify the mc13xxx MFD driver to add a button subdevice and
+> also adds the mc13783-pwrbutton driver using a misc input device.
+>=20
+> The last patch adds the power on button support to the mx31moboard bo=
+ards.
+>=20
+> v2: first patch modified according to comments by Dmitry Torokhov
+> v3: Implement review by Uwe
+> v4: Implement comments by Uwe and Mark
+> v5: Reorder patchset
+> v6: Minor corrections
+>=20
+It seems you did not address the comment about possible NULL pdata I
+put on v4?
 
-Also fine, although the removed brackets is a slight style
-violation. No need to resend though.
+--=20
+Regards,
+Shawn
 
-> +static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
-> +{
-> +	struct pixcir_i2c_ts_data *tsdata = data;
-> +	u8 rdbuf[10], wrbuf[1] = { 0 };
-> +	u8 touch, old_touch;
-> +	int ret;
-> +
-> +	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
-> +	if (ret != sizeof(wrbuf)) {
-> +		dev_err(&tsdata->client->dev,
-> +			"%s: i2c_master_send failed(), ret=%d\n",
-> +			__func__, ret);
-> +		return;
-> +	}
-> +
-> +	ret = i2c_master_recv(tsdata->client, rdbuf, sizeof(rdbuf));
-> +	if (ret != sizeof(rdbuf)) {
-> +		dev_err(&tsdata->client->dev,
-> +			"%s: i2c_master_recv failed(), ret=%d\n",
-> +			__func__, ret);
-> +		return;
-> +	}
-> +
-> +	touch = rdbuf[0];
-> +	old_touch = rdbuf[1];
-> +	if (touch) {
-> +		u16 posx1 = (rdbuf[3] << 8) | rdbuf[2];
-> +		u16 posy1 = (rdbuf[5] << 8) | rdbuf[4];
-> +		u16 posx2 = (rdbuf[7] << 8) | rdbuf[6];
-> +		u16 posy2 = (rdbuf[9] << 8) | rdbuf[8];
-> +
-> +		input_report_key(tsdata->input, BTN_TOUCH, 1);
-> +		input_report_abs(tsdata->input, ABS_X, posx1);
-> +		input_report_abs(tsdata->input, ABS_Y, posy1);
-> +
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
-> +		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
-> +		input_mt_sync(tsdata->input);
-> +
-> +		if (touch == 2) {
-> +			input_report_abs(tsdata->input,
-> +					 ABS_MT_POSITION_X, posx2);
-> +			input_report_abs(tsdata->input,
-> +					 ABS_MT_POSITION_Y, posy2);
-> +			input_mt_sync(tsdata->input);
-> +		}
-> +	} else
-> +		input_report_key(tsdata->input, BTN_TOUCH, 0);
-> +
-> +	input_sync(tsdata->input);
-> +}
-
-Thanks,
-Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

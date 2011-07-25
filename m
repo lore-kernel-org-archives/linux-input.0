@@ -1,41 +1,44 @@
-From: Jeffrey Brown <jeffbrown@android.com>
-Subject: Re: [PATCH 2/3] hid-multitouch: Filter collections by application usage.
-Date: Mon, 25 Jul 2011 11:08:30 -0700
-Message-ID: <CAMu+ixi4gpKg=LW4o2nK7NDm4r+B368qh=fSvtndKfqf204K9A@mail.gmail.com>
-References: <1311545261-34067-1-git-send-email-jeffbrown@android.com>
- <CAN+gG=FAFX-N-3FpAmgkE+im4oT9h657Rk9h3=-17sCBwVx35A@mail.gmail.com> <E25AA279-4029-40BF-9CB0-873763C53AB4@enac.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 8/9 v2] Input: add BTN_TOOL_QUINTTAP for reporting 5
+ fingers on touchpad
+Date: Mon, 25 Jul 2011 11:16:45 -0700
+Message-ID: <20110725181645.GA6876@core.coreip.homeip.net>
+References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org>
+ <1311169146-20066-9-git-send-email-djkurtz@chromium.org>
+ <20110725082918.GC22937@core.coreip.homeip.net>
+ <CAGS+omAQmb-q6xC-Gh6z69iNNyr=rN-Khsq90aCHJwe-6F9ANw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ey0-f171.google.com ([209.85.215.171]:60691 "EHLO
-	mail-ey0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751379Ab1GYSJL convert rfc822-to-8bit (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:59801 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751219Ab1GYSQw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2011 14:09:11 -0400
-In-Reply-To: <E25AA279-4029-40BF-9CB0-873763C53AB4@enac.fr>
+	Mon, 25 Jul 2011 14:16:52 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGS+omAQmb-q6xC-Gh6z69iNNyr=rN-Khsq90aCHJwe-6F9ANw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: rydberg@euromail.se, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On Mon, Jul 25, 2011 at 6:48 AM, St=E9phane Chatty <chatty@enac.fr> wro=
-te:
-> So far it works fine on our Cypress panel. I'll keep you posted about=
- Lumio and Stantum as soon as we have finished compiling Linux 3.0.
+On Mon, Jul 25, 2011 at 05:14:22PM +0800, Daniel Kurtz wrote:
+> On Mon, Jul 25, 2011 at 4:29 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > On Wed, Jul 20, 2011 at 09:39:05PM +0800, djkurtz@chromium.org wrote:
+> > > From: Daniel Kurtz <djkurtz@chromium.org>
+> > >
+> >
+> > Do we know what we want to do with this gesture? Because if not I'd
+> > rather not merge it for now, until there are real users.
+> 
+> And do what instead?
+> Report 5 fingers with BTN_TOOL_QUADTAP?
+> 
 
-Actually, I'm wondering if we could merge hid-multitouch into hid-input=
-=2E
+That, or nothing... The fact that the device can report 5 finger touch
+does not mean that anybody cares about this.
 
-Checking for an application usage of TouchScreen or TouchPad should be
-pretty unambiguous.  It ought to be possible to support most Windows 7
-compatible HID multitouch devices out of the box without needing to
-add them to any exception lists whatsoever, except for those few that
-might need quirks.
-
-Jeff.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

@@ -1,53 +1,68 @@
-From: =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH 2/3] hid-multitouch: Filter collections by application  usage.
-Date: Mon, 25 Jul 2011 20:47:00 +0200
-Message-ID: <96E091D9-DDB9-4963-9F10-30231BF93C98@enac.fr>
-References: <1311545261-34067-1-git-send-email-jeffbrown@android.com>  <CAN+gG=FAFX-N-3FpAmgkE+im4oT9h657Rk9h3=-17sCBwVx35A@mail.gmail.com>  <E25AA279-4029-40BF-9CB0-873763C53AB4@enac.fr> <CAMu+ixi4gpKg=LW4o2nK7NDm4r+B368qh=fSvtndKfqf204K9A@mail.gmail. com>
-Mime-Version: 1.0 (Apple Message framework v1084)
-Content-Type: text/plain; charset=iso-8859-1
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Build-a-home-based-business-on-Auto-Pilot
+Date: Mon, 25 Jul 2011 11:55:10 -0700 (PDT)
+Message-ID: <201107251855.p6PItAlA079972@mail4.spagack2.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:51802 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752421Ab1GYSrD convert rfc822-to-8bit (ORCPT
+Received: from mail4.spagack2.com ([74.122.159.223]:58210 "EHLO
+	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752088Ab1GYS4S (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2011 14:47:03 -0400
-In-Reply-To: <CAMu+ixi4gpKg=LW4o2nK7NDm4r+B368qh=fSvtndKfqf204K9A@mail.gmail. com>
+	Mon, 25 Jul 2011 14:56:18 -0400
+Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
+	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6PItBPN079989
+	for <linux-input@vger.kernel.org>; Mon, 25 Jul 2011 11:55:11 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeffrey Brown <jeffbrown@android.com>
-Cc: benjamin.tissoires@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se
+To: linux-input@vger.kernel.org
 
 
-Le 25 juil. 2011 =E0 20:08, Jeffrey Brown a =E9crit :
 
-> On Mon, Jul 25, 2011 at 6:48 AM, St=E9phane Chatty <chatty@enac.fr> w=
-rote:
->> So far it works fine on our Cypress panel. I'll keep you posted abou=
-t Lumio and Stantum as soon as we have finished compiling Linux 3.0.
->=20
-> Actually, I'm wondering if we could merge hid-multitouch into hid-inp=
-ut.
->=20
-> Checking for an application usage of TouchScreen or TouchPad should b=
-e
-> pretty unambiguous.  It ought to be possible to support most Windows =
-7
-> compatible HID multitouch devices out of the box without needing to
-> add them to any exception lists whatsoever, except for those few that
-> might need quirks.
+Hello Everyone,
+
+Discover how average people who have never made a cent in the past
+Are now making $1,000+ every month,=20
+With the Potential of making $50,000 a month
+Just "Plug In"... to Your
+Own Fully Automated=20
+  Turn Key...Global Marketing $ystem
+Receive $500-$3,500 Monthly or MORE
+Not MLM...and
+No Selling...
+No Cold Phone Calling.=20
+Complete plug-in-system!
+
+Check-it-Out!
+
+http://trckrs.com/48184/rc1
+
+It=92s surprisingly cool!
+
+Dan and Noel
 
 
-Yes, Benjamin and I have been working in this direction. We have experi=
-mental code that autodectects multitouch devices. It's not polished nor=
- tested enough, but the number of requests for supporting new panels is=
- a strong incentive for us to finish it :-) As far as I remember, this =
-requires some restructuring in hid-input though.
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
 
-Cheers,
 
-St.
 
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,59 +1,75 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Learn to receive $500 to $3,500 a day in cash.
-Date: Sun, 24 Jul 2011 15:13:48 -0700 (PDT)
-Message-ID: <201107242213.p6OMDmGx037949@mail4.spagack2.com>
+From: Philippe =?iso-8859-1?q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
+Subject: Re: [PATCH v6 0/6] mc13783: add pwr button support
+Date: Mon, 25 Jul 2011 08:49:25 +0200
+Message-ID: <201107250849.26071.philippe.retornaz@epfl.ch>
+References: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch> <20110724034418.GA28189@S2100-06.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:62760 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752511Ab1GXWO5 (ORCPT
+Received: from smtp0.epfl.ch ([128.178.224.219]:42521 "HELO smtp0.epfl.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751130Ab1GYGtb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 24 Jul 2011 18:14:57 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6OMDn1o037988
-	for <linux-input@vger.kernel.org>; Sun, 24 Jul 2011 15:13:49 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+	Mon, 25 Jul 2011 02:49:31 -0400
+In-Reply-To: <20110724034418.GA28189@S2100-06.ap.freescale.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Shawn Guo <shawn.guo@freescale.com>
+Cc: s.hauer@pengutronix.de, linux-arm-kernel@lists.infradead.org, amit.kucheria@canonical.com, dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, u.kleine-koenig@pengutronix.de, gaowanlong@cn.fujitsu.com
+
+Le dimanche 24 juillet 2011 05:44:19, Shawn Guo a =E9crit :
+> On Fri, Jul 22, 2011 at 04:17:06PM +0200, Philippe R=E9tornaz wrote:
+> > Hello
+> >=20
+> > This add button handling for the MC13783 PMIC.
+> >=20
+> > Patch 1 & 2 modify the mc13xxx MFD driver to use the platform data =
+to
+> > resgister the led subdevice and unconditionally register the regula=
+tor
+> > subdevice (as suggested by Mark and Uwe).
+> >=20
+> > Patch 3 remove the use of the *_USE_REGULATOR and *_USE_LED macros =
+in
+> > the platform files.
+> >=20
+> > Patch 4 must be applied after patch 1,2,3 to remove the obsolete de=
+fine.
+> >=20
+> > Patch 5 modify the mc13xxx MFD driver to add a button subdevice and
+> > also adds the mc13783-pwrbutton driver using a misc input device.
+> >=20
+> > The last patch adds the power on button support to the mx31moboard
+> > boards.
+> >=20
+> > v2: first patch modified according to comments by Dmitry Torokhov
+> > v3: Implement review by Uwe
+> > v4: Implement comments by Uwe and Mark
+> > v5: Reorder patchset
+> > v6: Minor corrections
+>=20
+> It seems you did not address the comment about possible NULL pdata I
+> put on v4?
+
+Yes I did in patch 5:
+
+--- a/drivers/mfd/mc13xxx-core.c
++++ b/drivers/mfd/mc13xxx-core.c
+@@ -716,6 +716,11 @@ static int mc13xxx_probe(struct spi_device *spi)
+        enum mc13xxx_id id;
+        int ret;
+=20
++       if (!pdata) {
++               dev_err(&spi->dev, "invalid platform data\n");
++               return -EINVAL;
++       }
++
 
 
+Thanks,
 
-
-Hi Everyone,
-
-Just =93Plug In=94.. to Your
-Own Fully Automated
-Turn Key..Global Marketing $ystem
-Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
-
-http://trckrs.com/48184/rc2
-
-
-It=92s surprisingly cool!
-
-Dan
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380In compliance with Federal law, should you choose to U=
-n.Subscribe from our network, you may do so using theUn.Subscribe instr=
-uction found below.  We are fully compliant with CAN-SPAM Act of 2005-P=
-lease use the Un.Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
+Philippe
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

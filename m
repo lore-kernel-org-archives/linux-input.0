@@ -1,116 +1,38 @@
-From: =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH 2/3] hid-multitouch: Filter collections by application  usage.
-Date: Mon, 25 Jul 2011 15:48:24 +0200
-Message-ID: <E25AA279-4029-40BF-9CB0-873763C53AB4@enac.fr>
-References: <1311545261-34067-1-git-send-email-jeffbrown@android.com><131154 5261-34067-2-git-send-email-jeffbrown@android.com><13989665-31A9-4C70-B578- 5559987CC9F5@enac.fr> <CAN+gG=FAFX-N-3FpAmgkE+im4oT9h657Rk9h3=-17sCBwVx35A@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v1084)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] drivers:input:set driver data to NULL for pcap_keys
+Date: Mon, 25 Jul 2011 08:21:06 -0700
+Message-ID: <20110725152106.GB23356@suse.de>
+References: <1311176068-9934-1-git-send-email-wanlong.gao@gmail.com>
+ <20110725083048.GD22937@core.coreip.homeip.net>
+ <4E2D33E3.9090408@cn.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:55635 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751178Ab1GYNs2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2011 09:48:28 -0400
-In-Reply-To: <CAN+gG=FAFX-N-3FpAmgkE+im4oT9h657Rk9h3=-17sCBwVx35A@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:60573 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751865Ab1GYPWu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jul 2011 11:22:50 -0400
+Content-Disposition: inline
+In-Reply-To: <4E2D33E3.9090408@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@gmail.com
-Cc: jeffbrown@android.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, Jeff Brown <jeffbrown@google.com>
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wanlong Gao <wanlong.gao@gmail.com>, linux-input@vger.kernel.org
 
+On Mon, Jul 25, 2011 at 05:14:11PM +0800, Wanlong Gao wrote:
+> On 07/25/2011 04:30 PM, Dmitry Torokhov wrote:
+> >On Wed, Jul 20, 2011 at 11:34:28PM +0800, Wanlong Gao wrote:
+> >>It's better to set the device's driver data to NULL
+> >>when remove it.
+> >>
+> >
+> >I'd rather have platform devices core clean up this pointer, then we
+> >could stop caring about it in all drivers...
+> But the platform devices core just call the method of each own.
+> And don't care about the details like pdata, etc.
+> 
+> Meanwhile, I think the platform core need not care about these details.
+> 
+> and Greg, what do you think about this?
 
-Le 25 juil. 2011 =E0 11:29, benjamin.tissoires@gmail.com a =E9crit :
-
-> Hi Jeff,
->=20
-> I like the patch as it partially solves the problems left by
-> b84bd27fe70206f9253c395958134e4e4b7e55f0 (fix broken egalax). The
-> previous patch mapped buttons but now it should be ok.
-> Though, we still have the problem of the distinction between stylus a=
-nd finger.
->=20
-> It would worth the effort to know if reverting
-> b84bd27fe70206f9253c395958134e4e4b7e55f0 and apply this one instead
-> still works for eGalax 480d owners (and mosart too IIRC).
->=20
->=20
-> On Mon, Jul 25, 2011 at 11:16, St=E9phane Chatty <chatty@enac.fr> wro=
-te:
->>=20
->> Le 25 juil. 2011 =E0 00:07, jeffbrown@android.com a =E9crit :
->>=20
->>> From: Jeff Brown <jeffbrown@google.com>
->>>=20
->>> This change fixes two problems.
->>>=20
->>> First, it ensures that the hid-multitouch driver does not incorrect=
-ly
->>> map GenericDesktop usages that are intended for other applications,
->>> such as a Mouse.
->>>=20
->>> Second, it sets the appropriate input properties so that user-space
->>> can distinguish TouchScreen devices (INPUT_PROP_DIRECT) from
->>> TouchPad devices (INPUT_PROP_POINTER) and configure them accordingl=
-y.
->>>=20
->>> Signed-off-by: jeffbrown@android.com
->>> ---
->>> drivers/hid/hid-multitouch.c |   10 ++++++++++
->>> 1 files changed, 10 insertions(+), 0 deletions(-)
->>>=20
->>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multito=
-uch.c
->>> index 58d0e7a..4ee21ac 100644
->>> --- a/drivers/hid/hid-multitouch.c
->>> +++ b/drivers/hid/hid-multitouch.c
->>> @@ -213,6 +213,16 @@ static int mt_input_mapping(struct hid_device =
-*hdev, struct hid_input *hi,
->>>       struct mt_class *cls =3D td->mtclass;
->>>       __s32 quirks =3D cls->quirks;
->>>=20
->>> +     /* Only map fields from TouchScreen or TouchPad collections.
->>> +         * We need to ignore fields that belong to other collectio=
-ns
->>> +         * such as Mouse that might have the same GenericDesktop u=
-sages. */
->>> +     if (field->application =3D=3D HID_DG_TOUCHSCREEN)
->>> +             set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
->>> +     else if (field->application =3D=3D HID_DG_TOUCHPAD)
->>> +             set_bit(INPUT_PROP_POINTER, hi->input->propbit);
->>> +     else
->>> +             return 0;
->=20
-> Maybe I'm wrong, but 0 means that hid-input will decide what to do.
-> Maybe we should return -1 instead, to be sure not handling this part.
->=20
->>> +
->>>       switch (usage->hid & HID_USAGE_PAGE) {
->>>=20
->>>       case HID_UP_GENDESK:
->>> --
->>> 1.7.0.4
->>>=20
->>=20
->>=20
->> Looks clever to me. Still, in principle we should check that all (or=
- at least most) known devices fill the application field properly. I'll=
- try to have a look at the report descriptors we have here.
->=20
-> I checked (with some greps) the reports we have, and it seems that al=
-l
-> the device we know provide this application. So it should be safe, bu=
-t
-> I'm not able to test it.
-> St=E9phane, if you have the time to test it on our lab's devices that
-> would be great.
-
-So far it works fine on our Cypress panel. I'll keep you posted about L=
-umio and Stantum as soon as we have finished compiling Linux 3.0.
-
-St.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I don't understand what you are asking me.

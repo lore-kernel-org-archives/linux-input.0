@@ -1,51 +1,175 @@
-From: Eric Andersson <eric.andersson@unixphere.com>
-Subject: Re: [PATCH v5 1/1] input: add driver for Bosch Sensortec's BMA150
- accelerometer
-Date: Mon, 25 Jul 2011 12:38:26 +0200
-Message-ID: <20110725103826.GA8594@scully.xfiles.lan>
-References: <1311281268-9498-1-git-send-email-eric.andersson@unixphere.com>
- <1311281268-9498-2-git-send-email-eric.andersson@unixphere.com>
- <20110722051617.GB16040@core.coreip.homeip.net>
- <20110722094521.GB710@scully.xfiles.lan>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [RFC] [PATCH] HID: Fix race condition between driver core and ll-driver
+Date: Mon, 25 Jul 2011 13:37:06 +0200
+Message-ID: <CANq1E4Q2E+VmCVjnonw8gmnB7MJ6_Csw3XY5=G722qwW2qFZWg@mail.gmail.com>
+References: <1310567061-2679-1-git-send-email-dh.herrmann@googlemail.com>
+	<CANq1E4QLsSezP-pSFsNWPT924Xc9y=j8jHi2R-k4ieZzewO5PA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:3321 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751093Ab1GYKip (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2011 06:38:45 -0400
-Content-Disposition: inline
-In-Reply-To: <20110722094521.GB710@scully.xfiles.lan>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:46263 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751719Ab1GYLhI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jul 2011 07:37:08 -0400
+Received: by vxh35 with SMTP id 35so2787042vxh.19
+        for <linux-input@vger.kernel.org>; Mon, 25 Jul 2011 04:37:07 -0700 (PDT)
+In-Reply-To: <CANq1E4QLsSezP-pSFsNWPT924Xc9y=j8jHi2R-k4ieZzewO5PA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Albert Zhang <xu.zhang@bosch-sensortec.com>
+To: linux-input@vger.kernel.org
+Cc: padovan@profusion.mobi, jkosina@suse.cz, dmitry.torokhov@gmail.com, David Herrmann <dh.herrmann@googlemail.com>
 
-Ping.
+On Thu, Jul 14, 2011 at 10:48 AM, David Herrmann
+<dh.herrmann@googlemail.com> wrote:
+> On Wed, Jul 13, 2011 at 4:24 PM, David Herrmann
+> <dh.herrmann@googlemail.com> wrote:
+>> HID low level drivers register new devices with the HID core which t=
+hen
+>> adds the devices to the HID bus. The HID bus normally immediately pr=
+obes
+>> an appropriate driver which then handles HID input for this device.
+>> The ll driver now uses the hid_input_report() function to report inp=
+ut
+>> events for a specific device. However, if the HID bus unloads the dr=
+iver
+>> at the same time (for instance via a call to
+>> =A0/sys/bus/hid/devices/<dev>/unbind) then the hdev->driver pointer =
+may be
+>> used by hid_input_report() and hid_device_remove() at the same time
+>> which may cause hdev->driver to point to invalid memory.
+>>
+>> This fix adds a semaphore to every hid device which protects
+>> hdev->driver from asynchronous access. This semaphore is locked duri=
+ng
+>> driver *_probe and *_remove and also inside hid_input_report(). The
+>> *_probe and *_remove functions may sleep so the semaphore is good he=
+re,
+>> however, hid_input_report() is in atomic context and hence only uses
+>> down_trylock(). If it cannot acquire the lock it simply drops the in=
+put
+>> package.
+>>
+>> The low-level drivers report input events synchronously so
+>> hid_input_report() should never be entered twice at the same time on=
+ the
+>> same device. Hence, the lock should always be available. But if the
+>> driver is currently probed/removed then the lock is not available an=
+d
+>> dropping the package should be safe because this is what would have
+>> happened if the package arrived some milliseconds earlier/later.
+>>
+>> This also fixes another race condition while probing drivers:
+>> First the *_probe function of the driver is called and only if that
+>> succeeds, the related input device of hidinput is registered. If the=
+ low
+>> level driver reports input events after the *_probe function returne=
+d
+>> but before the input device is registered, then a NULL pointer
+>> dereference will occur. (Equivalently on driver remove function).
+>> This is not possible anymore, since the semaphore lock drops all
+>> incoming packages until the driver/device is fully initialized.
+>>
+>> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+>> ---
+>> =A0drivers/hid/hid-core.c | =A0 41 +++++++++++++++++++++++++++++++++=
++-------
+>> =A0include/linux/hid.h =A0 =A0| =A0 =A02 ++
+>> =A02 files changed, 36 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 2a268fc..59b1a5b 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -29,6 +29,7 @@
+>> =A0#include <linux/wait.h>
+>> =A0#include <linux/vmalloc.h>
+>> =A0#include <linux/sched.h>
+>> +#include <linux/semaphore.h>
+>>
+>> =A0#include <linux/hid.h>
+>> =A0#include <linux/hiddev.h>
+>> @@ -1087,14 +1088,23 @@ int hid_input_report(struct hid_device *hid,=
+ int type, u8 *data, int size, int i
+>> =A0 =A0 =A0 =A0unsigned int i;
+>> =A0 =A0 =A0 =A0int ret;
+>
+> This must be "int ret =3D 0;".
+>
+>>
+>> - =A0 =A0 =A0 if (!hid || !hid->driver)
+>> + =A0 =A0 =A0 if (!hid)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -ENODEV;
+>> +
+>> + =A0 =A0 =A0 if (down_trylock(&hid->driver_lock))
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+>> +
+>> + =A0 =A0 =A0 if (!hid->driver) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENODEV;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto unlock;
+>> + =A0 =A0 =A0 }
+>> =A0 =A0 =A0 =A0report_enum =3D hid->report_enum + type;
+>> =A0 =A0 =A0 =A0hdrv =3D hid->driver;
+>>
+>> =A0 =A0 =A0 =A0if (!size) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dbg_hid("empty report\n");
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -1;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto unlock;
+>> =A0 =A0 =A0 =A0}
+>>
+>> =A0 =A0 =A0 =A0buf =3D kmalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP=
+_ATOMIC);
+>> @@ -1118,17 +1128,23 @@ int hid_input_report(struct hid_device *hid,=
+ int type, u8 *data, int size, int i
+>> =A0nomem:
+>> =A0 =A0 =A0 =A0report =3D hid_get_report(report_enum, data);
+>>
+>> - =A0 =A0 =A0 if (!report)
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+>> + =A0 =A0 =A0 if (!report) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -1;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto unlock;
+>> + =A0 =A0 =A0 }
+>>
+>> =A0 =A0 =A0 =A0if (hdrv && hdrv->raw_event && hid_match_report(hid, =
+report)) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ret =3D hdrv->raw_event(hid, report, =
+data, size);
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ret !=3D 0)
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return ret < 0 ? ret :=
+ 0;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ret !=3D 0) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D ret < 0 ? ret =
+: 0;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto unlock;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>> =A0 =A0 =A0 =A0}
+>>
+>> =A0 =A0 =A0 =A0hid_report_raw_event(hid, type, data, size, interrupt=
+);
+>>
+>> +unlock:
+>> + =A0 =A0 =A0 up(&hid->driver_lock);
+>> =A0 =A0 =A0 =A0return 0;
+>
+> And this must be "return ret;" of course.
+>
+>>
+>> Regards
+>> David
+>>
+>
 
-> > > +static int bma150_open(struct bma150_data *bma150)
-> > > +{
-> > > +#ifdef CONFIG_PM_RUNTIME
-> > > +	return pm_runtime_get_sync(&bma150->client->dev);
-> > > +#else
-> > > +	return bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
-> > 
-> > Hmm, this is kind of weird. I'd expect you want to try waking up the
-> > parent in both cases (if no runtime pm then call to pm_runtime_get_sync
-> > is basically a noop) and then wake up your device.
-> 
-> I am not sure what you mean? Are you suggesting something like:
-> 	bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
-> 	return pm_runtime_get_sync(&bma150->client->dev);
-> 
-> That would cause multiple bma150_set_mode() calls since
-> pm_runtime_get_sync() will trigger one if needed.
+Although this race condition seems to be quite obvious, I have lots of
+trouble to trigger it. So I don't know whether you actually care to
+fix it, but just to keep it up: *ping*
 
-Dmitry, do you have any comments on the above? Just wanted to know
-before I submit the next version.
-
--- 
-Best regards,
- Eric
-
- http://www.unixphere.com
+Regards
+David
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

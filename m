@@ -1,53 +1,63 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 1/9 v2] Input: synaptics - refactor y inversion
-Date: Tue, 26 Jul 2011 10:19:31 +0800
-Message-ID: <CAGS+omB1sR88N=yytW7k_O8r4WkCowQwGFN30wzyK0wEEWBUmw@mail.gmail.com>
-References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org>
- <1311169146-20066-2-git-send-email-djkurtz@chromium.org> <20110725082752.GB22937@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5 1/1] input: add driver for Bosch Sensortec's BMA150
+ accelerometer
+Date: Mon, 25 Jul 2011 18:51:21 -0700
+Message-ID: <20110726015121.GA2076@core.coreip.homeip.net>
+References: <1311281268-9498-1-git-send-email-eric.andersson@unixphere.com>
+ <1311281268-9498-2-git-send-email-eric.andersson@unixphere.com>
+ <20110722051617.GB16040@core.coreip.homeip.net>
+ <20110722094521.GB710@scully.xfiles.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([74.125.121.67]:1967 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752768Ab1GZCTz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Jul 2011 22:19:55 -0400
-Received: from kpbe18.cbf.corp.google.com (kpbe18.cbf.corp.google.com [172.25.105.82])
-	by smtp-out.google.com with ESMTP id p6Q2JrRg021986
-	for <linux-input@vger.kernel.org>; Mon, 25 Jul 2011 19:19:53 -0700
-Received: from iyb39 (iyb39.prod.google.com [10.241.49.103])
-	by kpbe18.cbf.corp.google.com with ESMTP id p6Q2JpDH026602
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Mon, 25 Jul 2011 19:19:51 -0700
-Received: by iyb39 with SMTP id 39so25494iyb.18
-        for <linux-input@vger.kernel.org>; Mon, 25 Jul 2011 19:19:51 -0700 (PDT)
-In-Reply-To: <20110725082752.GB22937@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110722094521.GB710@scully.xfiles.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eric Andersson <eric.andersson@unixphere.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, Albert Zhang <xu.zhang@bosch-sensortec.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rydberg@euromail.se, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-On Mon, Jul 25, 2011 at 4:27 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Jul 20, 2011 at 09:38:58PM +0800, djkurtz@chromium.org wrote:
->> From: Daniel Kurtz <djkurtz@chromium.org>
->>
->> Synaptics touchpads report increasing y from bottom to top.
->> This is inverted from normal userspace "top of screen is 0" coordinates.
->> Thus, the kernel driver reports inverted y coordinates to userspace.
->>
->> This patch refactors this inversion.
->>
->
-> I really do not see the point...
+On Fri, Jul 22, 2011 at 11:45:21AM +0200, Eric Andersson wrote:
+> Hi Dmitry,
+> 
+> Thanks for reviewing!
+> 
+> > > +static int bma150_open(struct bma150_data *bma150)
+> > > +{
+> > > +#ifdef CONFIG_PM_RUNTIME
+> > > +	return pm_runtime_get_sync(&bma150->client->dev);
+> > > +#else
+> > > +	return bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
+> > 
+> > Hmm, this is kind of weird. I'd expect you want to try waking up the
+> > parent in both cases (if no runtime pm then call to pm_runtime_get_sync
+> > is basically a noop) and then wake up your device.
+> 
+> I am not sure what you mean? Are you suggesting something like:
+> 	bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
+> 	return pm_runtime_get_sync(&bma150->client->dev);
+> 
+> That would cause multiple bma150_set_mode() calls since
+> pm_runtime_get_sync() will trigger one if needed.
+> 
 
-The point is that this inversion is done in 3 places in the driver.
-Refactoring lets us document why this inversion is happening in just a
-single place.
+Right... It looks like instead of calling pm_runtime_get_sync() we need
+to do something like this:
 
->
-> Thanks.
->
-> --
-> Dmitry
->
+static int bma150_open(struct bma150_data *bma150)
+{
+	int error;
+
+	error = pm_runtime_set_active(&bma150->client->dev);
+	if (error)
+		return error;
+
+	return bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
+}
+
+and opposite in bma150_close().
+
+Thanks.
+
+-- 
+Dmitry

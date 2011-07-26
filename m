@@ -1,137 +1,68 @@
-From: Iiro Valkonen <iiro.valkonen@atmel.com>
-Subject: Re: [PATCH 1/3 v3] Input: atmel_mxt_ts - Make wait-after-reset period
- compatible with all chips
-Date: Tue, 26 Jul 2011 19:20:09 +0300
-Message-ID: <4E2EE939.3050306@atmel.com>
-References: <4E145128.9060404@atmel.com> <20110707144335.GJ7658@core.coreip.homeip.net>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] drivers:input:set driver data to NULL for pcap_keys
+Date: Tue, 26 Jul 2011 09:41:06 -0700
+Message-ID: <20110726164106.GA7941@suse.de>
+References: <1311608069.3262.8.camel@Allen>
+ <20110725181916.GB6876@core.coreip.homeip.net>
+ <20110725182928.GB1175@sirena.org.uk>
+ <20110725183746.GD6876@core.coreip.homeip.net>
+ <4E2E1897.9020808@cn.fujitsu.com>
+ <20110726043949.GA27720@suse.de>
+ <4E2E5240.4060309@cn.fujitsu.com>
+ <20110726060248.GA3868@suse.de>
+ <4E2E5DEC.60208@cn.fujitsu.com>
+ <20110726064519.GA4520@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:15921 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753532Ab1GZQUl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jul 2011 12:20:41 -0400
-In-Reply-To: <20110707144335.GJ7658@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:49602 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751431Ab1GZQoU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jul 2011 12:44:20 -0400
+Content-Disposition: inline
+In-Reply-To: <20110726064519.GA4520@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org
+Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Wanlong Gao <wanlong.gao@gmail.com>, linux-input@vger.kernel.org
 
-On 07/07/2011 05:43 PM, Dmitry Torokhov wrote:
-> On Wed, Jul 06, 2011 at 03:12:24PM +0300, Iiro Valkonen wrote:
->> The delay before the chip can be accessed after reset varies between different
->> chips in maXTouch family. Waiting for 200ms and then monitoring the CHG (chip
->> is ready when the line is low) is guaranteed to work with all chips.
->>
->> v3: Add a check for NULL read_chg() function, and add the read_chg() to platform
->>     files using this driver (currently only mach-goni.c)
->> v2: At Dmitry's suggestion, add a timeout so we are not stuck looping
->>     endlessly in case the CHG is not going low. 
->>
->> Signed-off-by: Iiro Valkonen <iiro.valkonen@atmel.com>
->> ---
->>  arch/arm/mach-s5pv210/mach-goni.c        |    6 ++++++
->>  drivers/input/touchscreen/atmel_mxt_ts.c |   14 +++++++++++++-
->>  include/linux/i2c/atmel_mxt_ts.h         |    1 +
->>  3 files changed, 20 insertions(+), 1 deletions(-)
->>
->> diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
->> index 31d5aa7..196e92c 100644
->> --- a/arch/arm/mach-s5pv210/mach-goni.c
->> +++ b/arch/arm/mach-s5pv210/mach-goni.c
->> @@ -225,6 +225,11 @@ static void __init goni_radio_init(void)
->>  	gpio_direction_output(gpio, 1);
->>  }
->>  
->> +static u8 read_chg(void)
->> +{
->> +	return gpio_get_value(S5PV210_GPJ0(5));
->> +}
->> +
->>  /* TSP */
->>  static struct mxt_platform_data qt602240_platform_data = {
->>  	.x_line		= 17,
->> @@ -236,6 +241,7 @@ static struct mxt_platform_data qt602240_platform_data = {
->>  	.voltage	= 2800000,              /* 2.8V */
->>  	.orient		= MXT_DIAGONAL,
->>  	.irqflags	= IRQF_TRIGGER_FALLING,
->> +	.read_chg	= &read_chg,
->>  };
->>  
->>  static struct s3c2410_platform_i2c i2c2_data __initdata = {
->> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
->> index 1e61387..99df3b7 100644
->> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
->> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
->> @@ -170,7 +170,8 @@
->>  #define MXT_BOOT_VALUE		0xa5
->>  #define MXT_BACKUP_VALUE	0x55
->>  #define MXT_BACKUP_TIME		25	/* msec */
->> -#define MXT_RESET_TIME		65	/* msec */
->> +#define MXT_RESET_TIME		200	/* msec */
+On Mon, Jul 25, 2011 at 11:45:20PM -0700, Dmitry Torokhov wrote:
+> On Tue, Jul 26, 2011 at 02:25:48PM +0800, Wanlong Gao wrote:
+> > On 07/26/2011 02:02 PM, Greg KH wrote:
+> > >On Tue, Jul 26, 2011 at 01:36:00PM +0800, Wanlong Gao wrote:
+> > >>On 07/26/2011 12:39 PM, Greg KH wrote:
+> > >>
+> > >>>>+
+> > >>>>+	if (drv->remove) {
+> > >>>>+		dev_dbg(_dev, "remove\n");
+> > >>>>+		status = drv->remove(dev);
+> > >>>>+	} else {
+> > >>>>+		status = 0;
+> > >>>>+	}
+> > >>>
+> > >>>Again, why would remove ever be NULL?
+> > >>>
+> > >>>This whole thing isn't needed at all.
+> > >>>
+> > >>>greg k-h
+> > >>Yeah, I see.
+> > >>
+> > >>But Greg, why does i2c-core do this?
+> > >>like:drivers/i2c/i2c-core.c:
+> > >
+> > >The i2c core has different requirements than the driver core does,
+> > >right?  They are two totally different things, please don't assume that
+> > >the rules for one are the same for the other.
+> > >
+> > >greg k-h
+> > >
+> > Hmm...They are totally different things, maybe I see..
 > 
-> Can't we really start polling before 200msecs are up? Woudl it be
-> possible to leave the initial wait at 65 (or maybe increase it to 100
-> msecs)?
-> 
+> Still, it would make sense to clean up platform device's drvdata
+> pointer, so that every platform driver out there does not have to do it
+> on its own.
 
-I'm afraid that on mXT1386, we need 200ms. I'll submit a version where we check the ID
-of the chip and adjust the delay based on that.
+Again, it shouldn't need to be "cleaned" up, as no one relies on it
+being there.
 
->> +#define MXT_RESET_NOCHGREAD     400     /* msec */
->>  
->>  #define MXT_FWRESET_TIME	175	/* msec */
->>  
->> @@ -792,6 +793,7 @@ static int mxt_initialize(struct mxt_data *data)
->>  	struct i2c_client *client = data->client;
->>  	struct mxt_info *info = &data->info;
->>  	int error;
->> +	int reset_timeout = 0;
->>  	u8 val;
->>  
->>  	error = mxt_get_info(data);
->> @@ -828,6 +830,16 @@ static int mxt_initialize(struct mxt_data *data)
->>  	mxt_write_object(data, MXT_GEN_COMMAND,
->>  			MXT_COMMAND_RESET, 1);
->>  	msleep(MXT_RESET_TIME);
->> +	if (data->pdata->read_chg == NULL) {
->> +		msleep(MXT_RESET_NOCHGREAD);
-> 
-> This means that without read_chg we are waiting for 600ms now... It is
-> eternity. Can we wait for MXT_RESET_NOCHGREAD total?
->
-
-Yes, 400ms in total should be fine.
- 
->> +	} else {
->> +		while ((reset_timeout++ <= 100) && data->pdata->read_chg())
->> +			msleep(2);
->> +		if (reset_timeout >= 100) {
->> +			dev_err(&client->dev, "No response after reset!\n");
->> +			return -EIO;
->> +		}
->> +	}
->>  
->>  	/* Update matrix size at info struct */
->>  	error = mxt_read_reg(client, MXT_MATRIX_X_SIZE, &val);
->> diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
->> index f027f7a..ef59c22 100644
->> --- a/include/linux/i2c/atmel_mxt_ts.h
->> +++ b/include/linux/i2c/atmel_mxt_ts.h
->> @@ -39,6 +39,7 @@ struct mxt_platform_data {
->>  	unsigned int voltage;
->>  	unsigned char orient;
->>  	unsigned long irqflags;
->> +	u8(*read_chg) (void);
->>  };
->>  
->>  #endif /* __LINUX_ATMEL_MXT_TS_H */
->> -- 
->> 1.7.0.4
-> 
-
-
--- 
-Iiro
+greg k-h

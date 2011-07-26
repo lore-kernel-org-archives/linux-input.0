@@ -1,70 +1,38 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Build-a-home-based-business-on-Auto-Pilot
-Date: Tue, 26 Jul 2011 12:52:17 -0700 (PDT)
-Message-ID: <201107261952.p6QJqHRY030443@mail4.spagack2.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 1/9 v2] Input: synaptics - refactor y inversion
+Date: Tue, 26 Jul 2011 15:59:33 -0700
+Message-ID: <4E2F46D5.6060206@canonical.com>
+References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org> <1311169146-20066-2-git-send-email-djkurtz@chromium.org> <20110725082752.GB22937@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.spagack2.com ([74.122.159.223]:54082 "EHLO
-	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751373Ab1GZT4D (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:46135 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753591Ab1GZW7j (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jul 2011 15:56:03 -0400
-Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
-	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6QJqICc030459
-	for <linux-input@vger.kernel.org>; Tue, 26 Jul 2011 12:52:18 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+	Tue, 26 Jul 2011 18:59:39 -0400
+In-Reply-To: <20110725082752.GB22937@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: djkurtz@chromium.org, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
+On 07/25/2011 01:27 AM, Dmitry Torokhov wrote:
+> On Wed, Jul 20, 2011 at 09:38:58PM +0800, djkurtz@chromium.org wrote:
+>> From: Daniel Kurtz <djkurtz@chromium.org>
+>>
+>> Synaptics touchpads report increasing y from bottom to top.
+>> This is inverted from normal userspace "top of screen is 0" coordinates.
+>> Thus, the kernel driver reports inverted y coordinates to userspace.
+>>
+>> This patch refactors this inversion.
+>>
+> 
+> I really do not see the point...
 
+It's easier for me to read and comprehend, at least. I agree that it's
+really really minor, but if it's in the middle of 10 other patches, then
+I don't have a problem with it.
 
-Hello Everyone,
-
-Discover how average people who have never made a cent in the past
-Are now making $1,000+ every month,=20
-With the Potential of making $50,000 a month
-Just "Plug In"... to Your
-Own Fully Automated=20
-  Turn Key...Global Marketing $ystem
-Receive $500-$3,500 Monthly or MORE
-Not MLM...and
-No Selling...
-No Cold Phone Calling.=20
-Complete plug-in-system!
-
-Check-it-Out!
-
-http://trckrs.com/48184/rc1
-
-It=92s surprisingly cool!
-
-Dan and Noel
-
-
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380
-In compliance with Federal law, should you choose to Un.Subscribe from =
-our network, you may do so using theUn.Subscribe instruction found belo=
-w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
-Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- Chase

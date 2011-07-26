@@ -1,49 +1,83 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 8/9 v2] Input: add BTN_TOOL_QUINTTAP for reporting 5 fingers
- on touchpad
-Date: Tue, 26 Jul 2011 16:03:35 -0700
-Message-ID: <4E2F47C7.4060702@canonical.com>
-References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org> <1311169146-20066-9-git-send-email-djkurtz@chromium.org> <20110725082918.GC22937@core.coreip.homeip.net> <CAGS+omAQmb-q6xC-Gh6z69iNNyr=rN-Khsq90aCHJwe-6F9ANw@mail.gmail.com> <20110725181645.GA6876@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [PATCH] Input: atmel_mxt_ts - Report pressure information from the driver
+Date: Tue, 26 Jul 2011 19:05:53 -0400
+Message-ID: <1311721553-17241-1-git-send-email-miletus@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:43906 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752159Ab1GZXDo (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:20177 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752159Ab1GZXGc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jul 2011 19:03:44 -0400
-In-Reply-To: <20110725181645.GA6876@core.coreip.homeip.net>
+	Tue, 26 Jul 2011 19:06:32 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Chris Leech <christopher.leech@linux.intel.com>, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>
 
-On 07/25/2011 11:16 AM, Dmitry Torokhov wrote:
-> On Mon, Jul 25, 2011 at 05:14:22PM +0800, Daniel Kurtz wrote:
->> On Mon, Jul 25, 2011 at 4:29 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->>>
->>> On Wed, Jul 20, 2011 at 09:39:05PM +0800, djkurtz@chromium.org wrote:
->>>> From: Daniel Kurtz <djkurtz@chromium.org>
->>>>
->>>
->>> Do we know what we want to do with this gesture? Because if not I'd
->>> rather not merge it for now, until there are real users.
->>
->> And do what instead?
->> Report 5 fingers with BTN_TOOL_QUADTAP?
->>
-> 
-> That, or nothing... The fact that the device can report 5 finger touch
-> does not mean that anybody cares about this.
+Atmel mxt1386 touch controller has the touch pressure information but
+the current driver atmel_mxt_ts does not expose it to the user space.
+This patch makes the driver report the touch pressure information to
+user space.
 
-The uTouch gesture stack supports up to 5 touch gestures, and although
-most of them are either hard to do on a trackpad or are not possible
-with this driver, I can think of uses for 5 finger tap. Unity uses four
-finger tap quite effectively I believe.
+Change-Id: Ie0e4683a3cd5ec79222f7682b0ddc24f909af543
 
-There is a meaningful limit to this: five fingers on a human hand. It
-seems more arbitrary to stick the protocol limit at four fingers.
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
--- Chase
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index ae00604..7cedb06 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -244,6 +244,7 @@ struct mxt_finger {
+ 	int x;
+ 	int y;
+ 	int area;
++    int pressure;
+ };
+ 
+ /* Each client has this additional data */
+@@ -536,6 +537,8 @@ static void mxt_input_report(struct mxt_data *data, int single_id)
+ 					finger[id].x);
+ 			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+ 					finger[id].y);
++			input_report_abs(input_dev, ABS_MT_PRESSURE,
++					finger[id].pressure);
+ 		} else {
+ 			finger[id].status = 0;
+ 		}
+@@ -560,6 +563,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	int x;
+ 	int y;
+ 	int area;
++    int pressure;
+ 
+ 	/* Check the touch is present on the screen */
+ 	if (!(status & MXT_DETECT)) {
+@@ -584,6 +588,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		y = y >> 2;
+ 
+ 	area = message->message[4];
++    pressure = message->message[5];
+ 
+ 	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+ 		status & MXT_MOVE ? "moved" : "pressed",
+@@ -594,6 +599,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	finger[id].x = x;
+ 	finger[id].y = y;
+ 	finger[id].area = area;
++    finger[id].pressure = pressure;
+ 
+ 	mxt_input_report(data, id);
+ }
+@@ -1125,6 +1131,8 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 			     0, data->max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 			     0, data->max_y, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_PRESSURE,
++			     0, 255, 0, 0);
+ 
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+-- 
+1.7.3.1
+

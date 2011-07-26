@@ -1,68 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCH] drivers:input:set driver data to NULL for pcap_keys
-Date: Mon, 25 Jul 2011 23:45:20 -0700
-Message-ID: <20110726064519.GA4520@core.coreip.homeip.net>
-References: <20110725152106.GB23356@suse.de>
- <1311608069.3262.8.camel@Allen>
- <20110725181916.GB6876@core.coreip.homeip.net>
- <20110725182928.GB1175@sirena.org.uk>
- <20110725183746.GD6876@core.coreip.homeip.net>
- <4E2E1897.9020808@cn.fujitsu.com>
- <20110726043949.GA27720@suse.de>
- <4E2E5240.4060309@cn.fujitsu.com>
- <20110726060248.GA3868@suse.de>
- <4E2E5DEC.60208@cn.fujitsu.com>
+Date: Tue, 26 Jul 2011 09:54:36 +0100
+Message-ID: <20110726085435.GB7285@opensource.wolfsonmicro.com>
+References: <1311176068-9934-1-git-send-email-wanlong.gao@gmail.com>
+ <20110725083048.GD22937@core.coreip.homeip.net>
+ <4E2D33E3.9090408@cn.fujitsu.com>
+ <20110725152106.GB23356@suse.de>
+ <20110725182628.GA1175@sirena.org.uk>
+ <20110725232533.GA25994@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:34454 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211Ab1GZGpZ (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37811 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751145Ab1GZIyi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jul 2011 02:45:25 -0400
-Received: by pzk37 with SMTP id 37so328324pzk.1
-        for <linux-input@vger.kernel.org>; Mon, 25 Jul 2011 23:45:24 -0700 (PDT)
+	Tue, 26 Jul 2011 04:54:38 -0400
 Content-Disposition: inline
-In-Reply-To: <4E2E5DEC.60208@cn.fujitsu.com>
+In-Reply-To: <20110725232533.GA25994@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: Greg KH <gregkh@suse.de>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Wanlong Gao <wanlong.gao@gmail.com>, linux-input@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: Wanlong Gao <gaowanlong@cn.fujitsu.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wanlong Gao <wanlong.gao@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, Jul 26, 2011 at 02:25:48PM +0800, Wanlong Gao wrote:
-> On 07/26/2011 02:02 PM, Greg KH wrote:
-> >On Tue, Jul 26, 2011 at 01:36:00PM +0800, Wanlong Gao wrote:
-> >>On 07/26/2011 12:39 PM, Greg KH wrote:
-> >>
-> >>>>+
-> >>>>+	if (drv->remove) {
-> >>>>+		dev_dbg(_dev, "remove\n");
-> >>>>+		status = drv->remove(dev);
-> >>>>+	} else {
-> >>>>+		status = 0;
-> >>>>+	}
-> >>>
-> >>>Again, why would remove ever be NULL?
-> >>>
-> >>>This whole thing isn't needed at all.
-> >>>
-> >>>greg k-h
-> >>Yeah, I see.
-> >>
-> >>But Greg, why does i2c-core do this?
-> >>like:drivers/i2c/i2c-core.c:
-> >
-> >The i2c core has different requirements than the driver core does,
-> >right?  They are two totally different things, please don't assume that
-> >the rules for one are the same for the other.
-> >
-> >greg k-h
-> >
-> Hmm...They are totally different things, maybe I see..
+On Mon, Jul 25, 2011 at 04:25:33PM -0700, Greg KH wrote:
+> On Mon, Jul 25, 2011 at 07:26:28PM +0100, Mark Brown wrote:
 
-Still, it would make sense to clean up platform device's drvdata
-pointer, so that every platform driver out there does not have to do it
-on its own.
+> > They're asking if drivers should set driver_data to NULL while
+> > unbinding, which always struck me as a waste of time given that
+> > nothing except a currently bound driver should be using driver_data.
 
--- 
-Dmitry
+> Yeah, it's not needed, as nothing should rely on that.  However it's
+> also not hurting anything either.
+
+Every time I see it it always sets off a red flag, partly because we
+shouldn't need to bother at all and partly because to the extent it's
+valuable it's not something we should be doing on a driver by driver or
+even subsystem by subsystem basis.

@@ -1,37 +1,70 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH] Input: gpio_keys - Return proper error code
-Date: Wed, 27 Jul 2011 11:10:47 +0200
-Message-ID: <1311757847-23132-1-git-send-email-tklauser@distanz.ch>
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Learn to receive $500 to $3,500 a day in cash.
+Date: Wed, 27 Jul 2011 02:56:26 -0700 (PDT)
+Message-ID: <201107270956.p6R9uQhD039526@mail3.spagack2.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.zhaw.ch ([160.85.104.50]:56034 "EHLO mx1.zhaw.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754318Ab1G0JUF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jul 2011 05:20:05 -0400
+Received: from mail3.spagack2.com ([74.122.159.222]:58833 "EHLO
+	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754496Ab1G0J6M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jul 2011 05:58:12 -0400
+Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
+	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p6R9uQG1039539
+	for <linux-input@vger.kernel.org>; Wed, 27 Jul 2011 02:56:26 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Return -ENOMEM if kzalloc fails in gpio_keys_get_devtree_pdata.
 
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
----
- drivers/input/keyboard/gpio_keys.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index ce281d1..67df91a 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -483,7 +483,7 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 
- 	buttons = kzalloc(pdata->nbuttons * (sizeof *buttons), GFP_KERNEL);
- 	if (!buttons)
--		return -ENODEV;
-+		return -ENOMEM;
- 
- 	pp = NULL;
- 	i = 0;
--- 
-1.7.5.4
 
+Hi Everyone,
+
+Just =93Plug In=94.. to Your
+Own Fully Automated
+Turn Key..Global Marketing $ystem
+Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
+
+http://trckrs.com/48184/rc2
+
+
+It=92s surprisingly cool!
+
+Dan
+
+
+
+
+
+
+
+
+
+His was a Com.Merical adv.Sent to you by:
+Dan Pereira, 11383 Golf Road, Turlock, CA 95380
+In compliance with Federal law, should you choose to=20
+Un.Subscribe from our network, you may do so using the
+Un.Subscribe instruction found below.  We are fully compliant with CAN-=
+SPAM Act of 2005-Please use the Un.Subscribe link prvided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,39 +1,85 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: RFC: User-space interface to read/write touchscreen controller
- registers (atmel_mxt_ts.c)
-Date: Wed, 27 Jul 2011 13:49:20 +0100
-Message-ID: <20110727124920.GF300@sirena.org.uk>
-References: <4E2968ED.4030708@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [PATCH v2] Input: atmel_mxt_ts - Report pressure information from the driver
+Date: Wed, 27 Jul 2011 13:28:15 -0400
+Message-ID: <1311787695-28147-1-git-send-email-miletus@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:44548 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752213Ab1G0MtW (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:7026 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753785Ab1G0R2e (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jul 2011 08:49:22 -0400
-Content-Disposition: inline
-In-Reply-To: <4E2968ED.4030708@atmel.com>
+	Wed, 27 Jul 2011 13:28:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Iiro Valkonen <iiro.valkonen@atmel.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Chris Leech <christopher.leech@linux.intel.com>, linux-kernel@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>, Yufeng Shen <miletus@chromium.org>
 
-On Fri, Jul 22, 2011 at 03:11:25PM +0300, Iiro Valkonen wrote:
+Atmel mxt1386 touch controller has the touch pressure information but
+the current driver atmel_mxt_ts does not expose it to the user space.
+This patch makes the driver report the touch pressure information to
+user space.
 
-Please fix your mail client to word wrap within paragraphs.  I've
-reformatted your text for legibility.
+ChangeLog:
+v2: fixed indentation as commented by Wanlong Gao
 
-> we have a need to access the configuration registers/register blocks
-> of the touchscreen controller from the user space. There are several
-> reasons for this, and while some of them are related to debugging,
-> some can be valuable in normal use cases. For example, a configuration
-> parameter might need to be semi-permanently changed to improve
-> performance, or some parameter could even be updated for different
-> usage modes of the device. This interface would make it very easy.
-> Currently, a change in the board file and kernel recompile is needed
-> to change the settings. 
+Change-Id: Ie0e4683a3cd5ec79222f7682b0ddc24f909af543
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-For diagnostic access the regmap API was merged during this merge
-window, it provides debugfs access to the register map.  That doesn't
-help with the coefficient data but it should be enough for debugging.
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index ae00604..9bdf4e0 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -244,6 +244,7 @@ struct mxt_finger {
+ 	int x;
+ 	int y;
+ 	int area;
++	int pressure;
+ };
+ 
+ /* Each client has this additional data */
+@@ -536,6 +537,8 @@ static void mxt_input_report(struct mxt_data *data, int single_id)
+ 					finger[id].x);
+ 			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+ 					finger[id].y);
++			input_report_abs(input_dev, ABS_MT_PRESSURE,
++					finger[id].pressure);
+ 		} else {
+ 			finger[id].status = 0;
+ 		}
+@@ -560,6 +563,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	int x;
+ 	int y;
+ 	int area;
++	int pressure;
+ 
+ 	/* Check the touch is present on the screen */
+ 	if (!(status & MXT_DETECT)) {
+@@ -584,6 +588,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		y = y >> 2;
+ 
+ 	area = message->message[4];
++	pressure = message->message[5];
+ 
+ 	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+ 		status & MXT_MOVE ? "moved" : "pressed",
+@@ -594,6 +599,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	finger[id].x = x;
+ 	finger[id].y = y;
+ 	finger[id].area = area;
++	finger[id].pressure = pressure;
+ 
+ 	mxt_input_report(data, id);
+ }
+@@ -1125,6 +1131,8 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 			     0, data->max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 			     0, data->max_y, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_PRESSURE,
++			     0, 255, 0, 0);
+ 
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+-- 
+1.7.3.1
+

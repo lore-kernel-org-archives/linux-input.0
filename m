@@ -1,68 +1,39 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Learn to receive $500 to $3,500 a day in cash.
-Date: Wed, 27 Jul 2011 02:56:26 -0700 (PDT)
-Message-ID: <201107270956.p6R9uQhD039526@mail3.spagack2.com>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH v6 0/6] mc13783: add pwr button support
+Date: Wed, 27 Jul 2011 12:34:03 +0200
+Message-ID: <20110727103403.GF26275@sortiz-mobl>
+References: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3.spagack2.com ([74.122.159.222]:58833 "EHLO
-	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754496Ab1G0J6M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jul 2011 05:58:12 -0400
-Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
-	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p6R9uQG1039539
-	for <linux-input@vger.kernel.org>; Wed, 27 Jul 2011 02:56:26 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+Received: from mga01.intel.com ([192.55.52.88]:8013 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751231Ab1G0Kcv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jul 2011 06:32:51 -0400
+Content-Disposition: inline
+In-Reply-To: <1311344232-29902-1-git-send-email-philippe.retornaz@epfl.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Philippe =?iso-8859-1?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
+Cc: s.hauer@pengutronix.de, linux-arm-kernel@lists.infradead.org, amit.kucheria@canonical.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, u.kleine-koenig@pengutronix.de, gaowanlong@cn.fujitsu.com, shawn.guo@freescale.com
 
+Hi Philippe,
 
+On Fri, Jul 22, 2011 at 04:17:06PM +0200, Philippe R=E9tornaz wrote:
+> Hello
+>=20
+> This add button handling for the MC13783 PMIC.
+I suppose I should take this one. Sascha, are you ok with me doing so ?=
+ Also,
+are you fine with the imx changes ?
 
+Cheers,
+Samuel.
 
-Hi Everyone,
-
-Just =93Plug In=94.. to Your
-Own Fully Automated
-Turn Key..Global Marketing $ystem
-Receive $3,000-$7,000 Weekly or MORE Not MLM=85and No Selling.
-
-http://trckrs.com/48184/rc2
-
-
-It=92s surprisingly cool!
-
-Dan
-
-
-
-
-
-
-
-
-
-His was a Com.Merical adv.Sent to you by:
-Dan Pereira, 11383 Golf Road, Turlock, CA 95380
-In compliance with Federal law, should you choose to=20
-Un.Subscribe from our network, you may do so using the
-Un.Subscribe instruction found below.  We are fully compliant with CAN-=
-SPAM Act of 2005-Please use the Un.Subscribe link prvided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
+--=20
+Intel Open Source Technology Centre
+http://oss.intel.com/
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

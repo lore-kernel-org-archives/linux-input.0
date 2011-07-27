@@ -1,772 +1,162 @@
-From: Eric Andersson <eric.andersson@unixphere.com>
-Subject: [PATCH v6 1/1] input: add driver for Bosch Sensortec's BMA150 accelerometer
-Date: Wed, 27 Jul 2011 22:53:47 +0200
-Message-ID: <1311800027-25982-2-git-send-email-eric.andersson@unixphere.com>
-References: <1311800027-25982-1-git-send-email-eric.andersson@unixphere.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 7/9 v2] Input: synaptics - improved 2->3 finger transition
+ handling
+Date: Wed, 27 Jul 2011 14:13:46 -0700
+Message-ID: <4E307F8A.6090707@canonical.com>
+References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org> <1311169146-20066-8-git-send-email-djkurtz@chromium.org> <4E2A1ECD.3030302@canonical.com> <CAGS+omBCd=e0ACxxTwns8HVNitVOYF-xFrkVmhreOmHQTq_10A@mail.gmail.com> <4E2F4A66.1020207@canonical.com> <CAGS+omAwrXMC=U2Hx7EoJzUM+=PYyR4di0tDhq0oVnR_AAdEhQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:41378 "EHLO csmtp2.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754000Ab1G0Uts (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jul 2011 16:49:48 -0400
-In-Reply-To: <1311800027-25982-1-git-send-email-eric.andersson@unixphere.com>
+Received: from adelie.canonical.com ([91.189.90.139]:52907 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753839Ab1G0VNy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jul 2011 17:13:54 -0400
+In-Reply-To: <CAGS+omAwrXMC=U2Hx7EoJzUM+=PYyR4di0tDhq0oVnR_AAdEhQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, jic23@cam.ac.uk, Eric Andersson <eric.andersson@unixphere.com>, Albert Zhang <xu.zhang@bosch-sensortec.com>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-Signed-off-by: Albert Zhang <xu.zhang@bosch-sensortec.com>
-Signed-off-by: Eric Andersson <eric.andersson@unixphere.com>
----
- drivers/input/misc/Kconfig  |   11 +
- drivers/input/misc/Makefile |    1 +
- drivers/input/misc/bma150.c |  654 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/bma150.h      |   47 +++
- 4 files changed, 713 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/bma150.c
- create mode 100644 include/linux/bma150.h
+On 07/26/2011 09:48 PM, Daniel Kurtz wrote:
+> On Wed, Jul 27, 2011 at 7:14 AM, Chase Douglas
+> <chase.douglas@canonical.com> wrote:
+>> On 07/22/2011 09:36 PM, Daniel Kurtz wrote:
+>>> On Sat, Jul 23, 2011 at 9:07 AM, Chase Douglas
+>>> <chase.douglas@canonical.com> wrote:
+>>>> On 07/20/2011 06:39 AM, djkurtz@chromium.org wrote:
+>>>>> From: Daniel Kurtz <djkurtz@chromium.org>
+>>>>> @@ -800,14 +803,32 @@ static void synaptics_image_sensor_3f(struct synaptics_data *priv,
+>>>>>               break;
+>>>>>       case 2:
+>>>>>               /*
+>>>>> -              * On 2->3 transitions, we are given no indication which finger
+>>>>> -              * was added.
+>>>>> -              * We don't even know what finger the current AGM packet
+>>>>> -              * contained.
+>>>>> +              * After some 3->1 and all 3->2 transitions, we lose track
+>>>>> +              * of which slot is reported by sgm and agm.
+>>>>>                *
+>>>>> -              * So, empty all slots. They get filled on a subsequent 3->3
+>>>>> +              * For 2->3 in this state, empty all slots, and we will guess
+>>>>> +              * (0,1) on a subsequent 0->3.
+>>>>> +              *
+>>>>> +              * To userspace, the resulting transition will look like:
+>>>>> +              *    2:[0,1] -> 0:[-1,-1] -> 3:[0,2]
+>>>>
+>>>> I don't think this should be allowed. We shouldn't be giving userspace
+>>>> wrong information. One could argue that userspace could watch for these
+>>>> transitions, but then I would argue that the driver should be handling
+>>>> this :).
+>>>>
+>>>> I don't know what the best resolution to this issue is, but any
+>>>> transition in the number of fingers must be accurate. In uTouch, we
+>>>> watch for touch count transitions for "continuation" gestures.
+>>>
+>>> So, you want the count to be accurate.
+>>> But, during these transitions, there is not enough information to
+>>> guarantee all of the following at the same time:
+>>>  (1) finger count
+>>>  (2) track_id
+>>>  (3) finger position
+>>
+>> If I had to pick one to give up, it would be the tracking id. It carries
+>> the least useful information for a device that you may not get the whole
+>> touch stream. Semi-mt devices already forsake the tracking id value,
+>> IIRC. The id is always incremented when you create a new slot, but when
+>> you go from 2->3 fingers the ids in the slots stay the same even if the
+>> third finger expands the bounding box.
+> 
+> For synaptics profile sensors, adding additional fingers does not
+> change which fingers are reported.
+> You always get the first two fingers.
+> AFAICT, you cannot "expand the bounding box" by adding new fingers.
+> Thus, throwing away the track_id is irrelevant, since once the semi-mt
+> driver starts reporting 2+ fingers, the track_ids are fixed.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index c9104bb..4493241 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -527,4 +527,15 @@ config INPUT_XEN_KBDDEV_FRONTEND
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called xen-kbdfront.
- 
-+config INPUT_BMA150
-+	tristate "BMA150/SMB380 acceleration sensor support"
-+	depends on I2C
-+	select INPUT_POLLDEV
-+	help
-+	  Say Y here if you have Bosch Sensortec's BMA150 or SMB380
-+	  acceleration sensor hooked to an I2C bus.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called bma150.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 299ad5e..505a398 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -49,3 +49,4 @@ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
- obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
-+obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
-diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-new file mode 100644
-index 0000000..4789ff6
---- /dev/null
-+++ b/drivers/input/misc/bma150.c
-@@ -0,0 +1,654 @@
-+/*
-+ * Copyright (c) 2011 Bosch Sensortec GmbH
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This driver adds support for Bosch Sensortec's digital acceleration
-+ * sensors BMA150 and SMB380.
-+ * The SMB380 is fully compatible with BMA150 and only differs in packaging.
-+ *
-+ * The datasheet for the BMA150 chip can be found here:
-+ * http://www.bosch-sensortec.com/content/language1/downloads/BST-BMA150-DS000-07.pdf
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input-polldev.h>
-+#include <linux/interrupt.h>
-+#include <linux/delay.h>
-+#include <linux/slab.h>
-+#include <linux/pm.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/bma150.h>
-+
-+#define ABSMAX_ACC_VAL		0x01FF
-+#define ABSMIN_ACC_VAL		-(ABSMAX_ACC_VAL)
-+
-+/* Each axis is represented by a 2-byte data word */
-+#define BMA150_XYZ_DATA_SIZE	6
-+
-+/* Input poll interval in milliseconds */
-+#define BMA150_POLL_INTERVAL	10
-+#define BMA150_POLL_MAX		200
-+#define BMA150_POLL_MIN		0
-+
-+#define BMA150_BW_25HZ		0
-+#define BMA150_BW_50HZ		1
-+#define BMA150_BW_100HZ		2
-+#define BMA150_BW_190HZ		3
-+#define BMA150_BW_375HZ		4
-+#define BMA150_BW_750HZ		5
-+#define BMA150_BW_1500HZ	6
-+
-+#define BMA150_RANGE_2G		0
-+#define BMA150_RANGE_4G		1
-+#define BMA150_RANGE_8G		2
-+
-+#define BMA150_MODE_NORMAL	0
-+#define BMA150_MODE_SLEEP	2
-+#define BMA150_MODE_WAKE_UP	3
-+
-+/* Data register addresses */
-+#define BMA150_DATA_0_REG	0x00
-+#define BMA150_DATA_1_REG	0x01
-+#define BMA150_DATA_2_REG	0x02
-+
-+/* Control register addresses */
-+#define BMA150_CTRL_0_REG	0x0A
-+#define BMA150_CTRL_1_REG	0x0B
-+#define BMA150_CTRL_2_REG	0x14
-+#define BMA150_CTRL_3_REG	0x15
-+
-+/* Configuration/Setting register addresses */
-+#define BMA150_CFG_0_REG	0x0C
-+#define BMA150_CFG_1_REG	0x0D
-+#define BMA150_CFG_2_REG	0x0E
-+#define BMA150_CFG_3_REG	0x0F
-+#define BMA150_CFG_4_REG	0x10
-+#define BMA150_CFG_5_REG	0x11
-+
-+#define BMA150_CHIP_ID		2
-+#define BMA150_CHIP_ID_REG	BMA150_DATA_0_REG
-+
-+#define BMA150_ACC_X_LSB_REG	BMA150_DATA_2_REG
-+
-+#define BMA150_SLEEP_POS	0
-+#define BMA150_SLEEP_MSK	0x01
-+#define BMA150_SLEEP_REG	BMA150_CTRL_0_REG
-+
-+#define BMA150_BANDWIDTH_POS	0
-+#define BMA150_BANDWIDTH_MSK	0x07
-+#define BMA150_BANDWIDTH_REG	BMA150_CTRL_2_REG
-+
-+#define BMA150_RANGE_POS	3
-+#define BMA150_RANGE_MSK	0x18
-+#define BMA150_RANGE_REG	BMA150_CTRL_2_REG
-+
-+#define BMA150_WAKE_UP_POS	0
-+#define BMA150_WAKE_UP_MSK	0x01
-+#define BMA150_WAKE_UP_REG	BMA150_CTRL_3_REG
-+
-+#define BMA150_SW_RES_POS	1
-+#define BMA150_SW_RES_MSK	0x02
-+#define BMA150_SW_RES_REG	BMA150_CTRL_0_REG
-+
-+/* Any-motion interrupt register fields */
-+#define BMA150_ANY_MOTION_EN_POS	6
-+#define BMA150_ANY_MOTION_EN_MSK	0x40
-+#define BMA150_ANY_MOTION_EN_REG	BMA150_CTRL_1_REG
-+
-+#define BMA150_ANY_MOTION_DUR_POS	6
-+#define BMA150_ANY_MOTION_DUR_MSK	0xC0
-+#define BMA150_ANY_MOTION_DUR_REG	BMA150_CFG_5_REG
-+
-+#define BMA150_ANY_MOTION_THRES_REG	BMA150_CFG_4_REG
-+
-+/* Advanced interrupt register fields */
-+#define BMA150_ADV_INT_EN_POS		6
-+#define BMA150_ADV_INT_EN_MSK		0x40
-+#define BMA150_ADV_INT_EN_REG		BMA150_CTRL_3_REG
-+
-+/* High-G interrupt register fields */
-+#define BMA150_HIGH_G_EN_POS		1
-+#define BMA150_HIGH_G_EN_MSK		0x02
-+#define BMA150_HIGH_G_EN_REG		BMA150_CTRL_1_REG
-+
-+#define BMA150_HIGH_G_HYST_POS		3
-+#define BMA150_HIGH_G_HYST_MSK		0x38
-+#define BMA150_HIGH_G_HYST_REG		BMA150_CFG_5_REG
-+
-+#define BMA150_HIGH_G_DUR_REG		BMA150_CFG_3_REG
-+#define BMA150_HIGH_G_THRES_REG		BMA150_CFG_2_REG
-+
-+/* Low-G interrupt register fields */
-+#define BMA150_LOW_G_EN_POS		0
-+#define BMA150_LOW_G_EN_MSK		0x01
-+#define BMA150_LOW_G_EN_REG		BMA150_CTRL_1_REG
-+
-+#define BMA150_LOW_G_HYST_POS		0
-+#define BMA150_LOW_G_HYST_MSK		0x07
-+#define BMA150_LOW_G_HYST_REG		BMA150_CFG_5_REG
-+
-+#define BMA150_LOW_G_DUR_REG		BMA150_CFG_1_REG
-+#define BMA150_LOW_G_THRES_REG		BMA150_CFG_0_REG
-+
-+struct bma150_data {
-+	struct i2c_client *client;
-+	struct input_polled_dev *input_polled;
-+	struct input_dev *input;
-+};
-+
-+/*
-+ * The settings for the given range, bandwidth and interrupt features
-+ * are stated and verified by Bosch Sensortec where they are configured
-+ * to provide a generic sensitivity performance.
-+ */
-+static struct bma150_cfg default_cfg __initdata = {
-+	.any_motion_int = 1,
-+	.hg_int = 1,
-+	.lg_int = 1,
-+	.any_motion_dur = 0,
-+	.any_motion_thres = 0,
-+	.hg_hyst = 0,
-+	.hg_dur = 150,
-+	.hg_thres = 160,
-+	.lg_hyst = 0,
-+	.lg_dur = 150,
-+	.lg_thres = 20,
-+	.range = BMA150_RANGE_2G,
-+	.bandwidth = BMA150_BW_50HZ
-+};
-+
-+static int bma150_write_byte(struct i2c_client *client, u8 reg, u8 val)
-+{
-+	s32 ret;
-+
-+	/* As per specification, disable irq in between register writes */
-+	if (client->irq)
-+		disable_irq_nosync(client->irq);
-+
-+	ret = i2c_smbus_write_byte_data(client, reg, val);
-+
-+	if (client->irq)
-+		enable_irq(client->irq);
-+	return ret;
-+}
-+
-+static int bma150_set_reg_bits(struct i2c_client *client,
-+					int val, int shift, u8 mask, u8 reg)
-+{
-+	int data = i2c_smbus_read_byte_data(client, reg);
-+
-+	if (data < 0)
-+		return data;
-+
-+	data = (data & ~mask) | ((val << shift) & mask);
-+	return bma150_write_byte(client, reg, data);
-+}
-+
-+static int bma150_set_mode(struct i2c_client *client, u8 mode)
-+{
-+	s32 ret;
-+
-+	ret = bma150_set_reg_bits(client, mode, BMA150_WAKE_UP_POS,
-+				BMA150_WAKE_UP_MSK, BMA150_WAKE_UP_REG);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_reg_bits(client, mode, BMA150_SLEEP_POS,
-+				BMA150_SLEEP_MSK, BMA150_SLEEP_REG);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (mode == BMA150_MODE_NORMAL)
-+		msleep(2);
-+	return ret;
-+}
-+
-+static int __devinit bma150_soft_reset(struct i2c_client *client)
-+{
-+	s32 ret;
-+
-+	ret = bma150_set_reg_bits(client, 1, BMA150_SW_RES_POS,
-+			BMA150_SW_RES_MSK, BMA150_SW_RES_REG);
-+	msleep(2);
-+	return ret;
-+}
-+
-+static int __devinit bma150_set_range(struct i2c_client *client, u8 range)
-+{
-+	s32 ret;
-+
-+	ret = bma150_set_reg_bits(client, range, BMA150_RANGE_POS,
-+				BMA150_RANGE_MSK, BMA150_RANGE_REG);
-+	return ret;
-+}
-+
-+static int __devinit bma150_set_bandwidth(struct i2c_client *client, u8 bw)
-+{
-+	s32 ret;
-+
-+	ret = bma150_set_reg_bits(client, bw, BMA150_BANDWIDTH_POS,
-+				BMA150_BANDWIDTH_MSK, BMA150_BANDWIDTH_REG);
-+	return ret;
-+}
-+
-+static int __devinit bma150_set_low_g_interrupt(struct i2c_client *client,
-+					u8 enable, u8 hyst, u8 dur, u8 thres)
-+{
-+	s32 ret;
-+	struct bma150_data *bma150 = i2c_get_clientdata(client);
-+
-+	ret = bma150_set_reg_bits(bma150->client, hyst,
-+				BMA150_LOW_G_HYST_POS, BMA150_LOW_G_HYST_MSK,
-+				BMA150_LOW_G_HYST_REG);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_write_byte(bma150->client,	BMA150_LOW_G_DUR_REG, dur);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_write_byte(bma150->client,	BMA150_LOW_G_THRES_REG, thres);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_reg_bits(bma150->client, !!enable,
-+				BMA150_LOW_G_EN_POS, BMA150_LOW_G_EN_MSK,
-+				BMA150_LOW_G_EN_REG);
-+	return ret;
-+}
-+
-+static int __devinit bma150_set_high_g_interrupt(struct i2c_client *client,
-+					u8 enable, u8 hyst, u8 dur, u8 thres)
-+{
-+	s32 ret;
-+	struct bma150_data *bma150 = i2c_get_clientdata(client);
-+
-+	ret = bma150_set_reg_bits(bma150->client, hyst,
-+				BMA150_HIGH_G_HYST_POS, BMA150_HIGH_G_HYST_MSK,
-+				BMA150_HIGH_G_HYST_REG);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_write_byte(bma150->client,	BMA150_HIGH_G_DUR_REG, dur);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_write_byte(bma150->client,	BMA150_HIGH_G_THRES_REG, thres);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_reg_bits(bma150->client, !!enable,
-+				BMA150_HIGH_G_EN_POS, BMA150_HIGH_G_EN_MSK,
-+				BMA150_HIGH_G_EN_REG);
-+	return ret;
-+}
-+
-+
-+static int __devinit bma150_set_any_motion_interrupt(struct i2c_client *client,
-+						u8 enable, u8 dur, u8 thres)
-+{
-+	s32 ret;
-+	struct bma150_data *bma150 = i2c_get_clientdata(client);
-+
-+	ret = bma150_set_reg_bits(bma150->client, dur,
-+				BMA150_ANY_MOTION_DUR_POS,
-+				BMA150_ANY_MOTION_DUR_MSK,
-+				BMA150_ANY_MOTION_DUR_REG);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_write_byte(bma150->client,
-+				BMA150_ANY_MOTION_THRES_REG, thres);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_reg_bits(bma150->client, !!enable,
-+				BMA150_ADV_INT_EN_POS, BMA150_ADV_INT_EN_MSK,
-+				BMA150_ADV_INT_EN_REG);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_reg_bits(bma150->client, !!enable,
-+				BMA150_ANY_MOTION_EN_POS,
-+				BMA150_ANY_MOTION_EN_MSK,
-+				BMA150_ANY_MOTION_EN_REG);
-+	return ret;
-+}
-+
-+static void bma150_report_xyz(struct bma150_data *bma150)
-+{
-+	u8 data[BMA150_XYZ_DATA_SIZE];
-+	s16 x, y, z;
-+	s32 ret;
-+
-+	ret = i2c_smbus_read_i2c_block_data(bma150->client,
-+			BMA150_ACC_X_LSB_REG, BMA150_XYZ_DATA_SIZE, data);
-+	if (ret != BMA150_XYZ_DATA_SIZE)
-+		return;
-+
-+	x = ((0xc0 & data[0]) >> 6) | (data[1] << 2);
-+	y = ((0xc0 & data[2]) >> 6) | (data[3] << 2);
-+	z = ((0xc0 & data[4]) >> 6) | (data[5] << 2);
-+
-+	/* sign extension */
-+	x = (s16) (x << 6) >> 6;
-+	y = (s16) (y << 6) >> 6;
-+	z = (s16) (z << 6) >> 6;
-+
-+	input_report_abs(bma150->input, ABS_X, x);
-+	input_report_abs(bma150->input, ABS_Y, y);
-+	input_report_abs(bma150->input, ABS_Z, z);
-+	input_sync(bma150->input);
-+}
-+
-+static irqreturn_t bma150_irq_thread(int irq, void *dev)
-+{
-+	bma150_report_xyz(dev);
-+	return IRQ_HANDLED;
-+}
-+
-+static void bma150_poll(struct input_polled_dev *dev)
-+{
-+	bma150_report_xyz(dev->private);
-+}
-+
-+static int bma150_open(struct bma150_data *bma150)
-+{
-+	int ret;
-+
-+	ret = pm_runtime_set_active(&bma150->client->dev);
-+	if (ret < 0)
-+		return ret;
-+
-+	pm_runtime_enable(&bma150->client->dev);
-+
-+	return bma150_set_mode(bma150->client, BMA150_MODE_NORMAL);
-+}
-+
-+static void bma150_close(struct bma150_data *bma150)
-+{
-+	pm_runtime_disable(&bma150->client->dev);
-+	pm_runtime_set_suspended(&bma150->client->dev);
-+	bma150_set_mode(bma150->client, BMA150_MODE_SLEEP);
-+}
-+
-+static int bma150_irq_open(struct input_dev *input)
-+{
-+	struct bma150_data *bma150 = input_get_drvdata(input);
-+
-+	return bma150_open(bma150);
-+}
-+
-+static void bma150_irq_close(struct input_dev *input)
-+{
-+	struct bma150_data *bma150 = input_get_drvdata(input);
-+
-+	bma150_close(bma150);
-+}
-+
-+static void bma150_poll_open(struct input_polled_dev *ipoll_dev)
-+{
-+	struct bma150_data *bma150 = ipoll_dev->private;
-+
-+	bma150_open(bma150);
-+}
-+
-+static void bma150_poll_close(struct input_polled_dev *ipoll_dev)
-+{
-+	struct bma150_data *bma150 = ipoll_dev->private;
-+
-+	bma150_close(bma150);
-+}
-+
-+static void bma150_free_input_device(struct bma150_data *bma150)
-+{
-+	if (bma150->client->irq > 0)
-+		input_unregister_device(bma150->input);
-+	else
-+		input_unregister_polled_device(bma150->input_polled);
-+}
-+
-+static int __devinit bma150_initialize(struct i2c_client *client,
-+				       struct bma150_cfg *cfg)
-+{
-+	s32 ret;
-+
-+	ret = bma150_soft_reset(client);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_bandwidth(client, cfg->bandwidth);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_range(client, cfg->range);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (!client->irq)
-+		goto exit;
-+
-+	ret = bma150_set_any_motion_interrupt(client, cfg->any_motion_int,
-+			cfg->any_motion_dur, cfg->any_motion_thres);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_high_g_interrupt(client, cfg->hg_int,
-+			cfg->hg_hyst, cfg->hg_dur, cfg->hg_thres);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = bma150_set_low_g_interrupt(client, cfg->lg_int,
-+			cfg->lg_hyst, cfg->lg_dur, cfg->lg_thres);
-+	if (ret < 0)
-+		return ret;
-+exit:
-+	ret = bma150_set_mode(client, BMA150_MODE_SLEEP);
-+	return ret;
-+}
-+
-+static int __devinit bma150_setup_input_device(struct bma150_data *bma150)
-+{
-+	struct input_polled_dev *ipoll_dev;
-+	struct input_dev *idev;
-+	int ret;
-+
-+	if (bma150->client->irq > 0) {
-+		idev = input_allocate_device();
-+		if (!idev)
-+			return -ENOMEM;
-+		idev->open = bma150_irq_open;
-+		idev->close = bma150_irq_close;
-+		input_set_drvdata(idev, bma150);
-+	} else {
-+		ipoll_dev = input_allocate_polled_device();
-+		if (!ipoll_dev)
-+			return -ENOMEM;
-+		ipoll_dev->private = bma150;
-+		ipoll_dev->open = bma150_poll_open;
-+		ipoll_dev->close = bma150_poll_close;
-+		ipoll_dev->poll = bma150_poll;
-+		ipoll_dev->poll_interval = BMA150_POLL_INTERVAL;
-+		ipoll_dev->poll_interval_min = BMA150_POLL_MIN;
-+		ipoll_dev->poll_interval_max = BMA150_POLL_MAX;
-+
-+		idev = ipoll_dev->input;
-+	}
-+
-+	idev->name = BMA150_DRIVER;
-+	idev->phys = BMA150_DRIVER "/input0";
-+	idev->id.bustype = BUS_I2C;
-+	idev->dev.parent = &bma150->client->dev;
-+
-+	idev->evbit[0] = BIT_MASK(EV_ABS);
-+	input_set_abs_params(idev, ABS_X, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
-+	input_set_abs_params(idev, ABS_Y, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
-+	input_set_abs_params(idev, ABS_Z, ABSMIN_ACC_VAL, ABSMAX_ACC_VAL, 0, 0);
-+
-+	if (bma150->client->irq > 0) {
-+		ret = input_register_device(idev);
-+		if (ret < 0) {
-+			input_free_device(idev);
-+			return ret;
-+		}
-+		ret = request_threaded_irq(bma150->client->irq, NULL,
-+			bma150_irq_thread, IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-+			BMA150_DRIVER, bma150);
-+		if (ret < 0) {
-+			dev_err(&bma150->client->dev,
-+				"irq request failed %d, ret %d\n",
-+				bma150->client->irq, ret);
-+			goto error_irq;
-+		}
-+	} else {
-+		ret = input_register_polled_device(ipoll_dev);
-+		if (ret < 0) {
-+			input_free_polled_device(ipoll_dev);
-+			return ret;
-+		}
-+		bma150->input_polled = ipoll_dev;
-+	}
-+	bma150->input = idev;
-+	return ret;
-+
-+error_irq:
-+	bma150_free_input_device(bma150);
-+	return ret;
-+}
-+
-+static int __devinit bma150_probe(struct i2c_client *client,
-+				  const struct i2c_device_id *id)
-+{
-+	struct bma150_cfg *cfg;
-+	struct bma150_data *bma150;
-+	struct bma150_platform_data *pdata;
-+	int ret;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(&client->dev, "i2c_check_functionality error\n");
-+		return -EIO;
-+	}
-+
-+	ret = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
-+	if (ret != BMA150_CHIP_ID) {
-+		dev_err(&client->dev, "BMA150 chip id error: %d\n", ret);
-+		return -EINVAL;
-+	}
-+
-+	bma150 = kzalloc(sizeof(struct bma150_data), GFP_KERNEL);
-+	if (!bma150)
-+		return -ENOMEM;
-+
-+	i2c_set_clientdata(client, bma150);
-+	bma150->client = client;
-+
-+	pdata = client->dev.platform_data;
-+	if (pdata) {
-+		if (pdata->irq_gpio_cfg && (pdata->irq_gpio_cfg() < 0)) {
-+			dev_err(&client->dev,
-+				"IRQ GPIO conf. error %d, ret %d\n",
-+				client->irq, ret);
-+			goto kfree_exit;
-+		}
-+		cfg = &pdata->cfg;
-+	} else {
-+		cfg = &default_cfg;
-+	}
-+	ret = bma150_initialize(client, cfg);
-+	if (ret < 0)
-+		goto kfree_exit;
-+
-+	ret = bma150_setup_input_device(bma150);
-+	if (ret < 0)
-+		goto kfree_exit;
-+
-+	dev_info(&client->dev, "Registered BMA150 I2C driver\n");
-+	return 0;
-+
-+kfree_exit:
-+	kfree(bma150);
-+	return ret;
-+}
-+
-+#if defined(CONFIG_PM) || defined(CONFIG_PM_RUNTIME)
-+static int bma150_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	return bma150_set_mode(client, BMA150_MODE_SLEEP);
-+}
-+
-+static int bma150_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	return bma150_set_mode(client, BMA150_MODE_NORMAL);
-+}
-+#endif
-+
-+static int __devexit bma150_remove(struct i2c_client *client)
-+{
-+	struct bma150_data *bma150 = i2c_get_clientdata(client);
-+
-+	pm_runtime_disable(&bma150->client->dev);
-+	bma150_free_input_device(bma150);
-+	kfree(bma150);
-+	return 0;
-+}
-+
-+static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
-+
-+static const struct i2c_device_id bma150_id[] = {
-+	{ "bma150", 0 },
-+	{ "smb380", 0 },
-+	{ "bma023", 0 },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, bma150_id);
-+
-+static struct i2c_driver bma150_driver = {
-+	.driver = {
-+		.owner	= THIS_MODULE,
-+		.name	= BMA150_DRIVER,
-+		.pm	= &bma150_pm,
-+	},
-+	.class          = I2C_CLASS_HWMON,
-+	.id_table	= bma150_id,
-+	.probe		= bma150_probe,
-+	.remove		= __devexit_p(bma150_remove),
-+};
-+
-+static int __init BMA150_init(void)
-+{
-+	return i2c_add_driver(&bma150_driver);
-+}
-+
-+static void __exit BMA150_exit(void)
-+{
-+	i2c_del_driver(&bma150_driver);
-+}
-+
-+MODULE_AUTHOR("Albert Zhang <xu.zhang@bosch-sensortec.com>");
-+MODULE_DESCRIPTION("BMA150 driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(BMA150_init);
-+module_exit(BMA150_exit);
-+
-diff --git a/include/linux/bma150.h b/include/linux/bma150.h
-new file mode 100644
-index 0000000..7a8bbce
---- /dev/null
-+++ b/include/linux/bma150.h
-@@ -0,0 +1,47 @@
-+/*
-+ * Copyright (c) 2011 Bosch Sensortec GmbH
-+ * Copyright (c) 2011 Unixphere
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef _BMA150_H_
-+#define _BMA150_H_
-+
-+#define BMA150_DRIVER		"bma150"
-+
-+struct bma150_cfg {
-+	bool any_motion_int;		/* Set to enable any-motion interrupt */
-+	bool hg_int;			/* Set to enable high-G interrupt */
-+	bool lg_int;			/* Set to enable low-G interrupt */
-+	unsigned char any_motion_dur;	/* Any-motion duration */
-+	unsigned char any_motion_thres;	/* Any-motion threshold */
-+	unsigned char hg_hyst;		/* High-G hysterisis */
-+	unsigned char hg_dur;		/* High-G duration */
-+	unsigned char hg_thres;		/* High-G threshold */
-+	unsigned char lg_hyst;		/* Low-G hysterisis */
-+	unsigned char lg_dur;		/* Low-G duration */
-+	unsigned char lg_thres;		/* Low-G threshold */
-+	unsigned char range;		/* BMA0150_RANGE_xxx (in G) */
-+	unsigned char bandwidth;	/* BMA0150_BW_xxx (in Hz) */
-+};
-+
-+struct bma150_platform_data {
-+	struct bma150_cfg cfg;
-+	int (*irq_gpio_cfg)(void);
-+};
-+
-+#endif /* _BMA150_H_ */
-+
--- 
-1.7.3.4
+Hmmm... you're right. I was completely mistaken here. This changes some
+of my thinking about how to handle these devices.
 
+> The image sensor does not work that way.
+> As you add new fingers, the trackpad will, under certain conditions,
+> switch to reporting the locations of these new fingers.
+> Changing track_id is how we report this to userspace.
+> 
+>>
+>>> Would you prefer an implementation that continued to report count (via
+>>> BTN_TOUCH*) correctly, but dropped down to 0 or 1 MT-B slots when for
+>>> these cases where it could not determine the correct position or track_id
+>>> to report?
+>>
+>> That may be doable, but I would prefer to just assume that tracking ids
+>> are not valid when (tracked touches > reported touches).
+> 
+> Userspace is free to make this assumption, of course, but, in fact,
+> the image sensor trackpad actually does a pretty good job of tracking
+> the fingers - it just has serious issues reporting them!
+> Since a track_id change is how userspace is told that the identity of
+> the reported finger is changing, if the track_id of a finger position
+> datum is unknowable, I'd rather just discard it in the kernel than
+> report it to userspace with the wrong track_id.
+> Otherwise, the heuristics used in the userspace finger tracking
+> algorithms would need to be overly aggressively tuned to handle this
+> known error cases:
+>   2->3 and 3->2 finger transitions look like 2nd finger motion,
+> instead of reported finger changes.
+> 
+>>
+>>> It seems like it would be more work for userspace to handle this new way
+>>> than the simulated number-of-touch transitions, where the transient
+>>> states are all normal valid states.
+>>
+>> This harkens back to my earlier statements where I said this new
+>> Synaptics protocol is worse than the previous one :).
+>>
+>> I agree that the implementation you gave here might be trickier for
+>> userspace, so I'd rather table it unless you feel that the "tracking ids
+>> are meaningless!" solution won't work. If you think there are problems
+>> with that approach, we can re-evaluate.
+>>
+>> Thanks!
+>>
+>> -- Chase
+> 
+> Yes, I feel there are problems with this approach, as I tried to explain above.
+> Can you explain why you 'continuation gestures' can't handle 1->2->3
+> finger transitions looking like 1->2->1->3, and 3->2->3 looking like
+> 3->2->0->3?
+> 
+> I think the only real point left to decide is what BTN_* events should
+> signify during these rare transition states:
+>   (a) the actually number of fingers on the pad,
+>   (b) the number of fingers being reported via the slots
+> 
+> The current patchset does (a).
+> We could do (b), if that would get these patches accepted sooner :)
+
+I was thinking that the current patchset does (b). I think (a) is
+better, and if it really works that way then I'm fine with it. It's hard
+for me to keep track of the flow of the logic across the patches :).
+
+That said, merging this patchset as is effectively means that the number
+of slots is completely decoupled from the number of touches on the
+device. Previously, one could say that the number of touches on the
+device was equal to the number of open slots or more if all slots were
+open. With this approach, we could have 0 slots open during a transition
+when there are still touches down.
+
+While the distinction makes sense for these synaptics devices, I don't
+want the semantics to hold for full multitouch devices. Otherwise, we
+would have to add many more BTN_*TAPs. If we go this route, we must have
+a way to tell userspace that this is a special device where the number
+of active touches can only be determined from BTN_*TAP. Thus, we would
+need a property for this exception to normal behavior.
+
+(PS: As I've thought more about it, I don't think we need the property I
+was advocating for before. That property was for denoting that the
+device tracks more than it reports. If we're going to get this complex
+in the protocol, there's not much you can do with bitmask properties to
+denote every specific special case.)
+
+-- Chase

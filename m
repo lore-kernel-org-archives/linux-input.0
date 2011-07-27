@@ -1,50 +1,97 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 9/9 v2] Input: synaptics - process finger (<=5) transitions
-Date: Tue, 26 Jul 2011 16:17:37 -0700
-Message-ID: <4E2F4B11.3030402@canonical.com>
-References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org> <1311169146-20066-10-git-send-email-djkurtz@chromium.org> <4E2A1D9A.2090704@canonical.com> <CAGS+omABdrRjZ0nsajAB3WRj2WASUYKMfAaPeaOWuhUfLUFMeQ@mail.gmail.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - Report pressure information from
+ the driver
+Date: Wed, 27 Jul 2011 08:48:18 +0800
+Message-ID: <4E2F6052.4090101@cn.fujitsu.com>
+References: <1311721553-17241-1-git-send-email-miletus@chromium.org>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:39586 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754119Ab1GZXRm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jul 2011 19:17:42 -0400
-In-Reply-To: <CAGS+omABdrRjZ0nsajAB3WRj2WASUYKMfAaPeaOWuhUfLUFMeQ@mail.gmail.com>
+Received: from cn.fujitsu.com ([222.73.24.84]:61369 "EHLO song.cn.fujitsu.com"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1751567Ab1G0AtS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jul 2011 20:49:18 -0400
+In-Reply-To: <1311721553-17241-1-git-send-email-miletus@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Yufeng Shen <miletus@chromium.org>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Chris Leech <christopher.leech@linux.intel.com>, linux-kernel@vger.kernel.org
 
-On 07/22/2011 09:11 PM, Daniel Kurtz wrote:
-> On Sat, Jul 23, 2011 at 9:02 AM, Chase Douglas
-> <chase.douglas@canonical.com> wrote:
->>
->> On 07/20/2011 06:39 AM, djkurtz@chromium.org wrote:
->>> From: Daniel Kurtz <djkurtz@chromium.org>
->>>
->>> Synaptics image sensor touchpads track up to 5 fingers, but only report 2.
->>> They use a special "TYPE=2" (AGM-CONTACT) packet type that reports
->>> the number of tracked fingers and which finger is reported in the SGM
->>> and AGM packets.
->>>
->>> With this new packet type, it is possible to tell userspace when 4 or 5
->>> fingers are touching.
->>
->> Maybe I'm blind, but I don't see where the QUADTAP and QUINTAP values
->> are set in the events. I see where the bits are set during
->> initialization, but not during use.
-> 
-> It's subtle.
-> The firmware actually report 4/5 in the AGM-CONTACT packet, which the
-> agm packet parser sets directly in mt_state->count.
-> This is then reported to userspace when synaptics_report_mt() calls
-> input_mt_report_finger_count(dev, mt_state->count), which now supports
-> QUINTTAP (see patch #8).
+On 07/27/2011 07:05 AM, Yufeng Shen wrote:
+> Atmel mxt1386 touch controller has the touch pressure information but
+> the current driver atmel_mxt_ts does not expose it to the user space.
+> This patch makes the driver report the touch pressure information to
+> user space.
+>
+> Change-Id: Ie0e4683a3cd5ec79222f7682b0ddc24f909af543
+>
+> ---
+>   drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++++++
+>   1 files changed, 8 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index ae00604..7cedb06 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -244,6 +244,7 @@ struct mxt_finger {
+>   	int x;
+>   	int y;
+>   	int area;
+> +    int pressure;
+Spaces you are introducing.
+>   };
+>
+>   /* Each client has this additional data */
+> @@ -536,6 +537,8 @@ static void mxt_input_report(struct mxt_data *data, int single_id)
+>   					finger[id].x);
+>   			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+>   					finger[id].y);
+> +			input_report_abs(input_dev, ABS_MT_PRESSURE,
+> +					finger[id].pressure);
+>   		} else {
+>   			finger[id].status = 0;
+>   		}
+> @@ -560,6 +563,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+>   	int x;
+>   	int y;
+>   	int area;
+> +    int pressure;
+same
+>
+>   	/* Check the touch is present on the screen */
+>   	if (!(status&  MXT_DETECT)) {
+> @@ -584,6 +588,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+>   		y = y>>  2;
+>
+>   	area = message->message[4];
+> +    pressure = message->message[5];
+same
+>
+>   	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+>   		status&  MXT_MOVE ? "moved" : "pressed",
+> @@ -594,6 +599,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+>   	finger[id].x = x;
+>   	finger[id].y = y;
+>   	finger[id].area = area;
+> +    finger[id].pressure = pressure;
+same
+>
+>   	mxt_input_report(data, id);
+>   }
+> @@ -1125,6 +1131,8 @@ static int __devinit mxt_probe(struct i2c_client *client,
+>   			     0, data->max_x, 0, 0);
+>   	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+>   			     0, data->max_y, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_MT_PRESSURE,
+> +			     0, 255, 0, 0);
+>
+>   	input_set_drvdata(input_dev, data);
+>   	i2c_set_clientdata(client, data);
+So, please indent with tabs instead of spaces.
 
-Ahh, thanks! Conditional upon getting the previous patches merged in
-some fashion:
-
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
+-- 
+Thanks
+Best Regards
+Wanlong Gao

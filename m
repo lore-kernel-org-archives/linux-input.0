@@ -1,62 +1,362 @@
 From: Daniel Drake <dsd@laptop.org>
-Subject: Re: [linux-pm] [PATCH v3 1/2] Input: enable i8042-level wakeup control
-Date: Thu, 28 Jul 2011 16:21:08 +0100
-Message-ID: <CAGq3pz6J2pma1TxcqUreQ-qi37Tk4VU15uAvH1=dwyAAvxAPLg@mail.gmail.com>
-References: <CAGq3pz6vr2gOq91Cz6KByhF4vdWEZqOOWECZhOCVD38kcyuEFQ@mail.gmail.com>
-	<Pine.LNX.4.44L0.1107281103180.1990-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Subject: [PATCH v3 1/2] Input: enable i8042-level wakeup control
+Date: Thu, 28 Jul 2011 15:31:21 +0100 (BST)
+Message-ID: <20110728143121.E57469D401C__14550.9172617041$1311866507$gmane$org@zog.reactivated.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:33731 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754563Ab1G1PVJ convert rfc822-to-8bit (ORCPT
+Received: from queueout02-winn.ispmail.ntl.com ([81.103.221.56]:44953 "EHLO
+	queueout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753698Ab1G1PVh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 11:21:09 -0400
-Received: by fxh19 with SMTP id 19so1361624fxh.19
-        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 08:21:08 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.44L0.1107281103180.1990-100000@iolanthe.rowland.org>
+	Thu, 28 Jul 2011 11:21:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: dtor@mail.ru, dmitry.torokhov@gmail.com, linux-pm@lists.linux-foundation.org, dilinger@queued.net, linux-input@vger.kernel.org
+To: dtor@mail.ru, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, rjw@sisk.pl, dilinger@queued.net
 
-On 28 July 2011 16:08, Alan Stern <stern@rowland.harvard.edu> wrote:
-> Aren't there? =A0I have no idea. =A0But if input devices are never
-> wakeup-capable, why do you name your function "input_may_wakeup()"?
+The OLPC XO laptop is able to use the PS/2 controller as a wakeup source.
+When used as a wakeup source, the key press/mouse motion must not be lost.
 
-I guess i8042_may_wakeup() would be a better name for it. In this
-case, the only device in the hierarchy (i8042 -> serio -> input) that
-is marked wakeup capable is the i8042 device (and only via my
-patches). I'd welcome a better design.
+Add infrastructure to allow controllers to be marked as wakeup-capable,
+and avoid doing power control/reset on the i8042/serio/input devices when
+running in this mode.
 
-> I'm using a normal PC with PS/2 mouse and keyboard. =A0It is set up w=
-ith
-> the keyboard as a wakeup source but not the mouse. =A0Of course, this
-> uses ACPI, which I assume isn't present on OLPC.
+Signed-off-by: Daniel Drake <dsd@laptop.org>
+---
+ drivers/input/input.c                 |   23 +++++++++++++-
+ drivers/input/serio/i8042-io.h        |    4 ++
+ drivers/input/serio/i8042-ip22io.h    |    4 ++
+ drivers/input/serio/i8042-jazzio.h    |    4 ++
+ drivers/input/serio/i8042-ppcio.h     |    4 ++
+ drivers/input/serio/i8042-snirm.h     |    4 ++
+ drivers/input/serio/i8042-sparcio.h   |    4 ++
+ drivers/input/serio/i8042-x86ia64io.h |    4 ++
+ drivers/input/serio/i8042.c           |   54 ++++++++++++++++++++++++++++++--
+ drivers/input/serio/serio.c           |   28 ++++++++++++++--
+ 10 files changed, 124 insertions(+), 9 deletions(-)
 
-It does depend on how the system is designed, yes. I suspect that the
-device that is actually marked as wakeup capable on your setup is not
-an input device, but rather another part of the /sys tree (perhaps
-part of the ACPI tree?). Also, I suspect that if your system is woken
-up by the keyboard, it loses the keypress which was used to wake it
-up.
+On last submission, Dmitry was worried about this functionality not working
+at all on other platforms. I agree, it will only work where the hardware
+has been specifically designed with this consideration. v2 of the patch
+therefore removes the module param option, meaning that it will only be
+activated on platforms that explicitly enable it at the code level.
 
-I'm definitely open to better ways of doing this. The key consideration=
-s are:
-1. We only have control over wakeups at the i8042 level; i.e. we
-cannot ask for keyboard wakeups but not mouse.
-2. Our keyboard and mouse hardware is guaranteed to be powered
-throughout suspend
-3. The key press or mouse movement or click that woke the system must
-not be lost during resume. This means that all 3 layers (i8042, serio,
-input) must not reset or really do anything with the device during
-suspend/resume.
+v2 also performs a more extensive job. We avoid resetting the device
+at the input_device level during suspend/resume. We also disable i8042
+interrupts when going into suspend, to avoid races handling interrupts
+in the wrong order during resume.
 
-Thanks,
-Daniel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+v3 includes a cleanup suggested by Rafael, and explains the corner case
+that we have to handle in the input layer.
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index da38d97..7f18a8b 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1584,10 +1584,30 @@ void input_reset_device(struct input_dev *dev)
+ EXPORT_SYMBOL(input_reset_device);
+ 
+ #ifdef CONFIG_PM
++static bool input_may_wakeup(struct device *dev)
++{
++	/*
++	 * Handle an i8042 wakeup corner case. The kernel sees the i8042 device
++	 * and its grandchild input device as independent devices on different
++	 * buses, so each one has its own suspend/resume implementation called
++	 * from the PM layer.
++	 *
++	 * In this particular case, the wakeup enable setting on the
++	 * grandparent i8042 device must take effect here, indicating that the
++	 * input device is powered up and should not be touched during
++	 * suspend/resume.
++	 */
++	return dev->parent && dev->parent->parent
++		&& device_may_wakeup(dev->parent->parent);
++}
++
+ static int input_dev_suspend(struct device *dev)
+ {
+ 	struct input_dev *input_dev = to_input_dev(dev);
+ 
++	if (input_may_wakeup(dev))
++		return 0;
++
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
+@@ -1602,7 +1622,8 @@ static int input_dev_resume(struct device *dev)
+ {
+ 	struct input_dev *input_dev = to_input_dev(dev);
+ 
+-	input_reset_device(input_dev);
++	if (!input_may_wakeup(dev))
++		input_reset_device(input_dev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
+index 5d48bb6..296633c 100644
+--- a/drivers/input/serio/i8042-io.h
++++ b/drivers/input/serio/i8042-io.h
+@@ -92,4 +92,8 @@ static inline void i8042_platform_exit(void)
+ #endif
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_IO_H */
+diff --git a/drivers/input/serio/i8042-ip22io.h b/drivers/input/serio/i8042-ip22io.h
+index ee1ad27..c5b76a4 100644
+--- a/drivers/input/serio/i8042-ip22io.h
++++ b/drivers/input/serio/i8042-ip22io.h
+@@ -73,4 +73,8 @@ static inline void i8042_platform_exit(void)
+ #endif
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_IP22_H */
+diff --git a/drivers/input/serio/i8042-jazzio.h b/drivers/input/serio/i8042-jazzio.h
+index 13fd710..a11913a 100644
+--- a/drivers/input/serio/i8042-jazzio.h
++++ b/drivers/input/serio/i8042-jazzio.h
+@@ -66,4 +66,8 @@ static inline void i8042_platform_exit(void)
+ #endif
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_JAZZ_H */
+diff --git a/drivers/input/serio/i8042-ppcio.h b/drivers/input/serio/i8042-ppcio.h
+index f708c75..c9f4292 100644
+--- a/drivers/input/serio/i8042-ppcio.h
++++ b/drivers/input/serio/i8042-ppcio.h
+@@ -52,6 +52,10 @@ static inline void i8042_platform_exit(void)
+ {
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #else
+ 
+ #include "i8042-io.h"
+diff --git a/drivers/input/serio/i8042-snirm.h b/drivers/input/serio/i8042-snirm.h
+index 409a934..96d034f 100644
+--- a/drivers/input/serio/i8042-snirm.h
++++ b/drivers/input/serio/i8042-snirm.h
+@@ -72,4 +72,8 @@ static inline void i8042_platform_exit(void)
+ 
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_SNIRM_H */
+diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
+index 395a9af..e5381d3 100644
+--- a/drivers/input/serio/i8042-sparcio.h
++++ b/drivers/input/serio/i8042-sparcio.h
+@@ -154,4 +154,8 @@ static inline void i8042_platform_exit(void)
+ }
+ #endif /* !CONFIG_PCI */
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_SPARCIO_H */
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index bb9f5d3..76b2e58 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -875,6 +875,10 @@ static inline int i8042_pnp_init(void) { return 0; }
+ static inline void i8042_pnp_exit(void) { }
+ #endif
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ static int __init i8042_platform_init(void)
+ {
+ 	int retval;
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index d37a48e..e944667 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -87,6 +87,7 @@ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
+ #endif
+ 
+ static bool i8042_bypass_aux_irq_test;
++static bool i8042_enable_wakeup;
+ 
+ #include "i8042.h"
+ 
+@@ -1082,10 +1083,17 @@ static void i8042_dritek_enable(void)
+  * before suspending.
+  */
+ 
+-static int i8042_controller_resume(bool force_reset)
++static int i8042_controller_resume(bool force_reset, bool soft_resume)
+ {
+ 	int error;
+ 
++	/*
++	 * If device is selected as a wakeup source, it was not powered down
++	 * or reset during suspend, so we have very little to do.
++	 */
++	if (soft_resume)
++		goto soft;
++
+ 	error = i8042_controller_check();
+ 	if (error)
+ 		return error;
+@@ -1129,6 +1137,7 @@ static int i8042_controller_resume(bool force_reset)
+ 	if (i8042_ports[I8042_KBD_PORT_NO].serio)
+ 		i8042_enable_kbd_port();
+ 
++soft:
+ 	i8042_interrupt(0, NULL);
+ 
+ 	return 0;
+@@ -1146,14 +1155,48 @@ static int i8042_pm_reset(struct device *dev)
+ 	return 0;
+ }
+ 
++static int i8042_pm_suspend(struct device *dev)
++{
++	i8042_platform_suspend(dev, device_may_wakeup(dev));
++
++	/*
++	 * If device is selected as a wakeup source, don't powerdown or reset
++	 * during suspend. Just disable IRQs to ensure race-free resume.
++	 */
++	if (device_may_wakeup(dev)) {
++		if (i8042_kbd_irq_registered)
++			disable_irq(I8042_KBD_IRQ);
++		if (i8042_aux_irq_registered)
++			disable_irq(I8042_AUX_IRQ);
++		return 0;
++	}
++
++	return i8042_pm_reset(dev);
++}
++
+ static int i8042_pm_resume(struct device *dev)
+ {
+ 	/*
+ 	 * On resume from S2R we always try to reset the controller
+ 	 * to bring it in a sane state. (In case of S2D we expect
+ 	 * BIOS to reset the controller for us.)
++	 * This function call will also handle any pending keypress event
++	 * (perhaps the system wakeup reason)
++	 */
++	int r = i8042_controller_resume(true, device_may_wakeup(dev));
++
++	/* If the device was left running during suspend, enable IRQs again
++	 * now. Must be done last to avoid races with interrupt processing
++	 * inside i8042_controller_resume.
+ 	 */
+-	return i8042_controller_resume(true);
++	if (device_may_wakeup(dev)) {
++		if (i8042_kbd_irq_registered)
++			enable_irq(I8042_KBD_IRQ);
++		if (i8042_aux_irq_registered)
++			enable_irq(I8042_AUX_IRQ);
++	}
++
++	return r;
+ }
+ 
+ static int i8042_pm_thaw(struct device *dev)
+@@ -1165,11 +1208,11 @@ static int i8042_pm_thaw(struct device *dev)
+ 
+ static int i8042_pm_restore(struct device *dev)
+ {
+-	return i8042_controller_resume(false);
++	return i8042_controller_resume(false, false);
+ }
+ 
+ static const struct dev_pm_ops i8042_pm_ops = {
+-	.suspend	= i8042_pm_reset,
++	.suspend	= i8042_pm_suspend,
+ 	.resume		= i8042_pm_resume,
+ 	.thaw		= i8042_pm_thaw,
+ 	.poweroff	= i8042_pm_reset,
+@@ -1403,6 +1446,9 @@ static int __init i8042_probe(struct platform_device *dev)
+ 		i8042_dritek_enable();
+ #endif
+ 
++	if (i8042_enable_wakeup)
++		device_set_wakeup_capable(&dev->dev, true);
++
+ 	if (!i8042_noaux) {
+ 		error = i8042_setup_aux();
+ 		if (error && error != -ENODEV && error != -EBUSY)
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index ba70058..3d5793a 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -931,7 +931,7 @@ static int serio_uevent(struct device *dev, struct kobj_uevent_env *env)
+ #endif /* CONFIG_HOTPLUG */
+ 
+ #ifdef CONFIG_PM
+-static int serio_suspend(struct device *dev)
++static int serio_poweroff(struct device *dev)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 
+@@ -940,7 +940,17 @@ static int serio_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int serio_resume(struct device *dev)
++static int serio_suspend(struct device *dev)
++{
++	/* If parent controller is configured as a wakeup source, don't
++	 * power off. */
++	if (device_may_wakeup(dev->parent))
++		return 0;
++
++	return serio_poweroff(dev);
++}
++
++static int serio_restore(struct device *dev)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 
+@@ -953,11 +963,21 @@ static int serio_resume(struct device *dev)
+ 	return 0;
+ }
+ 
++static int serio_resume(struct device *dev)
++{
++	/* If parent controller is configured as a wakeup source, we didn't
++	 * power off during suspend, and hence have nothing to do. */
++	if (device_may_wakeup(dev->parent))
++		return 0;
++
++	return serio_restore(dev);
++}
++
+ static const struct dev_pm_ops serio_pm_ops = {
+ 	.suspend	= serio_suspend,
+ 	.resume		= serio_resume,
+-	.poweroff	= serio_suspend,
+-	.restore	= serio_resume,
++	.poweroff	= serio_poweroff,
++	.restore	= serio_restore,
+ };
+ #endif /* CONFIG_PM */
+ 
+-- 
+1.7.6
+

@@ -1,69 +1,73 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: Re: [linux-pm] [PATCH v3 1/2] Input: enable i8042-level wakeup control
-Date: Thu, 28 Jul 2011 17:01:11 +0100
-Message-ID: <CAGq3pz53NYr+SzVK8rxFSr_DFA7Rm4=FERVktBFpqZ5=D4AxAQ@mail.gmail.com>
-References: <CAGq3pz6J2pma1TxcqUreQ-qi37Tk4VU15uAvH1=dwyAAvxAPLg@mail.gmail.com>
-	<Pine.LNX.4.44L0.1107281136360.1990-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH 00/16] Extended wiimote support
+Date: Thu, 28 Jul 2011 18:08:20 +0200
+Message-ID: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:44838 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:62287 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754977Ab1G1QBN convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1754308Ab1G1QJD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 12:01:13 -0400
-Received: by fxh19 with SMTP id 19so1393681fxh.19
-        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 09:01:12 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.44L0.1107281136360.1990-100000@iolanthe.rowland.org>
+	Thu, 28 Jul 2011 12:09:03 -0400
+Received: by fxh19 with SMTP id 19so1400084fxh.19
+        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 09:09:02 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: dtor@mail.ru, dmitry.torokhov@gmail.com, linux-pm@lists.linux-foundation.org, dilinger@queued.net, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, padovan@profusion.mobi, dh.herrmann@googlemail.com
 
-On 28 July 2011 16:45, Alan Stern <stern@rowland.harvard.edu> wrote:
-> My experience in this area is _extremely_ limited. =A0Take a look at
-> commits b14e033e17d0ea0ba (PNPACPI: Add support for remote wakeup) an=
-d
-> 3e6e15a862a0bc201 (Input: enable remote wakeup for PNP i8042 keyboard
-> ports).
+Hi
 
-Thanks for the pointers.
+This patch series adds support for extended wiimote features:
+ - force-feedback / rumble
+ - accelerometer
+ - IR cam input for up to 4 trackable items
+ - battery charge level
+ - raw eeprom access
 
-Indeed, in b14e033e17d0ea0ba you are enabling wakeup on pnp (ACPI)
-devices, not the actual input device. In the sysfs tree, the pnp
-device is completely disconnected from the device hierarchy that
-includes the actual input device (the one controlled in
-drivers/input/input.c).
+Most of the patches just extend the current driver with trivial features. The
+only new interface is the "synchronous requests" API which allows to lock the
+stream for a series of requests.
 
-By this I mean that with your patch, in order to enable/disable
-keyboard wakeups on my non-OLPC laptop I need to:
-echo -n disabled > "/sys/bus/pnp/drivers/i8042 kbd/00:06/power/wakeup"
+For userspace tools see:
+  http://github.com/dvdhrm/xwiimote
+tools/xwiishow.c visualizes all wiimote input and is great to test the driver.
 
-However, the input device that is responsible for my keyboard is
-/sys/devices/platform/i8042/serio0/input/input3 - and there is no
-linkage between that and the pnp node.
+The only missing feature is extension support which I am currently working on
+and which is available in my xwiimote_kernel repository. So after this series I
+will submit one last series of patches for extension support.
 
-If it would be more appropriate, I could also create a disconnected
-and distant /sys node for OLPC's keyboard/mouse wakeup capability,
-matching the way that ACPI works. But I thought it would be better to
-put the capability directly in the i8042/input device hierarchy.
+It would be great to get some review and feedback. The current bluez repo also
+has a wiimote plugin so pairing should be as simple as with other devices now.
+The next bluez release will bring it to the distros, eventually.
 
-(and then we have the separate problem with i8042 input devices being
-unconditionally reset in 3 layers, losing the event that woke the
-system - this would be harder to solve if the wakeup-capable node was
-distant/unrelated)
+I've set the KernelRelease of the sysfs docs to 3.2 so there is no time pressure
+for 3.1.
 
-> At this point I have reached my level of incompetence... so I'll shut
-> up now. =A0:-)
+Regards
+David
 
-Cool! I finally found something that you don't know everything about!
+David Herrmann (16):
+  HID: wiimote: Support rumble device
+  HID: wiimote: Add sysfs rumble attribute
+  HID: wiimote: Add drm request
+  HID: wiimote: Add status and return request handlers
+  HID: wiimote: Reduce input syncs
+  HID: wiimote: Enable accelerometer on request
+  HID: wiimote: Parse accelerometer data
+  HID: wiimote: Parse IR input and report to userspace
+  HID: wiimote: Add missing extension DRM handlers
+  HID: wiimote: Add register/eeprom memory support
+  HID: wiimote: Helper functions for synchronous requests
+  HID: wiimote: Add write-register helpers
+  HID: wiimote: Add IR initializer
+  HID: wiimote: Allow userspace to control IR cam
+  HID: wiimote: Read wiimote battery charge level
+  HID: wiimote: Allow EEPROM debugfs access
 
-Thanks for the help! I'm also new to this area and welcome some kind
-of verification/criticism of the design I have come up with.
-Daniel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ Documentation/ABI/testing/sysfs-driver-hid-wiimote |   34 +
+ drivers/hid/hid-wiimote.c                          |  965 +++++++++++++++++++-
+ 2 files changed, 993 insertions(+), 6 deletions(-)
+
+-- 
+1.7.6
+

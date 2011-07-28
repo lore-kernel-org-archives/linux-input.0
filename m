@@ -1,158 +1,182 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 14/16] HID: wiimote: Allow userspace to control IR cam
-Date: Thu, 28 Jul 2011 18:08:34 +0200
-Message-ID: <1311869316-17128-15-git-send-email-dh.herrmann@googlemail.com>
-References: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 7/9 v2] Input: synaptics - improved 2->3 finger transition
+ handling
+Date: Thu, 28 Jul 2011 10:31:16 -0700
+Message-ID: <4E319CE4.3060906@canonical.com>
+References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org> <1311169146-20066-8-git-send-email-djkurtz@chromium.org> <4E2A1ECD.3030302@canonical.com> <CAGS+omBCd=e0ACxxTwns8HVNitVOYF-xFrkVmhreOmHQTq_10A@mail.gmail.com> <4E2F4A66.1020207@canonical.com> <CAGS+omAwrXMC=U2Hx7EoJzUM+=PYyR4di0tDhq0oVnR_AAdEhQ@mail.gmail.com> <4E307F8A.6090707@canonical.com> <CAGS+omBr3adfENg5UDnbfPEFPg+0myKHFWb5qCSTt6wjVtvyeA@mail.gmail.com> <4E30C46F.2030903@canonical.com> <CAGS+omBOpzHERGuiNq+OfC3ubJsuyy0kp-5Vw49G=f4m6GTRxA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:62287 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755154Ab1G1QJX (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:48003 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755693Ab1G1RbZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 12:09:23 -0400
-Received: by mail-fx0-f46.google.com with SMTP id 19so1400084fxh.19
-        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 09:09:22 -0700 (PDT)
-In-Reply-To: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com>
+	Thu, 28 Jul 2011 13:31:25 -0400
+In-Reply-To: <CAGS+omBOpzHERGuiNq+OfC3ubJsuyy0kp-5Vw49G=f4m6GTRxA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, padovan@profusion.mobi, dh.herrmann@googlemail.com
+To: Daniel Kurtz <djkurtz@chromium.org>, dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-This adds a new sysfs attribute to wiimotes which allows userspace to enable or
-disable the IR cam and set it into the desired mode.
+On 07/28/2011 06:56 AM, Daniel Kurtz wrote:
+> On Thu, Jul 28, 2011 at 10:07 AM, Chase Douglas
+> <chase.douglas@canonical.com> wrote:
+>> On 07/27/2011 06:00 PM, Daniel Kurtz wrote:
+>>> On Thu, Jul 28, 2011 at 5:13 AM, Chase Douglas
+>>> <chase.douglas@canonical.com> wrote:
+>>> [...]
+>>>>>>
+>>>>>>> Would you prefer an implementation that continued to report count (via
+>>>>>>> BTN_TOUCH*) correctly, but dropped down to 0 or 1 MT-B slots when for
+>>>>>>> these cases where it could not determine the correct position or track_id
+>>>>>>> to report?
+>>>>>>
+>>>>>> That may be doable, but I would prefer to just assume that tracking ids
+>>>>>> are not valid when (tracked touches > reported touches).
+>>>>>
+>>>>> Userspace is free to make this assumption, of course, but, in fact,
+>>>>> the image sensor trackpad actually does a pretty good job of tracking
+>>>>> the fingers - it just has serious issues reporting them!
+>>>>> Since a track_id change is how userspace is told that the identity of
+>>>>> the reported finger is changing, if the track_id of a finger position
+>>>>> datum is unknowable, I'd rather just discard it in the kernel than
+>>>>> report it to userspace with the wrong track_id.
+>>>>> Otherwise, the heuristics used in the userspace finger tracking
+>>>>> algorithms would need to be overly aggressively tuned to handle this
+>>>>> known error cases:
+>>>>>   2->3 and 3->2 finger transitions look like 2nd finger motion,
+>>>>> instead of reported finger changes.
+>>>>>
+>>>>>>
+>>>>>>> It seems like it would be more work for userspace to handle this new way
+>>>>>>> than the simulated number-of-touch transitions, where the transient
+>>>>>>> states are all normal valid states.
+>>>>>>
+>>>>>> This harkens back to my earlier statements where I said this new
+>>>>>> Synaptics protocol is worse than the previous one :).
+>>>>>>
+>>>>>> I agree that the implementation you gave here might be trickier for
+>>>>>> userspace, so I'd rather table it unless you feel that the "tracking ids
+>>>>>> are meaningless!" solution won't work. If you think there are problems
+>>>>>> with that approach, we can re-evaluate.
+>>>>>>
+>>>>>> Thanks!
+>>>>>>
+>>>>>> -- Chase
+>>>>>
+>>>>> Yes, I feel there are problems with this approach, as I tried to explain above.
+>>>>> Can you explain why you 'continuation gestures' can't handle 1->2->3
+>>>>> finger transitions looking like 1->2->1->3, and 3->2->3 looking like
+>>>>> 3->2->0->3?
+>>>>>
+>>>>> I think the only real point left to decide is what BTN_* events should
+>>>>> signify during these rare transition states:
+>>>>>   (a) the actually number of fingers on the pad,
+>>>>>   (b) the number of fingers being reported via the slots
+>>>>>
+>>>>> The current patchset does (a).
+>>>>> We could do (b), if that would get these patches accepted sooner :)
+>>>>
+>>>> I was thinking that the current patchset does (b). I think (a) is
+>>>> better, and if it really works that way then I'm fine with it. It's hard
+>>>> for me to keep track of the flow of the logic across the patches :).
+>>>
+>>> Argh, my bad.  You are correct.  Current patchset does (b)!
+>>> It reports the number of active slots, not the number of touches.
+>>>
+>>> In any case, I really don't know why you need (a).  We are talking
+>>> about some degenerate transitions here.  Your userspace driver should
+>>> work just fine with the (b) driver, it just loses some really
+>>> complicated continued gestures for hardware that can't support them.
+>>
+>> To give userspace incorrect information about the number of touches on
+>> the device is always bad. Lets say the degenerate case is when you go
+>> from two touches to three (maybe Synaptics doesn't do this, but someone
+>> else might). When the user performs a three finger tap, we'd see two
+>> touches down, two lifted up, three touches down, three lifted up in
+>> short succession. Userspace is gonna get pretty confused about that :).
+>>
+>> (Please don't make me try to come up with a use case we already have in
+>> Unity that would be broken for Synaptics due to this. I could probably
+>> find one, but it would take quite a bit of thinking. :)
+> 
+> Just to be clear:
+> 
+> Debouncing num-fingers at the start of a tap works just fine.
+> For a 3f-tap, you would see one of:
+>   0->1->2->3
+>   0->2->3
+>   0->3
+> 
+> Not:
+>   0->1->2->0->3
+>   0->2->0->3
+> 
+> You only see 2->0->3 if there had previously been 3 fingers down, and
+> some of those fingers are removed:
+>   0->3->0*->2*->0*->3*
+>   0->3->0*->1*
+> 
+> Where the "*" states are when mt_state_lost = true.
+> So, with method (b), you might see 3->0->2->0 if the release of the
+> other two fingers was really slow (longer than 37.5 ms), or, more
+> likely on a tap, just 3->0.
+> 
+> In any case, I don't think we are making progress arguing (a) vs. (b).
+> Let me implement method (a), and upload for review.
+> I agree that it makes some sense to always accurately report number of
+> touches with the BTN_*, independent of number of slots.
+> 
+> A true MT-B userspace app would always do the right thing with the
+> slots, legacy apps can always do the right thing in legacy mode, and a
+> hybrid app get do 2-touch multitouch & use BTN_* to determine total
+> number of touches.
+> 
+> Was there anything else I should add/change while I'm at it?
 
-Disabling IR saves lots of energy on the wiimote, so it is not enabled by
-default.
+No, I think functionally I would be happy with the new version. I still
+want the property bit :). Dmitry, can you weigh in here? What I remember
+was you were disinclined towards a new property bit, but I'd like to see
+a firm decision taken and the reasoning behind it.
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- Documentation/ABI/testing/sysfs-driver-hid-wiimote |   10 +++
- drivers/hid/hid-wiimote.c                          |   74 ++++++++++++++++++++
- 2 files changed, 84 insertions(+), 0 deletions(-)
+> You mention documentation below, was there something in particular
+> that you'd like to see documented better?  Where?
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-wiimote b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
-index d8ccea8..4ec761d 100644
---- a/Documentation/ABI/testing/sysfs-driver-hid-wiimote
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
-@@ -24,3 +24,13 @@ Contact:	David Herrmann <dh.herrmann@googlemail.com>
- Description:	Writing 1 to this file enables accelerometer data reporting of
- 		the wiimote, 0 disables it. Reading from this file returns the
- 		current value.
-+
-+What:		/sys/bus/hid/drivers/wiimote/<dev>/ir
-+Date:		July 2011
-+KernelVersion:	3.2
-+Contact:	David Herrmann <dh.herrmann@googlemail.com>
-+Description:	Reading this attribute returns the current status of the IR
-+		cam of the wiimote. It can be one of: off, basic, extended or
-+		full.
-+		Writing one of these strings to the file tries to put the IR
-+		cam into the desired state.
-diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index bca46ba..69a555a3 100644
---- a/drivers/hid/hid-wiimote.c
-+++ b/drivers/hid/hid-wiimote.c
-@@ -700,6 +700,75 @@ static ssize_t wiifs_accel_set(struct device *dev,
- static DEVICE_ATTR(accelerometer, S_IRUGO | S_IWUSR, wiifs_accel_show,
- 							wiifs_accel_set);
- 
-+static ssize_t wiifs_ir_show(struct device *dev, struct device_attribute *attr,
-+								char *buf)
-+{
-+	struct wiimote_data *wdata = dev_to_wii(dev);
-+	unsigned long flags;
-+	const char *mode;
-+	__u8 flag;
-+
-+	if (!atomic_read(&wdata->ready))
-+		return -EBUSY;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	flag = wdata->state.flags & WIIPROTO_FLAGS_IR;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	switch (flag) {
-+		case WIIPROTO_FLAG_IR_FULL:
-+			mode = "full";
-+			break;
-+		case WIIPROTO_FLAG_IR_EXT:
-+			mode = "extended";
-+			break;
-+		case WIIPROTO_FLAG_IR_BASIC:
-+			mode = "basic";
-+			break;
-+		default:
-+			mode = "off";
-+			break;
-+	}
-+
-+
-+	return sprintf(buf, "%s\n", mode);
-+}
-+
-+static ssize_t wiifs_ir_set(struct device *dev, struct device_attribute *attr,
-+						const char *buf, size_t count)
-+{
-+	struct wiimote_data *wdata = dev_to_wii(dev);
-+	int ret;
-+	__u8 mode;
-+
-+	if (count == 0)
-+		return -EINVAL;
-+
-+	if (!strncasecmp("basic", buf, 5))
-+		mode = WIIPROTO_FLAG_IR_BASIC;
-+	else if (!strncasecmp("extended", buf, 8))
-+		mode = WIIPROTO_FLAG_IR_EXT;
-+	else if (!strncasecmp("full", buf, 4))
-+		mode = WIIPROTO_FLAG_IR_FULL;
-+	else if (!strncasecmp("off", buf, 3))
-+		mode = 0;
-+	else
-+		return -EINVAL;
-+
-+	if (!atomic_read(&wdata->ready))
-+		return -EBUSY;
-+	/* smp_rmb: Make sure wdata->xy is available when wdata->ready is 1 */
-+	smp_rmb();
-+
-+	ret = wiimote_init_ir(wdata, mode);
-+	if (ret < 0)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(ir, S_IRUGO | S_IWUSR, wiifs_ir_show, wiifs_ir_set);
-+
- static int wiimote_input_event(struct input_dev *dev, unsigned int type,
- 						unsigned int code, int value)
- {
-@@ -1077,6 +1146,9 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 	ret = device_create_file(&hdev->dev, &dev_attr_accelerometer);
- 	if (ret)
- 		goto err;
-+	ret = device_create_file(&hdev->dev, &dev_attr_ir);
-+	if (ret)
-+		goto err;
- 
- 	ret = hid_parse(hdev);
- 	if (ret) {
-@@ -1118,6 +1190,7 @@ err:
- 	device_remove_file(&hdev->dev, &dev_attr_led4);
- 	device_remove_file(&hdev->dev, &dev_attr_rumble);
- 	device_remove_file(&hdev->dev, &dev_attr_accelerometer);
-+	device_remove_file(&hdev->dev, &dev_attr_ir);
- 	wiimote_destroy(wdata);
- 	return ret;
- }
-@@ -1134,6 +1207,7 @@ static void wiimote_hid_remove(struct hid_device *hdev)
- 	device_remove_file(&hdev->dev, &dev_attr_led4);
- 	device_remove_file(&hdev->dev, &dev_attr_rumble);
- 	device_remove_file(&hdev->dev, &dev_attr_accelerometer);
-+	device_remove_file(&hdev->dev, &dev_attr_ir);
- 
- 	hid_hw_stop(hdev);
- 	input_unregister_device(wdata->input);
--- 
-1.7.6
+Documentation of anything that goes against the normal protocol should
+be in Documentation/input/event-codes.txt and/or
+Documentation/input/multi-touch-protocol.txt. The latter seems the most
+appropriate place for this. If you want extra credit you could document
+SEMI_MT as well, I think that slipped through the cracks; this isn't a
+requirement for me, though :).
+
+Thanks!
+
+>>>> That said, merging this patchset as is effectively means that the number
+>>>> of slots is completely decoupled from the number of touches on the
+>>>> device. Previously, one could say that the number of touches on the
+>>>> device was equal to the number of open slots or more if all slots were
+>>>> open. With this approach, we could have 0 slots open during a transition
+>>>> when there are still touches down.
+>>>>
+>>>> While the distinction makes sense for these synaptics devices, I don't
+>>>> want the semantics to hold for full multitouch devices. Otherwise, we
+>>>> would have to add many more BTN_*TAPs. If we go this route, we must have
+>>>> a way to tell userspace that this is a special device where the number
+>>>> of active touches can only be determined from BTN_*TAP. Thus, we would
+>>>> need a property for this exception to normal behavior.
+>>>
+>>> Henrik & Dmitry roughly suggested "do not define a new property; let
+>>> userspace detect max BTN_*TAP > ABS_MT_SLOT.max to indicate that
+>>> BTN_*TAP carries the total number of touches".  I wish they would
+>>> chime in on this patchset...
+>>
+>> I think it sets a really bad precedent to obey the stated protocol in
+>> most cases, but disregard it in others if specific conditions are met,
+>> which are not documented and are not presented in a clear manner to
+>> userspace. At the *very least*, this change would need documentation to
+>> go in at the same time, but I strongly believe a property is merited here.
+>>
+>> -- Chase
+> 
 

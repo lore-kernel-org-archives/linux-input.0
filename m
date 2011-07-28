@@ -1,62 +1,26 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: lm8323: add missing device_remove_file for
- dev_attr_time
-Date: Thu, 28 Jul 2011 17:07:01 +0800
-Message-ID: <1311844021.31725.3.camel@phoenix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: staging: Add Cypress TTSP G3 support
+Date: Thu, 28 Jul 2011 12:27:39 +0200
+Message-ID: <1311848862-24236-1-git-send-email-martinez.javier@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:39987 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754161Ab1G1JHK (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:62037 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754403Ab1G1K2Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 05:07:10 -0400
+	Thu, 28 Jul 2011 06:28:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Felipe Balbi <felipe.balbi@nokia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Kevin McNeely <kev@cypress.com>, devel@linuxdriverproject.org, kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, Steve Kolokowsky <syk@cypress.com>, rydberg@euromail.se, Oleg Drokin <green@linuxhacker.ru>, William Marone <wmarone@gmail.com>
 
-Add missing device_remove_file() for dev_attr_time in lm8323_remove().
-Also calling device_remove_file() in lm8323_probe() error path to
-remove sysfs attribute file.
+This patchset adds support to Cypress (TTSP) touchscreen hardware.
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/keyboard/lm8323.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
+The original author of this code is Kevin McNeely <kev@cypress.com>.
 
-diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
-index ab0acaf..756348a 100644
---- a/drivers/input/keyboard/lm8323.c
-+++ b/drivers/input/keyboard/lm8323.c
-@@ -754,8 +754,11 @@ fail3:
- 	device_remove_file(&client->dev, &dev_attr_disable_kp);
- fail2:
- 	while (--pwm >= 0)
--		if (lm->pwm[pwm].enabled)
-+		if (lm->pwm[pwm].enabled) {
-+			device_remove_file(lm->pwm[pwm].cdev.dev,
-+					   &dev_attr_time);
- 			led_classdev_unregister(&lm->pwm[pwm].cdev);
-+		}
- fail1:
- 	input_free_device(idev);
- 	kfree(lm);
-@@ -775,8 +778,10 @@ static int __devexit lm8323_remove(struct i2c_client *client)
- 	device_remove_file(&lm->client->dev, &dev_attr_disable_kp);
- 
- 	for (i = 0; i < 3; i++)
--		if (lm->pwm[i].enabled)
-+		if (lm->pwm[i].enabled) {
-+			device_remove_file(lm->pwm[i].cdev.dev, &dev_attr_time);
- 			led_classdev_unregister(&lm->pwm[i].cdev);
-+		}
- 
- 	kfree(lm);
- 
--- 
-1.7.4.1
+The patchset is divided in three patchs:
 
+[PATCH 1/3] staging: cyttsp: Add Cypress TTSP G3 Core Driver
+[PATCH 2/3] staging: cyttsp: Add Cypress TTSP G3 I2C Device Driver
+[PATCH 3/3] staging: cyttsp: Add Cypress TTSP G3 SPI Device Driver
 
-
+The fist one adds the core support for the TTSP touchscreen and the
+other two adds communications modules for I2C and SPI buses respectively.

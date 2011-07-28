@@ -1,37 +1,70 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH 03/16] HID: wiimote: Add drm request
-Date: Thu, 28 Jul 2011 20:47:14 +0200
-Message-ID: <201107282047.14903.oneukum@suse.de>
-References: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com> <201107282005.40226.oneukum@suse.de> <CANq1E4Qui-84C+rDOSnQKvC+BoKWTnZWXOSH=kYtdE0bPB1yCA@mail.gmail.com>
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Build-a-home-based-business-on-Auto-Pilot
+Date: Thu, 28 Jul 2011 11:42:57 -0700 (PDT)
+Message-ID: <201107281842.p6SIgv8Q006050@mail4.spagack2.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:54918 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754190Ab1G1So1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 14:44:27 -0400
-In-Reply-To: <CANq1E4Qui-84C+rDOSnQKvC+BoKWTnZWXOSH=kYtdE0bPB1yCA@mail.gmail.com>
+Received: from mail4.spagack2.com ([74.122.159.223]:59230 "EHLO
+	mail4.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754731Ab1G1Sog (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jul 2011 14:44:36 -0400
+Received: from mail4.spagack2.com (localhost.mail4.spagack2.com [127.0.0.1])
+	by mail4.spagack2.com (8.13.8/8.12.7) with ESMTP id p6SIgwIn006075
+	for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 11:42:58 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, padovan@profusion.mobi
+To: linux-input@vger.kernel.org
 
-Am Donnerstag, 28. Juli 2011, 20:41:18 schrieb David Herrmann:
-> On Thu, Jul 28, 2011 at 8:05 PM, Oliver Neukum <oneukum@suse.de> wrote:
-> > Am Donnerstag, 28. Juli 2011, 18:08:23 schrieb David Herrmann:
-> >> +static void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
-> >> +{
-> >> +       __u8 cmd[3];
-> >
-> > Are you sure these buffers nned not be safe for DMA?
-> 
-> wiimote_queue() allocates a buffer for every request. This should be
-> fine for DMA then. All wiimote_req_*() functions work the same way.
-> 
 
-Yes, that's safe.
 
-	Regards
-		Oliver
+Hello Everyone,
+
+Discover how average people who have never made a cent in the past
+Are now making $1,000+ every month,=20
+With the Potential of making $50,000 a month
+Just "Plug In"... to Your
+Own Fully Automated=20
+  Turn Key...Global Marketing $ystem
+Receive $500-$3,500 Monthly or MORE
+Not MLM...and
+No Selling...
+No Cold Phone Calling.=20
+Complete plug-in-system!
+
+Check-it-Out!
+
+http://trckrs.com/48184/rc1
+
+It=92s surprisingly cool!
+
+Dan and Noel
+
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

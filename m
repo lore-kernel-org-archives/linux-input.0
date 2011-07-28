@@ -1,224 +1,65 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 7/9 v2] Input: synaptics - improved 2->3 finger transition handling
-Date: Thu, 28 Jul 2011 21:56:25 +0800
-Message-ID: <CAGS+omBOpzHERGuiNq+OfC3ubJsuyy0kp-5Vw49G=f4m6GTRxA@mail.gmail.com>
-References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org>
- <1311169146-20066-8-git-send-email-djkurtz@chromium.org> <4E2A1ECD.3030302@canonical.com>
- <CAGS+omBCd=e0ACxxTwns8HVNitVOYF-xFrkVmhreOmHQTq_10A@mail.gmail.com>
- <4E2F4A66.1020207@canonical.com> <CAGS+omAwrXMC=U2Hx7EoJzUM+=PYyR4di0tDhq0oVnR_AAdEhQ@mail.gmail.com>
- <4E307F8A.6090707@canonical.com> <CAGS+omBr3adfENg5UDnbfPEFPg+0myKHFWb5qCSTt6wjVtvyeA@mail.gmail.com>
- <4E30C46F.2030903@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Daniel Drake <dsd@laptop.org>
+Subject: [PATCH v3 2/2] i8042: Enable OLPC's EC-based i8042 wakeup control
+Date: Thu, 28 Jul 2011 15:31:39 +0100 (BST)
+Message-ID: <20110728143140.002459D401C@zog.reactivated.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:61733 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754766Ab1G1N4s convert rfc822-to-8bit (ORCPT
+Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:44258 "EHLO
+	mtaout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752681Ab1G1Obs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 09:56:48 -0400
-Received: from wpaz33.hot.corp.google.com (wpaz33.hot.corp.google.com [172.24.198.97])
-	by smtp-out.google.com with ESMTP id p6SDulr4003606
-	for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 06:56:47 -0700
-Received: from qyg14 (qyg14.prod.google.com [10.241.82.142])
-	by wpaz33.hot.corp.google.com with ESMTP id p6SDujkO018571
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 06:56:45 -0700
-Received: by qyg14 with SMTP id 14so3202263qyg.8
-        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 06:56:45 -0700 (PDT)
-In-Reply-To: <4E30C46F.2030903@canonical.com>
+	Thu, 28 Jul 2011 10:31:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: dtor@mail.ru, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, rjw@sisk.pl, dilinger@queued.net
 
-On Thu, Jul 28, 2011 at 10:07 AM, Chase Douglas
-<chase.douglas@canonical.com> wrote:
-> On 07/27/2011 06:00 PM, Daniel Kurtz wrote:
->> On Thu, Jul 28, 2011 at 5:13 AM, Chase Douglas
->> <chase.douglas@canonical.com> wrote:
->> [...]
->>>>>
->>>>>> Would you prefer an implementation that continued to report coun=
-t (via
->>>>>> BTN_TOUCH*) correctly, but dropped down to 0 or 1 MT-B slots whe=
-n for
->>>>>> these cases where it could not determine the correct position or=
- track_id
->>>>>> to report?
->>>>>
->>>>> That may be doable, but I would prefer to just assume that tracki=
-ng ids
->>>>> are not valid when (tracked touches > reported touches).
->>>>
->>>> Userspace is free to make this assumption, of course, but, in fact=
-,
->>>> the image sensor trackpad actually does a pretty good job of track=
-ing
->>>> the fingers - it just has serious issues reporting them!
->>>> Since a track_id change is how userspace is told that the identity=
- of
->>>> the reported finger is changing, if the track_id of a finger posit=
-ion
->>>> datum is unknowable, I'd rather just discard it in the kernel than
->>>> report it to userspace with the wrong track_id.
->>>> Otherwise, the heuristics used in the userspace finger tracking
->>>> algorithms would need to be overly aggressively tuned to handle th=
-is
->>>> known error cases:
->>>> =A0 2->3 and 3->2 finger transitions look like 2nd finger motion,
->>>> instead of reported finger changes.
->>>>
->>>>>
->>>>>> It seems like it would be more work for userspace to handle this=
- new way
->>>>>> than the simulated number-of-touch transitions, where the transi=
-ent
->>>>>> states are all normal valid states.
->>>>>
->>>>> This harkens back to my earlier statements where I said this new
->>>>> Synaptics protocol is worse than the previous one :).
->>>>>
->>>>> I agree that the implementation you gave here might be trickier f=
-or
->>>>> userspace, so I'd rather table it unless you feel that the "track=
-ing ids
->>>>> are meaningless!" solution won't work. If you think there are pro=
-blems
->>>>> with that approach, we can re-evaluate.
->>>>>
->>>>> Thanks!
->>>>>
->>>>> -- Chase
->>>>
->>>> Yes, I feel there are problems with this approach, as I tried to e=
-xplain above.
->>>> Can you explain why you 'continuation gestures' can't handle 1->2-=
->3
->>>> finger transitions looking like 1->2->1->3, and 3->2->3 looking li=
-ke
->>>> 3->2->0->3?
->>>>
->>>> I think the only real point left to decide is what BTN_* events sh=
-ould
->>>> signify during these rare transition states:
->>>> =A0 (a) the actually number of fingers on the pad,
->>>> =A0 (b) the number of fingers being reported via the slots
->>>>
->>>> The current patchset does (a).
->>>> We could do (b), if that would get these patches accepted sooner :=
-)
->>>
->>> I was thinking that the current patchset does (b). I think (a) is
->>> better, and if it really works that way then I'm fine with it. It's=
- hard
->>> for me to keep track of the flow of the logic across the patches :)=
-=2E
->>
->> Argh, my bad. =A0You are correct. =A0Current patchset does (b)!
->> It reports the number of active slots, not the number of touches.
->>
->> In any case, I really don't know why you need (a). =A0We are talking
->> about some degenerate transitions here. =A0Your userspace driver sho=
-uld
->> work just fine with the (b) driver, it just loses some really
->> complicated continued gestures for hardware that can't support them.
->
-> To give userspace incorrect information about the number of touches o=
-n
-> the device is always bad. Lets say the degenerate case is when you go
-> from two touches to three (maybe Synaptics doesn't do this, but someo=
-ne
-> else might). When the user performs a three finger tap, we'd see two
-> touches down, two lifted up, three touches down, three lifted up in
-> short succession. Userspace is gonna get pretty confused about that :=
-).
->
-> (Please don't make me try to come up with a use case we already have =
-in
-> Unity that would be broken for Synaptics due to this. I could probabl=
-y
-> find one, but it would take quite a bit of thinking. :)
+The OLPC XO laptop can be resumed from suspend via keyboard or mouse
+activity. Hook up the i8042 driver to the OLPC EC controls to make
+this possible.
 
-Just to be clear:
+Signed-off-by: Daniel Drake <dsd@laptop.org>
+---
+ drivers/input/serio/i8042-x86ia64io.h |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
 
-Debouncing num-fingers at the start of a tap works just fine.
-=46or a 3f-tap, you would see one of:
-  0->1->2->3
-  0->2->3
-  0->3
+This depends on patches merged into linus master 2 days ago.
 
-Not:
-  0->1->2->0->3
-  0->2->0->3
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 76b2e58..36f6015 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -9,6 +9,7 @@
+ 
+ #ifdef CONFIG_X86
+ #include <asm/x86_init.h>
++#include <asm/olpc.h>
+ #endif
+ 
+ /*
+@@ -877,6 +878,13 @@ static inline void i8042_pnp_exit(void) { }
+ 
+ static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
+ {
++	if (!machine_is_olpc())
++		return;
++
++	if (may_wakeup)
++		olpc_ec_wakeup_set(EC_SCI_SRC_GAME);
++	else
++		olpc_ec_wakeup_clear(EC_SCI_SRC_GAME);
+ }
+ 
+ static int __init i8042_platform_init(void)
+@@ -923,6 +931,9 @@ static int __init i8042_platform_init(void)
+ 
+ 	if (dmi_check_system(i8042_dmi_dritek_table))
+ 		i8042_dritek = true;
++
++	if (olpc_ec_wakeup_available())
++		i8042_enable_wakeup = true;
+ #endif /* CONFIG_X86 */
+ 
+ 	return retval;
+-- 
+1.7.6
 
-You only see 2->0->3 if there had previously been 3 fingers down, and
-some of those fingers are removed:
-  0->3->0*->2*->0*->3*
-  0->3->0*->1*
-
-Where the "*" states are when mt_state_lost =3D true.
-So, with method (b), you might see 3->0->2->0 if the release of the
-other two fingers was really slow (longer than 37.5 ms), or, more
-likely on a tap, just 3->0.
-
-In any case, I don't think we are making progress arguing (a) vs. (b).
-Let me implement method (a), and upload for review.
-I agree that it makes some sense to always accurately report number of
-touches with the BTN_*, independent of number of slots.
-
-A true MT-B userspace app would always do the right thing with the
-slots, legacy apps can always do the right thing in legacy mode, and a
-hybrid app get do 2-touch multitouch & use BTN_* to determine total
-number of touches.
-
-Was there anything else I should add/change while I'm at it?
-
-You mention documentation below, was there something in particular
-that you'd like to see documented better?  Where?
-
--Dan
-
->
->>> That said, merging this patchset as is effectively means that the n=
-umber
->>> of slots is completely decoupled from the number of touches on the
->>> device. Previously, one could say that the number of touches on the
->>> device was equal to the number of open slots or more if all slots w=
-ere
->>> open. With this approach, we could have 0 slots open during a trans=
-ition
->>> when there are still touches down.
->>>
->>> While the distinction makes sense for these synaptics devices, I do=
-n't
->>> want the semantics to hold for full multitouch devices. Otherwise, =
-we
->>> would have to add many more BTN_*TAPs. If we go this route, we must=
- have
->>> a way to tell userspace that this is a special device where the num=
-ber
->>> of active touches can only be determined from BTN_*TAP. Thus, we wo=
-uld
->>> need a property for this exception to normal behavior.
->>
->> Henrik & Dmitry roughly suggested "do not define a new property; let
->> userspace detect max BTN_*TAP > ABS_MT_SLOT.max to indicate that
->> BTN_*TAP carries the total number of touches". =A0I wish they would
->> chime in on this patchset...
->
-> I think it sets a really bad precedent to obey the stated protocol in
-> most cases, but disregard it in others if specific conditions are met=
-,
-> which are not documented and are not presented in a clear manner to
-> userspace. At the *very least*, this change would need documentation =
-to
-> go in at the same time, but I strongly believe a property is merited =
-here.
->
-> -- Chase
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

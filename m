@@ -1,129 +1,139 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 09/16] HID: wiimote: Add missing extension DRM handlers
-Date: Thu, 28 Jul 2011 18:08:29 +0200
-Message-ID: <1311869316-17128-10-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 10/16] HID: wiimote: Add register/eeprom memory support
+Date: Thu, 28 Jul 2011 18:08:30 +0200
+Message-ID: <1311869316-17128-11-git-send-email-dh.herrmann@googlemail.com>
 References: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:53946 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:62287 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754999Ab1G1QJP (ORCPT
+	with ESMTP id S1755076Ab1G1QJS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 12:09:15 -0400
-Received: by mail-fx0-f46.google.com with SMTP id 19so1400102fxh.19
-        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 09:09:15 -0700 (PDT)
+	Thu, 28 Jul 2011 12:09:18 -0400
+Received: by mail-fx0-f46.google.com with SMTP id 19so1400084fxh.19
+        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 09:09:17 -0700 (PDT)
 In-Reply-To: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, dh.herrmann@googlemail.com
 
-If an extension is connected the wiimote may report data though DRMs that
-contain extension data. This adds handlers for these DRMs but discards extension
-data since we do not support it, yet.
-It prints a warning to kernel log if an unhandled report is catched. Since we
-handle all requests now, this should never happen, though.
+The wiimote allows direct access to its memory mapped registers and
+internal eeprom. This adds support to access this memory and handle
+memory events.
+
+There are two macros which wrap up the memory access functions to avoid
+accidentally overwriting sensitive eeprom data because a boolean value
+was wrongly set.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   29 ++++++++++++++++++++++++++++-
- 1 files changed, 28 insertions(+), 1 deletions(-)
+ drivers/hid/hid-wiimote.c |   71 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 71 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index ed7feb2..066beb5 100644
+index 066beb5..7b59822 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -70,10 +70,13 @@ enum wiiproto_reqs {
+@@ -66,7 +66,10 @@ enum wiiproto_reqs {
+ 	WIIPROTO_REQ_RUMBLE = 0x10,
+ 	WIIPROTO_REQ_LED = 0x11,
+ 	WIIPROTO_REQ_DRM = 0x12,
++	WIIPROTO_REQ_WMEM = 0x16,
++	WIIPROTO_REQ_RMEM = 0x17,
+ 	WIIPROTO_REQ_STATUS = 0x20,
++	WIIPROTO_REQ_DATA = 0x21,
  	WIIPROTO_REQ_RETURN = 0x22,
  	WIIPROTO_REQ_DRM_K = 0x30,
  	WIIPROTO_REQ_DRM_KA = 0x31,
-+	WIIPROTO_REQ_DRM_KE = 0x32,
- 	WIIPROTO_REQ_DRM_KAI = 0x33,
-+	WIIPROTO_REQ_DRM_KEE = 0x34,
- 	WIIPROTO_REQ_DRM_KAE = 0x35,
- 	WIIPROTO_REQ_DRM_KIE = 0x36,
- 	WIIPROTO_REQ_DRM_KAIE = 0x37,
-+	WIIPROTO_REQ_DRM_E = 0x3d,
- 	WIIPROTO_REQ_DRM_SKAI1 = 0x3e,
- 	WIIPROTO_REQ_DRM_SKAI2 = 0x3f,
- };
-@@ -548,6 +551,11 @@ static void handler_drm_KA(struct wiimote_data *wdata, const __u8 *payload)
- 	handler_accel(wdata, payload);
+@@ -303,6 +306,68 @@ static void wiiproto_req_accel(struct wiimote_data *wdata, __u8 accel)
+ 	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
  }
  
-+static void handler_drm_KE(struct wiimote_data *wdata, const __u8 *payload)
++#define wiiproto_req_wreg(wdata, os, buf, sz) \
++			wiiproto_req_wmem((wdata), false, (os), (buf), (sz))
++
++#define wiiproto_req_weeprom(wdata, os, buf, sz) \
++			wiiproto_req_wmem((wdata), true, (os), (buf), (sz))
++
++static void wiiproto_req_wmem(struct wiimote_data *wdata, bool eeprom,
++				__u32 offset, const __u8 *buf, __u8 size)
++{
++	__u8 cmd[22];
++
++	if (size > 16 || size == 0) {
++		hid_warn(wdata->hdev, "Invalid length %d wmem request\n", size);
++		return;
++	}
++
++	memset(cmd, 0, sizeof(cmd));
++	cmd[0] = WIIPROTO_REQ_WMEM;
++	cmd[2] = (offset >> 16) & 0xff;
++	cmd[3] = (offset >> 8) & 0xff;
++	cmd[4] = offset & 0xff;
++	cmd[5] = size;
++	memcpy(&cmd[6], buf, size);
++
++	if (!eeprom)
++		cmd[1] |= 0x04;
++
++	wiiproto_keep_rumble(wdata, &cmd[1]);
++	wiimote_queue(wdata, cmd, sizeof(cmd));
++}
++
++#define wiiproto_req_rreg(wdata, os, sz) \
++			wiiproto_req_rmem((wdata), false, (os), (sz))
++
++#define wiiproto_req_reeprom(wdata, os, sz) \
++			wiiproto_req_rmem((wdata), true, (os), (sz))
++
++static void wiiproto_req_rmem(struct wiimote_data *wdata, bool eeprom,
++						__u32 offset, __u16 size)
++{
++	__u8 cmd[7];
++
++	if (size == 0) {
++		hid_warn(wdata->hdev, "Invalid length %d rmem request\n", size);
++		return;
++	}
++
++	cmd[0] = WIIPROTO_REQ_RMEM;
++	cmd[1] = 0;
++	cmd[2] = (offset >> 16) & 0xff;
++	cmd[3] = (offset >> 8) & 0xff;
++	cmd[4] = offset & 0xff;
++	cmd[5] = (size >> 8) & 0xff;
++	cmd[6] = size & 0xff;
++
++	if (!eeprom)
++		cmd[1] |= 0x04;
++
++	wiiproto_keep_rumble(wdata, &cmd[1]);
++	wiimote_queue(wdata, cmd, sizeof(cmd));
++}
++
+ #define wiifs_led_show_set(num)						\
+ static ssize_t wiifs_led_show_##num(struct device *dev,			\
+ 			struct device_attribute *attr, char *buf)	\
+@@ -533,6 +598,11 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
+ 	wiiproto_req_drm(wdata, 0);
+ }
+ 
++static void handler_data(struct wiimote_data *wdata, const __u8 *payload)
 +{
 +	handler_keys(wdata, payload);
 +}
 +
- static void handler_drm_KAI(struct wiimote_data *wdata, const __u8 *payload)
+ static void handler_return(struct wiimote_data *wdata, const __u8 *payload)
  {
- 	handler_keys(wdata, payload);
-@@ -558,6 +566,11 @@ static void handler_drm_KAI(struct wiimote_data *wdata, const __u8 *payload)
- 	ir_to_input3(wdata, &payload[14], false);
- }
+ 	__u8 err = payload[3];
+@@ -640,6 +710,7 @@ struct wiiproto_handler {
  
-+static void handler_drm_KEE(struct wiimote_data *wdata, const __u8 *payload)
-+{
-+	handler_keys(wdata, payload);
-+}
-+
- static void handler_drm_KIE(struct wiimote_data *wdata, const __u8 *payload)
- {
- 	handler_keys(wdata, payload);
-@@ -583,6 +596,10 @@ static void handler_drm_KAIE(struct wiimote_data *wdata, const __u8 *payload)
- 	ir_to_input3(wdata, &payload[12], true);
- }
- 
-+static void handler_drm_E(struct wiimote_data *wdata, const __u8 *payload)
-+{
-+}
-+
- static void handler_drm_SKAI1(struct wiimote_data *wdata, const __u8 *payload)
- {
- 	handler_keys(wdata, payload);
-@@ -626,10 +643,13 @@ static struct wiiproto_handler handlers[] = {
+ static struct wiiproto_handler handlers[] = {
+ 	{ .id = WIIPROTO_REQ_STATUS, .size = 6, .func = handler_status },
++	{ .id = WIIPROTO_REQ_DATA, .size = 21, .func = handler_data },
  	{ .id = WIIPROTO_REQ_RETURN, .size = 4, .func = handler_return },
  	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
  	{ .id = WIIPROTO_REQ_DRM_KA, .size = 5, .func = handler_drm_KA },
-+	{ .id = WIIPROTO_REQ_DRM_KE, .size = 10, .func = handler_drm_KE },
- 	{ .id = WIIPROTO_REQ_DRM_KAI, .size = 17, .func = handler_drm_KAI },
-+	{ .id = WIIPROTO_REQ_DRM_KEE, .size = 21, .func = handler_drm_KEE },
- 	{ .id = WIIPROTO_REQ_DRM_KAE, .size = 21, .func = handler_drm_KAE },
- 	{ .id = WIIPROTO_REQ_DRM_KIE, .size = 21, .func = handler_drm_KIE },
- 	{ .id = WIIPROTO_REQ_DRM_KAIE, .size = 21, .func = handler_drm_KAIE },
-+	{ .id = WIIPROTO_REQ_DRM_E, .size = 21, .func = handler_drm_E },
- 	{ .id = WIIPROTO_REQ_DRM_SKAI1, .size = 21, .func = handler_drm_SKAI1 },
- 	{ .id = WIIPROTO_REQ_DRM_SKAI2, .size = 21, .func = handler_drm_SKAI2 },
- 	{ .id = 0 }
-@@ -642,6 +662,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	struct wiiproto_handler *h;
- 	int i;
- 	unsigned long flags;
-+	bool handled = false;
- 
- 	if (!atomic_read(&wdata->ready))
- 		return -EBUSY;
-@@ -655,13 +676,19 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 
- 	for (i = 0; handlers[i].id; ++i) {
- 		h = &handlers[i];
--		if (h->id == raw_data[0] && h->size < size)
-+		if (h->id == raw_data[0] && h->size < size) {
- 			h->func(wdata, &raw_data[1]);
-+			handled = true;
-+		}
- 	}
- 
- 	input_sync(wdata->input);
- 	spin_unlock_irqrestore(&wdata->state.lock, flags);
- 
-+	if (!handled)
-+		hid_warn(hdev, "Unhandled report %hhu size %d\n", raw_data[0],
-+									size);
-+
- 	return 0;
- }
- 
 -- 
 1.7.6
 

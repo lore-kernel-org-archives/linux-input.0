@@ -1,121 +1,73 @@
-From: Eric Miao <eric.miao@linaro.org>
-Subject: Re: [PATCH] Input: mma8450: add device tree probe support
-Date: Fri, 29 Jul 2011 11:00:15 +0800
-Message-ID: <CAMPhdO-VbfQoLXpNLDBTW=rKkvPmUF6YRA6HVeNjsmSE5ob1Gg@mail.gmail.com>
-References: <1311265551-23233-1-git-send-email-shawn.guo@linaro.org> <20110729023855.GC1946@S2100-06.ap.freescale.net>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: linux-next: build failure after merge of the moduleh tree
+Date: Fri, 29 Jul 2011 15:10:44 +1000
+Message-ID: <20110729151044.49f8bfdeeadb8edaf583f90d@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:32772 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753462Ab1G2DAg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 23:00:36 -0400
-Received: by vws1 with SMTP id 1so2651130vws.19
-        for <linux-input@vger.kernel.org>; Thu, 28 Jul 2011 20:00:35 -0700 (PDT)
-In-Reply-To: <20110729023855.GC1946@S2100-06.ap.freescale.net>
+Received: from chilli.pcug.org.au ([203.10.76.44]:32834 "EHLO smtps.tip.net.au"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754518Ab1G2FKt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Jul 2011 01:10:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shawn Guo <shawn.guo@freescale.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, linux-input@vger.kernel.org, patches@linaro.org, Dmitry Torokhov <dtor@mail.ru>, devicetree-discuss@lists.ozlabs.org, Sammy He <r62914@freescale.com>
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dan Carpenter <error27@gmail.com>, linux-input@vger.kernel.org
 
-On Fri, Jul 29, 2011 at 10:38 AM, Shawn Guo <shawn.guo@freescale.com> w=
-rote:
-> Any comments?
->
+Hi Paul,
 
-Shawn,
+After merging the moduleh tree, today's linux-next build (x86_64
+allmodconfig) failed like this:
 
-Patch looks OK to me.
+drivers/input/misc/kxtj9.c:644:1: warning: data definition has no type or storage class
+drivers/input/misc/kxtj9.c:644:1: warning: type defaults to 'int' in declaration of 'MODULE_DEVICE_TABLE'
+drivers/input/misc/kxtj9.c:644:1: warning: parameter names (without types) in function declaration
+drivers/input/misc/kxtj9.c:649:12: error: 'THIS_MODULE' undeclared here (not in a function)
+drivers/input/misc/kxtj9.c:669:20: error: expected declaration specifiers or '...' before string constant
+drivers/input/misc/kxtj9.c:669:1: warning: data definition has no type or storage class
+drivers/input/misc/kxtj9.c:669:1: warning: type defaults to 'int' in declaration of 'MODULE_DESCRIPTION'
+drivers/input/misc/kxtj9.c:669:20: warning: function declaration isn't a prototype
+drivers/input/misc/kxtj9.c:670:15: error: expected declaration specifiers or '...' before string constant
+drivers/input/misc/kxtj9.c:670:1: warning: data definition has no type or storage class
+drivers/input/misc/kxtj9.c:670:1: warning: type defaults to 'int' in declaration of 'MODULE_AUTHOR'
+drivers/input/misc/kxtj9.c:670:15: warning: function declaration isn't a prototype
+drivers/input/misc/kxtj9.c:671:16: error: expected declaration specifiers or '...' before string constant
+drivers/input/misc/kxtj9.c:671:1: warning: data definition has no type or storage class
+drivers/input/misc/kxtj9.c:671:1: warning: type defaults to 'int' in declaration of 'MODULE_LICENSE'
+drivers/input/misc/kxtj9.c:671:16: warning: function declaration isn't a prototype
+drivers/input/misc/kxtj9.c: In function 'kxtj9_init':
+drivers/input/misc/kxtj9.c:660:1: warning: control reaches end of non-void function
 
-> Regards,
-> Shawn
->
-> On Fri, Jul 22, 2011 at 12:25:51AM +0800, Shawn Guo wrote:
->> It adds device tree probe support for mma8450 driver.
->>
->> Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
->> Cc: Grant Likely <grant.likely@secretlab.ca>
->> Cc: Sammy He <r62914@freescale.com>
->> Cc: Eric Miao <eric.miao@linaro.org>
->> Cc: Dmitry Torokhov <dtor@mail.ru>
->> ---
->> =C2=A0.../devicetree/bindings/input/fsl-mma8450.txt =C2=A0 =C2=A0 =C2=
-=A0| =C2=A0 11 +++++++++++
->> =C2=A0drivers/input/misc/mma8450.c =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 | =C2=A0 =C2=A08 ++++++++
->> =C2=A02 files changed, 19 insertions(+), 0 deletions(-)
->> =C2=A0create mode 100644 Documentation/devicetree/bindings/input/fsl=
--mma8450.txt
->>
->> diff --git a/Documentation/devicetree/bindings/input/fsl-mma8450.txt=
- b/Documentation/devicetree/bindings/input/fsl-mma8450.txt
->> new file mode 100644
->> index 0000000..a00c94c
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/fsl-mma8450.txt
->> @@ -0,0 +1,11 @@
->> +* Freescale MMA8450 3-Axis Accelerometer
->> +
->> +Required properties:
->> +- compatible : "fsl,mma8450".
->> +
->> +Example:
->> +
->> +accelerometer: mma8450@1c {
->> + =C2=A0 =C2=A0 compatible =3D "fsl,mma8450";
->> + =C2=A0 =C2=A0 reg =3D <0x1c>;
->> +};
->> diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma84=
-50.c
->> index 20f8f92..6c76cf7 100644
->> --- a/drivers/input/misc/mma8450.c
->> +++ b/drivers/input/misc/mma8450.c
->> @@ -24,6 +24,7 @@
->> =C2=A0#include <linux/delay.h>
->> =C2=A0#include <linux/i2c.h>
->> =C2=A0#include <linux/input-polldev.h>
->> +#include <linux/of_device.h>
->>
->> =C2=A0#define MMA8450_DRV_NAME =C2=A0 =C2=A0 "mma8450"
->>
->> @@ -229,10 +230,17 @@ static const struct i2c_device_id mma8450_id[]=
- =3D {
->> =C2=A0};
->> =C2=A0MODULE_DEVICE_TABLE(i2c, mma8450_id);
->>
->> +static const struct of_device_id mma8450_dt_ids[] =3D {
->> + =C2=A0 =C2=A0 { .compatible =3D "fsl,mma8450", },
->> + =C2=A0 =C2=A0 { /* sentinel */ }
->> +};
->> +MODULE_DEVICE_TABLE(i2c, mma8450_dt_ids);
->> +
->> =C2=A0static struct i2c_driver mma8450_driver =3D {
->> =C2=A0 =C2=A0 =C2=A0 .driver =3D {
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .name =C2=A0 =3D MM=
-A8450_DRV_NAME,
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .owner =C2=A0=3D TH=
-IS_MODULE,
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .of_match_table =3D mma8=
-450_dt_ids,
->> =C2=A0 =C2=A0 =C2=A0 },
->> =C2=A0 =C2=A0 =C2=A0 .probe =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=3D mm=
-a8450_probe,
->> =C2=A0 =C2=A0 =C2=A0 .remove =C2=A0 =C2=A0 =C2=A0 =C2=A0 =3D __devex=
-it_p(mma8450_remove),
->> --
->> 1.7.4.1
->>
->> _______________________________________________
->> devicetree-discuss mailing list
->> devicetree-discuss@lists.ozlabs.org
->> https://lists.ozlabs.org/listinfo/devicetree-discuss
->>
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I have added this patch for today:
+
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Date: Fri, 29 Jul 2011 15:06:46 +1000
+Subject: [PATCH] kxtj9: explictly include module.h
+
+since some of its facilities are used.
+
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+---
+ drivers/input/misc/kxtj9.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
+index c456f63..783597a 100644
+--- a/drivers/input/misc/kxtj9.c
++++ b/drivers/input/misc/kxtj9.c
+@@ -21,6 +21,7 @@
+ #include <linux/i2c.h>
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
++#include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/input/kxtj9.h>
+ #include <linux/input-polldev.h>
+-- 
+1.7.5.4
+
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

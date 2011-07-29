@@ -1,44 +1,103 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH 06/16] HID: wiimote: Enable accelerometer on request
-Date: Thu, 28 Jul 2011 21:32:46 +0200
-Message-ID: <201107282132.46764.oneukum@suse.de>
-References: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com> <201107282008.55404.oneukum@suse.de> <CANq1E4SL1JVLw4F2pffoZtZSaskNbNkhW-1cVGgnPr02--J+uw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH] HID: magicmouse: Set resolution of touch surfaces
+Date: Thu, 28 Jul 2011 19:01:15 -0700
+Message-ID: <1311904875-24970-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57279 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752603Ab1G1T37 convert rfc822-to-8bit (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:46855 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756195Ab1G2CBU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jul 2011 15:29:59 -0400
-In-Reply-To: <CANq1E4SL1JVLw4F2pffoZtZSaskNbNkhW-1cVGgnPr02--J+uw@mail.gmail.com>
+	Thu, 28 Jul 2011 22:01:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, padovan@profusion.mobi
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Am Donnerstag, 28. Juli 2011, 21:01:34 schrieb David Herrmann:
-> I can see the problem with my approach. If multiple applications use
-> the wiimote and one disables the accelerometer, then the other
-> application has it also disabled. However, what other API would be
-> more appropriate here?
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Michael Poole <mdpoole@troilus.org>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ drivers/hid/hid-magicmouse.c |   57 ++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 47 insertions(+), 10 deletions(-)
 
-So arguments can be seen for both. I suggest you ask this question
-specifically on the lists before you introduce an API here.
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 698e645..8fdf702 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -81,6 +81,29 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
+ #define NO_TOUCHES -1
+ #define SINGLE_TOUCH_UP -2
+ 
++/* Touch surface information. Dimension is in hundredths of a mm, min and max
++ * are in units. Dimensions gathered from IORegistryExplorer in OS X. Min and
++ * max gathered through testing of devices. */
++#define MOUSE_DIMENSION_X (float)9056
++#define MOUSE_MIN_X -1100
++#define MOUSE_MAX_X 1258
++#define MOUSE_RES_X ((MOUSE_MAX_X - MOUSE_MIN_X) / (MOUSE_DIMENSION_X / 100))
++#define MOUSE_DIMENSION_Y (float)5152
++#define MOUSE_MIN_Y -1589
++#define MOUSE_MAX_Y 2047
++#define MOUSE_RES_Y ((MOUSE_MAX_Y - MOUSE_MIN_Y) / (MOUSE_DIMENSION_Y / 100))
++
++#define TRACKPAD_DIMENSION_X (float)13000
++#define TRACKPAD_MIN_X -2909
++#define TRACKPAD_MAX_X 3167
++#define TRACKPAD_RES_X \
++	((TRACKPAD_MAX_X - TRACKPAD_MIN_X) / (TRACKPAD_DIMENSION_X / 100))
++#define TRACKPAD_DIMENSION_Y (float)11000
++#define TRACKPAD_MIN_Y -2456
++#define TRACKPAD_MAX_Y 2565
++#define TRACKPAD_RES_Y \
++	((TRACKPAD_MAX_Y - TRACKPAD_MIN_Y) / (TRACKPAD_DIMENSION_Y / 100))
++
+ /**
+  * struct magicmouse_sc - Tracks Magic Mouse-specific data.
+  * @input: Input device through which we report events.
+@@ -406,17 +429,31 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 		 * inverse of the reported Y.
+ 		 */
+ 		if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
+-			input_set_abs_params(input, ABS_MT_POSITION_X, -1100,
+-				1358, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_Y, -1589,
+-				2047, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_X,
++				MOUSE_MIN_X, MOUSE_MAX_X, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_Y,
++				MOUSE_MIN_Y, MOUSE_MAX_Y, 4, 0);
++
++			input_abs_set_res(input, ABS_MT_POSITION_X,
++				MOUSE_RES_X);
++			input_abs_set_res(input, ABS_MT_POSITION_Y,
++				MOUSE_RES_Y);
+ 		} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
+-			input_set_abs_params(input, ABS_X, -2909, 3167, 4, 0);
+-			input_set_abs_params(input, ABS_Y, -2456, 2565, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_X, -2909,
+-				3167, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_Y, -2456,
+-				2565, 4, 0);
++			input_set_abs_params(input, ABS_X, TRACKPAD_MIN_X,
++				TRACKPAD_MAX_X, 4, 0);
++			input_set_abs_params(input, ABS_Y, TRACKPAD_MIN_Y,
++				TRACKPAD_MAX_Y, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_X,
++				TRACKPAD_MIN_X, TRACKPAD_MAX_X, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_Y,
++				TRACKPAD_MIN_Y, TRACKPAD_MAX_Y, 4, 0);
++
++			input_abs_set_res(input, ABS_X, TRACKPAD_RES_X);
++			input_abs_set_res(input, ABS_Y, TRACKPAD_RES_Y);
++			input_abs_set_res(input, ABS_MT_POSITION_X,
++				TRACKPAD_RES_X);
++			input_abs_set_res(input, ABS_MT_POSITION_Y,
++				TRACKPAD_RES_Y);
+ 		}
+ 	}
+ 
+-- 
+1.7.4.1
 
-	Regards
-		Oliver
---=20
-- - -=20
-SUSE LINUX Products GmbH, GF: Jeff Hawn, Jennifer Guild, Felix Imend=F6=
-rffer, HRB 16746 (AG N=FCrnberg)=20
-Maxfeldstra=DFe 5                        =20
-90409 N=FCrnberg=20
-Germany=20
-- - -=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

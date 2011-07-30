@@ -1,71 +1,129 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [PATCH v1] Input: tegra-kbc - fix computation of polling time
-Date: Sat, 30 Jul 2011 12:41:01 +0200
-Message-ID: <20110730104101.GA12309@avionic-0098.mockup.avionic-design.de>
-References: <1311981417-31865-1-git-send-email-riyer@nvidia.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [RFC] Wiimote userspace interface
+Date: Sat, 30 Jul 2011 18:34:37 +0200
+Message-ID: <CANq1E4S3VY_xxzcjuJDHJc57VPb_uiFrx1B3wR9Xnw5ddx6HJg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1311981417-31865-1-git-send-email-riyer@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: riyer@nvidia.com
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, olof@lixom.net, amartin@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:63349 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751443Ab1G3Qeh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 30 Jul 2011 12:34:37 -0400
+Received: by vxh35 with SMTP id 35so3326719vxh.19
+        for <linux-input@vger.kernel.org>; Sat, 30 Jul 2011 09:34:37 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: "Gustavo F. Padovan" <padovan@profusion.mobi>, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Hi
+
+As Oliver pointed out my proposed wiimote userspace interface isn't
+exactly the best way to go so I wanted to discuss possible interfaces
+first.
+
+The following data is reported by the wiimote to userspace:
+ - Button data
+ - 3D accelerometer data (1x)
+ - 2D pointing data through IR cam (4x)
+
+By motion+ extension:
+ - 3D gyro/rotation data (1x)
+
+By nunchuck extension:
+ - 2D analog stick data (1x)
+ - additional buttons
+ - 3D accelerometer data (1x)
+
+By classic controller extension:
+ - additional buttons
+ - 2D analog stick (2x)
+
+To be extended with further wiimote extensions
+
+Obviously this is way too much data for a single interface. Its 23
+ABS_ values (4x IR cam!). I could report them through one interface
+but I had to use my own ABS_ values which are not in input.h since
+there aren't enough predefined values.
+
+Additionally, the driver is capable of disabling the accelerometers,
+IR cam, gyro etc. on the remote device to save energy (a *lot* of
+energy). So I really want to enable these devices only if userspace
+uses them.
 
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Interface #1:
+Everything is reported through one input device and there are sysfs
+attributes which control the peripherals of the wiimote. Eg., writing
+1 to "accelerometer" enables the accelerometer. Writing 0 disables it.
+Same for IR cam, gyro, extensions etc.
+This makes it easy for userspace applications because they only need
+to open one input device and can control the available resources.
+However, if multiple applications use the interface, then one
+application may disable the accelerometer, even though another app
+still uses it. I can't use reference counting here.
 
-* riyer@nvidia.com wrote:
-> From: Rakesh Iyer <riyer@nvidia.com>
->=20
-> Fix a constant definition and computation of polling time.
->=20
-> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> ---
->  drivers/input/keyboard/tegra-kbc.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/=
-tegra-kbc.c
-> index da3828f..263f6fc 100644
-> --- a/drivers/input/keyboard/tegra-kbc.c
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -37,7 +37,7 @@
->  #define KBC_ROW_SCAN_DLY	5
-> =20
->  /* KBC uses a 32KHz clock so a cycle =3D 1/32Khz */
-> -#define KBC_CYCLE_USEC	32
-> +#define KBC_CYCLE_MS	32
-> =20
->  /* KBC Registers */
-> =20
-> @@ -647,7 +647,7 @@ static int __devinit tegra_kbc_probe(struct platform_=
-device *pdev)
->  	debounce_cnt =3D min(pdata->debounce_cnt, KBC_MAX_DEBOUNCE_CNT);
->  	scan_time_rows =3D (KBC_ROW_SCAN_TIME + debounce_cnt) * num_rows;
->  	kbc->repoll_dly =3D KBC_ROW_SCAN_DLY + scan_time_rows + pdata->repeat_c=
-nt;
-> -	kbc->repoll_dly =3D ((kbc->repoll_dly * KBC_CYCLE_USEC) + 999) / 1000;
-> +	kbc->repoll_dly =3D (kbc->repoll_dly + KBC_CYCLE_MS - 1) / KBC_CYCLE_MS;
+Interface #2:
+Every peripheral uses its own input device. One for buttons, one for
+accelerometer, 4 input devices for the IR cam (or maybe 1 devices that
+contains all 4 IR cam values?) and so on.
+I could use the ->open()/close() callbacks to keep track of the users
+of each input device and disable the peripheral if there is no user.
+This would avoid userspace conflicts with the resource, but would make
+it quite difficult for userspace to manage all those input devices. If
+an app only wants the accelerometer data, which input device would it
+have to open? If it opens all of them and closes the ones that it
+doesn't need again, then the driver would have to initialize _all_
+peripherals and disable them again just to allow the userspace app to
+find the right input device.
+Or is there a way to help userspace find the right input device?
+Renaming the input device to "Nintendo Wii Remote - Accelerometer" and
+userspace should read /sys/bus/hid/..<wiimote>../inputXY/name before
+opening the input device? Still, this would mean at least 4 input
+interfaces for each connected wiimote. If IR data is not combined,
+then 7 input interfaces.
 
-You might want to consider using DIV_ROUND_UP for this.
+Interface #3:
+One single input interface with all data. Userspace needs to send some
+magic value to the device to enable peripherals. For instance EV_MSC +
+MSC_RAW + MAGIC_VALUE_1 to enable accelerometer and EV_MSC + MSC_RAW +
+MAGIC_VALUE_2 to disable accelerometer.
+If an app closes the input device, the driver automatically decrements
+the refcount on the still open peripherals for that user.
+This would allow to reduce the number of input device. I could still
+split them into one input device for wiimote and one for each active
+extension so there would be at most 3 input devices. However, this
+sounds to me like using a cdev + ioctl() approach but with a nice
+cover so nobody notices it.
+Though, userspace programming would be very easy with this interface.
+A helper library could be implemented in quite few steps.
 
-Thierry
+Interface #4:
+Character device with ioctls... Well I tried to avoid that.
+Obvious advantages: Simple reference counting of applications through
+->open/close() callbacks. Peripherals can be enabled/disabled through
+ioctls. All data can be streamed through the file using a custom
+packet structure. Disadvantages: its a cdev with ioctls...
 
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature
+Interface #5:
+Any more ideas?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEARECAAYFAk4z370ACgkQZ+BJyKLjJp/VAQCdErLNgpcMILcKCw0KA3gt0nxx
-gp8An2HcQjGUKBukFxMuYBMURUZCTAhX
-=7O7h
------END PGP SIGNATURE-----
+There is also the other side. Sending data to the wiimote. 4 LEDs can
+be set, the rumble motor can be enabled/disabled and audio data can be
+streamed. I think my current approach to use sysfs attributes for the
+LEDs and RUMBLE motor is ok? I can't figure out any better way here.
+Reference-counting doesn't make sense. If multiple devices use them,
+then they will always have conflicts, however, it still works.
+Audio streaming is not yet implemented, but I think I could register
+an alsa device so this needs not to be discussed here.
 
---CE+1k2dSO48ffgeK--
+
+Currently I think Interface #2 would be the best way but I don't want
+to spend time implementing that if you tell me it isn't acceptable.
+Any comments on this are appreciated.
+
+
+Regards
+David

@@ -1,40 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: mma8450: add device tree probe support
-Date: Sun, 31 Jul 2011 19:56:34 -0700
-Message-ID: <20110801025634.GA23944@core.coreip.homeip.net>
-References: <1311265551-23233-1-git-send-email-shawn.guo@linaro.org>
- <20110731030725.GD24334@ponder.secretlab.ca>
+Subject: Re: [PATCH] input: xilinx_ps2: Add missing of_address.h header
+Date: Sun, 31 Jul 2011 20:10:21 -0700
+Message-ID: <20110801031021.GB23944@core.coreip.homeip.net>
+References: <1310564781-5979-1-git-send-email-monstr@monstr.eu>
+ <CACxGe6vRZ4tCALpzFng2y9W_9zB3qQEntma+z292FXzDuYBRKQ@mail.gmail.com>
+ <4E2C2362.1080204@monstr.eu>
+ <20110731041230.GO24334@ponder.secretlab.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:52055 "EHLO
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:44722 "EHLO
 	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752926Ab1HAC4k (ORCPT
+	with ESMTP id S1752926Ab1HADK0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 Jul 2011 22:56:40 -0400
-Received: by pzk37 with SMTP id 37so10632611pzk.1
-        for <linux-input@vger.kernel.org>; Sun, 31 Jul 2011 19:56:40 -0700 (PDT)
+	Sun, 31 Jul 2011 23:10:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20110731030725.GD24334@ponder.secretlab.ca>
+In-Reply-To: <20110731041230.GO24334@ponder.secretlab.ca>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Shawn Guo <shawn.guo@linaro.org>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, patches@linaro.org, Sammy He <r62914@freescale.com>, Eric Miao <eric.miao@linaro.org>
+Cc: Michal Simek <monstr@monstr.eu>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-On Sat, Jul 30, 2011 at 09:07:25PM -0600, Grant Likely wrote:
-> On Fri, Jul 22, 2011 at 12:25:51AM +0800, Shawn Guo wrote:
-> > It adds device tree probe support for mma8450 driver.
+On Sat, Jul 30, 2011 at 10:12:30PM -0600, Grant Likely wrote:
+> On Sun, Jul 24, 2011 at 03:51:30PM +0200, Michal Simek wrote:
+> > Hi Grant,
 > > 
-> > Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-> > Cc: Grant Likely <grant.likely@secretlab.ca>
-> > Cc: Sammy He <r62914@freescale.com>
-> > Cc: Eric Miao <eric.miao@linaro.org>
-> > Cc: Dmitry Torokhov <dtor@mail.ru>
+> > can you propose this patch to mainline through your devicetree tree?
 > 
-> Acked-by: Grant Likely <grant.likely@secretlab.ca>
-> 
+> I've got it in a "input/next" branch.  Since the input maintainer
+> doesn't seem to be active on driver patches, I'll send a pull req to
+> Linus.
 
-Applied, thanks.
+CCing me on patches usually helps... Yes, please feel free to push
+through your tree if you'd like.
 
 -- 
 Dmitry

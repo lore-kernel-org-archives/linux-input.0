@@ -1,399 +1,453 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH v3] input: add support for TI Touchscreen controller.
-Date: Tue, 2 Aug 2011 19:16:40 +0530
-Message-ID: <B85A65D85D7EB246BE421B3FB0FBB593024DE786DB@dbde02.ent.ti.com>
-References: <1311326009-8590-1-git-send-email-rachna@ti.com>
-	<CAM=Q2cunVNO92ngc0_YaiH8Eikk66xqSUrRU4eLm8xB2n4Y8og@mail.gmail.com>
- <CAM=Q2csKJBaOrTG2-6im+b-UpexMs33wqK6DK6gpmRhScxidww@mail.gmail.com>
+From: Daniel Drake <dsd@laptop.org>
+Subject: [PATCH v4 1/2] Input: enable i8042-level wakeup control
+Date: Tue,  2 Aug 2011 16:49:15 +0100 (BST)
+Message-ID: <20110802154916.624619D401C@zog.reactivated.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:35181 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752096Ab1HBNrv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Aug 2011 09:47:51 -0400
-In-Reply-To: <CAM=Q2csKJBaOrTG2-6im+b-UpexMs33wqK6DK6gpmRhScxidww@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: dtor@mail.ru, dmitry.torokhov@gmail.com
+Cc: linux-pm@lists.linux-foundation.org, dilinger@queued.net, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Shubhrajyoti,
+The OLPC XO laptop is able to use the PS/2 controller as a wakeup source.
+When used as a wakeup source, the key press/mouse motion must not be lost.
 
+Add infrastructure to allow controllers to be marked as wakeup-capable,
+and avoid doing power control/reset on the i8042/serio/input devices when
+running in this mode. For systems where this functionality is available,
+you are expected to enable wakeups on the i8042 device, the serio
+devices, and the relevant input devices, to ensure that the hardware is
+left powered and untouched throughout the suspend/resume.
 
-On Mon, Aug 01, 2011 at 17:33:26, Shubhrajyoti Datta wrote:
-> 
-> Hello,
-> 
-> 
-> On Fri, Jul 22, 2011 at 2:43 PM, Patil, Rachna <rachna@ti.com> wrote:
-> 
-> 
-> 	This patch adds support for TI's touchscreen
-> 	controller for a 4/5/8 wire resistive panel
-> 	that is directly fed to the ADC.
-> 	
-> 	This touchscreen controller will be part of
-> 	an upcoming TI SoC and has been tested on
-> 	an emulation platform.
-> 	
-> 
-> Is it possible to move to runtime pm instead of the clock calls. 
+Signed-off-by: Daniel Drake <dsd@laptop.org>
+---
+ drivers/input/input.c                 |    6 +++-
+ drivers/input/keyboard/atkbd.c        |    4 ++-
+ drivers/input/mouse/hgpk.c            |    2 +
+ drivers/input/mouse/psmouse-base.c    |    4 ++-
+ drivers/input/serio/i8042-io.h        |    4 ++
+ drivers/input/serio/i8042-ip22io.h    |    4 ++
+ drivers/input/serio/i8042-jazzio.h    |    4 ++
+ drivers/input/serio/i8042-ppcio.h     |    4 ++
+ drivers/input/serio/i8042-snirm.h     |    4 ++
+ drivers/input/serio/i8042-sparcio.h   |    4 ++
+ drivers/input/serio/i8042-x86ia64io.h |    4 ++
+ drivers/input/serio/i8042.c           |   62 +++++++++++++++++++++++++++++---
+ drivers/input/serio/serio.c           |   29 +++++++++++++--
+ 13 files changed, 122 insertions(+), 13 deletions(-)
 
-As discussed earlier, at present we are not handling PM related
-issues. This will be added in patches submitted in days to come.
+On original submission, Dmitry was worried about this functionality not
+working at all on other platforms. I agree, it will only work where the
+hardware has been specifically designed with this consideration. v2 of
+the patch therefore removes the module param option, meaning that it
+will only be activated on platforms that explicitly enable it at the
+code level.
 
-> 
->  
-> 
-> 
-> 	ChangeLog:
-> 	
-> 	v2: fixed comments from Dimitry
-> 	v3: made the driver depend on HAVE_CLK for build
-> 	
-> 
-> 	Signed-off-by: Patil, Rachna <rachna@ti.com>
-> 	---
-> 	
-> 	 drivers/input/touchscreen/Kconfig     |   12 +
-> 	
-> 	 drivers/input/touchscreen/Makefile    |    1 +
-> 	 drivers/input/touchscreen/ti_tscadc.c |  431
-> +++++++++++++++++++++++++++++++++
-> 	 include/linux/input/ti_tscadc.h       |   10 +
-> 	
-> 	 4 files changed, 454 insertions(+), 0 deletions(-)
-> 	
-> 	 create mode 100644 drivers/input/touchscreen/ti_tscadc.c
-> 	 create mode 100644 include/linux/input/ti_tscadc.h
-> 	
-> 	diff --git a/drivers/input/touchscreen/Kconfig
-> b/drivers/input/touchscreen/Kconfig
-> 	
-> 	index 44589f5..69d367a 100644
-> 	
-> 	--- a/drivers/input/touchscreen/Kconfig
-> 	+++ b/drivers/input/touchscreen/Kconfig
-> 	
-> 	@@ -395,6 +395,18 @@ config TOUCHSCREEN_TOUCHWIN
-> 	
-> 	         To compile this driver as a module, choose M here: the
-> 	         module will be called touchwin.
-> 	
-> 	+config TOUCHSCREEN_TI_TSCADC
-> 	+       tristate "TI Touchscreen Interface"
-> 	
-> 	+       depends on HAVE_CLK
-> 	+       help
-> 	
-> 	+         Say Y here if you have 4/5/8 wire touchscreen
-> controller
-> 	+         to be connected to the ADC controller on your TI SoC.
-> 	+
-> 	+         If unsure, say N.
-> 	+
-> 	+         To compile this driver as a module, choose M here: the
-> 	+         module will be called ti_tscadc.
-> 	+
-> 	 config TOUCHSCREEN_ATMEL_TSADCC
-> 	       tristate "Atmel Touchscreen Interface"
-> 	       depends on ARCH_AT91SAM9RL || ARCH_AT91SAM9G45
-> 	diff --git a/drivers/input/touchscreen/Makefile
-> b/drivers/input/touchscreen/Makefile
-> 	index 51b08b0..86b7ab6 100644
-> 	--- a/drivers/input/touchscreen/Makefile
-> 	+++ b/drivers/input/touchscreen/Makefile
-> 	@@ -41,6 +41,7 @@ obj-$(CONFIG_TOUCHSCREEN_QT602240)    +=
-> qt602240_ts.o
-> 	 obj-$(CONFIG_TOUCHSCREEN_S3C2410)      += s3c2410_ts.o
-> 	 obj-$(CONFIG_TOUCHSCREEN_ST1232)       += st1232.o
-> 	 obj-$(CONFIG_TOUCHSCREEN_STMPE)                += stmpe-ts.o
-> 	+obj-$(CONFIG_TOUCHSCREEN_TI_TSCADC)     += ti_tscadc.o
-> 	 obj-$(CONFIG_TOUCHSCREEN_TNETV107X)    += tnetv107x-ts.o
-> 	 obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)   += touchit213.o
-> 	 obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)   += touchright.o
-> 	
-> 	diff --git a/drivers/input/touchscreen/ti_tscadc.c
-> b/drivers/input/touchscreen/ti_tscadc.c
-> 	
-> 	new file mode 100644
-> 	index 0000000..86264fc
-> 	--- /dev/null
-> 	+++ b/drivers/input/touchscreen/ti_tscadc.c
-> 	@@ -0,0 +1,431 @@
-> 	+/*
-> 	+ * TI Touch Screen driver
-> 	+ *
-> 	+ * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
-> 	+ *
-> 	+ * This program is free software; you can redistribute it and/or
-> 	+ * modify it under the terms of the GNU General Public License as
-> 	+ * published by the Free Software Foundation version 2.
-> 	+ *
-> 	+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-> 	+ * kind, whether express or implied; without even the implied warranty
-> 	+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> 	+ * GNU General Public License for more details.
-> 	+ */
-> 	+
-> 	+
-> 	+#include <linux/init.h>
-> 	+#include <linux/kernel.h>
-> 	+#include <linux/err.h>
-> 	+#include <linux/module.h>
-> 	+#include <linux/input.h>
-> 	+#include <linux/slab.h>
-> 	+#include <linux/interrupt.h>
-> 	+#include <linux/clk.h>
-> 	+#include <linux/platform_device.h>
-> 	+#include <linux/io.h>
-> 	+#include <linux/input/ti_tscadc.h>
-> 	
-> 	
-> 
-> <snip> 
-> 
-> 
-> 	+static int __devinit tscadc_probe(struct platform_device *pdev)
-> 	+{
-> 	+       struct tscadc                   *ts_dev;
-> 	+       struct input_dev                *input_dev;
-> 	+       int                             err;
-> 	+       int                             clk_value;
-> 	+       int                             clock_rate, irqenable,
-> ctrl;
-> 	+       struct  tsc_data                *pdata =
-> pdev->dev.platform_data;
-> 	+       struct resource                 *res;
-> 	+
-> 	+       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> 	+       if (!res) {
-> 	+               dev_err(&pdev->dev, "no memory resource
-> defined.\n");
-> 	+               return -EINVAL;
-> 	+       }
-> 	+
-> 	+       /* Allocate memory for device */
-> 	+       ts_dev = kzalloc(sizeof(struct tscadc), GFP_KERNEL);
-> 	+       if (!ts_dev) {
-> 	+               dev_err(&pdev->dev, "failed to allocate
-> memory.\n");
-> 	+               return -ENOMEM;
-> 	+       }
-> 	+
-> 	+       ts_dev->irq = platform_get_irq(pdev, 0);
-> 	+       if (ts_dev->irq < 0) {
-> 	+               dev_err(&pdev->dev, "no irq ID is
-> specified.\n");
-> 	
-> 
-> 
-> why not free the earlier allocated memory?
+v2 also performs a more extensive job. We avoid resetting the device
+at the input_device level during suspend/resume. We also disable i8042
+interrupts when going into suspend, to avoid races handling interrupts
+in the wrong order during resume.
 
-Ok. I will add this.
+v3 includes a cleanup suggested by Rafael, and explains the corner case
+that we have to handle in the input layer.
 
-> 
->  
-> 
-> 	+               return -ENODEV;
-> 
-> 	+       }
-> 	+
-> 	+       input_dev = input_allocate_device();
-> 	+       if (!input_dev) {
-> 	+               dev_err(&pdev->dev, "failed to allocate input
-> device.\n");
-> 	+               err = -ENOMEM;
-> 	+               goto err_free_mem;
-> 	+       }
-> 	+       ts_dev->input = input_dev;
-> 	+
-> 	+       ts_dev->tsc_base = ioremap(res->start,
-> resource_size(res));
-> 	+       if (!ts_dev->tsc_base) {
-> 	+               dev_err(&pdev->dev, "failed to map
-> registers.\n");
-> 	+               err = -ENOMEM;
-> 	+               goto err_release_mem;
-> 	+       }
-> 	+
-> 	+       err = request_irq(ts_dev->irq, tscadc_interrupt,
-> IRQF_DISABLED,
-> 	+                               pdev->dev.driver->name, ts_dev);
-> 	+       if (err) {
-> 	+               dev_err(&pdev->dev, "failed to allocate
-> irq.\n");
-> 	+               goto err_unmap_regs;
-> 	+       }
-> 	+
-> 	+       ts_dev->clk = clk_get(&pdev->dev, "tsc_clk");
-> 	+       if (IS_ERR(ts_dev->clk)) {
-> 	+               dev_err(&pdev->dev, "failed to get ts_clk\n");
-> 	+               err = PTR_ERR(ts_dev->clk);
-> 	+               goto err_free_irq;
-> 	+       }
-> 	+       clk_enable(ts_dev->clk);
-> 	+
-> 	+       clock_rate = clk_get_rate(ts_dev->clk);
-> 	+       clk_value = clock_rate / ADC_CLK;
-> 	+       if (clk_value < 7) {
-> 	+               dev_err(&pdev->dev, "clock input less than min
-> clock requirement\n");
-> 	+               goto err_fail;
-> 	+       }
-> 	+       /* TSCADC_CLKDIV needs to be configured to the value
-> minus 1 */
-> 	+       clk_value = clk_value - 1;
-> 	+       tscadc_writel(ts_dev, TSCADC_REG_CLKDIV, clk_value);
-> 	+
-> 	+        /* Enable wake-up of the SoC using touchscreen */
-> 	+       tscadc_writel(ts_dev, TSCADC_REG_IRQWAKEUP,
-> TSCADC_IRQWKUP_ENB);
-> 	+
-> 	+       ts_dev->wires = pdata->wires;
-> 	+
-> 	+       /* Set the control register bits */
-> 	+       ctrl = TSCADC_CNTRLREG_STEPCONFIGWRT |
-> 	+                       TSCADC_CNTRLREG_TSCENB |
-> 	+                       TSCADC_CNTRLREG_STEPID;
-> 	+       switch (ts_dev->wires) {
-> 	+       case 4:
-> 	+               ctrl |= TSCADC_CNTRLREG_4WIRE;
-> 	+               break;
-> 	+       case 5:
-> 	+               ctrl |= TSCADC_CNTRLREG_5WIRE;
-> 	+               break;
-> 	+       case 8:
-> 	+               ctrl |= TSCADC_CNTRLREG_8WIRE;
-> 	+               break;
-> 	+       }
-> 	+       tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
-> 	+
-> 	+       /* Set register bits for Idel Config Mode */
-> 	+       tsc_idle_config(ts_dev);
-> 	+
-> 	+       /* IRQ Enable */
-> 	+       irqenable = TSCADC_IRQENB_IRQHWPEN |
-> 	+                       TSCADC_IRQENB_IRQEOS |
-> 	+                       TSCADC_IRQENB_PENUP |
-> TSCADC_IRQENB_FIFO_OVERFLOW;
-> 	+       tscadc_writel(ts_dev, TSCADC_REG_IRQENABLE, irqenable);
-> 	+
-> 	+       tsc_step_config(ts_dev);
-> 	+
-> 	+       ctrl |= TSCADC_CNTRLREG_TSCSSENB;
-> 	+       tscadc_writel(ts_dev, TSCADC_REG_CTRL, ctrl);
-> 	+
-> 	+       input_dev->name = "ti-tsc-adcc";
-> 	+       input_dev->dev.parent = &pdev->dev;
-> 	+
-> 	+       input_dev->evbit[0] = BIT_MASK(EV_KEY) |
-> BIT_MASK(EV_ABS);
-> 	+       input_dev->keybit[BIT_WORD(BTN_TOUCH)] =
-> BIT_MASK(BTN_TOUCH);
-> 	+
-> 	+       input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0,
-> 0);
-> 	+       input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0,
-> 0);
-> 	+
-> 	+       /* register to the input system */
-> 	+       err = input_register_device(input_dev);
-> 	+       if (err)
-> 	+               goto err_fail;
-> 	+
-> 	+       return 0;
-> 	+
-> 	+err_fail:
-> 	+       clk_disable(ts_dev->clk);
-> 	+       clk_put(ts_dev->clk);
-> 	+err_free_irq:
-> 	+       free_irq(ts_dev->irq, ts_dev);
-> 	+err_unmap_regs:
-> 	+       iounmap(ts_dev->tsc_base);
-> 	+err_release_mem:
-> 	+       release_mem_region(res->start, resource_size(res));
-> 	+       input_free_device(ts_dev->input);
-> 	+err_free_mem:
-> 	+       kfree(ts_dev);
-> 	+       return err;
-> 	+}
-> 	+
-> 	+static int __devexit tscadc_remove(struct platform_device
-> *pdev)
-> 	+{
-> 	+       struct tscadc           *ts_dev =
-> dev_get_drvdata(&pdev->dev);
-> 	+       struct resource         *res;
-> 	+
-> 	+       free_irq(ts_dev->irq, ts_dev);
-> 	+
-> 	+       input_unregister_device(ts_dev->input);
-> 	+
-> 	+       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> 	+       iounmap(ts_dev->tsc_base);
-> 	+       release_mem_region(res->start, resource_size(res));
-> 	+
-> 	+       clk_disable(ts_dev->clk);
-> 	+       clk_put(ts_dev->clk);
-> 	+
-> 	+       kfree(ts_dev);
-> 	+
-> 	+       return 0;
-> 	+}
-> 	+
-> 	+static struct platform_driver ti_tsc_driver = {
-> 	+       .probe    = tscadc_probe,
-> 	+       .remove  = __devexit_p(tscadc_remove),
-> 	+       .driver  = {
-> 	+               .name   = "tsc",
-> 	+       },
-> 	+};
-> 	+
-> 	+static int __init ti_tsc_init(void)
-> 	+{
-> 	+       return platform_driver_register(&ti_tsc_driver);
-> 	+}
-> 	+
-> 	+static void __exit ti_tsc_exit(void)
-> 	+{
-> 	+       platform_driver_unregister(&ti_tsc_driver);
-> 	+}
-> 	+
-> 	+module_init(ti_tsc_init);
-> 	+module_exit(ti_tsc_exit);
-> 	diff --git a/include/linux/input/ti_tscadc.h b/include/linux/input/ti_tscadc.h
-> 	new file mode 100644
-> 	index 0000000..29f87db
-> 	--- /dev/null
-> 	+++ b/include/linux/input/ti_tscadc.h
-> 	@@ -0,0 +1,10 @@
-> 	+/**
-> 	+ * struct tsc_data     Touchscreen wire configuration
-> 	+ * @wires:             Wires refer to application modes
-> 	+ *                     i.e. 4/5/8 wire touchscreen support
-> 	+ *                     on the platform
-> 	+ */
-> 	+
-> 	+struct tsc_data {
-> 	+       int wires;
-> 	+};
-> 	--
-> 	1.6.2.4
-> 	
-> 	--
-> 	
-> 	To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> 	the body of a message to majordomo@vger.kernel.org
-> 	More majordomo info at
-> http://vger.kernel.org/majordomo-info.html
-> 	
-> 
-> 
+v4 changes direction a little: each layer now just looks at the wakeup
+capability of its own device, avoiding some of the earlier tree
+traversal. Userspace must now enable wakeups on 5 devices:
+	i8042
+	i8042/serio0
+	i8042/serio0/input*
+	i8042/serio1
+	i8042/serio1/input*
+This matches the behaviour of USB devices, where both the device and the
+parent controller must have wakeups enabled for wakeup functionality
+to work. Suggested by Rafael J. Wysocki.
 
-Regards,
-Rachna.
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index da38d97..639aba7 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1588,6 +1588,9 @@ static int input_dev_suspend(struct device *dev)
+ {
+ 	struct input_dev *input_dev = to_input_dev(dev);
  
-
++	if (device_may_wakeup(dev))
++		return 0;
++
+ 	mutex_lock(&input_dev->mutex);
+ 
+ 	if (input_dev->users)
+@@ -1602,7 +1605,8 @@ static int input_dev_resume(struct device *dev)
+ {
+ 	struct input_dev *input_dev = to_input_dev(dev);
+ 
+-	input_reset_device(input_dev);
++	if (!device_may_wakeup(dev))
++		input_reset_device(input_dev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 19cfc0c..4bb81c2 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1027,6 +1027,7 @@ static void atkbd_set_keycode_table(struct atkbd *atkbd)
+ static void atkbd_set_device_attrs(struct atkbd *atkbd)
+ {
+ 	struct input_dev *input_dev = atkbd->dev;
++	struct device *parent = &atkbd->ps2dev.serio->dev;
+ 	int i;
+ 
+ 	if (atkbd->extra)
+@@ -1047,7 +1048,8 @@ static void atkbd_set_device_attrs(struct atkbd *atkbd)
+ 	input_dev->id.product = atkbd->translated ? 1 : atkbd->set;
+ 	input_dev->id.version = atkbd->id;
+ 	input_dev->event = atkbd_event;
+-	input_dev->dev.parent = &atkbd->ps2dev.serio->dev;
++	input_dev->dev.parent = parent;
++	device_set_wakeup_capable(&input_dev->dev, device_can_wakeup(parent));
+ 
+ 	input_set_drvdata(input_dev, atkbd);
+ 
+diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
+index 95577c1..d5dd990 100644
+--- a/drivers/input/mouse/hgpk.c
++++ b/drivers/input/mouse/hgpk.c
+@@ -548,6 +548,8 @@ static void hgpk_setup_input_device(struct input_dev *input,
+ 		input->phys = old_input->phys;
+ 		input->id = old_input->id;
+ 		input->dev.parent = old_input->dev.parent;
++		device_set_wakeup_capable(&input->dev,
++			device_can_wakeup(&old_input->dev));
+ 	}
+ 
+ 	memset(input->evbit, 0, sizeof(input->evbit));
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 3f74bae..de8ecd5 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1232,8 +1232,10 @@ static int psmouse_switch_protocol(struct psmouse *psmouse,
+ {
+ 	const struct psmouse_protocol *selected_proto;
+ 	struct input_dev *input_dev = psmouse->dev;
++	struct device *parent = &psmouse->ps2dev.serio->dev;
+ 
+-	input_dev->dev.parent = &psmouse->ps2dev.serio->dev;
++	input_dev->dev.parent = parent;
++	device_set_wakeup_capable(&input_dev->dev, device_can_wakeup(parent));
+ 
+ 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
+ 	input_dev->keybit[BIT_WORD(BTN_MOUSE)] =
+diff --git a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
+index 5d48bb6..296633c 100644
+--- a/drivers/input/serio/i8042-io.h
++++ b/drivers/input/serio/i8042-io.h
+@@ -92,4 +92,8 @@ static inline void i8042_platform_exit(void)
+ #endif
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_IO_H */
+diff --git a/drivers/input/serio/i8042-ip22io.h b/drivers/input/serio/i8042-ip22io.h
+index ee1ad27..c5b76a4 100644
+--- a/drivers/input/serio/i8042-ip22io.h
++++ b/drivers/input/serio/i8042-ip22io.h
+@@ -73,4 +73,8 @@ static inline void i8042_platform_exit(void)
+ #endif
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_IP22_H */
+diff --git a/drivers/input/serio/i8042-jazzio.h b/drivers/input/serio/i8042-jazzio.h
+index 13fd710..a11913a 100644
+--- a/drivers/input/serio/i8042-jazzio.h
++++ b/drivers/input/serio/i8042-jazzio.h
+@@ -66,4 +66,8 @@ static inline void i8042_platform_exit(void)
+ #endif
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_JAZZ_H */
+diff --git a/drivers/input/serio/i8042-ppcio.h b/drivers/input/serio/i8042-ppcio.h
+index f708c75..c9f4292 100644
+--- a/drivers/input/serio/i8042-ppcio.h
++++ b/drivers/input/serio/i8042-ppcio.h
+@@ -52,6 +52,10 @@ static inline void i8042_platform_exit(void)
+ {
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #else
+ 
+ #include "i8042-io.h"
+diff --git a/drivers/input/serio/i8042-snirm.h b/drivers/input/serio/i8042-snirm.h
+index 409a934..96d034f 100644
+--- a/drivers/input/serio/i8042-snirm.h
++++ b/drivers/input/serio/i8042-snirm.h
+@@ -72,4 +72,8 @@ static inline void i8042_platform_exit(void)
+ 
+ }
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_SNIRM_H */
+diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
+index 395a9af..e5381d3 100644
+--- a/drivers/input/serio/i8042-sparcio.h
++++ b/drivers/input/serio/i8042-sparcio.h
+@@ -154,4 +154,8 @@ static inline void i8042_platform_exit(void)
+ }
+ #endif /* !CONFIG_PCI */
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ #endif /* _I8042_SPARCIO_H */
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index bb9f5d3..76b2e58 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -875,6 +875,10 @@ static inline int i8042_pnp_init(void) { return 0; }
+ static inline void i8042_pnp_exit(void) { }
+ #endif
+ 
++static inline void i8042_platform_suspend(struct device *dev, bool may_wakeup)
++{
++}
++
+ static int __init i8042_platform_init(void)
+ {
+ 	int retval;
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index d37a48e..d275130 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -87,6 +87,7 @@ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
+ #endif
+ 
+ static bool i8042_bypass_aux_irq_test;
++static bool i8042_enable_wakeup;
+ 
+ #include "i8042.h"
+ 
+@@ -1082,10 +1083,17 @@ static void i8042_dritek_enable(void)
+  * before suspending.
+  */
+ 
+-static int i8042_controller_resume(bool force_reset)
++static int i8042_controller_resume(bool force_reset, bool soft_resume)
+ {
+ 	int error;
+ 
++	/*
++	 * If device is selected as a wakeup source, it was not powered down
++	 * or reset during suspend, so we have very little to do.
++	 */
++	if (soft_resume)
++		goto soft;
++
+ 	error = i8042_controller_check();
+ 	if (error)
+ 		return error;
+@@ -1129,6 +1137,7 @@ static int i8042_controller_resume(bool force_reset)
+ 	if (i8042_ports[I8042_KBD_PORT_NO].serio)
+ 		i8042_enable_kbd_port();
+ 
++soft:
+ 	i8042_interrupt(0, NULL);
+ 
+ 	return 0;
+@@ -1146,14 +1155,48 @@ static int i8042_pm_reset(struct device *dev)
+ 	return 0;
+ }
+ 
++static int i8042_pm_suspend(struct device *dev)
++{
++	i8042_platform_suspend(dev, device_may_wakeup(dev));
++
++	/*
++	 * If device is selected as a wakeup source, don't powerdown or reset
++	 * during suspend. Just disable IRQs to ensure race-free resume.
++	 */
++	if (device_may_wakeup(dev)) {
++		if (i8042_kbd_irq_registered)
++			disable_irq(I8042_KBD_IRQ);
++		if (i8042_aux_irq_registered)
++			disable_irq(I8042_AUX_IRQ);
++		return 0;
++	}
++
++	return i8042_pm_reset(dev);
++}
++
+ static int i8042_pm_resume(struct device *dev)
+ {
+ 	/*
+ 	 * On resume from S2R we always try to reset the controller
+ 	 * to bring it in a sane state. (In case of S2D we expect
+ 	 * BIOS to reset the controller for us.)
++	 * This function call will also handle any pending keypress event
++	 * (perhaps the system wakeup reason)
++	 */
++	int r = i8042_controller_resume(true, device_may_wakeup(dev));
++
++	/* If the device was left running during suspend, enable IRQs again
++	 * now. Must be done last to avoid races with interrupt processing
++	 * inside i8042_controller_resume.
+ 	 */
+-	return i8042_controller_resume(true);
++	if (device_may_wakeup(dev)) {
++		if (i8042_kbd_irq_registered)
++			enable_irq(I8042_KBD_IRQ);
++		if (i8042_aux_irq_registered)
++			enable_irq(I8042_AUX_IRQ);
++	}
++
++	return r;
+ }
+ 
+ static int i8042_pm_thaw(struct device *dev)
+@@ -1165,11 +1208,11 @@ static int i8042_pm_thaw(struct device *dev)
+ 
+ static int i8042_pm_restore(struct device *dev)
+ {
+-	return i8042_controller_resume(false);
++	return i8042_controller_resume(false, false);
+ }
+ 
+ static const struct dev_pm_ops i8042_pm_ops = {
+-	.suspend	= i8042_pm_reset,
++	.suspend	= i8042_pm_suspend,
+ 	.resume		= i8042_pm_resume,
+ 	.thaw		= i8042_pm_thaw,
+ 	.poweroff	= i8042_pm_reset,
+@@ -1192,6 +1235,7 @@ static int __init i8042_create_kbd_port(void)
+ {
+ 	struct serio *serio;
+ 	struct i8042_port *port = &i8042_ports[I8042_KBD_PORT_NO];
++	struct device *parent = &i8042_platform_device->dev;
+ 
+ 	serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
+ 	if (!serio)
+@@ -1203,7 +1247,8 @@ static int __init i8042_create_kbd_port(void)
+ 	serio->stop		= i8042_stop;
+ 	serio->close		= i8042_port_close;
+ 	serio->port_data	= port;
+-	serio->dev.parent	= &i8042_platform_device->dev;
++	serio->dev.parent	= parent;
++	device_set_wakeup_capable(&serio->dev, device_can_wakeup(parent));
+ 	strlcpy(serio->name, "i8042 KBD port", sizeof(serio->name));
+ 	strlcpy(serio->phys, I8042_KBD_PHYS_DESC, sizeof(serio->phys));
+ 
+@@ -1218,6 +1263,7 @@ static int __init i8042_create_aux_port(int idx)
+ 	struct serio *serio;
+ 	int port_no = idx < 0 ? I8042_AUX_PORT_NO : I8042_MUX_PORT_NO + idx;
+ 	struct i8042_port *port = &i8042_ports[port_no];
++	struct device *parent = &i8042_platform_device->dev;
+ 
+ 	serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
+ 	if (!serio)
+@@ -1228,7 +1274,8 @@ static int __init i8042_create_aux_port(int idx)
+ 	serio->start		= i8042_start;
+ 	serio->stop		= i8042_stop;
+ 	serio->port_data	= port;
+-	serio->dev.parent	= &i8042_platform_device->dev;
++	serio->dev.parent	= parent;
++	device_set_wakeup_capable(&serio->dev, device_can_wakeup(parent));
+ 	if (idx < 0) {
+ 		strlcpy(serio->name, "i8042 AUX port", sizeof(serio->name));
+ 		strlcpy(serio->phys, I8042_AUX_PHYS_DESC, sizeof(serio->phys));
+@@ -1403,6 +1450,9 @@ static int __init i8042_probe(struct platform_device *dev)
+ 		i8042_dritek_enable();
+ #endif
+ 
++	if (i8042_enable_wakeup)
++		device_set_wakeup_capable(&dev->dev, true);
++
+ 	if (!i8042_noaux) {
+ 		error = i8042_setup_aux();
+ 		if (error && error != -ENODEV && error != -EBUSY)
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index ba70058..9e2fdb4 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -931,7 +931,7 @@ static int serio_uevent(struct device *dev, struct kobj_uevent_env *env)
+ #endif /* CONFIG_HOTPLUG */
+ 
+ #ifdef CONFIG_PM
+-static int serio_suspend(struct device *dev)
++static int serio_poweroff(struct device *dev)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 
+@@ -940,7 +940,16 @@ static int serio_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int serio_resume(struct device *dev)
++static int serio_suspend(struct device *dev)
++{
++	/* If configured as a wakeup source, don't power off. */
++	if (device_may_wakeup(dev))
++		return 0;
++
++	return serio_poweroff(dev);
++}
++
++static int serio_restore(struct device *dev)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 
+@@ -953,11 +962,23 @@ static int serio_resume(struct device *dev)
+ 	return 0;
+ }
+ 
++static int serio_resume(struct device *dev)
++{
++	/*
++	 * If configured as a wakeup source, we didn't power off during
++	 * suspend, and hence have nothing to do.
++	 */
++	if (device_may_wakeup(dev))
++		return 0;
++
++	return serio_restore(dev);
++}
++
+ static const struct dev_pm_ops serio_pm_ops = {
+ 	.suspend	= serio_suspend,
+ 	.resume		= serio_resume,
+-	.poweroff	= serio_suspend,
+-	.restore	= serio_resume,
++	.poweroff	= serio_poweroff,
++	.restore	= serio_restore,
+ };
+ #endif /* CONFIG_PM */
+ 
+-- 
+1.7.6

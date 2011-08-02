@@ -1,24 +1,17 @@
 From: Daniel Drake <dsd@laptop.org>
-Subject: [PATCH v4 2/2] i8042: Enable OLPC's EC-based i8042
-	wakeup control
+Subject: [PATCH v4 2/2] i8042: Enable OLPC's EC-based i8042 wakeup control
 Date: Tue,  2 Aug 2011 16:49:34 +0100 (BST)
-Message-ID: <20110802154934.7B80B9D401C@zog.reactivated.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-To: dtor@mail.ru, dmitry.torokhov@gmail.com
-Cc: linux-pm@lists.linux-foundation.org, dilinger@queued.net, linux-input@vger.kernel.org
+Message-ID: <20110802154934.7B80B9D401C__34788.6661104441$1312303672$gmane$org@zog.reactivated.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from queueout02-winn.ispmail.ntl.com ([81.103.221.56]:64591 "EHLO
+	queueout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754670Ab1HBQrl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Aug 2011 12:47:41 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dtor@mail.ru, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, rjw@sisk.pl, dilinger@queued.net
 
 The OLPC XO laptop can be resumed from suspend via keyboard or mouse
 activity. Hook up the i8042 driver to the OLPC EC controls to make
@@ -67,3 +60,4 @@ index 76b2e58..36f6015 100644
  	return retval;
 -- 
 1.7.6
+

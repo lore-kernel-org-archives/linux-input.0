@@ -1,75 +1,75 @@
-From: Rakesh Iyer <riyer@nvidia.com>
-Subject: RE: [PATCH v1] Input: tegra-kbc - fix computation of polling time
-Date: Tue, 2 Aug 2011 09:50:25 -0700
-Message-ID: <1FC56210173BB445BD77F608D6FB8D033C90FB5CC6@HQMAIL03.nvidia.com>
-References: <1311981417-31865-1-git-send-email-riyer@nvidia.com>
- <20110730104101.GA12309@avionic-0098.mockup.avionic-design.de>
- <20110730190220.GA5686@core.coreip.homeip.net>
+From: "Jiejing.Zhang " <kzjeef@gmail.com>
+Subject: Re: [PATCH 1/4] Revert to anonymous 'type A' MT protocol for touch
+Date: Wed, 3 Aug 2011 12:31:46 +0800
+Message-ID: <CACrgxGD5Q9-oc+A7hRn0q_A+5gzb23HFZ8B-z5_0p2n5QioD1Q@mail.gmail.com>
+References: <1310072700-2829-1-git-send-email-killertofu@gmail.com>
+ <20110707213506.GA20310@core.coreip.homeip.net> <CAPz4a6Cf+rM17qKVDf7mZrYYv4Dzse4w1wVZaWgrSzb8yppk4A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:6892 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754554Ab1HBQuh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Aug 2011 12:50:37 -0400
-In-Reply-To: <20110730190220.GA5686@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:47735 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751110Ab1HCEg4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2011 00:36:56 -0400
+Received: by vxh35 with SMTP id 35so352563vxh.19
+        for <linux-input@vger.kernel.org>; Tue, 02 Aug 2011 21:36:55 -0700 (PDT)
+In-Reply-To: <CAPz4a6Cf+rM17qKVDf7mZrYYv4Dzse4w1wVZaWgrSzb8yppk4A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, Thierry Reding <thierry.reding@avionic-design.de>
-Cc: "rydberg@euromail.se" <rydberg@euromail.se>, "olof@lixom.net" <olof@lixom.net>, Allen Martin <AMartin@nvidia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dima Zavin <dima@android.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jgerecke@wacom.com>
 
-Thanks Dmitry and Thierry.
+Hi Dima,
 
-Regards
-Rakesh
+Could you tell when will android support protocol B ?
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Saturday, July 30, 2011 12:02 PM
-> To: Thierry Reding
-> Cc: Rakesh Iyer; rydberg@euromail.se; olof@lixom.net; Allen Martin; linux-
-> kernel@vger.kernel.org; linux-input@vger.kernel.org
-> Subject: Re: [PATCH v1] Input: tegra-kbc - fix computation of polling time
-> 
-> On Sat, Jul 30, 2011 at 12:41:01PM +0200, Thierry Reding wrote:
-> > * riyer@nvidia.com wrote:
-> > > From: Rakesh Iyer <riyer@nvidia.com>
-> > >
-> > > Fix a constant definition and computation of polling time.
-> > >
-> > > Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
-> > > ---
-> > >  drivers/input/keyboard/tegra-kbc.c |    4 ++--
-> > >  1 files changed, 2 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> > > index da3828f..263f6fc 100644
-> > > --- a/drivers/input/keyboard/tegra-kbc.c
-> > > +++ b/drivers/input/keyboard/tegra-kbc.c
-> > > @@ -37,7 +37,7 @@
-> > >  #define KBC_ROW_SCAN_DLY	5
-> > >
-> > >  /* KBC uses a 32KHz clock so a cycle = 1/32Khz */
-> > > -#define KBC_CYCLE_USEC	32
-> > > +#define KBC_CYCLE_MS	32
-> > >
-> > >  /* KBC Registers */
-> > >
-> > > @@ -647,7 +647,7 @@ static int __devinit tegra_kbc_probe(struct platform_device
-> *pdev)
-> > >  	debounce_cnt = min(pdata->debounce_cnt, KBC_MAX_DEBOUNCE_CNT);
-> > >  	scan_time_rows = (KBC_ROW_SCAN_TIME + debounce_cnt) * num_rows;
-> > >  	kbc->repoll_dly = KBC_ROW_SCAN_DLY + scan_time_rows + pdata->repeat_cnt;
-> > > -	kbc->repoll_dly = ((kbc->repoll_dly * KBC_CYCLE_USEC) + 999) / 1000;
-> > > +	kbc->repoll_dly = (kbc->repoll_dly + KBC_CYCLE_MS - 1) / KBC_CYCLE_MS;
-> >
-> > You might want to consider using DIV_ROUND_UP for this.
-> 
-> Indeed. Adjusted locally and applied.
-> 
-> Thanks.
-> 
+I'm using android honeycomb mr2 release, I found it not support Protoco=
+l B yet.
+
+Best regards,
+Zhang Jiejing
+
+
+
+2011/7/8 Dima Zavin <dima@android.com>:
+> Agreed. The next version will correctly use protocol B. When I briefl=
+y
+> (too briefly clearly :-( ) looked at the original patches, I thought
+> they were driver bug fixes. If it's just workarounds for stuff androi=
+d
+> doesn't do, then we should fix our framework.
+>
+> Jason, do any of these patches fix actual driver bugs or make the
+> driver more robust?
+>
+> --Dima
+>
+> On Thu, Jul 7, 2011 at 2:35 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> On Thu, Jul 07, 2011 at 02:04:57PM -0700, Jason Gerecke wrote:
+>>> Android (at least up to Gingerbread) does not understand the 'B' pr=
+otocol
+>>> first made available in 2.6.36. As a workaround until this is fixed=
+, we
+>>> drop back to using the 'A' protocol.
+>>>
+>>
+>> Well, fix Android then. Same goes for patches 2 & 3.
+>>
+>> Thanks.
+>>
+>> --
+>> Dmitry
+>>
 > --
-> Dmitry
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,70 +1,115 @@
-From: Yufeng Shen <miletus@chromium.org>
-Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Report pressure information from
- the driver
-Date: Wed, 3 Aug 2011 12:22:19 -0400
-Message-ID: <CAPDwgkOpBg911PjoAb1ywv769nC63QDAJgUSES+3PmRsMENMHg@mail.gmail.com>
-References: <1311787695-28147-1-git-send-email-miletus@chromium.org>
-	<20110730191206.GF5686@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 1/2] Input: enable i8042-level wakeup control
+Date: Wed, 3 Aug 2011 11:43:32 -0700
+Message-ID: <20110803184332.GA17880@core.coreip.homeip.net>
+References: <20110802154916.624619D401C@zog.reactivated.net>
+ <20110803065920.GC23399@core.coreip.homeip.net>
+ <CAMLZHHTTXvThE5bWfyjJu-UFJbaKAhzORKWV8ay4RZW-ZVifLg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:29607 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754003Ab1HCQWX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2011 12:22:23 -0400
-Received: from hpaq14.eem.corp.google.com (hpaq14.eem.corp.google.com [172.25.149.14])
-	by smtp-out.google.com with ESMTP id p73GMMAR030666
-	for <linux-input@vger.kernel.org>; Wed, 3 Aug 2011 09:22:22 -0700
-Received: from yxn22 (yxn22.prod.google.com [10.190.4.86])
-	by hpaq14.eem.corp.google.com with ESMTP id p73GMKCs011493
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Wed, 3 Aug 2011 09:22:21 -0700
-Received: by yxn22 with SMTP id 22so659640yxn.0
-        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2011 09:22:20 -0700 (PDT)
-In-Reply-To: <20110730191206.GF5686@core.coreip.homeip.net>
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:41092 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754230Ab1HCSnk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2011 14:43:40 -0400
+Received: by yia27 with SMTP id 27so649034yia.19
+        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2011 11:43:39 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAMLZHHTTXvThE5bWfyjJu-UFJbaKAhzORKWV8ay4RZW-ZVifLg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Chris Leech <christopher.leech@linux.intel.com>, linux-kernel@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>, "Gong, Michael" <Michael.Gong@atmel.com>
+To: Daniel Drake <dsd@laptop.org>
+Cc: linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, rjw@sisk.pl, dilinger@queued.net, pgf@laptop.org
 
-Re-sent this email due to linux-input@veger.kernel.org rejecting last
-reply for containing HTML subpart
+On Wed, Aug 03, 2011 at 09:04:56AM +0100, Daniel Drake wrote:
+> On Wed, Aug 3, 2011 at 7:59 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > I am not sure that we should be marking input devices themselves as
+> > wakeup capable - they are in no way physical devices. I'd stop at s=
+erio
+> > level...
+>=20
+> We need a way to make sure the device state is untouched during
+> suspend/resume. Would you be happier if an input device looked at the
+> device_may_wakeup() of its parent?
 
------------------------------------------------------------------------------------------------------------------------------------------------
+I think we should leave input core out of it completely, see below...
 
-Hi Dmitry,
+>=20
+> >>
+> >> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> >> index da38d97..639aba7 100644
+> >> --- a/drivers/input/input.c
+> >> +++ b/drivers/input/input.c
+> >> @@ -1588,6 +1588,9 @@ static int input_dev_suspend(struct device *=
+dev)
+> >> =A0{
+> >> =A0 =A0 =A0 struct input_dev *input_dev =3D to_input_dev(dev);
+> >>
+> >> + =A0 =A0 if (device_may_wakeup(dev))
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> >> +
+> >
+> > On suspend should we not try to shut off leds and sound?
+>=20
+> Thats right. The setup is that the system appears to be running as
+> normal, our display also remains on during suspend (and wifi, and so
+> on). Bar the laptop's power LED which goes from always-on to flashing=
+,
+> the user is unaware that the laptop has suspended.
 
-Currently the driver atmel_mxt_ts.c supports 3 different models of
-atmel touch controller:
+No, I do not believe we can do what you are doing in input core. You ar=
+e
+changing behavior for one platform and one (or 2 drivers) that will not
+be matched (at least I don't think so) by anything else out there. What
+will happen if you plug a random USB keyboard into OLPC box? Will it ke=
+ep
+leds powered?
 
-1. qt602240_ts
-2. atmel_mxt_ts   (which is for mxt1386)
-3. mXT224
+>=20
+> >> =A0 =A0 =A0 mutex_lock(&input_dev->mutex);
+> >>
+> >> =A0 =A0 =A0 if (input_dev->users)
+> >> @@ -1602,7 +1605,8 @@ static int input_dev_resume(struct device *d=
+ev)
+> >> =A0{
+> >> =A0 =A0 =A0 struct input_dev *input_dev =3D to_input_dev(dev);
+> >>
+> >> - =A0 =A0 input_reset_device(input_dev);
+> >> + =A0 =A0 if (!device_may_wakeup(dev))
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 input_reset_device(input_dev);
+> >>
+> >
+> > Does the controller wakes up the system on key release or only pres=
+s? My
+> > concern is with cases when we suspend with a key pressed and wake u=
+p
+> > with it already released.
+>=20
+> It wakes up on key press, but our EC buffers communication, so both
+> the key press and key release event would be delivered in the above
+> scenario.
 
-Confirmed with atmel side that qt602240_ts is actually an alias for
-mxt224, and mxt224
-follows the same protocol guide with mxt1386, which means it will
-report the pressure
-information the same way as mxt1386.
+Just to confirm, we 3 events will be delivered in this case:
 
---- Yufeng Shen
+1 - old key release
+2 - wakeup key press
+3 - wakeup key release
 
-On Sat, Jul 30, 2011 at 3:12 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Yufeng,
->
-> On Wed, Jul 27, 2011 at 01:28:15PM -0400, Yufeng Shen wrote:
->> Atmel mxt1386 touch controller has the touch pressure information but
->> the current driver atmel_mxt_ts does not expose it to the user space.
->> This patch makes the driver report the touch pressure information to
->> user space.
->>
->
-> What about other controllers supported by this driver? Do all of them
-> report pressure? Do all have the same reporting range?
->
-> Thanks.
->
-> --
-> Dmitry
->
+?
+
+I also wonder what will happen with non-PS2 devices...
+
+Instead of wiring it all through input core could we contain this in
+atkbd and hgpk by registering pm_notifiers and ignoring certain request=
+s
+from input/serio cores during system state transition on OLPC only?
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

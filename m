@@ -1,35 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: ad7879: Fix deficient device disable
-Date: Tue, 2 Aug 2011 22:20:26 -0700
-Message-ID: <20110803052026.GB18560@core.coreip.homeip.net>
-References: <1312289205-9936-1-git-send-email-michael.hennerich@analog.com>
+Subject: Re: [PATCH] input: misc: Add support for pm8xxx based vibrator driver
+Date: Tue, 2 Aug 2011 23:02:37 -0700
+Message-ID: <20110803060237.GA23399@core.coreip.homeip.net>
+References: <1312258397-11039-1-git-send-email-aghayal@codeaurora.org>
+ <CAM=Q2cvzsZO4dc6Ot_aYJyLW27TErgySdXRcHr1UDb5ua1uHAg@mail.gmail.com>
+ <4E3798C1.3080800@codeaurora.org>
+ <20110802064124.GA21319@core.coreip.homeip.net>
+ <4E37BCA2.4010208@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:46075 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753555Ab1HCFUc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2011 01:20:32 -0400
-Received: by iyb12 with SMTP id 12so587554iyb.19
-        for <linux-input@vger.kernel.org>; Tue, 02 Aug 2011 22:20:32 -0700 (PDT)
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1312289205-9936-1-git-send-email-michael.hennerich@analog.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4E37BCA2.4010208@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Anirudh Ghayal <aghayal@codeaurora.org>
+Cc: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Amy Maloche <amaloche@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
-To: michael.hennerich@analog.com
-Cc: linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, drivers@analog.com
 
-On Tue, Aug 02, 2011 at 02:46:45PM +0200, michael.hennerich@analog.com wrote:
-> From: Michael Hennerich <michael.hennerich@analog.com>
+On Tue, Aug 02, 2011 at 02:30:18PM +0530, Anirudh Ghayal wrote:
+> Hi Dmitry,
 > 
-> Input close or device disable should not interact with the exported gpiolib
-> functionality. However that's the case. __ad7879_disable() clears the
-> entire AD7879_REG_CTRL2, while it should just power down the ADC and
-> its reference.
+> On 8/2/2011 12:11 PM, Dmitry Torokhov wrote:
+> >On Tue, Aug 02, 2011 at 11:57:13AM +0530, Anirudh Ghayal wrote:
+> >
+> >>Yes should have been dev_err.
+> >>
+> >>Dmitry, would you like me to submit another patch for this? I can
+> >>make the @work change as well. Or would you make this minor change
+> >>as well. Thank you.
+> >>
+> >
+> >Anirudh, I made this plus a few more cosmetic changes, if you could try
+> >the patch below and let me know if it still works I will commit it for
+> >the next merge window.
+> >
 > 
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+> Thank you for making changes. I have tested the patch and it works fine.
+> 
 
-Applied, thanks Michael.
+Thank you, I queued it for 3.2.
 
 -- 
 Dmitry

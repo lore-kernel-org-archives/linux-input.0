@@ -1,45 +1,83 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: PATCH [1/6] HID: lg4ff - Move handling of Logitech wheels to
- lg4ff driver
-Date: Wed, 3 Aug 2011 15:51:09 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1108031550110.22911@pobox.suse.cz>
-References: <1436421.MlUiXUhh2P@qosmio-x300> <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [RFC] Wiimote userspace interface
+Date: Wed, 3 Aug 2011 16:49:50 +0200
+Message-ID: <CANq1E4QgF6i2UJQpaRDkOf-vwGH9vMfU9HfL8O8Rt38uup3qew@mail.gmail.com>
+References: <CANq1E4S3VY_xxzcjuJDHJc57VPb_uiFrx1B3wR9Xnw5ddx6HJg@mail.gmail.com>
+	<20110803061744.GB23399@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35302 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752347Ab1HCNvL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Aug 2011 09:51:11 -0400
-In-Reply-To: <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
+Received: from mail-vx0-f174.google.com ([209.85.220.174]:55644 "EHLO
+	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754584Ab1HCOtv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2011 10:49:51 -0400
+Received: by vxh35 with SMTP id 35so671022vxh.19
+        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2011 07:49:50 -0700 (PDT)
+In-Reply-To: <20110803061744.GB23399@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: =?ISO-8859-15?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, "Gustavo F. Padovan" <padovan@profusion.mobi>, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>
 
-On Sat, 30 Jul 2011, simon@mungewell.org wrote:
+Hi Dmitry
 
-> > This is the first out of five patches me and Simon Wood (CC'd) have been
-> > working on.
-> 
-> As a formality I should state that I support this series of patches. I
-> think moving the FF code from 'hid-lgff.c' to 'hid-lg4ff' will enable us
-> to implement more features in the future without risk of inadverantly
-> affecting other (non-wheel) devices.
-> 
-> I have tested this code against the WiiWheel and DrivingForcePro.
-> 
-> signed-off-by: simon@mungewell.org
+On Wed, Aug 3, 2011 at 8:17 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi David,
+>
+> On Sat, Jul 30, 2011 at 06:34:37PM +0200, David Herrmann wrote:
+>> There is also the other side. Sending data to the wiimote. 4 LEDs can
+>> be set, the rumble motor can be enabled/disabled and audio data can be
+>> streamed. I think my current approach to use sysfs attributes for the
+>> LEDs
+>
+> Depending on what exactly it is you may try registering LEDs as LED
+> class devices. Having a sysfs attribute to light one of 4 leds is an
+> option too.
 
-OK, thanks a lot guys for this effort.
+I already looked at the API. Although the 4 LEDs of the wiimote can
+only be switched on/off (no brightness modulation) I think I could
+register 4 led_classdev structures. This would also allow software
+blinking.
 
-I am finalizing the patch review and planning to merge it. Just one minor 
-thing -- Michal, I am afraid that I'd rather avoid UTF-8 characters being 
-passed to printk(). So could you please resping 1/6 patch with the 
-diacritics removed there?
+>> and RUMBLE motor is ok? I can't figure out any better way here.
+>
+> One of the input devices should be registered as ForceFeedback device
+> (or you create a separate FF input device).
 
-Thanks,
+Ok, I will add that.
 
--- 
-Jiri Kosina
-SUSE Labs
+>> Reference-counting doesn't make sense. If multiple devices use them,
+>> then they will always have conflicts, however, it still works.
+>> Audio streaming is not yet implemented, but I think I could register
+>> an alsa device so this needs not to be discussed here.
+>>
+>>
+>> Currently I think Interface #2 would be the best way but I don't want
+>> to spend time implementing that if you tell me it isn't acceptable.
+>> Any comments on this are appreciated.
+>
+> I believe you should try presenting physical objects as input devices so
+> I'd try presenting wiimote (with optional motion+ events) as one device
+> and accessory (nunchuck, classic extension) as another device.
+
+Yes, but the problem is, that this would enable all peripherals of the
+wiimote, even though userspace may not need them. But if that is the
+recommended way, I will implement it.
+
+> The IR Cam data is a concern. Could you please describe a bit more what
+> is being reported by the cam?
+
+The IR cam tracks IR-LEDs. Up to 4 leds. It reports them as 2D
+coordinates. The values can be used to use the wiimote with the
+integrated cam as pointing device, but may also be used for other
+purposes so I don't want to handle the IR values in the driver but
+rather provide them to userspace.
+
+> Thanks.
+>
+> --
+> Dmitry
+
+Regards
+David

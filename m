@@ -1,43 +1,50 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: PATCH [1/6] HID: lg4ff - Move handling of Logitech wheels to
- lg4ff driver
-Date: Thu, 4 Aug 2011 15:23:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1108041522550.32288@pobox.suse.cz>
-References: <1436421.MlUiXUhh2P@qosmio-x300> <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
+Subject: Re: [PATCH 1/2] HID: ACRUX - fix enabling force feedback support
+Date: Thu, 4 Aug 2011 15:26:39 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1108041526230.32288@pobox.suse.cz>
+References: <1312442757-31241-1-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46539 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:46641 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753196Ab1HDNXm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Aug 2011 09:23:42 -0400
-In-Reply-To: <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
+	id S1753989Ab1HDN0l (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Aug 2011 09:26:41 -0400
+In-Reply-To: <1312442757-31241-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: =?ISO-8859-15?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Sergei Kolzun <x0r@dv-life.ru>
 
-On Sat, 30 Jul 2011, simon@mungewell.org wrote:
+On Thu, 4 Aug 2011, Dmitry Torokhov wrote:
 
-> > This is the first out of five patches me and Simon Wood (CC'd) have been
-> > working on.
+> From: Sergei Kolzun <x0r@dv-life.ru>
 > 
-> As a formality I should state that I support this series of patches. I
-> think moving the FF code from 'hid-lgff.c' to 'hid-lg4ff' will enable us
-> to implement more features in the future without risk of inadverantly
-> affecting other (non-wheel) devices.
+> The config option needs to be a 'bool' and not a tristate, otheriwse
+> force feedback support never makes it into the module.
 > 
-> I have tested this code against the WiiWheel and DrivingForcePro.
+> Signed-off-by: Sergei Kolzun <x0r@dv-life.ru>
+> Cc: stable@kernel.org
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>  drivers/hid/Kconfig |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> signed-off-by: simon@mungewell.org
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 36ca465..a1f3c0d 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -69,7 +69,7 @@ config HID_ACRUX
+>  	Say Y here if you want to enable support for ACRUX game controllers.
+>  
+>  config HID_ACRUX_FF
+> -	tristate "ACRUX force feedback support"
+> +	bool "ACRUX force feedback support"
+>  	depends on HID_ACRUX
+>  	select INPUT_FF_MEMLESS
+>  	---help---
 
-Michal, thanks a lot for resending with the UTF-8 stuff in printk() 
-removed.
-
-I am going to apply it, but the whole series has been line wrapped by your 
-client. Could you please fix that up and resend, so that I could apply it?
-
-Thanks,
+I have applied both patches, thanks Dmitry and Sergei!
 
 -- 
 Jiri Kosina

@@ -1,37 +1,44 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: [PATCH v2] input: add EETI eGalax I2C capacitive multi touch
- driver.
-Date: Wed, 03 Aug 2011 13:48:35 -0700
-Message-ID: <4E39B423.2060402@gmail.com>
-References: <20110801063409.GB32118@core.coreip.homeip.net> <1312370963-24965-1-git-send-email-jiejing.zhang@freescale.com>
+From: Deepak Saxena <dsaxena@linaro.org>
+Subject: [PATCH] Remove CLOCK_TICK_RATE from analog joystick driver
+Date: Wed, 3 Aug 2011 17:06:40 -0700
+Message-ID: <20110804000640.GC23503@plexity.net>
+Reply-To: dsaxena@plexity.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:52359 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754118Ab1HCUsl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2011 16:48:41 -0400
-Received: by gwaa12 with SMTP id a12so711637gwa.19
-        for <linux-input@vger.kernel.org>; Wed, 03 Aug 2011 13:48:40 -0700 (PDT)
-In-Reply-To: <1312370963-24965-1-git-send-email-jiejing.zhang@freescale.com>
+Received: from plexity.net ([206.123.115.38]:52533 "EHLO plexity.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755933Ab1HDANl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Aug 2011 20:13:41 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zhang Jiejing <jiejing.zhang@freescale.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, dima@android.com, kzjeef@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-input@vger.kernel.org
 
-On 08/03/2011 04:29 AM, Zhang Jiejing wrote:
-> Hi Dmitry,
-> 
-> This is the patch after change to mt Protocol-B.
-> but I have a issue with test tool, in the orignal patch, I use
-> android to do the test, but android still not support Protocol B.
-> 
-> I also have a arm based ubuntu, could you which tool can test protocol B?
+The analog joystick driver is written for x86 systems. This
+patch updates it to use the the PIT_TICK_RATE value instead
+of CLOCK_TICK_RATE as they are equivalent on x86 and we 
+want to depecrate the later.
 
-There are some tools as part of the Ubuntu uTouch stack that you could
-use. If you want to see the raw touch data you can use
-utouch-frame-test-mtdev from the utouch-frame-tools package. If you want
-to see if gestures work you can use geistest from utouch-geis-tools.
+Signed-off-by: Deepak Saxena <dsaxena@linaro.org>
+---
+ drivers/input/joystick/analog.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
--- Chase
+diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+index 9882971..358cd7e 100644
+--- a/drivers/input/joystick/analog.c
++++ b/drivers/input/joystick/analog.c
+@@ -139,7 +139,7 @@ struct analog_port {
+ #include <linux/i8253.h>
+ 
+ #define GET_TIME(x)	do { if (cpu_has_tsc) rdtscl(x); else x = get_time_pit(); } while (0)
+-#define DELTA(x,y)	(cpu_has_tsc ? ((y) - (x)) : ((x) - (y) + ((x) < (y) ? CLOCK_TICK_RATE / HZ : 0)))
++#define DELTA(x,y)	(cpu_has_tsc ? ((y) - (x)) : ((x) - (y) + ((x) < (y) ? PIT_TICK_RATE / HZ : 0)))
+ #define TIME_NAME	(cpu_has_tsc?"TSC":"PIT")
+ static unsigned int get_time_pit(void)
+ {
+-- 
+1.7.4.1
+

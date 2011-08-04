@@ -1,71 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: keyboard: adp5589-keys: Add support for the
- ADP5585 derivatives
-Date: Thu, 4 Aug 2011 00:55:42 -0700
-Message-ID: <20110804075542.GC31276@core.coreip.homeip.net>
-References: <1311944415-20197-1-git-send-email-michael.hennerich@analog.com>
- <4E390710.5060503@analog.com>
- <20110804031906.GA30482@core.coreip.homeip.net>
- <4E3A4EFD.5030507@analog.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: PATCH [1/6] HID: lg4ff - Move handling of Logitech wheels to
+ lg4ff driver
+Date: Thu, 4 Aug 2011 15:23:40 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1108041522550.32288@pobox.suse.cz>
+References: <1436421.MlUiXUhh2P@qosmio-x300> <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:50140 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751762Ab1HDHzu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2011 03:55:50 -0400
-Received: by pzk37 with SMTP id 37so1605791pzk.1
-        for <linux-input@vger.kernel.org>; Thu, 04 Aug 2011 00:55:49 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4E3A4EFD.5030507@analog.com>
+Received: from cantor2.suse.de ([195.135.220.15]:46539 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753196Ab1HDNXm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Aug 2011 09:23:42 -0400
+In-Reply-To: <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, Drivers <Drivers@analog.com>
+To: simon@mungewell.org
+Cc: =?ISO-8859-15?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Aug 04, 2011 at 09:49:17AM +0200, Michael Hennerich wrote:
-> On 08/04/2011 05:19 AM, Dmitry Torokhov wrote:
-> >On Wed, Aug 03, 2011 at 10:30:08AM +0200, Michael Hennerich wrote:
-> >>On 07/29/2011 03:00 PM, michael.hennerich@analog.com wrote:
-> >>>From: Michael Hennerich<michael.hennerich@analog.com>
-> >>>
-> >>>The ADP5585 family keypad decoder and IO expander is similar to the ADP5589,
-> >>>however it features less IO pins, and lacks hardware assisted key-lock
-> >>>functionality. Unfortunately the register addresses are different, as well as
-> >>>the event codes and bit organization within the port related registers.
-> >>>
-> >>>Move ADP5589 Register defines from the header file into the main source file.
-> >>>Add new defines while making sure we don't break existing platform_data.
-> >>>Add register address translation, and turn device specific defines into variables.
-> >>>Introduce some helper functions and disable functions that doesn't
-> >>>exist on the added devices.
-> >>>
-> >>>Signed-off-by: Michael Hennerich<michael.hennerich@analog.com>
-> >>>---
-> >>>  drivers/input/keyboard/Kconfig        |    4 +-
-> >>>  drivers/input/keyboard/adp5589-keys.c |  607 ++++++++++++++++++++++++++-------
-> >>>  include/linux/input/adp5589.h         |  157 ++++-----
-> >>>  3 files changed, 549 insertions(+), 219 deletions(-)
-> >>>
-> >>Hi Dmitry,
-> >>
-> >>If you prefer support for the ADP5585 as separate driver, please let
-> >>me know.
-> >Hi Michael,
-> >
-> >No, I actually like this approach very much, but do you think we could
-> >have adp5589-keys.c, adp5585-keys.c and adp558x-keys-core.c? The
-> >register definitions put all in one file are a bit overwhelming...
-> 
-> Hi Dmitry,
-> 
-> The register look-up table used for the ADP5585 also requires the
-> ADP5589 defines.
-> Also the core file would need the ADP5589 defines. So I don't think
-> splitting stuff into
-> 3 source files will greatly improve things.
+On Sat, 30 Jul 2011, simon@mungewell.org wrote:
 
-Hmm... let me mull this over...
+> > This is the first out of five patches me and Simon Wood (CC'd) have been
+> > working on.
+> 
+> As a formality I should state that I support this series of patches. I
+> think moving the FF code from 'hid-lgff.c' to 'hid-lg4ff' will enable us
+> to implement more features in the future without risk of inadverantly
+> affecting other (non-wheel) devices.
+> 
+> I have tested this code against the WiiWheel and DrivingForcePro.
+> 
+> signed-off-by: simon@mungewell.org
+
+Michal, thanks a lot for resending with the UTF-8 stuff in printk() 
+removed.
+
+I am going to apply it, but the whole series has been line wrapped by your 
+client. Could you please fix that up and resend, so that I could apply it?
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

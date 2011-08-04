@@ -1,89 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/6] input: misc: AD714x: The interrupt status
- registers should be read in row.
-Date: Thu, 4 Aug 2011 00:54:26 -0700
-Message-ID: <20110804075426.GB31276@core.coreip.homeip.net>
-References: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
- <544AC56F16B56944AEC3BD4E3D5917713AAF21C14E@LIMKCMBX1.ad.analog.com>
- <20110518071428.GA32284@core.coreip.homeip.net>
- <544AC56F16B56944AEC3BD4E3D5917713AAF21C871@LIMKCMBX1.ad.analog.com>
- <20110519080042.GA19405@core.coreip.homeip.net>
- <544AC56F16B56944AEC3BD4E3D59177143003C5938@LIMKCMBX1.ad.analog.com>
+Subject: Re: [PATCH] input: keyboard: adp5589-keys: Add support for the
+ ADP5585 derivatives
+Date: Thu, 4 Aug 2011 00:55:42 -0700
+Message-ID: <20110804075542.GC31276@core.coreip.homeip.net>
+References: <1311944415-20197-1-git-send-email-michael.hennerich@analog.com>
+ <4E390710.5060503@analog.com>
+ <20110804031906.GA30482@core.coreip.homeip.net>
+ <4E3A4EFD.5030507@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:48777 "EHLO
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:50140 "EHLO
 	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751390Ab1HDHyd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2011 03:54:33 -0400
-Received: by pzk37 with SMTP id 37so1604079pzk.1
-        for <linux-input@vger.kernel.org>; Thu, 04 Aug 2011 00:54:32 -0700 (PDT)
+	with ESMTP id S1751762Ab1HDHzu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2011 03:55:50 -0400
+Received: by pzk37 with SMTP id 37so1605791pzk.1
+        for <linux-input@vger.kernel.org>; Thu, 04 Aug 2011 00:55:49 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <544AC56F16B56944AEC3BD4E3D59177143003C5938@LIMKCMBX1.ad.analog.com>
+In-Reply-To: <4E3A4EFD.5030507@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jeff.dagenais@gmail.com" <jeff.dagenais@gmail.com>, Drivers <Drivers@analog.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, Drivers <Drivers@analog.com>
 
-On Wed, Aug 03, 2011 at 09:40:22AM +0100, Hennerich, Michael wrote:
-> Hennerich, Michael wrote on 2011-07-13:
-> > Dmitry Torokhov wrote on 2011-05-19:
-> >> On Wed, May 18, 2011 at 08:10:09PM +0100, Hennerich, Michael wrote:
-> >>> Dmitry Torokhov wrote on 2011-05-18:
-> >>>> On Tue, May 17, 2011 at 12:01:27PM +0100, Hennerich, Michael wrote:
-> >>>>> Hi Dmitry,
-> >>>>>
-> >>>>> I noticed you added patches 2/6, 3/6, 4/6 and 5/6 to your next tree.
-> >>>>> But how about these ones?
-> >>>>>
-> >>>>> [PATCH v2 1/6] input: misc: AD714x: The interrupt status
-> >>>>> registers should be read in row. [PATCH v2 6/6] input: misc:
-> >>>>> AD714x: Fix endianness issues.
-> >>>>>
-> >>>>
-> >>>> Hi Michael,
-> >>>>
-> >>>> Still pondering these two, give me a couple of days please...
-> >>>>
-> >>>> Thanks.
-> >>>>
+On Thu, Aug 04, 2011 at 09:49:17AM +0200, Michael Hennerich wrote:
+> On 08/04/2011 05:19 AM, Dmitry Torokhov wrote:
+> >On Wed, Aug 03, 2011 at 10:30:08AM +0200, Michael Hennerich wrote:
+> >>On 07/29/2011 03:00 PM, michael.hennerich@analog.com wrote:
+> >>>From: Michael Hennerich<michael.hennerich@analog.com>
 > >>>
-> >>> Hi Dmitry,
+> >>>The ADP5585 family keypad decoder and IO expander is similar to the ADP5589,
+> >>>however it features less IO pins, and lacks hardware assisted key-lock
+> >>>functionality. Unfortunately the register addresses are different, as well as
+> >>>the event codes and bit organization within the port related registers.
 > >>>
-> >>> No Problem - let me know in case you need some further clarification.
-> >>> Both patches are tested on several platforms and addresses real issues.
+> >>>Move ADP5589 Register defines from the header file into the main source file.
+> >>>Add new defines while making sure we don't break existing platform_data.
+> >>>Add register address translation, and turn device specific defines into variables.
+> >>>Introduce some helper functions and disable functions that doesn't
+> >>>exist on the added devices.
 > >>>
-> >>> BTW - are you going to merge the adp5589 driver anytime soon?
-> >>> Are there open issues you like to get addressed first?
+> >>>Signed-off-by: Michael Hennerich<michael.hennerich@analog.com>
+> >>>---
+> >>>  drivers/input/keyboard/Kconfig        |    4 +-
+> >>>  drivers/input/keyboard/adp5589-keys.c |  607 ++++++++++++++++++++++++++-------
+> >>>  include/linux/input/adp5589.h         |  157 ++++-----
+> >>>  3 files changed, 549 insertions(+), 219 deletions(-)
 > >>>
+> >>Hi Dmitry,
 > >>
-> >> Oh, thanks for reminding me of it, I queued it for .40.
-> >>
-> >> Thanks.
-> >>
+> >>If you prefer support for the ADP5585 as separate driver, please let
+> >>me know.
+> >Hi Michael,
 > >
-> > Hi Dmitry,
-> >
-> > Still pondering these two?
-> >
-> > [PATCH v2 1/6] input: misc: AD714x:
-> >       The interrupt status registers should be read in row.
-> > [PATCH v2 6/6] input: misc: AD714x: Fix endianness issues.
-> >
-> > Greetings,
-> > Michael
-> >
+> >No, I actually like this approach very much, but do you think we could
+> >have adp5589-keys.c, adp5585-keys.c and adp558x-keys-core.c? The
+> >register definitions put all in one file are a bit overwhelming...
 > 
 > Hi Dmitry,
 > 
-> Are you going to apply these two missing patches?
-> 
+> The register look-up table used for the ADP5585 also requires the
+> ADP5589 defines.
+> Also the core file would need the ADP5589 defines. So I don't think
+> splitting stuff into
+> 3 source files will greatly improve things.
 
-Hi Michael,
-
-Yes, should be in the next pull (not todays one).
-
-Thanks.
+Hmm... let me mull this over...
 
 -- 
 Dmitry

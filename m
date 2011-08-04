@@ -1,38 +1,46 @@
-From: bojan prtvar <prtvar.b@gmail.com>
-Subject: Re: [PATCH 1/2] HID: kfree() NULL pointer cleanup
-Date: Thu, 4 Aug 2011 23:16:49 +0200
-Message-ID: <CAOmT4fThjOjBAcXmFqpqct3uzVOi3eQWknyD3TO+aC6CDXEnuQ@mail.gmail.com>
-References: <1312490574-14804-1-git-send-email-prtvar.b@gmail.com>
-	<Pine.LNX.4.64.1108042247000.1424@ask.diku.dk>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/2] HID: kfree() NULL pointer cleanup
+Date: Thu, 4 Aug 2011 23:46:54 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1108042346450.32288@pobox.suse.cz>
+References: <1312490626-14838-1-git-send-email-prtvar.b@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:47375 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754850Ab1HDVQu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2011 17:16:50 -0400
-In-Reply-To: <Pine.LNX.4.64.1108042247000.1424@ask.diku.dk>
+Received: from cantor2.suse.de ([195.135.220.15]:47698 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753202Ab1HDVq4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Aug 2011 17:46:56 -0400
+In-Reply-To: <1312490626-14838-1-git-send-email-prtvar.b@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <julia@diku.dk>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Bojan Prtvar <prtvar.b@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Thu, Aug 4, 2011 at 10:48 PM, Julia Lawall <julia@diku.dk> wrote:
-> On Thu, 4 Aug 2011, Bojan Prtvar wrote:
->
-> I would find it even nicer to just add a new lavel to skip over the k=
-free
-> in the case where pm is NULL. =C2=A0It is statically apparent in the =
-source
-> code.
+On Thu, 4 Aug 2011, Bojan Prtvar wrote:
 
-Yes, it would be nicer. I'll send v2.
+> Checking for NULL pointers before kfree() is redundant.
+> 
+> Signed-off-by: Bojan Prtvar <prtvar.b@gmail.com>
+> ---
+>  drivers/hid/hid-zydacron.c |    4 +---
+>  1 files changed, 1 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-zydacron.c b/drivers/hid/hid-zydacron.c
+> index e903715..1ad85f2 100644
+> --- a/drivers/hid/hid-zydacron.c
+> +++ b/drivers/hid/hid-zydacron.c
+> @@ -201,9 +201,7 @@ static void zc_remove(struct hid_device *hdev)
+>  	struct zc_device *zc = hid_get_drvdata(hdev);
+>  
+>  	hid_hw_stop(hdev);
+> -
+> -	if (NULL != zc)
+> -		kfree(zc);
+> +	kfree(zc);
+>  }
 
-Regards,
-Bojan
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

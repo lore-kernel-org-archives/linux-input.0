@@ -1,74 +1,89 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.1-rc0
-Date: Thu, 4 Aug 2011 00:53:21 -0700
-Message-ID: <20110804075321.GA31276@core.coreip.homeip.net>
+Subject: Re: [PATCH v2 1/6] input: misc: AD714x: The interrupt status
+ registers should be read in row.
+Date: Thu, 4 Aug 2011 00:54:26 -0700
+Message-ID: <20110804075426.GB31276@core.coreip.homeip.net>
+References: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com>
+ <544AC56F16B56944AEC3BD4E3D5917713AAF21C14E@LIMKCMBX1.ad.analog.com>
+ <20110518071428.GA32284@core.coreip.homeip.net>
+ <544AC56F16B56944AEC3BD4E3D5917713AAF21C871@LIMKCMBX1.ad.analog.com>
+ <20110519080042.GA19405@core.coreip.homeip.net>
+ <544AC56F16B56944AEC3BD4E3D59177143003C5938@LIMKCMBX1.ad.analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:44519 "EHLO
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:48777 "EHLO
 	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751212Ab1HDHx2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2011 03:53:28 -0400
+	with ESMTP id S1751390Ab1HDHyd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2011 03:54:33 -0400
+Received: by pzk37 with SMTP id 37so1604079pzk.1
+        for <linux-input@vger.kernel.org>; Thu, 04 Aug 2011 00:54:32 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <544AC56F16B56944AEC3BD4E3D59177143003C5938@LIMKCMBX1.ad.analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jeff.dagenais@gmail.com" <jeff.dagenais@gmail.com>, Drivers <Drivers@analog.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
 
-Hi Linus,
+On Wed, Aug 03, 2011 at 09:40:22AM +0100, Hennerich, Michael wrote:
+> Hennerich, Michael wrote on 2011-07-13:
+> > Dmitry Torokhov wrote on 2011-05-19:
+> >> On Wed, May 18, 2011 at 08:10:09PM +0100, Hennerich, Michael wrote:
+> >>> Dmitry Torokhov wrote on 2011-05-18:
+> >>>> On Tue, May 17, 2011 at 12:01:27PM +0100, Hennerich, Michael wrote:
+> >>>>> Hi Dmitry,
+> >>>>>
+> >>>>> I noticed you added patches 2/6, 3/6, 4/6 and 5/6 to your next tree.
+> >>>>> But how about these ones?
+> >>>>>
+> >>>>> [PATCH v2 1/6] input: misc: AD714x: The interrupt status
+> >>>>> registers should be read in row. [PATCH v2 6/6] input: misc:
+> >>>>> AD714x: Fix endianness issues.
+> >>>>>
+> >>>>
+> >>>> Hi Michael,
+> >>>>
+> >>>> Still pondering these two, give me a couple of days please...
+> >>>>
+> >>>> Thanks.
+> >>>>
+> >>>
+> >>> Hi Dmitry,
+> >>>
+> >>> No Problem - let me know in case you need some further clarification.
+> >>> Both patches are tested on several platforms and addresses real issues.
+> >>>
+> >>> BTW - are you going to merge the adp5589 driver anytime soon?
+> >>> Are there open issues you like to get addressed first?
+> >>>
+> >>
+> >> Oh, thanks for reminding me of it, I queued it for .40.
+> >>
+> >> Thanks.
+> >>
+> >
+> > Hi Dmitry,
+> >
+> > Still pondering these two?
+> >
+> > [PATCH v2 1/6] input: misc: AD714x:
+> >       The interrupt status registers should be read in row.
+> > [PATCH v2 6/6] input: misc: AD714x: Fix endianness issues.
+> >
+> > Greetings,
+> > Michael
+> >
+> 
+> Hi Dmitry,
+> 
+> Are you going to apply these two missing patches?
+> 
 
-Please pull from:
+Hi Michael,
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Yes, should be in the next pull (not todays one).
 
-to receive updates for the input subsystem. Just random driver fixes,
-nothing too interesting.
-
-Thanks!
-
-Changelog:
----------
-
-Axel Lin (1):
-      Input: lm8323 - add missing device_remove_file for dev_attr_time
-
-Michael Hennerich (1):
-      Input: ad7879 - fix deficient device disable
-
-Rakesh Iyer (1):
-      Input: tegra-kbc - fix computation of polling time
-
-Randy Dunlap (1):
-      Input: psmouse - hgpk.c needs module.h
-
-Shawn Guo (1):
-      Input: mma8450 - add device tree probe support
-
-Stephen Rothwell (1):
-      Input: kxtj9 - explicitly include module.h
-
-Tobias Klauser (2):
-      Input: gpio_keys - return proper error code if memory allocation fails
-      Input: gpio_keys - fix two typos in devicetree documentation
-
-
-Diffstat:
---------
-
- .../devicetree/bindings/gpio/gpio_keys.txt         |    2 +-
- .../devicetree/bindings/input/fsl-mma8450.txt      |   11 +++++++++++
- drivers/input/keyboard/gpio_keys.c                 |    2 +-
- drivers/input/keyboard/lm8323.c                    |    9 +++++++--
- drivers/input/keyboard/tegra-kbc.c                 |    5 +++--
- drivers/input/misc/kxtj9.c                         |    1 +
- drivers/input/misc/mma8450.c                       |    8 ++++++++
- drivers/input/mouse/hgpk.c                         |    1 +
- drivers/input/touchscreen/ad7879.c                 |    4 +++-
- 9 files changed, 36 insertions(+), 7 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/fsl-mma8450.txt
+Thanks.
 
 -- 
 Dmitry
-

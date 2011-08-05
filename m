@@ -1,63 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2 v2] HID: kfree() NULL pointer cleanup
-Date: Thu, 4 Aug 2011 23:52:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1108042352100.32288@pobox.suse.cz>
-References: <1312494408-15500-1-git-send-email-prtvar.b@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Remove CLOCK_TICK_RATE from analog joystick driver
+Date: Thu, 4 Aug 2011 23:40:25 -0700
+Message-ID: <20110805064025.GA31974@core.coreip.homeip.net>
+References: <20110804000640.GC23503@plexity.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47877 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755543Ab1HDVwY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Aug 2011 17:52:24 -0400
-In-Reply-To: <1312494408-15500-1-git-send-email-prtvar.b@gmail.com>
+Received: from mail-iy0-f170.google.com ([209.85.210.170]:43557 "EHLO
+	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752055Ab1HEGkc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Aug 2011 02:40:32 -0400
+Received: by iye16 with SMTP id 16so3090401iye.1
+        for <linux-input@vger.kernel.org>; Thu, 04 Aug 2011 23:40:31 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20110804000640.GC23503@plexity.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bojan Prtvar <prtvar.b@gmail.com>
-Cc: julia@diku.dk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: dsaxena@plexity.net
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-input@vger.kernel.org
 
-On Thu, 4 Aug 2011, Bojan Prtvar wrote:
-
-> Checking for NULL pointers before kfree() is redundant.
-> v2:
-> No need for freeing pm in case when it's not allocated.
+On Wed, Aug 03, 2011 at 05:06:40PM -0700, Deepak Saxena wrote:
+> The analog joystick driver is written for x86 systems. This
+> patch updates it to use the the PIT_TICK_RATE value instead
+> of CLOCK_TICK_RATE as they are equivalent on x86 and we 
+> want to depecrate the later.
 > 
-> Reported-by: Julia Lawall <julia@diku.dk>
-> Signed-off-by: Bojan Prtvar <prtvar.b@gmail.com>
+> Signed-off-by: Deepak Saxena <dsaxena@linaro.org>
+
+Applied, thank you Deepak.
+
 > ---
->  drivers/hid/hid-prodikeys.c |    8 ++++----
->  1 files changed, 4 insertions(+), 4 deletions(-)
+>  drivers/input/joystick/analog.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-> index 158b389..f779009 100644
-> --- a/drivers/hid/hid-prodikeys.c
-> +++ b/drivers/hid/hid-prodikeys.c
-> @@ -816,7 +816,7 @@ static int pk_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	if (pm == NULL) {
->  		hid_err(hdev, "can't alloc descriptor\n");
->  		ret = -ENOMEM;
-> -		goto err_free;
-> +		goto err_free_pk;
->  	}
+> diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+> index 9882971..358cd7e 100644
+> --- a/drivers/input/joystick/analog.c
+> +++ b/drivers/input/joystick/analog.c
+> @@ -139,7 +139,7 @@ struct analog_port {
+>  #include <linux/i8253.h>
 >  
->  	pm->pk = pk;
-> @@ -849,10 +849,10 @@ static int pk_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  err_stop:
->  	hid_hw_stop(hdev);
->  err_free:
-> -	if (pm != NULL)
-> -		kfree(pm);
-> -
-> +	kfree(pm);
-> +err_free_pk:
->  	kfree(pk);
-> +
->  	return ret;
->  }
->  
-
-Applied, thanks to both.
+>  #define GET_TIME(x)	do { if (cpu_has_tsc) rdtscl(x); else x = get_time_pit(); } while (0)
+> -#define DELTA(x,y)	(cpu_has_tsc ? ((y) - (x)) : ((x) - (y) + ((x) < (y) ? CLOCK_TICK_RATE / HZ : 0)))
+> +#define DELTA(x,y)	(cpu_has_tsc ? ((y) - (x)) : ((x) - (y) + ((x) < (y) ? PIT_TICK_RATE / HZ : 0)))
+>  #define TIME_NAME	(cpu_has_tsc?"TSC":"PIT")
+>  static unsigned int get_time_pit(void)
+>  {
+> -- 
+> 1.7.4.1
+> 
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

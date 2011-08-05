@@ -1,38 +1,106 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: Re: [PATCH v4 1/2] Input: enable i8042-level wakeup control
-Date: Fri, 5 Aug 2011 16:24:07 +0100
-Message-ID: <CAMLZHHTnTTbD7mn_QsjwyFZ=XU6paddrtXEVuLYossk9qBGFfw@mail.gmail.com>
-References: <20110802154916.624619D401C@zog.reactivated.net>
-	<20110803065920.GC23399@core.coreip.homeip.net>
-	<CAMLZHHTTXvThE5bWfyjJu-UFJbaKAhzORKWV8ay4RZW-ZVifLg@mail.gmail.com>
-	<20110803184332.GA17880@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: [PATCH] HID: magicmouse: Set resolution of touch surfaces
+Date: Fri,  5 Aug 2011 09:16:57 -0700
+Message-ID: <1312561017-23548-1-git-send-email-chase.douglas@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:46639 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756816Ab1HEPYI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Aug 2011 11:24:08 -0400
-Received: by yxj19 with SMTP id 19so1513863yxj.19
-        for <linux-input@vger.kernel.org>; Fri, 05 Aug 2011 08:24:08 -0700 (PDT)
-In-Reply-To: <20110803184332.GA17880@core.coreip.homeip.net>
+Received: from youngberry.canonical.com ([91.189.89.112]:60521 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755371Ab1HEQcx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Aug 2011 12:32:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, rjw@sisk.pl, dilinger@queued.net, pgf@laptop.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+Add touch surface resolution information. The size of the touch surfaces
+has been determined to the hundredth of a mm by viewing the device
+properties in IORegistryExplorer in OS X.
 
-On Wed, Aug 3, 2011 at 7:43 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Instead of wiring it all through input core could we contain this in
-> atkbd and hgpk by registering pm_notifiers and ignoring certain requests
-> from input/serio cores during system state transition on OLPC only?
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Michael Poole <mdpoole@troilus.org>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ drivers/hid/hid-magicmouse.c |   57 ++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 47 insertions(+), 10 deletions(-)
 
-I've started looking at this, but my first problem is that when the
-input layer asks atkbd to turn off LEDs, atkbd schedules a workqueue
-item to undertake this work. However, as there is no synchronization,
-this work only seems to get executed during or after system resume.
-This makes it hard to catch with such a scheme. Any ideas?
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 698e645..8fdf702 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -81,6 +81,29 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
+ #define NO_TOUCHES -1
+ #define SINGLE_TOUCH_UP -2
+ 
++/* Touch surface information. Dimension is in hundredths of a mm, min and max
++ * are in units. Dimensions gathered from IORegistryExplorer in OS X. Min and
++ * max gathered through testing of devices. */
++#define MOUSE_DIMENSION_X (float)9056
++#define MOUSE_MIN_X -1100
++#define MOUSE_MAX_X 1258
++#define MOUSE_RES_X ((MOUSE_MAX_X - MOUSE_MIN_X) / (MOUSE_DIMENSION_X / 100))
++#define MOUSE_DIMENSION_Y (float)5152
++#define MOUSE_MIN_Y -1589
++#define MOUSE_MAX_Y 2047
++#define MOUSE_RES_Y ((MOUSE_MAX_Y - MOUSE_MIN_Y) / (MOUSE_DIMENSION_Y / 100))
++
++#define TRACKPAD_DIMENSION_X (float)13000
++#define TRACKPAD_MIN_X -2909
++#define TRACKPAD_MAX_X 3167
++#define TRACKPAD_RES_X \
++	((TRACKPAD_MAX_X - TRACKPAD_MIN_X) / (TRACKPAD_DIMENSION_X / 100))
++#define TRACKPAD_DIMENSION_Y (float)11000
++#define TRACKPAD_MIN_Y -2456
++#define TRACKPAD_MAX_Y 2565
++#define TRACKPAD_RES_Y \
++	((TRACKPAD_MAX_Y - TRACKPAD_MIN_Y) / (TRACKPAD_DIMENSION_Y / 100))
++
+ /**
+  * struct magicmouse_sc - Tracks Magic Mouse-specific data.
+  * @input: Input device through which we report events.
+@@ -406,17 +429,31 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 		 * inverse of the reported Y.
+ 		 */
+ 		if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
+-			input_set_abs_params(input, ABS_MT_POSITION_X, -1100,
+-				1358, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_Y, -1589,
+-				2047, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_X,
++				MOUSE_MIN_X, MOUSE_MAX_X, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_Y,
++				MOUSE_MIN_Y, MOUSE_MAX_Y, 4, 0);
++
++			input_abs_set_res(input, ABS_MT_POSITION_X,
++				MOUSE_RES_X);
++			input_abs_set_res(input, ABS_MT_POSITION_Y,
++				MOUSE_RES_Y);
+ 		} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
+-			input_set_abs_params(input, ABS_X, -2909, 3167, 4, 0);
+-			input_set_abs_params(input, ABS_Y, -2456, 2565, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_X, -2909,
+-				3167, 4, 0);
+-			input_set_abs_params(input, ABS_MT_POSITION_Y, -2456,
+-				2565, 4, 0);
++			input_set_abs_params(input, ABS_X, TRACKPAD_MIN_X,
++				TRACKPAD_MAX_X, 4, 0);
++			input_set_abs_params(input, ABS_Y, TRACKPAD_MIN_Y,
++				TRACKPAD_MAX_Y, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_X,
++				TRACKPAD_MIN_X, TRACKPAD_MAX_X, 4, 0);
++			input_set_abs_params(input, ABS_MT_POSITION_Y,
++				TRACKPAD_MIN_Y, TRACKPAD_MAX_Y, 4, 0);
++
++			input_abs_set_res(input, ABS_X, TRACKPAD_RES_X);
++			input_abs_set_res(input, ABS_Y, TRACKPAD_RES_Y);
++			input_abs_set_res(input, ABS_MT_POSITION_X,
++				TRACKPAD_RES_X);
++			input_abs_set_res(input, ABS_MT_POSITION_Y,
++				TRACKPAD_RES_Y);
+ 		}
+ 	}
+ 
+-- 
+1.7.4.1
 
-Daniel

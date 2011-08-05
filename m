@@ -1,106 +1,70 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH] HID: magicmouse: Set resolution of touch surfaces
-Date: Fri,  5 Aug 2011 09:16:57 -0700
-Message-ID: <1312561017-23548-1-git-send-email-chase.douglas@canonical.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:60521 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755371Ab1HEQcx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Aug 2011 12:32:53 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH] Added product codes and device constants for MacBookAir4,2 keyboard.
+Date: Fri,  5 Aug 2011 12:05:22 -0700
+Message-ID: <1312571122-30547-1-git-send-email-chase.douglas@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Joshua V. Dillon" <jvdillon@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-Add touch surface resolution information. The size of the touch surfaces
-has been determined to the hundredth of a mm by viewing the device
-properties in IORegistryExplorer in OS X.
+From: Joshua V. Dillon <jvdillon@gmail.com>
 
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Michael Poole <mdpoole@troilus.org>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Added USB device IDs for MacBookAir4,2 keyboard. Device constants were
+copied from the MacBookAir3,2 constants. The 4,2 device specification is
+reportedly unchanged from the 3,2 predecessor and seems to work well.
+
+Signed-off-by: Joshua V Dillon <jvdillon@gmail.com>
 Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
 ---
- drivers/hid/hid-magicmouse.c |   57 ++++++++++++++++++++++++++++++++++-------
- 1 files changed, 47 insertions(+), 10 deletions(-)
+I received this patch from Joshua. He preferred that I send it on his
+behalf. I have compile tested the patch, and Joshua has runtime tested
+it using a dkms package against 2.6.38.
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 698e645..8fdf702 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -81,6 +81,29 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
- #define NO_TOUCHES -1
- #define SINGLE_TOUCH_UP -2
- 
-+/* Touch surface information. Dimension is in hundredths of a mm, min and max
-+ * are in units. Dimensions gathered from IORegistryExplorer in OS X. Min and
-+ * max gathered through testing of devices. */
-+#define MOUSE_DIMENSION_X (float)9056
-+#define MOUSE_MIN_X -1100
-+#define MOUSE_MAX_X 1258
-+#define MOUSE_RES_X ((MOUSE_MAX_X - MOUSE_MIN_X) / (MOUSE_DIMENSION_X / 100))
-+#define MOUSE_DIMENSION_Y (float)5152
-+#define MOUSE_MIN_Y -1589
-+#define MOUSE_MAX_Y 2047
-+#define MOUSE_RES_Y ((MOUSE_MAX_Y - MOUSE_MIN_Y) / (MOUSE_DIMENSION_Y / 100))
-+
-+#define TRACKPAD_DIMENSION_X (float)13000
-+#define TRACKPAD_MIN_X -2909
-+#define TRACKPAD_MAX_X 3167
-+#define TRACKPAD_RES_X \
-+	((TRACKPAD_MAX_X - TRACKPAD_MIN_X) / (TRACKPAD_DIMENSION_X / 100))
-+#define TRACKPAD_DIMENSION_Y (float)11000
-+#define TRACKPAD_MIN_Y -2456
-+#define TRACKPAD_MAX_Y 2565
-+#define TRACKPAD_RES_Y \
-+	((TRACKPAD_MAX_Y - TRACKPAD_MIN_Y) / (TRACKPAD_DIMENSION_Y / 100))
-+
- /**
-  * struct magicmouse_sc - Tracks Magic Mouse-specific data.
-  * @input: Input device through which we report events.
-@@ -406,17 +429,31 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 		 * inverse of the reported Y.
- 		 */
- 		if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
--			input_set_abs_params(input, ABS_MT_POSITION_X, -1100,
--				1358, 4, 0);
--			input_set_abs_params(input, ABS_MT_POSITION_Y, -1589,
--				2047, 4, 0);
-+			input_set_abs_params(input, ABS_MT_POSITION_X,
-+				MOUSE_MIN_X, MOUSE_MAX_X, 4, 0);
-+			input_set_abs_params(input, ABS_MT_POSITION_Y,
-+				MOUSE_MIN_Y, MOUSE_MAX_Y, 4, 0);
-+
-+			input_abs_set_res(input, ABS_MT_POSITION_X,
-+				MOUSE_RES_X);
-+			input_abs_set_res(input, ABS_MT_POSITION_Y,
-+				MOUSE_RES_Y);
- 		} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
--			input_set_abs_params(input, ABS_X, -2909, 3167, 4, 0);
--			input_set_abs_params(input, ABS_Y, -2456, 2565, 4, 0);
--			input_set_abs_params(input, ABS_MT_POSITION_X, -2909,
--				3167, 4, 0);
--			input_set_abs_params(input, ABS_MT_POSITION_Y, -2456,
--				2565, 4, 0);
-+			input_set_abs_params(input, ABS_X, TRACKPAD_MIN_X,
-+				TRACKPAD_MAX_X, 4, 0);
-+			input_set_abs_params(input, ABS_Y, TRACKPAD_MIN_Y,
-+				TRACKPAD_MAX_Y, 4, 0);
-+			input_set_abs_params(input, ABS_MT_POSITION_X,
-+				TRACKPAD_MIN_X, TRACKPAD_MAX_X, 4, 0);
-+			input_set_abs_params(input, ABS_MT_POSITION_Y,
-+				TRACKPAD_MIN_Y, TRACKPAD_MAX_Y, 4, 0);
-+
-+			input_abs_set_res(input, ABS_X, TRACKPAD_RES_X);
-+			input_abs_set_res(input, ABS_Y, TRACKPAD_RES_Y);
-+			input_abs_set_res(input, ABS_MT_POSITION_X,
-+				TRACKPAD_RES_X);
-+			input_abs_set_res(input, ABS_MT_POSITION_Y,
-+				TRACKPAD_RES_Y);
- 		}
- 	}
- 
+ drivers/hid/hid-apple.c |    9 +++++++++
+ drivers/hid/hid-ids.h   |    3 +++
+ 2 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index b85744f..8bfd87b 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -183,6 +183,9 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
+ 				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
+ 			table = macbookair_fn_keys;
++		else if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI &&
++				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING6_JIS)
++			table = macbookair_fn_keys;
+ 		else if (hid->product < 0x21d || hid->product >= 0x300)
+ 			table = powerbook_fn_keys;
+ 		else
+@@ -487,6 +490,12 @@ static const struct hid_device_id apple_devices[] = {
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI),
++		.driver_data = APPLE_HAS_FN },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ISO),
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_JIS),
++		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ea2c338..a0d59d4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -109,6 +109,9 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI	0x0245
+ #define USB_DEVICE_ID_APPLE_WELLSPRING5_ISO	0x0246
+ #define USB_DEVICE_ID_APPLE_WELLSPRING5_JIS	0x0247
++#define USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI	0x024c
++#define USB_DEVICE_ID_APPLE_WELLSPRING6_ISO	0x024d
++#define USB_DEVICE_ID_APPLE_WELLSPRING6_JIS	0x024e
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
 -- 
 1.7.4.1
-

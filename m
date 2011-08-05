@@ -1,104 +1,95 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: Re: Getting notification of PS/2 mouse packages
-Date: Fri, 5 Aug 2011 09:36:06 -0300
-Message-ID: <20110805123605.GA5464@nautilus.holoscopio.com>
-References: <1312544155.2426.49.camel@michael-latitude-e6410>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade2.minaslivre.org ([74.50.53.203]:55266 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754006Ab1HEMgY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Aug 2011 08:36:24 -0400
-Content-Disposition: inline
-In-Reply-To: <1312544155.2426.49.camel@michael-latitude-e6410>
-Sender: linux-input-owner@vger.kernel.org
+From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Subject: [PATCH BlueZ 0/4] Sixaxis Plugin, almost there?
+Date: Fri,  5 Aug 2011 16:09:14 +0200
+Message-ID: <1312553358-26280-1-git-send-email-ospite@studenti.unina.it>
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>, Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>, Arc Riley <arcriley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Michael Thayer <michael.thayer@oracle.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+
+Hi,
+
+I hope we are getting there, this is another update to the sixaxis plugin.
+
+The first patch is the same as always, removal of old cruft which I think 
+could go in even right now.
 
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The second patch is the sixaxis plugin with some updates:
+  
+  - Fixed various style issues (long lines, indentation)
+  - Fixed some style issue pointed out by checkpatch.pl from linux, 
+    namely it suggested not to initialize static variables.
+  - Fixed issue pointed out by Vinicius Costa Gomez:
+      * remove double newlines
+      * move defines and static variables on the top
+      * Add a comment about why the timeout is needed in monitor_event()
+  - Use manager_get_default_adapter_id() as suggested by Bastien
+  - Make return values more meaningful
+  - Set the master bdaddr in the controller only when it is different 
+    from the BT adapter bdaddr, this is how the PS3 does it (thanks Jim 
+    for the dumps), perhaps to avoid unnecessary writes to some eeprom.
 
-On Fri, Aug 05, 2011 at 01:35:55PM +0200, Michael Thayer wrote:
-> Hello,
->=20
-> I am looking at writing a driver (it is to be open source, but not for
-> mainstream kernel inclusion) for a virtual machine-specific input
-> device.  Unfortunately one of the versions of the device I have to
-> support signals that it has new data available by sending a fake package
-> to the PS/2 mouse, so I need to be able to get notification of that
-> somehow.  Looking at the kernel source, I see that the i8042 driver
-> requests IRQ 12 as IRQF_SHARED, and that the kernel always notifies all
-> registered interrupt handlers of an interrupt, even if one of them
-> returns IRQ_HANDLED.  So it looks like I can just request my own shared
-> handler for IRQ 12 and always return IRQ_NONE, but still update my data.
-> However I am not sure whether this is something I can count on to keep
-> working in future kernel releases.  Does anyone on this list know more
-> about this, or can someone suggest a cleaner way to get the
-> notifications I need?
->=20
-> Thanks.
->=20
-> Regards,
->=20
-> Michael
+I left in the calloc() calls for now, maybe later I'll split the plugin 
+in a sixaxis-specific part and a bluez-specific part, but for now I 
+think we can live with that. I also left the return codes called "ret" 
+because they didn't fit the "err" semantic, as I am checking for < 0.
 
-Hello, Michael.
 
-My advice is: send it for mainline inclusion!
+The third patch is about linking UDEV_LIBS only when needed, embedded 
+people might like this but I was not sure and I left is a separate patch 
+for an easier review.
 
-You more likely get your code reviewed, and it what you do is
-acceptable, it will get included and that's a "OK" for your solution.
-Then, if it turns out it's not OK anymore, it's much more likely people
-will go and fix it for you. At least, that's certainly not going to
-happen if it's not published somehow, but out-of-tree drivers or patches
-do not usually have the attention of Linux developers.
 
-So, what is it that you consider your work not worth of mainline
-inclusion?
+The forth patch makes the plugin wait for actual events (that is: PS button 
+has been pressed) before setting the leds, this is how the PS3 behaves, and 
+happens to cure the problem of setting the second led when connecting the 
+controller via USB when it is working over BT already, in fact the controller 
+keep sending events over BT even after it is connected via USB after 
+association, and so the USB connection event will not set the second led on 
+ever. The trick works with one controller, but I think this will mess up 
+numbering with multiple controller connected in some mixed order. So again 
+this change is sent in its own patch to be more visible.
 
-Regards,
-Cascardo.
+For those of you who can't get the plugin to work, please try cleaning 
+up your /var/lib/bluetooth dir.
 
-> --=20
-> ORACLE Deutschland B.V. & Co. KG   Michael Thayer
-> Werkstrasse 24                     VirtualBox engineering
-> 71384 Weinstadt, Germany           mailto:michael.thayer@oracle.com
->=20
-> Hauptverwaltung: Riesstr. 25, D-80992 M=C3=BCnchen
-> Registergericht: Amtsgericht M=C3=BCnchen, HRA 95603
->=20
-> Komplement=C3=A4rin: ORACLE Deutschland Verwaltung B.V.
-> Hertogswetering 163/167, 3543 AS Utrecht, Niederlande
-> Handelsregister der Handelskammer Midden-Niederlande, Nr. 30143697
-> Gesch=C3=A4ftsf=C3=BChrer: J=C3=BCrgen Kunz, Marcel van de Molen, Alexand=
-er van der Ven
 
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+NOTES:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+  - Testing is needed with multiple BT adapters and/or multiple 
+    controllers, but I haven't got the hardware for that yet.
 
-iQIcBAEBAgAGBQJOO+O0AAoJEEWxSg7udFZIThoP/ifuIAAWHtsW8DNzI/vDMp76
-My5ORhuuOdBCImcMNVM8KgtGH+7mqJmCxZ3/T3+E0YoeLJUMqyCvzR3XU9QhkG3e
-9B6HzLOK5+pm++EZl1PNk6Cx078wWaWLYOIBKQCmrSGh2uOGuz0e5+du2hiZupM9
-76983S+5IXS330QqcPc7ODMTDuoj/oOYDRjmNXE24lGKdqBn7Xb7pRZSvgNsRYhG
-QWeusuHDeTDN6wPsz43KzPnW7j6dqVvy1sbYATPFSIIb+bK8GZ/ZoF6W4JPLJPMl
-vSwGaD/lVHMdFHAkd5HVMcBpqgyVgqf0JrpXo+MovDfGJqB+GCmyeitiBpfwIHuM
-Bvu8FQk9vWFNVo+M890TISkxMKwToqXpLys7ZW9rtLOHyrm691qPzPbOdXwVPxo+
-dGL6PnRGqZEgRq5S/2V7EcxUih25sutSA9XaVZisOiw3u9LyYPAzmKaWi2Xfq/h9
-ikVHcTrduGmT8XHgREXjzdeikL3OFVX+edq5v3vdW+yVlQGiuL7JXqtxxSyjn9KT
-PDYC5NElxit8xdVEx6ILNzotZBW3mZaEr7K/vv1WJpmet0CjDgY9OpW0F+XFeo0Y
-IZMGpCb0Hlkk4Q3WisN8N3LUxra/5LfWyeopTWkATt6i3qXXU88DUnjxyB+jBXtI
-S+OVx6XIk/7snhvmD+qd
-=9501
------END PGP SIGNATURE-----
+  - Arc Riley suggested to use more generic name for the plugin if it is 
+    going to support the Move too, something like "sony-controllers" 
+    maybe, but I don't mind leaving it called sixaxis for historical 
+    reasons (and laziness reasons too), what do you think?
 
---zYM0uCDKw75PZbzx--
+
+Thanks,
+   Antonio
+
+Antonio Ospite (4):
+  Remove input/sixpair.c
+  Add sixaxis plugin: USB pairing and LEDs settings
+  Link to udev only when needed
+  plugins/sixaxis: Wait for the PS button before setting the LEDs
+
+ Makefile.am       |   11 +-
+ acinclude.m4      |   10 +
+ input/sixpair.c   |  299 --------------------------
+ plugins/sixaxis.c |  599 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 619 insertions(+), 300 deletions(-)
+ delete mode 100644 input/sixpair.c
+ create mode 100644 plugins/sixaxis.c
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

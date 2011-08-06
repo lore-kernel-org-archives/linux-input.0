@@ -1,37 +1,28 @@
-From: Steffen Barszus <steffenbpunkt@googlemail.com>
-Subject: Re: [PATCH 1/1] Input: ati_remote - extend keytable for medion
- remotes
-Date: Sat, 6 Aug 2011 17:32:13 +0200
-Message-ID: <20110806173213.67f8acc7@grobi>
-References: <20110418104108.GA4876@atlantis.wh2.tu-dresden.de.de>
-	<20110418104547.GB4876@atlantis.wh2.tu-dresden.de.de>
-	<20110525163204.GD22517@core.coreip.homeip.net>
+From: Anssi Hannula <anssi.hannula@iki.fi>
+Subject: Re: [PATCH 1/1] Input: ati_remote - extend keytable for medion remotes
+Date: Sun, 07 Aug 2011 00:31:46 +0300
+Message-ID: <4E3DB2C2.7040104@iki.fi>
+References: <20110418104108.GA4876@atlantis.wh2.tu-dresden.de.de> <20110418104547.GB4876@atlantis.wh2.tu-dresden.de.de> <20110525163204.GD22517@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:63608 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752191Ab1HFPc1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2011 11:32:27 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20110525163204.GD22517@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Anssi Hannula <anssi.hannula@iki.fi>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Wed, 25 May 2011 09:32:04 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
+On 25.05.2011 19:32, Dmitry Torokhov wrote:
 > Hi Jan,
 > 
 > On Mon, Apr 18, 2011 at 12:45:47PM +0200, Jan Losinski wrote:
-> > This extends the ati_remote to support multiple keytables. The table
-> > will be selected with the productId of the device.
-> > 
-> > It also provides a table for the medion rf remote control that
-> > enables all buttons on it.
-> > 
+>> This extends the ati_remote to support multiple keytables. The table
+>> will be selected with the productId of the device.
+>>
+>> It also provides a table for the medion rf remote control that enables
+>> all buttons on it.
+>>
 > 
 > I am not a big fan of static keymaps in kernel drivers and would much
 > more prefer driver supporting adjusting keymaps via EVIOCSKEYCODE
@@ -43,11 +34,24 @@ Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > remapping. Anssi, could you tell me what is the status of that driver?
 > Is it usable with rc-core?
 
-Jarod also had some interest in moving this to rc-core (but as he
-stated no time soon) 
+Sorry, it seems for some reason I didn't receive your message via CC and
+only now saw it while looking at linux-input@ messages.
 
-Could this be added in the meantime ? Anyone ? Whats missing ? 
+Indeed I have a patchset that makes it work with rc-core which I didn't
+get around to posting yet (sorry about that).
 
-:) 
+I'll try to look over it now and do some more testing, and then post the
+set.
 
-Thanks
+Some notes about the patchset:
+- The mouse handling is left as-is, and it now appears as a separate
+  input device (that part of the keymap is the same for all remotes
+  with mouse). The mouse device is created regardless of receiver,
+  in case another type of remote is used with the receiver.
+- The driver sends rc_keyup immediately after every rc_keydown, as that
+  is what the driver has always done for input events as well. Doing
+  otherwise would cause a regression as ghost repeats would appear
+  with this driver while they didn't before.
+
+-- 
+Anssi Hannula

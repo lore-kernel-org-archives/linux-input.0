@@ -1,78 +1,53 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH] Added product codes and device constants for MacBookAir4,2 trackpad.
-Date: Fri,  5 Aug 2011 12:07:41 -0700
-Message-ID: <1312571261-32465-1-git-send-email-chase.douglas@canonical.com>
+From: Steffen Barszus <steffenbpunkt@googlemail.com>
+Subject: Re: [PATCH 1/1] Input: ati_remote - extend keytable for medion
+ remotes
+Date: Sat, 6 Aug 2011 17:32:13 +0200
+Message-ID: <20110806173213.67f8acc7@grobi>
+References: <20110418104108.GA4876@atlantis.wh2.tu-dresden.de.de>
+	<20110418104547.GB4876@atlantis.wh2.tu-dresden.de.de>
+	<20110525163204.GD22517@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:56836 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752966Ab1HETHr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Aug 2011 15:07:47 -0400
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:63608 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752191Ab1HFPc1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2011 11:32:27 -0400
+In-Reply-To: <20110525163204.GD22517@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Joshua V. Dillon" <jvdillon@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Anssi Hannula <anssi.hannula@iki.fi>
 
-From: Joshua V. Dillon <jvdillon@gmail.com>
+On Wed, 25 May 2011 09:32:04 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Added USB device IDs for MacBookAir4,2 trackpad. Device constants were
-copied from the MacBookAir3,2 constants. The 4,2 device specification is
-reportedly unchanged from the 3,2 predecessor and seems to work well.
+> Hi Jan,
+> 
+> On Mon, Apr 18, 2011 at 12:45:47PM +0200, Jan Losinski wrote:
+> > This extends the ati_remote to support multiple keytables. The table
+> > will be selected with the productId of the device.
+> > 
+> > It also provides a table for the medion rf remote control that
+> > enables all buttons on it.
+> > 
+> 
+> I am not a big fan of static keymaps in kernel drivers and would much
+> more prefer driver supporting adjusting keymaps via EVIOCSKEYCODE
+> ioctls. Unfortunately ati_remote key handling code is kind of involved
+> and I am not sure what is the best way of wiring it up.
+> 
+> I believe Anssi Hannula (CCed) mentioned that he has a version of
+> ati_remove ported to rc-core infrastructure that supports such
+> remapping. Anssi, could you tell me what is the status of that driver?
+> Is it usable with rc-core?
 
-Signed-off-by: Joshua V Dillon <jvdillon@gmail.com>
-Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
----
-I received this patch from Joshua. He preferred that I send it on his
-behalf. I have compile tested the patch, and Joshua has runtime tested
-it using a dkms package against 2.6.38.
+Jarod also had some interest in moving this to rc-core (but as he
+stated no time soon) 
 
- drivers/input/mouse/bcm5974.c |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
+Could this be added in the meantime ? Anyone ? Whats missing ? 
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 3126983..48d9ec1 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -67,6 +67,10 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI	0x0245
- #define USB_DEVICE_ID_APPLE_WELLSPRING5_ISO	0x0246
- #define USB_DEVICE_ID_APPLE_WELLSPRING5_JIS	0x0247
-+/* MacbookAir4,2 (unibody, July 2011) */
-+#define USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI	0x024c
-+#define USB_DEVICE_ID_APPLE_WELLSPRING6_ISO	0x024d
-+#define USB_DEVICE_ID_APPLE_WELLSPRING6_JIS	0x024e
- 
- #define BCM5974_DEVICE(prod) {					\
- 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
-@@ -104,6 +108,10 @@ static const struct usb_device_id bcm5974_table[] = {
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_ISO),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_JIS),
-+	/* MacbookAir4,2 */
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING6_ISO),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING6_JIS),
- 	/* Terminating entry */
- 	{}
- };
-@@ -294,6 +302,18 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		{ DIM_X, DIM_X / SN_COORD, -4415, 5050 },
- 		{ DIM_Y, DIM_Y / SN_COORD, -55, 6680 }
- 	},
-+	{
-+		USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI,
-+		USB_DEVICE_ID_APPLE_WELLSPRING6_ISO,
-+		USB_DEVICE_ID_APPLE_WELLSPRING6_JIS,
-+		HAS_INTEGRATED_BUTTON,
-+		0x84, sizeof(struct bt_data),
-+		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
-+		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
-+		{ DIM_X, DIM_X / SN_COORD, -4620, 5140 },
-+		{ DIM_Y, DIM_Y / SN_COORD, -150, 6600 }
-+	},
- 	{}
- };
- 
--- 
-1.7.4.1
+:) 
 
+Thanks

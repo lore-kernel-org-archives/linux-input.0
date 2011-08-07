@@ -1,42 +1,96 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: mma8450 - fix module device table type
-Date: Sun, 07 Aug 2011 22:14:47 +0800
-Message-ID: <1312726487.7287.2.camel@phoenix>
+From: Eric Andersson <eric.andersson@unixphere.com>
+Subject: Re: [PATCH v6 1/1] input: add driver for Bosch Sensortec's BMA150
+ accelerometer
+Date: Sun, 7 Aug 2011 18:23:25 +0200
+Message-ID: <20110807162325.GA7280@skinner.xfiles.lan>
+References: <1311800027-25982-1-git-send-email-eric.andersson@unixphere.com>
+ <1311800027-25982-2-git-send-email-eric.andersson@unixphere.com>
+ <20110730191726.GG5686@core.coreip.homeip.net>
+ <20110730224917.GA8519@skinner.xfiles.lan>
+ <20110731070844.GA23383@core.coreip.homeip.net>
+ <CAH+e7S2LU7zr6fcp+f+2UuzyXX_=icBa4OtO7m1YQQ2BtOyMAQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f170.google.com ([209.85.210.170]:42695 "EHLO
-	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753366Ab1HGOPD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Aug 2011 10:15:03 -0400
+Received: from csmtp2.one.com ([91.198.169.22]:38365 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752605Ab1HGQS5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 7 Aug 2011 12:18:57 -0400
+Content-Disposition: inline
+In-Reply-To: <CAH+e7S2LU7zr6fcp+f+2UuzyXX_=icBa4OtO7m1YQQ2BtOyMAQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Shawn Guo <shawn.guo@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Miao <eric.miao@linaro.org>, Sammy He <r62914@freescale.com>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, jic23@cam.ac.uk, xu.zhang@bosch-sensortec.com
 
-The module device table for of_device_id should use "of" type.
+> On Sun, Jul 31, 2011 at 12:49:17AM +0200, Dmitry Torokhov wrote:
+> > > > +static int bma150_open(struct bma150_data *bma150)
+> > > > +{
+> > > > + int ret;
+> > > > +
+> > > > + ret =3D pm_runtime_set_active(&bma150->client->dev);
+> > > > + if (ret < 0)
+> > > > + =A0 =A0 =A0 =A0 return ret;
+> > > > +
+> > > > + pm_runtime_enable(&bma150->client->dev);
+> > >
+> > > I am pretty sure you want to call pm_runtime_enable() in bma150_p=
+robe()
+> > > so that parent controller can be suspended until somebody calls
+> > > bma150_open() and we mark the device as active (which, in turn, s=
+hould
+> > > wake up its parent).
+> >
+> > If I call pm_runtime_enable() I cannot use pm_runtime_set_active() =
+later
+> > according to the comment in __pm_runtime_set_status (runtime.c):
+> > "If runtime PM of the device is disabled or its power.runtime_error
+> > field is different from zero, the status may be changed either to
+> > RPM_ACTIVE, or to RPM_SUSPENDED..."
+> >
+> > If the PM of the device is enabled it will return -EAGAIN. Of cours=
+e, we
+> > could enable() in probe, then disable(); set_active(); enable(); in
+> > open, but that seems a bit confused, right?
+>=20
+> Hmm, indeed. I do not like the idea about disable/set_active/enable s=
+o I
+> guess we'll have to keep track of the current mode themselves and cal=
+l
+> bma150_set_mode() ourselves if, after calling pm_runtime_get/put_sync=
+()
+> we find that our mode is different from what we expect it to be.
+>=20
+> I also noticed that you did not properly free IRQ on device removal a=
+nd
+> also polled devices need to be freed always (unlike regular input
+> devices that should be only unregistered). The default_cfg can't be
+> __initdata because it is used by __devinit functions. And my version =
+of
+> GCC can't figure out that ipoll_dev never used uninitialized and give=
+s
+> false warning.
+>=20
+> I tried correcting these issues in the patch below, along with renami=
+ng
+> 'ret' to 'error' which I prefer when we dealing with error handling.
+> Could you please git it a try and if everything still works I'll fold=
+ it
+> and commit.
 
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/misc/mma8450.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Thanks Dmitry! I tried your patch and it worked like a charm!
 
-diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma8450.c
-index 6c76cf7..0794778 100644
---- a/drivers/input/misc/mma8450.c
-+++ b/drivers/input/misc/mma8450.c
-@@ -234,7 +234,7 @@ static const struct of_device_id mma8450_dt_ids[] = {
- 	{ .compatible = "fsl,mma8450", },
- 	{ /* sentinel */ }
- };
--MODULE_DEVICE_TABLE(i2c, mma8450_dt_ids);
-+MODULE_DEVICE_TABLE(of, mma8450_dt_ids);
- 
- static struct i2c_driver mma8450_driver = {
- 	.driver = {
--- 
-1.7.4.1
+Do you take it from here or would you like me to send an updated
+version that includes your patch?
 
+--=20
+Best regards,
+ Eric
 
-
+http://www.unixphere.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

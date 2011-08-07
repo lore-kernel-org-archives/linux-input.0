@@ -1,94 +1,67 @@
-From: Eric Andersson <eric.andersson@unixphere.com>
-Subject: Re: [PATCH v6 1/1] input: add driver for Bosch Sensortec's BMA150
- accelerometer
-Date: Sun, 7 Aug 2011 18:23:25 +0200
-Message-ID: <20110807162325.GA7280@skinner.xfiles.lan>
-References: <1311800027-25982-1-git-send-email-eric.andersson@unixphere.com>
- <1311800027-25982-2-git-send-email-eric.andersson@unixphere.com>
- <20110730191726.GG5686@core.coreip.homeip.net>
- <20110730224917.GA8519@skinner.xfiles.lan>
- <20110731070844.GA23383@core.coreip.homeip.net>
- <CAH+e7S2LU7zr6fcp+f+2UuzyXX_=icBa4OtO7m1YQQ2BtOyMAQ@mail.gmail.com>
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Build-a-home-based-business-on-Auto-Pilot
+Date: Sun, 7 Aug 2011 04:05:06 -0700 (PDT)
+Message-ID: <201108071105.p77B56LA074728@mail3.spagack2.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:38365 "EHLO csmtp2.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752605Ab1HGQS5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 7 Aug 2011 12:18:57 -0400
-Content-Disposition: inline
-In-Reply-To: <CAH+e7S2LU7zr6fcp+f+2UuzyXX_=icBa4OtO7m1YQQ2BtOyMAQ@mail.gmail.com>
+Received: from mail3.spagack2.com ([74.122.159.222]:52144 "EHLO
+	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751103Ab1HGWvv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Aug 2011 18:51:51 -0400
+Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
+	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p77B56Zi074748
+	for <linux-input@vger.kernel.org>; Sun, 7 Aug 2011 04:05:06 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhengguang.guo@bosch-sensortec.com, stefan.nilsson@unixphere.com, alan@lxorguk.ukuu.org.uk, jic23@cam.ac.uk, xu.zhang@bosch-sensortec.com
+To: linux-input@vger.kernel.org
 
-> On Sun, Jul 31, 2011 at 12:49:17AM +0200, Dmitry Torokhov wrote:
-> > > > +static int bma150_open(struct bma150_data *bma150)
-> > > > +{
-> > > > + int ret;
-> > > > +
-> > > > + ret =3D pm_runtime_set_active(&bma150->client->dev);
-> > > > + if (ret < 0)
-> > > > + =A0 =A0 =A0 =A0 return ret;
-> > > > +
-> > > > + pm_runtime_enable(&bma150->client->dev);
-> > >
-> > > I am pretty sure you want to call pm_runtime_enable() in bma150_p=
-robe()
-> > > so that parent controller can be suspended until somebody calls
-> > > bma150_open() and we mark the device as active (which, in turn, s=
-hould
-> > > wake up its parent).
-> >
-> > If I call pm_runtime_enable() I cannot use pm_runtime_set_active() =
-later
-> > according to the comment in __pm_runtime_set_status (runtime.c):
-> > "If runtime PM of the device is disabled or its power.runtime_error
-> > field is different from zero, the status may be changed either to
-> > RPM_ACTIVE, or to RPM_SUSPENDED..."
-> >
-> > If the PM of the device is enabled it will return -EAGAIN. Of cours=
-e, we
-> > could enable() in probe, then disable(); set_active(); enable(); in
-> > open, but that seems a bit confused, right?
->=20
-> Hmm, indeed. I do not like the idea about disable/set_active/enable s=
-o I
-> guess we'll have to keep track of the current mode themselves and cal=
-l
-> bma150_set_mode() ourselves if, after calling pm_runtime_get/put_sync=
-()
-> we find that our mode is different from what we expect it to be.
->=20
-> I also noticed that you did not properly free IRQ on device removal a=
-nd
-> also polled devices need to be freed always (unlike regular input
-> devices that should be only unregistered). The default_cfg can't be
-> __initdata because it is used by __devinit functions. And my version =
-of
-> GCC can't figure out that ipoll_dev never used uninitialized and give=
-s
-> false warning.
->=20
-> I tried correcting these issues in the patch below, along with renami=
-ng
-> 'ret' to 'error' which I prefer when we dealing with error handling.
-> Could you please git it a try and if everything still works I'll fold=
- it
-> and commit.
 
-Thanks Dmitry! I tried your patch and it worked like a charm!
+Build-a-home-based-business-on-Auto-Pilot
 
-Do you take it from here or would you like me to send an updated
-version that includes your patch?
+Hello Everyone,
+Discover how average people who have never made a cent in the past
+Are now making $1,000+ every month,=20
+With the Potential of making $50,000 a month
+Just "Plug In"... to Your
+Own Fully Automated=20
+  Turn Key...Global Marketing $ystem
+Receive $500-$3,500 Monthly or MORE
+Not MLM...and
+No Selling...
+No Cold Phone Calling.=20
+Complete plug-in-system!
 
---=20
-Best regards,
- Eric
+Check-it-Out!
 
-http://www.unixphere.com
+http://trckrs.com/48184/rc1
+
+It=92s surprisingly cool!
+
+Dan and Noel
+
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

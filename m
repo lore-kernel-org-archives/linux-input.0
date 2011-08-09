@@ -1,41 +1,32 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Report pressure information
- from the driver
-Date: Tue, 9 Aug 2011 00:01:10 -0700
-Message-ID: <20110809070110.GC8017@core.coreip.homeip.net>
-References: <1311787695-28147-1-git-send-email-miletus@chromium.org>
- <20110730191206.GF5686@core.coreip.homeip.net>
- <CAPDwgkOpBg911PjoAb1ywv769nC63QDAJgUSES+3PmRsMENMHg@mail.gmail.com>
+Subject: Re: [PATCH] Added product codes and device constants for
+ MacBookAir4,2 trackpad.
+Date: Tue, 9 Aug 2011 01:34:40 -0700
+Message-ID: <20110809083439.GA24477@core.coreip.homeip.net>
+References: <1312571261-32465-1-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iy0-f170.google.com ([209.85.210.170]:45980 "EHLO
+	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752500Ab1HIIep (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2011 04:34:45 -0400
 Content-Disposition: inline
-In-Reply-To: <CAPDwgkOpBg911PjoAb1ywv769nC63QDAJgUSES+3PmRsMENMHg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yufeng Shen <miletus@chromium.org>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Chris Leech <christopher.leech@linux.intel.com>, linux-kernel@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>, "Gong, Michael" <Michael.Gong@atmel.com>
+In-Reply-To: <1312571261-32465-1-git-send-email-chase.douglas@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Joshua V. Dillon" <jvdillon@gmail.com>
 
-Hi Yufeng,
+On Fri, Aug 05, 2011 at 12:07:41PM -0700, Chase Douglas wrote:
+> From: Joshua V. Dillon <jvdillon@gmail.com>
+> 
+> Added USB device IDs for MacBookAir4,2 trackpad. Device constants were
+> copied from the MacBookAir3,2 constants. The 4,2 device specification is
+> reportedly unchanged from the 3,2 predecessor and seems to work well.
+> 
 
-On Wed, Aug 03, 2011 at 12:22:19PM -0400, Yufeng Shen wrote:
-> Hi Dmitry,
-> 
-> Currently the driver atmel_mxt_ts.c supports 3 different models of
-> atmel touch controller:
-> 
-> 1. qt602240_ts
-> 2. atmel_mxt_ts   (which is for mxt1386)
-> 3. mXT224
-> 
-> Confirmed with atmel side that qt602240_ts is actually an alias for
-> mxt224, and mxt224
-> follows the same protocol guide with mxt1386, which means it will
-> report the pressure
-> information the same way as mxt1386.
-
-Great, thanks for confirming that. Can I please have your
-"Signed-off-by:" so I can apply the patch?
+Applied, thank you.
 
 -- 
 Dmitry

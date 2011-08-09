@@ -1,32 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Added product codes and device constants for
- MacBookAir4,2 trackpad.
-Date: Tue, 9 Aug 2011 01:34:40 -0700
-Message-ID: <20110809083439.GA24477@core.coreip.homeip.net>
-References: <1312571261-32465-1-git-send-email-chase.douglas@canonical.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] ASoC: Add device tree binding for WM8753
+Date: Tue, 9 Aug 2011 23:28:52 +0900
+Message-ID: <20110809142851.GA15861@opensource.wolfsonmicro.com>
+References: <1312778255-29755-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	<CAGsJ_4y2tDb3ZBPo8bCtrjFt0OWzR8WeG+kL_RKJPRP7-pZopw@mail.gmail.com>
+	<20110809065100.GB8017@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f170.google.com ([209.85.210.170]:45980 "EHLO
-	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752500Ab1HIIep (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2011 04:34:45 -0400
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
 Content-Disposition: inline
-In-Reply-To: <1312571261-32465-1-git-send-email-chase.douglas@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20110809065100.GB8017@core.coreip.homeip.net>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: alsa-devel@alsa-project.org, devicetree-discuss@lists.ozlabs.org, Barry Song <21cnbao@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, Liam Girdwood <lrg@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Joshua V. Dillon" <jvdillon@gmail.com>
 
-On Fri, Aug 05, 2011 at 12:07:41PM -0700, Chase Douglas wrote:
-> From: Joshua V. Dillon <jvdillon@gmail.com>
-> 
-> Added USB device IDs for MacBookAir4,2 trackpad. Device constants were
-> copied from the MacBookAir3,2 constants. The 4,2 device specification is
-> reportedly unchanged from the 3,2 predecessor and seems to work well.
-> 
+On Mon, Aug 08, 2011 at 11:51:00PM -0700, Dmitry Torokhov wrote:
 
-Applied, thank you.
+> The issue I have with the ads7846 driver is that it still needs platform
+> code to supply the needed platform data structure to make the
+> driver/device usable. So I am not sure what the benefit DT matching code
+> brings to that driver.
 
--- 
-Dmitry
+Oh, if that's the case the driver ought to have device tree bindings
+which replicate the platform data.  Unless the platform data is
+sufficiently obscure for hardly anyone to want to use it I guess.

@@ -1,36 +1,42 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] ASoC: Add device tree binding for WM8753
-Date: Tue, 9 Aug 2011 23:28:52 +0900
-Message-ID: <20110809142851.GA15861@opensource.wolfsonmicro.com>
-References: <1312778255-29755-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-	<CAGsJ_4y2tDb3ZBPo8bCtrjFt0OWzR8WeG+kL_RKJPRP7-pZopw@mail.gmail.com>
-	<20110809065100.GB8017@core.coreip.homeip.net>
+From: simon@mungewell.org
+Subject: Re: PATCH [1/6] HID: lg4ff - Move handling of Logitech wheels to
+ lg4ff driver
+Date: Tue, 9 Aug 2011 19:35:34 -0400
+Message-ID: <30d25cbbd1396ee543893c7ce10b359d.squirrel@host171.canaca.com>
+References: <1436421.MlUiXUhh2P@qosmio-x300>
+    <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
+    <alpine.LNX.2.00.1108031550110.22911@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <20110809065100.GB8017@core.coreip.homeip.net>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: alsa-devel@alsa-project.org, devicetree-discuss@lists.ozlabs.org, Barry Song <21cnbao@gmail.com>, Grant Likely <grant.likely@secretlab.ca>, linux-input@vger.kernel.org, Liam Girdwood <lrg@ti.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:57778 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750722Ab1HIXfi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2011 19:35:38 -0400
+In-Reply-To: <alpine.LNX.2.00.1108031550110.22911@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: simon@mungewell.org, =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Aug 08, 2011 at 11:51:00PM -0700, Dmitry Torokhov wrote:
+>
+> I am finalizing the patch review and planning to merge it.
 
-> The issue I have with the ads7846 driver is that it still needs platform
-> code to supply the needed platform data structure to make the
-> driver/device usable. So I am not sure what the benefit DT matching code
-> brings to that driver.
+Hi Jiri,
+Saw that this is in the latest git grab, but I also noticed that (the new)
+option 'LOGIWHEELS_FF' is not automatically selected if I grab an old
+kernel config (say 2.6.38 on my ubuntu box) and do 'make oldconfig' with
+the enter key held down.
 
-Oh, if that's the case the driver ought to have device tree bindings
-which replicate the platform data.  Unless the platform data is
-sufficiently obscure for hardly anyone to want to use it I guess.
+Did Michal/myself miss something, or is it preferable to not enable by
+default?
+
+The down side is that the FF on these wheels will stop working (compared
+to 3.0) if kernel builder does not enable this....
+
+I can spin a patch if you'd like to point me the right direction.
+
+Cheers,
+Simon.
+

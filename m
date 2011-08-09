@@ -1,47 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [alsa-devel] [PATCH] ASoC: Add device tree binding for WM8753
-Date: Mon, 8 Aug 2011 23:51:00 -0700
-Message-ID: <20110809065100.GB8017@core.coreip.homeip.net>
-References: <1312778255-29755-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <CAGsJ_4y2tDb3ZBPo8bCtrjFt0OWzR8WeG+kL_RKJPRP7-pZopw@mail.gmail.com>
+Subject: Re: [PATCH v2] Input: atmel_mxt_ts - Report pressure information
+ from the driver
+Date: Tue, 9 Aug 2011 00:01:10 -0700
+Message-ID: <20110809070110.GC8017@core.coreip.homeip.net>
+References: <1311787695-28147-1-git-send-email-miletus@chromium.org>
+ <20110730191206.GF5686@core.coreip.homeip.net>
+ <CAPDwgkOpBg911PjoAb1ywv769nC63QDAJgUSES+3PmRsMENMHg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f170.google.com ([209.85.210.170]:58638 "EHLO
-	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751257Ab1HIGvH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2011 02:51:07 -0400
-Received: by iye16 with SMTP id 16so10467146iye.1
-        for <linux-input@vger.kernel.org>; Mon, 08 Aug 2011 23:51:07 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAGsJ_4y2tDb3ZBPo8bCtrjFt0OWzR8WeG+kL_RKJPRP7-pZopw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <CAPDwgkOpBg911PjoAb1ywv769nC63QDAJgUSES+3PmRsMENMHg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yufeng Shen <miletus@chromium.org>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Chris Leech <christopher.leech@linux.intel.com>, linux-kernel@vger.kernel.org, Wanlong Gao <gaowanlong@cn.fujitsu.com>, "Gong, Michael" <Michael.Gong@atmel.com>
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <21cnbao@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@ti.com>, Grant Likely <grant.likely@secretlab.ca>, alsa-devel@alsa-project.org, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org
 
-Hi Barry,
+Hi Yufeng,
 
-On Mon, Aug 08, 2011 at 04:38:41PM +0800, Barry Song wrote:
-> 2011/8/8 Mark Brown <broonie@opensource.wolfsonmicro.com>:
-> > Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+On Wed, Aug 03, 2011 at 12:22:19PM -0400, Yufeng Shen wrote:
+> Hi Dmitry,
 > 
-> Without this patch, DT can still connect driver with device by the
-> heuristic way(of_modalias_node).
+> Currently the driver atmel_mxt_ts.c supports 3 different models of
+> atmel touch controller:
 > 
-> i have a patch just like yours in input subsystem "[PATCH v2] input:
-> touchscreen: add OF match table for ads7846" with "Acked-by: Grant
-> Likely", but Dmitry seems to just ignore it.
+> 1. qt602240_ts
+> 2. atmel_mxt_ts   (which is for mxt1386)
+> 3. mXT224
 > 
-> so not sure whether this kind of new added match tables are totally
-> liked by people or not.
+> Confirmed with atmel side that qt602240_ts is actually an alias for
+> mxt224, and mxt224
+> follows the same protocol guide with mxt1386, which means it will
+> report the pressure
+> information the same way as mxt1386.
 
-The issue I have with the ads7846 driver is that it still needs platform
-code to supply the needed platform data structure to make the
-driver/device usable. So I am not sure what the benefit DT matching code
-brings to that driver.
-
-Thanks.
+Great, thanks for confirming that. Can I please have your
+"Signed-off-by:" so I can apply the patch?
 
 -- 
 Dmitry

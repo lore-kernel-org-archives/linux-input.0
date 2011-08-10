@@ -1,72 +1,73 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 07/16] HID: wiimote: Parse accelerometer data
-Date: Wed, 10 Aug 2011 13:55:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1108101353390.32288@pobox.suse.cz>
-References: <1311869316-17128-1-git-send-email-dh.herrmann@googlemail.com> <1311869316-17128-8-git-send-email-dh.herrmann@googlemail.com> <201107282012.25113.oneukum@suse.de> <CANq1E4Q=XDWjq7gUss=Xe_TMNJPZOL81MM_LKCpy9c9j92hZVA@mail.gmail.com>
+Subject: Re: [RFC] Wiimote userspace interface
+Date: Wed, 10 Aug 2011 13:57:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1108101355360.32288@pobox.suse.cz>
+References: <CANq1E4S3VY_xxzcjuJDHJc57VPb_uiFrx1B3wR9Xnw5ddx6HJg@mail.gmail.com> <20110803061744.GB23399@core.coreip.homeip.net> <CANq1E4QgF6i2UJQpaRDkOf-vwGH9vMfU9HfL8O8Rt38uup3qew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34395 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:34524 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753118Ab1HJLzJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Aug 2011 07:55:09 -0400
-In-Reply-To: <CANq1E4Q=XDWjq7gUss=Xe_TMNJPZOL81MM_LKCpy9c9j92hZVA@mail.gmail.com>
+	id S1752826Ab1HJL5t (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Aug 2011 07:57:49 -0400
+In-Reply-To: <CANq1E4QgF6i2UJQpaRDkOf-vwGH9vMfU9HfL8O8Rt38uup3qew@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Oliver Neukum <oneukum@suse.de>, linux-input@vger.kernel.org, padovan@profusion.mobi
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, "Gustavo F. Padovan" <padovan@profusion.mobi>, Oliver Neukum <oneukum@suse.de>
 
-On Thu, 28 Jul 2011, David Herrmann wrote:
+On Wed, 3 Aug 2011, David Herrmann wrote:
 
-> >> +static void handler_accel(struct wiimote_data *wdata, const __u8 =
-*payload)
-> >> +{
-> >> + =A0 =A0 =A0 __u16 x, y, z;
-> >> +
-> >> + =A0 =A0 =A0 if (!(wdata->state.flags & WIIPROTO_FLAG_ACCEL))
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
-> >> +
-> >> + =A0 =A0 =A0 /*
-> >> + =A0 =A0 =A0 =A0* payload is: BB BB XX YY ZZ
-> >> + =A0 =A0 =A0 =A0* Buttons data contains LSBs
-> >> + =A0 =A0 =A0 =A0*/
-> >> +
-> >> + =A0 =A0 =A0 x =3D payload[2] << 2;
-> >> + =A0 =A0 =A0 y =3D payload[3] << 2;
-> >> + =A0 =A0 =A0 z =3D payload[4] << 2;
-> >> +
-> >> + =A0 =A0 =A0 x |=3D (payload[0] >> 5) & 0x3;
-> >> + =A0 =A0 =A0 y |=3D (payload[1] >> 4) & 0x2;
-> >> + =A0 =A0 =A0 z |=3D (payload[1] >> 5) & 0x2;
+> >> There is also the other side. Sending data to the wiimote. 4 LEDs can
+> >> be set, the rumble motor can be enabled/disabled and audio data can be
+> >> streamed. I think my current approach to use sysfs attributes for the
+> >> LEDs
 > >
-> > Could you make the comments a bit clearer. Those last lines are imp=
-ossible
-> > to understand.
->=20
-> The LSBs are encoded in the "BB BB" data and I am extracting them. I
-> have documented the whole protocol in a separated document but if it
-> is common practice to add those comments to the code, I will add it i=
-n
-> the next version.
+> > Depending on what exactly it is you may try registering LEDs as LED
+> > class devices. Having a sysfs attribute to light one of 4 leds is an
+> > option too.
+> 
+> I already looked at the API. Although the 4 LEDs of the wiimote can
+> only be switched on/off (no brightness modulation) I think I could
+> register 4 led_classdev structures. This would also allow software
+> blinking.
 
-In some cases, the usual way is to put a brief description of the=20
-protocol/data structures mandated by hardware in the comments at the ve=
-ry=20
-beginning of the driver file.
+Yes, I'd prefer that as well.
 
-The description below seems like a perfect fit for such purpose. If you=
-=20
-have much more elaborate description, it should probably go into=20
-Documentation/.
+> >> and RUMBLE motor is ok? I can't figure out any better way here.
+> >
+> > One of the input devices should be registered as ForceFeedback device
+> > (or you create a separate FF input device).
+> 
+> Ok, I will add that.
 
-Thanks,
+Perfect, thanks. You can find quite some examples of force feedback 
+implementations even in drivers/hid as well, to gain some inspiration.
 
---=20
+> >> Reference-counting doesn't make sense. If multiple devices use them,
+> >> then they will always have conflicts, however, it still works.
+> >> Audio streaming is not yet implemented, but I think I could register
+> >> an alsa device so this needs not to be discussed here.
+> >>
+> >>
+> >> Currently I think Interface #2 would be the best way but I don't want
+> >> to spend time implementing that if you tell me it isn't acceptable.
+> >> Any comments on this are appreciated.
+> >
+> > I believe you should try presenting physical objects as input devices so
+> > I'd try presenting wiimote (with optional motion+ events) as one device
+> > and accessory (nunchuck, classic extension) as another device.
+> 
+> Yes, but the problem is, that this would enable all peripherals of the
+> wiimote, even though userspace may not need them. But if that is the
+> recommended way, I will implement it.
+
+Is there any problem with that? I could potentialy imagine unnecessary 
+power consumption (assuming that the peripherals that are not enabled are 
+in some lower state, right?). Anything else?
+
+Thanks a lot for your work on the driver, David.
+
+-- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

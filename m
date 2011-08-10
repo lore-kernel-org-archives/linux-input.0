@@ -1,48 +1,36 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [RFC] Wiimote userspace interface
-Date: Wed, 10 Aug 2011 15:37:32 +0200
-Message-ID: <CANq1E4RuCqpnYEXUQNEaq_MLocqzyXNwXZGb+pYpO8otwxV4qw@mail.gmail.com>
-References: <CANq1E4S3VY_xxzcjuJDHJc57VPb_uiFrx1B3wR9Xnw5ddx6HJg@mail.gmail.com>
-	<20110803061744.GB23399@core.coreip.homeip.net>
-	<CANq1E4QgF6i2UJQpaRDkOf-vwGH9vMfU9HfL8O8Rt38uup3qew@mail.gmail.com>
-	<alpine.LNX.2.00.1108101355360.32288@pobox.suse.cz>
-	<alpine.LNX.2.00.1108101359530.32288@pobox.suse.cz>
+From: simon@mungewell.org
+Subject: Re: PATCH [1/6] HID: lg4ff - Move handling of Logitech wheels to
+ lg4ff driver
+Date: Wed, 10 Aug 2011 11:09:03 -0400
+Message-ID: <d6ce6f95d26566090bc2647383debb84.squirrel@host171.canaca.com>
+References: <1436421.MlUiXUhh2P@qosmio-x300>
+    <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>
+    <alpine.LNX.2.00.1108031550110.22911@pobox.suse.cz>
+    <30d25cbbd1396ee543893c7ce10b359d.squirrel@host171.canaca.com>
+    <alpine.LNX.2.00.1108101428070.32288@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:64720 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750866Ab1HJNhc (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:54006 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753106Ab1HJPJG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Aug 2011 09:37:32 -0400
-Received: by vws1 with SMTP id 1so830903vws.19
-        for <linux-input@vger.kernel.org>; Wed, 10 Aug 2011 06:37:32 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1108101359530.32288@pobox.suse.cz>
+	Wed, 10 Aug 2011 11:09:06 -0400
+In-Reply-To: <alpine.LNX.2.00.1108101428070.32288@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, "Gustavo F. Padovan" <padovan@profusion.mobi>, Oliver Neukum <oneukum@suse.de>
+Cc: simon@mungewell.org, =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Aug 10, 2011 at 2:00 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 10 Aug 2011, Jiri Kosina wrote:
+
+> But ... what's now LOGIWHEELS_FF used to be LOGITECH_FF, which isn't
+> 'default y' either.
 >
->> Thanks a lot for your work on the driver, David.
+> So something along the lines of patch below would be fine for you guys?
 >
-> ... so I am now postponing the merge of the series you have sent, and
-> waiting for your respin, okay?
 
-Yes, I will resend the patches with the new interface and probably
-include the extension-support with it as I have almost finished that.
+Yep, that makes sense and works for me...
+Thanks,
+Simon.
 
-Thanks for your hints and yeah, power-consumption was the only problem
-with this interface but I think I can implement some power-savings
-later if it turns out to be an issue.
-
-> Thanks again,
->
-> --
-> Jiri Kosina
-> SUSE Labs
-
-Regards
-David

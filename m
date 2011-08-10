@@ -1,77 +1,48 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: PATCH [1/6] HID: lg4ff - Move handling of Logitech wheels to
- lg4ff driver
-Date: Wed, 10 Aug 2011 14:33:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1108101428070.32288@pobox.suse.cz>
-References: <1436421.MlUiXUhh2P@qosmio-x300>    <a5844f7bbd833b88460daeecabbe59d8.squirrel@host171.canaca.com>    <alpine.LNX.2.00.1108031550110.22911@pobox.suse.cz> <30d25cbbd1396ee543893c7ce10b359d.squirrel@host171.canaca.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [RFC] Wiimote userspace interface
+Date: Wed, 10 Aug 2011 15:37:32 +0200
+Message-ID: <CANq1E4RuCqpnYEXUQNEaq_MLocqzyXNwXZGb+pYpO8otwxV4qw@mail.gmail.com>
+References: <CANq1E4S3VY_xxzcjuJDHJc57VPb_uiFrx1B3wR9Xnw5ddx6HJg@mail.gmail.com>
+	<20110803061744.GB23399@core.coreip.homeip.net>
+	<CANq1E4QgF6i2UJQpaRDkOf-vwGH9vMfU9HfL8O8Rt38uup3qew@mail.gmail.com>
+	<alpine.LNX.2.00.1108101355360.32288@pobox.suse.cz>
+	<alpine.LNX.2.00.1108101359530.32288@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38281 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750737Ab1HJMd3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Aug 2011 08:33:29 -0400
-In-Reply-To: <30d25cbbd1396ee543893c7ce10b359d.squirrel@host171.canaca.com>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:64720 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750866Ab1HJNhc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Aug 2011 09:37:32 -0400
+Received: by vws1 with SMTP id 1so830903vws.19
+        for <linux-input@vger.kernel.org>; Wed, 10 Aug 2011 06:37:32 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1108101359530.32288@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@gmail.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, "Gustavo F. Padovan" <padovan@profusion.mobi>, Oliver Neukum <oneukum@suse.de>
 
-On Tue, 9 Aug 2011, simon@mungewell.org wrote:
+On Wed, Aug 10, 2011 at 2:00 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 10 Aug 2011, Jiri Kosina wrote:
+>
+>> Thanks a lot for your work on the driver, David.
+>
+> ... so I am now postponing the merge of the series you have sent, and
+> waiting for your respin, okay?
 
-> Hi Jiri,
-> Saw that this is in the latest git grab, but I also noticed that (the new)
-> option 'LOGIWHEELS_FF' is not automatically selected if I grab an old
-> kernel config (say 2.6.38 on my ubuntu box) and do 'make oldconfig' with
-> the enter key held down.
-> 
-> Did Michal/myself miss something, or is it preferable to not enable by
-> default?
-> 
-> The down side is that the FF on these wheels will stop working (compared
-> to 3.0) if kernel builder does not enable this....
-> 
-> I can spin a patch if you'd like to point me the right direction.
+Yes, I will resend the patches with the new interface and probably
+include the extension-support with it as I have almost finished that.
 
-We normally don't do 'default y' for newly added HID options (I had quite 
-some argument about this with Linus several times already :) ).
+Thanks for your hints and yeah, power-consumption was the only problem
+with this interface but I think I can implement some power-savings
+later if it turns out to be an issue.
 
-This one could be different, as it's a split-off from an option that has 
-existed before.
+> Thanks again,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
 
-But ... what's now LOGIWHEELS_FF used to be LOGITECH_FF, which isn't 
-'default y' either.
-
-So something along the lines of patch below would be fine for you guys?
-
-
-
-
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: make CONFIG_LOGIWHEELS_FF default to CONFIG_LOGITECH_FF
-
-Do this for backwards compatibility reasons (LOGIWHEELS_FF has
-been split-off from LOGITECH_FF), so that users don't have
-regressions with 'default' kernel configs.
-
-Reported-by: simon@mungewell.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/Kconfig |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 6ae234f..410eaa9 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -282,6 +282,7 @@ config LOGIWHEELS_FF
- 	bool "Logitech wheels configuration and force feedback support"
- 	depends on HID_LOGITECH
- 	select INPUT_FF_MEMLESS
-+	default LOGITECH_FF
- 	help
- 	  Say Y here if you want to enable force feedback and range setting
- 	  support for following Logitech wheels:
--- 
-1.7.3.1
-
+Regards
+David

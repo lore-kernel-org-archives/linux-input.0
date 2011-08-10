@@ -1,118 +1,665 @@
-From: Barry Song <21cnbao@gmail.com>
-Subject: Re: [alsa-devel] [PATCH] ASoC: Add device tree binding for WM8753
-Date: Wed, 10 Aug 2011 09:21:16 +0800
-Message-ID: <CAGsJ_4w-YhWQTFovkynKVVr6JkwcHJQn-EmfxUxOSd=C2BwhiA@mail.gmail.com>
-References: <1312778255-29755-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <CAGsJ_4y2tDb3ZBPo8bCtrjFt0OWzR8WeG+kL_RKJPRP7-pZopw@mail.gmail.com>
- <20110809065100.GB8017@core.coreip.homeip.net> <20110809142851.GA15861@opensource.wolfsonmicro.com>
+From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Subject: Re: [PATCH BlueZ 2/4] Add sixaxis plugin: USB pairing and LEDs settings
+Date: Tue, 09 Aug 2011 22:24:37 -0400
+Message-ID: <4E41EBE5.7040908@signal11.us>
+References: <1312553358-26280-1-git-send-email-ospite@studenti.unina.it> <1312553358-26280-3-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:42621 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750802Ab1HJBVh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2011 21:21:37 -0400
-Received: by bke11 with SMTP id 11so52332bke.19
-        for <linux-input@vger.kernel.org>; Tue, 09 Aug 2011 18:21:36 -0700 (PDT)
-In-Reply-To: <20110809142851.GA15861@opensource.wolfsonmicro.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1312553358-26280-3-git-send-email-ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>, Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>, Arc Riley <arcriley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liam Girdwood <lrg@ti.com>, Grant Likely <grant.likely@secretlab.ca>, alsa-devel@alsa-project.org, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org
 
-2011/8/9 Mark Brown <broonie@opensource.wolfsonmicro.com>:
-> On Mon, Aug 08, 2011 at 11:51:00PM -0700, Dmitry Torokhov wrote:
+On 08/05/2011 10:09 AM, Antonio Ospite wrote:
+> Add a plugin which handles the connection of a Sixaxis device, when a
+> new hidraw device is connected the plugin:
+>  - Filters udev events, and select the Sixaxis device
+>  - Sets LEDs to match the joystick system number (for USB and BT)
+>  - Sets the Master bluetooth address in the Sixaxis (USB pairing)
+>  - Adds the device to the database of the current default
+>    adapter (BT association)
 >
->> The issue I have with the ads7846 driver is that it still needs plat=
-form
->> code to supply the needed platform data structure to make the
->> driver/device usable. So I am not sure what the benefit DT matching =
-code
->> brings to that driver.
+> Signed-off-by: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+> Signed-off-by: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+> ---
+>  Makefile.am       |    9 +-
+>  acinclude.m4      |   10 +
+>  plugins/sixaxis.c |  593 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 610 insertions(+), 2 deletions(-)
+>  create mode 100644 plugins/sixaxis.c
 >
-> Oh, if that's the case the driver ought to have device tree bindings
-> which replicate the platform data. =C2=A0Unless the platform data is
-> sufficiently obscure for hardly anyone to want to use it I guess.
->
-With the device tree binding in ads7846, we don't need spi_board_info
-any more since we have
-ts@0 {
-       compatible =3D "ti,ads7845";
-       reg =3D <0x0>;
-       spi-max-frequency =3D <31250>;
-       interrupts =3D <90>;
-};
-in dts.
+> diff --git a/Makefile.am b/Makefile.am
+> index 68380d9..dbe0170 100644
+> --- a/Makefile.am
+> +++ b/Makefile.am
+> @@ -224,6 +224,11 @@ builtin_sources += thermometer/main.c \
+>  			thermometer/thermometer.h thermometer/thermometer.c
+>  endif
+>  
+> +if SIXAXISPLUGIN
+> +builtin_modules += sixaxis
+> +builtin_sources += plugins/sixaxis.c
+> +endif
+> +
+>  builtin_modules += hciops mgmtops
+>  builtin_sources += plugins/hciops.c plugins/mgmtops.c
+>  
+> @@ -283,7 +288,7 @@ src_bluetoothd_SOURCES = $(gdbus_sources) $(builtin_sources) \
+>  			src/event.h src/event.c \
+>  			src/oob.h src/oob.c src/eir.h src/eir.c
+>  src_bluetoothd_LDADD = lib/libbluetooth.la @GLIB_LIBS@ @DBUS_LIBS@ \
+> -							@CAPNG_LIBS@ -ldl -lrt
+> +							@CAPNG_LIBS@ @UDEV_LIBS@ -ldl -lrt
+>  src_bluetoothd_LDFLAGS = -Wl,--export-dynamic \
+>  				-Wl,--version-script=$(srcdir)/src/bluetooth.ver
+>  
+> @@ -398,7 +403,7 @@ EXTRA_DIST += doc/manager-api.txt \
+>  
+>  AM_YFLAGS = -d
+>  
+> -AM_CFLAGS = @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ \
+> +AM_CFLAGS = @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ @UDEV_CFLAGS@ \
+>  		-DBLUETOOTH_PLUGIN_BUILTIN -DPLUGINDIR=\""$(plugindir)"\"
+>  
+>  INCLUDES = -I$(builddir)/lib -I$(builddir)/src -I$(srcdir)/src \
+> diff --git a/acinclude.m4 b/acinclude.m4
+> index 3cb9459..6176483 100644
+> --- a/acinclude.m4
+> +++ b/acinclude.m4
+> @@ -186,6 +186,7 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+>  	sndfile_enable=${sndfile_found}
+>  	hal_enable=no
+>  	usb_enable=${usb_found}
+> +	sixaxis_enable=${udev_found}
+>  	alsa_enable=${alsa_found}
+>  	gstreamer_enable=${gstreamer_found}
+>  	audio_enable=yes
+> @@ -286,6 +287,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+>  		usb_enable=${enableval}
+>  	])
+>  
+> +	AC_ARG_ENABLE(sixaxis, AC_HELP_STRING([--enable-sixaxis], [enable Sixaxis plugin]), [
+> +		sixaxis_enable=${enableval}
+> +	])
+> +
+>  	AC_ARG_ENABLE(tracer, AC_HELP_STRING([--enable-tracer], [install Tracing daemon]), [
+>  		tracer_enable=${enableval}
+>  	])
+> @@ -385,6 +390,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+>  		AC_DEFINE(HAVE_LIBUSB, 1, [Define to 1 if you have USB library.])
+>  	fi
+>  
+> +	if (test "${sixaxis_enable}" = "yes" && test "${udev_found}" = "yes"); then
+> +		AC_DEFINE(HAVE_SIXAXIS_PLUGIN, 1, [Define to 1 if you have sixaxis plugin.])
+> +	fi
+> +
+>  	AM_CONDITIONAL(SNDFILE, test "${sndfile_enable}" = "yes" && test "${sndfile_found}" = "yes")
+>  	AM_CONDITIONAL(USB, test "${usb_enable}" = "yes" && test "${usb_found}" = "yes")
+>  	AM_CONDITIONAL(SBC, test "${alsa_enable}" = "yes" || test "${gstreamer_enable}" = "yes" ||
+> @@ -421,4 +430,5 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+>  	AM_CONDITIONAL(DBUSOOBPLUGIN, test "${dbusoob_enable}" = "yes")
+>  	AM_CONDITIONAL(WIIMOTEPLUGIN, test "${wiimote_enable}" = "yes")
+>  	AM_CONDITIONAL(THERMOMETERPLUGIN, test "${thermometer_enable}" = "yes")
+> +	AM_CONDITIONAL(SIXAXISPLUGIN, test "${sixaxis_enable}" = "yes" && test "${udev_found}" = "yes")
+>  ])
+> diff --git a/plugins/sixaxis.c b/plugins/sixaxis.c
+> new file mode 100644
+> index 0000000..2b0616a
+> --- /dev/null
+> +++ b/plugins/sixaxis.c
+> @@ -0,0 +1,593 @@
+> +/*
+> + * sixaxis plugin: do cable association for Sixaxis controller
+> + *
+> + * Copyright (C) 2009  Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+> + * Copyright (C) 2011  Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+> + *
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+> + *
+> + */
+> +
+> +/*
+> + * In the following this terminology is used:
+> + *
+> + *  - controller: a Sixaxis joypad.
+> + *  - adapter: the bluetooth dongle on the host system.
+> + *  - adapter_bdaddr: the bdaddr of the bluetooth adapter.
+> + *  - device_bdaddr: the bdaddr of the Sixaxis controller.
+> + *  - master_bdaddr: the bdaddr of the adapter to be configured into the
+> + *    Sixaxis controller
+> + */
+> +
+> +#ifdef HAVE_CONFIG_H
+> +#include <config.h>
+> +#endif
+> +
+> +#include <stdio.h>
+> +#include <stdint.h>
+> +#include <stdlib.h>
+> +#include <sys/ioctl.h>
+> +#include <sys/types.h>
+> +#include <sys/stat.h>
+> +#include <fcntl.h>
+> +#include <unistd.h>
+> +#include <errno.h>
+> +#include <glib.h>
+> +#include <linux/hidraw.h>
+> +
+> +#define LIBUDEV_I_KNOW_THE_API_IS_SUBJECT_TO_CHANGE 1
+> +#include <libudev.h>
+> +
+> +#include "plugin.h"
+> +#include "log.h"
+> +#include "adapter.h"
+> +#include "device.h"
+> +#include "manager.h"
+> +#include "storage.h"
+> +#include "sdp_lib.h"
+> +
+> +/* Fallback definitions to compile with older headers */
+> +#ifndef HIDIOCGFEATURE
+> +#define HIDIOCGFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x07, len)
+> +#endif
+> +
+> +#ifndef HIDIOCSFEATURE
+> +#define HIDIOCSFEATURE(len)    _IOC(_IOC_WRITE|_IOC_READ, 'H', 0x06, len)
+> +#endif
+> +
+> +#define BDADDR_STR_SIZE 18 /* strlen("00:00:00:00:00:00") + 1 */
+> +
+> +/* Vendor and product ID for the Sixaxis PS3 controller */
+> +#define VENDOR 0x054c
+> +#define PRODUCT 0x0268
+> +#define SIXAXIS_NAME "PLAYSTATION(R)3 Controller"
+> +#define SIXAXIS_PNP_RECORD "3601920900000A000100000900013503191124090004350D35061901000900113503190011090006350909656E09006A0901000900093508350619112409010009000D350F350D350619010009001335031900110901002513576972656C65737320436F6E74726F6C6C65720901012513576972656C65737320436F6E74726F6C6C6572090102251B536F6E7920436F6D707574657220456E7465727461696E6D656E740902000901000902010901000902020800090203082109020428010902052801090206359A35980822259405010904A101A102850175089501150026FF00810375019513150025013500450105091901291381027501950D0600FF8103150026FF0005010901A10075089504350046FF0009300931093209358102C0050175089527090181027508953009019102750895300901B102C0A1028502750895300901B102C0A10285EE750895300901B102C0A10285EF750895300901B102C0C0090207350835060904090901000902082800090209280109020A2801090
+ 20B09010009020C093E8009020D280009020E2800"
+> +#define HID_UUID "00001124-0000-1000-8000-00805f9b34fb"
+> +
+> +#define LED_1 (0x01 << 1)
+> +#define LED_2 (0x01 << 2)
+> +#define LED_3 (0x01 << 3)
+> +#define LED_4 (0x01 << 4)
+> +
+> +#define LED_STATUS_OFF 0
+> +#define LED_STATUS_ON  1
+> +
+> +static struct udev *ctx;
+> +static struct udev_monitor *monitor;
+> +static guint watch_id;
+> +
+> +
+> +static int create_sixaxis_association(struct btd_adapter *adapter,
+> +					const char *name,
+> +					const char *address,
+> +					guint32 vendor_id,
+> +					guint32 product_id,
+> +					const char *pnp_record)
+> +{
+> +	DBusConnection *conn;
+> +	sdp_record_t *rec;
+> +	struct btd_device *device;
+> +	bdaddr_t src, dst;
+> +	char srcaddr[18];
+> +	int ret = 0;
+> +
+> +	str2ba(address, &dst);
+> +	adapter_get_address(adapter, &src);
+> +	ba2str(&src, srcaddr);
+> +
+> +	write_device_name(&dst, &src, (char *) name);
+> +
+> +	/* Store the device's SDP record */
+> +	rec = record_from_string(pnp_record);
+> +	store_record(srcaddr, address, rec);
+> +	sdp_record_free(rec);
+> +
+> +	/* Set the device id */
+> +	store_device_id(srcaddr, address, 0xffff, vendor_id, product_id, 0);
+> +	/* Don't write a profile here,
+> +	 * it will be updated when the device connects */
+> +
+> +	write_trust(srcaddr, address, "[all]", TRUE);
+> +
+> +	conn = dbus_bus_get(DBUS_BUS_SYSTEM, NULL);
+> +	if (conn == NULL) {
+> +		DBG("Failed to get on the bus");
+> +		ret = -EPERM;
+> +		goto fail_dbus;
+> +	}
+> +
+> +	device = adapter_get_device(conn, adapter, address);
+> +	if (device == NULL) {
+> +		DBG("Failed to get the device");
+> +		ret = -ENODEV;
+> +		goto fail_device;
+> +	}
+> +
+> +	device_set_temporary(device, FALSE);
+> +	device_set_name(device, name);
+> +	btd_device_add_uuid(device, HID_UUID);
+> +
+> +fail_device:
+> +	dbus_connection_unref(conn);
+> +fail_dbus:
+> +	return ret;
+> +}
+> +
+> +/* Usb cable pairing section */
+> +static unsigned char *get_feature_report(int fd, uint8_t report_number,
+> +						unsigned int len)
+> +{
+> +	unsigned char *buf;
+> +	int ret;
+> +
+> +	buf = calloc(len, sizeof(*buf));
+> +	if (buf == NULL) {
+> +		error("%s:%s() calloc failed", __FILE__, __func__);
+> +		return NULL;
+> +	}
+> +
+> +	buf[0] = report_number;
+> +
+> +	ret = ioctl(fd, HIDIOCGFEATURE(len), buf);
+> +	if (ret < 0) {
+> +		error("%s:%s() HIDIOCGFEATURE ret = %d",
+> +			__FILE__, __func__, ret);
+> +		free(buf);
+> +		return NULL;
+> +	}
+> +
+> +	return buf;
+> +}
+> +
+> +static int set_feature_report(int fd, uint8_t *report, int len)
+> +{
+> +	int ret;
+> +
+> +	ret = ioctl(fd, HIDIOCSFEATURE(len), report);
+> +	if (ret < 0)
+> +		error("%s:%s() HIDIOCSFEATURE failed, ret = %d",
+> +			__FILE__, __func__, ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static char *get_device_bdaddr(int fd)
+> +{
+> +	unsigned char *buf;
+> +	char *address;
+> +
+> +	buf = get_feature_report(fd, 0xf2, 18);
+> +	if (buf == NULL) {
+> +		error("%s:%s() cannot get feature report", __FILE__, __func__);
+> +		return NULL;
+> +	}
+> +
+> +	address = calloc(BDADDR_STR_SIZE, sizeof(*address));
+> +	if (address == NULL) {
+> +		error("%s:%s() calloc failed", __FILE__, __func__);
+> +		free(buf);
+> +		return NULL;
+> +	}
+> +
+> +	snprintf(address, BDADDR_STR_SIZE,
+> +			"%02X:%02X:%02X:%02X:%02X:%02X",
+> +			buf[4], buf[5], buf[6], buf[7], buf[8], buf[9]);
+> +
+> +	free(buf);
+> +	return address;
+> +}
+> +
+> +static char *get_master_bdaddr(int fd)
+> +{
+> +	unsigned char *buf;
+> +	char *address;
+> +
+> +	buf = get_feature_report(fd, 0xf5, 8);
+> +	if (buf == NULL) {
+> +		error("%s:%s() cannot get feature report", __FILE__, __func__);
+> +		return NULL;
+> +	}
+> +
+> +	address = calloc(BDADDR_STR_SIZE, sizeof(*address));
+> +	if (address == NULL) {
+> +		error("%s:%s() calloc failed", __FILE__, __func__);
+> +		free(buf);
+> +		return NULL;
+> +	}
+> +
+> +	snprintf(address, BDADDR_STR_SIZE,
+> +			"%02X:%02X:%02X:%02X:%02X:%02X",
+> +			buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
+> +
+> +	free(buf);
+> +	return address;
+> +}
+> +
+> +static int set_master_bdaddr(int fd, char *adapter_bdaddr)
+> +{
+> +	uint8_t *report;
+> +	uint8_t addr[6];
+> +	int ret;
+> +
+> +	ret = sscanf(adapter_bdaddr,
+> +			"%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+> +			&addr[0], &addr[1], &addr[2],
+> +			&addr[3], &addr[4], &addr[5]);
+> +	if (ret != 6) {
+> +
+> +		error("%s:%s() Parsing the bt address failed",
+> +			__FILE__, __func__);
+> +		return -EINVAL;
+> +	}
+> +
+> +	report = malloc(8);
+> +	if (report == NULL) {
+> +		error("%s:%s() malloc failed", __FILE__, __func__);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	report[0] = 0xf5;
+> +	report[1] = 0x01;
+> +
+> +	report[2] = addr[0];
+> +	report[3] = addr[1];
+> +	report[4] = addr[2];
+> +	report[5] = addr[3];
+> +	report[6] = addr[4];
+> +	report[7] = addr[5];
+> +
+> +	ret = set_feature_report(fd, report, 8);
+> +	if (ret < 0) {
+> +		error("%s:%s() cannot set feature report",
+> +			__FILE__, __func__);
+> +		goto out;
+> +	}
+> +
+> +	DBG("New Master Bluetooth address: %s", adapter_bdaddr);
+> +
+> +out:
+> +	free(report);
+> +	return ret;
+> +}
+> +
+> +static int sixpair(int fd, struct btd_adapter *adapter)
+> +{
+> +	char *device_bdaddr;
+> +	char *master_bdaddr;
+> +	char adapter_bdaddr[18];
+> +	bdaddr_t dst;
+> +	int ret = 0;
+> +
+> +	adapter_get_address(adapter, &dst);
+> +	ba2str(&dst, adapter_bdaddr);
+> +	DBG("Adapter bdaddr %s", adapter_bdaddr);
+> +
+> +	master_bdaddr = get_master_bdaddr(fd);
+> +	if (master_bdaddr == NULL) {
+> +		DBG("Failed to get the Old master Bluetooth address from the device");
+> +		return -EPERM;
+> +	}
+> +
+> +	/* Only set the master bdaddr when needed, this is how the PS3 does
+> +	 * it, perhaps to avoid unnecessary writes to some eeprom.
+> +	 */
+> +	if (g_strcmp0(master_bdaddr, adapter_bdaddr) != 0) {
+> +		DBG("Old master Bluetooth address was: %s", master_bdaddr);
+> +		ret = set_master_bdaddr(fd, adapter_bdaddr);
+> +		if (ret < 0) {
+> +			DBG("Failed to set the master Bluetooth address");
+> +			free(master_bdaddr);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	device_bdaddr = get_device_bdaddr(fd);
+> +	if (device_bdaddr == NULL) {
+> +		DBG("Failed to get the Bluetooth address from the device");
+> +		free(master_bdaddr);
+> +		return -EPERM;
+> +	}
+> +
+> +	DBG("Device bdaddr %s", device_bdaddr);
+> +
+> +	ret = create_sixaxis_association(adapter,
+> +					SIXAXIS_NAME,
+> +					device_bdaddr,
+> +					VENDOR, PRODUCT, SIXAXIS_PNP_RECORD);
 
-I guess what Dmitry said is the big ads7846_platform_data structure.
+You create the association with a hard-coded VID/PID. You match the
+device on string name below (not VID/PID), so what if you used the
+actual VID/PID of the device for the association instead?
 
- struct ads7846_platform_data {
-        u16     model;                  /* 7843, 7845, 7846, 7873. */
-        u16     vref_delay_usecs;       /* 0 for external vref; etc */
-        u16     vref_mv;                /* external vref value, milliVo=
-lts
-                                         * ads7846: if 0, use internal =
-vref */
-        bool    keep_vref_on;           /* set to keep vref on for diff=
-erential
-                                         * measurements as well */
-        bool    swap_xy;                /* swap x and y axes */
 
-        /* Settling time of the analog signals; a function of Vcc and t=
-he
-         * capacitance on the X/Y drivers.  If set to non-zero, two sam=
-ples
-         * are taken with settle_delay us apart, and the second one is =
-used.
-         * ~150 uSec with 0.01uF caps.
-         */
-        u16     settle_delay_usecs;
+> +	free(device_bdaddr);
+> +	free(master_bdaddr);
+> +	return ret;
+> +}
+> +
+> +/* Led setting section */
+> +static int set_leds(int fd, unsigned char leds_status[4])
+> +{
+> +	int ret;
+> +
+> +	/*
+> +	 * the total time the led is active (0xff means forever)
+> +	 * |     duty_length: how long a cycle is in deciseconds:
+> +	 * |     |                              (0 means "blink very fast")
+> +	 * |     |     ??? (Maybe a phase shift or duty_length multiplier?)
+> +	 * |     |     |     % of duty_length led is off (0xff means 100%)
+> +	 * |     |     |     |     % of duty_length led is on (0xff is 100%)
+> +	 * |     |     |     |     |
+> +	 * 0xff, 0x27, 0x10, 0x00, 0x32,
+> +	 */
+> +	unsigned char leds_report[] = {
+> +		0x01,
+> +		0x00, 0x00, 0x00, 0x00, 0x00, /* rumble values TBD */
+> +		0x00, 0x00, 0x00, 0x00, 0x1e, /* LED_1=0x02, LED_2=0x04 ... */
+> +		0xff, 0x27, 0x10, 0x00, 0x32, /* LED_4 */
+> +		0xff, 0x27, 0x10, 0x00, 0x32, /* LED_3 */
+> +		0xff, 0x27, 0x10, 0x00, 0x32, /* LED_2 */
+> +		0xff, 0x27, 0x10, 0x00, 0x32, /* LED_1 */
+> +		0x00, 0x00, 0x00, 0x00, 0x00,
+> +	};
+> +
+> +	int leds = 0;
+> +	if (leds_status[0])
+> +		leds |= LED_1;
+> +	if (leds_status[1])
+> +		leds |= LED_2;
+> +	if (leds_status[2])
+> +		leds |= LED_3;
+> +	if (leds_status[3])
+> +		leds |= LED_4;
+> +
+> +	leds_report[10] = leds;
 
-        /* If set to non-zero, after samples are taken this delay is ap=
-plied
-         * and penirq is rechecked, to help avoid false events.  This v=
-alue
-         * is affected by the material used to build the touch layer.
-         */
-        u16     penirq_recheck_delay_usecs;
+If you are overwriting leds_report[10] unconditionally, why is it
+initialized to 0x1e in the leds_report initializer (unless I counted wrong)?
 
-        u16     x_plate_ohms;
-        u16     y_plate_ohms;
 
-        u16     x_min, x_max;
-        u16     y_min, y_max;
-        u16     pressure_min, pressure_max;
 
-        u16     debounce_max;           /* max number of additional rea=
-dings
-                                         * per sample */
-        u16     debounce_tol;           /* tolerance used for filtering=
- */
-        u16     debounce_rep;           /* additional consecutive good =
-readings
-                                         * required after the first two=
- */
-        int     gpio_pendown;           /* the GPIO used to decide the =
-pendown
-                                         * state if get_pendown_state =3D=
-=3D NULL
-                                         */
-        int     (*get_pendown_state)(void);
-        int     (*filter_init)  (const struct ads7846_platform_data *pd=
-ata,
-                                 void **filter_data);
-        int     (*filter)       (void *filter_data, int data_idx, int *=
-val);
-        void    (*filter_cleanup)(void *filter_data);
-        void    (*wait_for_sync)(void);
-        bool    wakeup;
-        unsigned long irq_flags;
-};
 
-The structure even has some callbacks which can't be possible in dts.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +
+> +	ret = write(fd, leds_report, sizeof(leds_report));
+> +	if (ret < (ssize_t) sizeof(leds_report))
+> +		error("%s:%s() Unable to write to hidraw device",
+> +			__FILE__, __func__);
+> +
+> +	return ret;
+> +}
+> +
+> +static int set_controller_number(int fd, unsigned int n)
+> +{
+> +	unsigned char leds_status[4] = {0, 0, 0, 0};
+> +
+> +	switch (n) {
+> +	case 0:
+> +		break;
+> +	case 1:
+> +	case 2:
+> +	case 3:
+> +	case 4:
+> +		leds_status[n - 1] = LED_STATUS_ON;
+> +		break;
+> +	case 5:
+> +	case 6:
+> +	case 7:
+> +		leds_status[4 - 1] = LED_STATUS_ON;
+> +		leds_status[n - 4 - 1] = LED_STATUS_ON;
+> +		break;
+> +	default:
+> +		error("%s:%s() Only 7 controllers supported for now",
+> +			__FILE__, __func__);
+> +		return -1;
+> +	}
+> +
+> +	return set_leds(fd, leds_status);
+> +}
+> +
+> +
+> +static inline gboolean is_sixaxis(const char *hid_name)
+> +{
+> +	return g_str_has_suffix(hid_name, "PLAYSTATION(R)3 Controller") ||
+> +		g_str_has_suffix(hid_name,
+> +			"Sony Computer Entertainment Wireless Controller");
+> +}
+
+Why do you key on the string name here. This seems problematic,
+especially if you want to support things like the PSMove. I'd expect a
+table of VID/PIDs or something.
+
+> +
+> +static void handle_device_plug(struct udev_device *udevice)
+> +{
+> +	struct udev_device *hid_parent;
+> +	struct udev_enumerate *enumerate;
+> +	struct udev_list_entry *devices, *dev_list_entry;
+> +	const char *hid_name;
+> +	const char *hid_phys;
+> +	const char *hidraw_node;
+> +	unsigned char is_usb = FALSE;
+> +	int js_num = 0;
+> +	int fd;
+> +
+> +	hid_parent = udev_device_get_parent_with_subsystem_devtype(udevice,
+> +								"hid", NULL);
+> +	if (!hid_parent) {
+> +		error("%s:%s() cannot get parent hid device",
+> +			__FILE__, __func__);
+> +		return;
+> +	}
+> +
+> +	hid_name = udev_device_get_property_value(hid_parent, "HID_NAME");
+> +	DBG("name: %s", hid_name);
+> +
+> +	if (!is_sixaxis(hid_name))
+> +		return;
+> +
+> +	DBG("Found a Sixaxis device");
+> +
+> +	hidraw_node = udev_device_get_devnode(udevice);
+> +
+> +	hid_phys = udev_device_get_property_value(hid_parent, "HID_PHYS");
+> +
+> +	/* looking for joysticks */
+> +	enumerate = udev_enumerate_new(udev_device_get_udev(udevice));
+> +	udev_enumerate_add_match_sysname(enumerate, "js*");
+> +	udev_enumerate_scan_devices(enumerate);
+> +
+> +	devices = udev_enumerate_get_list_entry(enumerate);
+> +	udev_list_entry_foreach(dev_list_entry, devices) {
+> +		const char *devname;
+> +		struct udev_device *js_dev;
+> +		struct udev_device *input_parent;
+> +		const char *input_phys;
+> +
+> +		devname = udev_list_entry_get_name(dev_list_entry);
+> +		js_dev = udev_device_new_from_syspath(udev_device_get_udev(udevice),
+> +							devname);
+> +
+> +		input_parent = udev_device_get_parent_with_subsystem_devtype(js_dev,
+> +							"input", NULL);
+> +		if (!input_parent) {
+> +			error("%s:%s() cannot get parent input device.",
+> +				__FILE__, __func__);
+> +			continue;
+> +		}
+> +
+> +		/* check this is the joystick relative to
+> +		 * the hidraw device above */
+> +		input_phys = udev_device_get_sysattr_value(input_parent,
+> +								"phys");
+> +		if (g_strcmp0(input_phys, hid_phys) == 0) {
+> +			const char *usb_driver;
+> +
+> +			usb_driver = udev_device_get_property_value(js_dev,
+> +							"ID_USB_DRIVER");
+> +			js_num = atoi(udev_device_get_sysnum(js_dev)) + 1;
+> +			DBG("joypad device_num: %d", js_num);
+> +			DBG("hidraw_node: %s", hidraw_node);
+> +			DBG("driver: %s", usb_driver);
+> +
+> +			if (g_strcmp0(usb_driver, "usbhid") == 0)
+> +				is_usb = TRUE;
+> +		}
+> +
+> +		udev_device_unref(js_dev);
+> +	}
+> +
+> +	udev_enumerate_unref(enumerate);
+> +
+> +	fd = open(hidraw_node, O_RDWR);
+> +	if (fd < 0) {
+> +		error("%s:%s() hidraw open", __FILE__, __func__);
+> +		return;
+> +	}
+> +
+> +	if (is_usb) {
+> +		struct btd_adapter *adapter;
+> +
+> +		/* Look for the default adapter */
+> +		adapter = manager_get_default_adapter();
+> +		if (adapter == NULL) {
+> +			DBG("No adapters, exiting");
+> +			return;
+> +		}
+> +		sixpair(fd, adapter);
+> +	}
+> +
+> +	if (js_num > 0)
+> +		set_controller_number(fd, js_num);
+> +
+> +	close(fd);
+> +}
+> +
+> +static gboolean device_event_idle(struct udev_device *udevice)
+> +{
+> +	handle_device_plug(udevice);
+> +	udev_device_unref(udevice);
+> +	return FALSE;
+> +}
+
+I'm a little confused why this is called "idle."
+
+
+Thanks for your work on this, Antonio. Linux working out of the box with
+these controllers will be really cool.
+
+Alan.

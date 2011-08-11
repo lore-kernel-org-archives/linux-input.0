@@ -1,74 +1,42 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 8/9 v2] Input: add BTN_TOOL_QUINTTAP for reporting 5
- fingers on touchpad
-Date: Thu, 11 Aug 2011 22:07:08 +0200
-Message-ID: <20110811200708.GA6084@polaris.bitmath.org>
-References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org>
- <1311169146-20066-9-git-send-email-djkurtz@chromium.org>
- <20110725082918.GC22937@core.coreip.homeip.net>
- <CAGS+omAQmb-q6xC-Gh6z69iNNyr=rN-Khsq90aCHJwe-6F9ANw@mail.gmail.com>
- <20110725181645.GA6876@core.coreip.homeip.net>
- <CAGS+omCAUAgK6thEPqkp0iSFbnzonw0jH77XToptTwTUz5BH7w@mail.gmail.com>
+Subject: Re: [PATCH v2] input: add EETI eGalax I2C capacitive multi touch
+ driver.
+Date: Thu, 11 Aug 2011 22:34:49 +0200
+Message-ID: <20110811203449.GA6162@polaris.bitmath.org>
+References: <20110801063409.GB32118@core.coreip.homeip.net>
+ <1312370963-24965-1-git-send-email-jiejing.zhang@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:48325 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753382Ab1HKUGT (ORCPT
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:33976 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753737Ab1HKUdv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Aug 2011 16:06:19 -0400
+	Thu, 11 Aug 2011 16:33:51 -0400
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 9692BC28A
+	for <linux-input@vger.kernel.org>; Thu, 11 Aug 2011 22:33:50 +0200 (CEST)
 Content-Disposition: inline
-In-Reply-To: <CAGS+omCAUAgK6thEPqkp0iSFbnzonw0jH77XToptTwTUz5BH7w@mail.gmail.com>
+In-Reply-To: <1312370963-24965-1-git-send-email-jiejing.zhang@freescale.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
+To: Zhang Jiejing <jiejing.zhang@freescale.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, dima@android.com, kzjeef@gmail.com
 
-> > That, or nothing... The fact that the device can report 5 finger to=
-uch
-> > does not mean that anybody cares about this.
-> > --
-> > Dmitry
->=20
-> The only current use of this is to detect "resting thumb + 4-finger-s=
-croll".
-> "4-finger scroll" is a gesture supported by some applications and
-> operating systems.
-> "resting thumb" is when a clickpad user rests a finger (typically a
-> thumb), in the bottom left "click zone" in anticipation of
-> click+move=3Dselect gestures.
-> Thus, this 4-finger scroll is actually sometimes a 5-finger gesture.
+Hi Zhang,
 
-Which is actually the same reason QUADTAP was added originally... are
-we entering a recursion here? ;-)
+> This is the patch after change to mt Protocol-B.
+> but I have a issue with test tool, in the orignal patch, I use
+> android to do the test, but android still not support Protocol B.
 
-I tend to agree with Dmitry - without a clear usage, it makes sense to
-instead wait to see which comes first - a five-finger usecase or a
-true MT device that everybody can afford.
+The device seems to send finger changes sequentually, resulting in one
+packet (terminated with input sync) for each finger change. Is this
+the intention/necessary? Some egalax firmware (hid version) seems to
+work this way.
 
-> Similarly, I work with many touchpads from different vendors, some of
-> which do actually provide 5 independent finger coordinates.  The
-> drivers for these touchpads truly send 5 MT-B slots when 5 fingers ar=
-e
-> present.
->=20
-> Should these drivers perform=A0input_mt_report_pointer_emulation()?
-> If so, should we add BTN_TOOL_QUINTTAP to allow them to report 5
-> fingers in emulation mode?
+The usage of REPORT_MODE_* is unclear to me too.
 
-Pointer emulation is a separate issue from the number of finger
-reports.
+Other than that, the patch looks nice (at first glance).
 
-> Or is that ridiculous, since emulation is only for old userspace
-> programs which wouldn't know what to do with QUINTTAP, anyway?
-
-I would say yes. ;-)
-
-Cheers,
+Thanks,
 Henrik
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

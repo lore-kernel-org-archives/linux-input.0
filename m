@@ -1,73 +1,74 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: Re: [PATCH v4 1/2] Input: enable i8042-level wakeup control
-Date: Thu, 11 Aug 2011 19:02:17 +0100
-Message-ID: <CAMLZHHTie_u40NZ40o+LCwffk=3LbY96YTwxQt5wcVtbTc53qg@mail.gmail.com>
-References: <20110802154916.624619D401C@zog.reactivated.net>
-	<20110803065920.GC23399@core.coreip.homeip.net>
-	<CAMLZHHTTXvThE5bWfyjJu-UFJbaKAhzORKWV8ay4RZW-ZVifLg@mail.gmail.com>
-	<20110803184332.GA17880@core.coreip.homeip.net>
-	<CAMLZHHTnTTbD7mn_QsjwyFZ=XU6paddrtXEVuLYossk9qBGFfw@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 8/9 v2] Input: add BTN_TOOL_QUINTTAP for reporting 5
+ fingers on touchpad
+Date: Thu, 11 Aug 2011 22:07:08 +0200
+Message-ID: <20110811200708.GA6084@polaris.bitmath.org>
+References: <1311169146-20066-1-git-send-email-djkurtz@chromium.org>
+ <1311169146-20066-9-git-send-email-djkurtz@chromium.org>
+ <20110725082918.GC22937@core.coreip.homeip.net>
+ <CAGS+omAQmb-q6xC-Gh6z69iNNyr=rN-Khsq90aCHJwe-6F9ANw@mail.gmail.com>
+ <20110725181645.GA6876@core.coreip.homeip.net>
+ <CAGS+omCAUAgK6thEPqkp0iSFbnzonw0jH77XToptTwTUz5BH7w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yi0-f46.google.com ([209.85.218.46]:56658 "EHLO
-	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751013Ab1HKSCS (ORCPT
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:48325 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753382Ab1HKUGT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Aug 2011 14:02:18 -0400
-Received: by yie30 with SMTP id 30so1488885yie.19
-        for <linux-input@vger.kernel.org>; Thu, 11 Aug 2011 11:02:17 -0700 (PDT)
-In-Reply-To: <CAMLZHHTnTTbD7mn_QsjwyFZ=XU6paddrtXEVuLYossk9qBGFfw@mail.gmail.com>
+	Thu, 11 Aug 2011 16:06:19 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGS+omCAUAgK6thEPqkp0iSFbnzonw0jH77XToptTwTUz5BH7w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, rjw@sisk.pl, dilinger@queued.net, pgf@laptop.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, chase.douglas@canonical.com, rubini@cvml.unipv.it, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, derek.foreman@collabora.co.uk, daniel.stone@collabora.co.uk, olofj@chromium.org
 
-Hi Dmitry,
+> > That, or nothing... The fact that the device can report 5 finger to=
+uch
+> > does not mean that anybody cares about this.
+> > --
+> > Dmitry
+>=20
+> The only current use of this is to detect "resting thumb + 4-finger-s=
+croll".
+> "4-finger scroll" is a gesture supported by some applications and
+> operating systems.
+> "resting thumb" is when a clickpad user rests a finger (typically a
+> thumb), in the bottom left "click zone" in anticipation of
+> click+move=3Dselect gestures.
+> Thus, this 4-finger scroll is actually sometimes a 5-finger gesture.
 
-On Fri, Aug 5, 2011 at 4:24 PM, Daniel Drake <dsd@laptop.org> wrote:
-> I've started looking at this, but my first problem is that when the
-> input layer asks atkbd to turn off LEDs, atkbd schedules a workqueue
-> item to undertake this work. However, as there is no synchronization,
-> this work only seems to get executed during or after system resume.
-> This makes it hard to catch with such a scheme. Any ideas?
+Which is actually the same reason QUADTAP was added originally... are
+we entering a recursion here? ;-)
 
-I've looked closer, and am keeping my eyes open for other options too.
+I tend to agree with Dmitry - without a clear usage, it makes sense to
+instead wait to see which comes first - a five-finger usecase or a
+true MT device that everybody can afford.
 
-During suspend of the input layer, input_dev_suspend() calls
-input_dev_toggle(dev, false) which turns off LEDs and sounds.
+> Similarly, I work with many touchpads from different vendors, some of
+> which do actually provide 5 independent finger coordinates.  The
+> drivers for these touchpads truly send 5 MT-B slots when 5 fingers ar=
+e
+> present.
+>=20
+> Should these drivers perform=A0input_mt_report_pointer_emulation()?
+> If so, should we add BTN_TOOL_QUINTTAP to allow them to report 5
+> fingers in emulation mode?
 
-On the XO laptops, we don't have LEDs, nor sounds, and we don't have
-num lock, scroll lock or caps lock keys. So the suspend code does
-nothing - there are no lights to turn off. So far so good.
+Pointer emulation is a separate issue from the number of finger
+reports.
 
-Moving to the resume case: input_dev_resume() calls
-input_reset_device(). This calls input_dev_toggle(dev, true), which
-asks atkbd to turn the non-existent keyboard LEDs off. I guess this is
-harmless and is unlikely to be the cause of the problems which led us
-to need to disable this code in light of the following:
+> Or is that ridiculous, since emulation is only for old userspace
+> programs which wouldn't know what to do with QUINTTAP, anyway?
 
-After calling input_dev_toggle(), input_dev_resume() does this:
+I would say yes. ;-)
 
-		/*
-		 * Keys that have been pressed at suspend time are unlikely
-		 * to be still pressed when we resume.
-		 */
-		spin_lock_irq(&dev->event_lock);
-		input_dev_release_keys(dev);
-		spin_unlock_irq(&dev->event_lock);
-
-We definitely don't want this to happen in our case, where we have
-maintained full control and power of the device during suspend/resume.
-
-This particular important code snippet would not even have been
-disabled by your suggestion of blocking data transfer at the
-i8042-level.
-
-So, I think we need a new approach at solving this, and I think it has
-to be one that interacts at the input_dev layer.
-
-Thoughts?
-
-Thanks,
-Daniel
+Cheers,
+Henrik
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

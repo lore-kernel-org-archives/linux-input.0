@@ -1,15 +1,15 @@
 From: "Rose" <william_rose55@yahoo.com>
 Subject: =?UTF-8?Q?HELLO=20my=20=20=E4=BD=A0=E5=A5=BD=EF=BC=8C=E6=88=91?=
-Date: Fri, 12 Aug 2011 20:24:12 +0200
-Message-ID: <20110812202412.F8B01353@centrum.sk>
+Date: Fri, 12 Aug 2011 20:24:38 +0200
+Message-ID: <20110812202438.A3865476@centrum.sk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gmmr2.centrum.cz ([90.183.38.158]:42858 "EHLO gmmr2.centrum.cz"
+Received: from gmmr5.centrum.cz ([90.183.38.152]:44510 "EHLO gmmr5.centrum.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751067Ab1HLSYP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 14:24:15 -0400
+	id S1753139Ab1HLSYk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Aug 2011 14:24:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 

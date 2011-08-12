@@ -1,48 +1,94 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [alsa-devel] [PATCH] ASoC: Add device tree binding for WM8753
-Date: Fri, 12 Aug 2011 15:07:24 +0900
-Message-ID: <1313129244.19990.56.camel@finisterre.wolfsonmicro.main>
-References: <CAGsJ_4y2tDb3ZBPo8bCtrjFt0OWzR8WeG+kL_RKJPRP7-pZopw@mail.gmail.com>
-	 <20110809065100.GB8017@core.coreip.homeip.net>
-	 <20110809142851.GA15861@opensource.wolfsonmicro.com>
-	 <CAGsJ_4w-YhWQTFovkynKVVr6JkwcHJQn-EmfxUxOSd=C2BwhiA@mail.gmail.com>
-	 <20110810045113.GA23625@opensource.wolfsonmicro.com>
-	 <CAGsJ_4ykb65aD_a-04NuE-DRoERmB+WKLvaS8+5VYpE6pgOh5w@mail.gmail.com>
-	 <20110810063025.GA31765@opensource.wolfsonmicro.com>
-	 <CAGsJ_4zmY7gXyD6EDmYgRVAkmOaQVa79LuVSrK287Q=pHF6_FA@mail.gmail.com>
-	 <20110812035308.GA25184@core.coreip.homeip.net>
-	 <1313124082.19990.54.camel@finisterre.wolfsonmicro.main>
-	 <20110812055754.GC25184@core.coreip.homeip.net>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: [PATCH v2 1/6] input: misc: AD714x: The interrupt status registers
+ should be read in row.
+Date: Fri, 12 Aug 2011 10:58:27 +0200
+Message-ID: <4E44EB33.7090302@analog.com>
+References: <1305189911-24769-1-git-send-email-michael.hennerich@analog.com> <544AC56F16B56944AEC3BD4E3D5917713AAF21C14E@LIMKCMBX1.ad.analog.com> <20110518071428.GA32284@core.coreip.homeip.net> <544AC56F16B56944AEC3BD4E3D5917713AAF21C871@LIMKCMBX1.ad.analog.com> <20110519080042.GA19405@core.coreip.homeip.net> <544AC56F16B56944AEC3BD4E3D59177143003C5938@LIMKCMBX1.ad.analog.com> <20110804075426.GB31276@core.coreip.homeip.net>
+Reply-To: <michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:51455 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751271Ab1HLGHq (ORCPT
+Received: from db3ehsobe002.messaging.microsoft.com ([213.199.154.140]:15333
+	"EHLO DB3EHSOBE002.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751133Ab1HLI6T (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 02:07:46 -0400
-In-Reply-To: <20110812055754.GC25184@core.coreip.homeip.net>
+	Fri, 12 Aug 2011 04:58:19 -0400
+In-Reply-To: <20110804075426.GB31276@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Barry Song <21cnbao@gmail.com>, Liam Girdwood <lrg@ti.com>, Grant Likely <grant.likely@secretlab.ca>, alsa-devel@alsa-project.org, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jeff.dagenais@gmail.com" <jeff.dagenais@gmail.com>, Drivers <Drivers@analog.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
 
-On Thu, 2011-08-11 at 22:57 -0700, Dmitry Torokhov wrote:
-> On Fri, Aug 12, 2011 at 01:41:22PM +0900, Mark Brown wrote:
+On 08/04/2011 09:54 AM, Dmitry Torokhov wrote:
+> On Wed, Aug 03, 2011 at 09:40:22AM +0100, Hennerich, Michael wrote:
+>> Hennerich, Michael wrote on 2011-07-13:
+>>> Dmitry Torokhov wrote on 2011-05-19:
+>>>> On Wed, May 18, 2011 at 08:10:09PM +0100, Hennerich, Michael wrote:
+>>>>> Dmitry Torokhov wrote on 2011-05-18:
+>>>>>> On Tue, May 17, 2011 at 12:01:27PM +0100, Hennerich, Michael wrote:
+>>>>>>> Hi Dmitry,
+>>>>>>>
+>>>>>>> I noticed you added patches 2/6, 3/6, 4/6 and 5/6 to your next tree.
+>>>>>>> But how about these ones?
+>>>>>>>
+>>>>>>> [PATCH v2 1/6] input: misc: AD714x: The interrupt status
+>>>>>>> registers should be read in row. [PATCH v2 6/6] input: misc:
+>>>>>>> AD714x: Fix endianness issues.
+>>>>>>>
+>>>>>> Hi Michael,
+>>>>>>
+>>>>>> Still pondering these two, give me a couple of days please...
+>>>>>>
+>>>>>> Thanks.
+>>>>>>
+>>>>> Hi Dmitry,
+>>>>>
+>>>>> No Problem - let me know in case you need some further clarification.
+>>>>> Both patches are tested on several platforms and addresses real issues.
+>>>>>
+>>>>> BTW - are you going to merge the adp5589 driver anytime soon?
+>>>>> Are there open issues you like to get addressed first?
+>>>>>
+>>>> Oh, thanks for reminding me of it, I queued it for .40.
+>>>>
+>>>> Thanks.
+>>>>
+>>> Hi Dmitry,
+>>>
+>>> Still pondering these two?
+>>>
+>>> [PATCH v2 1/6] input: misc: AD714x:
+>>>        The interrupt status registers should be read in row.
+>>> [PATCH v2 6/6] input: misc: AD714x: Fix endianness issues.
+>>>
+>>> Greetings,
+>>> Michael
+>>>
+>> Hi Dmitry,
+>>
+>> Are you going to apply these two missing patches?
+>>
+> Hi Michael,
+>
+> Yes, should be in the next pull (not todays one).
+>
+> Thanks.
+>
+Hi Dmitry,
 
-> > You tend to find that in a lot of systems only need a subset of the
-> > platform data - some of it can get pretty esoteric - or perhaps none at
-> > all so they'll be able to run happily even if not everything can be
-> > configured via the device tree.
+Hmmm... Are you sure?
+I can't find it.
 
-> That is why I said "devices that can't be adequately expressed". If we
-> can have bindings that satisfy majority of users then of course DT
-> handling code is more than welcome.
 
-You seemed to be suggesting that devices that have platform data that
-can't be expressed aren't worth adding DT support to - my point was that
-the value is more dependant on the system needs than on the full feature
-set that a driver can express.
+-- 
+Greetings,
+Michael
+
+--
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
+Margaret Seif
 
 

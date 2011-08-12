@@ -1,61 +1,182 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2] input: add EETI eGalax I2C capacitive multi touch
- driver.
-Date: Fri, 12 Aug 2011 22:30:03 +0200
-Message-ID: <20110812203003.GA8995@polaris.bitmath.org>
-References: <20110801063409.GB32118@core.coreip.homeip.net>
- <1312370963-24965-1-git-send-email-jiejing.zhang@freescale.com>
- <20110811203449.GA6162@polaris.bitmath.org>
- <CACrgxGCodzp+2TqOCHQPRFTN4oT+DuqsZ8qKCahQ5bcXS+9dkA@mail.gmail.com>
+Subject: Re: [PATCH 4/8 v3] Input: synaptics - add image sensor support
+Date: Fri, 12 Aug 2011 23:09:12 +0200
+Message-ID: <20110812210911.GA9124@polaris.bitmath.org>
+References: <1313169407-4358-1-git-send-email-djkurtz@chromium.org>
+ <1313169407-4358-5-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:42679 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751234Ab1HLU3B (ORCPT
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:40147 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750779Ab1HLVIN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 16:29:01 -0400
-Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
-	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 519EBC69B
-	for <linux-input@vger.kernel.org>; Fri, 12 Aug 2011 22:28:59 +0200 (CEST)
+	Fri, 12 Aug 2011 17:08:13 -0400
 Content-Disposition: inline
-In-Reply-To: <CACrgxGCodzp+2TqOCHQPRFTN4oT+DuqsZ8qKCahQ5bcXS+9dkA@mail.gmail.com>
+In-Reply-To: <1313169407-4358-5-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Jiejing.Zhang " <kzjeef@gmail.com>
-Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, dima@android.com
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
 
-> > The device seems to send finger changes sequentually, resulting in one
-> > packet (terminated with input sync) for each finger change. Is this
-> > the intention/necessary? Some egalax firmware (hid version) seems to
-> > work this way.
+Hi Daniel,
+
+looks good, some details below.
+
+> +static void synaptics_report_slot_empty(struct input_dev *dev, int slot)
+> +{
+> +	input_mt_slot(dev, slot);
+> +	input_mt_report_slot_state(dev, MT_TOOL_FINGER, false);
+> +}
+> +
+> +static void synaptics_report_slot_sgm(struct input_dev *dev, int slot,
+> +				      const struct synaptics_hw_state *sgm)
+> +{
+> +	input_mt_slot(dev, slot);
+> +	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
+> +	input_report_abs(dev, ABS_MT_POSITION_X, sgm->x);
+> +	input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(sgm->y));
+> +	input_report_abs(dev, ABS_MT_PRESSURE, sgm->z);
+> +	/* SGM can sometimes contain valid width */
+> +	if (sgm->w >= 4)
+> +		input_report_abs(dev, ABS_MT_TOUCH_MAJOR, sgm->w);
+> +}
+
+The ABS_MT_TOUCH_MAJOR is supposed to have zero intercept, to remain
+compatible with user space handling of type A devices. Also, the scale
+should match the screen/pad size, such that the actual size of the
+touch area can be deduced. In addition, based on the current sensor
+technologies, ABS_MT_PRESSURE and ABS_MT_TOUCH_MAJOR are normally
+mutually exclusive.
+
+All in all, I would prefer to only report width via (the single-finger
+axis) ABS_TOOL_WIDTH, and only for compatibility reasons.
+
+> +
+> +static void synaptics_report_slot_agm(struct input_dev *dev, int slot,
+> +				      const struct synaptics_hw_state *agm)
+> +{
+> +	input_mt_slot(dev, slot);
+> +	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
+> +	input_report_abs(dev, ABS_MT_POSITION_X, agm->x);
+> +	input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(agm->y));
+> +	input_report_abs(dev, ABS_MT_PRESSURE, agm->z);
+> +}
+
+With ABS_MT_TOUCH_MAJOR dropped, sgm and agm seems to coincide...
+
+> +
+> +static void synaptics_report_mt(struct psmouse *psmouse,
+> +				int count,
+> +				const struct synaptics_hw_state *sgm)
+> +{
+> +	struct input_dev *dev = psmouse->dev;
+> +	struct synaptics_data *priv = psmouse->private;
+> +	struct synaptics_hw_state *agm = &priv->agm;
+> +
+> +	switch (count) {
+> +	case 0:
+> +		synaptics_report_slot_empty(dev, 0);
+> +		synaptics_report_slot_empty(dev, 1);
+> +		break;
+> +	case 1:
+> +		synaptics_report_slot_sgm(dev, 0, sgm);
+> +		synaptics_report_slot_empty(dev, 1);
+> +		break;
+> +	case 2:
+> +	case 3: /* Fall-through case */
+> +		synaptics_report_slot_sgm(dev, 0, sgm);
+> +		synaptics_report_slot_agm(dev, 1, agm);
+> +		break;
+> +	}
+> +
+> +	/* Don't use active slot count to generate BTN_TOOL events. */
+> +	input_mt_report_pointer_emulation(dev, false);
+> +
+> +	/* Send the number of fingers reported by touchpad itself. */
+> +	input_mt_report_finger_count(dev, count);
+> +
+> +	input_report_key(dev, BTN_LEFT, sgm->left);
+> +	input_sync(dev);
+> +}
+> +
+> +static void synaptics_image_sensor_process(struct psmouse *psmouse,
+> +					   struct synaptics_hw_state *sgm)
+> +{
+> +	int count;
+> +
+> +	if (sgm->z == 0)
+> +		count = 0;
+> +	else if (sgm->w >= 4)
+> +		count = 1;
+> +	else if (sgm->w == 0)
+> +		count = 2;
+> +	else
+> +		count = 3;
+> +
+> +	/* Send resulting input events to user space */
+> +	synaptics_report_mt(psmouse, count, sgm);
+> +}
+> +
+>  /*
+>   *  called for each full received packet from the touchpad
+>   */
+> @@ -558,6 +642,11 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+>  	if (synaptics_parse_hw_state(psmouse->packet, priv, &hw))
+>  		return;
+>  
+> +	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
+> +		synaptics_image_sensor_process(psmouse, &hw);
+> +		return;
+> +	}
+> +
+>  	if (hw.scroll) {
+>  		priv->scroll += hw.scroll;
+>  
+> @@ -739,7 +828,16 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+>  	set_abs_position_params(dev, priv, ABS_X, ABS_Y);
+>  	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
+>  
+> -	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
+> +	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
+> +		input_mt_init_slots(dev, 2);
+> +		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
+> +					ABS_MT_POSITION_Y);
+> +		/* Image sensors can report per-contact pressure */
+> +		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
+> +		/* Image sensors can sometimes report per-contact width */
+> +		input_set_abs_params(dev, ABS_MT_TOUCH_MAJOR, 4, 15, 0, 0);
+> +	} else if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
+> +		/* Non-image sensors with AGM use semi-mt */
+>  		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+>  		input_mt_init_slots(dev, 2);
+>  		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
+> diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+> index a9efbf3..0ea7616 100644
+> --- a/drivers/input/mouse/synaptics.h
+> +++ b/drivers/input/mouse/synaptics.h
+> @@ -74,6 +74,8 @@
+>   * 2	0x04	reduced filtering	firmware does less filtering on
+>   *					position data, driver should watch
+>   *					for noise.
+> + * 2	0x08	image sensor		image sensor tracks 5 fingers, but only
+> + *					reports 2.
+>   * 2	0x20	report min		query 0x0f gives min coord reported
+>   */
+>  #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
+> @@ -82,6 +84,7 @@
+>  #define SYN_CAP_MIN_DIMENSIONS(ex0c)	((ex0c) & 0x002000)
+>  #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+>  #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+> +#define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
+>  
+>  /* synaptics modes query bits */
+>  #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
+> -- 
+> 1.7.3.1
 > 
-> When I make v2 patch, I've a look the Protocol B's driver in upstream,
-> but there were two type of multi-point report fashion,
-> One type is report all the finger status in one input sync(), and
-> separate each mt point with mt_input_slot(), like wocom driver.
-> 
-> But there was some driver (like egalax hid version), send each mt
-> point with one input_sync(), but I'm worry about if main stream user
-> space frameworks(xorg mtouch etc,) support this behavior well.
 
-Sequential reporting works reasonably well, although there are
-potential problems (applying methods for smooth motion, for
-instance). Wakeups and cpu intensity also increases.
+Looks good otherwise.
 
-> What's your point of view about this ?
-
-If possible, I think batched reporting is preferred, i.e., using the
-same method as all hid drivers _but_ the egalax one.
-
-> > The usage of REPORT_MODE_* is unclear to me too.
-> 
-> In the programming manual this mode 's name is "single touch mouse
-> mode", may be it will be a better name for this mode ?
-
-Ok, sounds like the equivalent of the hid generic mouse, which could
-either be ignored or assigned its own input device node. Nothing out
-of the ordinary, in other words, and the patch looks good in this
-respect. Thanks for clarifying.
-
+Thanks,
 Henrik

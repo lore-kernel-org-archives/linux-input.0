@@ -1,68 +1,47 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 6/8 v3] Input: synaptics - process finger (<=3)
- transitions
-Date: Fri, 12 Aug 2011 23:52:53 +0200
-Message-ID: <20110812215253.GB9124@polaris.bitmath.org>
-References: <1313169407-4358-1-git-send-email-djkurtz@chromium.org>
- <1313169407-4358-7-git-send-email-djkurtz@chromium.org>
+From: "Mr. Garry Moore" <Lili.Wei@ibpc.fr>
+Subject: MTCN Numbers: 6096147516
+Date: Sat, 13 Aug 2011 01:45:49 +0200
+Message-ID: <dd01c280bab99009eea82fadb982c826@localhost>
+Reply-To: gmore_233@hotmail.my
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b12.telenor.se ([62.127.194.21]:33150 "EHLO
-	smtprelay-b12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751968Ab1HLVv6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 17:51:58 -0400
-Content-Disposition: inline
-In-Reply-To: <1313169407-4358-7-git-send-email-djkurtz@chromium.org>
+Received: from raba.ibpc.fr ([193.49.234.245]:59846 "EHLO raba.ibpc.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751121Ab1HLXvS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Aug 2011 19:51:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
 
-Hi Daniel,
 
-> Synaptics image sensor touchpads track 5 fingers, but only report 2.
-> This patch attempts to deal with some idiosyncrasies of these
-> touchpads:
 
-I appreciate the complexity of the protocol at hand, and the patch is
-doing an excellent job documenting it. However, it does constitute a
-fair deal of code... What about the statements below:
+-- 
+My associate has helped me to send your first payment
+of $7,500 USD to you as instructed by the Malaysian
+Government and Mr. David Cameron the United Kingdom
+prime minister after the last G20 meeting that was
+held in Malaysia, making you one of the beneficiaries.
+Here is the information below.
 
-1. When two subsequent sgm packets report the same number of fingers
-(and unless told otherwise in some other fashion?), the sgm and the
-previous agm contains data for the same fingers as the previous (agm,
-sgm) pair, i.e., there is no transition.
+MTCN Numbers: 6096147516
+Sender Name Is = Patrick Lee Chun
 
-2. There is no general way to know which fingers are being reported
-after a transition.
+I told him to keep sending you $7,500 USD twice a week
+until the FULL payment of ($820000.00 United State Dollars)
+is completed.
 
-If both points above are true, how about something like this:
+A certificate will be made to change the Receivers Name
+to your name as stated by the Malaysian Government, send
+your Full Names and address via Email to: Mr Garry Moore
+to proceed.
 
-a) Always report slots zero and one (for two or more fingers)
+Note:
 
-b) Keep a global number, trackid
+You cannot pickup the money until the certificate is
+obtained by you.
 
-c) Parse are buffer agm
-
-d) Parse sgm
-
-e) If a transition occured, increase trackid by two
-
-f) Set TRACKING_ID to trackid in slot zero and trackid+1 in slot one.
-
-It seems to me the above will result in contiuous handling of two
-unknown contacts in between transitions, and during transitions, new
-contacts will be generated.
-
-The algorithm above could possibly be improved for the 2->1
-transition, but from what I gather, 1->2 and 2->3 as well as 3->2 does
-not seem to be generally solvable, hence resulting in the above
-anyways.
-
-If any of points 1 and 2 are wrong, I am sure you will
-enlighten/remind me. ;-)
-
-Cheers,
-Henrik
+Regards
+Mr. Garry Moore.
+Tel: +(60) 166647187.
+For more info: www.g20.org

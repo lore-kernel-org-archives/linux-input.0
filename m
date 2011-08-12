@@ -1,62 +1,72 @@
-From: "Jiejing.Zhang " <kzjeef@gmail.com>
-Subject: Re: [PATCH v2] input: add EETI eGalax I2C capacitive multi touch driver.
-Date: Fri, 12 Aug 2011 21:24:29 +0800
-Message-ID: <CACrgxGCodzp+2TqOCHQPRFTN4oT+DuqsZ8qKCahQ5bcXS+9dkA@mail.gmail.com>
-References: <20110801063409.GB32118@core.coreip.homeip.net>
- <1312370963-24965-1-git-send-email-jiejing.zhang@freescale.com> <20110811203449.GA6162@polaris.bitmath.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: [PATCH 1/8 v3] Input: synaptics - refactor y inversion
+Date: Sat, 13 Aug 2011 01:16:40 +0800
+Message-ID: <1313169407-4358-2-git-send-email-djkurtz@chromium.org>
+References: <1313169407-4358-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:56217 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751793Ab1HLNYt (ORCPT
+Received: from smtp-out.google.com ([74.125.121.67]:52311 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751587Ab1HLRQ5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 09:24:49 -0400
-Received: by vws1 with SMTP id 1so2438050vws.19
-        for <linux-input@vger.kernel.org>; Fri, 12 Aug 2011 06:24:49 -0700 (PDT)
-In-Reply-To: <20110811203449.GA6162@polaris.bitmath.org>
+	Fri, 12 Aug 2011 13:16:57 -0400
+In-Reply-To: <1313169407-4358-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, dima@android.com
+To: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com, Daniel Kurtz <djkurtz@chromium.org>
 
-Hi Henrik,
+Synaptics touchpads report increasing y from bottom to top.
+This is inverted from normal userspace "top of screen is 0" coordinates.
+Thus, the kernel driver reports inverted y coordinates to userspace.
 
-2011/8/12 Henrik Rydberg <rydberg@euromail.se>:
-> Hi Zhang,
->
->> This is the patch after change to mt Protocol-B.
->> but I have a issue with test tool, in the orignal patch, I use
->> android to do the test, but android still not support Protocol B.
->
-> The device seems to send finger changes sequentually, resulting in one
-> packet (terminated with input sync) for each finger change. Is this
-> the intention/necessary? Some egalax firmware (hid version) seems to
-> work this way.
+This patch refactors this inversion.
 
-When I make v2 patch, I've a look the Protocol B's driver in upstream,
-but there were two type of multi-point report fashion,
-One type is report all the finger status in one input sync(), and
-separate each mt point with mt_input_slot(), like wocom driver.
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Acked-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ drivers/input/mouse/synaptics.c |   15 ++++++++++++---
+ 1 files changed, 12 insertions(+), 3 deletions(-)
 
-But there was some driver (like egalax hid version), send each mt
-point with one input_sync(), but I'm worry about if main stream user
-space frameworks(xorg mtouch etc,) support this behavior well.
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 5538fc6..297e88f 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -44,6 +44,16 @@
+ #define YMIN_NOMINAL 1408
+ #define YMAX_NOMINAL 4448
+ 
++/*
++ * Synaptics touchpads report the y coordinate from bottom to top, which is
++ * opposite from what userspace expects.
++ * This function is used to invert y before reporting.
++ */
++static int invert_y(int y)
++{
++	return YMAX_NOMINAL + YMIN_NOMINAL - y;
++}
++
+ 
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+@@ -502,8 +512,7 @@ static void synaptics_report_semi_mt_slot(struct input_dev *dev, int slot,
+ 	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
+ 	if (active) {
+ 		input_report_abs(dev, ABS_MT_POSITION_X, x);
+-		input_report_abs(dev, ABS_MT_POSITION_Y,
+-				 YMAX_NOMINAL + YMIN_NOMINAL - y);
++		input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(y));
+ 	}
+ }
+ 
+@@ -597,7 +606,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 
+ 	if (num_fingers > 0) {
+ 		input_report_abs(dev, ABS_X, hw.x);
+-		input_report_abs(dev, ABS_Y, YMAX_NOMINAL + YMIN_NOMINAL - hw.y);
++		input_report_abs(dev, ABS_Y, invert_y(hw.y));
+ 	}
+ 	input_report_abs(dev, ABS_PRESSURE, hw.z);
+ 
+-- 
+1.7.3.1
 
-What's your point of view about this ?
-
->
-> The usage of REPORT_MODE_* is unclear to me too.
-
-In the programming manual this mode 's name is "single touch mouse
-mode", may be it will be a better name for this mode ?
-
->
-> Other than that, the patch looks nice (at first glance).
->
-> Thanks,
-> Henrik
->
-
-Thanks,
-Jiejing

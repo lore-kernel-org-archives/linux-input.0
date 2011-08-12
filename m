@@ -1,47 +1,70 @@
-From: "Mr. Garry Moore" <Lili.Wei@ibpc.fr>
-Subject: MTCN Numbers: 6096147516
-Date: Sat, 13 Aug 2011 02:50:31 +0200
-Message-ID: <7a5816abfddc737892d2398b75ea6962@localhost>
-Reply-To: gmore_233@hotmail.my
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Build-a-home-based-business-on-Auto-Pilot
+Date: Fri, 12 Aug 2011 03:24:35 -0700 (PDT)
+Message-ID: <201108121024.p7CAOZnG091142@mail3.spagack2.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from raba.ibpc.fr ([193.49.234.245]:50373 "EHLO raba.ibpc.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753256Ab1HMA4A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 20:56:00 -0400
+Received: from mail3.spagack2.com ([74.122.159.222]:53077 "EHLO
+	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752708Ab1HMBfC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Aug 2011 21:35:02 -0400
+Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
+	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p7CAOaET091143
+	for <linux-input@vger.kernel.org>; Fri, 12 Aug 2011 03:24:36 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
 
 
--- 
-My associate has helped me to send your first payment
-of $7,500 USD to you as instructed by the Malaysian
-Government and Mr. David Cameron the United Kingdom
-prime minister after the last G20 meeting that was
-held in Malaysia, making you one of the beneficiaries.
-Here is the information below.
+Hello Everyone,
 
-MTCN Numbers: 6096147516
-Sender Name Is = Patrick Lee Chun
+Discover how average people who have never made a cent in the past
+Are now making $1,000+ every month,=20
+With the Potential of making $50,000 a month
+Just "Plug In"... to Your
+Own Fully Automated=20
+  Turn Key...Global Marketing $ystem
+Receive $500-$3,500 Monthly or MORE
+Not MLM...and
+No Selling...
+No Cold Phone Calling.=20
+Complete plug-in-system!
 
-I told him to keep sending you $7,500 USD twice a week
-until the FULL payment of ($820000.00 United State Dollars)
-is completed.
+Check-it-Out!
 
-A certificate will be made to change the Receivers Name
-to your name as stated by the Malaysian Government, send
-your Full Names and address via Email to: Mr Garry Moore
-to proceed.
+http://trckrs.com/48184/rc1
 
-Note:
+It=92s surprisingly cool!
 
-You cannot pickup the money until the certificate is
-obtained by you.
+Dan and Noel
 
-Regards
-Mr. Garry Moore.
-Tel: +(60) 166647187.
-For more info: www.g20.org
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

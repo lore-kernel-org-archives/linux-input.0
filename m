@@ -1,47 +1,51 @@
-From: "Mr. Garry Moore" <Lili.Wei@ibpc.fr>
-Subject: MTCN Numbers: 6096147516
-Date: Sat, 13 Aug 2011 01:45:49 +0200
-Message-ID: <dd01c280bab99009eea82fadb982c826@localhost>
-Reply-To: gmore_233@hotmail.my
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/5] input: wacom - Add support for the Wacom Bamboo Pen (CTL-660/K)
+Date: Fri, 12 Aug 2011 17:08:03 -0700
+Message-ID: <1313194083-4949-1-git-send-email-pinglinux@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from raba.ibpc.fr ([193.49.234.245]:59846 "EHLO raba.ibpc.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751121Ab1HLXvS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 19:51:18 -0400
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:36069 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752486Ab1HMAG1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Aug 2011 20:06:27 -0400
+Received: by gwaa12 with SMTP id a12so2320913gwa.19
+        for <linux-input@vger.kernel.org>; Fri, 12 Aug 2011 17:06:27 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Gerard Braad <me@gbraad.nl>, Ping Cheng <pingc@wacom.com>
 
+From: Gerard Braad <me@gbraad.nl>
 
+Signed-off-by: Gerard Braad <me@gbraad.nl>
+Reviewed-by: Chris Bagwell <chris@cnpbagwell.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 03ebcc8..c1c2f7b 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1460,6 +1460,9 @@ static const struct wacom_features wacom_features_0xD3 =
+ static const struct wacom_features wacom_features_0xD4 =
+ 	{ "Wacom Bamboo Pen",     WACOM_PKGLEN_BBFUN,     14720,  9200, 1023,
+ 	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0xD5 =
++	{ "Wacom Bamboo Pen 6x8",     WACOM_PKGLEN_BBFUN, 21648, 13530, 1023,
++	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0xD6 =
+ 	{ "Wacom BambooPT 2FG 4x5", WACOM_PKGLEN_BBFUN,   14720,  9200, 1023,
+ 	  63, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+@@ -1564,6 +1567,7 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xD2) },
+ 	{ USB_DEVICE_WACOM(0xD3) },
+ 	{ USB_DEVICE_WACOM(0xD4) },
++	{ USB_DEVICE_WACOM(0xD5) },
+ 	{ USB_DEVICE_WACOM(0xD6) },
+ 	{ USB_DEVICE_WACOM(0xD7) },
+ 	{ USB_DEVICE_WACOM(0xD8) },
 -- 
-My associate has helped me to send your first payment
-of $7,500 USD to you as instructed by the Malaysian
-Government and Mr. David Cameron the United Kingdom
-prime minister after the last G20 meeting that was
-held in Malaysia, making you one of the beneficiaries.
-Here is the information below.
+1.7.6
 
-MTCN Numbers: 6096147516
-Sender Name Is = Patrick Lee Chun
-
-I told him to keep sending you $7,500 USD twice a week
-until the FULL payment of ($820000.00 United State Dollars)
-is completed.
-
-A certificate will be made to change the Receivers Name
-to your name as stated by the Malaysian Government, send
-your Full Names and address via Email to: Mr Garry Moore
-to proceed.
-
-Note:
-
-You cannot pickup the money until the certificate is
-obtained by you.
-
-Regards
-Mr. Garry Moore.
-Tel: +(60) 166647187.
-For more info: www.g20.org

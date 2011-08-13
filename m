@@ -1,84 +1,70 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 6/7] HID: wiimote: Add drm request
-Date: Sat, 13 Aug 2011 15:29:14 +0200
-Message-ID: <1313242155-3620-7-git-send-email-dh.herrmann@googlemail.com>
-References: <1313242155-3620-1-git-send-email-dh.herrmann@googlemail.com>
+From: "Dan Pereira" <danp_48@yahoo.com>
+Subject: Build-a-home-based-business-on-Auto-Pilot
+Date: Sat, 13 Aug 2011 06:28:57 -0700 (PDT)
+Message-ID: <201108131328.p7DDSveO051610@mail3.spagack2.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:55308 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751372Ab1HMN3q (ORCPT
+Received: from mail3.spagack2.com ([74.122.159.222]:51046 "EHLO
+	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752272Ab1HNCJY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Aug 2011 09:29:46 -0400
-Received: by mail-fx0-f46.google.com with SMTP id 19so2801621fxh.19
-        for <linux-input@vger.kernel.org>; Sat, 13 Aug 2011 06:29:45 -0700 (PDT)
-In-Reply-To: <1313242155-3620-1-git-send-email-dh.herrmann@googlemail.com>
+	Sat, 13 Aug 2011 22:09:24 -0400
+Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
+	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p7DDSwlG051647
+	for <linux-input@vger.kernel.org>; Sat, 13 Aug 2011 06:28:58 -0700 (PDT)
+	(envelope-from u789mobs@reliablecontact.com)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dh.herrmann@googlemail.com, padovan@profusion.mobi, jkosina@suse.cz, oliver@neukum.org
 
-The wiimote reports data in several data reporting modes (DRM). The DRM
-request makes the wiimote send data in the requested drm.
 
-The DRM mode can be set explicitely or can be chosen by the driver. To let
-the driver choose the DRM mode, pass WIIPROTO_REQ_NULL placeholder to it. This
-is no valid request and is replaced with an appropriate DRM.
 
-Currently, the driver always sets the basic DRM_K mode, but this will be
-extended when further peripherals like accelerometer and IR are supported.
+Hello Everyone,
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- drivers/hid/hid-wiimote.c |   27 +++++++++++++++++++++++++++
- 1 files changed, 27 insertions(+), 0 deletions(-)
+Discover how average people who have never made a cent in the past
+Are now making $1,000+ every month,=20
+With the Potential of making $50,000 a month
+Just "Plug In"... to Your
+Own Fully Automated=20
+  Turn Key...Global Marketing $ystem
+Receive $500-$3,500 Monthly or MORE
+Not MLM...and
+No Selling...
+No Cold Phone Calling.=20
+Complete plug-in-system!
 
-diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 4a68565..3efc126 100644
---- a/drivers/hid/hid-wiimote.c
-+++ b/drivers/hid/hid-wiimote.c
-@@ -59,8 +59,10 @@ struct wiimote_data {
- #define WIIPROTO_FLAG_LED(num) (WIIPROTO_FLAG_LED1 << (num - 1))
- 
- enum wiiproto_reqs {
-+	WIIPROTO_REQ_NULL = 0x0,
- 	WIIPROTO_REQ_RUMBLE = 0x10,
- 	WIIPROTO_REQ_LED = 0x11,
-+	WIIPROTO_REQ_DRM = 0x12,
- 	WIIPROTO_REQ_DRM_K = 0x30,
- };
- 
-@@ -232,6 +234,31 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
- 	wiimote_queue(wdata, cmd, sizeof(cmd));
- }
- 
-+/*
-+ * Check what peripherals of the wiimote are currently
-+ * active and select a proper DRM that supports all of
-+ * the requested data inputs.
-+ */
-+static __u8 select_drm(struct wiimote_data *wdata)
-+{
-+	return WIIPROTO_REQ_DRM_K;
-+}
-+
-+static void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
-+{
-+	__u8 cmd[3];
-+
-+	if (drm == WIIPROTO_REQ_NULL)
-+		drm = select_drm(wdata);
-+
-+	cmd[0] = WIIPROTO_REQ_DRM;
-+	cmd[1] = 0;
-+	cmd[2] = drm;
-+
-+	wiiproto_keep_rumble(wdata, &cmd[1]);
-+	wiimote_queue(wdata, cmd, sizeof(cmd));
-+}
-+
- static enum led_brightness wiimote_leds_get(struct led_classdev *led_dev)
- {
- 	struct wiimote_data *wdata;
--- 
-1.7.6
+Check-it-Out!
 
+http://trckrs.com/48184/rc1
+
+It=92s surprisingly cool!
+
+Dan and Noel
+
+
+His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
+Turlock, CA 95380
+In compliance with Federal law, should you choose to Un.Subscribe from =
+our network, you may do so using theUn.Subscribe instruction found belo=
+w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
+Subscribe link provided:
+
+
+
+
+
+
+
+
+To remove this email address from further mailings click on  the link b=
+elow  while connected to the internet.
+http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
+tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
+reira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

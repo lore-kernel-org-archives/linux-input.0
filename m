@@ -1,83 +1,84 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 7/7] HID: wiimote: Add status and return request handlers
-Date: Sat, 13 Aug 2011 15:29:15 +0200
-Message-ID: <1313242155-3620-8-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 6/7] HID: wiimote: Add drm request
+Date: Sat, 13 Aug 2011 15:29:14 +0200
+Message-ID: <1313242155-3620-7-git-send-email-dh.herrmann@googlemail.com>
 References: <1313242155-3620-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:42152 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:55308 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751372Ab1HMN3l (ORCPT
+	with ESMTP id S1751372Ab1HMN3q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Aug 2011 09:29:41 -0400
-Received: by mail-fx0-f46.google.com with SMTP id 19so2801615fxh.19
-        for <linux-input@vger.kernel.org>; Sat, 13 Aug 2011 06:29:41 -0700 (PDT)
+	Sat, 13 Aug 2011 09:29:46 -0400
+Received: by mail-fx0-f46.google.com with SMTP id 19so2801621fxh.19
+        for <linux-input@vger.kernel.org>; Sat, 13 Aug 2011 06:29:45 -0700 (PDT)
 In-Reply-To: <1313242155-3620-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dh.herrmann@googlemail.com, padovan@profusion.mobi, jkosina@suse.cz, oliver@neukum.org
 
-The wiimote resets the current drm when an extension is plugged in.
-Fortunately, it also sends a status report in this situation so we just
-reset the drm on every status report to keep the drm consistent.
+The wiimote reports data in several data reporting modes (DRM). The DRM
+request makes the wiimote send data in the requested drm.
 
-Also handle return reports from the wiimote which indicate success and
-failure of requests that we've sent.
+The DRM mode can be set explicitely or can be chosen by the driver. To let
+the driver choose the DRM mode, pass WIIPROTO_REQ_NULL placeholder to it. This
+is no valid request and is replaced with an appropriate DRM.
+
+Currently, the driver always sets the basic DRM_K mode, but this will be
+extended when further peripherals like accelerometer and IR are supported.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
+ drivers/hid/hid-wiimote.c |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 3efc126..65d61fa 100644
+index 4a68565..3efc126 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -63,6 +63,8 @@ enum wiiproto_reqs {
+@@ -59,8 +59,10 @@ struct wiimote_data {
+ #define WIIPROTO_FLAG_LED(num) (WIIPROTO_FLAG_LED1 << (num - 1))
+ 
+ enum wiiproto_reqs {
++	WIIPROTO_REQ_NULL = 0x0,
  	WIIPROTO_REQ_RUMBLE = 0x10,
  	WIIPROTO_REQ_LED = 0x11,
- 	WIIPROTO_REQ_DRM = 0x12,
-+	WIIPROTO_REQ_STATUS = 0x20,
-+	WIIPROTO_REQ_RETURN = 0x22,
++	WIIPROTO_REQ_DRM = 0x12,
  	WIIPROTO_REQ_DRM_K = 0x30,
  };
  
-@@ -405,6 +407,26 @@ static void handler_keys(struct wiimote_data *wdata, const __u8 *payload)
- 	input_sync(wdata->input);
+@@ -232,6 +234,31 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
+ 	wiimote_queue(wdata, cmd, sizeof(cmd));
  }
  
-+static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
++/*
++ * Check what peripherals of the wiimote are currently
++ * active and select a proper DRM that supports all of
++ * the requested data inputs.
++ */
++static __u8 select_drm(struct wiimote_data *wdata)
 +{
-+	handler_keys(wdata, payload);
-+
-+	/* on status reports the drm is reset so we need to resend the drm */
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
++	return WIIPROTO_REQ_DRM_K;
 +}
 +
-+static void handler_return(struct wiimote_data *wdata, const __u8 *payload)
++static void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
 +{
-+	__u8 err = payload[3];
-+	__u8 cmd = payload[2];
++	__u8 cmd[3];
 +
-+	handler_keys(wdata, payload);
++	if (drm == WIIPROTO_REQ_NULL)
++		drm = select_drm(wdata);
 +
-+	if (err)
-+		hid_warn(wdata->hdev, "Remote error %hhu on req %hhu\n", err,
-+									cmd);
++	cmd[0] = WIIPROTO_REQ_DRM;
++	cmd[1] = 0;
++	cmd[2] = drm;
++
++	wiiproto_keep_rumble(wdata, &cmd[1]);
++	wiimote_queue(wdata, cmd, sizeof(cmd));
 +}
 +
- struct wiiproto_handler {
- 	__u8 id;
- 	size_t size;
-@@ -412,6 +434,8 @@ struct wiiproto_handler {
- };
- 
- static struct wiiproto_handler handlers[] = {
-+	{ .id = WIIPROTO_REQ_STATUS, .size = 6, .func = handler_status },
-+	{ .id = WIIPROTO_REQ_RETURN, .size = 4, .func = handler_return },
- 	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
- 	{ .id = 0 }
- };
+ static enum led_brightness wiimote_leds_get(struct led_classdev *led_dev)
+ {
+ 	struct wiimote_data *wdata;
 -- 
 1.7.6
 

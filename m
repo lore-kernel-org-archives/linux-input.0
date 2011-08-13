@@ -1,70 +1,53 @@
-From: "Dan Pereira" <danp_48@yahoo.com>
-Subject: Build-a-home-based-business-on-Auto-Pilot
-Date: Fri, 12 Aug 2011 03:24:35 -0700 (PDT)
-Message-ID: <201108121024.p7CAOZnG091142@mail3.spagack2.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: [PATCH 0/7] New wiimote interface
+Date: Sat, 13 Aug 2011 15:29:08 +0200
+Message-ID: <1313242155-3620-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3.spagack2.com ([74.122.159.222]:53077 "EHLO
-	mail3.spagack2.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752708Ab1HMBfC (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:42152 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751241Ab1HMN3c (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Aug 2011 21:35:02 -0400
-Received: from mail3.spagack2.com (localhost.mail3.spagack2.com [127.0.0.1])
-	by mail3.spagack2.com (8.13.8/8.12.7) with ESMTP id p7CAOaET091143
-	for <linux-input@vger.kernel.org>; Fri, 12 Aug 2011 03:24:36 -0700 (PDT)
-	(envelope-from u789mobs@reliablecontact.com)
+	Sat, 13 Aug 2011 09:29:32 -0400
+Received: by fxh19 with SMTP id 19so2801615fxh.19
+        for <linux-input@vger.kernel.org>; Sat, 13 Aug 2011 06:29:31 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: dh.herrmann@googlemail.com, padovan@profusion.mobi, jkosina@suse.cz, oliver@neukum.org
 
+Hi
 
+As discussed on the ML, this adds a new interface for LED and rumble devices on
+the wiimote. LED devices can now be controlled via led_classdev structure and
+the rumble motor is controlled via force-feedback FF_RUMBLE event.
 
-Hello Everyone,
+Based on the new semaphore-lock this also simplifies the locking to reduce
+overhead and code complexity.
 
-Discover how average people who have never made a cent in the past
-Are now making $1,000+ every month,=20
-With the Potential of making $50,000 a month
-Just "Plug In"... to Your
-Own Fully Automated=20
-  Turn Key...Global Marketing $ystem
-Receive $500-$3,500 Monthly or MORE
-Not MLM...and
-No Selling...
-No Cold Phone Calling.=20
-Complete plug-in-system!
+The last two patches correctly set DRM modes on new events. Currently, if an
+extension is plugged into the wiimote, this driver stops working. Those two
+patches make the driver reset the DRM so it still works with extensions plugged
+in. Hence, it would be nice to see them in 3.1, too.
 
-Check-it-Out!
+I have omitted the accelerometer/IR/extension etc. patches since they probably
+don't go into 3.1 and I will resend them later after more testing.
 
-http://trckrs.com/48184/rc1
+Regards
+David
 
-It=92s surprisingly cool!
+David Herrmann (7):
+  HID: wiimote: Simplify synchronization
+  HID: wiimote: Correctly call HID open/close callbacks
+  HID: wiimote: Register led class devices
+  HID: wiimote: Support rumble device
+  HID: wiimote: Add force-feedback support
+  HID: wiimote: Add drm request
+  HID: wiimote: Add status and return request handlers
 
-Dan and Noel
+ drivers/hid/Kconfig       |    1 +
+ drivers/hid/hid-wiimote.c |  345 ++++++++++++++++++++++++++++++++++++---------
+ 2 files changed, 276 insertions(+), 70 deletions(-)
 
+-- 
+1.7.6
 
-His was a Com.Merical adv.Sent to you by:Dan Pereira, 11383 Golf Road, =
-Turlock, CA 95380
-In compliance with Federal law, should you choose to Un.Subscribe from =
-our network, you may do so using theUn.Subscribe instruction found belo=
-w.  We are fully compliant with CAN-SPAM Act of 2005-Please use the Un.=
-Subscribe link provided:
-
-
-
-
-
-
-
-
-To remove this email address from further mailings click on  the link b=
-elow  while connected to the internet.
-http://www.reliablecontact.com/cgi-bin/maxsponder/maxuseradmin.cgi?func=
-tion=3Dmanualdelete3&email=3Dlinux-input*vger.kernel.org&un=3Drichardpe=
-reira
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,64 +1,155 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH 1/7] HID: wiimote: Simplify synchronization
-Date: Sun, 14 Aug 2011 13:15:54 +0200
-Message-ID: <CANq1E4Qwf1GZV3RZVb3_2pZq71-xmY2mYs-RBvk17sB9ZfW8jw@mail.gmail.com>
-References: <1313242155-3620-1-git-send-email-dh.herrmann@googlemail.com>
-	<1313242155-3620-2-git-send-email-dh.herrmann@googlemail.com>
-	<201108141255.36385.oliver@neukum.org>
+From: Sean Young <sean@mess.org>
+Subject: [PATCH] Support force feedback on MP-8866
+Date: Sun, 14 Aug 2011 20:42:05 +0100
+Message-ID: <20110814194203.GA19083@pequod.mess.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:49916 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753109Ab1HNLPz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Aug 2011 07:15:55 -0400
-Received: by vxi9 with SMTP id 9so3313667vxi.19
-        for <linux-input@vger.kernel.org>; Sun, 14 Aug 2011 04:15:54 -0700 (PDT)
-In-Reply-To: <201108141255.36385.oliver@neukum.org>
+Received: from pequod.mess.org ([188.220.58.213]:33330 "EHLO pequod.mess.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755119Ab1HNTxa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 14 Aug 2011 15:53:30 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-input@vger.kernel.org, padovan@profusion.mobi, jkosina@suse.cz
+To: Jiri Kosina <jkosina@suse.cz>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, linux-input@vger.kernel.org
 
-On Sun, Aug 14, 2011 at 12:55 PM, Oliver Neukum <oliver@neukum.org> wro=
-te:
-> Am Samstag, 13. August 2011, 15:29:09 schrieb David Herrmann:
->> @@ -362,6 +343,15 @@ static struct wiimote_data *wiimote_create(stru=
-ct hid_device *hdev)
->>
->> =A0static void wiimote_destroy(struct wiimote_data *wdata)
->> =A0{
->> + =A0 =A0 =A0 device_remove_file(&wdata->hdev->dev, &dev_attr_led1);
->> + =A0 =A0 =A0 device_remove_file(&wdata->hdev->dev, &dev_attr_led2);
->> + =A0 =A0 =A0 device_remove_file(&wdata->hdev->dev, &dev_attr_led3);
->> + =A0 =A0 =A0 device_remove_file(&wdata->hdev->dev, &dev_attr_led4);
->> +
->> + =A0 =A0 =A0 input_unregister_device(wdata->input);
->> + =A0 =A0 =A0 hid_hw_stop(wdata->hdev);
->> +
->> + =A0 =A0 =A0 cancel_work_sync(&wdata->worker);
->> =A0 =A0 =A0 =A0 kfree(wdata);
->> =A0}
->
-> This looks like the work can run on a device whose hardware has alrea=
-dy been
-> stopped. Is this safe?
+Support force feedback on the Dual USB Force Feedback Joypad (MP-8866).
 
-With bthid this is safe, although not very nice. usbhid does not allow
-this so I will swap the cancel_work_sync() and hid_hw_stop() calls so
-I do not depend on special bthid behaviour.
-Nice catch, thanks.
+Note I do not have the Smartjoy Plus hardware to test if the driver
+still works with that. It should not be affected, though.
 
-> =A0 =A0 =A0 =A0Regards
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0Oliver
->
-
-Regards
-David
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Sean Young <sean@mess.org>
+---
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 6f3289a..416128a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1494,6 +1494,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0709) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
+diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
+index 16f7caf..6140943 100644
+--- a/drivers/hid/hid-sjoy.c
++++ b/drivers/hid/hid-sjoy.c
+@@ -65,8 +65,7 @@ static int sjoyff_init(struct hid_device *hid)
+ {
+ 	struct sjoyff_device *sjoyff;
+ 	struct hid_report *report;
+-	struct hid_input *hidinput = list_entry(hid->inputs.next,
+-						struct hid_input, list);
++	struct hid_input *hidinput;
+ 	struct list_head *report_list =
+ 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
+ 	struct list_head *report_ptr = report_list;
+@@ -78,43 +77,45 @@ static int sjoyff_init(struct hid_device *hid)
+ 		return -ENODEV;
+ 	}
+ 
+-	report_ptr = report_ptr->next;
++	list_for_each_entry(hidinput, &hid->inputs, list) {
++		report_ptr = report_ptr->next;
+ 
+-	if (report_ptr == report_list) {
+-		hid_err(hid, "required output report is missing\n");
+-		return -ENODEV;
+-	}
++		if (report_ptr == report_list) {
++			hid_err(hid, "required output report is missing\n");
++			return -ENODEV;
++		}
+ 
+-	report = list_entry(report_ptr, struct hid_report, list);
+-	if (report->maxfield < 1) {
+-		hid_err(hid, "no fields in the report\n");
+-		return -ENODEV;
+-	}
++		report = list_entry(report_ptr, struct hid_report, list);
++		if (report->maxfield < 1) {
++			hid_err(hid, "no fields in the report\n");
++			return -ENODEV;
++		}
+ 
+-	if (report->field[0]->report_count < 3) {
+-		hid_err(hid, "not enough values in the field\n");
+-		return -ENODEV;
+-	}
++		if (report->field[0]->report_count < 3) {
++			hid_err(hid, "not enough values in the field\n");
++			return -ENODEV;
++		}
+ 
+-	sjoyff = kzalloc(sizeof(struct sjoyff_device), GFP_KERNEL);
+-	if (!sjoyff)
+-		return -ENOMEM;
++		sjoyff = kzalloc(sizeof(struct sjoyff_device), GFP_KERNEL);
++		if (!sjoyff)
++			return -ENOMEM;
+ 
+-	dev = hidinput->input;
++		dev = hidinput->input;
+ 
+-	set_bit(FF_RUMBLE, dev->ffbit);
++		set_bit(FF_RUMBLE, dev->ffbit);
+ 
+-	error = input_ff_create_memless(dev, sjoyff, hid_sjoyff_play);
+-	if (error) {
+-		kfree(sjoyff);
+-		return error;
+-	}
++		error = input_ff_create_memless(dev, sjoyff, hid_sjoyff_play);
++		if (error) {
++			kfree(sjoyff);
++			return error;
++		}
+ 
+-	sjoyff->report = report;
+-	sjoyff->report->field[0]->value[0] = 0x01;
+-	sjoyff->report->field[0]->value[1] = 0x00;
+-	sjoyff->report->field[0]->value[2] = 0x00;
+-	usbhid_submit_report(hid, sjoyff->report, USB_DIR_OUT);
++		sjoyff->report = report;
++		sjoyff->report->field[0]->value[0] = 0x01;
++		sjoyff->report->field[0]->value[1] = 0x00;
++		sjoyff->report->field[0]->value[2] = 0x00;
++		usbhid_submit_report(hid, sjoyff->report, USB_DIR_OUT);
++	}
+ 
+ 	hid_info(hid, "Force feedback for SmartJoy PLUS PS2/USB adapter\n");
+ 
+@@ -131,6 +132,8 @@ static int sjoy_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret;
+ 
++	hdev->quirks |= id->driver_data;
++
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "parse failed\n");
+@@ -152,6 +155,9 @@ err:
+ 
+ static const struct hid_device_id sjoy_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD),
++		.driver_data = HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET |
++			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, sjoy_devices);
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 621959d..df618a3 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -79,7 +79,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH, HID_QUIRK_MULTI_INPUT },
+-	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 
+ 	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },

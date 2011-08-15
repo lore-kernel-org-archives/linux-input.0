@@ -1,135 +1,87 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
-Subject: Re: [PATCH] Input: elantech - correct x, y value range for v2 hardware
-Date: Mon, 15 Aug 2011 14:45:24 +0200
-Message-ID: <4E4914E4.3000703@tudelft.nl>
-References: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [PATCH v3] Input: atmel_mxt_ts - Report pressure information from the driver
+Date: Mon, 15 Aug 2011 11:02:30 -0400
+Message-ID: <1313420550-5885-1-git-send-email-miletus@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:53528 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752938Ab1HOMp2 (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:58444 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753952Ab1HOPDA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Aug 2011 08:45:28 -0400
-In-Reply-To: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw>
+	Mon, 15 Aug 2011 11:03:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>, =?UTF-8?B?Sm9jZWx5biBIZXV6w6k=?= <jocelyn.heuze@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Yufeng Shen <miletus@chromium.org>, linux-kernel@vger.kernel.org, Michael Gong <Michael.Gong@atmel.com>, Alan Bowens <Alan.Bowens@atmel.com>
 
-On 15-08-11 05:51, JJ Ding wrote:
-> x, y values are actually 12-bit long. Also update protocol document t=
-o reflect
-> the change.
->
-> Signed-off-by: JJ Ding<jj_ding@emc.com.tw>
-> ---
-> Hello List,
->
-> We are working on adding support for newer elantech touchpad, which w=
-e will
-> submit shortly. Along the way I found this error in current code.
-> This is a simple patch to correct x, y value ranges in v2 hardware.
-> Please review, thank you.
-Hello,
+Atmel mxt1386 touch controller has the touch pressure information but
+the current driver atmel_mxt_ts does not expose it to the user space.
+This patch makes the driver report the touch pressure information to
+user space.
 
-I'm glad to hear Elantech is planning to contribute directly to the=20
-Linux driver!
+ChangeLog:
+v2: fixed indentation as commented by Wanlong Gao
+v3: added signed-off-by
 
-In your patch, be careful to the Y axis. ETP_YMAX_V2 is actually set to=
-=20
-760. Compared to the 4095 that can be reached, there might be overflow.
+Change-Id: Ie0e4683a3cd5ec79222f7682b0ddc24f909af543
+Signed-off-by: Yufeng Shen <miletus@chromium.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-Do all the v2 hardwares have the same resolution (in which case we can=20
-leave 760, or 768)? Or is there a way to query their resolution?=20
-Otherwise, we could just put ETP_YMAX_V2 =3D 4095, and ETP_YMIN_V2 =3D =
-(4095=20
-- 768), to be sure we cannot have an overflow. I think that's what is=20
-done in the synaptics driver.
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index ae00604..9bdf4e0 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -244,6 +244,7 @@ struct mxt_finger {
+ 	int x;
+ 	int y;
+ 	int area;
++	int pressure;
+ };
+ 
+ /* Each client has this additional data */
+@@ -536,6 +537,8 @@ static void mxt_input_report(struct mxt_data *data, int single_id)
+ 					finger[id].x);
+ 			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+ 					finger[id].y);
++			input_report_abs(input_dev, ABS_MT_PRESSURE,
++					finger[id].pressure);
+ 		} else {
+ 			finger[id].status = 0;
+ 		}
+@@ -560,6 +563,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	int x;
+ 	int y;
+ 	int area;
++	int pressure;
+ 
+ 	/* Check the touch is present on the screen */
+ 	if (!(status & MXT_DETECT)) {
+@@ -584,6 +588,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		y = y >> 2;
+ 
+ 	area = message->message[4];
++	pressure = message->message[5];
+ 
+ 	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+ 		status & MXT_MOVE ? "moved" : "pressed",
+@@ -594,6 +599,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	finger[id].x = x;
+ 	finger[id].y = y;
+ 	finger[id].area = area;
++	finger[id].pressure = pressure;
+ 
+ 	mxt_input_report(data, id);
+ }
+@@ -1125,6 +1131,8 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 			     0, data->max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 			     0, data->max_y, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_PRESSURE,
++			     0, 255, 0, 0);
+ 
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+-- 
+1.7.3.1
 
-Dmitry, would this seems the correct way to set min/max in=20
-input_set_abs_params()?
-
-Cheers,
-=C3=89ric
-
-
->
->   Documentation/input/elantech.txt |    8 ++++----
->   drivers/input/mouse/elantech.c   |    8 ++++----
->   2 files changed, 8 insertions(+), 8 deletions(-)
->
-> diff --git a/Documentation/input/elantech.txt b/Documentation/input/e=
-lantech.txt
-> index db798af..bce9941 100644
-> --- a/Documentation/input/elantech.txt
-> +++ b/Documentation/input/elantech.txt
-> @@ -389,14 +389,14 @@ byte 0:
->   byte 1:
->
->      bit   7   6   5   4   3   2   1   0
-> -	 p7  p6  p5  p4  .  x10 x9  x8
-> +	 p7  p6  p5  p4 x11 x10 x9  x8
->
->   byte 2:
->
->      bit   7   6   5   4   3   2   1   0
->   	 x7  x6  x5  x4  x3  x2  x1  x0
->
-> -         x10..x0 =3D absolute x value (horizontal)
-> +         x11..x0 =3D absolute x value (horizontal)
->
->   byte 3:
->
-> @@ -420,7 +420,7 @@ byte 3:
->   byte 4:
->
->      bit   7   6   5   4   3   2   1   0
-> -        p3  p1  p2  p0   .   .  y9  y8
-> +        p3  p1  p2  p0  y11 y10 y9  y8
->
->   	 p7..p0 =3D pressure (not EF113)
->
-> @@ -429,7 +429,7 @@ byte 5:
->      bit   7   6   5   4   3   2   1   0
->           y7  y6  y5  y4  y3  y2  y1  y0
->
-> -         y9..y0 =3D absolute y value (vertical)
-> +         y11..y0 =3D absolute y value (vertical)
->
->
->   4.2.2 Two finger touch
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
-ntech.c
-> index 3250356..da161da 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -290,15 +290,15 @@ static void elantech_report_absolute_v2(struct =
-psmouse *psmouse)
->   		/* pass through... */
->   	case 1:
->   		/*
-> -		 * byte 1:  .   .   .   .   .  x10 x9  x8
-> +		 * byte 1:  .   .   .   .  x11 x10 x9  x8
->   		 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
->   		 */
-> -		x1 =3D ((packet[1]&  0x07)<<  8) | packet[2];
-> +		x1 =3D ((packet[1]&  0x0f)<<  8) | packet[2];
->   		/*
-> -		 * byte 4:  .   .   .   .   .   .  y9  y8
-> +		 * byte 4:  .   .   .   .  y11 y10 y9  y8
->   		 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
->   		 */
-> -		y1 =3D ETP_YMAX_V2 - (((packet[4]&  0x03)<<  8) | packet[5]);
-> +		y1 =3D ETP_YMAX_V2 - (((packet[4]&  0x0f)<<  8) | packet[5]);
->
->   		input_report_abs(dev, ABS_X, x1);
->   		input_report_abs(dev, ABS_Y, y1);
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

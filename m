@@ -1,28 +1,27 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 4/8 v3] Input: synaptics - add image sensor support
-Date: Mon, 15 Aug 2011 15:17:57 +0800
-Message-ID: <CAGS+omAo1tPzBQ_s+vz-7_5SS6vWv4bdzD1JfqepUS7wYxK5sA@mail.gmail.com>
+Subject: Re: [PATCH 6/8 v3] Input: synaptics - process finger (<=3) transitions
+Date: Mon, 15 Aug 2011 15:46:07 +0800
+Message-ID: <CAGS+omDpg51Bky7gu8+EpD=2QQz4j_o=SV997fVJDMzUSOv7SA@mail.gmail.com>
 References: <1313169407-4358-1-git-send-email-djkurtz@chromium.org>
- <1313169407-4358-5-git-send-email-djkurtz@chromium.org> <20110812210911.GA9124@polaris.bitmath.org>
+ <1313169407-4358-7-git-send-email-djkurtz@chromium.org> <20110812215253.GB9124@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:25607 "EHLO
+Received: from smtp-out.google.com ([216.239.44.51]:34160 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752499Ab1HOHSV convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1751731Ab1HOHqa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Aug 2011 03:18:21 -0400
-Received: from hpaq11.eem.corp.google.com (hpaq11.eem.corp.google.com [172.25.149.11])
-	by smtp-out.google.com with ESMTP id p7F7IK12018382
-	for <linux-input@vger.kernel.org>; Mon, 15 Aug 2011 00:18:20 -0700
-Received: from iye16 (iye16.prod.google.com [10.241.50.16])
-	by hpaq11.eem.corp.google.com with ESMTP id p7F7IH1W003221
-	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Mon, 15 Aug 2011 00:18:18 -0700
-Received: by iye16 with SMTP id 16so6564302iye.29
-        for <linux-input@vger.kernel.org>; Mon, 15 Aug 2011 00:18:17 -0700 (PDT)
-In-Reply-To: <20110812210911.GA9124@polaris.bitmath.org>
+	Mon, 15 Aug 2011 03:46:30 -0400
+Received: from hpaq14.eem.corp.google.com (hpaq14.eem.corp.google.com [172.25.149.14])
+	by smtp-out.google.com with ESMTP id p7F7kSgq021933
+	for <linux-input@vger.kernel.org>; Mon, 15 Aug 2011 00:46:29 -0700
+Received: from iyf13 (iyf13.prod.google.com [10.241.50.77])
+	by hpaq14.eem.corp.google.com with ESMTP id p7F7jV1m001686
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Mon, 15 Aug 2011 00:46:27 -0700
+Received: by iyf13 with SMTP id 13so7101979iyf.16
+        for <linux-input@vger.kernel.org>; Mon, 15 Aug 2011 00:46:27 -0700 (PDT)
+In-Reply-To: <20110812215253.GB9124@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
@@ -30,89 +29,101 @@ Cc: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, linux-input@vger.ker
 
 Hi Henrik,
 
-Thanks for the great feedback.
+Thanks for the feedback.
 
-On Sat, Aug 13, 2011 at 5:09 AM, Henrik Rydberg <rydberg@euromail.se> w=
-rote:
+On Sat, Aug 13, 2011 at 5:52 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>
 > Hi Daniel,
 >
-> looks good, some details below.
+> > Synaptics image sensor touchpads track 5 fingers, but only report 2.
+> > This patch attempts to deal with some idiosyncrasies of these
+> > touchpads:
 >
->> +static void synaptics_report_slot_empty(struct input_dev *dev, int =
-slot)
->> +{
->> + =A0 =A0 input_mt_slot(dev, slot);
->> + =A0 =A0 input_mt_report_slot_state(dev, MT_TOOL_FINGER, false);
->> +}
->> +
->> +static void synaptics_report_slot_sgm(struct input_dev *dev, int sl=
-ot,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- const struct synaptics_hw_state *sgm)
->> +{
->> + =A0 =A0 input_mt_slot(dev, slot);
->> + =A0 =A0 input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
->> + =A0 =A0 input_report_abs(dev, ABS_MT_POSITION_X, sgm->x);
->> + =A0 =A0 input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(sgm->y))=
-;
->> + =A0 =A0 input_report_abs(dev, ABS_MT_PRESSURE, sgm->z);
->> + =A0 =A0 /* SGM can sometimes contain valid width */
->> + =A0 =A0 if (sgm->w >=3D 4)
->> + =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(dev, ABS_MT_TOUCH_MAJOR, =
-sgm->w);
->> +}
+> I appreciate the complexity of the protocol at hand, and the patch is
+> doing an excellent job documenting it. However, it does constitute a
+> fair deal of code... What about the statements below:
 >
-> The ABS_MT_TOUCH_MAJOR is supposed to have zero intercept, to remain
-> compatible with user space handling of type A devices. Also, the scal=
-e
-> should match the screen/pad size, such that the actual size of the
-> touch area can be deduced. In addition, based on the current sensor
-> technologies, ABS_MT_PRESSURE and ABS_MT_TOUCH_MAJOR are normally
-> mutually exclusive.
+> 1. When two subsequent sgm packets report the same number of fingers
+> (and unless told otherwise in some other fashion?), the sgm and the
+> previous agm contains data for the same fingers as the previous (agm,
+> sgm) pair, i.e., there is no transition.
 >
-> All in all, I would prefer to only report width via (the single-finge=
-r
-> axis) ABS_TOOL_WIDTH, and only for compatibility reasons.
+> 2. There is no general way to know which fingers are being reported
+> after a transition.
 >
-> +
-> +static void synaptics_report_slot_agm(struct input_dev *dev, int slo=
-t,
-> +                                   const struct synaptics_hw_state *=
-agm)
-> +{
-> +     input_mt_slot(dev, slot);
-> +     input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
-> +     input_report_abs(dev, ABS_MT_POSITION_X, agm->x);
-> +     input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(agm->y));
-> +     input_report_abs(dev, ABS_MT_PRESSURE, agm->z);
-> +}
-
-With ABS_MT_TOUCH_MAJOR dropped, sgm and agm seems to coincide...
-=2E...
+> If both points above are true, how about something like this:
 >
-> Looks good otherwise.
+> a) Always report slots zero and one (for two or more fingers)
 >
-> Thanks,
+> b) Keep a global number, trackid
+>
+> c) Parse are buffer agm
+>
+> d) Parse sgm
+>
+> e) If a transition occured, increase trackid by two
+>
+> f) Set TRACKING_ID to trackid in slot zero and trackid+1 in slot one.
+>
+> It seems to me the above will result in contiuous handling of two
+> unknown contacts in between transitions, and during transitions, new
+> contacts will be generated.
+>
+> The algorithm above could possibly be improved for the 2->1
+> transition, but from what I gather, 1->2 and 2->3 as well as 3->2 does
+> not seem to be generally solvable, hence resulting in the above
+> anyways.
+>
+> If any of points 1 and 2 are wrong, I am sure you will
+> enlighten/remind me. ;-)
+>
+> Cheers,
 > Henrik
->
 
-Ahh....  ok, this makes sense.  I missed this detail previously.
-Basically:
-  * Only report synaptics "w" as ABS_TOOL_WIDTH (for backwards compatib=
-ility)
-  * Report synaptics "z" as ABS_MT_TOUCH_MAJOR (assuming it is really
-'width of finger in surface units'), and ABS_PRESSURE (for backwards
-compatibility).
-  * Don't use ABS_MT_PRESSURE.
-  * This will simplify agm/sgm reporting by making them both reoprt
-the same axes.
+Actually, "in general", it is possible to know which fingers are being
+reported _after_ a transition.
 
-I will rework these patches to do this.
+However:
+  (1) Since the number of fingers is only reported in SGM packets, it
+is not possible, _during_ a transition, to know whether the AGM was
+sent for the old number of fingers, or the new number of fingers.
+  (2) There is no way to tell which fingers remain when going from
+3->2 fingers. Once we lose track, we can't really know what fingers we
+are tracking until:
+     (a) All fingers are removed
+     (b) All but the 'primary' (finger slot[0]) are removed
+     (c) 4 or 5 fingers are touched (this triggers an AGM_CONTACT
+packet, which properly resets the driver's state)
+  (3) Similarly, on 3->1 transitions, if the 'primary' (finger
+slot[0]) finger is NOT the one that remains, we don't know which
+finger remains.  Tracking state must be restored with (a), (b), or (c)
+above.
+  (4) A quick finger change, can generate a 1->1 (non-)transition with
+an intervening AGM packet. In this case, the new SGM is actually
+tracking slot[1], not slot[0].  If a second finger touches, this new
+second finger will fill the now-empty slot[0], and, thus, be reported
+in the SGM.
 
-Thanks,
+This results in a lot of the special handling in the switch/cases.
+
+The resulting algorithm can accurately handle 1->2->1 transitions very
+well (including drum roll, and no matter which of the two fingers is
+being reported in the second '1' state).
+It can deal with 1->2->3 properly in the typical "adding fingers" case.
+Lastly, it also realizes when it has lost track (after 3->2 / 3->1
+transition), and handles subsequent (1->2, 2->1, 2->3) transitions
+carefully (by invalidating slots).
+
+So, I think even if we started with a simpler "always use two new
+slots" approach, once we added back the special casing, it would be
+just as much code...
+
+A simple example:
+  On 2->3, even if we always used two new slots, we still couldn't
+report them accurately, immediately, because we don't know whether the
+AGM during the transition was for the "2" state, or the "3" state.
+Instead, we'd need to do something like what I'm doing now: report
+3:[0,-1] "three fingers down, the only one I can report is that the
+one in slot[0]"
+
 -Dan
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

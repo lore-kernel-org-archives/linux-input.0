@@ -1,155 +1,46 @@
-From: Sean Young <sean@mess.org>
-Subject: [PATCH] Support force feedback on MP-8866
-Date: Sun, 14 Aug 2011 20:42:05 +0100
-Message-ID: <20110814194203.GA19083@pequod.mess.org>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 2/5] input: wacom - remove pressure for touch devices
+Date: Sun, 14 Aug 2011 22:27:00 -0500
+Message-ID: <CAGzDe_YC2afYK-Xr5JNveZC-=h9dpnysLxwQSM0i7q3tN91--g@mail.gmail.com>
+References: <1313194109-4987-1-git-send-email-pinglinux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pequod.mess.org ([188.220.58.213]:33330 "EHLO pequod.mess.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755119Ab1HNTxa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Aug 2011 15:53:30 -0400
-Content-Disposition: inline
+Received: from mail-iy0-f170.google.com ([209.85.210.170]:44965 "EHLO
+	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751469Ab1HOD1B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 14 Aug 2011 23:27:01 -0400
+Received: by iye16 with SMTP id 16so6611780iye.1
+        for <linux-input@vger.kernel.org>; Sun, 14 Aug 2011 20:27:01 -0700 (PDT)
+In-Reply-To: <1313194109-4987-1-git-send-email-pinglinux@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Support force feedback on the Dual USB Force Feedback Joypad (MP-8866).
+On Fri, Aug 12, 2011 at 7:08 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> Touch devices do not report valid pressure or capacitance.
+>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
 
-Note I do not have the Smartjoy Plus hardware to test if the driver
-still works with that. It should not be affected, though.
+I'd prefer if we kept pressure support.  At least for Bamboo's with
+product ID between 0xd0 and 0xd4.
 
-Signed-off-by: Sean Young <sean@mess.org>
----
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 6f3289a..416128a 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1494,6 +1494,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0709) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UNITEC, USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
-diff --git a/drivers/hid/hid-sjoy.c b/drivers/hid/hid-sjoy.c
-index 16f7caf..6140943 100644
---- a/drivers/hid/hid-sjoy.c
-+++ b/drivers/hid/hid-sjoy.c
-@@ -65,8 +65,7 @@ static int sjoyff_init(struct hid_device *hid)
- {
- 	struct sjoyff_device *sjoyff;
- 	struct hid_report *report;
--	struct hid_input *hidinput = list_entry(hid->inputs.next,
--						struct hid_input, list);
-+	struct hid_input *hidinput;
- 	struct list_head *report_list =
- 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct list_head *report_ptr = report_list;
-@@ -78,43 +77,45 @@ static int sjoyff_init(struct hid_device *hid)
- 		return -ENODEV;
- 	}
- 
--	report_ptr = report_ptr->next;
-+	list_for_each_entry(hidinput, &hid->inputs, list) {
-+		report_ptr = report_ptr->next;
- 
--	if (report_ptr == report_list) {
--		hid_err(hid, "required output report is missing\n");
--		return -ENODEV;
--	}
-+		if (report_ptr == report_list) {
-+			hid_err(hid, "required output report is missing\n");
-+			return -ENODEV;
-+		}
- 
--	report = list_entry(report_ptr, struct hid_report, list);
--	if (report->maxfield < 1) {
--		hid_err(hid, "no fields in the report\n");
--		return -ENODEV;
--	}
-+		report = list_entry(report_ptr, struct hid_report, list);
-+		if (report->maxfield < 1) {
-+			hid_err(hid, "no fields in the report\n");
-+			return -ENODEV;
-+		}
- 
--	if (report->field[0]->report_count < 3) {
--		hid_err(hid, "not enough values in the field\n");
--		return -ENODEV;
--	}
-+		if (report->field[0]->report_count < 3) {
-+			hid_err(hid, "not enough values in the field\n");
-+			return -ENODEV;
-+		}
- 
--	sjoyff = kzalloc(sizeof(struct sjoyff_device), GFP_KERNEL);
--	if (!sjoyff)
--		return -ENOMEM;
-+		sjoyff = kzalloc(sizeof(struct sjoyff_device), GFP_KERNEL);
-+		if (!sjoyff)
-+			return -ENOMEM;
- 
--	dev = hidinput->input;
-+		dev = hidinput->input;
- 
--	set_bit(FF_RUMBLE, dev->ffbit);
-+		set_bit(FF_RUMBLE, dev->ffbit);
- 
--	error = input_ff_create_memless(dev, sjoyff, hid_sjoyff_play);
--	if (error) {
--		kfree(sjoyff);
--		return error;
--	}
-+		error = input_ff_create_memless(dev, sjoyff, hid_sjoyff_play);
-+		if (error) {
-+			kfree(sjoyff);
-+			return error;
-+		}
- 
--	sjoyff->report = report;
--	sjoyff->report->field[0]->value[0] = 0x01;
--	sjoyff->report->field[0]->value[1] = 0x00;
--	sjoyff->report->field[0]->value[2] = 0x00;
--	usbhid_submit_report(hid, sjoyff->report, USB_DIR_OUT);
-+		sjoyff->report = report;
-+		sjoyff->report->field[0]->value[0] = 0x01;
-+		sjoyff->report->field[0]->value[1] = 0x00;
-+		sjoyff->report->field[0]->value[2] = 0x00;
-+		usbhid_submit_report(hid, sjoyff->report, USB_DIR_OUT);
-+	}
- 
- 	hid_info(hid, "Force feedback for SmartJoy PLUS PS2/USB adapter\n");
- 
-@@ -131,6 +132,8 @@ static int sjoy_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret;
- 
-+	hdev->quirks |= id->driver_data;
-+
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "parse failed\n");
-@@ -152,6 +155,9 @@ err:
- 
- static const struct hid_device_id sjoy_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD),
-+		.driver_data = HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET |
-+			       HID_QUIRK_SKIP_OUTPUT_REPORTS },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, sjoy_devices);
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 621959d..df618a3 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -79,7 +79,6 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP8060U, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH, HID_QUIRK_MULTI_INPUT },
--	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
- 	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
- 
- 	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+In my testing of an 0xd1 device, pressure works fine (low pressure and
+high pressure work great.  Not much middle pressure sensitivity.
+Multi-touch will increase pressure reading.  All pretty common
+behaviour).
+
+I don't use the pressure in day-to-day usage but do use it to drive
+testing of pressure features of some apps/drivers and so don't want to
+lose it.
+
+>From looking at the touch data on Bamboo's > 0xd4 that people have
+emailed me, it looks like pressure data was removed from firmware so a
+version of this patch will be useful for those.  But that patch needs
+to also change the way it parses the touch data to reduce from 8-bits
+to 1-bit.
+
+Chris

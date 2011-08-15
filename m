@@ -1,41 +1,56 @@
 From: jeffbrown@android.com
-Subject: [PATCH] hid-debug: Show application usage for each collection.
-Date: Mon, 15 Aug 2011 16:39:02 -0700
-Message-ID: <1313451542-79316-1-git-send-email-jeffbrown@android.com>
+Subject: [PATCH] hid-multitouch: Filter collections by application usage.
+Date: Mon, 15 Aug 2011 16:44:28 -0700
+Message-ID: <1313451868-79836-1-git-send-email-jeffbrown@android.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:59001 "EHLO
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:36553 "EHLO
 	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751101Ab1HOXjb (ORCPT
+	with ESMTP id S1751807Ab1HOXpT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Aug 2011 19:39:31 -0400
+	Mon, 15 Aug 2011 19:45:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, rydberg@euromail.se, Jeff Brown <jeffbrown@android.com>
+Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, rydberg@euromail.se, benjamin.tissoires@enac.fr, chatty@enac.fr, Jeff Brown <jeffbrown@android.com>
 
 From: Jeff Brown <jeffbrown@android.com>
 
+This change fixes two problems.
+
+First, it ensures that the hid-multitouch driver does not incorrectly
+map GenericDesktop usages that are intended for other applications,
+such as a Mouse.
+
+Second, it sets the appropriate input properties so that user-space
+can distinguish TouchScreen devices (INPUT_PROP_DIRECT) from
+TouchPad devices (INPUT_PROP_POINTER) and configure them accordingly.
+
 Signed-off-by: jeffbrown@android.com
 ---
- drivers/hid/hid-debug.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+ drivers/hid/hid-multitouch.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index bae4874..9a243ca 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -450,6 +450,11 @@ void hid_dump_field(struct hid_field *field, int n, struct seq_file *f) {
- 		seq_printf(f, "Logical(");
- 		hid_resolv_usage(field->logical, f); seq_printf(f, ")\n");
- 	}
-+	if (field->application) {
-+		tab(n, f);
-+		seq_printf(f, "Application(");
-+		hid_resolv_usage(field->application, f); seq_printf(f, ")\n");
-+	}
- 	tab(n, f); seq_printf(f, "Usage(%d)\n", field->maxusage);
- 	for (j = 0; j < field->maxusage; j++) {
- 		tab(n+2, f); hid_resolv_usage(field->usage[j].hid, f); seq_printf(f, "\n");
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 58d0e7a..4ee21ac 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -213,6 +213,16 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	struct mt_class *cls = td->mtclass;
+ 	__s32 quirks = cls->quirks;
+ 
++	/* Only map fields from TouchScreen or TouchPad collections.
++         * We need to ignore fields that belong to other collections
++         * such as Mouse that might have the same GenericDesktop usages. */
++	if (field->application == HID_DG_TOUCHSCREEN)
++		set_bit(INPUT_PROP_DIRECT, hi->input->propbit);
++	else if (field->application == HID_DG_TOUCHPAD)
++		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
++	else
++		return 0;
++
+ 	switch (usage->hid & HID_USAGE_PAGE) {
+ 
+ 	case HID_UP_GENDESK:
 -- 
 1.7.0.4
 

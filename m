@@ -1,122 +1,56 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH] input: bcm5974: Add support for newer MacBookPro8,2
-Date: Tue, 16 Aug 2011 16:43:16 +0800
-Message-ID: <4E4A2DA4.9060109@cn.fujitsu.com>
-References: <4E4A0C26.1060307@adrake.org> <4E4A1894.4070802@cn.fujitsu.com> <4E4A24CC.6000909@adrake.org> <4E4A2886.8080805@cn.fujitsu.com> <4E4A2AF3.3030400@adrake.org>
-Reply-To: gaowanlong@cn.fujitsu.com
+From: Jeremiah Matthey <sprg86@gmail.com>
+Subject: [PATCH] usbhid: Add the malfunctioning SiGma Micro chip to the list
+ of hid-quirks
+Date: Tue, 16 Aug 2011 11:05:20 +0100
+Message-ID: <20110816100520.GA13291@solar.elec.gla.ac.uk>
+References: <20110814144310.GA3303@netstar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cn.fujitsu.com ([222.73.24.84]:62867 "EHLO song.cn.fujitsu.com"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1751966Ab1HPKDY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Aug 2011 06:03:24 -0400
-In-Reply-To: <4E4A2AF3.3030400@adrake.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:57563 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751711Ab1HPKG1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Aug 2011 06:06:27 -0400
+Content-Disposition: inline
+In-Reply-To: <20110814144310.GA3303@netstar>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Drake <adrake@adrake.org>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin_Tissoires@logitech.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 08/16/2011 04:31 PM, Andrew Drake wrote:
-> On 08/16/2011 01:21 AM, Wanlong Gao wrote:
->> On 08/16/2011 04:05 PM, Andrew Drake wrote:
->>> On 08/16/2011 12:13 AM, Wanlong Gao wrote:
->>>> On 08/16/2011 02:20 PM, Andrew Drake wrote:
->>>>> I just received a new MacBook Pro, product name MacBookPro8,2. It came
->>>>> with a newer/higher resolution touchpad than others with the same
->>>>> product name with USB ID 05ac:0252. The following patch (which applies
->>>>> on top of 3.1-rc2) adds support for this device.
->>>>>
->>>>> <snip>
->>>> I wonder that why can't I apply this patch?
->>>> #git am<[path]>
->>>> Applying: input: bcm5974: Add support for newer MacBookPro8,2
->>>> fatal: corrupt patch at line 32
->>>> Patch failed at 0001 input: bcm5974: Add support for newer
->>>> MacBookPro8,2
->>>>
->>>
->>> Sorry, my mailer wrapped some of the lines. Try this:
->>>
->>>
->>> Signed-off-by: Andrew Drake<adrake@adrake.org>
->>> ---
->>> drivers/input/mouse/bcm5974.c | 20 ++++++++++++++++++++
->>> 1 files changed, 20 insertions(+), 0 deletions(-)
->>>
->>> diff --git a/drivers/input/mouse/bcm5974.c
->>> b/drivers/input/mouse/bcm5974.c
->>> index 3126983..a0a4964 100644
->>> --- a/drivers/input/mouse/bcm5974.c
->>> +++ b/drivers/input/mouse/bcm5974.c
->>> @@ -67,6 +67,10 @@
->>> #define USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI 0x0245
->>> #define USB_DEVICE_ID_APPLE_WELLSPRING5_ISO 0x0246
->>> #define USB_DEVICE_ID_APPLE_WELLSPRING5_JIS 0x0247
->>> +/* Macbook8,2 (unibody) */
->>> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI 0x0252
->>> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO 0x0253
->>> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS 0x0254
->>>
->>> #define BCM5974_DEVICE(prod) { \
->>> .match_flags = (USB_DEVICE_ID_MATCH_DEVICE | \
->>> @@ -104,6 +108,10 @@ static const struct usb_device_id bcm5974_table[]
->>> = {
->>> BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI),
->>> BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_ISO),
->>> BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_JIS),
->>> + /* MacbookPro8,2 */
->>> + BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI),
->>> + BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO),
->>> + BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS),
->>> /* Terminating entry */
->>> {}
->>> };
->>> @@ -294,6 +302,18 @@ static const struct bcm5974_config
->>> bcm5974_config_table[] = {
->>> { DIM_X, DIM_X / SN_COORD, -4415, 5050 },
->>> { DIM_Y, DIM_Y / SN_COORD, -55, 6680 }
->>> },
->>> + {
->>> + USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI,
->>> + USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO,
->>> + USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS,
->>> + HAS_INTEGRATED_BUTTON,
->>> + 0x84, sizeof(struct bt_data),
->>> + 0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
->>> + { DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
->>> + { DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
->>> + { DIM_X, DIM_X / SN_COORD, -4750, 5280 },
->>> + { DIM_Y, DIM_Y / SN_COORD, -150, 6730 }
->>> + },
->>> {}
->>> };
->>>
->> Applying: input: bcm5974: Add support for newer MacBookPro8,2
->> error: patch failed: drivers/input/mouse/bcm5974.c:67
->> error: drivers/input/mouse/bcm5974.c: patch does not apply
->> Patch failed at 0001 input: bcm5974: Add support for newer MacBookPro8,2
->>
->>
->
-> Now I'm confused. I tried applying at commit
-> b5ddbf465f3675b19c8f5528b4064cbf278a5c6f, the HEAD of linux.git at the
-> time of writing and got:
->
-> $ git am <path.eml>:
-> Applying: input: bcm5974: Add support for newer MacBookPro8,2
-> $
->
-> The email above was just git format-patch -s. Should I make a patch
-> against a different tree?
->
-Yeah, I can apply this to linus' tree, too.
-But it seems conflict on Dmitry's input tree.
-I think you can make a patch against Dmitry's tree, but I'm not sure, yet.
+Patch to add SiGma Micro-based keyboards (1c4f:0002) to hid-quirks.
 
-I CCed it to Dmitry.
+These keyboards dont seem to allow the records to be initialized, and hence a
+timeout occurs when the usbhid driver attempts to initialize them. The patch
+just adds the signature for these keyboards to the hid-quirks list with the
+setting HID_QUIRK_NO_INIT_REPORTS. This removes the 5-10 second wait for the
+timeout to occur.
 
--- 
-Thanks
-Wanlong Gao
+This is technically a resubmit, first time i posted i didnt include the right people in the destination, was just aimed at the list, so might have gone unnoticed. (First (submitted) kernel patch, I'll learn with time :))
+
+
+diff -ru linux-3.0.1-clean/drivers/hid/hid-ids.h linux-3.0.1-patched/drivers/hid/hid-ids.h
+--- linux-3.0.1-clean/drivers/hid/hid-ids.h	2011-08-05 05:59:21.000000000 +0100
++++ linux-3.0.1-patched/drivers/hid/hid-ids.h	2011-08-14 15:25:58.129865922 +0100
+@@ -568,6 +568,9 @@
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+ #define USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE	0x0600
+ 
++#define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
++#define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
++
+ #define USB_VENDOR_ID_SKYCABLE			0x1223
+ #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
+ 
+diff -ru linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c
+--- linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c	2011-08-05 05:59:21.000000000 +0100
++++ linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c	2011-08-14 15:26:06.289865845 +0100
+@@ -89,6 +89,7 @@
+ 
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ 0, 0 }
+ };
+ 

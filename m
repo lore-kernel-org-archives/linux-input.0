@@ -1,108 +1,77 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH] Input: elantech - correct x, y value range for v2 hardware
-Date: Tue, 16 Aug 2011 19:11:09 +0800
-Message-ID: <87hb5hligi.fsf@emc.com.tw>
-References: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw>
+From: Paul Parsons <lost.distance@yahoo.com>
+Subject: Re: [PATCH v2 2/2] pxa/hx4700: Add Synaptics NavPoint (PXA27x SSP/SPI) driver
+Date: Tue, 16 Aug 2011 12:54:45 +0100 (BST)
+Message-ID: <1313495685.73634.YahooMailClassic@web29005.mail.ird.yahoo.com>
+References: <4E4A22B2.2080402@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:19534 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751379Ab1HPLI7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Aug 2011 07:08:59 -0400
-In-Reply-To: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw>
+Received: from nm14-vm1.bullet.mail.ird.yahoo.com ([77.238.189.91]:26110 "HELO
+	nm14-vm1.bullet.mail.ird.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752414Ab1HPLyr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Aug 2011 07:54:47 -0400
+In-Reply-To: <4E4A22B2.2080402@compulab.co.il>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>
+To: Igor Grinberg <grinberg@compulab.co.il>
+Cc: linux-arm-kernel@lists.infradead.org, koen@dominion.thruhere.net, eric.y.miao@gmail.com, philipp.zabel@gmail.com, mad_soft@inbox.ru, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+> > MFP_CFG_OUT(GPIO102, ...) had already moved from the
+> patch v1 platform file to patch v2 mfp-pxa27x.h because it
+> was suggested that MFP macros should not be used directly.
+> > Changing the direction in the platform file would
+> surely require using the MFP macros again, so how to keep
+> everyone happy? Maybe I should just define a more generic
+> name such as GPIO102_GPIO_OUT?
+> 
+> No, you will not need to use the MFP macros, just
+> gpio_direction_*() calls.
+> Eric has already answered this and I agree with him.
+> Use the MFP to configure the alternate function and other
+> MFP related stuff
+> and use the gpio_direction_*() calls later to set the
+> direction of the GPIO.
 
-What do you think about this patch?
-This is really a simple correction, I am wondering if it's OK to push
-this to 3.1?
+OK, will do.
 
-On Mon, 15 Aug 2011 11:51:35 +0800, JJ Ding <jj_ding@emc.com.tw> wrote:
-> x, y values are actually 12-bit long. Also update protocol document to reflect
-> the change.
+> > Because the underlying hardware is a touchpad
+> controller and most of the touchpad drivers live in the
+> mouse directory. I could have added a mouse interface to
+> this driver but chose not to (at least for now) because the
+> hx4700 platform already has a working touchscreen
+> controller; a second mouse device was not needed. If future
+> platforms require a mouse interface then one could be added
+> relatively easily; surely this would be preferable to
+> replicating the whole driver.
 > 
-> Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
-> ---
-> Hello List,
+> So the device is a full touchpad? and can be used for mouse
+> pointer?
+
+Yes, that's correct.
+
+> Is the same device used as mouse pointer by some other
+> driver?
+
+Not as far as I can see. The word "NavPoint" appears only once in the current kernel source: within the hx4700 platform file. It's possible that other PDA models of similar 2004 vintage used the device, but I don't know whether any of them are supported in the kernel.
+
+> > The suspend and resume functions check that the gpio
+> is valid (which is taken to be non-zero) before using it.
+> The platform file has already configured the gpio for
+> output; it's the GPIO102 discussed earlier.
 > 
-> We are working on adding support for newer elantech touchpad, which we will
-> submit shortly. Along the way I found this error in current code.
-> This is a simple patch to correct x, y value ranges in v2 hardware.
-> Please review, thank you.
-> 
->  Documentation/input/elantech.txt |    8 ++++----
->  drivers/input/mouse/elantech.c   |    8 ++++----
->  2 files changed, 8 insertions(+), 8 deletions(-)
-> 
-> diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.txt
-> index db798af..bce9941 100644
-> --- a/Documentation/input/elantech.txt
-> +++ b/Documentation/input/elantech.txt
-> @@ -389,14 +389,14 @@ byte 0:
->  byte 1:
->  
->     bit   7   6   5   4   3   2   1   0
-> -	 p7  p6  p5  p4  .  x10 x9  x8
-> +	 p7  p6  p5  p4 x11 x10 x9  x8
->  
->  byte 2:
->  
->     bit   7   6   5   4   3   2   1   0
->  	 x7  x6  x5  x4  x3  x2  x1  x0
->  
-> -         x10..x0 = absolute x value (horizontal)
-> +         x11..x0 = absolute x value (horizontal)
->  
->  byte 3:
->  
-> @@ -420,7 +420,7 @@ byte 3:
->  byte 4:
->  
->     bit   7   6   5   4   3   2   1   0
-> -        p3  p1  p2  p0   .   .  y9  y8
-> +        p3  p1  p2  p0  y11 y10 y9  y8
->  
->  	 p7..p0 = pressure (not EF113)
->  
-> @@ -429,7 +429,7 @@ byte 5:
->     bit   7   6   5   4   3   2   1   0
->          y7  y6  y5  y4  y3  y2  y1  y0
->  
-> -         y9..y0 = absolute y value (vertical)
-> +         y11..y0 = absolute y value (vertical)
->  
->  
->  4.2.2 Two finger touch
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 3250356..da161da 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -290,15 +290,15 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
->  		/* pass through... */
->  	case 1:
->  		/*
-> -		 * byte 1:  .   .   .   .   .  x10 x9  x8
-> +		 * byte 1:  .   .   .   .  x11 x10 x9  x8
->  		 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
->  		 */
-> -		x1 = ((packet[1] & 0x07) << 8) | packet[2];
-> +		x1 = ((packet[1] & 0x0f) << 8) | packet[2];
->  		/*
-> -		 * byte 4:  .   .   .   .   .   .  y9  y8
-> +		 * byte 4:  .   .   .   .  y11 y10 y9  y8
->  		 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
->  		 */
-> -		y1 = ETP_YMAX_V2 - (((packet[4] & 0x03) << 8) | packet[5]);
-> +		y1 = ETP_YMAX_V2 - (((packet[4] & 0x0f) << 8) | packet[5]);
->  
->  		input_report_abs(dev, ABS_X, x1);
->  		input_report_abs(dev, ABS_Y, y1);
-> -- 
-> 1.7.4.1
-> 
+> What I'm suggesting here is check that the gpio is valid
+> here and only once
+> and not in the suspend/resume functions. That gpio is not
+> going to change,
+> so there is no point is checking it each time in
+> suspend/resume.
+> Also the check for non-zero is not correct. 0 is a valid
+> gpio number on most platforms.
+> You need to use the gpio_is_valid() call for this.
+
+I understand. My feeling was that other platforms wanting to use this driver would not necessarily use a gpio for power on/off; indeed the gpio field was originally a callback to provide full flexibility. Hence suspend / resume needed to use the gpio conditionally anyway. Nevertheless I'm happy to make the change and leave it for future platform developers to revisit suspend / resume as necessary.
+
+Regards,
+Paul

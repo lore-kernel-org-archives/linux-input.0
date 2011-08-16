@@ -1,89 +1,133 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH] input: bcm5974: Add support for newer MacBookPro8,2
-Date: Tue, 16 Aug 2011 15:13:24 +0800
-Message-ID: <4E4A1894.4070802@cn.fujitsu.com>
-References: <4E4A0C26.1060307@adrake.org>
-Reply-To: gaowanlong@cn.fujitsu.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] Input: atmel_mxt_ts - Report pressure information
+ from the driver
+Date: Tue, 16 Aug 2011 00:20:41 -0700
+Message-ID: <20110816072041.GA20084@core.coreip.homeip.net>
+References: <1313420550-5885-1-git-send-email-miletus@chromium.org>
+ <20110816052738.GA25878@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cn.fujitsu.com ([222.73.24.84]:56727 "EHLO song.cn.fujitsu.com"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1751198Ab1HPHOc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Aug 2011 03:14:32 -0400
-In-Reply-To: <4E4A0C26.1060307@adrake.org>
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:61006 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751043Ab1HPHUs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Aug 2011 03:20:48 -0400
+Content-Disposition: inline
+In-Reply-To: <20110816052738.GA25878@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Drake <adrake@adrake.org>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, Iiro Valkonen <iiro.valkonen@atmel.com>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-kernel@vger.kernel.org, Michael Gong <Michael.Gong@atmel.com>, Alan Bowens <Alan.Bowens@atmel.com>
 
-On 08/16/2011 02:20 PM, Andrew Drake wrote:
-> I just received a new MacBook Pro, product name MacBookPro8,2. It came
-> with a newer/higher resolution touchpad than others with the same
-> product name with USB ID 05ac:0252. The following patch (which applies
-> on top of 3.1-rc2) adds support for this device.
->
-> Signed-off-by: Andrew Drake<adrake@adrake.org>
-> ---
->   drivers/input/mouse/bcm5974.c |   20 ++++++++++++++++++++
->   1 files changed, 20 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-> index 3126983..a0a4964 100644
-> --- a/drivers/input/mouse/bcm5974.c
-> +++ b/drivers/input/mouse/bcm5974.c
-> @@ -67,6 +67,10 @@
->   #define USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI	0x0245
->   #define USB_DEVICE_ID_APPLE_WELLSPRING5_ISO	0x0246
->   #define USB_DEVICE_ID_APPLE_WELLSPRING5_JIS	0x0247
-> +/* Macbook8,2 (unibody) */
-> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI	0x0252
-> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO	0x0253
-> +#define USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS	0x0254
->
->   #define BCM5974_DEVICE(prod) {					\
->   	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
-> @@ -104,6 +108,10 @@ static const struct usb_device_id bcm5974_table[] = {
->   	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI),
->   	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_ISO),
->   	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5_JIS),
-> +	/* MacbookPro8,2 */
-> +	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI),
-> +	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO),
-> +	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS),
->   	/* Terminating entry */
->   	{}
->   };
-> @@ -294,6 +302,18 @@ static const struct bcm5974_config
-> bcm5974_config_table[] = {
->   		{ DIM_X, DIM_X / SN_COORD, -4415, 5050 },
->   		{ DIM_Y, DIM_Y / SN_COORD, -55, 6680 }
->   	},
-> +	{
-> +		USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI,
-> +		USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO,
-> +		USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS,
-> +		HAS_INTEGRATED_BUTTON,
-> +		0x84, sizeof(struct bt_data),
-> +		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-> +		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
-> +		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
-> +		{ DIM_X, DIM_X / SN_COORD, -4750, 5280 },
-> +		{ DIM_Y, DIM_Y / SN_COORD, -150, 6730 }
-> +	},
->   	{}
->   };
->
->
->
-> --
-I wonder that why can't I apply this patch?
-#git am <[path]>
-Applying: input: bcm5974: Add support for newer MacBookPro8,2
-fatal: corrupt patch at line 32
-Patch failed at 0001 input: bcm5974: Add support for newer MacBookPro8,2
+On Tue, Aug 16, 2011 at 07:27:38AM +0200, Henrik Rydberg wrote:
+> On Mon, Aug 15, 2011 at 11:02:30AM -0400, Yufeng Shen wrote:
+> > Atmel mxt1386 touch controller has the touch pressure information but
+> > the current driver atmel_mxt_ts does not expose it to the user space.
+> > This patch makes the driver report the touch pressure information to
+> > user space.
+> > 
+> > ChangeLog:
+> > v2: fixed indentation as commented by Wanlong Gao
+> > v3: added signed-off-by
+> > 
+
+I think we should be reporting pressure for ST emulation as well. Does
+the following version still work for you?
+
+Thanks.
 
 -- 
-Thanks
-Wanlong Gao
+Dmitry
+
+Input: atmel_mxt_ts - report pressure information from the driver
+
+From: Yufeng Shen <miletus@chromium.org>
+
+Atmel mxt1386 touch controller has the touch pressure information so
+let's report it to the user space.
+
+[dtor@mail.ru: added ABS_RESSURE reporting for ST emulation.]
+
+Signed-off-by: Yufeng Shen <miletus@chromium.org>
+Acked-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Acked-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/touchscreen/atmel_mxt_ts.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index c4f6b81..5bc2065 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -245,6 +245,7 @@ struct mxt_finger {
+ 	int x;
+ 	int y;
+ 	int area;
++	int pressure;
+ };
+ 
+ /* Each client has this additional data */
+@@ -537,6 +538,8 @@ static void mxt_input_report(struct mxt_data *data, int single_id)
+ 					finger[id].x);
+ 			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+ 					finger[id].y);
++			input_report_abs(input_dev, ABS_MT_PRESSURE,
++					finger[id].pressure);
+ 		} else {
+ 			finger[id].status = 0;
+ 		}
+@@ -547,6 +550,8 @@ static void mxt_input_report(struct mxt_data *data, int single_id)
+ 	if (status != MXT_RELEASE) {
+ 		input_report_abs(input_dev, ABS_X, finger[single_id].x);
+ 		input_report_abs(input_dev, ABS_Y, finger[single_id].y);
++		input_report_abs(input_dev,
++				 ABS_PRESSURE, finger[single_id].pressure);
+ 	}
+ 
+ 	input_sync(input_dev);
+@@ -561,6 +566,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	int x;
+ 	int y;
+ 	int area;
++	int pressure;
+ 
+ 	/* Check the touch is present on the screen */
+ 	if (!(status & MXT_DETECT)) {
+@@ -585,6 +591,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		y = y >> 2;
+ 
+ 	area = message->message[4];
++	pressure = message->message[5];
+ 
+ 	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
+ 		status & MXT_MOVE ? "moved" : "pressed",
+@@ -595,6 +602,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	finger[id].x = x;
+ 	finger[id].y = y;
+ 	finger[id].area = area;
++	finger[id].pressure = pressure;
+ 
+ 	mxt_input_report(data, id);
+ }
+@@ -1130,6 +1138,8 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 			     0, data->max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_Y,
+ 			     0, data->max_y, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE,
++			     0, 255, 0, 0);
+ 
+ 	/* For multi touch */
+ 	input_mt_init_slots(input_dev, MXT_MAX_FINGER);
+@@ -1139,6 +1149,8 @@ static int __devinit mxt_probe(struct i2c_client *client,
+ 			     0, data->max_x, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 			     0, data->max_y, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_PRESSURE,
++			     0, 255, 0, 0);
+ 
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);

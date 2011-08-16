@@ -1,77 +1,108 @@
-From: Andrew Drake <adrake@adrake.org>
-Subject: [PATCH v2] Input: bcm5974: Add support for newer MacBookPro8,2
-Date: Tue, 16 Aug 2011 03:23:52 -0700
-Message-ID: <4E4A4538.4050608@adrake.org>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH] Input: elantech - correct x, y value range for v2 hardware
+Date: Tue, 16 Aug 2011 19:11:09 +0800
+Message-ID: <87hb5hligi.fsf@emc.com.tw>
+References: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch1ehsobe005.messaging.microsoft.com ([216.32.181.185]:59715
-	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751624Ab1HPKX7 (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:19534 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751379Ab1HPLI7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Aug 2011 06:23:59 -0400
+	Tue, 16 Aug 2011 07:08:59 -0400
+In-Reply-To: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: rydberg@euromail.se, Dmitry Torokhov <dmitry.torokhov@gmail.com>, gaowanlong@cn.fujitsu.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>
 
-New MacBook Pro devices reporting product name MacBookPro8,2 come with
-newer/higher resolution touchpads than others with the same product
-name with USB ID 05ac:0252. This patch adds support for these devices.
+Hi Dmitry,
 
-Signed-off-by: Andrew Drake <adrake@adrake.org>
-Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
----
- drivers/input/mouse/bcm5974.c |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
+What do you think about this patch?
+This is really a simple correction, I am wondering if it's OK to push
+this to 3.1?
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 48d9ec1..da28018 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -71,6 +71,10 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI	0x024c
- #define USB_DEVICE_ID_APPLE_WELLSPRING6_ISO	0x024d
- #define USB_DEVICE_ID_APPLE_WELLSPRING6_JIS	0x024e
-+/* Macbook8,2 (unibody) */
-+#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI	0x0252
-+#define USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO	0x0253
-+#define USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS	0x0254
- 
- #define BCM5974_DEVICE(prod) {					\
- 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
-@@ -112,6 +116,10 @@ static const struct usb_device_id bcm5974_table[] = {
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING6_ISO),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING6_JIS),
-+	/* MacbookPro8,2 */
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS),
- 	/* Terminating entry */
- 	{}
- };
-@@ -314,6 +322,18 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		{ DIM_X, DIM_X / SN_COORD, -4620, 5140 },
- 		{ DIM_Y, DIM_Y / SN_COORD, -150, 6600 }
- 	},
-+	{
-+		USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI,
-+		USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO,
-+		USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS,
-+		HAS_INTEGRATED_BUTTON,
-+		0x84, sizeof(struct bt_data),
-+		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
-+		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
-+		{ DIM_X, DIM_X / SN_COORD, -4750, 5280 },
-+		{ DIM_Y, DIM_Y / SN_COORD, -150, 6730 }
-+	},
- 	{}
- };
- 
--- 
-1.7.6
-
-
+On Mon, 15 Aug 2011 11:51:35 +0800, JJ Ding <jj_ding@emc.com.tw> wrote:
+> x, y values are actually 12-bit long. Also update protocol document to reflect
+> the change.
+> 
+> Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+> ---
+> Hello List,
+> 
+> We are working on adding support for newer elantech touchpad, which we will
+> submit shortly. Along the way I found this error in current code.
+> This is a simple patch to correct x, y value ranges in v2 hardware.
+> Please review, thank you.
+> 
+>  Documentation/input/elantech.txt |    8 ++++----
+>  drivers/input/mouse/elantech.c   |    8 ++++----
+>  2 files changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.txt
+> index db798af..bce9941 100644
+> --- a/Documentation/input/elantech.txt
+> +++ b/Documentation/input/elantech.txt
+> @@ -389,14 +389,14 @@ byte 0:
+>  byte 1:
+>  
+>     bit   7   6   5   4   3   2   1   0
+> -	 p7  p6  p5  p4  .  x10 x9  x8
+> +	 p7  p6  p5  p4 x11 x10 x9  x8
+>  
+>  byte 2:
+>  
+>     bit   7   6   5   4   3   2   1   0
+>  	 x7  x6  x5  x4  x3  x2  x1  x0
+>  
+> -         x10..x0 = absolute x value (horizontal)
+> +         x11..x0 = absolute x value (horizontal)
+>  
+>  byte 3:
+>  
+> @@ -420,7 +420,7 @@ byte 3:
+>  byte 4:
+>  
+>     bit   7   6   5   4   3   2   1   0
+> -        p3  p1  p2  p0   .   .  y9  y8
+> +        p3  p1  p2  p0  y11 y10 y9  y8
+>  
+>  	 p7..p0 = pressure (not EF113)
+>  
+> @@ -429,7 +429,7 @@ byte 5:
+>     bit   7   6   5   4   3   2   1   0
+>          y7  y6  y5  y4  y3  y2  y1  y0
+>  
+> -         y9..y0 = absolute y value (vertical)
+> +         y11..y0 = absolute y value (vertical)
+>  
+>  
+>  4.2.2 Two finger touch
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index 3250356..da161da 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -290,15 +290,15 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
+>  		/* pass through... */
+>  	case 1:
+>  		/*
+> -		 * byte 1:  .   .   .   .   .  x10 x9  x8
+> +		 * byte 1:  .   .   .   .  x11 x10 x9  x8
+>  		 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
+>  		 */
+> -		x1 = ((packet[1] & 0x07) << 8) | packet[2];
+> +		x1 = ((packet[1] & 0x0f) << 8) | packet[2];
+>  		/*
+> -		 * byte 4:  .   .   .   .   .   .  y9  y8
+> +		 * byte 4:  .   .   .   .  y11 y10 y9  y8
+>  		 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
+>  		 */
+> -		y1 = ETP_YMAX_V2 - (((packet[4] & 0x03) << 8) | packet[5]);
+> +		y1 = ETP_YMAX_V2 - (((packet[4] & 0x0f) << 8) | packet[5]);
+>  
+>  		input_report_abs(dev, ABS_X, x1);
+>  		input_report_abs(dev, ABS_Y, y1);
+> -- 
+> 1.7.4.1
+> 

@@ -1,82 +1,39 @@
-From: Chase Douglas <chasedouglas@gmail.com>
-Subject: Re: Magic trackpad issues on 3.0
-Date: Tue, 16 Aug 2011 11:48:30 -0700
-Message-ID: <4E4ABB7E.8020505@gmail.com>
-References: <CACMz=xjmL=voNMk4usxT+Y6z1D_nncvJ34Y_w1PuqBNAE-4phg@mail.gmail.com>	<CAOU-OAJW7F58n5OHydhXzfgUxt1jeBKyEPcg6DOyiFNMHJjQGQ@mail.gmail.com>	<CACMz=xjei1aDWBLYtd7OwtUrsMTNkbJhdXQgLO=wxe0OoRchcA@mail.gmail.com> <CAOU-OA+c4SVrsfjNQo+3yC3KV3ite8oyV5JWZ+Bii1H-X8-fEA@mail.gmail.com>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH] Input: elantech - correct x, y value range for v2 hardware
+Date: Tue, 16 Aug 2011 23:50:47 +0200
+Message-ID: <4E4AE637.1090000@tudelft.nl>
+References: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw> <87hb5hligi.fsf@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:54127 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753129Ab1HPSsg (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:41107 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753145Ab1HPVuw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Aug 2011 14:48:36 -0400
-Received: by vxi9 with SMTP id 9so188591vxi.19
-        for <linux-input@vger.kernel.org>; Tue, 16 Aug 2011 11:48:36 -0700 (PDT)
-In-Reply-To: <CAOU-OA+c4SVrsfjNQo+3yC3KV3ite8oyV5JWZ+Bii1H-X8-fEA@mail.gmail.com>
+	Tue, 16 Aug 2011 17:50:52 -0400
+In-Reply-To: <87hb5hligi.fsf@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Jaikumar Ganesh <jaikumarg@gmail.com>, linux-input@vger.kernel.org, jkosina@suse.cz
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>
 
-On 08/15/2011 08:45 PM, Michael Poole wrote:
-> On Mon, Aug 15, 2011 at 10:40 PM, Jaikumar Ganesh wrote:
->> Hi Michael:
->>
->> On Mon, Aug 15, 2011 at 7:03 PM, Michael Poole <mdpoole@troilus.org> wrote:
->>> On Mon, Aug 15, 2011 at 4:18 PM, Jaikumar Ganesh wrote:
->>>> Folks,
->>>>   This is with regard to the issue:
->>>>
->>>> http://www.spinics.net/lists/linux-input/msg15334.html
->>>>
->>>> As mentioned in that thread we were ignoring the EIO return value earlier.
->>>>
->>>> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=c3a4924565e2eecf2539871abd123d35be6d76d5
->>>>
->>>> reverted the commit back, because
->>>>
->>>> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=7f4f0572df6c8eaa6a587bc212b0806ff37380dd
->>>> fixed the issue with the Bluetooth stack with 1.1 Bluetooth devices.
->>>>
->>>> However, I am seeing the same problem with an Apple Trackpad which is
->>>> 2.0 Bluetooth device. It worked fine before because we were ignoring
->>>> the EIO.
->>>>
->>>> The Error code is the same as mentioned in the thread above: Invalid
->>>> Report ID while calling the Set Feature Report call.
->>>>
->>>> So to the driver authors:
->>>>
->>>> In magicmouse_probe function, the report id is set to d7. __u8
->>>> feature[] = { 0xd7, 0x01 };
->>>>
->>>> Is it guaranteed that all Apple devices will have 0xd7 as the report
->>>> Id. Why are we not reading the report ID from the report descriptor
->>>> since its an optional feature ?
->>>
->>> The report descriptor does not include that feature report.  There are
->>> a number of commands for Apple's Magic Mouse and Magic Trackpad that
->>> are not listed in the standard HID descriptor.
->>
->> Has Apple documented this anywhere ? Will every Apple trackpad support it ?
->> Should we continue to have some fail-safe like the EIO fix ?
-> 
-> Hi Jaikumar,
-> 
-> I do not believe Apple has documented the protocol anywhere, or makes
-> any guarantee of compatibility in future devices -- although forward
-> compatibility makes sense in terms of the installed base of drivers,
-> and I suspect any devices that use a different protocol would get
-> different device IDs.
-> 
-> I think the EIO fix should stay.
+On 16-08-11 13:11, JJ Ding wrote:
+> Hi Dmitry,
+>
+> What do you think about this patch?
+> This is really a simple correction, I am wondering if it's OK to push
+> this to 3.1?
+Hi JJ Ding,
+The merge window of 3.1 is already closed, so only patches which fix=20
+bugs are accepted. Is there any hardware already available for which=20
+this patch solves a bug? That would be a great incentive to push it :-)
 
-I just started to notice this issue last week. The Ubuntu 3.0.0-7 kernel
-(the -# part is an ubuntu suffix) seems to work fine, but 3.0.0-8 does
-not. I would guess a -stable patch is causing a regression, but the diff
-stat from 3.0 to 3.0.1 doesn't show anything related to input, hid, or
-bluetooth.
+=C9ric
 
--- Chase
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

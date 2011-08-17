@@ -1,65 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/5] input: wacom - remove pressure for touch devices
-Date: Tue, 16 Aug 2011 23:50:40 -0700
-Message-ID: <20110817065040.GC29361@core.coreip.homeip.net>
-References: <1313194109-4987-1-git-send-email-pinglinux@gmail.com>
- <CAGzDe_YC2afYK-Xr5JNveZC-=h9dpnysLxwQSM0i7q3tN91--g@mail.gmail.com>
- <CAF8JNh+90K2Qfpzu9Rwt_cdvqxTxaF8iJJ2-=nmWY8qLL6Wmzg@mail.gmail.com>
+Subject: Re: [PATCH 5/5] input: wacom - retrieve maximum number of contacts
+Date: Tue, 16 Aug 2011 23:52:04 -0700
+Message-ID: <20110817065204.GD29361@core.coreip.homeip.net>
+References: <1313194205-5098-1-git-send-email-pinglinux@gmail.com>
+ <CAGzDe_Zih_GWOPYmS74S68JNc-RkQ_-zg3+DY1+2zUmr6=Ocow@mail.gmail.com>
+ <CAF8JNhLOQo_HdrXrjbDJqx_M6Mcb0puXJ80vNPaQeY1kOr-UNA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f170.google.com ([209.85.210.170]:50924 "EHLO
+Received: from mail-iy0-f170.google.com ([209.85.210.170]:40734 "EHLO
 	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751306Ab1HQGuq (ORCPT
+	with ESMTP id S1750813Ab1HQGwK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 02:50:46 -0400
-Received: by iye16 with SMTP id 16so1326677iye.1
-        for <linux-input@vger.kernel.org>; Tue, 16 Aug 2011 23:50:46 -0700 (PDT)
+	Wed, 17 Aug 2011 02:52:10 -0400
+Received: by iye16 with SMTP id 16so1328541iye.1
+        for <linux-input@vger.kernel.org>; Tue, 16 Aug 2011 23:52:10 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAF8JNh+90K2Qfpzu9Rwt_cdvqxTxaF8iJJ2-=nmWY8qLL6Wmzg@mail.gmail.com>
+In-Reply-To: <CAF8JNhLOQo_HdrXrjbDJqx_M6Mcb0puXJ80vNPaQeY1kOr-UNA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ping Cheng <pinglinux@gmail.com>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org
 
-On Mon, Aug 15, 2011 at 09:34:23PM -0700, Ping Cheng wrote:
-> On Sun, Aug 14, 2011 at 8:27 PM, Chris Bagwell <chris@cnpbagwell.com> wrote:
+On Mon, Aug 15, 2011 at 09:12:16PM -0700, Ping Cheng wrote:
+> On Sun, Aug 14, 2011 at 8:37 PM, Chris Bagwell <chris@cnpbagwell.com> wrote:
 > 
-> > On Fri, Aug 12, 2011 at 7:08 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> > > Touch devices do not report valid pressure or capacitance.
-> > >
-> > > Signed-off-by: Ping Cheng <pingc@wacom.com>
-> > > ---
+> > On Fri, Aug 12, 2011 at 7:10 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> > > Retrieve it from the HID descriptor when it is available
 > >
-> > I'd prefer if we kept pressure support.  At least for Bamboo's with
-> > product ID between 0xd0 and 0xd4.
-> >
-> > In my testing of an 0xd1 device, pressure works fine (low pressure and
-> > high pressure work great.  Not much middle pressure sensitivity.
-> > Multi-touch will increase pressure reading.  All pretty common
-> > behaviour).
+> > Were you going to use touch_max for something (since its not referenced)?
 > >
 > 
-> Basically, there were three reasons to remove the pressure bit for all touch
-> devices:
-> 
-> 1.   The value is not a pressure and it does not report valid capacitance
-> either;
-> 2.   The only valid use in the kernel driver is to decide if the finger is
-> touching the tablet or not, which has already been correctly reported by the
-> firmware in the other bits. So, it is redundant to check the pressure for
-> this purpose;
-> 3.   Passing the invalid "pressure" to the user land would only introduce
-> bad user experience since touch is not designed for drawing. We don't want
-> to confuse user with that "pressure".
+> This set of patches is only a clean-up and preparation for the coming set of
+> patches. The value will be used then.
 
-Not speaking about touch per se, but pressure is important for other
-things besides drawing. Different people prefer different device
-sensitivity and if userspace knows pressure it can adjust according to
-user preference, like synaptics X driver does with touchpads that
-actually report it. I believe tslib allows similar for touchscreens.
-
-Thanks.
+OK, then I think it is best to submit this one with that set. I applied
+the other 3 patches, but not the 'pressure' one.
 
 -- 
 Dmitry

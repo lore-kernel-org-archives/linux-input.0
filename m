@@ -1,52 +1,80 @@
-From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
-Subject: Re: [PATCH] Input: elantech - correct x, y value range for v2 hardware
-Date: Wed, 17 Aug 2011 11:53:55 +0200
-Message-ID: <4E4B8FB3.9090100@tudelft.nl>
-References: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw> <87hb5hligi.fsf@emc.com.tw> <4E4AE637.1090000@tudelft.nl> <87aab86d3v.fsf@emc.com.tw> <20110817064336.GA29361@core.coreip.homeip.net>
+From: Brian Foster <brian.foster@maxim-ic.com>
+Subject: [Q] max11801 licensing terms
+Date: Wed, 17 Aug 2011 14:31:26 +0200
+Message-ID: <201108171431.26470.brian.foster@maxim-ic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:35506 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751620Ab1HQJx7 (ORCPT
+Received: from antispam01.maxim-ic.com ([205.153.101.182]:35242 "EHLO
+	antispam01.maxim-ic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752582Ab1HQMuB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 05:53:59 -0400
-In-Reply-To: <20110817064336.GA29361@core.coreip.homeip.net>
+	Wed, 17 Aug 2011 08:50:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: JJ Ding <jj_ding@emc.com.tw>, linux-input@vger.kernel.org, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>
+To: Zhang Jiejing <jiejing.zhang@freescale.com>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Jean-Marc Simohand <JeanMarc.Simohand@maxim-ic.com>
 
-Op 17-08-11 08:43, Dmitry Torokhov schreef:
-> Hi JJ,
->
->> As far as I know, this doesn't fix a bug. I just want to make sure t=
-he
->> driver and what the firmware sends are consistent.
->
-> As =C9ric mentioned, simply extending range to 12 bits is dangerous
-> because we might cause overflows. Blindly increasing ETP_YMAX_V2 is n=
-ot
-> a good idea either as userspace would expect much larger device and
-> reports would only cover fraction of its surface. We need to separate
-> ETP_YMAX_V2 as absolute maximum from reported coordinates range, like=
- it
-> is done in synaptics driver.
-Hi Dmitry,
-Concerning this point, I was wondering if it'd be ok to only send=20
-negative values? Such as min/max are between -768 and 0. So that, if th=
-e=20
-hardware actually has a bigger resolution, it can go down to -4095=20
-without any overflow? It sounds the simplest way to report the=20
-coordinate for a device which has an opposite axis. Or is it safer to=20
-stay in the positive numbers, with min/max between 3328 and 4095, and i=
-n=20
-case of bigger resolution the values go down to 0?
+Zhang Jiejing,
 
-Cheers,
-=C9ric
+ In =E2=80=9C[PATCH V2] input: add maxim max11801 resistance touchscree=
+n
+ controller driver=E2=80=9D (commit 4203306506ebe4eaaa84a2cbd7c1eb2fc01=
+28faa),
+
+    http://www.spinics.net/lists/linux-input/msg14881.html
+
+ there is a licensing statement my colleagues and I
+ do not understand:
+
+     * Based on mcs5000_ts.c
+     *
+     * This program is free software; you can redistribute it and/or mo=
+dify
+     * it under the terms of the GNU General Public License as publishe=
+d by
+     * the Free Software Foundation; either version 2 of the License.
+   ...
+    MODULE_LICENSE("GPL");
+
+ What does =E2=80=9Ceither version 2 of the License.=E2=80=9D mean?
+ Either GPLv2 or what?
+ The "GPL" MODULE_LICENSE implies what is meant is
+ either GPLv2 or a later GPL version; please see
+ =E2=80=98include/linux/module.h=E2=80=99:
+
+     * The following license idents are currently accepted as indicatin=
+g free
+     * software modules
+     *
+     *      "GPL"                           [GNU Public License v2 or l=
+ater]
+     *      "GPL v2"                        [GNU Public License v2]
+
+ The original statement in =E2=80=98mcs5000_ts.c=E2=80=99 (from Joonyou=
+ng Shim,
+ whom I've CC-ed) is the usual (reformatted to avoid long lines):
+
+     * This program is free software; you can redistribute it and/or mo=
+dify
+     * it under the terms of the GNU General Public License as publishe=
+d by
+     * the Free Software Foundation; either version 2 of the License, o=
+r (at
+     * your option) any later version.
+
+ Could you please clarify exactly what =E2=80=98max11801_ts.c=E2=80=99 =
+licensing
+ terms are?  Thanks!
+
+cheers,
+        -blf-
+--=20
+Brian FOSTER
+Principal MTS, Software
+Maxim Integrated Products (Microcontroller BU), formerly Innova Card
+Web    : http://www.maxim-ic.com/
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

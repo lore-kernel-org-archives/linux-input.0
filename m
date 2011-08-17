@@ -1,55 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Q] max11801 licensing terms
-Date: Wed, 17 Aug 2011 10:45:10 -0700
-Message-ID: <20110817174510.GF4877@core.coreip.homeip.net>
-References: <201108171431.26470.brian.foster@maxim-ic.com>
- <CACrgxGB0RaxhbPfU34L3b-1vPEDYf5M7Z8q2HKoKEQ8YcuFCsw@mail.gmail.com>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH] Input: elantech - Add v3 hardware support
+Date: Wed, 17 Aug 2011 13:35:44 -0500
+Message-ID: <20110817183544.GB31314@thinkpad-t410>
+References: <1313589793-31184-1-git-send-email-seth.forshee@canonical.com>
+ <20110817173111.GD4877@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f170.google.com ([209.85.210.170]:34900 "EHLO
-	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751150Ab1HQRpQ (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:54338 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751489Ab1HQSft (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 13:45:16 -0400
-Received: by iye16 with SMTP id 16so2296425iye.1
-        for <linux-input@vger.kernel.org>; Wed, 17 Aug 2011 10:45:16 -0700 (PDT)
+	Wed, 17 Aug 2011 14:35:49 -0400
 Content-Disposition: inline
-In-Reply-To: <CACrgxGB0RaxhbPfU34L3b-1vPEDYf5M7Z8q2HKoKEQ8YcuFCsw@mail.gmail.com>
+In-Reply-To: <20110817173111.GD4877@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Jiejing.Zhang " <kzjeef@gmail.com>
-Cc: Brian Foster <brian.foster@maxim-ic.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Jean-Marc Simohand <JeanMarc.Simohand@maxim-ic.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alessandro Rubini <rubini@cvml.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, JJ Ding <jj_ding@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>
 
-On Wed, Aug 17, 2011 at 09:24:32PM +0800, Jiejing.Zhang  wrote:
-> Hi Brian Foster,
->=20
-> >     * Based on mcs5000_ts.c
-> I have referenced mcs5000_ts.c source code when writing this driver,
-> but I don't think it's a big deal, I really reference lots of files.
->=20
-> > =C2=A0What does =E2=80=9Ceither version 2 of the License.=E2=80=9D =
-mean?
-> > =C2=A0Either GPLv2 or what?
->=20
-> Yes, I think it means GPLv2, I'm not really not very care about these
-> license, just copy other files under driver/input/ directory.
+On Wed, Aug 17, 2011 at 10:31:11AM -0700, Dmitry Torokhov wrote:
+> Hi Seth,
+> 
+> On Wed, Aug 17, 2011 at 09:03:13AM -0500, Seth Forshee wrote:
+> > Adds basic v3 hardware support for newer devices not currently
+> > supported by the driver.
+> > 
+> > Thanks to Tom Lin <tom_lin@emc.com.tw> and Mark A. Stratman
+> > <stratman@gmail.com>, whose work on a previous patch revealed many
+> > of the details of the v3 protocol.
+> 
+> Excellent work, thank you.
+> 
+> Apparently Elantech is now also interested in supporting ther devices
+> on Linux and is preparing some patches adding support for the new
+> hardware so it woudl be great if we coordinated efforts. I am CC-ing
+> JJ Ding and Aaron Huang...
 
-mcs5000_ts.c (and m97xx-core.c it was derived from) are GPLv2 or later
-so max11801_ts.c shoudl folow the same licensing terms, but it seems th=
-e
-statement was truncated.
+Sure, I'd be happy to coordinate.
 
-Jiejing, could you please send me a patch restoring the proper wording
-so there won't be any confusion in the future?
+Where does that leave this patch? Do you want to take it now and
+integrate improvments from working with Elantech as they come, or hold
+off? I'd personally like to see this patch get merged unless there are
+objections to it, as it works well and gives us at least some support
+for these touchpads right now. It's been tested so far on the following
+laptop models:
 
-Thanks!
+  Samsung NF210
+  Samsung NF310
+  Samsung QX410
+  Asus X93S
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It would certainly be great to get it reviewed by the folks from
+Elantech to make sure all the details of the hardware interaction are
+correct though.
+
+Thanks,
+Seth

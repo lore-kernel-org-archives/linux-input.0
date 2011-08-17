@@ -1,121 +1,55 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/8 v3] Input: synaptics - add image sensor support
-Date: Wed, 17 Aug 2011 10:34:44 -0700
-Message-ID: <20110817173444.GE4877@core.coreip.homeip.net>
-References: <1313169407-4358-1-git-send-email-djkurtz@chromium.org>
- <1313169407-4358-5-git-send-email-djkurtz@chromium.org>
- <20110812210911.GA9124@polaris.bitmath.org>
- <CAGS+omAo1tPzBQ_s+vz-7_5SS6vWv4bdzD1JfqepUS7wYxK5sA@mail.gmail.com>
- <CAGS+omCeb6R_Y7Js+da=E+etNYXWu+DjT=Mio_DLSwQo97yNkg@mail.gmail.com>
- <20110817163226.GB4877@core.coreip.homeip.net>
- <CAGS+omAR1uxS_RA=axmWzwZUgkhZEW+9W8Zk=LHPtALqA990+w@mail.gmail.com>
+Subject: Re: [Q] max11801 licensing terms
+Date: Wed, 17 Aug 2011 10:45:10 -0700
+Message-ID: <20110817174510.GF4877@core.coreip.homeip.net>
+References: <201108171431.26470.brian.foster@maxim-ic.com>
+ <CACrgxGB0RaxhbPfU34L3b-1vPEDYf5M7Z8q2HKoKEQ8YcuFCsw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f170.google.com ([209.85.210.170]:41496 "EHLO
+Received: from mail-iy0-f170.google.com ([209.85.210.170]:34900 "EHLO
 	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750840Ab1HQReu (ORCPT
+	with ESMTP id S1751150Ab1HQRpQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 13:34:50 -0400
+	Wed, 17 Aug 2011 13:45:16 -0400
+Received: by iye16 with SMTP id 16so2296425iye.1
+        for <linux-input@vger.kernel.org>; Wed, 17 Aug 2011 10:45:16 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAGS+omAR1uxS_RA=axmWzwZUgkhZEW+9W8Zk=LHPtALqA990+w@mail.gmail.com>
+In-Reply-To: <CACrgxGB0RaxhbPfU34L3b-1vPEDYf5M7Z8q2HKoKEQ8YcuFCsw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, chase.douglas@canonical.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
+To: "Jiejing.Zhang " <kzjeef@gmail.com>
+Cc: Brian Foster <brian.foster@maxim-ic.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Jean-Marc Simohand <JeanMarc.Simohand@maxim-ic.com>
 
-On Thu, Aug 18, 2011 at 12:43:39AM +0800, Daniel Kurtz wrote:
-> On Thu, Aug 18, 2011 at 12:32 AM, Dmitry Torokhov <dmitry.torokhov@gmail.com
-> > wrote:
-> 
-> > On Wed, Aug 17, 2011 at 10:05:48PM +0800, Daniel Kurtz wrote:
-> > > On Mon, Aug 15, 2011 at 3:17 PM, Daniel Kurtz <djkurtz@chromium.org>
-> > wrote:
-> > > >
-> > > > Hi Henrik,
-> > > >
-> > > > Thanks for the great feedback.
-> > > >
-> > > > On Sat, Aug 13, 2011 at 5:09 AM, Henrik Rydberg <rydberg@euromail.se>
-> > wrote:
-> > > > > Hi Daniel,
-> > > > >
-> > > > > looks good, some details below.
-> > > > >
-> > > > > The ABS_MT_TOUCH_MAJOR is supposed to have zero intercept, to remain
-> > > > > compatible with user space handling of type A devices. Also, the
-> > scale
-> > > > > should match the screen/pad size, such that the actual size of the
-> > > > > touch area can be deduced. In addition, based on the current sensor
-> > > > > technologies, ABS_MT_PRESSURE and ABS_MT_TOUCH_MAJOR are normally
-> > > > > mutually exclusive.
-> > > > >
-> > > > > All in all, I would prefer to only report width via (the
-> > single-finger
-> > > > > axis) ABS_TOOL_WIDTH, and only for compatibility reasons.
-> > > > >
-> > > > > +
-> > > > > +static void synaptics_report_slot_agm(struct input_dev *dev, int
-> > slot,
-> > > > > +                                   const struct synaptics_hw_state
-> > *agm)
-> > > > > +{
-> > > > > +     input_mt_slot(dev, slot);
-> > > > > +     input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
-> > > > > +     input_report_abs(dev, ABS_MT_POSITION_X, agm->x);
-> > > > > +     input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(agm->y));
-> > > > > +     input_report_abs(dev, ABS_MT_PRESSURE, agm->z);
-> > > > > +}
-> > > >
-> > > > With ABS_MT_TOUCH_MAJOR dropped, sgm and agm seems to coincide...
-> > > > ....
-> > > > >
-> > > > > Looks good otherwise.
-> > > > >
-> > > > > Thanks,
-> > > > > Henrik
-> > > > >
-> > > >
-> > > > Ahh....  ok, this makes sense.  I missed this detail previously.
-> > > > Basically:
-> > > >  * Only report synaptics "w" as ABS_TOOL_WIDTH (for backwards
-> > compatibility)
-> > > >  * Report synaptics "z" as ABS_MT_TOUCH_MAJOR (assuming it is really
-> > > > 'width of finger in surface units'), and ABS_PRESSURE (for backwards
-> > > > compatibility).
-> > > >  * Don't use ABS_MT_PRESSURE.
-> > > >  * This will simplify agm/sgm reporting by making them both reoprt
-> > > > the same axes.
-> > >
-> > > Hi Henrik,
-> > >
-> > > I think I was wrong in my previous comment.
-> > >
-> > > I agree we should drop reporting synaptics 'w' (4-15, arbitrary units)
-> > > in ABS_MT_TOUCH_MAJOR.
-> > > Instead, to support legacy, report 'w' in ABS_TOOL_WIDTH, and do not
-> > > report ABS_MT_TOUCH_MAJOR at all.
-> > >
-> > > However, I believe we should still report synaptics 'z' (0-255, in
-> > > arbitrary units) as ABS_MT_PRESSURE.
-> > > This will, in turn, be used by input_mt_report_pointer_emulation() to
-> > > determine the correct ABS_PRESSURE to report for legacy userspace
-> > > uses.
-> >
-> > Alternatively, you can use input_mt_set_value() to save Z value to be
-> > used by input_mt_report_pointer_emulation() later, but not report it as
-> > part of MT packet.
-> >
-> 
-> But I want userspace to get per-contact pressure, since it is used to
-> determine whether a given contact is a palm or finger, etc. The trackpad
-> does not report a useful per-contact "width" that can be used to generate
-> "TOUCH_MAJOR".
+On Wed, Aug 17, 2011 at 09:24:32PM +0800, Jiejing.Zhang  wrote:
+> Hi Brian Foster,
+>=20
+> >     * Based on mcs5000_ts.c
+> I have referenced mcs5000_ts.c source code when writing this driver,
+> but I don't think it's a big deal, I really reference lots of files.
+>=20
+> > =C2=A0What does =E2=80=9Ceither version 2 of the License.=E2=80=9D =
+mean?
+> > =C2=A0Either GPLv2 or what?
+>=20
+> Yes, I think it means GPLv2, I'm not really not very care about these
+> license, just copy other files under driver/input/ directory.
 
-If the data reported is indeed pressure and it is indeed per-contact then yes,
-it makes sense to report it as such. If the data reported is more like contact
-size then report it as ABS_MT_TOUCH_MAJOR and use input_mt_set_value()
-to "stash" it for legacy emulation.
+mcs5000_ts.c (and m97xx-core.c it was derived from) are GPLv2 or later
+so max11801_ts.c shoudl folow the same licensing terms, but it seems th=
+e
+statement was truncated.
 
--- 
+Jiejing, could you please send me a patch restoring the proper wording
+so there won't be any confusion in the future?
+
+Thanks!
+
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

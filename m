@@ -1,34 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: bcm5974: Add support for newer MacBookPro8,2
-Date: Tue, 16 Aug 2011 23:43:44 -0700
-Message-ID: <20110817064344.GB29361@core.coreip.homeip.net>
-References: <4E4A4538.4050608@adrake.org>
+Subject: Re: [PATCH 2/5] input: wacom - remove pressure for touch devices
+Date: Tue, 16 Aug 2011 23:50:40 -0700
+Message-ID: <20110817065040.GC29361@core.coreip.homeip.net>
+References: <1313194109-4987-1-git-send-email-pinglinux@gmail.com>
+ <CAGzDe_YC2afYK-Xr5JNveZC-=h9dpnysLxwQSM0i7q3tN91--g@mail.gmail.com>
+ <CAF8JNh+90K2Qfpzu9Rwt_cdvqxTxaF8iJJ2-=nmWY8qLL6Wmzg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f170.google.com ([209.85.210.170]:62033 "EHLO
+Received: from mail-iy0-f170.google.com ([209.85.210.170]:50924 "EHLO
 	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750721Ab1HQGnt (ORCPT
+	with ESMTP id S1751306Ab1HQGuq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 02:43:49 -0400
-Received: by mail-iy0-f170.google.com with SMTP id 16so1316904iye.1
-        for <linux-input@vger.kernel.org>; Tue, 16 Aug 2011 23:43:49 -0700 (PDT)
+	Wed, 17 Aug 2011 02:50:46 -0400
+Received: by iye16 with SMTP id 16so1326677iye.1
+        for <linux-input@vger.kernel.org>; Tue, 16 Aug 2011 23:50:46 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4E4A4538.4050608@adrake.org>
+In-Reply-To: <CAF8JNh+90K2Qfpzu9Rwt_cdvqxTxaF8iJJ2-=nmWY8qLL6Wmzg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Drake <adrake@adrake.org>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se, gaowanlong@cn.fujitsu.com
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>
 
-On Tue, Aug 16, 2011 at 03:23:52AM -0700, Andrew Drake wrote:
-> New MacBook Pro devices reporting product name MacBookPro8,2 come with
-> newer/higher resolution touchpads than others with the same product
-> name with USB ID 05ac:0252. This patch adds support for these devices.
+On Mon, Aug 15, 2011 at 09:34:23PM -0700, Ping Cheng wrote:
+> On Sun, Aug 14, 2011 at 8:27 PM, Chris Bagwell <chris@cnpbagwell.com> wrote:
 > 
-> Signed-off-by: Andrew Drake <adrake@adrake.org>
-> Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> > On Fri, Aug 12, 2011 at 7:08 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> > > Touch devices do not report valid pressure or capacitance.
+> > >
+> > > Signed-off-by: Ping Cheng <pingc@wacom.com>
+> > > ---
+> >
+> > I'd prefer if we kept pressure support.  At least for Bamboo's with
+> > product ID between 0xd0 and 0xd4.
+> >
+> > In my testing of an 0xd1 device, pressure works fine (low pressure and
+> > high pressure work great.  Not much middle pressure sensitivity.
+> > Multi-touch will increase pressure reading.  All pretty common
+> > behaviour).
+> >
+> 
+> Basically, there were three reasons to remove the pressure bit for all touch
+> devices:
+> 
+> 1.   The value is not a pressure and it does not report valid capacitance
+> either;
+> 2.   The only valid use in the kernel driver is to decide if the finger is
+> touching the tablet or not, which has already been correctly reported by the
+> firmware in the other bits. So, it is redundant to check the pressure for
+> this purpose;
+> 3.   Passing the invalid "pressure" to the user land would only introduce
+> bad user experience since touch is not designed for drawing. We don't want
+> to confuse user with that "pressure".
 
-Applied, thanks Andrew.
+Not speaking about touch per se, but pressure is important for other
+things besides drawing. Different people prefer different device
+sensitivity and if userspace knows pressure it can adjust according to
+user preference, like synaptics X driver does with touchpads that
+actually report it. I believe tslib allows similar for touchscreens.
+
+Thanks.
 
 -- 
 Dmitry

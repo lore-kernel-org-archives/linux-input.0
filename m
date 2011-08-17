@@ -1,97 +1,89 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH 4/8 v3] Input: synaptics - add image sensor support
-Date: Wed, 17 Aug 2011 22:05:48 +0800
-Message-ID: <CAGS+omCeb6R_Y7Js+da=E+etNYXWu+DjT=Mio_DLSwQo97yNkg@mail.gmail.com>
-References: <1313169407-4358-1-git-send-email-djkurtz@chromium.org>
- <1313169407-4358-5-git-send-email-djkurtz@chromium.org> <20110812210911.GA9124@polaris.bitmath.org>
- <CAGS+omAo1tPzBQ_s+vz-7_5SS6vWv4bdzD1JfqepUS7wYxK5sA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/5] input: wacom - remove pressure for touch devices
+Date: Wed, 17 Aug 2011 09:21:59 -0700
+Message-ID: <20110817162159.GA4877@core.coreip.homeip.net>
+References: <1313194109-4987-1-git-send-email-pinglinux@gmail.com>
+ <CAGzDe_YC2afYK-Xr5JNveZC-=h9dpnysLxwQSM0i7q3tN91--g@mail.gmail.com>
+ <CAF8JNh+90K2Qfpzu9Rwt_cdvqxTxaF8iJJ2-=nmWY8qLL6Wmzg@mail.gmail.com>
+ <20110817065040.GC29361@core.coreip.homeip.net>
+ <CAF8JNh+dpmh50ixyNKtVNL-ZGVZg3rfjbyvnVAi790nwvFCJVA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAGS+omAo1tPzBQ_s+vz-7_5SS6vWv4bdzD1JfqepUS7wYxK5sA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:55845 "EHLO
+	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753745Ab1HQQWG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Aug 2011 12:22:06 -0400
+Received: by yie30 with SMTP id 30so876932yie.19
+        for <linux-input@vger.kernel.org>; Wed, 17 Aug 2011 09:22:05 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAF8JNh+dpmh50ixyNKtVNL-ZGVZg3rfjbyvnVAi790nwvFCJVA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>
 
-On Mon, Aug 15, 2011 at 3:17 PM, Daniel Kurtz <djkurtz@chromium.org> wr=
-ote:
->
-> Hi Henrik,
->
-> Thanks for the great feedback.
->
-> On Sat, Aug 13, 2011 at 5:09 AM, Henrik Rydberg <rydberg@euromail.se>=
- wrote:
-> > Hi Daniel,
+On Wed, Aug 17, 2011 at 08:32:28AM -0700, Ping Cheng wrote:
+> On Tue, Aug 16, 2011 at 11:50 PM, Dmitry Torokhov <dmitry.torokhov@gmail.com
+> > wrote:
+> 
+> > On Mon, Aug 15, 2011 at 09:34:23PM -0700, Ping Cheng wrote:
+> > > On Sun, Aug 14, 2011 at 8:27 PM, Chris Bagwell <chris@cnpbagwell.com>
+> > wrote:
+> > >
+> > > > On Fri, Aug 12, 2011 at 7:08 PM, Ping Cheng <pinglinux@gmail.com>
+> > wrote:
+> > > > > Touch devices do not report valid pressure or capacitance.
+> > > > >
+> > > > > Signed-off-by: Ping Cheng <pingc@wacom.com>
+> > > > > ---
+> > > >
+> > > > I'd prefer if we kept pressure support.  At least for Bamboo's with
+> > > > product ID between 0xd0 and 0xd4.
+> > > >
+> > > > In my testing of an 0xd1 device, pressure works fine (low pressure and
+> > > > high pressure work great.  Not much middle pressure sensitivity.
+> > > > Multi-touch will increase pressure reading.  All pretty common
+> > > > behaviour).
+> > > >
+> > >
+> > > Basically, there were three reasons to remove the pressure bit for all
+> > touch
+> > > devices:
+> > >
+> > > 1.   The value is not a pressure and it does not report valid capacitance
+> > > either;
+> > > 2.   The only valid use in the kernel driver is to decide if the finger
+> > is
+> > > touching the tablet or not, which has already been correctly reported by
+> > the
+> > > firmware in the other bits. So, it is redundant to check the pressure for
+> > > this purpose;
+> > > 3.   Passing the invalid "pressure" to the user land would only introduce
+> > > bad user experience since touch is not designed for drawing. We don't
+> > want
+> > > to confuse user with that "pressure".
 > >
-> > looks good, some details below.
+> > Not speaking about touch per se, but pressure is important for other
+> > things besides drawing. Different people prefer different device
+> > sensitivity and if userspace knows pressure it can adjust according to
+> > user preference, like synaptics X driver does with touchpads that
+> > actually report it. I believe tslib allows similar for touchscreens.
 > >
-> > The ABS_MT_TOUCH_MAJOR is supposed to have zero intercept, to remai=
-n
-> > compatible with user space handling of type A devices. Also, the sc=
-ale
-> > should match the screen/pad size, such that the actual size of the
-> > touch area can be deduced. In addition, based on the current sensor
-> > technologies, ABS_MT_PRESSURE and ABS_MT_TOUCH_MAJOR are normally
-> > mutually exclusive.
-> >
-> > All in all, I would prefer to only report width via (the single-fin=
-ger
-> > axis) ABS_TOOL_WIDTH, and only for compatibility reasons.
-> >
-> > +
-> > +static void synaptics_report_slot_agm(struct input_dev *dev, int s=
-lot,
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- const struct synaptics_hw_state *agm)
-> > +{
-> > + =A0 =A0 input_mt_slot(dev, slot);
-> > + =A0 =A0 input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
-> > + =A0 =A0 input_report_abs(dev, ABS_MT_POSITION_X, agm->x);
-> > + =A0 =A0 input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(agm->y)=
-);
-> > + =A0 =A0 input_report_abs(dev, ABS_MT_PRESSURE, agm->z);
-> > +}
->
-> With ABS_MT_TOUCH_MAJOR dropped, sgm and agm seems to coincide...
-> ....
-> >
-> > Looks good otherwise.
-> >
-> > Thanks,
-> > Henrik
-> >
->
-> Ahh.... =A0ok, this makes sense. =A0I missed this detail previously.
-> Basically:
-> =A0* Only report synaptics "w" as ABS_TOOL_WIDTH (for backwards compa=
-tibility)
-> =A0* Report synaptics "z" as ABS_MT_TOUCH_MAJOR (assuming it is reall=
-y
-> 'width of finger in surface units'), and ABS_PRESSURE (for backwards
-> compatibility).
-> =A0* Don't use ABS_MT_PRESSURE.
-> =A0* This will simplify agm/sgm reporting by making them both reoprt
-> the same axes.
+> 
+> Your suggestion is based on the assumption that the value is pressure.
 
-Hi Henrik,
+I did not make any assumptions, I was just making general observation
+that if pressure data is available it is useful not only for drawing
+applications.
 
-I think I was wrong in my previous comment.
+> But
+> that is not true. The value is not pressure and it is unreliable.
 
-I agree we should drop reporting synaptics 'w' (4-15, arbitrary units)
-in ABS_MT_TOUCH_MAJOR.
-Instead, to support legacy, report 'w' in ABS_TOOL_WIDTH, and do not
-report ABS_MT_TOUCH_MAJOR at all.
+So what is this data then?
 
-However, I believe we should still report synaptics 'z' (0-255, in
-arbitrary units) as ABS_MT_PRESSURE.
-This will, in turn, be used by input_mt_report_pointer_emulation() to
-determine the correct ABS_PRESSURE to report for legacy userspace
-uses.
+Thanks.
 
-Do you agree with this?
-
-Thanks,
--Dan
+-- 
+Dmitry

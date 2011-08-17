@@ -1,59 +1,58 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: Re: [PATCH] Input: elantech - Add v3 hardware support
-Date: Wed, 17 Aug 2011 13:35:44 -0500
-Message-ID: <20110817183544.GB31314@thinkpad-t410>
-References: <1313589793-31184-1-git-send-email-seth.forshee@canonical.com>
- <20110817173111.GD4877@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jaikumar Ganesh <jaikumarg@android.com>
+Subject: [PATCH] HID: magicmouse: ignore 'ivalid report id' while switching modes
+Date: Wed, 17 Aug 2011 12:59:42 -0700
+Message-ID: <1313611182-19924-1-git-send-email-jaikumarg@android.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:54338 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751489Ab1HQSft (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:16990 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753300Ab1HQUAr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 14:35:49 -0400
-Content-Disposition: inline
-In-Reply-To: <20110817173111.GD4877@core.coreip.homeip.net>
+	Wed, 17 Aug 2011 16:00:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alessandro Rubini <rubini@cvml.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, JJ Ding <jj_ding@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Jaikumar Ganesh <jaikumarg@android.com>
 
-On Wed, Aug 17, 2011 at 10:31:11AM -0700, Dmitry Torokhov wrote:
-> Hi Seth,
-> 
-> On Wed, Aug 17, 2011 at 09:03:13AM -0500, Seth Forshee wrote:
-> > Adds basic v3 hardware support for newer devices not currently
-> > supported by the driver.
-> > 
-> > Thanks to Tom Lin <tom_lin@emc.com.tw> and Mark A. Stratman
-> > <stratman@gmail.com>, whose work on a previous patch revealed many
-> > of the details of the v3 protocol.
-> 
-> Excellent work, thank you.
-> 
-> Apparently Elantech is now also interested in supporting ther devices
-> on Linux and is preparing some patches adding support for the new
-> hardware so it woudl be great if we coordinated efforts. I am CC-ing
-> JJ Ding and Aaron Huang...
+From: Jiri Kosina <jkosina@suse.cz>
 
-Sure, I'd be happy to coordinate.
+23746a introduced this commit but was reverted in c3a492.
+The trackpad uses report Ids which are not present in the
+report descriptor. These reports ids are not documented
+anywhere. There are devices in the market (Apple magic tracpkad,
+BT version 2.0 is one such device) with the same device id,
+which fail when we use 0xd7 as the report id. So we need the EIO
+change of 23746a as a failsafe to work with these devices.
 
-Where does that leave this patch? Do you want to take it now and
-integrate improvments from working with Elantech as they come, or hold
-off? I'd personally like to see this patch get merged unless there are
-objections to it, as it works well and gives us at least some support
-for these touchpads right now. It's been tested so far on the following
-laptop models:
+Original Author: Jiri Kosina <jkosina@suse.cz>
 
-  Samsung NF210
-  Samsung NF310
-  Samsung QX410
-  Asus X93S
+Signed-off-by: Jaikumar Ganesh <jaikumarg@android.com>
+---
+ drivers/hid/hid-magicmouse.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-It would certainly be great to get it reviewed by the folks from
-Elantech to make sure all the details of the hardware interaction are
-correct though.
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 0ec91c1..a5eda4c 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -501,9 +501,17 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	}
+ 	report->size = 6;
+ 
++	/*
++	 * The device reponds with 'invalid report id' when feature
++	 * report switching it into multitouch mode is sent to it.
++	 *
++	 * This results in -EIO from the _raw low-level transport callback,
++	 * but there seems to be no other way of switching the mode.
++	 * Thus the super-ugly hacky success check below.
++	 */
+ 	ret = hdev->hid_output_raw_report(hdev, feature, sizeof(feature),
+ 			HID_FEATURE_REPORT);
+-	if (ret != sizeof(feature)) {
++	if (ret != -EIO) {
+ 		hid_err(hdev, "unable to request touch data (%d)\n", ret);
+ 		goto err_stop_hw;
+ 	}
+-- 
+1.7.3.1
 
-Thanks,
-Seth

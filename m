@@ -1,83 +1,54 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH V2 5/5] HID: wiimote: Add status and return request handlers
-Date: Wed, 17 Aug 2011 11:43:24 +0200
-Message-ID: <1313574204-12664-6-git-send-email-dh.herrmann@googlemail.com>
-References: <1313574204-12664-1-git-send-email-dh.herrmann@googlemail.com>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH] Input: elantech - correct x, y value range for v2 hardware
+Date: Wed, 17 Aug 2011 11:53:55 +0200
+Message-ID: <4E4B8FB3.9090100@tudelft.nl>
+References: <1313380295-26226-1-git-send-email-jj_ding@emc.com.tw> <87hb5hligi.fsf@emc.com.tw> <4E4AE637.1090000@tudelft.nl> <87aab86d3v.fsf@emc.com.tw> <20110817064336.GA29361@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:55339 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752229Ab1HQJoB (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:35506 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751620Ab1HQJx7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 05:44:01 -0400
-Received: by mail-fx0-f46.google.com with SMTP id 19so525065fxh.19
-        for <linux-input@vger.kernel.org>; Wed, 17 Aug 2011 02:44:01 -0700 (PDT)
-In-Reply-To: <1313574204-12664-1-git-send-email-dh.herrmann@googlemail.com>
+	Wed, 17 Aug 2011 05:53:59 -0400
+In-Reply-To: <20110817064336.GA29361@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: oliver@neukum.org, jkosina@suse.cz, padovan@profusion.mobi, dh.herrmann@googlemail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: JJ Ding <jj_ding@emc.com.tw>, linux-input@vger.kernel.org, Tom Lin <tom_lin@emc.com.tw>, Aaron Huang <aaron_huang@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>
 
-The wiimote resets the current drm when an extension is plugged in.
-Fortunately, it also sends a status report in this situation so we just
-reset the drm on every status report to keep the drm consistent.
+Op 17-08-11 08:43, Dmitry Torokhov schreef:
+> Hi JJ,
+>
+>> As far as I know, this doesn't fix a bug. I just want to make sure t=
+he
+>> driver and what the firmware sends are consistent.
+>
+> As =C9ric mentioned, simply extending range to 12 bits is dangerous
+> because we might cause overflows. Blindly increasing ETP_YMAX_V2 is n=
+ot
+> a good idea either as userspace would expect much larger device and
+> reports would only cover fraction of its surface. We need to separate
+> ETP_YMAX_V2 as absolute maximum from reported coordinates range, like=
+ it
+> is done in synaptics driver.
+Hi Dmitry,
+Concerning this point, I was wondering if it'd be ok to only send=20
+negative values? Such as min/max are between -768 and 0. So that, if th=
+e=20
+hardware actually has a bigger resolution, it can go down to -4095=20
+without any overflow? It sounds the simplest way to report the=20
+coordinate for a device which has an opposite axis. Or is it safer to=20
+stay in the positive numbers, with min/max between 3328 and 4095, and i=
+n=20
+case of bigger resolution the values go down to 0?
 
-Also handle return reports from the wiimote which indicate success and
-failure of requests that we've sent.
-
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- drivers/hid/hid-wiimote.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 84c9eb9..85a02e5 100644
---- a/drivers/hid/hid-wiimote.c
-+++ b/drivers/hid/hid-wiimote.c
-@@ -60,6 +60,8 @@ enum wiiproto_reqs {
- 	WIIPROTO_REQ_NULL = 0x0,
- 	WIIPROTO_REQ_LED = 0x11,
- 	WIIPROTO_REQ_DRM = 0x12,
-+	WIIPROTO_REQ_STATUS = 0x20,
-+	WIIPROTO_REQ_RETURN = 0x22,
- 	WIIPROTO_REQ_DRM_K = 0x30,
- };
- 
-@@ -313,6 +315,26 @@ static void handler_keys(struct wiimote_data *wdata, const __u8 *payload)
- 	input_sync(wdata->input);
- }
- 
-+static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
-+{
-+	handler_keys(wdata, payload);
-+
-+	/* on status reports the drm is reset so we need to resend the drm */
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+}
-+
-+static void handler_return(struct wiimote_data *wdata, const __u8 *payload)
-+{
-+	__u8 err = payload[3];
-+	__u8 cmd = payload[2];
-+
-+	handler_keys(wdata, payload);
-+
-+	if (err)
-+		hid_warn(wdata->hdev, "Remote error %hhu on req %hhu\n", err,
-+									cmd);
-+}
-+
- struct wiiproto_handler {
- 	__u8 id;
- 	size_t size;
-@@ -320,6 +342,8 @@ struct wiiproto_handler {
- };
- 
- static struct wiiproto_handler handlers[] = {
-+	{ .id = WIIPROTO_REQ_STATUS, .size = 6, .func = handler_status },
-+	{ .id = WIIPROTO_REQ_RETURN, .size = 4, .func = handler_return },
- 	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
- 	{ .id = 0 }
- };
--- 
-1.7.6
-
+Cheers,
+=C9ric
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

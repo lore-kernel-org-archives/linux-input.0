@@ -1,80 +1,49 @@
-From: Brian Foster <brian.foster@maxim-ic.com>
-Subject: [Q] max11801 licensing terms
-Date: Wed, 17 Aug 2011 14:31:26 +0200
-Message-ID: <201108171431.26470.brian.foster@maxim-ic.com>
+From: "Jiejing.Zhang " <kzjeef@gmail.com>
+Subject: Re: [Q] max11801 licensing terms
+Date: Wed, 17 Aug 2011 21:24:32 +0800
+Message-ID: <CACrgxGB0RaxhbPfU34L3b-1vPEDYf5M7Z8q2HKoKEQ8YcuFCsw@mail.gmail.com>
+References: <201108171431.26470.brian.foster@maxim-ic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from antispam01.maxim-ic.com ([205.153.101.182]:35242 "EHLO
-	antispam01.maxim-ic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752582Ab1HQMuB convert rfc822-to-8bit (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:59650 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753389Ab1HQNYz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 08:50:01 -0400
+	Wed, 17 Aug 2011 09:24:55 -0400
+Received: by vws1 with SMTP id 1so634223vws.19
+        for <linux-input@vger.kernel.org>; Wed, 17 Aug 2011 06:24:55 -0700 (PDT)
+In-Reply-To: <201108171431.26470.brian.foster@maxim-ic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zhang Jiejing <jiejing.zhang@freescale.com>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Jean-Marc Simohand <JeanMarc.Simohand@maxim-ic.com>
+To: Brian Foster <brian.foster@maxim-ic.com>
+Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Jean-Marc Simohand <JeanMarc.Simohand@maxim-ic.com>
 
-Zhang Jiejing,
+Hi Brian Foster,
 
- In =E2=80=9C[PATCH V2] input: add maxim max11801 resistance touchscree=
-n
- controller driver=E2=80=9D (commit 4203306506ebe4eaaa84a2cbd7c1eb2fc01=
-28faa),
+>     * Based on mcs5000_ts.c
+I have referenced mcs5000_ts.c source code when writing this driver,
+but I don't think it's a big deal, I really reference lots of files.
 
-    http://www.spinics.net/lists/linux-input/msg14881.html
+> =A0What does =93either version 2 of the License.=94 mean?
+> =A0Either GPLv2 or what?
 
- there is a licensing statement my colleagues and I
- do not understand:
+Yes, I think it means GPLv2, I'm not really not very care about these
+license, just copy other files under driver/input/ directory.
 
-     * Based on mcs5000_ts.c
-     *
-     * This program is free software; you can redistribute it and/or mo=
-dify
-     * it under the terms of the GNU General Public License as publishe=
-d by
-     * the Free Software Foundation; either version 2 of the License.
-   ...
-    MODULE_LICENSE("GPL");
+Does it cause trouble in your side?
+>
+> =A0Could you please clarify exactly what =91max11801_ts.c=92 licensin=
+g
+> =A0terms are? =A0Thanks!
+>
+> cheers,
+> =A0 =A0 =A0 =A0-blf-
+> --
 
- What does =E2=80=9Ceither version 2 of the License.=E2=80=9D mean?
- Either GPLv2 or what?
- The "GPL" MODULE_LICENSE implies what is meant is
- either GPLv2 or a later GPL version; please see
- =E2=80=98include/linux/module.h=E2=80=99:
-
-     * The following license idents are currently accepted as indicatin=
-g free
-     * software modules
-     *
-     *      "GPL"                           [GNU Public License v2 or l=
-ater]
-     *      "GPL v2"                        [GNU Public License v2]
-
- The original statement in =E2=80=98mcs5000_ts.c=E2=80=99 (from Joonyou=
-ng Shim,
- whom I've CC-ed) is the usual (reformatted to avoid long lines):
-
-     * This program is free software; you can redistribute it and/or mo=
-dify
-     * it under the terms of the GNU General Public License as publishe=
-d by
-     * the Free Software Foundation; either version 2 of the License, o=
-r (at
-     * your option) any later version.
-
- Could you please clarify exactly what =E2=80=98max11801_ts.c=E2=80=99 =
-licensing
- terms are?  Thanks!
-
-cheers,
-        -blf-
---=20
-Brian FOSTER
-Principal MTS, Software
-Maxim Integrated Products (Microcontroller BU), formerly Innova Card
-Web    : http://www.maxim-ic.com/
+Thanks,
+Jiejing
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

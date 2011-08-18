@@ -1,99 +1,49 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH 3/6] Input: elantech - packet checking for v2 hardware
-Date: Thu, 18 Aug 2011 16:06:44 +0800
-Message-ID: <87r54j2lez.fsf@emc.com.tw>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-4-git-send-email-jj_ding@emc.com.tw> <20110818063818.GC10093@core.coreip.homeip.net> <87wreb2n1s.fsf@emc.com.tw> <20110818075226.GF10093@core.coreip.homeip.net>
+From: Zhang Jiejing <jiejing.zhang@freescale.com>
+Subject: [PATCH] input: max11801_ts - correct license statement.
+Date: Thu, 18 Aug 2011 18:26:42 +0800
+Message-ID: <1313663202-30271-1-git-send-email-jiejing.zhang@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:19541 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752123Ab1HRIE3 (ORCPT
+Received: from ch1ehsobe002.messaging.microsoft.com ([216.32.181.182]:22832
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755432Ab1HRKZg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 04:04:29 -0400
-In-Reply-To: <20110818075226.GF10093@core.coreip.homeip.net>
+	Thu, 18 Aug 2011 06:25:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, linux-input@vger.kernel.org
 
-Hi Dmitry,
+From: Jiejing Zhang <jiejing.zhang@freescale.com>
 
-On Thu, 18 Aug 2011 00:52:26 -0700, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Thu, Aug 18, 2011 at 03:31:27PM +0800, JJ Ding wrote:
-> > Hi Dmitry,
-> > 
-> > On Wed, 17 Aug 2011 23:38:18 -0700, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > On Thu, Aug 18, 2011 at 09:57:06AM +0800, JJ Ding wrote:
-> > > > For v2 hardware, there is no real parity check, but we can still check
-> > > > some constant bits for data integrity.
-> > > > 
-> > > > Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
-> > > > ---
-> > > >  drivers/input/mouse/elantech.c |   26 +++++++++++++++++++++++---
-> > > >  1 files changed, 23 insertions(+), 3 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> > > > index cf41f23..032181c 100644
-> > > > --- a/drivers/input/mouse/elantech.c
-> > > > +++ b/drivers/input/mouse/elantech.c
-> > > > @@ -376,6 +376,25 @@ static int elantech_check_parity_v1(struct psmouse *psmouse)
-> > > >  	       etd->parity[packet[3]] == p3;
-> > > >  }
-> > > >  
-> > > > +static int packet_simple_check_v2(struct psmouse *psmouse)
-> > > > +{
-> > > > +	struct elantech_data *etd = psmouse->private;
-> > > > +	unsigned char *packet = psmouse->packet;
-> > > > +
-> > > > +	if (etd->reports_pressure)
-> > > > +		return (packet[0] & 0x0c) == 0x04 &&
-> > > > +		       (packet[3] & 0x0f) == 0x02;
-> >         this is for newer v2 hardware
-> > 
-> > > > +
-> > > > +	if ((packet[0] & 0xc0) == 0x80)
-> > > > +		return (packet[0] & 0x0c) == 0x0c &&
-> > > > +		       (packet[3] & 0x0e) == 0x08;
-> >         this is for older v2, two finger touch 
-> > 
-> > > > +
-> > > > +	return (packet[0] & 0x3c) == 0x3c &&
-> > > > +	       (packet[1] & 0xf0) == 0x00 &&
-> > > > +	       (packet[3] & 0x3e) == 0x38 &&
-> > > > +	       (packet[4] & 0xf0) == 0x00;
-> >         this is for older v2, 1/3 finger touch
-> >       
-> > > 
-> > > Can we please spell out the assumptions under which we decide that
-> > > packet is invalid?
-> > > 
-> > > Thanks.
-> > > 
-> > > -- 
-> > > Dmitry
-> > V2 hardware has two flavors. Older ones that do not report pressure,
-> > and newer ones that reports pressure and width.
-> > 
-> > With newer ones, all packets (1, 2, 3 finger touch) have the same
-> > constant bits.
-> > 
-> > With older ones, 1/3 finger touch packets and 2 finger touch packets have
-> > different constant bits.
-> > 
-> > With all three cases, if the constant bits are not exactly what I
-> > expected, I consider them invalid.
-> > 
-> > Dmitry, how do you want me to improve this? not enough comments?
-> 
-> Right, if you could put the above into comments right in the
-> packet_simple_check_v2() that woudl be great.
-> 
-> Thanks.
-No problem. I will do that. 
-> -- 
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This patch is aim to correct the license of this driver.
+The orignal statement is not align to the derived driver.
+This driver correct the license statement.
+
+Signed-off-by: Jiejing Zhang <jiejing.zhang@freescale.com>
+---
+ drivers/input/touchscreen/max11801_ts.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
+index 4f2713d..58764a1 100644
+--- a/drivers/input/touchscreen/max11801_ts.c
++++ b/drivers/input/touchscreen/max11801_ts.c
+@@ -7,9 +7,10 @@
+  *
+  * Based on mcs5000_ts.c
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License.
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
+  */
+ 
+ /*
+-- 
+1.7.4.1
+
+

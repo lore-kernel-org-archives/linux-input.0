@@ -1,79 +1,98 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 0/9 v4] Synaptics image sensor support
-Date: Thu, 18 Aug 2011 19:27:59 +0800
-Message-ID: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 2/9 v4] Input: synaptics - refactor agm packet parsing
+Date: Thu, 18 Aug 2011 19:28:01 +0800
+Message-ID: <1313666888-18939-3-git-send-email-djkurtz@chromium.org>
+References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out.google.com ([216.239.44.51]:28276 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755555Ab1HRL2S (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2011 07:28:18 -0400
+In-Reply-To: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, rydberg@euromail.se
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com, Daniel Kurtz <djkurtz@chromium.org>
-List-Id: linux-input@vger.kernel.org
 
-Hello,
+When a Synaptics touchpad is in "AGM" mode, and multiple fingers are
+detected, the touchpad sends alternating "Advanced Gesture Mode" (AGM) and
+"Simple Gesture Mode" (SGM) packets.
+  The AGM packets have w=2, and contain reduced resolution finger data.
+  The SGM packets have w={0,1} and contain full resolution finger data.
 
-----
-For v4:
-  Patch 4 & 7:
-     Per Henrik: Do not report synaptics 'w' as ABS_MT_TOUCH_MAJOR.  This has
-                 the nice side affect of cleaning up slot reporting.
+Refactor the parsing of agm packets to its own function, and rename the
+synaptics_data.mt field to .agm to indicate that it contains the contents of
+the last agm packet.
 
-  Patch 6 (new):
-     Per Chase: Document 'report more touches than slots' behavior.
-----
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Acked-by: Chase Douglas <chase.douglas@canonical.com>
+---
+ drivers/input/mouse/synaptics.c |   19 ++++++++++++++-----
+ drivers/input/mouse/synaptics.h |    6 +++++-
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
-This patch set (against next) is intended to add support for synaptics
-"image sensor" touchpads.
-
-Patches 1-3 clean up the current driver slightly and prepare for the image
-sensor patches which follow.
-
-Patches 4-7 add 3 finger support for image sensor touchpads.
-Image sensors do not suffer from the finger tracking issues that plagued
-the earlier "profile sensors", and which required the invention of "semi-mt"
-(Semi-mt reports a bounding box around two fingers instead of the fingers
-themselves).  Instead, the image sensors report the actual positions of two
-fingers using the same "Advanced Gesture Mode".  This driver uses two MT-B slots
-to report these two fingers to userspace.  In addition, it will also report
-the total number of fingers using BTN_TOOL_*TAP EV_KEY events.  This behavior
-is documented in the multi-touch-protocol document.
-
-Userspace drivers should be aware that the number of fingers reported via
-BTN_TOOL_*TAP can be greater than the total number MT-B slots with non-negative
-track_ids.  Upon opening the device node, userspace should query the maximum
-values supported ABS_MT_SLOT, and note the number of supported BTN_TOOL_*TAP
-events.
-
-Patches 7-8 add 4 and 5 finger support.
-In fact, the image sensor touchpads actually track 5 fingers while reporting
-just 2 finger positions.  These patches add support for properly tracking the
-reported slots through 4 and 5 finger transitions, while always reporting two of
-them via 2 MT-B slots.  In addition, a new event, EV_KEY/BTN_TOOL_QUINTTAP, is
-added to the event subsystem to allow reporting up to 5 fingers.
-
-These patches are similar to, and inspired by, a similar patchset recently
-submitted by Derek Foreman and Daniel Stone.  However, it is not directly built
-upon, nor is it compatible with, those patches.
-
-Thanks,
-Daniel
-
-
-Daniel Kurtz (9):
-  Input: synaptics - refactor y inversion
-  Input: synaptics - refactor agm packet parsing
-  Input: synaptics - refactor initialization of abs position axes
-  Input: synaptics - add image sensor support
-  Input: synaptics - decode AGM packet types
-  Input: mt - document devices reporting more touches than slots
-  Input: synaptics - process finger (<=3) transitions
-  Input: add BTN_TOOL_QUINTTAP for reporting 5 fingers on touchpad
-  Input: synaptics - process finger (<=5) transitions
-
- Documentation/input/multi-touch-protocol.txt |   14 +
- drivers/input/input-mt.c                     |    1 +
- drivers/input/mouse/synaptics.c              |  489 ++++++++++++++++++++++++--
- drivers/input/mouse/synaptics.h              |   27 ++-
- include/linux/input.h                        |    1 +
- 5 files changed, 495 insertions(+), 37 deletions(-)
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 297e88f..e966894 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -419,6 +419,17 @@ static void synaptics_pt_create(struct psmouse *psmouse)
+  *	Functions to interpret the absolute mode packets
+  ****************************************************************************/
+ 
++static void synaptics_parse_agm(const unsigned char buf[],
++				struct synaptics_data *priv)
++{
++	struct synaptics_hw_state *agm = &priv->agm;
++
++	/* Gesture packet: (x, y, z) at half resolution */
++	agm->x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
++	agm->y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
++	agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
++}
++
+ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 				    struct synaptics_data *priv,
+ 				    struct synaptics_hw_state *hw)
+@@ -453,10 +464,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 		}
+ 
+ 		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
+-			/* Gesture packet: (x, y, z) at half resolution */
+-			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
+-			priv->mt.y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
+-			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
++			synaptics_parse_agm(buf, priv);
+ 			return 1;
+ 		}
+ 
+@@ -595,7 +603,8 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 	}
+ 
+ 	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
+-		synaptics_report_semi_mt_data(dev, &hw, &priv->mt, num_fingers);
++		synaptics_report_semi_mt_data(dev, &hw, &priv->agm,
++					      num_fingers);
+ 
+ 	/* Post events
+ 	 * BTN_TOUCH has to be first as mousedev relies on it when doing
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index ca040aa..a9efbf3 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -146,7 +146,11 @@ struct synaptics_data {
+ 
+ 	struct serio *pt_port;			/* Pass-through serio port */
+ 
+-	struct synaptics_hw_state mt;		/* current gesture packet */
++	/*
++	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet
++	 * contains position data for a second contact, at half resolution.
++	 */
++	struct synaptics_hw_state agm;
+ };
+ 
+ void synaptics_module_init(void);
 -- 
 1.7.3.1
+

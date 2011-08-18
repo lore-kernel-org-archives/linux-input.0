@@ -1,70 +1,94 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
+From: JJ Ding <jj_ding@emc.com.tw>
 Subject: Re: [PATCH 6/6] Input: elantech - add v3 hardware support
-Date: Thu, 18 Aug 2011 13:34:54 +0800
-Message-ID: <CAGS+omB0Ys-vEVq64W85Jmsz=TkgvNqn_iJkxynZJr8wvqifGQ@mail.gmail.com>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw>
- <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw> <4E4C80A0.8090708@cn.fujitsu.com>
- <87d3g347ey.fsf@emc.com.tw> <4E4CA3A9.2010900@cn.fujitsu.com>
+Date: Thu, 18 Aug 2011 13:39:47 +0800
+Message-ID: <8762lv46sc.fsf@emc.com.tw>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw> <CAGS+omDm8RXPLXOnajrJ1hJPS5=mpzaLBybNYY92DMk1j=wByQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4E4CA3A9.2010900@cn.fujitsu.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gaowanlong@cn.fujitsu.com
-Cc: JJ Ding <jj_ding@emc.com.tw>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:41035 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752533Ab1HRFh0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2011 01:37:26 -0400
+In-Reply-To: <CAGS+omDm8RXPLXOnajrJ1hJPS5=mpzaLBybNYY92DMk1j=wByQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-On Thu, Aug 18, 2011 at 1:31 PM, Wanlong Gao <gaowanlong@cn.fujitsu.com=
-> wrote:
-> On 08/18/2011 01:26 PM, JJ Ding wrote:
->>
->> Hi Wanlong Gao,
->>
->> On Thu, 18 Aug 2011 11:01:52 +0800, Wanlong Gao<gaowanlong@cn.fujits=
-u.com>
->> =A0wrote:
->>>
->>> On 08/18/2011 09:57 AM, JJ Ding wrote:
->>>>
->>>> v3 hardware's packet format is almost identical to v2 (one/three f=
-inger
->>>> touch),
->>>> except when sensing two finger touch, the hardware sends 12 bytes =
-of
->>>> data.
->>>>
->>>> Signed-off-by: JJ Ding<jj_ding@emc.com.tw>
->>>> ---
->>>> =A0 Documentation/input/elantech.txt | =A0104 ++++++++++++++++--
->>>> =A0 drivers/input/mouse/elantech.c =A0 | =A0218
->>>> ++++++++++++++++++++++++++++++++++---
->>>> =A0 drivers/input/mouse/elantech.h =A0 | =A0 11 ++
->>>> =A0 3 files changed, 303 insertions(+), 30 deletions(-)
->>>>
->>>> +static int determine_packet_v3(struct psmouse *psmouse)
->>>
->>> elantech_check_parity_v1
->>> packet_simple_check_v2
->>> determine_packet_v3
->>>
->>> Why not consistent them?
->>
->> OK, how do these names sound to you?
->>
->> elantech_check_parity_v1
->> elantech_packet_check_v2
->> elantech_packet_check_v3
->>
->> Thanks,
->> jj
->
-> Yeah, sounds perfectly.
+Hi Daniel,
 
-Or just:
+On Thu, 18 Aug 2011 10:57:57 +0800, Daniel Kurtz <djkurtz@chromium.org> wrote:
+> On Thu, Aug 18, 2011 at 9:57 AM, JJ Ding <jj_ding@emc.com.tw> wrote:
+> > v3 hardware's packet format is almost identical to v2 (one/three finger touch),
+> > except when sensing two finger touch, the hardware sends 12 bytes of data.
+> >
+> > Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+> > ---
+> >  Documentation/input/elantech.txt |  104 ++++++++++++++++--
+> >  drivers/input/mouse/elantech.c   |  218 ++++++++++++++++++++++++++++++++++---
+> >  drivers/input/mouse/elantech.h   |   11 ++
+> >  3 files changed, 303 insertions(+), 30 deletions(-)
+> >
+> > +/*
+> > + * firmware tells us there's noise.
+> > + */
+> > +static inline int debounce(unsigned int x, unsigned int y)
+> > +{
+> > +       return (x == 0xfff) && (y == 0xfff);
+> 
+> Perhaps you could document this behavior in the elantech.txt.
+OK, I will do that.
 
-elantech_packet_check_v1
-elantech_packet_check_v2
-elantech_packet_check_v3
-
-:)
+> >
+> > diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+> > index 4b7447e..4f01fc6 100644
+> > --- a/drivers/input/mouse/elantech.h
+> > +++ b/drivers/input/mouse/elantech.h
+> > @@ -16,6 +16,7 @@
+> >  /*
+> >  * Command values for Synaptics style queries
+> >  */
+> > +#define ETP_FW_ID_QUERY                        0x00
+> 
+> One tab too many?
+> 
+> >  #define ETP_FW_VERSION_QUERY           0x01
+> >  #define ETP_CAPABILITIES_QUERY         0x02
+> >
+> > @@ -24,6 +25,7 @@
+> >  */
+> >  #define ETP_REGISTER_READ              0x10
+> >  #define ETP_REGISTER_WRITE             0x11
+> > +#define ETP_REGISTER_READWRITE         0x00
+> >
+> >  /*
+> >  * Hardware version 2 custom PS/2 command value
+> > @@ -93,6 +95,13 @@
+> >  #define ETP_2FT_YMIN                   (  0 + ETP_2FT_FUZZ)
+> >  #define ETP_2FT_YMAX                   (192 - ETP_2FT_FUZZ)
+> >
+> > +/*
+> > + * v3 hardware has 2 kinds of packet types.
+> > + */
+> > +#define PACKET_UNKNOWN                 0x01
+> > +#define PACKET_V3_HEAD                 0x02
+> > +#define PACKET_V3_TAIL                 0x03
+> > +
+> >  struct elantech_data {
+> >        unsigned char reg_10;
+> >        unsigned char reg_11;
+> > @@ -113,6 +122,8 @@ struct elantech_data {
+> >        unsigned int single_finger_reports;
+> >        unsigned int y_max;
+> >        unsigned int y_2ft_max;
+> > +       unsigned int prev_x;
+> > +       unsigned int prev_y;
+> >        unsigned char parity[256];
+> >  };
+> >
+> > --
+> > 1.7.4.1
+> >
+> >

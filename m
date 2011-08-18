@@ -1,59 +1,31 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH 5/6] Input: elantech - clean up elantech_init
-Date: Thu, 18 Aug 2011 15:44:46 +0800
-Message-ID: <87ty9f2mfl.fsf@emc.com.tw>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-6-git-send-email-jj_ding@emc.com.tw> <CAGS+omDVn1uoU85pPN+jeHMTMp83EA13b3E8Sca0QOqDBZHQFg@mail.gmail.com> <4E4C8218.8040100@cn.fujitsu.com> <87aab746ys.fsf@emc.com.tw> <20110818060038.GA10093@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/6] Input: elantech - use firmware provided x, y ranges
+Date: Thu, 18 Aug 2011 00:47:56 -0700
+Message-ID: <20110818074756.GE10093@core.coreip.homeip.net>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw>
+ <1313632629-23603-3-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:47551 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755162Ab1HRHmf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 03:42:35 -0400
-In-Reply-To: <20110818060038.GA10093@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1313632629-23603-3-git-send-email-jj_ding@emc.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: gaowanlong@cn.fujitsu.com, Daniel Kurtz <djkurtz@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Hi Dmitry,
+On Thu, Aug 18, 2011 at 09:57:05AM +0800, JJ Ding wrote:
+> +
+> +		i = (etd->fw_version > 0x020800 &&
+> +		     etd->fw_version < 0x020900) ? 1 : 2;
+> +		*x_max = (etd->capabilities[1] - i) * 64;
+> +		*y_max = (etd->capabilities[2] - i) * 64;
+> +		*y_2ft_max = (*y_max - i) * 64 / 4;
 
-On Wed, 17 Aug 2011 23:00:38 -0700, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Thu, Aug 18, 2011 at 01:35:55PM +0800, JJ Ding wrote:
-> > Hi Wanlong Gao, Daniel,
-> > 
-> > On Thu, 18 Aug 2011 11:08:08 +0800, Wanlong Gao <gaowanlong@cn.fujitsu.com> wrote:
-> > > On 08/18/2011 11:04 AM, Daniel Kurtz wrote:
-> > > >
-> > > > Assuming paritycheck goes away:
-> > > Agree.
-> > I thought about removing it, too. But it occured to me that v1 and v2
-> > hardware can still have the sysfs entry to turn off parity check.
-> > 
-> > And since it's exposed in sysfs, I suppose there might be some init
-> > scripts relying on it.
-> > 
-> > What do you think, Dmitry?
-> > Shall I remove it?
-> 
-> No, we should not remove it, since it is useful for V1 hardware which we
-> still support.
-> 
-> How confident are we in the V2/V3 checking not tripping on valid packets?
-> 
-> Thanks.
-With V2 it should work reasonbaly well. Although I don't have test data,
-I didn't encounter any problem turning paritycheck off when testing V2.
+Hmm, we should have the same range for ST and MT data and scale MT data
+if it has lower resolution to match ST.
 
-With V3 we use the check to distinguish first 2-finger packet and the
-second one. So it's mandatory with V3.
+Thanks.
 
-Thanks
-jj
-> -- 
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

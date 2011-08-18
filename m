@@ -1,45 +1,63 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH 5/6] Input: elantech - clean up elantech_init
-Date: Thu, 18 Aug 2011 14:34:57 +0800
-Message-ID: <4E4CB291.5010102@cn.fujitsu.com>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-6-git-send-email-jj_ding@emc.com.tw>
-Reply-To: gaowanlong@cn.fujitsu.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/6] Input: elantech - packet checking for v2 hardware
+Date: Wed, 17 Aug 2011 23:38:18 -0700
+Message-ID: <20110818063818.GC10093@core.coreip.homeip.net>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw>
+ <1313632629-23603-4-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hera.kernel.org ([140.211.167.34]:56490 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750762Ab1HRGgg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 02:36:36 -0400
-In-Reply-To: <1313632629-23603-6-git-send-email-jj_ding@emc.com.tw>
+Received: from mail-iy0-f170.google.com ([209.85.210.170]:64265 "EHLO
+	mail-iy0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751429Ab1HRGiX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2011 02:38:23 -0400
+Content-Disposition: inline
+In-Reply-To: <1313632629-23603-4-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-On 08/18/2011 09:57 AM, JJ Ding wrote:
->   	if (elantech_set_absolute_mode(psmouse)) {
->   		pr_err("failed to put touchpad into absolute mode.\n");
->   		goto init_fail;
-Hi JJ,
---
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index e13a719..675c236 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1069,7 +1069,7 @@ int elantech_init(struct psmouse *psmouse)
+On Thu, Aug 18, 2011 at 09:57:06AM +0800, JJ Ding wrote:
+> For v2 hardware, there is no real parity check, but we can still check
+> some constant bits for data integrity.
+> 
+> Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+> ---
+>  drivers/input/mouse/elantech.c |   26 +++++++++++++++++++++++---
+>  1 files changed, 23 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index cf41f23..032181c 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -376,6 +376,25 @@ static int elantech_check_parity_v1(struct psmouse *psmouse)
+>  	       etd->parity[packet[3]] == p3;
+>  }
+>  
+> +static int packet_simple_check_v2(struct psmouse *psmouse)
+> +{
+> +	struct elantech_data *etd = psmouse->private;
+> +	unsigned char *packet = psmouse->packet;
+> +
+> +	if (etd->reports_pressure)
+> +		return (packet[0] & 0x0c) == 0x04 &&
+> +		       (packet[3] & 0x0f) == 0x02;
+> +
+> +	if ((packet[0] & 0xc0) == 0x80)
+> +		return (packet[0] & 0x0c) == 0x0c &&
+> +		       (packet[3] & 0x0e) == 0x08;
+> +
+> +	return (packet[0] & 0x3c) == 0x3c &&
+> +	       (packet[1] & 0xf0) == 0x00 &&
+> +	       (packet[3] & 0x3e) == 0x38 &&
+> +	       (packet[4] & 0xf0) == 0x00;
 
-         return 0;
+Can we please spell out the assumptions under which we decide that
+packet is invalid?
 
-- init_fail:
-+init_fail:
-         kfree(etd);
-         return -1;
-  }
---
+Thanks.
 
-also has space before *init_fail*, you may do this in your next version.
-
-Thanks
--Wanlong Gao
+-- 
+Dmitry

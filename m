@@ -1,98 +1,68 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 2/9 v4] Input: synaptics - refactor agm packet parsing
-Date: Thu, 18 Aug 2011 19:28:01 +0800
-Message-ID: <1313666888-18939-3-git-send-email-djkurtz@chromium.org>
-References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] usbhid: Add the malfunctioning SiGma Micro chip to the
+ list of hid-quirks
+Date: Thu, 18 Aug 2011 14:31:57 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1108181431110.27118@pobox.suse.cz>
+References: <20110814144310.GA3303@netstar> <20110816100520.GA13291@solar.elec.gla.ac.uk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:28276 "EHLO
-	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755555Ab1HRL2S (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 07:28:18 -0400
-In-Reply-To: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
+Received: from cantor2.suse.de ([195.135.220.15]:56802 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755834Ab1HRMb7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2011 08:31:59 -0400
+In-Reply-To: <20110816100520.GA13291@solar.elec.gla.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, rydberg@euromail.se
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com, Daniel Kurtz <djkurtz@chromium.org>
+To: Jeremiah Matthey <sprg86@gmail.com>
+Cc: Benjamin_Tissoires@logitech.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-When a Synaptics touchpad is in "AGM" mode, and multiple fingers are
-detected, the touchpad sends alternating "Advanced Gesture Mode" (AGM) and
-"Simple Gesture Mode" (SGM) packets.
-  The AGM packets have w=2, and contain reduced resolution finger data.
-  The SGM packets have w={0,1} and contain full resolution finger data.
+On Tue, 16 Aug 2011, Jeremiah Matthey wrote:
 
-Refactor the parsing of agm packets to its own function, and rename the
-synaptics_data.mt field to .agm to indicate that it contains the contents of
-the last agm packet.
+> Patch to add SiGma Micro-based keyboards (1c4f:0002) to hid-quirks.
+> 
+> These keyboards dont seem to allow the records to be initialized, and hence a
+> timeout occurs when the usbhid driver attempts to initialize them. The patch
+> just adds the signature for these keyboards to the hid-quirks list with the
+> setting HID_QUIRK_NO_INIT_REPORTS. This removes the 5-10 second wait for the
+> timeout to occur.
+> 
+> This is technically a resubmit, first time i posted i didnt include the 
+> right people in the destination, was just aimed at the list, so might 
+> have gone unnoticed. (First (submitted) kernel patch, I'll learn with 
+> time :))
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
----
- drivers/input/mouse/synaptics.c |   19 ++++++++++++++-----
- drivers/input/mouse/synaptics.h |    6 +++++-
- 2 files changed, 19 insertions(+), 6 deletions(-)
+Thanks for the patch.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 297e88f..e966894 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -419,6 +419,17 @@ static void synaptics_pt_create(struct psmouse *psmouse)
-  *	Functions to interpret the absolute mode packets
-  ****************************************************************************/
- 
-+static void synaptics_parse_agm(const unsigned char buf[],
-+				struct synaptics_data *priv)
-+{
-+	struct synaptics_hw_state *agm = &priv->agm;
-+
-+	/* Gesture packet: (x, y, z) at half resolution */
-+	agm->x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
-+	agm->y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
-+	agm->z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
-+}
-+
- static int synaptics_parse_hw_state(const unsigned char buf[],
- 				    struct synaptics_data *priv,
- 				    struct synaptics_hw_state *hw)
-@@ -453,10 +464,7 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
- 		}
- 
- 		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
--			/* Gesture packet: (x, y, z) at half resolution */
--			priv->mt.x = (((buf[4] & 0x0f) << 8) | buf[1]) << 1;
--			priv->mt.y = (((buf[4] & 0xf0) << 4) | buf[2]) << 1;
--			priv->mt.z = ((buf[3] & 0x30) | (buf[5] & 0x0f)) << 1;
-+			synaptics_parse_agm(buf, priv);
- 			return 1;
- 		}
- 
-@@ -595,7 +603,8 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 	}
- 
- 	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
--		synaptics_report_semi_mt_data(dev, &hw, &priv->mt, num_fingers);
-+		synaptics_report_semi_mt_data(dev, &hw, &priv->agm,
-+					      num_fingers);
- 
- 	/* Post events
- 	 * BTN_TOUCH has to be first as mousedev relies on it when doing
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index ca040aa..a9efbf3 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -146,7 +146,11 @@ struct synaptics_data {
- 
- 	struct serio *pt_port;			/* Pass-through serio port */
- 
--	struct synaptics_hw_state mt;		/* current gesture packet */
-+	/*
-+	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet
-+	 * contains position data for a second contact, at half resolution.
-+	 */
-+	struct synaptics_hw_state agm;
- };
- 
- void synaptics_module_init(void);
+Please also send me your Signed-off-by line (as described in 
+Documentation/SubmittingPatches) so that I could apply it to my tree.
+
+> diff -ru linux-3.0.1-clean/drivers/hid/hid-ids.h linux-3.0.1-patched/drivers/hid/hid-ids.h
+> --- linux-3.0.1-clean/drivers/hid/hid-ids.h	2011-08-05 05:59:21.000000000 +0100
+> +++ linux-3.0.1-patched/drivers/hid/hid-ids.h	2011-08-14 15:25:58.129865922 +0100
+> @@ -568,6 +568,9 @@
+>  #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+>  #define USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE	0x0600
+>  
+> +#define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
+> +#define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
+> +
+>  #define USB_VENDOR_ID_SKYCABLE			0x1223
+>  #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
+>  
+> diff -ru linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c
+> --- linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c	2011-08-05 05:59:21.000000000 +0100
+> +++ linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c	2011-08-14 15:26:06.289865845 +0100
+> @@ -89,6 +89,7 @@
+>  
+>  	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
+> +	{ USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ 0, 0 }
+>  };
+>  
+> 
+
 -- 
-1.7.3.1
-
+Jiri Kosina
+SUSE Labs

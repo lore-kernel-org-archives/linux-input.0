@@ -1,56 +1,60 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 4/9 v4] Input: synaptics - add image sensor support
-Date: Thu, 18 Aug 2011 09:00:08 -0700
-Message-ID: <4E4D3708.1020501@canonical.com>
-References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org> <1313666888-18939-5-git-send-email-djkurtz@chromium.org>
+Subject: Re: [PATCH 6/9 v4] Input: mt - document devices reporting more touches
+ than slots
+Date: Thu, 18 Aug 2011 09:01:39 -0700
+Message-ID: <4E4D3763.7000402@canonical.com>
+References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org> <1313666888-18939-7-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:33379 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:33394 "EHLO
 	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755278Ab1HRQAO (ORCPT
+	with ESMTP id S1755542Ab1HRQBo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 12:00:14 -0400
-In-Reply-To: <1313666888-18939-5-git-send-email-djkurtz@chromium.org>
+	Thu, 18 Aug 2011 12:01:44 -0400
+In-Reply-To: <1313666888-18939-7-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Daniel Kurtz <djkurtz@chromium.org>
 Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
 
 On 08/18/2011 04:28 AM, Daniel Kurtz wrote:
-> Synaptics makes (at least) two kinds of touchpad sensors:
->  * Older pads use a profile sensor that could only infer the location
->    of individual fingers based on the projection of their profiles
->    onto row and column sensors.
->  * Newer pads use an image sensor that can track true finger position
->    using a two-dimensional sensor grid.
-> 
-> Both sensor types support an "Advanced Gesture Mode":
->  When multiple fingers are detected, the touchpad sends alternating
->  "Advanced Gesture Mode" (AGM) and "Simple Gesture Mode" (SGM)
->  packets.
->  The AGM packets have w=2, and contain reduced resolution finger data
->  The SGM packets have w={0,1} and contain full resolution finger data
-> 
-> Profile sensors try to report the "upper" (larger y value) finger in
-> the SGM packet, and the lower (smaller y value) in the AGM packet.
-> However, due to the nature of the profile sensor, they easily get
-> confused when fingers cross, and can start reporting the x-coordinate
-> of one with the y-coordinate of the other.  Thus, for profile
-> sensors, "semi-mt" was created, which reports a "bounding box"
-> created by pairing min and max coordinates of the two pairs of
-> reported fingers.
-> 
-> Image sensors can report the actual coordinates of two of the fingers
-> present.  This patch detects if the touchpad is an image sensor and
-> reports finger data using the MT-B protocol.
-> 
-> NOTE: This patch only adds partial support for 2-finger gestures.
->       The proper interpretation of the slot contents when more than
->       two fingers are present is left to later patches.  Also,
->       handling of 'number of fingers' transitions is incomplete.
+> Some devices are capable of identifying and/or tracking more contacts than
+> they can report to the driver.  Document how a driver should handle this,
+> and what userspace should expect.
 > 
 > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  Documentation/input/multi-touch-protocol.txt |   14 ++++++++++++++
+>  1 files changed, 14 insertions(+), 0 deletions(-)
+> 
+> diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+> index 71536e7..543101c 100644
+> --- a/Documentation/input/multi-touch-protocol.txt
+> +++ b/Documentation/input/multi-touch-protocol.txt
+> @@ -65,6 +65,20 @@ the full state of each initiated contact has to reside in the receiving
+>  end.  Upon receiving an MT event, one simply updates the appropriate
+>  attribute of the current slot.
+>  
+> +Some devices identify and/or track more contacts than they can report to the
+> +driver.  A driver for such a device should associate one type B slot with each
+> +contact that is reported by the hardware.  Whenever the identity of the
+> +contact associated with a slot changes, the driver should invalidate that
+> +slot by changing its ABS_MT_TRACKING_ID.  If the hardware signals that it is
+> +tracking more contacts than it is currently reporting, the driver should use
+> +a BTN_TOOL_*TAP event to inform userspace of the total number of contacts
+> +being tracked by the hardware at that moment.  The driver should do this by
+> +explicitly sending the corresponding BTN_TOOL_*TAP event and setting
+> +use_count to false when calling input_mt_report_pointer_emulation().
+> +The driver should only advertise as many slots as the hardware can report.
+> +Userspace can detect that a driver can report more total contacts than slots
+> +by noting that the largest supported BTN_TOOL_*TAP event is larger than the
+> +total number of type B slots reported in the absinfo for the ABS_MT_SLOT axis.
+>  
+>  Protocol Example A
+>  ------------------
 
 Acked-by: Chase Douglas <chase.douglas@canonical.com>
+
+Thanks a bunch Daniel!

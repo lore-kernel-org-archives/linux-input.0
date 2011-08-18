@@ -1,73 +1,43 @@
 From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH] Input: elantech - Add v3 hardware support
-Date: Thu, 18 Aug 2011 09:38:04 +0800
-Message-ID: <87mxf74hz7.fsf@emc.com.tw>
-References: <1313589793-31184-1-git-send-email-seth.forshee@canonical.com> <20110817173111.GD4877@core.coreip.homeip.net> <20110817183544.GB31314@thinkpad-t410>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 0/6] elantech: add support for newer generation hardware
+Date: Thu, 18 Aug 2011 09:57:03 +0800
+Message-ID: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:26038 "EHLO
+Received: from emcscan.emc.com.tw ([192.72.220.5]:8104 "EHLO
 	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754772Ab1HRBfq (ORCPT
+	with ESMTP id S1754155Ab1HRBy7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Aug 2011 21:35:46 -0400
-In-Reply-To: <20110817183544.GB31314@thinkpad-t410>
+	Wed, 17 Aug 2011 21:54:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alessandro Rubini <rubini@cvml.unipv.it>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Tom Lin <tom_lin@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>, JJ Ding <jj_ding@emc.com.tw>
 
-Hi Seth,
+Hi list,
 
-Thank you for your work.
-I am preparing my patches for community review, and will submit very
-soon.
-Looking forward to your feedback.
+This is a series of patches to add support for newer generation of ELAN
+touchpad.
 
-Thanks.
+Patches #1~5 are essentially fixes and cleanups that pave the way for
+patch #6, which really adds code for v3 hardware support.
 
-jj
+Any comments, suggestions are welcome.
 
-On Wed, 17 Aug 2011 13:35:44 -0500, Seth Forshee <seth.forshee@canonical.com> wrote:
-> On Wed, Aug 17, 2011 at 10:31:11AM -0700, Dmitry Torokhov wrote:
-> > Hi Seth,
-> > 
-> > On Wed, Aug 17, 2011 at 09:03:13AM -0500, Seth Forshee wrote:
-> > > Adds basic v3 hardware support for newer devices not currently
-> > > supported by the driver.
-> > > 
-> > > Thanks to Tom Lin <tom_lin@emc.com.tw> and Mark A. Stratman
-> > > <stratman@gmail.com>, whose work on a previous patch revealed many
-> > > of the details of the v3 protocol.
-> > 
-> > Excellent work, thank you.
-> > 
-> > Apparently Elantech is now also interested in supporting ther devices
-> > on Linux and is preparing some patches adding support for the new
-> > hardware so it woudl be great if we coordinated efforts. I am CC-ing
-> > JJ Ding and Aaron Huang...
-> 
-> Sure, I'd be happy to coordinate.
-> 
-> Where does that leave this patch? Do you want to take it now and
-> integrate improvments from working with Elantech as they come, or hold
-> off? I'd personally like to see this patch get merged unless there are
-> objections to it, as it works well and gives us at least some support
-> for these touchpads right now. It's been tested so far on the following
-> laptop models:
-> 
->   Samsung NF210
->   Samsung NF310
->   Samsung QX410
->   Asus X93S
-> 
-> It would certainly be great to get it reviewed by the folks from
-> Elantech to make sure all the details of the hardware interaction are
-> correct though.
-> 
-> Thanks,
-> Seth
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thank you.
+
+JJ Ding (6):
+  Input: elantech - correct x, y value range for v2 hardware
+  Input: elantech - use firmware provided x, y ranges
+  Input: elantech - packet checking for v2 hardware
+  Input: elantech - work around EC buffer
+  Input: elantech - clean up elantech_init
+  Input: elantech - add v3 hardware support
+
+ Documentation/input/elantech.txt |  112 ++++++++++--
+ drivers/input/mouse/elantech.c   |  373 ++++++++++++++++++++++++++++++++------
+ drivers/input/mouse/elantech.h   |   15 ++-
+ 3 files changed, 426 insertions(+), 74 deletions(-)
+
+-- 
+1.7.4.1
+

@@ -1,35 +1,69 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch 2/2 -next] hid-lg4ff: add a kfree() to an error path
-Date: Thu, 18 Aug 2011 16:43:43 +0300
-Message-ID: <20110818134343.GB21927@shale.localdomain>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH 6/6] Input: elantech - add v3 hardware support
+Date: Thu, 18 Aug 2011 08:58:53 -0500
+Message-ID: <20110818135853.GA28313@thinkpad-t410>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw>
+ <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:35869 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755204Ab1HRNp4 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:53845 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755729Ab1HRN66 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 09:45:56 -0400
+	Thu, 18 Aug 2011 09:58:58 -0400
 Content-Disposition: inline
+In-Reply-To: <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-There is a small rare potential memory leak here.  But it's easy to
-fix.
+On Thu, Aug 18, 2011 at 09:57:09AM +0800, JJ Ding wrote:
+> v3 hardware's packet format is almost identical to v2 (one/three finger touch),
+> except when sensing two finger touch, the hardware sends 12 bytes of data.
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+This looks mostly similar in substance to the patch I sent, although
+with some good improvements resulting from your better knowledge of the
+hardware :)
 
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index dc38c2d..2b4bbcb 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -438,6 +438,7 @@ int lg4ff_init(struct hid_device *hid)
- 	entry->device_id = (char *)kzalloc(strlen((&hid->dev)->kobj.name) + 1, GFP_KERNEL);
- 	if (!entry->device_id) {
- 		hid_err(hid, "Cannot set device_id, insufficient memory.\n");
-+		kfree(entry);
- 		return -ENOMEM;
- 	}
- 	strcpy(entry->device_id, (&hid->dev)->kobj.name);
+One suggestion below. I'll test as soon as my build finishes.
+
+> @@ -582,10 +739,26 @@ static void elantech_set_input_params(struct psmouse *psmouse)
+>  		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
+>  		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+>  		break;
+> +
+> +	case 3:
+> +		input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
+> +		input_set_abs_params(dev, ABS_Y, y_min, y_max, 0, 0);
+> +		/* range of pressure and width is the same as v2 */
+> +		input_set_abs_params(dev, ABS_PRESSURE, ETP_PMIN_V2,
+> +				     ETP_PMAX_V2, 0, 0);
+> +		input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
+> +				     ETP_WMAX_V2, 0, 0);
+> +		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+> +		input_mt_init_slots(dev, 2);
+> +		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
+> +		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+> +		break;
+
+The case 3 code is nearly identical to case 2. How about this?
+
+	case 2:
+		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
+		/* fall through */
+
+	case 3:
+		input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
+		input_set_abs_params(dev, ABS_Y, y_min, y_max, 0, 0);
+		/* range of pressure and width is the same as v2 */
+		input_set_abs_params(dev, ABS_PRESSURE, ETP_PMIN_V2,
+				     ETP_PMAX_V2, 0, 0);
+		input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
+				     ETP_WMAX_V2, 0, 0);
+		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+		input_mt_init_slots(dev, 2);
+		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
+		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+		break;

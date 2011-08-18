@@ -1,69 +1,74 @@
-From: "Jiejing.Zhang " <kzjeef@gmail.com>
-Subject: Re: [Q] max11801 licensing terms
-Date: Thu, 18 Aug 2011 18:27:10 +0800
-Message-ID: <CACrgxGD3M-yCSBdu3p9em698jQ4X2cZd17gHDYdvJWgFNG=PBg@mail.gmail.com>
-References: <201108171431.26470.brian.foster@maxim-ic.com> <CACrgxGB0RaxhbPfU34L3b-1vPEDYf5M7Z8q2HKoKEQ8YcuFCsw@mail.gmail.com>
- <20110817174510.GF4877@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [RFC PATCH] Only process ABS_MT_SLOT where there are slots available
+Date: Thu, 18 Aug 2011 12:28:53 +0200
+Message-ID: <1313663333-19810-1-git-send-email-ospite@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vx0-f174.google.com ([209.85.220.174]:39984 "EHLO
-	mail-vx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752825Ab1HRK1a convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 06:27:30 -0400
-Received: by vxi9 with SMTP id 9so1598513vxi.19
-        for <linux-input@vger.kernel.org>; Thu, 18 Aug 2011 03:27:30 -0700 (PDT)
-In-Reply-To: <20110817174510.GF4877@core.coreip.homeip.net>
+Received: from smtp207.alice.it ([82.57.200.103]:46300 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755462Ab1HRK3M (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2011 06:29:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Brian Foster <brian.foster@maxim-ic.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, Jean-Marc Simohand <JeanMarc.Simohand@maxim-ic.com>
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Simon Wood <simon@mungewell.org>, Henrik Rydberg <rydberg@euromail.se>, virtuousfox@gmail.com
 
-Hi Dmitry,
+This fixes the case when a non-multitouch device happens to have a HID
+code equal to ABS_MT_SLOT, like the Sony Sixaxis has for the left dpad
+analog control.
 
-I've send a patch to mail list.
+Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+Cc: Simon Wood <simon@mungewell.org>
+Cc: Henrik Rydberg <rydberg@euromail.se>
+Cc: virtuousfox@gmail.com
+---
 
-Thanks.
+Hi,
 
-Best regards,
-Zhang Jiejing
+following up from the discussion at 
+http://thread.gmane.org/gmane.linux.kernel.input/19632 I've come up with this 
+workaround to make the dpad left analog axis of the Sony Sixaxis controller 
+working. What happens is that this button has a code of 0x2f (ABS_MT_SLOT) 
+which gets some special handling regardless of the device being a multitouch one 
+or not.
 
+I do not know anything about multitouch devices, so I am not sure if this 
+hack may break something else, I'd like some advice here.
 
+Another possibility could be to remap the code at the HID level for the 
+Sixaxis only, Simon you suggested this, are you willing to do that if this 
+will be the preferred way? My HID-fu is way worse than yours and It'll take a 
+lot more time for me.
 
-2011/8/18 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Wed, Aug 17, 2011 at 09:24:32PM +0800, Jiejing.Zhang =A0wrote:
->> Hi Brian Foster,
->>
->> > =A0 =A0 * Based on mcs5000_ts.c
->> I have referenced mcs5000_ts.c source code when writing this driver,
->> but I don't think it's a big deal, I really reference lots of files.
->>
->> > =A0What does =93either version 2 of the License.=94 mean?
->> > =A0Either GPLv2 or what?
->>
->> Yes, I think it means GPLv2, I'm not really not very care about thes=
-e
->> license, just copy other files under driver/input/ directory.
->
-> mcs5000_ts.c (and m97xx-core.c it was derived from) are GPLv2 or late=
-r
-> so max11801_ts.c shoudl folow the same licensing terms, but it seems =
-the
-> statement was truncated.
->
-> Jiejing, could you please send me a patch restoring the proper wordin=
-g
-> so there won't be any confusion in the future?
->
-> Thanks!
->
-> --
-> Dmitry
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+   Antonio Ospite
+   http://ao2.it
+
+ drivers/input/input.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index da38d97..f878ae9 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -169,7 +169,7 @@ static int input_handle_abs_event(struct input_dev *dev,
+ 	bool is_mt_event;
+ 	int *pold;
+ 
+-	if (code == ABS_MT_SLOT) {
++	if (code == ABS_MT_SLOT && dev->mtsize > 0) {
+ 		/*
+ 		 * "Stage" the event; we'll flush it later, when we
+ 		 * get actual touch data.
+@@ -205,7 +205,8 @@ static int input_handle_abs_event(struct input_dev *dev,
+ 	}
+ 
+ 	/* Flush pending "slot" event */
+-	if (is_mt_event && dev->slot != input_abs_get_val(dev, ABS_MT_SLOT)) {
++	if (is_mt_event && dev->slot != input_abs_get_val(dev, ABS_MT_SLOT) &&
++	    dev->mtsize > 0 ) {
+ 		input_abs_set_val(dev, ABS_MT_SLOT, dev->slot);
+ 		input_pass_event(dev, EV_ABS, ABS_MT_SLOT, dev->slot);
+ 	}
+-- 
+1.7.5.4
+

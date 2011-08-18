@@ -1,72 +1,54 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 1/9 v4] Input: synaptics - refactor y inversion
-Date: Thu, 18 Aug 2011 19:28:00 +0800
-Message-ID: <1313666888-18939-2-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 6/9 v4] Input: mt - document devices reporting more touches than slots
+Date: Thu, 18 Aug 2011 19:28:05 +0800
+Message-ID: <1313666888-18939-7-git-send-email-djkurtz@chromium.org>
 References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out.google.com ([216.239.44.51]:28262 "EHLO
+Received: from smtp-out.google.com ([74.125.121.67]:26724 "EHLO
 	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755503Ab1HRL2R (ORCPT
+	with ESMTP id S1755599Ab1HRL2U (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 07:28:17 -0400
+	Thu, 18 Aug 2011 07:28:20 -0400
 In-Reply-To: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, rydberg@euromail.se
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com, Daniel Kurtz <djkurtz@chromium.org>
 
-Synaptics touchpads report increasing y from bottom to top.
-This is inverted from normal userspace "top of screen is 0" coordinates.
-Thus, the kernel driver reports inverted y coordinates to userspace.
-
-This patch refactors this inversion.
+Some devices are capable of identifying and/or tracking more contacts than
+they can report to the driver.  Document how a driver should handle this,
+and what userspace should expect.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
 ---
- drivers/input/mouse/synaptics.c |   15 ++++++++++++---
- 1 files changed, 12 insertions(+), 3 deletions(-)
+ Documentation/input/multi-touch-protocol.txt |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 5538fc6..297e88f 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -44,6 +44,16 @@
- #define YMIN_NOMINAL 1408
- #define YMAX_NOMINAL 4448
+diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+index 71536e7..543101c 100644
+--- a/Documentation/input/multi-touch-protocol.txt
++++ b/Documentation/input/multi-touch-protocol.txt
+@@ -65,6 +65,20 @@ the full state of each initiated contact has to reside in the receiving
+ end.  Upon receiving an MT event, one simply updates the appropriate
+ attribute of the current slot.
  
-+/*
-+ * Synaptics touchpads report the y coordinate from bottom to top, which is
-+ * opposite from what userspace expects.
-+ * This function is used to invert y before reporting.
-+ */
-+static int invert_y(int y)
-+{
-+	return YMAX_NOMINAL + YMIN_NOMINAL - y;
-+}
-+
++Some devices identify and/or track more contacts than they can report to the
++driver.  A driver for such a device should associate one type B slot with each
++contact that is reported by the hardware.  Whenever the identity of the
++contact associated with a slot changes, the driver should invalidate that
++slot by changing its ABS_MT_TRACKING_ID.  If the hardware signals that it is
++tracking more contacts than it is currently reporting, the driver should use
++a BTN_TOOL_*TAP event to inform userspace of the total number of contacts
++being tracked by the hardware at that moment.  The driver should do this by
++explicitly sending the corresponding BTN_TOOL_*TAP event and setting
++use_count to false when calling input_mt_report_pointer_emulation().
++The driver should only advertise as many slots as the hardware can report.
++Userspace can detect that a driver can report more total contacts than slots
++by noting that the largest supported BTN_TOOL_*TAP event is larger than the
++total number of type B slots reported in the absinfo for the ABS_MT_SLOT axis.
  
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-@@ -502,8 +512,7 @@ static void synaptics_report_semi_mt_slot(struct input_dev *dev, int slot,
- 	input_mt_report_slot_state(dev, MT_TOOL_FINGER, active);
- 	if (active) {
- 		input_report_abs(dev, ABS_MT_POSITION_X, x);
--		input_report_abs(dev, ABS_MT_POSITION_Y,
--				 YMAX_NOMINAL + YMIN_NOMINAL - y);
-+		input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(y));
- 	}
- }
- 
-@@ -597,7 +606,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 
- 	if (num_fingers > 0) {
- 		input_report_abs(dev, ABS_X, hw.x);
--		input_report_abs(dev, ABS_Y, YMAX_NOMINAL + YMIN_NOMINAL - hw.y);
-+		input_report_abs(dev, ABS_Y, invert_y(hw.y));
- 	}
- 	input_report_abs(dev, ABS_PRESSURE, hw.z);
- 
+ Protocol Example A
+ ------------------
 -- 
 1.7.3.1
 

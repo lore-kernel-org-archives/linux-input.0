@@ -1,84 +1,38 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 7/9 v4] Input: synaptics - process finger (<=3) transitions
-Date: Thu, 18 Aug 2011 09:02:44 -0700
-Message-ID: <4E4D37A4.7010106@canonical.com>
-References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org> <1313666888-18939-8-git-send-email-djkurtz@chromium.org>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: [patch 1/2 -next] hid-lg4ff: silence sparse complaint
+Date: Thu, 18 Aug 2011 19:21:44 +0300
+Message-ID: <20110818162144.GD21927@shale.localdomain>
+References: <20110818134226.GA21927@shale.localdomain>
+ <CAMvewQJ=6-3LgDwAEgJ6TaQSBWiSC5ZTb-14V60ZN0Lh2TYbAQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:33405 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755346Ab1HRQCs (ORCPT
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:63424 "EHLO
+	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755228Ab1HRQX6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 12:02:48 -0400
-In-Reply-To: <1313666888-18939-8-git-send-email-djkurtz@chromium.org>
+	Thu, 18 Aug 2011 12:23:58 -0400
+Content-Disposition: inline
+In-Reply-To: <CAMvewQJ=6-3LgDwAEgJ6TaQSBWiSC5ZTb-14V60ZN0Lh2TYbAQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
+To: Zic Rim <zicrim@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-On 08/18/2011 04:28 AM, Daniel Kurtz wrote:
-> Synaptics image sensor touchpads track 5 fingers, but only report 2.
-> This patch attempts to deal with some idiosyncrasies of these touchpads:
+On Thu, Aug 18, 2011 at 07:50:45PM +0530, Zic Rim wrote:
+> > device_attribute *attr, char *buf)
+> >  {
+> > -       struct lg4ff_device_entry *entry = 0;
+> > +       struct lg4ff_device_entry *uninitialized_var(entry);
+> >
 > 
->  * When there are 3 or more fingers, only two are reported.
->  * The touchpad tracks the 5 fingers in slot[0] through slot[4].
->  * It always reports the lowest and highest valid slots in SGM and AGM
->    packets, respectively.
->  * The number of fingers is only reported in the SGM packet.  However,
->    the number of fingers can change either before or after an AGM
->    packet.
->  * Thus, if an SGM reports a different number of fingers than the last
->    SGM, it is impossible to tell whether the intervening AGM corresponds
->    to the old number of fingers or the new number of fingers.
->  * For example, when going from 2->3 fingers, it is not possible to tell
->    whether tell AGM contains slot[1] (old 2nd finger) or slot[2] (new
->    3rd finger).
->  * When fingers are added one at at time, from 1->2->3, it is possible to
->    track which slots are contained in the SGM and AGM packets:
->      1 finger:  SGM = slot[0], no AGM
->      2 fingers: SGM = slot[0], AGM = slot[1]
->      3 fingers: SGM = slot[0], AGM = slot[2]
->  * It is also possible to track which slot is contained in the SGM when 1
->    of 2 fingers is removed.  This is because the touchpad sends a special
->    (0,0,0) AGM packet whenever all fingers are removed except slot[0]:
->      Last AGM == (0,0,0): SGM contains slot[1]
->      Else: SGM contains slot[0]
->  * However, once there are 3 fingers, if exactly 1 finger is removed, it
->    is impossible to tell which 2 slots are contained in SGM and AGM.
->    The (SGM,AGM) could be (0,1), (0,2), or (1,2). There is no way to know.
->  * Similarly, if two fingers are simultaneously removed (3->1), then it
->    is only possible to know if SGM still contains slot[0].
->  * Since it is not possible to reliably track which slot is being
->    reported, we invalidate the tracking_id every time the number of
->    fingers changes until this ambiguity is resolved when:
->      a) All fingers are removed.
->      b) 4 or 5 fingers are touched, generates an AGM-CONTACT packet.
->      c) All fingers are removed except slot[0].  In this special case, the
->         ambiguity is resolved since by the (0,0,0) AGM packet.
+> I think this is better      struct lg4ff_device_entry *entry = NULL ;
 > 
-> Behavior of the driver:
-> 
-> When 2 or more fingers are present on the touchpad, the kernel reports
-> up to two MT-B slots containing the position data for two of the fingers
-> reported by the touchpad.  If the identity of a finger cannot be tracked
-> when the number-of-fingers changes, the corresponding MT-B slot will be
-> invalidated (track_id set to -1), and a new track_id will be assigned in
-> a subsequent input event report.
-> 
-> The driver always reports the total number of fingers using one of the
-> EV_KEY/BTN_TOOL_*TAP events. This could differ from the number of valid
-> MT-B slots for two reasons:
->  a) There are more than 2 fingers on the pad.
->  b) During ambiguous number-of-fingers transitions, the correct track_id
->     for one or both of the slots cannot be determined, so the slots are
->     invalidated.
-> 
-> Thus, this is a hybrid singletouch/MT-B scheme. Userspace can detect
-> this behavior by noting that the driver supports more EV_KEY/BTN_TOOL_*TAP
-> events than its maximum EV_ABS/ABS_MT_SLOT.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
+We only have the initialization to silence a gcc warning.  My way is
+more explicit.  If we set entry = NULL then other static analysis
+tools complain about a potential NULL dereference.
+
+regards,
+dan carpenter
+

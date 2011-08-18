@@ -1,66 +1,90 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH 4/6] Input: elantech - work around EC buffer
-Date: Thu, 18 Aug 2011 14:54:56 +0800
-Message-ID: <4E4CB740.5020301@cn.fujitsu.com>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-5-git-send-email-jj_ding@emc.com.tw> <4E4C81EB.7040303@cn.fujitsu.com> <8739gz43lp.fsf@emc.com.tw>
-Reply-To: gaowanlong@cn.fujitsu.com
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH 3/6] Input: elantech - packet checking for v2 hardware
+Date: Thu, 18 Aug 2011 15:31:27 +0800
+Message-ID: <87wreb2n1s.fsf@emc.com.tw>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-4-git-send-email-jj_ding@emc.com.tw> <20110818063818.GC10093@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cn.fujitsu.com ([222.73.24.84]:59401 "EHLO song.cn.fujitsu.com"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1751665Ab1HRG4B (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Aug 2011 02:56:01 -0400
-In-Reply-To: <8739gz43lp.fsf@emc.com.tw>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:24447 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752601Ab1HRH3L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Aug 2011 03:29:11 -0400
+In-Reply-To: <20110818063818.GC10093@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-On 08/18/2011 02:48 PM, JJ Ding wrote:
-> Hi Wanlong Gao,
->
-> On Thu, 18 Aug 2011 11:07:23 +0800, Wanlong Gao<gaowanlong@cn.fujitsu.com>  wrote:
->> On 08/18/2011 09:57 AM, JJ Ding wrote:
->>>
->>>    	return PSMOUSE_FULL_PACKET;
->>> +
->>> + bad_packet:
->> You may introduce space here.
-> Sorry, I am following you here.
-> Do you want me to add one more line below bad_packet:,
-> or you want me to remove the space before bad_packet?
->
-> I keep that space to make the goto tags look consistent with other
-> places in this file.
->
-> Should I remove all starting spaces in goto tags in the file?
->
-> Thanks,
->
-> jj
+Hi Dmitry,
 
-aha, I see that some with space but some without.
-Now, I'm not sure....;)
+On Wed, 17 Aug 2011 23:38:18 -0700, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On Thu, Aug 18, 2011 at 09:57:06AM +0800, JJ Ding wrote:
+> > For v2 hardware, there is no real parity check, but we can still check
+> > some constant bits for data integrity.
+> > 
+> > Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+> > ---
+> >  drivers/input/mouse/elantech.c |   26 +++++++++++++++++++++++---
+> >  1 files changed, 23 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> > index cf41f23..032181c 100644
+> > --- a/drivers/input/mouse/elantech.c
+> > +++ b/drivers/input/mouse/elantech.c
+> > @@ -376,6 +376,25 @@ static int elantech_check_parity_v1(struct psmouse *psmouse)
+> >  	       etd->parity[packet[3]] == p3;
+> >  }
+> >  
+> > +static int packet_simple_check_v2(struct psmouse *psmouse)
+> > +{
+> > +	struct elantech_data *etd = psmouse->private;
+> > +	unsigned char *packet = psmouse->packet;
+> > +
+> > +	if (etd->reports_pressure)
+> > +		return (packet[0] & 0x0c) == 0x04 &&
+> > +		       (packet[3] & 0x0f) == 0x02;
+        this is for newer v2 hardware
+
+> > +
+> > +	if ((packet[0] & 0xc0) == 0x80)
+> > +		return (packet[0] & 0x0c) == 0x0c &&
+> > +		       (packet[3] & 0x0e) == 0x08;
+        this is for older v2, two finger touch 
+
+> > +
+> > +	return (packet[0] & 0x3c) == 0x3c &&
+> > +	       (packet[1] & 0xf0) == 0x00 &&
+> > +	       (packet[3] & 0x3e) == 0x38 &&
+> > +	       (packet[4] & 0xf0) == 0x00;
+        this is for older v2, 1/3 finger touch
+      
+> 
+> Can we please spell out the assumptions under which we decide that
+> packet is invalid?
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+V2 hardware has two flavors. Older ones that do not report pressure,
+and newer ones that reports pressure and width.
+
+With newer ones, all packets (1, 2, 3 finger touch) have the same
+constant bits.
+
+With older ones, 1/3 finger touch packets and 2 finger touch packets have
+different constant bits.
+
+With all three cases, if the constant bits are not exactly what I
+expected, I consider them invalid.
+
+Dmitry, how do you want me to improve this? not enough comments?
 
 Thanks
--Wanlong Gao
->
->>> +	memmove(psmouse->packet, psmouse->packet + 1, psmouse->pktsize - 1);
->>> +	psmouse->pktcnt--;
->>> +	return PSMOUSE_GOOD_DATA;
->>>    }
->>>
->>>    /*
->>
->>
->> --
->> Thanks
->> Wanlong Gao
+jj
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-input" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-

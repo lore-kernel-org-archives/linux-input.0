@@ -1,77 +1,40 @@
-From: Jeremiah Matthey <sprg86@gmail.com>
-Subject: Re: [PATCH] usbhid: Add the malfunctioning SiGma Micro chip to the
- list of hid-quirks
-Date: Fri, 19 Aug 2011 22:59:11 +0100
-Message-ID: <20110819215909.GA1868@netstar>
-References: <20110814144310.GA3303@netstar>
- <20110816100520.GA13291@solar.elec.gla.ac.uk>
- <alpine.LNX.2.00.1108181431110.27118@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/9 v4] Input: synaptics - add image sensor support
+Date: Fri, 19 Aug 2011 15:22:03 -0700
+Message-ID: <20110819222203.GC5146@core.coreip.homeip.net>
+References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
+ <1313666888-18939-5-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f42.google.com ([74.125.82.42]:45771 "EHLO
-	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755460Ab1HSV63 (ORCPT
+Received: from mail-pz0-f42.google.com ([209.85.210.42]:64088 "EHLO
+	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754575Ab1HSWWL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Aug 2011 17:58:29 -0400
+	Fri, 19 Aug 2011 18:22:11 -0400
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1108181431110.27118@pobox.suse.cz>
+In-Reply-To: <1313666888-18939-5-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin_Tissoires@logitech.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: chase.douglas@canonical.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
 
-Sorry about that, here it is.
+Hi Daniel,
 
-Signed-off-by: Jeremiah Matthey <sprg86@gmail.com>
+On Thu, Aug 18, 2011 at 07:28:03PM +0800, Daniel Kurtz wrote:
+> @@ -558,6 +626,11 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+>  	if (synaptics_parse_hw_state(psmouse->packet, priv, &hw))
+>  		return;
+>  
+> +	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
+> +		synaptics_image_sensor_process(psmouse, &hw);
+> +		return;
+> +	}
+> +
 
-On Thu, Aug 18, 2011 at 02:31:57PM +0200, Jiri Kosina wrote:
-> On Tue, 16 Aug 2011, Jeremiah Matthey wrote:
-> 
-> > Patch to add SiGma Micro-based keyboards (1c4f:0002) to hid-quirks.
-> > 
-> > These keyboards dont seem to allow the records to be initialized, and hence a
-> > timeout occurs when the usbhid driver attempts to initialize them. The patch
-> > just adds the signature for these keyboards to the hid-quirks list with the
-> > setting HID_QUIRK_NO_INIT_REPORTS. This removes the 5-10 second wait for the
-> > timeout to occur.
-> > 
-> > This is technically a resubmit, first time i posted i didnt include the 
-> > right people in the destination, was just aimed at the list, so might 
-> > have gone unnoticed. (First (submitted) kernel patch, I'll learn with 
-> > time :))
-> 
-> Thanks for the patch.
-> 
-> Please also send me your Signed-off-by line (as described in 
-> Documentation/SubmittingPatches) so that I could apply it to my tree.
-> 
-> > diff -ru linux-3.0.1-clean/drivers/hid/hid-ids.h linux-3.0.1-patched/drivers/hid/hid-ids.h
-> > --- linux-3.0.1-clean/drivers/hid/hid-ids.h	2011-08-05 05:59:21.000000000 +0100
-> > +++ linux-3.0.1-patched/drivers/hid/hid-ids.h	2011-08-14 15:25:58.129865922 +0100
-> > @@ -568,6 +568,9 @@
-> >  #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
-> >  #define USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE	0x0600
-> >  
-> > +#define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
-> > +#define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
-> > +
-> >  #define USB_VENDOR_ID_SKYCABLE			0x1223
-> >  #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
-> >  
-> > diff -ru linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c
-> > --- linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c	2011-08-05 05:59:21.000000000 +0100
-> > +++ linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c	2011-08-14 15:26:06.289865845 +0100
-> > @@ -89,6 +89,7 @@
-> >  
-> >  	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH, HID_QUIRK_MULTI_INPUT },
-> >  	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
-> > +	{ USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD, HID_QUIRK_NO_INIT_REPORTS },
-> >  	{ 0, 0 }
-> >  };
-> >  
-> > 
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
+So what about the rest of the SYnaptics processing (wheel, additional
+buttons, etc)?  Are we sure that touchpads with image sensors will never
+implement them?
+ 
+-- 
+Dmitry

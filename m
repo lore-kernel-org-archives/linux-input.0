@@ -1,77 +1,77 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH 0/4 incremental 1/2] Generalize controller handling to
- support different devices
-Date: Fri, 19 Aug 2011 22:57:35 +0200
-Message-ID: <20110819225735.ed1dbaa9aaa2f250d693c030@studenti.unina.it>
-References: <20110818161357.8084ab94bff57391e7ec3284@studenti.unina.it>
-	<1313677340-4441-1-git-send-email-ospite@studenti.unina.it>
-	<4E4D2F2E.20105@signal11.us>
-	<20110819211449.b17b35611f11979f9d59a8ab@studenti.unina.it>
+From: Jeremiah Matthey <sprg86@gmail.com>
+Subject: Re: [PATCH] usbhid: Add the malfunctioning SiGma Micro chip to the
+ list of hid-quirks
+Date: Fri, 19 Aug 2011 22:59:11 +0100
+Message-ID: <20110819215909.GA1868@netstar>
+References: <20110814144310.GA3303@netstar>
+ <20110816100520.GA13291@solar.elec.gla.ac.uk>
+ <alpine.LNX.2.00.1108181431110.27118@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__19_Aug_2011_22_57_35_+0200_FIB_wGoo4BH9FBS9"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp209.alice.it ([82.57.200.105]:56094 "EHLO smtp209.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751004Ab1HSU5k (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Aug 2011 16:57:40 -0400
-In-Reply-To: <20110819211449.b17b35611f11979f9d59a8ab@studenti.unina.it>
+Received: from mail-ww0-f42.google.com ([74.125.82.42]:45771 "EHLO
+	mail-ww0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755460Ab1HSV63 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Aug 2011 17:58:29 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1108181431110.27118@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>, Arc Riley <arcriley@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin_Tissoires@logitech.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
---Signature=_Fri__19_Aug_2011_22_57_35_+0200_FIB_wGoo4BH9FBS9
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry about that, here it is.
 
-On Fri, 19 Aug 2011 21:14:49 +0200
-Antonio Ospite <ospite@studenti.unina.it> wrote:
+Signed-off-by: Jeremiah Matthey <sprg86@gmail.com>
 
-> WRT HID_UUID, maybe this is not device specific, it might just tell
-> "this is a HID device", I need confirmation about that so I can move the
-> field out of the structure.
->
-
-On a second thought, if this UUID is per device _type_, then it may
-still make sense to have it in the struct, in case the PS3 headset will
-need a different UUID, I'll just rename the field to just "uuid"
-because the HID part is relative to the _value_.
-
-Here's some doc about UUIDs I've found:
-http://www.bluetooth.org/Technical/AssignedNumbers/service_discovery.htm
-
-About the PNP record, I can find some info about the "PnP Information"
-service in SDP, and I can see something with:
-	$ sdptool records --tree <device_bdaddr>
-
-but I don't know how to get the actual value currently used in the
-plugin.
-
-Thanks,
-   Antonio
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Fri__19_Aug_2011_22_57_35_+0200_FIB_wGoo4BH9FBS9
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk5Ozj8ACgkQ5xr2akVTsAFLoACfZJzq4GklNxUDz3GQVzGJWKab
-8MkAnie/PW+AvbJbNG6BjO2U8OsPG9v1
-=gEDV
------END PGP SIGNATURE-----
-
---Signature=_Fri__19_Aug_2011_22_57_35_+0200_FIB_wGoo4BH9FBS9--
+On Thu, Aug 18, 2011 at 02:31:57PM +0200, Jiri Kosina wrote:
+> On Tue, 16 Aug 2011, Jeremiah Matthey wrote:
+> 
+> > Patch to add SiGma Micro-based keyboards (1c4f:0002) to hid-quirks.
+> > 
+> > These keyboards dont seem to allow the records to be initialized, and hence a
+> > timeout occurs when the usbhid driver attempts to initialize them. The patch
+> > just adds the signature for these keyboards to the hid-quirks list with the
+> > setting HID_QUIRK_NO_INIT_REPORTS. This removes the 5-10 second wait for the
+> > timeout to occur.
+> > 
+> > This is technically a resubmit, first time i posted i didnt include the 
+> > right people in the destination, was just aimed at the list, so might 
+> > have gone unnoticed. (First (submitted) kernel patch, I'll learn with 
+> > time :))
+> 
+> Thanks for the patch.
+> 
+> Please also send me your Signed-off-by line (as described in 
+> Documentation/SubmittingPatches) so that I could apply it to my tree.
+> 
+> > diff -ru linux-3.0.1-clean/drivers/hid/hid-ids.h linux-3.0.1-patched/drivers/hid/hid-ids.h
+> > --- linux-3.0.1-clean/drivers/hid/hid-ids.h	2011-08-05 05:59:21.000000000 +0100
+> > +++ linux-3.0.1-patched/drivers/hid/hid-ids.h	2011-08-14 15:25:58.129865922 +0100
+> > @@ -568,6 +568,9 @@
+> >  #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+> >  #define USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE	0x0600
+> >  
+> > +#define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
+> > +#define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
+> > +
+> >  #define USB_VENDOR_ID_SKYCABLE			0x1223
+> >  #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
+> >  
+> > diff -ru linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c
+> > --- linux-3.0.1-clean/drivers/hid/usbhid/hid-quirks.c	2011-08-05 05:59:21.000000000 +0100
+> > +++ linux-3.0.1-patched/drivers/hid/usbhid/hid-quirks.c	2011-08-14 15:26:06.289865845 +0100
+> > @@ -89,6 +89,7 @@
+> >  
+> >  	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH, HID_QUIRK_MULTI_INPUT },
+> >  	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS, HID_QUIRK_MULTI_INPUT },
+> > +	{ USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ 0, 0 }
+> >  };
+> >  
+> > 
+> 
+> -- 
+> Jiri Kosina
+> SUSE Labs

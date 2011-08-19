@@ -1,121 +1,112 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH] Input: imx_keypad: Provide PM support
-Date: Fri, 19 Aug 2011 12:56:04 -0300
-Message-ID: <1313769364-27249-1-git-send-email-festevam@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:36561 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753144Ab1HSP4N (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Aug 2011 11:56:13 -0400
-Received: by ywf7 with SMTP id 7so2283271ywf.19
-        for <linux-input@vger.kernel.org>; Fri, 19 Aug 2011 08:56:12 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Subject: Re: [PATCH BlueZ 3/4] Link to udev only when needed
+Date: Fri, 19 Aug 2011 21:08:54 +0200
+Message-ID: <20110819210854.81dff694ad455da3ed0e6e96@studenti.unina.it>
+References: <1312553358-26280-1-git-send-email-ospite@studenti.unina.it>
+	<1312553358-26280-4-git-send-email-ospite@studenti.unina.it>
+	<20110818124438.40e3e125c8de872e1320f511@studenti.unina.it>
+	<1313709545.3373.196.camel@aeonflux>
+	<20110819105802.b7f5eda46e58b32677fdb804@studenti.unina.it>
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm"
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110819105802.b7f5eda46e58b32677fdb804-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>, Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>, Arc Riley <arcriley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: kernel@pengutronix.de, dmitry.torokhov@gmail.com, Fabio Estevam <festevam@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>
 
-Provide PM support to imx_keypad and allow the keypad to be used as a wakeup source.
+--Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested on a mx27_3ds, which wakes up via keypad press.
+On Fri, 19 Aug 2011 10:58:02 +0200
+Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org> wrote:
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> On Thu, 18 Aug 2011 16:18:57 -0700
+> Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org> wrote:
+>=20
+[...]
+> >=20
+> > I rather have the Sixaxis plugin being an external plugin only then. So
+> > you are not allowed to make this builtin.
+> >=20
+>=20
+> Marcel, I guess that an _external_ plugin in BlueZ context is one which
+> is not embedded in the bluetoothd binary but rather distributed as a
+> shared object, isn't it? Are there examples of such a plugin in bluez
+> tree I can copy from?
+>
+
+OK, I think I've got it, it is external-dummy, this is how I did it:
+
 ---
+ Makefile.am |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-If I put disable_irq_wake(keypad->irq) inside imx_keypad_resume
-like other keyboard drivers do I get the following:
+diff --git a/Makefile.am b/Makefile.am
+index 4bcff4d..ff33bf0 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -230,8 +230,10 @@ builtin_sources +=3D thermometer/main.c \
+ endif
+=20
+ if SIXAXISPLUGIN
+-builtin_modules +=3D sixaxis
+-builtin_sources +=3D plugins/sixaxis.c
++plugin_LTLIBRARIES +=3D plugins/sixaxis.la
++plugins_sixaxis_la_SOURCES =3D plugins/sixaxis.c
++plugins_sixaxis_la_LDFLAGS =3D -module -avoid-version -no-undefined @UDEV_=
+LIBS@
++plugins_sixaxis_la_CFLAGS =3D -fvisibility=3Dhidden @DBUS_CFLAGS@ @GLIB_CF=
+LAGS@ @UDEV_CFLAGS@
+ endif
+=20
+ builtin_modules +=3D hciops mgmtops
+@@ -300,7 +302,7 @@ src_bluetoothd_SOURCES =3D $(gdbus_sources) $(builtin_s=
+ources) \
+ 			src/event.h src/event.c \
+ 			src/oob.h src/oob.c src/eir.h src/eir.c
+ src_bluetoothd_LDADD =3D lib/libbluetooth.la @GLIB_LIBS@ @DBUS_LIBS@ \
+-							@CAPNG_LIBS@ @UDEV_LIBS@ -ldl -lrt
++							@CAPNG_LIBS@ -ldl -lrt
+ src_bluetoothd_LDFLAGS =3D -Wl,--export-dynamic \
+ 				-Wl,--version-script=3D$(srcdir)/src/bluetooth.ver
+=20
+@@ -415,7 +417,7 @@ EXTRA_DIST +=3D doc/manager-api.txt \
+=20
+ AM_YFLAGS =3D -d
+=20
+-AM_CFLAGS =3D @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ @UDEV_CFLAGS@ \
++AM_CFLAGS =3D @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ \
+ 		-DBLUETOOTH_PLUGIN_BUILTIN -DPLUGINDIR=3D\""$(plugindir)"\"
+=20
+ INCLUDES =3D -I$(builddir)/lib -I$(builddir)/src -I$(srcdir)/src \
+--=20
+1.7.5.4
 
-mx27# echo mem > /sys/power/state                                               
-PM: Syncing filesystems ... done.                                               
-Freezing user space processes ... (elapsed 0.01 seconds) done.                  
-Freezing remaining freezable tasks ... (elapsed 0.01 seconds) done.             
-Suspending console(s) (use no_console_suspend to debug)                         
-PM: suspend of devices complete after 0.692 msecs                               
-PM: late suspend of devices complete after 0.418 msecs                          
-PM: early resume of devices complete after 0.179 msecs                          
-------------[ cut here ]------------                                            
-WARNING: at kernel/irq/manage.c:510 irq_set_irq_wake+0xdc/0xec()                
-Unbalanced IRQ 21 wake disable                                                  
-Modules linked in:                                                              
-[<c00197bc>] (unwind_backtrace+0x0/0xf4) from [<c002ba50>] (warn_slowpath_common
-+0x4c/0x64)                                                                     
-[<c002ba50>] (warn_slowpath_common+0x4c/0x64) from [<c002bafc>] (warn_slowpath_f
-mt+0x30/0x40)                                                                   
-[<c002bafc>] (warn_slowpath_fmt+0x30/0x40) from [<c0069db0>] (irq_set_irq_wake+0
-xdc/0xec)                                                                       
-[<c0069db0>] (irq_set_irq_wake+0xdc/0xec) from [<c022b7b0>] (imx_keypad_resume+0
-x30/0x38)                                                                       
-[<c022b7b0>] (imx_keypad_resume+0x30/0x38) from [<c01ec224>] (platform_pm_resume
-+0x2c/0x4c)                                                                     
-[<c01ec224>] (platform_pm_resume+0x2c/0x4c) from [<c01ef568>] (pm_op+0xa0/0xc0) 
-[<c01ef568>] (pm_op+0xa0/0xc0) from [<c01ef9ac>] (device_resume+0x5c/0x100)     
-[<c01ef9ac>] (device_resume+0x5c/0x100) from [<c01efbc8>] (dpm_resume+0x134/0x19
-0)                                                                              
-[<c01efbc8>] (dpm_resume+0x134/0x190) from [<c01efc30>] (dpm_resume_end+0xc/0x18
-)                                                                               
-[<c01efc30>] (dpm_resume_end+0xc/0x18) from [<c0068860>] (suspend_devices_and_en
-ter+0x160/0x338)                                                                
-[<c0068860>] (suspend_devices_and_enter+0x160/0x338) from [<c0068b24>] (enter_st
-ate+0xec/0x128)                                                                 
-[<c0068b24>] (enter_state+0xec/0x128) from [<c0067ee4>] (state_store+0xd0/0x124)
-[<c0067ee4>] (state_store+0xd0/0x124) from [<c0192d58>] (kobj_attr_store+0x18/0x
-1c)                                                                             
-[<c0192d58>] (kobj_attr_store+0x18/0x1c) from [<c01167ec>] (sysfs_write_file+0xf
-8/0x17c)                                                                        
-[<c01167ec>] (sysfs_write_file+0xf8/0x17c) from [<c00c395c>] (vfs_write+0xb0/0x1
-34)                                                                             
-[<c00c395c>] (vfs_write+0xb0/0x134) from [<c00c3ab0>] (sys_write+0x40/0x70)     
-[<c00c3ab0>] (sys_write+0x40/0x70) from [<c0013ea0>] (ret_fast_syscall+0x0/0x2c)
----[ end trace 5656d76309d84fa1 ]---                                            
-PM: resume of devices complete after 1.960 msecs                                
-Restarting tasks ... done. 
+--=20
+Antonio Ospite
+http://ao2.it
 
- drivers/input/keyboard/imx_keypad.c |   25 +++++++++++++++++++++++++
- 1 files changed, 25 insertions(+), 0 deletions(-)
+PGP public key ID: 0x4553B001
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index d92c15c..4acb480 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -408,6 +408,28 @@ open_err:
- 	return -EIO;
- }
- 
-+#ifdef CONFIG_PM
-+static int imx_keypad_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct imx_keypad *keypad = platform_get_drvdata(pdev);
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		enable_irq_wake(keypad->irq);
-+
-+	return 0;
-+}
-+
-+static int imx_keypad_resume(struct device *dev)
-+{
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops imx_keypad_pm_ops = {
-+	.suspend	= imx_keypad_suspend,
-+	.resume		= imx_keypad_resume,
-+};
-+#endif
- static int __devinit imx_keypad_probe(struct platform_device *pdev)
- {
- 	const struct matrix_keymap_data *keymap_data = pdev->dev.platform_data;
-@@ -571,6 +593,9 @@ static struct platform_driver imx_keypad_driver = {
- 	.driver		= {
- 		.name	= "imx-keypad",
- 		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &imx_keypad_pm_ops,
-+#endif
- 	},
- 	.probe		= imx_keypad_probe,
- 	.remove		= __devexit_p(imx_keypad_remove),
--- 
-1.6.0.4
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
 
+--Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk5OtMYACgkQ5xr2akVTsAEklgCfZBcJ18o21auvJsbuWaFetIHy
+wx0AoKPZOzt+d4drhj/PSWzQziY4hb5R
+=M5bv
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm--

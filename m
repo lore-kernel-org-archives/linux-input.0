@@ -1,92 +1,91 @@
-From: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Subject: Re: [PATCH BlueZ 3/4] Link to udev only when needed
-Date: Fri, 19 Aug 2011 21:08:54 +0200
-Message-ID: <20110819210854.81dff694ad455da3ed0e6e96@studenti.unina.it>
-References: <1312553358-26280-1-git-send-email-ospite@studenti.unina.it>
-	<1312553358-26280-4-git-send-email-ospite@studenti.unina.it>
-	<20110818124438.40e3e125c8de872e1320f511@studenti.unina.it>
-	<1313709545.3373.196.camel@aeonflux>
-	<20110819105802.b7f5eda46e58b32677fdb804@studenti.unina.it>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 0/4 incremental 1/2] Generalize controller handling to
+ support different devices
+Date: Fri, 19 Aug 2011 21:14:49 +0200
+Message-ID: <20110819211449.b17b35611f11979f9d59a8ab@studenti.unina.it>
+References: <20110818161357.8084ab94bff57391e7ec3284@studenti.unina.it>
+	<1313677340-4441-1-git-send-email-ospite@studenti.unina.it>
+	<4E4D2F2E.20105@signal11.us>
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
  micalg="PGP-SHA1";
- boundary="Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm"
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110819105802.b7f5eda46e58b32677fdb804-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
-Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jim Paris <jim-XrPbb/hENzg@public.gmane.org>, Ranulf Doswell <ralf-fD3LYpizeBGsTnJN9+BGXg@public.gmane.org>, "Pascal A . Brisset" <pascal44973-dXI0m6hRz7k@public.gmane.org>, Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Birchinger <joker-vQrvfurPyUjk1uMJSBkQmQ@public.gmane.org>, Filipe Lopes <falktx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>, Mikko Virkkila <virkkila-/1wQRMveznE@public.gmane.org>, Simon Wood <simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org>, Arc Riley <arcriley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+ boundary="Signature=_Fri__19_Aug_2011_21_14_49_+0200_RrzSZr=tYYH_g_LN"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp209.alice.it ([82.57.200.105]:40211 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755491Ab1HSTPC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Aug 2011 15:15:02 -0400
+In-Reply-To: <4E4D2F2E.20105@signal11.us>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>, Arc Riley <arcriley@gmail.com>
 
---Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm
+--Signature=_Fri__19_Aug_2011_21_14_49_+0200_RrzSZr=tYYH_g_LN
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 19 Aug 2011 10:58:02 +0200
-Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org> wrote:
+On Thu, 18 Aug 2011 11:26:38 -0400
+Alan Ott <alan@signal11.us> wrote:
 
-> On Thu, 18 Aug 2011 16:18:57 -0700
-> Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org> wrote:
->=20
+> On 08/18/2011 10:22 AM, Antonio Ospite wrote:
+> > Remove hardcoded #defines and put the values in a struct so we can hand=
+le=20
+> > different device types.
+> >
+> > From the USB dumps I've seen[1], different devices have just different =
+ways to=20
+> > get and set the bdaddrs, the pairing algorithm is the same.
+> >
+> > [1] http://ps3.jim.sh/sixaxis/dumps/=20
+> >
+> > ---
+> >  plugins/sixaxis.c |   80 ++++++++++++++++++++++++++++++++++-----------=
+-------
+> >  1 files changed, 52 insertions(+), 28 deletions(-)
+> >
+> > diff --git a/plugins/sixaxis.c b/plugins/sixaxis.c
+> > index e08222c..608474f 100644
+> > --- a/plugins/sixaxis.c
+> > +++ b/plugins/sixaxis.c
+> > @@ -70,12 +70,38 @@
+> > =20
 [...]
-> >=20
-> > I rather have the Sixaxis plugin being an external plugin only then. So
-> > you are not allowed to make this builtin.
-> >=20
+> > +static struct sony_controller controllers[] =3D {
+> > +	{
+> > +		.vendor_id =3D 0x054c,
+> > +		.product_id =3D 0x0268,
+> > +		.name =3D "PLAYSTATION(R)3 Controller",
+> > +		.pnp_record =3D "3601920900000A000100000900013503191124090004350D350=
+61901000900113503190011090006350909656E09006A090100090009350835061911240901=
+0009000D350F350D350619010009001335031900110901002513576972656C65737320436F6=
+E74726F6C6C65720901012513576972656C65737320436F6E74726F6C6C6572090102251B53=
+6F6E7920436F6D707574657220456E7465727461696E6D656E7409020009010009020109010=
+00902020800090203082109020428010902052801090206359A35980822259405010904A101=
+A102850175089501150026FF008103750195131500250135004501050919012913810275019=
+50D0600FF8103150026FF0005010901A10075089504350046FF0009300931093209358102C0=
+050175089527090181027508953009019102750895300901B102C0A1028502750895300901B=
+102C0A10285EE750895300901B102C0A10285EF750895300901B102C0C00902073508350609=
+04090901000902082800090209280109020A280109020B09010009020C093E8009020D28000=
+9020E2800",
+> > +		.hid_uuid =3D "00001124-0000-1000-8000-00805f9b34fb",
 >=20
-> Marcel, I guess that an _external_ plugin in BlueZ context is one which
-> is not embedded in the bluetoothd binary but rather distributed as a
-> shared object, isn't it? Are there examples of such a plugin in bluez
-> tree I can copy from?
+> Where do the pnp_record and hid_uuid come from? It seems a bit odd to
+> have a giant hard-coded identifier string (pnp), but I'm not an expert
+> on this stuff, and I'm mostly just curious about it.
 >
 
-OK, I think I've got it, it is external-dummy, this is how I did it:
+Bastien provided those, AFAIR PNP_RECORD is an identifier shown in the
+association request when the plugin is not enabled, and it could depend
+on the device.
 
----
- Makefile.am |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+WRT HID_UUID, maybe this is not device specific, it might just tell
+"this is a HID device", I need confirmation about that so I can move the
+field out of the structure.
 
-diff --git a/Makefile.am b/Makefile.am
-index 4bcff4d..ff33bf0 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -230,8 +230,10 @@ builtin_sources +=3D thermometer/main.c \
- endif
-=20
- if SIXAXISPLUGIN
--builtin_modules +=3D sixaxis
--builtin_sources +=3D plugins/sixaxis.c
-+plugin_LTLIBRARIES +=3D plugins/sixaxis.la
-+plugins_sixaxis_la_SOURCES =3D plugins/sixaxis.c
-+plugins_sixaxis_la_LDFLAGS =3D -module -avoid-version -no-undefined @UDEV_=
-LIBS@
-+plugins_sixaxis_la_CFLAGS =3D -fvisibility=3Dhidden @DBUS_CFLAGS@ @GLIB_CF=
-LAGS@ @UDEV_CFLAGS@
- endif
-=20
- builtin_modules +=3D hciops mgmtops
-@@ -300,7 +302,7 @@ src_bluetoothd_SOURCES =3D $(gdbus_sources) $(builtin_s=
-ources) \
- 			src/event.h src/event.c \
- 			src/oob.h src/oob.c src/eir.h src/eir.c
- src_bluetoothd_LDADD =3D lib/libbluetooth.la @GLIB_LIBS@ @DBUS_LIBS@ \
--							@CAPNG_LIBS@ @UDEV_LIBS@ -ldl -lrt
-+							@CAPNG_LIBS@ -ldl -lrt
- src_bluetoothd_LDFLAGS =3D -Wl,--export-dynamic \
- 				-Wl,--version-script=3D$(srcdir)/src/bluetooth.ver
-=20
-@@ -415,7 +417,7 @@ EXTRA_DIST +=3D doc/manager-api.txt \
-=20
- AM_YFLAGS =3D -d
-=20
--AM_CFLAGS =3D @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ @UDEV_CFLAGS@ \
-+AM_CFLAGS =3D @DBUS_CFLAGS@ @GLIB_CFLAGS@ @CAPNG_CFLAGS@ \
- 		-DBLUETOOTH_PLUGIN_BUILTIN -DPLUGINDIR=3D\""$(plugindir)"\"
-=20
- INCLUDES =3D -I$(builddir)/lib -I$(builddir)/src -I$(srcdir)/src \
---=20
-1.7.5.4
+Thanks,
+   Antonio
 
 --=20
 Antonio Ospite
@@ -98,15 +97,15 @@ A: Because it messes up the order in which people normally read text.
    See http://en.wikipedia.org/wiki/Posting_style
 Q: Why is top-posting such a bad thing?
 
---Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm
+--Signature=_Fri__19_Aug_2011_21_14_49_+0200_RrzSZr=tYYH_g_LN
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEARECAAYFAk5OtMYACgkQ5xr2akVTsAEklgCfZBcJ18o21auvJsbuWaFetIHy
-wx0AoKPZOzt+d4drhj/PSWzQziY4hb5R
-=M5bv
+iEYEARECAAYFAk5OtikACgkQ5xr2akVTsAHvkACgqwPbXeW6m/eIhJbwTODHIRRE
+lgEAoK31YU6ChXTWT6bbzTBIGAAc7sZI
+=CD9F
 -----END PGP SIGNATURE-----
 
---Signature=_Fri__19_Aug_2011_21_08_54_+0200_ssJ4iTv18qPhhZAm--
+--Signature=_Fri__19_Aug_2011_21_14_49_+0200_RrzSZr=tYYH_g_LN--

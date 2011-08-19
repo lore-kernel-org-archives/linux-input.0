@@ -1,147 +1,103 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH 6/6] Input: elantech - add v3 hardware support
-Date: Fri, 19 Aug 2011 16:29:57 +0800
-Message-ID: <87hb5ddcsa.fsf@emc.com.tw>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw> <20110818173959.GE28313@thinkpad-t410>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH BlueZ 3/4] Link to udev only when needed
+Date: Fri, 19 Aug 2011 10:58:02 +0200
+Message-ID: <20110819105802.b7f5eda46e58b32677fdb804@studenti.unina.it>
+References: <1312553358-26280-1-git-send-email-ospite@studenti.unina.it>
+	<1312553358-26280-4-git-send-email-ospite@studenti.unina.it>
+	<20110818124438.40e3e125c8de872e1320f511@studenti.unina.it>
+	<1313709545.3373.196.camel@aeonflux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__19_Aug_2011_10_58_02_+0200__PfNetaCeFmqi8_a"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:49100 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751589Ab1HSI1h (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Aug 2011 04:27:37 -0400
-In-Reply-To: <20110818173959.GE28313@thinkpad-t410>
+Received: from smtp209.alice.it ([82.57.200.105]:43237 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752528Ab1HSI6Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Aug 2011 04:58:16 -0400
+In-Reply-To: <1313709545.3373.196.camel@aeonflux>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>, Arc Riley <arcriley@gmail.com>
 
-Hi Seth,
+--Signature=_Fri__19_Aug_2011_10_58_02_+0200__PfNetaCeFmqi8_a
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 18 Aug 2011 12:39:59 -0500, Seth Forshee <seth.forshee@canonical.com> wrote:
-> On Thu, Aug 18, 2011 at 09:57:09AM +0800, JJ Ding wrote:
-> > @@ -352,6 +374,94 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
-> >  	input_sync(dev);
-> >  }
-> >  
-> > +/*
-> > + * firmware tells us there's noise.
-> > + */
-> > +static inline int debounce(unsigned int x, unsigned int y)
-> > +{
-> > +	return (x == 0xfff) && (y == 0xfff);
-> > +}
-> 
-> This is problematic in my testing, in two ways.
-> 
-> First, it never actually triggers, because the y values passed to it are
-> not the raw data from the packets and as such are not 0xfff anymore in
-> the cases you're trying to detect.
-> 
-> Second, I get these packets with 1 and 2 finger touches on the Samsung
-> NF310, but you only check it in the 3 finger case.
-> 
-> As a result, I'm getting some reports with negative values for the y
-> position.
-Thank you for reporting this bug.
-As for now, the following should fix this issue.
-I will correct this in v2.
----
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index e13a719..fa842f7 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -410,11 +410,12 @@ static void elantech_report_absolute_v3(struct psmouse *psmouse,
-                 * byte 4:  .   .   .   .  y11 y10 y9  y8
-                 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
-                 */
--               y1 = etd->y_max - (((packet[4] & 0x0f) << 8) | packet[5]);
-+               y1 = ((packet[4] & 0x0f) << 8) | packet[5];
- 
-                if (fingers == 3 && debounce(x1, y1))
-                        return;
- 
-+               y1 = etd->y_max - y1;
-                break;
- 
-        case 2:
----
-> > +
-> > +/*
-> > + * Interpret complete data packets and report absolute mode input events for
-> > + * hardware version 3. (12 byte packets for two fingers)
-> > + */
-> > +static void elantech_report_absolute_v3(struct psmouse *psmouse,
-> > +					int packet_type)
-> > +{
-> > +	struct input_dev *dev = psmouse->dev;
-> > +	struct elantech_data *etd = psmouse->private;
-> > +	unsigned char *packet = psmouse->packet;
-> > +	unsigned int fingers = 0, x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-> > +	unsigned int width = 0, pres = 0;
-> > +
-> > +	/* byte 0: n1  n0   .   .   .   .   R   L */
-> > +	fingers = (packet[0] & 0xc0) >> 6;
-> > +
-> > +	switch (fingers) {
-> > +	case 3:
-> > +	case 1:
-> > +		/*
-> > +		 * byte 1:  .   .   .   .  x11 x10 x9  x8
-> > +		 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
-> > +		 */
-> > +		x1 = ((packet[1] & 0x0f) << 8) | packet[2];
-> > +		/*
-> > +		 * byte 4:  .   .   .   .  y11 y10 y9  y8
-> > +		 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
-> > +		 */
-> > +		y1 = etd->y_max - (((packet[4] & 0x0f) << 8) | packet[5]);
-> > +
-> > +		if (fingers == 3 && debounce(x1, y1))
-> > +			return;
-> > +
-> > +		break;
-> > +
-> > +	case 2:
-> > +		if (packet_type == PACKET_V3_HEAD) {
-> > +			/*
-> > +			 * byte 1:   .    .    .    .  ax11 ax10 ax9  ax8
-> > +			 * byte 2: ax7  ax6  ax5  ax4  ax3  ax2  ax1  ax0
-> > +			 */
-> > +			etd->prev_x = ((packet[1] & 0x0f) << 8) | packet[2];
-> > +			/*
-> > +			 * byte 4:   .    .    .    .  ay11 ay10 ay9  ay8
-> > +			 * byte 5: ay7  ay6  ay5  ay4  ay3  ay2  ay1  ay0
-> > +			 */
-> > +			etd->prev_y = etd->y_max -
-> > +				(((packet[4] & 0x0f) << 8) | packet[5]);
-> > +			/*
-> > +			 * wait for next packet
-> > +			 */
-> > +			return;
-> > +		}
-> > +
-> > +		/* packet_type == PACKET_V3_TAIL */
-> > +		x1 = etd->prev_x;
-> > +		y1 = etd->prev_y;
-> > +		x2 = ((packet[1] & 0x0f) << 8) | packet[2];
-> > +		y2 = etd->y_max - (((packet[4] & 0x0f) << 8) | packet[5]);
-> > +		break;
-> > +	}
-> > +
-> > +	pres = (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4);
-> > +	width = ((packet[0] & 0x30) >> 2) | ((packet[3] & 0x30) >> 4);
-> > +
-> > +	input_report_key(dev, BTN_TOUCH, fingers != 0);
-> > +	input_report_abs(dev, ABS_X, x1);
-> > +	input_report_abs(dev, ABS_Y, y1);
-> 
-> You should only report the ABS_[XY] coordinates when fingers != 0. The
-> xorg synaptics module sees the values reported in that case as
-> legitimate. This is causing me to see strange behaviors when scrolling
-> with two-finger drags.
-AFAIK, though v2 and v3 differ in packet format, they really report the
-same data to the userspace. In this version of v3 support, I even try to
-make v2 and v3 report all the data in the same sequnce. If you're seeing
-this issue, maybe we should do the same with v2?
+On Thu, 18 Aug 2011 16:18:57 -0700
+Marcel Holtmann <marcel@holtmann.org> wrote:
+
+> Hi Antonio,
+>=20
+> >=20
+> > > Don't link bluetoothd to udev unconditionally, but only when it is
+> > > needed. For now bluetoothd needs to be linked to udev only when the
+> > > sixaxis plugin is enabled.
+> >=20
+> > Any comment on this change? If it looks OK I'll fold it in v5.
+> >=20
+> > Thanks,
+> >    Antonio
+> >=20
+> > > ---
+> > >  Makefile.am |    6 +++++-
+> > >  1 files changed, 5 insertions(+), 1 deletions(-)
+> > >=20
+> > > diff --git a/Makefile.am b/Makefile.am
+> > > index dbe0170..219ca0f 100644
+> > > --- a/Makefile.am
+> > > +++ b/Makefile.am
+> > > @@ -288,7 +288,11 @@ src_bluetoothd_SOURCES =3D $(gdbus_sources) $(bu=
+iltin_sources) \
+> > >  			src/event.h src/event.c \
+> > >  			src/oob.h src/oob.c src/eir.h src/eir.c
+> > >  src_bluetoothd_LDADD =3D lib/libbluetooth.la @GLIB_LIBS@ @DBUS_LIBS@=
+ \
+> > > -							@CAPNG_LIBS@ @UDEV_LIBS@ -ldl -lrt
+> > > +							@CAPNG_LIBS@ -ldl -lrt
+> > > +if SIXAXISPLUGIN
+> > > +src_bluetoothd_LDADD +=3D @UDEV_LIBS@
+> > > +endif
+> > > +
+> > >  src_bluetoothd_LDFLAGS =3D -Wl,--export-dynamic \
+> > >  				-Wl,--version-script=3D$(srcdir)/src/bluetooth.ver
+>=20
+> I rather have the Sixaxis plugin being an external plugin only then. So
+> you are not allowed to make this builtin.
+>=20
+
+Marcel, I guess that an _external_ plugin in BlueZ context is one which
+is not embedded in the bluetoothd binary but rather distributed as a
+shared object, isn't it? Are there examples of such a plugin in bluez
+tree I can copy from?
+
+Or do you mean a standalone daemon interacting with bluetoothd via
+dbus? AFAIR we discarded this option in the past.
+
+Thanks,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Fri__19_Aug_2011_10_58_02_+0200__PfNetaCeFmqi8_a
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk5OJZoACgkQ5xr2akVTsAGXjQCbBt3KsQpwTzQ2tySfdOqxO141
+JnsAn18Du5IwPrw7LJRNC5NAzbxB1t1z
+=SAue
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__19_Aug_2011_10_58_02_+0200__PfNetaCeFmqi8_a--

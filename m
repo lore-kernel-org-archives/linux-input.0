@@ -1,256 +1,73 @@
-From: Javier Martinez Canillas <martinez.javier@gmail.com>
-Subject: [PATCH 2/3] Input: cyttsp - add support for Cypress TTSP touchscreen I2C bus interface
-Date: Sat, 20 Aug 2011 00:01:51 -0400
-Message-ID: <1313812912-2848-3-git-send-email-martinez.javier@gmail.com>
-References: <1313812912-2848-1-git-send-email-martinez.javier@gmail.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 4/9 v4] Input: synaptics - add image sensor support
+Date: Sat, 20 Aug 2011 15:07:41 +0800
+Message-ID: <CAGS+omCZSjJoESSvimLEpj9Mwr3d9Vn78e1ZLk-NWEdgQbxNKw@mail.gmail.com>
+References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
+ <1313666888-18939-5-git-send-email-djkurtz@chromium.org> <20110819222203.GC5146@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:48378 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750718Ab1HTECM (ORCPT
+Received: from smtp-out.google.com ([216.239.44.51]:52894 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751011Ab1HTHIE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Aug 2011 00:02:12 -0400
-In-Reply-To: <1313812912-2848-1-git-send-email-martinez.javier@gmail.com>
+	Sat, 20 Aug 2011 03:08:04 -0400
+Received: from wpaz33.hot.corp.google.com (wpaz33.hot.corp.google.com [172.24.198.97])
+	by smtp-out.google.com with ESMTP id p7K782MV008022
+	for <linux-input@vger.kernel.org>; Sat, 20 Aug 2011 00:08:02 -0700
+Received: from iye7 (iye7.prod.google.com [10.241.50.7])
+	by wpaz33.hot.corp.google.com with ESMTP id p7K781Up009470
+	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Sat, 20 Aug 2011 00:08:01 -0700
+Received: by iye7 with SMTP id 7so7698719iye.3
+        for <linux-input@vger.kernel.org>; Sat, 20 Aug 2011 00:08:01 -0700 (PDT)
+In-Reply-To: <20110819222203.GC5146@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin McNeely <kev@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <martinez.javier@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: chase.douglas@canonical.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
 
-The driver is composed of a core driver that process the data sent by
-the contacts and a set of bus specific interface modules.
+On Sat, Aug 20, 2011 at 6:22 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Daniel,
+>
+> On Thu, Aug 18, 2011 at 07:28:03PM +0800, Daniel Kurtz wrote:
+>> @@ -558,6 +626,11 @@ static void synaptics_process_packet(struct psm=
+ouse *psmouse)
+>> =A0 =A0 =A0 if (synaptics_parse_hw_state(psmouse->packet, priv, &hw)=
+)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
+>>
+>> + =A0 =A0 if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 synaptics_image_sensor_process(psmouse, &h=
+w);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 return;
+>> + =A0 =A0 }
+>> +
+>
+> So what about the rest of the SYnaptics processing (wheel, additional
+> buttons, etc)? =A0Are we sure that touchpads with image sensors will =
+never
+> implement them?
+>
+> --
+> Dmitry
+>
 
-This patch add supports for the Cypress TTSP I2C bus interface.
+All image sensors that I am aware of are clickpads, with one button
+integrated under the pad, which is reported as the middle button.
 
-The original author of the driver is Kevin McNeely <kev@cypress.com>
+We could report right, middle, up, down, and ext_buttons (scroll is
+not possible, since w=3D2;buf[1] is used for x for devices that send ag=
+m
+packets).
+However, I have no way of knowing if this added complexity is
+necessary, nor any way of testing it.
 
-Signed-off-by: Javier Martinez Canillas <martinez.javier@gmail.com>
----
- drivers/input/touchscreen/cyttsp/Kconfig      |   12 ++
- drivers/input/touchscreen/cyttsp/Makefile     |    1 +
- drivers/input/touchscreen/cyttsp/cyttsp_i2c.c |  188 +++++++++++++++++++++++++
- 3 files changed, 201 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/cyttsp/cyttsp_i2c.c
-
-diff --git a/drivers/input/touchscreen/cyttsp/Kconfig b/drivers/input/touchscreen/cyttsp/Kconfig
-index 7e8e0f4..256642d 100644
---- a/drivers/input/touchscreen/cyttsp/Kconfig
-+++ b/drivers/input/touchscreen/cyttsp/Kconfig
-@@ -2,3 +2,15 @@ config TOUCHSCREEN_CYTTSP_CORE
- 	tristate "Cypress TTSP touchscreen core"
- 	help
- 	  Always activated for Cypress TTSP touchscreen
-+
-+config TOUCHSCREEN_CYTTSP_I2C
-+	tristate "Cypress TTSP i2c touchscreen"
-+	depends on I2C && TOUCHSCREEN_CYTTSP_CORE
-+	help
-+	  Say Y here if you have a Cypress TTSP touchscreen
-+	  connected to your system with an I2C interface.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called cyttsp-i2c.
-diff --git a/drivers/input/touchscreen/cyttsp/Makefile b/drivers/input/touchscreen/cyttsp/Makefile
-index d1b250f..9101dc9 100644
---- a/drivers/input/touchscreen/cyttsp/Makefile
-+++ b/drivers/input/touchscreen/cyttsp/Makefile
-@@ -1 +1,2 @@
- obj-$(CONFIG_TOUCHSCREEN_CYTTSP_CORE)   += cyttsp_core.o
-+obj-$(CONFIG_TOUCHSCREEN_CYTTSP_I2C)    += cyttsp_i2c.o
-diff --git a/drivers/input/touchscreen/cyttsp/cyttsp_i2c.c b/drivers/input/touchscreen/cyttsp/cyttsp_i2c.c
-new file mode 100644
-index 0000000..d79c6a7
---- /dev/null
-+++ b/drivers/input/touchscreen/cyttsp/cyttsp_i2c.c
-@@ -0,0 +1,188 @@
-+/*
-+ * Source for:
-+ * Cypress TrueTouch(TM) Standard Product (TTSP) I2C touchscreen driver.
-+ * For use with Cypress Txx3xx parts.
-+ * Supported parts include:
-+ * CY8CTST341
-+ * CY8CTMA340
-+ *
-+ * Copyright (C) 2009, 2010, 2011 Cypress Semiconductor, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * version 2, and only version 2, as published by the
-+ * Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-+ *
-+ * Contact Cypress Semiconductor at www.cypress.com <kev@cypress.com>
-+ *
-+ */
-+
-+#include "cyttsp_core.h"
-+
-+#include <linux/i2c.h>
-+#include <linux/slab.h>
-+
-+#define CY_I2C_DATA_SIZE  128
-+
-+struct cyttsp_i2c {
-+	struct cyttsp_bus_ops ops;
-+	struct i2c_client *client;
-+	void *ttsp_client;
-+	u8 wr_buf[CY_I2C_DATA_SIZE];
-+};
-+
-+static s32 ttsp_i2c_read_block_data(void *handle, u8 addr,
-+	u8 length, void *values)
-+{
-+	struct cyttsp_i2c *ts = container_of(handle, struct cyttsp_i2c, ops);
-+	int retval = 0;
-+
-+	retval = i2c_master_send(ts->client, &addr, 1);
-+	if (retval < 0)
-+		return retval;
-+
-+	retval = i2c_master_recv(ts->client, values, length);
-+
-+	return (retval < 0) ? retval : 0;
-+}
-+
-+static s32 ttsp_i2c_write_block_data(void *handle, u8 addr,
-+	u8 length, const void *values)
-+{
-+	struct cyttsp_i2c *ts = container_of(handle, struct cyttsp_i2c, ops);
-+	int retval;
-+
-+	ts->wr_buf[0] = addr;
-+	memcpy(&ts->wr_buf[1], values, length);
-+
-+	retval = i2c_master_send(ts->client, ts->wr_buf, length+1);
-+
-+	return (retval < 0) ? retval : 0;
-+}
-+
-+static s32 ttsp_i2c_tch_ext(void *handle, void *values)
-+{
-+	struct cyttsp_i2c *ts = container_of(handle, struct cyttsp_i2c, ops);
-+	int retval = 0;
-+
-+	/*
-+	 * TODO: Add custom touch extension handling code here
-+	 * set: retval < 0 for any returned system errors,
-+	 *	retval = 0 if normal touch handling is required,
-+	 *	retval > 0 if normal touch handling is *not* required
-+	 */
-+	if (!ts || !values)
-+		retval = -EINVAL;
-+
-+	return retval;
-+}
-+
-+static int __devinit cyttsp_i2c_probe(struct i2c_client *client,
-+	const struct i2c_device_id *id)
-+{
-+	struct cyttsp_i2c *ts;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-+		return -EIO;
-+
-+	/* allocate and clear memory */
-+	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
-+	if (!ts) {
-+		dev_dbg(&client->dev, "%s: Error, kzalloc.\n", __func__);
-+		return -ENOMEM;
-+	}
-+
-+	/* register driver_data */
-+	ts->client = client;
-+	i2c_set_clientdata(client, ts);
-+	ts->ops.write = ttsp_i2c_write_block_data;
-+	ts->ops.read = ttsp_i2c_read_block_data;
-+	ts->ops.ext = ttsp_i2c_tch_ext;
-+	ts->ops.dev = &client->dev;
-+	ts->ops.dev->bus = &i2c_bus_type;
-+
-+	ts->ttsp_client = cyttsp_core_init(&ts->ops, &client->dev);
-+	if (IS_ERR(ts->ttsp_client)) {
-+		int retval = PTR_ERR(ts->ttsp_client);
-+		kfree(ts);
-+		return retval;
-+	}
-+
-+	dev_dbg(ts->ops.dev, "%s: Registration complete\n", __func__);
-+
-+	return 0;
-+}
-+
-+
-+/* registered in driver struct */
-+static int __devexit cyttsp_i2c_remove(struct i2c_client *client)
-+{
-+	struct cyttsp_i2c *ts;
-+
-+	ts = i2c_get_clientdata(client);
-+	cyttsp_core_release(ts->ttsp_client);
-+	kfree(ts);
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int cyttsp_i2c_suspend(struct i2c_client *client, pm_message_t message)
-+{
-+	struct cyttsp_i2c *ts = i2c_get_clientdata(client);
-+
-+	return cyttsp_suspend(ts->ttsp_client);
-+}
-+
-+static int cyttsp_i2c_resume(struct i2c_client *client)
-+{
-+	struct cyttsp_i2c *ts = i2c_get_clientdata(client);
-+
-+	return cyttsp_resume(ts->ttsp_client);
-+}
-+#endif
-+
-+static const struct i2c_device_id cyttsp_i2c_id[] = {
-+	{ CY_I2C_NAME, 0 },  { }
-+};
-+
-+static struct i2c_driver cyttsp_i2c_driver = {
-+	.driver = {
-+		.name = CY_I2C_NAME,
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = cyttsp_i2c_probe,
-+	.remove = __devexit_p(cyttsp_i2c_remove),
-+	.id_table = cyttsp_i2c_id,
-+#ifdef CONFIG_PM
-+	.suspend = cyttsp_i2c_suspend,
-+	.resume = cyttsp_i2c_resume,
-+#endif
-+};
-+
-+static int __init cyttsp_i2c_init(void)
-+{
-+	return i2c_add_driver(&cyttsp_i2c_driver);
-+}
-+
-+static void __exit cyttsp_i2c_exit(void)
-+{
-+	return i2c_del_driver(&cyttsp_i2c_driver);
-+}
-+
-+module_init(cyttsp_i2c_init);
-+module_exit(cyttsp_i2c_exit);
-+
-+MODULE_ALIAS("i2c:cyttsp");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Cypress TrueTouch(R) Standard Product (TTSP) I2C driver");
-+MODULE_AUTHOR("Cypress");
-+MODULE_DEVICE_TABLE(i2c, cyttsp_i2c_id);
--- 
-1.7.4.1
-
+-Dan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

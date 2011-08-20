@@ -1,40 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/9 v4] Input: synaptics - add image sensor support
-Date: Fri, 19 Aug 2011 15:22:03 -0700
-Message-ID: <20110819222203.GC5146@core.coreip.homeip.net>
-References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
- <1313666888-18939-5-git-send-email-djkurtz@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: Input: Cypress TTSP device driver
+Date: Sat, 20 Aug 2011 00:01:49 -0400
+Message-ID: <1313812912-2848-1-git-send-email-martinez.javier@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:64088 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754575Ab1HSWWL (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:48859 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750718Ab1HTECH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Aug 2011 18:22:11 -0400
-Content-Disposition: inline
-In-Reply-To: <1313666888-18939-5-git-send-email-djkurtz@chromium.org>
+	Sat, 20 Aug 2011 00:02:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: chase.douglas@canonical.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
+To: Kevin McNeely <kev@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Daniel,
+Cypress TrueTouch(tm) Standard Product controllers are found in
+a wide range of embedded devices. This patchset adds support for a
+variety of TTSP controllers.
 
-On Thu, Aug 18, 2011 at 07:28:03PM +0800, Daniel Kurtz wrote:
-> @@ -558,6 +626,11 @@ static void synaptics_process_packet(struct psmouse *psmouse)
->  	if (synaptics_parse_hw_state(psmouse->packet, priv, &hw))
->  		return;
->  
-> +	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
-> +		synaptics_image_sensor_process(psmouse, &hw);
-> +		return;
-> +	}
-> +
+The original author of the driver is Kevin McNeely <kev@cypress.com>
 
-So what about the rest of the SYnaptics processing (wheel, additional
-buttons, etc)?  Are we sure that touchpads with image sensors will never
-implement them?
- 
--- 
-Dmitry
+Since the hardware is capable of tracking identifiable contacts and the
+original driver used multi-touch protocol type A (stateless), I've added
+multi-touch protocol type B (stateful) support.
+
+The driver is composed of a core driver that process the data sent by
+the contacts (fingers) and two bus specific interface modules (I2C and SPI).
+
+The patchset is composed of:
+
+[PATCH 1/3] Input: cyttsp - Cypress TTSP capacitive multi-touch screen support
+[PATCH 2/3] Input: cyttsp - add support for Cypress TTSP touchscreen I2C bus interface
+[PATCH 3/3] Input: cyttsp - add support for Cypress TTSP touchscreen SPI bus interface

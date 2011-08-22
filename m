@@ -1,58 +1,236 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: cyttsp - Cypress TTSP capacitive multi-touch
- screen support
-Date: Sun, 21 Aug 2011 21:31:07 -0700
-Message-ID: <20110822043107.GB23010@core.coreip.homeip.net>
-References: <1313812912-2848-1-git-send-email-martinez.javier@gmail.com>
- <1313812912-2848-2-git-send-email-martinez.javier@gmail.com>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH 6/6] Input: elantech - add v3 hardware support
+Date: Mon, 22 Aug 2011 14:05:35 +0800
+Message-ID: <87bovi2d74.fsf@emc.com.tw>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw> <4E4E5F08.1030803@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:34828 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751362Ab1HVEbO (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:8172 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751486Ab1HVGDT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Aug 2011 00:31:14 -0400
-Content-Disposition: inline
-In-Reply-To: <1313812912-2848-2-git-send-email-martinez.javier@gmail.com>
+	Mon, 22 Aug 2011 02:03:19 -0400
+In-Reply-To: <4E4E5F08.1030803@tudelft.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <martinez.javier@gmail.com>
-Cc: Kevin McNeely <kev@cypress.com>, Henrik Rydberg <rydberg@euromail.se>, Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Hi Javier,
+Hi =C3=89ric,
 
-On Sat, Aug 20, 2011 at 12:01:50AM -0400, Javier Martinez Canillas wrote:
-> Cypress TrueTouch(tm) Standard Product controllers are found in
-> a wide range of embedded devices. This driver add support for a
-> variety of TTSP controllers.
-> 
-> The driver is composed of a core driver that process the data sent by
-> the contacts and a set of bus specific interface modules. This patch
-> adds the base core TTSP driver.
-> 
-> The original author of the driver is Kevin McNeely <kev@cypress.com>
-> 
-> Since the hardware is capable of tracking identifiable contacts and the
-> original driver used multi-touch protocol type A (stateless), multi-touch
-> protocol type B (stateful) support was added by Javier Martinez Canillas.
-> 
+Thanks for your comments, a few lines below:
 
-Still reading through the patches, but have one question:
-
-> +
-> +	ts->irq = gpio_to_irq(ts->platform_data->irq_gpio);
-> +	if (ts->irq <= 0) {
-> +		dev_dbg(ts->dev, "%s: Error, failed to allocate irq\n",
-> +			__func__);
-> +			goto error_init;
-> +	}
-
-Why do we need to get gpio/irq from platform data instead of having
-board code set up controllers appropriately and use IRQ either from I2C
-client structure or from SPI?
-
-Thanks.
-
--- 
-Dmitry
+On Fri, 19 Aug 2011 15:03:04 +0200, =C3=89ric Piel <E.A.B.Piel@tudelft.=
+nl> wrote:
+> Op 18-08-11 03:57, JJ Ding schreef:
+> > v3 hardware's packet format is almost identical to v2 (one/three fi=
+nger touch),
+> > except when sensing two finger touch, the hardware sends 12 bytes o=
+f data.
+> >
+> > Signed-off-by: JJ Ding<jj_ding@emc.com.tw>
+> Hi,
+> A couple of comments, in line.
+>=20
+> :
+> :
+> > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/e=
+lantech.c
+> > index ddd40eb..e13a719 100644
+> > --- a/drivers/input/mouse/elantech.c
+> > +++ b/drivers/input/mouse/elantech.c
+> :
+> > +/*
+> > + * Interpret complete data packets and report absolute mode input =
+events for
+> > + * hardware version 3. (12 byte packets for two fingers)
+> > + */
+> > +static void elantech_report_absolute_v3(struct psmouse *psmouse,
+> > +					int packet_type)
+> > +{
+> > +	struct input_dev *dev =3D psmouse->dev;
+> > +	struct elantech_data *etd =3D psmouse->private;
+> > +	unsigned char *packet =3D psmouse->packet;
+> > +	unsigned int fingers =3D 0, x1 =3D 0, y1 =3D 0, x2 =3D 0, y2 =3D =
+0;
+> > +	unsigned int width =3D 0, pres =3D 0;
+> > +
+> > +	/* byte 0: n1  n0   .   .   .   .   R   L */
+> > +	fingers =3D (packet[0]&  0xc0)>>  6;
+> > +
+> > +	switch (fingers) {
+> > +	case 3:
+> > +	case 1:
+> > +		/*
+> > +		 * byte 1:  .   .   .   .  x11 x10 x9  x8
+> > +		 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
+> > +		 */
+> > +		x1 =3D ((packet[1]&  0x0f)<<  8) | packet[2];
+> > +		/*
+> > +		 * byte 4:  .   .   .   .  y11 y10 y9  y8
+> > +		 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
+> > +		 */
+> > +		y1 =3D etd->y_max - (((packet[4]&  0x0f)<<  8) | packet[5]);
+> > +
+> > +		if (fingers =3D=3D 3&&  debounce(x1, y1))
+> > +			return;
+> > +
+> > +		break;
+> > +
+> > +	case 2:
+> > +		if (packet_type =3D=3D PACKET_V3_HEAD) {
+> > +			/*
+> > +			 * byte 1:   .    .    .    .  ax11 ax10 ax9  ax8
+> > +			 * byte 2: ax7  ax6  ax5  ax4  ax3  ax2  ax1  ax0
+> > +			 */
+> > +			etd->prev_x =3D ((packet[1]&  0x0f)<<  8) | packet[2];
+> > +			/*
+> > +			 * byte 4:   .    .    .    .  ay11 ay10 ay9  ay8
+> > +			 * byte 5: ay7  ay6  ay5  ay4  ay3  ay2  ay1  ay0
+> > +			 */
+> > +			etd->prev_y =3D etd->y_max -
+> > +				(((packet[4]&  0x0f)<<  8) | packet[5]);
+> > +			/*
+> > +			 * wait for next packet
+> > +			 */
+> > +			return;
+> > +		}
+> > +
+> > +		/* packet_type =3D=3D PACKET_V3_TAIL */
+> > +		x1 =3D etd->prev_x;
+> > +		y1 =3D etd->prev_y;
+> > +		x2 =3D ((packet[1]&  0x0f)<<  8) | packet[2];
+> > +		y2 =3D etd->y_max - (((packet[4]&  0x0f)<<  8) | packet[5]);
+> > +		break;
+> > +	}
+> You actually have three times the same formula, so you could simplify=
+ it:
+>=20
+> if (fingers !=3D0 ) {
+> 	/*
+> 	 * byte 1:  .   .   .   .  x11 x10 x9  x8
+> 	 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
+> 	 */
+> 	x1 =3D ((packet[1]&  0x0f)<<  8) | packet[2];
+> 	/*
+> 	 * byte 4:  .   .   .   .  y11 y10 y9  y8
+> 	 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
+> 	 */
+> 	y1 =3D ((packet[4]&  0x0f)<<  8) | packet[5];
+> }
+>=20
+> if ((fingers =3D=3D 3) && debounce(x1, y1))
+> 	return;
+we need one more line here, for fingers !=3D 2 :
+y1 =3D etd->y_max - y1;
+> if (fingers =3D=3D 2) {
+> 	if (packet_type =3D=3D PACKET_V3_HEAD)) {
+> 		/* wait for next packet */
+> 		etd->prev_x =3D x1;
+> 		etd->prev_y =3D etd->y_max - y1;
+                etd->prev_y =3D y1;
+> 		return;
+> 	} else {
+> 		/* packet_type =3D=3D PACKET_V3_TAIL */
+> 		x2 =3D etd->prev_x;
+> 		y2 =3D etd->prev_y;
+> 	}
+> }
+I like this compact version, but it seems to me this is not as straight
+forward as the original switch case. I am OK with either. Is there
+anyone who has more to say about this?
+>=20
+> > +
+> > +	pres =3D (packet[1]&  0xf0) | ((packet[4]&  0xf0)>>  4);
+> > +	width =3D ((packet[0]&  0x30)>>  2) | ((packet[3]&  0x30)>>  4);
+> What about the case of two fingers? Are pressure and width correct fo=
+r=20
+> both fingers? In that case, maybe it should also be saved from=20
+> PACKET_V3_HEAD.
+I am told (by our firmware guy) that pres and width are sent the same
+value for two finger touch.
+>=20
+> > +
+> > +	input_report_key(dev, BTN_TOUCH, fingers !=3D 0);
+> > +	input_report_abs(dev, ABS_X, x1);
+> > +	input_report_abs(dev, ABS_Y, y1);
+> > +	elantech_report_semi_mt_data(dev, fingers, x1, y1, x2, y2);
+> > +	input_report_key(dev, BTN_TOOL_FINGER, fingers =3D=3D 1);
+> > +	input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers =3D=3D 2);
+> > +	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers =3D=3D 3);
+> > +	input_report_key(dev, BTN_LEFT, packet[0]&  0x01);
+> > +	input_report_key(dev, BTN_RIGHT, packet[0]&  0x02);
+> > +	input_report_abs(dev, ABS_PRESSURE, pres);
+> > +	input_report_abs(dev, ABS_TOOL_WIDTH, width);
+> > +
+> > +	input_sync(dev);
+> > +}
+> > +
+> :
+> >
+> >   /*
+> >    * Set the appropriate event bits for the input subsystem
+> >    */
+> > -static void elantech_set_input_params(struct psmouse *psmouse)
+> > +static int elantech_set_input_params(struct psmouse *psmouse)
+> >   {
+> >   	struct input_dev *dev =3D psmouse->dev;
+> >   	struct elantech_data *etd =3D psmouse->private;
+> >   	unsigned int x_min =3D 0, y_min =3D 0, x_max =3D 0, y_max =3D 0,=
+ y_2ft_max =3D 0;
+> >
+> > -	set_range(psmouse,&x_min,&y_min,&x_max,&y_max,&y_2ft_max);
+> > +	if (set_range(psmouse,&x_min,&y_min,&x_max,&y_max,&y_2ft_max))
+> > +		return -1;
+> >
+> >   	__set_bit(EV_KEY, dev->evbit);
+> >   	__set_bit(EV_ABS, dev->evbit);
+> > @@ -582,10 +739,26 @@ static void elantech_set_input_params(struct =
+psmouse *psmouse)
+> >   		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0=
+);
+> >   		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0=
+);
+> >   		break;
+> > +
+> > +	case 3:
+> > +		input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
+> > +		input_set_abs_params(dev, ABS_Y, y_min, y_max, 0, 0);
+> > +		/* range of pressure and width is the same as v2 */
+> > +		input_set_abs_params(dev, ABS_PRESSURE, ETP_PMIN_V2,
+> > +				     ETP_PMAX_V2, 0, 0);
+> > +		input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
+> > +				     ETP_WMAX_V2, 0, 0);
+> > +		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+> Does v3 have the same limitation in MT about only reporting the edges=
+ of=20
+> the bounding box? Or are the two fingers always reported independentl=
+y?=20
+> If that is so, you can drop this line :-)
+I suppose it's the same as v2, but I have to comfirm with our firmware =
+team.
+I will ckeck this.
+>=20
+> > +		input_mt_init_slots(dev, 2);
+> > +		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0)=
+;
+> > +		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0)=
+;
+> > +		break;
+> >   	}
+> >
+>=20
+> Cheers,
+> =C3=89ric
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

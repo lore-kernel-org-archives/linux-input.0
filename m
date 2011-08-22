@@ -1,178 +1,79 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input: cyttsp - add support for Cypress TTSP
- touchscreen SPI bus interface
-Date: Sun, 21 Aug 2011 19:44:12 -0700
-Message-ID: <20110822024412.GC17891@core.coreip.homeip.net>
-References: <1313812912-2848-1-git-send-email-martinez.javier@gmail.com>
- <1313812912-2848-4-git-send-email-martinez.javier@gmail.com>
+Subject: Re: [PATCH 4/9 v4] Input: synaptics - add image sensor support
+Date: Sun, 21 Aug 2011 21:28:22 -0700
+Message-ID: <20110822042822.GA23010@core.coreip.homeip.net>
+References: <1313666888-18939-1-git-send-email-djkurtz@chromium.org>
+ <1313666888-18939-5-git-send-email-djkurtz@chromium.org>
+ <20110819222203.GC5146@core.coreip.homeip.net>
+ <CAGS+omCZSjJoESSvimLEpj9Mwr3d9Vn78e1ZLk-NWEdgQbxNKw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:64791 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752181Ab1HVCoT (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:56694 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750837Ab1HVE2a (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 21 Aug 2011 22:44:19 -0400
+	Mon, 22 Aug 2011 00:28:30 -0400
 Content-Disposition: inline
-In-Reply-To: <1313812912-2848-4-git-send-email-martinez.javier@gmail.com>
+In-Reply-To: <CAGS+omCZSjJoESSvimLEpj9Mwr3d9Vn78e1ZLk-NWEdgQbxNKw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <martinez.javier@gmail.com>
-Cc: Kevin McNeely <kev@cypress.com>, Henrik Rydberg <rydberg@euromail.se>, Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: chase.douglas@canonical.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
 
-Hi Javier,
+On Sat, Aug 20, 2011 at 03:07:41PM +0800, Daniel Kurtz wrote:
+> On Sat, Aug 20, 2011 at 6:22 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Daniel,
+> >
+> > On Thu, Aug 18, 2011 at 07:28:03PM +0800, Daniel Kurtz wrote:
+> >> @@ -558,6 +626,11 @@ static void synaptics_process_packet(struct p=
+smouse *psmouse)
+> >> =A0 =A0 =A0 if (synaptics_parse_hw_state(psmouse->packet, priv, &h=
+w))
+> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
+> >>
+> >> + =A0 =A0 if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 synaptics_image_sensor_process(psmouse, =
+&hw);
+> >> + =A0 =A0 =A0 =A0 =A0 =A0 return;
+> >> + =A0 =A0 }
+> >> +
+> >
+> > So what about the rest of the SYnaptics processing (wheel, addition=
+al
+> > buttons, etc)? =A0Are we sure that touchpads with image sensors wil=
+l never
+> > implement them?
+> >
+> > --
+> > Dmitry
+> >
+>=20
+> All image sensors that I am aware of are clickpads, with one button
+> integrated under the pad, which is reported as the middle button.
+>=20
+> We could report right, middle, up, down, and ext_buttons (scroll is
+> not possible, since w=3D2;buf[1] is used for x for devices that send =
+agm
+> packets).
+> However, I have no way of knowing if this added complexity is
+> necessary
 
-On Sat, Aug 20, 2011 at 12:01:52AM -0400, Javier Martinez Canillas wrote:
-> +
-> +static int cyttsp_spi_xfer_(u8 op, struct cyttsp_spi *ts,
-> +			    u8 reg, u8 *buf, int length)
-> +{
-> +	struct spi_message msg;
-> +	struct spi_transfer xfer[2];
-> +	u8 *wr_buf = ts->wr_buf;
-> +	u8 *rd_buf = ts->rd_buf;
-> +	int retval;
-> +
-> +	if (length > CY_SPI_DATA_SIZE) {
-> +		dev_dbg(ts->ops.dev, "%s: length %d is too big.\n",
-> +			__func__, length);
-> +		return -EINVAL;
-> +	}
-> +
-> +	memset(wr_buf, 0, CY_SPI_DATA_BUF_SIZE);
-> +	memset(rd_buf, 0, CY_SPI_DATA_BUF_SIZE);
-> +
-> +	wr_buf[0] = 0x00; /* header byte 0 */
-> +	wr_buf[1] = 0xFF; /* header byte 1 */
-> +	wr_buf[2] = reg;  /* reg index */
-> +	wr_buf[3] = op;   /* r/~w */
-> +	if (op == CY_SPI_WR_OP)
-> +		memcpy(wr_buf + CY_SPI_CMD_BYTES, buf, length);
-> +
-> +	memset((void *)xfer, 0, sizeof(xfer));
-> +	spi_message_init(&msg);
-> +	xfer[0].tx_buf = wr_buf;
-> +	xfer[0].rx_buf = rd_buf;
+I would prefer us supporting full protocol so if some vendor does add
+additional buttons we have everything in place.
 
-Since we are setting both TX and RX buffer here does this mean that the
-device will not work with controllers in half-duplex mode? What is the
-amount of data that will be placed in rd_buf?
+> , nor any way of testing it.
 
-> +	if (op == CY_SPI_WR_OP) {
-> +		xfer[0].len = length + CY_SPI_CMD_BYTES;
-> +		spi_message_add_tail(&xfer[0], &msg);
-> +	} else if (op == CY_SPI_RD_OP) {
-> +		xfer[0].len = CY_SPI_CMD_BYTES;
-> +		spi_message_add_tail(&xfer[0], &msg);
-> +
-> +		xfer[1].rx_buf = buf;
-> +		xfer[1].len = length;
-> +		spi_message_add_tail(&xfer[1], &msg);
-> +	}
-> +
-> +	retval = spi_sync_tmo(ts, &msg);
-> +	if (retval < 0) {
-> +		dev_dbg(ts->ops.dev, "%s: spi sync error %d, len=%d, op=%d\n",
-> +			__func__, retval, xfer[1].len, op);
-> +		retval = 0;
-
-Why do we ignore the error?
-
-> +	}
-> +
-> +	if (op == CY_SPI_RD_OP) {
-> +		if ((rd_buf[CY_SPI_SYNC_BYTE] == CY_SPI_SYNC_ACK1) &&
-> +			(rd_buf[CY_SPI_SYNC_BYTE+1] == CY_SPI_SYNC_ACK2))
-> +			retval = 0;
-
-What about write operation? Does the device send anything in rd_buf for
-write command?
-
-> +		else {
-> +			int i;
-> +			for (i = 0; i < (CY_SPI_CMD_BYTES); i++)
-> +				dev_dbg(ts->ops.dev,
-> +					"%s: test rd_buf[%d]:0x%02x\n",
-> +					__func__, i, rd_buf[i]);
-> +			for (i = 0; i < (length); i++)
-> +				dev_dbg(ts->ops.dev,
-> +					"%s: test buf[%d]:0x%02x\n",
-> +					__func__, i, buf[i]);
-> +			retval = 1;
-> +		}
-> +	}
-> +	return retval;
-> +}
-> +
-> +static int cyttsp_spi_xfer(u8 op, struct cyttsp_spi *ts,
-> +			    u8 reg, u8 *buf, int length)
-> +{
-> +	int tries;
-> +	int retval;
-> +
-> +	if (op == CY_SPI_RD_OP) {
-> +		for (tries = CY_NUM_RETRY; tries; tries--) {
-> +			retval = cyttsp_spi_xfer_(op, ts, reg, buf, length);
-> +			if (retval == 0)
-> +				break;
-> +			else
-> +				msleep(20);
-
-Why do we need retry in SPI case but do not need it when device is
-connected via I2C? And not on writes?
-
-> +		}
-> +	} else {
-> +		retval = cyttsp_spi_xfer_(op, ts, reg, buf, length);
-> +	}
-> +
-> +	return retval;
-> +}
-> +
-> +static s32 ttsp_spi_read_block_data(void *handle, u8 addr,
-> +				    u8 length, void *data)
-> +{
-> +	struct cyttsp_spi *ts = container_of(handle, struct cyttsp_spi, ops);
-> +	int retval;
-> +
-> +	retval = cyttsp_spi_xfer(CY_SPI_RD_OP, ts, addr, data, length);
-> +	if (retval < 0)
-> +		dev_dbg(ts->ops.dev,  "%s: ttsp_spi_read_block_data failed\n",
-> +			__func__);
-> +
-> +	/*
-> +	 * Do not print the above error if the data sync bytes were not found.
-> +	 * This is a normal condition for the bootloader loader startup and need
-> +	 * to retry until data sync bytes are found.
-> +	 */
-> +	if (retval > 0)
-> +		retval = -1;	/* now signal fail; so retry can be done */
-> +
-> +	return retval;
-> +}
-> +
-> +static s32 ttsp_spi_write_block_data(void *handle, u8 addr,
-> +				     u8 length, const void *data)
-> +{
-> +	struct cyttsp_spi *ts = container_of(handle, struct cyttsp_spi, ops);
-> +	int retval;
-> +
-> +	retval = cyttsp_spi_xfer(CY_SPI_WR_OP, ts, addr, (void *)data, length);
-> +	if (retval < 0)
-> +		dev_dbg(ts->ops.dev, "%s: ttsp_spi_write_block_data failed\n",
-> +			__func__);
-> +
-> +	if (retval == -EIO)
-> +		return 0;
-
-Why is -EIO special?
-
-> +	else
-> +		return retval;
-> +}
-> +
+As long as your case still works I think it will be good enough.
 
 Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

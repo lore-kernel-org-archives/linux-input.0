@@ -1,91 +1,62 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH BlueZ 2/4] Add sixaxis plugin: USB pairing and LEDs
- settings
-Date: Mon, 22 Aug 2011 22:08:51 +0200
-Message-ID: <20110822220851.38d346165c3afaa592888eed@studenti.unina.it>
-References: <1312553358-26280-1-git-send-email-ospite@studenti.unina.it>
-	<1312553358-26280-3-git-send-email-ospite@studenti.unina.it>
-	<4E41EBE5.7040908@signal11.us>
-	<20110818161357.8084ab94bff57391e7ec3284@studenti.unina.it>
-	<20110819215716.71f6b39d3b5e783c4276f422@studenti.unina.it>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 4/9 v5] Input: synaptics - add image sensor support
+Date: Mon, 22 Aug 2011 13:55:46 -0700
+Message-ID: <4E52C252.9060904@canonical.com>
+References: <1314011163-19098-1-git-send-email-djkurtz@chromium.org> <1314011163-19098-5-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__22_Aug_2011_22_08_51_+0200_Yubf.9jMSO/izqmG"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp208.alice.it ([82.57.200.104]:54411 "EHLO smtp208.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753246Ab1HVUJF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Aug 2011 16:09:05 -0400
-In-Reply-To: <20110819215716.71f6b39d3b5e783c4276f422@studenti.unina.it>
+Received: from youngberry.canonical.com ([91.189.89.112]:38644 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751086Ab1HVUzz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Aug 2011 16:55:55 -0400
+In-Reply-To: <1314011163-19098-5-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>, Arc Riley <arcriley@gmail.com>, Sergey Kondakov <virtuousfox@gmail.com>
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com
 
---Signature=_Mon__22_Aug_2011_22_08_51_+0200_Yubf.9jMSO/izqmG
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 08/22/2011 04:05 AM, Daniel Kurtz wrote:
+> Synaptics makes (at least) two kinds of touchpad sensors:
+>  * Older pads use a profile sensor that could only infer the location
+>    of individual fingers based on the projection of their profiles
+>    onto row and column sensors.
+>  * Newer pads use an image sensor that can track true finger position
+>    using a two-dimensional sensor grid.
+> 
+> Both sensor types support an "Advanced Gesture Mode":
+>  When multiple fingers are detected, the touchpad sends alternating
+>  "Advanced Gesture Mode" (AGM) and "Simple Gesture Mode" (SGM)
+>  packets.
+>  The AGM packets have w=2, and contain reduced resolution finger data
+>  The SGM packets have w={0,1} and contain full resolution finger data
+> 
+> Profile sensors try to report the "upper" (larger y value) finger in
+> the SGM packet, and the lower (smaller y value) in the AGM packet.
+> However, due to the nature of the profile sensor, they easily get
+> confused when fingers cross, and can start reporting the x-coordinate
+> of one with the y-coordinate of the other.  Thus, for profile
+> sensors, "semi-mt" was created, which reports a "bounding box"
+> created by pairing min and max coordinates of the two pairs of
+> reported fingers.
+> 
+> Image sensors can report the actual coordinates of two of the fingers
+> present.  This patch detects if the touchpad is an image sensor and
+> reports finger data using the MT-B protocol.
+> 
+> NOTE: This patch only adds partial support for 2-finger gestures.
+>       The proper interpretation of the slot contents when more than
+>       two fingers are present is left to later patches.  Also,
+>       handling of 'number of fingers' transitions is incomplete.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 
-On Fri, 19 Aug 2011 21:57:16 +0200
-Antonio Ospite <ospite@studenti.unina.it> wrote:
+It's fine with me. It adds a bit of asymmetry in packet processing
+between mt and non-mt trackpads. This could be reworked by splitting
+synaptics_process_packet() up into an mt case function (which is what
+synaptics_image_sensor_process() is), and a non-mt case function. I
+think that would be nice, but not a big deal so:
 
-> On Thu, 18 Aug 2011 16:13:57 +0200
-> Antonio Ospite <ospite@studenti.unina.it> wrote:
->=20
-> [...]
-> > If the idea looks OK I'll fold those patches in v5, along with the
-> > plugin renaming to "sony-controller", and maybe I'll split the plugin in
-> > several modules too:
-> >   sony-controller.c 	/* udev and bluez stuff */
-> >   sony-controller-hid.c	/* hidraw and device specific stuff */
-> >   sony-controlled-hid.h
-> >=20
->=20
-> Do you think "controller" fits the PS3 headset as well?
->=20
-
-OK, given that:
-  - all the possibly supported devices at this time are PS3 peripherals;
-  - some of them are not input controllers;
-  - the cable pairing/association  mechanism generally does not apply to
-    other sony BT hardware;
-  - someone imagined a future PS4 controller using the same pairing=20
-    mechanism;
-
-with Alan we came up with the name:
-
-	playstation-peripheral
-
-for the plugin; do you people like that, or does the variant
-
-	playstation-device
-
-sound better to you?
-
-Thanks,
-   Antonio
-
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-
---Signature=_Mon__22_Aug_2011_22_08_51_+0200_Yubf.9jMSO/izqmG
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk5St1MACgkQ5xr2akVTsAH/6QCffufxVZurGCwaGQOOeqqZ72wh
-O1oAniXNutCJBGDRpaNES6GYwXvufrM1
-=qyDR
------END PGP SIGNATURE-----
-
---Signature=_Mon__22_Aug_2011_22_08_51_+0200_Yubf.9jMSO/izqmG--
+Acked-by: Chase Douglas <chase.douglas@canonical.com>

@@ -1,46 +1,66 @@
-From: <michael.hennerich@analog.com>
-Subject: [PATCH] Input: ad714x - restore struct ad714x_chip status interrupt result placement
-Date: Mon, 22 Aug 2011 13:44:15 +0200
-Message-ID: <1314013455-13463-1-git-send-email-michael.hennerich@analog.com>
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: Re: [PATCH 1/3] Input: cyttsp - Cypress TTSP capacitive multi-touch
+ screen support
+Date: Mon, 22 Aug 2011 09:06:18 -0400
+Message-ID: <CAAwP0s08h9P4BkYWxsa068s7QPu=vcHgt6uczcBxs1rH56-FkQ@mail.gmail.com>
+References: <1313812912-2848-1-git-send-email-martinez.javier@gmail.com>
+ <1313812912-2848-2-git-send-email-martinez.javier@gmail.com> <20110822043107.GB23010@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch1ehsobe003.messaging.microsoft.com ([216.32.181.183]:58246
-	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751305Ab1HVLoQ (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:51602 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752175Ab1HVNGe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Aug 2011 07:44:16 -0400
+	Mon, 22 Aug 2011 09:06:34 -0400
+In-Reply-To: <20110822043107.GB23010@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, drivers@analog.com, Michael Hennerich <michael.hennerich@analog.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kevin McNeely <kev@cypress.com>, Henrik Rydberg <rydberg@euromail.se>, Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+On Mon, Aug 22, 2011 at 12:31 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Javier,
+>
 
-This patch needs to go on top of Dmitry's reworked patch set.
-Since we read status interrupt registers in row, we also need to place the
-storage members sequentially. This part got dropped from the original patch set.
+Hi Dmitry,
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
----
- drivers/input/misc/ad714x.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Thank you very much for the review.
 
-diff --git a/drivers/input/misc/ad714x.h b/drivers/input/misc/ad714x.h
-index 6edc080..3c85455 100644
---- a/drivers/input/misc/ad714x.h
-+++ b/drivers/input/misc/ad714x.h
-@@ -22,8 +22,8 @@ typedef int (*ad714x_read_t)(struct ad714x_chip *, unsigned short, unsigned shor
- typedef int (*ad714x_write_t)(struct ad714x_chip *, unsigned short, unsigned short);
- 
- struct ad714x_chip {
--	unsigned short h_state;
- 	unsigned short l_state;
-+	unsigned short h_state;
- 	unsigned short c_state;
- 	unsigned short adc_reg[STAGE_NUM];
- 	unsigned short amb_reg[STAGE_NUM];
--- 
-1.7.0.4
+>
+> Still reading through the patches, but have one question:
+>
+>
+> Why do we need to get gpio/irq from platform data instead of having
+> board code set up controllers appropriately and use IRQ either from I=
+2C
+> client structure or from SPI?
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
 
+The original author of this driver is Kevin McNeely (cc'ed in this
+patch submission).
+I've only added multi-touch protocol type B support (which was a
+requirement for upstream acceptance) and resubmit the patch-set.
 
+I think he will better answer your questions about the driver design.
+
+Kevin?
+
+Best regards,
+
+--=20
+Javier Mart=C3=ADnez Canillas
+(+34) 682 39 81 69
+Barcelona, Spain
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

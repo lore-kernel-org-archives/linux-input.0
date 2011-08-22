@@ -1,251 +1,258 @@
-From: Tom _Lin <tom_lin@emc.com.tw>
-Subject: Re: [PATCH 6/6] Input: elantech - add v3 hardware support
-Date: Mon, 22 Aug 2011 15:20:14 +0800
-Message-ID: <1313997614.2880.39.camel@ubuntu1010-Veriton-M275>
-References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw>
-	 <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw>
-	 <4E4E5F08.1030803@tudelft.nl>  <87bovi2d74.fsf@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: [PATCH 4/9 v5] Input: synaptics - add image sensor support
+Date: Mon, 22 Aug 2011 19:05:58 +0800
+Message-ID: <1314011163-19098-5-git-send-email-djkurtz@chromium.org>
+References: <1314011163-19098-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:5446 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752538Ab1HVHOs (ORCPT
+Received: from smtp-out.google.com ([74.125.121.67]:11292 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756751Ab1HVLGM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Aug 2011 03:14:48 -0400
-In-Reply-To: <87bovi2d74.fsf@emc.com.tw>
+	Mon, 22 Aug 2011 07:06:12 -0400
+In-Reply-To: <1314011163-19098-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: =?ISO-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+To: chase.douglas@canonical.com, dmitry.torokhov@gmail.com, rydberg@euromail.se
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, chris@cnpbagwell.com, Daniel Kurtz <djkurtz@chromium.org>
 
-Hi JJ
-On Mon, 2011-08-22 at 14:05 +0800, JJ Ding wrote:
-> Hi =C3=89ric,
->=20
-> Thanks for your comments, a few lines below:
->=20
-> On Fri, 19 Aug 2011 15:03:04 +0200, =C3=89ric Piel <E.A.B.Piel@tudelf=
-t.nl> wrote:
-> > Op 18-08-11 03:57, JJ Ding schreef:
-> > > v3 hardware's packet format is almost identical to v2 (one/three =
-finger touch),
-> > > except when sensing two finger touch, the hardware sends 12 bytes=
- of data.
-> > >
-> > > Signed-off-by: JJ Ding<jj_ding@emc.com.tw>
-> > Hi,
-> > A couple of comments, in line.
-> >=20
-> > :
-> > :
-> > > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse=
-/elantech.c
-> > > index ddd40eb..e13a719 100644
-> > > --- a/drivers/input/mouse/elantech.c
-> > > +++ b/drivers/input/mouse/elantech.c
-> > :
-> > > +/*
-> > > + * Interpret complete data packets and report absolute mode inpu=
-t events for
-> > > + * hardware version 3. (12 byte packets for two fingers)
-> > > + */
-> > > +static void elantech_report_absolute_v3(struct psmouse *psmouse,
-> > > +					int packet_type)
-> > > +{
-> > > +	struct input_dev *dev =3D psmouse->dev;
-> > > +	struct elantech_data *etd =3D psmouse->private;
-> > > +	unsigned char *packet =3D psmouse->packet;
-> > > +	unsigned int fingers =3D 0, x1 =3D 0, y1 =3D 0, x2 =3D 0, y2 =3D=
- 0;
-> > > +	unsigned int width =3D 0, pres =3D 0;
-> > > +
-> > > +	/* byte 0: n1  n0   .   .   .   .   R   L */
-> > > +	fingers =3D (packet[0]&  0xc0)>>  6;
-> > > +
-> > > +	switch (fingers) {
-> > > +	case 3:
-> > > +	case 1:
-> > > +		/*
-> > > +		 * byte 1:  .   .   .   .  x11 x10 x9  x8
-> > > +		 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
-> > > +		 */
-> > > +		x1 =3D ((packet[1]&  0x0f)<<  8) | packet[2];
-> > > +		/*
-> > > +		 * byte 4:  .   .   .   .  y11 y10 y9  y8
-> > > +		 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
-> > > +		 */
-> > > +		y1 =3D etd->y_max - (((packet[4]&  0x0f)<<  8) | packet[5]);
-> > > +
-> > > +		if (fingers =3D=3D 3&&  debounce(x1, y1))
-> > > +			return;
-> > > +
-> > > +		break;
-> > > +
-> > > +	case 2:
-> > > +		if (packet_type =3D=3D PACKET_V3_HEAD) {
-> > > +			/*
-> > > +			 * byte 1:   .    .    .    .  ax11 ax10 ax9  ax8
-> > > +			 * byte 2: ax7  ax6  ax5  ax4  ax3  ax2  ax1  ax0
-> > > +			 */
-> > > +			etd->prev_x =3D ((packet[1]&  0x0f)<<  8) | packet[2];
-> > > +			/*
-> > > +			 * byte 4:   .    .    .    .  ay11 ay10 ay9  ay8
-> > > +			 * byte 5: ay7  ay6  ay5  ay4  ay3  ay2  ay1  ay0
-> > > +			 */
-> > > +			etd->prev_y =3D etd->y_max -
-> > > +				(((packet[4]&  0x0f)<<  8) | packet[5]);
-> > > +			/*
-> > > +			 * wait for next packet
-> > > +			 */
-> > > +			return;
-> > > +		}
-> > > +
-> > > +		/* packet_type =3D=3D PACKET_V3_TAIL */
-> > > +		x1 =3D etd->prev_x;
-> > > +		y1 =3D etd->prev_y;
-> > > +		x2 =3D ((packet[1]&  0x0f)<<  8) | packet[2];
-> > > +		y2 =3D etd->y_max - (((packet[4]&  0x0f)<<  8) | packet[5]);
-> > > +		break;
-> > > +	}
-> > You actually have three times the same formula, so you could simpli=
-fy it:
-> >=20
-> > if (fingers !=3D0 ) {
-> > 	/*
-> > 	 * byte 1:  .   .   .   .  x11 x10 x9  x8
-> > 	 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
-> > 	 */
-> > 	x1 =3D ((packet[1]&  0x0f)<<  8) | packet[2];
-> > 	/*
-> > 	 * byte 4:  .   .   .   .  y11 y10 y9  y8
-> > 	 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
-> > 	 */
-> > 	y1 =3D ((packet[4]&  0x0f)<<  8) | packet[5];
-> > }
-> >=20
-> > if ((fingers =3D=3D 3) && debounce(x1, y1))
-> > 	return;
-> we need one more line here, for fingers !=3D 2 :
-> y1 =3D etd->y_max - y1;
-> > if (fingers =3D=3D 2) {
-> > 	if (packet_type =3D=3D PACKET_V3_HEAD)) {
-> > 		/* wait for next packet */
-> > 		etd->prev_x =3D x1;
-> > 		etd->prev_y =3D etd->y_max - y1;
->                 etd->prev_y =3D y1;
-> > 		return;
-> > 	} else {
-> > 		/* packet_type =3D=3D PACKET_V3_TAIL */
-> > 		x2 =3D etd->prev_x;
-> > 		y2 =3D etd->prev_y;
-> > 	}
-> > }
-> I like this compact version, but it seems to me this is not as straig=
-ht
-> forward as the original switch case. I am OK with either. Is there
-> anyone who has more to say about this?
-=C3=89ric's version is compact but this is not straight forward as orig=
-inal
-code and does not improve more performances. Then other versions of
-"elantech_report_absolute" also needed to  modify the same style . so I
-prefer original style.
-> >=20
-> > > +
-> > > +	pres =3D (packet[1]&  0xf0) | ((packet[4]&  0xf0)>>  4);
-> > > +	width =3D ((packet[0]&  0x30)>>  2) | ((packet[3]&  0x30)>>  4)=
-;
-> > What about the case of two fingers? Are pressure and width correct =
-for=20
-> > both fingers? In that case, maybe it should also be saved from=20
-> > PACKET_V3_HEAD.
-> I am told (by our firmware guy) that pres and width are sent the same
-> value for two finger touch.
-> >=20
-> > > +
-> > > +	input_report_key(dev, BTN_TOUCH, fingers !=3D 0);
-> > > +	input_report_abs(dev, ABS_X, x1);
-> > > +	input_report_abs(dev, ABS_Y, y1);
-> > > +	elantech_report_semi_mt_data(dev, fingers, x1, y1, x2, y2);
-> > > +	input_report_key(dev, BTN_TOOL_FINGER, fingers =3D=3D 1);
-> > > +	input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers =3D=3D 2);
-> > > +	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers =3D=3D 3);
-> > > +	input_report_key(dev, BTN_LEFT, packet[0]&  0x01);
-> > > +	input_report_key(dev, BTN_RIGHT, packet[0]&  0x02);
-> > > +	input_report_abs(dev, ABS_PRESSURE, pres);
-> > > +	input_report_abs(dev, ABS_TOOL_WIDTH, width);
-> > > +
-> > > +	input_sync(dev);
-> > > +}
-> > > +
-> > :
-> > >
-> > >   /*
-> > >    * Set the appropriate event bits for the input subsystem
-> > >    */
-> > > -static void elantech_set_input_params(struct psmouse *psmouse)
-> > > +static int elantech_set_input_params(struct psmouse *psmouse)
-> > >   {
-> > >   	struct input_dev *dev =3D psmouse->dev;
-> > >   	struct elantech_data *etd =3D psmouse->private;
-> > >   	unsigned int x_min =3D 0, y_min =3D 0, x_max =3D 0, y_max =3D =
-0, y_2ft_max =3D 0;
-> > >
-> > > -	set_range(psmouse,&x_min,&y_min,&x_max,&y_max,&y_2ft_max);
-> > > +	if (set_range(psmouse,&x_min,&y_min,&x_max,&y_max,&y_2ft_max))
-> > > +		return -1;
-> > >
-> > >   	__set_bit(EV_KEY, dev->evbit);
-> > >   	__set_bit(EV_ABS, dev->evbit);
-> > > @@ -582,10 +739,26 @@ static void elantech_set_input_params(struc=
-t psmouse *psmouse)
-> > >   		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0,=
- 0);
-> > >   		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0,=
- 0);
-> > >   		break;
-> > > +
-> > > +	case 3:
-> > > +		input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
-> > > +		input_set_abs_params(dev, ABS_Y, y_min, y_max, 0, 0);
-> > > +		/* range of pressure and width is the same as v2 */
-> > > +		input_set_abs_params(dev, ABS_PRESSURE, ETP_PMIN_V2,
-> > > +				     ETP_PMAX_V2, 0, 0);
-> > > +		input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
-> > > +				     ETP_WMAX_V2, 0, 0);
-> > > +		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
-> > Does v3 have the same limitation in MT about only reporting the edg=
-es of=20
-> > the bounding box? Or are the two fingers always reported independen=
-tly?=20
-> > If that is so, you can drop this line :-)
-> I suppose it's the same as v2, but I have to comfirm with our firmwar=
-e team.
-> I will ckeck this.
-> >=20
-> > > +		input_mt_init_slots(dev, 2);
-> > > +		input_set_abs_params(dev, ABS_MT_POSITION_X, x_min, x_max, 0, =
-0);
-> > > +		input_set_abs_params(dev, ABS_MT_POSITION_Y, y_min, y_max, 0, =
-0);
-> > > +		break;
-> > >   	}
-> > >
-> >=20
-> > Cheers,
-> > =C3=89ric
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-inp=
-ut" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
->=20
->=20
+Synaptics makes (at least) two kinds of touchpad sensors:
+ * Older pads use a profile sensor that could only infer the location
+   of individual fingers based on the projection of their profiles
+   onto row and column sensors.
+ * Newer pads use an image sensor that can track true finger position
+   using a two-dimensional sensor grid.
 
+Both sensor types support an "Advanced Gesture Mode":
+ When multiple fingers are detected, the touchpad sends alternating
+ "Advanced Gesture Mode" (AGM) and "Simple Gesture Mode" (SGM)
+ packets.
+ The AGM packets have w=2, and contain reduced resolution finger data
+ The SGM packets have w={0,1} and contain full resolution finger data
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Profile sensors try to report the "upper" (larger y value) finger in
+the SGM packet, and the lower (smaller y value) in the AGM packet.
+However, due to the nature of the profile sensor, they easily get
+confused when fingers cross, and can start reporting the x-coordinate
+of one with the y-coordinate of the other.  Thus, for profile
+sensors, "semi-mt" was created, which reports a "bounding box"
+created by pairing min and max coordinates of the two pairs of
+reported fingers.
+
+Image sensors can report the actual coordinates of two of the fingers
+present.  This patch detects if the touchpad is an image sensor and
+reports finger data using the MT-B protocol.
+
+NOTE: This patch only adds partial support for 2-finger gestures.
+      The proper interpretation of the slot contents when more than
+      two fingers are present is left to later patches.  Also,
+      handling of 'number of fingers' transitions is incomplete.
+
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+---
+ drivers/input/mouse/synaptics.c |  124 +++++++++++++++++++++++++++++++++-----
+ drivers/input/mouse/synaptics.h |    3 +
+ 2 files changed, 110 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 30d05fd..232fa00 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -304,7 +304,8 @@ static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
+ 	static unsigned char param = 0xc8;
+ 	struct synaptics_data *priv = psmouse->private;
+ 
+-	if (!SYN_CAP_ADV_GESTURE(priv->ext_cap_0c))
++	if (!(SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) ||
++			SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)))
+ 		return 0;
+ 
+ 	if (psmouse_sliced_command(psmouse, SYN_QUE_MODEL))
+@@ -463,7 +464,9 @@ static int synaptics_parse_hw_state(const unsigned char buf[],
+ 			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
+ 		}
+ 
+-		if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c) && hw->w == 2) {
++		if ((SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)
++				|| SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c))
++				&& hw->w == 2) {
+ 			synaptics_parse_agm(buf, priv);
+ 			return 1;
+ 		}
+@@ -543,6 +546,94 @@ static void synaptics_report_semi_mt_data(struct input_dev *dev,
+ 	}
+ }
+ 
++static void synaptics_report_buttons(struct psmouse *psmouse,
++				     const struct synaptics_hw_state *hw)
++{
++	struct input_dev *dev = psmouse->dev;
++	struct synaptics_data *priv = psmouse->private;
++	int i;
++
++	input_report_key(dev, BTN_LEFT, hw->left);
++	input_report_key(dev, BTN_RIGHT, hw->right);
++
++	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
++		input_report_key(dev, BTN_MIDDLE, hw->middle);
++
++	if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
++		input_report_key(dev, BTN_FORWARD, hw->up);
++		input_report_key(dev, BTN_BACK, hw->down);
++	}
++
++	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
++		input_report_key(dev, BTN_0 + i, hw->ext_buttons & (1 << i));
++}
++
++static void synaptics_report_slot(struct input_dev *dev, int slot,
++				  const struct synaptics_hw_state *hw)
++{
++	input_mt_slot(dev, slot);
++	input_mt_report_slot_state(dev, MT_TOOL_FINGER, (hw != NULL));
++	if (!hw)
++		return;
++
++	input_report_abs(dev, ABS_MT_POSITION_X, hw->x);
++	input_report_abs(dev, ABS_MT_POSITION_Y, invert_y(hw->y));
++	input_report_abs(dev, ABS_MT_PRESSURE, hw->z);
++}
++
++static void synaptics_report_mt_data(struct psmouse *psmouse,
++				     int count,
++				     const struct synaptics_hw_state *sgm)
++{
++	struct input_dev *dev = psmouse->dev;
++	struct synaptics_data *priv = psmouse->private;
++	struct synaptics_hw_state *agm = &priv->agm;
++
++	switch (count) {
++	case 0:
++		synaptics_report_slot(dev, 0, NULL);
++		synaptics_report_slot(dev, 1, NULL);
++		break;
++	case 1:
++		synaptics_report_slot(dev, 0, sgm);
++		synaptics_report_slot(dev, 1, NULL);
++		break;
++	case 2:
++	case 3: /* Fall-through case */
++		synaptics_report_slot(dev, 0, sgm);
++		synaptics_report_slot(dev, 1, agm);
++		break;
++	}
++
++	/* Don't use active slot count to generate BTN_TOOL events. */
++	input_mt_report_pointer_emulation(dev, false);
++
++	/* Send the number of fingers reported by touchpad itself. */
++	input_mt_report_finger_count(dev, count);
++
++	synaptics_report_buttons(psmouse, sgm);
++
++	input_sync(dev);
++}
++
++static void synaptics_image_sensor_process(struct psmouse *psmouse,
++					   struct synaptics_hw_state *sgm)
++{
++	int count;
++
++	if (sgm->z == 0)
++		count = 0;
++	else if (sgm->w >= 4)
++		count = 1;
++	else if (sgm->w == 0)
++		count = 2;
++	else
++		count = 3;
++
++	/* Send resulting input events to user space */
++	synaptics_report_mt_data(psmouse, count, sgm);
++}
++
+ /*
+  *  called for each full received packet from the touchpad
+  */
+@@ -553,11 +644,15 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 	struct synaptics_hw_state hw;
+ 	int num_fingers;
+ 	int finger_width;
+-	int i;
+ 
+ 	if (synaptics_parse_hw_state(psmouse->packet, priv, &hw))
+ 		return;
+ 
++	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
++		synaptics_image_sensor_process(psmouse, &hw);
++		return;
++	}
++
+ 	if (hw.scroll) {
+ 		priv->scroll += hw.scroll;
+ 
+@@ -623,24 +718,12 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
+ 
+ 	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
+-	input_report_key(dev, BTN_LEFT, hw.left);
+-	input_report_key(dev, BTN_RIGHT, hw.right);
+-
+ 	if (SYN_CAP_MULTIFINGER(priv->capabilities)) {
+ 		input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
+ 		input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
+ 	}
+ 
+-	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
+-		input_report_key(dev, BTN_MIDDLE, hw.middle);
+-
+-	if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
+-		input_report_key(dev, BTN_FORWARD, hw.up);
+-		input_report_key(dev, BTN_BACK, hw.down);
+-	}
+-
+-	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
+-		input_report_key(dev, BTN_0 + i, hw.ext_buttons & (1 << i));
++	synaptics_report_buttons(dev, &hw);
+ 
+ 	input_sync(dev);
+ }
+@@ -739,7 +822,14 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 	set_abs_position_params(dev, priv, ABS_X, ABS_Y);
+ 	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
+ 
+-	if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
++	if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
++		input_mt_init_slots(dev, 2);
++		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
++					ABS_MT_POSITION_Y);
++		/* Image sensors can report per-contact pressure */
++		input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
++	} else if (SYN_CAP_ADV_GESTURE(priv->ext_cap_0c)) {
++		/* Non-image sensors with AGM use semi-mt */
+ 		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+ 		input_mt_init_slots(dev, 2);
+ 		set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index a9efbf3..0ea7616 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -74,6 +74,8 @@
+  * 2	0x04	reduced filtering	firmware does less filtering on
+  *					position data, driver should watch
+  *					for noise.
++ * 2	0x08	image sensor		image sensor tracks 5 fingers, but only
++ *					reports 2.
+  * 2	0x20	report min		query 0x0f gives min coord reported
+  */
+ #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100000) /* 1-button ClickPad */
+@@ -82,6 +84,7 @@
+ #define SYN_CAP_MIN_DIMENSIONS(ex0c)	((ex0c) & 0x002000)
+ #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+ #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
++#define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
+ 
+ /* synaptics modes query bits */
+ #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
+-- 
+1.7.3.1
+

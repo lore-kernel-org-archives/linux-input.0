@@ -1,39 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Device-drivers-devel] [PATCH 3/4] Input: ad714x - use DMA-safe buffers for spi_write()
-Date: Sun, 21 Aug 2011 17:46:00 -0700
-Message-ID: <d23025fc-3303-4c94-988d-cbf1e0bd1811@email.android.com>
-References: <1313957345-22608-1-git-send-email-dmitry.torokhov@gmail.com> <1313957345-22608-3-git-send-email-dmitry.torokhov@gmail.com> <CAMjpGUf1bwv8sfN-5Yr4NJ3LACb202CcnjgnskUSMZ15wUt-8w@mail.gmail.com>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH 6/6] Input: elantech - add v3 hardware support
+Date: Mon, 22 Aug 2011 08:55:16 +0800
+Message-ID: <87y5ymmfij.fsf@emc.com.tw>
+References: <1313632629-23603-1-git-send-email-jj_ding@emc.com.tw> <1313632629-23603-7-git-send-email-jj_ding@emc.com.tw> <20110818173959.GE28313@thinkpad-t410> <87hb5ddcsa.fsf@emc.com.tw> <20110819121308.GA16386@thinkpad-t410>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:58402 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752539Ab1HVAqi (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:52108 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752486Ab1HVAw6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 21 Aug 2011 20:46:38 -0400
-Received: by gxk21 with SMTP id 21so3253123gxk.19
-        for <linux-input@vger.kernel.org>; Sun, 21 Aug 2011 17:46:38 -0700 (PDT)
-In-Reply-To: <CAMjpGUf1bwv8sfN-5Yr4NJ3LACb202CcnjgnskUSMZ15wUt-8w@mail.gmail.com>
+	Sun, 21 Aug 2011 20:52:58 -0400
+In-Reply-To: <20110819121308.GA16386@thinkpad-t410>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, drivers@analog.com, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, Eric Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
+Hi Seth,
 
+On Fri, 19 Aug 2011 07:13:08 -0500, Seth Forshee <seth.forshee@canonical.com> wrote:
+> On Fri, Aug 19, 2011 at 04:29:57PM +0800, JJ Ding wrote:
+> > > You should only report the ABS_[XY] coordinates when fingers != 0. The
+> > > xorg synaptics module sees the values reported in that case as
+> > > legitimate. This is causing me to see strange behaviors when scrolling
+> > > with two-finger drags.
+> > AFAIK, though v2 and v3 differ in packet format, they really report the
+> > same data to the userspace. In this version of v3 support, I even try to
+> > make v2 and v3 report all the data in the same sequnce. If you're seeing
+> > this issue, maybe we should do the same with v2?
+> 
+> Actually neither v1 nor v2 reports ABS_[XY] unless fingers != 0. In v2
+> the reporting is in a switch statement on the number of fingers, and 0
+> is unhandled.
+Yes, You are right. Sorry I misread your reply about this. I will fix
+this as you suggested.
 
-ike Frysinger <vapier.adi@gmail.com> wrote:
-
->On Sun, Aug 21, 2011 at 16:09, Dmitry Torokhov wrote:
->> spi_write() requires use of DMA-safe (cacheline aligned) buffers.
->> Also use the same buffers when reading data since to avoid extra
->> locking and potential memory allocation in spi_write_then_read().
->
->seems like there's a whole lot of style changes unrelated to spi and
->dma ... more so than the actual dma/spi change.
-
-Hmm, I tried to control myself so (aside of return -> error) renames there shouldn't be many style changes... The diff looks big because we are passing ad714x instead of ad714x->dev to the read/write methods. 
-
--- 
-Dmitry
+jj

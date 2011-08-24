@@ -1,124 +1,52 @@
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 3/6] input/mc13783-ts: convert to mc13xxx API
-Date: Wed, 24 Aug 2011 15:28:22 +0200
-Message-ID: <1314192505-23499-3-git-send-email-u.kleine-koenig@pengutronix.de>
-References: <20110824132740.GA28197@pengutronix.de>
- <1314192505-23499-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH v2 7/7] Input: elantech - add v3 hardware support
+Date: Wed, 24 Aug 2011 09:35:20 -0500
+Message-ID: <20110824143520.GB23868@thinkpad-t410>
+References: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw>
+ <1314164686-866-8-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1314192505-23499-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Content-Disposition: inline
+In-Reply-To: <1314164686-866-8-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kernel@pengutronix.de, linux-input@vger.kernel.org
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?B?w4lyaWM=?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 List-Id: linux-input@vger.kernel.org
 
-This is the first step to also support the touch interface of the mc138=
-92
-pmic chip.
+On Wed, Aug 24, 2011 at 01:44:46PM +0800, JJ Ding wrote:
+> @@ -403,11 +503,39 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
+>  }
+>  
+>  /*
+> + * We check the constant bits to determine what packet type we get,
+> + * so packet checking is mandatory for v3 hardware.
+> + */
+> +static int elantech_packet_check_v3(struct psmouse *psmouse)
+> +{
+> +	unsigned char *packet = psmouse->packet;
+> +
+> +	if ((packet[0] & 0x0c) == 0x04 &&
+> +	    (packet[3] & 0xcf) == 0x02)
+> +		return PACKET_V3_HEAD;
+> +
+> +	if ((packet[0] & 0x0c) == 0x0c &&
+> +	    (packet[3] & 0xce) == 0x0c)
+> +		return PACKET_V3_TAIL;
+> +
+> +	if (packet[0] == 0xc4 &&
+> +	    packet[1] == 0xff &&
+> +	    packet[2] == 0xff &&
+> +	    packet[3] == 0x02 &&
+> +	    packet[4] == 0xff &&
+> +	    packet[5] == 0xff)
+> +		return PACKET_DEBOUNCE;
+> +
+> +	return PACKET_UNKNOWN;
+> +}
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
----
- drivers/input/touchscreen/mc13783_ts.c |   34 ++++++++++++++++--------=
---------
- 1 files changed, 17 insertions(+), 17 deletions(-)
+This will never return PACKET_DEBOUNCE, because those packets will have
+already matched the conditions for PACKET_V3_HEAD. That condition needs
+to be moved to the top of the function.
 
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/tou=
-chscreen/mc13783_ts.c
-index c5bc62d..ede0274 100644
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -35,7 +35,7 @@ MODULE_PARM_DESC(sample_tolerance,
-=20
- struct mc13783_ts_priv {
- 	struct input_dev *idev;
--	struct mc13783 *mc13783;
-+	struct mc13xxx *mc13xxx;
- 	struct delayed_work work;
- 	struct workqueue_struct *workq;
- 	unsigned int sample[4];
-@@ -45,7 +45,7 @@ static irqreturn_t mc13783_ts_handler(int irq, void *=
-data)
- {
- 	struct mc13783_ts_priv *priv =3D data;
-=20
--	mc13783_irq_ack(priv->mc13783, irq);
-+	mc13xxx_irq_ack(priv->mc13xxx, irq);
-=20
- 	/*
- 	 * Kick off reading coordinates. Note that if work happens already
-@@ -121,10 +121,10 @@ static void mc13783_ts_work(struct work_struct *w=
-ork)
- {
- 	struct mc13783_ts_priv *priv =3D
- 		container_of(work, struct mc13783_ts_priv, work.work);
--	unsigned int mode =3D MC13783_ADC_MODE_TS;
-+	unsigned int mode =3D MC13XXX_ADC_MODE_TS;
- 	unsigned int channel =3D 12;
-=20
--	if (mc13783_adc_do_conversion(priv->mc13783,
-+	if (mc13xxx_adc_do_conversion(priv->mc13xxx,
- 				mode, channel, priv->sample) =3D=3D 0)
- 		mc13783_ts_report_sample(priv);
- }
-@@ -134,21 +134,21 @@ static int mc13783_ts_open(struct input_dev *dev)
- 	struct mc13783_ts_priv *priv =3D input_get_drvdata(dev);
- 	int ret;
-=20
--	mc13783_lock(priv->mc13783);
-+	mc13xxx_lock(priv->mc13xxx);
-=20
--	mc13783_irq_ack(priv->mc13783, MC13783_IRQ_TS);
-+	mc13xxx_irq_ack(priv->mc13xxx, MC13XXX_IRQ_TS);
-=20
--	ret =3D mc13783_irq_request(priv->mc13783, MC13783_IRQ_TS,
-+	ret =3D mc13xxx_irq_request(priv->mc13xxx, MC13XXX_IRQ_TS,
- 		mc13783_ts_handler, MC13783_TS_NAME, priv);
- 	if (ret)
- 		goto out;
-=20
--	ret =3D mc13783_reg_rmw(priv->mc13783, MC13783_ADC0,
--			MC13783_ADC0_TSMOD_MASK, MC13783_ADC0_TSMOD0);
-+	ret =3D mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
-+			MC13XXX_ADC0_TSMOD_MASK, MC13XXX_ADC0_TSMOD0);
- 	if (ret)
--		mc13783_irq_free(priv->mc13783, MC13783_IRQ_TS, priv);
-+		mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
- out:
--	mc13783_unlock(priv->mc13783);
-+	mc13xxx_unlock(priv->mc13xxx);
- 	return ret;
- }
-=20
-@@ -156,11 +156,11 @@ static void mc13783_ts_close(struct input_dev *de=
-v)
- {
- 	struct mc13783_ts_priv *priv =3D input_get_drvdata(dev);
-=20
--	mc13783_lock(priv->mc13783);
--	mc13783_reg_rmw(priv->mc13783, MC13783_ADC0,
--			MC13783_ADC0_TSMOD_MASK, 0);
--	mc13783_irq_free(priv->mc13783, MC13783_IRQ_TS, priv);
--	mc13783_unlock(priv->mc13783);
-+	mc13xxx_lock(priv->mc13xxx);
-+	mc13xxx_reg_rmw(priv->mc13xxx, MC13XXX_ADC0,
-+			MC13XXX_ADC0_TSMOD_MASK, 0);
-+	mc13xxx_irq_free(priv->mc13xxx, MC13XXX_IRQ_TS, priv);
-+	mc13xxx_unlock(priv->mc13xxx);
-=20
- 	cancel_delayed_work_sync(&priv->work);
- }
-@@ -177,7 +177,7 @@ static int __init mc13783_ts_probe(struct platform_=
-device *pdev)
- 		goto err_free_mem;
-=20
- 	INIT_DELAYED_WORK(&priv->work, mc13783_ts_work);
--	priv->mc13783 =3D dev_get_drvdata(pdev->dev.parent);
-+	priv->mc13xxx =3D dev_get_drvdata(pdev->dev.parent);
- 	priv->idev =3D idev;
-=20
- 	/*
---=20
-1.7.5.4
+Seth

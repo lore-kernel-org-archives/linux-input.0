@@ -1,106 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: imx_keypad: Provide PM support
-Date: Tue, 23 Aug 2011 23:53:53 -0700
-Message-ID: <20110824065353.GD15604@core.coreip.homeip.net>
-References: <1313769364-27249-1-git-send-email-festevam@gmail.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH v2 0/7] Input: elantech: add support for newer hardware
+Date: Wed, 24 Aug 2011 15:56:33 +0800
+Message-ID: <CAGS+omAj-jo02O0MXZb_JF7+SfyQmmmAr7MA3_hYfead6gszyg@mail.gmail.com>
+References: <1314164303-30382-1-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:55549 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750925Ab1HXGx7 (ORCPT
+Received: from mail-iy0-f198.google.com ([209.85.210.198]:47076 "EHLO
+	mail-iy0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750952Ab1HXIEU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Aug 2011 02:53:59 -0400
-Received: by gya6 with SMTP id 6so660698gya.19
-        for <linux-input@vger.kernel.org>; Tue, 23 Aug 2011 23:53:58 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1313769364-27249-1-git-send-email-festevam@gmail.com>
+	Wed, 24 Aug 2011 04:04:20 -0400
+Received: by iyn35 with SMTP id 35so2531399iyn.1
+        for <linux-input@vger.kernel.org>; Wed, 24 Aug 2011 01:04:18 -0700 (PDT)
+In-Reply-To: <1314164303-30382-1-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: linux-input@vger.kernel.org, kernel@pengutronix.de, Fabio Estevam <fabio.estevam@freescale.com>
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Hi Fabio,
+On Wed, Aug 24, 2011 at 1:38 PM, JJ Ding <jj_ding@emc.com.tw> wrote:
+> Hi Lists,
+>
+> This is a series of patches to add support for newer generation of EL=
+AN
+> touchpad.
+>
+> Patches #1~#6 are essentially fixes and cleanups that pave the way fo=
+r
+> patch #7, which really adds code for v3 hardware.
+>
+> Any comments, suggestoins are welcome.
+>
+> Thank you.
+>
+> Changes since v1:
+> - drop EC workaround patch.
+> - add patch #2, make ST and MT have the same range, as Dmitry suggest=
+ed.
+> - add patch #4, remove ETP_EDGE_FUZZ_V2, as =C9ric suggested.
+> - rename all packet checking functions so they are consistent.
+> - some code cleanup, and don't report ABS_[XY] when fingers =3D=3D 0,=
+ as Seth suggested.
+> - add document for v3 debounce, and now check debounce in elantech_pa=
+cket_check_v3.
+>
+> JJ Ding (7):
+> =A0Input: elantech - correct x, y value range for v2 hardware
+> =A0Input: elantech - get rid of ETP_2FT_XXXX in elantech.h
+> =A0Input: elantech - use firmware provided x, y ranges
+> =A0Input: elantech - remove ETP_EDGE_FUZZ_V2
+> =A0Input: elantech - packet checking for v2 hardware
+> =A0Input: elantech - clean up elantech_init
+> =A0Input: elantech - add v3 hardware support
+>
+> =A0Documentation/input/elantech.txt | =A0125 +++++++++++--
+> =A0drivers/input/mouse/elantech.c =A0 | =A0387 ++++++++++++++++++++++=
++++++++++-------
+> =A0drivers/input/mouse/elantech.h =A0 | =A0 35 ++--
+> =A03 files changed, 444 insertions(+), 103 deletions(-)
+>
+> --
+> 1.7.4.1
+>
+>
 
-On Fri, Aug 19, 2011 at 12:56:04PM -0300, Fabio Estevam wrote:
-> Provide PM support to imx_keypad and allow the keypad to be used as a wakeup source.
-> 
-> Tested on a mx27_3ds, which wakes up via keypad press.
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> ---
-> 
-> If I put disable_irq_wake(keypad->irq) inside imx_keypad_resume
-> like other keyboard drivers do I get the following:
-> 
-> mx27# echo mem > /sys/power/state                                               
-> PM: Syncing filesystems ... done.                                               
-> Freezing user space processes ... (elapsed 0.01 seconds) done.                  
-> Freezing remaining freezable tasks ... (elapsed 0.01 seconds) done.             
-> Suspending console(s) (use no_console_suspend to debug)                         
-> PM: suspend of devices complete after 0.692 msecs                               
-> PM: late suspend of devices complete after 0.418 msecs                          
-> PM: early resume of devices complete after 0.179 msecs                          
-> ------------[ cut here ]------------                                            
-> WARNING: at kernel/irq/manage.c:510 irq_set_irq_wake+0xdc/0xec()                
-> Unbalanced IRQ 21 wake disable
+Hi JJ,
 
-You need to figure out who else messes up with wakeup count on that IRQ.
-The calls to enable_irq_wake() and disable_irq_wake() should be
-balanced.
-
->  
-> +#ifdef CONFIG_PM
-
-Make it CONFIG_PM_SLEEP - we don't do runtime PM here.
-
-> +static int imx_keypad_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct imx_keypad *keypad = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(&pdev->dev))
-> +		enable_irq_wake(keypad->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static int imx_keypad_resume(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops imx_keypad_pm_ops = {
-> +	.suspend	= imx_keypad_suspend,
-> +	.resume		= imx_keypad_resume,
-> +};
-> +#endif
-
-Just say
-
-static SIMPLE_DEV_PM_OPS(imx_keypad_pm_ops,
-			 imx_keypad_suspend, imx_keypad_resume);
-
-And you won't need ifdefing assignment to pm below.
-
->  static int __devinit imx_keypad_probe(struct platform_device *pdev)
->  {
->  	const struct matrix_keymap_data *keymap_data = pdev->dev.platform_data;
-> @@ -571,6 +593,9 @@ static struct platform_driver imx_keypad_driver = {
->  	.driver		= {
->  		.name	= "imx-keypad",
->  		.owner	= THIS_MODULE,
-> +#ifdef CONFIG_PM
-> +		.pm	= &imx_keypad_pm_ops,
-> +#endif
->  	},
->  	.probe		= imx_keypad_probe,
->  	.remove		= __devexit_p(imx_keypad_remove),
-> -- 
-> 1.6.0.4
-> 
-
-Thanks.
-
--- 
-Dmitry
+Thank you for the updating the patch set.
+=46or all 7 patches:
+=A0 Acked-by: Daniel Kurtz <djkurtz@chromium.org>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

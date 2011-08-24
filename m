@@ -1,52 +1,57 @@
-From: Seth Forshee <seth.forshee@canonical.com>
-Subject: Re: [PATCH v2 7/7] Input: elantech - add v3 hardware support
-Date: Wed, 24 Aug 2011 09:35:20 -0500
-Message-ID: <20110824143520.GB23868@thinkpad-t410>
-References: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw>
- <1314164686-866-8-git-send-email-jj_ding@emc.com.tw>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [patch -next] HID: unlock on error path in hid_device_probe()
+Date: Wed, 24 Aug 2011 16:40:11 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1108241640010.13644@pobox.suse.cz>
+References: <20110824112745.GB5975@shale.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1314164686-866-8-git-send-email-jj_ding@emc.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?B?w4lyaWM=?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:48195 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751776Ab1HXOkN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Aug 2011 10:40:13 -0400
+In-Reply-To: <20110824112745.GB5975@shale.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <error27@gmail.com>
+Cc: dh.herrmann@googlemail.com, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-On Wed, Aug 24, 2011 at 01:44:46PM +0800, JJ Ding wrote:
-> @@ -403,11 +503,39 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
->  }
+On Wed, 24 Aug 2011, Dan Carpenter wrote:
+
+> We recently introduced locking into this function, but we missed an
+> error path which needs an unlock.
+> 
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 582be00..ed0cd09 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1643,8 +1643,10 @@ static int hid_device_probe(struct device *dev)
 >  
->  /*
-> + * We check the constant bits to determine what packet type we get,
-> + * so packet checking is mandatory for v3 hardware.
-> + */
-> +static int elantech_packet_check_v3(struct psmouse *psmouse)
-> +{
-> +	unsigned char *packet = psmouse->packet;
-> +
-> +	if ((packet[0] & 0x0c) == 0x04 &&
-> +	    (packet[3] & 0xcf) == 0x02)
-> +		return PACKET_V3_HEAD;
-> +
-> +	if ((packet[0] & 0x0c) == 0x0c &&
-> +	    (packet[3] & 0xce) == 0x0c)
-> +		return PACKET_V3_TAIL;
-> +
-> +	if (packet[0] == 0xc4 &&
-> +	    packet[1] == 0xff &&
-> +	    packet[2] == 0xff &&
-> +	    packet[3] == 0x02 &&
-> +	    packet[4] == 0xff &&
-> +	    packet[5] == 0xff)
-> +		return PACKET_DEBOUNCE;
-> +
-> +	return PACKET_UNKNOWN;
-> +}
+>  	if (!hdev->driver) {
+>  		id = hid_match_device(hdev, hdrv);
+> -		if (id == NULL)
+> -			return -ENODEV;
+> +		if (id == NULL) {
+> +			ret = -ENODEV;
+> +			goto unlock;
+> +		}
+>  
+>  		hdev->driver = hdrv;
+>  		if (hdrv->probe) {
+> @@ -1657,7 +1659,7 @@ static int hid_device_probe(struct device *dev)
+>  		if (ret)
+>  			hdev->driver = NULL;
+>  	}
+> -
+> +unlock:
+>  	up(&hdev->driver_lock);
+>  	return ret;
+>  }
 
-This will never return PACKET_DEBOUNCE, because those packets will have
-already matched the conditions for PACKET_V3_HEAD. That condition needs
-to be moved to the top of the function.
+Good catch Dan, thanks. Applied.
 
-Seth
+-- 
+Jiri Kosina
+SUSE Labs

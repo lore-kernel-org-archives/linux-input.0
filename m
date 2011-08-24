@@ -1,64 +1,115 @@
 From: JJ Ding <jj_ding@emc.com.tw>
-Subject: [PATCH v2 0/7] Input: elantech: add support for newer hardware
-Date: Wed, 24 Aug 2011 13:44:39 +0800
-Message-ID: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:33543 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750795Ab1HXFmU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Aug 2011 01:42:20 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v2 6/7] Input: elantech - clean up elantech_init
+Date: Wed, 24 Aug 2011 13:44:45 +0800
+Message-ID: <1314164686-866-7-git-send-email-jj_ding@emc.com.tw>
+References: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?UTF-8?q?=C3=89ric=20Piel?= <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>, JJ Ding <jj_ding@emc.com.tw>
+List-Id: linux-input@vger.kernel.org
 
-Hi Lists,
+Group property setting code into elantech_set_properties.
 
-This is a series of patches to add support for newer generation of ELAN
-touchpad.
+Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+---
+ drivers/input/mouse/elantech.c |   69 ++++++++++++++++++++++-----------------
+ 1 files changed, 39 insertions(+), 30 deletions(-)
 
-Patches #1~#6 are essentially fixes and cleanups that pave the way for
-patch #7, which really adds code for v3 hardware.
-
-Any comments, suggestoins are welcome.
-
-Thank you.
-
-Changes since v1:
-- drop EC workaround patch.
-- add patch #2, make ST and MT have the same range, as Dmitry suggested=
-=2E
-- add patch #4, remove ETP_EDGE_FUZZ_V2, as =C3=89ric suggested.
-- rename all packet checking functions so they are consistent.
-- some code cleanup, and don't report ABS_[XY] when fingers =3D=3D 0, a=
-s Seth suggested.
-- add document for v3 debounce, and now check debounce in elantech_pack=
-et_check_v3.
-
-JJ Ding (7):
-  Input: elantech - correct x, y value range for v2 hardware
-  Input: elantech - get rid of ETP_2FT_XXXX in elantech.h
-  Input: elantech - use firmware provided x, y ranges
-  Input: elantech - remove ETP_EDGE_FUZZ_V2
-  Input: elantech - packet checking for v2 hardware
-  Input: elantech - clean up elantech_init
-  Input: elantech - add v3 hardware support
-
- Documentation/input/elantech.txt |  125 +++++++++++--
- drivers/input/mouse/elantech.c   |  387 ++++++++++++++++++++++++++++++=
-+-------
- drivers/input/mouse/elantech.h   |   35 ++--
- 3 files changed, 444 insertions(+), 103 deletions(-)
-
---=20
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 008e8c2..2ae7c49 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -791,6 +791,42 @@ static int elantech_reconnect(struct psmouse *psmouse)
+ }
+ 
+ /*
++ * determine hardware version and set some properties according to it.
++ */
++static void elantech_set_properties(struct elantech_data *etd)
++{
++	/*
++	 * Assume every version greater than 0x020030 is new EeePC style
++	 * hardware with 6 byte packets, except 0x020600
++	 */
++	if (etd->fw_version < 0x020030 || etd->fw_version == 0x020600)
++		etd->hw_version = 1;
++	else
++		etd->hw_version = 2;
++
++	/*
++	 * Turn on packet checking by default.
++	 */
++	etd->paritycheck = 1;
++
++	/*
++	 * This firmware suffers from misreporting coordinates when
++	 * a touch action starts causing the mouse cursor or scrolled page
++	 * to jump. Enable a workaround.
++	 */
++	etd->jumpy_cursor =
++		(etd->fw_version == 0x020022 || etd->fw_version == 0x020600);
++
++	if (etd->hw_version == 2) {
++		/* For now show extra debug information */
++		etd->debug = 1;
++
++		if (etd->fw_version >= 0x020800)
++			etd->reports_pressure = true;
++	}
++}
++
++/*
+  * Initialize the touchpad and create sysfs entries
+  */
+ int elantech_init(struct psmouse *psmouse)
+@@ -816,26 +852,9 @@ int elantech_init(struct psmouse *psmouse)
+ 	}
+ 
+ 	etd->fw_version = (param[0] << 16) | (param[1] << 8) | param[2];
+-
+-	/*
+-	 * Assume every version greater than this is new EeePC style
+-	 * hardware with 6 byte packets
+-	 */
+-	if (etd->fw_version >= 0x020030) {
+-		etd->hw_version = 2;
+-		/* For now show extra debug information */
+-		etd->debug = 1;
+-		etd->paritycheck = 1;
+-
+-		if (etd->fw_version >= 0x020800)
+-			etd->reports_pressure = true;
+-
+-	} else {
+-		etd->hw_version = 1;
+-		etd->paritycheck = 1;
+-	}
+-
+-	pr_info("assuming hardware version %d, firmware version %d.%d.%d\n",
++	elantech_set_properties(etd);
++	pr_info("assuming hardware version %d "
++		"(with firmware version 0x%02x%02x%02x)\n",
+ 		etd->hw_version, param[0], param[1], param[2]);
+ 
+ 	if (synaptics_send_cmd(psmouse, ETP_CAPABILITIES_QUERY,
+@@ -847,16 +866,6 @@ int elantech_init(struct psmouse *psmouse)
+ 		etd->capabilities[0], etd->capabilities[1],
+ 		etd->capabilities[2]);
+ 
+-	/*
+-	 * This firmware suffers from misreporting coordinates when
+-	 * a touch action starts causing the mouse cursor or scrolled page
+-	 * to jump. Enable a workaround.
+-	 */
+-	if (etd->fw_version == 0x020022 || etd->fw_version == 0x020600) {
+-		pr_info("firmware version 2.0.34/2.6.0 detected, enabling jumpy cursor workaround\n");
+-		etd->jumpy_cursor = true;
+-	}
+-
+ 	if (elantech_set_absolute_mode(psmouse)) {
+ 		pr_err("failed to put touchpad into absolute mode.\n");
+ 		goto init_fail;
+-- 
 1.7.4.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

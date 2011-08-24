@@ -1,92 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.1-rc3
-Date: Tue, 23 Aug 2011 23:52:51 -0700
-Message-ID: <20110824065251.GB15604@core.coreip.homeip.net>
+Subject: Re: [PATCH 1/2] Input: wacom_w8001 - implement open and close
+Date: Tue, 23 Aug 2011 23:53:31 -0700
+Message-ID: <20110824065331.GC15604@core.coreip.homeip.net>
+References: <1313957747-22796-1-git-send-email-dmitry.torokhov@gmail.com>
+ <CAF8JNhJ+1=7J3e=Ohs-cpQVwkbYgqOfepxGt=MtWjXFq7=eHDQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:60944 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750925Ab1HXGw5 (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:58425 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752124Ab1HXGxg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Aug 2011 02:52:57 -0400
+	Wed, 24 Aug 2011 02:53:36 -0400
+Received: by gwaa12 with SMTP id a12so661102gwa.19
+        for <linux-input@vger.kernel.org>; Tue, 23 Aug 2011 23:53:36 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <CAF8JNhJ+1=7J3e=Ohs-cpQVwkbYgqOfepxGt=MtWjXFq7=eHDQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Jaya Kumar <jayakumar.lkml@gmail.com>
 
-Hi Linus,
+On Tue, Aug 23, 2011 at 02:21:46PM -0700, Ping Cheng wrote:
+> On Sun, Aug 21, 2011 at 1:15 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com>wrote:
+> 
+> > Implement open() and close() methods for the input device so that we
+> > do not start the device unless there are users listening to the events.
+> >
+> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+> 
+> Tested-by: Ping Cheng <pingc@wacom.com> for the series.
+> 
+> I can not tell if the driver doing what it claimed in the commit comment or
+> not since I didn't trace into the code. As far as my testing goes, the
+> driver works as it was; it works as usual after suspend and resume.
+> 
 
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem.
-
-Changelog:
----------
-
-Andrew Drake (1):
-      Input: bcm5974 - Add support for newer MacBookPro8,2
-
-Axel Lin (5):
-      Input: mma8450 - fix module device table type
-      Input: mpu3050 - correct call to input_free_device
-      Input: tegra-kbc - correct call to input_free_device
-      Input: tnetv107x-ts - add missing include of linux/module.h
-      Input: ep93xx_keypad - add missing include of linux/module.h
-
-Deepak Saxena (1):
-      Input: remove CLOCK_TICK_RATE from analog joystick driver
-
-Dmitry Torokhov (1):
-      Input: ad714x - use DMA-safe buffers for spi_write()
-
-Gerard Braad (1):
-      Input: wacom - add support for the Wacom Bamboo Pen (CTL-660/K)
-
-Jiejing Zhang (1):
-      Input: max11801_ts - correct license statement
-
-Joshua V. Dillon (1):
-      Input: bcm5974 - add support for touchpads found in MacBookAir4,2
-
-Michael Hennerich (3):
-      Input: ad714xx-spi - force SPI bus into the default 8-bit mode
-      Input: ad714x - fix endianness issues
-      Input: ad714x - read the interrupt status registers in a row
-
-Ping Cheng (2):
-      Input: wacom - add WAC_MSG_RETRIES define
-      Input: wacom - report id 3 returns 4 bytes of data
-
-Yufeng Shen (1):
-      Input: atmel_mxt_ts - report pressure information from the driver
-
-
-Diffstat:
---------
-
- drivers/input/joystick/analog.c          |    2 +-
- drivers/input/keyboard/ep93xx_keypad.c   |    1 +
- drivers/input/keyboard/tegra-kbc.c       |    2 +-
- drivers/input/misc/ad714x-i2c.c          |   81 ++++++++++-----------
- drivers/input/misc/ad714x-spi.c          |   68 ++++++++++++++----
- drivers/input/misc/ad714x.c              |  116 +++++++++++------------------
- drivers/input/misc/ad714x.h              |   35 ++++++++-
- drivers/input/misc/mma8450.c             |    2 +-
- drivers/input/misc/mpu3050.c             |    2 +-
- drivers/input/mouse/bcm5974.c            |   40 ++++++++++
- drivers/input/tablet/wacom_sys.c         |   17 +++--
- drivers/input/tablet/wacom_wac.c         |    4 +
- drivers/input/touchscreen/atmel_mxt_ts.c |   12 +++
- drivers/input/touchscreen/max11801_ts.c  |    3 +-
- drivers/input/touchscreen/tnetv107x-ts.c |    1 +
- 15 files changed, 241 insertions(+), 145 deletions(-)
+Thanks Ping, much appreciated.
 
 -- 
 Dmitry
-

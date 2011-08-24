@@ -1,62 +1,77 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [patch -next] HID: unlock on error path in hid_device_probe()
-Date: Wed, 24 Aug 2011 14:26:34 +0200
-Message-ID: <CANq1E4T5YNYtxtY+XKQc=ogSXsdy7N5d37BBT=+zkw1oexU2Og@mail.gmail.com>
-References: <20110824112745.GB5975@shale.localdomain>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 0/6] mc13783 cleanup
+Date: Wed, 24 Aug 2011 15:27:40 +0200
+Message-ID: <20110824132740.GA28197@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:44037 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752005Ab1HXM0f convert rfc822-to-8bit (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:41269 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751828Ab1HXN14 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Aug 2011 08:26:35 -0400
-In-Reply-To: <20110824112745.GB5975@shale.localdomain>
+	Wed, 24 Aug 2011 09:27:56 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Sascha Hauer <s.hauer@pengutronix.de>, Jean Delvare <khali@linux-fr.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@pengutronix.de, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, David Jander <david@protonic.nl>
 
-On Wed, Aug 24, 2011 at 1:27 PM, Dan Carpenter <error27@gmail.com> wrot=
-e:
-> We recently introduced locking into this function, but we missed an
-> error path which needs an unlock.
->
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 582be00..ed0cd09 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1643,8 +1643,10 @@ static int hid_device_probe(struct device *dev=
-)
->
-> =A0 =A0 =A0 =A0if (!hdev->driver) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0id =3D hid_match_device(hdev, hdrv);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (id =3D=3D NULL)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENODEV;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (id =3D=3D NULL) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENODEV;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto unlock;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hdev->driver =3D hdrv;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (hdrv->probe) {
-> @@ -1657,7 +1659,7 @@ static int hid_device_probe(struct device *dev)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (ret)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hdev->driver =3D NULL;
-> =A0 =A0 =A0 =A0}
-> -
-> +unlock:
-> =A0 =A0 =A0 =A0up(&hdev->driver_lock);
-> =A0 =A0 =A0 =A0return ret;
-> =A0}
->
+Hello,
 
-How could I miss that... Thanks. I tested this locking patch only with
-one driver so this problem did not occur. However, using two HID
-devices will deadlock the drivers. Nice catch.
+this series removes the long obsolte mc13783 API after fixing all
+remaining users.
+
+The patches touch many subsystems and have some interdependencies:
+
+ - patches 3 and 5 depend on patch 2
+ - patch 6 depends on patches 1-5
+
+So we have to think about how to merge them when everyone is OK that
+they are merged.
+
+Best regards
+Uwe
+
+The following changes since commit 14c62e78dc1379185515be41903c4a667efc=
+6d54:
+
+  Merge branch 'x86-urgent-for-linus' of git://git.kernel.org/pub/scm/l=
+inux/kernel/git/tip/linux-2.6-tip (2011-08-23 18:09:08 -0700)
+
+are available in the git repository at:
+
+  git://git.pengutronix.de/git/ukl/linux-2.6.git mc13xxx
+
+David Jander (1):
+      led/mc13783: convert to mc13xxx MFD
+
+Uwe Kleine-K=F6nig (5):
+      mfd/mc13xxx: provide a generic version of adc_do_conversion
+      input/mc13783-ts: convert to mc13xxx API
+      ARM: imx: use mc13xxx constants instead of mc13783
+      hwmon/mc13783-adc: convert to mc13xxx API
+      mfd/mc13xxx: remove mc13783 API functions and symbols
+
+ arch/arm/mach-imx/mach-mx27_3ds.c      |    4 +-
+ arch/arm/mach-imx/mach-mx31_3ds.c      |    2 +-
+ arch/arm/mach-imx/mach-pcm038.c        |    4 +-
+ drivers/hwmon/mc13783-adc.c            |   12 ++--
+ drivers/input/touchscreen/mc13783_ts.c |   34 +++++-----
+ drivers/leds/leds-mc13783.c            |   52 ++++++++--------
+ drivers/mfd/mc13xxx-core.c             |   97 ++++++++++++------------=
+----
+ include/linux/mfd/mc13783.h            |  111 ------------------------=
+--------
+ include/linux/mfd/mc13xxx.h            |   19 ++++++
+ 9 files changed, 115 insertions(+), 220 deletions(-)
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

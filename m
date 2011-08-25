@@ -1,72 +1,46 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [RFC/RFT][PATCH] Input: tsc2007 - convert to threaded IRQ
-Date: Thu, 25 Aug 2011 09:06:57 +0200
-Message-ID: <20110825070657.GA29512@avionic-0098.adnet.avionic-design.de>
-References: <20110823061738.GA25272@core.coreip.homeip.net>
- <20110825062159.GB25708@avionic-0098.mockup.avionic-design.de>
- <20110825064333.GA15655@core.coreip.homeip.net>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: Question: I2C touchscreen controller
+Date: Thu, 25 Aug 2011 09:23:24 +0200
+Message-ID: <20110825072324.GA4065@polaris.bitmath.org>
+References: <ADE657CA350FB648AAC2C43247A983F001F3885759E3@AUSP01VMBX24.collaborationhost.net>
+ <20110824195436.GA13228@core.coreip.homeip.net>
+ <ADE657CA350FB648AAC2C43247A983F001F388575A7F@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:58370 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753134Ab1HYHHB (ORCPT
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:50311 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750903Ab1HYHVZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 03:07:01 -0400
+	Thu, 25 Aug 2011 03:21:25 -0400
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 133D3D5ED
+	for <linux-input@vger.kernel.org>; Thu, 25 Aug 2011 09:21:24 +0200 (CEST)
 Content-Disposition: inline
-In-Reply-To: <20110825064333.GA15655@core.coreip.homeip.net>
+In-Reply-To: <ADE657CA350FB648AAC2C43247A983F001F388575A7F@AUSP01VMBX24.collaborationhost.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Richard =?utf-8?Q?R=C3=B6jfors?= <richard.rojfors.ext@mocean-labs.com>
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
+> It looks like these are the current I2C touchscreen drivers in mainline:
+> 
+> CONFIG_TOUCHSCREEN_88PM860X		pmic mfd device? probably not standalone
+> CONFIG_TOUCHSCREEN_AD7879_I2C		datasheet looks simple enough
+> CONFIG_TOUCHSCREEN_ATMEL_MXT		needs firmware? probably complicated
+> CONFIG_TOUCHSCREEN_BU21013		can't find a datasheet
+> CONFIG_TOUCHSCREEN_CY8CTMG110		looks like the chip may be obsolete
+> CONFIG_TOUCHSCREEN_MAX11801		Maxim usually has long lead times
+> CONFIG_TOUCHSCREEN_MCS5000		can't find a datasheet
+> CONFIG_TOUCHSCREEN_STMPE		datasheet looks simple enough
+> CONFIG_TOUCHSCREEN_TSC2007		datasheet looks simple enough
+> 
+> Based on that I'm considering the Analog Devices, STMicro, and TI parts.
+> 
+> Do you know if any of these work better than the others?
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Out of those, bu21013 (and st1232 not on your list) are dual touch,
+and atmel_mxt is true multitouch. The rest are single touch.
 
-* Dmitry Torokhov wrote:
-> On Thu, Aug 25, 2011 at 08:21:59AM +0200, Thierry Reding wrote:
-> > * Dmitry Torokhov wrote:
-> > > This is completely untested but I believe it should work better than =
-original
-> > > workqueue solution, especially when we do not have get_pendown_state =
-method
-> > > available. I wonder if it will help Richard's issue with IRQ getting =
-re-raised
-> > > after pen up event.
-> > >=20
-> > > Anyone who has hardware - please give it a spin.
-> >=20
-> > I can see no noticeable changes with this patch.
-> >=20
->=20
-> That's the result I was aiming for ;) Thanks for testing.
->=20
-> Oh, crap... Does it still work if you change IRQ flags in
-> request_threaded_irq() from 0 to IRQF_ONESHOT?=20
->=20
-> Also, while we are at it would you ming trying out another patch
-> (below)?
-
-With both your patch applied and the change from 0 to IRQF_ONESHOT the driv=
-er
-oopses when loaded. I didn't have time to investigate further, but I think I
-could perhaps test a couple more patches if you provide them.
-
-Thierry
-
---IS0zKkzwUGydFO0o
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk5V9JAACgkQZ+BJyKLjJp/eZACgrVYH0yrA81O2tMrPgmxFP3bI
-qpQAoJQtRBMpN9Jg7SsOComYcKmV3QkB
-=gHgP
------END PGP SIGNATURE-----
-
---IS0zKkzwUGydFO0o--
+Cheers,
+Henrik

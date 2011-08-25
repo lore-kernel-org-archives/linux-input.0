@@ -1,51 +1,54 @@
-From: "con@telus.net" <con@win.nl>
-Subject: (unknown)
-Date: Thu, 25 Aug 2011 06:57:33 +0530
-Message-ID: <20110825012745.CDDY1579.viefep20-int.chello.at__33681.5059454695$1314235781$gmane$org@edge01.upcmail.net>
-Reply-To: <claimsgroup222@qatar.io>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [RFC/RFT][PATCH] Input: tsc2007 - convert to threaded IRQ
+Date: Thu, 25 Aug 2011 08:21:59 +0200
+Message-ID: <20110825062159.GB25708@avionic-0098.mockup.avionic-design.de>
+References: <20110823061738.GA25272@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_004E_01C2A9A6.43E31B14"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="E/DnYTRukya0zdZ1"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fep27.mx.upcmail.net ([62.179.121.47]:35425 "EHLO
-	fep27.mx.upcmail.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752494Ab1HYB3b (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.186]:54800 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752532Ab1HYGWB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Aug 2011 21:29:31 -0400
-Subject: 
+	Thu, 25 Aug 2011 02:22:01 -0400
+Content-Disposition: inline
+In-Reply-To: <20110823061738.GA25272@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Richard =?utf-8?Q?R=C3=B6jfors?= <richard.rojfors.ext@mocean-labs.com>
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_004E_01C2A9A6.43E31B14
-Content-Type: text/plain;
-	charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+--E/DnYTRukya0zdZ1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-KINDLY DOWNLOAD ATTACHMENT
+* Dmitry Torokhov wrote:
+> This is completely untested but I believe it should work better than orig=
+inal
+> workqueue solution, especially when we do not have get_pendown_state meth=
+od
+> available. I wonder if it will help Richard's issue with IRQ getting re-r=
+aised
+> after pen up event.
+>=20
+> Anyone who has hardware - please give it a spin.
 
-------=_NextPart_000_004E_01C2A9A6.43E31B14
-Content-Type: application/octet-stream;
-	name="NOTIFICATION BOARD.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="NOTIFICATION BOARD.txt"
+I can see no noticeable changes with this patch.
 
-WW91IGhhdmUgYmVlbiBzZWxlY3RlZCBpbiB0aGUgb24tZ29pbmcgQ09DQSBD
-T0xBIGF3YXJkIGhlbGQgdGhpcyBBdWd1c3QNCjIwMTEuV2UgdGhlIFByb21v
-IEJvYXJkIGFyZSBwbGVhc2VkIHRvIGluZm9ybSB5b3UgdGhhdCB5b3UgYWxv
-bmdzaWRlIGZvdXIoNCkNCm90aGVybHVja3kgd2lubmVycyBoYXZlIGJlZW4g
-YXBwcm92ZWQgZm9yIGEgcGF5bWVudCBvZiAxLDAwMCAwMDBHQlAgKE9uZQ0K
-TWlsbGlvbiBQb3VuZHMgU3RlcmxpbmcpLg0KSWYgeW91IGRpZCByZWNlaXZl
-IHRoaXMgZW1haWwsIGl0IG1lYW5zIHlvdSBhcmUgb25lIG9mIHRoZSBmaXZl
-KDUpbHVja3kNCndpbm5lcnMuDQoNCipDTEFJTVMgUFJPQ0VTU0lORyBPRkZJ
-Q0VSOg0KKk5hbWU6TXIgVE9NTVkgUk9HRVINCkUubWFpbDogY2xhaW1zZ3Jv
-dXAyMjJAcWF0YXIuaW8NCg0KWW91IGFyZSBhbHNvIGFkdmlzZWQgdG8gcHJv
-dmlkZSBoaW0gd2l0aCB0aGUgdW5kZXIgbGlzdGVkIGluZm9ybWF0aW9uDQph
-cyBzb29uIGFzIHBvc3NpYmxlOg0KDQoqTkFNRSBJTiBGVUxMOg0KKkRFTElW
-RVJZIEFERFJFU1M6DQoqU0VYOg0KKkFHRToNCipDT1VOVFJZOg0KKk5BVElP
-TkFMSVRZOg0KKk9DQ1VQQVRJT046DQoqUEhPTkU6DQoNCldlIGFyZSBnbGFk
-IHRvIGhhdmUgeW91IGFzIG9uZSBvZiBvdXIgbHVja2x5IHdpbm5lcnMuDQo=
+Tested-by: Thierry Reding <thierry.reding@avionic-design.de>
 
-------=_NextPart_000_004E_01C2A9A6.43E31B14--
+--E/DnYTRukya0zdZ1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk5V6gcACgkQZ+BJyKLjJp8wKQCgkZJ53LZPJBgZ5ZGsRjZVW/ll
+HykAnRAIdFq5CCJLxSiG+LdbEzG0xfet
+=caZK
+-----END PGP SIGNATURE-----
+
+--E/DnYTRukya0zdZ1--

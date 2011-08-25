@@ -1,43 +1,80 @@
-From: Philippe =?iso-8859-1?q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
-Subject: Re: [PATCH 0/6] mc13783 cleanup
-Date: Thu, 25 Aug 2011 09:05:12 +0200
-Message-ID: <201108250905.13168.philippe.retornaz@epfl.ch>
-References: <20110824132740.GA28197@pengutronix.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 7/7] Input: elantech - add v3 hardware support
+Date: Thu, 25 Aug 2011 00:06:42 -0700
+Message-ID: <20110825070642.GB15655@core.coreip.homeip.net>
+References: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw>
+ <1314164686-866-8-git-send-email-jj_ding@emc.com.tw>
+ <20110824143520.GB23868@thinkpad-t410>
+ <87mxeynvpt.fsf@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp3.epfl.ch ([128.178.224.226]:56850 "HELO smtp3.epfl.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1753064Ab1HYHFS convert rfc822-to-8bit (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.213.174]:60716 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753134Ab1HYHGt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 03:05:18 -0400
-In-Reply-To: <20110824132740.GA28197@pengutronix.de>
+	Thu, 25 Aug 2011 03:06:49 -0400
+Content-Disposition: inline
+In-Reply-To: <87mxeynvpt.fsf@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Sascha Hauer <s.hauer@pengutronix.de>, Jean Delvare <khali@linux-fr.org>, David Jander <david@protonic.nl>, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, kernel@pengutronix.de, linux-input@vger.kernel.org
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: Seth Forshee <seth.forshee@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Le mercredi 24 ao=FBt 2011 15:27:40, Uwe Kleine-K=F6nig a =E9crit :
-> Hello,
->=20
-> this series removes the long obsolte mc13783 API after fixing all
-> remaining users.
+On Thu, Aug 25, 2011 at 09:09:02AM +0800, JJ Ding wrote:
+> Hi Seth,
+> 
+> Thank you. You are right.
+> I think I somehow tested the worng touchpad for this patch.
+> 
 
-I posted a patch last month which was touching this MFD too.
-We will need to synchronize both patch.=20
+How about we change it thusly:
 
-BTW, Sascha, could you give your ack/nack on my patch (mc13783: add pwr=
- button=20
-support) ? it has been a month without any news from your side. Thanks =
-!=20
+Input: elamtech - fix V3 packet checking
 
-Regards,
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Philippe
+ drivers/input/mouse/elantech.c |   18 ++++++------------
+ 1 files changed, 6 insertions(+), 12 deletions(-)
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 1e2b9da..d814bf74 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -508,24 +508,18 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
+  */
+ static int elantech_packet_check_v3(struct psmouse *psmouse)
+ {
++	const u8 debounce_packet[] = { 0xc4, 0xff, 0xff, 0x02, 0xff, 0xff };
+ 	unsigned char *packet = psmouse->packet;
+ 
+-	if ((packet[0] & 0x0c) == 0x04 &&
+-	    (packet[3] & 0xcf) == 0x02)
++	if (!memcmp(packet, debounce_packet, sizeof(debounce_packet)))
++		return PACKET_DEBOUNCE;
++
++	if ((packet[0] & 0x0c) == 0x04 && (packet[3] & 0xcf) == 0x02)
+ 		return PACKET_V3_HEAD;
+ 
+-	if ((packet[0] & 0x0c) == 0x0c &&
+-	    (packet[3] & 0xce) == 0x0c)
++	if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
+ 		return PACKET_V3_TAIL;
+ 
+-	if (packet[0] == 0xc4 &&
+-	    packet[1] == 0xff &&
+-	    packet[2] == 0xff &&
+-	    packet[3] == 0x02 &&
+-	    packet[4] == 0xff &&
+-	    packet[5] == 0xff)
+-		return PACKET_DEBOUNCE;
+-
+ 	return PACKET_UNKNOWN;
+ }
+ 
+Thanks.
+
+-- 
+Dmitry

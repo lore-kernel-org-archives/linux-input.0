@@ -1,25 +1,46 @@
-From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: Re: [PATCH] input:cyapa: Add new I2C-based input touchpad driver
- for Cypress I2C touchpad devices
-Date: Thu, 25 Aug 2011 11:04:30 +0100
-Message-ID: <20110825110430.45e20889@lxorguk.ukuu.org.uk>
-References: <B27AC323FA92C946BA36D2913DDC8E370226D9457E6B@VMBX126.ihostexchange.net>
+From: Axel Lin <axel.lin@gmail.com>
+Subject: [PATCH] Input: adp5588-keys - remove incorrect modalias
+Date: Thu, 25 Aug 2011 18:30:38 +0800
+Message-ID: <1314268238.2663.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <B27AC323FA92C946BA36D2913DDC8E370226D9457E6B-PAdkXUfGKr2PhAfp740ZJF79OngSb2A5XqFh9Ls21Oc@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
-Cc: "rubini-JCs+bAQazDroPXhRcRtihA@public.gmane.org" <rubini-VTMt08/Mzg4LPR01Bt+Jmw@public.gmane.org>, "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org" <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, "ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org" <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "konkers-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org" <konkers-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:46324 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751137Ab1HYKaq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Aug 2011 06:30:46 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-On Thu, 25 Aug 2011 05:47:39 -0400
-Dudley Du <dudl-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org> wrote:
+>From 2b642fd34e59291764f5149f083d84760d8b41b2 Mon Sep 17 00:00:00 2001
+From: Axel Lin <axel.lin@gmail.com>
+Date: Thu, 25 Aug 2011 18:26:56 +0800
+Subject: [PATCH] Input: adp5588-keys - remove incorrect modalias
 
-> Dear Linux-Input Maintainers,
-> 
-> Attached patch files are used to add new I2C-based input touchpad device driver for Cypress I2C touchpad devices.
-> Please help review them.
+For i2c drivers, we should use "i2c:" prefix for modalias.
+MODULE_DEVICE_TABLE will setup the modulalias for us,
+thus adding a MODULE_ALIAS here seems redundant.
 
-Please read Documentation/SubmittingPatches in particular #7
+Signed-off-by: Axel Lin <axel.lin@gmail.com>
+---
+ drivers/input/keyboard/adp5588-keys.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 7b404e54..e34eeb8 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -668,4 +668,3 @@ module_exit(adp5588_exit);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+ MODULE_DESCRIPTION("ADP5588/87 Keypad driver");
+-MODULE_ALIAS("platform:adp5588-keys");
+-- 
+1.7.4.1
+
+
+

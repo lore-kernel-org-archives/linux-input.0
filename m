@@ -1,80 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 7/7] Input: elantech - add v3 hardware support
-Date: Thu, 25 Aug 2011 00:06:42 -0700
-Message-ID: <20110825070642.GB15655@core.coreip.homeip.net>
-References: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw>
- <1314164686-866-8-git-send-email-jj_ding@emc.com.tw>
- <20110824143520.GB23868@thinkpad-t410>
- <87mxeynvpt.fsf@emc.com.tw>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [RFC/RFT][PATCH] Input: tsc2007 - convert to threaded IRQ
+Date: Thu, 25 Aug 2011 09:06:57 +0200
+Message-ID: <20110825070657.GA29512@avionic-0098.adnet.avionic-design.de>
+References: <20110823061738.GA25272@core.coreip.homeip.net>
+ <20110825062159.GB25708@avionic-0098.mockup.avionic-design.de>
+ <20110825064333.GA15655@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f174.google.com ([209.85.213.174]:60716 "EHLO
-	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753134Ab1HYHGt (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.187]:58370 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753134Ab1HYHHB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 03:06:49 -0400
+	Thu, 25 Aug 2011 03:07:01 -0400
 Content-Disposition: inline
-In-Reply-To: <87mxeynvpt.fsf@emc.com.tw>
+In-Reply-To: <20110825064333.GA15655@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JJ Ding <jj_ding@emc.com.tw>
-Cc: Seth Forshee <seth.forshee@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
-
-On Thu, Aug 25, 2011 at 09:09:02AM +0800, JJ Ding wrote:
-> Hi Seth,
-> 
-> Thank you. You are right.
-> I think I somehow tested the worng touchpad for this patch.
-> 
-
-How about we change it thusly:
-
-Input: elamtech - fix V3 packet checking
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/mouse/elantech.c |   18 ++++++------------
- 1 files changed, 6 insertions(+), 12 deletions(-)
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Richard =?utf-8?Q?R=C3=B6jfors?= <richard.rojfors.ext@mocean-labs.com>
 
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 1e2b9da..d814bf74 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -508,24 +508,18 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
-  */
- static int elantech_packet_check_v3(struct psmouse *psmouse)
- {
-+	const u8 debounce_packet[] = { 0xc4, 0xff, 0xff, 0x02, 0xff, 0xff };
- 	unsigned char *packet = psmouse->packet;
- 
--	if ((packet[0] & 0x0c) == 0x04 &&
--	    (packet[3] & 0xcf) == 0x02)
-+	if (!memcmp(packet, debounce_packet, sizeof(debounce_packet)))
-+		return PACKET_DEBOUNCE;
-+
-+	if ((packet[0] & 0x0c) == 0x04 && (packet[3] & 0xcf) == 0x02)
- 		return PACKET_V3_HEAD;
- 
--	if ((packet[0] & 0x0c) == 0x0c &&
--	    (packet[3] & 0xce) == 0x0c)
-+	if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
- 		return PACKET_V3_TAIL;
- 
--	if (packet[0] == 0xc4 &&
--	    packet[1] == 0xff &&
--	    packet[2] == 0xff &&
--	    packet[3] == 0x02 &&
--	    packet[4] == 0xff &&
--	    packet[5] == 0xff)
--		return PACKET_DEBOUNCE;
--
- 	return PACKET_UNKNOWN;
- }
- 
-Thanks.
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Dmitry
+* Dmitry Torokhov wrote:
+> On Thu, Aug 25, 2011 at 08:21:59AM +0200, Thierry Reding wrote:
+> > * Dmitry Torokhov wrote:
+> > > This is completely untested but I believe it should work better than =
+original
+> > > workqueue solution, especially when we do not have get_pendown_state =
+method
+> > > available. I wonder if it will help Richard's issue with IRQ getting =
+re-raised
+> > > after pen up event.
+> > >=20
+> > > Anyone who has hardware - please give it a spin.
+> >=20
+> > I can see no noticeable changes with this patch.
+> >=20
+>=20
+> That's the result I was aiming for ;) Thanks for testing.
+>=20
+> Oh, crap... Does it still work if you change IRQ flags in
+> request_threaded_irq() from 0 to IRQF_ONESHOT?=20
+>=20
+> Also, while we are at it would you ming trying out another patch
+> (below)?
+
+With both your patch applied and the change from 0 to IRQF_ONESHOT the driv=
+er
+oopses when loaded. I didn't have time to investigate further, but I think I
+could perhaps test a couple more patches if you provide them.
+
+Thierry
+
+--IS0zKkzwUGydFO0o
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk5V9JAACgkQZ+BJyKLjJp/eZACgrVYH0yrA81O2tMrPgmxFP3bI
+qpQAoJQtRBMpN9Jg7SsOComYcKmV3QkB
+=gHgP
+-----END PGP SIGNATURE-----
+
+--IS0zKkzwUGydFO0o--

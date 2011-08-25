@@ -1,47 +1,109 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH] Input: adp5588-keys - remove incorrect modalias
-Date: Thu, 25 Aug 2011 11:43:53 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D59177146E6D0708C@LIMKCMBX1.ad.analog.com>
-References: <1314268238.2663.1.camel@phoenix>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: magicmouse: ignore 'ivalid report id' while switching
+ modes
+Date: Thu, 25 Aug 2011 14:22:27 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1108251422100.13644@pobox.suse.cz>
+References: <1313611182-19924-1-git-send-email-jaikumarg@android.com> <4E4D3CFC.7000700@canonical.com> <CAA8bQNjQ2s4EY=2r455z-3r7yyV0uwSjhQ6m5g2+TCyMRvu0sQ@mail.gmail.com> <4E4D426F.607@canonical.com> <4E4D68B0.8000703@canonical.com>
+ <CAA8bQNgOZTqGMZhHF0MOm25ZUD5_G0i9F=rMsCOdiD3DYAWhTw@mail.gmail.com> <alpine.LNX.2.00.1108231052220.13644@pobox.suse.cz> <CAA8bQNj2vvM1F_VEQAFyRRBSVb1LUJ8y3Af5iz3c+QHhBD7aTg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tx2ehsobe003.messaging.microsoft.com ([65.55.88.13]:52361 "EHLO
-	TX2EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750827Ab1HYKoK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 06:44:10 -0400
-In-Reply-To: <1314268238.2663.1.camel@phoenix>
-Content-Language: en-US
+Received: from cantor2.suse.de ([195.135.220.15]:49285 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753321Ab1HYMW3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Aug 2011 08:22:29 -0400
+In-Reply-To: <CAA8bQNj2vvM1F_VEQAFyRRBSVb1LUJ8y3Af5iz3c+QHhBD7aTg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Jaikumar Ganesh <jaikumarg@android.com>
+Cc: Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org
 
-QXhlbCBMaW4gd3JvdGUgb24gMjAxMS0wOC0yNToNCj4gRnJvbSAyYjY0MmZkMzRlNTkyOTE3NjRm
-NTE0OWYwODNkODQ3NjBkOGI0MWIyIE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQ0KPiBGcm9tOiBB
-eGVsIExpbiA8YXhlbC5saW5AZ21haWwuY29tPg0KPiBEYXRlOiBUaHUsIDI1IEF1ZyAyMDExIDE4
-OjI2OjU2ICswODAwDQo+IFN1YmplY3Q6IFtQQVRDSF0gSW5wdXQ6IGFkcDU1ODgta2V5cyAtIHJl
-bW92ZSBpbmNvcnJlY3QgbW9kYWxpYXMNCj4NCj4gRm9yIGkyYyBkcml2ZXJzLCB3ZSBzaG91bGQg
-dXNlICJpMmM6IiBwcmVmaXggZm9yIG1vZGFsaWFzLg0KPiBNT0RVTEVfREVWSUNFX1RBQkxFIHdp
-bGwgc2V0dXAgdGhlIG1vZHVsYWxpYXMgZm9yIHVzLA0KPiB0aHVzIGFkZGluZyBhIE1PRFVMRV9B
-TElBUyBoZXJlIHNlZW1zIHJlZHVuZGFudC4NCj4NCj4gU2lnbmVkLW9mZi1ieTogQXhlbCBMaW4g
-PGF4ZWwubGluQGdtYWlsLmNvbT4NCg0KQWNrZWQtYnk6IE1pY2hhZWwgSGVubmVyaWNoIDxtaWNo
-YWVsLmhlbm5lcmljaEBhbmFsb2cuY29tPg0KDQo+IC0tLQ0KPiAgZHJpdmVycy9pbnB1dC9rZXli
-b2FyZC9hZHA1NTg4LWtleXMuYyB8ICAgIDEgLQ0KPiAgMSBmaWxlcyBjaGFuZ2VkLCAwIGluc2Vy
-dGlvbnMoKyksIDEgZGVsZXRpb25zKC0pDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tl
-eWJvYXJkL2FkcDU1ODgta2V5cy5jDQo+IGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9hZHA1NTg4
-LWtleXMuYyBpbmRleCA3YjQwNGU1NC4uZTM0ZWViOCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9p
-bnB1dC9rZXlib2FyZC9hZHA1NTg4LWtleXMuYyArKysNCj4gYi9kcml2ZXJzL2lucHV0L2tleWJv
-YXJkL2FkcDU1ODgta2V5cy5jIEBAIC02NjgsNCArNjY4LDMgQEANCj4gbW9kdWxlX2V4aXQoYWRw
-NTU4OF9leGl0KTsNCj4gIE1PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCj4gIE1PRFVMRV9BVVRIT1Io
-Ik1pY2hhZWwgSGVubmVyaWNoIDxoZW5uZXJpY2hAYmxhY2tmaW4udWNsaW51eC5vcmc+Iik7DQo+
-ICBNT0RVTEVfREVTQ1JJUFRJT04oIkFEUDU1ODgvODcgS2V5cGFkIGRyaXZlciIpOw0KPiAtTU9E
-VUxFX0FMSUFTKCJwbGF0Zm9ybTphZHA1NTg4LWtleXMiKTsNCg0KR3JlZXRpbmdzLA0KTWljaGFl
-bA0KDQotLQ0KQW5hbG9nIERldmljZXMgR21iSCAgICAgIFdpbGhlbG0tV2FnZW5mZWxkLVN0ci4g
-NiAgICAgIDgwODA3IE11ZW5jaGVuDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IE11ZW5jaGVuOyBS
-ZWdpc3RlcmdlcmljaHQ6IE11ZW5jaGVuIEhSQiA0MDM2ODsNCkdlc2NoYWVmdHNmdWVocmVyOkRy
-LkNhcnN0ZW4gU3Vja3JvdywgVGhvbWFzIFdlc3NlbCwgV2lsbGlhbSBBLiBNYXJ0aW4sIE1hcmdh
-cmV0IFNlaWYNCg0KDQo=
+On Tue, 23 Aug 2011, Jaikumar Ganesh wrote:
 
+> > From: Jiri Kosina <jkosina@suse.cz>
+> > Subject: [PATCH] HID: magicmouse: ignore 'ivalid report id' while s=
+witching modes, v2
+> >
+> > This is basically a more generic respin of 23746a6 ("HID: magicmous=
+e: ignore
+> > 'ivalid report id' while switching modes") which got reverted later=
+ by
+> > c3a492.
+> >
+> > It turns out that on some configurations, this is actually still th=
+e case
+> > and we are not able to detect in runtime.
+> >
+> > The device reponds with 'invalid report id' when feature report swi=
+tching it
+> > into multitouch mode is sent to it.
+> >
+> > This has been silently ignored before 0825411ade ("HID: bt: Wait fo=
+r ACK
+> > on Sent Reports"), but since this commit, it propagates -EIO from t=
+he _raw
+> > callback .
+> >
+> > So let the driver ignore -EIO as response to 0xd7,0x01 report, as t=
+hat's
+> > how the device reacts in normal mode.
+> >
+> > Sad, but following reality.
+> >
+> > This fixes https://bugzilla.kernel.org/show_bug.cgi?id=3D35022
+> >
+> > Reported-by: Chase Douglas <chase.douglas@canonical.com>
+> > Reported-by: Jaikumar Ganesh <jaikumarg@android.com>
+> > Tested-by: Chase Douglas <chase.douglas@canonical.com>
+> > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> > ---
+> > =A0drivers/hid/hid-magicmouse.c | =A0 10 +++++++++-
+> > =A01 files changed, 9 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmo=
+use.c
+> > index b5bdab3..f0fbd7b 100644
+> > --- a/drivers/hid/hid-magicmouse.c
+> > +++ b/drivers/hid/hid-magicmouse.c
+> > @@ -537,9 +537,17 @@ static int magicmouse_probe(struct hid_device =
+*hdev,
+> > =A0 =A0 =A0 =A0}
+> > =A0 =A0 =A0 =A0report->size =3D 6;
+> >
+> > + =A0 =A0 =A0 /*
+> > + =A0 =A0 =A0 =A0* Some devices repond with 'invalid report id' whe=
+n feature
+> > + =A0 =A0 =A0 =A0* report switching it into multitouch mode is sent=
+ to it.
+> > + =A0 =A0 =A0 =A0*
+> > + =A0 =A0 =A0 =A0* This results in -EIO from the _raw low-level tra=
+nsport callback,
+> > + =A0 =A0 =A0 =A0* but there seems to be no other way of switching =
+the mode.
+> > + =A0 =A0 =A0 =A0* Thus the super-ugly hacky success check below.
+> > + =A0 =A0 =A0 =A0*/
+> > =A0 =A0 =A0 =A0ret =3D hdev->hid_output_raw_report(hdev, feature, s=
+izeof(feature),
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0HID_FEATURE_REPORT);
+> > - =A0 =A0 =A0 if (ret !=3D sizeof(feature)) {
+> > + =A0 =A0 =A0 if (ret !=3D -EIO && ret !=3D sizeof(feature)) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hid_err(hdev, "unable to request tou=
+ch data (%d)\n", ret);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_stop_hw;
+> > =A0 =A0 =A0 =A0}
+> > --
+> > 1.7.3.1
+>=20
+> Tested. Please push.
+
+Okay, I have queued it with your Tested-by. Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

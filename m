@@ -1,46 +1,47 @@
-From: Axel Lin <axel.lin@gmail.com>
-Subject: [PATCH] Input: adp5588-keys - remove incorrect modalias
-Date: Thu, 25 Aug 2011 18:30:38 +0800
-Message-ID: <1314268238.2663.1.camel@phoenix>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH] Input: adp5588-keys - remove incorrect modalias
+Date: Thu, 25 Aug 2011 11:43:53 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D59177146E6D0708C@LIMKCMBX1.ad.analog.com>
+References: <1314268238.2663.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:46324 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751137Ab1HYKaq (ORCPT
+Received: from tx2ehsobe003.messaging.microsoft.com ([65.55.88.13]:52361 "EHLO
+	TX2EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750827Ab1HYKoK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 06:30:46 -0400
+	Thu, 25 Aug 2011 06:44:10 -0400
+In-Reply-To: <1314268238.2663.1.camel@phoenix>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
->From 2b642fd34e59291764f5149f083d84760d8b41b2 Mon Sep 17 00:00:00 2001
-From: Axel Lin <axel.lin@gmail.com>
-Date: Thu, 25 Aug 2011 18:26:56 +0800
-Subject: [PATCH] Input: adp5588-keys - remove incorrect modalias
-
-For i2c drivers, we should use "i2c:" prefix for modalias.
-MODULE_DEVICE_TABLE will setup the modulalias for us,
-thus adding a MODULE_ALIAS here seems redundant.
-
-Signed-off-by: Axel Lin <axel.lin@gmail.com>
----
- drivers/input/keyboard/adp5588-keys.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index 7b404e54..e34eeb8 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -668,4 +668,3 @@ module_exit(adp5588_exit);
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
- MODULE_DESCRIPTION("ADP5588/87 Keypad driver");
--MODULE_ALIAS("platform:adp5588-keys");
--- 
-1.7.4.1
-
-
+QXhlbCBMaW4gd3JvdGUgb24gMjAxMS0wOC0yNToNCj4gRnJvbSAyYjY0MmZkMzRlNTkyOTE3NjRm
+NTE0OWYwODNkODQ3NjBkOGI0MWIyIE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQ0KPiBGcm9tOiBB
+eGVsIExpbiA8YXhlbC5saW5AZ21haWwuY29tPg0KPiBEYXRlOiBUaHUsIDI1IEF1ZyAyMDExIDE4
+OjI2OjU2ICswODAwDQo+IFN1YmplY3Q6IFtQQVRDSF0gSW5wdXQ6IGFkcDU1ODgta2V5cyAtIHJl
+bW92ZSBpbmNvcnJlY3QgbW9kYWxpYXMNCj4NCj4gRm9yIGkyYyBkcml2ZXJzLCB3ZSBzaG91bGQg
+dXNlICJpMmM6IiBwcmVmaXggZm9yIG1vZGFsaWFzLg0KPiBNT0RVTEVfREVWSUNFX1RBQkxFIHdp
+bGwgc2V0dXAgdGhlIG1vZHVsYWxpYXMgZm9yIHVzLA0KPiB0aHVzIGFkZGluZyBhIE1PRFVMRV9B
+TElBUyBoZXJlIHNlZW1zIHJlZHVuZGFudC4NCj4NCj4gU2lnbmVkLW9mZi1ieTogQXhlbCBMaW4g
+PGF4ZWwubGluQGdtYWlsLmNvbT4NCg0KQWNrZWQtYnk6IE1pY2hhZWwgSGVubmVyaWNoIDxtaWNo
+YWVsLmhlbm5lcmljaEBhbmFsb2cuY29tPg0KDQo+IC0tLQ0KPiAgZHJpdmVycy9pbnB1dC9rZXli
+b2FyZC9hZHA1NTg4LWtleXMuYyB8ICAgIDEgLQ0KPiAgMSBmaWxlcyBjaGFuZ2VkLCAwIGluc2Vy
+dGlvbnMoKyksIDEgZGVsZXRpb25zKC0pDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tl
+eWJvYXJkL2FkcDU1ODgta2V5cy5jDQo+IGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9hZHA1NTg4
+LWtleXMuYyBpbmRleCA3YjQwNGU1NC4uZTM0ZWViOCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9p
+bnB1dC9rZXlib2FyZC9hZHA1NTg4LWtleXMuYyArKysNCj4gYi9kcml2ZXJzL2lucHV0L2tleWJv
+YXJkL2FkcDU1ODgta2V5cy5jIEBAIC02NjgsNCArNjY4LDMgQEANCj4gbW9kdWxlX2V4aXQoYWRw
+NTU4OF9leGl0KTsNCj4gIE1PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCj4gIE1PRFVMRV9BVVRIT1Io
+Ik1pY2hhZWwgSGVubmVyaWNoIDxoZW5uZXJpY2hAYmxhY2tmaW4udWNsaW51eC5vcmc+Iik7DQo+
+ICBNT0RVTEVfREVTQ1JJUFRJT04oIkFEUDU1ODgvODcgS2V5cGFkIGRyaXZlciIpOw0KPiAtTU9E
+VUxFX0FMSUFTKCJwbGF0Zm9ybTphZHA1NTg4LWtleXMiKTsNCg0KR3JlZXRpbmdzLA0KTWljaGFl
+bA0KDQotLQ0KQW5hbG9nIERldmljZXMgR21iSCAgICAgIFdpbGhlbG0tV2FnZW5mZWxkLVN0ci4g
+NiAgICAgIDgwODA3IE11ZW5jaGVuDQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IE11ZW5jaGVuOyBS
+ZWdpc3RlcmdlcmljaHQ6IE11ZW5jaGVuIEhSQiA0MDM2ODsNCkdlc2NoYWVmdHNmdWVocmVyOkRy
+LkNhcnN0ZW4gU3Vja3JvdywgVGhvbWFzIFdlc3NlbCwgV2lsbGlhbSBBLiBNYXJ0aW4sIE1hcmdh
+cmV0IFNlaWYNCg0KDQo=
 

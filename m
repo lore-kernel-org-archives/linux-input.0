@@ -1,80 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Question: I2C touchscreen controller
-Date: Wed, 24 Aug 2011 13:46:17 -0700
-Message-ID: <20110824204617.GA13677@core.coreip.homeip.net>
-References: <ADE657CA350FB648AAC2C43247A983F001F3885759E3@AUSP01VMBX24.collaborationhost.net>
- <20110824195436.GA13228@core.coreip.homeip.net>
- <ADE657CA350FB648AAC2C43247A983F001F388575A7F@AUSP01VMBX24.collaborationhost.net>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH v2 7/7] Input: elantech - add v3 hardware support
+Date: Thu, 25 Aug 2011 09:09:02 +0800
+Message-ID: <87mxeynvpt.fsf@emc.com.tw>
+References: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw> <1314164686-866-8-git-send-email-jj_ding@emc.com.tw> <20110824143520.GB23868@thinkpad-t410>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:45414 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753077Ab1HXUqX (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:5560 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751678Ab1HYBGh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Aug 2011 16:46:23 -0400
-Received: by gxk21 with SMTP id 21so1178400gxk.19
-        for <linux-input@vger.kernel.org>; Wed, 24 Aug 2011 13:46:22 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <ADE657CA350FB648AAC2C43247A983F001F388575A7F@AUSP01VMBX24.collaborationhost.net>
+	Wed, 24 Aug 2011 21:06:37 -0400
+In-Reply-To: <20110824143520.GB23868@thinkpad-t410>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?Q?=C3=89r?= =?utf-8?Q?ic?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-On Wed, Aug 24, 2011 at 03:19:26PM -0500, H Hartley Sweeten wrote:
-> On Wednesday, August 24, 2011 12:55 PM, Dmitry Torokhov wrote:
-> > Hi Hartley,
-> 
-> Hello!
-> 
-> > On Wed, Aug 24, 2011 at 01:23:59PM -0500, H Hartley Sweeten wrote:
-> >> Hello all,
-> >> 
-> >> I have a question...
-> >> 
-> >> Are there any I2C touchscreen controllers that do not need irq support?
-> >> 
-> >> I have a system with an I2C bus available to connect to the touchscreen
-> >> controller but I don't have an IRQ pin available.  Right now I'm just
-> >> trying to discover if there is a possible solution or if I will need to
-> >> modify my board somehow to get an IRQ.
-> >
-> > Without IRQ you are limited to polling mode which, for touchscreens,
-> > needs to be done at fairly high rate to provide adequate responsiveness.
-> > This, in turn, will put considerable load on the system thus driving up
-> > power requirements... IOW not very suitable for production use, that is
-> > why I've been asking people to submit IRQ-driven drivers, if at all
-> > possible.
-> >
-> > If polling is your only option then input-polldev is your friend.
-> 
-> Hmmm... Kind of what I figured.
-> 
-> After looking a bit deeper it appears I do have and IRQ pin available.  It's
-> just a bit of a pain to get to... ;-)
-> 
-> It looks like these are the current I2C touchscreen drivers in mainline:
-> 
-> CONFIG_TOUCHSCREEN_88PM860X		pmic mfd device? probably not standalone
-> CONFIG_TOUCHSCREEN_AD7879_I2C		datasheet looks simple enough
-> CONFIG_TOUCHSCREEN_ATMEL_MXT		needs firmware? probably complicated
+Hi Seth,
 
-I do not believe you'll need custom firmware for this one. I think it is
-being used in Samsung's Galaxy S series...
+Thank you. You are right.
+I think I somehow tested the worng touchpad for this patch.
 
-> CONFIG_TOUCHSCREEN_BU21013		can't find a datasheet
-> CONFIG_TOUCHSCREEN_CY8CTMG110		looks like the chip may be obsolete
-> CONFIG_TOUCHSCREEN_MAX11801		Maxim usually has long lead times
-> CONFIG_TOUCHSCREEN_MCS5000		can't find a datasheet
-> CONFIG_TOUCHSCREEN_STMPE		datasheet looks simple enough
-> CONFIG_TOUCHSCREEN_TSC2007		datasheet looks simple enough
+jj
+
+On Wed, 24 Aug 2011 09:35:20 -0500, Seth Forshee <seth.forshee@canonical.com> wrote:
+> On Wed, Aug 24, 2011 at 01:44:46PM +0800, JJ Ding wrote:
+> > @@ -403,11 +503,39 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
+> >  }
+> >  
+> >  /*
+> > + * We check the constant bits to determine what packet type we get,
+> > + * so packet checking is mandatory for v3 hardware.
+> > + */
+> > +static int elantech_packet_check_v3(struct psmouse *psmouse)
+> > +{
+> > +	unsigned char *packet = psmouse->packet;
+> > +
+> > +	if ((packet[0] & 0x0c) == 0x04 &&
+> > +	    (packet[3] & 0xcf) == 0x02)
+> > +		return PACKET_V3_HEAD;
+> > +
+> > +	if ((packet[0] & 0x0c) == 0x0c &&
+> > +	    (packet[3] & 0xce) == 0x0c)
+> > +		return PACKET_V3_TAIL;
+> > +
+> > +	if (packet[0] == 0xc4 &&
+> > +	    packet[1] == 0xff &&
+> > +	    packet[2] == 0xff &&
+> > +	    packet[3] == 0x02 &&
+> > +	    packet[4] == 0xff &&
+> > +	    packet[5] == 0xff)
+> > +		return PACKET_DEBOUNCE;
+> > +
+> > +	return PACKET_UNKNOWN;
+> > +}
 > 
-> Based on that I'm considering the Analog Devices, STMicro, and TI parts.
+> This will never return PACKET_DEBOUNCE, because those packets will have
+> already matched the conditions for PACKET_V3_HEAD. That condition needs
+> to be moved to the top of the function.
 > 
-> Do you know if any of these work better than the others?
-
-No, I do not, sorry.
-
--- 
-Dmitry
+> Seth

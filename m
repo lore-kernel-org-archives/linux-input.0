@@ -1,46 +1,126 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: Question: I2C touchscreen controller
-Date: Thu, 25 Aug 2011 09:23:24 +0200
-Message-ID: <20110825072324.GA4065@polaris.bitmath.org>
-References: <ADE657CA350FB648AAC2C43247A983F001F3885759E3@AUSP01VMBX24.collaborationhost.net>
- <20110824195436.GA13228@core.coreip.homeip.net>
- <ADE657CA350FB648AAC2C43247A983F001F388575A7F@AUSP01VMBX24.collaborationhost.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [RFT] Input: i8042 - also perform controller reset when suspending
+Date: Thu, 25 Aug 2011 00:24:29 -0700
+Message-ID: <20110825072429.GA24739@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:50311 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750903Ab1HYHVZ (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:37040 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751557Ab1HYHYe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 03:21:25 -0400
-Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 133D3D5ED
-	for <linux-input@vger.kernel.org>; Thu, 25 Aug 2011 09:21:24 +0200 (CEST)
+	Thu, 25 Aug 2011 03:24:34 -0400
 Content-Disposition: inline
-In-Reply-To: <ADE657CA350FB648AAC2C43247A983F001F388575A7F@AUSP01VMBX24.collaborationhost.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
 
-> It looks like these are the current I2C touchscreen drivers in mainline:
-> 
-> CONFIG_TOUCHSCREEN_88PM860X		pmic mfd device? probably not standalone
-> CONFIG_TOUCHSCREEN_AD7879_I2C		datasheet looks simple enough
-> CONFIG_TOUCHSCREEN_ATMEL_MXT		needs firmware? probably complicated
-> CONFIG_TOUCHSCREEN_BU21013		can't find a datasheet
-> CONFIG_TOUCHSCREEN_CY8CTMG110		looks like the chip may be obsolete
-> CONFIG_TOUCHSCREEN_MAX11801		Maxim usually has long lead times
-> CONFIG_TOUCHSCREEN_MCS5000		can't find a datasheet
-> CONFIG_TOUCHSCREEN_STMPE		datasheet looks simple enough
-> CONFIG_TOUCHSCREEN_TSC2007		datasheet looks simple enough
-> 
-> Based on that I'm considering the Analog Devices, STMicro, and TI parts.
-> 
-> Do you know if any of these work better than the others?
+In addition to some laptops needing i8042 reset after resuming from S2R to
+get their touchpads working there is another class of laptops - ones that
+need i8042 reset before going to S2R, otherwise they will simply reboot
+instead of resuming.
 
-Out of those, bu21013 (and st1232 not on your list) are dual touch,
-and atmel_mxt is true multitouch. The rest are single touch.
+See https://bugzilla.kernel.org/show_bug.cgi?id=15612
 
-Cheers,
-Henrik
+This change forces reset of i8042 before doing S2R.
+
+Reported-by: Stefan Koch <stefan_koch@gmx.net>
+Tested-by: Alexander van Loon <a.vanloon@alexandervanloon.nl>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+Would appreciate more testing since this may affect more boxes.
+
+Thanks!
+
+
+ drivers/input/serio/i8042.c |   23 +++++++++++++++--------
+ 1 files changed, 15 insertions(+), 8 deletions(-)
+
+
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index d37a48e..8656441 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -991,7 +991,7 @@ static int i8042_controller_init(void)
+  * Reset the controller and reset CRT to the original value set by BIOS.
+  */
+ 
+-static void i8042_controller_reset(void)
++static void i8042_controller_reset(bool force_reset)
+ {
+ 	i8042_flush();
+ 
+@@ -1016,7 +1016,7 @@ static void i8042_controller_reset(void)
+  * Reset the controller if requested.
+  */
+ 
+-	if (i8042_reset)
++	if (i8042_reset || force_reset)
+ 		i8042_controller_selftest();
+ 
+ /*
+@@ -1139,9 +1139,9 @@ static int i8042_controller_resume(bool force_reset)
+  * upsetting it.
+  */
+ 
+-static int i8042_pm_reset(struct device *dev)
++static int i8042_pm_suspend(struct device *dev)
+ {
+-	i8042_controller_reset();
++	i8042_controller_reset(true);
+ 
+ 	return 0;
+ }
+@@ -1163,13 +1163,20 @@ static int i8042_pm_thaw(struct device *dev)
+ 	return 0;
+ }
+ 
++static int i8042_pm_reset(struct device *dev)
++{
++	i8042_controller_reset(false);
++
++	return 0;
++}
++
+ static int i8042_pm_restore(struct device *dev)
+ {
+ 	return i8042_controller_resume(false);
+ }
+ 
+ static const struct dev_pm_ops i8042_pm_ops = {
+-	.suspend	= i8042_pm_reset,
++	.suspend	= i8042_pm_suspend,
+ 	.resume		= i8042_pm_resume,
+ 	.thaw		= i8042_pm_thaw,
+ 	.poweroff	= i8042_pm_reset,
+@@ -1185,7 +1192,7 @@ static const struct dev_pm_ops i8042_pm_ops = {
+ 
+ static void i8042_shutdown(struct platform_device *dev)
+ {
+-	i8042_controller_reset();
++	i8042_controller_reset(false);
+ }
+ 
+ static int __init i8042_create_kbd_port(void)
+@@ -1424,7 +1431,7 @@ static int __init i8042_probe(struct platform_device *dev)
+  out_fail:
+ 	i8042_free_aux_ports();	/* in case KBD failed but AUX not */
+ 	i8042_free_irqs();
+-	i8042_controller_reset();
++	i8042_controller_reset(false);
+ 	i8042_platform_device = NULL;
+ 
+ 	return error;
+@@ -1434,7 +1441,7 @@ static int __devexit i8042_remove(struct platform_device *dev)
+ {
+ 	i8042_unregister_ports();
+ 	i8042_free_irqs();
+-	i8042_controller_reset();
++	i8042_controller_reset(false);
+ 	i8042_platform_device = NULL;
+ 
+ 	return 0;
+-- 
+Dmitry

@@ -1,84 +1,99 @@
-From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH v2 7/7] Input: elantech - add v3 hardware support
-Date: Thu, 25 Aug 2011 16:22:14 +0800
-Message-ID: <8762llq4sp.fsf@emc.com.tw>
-References: <1314164686-866-1-git-send-email-jj_ding@emc.com.tw> <1314164686-866-8-git-send-email-jj_ding@emc.com.tw> <20110824143520.GB23868@thinkpad-t410> <87mxeynvpt.fsf@emc.com.tw> <20110825070642.GB15655@core.coreip.homeip.net>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [RFC/RFT][PATCH] Input: tsc2007 - convert to threaded IRQ
+Date: Thu, 25 Aug 2011 10:25:17 +0200
+Message-ID: <20110825082517.GA28511@avionic-0098.adnet.avionic-design.de>
+References: <20110823061738.GA25272@core.coreip.homeip.net>
+ <20110825062159.GB25708@avionic-0098.mockup.avionic-design.de>
+ <20110825064333.GA15655@core.coreip.homeip.net>
+ <20110825070657.GA29512@avionic-0098.adnet.avionic-design.de>
+ <20110825073427.GB24739@core.coreip.homeip.net>
+ <20110825075253.GA10702@avionic-0098.adnet.avionic-design.de>
+ <20110825075624.GC24739@core.coreip.homeip.net>
+ <20110825080551.GD24739@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:23612 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750903Ab1HYIUV (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:51838 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751699Ab1HYIZS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 04:20:21 -0400
-In-Reply-To: <20110825070642.GB15655@core.coreip.homeip.net>
+	Thu, 25 Aug 2011 04:25:18 -0400
+Content-Disposition: inline
+In-Reply-To: <20110825080551.GD24739@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Seth Forshee <seth.forshee@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?Q?=C3=89ric?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+Cc: Linux Input <linux-input@vger.kernel.org>, Richard =?utf-8?Q?R=C3=B6jfors?= <richard.rojfors.ext@mocean-labs.com>
 
-Hi Dmitry,
 
-Much cleaner. Thank you.
-I will change it.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-jj
+* Dmitry Torokhov wrote:
+> On Thu, Aug 25, 2011 at 12:56:25AM -0700, Dmitry Torokhov wrote:
+> > On Thu, Aug 25, 2011 at 09:52:54AM +0200, Thierry Reding wrote:
+> > > * Dmitry Torokhov wrote:
+> > > > On Thu, Aug 25, 2011 at 09:06:57AM +0200, Thierry Reding wrote:
+> > > > > * Dmitry Torokhov wrote:
+> > > > > > On Thu, Aug 25, 2011 at 08:21:59AM +0200, Thierry Reding wrote:
+> > > > > > > * Dmitry Torokhov wrote:
+> > > > > > > > This is completely untested but I believe it should work be=
+tter than original
+> > > > > > > > workqueue solution, especially when we do not have get_pend=
+own_state method
+> > > > > > > > available. I wonder if it will help Richard's issue with IR=
+Q getting re-raised
+> > > > > > > > after pen up event.
+> > > > > > > >=20
+> > > > > > > > Anyone who has hardware - please give it a spin.
+> > > > > > >=20
+> > > > > > > I can see no noticeable changes with this patch.
+> > > > > > >=20
+> > > > > >=20
+> > > > > > That's the result I was aiming for ;) Thanks for testing.
+> > > > > >=20
+> > > > > > Oh, crap... Does it still work if you change IRQ flags in
+> > > > > > request_threaded_irq() from 0 to IRQF_ONESHOT?=20
+> > > > > >=20
+> > > > > > Also, while we are at it would you ming trying out another patch
+> > > > > > (below)?
+> > > > >=20
+> > > > > With both your patch applied and the change from 0 to IRQF_ONESHO=
+T the driver
+> > > > > oopses when loaded. I didn't have time to investigate further, bu=
+t I think I
+> > > > > could perhaps test a couple more patches if you provide them.
+> > > >=20
+> > > > Hmm, can't spot the problem... Where does it die?
+> > >=20
+> > > I'll see if I can track it down, but I have very limited time.
+> >=20
+> > Don't worry, there is no rush whatsoever... I'll try to ponder the code
+> > some more.
+>=20
+> I think we fail in tsc2007_open(), instead of "if (err) {" it should say
+> "if (err < 0) {"... but I still wonder why this causes oops...
 
-On Thu, 25 Aug 2011 00:06:42 -0700, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Thu, Aug 25, 2011 at 09:09:02AM +0800, JJ Ding wrote:
-> > Hi Seth,
-> > 
-> > Thank you. You are right.
-> > I think I somehow tested the worng touchpad for this patch.
-> > 
-> 
-> How about we change it thusly:
-> 
-> Input: elamtech - fix V3 packet checking
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/input/mouse/elantech.c |   18 ++++++------------
->  1 files changed, 6 insertions(+), 12 deletions(-)
-> 
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 1e2b9da..d814bf74 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -508,24 +508,18 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
->   */
->  static int elantech_packet_check_v3(struct psmouse *psmouse)
->  {
-> +	const u8 debounce_packet[] = { 0xc4, 0xff, 0xff, 0x02, 0xff, 0xff };
->  	unsigned char *packet = psmouse->packet;
->  
-> -	if ((packet[0] & 0x0c) == 0x04 &&
-> -	    (packet[3] & 0xcf) == 0x02)
-> +	if (!memcmp(packet, debounce_packet, sizeof(debounce_packet)))
-> +		return PACKET_DEBOUNCE;
-> +
-> +	if ((packet[0] & 0x0c) == 0x04 && (packet[3] & 0xcf) == 0x02)
->  		return PACKET_V3_HEAD;
->  
-> -	if ((packet[0] & 0x0c) == 0x0c &&
-> -	    (packet[3] & 0xce) == 0x0c)
-> +	if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
->  		return PACKET_V3_TAIL;
->  
-> -	if (packet[0] == 0xc4 &&
-> -	    packet[1] == 0xff &&
-> -	    packet[2] == 0xff &&
-> -	    packet[3] == 0x02 &&
-> -	    packet[4] == 0xff &&
-> -	    packet[5] == 0xff)
-> -		return PACKET_DEBOUNCE;
-> -
->  	return PACKET_UNKNOWN;
->  }
->  
-> Thanks.
-> 
-> -- 
-> Dmitry
+It was indeed the open() call that was failing and changing "if (err) {" to
+"if (err < 0) {" does indeed fix the issue.
+
+Again, no negative nor positive changes in the touchscreen behaviour. So
+again,
+
+Tested-by: Thierry Reding <thierry.reding@avionic-design.de>
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk5WBuwACgkQZ+BJyKLjJp9jPACcDf/hsx6czNushBBxjNSbIhcx
+UzwAoK2zGq4hOLaSphC2nwcUYWmTBhL8
+=qLea
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--

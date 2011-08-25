@@ -1,126 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [RFT] Input: i8042 - also perform controller reset when suspending
-Date: Thu, 25 Aug 2011 00:24:29 -0700
-Message-ID: <20110825072429.GA24739@core.coreip.homeip.net>
+Subject: Re: [RFC/RFT][PATCH] Input: tsc2007 - convert to threaded IRQ
+Date: Thu, 25 Aug 2011 00:34:27 -0700
+Message-ID: <20110825073427.GB24739@core.coreip.homeip.net>
+References: <20110823061738.GA25272@core.coreip.homeip.net>
+ <20110825062159.GB25708@avionic-0098.mockup.avionic-design.de>
+ <20110825064333.GA15655@core.coreip.homeip.net>
+ <20110825070657.GA29512@avionic-0098.adnet.avionic-design.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:37040 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751557Ab1HYHYe (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:50651 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750898Ab1HYHec (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Aug 2011 03:24:34 -0400
+	Thu, 25 Aug 2011 03:34:32 -0400
+Received: by gxk21 with SMTP id 21so1524188gxk.19
+        for <linux-input@vger.kernel.org>; Thu, 25 Aug 2011 00:34:32 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <20110825070657.GA29512@avionic-0098.adnet.avionic-design.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
+To: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Linux Input <linux-input@vger.kernel.org>, Richard =?iso-8859-1?Q?R=F6jfors?= <richard.rojfors.ext@mocean-labs.com>
 
-In addition to some laptops needing i8042 reset after resuming from S2R to
-get their touchpads working there is another class of laptops - ones that
-need i8042 reset before going to S2R, otherwise they will simply reboot
-instead of resuming.
+On Thu, Aug 25, 2011 at 09:06:57AM +0200, Thierry Reding wrote:
+> * Dmitry Torokhov wrote:
+> > On Thu, Aug 25, 2011 at 08:21:59AM +0200, Thierry Reding wrote:
+> > > * Dmitry Torokhov wrote:
+> > > > This is completely untested but I believe it should work better than original
+> > > > workqueue solution, especially when we do not have get_pendown_state method
+> > > > available. I wonder if it will help Richard's issue with IRQ getting re-raised
+> > > > after pen up event.
+> > > > 
+> > > > Anyone who has hardware - please give it a spin.
+> > > 
+> > > I can see no noticeable changes with this patch.
+> > > 
+> > 
+> > That's the result I was aiming for ;) Thanks for testing.
+> > 
+> > Oh, crap... Does it still work if you change IRQ flags in
+> > request_threaded_irq() from 0 to IRQF_ONESHOT? 
+> > 
+> > Also, while we are at it would you ming trying out another patch
+> > (below)?
+> 
+> With both your patch applied and the change from 0 to IRQF_ONESHOT the driver
+> oopses when loaded. I didn't have time to investigate further, but I think I
+> could perhaps test a couple more patches if you provide them.
 
-See https://bugzilla.kernel.org/show_bug.cgi?id=15612
+Hmm, can't spot the problem... Where does it die? If you could try just
+IRFQ_ONESHOT change that would be helpful.
 
-This change forces reset of i8042 before doing S2R.
+Thanks.
 
-Reported-by: Stefan Koch <stefan_koch@gmx.net>
-Tested-by: Alexander van Loon <a.vanloon@alexandervanloon.nl>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
-Would appreciate more testing since this may affect more boxes.
-
-Thanks!
-
-
- drivers/input/serio/i8042.c |   23 +++++++++++++++--------
- 1 files changed, 15 insertions(+), 8 deletions(-)
-
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index d37a48e..8656441 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -991,7 +991,7 @@ static int i8042_controller_init(void)
-  * Reset the controller and reset CRT to the original value set by BIOS.
-  */
- 
--static void i8042_controller_reset(void)
-+static void i8042_controller_reset(bool force_reset)
- {
- 	i8042_flush();
- 
-@@ -1016,7 +1016,7 @@ static void i8042_controller_reset(void)
-  * Reset the controller if requested.
-  */
- 
--	if (i8042_reset)
-+	if (i8042_reset || force_reset)
- 		i8042_controller_selftest();
- 
- /*
-@@ -1139,9 +1139,9 @@ static int i8042_controller_resume(bool force_reset)
-  * upsetting it.
-  */
- 
--static int i8042_pm_reset(struct device *dev)
-+static int i8042_pm_suspend(struct device *dev)
- {
--	i8042_controller_reset();
-+	i8042_controller_reset(true);
- 
- 	return 0;
- }
-@@ -1163,13 +1163,20 @@ static int i8042_pm_thaw(struct device *dev)
- 	return 0;
- }
- 
-+static int i8042_pm_reset(struct device *dev)
-+{
-+	i8042_controller_reset(false);
-+
-+	return 0;
-+}
-+
- static int i8042_pm_restore(struct device *dev)
- {
- 	return i8042_controller_resume(false);
- }
- 
- static const struct dev_pm_ops i8042_pm_ops = {
--	.suspend	= i8042_pm_reset,
-+	.suspend	= i8042_pm_suspend,
- 	.resume		= i8042_pm_resume,
- 	.thaw		= i8042_pm_thaw,
- 	.poweroff	= i8042_pm_reset,
-@@ -1185,7 +1192,7 @@ static const struct dev_pm_ops i8042_pm_ops = {
- 
- static void i8042_shutdown(struct platform_device *dev)
- {
--	i8042_controller_reset();
-+	i8042_controller_reset(false);
- }
- 
- static int __init i8042_create_kbd_port(void)
-@@ -1424,7 +1431,7 @@ static int __init i8042_probe(struct platform_device *dev)
-  out_fail:
- 	i8042_free_aux_ports();	/* in case KBD failed but AUX not */
- 	i8042_free_irqs();
--	i8042_controller_reset();
-+	i8042_controller_reset(false);
- 	i8042_platform_device = NULL;
- 
- 	return error;
-@@ -1434,7 +1441,7 @@ static int __devexit i8042_remove(struct platform_device *dev)
- {
- 	i8042_unregister_ports();
- 	i8042_free_irqs();
--	i8042_controller_reset();
-+	i8042_controller_reset(false);
- 	i8042_platform_device = NULL;
- 
- 	return 0;
 -- 
 Dmitry

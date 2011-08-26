@@ -1,145 +1,157 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH] Bluetooth: hidp: Stop I/O on shutdown
-Date: Fri, 26 Aug 2011 14:06:02 +0200
-Message-ID: <1314360362-24580-1-git-send-email-dh.herrmann@googlemail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH BlueZ 3/4] Link to udev only when needed
+Date: Fri, 26 Aug 2011 14:49:25 +0200
+Message-ID: <20110826144925.7a769734ad9eda41b1206357@studenti.unina.it>
+References: <1312553358-26280-1-git-send-email-ospite@studenti.unina.it>
+	<1312553358-26280-4-git-send-email-ospite@studenti.unina.it>
+	<20110818124438.40e3e125c8de872e1320f511@studenti.unina.it>
+	<1313709545.3373.196.camel@aeonflux>
+	<20110819105802.b7f5eda46e58b32677fdb804@studenti.unina.it>
+	<20110819210854.81dff694ad455da3ed0e6e96@studenti.unina.it>
+	<20110825161454.45a0b27998f577a737a2e579@studenti.unina.it>
+	<20110825170621.GB27645@samus.indt.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__26_Aug_2011_14_49_25_+0200_sKQi.xG7Vm0wXGqp"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:44515 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753280Ab1HZMGV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Aug 2011 08:06:21 -0400
+Received: from smtp205.alice.it ([82.57.200.101]:38758 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752796Ab1HZMtk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Aug 2011 08:49:40 -0400
+In-Reply-To: <20110825170621.GB27645@samus.indt.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-bluetooth@vger.kernel.org
-Cc: padovan@profusion.mobi, linux-input@vger.kernel.org, David Herrmann <dh.herrmann@googlemail.com>
+To: Vinicius Costa Gomes <vinicius.gomes@openbossa.org>
+Cc: Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, Jim Paris <jim@jtan.com>, Ranulf Doswell <ralf@ranulf.net>, "Pascal A . Brisset" <pascal44973@pabr.org>, Marcin Tolysz <tolysz@gmail.com>, Christian Birchinger <joker@netswarm.net>, Filipe Lopes <falktx@gmail.com>, Alan Ott <alan@signal11.us>, Mikko Virkkila <virkkila@kapsi.fi>, Simon Wood <simon@mungewell.org>, Arc Riley <arcriley@gmail.com>
 
-Current hidp driver purges the in/out queue on HID shutdown, but does
-not prevent further I/O. If a driver uses hidp_output_raw_report or
-hidp_get_raw_report during shutdown, the driver hangs for 5 or 10
-seconds per call until it gets a timeout.
-That is, if the output queue of an HID driver has 10 messages pending,
-it will take 50s until hid_destroy_device() will return. The
-hidp_session_sem semaphore is held during shutdown so no other HID
-device may be added/removed during this time.
+--Signature=_Fri__26_Aug_2011_14_49_25_+0200_sKQi.xG7Vm0wXGqp
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch makes hidp_output_raw_report and hidp_get_raw_report fail if
-session->terminate is true. Also hidp_session will wakeup all current
-calls to these functions to cancel the current operations.
+On Thu, 25 Aug 2011 14:06:21 -0300
+Vinicius Costa Gomes <vinicius.gomes@openbossa.org> wrote:
 
-We already purge the current I/O queues on hidp_stop(), so this data loss
-does not change the behaviour of the HID drivers.
+[...]
+> > > diff --git a/Makefile.am b/Makefile.am
+> > > index 4bcff4d..ff33bf0 100644
+> > > --- a/Makefile.am
+> > > +++ b/Makefile.am
+> > > @@ -230,8 +230,10 @@ builtin_sources +=3D thermometer/main.c \
+> > >  endif
+> > > =20
+> > >  if SIXAXISPLUGIN
+> > > -builtin_modules +=3D sixaxis
+> > > -builtin_sources +=3D plugins/sixaxis.c
+> > > +plugin_LTLIBRARIES +=3D plugins/sixaxis.la
+> > > +plugins_sixaxis_la_SOURCES =3D plugins/sixaxis.c
+> > > +plugins_sixaxis_la_LDFLAGS =3D -module -avoid-version -no-undefined =
+@UDEV_LIBS@
+> > > +plugins_sixaxis_la_CFLAGS =3D -fvisibility=3Dhidden @DBUS_CFLAGS@ @G=
+LIB_CFLAGS@ @UDEV_CFLAGS@
+> > >  endif
+> > >=20
+> >=20
+> > This is not enough, the external plugin can be compiled but I can be us=
+ed
+> > at runtime because it is using functions from src/storage.c and others,
+> > which seem to be embedded inside bluetoothd only, so I get:
+> >=20
+> > bluetoothd[23459]: Can't load plugin \
+> >   /home/ao2/Proj/PS3/PS3_sixaxis/bluez/plugins/.libs/playstation-periph=
+eral.so: \
+> >   /home/ao2/Proj/PS3/PS3_sixaxis/bluez/plugins/.libs/playstation-periph=
+eral.so: \
+> >   undefined symbol: write_device_name
+> >=20
+> > I could link the needed object files like storage.o and company into the
+> > plugin binary, but definitely this doesn't look OK. Should a shared lib=
+rary
+> > provide those "utility" functions to bluetoothd _and_ external plugins?
+> >=20
+> > This plugin is the first non-trivial external plugin I can see in the t=
+ree,
+> > so maybe this problem has never showed up before.
+>=20
+> The problem is the visibility of the symbols, src/bluetooth.ver defines
+> which symbols should[1] be visible to plugins. Every plugin should only
+> depend on those methods from the "core".
+>
 
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
----
- net/bluetooth/hidp/core.c |   40 ++++++++++++++++++++++++++--------------
- 1 files changed, 26 insertions(+), 14 deletions(-)
+Indeed, adding the needed symbols to the linker script makes the plugin
+work:
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index 4423e3a..e134528 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -255,6 +255,9 @@ static int __hidp_send_ctrl_message(struct hidp_session *session,
- 
- 	BT_DBG("session %p data %p size %d", session, data, size);
- 
-+	if (atomic_read(&session->terminate))
-+		return -EIO;
-+
- 	skb = alloc_skb(size + 1, GFP_ATOMIC);
- 	if (!skb) {
- 		BT_ERR("Can't allocate memory for new frame");
-@@ -320,6 +323,13 @@ static int hidp_send_report(struct hidp_session *session, struct hid_report *rep
- 	return hidp_queue_report(session, buf, rsize);
- }
- 
-+static void hidp_wakeup_reportq(struct hidp_session *session)
-+{
-+	clear_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
-+	clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
-+	wake_up_interruptible(&session->report_queue);
-+}
-+
- static int hidp_get_raw_report(struct hid_device *hid,
- 		unsigned char report_number,
- 		unsigned char *data, size_t count,
-@@ -329,6 +339,7 @@ static int hidp_get_raw_report(struct hid_device *hid,
- 	struct sk_buff *skb;
- 	size_t len;
- 	int numbered_reports = hid->report_enum[report_type].numbered;
-+	int ret;
- 
- 	switch (report_type) {
- 	case HID_FEATURE_REPORT:
-@@ -352,8 +363,9 @@ static int hidp_get_raw_report(struct hid_device *hid,
- 	session->waiting_report_number = numbered_reports ? report_number : -1;
- 	set_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
- 	data[0] = report_number;
--	if (hidp_send_ctrl_message(hid->driver_data, report_type, data, 1))
--		goto err_eio;
-+	ret = hidp_send_ctrl_message(hid->driver_data, report_type, data, 1);
-+	if (ret)
-+		goto err;
- 
- 	/* Wait for the return of the report. The returned report
- 	   gets put in session->report_return.  */
-@@ -365,11 +377,13 @@ static int hidp_get_raw_report(struct hid_device *hid,
- 			5*HZ);
- 		if (res == 0) {
- 			/* timeout */
--			goto err_eio;
-+			ret = -EIO;
-+			goto err;
- 		}
- 		if (res < 0) {
- 			/* signal */
--			goto err_restartsys;
-+			ret = -ERESTARTSYS;
-+			goto err;
- 		}
- 	}
- 
-@@ -390,14 +404,10 @@ static int hidp_get_raw_report(struct hid_device *hid,
- 
- 	return len;
- 
--err_restartsys:
--	clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
--	mutex_unlock(&session->report_mutex);
--	return -ERESTARTSYS;
--err_eio:
-+err:
- 	clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
- 	mutex_unlock(&session->report_mutex);
--	return -EIO;
-+	return ret;
- }
- 
- static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, size_t count,
-@@ -422,11 +432,10 @@ static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, s
- 
- 	/* Set up our wait, and send the report request to the device. */
- 	set_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
--	if (hidp_send_ctrl_message(hid->driver_data, report_type,
--			data, count)) {
--		ret = -ENOMEM;
-+	ret = hidp_send_ctrl_message(hid->driver_data, report_type, data,
-+									count);
-+	if (ret)
- 		goto err;
--	}
- 
- 	/* Wait for the ACK from the device. */
- 	while (test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags)) {
-@@ -733,6 +742,9 @@ static int hidp_session(void *arg)
- 	remove_wait_queue(sk_sleep(intr_sk), &intr_wait);
- 	remove_wait_queue(sk_sleep(ctrl_sk), &ctrl_wait);
- 
-+	atomic_inc(&session->terminate);
-+	hidp_wakeup_reportq(session);
-+
- 	down_write(&hidp_session_sem);
- 
- 	hidp_del_timer(session);
--- 
-1.7.6
+diff --git a/src/bluetooth.ver b/src/bluetooth.ver
+index b71c70d..11fcd33 100644
+--- a/src/bluetooth.ver
++++ b/src/bluetooth.ver
+@@ -5,6 +5,19 @@
+                info;
+                error;
+                debug;
++               manager_get_default_adapter;
++               adapter_get_address;
++               write_device_name;
++               record_from_string;
++               store_record;
++               sdp_record_free;
++               store_device_id;
++               write_trust;
++               dbus_bus_get;
++               adapter_get_device;
++               device_set_temporary;
++               device_set_name;
++               dbus_connection_unref;
+        local:
+                *;
+ };
 
+
+> If we want to keep the sixaxis plugin external we need to make the
+> symbols it need visible, but I wonder if that is right solution.
+>
+
+If there was a public API for plugins to use with well defined prefixes,
+the linking scripts could use those, I am thinking to something like:
+	sdp_*;
+	storage_*;
+	device_*;
+	dbus_*;
+
+But you bluez people have to tell me if this is the way to go and if
+you are willing to do that, of if I'd better have the plugin builtin for
+now.
+
+> [1] Seems that with builtin plugins that visibility enforcement doesn't
+> work, right?
+>
+
+This seems to be the case indeed, a bluiltin plugin can use any (non
+static?) symbol linked in the bluetoothd binary.
+
+Thanks,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+
+--Signature=_Fri__26_Aug_2011_14_49_25_+0200_sKQi.xG7Vm0wXGqp
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk5XllUACgkQ5xr2akVTsAG+jACfWBh1MId8LmzR22i2JDwdPLlL
+kCYAoI0cUHVR/wxh+FmiN8WB9AdYTmHD
+=wVDc
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__26_Aug_2011_14_49_25_+0200_sKQi.xG7Vm0wXGqp--

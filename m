@@ -1,203 +1,67 @@
-From: riyer@nvidia.com
-Subject: [PATCH v1] Input: tegra-kbc - fix wakeup from suspend.
-Date: Thu, 25 Aug 2011 17:29:47 -0700
-Message-ID: <1314318587-31348-1-git-send-email-riyer@nvidia.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rydberg@euromail.se, axel.lin@gmail.com, olof@lixom.net, amartin@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rakesh Iyer <riyer@nvidia.com>
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: [PATCH v3 0/7] Input: elantech: add support for newer hardware
+Date: Fri, 26 Aug 2011 09:03:04 +0800
+Message-ID: <1314320591-11551-1-git-send-email-jj_ding@emc.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:18560 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754398Ab1HZBBd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Aug 2011 21:01:33 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?UTF-8?q?=C3=89ric=20Piel?= <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>, JJ Ding <jj_ding@emc.com.tw>
 
-From: Rakesh Iyer <riyer@nvidia.com>
+Hi Lists,
 
-For wakeup to be reliable, kbc needs to be in interrupt mode before suspend.
-Created common routine to control the FIFO interrupt.
-Added synchronization to ensure orderly suspend.
+This is a series of patches to add support for newer generation of ELAN
+touchpad.
 
-Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
----
- drivers/input/keyboard/tegra-kbc.c |   83 +++++++++++++++++++++++++++++-------
- 1 files changed, 67 insertions(+), 16 deletions(-)
+Patches #1~#6 are essentially fixes and cleanups that pave the way for
+patch #7, which really adds code for v3 hardware.
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index a5a7791..41de11f 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -38,7 +38,7 @@
- #define KBC_ROW_SCAN_DLY	5
- 
- /* KBC uses a 32KHz clock so a cycle = 1/32Khz */
--#define KBC_CYCLE_MS	32
-+#define KBC_CYCLES_PER_MS	32
- 
- /* KBC Registers */
- 
-@@ -55,6 +55,7 @@
- 
- #define KBC_ROW_CFG0_0	0x8
- #define KBC_COL_CFG0_0	0x18
-+#define KBC_TO_CNT_0	0x24
- #define KBC_INIT_DLY_0	0x28
- #define KBC_RPT_DLY_0	0x2c
- #define KBC_KP_ENT0_0	0x30
-@@ -70,8 +71,10 @@ struct tegra_kbc {
- 	spinlock_t lock;
- 	unsigned int repoll_dly;
- 	unsigned long cp_dly_jiffies;
-+	unsigned int cp_to_wkup_dly;
- 	bool use_fn_map;
- 	bool use_ghost_filter;
-+	bool in_suspend;
- 	const struct tegra_kbc_platform_data *pdata;
- 	unsigned short keycode[KBC_MAX_KEY * 2];
- 	unsigned short current_keys[KBC_MAX_KPENT];
-@@ -341,6 +344,18 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
- 	kbc->num_pressed_keys = num_down;
- }
- 
-+static void tegra_kbc_set_fifo_interrupt(struct tegra_kbc *kbc, bool enable)
-+{
-+	u32 val;
-+
-+	val = readl(kbc->mmio + KBC_CONTROL_0);
-+	if (enable)
-+		val |= KBC_CONTROL_FIFO_CNT_INT_EN;
-+	else
-+		val &= ~KBC_CONTROL_FIFO_CNT_INT_EN;
-+	writel(val, kbc->mmio + KBC_CONTROL_0);
-+}
-+
- static void tegra_kbc_keypress_timer(unsigned long data)
- {
- 	struct tegra_kbc *kbc = (struct tegra_kbc *)data;
-@@ -348,6 +363,14 @@ static void tegra_kbc_keypress_timer(unsigned long data)
- 	u32 val;
- 	unsigned int i;
- 
-+	/* Exit immediately if driver is trying to enter suspend. */
-+	spin_lock_irqsave(&kbc->lock, flags);
-+	if (kbc->in_suspend) {
-+		tegra_kbc_set_fifo_interrupt(kbc, true);
-+		spin_unlock_irqrestore(&kbc->lock, flags);
-+		return;
-+	}
-+	spin_unlock_irqrestore(&kbc->lock, flags);
- 	val = (readl(kbc->mmio + KBC_INT_0) >> 4) & 0xf;
- 	if (val) {
- 		unsigned long dly;
-@@ -370,9 +393,7 @@ static void tegra_kbc_keypress_timer(unsigned long data)
- 
- 		/* All keys are released so enable the keypress interrupt */
- 		spin_lock_irqsave(&kbc->lock, flags);
--		val = readl(kbc->mmio + KBC_CONTROL_0);
--		val |= KBC_CONTROL_FIFO_CNT_INT_EN;
--		writel(val, kbc->mmio + KBC_CONTROL_0);
-+		tegra_kbc_set_fifo_interrupt(kbc, true);
- 		spin_unlock_irqrestore(&kbc->lock, flags);
- 	}
- }
-@@ -380,15 +401,14 @@ static void tegra_kbc_keypress_timer(unsigned long data)
- static irqreturn_t tegra_kbc_isr(int irq, void *args)
- {
- 	struct tegra_kbc *kbc = args;
--	u32 val, ctl;
-+	unsigned long flags;
-+	u32 val;
- 
- 	/*
- 	 * Until all keys are released, defer further processing to
- 	 * the polling loop in tegra_kbc_keypress_timer
- 	 */
--	ctl = readl(kbc->mmio + KBC_CONTROL_0);
--	ctl &= ~KBC_CONTROL_FIFO_CNT_INT_EN;
--	writel(ctl, kbc->mmio + KBC_CONTROL_0);
-+	tegra_kbc_set_fifo_interrupt(kbc, false);
- 
- 	/*
- 	 * Quickly bail out & reenable interrupts if the fifo threshold
-@@ -397,16 +417,18 @@ static irqreturn_t tegra_kbc_isr(int irq, void *args)
- 	val = readl(kbc->mmio + KBC_INT_0);
- 	writel(val, kbc->mmio + KBC_INT_0);
- 
--	if (val & KBC_INT_FIFO_CNT_INT_STATUS) {
-+	/* Exit immediately if driver is trying to enter suspend. */
-+	spin_lock_irqsave(&kbc->lock, flags);
-+	if (!kbc->in_suspend && (val & KBC_INT_FIFO_CNT_INT_STATUS))
- 		/*
- 		 * Schedule timer to run when hardware is in continuous
- 		 * polling mode.
- 		 */
- 		mod_timer(&kbc->timer, jiffies + kbc->cp_dly_jiffies);
--	} else {
--		ctl |= KBC_CONTROL_FIFO_CNT_INT_EN;
--		writel(ctl, kbc->mmio + KBC_CONTROL_0);
--	}
-+	else
-+		tegra_kbc_set_fifo_interrupt(kbc, true);
-+
-+	spin_unlock_irqrestore(&kbc->lock, flags);
- 
- 	return IRQ_HANDLED;
- }
-@@ -648,7 +670,7 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
- 	debounce_cnt = min(pdata->debounce_cnt, KBC_MAX_DEBOUNCE_CNT);
- 	scan_time_rows = (KBC_ROW_SCAN_TIME + debounce_cnt) * num_rows;
- 	kbc->repoll_dly = KBC_ROW_SCAN_DLY + scan_time_rows + pdata->repeat_cnt;
--	kbc->repoll_dly = DIV_ROUND_UP(kbc->repoll_dly, KBC_CYCLE_MS);
-+	kbc->repoll_dly = DIV_ROUND_UP(kbc->repoll_dly, KBC_CYCLES_PER_MS);
- 
- 	input_dev->name = pdev->name;
- 	input_dev->id.bustype = BUS_HOST;
-@@ -735,10 +757,29 @@ static int tegra_kbc_suspend(struct device *dev)
- 	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
- 
- 	if (device_may_wakeup(&pdev->dev)) {
--		tegra_kbc_setup_wakekeys(kbc, true);
--		enable_irq_wake(kbc->irq);
-+		unsigned long flags;
-+
-+		spin_lock_irqsave(&kbc->lock, flags);
-+		kbc->in_suspend = 1;
-+		spin_unlock_irqrestore(&kbc->lock, flags);
-+
-+		del_timer(&kbc->timer);
-+
-+		spin_lock_irqsave(&kbc->lock, flags);
-+		tegra_kbc_set_fifo_interrupt(kbc, false);
-+		spin_unlock_irqrestore(&kbc->lock, flags);
-+
- 		/* Forcefully clear the interrupt status */
- 		writel(0x7, kbc->mmio + KBC_INT_0);
-+		/*
-+		 * Store the previous resident time of continuous polling mode.
-+		 * Force the keyboard into interrupt mode.
-+		 */
-+		kbc->cp_to_wkup_dly = readl(kbc->mmio + KBC_TO_CNT_0);
-+		writel(0, kbc->mmio + KBC_TO_CNT_0);
-+
-+		tegra_kbc_setup_wakekeys(kbc, true);
-+		enable_irq_wake(kbc->irq);
- 		msleep(30);
- 	} else {
- 		mutex_lock(&kbc->idev->mutex);
-@@ -757,8 +798,18 @@ static int tegra_kbc_resume(struct device *dev)
- 	int err = 0;
- 
- 	if (device_may_wakeup(&pdev->dev)) {
-+		unsigned long flags;
-+
- 		disable_irq_wake(kbc->irq);
- 		tegra_kbc_setup_wakekeys(kbc, false);
-+
-+		/* Restore the resident time of continuous polling mode. */
-+		writel(kbc->cp_to_wkup_dly, kbc->mmio + KBC_TO_CNT_0);
-+		kbc->in_suspend = 0;
-+
-+		spin_lock_irqsave(&kbc->lock, flags);
-+		tegra_kbc_set_fifo_interrupt(kbc, true);
-+		spin_unlock_irqrestore(&kbc->lock, flags);
- 	} else {
- 		mutex_lock(&kbc->idev->mutex);
- 		if (kbc->idev->users)
--- 
-1.7.1
+Any comments, suggestoins are welcome.
+
+Thank you.
+
+Changes since v1:
+- drop EC workaround patch.
+- add patch #2, make ST and MT have the same range, as Dmitry suggested=
+=2E
+- add patch #4, remove ETP_EDGE_FUZZ_V2, as =C3=89ric suggested.
+- rename all packet checking functions so they are consistent.
+- some code cleanup, and don't report ABS_[XY] when fingers =3D=3D 0, a=
+s Seth suggested.
+- add document for v3 debounce, and now check debounce in elantech_pack=
+et_check_v3.
+
+Changes since v2:
+- fix v3 hardware packet checking (reported by Seth and fix by Dmitry.)
+
+JJ Ding (7):
+  Input: elantech - correct x, y value range for v2 hardware
+  Input: elantech - get rid of ETP_2FT_* in elantech.h
+  Input: elantech - use firmware provided x, y ranges
+  Input: elantech - remove ETP_EDGE_FUZZ_V2
+  Input: elantech - packet checking for v2 hardware
+  Input: elantech - clean up elantech_init
+  Input: elantech - add v3 hardware support
+
+ Documentation/input/elantech.txt |  125 +++++++++++--
+ drivers/input/mouse/elantech.c   |  385 ++++++++++++++++++++++++++++++=
++-------
+ drivers/input/mouse/elantech.h   |   35 ++--
+ 3 files changed, 442 insertions(+), 103 deletions(-)
+
+--=20
+1.7.4.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

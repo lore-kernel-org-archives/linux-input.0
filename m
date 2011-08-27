@@ -1,38 +1,40 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: wacom - Advertise BTN_TOOL_PEN and BTN_STYLUS for
- PenPartner
-Date: Fri, 26 Aug 2011 23:30:12 -0700
-Message-ID: <20110827063012.GB29434@core.coreip.homeip.net>
-References: <1314394285-6994-1-git-send-email-killertofu@gmail.com>
- <CAF8JNhJyptbc6YHH2K3+C=Fxto94GoVApVepStQLGzcepyHUXQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: adp5588-keys - remove incorrect modalias
+Date: Fri, 26 Aug 2011 23:32:20 -0700
+Message-ID: <20110827063220.GD29434@core.coreip.homeip.net>
+References: <1314268238.2663.1.camel@phoenix>
+ <544AC56F16B56944AEC3BD4E3D59177146E6D0708C@LIMKCMBX1.ad.analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yi0-f46.google.com ([209.85.218.46]:38413 "EHLO
+Received: from mail-yi0-f46.google.com ([209.85.218.46]:46202 "EHLO
 	mail-yi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751063Ab1H0GaR (ORCPT
+	with ESMTP id S1750865Ab1H0Gc0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Aug 2011 02:30:17 -0400
-Received: by yie30 with SMTP id 30so2193225yie.19
-        for <linux-input@vger.kernel.org>; Fri, 26 Aug 2011 23:30:16 -0700 (PDT)
+	Sat, 27 Aug 2011 02:32:26 -0400
 Content-Disposition: inline
-In-Reply-To: <CAF8JNhJyptbc6YHH2K3+C=Fxto94GoVApVepStQLGzcepyHUXQ@mail.gmail.com>
+In-Reply-To: <544AC56F16B56944AEC3BD4E3D59177146E6D0708C@LIMKCMBX1.ad.analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org
+To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: Axel Lin <axel.lin@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, Aug 26, 2011 at 02:48:43PM -0700, Ping Cheng wrote:
-> On Fri, Aug 26, 2011 at 2:31 PM, Jason Gerecke <killertofu@gmail.com> wrote:
-> > The Wacom PenPartner should advertise its stylus tip and button
-> > in addition to the eraser tool. These are both physically
-> > present on the hardware, and emitted from 'wacom_penpartner_irq'.
+On Thu, Aug 25, 2011 at 11:43:53AM +0100, Hennerich, Michael wrote:
+> Axel Lin wrote on 2011-08-25:
+> > From 2b642fd34e59291764f5149f083d84760d8b41b2 Mon Sep 17 00:00:00 2001
+> > From: Axel Lin <axel.lin@gmail.com>
+> > Date: Thu, 25 Aug 2011 18:26:56 +0800
+> > Subject: [PATCH] Input: adp5588-keys - remove incorrect modalias
 > >
-> > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> > For i2c drivers, we should use "i2c:" prefix for modalias.
+> > MODULE_DEVICE_TABLE will setup the modulalias for us,
+> > thus adding a MODULE_ALIAS here seems redundant.
+> >
+> > Signed-off-by: Axel Lin <axel.lin@gmail.com>
 > 
-> Reviewed-by: Ping Cheng <pingc@wacom.com>
+> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 
-Applied, thanks Jason.
+Applied, thanks Axel.
 
 -- 
 Dmitry

@@ -1,8 +1,8 @@
 From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 5/5] HID: roccat: Kone now reports external profile changes
- via roccat device
-Date: Sat, 27 Aug 2011 15:24:51 +0200
-Message-ID: <1314451491.24216.76.camel@neuromancer.tessier-ashpool>
+Subject: [PATCH 4/5] HID: roccat: cleaned up code for Kone and fixed wrong
+ initialization value
+Date: Sat, 27 Aug 2011 15:24:48 +0200
+Message-ID: <1314451489.24216.75.camel@neuromancer.tessier-ashpool>
 Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
@@ -12,64 +12,102 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Profile changes were only reported when issued mouse internal. Now all
-changes are reported.
+Introduced function kone_profile_activated() to reduce code duplication.
+This by the way fixes a wrong initialization value.
+Also fixes early mutex unlocks.
 
 Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- drivers/hid/hid-roccat-kone.c |   16 +++++++++++++++-
- 1 files changed, 15 insertions(+), 1 deletions(-)
+ drivers/hid/hid-roccat-kone.c |   43 +++++++++++++++++++++--------------------
+ 1 files changed, 22 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index c931d00..e2072af 100644
+index 7847a5b..c931d00 100644
 --- a/drivers/hid/hid-roccat-kone.c
 +++ b/drivers/hid/hid-roccat-kone.c
-@@ -43,6 +43,15 @@ static void kone_profile_activated(struct kone_device *kone, uint new_profile)
- 	kone->actual_dpi = kone->profiles[new_profile - 1].startup_dpi;
- }
+@@ -37,6 +37,12 @@
  
-+static void kone_profile_report(struct kone_device *kone, uint new_profile)
+ static uint profile_numbers[5] = {0, 1, 2, 3, 4};
+ 
++static void kone_profile_activated(struct kone_device *kone, uint new_profile)
 +{
-+	struct kone_roccat_report roccat_report;
-+	roccat_report.event = kone_mouse_event_switch_profile;
-+	roccat_report.value = new_profile;
-+	roccat_report.key = 0;
-+	roccat_report_event(kone->chrdev_minor, (uint8_t *)&roccat_report);
++	kone->actual_profile = new_profile;
++	kone->actual_dpi = kone->profiles[new_profile - 1].startup_dpi;
 +}
 +
  static int kone_receive(struct usb_device *usb_dev, uint usb_command,
  		void *data, uint size)
  {
-@@ -289,7 +298,7 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
- 			container_of(kobj, struct device, kobj)->parent->parent;
- 	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
- 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
--	int retval = 0, difference;
-+	int retval = 0, difference, old_profile;
+@@ -294,21 +300,16 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
+ 	if (difference) {
+ 		retval = kone_set_settings(usb_dev,
+ 				(struct kone_settings const *)buf);
+-		if (!retval)
+-			memcpy(&kone->settings, buf,
+-					sizeof(struct kone_settings));
+-	}
+-	mutex_unlock(&kone->kone_lock);
++		if (retval) {
++			mutex_unlock(&kone->kone_lock);
++			return retval;
++		}
  
- 	/* I need to get my data in one piece */
- 	if (off != 0 || count != sizeof(struct kone_settings))
-@@ -305,9 +314,13 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
- 			return retval;
+-	if (retval)
+-		return retval;
++		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
+ 
+-	/*
+-	 * If we get here, treat settings as okay and update actual values
+-	 * according to startup_profile
+-	 */
+-	kone->actual_profile = kone->settings.startup_profile;
+-	kone->actual_dpi = kone->profiles[kone->actual_profile - 1].startup_dpi;
++		kone_profile_activated(kone, kone->settings.startup_profile);
++	}
++	mutex_unlock(&kone->kone_lock);
+ 
+ 	return sizeof(struct kone_settings);
+ }
+@@ -501,6 +502,8 @@ static ssize_t kone_sysfs_set_tcu(struct device *dev,
+ 				goto exit_no_settings;
+ 			goto exit_unlock;
  		}
- 
-+		old_profile = kone->settings.startup_profile;
- 		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
- 
- 		kone_profile_activated(kone, kone->settings.startup_profile);
-+
-+		if (kone->settings.startup_profile != old_profile)
-+			kone_profile_report(kone, kone->settings.startup_profile);
++		/* calibration resets profile */
++		kone_profile_activated(kone, kone->settings.startup_profile);
  	}
- 	mutex_unlock(&kone->kone_lock);
  
-@@ -554,6 +567,7 @@ static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
+ 	retval = size;
+@@ -544,16 +547,15 @@ static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
+ 	kone_set_settings_checksum(&kone->settings);
+ 
+ 	retval = kone_set_settings(usb_dev, &kone->settings);
+-
+-	mutex_unlock(&kone->kone_lock);
+-
+-	if (retval)
++	if (retval) {
++		mutex_unlock(&kone->kone_lock);
+ 		return retval;
++	}
  
  	/* changing the startup profile immediately activates this profile */
- 	kone_profile_activated(kone, new_startup_profile);
-+	kone_profile_report(kone, new_startup_profile);
+-	kone->actual_profile = new_startup_profile;
+-	kone->actual_dpi = kone->profiles[kone->actual_profile - 1].startup_dpi;
++	kone_profile_activated(kone, new_startup_profile);
  
- 	mutex_unlock(&kone->kone_lock);
++	mutex_unlock(&kone->kone_lock);
  	return size;
+ }
+ 
+@@ -665,8 +667,7 @@ static int kone_init_kone_device_struct(struct usb_device *usb_dev,
+ 	if (retval)
+ 		return retval;
+ 
+-	kone->actual_profile = kone->settings.startup_profile;
+-	kone->actual_dpi = kone->profiles[kone->actual_profile].startup_dpi;
++	kone_profile_activated(kone, kone->settings.startup_profile);
+ 
+ 	return 0;
+ }
 -- 
 1.7.3.4

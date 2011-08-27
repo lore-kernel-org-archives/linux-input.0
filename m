@@ -1,8 +1,8 @@
 From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 3/5] HID: roccat: Kovaplus now reports external profile
- changes via roccat device
-Date: Sat, 27 Aug 2011 15:24:45 +0200
-Message-ID: <1314451485.24216.74.camel@neuromancer.tessier-ashpool>
+Subject: [PATCH 2/5] HID: roccat: Pyra now reports external profile changes
+ via roccat device
+Date: Sat, 27 Aug 2011 15:24:41 +0200
+Message-ID: <1314451481.24216.73.camel@neuromancer.tessier-ashpool>
 Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
@@ -17,45 +17,52 @@ changes are reported.
 
 Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- drivers/hid/hid-roccat-kovaplus.c |   17 +++++++++++++++--
- 1 files changed, 15 insertions(+), 2 deletions(-)
+ drivers/hid/hid-roccat-pyra.c |   23 +++++++++++++++--------
+ 1 files changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-index 1f8336e..112d934 100644
---- a/drivers/hid/hid-roccat-kovaplus.c
-+++ b/drivers/hid/hid-roccat-kovaplus.c
-@@ -323,6 +323,7 @@ static ssize_t kovaplus_sysfs_set_actual_profile(struct device *dev,
- 	struct usb_device *usb_dev;
- 	unsigned long profile;
- 	int retval;
-+	struct kovaplus_roccat_report roccat_report;
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index 8140776b..df05c1b 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -298,6 +298,7 @@ static ssize_t pyra_sysfs_write_settings(struct file *fp,
+ 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 	int retval = 0;
+ 	int difference;
++	struct pyra_roccat_report roccat_report;
  
- 	dev = dev->parent->parent;
- 	kovaplus = hid_get_drvdata(dev_get_drvdata(dev));
-@@ -337,10 +338,22 @@ static ssize_t kovaplus_sysfs_set_actual_profile(struct device *dev,
+ 	if (off != 0 || count != sizeof(struct pyra_settings))
+ 		return -EINVAL;
+@@ -307,17 +308,23 @@ static ssize_t pyra_sysfs_write_settings(struct file *fp,
+ 	if (difference) {
+ 		retval = pyra_set_settings(usb_dev,
+ 				(struct pyra_settings const *)buf);
+-		if (!retval)
+-			memcpy(&pyra->settings, buf,
+-					sizeof(struct pyra_settings));
+-	}
+-	mutex_unlock(&pyra->pyra_lock);
++		if (retval) {
++			mutex_unlock(&pyra->pyra_lock);
++			return retval;
++		}
  
- 	mutex_lock(&kovaplus->kovaplus_lock);
- 	retval = kovaplus_set_actual_profile(usb_dev, profile);
-+	if (retval) {
-+		mutex_unlock(&kovaplus->kovaplus_lock);
-+		return retval;
-+	}
-+
- 	kovaplus_profile_activated(kovaplus, profile);
-+
-+	roccat_report.type = KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_PROFILE_1;
-+	roccat_report.profile = profile + 1;
-+	roccat_report.button = 0;
-+	roccat_report.data1 = profile + 1;
-+	roccat_report.data2 = 0;
-+	roccat_report_event(kovaplus->chrdev_minor,
-+			(uint8_t const *)&roccat_report);
-+
- 	mutex_unlock(&kovaplus->kovaplus_lock);
 -	if (retval)
 -		return retval;
++		memcpy(&pyra->settings, buf,
++				sizeof(struct pyra_settings));
  
- 	return size;
+-	profile_activated(pyra, pyra->settings.startup_profile);
++		profile_activated(pyra, pyra->settings.startup_profile);
+ 
++		roccat_report.type = PYRA_MOUSE_EVENT_BUTTON_TYPE_PROFILE_2;
++		roccat_report.value = pyra->settings.startup_profile + 1;
++		roccat_report.key = 0;
++		roccat_report_event(pyra->chrdev_minor,
++				(uint8_t const *)&roccat_report);
++	}
++	mutex_unlock(&pyra->pyra_lock);
+ 	return sizeof(struct pyra_settings);
  }
+ 
 -- 
 1.7.3.4

@@ -1,116 +1,152 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 01/14] HID: wiimote: Support rumble device
-Date: Mon, 29 Aug 2011 15:37:58 +0200
-Message-ID: <1314625091-1405-2-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 06/14] HID: wiimote: Parse IR data
+Date: Mon, 29 Aug 2011 15:38:03 +0200
+Message-ID: <1314625091-1405-7-git-send-email-dh.herrmann@googlemail.com>
 References: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f46.google.com ([209.85.161.46]:57851 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753681Ab1H2Nib (ORCPT
+	with ESMTP id S1753751Ab1H2Nij (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Aug 2011 09:38:31 -0400
+	Mon, 29 Aug 2011 09:38:39 -0400
 Received: by mail-fx0-f46.google.com with SMTP id 19so4422164fxh.19
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:31 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:38 -0700 (PDT)
 In-Reply-To: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, oliver@neukum.org, David Herrmann <dh.herrmann@googlemail.com>
 
-This adds support for the wiimote's rumble device. Every output report can
-enable and disable the rumble motor. Hence, every output report must look up our
-new RUMBLE flag and make sure that it does not unintentionally toggle the
-rumble motor.
+Parse IR data and report it to IR input-device. IR data is sent in 3 different
+formats, but we only support the basic format as there is no way to send the
+additional information to userspace.
+All three formats are compatible with the basic IR data format so we need only
+one parser.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   45 +++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 41 insertions(+), 4 deletions(-)
+ drivers/hid/hid-wiimote.c |   73 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 73 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 85a02e5..6809754 100644
+index 4cdaaf6..3a7dec0 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -46,10 +46,11 @@ struct wiimote_data {
- 	struct wiimote_state state;
- };
- 
--#define WIIPROTO_FLAG_LED1 0x01
--#define WIIPROTO_FLAG_LED2 0x02
--#define WIIPROTO_FLAG_LED3 0x04
--#define WIIPROTO_FLAG_LED4 0x08
-+#define WIIPROTO_FLAG_LED1		0x01
-+#define WIIPROTO_FLAG_LED2		0x02
-+#define WIIPROTO_FLAG_LED3		0x04
-+#define WIIPROTO_FLAG_LED4		0x08
-+#define WIIPROTO_FLAG_RUMBLE		0x10
- #define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
- 					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
- 
-@@ -58,6 +59,7 @@ struct wiimote_data {
- 
- enum wiiproto_reqs {
- 	WIIPROTO_REQ_NULL = 0x0,
-+	WIIPROTO_REQ_RUMBLE = 0x10,
- 	WIIPROTO_REQ_LED = 0x11,
- 	WIIPROTO_REQ_DRM = 0x12,
- 	WIIPROTO_REQ_STATUS = 0x20,
-@@ -172,6 +174,39 @@ static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
- 	spin_unlock_irqrestore(&wdata->qlock, flags);
+@@ -479,6 +479,50 @@ static void handler_accel(struct wiimote_data *wdata, const __u8 *payload)
+ 	input_sync(wdata->accel);
  }
  
-+/*
-+ * This sets the rumble bit on the given output report if rumble is
-+ * currently enabled.
-+ * \cmd1 must point to the second byte in the output report => &cmd[1]
-+ * This must be called on nearly every output report before passing it
-+ * into the output queue!
-+ */
-+static inline void wiiproto_keep_rumble(struct wiimote_data *wdata, __u8 *cmd1)
-+{
-+	if (wdata->state.flags & WIIPROTO_FLAG_RUMBLE)
-+		*cmd1 |= 0x01;
-+}
++#define ir_to_input0(wdata, ir, packed) __ir_to_input((wdata), (ir), (packed), \
++							ABS_HAT0X, ABS_HAT0Y)
++#define ir_to_input1(wdata, ir, packed) __ir_to_input((wdata), (ir), (packed), \
++							ABS_HAT1X, ABS_HAT1Y)
++#define ir_to_input2(wdata, ir, packed) __ir_to_input((wdata), (ir), (packed), \
++							ABS_HAT2X, ABS_HAT2Y)
++#define ir_to_input3(wdata, ir, packed) __ir_to_input((wdata), (ir), (packed), \
++							ABS_HAT3X, ABS_HAT3Y)
 +
-+static void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble)
++static void __ir_to_input(struct wiimote_data *wdata, const __u8 *ir,
++						bool packed, __u8 xid, __u8 yid)
 +{
-+	__u8 cmd[2];
++	__u16 x, y;
 +
-+	rumble = !!rumble;
-+	if (rumble == !!(wdata->state.flags & WIIPROTO_FLAG_RUMBLE))
++	if (!(wdata->state.flags & WIIPROTO_FLAGS_IR))
 +		return;
 +
-+	if (rumble)
-+		wdata->state.flags |= WIIPROTO_FLAG_RUMBLE;
-+	else
-+		wdata->state.flags &= ~WIIPROTO_FLAG_RUMBLE;
++	/*
++	 * Basic IR data is encoded into 3 bytes. The first two bytes are the
++	 * upper 8 bit of the X/Y data, the 3rd byte contains the lower 2 bits
++	 * of both.
++	 * If data is packed, then the 3rd byte is put first and slightly
++	 * reordered. This allows to interleave packed and non-packed data to
++	 * have two IR sets in 5 bytes instead of 6.
++	 * The resulting 10bit X/Y values are passed to the ABS_HATXY input dev.
++	 */
 +
-+	cmd[0] = WIIPROTO_REQ_RUMBLE;
-+	cmd[1] = 0;
++	if (packed) {
++		x = ir[1] << 2;
++		y = ir[2] << 2;
 +
-+	wiiproto_keep_rumble(wdata, &cmd[1]);
-+	wiimote_queue(wdata, cmd, sizeof(cmd));
++		x |= ir[0] & 0x3;
++		y |= (ir[0] >> 2) & 0x3;
++	} else {
++		x = ir[0] << 2;
++		y = ir[1] << 2;
++
++		x |= (ir[2] >> 4) & 0x3;
++		y |= (ir[2] >> 6) & 0x3;
++	}
++
++	input_report_abs(wdata->ir, xid, x);
++	input_report_abs(wdata->ir, yid, y);
++}
+ 
+ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
+ {
+@@ -510,6 +554,21 @@ static void handler_drm_KAI(struct wiimote_data *wdata, const __u8 *payload)
+ {
+ 	handler_keys(wdata, payload);
+ 	handler_accel(wdata, payload);
++	ir_to_input0(wdata, &payload[5], false);
++	ir_to_input1(wdata, &payload[8], false);
++	ir_to_input2(wdata, &payload[11], false);
++	ir_to_input3(wdata, &payload[14], false);
++	input_sync(wdata->ir);
 +}
 +
- static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
++static void handler_drm_KIE(struct wiimote_data *wdata, const __u8 *payload)
++{
++	handler_keys(wdata, payload);
++	ir_to_input0(wdata, &payload[2], false);
++	ir_to_input1(wdata, &payload[4], true);
++	ir_to_input2(wdata, &payload[7], false);
++	ir_to_input3(wdata, &payload[9], true);
++	input_sync(wdata->ir);
+ }
+ 
+ static void handler_drm_KAE(struct wiimote_data *wdata, const __u8 *payload)
+@@ -522,6 +581,11 @@ static void handler_drm_KAIE(struct wiimote_data *wdata, const __u8 *payload)
  {
- 	__u8 cmd[2];
-@@ -193,6 +228,7 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
- 	if (leds & WIIPROTO_FLAG_LED4)
- 		cmd[1] |= 0x80;
- 
-+	wiiproto_keep_rumble(wdata, &cmd[1]);
- 	wiimote_queue(wdata, cmd, sizeof(cmd));
+ 	handler_keys(wdata, payload);
+ 	handler_accel(wdata, payload);
++	ir_to_input0(wdata, &payload[5], false);
++	ir_to_input1(wdata, &payload[7], true);
++	ir_to_input2(wdata, &payload[10], false);
++	ir_to_input3(wdata, &payload[12], true);
++	input_sync(wdata->ir);
  }
  
-@@ -217,6 +253,7 @@ static void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
- 	cmd[1] = 0;
- 	cmd[2] = drm;
- 
-+	wiiproto_keep_rumble(wdata, &cmd[1]);
- 	wiimote_queue(wdata, cmd, sizeof(cmd));
+ static void handler_drm_SKAI1(struct wiimote_data *wdata, const __u8 *payload)
+@@ -531,6 +595,10 @@ static void handler_drm_SKAI1(struct wiimote_data *wdata, const __u8 *payload)
+ 	wdata->state.accel_split[0] = payload[2];
+ 	wdata->state.accel_split[1] = (payload[0] >> 1) & (0x10 | 0x20);
+ 	wdata->state.accel_split[1] |= (payload[1] << 1) & (0x40 | 0x80);
++
++	ir_to_input0(wdata, &payload[3], false);
++	ir_to_input1(wdata, &payload[12], false);
++	input_sync(wdata->ir);
  }
  
+ static void handler_drm_SKAI2(struct wiimote_data *wdata, const __u8 *payload)
+@@ -548,6 +616,10 @@ static void handler_drm_SKAI2(struct wiimote_data *wdata, const __u8 *payload)
+ 	buf[3] = payload[2];
+ 	buf[4] = wdata->state.accel_split[1];
+ 	handler_accel(wdata, buf);
++
++	ir_to_input2(wdata, &payload[3], false);
++	ir_to_input3(wdata, &payload[12], false);
++	input_sync(wdata->ir);
+ }
+ 
+ struct wiiproto_handler {
+@@ -563,6 +635,7 @@ static struct wiiproto_handler handlers[] = {
+ 	{ .id = WIIPROTO_REQ_DRM_KA, .size = 5, .func = handler_drm_KA },
+ 	{ .id = WIIPROTO_REQ_DRM_KAI, .size = 17, .func = handler_drm_KAI },
+ 	{ .id = WIIPROTO_REQ_DRM_KAE, .size = 21, .func = handler_drm_KAE },
++	{ .id = WIIPROTO_REQ_DRM_KIE, .size = 21, .func = handler_drm_KIE },
+ 	{ .id = WIIPROTO_REQ_DRM_KAIE, .size = 21, .func = handler_drm_KAIE },
+ 	{ .id = WIIPROTO_REQ_DRM_SKAI1, .size = 21, .func = handler_drm_SKAI1 },
+ 	{ .id = WIIPROTO_REQ_DRM_SKAI2, .size = 21, .func = handler_drm_SKAI2 },
 -- 
 1.7.6.1
 

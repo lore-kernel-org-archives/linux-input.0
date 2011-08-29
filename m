@@ -1,91 +1,108 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 02/14] HID: wiimote: Add force-feedback support
-Date: Mon, 29 Aug 2011 15:37:59 +0200
-Message-ID: <1314625091-1405-3-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 08/14] HID: wiimote: Add register/eeprom memory support
+Date: Mon, 29 Aug 2011 15:38:05 +0200
+Message-ID: <1314625091-1405-9-git-send-email-dh.herrmann@googlemail.com>
 References: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f46.google.com ([209.85.161.46]:57851 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753693Ab1H2Nid (ORCPT
+	with ESMTP id S1753751Ab1H2Nim (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Aug 2011 09:38:33 -0400
+	Mon, 29 Aug 2011 09:38:42 -0400
 Received: by mail-fx0-f46.google.com with SMTP id 19so4422164fxh.19
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:32 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:41 -0700 (PDT)
 In-Reply-To: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, oliver@neukum.org, David Herrmann <dh.herrmann@googlemail.com>
 
-The wiimote has a single rumble motor. This adds force feedback support for
-wiimote devices with FF_RUMBLE. The rumble motor is very simple and only
-supports an on/off switch so no complex ff-effects are supported.
+The wiimote allows direct access to its memory mapped registers and
+internal eeprom. This adds support to access this memory and handle
+memory events.
 
-This also removes the event callback that was registered before but unused. The
-ff-device overwrites this callback, anyway.
+There are two macros which wrap up the memory access functions to avoid
+accidentally overwriting sensitive eeprom data because a boolean value
+was wrongly set.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   31 ++++++++++++++++++++++++++++---
- 1 files changed, 28 insertions(+), 3 deletions(-)
+ drivers/hid/hid-wiimote.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 40 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 6809754..57faac5 100644
+index a99e058..c811a7d 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -305,9 +305,28 @@ static void wiimote_leds_set(struct led_classdev *led_dev,
- 	}
+@@ -71,7 +71,10 @@ enum wiiproto_reqs {
+ 	WIIPROTO_REQ_RUMBLE = 0x10,
+ 	WIIPROTO_REQ_LED = 0x11,
+ 	WIIPROTO_REQ_DRM = 0x12,
++	WIIPROTO_REQ_WMEM = 0x16,
++	WIIPROTO_REQ_RMEM = 0x17,
+ 	WIIPROTO_REQ_STATUS = 0x20,
++	WIIPROTO_REQ_DATA = 0x21,
+ 	WIIPROTO_REQ_RETURN = 0x22,
+ 	WIIPROTO_REQ_DRM_K = 0x30,
+ 	WIIPROTO_REQ_DRM_KA = 0x31,
+@@ -306,6 +309,37 @@ static void wiiproto_req_accel(struct wiimote_data *wdata, __u8 accel)
+ 	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
  }
  
--static int wiimote_input_event(struct input_dev *dev, unsigned int type,
--						unsigned int code, int value)
-+static int wiimote_ff_play(struct input_dev *dev, void *data,
-+							struct ff_effect *eff)
- {
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	__u8 value;
-+	unsigned long flags;
++#define wiiproto_req_wreg(wdata, os, buf, sz) \
++			wiiproto_req_wmem((wdata), false, (os), (buf), (sz))
 +
-+	/*
-+	 * The wiimote supports only a single rumble motor so if any magnitude
-+	 * is set to non-zero then we start the rumble motor. If both are set to
-+	 * zero, we stop the rumble motor.
-+	 */
++#define wiiproto_req_weeprom(wdata, os, buf, sz) \
++			wiiproto_req_wmem((wdata), true, (os), (buf), (sz))
 +
-+	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
-+		value = 1;
-+	else
-+		value = 0;
++static void wiiproto_req_wmem(struct wiimote_data *wdata, bool eeprom,
++				__u32 offset, const __u8 *buf, __u8 size)
++{
++	__u8 cmd[22];
 +
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wiiproto_req_rumble(wdata, value);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
- 	return 0;
- }
- 
-@@ -480,7 +499,6 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	hid_set_drvdata(hdev, wdata);
- 
- 	input_set_drvdata(wdata->input, wdata);
--	wdata->input->event = wiimote_input_event;
- 	wdata->input->open = wiimote_input_open;
- 	wdata->input->close = wiimote_input_close;
- 	wdata->input->dev.parent = &wdata->hdev->dev;
-@@ -494,6 +512,13 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
- 		set_bit(wiiproto_keymap[i], wdata->input->keybit);
- 
-+	set_bit(FF_RUMBLE, wdata->input->ffbit);
-+	if (input_ff_create_memless(wdata->input, NULL, wiimote_ff_play)) {
-+		input_free_device(wdata->input);
-+		kfree(wdata);
-+		return NULL;
++	if (size > 16 || size == 0) {
++		hid_warn(wdata->hdev, "Invalid length %d wmem request\n", size);
++		return;
 +	}
 +
- 	spin_lock_init(&wdata->qlock);
- 	INIT_WORK(&wdata->worker, wiimote_worker);
++	memset(cmd, 0, sizeof(cmd));
++	cmd[0] = WIIPROTO_REQ_WMEM;
++	cmd[2] = (offset >> 16) & 0xff;
++	cmd[3] = (offset >> 8) & 0xff;
++	cmd[4] = offset & 0xff;
++	cmd[5] = size;
++	memcpy(&cmd[6], buf, size);
++
++	if (!eeprom)
++		cmd[1] |= 0x04;
++
++	wiiproto_keep_rumble(wdata, &cmd[1]);
++	wiimote_queue(wdata, cmd, sizeof(cmd));
++}
++
+ static enum led_brightness wiimote_leds_get(struct led_classdev *led_dev)
+ {
+ 	struct wiimote_data *wdata;
+@@ -535,6 +569,11 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
+ 	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
+ }
  
++static void handler_data(struct wiimote_data *wdata, const __u8 *payload)
++{
++	handler_keys(wdata, payload);
++}
++
+ static void handler_return(struct wiimote_data *wdata, const __u8 *payload)
+ {
+ 	__u8 err = payload[3];
+@@ -647,6 +686,7 @@ struct wiiproto_handler {
+ 
+ static struct wiiproto_handler handlers[] = {
+ 	{ .id = WIIPROTO_REQ_STATUS, .size = 6, .func = handler_status },
++	{ .id = WIIPROTO_REQ_DATA, .size = 21, .func = handler_data },
+ 	{ .id = WIIPROTO_REQ_RETURN, .size = 4, .func = handler_return },
+ 	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
+ 	{ .id = WIIPROTO_REQ_DRM_KA, .size = 5, .func = handler_drm_KA },
 -- 
 1.7.6.1
 

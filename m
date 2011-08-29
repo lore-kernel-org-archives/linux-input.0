@@ -1,54 +1,86 @@
 From: JJ Ding <jj_ding@emc.com.tw>
-Subject: Re: [PATCH v3 7/7] Input: elantech - add v3 hardware support
-Date: Mon, 29 Aug 2011 15:16:16 +0800
-Message-ID: <87vctgsn5r.fsf@emc.com.tw>
-References: <1314320591-11551-1-git-send-email-jj_ding@emc.com.tw> <1314320591-11551-8-git-send-email-jj_ding@emc.com.tw> <20110826142813.GB13381@thinkpad-t410>
+Subject: [PATCH v4 0/8] Input: elantech: add support for newer hardware
+Date: Mon, 29 Aug 2011 16:28:51 +0800
+Message-ID: <1314606539-24722-1-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:54449 "EHLO
+Received: from emcscan.emc.com.tw ([192.72.220.5]:38868 "EHLO
 	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751080Ab1H2HOR (ORCPT
+	with ESMTP id S1751176Ab1H2I07 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Aug 2011 03:14:17 -0400
-In-Reply-To: <20110826142813.GB13381@thinkpad-t410>
+	Mon, 29 Aug 2011 04:26:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?Q?=C3=89r?= =?utf-8?Q?ic?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?UTF-8?q?=C3=89ric=20Piel?= <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>, JJ Ding <jj_ding@emc.com.tw>
 
-On Fri, 26 Aug 2011 09:28:13 -0500, Seth Forshee <seth.forshee@canonical.com> wrote:
-> On Fri, Aug 26, 2011 at 09:03:11AM +0800, JJ Ding wrote:
-> > +	/*
-> > +	 * check debounce first, it has the same signature in byte 0 
-> 
-> Just one pedantic comment -- git complained about trailing whitespace on
-> this line. Not that important, and Dmitry can clean it up when he
-> applies the patch if he's so inclined.
-> 
-> This patch looks good now, and it's testing fine for me.
-> 
-> Reviewed-and-Tested-by: Seth Forshee <seth.forshee@canonical.com>
-Thank you very much for viewing and testing this code, Seth.
-> 
-> I'm also curious what you found out about whether or not the touchpad
-> does accurate finger tracking. I've played with it a little, and the
-> finger tracking has been accurate except for one small exception. When
-> the fingers are overlapping on one axis the touchpad always reports the
-> same position for both fingers along that axis. For instance, if I move
-> one finger up and the other finger down simultaneously on the touchpad,
-> one of the fingers will show reverse movement on the y axis briefly
-> while the fingers overlap. But I've never seen the fingers swap between
-> the two frames of the packet.
-I just got confirmed that with v3, two finger touch always gets reported
-separately. I will resend this series for this update.
-Add what you observed is actually hardware limitation. The v3 hardware
-only has a projective sensor. When two fingers are overlapping along x or
-y axis, the hardware can only sense one on that axis, once the two
-fingers are away from the "crossing zone", they get reported separately again.
+Hi Lists,
 
-jj
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This is a series of patches to add support for newer generations of ELA=
+N
+touchpad.
+
+Patches #1~#6 are essentially fixes and cleanups that pave the way for
+patch #7 and patch #8, which really adds code for v3 and v4 hardware.
+
+Any comments, suggestoins are welcome.
+
+Note:
+Please review patch #8, which adds support for the latest touchpads fro=
+m ELAN.
+This is a true multi-touch capable touchpad that can track up to 5 fing=
+ers.
+Support is implemented using MT-B protocol. I used synaptics and multit=
+ouch X
+driver to test this driver, both worked fine.
+
+Thank you very much.
+
+Changes since v1:
+- drop EC workaround patch.
+- add patch #2, make ST and MT have the same range, as Dmitry suggested=
+=2E
+- add patch #4, remove ETP_EDGE_FUZZ_V2, as =C3=89ric suggested.
+- rename all packet checking functions so they are consistent.
+- some code cleanup, and don't report ABS_[XY] when fingers =3D=3D 0, a=
+s Seth suggested.
+- add document for v3 debounce, and now check debounce in elantech_pack=
+et_check_v3.
+
+Changes since v2:
+- fix v3 hardware packet checking (reported by Seth and fix by Dmitry.)
+
+Changes since v3:
+- fix a tiny style problem (useless space on end-of-line, reported by S=
+eth)
+- v3 hardware can track 2 fingers well, so do not set INPUT_PROP_SEMI_M=
+T on v3
+  (As suggested earlier by =C3=89ric.)
+- add patch #8, which adds support for v4 hardware.
+
+JJ Ding (8):
+  Input: elantech - correct x, y value range for v2 hardware
+  Input: elantech - get rid of ETP_2FT_* in elantech.h
+  Input: elantech - use firmware provided x, y ranges
+  Input: elantech - remove ETP_EDGE_FUZZ_V2
+  Input: elantech - packet checking for v2 hardware
+  Input: elantech - clean up elantech_init
+  Input: elantech - add v3 hardware support
+  Input: elantech - add v4 hardware support
+
+ Documentation/input/elantech.txt |  295 +++++++++++++++++-
+ drivers/input/mouse/elantech.c   |  614 ++++++++++++++++++++++++++++++=
+++-----
+ drivers/input/mouse/elantech.h   |   56 +++-
+ 3 files changed, 849 insertions(+), 116 deletions(-)
+
+--=20
+1.7.4.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

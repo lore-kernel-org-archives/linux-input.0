@@ -1,126 +1,132 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 07/14] HID: wiimote: Add missing extension DRM handlers
-Date: Mon, 29 Aug 2011 15:38:04 +0200
-Message-ID: <1314625091-1405-8-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 09/14] HID: wiimote: Helper functions for synchronous requests
+Date: Mon, 29 Aug 2011 15:38:06 +0200
+Message-ID: <1314625091-1405-10-git-send-email-dh.herrmann@googlemail.com>
 References: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f46.google.com ([209.85.161.46]:57851 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753747Ab1H2Nik (ORCPT
+	with ESMTP id S1753755Ab1H2Nin (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Aug 2011 09:38:40 -0400
+	Mon, 29 Aug 2011 09:38:43 -0400
 Received: by mail-fx0-f46.google.com with SMTP id 19so4422164fxh.19
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:40 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:43 -0700 (PDT)
 In-Reply-To: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, oliver@neukum.org, David Herrmann <dh.herrmann@googlemail.com>
 
-If an extension is connected the wiimote may report data though DRMs that
-contain extension data. This adds handlers for these DRMs but discards extension
-data since we do not support it, yet.
-It prints a warning to kernel log if an unhandled report is catched. Since we
-handle all requests now, this should never happen, though.
+To initialize wiimote peripherals, the stream to the wiimote must be held
+exclusively by the initializer, otherwise the initialization will fail. Many
+initializations require multiple memory requests to be sent synchronously so we
+need a way to lock the stream and release it when we are done.
+
+This adds several helper functions which allow to lock the stream, then send
+requests, wait for the answers and release the stream again.
+
+When holding the lock, the function may sleep and interrupted by signals.
+Also it returns after a short timeout so userspace shouldn't notice long
+delays.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   29 ++++++++++++++++++++++++++++-
- 1 files changed, 28 insertions(+), 1 deletions(-)
+ drivers/hid/hid-wiimote.c |   56 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 56 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 3a7dec0..a99e058 100644
+index c811a7d..0a5e458 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -75,10 +75,13 @@ enum wiiproto_reqs {
- 	WIIPROTO_REQ_RETURN = 0x22,
- 	WIIPROTO_REQ_DRM_K = 0x30,
- 	WIIPROTO_REQ_DRM_KA = 0x31,
-+	WIIPROTO_REQ_DRM_KE = 0x32,
- 	WIIPROTO_REQ_DRM_KAI = 0x33,
-+	WIIPROTO_REQ_DRM_KEE = 0x34,
- 	WIIPROTO_REQ_DRM_KAE = 0x35,
- 	WIIPROTO_REQ_DRM_KIE = 0x36,
- 	WIIPROTO_REQ_DRM_KAIE = 0x37,
-+	WIIPROTO_REQ_DRM_E = 0x3d,
- 	WIIPROTO_REQ_DRM_SKAI1 = 0x3e,
- 	WIIPROTO_REQ_DRM_SKAI2 = 0x3f,
+@@ -10,11 +10,13 @@
+  * any later version.
+  */
+ 
++#include <linux/completion.h>
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/input.h>
+ #include <linux/leds.h>
+ #include <linux/module.h>
++#include <linux/mutex.h>
+ #include <linux/spinlock.h>
+ #include "hid-ids.h"
+ 
+@@ -31,6 +33,12 @@ struct wiimote_state {
+ 	spinlock_t lock;
+ 	__u8 flags;
+ 	__u8 accel_split[2];
++
++	/* synchronous cmd requests */
++	struct mutex sync;
++	struct completion ready;
++	int cmd;
++	__u32 opt;
  };
-@@ -550,6 +553,11 @@ static void handler_drm_KA(struct wiimote_data *wdata, const __u8 *payload)
- 	handler_accel(wdata, payload);
- }
  
-+static void handler_drm_KE(struct wiimote_data *wdata, const __u8 *payload)
+ struct wiimote_data {
+@@ -118,6 +126,52 @@ static __u16 wiiproto_keymap[] = {
+ 	BTN_MODE,	/* WIIPROTO_KEY_HOME */
+ };
+ 
++/* requires the state.lock spinlock to be held */
++static inline bool wiimote_cmd_pending(struct wiimote_data *wdata, int cmd,
++								__u32 opt)
 +{
-+	handler_keys(wdata, payload);
++	return wdata->state.cmd == cmd && wdata->state.opt == opt;
 +}
 +
- static void handler_drm_KAI(struct wiimote_data *wdata, const __u8 *payload)
- {
- 	handler_keys(wdata, payload);
-@@ -561,6 +569,11 @@ static void handler_drm_KAI(struct wiimote_data *wdata, const __u8 *payload)
- 	input_sync(wdata->ir);
- }
- 
-+static void handler_drm_KEE(struct wiimote_data *wdata, const __u8 *payload)
++/* requires the state.lock spinlock to be held */
++static inline void wiimote_cmd_complete(struct wiimote_data *wdata)
 +{
-+	handler_keys(wdata, payload);
++	wdata->state.cmd = WIIPROTO_REQ_NULL;
++	complete(&wdata->state.ready);
 +}
 +
- static void handler_drm_KIE(struct wiimote_data *wdata, const __u8 *payload)
- {
- 	handler_keys(wdata, payload);
-@@ -588,6 +601,10 @@ static void handler_drm_KAIE(struct wiimote_data *wdata, const __u8 *payload)
- 	input_sync(wdata->ir);
- }
- 
-+static void handler_drm_E(struct wiimote_data *wdata, const __u8 *payload)
++static inline int wiimote_cmd_acquire(struct wiimote_data *wdata)
 +{
++	return mutex_lock_interruptible(&wdata->state.sync) ? -ERESTARTSYS : 0;
 +}
 +
- static void handler_drm_SKAI1(struct wiimote_data *wdata, const __u8 *payload)
- {
- 	handler_keys(wdata, payload);
-@@ -633,10 +650,13 @@ static struct wiiproto_handler handlers[] = {
- 	{ .id = WIIPROTO_REQ_RETURN, .size = 4, .func = handler_return },
- 	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
- 	{ .id = WIIPROTO_REQ_DRM_KA, .size = 5, .func = handler_drm_KA },
-+	{ .id = WIIPROTO_REQ_DRM_KE, .size = 10, .func = handler_drm_KE },
- 	{ .id = WIIPROTO_REQ_DRM_KAI, .size = 17, .func = handler_drm_KAI },
-+	{ .id = WIIPROTO_REQ_DRM_KEE, .size = 21, .func = handler_drm_KEE },
- 	{ .id = WIIPROTO_REQ_DRM_KAE, .size = 21, .func = handler_drm_KAE },
- 	{ .id = WIIPROTO_REQ_DRM_KIE, .size = 21, .func = handler_drm_KIE },
- 	{ .id = WIIPROTO_REQ_DRM_KAIE, .size = 21, .func = handler_drm_KAIE },
-+	{ .id = WIIPROTO_REQ_DRM_E, .size = 21, .func = handler_drm_E },
- 	{ .id = WIIPROTO_REQ_DRM_SKAI1, .size = 21, .func = handler_drm_SKAI1 },
- 	{ .id = WIIPROTO_REQ_DRM_SKAI2, .size = 21, .func = handler_drm_SKAI2 },
- 	{ .id = 0 }
-@@ -649,6 +669,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	struct wiiproto_handler *h;
- 	int i;
- 	unsigned long flags;
-+	bool handled = false;
- 
- 	if (size < 1)
- 		return -EINVAL;
-@@ -657,10 +678,16 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 
- 	for (i = 0; handlers[i].id; ++i) {
- 		h = &handlers[i];
--		if (h->id == raw_data[0] && h->size < size)
-+		if (h->id == raw_data[0] && h->size < size) {
- 			h->func(wdata, &raw_data[1]);
-+			handled = true;
-+		}
- 	}
- 
-+	if (!handled)
-+		hid_warn(hdev, "Unhandled report %hhu size %d\n", raw_data[0],
-+									size);
++/* requires the state.lock spinlock to be held */
++static inline void wiimote_cmd_set(struct wiimote_data *wdata, int cmd,
++								__u32 opt)
++{
++	INIT_COMPLETION(wdata->state.ready);
++	wdata->state.cmd = cmd;
++	wdata->state.opt = opt;
++}
 +
- 	spin_unlock_irqrestore(&wdata->state.lock, flags);
++static inline void wiimote_cmd_release(struct wiimote_data *wdata)
++{
++	mutex_unlock(&wdata->state.sync);
++}
++
++static inline int wiimote_cmd_wait(struct wiimote_data *wdata)
++{
++	int ret;
++
++	ret = wait_for_completion_interruptible_timeout(&wdata->state.ready, HZ);
++	if (ret < 0)
++		return -ERESTARTSYS;
++	else if (ret == 0)
++		return -EIO;
++	else
++		return 0;
++}
++
+ static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
+ 								size_t count)
+ {
+@@ -875,6 +929,8 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	INIT_WORK(&wdata->worker, wiimote_worker);
  
- 	return 0;
+ 	spin_lock_init(&wdata->state.lock);
++	init_completion(&wdata->state.ready);
++	mutex_init(&wdata->state.sync);
+ 
+ 	return wdata;
+ 
 -- 
 1.7.6.1
 

@@ -1,212 +1,126 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 03/14] HID: wiimote: Add accelerometer input device
-Date: Mon, 29 Aug 2011 15:38:00 +0200
-Message-ID: <1314625091-1405-4-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 07/14] HID: wiimote: Add missing extension DRM handlers
+Date: Mon, 29 Aug 2011 15:38:04 +0200
+Message-ID: <1314625091-1405-8-git-send-email-dh.herrmann@googlemail.com>
 References: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f46.google.com ([209.85.161.46]:57851 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753703Ab1H2Nie (ORCPT
+	with ESMTP id S1753747Ab1H2Nik (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Aug 2011 09:38:34 -0400
+	Mon, 29 Aug 2011 09:38:40 -0400
 Received: by mail-fx0-f46.google.com with SMTP id 19so4422164fxh.19
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:34 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:40 -0700 (PDT)
 In-Reply-To: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, oliver@neukum.org, David Herrmann <dh.herrmann@googlemail.com>
 
-Add new input device for every wiimote which is used to report accelerometer
-data to userspace. Only if the input device is currently open, we make the
-wiimote send accelerometer data. This saves a whole lot of energy on the wiimote
-if an application is only interested in button input reports.
+If an extension is connected the wiimote may report data though DRMs that
+contain extension data. This adds handlers for these DRMs but discards extension
+data since we do not support it, yet.
+It prints a warning to kernel log if an unhandled report is catched. Since we
+handle all requests now, this should never happen, though.
 
 Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
 ---
- drivers/hid/hid-wiimote.c |   99 ++++++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 89 insertions(+), 10 deletions(-)
+ drivers/hid/hid-wiimote.c |   29 ++++++++++++++++++++++++++++-
+ 1 files changed, 28 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
-index 57faac5..9fb7bd6 100644
+index 3a7dec0..a99e058 100644
 --- a/drivers/hid/hid-wiimote.c
 +++ b/drivers/hid/hid-wiimote.c
-@@ -36,6 +36,7 @@ struct wiimote_data {
- 	struct hid_device *hdev;
- 	struct input_dev *input;
- 	struct led_classdev *leds[4];
-+	struct input_dev *accel;
- 
- 	spinlock_t qlock;
- 	__u8 head;
-@@ -51,6 +52,7 @@ struct wiimote_data {
- #define WIIPROTO_FLAG_LED3		0x04
- #define WIIPROTO_FLAG_LED4		0x08
- #define WIIPROTO_FLAG_RUMBLE		0x10
-+#define WIIPROTO_FLAG_ACCEL		0x20
- #define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
- 					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
- 
-@@ -257,6 +259,20 @@ static void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
- 	wiimote_queue(wdata, cmd, sizeof(cmd));
+@@ -75,10 +75,13 @@ enum wiiproto_reqs {
+ 	WIIPROTO_REQ_RETURN = 0x22,
+ 	WIIPROTO_REQ_DRM_K = 0x30,
+ 	WIIPROTO_REQ_DRM_KA = 0x31,
++	WIIPROTO_REQ_DRM_KE = 0x32,
+ 	WIIPROTO_REQ_DRM_KAI = 0x33,
++	WIIPROTO_REQ_DRM_KEE = 0x34,
+ 	WIIPROTO_REQ_DRM_KAE = 0x35,
+ 	WIIPROTO_REQ_DRM_KIE = 0x36,
+ 	WIIPROTO_REQ_DRM_KAIE = 0x37,
++	WIIPROTO_REQ_DRM_E = 0x3d,
+ 	WIIPROTO_REQ_DRM_SKAI1 = 0x3e,
+ 	WIIPROTO_REQ_DRM_SKAI2 = 0x3f,
+ };
+@@ -550,6 +553,11 @@ static void handler_drm_KA(struct wiimote_data *wdata, const __u8 *payload)
+ 	handler_accel(wdata, payload);
  }
  
-+static void wiiproto_req_accel(struct wiimote_data *wdata, __u8 accel)
++static void handler_drm_KE(struct wiimote_data *wdata, const __u8 *payload)
 +{
-+	accel = !!accel;
-+	if (accel == !!(wdata->state.flags & WIIPROTO_FLAG_ACCEL))
-+		return;
-+
-+	if (accel)
-+		wdata->state.flags |= WIIPROTO_FLAG_ACCEL;
-+	else
-+		wdata->state.flags &= ~WIIPROTO_FLAG_ACCEL;
-+
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
++	handler_keys(wdata, payload);
 +}
 +
- static enum led_brightness wiimote_leds_get(struct led_classdev *led_dev)
+ static void handler_drm_KAI(struct wiimote_data *wdata, const __u8 *payload)
  {
- 	struct wiimote_data *wdata;
-@@ -344,6 +360,35 @@ static void wiimote_input_close(struct input_dev *dev)
- 	hid_hw_close(wdata->hdev);
+ 	handler_keys(wdata, payload);
+@@ -561,6 +569,11 @@ static void handler_drm_KAI(struct wiimote_data *wdata, const __u8 *payload)
+ 	input_sync(wdata->ir);
  }
  
-+static int wiimote_accel_open(struct input_dev *dev)
++static void handler_drm_KEE(struct wiimote_data *wdata, const __u8 *payload)
 +{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	int ret;
-+	unsigned long flags;
-+
-+	ret = hid_hw_open(wdata->hdev);
-+	if (ret)
-+		return ret;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wiiproto_req_accel(wdata, true);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	return 0;
++	handler_keys(wdata, payload);
 +}
 +
-+static void wiimote_accel_close(struct input_dev *dev)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wiiproto_req_accel(wdata, false);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	hid_hw_close(wdata->hdev);
-+}
-+
- static void handler_keys(struct wiimote_data *wdata, const __u8 *payload)
+ static void handler_drm_KIE(struct wiimote_data *wdata, const __u8 *payload)
  {
- 	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_LEFT],
-@@ -490,10 +535,8 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 		return NULL;
- 
- 	wdata->input = input_allocate_device();
--	if (!wdata->input) {
--		kfree(wdata);
--		return NULL;
--	}
-+	if (!wdata->input)
-+		goto err;
- 
- 	wdata->hdev = hdev;
- 	hid_set_drvdata(hdev, wdata);
-@@ -513,11 +556,30 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 		set_bit(wiiproto_keymap[i], wdata->input->keybit);
- 
- 	set_bit(FF_RUMBLE, wdata->input->ffbit);
--	if (input_ff_create_memless(wdata->input, NULL, wiimote_ff_play)) {
--		input_free_device(wdata->input);
--		kfree(wdata);
--		return NULL;
--	}
-+	if (input_ff_create_memless(wdata->input, NULL, wiimote_ff_play))
-+		goto err_input;
-+
-+	wdata->accel = input_allocate_device();
-+	if (!wdata->accel)
-+		goto err_input;
-+
-+	input_set_drvdata(wdata->accel, wdata);
-+	wdata->accel->open = wiimote_accel_open;
-+	wdata->accel->close = wiimote_accel_close;
-+	wdata->accel->dev.parent = &wdata->hdev->dev;
-+	wdata->accel->id.bustype = wdata->hdev->bus;
-+	wdata->accel->id.vendor = wdata->hdev->vendor;
-+	wdata->accel->id.product = wdata->hdev->product;
-+	wdata->accel->id.version = wdata->hdev->version;
-+	wdata->accel->name = WIIMOTE_NAME " Accelerometer";
-+
-+	set_bit(EV_ABS, wdata->accel->evbit);
-+	set_bit(ABS_RX, wdata->accel->absbit);
-+	set_bit(ABS_RY, wdata->accel->absbit);
-+	set_bit(ABS_RZ, wdata->accel->absbit);
-+	input_set_abs_params(wdata->accel, ABS_RX, -500, 500, 2, 4);
-+	input_set_abs_params(wdata->accel, ABS_RY, -500, 500, 2, 4);
-+	input_set_abs_params(wdata->accel, ABS_RZ, -500, 500, 2, 4);
- 
- 	spin_lock_init(&wdata->qlock);
- 	INIT_WORK(&wdata->worker, wiimote_worker);
-@@ -525,12 +587,19 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	spin_lock_init(&wdata->state.lock);
- 
- 	return wdata;
-+
-+err_input:
-+	input_free_device(wdata->input);
-+err:
-+	kfree(wdata);
-+	return NULL;
+ 	handler_keys(wdata, payload);
+@@ -588,6 +601,10 @@ static void handler_drm_KAIE(struct wiimote_data *wdata, const __u8 *payload)
+ 	input_sync(wdata->ir);
  }
  
- static void wiimote_destroy(struct wiimote_data *wdata)
++static void handler_drm_E(struct wiimote_data *wdata, const __u8 *payload)
++{
++}
++
+ static void handler_drm_SKAI1(struct wiimote_data *wdata, const __u8 *payload)
  {
- 	wiimote_leds_destroy(wdata);
+ 	handler_keys(wdata, payload);
+@@ -633,10 +650,13 @@ static struct wiiproto_handler handlers[] = {
+ 	{ .id = WIIPROTO_REQ_RETURN, .size = 4, .func = handler_return },
+ 	{ .id = WIIPROTO_REQ_DRM_K, .size = 2, .func = handler_keys },
+ 	{ .id = WIIPROTO_REQ_DRM_KA, .size = 5, .func = handler_drm_KA },
++	{ .id = WIIPROTO_REQ_DRM_KE, .size = 10, .func = handler_drm_KE },
+ 	{ .id = WIIPROTO_REQ_DRM_KAI, .size = 17, .func = handler_drm_KAI },
++	{ .id = WIIPROTO_REQ_DRM_KEE, .size = 21, .func = handler_drm_KEE },
+ 	{ .id = WIIPROTO_REQ_DRM_KAE, .size = 21, .func = handler_drm_KAE },
+ 	{ .id = WIIPROTO_REQ_DRM_KIE, .size = 21, .func = handler_drm_KIE },
+ 	{ .id = WIIPROTO_REQ_DRM_KAIE, .size = 21, .func = handler_drm_KAIE },
++	{ .id = WIIPROTO_REQ_DRM_E, .size = 21, .func = handler_drm_E },
+ 	{ .id = WIIPROTO_REQ_DRM_SKAI1, .size = 21, .func = handler_drm_SKAI1 },
+ 	{ .id = WIIPROTO_REQ_DRM_SKAI2, .size = 21, .func = handler_drm_SKAI2 },
+ 	{ .id = 0 }
+@@ -649,6 +669,7 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ 	struct wiiproto_handler *h;
+ 	int i;
+ 	unsigned long flags;
++	bool handled = false;
  
-+	input_unregister_device(wdata->accel);
- 	input_unregister_device(wdata->input);
- 	cancel_work_sync(&wdata->worker);
- 	hid_hw_stop(wdata->hdev);
-@@ -562,12 +631,18 @@ static int wiimote_hid_probe(struct hid_device *hdev,
- 		goto err;
+ 	if (size < 1)
+ 		return -EINVAL;
+@@ -657,10 +678,16 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
+ 
+ 	for (i = 0; handlers[i].id; ++i) {
+ 		h = &handlers[i];
+-		if (h->id == raw_data[0] && h->size < size)
++		if (h->id == raw_data[0] && h->size < size) {
+ 			h->func(wdata, &raw_data[1]);
++			handled = true;
++		}
  	}
  
--	ret = input_register_device(wdata->input);
-+	ret = input_register_device(wdata->accel);
- 	if (ret) {
- 		hid_err(hdev, "Cannot register input device\n");
- 		goto err_stop;
- 	}
- 
-+	ret = input_register_device(wdata->input);
-+	if (ret) {
-+		hid_err(hdev, "Cannot register input device\n");
-+		goto err_input;
-+	}
++	if (!handled)
++		hid_warn(hdev, "Unhandled report %hhu size %d\n", raw_data[0],
++									size);
 +
- 	ret = wiimote_leds_create(wdata);
- 	if (ret)
- 		goto err_free;
-@@ -585,9 +660,13 @@ err_free:
- 	wiimote_destroy(wdata);
- 	return ret;
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
  
-+err_input:
-+	input_unregister_device(wdata->accel);
-+	wdata->accel = NULL;
- err_stop:
- 	hid_hw_stop(hdev);
- err:
-+	input_free_device(wdata->accel);
- 	input_free_device(wdata->input);
- 	kfree(wdata);
- 	return ret;
+ 	return 0;
 -- 
 1.7.6.1
 

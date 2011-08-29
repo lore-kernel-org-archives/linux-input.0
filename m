@@ -1,113 +1,54 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 4/5] HID: roccat: cleaned up code for Kone and fixed wrong
- initialization value
-Date: Sat, 27 Aug 2011 15:24:48 +0200
-Message-ID: <1314451489.24216.75.camel@neuromancer.tessier-ashpool>
-Reply-To: erazor_de@users.sourceforge.net
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH v3 7/7] Input: elantech - add v3 hardware support
+Date: Mon, 29 Aug 2011 15:16:16 +0800
+Message-ID: <87vctgsn5r.fsf@emc.com.tw>
+References: <1314320591-11551-1-git-send-email-jj_ding@emc.com.tw> <1314320591-11551-8-git-send-email-jj_ding@emc.com.tw> <20110826142813.GB13381@thinkpad-t410>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:54449 "EHLO
+	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751080Ab1H2HOR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Aug 2011 03:14:17 -0400
+In-Reply-To: <20110826142813.GB13381@thinkpad-t410>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?Q?=C3=89r?= =?utf-8?Q?ic?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-Introduced function kone_profile_activated() to reduce code duplication.
-This by the way fixes a wrong initialization value.
-Also fixes early mutex unlocks.
+On Fri, 26 Aug 2011 09:28:13 -0500, Seth Forshee <seth.forshee@canonical.com> wrote:
+> On Fri, Aug 26, 2011 at 09:03:11AM +0800, JJ Ding wrote:
+> > +	/*
+> > +	 * check debounce first, it has the same signature in byte 0 
+> 
+> Just one pedantic comment -- git complained about trailing whitespace on
+> this line. Not that important, and Dmitry can clean it up when he
+> applies the patch if he's so inclined.
+> 
+> This patch looks good now, and it's testing fine for me.
+> 
+> Reviewed-and-Tested-by: Seth Forshee <seth.forshee@canonical.com>
+Thank you very much for viewing and testing this code, Seth.
+> 
+> I'm also curious what you found out about whether or not the touchpad
+> does accurate finger tracking. I've played with it a little, and the
+> finger tracking has been accurate except for one small exception. When
+> the fingers are overlapping on one axis the touchpad always reports the
+> same position for both fingers along that axis. For instance, if I move
+> one finger up and the other finger down simultaneously on the touchpad,
+> one of the fingers will show reverse movement on the y axis briefly
+> while the fingers overlap. But I've never seen the fingers swap between
+> the two frames of the packet.
+I just got confirmed that with v3, two finger touch always gets reported
+separately. I will resend this series for this update.
+Add what you observed is actually hardware limitation. The v3 hardware
+only has a projective sensor. When two fingers are overlapping along x or
+y axis, the hardware can only sense one on that axis, once the two
+fingers are away from the "crossing zone", they get reported separately again.
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-roccat-kone.c |   43 +++++++++++++++++++++--------------------
- 1 files changed, 22 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index 7847a5b..c931d00 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -37,6 +37,12 @@
- 
- static uint profile_numbers[5] = {0, 1, 2, 3, 4};
- 
-+static void kone_profile_activated(struct kone_device *kone, uint new_profile)
-+{
-+	kone->actual_profile = new_profile;
-+	kone->actual_dpi = kone->profiles[new_profile - 1].startup_dpi;
-+}
-+
- static int kone_receive(struct usb_device *usb_dev, uint usb_command,
- 		void *data, uint size)
- {
-@@ -294,21 +300,16 @@ static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
- 	if (difference) {
- 		retval = kone_set_settings(usb_dev,
- 				(struct kone_settings const *)buf);
--		if (!retval)
--			memcpy(&kone->settings, buf,
--					sizeof(struct kone_settings));
--	}
--	mutex_unlock(&kone->kone_lock);
-+		if (retval) {
-+			mutex_unlock(&kone->kone_lock);
-+			return retval;
-+		}
- 
--	if (retval)
--		return retval;
-+		memcpy(&kone->settings, buf, sizeof(struct kone_settings));
- 
--	/*
--	 * If we get here, treat settings as okay and update actual values
--	 * according to startup_profile
--	 */
--	kone->actual_profile = kone->settings.startup_profile;
--	kone->actual_dpi = kone->profiles[kone->actual_profile - 1].startup_dpi;
-+		kone_profile_activated(kone, kone->settings.startup_profile);
-+	}
-+	mutex_unlock(&kone->kone_lock);
- 
- 	return sizeof(struct kone_settings);
- }
-@@ -501,6 +502,8 @@ static ssize_t kone_sysfs_set_tcu(struct device *dev,
- 				goto exit_no_settings;
- 			goto exit_unlock;
- 		}
-+		/* calibration resets profile */
-+		kone_profile_activated(kone, kone->settings.startup_profile);
- 	}
- 
- 	retval = size;
-@@ -544,16 +547,15 @@ static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
- 	kone_set_settings_checksum(&kone->settings);
- 
- 	retval = kone_set_settings(usb_dev, &kone->settings);
--
--	mutex_unlock(&kone->kone_lock);
--
--	if (retval)
-+	if (retval) {
-+		mutex_unlock(&kone->kone_lock);
- 		return retval;
-+	}
- 
- 	/* changing the startup profile immediately activates this profile */
--	kone->actual_profile = new_startup_profile;
--	kone->actual_dpi = kone->profiles[kone->actual_profile - 1].startup_dpi;
-+	kone_profile_activated(kone, new_startup_profile);
- 
-+	mutex_unlock(&kone->kone_lock);
- 	return size;
- }
- 
-@@ -665,8 +667,7 @@ static int kone_init_kone_device_struct(struct usb_device *usb_dev,
- 	if (retval)
- 		return retval;
- 
--	kone->actual_profile = kone->settings.startup_profile;
--	kone->actual_dpi = kone->profiles[kone->actual_profile].startup_dpi;
-+	kone_profile_activated(kone, kone->settings.startup_profile);
- 
- 	return 0;
- }
--- 
-1.7.3.4
+jj
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

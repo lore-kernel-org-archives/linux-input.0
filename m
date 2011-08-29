@@ -1,58 +1,116 @@
 From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: [PATCH 00/14] Extended Wiimote Support
-Date: Mon, 29 Aug 2011 15:37:57 +0200
-Message-ID: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
+Subject: [PATCH 01/14] HID: wiimote: Support rumble device
+Date: Mon, 29 Aug 2011 15:37:58 +0200
+Message-ID: <1314625091-1405-2-git-send-email-dh.herrmann@googlemail.com>
+References: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-fx0-f46.google.com ([209.85.161.46]:57851 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753285Ab1H2Nia (ORCPT
+	with ESMTP id S1753681Ab1H2Nib (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Aug 2011 09:38:30 -0400
-Received: by fxh19 with SMTP id 19so4422164fxh.19
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:29 -0700 (PDT)
+	Mon, 29 Aug 2011 09:38:31 -0400
+Received: by mail-fx0-f46.google.com with SMTP id 19so4422164fxh.19
+        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2011 06:38:31 -0700 (PDT)
+In-Reply-To: <1314625091-1405-1-git-send-email-dh.herrmann@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, padovan@profusion.mobi, oliver@neukum.org, David Herrmann <dh.herrmann@googlemail.com>
 
-Hi
+This adds support for the wiimote's rumble device. Every output report can
+enable and disable the rumble motor. Hence, every output report must look up our
+new RUMBLE flag and make sure that it does not unintentionally toggle the
+rumble motor.
 
-This adds support for accelerometer, IR-cam, force-feedback and battery-requests
-of the wiimote.
-Input support is split into 3 devices to allow huge power-savings on the
-wiimote. As extension support must add at least 2 new input devices since the
-ABS_XY ids are needed, I thought adding 2 more for accelerometer and IR doesn't
-bother that much, but helps saving lots of power of the wiimote.
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+---
+ drivers/hid/hid-wiimote.c |   45 +++++++++++++++++++++++++++++++++++++++++----
+ 1 files changed, 41 insertions(+), 4 deletions(-)
 
-This patchset basically just extends the current driver with trivial DRM-modes
-and further input reports. The only new _more complex_ feature is probably the
-stream-locking/unlocking for synchronous requests.
-
-For userspace tools, see (as always): http://github.com/dvdhrm/xwiimote
-
-Thanks for reviewing,
-David
-
-David Herrmann (14):
-  HID: wiimote: Support rumble device
-  HID: wiimote: Add force-feedback support
-  HID: wiimote: Add accelerometer input device
-  HID: wiimote: Parse accelerometer data
-  HID: wiimote: Add IR input device
-  HID: wiimote: Parse IR data
-  HID: wiimote: Add missing extension DRM handlers
-  HID: wiimote: Add register/eeprom memory support
-  HID: wiimote: Helper functions for synchronous requests
-  HID: wiimote: Add write-register helpers
-  HID: wiimote: Add IR initializer
-  HID: wiimote: Initialize IR cam on request
-  HID: wiimote: Add status request
-  HID: wiimote: Read wiimote battery charge level
-
- Documentation/ABI/testing/sysfs-driver-hid-wiimote |    8 +
- drivers/hid/hid-wiimote.c                          |  776 +++++++++++++++++++-
- 2 files changed, 768 insertions(+), 16 deletions(-)
-
+diff --git a/drivers/hid/hid-wiimote.c b/drivers/hid/hid-wiimote.c
+index 85a02e5..6809754 100644
+--- a/drivers/hid/hid-wiimote.c
++++ b/drivers/hid/hid-wiimote.c
+@@ -46,10 +46,11 @@ struct wiimote_data {
+ 	struct wiimote_state state;
+ };
+ 
+-#define WIIPROTO_FLAG_LED1 0x01
+-#define WIIPROTO_FLAG_LED2 0x02
+-#define WIIPROTO_FLAG_LED3 0x04
+-#define WIIPROTO_FLAG_LED4 0x08
++#define WIIPROTO_FLAG_LED1		0x01
++#define WIIPROTO_FLAG_LED2		0x02
++#define WIIPROTO_FLAG_LED3		0x04
++#define WIIPROTO_FLAG_LED4		0x08
++#define WIIPROTO_FLAG_RUMBLE		0x10
+ #define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
+ 					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
+ 
+@@ -58,6 +59,7 @@ struct wiimote_data {
+ 
+ enum wiiproto_reqs {
+ 	WIIPROTO_REQ_NULL = 0x0,
++	WIIPROTO_REQ_RUMBLE = 0x10,
+ 	WIIPROTO_REQ_LED = 0x11,
+ 	WIIPROTO_REQ_DRM = 0x12,
+ 	WIIPROTO_REQ_STATUS = 0x20,
+@@ -172,6 +174,39 @@ static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
+ 	spin_unlock_irqrestore(&wdata->qlock, flags);
+ }
+ 
++/*
++ * This sets the rumble bit on the given output report if rumble is
++ * currently enabled.
++ * \cmd1 must point to the second byte in the output report => &cmd[1]
++ * This must be called on nearly every output report before passing it
++ * into the output queue!
++ */
++static inline void wiiproto_keep_rumble(struct wiimote_data *wdata, __u8 *cmd1)
++{
++	if (wdata->state.flags & WIIPROTO_FLAG_RUMBLE)
++		*cmd1 |= 0x01;
++}
++
++static void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble)
++{
++	__u8 cmd[2];
++
++	rumble = !!rumble;
++	if (rumble == !!(wdata->state.flags & WIIPROTO_FLAG_RUMBLE))
++		return;
++
++	if (rumble)
++		wdata->state.flags |= WIIPROTO_FLAG_RUMBLE;
++	else
++		wdata->state.flags &= ~WIIPROTO_FLAG_RUMBLE;
++
++	cmd[0] = WIIPROTO_REQ_RUMBLE;
++	cmd[1] = 0;
++
++	wiiproto_keep_rumble(wdata, &cmd[1]);
++	wiimote_queue(wdata, cmd, sizeof(cmd));
++}
++
+ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
+ {
+ 	__u8 cmd[2];
+@@ -193,6 +228,7 @@ static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
+ 	if (leds & WIIPROTO_FLAG_LED4)
+ 		cmd[1] |= 0x80;
+ 
++	wiiproto_keep_rumble(wdata, &cmd[1]);
+ 	wiimote_queue(wdata, cmd, sizeof(cmd));
+ }
+ 
+@@ -217,6 +253,7 @@ static void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
+ 	cmd[1] = 0;
+ 	cmd[2] = drm;
+ 
++	wiiproto_keep_rumble(wdata, &cmd[1]);
+ 	wiimote_queue(wdata, cmd, sizeof(cmd));
+ }
+ 
 -- 
 1.7.6.1
 

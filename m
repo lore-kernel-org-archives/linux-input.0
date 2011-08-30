@@ -1,52 +1,186 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: fix misc/twl6040-vibra.c warning
-Date: Mon, 29 Aug 2011 23:59:31 -0700
-Message-ID: <20110830065931.GA5791@core.coreip.homeip.net>
-References: <20110829125017.9337299c.rdunlap@xenotime.net>
+Subject: Re: [PATCH v1] Input: tegra-kbc - fix wakeup from suspend.
+Date: Tue, 30 Aug 2011 00:05:33 -0700
+Message-ID: <20110830070533.GB5791@core.coreip.homeip.net>
+References: <1314318587-31348-1-git-send-email-riyer@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iy0-f174.google.com ([209.85.210.174]:33149 "EHLO
-	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750842Ab1H3G7k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Aug 2011 02:59:40 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20110829125017.9337299c.rdunlap@xenotime.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1314318587-31348-1-git-send-email-riyer@nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: riyer@nvidia.com
+Cc: rydberg@euromail.se, axel.lin@gmail.com, olof@lixom.net, amartin@nvidia.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org
 
-Hi Randy,
+Hi Rakesh,
 
-On Mon, Aug 29, 2011 at 12:50:17PM -0700, Randy Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
+On Thu, Aug 25, 2011 at 05:29:47PM -0700, riyer@nvidia.com wrote:
+> From: Rakesh Iyer <riyer@nvidia.com>
 > 
-> Fix warning from Geert's build summary emails by changing "if" to
-> "ifdef".  Also handle the case of CONFIG_PM_SLEEP not enabled.
+> For wakeup to be reliable, kbc needs to be in interrupt mode before suspend.
+> Created common routine to control the FIFO interrupt.
+> Added synchronization to ensure orderly suspend.
 > 
-> drivers/input/misc/twl6040-vibra.c:231:5: warning: "CONFIG_PM_SLEEP" is not defined
-> 
-> Builds cleanly with CONFIG_PM_SLEEP enabled or disabled.
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> Signed-off-by: Rakesh Iyer <riyer@nvidia.com>
 > ---
->  drivers/input/misc/twl6040-vibra.c |   11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
+>  drivers/input/keyboard/tegra-kbc.c |   83 +++++++++++++++++++++++++++++-------
+>  1 files changed, 67 insertions(+), 16 deletions(-)
 > 
-> --- linux-next-20110829.orig/drivers/input/misc/twl6040-vibra.c
-> +++ linux-next-20110829/drivers/input/misc/twl6040-vibra.c
-> @@ -228,7 +228,7 @@ static void twl6040_vibra_close(struct i
->  	mutex_unlock(&info->mutex);
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+> index a5a7791..41de11f 100644
+> --- a/drivers/input/keyboard/tegra-kbc.c
+> +++ b/drivers/input/keyboard/tegra-kbc.c
+> @@ -38,7 +38,7 @@
+>  #define KBC_ROW_SCAN_DLY	5
+>  
+>  /* KBC uses a 32KHz clock so a cycle = 1/32Khz */
+> -#define KBC_CYCLE_MS	32
+> +#define KBC_CYCLES_PER_MS	32
+
+This seems to be an unrelated change, can it be split out?
+
+>  
+>  /* KBC Registers */
+>  
+> @@ -55,6 +55,7 @@
+>  
+>  #define KBC_ROW_CFG0_0	0x8
+>  #define KBC_COL_CFG0_0	0x18
+> +#define KBC_TO_CNT_0	0x24
+>  #define KBC_INIT_DLY_0	0x28
+>  #define KBC_RPT_DLY_0	0x2c
+>  #define KBC_KP_ENT0_0	0x30
+> @@ -70,8 +71,10 @@ struct tegra_kbc {
+>  	spinlock_t lock;
+>  	unsigned int repoll_dly;
+>  	unsigned long cp_dly_jiffies;
+> +	unsigned int cp_to_wkup_dly;
+>  	bool use_fn_map;
+>  	bool use_ghost_filter;
+> +	bool in_suspend;
+>  	const struct tegra_kbc_platform_data *pdata;
+>  	unsigned short keycode[KBC_MAX_KEY * 2];
+>  	unsigned short current_keys[KBC_MAX_KPENT];
+> @@ -341,6 +344,18 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+>  	kbc->num_pressed_keys = num_down;
 >  }
 >  
-> -#if CONFIG_PM_SLEEP
-> +#ifdef CONFIG_PM_SLEEP
+> +static void tegra_kbc_set_fifo_interrupt(struct tegra_kbc *kbc, bool enable)
+> +{
+> +	u32 val;
+> +
+> +	val = readl(kbc->mmio + KBC_CONTROL_0);
+> +	if (enable)
+> +		val |= KBC_CONTROL_FIFO_CNT_INT_EN;
+> +	else
+> +		val &= ~KBC_CONTROL_FIFO_CNT_INT_EN;
+> +	writel(val, kbc->mmio + KBC_CONTROL_0);
+> +}
+> +
+>  static void tegra_kbc_keypress_timer(unsigned long data)
+>  {
+>  	struct tegra_kbc *kbc = (struct tegra_kbc *)data;
+> @@ -348,6 +363,14 @@ static void tegra_kbc_keypress_timer(unsigned long data)
+>  	u32 val;
+>  	unsigned int i;
+>  
+> +	/* Exit immediately if driver is trying to enter suspend. */
+> +	spin_lock_irqsave(&kbc->lock, flags);
+> +	if (kbc->in_suspend) {
+> +		tegra_kbc_set_fifo_interrupt(kbc, true);
+> +		spin_unlock_irqrestore(&kbc->lock, flags);
+> +		return;
+> +	}
+> +	spin_unlock_irqrestore(&kbc->lock, flags);
+>  	val = (readl(kbc->mmio + KBC_INT_0) >> 4) & 0xf;
+>  	if (val) {
+>  		unsigned long dly;
+> @@ -370,9 +393,7 @@ static void tegra_kbc_keypress_timer(unsigned long data)
+>  
+>  		/* All keys are released so enable the keypress interrupt */
+>  		spin_lock_irqsave(&kbc->lock, flags);
+> -		val = readl(kbc->mmio + KBC_CONTROL_0);
+> -		val |= KBC_CONTROL_FIFO_CNT_INT_EN;
+> -		writel(val, kbc->mmio + KBC_CONTROL_0);
+> +		tegra_kbc_set_fifo_interrupt(kbc, true);
+>  		spin_unlock_irqrestore(&kbc->lock, flags);
+>  	}
+>  }
+> @@ -380,15 +401,14 @@ static void tegra_kbc_keypress_timer(unsigned long data)
+>  static irqreturn_t tegra_kbc_isr(int irq, void *args)
+>  {
+>  	struct tegra_kbc *kbc = args;
+> -	u32 val, ctl;
+> +	unsigned long flags;
+> +	u32 val;
+>  
+>  	/*
+>  	 * Until all keys are released, defer further processing to
+>  	 * the polling loop in tegra_kbc_keypress_timer
+>  	 */
+> -	ctl = readl(kbc->mmio + KBC_CONTROL_0);
+> -	ctl &= ~KBC_CONTROL_FIFO_CNT_INT_EN;
+> -	writel(ctl, kbc->mmio + KBC_CONTROL_0);
+> +	tegra_kbc_set_fifo_interrupt(kbc, false);
+>  
+>  	/*
+>  	 * Quickly bail out & reenable interrupts if the fifo threshold
+> @@ -397,16 +417,18 @@ static irqreturn_t tegra_kbc_isr(int irq, void *args)
+>  	val = readl(kbc->mmio + KBC_INT_0);
+>  	writel(val, kbc->mmio + KBC_INT_0);
+>  
+> -	if (val & KBC_INT_FIFO_CNT_INT_STATUS) {
+> +	/* Exit immediately if driver is trying to enter suspend. */
+> +	spin_lock_irqsave(&kbc->lock, flags);
+> +	if (!kbc->in_suspend && (val & KBC_INT_FIFO_CNT_INT_STATUS))
+>  		/*
+>  		 * Schedule timer to run when hardware is in continuous
+>  		 * polling mode.
+>  		 */
+>  		mod_timer(&kbc->timer, jiffies + kbc->cp_dly_jiffies);
+> -	} else {
+> -		ctl |= KBC_CONTROL_FIFO_CNT_INT_EN;
+> -		writel(ctl, kbc->mmio + KBC_CONTROL_0);
+> -	}
+> +	else
+> +		tegra_kbc_set_fifo_interrupt(kbc, true);
+> +
+> +	spin_unlock_irqrestore(&kbc->lock, flags);
+>  
+>  	return IRQ_HANDLED;
+>  }
+> @@ -648,7 +670,7 @@ static int __devinit tegra_kbc_probe(struct platform_device *pdev)
+>  	debounce_cnt = min(pdata->debounce_cnt, KBC_MAX_DEBOUNCE_CNT);
+>  	scan_time_rows = (KBC_ROW_SCAN_TIME + debounce_cnt) * num_rows;
+>  	kbc->repoll_dly = KBC_ROW_SCAN_DLY + scan_time_rows + pdata->repeat_cnt;
+> -	kbc->repoll_dly = DIV_ROUND_UP(kbc->repoll_dly, KBC_CYCLE_MS);
+> +	kbc->repoll_dly = DIV_ROUND_UP(kbc->repoll_dly, KBC_CYCLES_PER_MS);
+>  
+>  	input_dev->name = pdev->name;
+>  	input_dev->id.bustype = BUS_HOST;
+> @@ -735,10 +757,29 @@ static int tegra_kbc_suspend(struct device *dev)
+>  	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
+>  
+>  	if (device_may_wakeup(&pdev->dev)) {
+> -		tegra_kbc_setup_wakekeys(kbc, true);
+> -		enable_irq_wake(kbc->irq);
+> +		unsigned long flags;
+> +
+> +		spin_lock_irqsave(&kbc->lock, flags);
+> +		kbc->in_suspend = 1;
+> +		spin_unlock_irqrestore(&kbc->lock, flags);
+> +
+> +		del_timer(&kbc->timer);
 
-This is actually the only change that is needed. In case when
-CONFIG_PM_SLEEP is not defined SIMPLE_DEV_PM_OPS() produces empty
-'struct dev_pm_ops' so no additional #ifdef-ing is needed.
+I'd expect this to be del_timer_sync().
+
+Overall I think this is quite complex, do we really need to keep
+interrupts enabled (as in enable_irq) for wakeup to work? It is my
+understanding that wakeup (enable_irq_wake/disable_irq_wake) control is
+separate from enable_irq/disable_irq control. If you can do
+disable_irq() while system goes to sleep then the code will be much
+simpler.
 
 Thanks.
 

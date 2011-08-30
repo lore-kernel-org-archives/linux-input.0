@@ -1,53 +1,54 @@
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [PATCH trivial] input: apanel: remove a redundant MODULE_ALIAS
-Date: Mon, 29 Aug 2011 16:10:15 -0700
-Message-ID: <20110829161015.323c20a3@nehalam.ftrdhcpuser.net>
-References: <1314653189-31020-1-git-send-email-j.neuschaefer@gmx.net>
-	<201108291507.14497.dmitry.torokhov@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: fix misc/twl6040-vibra.c warning
+Date: Mon, 29 Aug 2011 23:59:31 -0700
+Message-ID: <20110830065931.GA5791@core.coreip.homeip.net>
+References: <20110829125017.9337299c.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:52509 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755323Ab1H2XLU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Aug 2011 19:11:20 -0400
-In-Reply-To: <201108291507.14497.dmitry.torokhov@gmail.com>
+Received: from mail-iy0-f174.google.com ([209.85.210.174]:33149 "EHLO
+	mail-iy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750842Ab1H3G7k (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Aug 2011 02:59:40 -0400
+Content-Disposition: inline
+In-Reply-To: <20110829125017.9337299c.rdunlap@xenotime.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jonathan =?ISO-8859-1?B?TmV1c2No5GZlcg==?= <j.neuschaefer@gmx.net>, Jiri Kosina <trivial@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org
 
-On Mon, 29 Aug 2011 15:07:14 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hi Randy,
 
-> On Monday, August 29, 2011 02:26:29 PM Jonathan Neusch=E4fer wrote:
-> > Signed-off-by: Jonathan Neusch=E4fer <j.neuschaefer@gmx.net>
-> > ---
-> >  drivers/input/misc/apanel.c |    1 -
-> >  1 files changed, 0 insertions(+), 1 deletions(-)
-> >=20
-> > diff --git a/drivers/input/misc/apanel.c b/drivers/input/misc/apane=
-l.c
-> > index a8d2b8d..1dd1bd3 100644
-> > --- a/drivers/input/misc/apanel.c
-> > +++ b/drivers/input/misc/apanel.c
-> > @@ -346,5 +346,4 @@ MODULE_DESCRIPTION(APANEL_NAME " driver");
-> >  MODULE_LICENSE("GPL");
-> >  MODULE_VERSION(APANEL_VERSION);
-> >=20
-> > -MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifeBook*:pvr*:rvnFUJITSU:*");
-> >  MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifebook*:pvr*:rvnFUJITSU:*");
->                                         ^
->=20
-> Not necessarily redundant, if you notice the register is different.
->=20
+On Mon, Aug 29, 2011 at 12:50:17PM -0700, Randy Dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> Fix warning from Geert's build summary emails by changing "if" to
+> "ifdef".  Also handle the case of CONFIG_PM_SLEEP not enabled.
+> 
+> drivers/input/misc/twl6040-vibra.c:231:5: warning: "CONFIG_PM_SLEEP" is not defined
+> 
+> Builds cleanly with CONFIG_PM_SLEEP enabled or disabled.
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> ---
+>  drivers/input/misc/twl6040-vibra.c |   11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+> --- linux-next-20110829.orig/drivers/input/misc/twl6040-vibra.c
+> +++ linux-next-20110829/drivers/input/misc/twl6040-vibra.c
+> @@ -228,7 +228,7 @@ static void twl6040_vibra_close(struct i
+>  	mutex_unlock(&info->mutex);
+>  }
+>  
+> -#if CONFIG_PM_SLEEP
+> +#ifdef CONFIG_PM_SLEEP
 
-At one point I found machines with both values, that is why there
-are two entries.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This is actually the only change that is needed. In case when
+CONFIG_PM_SLEEP is not defined SIMPLE_DEV_PM_OPS() produces empty
+'struct dev_pm_ops' so no additional #ifdef-ing is needed.
+
+Thanks.
+
+-- 
+Dmitry

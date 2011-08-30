@@ -1,62 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: fix misc/twl6040-vibra.c warning
-Date: Tue, 30 Aug 2011 14:23:30 -0700
-Message-ID: <20110830212330.GA20729@core.coreip.homeip.net>
-References: <20110829125017.9337299c.rdunlap@xenotime.net>
- <20110830065931.GA5791@core.coreip.homeip.net>
- <20110830140713.637b60f1.rdunlap@xenotime.net>
+From: Joey Oravec <joravec@drewtech.com>
+Subject: linux raw serio driver 32 byte maximum
+Date: Tue, 30 Aug 2011 17:59:49 -0400
+Message-ID: <4E5D5D55.5060207@drewtech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f46.google.com ([209.85.213.46]:44458 "EHLO
-	mail-yw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751341Ab1H3VXj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Aug 2011 17:23:39 -0400
-Content-Disposition: inline
-In-Reply-To: <20110830140713.637b60f1.rdunlap@xenotime.net>
+Received: from drewtech.com ([66.36.241.150]:60885 "EHLO server.drewtech.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751859Ab1H3WGn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Aug 2011 18:06:43 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org
 
-On Tue, Aug 30, 2011 at 02:07:13PM -0700, Randy Dunlap wrote:
-> On Mon, 29 Aug 2011 23:59:31 -0700 Dmitry Torokhov wrote:
-> 
-> > Hi Randy,
-> > 
-> > On Mon, Aug 29, 2011 at 12:50:17PM -0700, Randy Dunlap wrote:
-> > > From: Randy Dunlap <rdunlap@xenotime.net>
-> > > 
-> > > Fix warning from Geert's build summary emails by changing "if" to
-> > > "ifdef".  Also handle the case of CONFIG_PM_SLEEP not enabled.
-> > > 
-> > > drivers/input/misc/twl6040-vibra.c:231:5: warning: "CONFIG_PM_SLEEP" is not defined
-> > > 
-> > > Builds cleanly with CONFIG_PM_SLEEP enabled or disabled.
-> > > 
-> > > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> > > ---
-> > >  drivers/input/misc/twl6040-vibra.c |   11 +++++++----
-> > >  1 file changed, 7 insertions(+), 4 deletions(-)
-> > > 
-> > > --- linux-next-20110829.orig/drivers/input/misc/twl6040-vibra.c
-> > > +++ linux-next-20110829/drivers/input/misc/twl6040-vibra.c
-> > > @@ -228,7 +228,7 @@ static void twl6040_vibra_close(struct i
-> > >  	mutex_unlock(&info->mutex);
-> > >  }
-> > >  
-> > > -#if CONFIG_PM_SLEEP
-> > > +#ifdef CONFIG_PM_SLEEP
-> > 
-> > This is actually the only change that is needed. In case when
-> > CONFIG_PM_SLEEP is not defined SIMPLE_DEV_PM_OPS() produces empty
-> > 'struct dev_pm_ops' so no additional #ifdef-ing is needed.
-> 
-> Ah, I see.  Thanks for the info.
-> Do I need to resend the patch?
+Dmitry -
 
-Nah, I got it, thanks.
+In serio_raw.c function serio_raw_write() there's a check:
 
--- 
-Dmitry
+if (count > 32)
+    count = 32;
+
+which coerces any call to write a maximum of 32 bytes. Do you know why 
+this limitation is in the code? Characters get written one-by-one to the 
+tty layer so I don't understand why it's there.
+
+I'm not sure which section of the manpage defines write for a serial 
+port. In the ordinary case I expected this function to keep transmitting 
+until complete or an error occurs. If O_NONBLOCK was specified then I 
+might expect EAGAIN. Right now my calling code doesn't expect a 
+successful partial write. Do you think this module is doing the right 
+thing? Can you comment on what the caller must expect?
+
+-joey

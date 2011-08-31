@@ -1,54 +1,81 @@
-From: Joey Oravec <joravec@drewtech.com>
-Subject: Re: linux raw serio driver 32 byte maximum
-Date: Tue, 30 Aug 2011 20:40:31 -0400
-Message-ID: <4E5D82FF.4060100@drewtech.com>
-References: <4E5D5D55.5060207@drewtech.com> <20110830225017.GA2405@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Tobias Klauser <tklauser@distanz.ch>
+Subject: [PATCH] Input: gpio_keys - Use of_property_read_u32
+Date: Wed, 31 Aug 2011 09:32:25 +0200
+Message-ID: <1314775945-6822-1-git-send-email-tklauser@distanz.ch>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from drewtech.com ([66.36.241.150]:44691 "EHLO server.drewtech.com"
+Received: from mx1.zhaw.ch ([160.85.104.50]:65016 "EHLO mx1.zhaw.ch"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754106Ab1HaAkn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Aug 2011 20:40:43 -0400
-In-Reply-To: <20110830225017.GA2405@core.coreip.homeip.net>
+	id S1754690Ab1HaHc1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Aug 2011 03:32:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: Grant Likely <grant.likely@secretlab.ca>, David Jander <david@protonic.nl>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-On 8/30/2011 6:50 PM, Dmitry Torokhov wrote:
-> May I ask you what you are using serio_raw for?
+Use the of_property_read_u32 helper function to retreive u32 values
+from the device tree. Also do not pass the len parameter to
+of_get_property if it isn't checked afterwards.
 
-We make chips for embedded systems that have a UART host-interface and 
-implement several functions (rtc, gpio, power control, etc). The 
-protocol is framed and involves both command-response and unsolicited 
-messages. I'm writing an MFD kernel driver that handles communication 
-and exposes standard kernel interfaces for each feature.
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+---
+ drivers/input/keyboard/gpio_keys.c |   22 ++++++++++++----------
+ 1 files changed, 12 insertions(+), 10 deletions(-)
 
-I started with serio which registers a line discipline and provide basic 
-serial access in the kernel. Then I created a reusable module based on 
-serio_raw that does any buffering necessary and decodes the bytes into 
-frames. Finally it registers a platform device which gets connected to a 
-platform driver (my MFD driver). Through this stack my kernel driver is 
-able to send/receive framed serial data and can communicate with my chip.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 67df91a..e913294 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -462,7 +462,6 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
+ 	int i;
+ 	struct gpio_keys_button *buttons;
+ 	const u32 *reg;
+-	int len;
+ 
+ 	node = dev->of_node;
+ 	if (node == NULL)
+@@ -470,7 +469,7 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
+ 
+ 	memset(pdata, 0, sizeof *pdata);
+ 
+-	pdata->rep = !!of_get_property(node, "autorepeat", &len);
++	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
+ 
+ 	/* First count the subnodes */
+ 	pdata->nbuttons = 0;
+@@ -498,22 +497,25 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
+ 		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
+ 		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 
+-		reg = of_get_property(pp, "linux,code", &len);
+-		if (!reg) {
++		if (of_property_read_u32(pp, "linux,code", &reg))
+ 			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
+ 			goto out_fail;
+ 		}
+-		buttons[i].code = be32_to_cpup(reg);
++		buttons[i].code = reg;
+ 
+-		buttons[i].desc = of_get_property(pp, "label", &len);
++		buttons[i].desc = of_get_property(pp, "label", NULL);
+ 
+-		reg = of_get_property(pp, "linux,input-type", &len);
+-		buttons[i].type = reg ? be32_to_cpup(reg) : EV_KEY;
++		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
++			buttons[i].type = reg;
++		else
++			buttons[i].type = EV_KEY;
+ 
+ 		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
+ 
+-		reg = of_get_property(pp, "debounce-interval", &len);
+-		buttons[i].debounce_interval = reg ? be32_to_cpup(reg) : 5;
++		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
++			buttons[i].debounce_interval = reg;
++		else
++			buttons[i].debounce_interval = 5;
+ 
+ 		i++;
+ 	}
+-- 
+1.7.5.4
 
-I'm open to suggestions about how to improve this design. Writing this 
-sort of driver feels way more difficult than one for an i2c or SPI 
-device. This approach requires a lot of kernel layers AND running 
-inputattach in userspace just to connect a driver to a device on a 
-serial port. Maybe you'll have a better idea?
-
-> I think you should handle partial writes. Even if driver honored
-> O_NONBLOCK you could get a partial write and not necessarily EAGAIN.
-
-As described above, it's a little different because I'm working inside 
-the kernel. However I need to conform to kernel standards for read/write 
-because my code uses serio and eventually the TTY layer.
-
-My driver must either rely on the serio write blocking, or call serio 
-write in a while-loop and handle partial writes and any error codes. 
-Incoming data doesn't have this ambiguity because serio calls that 
-interrupt callback to process one character at a time.
-
--joey

@@ -1,81 +1,91 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH] Input: gpio_keys - Use of_property_read_u32
-Date: Wed, 31 Aug 2011 09:32:25 +0200
-Message-ID: <1314775945-6822-1-git-send-email-tklauser@distanz.ch>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.zhaw.ch ([160.85.104.50]:65016 "EHLO mx1.zhaw.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754690Ab1HaHc1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Aug 2011 03:32:27 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: JJ Ding <jj_ding@emc.com.tw>
+Subject: Re: [PATCH v4 0/8] Input: elantech: add support for newer hardware
+Date: Wed, 31 Aug 2011 17:43:59 +0800
+Message-ID: <874o0xdig0.fsf@emc.com.tw>
+References: <1314606539-24722-1-git-send-email-jj_ding@emc.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1314606539-24722-1-git-send-email-jj_ding@emc.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, David Jander <david@protonic.nl>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+Cc: Seth Forshee <seth.forshee@canonical.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?utf-8?Q?=C3=89r?= =?utf-8?Q?ic?= Piel <E.A.B.Piel@tudelft.nl>, Daniel Kurtz <djkurtz@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Use the of_property_read_u32 helper function to retreive u32 values
-from the device tree. Also do not pass the len parameter to
-of_get_property if it isn't checked afterwards.
+Hi Dmitry,
 
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
----
- drivers/input/keyboard/gpio_keys.c |   22 ++++++++++++----------
- 1 files changed, 12 insertions(+), 10 deletions(-)
+What do you think about the series?
+Do you think these patches all right for upstream?
+Or do you have any other concerns about the chages?
+Please let me know and I will fix it.
+Thnak you.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 67df91a..e913294 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -462,7 +462,6 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 	int i;
- 	struct gpio_keys_button *buttons;
- 	const u32 *reg;
--	int len;
- 
- 	node = dev->of_node;
- 	if (node == NULL)
-@@ -470,7 +469,7 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 
- 	memset(pdata, 0, sizeof *pdata);
- 
--	pdata->rep = !!of_get_property(node, "autorepeat", &len);
-+	pdata->rep = !!of_get_property(node, "autorepeat", NULL);
- 
- 	/* First count the subnodes */
- 	pdata->nbuttons = 0;
-@@ -498,22 +497,25 @@ static int gpio_keys_get_devtree_pdata(struct device *dev,
- 		buttons[i].gpio = of_get_gpio_flags(pp, 0, &flags);
- 		buttons[i].active_low = flags & OF_GPIO_ACTIVE_LOW;
- 
--		reg = of_get_property(pp, "linux,code", &len);
--		if (!reg) {
-+		if (of_property_read_u32(pp, "linux,code", &reg))
- 			dev_err(dev, "Button without keycode: 0x%x\n", buttons[i].gpio);
- 			goto out_fail;
- 		}
--		buttons[i].code = be32_to_cpup(reg);
-+		buttons[i].code = reg;
- 
--		buttons[i].desc = of_get_property(pp, "label", &len);
-+		buttons[i].desc = of_get_property(pp, "label", NULL);
- 
--		reg = of_get_property(pp, "linux,input-type", &len);
--		buttons[i].type = reg ? be32_to_cpup(reg) : EV_KEY;
-+		if (of_property_read_u32(pp, "linux,input-type", &reg) == 0)
-+			buttons[i].type = reg;
-+		else
-+			buttons[i].type = EV_KEY;
- 
- 		buttons[i].wakeup = !!of_get_property(pp, "gpio-key,wakeup", NULL);
- 
--		reg = of_get_property(pp, "debounce-interval", &len);
--		buttons[i].debounce_interval = reg ? be32_to_cpup(reg) : 5;
-+		if (of_property_read_u32(pp, "debounce-interval", &reg) == 0)
-+			buttons[i].debounce_interval = reg;
-+		else
-+			buttons[i].debounce_interval = 5;
- 
- 		i++;
- 	}
--- 
-1.7.5.4
+jj
 
+On Mon, 29 Aug 2011 16:28:51 +0800, JJ Ding <jj_ding@emc.com.tw> wrote:
+> Hi Lists,
+>=20
+> This is a series of patches to add support for newer generations of E=
+LAN
+> touchpad.
+>=20
+> Patches #1~#6 are essentially fixes and cleanups that pave the way fo=
+r
+> patch #7 and patch #8, which really adds code for v3 and v4 hardware.
+>=20
+> Any comments, suggestoins are welcome.
+>=20
+> Note:
+> Please review patch #8, which adds support for the latest touchpads f=
+rom ELAN.
+> This is a true multi-touch capable touchpad that can track up to 5 fi=
+ngers.
+> Support is implemented using MT-B protocol. I used synaptics and mult=
+itouch X
+> driver to test this driver, both worked fine.
+>=20
+> Thank you very much.
+>=20
+> Changes since v1:
+> - drop EC workaround patch.
+> - add patch #2, make ST and MT have the same range, as Dmitry suggest=
+ed.
+> - add patch #4, remove ETP_EDGE_FUZZ_V2, as =C3=89ric suggested.
+> - rename all packet checking functions so they are consistent.
+> - some code cleanup, and don't report ABS_[XY] when fingers =3D=3D 0,=
+ as Seth suggested.
+> - add document for v3 debounce, and now check debounce in elantech_pa=
+cket_check_v3.
+>=20
+> Changes since v2:
+> - fix v3 hardware packet checking (reported by Seth and fix by Dmitry=
+=2E)
+>=20
+> Changes since v3:
+> - fix a tiny style problem (useless space on end-of-line, reported by=
+ Seth)
+> - v3 hardware can track 2 fingers well, so do not set INPUT_PROP_SEMI=
+_MT on v3
+>   (As suggested earlier by =C3=89ric.)
+> - add patch #8, which adds support for v4 hardware.
+>=20
+> JJ Ding (8):
+>   Input: elantech - correct x, y value range for v2 hardware
+>   Input: elantech - get rid of ETP_2FT_* in elantech.h
+>   Input: elantech - use firmware provided x, y ranges
+>   Input: elantech - remove ETP_EDGE_FUZZ_V2
+>   Input: elantech - packet checking for v2 hardware
+>   Input: elantech - clean up elantech_init
+>   Input: elantech - add v3 hardware support
+>   Input: elantech - add v4 hardware support
+>=20
+>  Documentation/input/elantech.txt |  295 +++++++++++++++++-
+>  drivers/input/mouse/elantech.c   |  614 ++++++++++++++++++++++++++++=
+++++-----
+>  drivers/input/mouse/elantech.h   |   56 +++-
+>  3 files changed, 849 insertions(+), 116 deletions(-)
+>=20
+> --=20
+> 1.7.4.1
+>=20

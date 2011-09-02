@@ -1,86 +1,39 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH] input: keyboard: adp5589-keys: Add support for the
- ADP5585 derivatives
-Date: Fri, 2 Sep 2011 09:08:30 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D59177146E703E0AF@LIMKCMBX1.ad.analog.com>
-References: <1311944415-20197-1-git-send-email-michael.hennerich@analog.com>
- <4E390710.5060503@analog.com>
- <20110804031906.GA30482@core.coreip.homeip.net>
- <4E3A4EFD.5030507@analog.com> <20110804075542.GC31276@core.coreip.homeip.net>
+From: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] hidraw : free list for all error in hidraw_open
+Date: Fri, 02 Sep 2011 15:03:30 +0400
+Message-ID: <4E60B802.7050606@ru.mvista.com>
+References: <CA+F9FsBqeW9PEL9F5h4Rx+-2QY=PcFXW0MVyZPJJOjUo5zGeig@mail.gmail.com> <CA+F9FsA=u6EtGkWO8PVfJ4voSx+=wvoFdZ_61WO6x=8WMFM0Rg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch1ehsobe005.messaging.microsoft.com ([216.32.181.185]:32875
-	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758014Ab1IBIIt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 2 Sep 2011 04:08:49 -0400
-In-Reply-To: <20110804075542.GC31276@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CA+F9FsA=u6EtGkWO8PVfJ4voSx+=wvoFdZ_61WO6x=8WMFM0Rg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, Drivers <Drivers@analog.com>
 
-Dmitry Torokhov wrote on 2011-08-04:
-> On Thu, Aug 04, 2011 at 09:49:17AM +0200, Michael Hennerich wrote:
->> On 08/04/2011 05:19 AM, Dmitry Torokhov wrote:
->>> On Wed, Aug 03, 2011 at 10:30:08AM +0200, Michael Hennerich wrote:
->>>> On 07/29/2011 03:00 PM, michael.hennerich@analog.com wrote:
->>>>> From: Michael Hennerich<michael.hennerich@analog.com>
->>>>>
->>>>> The ADP5585 family keypad decoder and IO expander is similar to the
->>>>> ADP5589, however it features less IO pins, and lacks hardware
->>>>> assisted key- lock functionality. Unfortunately the register
->>>>> addresses are different, as well as the event codes and bit
->>>>> organization within the port related registers.
->>>>>
->>>>> Move ADP5589 Register defines from the header file into the main
->>>>> source file. Add new defines while making sure we don't break
->>>>> existing platform_data. Add register address translation, and turn
->>>>> device specific defines into variables. Introduce some helper
->>>>> functions and disable functions that doesn't exist on the added
->>>>> devices.
->>>>>
->>>>> Signed-off-by: Michael Hennerich<michael.hennerich@analog.com>
->>>>> ---
->>>>>  drivers/input/keyboard/Kconfig        |    4 +-
->>>>>  drivers/input/keyboard/adp5589-keys.c |  607
->>>>>  ++++++++++++++++++++++++++------- include/linux/input/adp5589.h
->>>>>      |  157 ++++----- 3 files changed, 549 insertions(+), 219
->>>>>  deletions(-)
->>>> Hi Dmitry,
->>>>
->>>> If you prefer support for the ADP5585 as separate driver, please let
->>>> me know.
->>> Hi Michael,
->>>
->>> No, I actually like this approach very much, but do you think we could
->>> have adp5589-keys.c, adp5585-keys.c and adp558x-keys-core.c? The
->>> register definitions put all in one file are a bit overwhelming...
->>
->> Hi Dmitry,
->>
->> The register look-up table used for the ADP5585 also requires the
->> ADP5589 defines.
->> Also the core file would need the ADP5589 defines. So I don't think
->> splitting stuff into
->> 3 source files will greatly improve things.
->
-> Hmm... let me mull this over...
+Hello.
 
-Hi Dmitry,
+On 02-09-2011 11:27, Amit Nagal wrote:
 
-Any chance to get the adp5585 patch into input next?
+>> In function hidraw_open (linux-3.0.3/drivers/hid/hidraw.c ) ,  struct
+>> hidraw_list *list should be freed for all error conditions .
 
-Greetings,
-Michael
+> Due to tab to space conversion by gmail ,
 
+    Just don't use GMail.
+
+> i have enclosed patch as attachment currently .
+
+    Patches in attachments are not acceptable, especially when not in 
+text/plain format.
+
+> Regards
+> Amit
+
+WBR, Sergei
 --
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
-
-
-
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,54 +1,86 @@
-From: Amit Nagal <helloin.amit@gmail.com>
-Subject: Re: [PATCH] hidraw : free list for all error in hidraw_open
-Date: Fri, 2 Sep 2011 12:57:58 +0530
-Message-ID: <CA+F9FsA=u6EtGkWO8PVfJ4voSx+=wvoFdZ_61WO6x=8WMFM0Rg@mail.gmail.com>
-References: <CA+F9FsBqeW9PEL9F5h4Rx+-2QY=PcFXW0MVyZPJJOjUo5zGeig@mail.gmail.com>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH] input: keyboard: adp5589-keys: Add support for the
+ ADP5585 derivatives
+Date: Fri, 2 Sep 2011 09:08:30 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D59177146E703E0AF@LIMKCMBX1.ad.analog.com>
+References: <1311944415-20197-1-git-send-email-michael.hennerich@analog.com>
+ <4E390710.5060503@analog.com>
+ <20110804031906.GA30482@core.coreip.homeip.net>
+ <4E3A4EFD.5030507@analog.com> <20110804075542.GC31276@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=0016e64082a2f0d4ac04abf04cb2
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f42.google.com ([209.85.216.42]:54634 "EHLO
-	mail-qw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752655Ab1IBH17 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2011 03:27:59 -0400
-In-Reply-To: <CA+F9FsBqeW9PEL9F5h4Rx+-2QY=PcFXW0MVyZPJJOjUo5zGeig@mail.gmail.com>
+Received: from ch1ehsobe005.messaging.microsoft.com ([216.32.181.185]:32875
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758014Ab1IBIIt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 2 Sep 2011 04:08:49 -0400
+In-Reply-To: <20110804075542.GC31276@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Alan Ott <alan@signal11.us>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>, Drivers <Drivers@analog.com>
 
---0016e64082a2f0d4ac04abf04cb2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Sep 2, 2011 at 10:59 AM, Amit Nagal <helloin.amit@gmail.com> wrote:
-> Hi ,
+Dmitry Torokhov wrote on 2011-08-04:
+> On Thu, Aug 04, 2011 at 09:49:17AM +0200, Michael Hennerich wrote:
+>> On 08/04/2011 05:19 AM, Dmitry Torokhov wrote:
+>>> On Wed, Aug 03, 2011 at 10:30:08AM +0200, Michael Hennerich wrote:
+>>>> On 07/29/2011 03:00 PM, michael.hennerich@analog.com wrote:
+>>>>> From: Michael Hennerich<michael.hennerich@analog.com>
+>>>>>
+>>>>> The ADP5585 family keypad decoder and IO expander is similar to the
+>>>>> ADP5589, however it features less IO pins, and lacks hardware
+>>>>> assisted key- lock functionality. Unfortunately the register
+>>>>> addresses are different, as well as the event codes and bit
+>>>>> organization within the port related registers.
+>>>>>
+>>>>> Move ADP5589 Register defines from the header file into the main
+>>>>> source file. Add new defines while making sure we don't break
+>>>>> existing platform_data. Add register address translation, and turn
+>>>>> device specific defines into variables. Introduce some helper
+>>>>> functions and disable functions that doesn't exist on the added
+>>>>> devices.
+>>>>>
+>>>>> Signed-off-by: Michael Hennerich<michael.hennerich@analog.com>
+>>>>> ---
+>>>>>  drivers/input/keyboard/Kconfig        |    4 +-
+>>>>>  drivers/input/keyboard/adp5589-keys.c |  607
+>>>>>  ++++++++++++++++++++++++++------- include/linux/input/adp5589.h
+>>>>>      |  157 ++++----- 3 files changed, 549 insertions(+), 219
+>>>>>  deletions(-)
+>>>> Hi Dmitry,
+>>>>
+>>>> If you prefer support for the ADP5585 as separate driver, please let
+>>>> me know.
+>>> Hi Michael,
+>>>
+>>> No, I actually like this approach very much, but do you think we could
+>>> have adp5589-keys.c, adp5585-keys.c and adp558x-keys-core.c? The
+>>> register definitions put all in one file are a bit overwhelming...
+>>
+>> Hi Dmitry,
+>>
+>> The register look-up table used for the ADP5585 also requires the
+>> ADP5589 defines.
+>> Also the core file would need the ADP5589 defines. So I don't think
+>> splitting stuff into
+>> 3 source files will greatly improve things.
 >
-> In function hidraw_open (linux-3.0.3/drivers/hid/hidraw.c ) , =A0struct
-> hidraw_list *list should be freed for all error conditions .
+> Hmm... let me mull this over...
 
-Due to tab to space conversion by gmail , i have enclosed patch as
-attachment currently .
+Hi Dmitry,
 
-Regards
-Amit
+Any chance to get the adp5585 patch into input next?
 
---0016e64082a2f0d4ac04abf04cb2
-Content-Type: application/octet-stream;
-	name="[Patch]  hidraw_open free list for errors"
-Content-Disposition: attachment;
-	filename="[Patch]  hidraw_open free list for errors"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gs2ucm2r0
+Greetings,
+Michael
 
-U2lnbmVkLW9mZi1ieTogQW1pdCBOYWdhbCA8aGVsbG9pbi5hbWl0QGdtYWlsLmNvbT4KLS0tCgpk
-aWZmIC11cCBhL2RyaXZlcnMvaGlkL2hpZHJhdy5jIGIvZHJpdmVycy9oaWQvaGlkcmF3LmMKLS0t
-IGEvZHJpdmVycy9oaWQvaGlkcmF3LmMJMjAxMS0wOC0xNyAxMzo1NzoxNi4wMDAwMDAwMDAgLTA0
-MDAKKysrIGIvZHJpdmVycy9oaWQvaGlkcmF3LmMJMjAxMS0wOS0wMiAwNzowNjo1Mi4wMDAwMDAw
-MDAgLTA0MDAKQEAgLTI1OSw3ICsyNTksNiBAQCBzdGF0aWMgaW50IGhpZHJhd19vcGVuKHN0cnVj
-dCBpbm9kZSAqaW5vCiAKIAltdXRleF9sb2NrKCZtaW5vcnNfbG9jayk7CiAJaWYgKCFoaWRyYXdf
-dGFibGVbbWlub3JdKSB7Ci0JCWtmcmVlKGxpc3QpOwogCQllcnIgPSAtRU5PREVWOwogCQlnb3Rv
-IG91dF91bmxvY2s7CiAJfQpAQCAtMjg1LDYgKzI4NCw4IEBAIHN0YXRpYyBpbnQgaGlkcmF3X29w
-ZW4oc3RydWN0IGlub2RlICppbm8KIG91dF91bmxvY2s6CiAJbXV0ZXhfdW5sb2NrKCZtaW5vcnNf
-bG9jayk7CiBvdXQ6CisJaWYgKGVyciA8IDApCisJCWtmcmVlKGxpc3QpOwogCXJldHVybiBlcnI7
-CiAKIH0KCi0tCg==
---0016e64082a2f0d4ac04abf04cb2--
+--
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
+Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin, Margaret Seif
+
+
+

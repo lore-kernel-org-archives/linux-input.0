@@ -1,39 +1,41 @@
-From: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] hidraw : free list for all error in hidraw_open
-Date: Fri, 02 Sep 2011 15:03:30 +0400
-Message-ID: <4E60B802.7050606@ru.mvista.com>
-References: <CA+F9FsBqeW9PEL9F5h4Rx+-2QY=PcFXW0MVyZPJJOjUo5zGeig@mail.gmail.com> <CA+F9FsA=u6EtGkWO8PVfJ4voSx+=wvoFdZ_61WO6x=8WMFM0Rg@mail.gmail.com>
+From: Western Union Transfer <info@westernunion.co.uk>
+Subject: Western Union Compensation
+Date: Fri, 02 Sep 2011 12:08:03 +0100
+Message-ID: <0b36a18515801dfaa9a63ee06fb1d909__8548.33316193453$1314962005$gmane$org@bancosol.ao>
+Reply-To: <benjaminoprah@live.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+F9FsA=u6EtGkWO8PVfJ4voSx+=wvoFdZ_61WO6x=8WMFM0Rg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.bancosol.ao ([196.216.51.201]:47420 "EHLO
+	solmail.bancosol.ao" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S933431Ab1IBLND (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2011 07:13:03 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello.
 
-On 02-09-2011 11:27, Amit Nagal wrote:
 
->> In function hidraw_open (linux-3.0.3/drivers/hid/hidraw.c ) ,  struct
->> hidraw_list *list should be freed for all error conditions .
+-- 
+ Western Union Money Transfer
+ 10 mischief Kendile, sw11he 26-7B.
+ London, UK. England
 
-> Due to tab to space conversion by gmail ,
 
-    Just don't use GMail.
+ This is Message is  from Western Union Money Transfer  company office 
+ in UK, England.   We are compensating all scammed victim who have been 
+ scammed by the online scam.  We are currently giving away the total sum 
+ of ($2,000,000.00 ) Two Million Dollars.  we are also  giviing out to 
+ some few individual all over the worl which will be selected at random 
+ and will be notified.  If you have receive this mail, this means that 
+ you are a beneficiary of the total amount.  To claims this prize, you 
+ have to write me on my personal email to process the claim process.
 
-> i have enclosed patch as attachment currently .
+ Write me on  Email: benjaminoprah@live.com  with youe information which 
+ is your Name, Occupation,Phone, Age.
 
-    Patches in attachments are not acceptable, especially when not in 
-text/plain format.
+ Hope you reply
 
-> Regards
-> Amit
-
-WBR, Sergei
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ Benjamin Oprah
+ Western Union Transfer Unit

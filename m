@@ -1,60 +1,105 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: [PATCH] HID: usbhid: fix suspend timeout due to RUNNING bits
-Date: Fri,  2 Sep 2011 17:07:27 -0700
-Message-ID: <1315008447-11012-1-git-send-email-bleung@chromium.org>
+From: Javier Martinez Canillas <martinez.javier@gmail.com>
+Subject: Re: [PATCH 3/3] Input: cyttsp - add support for Cypress TTSP
+ touchscreen SPI bus interface
+Date: Sat, 03 Sep 2011 07:31:58 +0200
+Message-ID: <1315027918.11839.10.camel@sauron>
+References: <1313812912-2848-1-git-send-email-martinez.javier@gmail.com>
+	 <1313812912-2848-4-git-send-email-martinez.javier@gmail.com>
+	 <20110822024412.GC17891@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f42.google.com ([209.85.210.42]:49265 "EHLO
-	mail-pz0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752018Ab1ICAH6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2011 20:07:58 -0400
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:55617 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751625Ab1ICFcE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Sep 2011 01:32:04 -0400
+In-Reply-To: <20110822024412.GC17891@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: bleung@chromium.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kevin McNeely <kev@cypress.com>, Henrik Rydberg <rydberg@euromail.se>, Srikar <ext-srikar.1.bhavanarayana@nokia.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-hid_submit_ctrl and hid_submit_out should return error
-codes when HID_REPORTED_IDLE is set by hid_suspend.
-This will allow the output and control completion
-handlers to clear HID_OUT_RUNNING and HID_CTRL_RUNNING
-so hid_suspend succeeds.
+Hello Dmitry,
 
-Previously, if there were outstanding out messages
-or control messages while hid_suspend was called,
-hid_suspend would fail because usbhid_wait_io would time
-out.
+On Sun, 2011-08-21 at 19:44 -0700, Dmitry Torokhov wrote:
+> Hi Javier,
+> 
+> > +
+> > +	memset((void *)xfer, 0, sizeof(xfer));
+> > +	spi_message_init(&msg);
+> > +	xfer[0].tx_buf = wr_buf;
+> > +	xfer[0].rx_buf = rd_buf;
+> 
+> Since we are setting both TX and RX buffer here does this mean that the
+> device will not work with controllers in half-duplex mode? What is the
+> amount of data that will be placed in rd_buf?
+> 
 
-This condition happens with USB keyboards with both capslock and
-numlock leds enabled at suspend time. Control requests
-will come down to the hid-core to disable both leds, with
-hid_suspend being called between the two being submitted.
+Both TX and RX buffers are set because Cypress requires full duplex
+operation always.
 
-Signed-off-by: Benson Leung <bleung@chromium.org>
----
- drivers/hid/usbhid/hid-core.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+> > +	retval = spi_sync_tmo(ts, &msg);
+> > +	if (retval < 0) {
+> > +		dev_dbg(ts->ops.dev, "%s: spi sync error %d, len=%d, op=%d\n",
+> > +			__func__, retval, xfer[1].len, op);
+> > +		retval = 0;
+> 
+> Why do we ignore the error?
+> 
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index a9fa294..cf5c106 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -326,6 +326,8 @@ static int hid_submit_out(struct hid_device *hid)
- 			return -1;
- 		}
- 		usbhid->last_out = jiffies;
-+	} else {
-+		return -1;
- 	}
- 
- 	return 0;
-@@ -385,6 +387,8 @@ static int hid_submit_ctrl(struct hid_device *hid)
- 			return -1;
- 		}
- 		usbhid->last_ctrl = jiffies;
-+	} else {
-+		return -1;
- 	}
- 
- 	return 0;
--- 
-1.7.1
+Fixed: In next version a following ACK check code return the status to
+the cyttsp core so it can retry after waiting with an msleep() call.
+
+> > +	}
+> > +
+> > +	if (op == CY_SPI_RD_OP) {
+> > +		if ((rd_buf[CY_SPI_SYNC_BYTE] == CY_SPI_SYNC_ACK1) &&
+> > +			(rd_buf[CY_SPI_SYNC_BYTE+1] == CY_SPI_SYNC_ACK2))
+> > +			retval = 0;
+> 
+> What about write operation? Does the device send anything in rd_buf for
+> write command?
+> 
+
+Fixed: Both read and write operations check the ACK bytes now.
+
+> > +
+> > +	if (op == CY_SPI_RD_OP) {
+> > +		for (tries = CY_NUM_RETRY; tries; tries--) {
+> > +			retval = cyttsp_spi_xfer_(op, ts, reg, buf, length);
+> > +			if (retval == 0)
+> > +				break;
+> > +			else
+> > +				msleep(20);
+> 
+> Why do we need retry in SPI case but do not need it when device is
+> connected via I2C? And not on writes?
+> 
+
+Fixed: The retries now are made in the cyttsp core so it works both for
+SPI and I2C.
+
+> > +
+> > +	if (retval == -EIO)
+> > +		return 0;
+> 
+> Why is -EIO special?
+> 
+
+Fixed: Now special EIO has been fixed to show meaning.
+
+> > +	else
+> > +		return retval;
+> > +}
+> > +
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+
+Best regards,
+
+Javier Martinez Canillas
 

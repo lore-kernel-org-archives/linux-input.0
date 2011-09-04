@@ -1,75 +1,29 @@
-From: Daniel Drake <dsd@laptop.org>
-Subject: Re: [PATCH v4 1/2] Input: enable i8042-level wakeup control
-Date: Sat, 3 Sep 2011 13:45:25 +0100
-Message-ID: <CAMLZHHQ_ErVVg0TqVuaA=R0SbYdn=htMN+2rcTEEqaF-i9LC4w@mail.gmail.com>
-References: <20110802154916.624619D401C@zog.reactivated.net>
-	<20110803065920.GC23399@core.coreip.homeip.net>
-	<CAMLZHHTTXvThE5bWfyjJu-UFJbaKAhzORKWV8ay4RZW-ZVifLg@mail.gmail.com>
-	<20110803184332.GA17880@core.coreip.homeip.net>
-	<CAMLZHHTnTTbD7mn_QsjwyFZ=XU6paddrtXEVuLYossk9qBGFfw@mail.gmail.com>
-	<CAMLZHHTie_u40NZ40o+LCwffk=3LbY96YTwxQt5wcVtbTc53qg@mail.gmail.com>
-	<20110817070351.GE29361@core.coreip.homeip.net>
+From: Peter Chow <petertse26@netvigator.com>
+Subject: Dear Friend Can I Trust You?
+Date: Sun, 4 Sep 2011 11:28:51 +0800 (HKT)
+Message-ID: <1367523858.823826.1315106931381.JavaMail.root__44666.9468925849$1315107683$gmane$org@yzbmbs01>
+Reply-To: Peter Chow <pchoww56@yahoo.com.hk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:49674 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751091Ab1ICMpZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Sep 2011 08:45:25 -0400
-Received: by gya6 with SMTP id 6so2518758gya.19
-        for <linux-input@vger.kernel.org>; Sat, 03 Sep 2011 05:45:25 -0700 (PDT)
-In-Reply-To: <20110817070351.GE29361@core.coreip.homeip.net>
+Received: from wobosm02.netvigator.com ([219.76.94.18]:41351 "EHLO
+	wobosm02.netvigator.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753052Ab1IDDkw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Sep 2011 23:40:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, rjw@sisk.pl, dilinger@queued.net, pgf@laptop.org
 
-Hi,
+Dear Friend,
 
-Sorry for the delay in replying to this - I took sime time off.
+I bring you greetings. I am PETER CHOW, I work with BANK OF CHINA, HONG KONG. I have a Business Proposal of $17.3M for you to handle with me from my bank.I need you to assist me in executing this Business Project from Hong Kong to your country.I need to know if you will be able to handle this with me before I explain to you in details. Should you be interested please send me the required information below;
 
+(1). Full Names:
+(2). Current Residential Address/Country:
+(3). Private Telephone Number:
+(4). Age:
 
-On Wed, Aug 17, 2011 at 8:03 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> OK, so we have the following scenario:
->
-> - we do not need to worry about SND and LED on OLPC;
->
-> - we do not need to worry about releasing the key that was pressed
-> =A0when we went to sleep because they system would not go to sleep wh=
-ile
-> =A0there is a key pressed. So the code in input_dev_resume() won't
-> =A0actually release any keys unless a key was held pressed and we for=
-ced
-> =A0system to sleep somehow.
->
-> - we need to make sure we do not loose key press (and following event=
-s)
-> =A0when we are waking up.
+I will want you to reach me on my private e-mail : (pchoww56@yahoo.com.hk) .Finally after that I shall provide you with more information.
 
-Yes, that seems accurate, with one more addition:
-
-- we need to make sure we do not loose mouse button press or mouse
-movement (and following events) when we are waking up.
-
-> Can atkbd driver stash away serio byte data (when not in command mode=
-)
-> and replay it when pm notifier signals us that resume process is done=
-?
-
-I'm having trouble understanding this suggestion or relating it to the
-problems in question and the previous patches posted. Are you
-suggesting stashing of data that is sent from the host  to the
-keyboard, or from the keyboard to the host? How does this solve our
-issues? What about the mouse?
-
-How is it going to avoid the input-level issues?
-
-Thanks,
-Daniel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Peter Chow

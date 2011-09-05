@@ -1,54 +1,759 @@
-From: =?utf-8?B?5q+P5aSp6YO95pyJ5paw5Lmw5a62?= <admin@k2construction.biz>
-Subject: =?utf-8?B?5pyA5paw5bm/5Lqk5Lya5Lmw5a625bqTKzUwMOS4h+a1t+WkluS5sOWutui1hOa6kCs=?=
-	=?utf-8?B?6YKu5Lu25Y+R6YCB5pa55qGIPeavj+WkqemDveacieaWsOS5sOWutuWbnuWkje+8gQ==?=
-Date: Mon, 5 Sep 2011 04:03:44 +0000 (UTC)
-Message-ID: <20111001172706770168@k2construction.biz>
-Reply-To: <1339625218@qq.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH v5 7/8] Input: elantech - add v3 hardware support
+Date: Mon, 5 Sep 2011 12:35:28 +0800
+Message-ID: <CAGS+omCTDb-y7Gut=KgU5wz70R9=75gkmruYpOOS5JUECOK_UA@mail.gmail.com>
+References: <1315189007-2179-1-git-send-email-jj_ding@emc.com.tw> <1315189007-2179-8-git-send-email-jj_ding@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.k2construction.biz ([173.190.230.161]:38428 "EHLO
-	k2construction.biz" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1749667Ab1IEEDC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2011 00:03:02 -0400
-Date: Sat, 1 Oct 2011 17:26:54 +0800
+Received: from smtp-out.google.com ([216.239.44.51]:55696 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750717Ab1IEEfv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2011 00:35:51 -0400
+Received: from wpaz29.hot.corp.google.com (wpaz29.hot.corp.google.com [172.24.198.93])
+	by smtp-out.google.com with ESMTP id p854Zn6B003838
+	for <linux-input@vger.kernel.org>; Sun, 4 Sep 2011 21:35:49 -0700
+Received: from iagk10 (iagk10.prod.google.com [10.12.212.10])
+	by wpaz29.hot.corp.google.com with ESMTP id p854ZaDG016481
+	(version=TLSv1/SSLv3 cipher=RC4-SHA bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Sun, 4 Sep 2011 21:35:48 -0700
+Received: by iagk10 with SMTP id k10so7335860iag.2
+        for <linux-input@vger.kernel.org>; Sun, 04 Sep 2011 21:35:48 -0700 (PDT)
+In-Reply-To: <1315189007-2179-8-git-send-email-jj_ding@emc.com.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: JJ Ding <jj_ding@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Huang <aaron_huang@emc.com.tw>, Tom Lin <tom_lin@emc.com.tw>, =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>, Chase Douglas <chase.douglas@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Alessandro Rubini <rubini@cvml.unipv.it>
 
-NTAw5LiH5rW35aSW5Lmw5a626LWE5rqQK+mCruS7tuWPkemAgeaWueahiCvmtbflpJbkubDlrrZF
-bWFpbOaQnOe0ouacuj3mr4/lpKnpg73mnInlrqLmiLflm57lpI3vvIENCjUwMOS4h+a1t+WkluS5
-sOWutui1hOa6kCvpgq7ku7blj5HpgIHmlrnmoYgr5rW35aSW5Lmw5a62RW1haWzmkJzntKLmnLo9
-5q+P5aSp6YO95pyJ5a6i5oi35Zue5aSN77yBDQoNCjHjgIE1MDDkuIfkubDlrrbotYTmupDvvJog
-6LWg6YCB55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5pu05pawICjlj6/ku6XmjInnhafmgqjn
-moTkuqflk4Hmj5Dlj5blh7rmnaXvvIzmm7Tnsr7lh4blvIDlj5Ep44CCIA0KMuOAgei2hee6p+a1
-t+WkluS5sOWutkVtYWls5pCc57Si5py677yaIOWGhee9ruS6hjYwMOS4h+ihjOS4muWFs+mUruiv
-je+8jOagueaNrumVv+WwvuivjeaQnOe0ou+8jOe7k+aenOabtOeyvuehruWMuemFje+8m+avj+Wk
-qeiDveaQnOe0ojEtMuS4h+S7peS4iuS5sOWutuecn+WunkVNQUlM77yM5oiQ5Y2V546H6auY44CC
-IA0KM+OAgee+pOWPkei9r+S7tu+8miDmk43kvZznroDljZXvvIzlip/og73lvLrlpKfvvIzmqKHk
-u7/kurrlt6Xmk43kvZzmqKHlvI/vvIzliLDovr7njofpq5jvvIzml6Xlj5HpgIE15LiH5bCB5Lul
-5LiK44CCIA0KIA0K5pSv5oyB5pSv5LuY5a6d5ouF5L+d5Lqk5piTICjlhYjlj5HotKflubblrono
-o4Xorr7nva7nvqTlj5Hova/ku7bvvIznhLblkI7ku5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDp
-ob7omZHjgIINCg0K6K+36IGU57O777yaDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUy
-MThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUTox
-MzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1h
-aWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThA
-cXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQoNCuWFjei0
-uei1oOmAgToNCjHjgIHotoXnuqfmtbflpJbkubDlrrbmkJzntKLmnLos5Y+v5Lul6L275p2+5omr
-5o+P5Ye6IDUwMC0xMDAw5LiH5Lmw5a62RW1haWzvvIzlu7rnq4voh6rlt7HnmoTokKXplIDmlbDm
-ja7lupPjgIINCjLjgIEyMDA55bm05rW35YWz5o+Q5Y2V5pWw5o2ucGllcnPniYjmlbDmja4gMeWN
-g+S4h+OAgg0KM+OAgTIwMTHmmKXlraMxMDnlsYrlub/kuqTkvJrkubDlrrbnjrDlnLror6Lnm5jm
-lbDmja7lupPmlrDpspzlh7rngonvvIzotoXnuqfmlrDpspzkubDlrrbvvIzmlrDpspzmlbDmja7v
-vIzlrrnmmJPmiJDljZXvvIEgDQo044CBMjAwOOW5tOiHszIwMTDlubQg5pil5a2jK+eni+Wto+W5
-v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEwNiAxMDcgMTA4IOWFseWFreWxiu+8
-jOWFsTEyMC425LiH5pWw5o2u44CCIA0KNeOAgeacgOaWsOWFqOeQg+S5sOWutuW6kyzlhbE0NTE2
-NjDmnaHmlbDmja7vvIzmr4/kuKrlnYfmnIlFbWFpbOOAgg0KNuOAgTIwMTDlubTlm73pmYXkv4Pp
-lIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3RvcnnvvIzp
-nZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjfjgIEyMDEw5bm05Yiw6aaZ5riv6YeH6LSt55qE
-5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLkuIfmlbDm
-ja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjjjgIExMDDkuIfmnaHlm73lpJbotLjmmJPo
-r6Lnm5jvvIzmr4/kuKrlnYfmnIlFbWFpbOOAgg0KOeOAgeS5sOWutui1hOa6kOabtOaWsOS4reOA
-guOAguOAgg0K5YWo6YOo6YO95pyJ44CCDQogDQo=
+Hi JJ,
 
+On Mon, Sep 5, 2011 at 10:16 AM, JJ Ding <jj_ding@emc.com.tw> wrote:
+>
+> v3 hardware's packet format is almost identical to v2 (one/three fing=
+er touch),
+> except when sensing two finger touch, the hardware sends 12 bytes of =
+data.
+>
+> Signed-off-by: JJ Ding <jj_ding@emc.com.tw>
+> Acked-by: Daniel Kurtz <djkurtz@chromium.org>
+> Acked-by: =C9ric Piel <eric.piel@tremplin-utc.net>
+> ---
+> =A0Documentation/input/elantech.txt | =A0117 +++++++++++++++++++---
+> =A0drivers/input/mouse/elantech.c =A0 | =A0204 ++++++++++++++++++++++=
+++++++++++++---
+> =A0drivers/input/mouse/elantech.h =A0 | =A0 12 +++
+> =A03 files changed, 304 insertions(+), 29 deletions(-)
+>
+> diff --git a/Documentation/input/elantech.txt b/Documentation/input/e=
+lantech.txt
+> index bce9941..cee08ee 100644
+> --- a/Documentation/input/elantech.txt
+> +++ b/Documentation/input/elantech.txt
+> @@ -16,15 +16,22 @@ Contents
+>
+> =A01. Introduction
+> =A02. Extra knobs
+> - 3. Hardware version 1
+> - =A0 =A03.1 Registers
+> - =A0 =A03.2 Native relative mode 4 byte packet format
+> - =A0 =A03.3 Native absolute mode 4 byte packet format
+> - 4. Hardware version 2
+> + 3. Differentiating hardware versions
+> + 4. Hardware version 1
+> =A0 =A0 4.1 Registers
+> - =A0 =A04.2 Native absolute mode 6 byte packet format
+> - =A0 =A0 =A0 =A04.2.1 One finger touch
+> - =A0 =A0 =A0 =A04.2.2 Two finger touch
+> + =A0 =A04.2 Native relative mode 4 byte packet format
+> + =A0 =A04.3 Native absolute mode 4 byte packet format
+> + 5. Hardware version 2
+> + =A0 =A05.1 Registers
+> + =A0 =A05.2 Native absolute mode 6 byte packet format
+> + =A0 =A0 =A0 =A05.2.1 Parity checking and packet re-synchronization
+> + =A0 =A0 =A0 =A05.2.2 One/Three finger touch
+> + =A0 =A0 =A0 =A05.2.3 Two finger touch
+> + 6. Hardware version 3
+> + =A0 =A06.1 Registers
+> + =A0 =A06.2 Native absolute mode 6 byte packet format
+> + =A0 =A0 =A0 =A06.2.1 One/Three finger touch
+> + =A0 =A0 =A0 =A06.2.2 Two finger touch
+>
+>
+>
+> @@ -375,7 +382,7 @@ For all the other ones, there are just a few cons=
+tant bits:
+>
+> =A0In case an error is detected, all the packets are shifted by one (=
+and packet[0] is discarded).
+>
+> -5.2.1 One/Three finger touch
+> +5.2.2 One/Three finger touch
+> =A0 =A0 =A0 ~~~~~~~~~~~~~~~~
+>
+> =A0byte 0:
+> @@ -384,7 +391,7 @@ byte 0:
+> =A0 =A0 =A0 =A0 n1 =A0n0 =A0w3 =A0w2 =A0 . =A0 . =A0 R =A0 L
+>
+> =A0 =A0 =A0 =A0 =A0L, R =3D 1 when Left, Right mouse button pressed
+> - =A0 =A0 =A0 =A0 n1..n0 =3D numbers of fingers on touchpad
+> + =A0 =A0 =A0 =A0 n1..n0 =3D number of fingers on touchpad
+>
+> =A0byte 1:
+>
+> @@ -432,7 +439,7 @@ byte 5:
+> =A0 =A0 =A0 =A0 =A0y11..y0 =3D absolute y value (vertical)
+>
+>
+> -4.2.2 Two finger touch
+> +5.2.3 Two finger touch
+> =A0 =A0 =A0 ~~~~~~~~~~~~~~~~
+>
+> =A0Note that the two pairs of coordinates are not exactly the coordin=
+ates of the
+> @@ -446,7 +453,7 @@ byte 0:
+> =A0 =A0 =A0 =A0 n1 =A0n0 =A0ay8 ax8 =A0. =A0 . =A0 R =A0 L
+>
+> =A0 =A0 =A0 =A0 =A0L, R =3D 1 when Left, Right mouse button pressed
+> - =A0 =A0 =A0 =A0 n1..n0 =3D numbers of fingers on touchpad
+> + =A0 =A0 =A0 =A0 n1..n0 =3D number of fingers on touchpad
+>
+> =A0byte 1:
+>
+> @@ -480,3 +487,89 @@ byte 5:
+> =A0 =A0 =A0 =A0 by7 by8 by5 by4 by3 by2 by1 by0
+>
+> =A0 =A0 =A0 =A0 =A0by8..by0 =3D upper-right finger absolute y value
+> +
+> +////////////////////////////////////////////////////////////////////=
+/////////
+> +
+> +6. Hardware version 3
+> + =A0 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +6.1 Registers
+> + =A0 =A0~~~~~~~~~
+> +* reg_10
+> +
+> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
+> + =A0 =A0 =A0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 0 =A0 A
+> +
+> + =A0 =A0 =A0 =A0 A: 1 =3D enable absolute tracking
+> +
+> +6.2 Native absolute mode 6 byte packet format
+> + =A0 =A0~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> +1 and 3 finger touch shares the same 6-byte packet format, except th=
+at
+> +3 finger touch only reports the position of the center of all three =
+fingers.
+> +
+> +Firmware would send 12 bytes of data for 2 finger touch.
+> +
+> +Note on debounce:
+> +In case the box has unstable power supply or other electricity issue=
+s, or
+> +when number of finger changes, F/W would send "debounce packet" to i=
+nform
+> +driver that the hardware is in debounce status.
+> +The debouce packet has the following signature:
+> + =A0 =A0byte 0: 0xc4
+> + =A0 =A0byte 1: 0xff
+> + =A0 =A0byte 2: 0xff
+> + =A0 =A0byte 3: 0x02
+> + =A0 =A0byte 4: 0xff
+> + =A0 =A0byte 5: 0xff
+> +When we encounter this kind of packet, we just ignore it.
+> +
+> +6.2.1 One/Three finger touch
+> + =A0 =A0 =A0~~~~~~~~~~~~~~~~~~~~~~
+> +
+> +byte 0:
+> +
+> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
+> + =A0 =A0 =A0 =A0n1 =A0n0 =A0w3 =A0w2 =A0 0 =A0 1 =A0 R =A0 L
+> +
+> + =A0 =A0 =A0 =A0L, R =3D 1 when Left, Right mouse button pressed
+> + =A0 =A0 =A0 =A0n1..n0 =3D number of fingers on touchpad
+> +
+> +byte 1:
+> +
+> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
+> + =A0 =A0 =A0 =A0p7 =A0p6 =A0p5 =A0p4 x11 x10 =A0x9 =A0x8
+> +
+> +byte 2:
+> +
+> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
+> + =A0 =A0 =A0 =A0x7 =A0x6 =A0x5 =A0x4 =A0x3 =A0x2 =A0x1 =A0x0
+> +
+> + =A0 =A0 =A0 =A0x11..x0 =3D absolute x value (horizontal)
+> +
+> +byte 3:
+> +
+> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
+> + =A0 =A0 =A0 =A0 0 =A0 0 =A0w1 =A0w0 =A0 0 =A0 0 =A0 1 =A0 0
+> +
+> + =A0 =A0 =A0 =A0 w3..w0 =3D width of the finger touch
+> +
+> +byte 4:
+> +
+> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
+> + =A0 =A0 =A0 =A0p3 =A0p1 =A0p2 =A0p0 =A0y11 y10 y9 =A0y8
+> +
+> + =A0 =A0 =A0 =A0p7..p0 =3D pressure
+> +
+> +byte 5:
+> +
+> + =A0 bit =A0 7 =A0 6 =A0 5 =A0 4 =A0 3 =A0 2 =A0 1 =A0 0
+> + =A0 =A0 =A0 =A0y7 =A0y6 =A0y5 =A0y4 =A0y3 =A0y2 =A0y1 =A0y0
+> +
+> + =A0 =A0 =A0 =A0y11..y0 =3D absolute y value (vertical)
+> +
+> +6.2.2 Two finger touch
+> + =A0 =A0 =A0~~~~~~~~~~~~~~~~
+> +
+> +The packet format is exactly the same for two finger touch, except t=
+he hardware
+> +sends two 6 byte packets. The first packet contains data for the fir=
+st finger,
+> +the second packet has data for the second finger. So for two finger =
+touch a
+> +total of 12 bytes are sent.
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
+ntech.c
+> index 2ae7c49..c4ceefd 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -108,6 +108,16 @@ static int elantech_read_reg(struct psmouse *psm=
+ouse, unsigned char reg,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rc =3D -1;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+> +
+> + =A0 =A0 =A0 case 3:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (elantech_ps2_command(psmouse, NULL,=
+ ETP_PS2_CUSTOM_COMMAND) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, ETP_REGISTER_READWRITE) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, ETP_PS2_CUSTOM_COMMAND) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, reg) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, p=
+aram, PSMOUSE_CMD_GETINFO)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rc =3D -1;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0if (rc)
+> @@ -154,6 +164,18 @@ static int elantech_write_reg(struct psmouse *ps=
+mouse, unsigned char reg,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rc =3D -1;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+> +
+> + =A0 =A0 =A0 case 3:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (elantech_ps2_command(psmouse, NULL,=
+ ETP_PS2_CUSTOM_COMMAND) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, ETP_REGISTER_READWRITE) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, ETP_PS2_CUSTOM_COMMAND) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, reg) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, ETP_PS2_CUSTOM_COMMAND) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, val) ||
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_ps2_command(psmouse, N=
+ULL, PSMOUSE_CMD_SETSCALE11)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rc =3D -1;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0if (rc)
+> @@ -350,6 +372,84 @@ static void elantech_report_absolute_v2(struct p=
+smouse *psmouse)
+> =A0 =A0 =A0 =A0input_sync(dev);
+> =A0}
+>
+> +/*
+> + * Interpret complete data packets and report absolute mode input ev=
+ents for
+> + * hardware version 3. (12 byte packets for two fingers)
+> + */
+> +static void elantech_report_absolute_v3(struct psmouse *psmouse,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 int packet_type)
+> +{
+> + =A0 =A0 =A0 struct input_dev *dev =3D psmouse->dev;
+> + =A0 =A0 =A0 struct elantech_data *etd =3D psmouse->private;
+> + =A0 =A0 =A0 unsigned char *packet =3D psmouse->packet;
+> + =A0 =A0 =A0 unsigned int fingers =3D 0, x1 =3D 0, y1 =3D 0, x2 =3D =
+0, y2 =3D 0;
+> + =A0 =A0 =A0 unsigned int width =3D 0, pres =3D 0;
+> +
+> + =A0 =A0 =A0 /* byte 0: n1 =A0n0 =A0 . =A0 . =A0 . =A0 . =A0 R =A0 L=
+ */
+> + =A0 =A0 =A0 fingers =3D (packet[0] & 0xc0) >> 6;
+> +
+> + =A0 =A0 =A0 switch (fingers) {
+> + =A0 =A0 =A0 case 3:
+> + =A0 =A0 =A0 case 1:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 1: =A0. =A0 . =A0 . =A0 . =A0=
+x11 x10 x9 =A0x8
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 2: x7 =A0x6 =A0x5 =A0x4 =A0x4=
+ =A0x2 =A0x1 =A0x0
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 x1 =3D ((packet[1] & 0x0f) << 8) | pack=
+et[2];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 4: =A0. =A0 . =A0 . =A0 . =A0=
+y11 y10 y9 =A0y8
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 5: y7 =A0y6 =A0y5 =A0y4 =A0y3=
+ =A0y2 =A0y1 =A0y0
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 y1 =3D etd->y_max - (((packet[4] & 0x0f=
+) << 8) | packet[5]);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> +
+> + =A0 =A0 =A0 case 2:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (packet_type =3D=3D PACKET_V3_HEAD) =
+{
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 1: =A0 . =A0 =
+=A0. =A0 =A0. =A0 =A0. =A0ax11 ax10 ax9 =A0ax8
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 2: ax7 =A0ax6=
+ =A0ax5 =A0ax4 =A0ax3 =A0ax2 =A0ax1 =A0ax0
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->prev_x =3D ((packe=
+t[1] & 0x0f) << 8) | packet[2];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 4: =A0 . =A0 =
+=A0. =A0 =A0. =A0 =A0. =A0ay11 ay10 ay9 =A0ay8
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* byte 5: ay7 =A0ay6=
+ =A0ay5 =A0ay4 =A0ay3 =A0ay2 =A0ay1 =A0ay0
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->prev_y =3D etd->y_=
+max -
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (((pack=
+et[4] & 0x0f) << 8) | packet[5]);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* wait for next pack=
+et
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* packet_type =3D=3D PACKET_V3_TAIL */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 x1 =3D etd->prev_x;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 y1 =3D etd->prev_y;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 x2 =3D ((packet[1] & 0x0f) << 8) | pack=
+et[2];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 y2 =3D etd->y_max - (((packet[4] & 0x0f=
+) << 8) | packet[5]);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 pres =3D (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4)=
+;
+> + =A0 =A0 =A0 width =3D ((packet[0] & 0x30) >> 2) | ((packet[3] & 0x3=
+0) >> 4);
+> +
+> + =A0 =A0 =A0 input_report_key(dev, BTN_TOUCH, fingers !=3D 0);
+> + =A0 =A0 =A0 if (fingers !=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(dev, ABS_X, x1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(dev, ABS_Y, y1);
+> + =A0 =A0 =A0 }
+> + =A0 =A0 =A0 elantech_report_semi_mt_data(dev, fingers, x1, y1, x2, =
+y2);
 
+Originally, v3 was using semi-mt, which reported corner coordinates of
+a box containing at least two of the N touches on the touchpad.  I
+thought this was due to hardware limitation.
+
+If the hardware really can report true positions for (up to) 3
+contacts, then using pure MT-B is a good approach.  This driver still
+seems to mix semi-mt and MT-B together a bit.
+
+Can you report all three contacts in their own slots, 0, 1 and 2,
+instead of just reoprting two of them with 0,1?
+
+Also, when reporting the 'legacy single touch' coordinate (ABS_X,
+ABS_Y), please use:
+input_mt_report_pointer_emulation(), instead of always reporting the
+last (x1,y1).  Otherwise the single touch point will bounce back and
+forth between 1st and 3rd touch.
+
+> + =A0 =A0 =A0 input_report_key(dev, BTN_TOOL_FINGER, fingers =3D=3D 1=
+);
+> + =A0 =A0 =A0 input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers =3D=3D=
+ 2);
+> + =A0 =A0 =A0 input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers =3D=3D=
+ 3);
+
+Use input_mt_report_pointer_emulation() with use_count =3D true.   This
+will also report ABS_PRESURE (but not ABS_TOOL_WIDTH, unfortunately).
+
+> + =A0 =A0 =A0 input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+> + =A0 =A0 =A0 input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+> + =A0 =A0 =A0 input_report_abs(dev, ABS_PRESSURE, pres);
+> + =A0 =A0 =A0 input_report_abs(dev, ABS_TOOL_WIDTH, width);
+> +
+> + =A0 =A0 =A0 input_sync(dev);
+> +}
+> +
+> =A0static int elantech_packet_check_v1(struct psmouse *psmouse)
+> =A0{
+> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
+> @@ -403,11 +503,37 @@ static int elantech_packet_check_v2(struct psmo=
+use *psmouse)
+> =A0}
+>
+> =A0/*
+> + * We check the constant bits to determine what packet type we get,
+> + * so packet checking is mandatory for v3 hardware.
+> + */
+> +static int elantech_packet_check_v3(struct psmouse *psmouse)
+> +{
+> + =A0 =A0 =A0 const u8 debounce_packet[] =3D { 0xc4, 0xff, 0xff, 0x02=
+, 0xff, 0xff };
+> + =A0 =A0 =A0 unsigned char *packet =3D psmouse->packet;
+> +
+> + =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0* check debounce first, it has the same signature in=
+ byte 0
+> + =A0 =A0 =A0 =A0* and byte 3 as PACKET_V3_HEAD.
+> + =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 if (!memcmp(packet, debounce_packet, sizeof(debounce_pa=
+cket)))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PACKET_DEBOUNCE;
+> +
+> + =A0 =A0 =A0 if ((packet[0] & 0x0c) =3D=3D 0x04 && (packet[3] & 0xcf=
+) =3D=3D 0x02)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PACKET_V3_HEAD;
+> +
+> + =A0 =A0 =A0 if ((packet[0] & 0x0c) =3D=3D 0x0c && (packet[3] & 0xce=
+) =3D=3D 0x0c)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PACKET_V3_TAIL;
+> +
+> + =A0 =A0 =A0 return PACKET_UNKNOWN;
+> +}
+> +
+> +/*
+> =A0* Process byte stream from mouse and handle complete packets
+> =A0*/
+> =A0static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse=
+)
+> =A0{
+> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
+> + =A0 =A0 =A0 int packet_type;
+>
+> =A0 =A0 =A0 =A0if (psmouse->pktcnt < psmouse->pktsize)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return PSMOUSE_GOOD_DATA;
+> @@ -429,6 +555,18 @@ static psmouse_ret_t elantech_process_byte(struc=
+t psmouse *psmouse)
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0elantech_report_absolute_v2(psmouse);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+> +
+> + =A0 =A0 =A0 case 3:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 packet_type =3D elantech_packet_check_v=
+3(psmouse);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* ignore debounce */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (packet_type =3D=3D PACKET_DEBOUNCE)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PSMOUSE_FULL_PAC=
+KET;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (packet_type =3D=3D PACKET_UNKNOWN)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PSMOUSE_BAD_DATA=
+;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 elantech_report_absolute_v3(psmouse, pa=
+cket_type);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0return PSMOUSE_FULL_PACKET;
+> @@ -463,8 +601,15 @@ static int elantech_set_absolute_mode(struct psm=
+ouse *psmouse)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0elantech_write_reg(psmouse, 0x=
+11, etd->reg_11) ||
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0elantech_write_reg(psmouse, 0x=
+21, etd->reg_21)) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rc =3D -1;
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> +
+> + =A0 =A0 =A0 case 3:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->reg_10 =3D 0x0b;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (elantech_write_reg(psmouse, 0x10, e=
+td->reg_10))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 rc =3D -1;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0if (rc =3D=3D 0) {
+> @@ -498,11 +643,12 @@ static int elantech_set_absolute_mode(struct ps=
+mouse *psmouse)
+> =A0 =A0 =A0 =A0return rc;
+> =A0}
+>
+> -static void set_range(struct psmouse *psmouse, unsigned int *x_min,
+> +static int set_range(struct psmouse *psmouse, unsigned int *x_min,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int *y_min, unsigned=
+ int *x_max,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int *y_max)
+> =A0{
+> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
+> + =A0 =A0 =A0 unsigned char param[3];
+> =A0 =A0 =A0 =A0int i;
+>
+> =A0 =A0 =A0 =A0switch (etd->hw_version) {
+> @@ -530,19 +676,30 @@ static void set_range(struct psmouse *psmouse, =
+unsigned int *x_min,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*y_max =3D (etd->capab=
+ilities[2] - i) * 64;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+> +
+> + =A0 =A0 =A0 case 3:
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (synaptics_send_cmd(psmouse, ETP_FW_=
+ID_QUERY, param))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 *x_max =3D (0x0f & param[0]) << 8 | par=
+am[1];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 *y_max =3D (0xf0 & param[0]) << 4 | par=
+am[2];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> =A0 =A0 =A0 =A0}
+> +
+> + =A0 =A0 =A0 return 0;
+> =A0}
+>
+> =A0/*
+> =A0* Set the appropriate event bits for the input subsystem
+> =A0*/
+> -static void elantech_set_input_params(struct psmouse *psmouse)
+> +static int elantech_set_input_params(struct psmouse *psmouse)
+> =A0{
+> =A0 =A0 =A0 =A0struct input_dev *dev =3D psmouse->dev;
+> =A0 =A0 =A0 =A0struct elantech_data *etd =3D psmouse->private;
+> =A0 =A0 =A0 =A0unsigned int x_min =3D 0, y_min =3D 0, x_max =3D 0, y_=
+max =3D 0;
+>
+> - =A0 =A0 =A0 set_range(psmouse, &x_min, &y_min, &x_max, &y_max);
+> + =A0 =A0 =A0 if (set_range(psmouse, &x_min, &y_min, &x_max, &y_max))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+>
+> =A0 =A0 =A0 =A0__set_bit(EV_KEY, dev->evbit);
+> =A0 =A0 =A0 =A0__set_bit(EV_ABS, dev->evbit);
+> @@ -570,6 +727,9 @@ static void elantech_set_input_params(struct psmo=
+use *psmouse)
+>
+> =A0 =A0 =A0 =A0case 2:
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__set_bit(BTN_TOOL_QUADTAP, dev->keybi=
+t);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(INPUT_PROP_SEMI_MT, dev->prop=
+bit);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* fall through */
+> + =A0 =A0 =A0 case 3:
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_X, x_min=
+, x_max, 0, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_Y, y_min=
+, y_max, 0, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (etd->reports_pressure) {
+> @@ -578,7 +738,6 @@ static void elantech_set_input_params(struct psmo=
+use *psmouse)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(d=
+ev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 ETP_WMAX_V2, 0, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 __set_bit(INPUT_PROP_SEMI_MT, dev->prop=
+bit);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_mt_init_slots(dev, 2);
+
+Should this be 3?
+
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_MT_POSIT=
+ION_X, x_min, x_max, 0, 0);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_set_abs_params(dev, ABS_MT_POSIT=
+ION_Y, y_min, y_max, 0, 0);
+> @@ -586,6 +745,8 @@ static void elantech_set_input_params(struct psmo=
+use *psmouse)
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0etd->y_max =3D y_max;
+> +
+> + =A0 =A0 =A0 return 0;
+> =A0}
+>
+> =A0struct elantech_attr_data {
+> @@ -727,7 +888,8 @@ int elantech_detect(struct psmouse *psmouse, bool=
+ set_properties)
+> =A0 =A0 =A0 =A0 * Report this in case there are Elantech models that =
+use a different
+> =A0 =A0 =A0 =A0 * set of magic numbers
+> =A0 =A0 =A0 =A0 */
+> - =A0 =A0 =A0 if (param[0] !=3D 0x3c || param[1] !=3D 0x03 || param[2=
+] !=3D 0xc8) {
+> + =A0 =A0 =A0 if (param[0] !=3D 0x3c || param[1] !=3D 0x03 ||
+> + =A0 =A0 =A0 =A0 =A0 (param[2] !=3D 0xc8 && param[2] !=3D 0x00)) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pr_debug("unexpected magic knock resul=
+t 0x%02x, 0x%02x, 0x%02x.\n",
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 param[0], param[1], p=
+aram[2]);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -1;
+> @@ -793,16 +955,16 @@ static int elantech_reconnect(struct psmouse *p=
+smouse)
+> =A0/*
+> =A0* determine hardware version and set some properties according to =
+it.
+> =A0*/
+> -static void elantech_set_properties(struct elantech_data *etd)
+> +static int elantech_set_properties(struct elantech_data *etd)
+> =A0{
+> - =A0 =A0 =A0 /*
+> - =A0 =A0 =A0 =A0* Assume every version greater than 0x020030 is new =
+EeePC style
+> - =A0 =A0 =A0 =A0* hardware with 6 byte packets, except 0x020600
+> - =A0 =A0 =A0 =A0*/
+> =A0 =A0 =A0 =A0if (etd->fw_version < 0x020030 || etd->fw_version =3D=3D=
+ 0x020600)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->hw_version =3D 1;
+> - =A0 =A0 =A0 else
+> + =A0 =A0 =A0 else if (etd->fw_version < 0x150600)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->hw_version =3D 2;
+> + =A0 =A0 =A0 else if ((etd->fw_version & 0x0f0000) >> 16 =3D=3D 5)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 etd->hw_version =3D 3;
+> + =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+>
+> =A0 =A0 =A0 =A0/*
+> =A0 =A0 =A0 =A0 * Turn on packet checking by default.
+> @@ -817,13 +979,15 @@ static void elantech_set_properties(struct elan=
+tech_data *etd)
+> =A0 =A0 =A0 =A0etd->jumpy_cursor =3D
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(etd->fw_version =3D=3D 0x020022 || et=
+d->fw_version =3D=3D 0x020600);
+>
+> - =A0 =A0 =A0 if (etd->hw_version =3D=3D 2) {
+> + =A0 =A0 =A0 if (etd->hw_version > 1) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* For now show extra debug informatio=
+n */
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->debug =3D 1;
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (etd->fw_version >=3D 0x020800)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->reports_pressure =
+=3D true;
+> =A0 =A0 =A0 =A0}
+> +
+> + =A0 =A0 =A0 return 0;
+> =A0}
+>
+> =A0/*
+> @@ -850,9 +1014,12 @@ int elantech_init(struct psmouse *psmouse)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pr_err("failed to query firmware versi=
+on.\n");
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto init_fail;
+> =A0 =A0 =A0 =A0}
+> -
+> =A0 =A0 =A0 =A0etd->fw_version =3D (param[0] << 16) | (param[1] << 8)=
+ | param[2];
+> - =A0 =A0 =A0 elantech_set_properties(etd);
+> +
+> + =A0 =A0 =A0 if (elantech_set_properties(etd)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("unknown hardware version, abort=
+ing...\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto init_fail;
+> + =A0 =A0 =A0 }
+> =A0 =A0 =A0 =A0pr_info("assuming hardware version %d "
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"(with firmware version 0x%02x%02x%02x=
+)\n",
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0etd->hw_version, param[0], param[1], p=
+aram[2]);
+> @@ -871,7 +1038,10 @@ int elantech_init(struct psmouse *psmouse)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto init_fail;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 elantech_set_input_params(psmouse);
+> + =A0 =A0 =A0 if (elantech_set_input_params(psmouse)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("failed to query touchpad range.=
+\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto init_fail;
+> + =A0 =A0 =A0 }
+>
+> =A0 =A0 =A0 =A0error =3D sysfs_create_group(&psmouse->ps2dev.serio->d=
+ev.kobj,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 &=
+elantech_attr_group);
+> @@ -883,7 +1053,7 @@ int elantech_init(struct psmouse *psmouse)
+> =A0 =A0 =A0 =A0psmouse->protocol_handler =3D elantech_process_byte;
+> =A0 =A0 =A0 =A0psmouse->disconnect =3D elantech_disconnect;
+> =A0 =A0 =A0 =A0psmouse->reconnect =3D elantech_reconnect;
+> - =A0 =A0 =A0 psmouse->pktsize =3D etd->hw_version =3D=3D 2 ? 6 : 4;
+> + =A0 =A0 =A0 psmouse->pktsize =3D etd->hw_version > 1 ? 6 : 4;
+>
+> =A0 =A0 =A0 =A0return 0;
+>
+> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/ela=
+ntech.h
+> index d9e6144..236c33c 100644
+> --- a/drivers/input/mouse/elantech.h
+> +++ b/drivers/input/mouse/elantech.h
+> @@ -16,6 +16,7 @@
+> =A0/*
+> =A0* Command values for Synaptics style queries
+> =A0*/
+> +#define ETP_FW_ID_QUERY =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A00x00
+> =A0#define ETP_FW_VERSION_QUERY =A0 =A0 =A0 =A0 =A0 0x01
+> =A0#define ETP_CAPABILITIES_QUERY =A0 =A0 =A0 =A0 0x02
+>
+> @@ -24,6 +25,7 @@
+> =A0*/
+> =A0#define ETP_REGISTER_READ =A0 =A0 =A0 =A0 =A0 =A0 =A00x10
+> =A0#define ETP_REGISTER_WRITE =A0 =A0 =A0 =A0 =A0 =A0 0x11
+> +#define ETP_REGISTER_READWRITE =A0 =A0 =A0 =A0 0x00
+>
+> =A0/*
+> =A0* Hardware version 2 custom PS/2 command value
+> @@ -79,6 +81,14 @@
+> =A0#define ETP_WMIN_V2 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00
+> =A0#define ETP_WMAX_V2 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A015
+>
+> +/*
+> + * v3 hardware has 2 kinds of packet types.
+> + */
+> +#define PACKET_UNKNOWN =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x01
+> +#define PACKET_DEBOUNCE =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A00x02
+> +#define PACKET_V3_HEAD =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x03
+> +#define PACKET_V3_TAIL =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x04
+> +
+> =A0struct elantech_data {
+> =A0 =A0 =A0 =A0unsigned char reg_10;
+> =A0 =A0 =A0 =A0unsigned char reg_11;
+> @@ -98,6 +108,8 @@ struct elantech_data {
+> =A0 =A0 =A0 =A0unsigned int fw_version;
+> =A0 =A0 =A0 =A0unsigned int single_finger_reports;
+> =A0 =A0 =A0 =A0unsigned int y_max;
+> + =A0 =A0 =A0 unsigned int prev_x;
+> + =A0 =A0 =A0 unsigned int prev_y;
+> =A0 =A0 =A0 =A0unsigned char parity[256];
+> =A0};
+>
+> --
+> 1.7.4.1
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
